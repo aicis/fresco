@@ -87,8 +87,8 @@ public class LPSolverTests {
 							ExpFromOIntFactory expFromOIntFactory = (ExpFromOIntFactory) provider;
 							PreprocessedExpPipeFactory expFactory = (PreprocessedExpPipeFactory) provider;
 							LPFactory lpFactory = new LPFactoryImpl(80, bnFactory, localInvFactory, numericBitFactory, expFromOIntFactory, expFactory);
-							File pattern = new File("lpinputs/pattern7.csv");
-							File program = new File("lpinputs/program7.csv");
+							File pattern = new File("src/test/resources/lp/pattern7.csv");
+							File program = new File("src/test/resources/lp/program7.csv");
 							LPInputReader inputreader = null;
 							try {
 								inputreader = PlainLPInputReader
