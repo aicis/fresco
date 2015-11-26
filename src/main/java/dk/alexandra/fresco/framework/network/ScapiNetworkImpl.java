@@ -173,7 +173,7 @@ public class ScapiNetworkImpl implements Network{
 	}
 
 	// We currently either use plain channels or auth+enc channels. Future
-	// verion may allow only auth.
+	// version may allow only auth.
 	@SuppressWarnings("unused")
 	private AuthenticatedChannel getAuthenticatedChannel(PlainChannel channel, String base64EncodedSSKey)
 			throws SecurityLevelException, InvalidKeyException {
@@ -271,7 +271,6 @@ public class ScapiNetworkImpl implements Network{
 	public void send(String channel, int partyId, Serializable data)
 			throws IOException {
 		if(partyId == this.conf.getMyId()) {
-			//TODO: Make multi-channel
 			this.queues.get(channel).add(data);
 			return;
 		}
@@ -284,12 +283,10 @@ public class ScapiNetworkImpl implements Network{
 		c.send(data);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public <T extends Serializable> T receive(String channel, int partyId) throws IOException {
-		//TODO: Make multi-channel
-
 		if(partyId == this.conf.getMyId()) {
-			//TODO: Make multi channel
 			Serializable res = this.queues.get(channel).poll();
 			if(res == null){
 				throw new MPCException("Self have not send anything on channel 1 before receive was called.");

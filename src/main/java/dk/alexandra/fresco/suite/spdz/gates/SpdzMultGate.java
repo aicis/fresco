@@ -41,7 +41,7 @@ import dk.alexandra.fresco.suite.spdz.datatypes.SpdzOInt;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzTriple;
 import dk.alexandra.fresco.suite.spdz.evaluation.strategy.SpdzProtocolSuite;
-import dk.alexandra.fresco.suite.spdz.storage.Storage;
+import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
 import dk.alexandra.fresco.suite.spdz.utils.Util;
 
 public class SpdzMultGate extends SpdzNativeProtocol implements MultProtocol {
@@ -85,7 +85,7 @@ public class SpdzMultGate extends SpdzNativeProtocol implements MultProtocol {
 			SCENetwork network) {
 		SpdzProtocolSuite spdzPii = SpdzProtocolSuite
 				.getInstance(resourcePool.getMyId());
-		Storage store = spdzPii.getStore(network.getThreadId());
+		SpdzStorage store = spdzPii.getStore(network.getThreadId());
 		int noOfPlayers = resourcePool.getNoOfParties();
 		switch (round) {
 		case 0:

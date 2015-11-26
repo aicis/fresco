@@ -510,7 +510,6 @@ public class FakeTripGen {
 	 */
 	public static void writeBits() throws IOException {
 		BigInteger bit;
-		BigInteger macBit;
 		List<FileChannel> channels = new LinkedList<FileChannel>();
 		for (int i = 0; i < numberOfParties; i++) {
 			File f = new File(bitsFilename + i);

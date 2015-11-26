@@ -24,7 +24,7 @@
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
  *******************************************************************************/
-package dk.alexandra.fresco.suite.spdz.storage.d142;
+package dk.alexandra.fresco.suite.spdz.storage;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -43,10 +43,9 @@ import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzTriple;
-import dk.alexandra.fresco.suite.spdz.storage.DataRetriever;
 import dk.alexandra.fresco.suite.spdz.utils.Util;
 
-public class NewDataRetriever implements DataRetriever {
+public class DataRetrieverImpl implements DataRetriever {
 
 	private Storage storage;
 	private String storageName;
@@ -71,7 +70,7 @@ public class NewDataRetriever implements DataRetriever {
 	private final String inputsFilename;
 	private final String bitsFilename;
 
-	public NewDataRetriever(ResourcePool rp, String triplepath,
+	public DataRetrieverImpl(ResourcePool rp, String triplepath,
 			String storageName) {
 		this.storage = rp.getStorage();
 		this.storageName = storageName;
@@ -111,7 +110,7 @@ public class NewDataRetriever implements DataRetriever {
 							+ path, e);
 		}
 		
-		BigInteger mod = this.storage.getObject(storageName, NewSpdzStorageConstants.MODULUS_KEY);
+		BigInteger mod = this.storage.getObject(storageName, SpdzStorageConstants.MODULUS_KEY);
 		if(mod != null) {
 			Reporter.info("Storage already containts SPDZ data. No new data will be added.");
 			return;
@@ -119,24 +118,24 @@ public class NewDataRetriever implements DataRetriever {
 		readGlobalData();
 		SpdzTriple triple;
 		while((triple = this.retrieveTriple()) != null) {
-			this.storage.putObject(storageName, NewSpdzStorageConstants.TRIPLE_KEY_PREFIX+tripleCounter, triple);
+			this.storage.putObject(storageName, SpdzStorageConstants.TRIPLE_KEY_PREFIX+tripleCounter, triple);
 			tripleCounter++;
 		}
 		SpdzSInt bit; 
 		while((bit = retrieveBit()) != null) {
-			this.storage.putObject(storageName, NewSpdzStorageConstants.BIT_KEY_PREFIX+bitCounter, bit);
+			this.storage.putObject(storageName, SpdzStorageConstants.BIT_KEY_PREFIX+bitCounter, bit);
 			bitCounter++;
 		}	
 		SpdzSInt[] expPipe;
 		while((expPipe = retrieveExpPipe()) != null) {
-			this.storage.putObject(storageName, NewSpdzStorageConstants.EXP_PIPE_KEY_PREFIX+expPipeCounter, expPipe);
+			this.storage.putObject(storageName, SpdzStorageConstants.EXP_PIPE_KEY_PREFIX+expPipeCounter, expPipe);
 			expPipeCounter++;
 		}
 		for(int i = 0; i < n; i++) {
 			SpdzInputMask inp;
 			int partyId = i+1;
 			while((inp = retrieveInputMask(partyId)) != null) {
-				this.storage.putObject(storageName, NewSpdzStorageConstants.INPUT_KEY_PREFIX+partyId+"_"+inputCounters[i], inp);
+				this.storage.putObject(storageName, SpdzStorageConstants.INPUT_KEY_PREFIX+partyId+"_"+inputCounters[i], inp);
 				inputCounters[i]++;
 			}
 		}
@@ -174,8 +173,8 @@ public class NewDataRetriever implements DataRetriever {
 		BigInteger modulus = new BigInteger(globalInfoReader.next());
 		BigInteger SSK = new BigInteger(globalInfoReader.next());
 		this.storage.putObject(storageName,
-				NewSpdzStorageConstants.MODULUS_KEY, modulus);
-		this.storage.putObject(storageName, NewSpdzStorageConstants.SSK_KEY,
+				SpdzStorageConstants.MODULUS_KEY, modulus);
+		this.storage.putObject(storageName, SpdzStorageConstants.SSK_KEY,
 				SSK);
 	}
 

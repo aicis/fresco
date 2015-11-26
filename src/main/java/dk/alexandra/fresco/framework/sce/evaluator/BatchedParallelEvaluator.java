@@ -99,6 +99,7 @@ public class BatchedParallelEvaluator implements ProtocolEvaluator {
 		try {
 			List<Future<Object>> futures = es.submitVMTasks(tasks);
 			for (Future<Object> f: futures) {
+				@SuppressWarnings("unused")
 				Object o = f.get();
 			}
 		} catch (InterruptedException e) {

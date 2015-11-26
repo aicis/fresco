@@ -39,7 +39,7 @@ import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.evaluation.strategy.SpdzProtocolSuite;
-import dk.alexandra.fresco.suite.spdz.storage.Storage;
+import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
 import dk.alexandra.fresco.suite.spdz.utils.Util;
 
 public class SpdzInputGate extends SpdzNativeProtocol implements CloseIntProtocol {
@@ -80,7 +80,7 @@ public class SpdzInputGate extends SpdzNativeProtocol implements CloseIntProtoco
 		int players = resourcePool.getNoOfParties();
 		SpdzProtocolSuite spdzPii = SpdzProtocolSuite
 				.getInstance(myId);
-		Storage storage = spdzPii.getStore(network.getThreadId());
+		SpdzStorage storage = spdzPii.getStore(network.getThreadId());
 		switch (round) {
 		case 0:
 			this.inputMask = storage.getSupplier().getNextInputMask(

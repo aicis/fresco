@@ -35,7 +35,7 @@ import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzTriple;
 import dk.alexandra.fresco.suite.spdz.storage.FakeTripGen;
-import dk.alexandra.fresco.suite.spdz.storage.d142.NewSpdzStorageConstants;
+import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageConstants;
 
 public class InitializeStorage {
 
@@ -53,8 +53,8 @@ public class InitializeStorage {
 
 		List<Storage> tmpStores = new ArrayList<Storage>();
 		for (Storage s : stores) {
-			if (s.getObject(NewSpdzStorageConstants.STORAGE_NAME_PREFIX + 1,
-					NewSpdzStorageConstants.MODULUS_KEY) == null) {
+			if (s.getObject(SpdzStorageConstants.STORAGE_NAME_PREFIX + 1,
+					SpdzStorageConstants.MODULUS_KEY) == null) {
 				tmpStores.add(s);
 			}
 		}
@@ -81,21 +81,21 @@ public class InitializeStorage {
 
 		for (dk.alexandra.fresco.framework.sce.resources.storage.Storage store : storages) {
 			for (int i = 1; i < noOfPlayers + 1; i++) {
-				String storageName = NewSpdzStorageConstants.STORAGE_NAME_PREFIX
+				String storageName = SpdzStorageConstants.STORAGE_NAME_PREFIX
 						+ i;
 				store.putObject(storageName,
-						NewSpdzStorageConstants.MODULUS_KEY, p);
+						SpdzStorageConstants.MODULUS_KEY, p);
 				store.putObject(storageName,
-						NewSpdzStorageConstants.SSK_KEY, alphaShares.get(i-1));
+						SpdzStorageConstants.SSK_KEY, alphaShares.get(i-1));
 			}
 			// triples
 			int tripleCounter = 0;
 			for (SpdzTriple[] triple : triples) {
 				for (int i = 0; i < noOfPlayers; i++) {
-					String storageName = NewSpdzStorageConstants.STORAGE_NAME_PREFIX
+					String storageName = SpdzStorageConstants.STORAGE_NAME_PREFIX
 							+ (i + 1);
 					store.putObject(storageName,
-							NewSpdzStorageConstants.TRIPLE_KEY_PREFIX
+							SpdzStorageConstants.TRIPLE_KEY_PREFIX
 									+ tripleCounter, triple[i]);
 				}
 				tripleCounter++;
@@ -108,9 +108,9 @@ public class InitializeStorage {
 				for (SpdzInputMask[] masks : inputMasks.get(towardsPlayer - 1)) {
 					// single shares of that input
 					for (int i = 0; i < noOfPlayers; i++) {
-						String storageName = NewSpdzStorageConstants.STORAGE_NAME_PREFIX
+						String storageName = SpdzStorageConstants.STORAGE_NAME_PREFIX
 								+ (i + 1);
-						String key = NewSpdzStorageConstants.INPUT_KEY_PREFIX
+						String key = SpdzStorageConstants.INPUT_KEY_PREFIX
 								+ towardsPlayer + "_" + inputCounters[i];
 						store.putObject(storageName, key, masks[i]);
 						inputCounters[i]++;
@@ -122,9 +122,9 @@ public class InitializeStorage {
 			int bitCounter = 0;
 			for (SpdzSInt[] bit : bits) {
 				for (int i = 0; i < noOfPlayers; i++) {
-					String storageName = NewSpdzStorageConstants.STORAGE_NAME_PREFIX
+					String storageName = SpdzStorageConstants.STORAGE_NAME_PREFIX
 							+ (i + 1);
-					String key = NewSpdzStorageConstants.BIT_KEY_PREFIX
+					String key = SpdzStorageConstants.BIT_KEY_PREFIX
 							+ bitCounter;
 					store.putObject(storageName, key, bit[i]);
 				}
@@ -135,9 +135,9 @@ public class InitializeStorage {
 			int expCounter = 0;
 			for(SpdzSInt[][] expPipe : expPipes) {
 				for (int i = 0; i < noOfPlayers; i++) {
-					String storageName = NewSpdzStorageConstants.STORAGE_NAME_PREFIX
+					String storageName = SpdzStorageConstants.STORAGE_NAME_PREFIX
 							+ (i + 1);
-					String key = NewSpdzStorageConstants.EXP_PIPE_KEY_PREFIX
+					String key = SpdzStorageConstants.EXP_PIPE_KEY_PREFIX
 							+ expCounter;
 					store.putObject(storageName, key, expPipe[i]);
 				}

@@ -54,13 +54,13 @@ import dk.alexandra.fresco.suite.spdz.gates.SpdzMultGate;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzOutputGate;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzOutputToAllGate;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzSubtractGate;
-import dk.alexandra.fresco.suite.spdz.storage.Storage;
+import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
 
 public class SpdzFactory implements BasicNumericFactory, PreprocessedNumericBitFactory,
 		PreprocessedExpPipeFactory, ExpFromOIntFactory, LocalInversionFactory{
 
 	private int maxBitLength;
-	private Storage storage;
+	private SpdzStorage storage;
 	private SecureRandom rand;
 	private int pID;
 
@@ -75,7 +75,7 @@ public class SpdzFactory implements BasicNumericFactory, PreprocessedNumericBitF
 	 *            different maxBitLength to increase performance.
 	 */
 	//TODO: Make SpdzProvider decoupled from the storage.
-	public SpdzFactory(Storage storage, int pID, int maxBitLength) {
+	public SpdzFactory(SpdzStorage storage, int pID, int maxBitLength) {
 		this.maxBitLength = maxBitLength;
 		rand = new SecureRandom();
 		this.storage = storage;

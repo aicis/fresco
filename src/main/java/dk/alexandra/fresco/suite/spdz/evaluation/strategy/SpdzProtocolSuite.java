@@ -51,10 +51,10 @@ import dk.alexandra.fresco.suite.spdz.datatypes.SpdzCommitment;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzCommitGate;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzOpenCommitGate;
-import dk.alexandra.fresco.suite.spdz.storage.Storage;
-import dk.alexandra.fresco.suite.spdz.storage.d142.NewDataRetriever;
-import dk.alexandra.fresco.suite.spdz.storage.d142.NewSpdzStorageConstants;
-import dk.alexandra.fresco.suite.spdz.storage.d142.SpdzNewStorage;
+import dk.alexandra.fresco.suite.spdz.storage.DataRetrieverImpl;
+import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageConstants;
+import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageImpl;
+import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
 import dk.alexandra.fresco.suite.spdz.utils.Util;
 
 public class SpdzProtocolSuite implements ProtocolSuite {
@@ -63,7 +63,7 @@ public class SpdzProtocolSuite implements ProtocolSuite {
 
 	private Network network;
 	private Random rand;
-	private Storage[] store;
+	private SpdzStorage[] store;
 	private ResourcePool rp;
 	private int gatesEvaluated = 0;
 	private int macCheckThreshold = 100000;
@@ -84,7 +84,7 @@ public class SpdzProtocolSuite implements ProtocolSuite {
 		return instances.get(id);
 	}
 
-	public Storage getStore(int i) {
+	public SpdzStorage getStore(int i) {
 		return store[i];
 	}
 
@@ -108,9 +108,9 @@ public class SpdzProtocolSuite implements ProtocolSuite {
 	public void init(ResourcePool resourcePool, ProtocolSuiteConfiguration conf) {
 		spdzConf = (SpdzConfiguration)conf;
 		this.network = resourcePool.getNetwork();
-		this.store = new Storage[resourcePool.getThreadPool().getThreadCount()];
+		this.store = new SpdzStorage[resourcePool.getThreadPool().getThreadCount()];
 		for (int i = 0; i < resourcePool.getThreadPool().getThreadCount(); i++) {
-			store[i] = new SpdzNewStorage(resourcePool, i);
+			store[i] = new SpdzStorageImpl(resourcePool, i);
 			/*
 			store[i] = new SpdzByteStorage(resourcePool.getMyId(),
 					resourcePool.getNoOfParties(),
@@ -132,7 +132,7 @@ public class SpdzProtocolSuite implements ProtocolSuite {
 		
 		//If no data is yet in the native storage, we need to put data there.
 		if(this.store[0].getSSK() == null) {
-			NewDataRetriever retriever = new NewDataRetriever(resourcePool, spdzConf.getTriplePath(), NewSpdzStorageConstants.STORAGE_NAME_PREFIX + rp.getMyId());
+			DataRetrieverImpl retriever = new DataRetrieverImpl(resourcePool, spdzConf.getTriplePath(), SpdzStorageConstants.STORAGE_NAME_PREFIX + rp.getMyId());
 			retriever.fetchAll();
 		}
 		
@@ -361,7 +361,7 @@ public class SpdzProtocolSuite implements ProtocolSuite {
 
 	@Override
 	public void destroy() {
-		for (Storage store : this.store) {
+		for (SpdzStorage store : this.store) {
 			store.shutdown();
 		}
 	}

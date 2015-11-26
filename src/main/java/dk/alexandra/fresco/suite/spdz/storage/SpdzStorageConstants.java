@@ -24,52 +24,17 @@
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
  *******************************************************************************/
-package dk.alexandra.fresco.suite.spdz.storage.d142;
+package dk.alexandra.fresco.suite.spdz.storage;
 
-import java.math.BigInteger;
+public class SpdzStorageConstants {
 
-import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
-import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
-import dk.alexandra.fresco.suite.spdz.datatypes.SpdzTriple;
-
-public interface NewDataSupplier {
-
-	/**
-	 * Supplies the next triple
-	 * @return the next new triple
-	 */
-	public abstract SpdzTriple getNextTriple();
-
-	/**
-	 * Supplies the next exp pipe
-	 * @return the next new exp pipe 
-	 */
-	public abstract SpdzSInt[] getNextExpPipe();
-
-	/**
-	 * Supplies the next inputmask for a given input player
-	 * @param towardPlayerID the id of the input player
-	 * @return the appropriate input mask
-	 */
-	public abstract SpdzInputMask getNextInputMask(int towardPlayerID);
-
-	/**
-	 * Supplies the next bit (i.e. a SpdzSInt representing a value in {0, 1})
-	 * @return the next new bit
-	 */
-	public abstract SpdzSInt getNextBit();
-
-	/**
-	 * The modulus used for this instance of SPDZ
-	 * @return a modulus
-	 */
-	public abstract BigInteger getModulus();
-
-	/**
-	 * Returns the Players share of the Shared Secret Key (alpha).
-	 * This is never to be send to anyone else!
-	 * @return a share of the key
-	 */
-	public abstract BigInteger getSSK();
+	public static final String SSK_KEY = "SSK";
+	public static final String MODULUS_KEY = "MOD_P";
+	public static final String TRIPLE_KEY_PREFIX = "TRIPLE_";
+	public static final String EXP_PIPE_KEY_PREFIX = "EXP_PIPE_";
+	public static final String SQUARE_KEY_PREFIX = "SQUARE_";
+	public static final String BIT_KEY_PREFIX = "BIT_";
+	public static final String INPUT_KEY_PREFIX = "INPUT_";
+	public static final String STORAGE_NAME_PREFIX = "SPDZ_";
 
 }

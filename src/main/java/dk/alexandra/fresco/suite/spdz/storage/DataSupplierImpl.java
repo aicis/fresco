@@ -24,7 +24,7 @@
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
  *******************************************************************************/
-package dk.alexandra.fresco.suite.spdz.storage.d142;
+package dk.alexandra.fresco.suite.spdz.storage;
 
 import java.math.BigInteger;
 
@@ -43,7 +43,7 @@ import dk.alexandra.fresco.suite.spdz.datatypes.SpdzTriple;
  * @author Kasper Damgaard
  *
  */
-public class NewDataSupplierImpl implements NewDataSupplier {
+public class DataSupplierImpl implements DataSupplier {
 
 	private Storage storage;
 	private String storageName;
@@ -72,7 +72,7 @@ public class NewDataSupplierImpl implements NewDataSupplier {
 	 * @param noOfParties
 	 *            The number of parties in the computation.
 	 */
-	public NewDataSupplierImpl(Storage storage, String storageName,
+	public DataSupplierImpl(Storage storage, String storageName,
 			int storageId, int NoOfThreadsUsed, int noOfParties) {
 		this.storage = storage;
 		this.storageName = storageName;
@@ -94,7 +94,7 @@ public class NewDataSupplierImpl implements NewDataSupplier {
 	@Override
 	public SpdzTriple getNextTriple() {
 		SpdzTriple trip = this.storage.getObject(storageName,
-				NewSpdzStorageConstants.TRIPLE_KEY_PREFIX + tripleCounter);
+				SpdzStorageConstants.TRIPLE_KEY_PREFIX + tripleCounter);
 		if(trip == null) {
 			throw new MPCException("Triple no. "+tripleCounter+" was not present in the storage");
 		}
@@ -105,7 +105,7 @@ public class NewDataSupplierImpl implements NewDataSupplier {
 	@Override
 	public SpdzSInt[] getNextExpPipe() {
 		SpdzSInt[] expPipe = this.storage.getObject(storageName,
-				NewSpdzStorageConstants.EXP_PIPE_KEY_PREFIX + expPipeCounter);
+				SpdzStorageConstants.EXP_PIPE_KEY_PREFIX + expPipeCounter);
 		if(expPipe == null) {
 			throw new MPCException("expPipe no. "+expPipeCounter+" was not present in the storage");
 		}
@@ -116,7 +116,7 @@ public class NewDataSupplierImpl implements NewDataSupplier {
 	@Override
 	public SpdzInputMask getNextInputMask(int towardPlayerID) {
 		SpdzInputMask mask = this.storage.getObject(storageName,
-				NewSpdzStorageConstants.INPUT_KEY_PREFIX + towardPlayerID + "_"
+				SpdzStorageConstants.INPUT_KEY_PREFIX + towardPlayerID + "_"
 						+ inputMaskCounters[towardPlayerID-1]);
 		inputMaskCounters[towardPlayerID-1] += deltaJump;
 		if(mask == null) {
@@ -128,7 +128,7 @@ public class NewDataSupplierImpl implements NewDataSupplier {
 	@Override
 	public SpdzSInt getNextBit() {
 		SpdzSInt bit = this.storage.getObject(storageName,
-				NewSpdzStorageConstants.BIT_KEY_PREFIX + bitCounter);
+				SpdzStorageConstants.BIT_KEY_PREFIX + bitCounter);
 		if(bit == null) {
 			throw new MPCException("Bit no. "+bitCounter+" was not present in the storage");
 		}
@@ -139,7 +139,7 @@ public class NewDataSupplierImpl implements NewDataSupplier {
 	@Override
 	public BigInteger getModulus() {
 		BigInteger mod = this.storage.getObject(storageName,
-				NewSpdzStorageConstants.MODULUS_KEY);
+				SpdzStorageConstants.MODULUS_KEY);
 		if(mod == null) {
 			throw new MPCException("Modulus was not present in the storage");
 		}
@@ -149,7 +149,7 @@ public class NewDataSupplierImpl implements NewDataSupplier {
 	@Override
 	public BigInteger getSSK() {
 		BigInteger ssk = this.storage.getObject(storageName,
-				NewSpdzStorageConstants.SSK_KEY);
+				SpdzStorageConstants.SSK_KEY);
 		if(ssk == null) {
 			throw new MPCException("SSK was not present in the storage");
 		}

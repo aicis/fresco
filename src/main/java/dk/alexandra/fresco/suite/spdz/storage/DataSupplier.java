@@ -26,58 +26,50 @@
  *******************************************************************************/
 package dk.alexandra.fresco.suite.spdz.storage;
 
+import java.math.BigInteger;
+
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzTriple;
-import dk.alexandra.fresco.suite.spdz.storage.d142.NewDataSupplier;
 
-/**
- * Supplies preprocessed data to the online phase system. Note while Datasuppliers have a similar role to DataRetrievers, 
- * the idea here is decouple the way we retrieve the data from whatever source (most probably from disk) and the way we serve
- * the data to the online system.
- * 
- * Datasuppliers also provide methods to queue up data to be supplied later. This is usefull when working with RetrieverThreads.
- *   
- * @author psn
- */
-public interface DataSupplier extends NewDataSupplier {
+public interface DataSupplier {
 
 	/**
-	 * Queues up an exp pipe to be supplied later
-	 * @param exp an exp pipe
-	 * @throws InterruptedException
+	 * Supplies the next triple
+	 * @return the next new triple
 	 */
-	public abstract void queueExpPipe(SpdzSInt[] exp)
-			throws InterruptedException;
+	public abstract SpdzTriple getNextTriple();
 
 	/**
-	 * Queues up a bit to be supplied later
-	 * @param bit a bit
-	 * @throws InterruptedException
+	 * Supplies the next exp pipe
+	 * @return the next new exp pipe 
 	 */
-	public abstract void queueBit(SpdzSInt bit) throws InterruptedException;
+	public abstract SpdzSInt[] getNextExpPipe();
 
 	/**
-	 * Queues up an input mask for the opposing player to be supplied later
-	 * @param inputMask an input mask
-	 * @throws InterruptedException
+	 * Supplies the next inputmask for a given input player
+	 * @param towardPlayerID the id of the input player
+	 * @return the appropriate input mask
 	 */
-	public abstract void queueOtherInput(SpdzInputMask inputMask)
-			throws InterruptedException;
+	public abstract SpdzInputMask getNextInputMask(int towardPlayerID);
 
 	/**
-	 * Queues up an input mask for this player to be supplied later
-	 * @param inputMask an input mask
-	 * @throws InterruptedException
+	 * Supplies the next bit (i.e. a SpdzSInt representing a value in {0, 1})
+	 * @return the next new bit
 	 */
-	public abstract void queueMyInput(SpdzInputMask inputMask)
-			throws InterruptedException;
+	public abstract SpdzSInt getNextBit();
 
 	/**
-	 * Queues up a triple to be supplied later
-	 * @param triple a triple
-	 * @throws InterruptedException
+	 * The modulus used for this instance of SPDZ
+	 * @return a modulus
 	 */
-	public abstract void queueTriple(SpdzTriple triple)
-			throws InterruptedException;
+	public abstract BigInteger getModulus();
+
+	/**
+	 * Returns the Players share of the Shared Secret Key (alpha).
+	 * This is never to be send to anyone else!
+	 * @return a share of the key
+	 */
+	public abstract BigInteger getSSK();
+
 }

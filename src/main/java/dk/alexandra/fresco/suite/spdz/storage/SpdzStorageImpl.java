@@ -24,45 +24,57 @@
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
  *******************************************************************************/
-package dk.alexandra.fresco.suite.spdzparallel;
+package dk.alexandra.fresco.suite.spdz.storage;
 
 import java.math.BigInteger;
 import java.util.LinkedList;
 import java.util.List;
 
+import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
+import dk.alexandra.fresco.framework.sce.resources.storage.Storage;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
-import dk.alexandra.fresco.suite.spdz.storage.RetrieverThread;
-import dk.alexandra.fresco.suite.spdz.storage.Storage;
-import dk.alexandra.fresco.suite.spdz.storage.d142.NewDataSupplier;
 
 /**
- * A very simple storage implementation.  
- *  
- * @author psn
+ * Uses the D14.2 storage concept as backend
+ * 
+ * @author Kasper Damgaard
  *
  */
-public class SimpleStorage implements Storage {
-	
+public class SpdzStorageImpl implements SpdzStorage {
+
+	private Storage storage;
+
 	private List<BigInteger> opened_values;
 	private List<SpdzElement> closed_values;
-	private final RetrieverThread[] retrieverThreads;
-	private final NewDataSupplier supplier; 
-	private final BigInteger ssk; //my share of the shared secret key alpha
-	
-	public SimpleStorage(NewDataSupplier supplier, RetrieverThread[] threads) {
-		this.ssk = supplier.getSSK();
-		this.supplier = supplier;
-		this.retrieverThreads = threads;
-		this.opened_values = new LinkedList<BigInteger>();
-		this.closed_values = new LinkedList<SpdzElement>();
+
+	private DataSupplier supplier;
+
+	/**
+	 * 
+	 * @param rp
+	 *            the resourcePool given to the protocol suite.
+	 * @param storageId
+	 *            The unique id of the storage. This could e.g. be the threadId
+	 *            of the thread that will use this storage object
+	 */
+	public SpdzStorageImpl(ResourcePool rp, int storageId) {
+		this.storage = rp.getStorage();
+		int noOfThreadsUsed = rp.getThreadPool().getThreadCount();
+		int noOfParties = rp.getNoOfParties();
+		int myId = rp.getMyId();
+
+		String storageName = SpdzStorageConstants.STORAGE_NAME_PREFIX + myId;
+
+		opened_values = new LinkedList<BigInteger>();
+		closed_values = new LinkedList<SpdzElement>();
+
+		this.supplier = new DataSupplierImpl(storage, storageName,
+				storageId, noOfThreadsUsed, noOfParties);
 	}
 
 	@Override
 	public void shutdown() {
-		for (RetrieverThread thread : retrieverThreads) {
-			thread.stopRetrieve();
-		}
-		reset();
+		// Does nothing..
 	}
 
 	@Override
@@ -72,8 +84,8 @@ public class SimpleStorage implements Storage {
 	}
 
 	@Override
-	public NewDataSupplier getSupplier() {
-		return supplier;
+	public DataSupplier getSupplier() {
+		return this.supplier;
 	}
 
 	@Override
@@ -98,6 +110,7 @@ public class SimpleStorage implements Storage {
 
 	@Override
 	public BigInteger getSSK() {
-		return ssk;
+		return this.supplier.getSSK();
 	}
+
 }

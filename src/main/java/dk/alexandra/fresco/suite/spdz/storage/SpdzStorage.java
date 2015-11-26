@@ -27,105 +27,62 @@
 package dk.alexandra.fresco.suite.spdz.storage;
 
 import java.math.BigInteger;
-import java.util.ArrayList;
+import java.util.List;
 
-import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
-import dk.alexandra.fresco.suite.spdz.storage.d142.NewDataSupplier;
-import dk.alexandra.fresco.suite.spdz.utils.Util;
 
-public class SpdzStorage implements Storage {
-	
-	private BigInteger ssk; //my share of the shared secret key alpha
-	private ArrayList<BigInteger> opened_values;
-	private ArrayList<SpdzElement> closed_values;
-	private SpdzDataRetriever retriever;	
-	private final static int minCapacity = 10000; //optimize this 
 
-	public SpdzStorage(NetworkConfiguration conf){	
-		ssk = null;
-		opened_values = new ArrayList<BigInteger>();
-		opened_values.ensureCapacity(minCapacity);
-		closed_values = new ArrayList<SpdzElement>();
-		closed_values.ensureCapacity(minCapacity);
-		
-		retriever = new SpdzDataRetriever(conf);
-		
-		BigInteger mod = retriever.getModulus();
-		Util.setModulus(mod);
-		byte[] bytes = mod.toByteArray();
-		if(bytes[0] == 0){
-			Util.size = mod.toByteArray().length - 1;		
-		}else{
-			Util.size = mod.toByteArray().length;
-		}
-	}
-	
-	/* (non-Javadoc)
-	 * @see dk.alexandra.fresco.suite.spdz.storage.Storage#shutdown()
+/**
+ * Manages the storage associated with the online phase of SPDZ. This includes all the preprocessed data and the opened and 
+ * closed accumulated during the online phase
+ *
+ */
+public interface SpdzStorage{
+
+	/**
+	 * Attempts to shutdown the storage nicely
 	 */
-	@Override
-	public void shutdown(){
-		retriever.shutdown();
-	}
-	
-	/* (non-Javadoc)
-	 * @see dk.alexandra.fresco.suite.spdz.storage.Storage#reset()
+	public abstract void shutdown();
+
+	/**
+	 * Resets the opened and closed values
 	 */
-	@Override
-	public void reset() {
-		opened_values.clear();
-		closed_values.clear();
-	}	
-	
-	/* (non-Javadoc)
-	 * @see dk.alexandra.fresco.suite.spdz.storage.Storage#getSupplier()
+	public abstract void reset();
+
+	/**
+	 * Gets a data supplier suppling preprocessed data values
+	 * @return a data supplier
 	 */
-	@Override
-	public NewDataSupplier getSupplier(){
-		return retriever;
-	}
-		
-	/* (non-Javadoc)
-	 * @see dk.alexandra.fresco.suite.spdz.storage.Storage#addOpenedValue(java.math.BigInteger)
+	public abstract DataSupplier getSupplier();
+
+	/**
+	 * Adds an opened value
+	 * @param val a value to be added
 	 */
-	@Override
-	public void addOpenedValue(BigInteger val){
-		opened_values.add(val);
-	}
-	
-	/* (non-Javadoc)
-	 * @see dk.alexandra.fresco.suite.spdz.storage.Storage#addClosedValue(dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement)
+	public abstract void addOpenedValue(BigInteger val);
+
+	/**
+	 * Adds a closed values
+	 * @param elem a element to add
 	 */
-	@Override
-	public void addClosedValue(SpdzElement elem){
-		closed_values.add(elem);
-	}
-	
-	/* (non-Javadoc)
-	 * @see dk.alexandra.fresco.suite.spdz.storage.Storage#getOpenedValues()
+	public abstract void addClosedValue(SpdzElement elem);
+
+	/**
+	 * Get the current opened values
+	 * @return a list of opened values
 	 */
-	@Override
-	public ArrayList<BigInteger> getOpenedValues(){
-		return opened_values;
-	}
-	
-	/* (non-Javadoc)
-	 * @see dk.alexandra.fresco.suite.spdz.storage.Storage#getClosedValues()
+	public abstract List<BigInteger> getOpenedValues();
+
+	/**
+	 * Get the current closed values
+	 * @return a list of closed values
 	 */
-	@Override
-	public ArrayList<SpdzElement> getClosedValues(){
-		return closed_values;
-	}
-	
-	/* (non-Javadoc)
-	 * @see dk.alexandra.fresco.suite.spdz.storage.Storage#getSSK()
+	public abstract List<SpdzElement> getClosedValues();
+
+	/**
+	 * Returns the players share of the Secret Shared Key (alpha). 
+	 * @return alpha_i
 	 */
-	@Override
-	public BigInteger getSSK(){
-		if(ssk != null)
-			return ssk;
-		ssk = retriever.getSSK();
-		return ssk;
-	}
+	public abstract BigInteger getSSK();
+
 }

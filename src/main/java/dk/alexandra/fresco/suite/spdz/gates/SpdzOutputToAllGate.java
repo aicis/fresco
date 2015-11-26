@@ -39,7 +39,7 @@ import dk.alexandra.fresco.lib.field.integer.OpenIntProtocol;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzOInt;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.evaluation.strategy.SpdzProtocolSuite;
-import dk.alexandra.fresco.suite.spdz.storage.Storage;
+import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
 import dk.alexandra.fresco.suite.spdz.utils.Util;
 
 public class SpdzOutputToAllGate extends SpdzNativeProtocol implements
@@ -58,7 +58,7 @@ public class SpdzOutputToAllGate extends SpdzNativeProtocol implements
 			SCENetwork network) {
 		SpdzProtocolSuite spdzpii = SpdzProtocolSuite
 				.getInstance(resourcePool.getMyId());
-		Storage storage = spdzpii.getStore(network.getThreadId());
+		SpdzStorage storage = spdzpii.getStore(network.getThreadId());
 		switch (round) {
 		case 0:
 			network.sendToAll(in.value.getShare());

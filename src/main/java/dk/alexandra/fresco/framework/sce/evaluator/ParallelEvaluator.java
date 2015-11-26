@@ -80,8 +80,6 @@ public class ParallelEvaluator implements ProtocolEvaluator {
 		int jobs = 1;
 		if (numOfGates > 15) {
 			jobs = (numOfGates > threads) ? threads : numOfGates;
-		} else {
-			System.out.println("Small batch");
 		}
 		for (int i = 0; i < jobs; i++) {
 			tasks.add(new BatchTask(gates, i, jobs, numOfGates, rp));
@@ -90,6 +88,7 @@ public class ParallelEvaluator implements ProtocolEvaluator {
 		try {
 			List<Future<Object>> futures = es.submitVMTasks(tasks);
 			for (Future<Object> f: futures) {
+				@SuppressWarnings("unused")
 				Object o = f.get();
 			}
 		} catch (InterruptedException e) {

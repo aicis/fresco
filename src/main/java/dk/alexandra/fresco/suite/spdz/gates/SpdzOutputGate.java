@@ -41,8 +41,8 @@ import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzOInt;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.evaluation.strategy.SpdzProtocolSuite;
-import dk.alexandra.fresco.suite.spdz.storage.Storage;
-import dk.alexandra.fresco.suite.spdz.storage.d142.NewDataSupplier;
+import dk.alexandra.fresco.suite.spdz.storage.DataSupplier;
+import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
 import dk.alexandra.fresco.suite.spdz.utils.Util;
 
 public class SpdzOutputGate extends SpdzNativeProtocol implements OpenIntProtocol {
@@ -80,10 +80,10 @@ public class SpdzOutputGate extends SpdzNativeProtocol implements OpenIntProtoco
 		SpdzProtocolSuite spdzpii = SpdzProtocolSuite
 				.getInstance(resourcePool.getMyId());
 		int myId = resourcePool.getMyId();
-		Storage storage = spdzpii.getStore(network.getThreadId());
+		SpdzStorage storage = spdzpii.getStore(network.getThreadId());
 		switch (round) {
 		case 0:
-			NewDataSupplier supplier = storage.getSupplier();
+			DataSupplier supplier = storage.getSupplier();
 			mask = supplier.getNextInputMask(target_player);
 			SpdzElement mask_elm = mask.getMask();
 			maskedOutput = in.value.add(mask_elm);
