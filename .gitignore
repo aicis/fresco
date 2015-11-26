@@ -1,0 +1,16 @@
+
+target/
+
+# Ignore all temporary backup files.
+**~
+
+# Eclipse files.
+.classpath
+.settings
+.project
+
+lpinputs/
+triples/
+
+# OS X meta files
+.DS_Store

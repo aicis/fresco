@@ -1,0 +1,4 @@
+env
+*~
+build/doctrees
+build/html
