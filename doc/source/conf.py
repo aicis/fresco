@@ -144,6 +144,10 @@ html_theme = 'alabaster'
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
 
+# Hack to keep standard Sphinx theme on readthedocs.org.
+# See http://read-the-docs.readthedocs.org/en/latest/faq.html#i-want-to-use-the-blue-default-sphinx-theme.
+html_style = '/default.css'
+
 # Add any extra paths that contain custom files (such as robots.txt or
 # .htaccess) here, relative to this directory. These files are copied
 # directly to the root of the documentation.
