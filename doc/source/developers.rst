@@ -19,6 +19,7 @@ is (ordered alphabetically):
 * Kasper Damgaard <kasper.damgaard@alexandra.dk>
 * Thomas P. Jakobsen <tpj@sepior.dk>
 * Peter S. Nordholt <peter.nordholt@alexandra.dk>
+* Tomas Toft <ttoft@cs.au.dk>
 
 If you think that your name belongs to this list, feel free to send an
 email to fresco@alexandra.dk.
