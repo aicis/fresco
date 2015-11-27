@@ -2,15 +2,17 @@
 For Developers
 ==============
 
+.. _contributing:
 
 Contributing
 ------------
 
 We will be happy to include well-written code that is compliant with
-the overall FRESCO design. This could be fixes, improvements, new
-protocol suites, or applications that are generic enough to fit into
-the FRESCO standard library. You are wellcome to use the issue tracker
-at `GitHub <https://github.com/aicis/fresco/issues>`_ or email us at
+the overall FRESCO design. This could be bug fixes, new protocol
+suites, or applications that are generic enough to fit into the FRESCO
+standard library. It could also be improvement to this documentation.
+You are wellcome to use the issue tracker at `GitHub
+<https://github.com/aicis/fresco/issues>`_ or email us at
 fresco@alexandra.dk with any ideas, etc.
 
 The team of people that are or have been involved in developing FRESCO
@@ -23,6 +25,28 @@ is (ordered alphabetically):
 
 If you think that your name belongs to this list, feel free to send an
 email to fresco@alexandra.dk.
+
+
+Pull Requests
+~~~~~~~~~~~~~
+
+The easiest way to contribute is to send us a pull request on GitHub:
+
+* Create a fork of the FRESCO master repository at `GitHub
+  <http://github.com/aicis/fresco>`_.
+
+* Make your changes in your forked branch.
+
+* If you write new code, be sure to add tests and update the
+  documentation (in the ``doc`` folder) where appropriate.
+
+* Add yourself to the list of contributors (at
+  ``doc/source/developrs.rst``).
+
+* Ensure the test suite passes, i.e., that ``mvn verify`` complete
+  without errors.
+
+* Hit the *Pull Request* button at GitHub.
 
 
 Developing with Eclipse
