@@ -159,3 +159,23 @@ quick and not require external setup such as MySQL. If it depends on
 such things, mark it with ``@Category(IntegrationTest.class)``. If it
 is slow, mark it with ``@Category(SlowTest.class)``.
 
+
+Versioning
+----------
+
+We use `semantic <http://semver.org>`_ versioning. To make a new
+release, e.g., version 1.2.3 do:
+
+* Update the ``pom.xml`` file to include::
+
+    <version>1.2.3-SNAPSHOT</version>
+
+* Update the documentation in ``doc/source/releases.rst``. Include a
+  short description of new features, bug fixes, etc.
+
+* Create a git tag in the repository. Our GitHub account is set up
+  such that the new release is automatically recognized by
+  `readthedocs.org <http://readthedocs.org>`_. For this to work,
+  simply name the tag ``1.2.3``.
+
+* Edit the release page on GitHub to reflect the change.
