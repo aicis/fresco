@@ -4,37 +4,32 @@
 Releases
 ========
 
-This page gives an overview of the releases of FRESCO.
+FRESCO uses `semantic <http://semver.org/>`_ versioning. FRESCO has
+still not arrived at a stable API and the latest release is 0.1.0. You
+can download this and older releases from `GitHub
+<http://github.com/aicis/fresco/releases>`_ Here is a description of
+the FRESCO releases:
 
-The latest release is 1.0:
 
-1.0
+0.1
 ---
 
-The initial version, released 2015-11-30, can be downloaded from
-`here <http://github.com/aicis/fresco/releases>`_.
+The initial version, released 2015-11-30.
  
 * The overall FRESCO framework.
-* Implementation of the BGW protocol suite.
-* Implementation of the SPDZ protocol suite (online phase only).
+
+* Implementation of the BGW and SPDZ protocol suites (only the SPDZ online phase). 
+
 * A standard library, including
  
-  * Protocols from `here
-    <https://www.cs.bris.ac.uk/Research/CryptographySecurity/MPC>`_
-    for AES, DES, as well as MD5, SHA1, and SHA256.
- 
-  * Some generic protocols for comparison of integers. 
+  * Generic protocols for comparison of integers.
 
-.. 
-   1.0.1
-    
-   * Bugfix X.
-   * Bugfix Y.
-    
-   .. todo:: Release 1.0.1 is not really there yet! 
+  * Protocols for AES, DES, MD5, SHA1, and SHA256 provided by the
+    `Bristol Cryptography Group
+    <https://www.cs.bris.ac.uk/Research/CryptographySecurity/MPC>`_ .
 
 
-1.1
+0.2
 ---
 
 This is a planned future release. We plan to include:
