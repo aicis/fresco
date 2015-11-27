@@ -1,11 +1,18 @@
 
-How to build the docs:
+How to build the docs
+---------------------
 
-First time, create virtual environment:
-$ virtualenv env
-$ source ./env/bin/activate
-$ pip install < requirements.txt
+First time, do this: Go to doc folder. Create virtual environment:
 
-With the virtual environment installed and activated, just do:
+  $ virtualenv env
+  $ source ./env/bin/activate
+  $ pip install -r requirements.txt
 
-$ make html
+When this is done (once and for all) you can activate the virtual
+environment just by doing
+
+  $ source ./env/bin/activate
+
+Once activated, you can build documentation with:
+
+  $ make html
