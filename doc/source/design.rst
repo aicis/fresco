@@ -111,7 +111,6 @@ are more or less related to FRESCO:
   *runtimes* in VIFF). VIFF is based on the Twisted framework and
   supports an asynchrounous evaluation strategy.
 
-
 * `SCAPI <http://github.com/cryptobiu/scapi>`_ is written in Java and
   licensed under MIT as FRESCO. It binds to several C/C++ libraries for
   efficient cryptographic and number theoretic operations. SCAPI is
@@ -121,9 +120,9 @@ are more or less related to FRESCO:
   suites. FRESCO currently uses the networking layer of SCAPI, but we
   encourage the use of SCAPI when building FRESCO protocol suites.
 
-* TODO: Tasty, others?
-
-
+If you think something is missing in the above list, send an email to
+fresco@alexandra.dk or send us a pull request with an update as
+described in :ref:`contributing`.
 
 
 .. [#foo] A given protocol suite may not support all available
