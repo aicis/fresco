@@ -5,22 +5,22 @@ This section shows you how to quickly run a small application using
 FRESCO. If you have not yet installed FRESCO you should first consult
 the :ref:`Installation <install>` section.
 
-
 Your First FRESCO Application
 -----------------------------
 
 AES is a commenly used encryption scheme. It transforms a plaintext
-*p* and a key *k* into a ciphertext *c*, such that no-one can learn
-anything about *p* only by looking at *c*. Anyone knowing both the
-cipertext *c* *and* the key *k* can, however, easily obtain the
-original plaintext.
+:math:`p` and a key :math:`k` into a ciphertext :math:`c`, such that
+no-one can learn anything about :math:`p` only by looking at
+:math:`c`. Anyone knowing both the cipertext :math:`c` *and* the key
+:math:`k` can, however, easily obtain the original plaintext.
 
-Suppose that we have two parties, *Alice* and *Bob*. Alice holds *k*,
-Bob holds *p*, and they are both interested in computing the
-encryption *c = AES_k(p)*. However, Alice does not want to reveal *k*
-to Bob and Bob does not want to reveal *p* to Alice. This is a perfect
-task for applying secure computation. We will solve the problem with
-FRESCO using the following code:
+Suppose that we have two parties, *Alice* and *Bob*. Alice holds
+:math:`k`, Bob holds :math:`p`, and they are both interested in
+computing the encryption :math:`c = \text{AES}_k(p)`. However, Alice
+does not want to reveal :math:k to Bob and Bob does not want to reveal
+:math:`p` to Alice. This is a perfect task for applying secure
+computation. We will solve the problem with FRESCO using the following
+code:
 
 .. sourcecode:: java
     
@@ -155,33 +155,46 @@ dependencies. So run ::
     mvn clean compile assembly:single
 
 This will create a jar a la
-``target/fresco-1.0-SNAPSHOT-jar-with-dependencies.jar``. Then create
-a subfolder containing a file called ``AESDemo.java``: ::
+
+.. parsed-literal::
+
+  target/fresco-|release|-SNAPSHOT-jar-with-dependencies.jar.
+
+Then create a subfolder containing a file called ``AESDemo.java``: ::
 
     $ mkdir tmp
     $ touch tmp/AESDemo.java
 
 Paste the above Java code into the ``AESDemo.java`` file. Then compile
-the file: ::
+the file:
 
-    $ javac -cp target/fresco-1.1-SNAPSHOT-jar-with-dependencies.jar tmp/AESDemo.java
+.. parsed-literal::
+
+    $ javac -cp target/fresco-|release|-SNAPSHOT-jar-with-dependencies.jar tmp/AESDemo.java
 
 Now we want to execute the secure computation. Open two terminals and
-go to the FRESCO project directory in each terminal. In the first
-terminal you launch a computation party for Alice by typing: ::
+go to the FRESCO project directory in each terminal. Suppose Alice's
+128-bit key :math:`k` is 00112233445566778899aabbccddeeff (in
+hexadecimal representation). In the first terminal you launch a
+computation party for Alice by typing:
 
-    $ java -cp tmp:target/fresco-1.1-SNAPSHOT-jar-with-dependencies.jar AESDemo -i1 -sdummy -p1:localhost:9001 -p2:localhost:9002 000102030405060708090a0b0c0d0e0f
+.. parsed-literal::
+
+    $ java -cp tmp:target/fresco-|release|-SNAPSHOT-jar-with-dependencies.jar AESDemo -i1 -sdummy -p1:localhost:9001 -p2:localhost:9002 00112233445566778899aabbccddeeff
 
 This starts up the first party (Alice) at port 9001 on localhost. It
-will listen for the second party at port 9002 on localhost. In the
-second terminal you type: ::
+will listen for the second party at port 9002 on localhost. Suppose
+Bob's 128-bit plaintext :math:`p` is
+000102030405060708090a0b0c0d0e0f. In the second terminal you type:
 
-    $ java -cp tmp:target/fresco-1.1-SNAPSHOT-jar-with-dependencies.jar AESDemo -i1 -sdummy -p1:localhost:9001 -p2:localhost:9002 000102030405060708090a0b0c0d0e0f
+.. parsed-literal::
+
+    $ java -cp tmp:target/fresco-|release|-SNAPSHOT-jar-with-dependencies.jar AESDemo -i1 -sdummy -p1:localhost:9001 -p2:localhost:9002 000102030405060708090a0b0c0d0e0f
 
 This will start Bob at port 9002 and cause the secure computation to
 execute, resulting in the following output in both terminals: ::
 
-    The resulting ciphertext is: 0a940bb5416ef045f1c39458c653ea5a
+    The resulting ciphertext is: 69c4e0d86a7b0430d8cdb78070b4c55a
 
 
 
