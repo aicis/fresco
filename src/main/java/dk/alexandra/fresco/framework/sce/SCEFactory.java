@@ -32,7 +32,7 @@ import dk.alexandra.fresco.framework.sce.configuration.SCEConfiguration;
 
 public class SCEFactory {
 
-	private static final String defaultPropertiesDir = "/properties";
+	private static final String defaultPropertiesDir = "properties";
 
 	/**
 	 * Generates a SCE based on the property files located in the folder

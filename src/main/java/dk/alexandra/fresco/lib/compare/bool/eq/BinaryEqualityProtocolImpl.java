@@ -24,13 +24,12 @@
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
  *******************************************************************************/
-package dk.alexandra.fresco.lib.equality;
+package dk.alexandra.fresco.lib.compare.bool.eq;
 
 import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.Protocol;
 import dk.alexandra.fresco.framework.value.SBool;
 import dk.alexandra.fresco.framework.value.Value;
-import dk.alexandra.fresco.lib.compare.bool.eq.BinaryEqualityProtocol;
 import dk.alexandra.fresco.lib.field.bool.BasicLogicFactory;
 import dk.alexandra.fresco.lib.helper.AppendableProtocolProducer;
 import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;

@@ -17,7 +17,7 @@ no-one can learn anything about :math:`p` only by looking at
 Suppose that we have two parties, *Alice* and *Bob*. Alice holds
 :math:`k`, Bob holds :math:`p`, and they are both interested in
 computing the encryption :math:`c = \text{AES}_k(p)`. However, Alice
-does not want to reveal :math:k to Bob and Bob does not want to reveal
+does not want to reveal :math:`k` to Bob and Bob does not want to reveal
 :math:`p` to Alice. This is a perfect task for applying secure
 computation. We will solve the problem with FRESCO using the following
 code:

@@ -24,7 +24,7 @@
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
  *******************************************************************************/
-package dk.alexandra.fresco.suite.spdz;
+package dk.alexandra.fresco.suite.spdz.storage;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -34,8 +34,6 @@ import dk.alexandra.fresco.framework.sce.resources.storage.Storage;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzTriple;
-import dk.alexandra.fresco.suite.spdz.storage.FakeTripGen;
-import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageConstants;
 
 public class InitializeStorage {
 
@@ -79,7 +77,7 @@ public class InitializeStorage {
 		List<SpdzSInt[][]> expPipes = FakeTripGen.generateExpPipes(noOfExpPipes, noOfPlayers, p, alpha);
 		
 
-		for (dk.alexandra.fresco.framework.sce.resources.storage.Storage store : storages) {
+		for (Storage store : storages) {
 			for (int i = 1; i < noOfPlayers + 1; i++) {
 				String storageName = SpdzStorageConstants.STORAGE_NAME_PREFIX
 						+ i;

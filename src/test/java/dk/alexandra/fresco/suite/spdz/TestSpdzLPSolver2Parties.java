@@ -52,6 +52,7 @@ import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.configuration.SpdzConfiguration;
 import dk.alexandra.fresco.suite.spdz.configuration.SpdzConfigurationFromProperties;
 import dk.alexandra.fresco.suite.spdz.evaluation.strategy.SpdzProtocolSuite;
+import dk.alexandra.fresco.suite.spdz.storage.InitializeStorage;
 
 public class TestSpdzLPSolver2Parties {
 

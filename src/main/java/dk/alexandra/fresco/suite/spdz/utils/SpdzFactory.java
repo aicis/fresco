@@ -57,7 +57,7 @@ import dk.alexandra.fresco.suite.spdz.gates.SpdzSubtractGate;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
 
 public class SpdzFactory implements BasicNumericFactory, PreprocessedNumericBitFactory,
-		PreprocessedExpPipeFactory, ExpFromOIntFactory, LocalInversionFactory{
+		PreprocessedExpPipeFactory, ExpFromOIntFactory, LocalInversionFactory {
 
 	private int maxBitLength;
 	private SpdzStorage storage;

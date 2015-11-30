@@ -58,7 +58,7 @@ import dk.alexandra.fresco.suite.bgw.integer.BgwSInt;
 import dk.alexandra.fresco.suite.bgw.integer.BgwSubtractProtocol;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzOInt;
 
-public class BgwFactory implements BasicNumericFactory, LocalInversionFactory, ExpFromOIntFactory{
+public class BgwFactory implements BasicNumericFactory, LocalInversionFactory, ExpFromOIntFactory {
 
 	private int myId;
 	private int noOfParties;
