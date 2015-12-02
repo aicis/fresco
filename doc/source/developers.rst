@@ -52,11 +52,13 @@ The easiest way to contribute is to send us a pull request on GitHub:
 Developing with Eclipse
 -----------------------
 
-To develop using Eclipse, run: ::
+To develop using Eclipse, first check out a fork of FRESCO from GitHub. Then
+go to the local directory where FRESCO is located and run: ::
 
     $ mvn eclipse:eclipse
 
-Then choose "Import..." from Eclipse.
+Then choose "Import..." from Eclipse and select the folder containing the
+FRESCO source.
 
 
 .. Coding Conventions
