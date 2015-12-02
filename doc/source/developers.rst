@@ -98,8 +98,13 @@ Once activated, you can build documentation with: ::
 
   $ make html
 
-To view the result, open the file ``doc/build/html/index.hmtl`` with a web
-browser.
+On Mac OS X you may need to add the following to your ``~/.bash_profile``: ::
+
+    export LC_ALL=en_US.UTF-8
+    export LANG=en_US.UTF-8
+
+Once built, you can view the result, open the file
+``doc/build/html/index.hmtl`` with a web browser.
 
 
 Testing
