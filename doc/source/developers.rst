@@ -46,6 +46,9 @@ The easiest way to contribute is to send us a pull request on GitHub:
 * Ensure the test suite passes, i.e., that ``mvn verify`` complete
   without errors.
 
+* If you changed the documentation, build it locally and make sure it looks
+  right.
+
 * Hit the *Pull Request* button at GitHub.
 
 
@@ -67,6 +70,36 @@ FRESCO source.
    This section contains a few guidelines for both application
    developers, protocol suite developers, and developers of FRESCO
    itself.
+
+
+Building the Documentation
+--------------------------
+
+The documentation will be built automatically and uploaded to
+`fresco.readthedocs.org <http://fresco.readthedocs.org>`_ when new changes are
+pushed to the repository. Before comitting changes to the documentation, it is
+a good idea to build the documentation locally and check that it looks ok. This
+can be done as follows.
+
+Building the docs requires Sphinx to be installed. You can do this with
+*virtualenv*:  Go to the ``doc`` folder. Then create a new virtual
+environment: ::
+
+  $ virtualenv env
+  $ source ./env/bin/activate
+  $ pip install -r requirements.txt
+
+This only needs to be done once. When done, you can activate the virtual
+environment just by doing::
+
+  $ source ./env/bin/activate
+
+Once activated, you can build documentation with: ::
+
+  $ make html
+
+To view the result, open the file ``doc/build/html/index.hmtl`` with a web
+browser.
 
 
 Testing
