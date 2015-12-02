@@ -8,10 +8,10 @@ the :ref:`Installation <install>` section.
 Your First FRESCO Application
 -----------------------------
 
-AES is a commenly used encryption scheme. It transforms a plaintext
+AES is a commonly used encryption scheme. It transforms a plaintext
 :math:`p` and a key :math:`k` into a ciphertext :math:`c`, such that
 no-one can learn anything about :math:`p` only by looking at
-:math:`c`. Anyone knowing both the cipertext :math:`c` *and* the key
+:math:`c`. Anyone knowing both the ciphertext :math:`c` *and* the key
 :math:`k` can, however, easily obtain the original plaintext.
 
 Suppose that we have two parties, *Alice* and *Bob*. Alice holds
@@ -23,7 +23,7 @@ computation. We will solve the problem with FRESCO using the following
 code:
 
 .. sourcecode:: java
-    
+
     import dk.alexandra.fresco.framework.Application;
     import dk.alexandra.fresco.framework.Protocol;
     import dk.alexandra.fresco.framework.ProtocolProducer;
@@ -36,29 +36,29 @@ code:
     import dk.alexandra.fresco.framework.value.SBool;
     import dk.alexandra.fresco.framework.configuration.CmdLineUtil;
     import dk.alexandra.fresco.framework.util.ByteArithmetic;
-     
+
     import dk.alexandra.fresco.lib.field.bool.BasicLogicFactory;
     import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
     import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
     import dk.alexandra.fresco.lib.crypto.BristolCryptoFactory;
-     
-     
+
+
     public class AESDemo implements Application {
-        
+
         private int myId;
         private boolean[] in;
-        
+
         private OBool[] out;
-        
+
         private final static int BLOCK_SIZE = 128; // We do 128 bit AES.
-        
+
         public AESDemo(int myId, boolean[] input) {
             this.myId = myId;
             this.in = input;
         }
-        
+
         public static void main(String[] args) throws Exception {
-     
+
             // Read FRESCO configuration from command line args.
             CmdLineUtil util = new CmdLineUtil();
             util.parse(args);
@@ -68,27 +68,27 @@ code:
 	    // Read and parse key or plaintext.
             String in = util.getRemainingArgs()[0];
             boolean[] input = ByteArithmetic.toBoolean(in);
-     
+
             // Run secure computation.
             AESDemo aes = new AESDemo(sceConf.getMyId(), input);
             SCE sce = SCEFactory.getSCEFromConfiguration(sceConf, psConf);
             sce.runApplication(aes);
-     	
+
             // Print result.
             boolean[] res = new boolean[BLOCK_SIZE];
             for (int i=0; i<BLOCK_SIZE; i++) {
                 res[i] = aes.out[i].getValue();
             }
             System.out.println("The resulting ciphertext is: " + ByteArithmetic.toHex(res));
-     
+
         }
-        
+
         @Override
         public ProtocolProducer prepareApplication(ProtocolFactory factory) {
-     
+
             BasicLogicFactory blf = (BasicLogicFactory) factory;
 
-	    // Convert input to open FRESCO values.     
+	    // Convert input to open FRESCO values.
             OBool[] plainOpen = new OBool[BLOCK_SIZE];
             OBool[] keyOpen = new OBool[BLOCK_SIZE];
             for (int i=0; i<BLOCK_SIZE; i++) {
@@ -100,49 +100,49 @@ code:
                     plainOpen[i].setValue(this.in[i]);
                 }
             }
-     
+
             // Establish some secure values.
             SBool[] keyClosed = blf.getSBools(BLOCK_SIZE);
             SBool[] plainClosed = blf.getSBools(BLOCK_SIZE);
             SBool[] outClosed = blf.getSBools(BLOCK_SIZE);
-     	
-            // Build protocol where Alice (id=1) closes his key. 
+
+            // Build protocol where Alice (id=1) closes his key.
             ProtocolProducer[] closeKeyBits = new ProtocolProducer[BLOCK_SIZE];
             for (int i=0; i<BLOCK_SIZE; i++) {
                 closeKeyBits[i] = blf.getCloseProtocol(1, keyOpen[i], keyClosed[i]);
             }
             ProtocolProducer closeKey = new ParallelProtocolProducer(closeKeyBits);
-     
+
             // Build protocol where Bob (id=2) closes his plaintext.
             ProtocolProducer[] closePlainBits= new ProtocolProducer[BLOCK_SIZE];
             for (int i=0; i<BLOCK_SIZE; i++) {
                 closePlainBits[i] = blf.getCloseProtocol(2, plainOpen[i], plainClosed[i]);
             }
             ProtocolProducer closePlain = new ParallelProtocolProducer(closePlainBits);
-     
+
             // We can close key and plaintext in parallel.
             ProtocolProducer closeKeyAndPlain = new ParallelProtocolProducer(closeKey, closePlain);
-     
+
             // Build an AES protocol.
             Protocol doAES = new BristolCryptoFactory(blf).getAesCircuit(plainClosed, keyClosed, outClosed);
-     
+
             // Create wires that glue together the AES to the following open of the result.
             this.out = blf.getOBools(BLOCK_SIZE);
-     
+
             // Construct protocol for opening up the result.
             Protocol[] opens = new Protocol[BLOCK_SIZE];
             for (int i=0; i<BLOCK_SIZE; i++) {
                 opens[i] = blf.getOpenProtocol(outClosed[i], out[i]);
             }
             ProtocolProducer openCipher = new ParallelProtocolProducer(opens);
-     	
+
             // First we close key and plaintext, then we do the AES, then we open the resulting ciphertext.
             ProtocolProducer finalProtocol = new SequentialProtocolProducer(closeKeyAndPlain, doAES, openCipher);
-     
+
             return finalProtocol;
-     
+
         }
-        
+
     }
 
 
@@ -206,7 +206,7 @@ Lets have a look at each part of the example.
 A FRESCO application implements the ``Application`` interface. To run
 an application we must first create a *secure computation engine*
 (SCE). This is a component of FRESCO that coordinates the
-communication between appliations and protocol suites.
+communication between applications and protocol suites.
 
 To create a ``SCE`` we need a ``SCEConfiguration`` and a
 ``ProtocolSuiteConfiguration``. These are objects that define various
@@ -218,7 +218,7 @@ we have our application ``aes`` and our ``sce``, we simply write:
 
     sce.runApplication(aes);
 
-to launch the secure computation. 
+to launch the secure computation.
 
 Notice how our ``Application`` is made. Implementing ``Application``
 signals that our ``AESDemo`` class is a FRESCO application. It
@@ -271,7 +271,7 @@ evaluate each native protocol in a sequential fashion by using ::
     -e SEQUENTIAL
 
 or you can control the memory footprint of FRESCO by explicitly
-setting a limit to the numer of native protocols to evaluate in
+setting a limit to the number of native protocols to evaluate in
 parallel by using, e.g.,::
 
     --max-batch-size=2048

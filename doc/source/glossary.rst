@@ -28,7 +28,7 @@ This section contains a description of some of the core concepts in FRESCO.
       protocol for subtraction, comparison, or sorting.
 
    application
-      
+
       An application is just a protocol that performs some task. In
       that sense any protocol in FRESCO is an application. But there
       are many protocols and not all will make sense to those that
@@ -39,13 +39,13 @@ This section contains a description of some of the core concepts in FRESCO.
       ``dk.alexandra.fresco.demo`` package.
 
    computation parties
-      
+
       This is the parties needed to carry out a protocol suite. For
       example, three or more computation parties are required to run
       the :ref:`BGW <BGW>` protocol suite.
 
    input/output parties
-      
+
       This is parties that give input to and/or receive output from a
       secure computation.
 
@@ -99,6 +99,6 @@ This section contains a description of some of the core concepts in FRESCO.
       Information theoretic security refers to a kind of security that
       is not dependent on the computational power of the
       adversary. There may be some risk of breaking the protocol, but
-      this risk do not grow if the adversary achives more processing
+      this risk do not grow if the adversary achieves more processing
       power. *Perfect* security is information theoretic security
       where the probability of breaking the protocol is zero.

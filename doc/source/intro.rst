@@ -50,7 +50,7 @@ Main Features of FRESCO
   time you write your application.
 
 * **Rapid and simple protocol suite development**. FRESCO provides a
-  collection of resuable patterns that allows protocol suites to be
+  collection of reusable patterns that allows protocol suites to be
   developed with minimal effort. Once you have developed your protocol
   suite, you immediately get the benefit that many existing
   applications (and tests) can run on top of your new suite.

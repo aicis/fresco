@@ -1,6 +1,6 @@
 
-Litterature
-===========
+Literature
+==========
 
 Here we keep a list of the research papers and text books related to
 the secure computation that is found in FRESCO.

@@ -61,7 +61,7 @@ Then choose "Import..." from Eclipse.
 
 .. Coding Conventions
    ------------------
-   
+
    This section contains a few guidelines for both application
    developers, protocol suite developers, and developers of FRESCO
    itself.
@@ -92,7 +92,7 @@ We have three classes of tests:
   as this:
 
   .. sourcecode:: java
-  
+
     @Test @Category(IntegrationTest.class)
     public void testSomething() {
         // Your test goes here.
@@ -157,12 +157,12 @@ want your tests to vary. For example this could be number of players
 and evaluation strategy. But it can also include parameters specific
 to your suite, such as ``threshold`` which is specific to the BGW
 suite. The ``runTest`` should set up the remaining parameters for your
-test -- those parameters that should remain fixed in all your tests. 
+test -- those parameters that should remain fixed in all your tests.
 
 Then create a number of small tests, like the following:
 
 .. sourcecode:: java
- 
+
     @Test
     public void test_simple_arithmetic_3_1_sequential() throws Exception {
         runTest(new BasicArithmeticTests.TestSimpleMultAndAdd(), 3, 1, EvaluationStrategy.SEQUENTIAL);
@@ -172,10 +172,10 @@ It is fine to let the name reflect the specific parameters used in the
 test. Note how we use a generic test here: The test
 ``BasicArithmeticTests.TestSimpleMultAndAdd`` can be used to test
 multiplications and additions for any protocol suite that supports
-basic arithemtic operations, so there is no need to rewrite such
+basic arithmetic operations, so there is no need to rewrite such
 tests. Only write your own specific tests if your need to test some
 specific functionality of your suite that no other suite has,
-otherwise consider making the test generic such that it can be resued
+otherwise consider making the test generic such that it can be reused
 by others.
 
 Writing many small tests like this makes it easy to decide later which

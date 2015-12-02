@@ -51,7 +51,7 @@ following MySQL commands to set up the database: ::
 
     CREATE USER 'fresco'@'localhost' IDENTIFIED BY 'yourpassowrd';
     CREATE DATABASE IF NOT EXISTS fresco;
-    GRANT ALL PRIVILGS ON fresco.* TO 'fresco'@'localhost';
+    GRANT ALL PRIVILEGES ON fresco.* TO 'fresco'@'localhost';
 
 Then modify the files in ``properties/db.properties`` to match the
 database, username, and password that you choose.
