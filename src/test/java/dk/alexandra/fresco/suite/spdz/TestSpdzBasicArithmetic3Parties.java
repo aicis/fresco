@@ -130,8 +130,8 @@ public class TestSpdzBasicArithmetic3Parties {
 		// dk.alexandra.fresco.framework.sce.resources.storage.Storage[] {
 		// inMemStore, mySQLStore };
 		dk.alexandra.fresco.framework.sce.resources.storage.Storage[] storages = new dk.alexandra.fresco.framework.sce.resources.storage.Storage[] { inMemStore };
-		InitializeStorage.initStorage(storages, noOfParties, 1000, 1000,
-				1000, 10);
+		InitializeStorage.initStorage(storages, noOfParties, 100000, 100000,
+				100000, 10);
 	}
 
 	@Test
@@ -188,6 +188,20 @@ public class TestSpdzBasicArithmetic3Parties {
 				EvaluationStrategy.SEQUENTIAL_BATCHED,
 				StorageStrategy.IN_MEMORY);
 	}
+	
+	@Test
+	public void test_Lots_Of_Mults_Sequential() throws Exception {
+		runTest(new BasicArithmeticTests.TestLotsMult(),
+				EvaluationStrategy.SEQUENTIAL,
+				StorageStrategy.IN_MEMORY);
+	}
+	
+	@Test
+	public void test_Lots_Of_Mults_Parallel_Batched() throws Exception {
+		runTest(new BasicArithmeticTests.TestLotsMult(),
+				EvaluationStrategy.PARALLEL_BATCHED,
+				StorageStrategy.IN_MEMORY);
+	}	
 
 	// TODO: Test with different security parameters.
 }
