@@ -45,7 +45,6 @@ public class ExitingVariableCircuit extends AbstractRoundBasedProtocol {
 	private LPFactory lpProvider;
 	private BasicNumericFactory bnProvider;
 	private ProtocolProducer gp;
-	private boolean done;
 	private int round = 0;
 	private SInt[] updatedB;
 	private SInt[] updatedEnteringColumn;
@@ -62,7 +61,6 @@ public class ExitingVariableCircuit extends AbstractRoundBasedProtocol {
 			this.pivot = pivot;
 			this.updateColumn = updateColumn;
 			gp = null;
-			done = false;
 			this.lpProvider = lpProvider;
 			this.bnProvider = bnProvider;
 
