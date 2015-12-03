@@ -58,7 +58,6 @@ import dk.alexandra.fresco.suite.spdz.storage.InitializeStorage;
 
 public class TestSpdzLPSolver3Parties {
 
-	
 	private void runTest(TestThreadFactory f, int noPlayers,
 			EvaluationStrategy evalStrategy, StorageStrategy storageStrategy)
 			throws Exception {
