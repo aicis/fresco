@@ -31,7 +31,6 @@ import java.math.BigInteger;
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.network.SCENetwork;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
-import dk.alexandra.fresco.framework.util.GateRegister;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.framework.value.Value;
@@ -109,12 +108,6 @@ public class SpdzMultGate extends SpdzNativeProtocol implements MultProtocol {
 				this.delta = delta;
 				return EvaluationStatus.HAS_MORE_ROUNDS;
 			} catch (NullPointerException e) {
-				String path = GateRegister.gateToString(this);
-				if (path != null) {
-					System.out.println(path);
-				} else {
-					System.out.println("NULL PATH");
-				}
 				String nullElements = "";
 				if (in1 == null) {
 					nullElements += " input1";
