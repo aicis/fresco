@@ -172,6 +172,7 @@ public class SpdzProtocolSuite implements ProtocolSuite {
 	public void finishedEval() {
 		try {
 			MACCheck();
+			this.gatesEvaluated = 0;
 		} catch (IOException e) {
 			throw new MPCException("Could not complete MACCheck.", e);
 		}
@@ -365,5 +366,4 @@ public class SpdzProtocolSuite implements ProtocolSuite {
 			store.shutdown();
 		}
 	}
-
 }
