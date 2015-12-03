@@ -323,5 +323,50 @@ public class BasicArithmeticTests {
 			};
 		}
 	}
+	
+	/**
+	 * Test a large amount (20000) multiplication protocols in order to
+	 * stress-test the protocol suite. 
+	 *
+	 */
+	public static class TestLotsMult extends TestThreadFactory {
 
+		@Override
+		public TestThread next(TestThreadConfiguration conf) {
+			
+			return new ThreadWithFixture() {
+				public void test() throws Exception {
+					TestApplication app = new TestApplication() {
+
+						private static final long serialVersionUID = 701623441111137585L;
+
+						@Override
+						public ProtocolProducer prepareApplication(
+								ProtocolFactory provider) {
+							BasicNumericFactory prov = (BasicNumericFactory) provider;
+							NumericIOBuilder ioBuilder = new NumericIOBuilder(prov);
+							NumericProtocolBuilder builder = new NumericProtocolBuilder(prov);
+							SInt input1 = ioBuilder.input(BigInteger.valueOf(10), 1);
+							SInt input2 = ioBuilder.input(BigInteger.valueOf(5), 1);
+							builder.beginParScope();
+							for (int i = 0; i < 10000; i++) {
+								builder.mult(input1, input2);
+							}
+							builder.endCurScope();
+							builder.beginParScope();
+							for (int i = 0; i < 10000; i++) {
+								builder.mult(input1, input2);
+							}
+							builder.endCurScope();
+							ioBuilder.addGateProducer(builder.getCircuit());
+							ProtocolProducer gp = ioBuilder.getCircuit();
+							return gp;
+						}
+					};
+					sce.runApplication(app);					
+				}
+			};
+		}
+	}
+	
 }
