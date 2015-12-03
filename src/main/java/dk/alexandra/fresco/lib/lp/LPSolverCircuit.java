@@ -37,6 +37,7 @@ import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.framework.value.Value;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
+import dk.alexandra.fresco.lib.helper.AbstractRoundBasedProtocol;
 import dk.alexandra.fresco.lib.helper.CopyProtocol;
 import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
@@ -97,7 +98,7 @@ public class LPSolverCircuit implements Protocol {
 				boolean terminated = terminationOut.getValue().equals(
 						BigInteger.ONE);
 				if (!terminated) {
-					gp = new SequentialProtocolProducer(phaseTwoCircuit());
+					gp = phaseTwoCircuit();
 				} else {
 					state = STATE.TERMINATED;
 					gp = null;
@@ -131,44 +132,64 @@ public class LPSolverCircuit implements Protocol {
 
 	private ProtocolProducer phaseTwoCircuit() {
 		// Phase 2 - Finding the exiting variable and updating the tableau
-		int noConstraints = tableau.getC().getHeight();
-		SInt[] exitingIndex = new SInt[noConstraints];
-		for (int i = 0; i < exitingIndex.length; i++) {
-			exitingIndex[i] = bnProvider.getSInt();
-		}
-		SInt[] updateColumn = new SInt[noConstraints + 1];
-		for (int i = 0; i < updateColumn.length; i++) {
-			updateColumn[i] = bnProvider.getSInt();
-		}
+		ProtocolProducer phaseTwo = new AbstractRoundBasedProtocol() {
+			int round = 0;
+			SInt[] exitingIndex, updateColumn;
+			SInt[][] newUpdate;			
+			
+			@Override
+			public ProtocolProducer nextGateProducer() {
+				int noConstraints = tableau.getC().getHeight();
+				switch (round) {
+				case 0:					
+					exitingIndex = new SInt[noConstraints];
+					for (int i = 0; i < exitingIndex.length; i++) {
+						exitingIndex[i] = bnProvider.getSInt();
+					}
+					updateColumn = new SInt[noConstraints + 1];
+					for (int i = 0; i < updateColumn.length; i++) {
+						updateColumn[i] = bnProvider.getSInt();
+					}
 
-		pivot = bnProvider.getSInt();
-		ProtocolProducer exitingIndexProducer = lpProvider
-				.getExitingVariableCircuit(tableau, updateMatrix,
-						enteringIndex, exitingIndex, updateColumn, pivot);
-		SInt[][] newUpdate = new SInt[noConstraints + 1][noConstraints + 1];
-		for (int i = 0; i < newUpdate.length; i++) {
-			for (int j = 0; j < newUpdate[i].length; j++) {
-				newUpdate[i][j] = bnProvider.getSInt();
+					pivot = bnProvider.getSInt();
+					ProtocolProducer exitingIndexProducer = lpProvider
+							.getExitingVariableCircuit(tableau, updateMatrix,
+									enteringIndex, exitingIndex, updateColumn, pivot);
+					round++;
+					return exitingIndexProducer;
+				case 1:
+					newUpdate = new SInt[noConstraints + 1][noConstraints + 1];
+					for (int i = 0; i < newUpdate.length; i++) {
+						for (int j = 0; j < newUpdate[i].length; j++) {
+							newUpdate[i][j] = bnProvider.getSInt();
+						}
+					}					
+					newUpdateMatrix = new Matrix<SInt>(newUpdate);
+					ProtocolProducer updateMatrixProducer = lpProvider.getUpdateMatrixCircuit(
+							updateMatrix, exitingIndex, updateColumn, pivot, prevPivot,
+							newUpdateMatrix);
+					round++;
+					return updateMatrixProducer;
+				case 2:
+					ParallelProtocolProducer parCopy = new ParallelProtocolProducer();
+					for (int i = 0; i < newUpdate.length; i++) {
+						for (int j = 0; j < newUpdate[i].length; j++) {
+							CopyProtocol<SInt> copy = lpProvider.getCopyCircuit(
+									newUpdateMatrix.getElement(i, j),
+									updateMatrix.getElement(i, j));
+							parCopy.append(copy);
+						}
+					}
+					CopyProtocol<SInt> copy = lpProvider.getCopyCircuit(pivot, prevPivot);
+					parCopy.append(copy);
+					round++;
+					return parCopy;
+				default:
+					break;
+				}
+				return null;
 			}
-		}
-		
-		newUpdateMatrix = new Matrix<SInt>(newUpdate);
-		ProtocolProducer updateMatrixProducer = lpProvider.getUpdateMatrixCircuit(
-				updateMatrix, exitingIndex, updateColumn, pivot, prevPivot,
-				newUpdateMatrix);
-		ParallelProtocolProducer parCopy = new ParallelProtocolProducer();
-		for (int i = 0; i < newUpdate.length; i++) {
-			for (int j = 0; j < newUpdate[i].length; j++) {
-				CopyProtocol<SInt> copy = lpProvider.getCopyCircuit(
-						newUpdateMatrix.getElement(i, j),
-						updateMatrix.getElement(i, j));
-				parCopy.append(copy);
-			}
-		}
-		CopyProtocol<SInt> copy = lpProvider.getCopyCircuit(pivot, prevPivot);
-		parCopy.append(copy);
-		ProtocolProducer phaseTwo = new SequentialProtocolProducer(
-				exitingIndexProducer, updateMatrixProducer, parCopy);
+		};		
 		return phaseTwo;
 	}
 
