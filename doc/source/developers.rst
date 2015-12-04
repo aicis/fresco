@@ -81,9 +81,10 @@ pushed to the repository. Before comitting changes to the documentation, it is
 a good idea to build the documentation locally and check that it looks ok. This
 can be done as follows.
 
-Building the docs requires Sphinx to be installed. You can do this with
-*virtualenv*:  Go to the ``doc`` folder. Then create a new virtual
-environment: ::
+Building the docs requires Sphinx to be installed. A good way to do this is by
+using *virtualenv*. Using virtualenv installs Sphinx in a local folder that can
+be easily removed, and it ensures that the installation does not have any side
+effects:  Go to the ``doc`` folder. Then create a new virtual environment: ::
 
   $ virtualenv env
   $ source ./env/bin/activate
