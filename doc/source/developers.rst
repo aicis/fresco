@@ -11,7 +11,7 @@ We will be happy to include well-written code that is compliant with
 the overall FRESCO design. This could be bug fixes, new protocol
 suites, or applications that are generic enough to fit into the FRESCO
 standard library. It could also be improvement to this documentation.
-You are wellcome to use the issue tracker at `GitHub
+You are welcome to use the issue tracker at `GitHub
 <https://github.com/aicis/fresco/issues>`_ or email us at
 fresco@alexandra.dk with any ideas, etc.
 
@@ -77,7 +77,7 @@ Building the Documentation
 
 The documentation will be built automatically and uploaded to
 `fresco.readthedocs.org <http://fresco.readthedocs.org>`_ when new changes are
-pushed to the repository. Before comitting changes to the documentation, it is
+pushed to the repository. Before committing changes to the documentation, it is
 a good idea to build the documentation locally and check that it looks ok. This
 can be done as follows.
 
