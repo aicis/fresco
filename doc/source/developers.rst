@@ -98,10 +98,13 @@ Once activated, you can build documentation with: ::
 
   $ make html
 
-On Mac OS X you may need to add the following to your ``~/.bash_profile``: ::
+On Mac OS X you may need to set the following environment variables: ::
 
     export LC_ALL=en_US.UTF-8
     export LANG=en_US.UTF-8
+
+You can enter the two lines directly in your terminal or to add them to your
+``~/.bash_profile``.
 
 Once built, you can view the result, open the file
 ``doc/build/html/index.hmtl`` with a web browser.
