@@ -11,7 +11,7 @@ We will be happy to include well-written code that is compliant with
 the overall FRESCO design. This could be bug fixes, new protocol
 suites, or applications that are generic enough to fit into the FRESCO
 standard library. It could also be improvement to this documentation.
-You are wellcome to use the issue tracker at `GitHub
+You are welcome to use the issue tracker at `GitHub
 <https://github.com/aicis/fresco/issues>`_ or email us at
 fresco@alexandra.dk with any ideas, etc.
 
@@ -46,25 +46,69 @@ The easiest way to contribute is to send us a pull request on GitHub:
 * Ensure the test suite passes, i.e., that ``mvn verify`` complete
   without errors.
 
+* If you changed the documentation, build it locally and make sure it looks
+  right.
+
 * Hit the *Pull Request* button at GitHub.
 
 
 Developing with Eclipse
 -----------------------
 
-To develop using Eclipse, run: ::
+To develop using Eclipse, first check out a fork of FRESCO from GitHub. Then
+go to the local directory where FRESCO is located and run: ::
 
     $ mvn eclipse:eclipse
 
-Then choose "Import..." from Eclipse.
+Then choose *File > Import ... > General > Existing Projects into Workspace*
+from Eclipse and select the folder containing the FRESCO source.
 
 
 .. Coding Conventions
    ------------------
-   
+
    This section contains a few guidelines for both application
    developers, protocol suite developers, and developers of FRESCO
    itself.
+
+
+Building the Documentation
+--------------------------
+
+The documentation will be built automatically and uploaded to
+`fresco.readthedocs.org <http://fresco.readthedocs.org>`_ when new changes are
+pushed to the repository. Before committing changes to the documentation, it is
+a good idea to build the documentation locally and check that it looks ok. This
+can be done as follows.
+
+Building the docs requires Sphinx to be installed. A good way to do this is by
+using *virtualenv*. Using virtualenv installs Sphinx in a local folder that can
+be easily removed, and it ensures that the installation does not have any side
+effects:  Go to the ``doc`` folder. Then create a new virtual environment: ::
+
+  $ virtualenv env
+  $ source ./env/bin/activate
+  $ pip install -r requirements.txt
+
+This only needs to be done once. When done, you can activate the virtual
+environment just by doing::
+
+  $ source ./env/bin/activate
+
+Once activated, you can build documentation with: ::
+
+  $ make html
+
+On Mac OS X you may need to set the following environment variables: ::
+
+    export LC_ALL=en_US.UTF-8
+    export LANG=en_US.UTF-8
+
+You can enter the two lines directly in your terminal or to add them to your
+``~/.bash_profile``.
+
+Once built, you can view the result, open the file
+``doc/build/html/index.hmtl`` with a web browser.
 
 
 Testing
@@ -92,7 +136,7 @@ We have three classes of tests:
   as this:
 
   .. sourcecode:: java
-  
+
     @Test @Category(IntegrationTest.class)
     public void testSomething() {
         // Your test goes here.
@@ -157,12 +201,12 @@ want your tests to vary. For example this could be number of players
 and evaluation strategy. But it can also include parameters specific
 to your suite, such as ``threshold`` which is specific to the BGW
 suite. The ``runTest`` should set up the remaining parameters for your
-test -- those parameters that should remain fixed in all your tests. 
+test -- those parameters that should remain fixed in all your tests.
 
 Then create a number of small tests, like the following:
 
 .. sourcecode:: java
- 
+
     @Test
     public void test_simple_arithmetic_3_1_sequential() throws Exception {
         runTest(new BasicArithmeticTests.TestSimpleMultAndAdd(), 3, 1, EvaluationStrategy.SEQUENTIAL);
@@ -172,10 +216,10 @@ It is fine to let the name reflect the specific parameters used in the
 test. Note how we use a generic test here: The test
 ``BasicArithmeticTests.TestSimpleMultAndAdd`` can be used to test
 multiplications and additions for any protocol suite that supports
-basic arithemtic operations, so there is no need to rewrite such
+basic arithmetic operations, so there is no need to rewrite such
 tests. Only write your own specific tests if your need to test some
 specific functionality of your suite that no other suite has,
-otherwise consider making the test generic such that it can be resued
+otherwise consider making the test generic such that it can be reused
 by others.
 
 Writing many small tests like this makes it easy to decide later which

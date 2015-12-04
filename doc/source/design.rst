@@ -5,7 +5,7 @@ The Design of FRESCO
 The overall goal of FRESCO is to support rapid and easy prototyping of
 secure computation protocols. In particular, FRESCO decouples
 applications from protocol suites in order to obtain a *plug-and-play*
-system. To achive this we apply a couple of nifty *design patterns*:
+system. To achieve this we apply a couple of nifty *design patterns*:
 
 
 The Protocol Producer/Consumer Pattern
@@ -109,7 +109,7 @@ are more or less related to FRESCO:
   LGPL. It has some of the same ideas as FRESCO, in particular, that
   applications are decoupled from protocol suites (which are called
   *runtimes* in VIFF). VIFF is based on the Twisted framework and
-  supports an asynchrounous evaluation strategy.
+  supports an asynchronous evaluation strategy.
 
 * `SCAPI <http://github.com/cryptobiu/scapi>`_ is written in Java and
   licensed under MIT as FRESCO. It binds to several C/C++ libraries for
@@ -127,8 +127,8 @@ described in :ref:`contributing`.
 
 .. [#foo] A given protocol suite may not support all available
    evaluation strategies. Protocol suites where there is a high degree
-   of dependence on shared ressources when evaluating native protocols
+   of dependence on shared resources when evaluating native protocols
    require special attention. In the extreme, such a protocol suite
-   needs its own specific evaluatior strategy. On the other hand,
+   needs its own specific evaluator strategy. On the other hand,
    suites where native protocols can be evaluated without any
    dependencies can use any available strategy.

@@ -64,7 +64,7 @@ opened.
     2      Second column of row 2.
            Second line of paragraph.
     3      - Second column of row 3.
-     
+
            - Second item in bullet
              list (row 3, column 2).
     \      Row 4; column 1 will be empty.
@@ -163,29 +163,29 @@ is available at some point before the online computation.
   any trusted party.
 
 
-.. 
+..
     The LR15 Protocol Suite
     -----------------------
-     
+
     This is an implementation of the protocol suite by Lindell and Riva
     and described in `this <http://eprint.iacr.org/2015/987.pdf>`_ paper.
-     
-    It is a two-party protocopl secure againts a malicious adversary. It
+
+    It is a two-party protocol secure against a malicious adversary. It
     is a *basic logic* factory.
-     
+
     It is in the *SIMD* setting where *N* instances of the same circuit is
     to be executed in parallel, with different input. This is a practical
     setting that occurs when for instance evaluating many AES encryptions.
-     
+
     In the LR15 suite there is a trade-off between the performance of the
     offline and the online phases: The more time and computation you are
     willing to spend offline, the faster online time you can get. This can
     be tuned via parameters.
-     
+
     While LR15 allows the inputs to be known only in the online phase, the
     circuit to compute must be known during the offline phase. This is in
     contrast to, e.g., SPDZ where the circuit to compute can also remain
     unknown until the online phase.
-     
+
     TODO: LR15 is not implemented yet. See `here
     <https://jira.alexandra.dk/browse/FRES-25>`_ for current status.
