@@ -60,8 +60,8 @@ go to the local directory where FRESCO is located and run: ::
 
     $ mvn eclipse:eclipse
 
-Then choose "Import..." from Eclipse and select the folder containing the
-FRESCO source.
+Then choose *File > Import ... > General > Existing Projects into Workspace*
+from Eclipse and select the folder containing the FRESCO source.
 
 
 .. Coding Conventions
