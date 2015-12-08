@@ -48,11 +48,11 @@ import dk.alexandra.fresco.framework.sce.configuration.TestSCEConfiguration;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
 import dk.alexandra.fresco.framework.sce.resources.storage.MySQLStorage;
+import dk.alexandra.fresco.framework.sce.resources.storage.Storage;
 import dk.alexandra.fresco.framework.sce.resources.storage.StorageStrategy;
 import dk.alexandra.fresco.lib.arithmetic.BasicArithmeticTests;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.configuration.SpdzConfiguration;
-import dk.alexandra.fresco.suite.spdz.configuration.SpdzConfigurationFromProperties;
 import dk.alexandra.fresco.suite.spdz.evaluation.strategy.SpdzProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.storage.InitializeStorage;
 
@@ -85,12 +85,24 @@ public class TestSpdzBasicArithmetic2Parties {
 		for (int playerId : netConf.keySet()) {
 			TestThreadConfiguration ttc = new TestThreadConfiguration();
 			ttc.netConf = netConf.get(playerId);
-
-			// This fixes parameters, e.g., security parameter 80 is always
-			// used.
-			// To run tests with varying parameters, do as in the BGW case with
-			// different thresholds.
-			SpdzConfiguration spdzConf = new SpdzConfigurationFromProperties();
+			
+			SpdzConfiguration spdzConf = new SpdzConfiguration() {
+				
+				@Override
+				public boolean useDummyData() {
+					return false;
+				}
+				
+				@Override
+				public String getTriplePath() {
+					return null;
+				}
+				
+				@Override
+				public int getMaxBitLength() {
+					return 150;
+				}
+			};
 			ttc.protocolSuiteConf = spdzConf;
 			boolean useSecureConnection = false; // No tests of secure
 													// connection
@@ -127,15 +139,12 @@ public class TestSpdzBasicArithmetic2Parties {
 	@BeforeClass
 	public static void initStorage() {
 		Reporter.init(Level.INFO);
-		// dk.alexandra.fresco.framework.sce.resources.storage.Storage[]
-		// storages = new
-		// dk.alexandra.fresco.framework.sce.resources.storage.Storage[] {
-		// inMemStore, mySQLStore };
-		dk.alexandra.fresco.framework.sce.resources.storage.Storage[] storages = new dk.alexandra.fresco.framework.sce.resources.storage.Storage[] { inMemStore };
-		InitializeStorage.initStorage(storages, noOfParties, 10000, 1000,
-				10000, 100);
+		// Storage[] storages = new Storage[] { inMemStore, mySQLStore };
+		Storage[] storages = new Storage[] { inMemStore };
+		InitializeStorage.initStorage(storages, noOfParties, 1000, 100,
+				1000, 10);
 	}
-
+	
 	@Test
 	public void test_Copy_Sequential() throws Exception {
 		runTest(new BasicArithmeticTests.TestCopyProtocol(),
@@ -200,9 +209,9 @@ public class TestSpdzBasicArithmetic2Parties {
 
 		// Additional setup for mysql integration
 		mySQLStore = MySQLStorage.getInstance();
-		dk.alexandra.fresco.framework.sce.resources.storage.Storage[] storages = new dk.alexandra.fresco.framework.sce.resources.storage.Storage[] { inMemStore };
-		InitializeStorage.initStorage(storages, noOfParties, 10000, 1000,
-				10000, 100);
+		Storage[] storages = new Storage[] { mySQLStore };
+		InitializeStorage.initStorage(storages, noOfParties, 1000, 100,
+				1000, 10);
 
 		runTest(new BasicArithmeticTests.TestLotsOfInputs(),
 				EvaluationStrategy.SEQUENTIAL_BATCHED, StorageStrategy.MYSQL);

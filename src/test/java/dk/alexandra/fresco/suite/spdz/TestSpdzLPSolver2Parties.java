@@ -32,7 +32,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
@@ -50,9 +49,7 @@ import dk.alexandra.fresco.framework.sce.resources.storage.StorageStrategy;
 import dk.alexandra.fresco.lib.arithmetic.LPSolverTests;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.configuration.SpdzConfiguration;
-import dk.alexandra.fresco.suite.spdz.configuration.SpdzConfigurationFromProperties;
 import dk.alexandra.fresco.suite.spdz.evaluation.strategy.SpdzProtocolSuite;
-import dk.alexandra.fresco.suite.spdz.storage.InitializeStorage;
 
 public class TestSpdzLPSolver2Parties {
 
@@ -78,11 +75,23 @@ public class TestSpdzLPSolver2Parties {
 			TestThreadConfiguration ttc = new TestThreadConfiguration();
 			ttc.netConf = netConf.get(playerId);
 
-			// This fixes parameters, e.g., security parameter 80 is always
-			// used.
-			// To run tests with varying parameters, do as in the BGW case with
-			// different thresholds.
-			SpdzConfiguration spdzConf = new SpdzConfigurationFromProperties();
+			SpdzConfiguration spdzConf = new SpdzConfiguration() {
+				
+				@Override
+				public boolean useDummyData() {
+					return true;
+				}
+				
+				@Override
+				public String getTriplePath() {
+					return null;
+				}
+				
+				@Override
+				public int getMaxBitLength() {
+					return 150;
+				}
+			};
 			ttc.protocolSuiteConf = spdzConf;
 			boolean useSecureConnection = false; // No tests of secure connection
 												// here.
@@ -108,14 +117,16 @@ public class TestSpdzLPSolver2Parties {
 
 	/**
 	 * Makes sure that the preprocessed data exists in the storage's used in
-	 * this test class.
+	 * this test class. Not needed if we set useDummyData to true in spdz config. 
 	 */
+	/*
 	@BeforeClass
 	public static void initStorage() {
 		Storage[] storages = new Storage[] {
 				inMemStore};//, mySQLStore };
 		InitializeStorage.initStorage(storages, 2, 10000, 1000, 500000, 2000);
 	}
+	*/
 
 	@Test
 	public void test_LPSolver_2_Sequential() throws Exception {

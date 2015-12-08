@@ -60,5 +60,10 @@ public class SpdzConfigurationFromProperties implements SpdzConfiguration {
 	public String getTriplePath() {
 		return prop.getProperty("triplePath");		
 	}
+
+	@Override
+	public boolean useDummyData() {
+		return Boolean.parseBoolean(prop.getProperty("useDummyData", "False"));
+	}
 	
 }

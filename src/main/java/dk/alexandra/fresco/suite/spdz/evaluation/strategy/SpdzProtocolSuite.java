@@ -52,9 +52,10 @@ import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzCommitGate;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzOpenCommitGate;
 import dk.alexandra.fresco.suite.spdz.storage.DataRetrieverImpl;
-import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageConstants;
-import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageImpl;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
+import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageConstants;
+import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageDummyImpl;
+import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageImpl;
 import dk.alexandra.fresco.suite.spdz.utils.Util;
 
 public class SpdzProtocolSuite implements ProtocolSuite {
@@ -110,12 +111,11 @@ public class SpdzProtocolSuite implements ProtocolSuite {
 		this.network = resourcePool.getNetwork();
 		this.store = new SpdzStorage[resourcePool.getThreadPool().getThreadCount()];
 		for (int i = 0; i < resourcePool.getThreadPool().getThreadCount(); i++) {
-			store[i] = new SpdzStorageImpl(resourcePool, i);
-			/*
-			store[i] = new SpdzByteStorage(resourcePool.getMyId(),
-					resourcePool.getNoOfParties(),
-					spdzConf.getTriplePath() + i + "/");
-					*/
+			if(spdzConf.useDummyData()) {
+				store[i] = new SpdzStorageDummyImpl(resourcePool.getMyId(), resourcePool.getNoOfParties());
+			} else {
+				store[i] = new SpdzStorageImpl(resourcePool, i);
+			}
 		}		
 		this.rand = resourcePool.getSecureRandom();
 		this.rp = resourcePool;
@@ -145,7 +145,7 @@ public class SpdzProtocolSuite implements ProtocolSuite {
 			Util.size = p.toByteArray().length - 1;		
 		}else{
 			Util.size = p.toByteArray().length;
-		}			
+		}	
 	}
 
 	@Override

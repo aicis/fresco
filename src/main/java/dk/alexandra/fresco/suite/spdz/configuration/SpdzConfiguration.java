@@ -54,6 +54,13 @@ public interface SpdzConfiguration extends ProtocolSuiteConfiguration {
 	 */
 	public String getTriplePath();
 
+	/**
+	 * True: system will use dummy data for preprocessed data.
+	 * False: System will read data from the FRESCO native storage.
+	 * @return
+	 */
+	public boolean useDummyData();
+	
 	static SpdzConfiguration fromCmdArgs(SCEConfiguration sceConf,
 			String[] remainingArgs) throws ParseException {
 		Options options = new Options();
@@ -67,22 +74,23 @@ public interface SpdzConfiguration extends ProtocolSuiteConfiguration {
 				.builder("D")
 				.desc("The maximum bit length. A suggestion is half the size of the modulus, but might be required to be lower for some applications.")
 				.longOpt("spdz.maxBitLength").required(true).hasArgs().build());
+		
+		options.addOption(Option
+				.builder("D")
+				.desc("Set to true to use dummy data as preprocessed data.")
+				.longOpt("spdz.useDummyData").required(false).hasArgs().build());
 
 		CommandLineParser parser = new DefaultParser();
 		CommandLine cmd = parser.parse(options, remainingArgs);
 
 		// Validate BGW specific arguments.
 		Properties p = cmd.getOptionProperties("D");
-		if (!p.contains("spdz.triplePath")) {
-			throw new ParseException(
-					"SPDZ requires you to specify -Dspdz.triplePath=[path]");
-		}
-
+		
 		if (!p.contains("spdz.securityParameter")) {
 			throw new ParseException(
 					"SPDZ requires you to specify -Dspdz.securityParameter=[path]");
 		}
-
+				
 		final int maxBitLength = Integer.parseInt(p
 				.getProperty("spdz.maxBitLength"));
 		if (maxBitLength < 2) {
@@ -90,6 +98,7 @@ public interface SpdzConfiguration extends ProtocolSuiteConfiguration {
 		}
 
 		final String triplePath = p.getProperty("spdz.triplePath", "/triples");
+		final boolean useDummyData = Boolean.parseBoolean(p.getProperty("spdz.useDummyData", "False"));
 
 		return new SpdzConfiguration() {
 
@@ -101,6 +110,11 @@ public interface SpdzConfiguration extends ProtocolSuiteConfiguration {
 			@Override
 			public int getMaxBitLength() {
 				return maxBitLength;
+			}
+
+			@Override
+			public boolean useDummyData() {
+				return useDummyData;
 			}
 		};
 	}
