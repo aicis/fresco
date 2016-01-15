@@ -26,11 +26,8 @@
  *******************************************************************************/
 package dk.alexandra.fresco.framework.sce.evaluator;
 
-import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -39,7 +36,6 @@ import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.Reporter;
-import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.SCENetworkImpl;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.sce.resources.SCEResourcePool;
@@ -127,32 +123,23 @@ public class BatchedParallelEvaluator implements ProtocolEvaluator {
 		private int numOfProtocols;
 		private String channel;
 		private ResourcePool rp;
-		private BatchedStrategy strategy;
-		private Network network;
 		private SCENetworkImpl[] sceNetworks;
-		private Map<Integer, List<Serializable[]>> queues;
 
 		public BatchTask(NativeProtocol[] protocols, int threadId, int numOfProtocols, ResourcePool rp) {
 			this.channel = ""+threadId;
 			this.protocols = protocols;
 			this.rp = rp;
-			this.network = rp.getNetwork();
 			this.numOfProtocols = numOfProtocols;
-			this.strategy = new BatchedStrategy();
-			this.queues = new HashMap<Integer, List<Serializable[]>>();
 			this.sceNetworks = new SCENetworkImpl[numOfProtocols];
 			for (int i = 0; i < numOfProtocols; i++) {
 				this.sceNetworks[i] = new SCENetworkImpl(
 						this.rp.getNoOfParties(), threadId);
 			}
-			for (int pId = 1; pId <= this.rp.getNoOfParties(); pId++) {
-				this.queues.put(pId, new ArrayList<Serializable[]>());
-			}
 		}
 
 		@Override
 		public Object call() throws Exception {		
-			this.strategy.processBatch(protocols, numOfProtocols, sceNetworks, network, channel, rp, queues);
+			BatchedStrategy.processBatch(protocols, numOfProtocols, sceNetworks, channel, rp);
 			return null;
 		}
 	}
