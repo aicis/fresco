@@ -134,6 +134,12 @@ public class TestSpdzLPSolver2Parties {
 				EvaluationStrategy.SEQUENTIAL, StorageStrategy.IN_MEMORY);
 	}
 
+	@Test
+	public void test_LPSolver_2_Parallel() throws Exception {
+		runTest(new LPSolverTests.TestLPSolver(), 2,
+				EvaluationStrategy.PARALLEL, StorageStrategy.IN_MEMORY);
+	}
+
 	
 	/*
 	@Test
