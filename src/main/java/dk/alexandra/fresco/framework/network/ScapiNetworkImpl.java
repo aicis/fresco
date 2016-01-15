@@ -70,7 +70,7 @@ import edu.biu.scapi.primitives.prf.bc.BcAES;
  * For now it only uses non-encrypted socket-based communication.
  *
  */
-public class ScapiNetworkImpl implements Network{
+public class ScapiNetworkImpl implements Network {
 
 	private NetworkConfiguration conf;
 
@@ -289,7 +289,7 @@ public class ScapiNetworkImpl implements Network{
 		if(partyId == this.conf.getMyId()) {
 			Serializable res = this.queues.get(channel).poll();
 			if(res == null){
-				throw new MPCException("Self have not send anything on channel 1 before receive was called.");
+				throw new MPCException("Self(" + partyId + ") have not send anything on channel 1 before receive was called.");
 			}
 			return (T) res;
 		} else {
