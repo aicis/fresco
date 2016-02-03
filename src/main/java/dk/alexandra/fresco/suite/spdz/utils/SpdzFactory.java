@@ -244,24 +244,24 @@ public class SpdzFactory implements BasicNumericFactory, PreprocessedNumericBitF
 	 * IO Provider Stuff *
 	 ****************************************/
 
-	public CloseIntProtocol getCloseCircuit(BigInteger open,
+	public CloseIntProtocol getCloseProtocol(BigInteger open,
 			SInt closed, int targetID) {
 		return new SpdzInputGate(open, closed, targetID);
 	}
 
 
 	@Override
-	public CloseIntProtocol getCloseCircuit(int source, OInt open, SInt closed) {
+	public CloseIntProtocol getCloseProtocol(int source, OInt open, SInt closed) {
 		return new SpdzInputGate(open, closed, source);
 	}
 
 	@Override
-	public OpenIntProtocol getOpenCircuit(int target, SInt closed, OInt open) {
+	public OpenIntProtocol getOpenProtocol(int target, SInt closed, OInt open) {
 		return new SpdzOutputGate(closed, open, target);
 	}
 
 	@Override
-	public OpenIntProtocol getOpenCircuit(SInt closed, OInt open) {
+	public OpenIntProtocol getOpenProtocol(SInt closed, OInt open) {
 		return new SpdzOutputToAllGate(closed, open);
 	}
 

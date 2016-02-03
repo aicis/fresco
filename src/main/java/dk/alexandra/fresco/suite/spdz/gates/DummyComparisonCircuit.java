@@ -66,8 +66,8 @@ public class DummyComparisonCircuit implements ComparisonProtocol {
 		if (currGP == null) {
 			OInt a_open = provider.getOInt();
 			OInt b_open = provider.getOInt();
-			OpenIntProtocol openA = provider.getOpenCircuit(a, a_open);
-			OpenIntProtocol openB = provider.getOpenCircuit(b, b_open);
+			OpenIntProtocol openA = provider.getOpenProtocol(a, a_open);
+			OpenIntProtocol openB = provider.getOpenProtocol(b, b_open);
 			SpdzOInt a_open_ = (SpdzOInt) a_open;
 			SpdzOInt b_open_ = (SpdzOInt) b_open;
 

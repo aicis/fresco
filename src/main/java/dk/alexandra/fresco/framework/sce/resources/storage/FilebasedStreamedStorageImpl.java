@@ -33,9 +33,10 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
-import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import dk.alexandra.fresco.framework.MPCException;
+import dk.alexandra.fresco.framework.Reporter;
 
 /**
  * Streamed Storage based on files.
@@ -43,24 +44,25 @@ import dk.alexandra.fresco.framework.MPCException;
  *
  */
 public class FilebasedStreamedStorageImpl implements StreamedStorage {
-
-	private Map<String, ObjectInputStream> oiss;
-	private Map<String, ObjectOutputStream> ooss;
+	
+	private ConcurrentHashMap<String, ObjectInputStream> oiss;
+	private ConcurrentHashMap<String, ObjectOutputStream> ooss;
 	private Storage storage;
 	
 	public FilebasedStreamedStorageImpl(Storage internalStorage) {
 		this.storage = internalStorage;
+		oiss = new ConcurrentHashMap<String, ObjectInputStream>();
+		ooss = new ConcurrentHashMap<String, ObjectOutputStream>();
 	}
 	
 	@SuppressWarnings("unchecked")
 	@Override
-	public <T extends Serializable> T getNextObject(String name) {
+	public <T extends Serializable> T getNext(String name) {
 		if(!oiss.containsKey(name)) {			
 			FileInputStream fis;
 			try {
 				fis = new FileInputStream(name);
 			} catch (FileNotFoundException e) {
-				e.printStackTrace();
 				throw new MPCException("File with filename '"+name+"' not found.");
 			}
 			ObjectInputStream ois = null;
@@ -75,13 +77,6 @@ public class FilebasedStreamedStorageImpl implements StreamedStorage {
 					}
 				}
 				throw new MPCException("IOException: "+e.getMessage());
-			} finally {
-				if(ois != null) {
-					try {
-						ois.close();
-					} catch (IOException e) {
-					}
-				}
 			}
 			oiss.put(name, ois);			
 		}
@@ -91,19 +86,20 @@ public class FilebasedStreamedStorageImpl implements StreamedStorage {
 			e.printStackTrace();
 			throw new MPCException("Class not found: " + e.getMessage());
 		} catch (IOException e) {
-			e.printStackTrace();
-			throw new MPCException("IOException: " + e.getMessage());
+			Reporter.severe("IO-Exception. Could not read object from: "+name+". This is most likely because there are no more elements available.");
+			e.printStackTrace();			
+			throw new MPCException("IOException - most likely because there are no more elements available." , e);
 		}
+		
 	}
 
 	@Override
-	public boolean putNextObject(String name, Serializable o) {
+	public boolean putNext(String name, Serializable o) {
 		if(!ooss.containsKey(name)) {
 			FileOutputStream fos;
 			try {
 				fos = new FileOutputStream(name);
 			} catch (FileNotFoundException e) {
-				e.printStackTrace();
 				throw new MPCException("File with filename '"+name+"' not found.");
 			}
 			ObjectOutputStream oos = null;
@@ -118,13 +114,6 @@ public class FilebasedStreamedStorageImpl implements StreamedStorage {
 					}
 				}
 				throw new MPCException("IOException: "+e.getMessage());
-			} finally {
-				if(oos != null) {
-					try {
-						oos.close();
-					} catch (IOException e) {
-					}
-				}
 			}
 			ooss.put(name, oos);			
 		}		

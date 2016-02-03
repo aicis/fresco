@@ -29,6 +29,7 @@ package dk.alexandra.fresco.lib.arithmetic;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.math.BigInteger;
 
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.ProtocolFactory;
@@ -54,6 +55,7 @@ import dk.alexandra.fresco.lib.math.inv.LocalInversionFactory;
 import dk.alexandra.fresco.suite.spdz.utils.LPInputReader;
 import dk.alexandra.fresco.suite.spdz.utils.PlainLPInputReader;
 import dk.alexandra.fresco.suite.spdz.utils.PlainSpdzLPPrefix;
+import org.junit.Assert;
 
 public class LPSolverTests {
 
@@ -123,13 +125,14 @@ public class LPSolverTests {
 												prefix.getTableau().getB(),
 												prefix.getPivot(), sout);
 								ProtocolProducer open = bnFactory
-										.getOpenCircuit(sout, out);
+										.getOpenProtocol(sout, out);
 								ProtocolProducer seq = new SequentialProtocolProducer(
-										prefix.getProducer(), 
+										prefix.getPrefix(), 
 										lpsolver,
 										outputter, 
 										open);
 								sseq.append(seq);
+								this.outputs = new OInt[] {out};
 							}
 							return sseq;
 						}
@@ -139,6 +142,7 @@ public class LPSolverTests {
 					long endTime = System.nanoTime();
 					System.out.println("============ Seq Time: "
 							+ ((endTime - startTime) / 1000000));
+					Assert.assertTrue(BigInteger.valueOf(161).equals(app.getOutputs()[0].getValue()));
 				}
 			};
 		}

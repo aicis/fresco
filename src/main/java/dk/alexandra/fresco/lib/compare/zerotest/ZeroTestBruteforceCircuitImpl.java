@@ -117,7 +117,7 @@ public class ZeroTestBruteforceCircuitImpl implements ZeroTestBruteforceCircuit 
 				masked_O = provider.getOInt();
 				ProtocolProducer incrCircuit = incrProvider.getIncrementByOneCircuit(input, increased);
 				MultProtocol multCircuit = provider.getMultCircuit(increased, R[0], masked_S);
-				OpenIntProtocol openCircuit = provider.getOpenCircuit(masked_S, masked_O);
+				OpenIntProtocol openCircuit = provider.getOpenProtocol(masked_S, masked_O);
 				
 				gp = new SequentialProtocolProducer(incrCircuit, multCircuit, openCircuit);
 

@@ -31,6 +31,7 @@ import java.util.Random;
 
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.resources.storage.Storage;
+import dk.alexandra.fresco.framework.sce.resources.storage.StreamedStorage;
 import dk.alexandra.fresco.framework.sce.resources.threads.ProtocolThreadPool;
 
 public interface ResourcePool {
@@ -52,6 +53,8 @@ public interface ResourcePool {
 	public abstract Network getNetwork();
 
 	public abstract Storage getStorage();
+	
+	public abstract StreamedStorage getStreamedStorage();
 
 	public abstract Random getRandom();
 

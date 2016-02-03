@@ -218,7 +218,7 @@ public class NumericIOBuilder extends AbstractProtocolBuilder {
 				if (is != null) {
 					oi.setValue(is[i]);
 				}
-				input = iop.getCloseCircuit(targetID, oi, sis[i]);
+				input = iop.getCloseProtocol(targetID, oi, sis[i]);
 				i++;
 			}
 			return input;
@@ -238,7 +238,7 @@ public class NumericIOBuilder extends AbstractProtocolBuilder {
 		SInt si = sip.getSInt();
 		OInt oi = oip.getOInt();
 		oi.setValue(i);
-		append(iop.getCloseCircuit(targetID, oi, si));
+		append(iop.getCloseProtocol(targetID, oi, si));
 		return si;
 	}
 	
@@ -255,7 +255,7 @@ public class NumericIOBuilder extends AbstractProtocolBuilder {
 		SInt si = sip.getSInt();
 		OInt oi = oip.getOInt();
 		oi.setValue(BigInteger.valueOf(i));
-		append(iop.getCloseCircuit(targetID, oi, si));
+		append(iop.getCloseProtocol(targetID, oi, si));
 		return si;
 	}
 
@@ -269,7 +269,7 @@ public class NumericIOBuilder extends AbstractProtocolBuilder {
 	 */
 	public SInt input(int targetID) {
 		SInt si = sip.getSInt();
-		append(iop.getCloseCircuit(targetID, null, si));
+		append(iop.getCloseProtocol(targetID, null, si));
 		return si;
 	}
 
@@ -328,7 +328,7 @@ public class NumericIOBuilder extends AbstractProtocolBuilder {
 		protected ProtocolProducer getNextGateProducer() {
 			ProtocolProducer output = null;
 			if (i < ois.length) {
-				output = iop.getOpenCircuit(sis[i], ois[i]);
+				output = iop.getOpenProtocol(sis[i], ois[i]);
 				i++;
 			}
 			return output;
@@ -345,7 +345,7 @@ public class NumericIOBuilder extends AbstractProtocolBuilder {
 	 */
 	public OInt output(SInt si) {
 		OInt oi = oip.getOInt();
-		append(iop.getOpenCircuit(si, oi));
+		append(iop.getOpenProtocol(si, oi));
 		return oi;
 	}
 

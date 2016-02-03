@@ -49,6 +49,7 @@ import dk.alexandra.fresco.framework.sce.evaluator.ParallelEvaluator;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
 import dk.alexandra.fresco.framework.sce.resources.SCEResourcePool;
 import dk.alexandra.fresco.framework.sce.resources.storage.Storage;
+import dk.alexandra.fresco.framework.sce.resources.storage.StreamedStorage;
 import dk.alexandra.fresco.framework.sce.resources.threads.ThreadPoolImpl;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.bgw.BgwFactory;
@@ -86,8 +87,7 @@ public class SCEImpl implements SCE {
 		this.sceConf = sceConf;
 	}
 
-	protected SCEImpl(SCEConfiguration sceConf,
-			ProtocolSuiteConfiguration psConf) {
+	protected SCEImpl(SCEConfiguration sceConf, ProtocolSuiteConfiguration psConf) {
 		this.sceConf = sceConf;
 		this.psConf = psConf;
 	}
@@ -111,11 +111,11 @@ public class SCEImpl implements SCE {
 		}
 		int noOfThreads = sceConf.getNoOfThreads();
 		int noOfvmThreads = sceConf.getNoOfVMThreads();
-		NetworkConfiguration conf = new NetworkConfigurationImpl(myId, parties,
-				logLevel);
+		NetworkConfiguration conf = new NetworkConfigurationImpl(myId, parties, logLevel);
 
 		ThreadPoolImpl threadPool = null;
 		Storage storage = sceConf.getStorage();
+		StreamedStorage streamedStorage = sceConf.getStreamedStorage();
 		// Secure random by default.
 		Random rand = new Random(0);
 		SecureRandom secRand = new SecureRandom();
@@ -126,8 +126,7 @@ public class SCEImpl implements SCE {
 		// If the evaluator is of a parallel sort,
 		// we need the same amount of channels as the number of VM threads we
 		// use.
-		if (this.evaluator instanceof ParallelEvaluator
-				|| this.evaluator instanceof BatchedParallelEvaluator) {
+		if (this.evaluator instanceof ParallelEvaluator || this.evaluator instanceof BatchedParallelEvaluator) {
 			channelAmount = noOfvmThreads;
 		}
 		ScapiNetworkImpl network = new ScapiNetworkImpl(conf, channelAmount);
@@ -143,9 +142,8 @@ public class SCEImpl implements SCE {
 			threadPool = new ThreadPoolImpl(noOfvmThreads, 0);
 		}
 
-		this.resourcePool = new ResourcePoolImpl(sceConf.getMyId(),
-				parties.size(), network, storage, rand, secRand, threadPool,
-				threadPool);
+		this.resourcePool = new ResourcePoolImpl(sceConf.getMyId(), parties.size(), network, storage, streamedStorage,
+				rand, secRand, threadPool, threadPool);
 
 		this.resourcePool.initializeRandom();
 		this.resourcePool.initializeThreadPool();
@@ -155,8 +153,7 @@ public class SCEImpl implements SCE {
 		String runtime = sceConf.getProtocolSuiteName();
 		switch (runtime.toLowerCase()) {
 		case "spdz":
-			this.protocolSuite = SpdzProtocolSuite
-					.getInstance(this.resourcePool.getMyId());
+			this.protocolSuite = SpdzProtocolSuite.getInstance(this.resourcePool.getMyId());
 			if (psConf == null) {
 				psConf = new SpdzConfigurationFromProperties();
 			}
@@ -166,8 +163,7 @@ public class SCEImpl implements SCE {
 			dk.alexandra.fresco.suite.spdz.storage.SpdzStorage spdzStorage = ((SpdzProtocolSuite) this.protocolSuite)
 					.getStore(0);
 			int maxBitLength = ((SpdzConfiguration) psConf).getMaxBitLength();
-			this.protocolFactory = new SpdzFactory(spdzStorage,
-					this.resourcePool.getMyId(), maxBitLength);
+			this.protocolFactory = new SpdzFactory(spdzStorage, this.resourcePool.getMyId(), maxBitLength);
 			break;
 		case "bgw":
 			this.protocolSuite = BgwProtocolSuite.getInstance();
@@ -177,8 +173,8 @@ public class SCEImpl implements SCE {
 			this.protocolSuite.init(this.resourcePool, psConf);
 			int threshold = ((BgwConfiguration) psConf).getThreshold();
 			BigInteger modulus = ((BgwConfiguration) psConf).getModulus();
-			this.protocolFactory = new BgwFactory(this.resourcePool.getMyId(),
-					this.resourcePool.getNoOfParties(), threshold, modulus);
+			this.protocolFactory = new BgwFactory(this.resourcePool.getMyId(), this.resourcePool.getNoOfParties(),
+					threshold, modulus);
 			break;
 		case "dummy":
 			this.protocolSuite = new DummyProtocolSuite();
@@ -207,9 +203,7 @@ public class SCEImpl implements SCE {
 	public void runApplication(Application application) {
 		try {
 			Reporter.init(this.getSCEConfiguration().getLogLevel());
-			Reporter.info("Running application: "
-					+ application.getClass().getSimpleName()
-					+ " using protocol suite: "
+			Reporter.info("Running application: " + application.getClass().getSimpleName() + " using protocol suite: "
 					+ this.getSCEConfiguration().getProtocolSuiteName());
 			Reporter.info("Players: " + this.getSCEConfiguration().getParties());
 			setup();
@@ -217,9 +211,7 @@ public class SCEImpl implements SCE {
 			this.evaluator.setResourcePool(this.resourcePool);
 			this.evaluator.setProtocolInvocation(this.protocolSuite);
 		} catch (IOException e) {
-			throw new MPCException(
-					"Could not run application due to errors during setup: "
-							+ e.getMessage(), e);
+			throw new MPCException("Could not run application due to errors during setup: " + e.getMessage(), e);
 		}
 		evalApplication(application);
 	}

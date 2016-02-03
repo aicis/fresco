@@ -26,6 +26,7 @@
  *******************************************************************************/
 package dk.alexandra.fresco.framework.storage;
 
+import java.io.Serializable;
 import java.math.BigInteger;
 import java.util.logging.Level;
 
@@ -35,9 +36,11 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import dk.alexandra.fresco.framework.Reporter;
+import dk.alexandra.fresco.framework.sce.resources.storage.FilebasedStreamedStorageImpl;
 import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
 import dk.alexandra.fresco.framework.sce.resources.storage.MySQLStorage;
 import dk.alexandra.fresco.framework.sce.resources.storage.Storage;
+import dk.alexandra.fresco.framework.sce.resources.storage.StreamedStorage;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzTriple;
 
@@ -64,6 +67,20 @@ public class TestStorage {
 		testStoreBigInteger(storage);
 	}
 	
+	@Test
+	public void testFilebasedStorage() {
+		StreamedStorage storage = new FilebasedStreamedStorageImpl(new InMemoryStorage());
+		testStorage(storage);
+		testStoreBigInteger(storage);
+		testStreamedStorage(storage);
+	}
+	
+	private void testStreamedStorage(StreamedStorage storage) {
+		storage.putNext("testName", BigInteger.TEN);
+		Serializable o = storage.getNext("testName");
+		Assert.assertEquals(BigInteger.TEN, o);
+	}
+
 	public void testStorage(Storage storage) {	
 		SpdzElement a = new SpdzElement(BigInteger.ONE, BigInteger.ZERO);
 		SpdzTriple o1 = new SpdzTriple(a, a, a);		

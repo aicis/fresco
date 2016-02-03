@@ -48,7 +48,7 @@ public interface IOIntProtocolFactory {
 	 * @return the circuit to do the transformation
 	 * 
 	 */
-	public CloseIntProtocol getCloseCircuit(BigInteger open, SInt closed,
+	public CloseIntProtocol getCloseProtocol(BigInteger open, SInt closed,
 			int targetID);
 	
 	/**
@@ -60,7 +60,7 @@ public interface IOIntProtocolFactory {
 	 * @return the circuit to do the transformation
 	 * 
 	 */
-	CloseIntProtocol getCloseCircuit(int source, OInt open, SInt closed);
+	CloseIntProtocol getCloseProtocol(int source, OInt open, SInt closed);
 
 	
 	/**
@@ -71,7 +71,7 @@ public interface IOIntProtocolFactory {
 	 * @return the circuit to do the transformation
 	 * 
 	 */
-	OpenIntProtocol getOpenCircuit(SInt closed, OInt open);
+	OpenIntProtocol getOpenProtocol(SInt closed, OInt open);
 	
 	
 	/**
@@ -83,7 +83,7 @@ public interface IOIntProtocolFactory {
 	 * @return the circuit to do the transformation
 	 * 
 	 */
-	OpenIntProtocol getOpenCircuit(int target, SInt closed, OInt open);
+	OpenIntProtocol getOpenProtocol(int target, SInt closed, OInt open);
 	
 	
 //	/**

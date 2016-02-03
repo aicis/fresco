@@ -90,7 +90,7 @@ public class TestSpdzBasicArithmetic2Parties {
 				
 				@Override
 				public boolean useDummyData() {
-					return false;
+					return true;
 				}
 				
 				@Override
@@ -109,7 +109,7 @@ public class TestSpdzBasicArithmetic2Parties {
 													// here.
 			int noOfVMThreads = 3;
 			int noOfThreads = 3;
-			ProtocolSuite suite = SpdzProtocolSuite.getInstance(playerId);
+			ProtocolSuite suite = new SpdzProtocolSuite();
 			ProtocolEvaluator evaluator = EvaluationStrategy
 					.fromEnum(evalStrategy);
 			dk.alexandra.fresco.framework.sce.resources.storage.Storage storage = null;

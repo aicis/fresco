@@ -75,7 +75,7 @@ public class SpdzInputGate extends SpdzNativeProtocol implements CloseIntProtoco
 
 	@Override
 	public EvaluationStatus evaluate(int round, ResourcePool resourcePool,
-			SCENetwork network) {
+			SCENetwork network) {		
 		int myId = resourcePool.getMyId();
 		int players = resourcePool.getNoOfParties();
 		SpdzProtocolSuite spdzPii = SpdzProtocolSuite

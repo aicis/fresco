@@ -41,6 +41,7 @@ import dk.alexandra.fresco.framework.configuration.ConfigurationException;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.resources.storage.Storage;
 import dk.alexandra.fresco.framework.sce.resources.storage.StorageStrategy;
+import dk.alexandra.fresco.framework.sce.resources.storage.StreamedStorage;
 import dk.alexandra.fresco.framework.sce.util.Util;
 
 public class FileBasedSCEConfiguration implements SCEConfiguration {
@@ -58,6 +59,7 @@ public class FileBasedSCEConfiguration implements SCEConfiguration {
 	private int maxBatchSize;
 	private ProtocolEvaluator evaluator;
 	private Storage storage;
+	private StreamedStorage streamedStorage;
 
 	private FileBasedSCEConfiguration(String propertiesLocation) {
 		this.propertiesLocation = propertiesLocation;
@@ -162,6 +164,10 @@ public class FileBasedSCEConfiguration implements SCEConfiguration {
 			if(this.storage == null) {
 				throw new ConfigurationException("The property 'storage' must be set to one of these values: "+ Arrays.toString(StorageStrategy.values()));
 			}
+			//If the storage is in fact also a streamed storage, we also set that field.
+			if(this.storage instanceof StreamedStorage) {
+				this.streamedStorage = (StreamedStorage) this.storage;
+			}
 			
 			this.maxBatchSize = Integer.parseInt(prop.getProperty("maxBatchSize", "4096"));
 			
@@ -257,5 +263,13 @@ public class FileBasedSCEConfiguration implements SCEConfiguration {
 			loadProperties();
 		}
 		return this.maxBatchSize;
+	}
+
+	@Override
+	public StreamedStorage getStreamedStorage() {
+		if(!loaded) {
+			loadProperties();
+		}
+		return this.streamedStorage;
 	}	
 }

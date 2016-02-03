@@ -75,7 +75,7 @@ public class SumAndOutputApplication implements Application {
 
 		// create output wire
 		this.output = prov.getOInt();
-		ProtocolProducer outputProtocol = prov.getOpenCircuit(sum,
+		ProtocolProducer outputProtocol = prov.getOpenProtocol(sum,
 				this.output);
 
 		// Connect all protocols into a single protocol

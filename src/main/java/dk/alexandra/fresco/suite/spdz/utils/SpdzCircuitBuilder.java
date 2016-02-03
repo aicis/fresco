@@ -54,7 +54,7 @@ public class SpdzCircuitBuilder extends AbstractProtocolBuilder {
 	
 	public SInt input(BigInteger o, int inputterId) {
 		SInt s = provider.getSInt();
-		ProtocolProducer gp = provider.getCloseCircuit(o, s, inputterId);
+		ProtocolProducer gp = provider.getCloseProtocol(o, s, inputterId);
 		append(gp);
 		return s;
 	}
@@ -65,14 +65,14 @@ public class SpdzCircuitBuilder extends AbstractProtocolBuilder {
 	
 	public OInt outputAll(SInt s) {
 		OInt o = provider.getOInt();
-		ProtocolProducer gp = provider.getOpenCircuit(s, o);
+		ProtocolProducer gp = provider.getOpenProtocol(s, o);
 		append(gp);
 		return o;
 	}
 	
 	public OInt output(SInt s, int outputterId) {
 		OInt o = provider.getOInt();
-		ProtocolProducer gp = provider.getOpenCircuit(outputterId, s, o);
+		ProtocolProducer gp = provider.getOpenProtocol(outputterId, s, o);
 		append(gp);
 		return o;
 	}

@@ -198,7 +198,7 @@ public class GreaterThanReducerCircuitImpl implements GreaterThanCircuit {
 				SInt mS = provider.getSInt();
 				mO = provider.getOInt();
 				Protocol addCircuit2 = provider.getAddCircuit(z, rValue, mS);
-				OpenIntProtocol openCircuitAddMask = provider.getOpenCircuit(mS, mO);
+				OpenIntProtocol openCircuitAddMask = provider.getOpenProtocol(mS, mO);
 
 				gp  = new SequentialProtocolProducer(
 						new ParallelProtocolProducer(sumBottom, sumTop), 

@@ -39,7 +39,7 @@ public interface StreamedStorage extends Storage {
 	 *            filename.
 	 * @return the next object in line
 	 */
-	public <T extends Serializable> T getNextObject(String name);
+	public <T extends Serializable> T getNext(String name);
 
 	/**
 	 * Inserts an object into the storage with the given name. This could be
@@ -51,10 +51,10 @@ public interface StreamedStorage extends Storage {
 	 *            The object to store.
 	 * @return true if the object was stored, false otherwise:
 	 */
-	public boolean putNextObject(String name, Serializable o);
+	public boolean putNext(String name, Serializable o);
 
 	/**
 	 * Closes any open connections to the storage.
 	 */
-	public void shutdown();
+	public void shutdown();	
 }
