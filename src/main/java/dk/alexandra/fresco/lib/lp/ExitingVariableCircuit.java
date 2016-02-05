@@ -188,13 +188,13 @@ public class ExitingVariableCircuit extends AbstractRoundBasedProtocol {
 			ProtocolProducer[] seqAdditions = new ProtocolProducer[tableauHeight - 2];
 			for (int i = 0; i < parAdditions.length; i++) {
 				parAdditionResults[i] = bnProvider.getSInt();
-				parAdditions[i] = bnProvider.getAddCircuit(updatedEnteringColumn[i], updateColumn[i], parAdditionResults[i]);
+				parAdditions[i] = bnProvider.getAddProtocol(updatedEnteringColumn[i], updateColumn[i], parAdditionResults[i]);
 			}
 			ProtocolProducer parAdditionProducer = new ParallelProtocolProducer(parAdditions);
 			seqAdditionResults[0] = parAdditionResults[0];
 			for (int i = 1; i < parAdditions.length; i++) {
 				seqAdditionResults[i] = bnProvider.getSInt();
-				seqAdditions[i - 1] = bnProvider.getAddCircuit(seqAdditionResults[i - 1], parAdditionResults[i], seqAdditionResults[i]);
+				seqAdditions[i - 1] = bnProvider.getAddProtocol(seqAdditionResults[i - 1], parAdditionResults[i], seqAdditionResults[i]);
 			}
 			ProtocolProducer seqAdditionProducer = new SequentialProtocolProducer(seqAdditions);
 			ProtocolProducer subtractOne = bnProvider.getSubtractCircuit(seqAdditionResults[tableauHeight - 2], one, pivot);

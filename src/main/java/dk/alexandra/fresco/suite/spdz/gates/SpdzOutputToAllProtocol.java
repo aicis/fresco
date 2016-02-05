@@ -26,79 +26,69 @@
  *******************************************************************************/
 package dk.alexandra.fresco.suite.spdz.gates;
 
+import java.math.BigInteger;
+import java.util.List;
+
+import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.network.SCENetwork;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.framework.value.Value;
-import dk.alexandra.fresco.lib.field.integer.SubtractCircuit;
-import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
+import dk.alexandra.fresco.lib.field.integer.OpenIntProtocol;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzOInt;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
-import dk.alexandra.fresco.suite.spdz.utils.SpdzFactory;
+import dk.alexandra.fresco.suite.spdz.evaluation.strategy.SpdzProtocolSuite;
+import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
+import dk.alexandra.fresco.suite.spdz.utils.Util;
 
-public class SpdzSubtractGate extends SpdzNativeProtocol implements SubtractCircuit {
+public class SpdzOutputToAllProtocol extends SpdzNativeProtocol implements
+		OpenIntProtocol {
 
-	private SpdzSInt left, right, out;
-	private SpdzOInt openLeft;
-	private SpdzFactory provider;
+	private SpdzSInt in;
+	private SpdzOInt out;
 
-	public SpdzSubtractGate(SInt left, SInt right, SInt out,
-			SpdzFactory provider) {
-		this.left = (SpdzSInt) left;
-		this.right = (SpdzSInt) right;
-		this.out = (SpdzSInt) out;
-		this.provider = provider;
-	}
-
-	public SpdzSubtractGate(SpdzSInt left, SpdzSInt right, SpdzSInt out,
-			SpdzFactory provider) {
-		this.left = left;
-		this.right = right;
-		this.out = out;
-		this.provider = provider;
-	}
-
-	public SpdzSubtractGate(OInt left, SInt right, SInt out,
-			SpdzFactory provider) {
-		this.openLeft = (SpdzOInt) left;
-		this.right = (SpdzSInt) right;
-		this.out = (SpdzSInt) out;
-		this.provider = provider;
+	public SpdzOutputToAllProtocol(SInt in, OInt out) {
+		this.in = (SpdzSInt) in;
+		this.out = (SpdzOInt) out;
 	}
 
 	@Override
-	public String toString() {
-		if (openLeft != null) {
-			return "SpdzSubtractGate(" + openLeft.getValue() + ", "
-					+ right.value + ", " + out.value + ")";
+	public EvaluationStatus evaluate(int round, ResourcePool resourcePool,
+			SCENetwork network) {
+		SpdzProtocolSuite spdzpii = SpdzProtocolSuite
+				.getInstance(resourcePool.getMyId());
+		SpdzStorage storage = spdzpii.getStore(network.getThreadId());
+		switch (round) {
+		case 0:
+			network.sendToAll(in.value.getShare());
+			network.expectInputFromAll();
+			return EvaluationStatus.HAS_MORE_ROUNDS;
+		case 1:
+			List<BigInteger> shares = network.receiveFromAll();
+			BigInteger openedVal = BigInteger.valueOf(0);
+			for (BigInteger share : shares) {
+				openedVal = openedVal.add(share);
+			}
+			openedVal = openedVal.mod(Util.getModulus());
+			storage.addOpenedValue(openedVal);
+			storage.addClosedValue(in.value);
+			BigInteger tmpOut = openedVal;
+			tmpOut = Util.convertRepresentation(tmpOut);
+			out.setValue(tmpOut);
+			return EvaluationStatus.IS_DONE;
+		default:
+			throw new MPCException("No more rounds to evaluate.");
 		}
-		return "SpdzSubtractGate(" + left.value + ", " + right.value + ", "
-				+ out.value + ")";
 	}
 
 	@Override
 	public Value[] getInputValues() {
-		return new Value[] { left, right };
+		return new Value[] { in };
 	}
 
 	@Override
 	public Value[] getOutputValues() {
 		return new Value[] { out };
 	}
-
-	@Override
-	public EvaluationStatus evaluate(int round, ResourcePool resourcePool,
-			SCENetwork network) {
-		if (openLeft != null) {
-			SpdzSInt converted = (SpdzSInt) provider.getSInt(openLeft
-					.getValue());
-			out.value = converted.value.subtract(right.value);
-		} else {
-			SpdzElement elm = left.value.subtract(right.value);
-			out.value = elm;
-		}
-		return EvaluationStatus.IS_DONE;
-	}
-
 }

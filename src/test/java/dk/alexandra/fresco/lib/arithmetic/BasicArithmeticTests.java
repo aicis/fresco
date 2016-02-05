@@ -108,6 +108,93 @@ public class BasicArithmeticTests {
 			};
 		}
 	}
+	
+	public static class TestOutputToSingleParty extends TestThreadFactory {
+		@Override
+		public TestThread next(TestThreadConfiguration conf) {
+			return new ThreadWithFixture() {
+				@Override
+				public void test() throws Exception {
+					TestApplication app = new TestApplication() {
+
+						private static final long serialVersionUID = 4338818809103728010L;
+
+						@Override
+						public ProtocolProducer prepareApplication(
+								ProtocolFactory provider) {
+							BasicNumericFactory prov = (BasicNumericFactory) provider;
+							NumericIOBuilder ioBuilder = new NumericIOBuilder(
+									prov);
+							SInt input1 = ioBuilder.input(
+									BigInteger.valueOf(10), 1);
+
+							OInt output = ioBuilder.outputToParty(1, input1);							
+							ProtocolProducer io = ioBuilder.getCircuit();
+
+							ProtocolProducer gp = new SequentialProtocolProducer(
+									io);
+							this.outputs = new OInt[] { output };
+							return gp;
+						}
+					};
+
+					sce.runApplication(app);
+					if(conf.netConf.getMyId() == 1) {
+						Assert.assertEquals(BigInteger.valueOf(10),
+								app.getOutputs()[0].getValue());
+					} else {
+						Assert.assertNull(app.getOutputs()[0].getValue());
+					}
+				}
+			};
+		}
+	}
+	
+	public static class TestAddPublicValue extends TestThreadFactory {
+		@Override
+		public TestThread next(TestThreadConfiguration conf) {
+			return new ThreadWithFixture() {
+				@Override
+				public void test() throws Exception {
+					TestApplication app = new TestApplication() {
+
+						private static final long serialVersionUID = 4338818809103728010L;
+
+						@Override
+						public ProtocolProducer prepareApplication(
+								ProtocolFactory provider) {
+							BasicNumericFactory prov = (BasicNumericFactory) provider;
+							SequentialProtocolProducer gp = new SequentialProtocolProducer();
+							NumericIOBuilder ioBuilder = new NumericIOBuilder(
+									prov);
+							SInt input1 = ioBuilder.input(
+									BigInteger.valueOf(10), 1);
+
+							gp.append(ioBuilder.getCircuit());
+							ioBuilder.reset();
+							
+							BigInteger publicVal = BigInteger.valueOf(4);
+							OInt openInput = prov.getOInt(publicVal);
+							SInt out = prov.getSInt();
+							ProtocolProducer addProtocol = prov.getAddProtocol(input1, openInput, out);
+							gp.append(addProtocol);
+							
+							OInt output = ioBuilder.output(out);							
+							ProtocolProducer io = ioBuilder.getCircuit();
+							gp.append(io);
+							
+							this.outputs = new OInt[] { output };
+							return gp;
+						}
+					};
+
+					sce.runApplication(app);					
+					Assert.assertEquals(BigInteger.valueOf(14),
+							app.getOutputs()[0].getValue());					
+				}
+			};
+		}
+	}
 
 	public static class TestCopyProtocol extends TestThreadFactory {
 
@@ -222,13 +309,13 @@ public class BasicArithmeticTests {
 							// will compute the sum
 							SequentialProtocolProducer sumProtocol = new SequentialProtocolProducer();
 
-							sumProtocol.append(prov.getAddCircuit(inputs[0],
+							sumProtocol.append(prov.getAddProtocol(inputs[0],
 									inputs[1], sum));
 							if (inputs.length > 2) {
 								for (int i = 2; i < inputs.length; i++) {
 									// Add sum and next secret shared input and
 									// store in sum.
-									sumProtocol.append(prov.getAddCircuit(sum,
+									sumProtocol.append(prov.getAddProtocol(sum,
 											inputs[i], sum));
 								}
 							}

@@ -34,17 +34,17 @@ import dk.alexandra.fresco.lib.math.inv.LocalInversionCircuit;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzOInt;
 import dk.alexandra.fresco.suite.spdz.utils.Util;
 
-public class SpdzLocalInversionGate extends SpdzNativeProtocol implements
+public class SpdzLocalInversionProtocol extends SpdzNativeProtocol implements
 		LocalInversionCircuit {
 
 	private SpdzOInt in, out;
 
-	public SpdzLocalInversionGate(OInt in, OInt out) {
+	public SpdzLocalInversionProtocol(OInt in, OInt out) {
 		this.in = (SpdzOInt) in;
 		this.out = (SpdzOInt) out;
 	}
 
-	public SpdzLocalInversionGate(SpdzOInt in, SpdzOInt out) {
+	public SpdzLocalInversionProtocol(SpdzOInt in, SpdzOInt out) {
 		this.in = in;
 		this.out = out;
 	}

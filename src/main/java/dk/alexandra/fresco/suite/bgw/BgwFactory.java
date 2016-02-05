@@ -115,7 +115,7 @@ public class BgwFactory implements BasicNumericFactory, LocalInversionFactory, E
 
 
 	@Override
-	public AddProtocol getAddCircuit(SInt a, SInt b, SInt out) {
+	public AddProtocol getAddProtocol(SInt a, SInt b, SInt out) {
 		return new BgwAddProtocol(a, b, out);
 	}
 
@@ -171,7 +171,7 @@ public class BgwFactory implements BasicNumericFactory, LocalInversionFactory, E
 	}
 
 	@Override
-	public AddProtocol getAddCircuit(SInt input, OInt openInput, SInt out) {
+	public AddProtocol getAddProtocol(SInt input, OInt openInput, SInt out) {
 		// TODO Auto-generated method stub
 		return null;
 	}

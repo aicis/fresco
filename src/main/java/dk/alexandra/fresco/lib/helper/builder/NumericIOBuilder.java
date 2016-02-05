@@ -37,7 +37,8 @@ import dk.alexandra.fresco.lib.field.integer.generic.IOIntProtocolFactory;
 import dk.alexandra.fresco.lib.helper.AbstractRepeatProtocol;
 
 /**
- * A builder handling input/output related circuits for protocol suites supporting arithmetic.
+ * A builder handling input/output related circuits for protocol suites
+ * supporting arithmetic.
  * 
  * @author psn
  * 
@@ -58,8 +59,7 @@ public class NumericIOBuilder extends AbstractProtocolBuilder {
 	 * @param oip
 	 *            provider of OInts
 	 */
-	public NumericIOBuilder(IOIntProtocolFactory iop,
-			SIntFactory sip, OIntFactory oip) {
+	public NumericIOBuilder(IOIntProtocolFactory iop, SIntFactory sip, OIntFactory oip) {
 		super();
 		this.iop = iop;
 		this.sip = sip;
@@ -73,8 +73,7 @@ public class NumericIOBuilder extends AbstractProtocolBuilder {
 	 * @param provider
 	 *            a provider providing SInt/OInt and input/output ciruicts.
 	 */
-	public <T extends IOIntProtocolFactory & SIntFactory & OIntFactory> NumericIOBuilder(
-			T provider) {
+	public <T extends IOIntProtocolFactory & SIntFactory & OIntFactory> NumericIOBuilder(T provider) {
 		super();
 		this.iop = provider;
 		this.sip = provider;
@@ -141,7 +140,7 @@ public class NumericIOBuilder extends AbstractProtocolBuilder {
 		append(new InputArray(is, sis, targetID));
 		return sis;
 	}
-	
+
 	/**
 	 * Appends a circuit to input a array of BigIntegers.
 	 * 
@@ -154,7 +153,7 @@ public class NumericIOBuilder extends AbstractProtocolBuilder {
 	 */
 	public SInt[] inputArray(int[] is, int targetID) {
 		BigInteger[] tmp = new BigInteger[is.length];
-		for(int i = 0; i < tmp.length; i++){
+		for (int i = 0; i < tmp.length; i++) {
 			tmp[i] = BigInteger.valueOf(is[i]);
 		}
 		return inputArray(tmp, targetID);
@@ -201,8 +200,7 @@ public class NumericIOBuilder extends AbstractProtocolBuilder {
 
 		public InputArray(BigInteger[] is, SInt[] sis, int targetID) {
 			if (is.length != sis.length) {
-				throw new IllegalArgumentException(
-						"Array dimensions do not match.");
+				throw new IllegalArgumentException("Array dimensions do not match.");
 			}
 			this.is = is;
 			this.length = sis.length;
@@ -241,7 +239,7 @@ public class NumericIOBuilder extends AbstractProtocolBuilder {
 		append(iop.getCloseProtocol(targetID, oi, si));
 		return si;
 	}
-	
+
 	/**
 	 * Appends a circuit to input a single BigInteger
 	 * 
@@ -346,6 +344,22 @@ public class NumericIOBuilder extends AbstractProtocolBuilder {
 	public OInt output(SInt si) {
 		OInt oi = oip.getOInt();
 		append(iop.getOpenProtocol(si, oi));
+		return oi;
+	}
+
+	/**
+	 * Appends a circuit to open a single SInt. Output is given only to the
+	 * target ID.
+	 * 
+	 * @param target
+	 *            the party to receive the output.
+	 * @param si
+	 *            the SInt to open.
+	 * @return
+	 */
+	public OInt outputToParty(int target, SInt si) {
+		OInt oi = oip.getOInt();
+		append(iop.getOpenProtocol(target, si, oi));
 		return oi;
 	}
 

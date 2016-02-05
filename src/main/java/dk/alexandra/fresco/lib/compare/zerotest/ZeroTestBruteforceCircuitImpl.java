@@ -140,7 +140,7 @@ public class ZeroTestBruteforceCircuitImpl implements ZeroTestBruteforceCircuit 
 				SInt tmp = provider.getSInt();
 				ProtocolProducer polynomialGP = innerProdProvider.getInnerProductCircuit(powers, 
 						mostSignificantPolynomialCoefficients, tmp);
-				ProtocolProducer addCircuit = abcProvider.getAddCircuit(tmp, 
+				ProtocolProducer addCircuit = abcProvider.getAddProtocol(tmp, 
 						polynomialCoefficients[0], output);
 				gp = new SequentialProtocolProducer(new ParallelProtocolProducer(unmaskGPs), 
 						polynomialGP, addCircuit);

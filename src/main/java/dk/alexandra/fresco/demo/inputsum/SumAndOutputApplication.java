@@ -65,11 +65,11 @@ public class SumAndOutputApplication implements Application {
 		// create Sequence of protocols which eventually will compute the sum
 		SequentialProtocolProducer sumProtocol = new SequentialProtocolProducer();
 
-		sumProtocol.append(prov.getAddCircuit(ssInputs[0], ssInputs[1], sum));
+		sumProtocol.append(prov.getAddProtocol(ssInputs[0], ssInputs[1], sum));
 		if (ssInputs.length > 2) {
 			for (int i = 2; i < ssInputs.length; i++) {
 				// Add sum and next secret shared input and store in sum.
-				sumProtocol.append(prov.getAddCircuit(sum, ssInputs[i], sum));
+				sumProtocol.append(prov.getAddProtocol(sum, ssInputs[i], sum));
 			}
 		}
 

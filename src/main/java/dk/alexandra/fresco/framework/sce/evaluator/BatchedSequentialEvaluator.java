@@ -110,7 +110,7 @@ public class BatchedSequentialEvaluator implements ProtocolEvaluator {
 			this.strategy
 					.processBatch(nextProtocols, numOfProtocolsInBatch,
 							sceNetworks, network, DEFAULT_CHANNEL,
-							resourcePool, queues);
+							resourcePool);
 			this.protocolSuite.synchronize(numOfProtocolsInBatch);
 		} while (c.hasNextProtocols());
 

@@ -46,14 +46,14 @@ import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.evaluation.strategy.SpdzProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.utils.Util;
 
-public class DummyComparisonCircuit implements ComparisonProtocol {
+public class DummyComparisonProtocol implements ComparisonProtocol {
 
 	private final SpdzSInt a, b, result;
 	private final BasicNumericFactory provider;
 	private ProtocolProducer currGP;
 	private boolean done = false;
 
-	public DummyComparisonCircuit(SInt a, SInt b, SInt result,
+	public DummyComparisonProtocol(SInt a, SInt b, SInt result,
 			BasicNumericFactory provider) {
 		this.a = (SpdzSInt) a;
 		this.b = (SpdzSInt) b;

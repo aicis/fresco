@@ -41,20 +41,17 @@ import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzOInt;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.evaluation.strategy.SpdzProtocolSuite;
-import dk.alexandra.fresco.suite.spdz.storage.DataSupplier;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
 import dk.alexandra.fresco.suite.spdz.utils.Util;
 
-public class SpdzOutputGate extends SpdzNativeProtocol implements OpenIntProtocol {
+public class SpdzOutputProtocol extends SpdzNativeProtocol implements OpenIntProtocol {
 
 	private SpdzSInt in;
 	private SpdzOInt out;
-	private SpdzElement maskedOutput;
-	private SpdzInputMask mask;
 	private int target_player;
-	private boolean done = true;
+	private SpdzInputMask mask;
 
-	public SpdzOutputGate(SInt in, OInt out, int target_player) {
+	public SpdzOutputProtocol(SInt in, OInt out, int target_player) {
 		this.in = (SpdzSInt) in;
 		this.out = (SpdzOInt) out;
 		this.target_player = target_player;
@@ -79,40 +76,35 @@ public class SpdzOutputGate extends SpdzNativeProtocol implements OpenIntProtoco
 			SCENetwork network) {
 		SpdzProtocolSuite spdzpii = SpdzProtocolSuite
 				.getInstance(resourcePool.getMyId());
-		int myId = resourcePool.getMyId();
-		SpdzStorage storage = spdzpii.getStore(network.getThreadId());
+		int myId = resourcePool.getMyId();		
+		SpdzStorage storage = spdzpii.getStore(network.getThreadId());		
+		
 		switch (round) {
-		case 0:
-			DataSupplier supplier = storage.getSupplier();
-			mask = supplier.getNextInputMask(target_player);
-			SpdzElement mask_elm = mask.getMask();
-			maskedOutput = in.value.add(mask_elm);
-			network.sendToAll(maskedOutput.getShare());
+		case 0: 
+			this.mask = storage.getSupplier().getNextInputMask(target_player);
+			SpdzElement inMinusMask = this.in.value.subtract(this.mask.getMask());
+			storage.addClosedValue(inMinusMask);
+			network.sendToAll(inMinusMask.getShare());
 			network.expectInputFromAll();
-			break;
+			return EvaluationStatus.HAS_MORE_ROUNDS;
 		case 1:
-			List<BigInteger> maskedShares = network.receiveFromAll();
-			BigInteger maskedVal = BigInteger.valueOf(0);
-			for (BigInteger maskedShare : maskedShares) {
-				maskedVal = maskedVal.add(maskedShare);
+			List<BigInteger> shares = network.receiveFromAll();
+			BigInteger openedVal = BigInteger.valueOf(0);
+			for (BigInteger share : shares) {
+				openedVal = openedVal.add(share);
 			}
-			maskedVal = maskedVal.mod(Util.getModulus());
-			storage.addOpenedValue(maskedVal);
-			storage.addClosedValue(in.value);
-			if (myId == target_player) {
-				BigInteger tmpOut = maskedVal.subtract(mask.getRealValue());
-				tmpOut = tmpOut.mod(Util.getModulus());
+			openedVal = openedVal.mod(Util.getModulus());
+			storage.addOpenedValue(openedVal);
+			if(target_player == myId) {
+				openedVal = openedVal.add(this.mask.getRealValue());
+				BigInteger tmpOut = openedVal;
 				tmpOut = Util.convertRepresentation(tmpOut);
 				out.setValue(tmpOut);
 			}
-			done = true;
+			return EvaluationStatus.IS_DONE;
 		default:
 			throw new MPCException("No more rounds to evaluate.");
-		}
-		EvaluationStatus status;
-		status = done ? EvaluationStatus.IS_DONE
-				: EvaluationStatus.HAS_MORE_ROUNDS;
-		return status;
+		}		
 	}
 
 }

@@ -298,4 +298,10 @@ public class Util {
 		}
 		return inputGates;
 	}
+	
+	public static BigInteger getRandomNumber(Random rand) {
+		byte[] bytes = new byte[size];
+		rand.nextBytes(bytes);
+		return new BigInteger(bytes).mod(p);
+	}
 }

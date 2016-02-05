@@ -152,7 +152,7 @@ public class BatchedParallelEvaluator implements ProtocolEvaluator {
 
 		@Override
 		public Object call() throws Exception {		
-			this.strategy.processBatch(protocols, numOfProtocols, sceNetworks, network, channel, rp, queues);
+			this.strategy.processBatch(protocols, numOfProtocols, sceNetworks, network, channel, rp);
 			return null;
 		}
 	}

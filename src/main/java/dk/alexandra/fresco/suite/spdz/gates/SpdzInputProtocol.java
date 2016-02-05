@@ -42,7 +42,7 @@ import dk.alexandra.fresco.suite.spdz.evaluation.strategy.SpdzProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
 import dk.alexandra.fresco.suite.spdz.utils.Util;
 
-public class SpdzInputGate extends SpdzNativeProtocol implements CloseIntProtocol {
+public class SpdzInputProtocol extends SpdzNativeProtocol implements CloseIntProtocol {
 
 	protected SpdzInputMask inputMask; // is opened by this gate.
 	protected BigInteger input;
@@ -51,19 +51,19 @@ public class SpdzInputGate extends SpdzNativeProtocol implements CloseIntProtoco
 	protected int inputter;
 	private byte[] digest;
 
-	public SpdzInputGate(OInt input, SInt out, int inputter) {
+	public SpdzInputProtocol(OInt input, SInt out, int inputter) {
 		this.input = (input == null) ? null : input.getValue();
 		this.out = (SpdzSInt) out;
 		this.inputter = inputter;
 	}
 
-	public SpdzInputGate(BigInteger input, SpdzSInt out, int inputter) {
+	public SpdzInputProtocol(BigInteger input, SpdzSInt out, int inputter) {
 		this.input = input;
 		this.out = out;
 		this.inputter = inputter;
 	}
 
-	public SpdzInputGate(BigInteger input, SInt out, int inputter) {
+	public SpdzInputProtocol(BigInteger input, SInt out, int inputter) {
 		this.input = input;
 		this.out = (SpdzSInt) out;
 		this.inputter = inputter;

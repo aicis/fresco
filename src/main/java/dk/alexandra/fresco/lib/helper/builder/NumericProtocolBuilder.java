@@ -168,7 +168,7 @@ public class NumericProtocolBuilder extends AbstractProtocolBuilder {
 	 */
 	public SInt add(SInt left, SInt right) {
 		SInt out = bnp.getSInt();
-		append(bnp.getAddCircuit(left, right, out));
+		append(bnp.getAddProtocol(left, right, out));
 		return out;
 	}
 
@@ -214,7 +214,7 @@ public class NumericProtocolBuilder extends AbstractProtocolBuilder {
 		@Override
 		protected ProtocolProducer getNextGateProducer() {
 			if (i < left.length) {
-				ProtocolProducer addition = bnp.getAddCircuit(left[i], right[i],
+				ProtocolProducer addition = bnp.getAddProtocol(left[i], right[i],
 						out[i]);
 				i++;
 				return addition;
@@ -270,7 +270,7 @@ public class NumericProtocolBuilder extends AbstractProtocolBuilder {
 				right = intermediate[j];
 			}
 			out = intermediate[i];
-			ProtocolProducer addition = bnp.getAddCircuit(left, right, out);
+			ProtocolProducer addition = bnp.getAddProtocol(left, right, out);
 			return addition;
 		}
 

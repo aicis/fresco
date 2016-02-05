@@ -50,8 +50,8 @@ import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.configuration.SpdzConfiguration;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzCommitment;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
-import dk.alexandra.fresco.suite.spdz.gates.SpdzCommitGate;
-import dk.alexandra.fresco.suite.spdz.gates.SpdzOpenCommitGate;
+import dk.alexandra.fresco.suite.spdz.gates.SpdzCommitProtocol;
+import dk.alexandra.fresco.suite.spdz.gates.SpdzOpenCommitProtocol;
 import dk.alexandra.fresco.suite.spdz.storage.DataRetrieverImpl;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageConstants;
@@ -206,9 +206,9 @@ public class SpdzProtocolSuite implements ProtocolSuite {
 		BigInteger s = new BigInteger(Util.getModulus().bitLength(), rand).mod(Util.getModulus());
 		SpdzCommitment commitment = new SpdzCommitment(this.digs[0], s, rand);
 		Map<Integer, BigInteger> comms = new HashMap<Integer, BigInteger>();
-		SpdzCommitGate comm = new SpdzCommitGate(commitment, comms);
+		SpdzCommitProtocol comm = new SpdzCommitProtocol(commitment, comms);
 		Map<Integer, BigInteger> ss = new HashMap<Integer, BigInteger>();
-		SpdzOpenCommitGate open = new SpdzOpenCommitGate(commitment, comms, ss);
+		SpdzOpenCommitProtocol open = new SpdzOpenCommitProtocol(commitment, comms, ss);
 
 		SCENetworkImpl protocolNetwork = new SCENetworkImpl(this.rp.getNoOfParties(), 0);
 
@@ -306,9 +306,9 @@ public class SpdzProtocolSuite implements ProtocolSuite {
 		// Commit to delta and open it afterwards
 		commitment = new SpdzCommitment(this.digs[0], delta, rand);
 		comms = new HashMap<Integer, BigInteger>();
-		comm = new SpdzCommitGate(commitment, comms);
+		comm = new SpdzCommitProtocol(commitment, comms);
 		ss = new HashMap<Integer, BigInteger>();
-		open = new SpdzOpenCommitGate(commitment, comms, ss);
+		open = new SpdzOpenCommitProtocol(commitment, comms, ss);
 
 		status = null;
 		i = 0;

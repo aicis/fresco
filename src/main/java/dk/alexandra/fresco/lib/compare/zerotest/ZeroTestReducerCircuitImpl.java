@@ -75,7 +75,7 @@ public class ZeroTestReducerCircuitImpl extends AbstractSimpleProtocol implement
 		r = (SInt[]) loadRandC.getOutputValues();
 		SInt mS = provider.getSInt();
 		OInt mO = provider.getOInt();
-		Protocol addCircuit = provider.getAddCircuit(input, r[bitLength], mS);
+		Protocol addCircuit = provider.getAddProtocol(input, r[bitLength], mS);
 		// open m
 		OpenIntProtocol openCircuitAddMask = provider.getOpenProtocol(mS, mO);
 		// result = Hamming-dist_l(z,r);

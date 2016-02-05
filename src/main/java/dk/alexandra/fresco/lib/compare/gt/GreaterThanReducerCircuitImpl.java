@@ -181,7 +181,7 @@ public class GreaterThanReducerCircuitImpl implements GreaterThanCircuit {
 				Protocol sumTop = innerProdProvider.getInnerProductCircuit(rTopBits, twoPowsTop, rTop);
 
 				Protocol shiftCirc0 = mbcProvider.getMultCircuit(twoToBitLengthBottom, rTop, tmp1);
-				Protocol addCirc0 = provider.getAddCircuit(tmp1, rBottom, rBar);
+				Protocol addCirc0 = provider.getAddProtocol(tmp1, rBottom, rBar);
 
 				// forget bits of rValue
 				r = null;
@@ -192,12 +192,12 @@ public class GreaterThanReducerCircuitImpl implements GreaterThanCircuit {
 				z = provider.getSInt();
 				
 				Protocol subCircuit = provider.getSubtractCircuit(y, x, diff);
-				Protocol addCircuit1 = abcProvider.getAddCircuit(diff, twoToBitLength, z);
+				Protocol addCircuit1 = abcProvider.getAddProtocol(diff, twoToBitLength, z);
 
 				// mO = open(z + r)
 				SInt mS = provider.getSInt();
 				mO = provider.getOInt();
-				Protocol addCircuit2 = provider.getAddCircuit(z, rValue, mS);
+				Protocol addCircuit2 = provider.getAddProtocol(z, rValue, mS);
 				OpenIntProtocol openCircuitAddMask = provider.getOpenProtocol(mS, mO);
 
 				gp  = new SequentialProtocolProducer(
@@ -242,7 +242,7 @@ public class GreaterThanReducerCircuitImpl implements GreaterThanCircuit {
 				SInt prod2 = provider.getSInt();
 				Protocol mult1 = mbcProvider.getMultCircuit(mBot, eqResult, prod1);
 				Protocol mult2 = mbcProvider.getMultCircuit(mTop, negEqResult, prod2);
-				Protocol sumCirc = provider.getAddCircuit(prod1, prod2, mPrime);
+				Protocol sumCirc = provider.getAddProtocol(prod1, prod2, mPrime);
 				ProtocolProducer selectmPrime = new SequentialProtocolProducer(negCirc, mult1, mult2, sumCirc);
 
 				// subComparisonResult = Compare(rPrime,mPrime)
@@ -293,7 +293,7 @@ public class GreaterThanReducerCircuitImpl implements GreaterThanCircuit {
 
 				Protocol subCirc4_1 =  subProvider.getSubtractCircuit(mBar, rBar, reducedWithError);
 				Protocol mbcCirc4 = mbcProvider.getMultCircuit(twoToBitLength, u, additiveError);
-				Protocol addCirc4 = provider.getAddCircuit(additiveError, reducedWithError, reducedNoError);
+				Protocol addCirc4 = provider.getAddProtocol(additiveError, reducedWithError, reducedNoError);
 
 				Protocol subCirc4_2 = provider.getSubtractCircuit(z, reducedNoError, resUnshifted);
 				// res >> 2^bitLength

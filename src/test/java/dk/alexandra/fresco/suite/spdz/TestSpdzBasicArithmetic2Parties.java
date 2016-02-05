@@ -156,6 +156,18 @@ public class TestSpdzBasicArithmetic2Parties {
 		runTest(new BasicArithmeticTests.TestInput(),
 				EvaluationStrategy.SEQUENTIAL, StorageStrategy.IN_MEMORY);
 	}
+	
+	@Test
+	public void test_OutputToTarget_Sequential() throws Exception {
+		runTest(new BasicArithmeticTests.TestOutputToSingleParty(),
+				EvaluationStrategy.SEQUENTIAL, StorageStrategy.IN_MEMORY);
+	}
+	
+	@Test
+	public void test_AddPublicValue_Sequential() throws Exception {
+		runTest(new BasicArithmeticTests.TestAddPublicValue(),
+				EvaluationStrategy.SEQUENTIAL, StorageStrategy.IN_MEMORY);
+	}
 
 	@Test
 	public void test_Lots_Of_Inputs_Sequential() throws Exception {

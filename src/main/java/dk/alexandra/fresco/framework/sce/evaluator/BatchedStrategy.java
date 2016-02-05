@@ -31,9 +31,11 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
+import java.util.Set;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import dk.alexandra.fresco.framework.NativeProtocol;
@@ -43,13 +45,19 @@ import dk.alexandra.fresco.framework.network.SCENetworkImpl;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 
 public class BatchedStrategy {
-
+	
 	public void processBatch(NativeProtocol[] protocols, int numOfProtocols,
 			SCENetworkImpl[] sceNetworks, Network network, String channel,
-			ResourcePool rp, Map<Integer, List<Serializable[]>> queues)
+			ResourcePool rp)
 			throws IOException {		
 		int round = 0;
 
+		Set<Integer> partyIds = new HashSet<Integer>();
+		//TODO: Cannot assume always that parties are in linear order.
+		for(int i = 1; i <= rp.getNoOfParties(); i++) {
+			partyIds.add(i);
+		}
+		
 		boolean[] dones = new boolean[numOfProtocols];
 		boolean done;
 		// while loop for rounds
@@ -66,51 +74,48 @@ public class BatchedStrategy {
 					} else {
 						done = false;
 					}
-				}
-
-				// send phase
+				}				
+			}	
+			// send phase
+			for(int i = 0; i < numOfProtocols; i++) {
+				SCENetworkImpl sceNetwork = sceNetworks[i];
 				Map<Integer, Queue<Serializable>> output = sceNetwork
 						.getOutputFromThisRound();
-				for (int pId : output.keySet()) {
-					// send array since queue is not serializable
-					queues.get(pId).add(
-							output.get(pId).toArray(new Serializable[0]));
+				//send to everyone no matter what
+				for (int pId : partyIds) {
+					Queue<Serializable> outputsTowardPid = output.get(pId);
+					if(outputsTowardPid != null) {
+						//TODO: Maybe send array instead. Might be faster
+						network.send(channel, pId, outputsTowardPid.size());
+						for(Serializable s : outputsTowardPid) {
+							network.send(channel, pId, s);
+						}		
+					}
 				}
-			}
-			// actual send
-			for (int pId : queues.keySet()) {
-				// send no matter if the double array is empty or not.
-				// TODO: Improvement would be not to send something if the queue
-				// on pId is empty
-				network.send(channel, pId, queues.get(pId)
-						.toArray(new Serializable[0][0]));
 			}
 
 			// receive phase
-			List<Serializable[][]> messages = new ArrayList<Serializable[][]>();
-			for (int pId : queues.keySet()) {
-				messages.add((Serializable[][]) network.receive(
-						channel, pId));
-			}
 			for (int i = 0; i < numOfProtocols; i++) {
-				Map<Integer, Queue<Serializable>> inputForThisRound = new HashMap<Integer, Queue<Serializable>>();
 				SCENetworkImpl sceNetwork = sceNetworks[i];
-				for (int pId : queues.keySet()) {
-					if (sceNetwork.getExpectedInputForNextRound().contains(pId)) {
-						inputForThisRound.put(
-								pId,
-								new LinkedBlockingQueue<Serializable>(Arrays
-										.asList(messages.get(pId - 1)[i])));
+				Set<Integer> expectInputFrom = sceNetwork.getExpectedInputForNextRound();				
+				Map<Integer, Queue<Serializable>> inputForThisRound = new HashMap<Integer, Queue<Serializable>>();
+				for(int pId : partyIds) {
+					//Only receive if we expect something.
+					if(expectInputFrom.contains(pId)) {
+						Queue<Serializable> messages = new LinkedBlockingQueue<Serializable>();
+						int numberOfMessages = network.receive(channel, pId);
+						for(int inx = 0; inx < numberOfMessages; inx++) {
+							Serializable m = network.receive(channel, pId);
+							messages.offer(m);
+						}
+						inputForThisRound.put(pId, messages);
 					}
 				}
-				sceNetwork.setInput(inputForThisRound);
-				sceNetwork.nextRound();
+				sceNetworks[i].setInput(inputForThisRound);
+				sceNetworks[i].nextRound();
 			}
-
-			round++;
-			for (int pId = 1; pId <= queues.size(); pId++) {
-				queues.get(pId).clear();
-			}
+						
+			round++;			
 		} while (!done);
 	}
 }

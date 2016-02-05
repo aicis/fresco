@@ -176,7 +176,7 @@ ExpFromOIntFactory expFromOIntProvider) {
 
 		SubtractCircuit subCircuit = provider.getSubtractCircuit(x, y,
 				subResult);
-		AddProtocol addCircuit = provider.getAddCircuit(subResult, r[bitLength],
+		AddProtocol addCircuit = provider.getAddProtocol(subResult, r[bitLength],
 				masked_S);
 		OpenIntProtocol openCircuitAddMask = provider
 				.getOpenProtocol(masked_S, masked_O);

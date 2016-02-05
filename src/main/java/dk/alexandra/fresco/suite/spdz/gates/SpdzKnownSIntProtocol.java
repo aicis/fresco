@@ -26,66 +26,76 @@
  *******************************************************************************/
 package dk.alexandra.fresco.suite.spdz.gates;
 
+import java.math.BigInteger;
+
 import dk.alexandra.fresco.framework.network.SCENetwork;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
-import dk.alexandra.fresco.framework.value.OInt;
+import dk.alexandra.fresco.framework.value.KnownSIntProtocol;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.framework.value.Value;
-import dk.alexandra.fresco.lib.field.integer.AddProtocol;
+import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzOInt;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
-import dk.alexandra.fresco.suite.spdz.utils.SpdzFactory;
+import dk.alexandra.fresco.suite.spdz.evaluation.strategy.SpdzProtocolSuite;
+import dk.alexandra.fresco.suite.spdz.utils.Util;
 
-public class SpdzAddGate extends SpdzNativeProtocol implements AddProtocol {
+public class SpdzKnownSIntProtocol extends SpdzNativeProtocol implements KnownSIntProtocol {
 
-	private SpdzSInt left, right, out;
-	private SpdzOInt oInt;
-	private SpdzFactory provider;
+	BigInteger value;
+	SpdzSInt sValue;
 
-	public SpdzAddGate(SInt left, SInt right, SInt out) {
-		this.left = (SpdzSInt) left;
-		this.right = (SpdzSInt) right;
-		this.out = (SpdzSInt) out;
+	/**
+	 * Creates a gate loading a given value into a given SInt
+	 * 
+	 * @param value
+	 *            the value
+	 * @param sValue
+	 *            the SInt
+	 */
+	public SpdzKnownSIntProtocol(BigInteger value, SInt sValue) {
+		this.value = value;
+		this.sValue = (SpdzSInt) sValue;
 	}
 
-	public SpdzAddGate(SpdzSInt left, SpdzSInt right, SpdzSInt out) {
-		this.left = left;
-		this.right = right;
-		this.out = out;
-	}
-
-	public SpdzAddGate(SInt left, OInt right, SInt out, SpdzFactory provider) {
-		this.left = (SpdzSInt) left;
-		this.oInt = (SpdzOInt) right;
-		this.out = (SpdzSInt) out;
-		this.provider = provider;
-	}
-
-	@Override
-	public String toString() {
-		return "SpdzAddGate(" + left.value + ", " + right.value + ", "
-				+ out.value + ")";
+	/**
+	 * Creates a gate loading a given value into a given SInt
+	 * 
+	 * @param value
+	 *            the value
+	 * @param sValue
+	 *            the SInt
+	 */
+	public SpdzKnownSIntProtocol(int value, SInt sValue) {
+		this(BigInteger.valueOf(value), sValue);
 	}
 
 	@Override
 	public Value[] getInputValues() {
-		return new Value[] { left, right };
+		SpdzOInt oValue = new SpdzOInt(value);
+		return new Value[] { oValue };
 	}
 
 	@Override
 	public Value[] getOutputValues() {
-		return new Value[] { out };
+		return new Value[] { sValue };
 	}
 
 	@Override
 	public EvaluationStatus evaluate(int round, ResourcePool resourcePool,
 			SCENetwork network) {
-		if (oInt != null) {
-			SpdzSInt myShare = (SpdzSInt) provider.getSInt(oInt.getValue());
-			out.value = left.value.add(myShare.value);
+		SpdzProtocolSuite spdzPii = SpdzProtocolSuite
+				.getInstance(resourcePool.getMyId());
+		value = value.mod(Util.getModulus());
+		SpdzElement elm;
+		BigInteger globalKeyShare = spdzPii.getStore(network.getThreadId())
+				.getSSK();
+		if (resourcePool.getMyId() == 1) {
+			elm = new SpdzElement(value, value.multiply(globalKeyShare));
 		} else {
-			out.value = left.value.add(right.value);
+			elm = new SpdzElement(BigInteger.ZERO,
+					value.multiply(globalKeyShare));
 		}
+		sValue.value = elm;
 		return EvaluationStatus.IS_DONE;
 	}
 }
