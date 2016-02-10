@@ -57,7 +57,7 @@ import dk.alexandra.fresco.suite.spdz.storage.InitializeStorage;
 public class TestSpdzLPSolver2Parties {
 
 	
-	private void runTest(TestThreadFactory f, int noPlayers, int noOfThreads,
+	private void runTest(TestThreadFactory f, int noPlayers, int noOfVmThreads,
 			EvaluationStrategy evalStrategy, StorageStrategy storageStrategy, boolean useDummyData)
 			throws Exception {
 		Level logLevel = Level.FINE;
@@ -98,7 +98,7 @@ public class TestSpdzLPSolver2Parties {
 			ttc.protocolSuiteConf = spdzConf;
 			boolean useSecureConnection = false; // No tests of secure connection
 												// here.
-			int noOfVMThreads = 3;
+			int noOfPSThreads = 3;
 			ProtocolSuite suite = SpdzProtocolSuite.getInstance(playerId);
 			ProtocolEvaluator evaluator = EvaluationStrategy.fromEnum(evalStrategy);			
 			Storage storage = null;
@@ -110,7 +110,7 @@ public class TestSpdzLPSolver2Parties {
 			case MYSQL:
 				//storage = mySQLStore;
 			}
-			ttc.sceConf = new TestSCEConfiguration(suite, evaluator, noOfThreads, noOfVMThreads, ttc.netConf, storage, useSecureConnection);
+			ttc.sceConf = new TestSCEConfiguration(suite, evaluator, noOfPSThreads, noOfVmThreads, ttc.netConf, storage, useSecureConnection);
 			conf.put(playerId, ttc);
 		}
 		TestThreadRunner.run(f, conf);
@@ -144,6 +144,19 @@ public class TestSpdzLPSolver2Parties {
 		runTest(new LPSolverTests.TestLPSolver(), 2, 1,
 				EvaluationStrategy.PARALLEL, StorageStrategy.IN_MEMORY, true);
 	}
+	
+	@Test
+	public void test_LPSolver_2_Parallel_batched_dummy() throws Exception {
+		int numberOfVMThreads = 4;
+		runTest(new LPSolverTests.TestLPSolver(), 2, numberOfVMThreads,
+				EvaluationStrategy.PARALLEL_BATCHED, StorageStrategy.IN_MEMORY, true);
+	}
+	
+	@Test
+	public void test_LPSolver_2_Sequential_batched_dummy() throws Exception {
+		runTest(new LPSolverTests.TestLPSolver(), 2, 1,
+				EvaluationStrategy.SEQUENTIAL_BATCHED, StorageStrategy.IN_MEMORY, true);
+	}
 
 	@Test
 	public void test_LPSolver_2_Sequential_streamed() throws Exception {
@@ -155,7 +168,7 @@ public class TestSpdzLPSolver2Parties {
 	
 	@Test
 	public void test_LPSolver_2_Parallel_streamed() throws Exception {
-		int noOfThreads = 3;		
+		int noOfThreads = 2;		
 		InitializeStorage.initStreamedStorage(new StreamedStorage[] {streamedStorage}, 2, noOfThreads, 10000, 1000, 500000, 2000);
 		runTest(new LPSolverTests.TestLPSolver(), 2, noOfThreads,
 				EvaluationStrategy.PARALLEL, StorageStrategy.STREAMED_STORAGE, false);
@@ -163,7 +176,7 @@ public class TestSpdzLPSolver2Parties {
 	
 	@Test
 	public void test_LPSolver_2_ParallelBatched_streamed() throws Exception {
-		int noOfThreads = 3;		
+		int noOfThreads = 2;		
 		InitializeStorage.initStreamedStorage(new StreamedStorage[] {streamedStorage}, 2, noOfThreads, 10000, 1000, 500000, 2000);
 		runTest(new LPSolverTests.TestLPSolver(), 2, noOfThreads,
 				EvaluationStrategy.PARALLEL_BATCHED, StorageStrategy.STREAMED_STORAGE, false);
@@ -171,7 +184,7 @@ public class TestSpdzLPSolver2Parties {
 	
 	@Test
 	public void test_LPSolver_2_SequentialBatched_streamed() throws Exception {
-		int noOfThreads = 3;		
+		int noOfThreads = 2;		
 		InitializeStorage.initStreamedStorage(new StreamedStorage[] {streamedStorage}, 2, noOfThreads, 10000, 1000, 500000, 2000);
 		runTest(new LPSolverTests.TestLPSolver(), 2, noOfThreads,
 				EvaluationStrategy.SEQUENTIAL_BATCHED, StorageStrategy.STREAMED_STORAGE, false);

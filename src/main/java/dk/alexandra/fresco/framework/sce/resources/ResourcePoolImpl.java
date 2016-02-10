@@ -174,4 +174,9 @@ public class ResourcePoolImpl implements SCEResourcePool {
 		return this.vmThreadPool;
 	}
 
+	@Override
+	public int getVMThreadCount() {
+		return this.vmThreadPool.getVMThreadCount();
+	}
+
 }

@@ -111,7 +111,7 @@ public class ParallelEvaluator implements ProtocolEvaluator {
 	@Override
 	public void setResourcePool(SCEResourcePool resourcePool) {
 		this.rp = resourcePool;
-		this.threads = resourcePool.getThreadPool().getThreadCount();
+		this.threads = resourcePool.getVMThreadPool().getVMThreadCount();
 	}
 	
 	private class BatchTask implements Callable<Object> {
