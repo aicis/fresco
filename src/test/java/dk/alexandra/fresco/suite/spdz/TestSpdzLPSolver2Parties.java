@@ -43,19 +43,22 @@ import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.TestConfiguration;
 import dk.alexandra.fresco.framework.sce.configuration.TestSCEConfiguration;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
+import dk.alexandra.fresco.framework.sce.resources.storage.FilebasedStreamedStorageImpl;
 import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
 import dk.alexandra.fresco.framework.sce.resources.storage.Storage;
 import dk.alexandra.fresco.framework.sce.resources.storage.StorageStrategy;
 import dk.alexandra.fresco.lib.lp.LPSolverTests;
+import dk.alexandra.fresco.framework.sce.resources.storage.StreamedStorage;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.configuration.SpdzConfiguration;
 import dk.alexandra.fresco.suite.spdz.evaluation.strategy.SpdzProtocolSuite;
+import dk.alexandra.fresco.suite.spdz.storage.InitializeStorage;
 
 public class TestSpdzLPSolver2Parties {
 
 	
-	private void runTest(TestThreadFactory f, int noPlayers,
-			EvaluationStrategy evalStrategy, StorageStrategy storageStrategy)
+	private void runTest(TestThreadFactory f, int noPlayers, int noOfVmThreads,
+			EvaluationStrategy evalStrategy, StorageStrategy storageStrategy, boolean useDummyData)
 			throws Exception {
 		Level logLevel = Level.FINE;
 		Reporter.init(logLevel);
@@ -79,7 +82,7 @@ public class TestSpdzLPSolver2Parties {
 				
 				@Override
 				public boolean useDummyData() {
-					return true;
+					return useDummyData;
 				}
 				
 				@Override
@@ -95,24 +98,26 @@ public class TestSpdzLPSolver2Parties {
 			ttc.protocolSuiteConf = spdzConf;
 			boolean useSecureConnection = false; // No tests of secure connection
 												// here.
-			int noOfVMThreads = 3;
-			int noOfThreads = 3;
+			int noOfPSThreads = 3;
 			ProtocolSuite suite = SpdzProtocolSuite.getInstance(playerId);
 			ProtocolEvaluator evaluator = EvaluationStrategy.fromEnum(evalStrategy);			
 			Storage storage = null;
 			switch (storageStrategy) {
 			case IN_MEMORY:
 				storage = inMemStore;
+			case STREAMED_STORAGE:
+				storage = new FilebasedStreamedStorageImpl(inMemStore);
 			case MYSQL:
-				//ttc.storage = mySQLStore;
+				//storage = mySQLStore;
 			}
-			ttc.sceConf = new TestSCEConfiguration(suite, evaluator, noOfThreads, noOfVMThreads, ttc.netConf, storage, useSecureConnection);
+			ttc.sceConf = new TestSCEConfiguration(suite, evaluator, noOfPSThreads, noOfVmThreads, ttc.netConf, storage, useSecureConnection);
 			conf.put(playerId, ttc);
 		}
 		TestThreadRunner.run(f, conf);
 	}
 
 	private static final InMemoryStorage inMemStore = new InMemoryStorage();
+	private static final StreamedStorage streamedStorage = new FilebasedStreamedStorageImpl(inMemStore);
 	//private static final MySQLStorage mySQLStore = MySQLStorage.getInstance();
 
 	/**
@@ -129,17 +134,61 @@ public class TestSpdzLPSolver2Parties {
 	*/
 
 	@Test
-	public void test_LPSolver_2_Sequential() throws Exception {
-		runTest(new LPSolverTests.TestLPSolver(), 2,
-				EvaluationStrategy.SEQUENTIAL, StorageStrategy.IN_MEMORY);
+	public void test_LPSolver_2_Sequential_dummy() throws Exception {
+		runTest(new LPSolverTests.TestLPSolver(), 2, 1,
+				EvaluationStrategy.SEQUENTIAL, StorageStrategy.IN_MEMORY, true);
+	}
+	
+	@Test
+	public void test_LPSolver_2_Parallel_dummy() throws Exception {
+		runTest(new LPSolverTests.TestLPSolver(), 2, 1,
+				EvaluationStrategy.PARALLEL, StorageStrategy.IN_MEMORY, true);
+	}
+	
+	@Test
+	public void test_LPSolver_2_Parallel_batched_dummy() throws Exception {
+		int numberOfVMThreads = 4;
+		runTest(new LPSolverTests.TestLPSolver(), 2, numberOfVMThreads,
+				EvaluationStrategy.PARALLEL_BATCHED, StorageStrategy.IN_MEMORY, true);
+	}
+	
+	@Test
+	public void test_LPSolver_2_Sequential_batched_dummy() throws Exception {
+		runTest(new LPSolverTests.TestLPSolver(), 2, 1,
+				EvaluationStrategy.SEQUENTIAL_BATCHED, StorageStrategy.IN_MEMORY, true);
 	}
 
 	@Test
-	public void test_LPSolver_2_Parallel() throws Exception {
-		runTest(new LPSolverTests.TestLPSolver(), 2,
-				EvaluationStrategy.PARALLEL, StorageStrategy.IN_MEMORY);
+	public void test_LPSolver_2_Sequential_streamed() throws Exception {
+		int noOfThreads = 1;
+		InitializeStorage.initStreamedStorage(new StreamedStorage[] {streamedStorage}, 2, noOfThreads, 10000, 1000, 500000, 2000);
+		runTest(new LPSolverTests.TestLPSolver(), 2, noOfThreads,
+				EvaluationStrategy.SEQUENTIAL, StorageStrategy.STREAMED_STORAGE, false);
 	}
-
+	
+	@Test
+	public void test_LPSolver_2_Parallel_streamed() throws Exception {
+		int noOfThreads = 2;		
+		InitializeStorage.initStreamedStorage(new StreamedStorage[] {streamedStorage}, 2, noOfThreads, 10000, 1000, 500000, 2000);
+		runTest(new LPSolverTests.TestLPSolver(), 2, noOfThreads,
+				EvaluationStrategy.PARALLEL, StorageStrategy.STREAMED_STORAGE, false);
+	}
+	
+	@Test
+	public void test_LPSolver_2_ParallelBatched_streamed() throws Exception {
+		int noOfThreads = 2;		
+		InitializeStorage.initStreamedStorage(new StreamedStorage[] {streamedStorage}, 2, noOfThreads, 10000, 1000, 500000, 2000);
+		runTest(new LPSolverTests.TestLPSolver(), 2, noOfThreads,
+				EvaluationStrategy.PARALLEL_BATCHED, StorageStrategy.STREAMED_STORAGE, false);
+	}
+	
+	@Test
+	public void test_LPSolver_2_SequentialBatched_streamed() throws Exception {
+		int noOfThreads = 2;		
+		InitializeStorage.initStreamedStorage(new StreamedStorage[] {streamedStorage}, 2, noOfThreads, 10000, 1000, 500000, 2000);
+		runTest(new LPSolverTests.TestLPSolver(), 2, noOfThreads,
+				EvaluationStrategy.SEQUENTIAL_BATCHED, StorageStrategy.STREAMED_STORAGE, false);
+	}
 	
 	/*
 	@Test

@@ -43,7 +43,7 @@ import dk.alexandra.fresco.suite.spdz.evaluation.strategy.SpdzProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
 import dk.alexandra.fresco.suite.spdz.utils.Util;
 
-public class SpdzMultGate extends SpdzNativeProtocol implements MultProtocol {
+public class SpdzMultProtocol extends SpdzNativeProtocol implements MultProtocol {
 
 	private SpdzSInt in1, in2, out;
 	private SpdzOInt oIn1;
@@ -55,25 +55,25 @@ public class SpdzMultGate extends SpdzNativeProtocol implements MultProtocol {
 		return (oIn1 == null);
 	}
 
-	public SpdzMultGate(SInt in1, SInt in2, SInt out) {
+	public SpdzMultProtocol(SInt in1, SInt in2, SInt out) {
 		this.in1 = (SpdzSInt) in1;
 		this.in2 = (SpdzSInt) in2;
 		this.out = (SpdzSInt) out;
 	}
 
-	public SpdzMultGate(SpdzSInt in1, SpdzSInt in2, SpdzSInt out) {
+	public SpdzMultProtocol(SpdzSInt in1, SpdzSInt in2, SpdzSInt out) {
 		this.in1 = in1;
 		this.in2 = in2;
 		this.out = out;
 	}
 
-	public SpdzMultGate(SpdzOInt oIn1, SpdzSInt in2, SpdzSInt out) {
+	public SpdzMultProtocol(SpdzOInt oIn1, SpdzSInt in2, SpdzSInt out) {
 		this.oIn1 = oIn1;
 		this.in2 = in2;
 		this.out = out;
 	}
 
-	public SpdzMultGate(OInt oIn1, SInt in2, SInt out) {
+	public SpdzMultProtocol(OInt oIn1, SInt in2, SInt out) {
 		this.oIn1 = (SpdzOInt) oIn1;
 		this.in2 = (SpdzSInt) in2;
 		this.out = (SpdzSInt) out;

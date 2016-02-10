@@ -36,6 +36,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Random;
+import java.util.concurrent.Callable;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import dk.alexandra.fresco.framework.MPCException;
@@ -49,8 +50,8 @@ import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.configuration.SpdzConfiguration;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzCommitment;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
-import dk.alexandra.fresco.suite.spdz.gates.SpdzCommitGate;
-import dk.alexandra.fresco.suite.spdz.gates.SpdzOpenCommitGate;
+import dk.alexandra.fresco.suite.spdz.gates.SpdzCommitProtocol;
+import dk.alexandra.fresco.suite.spdz.gates.SpdzOpenCommitProtocol;
 import dk.alexandra.fresco.suite.spdz.storage.DataRetrieverImpl;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageConstants;
@@ -92,7 +93,7 @@ public class SpdzProtocolSuite implements ProtocolSuite {
 	public BigInteger getKeyShare() {
 		return keyShare;
 	}
-	
+
 	public BigInteger getModulus() {
 		return p;
 	}
@@ -100,28 +101,29 @@ public class SpdzProtocolSuite implements ProtocolSuite {
 	public SpdzConfiguration getConf() {
 		return this.spdzConf;
 	}
-	
+
 	public MessageDigest getMessageDigest(int threadId) {
 		return this.digs[threadId];
 	}
 
 	@Override
 	public void init(ResourcePool resourcePool, ProtocolSuiteConfiguration conf) {
-		spdzConf = (SpdzConfiguration)conf;
+		spdzConf = (SpdzConfiguration) conf;
 		this.network = resourcePool.getNetwork();
-		this.store = new SpdzStorage[resourcePool.getThreadPool().getThreadCount()];
-		for (int i = 0; i < resourcePool.getThreadPool().getThreadCount(); i++) {
-			if(spdzConf.useDummyData()) {
+		int noOfThreads = resourcePool.getVMThreadCount();
+		this.store = new SpdzStorage[noOfThreads];
+		for (int i = 0; i < noOfThreads; i++) {
+			if (spdzConf.useDummyData()) {
 				store[i] = new SpdzStorageDummyImpl(resourcePool.getMyId(), resourcePool.getNoOfParties());
 			} else {
-				store[i] = new SpdzStorageImpl(resourcePool, i);
+				store[i] = new SpdzStorageImpl(resourcePool, i+1);
 			}
-		}		
+		}
 		this.rand = resourcePool.getSecureRandom();
 		this.rp = resourcePool;
 
 		try {
-			this.digs = new MessageDigest[this.rp.getThreadPool().getThreadCount()];
+			this.digs = new MessageDigest[noOfThreads];
 			for (int i = 0; i < this.digs.length; i++) {
 				this.digs[i] = MessageDigest.getInstance("SHA-256");
 			}
@@ -129,23 +131,46 @@ public class SpdzProtocolSuite implements ProtocolSuite {
 			Reporter.warn("SHA-256 not supported as digest on this system. Might not influence "
 					+ "computation if your chosen SCPS does not depend on a hash function.");
 		}
-		
-		//If no data is yet in the native storage, we need to put data there.
-		if(this.store[0].getSSK() == null) {
-			DataRetrieverImpl retriever = new DataRetrieverImpl(resourcePool, spdzConf.getTriplePath(), SpdzStorageConstants.STORAGE_NAME_PREFIX + rp.getMyId());
-			retriever.fetchAll();
+
+		// If no data is yet in the native storage, we need to put data there.
+		// This assumes the old SPDZ variant where preprocessed data is computed
+		// using the Bristol code. There is no reason to take this step, as fake
+		// data generated is just as good.
+		try {
+			this.store[0].getSSK();
+		} catch (MPCException e) {
+			// FIXME: This only retrieves data for a single thread. Needs to be
+			// done for each thread.
+			// FIXME: OR - remove this, and require that data is stored
+			// beforehand. It really should not be something this class should
+			// deal with.
+			DataRetrieverImpl retriever = new DataRetrieverImpl(resourcePool, spdzConf.getTriplePath(),
+					SpdzStorageConstants.STORAGE_NAME_PREFIX + rp.getMyId());
+			Callable<Boolean> fetchThread = new Callable<Boolean>() {
+
+				@Override
+				public Boolean call() throws Exception {
+					try {
+						retriever.fetchAll();
+					} catch (Exception e) {
+						return false;
+					}
+					return true;
+				}
+			};
+			resourcePool.getThreadPool().submitTask(fetchThread);
 		}
-		
-		//First then can we get the keyshare.
+
+		// Initialize various fields global to the computation.
 		this.keyShare = store[0].getSSK();
 		this.p = store[0].getSupplier().getModulus();
 		Util.setModulus(this.p);
 		byte[] bytes = p.toByteArray();
-		if(bytes[0] == 0){
-			Util.size = p.toByteArray().length - 1;		
-		}else{
+		if (bytes[0] == 0) {
+			Util.size = p.toByteArray().length - 1;
+		} else {
 			Util.size = p.toByteArray().length;
-		}	
+		}
 	}
 
 	@Override
@@ -154,10 +179,8 @@ public class SpdzProtocolSuite implements ProtocolSuite {
 		if (this.gatesEvaluated > macCheckThreshold) {
 			try {
 				for (int i = 1; i < store.length; i++) {
-					store[0].getOpenedValues().addAll(
-							store[i].getOpenedValues());
-					store[0].getClosedValues().addAll(
-							store[i].getClosedValues());
+					store[0].getOpenedValues().addAll(store[i].getOpenedValues());
+					store[0].getClosedValues().addAll(store[i].getClosedValues());
 					store[i].reset();
 				}
 				MACCheck();
@@ -179,36 +202,35 @@ public class SpdzProtocolSuite implements ProtocolSuite {
 	}
 
 	private void MACCheck() throws IOException {
-		BigInteger s = new BigInteger(Util.getModulus().bitLength(), rand)
-				.mod(Util.getModulus());// TODO: This is not truly random
+		// TODO: This is not truly random
+		BigInteger s = new BigInteger(Util.getModulus().bitLength(), rand).mod(Util.getModulus());
 		SpdzCommitment commitment = new SpdzCommitment(this.digs[0], s, rand);
 		Map<Integer, BigInteger> comms = new HashMap<Integer, BigInteger>();
-		SpdzCommitGate comm = new SpdzCommitGate(commitment, comms);
+		SpdzCommitProtocol comm = new SpdzCommitProtocol(commitment, comms);
 		Map<Integer, BigInteger> ss = new HashMap<Integer, BigInteger>();
-		SpdzOpenCommitGate open = new SpdzOpenCommitGate(commitment, comms, ss);
+		SpdzOpenCommitProtocol open = new SpdzOpenCommitProtocol(commitment, comms, ss);
 
-		SCENetworkImpl protocolNetwork = new SCENetworkImpl(
-				this.rp.getNoOfParties(), 0);
+		SCENetworkImpl protocolNetwork = new SCENetworkImpl(this.rp.getNoOfParties(), 0);
 
 		EvaluationStatus status;
 		int i = 0;
 		do {
 			status = comm.evaluate(i, this.rp, protocolNetwork);
 			i++;
-			//send phase
-			Map<Integer, Queue<Serializable>> output = protocolNetwork.getOutputFromThisRound();				
-			for(int pId : output.keySet()) {
-				//send array since queue is not serializable
-				network.send("0", pId, output.get(pId).toArray(new Serializable[0]));					
+			// send phase
+			Map<Integer, Queue<Serializable>> output = protocolNetwork.getOutputFromThisRound();
+			for (int pId : output.keySet()) {
+				// send array since queue is not serializable
+				network.send("0", pId, output.get(pId).toArray(new Serializable[0]));
 			}
-			
-			//receive phase
+
+			// receive phase
 			Map<Integer, Queue<Serializable>> inputForThisRound = new HashMap<Integer, Queue<Serializable>>();
-			for(int pId : protocolNetwork.getExpectedInputForNextRound()) {					
+			for (int pId : protocolNetwork.getExpectedInputForNextRound()) {
 				Serializable[] messages = network.receive("0", pId);
 				Queue<Serializable> q = new LinkedBlockingQueue<Serializable>();
-				//convert back from array to queue.
-				for(Serializable message : messages) {
+				// convert back from array to queue.
+				for (Serializable message : messages) {
 					q.offer(message);
 				}
 				inputForThisRound.put(pId, q);
@@ -221,20 +243,20 @@ public class SpdzProtocolSuite implements ProtocolSuite {
 		do {
 			status = open.evaluate(i, this.rp, protocolNetwork);
 			i++;
-			//send phase
-			Map<Integer, Queue<Serializable>> output = protocolNetwork.getOutputFromThisRound();				
-			for(int pId : output.keySet()) {
-				//send array since queue is not serializable
-				network.send("0", pId, output.get(pId).toArray(new Serializable[0]));					
+			// send phase
+			Map<Integer, Queue<Serializable>> output = protocolNetwork.getOutputFromThisRound();
+			for (int pId : output.keySet()) {
+				// send array since queue is not serializable
+				network.send("0", pId, output.get(pId).toArray(new Serializable[0]));
 			}
-			
-			//receive phase
+
+			// receive phase
 			Map<Integer, Queue<Serializable>> inputForThisRound = new HashMap<Integer, Queue<Serializable>>();
-			for(int pId : protocolNetwork.getExpectedInputForNextRound()) {					
+			for (int pId : protocolNetwork.getExpectedInputForNextRound()) {
 				Serializable[] messages = network.receive("0", pId);
 				Queue<Serializable> q = new LinkedBlockingQueue<Serializable>();
-				//convert back from array to queue.
-				for(Serializable message : messages) {
+				// convert back from array to queue.
+				for (Serializable message : messages) {
 					q.offer(message);
 				}
 				inputForThisRound.put(pId, q);
@@ -258,8 +280,7 @@ public class SpdzProtocolSuite implements ProtocolSuite {
 		MessageDigest H = new Util().getHashFunction();
 		BigInteger r_temp = s;
 		for (i = 0; i < t; i++) {
-			r_temp = new BigInteger(H.digest(r_temp.toByteArray())).mod(Util
-					.getModulus());
+			r_temp = new BigInteger(H.digest(r_temp.toByteArray())).mod(Util.getModulus());
 			rs[i] = r_temp;
 		}
 		BigInteger a = BigInteger.ZERO;
@@ -277,39 +298,37 @@ public class SpdzProtocolSuite implements ProtocolSuite {
 		BigInteger gamma = BigInteger.ZERO;
 		index = 0;
 		for (SpdzElement c : closedValues) {
-			gamma = gamma.add(rs[index++].multiply(c.getMac())).mod(
-					Util.getModulus());
+			gamma = gamma.add(rs[index++].multiply(c.getMac())).mod(Util.getModulus());
 		}
 
 		// compute delta_i as: gamma_i - alpha_i*a
-		BigInteger delta = gamma.subtract(store[0].getSSK().multiply(a)).mod(
-				Util.getModulus());
+		BigInteger delta = gamma.subtract(store[0].getSSK().multiply(a)).mod(Util.getModulus());
 		// Commit to delta and open it afterwards
 		commitment = new SpdzCommitment(this.digs[0], delta, rand);
 		comms = new HashMap<Integer, BigInteger>();
-		comm = new SpdzCommitGate(commitment, comms);
+		comm = new SpdzCommitProtocol(commitment, comms);
 		ss = new HashMap<Integer, BigInteger>();
-		open = new SpdzOpenCommitGate(commitment, comms, ss);
+		open = new SpdzOpenCommitProtocol(commitment, comms, ss);
 
 		status = null;
 		i = 0;
 		do {
 			status = comm.evaluate(i, this.rp, protocolNetwork);
 			i++;
-			//send phase
-			Map<Integer, Queue<Serializable>> output = protocolNetwork.getOutputFromThisRound();				
-			for(int pId : output.keySet()) {
-				//send array since queue is not serializable
-				network.send("0", pId, output.get(pId).toArray(new Serializable[0]));					
+			// send phase
+			Map<Integer, Queue<Serializable>> output = protocolNetwork.getOutputFromThisRound();
+			for (int pId : output.keySet()) {
+				// send array since queue is not serializable
+				network.send("0", pId, output.get(pId).toArray(new Serializable[0]));
 			}
-			
-			//receive phase
+
+			// receive phase
 			Map<Integer, Queue<Serializable>> inputForThisRound = new HashMap<Integer, Queue<Serializable>>();
-			for(int pId : protocolNetwork.getExpectedInputForNextRound()) {					
+			for (int pId : protocolNetwork.getExpectedInputForNextRound()) {
 				Serializable[] messages = network.receive("0", pId);
 				Queue<Serializable> q = new LinkedBlockingQueue<Serializable>();
-				//convert back from array to queue.
-				for(Serializable message : messages) {
+				// convert back from array to queue.
+				for (Serializable message : messages) {
 					q.offer(message);
 				}
 				inputForThisRound.put(pId, q);
@@ -322,20 +341,20 @@ public class SpdzProtocolSuite implements ProtocolSuite {
 		do {
 			status = open.evaluate(i, this.rp, protocolNetwork);
 			i++;
-			//send phase
-			Map<Integer, Queue<Serializable>> output = protocolNetwork.getOutputFromThisRound();				
-			for(int pId : output.keySet()) {
-				//send array since queue is not serializable
-				network.send("0", pId, output.get(pId).toArray(new Serializable[0]));					
+			// send phase
+			Map<Integer, Queue<Serializable>> output = protocolNetwork.getOutputFromThisRound();
+			for (int pId : output.keySet()) {
+				// send array since queue is not serializable
+				network.send("0", pId, output.get(pId).toArray(new Serializable[0]));
 			}
-			
-			//receive phase
+
+			// receive phase
 			Map<Integer, Queue<Serializable>> inputForThisRound = new HashMap<Integer, Queue<Serializable>>();
-			for(int pId : protocolNetwork.getExpectedInputForNextRound()) {					
+			for (int pId : protocolNetwork.getExpectedInputForNextRound()) {
 				Serializable[] messages = network.receive("0", pId);
 				Queue<Serializable> q = new LinkedBlockingQueue<Serializable>();
-				//convert back from array to queue.
-				for(Serializable message : messages) {
+				// convert back from array to queue.
+				for (Serializable message : messages) {
 					q.offer(message);
 				}
 				inputForThisRound.put(pId, q);
@@ -349,11 +368,9 @@ public class SpdzProtocolSuite implements ProtocolSuite {
 			deltaSum = deltaSum.add(d);
 		}
 		deltaSum = deltaSum.mod(Util.getModulus());
-		if (!deltaSum.equals(BigInteger.ZERO)) {
-			throw new MPCException(
-					"The sum of delta's was not 0. Someone was corrupting something amongst "
-							+ t + " macs. Sum was " + deltaSum.toString()
-							+ " Aborting!");
+		if (!deltaSum.equals(BigInteger.ZERO)) {			
+			throw new MPCException("The sum of delta's was not 0. Someone was corrupting something amongst " + t
+					+ " macs. Sum was " + deltaSum.toString() + " Aborting!");
 		}
 		// clean up store before returning to evaluating such that we only
 		// evaluate the next macs, not those we already checked.

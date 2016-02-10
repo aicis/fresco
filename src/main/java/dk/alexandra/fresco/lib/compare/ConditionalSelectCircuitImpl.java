@@ -60,7 +60,7 @@ public class ConditionalSelectCircuitImpl implements ConditionalSelectCircuit{
 			SInt multResult = provider.getSInt();
 			SubtractCircuit subCircuit = provider.getSubtractCircuit(a, b, subResult);
 			MultProtocol multCircuit = provider.getMultCircuit(selector, subResult, multResult);
-			AddProtocol addCircuit = provider.getAddCircuit(multResult, b, result);
+			AddProtocol addCircuit = provider.getAddProtocol(multResult, b, result);
 			
 			this.gp = new SequentialProtocolProducer(subCircuit, multCircuit, addCircuit);
 		}

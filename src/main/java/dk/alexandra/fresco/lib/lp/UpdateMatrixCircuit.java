@@ -114,7 +114,7 @@ public class UpdateMatrixCircuit implements Protocol{
 						lambdas_i_jOuts[j][i] = numericProvider.getSInt(0);
 					}
 					//TODO: Check that we add the correct amount. (from j=1 to m+1)
-					addsLambda_i[j][i] = numericProvider.getAddCircuit(lambdas_i_jOuts[j][i], lambdas_iOuts[i], lambdas_iOuts[i]);
+					addsLambda_i[j][i] = numericProvider.getAddProtocol(lambdas_i_jOuts[j][i], lambdas_iOuts[i], lambdas_iOuts[i]);
 					
 					//next 4 - update matrix
 					subOuts[j][i] = numericProvider.getSInt();
@@ -123,7 +123,7 @@ public class UpdateMatrixCircuit implements Protocol{
 					mults_cAndLambda_i[j][i] = numericProvider.getMultCircuit(C[j], lambdas_iOuts[i], mults_cAndLambda_iOuts[j][i]);
 					mults_sub_and_ppOuts[j][i] = numericProvider.getSInt();
 					mults_sub_and_pp[j][i] = numericProvider.getMultCircuit(subOuts[j][i], pp, mults_sub_and_ppOuts[j][i]);
-					adds[j][i] = numericProvider.getAddCircuit(mults_cAndLambda_iOuts[j][i], mults_sub_and_ppOuts[j][i], newUpdateMatrix.getIthRow(j)[i]);
+					adds[j][i] = numericProvider.getAddProtocol(mults_cAndLambda_iOuts[j][i], mults_sub_and_ppOuts[j][i], newUpdateMatrix.getIthRow(j)[i]);
 				}
 			}
 			

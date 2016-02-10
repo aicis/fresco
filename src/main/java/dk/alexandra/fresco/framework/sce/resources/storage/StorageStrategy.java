@@ -29,6 +29,7 @@ package dk.alexandra.fresco.framework.sce.resources.storage;
 public enum StorageStrategy {
 
 	IN_MEMORY,
+	STREAMED_STORAGE,
 	MYSQL;
 	
 	public static Storage fromString(String storageString) {
@@ -40,6 +41,9 @@ public enum StorageStrategy {
 		case "MYSQL":
 		case "MY_SQL":
 			return MySQLStorage.getInstance();
+		case "STREAMED_STORAGE":
+		case "FILE_BASED_STORAGE":
+			return new FilebasedStreamedStorageImpl(new InMemoryStorage());
 		default:
 			return null;
 		}
@@ -50,6 +54,8 @@ public enum StorageStrategy {
 			return IN_MEMORY.name();
 		} else if(storage instanceof MySQLStorage) {
 			return MYSQL.name();
+		} else if(storage instanceof FilebasedStreamedStorageImpl){
+			return STREAMED_STORAGE.name();
 		} else {
 			return null;
 		}

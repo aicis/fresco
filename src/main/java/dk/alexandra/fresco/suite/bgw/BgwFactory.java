@@ -115,7 +115,7 @@ public class BgwFactory implements BasicNumericFactory, LocalInversionFactory, E
 
 
 	@Override
-	public AddProtocol getAddCircuit(SInt a, SInt b, SInt out) {
+	public AddProtocol getAddProtocol(SInt a, SInt b, SInt out) {
 		return new BgwAddProtocol(a, b, out);
 	}
 
@@ -156,30 +156,30 @@ public class BgwFactory implements BasicNumericFactory, LocalInversionFactory, E
 
 
 	@Override
-	public CloseIntProtocol getCloseCircuit(int source, OInt open, SInt closed) {
+	public CloseIntProtocol getCloseProtocol(int source, OInt open, SInt closed) {
 		return new BgwCloseIntProtocol(open, closed, source);
 	}
 
 	@Override
-	public OpenIntProtocol getOpenCircuit(SInt closed, OInt open) {
+	public OpenIntProtocol getOpenProtocol(SInt closed, OInt open) {
 		return new BgwOpenIntProtocol(closed, open);
 	}
 
 	@Override
-	public OpenIntProtocol getOpenCircuit(int target, SInt closed, OInt open) {
+	public OpenIntProtocol getOpenProtocol(int target, SInt closed, OInt open) {
 		return new BgwOpenIntProtocol(target, closed, open);
 	}
 
 	@Override
-	public AddProtocol getAddCircuit(SInt input, OInt openInput, SInt out) {
+	public AddProtocol getAddProtocol(SInt input, OInt openInput, SInt out) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public CloseIntProtocol getCloseCircuit(BigInteger open, SInt closed,
+	public CloseIntProtocol getCloseProtocol(BigInteger open, SInt closed,
 			int targetID) {
-		return getCloseCircuit(targetID, this.getOInt(open), closed);
+		return getCloseProtocol(targetID, this.getOInt(open), closed);
 	}
 
 

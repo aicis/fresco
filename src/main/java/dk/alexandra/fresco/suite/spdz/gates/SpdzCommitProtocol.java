@@ -27,75 +27,78 @@
 package dk.alexandra.fresco.suite.spdz.gates;
 
 import java.math.BigInteger;
+import java.util.List;
+import java.util.Map;
 
+import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.network.SCENetwork;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
-import dk.alexandra.fresco.framework.value.KnownSIntProtocol;
-import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.framework.value.Value;
-import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
-import dk.alexandra.fresco.suite.spdz.datatypes.SpdzOInt;
-import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
+import dk.alexandra.fresco.suite.spdz.datatypes.SpdzCommitment;
 import dk.alexandra.fresco.suite.spdz.evaluation.strategy.SpdzProtocolSuite;
-import dk.alexandra.fresco.suite.spdz.utils.Util;
 
-public class SpdzKnownSIntGate extends SpdzNativeProtocol implements KnownSIntProtocol {
+public class SpdzCommitProtocol extends SpdzNativeProtocol {
 
-	BigInteger value;
-	SpdzSInt sValue;
+	protected SpdzCommitment commitment;
+	protected Map<Integer, BigInteger> comms;
+	private boolean done = false;
+	private byte[] broadcastDigest;
 
-	/**
-	 * Creates a gate loading a given value into a given SInt
-	 * 
-	 * @param value
-	 *            the value
-	 * @param sValue
-	 *            the SInt
-	 */
-	public SpdzKnownSIntGate(BigInteger value, SInt sValue) {
-		this.value = value;
-		this.sValue = (SpdzSInt) sValue;
-	}
-
-	/**
-	 * Creates a gate loading a given value into a given SInt
-	 * 
-	 * @param value
-	 *            the value
-	 * @param sValue
-	 *            the SInt
-	 */
-	public SpdzKnownSIntGate(int value, SInt sValue) {
-		this(BigInteger.valueOf(value), sValue);
+	public SpdzCommitProtocol(SpdzCommitment commitment,
+			Map<Integer, BigInteger> comms) {
+		this.commitment = commitment;
+		this.comms = comms;
 	}
 
 	@Override
 	public Value[] getInputValues() {
-		SpdzOInt oValue = new SpdzOInt(value);
-		return new Value[] { oValue };
+		return null;
 	}
 
 	@Override
 	public Value[] getOutputValues() {
-		return new Value[] { sValue };
+		return null;
 	}
 
 	@Override
 	public EvaluationStatus evaluate(int round, ResourcePool resourcePool,
 			SCENetwork network) {
-		SpdzProtocolSuite spdzPii = SpdzProtocolSuite
-				.getInstance(resourcePool.getMyId());
-		value = value.mod(Util.getModulus());
-		SpdzElement elm;
-		BigInteger globalKeyShare = spdzPii.getStore(network.getThreadId())
-				.getSSK();
-		if (resourcePool.getMyId() == 1) {
-			elm = new SpdzElement(value, value.multiply(globalKeyShare));
-		} else {
-			elm = new SpdzElement(BigInteger.ZERO,
-					value.multiply(globalKeyShare));
+		int players = resourcePool.getNoOfParties();
+		switch (round) {
+		case 0:
+			network.sendToAll(commitment.getCommitment());
+			network.expectInputFromAll();
+			break;
+		case 1:
+			List<BigInteger> commitments = network.receiveFromAll();
+			for (int i = 0; i < commitments.size(); i++) {
+				comms.put(i + 1, commitments.get(i));
+			}
+			if (players < 3) {
+				done = true;
+			} else {
+				broadcastDigest = sendBroadcastValidation(
+						SpdzProtocolSuite.getInstance(
+								resourcePool.getMyId()).getMessageDigest(
+								network.getThreadId()), network, commitments,
+						players);
+				network.expectInputFromAll();
+			}
+			break;
+		case 2:
+			boolean validated = receiveBroadcastValidation(network,
+					broadcastDigest);
+			if (!validated) {
+				throw new MPCException(
+						"Broadcast of commitments was not validated. Abort protocol.");
+			}
+			done = true;
+			break;
+		default:
+			throw new MPCException("No further rounds.");
 		}
-		sValue.value = elm;
-		return EvaluationStatus.IS_DONE;
+		EvaluationStatus status = (done) ? EvaluationStatus.IS_DONE
+				: EvaluationStatus.HAS_MORE_ROUNDS;
+		return status;
 	}
 }

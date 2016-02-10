@@ -57,7 +57,6 @@ public class ParallelEvaluator implements ProtocolEvaluator {
 
 	public ParallelEvaluator() {
 		this.maxBatchSize = 4096;	
-		this.threads = 3;
 	}
 
 	@Override
@@ -112,6 +111,7 @@ public class ParallelEvaluator implements ProtocolEvaluator {
 	@Override
 	public void setResourcePool(SCEResourcePool resourcePool) {
 		this.rp = resourcePool;
+		this.threads = resourcePool.getVMThreadPool().getVMThreadCount();
 	}
 	
 	private class BatchTask implements Callable<Object> {

@@ -27,7 +27,6 @@
 package dk.alexandra.fresco.suite.spdz.gates;
 
 import java.math.BigInteger;
-import java.util.List;
 
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.network.SCENetwork;
@@ -35,60 +34,100 @@ import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.framework.value.Value;
-import dk.alexandra.fresco.lib.field.integer.OpenIntProtocol;
-import dk.alexandra.fresco.suite.spdz.datatypes.SpdzOInt;
+import dk.alexandra.fresco.lib.field.integer.CloseIntProtocol;
+import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
+import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.evaluation.strategy.SpdzProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
 import dk.alexandra.fresco.suite.spdz.utils.Util;
 
-public class SpdzOutputToAllGate extends SpdzNativeProtocol implements
-		OpenIntProtocol {
+public class SpdzInputProtocol extends SpdzNativeProtocol implements CloseIntProtocol {
 
-	private SpdzSInt in;
-	private SpdzOInt out;
+	protected SpdzInputMask inputMask; // is opened by this gate.
+	protected BigInteger input;
+	private BigInteger value_masked;
+	protected SpdzSInt out;
+	protected int inputter;
+	private byte[] digest;
 
-	public SpdzOutputToAllGate(SInt in, OInt out) {
-		this.in = (SpdzSInt) in;
-		this.out = (SpdzOInt) out;
+	public SpdzInputProtocol(OInt input, SInt out, int inputter) {
+		this.input = (input == null) ? null : input.getValue();
+		this.out = (SpdzSInt) out;
+		this.inputter = inputter;
+	}
+
+	public SpdzInputProtocol(BigInteger input, SpdzSInt out, int inputter) {
+		this.input = input;
+		this.out = out;
+		this.inputter = inputter;
+	}
+
+	public SpdzInputProtocol(BigInteger input, SInt out, int inputter) {
+		this.input = input;
+		this.out = (SpdzSInt) out;
+		this.inputter = inputter;
+	}
+
+	public int getInputter() {
+		return inputter;
 	}
 
 	@Override
 	public EvaluationStatus evaluate(int round, ResourcePool resourcePool,
-			SCENetwork network) {
-		SpdzProtocolSuite spdzpii = SpdzProtocolSuite
-				.getInstance(resourcePool.getMyId());
-		SpdzStorage storage = spdzpii.getStore(network.getThreadId());
+			SCENetwork network) {		
+		int myId = resourcePool.getMyId();
+		int players = resourcePool.getNoOfParties();
+		BigInteger modulus = Util.getModulus();
+		SpdzProtocolSuite spdzPii = SpdzProtocolSuite
+				.getInstance(myId);
+		SpdzStorage storage = spdzPii.getStore(network.getThreadId());
 		switch (round) {
 		case 0:
-			network.sendToAll(in.value.getShare());
-			network.expectInputFromAll();
+			this.inputMask = storage.getSupplier().getNextInputMask(this.inputter);
+			if (myId == this.inputter) {
+				BigInteger bcValue = this.input.subtract(this.inputMask.getRealValue());
+				bcValue = bcValue.mod(modulus);	
+				network.sendToAll(bcValue);
+			}
+			network.expectInputFromPlayer(inputter);
 			return EvaluationStatus.HAS_MORE_ROUNDS;
 		case 1:
-			List<BigInteger> shares = network.receiveFromAll();
-			BigInteger openedVal = BigInteger.valueOf(0);
-			for (BigInteger share : shares) {
-				openedVal = openedVal.add(share);
+			this.value_masked = network.receive(inputter);
+			this.digest = sendBroadcastValidation(
+					spdzPii.getMessageDigest(network.getThreadId()), network,
+					value_masked, players);
+			network.expectInputFromAll();
+			return EvaluationStatus.HAS_MORE_ROUNDS;
+		case 2:
+			boolean validated = receiveBroadcastValidation(network, digest);
+			if (!validated) {
+				throw new MPCException("Broadcast digests did not match");
 			}
-			openedVal = openedVal.mod(Util.getModulus());
-			storage.addOpenedValue(openedVal);
-			storage.addClosedValue(in.value);
-			BigInteger tmpOut = openedVal;
-			tmpOut = Util.convertRepresentation(tmpOut);
-			out.setValue(tmpOut);
+			SpdzElement value_masked_elm = new SpdzElement(value_masked,
+					storage.getSSK().multiply(value_masked)
+							.mod(Util.getModulus()));
+			this.out.value = this.inputMask.getMask().add(value_masked_elm,
+					myId);
 			return EvaluationStatus.IS_DONE;
-		default:
-			throw new MPCException("No more rounds to evaluate.");
 		}
+		throw new MPCException("Cannot evaluate rounds larger than 2");
+	}
+
+	@Override
+	public String toString() {
+		return "SpdzInputGate(" + input + ", " + out + ")";
 	}
 
 	@Override
 	public Value[] getInputValues() {
-		return new Value[] { in };
+		// No point in getting input from an input gate...
+		return null;
 	}
 
 	@Override
 	public Value[] getOutputValues() {
 		return new Value[] { out };
 	}
+
 }

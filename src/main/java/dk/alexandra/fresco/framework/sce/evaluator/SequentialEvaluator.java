@@ -166,7 +166,7 @@ public class SequentialEvaluator implements ProtocolEvaluator {
 				
 				//receive phase
 				Map<Integer, Queue<Serializable>> inputForThisRound = new HashMap<Integer, Queue<Serializable>>();
-				for(int pId : sceNetwork.getExpectedInputForNextRound()) {					
+				for(int pId : sceNetwork.getExpectedInputForNextRound()) {
 					Serializable[] messages = this.network.receive(DEFAULT_CHANNEL, pId);
 					//convert back from array to queue.
 					Queue<Serializable> q = new LinkedBlockingQueue<Serializable>(Arrays.asList(messages));					

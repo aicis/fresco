@@ -31,30 +31,82 @@ import java.util.Random;
 
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.resources.storage.Storage;
+import dk.alexandra.fresco.framework.sce.resources.storage.StreamedStorage;
 import dk.alexandra.fresco.framework.sce.resources.threads.ProtocolThreadPool;
 
 public interface ResourcePool {
 
 	/**
 	 * Returns the id of the party
+	 * 
 	 * @return
 	 */
 	public abstract int getMyId();
-	
+
 	/**
 	 * Returns the number of players.
+	 * 
 	 * @return
 	 */
 	public abstract int getNoOfParties();
-	
+
+	/**
+	 * Returns the threadpool a protocol suite can use for doing multithreaded
+	 * work that is not controlled by the SCE. We advise that protocol suite
+	 * developers use this since the control over how many threads are in use is
+	 * then delegated to the SCE.
+	 * 
+	 * @return
+	 */
 	public abstract ProtocolThreadPool getThreadPool();
 
+	/**
+	 * Returns the number of threads that the SCE will maximally use when
+	 * evaluating.
+	 * 
+	 * @return
+	 */
+	public abstract int getVMThreadCount();
+
+	/**
+	 * Returns the raw network in case the protocol suite needs access to this.
+	 * It should not be used for the individual protocols, but rather only for
+	 * doing some work before or after an application evaluation.
+	 * 
+	 * @return
+	 */
 	public abstract Network getNetwork();
 
+	/**
+	 * Returns the storage native to the system. Use this for persistent data
+	 * where random access is preferred.
+	 * 
+	 * @return
+	 */
 	public abstract Storage getStorage();
 
+	/**
+	 * Returns the streamed storage native to the system. Use this for
+	 * persistent data where random access is not preferred.
+	 * 
+	 * @return
+	 */
+	public abstract StreamedStorage getStreamedStorage();
+
+	/**
+	 * Returns the randomness generator of the system. Use this for getting
+	 * random data that does not need to be cryptographically secure.
+	 * 
+	 * @return
+	 */
 	public abstract Random getRandom();
 
+	/**
+	 * Returns the secure version of the randomness generator of the system. Use
+	 * where the randomness needs to be crypographically secure.
+	 * 
+	 * @return
+	 */
 	public abstract SecureRandom getSecureRandom();
 
 }

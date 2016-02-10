@@ -11,6 +11,7 @@ target/
 
 lpinputs/
 triples/
+spdz/
 
 # OS X meta files
 .DS_Store

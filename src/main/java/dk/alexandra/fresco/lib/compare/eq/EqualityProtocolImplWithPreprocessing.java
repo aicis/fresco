@@ -176,10 +176,10 @@ ExpFromOIntFactory expFromOIntProvider) {
 
 		SubtractCircuit subCircuit = provider.getSubtractCircuit(x, y,
 				subResult);
-		AddProtocol addCircuit = provider.getAddCircuit(subResult, r[bitLength],
+		AddProtocol addCircuit = provider.getAddProtocol(subResult, r[bitLength],
 				masked_S);
 		OpenIntProtocol openCircuitAddMask = provider
-				.getOpenCircuit(masked_S, masked_O);
+				.getOpenProtocol(masked_S, masked_O);
 
 
 		// Compute Hamming distance
@@ -203,7 +203,7 @@ ExpFromOIntFactory expFromOIntProvider) {
 		OInt masked_O = provider.getOInt();
 
 		MultProtocol multCircuit = provider.getMultCircuit(reducedProblem, R[0], masked_S);
-		OpenIntProtocol openCircuit = provider.getOpenCircuit(masked_S, masked_O);		
+		OpenIntProtocol openCircuit = provider.getOpenProtocol(masked_S, masked_O);		
 		
 		
 		// compute powers and evaluate polynomial

@@ -62,7 +62,7 @@ public class InversionCircuitImpl implements InversionProtocol {
 			OInt oProduct = provider.getOInt();
 			SInt random = provider.getRandomSInt();
 			MultProtocol blindingCircuit = provider.getMultCircuit(x, random, sProduct);
-			OpenIntProtocol openCircuit = provider.getOpenCircuit(sProduct, oProduct);
+			OpenIntProtocol openCircuit = provider.getOpenProtocol(sProduct, oProduct);
 			LocalInversionCircuit lic = invProvider.getLocalInversionCircuit(oProduct, inverse);
 			MultProtocol unblindingCircuit = provider.getMultCircuit(inverse, random, result);
 			

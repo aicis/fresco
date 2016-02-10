@@ -24,37 +24,56 @@
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
  *******************************************************************************/
-package dk.alexandra.fresco.framework.sce.resources.storage;
+package dk.alexandra.fresco.suite.spdz.gates;
 
-import java.io.Serializable;
+import dk.alexandra.fresco.framework.network.SCENetwork;
+import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
+import dk.alexandra.fresco.framework.value.OInt;
+import dk.alexandra.fresco.framework.value.Value;
+import dk.alexandra.fresco.lib.math.inv.LocalInversionCircuit;
+import dk.alexandra.fresco.suite.spdz.datatypes.SpdzOInt;
+import dk.alexandra.fresco.suite.spdz.utils.Util;
 
-public interface StreamedStorage extends Storage {
+public class SpdzLocalInversionProtocol extends SpdzNativeProtocol implements
+		LocalInversionCircuit {
 
-	/**
-	 * Returns the next object from the storage with the given name. This could
-	 * be e.g. the given filename.
-	 * 
-	 * @param name
-	 *            The name of the storage to get from. This could e.g. be a
-	 *            filename.
-	 * @return the next object in line
-	 */
-	public <T extends Serializable> T getNext(String name);
+	private SpdzOInt in, out;
 
-	/**
-	 * Inserts an object into the storage with the given name. This could be
-	 * e.g. append to a file with the filename as 'name'.
-	 * 
-	 * @param name
-	 *            The storage to put objects into.
-	 * @param o
-	 *            The object to store.
-	 * @return true if the object was stored, false otherwise:
-	 */
-	public boolean putNext(String name, Serializable o);
+	public SpdzLocalInversionProtocol(OInt in, OInt out) {
+		this.in = (SpdzOInt) in;
+		this.out = (SpdzOInt) out;
+	}
 
-	/**
-	 * Closes any open connections to the storage.
-	 */
-	public void shutdown();	
+	public SpdzLocalInversionProtocol(SpdzOInt in, SpdzOInt out) {
+		this.in = in;
+		this.out = out;
+	}
+
+	@Override
+	public Value[] getInputValues() {
+		return new Value[] { in };
+	}
+
+	@Override
+	public Value[] getOutputValues() {
+		return new Value[] { out };
+	}
+
+	@Override
+	public EvaluationStatus evaluate(int round, ResourcePool resourcePool,
+			SCENetwork network) {
+		try {
+			out.setValue(in.getValue().modInverse(Util.getModulus()));
+		} catch (ArithmeticException e) {
+			System.out.println("Non invertable value: " + in.getValue());
+			throw e;
+		}
+		return EvaluationStatus.IS_DONE;
+	}
+
+	public String toString() {
+		return "SpdzLocalInversionGate(" + in.getValue() + ", "
+				+ out.getValue() + ")";
+	}
+
 }

@@ -113,7 +113,7 @@ public class PlainSpdzLPPrefix implements LPPrefix {
 	}
 
 	@Override
-	public ProtocolProducer getProducer() {
+	public ProtocolProducer getPrefix() {
 		return prefix;
 	}
 	
