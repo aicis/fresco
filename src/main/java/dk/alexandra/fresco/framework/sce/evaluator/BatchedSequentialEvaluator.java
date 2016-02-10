@@ -27,16 +27,10 @@
 package dk.alexandra.fresco.framework.sce.evaluator;
 
 import java.io.IOException;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.ProtocolProducer;
-import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.SCENetworkImpl;
 import dk.alexandra.fresco.framework.sce.resources.SCEResourcePool;
 import dk.alexandra.fresco.suite.ProtocolSuite;
@@ -51,32 +45,20 @@ public class BatchedSequentialEvaluator implements ProtocolEvaluator {
 
 	private SCEResourcePool resourcePool;
 	private ProtocolSuite protocolSuite;
-	private Network network;
 
 	private SCENetworkImpl[] sceNetworks;
-	private Map<Integer, List<Serializable[]>> queues;
-
-	private BatchedStrategy strategy;
 
 	public BatchedSequentialEvaluator() {
 		this.maxBatchSize = 4096;
 		this.sceNetworks = new SCENetworkImpl[this.maxBatchSize];
-		strategy = new BatchedStrategy();
 	}
 
 	@Override
 	public void setResourcePool(SCEResourcePool resourcePool) {
 		this.resourcePool = resourcePool;
-		this.network = resourcePool.getNetwork();
-		this.queues = new HashMap<Integer, List<Serializable[]>>();
 		for (int i = 0; i < this.maxBatchSize; i++) {
-			this.sceNetworks[i] = new SCENetworkImpl(
-					this.resourcePool.getNoOfParties(), DEFAULT_THREAD_ID);
+			this.sceNetworks[i] = new SCENetworkImpl(this.resourcePool.getNoOfParties(), DEFAULT_THREAD_ID);
 		}
-		for (int pId = 1; pId <= resourcePool.getNoOfParties(); pId++) {
-			this.queues.put(pId, new ArrayList<Serializable[]>());
-		}
-
 	}
 
 	public ProtocolSuite getProtocolInvocation() {
@@ -100,6 +82,7 @@ public class BatchedSequentialEvaluator implements ProtocolEvaluator {
 	 */
 	@Override
 	public void setMaxBatchSize(int maxBatchSize) {
+		this.sceNetworks = new SCENetworkImpl[maxBatchSize];
 		this.maxBatchSize = maxBatchSize;
 	}
 
@@ -107,10 +90,10 @@ public class BatchedSequentialEvaluator implements ProtocolEvaluator {
 		do {
 			NativeProtocol[] nextProtocols = new NativeProtocol[maxBatchSize];
 			int numOfProtocolsInBatch = c.getNextProtocols(nextProtocols, 0);
-			this.strategy
-					.processBatch(nextProtocols, numOfProtocolsInBatch,
-							sceNetworks, network, DEFAULT_CHANNEL,
-							resourcePool);
+			System.out.println("Starting batch of size " + numOfProtocolsInBatch);
+			BatchedStrategy.processBatch(nextProtocols, numOfProtocolsInBatch, sceNetworks, DEFAULT_CHANNEL,
+					resourcePool);
+			System.out.println("Ended batch of size " + numOfProtocolsInBatch);
 			this.protocolSuite.synchronize(numOfProtocolsInBatch);
 		} while (c.hasNextProtocols());
 

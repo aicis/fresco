@@ -75,11 +75,11 @@ public class ParallelEvaluator implements ProtocolEvaluator {
 	 * first one is finished
 	 */
 	public void processBatch(NativeProtocol[] gates, int numOfGates) {
-		ArrayList<BatchTask> tasks = new ArrayList<BatchTask>(threads);
 		int jobs = 1;
 		if (numOfGates > 15) {
 			jobs = (numOfGates > threads) ? threads : numOfGates;
 		}
+		ArrayList<BatchTask> tasks = new ArrayList<BatchTask>(threads);
 		for (int i = 0; i < jobs; i++) {
 			tasks.add(new BatchTask(gates, i, jobs, numOfGates, rp));
 		}

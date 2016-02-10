@@ -125,6 +125,11 @@ public class TestBgwBasicArithmetic {
 		runTest(new BasicArithmeticTests.TestLotsOfInputs(), 3, 1, EvaluationStrategy.SEQUENTIAL);
 	}
 	
+	@Test 
+	public void test_Known_SInt_Seuential() throws Exception {
+		runTest(new BasicArithmeticTests.TestKnownSInt(), 3, 1, EvaluationStrategy.SEQUENTIAL);
+	}
+	
 	@Test
 	public void test_Lots_Of_Inputs_Sequential_5_2() throws Exception {
 		runTest(new BasicArithmeticTests.TestLotsOfInputs(), 5, 2, EvaluationStrategy.SEQUENTIAL);

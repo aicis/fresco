@@ -36,7 +36,7 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.LinkedBlockingQueue;
 
-public class SCENetworkImpl implements SCENetwork, SCENetworkSupplier{
+public class SCENetworkImpl implements SCENetwork, SCENetworkSupplier {
 
 	private int noOfParties;
 	//TODO: Remove when possible - also from interface.
@@ -81,7 +81,7 @@ public class SCENetworkImpl implements SCENetwork, SCENetworkSupplier{
 			q = new LinkedBlockingQueue<Serializable>();
 			this.output.put(id, q);
 		}
-		q.offer(o);		
+		q.offer(o);
 	}
 	
 	@Override

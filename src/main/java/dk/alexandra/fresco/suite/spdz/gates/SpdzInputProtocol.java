@@ -78,16 +78,16 @@ public class SpdzInputProtocol extends SpdzNativeProtocol implements CloseIntPro
 			SCENetwork network) {		
 		int myId = resourcePool.getMyId();
 		int players = resourcePool.getNoOfParties();
+		BigInteger modulus = Util.getModulus();
 		SpdzProtocolSuite spdzPii = SpdzProtocolSuite
 				.getInstance(myId);
 		SpdzStorage storage = spdzPii.getStore(network.getThreadId());
 		switch (round) {
 		case 0:
-			this.inputMask = storage.getSupplier().getNextInputMask(
-					this.inputter);
+			this.inputMask = storage.getSupplier().getNextInputMask(this.inputter);
 			if (myId == this.inputter) {
-				BigInteger bcValue = this.input.subtract(
-						this.inputMask.getRealValue()).mod(Util.getModulus());
+				BigInteger bcValue = this.input.subtract(this.inputMask.getRealValue());
+				bcValue = bcValue.mod(modulus);	
 				network.sendToAll(bcValue);
 			}
 			network.expectInputFromPlayer(inputter);

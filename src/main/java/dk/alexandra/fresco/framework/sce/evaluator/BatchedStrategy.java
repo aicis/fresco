@@ -28,11 +28,8 @@ package dk.alexandra.fresco.framework.sce.evaluator;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
@@ -44,20 +41,61 @@ import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.SCENetworkImpl;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 
+/**
+ * This class implements the core of a general batched communication strategy
+ * for evaluating Protocols. In this strategy a number of Protocols will be
+ * evaluated round by round in such a way that the communication of all
+ * Protocols is collected and batched together between rounds. More precisely
+ * the process is as follows for a batch of Protocols:
+ * 
+ * 1. Evaluate the next round of all Protocols and collect messages to be sent
+ * in this round.
+ * 
+ * 2. Send all messages collected in step 1.
+ * 
+ * 3. Recieve all messages expected before the next round.
+ * 
+ * 4. If there are Protocols that are not done start over at step 1.
+ * 
+ * The processing is done is in a sequential manner (i.e. no parallelization).
+ *
+ */
 public class BatchedStrategy {
-	
-	public void processBatch(NativeProtocol[] protocols, int numOfProtocols,
-			SCENetworkImpl[] sceNetworks, Network network, String channel,
-			ResourcePool rp)
-			throws IOException {		
+
+	/**
+	 * @param protocols
+	 *            array holding the protocols to be evaluated
+	 * 
+	 * @param numProtocols
+	 *            the number of protocols in the protocols array to evaluate.
+	 *            I.e., protocols[0]...protocols[numProtocols-1] will should be
+	 *            evaluated.
+	 * 
+	 * @param sceNetworks
+	 *            array of sceNetworks corresponding to the protocols to be
+	 *            evaluated. I.e., the array should contain numProtocols
+	 *            SCENetworks, with sceNetwork[i] used for communication in
+	 *            protocols[i].
+	 * 
+	 * @param channel
+	 *            string indicating the channel to communicate over.
+	 * 
+	 * @param rp
+	 *            the resource pool.
+	 * 
+	 * @throws IOException
+	 */
+	public static void processBatch(NativeProtocol[] protocols, int numOfProtocols, SCENetworkImpl[] sceNetworks,
+			String channel, ResourcePool rp) throws IOException {
+		Network network = rp.getNetwork();
 		int round = 0;
 
 		Set<Integer> partyIds = new HashSet<Integer>();
-		//TODO: Cannot assume always that parties are in linear order.
-		for(int i = 1; i <= rp.getNoOfParties(); i++) {
+		// TODO: Cannot assume always that parties are in linear order.
+		for (int i = 1; i <= rp.getNoOfParties(); i++) {
 			partyIds.add(i);
 		}
-		
+
 		boolean[] dones = new boolean[numOfProtocols];
 		boolean done;
 		// while loop for rounds
@@ -67,29 +105,27 @@ public class BatchedStrategy {
 			for (int i = 0; i < numOfProtocols; i++) {
 				SCENetworkImpl sceNetwork = sceNetworks[i];
 				if (!dones[i]) {
-					EvaluationStatus status = protocols[i].evaluate(round, rp,
-							sceNetwork);
+					EvaluationStatus status = protocols[i].evaluate(round, rp, sceNetwork);
 					if (status.equals(EvaluationStatus.IS_DONE)) {
 						dones[i] = true;
 					} else {
 						done = false;
 					}
-				}				
-			}	
+				}
+			}
 			// send phase
-			for(int i = 0; i < numOfProtocols; i++) {
+			for (int i = 0; i < numOfProtocols; i++) {
 				SCENetworkImpl sceNetwork = sceNetworks[i];
-				Map<Integer, Queue<Serializable>> output = sceNetwork
-						.getOutputFromThisRound();
-				//send to everyone no matter what
+				Map<Integer, Queue<Serializable>> output = sceNetwork.getOutputFromThisRound();
+				// send to everyone no matter what
 				for (int pId : partyIds) {
 					Queue<Serializable> outputsTowardPid = output.get(pId);
-					if(outputsTowardPid != null) {
-						//TODO: Maybe send array instead. Might be faster
+					if (outputsTowardPid != null) {
+						// TODO: Maybe send array instead. Might be faster
 						network.send(channel, pId, outputsTowardPid.size());
-						for(Serializable s : outputsTowardPid) {
+						for (Serializable s : outputsTowardPid) {
 							network.send(channel, pId, s);
-						}		
+						}
 					}
 				}
 			}
@@ -97,14 +133,14 @@ public class BatchedStrategy {
 			// receive phase
 			for (int i = 0; i < numOfProtocols; i++) {
 				SCENetworkImpl sceNetwork = sceNetworks[i];
-				Set<Integer> expectInputFrom = sceNetwork.getExpectedInputForNextRound();				
+				Set<Integer> expectInputFrom = sceNetwork.getExpectedInputForNextRound();
 				Map<Integer, Queue<Serializable>> inputForThisRound = new HashMap<Integer, Queue<Serializable>>();
-				for(int pId : partyIds) {
-					//Only receive if we expect something.
-					if(expectInputFrom.contains(pId)) {
+				for (int pId : partyIds) {
+					// Only receive if we expect something.
+					if (expectInputFrom.contains(pId)) {
 						Queue<Serializable> messages = new LinkedBlockingQueue<Serializable>();
 						int numberOfMessages = network.receive(channel, pId);
-						for(int inx = 0; inx < numberOfMessages; inx++) {
+						for (int inx = 0; inx < numberOfMessages; inx++) {
 							Serializable m = network.receive(channel, pId);
 							messages.offer(m);
 						}
@@ -114,8 +150,8 @@ public class BatchedStrategy {
 				sceNetworks[i].setInput(inputForThisRound);
 				sceNetworks[i].nextRound();
 			}
-						
-			round++;			
+
+			round++;
 		} while (!done);
 	}
 }

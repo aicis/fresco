@@ -33,6 +33,7 @@ import java.util.Map;
 import java.util.logging.Level;
 
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
@@ -63,6 +64,7 @@ import dk.alexandra.fresco.suite.spdz.storage.InitializeStorage;
 public class TestSpdzBasicArithmetic3Parties {
 
 	private static final int noOfParties = 3;
+	private static final int BATCH_SIZE = 4096;
 
 	private void runTest(TestThreadFactory f, EvaluationStrategy evalStrategy,
 			StorageStrategy storageStrategy) throws Exception {
@@ -109,7 +111,7 @@ public class TestSpdzBasicArithmetic3Parties {
 			}
 			ttc.sceConf = new TestSCEConfiguration(suite, evaluator,
 					noOfThreads, noOfVMThreads, ttc.netConf, storage,
-					useSecureConnection);
+					useSecureConnection, BATCH_SIZE);
 			conf.put(playerId, ttc);
 		}
 		TestThreadRunner.run(f, conf);
@@ -144,6 +146,12 @@ public class TestSpdzBasicArithmetic3Parties {
 	public void test_Input_Sequential() throws Exception {
 		runTest(new BasicArithmeticTests.TestInput(),
 				EvaluationStrategy.SEQUENTIAL, StorageStrategy.IN_MEMORY);
+	}
+	
+	@Test
+	public void test_Input_SequentialBatched() throws Exception {
+		runTest(new BasicArithmeticTests.TestInput(),
+				EvaluationStrategy.SEQUENTIAL_BATCHED, StorageStrategy.IN_MEMORY);
 	}
 
 	@Test
@@ -197,11 +205,54 @@ public class TestSpdzBasicArithmetic3Parties {
 	}
 	
 	@Test
+	@Ignore
+	public void test_Lots_Of_Mults_Sequential_Batched() throws Exception {
+		runTest(new BasicArithmeticTests.TestLotsMult(),
+				EvaluationStrategy.SEQUENTIAL_BATCHED,
+				StorageStrategy.IN_MEMORY);
+	}
+	
+	@Test
+	public void test_Lots_Of_Mults_Parallel() throws Exception {
+		runTest(new BasicArithmeticTests.TestLotsMult(),
+				EvaluationStrategy.PARALLEL,
+				StorageStrategy.IN_MEMORY);
+	}
+	
+	@Test
 	public void test_Lots_Of_Mults_Parallel_Batched() throws Exception {
 		runTest(new BasicArithmeticTests.TestLotsMult(),
 				EvaluationStrategy.PARALLEL_BATCHED,
 				StorageStrategy.IN_MEMORY);
-	}	
+	}
+	
+	@Test
+	public void test_Alternating_Sequential() throws Exception {
+		runTest(new BasicArithmeticTests.TestAlternatingMultAdd(),
+				EvaluationStrategy.SEQUENTIAL,
+				StorageStrategy.IN_MEMORY);
+	}
+	
+	@Test
+	public void test_Alternating_Sequential_Batched() throws Exception {
+		runTest(new BasicArithmeticTests.TestAlternatingMultAdd(),
+				EvaluationStrategy.SEQUENTIAL_BATCHED,
+				StorageStrategy.IN_MEMORY);
+	}
+	
+	@Test
+	public void test_Alternating_Parallel_Batched() throws Exception {
+		runTest(new BasicArithmeticTests.TestAlternatingMultAdd(),
+				EvaluationStrategy.PARALLEL_BATCHED,
+				StorageStrategy.IN_MEMORY);
+	}
+	
+	@Test
+	public void test_Alternating_Parallel() throws Exception {
+		runTest(new BasicArithmeticTests.TestAlternatingMultAdd(),
+				EvaluationStrategy.PARALLEL,
+				StorageStrategy.IN_MEMORY);
+	}
 
 	// TODO: Test with different security parameters.
 }
