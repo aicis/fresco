@@ -205,9 +205,11 @@ public class ScapiNetworkImpl implements Network{
 	 * 
 	 */
 	public void close() throws IOException {
-		for (Map<String, Channel> m : connections.values()) {
-			for (Channel c : m.values()) {
-				c.close();
+		if(connections != null) {
+			for (Map<String, Channel> m : connections.values()) {
+				for (Channel c : m.values()) {
+					c.close();
+				}
 			}
 		}
 	}

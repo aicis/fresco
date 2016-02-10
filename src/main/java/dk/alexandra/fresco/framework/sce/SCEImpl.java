@@ -38,6 +38,7 @@ import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.Party;
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.ProtocolFactory;
+import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.Reporter;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.NetworkConfigurationImpl;
@@ -84,12 +85,12 @@ public class SCEImpl implements SCE {
 	private boolean setup = false;
 
 	protected SCEImpl(SCEConfiguration sceConf) {
-		this.sceConf = sceConf;
+		this.sceConf = sceConf;		
 	}
 
 	protected SCEImpl(SCEConfiguration sceConf, ProtocolSuiteConfiguration psConf) {
 		this.sceConf = sceConf;
-		this.psConf = psConf;
+		this.psConf = psConf;		
 	}
 
 	@Override
@@ -97,7 +98,8 @@ public class SCEImpl implements SCE {
 		return this.sceConf;
 	}
 
-	private void setup() throws IOException {
+	@Override
+	public synchronized void setup() throws IOException {		
 		if (this.setup) {
 			return;
 		}
@@ -148,7 +150,7 @@ public class SCEImpl implements SCE {
 		this.resourcePool.initializeRandom();
 		this.resourcePool.initializeThreadPool();
 		this.resourcePool.initilizeStorage();
-		this.resourcePool.initializeNetwork();
+		this.resourcePool.initializeNetwork();		
 
 		String runtime = sceConf.getProtocolSuiteName();
 		switch (runtime.toLowerCase()) {
@@ -156,7 +158,7 @@ public class SCEImpl implements SCE {
 			this.protocolSuite = SpdzProtocolSuite.getInstance(this.resourcePool.getMyId());
 			if (psConf == null) {
 				psConf = new SpdzConfigurationFromProperties();
-			}
+			}			
 			this.protocolSuite.init(this.resourcePool, psConf);
 			// TODO: Fix this storage crap - not optimal to have the '0' put
 			// there. Need to make the provider decoupled from the storage.
@@ -202,12 +204,11 @@ public class SCEImpl implements SCE {
 	@Override
 	public void runApplication(Application application) {
 		try {
-			Reporter.init(this.getSCEConfiguration().getLogLevel());
+			Reporter.init(this.getSCEConfiguration().getLogLevel());			
+			setup();
 			Reporter.info("Running application: " + application.getClass().getSimpleName() + " using protocol suite: "
 					+ this.getSCEConfiguration().getProtocolSuiteName());
-			Reporter.info("Players: " + this.getSCEConfiguration().getParties());
-			setup();
-			Reporter.info("My id: " + this.sceConf.getMyId());
+			Reporter.info("Using the configuration: " + this.getSCEConfiguration());			
 			this.evaluator.setResourcePool(this.resourcePool);
 			this.evaluator.setProtocolInvocation(this.protocolSuite);
 		} catch (IOException e) {
@@ -218,7 +219,10 @@ public class SCEImpl implements SCE {
 
 	private void evalApplication(Application app) {
 		try {
-			this.evaluator.eval(app.prepareApplication(this.protocolFactory));
+			ProtocolProducer prod = app.prepareApplication(this.protocolFactory);
+			if(prod != null) {
+				this.evaluator.eval(prod);
+			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

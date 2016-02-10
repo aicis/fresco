@@ -53,6 +53,7 @@ public class ResourcePoolImpl implements SCEResourcePool {
 	protected SecureRandom secRand;
 	protected final ProtocolThreadPool protocolThreadPool;
 	protected final VMThreadPool vmThreadPool;
+	private boolean connected = false;
 
 	public ResourcePoolImpl(int myId, int noOfPlayers, Network network,
 			Storage storage, StreamedStorage streamedStorage, Random random, SecureRandom secRand,
@@ -101,12 +102,17 @@ public class ResourcePoolImpl implements SCEResourcePool {
 	@Override
 	public void initializeNetwork() throws IOException {
 		// TODO: Should maybe have this configuration somewhere
+		if(connected) {
+			return;
+		}
 		network.connect(10000);
+		connected = true;
 	}
 
 	@Override
 	public void shutdownNetwork() throws IOException {
 		network.close();
+		connected = false;
 	}
 
 	@Override

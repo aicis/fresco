@@ -271,5 +271,13 @@ public class FileBasedSCEConfiguration implements SCEConfiguration {
 			loadProperties();
 		}
 		return this.streamedStorage;
+	}
+
+	@Override
+	public String toString() {
+		return "FileBasedSCEConfiguration [propertiesLocation=" + propertiesLocation + ", loaded=" + loaded
+				+ ", protocolSuite=" + protocolSuite + ", parties=" + parties + ", myId=" + myId + ", level=" + level
+				+ ", noOfThreads=" + noOfThreads + ", noOfVmThreads=" + noOfVmThreads + ", maxBatchSize=" + maxBatchSize
+				+ ", evaluator=" + evaluator + ", storage=" + storage + ", streamedStorage=" + streamedStorage + "]";
 	}	
 }
