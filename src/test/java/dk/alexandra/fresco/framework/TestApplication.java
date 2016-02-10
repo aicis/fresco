@@ -28,7 +28,7 @@ package dk.alexandra.fresco.framework;
 
 import dk.alexandra.fresco.framework.value.OInt;
 
-public abstract class TestApplication implements Application{
+public abstract class TestApplication implements Application {
 
 	public OInt[] outputs;
 	
