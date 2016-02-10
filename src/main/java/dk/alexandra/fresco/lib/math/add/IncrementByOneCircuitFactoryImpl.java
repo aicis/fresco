@@ -44,7 +44,7 @@ public class IncrementByOneCircuitFactoryImpl implements IncrementByOneCircuitFa
 	@Override
 	public ProtocolProducer getIncrementByOneCircuit(SInt in, SInt out) {
 		OInt one = bnf.getOInt(BigInteger.ONE);
-		return bnf.getAddCircuit(in, one, out);
+		return bnf.getAddProtocol(in, one, out);
 	}
 
 }

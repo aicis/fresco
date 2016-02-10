@@ -24,40 +24,56 @@
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
  *******************************************************************************/
-package dk.alexandra.fresco.framework.sce.resources;
+package dk.alexandra.fresco.suite.spdz.gates;
 
-import java.security.SecureRandom;
-import java.util.Random;
+import dk.alexandra.fresco.framework.network.SCENetwork;
+import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
+import dk.alexandra.fresco.framework.value.OInt;
+import dk.alexandra.fresco.framework.value.Value;
+import dk.alexandra.fresco.lib.math.inv.LocalInversionCircuit;
+import dk.alexandra.fresco.suite.spdz.datatypes.SpdzOInt;
+import dk.alexandra.fresco.suite.spdz.utils.Util;
 
-import dk.alexandra.fresco.framework.network.Network;
-import dk.alexandra.fresco.framework.sce.resources.storage.Storage;
-import dk.alexandra.fresco.framework.sce.resources.storage.StreamedStorage;
-import dk.alexandra.fresco.framework.sce.resources.threads.ProtocolThreadPool;
+public class SpdzLocalInversionProtocol extends SpdzNativeProtocol implements
+		LocalInversionCircuit {
 
-public interface ResourcePool {
+	private SpdzOInt in, out;
 
-	/**
-	 * Returns the id of the party
-	 * @return
-	 */
-	public abstract int getMyId();
-	
-	/**
-	 * Returns the number of players.
-	 * @return
-	 */
-	public abstract int getNoOfParties();
-	
-	public abstract ProtocolThreadPool getThreadPool();
+	public SpdzLocalInversionProtocol(OInt in, OInt out) {
+		this.in = (SpdzOInt) in;
+		this.out = (SpdzOInt) out;
+	}
 
-	public abstract Network getNetwork();
+	public SpdzLocalInversionProtocol(SpdzOInt in, SpdzOInt out) {
+		this.in = in;
+		this.out = out;
+	}
 
-	public abstract Storage getStorage();
-	
-	public abstract StreamedStorage getStreamedStorage();
+	@Override
+	public Value[] getInputValues() {
+		return new Value[] { in };
+	}
 
-	public abstract Random getRandom();
+	@Override
+	public Value[] getOutputValues() {
+		return new Value[] { out };
+	}
 
-	public abstract SecureRandom getSecureRandom();
+	@Override
+	public EvaluationStatus evaluate(int round, ResourcePool resourcePool,
+			SCENetwork network) {
+		try {
+			out.setValue(in.getValue().modInverse(Util.getModulus()));
+		} catch (ArithmeticException e) {
+			System.out.println("Non invertable value: " + in.getValue());
+			throw e;
+		}
+		return EvaluationStatus.IS_DONE;
+	}
+
+	public String toString() {
+		return "SpdzLocalInversionGate(" + in.getValue() + ", "
+				+ out.getValue() + ")";
+	}
 
 }

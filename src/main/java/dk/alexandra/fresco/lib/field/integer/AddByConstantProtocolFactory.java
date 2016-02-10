@@ -32,5 +32,5 @@ import dk.alexandra.fresco.framework.value.SInt;
 
 public interface AddByConstantProtocolFactory extends ProtocolFactory{
 
-	abstract public AddProtocol getAddCircuit(SInt a, OInt b, SInt out);
+	abstract public AddProtocol getAddProtocol(SInt a, OInt b, SInt out);
 }

@@ -29,7 +29,7 @@ package dk.alexandra.fresco.suite.spdz.storage;
 import java.math.BigInteger;
 
 import dk.alexandra.fresco.framework.MPCException;
-import dk.alexandra.fresco.framework.sce.resources.storage.Storage;
+import dk.alexandra.fresco.framework.sce.resources.storage.StreamedStorage;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzTriple;
@@ -45,16 +45,17 @@ import dk.alexandra.fresco.suite.spdz.datatypes.SpdzTriple;
  */
 public class DataSupplierImpl implements DataSupplier {
 
-	private Storage storage;
+	private StreamedStorage storage;
 	private String storageName;
 
-	private int tripleCounter;
-	private int expPipeCounter;
+	private int tripleCounter = 0;
+	private int expPipeCounter = 0;
 	private int[] inputMaskCounters;
-	private int bitCounter;
+	private int bitCounter = 0;
 
-	private int deltaJump;
-
+	private BigInteger ssk;
+	private BigInteger mod;
+	
 	/**
 	 * Creates a new supplier which takes preprocessed data from the native
 	 * storage object of FRESCO.
@@ -72,87 +73,79 @@ public class DataSupplierImpl implements DataSupplier {
 	 * @param noOfParties
 	 *            The number of parties in the computation.
 	 */
-	public DataSupplierImpl(Storage storage, String storageName,
+	public DataSupplierImpl(StreamedStorage storage, String storageName,
 			int storageId, int NoOfThreadsUsed, int noOfParties) {
 		this.storage = storage;
-		this.storageName = storageName;
-		this.deltaJump = NoOfThreadsUsed;
+		this.storageName = storageName+"_"+storageId;
 		this.inputMaskCounters = new int[noOfParties];
-
-		initCounters(storageId);
-	}
-
-	private void initCounters(int storageId) {
-		tripleCounter = storageId;
-		expPipeCounter = storageId;
-		for (int i = 0; i < inputMaskCounters.length; i++) {
-			inputMaskCounters[i] = storageId;
-		}
-		bitCounter = storageId;
 	}
 
 	@Override
 	public SpdzTriple getNextTriple() {
-		SpdzTriple trip = this.storage.getObject(storageName,
-				SpdzStorageConstants.TRIPLE_KEY_PREFIX + tripleCounter);
+		SpdzTriple trip = this.storage.getNext(storageName+
+				SpdzStorageConstants.TRIPLE_STORAGE);
 		if(trip == null) {
-			throw new MPCException("Triple no. "+tripleCounter+" was not present in the storage");
+			throw new MPCException("Triple no. "+tripleCounter+" was not present in the storage "+ storageName);
 		}
-		tripleCounter += deltaJump;
+		tripleCounter ++;
 		return trip;
 	}
 
 	@Override
 	public SpdzSInt[] getNextExpPipe() {
-		SpdzSInt[] expPipe = this.storage.getObject(storageName,
-				SpdzStorageConstants.EXP_PIPE_KEY_PREFIX + expPipeCounter);
+		SpdzSInt[] expPipe = this.storage.getNext(storageName+SpdzStorageConstants.EXP_PIPE_STORAGE);
 		if(expPipe == null) {
-			throw new MPCException("expPipe no. "+expPipeCounter+" was not present in the storage");
+			throw new MPCException("expPipe no. "+expPipeCounter+" was not present in the storage" + storageName);
 		}
-		expPipeCounter += deltaJump;
+		expPipeCounter ++;
 		return expPipe;
 	}
 
 	@Override
 	public SpdzInputMask getNextInputMask(int towardPlayerID) {
-		SpdzInputMask mask = this.storage.getObject(storageName,
-				SpdzStorageConstants.INPUT_KEY_PREFIX + towardPlayerID + "_"
-						+ inputMaskCounters[towardPlayerID-1]);
-		inputMaskCounters[towardPlayerID-1] += deltaJump;
+		SpdzInputMask mask = this.storage.getNext(storageName +
+				SpdzStorageConstants.INPUT_STORAGE + towardPlayerID);
+		inputMaskCounters[towardPlayerID-1]++;
 		if(mask == null) {
-			throw new MPCException("Mask no. "+inputMaskCounters[towardPlayerID-1]+" towards player "+towardPlayerID+" was not present in the storage");
+			throw new MPCException("Mask no. "+inputMaskCounters[towardPlayerID-1]+" towards player "+towardPlayerID+" was not present in the storage " + storageName);
 		}
 		return mask;
 	}
 
 	@Override
 	public SpdzSInt getNextBit() {
-		SpdzSInt bit = this.storage.getObject(storageName,
-				SpdzStorageConstants.BIT_KEY_PREFIX + bitCounter);
+		SpdzSInt bit = this.storage.getNext(storageName + 
+				SpdzStorageConstants.BIT_STORAGE);
 		if(bit == null) {
-			throw new MPCException("Bit no. "+bitCounter+" was not present in the storage");
+			throw new MPCException("Bit no. "+bitCounter+" was not present in the storage "+ storageName);
 		}
-		bitCounter += deltaJump;
+		bitCounter++;
 		return bit;
 	}
 
 	@Override
 	public BigInteger getModulus() {
-		BigInteger mod = this.storage.getObject(storageName,
-				SpdzStorageConstants.MODULUS_KEY);
-		if(mod == null) {
-			throw new MPCException("Modulus was not present in the storage");
+		if(this.mod != null) {
+			return this.mod;
 		}
-		return mod;
+		this.mod = this.storage.getNext(storageName +
+				SpdzStorageConstants.MODULUS_KEY);
+		if(this.mod == null) {
+			throw new MPCException("Modulus was not present in the storage "+ storageName);
+		}
+		return this.mod;
 	}
 
 	@Override
 	public BigInteger getSSK() {
-		BigInteger ssk = this.storage.getObject(storageName,
-				SpdzStorageConstants.SSK_KEY);
-		if(ssk == null) {
-			throw new MPCException("SSK was not present in the storage");
+		if(this.ssk != null) {
+			return this.ssk;
 		}
-		return ssk;
+		this.ssk = this.storage.getNext(storageName+
+				SpdzStorageConstants.SSK_KEY);
+		if(this.ssk == null) {
+			throw new MPCException("SSK was not present in the storage "+ storageName);
+		}
+		return this.ssk;
 	}
 }

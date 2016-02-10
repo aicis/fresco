@@ -42,7 +42,7 @@ public interface OIntFactory {
 	 * TODO: This should not be how values are loaded
 	 * 
 	 */
-	public OInt getOInt(BigInteger i);
+	public OInt getOInt(BigInteger i);	
 
 	
 	/**

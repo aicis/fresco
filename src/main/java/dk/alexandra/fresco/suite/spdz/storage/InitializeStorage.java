@@ -26,11 +26,13 @@
  *******************************************************************************/
 package dk.alexandra.fresco.suite.spdz.storage;
 
+import java.io.File;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
 import dk.alexandra.fresco.framework.sce.resources.storage.Storage;
+import dk.alexandra.fresco.framework.sce.resources.storage.StreamedStorage;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzTriple;
@@ -47,12 +49,12 @@ public class InitializeStorage {
 	 * @param noOfInputMasks
 	 * @param noOfBits
 	 */
-	public static void initStorage(Storage[] stores, int noOfPlayers, int noOfTriples, int noOfInputMasks, int noOfBits, int noOfExpPipes) {		
+	public static void initStorage(Storage[] stores, int noOfPlayers, int noOfTriples, int noOfInputMasks, int noOfBits,
+			int noOfExpPipes) {
 
 		List<Storage> tmpStores = new ArrayList<Storage>();
 		for (Storage s : stores) {
-			if (s.getObject(SpdzStorageConstants.STORAGE_NAME_PREFIX + 1,
-					SpdzStorageConstants.MODULUS_KEY) == null) {
+			if (s.getObject(SpdzStorageConstants.STORAGE_NAME_PREFIX + 1, SpdzStorageConstants.MODULUS_KEY) == null) {
 				tmpStores.add(s);
 			}
 		}
@@ -60,41 +62,31 @@ public class InitializeStorage {
 
 		BigInteger p = new BigInteger(
 				"6703903964971298549787012499123814115273848577471136527425966013026501536706464354255445443244279389455058889493431223951165286470575994074291745908195329");
-		
+
 		List<BigInteger> alphaShares = FakeTripGen.generateAlphaShares(noOfPlayers, p);
 		BigInteger alpha = BigInteger.ZERO;
-		for(BigInteger share : alphaShares) {
+		for (BigInteger share : alphaShares) {
 			alpha = alpha.add(share);
 		}
 		alpha = alpha.mod(p);
-		
-		List<SpdzTriple[]> triples = FakeTripGen.generateTriples(noOfTriples,
-				noOfPlayers, p, alpha);
-		List<List<SpdzInputMask[]>> inputMasks = FakeTripGen
-				.generateInputMasks(noOfInputMasks, noOfPlayers, p, alpha);
-		List<SpdzSInt[]> bits = FakeTripGen.generateBits(noOfBits, noOfPlayers, p,
-				alpha);
+
+		List<SpdzTriple[]> triples = FakeTripGen.generateTriples(noOfTriples, noOfPlayers, p, alpha);
+		List<List<SpdzInputMask[]>> inputMasks = FakeTripGen.generateInputMasks(noOfInputMasks, noOfPlayers, p, alpha);
+		List<SpdzSInt[]> bits = FakeTripGen.generateBits(noOfBits, noOfPlayers, p, alpha);
 		List<SpdzSInt[][]> expPipes = FakeTripGen.generateExpPipes(noOfExpPipes, noOfPlayers, p, alpha);
-		
 
 		for (Storage store : storages) {
 			for (int i = 1; i < noOfPlayers + 1; i++) {
-				String storageName = SpdzStorageConstants.STORAGE_NAME_PREFIX
-						+ i;
-				store.putObject(storageName,
-						SpdzStorageConstants.MODULUS_KEY, p);
-				store.putObject(storageName,
-						SpdzStorageConstants.SSK_KEY, alphaShares.get(i-1));
+				String storageName = SpdzStorageConstants.STORAGE_NAME_PREFIX + i;
+				store.putObject(storageName, SpdzStorageConstants.MODULUS_KEY, p);
+				store.putObject(storageName, SpdzStorageConstants.SSK_KEY, alphaShares.get(i - 1));
 			}
 			// triples
 			int tripleCounter = 0;
 			for (SpdzTriple[] triple : triples) {
 				for (int i = 0; i < noOfPlayers; i++) {
-					String storageName = SpdzStorageConstants.STORAGE_NAME_PREFIX
-							+ (i + 1);
-					store.putObject(storageName,
-							SpdzStorageConstants.TRIPLE_KEY_PREFIX
-									+ tripleCounter, triple[i]);
+					String storageName = SpdzStorageConstants.STORAGE_NAME_PREFIX + (i + 1);
+					store.putObject(storageName, SpdzStorageConstants.TRIPLE_KEY_PREFIX + tripleCounter, triple[i]);
 				}
 				tripleCounter++;
 			}
@@ -106,10 +98,8 @@ public class InitializeStorage {
 				for (SpdzInputMask[] masks : inputMasks.get(towardsPlayer - 1)) {
 					// single shares of that input
 					for (int i = 0; i < noOfPlayers; i++) {
-						String storageName = SpdzStorageConstants.STORAGE_NAME_PREFIX
-								+ (i + 1);
-						String key = SpdzStorageConstants.INPUT_KEY_PREFIX
-								+ towardsPlayer + "_" + inputCounters[i];
+						String storageName = SpdzStorageConstants.STORAGE_NAME_PREFIX + (i + 1);
+						String key = SpdzStorageConstants.INPUT_KEY_PREFIX + towardsPlayer + "_" + inputCounters[i];
 						store.putObject(storageName, key, masks[i]);
 						inputCounters[i]++;
 					}
@@ -120,26 +110,116 @@ public class InitializeStorage {
 			int bitCounter = 0;
 			for (SpdzSInt[] bit : bits) {
 				for (int i = 0; i < noOfPlayers; i++) {
-					String storageName = SpdzStorageConstants.STORAGE_NAME_PREFIX
-							+ (i + 1);
-					String key = SpdzStorageConstants.BIT_KEY_PREFIX
-							+ bitCounter;
+					String storageName = SpdzStorageConstants.STORAGE_NAME_PREFIX + (i + 1);
+					String key = SpdzStorageConstants.BIT_KEY_PREFIX + bitCounter;
 					store.putObject(storageName, key, bit[i]);
 				}
 				bitCounter++;
 			}
-			
-			//exp pipes
+
+			// exp pipes
 			int expCounter = 0;
-			for(SpdzSInt[][] expPipe : expPipes) {
+			for (SpdzSInt[][] expPipe : expPipes) {
 				for (int i = 0; i < noOfPlayers; i++) {
-					String storageName = SpdzStorageConstants.STORAGE_NAME_PREFIX
-							+ (i + 1);
-					String key = SpdzStorageConstants.EXP_PIPE_KEY_PREFIX
-							+ expCounter;
+					String storageName = SpdzStorageConstants.STORAGE_NAME_PREFIX + (i + 1);
+					String key = SpdzStorageConstants.EXP_PIPE_KEY_PREFIX + expCounter;
 					store.putObject(storageName, key, expPipe[i]);
 				}
 				expCounter++;
+			}
+		}
+	}
+
+	public static void initStreamedStorage(StreamedStorage[] streamedStorages, int noOfPlayers, int noOfThreads,
+			int noOfTriples, int noOfInputMasks, int noOfBits, int noOfExpPipes) {
+		List<Storage> tmpStores = new ArrayList<Storage>();
+		for (StreamedStorage s : streamedStorages) {
+			try {
+				//Try get the last thread file. If that fails
+				if (s.getNext(
+						SpdzStorageConstants.STORAGE_NAME_PREFIX + 1 +"_"+noOfThreads+ SpdzStorageConstants.MODULUS_KEY) == null) {
+					tmpStores.add(s);
+				}
+			} catch (Exception e) {
+				tmpStores.add(s);
+			}
+		}
+		if (tmpStores.size() == 0) {
+			return;
+		}
+		System.out.println("Generating preprocessed data!");
+		File f = new File("spdz");
+		if(!f.exists()) {
+			f.mkdirs();
+		}
+		
+		StreamedStorage[] storages = tmpStores.toArray(new StreamedStorage[0]);
+
+		BigInteger p = new BigInteger(
+				"6703903964971298549787012499123814115273848577471136527425966013026501536706464354255445443244279389455058889493431223951165286470575994074291745908195329");
+
+		List<BigInteger> alphaShares = FakeTripGen.generateAlphaShares(noOfPlayers, p);
+		BigInteger alpha = BigInteger.ZERO;
+		for (BigInteger share : alphaShares) {
+			alpha = alpha.add(share);
+		}
+		alpha = alpha.mod(p);
+
+		List<SpdzTriple[]> triples = FakeTripGen.generateTriples(noOfTriples, noOfPlayers, p, alpha);
+		List<List<SpdzInputMask[]>> inputMasks = FakeTripGen.generateInputMasks(noOfInputMasks, noOfPlayers, p, alpha);
+		List<SpdzSInt[]> bits = FakeTripGen.generateBits(noOfBits, noOfPlayers, p, alpha);
+		List<SpdzSInt[][]> expPipes = FakeTripGen.generateExpPipes(noOfExpPipes, noOfPlayers, p, alpha);
+
+		for (StreamedStorage store : storages) {
+			for (int i = 1; i < noOfPlayers + 1; i++) {
+				for (int threadId = 1; threadId < noOfThreads + 1; threadId++) {
+					String storageName = SpdzStorageConstants.STORAGE_NAME_PREFIX + i + "_" + threadId;
+					store.putNext(storageName + SpdzStorageConstants.MODULUS_KEY, p);
+					store.putNext(storageName + SpdzStorageConstants.SSK_KEY, alphaShares.get(i - 1));
+				}
+			}
+			// triples
+			for (SpdzTriple[] triple : triples) {
+				for (int i = 0; i < noOfPlayers; i++) {
+					for (int threadId = 1; threadId < noOfThreads + 1; threadId++) {
+						String storageName = SpdzStorageConstants.STORAGE_NAME_PREFIX + (i + 1) + "_" + threadId;
+						store.putNext(storageName + SpdzStorageConstants.TRIPLE_STORAGE, triple[i]);
+					}
+				}
+			}
+			// inputs
+			// towards player
+			for (int towardsPlayer = 1; towardsPlayer < inputMasks.size() + 1; towardsPlayer++) {
+				// number of inputs towards that player
+				for (SpdzInputMask[] masks : inputMasks.get(towardsPlayer - 1)) {
+					// single shares of that input
+					for (int i = 0; i < noOfPlayers; i++) {
+						for (int threadId = 1; threadId < noOfThreads + 1; threadId++) {
+							String storageName = SpdzStorageConstants.STORAGE_NAME_PREFIX + (i + 1) + "_" + threadId;
+							store.putNext(storageName + SpdzStorageConstants.INPUT_STORAGE + towardsPlayer, masks[i]);
+						}
+					}
+				}
+			}
+
+			// bits
+			for (SpdzSInt[] bit : bits) {
+				for (int i = 0; i < noOfPlayers; i++) {
+					for (int threadId = 1; threadId < noOfThreads + 1; threadId++) {
+						String storageName = SpdzStorageConstants.STORAGE_NAME_PREFIX + (i + 1) + "_" + threadId;
+						store.putNext(storageName + SpdzStorageConstants.BIT_STORAGE, bit[i]);
+					}
+				}
+			}
+
+			// exp pipes
+			for (SpdzSInt[][] expPipe : expPipes) {
+				for (int i = 0; i < noOfPlayers; i++) {
+					for (int threadId = 1; threadId < noOfThreads + 1; threadId++) {
+						String storageName = SpdzStorageConstants.STORAGE_NAME_PREFIX + (i + 1) + "_" + threadId;
+						store.putNext(storageName + SpdzStorageConstants.EXP_PIPE_STORAGE, expPipe[i]);
+					}
+				}
 			}
 		}
 	}

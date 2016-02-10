@@ -99,7 +99,7 @@ public class HammingDistanceCircuitImpl extends AbstractSimpleProtocol implement
 			} else {
 				currentSum = provider.getSInt();
 			}
-			sumGPs[0] = addProvider.getAddCircuit(XOR[0], XOR[1],
+			sumGPs[0] = addProvider.getAddProtocol(XOR[0], XOR[1],
 					currentSum);
 
 			for (int i = 2; i < length; i++) {
@@ -109,7 +109,7 @@ public class HammingDistanceCircuitImpl extends AbstractSimpleProtocol implement
 					newSum = provider.getSInt();
 				else
 					newSum = result;
-				sumGPs[i - 1] = addProvider.getAddCircuit(currentSum,
+				sumGPs[i - 1] = addProvider.getAddProtocol(currentSum,
 						XOR[i], newSum);
 				currentSum = newSum;
 			}

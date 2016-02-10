@@ -27,6 +27,7 @@
 package dk.alexandra.fresco.lib.lp;
 
 import java.math.BigInteger;
+import java.util.Arrays;
 
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.NativeProtocol;
@@ -40,6 +41,7 @@ import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.helper.AbstractRoundBasedProtocol;
 import dk.alexandra.fresco.lib.helper.CopyProtocol;
 import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
+import dk.alexandra.fresco.lib.helper.builder.NumericIOBuilder;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
 
 public class LPSolverCircuit implements Protocol {
@@ -61,7 +63,7 @@ public class LPSolverCircuit implements Protocol {
 	private final SInt prevPivot;
 	private SInt pivot;
 	private SInt[] enteringIndex;
-	private int iterations = 0;
+	public static int iterations = 0;
 
 	public LPSolverCircuit(LPTableau tableau, Matrix<SInt> updateMatrix,
 			SInt pivot, LPFactory lpProvider, BasicNumericFactory bnProvider) {
@@ -74,6 +76,7 @@ public class LPSolverCircuit implements Protocol {
 			this.bnProvider = bnProvider;
 			this.zero = bnProvider.getSInt(0);
 			this.state = STATE.PHASE1;
+			iterations = 0;
 		} else {
 			throw new MPCException("Dimensions of inputs does not match");
 		}
@@ -86,19 +89,20 @@ public class LPSolverCircuit implements Protocol {
 		return (updateHeight == updateWidth && updateHeight == tableauHeight);
 
 	}
-
+	
 	@Override
 	public int getNextProtocols(NativeProtocol[] gates, int pos) {
 		if (gp == null) {
 			if (state == STATE.PHASE1) {
 				iterations++;
 				gp = phaseOneCircuit();
-				// gp = blandPhaseOneCircuit();
+				// gp = blandPhaseOneCircuit();				
 			} else if (state == STATE.PHASE2) {
 				boolean terminated = terminationOut.getValue().equals(
 						BigInteger.ONE);
-				if (!terminated) {
-					gp = phaseTwoCircuit();
+				System.out.println("Are we about to terminate? :  " + terminated);
+				if (!terminated) {					
+					gp = phaseTwoCircuit();					
 				} else {
 					state = STATE.TERMINATED;
 					gp = null;
@@ -210,7 +214,7 @@ public class LPSolverCircuit implements Protocol {
 		SInt positive = bnProvider.getSInt();
 		ProtocolProducer comp = lpProvider.getComparisonCircuit(zero, minimum,
 				positive, true);
-		ProtocolProducer output = bnProvider.getOpenCircuit(positive,
+		ProtocolProducer output = bnProvider.getOpenProtocol(positive,
 				terminationOut);
 
 		ProtocolProducer phaseOne = new SequentialProtocolProducer(enteringProducer,
@@ -233,7 +237,7 @@ public class LPSolverCircuit implements Protocol {
 		ProtocolProducer blandEnter = new BlandEnteringVariableCircuit(tableau,
 				updateMatrix, enteringIndex, first, lpProvider, bnProvider);
 
-		ProtocolProducer output = bnProvider.getOpenCircuit(first,
+		ProtocolProducer output = bnProvider.getOpenProtocol(first,
 				terminationOut);
 		ProtocolProducer phaseOne = new SequentialProtocolProducer(blandEnter, output);
 		return phaseOne;

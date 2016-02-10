@@ -46,14 +46,14 @@ import dk.alexandra.fresco.lib.math.inv.LocalInversionFactory;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzOInt;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
-import dk.alexandra.fresco.suite.spdz.gates.SpdzAddGate;
-import dk.alexandra.fresco.suite.spdz.gates.SpdzInputGate;
-import dk.alexandra.fresco.suite.spdz.gates.SpdzKnownSIntGate;
-import dk.alexandra.fresco.suite.spdz.gates.SpdzLocalInversionGate;
-import dk.alexandra.fresco.suite.spdz.gates.SpdzMultGate;
-import dk.alexandra.fresco.suite.spdz.gates.SpdzOutputGate;
-import dk.alexandra.fresco.suite.spdz.gates.SpdzOutputToAllGate;
-import dk.alexandra.fresco.suite.spdz.gates.SpdzSubtractGate;
+import dk.alexandra.fresco.suite.spdz.gates.SpdzAddProtocol;
+import dk.alexandra.fresco.suite.spdz.gates.SpdzInputProtocol;
+import dk.alexandra.fresco.suite.spdz.gates.SpdzKnownSIntProtocol;
+import dk.alexandra.fresco.suite.spdz.gates.SpdzLocalInversionProtocol;
+import dk.alexandra.fresco.suite.spdz.gates.SpdzMultProtocol;
+import dk.alexandra.fresco.suite.spdz.gates.SpdzOutputProtocol;
+import dk.alexandra.fresco.suite.spdz.gates.SpdzOutputToAllProtocol;
+import dk.alexandra.fresco.suite.spdz.gates.SpdzSubtractProtocol;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
 
 public class SpdzFactory implements BasicNumericFactory, PreprocessedNumericBitFactory,
@@ -92,14 +92,14 @@ public class SpdzFactory implements BasicNumericFactory, PreprocessedNumericBitF
 	 */
 
 	public KnownSIntProtocol getSInt(int i, SInt si) {
-		return new SpdzKnownSIntGate(i, si);
+		return new SpdzKnownSIntProtocol(i, si);
 	}
 
 	/**
 	 * Careful - This creates a publicly known integer which is secret shared.
 	 */
 	public KnownSIntProtocol getSInt(BigInteger value, SInt sValue) {
-		return new SpdzKnownSIntGate(value, sValue);
+		return new SpdzKnownSIntProtocol(value, sValue);
 	}
 
 	/**
@@ -168,33 +168,33 @@ public class SpdzFactory implements BasicNumericFactory, PreprocessedNumericBitF
 	}
 
 	@Override
-	public AddProtocol getAddCircuit(SInt a, SInt b, SInt out) {
-		return new SpdzAddGate(a, b, out);
+	public AddProtocol getAddProtocol(SInt a, SInt b, SInt out) {
+		return new SpdzAddProtocol(a, b, out);
 	}
 
 	@Override
-	public AddProtocol getAddCircuit(SInt a, OInt b, SInt out) {
-		return new SpdzAddGate(a, b, out, this);
+	public AddProtocol getAddProtocol(SInt a, OInt b, SInt out) {
+		return new SpdzAddProtocol(a, b, out, this);
 	}
 
 	@Override
 	public SubtractCircuit getSubtractCircuit(SInt a, SInt b, SInt out) {
-		return new SpdzSubtractGate(a, b, out, this);
+		return new SpdzSubtractProtocol(a, b, out, this);
 	}
 
 	@Override
 	public SubtractCircuit getSubtractCircuit(OInt a, SInt b, SInt out) {
-		return new SpdzSubtractGate(a, b, out, this);
+		return new SpdzSubtractProtocol(a, b, out, this);
 	}
 
 	@Override
 	public MultProtocol getMultCircuit(SInt a, SInt b, SInt out) {
-		return new SpdzMultGate(a, b, out);
+		return new SpdzMultProtocol(a, b, out);
 	}
 
 	@Override
 	public MultProtocol getMultCircuit(OInt a, SInt b, SInt out) {
-		return new SpdzMultGate(a, b, out);
+		return new SpdzMultProtocol(a, b, out);
 	}
 
 	@Override
@@ -208,7 +208,7 @@ public class SpdzFactory implements BasicNumericFactory, PreprocessedNumericBitF
 
 	@Override
 	public LocalInversionCircuit getLocalInversionCircuit(OInt in, OInt out) {
-		return new SpdzLocalInversionGate(in, out);
+		return new SpdzLocalInversionProtocol(in, out);
 	}
 
 	@Override
@@ -244,25 +244,25 @@ public class SpdzFactory implements BasicNumericFactory, PreprocessedNumericBitF
 	 * IO Provider Stuff *
 	 ****************************************/
 
-	public CloseIntProtocol getCloseCircuit(BigInteger open,
+	public CloseIntProtocol getCloseProtocol(BigInteger open,
 			SInt closed, int targetID) {
-		return new SpdzInputGate(open, closed, targetID);
+		return new SpdzInputProtocol(open, closed, targetID);
 	}
 
 
 	@Override
-	public CloseIntProtocol getCloseCircuit(int source, OInt open, SInt closed) {
-		return new SpdzInputGate(open, closed, source);
+	public CloseIntProtocol getCloseProtocol(int source, OInt open, SInt closed) {
+		return new SpdzInputProtocol(open, closed, source);
 	}
 
 	@Override
-	public OpenIntProtocol getOpenCircuit(int target, SInt closed, OInt open) {
-		return new SpdzOutputGate(closed, open, target);
+	public OpenIntProtocol getOpenProtocol(int target, SInt closed, OInt open) {
+		return new SpdzOutputProtocol(closed, open, target);
 	}
 
 	@Override
-	public OpenIntProtocol getOpenCircuit(SInt closed, OInt open) {
-		return new SpdzOutputToAllGate(closed, open);
+	public OpenIntProtocol getOpenProtocol(SInt closed, OInt open) {
+		return new SpdzOutputToAllProtocol(closed, open);
 	}
 
 }

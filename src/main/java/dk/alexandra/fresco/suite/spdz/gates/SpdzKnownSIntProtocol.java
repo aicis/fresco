@@ -26,54 +26,76 @@
  *******************************************************************************/
 package dk.alexandra.fresco.suite.spdz.gates;
 
+import java.math.BigInteger;
+
 import dk.alexandra.fresco.framework.network.SCENetwork;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
-import dk.alexandra.fresco.framework.value.OInt;
+import dk.alexandra.fresco.framework.value.KnownSIntProtocol;
+import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.framework.value.Value;
-import dk.alexandra.fresco.lib.math.inv.LocalInversionCircuit;
+import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzOInt;
+import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
+import dk.alexandra.fresco.suite.spdz.evaluation.strategy.SpdzProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.utils.Util;
 
-public class SpdzLocalInversionGate extends SpdzNativeProtocol implements
-		LocalInversionCircuit {
+public class SpdzKnownSIntProtocol extends SpdzNativeProtocol implements KnownSIntProtocol {
 
-	private SpdzOInt in, out;
+	BigInteger value;
+	SpdzSInt sValue;
 
-	public SpdzLocalInversionGate(OInt in, OInt out) {
-		this.in = (SpdzOInt) in;
-		this.out = (SpdzOInt) out;
+	/**
+	 * Creates a gate loading a given value into a given SInt
+	 * 
+	 * @param value
+	 *            the value
+	 * @param sValue
+	 *            the SInt
+	 */
+	public SpdzKnownSIntProtocol(BigInteger value, SInt sValue) {
+		this.value = value;
+		this.sValue = (SpdzSInt) sValue;
 	}
 
-	public SpdzLocalInversionGate(SpdzOInt in, SpdzOInt out) {
-		this.in = in;
-		this.out = out;
+	/**
+	 * Creates a gate loading a given value into a given SInt
+	 * 
+	 * @param value
+	 *            the value
+	 * @param sValue
+	 *            the SInt
+	 */
+	public SpdzKnownSIntProtocol(int value, SInt sValue) {
+		this(BigInteger.valueOf(value), sValue);
 	}
 
 	@Override
 	public Value[] getInputValues() {
-		return new Value[] { in };
+		SpdzOInt oValue = new SpdzOInt(value);
+		return new Value[] { oValue };
 	}
 
 	@Override
 	public Value[] getOutputValues() {
-		return new Value[] { out };
+		return new Value[] { sValue };
 	}
 
 	@Override
 	public EvaluationStatus evaluate(int round, ResourcePool resourcePool,
 			SCENetwork network) {
-		try {
-			out.setValue(in.getValue().modInverse(Util.getModulus()));
-		} catch (ArithmeticException e) {
-			System.out.println("Non invertable value: " + in.getValue());
-			throw e;
+		SpdzProtocolSuite spdzPii = SpdzProtocolSuite
+				.getInstance(resourcePool.getMyId());
+		value = value.mod(Util.getModulus());
+		SpdzElement elm;
+		BigInteger globalKeyShare = spdzPii.getStore(network.getThreadId())
+				.getSSK();
+		if (resourcePool.getMyId() == 1) {
+			elm = new SpdzElement(value, value.multiply(globalKeyShare));
+		} else {
+			elm = new SpdzElement(BigInteger.ZERO,
+					value.multiply(globalKeyShare));
 		}
+		sValue.value = elm;
 		return EvaluationStatus.IS_DONE;
 	}
-
-	public String toString() {
-		return "SpdzLocalInversionGate(" + in.getValue() + ", "
-				+ out.getValue() + ")";
-	}
-
 }

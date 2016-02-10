@@ -27,7 +27,7 @@
 package dk.alexandra.fresco.suite.spdz.gates;
 
 import java.math.BigInteger;
-import java.util.List;
+import java.util.Arrays;
 import java.util.Map;
 
 import dk.alexandra.fresco.framework.MPCException;
@@ -37,67 +37,87 @@ import dk.alexandra.fresco.framework.value.Value;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzCommitment;
 import dk.alexandra.fresco.suite.spdz.evaluation.strategy.SpdzProtocolSuite;
 
-public class SpdzCommitGate extends SpdzNativeProtocol {
+public class SpdzOpenCommitProtocol extends SpdzNativeProtocol {
 
 	protected SpdzCommitment commitment;
-	protected Map<Integer, BigInteger> comms;
+	protected Map<Integer, BigInteger> ss;
+	protected Map<Integer, BigInteger> commitments;
+	private boolean openingValidated;
 	private boolean done = false;
-	private byte[] broadcastDigest;
+	private byte[] digest;
 
-	public SpdzCommitGate(SpdzCommitment commitment,
-			Map<Integer, BigInteger> comms) {
+	public SpdzOpenCommitProtocol(SpdzCommitment commitment,
+			Map<Integer, BigInteger> commitments, Map<Integer, BigInteger> ss) {
 		this.commitment = commitment;
-		this.comms = comms;
+		this.commitments = commitments;
+		this.ss = ss;
 	}
 
 	@Override
 	public Value[] getInputValues() {
+		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public Value[] getOutputValues() {
+		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public EvaluationStatus evaluate(int round, ResourcePool resourcePool,
 			SCENetwork network) {
+		SpdzProtocolSuite spdzPii = SpdzProtocolSuite
+				.getInstance(resourcePool.getMyId());
 		int players = resourcePool.getNoOfParties();
 		switch (round) {
-		case 0:
-			network.sendToAll(commitment.getCommitment());
+		case 0: // Send your opening to all players
+			BigInteger value = this.commitment.getValue();
+			BigInteger randomness = this.commitment.getRandomness();
+			BigInteger[] opening = new BigInteger[] { value, randomness };
+			network.sendToAll(opening);
 			network.expectInputFromAll();
 			break;
-		case 1:
-			List<BigInteger> commitments = network.receiveFromAll();
-			for (int i = 0; i < commitments.size(); i++) {
-				comms.put(i + 1, commitments.get(i));
+		case 1: // Receive openings from all parties and check they are valid
+			Map<Integer, BigInteger[]> openings = receiveFromAllMap(network);
+			openingValidated = true;
+			BigInteger[] broadcastMessages = new BigInteger[2 * openings.size()];
+			for (int i : openings.keySet()) {
+				BigInteger[] open = openings.get(i);
+				BigInteger com = commitments.get(i);
+				boolean validate = SpdzCommitment.checkCommitment(
+						spdzPii.getMessageDigest(network.getThreadId()), com,
+						open[0], open[1]);
+				openingValidated = openingValidated && validate;
+				ss.put(i, open[0]);
+				broadcastMessages[(i - 1) * 2] = open[0];
+				broadcastMessages[(i - 1) * 2 + 1] = open[1];
 			}
 			if (players < 3) {
+				if (!openingValidated) {
+					throw new MPCException("Opening commitments failed.");
+				}
 				done = true;
 			} else {
-				broadcastDigest = sendBroadcastValidation(
-						SpdzProtocolSuite.getInstance(
-								resourcePool.getMyId()).getMessageDigest(
-								network.getThreadId()), network, commitments,
-						players);
+				digest = sendBroadcastValidation(
+						spdzPii.getMessageDigest(network.getThreadId()),
+						network, Arrays.asList(broadcastMessages), players);
 				network.expectInputFromAll();
 			}
 			break;
-		case 2:
-			boolean validated = receiveBroadcastValidation(network,
-					broadcastDigest);
-			if (!validated) {
-				throw new MPCException(
-						"Broadcast of commitments was not validated. Abort protocol.");
+		case 2: // If more than three players check if openings where
+				// broadcasted correctly
+			boolean validated = receiveBroadcastValidation(network, digest);
+			if (!(validated && openingValidated)) {
+				throw new MPCException("Opening commitments failed.");
 			}
 			done = true;
 			break;
 		default:
-			throw new MPCException("No further rounds.");
+			throw new MPCException("No more rounds to evaluate.");
 		}
-		EvaluationStatus status = (done) ? EvaluationStatus.IS_DONE
+		EvaluationStatus status = done ? EvaluationStatus.IS_DONE
 				: EvaluationStatus.HAS_MORE_ROUNDS;
 		return status;
 	}

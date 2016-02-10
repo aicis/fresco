@@ -52,6 +52,7 @@ import dk.alexandra.fresco.framework.sce.evaluator.SequentialEvaluator;
 import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
 import dk.alexandra.fresco.framework.sce.resources.storage.Storage;
 import dk.alexandra.fresco.framework.sce.resources.storage.StorageStrategy;
+import dk.alexandra.fresco.framework.sce.resources.storage.StreamedStorage;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.bgw.configuration.BgwConfiguration;
 import dk.alexandra.fresco.suite.dummy.DummyConfiguration;
@@ -355,6 +356,15 @@ public class CmdLineUtil {
 				@Override
 				public int getMaxBatchSize() {
 					return maxBatchSize;
+				}
+
+				@Override
+				public StreamedStorage getStreamedStorage() {
+					if(storage instanceof StreamedStorage) {
+						return (StreamedStorage) storage;
+					} else{
+						return null;
+					}
 				}
 			};
 

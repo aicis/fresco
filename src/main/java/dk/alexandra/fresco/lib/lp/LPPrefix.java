@@ -47,7 +47,7 @@ public interface LPPrefix {
 	 * @param numericProvider input - an LP Provider
 	 * @return a GateProducer representing the modification of inputs 
 	 */
-	public ProtocolProducer getProducer();
+	public ProtocolProducer getPrefix();
 	
 	/**
 	 * @return the SInts that after running the prefix circuit should hold the initial tableau

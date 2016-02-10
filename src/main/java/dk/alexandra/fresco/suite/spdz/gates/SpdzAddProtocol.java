@@ -36,25 +36,25 @@ import dk.alexandra.fresco.suite.spdz.datatypes.SpdzOInt;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.utils.SpdzFactory;
 
-public class SpdzAddGate extends SpdzNativeProtocol implements AddProtocol {
+public class SpdzAddProtocol extends SpdzNativeProtocol implements AddProtocol {
 
 	private SpdzSInt left, right, out;
 	private SpdzOInt oInt;
 	private SpdzFactory provider;
 
-	public SpdzAddGate(SInt left, SInt right, SInt out) {
+	public SpdzAddProtocol(SInt left, SInt right, SInt out) {
 		this.left = (SpdzSInt) left;
 		this.right = (SpdzSInt) right;
 		this.out = (SpdzSInt) out;
 	}
 
-	public SpdzAddGate(SpdzSInt left, SpdzSInt right, SpdzSInt out) {
+	public SpdzAddProtocol(SpdzSInt left, SpdzSInt right, SpdzSInt out) {
 		this.left = left;
 		this.right = right;
 		this.out = out;
 	}
 
-	public SpdzAddGate(SInt left, OInt right, SInt out, SpdzFactory provider) {
+	public SpdzAddProtocol(SInt left, OInt right, SInt out, SpdzFactory provider) {
 		this.left = (SpdzSInt) left;
 		this.oInt = (SpdzOInt) right;
 		this.out = (SpdzSInt) out;

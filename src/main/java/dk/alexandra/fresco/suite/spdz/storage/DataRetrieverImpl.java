@@ -39,6 +39,7 @@ import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.Reporter;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.sce.resources.storage.Storage;
+import dk.alexandra.fresco.framework.sce.resources.storage.StreamedStorage;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
@@ -47,7 +48,7 @@ import dk.alexandra.fresco.suite.spdz.utils.Util;
 
 public class DataRetrieverImpl implements DataRetriever {
 
-	private Storage storage;
+	private StreamedStorage storage;
 	private String storageName;
 
 	private Scanner globalInfoReader;
@@ -72,7 +73,7 @@ public class DataRetrieverImpl implements DataRetriever {
 
 	public DataRetrieverImpl(ResourcePool rp, String triplepath,
 			String storageName) {
-		this.storage = rp.getStorage();
+		this.storage = rp.getStreamedStorage();
 		this.storageName = storageName;
 
 		path = triplepath;
@@ -110,7 +111,7 @@ public class DataRetrieverImpl implements DataRetriever {
 							+ path, e);
 		}
 		
-		BigInteger mod = this.storage.getObject(storageName, SpdzStorageConstants.MODULUS_KEY);
+		BigInteger mod = this.storage.getNext(SpdzStorageConstants.GLOBAL_STORAGE);
 		if(mod != null) {
 			Reporter.info("Storage already containts SPDZ data. No new data will be added.");
 			return;
@@ -172,10 +173,8 @@ public class DataRetrieverImpl implements DataRetriever {
 	private void readGlobalData() {
 		BigInteger modulus = new BigInteger(globalInfoReader.next());
 		BigInteger SSK = new BigInteger(globalInfoReader.next());
-		this.storage.putObject(storageName,
-				SpdzStorageConstants.MODULUS_KEY, modulus);
-		this.storage.putObject(storageName, SpdzStorageConstants.SSK_KEY,
-				SSK);
+		this.storage.putNext(SpdzStorageConstants.GLOBAL_STORAGE, modulus);
+		this.storage.putNext(SpdzStorageConstants.GLOBAL_STORAGE, SSK);
 	}
 
 	@Override

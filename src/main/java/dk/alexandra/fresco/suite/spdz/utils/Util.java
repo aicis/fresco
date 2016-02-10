@@ -193,7 +193,7 @@ public class Util {
 		}
 		OpenIntProtocol[] openings = new OpenIntProtocol[open.length]; 
 		for (int i = 0; i < open.length; i++) {
-			openings[i] = provider.getOpenCircuit(closed[i], open[i]);
+			openings[i] = provider.getOpenProtocol(closed[i], open[i]);
 		}
 		return new ParallelProtocolProducer(openings);
 	}
@@ -281,7 +281,7 @@ public class Util {
 		for(int i = 0; i < matrix.length; i++) {
 			for (int j = 0; j < matrix[i].length; j++) {
 				if (pattern[i][j] != 0) {
-					par.append(provider.getCloseCircuit(values[i][j], matrix[i][j], pattern[i][j]));
+					par.append(provider.getCloseProtocol(values[i][j], matrix[i][j], pattern[i][j]));
 				}
 			}			
 		}
@@ -293,9 +293,15 @@ public class Util {
 		ParallelProtocolProducer inputGates = new ParallelProtocolProducer();
 		for(int i = 0; i < vector.length; i++) {
 			if (pattern[i] != 0) {
-				inputGates.append(provider.getCloseCircuit(values[i], vector[i], pattern[i]));
+				inputGates.append(provider.getCloseProtocol(values[i], vector[i], pattern[i]));
 			}
 		}
 		return inputGates;
+	}
+	
+	public static BigInteger getRandomNumber(Random rand) {
+		byte[] bytes = new byte[size];
+		rand.nextBytes(bytes);
+		return new BigInteger(bytes).mod(p);
 	}
 }

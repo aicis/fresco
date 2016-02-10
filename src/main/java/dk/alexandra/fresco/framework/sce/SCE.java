@@ -26,6 +26,8 @@
  *******************************************************************************/
 package dk.alexandra.fresco.framework.sce;
 
+import java.io.IOException;
+
 import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.sce.configuration.SCEConfiguration;
 
@@ -44,10 +46,27 @@ public interface SCE {
 	 * is not setup before (e.g. connected to other parties etc.), the SCE will
 	 * do the setup phase before running the application.
 	 * 
-	 * @application The application to evaluate.
+	 * @param application
+	 *            The application to evaluate.
 	 * 
 	 */
 	public abstract void runApplication(Application application);
+
+	/**
+	 * Initializes the SCE by setting up the resource pool including network.
+	 * This also calls \code{init} on the configured protocol suite. Calling
+	 * this multiple times does nothing as an SCE can only be setup once. This
+	 * method is called from \code{runApplication} as well to ensure that the
+	 * SCE is setup before evaluating the application. The reason this method is
+	 * public is to force initialization of resources before running an
+	 * application. This might be needed in some cases. If you have no need for
+	 * this, just let the SCE handle it itself.
+	 * 
+	 * @throws IOException
+	 *             If an error occurs while setting up IO related services such
+	 *             as network.
+	 */
+	public abstract void setup() throws IOException;
 
 	/**
 	 * Ensures that resources are shut down properly. Network is disconnected

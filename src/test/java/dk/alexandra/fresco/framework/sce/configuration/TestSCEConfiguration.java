@@ -34,6 +34,7 @@ import dk.alexandra.fresco.framework.Party;
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.sce.resources.storage.Storage;
+import dk.alexandra.fresco.framework.sce.resources.storage.StreamedStorage;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 
 public class TestSCEConfiguration implements SCEConfiguration {
@@ -117,6 +118,14 @@ public class TestSCEConfiguration implements SCEConfiguration {
 	@Override
 	public int getMaxBatchSize() {
 		return this.maxBatchSize;
+	}
+	@Override
+	public StreamedStorage getStreamedStorage() {
+		if(this.storage instanceof StreamedStorage) {
+			return (StreamedStorage)this.storage;
+		} else {
+			return null;
+		}
 	}
 
 }

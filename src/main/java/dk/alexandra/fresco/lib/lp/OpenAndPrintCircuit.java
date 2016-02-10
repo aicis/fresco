@@ -91,7 +91,7 @@ public class OpenAndPrintCircuit implements Protocol {
 			if (state == STATE.OUTPUT) {
 				if (number != null) {
 					oNumber = provider.getOInt();
-					gp = provider.getOpenCircuit(number, oNumber);
+					gp = provider.getOpenProtocol(number, oNumber);
 				} else if (vector != null) {
 					oVector = Util.oIntFill(new OInt[vector.length], provider);
 					gp = Util.makeOpenCircuit(vector, oVector, provider);

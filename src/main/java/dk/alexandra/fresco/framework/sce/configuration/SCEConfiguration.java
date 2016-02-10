@@ -32,6 +32,7 @@ import java.util.logging.Level;
 import dk.alexandra.fresco.framework.Party;
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.sce.resources.storage.Storage;
+import dk.alexandra.fresco.framework.sce.resources.storage.StreamedStorage;
 
 public interface SCEConfiguration {
 
@@ -75,6 +76,12 @@ public interface SCEConfiguration {
 	 * @return
 	 */
 	public Storage getStorage();
+	
+	/**
+	 * Returns the streamed storage requested.
+	 * @return
+	 */
+	public StreamedStorage getStreamedStorage();
 	
 	/**
 	 * Returns the maximum batch size that the evaluators should run with.
