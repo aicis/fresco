@@ -26,8 +26,153 @@
  *******************************************************************************/
 package dk.alexandra.fresco.suite.spdz;
 
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.logging.Level;
 
-public class TestSpdzLPBuildingBlocks {
+import org.junit.BeforeClass;
+import org.junit.Test;
+
+import dk.alexandra.fresco.framework.ProtocolEvaluator;
+import dk.alexandra.fresco.framework.Reporter;
+import dk.alexandra.fresco.framework.TestThreadRunner;
+import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
+import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
+import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
+import dk.alexandra.fresco.framework.configuration.TestConfiguration;
+import dk.alexandra.fresco.framework.sce.configuration.TestSCEConfiguration;
+import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
+import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
+import dk.alexandra.fresco.framework.sce.resources.storage.MySQLStorage;
+import dk.alexandra.fresco.framework.sce.resources.storage.Storage;
+import dk.alexandra.fresco.framework.sce.resources.storage.StorageStrategy;
+import dk.alexandra.fresco.lib.lp.LPBuildingBlockTests;
+import dk.alexandra.fresco.suite.ProtocolSuite;
+import dk.alexandra.fresco.suite.spdz.configuration.SpdzConfiguration;
+import dk.alexandra.fresco.suite.spdz.evaluation.strategy.SpdzProtocolSuite;
+import dk.alexandra.fresco.suite.spdz.storage.InitializeStorage;
+
+public class TestSpdzLPBuildingBlocks {	
+	
+	private static final int noOfParties = 2;
+	private Map<Integer, TestThreadConfiguration> conf; 
+	
+	private void configure(EvaluationStrategy evalStrategy,
+			StorageStrategy storageStrategy) {
+		Level logLevel = Level.FINE;
+		Reporter.init(logLevel);
+		// Since SCAPI currently does not work with ports > 9999 we use fixed
+		// ports
+		// here instead of relying on ephemeral ports which are often > 9999.
+		List<Integer> ports = new ArrayList<Integer>(noOfParties);
+		for (int i = 1; i <= noOfParties; i++) {
+			ports.add(9000 + i);
+		}
+
+		Map<Integer, NetworkConfiguration> netConf = TestConfiguration
+				.getNetworkConfigurations(noOfParties, ports, logLevel);
+		conf = new HashMap<Integer, TestThreadConfiguration>();
+		for (int playerId : netConf.keySet()) {
+			TestThreadConfiguration ttc = new TestThreadConfiguration();
+			ttc.netConf = netConf.get(playerId);
+			
+			SpdzConfiguration spdzConf = new SpdzConfiguration() {
+				
+				@Override
+				public boolean useDummyData() {
+					return false;
+				}
+				
+				@Override
+				public String getTriplePath() {
+					return null;
+				}
+				
+				@Override
+				public int getMaxBitLength() {
+					return 150;
+				}
+			};
+			ttc.protocolSuiteConf = spdzConf;
+			boolean useSecureConnection = false; // No tests of secure
+													// connection
+													// here.
+			int noOfVMThreads = 3;
+			int noOfThreads = 3;
+			ProtocolSuite suite = SpdzProtocolSuite.getInstance(playerId);
+			ProtocolEvaluator evaluator = EvaluationStrategy
+					.fromEnum(evalStrategy);
+			dk.alexandra.fresco.framework.sce.resources.storage.Storage storage = null;
+			switch (storageStrategy) {
+			case IN_MEMORY:
+				storage = inMemStore;
+				break;
+			case MYSQL:
+				storage = mySQLStore;
+				break;
+			}
+			ttc.sceConf = new TestSCEConfiguration(suite, evaluator,
+					noOfThreads, noOfVMThreads, ttc.netConf, storage,
+					useSecureConnection);
+			conf.put(playerId, ttc);
+		}
+	}
+
+	private void runTest(TestThreadFactory f) throws Exception {
+		TestThreadRunner.run(f, conf);
+	}
+
+	private static InMemoryStorage inMemStore = new InMemoryStorage();
+	private static MySQLStorage mySQLStore = null;
+
+	/**
+	 * Makes sure that the preprocessed data exists in the storage's used in
+	 * this test class.
+	 */
+	@BeforeClass
+	public static void initStorage() {
+		Reporter.init(Level.INFO);
+		// Storage[] storages = new Storage[] { inMemStore, mySQLStore };
+		Storage[] storages = new Storage[] { inMemStore };
+		InitializeStorage.initStorage(storages, noOfParties, 10000, 10000,
+				1000000, 10000);
+	}	
+	
+	@Test
+	public void test_Exiting_Variable_Sequential() throws Exception {
+		configure(EvaluationStrategy.SEQUENTIAL, StorageStrategy.IN_MEMORY);
+		runTest(new LPBuildingBlockTests.TestDummy());
+		BigInteger mod = SpdzProtocolSuite.getInstance(1).getModulus();
+		runTest(new LPBuildingBlockTests.TestDanzigEnteringVariable(mod));
+	}
+	
+	@Test
+	public void test_Exiting_Variable_Parallel() throws Exception {
+		configure(EvaluationStrategy.PARALLEL, StorageStrategy.IN_MEMORY);
+		runTest(new LPBuildingBlockTests.TestDummy());
+		BigInteger mod = SpdzProtocolSuite.getInstance(1).getModulus();
+		runTest(new LPBuildingBlockTests.TestDanzigEnteringVariable(mod));
+	}
+	
+	@Test
+	public void test_Exiting_Variable_Sequential_Batched() throws Exception {
+		configure(EvaluationStrategy.PARALLEL_BATCHED, StorageStrategy.IN_MEMORY);
+		runTest(new LPBuildingBlockTests.TestDummy());
+		BigInteger mod = SpdzProtocolSuite.getInstance(1).getModulus();
+		runTest(new LPBuildingBlockTests.TestDanzigEnteringVariable(mod));
+	}
+	
+	@Test
+	public void test_Exiting_Variable_Parallel_Batched() throws Exception {
+		configure(EvaluationStrategy.PARALLEL_BATCHED, StorageStrategy.IN_MEMORY);
+		runTest(new LPBuildingBlockTests.TestDummy());
+		BigInteger mod = SpdzProtocolSuite.getInstance(1).getModulus();
+		runTest(new LPBuildingBlockTests.TestDanzigEnteringVariable(mod));
+	}
+	
 /*
 	private abstract static class ThreadWithFixture extends TestThread {
 
@@ -1315,40 +1460,7 @@ public class TestSpdzLPBuildingBlocks {
 		return new SequentialProtocolProducer(inputProducer, bvc, output);
 	}
 	
-	private ProtocolProducer setUpEnteringVariableCircuit(BigInteger[][] umValues, 
-				BigInteger[][] cValues, BigInteger[] bValues, BigInteger[] fValues, 
-				OInt[] outputs, SpdzProvider provider) {
-		int m = cValues.length;
-		int nPlusM = cValues[0].length;
-		SInt[][] c = new SInt[m][nPlusM];
-		c = sIntFill(c, provider);
-		SInt[][] um = new SInt[m+1][m+1];
-		um = sIntFill(um, provider);
-		SInt[] B = new SInt[m];
-		B = sIntFill(B, provider);
-		SInt[] F = new SInt[nPlusM];
-		F = sIntFill(F, provider);
-		SInt[] enteringVariable = new SInt[nPlusM];
-		enteringVariable = sIntFill(enteringVariable, provider);
-		
-		Matrix<SInt> updateMatrix = new Matrix<SInt>(um);
-		Matrix<SInt> C = new Matrix<SInt>(c);
-		LPTableau tableau = new LPTableau(C, B, F, provider.getSInt());
-		
-		ProtocolProducer updateInputProducer = new ParallelGateProducer(makeInputGates(umValues, um, provider));
-		ProtocolProducer cInputProducer = new ParallelGateProducer(makeInputGates(cValues, c, provider));
-		ProtocolProducer bInputProducer = new ParallelGateProducer(makeInputGates(bValues, B, provider));
-		ProtocolProducer fInputProducer = new ParallelGateProducer(makeInputGates(fValues, F, provider));
-		ProtocolProducer inputProducer = new ParallelGateProducer(updateInputProducer, cInputProducer, bInputProducer, fInputProducer);
-		
-		SInt minimum = provider.getSInt();
-		EnteringVariableCircuit enc = provider.getEnteringVariableCircuit(tableau, updateMatrix, enteringVariable, minimum);
-
-		outputs = oIntFill(outputs, provider);
-		ProtocolProducer output = makeOpenCircuit(enteringVariable, outputs, provider);
-		
-		return new SequentialProtocolProducer(inputProducer, enc, output);
-	}
+	
 		
 	@Test
 	public void testExitingVariableCircuit() throws Exception {
