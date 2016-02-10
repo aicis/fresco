@@ -110,7 +110,7 @@ public class SpdzProtocolSuite implements ProtocolSuite {
 	public void init(ResourcePool resourcePool, ProtocolSuiteConfiguration conf) {
 		spdzConf = (SpdzConfiguration) conf;
 		this.network = resourcePool.getNetwork();
-		int noOfThreads = resourcePool.getThreadPool().getThreadCount();
+		int noOfThreads = resourcePool.getVMThreadCount();
 		this.store = new SpdzStorage[noOfThreads];
 		for (int i = 0; i < noOfThreads; i++) {
 			if (spdzConf.useDummyData()) {
