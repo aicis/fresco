@@ -52,7 +52,7 @@ public class Matrix<T> {
 		this.matrix = matrix;
 	}
 	
-	public T[][] getDoubleArray() {
+	public T[][] toArray() {
 		return matrix;
 	}
 	
