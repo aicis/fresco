@@ -123,9 +123,9 @@ public class LPSolverTests {
 												prefix.getTableau().getB(),
 												prefix.getPivot(), sout);
 								ProtocolProducer open = bnFactory
-										.getOpenCircuit(sout, out);
+										.getOpenProtocol(sout, out);
 								ProtocolProducer seq = new SequentialProtocolProducer(
-										prefix.getProducer(), 
+										prefix.getPrefix(), 
 										lpsolver,
 										outputter, 
 										open);
