@@ -30,12 +30,12 @@ import dk.alexandra.fresco.framework.network.SCENetwork;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.Value;
-import dk.alexandra.fresco.lib.math.inv.LocalInversionCircuit;
+import dk.alexandra.fresco.lib.math.integer.inv.LocalInversionProtocol;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzOInt;
 import dk.alexandra.fresco.suite.spdz.utils.Util;
 
 public class SpdzLocalInversionProtocol extends SpdzNativeProtocol implements
-		LocalInversionCircuit {
+		LocalInversionProtocol {
 
 	private SpdzOInt in, out;
 

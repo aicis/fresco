@@ -31,16 +31,16 @@ import dk.alexandra.fresco.lib.compare.MiscOIntGenerators;
 import dk.alexandra.fresco.lib.compare.RandomAdditiveMaskFactory;
 import dk.alexandra.fresco.lib.compare.RandomAdditiveMaskFactoryImpl;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
-import dk.alexandra.fresco.lib.math.HammingDistanceFactory;
-import dk.alexandra.fresco.lib.math.HammingDistanceFactoryImpl;
-import dk.alexandra.fresco.lib.math.NumericNegateBitFactory;
-import dk.alexandra.fresco.lib.math.PreprocessedNumericBitFactory;
-import dk.alexandra.fresco.lib.math.add.IncrementByOneCircuitFactory;
-import dk.alexandra.fresco.lib.math.add.IncrementByOneCircuitFactoryImpl;
-import dk.alexandra.fresco.lib.math.exp.ExpFromOIntFactory;
-import dk.alexandra.fresco.lib.math.exp.PreprocessedExpPipeFactory;
-import dk.alexandra.fresco.lib.math.linalg.InnerProductFactory;
-import dk.alexandra.fresco.lib.math.linalg.InnerProductFactoryImpl;
+import dk.alexandra.fresco.lib.math.bool.add.IncrementByOneCircuitFactory;
+import dk.alexandra.fresco.lib.math.bool.add.IncrementByOneCircuitFactoryImpl;
+import dk.alexandra.fresco.lib.math.integer.HammingDistanceFactory;
+import dk.alexandra.fresco.lib.math.integer.HammingDistanceFactoryImpl;
+import dk.alexandra.fresco.lib.math.integer.NumericNegateBitFactory;
+import dk.alexandra.fresco.lib.math.integer.PreprocessedNumericBitFactory;
+import dk.alexandra.fresco.lib.math.integer.exp.ExpFromOIntFactory;
+import dk.alexandra.fresco.lib.math.integer.exp.PreprocessedExpPipeFactory;
+import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductFactory;
+import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductFactoryImpl;
 
 public class ZeroTestProtocolFactoryImpl implements ZeroTestProtocolFactory {
 
