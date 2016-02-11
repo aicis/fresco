@@ -30,24 +30,24 @@ import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.MultCircuitFactory;
 
-public class DotProductFactoryImpl implements DotProductFactory{
+public class EntrywiseProductFactoryImpl implements EntrywiseProductFactory{
 
 	private final MultCircuitFactory mcf;
 	
-	public DotProductFactoryImpl(MultCircuitFactory mcf) {
+	public EntrywiseProductFactoryImpl(MultCircuitFactory mcf) {
 	this.mcf = mcf;
 	}
 	
 	@Override
-	public DotProductCircuit getDotProductCircuit(SInt[] as, SInt[] bs,
+	public EntrywiseProductProtocol getDotProductCircuit(SInt[] as, SInt[] bs,
 			SInt[] results) {
-		return new DotProductCircuitImpl(as, bs, results, mcf);
+		return new EntrywiseProductProtocolImpl(as, bs, results, mcf);
 	}
 
 	@Override
-	public DotProductCircuit getDotProductCircuit(SInt[] as, OInt[] bs,
+	public EntrywiseProductProtocol getDotProductCircuit(SInt[] as, OInt[] bs,
 			SInt[] results) {
-		return new DotProductCircuitImpl(as, bs, results, mcf);
+		return new EntrywiseProductProtocolImpl(as, bs, results, mcf);
 	}
 
 }

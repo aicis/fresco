@@ -36,7 +36,7 @@ import dk.alexandra.fresco.lib.helper.builder.NumericProtocolBuilder;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
 
 public class AltInnerProductProtocolImpl extends AbstractSimpleProtocol implements
-		InnerProductCircuit {
+		InnerProductProtocol {
 
 	private final SInt[] aVector;
 	private final SInt[] bVector;

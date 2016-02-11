@@ -34,8 +34,8 @@ import dk.alexandra.fresco.lib.field.integer.MultByConstantFactory;
 import dk.alexandra.fresco.lib.field.integer.MultCircuitFactory;
 import dk.alexandra.fresco.lib.helper.AbstractRepeatProtocol;
 
-public class DotProductCircuitImpl extends AbstractRepeatProtocol implements
-		DotProductCircuit {
+public class EntrywiseProductProtocolImpl extends AbstractRepeatProtocol implements
+		EntrywiseProductProtocol {
 
 	private final MultCircuitFactory provider;
 	private final MultByConstantFactory openMultProvider;
@@ -43,7 +43,7 @@ public class DotProductCircuitImpl extends AbstractRepeatProtocol implements
 	private final OInt[] publicBs;
 	private int limit, i = 0;
 
-	public DotProductCircuitImpl(SInt[] as, SInt[] bs, SInt[] results,
+	public EntrywiseProductProtocolImpl(SInt[] as, SInt[] bs, SInt[] results,
 			MultCircuitFactory provider) {
 		if (as.length != bs.length && as.length != results.length) {
 			throw new MPCException(
@@ -58,7 +58,7 @@ public class DotProductCircuitImpl extends AbstractRepeatProtocol implements
 		this.limit = as.length;
 	}
 
-	public DotProductCircuitImpl(SInt[] as, OInt[] bs, SInt[] results,
+	public EntrywiseProductProtocolImpl(SInt[] as, OInt[] bs, SInt[] results,
 			MultByConstantFactory openMultProvider) {
 		if (as.length != bs.length && as.length != results.length) {
 			throw new MPCException(

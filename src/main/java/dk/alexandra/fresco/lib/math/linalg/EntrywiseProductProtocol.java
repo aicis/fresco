@@ -26,26 +26,13 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.math.linalg;
 
-import dk.alexandra.fresco.framework.value.OInt;
-import dk.alexandra.fresco.framework.value.SInt;
+import dk.alexandra.fresco.framework.Protocol;
 
-public interface DotProductFactory {
+/**
+ * Will multiply each entry of the same position and return an array with the result. i.e.
+ * if a = [a1, a2, ..., an], b = [b1, b2, ..., bn], then the result c = [a1*b1, a2*b2, ...,an*bn]
+ *
+ */
+public interface EntrywiseProductProtocol extends Protocol{
 
-	/**
-	 * 
-	 * @param as input
-	 * @param bs input
-	 * @param results output - result of as \cdot bs
-	 * @return
-	 */
-	public DotProductCircuit getDotProductCircuit(SInt[] as, SInt[] bs, SInt[] results);
-	
-	/**
-	 * 
-	 * @param as input
-	 * @param bs input
-	 * @param local results output - result of as \cdot bs
-	 * @return
-	 */
-	public DotProductCircuit getDotProductCircuit(SInt[] as, OInt[] bs, SInt[] results);
 }

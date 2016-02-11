@@ -33,23 +33,23 @@ import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 public class InnerProductFactoryImpl implements InnerProductFactory{
 
 	private final BasicNumericFactory bnf;
-	private final DotProductFactory dotProductFactory;
+	private final EntrywiseProductFactory dotProductFactory;
 	
 	public InnerProductFactoryImpl(BasicNumericFactory bnf) {
 		this.bnf = bnf;
-		dotProductFactory = new DotProductFactoryImpl(bnf);
+		dotProductFactory = new EntrywiseProductFactoryImpl(bnf);
 	}
 	
 	@Override
-	public InnerProductCircuit getInnerProductCircuit(SInt[] aVector,
+	public InnerProductProtocol getInnerProductCircuit(SInt[] aVector,
 			SInt[] bVector, SInt result) {
-		return new InnerProductCircuitImpl(aVector, bVector, result, bnf, dotProductFactory);
+		return new InnerProductProtocolImpl(aVector, bVector, result, bnf, dotProductFactory);
 	}
 
 	@Override
-	public InnerProductCircuit getInnerProductCircuit(SInt[] aVector,
+	public InnerProductProtocol getInnerProductCircuit(SInt[] aVector,
 			OInt[] bVector, SInt result) {
-		return new InnerProductCircuitImpl(aVector, bVector, result, bnf, dotProductFactory);
+		return new InnerProductProtocolImpl(aVector, bVector, result, bnf, dotProductFactory);
 	}
 
 }

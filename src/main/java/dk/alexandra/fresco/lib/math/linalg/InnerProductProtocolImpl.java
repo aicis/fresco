@@ -36,11 +36,11 @@ import dk.alexandra.fresco.lib.helper.CopyProtocolImpl;
 import dk.alexandra.fresco.lib.helper.builder.NumericProtocolBuilder;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
 
-public class InnerProductCircuitImpl extends AbstractRoundBasedProtocol
-		implements InnerProductCircuit {
+public class InnerProductProtocolImpl extends AbstractRoundBasedProtocol
+		implements InnerProductProtocol {
 
 	private final BasicNumericFactory bnProvider;
-	private final DotProductFactory dotProdProvider;
+	private final EntrywiseProductFactory dotProdProvider;
 	private final SInt[] aVector, bVector;
 	private final SInt result;
 	private final OInt[] publicBVector;
@@ -48,8 +48,8 @@ public class InnerProductCircuitImpl extends AbstractRoundBasedProtocol
 	private int round = 0;
 	private SInt[] results;
 
-	public InnerProductCircuitImpl(SInt[] aVector, SInt[] bVector, SInt result,
-			BasicNumericFactory bnProvider, DotProductFactory dotProdProvider) {
+	public InnerProductProtocolImpl(SInt[] aVector, SInt[] bVector, SInt result,
+			BasicNumericFactory bnProvider, EntrywiseProductFactory dotProdProvider) {
 		if (aVector.length != bVector.length) {
 			throw new MPCException("Lengths of input arrays do not match");
 		}
@@ -61,8 +61,8 @@ public class InnerProductCircuitImpl extends AbstractRoundBasedProtocol
 		this.dotProdProvider = dotProdProvider;
 	}
 
-	public InnerProductCircuitImpl(SInt[] aVector, OInt[] bVector, SInt result,
-			BasicNumericFactory bnProvider, DotProductFactory dotProdProvider) {
+	public InnerProductProtocolImpl(SInt[] aVector, OInt[] bVector, SInt result,
+			BasicNumericFactory bnProvider, EntrywiseProductFactory dotProdProvider) {
 		if (aVector.length != bVector.length) {
 			throw new MPCException("Lengths of input arrays do not match");
 		}
