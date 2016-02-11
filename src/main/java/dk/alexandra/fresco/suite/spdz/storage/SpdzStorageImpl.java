@@ -31,7 +31,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
-import dk.alexandra.fresco.framework.sce.resources.storage.Storage;
 import dk.alexandra.fresco.framework.sce.resources.storage.StreamedStorage;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
 
@@ -60,22 +59,21 @@ public class SpdzStorageImpl implements SpdzStorage {
 	 */
 	public SpdzStorageImpl(ResourcePool rp, int storageId) {
 		this.storage = rp.getStreamedStorage();
-		int noOfThreadsUsed = rp.getThreadPool().getThreadCount();
+		int noOfThreadsUsed = rp.getVMThreadCount();
 		int noOfParties = rp.getNoOfParties();
 		int myId = rp.getMyId();
 
-		String storageName = SpdzStorageConstants.STORAGE_NAME_PREFIX + myId;
+		String storageName = SpdzStorageConstants.STORAGE_NAME_PREFIX + noOfThreadsUsed + "_" + myId + "_" + storageId+"_";
 
 		opened_values = new LinkedList<BigInteger>();
 		closed_values = new LinkedList<SpdzElement>();
 
-		this.supplier = new DataSupplierImpl(storage, storageName,
-				storageId, noOfThreadsUsed, noOfParties);
+		this.supplier = new DataSupplierImpl(storage, storageName, noOfParties);
 	}
 
 	@Override
 	public void shutdown() {
-		
+
 	}
 
 	@Override

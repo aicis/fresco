@@ -205,7 +205,7 @@ public class TestSpdzBasicArithmetic3Parties {
 	}
 	
 	@Test
-	@Ignore
+	//@Ignore
 	public void test_Lots_Of_Mults_Sequential_Batched() throws Exception {
 		runTest(new BasicArithmeticTests.TestLotsMult(),
 				EvaluationStrategy.SEQUENTIAL_BATCHED,

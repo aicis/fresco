@@ -90,10 +90,8 @@ public class BatchedSequentialEvaluator implements ProtocolEvaluator {
 		do {
 			NativeProtocol[] nextProtocols = new NativeProtocol[maxBatchSize];
 			int numOfProtocolsInBatch = c.getNextProtocols(nextProtocols, 0);
-			System.out.println("Starting batch of size " + numOfProtocolsInBatch);
 			BatchedStrategy.processBatch(nextProtocols, numOfProtocolsInBatch, sceNetworks, DEFAULT_CHANNEL,
 					resourcePool);
-			System.out.println("Ended batch of size " + numOfProtocolsInBatch);
 			this.protocolSuite.synchronize(numOfProtocolsInBatch);
 		} while (c.hasNextProtocols());
 

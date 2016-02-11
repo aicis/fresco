@@ -135,9 +135,9 @@ public class InitializeStorage {
 		List<Storage> tmpStores = new ArrayList<Storage>();
 		for (StreamedStorage s : streamedStorages) {
 			try {
-				//Try get the last thread file. If that fails
+				//Try get the last thread file. If that fails, we need to generate the files
 				if (s.getNext(
-						SpdzStorageConstants.STORAGE_NAME_PREFIX + 1 +"_"+noOfThreads+ SpdzStorageConstants.MODULUS_KEY) == null) {
+						SpdzStorageConstants.STORAGE_NAME_PREFIX + noOfThreads+ "_"+1+"_"+0+"_"+SpdzStorageConstants.MODULUS_KEY) == null) {
 					tmpStores.add(s);
 				}
 			} catch (Exception e) {
@@ -172,8 +172,8 @@ public class InitializeStorage {
 
 		for (StreamedStorage store : storages) {
 			for (int i = 1; i < noOfPlayers + 1; i++) {
-				for (int threadId = 1; threadId < noOfThreads + 1; threadId++) {
-					String storageName = SpdzStorageConstants.STORAGE_NAME_PREFIX + i + "_" + threadId;
+				for (int threadId = 0; threadId < noOfThreads; threadId++) {
+					String storageName = SpdzStorageConstants.STORAGE_NAME_PREFIX + noOfThreads+"_"+ i + "_" + threadId+"_";
 					store.putNext(storageName + SpdzStorageConstants.MODULUS_KEY, p);
 					store.putNext(storageName + SpdzStorageConstants.SSK_KEY, alphaShares.get(i - 1));
 				}
@@ -181,8 +181,8 @@ public class InitializeStorage {
 			// triples
 			for (SpdzTriple[] triple : triples) {
 				for (int i = 0; i < noOfPlayers; i++) {
-					for (int threadId = 1; threadId < noOfThreads + 1; threadId++) {
-						String storageName = SpdzStorageConstants.STORAGE_NAME_PREFIX + (i + 1) + "_" + threadId;
+					for (int threadId = 0; threadId < noOfThreads; threadId++) {
+						String storageName = SpdzStorageConstants.STORAGE_NAME_PREFIX + noOfThreads+"_"+ (i + 1) + "_" + threadId+"_";
 						store.putNext(storageName + SpdzStorageConstants.TRIPLE_STORAGE, triple[i]);
 					}
 				}
@@ -194,8 +194,8 @@ public class InitializeStorage {
 				for (SpdzInputMask[] masks : inputMasks.get(towardsPlayer - 1)) {
 					// single shares of that input
 					for (int i = 0; i < noOfPlayers; i++) {
-						for (int threadId = 1; threadId < noOfThreads + 1; threadId++) {
-							String storageName = SpdzStorageConstants.STORAGE_NAME_PREFIX + (i + 1) + "_" + threadId;
+						for (int threadId = 0; threadId < noOfThreads; threadId++) {
+							String storageName = SpdzStorageConstants.STORAGE_NAME_PREFIX + noOfThreads+"_"+ (i + 1) + "_" + threadId+"_";
 							store.putNext(storageName + SpdzStorageConstants.INPUT_STORAGE + towardsPlayer, masks[i]);
 						}
 					}
@@ -205,8 +205,8 @@ public class InitializeStorage {
 			// bits
 			for (SpdzSInt[] bit : bits) {
 				for (int i = 0; i < noOfPlayers; i++) {
-					for (int threadId = 1; threadId < noOfThreads + 1; threadId++) {
-						String storageName = SpdzStorageConstants.STORAGE_NAME_PREFIX + (i + 1) + "_" + threadId;
+					for (int threadId = 0; threadId < noOfThreads; threadId++) {
+						String storageName = SpdzStorageConstants.STORAGE_NAME_PREFIX + noOfThreads+"_"+ (i + 1) + "_" + threadId+"_";
 						store.putNext(storageName + SpdzStorageConstants.BIT_STORAGE, bit[i]);
 					}
 				}
@@ -215,8 +215,8 @@ public class InitializeStorage {
 			// exp pipes
 			for (SpdzSInt[][] expPipe : expPipes) {
 				for (int i = 0; i < noOfPlayers; i++) {
-					for (int threadId = 1; threadId < noOfThreads + 1; threadId++) {
-						String storageName = SpdzStorageConstants.STORAGE_NAME_PREFIX + (i + 1) + "_" + threadId;
+					for (int threadId = 0; threadId < noOfThreads; threadId++) {
+						String storageName = SpdzStorageConstants.STORAGE_NAME_PREFIX + noOfThreads+"_"+ (i + 1) + "_" + threadId+"_";
 						store.putNext(storageName + SpdzStorageConstants.EXP_PIPE_STORAGE, expPipe[i]);
 					}
 				}
