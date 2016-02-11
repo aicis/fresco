@@ -26,8 +26,32 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.math.linalg;
 
-import dk.alexandra.fresco.framework.Protocol;
+import dk.alexandra.fresco.framework.value.OInt;
+import dk.alexandra.fresco.framework.value.SInt;
 
-public interface DotProductCircuit extends Protocol{
+public interface EntrywiseProductFactory {
 
+	/**
+	 * 
+	 * @param as
+	 *            input
+	 * @param bs
+	 *            input
+	 * @param results
+	 *            output - result of as \cdot bs
+	 * @return
+	 */
+	public EntrywiseProductProtocol getDotProductCircuit(SInt[] as, SInt[] bs, SInt[] results);
+
+	/**
+	 * 
+	 * @param as
+	 *            input
+	 * @param bs
+	 *            input
+	 * @param results
+	 *            output - result of as \cdot bs
+	 * @return
+	 */
+	public EntrywiseProductProtocol getDotProductCircuit(SInt[] as, OInt[] bs, SInt[] results);
 }

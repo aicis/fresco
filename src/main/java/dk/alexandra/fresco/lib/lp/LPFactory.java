@@ -33,12 +33,12 @@ import dk.alexandra.fresco.lib.compare.eq.EqualityProtocol;
 import dk.alexandra.fresco.lib.debug.MarkerFactory;
 import dk.alexandra.fresco.lib.helper.CopyProtocolFactory;
 import dk.alexandra.fresco.lib.math.inv.InversionCircuitFactory;
-import dk.alexandra.fresco.lib.math.linalg.DotProductFactory;
-import dk.alexandra.fresco.lib.math.linalg.InnerProductCircuit;
+import dk.alexandra.fresco.lib.math.linalg.EntrywiseProductFactory;
+import dk.alexandra.fresco.lib.math.linalg.InnerProductProtocol;
 import dk.alexandra.fresco.lib.math.min.MinimumCircuit;
 import dk.alexandra.fresco.lib.math.min.MinimumFractionCircuit;
 
-public interface LPFactory extends InversionCircuitFactory, MarkerFactory, CopyProtocolFactory<SInt>, DotProductFactory {
+public interface LPFactory extends InversionCircuitFactory, MarkerFactory, CopyProtocolFactory<SInt>, EntrywiseProductFactory {
 	
 	/**
 	 * 
@@ -138,7 +138,7 @@ public interface LPFactory extends InversionCircuitFactory, MarkerFactory, CopyP
 	 * @param result output - the inner product of the two input input vectors
 	 * @return a circuit computing the inner product of two vectors
 	 */
-	public InnerProductCircuit getInnerProductCircuit(SInt[] aVector, SInt[] bVector, SInt result);
+	public InnerProductProtocol getInnerProductCircuit(SInt[] aVector, SInt[] bVector, SInt result);
 	
 	/**
 	 * Computes the optimal value after the last simplex iteration

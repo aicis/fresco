@@ -31,7 +31,29 @@ import dk.alexandra.fresco.framework.value.SInt;
 
 public interface InnerProductFactory {
 
-	public InnerProductCircuit getInnerProductCircuit(SInt[] vector1, SInt[] vector2, SInt result);
-	
-	public InnerProductCircuit getInnerProductCircuit(SInt[] vector1, OInt[] vector2, SInt result);
+	/**
+	 * Copmutes the inner product of the two vectors, i.e. if a = [a1, a2, ...,
+	 * an], b = [b1, b2, ..., bn], then the result c = a1*b1+a2*b2+...+an*bn
+	 * 
+	 * @param vector1
+	 * @param vector2
+	 * @param result
+	 *            the result of computing the inner product of vector1 and
+	 *            vector2
+	 * @return
+	 */
+	public InnerProductProtocol getInnerProductCircuit(SInt[] vector1, SInt[] vector2, SInt result);
+
+	/**
+	 * Copmutes the inner product of the two vectors, i.e. if a = [a1, a2, ...,
+	 * an], b = [b1, b2, ..., bn], then the result c = a1*b1+a2*b2+...+an*bn
+	 * 
+	 * @param vector1
+	 * @param vector2
+	 * @param result
+	 *            the result of computing the inner product of vector1 and
+	 *            vector2
+	 * @return
+	 */
+	public InnerProductProtocol getInnerProductCircuit(SInt[] vector1, OInt[] vector2, SInt result);
 }

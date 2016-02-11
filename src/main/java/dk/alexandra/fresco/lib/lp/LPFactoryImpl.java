@@ -52,9 +52,9 @@ import dk.alexandra.fresco.lib.math.exp.PreprocessedExpPipeFactory;
 import dk.alexandra.fresco.lib.math.inv.InversionCircuitImpl;
 import dk.alexandra.fresco.lib.math.inv.InversionProtocol;
 import dk.alexandra.fresco.lib.math.inv.LocalInversionFactory;
-import dk.alexandra.fresco.lib.math.linalg.DotProductCircuit;
-import dk.alexandra.fresco.lib.math.linalg.DotProductCircuitImpl;
-import dk.alexandra.fresco.lib.math.linalg.InnerProductCircuit;
+import dk.alexandra.fresco.lib.math.linalg.EntrywiseProductProtocol;
+import dk.alexandra.fresco.lib.math.linalg.EntrywiseProductProtocolImpl;
+import dk.alexandra.fresco.lib.math.linalg.InnerProductProtocol;
 import dk.alexandra.fresco.lib.math.linalg.InnerProductFactory;
 import dk.alexandra.fresco.lib.math.linalg.InnerProductFactoryImpl;
 import dk.alexandra.fresco.lib.math.min.MinimumCircuit;
@@ -106,15 +106,15 @@ public class LPFactoryImpl implements LPFactory {
 	}
 
 	@Override
-	public DotProductCircuit getDotProductCircuit(SInt[] as, SInt[] bs,
+	public EntrywiseProductProtocol getDotProductCircuit(SInt[] as, SInt[] bs,
 			SInt[] results) {
-		return new DotProductCircuitImpl(as, bs, results, bnf);
+		return new EntrywiseProductProtocolImpl(as, bs, results, bnf);
 	}
 
 	@Override
-	public DotProductCircuit getDotProductCircuit(SInt[] as, OInt[] bs,
+	public EntrywiseProductProtocol getDotProductCircuit(SInt[] as, OInt[] bs,
 			SInt[] results) {
-		return new DotProductCircuitImpl(as, bs, results, bnf);
+		return new EntrywiseProductProtocolImpl(as, bs, results, bnf);
 	}
 
 	@Override
@@ -179,7 +179,7 @@ public class LPFactoryImpl implements LPFactory {
 	}
 
 	@Override
-	public InnerProductCircuit getInnerProductCircuit(SInt[] aVector,
+	public InnerProductProtocol getInnerProductCircuit(SInt[] aVector,
 			SInt[] bVector, SInt result) {
 		return this.innerProductFactory.getInnerProductCircuit(aVector,
 				bVector, result);
