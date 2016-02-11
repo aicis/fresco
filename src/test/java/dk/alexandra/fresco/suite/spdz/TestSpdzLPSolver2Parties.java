@@ -137,16 +137,6 @@ public class TestSpdzLPSolver2Parties {
 	public void test_LPSolver_2_Sequential_dummy() throws Exception {
 		runTest(new LPSolverTests.TestLPSolver(), 2, 1,
 				EvaluationStrategy.SEQUENTIAL, StorageStrategy.IN_MEMORY, true);
-		
-		runTest(new LPSolverTests.TestLPSolver(), 2, 1,
-				EvaluationStrategy.SEQUENTIAL, StorageStrategy.IN_MEMORY, true);
-		
-		long then = System.currentTimeMillis();
-		runTest(new LPSolverTests.TestLPSolver(), 2, 1,
-				EvaluationStrategy.SEQUENTIAL, StorageStrategy.IN_MEMORY, true);
-		long now = System.currentTimeMillis();
-		long diff = now-then;
-		System.out.println("Took " + diff+" ms");
 	}
 	
 	@Test
