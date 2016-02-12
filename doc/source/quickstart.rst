@@ -189,7 +189,7 @@ Bob's 128-bit plaintext :math:`p` is
 
 .. parsed-literal::
 
-    $ java -cp tmp:target/fresco-|release|-SNAPSHOT-jar-with-dependencies.jar AESDemo -i1 -sdummy -p1:localhost:9001 -p2:localhost:9002 000102030405060708090a0b0c0d0e0f
+    $ java -cp tmp:target/fresco-|release|-SNAPSHOT-jar-with-dependencies.jar AESDemo -i2 -sdummy -p1:localhost:9001 -p2:localhost:9002 000102030405060708090a0b0c0d0e0f
 
 This will start Bob at port 9002 and cause the secure computation to
 execute, resulting in the following output in both terminals: ::
