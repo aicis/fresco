@@ -33,6 +33,7 @@ import java.util.Map;
 import java.util.logging.Level;
 
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
@@ -47,6 +48,7 @@ import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
 import dk.alexandra.fresco.framework.sce.resources.storage.StorageStrategy;
 import dk.alexandra.fresco.lib.arithmetic.ComparisonTests;
+import dk.alexandra.fresco.lib.arithmetic.SortingTests;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.configuration.SpdzConfiguration;
 import dk.alexandra.fresco.suite.spdz.configuration.SpdzConfigurationFromProperties;
@@ -134,5 +136,28 @@ public class TestSpdzComparison {
 	public void test_compareEQ_Sequential() throws Exception {
 		runTest(new ComparisonTests.TestCompareEQ(),
 				EvaluationStrategy.SEQUENTIAL, StorageStrategy.IN_MEMORY);
+	}
+	
+	@Test
+	public void test_isSorted() throws Exception {
+		runTest(new SortingTests.TestIsSorted(),
+				EvaluationStrategy.SEQUENTIAL,StorageStrategy.IN_MEMORY);
+	}
+	
+	@Test
+	public void test_compareAndSwap() throws Exception {
+		runTest(new SortingTests.TestCompareAndSwap(),
+				EvaluationStrategy.SEQUENTIAL,StorageStrategy.IN_MEMORY);
+	}
+	@Test
+	public void test_Sort() throws Exception {
+		runTest(new SortingTests.TestSort(),
+				EvaluationStrategy.SEQUENTIAL,StorageStrategy.IN_MEMORY);
+	}
+	@Test
+	@Ignore
+	public void test_Big_Sort() throws Exception {
+		runTest(new SortingTests.TestBigSort(),
+				EvaluationStrategy.SEQUENTIAL,StorageStrategy.IN_MEMORY);
 	}
 }
