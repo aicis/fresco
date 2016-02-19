@@ -2,7 +2,6 @@ package dk.alexandra.fresco.lib.compare;
 
 import java.math.BigInteger;
 
-import dk.alexandra.fresco.framework.Reporter;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
@@ -45,7 +44,7 @@ public class SortingProtocolBuilder extends ComparisonProtocolBuilder {
 		return result;
 	}
 
-	final OInt minusOne = getBnf().getOInt(BigInteger.valueOf(-1l));
+	final OInt minusOne = getBnf().getOInt(BigInteger.valueOf(-1L));
 	
 	public void compareAndSwap(int a,int b, SInt[] values){
 		 //Non splitting version
