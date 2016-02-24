@@ -38,7 +38,7 @@ import dk.alexandra.fresco.lib.field.integer.MultProtocol;
 import dk.alexandra.fresco.lib.field.integer.SubtractCircuit;
 import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
-import dk.alexandra.fresco.lib.math.inv.InversionProtocol;
+import dk.alexandra.fresco.lib.math.integer.inv.InversionProtocol;
 
 public class UpdateMatrixCircuit implements Protocol{
 

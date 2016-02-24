@@ -34,7 +34,7 @@ import dk.alexandra.fresco.lib.helper.AbstractRoundBasedProtocol;
 import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
 import dk.alexandra.fresco.lib.helper.builder.NumericProtocolBuilder;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
-import dk.alexandra.fresco.lib.math.linalg.EntrywiseProductProtocol;
+import dk.alexandra.fresco.lib.math.integer.linalg.EntrywiseProductProtocol;
 
 public class EnteringVariableCircuit extends AbstractRoundBasedProtocol {
 

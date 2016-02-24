@@ -45,9 +45,9 @@ import dk.alexandra.fresco.lib.field.integer.OpenIntProtocol;
 import dk.alexandra.fresco.lib.field.integer.SubtractCircuitFactory;
 import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
-import dk.alexandra.fresco.lib.math.NumericNegateBitFactory;
-import dk.alexandra.fresco.lib.math.inv.LocalInversionFactory;
-import dk.alexandra.fresco.lib.math.linalg.InnerProductFactory;
+import dk.alexandra.fresco.lib.math.integer.NumericNegateBitFactory;
+import dk.alexandra.fresco.lib.math.integer.inv.LocalInversionFactory;
+import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductFactory;
 
 public class GreaterThanReducerCircuitImpl implements GreaterThanCircuit {
 
