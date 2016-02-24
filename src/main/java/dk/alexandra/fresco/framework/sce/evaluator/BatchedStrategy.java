@@ -113,6 +113,7 @@ public class BatchedStrategy {
 					}
 				}
 			}
+		
 			// send phase
 			for (int i = 0; i < numOfProtocols; i++) {
 				SCENetworkImpl sceNetwork = sceNetworks[i];
@@ -129,7 +130,7 @@ public class BatchedStrategy {
 					}
 				}
 			}
-
+			
 			// receive phase
 			for (int i = 0; i < numOfProtocols; i++) {
 				SCENetworkImpl sceNetwork = sceNetworks[i];

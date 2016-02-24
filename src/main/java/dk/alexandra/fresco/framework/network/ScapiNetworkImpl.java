@@ -282,7 +282,7 @@ public class ScapiNetworkImpl implements Network {
 		PartyData receiver = idToPartyData.get(partyId);
 		Map<String,Channel> channels = connections.get(receiver);
 		Channel c = channels.get(channel);
-		c.send(data);
+		c.send(data);		
 	}
 
 	@SuppressWarnings("unchecked")

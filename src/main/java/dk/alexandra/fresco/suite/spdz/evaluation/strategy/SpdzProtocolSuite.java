@@ -36,7 +36,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Random;
-import java.util.concurrent.Callable;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import dk.alexandra.fresco.framework.MPCException;
@@ -52,9 +51,7 @@ import dk.alexandra.fresco.suite.spdz.datatypes.SpdzCommitment;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzCommitProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzOpenCommitProtocol;
-import dk.alexandra.fresco.suite.spdz.storage.DataRetrieverImpl;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
-import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageConstants;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageDummyImpl;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageImpl;
 import dk.alexandra.fresco.suite.spdz.utils.Util;
@@ -116,7 +113,7 @@ public class SpdzProtocolSuite implements ProtocolSuite {
 			if (spdzConf.useDummyData()) {
 				store[i] = new SpdzStorageDummyImpl(resourcePool.getMyId(), resourcePool.getNoOfParties());
 			} else {
-				store[i] = new SpdzStorageImpl(resourcePool, i+1);
+				store[i] = new SpdzStorageImpl(resourcePool, i);
 			}
 		}
 		this.rand = resourcePool.getSecureRandom();
@@ -132,33 +129,10 @@ public class SpdzProtocolSuite implements ProtocolSuite {
 					+ "computation if your chosen SCPS does not depend on a hash function.");
 		}
 
-		// If no data is yet in the native storage, we need to put data there.
-		// This assumes the old SPDZ variant where preprocessed data is computed
-		// using the Bristol code. There is no reason to take this step, as fake
-		// data generated is just as good.
 		try {
 			this.store[0].getSSK();
 		} catch (MPCException e) {
-			// FIXME: This only retrieves data for a single thread. Needs to be
-			// done for each thread.
-			// FIXME: OR - remove this, and require that data is stored
-			// beforehand. It really should not be something this class should
-			// deal with.
-			DataRetrieverImpl retriever = new DataRetrieverImpl(resourcePool, spdzConf.getTriplePath(),
-					SpdzStorageConstants.STORAGE_NAME_PREFIX + rp.getMyId());
-			Callable<Boolean> fetchThread = new Callable<Boolean>() {
-
-				@Override
-				public Boolean call() throws Exception {
-					try {
-						retriever.fetchAll();
-					} catch (Exception e) {
-						return false;
-					}
-					return true;
-				}
-			};
-			resourcePool.getThreadPool().submitTask(fetchThread);
+			throw new MPCException("No preprocessed data found for SPDZ - aborting.", e);
 		}
 
 		// Initialize various fields global to the computation.
