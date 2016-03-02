@@ -8,7 +8,6 @@ import org.junit.Assert;
 
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.ProtocolProducer;
-import dk.alexandra.fresco.framework.Reporter;
 import dk.alexandra.fresco.framework.TestApplication;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
@@ -173,9 +172,7 @@ public class SortingTests {
 
 						private BigInteger zero = BigInteger.valueOf(0);
 						private BigInteger one = BigInteger.valueOf(1);
-						private BigInteger two = BigInteger.valueOf(2);
 						private BigInteger three = BigInteger.valueOf(3);
-						private BigInteger four = BigInteger.valueOf(4);
 						private BigInteger five = BigInteger.valueOf(5);
 											
 						@Override

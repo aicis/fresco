@@ -1,6 +1,10 @@
 package dk.alexandra.fresco.lib.compare;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
@@ -148,4 +152,48 @@ public class SortingProtocolBuilder extends ComparisonProtocolBuilder {
 		while (p > 0);
 	}
 	
+	
+	public List<Map<Integer,Integer>> createsortSequence(int size){
+		//find sort sequence for 'size' elements (0..size-1). 
+		//The entries in each map can be compared and swapped in parallel.
+		//The List must be evaluated sequentially.
+
+		List<Map<Integer,Integer>> sortSequence= new ArrayList<Map<Integer,Integer>>();
+				
+		int t = FloorLog2(size);
+		int p0 = (1 << t);
+		int p = p0;
+	
+		do
+		{
+			int q = p0;
+			int r = 0;
+			int d = p;
+		
+			while (r == 0 || q != p)
+			{
+				Map<Integer,Integer> batch=new HashMap<Integer,Integer>();
+
+				if (r != 0)
+				{
+					d = q - p;
+					q >>= 1;
+				}
+
+				for (int i = 0; i < size-d; i++)
+				{
+
+					if ((i & p) == r) 
+						batch.put(i, i+d);	
+				}
+				r = p;
+				sortSequence.add(batch);
+			}
+			p >>= 1;
+					
+		}	
+		while (p > 0);
+		
+		return sortSequence;
+	}
 }
