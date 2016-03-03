@@ -34,6 +34,7 @@ import dk.alexandra.fresco.framework.sce.configuration.ProtocolSuiteConfiguratio
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.suite.bgw.BgwProtocolSuite;
 import dk.alexandra.fresco.suite.dummy.DummyProtocolSuite;
+import dk.alexandra.fresco.suite.ninja.NinjaProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.evaluation.strategy.SpdzProtocolSuite;
 
 public interface ProtocolSuite {
@@ -86,6 +87,7 @@ public interface ProtocolSuite {
 	public static Set<String> getSupportedProtocolSuites() {
 		Set<String> res = new HashSet<String>();
 		res.add("dummy");
+		res.add("ninja");
 		res.add("bgw");
 		res.add("spdz");
 		return res;
@@ -96,6 +98,8 @@ public interface ProtocolSuite {
 			return "bgw";
 		} else if(suite instanceof SpdzProtocolSuite) {
 			return "spdz";
+		} else if(suite instanceof NinjaProtocolSuite) {
+			return "ninja";
 		} else if(suite instanceof DummyProtocolSuite) {
 			return "dummy";
 		} else {

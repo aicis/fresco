@@ -45,9 +45,10 @@ import dk.alexandra.fresco.framework.sce.SCEFactory;
 import dk.alexandra.fresco.framework.value.OBool;
 import dk.alexandra.fresco.framework.value.SBool;
 import dk.alexandra.fresco.lib.crypto.BristolCryptoFactory;
+import dk.alexandra.fresco.lib.debug.BinaryOpenAndPrint;
 import dk.alexandra.fresco.lib.field.bool.BasicLogicFactory;
-import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
 import dk.alexandra.fresco.lib.helper.bristol.BristolCircuit;
+import dk.alexandra.fresco.lib.helper.builder.LogicBuilder;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
 
 
@@ -130,17 +131,23 @@ public class BristolMultTests {
 						public ProtocolProducer prepareApplication(ProtocolFactory fac) {
 							BasicLogicFactory bool = (BasicLogicFactory)fac;
 
+							LogicBuilder builder = new LogicBuilder(bool);							
+							
 							boolean[] in1_val = toBoolean(inv1);
-							in1 = bool.getKnownConstantSBools(in1_val);
+							in1 = builder.input(1, in1_val);							
 							boolean[] in2_val = toBoolean(inv2);
-							in2 = bool.getKnownConstantSBools(in2_val);
+							in2 = builder.input(1, in2_val);							
+							
 							out = bool.getSBools(64);
 
 							// Create mult circuit.
 							BristolCryptoFactory multFac = new BristolCryptoFactory(bool);
 							BristolCircuit mult = multFac.getMult32x32Circuit(in1, in2, out);
+							builder.addGateProducer(mult);
+							openedOut = builder.output(out);
 							
 							// Create circuits for opening result of 32x32 bit mult.
+							/*
 							ProtocolProducer[] opens = new ProtocolProducer[out.length];
 							openedOut = new OBool[out.length];
 							for (int i=0; i<out.length; i++) {
@@ -148,8 +155,8 @@ public class BristolMultTests {
 								opens[i] = bool.getOpenProtocol(out[i], openedOut[i]);
 							}
 							ProtocolProducer open_all = new ParallelProtocolProducer(opens);
-							
-							return new SequentialProtocolProducer(mult, open_all);
+							*/
+							return new SequentialProtocolProducer(builder.getCircuit());
 						}
 					};
 

@@ -47,6 +47,7 @@ import dk.alexandra.fresco.framework.value.SBool;
 import dk.alexandra.fresco.lib.field.bool.BasicLogicFactory;
 import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
 import dk.alexandra.fresco.lib.helper.bristol.BristolCircuit;
+import dk.alexandra.fresco.lib.helper.builder.LogicBuilder;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
 
 /**
@@ -115,8 +116,8 @@ public class BristolCryptoTests {
 				// This is just some fixed test vectors for AES in ECB mode that was
 				// found somewhere on the net, i.e., this is some known plaintexts and
 				// corresponding cipher texts that can be used for testing.
-				final String[] plainVec = new String[] { "000102030405060708090a0b0c0d0e0f"};
-				final String keyVec = "00112233445566778899aabbccddeeff";
+				final String[] keyVec = new String[] { "000102030405060708090a0b0c0d0e0f"};
+				final String plainVec = "00112233445566778899aabbccddeeff";
 				final String[] cipherVec = new String[] { "69c4e0d86a7b0430d8cdb78070b4c55a"};
 				
 				SBool[] plain, key, cipher;
@@ -131,27 +132,24 @@ public class BristolCryptoTests {
 						@Override
 						public ProtocolProducer prepareApplication(ProtocolFactory fac) {
 							BasicLogicFactory bool = (BasicLogicFactory)fac;
-
-							boolean[] key_val = toBoolean(keyVec);
-							boolean[] in_val = toBoolean(plainVec[0]);
-							plain = bool.getKnownConstantSBools(key_val);
-							key = bool.getKnownConstantSBools(in_val);
+							LogicBuilder builder = new LogicBuilder(bool);
+							
+							boolean[] key_val = toBoolean(keyVec[0]);
+							boolean[] in_val = toBoolean(plainVec);
+							
+							plain = builder.input(1, in_val);
+							key = builder.input(1, key_val);
 							cipher = bool.getSBools(128);
 
 							// Create AES circuit.
 							BristolCryptoFactory aesFac = new BristolCryptoFactory(bool);
 							BristolCircuit aes = aesFac.getAesCircuit(plain, key, cipher);
+							builder.addGateProducer(aes);
 							
-							// Create circuits for opening result of AES.
-							ProtocolProducer[] opens = new ProtocolProducer[128];
-							openedCipher = new OBool[128];
-							for (int i=0; i<128; i++) {
-								openedCipher[i] = bool.getOBool();
-								opens[i] = bool.getOpenProtocol(cipher[i], openedCipher[i]);
-							}
-							ProtocolProducer open_all = new ParallelProtocolProducer(opens);
+							// Create circuits for opening result of AES.							
+							openedCipher = builder.output(cipher);
 							
-							return new SequentialProtocolProducer(aes, open_all);
+							return new SequentialProtocolProducer(builder.getCircuit());
 						}
 					};
 
@@ -434,7 +432,7 @@ public class BristolCryptoTests {
 				String outv = "0000000000000000";
 				@Override
 				public void test() throws Exception {
-					Application md5App = new Application() {
+					Application multApp = new Application() {
 
 						private static final long serialVersionUID = 36363636L;
 
@@ -465,7 +463,7 @@ public class BristolCryptoTests {
 						}
 					};
 
-					sce.runApplication(md5App);
+					sce.runApplication(multApp);
 
 					boolean[] expected = toBoolean(outv);
 					boolean[] actual = new boolean[out.length];
