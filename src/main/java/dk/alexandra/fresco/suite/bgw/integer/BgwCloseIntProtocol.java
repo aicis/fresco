@@ -62,12 +62,12 @@ public class BgwCloseIntProtocol extends BgwProtocol implements
 				BigInteger secret = this.input.getValue();
 				ShamirShare[] shares = ShamirShare.createShares(secret,
 						resourcePool.getNoOfParties(), BgwProtocolSuite.getInstance().getThreshold());
-				network.sendSharesToAll(shares);
+				network.sendSharesToAll(this.sharesToBytes(shares));
 			}
 			network.expectInputFromPlayer(inputter);
 			return EvaluationStatus.HAS_MORE_ROUNDS;
 		case 1:
-			this.output.value = (ShamirShare) network.receive(inputter);
+			this.output.value = new ShamirShare(network.receive(inputter));
 			return EvaluationStatus.IS_DONE;
 		default:
 			throw new MPCException("Cannot evaluate rounds larger than 1.");

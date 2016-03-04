@@ -44,6 +44,7 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.TestConfiguration;
+import edu.biu.scapi.comm.FasterTCPChannel.FasterMessage;
 
 public class TestScapiNetwork {
 
@@ -125,10 +126,11 @@ public class TestScapiNetwork {
 					public void test() throws Exception {
 						network.connect(timeoutMillis);
 						if (conf.getMyId() == 1) {
-							byte[] received = (byte[])network.receive(2);
+							byte[] received = ((FasterMessage)network.receive(2)).getData();
 							assertTrue(Arrays.equals(data, received ));
 						} else if (conf.getMyId() == 2) {
-							network.send(1, data);
+							FasterMessage message = new FasterMessage(data);
+							network.send(1, message);
 						}
 						network.close();
 					}

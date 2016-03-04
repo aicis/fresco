@@ -70,6 +70,22 @@ public class Util {
 		Util.p = p;
 		Util.p_half = p.divide(BigInteger.valueOf(2));
 	}
+	
+	public static byte[] convertBigIntToBytes(BigInteger b) {
+		byte[] res = new byte[size];
+		copyAndInvertArray(res, b.toByteArray());
+		return res;
+    }
+	
+	private static void copyAndInvertArray(byte[] bytes, byte[] byteArray) {
+		int length = size;
+		if(byteArray.length < length) {
+			length = byteArray.length;
+		}
+        for (int inx = 0; inx < length; inx++) {       
+            bytes[bytes.length - length + inx] = byteArray[inx];            
+        }
+    }
 
 	private MessageDigest H;
 	

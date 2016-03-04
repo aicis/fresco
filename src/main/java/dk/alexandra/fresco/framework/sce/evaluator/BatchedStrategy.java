@@ -28,6 +28,7 @@ package dk.alexandra.fresco.framework.sce.evaluator;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -117,16 +118,21 @@ public class BatchedStrategy {
 			// send phase
 			for (int i = 0; i < numOfProtocols; i++) {
 				SCENetworkImpl sceNetwork = sceNetworks[i];
-				Map<Integer, Queue<Serializable>> output = sceNetwork.getOutputFromThisRound();
+				Map<Integer, Queue<byte[]>> output = sceNetwork.getOutputFromThisRound();
 				// send to everyone no matter what
 				for (int pId : partyIds) {
-					Queue<Serializable> outputsTowardPid = output.get(pId);
+					Queue<byte[]> outputsTowardPid = output.get(pId);
 					if (outputsTowardPid != null) {
-						// TODO: Maybe send array instead. Might be faster
-						network.send(channel, pId, outputsTowardPid.size());
-						for (Serializable s : outputsTowardPid) {
-							network.send(channel, pId, s);
+						int totalSize = 0;
+						for (byte[] s : outputsTowardPid) {
+							totalSize += s.length;
 						}
+						ByteBuffer buffer = ByteBuffer.allocate(totalSize+2*outputsTowardPid.size());
+						for (byte[] s : outputsTowardPid) {
+							buffer.putShort((short)(s.length));
+							buffer.put(s);
+						}
+						network.send(channel, pId, buffer.array());							
 					}
 				}
 			}
@@ -134,18 +140,21 @@ public class BatchedStrategy {
 			// receive phase
 			for (int i = 0; i < numOfProtocols; i++) {
 				SCENetworkImpl sceNetwork = sceNetworks[i];
-				Set<Integer> expectInputFrom = sceNetwork.getExpectedInputForNextRound();
-				Map<Integer, Queue<Serializable>> inputForThisRound = new HashMap<Integer, Queue<Serializable>>();
+				Map<Integer, Integer> expectInputFrom = sceNetwork.getExpectedInputForNextRound();
+				Map<Integer, Queue<byte[]>> inputForThisRound = new HashMap<Integer, Queue<byte[]>>();
 				for (int pId : partyIds) {
 					// Only receive if we expect something.
-					if (expectInputFrom.contains(pId)) {
-						Queue<Serializable> messages = new LinkedBlockingQueue<Serializable>();
-						int numberOfMessages = network.receive(channel, pId);
-						for (int inx = 0; inx < numberOfMessages; inx++) {
-							Serializable m = network.receive(channel, pId);
-							messages.offer(m);
-						}
-						inputForThisRound.put(pId, messages);
+					if (expectInputFrom.get(pId) != null && expectInputFrom.get(pId)>0) {
+						ByteBuffer buffer = ByteBuffer.wrap(network.receive(channel, pId));
+						buffer.position(0);
+						Queue<byte[]> q = new LinkedBlockingQueue<>();
+						while(buffer.hasRemaining()) {
+							int size = buffer.getShort();
+							byte[] message = new byte[size];
+							buffer.get(message);
+							q.offer(message);
+						}					
+						inputForThisRound.put(pId, q);
 					}
 				}
 				sceNetworks[i].setInput(inputForThisRound);

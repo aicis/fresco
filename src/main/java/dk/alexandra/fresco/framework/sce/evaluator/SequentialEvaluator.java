@@ -27,8 +27,7 @@
 package dk.alexandra.fresco.framework.sce.evaluator;
 
 import java.io.IOException;
-import java.io.Serializable;
-import java.util.Arrays;
+import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Queue;
@@ -74,6 +73,8 @@ public class SequentialEvaluator implements ProtocolEvaluator {
 	private SCEResourcePool resourcePool;
 	private ProtocolSuite protocolSuite;
 	private Network network;
+	private boolean useFastCommunication;
+	private int messageSize;
 	
 	public SequentialEvaluator() {
 		maxBatchSize = 4096;
@@ -82,7 +83,7 @@ public class SequentialEvaluator implements ProtocolEvaluator {
 	@Override
 	public void setResourcePool(SCEResourcePool resourcePool) {
 		this.resourcePool = resourcePool;
-		this.network = resourcePool.getNetwork();
+		this.network = resourcePool.getNetwork();		
 	}
 
 	public ProtocolSuite getProtocolInvocation() {
@@ -92,6 +93,8 @@ public class SequentialEvaluator implements ProtocolEvaluator {
 	@Override
 	public void setProtocolInvocation(ProtocolSuite pii) {
 		this.protocolSuite = pii;
+		this.messageSize = this.protocolSuite.getMessageSize();
+		this.useFastCommunication = this.messageSize < 1 ? false : true;
 	}
 
 	public int getMaxBatchSize() {
@@ -113,7 +116,11 @@ public class SequentialEvaluator implements ProtocolEvaluator {
 	private int doOneRound(ProtocolProducer c) throws IOException {
 		NativeProtocol[] nextProtocols = new NativeProtocol[maxBatchSize];
 		int numOfProtocolsInBatch = c.getNextProtocols(nextProtocols, 0);
-		processBatch(nextProtocols, numOfProtocolsInBatch);
+		if(useFastCommunication) {
+			fastProcessBatch(nextProtocols, numOfProtocolsInBatch);
+		} else {
+			processBatch(nextProtocols, numOfProtocolsInBatch);
+		}
 		this.protocolSuite.synchronize(numOfProtocolsInBatch);
 		return numOfProtocolsInBatch;
 	}
@@ -158,18 +165,35 @@ public class SequentialEvaluator implements ProtocolEvaluator {
 			do {
 				status = protocols[i].evaluate(round, this.resourcePool, sceNetwork);				
 				//send phase
-				Map<Integer, Queue<Serializable>> output = sceNetwork.getOutputFromThisRound();				
+				Map<Integer, Queue<byte[]>> output = sceNetwork.getOutputFromThisRound();				
 				for(int pId : output.keySet()) {
 					//send array since queue is not serializable
-					this.network.send(DEFAULT_CHANNEL, pId, output.get(pId).toArray(new Serializable[0]));					
+					Queue<byte[]> toSend = output.get(pId);
+					int totalSize = 0;
+					for(byte[] b : toSend) {
+						totalSize+=b.length;
+					}
+					ByteBuffer buffer = ByteBuffer.allocate(totalSize+2*toSend.size());
+					for(byte[] s : toSend) {
+						buffer.putShort((short)(s.length));
+						buffer.put(s);
+					}
+					this.network.send(DEFAULT_CHANNEL, pId, buffer.array());					
 				}
 				
 				//receive phase
-				Map<Integer, Queue<Serializable>> inputForThisRound = new HashMap<Integer, Queue<Serializable>>();
-				for(int pId : sceNetwork.getExpectedInputForNextRound()) {
-					Serializable[] messages = this.network.receive(DEFAULT_CHANNEL, pId);
-					//convert back from array to queue.
-					Queue<Serializable> q = new LinkedBlockingQueue<Serializable>(Arrays.asList(messages));					
+				Map<Integer, Queue<byte[]>> inputForThisRound = new HashMap<Integer, Queue<byte[]>>();
+				Map<Integer, Integer> expectedInputs = sceNetwork.getExpectedInputForNextRound();
+				for(int pId : expectedInputs.keySet()) {
+					ByteBuffer buffer = ByteBuffer.wrap(this.network.receive(DEFAULT_CHANNEL, pId));
+					buffer.position(0);
+					Queue<byte[]> q = new LinkedBlockingQueue<>();
+					while(buffer.hasRemaining()) {
+						int size = buffer.getShort();
+						byte[] message = new byte[size];
+						buffer.get(message);
+						q.offer(message);
+					}					
 					inputForThisRound.put(pId, q);
 				}
 				sceNetwork.setInput(inputForThisRound);				
@@ -187,5 +211,49 @@ public class SequentialEvaluator implements ProtocolEvaluator {
 			//}
 			
 		}		
+	}
+	
+	public void fastProcessBatch(NativeProtocol[] protocols, int numOfProtocols) throws IOException {
+		SCENetworkImpl sceNetwork = new SCENetworkImpl(this.resourcePool.getNoOfParties(), DEFAULT_THREAD_ID);
+		for (int i=0; i<numOfProtocols; i++) {
+			int round = 0;
+			EvaluationStatus status;
+			do {
+				status = protocols[i].evaluate(round, this.resourcePool, sceNetwork);				
+				//send phase
+				Map<Integer, Queue<byte[]>> output = sceNetwork.getOutputFromThisRound();
+				for(int pId : output.keySet()) {
+					//send array since queue is not serializable
+					Queue<byte[]> toSend = output.get(pId);
+					int totalSize = 0;
+					for(byte[] b : toSend) {
+						totalSize+=b.length;
+					}
+					ByteBuffer buffer = ByteBuffer.allocate(totalSize);					
+					for(byte[] s : toSend) {
+						buffer.put(s);
+					}					
+					this.network.send(DEFAULT_CHANNEL, pId, buffer.array());					
+				}
+				
+				//receive phase
+				Map<Integer, Queue<byte[]>> inputForThisRound = new HashMap<Integer, Queue<byte[]>>();
+				Map<Integer, Integer> expectedInputs = sceNetwork.getExpectedInputForNextRound();
+				for(int pId : expectedInputs.keySet()) {
+					ByteBuffer buffer = ByteBuffer.wrap(this.network.receive(DEFAULT_CHANNEL, pId));
+					buffer.position(0);
+					Queue<byte[]> q = new LinkedBlockingQueue<>();
+					while(buffer.hasRemaining()) {
+						byte[] message = new byte[this.messageSize];
+						buffer.get(message);
+						q.offer(message);
+					}					
+					inputForThisRound.put(pId, q);
+				}
+				sceNetwork.setInput(inputForThisRound);				
+				sceNetwork.nextRound();
+				round++;
+			} while (status.equals(EvaluationStatus.HAS_MORE_ROUNDS));			
+		}	
 	}
 }

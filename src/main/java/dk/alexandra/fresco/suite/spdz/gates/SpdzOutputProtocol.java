@@ -84,14 +84,14 @@ public class SpdzOutputProtocol extends SpdzNativeProtocol implements OpenIntPro
 			this.mask = storage.getSupplier().getNextInputMask(target_player);
 			SpdzElement inMinusMask = this.in.value.subtract(this.mask.getMask());
 			storage.addClosedValue(inMinusMask);
-			network.sendToAll(inMinusMask.getShare());
+			network.sendToAll(inMinusMask.getShare().toByteArray());
 			network.expectInputFromAll();
 			return EvaluationStatus.HAS_MORE_ROUNDS;
 		case 1:
-			List<BigInteger> shares = network.receiveFromAll();
+			List<byte[]> shares = network.receiveFromAll();
 			BigInteger openedVal = BigInteger.valueOf(0);
-			for (BigInteger share : shares) {
-				openedVal = openedVal.add(share);
+			for (byte[] share : shares) {
+				openedVal = openedVal.add(new BigInteger(share));
 			}
 			openedVal = openedVal.mod(Util.getModulus());
 			storage.addOpenedValue(openedVal);

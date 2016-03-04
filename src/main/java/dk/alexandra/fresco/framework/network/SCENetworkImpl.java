@@ -26,14 +26,11 @@
  *******************************************************************************/
 package dk.alexandra.fresco.framework.network;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
-import java.util.Set;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class SCENetworkImpl implements SCENetwork, SCENetworkSupplier {
@@ -42,57 +39,59 @@ public class SCENetworkImpl implements SCENetwork, SCENetworkSupplier {
 	//TODO: Remove when possible - also from interface.
 	private int threadId;
 	
-	private Map<Integer, Queue<Serializable>> input;
-	private Map<Integer, Queue<Serializable>> output;
-	private Set<Integer> expectedInputForNextRound;		
+	private Map<Integer, Queue<byte[]>> input;
+	private Map<Integer, Queue<byte[]>> output;
+	private int[] outputSizes;
+	private Map<Integer, Integer> expectedInputForNextRound;		
 	
 	public SCENetworkImpl(int noOfParties, int threadId) {
 		this.noOfParties = noOfParties;
 		this.threadId = threadId;
-		this.output = new HashMap<Integer, Queue<Serializable>>();
-		this.expectedInputForNextRound = new HashSet<Integer>();
+		this.output = new HashMap<Integer, Queue<byte[]>>();
+		this.expectedInputForNextRound = new HashMap<Integer, Integer>();
+		this.outputSizes = new int[noOfParties];
 	}
 	
 	//ProtocolNetwork
 	
-	@SuppressWarnings("unchecked")
 	@Override
-	public <T extends Serializable> T receive(int id) {
-		return (T) this.input.get(id).poll();
+	public byte[] receive(int id) {
+		return this.input.get(id).poll();
 	}
 	
-	@SuppressWarnings("unchecked")
 	@Override
-	public <T extends Serializable> List<T> receiveFromAll() {
-		List<T> res = new ArrayList<T>();
+	public List<byte[]> receiveFromAll() {
+		List<byte[]> res = new ArrayList<byte[]>();
 		for(int i = 1; i <= noOfParties; i++) {
-			res.add((T) this.input.get(i).poll()); 
+			res.add(this.input.get(i).poll()); 
 		}
 		return res;
 	}
 	
 	@Override
-	public void send(int id, Serializable o) {
+	public void send(int id, byte[] bytes) {
 		if(id < 1) {
 			throw new IllegalArgumentException("Cannot send to an Id smaller than 1");
 		}
-		Queue<Serializable> q = this.output.get(id);
+		Queue<byte[]> q = this.output.get(id);
 		if(q == null) {
-			q = new LinkedBlockingQueue<Serializable>();
+			q = new LinkedBlockingQueue<byte[]>();
 			this.output.put(id, q);
 		}
-		q.offer(o);
+		q.offer(bytes);
+		
+		outputSizes[id-1]+=bytes.length;
 	}
 	
 	@Override
-	public void sendToAll(Serializable o) {
+	public void sendToAll(byte[] o) {
 		for(int i = 1; i <= noOfParties; i++) {
 			send(i, o);
 		}
 	}
 	
 	@Override
-	public void sendSharesToAll(Serializable[] o) {
+	public void sendSharesToAll(byte[][] o) {
 		for(int i = 1; i <= noOfParties; i++) {
 			send(i, o[i-1]);
 		}
@@ -103,12 +102,17 @@ public class SCENetworkImpl implements SCENetwork, SCENetworkSupplier {
 		if(id < 1) {
 			throw new IllegalArgumentException("Cannot send to an Id smaller than 1");
 		}
-		this.expectedInputForNextRound.add(id);
+		if(!this.expectedInputForNextRound.containsKey(id)) {
+			this.expectedInputForNextRound.put(id, 0);
+		}
+		int inputsSoFar = this.expectedInputForNextRound.get(id);
+		this.expectedInputForNextRound.put(id, ++inputsSoFar);
 	}
+	
 	@Override
 	public void expectInputFromAll() {
 		for(int i = 1; i <= noOfParties; i++) {
-			this.expectedInputForNextRound.add(i);
+			expectInputFromPlayer(i);
 		}
 	}
 
@@ -120,17 +124,17 @@ public class SCENetworkImpl implements SCENetwork, SCENetworkSupplier {
 	//ProtocolNetworkSupplier
 	
 	@Override
-	public void setInput(Map<Integer, Queue<Serializable>> inputForThisRound) {
+	public void setInput(Map<Integer, Queue<byte[]>> inputForThisRound) {
 		this.input = inputForThisRound;
 	}
 
 	@Override
-	public Map<Integer, Queue<Serializable>> getOutputFromThisRound() {
+	public Map<Integer, Queue<byte[]>> getOutputFromThisRound() {
 		return this.output;
 	}
 
 	@Override
-	public Set<Integer> getExpectedInputForNextRound() {
+	public Map<Integer, Integer> getExpectedInputForNextRound() {
 		return this.expectedInputForNextRound;
 	}
 
@@ -139,4 +143,5 @@ public class SCENetworkImpl implements SCENetwork, SCENetworkSupplier {
 		this.output.clear();
 		this.expectedInputForNextRound.clear();
 	}
+
 }

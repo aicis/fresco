@@ -52,13 +52,13 @@ public class DummyCloseBoolProtocol extends DummyProtocol implements CloseBoolPr
 		switch (round) {
 		case 0:
 			if (resourcePool.getMyId() == sender) {
-				network.sendToAll(input.getValue());
+				network.sendToAll(new byte[] {input.getValueAsByte()});
 			}
 			network.expectInputFromPlayer(sender);
 			return EvaluationStatus.HAS_MORE_ROUNDS;
 		case 1:
-			boolean r = network.receive(sender);
-			this.output.setValue(r);
+			byte[] r = network.receive(sender);
+			this.output.setByteValue(r[0]);
 			return EvaluationStatus.IS_DONE;
 		default:
 			throw new MPCException("Bad round: " + round);

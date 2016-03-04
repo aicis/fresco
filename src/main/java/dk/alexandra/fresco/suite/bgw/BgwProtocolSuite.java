@@ -87,4 +87,9 @@ public class BgwProtocolSuite implements ProtocolSuite {
 		return this.modulus;
 	}
 
+	@Override
+	public int getMessageSize() {
+		return ShamirShare.getSize();
+	}
+
 }

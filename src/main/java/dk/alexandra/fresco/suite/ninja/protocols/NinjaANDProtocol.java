@@ -65,15 +65,15 @@ public class NinjaANDProtocol extends NinjaProtocol implements AndProtocol{
 		NinjaProtocolSuite ps = NinjaProtocolSuite.getInstance(resourcePool.getMyId());		
 		switch(round) {
 		case 0: 
-			byte res = ps.getStorage().lookupNinjaTable(id, inLeft.getValue(), inRight.getValue());
-			network.sendToAll(res);
+			byte res = ps.getStorage().lookupNinjaTable(id, inLeft.getValue(), inRight.getValue());			
+			network.sendToAll(new byte[] {res});
 			network.expectInputFromAll();
 			return EvaluationStatus.HAS_MORE_ROUNDS;
 		case 1:
-			List<Byte> shares = network.receiveFromAll();			
-			res = shares.get(0);
+			List<byte[]> shares = network.receiveFromAll();			
+			res = shares.get(0)[0];
 			for(int i = 1; i < shares.size(); i++) {
-				res = ByteArithmetic.xor(res, shares.get(i));
+				res = ByteArithmetic.xor(res, shares.get(i)[0]);
 			}
 			this.out.setValue(res);
 			return EvaluationStatus.IS_DONE;

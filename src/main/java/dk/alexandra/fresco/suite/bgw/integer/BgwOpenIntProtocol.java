@@ -75,17 +75,17 @@ public class BgwOpenIntProtocol extends BgwProtocol implements OpenIntProtocol {
 		switch (round) {
 		case 0:
 			if (targetId != -1) {
-				network.send(targetId, this.input.value);
+				network.send(targetId, this.input.value.getPayload());
 				if (targetId == resourcePool.getMyId()) {
 					network.expectInputFromAll();
 				}
 			} else {
-				network.sendToAll(this.input.value);
+				network.sendToAll(this.input.value.getPayload());
 				network.expectInputFromAll();
 			}
 			return EvaluationStatus.HAS_MORE_ROUNDS;
 		case 1:
-			List<ShamirShare> shares = network.receiveFromAll();
+			List<ShamirShare> shares = this.bytesToShares(network.receiveFromAll());
 			BigInteger recombined = ShamirShare
 					.recombine(shares, shares.size());
 			this.output.setValue(recombined);

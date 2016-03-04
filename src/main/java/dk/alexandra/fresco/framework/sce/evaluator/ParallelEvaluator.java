@@ -27,6 +27,7 @@
 package dk.alexandra.fresco.framework.sce.evaluator;
 
 import java.io.Serializable;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -116,48 +117,62 @@ public class ParallelEvaluator implements ProtocolEvaluator {
 	
 	private class BatchTask implements Callable<Object> {
 
-		NativeProtocol[] gates;
-		int offset, interval, totalGates;
+		NativeProtocol[] protocols;
+		int offset, interval, totalProtocols;
 		String channel;
 		ResourcePool rp;
 
-		public BatchTask(NativeProtocol[] gates, int offset, int interval, int totalGates, ResourcePool rp) {
+		public BatchTask(NativeProtocol[] protocols, int offset, int interval, int totalGates, ResourcePool rp) {
 			this.offset = offset;
 			this.channel = ""+offset;
 			this.interval = interval;
-			this.gates = gates;
+			this.protocols = protocols;
 			this.rp = rp;
-			this.totalGates = totalGates;
+			this.totalProtocols = totalGates;
 		}
 
 		@Override
 		public Object call() throws Exception {
 			SCENetworkImpl protocolNetwork = new SCENetworkImpl(this.rp.getNoOfParties(), offset);			
 			Network network = rp.getNetwork();
-			for (int i=offset; i< totalGates; i+=interval) {
+			for (int i=offset; i< totalProtocols; i+=interval) {
 				int round = 0;
 				EvaluationStatus status;
-				do {					
-					status = gates[i].evaluate(round, this.rp, protocolNetwork);
+				do {
+					status = protocols[i].evaluate(round, this.rp, protocolNetwork);				
 					//send phase
-					Map<Integer, Queue<Serializable>> output = protocolNetwork.getOutputFromThisRound();				
+					Map<Integer, Queue<byte[]>> output = protocolNetwork.getOutputFromThisRound();				
 					for(int pId : output.keySet()) {
 						//send array since queue is not serializable
-						network.send(channel, pId, output.get(pId).toArray(new Serializable[0]));					
+						Queue<byte[]> toSend = output.get(pId);
+						int totalSize = 0;
+						for(byte[] b : toSend) {
+							totalSize+=b.length;
+						}
+						ByteBuffer buffer = ByteBuffer.allocate(totalSize+2*toSend.size());
+						for(byte[] s : toSend) {
+							buffer.putShort((short)(s.length));
+							buffer.put(s);
+						}
+						network.send(channel, pId, buffer.array());					
 					}
 					
 					//receive phase
-					Map<Integer, Queue<Serializable>> inputForThisRound = new HashMap<Integer, Queue<Serializable>>();
-					for(int pId : protocolNetwork.getExpectedInputForNextRound()) {					
-						Serializable[] messages = network.receive(channel, pId);
-						Queue<Serializable> q = new LinkedBlockingQueue<Serializable>();
-						//convert back from array to queue.
-						for(Serializable message : messages) {
+					Map<Integer, Queue<byte[]>> inputForThisRound = new HashMap<Integer, Queue<byte[]>>();
+					Map<Integer, Integer> expectedInputs = protocolNetwork.getExpectedInputForNextRound();
+					for(int pId : expectedInputs.keySet()) {
+						ByteBuffer buffer = ByteBuffer.wrap(network.receive(channel, pId));
+						buffer.position(0);
+						Queue<byte[]> q = new LinkedBlockingQueue<>();
+						while(buffer.hasRemaining()) {
+							int size = buffer.getShort();
+							byte[] message = new byte[size];
+							buffer.get(message);
 							q.offer(message);
-						}
+						}					
 						inputForThisRound.put(pId, q);
 					}
-					protocolNetwork.setInput(inputForThisRound);
+					protocolNetwork.setInput(inputForThisRound);				
 					protocolNetwork.nextRound();
 					round++;
 				} while (status.equals(EvaluationStatus.HAS_MORE_ROUNDS));

@@ -95,7 +95,6 @@ public class TestNinjaAdvanced {
 		} catch(TestFrameworkException ex) {
 			//likely an assertion error
 		}
-		System.out.println("Got past prepro");
 		runTest(new BristolMultTests.Mult32x32Test(), EvaluationStrategy.SEQUENTIAL, false);
 	}
 	
@@ -106,7 +105,6 @@ public class TestNinjaAdvanced {
 		} catch(TestFrameworkException ex) {
 			//likely an assertion error
 		}
-		System.out.println("Got past prepro");
 		runTest(new BristolCryptoTests.AesTest(), EvaluationStrategy.SEQUENTIAL, false);
 	}
 	
@@ -117,7 +115,16 @@ public class TestNinjaAdvanced {
 		} catch(TestFrameworkException ex) {
 			//likely an assertion error
 		}
-		System.out.println("Got past prepro");
 		runTest(new BristolCryptoTests.AesTest(), EvaluationStrategy.PARALLEL, false);
+	}
+	
+	@Test
+	public void testAES_parallel_batched() throws Exception {
+		try {
+			runTest(new BristolCryptoTests.AesTest(), EvaluationStrategy.PARALLEL_BATCHED, true);
+		} catch(TestFrameworkException ex) {
+			//likely an assertion error
+		}
+		runTest(new BristolCryptoTests.AesTest(), EvaluationStrategy.PARALLEL_BATCHED, false);
 	}
 }

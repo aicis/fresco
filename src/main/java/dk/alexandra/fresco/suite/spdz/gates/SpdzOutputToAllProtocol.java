@@ -61,14 +61,14 @@ public class SpdzOutputToAllProtocol extends SpdzNativeProtocol implements
 		SpdzStorage storage = spdzpii.getStore(network.getThreadId());
 		switch (round) {
 		case 0:
-			network.sendToAll(in.value.getShare());
+			network.sendToAll(Util.convertBigIntToBytes(in.value.getShare()));
 			network.expectInputFromAll();
 			return EvaluationStatus.HAS_MORE_ROUNDS;
 		case 1:
-			List<BigInteger> shares = network.receiveFromAll();
+			List<byte[]> shares = network.receiveFromAll();
 			BigInteger openedVal = BigInteger.valueOf(0);
-			for (BigInteger share : shares) {
-				openedVal = openedVal.add(share);
+			for (byte[] share : shares) {
+				openedVal = openedVal.add(new BigInteger(share));
 			}
 			openedVal = openedVal.mod(Util.getModulus());
 			storage.addOpenedValue(openedVal);

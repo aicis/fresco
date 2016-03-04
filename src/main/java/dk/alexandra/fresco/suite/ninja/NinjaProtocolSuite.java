@@ -40,7 +40,7 @@ import dk.alexandra.fresco.suite.ninja.storage.NinjaStorageImpl;
 public class NinjaProtocolSuite implements ProtocolSuite{
 
 	private NinjaStorage storage;
-	private static Map<Integer, NinjaProtocolSuite> instances = new HashMap<>();
+	private static Map<Integer, NinjaProtocolSuite> instances = new HashMap<>();	
 	
 	public static NinjaProtocolSuite getInstance(int id) {
 		if(instances.get(id) == null) {			
@@ -59,6 +59,7 @@ public class NinjaProtocolSuite implements ProtocolSuite{
 		if(!ninjaConfig.useDummy()) {
 			this.storage = new NinjaStorageImpl(resourcePool.getStreamedStorage());	
 		}		
+		
 	}
 	
 	public NinjaStorage getStorage() {
@@ -81,6 +82,11 @@ public class NinjaProtocolSuite implements ProtocolSuite{
 	public void destroy() {
 		// TODO Auto-generated method stub
 		
+	}
+
+	@Override
+	public int getMessageSize() {
+		return 1;
 	}
 
 }

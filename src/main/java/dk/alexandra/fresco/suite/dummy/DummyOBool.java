@@ -89,5 +89,13 @@ public class DummyOBool implements OBool {
 	public String toString() {
 		return "DummyOBool(" + this.id + "; " + this.value + ")";
 	}
+
+	public byte getValueAsByte() {
+		if(this.value) {
+			return 1; 
+		} else {
+			return 0;
+		}
+	}
 	
 }

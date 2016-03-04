@@ -70,9 +70,9 @@ public class SpdzCommitProtocol extends SpdzNativeProtocol {
 			network.expectInputFromAll();
 			break;
 		case 1:
-			List<BigInteger> commitments = network.receiveFromAll();
+			List<byte[]> commitments = network.receiveFromAll();
 			for (int i = 0; i < commitments.size(); i++) {
-				comms.put(i + 1, commitments.get(i));
+				comms.put(i + 1, new BigInteger(commitments.get(i)));
 			}
 			if (players < 3) {
 				done = true;

@@ -30,37 +30,39 @@ import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.util.Random;
 
+import org.bouncycastle.util.Arrays;
+
 import dk.alexandra.fresco.suite.spdz.utils.Util;
 
 public class SpdzCommitment {
 	
-	private BigInteger value;
-	private BigInteger randomness;
+	private byte[] value;
+	private byte[] randomness;
 	private Random rand;
-	private BigInteger commitment;
+	private byte[] commitment;
 	private MessageDigest H;
 	
-	public SpdzCommitment(MessageDigest H, BigInteger value, Random rand){
+	public SpdzCommitment(MessageDigest H, byte[] value, Random rand){
 		this.value = value;
 		this.rand = rand;
 		this.H = H;
 	}
-	public BigInteger getCommitment(){
+	public byte[] getCommitment(){
 		if (this.commitment != null){
 			return this.commitment;
 		}		
-		H.update(value.toByteArray());
-		this.randomness = new BigInteger(Util.getModulus().bitLength(), rand); 
-		H.update(this.randomness.toByteArray());
-		this.commitment = new BigInteger(H.digest()).mod(Util.getModulus());
+		H.update(new BigInteger(value).toByteArray());
+		this.randomness = new BigInteger(Util.getModulus().bitLength(), rand).toByteArray(); 
+		H.update(new BigInteger(randomness).toByteArray());
+		this.commitment = new BigInteger(H.digest()).toByteArray();
 		return this.commitment;
 	}
 	
-	public BigInteger getValue(){
+	public byte[] getValue(){
 		return this.value;		
 	}
 
-	public BigInteger getRandomness(){
+	public byte[] getRandomness(){
 		return this.randomness;
 	}
 	
@@ -71,11 +73,10 @@ public class SpdzCommitment {
 	 * @param randomness
 	 * @return
 	 */
-	public static boolean checkCommitment(MessageDigest H, BigInteger commitment, BigInteger value, BigInteger randomness){
-		H.update(value.toByteArray());
-		H.update(randomness.toByteArray());
-		BigInteger testSubject = new BigInteger(H.digest()).mod(Util.getModulus());
-		return commitment.equals(testSubject);
+	public static boolean checkCommitment(MessageDigest H, byte[] commitment, byte[] value, byte[] randomness){
+		H.update(new BigInteger(value).toByteArray());
+		H.update(new BigInteger(randomness).toByteArray());
+		return Arrays.areEqual(new BigInteger(commitment).toByteArray(), new BigInteger(H.digest()).toByteArray());
 	}
 	
 	@Override

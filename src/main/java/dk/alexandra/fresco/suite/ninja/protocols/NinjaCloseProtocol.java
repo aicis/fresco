@@ -73,12 +73,12 @@ public class NinjaCloseProtocol extends NinjaProtocol implements CloseBoolProtoc
 				byte real = inputNinja.getRealValue();
 				byte x = this.in.getValueAsByte();
 				byte y = ByteArithmetic.xor(x, real);
-				network.sendToAll(y);
+				network.sendToAll(new byte[] {y});
 			}
 			network.expectInputFromPlayer(inputter);
 			return EvaluationStatus.HAS_MORE_ROUNDS;
 		case 1:
-			byte y = network.receive(inputter);
+			byte y = network.receive(inputter)[0];
 			this.out.setValue(y);
 			
 			inputNinja = null;
