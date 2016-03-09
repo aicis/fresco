@@ -57,7 +57,9 @@ import dk.alexandra.fresco.lib.field.bool.generic.NotFromXorProtocol;
 import dk.alexandra.fresco.lib.field.bool.generic.OrFromCopyConstProtocol;
 import dk.alexandra.fresco.lib.field.bool.generic.OrFromXorAndProtocol;
 import dk.alexandra.fresco.lib.field.bool.generic.XnorFromXorAndNotProtocolImpl;
+import dk.alexandra.fresco.lib.helper.CopyProtocol;
 import dk.alexandra.fresco.lib.helper.CopyProtocolFactory;
+import dk.alexandra.fresco.lib.helper.CopyProtocolImpl;
 import dk.alexandra.fresco.lib.math.bool.add.AdderCircuitFactory;
 import dk.alexandra.fresco.lib.math.bool.add.BitIncrementerCircuit;
 import dk.alexandra.fresco.lib.math.bool.add.BitIncrementerCircuitFactory;
@@ -122,6 +124,10 @@ public abstract class AbstractBinaryFactory implements BasicLogicFactory,
 		return res;
 	}
 
+	@Override
+	public CopyProtocol<SBool> getCopyCircuit(SBool in, SBool out) {
+		return new CopyProtocolImpl<SBool>(in, out);
+	}
 	
 	public XnorProtocol getXnorCircuit(SBool left, SBool right, SBool out) {
 		return new XnorFromXorAndNotProtocolImpl(left, right, out, this);

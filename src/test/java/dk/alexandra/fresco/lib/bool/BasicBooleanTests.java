@@ -14,8 +14,8 @@ import dk.alexandra.fresco.framework.sce.SCE;
 import dk.alexandra.fresco.framework.sce.SCEFactory;
 import dk.alexandra.fresco.framework.value.OBool;
 import dk.alexandra.fresco.framework.value.SBool;
-import dk.alexandra.fresco.lib.field.bool.BasicLogicFactory;
-import dk.alexandra.fresco.lib.helper.builder.LogicBuilder;
+import dk.alexandra.fresco.lib.helper.builder.BasicLogicBuilder;
+import dk.alexandra.fresco.lib.logic.AbstractBinaryFactory;
 
 public class BasicBooleanTests {
 
@@ -43,8 +43,8 @@ public class BasicBooleanTests {
 						@Override
 						public ProtocolProducer prepareApplication(
 								ProtocolFactory provider) {
-							BasicLogicFactory prov = (BasicLogicFactory) provider;
-							LogicBuilder builder = new LogicBuilder(prov);
+							AbstractBinaryFactory prov = (AbstractBinaryFactory) provider;
+							BasicLogicBuilder builder = new BasicLogicBuilder(prov);
 							SBool inp = builder.input(1, builder.getOBool(true));
 							OBool output = builder.output(inp);
 							this.outputs = new OBool[] { output };
@@ -74,8 +74,8 @@ public class BasicBooleanTests {
 						@Override
 						public ProtocolProducer prepareApplication(
 								ProtocolFactory provider) {
-							BasicLogicFactory prov = (BasicLogicFactory) provider;
-							LogicBuilder builder = new LogicBuilder(prov);
+							AbstractBinaryFactory prov = (AbstractBinaryFactory) provider;
+							BasicLogicBuilder builder = new BasicLogicBuilder(prov);
 							SBool inp100 = builder.input(1, builder.getOBool(false));
 							SBool inp200 = builder.input(1, builder.getOBool(false));
 							
@@ -130,8 +130,8 @@ public class BasicBooleanTests {
 						@Override
 						public ProtocolProducer prepareApplication(
 								ProtocolFactory provider) {
-							BasicLogicFactory prov = (BasicLogicFactory) provider;
-							LogicBuilder builder = new LogicBuilder(prov);
+							AbstractBinaryFactory prov = (AbstractBinaryFactory) provider;
+							BasicLogicBuilder builder = new BasicLogicBuilder(prov);
 							SBool inp1 = builder.input(1, builder.getOBool(true));
 							SBool inp2 = builder.input(1, builder.getOBool(false));
 							
@@ -165,8 +165,8 @@ public class BasicBooleanTests {
 						@Override
 						public ProtocolProducer prepareApplication(
 								ProtocolFactory provider) {
-							BasicLogicFactory prov = (BasicLogicFactory) provider;
-							LogicBuilder builder = new LogicBuilder(prov);
+							AbstractBinaryFactory prov = (AbstractBinaryFactory) provider;
+							BasicLogicBuilder builder = new BasicLogicBuilder(prov);
 							SBool inp1 = builder.input(1, builder.getOBool(true));
 							
 							SBool not = builder.not(inp1);							
@@ -204,8 +204,8 @@ public class BasicBooleanTests {
 						@Override
 						public ProtocolProducer prepareApplication(
 								ProtocolFactory provider) {
-							BasicLogicFactory prov = (BasicLogicFactory) provider;
-							LogicBuilder builder = new LogicBuilder(prov);
+							AbstractBinaryFactory prov = (AbstractBinaryFactory) provider;
+							BasicLogicBuilder builder = new BasicLogicBuilder(prov);
 							SBool inp100 = builder.input(1, builder.getOBool(false));
 							SBool inp200 = builder.input(1, builder.getOBool(false));
 							SBool xor00 = builder.xor(inp100, inp200);

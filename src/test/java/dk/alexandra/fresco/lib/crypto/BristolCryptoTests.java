@@ -47,8 +47,9 @@ import dk.alexandra.fresco.framework.value.SBool;
 import dk.alexandra.fresco.lib.field.bool.BasicLogicFactory;
 import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
 import dk.alexandra.fresco.lib.helper.bristol.BristolCircuit;
-import dk.alexandra.fresco.lib.helper.builder.LogicBuilder;
+import dk.alexandra.fresco.lib.helper.builder.BasicLogicBuilder;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
+import dk.alexandra.fresco.lib.logic.AbstractBinaryFactory;
 
 /**
  * Some generic tests for basic crypto primitives a la AES and SHA1.
@@ -131,18 +132,18 @@ public class BristolCryptoTests {
 
 						@Override
 						public ProtocolProducer prepareApplication(ProtocolFactory fac) {
-							BasicLogicFactory bool = (BasicLogicFactory)fac;
-							LogicBuilder builder = new LogicBuilder(bool);
+							AbstractBinaryFactory prov = (AbstractBinaryFactory) fac;
+							BasicLogicBuilder builder = new BasicLogicBuilder(prov);
 							
 							boolean[] key_val = toBoolean(keyVec[0]);
 							boolean[] in_val = toBoolean(plainVec);
 							
 							plain = builder.input(1, in_val);
 							key = builder.input(1, key_val);
-							cipher = bool.getSBools(128);
+							cipher = prov.getSBools(128);
 
 							// Create AES circuit.
-							BristolCryptoFactory aesFac = new BristolCryptoFactory(bool);
+							BristolCryptoFactory aesFac = new BristolCryptoFactory(prov);
 							BristolCircuit aes = aesFac.getAesCircuit(plain, key, cipher);
 							builder.addGateProducer(aes);
 							

@@ -34,13 +34,14 @@ import dk.alexandra.fresco.lib.field.bool.CloseBoolProtocol;
 import dk.alexandra.fresco.lib.field.bool.NotProtocol;
 import dk.alexandra.fresco.lib.field.bool.OpenBoolProtocol;
 import dk.alexandra.fresco.lib.field.bool.XorProtocol;
+import dk.alexandra.fresco.lib.logic.AbstractBinaryFactory;
 import dk.alexandra.fresco.suite.ninja.protocols.NinjaANDProtocol;
 import dk.alexandra.fresco.suite.ninja.protocols.NinjaCloseProtocol;
 import dk.alexandra.fresco.suite.ninja.protocols.NinjaNOTProtocol;
 import dk.alexandra.fresco.suite.ninja.protocols.NinjaOpenToAllProtocol;
 import dk.alexandra.fresco.suite.ninja.protocols.NinjaXORProtocol;
 
-public class NinjaFactory implements BasicLogicFactory{
+public class NinjaFactory extends AbstractBinaryFactory implements BasicLogicFactory {
 
 	private int counter;
 	
@@ -105,8 +106,7 @@ public class NinjaFactory implements BasicLogicFactory{
 
 	@Override
 	public AndProtocol getAndCircuit(SBool inLeft, OBool inRight, SBool out) {
-		// TODO Auto-generated method stub
-		return null;
+		throw new RuntimeException("Not implemented yet");
 	}
 
 	@Override
@@ -121,8 +121,7 @@ public class NinjaFactory implements BasicLogicFactory{
 
 	@Override
 	public XorProtocol getXorCircuit(SBool inLeft, OBool inRight, SBool out) {
-		// TODO Auto-generated method stub
-		return null;
+		throw new RuntimeException("Not implemented yet");
 	}
 
 }

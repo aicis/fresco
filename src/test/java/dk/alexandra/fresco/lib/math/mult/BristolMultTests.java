@@ -45,11 +45,10 @@ import dk.alexandra.fresco.framework.sce.SCEFactory;
 import dk.alexandra.fresco.framework.value.OBool;
 import dk.alexandra.fresco.framework.value.SBool;
 import dk.alexandra.fresco.lib.crypto.BristolCryptoFactory;
-import dk.alexandra.fresco.lib.debug.BinaryOpenAndPrint;
-import dk.alexandra.fresco.lib.field.bool.BasicLogicFactory;
 import dk.alexandra.fresco.lib.helper.bristol.BristolCircuit;
-import dk.alexandra.fresco.lib.helper.builder.LogicBuilder;
+import dk.alexandra.fresco.lib.helper.builder.BasicLogicBuilder;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
+import dk.alexandra.fresco.lib.logic.AbstractBinaryFactory;
 
 
 /**
@@ -129,9 +128,8 @@ public class BristolMultTests {
 
 						@Override
 						public ProtocolProducer prepareApplication(ProtocolFactory fac) {
-							BasicLogicFactory bool = (BasicLogicFactory)fac;
-
-							LogicBuilder builder = new LogicBuilder(bool);							
+							AbstractBinaryFactory bool = (AbstractBinaryFactory) fac;
+							BasicLogicBuilder builder = new BasicLogicBuilder(bool);						
 							
 							boolean[] in1_val = toBoolean(inv1);
 							in1 = builder.input(1, in1_val);							

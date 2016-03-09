@@ -34,9 +34,10 @@ import dk.alexandra.fresco.lib.field.bool.CloseBoolProtocol;
 import dk.alexandra.fresco.lib.field.bool.NotProtocol;
 import dk.alexandra.fresco.lib.field.bool.OpenBoolProtocol;
 import dk.alexandra.fresco.lib.field.bool.XorProtocol;
+import dk.alexandra.fresco.lib.logic.AbstractBinaryFactory;
 import dk.alexandra.fresco.suite.ninja.NinjaOBool;
 
-public class DummyPreprocessingFactory implements BasicLogicFactory{
+public class DummyPreprocessingFactory extends AbstractBinaryFactory implements BasicLogicFactory{
 
 	private int counter = 0;
 	private int wireCounter = 0;
