@@ -94,9 +94,6 @@ public class TestNinjaAdvanced {
 			runTest(new BristolMultTests.Mult32x32Test(), EvaluationStrategy.SEQUENTIAL, true);
 		} catch(TestFrameworkException ex) {
 			//likely an assertion error
-			if(!(ex.getCause() instanceof AssertionError)) {
-				throw new RuntimeException("Preprocessing failed with a non-expected exception: ", ex.getCause());
-			}
 		}
 		runTest(new BristolMultTests.Mult32x32Test(), EvaluationStrategy.SEQUENTIAL, false);
 	}

@@ -45,8 +45,6 @@ public class DummyPreproXORProtocol extends NinjaProtocol implements XorProtocol
 		this.inLeft = inLeft;
 		this.inRight = inRight;
 		this.out = out;
-		
-		this.out.setOriginator(this);
 	}
 	
 	public DummyPreproXORProtocol() {

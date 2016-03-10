@@ -26,9 +26,7 @@
  *******************************************************************************/
 package dk.alexandra.fresco.suite.ninja.prepro;
 
-import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.value.SBool;
-import dk.alexandra.fresco.suite.ninja.protocols.NinjaProtocol;
 
 public class PreproNinjaSBool implements SBool{
 
@@ -42,9 +40,6 @@ public class PreproNinjaSBool implements SBool{
 	
 	//value of the random value assigned to the wire
 	private byte r;
-	
-	//Gate where this wire starts
-	private NinjaProtocol originator;
 		
 	public PreproNinjaSBool(int id, byte r) {
 		this.id = id;
@@ -84,19 +79,8 @@ public class PreproNinjaSBool implements SBool{
 		this.r = r;
 	}
 
-	public NinjaProtocol getOriginator() {
-		return originator;
-	}
-
-	public void setOriginator(NinjaProtocol originator) {
-		if(this.originator != null) {
-			throw new MPCException("Trying to modify the originator of this wire twice - there must be an error in the circuit. This wire: " + this);
-		}
-		this.originator = originator;
-	}	
-
 	@Override
 	public String toString() {
-		return "PreproNinjaSBool [id=" + id + ", r=" + r + ", originator=" + originator + "]";
+		return "PreproNinjaSBool [id=" + id + ", r=" + r + "]";
 	}
 }

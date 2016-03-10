@@ -46,8 +46,6 @@ public class DummyPreproANDProtocol extends NinjaProtocol implements AndProtocol
 		this.inLeft = inLeft;
 		this.inRight = inRight;
 		this.out = out;
-		
-		this.out.setOriginator(this);
 	}
 
 	@Override

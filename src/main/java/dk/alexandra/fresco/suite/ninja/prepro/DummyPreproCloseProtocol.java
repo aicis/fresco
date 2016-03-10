@@ -49,8 +49,6 @@ public class DummyPreproCloseProtocol extends NinjaProtocol implements CloseBool
 		this.inputter = inputter;
 		this.in = (NinjaOBool)in;
 		this.out = (PreproNinjaSBool)out;
-		
-		this.out.setOriginator(this);
 	}
 	
 	@Override

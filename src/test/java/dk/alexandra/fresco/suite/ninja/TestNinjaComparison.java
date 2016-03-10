@@ -69,10 +69,7 @@ public class TestNinjaComparison {
 		try {
 			runTest(new ComparisonBooleanTests.TestGreaterThan(), EvaluationStrategy.SEQUENTIAL, true);
 		} catch(TestFrameworkException ex) {
-			//likely an assertion error
-			if(!(ex.getCause() instanceof AssertionError)) {
-				throw new RuntimeException("Preprocessing failed with a non-expected exception: ", ex.getCause());
-			}
+			//likely an assertion error			
 		}
 		runTest(new ComparisonBooleanTests.TestGreaterThan(), EvaluationStrategy.SEQUENTIAL, false);
 	}

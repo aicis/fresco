@@ -39,9 +39,7 @@ public class DummyPreproNOTProtocol extends NinjaProtocol implements NotProtocol
 	public DummyPreproNOTProtocol(int id, PreproNinjaSBool in, PreproNinjaSBool out) {
 		this.id = id;
 		this.in = in;
-		this.out = out;
-		
-		this.out.setOriginator(this);
+		this.out = out;		
 	}
 	
 	@Override
