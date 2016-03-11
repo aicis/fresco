@@ -28,9 +28,8 @@ package dk.alexandra.fresco.suite.spdz.datatypes;
 
 import java.math.BigInteger;
 import java.security.MessageDigest;
+import java.util.Arrays;
 import java.util.Random;
-
-import org.bouncycastle.util.Arrays;
 
 import dk.alexandra.fresco.suite.spdz.utils.Util;
 
@@ -76,7 +75,7 @@ public class SpdzCommitment {
 	public static boolean checkCommitment(MessageDigest H, byte[] commitment, byte[] value, byte[] randomness){
 		H.update(new BigInteger(value).toByteArray());
 		H.update(new BigInteger(randomness).toByteArray());
-		return Arrays.areEqual(new BigInteger(commitment).toByteArray(), new BigInteger(H.digest()).toByteArray());
+		return Arrays.equals(new BigInteger(commitment).toByteArray(), new BigInteger(H.digest()).toByteArray());
 	}
 	
 	@Override

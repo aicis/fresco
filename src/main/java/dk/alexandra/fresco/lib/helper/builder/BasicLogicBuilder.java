@@ -26,8 +26,6 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.helper.builder;
 
-import com.sun.istack.internal.Nullable;
-
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.OBool;
 import dk.alexandra.fresco.framework.value.SBool;
@@ -71,7 +69,7 @@ public class BasicLogicBuilder extends AbstractProtocolBuilder {
 	 * @param value the value to input (can be null if you are not the inputter)
 	 * @return
 	 */
-	public SBool input(int inputter, @Nullable OBool value) {
+	public SBool input(int inputter, OBool value) {
 		SBool res = bp.getSBool();
 		append(this.bp.getCloseProtocol(inputter, value, res));
 		return res;
