@@ -43,6 +43,17 @@ public interface RightShiftFactory {
 	 * @param x
 	 *            input
 	 * @param result
+	 *            input >> 1
+	 * @param remainder
+	 *            the least significant bit of input
+	 * @return
+	 */
+	public RightShiftProtocol getRightShiftProtocol(SInt x, SInt result, SInt remainder);
+
+	/**
+	 * @param x
+	 *            input
+	 * @param result
 	 *            input >> n
 	 * @return
 	 */

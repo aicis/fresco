@@ -47,6 +47,7 @@ public class RightShiftProtocolImpl implements RightShiftProtocol {
 	// Input
 	private SInt x;
 	private SInt result;
+	private SInt remainder;
 	private int bitLength;
 	private int securityParameter;
 	
@@ -62,7 +63,7 @@ public class RightShiftProtocolImpl implements RightShiftProtocol {
 	private SInt rTop, rBottom;
 	private OInt mOpen;
 	private ProtocolProducer gp;
-
+	
 	public RightShiftProtocolImpl(SInt x, SInt result, int bitLength, int securityParameter,
 			BasicNumericFactory basicNumericFactory, 
 			RandomAdditiveMaskFactory randomAdditiveMaskFactory, 
@@ -70,6 +71,7 @@ public class RightShiftProtocolImpl implements RightShiftProtocol {
 			InnerProductFactory innerProductFactory) {
 		
 		this.x = x;
+		this.remainder = null;
 		this.result = result;
 		this.bitLength = bitLength;
 		this.securityParameter = securityParameter;
@@ -80,6 +82,17 @@ public class RightShiftProtocolImpl implements RightShiftProtocol {
 		this.innerProductFactory = innerProductFactory;
 	}
 
+	public RightShiftProtocolImpl(SInt x, SInt result, SInt remainder, 
+			int bitLength, int securityParameter,
+			BasicNumericFactory basicNumericFactory, 
+			RandomAdditiveMaskFactory randomAdditiveMaskFactory, 
+			MiscOIntGenerators miscOIntGenerators, 
+			InnerProductFactory innerProductFactory) {
+
+		this(x, result, bitLength, securityParameter, basicNumericFactory, randomAdditiveMaskFactory, miscOIntGenerators, innerProductFactory);
+		this.remainder = remainder;
+	}
+	
 	public int getNextProtocols(NativeProtocol[] gates, int pos) {
 		if (gp == null) {
 
@@ -98,11 +111,11 @@ public class RightShiftProtocolImpl implements RightShiftProtocol {
 				// rBottom is the least significant bit of r
 				rBottom = rExpansion[0];
 				
-				// Calculate 1, 2, 2^2, ..., 2^{bitLength - 2}
+				// Calculate 1, 2, 2^2, ..., 2^{l - 1}
 				int l = rExpansion.length - 2;
 				OInt[] twoPowers = miscOIntGenerator.getTwoPowers(l);
 				
-				// Calculate rTop = (r - rBottom) >> 1
+				// Calculate rTop = (r - rBottom) >> 1 = (r_1, r_2, ..., r_l) . (1, 2, 4, ..., 2^{l-1})
 				rTop = basicNumericFactory.getSInt();
 				SInt[] rTopBits = new SInt[l];
 				System.arraycopy(rExpansion, 1, rTopBits, 0, l);
@@ -128,21 +141,47 @@ public class RightShiftProtocolImpl implements RightShiftProtocol {
 				// m = x + r gave a carry from the first (least significant) bit
 				// to the second, ie. if the first bit of both x and r is 1.
 				// This happens if and only if the first bit of r is 1 and the
-				// first bit of m is 0 which in turn is equal to r * (m + 1 (mod 2)).
+				// first bit of m is 0 which in turn is equal to r_0 * (m + 1 (mod 2)).
 				SInt carry = basicNumericFactory.getSInt();
 				OInt mBottomNegated = basicNumericFactory
 						.getOInt(mOpen.getValue().add(BigInteger.ONE).mod(BigInteger.valueOf(2)));
-				Protocol calculateCarryCircuit = basicNumericFactory.getMultCircuit(mBottomNegated, rBottom, carry);
+				Protocol calculateCarry = basicNumericFactory.getMultCircuit(mBottomNegated, rBottom, carry);
 
-				// Now we calculate result = x >> 1 = mTop - rTop - carry
+				// The carry is needed by both the calculation of the shift and the remainder
+				SequentialProtocolProducer protocol = new SequentialProtocolProducer(calculateCarry);
+
+				// The shift and the remainder can be calculated in parallel
+				ParallelProtocolProducer findShiftAndRemainder = new ParallelProtocolProducer();
+				
+				// Now we calculate the shift, x >> 1 = mTop - rTop - carry
 				SInt mTopMinusRTop = basicNumericFactory.getSInt();
 				OInt mTop = basicNumericFactory.getOInt(mOpen.getValue().shiftRight(1));
 				Protocol subtractCircuit = basicNumericFactory.getSubtractCircuit(mTop, rTop, mTopMinusRTop);
 				Protocol addCarryCircuit = basicNumericFactory.getSubtractCircuit(mTopMinusRTop, carry, result);
+				SequentialProtocolProducer calculateShift = new SequentialProtocolProducer(subtractCircuit, addCarryCircuit);
 
-				gp = new SequentialProtocolProducer(
-						new ParallelProtocolProducer(calculateCarryCircuit, subtractCircuit), 
-						addCarryCircuit);
+				findShiftAndRemainder.append(calculateShift);
+				
+				if (remainder != null) {
+					// We also need to calculate the remainder, aka. the bit we throw away in the shift: 
+					// x (mod 2) = xor(r_0, m mod 2) = r_0 + (m mod 2) - 2 (r_0 * (m mod 2))  
+					OInt mBottom = basicNumericFactory.getOInt(mOpen.getValue().mod(BigInteger.valueOf(2)));
+					OInt twoMBottom = basicNumericFactory.getOInt(mBottom.getValue().shiftLeft(1)); 
+					SInt product = basicNumericFactory.getSInt();
+					SInt sum = basicNumericFactory.getSInt();
+					Protocol remainderProtocolMult = basicNumericFactory.getMultCircuit(twoMBottom, rBottom, product);
+					Protocol remainderProtocolAdd = basicNumericFactory.getAddProtocol(rBottom, mBottom, sum);
+					Protocol remainderProtodolSubtract = basicNumericFactory.getSubtractCircuit(sum, product, remainder);
+					
+					SequentialProtocolProducer calculateRemainder = new SequentialProtocolProducer(
+							new ParallelProtocolProducer(remainderProtocolMult, remainderProtocolAdd),
+							remainderProtodolSubtract);
+					
+					findShiftAndRemainder.append(calculateRemainder);
+				}
+				
+				protocol.append(findShiftAndRemainder);
+				gp = protocol;
 
 			default:
 				// ...
