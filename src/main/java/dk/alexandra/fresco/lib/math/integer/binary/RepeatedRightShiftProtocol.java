@@ -26,26 +26,11 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.math.integer.binary;
 
-import dk.alexandra.fresco.framework.value.SInt;
+import dk.alexandra.fresco.framework.Protocol;
 
-public interface RightShiftFactory {
-
-	/**
-	 * @param x
-	 *            input
-	 * @param result
-	 *            input >> 1
-	 * @return
-	 */
-	public RightShiftProtocol getRightShiftProtocol(SInt x, SInt result);
-	
-	/**
-	 * @param x
-	 *            input
-	 * @param result
-	 *            input >> n
-	 * @return
-	 */
-	public RepeatedRightShiftProtocol getRepeatedRightShiftProtocol(SInt x, int n, SInt result);
+/**
+ * This protocol will return the binary right shift of the given input.
+ */
+public interface RepeatedRightShiftProtocol extends Protocol{
 
 }
