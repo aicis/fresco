@@ -28,8 +28,11 @@ package dk.alexandra.fresco.lib.arithmetic;
 
 import java.io.IOException;
 import java.math.BigInteger;
+import java.util.Arrays;
 
 import org.junit.Assert;
+
+import com.sun.swing.internal.plaf.basic.resources.basic;
 
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.ProtocolProducer;
@@ -580,7 +583,7 @@ public class BasicArithmeticTests {
 		public TestThread next(TestThreadConfiguration conf) {
 			
 			return new ThreadWithFixture() {
-				private final BigInteger input = BigInteger.valueOf(12332153);
+				private final BigInteger input = BigInteger.valueOf(12332157);
 
 				public void test() throws Exception {
 					TestApplication app = new TestApplication() {
@@ -600,31 +603,37 @@ public class BasicArithmeticTests {
 									basicNumericFactory, randomAdditiveMaskFactory, miscOIntGenerators, innerProductFactory);
 
 							SInt result = basicNumericFactory.getSInt();
+							SInt remainder = basicNumericFactory.getSInt();
 
 							NumericIOBuilder ioBuilder = new NumericIOBuilder(basicNumericFactory);
 							SequentialProtocolProducer sequentialProtocolProducer = new SequentialProtocolProducer();
 							
-							SInt input1 = ioBuilder.input(input, 1); // 1000111
+							SInt input1 = ioBuilder.input(input, 1);
 							sequentialProtocolProducer.append(ioBuilder.getCircuit());
 							
-							RightShiftProtocol rightShiftProtocol = rightShiftFactory.getRightShiftProtocol(input1, result);
+							RightShiftProtocol rightShiftProtocol = rightShiftFactory.getRightShiftProtocol(input1, result, remainder);
 							sequentialProtocolProducer.append(rightShiftProtocol);
 							
-							OInt output = ioBuilder.output(result);
+							OInt output1 = ioBuilder.output(result);
+							OInt output2 = ioBuilder.output(remainder);
+							
 							sequentialProtocolProducer.append(ioBuilder.getCircuit());
 							
 							ProtocolProducer gp = sequentialProtocolProducer;
 							
-							outputs = new OInt[] {output};
+							outputs = new OInt[] {output1, output2};
 							
 							return gp;
 						}
 					};
 					sce.runApplication(app);
-					BigInteger output = app.getOutputs()[0].getValue();
-					System.out.println(input + " >> 1 = " + output);
+					BigInteger result = app.getOutputs()[0].getValue();
+					BigInteger remainder = app.getOutputs()[1].getValue();
+					System.out.println(input + " >> 1 = " + result);
+					System.out.println(input + " (mod 2) = " + remainder);
 					
-					Assert.assertEquals(output, input.shiftRight(1));
+					Assert.assertEquals(result, input.shiftRight(1));
+					Assert.assertEquals(remainder, input.mod(BigInteger.valueOf(2)));
 				}
 			};
 		}
@@ -638,7 +647,8 @@ public class BasicArithmeticTests {
 			
 			return new ThreadWithFixture() {
 				private final BigInteger input = BigInteger.valueOf(12332153);
-
+				private final int n = 7;
+				
 				public void test() throws Exception {
 					TestApplication app = new TestApplication() {
 
@@ -657,31 +667,47 @@ public class BasicArithmeticTests {
 									basicNumericFactory, randomAdditiveMaskFactory, miscOIntGenerators, innerProductFactory);
 
 							SInt result = basicNumericFactory.getSInt();
-
+							
+							SInt[] remainders = new SInt[n];
+							for (int i = 0; i < n; i++) {
+								remainders[i] = basicNumericFactory.getSInt();
+							}
+							
 							NumericIOBuilder ioBuilder = new NumericIOBuilder(basicNumericFactory);
 							SequentialProtocolProducer sequentialProtocolProducer = new SequentialProtocolProducer();
 							
-							SInt input1 = ioBuilder.input(input, 1); // 1000111
+							SInt input1 = ioBuilder.input(input, 1);
 							sequentialProtocolProducer.append(ioBuilder.getCircuit());
 							
-							RepeatedRightShiftProtocol rightShiftProtocol = rightShiftFactory.getRepeatedRightShiftProtocol(input1, 3, result);
+							RepeatedRightShiftProtocol rightShiftProtocol = rightShiftFactory.getRepeatedRightShiftProtocol(input1, n, result, remainders);
 							sequentialProtocolProducer.append(rightShiftProtocol);
 							
-							OInt output = ioBuilder.output(result);
+							OInt shiftOutput = ioBuilder.output(result);
+							OInt[] remainderOutput = ioBuilder.outputArray(remainders);
 							sequentialProtocolProducer.append(ioBuilder.getCircuit());
 							
 							ProtocolProducer gp = sequentialProtocolProducer;
 							
-							outputs = new OInt[] {output};
-							
+							outputs = new OInt[n+1];
+							outputs[0] = shiftOutput;
+							for (int i = 0; i < n; i++) { 
+								outputs[i+1] = remainderOutput[i];
+							}
 							return gp;
 						}
 					};
 					sce.runApplication(app);
-					BigInteger output = app.getOutputs()[0].getValue();
-					System.out.println(input + " >> 3 = " + output);
 					
-					Assert.assertEquals(output, input.shiftRight(3));
+					BigInteger output = app.getOutputs()[0].getValue();
+					System.out.println(input + " >> " + n + " = " + output);
+					Assert.assertEquals(input.shiftRight(n), output);
+
+					BigInteger[] remainders = new BigInteger[n];
+					for (int i = 0; i < n; i++) {
+						remainders[i] = app.getOutputs()[i+1].getValue();
+						Assert.assertEquals(input.testBit(i) ? BigInteger.ONE : BigInteger.ZERO, remainders[i]);
+					}
+					System.out.println(Arrays.toString(remainders));
 				}
 			};
 		}
