@@ -73,8 +73,11 @@ public class RightShiftFactoryImpl implements RightShiftFactory {
 
 	@Override
 	public RepeatedRightShiftProtocol getRepeatedRightShiftProtocol(SInt x, int n, SInt result) {
-		return new RepeatedRightShiftProtocolImpl(x, n, result, basicNumericFactory.getMaxBitLength(), this.securityParameter, 
-				basicNumericFactory, this);
+		return new RepeatedRightShiftProtocolImpl(x, n, result, basicNumericFactory, this);
 	}
 
+	@Override
+	public RepeatedRightShiftProtocol getRepeatedRightShiftProtocol(SInt x, int n, SInt result, SInt[] remainders) {
+		return new RepeatedRightShiftProtocolImpl(x, n, result, remainders, basicNumericFactory, this);
+	}
 }

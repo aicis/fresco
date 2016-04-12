@@ -26,22 +26,13 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.math.integer.binary;
 
-import java.math.BigInteger;
-
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.Protocol;
 import dk.alexandra.fresco.framework.ProtocolProducer;
-import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.framework.value.Value;
-import dk.alexandra.fresco.lib.compare.MiscOIntGenerators;
-import dk.alexandra.fresco.lib.compare.RandomAdditiveMaskFactory;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
-import dk.alexandra.fresco.lib.field.integer.OpenIntProtocol;
-import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
-import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
-import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductFactory;
 
 public class RepeatedRightShiftProtocolImpl implements RepeatedRightShiftProtocol {
 	
@@ -49,8 +40,6 @@ public class RepeatedRightShiftProtocolImpl implements RepeatedRightShiftProtoco
 	private SInt x;
 	private int n;
 	private SInt result;
-	private int bitLength;
-	private int securityParameter;
 	
 	// Factories
 	private final BasicNumericFactory basicNumericFactory;
@@ -60,12 +49,12 @@ public class RepeatedRightShiftProtocolImpl implements RepeatedRightShiftProtoco
 	private int round = 0;
 	private SInt in, out;
 	private ProtocolProducer gp;
+	private SInt[] remainders;
 	
-	public RepeatedRightShiftProtocolImpl(SInt x, int n, SInt result, int bitLength, int securityParameter,
+	public RepeatedRightShiftProtocolImpl(SInt x, int n, SInt result,
 			BasicNumericFactory basicNumericFactory, 
-			RightShiftFactory rightShiftFactory)
-	{
-
+			RightShiftFactory rightShiftFactory) {
+		
 		if (n < 1) {
 			throw new MPCException("n must be positive");
 		}
@@ -73,11 +62,20 @@ public class RepeatedRightShiftProtocolImpl implements RepeatedRightShiftProtoco
 		this.x = x;
 		this.n = n;
 		this.result = result;
-		this.bitLength = bitLength;
-		this.securityParameter = securityParameter;
 		
 		this.basicNumericFactory = basicNumericFactory;
 		this.rightShiftFactory = rightShiftFactory;
+	}
+
+	public RepeatedRightShiftProtocolImpl(SInt x, int n, SInt result, SInt[] remainders,
+			BasicNumericFactory basicNumericFactory, 
+			RightShiftFactory rightShiftFactory) {
+		
+		this(x, n, result, basicNumericFactory, rightShiftFactory);
+		if (remainders.length != n) {
+			throw new MPCException("Length of array for remainders must match number of performed shifts");
+		}
+		this.remainders = remainders;
 	}
 
 	public int getNextProtocols(NativeProtocol[] gates, int pos) {
@@ -85,17 +83,33 @@ public class RepeatedRightShiftProtocolImpl implements RepeatedRightShiftProtoco
 
 			if (round == 0) {
 				out = basicNumericFactory.getSInt();
-				Protocol rightShift = rightShiftFactory.getRightShiftProtocol(x, out); 
+
+				Protocol rightShift;
+				if (remainders != null) {
+					rightShift = rightShiftFactory.getRightShiftProtocol(x, out, remainders[round]); 
+				} else {
+					rightShift = rightShiftFactory.getRightShiftProtocol(x, out); 
+				}
 				gp = rightShift;
 			} else if (round < n - 1) {
 				in = out;
 				out = basicNumericFactory.getSInt();
-				Protocol rightShift = rightShiftFactory.getRightShiftProtocol(in, out);
+				Protocol rightShift;
+				if (remainders != null) {
+					rightShift = rightShiftFactory.getRightShiftProtocol(in, out, remainders[round]); 
+				} else {
+					rightShift = rightShiftFactory.getRightShiftProtocol(in, out); 
+				}
 				gp = rightShift;
 			} else if (round == n - 1) {
 				in = out;
 				out = null;
-				Protocol rightShift = rightShiftFactory.getRightShiftProtocol(in, result);
+				Protocol rightShift;
+				if (remainders != null) {
+					rightShift = rightShiftFactory.getRightShiftProtocol(in, result, remainders[round]); 
+				} else {
+					rightShift = rightShiftFactory.getRightShiftProtocol(in, result); 
+				}
 				gp = rightShift;
 			}
 			

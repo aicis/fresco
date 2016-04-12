@@ -59,4 +59,15 @@ public interface RightShiftFactory {
 	 */
 	public RepeatedRightShiftProtocol getRepeatedRightShiftProtocol(SInt x, int n, SInt result);
 
+	/**
+	 * @param x
+	 *            input
+	 * @param result
+	 *            input >> n
+	 * @param remainder
+	 *            The n least significant bits of input with the least significant having index 0
+	 * @return
+	 */
+	public RepeatedRightShiftProtocol getRepeatedRightShiftProtocol(SInt x, int n, SInt result, SInt[] remainders);
+	
 }
