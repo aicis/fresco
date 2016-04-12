@@ -54,6 +54,7 @@ import dk.alexandra.fresco.lib.math.integer.NumericNegateBitFactory;
 import dk.alexandra.fresco.lib.math.integer.NumericNegateBitFactoryImpl;
 import dk.alexandra.fresco.lib.math.integer.NumericNegateBitProtocol;
 import dk.alexandra.fresco.lib.math.integer.PreprocessedNumericBitFactory;
+import dk.alexandra.fresco.lib.math.integer.binary.RepeatedRightShiftProtocol;
 import dk.alexandra.fresco.lib.math.integer.binary.RightShiftFactory;
 import dk.alexandra.fresco.lib.math.integer.binary.RightShiftFactoryImpl;
 import dk.alexandra.fresco.lib.math.integer.binary.RightShiftProtocol;
@@ -628,5 +629,63 @@ public class BasicArithmeticTests {
 			};
 		}
 	}
+	
+
+	public static class TestRepeatedRightShift extends TestThreadFactory {
+
+		@Override
+		public TestThread next(TestThreadConfiguration conf) {
+			
+			return new ThreadWithFixture() {
+				private final BigInteger input = BigInteger.valueOf(12332153);
+
+				public void test() throws Exception {
+					TestApplication app = new TestApplication() {
+
+						private static final long serialVersionUID = 701623441111137585L;
+						
+						@Override
+						public ProtocolProducer prepareApplication(
+								ProtocolFactory provider) {
+							
+							BasicNumericFactory basicNumericFactory = (BasicNumericFactory) provider;
+							PreprocessedNumericBitFactory preprocessedNumericBitFactory = (PreprocessedNumericBitFactory) provider;
+							RandomAdditiveMaskFactory randomAdditiveMaskFactory = new RandomAdditiveMaskFactoryImpl(basicNumericFactory, preprocessedNumericBitFactory);
+							MiscOIntGenerators miscOIntGenerators = new MiscOIntGenerators(basicNumericFactory);
+							InnerProductFactory innerProductFactory = new InnerProductFactoryImpl(basicNumericFactory);
+							RightShiftFactory rightShiftFactory = new RightShiftFactoryImpl(80, 
+									basicNumericFactory, randomAdditiveMaskFactory, miscOIntGenerators, innerProductFactory);
+
+							SInt result = basicNumericFactory.getSInt();
+
+							NumericIOBuilder ioBuilder = new NumericIOBuilder(basicNumericFactory);
+							SequentialProtocolProducer sequentialProtocolProducer = new SequentialProtocolProducer();
+							
+							SInt input1 = ioBuilder.input(input, 1); // 1000111
+							sequentialProtocolProducer.append(ioBuilder.getCircuit());
+							
+							RepeatedRightShiftProtocol rightShiftProtocol = rightShiftFactory.getRepeatedRightShiftProtocol(input1, 3, result);
+							sequentialProtocolProducer.append(rightShiftProtocol);
+							
+							OInt output = ioBuilder.output(result);
+							sequentialProtocolProducer.append(ioBuilder.getCircuit());
+							
+							ProtocolProducer gp = sequentialProtocolProducer;
+							
+							outputs = new OInt[] {output};
+							
+							return gp;
+						}
+					};
+					sce.runApplication(app);
+					BigInteger output = app.getOutputs()[0].getValue();
+					System.out.println(input + " >> 3 = " + output);
+					
+					Assert.assertEquals(output, input.shiftRight(3));
+				}
+			};
+		}
+	}
+
 	
 }
