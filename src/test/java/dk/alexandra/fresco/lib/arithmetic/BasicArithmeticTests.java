@@ -32,8 +32,6 @@ import java.util.Arrays;
 
 import org.junit.Assert;
 
-import com.sun.swing.internal.plaf.basic.resources.basic;
-
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.TestApplication;
@@ -44,7 +42,6 @@ import dk.alexandra.fresco.framework.sce.SCE;
 import dk.alexandra.fresco.framework.sce.SCEFactory;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.compare.ComparisonProtocolFactoryImpl;
 import dk.alexandra.fresco.lib.compare.MiscOIntGenerators;
 import dk.alexandra.fresco.lib.compare.RandomAdditiveMaskFactory;
 import dk.alexandra.fresco.lib.compare.RandomAdditiveMaskFactoryImpl;
@@ -56,20 +53,17 @@ import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
 import dk.alexandra.fresco.lib.math.integer.EuclideanDivisionFactory;
 import dk.alexandra.fresco.lib.math.integer.EuclideanDivisionFactoryImpl;
 import dk.alexandra.fresco.lib.math.integer.EuclideanDivisionProtocol;
-import dk.alexandra.fresco.lib.math.integer.NumericNegateBitFactory;
-import dk.alexandra.fresco.lib.math.integer.NumericNegateBitFactoryImpl;
-import dk.alexandra.fresco.lib.math.integer.NumericNegateBitProtocol;
 import dk.alexandra.fresco.lib.math.integer.PreprocessedNumericBitFactory;
 import dk.alexandra.fresco.lib.math.integer.binary.RepeatedRightShiftProtocol;
 import dk.alexandra.fresco.lib.math.integer.binary.RightShiftFactory;
 import dk.alexandra.fresco.lib.math.integer.binary.RightShiftFactoryImpl;
 import dk.alexandra.fresco.lib.math.integer.binary.RightShiftProtocol;
-import dk.alexandra.fresco.lib.math.integer.exp.ExpFromOIntFactory;
-import dk.alexandra.fresco.lib.math.integer.exp.PreprocessedExpPipeFactory;
-import dk.alexandra.fresco.lib.math.integer.inv.LocalInversionFactory;
 import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductFactory;
 import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductFactoryImpl;
-import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductProtocol;
+import dk.alexandra.fresco.lib.math.integer.stat.ArithmeticMeanProtocol;
+import dk.alexandra.fresco.lib.math.integer.stat.StatisticsFactory;
+import dk.alexandra.fresco.lib.math.integer.stat.StatisticsFactoryImpl;
+import dk.alexandra.fresco.lib.math.integer.stat.VarianceProtocol;
 
 
 /**
@@ -488,6 +482,7 @@ public class BasicArithmeticTests {
 		public TestThread next(TestThreadConfiguration conf) {
 			
 			return new ThreadWithFixture() {
+				@Override
 				public void test() throws Exception {
 					TestApplication app = new TestApplication() {
 						private static final int REPS = 20000;
@@ -539,6 +534,7 @@ public class BasicArithmeticTests {
 		public TestThread next(TestThreadConfiguration conf) {
 			
 			return new ThreadWithFixture() {
+				@Override
 				public void test() throws Exception {
 					TestApplication app = new TestApplication() {
 
@@ -588,6 +584,7 @@ public class BasicArithmeticTests {
 			return new ThreadWithFixture() {
 				private final BigInteger input = BigInteger.valueOf(12332157);
 
+				@Override
 				public void test() throws Exception {
 					TestApplication app = new TestApplication() {
 
@@ -652,6 +649,7 @@ public class BasicArithmeticTests {
 				private final BigInteger input = BigInteger.valueOf(12332153);
 				private final int n = 7;
 				
+				@Override
 				public void test() throws Exception {
 					TestApplication app = new TestApplication() {
 
@@ -728,6 +726,7 @@ public class BasicArithmeticTests {
 				private final BigInteger x = new BigInteger("123978634193227335452345761");
 				private final BigInteger d = new BigInteger("6543212341214412");
 
+				@Override
 				public void test() throws Exception {
 					TestApplication app = new TestApplication() {
 
@@ -781,4 +780,91 @@ public class BasicArithmeticTests {
 			};
 		}
 	}
+
+	/**
+	 * Test Euclidian division
+	 */
+	public static class TestStatistics extends TestThreadFactory {
+
+		@Override
+		public TestThread next(TestThreadConfiguration conf) {
+			
+			return new ThreadWithFixture() {
+				private final int[] data = {543,520,532,497,450,432};
+
+				@Override
+				public void test() throws Exception {
+					TestApplication app = new TestApplication() {
+
+						private static final long serialVersionUID = 701623441111137585L;
+						
+						@Override
+						public ProtocolProducer prepareApplication(
+								ProtocolFactory provider) {
+							
+							BasicNumericFactory basicNumericFactory = (BasicNumericFactory) provider;
+							PreprocessedNumericBitFactory preprocessedNumericBitFactory = (PreprocessedNumericBitFactory) provider;
+							RandomAdditiveMaskFactory randomAdditiveMaskFactory = new RandomAdditiveMaskFactoryImpl(basicNumericFactory, preprocessedNumericBitFactory);
+							MiscOIntGenerators miscOIntGenerators = new MiscOIntGenerators(basicNumericFactory);
+							InnerProductFactory innerProductFactory = new InnerProductFactoryImpl(basicNumericFactory);
+							RightShiftFactory rightShiftFactory = new RightShiftFactoryImpl(80, 
+									basicNumericFactory, randomAdditiveMaskFactory, miscOIntGenerators, innerProductFactory);
+							EuclideanDivisionFactory euclidianDivisionFactory = new EuclideanDivisionFactoryImpl(basicNumericFactory, rightShiftFactory);
+							StatisticsFactory statisticsFactory = new StatisticsFactoryImpl(basicNumericFactory, euclidianDivisionFactory);
+							
+							NumericIOBuilder ioBuilder = new NumericIOBuilder(basicNumericFactory);
+							SequentialProtocolProducer sequentialProtocolProducer = new SequentialProtocolProducer();
+							
+							SInt mean = basicNumericFactory.getSInt();
+							SInt variance = basicNumericFactory.getSInt();
+							
+							SInt[] input1 = ioBuilder.inputArray(Arrays.copyOfRange(data,  3, 6), 1);
+							SInt[] input2 = ioBuilder.inputArray(Arrays.copyOfRange(data, 0, 3), 2);
+							SInt[] input = new SInt[] {input1[0], input1[1], input1[2], input2[0], input2[1], input2[2]};
+							
+							sequentialProtocolProducer.append(ioBuilder.getCircuit());
+							
+							ArithmeticMeanProtocol arithmeticMeanProtocol = statisticsFactory.getArithmeticMeanProtocol(input, 10, mean);
+							sequentialProtocolProducer.append(arithmeticMeanProtocol);
+							
+							VarianceProtocol varianceProtocol = statisticsFactory.getVarianceProtocol(input, 10, mean, variance);
+							sequentialProtocolProducer.append(varianceProtocol);
+							
+							OInt output1 = ioBuilder.output(mean);
+							OInt output2 = ioBuilder.output(variance);
+							
+							sequentialProtocolProducer.append(ioBuilder.getCircuit());
+							
+							ProtocolProducer gp = sequentialProtocolProducer;
+							
+							outputs = new OInt[] {output1, output2};
+							
+							return gp;
+						}
+					};
+					sce.runApplication(app);
+					BigInteger mean = app.getOutputs()[0].getValue();
+					BigInteger variance = app.getOutputs()[1].getValue();
+					System.out.println("mean = " + mean);
+					System.out.println("variance = " + variance);
+					
+					double sum = 0.0;
+					for (int entry : data) {
+						sum += entry;
+					}
+					double meanExact = sum / data.length;
+							
+					double ssd = 0.0;
+					for (int entry : data) {
+						ssd += (entry - meanExact) * (entry - meanExact);
+					}
+					double varianceExact = ssd / (data.length - 1);
+					System.out.println("Exact mean = " + meanExact);
+					System.out.println("Exact variance = " + varianceExact);
+					
+				}
+			};
+		}
+	}
+
 }
