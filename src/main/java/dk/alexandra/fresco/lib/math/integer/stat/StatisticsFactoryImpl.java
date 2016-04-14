@@ -33,22 +33,22 @@ import dk.alexandra.fresco.lib.math.integer.division.DivisionFactory;
 public class StatisticsFactoryImpl implements StatisticsFactory{
 
 	private BasicNumericFactory basicNumericFactory;
-	private DivisionFactory euclideanDivisionFactory;
+	private DivisionFactory divisionFactory;
 	
 	public StatisticsFactoryImpl(BasicNumericFactory basicNumericFactory, 
 			DivisionFactory euclideanDivisionFactory) {
 		this.basicNumericFactory = basicNumericFactory;
-		this.euclideanDivisionFactory = euclideanDivisionFactory;
+		this.divisionFactory = euclideanDivisionFactory;
 	}
 
 	@Override
 	public ArithmeticMeanProtocol getArithmeticMeanProtocol(SInt[] data, int maxInputLength, SInt result) {
 		return new ArithmeticMeanProtocolImpl(data, maxInputLength, result, 
-				basicNumericFactory, euclideanDivisionFactory);
+				basicNumericFactory, divisionFactory);
 	}
 	
 	public VarianceProtocol getVarianceProtocol(SInt[] data, int maxInputLength, SInt mean, SInt result) {
-		return new VarianceProtocolImpl(data, maxInputLength, mean, result, basicNumericFactory, euclideanDivisionFactory);
+		return new VarianceProtocolImpl(data, maxInputLength, mean, result, basicNumericFactory, divisionFactory);
 	}
 
 }

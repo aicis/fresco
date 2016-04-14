@@ -41,7 +41,7 @@ import dk.alexandra.fresco.lib.math.integer.division.DivisionFactory;
 public class VarianceProtocolImpl extends AbstractSimpleProtocol implements VarianceProtocol {
 
 	private final BasicNumericFactory basicNumericFactory;
-	private final DivisionFactory euclideanDivisionFactory;
+	private final DivisionFactory divisionFactory;
 
 	private SInt[] data;
 	private SInt result;
@@ -50,13 +50,13 @@ public class VarianceProtocolImpl extends AbstractSimpleProtocol implements Vari
 
 	public VarianceProtocolImpl(SInt[] data, int maxInputLength, SInt mean, SInt result,
 			BasicNumericFactory basicNumericFactory,
-			DivisionFactory euclideanDivisionFactory) {
+			DivisionFactory divisionFactory) {
 		this.data = data;
 		this.maxInputLength = maxInputLength;
 		this.mean = mean;
 		this.result = result;
 		this.basicNumericFactory = basicNumericFactory;
-		this.euclideanDivisionFactory = euclideanDivisionFactory;
+		this.divisionFactory = divisionFactory;
 	}
 
 	@Override
@@ -74,7 +74,7 @@ public class VarianceProtocolImpl extends AbstractSimpleProtocol implements Vari
 		OInt nMinus1 = basicNumericFactory.getOInt(BigInteger.valueOf(data.length - 1));
 
 		int maxSumLength = 2 * maxInputLength + (int) Math.ceil(Math.log(terms.length) / Math.log(2));
-		Protocol divide = euclideanDivisionFactory.getDivisionProtocol(sum, maxSumLength, nMinus1, result);
+		Protocol divide = divisionFactory.getDivisionProtocol(sum, maxSumLength, nMinus1, result);
 
 		return new SequentialProtocolProducer(numericProtocolBuilder.getCircuit(), divide);
 	}

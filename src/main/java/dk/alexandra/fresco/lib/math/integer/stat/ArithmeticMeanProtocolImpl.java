@@ -42,7 +42,7 @@ public class ArithmeticMeanProtocolImpl extends AbstractSimpleProtocol implement
 		ArithmeticMeanProtocol {
 
 	private final BasicNumericFactory basicNumericFactory;
-	private final DivisionFactory euclideanDivisionFactory;
+	private final DivisionFactory divisionFactory;
 
 	private SInt[] data;
 	private SInt result;
@@ -50,12 +50,12 @@ public class ArithmeticMeanProtocolImpl extends AbstractSimpleProtocol implement
 
 	public ArithmeticMeanProtocolImpl(SInt[] data, int maxInputLength, SInt result, 
 			BasicNumericFactory basicNumericFactory,
-			DivisionFactory euclideanDivisionFactory) {
+			DivisionFactory divisionFactory) {
 		this.data = data;
 		this.maxInputLength = maxInputLength;
 		this.result = result;
 		this.basicNumericFactory = basicNumericFactory;
-		this.euclideanDivisionFactory = euclideanDivisionFactory;
+		this.divisionFactory = divisionFactory;
 	}
 
 	@Override
@@ -67,7 +67,7 @@ public class ArithmeticMeanProtocolImpl extends AbstractSimpleProtocol implement
 		OInt n = basicNumericFactory.getOInt(BigInteger.valueOf(data.length));
 		
 		int maxSumLength = maxInputLength + (int) Math.ceil(Math.log(data.length) / Math.log(2));		
-		Protocol divide = euclideanDivisionFactory.getDivisionProtocol(sum, maxSumLength, n, result);
+		Protocol divide = divisionFactory.getDivisionProtocol(sum, maxSumLength, n, result);
 		
 		return new SequentialProtocolProducer(numericProtocolBuilder.getCircuit(), divide);
 	}
