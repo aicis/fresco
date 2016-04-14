@@ -75,7 +75,10 @@ public interface DivisionFactory {
 	 * @param maxDivisor
 	 *            Length An upper bound for <i>log<sub>2</sub>(divisor)</i>.
 	 * @param precision
-	 *            A parameter determining the precision of the approximation.
+	 *            A parameter determining the precision of the approximation. If
+	 *            the divisor is at least <i>2<sup>m-l</sup></i> then a
+	 *            precision of <i>p</i> gives at least <i>2<sup>p</sup>/l</i>
+	 *            bits of precision.
 	 * @param result
 	 *            The result which is an approximation of x / divisor. It will
 	 *            be \leq the correct result. More precisely it will be equal to
