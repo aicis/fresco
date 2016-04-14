@@ -50,14 +50,14 @@ import dk.alexandra.fresco.lib.helper.CopyProtocolImpl;
 import dk.alexandra.fresco.lib.helper.builder.NumericIOBuilder;
 import dk.alexandra.fresco.lib.helper.builder.NumericProtocolBuilder;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
-import dk.alexandra.fresco.lib.math.integer.EuclideanDivisionFactory;
-import dk.alexandra.fresco.lib.math.integer.EuclideanDivisionFactoryImpl;
-import dk.alexandra.fresco.lib.math.integer.EuclideanDivisionProtocol;
 import dk.alexandra.fresco.lib.math.integer.PreprocessedNumericBitFactory;
 import dk.alexandra.fresco.lib.math.integer.binary.RepeatedRightShiftProtocol;
 import dk.alexandra.fresco.lib.math.integer.binary.RightShiftFactory;
 import dk.alexandra.fresco.lib.math.integer.binary.RightShiftFactoryImpl;
 import dk.alexandra.fresco.lib.math.integer.binary.RightShiftProtocol;
+import dk.alexandra.fresco.lib.math.integer.division.DivisionFactory;
+import dk.alexandra.fresco.lib.math.integer.division.DivisionFactoryImpl;
+import dk.alexandra.fresco.lib.math.integer.division.DivisionProtocol;
 import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductFactory;
 import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductFactoryImpl;
 import dk.alexandra.fresco.lib.math.integer.stat.ArithmeticMeanProtocol;
@@ -743,7 +743,7 @@ public class BasicArithmeticTests {
 							InnerProductFactory innerProductFactory = new InnerProductFactoryImpl(basicNumericFactory);
 							RightShiftFactory rightShiftFactory = new RightShiftFactoryImpl(80, 
 									basicNumericFactory, randomAdditiveMaskFactory, miscOIntGenerators, innerProductFactory);
-							EuclideanDivisionFactory euclidianDivisionFactory = new EuclideanDivisionFactoryImpl(basicNumericFactory, rightShiftFactory);
+							DivisionFactory euclidianDivisionFactory = new DivisionFactoryImpl(basicNumericFactory, rightShiftFactory);
 							
 							SInt quotient = basicNumericFactory.getSInt();
 							SInt remainder = basicNumericFactory.getSInt();
@@ -755,7 +755,7 @@ public class BasicArithmeticTests {
 							OInt input2 = basicNumericFactory.getOInt(d);
 							sequentialProtocolProducer.append(ioBuilder.getCircuit());
 							
-							EuclideanDivisionProtocol euclidianDivisionProtocol = euclidianDivisionFactory.getEuclideanDivisionProtocol(input1, x.bitLength() + 1, input2, quotient, remainder);
+							DivisionProtocol euclidianDivisionProtocol = euclidianDivisionFactory.getDivisionProtocol(input1, x.bitLength() + 1, input2, quotient, remainder);
 							sequentialProtocolProducer.append(euclidianDivisionProtocol);
 							
 							OInt output1 = ioBuilder.output(quotient);
@@ -809,7 +809,7 @@ public class BasicArithmeticTests {
 							InnerProductFactory innerProductFactory = new InnerProductFactoryImpl(basicNumericFactory);
 							RightShiftFactory rightShiftFactory = new RightShiftFactoryImpl(80, 
 									basicNumericFactory, randomAdditiveMaskFactory, miscOIntGenerators, innerProductFactory);
-							EuclideanDivisionFactory euclidianDivisionFactory = new EuclideanDivisionFactoryImpl(basicNumericFactory, rightShiftFactory);
+							DivisionFactory euclidianDivisionFactory = new DivisionFactoryImpl(basicNumericFactory, rightShiftFactory);
 							StatisticsFactory statisticsFactory = new StatisticsFactoryImpl(basicNumericFactory, euclidianDivisionFactory);
 							
 							NumericIOBuilder ioBuilder = new NumericIOBuilder(basicNumericFactory);
@@ -862,6 +862,70 @@ public class BasicArithmeticTests {
 					System.out.println("Exact mean = " + meanExact);
 					System.out.println("Exact variance = " + varianceExact);
 					
+				}
+			};
+		}
+	}
+	
+	/**
+	 * Test Euclidian division
+	 */
+	public static class TestSecretSharedDivision extends TestThreadFactory {
+
+		@Override
+		public TestThread next(TestThreadConfiguration conf) {
+			
+			return new ThreadWithFixture() {
+				private final BigInteger x = new BigInteger("400");
+				private final BigInteger d = new BigInteger("2");
+				private final int precision = 5;
+
+				@Override
+				public void test() throws Exception {
+					TestApplication app = new TestApplication() {
+
+						private static final long serialVersionUID = 701623441111137585L;
+						
+						@Override
+						public ProtocolProducer prepareApplication(
+								ProtocolFactory provider) {
+							
+							BasicNumericFactory basicNumericFactory = (BasicNumericFactory) provider;
+							PreprocessedNumericBitFactory preprocessedNumericBitFactory = (PreprocessedNumericBitFactory) provider;
+							RandomAdditiveMaskFactory randomAdditiveMaskFactory = new RandomAdditiveMaskFactoryImpl(basicNumericFactory, preprocessedNumericBitFactory);
+							MiscOIntGenerators miscOIntGenerators = new MiscOIntGenerators(basicNumericFactory);
+							InnerProductFactory innerProductFactory = new InnerProductFactoryImpl(basicNumericFactory);
+							RightShiftFactory rightShiftFactory = new RightShiftFactoryImpl(80, 
+									basicNumericFactory, randomAdditiveMaskFactory, miscOIntGenerators, innerProductFactory);
+							DivisionFactory divisionFactory = new DivisionFactoryImpl(basicNumericFactory, rightShiftFactory);
+							
+							SInt quotient = basicNumericFactory.getSInt();
+
+							NumericIOBuilder ioBuilder = new NumericIOBuilder(basicNumericFactory);
+							SequentialProtocolProducer sequentialProtocolProducer = new SequentialProtocolProducer();
+							
+							SInt input1 = ioBuilder.input(x, 1);
+							SInt input2 = ioBuilder.input(d, 2);
+							sequentialProtocolProducer.append(ioBuilder.getCircuit());
+							
+							DivisionProtocol divisionProtocol = divisionFactory.getDivisionProtocol(input1, input2, d.bitLength() + 1, precision, quotient);
+							sequentialProtocolProducer.append(divisionProtocol);
+							
+							OInt output1 = ioBuilder.output(quotient);
+							
+							sequentialProtocolProducer.append(ioBuilder.getCircuit());
+							
+							ProtocolProducer gp = sequentialProtocolProducer;
+							
+							outputs = new OInt[] {output1};
+							
+							return gp;
+						}
+					};
+					sce.runApplication(app);
+					BigInteger quotient = app.getOutputs()[0].getValue();
+					System.out.println(x + " / " + d + " = " + quotient);
+					Assert.assertEquals(quotient, x.divide(d));
 				}
 			};
 		}

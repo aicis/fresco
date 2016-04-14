@@ -24,7 +24,7 @@
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
  *******************************************************************************/
-package dk.alexandra.fresco.lib.math.integer;
+package dk.alexandra.fresco.lib.math.integer.division;
 
 import java.math.BigInteger;
 
@@ -37,14 +37,15 @@ import dk.alexandra.fresco.lib.helper.AbstractSimpleProtocol;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
 import dk.alexandra.fresco.lib.math.integer.binary.RightShiftFactory;
 
-public class EuclideanDivisionProtocolImpl extends AbstractSimpleProtocol implements EuclideanDivisionProtocol {
-	
+public class KnownDivisorProtocol extends AbstractSimpleProtocol implements
+		DivisionProtocol {
+
 	// Input
 	private SInt x;
 	private OInt divisor;
 	private SInt result, remainder;
 	private int maxInputLength;
-	
+
 	// Factories
 	private final BasicNumericFactory basicNumericFactory;
 	private final RightShiftFactory rightShiftFactory;
@@ -52,28 +53,30 @@ public class EuclideanDivisionProtocolImpl extends AbstractSimpleProtocol implem
 	// Variables used for calculation
 	private int divisorBitLength;
 	private OInt m;
-	
-	public EuclideanDivisionProtocolImpl(SInt x, int maxLength, OInt divisor, SInt result,
+
+	public KnownDivisorProtocol(SInt x, int maxLength, OInt divisor, SInt result,
 			BasicNumericFactory basicNumericFactory, RightShiftFactory rightShiftFactory) {
 		this.x = x;
 		this.divisor = divisor;
 		this.maxInputLength = maxLength;
-		
+
 		this.result = result;
-		
+
 		this.basicNumericFactory = basicNumericFactory;
 		this.rightShiftFactory = rightShiftFactory;
 	}
-	
-	public EuclideanDivisionProtocolImpl(SInt x, int maxLength, OInt divisor, SInt result, SInt remainder,
-			BasicNumericFactory basicNumericFactory, RightShiftFactory rightShiftFactory) {
+
+	public KnownDivisorProtocol(SInt x, int maxLength, OInt divisor, SInt result,
+			SInt remainder, BasicNumericFactory basicNumericFactory,
+			RightShiftFactory rightShiftFactory) {
 		this(x, maxLength, divisor, result, basicNumericFactory, rightShiftFactory);
 		this.remainder = remainder;
 	}
 
 	@Override
 	protected ProtocolProducer initializeGateProducer() {
-		
+		SequentialProtocolProducer euclidianDivisionProtocol = new SequentialProtocolProducer();
+
 		BigInteger dValue = divisor.getValue();
 		divisorBitLength = dValue.bitLength();
 
@@ -92,18 +95,18 @@ public class EuclideanDivisionProtocolImpl extends AbstractSimpleProtocol implem
 		 * To improve performance it is desireable to keep maxLength as small as
 		 * possible.
 		 */
-		BigInteger mValue = BigInteger.ONE.shiftLeft(maxInputLength + divisorBitLength).add(BigInteger.ONE.shiftLeft(divisorBitLength)).divide(dValue);
+		BigInteger mValue = BigInteger.ONE.shiftLeft(maxInputLength + divisorBitLength)
+				.add(BigInteger.ONE.shiftLeft(divisorBitLength)).divide(dValue);
 		m = basicNumericFactory.getOInt(mValue);
-
-		SequentialProtocolProducer euclidianDivisionProtocol = new SequentialProtocolProducer();
 
 		// Calculate quotient = m * x >> maxLength + l
 		SInt divisionProduct = basicNumericFactory.getSInt();
 		Protocol mTimesX = basicNumericFactory.getMultCircuit(m, x, divisionProduct);
-		Protocol shift = rightShiftFactory.getRepeatedRightShiftProtocol(divisionProduct, maxInputLength + divisorBitLength, result);
+		Protocol shift = rightShiftFactory.getRepeatedRightShiftProtocol(divisionProduct,
+				maxInputLength + divisorBitLength, result);
 		ProtocolProducer divisionProtocol = new SequentialProtocolProducer(mTimesX, shift);
 		euclidianDivisionProtocol.append(divisionProtocol);
-		
+
 		if (remainder != null) {
 			// Calculate remainder = x - result * divisor
 			SInt product = basicNumericFactory.getSInt();
@@ -112,7 +115,7 @@ public class EuclideanDivisionProtocolImpl extends AbstractSimpleProtocol implem
 			ProtocolProducer remainderProtocol = new SequentialProtocolProducer(dTimesQ, subtract);
 			euclidianDivisionProtocol.append(remainderProtocol);
 		}
-		
+
 		return euclidianDivisionProtocol;
 	}
 

@@ -24,13 +24,37 @@
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
  *******************************************************************************/
-package dk.alexandra.fresco.lib.math.integer;
+package dk.alexandra.fresco.lib.math.integer.division;
 
-import dk.alexandra.fresco.framework.Protocol;
+import dk.alexandra.fresco.framework.value.OInt;
+import dk.alexandra.fresco.framework.value.SInt;
+import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
+import dk.alexandra.fresco.lib.math.integer.binary.RightShiftFactory;
 
-/**
- * This protocol will return the binary right shift of the given input.
- */
-public interface EuclideanDivisionProtocol extends Protocol {
+public class DivisionFactoryImpl implements DivisionFactory {
+
+	private final BasicNumericFactory basicNumericFactory;
+	private final RightShiftFactory rightShiftFactory;
+	
+	public DivisionFactoryImpl(BasicNumericFactory basicNumericFactory,
+			RightShiftFactory rightShiftFactory) {
+		this.basicNumericFactory = basicNumericFactory;
+		this.rightShiftFactory = rightShiftFactory;
+	}
+
+	@Override
+	public DivisionProtocol getDivisionProtocol(SInt x, int maxInputLength, OInt divisor, SInt result) {
+		return new KnownDivisorProtocol(x, maxInputLength, divisor, result, basicNumericFactory, rightShiftFactory);
+	}
+
+	@Override
+	public DivisionProtocol getDivisionProtocol(SInt x, int maxInputLength, OInt divisor, SInt result, SInt remainder) {
+		return new KnownDivisorProtocol(x, maxInputLength, divisor, result, remainder, basicNumericFactory, rightShiftFactory);
+	}
+
+	@Override
+	public DivisionProtocol getDivisionProtocol(SInt x, SInt divisor, int maxDivisorLength, int precision, SInt result) {
+		return new SecretSharedDivisorProtocol(x, divisor, maxDivisorLength, precision, result , basicNumericFactory, rightShiftFactory);
+	}
 
 }

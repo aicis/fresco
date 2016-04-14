@@ -28,15 +28,15 @@ package dk.alexandra.fresco.lib.math.integer.stat;
 
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
-import dk.alexandra.fresco.lib.math.integer.EuclideanDivisionFactory;
+import dk.alexandra.fresco.lib.math.integer.division.DivisionFactory;
 
 public class StatisticsFactoryImpl implements StatisticsFactory{
 
 	private BasicNumericFactory basicNumericFactory;
-	private EuclideanDivisionFactory euclideanDivisionFactory;
+	private DivisionFactory euclideanDivisionFactory;
 	
 	public StatisticsFactoryImpl(BasicNumericFactory basicNumericFactory, 
-			EuclideanDivisionFactory euclideanDivisionFactory) {
+			DivisionFactory euclideanDivisionFactory) {
 		this.basicNumericFactory = basicNumericFactory;
 		this.euclideanDivisionFactory = euclideanDivisionFactory;
 	}

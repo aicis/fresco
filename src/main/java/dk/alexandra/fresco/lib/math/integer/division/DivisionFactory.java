@@ -24,12 +24,12 @@
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
  *******************************************************************************/
-package dk.alexandra.fresco.lib.math.integer;
+package dk.alexandra.fresco.lib.math.integer.division;
 
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 
-public interface EuclideanDivisionFactory {
+public interface DivisionFactory {
 	
 	/**
 	 * @param x
@@ -43,7 +43,7 @@ public interface EuclideanDivisionFactory {
 	 * 
 	 * @return
 	 */
-	EuclideanDivisionProtocol getEuclideanDivisionProtocol(SInt x, int maxInputLength, OInt divisor, SInt result);
+	DivisionProtocol getDivisionProtocol(SInt x, int maxInputLength, OInt divisor, SInt result);
 
 	/**
 	 * @param x
@@ -54,11 +54,37 @@ public interface EuclideanDivisionFactory {
 	 *            divisor
 	 * @param result
 	 *            floor(x / d)
-	 * @param rresult
+	 * @param remainder
 	 *            The remainder: a nonnegative integer < d such that x = result * d + r
 	 * 
 	 * @return
 	 */
-	public EuclideanDivisionProtocol getEuclideanDivisionProtocol(SInt x, int maxInputLength, OInt divisor, SInt result, SInt rresult);
+	public DivisionProtocol getDivisionProtocol(SInt x, int maxInputLength, OInt divisor, SInt result, SInt remainder);
 
+	/**
+	 * This protocol calculates an approximation of <code>x / divisor</code>,
+	 * which will be either correct or slightly smaller than the correct result.
+	 * 
+	 * @param x
+	 *            Input. To avoid overflow we require that
+	 *            <i>2<sup>2<sup>p</sup>m</sup>x</i> should be smaller than the
+	 *            modulus used, where <i>m</i> is <code>maxDivisorLength</code>
+	 *            and <i>p</i> is <code>precision</code>.
+	 * @param divisor
+	 *            The divisor
+	 * @param maxDivisor
+	 *            Length An upper bound for <i>log<sub>2</sub>(divisor)</i>.
+	 * @param precision
+	 *            A parameter determining the precision of the approximation.
+	 * @param result
+	 *            The result which is an approximation of x / divisor. It will
+	 *            be \leq the correct result. More precisely it will be equal to
+	 *            <i>floor( (x + 1 / divisor) * (1 -
+	 *            ((2<sup>m</sup>-d)/2<sup>m</sup>)<sup>2<sup>p</sup></sup>) )
+	 *            where <i>m</i> is <code>maxInputLength</code> and <i>p</i> is
+	 *            <code>precision</code>.
+	 * @return
+	 */
+	public DivisionProtocol getDivisionProtocol(SInt x, SInt divisor, int maxDivisorLength, int precision, SInt result);
+	
 }

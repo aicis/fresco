@@ -36,13 +36,13 @@ import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.helper.AbstractSimpleProtocol;
 import dk.alexandra.fresco.lib.helper.builder.NumericProtocolBuilder;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
-import dk.alexandra.fresco.lib.math.integer.EuclideanDivisionFactory;
+import dk.alexandra.fresco.lib.math.integer.division.DivisionFactory;
 
 public class ArithmeticMeanProtocolImpl extends AbstractSimpleProtocol implements
 		ArithmeticMeanProtocol {
 
 	private final BasicNumericFactory basicNumericFactory;
-	private final EuclideanDivisionFactory euclideanDivisionFactory;
+	private final DivisionFactory euclideanDivisionFactory;
 
 	private SInt[] data;
 	private SInt result;
@@ -50,7 +50,7 @@ public class ArithmeticMeanProtocolImpl extends AbstractSimpleProtocol implement
 
 	public ArithmeticMeanProtocolImpl(SInt[] data, int maxInputLength, SInt result, 
 			BasicNumericFactory basicNumericFactory,
-			EuclideanDivisionFactory euclideanDivisionFactory) {
+			DivisionFactory euclideanDivisionFactory) {
 		this.data = data;
 		this.maxInputLength = maxInputLength;
 		this.result = result;
@@ -67,7 +67,7 @@ public class ArithmeticMeanProtocolImpl extends AbstractSimpleProtocol implement
 		OInt n = basicNumericFactory.getOInt(BigInteger.valueOf(data.length));
 		
 		int maxSumLength = maxInputLength + (int) Math.ceil(Math.log(data.length) / Math.log(2));		
-		Protocol divide = euclideanDivisionFactory.getEuclideanDivisionProtocol(sum, maxSumLength, n, result);
+		Protocol divide = euclideanDivisionFactory.getDivisionProtocol(sum, maxSumLength, n, result);
 		
 		return new SequentialProtocolProducer(numericProtocolBuilder.getCircuit(), divide);
 	}
