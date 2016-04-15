@@ -30,64 +30,69 @@ import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 
 public interface DivisionFactory {
-	
+
 	/**
-	 * @param x
-	 *            input
-	 * @param maxInputLength
-	 *            An upper bound for log_2(x)
+	 * @param dividend
+	 *            The dividend.
+	 * @param maxDividendLength
+	 *            An upper bound for <i>log<sub>2</sub>(dividend)</i>.
 	 * @param divisor
-	 *            divisor
-	 * @param result
-	 *            floor(x / d)
+	 *            The divisor.
+	 * @param quotient
+	 *            The quotient, <i>floor(dividend / divisor)</i>.
 	 * 
 	 * @return
 	 */
-	DivisionProtocol getDivisionProtocol(SInt x, int maxInputLength, OInt divisor, SInt result);
+	DivisionProtocol getDivisionProtocol(SInt dividend, int maxDividendLength, OInt divisor, SInt quotient);
 
 	/**
-	 * @param x
-	 *            input
-	 * @param maxInputLength
-	 *            An upper bound for log_2(x)
+	 * @param dividend
+	 *            The dividend.
+	 * @param maxDividendLength
+	 *            An upper bound for <i>log<sub>2</sub>(dividend)</i>.
 	 * @param divisor
-	 *            divisor
-	 * @param result
-	 *            floor(x / d)
+	 *            The divisor.
+	 * @param quotient
+	 *            The quotient, <i>floor(dividend / divisor)</i>.
 	 * @param remainder
-	 *            The remainder: a nonnegative integer < d such that x = result * d + r
+	 *            The remainder: a nonnegative integer strictly smaller than the divisor
+	 *            such that <i>dividend = quotient * divisor + remainder</i>.
 	 * 
 	 * @return
 	 */
-	public DivisionProtocol getDivisionProtocol(SInt x, int maxInputLength, OInt divisor, SInt result, SInt remainder);
+	public DivisionProtocol getDivisionProtocol(SInt dividend, int maxDividendLength, OInt divisor,
+			SInt quotient, SInt remainder);
 
 	/**
-	 * This protocol calculates an approximation of <code>x / divisor</code>,
-	 * which will be either correct or slightly smaller than the correct result.
+	 * This protocol calculates an approximation of
+	 * <code>floor(x / divisor)</code>, which will be either correct or slightly
+	 * smaller than the correct result.
 	 * 
-	 * @param x
-	 *            Input. To avoid overflow we require that
-	 *            <i>2<sup>2<sup>p</sup>m</sup>x</i> should be smaller than the
-	 *            modulus used, where <i>m</i> is <code>maxDivisorLength</code>
-	 *            and <i>p</i> is <code>precision</code>.
+	 * @param dividend
+	 *            The dividend. To avoid overflow we require that
+	 *            <i>2<sup>2<sup>p</sup>m</sup> * dividend</i> should be representable,
+	 *            where <i>m</i> is <code>maxDivisorLength</code> and <i>p</i>
+	 *            is <code>precision</code>.
 	 * @param divisor
-	 *            The divisor
-	 * @param maxDivisor
-	 *            Length An upper bound for <i>log<sub>2</sub>(divisor)</i>.
+	 *            The divisor.
+	 * @param maxDivisorLength
+	 *            An upper bound for <i>log<sub>2</sub>(divisor)</i>.
 	 * @param precision
 	 *            A parameter determining the precision of the approximation. If
-	 *            the divisor is at least <i>2<sup>m-l</sup></i> then a
-	 *            precision of <i>p</i> gives at least <i>2<sup>p</sup>/l</i>
+	 *            the divisor is at least <i>2<sup>m-k</sup></i> then a
+	 *            precision of <i>p</i> gives at least <i>2<sup>p</sup> / k</i>
 	 *            bits of precision.
-	 * @param result
-	 *            The result which is an approximation of x / divisor. It will
-	 *            be \leq the correct result. More precisely it will be equal to
-	 *            <i>floor( (x + 1 / divisor) * (1 -
-	 *            ((2<sup>m</sup>-d)/2<sup>m</sup>)<sup>2<sup>p</sup></sup>) )
-	 *            where <i>m</i> is <code>maxInputLength</code> and <i>p</i> is
+	 * @param quotient
+	 *            An approximation of <i>dividend / divisor</i>. It will be \leq
+	 *            the correct result. More precisely it will be equal to
+	 *            <i>floor( (dividend + 1) / divisor) * (1 -
+	 *            ((2<sup>m</sup>-divisor
+	 *            )/2<sup>m</sup>)<sup>2<sup>p</sup></sup>) ) where <i>m</i> is
+	 *            <code>maxInputLength</code> and <i>p</i> is
 	 *            <code>precision</code>.
 	 * @return
 	 */
-	public DivisionProtocol getDivisionProtocol(SInt x, SInt divisor, int maxDivisorLength, int precision, SInt result);
-	
+	public DivisionProtocol getDivisionProtocol(SInt dividend, SInt divisor, int maxDivisorLength,
+			int precision, SInt quotient);
+
 }
