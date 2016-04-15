@@ -37,8 +37,22 @@ import dk.alexandra.fresco.lib.helper.AbstractSimpleProtocol;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
 import dk.alexandra.fresco.lib.math.integer.binary.RightShiftFactory;
 
-public class KnownDivisorProtocol extends AbstractSimpleProtocol implements
-		DivisionProtocol {
+/**
+ * This protocol is an implementation Euclidean division (finding quotient and
+ * remainder) on integers with a secret shared divedend and a known divisor. In
+ * the implementation we calculate a constant <i>m</i> such that multiplication
+ * with <i>m</i> will correpsond to the desired division -- just shifted a
+ * number of bits to the left. To get the right result we just need to shift
+ * back again.
+ * 
+ * The protocol does <code>maxInputLength + log(divisor)</code> shifts, and this
+ * being the heaviest operation, keeping these numbers small will improve
+ * performance.
+ * 
+ * @author Jonas Lindstrøm (jonas.lindstrom@alexandra.dk)
+ *
+ */
+public class KnownDivisorProtocol extends AbstractSimpleProtocol implements DivisionProtocol {
 
 	// Input
 	private SInt x;
@@ -66,9 +80,8 @@ public class KnownDivisorProtocol extends AbstractSimpleProtocol implements
 		this.rightShiftFactory = rightShiftFactory;
 	}
 
-	public KnownDivisorProtocol(SInt x, int maxLength, OInt divisor, SInt result,
-			SInt remainder, BasicNumericFactory basicNumericFactory,
-			RightShiftFactory rightShiftFactory) {
+	public KnownDivisorProtocol(SInt x, int maxLength, OInt divisor, SInt result, SInt remainder,
+			BasicNumericFactory basicNumericFactory, RightShiftFactory rightShiftFactory) {
 		this(x, maxLength, divisor, result, basicNumericFactory, rightShiftFactory);
 		this.remainder = remainder;
 	}
