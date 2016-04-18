@@ -69,8 +69,8 @@ public class SortingProtocolBuilder extends ComparisonProtocolBuilder {
 		append(getBnf().getMultCircuit(minusOne, c, d));
 		
 		beginParScope();
-		append(getBnf().getAddCircuit(c, values[b], c));
-		append(getBnf().getAddCircuit(d, values[a], d));		
+		append(getBnf().getAddProtocol(c, values[b], c));
+		append(getBnf().getAddProtocol(d, values[a], d));		
 		endCurScope();
 
 		values[a]=c;
