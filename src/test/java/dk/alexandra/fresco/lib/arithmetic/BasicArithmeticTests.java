@@ -60,6 +60,9 @@ import dk.alexandra.fresco.lib.math.integer.division.DivisionFactoryImpl;
 import dk.alexandra.fresco.lib.math.integer.division.DivisionProtocol;
 import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductFactory;
 import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductFactoryImpl;
+import dk.alexandra.fresco.lib.math.integer.sqrt.SquareRootFactory;
+import dk.alexandra.fresco.lib.math.integer.sqrt.SquareRootFactoryImpl;
+import dk.alexandra.fresco.lib.math.integer.sqrt.SquareRootProtocol;
 import dk.alexandra.fresco.lib.math.integer.stat.ArithmeticMeanProtocol;
 import dk.alexandra.fresco.lib.math.integer.stat.StatisticsFactory;
 import dk.alexandra.fresco.lib.math.integer.stat.StatisticsFactoryImpl;
@@ -876,9 +879,9 @@ public class BasicArithmeticTests {
 		public TestThread next(TestThreadConfiguration conf) {
 			
 			return new ThreadWithFixture() {
-				private final BigInteger x = new BigInteger("400");
-				private final BigInteger d = new BigInteger("2");
-				private final int precision = 5;
+				private final BigInteger x = new BigInteger("8000");
+				private final BigInteger d = new BigInteger("3");
+				private final int precision = 4; // How many bits of precision do we get? Should be 2^p / l...
 
 				@Override
 				public void test() throws Exception {
@@ -931,4 +934,63 @@ public class BasicArithmeticTests {
 		}
 	}
 
+	public static class TestSquareRoot extends TestThreadFactory {
+
+		@Override
+		public TestThread next(TestThreadConfiguration conf) {
+			
+			return new ThreadWithFixture() {
+				private final BigInteger x = new BigInteger("423402342001");
+				private final int iterations = 4;
+
+				@Override
+				public void test() throws Exception {
+					TestApplication app = new TestApplication() {
+
+						private static final long serialVersionUID = 701623441111137585L;
+						
+						@Override
+						public ProtocolProducer prepareApplication(
+								ProtocolFactory provider) {
+							
+							BasicNumericFactory basicNumericFactory = (BasicNumericFactory) provider;
+							PreprocessedNumericBitFactory preprocessedNumericBitFactory = (PreprocessedNumericBitFactory) provider;
+							RandomAdditiveMaskFactory randomAdditiveMaskFactory = new RandomAdditiveMaskFactoryImpl(basicNumericFactory, preprocessedNumericBitFactory);
+							MiscOIntGenerators miscOIntGenerators = new MiscOIntGenerators(basicNumericFactory);
+							InnerProductFactory innerProductFactory = new InnerProductFactoryImpl(basicNumericFactory);
+							RightShiftFactory rightShiftFactory = new RightShiftFactoryImpl(80, 
+									basicNumericFactory, randomAdditiveMaskFactory, miscOIntGenerators, innerProductFactory);
+							DivisionFactory divisionFactory = new DivisionFactoryImpl(basicNumericFactory, rightShiftFactory);
+							SquareRootFactory squareRootFactory = new SquareRootFactoryImpl(basicNumericFactory, divisionFactory, rightShiftFactory);
+							
+							SInt sqrt = basicNumericFactory.getSInt();
+
+							NumericIOBuilder ioBuilder = new NumericIOBuilder(basicNumericFactory);
+							SequentialProtocolProducer sequentialProtocolProducer = new SequentialProtocolProducer();
+							
+							SInt input1 = ioBuilder.input(x, 1);
+							sequentialProtocolProducer.append(ioBuilder.getCircuit());
+							
+							SquareRootProtocol squareRootProtocol = squareRootFactory.getSquareRootProtocol(input1, x.bitLength(), iterations, sqrt);
+							sequentialProtocolProducer.append(squareRootProtocol);
+							
+							OInt output1 = ioBuilder.output(sqrt);
+							
+							sequentialProtocolProducer.append(ioBuilder.getCircuit());
+							
+							ProtocolProducer gp = sequentialProtocolProducer;
+							
+							outputs = new OInt[] {output1};
+							
+							return gp;
+						}
+					};
+					sce.runApplication(app);
+					BigInteger sqrt = app.getOutputs()[0].getValue();
+					System.out.println("sqrt(" + x + ") = " + sqrt);
+					Assert.assertEquals(sqrt, BigInteger.valueOf(650693));
+				}
+			};
+		}
+	}
 }
