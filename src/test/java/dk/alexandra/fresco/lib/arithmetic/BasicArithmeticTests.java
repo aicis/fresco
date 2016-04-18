@@ -600,10 +600,7 @@ public class BasicArithmeticTests {
 							BasicNumericFactory basicNumericFactory = (BasicNumericFactory) provider;
 							PreprocessedNumericBitFactory preprocessedNumericBitFactory = (PreprocessedNumericBitFactory) provider;
 							RandomAdditiveMaskFactory randomAdditiveMaskFactory = new RandomAdditiveMaskFactoryImpl(basicNumericFactory, preprocessedNumericBitFactory);
-							MiscOIntGenerators miscOIntGenerators = new MiscOIntGenerators(basicNumericFactory);
-							InnerProductFactory innerProductFactory = new InnerProductFactoryImpl(basicNumericFactory);
-							RightShiftFactory rightShiftFactory = new RightShiftFactoryImpl(80, 
-									basicNumericFactory, randomAdditiveMaskFactory, miscOIntGenerators, innerProductFactory);
+							RightShiftFactory rightShiftFactory = new RightShiftFactoryImpl(80, basicNumericFactory, randomAdditiveMaskFactory);
 
 							SInt result = basicNumericFactory.getSInt();
 							SInt remainder = basicNumericFactory.getSInt();
@@ -665,10 +662,7 @@ public class BasicArithmeticTests {
 							BasicNumericFactory basicNumericFactory = (BasicNumericFactory) provider;
 							PreprocessedNumericBitFactory preprocessedNumericBitFactory = (PreprocessedNumericBitFactory) provider;
 							RandomAdditiveMaskFactory randomAdditiveMaskFactory = new RandomAdditiveMaskFactoryImpl(basicNumericFactory, preprocessedNumericBitFactory);
-							MiscOIntGenerators miscOIntGenerators = new MiscOIntGenerators(basicNumericFactory);
-							InnerProductFactory innerProductFactory = new InnerProductFactoryImpl(basicNumericFactory);
-							RightShiftFactory rightShiftFactory = new RightShiftFactoryImpl(80, 
-									basicNumericFactory, randomAdditiveMaskFactory, miscOIntGenerators, innerProductFactory);
+							RightShiftFactory rightShiftFactory = new RightShiftFactoryImpl(80, basicNumericFactory, randomAdditiveMaskFactory);
 
 							SInt result = basicNumericFactory.getSInt();
 							
@@ -744,8 +738,7 @@ public class BasicArithmeticTests {
 							RandomAdditiveMaskFactory randomAdditiveMaskFactory = new RandomAdditiveMaskFactoryImpl(basicNumericFactory, preprocessedNumericBitFactory);
 							MiscOIntGenerators miscOIntGenerators = new MiscOIntGenerators(basicNumericFactory);
 							InnerProductFactory innerProductFactory = new InnerProductFactoryImpl(basicNumericFactory);
-							RightShiftFactory rightShiftFactory = new RightShiftFactoryImpl(80, 
-									basicNumericFactory, randomAdditiveMaskFactory, miscOIntGenerators, innerProductFactory);
+							RightShiftFactory rightShiftFactory = new RightShiftFactoryImpl(80, basicNumericFactory, randomAdditiveMaskFactory);
 							DivisionFactory euclidianDivisionFactory = new DivisionFactoryImpl(basicNumericFactory, rightShiftFactory);
 							
 							SInt quotient = basicNumericFactory.getSInt();
@@ -810,8 +803,7 @@ public class BasicArithmeticTests {
 							RandomAdditiveMaskFactory randomAdditiveMaskFactory = new RandomAdditiveMaskFactoryImpl(basicNumericFactory, preprocessedNumericBitFactory);
 							MiscOIntGenerators miscOIntGenerators = new MiscOIntGenerators(basicNumericFactory);
 							InnerProductFactory innerProductFactory = new InnerProductFactoryImpl(basicNumericFactory);
-							RightShiftFactory rightShiftFactory = new RightShiftFactoryImpl(80, 
-									basicNumericFactory, randomAdditiveMaskFactory, miscOIntGenerators, innerProductFactory);
+							RightShiftFactory rightShiftFactory = new RightShiftFactoryImpl(80, basicNumericFactory, randomAdditiveMaskFactory);
 							DivisionFactory euclidianDivisionFactory = new DivisionFactoryImpl(basicNumericFactory, rightShiftFactory);
 							StatisticsFactory statisticsFactory = new StatisticsFactoryImpl(basicNumericFactory, euclidianDivisionFactory);
 							
@@ -898,8 +890,7 @@ public class BasicArithmeticTests {
 							RandomAdditiveMaskFactory randomAdditiveMaskFactory = new RandomAdditiveMaskFactoryImpl(basicNumericFactory, preprocessedNumericBitFactory);
 							MiscOIntGenerators miscOIntGenerators = new MiscOIntGenerators(basicNumericFactory);
 							InnerProductFactory innerProductFactory = new InnerProductFactoryImpl(basicNumericFactory);
-							RightShiftFactory rightShiftFactory = new RightShiftFactoryImpl(80, 
-									basicNumericFactory, randomAdditiveMaskFactory, miscOIntGenerators, innerProductFactory);
+							RightShiftFactory rightShiftFactory = new RightShiftFactoryImpl(80, basicNumericFactory, randomAdditiveMaskFactory);
 							DivisionFactory divisionFactory = new DivisionFactoryImpl(basicNumericFactory, rightShiftFactory);
 							
 							SInt quotient = basicNumericFactory.getSInt();
@@ -941,7 +932,6 @@ public class BasicArithmeticTests {
 			
 			return new ThreadWithFixture() {
 				private final BigInteger x = new BigInteger("423402342001");
-				private final int iterations = 4;
 
 				@Override
 				public void test() throws Exception {
@@ -958,8 +948,7 @@ public class BasicArithmeticTests {
 							RandomAdditiveMaskFactory randomAdditiveMaskFactory = new RandomAdditiveMaskFactoryImpl(basicNumericFactory, preprocessedNumericBitFactory);
 							MiscOIntGenerators miscOIntGenerators = new MiscOIntGenerators(basicNumericFactory);
 							InnerProductFactory innerProductFactory = new InnerProductFactoryImpl(basicNumericFactory);
-							RightShiftFactory rightShiftFactory = new RightShiftFactoryImpl(80, 
-									basicNumericFactory, randomAdditiveMaskFactory, miscOIntGenerators, innerProductFactory);
+							RightShiftFactory rightShiftFactory = new RightShiftFactoryImpl(80, basicNumericFactory, randomAdditiveMaskFactory);
 							DivisionFactory divisionFactory = new DivisionFactoryImpl(basicNumericFactory, rightShiftFactory);
 							SquareRootFactory squareRootFactory = new SquareRootFactoryImpl(basicNumericFactory, divisionFactory, rightShiftFactory);
 							
@@ -971,7 +960,7 @@ public class BasicArithmeticTests {
 							SInt input1 = ioBuilder.input(x, 1);
 							sequentialProtocolProducer.append(ioBuilder.getCircuit());
 							
-							SquareRootProtocol squareRootProtocol = squareRootFactory.getSquareRootProtocol(input1, x.bitLength(), iterations, sqrt);
+							SquareRootProtocol squareRootProtocol = squareRootFactory.getSquareRootProtocol(input1, x.bitLength(), sqrt);
 							sequentialProtocolProducer.append(squareRootProtocol);
 							
 							OInt output1 = ioBuilder.output(sqrt);

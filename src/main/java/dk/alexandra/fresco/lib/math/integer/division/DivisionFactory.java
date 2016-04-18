@@ -29,6 +29,14 @@ package dk.alexandra.fresco.lib.math.integer.division;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 
+/**
+ * This factory creates protocols for performing division on integers. The
+ * dividend is secret shared for all protocols, but there are protocols for both
+ * secret shared and open divisor.
+ * 
+ * @author Jonas Lindstrøm (jonas.lindstrom@alexandra.dk)
+ *
+ */
 public interface DivisionFactory {
 
 	/**
@@ -43,7 +51,8 @@ public interface DivisionFactory {
 	 * 
 	 * @return
 	 */
-	DivisionProtocol getDivisionProtocol(SInt dividend, int maxDividendLength, OInt divisor, SInt quotient);
+	public DivisionProtocol getDivisionProtocol(SInt dividend, int maxDividendLength, OInt divisor,
+			SInt quotient);
 
 	/**
 	 * @param dividend
@@ -55,8 +64,9 @@ public interface DivisionFactory {
 	 * @param quotient
 	 *            The quotient, <i>floor(dividend / divisor)</i>.
 	 * @param remainder
-	 *            The remainder: a nonnegative integer strictly smaller than the divisor
-	 *            such that <i>dividend = quotient * divisor + remainder</i>.
+	 *            The remainder: a nonnegative integer strictly smaller than the
+	 *            divisor such that <i>dividend = quotient * divisor +
+	 *            remainder</i>.
 	 * 
 	 * @return
 	 */
@@ -70,9 +80,9 @@ public interface DivisionFactory {
 	 * 
 	 * @param dividend
 	 *            The dividend. To avoid overflow we require that
-	 *            <i>2<sup>2<sup>p</sup>m</sup> * dividend</i> should be representable,
-	 *            where <i>m</i> is <code>maxDivisorLength</code> and <i>p</i>
-	 *            is <code>precision</code>.
+	 *            <i>2<sup>2<sup>p</sup>m</sup> * dividend</i> should be
+	 *            representable, where <i>m</i> is <code>maxDivisorLength</code>
+	 *            and <i>p</i> is <code>precision</code>.
 	 * @param divisor
 	 *            The divisor.
 	 * @param maxDivisorLength

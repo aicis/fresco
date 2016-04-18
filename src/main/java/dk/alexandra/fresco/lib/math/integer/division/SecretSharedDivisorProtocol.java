@@ -68,7 +68,7 @@ import dk.alexandra.fresco.lib.math.integer.binary.RightShiftFactory;
 public class SecretSharedDivisorProtocol extends AbstractSimpleProtocol implements DivisionProtocol {
 
 	// Input
-	private SInt x;
+	private SInt dividend;
 	private SInt divisor;
 	private int maxDivisorLength;
 	private SInt result;
@@ -78,10 +78,10 @@ public class SecretSharedDivisorProtocol extends AbstractSimpleProtocol implemen
 	private final RightShiftFactory rightShiftFactory;
 	private int precision;
 
-	public SecretSharedDivisorProtocol(SInt x, SInt divisor, int maxDivisorLength, int precision,
+	public SecretSharedDivisorProtocol(SInt dividend, SInt divisor, int maxDivisorLength, int precision,
 			SInt result, BasicNumericFactory basicNumericFactory,
 			RightShiftFactory rightShiftFactory) {
-		this.x = x;
+		this.dividend = dividend;
 		this.divisor = divisor;
 		this.maxDivisorLength = maxDivisorLength;
 		this.precision = precision;
@@ -135,7 +135,7 @@ public class SecretSharedDivisorProtocol extends AbstractSimpleProtocol implemen
 		 */
 		SInt[] factors = new SInt[precision + 1];
 		factors[0] = basicNumericFactory.getSInt();
-		divisionProtocol.append(basicNumericFactory.getAddProtocol(x,
+		divisionProtocol.append(basicNumericFactory.getAddProtocol(dividend,
 				basicNumericFactory.getOInt(BigInteger.ONE), factors[0]));
 		ParallelProtocolProducer calculateFactors = new ParallelProtocolProducer();
 		for (int i = 1; i < precision + 1; i++) {

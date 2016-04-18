@@ -45,7 +45,7 @@ import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductFactory;
 public class RightShiftProtocolImpl implements RightShiftProtocol {
 	
 	// Input
-	private SInt x;
+	private SInt input;
 	private SInt result;
 	private SInt remainder;
 	private int bitLength;
@@ -64,15 +64,26 @@ public class RightShiftProtocolImpl implements RightShiftProtocol {
 	private OInt mOpen;
 	private ProtocolProducer gp;
 	
-	public RightShiftProtocolImpl(SInt x, SInt result, int bitLength, int securityParameter,
+	/**
+	 * 
+	 * @param input The input.
+	 * @param result The input shifted one bit to the right, input >> 1.
+	 * @param bitLength An upper bound for the bitLength of the input.
+	 * @param securityParameter Leakage will happen with propability <i>2<sup>-securityParameter</sup></i>.
+	 * @param basicNumericFactory
+	 * @param randomAdditiveMaskFactory
+	 * @param miscOIntGenerators
+	 * @param innerProductFactory
+	 */
+	public RightShiftProtocolImpl(SInt input, SInt result, int bitLength, int securityParameter,
 			BasicNumericFactory basicNumericFactory, 
 			RandomAdditiveMaskFactory randomAdditiveMaskFactory, 
 			MiscOIntGenerators miscOIntGenerators, 
 			InnerProductFactory innerProductFactory) {
 		
-		this.x = x;
-		this.remainder = null;
+		this.input = input;
 		this.result = result;
+		this.remainder = null;
 		this.bitLength = bitLength;
 		this.securityParameter = securityParameter;
 		
@@ -82,17 +93,30 @@ public class RightShiftProtocolImpl implements RightShiftProtocol {
 		this.innerProductFactory = innerProductFactory;
 	}
 
-	public RightShiftProtocolImpl(SInt x, SInt result, SInt remainder, 
+	/**
+	 * 
+	 * @param input The input.
+	 * @param result The input shifted one bit to the right, input >> 1.
+	 * @param remainder The least significant bit of the input (aka the bit that is thrown away in the shift).
+	 * @param bitLength An upper bound for the bitLength of the input.
+	 * @param securityParameter Leakage will happen with propability <i>2<sup>-securityParameter</sup></i>.
+	 * @param basicNumericFactory
+	 * @param randomAdditiveMaskFactory
+	 * @param miscOIntGenerators
+	 * @param innerProductFactory
+	 */
+	public RightShiftProtocolImpl(SInt input, SInt result, SInt remainder, 
 			int bitLength, int securityParameter,
 			BasicNumericFactory basicNumericFactory, 
 			RandomAdditiveMaskFactory randomAdditiveMaskFactory, 
 			MiscOIntGenerators miscOIntGenerators, 
 			InnerProductFactory innerProductFactory) {
 
-		this(x, result, bitLength, securityParameter, basicNumericFactory, randomAdditiveMaskFactory, miscOIntGenerators, innerProductFactory);
+		this(input, result, bitLength, securityParameter, basicNumericFactory, randomAdditiveMaskFactory, miscOIntGenerators, innerProductFactory);
 		this.remainder = remainder;
 	}
 	
+	@Override
 	public int getNextProtocols(NativeProtocol[] gates, int pos) {
 		if (gp == null) {
 
@@ -130,7 +154,7 @@ public class RightShiftProtocolImpl implements RightShiftProtocol {
 				// mOpen = open(x + r)
 				SInt mClosed = basicNumericFactory.getSInt();
 				mOpen = basicNumericFactory.getOInt();
-				Protocol addR = basicNumericFactory.getAddProtocol(x, r, mClosed);
+				Protocol addR = basicNumericFactory.getAddProtocol(input, r, mClosed);
 				OpenIntProtocol openAddMask = basicNumericFactory.getOpenProtocol(mClosed, mOpen);
 				
 				gp = new SequentialProtocolProducer(findRTop, twoTimesRTop, addRBottom, addR, openAddMask);
@@ -198,14 +222,16 @@ public class RightShiftProtocolImpl implements RightShiftProtocol {
 
 	@Override
 	public Value[] getInputValues() {
-		// TODO Auto-generated method stub
-		return null;
+		return new Value[] {input};
 	}
 
 	@Override
 	public Value[] getOutputValues() {
-		// TODO Auto-generated method stub
-		return null;
+		if (remainder != null) {
+			return new Value[] {result, remainder};
+		} else {
+			return new Value[] {result};
+		}
 	}
 
 	@Override

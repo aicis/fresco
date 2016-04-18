@@ -29,7 +29,7 @@ package dk.alexandra.fresco.lib.math.integer.sqrt;
 import dk.alexandra.fresco.framework.Protocol;
 
 /**
- * This protocol will return the binary right shift of the given input.
+ * This protocol will return an approximation of the square root of the input.
  */
 public interface SquareRootProtocol extends Protocol {
 

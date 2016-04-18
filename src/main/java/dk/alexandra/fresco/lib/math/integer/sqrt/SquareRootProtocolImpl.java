@@ -36,7 +36,7 @@ import dk.alexandra.fresco.lib.math.integer.division.DivisionFactory;
 
 /**
  * This class implements a protocol for approximating the square root of a
- * secret shared integer. It uses the <a href=
+ * secret shared integer using the <a href=
  * "https://en.wikipedia.org/wiki/Methods_of_computing_square_roots#Babylonian_method"
  * >Babylonian Method</a>.
  * 
@@ -46,25 +46,22 @@ import dk.alexandra.fresco.lib.math.integer.division.DivisionFactory;
 public class SquareRootProtocolImpl extends AbstractSimpleProtocol implements SquareRootProtocol {
 
 	// Input
-	private SInt x;
+	private SInt input;
 	private int maxInputLength;
-	private int iterations;
-	private SInt sqrt;
+	private SInt result;
 
-	// Factories	
+	// Factories
 	private final BasicNumericFactory basicNumericFactory;
 	private final DivisionFactory divisionFactory;
 	private final RightShiftFactory rightShiftFactory;
 
-	// Variables used for calculation
-
-	public SquareRootProtocolImpl(SInt x, int maxInputLength, int iterations, SInt sqrt,
-			BasicNumericFactory basicNumericFactory, DivisionFactory divisionFactory, RightShiftFactory rightShiftFactory) {
-		this.x = x;
+	public SquareRootProtocolImpl(SInt input, int maxInputLength, SInt result,
+			BasicNumericFactory basicNumericFactory, DivisionFactory divisionFactory,
+			RightShiftFactory rightShiftFactory) {
+		this.input = input;
 		this.maxInputLength = maxInputLength;
-		this.iterations = iterations;
 
-		this.sqrt = sqrt;
+		this.result = result;
 
 		this.basicNumericFactory = basicNumericFactory;
 		this.divisionFactory = divisionFactory;
@@ -74,40 +71,56 @@ public class SquareRootProtocolImpl extends AbstractSimpleProtocol implements Sq
 	@Override
 	protected ProtocolProducer initializeGateProducer() {
 		SequentialProtocolProducer squareRootProtocol = new SequentialProtocolProducer();
-		
+
 		/*
 		 * First guess is x << maxInputLength / 2
 		 */
 		SInt y = basicNumericFactory.getSInt();
-		squareRootProtocol.append(rightShiftFactory.getRepeatedRightShiftProtocol(x, maxInputLength / 2, y));
-		
+		squareRootProtocol.append(rightShiftFactory.getRepeatedRightShiftProtocol(input,
+				maxInputLength / 2, y));
+
 		/*
-		 * How much precision can we use for the division while still keep the limit? See JavaDoc for getDivisionProtocol for details.
+		 * How much precision can we use for the division while still keep the
+		 * limit? See JavaDoc for getDivisionProtocol for details.
 		 */
-		int precision = log2((basicNumericFactory.getMaxBitLength() - maxInputLength) / log2(maxInputLength / 2));
-		
+		int precision = log2((basicNumericFactory.getMaxBitLength() - maxInputLength)
+				/ log2(maxInputLength / 2));
+
 		/*
 		 * We iterate y[n+1] = (y[n] + x / y[n]) / 2.
+		 * 
+		 * Convergence is quadratic (the number of correct digits rougly doubles
+		 * on each iteration) so assuming we have at least one digit correct
+		 * after first iteration, we need at most log2(maxInputLength)
+		 * iterations in total.
 		 */
+		int iterations = log2(maxInputLength);
 		for (int i = 1; i < iterations; i++) {
 			SInt quotient = basicNumericFactory.getSInt();
-			squareRootProtocol.append(divisionFactory.getDivisionProtocol(x, y, maxInputLength / 2, precision, quotient));
-			
+			squareRootProtocol.append(divisionFactory.getDivisionProtocol(input, y,
+					maxInputLength / 2, precision, quotient));
+
 			SInt sum = basicNumericFactory.getSInt();
 			squareRootProtocol.append(basicNumericFactory.getAddProtocol(y, quotient, sum));
-			
+
 			if (i < iterations - 1) {
 				y = basicNumericFactory.getSInt();
 				squareRootProtocol.append(rightShiftFactory.getRightShiftProtocol(sum, y));
 			} else {
-				squareRootProtocol.append(rightShiftFactory.getRightShiftProtocol(sum, sqrt));
+				squareRootProtocol.append(rightShiftFactory.getRightShiftProtocol(sum, result));
 			}
 		}
 		return squareRootProtocol;
 	}
 
+	/**
+	 * Calculate the base-2 logarithm of <i>x</i>, <i>log<sub>2</sub>(x)</i>.
+	 * 
+	 * @param x
+	 * @return
+	 */
 	private static int log2(int x) {
 		return (int) (Math.log(x) / Math.log(2));
 	}
-	
+
 }

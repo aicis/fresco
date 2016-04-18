@@ -31,17 +31,15 @@ import dk.alexandra.fresco.framework.value.SInt;
 public interface SquareRootFactory {
 
 	/**
-	 * @param x
+	 * @param input
 	 *            The input.
 	 * @param maxInputLength
-	 *            An upper bound for <i>log<sub>2</sub>(x)</i>.
-	 * @param iteratinos
-	 *            Number of iterations in the approximation of the square root.
+	 *            An upper bound for <i>log<sub>2</sub>(input)</i>.
 	 * @param sqrt
-	 *            An approximation of the square root of <i>x</i>.
+	 *            An approximation of the square root of the input.
 	 * 
 	 * @return
 	 */
-	public SquareRootProtocol getSquareRootProtocol(SInt x, int maxInputLength, int iterations, SInt sqrt);
+	public SquareRootProtocol getSquareRootProtocol(SInt input, int maxInputLength, SInt sqrt);
 
 }

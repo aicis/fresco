@@ -55,7 +55,7 @@ import dk.alexandra.fresco.lib.math.integer.binary.RightShiftFactory;
 public class KnownDivisorProtocol extends AbstractSimpleProtocol implements DivisionProtocol {
 
 	// Input
-	private SInt x;
+	private SInt dividend;
 	private OInt divisor;
 	private SInt result, remainder;
 	private int maxInputLength;
@@ -68,9 +68,9 @@ public class KnownDivisorProtocol extends AbstractSimpleProtocol implements Divi
 	private int divisorBitLength;
 	private OInt m;
 
-	public KnownDivisorProtocol(SInt x, int maxLength, OInt divisor, SInt result,
+	public KnownDivisorProtocol(SInt dividend, int maxLength, OInt divisor, SInt result,
 			BasicNumericFactory basicNumericFactory, RightShiftFactory rightShiftFactory) {
-		this.x = x;
+		this.dividend = dividend;
 		this.divisor = divisor;
 		this.maxInputLength = maxLength;
 
@@ -114,7 +114,7 @@ public class KnownDivisorProtocol extends AbstractSimpleProtocol implements Divi
 
 		// Calculate quotient = m * x >> maxLength + l
 		SInt divisionProduct = basicNumericFactory.getSInt();
-		Protocol mTimesX = basicNumericFactory.getMultCircuit(m, x, divisionProduct);
+		Protocol mTimesX = basicNumericFactory.getMultCircuit(m, dividend, divisionProduct);
 		Protocol shift = rightShiftFactory.getRepeatedRightShiftProtocol(divisionProduct,
 				maxInputLength + divisorBitLength, result);
 		ProtocolProducer divisionProtocol = new SequentialProtocolProducer(mTimesX, shift);
@@ -124,7 +124,7 @@ public class KnownDivisorProtocol extends AbstractSimpleProtocol implements Divi
 			// Calculate remainder = x - result * divisor
 			SInt product = basicNumericFactory.getSInt();
 			Protocol dTimesQ = basicNumericFactory.getMultCircuit(divisor, result, product);
-			Protocol subtract = basicNumericFactory.getSubtractCircuit(x, product, remainder);
+			Protocol subtract = basicNumericFactory.getSubtractCircuit(dividend, product, remainder);
 			ProtocolProducer remainderProtocol = new SequentialProtocolProducer(dTimesQ, subtract);
 			euclidianDivisionProtocol.append(remainderProtocol);
 		}

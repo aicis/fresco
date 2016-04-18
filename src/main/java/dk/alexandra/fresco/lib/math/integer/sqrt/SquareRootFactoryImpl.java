@@ -45,8 +45,8 @@ public class SquareRootFactoryImpl implements SquareRootFactory {
 	}
 
 	@Override
-	public SquareRootProtocol getSquareRootProtocol(SInt x, int maxInputLength, int iterations, SInt sqrt) {
-		return new SquareRootProtocolImpl(x, maxInputLength, iterations, sqrt, basicNumericFactory, divisionFactory, rightShiftFactory);
+	public SquareRootProtocol getSquareRootProtocol(SInt x, int maxInputLength, SInt sqrt) {
+		return new SquareRootProtocolImpl(x, maxInputLength, sqrt, basicNumericFactory, divisionFactory, rightShiftFactory);
 	}
 
 }

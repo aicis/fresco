@@ -28,9 +28,6 @@ package dk.alexandra.fresco.lib.math.integer.division;
 
 import dk.alexandra.fresco.framework.Protocol;
 
-/**
- * This protocol will return the binary right shift of the given input.
- */
 public interface DivisionProtocol extends Protocol {
 
 }

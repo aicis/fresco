@@ -28,19 +28,26 @@ package dk.alexandra.fresco.lib.math.integer.binary;
 
 import dk.alexandra.fresco.framework.value.SInt;
 
+/**
+ * This factory creates protocols for performing binary right shifts on a secret
+ * shared integer.
+ * 
+ * @author Jonas Lindstrøm (jonas.lindstrom@alexandra.dk)
+ *
+ */
 public interface RightShiftFactory {
 
 	/**
-	 * @param x
+	 * @param input
 	 *            input
 	 * @param result
 	 *            input >> 1
 	 * @return
 	 */
-	public RightShiftProtocol getRightShiftProtocol(SInt x, SInt result);
-	
+	public RightShiftProtocol getRightShiftProtocol(SInt input, SInt result);
+
 	/**
-	 * @param x
+	 * @param input
 	 *            input
 	 * @param result
 	 *            input >> 1
@@ -48,26 +55,28 @@ public interface RightShiftFactory {
 	 *            the least significant bit of input
 	 * @return
 	 */
-	public RightShiftProtocol getRightShiftProtocol(SInt x, SInt result, SInt remainder);
+	public RightShiftProtocol getRightShiftProtocol(SInt input, SInt result, SInt remainder);
 
 	/**
-	 * @param x
+	 * @param input
 	 *            input
 	 * @param result
 	 *            input >> n
 	 * @return
 	 */
-	public RepeatedRightShiftProtocol getRepeatedRightShiftProtocol(SInt x, int n, SInt result);
+	public RepeatedRightShiftProtocol getRepeatedRightShiftProtocol(SInt input, int n, SInt result);
 
 	/**
-	 * @param x
+	 * @param input
 	 *            input
 	 * @param result
 	 *            input >> n
 	 * @param remainder
-	 *            The n least significant bits of input with the least significant having index 0
+	 *            The n least significant bits of input with the least
+	 *            significant having index 0
 	 * @return
 	 */
-	public RepeatedRightShiftProtocol getRepeatedRightShiftProtocol(SInt x, int n, SInt result, SInt[] remainders);
-	
+	public RepeatedRightShiftProtocol getRepeatedRightShiftProtocol(SInt input, int shifts,
+			SInt result, SInt[] remainders);
+
 }

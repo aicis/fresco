@@ -31,6 +31,7 @@ import dk.alexandra.fresco.lib.compare.MiscOIntGenerators;
 import dk.alexandra.fresco.lib.compare.RandomAdditiveMaskFactory;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductFactory;
+import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductFactoryImpl;
 
 public class RightShiftFactoryImpl implements RightShiftFactory {
 
@@ -42,14 +43,12 @@ public class RightShiftFactoryImpl implements RightShiftFactory {
 	
 	public RightShiftFactoryImpl(int securityParameter, 
 			BasicNumericFactory basicNumericFactory, 
-			RandomAdditiveMaskFactory randomAdditiveMaskFactory, 
-			MiscOIntGenerators miscOIntGenerators, 
-			InnerProductFactory innerProductFactory) {
+			RandomAdditiveMaskFactory randomAdditiveMaskFactory) {
 		this.securityParameter = securityParameter;
 		this.basicNumericFactory = basicNumericFactory;
 		this.randomAdditiveMaskFactory = randomAdditiveMaskFactory;
-		this.miscOIntGenerators = miscOIntGenerators;
-		this.innerProductFactory = innerProductFactory;
+		this.miscOIntGenerators = new MiscOIntGenerators(basicNumericFactory);
+		this.innerProductFactory = new InnerProductFactoryImpl(basicNumericFactory);
 	}
 
 	@Override
