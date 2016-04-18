@@ -207,6 +207,8 @@ public class RightShiftProtocolImpl implements RightShiftProtocol {
 				protocol.append(findShiftAndRemainder);
 				gp = protocol;
 
+				break;
+				
 			default:
 				// ...
 			}
