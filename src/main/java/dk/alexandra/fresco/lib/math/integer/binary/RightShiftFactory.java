@@ -60,20 +60,25 @@ public interface RightShiftFactory {
 	/**
 	 * @param input
 	 *            input
+	 * @param shifts
+	 *            Number of shifts
 	 * @param result
-	 *            input >> n
+	 *            input >> shifts
 	 * @return
 	 */
-	public RepeatedRightShiftProtocol getRepeatedRightShiftProtocol(SInt input, int n, SInt result);
+	public RepeatedRightShiftProtocol getRepeatedRightShiftProtocol(SInt input, int shifts,
+			SInt result);
 
 	/**
 	 * @param input
 	 *            input
+	 * @param shifts
+	 *            Number of shifts
 	 * @param result
-	 *            input >> n
+	 *            input >> shifts
 	 * @param remainder
-	 *            The n least significant bits of input with the least
-	 *            significant having index 0
+	 *            The <code>shifts</code> least significant bits of the input
+	 *            with the least significant having index 0.
 	 * @return
 	 */
 	public RepeatedRightShiftProtocol getRepeatedRightShiftProtocol(SInt input, int shifts,
