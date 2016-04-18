@@ -32,8 +32,8 @@ import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.framework.value.Value;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
-import dk.alexandra.fresco.lib.math.PreprocessedNumericBitFactory;
-import dk.alexandra.fresco.lib.math.linalg.InnerProductFactory;
+import dk.alexandra.fresco.lib.math.integer.PreprocessedNumericBitFactory;
+import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductFactory;
 
 /**
  * Load random value used as additive mask + bits

@@ -43,11 +43,11 @@ import dk.alexandra.fresco.lib.field.integer.SubtractCircuit;
 import dk.alexandra.fresco.lib.field.integer.generic.AddProtocolFactory;
 import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
-import dk.alexandra.fresco.lib.math.HammingDistanceFactory;
-import dk.alexandra.fresco.lib.math.PreprocessedNumericBitFactory;
-import dk.alexandra.fresco.lib.math.exp.ExpFromOIntFactory;
-import dk.alexandra.fresco.lib.math.exp.PreprocessedExpPipeFactory;
-import dk.alexandra.fresco.lib.math.linalg.InnerProductFactory;
+import dk.alexandra.fresco.lib.math.integer.HammingDistanceFactory;
+import dk.alexandra.fresco.lib.math.integer.PreprocessedNumericBitFactory;
+import dk.alexandra.fresco.lib.math.integer.exp.ExpFromOIntFactory;
+import dk.alexandra.fresco.lib.math.integer.exp.PreprocessedExpPipeFactory;
+import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductFactory;
 
 /**
  * @author ttoft

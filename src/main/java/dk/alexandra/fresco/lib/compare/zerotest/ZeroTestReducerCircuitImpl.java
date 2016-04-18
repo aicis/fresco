@@ -35,7 +35,7 @@ import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.field.integer.OpenIntProtocol;
 import dk.alexandra.fresco.lib.helper.AbstractSimpleProtocol;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
-import dk.alexandra.fresco.lib.math.HammingDistanceFactory;
+import dk.alexandra.fresco.lib.math.integer.HammingDistanceFactory;
 
 public class ZeroTestReducerCircuitImpl extends AbstractSimpleProtocol implements ZeroTestReducerCircuit {
 

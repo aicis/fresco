@@ -63,20 +63,14 @@ public class DataSupplierImpl implements DataSupplier {
 	 * @param storage
 	 *            The FRESCO native storage object
 	 * @param storageName
-	 *            The name of the 'database' we should use.
-	 * @param storageId
-	 *            The id of the thread that will use this supplier
-	 * @param NoOfThreadsUsed
-	 *            Number of threads used. This will be the delta which we
-	 *            increase the counters with. e.g. after reading triple no. 2,
-	 *            we increase the counter to 2+noOfThreadsUsed.
+	 *            The name of the 'database' we should use (e.g. the full filename).
 	 * @param noOfParties
 	 *            The number of parties in the computation.
 	 */
 	public DataSupplierImpl(StreamedStorage storage, String storageName,
-			int storageId, int NoOfThreadsUsed, int noOfParties) {
+			int noOfParties) {
 		this.storage = storage;
-		this.storageName = storageName+"_"+storageId;
+		this.storageName = storageName;
 		this.inputMaskCounters = new int[noOfParties];
 	}
 

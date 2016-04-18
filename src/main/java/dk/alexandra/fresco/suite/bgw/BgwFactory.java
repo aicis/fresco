@@ -41,9 +41,9 @@ import dk.alexandra.fresco.lib.field.integer.CloseIntProtocol;
 import dk.alexandra.fresco.lib.field.integer.MultProtocol;
 import dk.alexandra.fresco.lib.field.integer.OpenIntProtocol;
 import dk.alexandra.fresco.lib.field.integer.SubtractCircuit;
-import dk.alexandra.fresco.lib.math.exp.ExpFromOIntFactory;
-import dk.alexandra.fresco.lib.math.inv.LocalInversionCircuit;
-import dk.alexandra.fresco.lib.math.inv.LocalInversionFactory;
+import dk.alexandra.fresco.lib.math.integer.exp.ExpFromOIntFactory;
+import dk.alexandra.fresco.lib.math.integer.inv.LocalInversionProtocol;
+import dk.alexandra.fresco.lib.math.integer.inv.LocalInversionFactory;
 import dk.alexandra.fresco.suite.bgw.integer.BgwAddProtocol;
 import dk.alexandra.fresco.suite.bgw.integer.BgwCloseIntProtocol;
 import dk.alexandra.fresco.suite.bgw.integer.BgwInvertIntProtocol;
@@ -203,7 +203,7 @@ public class BgwFactory implements BasicNumericFactory, LocalInversionFactory, E
 	}
 
 	@Override
-	public LocalInversionCircuit getLocalInversionCircuit(OInt x, OInt result) {
+	public LocalInversionProtocol getLocalInversionCircuit(OInt x, OInt result) {
 		return new BgwLocalInvProtocol((BgwOInt)x, (BgwOInt)result);
 	}
 

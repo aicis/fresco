@@ -58,22 +58,22 @@ import dk.alexandra.fresco.lib.field.bool.generic.OrFromCopyConstProtocol;
 import dk.alexandra.fresco.lib.field.bool.generic.OrFromXorAndProtocol;
 import dk.alexandra.fresco.lib.field.bool.generic.XnorFromXorAndNotProtocolImpl;
 import dk.alexandra.fresco.lib.helper.CopyProtocolFactory;
-import dk.alexandra.fresco.lib.math.add.AdderCircuitFactory;
-import dk.alexandra.fresco.lib.math.add.BitIncrementerCircuit;
-import dk.alexandra.fresco.lib.math.add.BitIncrementerCircuitFactory;
-import dk.alexandra.fresco.lib.math.add.BitIncrementerCircuitImpl;
-import dk.alexandra.fresco.lib.math.add.FullAdderCircuit;
-import dk.alexandra.fresco.lib.math.add.FullAdderCircuitImpl;
-import dk.alexandra.fresco.lib.math.add.OneBitFullAdderCircuit;
-import dk.alexandra.fresco.lib.math.add.OneBitFullAdderCircuitImpl;
-import dk.alexandra.fresco.lib.math.add.OneBitHalfAdderCircuit;
-import dk.alexandra.fresco.lib.math.add.OneBitHalfAdderCircuitImpl;
-import dk.alexandra.fresco.lib.math.log.LogCircuitFactory;
-import dk.alexandra.fresco.lib.math.log.LogProtocol;
-import dk.alexandra.fresco.lib.math.log.LogProtocolImpl;
-import dk.alexandra.fresco.lib.math.mult.BinaryMultCircuit;
-import dk.alexandra.fresco.lib.math.mult.BinaryMultCircuitFactory;
-import dk.alexandra.fresco.lib.math.mult.BinaryMultCircuitImpl;
+import dk.alexandra.fresco.lib.math.bool.add.AdderCircuitFactory;
+import dk.alexandra.fresco.lib.math.bool.add.BitIncrementerCircuit;
+import dk.alexandra.fresco.lib.math.bool.add.BitIncrementerCircuitFactory;
+import dk.alexandra.fresco.lib.math.bool.add.BitIncrementerCircuitImpl;
+import dk.alexandra.fresco.lib.math.bool.add.FullAdderCircuit;
+import dk.alexandra.fresco.lib.math.bool.add.FullAdderCircuitImpl;
+import dk.alexandra.fresco.lib.math.bool.add.OneBitFullAdderCircuit;
+import dk.alexandra.fresco.lib.math.bool.add.OneBitFullAdderCircuitImpl;
+import dk.alexandra.fresco.lib.math.bool.add.OneBitHalfAdderCircuit;
+import dk.alexandra.fresco.lib.math.bool.add.OneBitHalfAdderCircuitImpl;
+import dk.alexandra.fresco.lib.math.bool.log.LogCircuitFactory;
+import dk.alexandra.fresco.lib.math.bool.log.LogProtocol;
+import dk.alexandra.fresco.lib.math.bool.log.LogProtocolImpl;
+import dk.alexandra.fresco.lib.math.bool.mult.BinaryMultCircuit;
+import dk.alexandra.fresco.lib.math.bool.mult.BinaryMultCircuitFactory;
+import dk.alexandra.fresco.lib.math.bool.mult.BinaryMultCircuitImpl;
 
 public abstract class AbstractBinaryFactory implements BasicLogicFactory,
 		AdderCircuitFactory, BinaryMultCircuitFactory, LogCircuitFactory,

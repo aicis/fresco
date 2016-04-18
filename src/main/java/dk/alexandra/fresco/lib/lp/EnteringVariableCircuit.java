@@ -34,7 +34,7 @@ import dk.alexandra.fresco.lib.helper.AbstractRoundBasedProtocol;
 import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
 import dk.alexandra.fresco.lib.helper.builder.NumericProtocolBuilder;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
-import dk.alexandra.fresco.lib.math.linalg.DotProductCircuit;
+import dk.alexandra.fresco.lib.math.integer.linalg.EntrywiseProductProtocol;
 
 public class EnteringVariableCircuit extends AbstractRoundBasedProtocol {
 
@@ -103,7 +103,7 @@ public class EnteringVariableCircuit extends AbstractRoundBasedProtocol {
 				dotProductResult[updateVectorDimension - 1] = bnProvider
 						.getSInt();
 				constraintColumn[updateVectorDimension - 1] = tableau.getF()[i];
-				DotProductCircuit dpc = lpProvider.getDotProductCircuit(
+				EntrywiseProductProtocol dpc = lpProvider.getDotProductCircuit(
 						constraintColumn, updateVector, dotProductResult);
 				NumericProtocolBuilder build = new NumericProtocolBuilder(
 						bnProvider);

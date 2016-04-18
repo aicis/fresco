@@ -31,11 +31,11 @@ import java.math.BigInteger;
 import dk.alexandra.fresco.framework.network.SCENetwork;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.Value;
-import dk.alexandra.fresco.lib.math.inv.LocalInversionCircuit;
+import dk.alexandra.fresco.lib.math.integer.inv.LocalInversionProtocol;
 import dk.alexandra.fresco.suite.bgw.BgwProtocol;
 import dk.alexandra.fresco.suite.bgw.BgwProtocolSuite;
 
-public class BgwLocalInvProtocol extends BgwProtocol implements LocalInversionCircuit{
+public class BgwLocalInvProtocol extends BgwProtocol implements LocalInversionProtocol{
 
 	private BgwOInt x; 
 	private BgwOInt res;

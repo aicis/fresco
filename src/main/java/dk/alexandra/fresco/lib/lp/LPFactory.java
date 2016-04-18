@@ -32,13 +32,13 @@ import dk.alexandra.fresco.lib.compare.ConditionalSelectCircuit;
 import dk.alexandra.fresco.lib.compare.eq.EqualityProtocol;
 import dk.alexandra.fresco.lib.debug.MarkerFactory;
 import dk.alexandra.fresco.lib.helper.CopyProtocolFactory;
-import dk.alexandra.fresco.lib.math.inv.InversionCircuitFactory;
-import dk.alexandra.fresco.lib.math.linalg.DotProductFactory;
-import dk.alexandra.fresco.lib.math.linalg.InnerProductCircuit;
-import dk.alexandra.fresco.lib.math.min.MinimumCircuit;
-import dk.alexandra.fresco.lib.math.min.MinimumFractionCircuit;
+import dk.alexandra.fresco.lib.math.integer.inv.InversionProtocolFactory;
+import dk.alexandra.fresco.lib.math.integer.linalg.EntrywiseProductFactory;
+import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductProtocol;
+import dk.alexandra.fresco.lib.math.integer.min.MinimumProtocol;
+import dk.alexandra.fresco.lib.math.integer.min.MinimumFractionProtocol;
 
-public interface LPFactory extends InversionCircuitFactory, MarkerFactory, CopyProtocolFactory<SInt>, DotProductFactory {
+public interface LPFactory extends InversionProtocolFactory, MarkerFactory, CopyProtocolFactory<SInt>, EntrywiseProductFactory {
 	
 	/**
 	 * 
@@ -60,7 +60,7 @@ public interface LPFactory extends InversionCircuitFactory, MarkerFactory, CopyP
 	 * @param cs outputs
 	 * @return
 	 */
-	public MinimumCircuit getMinimumCircuit(SInt[] as, SInt m, SInt[] cs);
+	public MinimumProtocol getMinimumCircuit(SInt[] as, SInt m, SInt[] cs);
 	
 	
 	/**
@@ -72,7 +72,7 @@ public interface LPFactory extends InversionCircuitFactory, MarkerFactory, CopyP
 	 * @param cs output - the index vector for indicating the minimum fraction
 	 * @return
 	 */
-	public MinimumFractionCircuit getMinimumFractionCircuit(SInt[] ns, SInt[] ds, SInt nm, SInt dm, SInt[] cs);
+	public MinimumFractionProtocol getMinimumFractionCircuit(SInt[] ns, SInt[] ds, SInt nm, SInt dm, SInt[] cs);
 	
 	
 	
@@ -138,7 +138,7 @@ public interface LPFactory extends InversionCircuitFactory, MarkerFactory, CopyP
 	 * @param result output - the inner product of the two input input vectors
 	 * @return a circuit computing the inner product of two vectors
 	 */
-	public InnerProductCircuit getInnerProductCircuit(SInt[] aVector, SInt[] bVector, SInt result);
+	public InnerProductProtocol getInnerProductCircuit(SInt[] aVector, SInt[] bVector, SInt result);
 	
 	/**
 	 * Computes the optimal value after the last simplex iteration

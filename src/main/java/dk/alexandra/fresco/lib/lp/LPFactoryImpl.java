@@ -44,23 +44,23 @@ import dk.alexandra.fresco.lib.debug.MarkerProtocolImpl;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.helper.CopyProtocol;
 import dk.alexandra.fresco.lib.helper.CopyProtocolImpl;
-import dk.alexandra.fresco.lib.math.NumericNegateBitFactory;
-import dk.alexandra.fresco.lib.math.NumericNegateBitFactoryImpl;
-import dk.alexandra.fresco.lib.math.PreprocessedNumericBitFactory;
-import dk.alexandra.fresco.lib.math.exp.ExpFromOIntFactory;
-import dk.alexandra.fresco.lib.math.exp.PreprocessedExpPipeFactory;
-import dk.alexandra.fresco.lib.math.inv.InversionCircuitImpl;
-import dk.alexandra.fresco.lib.math.inv.InversionProtocol;
-import dk.alexandra.fresco.lib.math.inv.LocalInversionFactory;
-import dk.alexandra.fresco.lib.math.linalg.DotProductCircuit;
-import dk.alexandra.fresco.lib.math.linalg.DotProductCircuitImpl;
-import dk.alexandra.fresco.lib.math.linalg.InnerProductCircuit;
-import dk.alexandra.fresco.lib.math.linalg.InnerProductFactory;
-import dk.alexandra.fresco.lib.math.linalg.InnerProductFactoryImpl;
-import dk.alexandra.fresco.lib.math.min.MinimumCircuit;
-import dk.alexandra.fresco.lib.math.min.MinimumCircuitImpl;
-import dk.alexandra.fresco.lib.math.min.MinimumFractionCircuit;
-import dk.alexandra.fresco.lib.math.min.MinimumFractionCircuitImpl;
+import dk.alexandra.fresco.lib.math.integer.NumericNegateBitFactory;
+import dk.alexandra.fresco.lib.math.integer.NumericNegateBitFactoryImpl;
+import dk.alexandra.fresco.lib.math.integer.PreprocessedNumericBitFactory;
+import dk.alexandra.fresco.lib.math.integer.exp.ExpFromOIntFactory;
+import dk.alexandra.fresco.lib.math.integer.exp.PreprocessedExpPipeFactory;
+import dk.alexandra.fresco.lib.math.integer.inv.InversionProtocolImpl;
+import dk.alexandra.fresco.lib.math.integer.inv.InversionProtocol;
+import dk.alexandra.fresco.lib.math.integer.inv.LocalInversionFactory;
+import dk.alexandra.fresco.lib.math.integer.linalg.EntrywiseProductProtocol;
+import dk.alexandra.fresco.lib.math.integer.linalg.EntrywiseProductProtocolImpl;
+import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductFactory;
+import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductFactoryImpl;
+import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductProtocol;
+import dk.alexandra.fresco.lib.math.integer.min.MinimumProtocol;
+import dk.alexandra.fresco.lib.math.integer.min.MinimumProtocolImpl;
+import dk.alexandra.fresco.lib.math.integer.min.MinimumFractionProtocol;
+import dk.alexandra.fresco.lib.math.integer.min.MinimumFractionProtocolImpl;
 
 public class LPFactoryImpl implements LPFactory {
 
@@ -92,7 +92,7 @@ public class LPFactoryImpl implements LPFactory {
 
 	@Override
 	public InversionProtocol getInversionProtocol(SInt x, SInt result) {
-		return new InversionCircuitImpl(x, result, bnf, localInvFactory);
+		return new InversionProtocolImpl(x, result, bnf, localInvFactory);
 	}
 
 	@Override
@@ -106,15 +106,15 @@ public class LPFactoryImpl implements LPFactory {
 	}
 
 	@Override
-	public DotProductCircuit getDotProductCircuit(SInt[] as, SInt[] bs,
+	public EntrywiseProductProtocol getDotProductCircuit(SInt[] as, SInt[] bs,
 			SInt[] results) {
-		return new DotProductCircuitImpl(as, bs, results, bnf);
+		return new EntrywiseProductProtocolImpl(as, bs, results, bnf);
 	}
 
 	@Override
-	public DotProductCircuit getDotProductCircuit(SInt[] as, OInt[] bs,
+	public EntrywiseProductProtocol getDotProductCircuit(SInt[] as, OInt[] bs,
 			SInt[] results) {
-		return new DotProductCircuitImpl(as, bs, results, bnf);
+		return new EntrywiseProductProtocolImpl(as, bs, results, bnf);
 	}
 
 	@Override
@@ -124,14 +124,14 @@ public class LPFactoryImpl implements LPFactory {
 	}
 
 	@Override
-	public MinimumCircuit getMinimumCircuit(SInt[] as, SInt m, SInt[] cs) {
-		return new MinimumCircuitImpl(as, m, cs, this, bnf);
+	public MinimumProtocol getMinimumCircuit(SInt[] as, SInt m, SInt[] cs) {
+		return new MinimumProtocolImpl(as, m, cs, this, bnf);
 	}
 
 	@Override
-	public MinimumFractionCircuit getMinimumFractionCircuit(SInt[] ns,
+	public MinimumFractionProtocol getMinimumFractionCircuit(SInt[] ns,
 			SInt[] ds, SInt nm, SInt dm, SInt[] cs) {
-		return new MinimumFractionCircuitImpl(ns, ds, nm, dm, cs, bnf, this);
+		return new MinimumFractionProtocolImpl(ns, ds, nm, dm, cs, bnf, this);
 	}
 
 	@Override
@@ -179,7 +179,7 @@ public class LPFactoryImpl implements LPFactory {
 	}
 
 	@Override
-	public InnerProductCircuit getInnerProductCircuit(SInt[] aVector,
+	public InnerProductProtocol getInnerProductCircuit(SInt[] aVector,
 			SInt[] bVector, SInt result) {
 		return this.innerProductFactory.getInnerProductCircuit(aVector,
 				bVector, result);
