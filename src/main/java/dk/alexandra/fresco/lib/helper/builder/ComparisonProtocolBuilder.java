@@ -45,6 +45,14 @@ public class ComparisonProtocolBuilder extends AbstractProtocolBuilder {
 	private final ComparisonProtocolFactory comProvider;
 	private final BasicNumericFactory bnf;
 
+	protected ComparisonProtocolFactory getComProvider() {
+		return comProvider;
+	}
+
+	protected BasicNumericFactory getBnf() {
+		return bnf;
+	}
+
 	public ComparisonProtocolBuilder(ComparisonProtocolFactory comProvider,
 			BasicNumericFactory bnf) {
 		this.comProvider = comProvider;
