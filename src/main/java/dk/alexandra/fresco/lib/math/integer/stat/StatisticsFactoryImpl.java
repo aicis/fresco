@@ -30,25 +30,60 @@ import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.math.integer.division.DivisionFactory;
 
-public class StatisticsFactoryImpl implements StatisticsFactory{
+public class StatisticsFactoryImpl implements StatisticsFactory {
 
 	private BasicNumericFactory basicNumericFactory;
 	private DivisionFactory divisionFactory;
-	
-	public StatisticsFactoryImpl(BasicNumericFactory basicNumericFactory, 
+
+	public StatisticsFactoryImpl(BasicNumericFactory basicNumericFactory,
 			DivisionFactory euclideanDivisionFactory) {
 		this.basicNumericFactory = basicNumericFactory;
 		this.divisionFactory = euclideanDivisionFactory;
 	}
 
 	@Override
-	public ArithmeticMeanProtocol getArithmeticMeanProtocol(SInt[] data, int maxInputLength, SInt result) {
-		return new ArithmeticMeanProtocolImpl(data, maxInputLength, result, 
-				basicNumericFactory, divisionFactory);
+	public ArithmeticMeanProtocol getArithmeticMeanProtocol(SInt[] data, int maxInputLength,
+			SInt result) {
+		return new ArithmeticMeanProtocolImpl(data, maxInputLength, result, basicNumericFactory,
+				divisionFactory);
 	}
-	
-	public VarianceProtocol getVarianceProtocol(SInt[] data, int maxInputLength, SInt mean, SInt result) {
-		return new VarianceProtocolImpl(data, maxInputLength, mean, result, basicNumericFactory, divisionFactory);
+
+	@Override
+	public VarianceProtocol getVarianceProtocol(SInt[] data, int maxInputLength, SInt mean,
+			SInt result) {
+		return new VarianceProtocolImpl(data, maxInputLength, mean, result, this);
+	}
+
+	@Override
+	public VarianceProtocol getVarianceProtocol(SInt[] data, int maxInputLength, SInt result) {
+		return new VarianceProtocolImpl(data, maxInputLength, result, this);
+	}
+
+	@Override
+	public CovarianceProtocol getCovarianceProtocol(SInt[][] data, int maxInputLength, SInt[] mean,
+			SInt[][] result) {
+		return new CovarianceProtocolImpl(data, maxInputLength, mean, result, basicNumericFactory,
+				this);
+	}
+
+	@Override
+	public CovarianceProtocol getCovarianceProtocol(SInt[][] data, int maxInputLength,
+			SInt[][] result) {
+		return new CovarianceProtocolImpl(data, maxInputLength, result, basicNumericFactory, this);
+	}
+
+	@Override
+	public CovarianceProtocol getCovarianceProtocol(SInt[] data1, SInt[] data2, int maxInputLength,
+			SInt result) {
+		return new CovarianceProtocolImpl(data1, data2, maxInputLength, result,
+				basicNumericFactory, this);
+	}
+
+	@Override
+	public CovarianceProtocol getCovarianceProtocol(SInt[] data1, SInt[] data2, int maxInputLength,
+			SInt mean1, SInt mean2, SInt result) {
+		return new CovarianceProtocolImpl(data1, data2, maxInputLength, mean1, mean2, result,
+				basicNumericFactory, this);
 	}
 
 }

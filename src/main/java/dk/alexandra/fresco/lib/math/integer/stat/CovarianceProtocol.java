@@ -26,55 +26,11 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.math.integer.stat;
 
-import dk.alexandra.fresco.framework.ProtocolProducer;
-import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.helper.AbstractSimpleProtocol;
+import dk.alexandra.fresco.framework.Protocol;
 
-public class VarianceProtocolImpl extends AbstractSimpleProtocol implements VarianceProtocol {
-
-	private SInt[] data;
-	private SInt result;
-	private int maxInputLength;
-	private SInt mean;
-	private boolean givenMean;
-
-	private final CovarianceFactory covarianceFactory;
-
-	public VarianceProtocolImpl(SInt[] data, int maxInputLength, SInt mean, SInt result,
-			CovarianceFactory covarianceFactory) {
-		this.data = data;
-		this.maxInputLength = maxInputLength;
-
-		this.mean = mean;
-		this.givenMean = true;
-
-		this.result = result;
-		this.covarianceFactory = covarianceFactory;
-	}
-
-	public VarianceProtocolImpl(SInt[] data, int maxInputLength, SInt result,
-			CovarianceFactory covarianceFactory) {
-		this.data = data;
-		this.maxInputLength = maxInputLength;
-
-		this.mean = null;
-		this.givenMean = false;
-
-		this.result = result;
-		this.covarianceFactory = covarianceFactory;
-	}
-
-	@Override
-	protected ProtocolProducer initializeGateProducer() {
-		ProtocolProducer gp;
-		if (!givenMean) {
-			gp = covarianceFactory.getCovarianceProtocol(new SInt[][] { data }, maxInputLength,
-					new SInt[][] { new SInt[] { result } });
-		} else {
-			gp = covarianceFactory.getCovarianceProtocol(new SInt[][] { data }, maxInputLength,
-					new SInt[] { mean }, new SInt[][] { new SInt[] { result } });
-		}
-		return gp;
-	}
+/**
+ * This protocol calculates an approximation of the variance of a given data set.
+ */
+public interface CovarianceProtocol extends Protocol {
 
 }
