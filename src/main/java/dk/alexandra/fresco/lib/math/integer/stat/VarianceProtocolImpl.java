@@ -64,18 +64,23 @@ public class VarianceProtocolImpl extends AbstractSimpleProtocol implements Vari
 
 		NumericProtocolBuilder numericProtocolBuilder = new NumericProtocolBuilder(
 				basicNumericFactory);
-
+		
 		SInt[] terms = new SInt[data.length];
+		numericProtocolBuilder.beginParScope();
 		for (int i = 0; i < terms.length; i++) {
+			numericProtocolBuilder.beginSeqScope();
 			SInt tmp = numericProtocolBuilder.sub(data[i], mean);
 			terms[i] = numericProtocolBuilder.mult(tmp, tmp);
+			numericProtocolBuilder.endCurScope();
 		}
+		numericProtocolBuilder.endCurScope();
+		
 		SInt sum = numericProtocolBuilder.sum(terms);
 		OInt nMinus1 = basicNumericFactory.getOInt(BigInteger.valueOf(data.length - 1));
 
 		int maxSumLength = 2 * maxInputLength + (int) Math.ceil(Math.log(terms.length) / Math.log(2));
 		Protocol divide = divisionFactory.getDivisionProtocol(sum, maxSumLength, nMinus1, result);
-
+		
 		return new SequentialProtocolProducer(numericProtocolBuilder.getCircuit(), divide);
 	}
 
