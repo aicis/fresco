@@ -28,7 +28,6 @@ package dk.alexandra.fresco.lib.math.integer.stat;
 
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.helper.AbstractSimpleProtocol;
 import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
@@ -44,14 +43,11 @@ public class CovarianceMatrixProtocolImpl extends AbstractSimpleProtocol impleme
 
 	private boolean givenMean;
 
-	private final MeanFactory meanFactory;
 	private final VarianceFactory varianceFactory;
 	private final CovarianceFactory covarianceFactory;
-	private final BasicNumericFactory basicNumericFactory;
 
 	public CovarianceMatrixProtocolImpl(SInt[][] data, int maxInputLength, SInt[] mean,
-			SInt[][] result, BasicNumericFactory basicNumericFactory, MeanFactory meanFactory,
-			VarianceFactory varianceFactory, CovarianceFactory covarianceFactory) {
+			SInt[][] result, VarianceFactory varianceFactory, CovarianceFactory covarianceFactory) {
 		this.data = data;
 
 		if (mean != null) {
@@ -65,16 +61,13 @@ public class CovarianceMatrixProtocolImpl extends AbstractSimpleProtocol impleme
 		this.maxInputLength = maxInputLength;
 		this.result = result;
 
-		this.basicNumericFactory = basicNumericFactory;
-		this.meanFactory = meanFactory;
 		this.varianceFactory = varianceFactory;
 		this.covarianceFactory = covarianceFactory;
 	}
 
 	public CovarianceMatrixProtocolImpl(SInt[][] data, int maxInputLength, SInt[][] result,
-			BasicNumericFactory basicNumericFactory, MeanFactory meanFactory,
 			VarianceFactory varianceFactory, CovarianceFactory covarianceFactory) {
-		this(data, maxInputLength, null, result, basicNumericFactory, meanFactory, varianceFactory,
+		this(data, maxInputLength, null, result, varianceFactory,
 				covarianceFactory);
 	}
 

@@ -70,14 +70,13 @@ public class StatisticsFactoryImpl implements StatisticsFactory {
 	@Override
 	public CovarianceMatrixProtocol getCovarianceMatrixProtocol(SInt[][] data, int maxInputLength, SInt[] mean,
 			SInt[][] result) {
-		return new CovarianceMatrixProtocolImpl(data, maxInputLength, mean, result, basicNumericFactory,
-				this, this, this);
+		return new CovarianceMatrixProtocolImpl(data, maxInputLength, mean, result, this, this);
 	}
 
 	@Override
 	public CovarianceMatrixProtocol getCovarianceMatrixProtocol(SInt[][] data, int maxInputLength,
 			SInt[][] result) {
-		return new CovarianceMatrixProtocolImpl(data, maxInputLength, result, basicNumericFactory, this, this, this);
+		return new CovarianceMatrixProtocolImpl(data, maxInputLength, result, this, this);
 	}
 
 	@Override
