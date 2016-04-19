@@ -28,52 +28,81 @@ package dk.alexandra.fresco.lib.math.integer.stat;
 
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.SInt;
+import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.helper.AbstractSimpleProtocol;
+import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
+import dk.alexandra.fresco.lib.helper.builder.NumericProtocolBuilder;
+import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
 
 public class VarianceProtocolImpl extends AbstractSimpleProtocol implements VarianceProtocol {
 
 	private SInt[] data;
-	private SInt result;
+	private SInt variance;
 	private int maxInputLength;
 	private SInt mean;
 	private boolean givenMean;
 
-	private final CovarianceFactory covarianceFactory;
+	private final BasicNumericFactory basicNumericFactory;
+	private final MeanFactory meanFactory;
 
-	public VarianceProtocolImpl(SInt[] data, int maxInputLength, SInt mean, SInt result,
-			CovarianceFactory covarianceFactory) {
+	public VarianceProtocolImpl(SInt[] data, int maxInputLength, SInt mean, SInt variance,
+			BasicNumericFactory basicNumericFactory, MeanFactory meanFactory) {
 		this.data = data;
 		this.maxInputLength = maxInputLength;
 
-		this.mean = mean;
-		this.givenMean = true;
+		if (mean != null) {
+			this.mean = mean;
+			this.givenMean = true;
+		} else {
+			this.mean = null;
+			this.givenMean = false;
+		}
 
-		this.result = result;
-		this.covarianceFactory = covarianceFactory;
+		this.variance = variance;
+		
+		this.basicNumericFactory = basicNumericFactory;
+		this.meanFactory = meanFactory;
 	}
 
-	public VarianceProtocolImpl(SInt[] data, int maxInputLength, SInt result,
-			CovarianceFactory covarianceFactory) {
-		this.data = data;
-		this.maxInputLength = maxInputLength;
-
-		this.mean = null;
-		this.givenMean = false;
-
-		this.result = result;
-		this.covarianceFactory = covarianceFactory;
+	public VarianceProtocolImpl(SInt[] data, int maxInputLength, SInt variance,
+			BasicNumericFactory basicNumericFactory, MeanFactory meanFactory) {
+		this(data, maxInputLength, null, variance, basicNumericFactory, meanFactory);
 	}
 
 	@Override
 	protected ProtocolProducer initializeGateProducer() {
-		ProtocolProducer gp;
+		
+		SequentialProtocolProducer gp = new SequentialProtocolProducer();
+
+		/*
+		 * If a mean was not provided, we first calculate it
+		 */
 		if (!givenMean) {
-			gp = covarianceFactory.getCovarianceProtocol(new SInt[][] { data }, maxInputLength,
-					new SInt[][] { new SInt[] { result } });
-		} else {
-			gp = covarianceFactory.getCovarianceProtocol(new SInt[][] { data }, maxInputLength,
-					new SInt[] { mean }, new SInt[][] { new SInt[] { result } });
+			ParallelProtocolProducer findMeans = new ParallelProtocolProducer();
+			this.mean = basicNumericFactory.getSInt();
+			findMeans.append(meanFactory.getMeanProtocol(data, maxInputLength, mean));
+			gp.append(findMeans);
 		}
+
+		NumericProtocolBuilder numericProtocolBuilder = new NumericProtocolBuilder(
+				basicNumericFactory);
+
+		numericProtocolBuilder.beginParScope();
+		SInt[] terms = new SInt[data.length];
+		for (int k = 0; k < data.length; k++) {
+			numericProtocolBuilder.beginSeqScope();
+			SInt tmp = numericProtocolBuilder.sub(data[k], mean);
+			terms[k] = numericProtocolBuilder.mult(tmp, tmp);
+			numericProtocolBuilder.endCurScope();
+		}
+		numericProtocolBuilder.endCurScope();
+
+		gp.append(numericProtocolBuilder.getCircuit());
+
+		// The sample variance has df = n-1
+		gp.append(meanFactory
+				.getMeanProtocol(terms, 2 * maxInputLength, data.length - 1, variance));
+
 		return gp;
 	}
 

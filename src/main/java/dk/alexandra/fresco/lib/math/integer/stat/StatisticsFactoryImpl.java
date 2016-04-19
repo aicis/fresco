@@ -59,25 +59,25 @@ public class StatisticsFactoryImpl implements StatisticsFactory {
 	@Override
 	public VarianceProtocol getVarianceProtocol(SInt[] data, int maxInputLength, SInt mean,
 			SInt result) {
-		return new VarianceProtocolImpl(data, maxInputLength, mean, result, this);
+		return new VarianceProtocolImpl(data, maxInputLength, mean, result, basicNumericFactory, this);
 	}
 
 	@Override
 	public VarianceProtocol getVarianceProtocol(SInt[] data, int maxInputLength, SInt result) {
-		return new VarianceProtocolImpl(data, maxInputLength, result, this);
+		return new VarianceProtocolImpl(data, maxInputLength, result, basicNumericFactory, this);
 	}
 
 	@Override
-	public CovarianceProtocol getCovarianceProtocol(SInt[][] data, int maxInputLength, SInt[] mean,
+	public CovarianceMatrixProtocol getCovarianceMatrixProtocol(SInt[][] data, int maxInputLength, SInt[] mean,
 			SInt[][] result) {
-		return new CovarianceProtocolImpl(data, maxInputLength, mean, result, basicNumericFactory,
-				this);
+		return new CovarianceMatrixProtocolImpl(data, maxInputLength, mean, result, basicNumericFactory,
+				this, this, this);
 	}
 
 	@Override
-	public CovarianceProtocol getCovarianceProtocol(SInt[][] data, int maxInputLength,
+	public CovarianceMatrixProtocol getCovarianceMatrixProtocol(SInt[][] data, int maxInputLength,
 			SInt[][] result) {
-		return new CovarianceProtocolImpl(data, maxInputLength, result, basicNumericFactory, this);
+		return new CovarianceMatrixProtocolImpl(data, maxInputLength, result, basicNumericFactory, this, this, this);
 	}
 
 	@Override

@@ -26,7 +26,11 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.math.integer.stat;
 
+import dk.alexandra.fresco.framework.Protocol;
 
-public interface StatisticsFactory extends MeanFactory, VarianceFactory, CovarianceFactory, CovarianceMatrixFactory {
+/**
+ * This protocol calculates an approximation of the variance of a given data set.
+ */
+public interface CovarianceMatrixProtocol extends Protocol {
 
 }

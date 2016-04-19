@@ -36,62 +36,49 @@ import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
 
 public class CovarianceProtocolImpl extends AbstractSimpleProtocol implements CovarianceProtocol {
 
-	private SInt[][] data;
-	private SInt[] mean;
+	private SInt[] data1, data2;
+	private SInt mean1, mean2;
 	private int maxInputLength;
-
-	private SInt[][] result;
+	private SInt covariance;
 
 	private boolean givenMean;
 
 	private final BasicNumericFactory basicNumericFactory;
-	private MeanFactory arithmeticMeanFactory;
-
-	public CovarianceProtocolImpl(SInt[][] data, int maxInputLength, SInt[] mean, SInt[][] result,
-			BasicNumericFactory basicNumericFactory, MeanFactory arithmeticMeanFactory) {
-		this.data = data;
-		this.mean = mean;
-		this.givenMean = true;
-		this.maxInputLength = maxInputLength;
-		this.result = result;
-
-		this.basicNumericFactory = basicNumericFactory;
-		this.arithmeticMeanFactory = arithmeticMeanFactory;
-	}
+	private final MeanFactory meanFactory;
 
 	public CovarianceProtocolImpl(SInt[] data1, SInt[] data2, int maxInputLength, SInt mean2,
-			SInt mean1, SInt result, BasicNumericFactory basicNumericFactory,
-			MeanFactory arithmeticMeanFactory) {
+			SInt mean1, SInt covariance, BasicNumericFactory basicNumericFactory, MeanFactory meanFactory) {
+		
+		this.data1 = data1;
+		this.data2 = data2;
+		
+		if (mean1 != null && mean2 != null) {
+			this.mean1 = mean1;
+			this.mean2 = mean2;
+			this.givenMean = true;
+		} else {
+			this.mean1 = this.mean2 = null;
+			this.givenMean = false;
+		}
+		this.maxInputLength = maxInputLength;
 
-		this(new SInt[][] { data1, data2 }, maxInputLength, new SInt[] { mean1, mean2 },
-				new SInt[][] { new SInt[] { result } }, basicNumericFactory, arithmeticMeanFactory);
+		this.covariance = covariance;
 
+		this.basicNumericFactory = basicNumericFactory;
+		this.meanFactory = meanFactory;
 	}
 
-	public CovarianceProtocolImpl(SInt[][] data, int maxInputLength, SInt[][] result,
-			BasicNumericFactory basicNumericFactory, MeanFactory arithmeticMeanFactory) {
-		this(data, maxInputLength, null, result, basicNumericFactory, arithmeticMeanFactory);
-		this.givenMean = false;
-	}
+	public CovarianceProtocolImpl(SInt[] data1, SInt[] data2, int maxInputLength, SInt covariance,
+			BasicNumericFactory basicNumericFactory, MeanFactory meanFactory) {
 
-	public CovarianceProtocolImpl(SInt[] data1, SInt[] data2, int maxInputLength, SInt result,
-			BasicNumericFactory basicNumericFactory, MeanFactory arithmeticMeanFactory) {
-
-		this(new SInt[][] { data1, data2 }, maxInputLength, new SInt[][] { new SInt[] { result } },
-				basicNumericFactory, arithmeticMeanFactory);
-
+		this(data1, data2, maxInputLength, null, null, covariance, basicNumericFactory, meanFactory);
 	}
 
 	@Override
 	protected ProtocolProducer initializeGateProducer() {
 
-		int numOfDataSets = data.length;
-		int sampleSize = data[0].length;
-		for (int i = 1; i < numOfDataSets; i++) {
-			if (data[i].length != sampleSize) {
-				throw new IllegalArgumentException(
-						"Not a data matrix - all columns must have same size.");
-			}
+		if (data1.length != data2.length) {
+			throw new IllegalArgumentException("Must have same sample size.");
 		}
 
 		SequentialProtocolProducer gp = new SequentialProtocolProducer();
@@ -100,57 +87,37 @@ public class CovarianceProtocolImpl extends AbstractSimpleProtocol implements Co
 		 * If a mean was not provided, we first calculate it
 		 */
 		if (!givenMean) {
-			this.mean = new SInt[numOfDataSets];
 			ParallelProtocolProducer findMeans = new ParallelProtocolProducer();
-			for (int i = 0; i < numOfDataSets; i++) {
-				this.mean[i] = basicNumericFactory.getSInt();
-				findMeans.append(arithmeticMeanFactory.getMeanProtocol(data[i],
-						maxInputLength, mean[i]));
-			}
+			
+			this.mean1 = basicNumericFactory.getSInt();
+			findMeans.append(meanFactory.getMeanProtocol(data1, maxInputLength, mean1));
+
+			this.mean2 = basicNumericFactory.getSInt();
+			findMeans.append(meanFactory.getMeanProtocol(data2, maxInputLength, mean2));
+			
 			gp.append(findMeans);
 		}
 
 		NumericProtocolBuilder numericProtocolBuilder = new NumericProtocolBuilder(
 				basicNumericFactory);
-
-		ParallelProtocolProducer findCovariances = new ParallelProtocolProducer();
-		for (int i = 0; i < numOfDataSets; i++) {
-			for (int j = i; j < numOfDataSets; j++) {
-				SequentialProtocolProducer findCovariance = new SequentialProtocolProducer();
-				
-				numericProtocolBuilder.beginParScope();
-				SInt[] terms = new SInt[sampleSize];
-				for (int k = 0; k < sampleSize; k++) {
-					numericProtocolBuilder.beginSeqScope();
-					if (i == j) {
-						// If i == j we are calculating the variance of data[i]
-						SInt tmp1 = numericProtocolBuilder.sub(data[i][k], mean[i]);
-						terms[k] = numericProtocolBuilder.mult(tmp1, tmp1);
-					} else {
-						SInt tmp1 = numericProtocolBuilder.sub(data[i][k], mean[i]);
-						SInt tmp2 = numericProtocolBuilder.sub(data[j][k], mean[j]);
-						terms[k] = numericProtocolBuilder.mult(tmp1, tmp2);
-					}
-					numericProtocolBuilder.endCurScope();
-				}
-				numericProtocolBuilder.endCurScope();
-
-				findCovariance.append(numericProtocolBuilder.getCircuit());
-				numericProtocolBuilder.reset();
-
-				// The sample variance has df = n-1
-				findCovariance.append(arithmeticMeanFactory.getMeanProtocol(terms,
-						2 * maxInputLength, sampleSize - 1, result[i][j]));
-
-				if (i != j) {
-					// Covariance matrix is symmetric
-					result[j][i] = result[i][j];
-				}
-				findCovariances.append(findCovariance);
-			}
+		numericProtocolBuilder.beginParScope();
+		SInt[] terms = new SInt[data1.length];
+		for (int k = 0; k < data1.length; k++) {
+			numericProtocolBuilder.beginSeqScope();
+			SInt tmp1 = numericProtocolBuilder.sub(data1[k], mean1);
+			SInt tmp2 = numericProtocolBuilder.sub(data2[k], mean2);
+			terms[k] = numericProtocolBuilder.mult(tmp1, tmp2);
+			numericProtocolBuilder.endCurScope();
 		}
-		gp.append(findCovariances);
-		return new SequentialProtocolProducer(gp);
+		numericProtocolBuilder.endCurScope();
+
+		gp.append(numericProtocolBuilder.getCircuit());
+
+		// The sample variance has df = n-1
+		gp.append(meanFactory
+				.getMeanProtocol(terms, 2 * maxInputLength, data1.length - 1, covariance));
+
+		return gp;
 	}
 
 }

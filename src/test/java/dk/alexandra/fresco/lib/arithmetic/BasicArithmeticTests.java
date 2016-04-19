@@ -63,10 +63,12 @@ import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductFactoryImpl;
 import dk.alexandra.fresco.lib.math.integer.sqrt.SquareRootFactory;
 import dk.alexandra.fresco.lib.math.integer.sqrt.SquareRootFactoryImpl;
 import dk.alexandra.fresco.lib.math.integer.sqrt.SquareRootProtocol;
-import dk.alexandra.fresco.lib.math.integer.stat.MeanProtocol;
+import dk.alexandra.fresco.lib.math.integer.stat.CovarianceMatrixProtocol;
 import dk.alexandra.fresco.lib.math.integer.stat.CovarianceProtocol;
+import dk.alexandra.fresco.lib.math.integer.stat.MeanProtocol;
 import dk.alexandra.fresco.lib.math.integer.stat.StatisticsFactory;
 import dk.alexandra.fresco.lib.math.integer.stat.StatisticsFactoryImpl;
+import dk.alexandra.fresco.lib.math.integer.stat.VarianceProtocol;
 
 
 /**
@@ -812,10 +814,13 @@ public class BasicArithmeticTests {
 							SequentialProtocolProducer sequentialProtocolProducer = new SequentialProtocolProducer();
 							
 							SInt mean = basicNumericFactory.getSInt();
-							SInt[][] covariance = new SInt[count][count];
-							for (int i = 0; i < count; i++) {
-								for (int j = 0; j < count; j++) {
-									covariance[i][j] = basicNumericFactory.getSInt();
+							SInt variance = basicNumericFactory.getSInt();
+							SInt covariance = basicNumericFactory.getSInt();
+							
+							SInt[][] covarianceMatrix = new SInt[3][3];
+							for (int i = 0; i < 3; i++) {
+								for (int j = 0; j < 3; j++) {
+									covarianceMatrix[i][j] = basicNumericFactory.getSInt();
 								}
 							}
 							
@@ -825,17 +830,25 @@ public class BasicArithmeticTests {
 							MeanProtocol arithmeticMeanProtocol = statisticsFactory.getMeanProtocol(input[0], 10, mean);
 							sequentialProtocolProducer.append(arithmeticMeanProtocol);
 
-							CovarianceProtocol covarianceProtocol = statisticsFactory.getCovarianceProtocol(input, 10, covariance);
+							VarianceProtocol varianceProtocol = statisticsFactory.getVarianceProtocol(input[0], 10, variance);
+							sequentialProtocolProducer.append(varianceProtocol);
+							
+							CovarianceProtocol covarianceProtocol = statisticsFactory.getCovarianceProtocol(input[0], input[1], 10, covariance);
 							sequentialProtocolProducer.append(covarianceProtocol);
 							
+							CovarianceMatrixProtocol covarianceMatrixProtocol = statisticsFactory.getCovarianceMatrixProtocol(input, 10, covarianceMatrix);
+							sequentialProtocolProducer.append(covarianceMatrixProtocol);
+							
 							OInt output1 = ioBuilder.output(mean);
-							OInt[][] output2 = ioBuilder.outputMatrix(covariance);
+							OInt output2 = ioBuilder.output(variance);
+							OInt output3 = ioBuilder.output(covariance);
+							OInt[][] output4 = ioBuilder.outputMatrix(covarianceMatrix);
 							
 							sequentialProtocolProducer.append(ioBuilder.getCircuit());
 							
 							ProtocolProducer gp = sequentialProtocolProducer;
 							
-							outputs = new OInt[] {output1, output2[0][0], output2[0][1]};
+							outputs = new OInt[] {output1, output2, output3, output4[0][0], output4[1][0]};
 							
 							return gp;
 						}
@@ -874,6 +887,9 @@ public class BasicArithmeticTests {
 					System.out.println("Calculated variance = " + variance + " (exact value is " + varianceExact + ")");
 					System.out.println("Calculated covariance = " + covariance + " (exact value is " + covarianceExact + ")");
 					
+					System.out.println("Cov[0][0] = " + app.getOutputs()[3].getValue() + " (should be " + varianceExact + ")");
+					System.out.println("Cov[0][1] = " + app.getOutputs()[4].getValue() + " (should be " + covarianceExact + ")");
+
 				}
 			};
 		}
