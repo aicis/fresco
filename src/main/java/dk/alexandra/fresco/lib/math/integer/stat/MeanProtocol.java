@@ -31,6 +31,6 @@ import dk.alexandra.fresco.framework.Protocol;
 /**
  * This protocol calculates the arithmetic mean of a data set.
  */
-public interface ArithmeticMeanProtocol extends Protocol{
+public interface MeanProtocol extends Protocol{
 
 }

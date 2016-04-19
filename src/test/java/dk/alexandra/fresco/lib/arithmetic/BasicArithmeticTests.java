@@ -63,7 +63,7 @@ import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductFactoryImpl;
 import dk.alexandra.fresco.lib.math.integer.sqrt.SquareRootFactory;
 import dk.alexandra.fresco.lib.math.integer.sqrt.SquareRootFactoryImpl;
 import dk.alexandra.fresco.lib.math.integer.sqrt.SquareRootProtocol;
-import dk.alexandra.fresco.lib.math.integer.stat.ArithmeticMeanProtocol;
+import dk.alexandra.fresco.lib.math.integer.stat.MeanProtocol;
 import dk.alexandra.fresco.lib.math.integer.stat.CovarianceProtocol;
 import dk.alexandra.fresco.lib.math.integer.stat.StatisticsFactory;
 import dk.alexandra.fresco.lib.math.integer.stat.StatisticsFactoryImpl;
@@ -814,7 +814,7 @@ public class BasicArithmeticTests {
 							SInt mean = basicNumericFactory.getSInt();
 							SInt[][] covariance = new SInt[count][count];
 							for (int i = 0; i < count; i++) {
-								for (int j = i; j < count; j++) {
+								for (int j = 0; j < count; j++) {
 									covariance[i][j] = basicNumericFactory.getSInt();
 								}
 							}
@@ -822,7 +822,7 @@ public class BasicArithmeticTests {
 							SInt[][] input = ioBuilder.inputMatrix(new int[][] {data1, data2, data3}, 1);
 							sequentialProtocolProducer.append(ioBuilder.getCircuit());
 							
-							ArithmeticMeanProtocol arithmeticMeanProtocol = statisticsFactory.getArithmeticMeanProtocol(input[0], 10, mean);
+							MeanProtocol arithmeticMeanProtocol = statisticsFactory.getMeanProtocol(input[0], 10, mean);
 							sequentialProtocolProducer.append(arithmeticMeanProtocol);
 
 							CovarianceProtocol covarianceProtocol = statisticsFactory.getCovarianceProtocol(input, 10, covariance);

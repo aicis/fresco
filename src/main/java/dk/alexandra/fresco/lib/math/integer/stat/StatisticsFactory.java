@@ -27,6 +27,6 @@
 package dk.alexandra.fresco.lib.math.integer.stat;
 
 
-public interface StatisticsFactory extends ArithmeticMeanFactory, VarianceFactory, CovarianceFactory {
+public interface StatisticsFactory extends MeanFactory, VarianceFactory, CovarianceFactory {
 
 }

@@ -42,12 +42,20 @@ public class StatisticsFactoryImpl implements StatisticsFactory {
 	}
 
 	@Override
-	public ArithmeticMeanProtocol getArithmeticMeanProtocol(SInt[] data, int maxInputLength,
+	public MeanProtocol getMeanProtocol(SInt[] data, int maxInputLength,
 			SInt result) {
-		return new ArithmeticMeanProtocolImpl(data, maxInputLength, result, basicNumericFactory,
+		return new MeanProtocolImpl(data, maxInputLength, result, basicNumericFactory,
 				divisionFactory);
 	}
 
+	@Override
+	public MeanProtocol getMeanProtocol(SInt[] data, int maxInputLength, int degreesOfFreedom,
+			SInt result) {
+		return new MeanProtocolImpl(data, maxInputLength, degreesOfFreedom, result, basicNumericFactory,
+				divisionFactory);
+	}
+
+	
 	@Override
 	public VarianceProtocol getVarianceProtocol(SInt[] data, int maxInputLength, SInt mean,
 			SInt result) {

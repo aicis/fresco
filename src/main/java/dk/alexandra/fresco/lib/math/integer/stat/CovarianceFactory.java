@@ -44,7 +44,7 @@ public interface CovarianceFactory {
 	 * @param mean
 	 *            An approximation of the means of the data sets. This can be
 	 *            calculated using
-	 *            {@link #getArithmeticMeanProtocol(SInt[], int, SInt)}
+	 *            {@link #getMeanProtocol(SInt[], int, SInt)}
 	 * @param result
 	 *            Only upper triangle of matrix (i,j for j \geq i) has to be
 	 *            initialized SInt's - the symmetric entry will be a copy of the

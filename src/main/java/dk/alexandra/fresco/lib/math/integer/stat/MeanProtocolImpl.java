@@ -38,8 +38,8 @@ import dk.alexandra.fresco.lib.helper.builder.NumericProtocolBuilder;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
 import dk.alexandra.fresco.lib.math.integer.division.DivisionFactory;
 
-public class ArithmeticMeanProtocolImpl extends AbstractSimpleProtocol implements
-		ArithmeticMeanProtocol {
+public class MeanProtocolImpl extends AbstractSimpleProtocol implements
+		MeanProtocol {
 
 	private final BasicNumericFactory basicNumericFactory;
 	private final DivisionFactory divisionFactory;
@@ -47,12 +47,26 @@ public class ArithmeticMeanProtocolImpl extends AbstractSimpleProtocol implement
 	private SInt[] data;
 	private SInt result;
 	private int maxInputLength;
+	private int degreesOfFreedom;
 
-	public ArithmeticMeanProtocolImpl(SInt[] data, int maxInputLength, SInt result, 
+	public MeanProtocolImpl(SInt[] data, int maxInputLength, SInt result, 
 			BasicNumericFactory basicNumericFactory,
 			DivisionFactory divisionFactory) {
 		this.data = data;
 		this.maxInputLength = maxInputLength;
+		this.degreesOfFreedom = data.length;
+		this.result = result;
+		this.basicNumericFactory = basicNumericFactory;
+		this.divisionFactory = divisionFactory;
+		
+	}
+	
+	public MeanProtocolImpl(SInt[] data, int maxInputLength, int degreesOfFreedom, SInt result, 
+			BasicNumericFactory basicNumericFactory,
+			DivisionFactory divisionFactory) {
+		this.data = data;
+		this.maxInputLength = maxInputLength;
+		this.degreesOfFreedom = degreesOfFreedom;
 		this.result = result;
 		this.basicNumericFactory = basicNumericFactory;
 		this.divisionFactory = divisionFactory;
@@ -64,7 +78,7 @@ public class ArithmeticMeanProtocolImpl extends AbstractSimpleProtocol implement
 		NumericProtocolBuilder numericProtocolBuilder = new NumericProtocolBuilder(basicNumericFactory);
 		
 		SInt sum = numericProtocolBuilder.sum(data);
-		OInt n = basicNumericFactory.getOInt(BigInteger.valueOf(data.length));
+		OInt n = basicNumericFactory.getOInt(BigInteger.valueOf(this.degreesOfFreedom));
 		
 		int maxSumLength = maxInputLength + (int) Math.ceil(Math.log(data.length) / Math.log(2));		
 		Protocol divide = divisionFactory.getDivisionProtocol(sum, maxSumLength, n, result);
