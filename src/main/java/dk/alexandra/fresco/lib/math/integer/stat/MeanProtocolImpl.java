@@ -64,12 +64,8 @@ public class MeanProtocolImpl extends AbstractSimpleProtocol implements
 	public MeanProtocolImpl(SInt[] data, int maxInputLength, int degreesOfFreedom, SInt result, 
 			BasicNumericFactory basicNumericFactory,
 			DivisionFactory divisionFactory) {
-		this.data = data;
-		this.maxInputLength = maxInputLength;
+		this(data, maxInputLength, result, basicNumericFactory, divisionFactory);
 		this.degreesOfFreedom = degreesOfFreedom;
-		this.result = result;
-		this.basicNumericFactory = basicNumericFactory;
-		this.divisionFactory = divisionFactory;
 	}
 
 	@Override
