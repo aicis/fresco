@@ -30,7 +30,6 @@ import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.helper.AbstractSimpleProtocol;
-import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
 import dk.alexandra.fresco.lib.helper.builder.NumericProtocolBuilder;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
 
@@ -40,7 +39,6 @@ public class VarianceProtocolImpl extends AbstractSimpleProtocol implements Vari
 	private SInt variance;
 	private int maxInputLength;
 	private SInt mean;
-	private boolean givenMean;
 
 	private final BasicNumericFactory basicNumericFactory;
 	private final MeanFactory meanFactory;
@@ -48,18 +46,11 @@ public class VarianceProtocolImpl extends AbstractSimpleProtocol implements Vari
 	public VarianceProtocolImpl(SInt[] data, int maxInputLength, SInt mean, SInt variance,
 			BasicNumericFactory basicNumericFactory, MeanFactory meanFactory) {
 		this.data = data;
-		this.maxInputLength = maxInputLength;
-
-		if (mean != null) {
-			this.mean = mean;
-			this.givenMean = true;
-		} else {
-			this.mean = null;
-			this.givenMean = false;
-		}
-
-		this.variance = variance;
+		this.mean = mean;
 		
+		this.maxInputLength = maxInputLength;
+		this.variance = variance;
+
 		this.basicNumericFactory = basicNumericFactory;
 		this.meanFactory = meanFactory;
 	}
@@ -71,17 +62,15 @@ public class VarianceProtocolImpl extends AbstractSimpleProtocol implements Vari
 
 	@Override
 	protected ProtocolProducer initializeGateProducer() {
-		
+
 		SequentialProtocolProducer gp = new SequentialProtocolProducer();
 
 		/*
 		 * If a mean was not provided, we first calculate it
 		 */
-		if (!givenMean) {
-			ParallelProtocolProducer findMeans = new ParallelProtocolProducer();
+		if (mean == null) {
 			this.mean = basicNumericFactory.getSInt();
-			findMeans.append(meanFactory.getMeanProtocol(data, maxInputLength, mean));
-			gp.append(findMeans);
+			gp.append(meanFactory.getMeanProtocol(data, maxInputLength, mean));
 		}
 
 		NumericProtocolBuilder numericProtocolBuilder = new NumericProtocolBuilder(
@@ -100,8 +89,7 @@ public class VarianceProtocolImpl extends AbstractSimpleProtocol implements Vari
 		gp.append(numericProtocolBuilder.getCircuit());
 
 		// The sample variance has df = n-1
-		gp.append(meanFactory
-				.getMeanProtocol(terms, 2 * maxInputLength, data.length - 1, variance));
+		gp.append(meanFactory.getMeanProtocol(terms, 2 * maxInputLength, data.length - 1, variance));
 
 		return gp;
 	}

@@ -789,7 +789,7 @@ public class BasicArithmeticTests {
 			
 			return new ThreadWithFixture() {
 				private final int[] data1 = {543,520,532,497,450,432};
-				private final int[] data2 = {43,620,232,137,250,433};
+				private final int[] data2 = {432,620,232,337,250,433};
 				private final int[] data3 = {80,90,123,432,145,606};
 				int count = 3;
 				
@@ -813,7 +813,8 @@ public class BasicArithmeticTests {
 							NumericIOBuilder ioBuilder = new NumericIOBuilder(basicNumericFactory);
 							SequentialProtocolProducer sequentialProtocolProducer = new SequentialProtocolProducer();
 							
-							SInt mean = basicNumericFactory.getSInt();
+							SInt mean1 = basicNumericFactory.getSInt();
+							SInt mean2 = basicNumericFactory.getSInt();
 							SInt variance = basicNumericFactory.getSInt();
 							SInt covariance = basicNumericFactory.getSInt();
 							
@@ -827,36 +828,41 @@ public class BasicArithmeticTests {
 							SInt[][] input = ioBuilder.inputMatrix(new int[][] {data1, data2, data3}, 1);
 							sequentialProtocolProducer.append(ioBuilder.getCircuit());
 							
-							MeanProtocol arithmeticMeanProtocol = statisticsFactory.getMeanProtocol(input[0], 10, mean);
+							MeanProtocol arithmeticMeanProtocol = statisticsFactory.getMeanProtocol(input[0], 10, mean1);
 							sequentialProtocolProducer.append(arithmeticMeanProtocol);
 
-							VarianceProtocol varianceProtocol = statisticsFactory.getVarianceProtocol(input[0], 10, variance);
+							MeanProtocol arithmeticMeanProtocol2 = statisticsFactory.getMeanProtocol(input[1], 10, mean2);
+							sequentialProtocolProducer.append(arithmeticMeanProtocol2);
+
+							VarianceProtocol varianceProtocol = statisticsFactory.getVarianceProtocol(input[0], 10, mean1, variance);
 							sequentialProtocolProducer.append(varianceProtocol);
 							
-							CovarianceProtocol covarianceProtocol = statisticsFactory.getCovarianceProtocol(input[0], input[1], 10, covariance);
+							CovarianceProtocol covarianceProtocol = statisticsFactory.getCovarianceProtocol(input[0], input[1], 10, mean1, mean2, covariance);
 							sequentialProtocolProducer.append(covarianceProtocol);
 							
 							CovarianceMatrixProtocol covarianceMatrixProtocol = statisticsFactory.getCovarianceMatrixProtocol(input, 10, covarianceMatrix);
 							sequentialProtocolProducer.append(covarianceMatrixProtocol);
 							
-							OInt output1 = ioBuilder.output(mean);
-							OInt output2 = ioBuilder.output(variance);
-							OInt output3 = ioBuilder.output(covariance);
-							OInt[][] output4 = ioBuilder.outputMatrix(covarianceMatrix);
+							OInt output1 = ioBuilder.output(mean1);
+							OInt output2 = ioBuilder.output(mean2);
+							OInt output3 = ioBuilder.output(variance);
+							OInt output4 = ioBuilder.output(covariance);
+							OInt[][] output5 = ioBuilder.outputMatrix(covarianceMatrix);
 							
 							sequentialProtocolProducer.append(ioBuilder.getCircuit());
 							
 							ProtocolProducer gp = sequentialProtocolProducer;
 							
-							outputs = new OInt[] {output1, output2, output3, output4[0][0], output4[1][0]};
+							outputs = new OInt[] {output1, output2, output3, output4, output5[0][0], output5[1][0]};
 							
 							return gp;
 						}
 					};
 					sce.runApplication(app);
-					BigInteger mean = app.getOutputs()[0].getValue();
-					BigInteger variance = app.getOutputs()[1].getValue();
-					BigInteger covariance = app.getOutputs()[2].getValue();
+					BigInteger mean1 = app.getOutputs()[0].getValue();
+					BigInteger mean2 = app.getOutputs()[1].getValue();
+					BigInteger variance = app.getOutputs()[2].getValue();
+					BigInteger covariance = app.getOutputs()[3].getValue();
 					
 					double sum = 0.0;
 					for (int entry : data1) {
@@ -883,12 +889,13 @@ public class BasicArithmeticTests {
 					}
 					covarianceExact /= (data1.length - 1);
 					
-					System.out.println("Calculated mean = " + mean + " (exact value is " + mean1Exact + ")");
+					System.out.println("Calculated mean1 = " + mean1 + " (exact value is " + mean1Exact + ")");
+					System.out.println("Calculated mean2 = " + mean2 + " (exact value is " + mean2Exact + ")");
 					System.out.println("Calculated variance = " + variance + " (exact value is " + varianceExact + ")");
 					System.out.println("Calculated covariance = " + covariance + " (exact value is " + covarianceExact + ")");
 					
-					System.out.println("Cov[0][0] = " + app.getOutputs()[3].getValue() + " (should be " + varianceExact + ")");
-					System.out.println("Cov[0][1] = " + app.getOutputs()[4].getValue() + " (should be " + covarianceExact + ")");
+					System.out.println("Cov[0][0] = " + app.getOutputs()[4].getValue() + " (should be " + varianceExact + ")");
+					System.out.println("Cov[0][1] = " + app.getOutputs()[5].getValue() + " (should be " + covarianceExact + ")");
 
 				}
 			};

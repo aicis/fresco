@@ -41,25 +41,19 @@ public class CovarianceProtocolImpl extends AbstractSimpleProtocol implements Co
 	private int maxInputLength;
 	private SInt covariance;
 
-	private boolean givenMean;
-
 	private final BasicNumericFactory basicNumericFactory;
 	private final MeanFactory meanFactory;
 
-	public CovarianceProtocolImpl(SInt[] data1, SInt[] data2, int maxInputLength, SInt mean2,
-			SInt mean1, SInt covariance, BasicNumericFactory basicNumericFactory, MeanFactory meanFactory) {
-		
+	public CovarianceProtocolImpl(SInt[] data1, SInt[] data2, int maxInputLength, SInt mean1,
+			SInt mean2, SInt covariance, BasicNumericFactory basicNumericFactory,
+			MeanFactory meanFactory) {
+
 		this.data1 = data1;
 		this.data2 = data2;
 		
-		if (mean1 != null && mean2 != null) {
-			this.mean1 = mean1;
-			this.mean2 = mean2;
-			this.givenMean = true;
-		} else {
-			this.mean1 = this.mean2 = null;
-			this.givenMean = false;
-		}
+		this.mean1 = mean1;
+		this.mean2 = mean2;
+
 		this.maxInputLength = maxInputLength;
 
 		this.covariance = covariance;
@@ -86,15 +80,16 @@ public class CovarianceProtocolImpl extends AbstractSimpleProtocol implements Co
 		/*
 		 * If a mean was not provided, we first calculate it
 		 */
-		if (!givenMean) {
-			ParallelProtocolProducer findMeans = new ParallelProtocolProducer();
-			
+		ParallelProtocolProducer findMeans = new ParallelProtocolProducer();
+		if (mean1 == null) {
 			this.mean1 = basicNumericFactory.getSInt();
 			findMeans.append(meanFactory.getMeanProtocol(data1, maxInputLength, mean1));
-
+		}
+		if (mean2 == null) {
 			this.mean2 = basicNumericFactory.getSInt();
 			findMeans.append(meanFactory.getMeanProtocol(data2, maxInputLength, mean2));
-			
+		}
+		if (!findMeans.getProducers().isEmpty()) {
 			gp.append(findMeans);
 		}
 
@@ -114,8 +109,8 @@ public class CovarianceProtocolImpl extends AbstractSimpleProtocol implements Co
 		gp.append(numericProtocolBuilder.getCircuit());
 
 		// The sample variance has df = n-1
-		gp.append(meanFactory
-				.getMeanProtocol(terms, 2 * maxInputLength, data1.length - 1, covariance));
+		gp.append(meanFactory.getMeanProtocol(terms, 2 * maxInputLength, data1.length - 1,
+				covariance));
 
 		return gp;
 	}

@@ -28,6 +28,7 @@ package dk.alexandra.fresco.lib.math.integer.stat;
 
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.SInt;
+import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.helper.AbstractSimpleProtocol;
 import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
@@ -41,33 +42,64 @@ public class CovarianceMatrixProtocolImpl extends AbstractSimpleProtocol impleme
 
 	private SInt[][] result;
 
-	private boolean givenMean;
-
+	private final BasicNumericFactory basicNumericFactory;
 	private final VarianceFactory varianceFactory;
 	private final CovarianceFactory covarianceFactory;
+	private MeanFactory meanFactory;
 
+	/**
+	 * Construct a protocol for calculating the covariance matrix for the given
+	 * data. If (some of) the sample means have already been calculated they
+	 * should be provided here such that <code>mean[i]</code> is the mean of
+	 * <code>data[i]</code>, but not all means has to be provided in which case
+	 * they should be left as <code>null</code>.
+	 * 
+	 * @param data
+	 *            The data, one sample set for each column
+	 * @param maxInputLength
+	 *            An upper bound for the size of each data entry
+	 * @param mean
+	 *            The means
+	 * @param result
+	 *            The covariance matrix <i>(c<sub>ij</sub>)</i> such that
+	 *            <i>c_ij = Cov(<code>data[i]</code>, <code>data[j]</code>)</i>
+	 * @param basicNumericFactory
+	 * @param meanFactory
+	 * @param varianceFactory
+	 * @param covarianceFactory
+	 */
 	public CovarianceMatrixProtocolImpl(SInt[][] data, int maxInputLength, SInt[] mean,
-			SInt[][] result, VarianceFactory varianceFactory, CovarianceFactory covarianceFactory) {
+			SInt[][] result, BasicNumericFactory basicNumericFactory, MeanFactory meanFactory,
+			VarianceFactory varianceFactory, CovarianceFactory covarianceFactory) {
 		this.data = data;
-
-		if (mean != null) {
-			this.mean = mean;
-			this.givenMean = true;
-		} else {
-			this.mean = null;
-			this.givenMean = false;
-		}
+		this.mean = mean;
 
 		this.maxInputLength = maxInputLength;
 		this.result = result;
 
+		this.basicNumericFactory = basicNumericFactory;
+		this.meanFactory = meanFactory;
 		this.varianceFactory = varianceFactory;
 		this.covarianceFactory = covarianceFactory;
 	}
 
+	/**
+	 * Wrapper constructor for when the means are not known. Will just pass on parameters to
+	 * {@link #CovarianceMatrixProtocolImpl(SInt[][], int, SInt[], SInt[][], BasicNumericFactory, MeanFactory, VarianceFactory, CovarianceFactory)}
+	 * with <code>mean = null</code>.
+	 * 
+	 * @param data
+	 * @param maxInputLength
+	 * @param result
+	 * @param basicNumericFactory
+	 * @param meanFactory
+	 * @param varianceFactory
+	 * @param covarianceFactory
+	 */
 	public CovarianceMatrixProtocolImpl(SInt[][] data, int maxInputLength, SInt[][] result,
+			BasicNumericFactory basicNumericFactory, MeanFactory meanFactory,
 			VarianceFactory varianceFactory, CovarianceFactory covarianceFactory) {
-		this(data, maxInputLength, null, result, varianceFactory,
+		this(data, maxInputLength, null, result, basicNumericFactory, meanFactory, varianceFactory,
 				covarianceFactory);
 	}
 
@@ -85,26 +117,40 @@ public class CovarianceMatrixProtocolImpl extends AbstractSimpleProtocol impleme
 
 		SequentialProtocolProducer gp = new SequentialProtocolProducer();
 
+		/*
+		 * If (some of) the sample means has not been provided, we calculate
+		 * them here.
+		 */
+		if (mean == null) {
+			mean = new SInt[numOfDataSets];
+		}
+		ParallelProtocolProducer findMeans = new ParallelProtocolProducer();
+		for (int i = 0; i < numOfDataSets; i++) {
+			if (mean[i] == null) {
+				mean[i] = basicNumericFactory.getSInt();
+				findMeans.append(meanFactory.getMeanProtocol(data[i], maxInputLength, mean[i]));
+			}
+		}
+		if (!findMeans.getProducers().isEmpty()) {
+			gp.append(findMeans);
+		}
+		
+		/*
+		 * Calculate the covariance matrix (c_ij) such that c_ij = Cov(data[i],
+		 * data[j])
+		 */
 		ParallelProtocolProducer findCovariances = new ParallelProtocolProducer();
 		for (int i = 0; i < numOfDataSets; i++) {
 			for (int j = i; j < numOfDataSets; j++) {
 				if (i == j) {
-					// If i=j we are calculating the variance of data[i]
-					if (givenMean) {
-						findCovariances.append(varianceFactory.getVarianceProtocol(data[i],
-								maxInputLength, mean[i], result[i][j]));
-					} else {
-						findCovariances.append(varianceFactory.getVarianceProtocol(data[i],
-								maxInputLength, result[i][j]));
-					}
+					// When i == j we are calculating the variance of data[i]
+					// which saves us one subtraction per data entry compared to
+					// calculating the covariance
+					findCovariances.append(varianceFactory.getVarianceProtocol(data[i],
+							maxInputLength, mean[i], result[i][j]));
 				} else {
-					if (givenMean) {
-						findCovariances.append(covarianceFactory.getCovarianceProtocol(data[i],
-								data[j], maxInputLength, mean[i], mean[j], result[i][j]));
-					} else {
-						findCovariances.append(covarianceFactory.getCovarianceProtocol(data[i],
-								data[j], maxInputLength, result[i][j]));
-					}
+					findCovariances.append(covarianceFactory.getCovarianceProtocol(data[i],
+							data[j], maxInputLength, result[i][j]));
 					result[j][i] = result[i][j];
 				}
 			}
