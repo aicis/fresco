@@ -106,6 +106,9 @@ public class RepeatedRightShiftProtocolImpl implements RepeatedRightShiftProtoco
 		if (protocolProducer == null) {
 
 			if (round == 0) {
+				/*
+				 * First round
+				 */
 				out = basicNumericFactory.getSInt();
 
 				Protocol rightShift;
@@ -117,6 +120,9 @@ public class RepeatedRightShiftProtocolImpl implements RepeatedRightShiftProtoco
 				}
 				protocolProducer = rightShift;
 			} else if (round < shifts - 1) {
+				/*
+				 * Intermediate rounds
+				 */
 				in = out;
 				out = basicNumericFactory.getSInt();
 				Protocol rightShift;
@@ -128,6 +134,9 @@ public class RepeatedRightShiftProtocolImpl implements RepeatedRightShiftProtoco
 				}
 				protocolProducer = rightShift;
 			} else if (round == shifts - 1) {
+				/*
+				 * Last round
+				 */
 				in = out;
 				out = null;
 				Protocol rightShift;
