@@ -212,33 +212,6 @@ public class TestSpdzBasicArithmetic2Parties {
 				StorageStrategy.IN_MEMORY);
 	}
 
-	@Test
-	public void test_Euclidian_Division_Sequential() throws Exception {
-		runTest(new BasicArithmeticTests.TestEuclidianDivision(),
-				EvaluationStrategy.SEQUENTIAL,
-				StorageStrategy.IN_MEMORY);
-	}
-
-	@Test
-	public void test_Statistics_Sequential() throws Exception {
-		runTest(new BasicArithmeticTests.TestStatistics(),
-				EvaluationStrategy.SEQUENTIAL,
-				StorageStrategy.IN_MEMORY);
-	}
-
-	@Test
-	public void test_Secret_Shared_Division_Sequential() throws Exception {
-		runTest(new BasicArithmeticTests.TestSecretSharedDivision(),
-				EvaluationStrategy.SEQUENTIAL,
-				StorageStrategy.IN_MEMORY);
-	}
-
-	@Test
-	public void test_Square_Root_Sequential() throws Exception {
-		runTest(new BasicArithmeticTests.TestSquareRoot(),
-				EvaluationStrategy.SEQUENTIAL,
-				StorageStrategy.IN_MEMORY);
-	}
 	// TODO: Test with different security parameters.
 
 	@Category(IntegrationTest.class)
