@@ -83,7 +83,7 @@ public class TestSpdzLPBuildingBlocks {
 				
 				@Override
 				public boolean useDummyData() {
-					return false;
+					return true;
 				}
 				
 				@Override

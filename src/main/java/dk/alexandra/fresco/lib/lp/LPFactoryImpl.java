@@ -29,6 +29,8 @@ package dk.alexandra.fresco.lib.lp;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.compare.ComparisonProtocol;
+import dk.alexandra.fresco.lib.compare.ComparisonProtocolFactory;
+import dk.alexandra.fresco.lib.compare.ComparisonProtocolFactoryImpl;
 import dk.alexandra.fresco.lib.compare.ConditionalSelectCircuit;
 import dk.alexandra.fresco.lib.compare.ConditionalSelectCircuitImpl;
 import dk.alexandra.fresco.lib.compare.MiscOIntGenerators;
@@ -59,6 +61,7 @@ import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductFactoryImpl;
 import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductProtocol;
 import dk.alexandra.fresco.lib.math.integer.min.MinimumProtocol;
 import dk.alexandra.fresco.lib.math.integer.min.MinimumProtocolImpl;
+import dk.alexandra.fresco.lib.math.integer.min.MinInfFracProtocol;
 import dk.alexandra.fresco.lib.math.integer.min.MinimumFractionProtocol;
 import dk.alexandra.fresco.lib.math.integer.min.MinimumFractionProtocolImpl;
 
@@ -72,6 +75,7 @@ public class LPFactoryImpl implements LPFactory {
 	private final InnerProductFactory innerProductFactory;
 	private final ZeroTestProtocolFactory zeroTestProtocolFactory;
 	private final MiscOIntGenerators misc;
+	private ComparisonProtocolFactory compFactory;
 
 	public LPFactoryImpl(int securityParameter, BasicNumericFactory bnf,
 			LocalInversionFactory localInvFactory,
@@ -88,6 +92,7 @@ public class LPFactoryImpl implements LPFactory {
 		misc = new MiscOIntGenerators(bnf);
 		this.zeroTestProtocolFactory = new ZeroTestProtocolFactoryImpl(bnf,
 				expFromOIntFactory, numericBitFactory, numericNegateBitFactory, expFactory);
+		this.compFactory = new ComparisonProtocolFactoryImpl(securityParameter, bnf, localInvFactory, numericBitFactory, expFromOIntFactory, expFactory);
 	}
 
 	@Override
@@ -132,6 +137,12 @@ public class LPFactoryImpl implements LPFactory {
 	public MinimumFractionProtocol getMinimumFractionCircuit(SInt[] ns,
 			SInt[] ds, SInt nm, SInt dm, SInt[] cs) {
 		return new MinimumFractionProtocolImpl(ns, ds, nm, dm, cs, bnf, this);
+	}
+	
+	@Override
+	public MinInfFracProtocol getMinInfFracProtocol(SInt[] ns,
+			SInt[] ds, SInt[] infs, SInt nm, SInt dm, SInt infm, SInt[] cs) {
+		return new MinInfFracProtocol(ns, ds, infs, nm, dm, infm, cs, bnf, compFactory);
 	}
 
 	@Override

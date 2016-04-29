@@ -32,6 +32,7 @@ import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.helper.AbstractRepeatProtocol;
+import dk.alexandra.fresco.lib.helper.CopyProtocolImpl;
 import dk.alexandra.fresco.lib.helper.builder.tree.TreeCircuit;
 import dk.alexandra.fresco.lib.helper.builder.tree.TreeCircuitNodeGenerator;
 
@@ -193,8 +194,8 @@ public class NumericProtocolBuilder extends AbstractProtocolBuilder {
 				out[i] = add(left[i], right[i]);
 			}
 		} catch (IndexOutOfBoundsException e) {
-			throw new IllegalArgumentException("The righthand input array "
-					+ "most be at least as long as the left hand input arry", e);
+			throw new IllegalArgumentException(
+					"The righthand input array " + "most be at least as long as the left hand input arry", e);
 		}
 		endCurScope();
 		return out;
@@ -214,8 +215,7 @@ public class NumericProtocolBuilder extends AbstractProtocolBuilder {
 		@Override
 		protected ProtocolProducer getNextGateProducer() {
 			if (i < left.length) {
-				ProtocolProducer addition = bnp.getAddProtocol(left[i], right[i],
-						out[i]);
+				ProtocolProducer addition = bnp.getAddProtocol(left[i], right[i], out[i]);
 				i++;
 				return addition;
 			} else {
@@ -279,7 +279,7 @@ public class NumericProtocolBuilder extends AbstractProtocolBuilder {
 			return terms.length;
 		}
 	}
-	
+
 	/**
 	 * Takes a number of values and multiplies them all.
 	 * @param factors
@@ -291,7 +291,7 @@ public class NumericProtocolBuilder extends AbstractProtocolBuilder {
 		append(multTree);
 		return sum;
 	}
-	
+
 	private class MultNodeGenerator implements TreeCircuitNodeGenerator {
 
 		private SInt[] terms;
@@ -388,8 +388,8 @@ public class NumericProtocolBuilder extends AbstractProtocolBuilder {
 				out[i] = mult(left[i], right[i]);
 			}
 		} catch (IndexOutOfBoundsException e) {
-			throw new IllegalArgumentException("The righthand input array "
-					+ "most be at least as long as the left hand input arry", e);
+			throw new IllegalArgumentException(
+					"The righthand input array " + "most be at least as long as the left hand input arry", e);
 		}
 		endCurScope();
 		return out;
@@ -430,11 +430,55 @@ public class NumericProtocolBuilder extends AbstractProtocolBuilder {
 				append(bnp.getSubtractCircuit(left[i], right[i], out[i]));
 			}
 		} catch (IndexOutOfBoundsException e) {
-			throw new IllegalArgumentException("The righthand input array "
-					+ "most be at least as long as the left hand input arry", e);
+			throw new IllegalArgumentException(
+					"The righthand input array " + "most be at least as long as the left hand input arry", e);
 		}
 		endCurScope();
 		return out;
+	}
+
+	/**
+	 * Computes the conditional selection operation. I.e., concretely computes
+	 * the value <code>r</code> as
+	 * <code> selector*(left - right) + right </code> For
+	 * <code>selector == 0</code> this gives a value equal to <code>right</code>
+	 * , for <code>selector == 1</code> a value equal to <code>left</code>.
+	 * 
+	 * @param selector
+	 *            should be either 0 or 1.
+	 * @param left
+	 *            the left hand value
+	 * @param right
+	 *            the right hand value
+	 * @return a SInt holding the value of
+	 *         <code> selector*(left - right) + right </code>
+	 */
+	public SInt conditionalSelect(SInt selector, SInt left, SInt right) {
+		SInt r = getSInt();
+		conditionalSelect(selector, left, right, r);
+		return r;
+	}
+
+	/**
+	 * In place version of {@link #conditionalSelect(SInt, SInt, SInt)}
+	 * 
+	 * @param selector
+	 *            should be either 0 or 1.
+	 * @param left
+	 *            the left hand value
+	 * @param right
+	 *            the right hand value
+	 * @param result
+	 *            a SInt in which to put the result. I.e, the value of
+	 *            <code> selector*(left - right) + right </code>
+	 */
+	public void conditionalSelect(SInt selector, SInt left, SInt right, SInt result) {
+		beginSeqScope();
+		SInt diff = sub(left, right);
+		SInt prod = mult(diff, selector);
+		append(bnp.getAddProtocol(prod, right, result));
+		endCurScope();
+		return;
 	}
 
 	public SInt innerProduct(SInt[] left, SInt[] right) {
@@ -443,6 +487,20 @@ public class NumericProtocolBuilder extends AbstractProtocolBuilder {
 		SInt innerProduct = this.sum(directProduct);
 		endCurScope();
 		return innerProduct;
+	}
+
+	/**
+	 * Copies the value of one SInt into an other SInt.
+	 * 
+	 * Note: this uses the generic CopyProtocol implementation, it is not clear
+	 * if this is safe for all protocol suites.
+	 * @param to
+	 *            the SInt to copy to
+	 * @param from
+	 *            the SInt to copy from
+	 */
+	public void copy(SInt to, SInt from) {
+		append(new CopyProtocolImpl<SInt>(from, to));
 	}
 
 	@Override
