@@ -52,11 +52,11 @@ import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
  * @author psn
  * 
  */
-public class TreeCircuit extends AbstractRoundBasedProtocol {
+public class TreeProtocol extends AbstractRoundBasedProtocol {
 
 	private int step = 1;
 	private int length;
-	private TreeCircuitNodeGenerator tcn;
+	private TreeProtocolNodeGenerator tcn;
 
 	/**
 	 * A log depth tree circuit based on a given TreeCircuitNodeGenerator to
@@ -65,7 +65,7 @@ public class TreeCircuit extends AbstractRoundBasedProtocol {
 	 * @param tcn
 	 *            a node generator specifying the operation to be done.
 	 */
-	public TreeCircuit(TreeCircuitNodeGenerator tcn) {
+	public TreeProtocol(TreeProtocolNodeGenerator tcn) {
 		this.length = tcn.getLength();
 		this.tcn = tcn;
 	}

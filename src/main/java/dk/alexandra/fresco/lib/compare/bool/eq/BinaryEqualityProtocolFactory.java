@@ -24,10 +24,20 @@
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
  *******************************************************************************/
-package dk.alexandra.fresco.lib.compare;
+package dk.alexandra.fresco.lib.compare.bool.eq;
 
-import dk.alexandra.fresco.framework.Protocol;
+import dk.alexandra.fresco.framework.ProtocolFactory;
+import dk.alexandra.fresco.framework.value.SBool;
 
-public interface CompareAndSwapCircuit extends Protocol {
+public interface BinaryEqualityProtocolFactory extends ProtocolFactory {
 
+	/**
+	 * Performs a equal operation on the two inputted bitstrings
+	 * 
+	 * @param inLeft SBool array
+	 * @param inRight SBool array
+	 * @param out SBool
+	 * @return BinaryEqualityProtocol
+	 */
+	public BinaryEqualityProtocol getBinaryEqualityProtocol(SBool[] inLeft, SBool[] inRight, SBool out);
 }

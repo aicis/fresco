@@ -31,20 +31,20 @@ import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.SBool;
 import dk.alexandra.fresco.lib.helper.AbstractRoundBasedProtocol;
 import dk.alexandra.fresco.lib.helper.builder.BasicLogicBuilder;
-import dk.alexandra.fresco.lib.helper.builder.tree.TreeCircuit;
-import dk.alexandra.fresco.lib.helper.builder.tree.TreeCircuitNodeGenerator;
+import dk.alexandra.fresco.lib.helper.builder.tree.TreeProtocol;
+import dk.alexandra.fresco.lib.helper.builder.tree.TreeProtocolNodeGenerator;
 import dk.alexandra.fresco.lib.logic.AbstractBinaryFactory;
 
 /**
- * An experimental implementation of the BinaryEqualityCircuit
+ * An experimental implementation of the BinaryEqualityProtocol
  * 
  * @author psn
  *
  */
 public class AltBinaryEqualityProtocol extends AbstractRoundBasedProtocol
-		implements BinaryEqualityProtocol, TreeCircuitNodeGenerator {
+		implements BinaryEqualityProtocol, TreeProtocolNodeGenerator {
 	
-	private AbstractBinaryFactory provider;
+	private AbstractBinaryFactory factory;
 	private SBool[] inLeft;
 	private SBool[] inRight;
 	private SBool out;
@@ -54,8 +54,8 @@ public class AltBinaryEqualityProtocol extends AbstractRoundBasedProtocol
 	private int round = 0;
 
 	public AltBinaryEqualityProtocol(SBool[] inLeft, SBool[] inRight,
-			SBool out, AbstractBinaryFactory provider) {
-		this.provider = provider;
+			SBool out, AbstractBinaryFactory factory) {
+		this.factory = factory;
 		this.inLeft = inLeft;
 		this.inRight = inRight;
 		this.out = out;
@@ -68,7 +68,7 @@ public class AltBinaryEqualityProtocol extends AbstractRoundBasedProtocol
 	
 	@Override
 	public ProtocolProducer nextProtocolProducer() {
-		BasicLogicBuilder blb = new BasicLogicBuilder(provider);
+		BasicLogicBuilder blb = new BasicLogicBuilder(factory);
 		if (round == 0) {
 			xnorOuts = blb.xor(inLeft, inRight);
 			round++;
@@ -78,7 +78,7 @@ public class AltBinaryEqualityProtocol extends AbstractRoundBasedProtocol
 			round++;
 		} else if (round == 2) {
 			xnorOuts[0] = out;
-			blb.addProtocolProducer(new TreeCircuit(this));
+			blb.addProtocolProducer(new TreeProtocol(this));
 			round++;
 		} else if (round == 3){
 			return null;
@@ -88,8 +88,8 @@ public class AltBinaryEqualityProtocol extends AbstractRoundBasedProtocol
 
 	@Override
 	public ProtocolProducer getNode(int i, int j) {
-		ProtocolProducer gp = provider.getAndCircuit(xnorOuts[i], xnorOuts[j], xnorOuts[i]);
-		return gp;
+		ProtocolProducer pp = factory.getAndProtocol(xnorOuts[i], xnorOuts[j], xnorOuts[i]);
+		return pp;
 	}
 	
 	@Override

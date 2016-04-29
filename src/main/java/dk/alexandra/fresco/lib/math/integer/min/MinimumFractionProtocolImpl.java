@@ -32,10 +32,10 @@ import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.framework.value.Value;
 import dk.alexandra.fresco.lib.compare.ComparisonProtocol;
-import dk.alexandra.fresco.lib.compare.ConditionalSelectCircuit;
+import dk.alexandra.fresco.lib.compare.ConditionalSelectProtocol;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.field.integer.MultProtocol;
-import dk.alexandra.fresco.lib.field.integer.SubtractCircuit;
+import dk.alexandra.fresco.lib.field.integer.SubtractProtocol;
 import dk.alexandra.fresco.lib.helper.AbstractRoundBasedProtocol;
 import dk.alexandra.fresco.lib.helper.AbstractSimpleProtocol;
 import dk.alexandra.fresco.lib.helper.AppendableProtocolProducer;
@@ -77,7 +77,7 @@ public class MinimumFractionProtocolImpl implements MinimumFractionProtocol {
 			} else if (this.k == 2) {
 				ProtocolProducer comparison = minFraction(ns[0], ds[0], ns[1], ds[1], cs[0], nm, dm);
 				SInt one = numericProvider.getSInt(1);
-				SubtractCircuit subtract = numericProvider.getSubtractCircuit(one, this.cs[0], this.cs[1]);
+				SubtractProtocol subtract = numericProvider.getSubtractProtocol(one, this.cs[0], this.cs[1]);
 				currGP = new SequentialProtocolProducer(comparison, subtract);
 			} else if (this.k == 3) {
 				SInt c1_prime = numericProvider.getSInt();
@@ -88,13 +88,13 @@ public class MinimumFractionProtocolImpl implements MinimumFractionProtocol {
 				SInt c2_prime = numericProvider.getSInt();
 				ProtocolProducer min2 = minFraction(nm1, dm1, ns[2], ds[2], c2_prime, nm, dm);
 				
-				MultProtocol mult1 = numericProvider.getMultCircuit(c1_prime, c2_prime, this.cs[0]);
-				SubtractCircuit sub1 = numericProvider.getSubtractCircuit(c2_prime, this.cs[0], this.cs[1]);
+				MultProtocol mult1 = numericProvider.getMultProtocol(c1_prime, c2_prime, this.cs[0]);
+				SubtractProtocol sub1 = numericProvider.getSubtractProtocol(c2_prime, this.cs[0], this.cs[1]);
 				SInt one = numericProvider.getSInt(1);
 				SInt tmp = numericProvider.getSInt();
-				SubtractCircuit sub2 = numericProvider.getSubtractCircuit(one, this.cs[0], tmp);
+				SubtractProtocol sub2 = numericProvider.getSubtractProtocol(one, this.cs[0], tmp);
 				
-				SubtractCircuit sub3 = numericProvider.getSubtractCircuit(tmp, this.cs[1], this.cs[2]);
+				SubtractProtocol sub3 = numericProvider.getSubtractProtocol(tmp, this.cs[1], this.cs[2]);
 				
 				SequentialProtocolProducer seqGP = new SequentialProtocolProducer(min1, min2, mult1);
 				ParallelProtocolProducer parGP = new ParallelProtocolProducer(sub1, sub2);
@@ -158,7 +158,7 @@ public class MinimumFractionProtocolImpl implements MinimumFractionProtocol {
 				SInt c = numericProvider.getSInt();
 				ProtocolProducer min = minFraction(nm1, dm1, nm2, dm2, c, nm, dm);	
 				SInt notC = numericProvider.getSInt();
-				SubtractCircuit subtract = numericProvider.getSubtractCircuit(one, c, notC);
+				SubtractProtocol subtract = numericProvider.getSubtractProtocol(one, c, notC);
 				VectorScale scale1 = new VectorScale(c, cs1_prime, cs, 0);
 				VectorScale scale2 = new VectorScale(notC, cs2_prime, cs, k/2);
 				ProtocolProducer multGates = new ParallelProtocolProducer(scale1, scale2);				
@@ -194,7 +194,7 @@ public class MinimumFractionProtocolImpl implements MinimumFractionProtocol {
 		protected ProtocolProducer initializeProtocolProducer() {
 			AppendableProtocolProducer par = new ParallelProtocolProducer();
 			for (int i = 0; i < vector.length; i++) {
-				ProtocolProducer mult = numericProvider.getMultCircuit(scale, vector[i],
+				ProtocolProducer mult = numericProvider.getMultProtocol(scale, vector[i],
 						output[from + i]);
 				par.append(mult);
 			}
@@ -217,12 +217,12 @@ public class MinimumFractionProtocolImpl implements MinimumFractionProtocol {
 			SInt c, SInt nm, SInt dm) {
 		SInt prod1 = numericProvider.getSInt();
 		SInt prod2 = numericProvider.getSInt();
-		MultProtocol mult1 = numericProvider.getMultCircuit(n0, d1, prod1);
-		MultProtocol mult2 = numericProvider.getMultCircuit(n1, d0, prod2);
+		MultProtocol mult1 = numericProvider.getMultProtocol(n0, d1, prod1);
+		MultProtocol mult2 = numericProvider.getMultProtocol(n1, d0, prod2);
 		ProtocolProducer multiplications = new ParallelProtocolProducer(mult1, mult2);
 		ComparisonProtocol comp = lpProvider.getComparisonCircuit(prod1, prod2, c, true);
-		ConditionalSelectCircuit cond1 = lpProvider.getConditionalSelectProtocol(c, n0, n1, nm);
-		ConditionalSelectCircuit cond2 = lpProvider.getConditionalSelectProtocol(c, d0, d1, dm);
+		ConditionalSelectProtocol cond1 = lpProvider.getConditionalSelectProtocol(c, n0, n1, nm);
+		ConditionalSelectProtocol cond2 = lpProvider.getConditionalSelectProtocol(c, d0, d1, dm);
 		ProtocolProducer conditionalSelects = new ParallelProtocolProducer(cond1, cond2);
 		return new SequentialProtocolProducer(multiplications, comp, conditionalSelects);		
 	}

@@ -57,8 +57,8 @@ public class NandFromAndAndNotProtocolImpl implements NandProtocol{
 	public int getNextProtocols(NativeProtocol[] gates, int pos) {
 		if(curGP == null){			
 			SBool tmpOut = provider.getSBool();
-			AndProtocol and = provider.getAndCircuit(left, right, tmpOut);
-			NotProtocol not = provider.getNotCircuit(tmpOut, out);
+			AndProtocol and = provider.getAndProtocol(left, right, tmpOut);
+			NotProtocol not = provider.getNotProtocol(tmpOut, out);
 			curGP = new SequentialProtocolProducer(and, not);
 		}
 		if(curGP.hasNextProtocols()){

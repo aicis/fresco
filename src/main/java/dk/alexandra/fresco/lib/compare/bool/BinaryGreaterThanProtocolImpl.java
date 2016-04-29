@@ -33,8 +33,8 @@ import dk.alexandra.fresco.lib.helper.builder.BasicLogicBuilder;
 import dk.alexandra.fresco.lib.logic.AbstractBinaryFactory;
 
 /**
- * Represents a comparison circuit between two bitstrings. Concretely, the
- * circuit computes the 'greater than' relation of strings A and B, i.e., it
+ * Represents a comparison protocol between two bitstrings. Concretely, the
+ * protocol computes the 'greater than' relation of strings A and B, i.e., it
  * computes C := A > B.
  * 
  * This uses the method of GenericBinaryComparison2 but is implemented a lot
@@ -52,13 +52,13 @@ public class BinaryGreaterThanProtocolImpl extends AbstractRoundBasedProtocol
 	private SBool tmp;
 	private SBool xor;
 
-	private AbstractBinaryFactory provider;
+	private AbstractBinaryFactory factory;
 
 	private int round = 0;
 	private int length;
 
 	/**
-	 * Construct a circuit to compare strings A and B. The bitstrings A and B
+	 * Construct a protocol to compare strings A and B. The bitstrings A and B
 	 * are assumed to be even length and to be ordered from most- to least
 	 * significant bit.
 	 * 
@@ -68,13 +68,13 @@ public class BinaryGreaterThanProtocolImpl extends AbstractRoundBasedProtocol
 	 *            input string B
 	 * @param outC
 	 *            a bit to hold the output C := A > B.
-	 * @param provider
-	 *            a circuit provider
+	 * @param factory
+	 *            a protocol provider
 	 */
 	public BinaryGreaterThanProtocolImpl(SBool[] inA, SBool[] inB, SBool outC,
-			AbstractBinaryFactory provider) {
+			AbstractBinaryFactory factory) {
 		if (inA.length == inB.length) {
-			this.provider = provider;
+			this.factory = factory;
 			this.outC = outC;
 			this.inA = inA;
 			this.inB = inB;
@@ -94,10 +94,10 @@ public class BinaryGreaterThanProtocolImpl extends AbstractRoundBasedProtocol
 	
 	@Override
 	public ProtocolProducer nextProtocolProducer() {
-		BasicLogicBuilder blb = new BasicLogicBuilder(provider);
+		BasicLogicBuilder blb = new BasicLogicBuilder(factory);
 		if (round == 0) {
 			xor = blb.xor(inA[length - 1], inB[length - 1]);
-			tmp = provider.getSBool();
+			tmp = factory.getSBool();
 			round++;
 		} else if (round == 1) {
 			blb.andInPlace(outC, inA[length - 1], xor);

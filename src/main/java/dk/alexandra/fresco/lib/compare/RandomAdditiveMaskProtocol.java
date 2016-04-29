@@ -26,50 +26,8 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.compare;
 
-import java.util.Arrays;
+import dk.alexandra.fresco.framework.Protocol;
 
-import dk.alexandra.fresco.framework.ProtocolProducer;
-import dk.alexandra.fresco.framework.value.SBool;
-import dk.alexandra.fresco.framework.value.Value;
-import dk.alexandra.fresco.lib.helper.AbstractSimpleProtocol;
-import dk.alexandra.fresco.lib.helper.builder.BasicLogicBuilder;
-import dk.alexandra.fresco.lib.logic.AbstractBinaryFactory;
+public interface RandomAdditiveMaskProtocol extends Protocol {
 
-public class CompareAndSwapCircuitImpl extends AbstractSimpleProtocol implements
-		CompareAndSwapCircuit {
-
-	private SBool[] left;
-	private SBool[] right;
-	private AbstractBinaryFactory bp;
-
-	public CompareAndSwapCircuitImpl(SBool[] left, SBool[] right,
-			AbstractBinaryFactory bp) {
-		this.bp = bp;
-		this.left = left;
-		this.right = right;
-		Value[] values = Arrays.copyOf(left, left.length + right.length);
-		System.arraycopy(right, 0, values, left.length, right.length);
-		setInputValues(values);
-		setOutputValues(values);
-	}
-
-	@Override
-	protected ProtocolProducer initializeProtocolProducer() {
-		BasicLogicBuilder blb = new BasicLogicBuilder(bp);
-		blb.beginSeqScope();
-		SBool comparisonResult = blb.greaterThan(left, right);
-
-		blb.beginParScope();
-		SBool[] tmpLeft = blb.condSelect(comparisonResult, left, right);
-		SBool[] tmpRight = blb.condSelect(comparisonResult, right, left);
-		blb.endCurScope();
-
-		blb.beginParScope();
-		blb.copy(tmpLeft, left);
-		blb.copy(tmpRight, right);
-		blb.endCurScope();
-
-		blb.endCurScope();
-		return blb.getProtocol();
-	}
 }

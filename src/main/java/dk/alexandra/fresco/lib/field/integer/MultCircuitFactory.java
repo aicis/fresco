@@ -31,5 +31,5 @@ import dk.alexandra.fresco.framework.value.SInt;
 
 public interface MultCircuitFactory extends ProtocolFactory, MultByConstantFactory {
 
-	abstract public MultProtocol getMultCircuit(SInt a, SInt b, SInt out);
+	abstract public MultProtocol getMultProtocol(SInt a, SInt b, SInt out);
 }

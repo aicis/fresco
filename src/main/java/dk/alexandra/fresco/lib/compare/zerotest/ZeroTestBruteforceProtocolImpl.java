@@ -39,12 +39,12 @@ import dk.alexandra.fresco.lib.field.integer.MultProtocol;
 import dk.alexandra.fresco.lib.field.integer.OpenIntProtocol;
 import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
-import dk.alexandra.fresco.lib.math.bool.add.IncrementByOneCircuitFactory;
+import dk.alexandra.fresco.lib.math.bool.add.IncrementByOneProtocolFactory;
 import dk.alexandra.fresco.lib.math.integer.exp.ExpFromOIntFactory;
 import dk.alexandra.fresco.lib.math.integer.exp.PreprocessedExpPipeFactory;
 import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductFactory;
 
-public class ZeroTestBruteforceCircuitImpl implements ZeroTestBruteforceCircuit {
+public class ZeroTestBruteforceProtocolImpl implements ZeroTestBruteforceProtocol {
 
 	// maximal input
 	private final int maxInput;
@@ -52,42 +52,42 @@ public class ZeroTestBruteforceCircuitImpl implements ZeroTestBruteforceCircuit 
 	// I/O-storage
 	private final SInt input, output;
 
-	// providers
-	private final BasicNumericFactory provider;
-	private final MultByConstantFactory mbcProvider;
-	private final ExpFromOIntFactory expFromOIntProvider;
+	// Factories
+	private final BasicNumericFactory factory;
+	private final MultByConstantFactory mbcFactory;
+	private final ExpFromOIntFactory expFromOIntFactory;
 	private final MiscOIntGenerators miscOIntGenerator;
-	private final InnerProductFactory innerProdProvider;
-	private final AddByConstantProtocolFactory abcProvider;
-	private final PreprocessedExpPipeFactory expProvider;
-	private final IncrementByOneCircuitFactory incrProvider;
+	private final InnerProductFactory innerProdFactory;
+	private final AddByConstantProtocolFactory abcFactory;
+	private final PreprocessedExpPipeFactory expFactory;
+	private final IncrementByOneProtocolFactory incrFactory;
 
 	// local stuff
 	private static final int numRounds = 2;
 	private int round=0;
-	private ProtocolProducer gp = null;
+	private ProtocolProducer pp = null;
 	private OInt masked_O;
 	private SInt[] R;
 	
-	public ZeroTestBruteforceCircuitImpl(int maxInput, SInt input, SInt output,
-			BasicNumericFactory provider, 
-			ExpFromOIntFactory expFromOIntProvider,
+	public ZeroTestBruteforceProtocolImpl(int maxInput, SInt input, SInt output,
+			BasicNumericFactory factory, 
+			ExpFromOIntFactory expFromOIntFactory,
 			MiscOIntGenerators miscOIntGenerator,
-			InnerProductFactory innerProdProvider,
-			PreprocessedExpPipeFactory expProvider,
-			IncrementByOneCircuitFactory incrProvider) {
+			InnerProductFactory innerProdFactory,
+			PreprocessedExpPipeFactory expFactory,
+			IncrementByOneProtocolFactory incrFactory) {
 		this.maxInput = maxInput;
 		this.input = input;
 		this.output = output;
-		this.provider = provider;
-		this.mbcProvider = provider;
-		this.expFromOIntProvider = expFromOIntProvider;
+		this.factory = factory;
+		this.mbcFactory = factory;
+		this.expFromOIntFactory = expFromOIntFactory;
 		this.miscOIntGenerator = miscOIntGenerator;
-		this.innerProdProvider = innerProdProvider;
-		this.expProvider = expProvider;
+		this.innerProdFactory = innerProdFactory;
+		this.expFactory = expFactory;
 		
-		this.abcProvider = provider;
-		this.incrProvider = incrProvider;
+		this.abcFactory = factory;
+		this.incrFactory = incrFactory;
 		
 	}
 
@@ -104,57 +104,57 @@ public class ZeroTestBruteforceCircuitImpl implements ZeroTestBruteforceCircuit 
 	}
 
 	@Override
-	public int getNextProtocols(NativeProtocol[] gates, int pos) {
-		if (gp == null){
+	public int getNextProtocols(NativeProtocol[] nativeProtocols, int pos) {
+		if (pp == null){
 			switch (round){
 			case 0:
 				// load rand, addOne, mult and unmask
-				R = expProvider.getExponentiationPipe();
+				R = expFactory.getExponentiationPipe();
 
-				SInt increased = provider.getSInt();
-				SInt masked_S = provider.getSInt();
+				SInt increased = factory.getSInt();
+				SInt masked_S = factory.getSInt();
 				
-				masked_O = provider.getOInt();
-				ProtocolProducer incrCircuit = incrProvider.getIncrementByOneCircuit(input, increased);
-				MultProtocol multCircuit = provider.getMultCircuit(increased, R[0], masked_S);
-				OpenIntProtocol openCircuit = provider.getOpenProtocol(masked_S, masked_O);
+				masked_O = factory.getOInt();
+				ProtocolProducer incr = incrFactory.getIncrementByOneProtocol(input, increased);
+				MultProtocol mult = factory.getMultProtocol(increased, R[0], masked_S);
+				OpenIntProtocol open = factory.getOpenProtocol(masked_S, masked_O);
 				
-				gp = new SequentialProtocolProducer(incrCircuit, multCircuit, openCircuit);
+				pp = new SequentialProtocolProducer(incr, mult, open);
 
 				break;
 			case 1:
 				// compute powers and evaluate polynomial
-				OInt[] maskedPowers = expFromOIntProvider.getExpFromOInt(masked_O, maxInput);
+				OInt[] maskedPowers = expFromOIntFactory.getExpFromOInt(masked_O, maxInput);
 
 				ProtocolProducer[] unmaskGPs = new ProtocolProducer[maxInput];
 				SInt[] powers = new SInt[maxInput];
 				for (int i=0; i<maxInput; i++) {
-					powers[i] = provider.getSInt();
-					unmaskGPs[i] = mbcProvider.getMultCircuit(maskedPowers[i], R[i+1], powers[i]);
+					powers[i] = factory.getSInt();
+					unmaskGPs[i] = mbcFactory.getMultProtocol(maskedPowers[i], R[i+1], powers[i]);
 				}
 				OInt[] polynomialCoefficients = miscOIntGenerator.getPoly(maxInput);
 				
 				OInt[] mostSignificantPolynomialCoefficients = new OInt[maxInput];
 				System.arraycopy(polynomialCoefficients, 1, 
 						mostSignificantPolynomialCoefficients, 0, maxInput);
-				SInt tmp = provider.getSInt();
-				ProtocolProducer polynomialGP = innerProdProvider.getInnerProductCircuit(powers, 
+				SInt tmp = factory.getSInt();
+				ProtocolProducer polynomialGP = innerProdFactory.getInnerProductProtocol(powers, 
 						mostSignificantPolynomialCoefficients, tmp);
-				ProtocolProducer addCircuit = abcProvider.getAddProtocol(tmp, 
+				ProtocolProducer add = abcFactory.getAddProtocol(tmp, 
 						polynomialCoefficients[0], output);
-				gp = new SequentialProtocolProducer(new ParallelProtocolProducer(unmaskGPs), 
-						polynomialGP, addCircuit);
+				pp = new SequentialProtocolProducer(new ParallelProtocolProducer(unmaskGPs), 
+						polynomialGP, add);
 				break;
 			default:
 				// TODO: handle bad stuff
 			}
 		}
-		if (gp.hasNextProtocols()){
-			pos = gp.getNextProtocols(gates, pos);
+		if (pp.hasNextProtocols()){
+			pos = pp.getNextProtocols(nativeProtocols, pos);
 		}
-		else if (!gp.hasNextProtocols()){
+		else if (!pp.hasNextProtocols()){
 			round++;
-			gp = null;
+			pp = null;
 		}
 		return pos;
 	}

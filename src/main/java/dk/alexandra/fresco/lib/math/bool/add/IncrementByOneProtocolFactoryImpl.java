@@ -24,45 +24,27 @@
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
  *******************************************************************************/
-package dk.alexandra.fresco.lib.compare;
+package dk.alexandra.fresco.lib.math.bool.add;
 
-import dk.alexandra.fresco.framework.ProtocolFactory;
-import dk.alexandra.fresco.framework.value.SBool;
+import java.math.BigInteger;
 
-public interface CompareAndSwapCircuitFactory extends ProtocolFactory {
+import dk.alexandra.fresco.framework.ProtocolProducer;
+import dk.alexandra.fresco.framework.value.OInt;
+import dk.alexandra.fresco.framework.value.SInt;
+import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 
-	/**
-	 * Returns a compare-and-swap-circuit. This circuit compares and swaps the
-	 * two input strings such after evaluating the circuit the left string
-	 * becomes the greatest of the two original strings and right string becomes
-	 * the smallest of the two.
-	 * 
-	 * NOTE: the two strings must have equal length.
-	 * 
-	 * @param leftInput
-	 *            the left input/ouput.
-	 * @param rightInput
-	 *            the right input/output.
-	 * @return a compare-and-swap circuit.
-	 */
-	public CompareAndSwapCircuit getCompareAndSwapCircuit(SBool[] left,
-			SBool[] right);
+public class IncrementByOneProtocolFactoryImpl implements IncrementByOneProtocolFactory{
 
-	/**
-	 * Returns a keyed compare-and-swap-circuit. This circuit compares and swaps
-	 * the two key-value pairs such after evaluating the circuit the left pair
-	 * becomes is the pair with the greatest key.
-	 * 
-	 * NOTE: the two strings must have equal length.
-	 * 
-	 * @param leftInput
-	 *            the left input/ouput.
-	 * @param rightInput
-	 *            the right input/output.
-	 * @return a compare-and-swap circuit.
-	 */
-	public KeyedCompareAndSwapProtocol getKeyedCompareAndSwapProtocol(
-			SBool[] leftKey, SBool[] leftValue, SBool[] rightKey,
-			SBool[] rightValue);
+	private final BasicNumericFactory bnf;
+	
+	public IncrementByOneProtocolFactoryImpl(BasicNumericFactory bnf) {
+		this.bnf = bnf;
+	}
+	
+	@Override
+	public ProtocolProducer getIncrementByOneProtocol(SInt in, SInt out) {
+		OInt one = bnf.getOInt(BigInteger.ONE);
+		return bnf.getAddProtocol(in, one, out);
+	}
 
 }

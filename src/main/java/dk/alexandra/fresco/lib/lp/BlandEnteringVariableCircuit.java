@@ -125,11 +125,11 @@ public class BlandEnteringVariableCircuit extends AbstractSimpleProtocol {
 		}		
 		
 		SequentialProtocolProducer decideTermination = new SequentialProtocolProducer();
-		decideTermination.append(lpProvider.getCopyCircuit(enteringIndex[0], termination));
+		decideTermination.append(lpProvider.getCopyProtocol(enteringIndex[0], termination));
 		for (int i = 1; i < enteringIndex.length; i++) {
 			decideTermination.append(bnProvider.getAddProtocol(termination, enteringIndex[i], termination));
 		}
-		decideTermination.append(bnProvider.getSubtractCircuit(one, termination, termination));
+		decideTermination.append(bnProvider.getSubtractProtocol(one, termination, termination));
 		
 		SequentialProtocolProducer gp = new SequentialProtocolProducer(
 				loadValues,

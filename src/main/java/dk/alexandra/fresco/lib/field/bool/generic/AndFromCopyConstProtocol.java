@@ -67,9 +67,9 @@ public class AndFromCopyConstProtocol implements AndProtocol {
 	
 		if (copyCir == null) {
 			if (inRight.getValue()) {
-				copyCir = copyProvider.getCopyCircuit(inLeft, out);
+				copyCir = copyProvider.getCopyProtocol(inLeft, out);
 			} else {
-				copyCir = copyProvider.getCopyCircuit(sboolProvider.getKnownConstantSBool(false), out);
+				copyCir = copyProvider.getCopyProtocol(sboolProvider.getKnownConstantSBool(false), out);
 			}
 		}
 		

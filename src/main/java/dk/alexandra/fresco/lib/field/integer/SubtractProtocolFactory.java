@@ -24,40 +24,15 @@
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
  *******************************************************************************/
-package dk.alexandra.fresco.lib.compare.gt;
+package dk.alexandra.fresco.lib.field.integer;
 
-import dk.alexandra.fresco.framework.NativeProtocol;
-import dk.alexandra.fresco.framework.value.Value;
+import dk.alexandra.fresco.framework.ProtocolFactory;
+import dk.alexandra.fresco.framework.value.OInt;
+import dk.alexandra.fresco.framework.value.SInt;
 
-/**
- * @author ttoft
- *
- */
-public class GreaterThanCircuitImplWithPreprocessing implements
-		GreaterThanCircuit {
+public interface SubtractProtocolFactory extends ProtocolFactory {
 
-	@Override
-	public Value[] getInputValues() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Value[] getOutputValues() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public int getNextProtocols(NativeProtocol[] gates, int pos) {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
-	public boolean hasNextProtocols() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
+	abstract public SubtractProtocol getSubtractProtocol(SInt a, SInt b, SInt out);
+	abstract public SubtractProtocol getSubtractProtocol(OInt a, SInt b, SInt out);
+	
 }

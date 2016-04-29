@@ -62,13 +62,13 @@ public class ExponentiationPipeProtocolImpl implements ExponentiationPipeProtoco
 	public int getNextProtocols(NativeProtocol[] gates, int pos) {
 		if(state == 0){
 			Protocol invC = invProvider.getInversionProtocol(R, outputs[0]);
-			Protocol copyR = copyProvider.getCopyCircuit(R, outputs[1]);
-			Protocol mult = provider.getMultCircuit(R, R, outputs[2]);			
+			Protocol copyR = copyProvider.getCopyProtocol(R, outputs[1]);
+			Protocol mult = provider.getMultProtocol(R, R, outputs[2]);			
 			gp = new ParallelProtocolProducer(invC, copyR, mult);
 			state = 2;
 		}else if(!running){
 			//Should initially multiply R with R^2 => R^3 
-			Protocol mult = provider.getMultCircuit(R, outputs[state++], outputs[state]);
+			Protocol mult = provider.getMultProtocol(R, outputs[state++], outputs[state]);
 			gp = new ParallelProtocolProducer(mult);
 		}
 		if (gp.hasNextProtocols()){

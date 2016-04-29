@@ -58,7 +58,7 @@ public class OneBitHalfAdderCircuitImpl implements OneBitHalfAdderCircuit{
 		if(round == 0){
 			if(curGP == null){
 				XorProtocol xor = provider.getXorProtocol(left, right, outS);
-				AndProtocol and = provider.getAndCircuit(left, right, outCarry);
+				AndProtocol and = provider.getAndProtocol(left, right, outCarry);
 				curGP = new ParallelProtocolProducer(xor, and);
 			}
 			if(curGP.hasNextProtocols()){

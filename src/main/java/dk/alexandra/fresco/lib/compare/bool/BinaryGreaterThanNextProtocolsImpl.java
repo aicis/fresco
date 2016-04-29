@@ -35,8 +35,8 @@ import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
 import dk.alexandra.fresco.lib.logic.AbstractBinaryFactory;
 
 /**
- * Represents a comparison circuit between two bitstrings. Concretely, the
- * circuit computes the 'greater than' relation of strings A and B, i.e., it
+ * Represents a comparison protocol between two bitstrings. Concretely, the
+ * protocol computes the 'greater than' relation of strings A and B, i.e., it
  * computes C := A > B.
  * 
  * This uses the method of GenericBinaryComparison2 but is implemented a lot
@@ -45,7 +45,7 @@ import dk.alexandra.fresco.lib.logic.AbstractBinaryFactory;
  * @author psn
  * 
  */
-public class BinaryGreaterThanNextGatesImpl extends AbstractSimpleProtocol
+public class BinaryGreaterThanNextProtocolsImpl extends AbstractSimpleProtocol
 		implements BinaryGreaterThanProtocol {
 
 	private SBool[] inA;
@@ -54,17 +54,17 @@ public class BinaryGreaterThanNextGatesImpl extends AbstractSimpleProtocol
 
 	private SBool[] postfixResult;
 
-	private AbstractBinaryFactory provider;
+	private AbstractBinaryFactory factory;
 
 	private int length;
 	
 	private boolean done;
 	private int round;
-	private ProtocolProducer curGP;
+	private ProtocolProducer curPP;
 	private SBool[] xor;
 
 	/**
-	 * Construct a circuit to compare strings A and B. The bitstrings A and B
+	 * Construct a protocol to compare strings A and B. The bitstrings A and B
 	 * are assumed to be even length and to be ordered from most- to least
 	 * significant bit.
 	 * 
@@ -74,13 +74,13 @@ public class BinaryGreaterThanNextGatesImpl extends AbstractSimpleProtocol
 	 *            input string B
 	 * @param outC
 	 *            a bit to hold the output C := A > B.
-	 * @param provider
-	 *            a circuit provider
+	 * @param factory
+	 *            a protocol factory
 	 */
-	public BinaryGreaterThanNextGatesImpl(SBool[] inA, SBool[] inB, SBool outC,
-			AbstractBinaryFactory provider) {
+	public BinaryGreaterThanNextProtocolsImpl(SBool[] inA, SBool[] inB, SBool outC,
+			AbstractBinaryFactory factory) {
 		if (inA.length == inB.length) {
-			this.provider = provider;
+			this.factory = factory;
 			this.outC = outC;
 			this.inA = inA;
 			this.inB = inB;
@@ -98,80 +98,80 @@ public class BinaryGreaterThanNextGatesImpl extends AbstractSimpleProtocol
 	}
 
 	@Override
-	public int getNextProtocols(NativeProtocol[] gates, int pos) {
+	public int getNextProtocols(NativeProtocol[] nativeProtocols, int pos) {
 		if(round == 0){
-			if(curGP == null){		
-				curGP = new ParallelProtocolProducer();
+			if(curPP == null){		
+				curPP = new ParallelProtocolProducer();
 		//		BasicLogicBuilder blb = new BasicLogicBuilder(provider);
 		//		xor = blb.xor(inB, inA);
-		//		curGP = blb.getCircuit();
+		//		curGP = blb.getprotocol();
 				xor = new SBool[inB.length];
 				for(int i = 0; i< inB.length; i++){
-					xor[i] = provider.getKnownConstantSBool(false);
-					((ParallelProtocolProducer)curGP).append(provider.getXorProtocol(inB[i], inA[i], xor[i]));	
+					xor[i] = factory.getKnownConstantSBool(false);
+					((ParallelProtocolProducer)curPP).append(factory.getXorProtocol(inB[i], inA[i], xor[i]));	
 				}
 			}
-			if(curGP.hasNextProtocols()){
-				pos = curGP.getNextProtocols(gates, pos);
+			if(curPP.hasNextProtocols()){
+				pos = curPP.getNextProtocols(nativeProtocols, pos);
 			}
-			else if(!curGP.hasNextProtocols()){
+			else if(!curPP.hasNextProtocols()){
 				round++;
-				curGP = null;
+				curPP = null;
 			}
 		}else if(round == 1){
-			if(curGP == null){				
+			if(curPP == null){				
 			//	BasicLogicBuilder blb = new BasicLogicBuilder(provider);
-				//provider.getAndCircuit(inA[length-1], inRight, out)
-				postfixResult[length-1] = provider.getSBool();
-				curGP = provider.getAndCircuit(inA[length-1], xor[length-1], postfixResult[length-1]);
+				//provider.getAndprotocol(inA[length-1], inRight, out)
+				postfixResult[length-1] = factory.getSBool();
+				curPP = factory.getAndProtocol(inA[length-1], xor[length-1], postfixResult[length-1]);
 			//	postfixResult[length - 1] = blb.and(inA[length - 1], xor[length - 1]);
-			//	curGP = blb.getCircuit();
+			//	curGP = blb.getprotocol();
 			}
-			if(curGP.hasNextProtocols()){
-				pos = curGP.getNextProtocols(gates, pos);
+			if(curPP.hasNextProtocols()){
+				pos = curPP.getNextProtocols(nativeProtocols, pos);
 			}
-			else if(!curGP.hasNextProtocols()){
+			else if(!curPP.hasNextProtocols()){
 				round++;
-				curGP = null;
+				curPP = null;
 			}
 		}else if(round >= 2 && round <= length){
-			if(curGP == null){
-				curGP = new SequentialProtocolProducer();
+			if(curPP == null){
+				curPP = new SequentialProtocolProducer();
 				//BasicLogicBuilder blb = new BasicLogicBuilder(provider);
 				//blb.beginSeqScope();
 				int i = length - round;
-				SBool tmp = provider.getSBool();
+				SBool tmp = factory.getSBool();
 				//postfixResult[i+1] = provider.getKnownConstantSBool(false);
-				postfixResult[i] = provider.getSBool();
-				((SequentialProtocolProducer)curGP).append(provider.getXorProtocol(inA[i], postfixResult[i+1], tmp));
+				postfixResult[i] = factory.getSBool();
+				((SequentialProtocolProducer)curPP).append(factory.getXorProtocol(inA[i], postfixResult[i+1], tmp));
 				//SBool tmp = blb.xor(inA[i], postfixResult[i + 1]);
-				((SequentialProtocolProducer)curGP).append(provider.getAndCircuit(xor[i], tmp, tmp));
+				((SequentialProtocolProducer)curPP).append(factory.getAndProtocol(xor[i], tmp, tmp));
 				//tmp = blb.and(xor[i], tmp);
 				//postfixResult[i] = blb.xor(tmp, postfixResult[i + 1]);
-				((SequentialProtocolProducer)curGP).append(provider.getXorProtocol(tmp, postfixResult[i+1], postfixResult[i]));
+				((SequentialProtocolProducer)curPP).append(factory.getXorProtocol(tmp, postfixResult[i+1], postfixResult[i]));
 			//	blb.endCurScope();
 				//curGP = blb.getCircuit();
 			}
-			if(curGP.hasNextProtocols()){
-				pos = curGP.getNextProtocols(gates, pos);
+			if(curPP.hasNextProtocols()){
+				pos = curPP.getNextProtocols(nativeProtocols, pos);
 			}
-			else if(!curGP.hasNextProtocols()){
+			else if(!curPP.hasNextProtocols()){
 				round++;
-				curGP = null;
+				curPP = null;
 			}
 		}else if(round >length){
-			if(curGP == null){				
+			if(curPP == null){				
 				//BasicLogicBuilder blb = new BasicLogicBuilder(provider);
-				curGP = provider.getCopyCircuit(postfixResult[0], outC);
+				curPP = factory.getCopyProtocol(postfixResult[0], outC);
 				//blb.copy(postfixResult[0], outC);		
 				//curGP = blb.getCircuit();
 			}
-			if(curGP.hasNextProtocols()){
-				pos = curGP.getNextProtocols(gates, pos);
+			if(curPP.hasNextProtocols()){
+				pos = curPP.getNextProtocols(nativeProtocols, pos);
 			}
-			else if(!curGP.hasNextProtocols()){
+			else if(!curPP.hasNextProtocols()){
 				round++;
-				curGP = null;
+				curPP = null;
 				done = true;
 				if(Thread.currentThread().getName().equals("Thread-1")){
 			//		System.out.println("finished a comp");	

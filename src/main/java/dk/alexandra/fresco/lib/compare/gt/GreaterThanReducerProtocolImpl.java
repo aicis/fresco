@@ -34,7 +34,7 @@ import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.framework.value.Value;
-import dk.alexandra.fresco.lib.compare.ConditionalSelectCircuitImpl;
+import dk.alexandra.fresco.lib.compare.ConditionalSelectProtocolImpl;
 import dk.alexandra.fresco.lib.compare.MiscOIntGenerators;
 import dk.alexandra.fresco.lib.compare.RandomAdditiveMaskFactory;
 import dk.alexandra.fresco.lib.compare.zerotest.ZeroTestProtocolFactory;
@@ -42,24 +42,24 @@ import dk.alexandra.fresco.lib.field.integer.AddByConstantProtocolFactory;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.field.integer.MultByConstantFactory;
 import dk.alexandra.fresco.lib.field.integer.OpenIntProtocol;
-import dk.alexandra.fresco.lib.field.integer.SubtractCircuitFactory;
+import dk.alexandra.fresco.lib.field.integer.SubtractProtocolFactory;
 import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
 import dk.alexandra.fresco.lib.math.integer.NumericNegateBitFactory;
 import dk.alexandra.fresco.lib.math.integer.inv.LocalInversionFactory;
 import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductFactory;
 
-public class GreaterThanReducerCircuitImpl implements GreaterThanCircuit {
+public class GreaterThanReducerProtocolImpl implements GreaterThanProtocol {
 
 	
-	public GreaterThanReducerCircuitImpl(int bitLength, int securityParameter,
-			SInt x, SInt y, SInt output, BasicNumericFactory provider,
-			NumericNegateBitFactory bitProvider,
-			RandomAdditiveMaskFactory maskProvider,
-			ZeroTestProtocolFactory ztProvider,
+	public GreaterThanReducerProtocolImpl(int bitLength, int securityParameter,
+			SInt x, SInt y, SInt output, BasicNumericFactory factory,
+			NumericNegateBitFactory bitFactory,
+			RandomAdditiveMaskFactory maskFactory,
+			ZeroTestProtocolFactory ztFactory,
 			MiscOIntGenerators miscOIntGenerator,
-			InnerProductFactory innerProdProvider,
-			LocalInversionFactory invProvider) {
+			InnerProductFactory innerProdFactory,
+			LocalInversionFactory invFactory) {
 		super();
 		this.bitLength = bitLength;
 		this.bitLengthBottom = bitLength/2;
@@ -69,23 +69,23 @@ public class GreaterThanReducerCircuitImpl implements GreaterThanCircuit {
 		this.x = x;
 		this.y = y;
 		this.output = output;
-		this.provider = provider;
-		this.bitProvider = bitProvider;
-		this.abcProvider = provider;
-		this.mbcProvider = provider;
-		this.subProvider = provider;
-		this.maskProvider = maskProvider;
-		this.ztProvider = ztProvider;
+		this.factory = factory;
+		this.bitFactory = bitFactory;
+		this.abcFactory = factory;
+		this.mbcFactory = factory;
+		this.subFactory = factory;
+		this.maskFactory = maskFactory;
+		this.ztFactory = ztFactory;
 		this.miscOIntGenerator = miscOIntGenerator;
-		this.innerProdProvider = innerProdProvider;
-		this.invProvider = invProvider;
+		this.innerProdFactory = innerProdFactory;
+		this.invFactory = invFactory;
 
-		this.twoToBitLength = provider.getOInt();
+		this.twoToBitLength = factory.getOInt();
 		this.twoToBitLength.setValue(BigInteger.ONE.shiftLeft(this.bitLength));
-		this.twoToBitLengthBottom = provider.getOInt();
+		this.twoToBitLengthBottom = factory.getOInt();
 		this.twoToBitLengthBottom.setValue(BigInteger.ONE.shiftLeft(this.bitLengthBottom));
 
-		this.twoToNegBitLength = provider.getOInt();
+		this.twoToNegBitLength = factory.getOInt();
 	}
 
 	// params etc
@@ -96,27 +96,27 @@ public class GreaterThanReducerCircuitImpl implements GreaterThanCircuit {
 	private final SInt x,y;
 	private final SInt output;
 
-	private final BasicNumericFactory provider;
-	private final NumericNegateBitFactory bitProvider; 
+	private final BasicNumericFactory factory;
+	private final NumericNegateBitFactory bitFactory; 
 
 	
-	private final AddByConstantProtocolFactory abcProvider;
-	private final MultByConstantFactory mbcProvider;
+	private final AddByConstantProtocolFactory abcFactory;
+	private final MultByConstantFactory mbcFactory;
 
-	private final SubtractCircuitFactory subProvider;
+	private final SubtractProtocolFactory subFactory;
 	
-	private final RandomAdditiveMaskFactory maskProvider;
-	private final ZeroTestProtocolFactory ztProvider;
+	private final RandomAdditiveMaskFactory maskFactory;
+	private final ZeroTestProtocolFactory ztFactory;
 	private final MiscOIntGenerators miscOIntGenerator;
-	private final InnerProductFactory innerProdProvider;
-	private final LocalInversionFactory invProvider;
+	private final InnerProductFactory innerProdFactory;
+	private final LocalInversionFactory invFactory;
 
 	
 	// local stuff
 //	private final static int numRounds = 5;
 	private final static int numRounds = 5;
 	private int round=0;
-	private ProtocolProducer gp;
+	private ProtocolProducer pp;
 	
 	private SInt rValue, rTop, rBottom, rBar;
 	private SInt[] r;
@@ -145,23 +145,23 @@ public class GreaterThanReducerCircuitImpl implements GreaterThanCircuit {
 	}
 
 	@Override
-	public int getNextProtocols(NativeProtocol[] gates, int pos) {
-		if (gp == null) {
+	public int getNextProtocols(NativeProtocol[] nativeProtocols, int pos) {
+		if (pp == null) {
 			switch (round){
 			case 0:
 				// LOAD r + bits
-				rValue = provider.getSInt();
-				Protocol maskCircuit = maskProvider.getRandomAdditiveMaskCircuit(bitLength, securityParameter, rValue);
-				r = (SInt[]) maskCircuit.getOutputValues();
-				gp = maskCircuit;
+				rValue = factory.getSInt();
+				Protocol mask = maskFactory.getRandomAdditiveMaskProtocol(bitLength, securityParameter, rValue);
+				r = (SInt[]) mask.getOutputValues();
+				pp = mask;
 				break;
 			case 1:
 				// construct r-values (rBar, rBottom, rTop) 
-				rTop = provider.getSInt();
-				rBottom = provider.getSInt();
-				rBar = provider.getSInt();
+				rTop = factory.getSInt();
+				rBottom = factory.getSInt();
+				rBar = factory.getSInt();
 
-				SInt tmp1 = provider.getSInt();
+				SInt tmp1 = factory.getSInt();
 				SInt[] rTopBits = new SInt[bitLengthTop];
 				SInt[] rBottomBits = new SInt[bitLengthBottom];
 				
@@ -177,146 +177,146 @@ public class GreaterThanReducerCircuitImpl implements GreaterThanCircuit {
 					twoPowsTop = miscOIntGenerator.getTwoPowers(bitLengthTop); 
 				}
 
-				Protocol sumBottom = innerProdProvider.getInnerProductCircuit(rBottomBits, twoPowsBottom, rBottom);
-				Protocol sumTop = innerProdProvider.getInnerProductCircuit(rTopBits, twoPowsTop, rTop);
+				Protocol sumBottom = innerProdFactory.getInnerProductProtocol(rBottomBits, twoPowsBottom, rBottom);
+				Protocol sumTop = innerProdFactory.getInnerProductProtocol(rTopBits, twoPowsTop, rTop);
 
-				Protocol shiftCirc0 = mbcProvider.getMultCircuit(twoToBitLengthBottom, rTop, tmp1);
-				Protocol addCirc0 = provider.getAddProtocol(tmp1, rBottom, rBar);
+				Protocol shiftCirc0 = mbcFactory.getMultProtocol(twoToBitLengthBottom, rTop, tmp1);
+				Protocol addCirc0 = factory.getAddProtocol(tmp1, rBottom, rBar);
 
 				// forget bits of rValue
 				r = null;
 				
 				// Actual work: mask and reveal 2^bitLength+x-y
 				// z = 2^bitLength + x -y  
-				SInt diff = provider.getSInt();
-				z = provider.getSInt();
+				SInt diff = factory.getSInt();
+				z = factory.getSInt();
 				
-				Protocol subCircuit = provider.getSubtractCircuit(y, x, diff);
-				Protocol addCircuit1 = abcProvider.getAddProtocol(diff, twoToBitLength, z);
+				Protocol subprotocol = factory.getSubtractProtocol(y, x, diff);
+				Protocol addprotocol1 = abcFactory.getAddProtocol(diff, twoToBitLength, z);
 
 				// mO = open(z + r)
-				SInt mS = provider.getSInt();
-				mO = provider.getOInt();
-				Protocol addCircuit2 = provider.getAddProtocol(z, rValue, mS);
-				OpenIntProtocol openCircuitAddMask = provider.getOpenProtocol(mS, mO);
+				SInt mS = factory.getSInt();
+				mO = factory.getOInt();
+				Protocol addprotocol2 = factory.getAddProtocol(z, rValue, mS);
+				OpenIntProtocol openprotocolAddMask = factory.getOpenProtocol(mS, mO);
 
-				gp  = new SequentialProtocolProducer(
+				pp  = new SequentialProtocolProducer(
 						new ParallelProtocolProducer(sumBottom, sumTop), 
 						shiftCirc0, 
 						addCirc0, 
-						subCircuit, 
-						addCircuit1, 
-						addCircuit2, 
-						openCircuitAddMask);
+						subprotocol, 
+						addprotocol1, 
+						addprotocol2, 
+						openprotocolAddMask);
 				break;
 			case 2: // 
 				// extract mTop and mBot
-				mBot = provider.getOInt();
-				mTop = provider.getOInt();
-				mBar = provider.getOInt();
+				mBot = factory.getOInt();
+				mTop = factory.getOInt();
+				mBar = factory.getOInt();
 				compute_mTopmBot(mO, mTop, mBot, mBar);
 				// mO = null;
 				
 				
 				// dif = mTop - rTop
-				SInt dif = provider.getSInt();
-				Protocol subCirc = provider.getSubtractCircuit(mTop, rTop, dif);
+				SInt dif = factory.getSInt();
+				Protocol subCirc = factory.getSubtractProtocol(mTop, rTop, dif);
 				
 				
 				// eqResult <- execute eq.test
-				eqResult = provider.getSInt();
-				Protocol eqCirc = ztProvider.getZeroCircuit(bitLengthTop, securityParameter, dif, eqResult);
-				gp = new SequentialProtocolProducer(subCirc, eqCirc);
+				eqResult = factory.getSInt();
+				Protocol eqCirc = ztFactory.getZeroProtocol(bitLengthTop, securityParameter, dif, eqResult);
+				pp = new SequentialProtocolProducer(subCirc, eqCirc);
 				break;
 			case 3:
 				// [eqResult]? BOT : TOP (for m and r) (store as mPrime,rPrime)
-				rPrime = provider.getSInt();
-				mPrime = provider.getSInt();
+				rPrime = factory.getSInt();
+				mPrime = factory.getSInt();
 
 				// TODO: get a provider to handle this.....
-				Protocol selectrPrime = new ConditionalSelectCircuitImpl(eqResult, rBottom, rTop, rPrime, provider);
+				Protocol selectrPrime = new ConditionalSelectProtocolImpl(eqResult, rBottom, rTop, rPrime, factory);
 				// TODO: get a conditional selector for public values...
-				SInt negEqResult =  provider.getSInt();
-				Protocol negCirc = bitProvider.getNegatedBitCircuit(eqResult, negEqResult);
-				SInt prod1 = provider.getSInt();
-				SInt prod2 = provider.getSInt();
-				Protocol mult1 = mbcProvider.getMultCircuit(mBot, eqResult, prod1);
-				Protocol mult2 = mbcProvider.getMultCircuit(mTop, negEqResult, prod2);
-				Protocol sumCirc = provider.getAddProtocol(prod1, prod2, mPrime);
+				SInt negEqResult =  factory.getSInt();
+				Protocol negCirc = bitFactory.getNegatedBitProtocol(eqResult, negEqResult);
+				SInt prod1 = factory.getSInt();
+				SInt prod2 = factory.getSInt();
+				Protocol mult1 = mbcFactory.getMultProtocol(mBot, eqResult, prod1);
+				Protocol mult2 = mbcFactory.getMultProtocol(mTop, negEqResult, prod2);
+				Protocol sumCirc = factory.getAddProtocol(prod1, prod2, mPrime);
 				ProtocolProducer selectmPrime = new SequentialProtocolProducer(negCirc, mult1, mult2, sumCirc);
 
 				// subComparisonResult = Compare(rPrime,mPrime)
 
 				ProtocolProducer selectSubProblemGP = new ParallelProtocolProducer(selectmPrime, selectrPrime);
 
-				subComparisonResult = provider.getSInt();
+				subComparisonResult = factory.getSInt();
 				if (bitLength == 2) {
 					// sub comparison is of length 1: mPrime >= rPrime: 
 					// NOT (rPrime AND NOT mPrime)
-					SInt mPrimeNegated = provider.getSInt();
-					Protocol negCirc3_1 = bitProvider.getNegatedBitCircuit(mPrime, mPrimeNegated);
+					SInt mPrimeNegated = factory.getSInt();
+					Protocol negCirc3_1 = bitFactory.getNegatedBitProtocol(mPrime, mPrimeNegated);
 					
-					SInt rPrimeStrictlyGTmPrime = provider.getSInt();
-					Protocol multCirc3 = provider.getMultCircuit(mPrimeNegated, rPrime, rPrimeStrictlyGTmPrime);
-					Protocol negCirc3_2 = bitProvider.getNegatedBitCircuit(rPrimeStrictlyGTmPrime, subComparisonResult);
-					gp = new SequentialProtocolProducer(selectSubProblemGP, negCirc3_1, multCirc3, negCirc3_2);
+					SInt rPrimeStrictlyGTmPrime = factory.getSInt();
+					Protocol multCirc3 = factory.getMultProtocol(mPrimeNegated, rPrime, rPrimeStrictlyGTmPrime);
+					Protocol negCirc3_2 = bitFactory.getNegatedBitProtocol(rPrimeStrictlyGTmPrime, subComparisonResult);
+					pp = new SequentialProtocolProducer(selectSubProblemGP, negCirc3_1, multCirc3, negCirc3_2);
 				} else {
 					// compare the half-length inputs
 					int nextBitLength = (bitLength+1)/2;
-					Protocol compCirc = new GreaterThanReducerCircuitImpl(
+					Protocol compCirc = new GreaterThanReducerProtocolImpl(
 							nextBitLength, 
 							securityParameter, 
 							rPrime, 
 							mPrime, 
 							subComparisonResult, 
-							provider, 
-							bitProvider, 
-							maskProvider, 
-							ztProvider, 
+							factory, 
+							bitFactory, 
+							maskFactory, 
+							ztFactory, 
 							miscOIntGenerator, 
-							innerProdProvider, 
-							invProvider); 
-					gp = new SequentialProtocolProducer(selectSubProblemGP, compCirc);
+							innerProdFactory, 
+							invFactory); 
+					pp = new SequentialProtocolProducer(selectSubProblemGP, compCirc);
 				}
 				
 				break;
 			case 4:
 				// u = 1 - subComparisonResult
-				SInt u = provider.getSInt();
-				Protocol negCirc4 = bitProvider.getNegatedBitCircuit(subComparisonResult, u);
+				SInt u = factory.getSInt();
+				Protocol negCirc4 = bitFactory.getNegatedBitProtocol(subComparisonResult, u);
 				
 				// res = z - ((m mod 2^bitLength) - (r mod 2^bitlength) + u*2^bitLength)
-				SInt reducedWithError = provider.getSInt();
-				SInt reducedNoError = provider.getSInt();
-				SInt additiveError = provider.getSInt();
-				SInt resUnshifted = provider.getSInt();
+				SInt reducedWithError = factory.getSInt();
+				SInt reducedNoError = factory.getSInt();
+				SInt additiveError = factory.getSInt();
+				SInt resUnshifted = factory.getSInt();
 
-				Protocol subCirc4_1 =  subProvider.getSubtractCircuit(mBar, rBar, reducedWithError);
-				Protocol mbcCirc4 = mbcProvider.getMultCircuit(twoToBitLength, u, additiveError);
-				Protocol addCirc4 = provider.getAddProtocol(additiveError, reducedWithError, reducedNoError);
+				Protocol subCirc4_1 =  subFactory.getSubtractProtocol(mBar, rBar, reducedWithError);
+				Protocol mbcCirc4 = mbcFactory.getMultProtocol(twoToBitLength, u, additiveError);
+				Protocol addCirc4 = factory.getAddProtocol(additiveError, reducedWithError, reducedNoError);
 
-				Protocol subCirc4_2 = provider.getSubtractCircuit(z, reducedNoError, resUnshifted);
+				Protocol subCirc4_2 = factory.getSubtractProtocol(z, reducedNoError, resUnshifted);
 				// res >> 2^bitLength
 				
-				Protocol localInvCirc4 = invProvider.getLocalInversionCircuit(twoToBitLength, twoToNegBitLength);
-				Protocol shiftCirc4 = mbcProvider.getMultCircuit(twoToNegBitLength, resUnshifted, output);
+				Protocol localInvCirc4 = invFactory.getLocalInversionProtocol(twoToBitLength, twoToNegBitLength);
+				Protocol shiftCirc4 = mbcFactory.getMultProtocol(twoToNegBitLength, resUnshifted, output);
 				
 				ProtocolProducer computeUnshifted = new SequentialProtocolProducer(
 						new ParallelProtocolProducer(negCirc4, subCirc4_1), 
 						mbcCirc4, addCirc4, subCirc4_2);
 				ProtocolProducer computeTwoToNeg = new ParallelProtocolProducer(computeUnshifted,localInvCirc4);
-				gp = new SequentialProtocolProducer(computeTwoToNeg, shiftCirc4);
+				pp = new SequentialProtocolProducer(computeTwoToNeg, shiftCirc4);
 				//gp = new SequentialGateProducer(negCirc4, subCirc4_1, mbcCirc4, addCirc4, subCirc4_2, localInvCirc4, shiftCirc4);				
 				break;
 			default:
 				// TODO: handle bad stuff if we ever get here
 			}
 		}
-		if (gp.hasNextProtocols()) {
-			pos = gp.getNextProtocols(gates, pos);
-		} else if (!gp.hasNextProtocols()) {
+		if (pp.hasNextProtocols()) {
+			pos = pp.getNextProtocols(nativeProtocols, pos);
+		} else if (!pp.hasNextProtocols()) {
 			round++;
-			gp = null;
+			pp = null;
 		}
 		return pos;
 	}

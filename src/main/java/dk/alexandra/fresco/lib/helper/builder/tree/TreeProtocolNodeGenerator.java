@@ -24,13 +24,36 @@
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
  *******************************************************************************/
-package dk.alexandra.fresco.lib.math.bool.add;
+package dk.alexandra.fresco.lib.helper.builder.tree;
 
-import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.ProtocolProducer;
-import dk.alexandra.fresco.framework.value.SInt;
 
-public interface IncrementByOneCircuitFactory extends ProtocolFactory{
+/**
+ * Generates the nodes of computation for a TreeCircuit. A node should do some
+ * operation on two elements specified by two indices into some underlying list.
+ * 
+ * @author psn
+ * 
+ */
+public interface TreeProtocolNodeGenerator {
 
-	abstract public ProtocolProducer getIncrementByOneCircuit(SInt in, SInt out); 
+	/**
+	 * Generates a node of computation for a TreeCircuit.
+	 * 
+	 * @param i
+	 *            index of the first input, this element is assumed to be
+	 *            overwritten by the result of the computation.
+	 * @param j
+	 *            index of the second input.
+	 * @return a circuit defining the computation of a node.
+	 */
+	public ProtocolProducer getNode(int i, int j);
+
+	/**
+	 * Gives the length of the underlying list.
+	 * 
+	 * @return the length of the underlying list.
+	 */
+	public int getLength();
+
 }

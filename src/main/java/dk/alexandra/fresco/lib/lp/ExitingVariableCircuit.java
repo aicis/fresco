@@ -168,12 +168,12 @@ public class ExitingVariableCircuit extends AbstractRoundBasedProtocol {
 			ProtocolProducer[] updateColumnEntries = new ProtocolProducer[tableauHeight];
 			for (int i = 0; i < tableauHeight - 1; i++) {
 				negativeEnteringColumn[i] = bnf.getSInt();
-				ProtocolProducer sub = bnf.getSubtractCircuit(zero, updatedEnteringColumn[i], negativeEnteringColumn[i]);
+				ProtocolProducer sub = bnf.getSubtractProtocol(zero, updatedEnteringColumn[i], negativeEnteringColumn[i]);
 				ProtocolProducer cond = lpFactory.getConditionalSelectProtocol(exitingIndex[i], one, 
 						negativeEnteringColumn[i], updateColumn[i]);
 				updateColumnEntries[i] = new SequentialProtocolProducer(sub, cond);
 			}
-			updateColumnEntries[tableauHeight - 1] = bnf.getSubtractCircuit(zero, 
+			updateColumnEntries[tableauHeight - 1] = bnf.getSubtractProtocol(zero, 
 					updatedEnteringColumn[tableauHeight - 1], updateColumn[tableauHeight - 1]);
 			pp = new ParallelProtocolProducer(updateColumnEntries);
 			round++;
@@ -194,7 +194,7 @@ public class ExitingVariableCircuit extends AbstractRoundBasedProtocol {
 				seqAdditions[i - 1] = bnf.getAddProtocol(seqAdditionResults[i - 1], parAdditionResults[i], seqAdditionResults[i]);
 			}
 			ProtocolProducer seqAdditionProducer = new SequentialProtocolProducer(seqAdditions);
-			ProtocolProducer subtractOne = bnf.getSubtractCircuit(seqAdditionResults[tableauHeight - 2], one, pivot);
+			ProtocolProducer subtractOne = bnf.getSubtractProtocol(seqAdditionResults[tableauHeight - 2], one, pivot);
 			pp = new SequentialProtocolProducer(parAdditionProducer, seqAdditionProducer, subtractOne);
 			round++;
 		} else {

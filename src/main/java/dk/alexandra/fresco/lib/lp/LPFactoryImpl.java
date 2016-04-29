@@ -31,14 +31,14 @@ import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.compare.ComparisonProtocol;
 import dk.alexandra.fresco.lib.compare.ComparisonProtocolFactory;
 import dk.alexandra.fresco.lib.compare.ComparisonProtocolFactoryImpl;
-import dk.alexandra.fresco.lib.compare.ConditionalSelectCircuit;
-import dk.alexandra.fresco.lib.compare.ConditionalSelectCircuitImpl;
+import dk.alexandra.fresco.lib.compare.ConditionalSelectProtocol;
+import dk.alexandra.fresco.lib.compare.ConditionalSelectProtocolImpl;
 import dk.alexandra.fresco.lib.compare.MiscOIntGenerators;
 import dk.alexandra.fresco.lib.compare.RandomAdditiveMaskFactory;
 import dk.alexandra.fresco.lib.compare.RandomAdditiveMaskFactoryImpl;
 import dk.alexandra.fresco.lib.compare.eq.EqualityProtocol;
 import dk.alexandra.fresco.lib.compare.eq.EqualityProtocolImpl;
-import dk.alexandra.fresco.lib.compare.gt.GreaterThanReducerCircuitImpl;
+import dk.alexandra.fresco.lib.compare.gt.GreaterThanReducerProtocolImpl;
 import dk.alexandra.fresco.lib.compare.zerotest.ZeroTestProtocolFactory;
 import dk.alexandra.fresco.lib.compare.zerotest.ZeroTestProtocolFactoryImpl;
 import dk.alexandra.fresco.lib.debug.MarkerProtocol;
@@ -106,7 +106,7 @@ public class LPFactoryImpl implements LPFactory {
 	}
 
 	@Override
-	public CopyProtocol<SInt> getCopyCircuit(SInt in, SInt out) {
+	public CopyProtocol<SInt> getCopyProtocol(SInt in, SInt out) {
 		return new CopyProtocolImpl<SInt>(in, out);
 	}
 
@@ -123,9 +123,9 @@ public class LPFactoryImpl implements LPFactory {
 	}
 
 	@Override
-	public ConditionalSelectCircuit getConditionalSelectProtocol(SInt selector,
+	public ConditionalSelectProtocol getConditionalSelectProtocol(SInt selector,
 			SInt a, SInt b, SInt result) {
-		return new ConditionalSelectCircuitImpl(selector, a, b, result, bnf);
+		return new ConditionalSelectProtocolImpl(selector, a, b, result, bnf);
 	}
 
 	@Override
@@ -152,7 +152,7 @@ public class LPFactoryImpl implements LPFactory {
 		if (longCompare) {
 			bitLength *= 2;
 		}
-		return new GreaterThanReducerCircuitImpl(bitLength,
+		return new GreaterThanReducerProtocolImpl(bitLength,
 				this.securityParameter, x1, x2, result, bnf, numericNegateBitFactory,
 				randomAdditiveMaskFactory, zeroTestProtocolFactory, misc,
 				innerProductFactory, localInvFactory);

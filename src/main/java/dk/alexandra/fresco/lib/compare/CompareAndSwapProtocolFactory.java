@@ -26,8 +26,43 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.compare;
 
-import dk.alexandra.fresco.framework.Protocol;
+import dk.alexandra.fresco.framework.ProtocolFactory;
+import dk.alexandra.fresco.framework.value.SBool;
 
-public interface ConditionalSelectCircuit extends Protocol{
+public interface CompareAndSwapProtocolFactory extends ProtocolFactory {
+
+	/**
+	 * Returns a compare-and-swap-protocol. This protocol compares and swaps the
+	 * two input strings such after evaluating the protocol the left string
+	 * becomes the greatest of the two original strings and right string becomes
+	 * the smallest of the two.
+	 * 
+	 * NOTE: the two strings must have equal length.
+	 * 
+	 * @param leftInput
+	 *            the left input/ouput.
+	 * @param rightInput
+	 *            the right input/output.
+	 * @return a compare-and-swap protocol.
+	 */
+	public CompareAndSwapProtocol getCompareAndSwapProtocol(SBool[] left,
+			SBool[] right);
+
+	/**
+	 * Returns a keyed compare-and-swap-protocol. This protocol compares and swaps
+	 * the two key-value pairs such after evaluating the protocol the left pair
+	 * becomes is the pair with the greatest key.
+	 * 
+	 * NOTE: the two strings must have equal length.
+	 * 
+	 * @param leftInput
+	 *            the left input/ouput.
+	 * @param rightInput
+	 *            the right input/output.
+	 * @return a compare-and-swap protocol.
+	 */
+	public KeyedCompareAndSwapProtocol getKeyedCompareAndSwapProtocol(
+			SBool[] leftKey, SBool[] leftValue, SBool[] rightKey,
+			SBool[] rightValue);
 
 }

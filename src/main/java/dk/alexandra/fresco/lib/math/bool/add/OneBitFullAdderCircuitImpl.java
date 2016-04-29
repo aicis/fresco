@@ -60,7 +60,7 @@ public class OneBitFullAdderCircuitImpl implements OneBitFullAdderCircuit{
 				xor1Out = provider.getSBool();
 				and1Out = provider.getSBool();
 				ProtocolProducer xor1 = provider.getXorProtocol(a, b, xor1Out);
-				ProtocolProducer and1 = provider.getAndCircuit(a, b, and1Out);
+				ProtocolProducer and1 = provider.getAndProtocol(a, b, and1Out);
 				curGP = new ParallelProtocolProducer(xor1, and1);				
 			}
 			if(curGP.hasNextProtocols()){
@@ -74,7 +74,7 @@ public class OneBitFullAdderCircuitImpl implements OneBitFullAdderCircuit{
 		else if(round == 1){
 			if(curGP == null){
 				and2Out = provider.getSBool();
-				ProtocolProducer and2 = provider.getAndCircuit(xor1Out, c, and2Out);
+				ProtocolProducer and2 = provider.getAndProtocol(xor1Out, c, and2Out);
 				ProtocolProducer xor2 = provider.getXorProtocol(xor1Out, c, outS);			
 				curGP = new ParallelProtocolProducer(and2, xor2);
 			}

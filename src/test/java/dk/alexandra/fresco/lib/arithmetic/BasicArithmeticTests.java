@@ -370,7 +370,7 @@ public class BasicArithmeticTests {
 								}
 							}
 
-							sumProtocol.append(prov.getMultCircuit(sum, sum,
+							sumProtocol.append(prov.getMultProtocol(sum, sum,
 									sum));
 
 							this.outputs = new OInt[] { ioBuilder.output(sum) };

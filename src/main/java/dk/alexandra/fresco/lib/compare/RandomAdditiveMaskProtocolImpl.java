@@ -40,38 +40,38 @@ import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductFactory;
  * @author ttoft
  *
  */
-public class RandomAdditiveMaskCircuitImpl implements RandomAdditiveMaskCircuit {
+public class RandomAdditiveMaskProtocolImpl implements RandomAdditiveMaskProtocol {
 	
 	private final int bitLength;
 	private final SInt[] r;
 	private SInt[] allbits;
 	private boolean done;
-	private ProtocolProducer gp;
-	private final InnerProductFactory innerProdProvider;
+	private ProtocolProducer pp;
+	private final InnerProductFactory innerProdFactory;
 	private final OInt[] twoPows;
 
 	
 	/** 
-	 * Circuit taking no input and generating uniformly random r in Z_{2^{l+k}} along with the bits of r mod 2^l
+	 * protocol taking no input and generating uniformly random r in Z_{2^{l+k}} along with the bits of r mod 2^l
 	 * @param bitLength -- the desired number of least significant bits, l
 	 * @param securityParameter -- the desired security parameter, k, (leakage with probability 2^{-k}
 	 * @param r - r[i] = r_i for 0<=i<l; r[l] = r
 	 */
-	public RandomAdditiveMaskCircuitImpl(
+	public RandomAdditiveMaskProtocolImpl(
 			int bitLength, 
 			int securityParameter, 
 			SInt rValue, 
-			BasicNumericFactory provider, 
-			PreprocessedNumericBitFactory bitProvider, 
+			BasicNumericFactory factory, 
+			PreprocessedNumericBitFactory bitFactory, 
 			MiscOIntGenerators miscOIntGenerator, 
-			InnerProductFactory innerProdProvider) {
+			InnerProductFactory innerProdFactory) {
 		// Copy inputs, setup stuff
 		this.bitLength = bitLength;
-		this.innerProdProvider = innerProdProvider;
+		this.innerProdFactory = innerProdFactory;
 		this.twoPows = miscOIntGenerator.getTwoPowers(securityParameter + bitLength);		
 		
 		done = false;
-		gp = null;
+		pp = null;
 
 		// loadRandBits
 		// r[i] = i'th bit; 0 <= i < bitLength
@@ -81,11 +81,11 @@ public class RandomAdditiveMaskCircuitImpl implements RandomAdditiveMaskCircuit 
 
 		int i;
 		for (i=0; i<bitLength; i++) {
-			allbits[i] = bitProvider.getRandomSecretSharedBit();
+			allbits[i] = bitFactory.getRandomSecretSharedBit();
 			r[i] = allbits[i];
 		}
 		for (i = bitLength; i<bitLength+securityParameter; i++) {
-			allbits[i] = bitProvider.getRandomSecretSharedBit();
+			allbits[i] = bitFactory.getRandomSecretSharedBit();
 		}
 		this.r[bitLength] = rValue;
 	}
@@ -102,17 +102,17 @@ public class RandomAdditiveMaskCircuitImpl implements RandomAdditiveMaskCircuit 
 	}
 
 	@Override
-	public int getNextProtocols(NativeProtocol[] gates, int pos) {
-		if (gp == null) {
+	public int getNextProtocols(NativeProtocol[] nativeProtocols, int pos) {
+		if (pp == null) {
 			// compute r[bitLenght] = r = \sum_i 2^i*allbits[i]
 			// r[bitLength] initialized in constructor
-			gp = innerProdProvider.getInnerProductCircuit(allbits, twoPows, r[bitLength]);
+			pp = innerProdFactory.getInnerProductProtocol(allbits, twoPows, r[bitLength]);
 		}
-		if (gp.hasNextProtocols()){
-			pos = gp.getNextProtocols(gates, pos);
+		if (pp.hasNextProtocols()){
+			pos = pp.getNextProtocols(nativeProtocols, pos);
 		}
-		else if (!gp.hasNextProtocols()){
-			gp = null;
+		else if (!pp.hasNextProtocols()){
+			pp = null;
 			done = true;
 		}
 		return pos;

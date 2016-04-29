@@ -27,6 +27,6 @@
 package dk.alexandra.fresco.lib.compare;
 
 public interface RandomMultiplicativeMaskFactory {
-	public RandomMultiplicativeMaskCircuit getRandomMultiplicativeMaskCircuit(int numPowers);
+	public RandomMultiplicativeMaskProtocol getRandomMultiplicativeMaskProtocol(int numPowers);
 
 }

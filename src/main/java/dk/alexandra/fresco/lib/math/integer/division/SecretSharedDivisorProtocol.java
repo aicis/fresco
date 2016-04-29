@@ -113,7 +113,7 @@ public class SecretSharedDivisorProtocol extends AbstractSimpleProtocol implemen
 		 * y = 2^m - divisor > 0.
 		 */
 		SInt y = basicNumericFactory.getSInt();
-		Protocol findY = basicNumericFactory.getSubtractCircuit(twoPowers[0], divisor, y);
+		Protocol findY = basicNumericFactory.getSubtractProtocol(twoPowers[0], divisor, y);
 		divisionProtocol.append(findY);
 
 		/*
@@ -123,7 +123,7 @@ public class SecretSharedDivisorProtocol extends AbstractSimpleProtocol implemen
 		yPowers[0] = y;
 		for (int i = 1; i < precision; i++) {
 			yPowers[i] = basicNumericFactory.getSInt();
-			divisionProtocol.append(basicNumericFactory.getMultCircuit(yPowers[i - 1],
+			divisionProtocol.append(basicNumericFactory.getMultProtocol(yPowers[i - 1],
 					yPowers[i - 1], yPowers[i]));
 		}
 

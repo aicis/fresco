@@ -82,7 +82,7 @@ public class RankCircuit extends AbstractSimpleProtocol {
 		}
 		build.endCurScope();
 		SInt result = build.sum(comparisonResults);
-		build.addProtocolProducer(lpProvider.getCopyCircuit(result, rank));
+		build.addProtocolProducer(lpProvider.getCopyProtocol(result, rank));
 		return build.getProtocol();
 	}
 }

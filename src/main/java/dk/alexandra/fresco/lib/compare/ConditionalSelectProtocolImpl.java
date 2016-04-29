@@ -24,63 +24,71 @@
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
  *******************************************************************************/
-package dk.alexandra.fresco.lib.compare.zerotest;
+package dk.alexandra.fresco.lib.compare;
 
+import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.SInt;
+import dk.alexandra.fresco.framework.value.Value;
+import dk.alexandra.fresco.lib.field.integer.AddProtocol;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
-import dk.alexandra.fresco.lib.helper.AbstractSimpleProtocol;
+import dk.alexandra.fresco.lib.field.integer.MultProtocol;
+import dk.alexandra.fresco.lib.field.integer.SubtractProtocol;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
 
-/** 
- * Circuit testing for equality with zero for a bitLength-bit number (positive or negative)
- * @author ttoft
- *
- */
-public class ZeroTestCircuitImpl  extends AbstractSimpleProtocol implements ZeroTestProtocol{
-
-	// input size
-	private final int bitLength;
-	private final int securityParameter;
-
-	// I/O-storage
-	private final SInt input, output;
-
-	// providers
-	private final BasicNumericFactory provider;
-	private	final ZeroTestReducerFactory ztrProvider;
-	private final ZeroTestBruteforceFactory ztbProvider;
+public class ConditionalSelectProtocolImpl implements ConditionalSelectProtocol{
 	
-	// local stuff
-	private ProtocolProducer gp = null;
+	private final SInt a, b, selector, result;
+	private final BasicNumericFactory factory;
+	private ProtocolProducer pp;
+	boolean done;
 	
-	private SInt reduced;	
+	public ConditionalSelectProtocolImpl(SInt selector, SInt a, SInt b, SInt result, BasicNumericFactory factory) {
+		this.a = a;
+		this.b = b;
+		this.selector = selector;
+		this.result = result;
+		this.factory = factory;
+		this.pp = null;
+		this.done = false;
+	}
 	
-	public ZeroTestCircuitImpl(
-			int bitLength, int securityParameter,
-			SInt input, SInt output,
-			ZeroTestReducerFactory ztrProvider, 
-			ZeroTestBruteforceFactory ztbProvider, 
-			BasicNumericFactory provider) {
-		this.bitLength = bitLength;
-		this.securityParameter = securityParameter;
-		this.input = input;
-		this.output = output;
-		this.ztrProvider = ztrProvider;
-		this.ztbProvider = ztbProvider;
-		this.provider = provider;
+	@Override
+	public int getNextProtocols(NativeProtocol[] nativeProtocols, int pos){
+		if (pp == null){
+			SInt subResult = factory.getSInt();
+			SInt multResult = factory.getSInt();
+			SubtractProtocol sub = factory.getSubtractProtocol(a, b, subResult);
+			MultProtocol mult = factory.getMultProtocol(selector, subResult, multResult);
+			AddProtocol add = factory.getAddProtocol(multResult, b, result);
+			
+			this.pp = new SequentialProtocolProducer(sub, mult, add);
+		}
+		if (pp.hasNextProtocols()){
+			pos = pp.getNextProtocols(nativeProtocols, pos);
+		}
+		else if (!pp.hasNextProtocols()){
+			pp = null;
+			done = true;
+		}
+		return pos;
 	}
 
 	@Override
-	protected ProtocolProducer initializeProtocolProducer() {
-		reduced = provider.getSInt();
-		ProtocolProducer reducer = ztrProvider.getZeroTestReducerCircuit(
-				bitLength, 
-				securityParameter, 
-				input, 
-				reduced);
-		ProtocolProducer bruteForce = ztbProvider.getZeroTestBruteforceCircuit(bitLength, reduced, output);
-		gp = new SequentialProtocolProducer(reducer, bruteForce);
-		return gp;
+	public boolean hasNextProtocols() {
+		return !done;
 	}
+
+	@Override
+	public Value[] getInputValues() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Value[] getOutputValues() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

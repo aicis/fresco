@@ -59,7 +59,7 @@ public class NumericNegateBitProtocol implements Protocol{
 	public int getNextProtocols(NativeProtocol[] gates, int pos) {
 		if(gp == null){
 			OInt one = provider.getOInt(BigInteger.ONE);
-			Protocol subtractCircuit = provider.getSubtractCircuit(one, bit, out);
+			Protocol subtractCircuit = provider.getSubtractProtocol(one, bit, out);
 			gp = new SequentialProtocolProducer(subtractCircuit);
 		}
 		if(gp.hasNextProtocols()){

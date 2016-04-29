@@ -37,31 +37,31 @@ import dk.alexandra.fresco.lib.helper.AbstractSimpleProtocol;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
 import dk.alexandra.fresco.lib.math.integer.HammingDistanceFactory;
 
-public class ZeroTestReducerCircuitImpl extends AbstractSimpleProtocol implements ZeroTestReducerCircuit {
+public class ZeroTestReducerProtocolImpl extends AbstractSimpleProtocol implements ZeroTestReducerProtocol {
 
 	private final int bitLength;
 	private final int securityParameter;
 	private final SInt input, output;
-	private final RandomAdditiveMaskFactory maskProvider;
-	private final BasicNumericFactory provider;
+	private final RandomAdditiveMaskFactory maskFactory;
+	private final BasicNumericFactory factory;
 	private ProtocolProducer gp = null;
 	private Protocol loadRandC = null;
-	private HammingDistanceFactory hammingProvider;
+	private HammingDistanceFactory hammingFactory;
 	private SInt[] r;
 	
-	public ZeroTestReducerCircuitImpl(
+	public ZeroTestReducerProtocolImpl(
 			int bitLength, 
 			int securityParameter, 
 			SInt input, SInt output, 
-			RandomAdditiveMaskFactory maskProvider, 
-			BasicNumericFactory provider, 
-			HammingDistanceFactory hammingProvider) {
+			RandomAdditiveMaskFactory maskFactory, 
+			BasicNumericFactory factory, 
+			HammingDistanceFactory hammingFactory) {
 		this.bitLength = bitLength;
 		this.securityParameter = securityParameter;
 		
-		this.maskProvider = maskProvider;
-		this.provider = provider;
-		this.hammingProvider = hammingProvider;
+		this.maskFactory = maskFactory;
+		this.factory = factory;
+		this.hammingFactory = hammingFactory;
 		
 		this.input = input;
 		this.output = output;
@@ -70,19 +70,19 @@ public class ZeroTestReducerCircuitImpl extends AbstractSimpleProtocol implement
 	@Override
 	protected ProtocolProducer initializeProtocolProducer() {
 		// LOAD r
-		SInt rValue = provider.getSInt();
-		loadRandC = maskProvider.getRandomAdditiveMaskCircuit(bitLength, securityParameter, rValue);
+		SInt rValue = factory.getSInt();
+		loadRandC = maskFactory.getRandomAdditiveMaskProtocol(bitLength, securityParameter, rValue);
 		r = (SInt[]) loadRandC.getOutputValues();
-		SInt mS = provider.getSInt();
-		OInt mO = provider.getOInt();
-		Protocol addCircuit = provider.getAddProtocol(input, r[bitLength], mS);
+		SInt mS = factory.getSInt();
+		OInt mO = factory.getOInt();
+		Protocol add = factory.getAddProtocol(input, r[bitLength], mS);
 		// open m
-		OpenIntProtocol openCircuitAddMask = provider.getOpenProtocol(mS, mO);
+		OpenIntProtocol openAddMask = factory.getOpenProtocol(mS, mO);
 		// result = Hamming-dist_l(z,r);
 		SInt[] rBits = new SInt[bitLength];
 		System.arraycopy(r, 0, rBits, 0, rBits.length);
-		Protocol hammingCircuit = hammingProvider.getHammingdistanceCircuit(rBits, mO, output);
-		gp = new SequentialProtocolProducer(loadRandC, addCircuit, openCircuitAddMask, hammingCircuit);			
+		Protocol hamming = hammingFactory.getHammingdistanceProtocol(rBits, mO, output);
+		gp = new SequentialProtocolProducer(loadRandC, add, openAddMask, hamming);			
 		return gp;
 	}
 }

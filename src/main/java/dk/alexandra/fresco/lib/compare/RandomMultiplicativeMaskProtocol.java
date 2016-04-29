@@ -24,10 +24,10 @@
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
  *******************************************************************************/
-package dk.alexandra.fresco.lib.compare.zerotest;
+package dk.alexandra.fresco.lib.compare;
 
 import dk.alexandra.fresco.framework.Protocol;
 
-public interface ZeroTestBruteforceCircuit extends Protocol {
+public interface RandomMultiplicativeMaskProtocol extends Protocol {
 
 }

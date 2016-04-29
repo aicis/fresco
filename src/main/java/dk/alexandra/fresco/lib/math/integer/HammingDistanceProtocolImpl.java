@@ -72,12 +72,12 @@ public class HammingDistanceProtocolImpl extends AbstractSimpleProtocol implemen
 		ProtocolProducer gp;
 		if (length == 1) {
 			if (m.testBit(0)) {
-				gp = bitProvider.getNegatedBitCircuit(aBits[0], result);
+				gp = bitProvider.getNegatedBitProtocol(aBits[0], result);
 			} else {
 				SInt tmp = provider.getSInt();
 				// TODO: undo this ugly hack -- output should be equal to input, hence we need a NOP-gate A better solution would be to add zero, however, adding OInt's is not provided
 				// Someone should incorporate all arithmetic into the BasicNumericProvider. /Tomas
-				gp = new SequentialProtocolProducer(bitProvider.getNegatedBitCircuit(aBits[0], tmp), bitProvider.getNegatedBitCircuit(tmp, result));
+				gp = new SequentialProtocolProducer(bitProvider.getNegatedBitProtocol(aBits[0], tmp), bitProvider.getNegatedBitProtocol(tmp, result));
 			}
 		} else {
 			// handle long-length
@@ -85,7 +85,7 @@ public class HammingDistanceProtocolImpl extends AbstractSimpleProtocol implemen
 			for (int i = 0; i < length; i++) {
 				if (m.testBit(i)) {
 					XOR[i] = provider.getSInt();
-					XOR_GPs.append(bitProvider.getNegatedBitCircuit(
+					XOR_GPs.append(bitProvider.getNegatedBitProtocol(
 							aBits[i], XOR[i]));
 				} else {
 					XOR[i] = aBits[i];

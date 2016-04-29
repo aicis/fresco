@@ -99,7 +99,7 @@ public class BgwInvertIntProtocol implements Protocol {
 			}
 			return pos;
 		}else if(innerRound == 0){
-			if(curCircuit == null) curCircuit =gp.getMultCircuit(input, output, prod);
+			if(curCircuit == null) curCircuit =gp.getMultProtocol(input, output, prod);
 			if(curCircuit.hasNextProtocols()) pos = curCircuit.getNextProtocols(gates, pos);
 			if(!curCircuit.hasNextProtocols()){
 				innerRound++;

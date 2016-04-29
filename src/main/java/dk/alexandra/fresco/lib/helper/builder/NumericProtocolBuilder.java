@@ -33,8 +33,8 @@ import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.helper.AbstractRepeatProtocol;
 import dk.alexandra.fresco.lib.helper.CopyProtocolImpl;
-import dk.alexandra.fresco.lib.helper.builder.tree.TreeCircuit;
-import dk.alexandra.fresco.lib.helper.builder.tree.TreeCircuitNodeGenerator;
+import dk.alexandra.fresco.lib.helper.builder.tree.TreeProtocol;
+import dk.alexandra.fresco.lib.helper.builder.tree.TreeProtocolNodeGenerator;
 
 public class NumericProtocolBuilder extends AbstractProtocolBuilder {
 
@@ -234,12 +234,12 @@ public class NumericProtocolBuilder extends AbstractProtocolBuilder {
 	 */
 	public SInt sum(SInt[] terms) {
 		SInt sum = getSInt();
-		ProtocolProducer sumTree = new TreeCircuit(new SumNodeGenerator(terms, sum));
+		ProtocolProducer sumTree = new TreeProtocol(new SumNodeGenerator(terms, sum));
 		append(sumTree);
 		return sum;
 	}
 
-	private class SumNodeGenerator implements TreeCircuitNodeGenerator {
+	private class SumNodeGenerator implements TreeProtocolNodeGenerator {
 
 		private SInt[] terms;
 		private SInt[] intermediate;
@@ -287,12 +287,12 @@ public class NumericProtocolBuilder extends AbstractProtocolBuilder {
 	 */
 	public SInt mult(SInt[] factors) {
 		SInt sum = getSInt();
-		ProtocolProducer multTree = new TreeCircuit(new MultNodeGenerator(factors, sum));
+		ProtocolProducer multTree = new TreeProtocol(new MultNodeGenerator(factors, sum));
 		append(multTree);
 		return sum;
 	}
 
-	private class MultNodeGenerator implements TreeCircuitNodeGenerator {
+	private class MultNodeGenerator implements TreeProtocolNodeGenerator {
 
 		private SInt[] terms;
 		private SInt[] intermediate;
@@ -323,7 +323,7 @@ public class NumericProtocolBuilder extends AbstractProtocolBuilder {
 				right = intermediate[j];
 			}
 			out = intermediate[i];
-			ProtocolProducer mult = bnp.getMultCircuit(left, right, out);
+			ProtocolProducer mult = bnp.getMultProtocol(left, right, out);
 			return mult;
 		}
 
@@ -344,7 +344,7 @@ public class NumericProtocolBuilder extends AbstractProtocolBuilder {
 	 */
 	public SInt mult(SInt left, SInt right) {
 		SInt out = bnp.getSInt();
-		append(bnp.getMultCircuit(left, right, out));
+		append(bnp.getMultProtocol(left, right, out));
 		return out;
 	}
 
@@ -406,7 +406,7 @@ public class NumericProtocolBuilder extends AbstractProtocolBuilder {
 	 */
 	public SInt sub(SInt left, SInt right) {
 		SInt out = bnp.getSInt();
-		append(bnp.getSubtractCircuit(left, right, out));
+		append(bnp.getSubtractProtocol(left, right, out));
 		return out;
 	}
 
@@ -427,7 +427,7 @@ public class NumericProtocolBuilder extends AbstractProtocolBuilder {
 		beginParScope();
 		try {
 			for (int i = 0; i < left.length; i++) {
-				append(bnp.getSubtractCircuit(left[i], right[i], out[i]));
+				append(bnp.getSubtractProtocol(left[i], right[i], out[i]));
 			}
 		} catch (IndexOutOfBoundsException e) {
 			throw new IllegalArgumentException(

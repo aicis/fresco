@@ -55,5 +55,5 @@ public interface InnerProductFactory {
 	 *            vector2
 	 * @return
 	 */
-	public InnerProductProtocol getInnerProductCircuit(SInt[] vector1, OInt[] vector2, SInt result);
+	public InnerProductProtocol getInnerProductProtocol(SInt[] vector1, OInt[] vector2, SInt result);
 }

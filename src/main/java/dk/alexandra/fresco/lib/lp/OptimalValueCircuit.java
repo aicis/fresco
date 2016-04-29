@@ -74,7 +74,7 @@ public class OptimalValueCircuit implements Protocol {
 			System.arraycopy(row, 0, shortenedRow, 0, B.length);
 			ProtocolProducer innerProduct = lpProvider.getInnerProductCircuit(B, shortenedRow, numerator);
 			ProtocolProducer inversion = lpProvider.getInversionProtocol(pivot, invDenominator);
-			ProtocolProducer multiplication = numericProvider.getMultCircuit(numerator, invDenominator, optimalValue);
+			ProtocolProducer multiplication = numericProvider.getMultProtocol(numerator, invDenominator, optimalValue);
 			gp = new SequentialProtocolProducer(innerProduct, inversion, multiplication);
 			// DEBUG
 			//gp = new SequentialGateProducer(innerProduct, inversion, multiplication, seq);

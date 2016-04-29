@@ -114,7 +114,7 @@ public class KnownDivisorProtocol extends AbstractSimpleProtocol implements Divi
 
 		// Calculate quotient = m * x >> maxLength + l
 		SInt divisionProduct = basicNumericFactory.getSInt();
-		Protocol mTimesX = basicNumericFactory.getMultCircuit(m, dividend, divisionProduct);
+		Protocol mTimesX = basicNumericFactory.getMultProtocol(m, dividend, divisionProduct);
 		Protocol shift = rightShiftFactory.getRepeatedRightShiftProtocol(divisionProduct,
 				maxInputLength + divisorBitLength, result);
 		ProtocolProducer divisionProtocol = new SequentialProtocolProducer(mTimesX, shift);
@@ -123,8 +123,8 @@ public class KnownDivisorProtocol extends AbstractSimpleProtocol implements Divi
 		if (remainder != null) {
 			// Calculate remainder = x - result * divisor
 			SInt product = basicNumericFactory.getSInt();
-			Protocol dTimesQ = basicNumericFactory.getMultCircuit(divisor, result, product);
-			Protocol subtract = basicNumericFactory.getSubtractCircuit(dividend, product, remainder);
+			Protocol dTimesQ = basicNumericFactory.getMultProtocol(divisor, result, product);
+			Protocol subtract = basicNumericFactory.getSubtractProtocol(dividend, product, remainder);
 			ProtocolProducer remainderProtocol = new SequentialProtocolProducer(dTimesQ, subtract);
 			euclidianDivisionProtocol.append(remainderProtocol);
 		}

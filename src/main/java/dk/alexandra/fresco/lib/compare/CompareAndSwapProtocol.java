@@ -28,6 +28,6 @@ package dk.alexandra.fresco.lib.compare;
 
 import dk.alexandra.fresco.framework.Protocol;
 
-public interface RandomMultiplicativeMaskCircuit extends Protocol {
+public interface CompareAndSwapProtocol extends Protocol {
 
 }

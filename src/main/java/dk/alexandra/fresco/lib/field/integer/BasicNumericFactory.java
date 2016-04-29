@@ -38,7 +38,7 @@ import dk.alexandra.fresco.lib.field.integer.generic.IOIntProtocolFactory;
  *
  */
 public interface BasicNumericFactory extends SIntFactory, OIntFactory,
-		AddProtocolFactory, SubtractCircuitFactory, MultCircuitFactory,
+		AddProtocolFactory, SubtractProtocolFactory, MultCircuitFactory,
 		ProtocolFactory, IOIntProtocolFactory {
 
 	/**

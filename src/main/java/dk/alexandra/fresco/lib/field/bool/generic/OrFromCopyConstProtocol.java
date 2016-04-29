@@ -71,9 +71,9 @@ public class OrFromCopyConstProtocol implements OrProtocol {
 	
 		if (copyCir == null) {
 			if (inRight.getValue()) {
-				copyCir = copyProvider.getCopyCircuit(sboolProvider.getKnownConstantSBool(true), out);
+				copyCir = copyProvider.getCopyProtocol(sboolProvider.getKnownConstantSBool(true), out);
 			} else {
-				copyCir = copyProvider.getCopyCircuit(inLeft, out);
+				copyCir = copyProvider.getCopyProtocol(inLeft, out);
 			}
 		}
 		

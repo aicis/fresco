@@ -62,7 +62,7 @@ public class XnorFromXorAndNotProtocolImpl implements XnorProtocol{
 		}
 		if (!curGP.hasNextProtocols()) {
 			if (!xorDone) {
-				curGP = provider.getNotCircuit(tmpOut, out);
+				curGP = provider.getNotProtocol(tmpOut, out);
 				xorDone = true;
 				pos = curGP.getNextProtocols(gates, pos);
 				return pos;

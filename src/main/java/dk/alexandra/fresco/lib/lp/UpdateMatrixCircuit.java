@@ -31,11 +31,11 @@ import dk.alexandra.fresco.framework.Protocol;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.framework.value.Value;
-import dk.alexandra.fresco.lib.compare.ConditionalSelectCircuit;
+import dk.alexandra.fresco.lib.compare.ConditionalSelectProtocol;
 import dk.alexandra.fresco.lib.field.integer.AddProtocol;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.field.integer.MultProtocol;
-import dk.alexandra.fresco.lib.field.integer.SubtractCircuit;
+import dk.alexandra.fresco.lib.field.integer.SubtractProtocol;
 import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
 import dk.alexandra.fresco.lib.math.integer.inv.InversionProtocol;
@@ -72,7 +72,7 @@ public class UpdateMatrixCircuit implements Protocol{
 			one = numericProvider.getSInt(1);
 			
 			InversionProtocol inv = lpProvider.getInversionProtocol(p_prime, p_prime_inv);
-			MultProtocol mult1 = numericProvider.getMultCircuit(p, p_prime_inv, pp);			
+			MultProtocol mult1 = numericProvider.getMultProtocol(p, p_prime_inv, pp);			
 			
 			int h = oldUpdateMatrix.getHeight();
 			int w = oldUpdateMatrix.getWidth();
@@ -84,7 +84,7 @@ public class UpdateMatrixCircuit implements Protocol{
 			
 			// next 4 for the update equation
 			SInt[][] subOuts = new SInt[h][w];			
-			SubtractCircuit[][] subs = new SubtractCircuit[h][w];			
+			SubtractProtocol[][] subs = new SubtractProtocol[h][w];			
 			SInt[][] mults_cAndLambda_iOuts = new SInt[h][w];
 			MultProtocol[][] mults_cAndLambda_i = new MultProtocol[h][w];
 			SInt[][] mults_sub_and_ppOuts = new SInt[h][w];
@@ -96,11 +96,11 @@ public class UpdateMatrixCircuit implements Protocol{
 			SInt[] scalings = new SInt[C.length];
 			for (int j = 0; j < C.length - 1; j++) {
 				scalings[j] = numericProvider.getSInt();
-				ConditionalSelectCircuit scaling = lpProvider.getConditionalSelectProtocol(L[j], one, p_prime_inv, scalings[j]);
-				MultProtocol divides_c_by_p_prime = numericProvider.getMultCircuit(C[j], scalings[j], C[j]);
+				ConditionalSelectProtocol scaling = lpProvider.getConditionalSelectProtocol(L[j], one, p_prime_inv, scalings[j]);
+				MultProtocol divides_c_by_p_prime = numericProvider.getMultProtocol(C[j], scalings[j], C[j]);
 				scales_c[j] = new SequentialProtocolProducer(scaling, divides_c_by_p_prime);
 			}
-			scales_c[C.length - 1] = numericProvider.getMultCircuit(C[C.length - 1], p_prime_inv, C[C.length - 1]);
+			scales_c[C.length - 1] = numericProvider.getMultProtocol(C[C.length - 1], p_prime_inv, C[C.length - 1]);
 			ProtocolProducer gpDivideC = new ParallelProtocolProducer(scales_c);
 			
 			for(int i = 0; i < oldUpdateMatrix.getHeight(); i++){
@@ -109,7 +109,7 @@ public class UpdateMatrixCircuit implements Protocol{
 					//first 3 - lambda_i's generation
 					lambdas_i_jOuts[j][i] = numericProvider.getSInt();
 					if (j < oldUpdateMatrix.getWidth() - 1) {
-						mults_l_v[j][i] = numericProvider.getMultCircuit(L[j], oldUpdateMatrix.getElement(j, i), lambdas_i_jOuts[j][i]);
+						mults_l_v[j][i] = numericProvider.getMultProtocol(L[j], oldUpdateMatrix.getElement(j, i), lambdas_i_jOuts[j][i]);
 					} else {
 						lambdas_i_jOuts[j][i] = numericProvider.getSInt(0);
 					}
@@ -118,11 +118,11 @@ public class UpdateMatrixCircuit implements Protocol{
 					
 					//next 4 - update matrix
 					subOuts[j][i] = numericProvider.getSInt();
-					subs[j][i] = numericProvider.getSubtractCircuit(oldUpdateMatrix.getElement(j, i), lambdas_i_jOuts[j][i], subOuts[j][i]);
+					subs[j][i] = numericProvider.getSubtractProtocol(oldUpdateMatrix.getElement(j, i), lambdas_i_jOuts[j][i], subOuts[j][i]);
 					mults_cAndLambda_iOuts[j][i] = numericProvider.getSInt();
-					mults_cAndLambda_i[j][i] = numericProvider.getMultCircuit(C[j], lambdas_iOuts[i], mults_cAndLambda_iOuts[j][i]);
+					mults_cAndLambda_i[j][i] = numericProvider.getMultProtocol(C[j], lambdas_iOuts[i], mults_cAndLambda_iOuts[j][i]);
 					mults_sub_and_ppOuts[j][i] = numericProvider.getSInt();
-					mults_sub_and_pp[j][i] = numericProvider.getMultCircuit(subOuts[j][i], pp, mults_sub_and_ppOuts[j][i]);
+					mults_sub_and_pp[j][i] = numericProvider.getMultProtocol(subOuts[j][i], pp, mults_sub_and_ppOuts[j][i]);
 					adds[j][i] = numericProvider.getAddProtocol(mults_cAndLambda_iOuts[j][i], mults_sub_and_ppOuts[j][i], newUpdateMatrix.getIthRow(j)[i]);
 				}
 			}

@@ -175,13 +175,13 @@ public class LPSolverCircuit implements Protocol {
 					ParallelProtocolProducer parCopy = new ParallelProtocolProducer();
 					for (int i = 0; i < newUpdate.length; i++) {
 						for (int j = 0; j < newUpdate[i].length; j++) {
-							CopyProtocol<SInt> copy = lpProvider.getCopyCircuit(
+							CopyProtocol<SInt> copy = lpProvider.getCopyProtocol(
 									newUpdateMatrix.getElement(i, j),
 									updateMatrix.getElement(i, j));
 							parCopy.append(copy);
 						}
 					}
-					CopyProtocol<SInt> copy = lpProvider.getCopyCircuit(pivot, prevPivot);
+					CopyProtocol<SInt> copy = lpProvider.getCopyProtocol(pivot, prevPivot);
 					parCopy.append(copy);
 					round++;
 					return parCopy;

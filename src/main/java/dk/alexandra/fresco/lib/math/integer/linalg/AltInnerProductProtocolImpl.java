@@ -64,7 +64,7 @@ public class AltInnerProductProtocolImpl extends AbstractSimpleProtocol implemen
 		for (int i = 1; i < directProduct.length; i++) {
 			innerproduct = ncb.add(innerproduct, directProduct[i]);
 		}
-		ProtocolProducer copyResult = copyProvider.getCopyCircuit(innerproduct, this.result);
+		ProtocolProducer copyResult = copyProvider.getCopyProtocol(innerproduct, this.result);
 		return new SequentialProtocolProducer(ncb.getProtocol(), copyResult);
 	}
 }

@@ -34,6 +34,6 @@ import dk.alexandra.fresco.framework.value.Value;
  */
 public interface CopyProtocolFactory<T extends Value> extends ProtocolFactory {
 	
-	public CopyProtocol<T> getCopyCircuit(T in, T out);
+	public CopyProtocol<T> getCopyProtocol(T in, T out);
 	
 }

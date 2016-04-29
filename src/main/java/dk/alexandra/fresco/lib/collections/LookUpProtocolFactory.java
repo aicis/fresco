@@ -32,7 +32,7 @@ import dk.alexandra.fresco.framework.value.Value;
 public interface LookUpProtocolFactory<T extends Value> extends ProtocolFactory {
 
 	/**
-	 * Gets a circuit that allows to look up the value of a key in a list of
+	 * Gets a protocol that allows to look up the value of a key in a list of
 	 * key/value pairs. If the key is not present in the key list the output
 	 * value should be unchanged. This feature can be used to check if the key
 	 * is present.
@@ -48,13 +48,13 @@ public interface LookUpProtocolFactory<T extends Value> extends ProtocolFactory 
 	 * @param outputValue
 	 *            a value to put the output value in. I.e., this will be
 	 *            overwritten if the look up key is present in the key set.
-	 * @return the circuit
+	 * @return the protocol
 	 */
 	public LookUpProtocol<T> getLookUpProtocol(T lookUpKey, T[] keys, T[] values,
 			T outputValue);
 	
 	/**
-	 * Gets a circuit that allows to look up the array of values associated with a key in a list of
+	 * Gets a protocol that allows to look up the array of values associated with a key in a list of
 	 * key/value array pairs. If the key is not present in the key list the output
 	 * values should be unchanged. This feature can be used to check if the key
 	 * is present.
@@ -70,7 +70,7 @@ public interface LookUpProtocolFactory<T extends Value> extends ProtocolFactory 
 	 * @param outputValue
 	 *            a value array to put the output value in. I.e., this will be
 	 *            overwritten if the look up key is present in the key set.
-	 * @return the circuit
+	 * @return the protocol
 	 */
 	
 	public LookUpProtocol<T> getLookUpProtocol(T lookUpKey, T[] keys, T[][] values,

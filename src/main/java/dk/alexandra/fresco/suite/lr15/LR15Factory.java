@@ -92,7 +92,7 @@ public class LR15Factory implements BasicLogicFactory {
 	}
 
 	@Override
-	public AndProtocol getAndCircuit(SBool inLeft, SBool inRight, SBool out) {
+	public AndProtocol getAndProtocol(SBool inLeft, SBool inRight, SBool out) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -104,7 +104,7 @@ public class LR15Factory implements BasicLogicFactory {
 	}
 
 	@Override
-	public NotProtocol getNotCircuit(SBool in, SBool out) {
+	public NotProtocol getNotProtocol(SBool in, SBool out) {
 		// TODO Auto-generated method stub
 		return null;
 	}

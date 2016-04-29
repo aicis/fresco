@@ -31,13 +31,13 @@ import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.framework.value.Value;
-import dk.alexandra.fresco.lib.field.integer.SubtractCircuit;
+import dk.alexandra.fresco.lib.field.integer.SubtractProtocol;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzOInt;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.utils.SpdzFactory;
 
-public class SpdzSubtractProtocol extends SpdzNativeProtocol implements SubtractCircuit {
+public class SpdzSubtractProtocol extends SpdzNativeProtocol implements SubtractProtocol {
 
 	private SpdzSInt left, right, out;
 	private SpdzOInt openLeft;

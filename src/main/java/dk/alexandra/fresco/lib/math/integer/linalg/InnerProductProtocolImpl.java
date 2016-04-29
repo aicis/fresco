@@ -83,10 +83,10 @@ public class InnerProductProtocolImpl extends AbstractRoundBasedProtocol
 			if (vectorLength == 1) {
 				round = 2;
 				if (publicBVector == null) {
-					gp = bnProvider.getMultCircuit(aVector[0], bVector[0],
+					gp = bnProvider.getMultProtocol(aVector[0], bVector[0],
 							result);
 				} else {
-					gp = bnProvider.getMultCircuit(publicBVector[0],
+					gp = bnProvider.getMultProtocol(publicBVector[0],
 							aVector[0], result);
 				}
 				return gp;

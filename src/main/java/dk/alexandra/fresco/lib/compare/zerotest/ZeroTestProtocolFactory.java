@@ -29,6 +29,6 @@ package dk.alexandra.fresco.lib.compare.zerotest;
 import dk.alexandra.fresco.framework.value.SInt;
 
 public interface ZeroTestProtocolFactory extends ZeroTestBruteforceFactory, ZeroTestReducerFactory {
-	abstract public ZeroTestProtocol getZeroCircuit(int bitLength, int securityParameter, SInt input, SInt output);
+	abstract public ZeroTestProtocol getZeroProtocol(int bitLength, int securityParameter, SInt input, SInt output);
 
 }

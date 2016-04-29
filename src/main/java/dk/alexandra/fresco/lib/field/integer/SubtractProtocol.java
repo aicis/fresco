@@ -24,27 +24,11 @@
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
  *******************************************************************************/
-package dk.alexandra.fresco.lib.math.bool.add;
+package dk.alexandra.fresco.lib.field.integer;
 
-import java.math.BigInteger;
+import dk.alexandra.fresco.framework.Protocol;
 
-import dk.alexandra.fresco.framework.ProtocolProducer;
-import dk.alexandra.fresco.framework.value.OInt;
-import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 
-public class IncrementByOneCircuitFactoryImpl implements IncrementByOneCircuitFactory{
-
-	private final BasicNumericFactory bnf;
+public interface SubtractProtocol extends Protocol {
 	
-	public IncrementByOneCircuitFactoryImpl(BasicNumericFactory bnf) {
-		this.bnf = bnf;
-	}
-	
-	@Override
-	public ProtocolProducer getIncrementByOneCircuit(SInt in, SInt out) {
-		OInt one = bnf.getOInt(BigInteger.ONE);
-		return bnf.getAddProtocol(in, one, out);
-	}
-
 }

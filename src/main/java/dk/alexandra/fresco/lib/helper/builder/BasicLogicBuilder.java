@@ -137,12 +137,12 @@ public class BasicLogicBuilder extends AbstractProtocolBuilder {
 	 */
 	public SBool and(SBool left, SBool right) {
 		SBool result = bp.getSBool();
-		append(bp.getAndCircuit(left, right, result));
+		append(bp.getAndProtocol(left, right, result));
 		return result;
 	}
 	
 	public void andInPlace(SBool result, SBool left, SBool right) {
-		append(bp.getAndCircuit(left, right, result));		
+		append(bp.getAndProtocol(left, right, result));		
 	}
 
 	/**
@@ -190,7 +190,7 @@ public class BasicLogicBuilder extends AbstractProtocolBuilder {
 	}
 	
 	public void notInPlace(SBool result, SBool in) {
-		append(bp.getNotCircuit(in, result));
+		append(bp.getNotProtocol(in, result));
 	}
 	
 	public void notInPlace(SBool[] result, SBool[] in) {
@@ -409,7 +409,7 @@ public class BasicLogicBuilder extends AbstractProtocolBuilder {
 	public SBool equality(SBool[] left, SBool[] right) {
 		checkLengths(left, right);
 		SBool result = bp.getSBool();
-		append(bp.getBinaryEqualityCircuit(left, right, result));
+		append(bp.getBinaryEqualityProtocol(left, right, result));
 		return result;
 	}	
 	/**
@@ -422,7 +422,7 @@ public class BasicLogicBuilder extends AbstractProtocolBuilder {
 	 *            the destination SBool
 	 */
 	public void copy(SBool src, SBool dest) {
-		append(bp.getCopyCircuit(src, dest));
+		append(bp.getCopyProtocol(src, dest));
 		return;
 	}
 

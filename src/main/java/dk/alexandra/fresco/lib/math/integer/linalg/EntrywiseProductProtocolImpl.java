@@ -77,10 +77,10 @@ public class EntrywiseProductProtocolImpl extends AbstractRepeatProtocol impleme
 		if (i < limit) {
 			ProtocolProducer mult;
 			if (publicBs != null) {
-				mult = openMultProvider.getMultCircuit(publicBs[i], as[i],
+				mult = openMultProvider.getMultProtocol(publicBs[i], as[i],
 						results[i]);
 			} else {
-				mult = provider.getMultCircuit(as[i], bs[i], results[i]);
+				mult = provider.getMultProtocol(as[i], bs[i], results[i]);
 			}
 			i++;
 			return mult;

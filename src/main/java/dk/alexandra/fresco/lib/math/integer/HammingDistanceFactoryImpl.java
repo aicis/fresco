@@ -41,7 +41,7 @@ public class HammingDistanceFactoryImpl implements HammingDistanceFactory{
 	}
 	
 	@Override
-	public HammingDistanceProtocol getHammingdistanceCircuit(SInt[] vector,
+	public HammingDistanceProtocol getHammingdistanceProtocol(SInt[] vector,
 			OInt publicValue, SInt result) {
 		return new HammingDistanceProtocolImpl(vector, publicValue, result, bnf, numericBitFactory);
 	}

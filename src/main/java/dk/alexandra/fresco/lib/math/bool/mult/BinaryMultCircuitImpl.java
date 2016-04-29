@@ -104,13 +104,13 @@ public class BinaryMultCircuitImpl implements BinaryMultCircuit{
 					for(int j = 0; j < rights.length; j++){
 						if(j == rights.length-1){ //corresponding to having least significant bit steady. 
 							if(i == lefts.length-1){
-								((ParallelProtocolProducer)curGP).append(basicProvider.getAndCircuit(lefts[i], rights[j], outs[outs.length-1]));
+								((ParallelProtocolProducer)curGP).append(basicProvider.getAndProtocol(lefts[i], rights[j], outs[outs.length-1]));
 							}else{
-								((ParallelProtocolProducer)curGP).append(basicProvider.getAndCircuit(lefts[i], rights[j], intermediateResults[intermediateResults.length-2-i]));
+								((ParallelProtocolProducer)curGP).append(basicProvider.getAndProtocol(lefts[i], rights[j], intermediateResults[intermediateResults.length-2-i]));
 							}
 						}
 						else{
-							((ParallelProtocolProducer)curGP).append(basicProvider.getAndCircuit(lefts[i], rights[j], andMatrix[lefts.length-1-i][rights.length-2-j]));
+							((ParallelProtocolProducer)curGP).append(basicProvider.getAndProtocol(lefts[i], rights[j], andMatrix[lefts.length-1-i][rights.length-2-j]));
 						}
 					}
 				}

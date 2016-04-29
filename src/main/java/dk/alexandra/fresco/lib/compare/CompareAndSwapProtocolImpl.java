@@ -24,17 +24,52 @@
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
  *******************************************************************************/
-/**
- * Generic circuit for equality tests with secret output
- */
-package dk.alexandra.fresco.lib.compare.eq;
+package dk.alexandra.fresco.lib.compare;
 
-import dk.alexandra.fresco.framework.Protocol;
+import java.util.Arrays;
 
-/**
- * @author ttoft
- *
- */
-public interface EqualityCircuit extends Protocol {
+import dk.alexandra.fresco.framework.ProtocolProducer;
+import dk.alexandra.fresco.framework.value.SBool;
+import dk.alexandra.fresco.framework.value.Value;
+import dk.alexandra.fresco.lib.helper.AbstractSimpleProtocol;
+import dk.alexandra.fresco.lib.helper.builder.BasicLogicBuilder;
+import dk.alexandra.fresco.lib.logic.AbstractBinaryFactory;
 
+public class CompareAndSwapProtocolImpl extends AbstractSimpleProtocol implements
+		CompareAndSwapProtocol {
+
+	private SBool[] left;
+	private SBool[] right;
+	private AbstractBinaryFactory bp;
+
+	public CompareAndSwapProtocolImpl(SBool[] left, SBool[] right,
+			AbstractBinaryFactory bp) {
+		this.bp = bp;
+		this.left = left;
+		this.right = right;
+		Value[] values = Arrays.copyOf(left, left.length + right.length);
+		System.arraycopy(right, 0, values, left.length, right.length);
+		setInputValues(values);
+		setOutputValues(values);
+	}
+
+	@Override
+	protected ProtocolProducer initializeProtocolProducer() {
+		BasicLogicBuilder blb = new BasicLogicBuilder(bp);
+		blb.beginSeqScope();
+		SBool comparisonResult = blb.greaterThan(left, right);
+
+		blb.beginParScope();
+		SBool[] tmpLeft = blb.condSelect(comparisonResult, left, right);
+		SBool[] tmpRight = blb.condSelect(comparisonResult, right, left);
+		blb.endCurScope();
+
+		blb.beginParScope();
+		blb.copy(tmpLeft, left);
+		blb.copy(tmpRight, right);
+		blb.endCurScope();
+
+		blb.endCurScope();
+		return blb.getProtocol();
+	}
 }

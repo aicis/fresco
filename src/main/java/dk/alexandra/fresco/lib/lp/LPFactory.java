@@ -28,7 +28,7 @@ package dk.alexandra.fresco.lib.lp;
 
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.compare.ComparisonProtocol;
-import dk.alexandra.fresco.lib.compare.ConditionalSelectCircuit;
+import dk.alexandra.fresco.lib.compare.ConditionalSelectProtocol;
 import dk.alexandra.fresco.lib.compare.eq.EqualityProtocol;
 import dk.alexandra.fresco.lib.debug.MarkerFactory;
 import dk.alexandra.fresco.lib.helper.CopyProtocolFactory;
@@ -54,7 +54,7 @@ public interface LPFactory
 	 *            output - either a or b.
 	 * @return
 	 */
-	public ConditionalSelectCircuit getConditionalSelectProtocol(SInt selector, SInt a, SInt b, SInt result);
+	public ConditionalSelectProtocol getConditionalSelectProtocol(SInt selector, SInt a, SInt b, SInt result);
 
 	/**
 	 * inputs are the as, m is the base recursion result, and cs are the outputs

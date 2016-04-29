@@ -35,15 +35,15 @@ import dk.alexandra.fresco.lib.collections.sort.KeyedCompareAndSwapProtocolGetNe
 import dk.alexandra.fresco.lib.collections.sort.OddEvenMergeProtocol;
 import dk.alexandra.fresco.lib.collections.sort.OddEvenMergeProtocolRec;
 import dk.alexandra.fresco.lib.collections.sort.OddEvenMergeSortFactory;
-import dk.alexandra.fresco.lib.compare.CompareAndSwapCircuit;
-import dk.alexandra.fresco.lib.compare.CompareAndSwapCircuitFactory;
-import dk.alexandra.fresco.lib.compare.CompareAndSwapCircuitImpl;
+import dk.alexandra.fresco.lib.compare.CompareAndSwapProtocol;
+import dk.alexandra.fresco.lib.compare.CompareAndSwapProtocolFactory;
+import dk.alexandra.fresco.lib.compare.CompareAndSwapProtocolImpl;
 import dk.alexandra.fresco.lib.compare.KeyedCompareAndSwapProtocol;
 import dk.alexandra.fresco.lib.compare.bool.BinaryGreaterThanProtocol;
 import dk.alexandra.fresco.lib.compare.bool.BinaryGreaterThanProtocolFactory;
 import dk.alexandra.fresco.lib.compare.bool.BinaryGreaterThanProtocolImpl;
 import dk.alexandra.fresco.lib.compare.bool.eq.AltBinaryEqualityProtocol;
-import dk.alexandra.fresco.lib.compare.bool.eq.BinaryEqualityCircuitFactory;
+import dk.alexandra.fresco.lib.compare.bool.eq.BinaryEqualityProtocolFactory;
 import dk.alexandra.fresco.lib.compare.bool.eq.BinaryEqualityProtocol;
 import dk.alexandra.fresco.lib.field.bool.AndProtocol;
 import dk.alexandra.fresco.lib.field.bool.BasicLogicFactory;
@@ -78,16 +78,16 @@ import dk.alexandra.fresco.lib.math.bool.mult.BinaryMultCircuitImpl;
 public abstract class AbstractBinaryFactory implements BasicLogicFactory,
 		AdderCircuitFactory, BinaryMultCircuitFactory, LogCircuitFactory,
 		CopyProtocolFactory<SBool>, BinaryGreaterThanProtocolFactory,
-		BinaryEqualityCircuitFactory, CompareAndSwapCircuitFactory,
+		BinaryEqualityProtocolFactory, CompareAndSwapProtocolFactory,
 		OddEvenMergeSortFactory, BitIncrementerCircuitFactory {
 	/**
 	 * Advanced circuits - compare and swap functionality
 	 */
 
 	@Override
-	public CompareAndSwapCircuit getCompareAndSwapCircuit(SBool[] left,
+	public CompareAndSwapProtocol getCompareAndSwapProtocol(SBool[] left,
 			SBool[] right) {
-		return new CompareAndSwapCircuitImpl(left, right, this);
+		return new CompareAndSwapProtocolImpl(left, right, this);
 	}
 
 	@Override
@@ -148,7 +148,7 @@ public abstract class AbstractBinaryFactory implements BasicLogicFactory,
 	}
 
 	@Override
-	public NotProtocol getNotCircuit(SBool in, SBool out) {
+	public NotProtocol getNotProtocol(SBool in, SBool out) {
 		return new NotFromXorProtocol(this, this, in, out);
 	}
 
@@ -212,7 +212,7 @@ public abstract class AbstractBinaryFactory implements BasicLogicFactory,
 	}
 
 	@Override
-	public BinaryEqualityProtocol getBinaryEqualityCircuit(SBool[] inLeft,
+	public BinaryEqualityProtocol getBinaryEqualityProtocol(SBool[] inLeft,
 			SBool[] inRight, SBool out) {
 		// return new BinaryEqualityCircuitImpl(inLeft, inRight, out, this);
 		return new AltBinaryEqualityProtocol(inLeft, inRight, out, this);
