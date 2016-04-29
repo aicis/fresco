@@ -282,12 +282,12 @@ public class NumericProtocolBuilder extends AbstractProtocolBuilder {
 	
 	/**
 	 * Takes a number of values and multiplies them all.
-	 * @param terms
+	 * @param factors
 	 * @return
 	 */
-	public SInt mult(SInt[] terms) {
+	public SInt mult(SInt[] factors) {
 		SInt sum = getSInt();
-		ProtocolProducer multTree = new TreeCircuit(new MultNodeGenerator(terms, sum));
+		ProtocolProducer multTree = new TreeCircuit(new MultNodeGenerator(factors, sum));
 		append(multTree);
 		return sum;
 	}

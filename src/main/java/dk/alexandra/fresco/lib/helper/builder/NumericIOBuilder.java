@@ -160,6 +160,26 @@ public class NumericIOBuilder extends AbstractProtocolBuilder {
 	}
 
 	/**
+	 * Appends a circuit to input a matrix of int's
+	 * 
+	 * @param m
+	 *            A matrix of integers
+	 * @param targetID
+	 *            The party to input
+	 * @return SInt's that will be loaded with the corresponding inputs by the
+	 *         appended circuit.
+	 */
+	public SInt[][] inputMatrix(int[][] m, int targetID) {
+		BigInteger[][] tmp = new BigInteger[m.length][m[0].length];
+		for (int i = 0; i < tmp.length; i++) {
+			for (int j = 0; j < tmp[0].length; j++) {
+				tmp[i][j] = BigInteger.valueOf(m[i][j]);
+			}
+		}
+		return inputMatrix(tmp, targetID);
+	}
+
+	/**
 	 * Appends a circuit to input an array of value by an other party. I.e., the
 	 * values or not held by this party.
 	 * 

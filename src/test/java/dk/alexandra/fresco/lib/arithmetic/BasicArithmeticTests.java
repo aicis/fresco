@@ -464,6 +464,7 @@ public class BasicArithmeticTests {
 		public TestThread next(TestThreadConfiguration conf) {
 			
 			return new ThreadWithFixture() {
+				@Override
 				public void test() throws Exception {
 					TestApplication app = new TestApplication() {
 						private static final int REPS = 20000;
@@ -515,6 +516,7 @@ public class BasicArithmeticTests {
 		public TestThread next(TestThreadConfiguration conf) {
 			
 			return new ThreadWithFixture() {
+				@Override
 				public void test() throws Exception {
 					TestApplication app = new TestApplication() {
 
@@ -552,5 +554,4 @@ public class BasicArithmeticTests {
 			};
 		}
 	}
-	
 }
