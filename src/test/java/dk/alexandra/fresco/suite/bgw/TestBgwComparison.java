@@ -48,6 +48,7 @@ import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
 import dk.alexandra.fresco.framework.sce.resources.storage.Storage;
 import dk.alexandra.fresco.lib.arithmetic.ComparisonTests;
+import dk.alexandra.fresco.lib.arithmetic.SortingTests;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.bgw.configuration.BgwConfiguration;
 
@@ -107,4 +108,5 @@ public class TestBgwComparison {
 		runTest(new ComparisonTests.TestCompareEQ(), 3, 1,
 				EvaluationStrategy.SEQUENTIAL);
 	}
+	
 }

@@ -211,6 +211,34 @@ public class TestSpdzBasicArithmetic2Parties {
 				EvaluationStrategy.SEQUENTIAL_BATCHED,
 				StorageStrategy.IN_MEMORY);
 	}
+	
+	@Test
+	public void test_MinInfFrac_Sequential() throws Exception {
+		runTest(new BasicArithmeticTests.TestMinInfFrac(),
+				EvaluationStrategy.SEQUENTIAL,
+				StorageStrategy.IN_MEMORY);
+	}
+	
+	@Test
+	public void test_MinInfFrac_SequentialBatched() throws Exception {
+		runTest(new BasicArithmeticTests.TestMinInfFrac(),
+				EvaluationStrategy.SEQUENTIAL_BATCHED,
+				StorageStrategy.IN_MEMORY);
+	}
+	
+	@Test
+	public void test_MinInfFrac_Parallel() throws Exception {
+		runTest(new BasicArithmeticTests.TestMinInfFrac(),
+				EvaluationStrategy.PARALLEL,
+				StorageStrategy.IN_MEMORY);
+	}
+	
+	@Test
+	public void test_MinInfFrac_ParallelBatched() throws Exception {
+		runTest(new BasicArithmeticTests.TestMinInfFrac(),
+				EvaluationStrategy.PARALLEL_BATCHED,
+				StorageStrategy.IN_MEMORY);
+	}
 
 	// TODO: Test with different security parameters.
 

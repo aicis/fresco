@@ -27,7 +27,6 @@
 package dk.alexandra.fresco.lib.lp;
 
 import java.math.BigInteger;
-import java.util.Arrays;
 
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.NativeProtocol;
@@ -41,7 +40,6 @@ import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.helper.AbstractRoundBasedProtocol;
 import dk.alexandra.fresco.lib.helper.CopyProtocol;
 import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
-import dk.alexandra.fresco.lib.helper.builder.NumericIOBuilder;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
 
 public class LPSolverCircuit implements Protocol {
@@ -64,7 +62,7 @@ public class LPSolverCircuit implements Protocol {
 	private SInt pivot;
 	private SInt[] enteringIndex;
 	public static int iterations = 0;
-
+	
 	public LPSolverCircuit(LPTableau tableau, Matrix<SInt> updateMatrix,
 			SInt pivot, LPFactory lpProvider, BasicNumericFactory bnProvider) {
 		if (checkDimensions(tableau, updateMatrix)) {
@@ -100,7 +98,6 @@ public class LPSolverCircuit implements Protocol {
 			} else if (state == STATE.PHASE2) {
 				boolean terminated = terminationOut.getValue().equals(
 						BigInteger.ONE);
-				System.out.println("Are we about to terminate? :  " + terminated);
 				if (!terminated) {					
 					gp = phaseTwoCircuit();					
 				} else {
@@ -216,12 +213,12 @@ public class LPSolverCircuit implements Protocol {
 				positive, true);
 		ProtocolProducer output = bnProvider.getOpenProtocol(positive,
 				terminationOut);
-
 		ProtocolProducer phaseOne = new SequentialProtocolProducer(enteringProducer,
 				comp, output);
 		return phaseOne;
 	}
 		
+	@SuppressWarnings("unused")
 	private ProtocolProducer blandPhaseOneCircuit() {
 		int noVariables = tableau.getC().getWidth();
 		terminationOut = bnProvider.getOInt();
