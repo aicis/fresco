@@ -30,15 +30,15 @@ import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.value.SBool;
 import dk.alexandra.fresco.framework.value.SInt;
 
-public interface NumeralToBitCircuitFactory extends ProtocolFactory {
+public interface BitToNumeralProtocolFactory extends ProtocolFactory {
 
 	/**
-	 * Convert an integer to an array of bits, with index 0 being the least significant bit
+	 * Convert an array of bits to an integer, with index 0 being the least significant bit
 	 * 
-	 * @param in SInt
-	 * @param out SBool array
-	 * @return NumeralToBitCircuit
+	 * @param in SBool array
+	 * @param out SInt
+	 * @return BitToNumeralProtocol
 	 */
-	public NumeralToBitCircuit getNumeralToBitCircuit(SInt in, SBool[] out);
+	public BitToNumeralProtocol getBitToNumeralProtocol(SBool[] in, SInt out);
 	
 }

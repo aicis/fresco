@@ -29,6 +29,6 @@ package dk.alexandra.fresco.lib.conversion;
 import dk.alexandra.fresco.framework.Protocol;
 
 
-public interface BitToNumeralCircuit extends Protocol {
+public interface NumeralToBitProtocol extends Protocol {
 
 }
