@@ -28,7 +28,6 @@ package dk.alexandra.fresco.lib.math.integer.binary;
 
 import java.io.IOException;
 import java.math.BigInteger;
-import java.util.Arrays;
 
 import org.junit.Assert;
 
@@ -48,10 +47,6 @@ import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.helper.builder.NumericIOBuilder;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
 import dk.alexandra.fresco.lib.math.integer.PreprocessedNumericBitFactory;
-import dk.alexandra.fresco.lib.math.integer.binary.RepeatedRightShiftProtocol;
-import dk.alexandra.fresco.lib.math.integer.binary.RightShiftFactory;
-import dk.alexandra.fresco.lib.math.integer.binary.RightShiftFactoryImpl;
-import dk.alexandra.fresco.lib.math.integer.binary.RightShiftProtocol;
 
 
 /**
@@ -130,8 +125,6 @@ public class BinaryOperationsTests {
 					sce.runApplication(app);
 					BigInteger result = app.getOutputs()[0].getValue();
 					BigInteger remainder = app.getOutputs()[1].getValue();
-					System.out.println(input + " >> 1 = " + result);
-					System.out.println(input + " (mod 2) = " + remainder);
 					
 					Assert.assertEquals(result, input.shiftRight(1));
 					Assert.assertEquals(remainder, input.mod(BigInteger.valueOf(2)));
@@ -198,7 +191,6 @@ public class BinaryOperationsTests {
 					sce.runApplication(app);
 					
 					BigInteger output = app.getOutputs()[0].getValue();
-					System.out.println(input + " >> " + n + " = " + output);
 					Assert.assertEquals(input.shiftRight(n), output);
 
 					BigInteger[] remainders = new BigInteger[n];
@@ -206,7 +198,6 @@ public class BinaryOperationsTests {
 						remainders[i] = app.getOutputs()[i+1].getValue();
 						Assert.assertEquals(input.testBit(i) ? BigInteger.ONE : BigInteger.ZERO, remainders[i]);
 					}
-					System.out.println(Arrays.toString(remainders));
 				}
 			};
 		}

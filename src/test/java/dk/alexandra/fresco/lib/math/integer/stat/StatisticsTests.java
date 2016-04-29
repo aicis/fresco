@@ -29,6 +29,8 @@ package dk.alexandra.fresco.lib.math.integer.stat;
 import java.io.IOException;
 import java.math.BigInteger;
 
+import org.springframework.util.Assert;
+
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.TestApplication;
@@ -49,12 +51,6 @@ import dk.alexandra.fresco.lib.math.integer.binary.RightShiftFactory;
 import dk.alexandra.fresco.lib.math.integer.binary.RightShiftFactoryImpl;
 import dk.alexandra.fresco.lib.math.integer.division.DivisionFactory;
 import dk.alexandra.fresco.lib.math.integer.division.DivisionFactoryImpl;
-import dk.alexandra.fresco.lib.math.integer.stat.CovarianceMatrixProtocol;
-import dk.alexandra.fresco.lib.math.integer.stat.CovarianceProtocol;
-import dk.alexandra.fresco.lib.math.integer.stat.MeanProtocol;
-import dk.alexandra.fresco.lib.math.integer.stat.StatisticsFactory;
-import dk.alexandra.fresco.lib.math.integer.stat.StatisticsFactoryImpl;
-import dk.alexandra.fresco.lib.math.integer.stat.VarianceProtocol;
 
 
 /**
@@ -186,16 +182,20 @@ public class StatisticsTests {
 					}
 					covarianceExact /= (data1.length - 1);
 					
-					System.out.println("Calculated mean1 = " + mean1 + " (exact value is " + mean1Exact + ")");
-					System.out.println("Calculated mean2 = " + mean2 + " (exact value is " + mean2Exact + ")");
-					System.out.println("Calculated variance = " + variance + " (exact value is " + varianceExact + ")");
-					System.out.println("Calculated covariance = " + covariance + " (exact value is " + covarianceExact + ")");
-					
-					System.out.println("Cov[0][0] = " + app.getOutputs()[4].getValue() + " (should be " + varianceExact + ")");
-					System.out.println("Cov[0][1] = " + app.getOutputs()[5].getValue() + " (should be " + covarianceExact + ")");
+					double tolerance = 1.0;
+					Assert.isTrue(isInInterval(mean1, mean1Exact, tolerance));
+					Assert.isTrue(isInInterval(mean2, mean2Exact, tolerance));
+					Assert.isTrue(isInInterval(variance, varianceExact, tolerance));
+					Assert.isTrue(isInInterval(covariance, covarianceExact, tolerance));
+					Assert.isTrue(isInInterval(app.getOutputs()[4].getValue(), varianceExact, tolerance));
+					Assert.isTrue(isInInterval(app.getOutputs()[5].getValue(), covarianceExact, tolerance));
 
 				}
 			};
+		}
+		
+		private static boolean isInInterval(BigInteger value, double center, double tolerance) {
+			return value.intValue() >= center - tolerance && value.intValue() <= center + tolerance;
 		}
 	}
 }

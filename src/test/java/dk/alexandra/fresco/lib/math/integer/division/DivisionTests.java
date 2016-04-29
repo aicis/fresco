@@ -49,9 +49,6 @@ import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
 import dk.alexandra.fresco.lib.math.integer.PreprocessedNumericBitFactory;
 import dk.alexandra.fresco.lib.math.integer.binary.RightShiftFactory;
 import dk.alexandra.fresco.lib.math.integer.binary.RightShiftFactoryImpl;
-import dk.alexandra.fresco.lib.math.integer.division.DivisionFactory;
-import dk.alexandra.fresco.lib.math.integer.division.DivisionFactoryImpl;
-import dk.alexandra.fresco.lib.math.integer.division.DivisionProtocol;
 
 
 /**
@@ -133,7 +130,6 @@ public class DivisionTests {
 					sce.runApplication(app);
 					BigInteger quotient = app.getOutputs()[0].getValue();
 					BigInteger remainder = app.getOutputs()[1].getValue();
-					System.out.println(x + " / " + d + " = " + quotient + " with remainder " + remainder);
 					Assert.assertEquals(quotient, x.divide(d));
 					Assert.assertEquals(remainder, x.mod(d));
 				}
@@ -152,7 +148,7 @@ public class DivisionTests {
 			return new ThreadWithFixture() {
 				private final BigInteger x = new BigInteger("8000");
 				private final BigInteger d = new BigInteger("3");
-				private final int precision = 6; // How many bits of precision do we get? Should be 2^p / l...
+				private final int precision = 4; // How many bits of precision do we get? Should be 2^p / l...
 
 				@Override
 				public void test() throws Exception {
@@ -195,10 +191,14 @@ public class DivisionTests {
 					};
 					sce.runApplication(app);
 					BigInteger quotient = app.getOutputs()[0].getValue();
-					System.out.println(x + " / " + d + " = " + quotient);
-					Assert.assertEquals(quotient, x.divide(d));
+					Assert.assertTrue(isInInterval(quotient, x.divide(d).intValue(), 1.0));
 				}
 			};
 		}
+		
+		private static boolean isInInterval(BigInteger value, double center, double tolerance) {
+			return value.intValue() >= center - tolerance && value.intValue() <= center + tolerance;
+		}
+
 	}
 }

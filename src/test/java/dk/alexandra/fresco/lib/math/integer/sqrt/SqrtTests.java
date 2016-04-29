@@ -51,9 +51,6 @@ import dk.alexandra.fresco.lib.math.integer.binary.RightShiftFactory;
 import dk.alexandra.fresco.lib.math.integer.binary.RightShiftFactoryImpl;
 import dk.alexandra.fresco.lib.math.integer.division.DivisionFactory;
 import dk.alexandra.fresco.lib.math.integer.division.DivisionFactoryImpl;
-import dk.alexandra.fresco.lib.math.integer.sqrt.SquareRootFactory;
-import dk.alexandra.fresco.lib.math.integer.sqrt.SquareRootFactoryImpl;
-import dk.alexandra.fresco.lib.math.integer.sqrt.SquareRootProtocol;
 
 
 /**
@@ -128,7 +125,6 @@ public class SqrtTests {
 					};
 					sce.runApplication(app);
 					BigInteger sqrt = app.getOutputs()[0].getValue();
-					System.out.println("sqrt(" + x + ") = " + sqrt);
 					Assert.assertEquals(sqrt, BigInteger.valueOf(650693));
 				}
 			};
