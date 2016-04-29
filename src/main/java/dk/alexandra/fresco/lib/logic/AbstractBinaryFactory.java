@@ -133,7 +133,7 @@ public abstract class AbstractBinaryFactory implements BasicLogicFactory,
 	}
 
 	
-	public OrProtocol getOrCircuit(SBool inLeft, SBool inRight, SBool out) {
+	public OrProtocol getOrProtocol(SBool inLeft, SBool inRight, SBool out) {
 		return new OrFromXorAndProtocol(this, this, this, inLeft, inRight, out);
 	}
 

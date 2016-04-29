@@ -9,17 +9,17 @@ import dk.alexandra.fresco.framework.ProtocolProducer;
  * @author mortenvchristiansen
  *
  */
-public class SortingProtocolCircuitImpl extends AbstractSimpleProtocol {
+public class SortingProtocolImpl extends AbstractSimpleProtocol {
 
 	/**
 	 * 
 	 */
-	public SortingProtocolCircuitImpl() {
+	public SortingProtocolImpl() {
 		super();
 	}
 
 	/* (non-Javadoc)
-	 * @see dk.alexandra.fresco.lib.helper.AbstractSimpleProtocol#initializeGateProducer()
+	 * @see dk.alexandra.fresco.lib.helper.AbstractSimpleProtocol#initializeProtocolProducer()
 	 */
 	@Override
 	protected ProtocolProducer initializeProtocolProducer() {

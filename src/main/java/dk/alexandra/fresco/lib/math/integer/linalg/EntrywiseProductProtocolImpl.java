@@ -73,7 +73,7 @@ public class EntrywiseProductProtocolImpl extends AbstractRepeatProtocol impleme
 		this.limit = as.length;
 	}
 
-	protected ProtocolProducer getNextGateProducer() {
+	protected ProtocolProducer getNextProtocolProducer() {
 		if (i < limit) {
 			ProtocolProducer mult;
 			if (publicBs != null) {

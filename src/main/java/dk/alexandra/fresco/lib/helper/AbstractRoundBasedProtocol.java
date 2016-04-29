@@ -32,11 +32,11 @@ import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.Value;
 
 /**
- * A skeleton for a generic round based circuit. I.e., a circuit that consisting
- * of a number of sub-circuits that must be evaluated one after an other. This
- * can be a little more lightweight than using the SequentialGateProducer as
- * makes it easier to write a circuit where the sub-circuits are generated only
- * after the previous sub-circuits have been evaluated.
+ * A skeleton for a generic round based protocol. I.e., a protocol that consisting
+ * of a number of sub-protocols that must be evaluated one after an other. This
+ * can be a little more lightweight than using the SequentialprotocolProducer as
+ * makes it easier to write a protocol where the sub-protocols are generated only
+ * after the previous sub-protocols have been evaluated.
  * 
  * @author psn
  * 
@@ -44,30 +44,30 @@ import dk.alexandra.fresco.framework.value.Value;
 public abstract class AbstractRoundBasedProtocol implements Protocol {
 
 	private boolean done = false;
-	private ProtocolProducer gp = null;
+	private ProtocolProducer pp = null;
 	private Value[] inputs = null;
 	private Value[] outputs = null;
 
 	@Override
-	public int getNextProtocols(NativeProtocol[] gates, int pos) {
-		if (gp == null || !gp.hasNextProtocols()) {
-			gp = nextProtocolProducer();
-			if (gp == null) {
+	public int getNextProtocols(NativeProtocol[] nativeProtocols, int pos) {
+		if (pp == null || !pp.hasNextProtocols()) {
+			pp = nextProtocolProducer();
+			if (pp == null) {
 				done = true;
 				return pos;
 			}
 		}
-		if (gp.hasNextProtocols()) {
-			pos = gp.getNextProtocols(gates, pos);
+		if (pp.hasNextProtocols()) {
+			pos = pp.getNextProtocols(nativeProtocols, pos);
 		}
 		return pos;
 	}
 
 	/**
-	 * Gives the sub-circuit for the next round. All gates of the preceding
+	 * Gives the sub-protocol for the next round. All protocols of the preceding
 	 * round are assumed to be evaluated before the next round is evaluated.
 	 * 
-	 * @return a GateProducer for the next round.
+	 * @return a protocolProducer for the next round.
 	 */
 	public abstract ProtocolProducer nextProtocolProducer();
 
@@ -87,20 +87,20 @@ public abstract class AbstractRoundBasedProtocol implements Protocol {
 	}
 
 	/**
-	 * Sets the input values of this circuit.
+	 * Sets the input values of this protocol.
 	 * 
 	 * @param inputs
-	 *            the input values of the circuit.
+	 *            the input values of the protocol.
 	 */
 	protected void setInputValues(Value[] inputs) {
 		this.inputs = inputs;
 	}
 
 	/**
-	 * Sets the output values of this circuit.
+	 * Sets the output values of this protocol.
 	 * 
 	 * @param outputs
-	 *            the output values of the circuit.
+	 *            the output values of the protocol.
 	 */
 	protected void setOutputValues(Value[] outputs) {
 		this.outputs = outputs;

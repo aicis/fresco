@@ -31,22 +31,22 @@ import dk.alexandra.fresco.lib.helper.AbstractRoundBasedProtocol;
 import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
 
 /**
- * Represents a generic tree structured circuit used to apply an operation to
+ * Represents a generic tree structured protocol used to apply an operation to
  * all elements in a list.
  * 
- * An example could be a circuit computing the AND or XOR of all bits in an
+ * An example could be a protocol computing the AND or XOR of all bits in an
  * list or array. This can be done in a generic tree fashion in log(size of
  * list) depth given simply the length of the list. 
  * 
  * The concrete operation to be done on elements is specified by a
- * TreeCircuitNodeGenerator. The TreeCircuitNodeGenerator generates a a circuit
+ * TreeprotocolNodeGenerator. The TreeprotocolNodeGenerator generates a a protocol
  * corresponding to the operation on two elements given the indicies of these
  * elements in the underlying list.
  * 
  * This class does not explicitly hold the data it simply generates the
- * appropriate circuit based on correct indexing to the
- * TreeCircuitNodeGenerator. Usually the data will be held by the
- * TreeCircuitNodeGenerator.
+ * appropriate protocol based on correct indexing to the
+ * TreeprotocolNodeGenerator. Usually the data will be held by the
+ * TreeprotocolNodeGenerator.
  * 
  * 
  * @author psn
@@ -59,7 +59,7 @@ public class TreeProtocol extends AbstractRoundBasedProtocol {
 	private TreeProtocolNodeGenerator tcn;
 
 	/**
-	 * A log depth tree circuit based on a given TreeCircuitNodeGenerator to
+	 * A log depth tree protocol based on a given TreeProtocolNodeGenerator to
 	 * generate the nodes.
 	 * 
 	 * @param tcn

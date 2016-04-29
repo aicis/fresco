@@ -29,41 +29,41 @@ package dk.alexandra.fresco.lib.helper.builder;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 
 /**
- * CircuitBuilders provide a more natural interface than working with raw circuits
+ * ProtocolBuilders provide a more natural interface than working with raw Protocols
  * when writing secure computation applications. The goal is to have a more "code-like" 
- * way of specifying the circuit. 
+ * way of specifying the Protocol. 
  * 
- * To build a circuit the application programmer 
- * calls methods on a CircuitBuilder corresponding to the operations the final circuit 
- * should apply to given SInts. Behind the scenes the CircuitBuilder constructs the corresponding
- * circuit and returns the corresponding GateProducer when needed. 
+ * To build a Protocol the application programmer 
+ * calls methods on a ProtocolBuilder corresponding to the operations the final Protocol 
+ * should apply to given SInts. Behind the scenes the ProtocolBuilder constructs the corresponding
+ * Protocol and returns the corresponding ProtocolProducer when needed. 
  * 
- * I.e. CircuitBuilders hides away the raw circuit and (to some extend) its structure, and lets
+ * I.e. ProtocolBuilders hides away the raw Protocol and (to some extend) its structure, and lets
  * the application programmer work solely with Values.
  * 
- * The CircuitBuilder interface provides general methods for controlling the structure of
- * the circuit, i.e. to specify whether the computation can be done in parallel or must be 
- * done sequentially. To switch between parallel and sequential circuit building one sets declares 
+ * The ProtocolBuilder interface provides general methods for controlling the structure of
+ * the Protocol, i.e. to specify whether the computation can be done in parallel or must be 
+ * done sequentially. To switch between parallel and sequential Protocol building one sets declares 
  * a "scope" for a sequence of instructions.
  * 
- * TODO: Eventually CircuitBuilders could maybe also be used to analyze and optimize the circuits
+ * TODO: Eventually ProtocolBuilders could maybe also be used to analyze and optimize the Protocols
  * that they have been building.  
  * 
  * @author psn
  *
  */
-public interface CircuitBuilder {
+public interface ProtocolBuilder {
 
 	/**
 	 * Starts a parallel scope. I.e. Specifies that the following instructions 
-	 * given to this CircuitBuilder can be done in parallel.
+	 * given to this ProtocolBuilder can be done in parallel.
 	 * Note: One should be careful and remember to close scopes
 	 */
 	public abstract void beginParScope();
 
 	/**
 	 * Starts a sequential scope. I.e. Specifies that the following instructions 
-	 * given to this CircuitBuilder must not be done in sequence.
+	 * given to this ProtocolBuilder must not be done in sequence.
 	 * Note: One should be careful and remember to close scopes
 	 */
 	public abstract void beginSeqScope();
@@ -75,15 +75,15 @@ public interface CircuitBuilder {
 	public abstract void endCurScope();
 	
 	/**
-	 * Adds a GateProducer to the circuit being build. This to allow adding circuits that cannot be created with 
-	 * this CircuitBuilder.
-	 * @param gp a GateProducer  
+	 * Adds a ProtocolProducer to the Protocol being build. This to allow adding Protocols that cannot be created with 
+	 * this ProtocolBuilder.
+	 * @param pp a ProtocolProducer  
 	 */
-	public abstract void addProtocolProducer(ProtocolProducer gp);
+	public abstract void addProtocolProducer(ProtocolProducer pp);
 
 	/**
-	 * Gets the GateProducer corresponding the entire circuit build by this CircuitBuilder.
-	 * @return a GateProducer corresponding to the circuit build.
+	 * Gets the ProtocolProducer corresponding the entire Protocol build by this ProtocolBuilder.
+	 * @return a ProtocolProducer corresponding to the Protocol build.
 	 */
 	public abstract ProtocolProducer getProtocol();
 

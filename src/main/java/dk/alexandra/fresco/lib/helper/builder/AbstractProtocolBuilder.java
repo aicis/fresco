@@ -30,122 +30,123 @@ import java.util.Stack;
 
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.ProtocolProducer;
+import dk.alexandra.fresco.framework.Reporter;
 import dk.alexandra.fresco.lib.helper.AppendableProtocolProducer;
 import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
 
 /**
  * 
- * Internally AbstractCircuitBuilder keeps an AppendableGateProducer (These are
- * the basic structural GateProducers such as Sequential- and
- * ParallelGateProducers), here called the "current GateProducer". Each
- * instruction to the builder results in a corresponding GateProducer being
- * appended to the current GateProducer.
+ * Internally AbstractProtocolBuilder keeps an AppendableProtocolProducer (These are
+ * the basic structural ProtocolProducers such as Sequential- and
+ * ParallelProtocolProducers), here called the "current ProtocolProducer". Each
+ * instruction to the builder results in a corresponding ProtocolProducer being
+ * appended to the current ProtocolProducer.
  * 
- * When a new scope is declared a corresponding AppendableGateProducer is
- * constructed and appended to the current GateProducer. The current
- * GateProducer is then pushed on a stack and the newly created
- * AppendableGateProducer is made the new current GateProducer. When the current
- * scope is ended the CircuitBuilder returns to the previous scope by popping
- * the top of stack making it the new current GateProducer.
+ * When a new scope is declared a corresponding AppendableProtocolProducer is
+ * constructed and appended to the current ProtocolProducer. The current
+ * ProtocolProducer is then pushed on a stack and the newly created
+ * AppendableProtocolProducer is made the new current ProtocolProducer. When the current
+ * scope is ended the ProtocolBuilder returns to the previous scope by popping
+ * the top of stack making it the new current ProtocolProducer.
  * 
  * 
  * @author psn
  * 
  */
-public abstract class AbstractProtocolBuilder implements CircuitBuilder {
+public abstract class AbstractProtocolBuilder implements ProtocolBuilder {
 
-	private AppendableProtocolProducer curGP = new SequentialProtocolProducer();
+	private AppendableProtocolProducer curpp = new SequentialProtocolProducer();
 	private Stack<AppendableProtocolProducer> producerStack = 
 			new Stack<AppendableProtocolProducer>();
 
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see dk.alexandra.fresco.lib.CircuitBuilder#beginParScope()
+	 * @see dk.alexandra.fresco.lib.ProtocolBuilder#beginParScope()
 	 */
 	@Override
 	public void beginParScope() {
-		ParallelProtocolProducer pgp = new ParallelProtocolProducer();
-		append(pgp);
-		pushProducer(pgp);
+		ParallelProtocolProducer ppp = new ParallelProtocolProducer();
+		append(ppp);
+		pushProducer(ppp);
 	}
 
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see dk.alexandra.fresco.lib.CircuitBuilder#beginSeqScope()
+	 * @see dk.alexandra.fresco.lib.ProtocolBuilder#beginSeqScope()
 	 */
 	@Override
 	public void beginSeqScope() {
-		SequentialProtocolProducer sgp = new SequentialProtocolProducer();
-		append(sgp);
-		pushProducer(sgp);
+		SequentialProtocolProducer spp = new SequentialProtocolProducer();
+		append(spp);
+		pushProducer(spp);
 	}
 
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see dk.alexandra.fresco.lib.CircuitBuilder#endCurScope()
+	 * @see dk.alexandra.fresco.lib.ProtocolBuilder#endCurScope()
 	 */
 	@Override
 	public void endCurScope() {
 		if (producerStack.isEmpty()) {
 			throw new MPCException("Cannot end root scope");
 		}
-		//curGP.merge();
+		//curpp.merge();
 		popProducer();
 	}
 
 	/**
-	 * Appends a GateProducer to the current GateProducer.
+	 * Appends a ProtocolProducer to the current ProtocolProducer.
 	 * 
-	 * @param gp
-	 *            the GateProducer to append
+	 * @param pp
+	 *            the ProtocolProducer to append
 	 */
-	protected void append(ProtocolProducer gp) {
-		this.curGP.append(gp);
+	protected void append(ProtocolProducer pp) {
+		this.curpp.append(pp);
 	}
 
 	/**
-	 * Pops the top of the stack and makes it the new current GateProducer.
+	 * Pops the top of the stack and makes it the new current ProtocolProducer.
 	 */
 	protected void popProducer() {
-		this.curGP = producerStack.pop();
+		this.curpp = producerStack.pop();
 	}
 
 	/**
-	 * Pushes the current GateProducer on the stack and makes the given
-	 * AppendableGateProducer the new current GateProducer.
+	 * Pushes the current ProtocolProducer on the stack and makes the given
+	 * AppendableProtocolProducer the new current ProtocolProducer.
 	 * 
 	 * @param nextProducer
-	 *            the AppendableGateProducer to be made the new current
-	 *            GateProducer
+	 *            the AppendableProtocolProducer to be made the new current
+	 *            ProtocolProducer
 	 */
 	protected void pushProducer(AppendableProtocolProducer nextProducer) {
-		producerStack.push(curGP);
-		this.curGP = nextProducer;
+		producerStack.push(curpp);
+		this.curpp = nextProducer;
 	}
 
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see dk.alexandra.fresco.lib.CircuitBuilder#getCircuit()
+	 * @see dk.alexandra.fresco.lib.ProtocolBuilder#getProtocol()
 	 */
 	@Override
 	public ProtocolProducer getProtocol() {
 		if (producerStack.isEmpty()) {
-			ProtocolProducer res = curGP;
+			ProtocolProducer res = curpp;
 			reset();
 			return res;
 		}
-		System.out.println("WARNING NOT ALL SCOPES CLOSED");
+		Reporter.warn("Builder did not close all scopes.");
 		return producerStack.firstElement();
 	}
 	
 	@Override
 	public void reset() {
-		curGP = new SequentialProtocolProducer();
+		curpp = new SequentialProtocolProducer();
 		producerStack = new Stack<AppendableProtocolProducer>();
 	}
 }

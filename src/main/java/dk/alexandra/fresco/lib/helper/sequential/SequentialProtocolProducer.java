@@ -34,7 +34,7 @@ import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.lib.helper.AppendableProtocolProducer;
 
-public class SequentialProtocolProducer implements ProtocolProducer, GateProducerList, AppendableProtocolProducer {
+public class SequentialProtocolProducer implements ProtocolProducer, ProtocolProducerList, AppendableProtocolProducer {
 
 	private SequentialHelper seqh;
 	
@@ -52,8 +52,8 @@ public class SequentialProtocolProducer implements ProtocolProducer, GateProduce
 	}
 
 	@Override
-	public int getNextProtocols(NativeProtocol[] gates, int pos) {
-		return seqh.getNextProtocols(gates, pos);
+	public int getNextProtocols(NativeProtocol[] nativeProtocols, int pos) {
+		return seqh.getNextProtocols(nativeProtocols, pos);
 	}
 
 	@Override
@@ -86,7 +86,7 @@ public class SequentialProtocolProducer implements ProtocolProducer, GateProduce
 		return cs;
 	}
 	
-	public List<ProtocolProducer> getNextGateProducerLevel(){
+	public List<ProtocolProducer> getNextProtocolProducerLevel(){
 		return cs;
 	}
 }

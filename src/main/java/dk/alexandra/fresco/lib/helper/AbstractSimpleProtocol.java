@@ -32,10 +32,10 @@ import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.Value;
 
 /**
- * Implements the basic structure of a simple circuit. I.e., a circuit which can
- * be expressed as a single GateProducer initialized at the first call to
- * getNextGates. Essentially, most circuits should be expressable in this way,
- * except perhaps for more advanced circuits such as reactive circuits.
+ * Implements the basic structure of a simple protocols. I.e., a protocols which can
+ * be expressed as a single protocolProducer initialized at the first call to
+ * getNextprotocols. Essentially, most protocolss should be expressable in this way,
+ * except perhaps for more advanced protocolss such as reactive protocolss.
  * 
  * @author psn
  * 
@@ -43,29 +43,24 @@ import dk.alexandra.fresco.framework.value.Value;
 public abstract class AbstractSimpleProtocol implements Protocol {
 
 	private boolean done = false;
-	private ProtocolProducer gp = null;
+	private ProtocolProducer pp = null;
 	private Value[] inputs = null;
 	private Value[] outputs = null;
 
 	@Override
-	public int getNextProtocols(NativeProtocol[] gates, int pos) {
-		if (gp == null) {
-			gp = initializeProtocolProducer();
-			if (gp == null) {
+	public int getNextProtocols(NativeProtocol[] nativeProtocols, int pos) {
+		if (pp == null) {
+			pp = initializeProtocolProducer();
+			if (pp == null) {
 				done = true;
 				return pos;
 			}
 		}
-		if (gp.hasNextProtocols()) {
-			pos = gp.getNextProtocols(gates, pos);
-			/*
-			int end = gp.getNextGates(gates, pos);
-			//GateRegister.registerGates(gates, pos, end, this);
-			pos = end;
-			*/
-		} else if (!gp.hasNextProtocols()) {
+		if (pp.hasNextProtocols()) {
+			pos = pp.getNextProtocols(nativeProtocols, pos);
+		} else if (!pp.hasNextProtocols()) {
 			done = true;
-			gp = null;
+			pp = null;
 		}
 		return pos;
 	}
@@ -86,10 +81,10 @@ public abstract class AbstractSimpleProtocol implements Protocol {
 	}
 
 	/**
-	 * Sets the input values of this circuit.
+	 * Sets the input values of this protocols.
 	 * 
 	 * @param inputs
-	 *            the input values of the circuit.
+	 *            the input values of the protocols.
 	 */
 	protected void setInputValues(Value[] inputs) {
 		
@@ -97,19 +92,19 @@ public abstract class AbstractSimpleProtocol implements Protocol {
 	}
 
 	/**
-	 * Sets the output values of this circuit.
+	 * Sets the output values of this protocols.
 	 * 
 	 * @param outputs
-	 *            the output values of the circuit.
+	 *            the output values of the protocols.
 	 */
 	protected void setOutputValues(Value[] outputs) {
 		this.outputs = outputs;
 	}
 
 	/**
-	 * Initializes the GateProducer for this circuit.
+	 * Initializes the protocolProducer for this protocols.
 	 * 
-	 * @return the GateProducer for this circuit.
+	 * @return the protocolProducer for this protocols.
 	 */
 	protected abstract ProtocolProducer initializeProtocolProducer();
 }

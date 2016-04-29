@@ -29,7 +29,7 @@ package dk.alexandra.fresco.lib.helper.builder.tree;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 
 /**
- * Generates the nodes of computation for a TreeCircuit. A node should do some
+ * Generates the nodes of computation for a TreeProtocol. A node should do some
  * operation on two elements specified by two indices into some underlying list.
  * 
  * @author psn
@@ -38,14 +38,14 @@ import dk.alexandra.fresco.framework.ProtocolProducer;
 public interface TreeProtocolNodeGenerator {
 
 	/**
-	 * Generates a node of computation for a TreeCircuit.
+	 * Generates a node of computation for a TreeProtocol.
 	 * 
 	 * @param i
 	 *            index of the first input, this element is assumed to be
 	 *            overwritten by the result of the computation.
 	 * @param j
 	 *            index of the second input.
-	 * @return a circuit defining the computation of a node.
+	 * @return a protocol defining the computation of a node.
 	 */
 	public ProtocolProducer getNode(int i, int j);
 

@@ -28,7 +28,7 @@ package dk.alexandra.fresco.lib.helper.sequential;
 
 import dk.alexandra.fresco.framework.ProtocolProducer;
 
-public interface GateProducerList {
+public interface ProtocolProducerList {
 
 	ProtocolProducer getNextInLine();
 	
