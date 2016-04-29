@@ -56,7 +56,7 @@ public class XnorFromXorAndNotProtocolImpl implements XnorProtocol{
 	public int getNextProtocols(NativeProtocol[] gates, int pos) {
 		if (curGP == null) {
 			tmpOut = provider.getSBool();
-			curGP = provider.getXorCircuit(left, right, tmpOut);
+			curGP = provider.getXorProtocol(left, right, tmpOut);
 			pos = curGP.getNextProtocols(gates, pos);
 			return pos;
 		}

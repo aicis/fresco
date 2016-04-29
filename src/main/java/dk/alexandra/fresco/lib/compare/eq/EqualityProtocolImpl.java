@@ -76,7 +76,7 @@ public class EqualityProtocolImpl extends AbstractSimpleProtocol implements Equa
 	}
 
 	@Override
-	protected ProtocolProducer initializeGateProducer() {
+	protected ProtocolProducer initializeProtocolProducer() {
 		// z = x -y
 		SInt diff = provider.getSInt();
 		ProtocolProducer diffGP = provider.getSubtractCircuit(x, y, diff);

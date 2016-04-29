@@ -107,14 +107,14 @@ public class SqrtTests {
 							SequentialProtocolProducer sequentialProtocolProducer = new SequentialProtocolProducer();
 							
 							SInt input1 = ioBuilder.input(x, 1);
-							sequentialProtocolProducer.append(ioBuilder.getCircuit());
+							sequentialProtocolProducer.append(ioBuilder.getProtocol());
 							
 							SquareRootProtocol squareRootProtocol = squareRootFactory.getSquareRootProtocol(input1, x.bitLength(), sqrt);
 							sequentialProtocolProducer.append(squareRootProtocol);
 							
 							OInt output1 = ioBuilder.output(sqrt);
 							
-							sequentialProtocolProducer.append(ioBuilder.getCircuit());
+							sequentialProtocolProducer.append(ioBuilder.getProtocol());
 							
 							ProtocolProducer gp = sequentialProtocolProducer;
 							

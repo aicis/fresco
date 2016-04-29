@@ -186,7 +186,7 @@ public class BristolCircuitParser {
 			}
 
 			
-			return this.boolFactory.getXorCircuit(leftInWireXor, rightInWireXor, outWireXor);
+			return this.boolFactory.getXorProtocol(leftInWireXor, rightInWireXor, outWireXor);
 		case "AND":
 			if (in.length != 2 || out.length != 1)
 				throw new IOException("Wrong circuit format for AND");

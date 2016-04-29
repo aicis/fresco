@@ -126,7 +126,7 @@ public class MinimumFractionProtocolImpl implements MinimumFractionProtocol {
 		private SInt one;
 		
 		@Override
-		public ProtocolProducer nextGateProducer() {
+		public ProtocolProducer nextProtocolProducer() {
 			ProtocolProducer gp = null;
 			if (round == 0) {
 				int k1 = k/2;
@@ -191,7 +191,7 @@ public class MinimumFractionProtocolImpl implements MinimumFractionProtocol {
 		}		
 		
 		@Override
-		protected ProtocolProducer initializeGateProducer() {
+		protected ProtocolProducer initializeProtocolProducer() {
 			AppendableProtocolProducer par = new ParallelProtocolProducer();
 			for (int i = 0; i < vector.length; i++) {
 				ProtocolProducer mult = numericProvider.getMultCircuit(scale, vector[i],
@@ -221,8 +221,8 @@ public class MinimumFractionProtocolImpl implements MinimumFractionProtocol {
 		MultProtocol mult2 = numericProvider.getMultCircuit(n1, d0, prod2);
 		ProtocolProducer multiplications = new ParallelProtocolProducer(mult1, mult2);
 		ComparisonProtocol comp = lpProvider.getComparisonCircuit(prod1, prod2, c, true);
-		ConditionalSelectCircuit cond1 = lpProvider.getConditionalSelectCircuit(c, n0, n1, nm);
-		ConditionalSelectCircuit cond2 = lpProvider.getConditionalSelectCircuit(c, d0, d1, dm);
+		ConditionalSelectCircuit cond1 = lpProvider.getConditionalSelectProtocol(c, n0, n1, nm);
+		ConditionalSelectCircuit cond2 = lpProvider.getConditionalSelectProtocol(c, d0, d1, dm);
 		ProtocolProducer conditionalSelects = new ParallelProtocolProducer(cond1, cond2);
 		return new SequentialProtocolProducer(multiplications, comp, conditionalSelects);		
 	}

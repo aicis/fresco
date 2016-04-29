@@ -72,7 +72,7 @@ public class ZeroTestCircuitImpl  extends AbstractSimpleProtocol implements Zero
 	}
 
 	@Override
-	protected ProtocolProducer initializeGateProducer() {
+	protected ProtocolProducer initializeProtocolProducer() {
 		reduced = provider.getSInt();
 		ProtocolProducer reducer = ztrProvider.getZeroTestReducerCircuit(
 				bitLength, 

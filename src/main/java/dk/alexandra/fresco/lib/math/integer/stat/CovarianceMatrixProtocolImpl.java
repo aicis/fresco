@@ -104,7 +104,7 @@ public class CovarianceMatrixProtocolImpl extends AbstractSimpleProtocol impleme
 	}
 
 	@Override
-	protected ProtocolProducer initializeGateProducer() {
+	protected ProtocolProducer initializeProtocolProducer() {
 
 		int numOfDataSets = data.length;
 		int sampleSize = data[0].length;

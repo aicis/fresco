@@ -96,7 +96,7 @@ public class UpdateMatrixCircuit implements Protocol{
 			SInt[] scalings = new SInt[C.length];
 			for (int j = 0; j < C.length - 1; j++) {
 				scalings[j] = numericProvider.getSInt();
-				ConditionalSelectCircuit scaling = lpProvider.getConditionalSelectCircuit(L[j], one, p_prime_inv, scalings[j]);
+				ConditionalSelectCircuit scaling = lpProvider.getConditionalSelectProtocol(L[j], one, p_prime_inv, scalings[j]);
 				MultProtocol divides_c_by_p_prime = numericProvider.getMultCircuit(C[j], scalings[j], C[j]);
 				scales_c[j] = new SequentialProtocolProducer(scaling, divides_c_by_p_prime);
 			}

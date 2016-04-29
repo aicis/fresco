@@ -139,7 +139,7 @@ public class LPSolverCircuit implements Protocol {
 			SInt[][] newUpdate;			
 			
 			@Override
-			public ProtocolProducer nextGateProducer() {
+			public ProtocolProducer nextProtocolProducer() {
 				int noConstraints = tableau.getC().getHeight();
 				switch (round) {
 				case 0:					

@@ -78,7 +78,7 @@ public class MinimumProtocolImpl implements MinimumProtocol {
 				ComparisonProtocol comp = lpProvider.getComparisonCircuit(
 						this.xs[0], this.xs[1], this.cs[0], false);
 				ConditionalSelectCircuit cond = lpProvider
-						.getConditionalSelectCircuit(this.cs[0], this.xs[0],
+						.getConditionalSelectProtocol(this.cs[0], this.xs[0],
 								this.xs[1], this.m);
 				SInt one = numericProvider.getSInt(1);
 				SubtractCircuit subtract = numericProvider.getSubtractCircuit(
@@ -91,14 +91,14 @@ public class MinimumProtocolImpl implements MinimumProtocol {
 						this.xs[0], this.xs[1], c1_prime, false);
 				SInt m1 = numericProvider.getSInt();
 				ConditionalSelectCircuit cond1 = lpProvider
-						.getConditionalSelectCircuit(c1_prime, this.xs[0],
+						.getConditionalSelectProtocol(c1_prime, this.xs[0],
 								this.xs[1], m1);
 
 				SInt c2_prime = numericProvider.getSInt();
 				ComparisonProtocol comp2 = lpProvider.getComparisonCircuit(m1,
 						this.xs[2], c2_prime, false);
 				ConditionalSelectCircuit cond2 = lpProvider
-						.getConditionalSelectCircuit(c2_prime, m1, this.xs[2],
+						.getConditionalSelectProtocol(c2_prime, m1, this.xs[2],
 								this.m);
 
 				MultProtocol mult1 = numericProvider.getMultCircuit(c1_prime,
@@ -140,7 +140,7 @@ public class MinimumProtocolImpl implements MinimumProtocol {
 		private SInt[] cs2_prime;
 		
 		@Override
-		public ProtocolProducer nextGateProducer() {
+		public ProtocolProducer nextProtocolProducer() {
 			ProtocolProducer gp = null;
 			if (round == 0) {
 				int k1 = k / 2;
@@ -166,7 +166,7 @@ public class MinimumProtocolImpl implements MinimumProtocol {
 				ComparisonProtocol comp = lpProvider.getComparisonCircuit(m1,
 						m2, c, false);
 				ConditionalSelectCircuit cond = lpProvider
-						.getConditionalSelectCircuit(c, m1, m2, m);
+						.getConditionalSelectProtocol(c, m1, m2, m);
 				SInt one = numericProvider.getSInt(1);
 				SInt oneMinusC = numericProvider.getSInt();
 				SubtractCircuit subtract = numericProvider.getSubtractCircuit(
@@ -203,7 +203,7 @@ public class MinimumProtocolImpl implements MinimumProtocol {
 		
 		
 		@Override
-		protected ProtocolProducer initializeGateProducer() {
+		protected ProtocolProducer initializeProtocolProducer() {
 			AppendableProtocolProducer par = new ParallelProtocolProducer();
 			for (int i = 0; i < vector.length; i++) {
 				ProtocolProducer mult = numericProvider.getMultCircuit(scale, vector[i],

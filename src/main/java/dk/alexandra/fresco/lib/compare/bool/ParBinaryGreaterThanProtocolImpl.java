@@ -85,7 +85,7 @@ public class ParBinaryGreaterThanProtocolImpl extends AbstractRoundBasedProtocol
 	}
 
 	@Override
-	public ProtocolProducer nextGateProducer() {
+	public ProtocolProducer nextProtocolProducer() {
 		BasicLogicBuilder blb = new BasicLogicBuilder(provider);
 		if (round == 0) {
 			eq = blb.xor(inA, inB);
@@ -99,12 +99,12 @@ public class ParBinaryGreaterThanProtocolImpl extends AbstractRoundBasedProtocol
 			round++;
 		} else if (round == 3) {
 			gt[0] = outC;
-			blb.addGateProducer(new TreeCircuit(this));
+			blb.addProtocolProducer(new TreeCircuit(this));
 			round++;
 		} else {
 			return null;
 		}
-		return blb.getCircuit();
+		return blb.getProtocol();
 	}
 
 	@Override
@@ -115,7 +115,7 @@ public class ParBinaryGreaterThanProtocolImpl extends AbstractRoundBasedProtocol
 		builder.orInPlace(gt[i], gt[i], gt[j]);
 		builder.andInPlace(eq[i], eq[i], eq[j]);
 		builder.endCurScope();
-		return builder.getCircuit();
+		return builder.getProtocol();
 	}
 	
 	@Override

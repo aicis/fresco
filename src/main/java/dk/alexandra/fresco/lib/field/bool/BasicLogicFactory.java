@@ -26,7 +26,7 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.field.bool;
 
-import dk.alexandra.fresco.framework.value.OBoolProvider;
+import dk.alexandra.fresco.framework.value.OBoolFactory;
 import dk.alexandra.fresco.framework.value.SBoolFactory;
 
 /**
@@ -46,7 +46,7 @@ import dk.alexandra.fresco.framework.value.SBoolFactory;
  */
 public interface BasicLogicFactory extends 	IOBoolProtocolFactory,
 											SBoolFactory,
-											OBoolProvider,
+											OBoolFactory,
 											AndProtocolFactory, 
 											//NandCircuitFactory,
 											//OrCircuitFactory, 

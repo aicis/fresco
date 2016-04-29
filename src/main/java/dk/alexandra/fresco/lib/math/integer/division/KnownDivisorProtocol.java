@@ -87,7 +87,7 @@ public class KnownDivisorProtocol extends AbstractSimpleProtocol implements Divi
 	}
 
 	@Override
-	protected ProtocolProducer initializeGateProducer() {
+	protected ProtocolProducer initializeProtocolProducer() {
 		SequentialProtocolProducer euclidianDivisionProtocol = new SequentialProtocolProducer();
 
 		BigInteger dValue = divisor.getValue();

@@ -29,7 +29,7 @@ package dk.alexandra.fresco.framework.value;
 import dk.alexandra.fresco.framework.Protocol;
 
 /**
- * A 'circuit' to load a publicly known value into an SInt
+ * A 'protocol' to load a publicly known value into an SInt
  * @author psn
  *
  */

@@ -54,7 +54,7 @@ public interface LPFactory
 	 *            output - either a or b.
 	 * @return
 	 */
-	public ConditionalSelectCircuit getConditionalSelectCircuit(SInt selector, SInt a, SInt b, SInt result);
+	public ConditionalSelectCircuit getConditionalSelectProtocol(SInt selector, SInt a, SInt b, SInt result);
 
 	/**
 	 * inputs are the as, m is the base recursion result, and cs are the outputs
@@ -119,7 +119,7 @@ public interface LPFactory
 	 * 
 	 * @return a circuit for equality
 	 */
-	public EqualityProtocol getEqualityCircuit(int bitLength, int securityParam, SInt x, SInt y, SInt result);
+	public EqualityProtocol getEqualityProtocol(int bitLength, int securityParam, SInt x, SInt y, SInt result);
 
 	/**
 	 * Computes the index of the entering variable.

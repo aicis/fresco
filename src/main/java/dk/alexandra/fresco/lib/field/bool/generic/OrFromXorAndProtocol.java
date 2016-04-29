@@ -84,9 +84,9 @@ public class OrFromXorAndProtocol implements OrProtocol {
 			t0 = sboolp.getSBool();
 			t1 = sboolp.getSBool();
 			Protocol c0 = andcp.getAndCircuit(inA, inB, t0);
-			Protocol c1 = xorcp.getXorCircuit(inA, inB, t1);
+			Protocol c1 = xorcp.getXorProtocol(inA, inB, t1);
 			ProtocolProducer c2 = new ParallelProtocolProducer(c0, c1); // Get ParallelGateProducer in constructor?
-			Protocol c3 = xorcp.getXorCircuit(t0, t1, out);
+			Protocol c3 = xorcp.getXorProtocol(t0, t1, out);
 			c = new SequentialProtocolProducer(c2, c3); // Get SequentialGateProducer in constructor?
 		}
 

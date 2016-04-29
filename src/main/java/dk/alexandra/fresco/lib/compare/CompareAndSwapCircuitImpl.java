@@ -54,7 +54,7 @@ public class CompareAndSwapCircuitImpl extends AbstractSimpleProtocol implements
 	}
 
 	@Override
-	protected ProtocolProducer initializeGateProducer() {
+	protected ProtocolProducer initializeProtocolProducer() {
 		BasicLogicBuilder blb = new BasicLogicBuilder(bp);
 		blb.beginSeqScope();
 		SBool comparisonResult = blb.greaterThan(left, right);
@@ -70,6 +70,6 @@ public class CompareAndSwapCircuitImpl extends AbstractSimpleProtocol implements
 		blb.endCurScope();
 
 		blb.endCurScope();
-		return blb.getCircuit();
+		return blb.getProtocol();
 	}
 }

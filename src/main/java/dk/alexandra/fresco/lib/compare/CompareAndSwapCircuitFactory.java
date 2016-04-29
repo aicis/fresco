@@ -61,7 +61,7 @@ public interface CompareAndSwapCircuitFactory extends ProtocolFactory {
 	 *            the right input/output.
 	 * @return a compare-and-swap circuit.
 	 */
-	public KeyedCompareAndSwapCircuit getKeyedCompareAndSwapCircuit(
+	public KeyedCompareAndSwapProtocol getKeyedCompareAndSwapProtocol(
 			SBool[] leftKey, SBool[] leftValue, SBool[] rightKey,
 			SBool[] rightValue);
 

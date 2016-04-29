@@ -105,7 +105,7 @@ public class BinaryOperationsTests {
 							SequentialProtocolProducer sequentialProtocolProducer = new SequentialProtocolProducer();
 							
 							SInt input1 = ioBuilder.input(input, 1);
-							sequentialProtocolProducer.append(ioBuilder.getCircuit());
+							sequentialProtocolProducer.append(ioBuilder.getProtocol());
 							
 							RightShiftProtocol rightShiftProtocol = rightShiftFactory.getRightShiftProtocol(input1, result, remainder);
 							sequentialProtocolProducer.append(rightShiftProtocol);
@@ -113,7 +113,7 @@ public class BinaryOperationsTests {
 							OInt output1 = ioBuilder.output(result);
 							OInt output2 = ioBuilder.output(remainder);
 							
-							sequentialProtocolProducer.append(ioBuilder.getCircuit());
+							sequentialProtocolProducer.append(ioBuilder.getProtocol());
 							
 							ProtocolProducer gp = sequentialProtocolProducer;
 							
@@ -169,14 +169,14 @@ public class BinaryOperationsTests {
 							SequentialProtocolProducer sequentialProtocolProducer = new SequentialProtocolProducer();
 							
 							SInt input1 = ioBuilder.input(input, 1);
-							sequentialProtocolProducer.append(ioBuilder.getCircuit());
+							sequentialProtocolProducer.append(ioBuilder.getProtocol());
 							
 							RepeatedRightShiftProtocol rightShiftProtocol = rightShiftFactory.getRepeatedRightShiftProtocol(input1, n, result, remainders);
 							sequentialProtocolProducer.append(rightShiftProtocol);
 							
 							OInt shiftOutput = ioBuilder.output(result);
 							OInt[] remainderOutput = ioBuilder.outputArray(remainders);
-							sequentialProtocolProducer.append(ioBuilder.getCircuit());
+							sequentialProtocolProducer.append(ioBuilder.getProtocol());
 							
 							ProtocolProducer gp = sequentialProtocolProducer;
 							

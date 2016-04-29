@@ -36,14 +36,14 @@ import dk.alexandra.fresco.lib.helper.builder.BasicLogicBuilder;
 import dk.alexandra.fresco.lib.logic.AbstractBinaryFactory;
 
 /**
- * An implementation of the OddEvenMergeCircuit. This does not support threading,
- * the OddEvenMergeCircuitRec class should be preferable to this.
+ * An implementation of the OddEvenMergeProtocol. This does not support threading,
+ * the OddEvenMergeProtocolRec class should be preferable to this.
  * 
  * @author psn
  *
  */
-public class OddEvenMergeCircuitImpl extends AbstractSimpleProtocol implements
-		OddEvenMergeCircuit {
+public class OddEvenMergeProtocolImpl extends AbstractSimpleProtocol implements
+		OddEvenMergeProtocol {
 
 	private BasicLogicBuilder blb;
 	private List<Pair<SBool[], SBool[]>> sorted;
@@ -54,18 +54,18 @@ public class OddEvenMergeCircuitImpl extends AbstractSimpleProtocol implements
 	private int realSize;
 	private int simulatedSize;
 
-	public OddEvenMergeCircuitImpl(List<Pair<SBool[], SBool[]>> left,
+	public OddEvenMergeProtocolImpl(List<Pair<SBool[], SBool[]>> left,
 			List<Pair<SBool[], SBool[]>> right,
-			List<Pair<SBool[], SBool[]>> sorted, AbstractBinaryFactory provider) {
+			List<Pair<SBool[], SBool[]>> sorted, AbstractBinaryFactory factory) {
 		super();
-		this.blb = new BasicLogicBuilder(provider);
+		this.blb = new BasicLogicBuilder(factory);
 		this.sorted = sorted;
 		this.left = left;
 		this.right = right;
 	}
 
 	@Override
-	protected ProtocolProducer initializeGateProducer() {
+	protected ProtocolProducer initializeProtocolProducer() {
 		
 		blb.beginParScope();
 		for (int i = 0; i < left.size(); i++) {
@@ -83,7 +83,7 @@ public class OddEvenMergeCircuitImpl extends AbstractSimpleProtocol implements
 		blb.endCurScope();
 		initializeIndices();
 		newMerge(0, simulatedSize, 1);
-		return blb.getCircuit();
+		return blb.getProtocol();
 	}
 
 	private void merge(int first, int length, int step) {

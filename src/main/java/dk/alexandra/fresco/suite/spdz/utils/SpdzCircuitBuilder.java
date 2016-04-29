@@ -48,7 +48,7 @@ public class SpdzCircuitBuilder extends AbstractProtocolBuilder {
 	}
 	
 	@Override
-	public void addGateProducer(ProtocolProducer gp) {
+	public void addProtocolProducer(ProtocolProducer gp) {
 		append(gp);
 	}
 	

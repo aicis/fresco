@@ -35,15 +35,14 @@ import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
 import dk.alexandra.fresco.lib.lp.LPFactory;
 
 /**
- * Implements a lookup circuit using a linear number of equality circuits. A
- * lookup circuit is essentially a combination of a search and a conditional
- * select circuit. This does the search by simply comparing the lookup key to
+ * Implements a lookup protocol using a linear number of equality protocols. A
+ * lookup protocol is essentially a combination of a search and a conditional
+ * select protocol. This does the search by simply comparing the lookup key to
  * all the keys in the list.
  * 
- * @author psn
  * 
  */
-public class LinearLookUpCircuit extends AbstractRoundBasedProtocol implements
+public class LinearLookUpProtocol extends AbstractRoundBasedProtocol implements
 		LookUpProtocol<SInt> {
 
 	private final int securityParameter;
@@ -66,9 +65,9 @@ public class LinearLookUpCircuit extends AbstractRoundBasedProtocol implements
 	private SInt[] index;
 
 	/**
-	 * Makes a new LinearLookUpCircuit
+	 * Makes a new LinearLookUpprotocol
 	 * 
-	 * @param securityParameter The statistical security parameter for the equality circuit
+	 * @param securityParameter The statistical security parameter for the equality protocol
 	 * @param lookUpKey
 	 *            the key to look up.
 	 * @param keys
@@ -78,14 +77,14 @@ public class LinearLookUpCircuit extends AbstractRoundBasedProtocol implements
 	 * @param outputValue
 	 *            the SInt to hold the outputValue. Note this will be unchanged
 	 *            in case the look up key is not present in the key set.
-	 * @param lpProvider
-	 *            an LPProvider only here to provide the equality circuit.
-	 * @param bnProvider
-	 *            a basic numeric provider.
+	 * @param lpFactory
+	 *            an LPFactory only here to provide the equality protocol.
+	 * @param bnFactory
+	 *            a basic numeric Factory.
 	 */
-	public LinearLookUpCircuit(int securityParameter, SInt lookUpKey, SInt[] keys, SInt[] values,
-			SInt outputValue, LPFactory lpProvider,
-			BasicNumericFactory bnProvider) {
+	public LinearLookUpProtocol(int securityParameter, SInt lookUpKey, SInt[] keys, SInt[] values,
+			SInt outputValue, LPFactory lpFactory,
+			BasicNumericFactory bnFactory) {
 		if (keys.length != values.length) {
 			throw new IllegalArgumentException();
 		}
@@ -97,14 +96,14 @@ public class LinearLookUpCircuit extends AbstractRoundBasedProtocol implements
 		this.valueArrays = null;
 		this.outputValue = outputValue;
 		this.outputArray = null;
-		this.lpp = lpProvider;
-		this.bnp = bnProvider;
+		this.lpp = lpFactory;
+		this.bnp = bnFactory;
 		this.size = values.length;
 	}
 
-	public LinearLookUpCircuit(int securityParameter, SInt lookUpKey, SInt[] keys,
-			SInt[][] valueArrays, SInt[] outputValues, LPFactory lpProvider,
-			BasicNumericFactory bnProvider) {
+	public LinearLookUpProtocol(int securityParameter, SInt lookUpKey, SInt[] keys,
+			SInt[][] valueArrays, SInt[] outputValues, LPFactory lpFactory,
+			BasicNumericFactory bnFactory) {
 		this.securityParameter = securityParameter;
 		this.singleValue = false;
 		this.lookUpKey = lookUpKey;
@@ -113,50 +112,50 @@ public class LinearLookUpCircuit extends AbstractRoundBasedProtocol implements
 		this.valueArrays = valueArrays;
 		this.outputValue = null;
 		this.outputArray = outputValues;
-		this.lpp = lpProvider;
-		this.bnp = bnProvider;
+		this.lpp = lpFactory;
+		this.bnp = bnFactory;
 		this.size = valueArrays.length;
 	}
 
 	@Override
-	public ProtocolProducer nextGateProducer() {
-		ProtocolProducer gp = null;
+	public ProtocolProducer nextProtocolProducer() {
+		ProtocolProducer pp = null;
 		if (round == ROUND.COMPARE) {
 			ParallelProtocolProducer par = new ParallelProtocolProducer();
 			index = new SInt[keys.length];
 			for (int i = 0; i < keys.length; i++) {
 				index[i] = bnp.getSInt();
-				ProtocolProducer comp = lpp.getEqualityCircuit(bnp.getMaxBitLength(), 
+				ProtocolProducer comp = lpp.getEqualityProtocol(bnp.getMaxBitLength(), 
 						this.securityParameter, lookUpKey, keys[i], index[i]);
 				par.append(comp);
 			}
-			gp = par;
+			pp = par;
 			round = ROUND.SELECT;
 		} else if (round == ROUND.SELECT) {
 			if (singleValue) {
 				ParallelProtocolProducer par = new ParallelProtocolProducer();
 				for (int i = 0; i < size; i++) {
-					ProtocolProducer select = lpp.getConditionalSelectCircuit(
+					ProtocolProducer select = lpp.getConditionalSelectProtocol(
 							index[i], values[i], outputValue, outputValue);
 					par.append(select);
 				}
-				gp = par;
+				pp = par;
 			} else {
 				SequentialProtocolProducer seq = new SequentialProtocolProducer();
 				for (int i = 0; i < size; i++) {
 					ParallelProtocolProducer par = new ParallelProtocolProducer();
 					for (int j = 0; j < valueArrays[i].length; j++) {
-						ProtocolProducer select = lpp.getConditionalSelectCircuit(
+						ProtocolProducer select = lpp.getConditionalSelectProtocol(
 								index[i], valueArrays[i][j], outputArray[j],
 								outputArray[j]);
 						par.append(select);
 					}
 					seq.append(par);
 				}
-				gp = seq;
+				pp = seq;
 			}
 			round = ROUND.DONE;
 		}
-		return gp;
+		return pp;
 	}
 }

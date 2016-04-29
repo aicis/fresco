@@ -57,7 +57,7 @@ public class AltInnerProductProtocolImpl extends AbstractSimpleProtocol implemen
 	}
 	
 	@Override
-	protected ProtocolProducer initializeGateProducer() {
+	protected ProtocolProducer initializeProtocolProducer() {
 		NumericProtocolBuilder ncb = new NumericProtocolBuilder(bnProvider);
 		SInt[] directProduct = ncb.mult(aVector, bVector);
 		SInt innerproduct = directProduct[0];
@@ -65,6 +65,6 @@ public class AltInnerProductProtocolImpl extends AbstractSimpleProtocol implemen
 			innerproduct = ncb.add(innerproduct, directProduct[i]);
 		}
 		ProtocolProducer copyResult = copyProvider.getCopyCircuit(innerproduct, this.result);
-		return new SequentialProtocolProducer(ncb.getCircuit(), copyResult);
+		return new SequentialProtocolProducer(ncb.getProtocol(), copyResult);
 	}
 }

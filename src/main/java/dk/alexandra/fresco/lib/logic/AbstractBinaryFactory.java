@@ -31,14 +31,14 @@ import java.util.List;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.OBool;
 import dk.alexandra.fresco.framework.value.SBool;
-import dk.alexandra.fresco.lib.collections.sort.KeyedCompareAndSwapCircuitGetNextGatesImpl;
-import dk.alexandra.fresco.lib.collections.sort.OddEvenMergeCircuit;
-import dk.alexandra.fresco.lib.collections.sort.OddEvenMergeCircuitRec;
+import dk.alexandra.fresco.lib.collections.sort.KeyedCompareAndSwapProtocolGetNextProtocolImpl;
+import dk.alexandra.fresco.lib.collections.sort.OddEvenMergeProtocol;
+import dk.alexandra.fresco.lib.collections.sort.OddEvenMergeProtocolRec;
 import dk.alexandra.fresco.lib.collections.sort.OddEvenMergeSortFactory;
 import dk.alexandra.fresco.lib.compare.CompareAndSwapCircuit;
 import dk.alexandra.fresco.lib.compare.CompareAndSwapCircuitFactory;
 import dk.alexandra.fresco.lib.compare.CompareAndSwapCircuitImpl;
-import dk.alexandra.fresco.lib.compare.KeyedCompareAndSwapCircuit;
+import dk.alexandra.fresco.lib.compare.KeyedCompareAndSwapProtocol;
 import dk.alexandra.fresco.lib.compare.bool.BinaryGreaterThanProtocol;
 import dk.alexandra.fresco.lib.compare.bool.BinaryGreaterThanProtocolFactory;
 import dk.alexandra.fresco.lib.compare.bool.BinaryGreaterThanProtocolImpl;
@@ -91,13 +91,13 @@ public abstract class AbstractBinaryFactory implements BasicLogicFactory,
 	}
 
 	@Override
-	public KeyedCompareAndSwapCircuit getKeyedCompareAndSwapCircuit(
+	public KeyedCompareAndSwapProtocol getKeyedCompareAndSwapProtocol(
 			SBool[] leftKey, SBool[] leftValue, SBool[] rightKey,
 			SBool[] rightValue) {
 		// TODO Auto-generated method stub
 		// return new KeyedCompareAndSwapCircuitImpl(leftKey, leftValue,
 		// rightKey,
-		return new KeyedCompareAndSwapCircuitGetNextGatesImpl(leftKey,
+		return new KeyedCompareAndSwapProtocolGetNextProtocolImpl(leftKey,
 				leftValue, rightKey, rightValue, this);
 	}
 
@@ -202,7 +202,7 @@ public abstract class AbstractBinaryFactory implements BasicLogicFactory,
 	 */
 
 	@Override
-	public BinaryGreaterThanProtocol getBinaryComparisonCircuit(SBool[] inLeft,
+	public BinaryGreaterThanProtocol getBinaryComparisonProtocol(SBool[] inLeft,
 			SBool[] inRight, SBool out) {
 		return new BinaryGreaterThanProtocolImpl(inLeft, inRight, out, this);
 		// return new BinaryComparisonCircuitNextGatesImpl(inLeft, inRight, out,
@@ -223,11 +223,11 @@ public abstract class AbstractBinaryFactory implements BasicLogicFactory,
 	 */
 
 	@Override
-	public OddEvenMergeCircuit getOddEvenMergeCircuit(
+	public OddEvenMergeProtocol getOddEvenMergeProtocol(
 			List<Pair<SBool[], SBool[]>> left,
 			List<Pair<SBool[], SBool[]>> right,
 			List<Pair<SBool[], SBool[]>> sorted) {
-		return new OddEvenMergeCircuitRec(left, right, sorted, this);
+		return new OddEvenMergeProtocolRec(left, right, sorted, this);
 	}
 
 }

@@ -28,23 +28,23 @@ package dk.alexandra.fresco.lib.collections.sort;
 
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.SBool;
-import dk.alexandra.fresco.lib.compare.KeyedCompareAndSwapCircuit;
+import dk.alexandra.fresco.lib.compare.KeyedCompareAndSwapProtocol;
 import dk.alexandra.fresco.lib.helper.AbstractSimpleProtocol;
 import dk.alexandra.fresco.lib.helper.builder.BasicLogicBuilder;
 import dk.alexandra.fresco.lib.logic.AbstractBinaryFactory;
 
-public class KeyedCompareAndSwapCircuitImpl extends AbstractSimpleProtocol
-		implements KeyedCompareAndSwapCircuit {
+public class KeyedCompareAndSwapProtocolImpl extends AbstractSimpleProtocol
+		implements KeyedCompareAndSwapProtocol {
 
 	private SBool[] leftKey;
 	private SBool[] leftValue;
 	private SBool[] rightKey;
 	private SBool[] rightValue;
-	private AbstractBinaryFactory bp;
+	private AbstractBinaryFactory bf;
 
 	/**
-	 * Constructs a gate producer for the keyed compare and swap circuit. This
-	 * circuit will compare the keys of two key-value pairs and swap the pairs
+	 * Constructs a protocol producer for the keyed compare and swap protocol. This
+	 * protocol will compare the keys of two key-value pairs and swap the pairs
 	 * so that the left pair has the largest key.
 	 * 
 	 * @param leftKey
@@ -55,21 +55,21 @@ public class KeyedCompareAndSwapCircuitImpl extends AbstractSimpleProtocol
 	 *            the key of the right pair
 	 * @param rightValue
 	 *            the value of the right pair
-	 * @param bp
-	 *            a provider of binary circuits
+	 * @param bf
+	 *            a factory of binary protocols
 	 */
-	public KeyedCompareAndSwapCircuitImpl(SBool[] leftKey, SBool[] leftValue,
-			SBool[] rightKey, SBool[] rightValue, AbstractBinaryFactory bp) {
+	public KeyedCompareAndSwapProtocolImpl(SBool[] leftKey, SBool[] leftValue,
+			SBool[] rightKey, SBool[] rightValue, AbstractBinaryFactory bf) {
 		this.leftKey = leftKey;
 		this.leftValue = leftValue;
 		this.rightKey = rightKey;
 		this.rightValue = rightValue;
-		this.bp = bp;
+		this.bf = bf;
 	}
 
 	@Override
-	protected ProtocolProducer initializeGateProducer() {
-		BasicLogicBuilder blb = new BasicLogicBuilder(bp);
+	protected ProtocolProducer initializeProtocolProducer() {
+		BasicLogicBuilder blb = new BasicLogicBuilder(bf);
 		blb.beginSeqScope();
 		blb.beginParScope();
 		SBool compRes = blb.greaterThan(leftKey, rightKey);
@@ -88,6 +88,6 @@ public class KeyedCompareAndSwapCircuitImpl extends AbstractSimpleProtocol
 		blb.endCurScope();
 
 		blb.endCurScope();
-		return blb.getCircuit();
+		return blb.getProtocol();
 	}
 }

@@ -93,7 +93,7 @@ public class BinaryGreaterThanProtocolImpl extends AbstractRoundBasedProtocol
 
 	
 	@Override
-	public ProtocolProducer nextGateProducer() {
+	public ProtocolProducer nextProtocolProducer() {
 		BasicLogicBuilder blb = new BasicLogicBuilder(provider);
 		if (round == 0) {
 			xor = blb.xor(inA[length - 1], inB[length - 1]);
@@ -112,6 +112,6 @@ public class BinaryGreaterThanProtocolImpl extends AbstractRoundBasedProtocol
 		} else {
 			return null;
 		}
-		return blb.getCircuit();
+		return blb.getProtocol();
 	}
 }

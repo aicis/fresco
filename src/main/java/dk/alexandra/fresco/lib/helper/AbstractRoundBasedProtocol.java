@@ -51,7 +51,7 @@ public abstract class AbstractRoundBasedProtocol implements Protocol {
 	@Override
 	public int getNextProtocols(NativeProtocol[] gates, int pos) {
 		if (gp == null || !gp.hasNextProtocols()) {
-			gp = nextGateProducer();
+			gp = nextProtocolProducer();
 			if (gp == null) {
 				done = true;
 				return pos;
@@ -69,7 +69,7 @@ public abstract class AbstractRoundBasedProtocol implements Protocol {
 	 * 
 	 * @return a GateProducer for the next round.
 	 */
-	public abstract ProtocolProducer nextGateProducer();
+	public abstract ProtocolProducer nextProtocolProducer();
 
 	@Override
 	public boolean hasNextProtocols() {

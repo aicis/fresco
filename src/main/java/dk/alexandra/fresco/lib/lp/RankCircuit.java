@@ -60,7 +60,7 @@ public class RankCircuit extends AbstractSimpleProtocol {
 	}
 
 	@Override
-	protected ProtocolProducer initializeGateProducer() {
+	protected ProtocolProducer initializeProtocolProducer() {
 		NumericProtocolBuilder build = new NumericProtocolBuilder(numericProvider);
 		SInt[] compLeft = null;
 		SInt[] compRight = null;
@@ -78,11 +78,11 @@ public class RankCircuit extends AbstractSimpleProtocol {
 		build.beginParScope();
 		for (int i = 0; i < numerators.length; i++) {
 			ProtocolProducer comp = lpProvider.getComparisonCircuit(compLeft[i], compRight[i], comparisonResults[i], true);
-			build.addGateProducer(comp);
+			build.addProtocolProducer(comp);
 		}
 		build.endCurScope();
 		SInt result = build.sum(comparisonResults);
-		build.addGateProducer(lpProvider.getCopyCircuit(result, rank));
-		return build.getCircuit();
+		build.addProtocolProducer(lpProvider.getCopyCircuit(result, rank));
+		return build.getProtocol();
 	}
 }

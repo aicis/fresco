@@ -65,7 +65,7 @@ public class HammingDistanceProtocolImpl extends AbstractSimpleProtocol implemen
 	}
 
 	@Override
-	protected ProtocolProducer initializeGateProducer() {
+	protected ProtocolProducer initializeProtocolProducer() {
 		BigInteger m = b.getValue();
 		SInt[] XOR = new SInt[length];
 		ParallelProtocolProducer XOR_GPs = new ParallelProtocolProducer();

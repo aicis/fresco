@@ -213,12 +213,12 @@ public class BasicLogicBuilder extends AbstractProtocolBuilder {
 	 */
 	public SBool xor(SBool left, SBool right) {
 		SBool result = bp.getSBool();
-		append(bp.getXorCircuit(left, right, result));
+		append(bp.getXorProtocol(left, right, result));
 		return result;
 	}
 	
 	public void xorInPlace(SBool result, SBool left, SBool right) {
-				append(bp.getXorCircuit(left, right, result));
+				append(bp.getXorProtocol(left, right, result));
 	}
 
 	/**
@@ -311,7 +311,7 @@ public class BasicLogicBuilder extends AbstractProtocolBuilder {
 		beginSeqScope();
 		SBool x = xor(left, right);
 		SBool y = and(condition, x);
-		append(bp.getXorCircuit(y, right, result));
+		append(bp.getXorProtocol(y, right, result));
 		endCurScope();
 		return result;
 	}
@@ -320,7 +320,7 @@ public class BasicLogicBuilder extends AbstractProtocolBuilder {
 		beginSeqScope();
 		SBool x = xor(left, right);
 		SBool y = and(condition, x);
-		append(bp.getXorCircuit(y, right, result));
+		append(bp.getXorProtocol(y, right, result));
 		endCurScope();
 	}
 
@@ -371,7 +371,7 @@ public class BasicLogicBuilder extends AbstractProtocolBuilder {
 	public SBool greaterThan(SBool[] left, SBool[] right) {
 		checkLengths(left, right);
 		SBool result = bp.getSBool();
-		append(bp.getBinaryComparisonCircuit(left, right, result));
+		append(bp.getBinaryComparisonProtocol(left, right, result));
 		return result;
 	}
 	/**
@@ -392,7 +392,7 @@ public class BasicLogicBuilder extends AbstractProtocolBuilder {
 			SBool[] rightKey, SBool[] rightValue) {
 		checkLengths(leftKey, rightKey);
 		checkLengths(leftValue, rightValue);
-		append(bp.getKeyedCompareAndSwapCircuit(leftKey, leftValue, rightKey,
+		append(bp.getKeyedCompareAndSwapProtocol(leftKey, leftValue, rightKey,
 				rightValue));
 		return;
 	}
@@ -459,7 +459,7 @@ public class BasicLogicBuilder extends AbstractProtocolBuilder {
 	}
 
 	@Override
-	public void addGateProducer(ProtocolProducer gp) {
+	public void addProtocolProducer(ProtocolProducer gp) {
 		append(gp);
 	}
 }

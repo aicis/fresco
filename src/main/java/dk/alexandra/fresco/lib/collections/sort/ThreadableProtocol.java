@@ -26,23 +26,11 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.collections.sort;
 
-import java.util.ArrayList;
+import java.util.List;
 
-import dk.alexandra.fresco.framework.ProtocolProducer;
+import dk.alexandra.fresco.framework.Protocol;
 
-public class CircuitLayer extends ArrayList<ProtocolProducer> {
-	
-	public CircuitLayer() {
-		super();
-	}
+public interface ThreadableProtocol extends Protocol{
 
-	public CircuitLayer(int i) {
-		super(i);
-	}
-
-	/**
-	 * Auto-generated
-	 */
-	private static final long serialVersionUID = -1243061743785615858L;
-
+	public List<ProtocolLayer> getProtocolProducersForThreads();
 }

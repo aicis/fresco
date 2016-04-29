@@ -108,7 +108,7 @@ public class BinaryGreaterThanNextGatesImpl extends AbstractSimpleProtocol
 				xor = new SBool[inB.length];
 				for(int i = 0; i< inB.length; i++){
 					xor[i] = provider.getKnownConstantSBool(false);
-					((ParallelProtocolProducer)curGP).append(provider.getXorCircuit(inB[i], inA[i], xor[i]));	
+					((ParallelProtocolProducer)curGP).append(provider.getXorProtocol(inB[i], inA[i], xor[i]));	
 				}
 			}
 			if(curGP.hasNextProtocols()){
@@ -143,12 +143,12 @@ public class BinaryGreaterThanNextGatesImpl extends AbstractSimpleProtocol
 				SBool tmp = provider.getSBool();
 				//postfixResult[i+1] = provider.getKnownConstantSBool(false);
 				postfixResult[i] = provider.getSBool();
-				((SequentialProtocolProducer)curGP).append(provider.getXorCircuit(inA[i], postfixResult[i+1], tmp));
+				((SequentialProtocolProducer)curGP).append(provider.getXorProtocol(inA[i], postfixResult[i+1], tmp));
 				//SBool tmp = blb.xor(inA[i], postfixResult[i + 1]);
 				((SequentialProtocolProducer)curGP).append(provider.getAndCircuit(xor[i], tmp, tmp));
 				//tmp = blb.and(xor[i], tmp);
 				//postfixResult[i] = blb.xor(tmp, postfixResult[i + 1]);
-				((SequentialProtocolProducer)curGP).append(provider.getXorCircuit(tmp, postfixResult[i+1], postfixResult[i]));
+				((SequentialProtocolProducer)curGP).append(provider.getXorProtocol(tmp, postfixResult[i+1], postfixResult[i]));
 			//	blb.endCurScope();
 				//curGP = blb.getCircuit();
 			}
@@ -189,7 +189,7 @@ public class BinaryGreaterThanNextGatesImpl extends AbstractSimpleProtocol
 	
 	
 	@Override
-	protected ProtocolProducer initializeGateProducer() {
+	protected ProtocolProducer initializeProtocolProducer() {
 /*		BasicLogicBuilder blb = new BasicLogicBuilder(provider);
 		SBool[] postfixResult = new SBool[this.length];
 		blb.beginSeqScope();

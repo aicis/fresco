@@ -24,20 +24,21 @@
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
  *******************************************************************************/
-package dk.alexandra.fresco.lib.collections.sort;
+package dk.alexandra.fresco.framework.value;
 
-import dk.alexandra.fresco.framework.Protocol;
 
-/**
- * A circuit to merge two sorted lists into a single sorted list using the merge
- * method of Batchers Odd/Even merge sort sorting network.
- * 
- * Note this is not a full sorting algorithm as the inputs must be already
- * sorted.
- * 
- * @author psn
- * 
- */
-public interface OddEvenMergeCircuit extends Protocol {
+public interface OBoolFactory {	
+	
+	public OBool getOBool();
 
+	public OBool getKnownConstantOBool(boolean b);
+	
+	default public OBool[] getOBools(int amount) {
+		OBool[] res = new OBool[amount];
+		for (int i=0; i<amount; i++) {
+			res[i] = getOBool();
+		}
+		return res;
+	}
+	
 }

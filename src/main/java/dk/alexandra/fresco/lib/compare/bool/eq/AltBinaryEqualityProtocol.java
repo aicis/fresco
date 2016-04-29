@@ -67,7 +67,7 @@ public class AltBinaryEqualityProtocol extends AbstractRoundBasedProtocol
 	}
 	
 	@Override
-	public ProtocolProducer nextGateProducer() {
+	public ProtocolProducer nextProtocolProducer() {
 		BasicLogicBuilder blb = new BasicLogicBuilder(provider);
 		if (round == 0) {
 			xnorOuts = blb.xor(inLeft, inRight);
@@ -78,12 +78,12 @@ public class AltBinaryEqualityProtocol extends AbstractRoundBasedProtocol
 			round++;
 		} else if (round == 2) {
 			xnorOuts[0] = out;
-			blb.addGateProducer(new TreeCircuit(this));
+			blb.addProtocolProducer(new TreeCircuit(this));
 			round++;
 		} else if (round == 3){
 			return null;
 		}
-		return blb.getCircuit();
+		return blb.getProtocol();
 	}
 
 	@Override

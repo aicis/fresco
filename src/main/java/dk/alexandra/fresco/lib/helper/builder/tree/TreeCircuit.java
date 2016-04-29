@@ -71,7 +71,7 @@ public class TreeCircuit extends AbstractRoundBasedProtocol {
 	}
 
 	@Override
-	public ProtocolProducer nextGateProducer() {
+	public ProtocolProducer nextProtocolProducer() {
 		if (step < length) {
 			ParallelProtocolProducer par = new ParallelProtocolProducer();
 			int i = 0;

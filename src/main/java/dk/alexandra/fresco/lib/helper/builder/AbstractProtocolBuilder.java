@@ -133,7 +133,7 @@ public abstract class AbstractProtocolBuilder implements CircuitBuilder {
 	 * @see dk.alexandra.fresco.lib.CircuitBuilder#getCircuit()
 	 */
 	@Override
-	public ProtocolProducer getCircuit() {
+	public ProtocolProducer getProtocol() {
 		if (producerStack.isEmpty()) {
 			ProtocolProducer res = curGP;
 			reset();

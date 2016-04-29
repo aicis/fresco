@@ -50,7 +50,7 @@ public abstract class AbstractSimpleProtocol implements Protocol {
 	@Override
 	public int getNextProtocols(NativeProtocol[] gates, int pos) {
 		if (gp == null) {
-			gp = initializeGateProducer();
+			gp = initializeProtocolProducer();
 			if (gp == null) {
 				done = true;
 				return pos;
@@ -111,5 +111,5 @@ public abstract class AbstractSimpleProtocol implements Protocol {
 	 * 
 	 * @return the GateProducer for this circuit.
 	 */
-	protected abstract ProtocolProducer initializeGateProducer();
+	protected abstract ProtocolProducer initializeProtocolProducer();
 }

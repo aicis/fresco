@@ -110,7 +110,7 @@ public class LR15Factory implements BasicLogicFactory {
 	}
 
 	@Override
-	public XorProtocol getXorCircuit(SBool inLeft, SBool inRight, SBool out) {
+	public XorProtocol getXorProtocol(SBool inLeft, SBool inRight, SBool out) {
 		// TODO Auto-generated method stub
 		return null;
 	}

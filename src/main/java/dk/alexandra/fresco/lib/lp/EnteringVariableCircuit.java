@@ -82,7 +82,7 @@ public class EnteringVariableCircuit extends AbstractRoundBasedProtocol {
 	}
 
 	@Override
-	public ProtocolProducer nextGateProducer() {
+	public ProtocolProducer nextProtocolProducer() {
 		ProtocolProducer gp = null;
 		if (round == 0) {
 			int updateVectorDimension = updateMatrix.getHeight();
@@ -109,7 +109,7 @@ public class EnteringVariableCircuit extends AbstractRoundBasedProtocol {
 						bnProvider);
 				updatedF[i] = build.sum(dotProductResult);
 				updateFis[i] = new SequentialProtocolProducer(dpc,
-						build.getCircuit());
+						build.getProtocol());
 			}
 			gp = new ParallelProtocolProducer(updateFis);
 			round++;

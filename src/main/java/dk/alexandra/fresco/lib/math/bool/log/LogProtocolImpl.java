@@ -127,10 +127,10 @@ public class LogProtocolImpl implements LogProtocol{
 						xors[i] = provider.getXorCircuit(prefixOrOuts[i], zero, log[i]);
 					}
 					else{
-						xors[i] = provider.getXorCircuit(prefixOrOuts[i-1], prefixOrOuts[i], log[i]);
+						xors[i] = provider.getXorProtocol(prefixOrOuts[i-1], prefixOrOuts[i], log[i]);
 					}
 				}
-				xors[xors.length-1] = provider.getXorCircuit(prefixOrOuts[0], prefixOrOuts[0], log[xors.length-1]); //This is the same as saying that a 0 should 
+				xors[xors.length-1] = provider.getXorProtocol(prefixOrOuts[0], prefixOrOuts[0], log[xors.length-1]); //This is the same as saying that a 0 should 
 																													//always be at the least significant bit position at z 
 				curGP = new ParallelProtocolProducer(xors);
 			}
@@ -153,9 +153,9 @@ public class LogProtocolImpl implements LogProtocol{
 						xorHolders[i] = provider.getSBool();
 						boolean ithBit = Util.ithBit(xors.length-1-i, result.length-1-j); //j'th bit of i	
 						ands[i] = provider.getAndCircuit(log[i], provider.getKnownConstantOBool(ithBit), xorHolders[i]);
-						xors[i] = provider.getXorCircuit(xorHolders[i], result[j], result[j]);
+						xors[i] = provider.getXorProtocol(xorHolders[i], result[j], result[j]);
 					}
-					XorProtocol preResult = provider.getXorCircuit(number[0], number[0], result[j]); //"hack" in order to make result be 0 from starting point.					
+					XorProtocol preResult = provider.getXorProtocol(number[0], number[0], result[j]); //"hack" in order to make result be 0 from starting point.					
 					SequentialProtocolProducer seq1 = new SequentialProtocolProducer(ands);
 					SequentialProtocolProducer tmp = new SequentialProtocolProducer(xors);
 					SequentialProtocolProducer seq2 = new SequentialProtocolProducer(preResult, tmp);

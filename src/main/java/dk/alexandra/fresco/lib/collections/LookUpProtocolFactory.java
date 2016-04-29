@@ -29,7 +29,7 @@ package dk.alexandra.fresco.lib.collections;
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.value.Value;
 
-public interface LookUpCircuitFactory<T extends Value> extends ProtocolFactory {
+public interface LookUpProtocolFactory<T extends Value> extends ProtocolFactory {
 
 	/**
 	 * Gets a circuit that allows to look up the value of a key in a list of
@@ -50,7 +50,7 @@ public interface LookUpCircuitFactory<T extends Value> extends ProtocolFactory {
 	 *            overwritten if the look up key is present in the key set.
 	 * @return the circuit
 	 */
-	public LookUpProtocol<T> getLookUpCircuit(T lookUpKey, T[] keys, T[] values,
+	public LookUpProtocol<T> getLookUpProtocol(T lookUpKey, T[] keys, T[] values,
 			T outputValue);
 	
 	/**
@@ -73,6 +73,6 @@ public interface LookUpCircuitFactory<T extends Value> extends ProtocolFactory {
 	 * @return the circuit
 	 */
 	
-	public LookUpProtocol<T> getLookUpCircuit(T lookUpKey, T[] keys, T[][] values,
+	public LookUpProtocol<T> getLookUpProtocol(T lookUpKey, T[] keys, T[][] values,
 			T[] outputValue);
 }

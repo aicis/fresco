@@ -98,7 +98,7 @@ public class LPBuildingBlockTests {
 			sUpdateMatrix = new Matrix<SInt>(um);
 			Matrix<SInt> cMatrix = new Matrix<SInt>(c);
 			sTableau = new LPTableau(cMatrix, b, f, npb.getSInt());
-			return iob.getCircuit();
+			return iob.getProtocol();
 		}
 
 		protected BigInteger[][] randomMatrix(int n, int m) {
@@ -132,15 +132,15 @@ public class LPBuildingBlockTests {
 			iob.beginSeqScope();
 			randomTableau(n, m);
 			ProtocolProducer input = inputTableau(bnf);
-			iob.addGateProducer(input);
+			iob.addProtocolProducer(input);
 			expectedIndex = enteringDanzigVariableIndex(constraints, updateMatrix, b, f);
 			SInt[] enteringIndex = npb.getSIntArray(n + m);
 			SInt minimum = npb.getSInt();
 			ProtocolProducer evc = lpf.getEnteringVariableCircuit(sTableau, sUpdateMatrix, enteringIndex, minimum);
-			iob.addGateProducer(evc);
+			iob.addProtocolProducer(evc);
 			this.outputs = iob.outputArray(enteringIndex);
 			iob.endCurScope();
-			return iob.getCircuit();
+			return iob.getProtocol();
 		}
 
 		/**
@@ -319,7 +319,7 @@ public class LPBuildingBlockTests {
 			randomTableau(n, m);
 			ProtocolProducer input = inputTableau(bnf);
 			NumericIOBuilder iob = new NumericIOBuilder(bnf);
-			iob.addGateProducer(input);
+			iob.addProtocolProducer(input);
 			NumericProtocolBuilder npb = new NumericProtocolBuilder(bnf);
 			int enteringIdx = rand.nextInt(n + m);
 			exitingIdx = exitingIndex(enteringIdx);
@@ -333,7 +333,7 @@ public class LPBuildingBlockTests {
 			SInt[] sUpdateCol = npb.getSIntArray(m+1);
 			SInt pivot = npb.getSInt();
 			ProtocolProducer evc = lpf.getExitingVariableCircuit(sTableau, sUpdateMatrix, sEnteringIdx, sExitingIndex, sUpdateCol, pivot);
-			iob.addGateProducer(evc);
+			iob.addProtocolProducer(evc);
 			OInt[] oExitingIndex = iob.outputArray(sExitingIndex);
 			OInt[] oUpdateCol = iob.outputArray(sUpdateCol);
 			OInt oPivot = iob.output(pivot);
@@ -341,7 +341,7 @@ public class LPBuildingBlockTests {
 			System.arraycopy(oExitingIndex, 0, outputs, 0, oExitingIndex.length);
 			System.arraycopy(oUpdateCol, 0, outputs, oExitingIndex.length, oUpdateCol.length);
 			outputs[outputs.length - 1] = oPivot;
-			return iob.getCircuit();
+			return iob.getProtocol();
 		}
 
 		private int exitingIndex(int enteringIndex) {

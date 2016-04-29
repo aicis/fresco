@@ -29,21 +29,21 @@ package dk.alexandra.fresco.lib.collections.sort;
 import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.SBool;
-import dk.alexandra.fresco.lib.compare.KeyedCompareAndSwapCircuit;
+import dk.alexandra.fresco.lib.compare.KeyedCompareAndSwapProtocol;
 import dk.alexandra.fresco.lib.helper.AbstractSimpleProtocol;
 import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
 import dk.alexandra.fresco.lib.helper.builder.BasicLogicBuilder;
 import dk.alexandra.fresco.lib.logic.AbstractBinaryFactory;
 
-public class KeyedCompareAndSwapCircuitGetNextGatesImpl extends AbstractSimpleProtocol
-		implements KeyedCompareAndSwapCircuit {
+public class KeyedCompareAndSwapProtocolGetNextProtocolImpl extends AbstractSimpleProtocol
+		implements KeyedCompareAndSwapProtocol {
 
 	private SBool[] leftKey;
 	private SBool[] leftValue;
 	private SBool[] rightKey;
 	private SBool[] rightValue;
-	private AbstractBinaryFactory bp;
-	private ProtocolProducer curGP = null;
+	private AbstractBinaryFactory bf;
+	private ProtocolProducer curPP = null;
 	private boolean done = false;
 	private int round;
 	
@@ -52,8 +52,8 @@ public class KeyedCompareAndSwapCircuitGetNextGatesImpl extends AbstractSimplePr
 	private SBool[] tmpXORValue;
 
 	/**
-	 * Constructs a gate producer for the keyed compare and swap circuit. This
-	 * circuit will compare the keys of two key-value pairs and swap the pairs
+	 * Constructs a protocol producer for the keyed compare and swap protocol. This
+	 * protocol will compare the keys of two key-value pairs and swap the pairs
 	 * so that the left pair has the largest key.
 	 * 
 	 * @param leftKey
@@ -64,79 +64,79 @@ public class KeyedCompareAndSwapCircuitGetNextGatesImpl extends AbstractSimplePr
 	 *            the key of the right pair
 	 * @param rightValue
 	 *            the value of the right pair
-	 * @param bp
-	 *            a provider of binary circuits
+	 * @param bf
+	 *            a factory of binary protocols
 	 */
-	public KeyedCompareAndSwapCircuitGetNextGatesImpl(SBool[] leftKey, SBool[] leftValue,
-			SBool[] rightKey, SBool[] rightValue, AbstractBinaryFactory bp) {
+	public KeyedCompareAndSwapProtocolGetNextProtocolImpl(SBool[] leftKey, SBool[] leftValue,
+			SBool[] rightKey, SBool[] rightValue, AbstractBinaryFactory bf) {
 		this.leftKey = leftKey;
 		this.leftValue = leftValue;
 		this.rightKey = rightKey;
 		this.rightValue = rightValue;
-		this.bp = bp;
+		this.bf = bf;
 		this.round = 0;
 	}
 
 	@Override
-	public int getNextProtocols(NativeProtocol[] gates, int pos) {
+	public int getNextProtocols(NativeProtocol[] nativeProtocols, int pos) {
 		if(round == 0){
-			if(curGP == null){		
-				curGP = new ParallelProtocolProducer();
+			if(curPP == null){		
+				curPP = new ParallelProtocolProducer();
 
-				compRes=bp.getSBool();
-				((ParallelProtocolProducer)curGP).append(bp.getBinaryComparisonCircuit(leftKey, rightKey, compRes));
+				compRes=bf.getSBool();
+				((ParallelProtocolProducer)curPP).append(bf.getBinaryComparisonProtocol(leftKey, rightKey, compRes));
 
 				tmpXORKey = new SBool[leftKey.length];
 				for(int i = 0; i< leftKey.length; i++){
-					tmpXORKey[i] = bp.getSBool();
-					((ParallelProtocolProducer)curGP).append(bp.getXorCircuit(leftKey[i], rightKey[i], tmpXORKey[i]));
+					tmpXORKey[i] = bf.getSBool();
+					((ParallelProtocolProducer)curPP).append(bf.getXorProtocol(leftKey[i], rightKey[i], tmpXORKey[i]));
 				}
 				
 				tmpXORValue = new SBool[leftValue.length];
 				for(int i = 0; i< leftValue.length; i++){
-					tmpXORValue[i] = bp.getSBool();
-					((ParallelProtocolProducer)curGP).append(bp.getXorCircuit(leftValue[i], rightValue[i], tmpXORValue[i]));
+					tmpXORValue[i] = bf.getSBool();
+					((ParallelProtocolProducer)curPP).append(bf.getXorProtocol(leftValue[i], rightValue[i], tmpXORValue[i]));
 				}
 			}
-			if(curGP.hasNextProtocols()){
-				pos = curGP.getNextProtocols(gates, pos);
+			if(curPP.hasNextProtocols()){
+				pos = curPP.getNextProtocols(nativeProtocols, pos);
 			}
-			else if(!curGP.hasNextProtocols()){
+			else if(!curPP.hasNextProtocols()){
 				round++;
-				curGP = null;
+				curPP = null;
 			}
 		}else if(round == 1){
-			if(curGP == null){		
-				BasicLogicBuilder blb = new BasicLogicBuilder(bp);
+			if(curPP == null){		
+				BasicLogicBuilder blb = new BasicLogicBuilder(bf);
 				blb.beginParScope();
 				blb.condSelectInPlace(leftKey, compRes, leftKey, rightKey);
 				blb.condSelectInPlace(leftValue, compRes, leftValue, rightValue);
 				blb.endCurScope();
-				curGP = blb.getCircuit();
+				curPP = blb.getProtocol();
 			}
-			if(curGP.hasNextProtocols()){
-				pos = curGP.getNextProtocols(gates, pos);
+			if(curPP.hasNextProtocols()){
+				pos = curPP.getNextProtocols(nativeProtocols, pos);
 			}
-			else if(!curGP.hasNextProtocols()){
+			else if(!curPP.hasNextProtocols()){
 				round++;
-				curGP = null;
+				curPP = null;
 			}
 		}else if(round == 2){
-			if(curGP == null){				
-				curGP = new ParallelProtocolProducer();
+			if(curPP == null){				
+				curPP = new ParallelProtocolProducer();
 				for(int i= 0; i< rightKey.length; i++){
-					((ParallelProtocolProducer)curGP).append(bp.getXorCircuit(tmpXORKey[i], leftKey[i], rightKey[i]));
+					((ParallelProtocolProducer)curPP).append(bf.getXorProtocol(tmpXORKey[i], leftKey[i], rightKey[i]));
 				}
 				for(int i= 0; i< rightValue.length; i++){
-					((ParallelProtocolProducer)curGP).append(bp.getXorCircuit(tmpXORValue[i], leftValue[i], rightValue[i]));
+					((ParallelProtocolProducer)curPP).append(bf.getXorProtocol(tmpXORValue[i], leftValue[i], rightValue[i]));
 				}
 			}
-			if(curGP.hasNextProtocols()){
-				pos = curGP.getNextProtocols(gates, pos);
+			if(curPP.hasNextProtocols()){
+				pos = curPP.getNextProtocols(nativeProtocols, pos);
 			}
-			else if(!curGP.hasNextProtocols()){
+			else if(!curPP.hasNextProtocols()){
 				round++;
-				curGP = null;
+				curPP = null;
 				done = true;
 			}
 		}
@@ -149,8 +149,7 @@ public class KeyedCompareAndSwapCircuitGetNextGatesImpl extends AbstractSimplePr
 	}
 	
 	@Override
-	protected ProtocolProducer initializeGateProducer() {
-		System.out.println("initGP new GP!");
+	protected ProtocolProducer initializeProtocolProducer() {
 		return this;
 	}
 	

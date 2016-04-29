@@ -119,7 +119,7 @@ public class StatisticsTests {
 							}
 							
 							SInt[][] input = ioBuilder.inputMatrix(new int[][] {data1, data2, data3}, 1);
-							sequentialProtocolProducer.append(ioBuilder.getCircuit());
+							sequentialProtocolProducer.append(ioBuilder.getProtocol());
 							
 							MeanProtocol arithmeticMeanProtocol = statisticsFactory.getMeanProtocol(input[0], 10, mean1);
 							sequentialProtocolProducer.append(arithmeticMeanProtocol);
@@ -142,7 +142,7 @@ public class StatisticsTests {
 							OInt output4 = ioBuilder.output(covariance);
 							OInt[][] output5 = ioBuilder.outputMatrix(covarianceMatrix);
 							
-							sequentialProtocolProducer.append(ioBuilder.getCircuit());
+							sequentialProtocolProducer.append(ioBuilder.getProtocol());
 							
 							ProtocolProducer gp = sequentialProtocolProducer;
 							

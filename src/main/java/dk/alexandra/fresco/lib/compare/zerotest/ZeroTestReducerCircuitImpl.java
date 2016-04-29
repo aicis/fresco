@@ -68,7 +68,7 @@ public class ZeroTestReducerCircuitImpl extends AbstractSimpleProtocol implement
 	}
 
 	@Override
-	protected ProtocolProducer initializeGateProducer() {
+	protected ProtocolProducer initializeProtocolProducer() {
 		// LOAD r
 		SInt rValue = provider.getSInt();
 		loadRandC = maskProvider.getRandomAdditiveMaskCircuit(bitLength, securityParameter, rValue);

@@ -140,7 +140,7 @@ public class BristolCryptoTests {
 
 							// Create AES circuit.
 							BristolCryptoFactory aesFac = new BristolCryptoFactory(bool);
-							BristolCircuit aes = aesFac.getAesCircuit(plain, key, cipher);
+							BristolCircuit aes = aesFac.getAesProtocol(plain, key, cipher);
 							
 							// Create circuits for opening result of AES.
 							ProtocolProducer[] opens = new ProtocolProducer[128];

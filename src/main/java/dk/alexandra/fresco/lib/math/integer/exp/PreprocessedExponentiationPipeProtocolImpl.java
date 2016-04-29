@@ -44,7 +44,7 @@ public class PreprocessedExponentiationPipeProtocolImpl extends AbstractSimplePr
 	}
 
 	@Override
-	protected ProtocolProducer initializeGateProducer() {
+	protected ProtocolProducer initializeProtocolProducer() {
 		SInt[] exp = this.preproExpPipeFactory.getExponentiationPipe();
 		ParallelProtocolProducer par = new ParallelProtocolProducer();
 		for(int i = 0; i < this.expPipe.length; i++) {

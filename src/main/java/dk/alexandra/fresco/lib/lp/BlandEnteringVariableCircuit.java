@@ -78,7 +78,7 @@ public class BlandEnteringVariableCircuit extends AbstractSimpleProtocol {
 	
 	
 	@Override
-	protected ProtocolProducer initializeGateProducer() {
+	protected ProtocolProducer initializeProtocolProducer() {
 		SInt negativeOne = bnProvider.getSInt();
 		SInt one = bnProvider.getSInt();		
 		ProtocolProducer loadValues = new ParallelProtocolProducer(bnProvider.getSInt(-1, negativeOne), bnProvider.getSInt(1, one));
@@ -115,7 +115,7 @@ public class BlandEnteringVariableCircuit extends AbstractSimpleProtocol {
 		int bitlength = (int)Math.log(signs.length)*2 + 1; 
 		for (int i = 0; i < updatedF.length; i++) {
 			// TODO: The below can probably be done more efficient with a zero test
-			ProtocolProducer eq = lpProvider.getEqualityCircuit(
+			ProtocolProducer eq = lpProvider.getEqualityProtocol(
 					bitlength, 
 					80, 
 					pairwiseSums[i], 

@@ -66,7 +66,7 @@ public interface ProtocolProducer {
 	int getNextProtocols(NativeProtocol[] protocols, int pos);
 
 	/**
-	 * Returns true if there is at least one gate left in the circuit that has
+	 * Returns true if there is at least one gate left in the protocol that has
 	 * not already been evaluated.
 	 * 
 	 */

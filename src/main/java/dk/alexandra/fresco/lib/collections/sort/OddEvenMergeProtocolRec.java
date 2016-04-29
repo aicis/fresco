@@ -39,7 +39,7 @@ import dk.alexandra.fresco.lib.helper.builder.BasicLogicBuilder;
 import dk.alexandra.fresco.lib.logic.AbstractBinaryFactory;
 
 /**
- * An implementation of the OddEvenMergeCircuit. This implementation supports
+ * An implementation of the OddEvenMergeProtocol. This implementation supports
  * threading. It first recursively generates a list for each layer of the
  * sorting network of all indicies that must be compared and swapped in that
  * layer.
@@ -56,10 +56,10 @@ import dk.alexandra.fresco.lib.logic.AbstractBinaryFactory;
  * @author psn
  * 
  */
-public class OddEvenMergeCircuitRec extends AbstractSimpleProtocol implements
-		OddEvenMergeCircuit, ThreadableCircuit {
+public class OddEvenMergeProtocolRec extends AbstractSimpleProtocol implements
+		OddEvenMergeProtocol, ThreadableProtocol {
 
-	private final AbstractBinaryFactory provider;
+	private final AbstractBinaryFactory factory;
 	private final List<Pair<SBool[], SBool[]>> sorted;
 	private List<Pair<SBool[], SBool[]>> left;
 	private List<Pair<SBool[], SBool[]>> right;
@@ -71,7 +71,7 @@ public class OddEvenMergeCircuitRec extends AbstractSimpleProtocol implements
 	private List<Layer> layerList;
 
 	/**
-	 * Constructs the circuit merging two lists of key/value pairs. The lists
+	 * Constructs the protocol merging two lists of key/value pairs. The lists
 	 * are assumed to be sorted on the key.
 	 * 
 	 * @param left
@@ -81,17 +81,17 @@ public class OddEvenMergeCircuitRec extends AbstractSimpleProtocol implements
 	 * @param sorted
 	 *            an list to hold the resulting (merged) sorted list of
 	 *            key/value pairs.
-	 * @param provider
-	 *            an AbstractBinaryProvider
+	 * @param factory
+	 *            an AbstractBinaryFactory
 	 */
-	public OddEvenMergeCircuitRec(List<Pair<SBool[], SBool[]>> left,
+	public OddEvenMergeProtocolRec(List<Pair<SBool[], SBool[]>> left,
 			List<Pair<SBool[], SBool[]>> right,
-			List<Pair<SBool[], SBool[]>> sorted, AbstractBinaryFactory provider) {
+			List<Pair<SBool[], SBool[]>> sorted, AbstractBinaryFactory factory) {
 		super();
 		this.sorted = sorted;
 		this.left = left;
 		this.right = right;
-		this.provider = provider;
+		this.factory = factory;
 		// Compute indices to simulate padding to even size input of two power
 		// length
 		int leftPad = 0;
@@ -120,19 +120,19 @@ public class OddEvenMergeCircuitRec extends AbstractSimpleProtocol implements
 	}
 
 	@Override
-	protected ProtocolProducer initializeGateProducer() {
-		BasicLogicBuilder blb = new BasicLogicBuilder(provider);
+	protected ProtocolProducer initializeProtocolProducer() {
+		BasicLogicBuilder blb = new BasicLogicBuilder(factory);
 		blb.beginSeqScope();
-		List<CircuitLayer> clList = getGateProducersForThreads();
-		for (CircuitLayer cl : clList) {
+		List<ProtocolLayer> clList = getProtocolProducersForThreads();
+		for (ProtocolLayer cl : clList) {
 			blb.beginParScope();
-			for (ProtocolProducer gp : cl) {
-				blb.addGateProducer(gp);
+			for (ProtocolProducer pp : cl) {
+				blb.addProtocolProducer(pp);
 			}
 			blb.endCurScope();
 		}
 		blb.endCurScope();
-		return blb.getCircuit();
+		return blb.getProtocol();
 	}
 
 	/**
@@ -170,9 +170,9 @@ public class OddEvenMergeCircuitRec extends AbstractSimpleProtocol implements
 	}
 
 	@Override
-	public List<CircuitLayer> getGateProducersForThreads() {
-		BasicLogicBuilder blb = new BasicLogicBuilder(provider);
-		List<CircuitLayer> circuitLayers = new ArrayList<CircuitLayer>(
+	public List<ProtocolLayer> getProtocolProducersForThreads() {
+		BasicLogicBuilder blb = new BasicLogicBuilder(factory);
+		List<ProtocolLayer> protocolLayers = new ArrayList<ProtocolLayer>(
 				layers + 1);
 		// Copy input to output array
 		blb.beginParScope();
@@ -189,9 +189,9 @@ public class OddEvenMergeCircuitRec extends AbstractSimpleProtocol implements
 			blb.copy(rightPair.getSecond(), lowerPair.getSecond());
 		}
 		blb.endCurScope();
-		CircuitLayer firstLayer = new CircuitLayer(1);
-		firstLayer.add(blb.getCircuit());
-		circuitLayers.add(firstLayer);
+		ProtocolLayer firstLayer = new ProtocolLayer(1);
+		firstLayer.add(blb.getProtocol());
+		protocolLayers.add(firstLayer);
 		// Compute indices
 		int length = 2;
 		int step = simulatedSize >>> 1;
@@ -209,13 +209,13 @@ public class OddEvenMergeCircuitRec extends AbstractSimpleProtocol implements
 		// Recurse to generate layers
 		recurse(0, simulatedSize, 1);
 		for (Layer l : layerList) {
-			circuitLayers.add(l.getCircuitLayer());
+			protocolLayers.add(l.getProtocolLayer());
 		}
-		return circuitLayers;
+		return protocolLayers;
 	}
 
 	/**
-	 * Attempts to estimate the number of triples used for this circuit.
+	 * Attempts to estimate the number of triples used for this protocol.
 	 * 
 	 * @param totalSize
 	 * @param indexSize
@@ -225,13 +225,13 @@ public class OddEvenMergeCircuitRec extends AbstractSimpleProtocol implements
 	 */
 	public static int getTriplesUsedForLength(int totalSize, int indexSize,
 			int seqSize, int splits) {
-		int triplesUsed = OddEvenMergeCircuitImpl.getTriplesUsedForLength(
+		int triplesUsed = OddEvenMergeProtocolImpl.getTriplesUsedForLength(
 				totalSize, indexSize, seqSize);
 		return triplesUsed / splits;
 	}
 
 	/**
-	 * A circuit compares and swaps a list of elements. All compare and swap
+	 * A protocol compares and swaps a list of elements. All compare and swap
 	 * operations are done in parallel.
 	 * 
 	 * @author psn
@@ -247,13 +247,13 @@ public class OddEvenMergeCircuitRec extends AbstractSimpleProtocol implements
 		}
 
 		@Override
-		protected ProtocolProducer initializeGateProducer() {
+		protected ProtocolProducer initializeProtocolProducer() {
 			ParallelProtocolProducer par = new ParallelProtocolProducer();
 			for (Pair<Integer, Integer> swap : swapList) {
-				ProtocolProducer gp = compareAndSwapAtIndices(swap.getFirst(),
+				ProtocolProducer pp = compareAndSwapAtIndices(swap.getFirst(),
 						swap.getSecond());
-				if (gp != null) {
-					par.append(gp);
+				if (pp != null) {
+					par.append(pp);
 				}
 			}
 			return par;
@@ -269,16 +269,16 @@ public class OddEvenMergeCircuitRec extends AbstractSimpleProtocol implements
 				j = j - firstIndex;
 				Pair<SBool[], SBool[]> left = sorted.get(i);
 				Pair<SBool[], SBool[]> right = sorted.get(j);
-				return provider.getKeyedCompareAndSwapCircuit(left.getFirst(),
+				return factory.getKeyedCompareAndSwapProtocol(left.getFirst(),
 						left.getSecond(), right.getFirst(), right.getSecond());
 			}
 		}
 	}
 
 	/**
-	 * A circuit representing all the swap operations that must be done in a
-	 * single layer. Supports threading by generating a circuit layer where the
-	 * work in split up in a number of independent circuits. At present the
+	 * A protocol representing all the swap operations that must be done in a
+	 * single layer. Supports threading by generating a protocol layer where the
+	 * work in split up in a number of independent protocols. At present the
 	 * split is set somewhat arbitrarily to 16.
 	 * 
 	 * @author psn
@@ -295,7 +295,7 @@ public class OddEvenMergeCircuitRec extends AbstractSimpleProtocol implements
 			this.length = length;
 			this.step = step;
 			this.indices = new LinkedList<Integer>();
-			this.builder = new BasicLogicBuilder(provider);
+			this.builder = new BasicLogicBuilder(factory);
 		}
 
 		protected void addIndex(int i) {
@@ -303,19 +303,19 @@ public class OddEvenMergeCircuitRec extends AbstractSimpleProtocol implements
 		}
 
 		@Override
-		protected ProtocolProducer initializeGateProducer() {
+		protected ProtocolProducer initializeProtocolProducer() {
 			builder.beginParScope();
-			CircuitLayer cl = getCircuitLayer();
-			for (ProtocolProducer gp : cl) {
-				builder.addGateProducer(gp);
+			ProtocolLayer cl = getProtocolLayer();
+			for (ProtocolProducer pp : cl) {
+				builder.addProtocolProducer(pp);
 			}
 			builder.endCurScope();
-			return builder.getCircuit();
+			return builder.getProtocol();
 		}
 
-		public CircuitLayer getCircuitLayer() {
+		public ProtocolLayer getProtocolLayer() {
 			int threads = 16; // TODO: Find a smarter way to set this!!
-			CircuitLayer cl = new CircuitLayer(threads);
+			ProtocolLayer cl = new ProtocolLayer(threads);
 			int numSwaps = (indices.size() * (length - 2)) / 2;
 			if (length == 2) {
 				numSwaps = indices.size();

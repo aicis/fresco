@@ -93,7 +93,7 @@ public class DummyFactory implements BasicLogicFactory {
 	}
 
 	@Override
-	public XorProtocol getXorCircuit(SBool inLeft, SBool inRight, SBool out) {
+	public XorProtocol getXorProtocol(SBool inLeft, SBool inRight, SBool out) {
 		return new DummyXorProtocol(inLeft, inRight, out);
 	}
 

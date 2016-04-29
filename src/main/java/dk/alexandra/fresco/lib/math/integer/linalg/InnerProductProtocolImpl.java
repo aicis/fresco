@@ -75,7 +75,7 @@ public class InnerProductProtocolImpl extends AbstractRoundBasedProtocol
 	}
 
 	@Override
-	public ProtocolProducer nextGateProducer() {
+	public ProtocolProducer nextProtocolProducer() {
 		gp = null;
 		if (round == 0) {
 			int vectorLength = aVector.length;
@@ -106,7 +106,7 @@ public class InnerProductProtocolImpl extends AbstractRoundBasedProtocol
 			SInt sumresult = build.sum(results);
 			results = null;
 			ProtocolProducer copy = new CopyProtocolImpl<SInt>(sumresult,  result);			
-			gp = new SequentialProtocolProducer(build.getCircuit(), copy);
+			gp = new SequentialProtocolProducer(build.getProtocol(), copy);
 			round++;
 		} else {
 			gp = null;

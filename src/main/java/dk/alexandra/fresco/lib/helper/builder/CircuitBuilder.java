@@ -79,13 +79,13 @@ public interface CircuitBuilder {
 	 * this CircuitBuilder.
 	 * @param gp a GateProducer  
 	 */
-	public abstract void addGateProducer(ProtocolProducer gp);
+	public abstract void addProtocolProducer(ProtocolProducer gp);
 
 	/**
 	 * Gets the GateProducer corresponding the entire circuit build by this CircuitBuilder.
 	 * @return a GateProducer corresponding to the circuit build.
 	 */
-	public abstract ProtocolProducer getCircuit();
+	public abstract ProtocolProducer getProtocol();
 
 	/**
 	 * Resets the current builder - meaning this can be treated as a new instance again.

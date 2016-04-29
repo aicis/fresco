@@ -32,7 +32,7 @@ import dk.alexandra.fresco.framework.value.SBool;
 
 public interface XorProtocolFactory extends ProtocolFactory {
 
-	public XorProtocol getXorCircuit(SBool inLeft, SBool inRight, SBool out);
+	public XorProtocol getXorProtocol(SBool inLeft, SBool inRight, SBool out);
 	
 	public XorProtocol getXorCircuit(SBool inLeft, OBool inRight, SBool out);
 	

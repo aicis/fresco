@@ -123,7 +123,7 @@ public class LPFactoryImpl implements LPFactory {
 	}
 
 	@Override
-	public ConditionalSelectCircuit getConditionalSelectCircuit(SInt selector,
+	public ConditionalSelectCircuit getConditionalSelectProtocol(SInt selector,
 			SInt a, SInt b, SInt result) {
 		return new ConditionalSelectCircuitImpl(selector, a, b, result, bnf);
 	}
@@ -159,7 +159,7 @@ public class LPFactoryImpl implements LPFactory {
 	}
 
 	@Override
-	public EqualityProtocol getEqualityCircuit(int bitLength,
+	public EqualityProtocol getEqualityProtocol(int bitLength,
 			int securityParam, SInt x, SInt y, SInt result) {
 		return new EqualityProtocolImpl(bitLength, securityParam, x, y, result,
 				bnf, zeroTestProtocolFactory);

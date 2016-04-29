@@ -98,7 +98,7 @@ public class BasicArithmeticTests {
 							SInt input1 = ioBuilder.input(BigInteger.valueOf(10), 1);
 
 							OInt output = ioBuilder.output(input1);
-							ProtocolProducer io = ioBuilder.getCircuit();
+							ProtocolProducer io = ioBuilder.getProtocol();
 
 							ProtocolProducer gp = new SequentialProtocolProducer(
 									io);
@@ -136,7 +136,7 @@ public class BasicArithmeticTests {
 									BigInteger.valueOf(10), 1);
 
 							OInt output = ioBuilder.outputToParty(1, input1);							
-							ProtocolProducer io = ioBuilder.getCircuit();
+							ProtocolProducer io = ioBuilder.getProtocol();
 
 							ProtocolProducer gp = new SequentialProtocolProducer(
 									io);
@@ -177,7 +177,7 @@ public class BasicArithmeticTests {
 							SInt input1 = ioBuilder.input(
 									BigInteger.valueOf(10), 1);
 
-							gp.append(ioBuilder.getCircuit());
+							gp.append(ioBuilder.getProtocol());
 							ioBuilder.reset();
 							
 							BigInteger publicVal = BigInteger.valueOf(4);
@@ -187,7 +187,7 @@ public class BasicArithmeticTests {
 							gp.append(addProtocol);
 							
 							OInt output = ioBuilder.output(out);							
-							ProtocolProducer io = ioBuilder.getCircuit();
+							ProtocolProducer io = ioBuilder.getProtocol();
 							gp.append(io);
 							
 							this.outputs = new OInt[] { output };
@@ -222,13 +222,13 @@ public class BasicArithmeticTests {
 									prov);
 							
 							SInt closed = ioBuilder.input(BigInteger.ONE, 1);
-							ProtocolProducer inp = ioBuilder.getCircuit();
+							ProtocolProducer inp = ioBuilder.getProtocol();
 							ioBuilder.reset();
 							
 							SInt into = prov.getSInt();
 							ProtocolProducer copy = new CopyProtocolImpl<SInt>(closed, into);
 							OInt open = ioBuilder.output(into);
-							ProtocolProducer out = ioBuilder.getCircuit();
+							ProtocolProducer out = ioBuilder.getProtocol();
 							this.outputs = new OInt[] {open};
 							
 							
@@ -271,7 +271,7 @@ public class BasicArithmeticTests {
 							OInt knownOutput = ioBuilder.output(knownInput);
 							outputs[0] = knownOutput;
 							this.outputs = outputs;
-							ProtocolProducer io = ioBuilder.getCircuit();
+							ProtocolProducer io = ioBuilder.getProtocol();
 
 							ProtocolProducer gp = new SequentialProtocolProducer(
 									io);
@@ -313,7 +313,7 @@ public class BasicArithmeticTests {
 							OInt knownOutput3 = ioBuilder.output(knownInput3);
 							OInt knownOutput4 = ioBuilder.output(knownInput4);
 							this.outputs = new OInt[]{ knownOutput1, knownOutput2, knownOutput3, knownOutput4 };
-							ProtocolProducer io = ioBuilder.getCircuit();
+							ProtocolProducer io = ioBuilder.getProtocol();
 							ProtocolProducer gp = new SequentialProtocolProducer(
 									io);
 							return gp;
@@ -349,7 +349,7 @@ public class BasicArithmeticTests {
 							SInt[] inputs = createInputs(ioBuilder, openInputs,
 									1);
 
-							ProtocolProducer inp = ioBuilder.getCircuit();
+							ProtocolProducer inp = ioBuilder.getProtocol();
 							ioBuilder.reset();
 
 							// create wire
@@ -375,7 +375,7 @@ public class BasicArithmeticTests {
 
 							this.outputs = new OInt[] { ioBuilder.output(sum) };
 
-							ProtocolProducer io = ioBuilder.getCircuit();
+							ProtocolProducer io = ioBuilder.getProtocol();
 
 							ProtocolProducer gp = new SequentialProtocolProducer(
 									inp, sumProtocol, io);
@@ -435,17 +435,17 @@ public class BasicArithmeticTests {
 							SInt input2 = ioBuilder.input(
 									BigInteger.valueOf(5), 1);
 
-							ProtocolProducer inputs = ioBuilder.getCircuit();
+							ProtocolProducer inputs = ioBuilder.getProtocol();
 							ioBuilder.reset();
 							NumericProtocolBuilder builder = new NumericProtocolBuilder(
 									prov);
 							SInt addAndMult = builder.mult(input1,
 									builder.add(input1, input2));
-							ProtocolProducer circ = builder.getCircuit();
+							ProtocolProducer circ = builder.getProtocol();
 
 							OInt output = ioBuilder.output(addAndMult);
 							this.outputs = new OInt[] { output };
-							ProtocolProducer outputs = ioBuilder.getCircuit();
+							ProtocolProducer outputs = ioBuilder.getProtocol();
 
 							ProtocolProducer gp = new SequentialProtocolProducer(
 									inputs, circ, outputs);
@@ -492,9 +492,9 @@ public class BasicArithmeticTests {
 								results[i] = builder.mult(input1, input2);
 							}
 							builder.endCurScope();
-							ioBuilder.addGateProducer(builder.getCircuit());
+							ioBuilder.addProtocolProducer(builder.getProtocol());
 							outputs = ioBuilder.outputArray(results);
-							ProtocolProducer gp = ioBuilder.getCircuit();
+							ProtocolProducer gp = ioBuilder.getProtocol();
 							return gp;
 						}
 					};
@@ -570,9 +570,9 @@ public class BasicArithmeticTests {
 							SInt nm = builder.getSInt();
 							SInt dm = builder.getSInt();
 							SInt infm = builder.getSInt();
-							ioBuilder.addGateProducer(builder.getCircuit());
+							ioBuilder.addProtocolProducer(builder.getProtocol());
 							ProtocolProducer pp = new MinInfFracProtocol(ns, ds, infs, nm, dm, infm, cs, prov, comp);
-							ioBuilder.addGateProducer(pp);
+							ioBuilder.addProtocolProducer(pp);
 							SInt[] closedOutputs = new SInt[cs.length + 3];
 							closedOutputs[0] = nm;
 							closedOutputs[1] = dm;
@@ -582,7 +582,7 @@ public class BasicArithmeticTests {
 							}
 							//outputs = ioBuilder.outputArray(new SInt[] {nm, dm, infm});
 							outputs = ioBuilder.outputArray(closedOutputs);
-							return ioBuilder.getCircuit();
+							return ioBuilder.getProtocol();
 						}
 					};
 					sce.runApplication(app);
@@ -648,9 +648,9 @@ public class BasicArithmeticTests {
 							}
 							builder.endCurScope();
 							
-							ioBuilder.addGateProducer(builder.getCircuit());
+							ioBuilder.addProtocolProducer(builder.getProtocol());
 							ioBuilder.endCurScope();
-							ProtocolProducer gp = ioBuilder.getCircuit();
+							ProtocolProducer gp = ioBuilder.getProtocol();
 							return gp;
 						}
 					};

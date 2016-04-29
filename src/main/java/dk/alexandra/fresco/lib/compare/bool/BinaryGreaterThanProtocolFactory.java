@@ -39,6 +39,6 @@ public interface BinaryGreaterThanProtocolFactory extends ProtocolFactory {
 	 * @param out SBool
 	 * @return BinaryComparisonCircuit
 	 */
-	public BinaryGreaterThanProtocol getBinaryComparisonCircuit(SBool[] inLeft, SBool[] inRight, SBool out);
+	public BinaryGreaterThanProtocol getBinaryComparisonProtocol(SBool[] inLeft, SBool[] inRight, SBool out);
 	
 }

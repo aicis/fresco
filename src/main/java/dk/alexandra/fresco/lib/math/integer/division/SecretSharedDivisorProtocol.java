@@ -93,7 +93,7 @@ public class SecretSharedDivisorProtocol extends AbstractSimpleProtocol implemen
 	}
 
 	@Override
-	protected ProtocolProducer initializeGateProducer() {
+	protected ProtocolProducer initializeProtocolProducer() {
 
 		SequentialProtocolProducer divisionProtocol = new SequentialProtocolProducer();
 
@@ -148,7 +148,7 @@ public class SecretSharedDivisorProtocol extends AbstractSimpleProtocol implemen
 		NumericProtocolBuilder numericProtocolBuilder = new NumericProtocolBuilder(
 				basicNumericFactory);
 		SInt numerator = numericProtocolBuilder.mult(factors);
-		divisionProtocol.append(numericProtocolBuilder.getCircuit());
+		divisionProtocol.append(numericProtocolBuilder.getProtocol());
 
 		/*
 		 * To get the right result we need to shift back 2^p m steps.

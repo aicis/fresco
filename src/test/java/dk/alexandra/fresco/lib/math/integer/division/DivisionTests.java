@@ -110,7 +110,7 @@ public class DivisionTests {
 							
 							SInt input1 = ioBuilder.input(x, 1);
 							OInt input2 = basicNumericFactory.getOInt(d);
-							sequentialProtocolProducer.append(ioBuilder.getCircuit());
+							sequentialProtocolProducer.append(ioBuilder.getProtocol());
 							
 							DivisionProtocol euclidianDivisionProtocol = euclidianDivisionFactory.getDivisionProtocol(input1, x.bitLength() + 1, input2, quotient, remainder);
 							sequentialProtocolProducer.append(euclidianDivisionProtocol);
@@ -118,7 +118,7 @@ public class DivisionTests {
 							OInt output1 = ioBuilder.output(quotient);
 							OInt output2 = ioBuilder.output(remainder);
 							
-							sequentialProtocolProducer.append(ioBuilder.getCircuit());
+							sequentialProtocolProducer.append(ioBuilder.getProtocol());
 							
 							ProtocolProducer gp = sequentialProtocolProducer;
 							
@@ -173,14 +173,14 @@ public class DivisionTests {
 							
 							SInt input1 = ioBuilder.input(x, 1);
 							SInt input2 = ioBuilder.input(d, 2);
-							sequentialProtocolProducer.append(ioBuilder.getCircuit());
+							sequentialProtocolProducer.append(ioBuilder.getProtocol());
 							
 							DivisionProtocol divisionProtocol = divisionFactory.getDivisionProtocol(input1, input2, d.bitLength() + 1, precision, quotient);
 							sequentialProtocolProducer.append(divisionProtocol);
 							
 							OInt output1 = ioBuilder.output(quotient);
 							
-							sequentialProtocolProducer.append(ioBuilder.getCircuit());
+							sequentialProtocolProducer.append(ioBuilder.getProtocol());
 							
 							ProtocolProducer gp = sequentialProtocolProducer;
 							

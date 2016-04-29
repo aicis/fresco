@@ -64,7 +64,7 @@ public class NotFromXorProtocol implements NotProtocol {
 	public int getNextProtocols(NativeProtocol[] gates, int pos) {
 		if (xorc == null) {
 			SBool t = sbool.getKnownConstantSBool(true);
-			xorc = xorcp.getXorCircuit(t, in, out);
+			xorc = xorcp.getXorProtocol(t, in, out);
 		}
 		return xorc.getNextProtocols(gates, pos);
 	}

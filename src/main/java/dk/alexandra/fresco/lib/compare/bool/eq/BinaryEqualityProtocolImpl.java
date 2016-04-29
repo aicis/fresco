@@ -87,7 +87,7 @@ public class BinaryEqualityProtocolImpl implements BinaryEqualityProtocol {
 				ParallelProtocolProducer parXOR = new ParallelProtocolProducer();
 				ParallelProtocolProducer parNOT = new ParallelProtocolProducer();
 				for (int i = 0; i < length; i++) {
-					parXOR.append(provider.getXorCircuit(inLeft[i], inRight[i],
+					parXOR.append(provider.getXorProtocol(inLeft[i], inRight[i],
 							xnorOuts[i]));
 					parNOT.append(provider.getNotCircuit(xnorOuts[i],
 							xnorOuts[i]));

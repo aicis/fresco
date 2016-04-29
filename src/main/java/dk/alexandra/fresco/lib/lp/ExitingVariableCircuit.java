@@ -96,7 +96,7 @@ public class ExitingVariableCircuit extends AbstractRoundBasedProtocol {
 	}
 
 	@Override
-	public ProtocolProducer nextGateProducer() {
+	public ProtocolProducer nextProtocolProducer() {
 		int tableauHeight = tableau.getC().getHeight() + 1;
 		if (round == 0) {
 			one = bnf.getSInt();
@@ -150,10 +150,10 @@ public class ExitingVariableCircuit extends AbstractRoundBasedProtocol {
 			npb.beginParScope();
 			for (int i = 0 ; i < nonApps.length; i++) {
 				ProtocolProducer pp = lpFactory.getComparisonCircuit(updatedEnteringColumn[i], zero, nonApps[i], true);
-				npb.addGateProducer(pp);
+				npb.addProtocolProducer(pp);
 			}
 			npb.endCurScope();
-			pp = npb.getCircuit();
+			pp = npb.getProtocol();
 			round++;
 		} else if (round == 3) {
 			SInt[] shortColumn = new SInt[updatedB.length];
@@ -169,7 +169,7 @@ public class ExitingVariableCircuit extends AbstractRoundBasedProtocol {
 			for (int i = 0; i < tableauHeight - 1; i++) {
 				negativeEnteringColumn[i] = bnf.getSInt();
 				ProtocolProducer sub = bnf.getSubtractCircuit(zero, updatedEnteringColumn[i], negativeEnteringColumn[i]);
-				ProtocolProducer cond = lpFactory.getConditionalSelectCircuit(exitingIndex[i], one, 
+				ProtocolProducer cond = lpFactory.getConditionalSelectProtocol(exitingIndex[i], one, 
 						negativeEnteringColumn[i], updateColumn[i]);
 				updateColumnEntries[i] = new SequentialProtocolProducer(sub, cond);
 			}

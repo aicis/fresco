@@ -24,21 +24,25 @@
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
  *******************************************************************************/
-package dk.alexandra.fresco.framework.value;
+package dk.alexandra.fresco.lib.collections.sort;
 
+import java.util.ArrayList;
 
-public interface OBoolProvider {	
+import dk.alexandra.fresco.framework.ProtocolProducer;
+
+public class ProtocolLayer extends ArrayList<ProtocolProducer> {
 	
-	public OBool getOBool();
-
-	public OBool getKnownConstantOBool(boolean b);
-	
-	default public OBool[] getOBools(int amount) {
-		OBool[] res = new OBool[amount];
-		for (int i=0; i<amount; i++) {
-			res[i] = getOBool();
-		}
-		return res;
+	public ProtocolLayer() {
+		super();
 	}
-	
+
+	public ProtocolLayer(int i) {
+		super(i);
+	}
+
+	/**
+	 * Auto-generated
+	 */
+	private static final long serialVersionUID = -1243061743785615858L;
+
 }

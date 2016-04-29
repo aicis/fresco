@@ -22,7 +22,7 @@ public class SortingProtocolCircuitImpl extends AbstractSimpleProtocol {
 	 * @see dk.alexandra.fresco.lib.helper.AbstractSimpleProtocol#initializeGateProducer()
 	 */
 	@Override
-	protected ProtocolProducer initializeGateProducer() {
+	protected ProtocolProducer initializeProtocolProducer() {
 		// TODO Auto-generated method stub
 		return null;
 	}
