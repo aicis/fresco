@@ -33,6 +33,7 @@ import dk.alexandra.fresco.framework.value.Value;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.helper.AbstractRoundBasedProtocol;
 import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
+import dk.alexandra.fresco.lib.helper.builder.NumericProtocolBuilder;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
 
 public class ExitingVariableCircuit extends AbstractRoundBasedProtocol {
@@ -42,17 +43,17 @@ public class ExitingVariableCircuit extends AbstractRoundBasedProtocol {
 	private final SInt[] enteringIndex, exitingIndex, updateColumn;
 	private SInt[] enteringColumn;
 	private final SInt pivot;
-	private LPFactory lpProvider;
-	private BasicNumericFactory bnProvider;
-	private ProtocolProducer gp;
+	private LPFactory lpFactory;
+	private BasicNumericFactory bnf;
+	private ProtocolProducer pp;
 	private int round = 0;
+	private SInt[] nonApps;
 	private SInt[] updatedB;
 	private SInt[] updatedEnteringColumn;
-	private SInt[] applicableB;
-	private SInt[] applicableEnteringColumn;
+	private SInt zero, one;
 	
 	public ExitingVariableCircuit(LPTableau tableau, Matrix<SInt> updateMatrix, 
-			SInt[] enteringIndex, SInt[] exitingIndex, SInt[] updateColumn, SInt pivot, LPFactory lpProvider, BasicNumericFactory bnProvider) {
+			SInt[] enteringIndex, SInt[] exitingIndex, SInt[] updateColumn, SInt pivot, LPFactory lpFactory, BasicNumericFactory bnProvider) {
 		if (checkDimensions(tableau, updateMatrix, enteringIndex, exitingIndex, updateColumn)) {
 			this.tableau = tableau;
 			this.updateMatrix = updateMatrix;
@@ -60,9 +61,9 @@ public class ExitingVariableCircuit extends AbstractRoundBasedProtocol {
 			this.exitingIndex = exitingIndex;
 			this.pivot = pivot;
 			this.updateColumn = updateColumn;
-			gp = null;
-			this.lpProvider = lpProvider;
-			this.bnProvider = bnProvider;
+			pp = null;
+			this.lpFactory = lpFactory;
+			this.bnf = bnProvider;
 
 		} else {
 			throw new MPCException("Dimensions of inputs does not match");
@@ -80,8 +81,7 @@ public class ExitingVariableCircuit extends AbstractRoundBasedProtocol {
 				enteringIndex.length == tableauWidth - 1 &&
 				exitingIndex.length == tableauHeight - 1 &&
 				updateColumn.length == updateWidth);
-	}	
-	
+	}		
 	
 	@Override
 	public Value[] getInputValues() {
@@ -97,32 +97,37 @@ public class ExitingVariableCircuit extends AbstractRoundBasedProtocol {
 
 	@Override
 	public ProtocolProducer nextGateProducer() {
-		SInt infinity = bnProvider.getSqrtOfMaxValue();
-		SInt one = bnProvider.getSInt(1);
-		SInt zero = bnProvider.getSInt(0);
 		int tableauHeight = tableau.getC().getHeight() + 1;
 		if (round == 0) {
+			one = bnf.getSInt();
+			zero = bnf.getSInt();
+			ProtocolProducer load0 = bnf.getSInt(0, zero);
+			ProtocolProducer load1 = bnf.getSInt(1, one);
+			
 			// Extract entering column
 			enteringColumn = new SInt[tableauHeight];
 			ProtocolProducer[] extractions = new ProtocolProducer[tableauHeight]; 
 			for (int i = 0; i < enteringColumn.length - 1; i++) {
-				enteringColumn[i] = bnProvider.getSInt();
+				enteringColumn[i] = bnf.getSInt();
 				SInt[] tableauRow = tableau.getC().getIthRow(i);
-				extractions[i] = lpProvider.getInnerProductCircuit(enteringIndex, tableauRow, enteringColumn[i]);
+				extractions[i] = lpFactory.getInnerProductCircuit(enteringIndex, tableauRow, enteringColumn[i]);
 			}
-			enteringColumn[enteringColumn.length - 1] = bnProvider.getSInt();
+			enteringColumn[enteringColumn.length - 1] = bnf.getSInt();
 			SInt[] tableauRow = tableau.getF();
-			extractions[enteringColumn.length - 1] = lpProvider.getInnerProductCircuit(enteringIndex, tableauRow, enteringColumn[enteringColumn.length - 1]);
-			gp = new ParallelProtocolProducer(extractions);
+			extractions[enteringColumn.length - 1] = lpFactory.getInnerProductCircuit(enteringIndex, tableauRow, enteringColumn[enteringColumn.length - 1]);
+			ParallelProtocolProducer par = new ParallelProtocolProducer(extractions);
+			par.append(load0);
+			par.append(load1);
+			pp = par;
 			round++;
 		} else if (round == 1) {
 			// Apply update matrix to entering column
 			updatedEnteringColumn = new SInt[tableauHeight];
 			ProtocolProducer[] enteringColumnUpdates = new ProtocolProducer[tableauHeight]; 
 			for (int i = 0; i < enteringColumnUpdates.length; i++) {
-				updatedEnteringColumn[i] = bnProvider.getSInt();
+				updatedEnteringColumn[i] = bnf.getSInt();
 				SInt[] updateRow = updateMatrix.getIthRow(i);
-				enteringColumnUpdates[i] = lpProvider.getInnerProductCircuit(updateRow, enteringColumn, updatedEnteringColumn[i]);
+				enteringColumnUpdates[i] = lpFactory.getInnerProductCircuit(updateRow, enteringColumn, updatedEnteringColumn[i]);
 			}
 			ProtocolProducer enteringColumnUpdateProducer = new ParallelProtocolProducer(enteringColumnUpdates);
 						
@@ -130,55 +135,47 @@ public class ExitingVariableCircuit extends AbstractRoundBasedProtocol {
 			updatedB = new SInt[tableauHeight - 1];
 			ProtocolProducer[] bUpdates = new ProtocolProducer[tableauHeight - 1]; 
 			for (int i = 0; i < updatedB.length; i++) {
-				updatedB[i] = bnProvider.getSInt();
+				updatedB[i] = bnf.getSInt();
 				SInt[] updateRow = new SInt[tableauHeight - 1];
 				System.arraycopy(updateMatrix.getIthRow(i), 0, updateRow, 0, tableauHeight - 1);
-				bUpdates[i] = lpProvider.getInnerProductCircuit(updateRow, tableau.getB(), updatedB[i]);
+				bUpdates[i] = lpFactory.getInnerProductCircuit(updateRow, tableau.getB(), updatedB[i]);
 			}
 			ParallelProtocolProducer par = new ParallelProtocolProducer(bUpdates);
 			par.append(enteringColumnUpdateProducer);
-			gp = par;
+			pp = par;
 			round++;
 		} else if (round == 2) {
-			applicableB = new SInt[tableauHeight - 1];
-			applicableEnteringColumn = new SInt[tableauHeight - 1];
-			ProtocolProducer[] applicableProducers = new ProtocolProducer[tableauHeight - 1];
-			for (int i = 0; i < applicableB.length; i++) {
-				applicableB[i] = bnProvider.getSInt();
-				applicableEnteringColumn[i] = bnProvider.getSInt();
-				SInt selector = bnProvider.getSInt();
-				ProtocolProducer comparison = lpProvider.getComparisonCircuit(one, updatedEnteringColumn[i], selector, false); 
-				ProtocolProducer selectEnteringColumn = lpProvider.getConditionalSelectCircuit(selector, 
-						updatedEnteringColumn[i], one, applicableEnteringColumn[i]);
-				ProtocolProducer selectB = lpProvider.getConditionalSelectCircuit(selector, 
-						updatedB[i], infinity, applicableB[i]);
-				ProtocolProducer selections = new ParallelProtocolProducer(selectEnteringColumn, selectB);
-				applicableProducers[i] = new SequentialProtocolProducer(comparison, selections);
+			NumericProtocolBuilder npb = new NumericProtocolBuilder(bnf);
+			nonApps = npb.getSIntArray(updatedB.length);
+			npb.beginParScope();
+			for (int i = 0 ; i < nonApps.length; i++) {
+				ProtocolProducer pp = lpFactory.getComparisonCircuit(updatedEnteringColumn[i], zero, nonApps[i], true);
+				npb.addGateProducer(pp);
 			}
-			gp = new ParallelProtocolProducer(applicableProducers);
-			updatedB = null;
+			npb.endCurScope();
+			pp = npb.getCircuit();
 			round++;
 		} else if (round == 3) {
+			SInt[] shortColumn = new SInt[updatedB.length];
+			System.arraycopy(updatedEnteringColumn, 0, shortColumn, 0, shortColumn.length);
 			// Determine exiting index
-			gp = lpProvider.getMinimumFractionCircuit(applicableB, applicableEnteringColumn, 
-					bnProvider.getSInt(), bnProvider.getSInt(), exitingIndex);
-			applicableB = null;
-			applicableEnteringColumn = null;
+			pp = lpFactory.getMinInfFracProtocol(updatedB, shortColumn, 
+					nonApps, bnf.getSInt(), bnf.getSInt(), bnf.getSInt(), exitingIndex);
 			round++;
 		} else if (round == 4) {
 			// Compute column for the new update matrix 
 			SInt[] negativeEnteringColumn = new SInt[tableauHeight - 1];
 			ProtocolProducer[] updateColumnEntries = new ProtocolProducer[tableauHeight];
 			for (int i = 0; i < tableauHeight - 1; i++) {
-				negativeEnteringColumn[i] = bnProvider.getSInt();
-				ProtocolProducer sub = bnProvider.getSubtractCircuit(zero, updatedEnteringColumn[i], negativeEnteringColumn[i]);
-				ProtocolProducer cond = lpProvider.getConditionalSelectCircuit(exitingIndex[i], one, 
+				negativeEnteringColumn[i] = bnf.getSInt();
+				ProtocolProducer sub = bnf.getSubtractCircuit(zero, updatedEnteringColumn[i], negativeEnteringColumn[i]);
+				ProtocolProducer cond = lpFactory.getConditionalSelectCircuit(exitingIndex[i], one, 
 						negativeEnteringColumn[i], updateColumn[i]);
 				updateColumnEntries[i] = new SequentialProtocolProducer(sub, cond);
 			}
-			updateColumnEntries[tableauHeight - 1] = bnProvider.getSubtractCircuit(zero, 
+			updateColumnEntries[tableauHeight - 1] = bnf.getSubtractCircuit(zero, 
 					updatedEnteringColumn[tableauHeight - 1], updateColumn[tableauHeight - 1]);
-			gp = new ParallelProtocolProducer(updateColumnEntries);
+			pp = new ParallelProtocolProducer(updateColumnEntries);
 			round++;
 		} else if (round == 5) {
 			// Determine pivot
@@ -187,27 +184,25 @@ public class ExitingVariableCircuit extends AbstractRoundBasedProtocol {
 			SInt[] seqAdditionResults = new SInt[tableauHeight - 1];
 			ProtocolProducer[] seqAdditions = new ProtocolProducer[tableauHeight - 2];
 			for (int i = 0; i < parAdditions.length; i++) {
-				parAdditionResults[i] = bnProvider.getSInt();
-				parAdditions[i] = bnProvider.getAddProtocol(updatedEnteringColumn[i], updateColumn[i], parAdditionResults[i]);
+				parAdditionResults[i] = bnf.getSInt();
+				parAdditions[i] = bnf.getAddProtocol(updatedEnteringColumn[i], updateColumn[i], parAdditionResults[i]);
 			}
 			ProtocolProducer parAdditionProducer = new ParallelProtocolProducer(parAdditions);
 			seqAdditionResults[0] = parAdditionResults[0];
 			for (int i = 1; i < parAdditions.length; i++) {
-				seqAdditionResults[i] = bnProvider.getSInt();
-				seqAdditions[i - 1] = bnProvider.getAddProtocol(seqAdditionResults[i - 1], parAdditionResults[i], seqAdditionResults[i]);
+				seqAdditionResults[i] = bnf.getSInt();
+				seqAdditions[i - 1] = bnf.getAddProtocol(seqAdditionResults[i - 1], parAdditionResults[i], seqAdditionResults[i]);
 			}
 			ProtocolProducer seqAdditionProducer = new SequentialProtocolProducer(seqAdditions);
-			ProtocolProducer subtractOne = bnProvider.getSubtractCircuit(seqAdditionResults[tableauHeight - 2], one, pivot);
-			gp = new SequentialProtocolProducer(parAdditionProducer, seqAdditionProducer, subtractOne);
+			ProtocolProducer subtractOne = bnf.getSubtractCircuit(seqAdditionResults[tableauHeight - 2], one, pivot);
+			pp = new SequentialProtocolProducer(parAdditionProducer, seqAdditionProducer, subtractOne);
 			round++;
 		} else {
 			updatedB = null;
 			updatedEnteringColumn = null;
-			applicableB = null;
-			applicableEnteringColumn = null;
-			gp = null;
+			pp = null;
 		}
-		return gp;		
+		return pp;		
 	}
 
 }

@@ -73,7 +73,7 @@ public class MinimumFractionProtocolImpl implements MinimumFractionProtocol {
 	public int getNextProtocols(NativeProtocol[] gates, int pos) {
 		if(currGP == null) {
 			if(this.k == 1) {
-				throw new MPCException("MinimumCircuit. k should never be 1. Just use the one you gave me as the minimum, fool ;)");
+				throw new MPCException("k should never be 1.");
 			} else if (this.k == 2) {
 				ProtocolProducer comparison = minFraction(ns[0], ds[0], ns[1], ds[1], cs[0], nm, dm);
 				SInt one = numericProvider.getSInt(1);
@@ -123,6 +123,7 @@ public class MinimumFractionProtocolImpl implements MinimumFractionProtocol {
 		private SInt dm2;
 		private SInt[] cs1_prime;
 		private SInt[] cs2_prime;
+		private SInt one;
 		
 		@Override
 		public ProtocolProducer nextGateProducer() {
@@ -149,17 +150,17 @@ public class MinimumFractionProtocolImpl implements MinimumFractionProtocol {
 				System.arraycopy(cs, k1, cs2_prime, 0, k2);
 				MinimumFractionProtocol min1 = lpProvider.getMinimumFractionCircuit(N1, D1, nm1, dm1, cs1_prime);
 				MinimumFractionProtocol min2 = lpProvider.getMinimumFractionCircuit(N2, D2, nm2, dm2, cs2_prime);
-				gp = new ParallelProtocolProducer(min1, min2);
+				one = numericProvider.getSInt();
+				ProtocolProducer load1 = numericProvider.getSInt(1, one);
+				gp = new ParallelProtocolProducer(min1, min2, load1);
 				round++;
 			} else if (round == 1){
 				SInt c = numericProvider.getSInt();
-				ProtocolProducer min = minFraction(nm1, dm1, nm2, dm2, c, nm, dm);
-				SInt one = numericProvider.getSInt(1);
-				SInt oneMinusC = numericProvider.getSInt();
-				SubtractCircuit subtract = numericProvider.getSubtractCircuit(one, c, oneMinusC);
+				ProtocolProducer min = minFraction(nm1, dm1, nm2, dm2, c, nm, dm);	
+				SInt notC = numericProvider.getSInt();
+				SubtractCircuit subtract = numericProvider.getSubtractCircuit(one, c, notC);
 				VectorScale scale1 = new VectorScale(c, cs1_prime, cs, 0);
-				VectorScale scale2 = new VectorScale(oneMinusC, cs2_prime, cs, k/2);
-				
+				VectorScale scale2 = new VectorScale(notC, cs2_prime, cs, k/2);
 				ProtocolProducer multGates = new ParallelProtocolProducer(scale1, scale2);				
 				gp = new SequentialProtocolProducer(min, subtract, multGates);
 				round++;
@@ -219,9 +220,7 @@ public class MinimumFractionProtocolImpl implements MinimumFractionProtocol {
 		MultProtocol mult1 = numericProvider.getMultCircuit(n0, d1, prod1);
 		MultProtocol mult2 = numericProvider.getMultCircuit(n1, d0, prod2);
 		ProtocolProducer multiplications = new ParallelProtocolProducer(mult1, mult2);
-		
 		ComparisonProtocol comp = lpProvider.getComparisonCircuit(prod1, prod2, c, true);
-		
 		ConditionalSelectCircuit cond1 = lpProvider.getConditionalSelectCircuit(c, n0, n1, nm);
 		ConditionalSelectCircuit cond2 = lpProvider.getConditionalSelectCircuit(c, d0, d1, dm);
 		ProtocolProducer conditionalSelects = new ParallelProtocolProducer(cond1, cond2);
