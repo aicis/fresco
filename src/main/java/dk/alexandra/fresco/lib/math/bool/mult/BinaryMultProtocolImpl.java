@@ -35,7 +35,7 @@ import dk.alexandra.fresco.framework.value.Value;
 import dk.alexandra.fresco.lib.field.bool.BasicLogicFactory;
 import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
-import dk.alexandra.fresco.lib.math.bool.add.AdderCircuitFactory;
+import dk.alexandra.fresco.lib.math.bool.add.AdderProtocolFactory;
 
 /**
  * This class implements a Binary Multiplication Circuit by doing the school method.
@@ -44,20 +44,20 @@ import dk.alexandra.fresco.lib.math.bool.add.AdderCircuitFactory;
  * @author Kasper Damgaard
  *
  */
-public class BinaryMultCircuitImpl implements BinaryMultCircuit{	
+public class BinaryMultProtocolImpl implements BinaryMultProtocol{	
 
 	private SBool[] lefts, rights, outs;
 	private SBool[][] andMatrix;
 	private SBool[] intermediateResults;
 	private SBool[] carries;
 	private BasicLogicFactory basicProvider;
-	private AdderCircuitFactory adderProvider;
+	private AdderProtocolFactory adderProvider;
 	private int round;
 	private int stopRound;
 	private ProtocolProducer curGP;
 	
-	public BinaryMultCircuitImpl(SBool[] lefts, SBool[] rights, SBool[] outs,
-			BasicLogicFactory basicProvider, AdderCircuitFactory adderProvider) {
+	public BinaryMultProtocolImpl(SBool[] lefts, SBool[] rights, SBool[] outs,
+			BasicLogicFactory basicProvider, AdderProtocolFactory adderProvider) {
 		if(lefts.length+rights.length != outs.length){
 			throw new MPCException("input arrays must be same length, and output array must be twice that of the inputs.");
 		}
@@ -125,18 +125,18 @@ public class BinaryMultCircuitImpl implements BinaryMultCircuit{
 		}
 		else if(round > 0 && round < stopRound-1){
 			if(curGP == null){								
-				Protocol firstHA = adderProvider.getOneBitHalfAdderCircuit(andMatrix[0][round-1], intermediateResults[0], outs[outs.length-1-round], carries[0]);
+				Protocol firstHA = adderProvider.getOneBitHalfAdderProtocol(andMatrix[0][round-1], intermediateResults[0], outs[outs.length-1-round], carries[0]);
 				Protocol[] FAs = new Protocol[lefts.length-1];
 				for(int i = 1; i < lefts.length; i++){
 					if(round == 1 && i == lefts.length-1){
 						//special case where we need a half adder, not a full adder since we do not have a carry from first layer. 
-						FAs[i-1] = adderProvider.getOneBitHalfAdderCircuit(andMatrix[i][round-1], carries[i-1], intermediateResults[i-1], intermediateResults[i]);
+						FAs[i-1] = adderProvider.getOneBitHalfAdderProtocol(andMatrix[i][round-1], carries[i-1], intermediateResults[i-1], intermediateResults[i]);
 					}
 					else if(i == lefts.length-1){
-						FAs[i-1] = adderProvider.getOneBitFullAdderCircuit(andMatrix[i][round-1], intermediateResults[i], carries[i-1], intermediateResults[i-1], intermediateResults[i]);
+						FAs[i-1] = adderProvider.getOneBitFullAdderProtocol(andMatrix[i][round-1], intermediateResults[i], carries[i-1], intermediateResults[i-1], intermediateResults[i]);
 					}					
 					else{						
-						FAs[i-1] = adderProvider.getOneBitFullAdderCircuit(andMatrix[i][round-1], intermediateResults[i], carries[i-1], intermediateResults[i-1], carries[i]);
+						FAs[i-1] = adderProvider.getOneBitFullAdderProtocol(andMatrix[i][round-1], intermediateResults[i], carries[i-1], intermediateResults[i-1], carries[i]);
 					}
 				}
 				SequentialProtocolProducer tmp = new SequentialProtocolProducer(FAs); 
@@ -152,14 +152,14 @@ public class BinaryMultCircuitImpl implements BinaryMultCircuit{
 		}
 		else if(round == stopRound-1){			
 			if(curGP == null){				
-				Protocol firstHA = adderProvider.getOneBitHalfAdderCircuit(andMatrix[0][round-1], intermediateResults[0], outs[outs.length-1-round], carries[0]);
+				Protocol firstHA = adderProvider.getOneBitHalfAdderProtocol(andMatrix[0][round-1], intermediateResults[0], outs[outs.length-1-round], carries[0]);
 				Protocol[] FAs = new Protocol[lefts.length-1];
 				for(int i = 1; i < lefts.length; i++){
 					if(i == lefts.length-1){
-						FAs[i-1] = adderProvider.getOneBitFullAdderCircuit(andMatrix[i][round-1], intermediateResults[i], carries[i-1], outs[1], outs[0]);
+						FAs[i-1] = adderProvider.getOneBitFullAdderProtocol(andMatrix[i][round-1], intermediateResults[i], carries[i-1], outs[1], outs[0]);
 					}
 					else{
-						FAs[i-1] = adderProvider.getOneBitFullAdderCircuit(andMatrix[i][round-1], intermediateResults[i], carries[i-1], outs[outs.length-1-round-i], carries[i]);
+						FAs[i-1] = adderProvider.getOneBitFullAdderProtocol(andMatrix[i][round-1], intermediateResults[i], carries[i-1], outs[outs.length-1-round-i], carries[i]);
 					}
 				}
 				SequentialProtocolProducer tmp = new SequentialProtocolProducer(FAs); 

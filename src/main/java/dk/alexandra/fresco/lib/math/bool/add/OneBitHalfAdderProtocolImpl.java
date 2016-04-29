@@ -34,7 +34,7 @@ import dk.alexandra.fresco.lib.field.bool.BasicLogicFactory;
 import dk.alexandra.fresco.lib.field.bool.XorProtocol;
 import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
 
-public class OneBitHalfAdderCircuitImpl implements OneBitHalfAdderCircuit{
+public class OneBitHalfAdderProtocolImpl implements OneBitHalfAdderProtocol{
 
 	private SBool left, right, outS;
 	private SBool outCarry;
@@ -42,7 +42,7 @@ public class OneBitHalfAdderCircuitImpl implements OneBitHalfAdderCircuit{
 	private int round;
 	private ParallelProtocolProducer curGP;
 	
-	public OneBitHalfAdderCircuitImpl(SBool left, SBool right, SBool outS,
+	public OneBitHalfAdderProtocolImpl(SBool left, SBool right, SBool outS,
 			SBool outCarry, BasicLogicFactory provider) {
 		this.left = left;
 		this.right = right;

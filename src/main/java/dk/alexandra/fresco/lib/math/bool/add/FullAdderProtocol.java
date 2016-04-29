@@ -28,6 +28,6 @@ package dk.alexandra.fresco.lib.math.bool.add;
 
 import dk.alexandra.fresco.framework.Protocol;
 
-public interface BitIncrementerCircuit extends Protocol{
+public interface FullAdderProtocol extends Protocol{
 
 }

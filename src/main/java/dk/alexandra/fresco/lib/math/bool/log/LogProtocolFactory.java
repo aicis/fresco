@@ -24,10 +24,12 @@
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
  *******************************************************************************/
-package dk.alexandra.fresco.lib.math.bool.add;
+package dk.alexandra.fresco.lib.math.bool.log;
 
-import dk.alexandra.fresco.framework.Protocol;
+import dk.alexandra.fresco.framework.ProtocolFactory;
+import dk.alexandra.fresco.framework.value.SBool;
 
-public interface OneBitFullAdderCircuit extends Protocol{
+public interface LogProtocolFactory extends ProtocolFactory{
 
+	public LogProtocol getLogProtocol(SBool[] number, SBool[] result);
 }

@@ -31,5 +31,5 @@ import dk.alexandra.fresco.framework.value.SBool;
 
 public interface OneBitHalfAdderCircuitFactory extends ProtocolFactory{
 
-	public OneBitHalfAdderCircuit getOneBitHalfAdderCircuit(SBool left, SBool right, SBool outS, SBool outCarry);
+	public OneBitHalfAdderProtocol getOneBitHalfAdderProtocol(SBool left, SBool right, SBool outS, SBool outCarry);
 }

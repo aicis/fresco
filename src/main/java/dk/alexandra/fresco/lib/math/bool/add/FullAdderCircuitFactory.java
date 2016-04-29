@@ -31,6 +31,6 @@ import dk.alexandra.fresco.framework.value.SBool;
 
 public interface FullAdderCircuitFactory extends ProtocolFactory{
 
-	public FullAdderCircuit getFullAdderCircuit(SBool[] lefts, SBool[] rights, SBool inCarry, SBool[] outs,
+	public FullAdderProtocol getFullAdderProtocol(SBool[] lefts, SBool[] rights, SBool inCarry, SBool[] outs,
 			SBool outCarry);
 }

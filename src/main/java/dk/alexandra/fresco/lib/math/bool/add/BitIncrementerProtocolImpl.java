@@ -26,7 +26,6 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.math.bool.add;
 
-import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.SBool;
@@ -38,34 +37,34 @@ import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
  * This class implements a Full Adder Circuit for Binary Circuits. 
  * It takes the naive approach of linking 1-Bit-Full Adders together to implement 
  * a generic length adder. 
- * @author Kasper Damgaard
+ * @author Michael Stausholm
  *
  */
-public class FullAdderCircuitImpl implements FullAdderCircuit{
+public class BitIncrementerProtocolImpl implements BitIncrementerProtocol{
 
-	private SBool[] lefts, rights, outs;
-	private SBool inCarry, outCarry;
+	private SBool[] base, outs;
+	private SBool increment;
 	private SBool tmpCarry;
-	private OneBitFullAdderCircuitFactory FAProvider;
+	private OneBitHalfAdderCircuitFactory FAProvider;
 	private int round;
 	private int stopRound;
 	private ProtocolProducer curGP;
+	private BasicLogicFactory basicProvider;
 	
-	public FullAdderCircuitImpl(SBool[] lefts, SBool[] rights, SBool inCarry, SBool[] outs,
-			SBool outCarry, BasicLogicFactory basicProvider, OneBitFullAdderCircuitFactory FAProvider){
-		if(lefts.length != rights.length || lefts.length != outs.length){
-			throw new MPCException("input and output arrays for Full Adder must be of same length.");
-		}
-		this.lefts = lefts;
-		this.rights = rights;
-		this.inCarry = inCarry;
+	public BitIncrementerProtocolImpl(SBool[] base, SBool increment, SBool[] outs, BasicLogicFactory basicProvider, OneBitHalfAdderCircuitFactory FAProvider){
+		/*if(base.length != (outs.length-1)){
+			throw new MPCException("output must be 1 larger than input.");
+		}*/
+		this.base = base;
+		
+		this.increment = increment;
 		this.outs = outs;
-		this.outCarry = outCarry;
 		this.FAProvider = FAProvider;
 		this.round = 0;
-		this.stopRound = lefts.length;
+		this.stopRound = base.length;
 		this.curGP = null;
 		
+		this.basicProvider = basicProvider;
 		tmpCarry = basicProvider.getSBool();
 	}
 	
@@ -73,7 +72,7 @@ public class FullAdderCircuitImpl implements FullAdderCircuit{
 	public int getNextProtocols(NativeProtocol[] gates, int pos) {
 		if(round == 0){
 			if(curGP == null){				
-				ProtocolProducer bit1 = FAProvider.getOneBitFullAdderCircuit(lefts[stopRound-1], rights[stopRound-1], inCarry, outs[stopRound-1], tmpCarry);
+				ProtocolProducer bit1 = FAProvider.getOneBitHalfAdderProtocol(base[stopRound-1], increment, outs[stopRound-1], tmpCarry);
 				curGP = new SequentialProtocolProducer(bit1);
 			}
 			if(curGP.hasNextProtocols()){
@@ -85,10 +84,11 @@ public class FullAdderCircuitImpl implements FullAdderCircuit{
 			}
 		}
 		else if(round > 0 && round < stopRound-1){
+			//System.out.println("Got to round "+round);
 			if(curGP == null){								
 				//TODO: Using tmpCarry both as in and out might not be good for all implementations of a 1Bit FA circuit?
 				//But at least it works for OneBitFullAdderCircuitImpl.
-				ProtocolProducer bitAdder = FAProvider.getOneBitFullAdderCircuit(lefts[stopRound-round-1], rights[stopRound-round-1], tmpCarry, outs[stopRound-round-1], tmpCarry);
+				ProtocolProducer bitAdder = FAProvider.getOneBitHalfAdderProtocol(base[stopRound-round-1], tmpCarry, outs[stopRound-round-1], tmpCarry);
 				curGP = new SequentialProtocolProducer(bitAdder);
 			}
 			if(curGP.hasNextProtocols()){
@@ -100,8 +100,14 @@ public class FullAdderCircuitImpl implements FullAdderCircuit{
 			}
 		}
 		else if(round == stopRound-1){
-			if(curGP == null){				
-				ProtocolProducer bit8 = FAProvider.getOneBitFullAdderCircuit(lefts[0], rights[0], tmpCarry, outs[0], outCarry);
+			//System.out.println("Got to final round");
+			if(curGP == null){	
+				SBool last = basicProvider.getKnownConstantSBool(false); 
+				if(outs.length > base.length){
+					last = outs[outs.length-base.length-1];
+				}
+				
+				ProtocolProducer bit8 = FAProvider.getOneBitHalfAdderProtocol(base[0], tmpCarry, outs[outs.length-base.length], last);
 				curGP = new SequentialProtocolProducer(bit8);
 			}
 			if(curGP.hasNextProtocols()){

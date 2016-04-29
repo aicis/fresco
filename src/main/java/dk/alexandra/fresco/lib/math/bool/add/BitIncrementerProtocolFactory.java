@@ -26,8 +26,10 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.math.bool.add;
 
-import dk.alexandra.fresco.framework.Protocol;
+import dk.alexandra.fresco.framework.ProtocolFactory;
+import dk.alexandra.fresco.framework.value.SBool;
 
-public interface FullAdderCircuit extends Protocol{
+public interface BitIncrementerProtocolFactory extends ProtocolFactory{
 
+	public BitIncrementerProtocol getBitIncrementerProtocol(SBool[] base, SBool increment, SBool[] outs);
 }

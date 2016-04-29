@@ -34,7 +34,7 @@ import dk.alexandra.fresco.lib.field.bool.BasicLogicFactory;
 import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
 
-public class OneBitFullAdderCircuitImpl implements OneBitFullAdderCircuit{
+public class OneBitFullAdderProtocolImpl implements OneBitFullAdderProtocol{
 
 	private SBool a, b, c, outS, outCarry;
 	private SBool xor1Out, and1Out, and2Out;
@@ -42,7 +42,7 @@ public class OneBitFullAdderCircuitImpl implements OneBitFullAdderCircuit{
 	private ProtocolProducer curGP;
 	private int round;
 	
-	public OneBitFullAdderCircuitImpl(SBool a, SBool b, SBool c, 
+	public OneBitFullAdderProtocolImpl(SBool a, SBool b, SBool c, 
 			SBool outS, SBool outCarry, BasicLogicFactory provider){
 		this.a = a;
 		this.b = b;
