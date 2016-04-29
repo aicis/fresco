@@ -35,7 +35,7 @@ import dk.alexandra.fresco.lib.field.bool.XorProtocol;
 import dk.alexandra.fresco.lib.field.bool.XorProtocolFactory;
 
 /**
- * This circuit implements "NOT x" as "TRUE XOR x". 
+ * This protocol implements "NOT x" as "TRUE XOR x". 
  *
  */
 public class NotFromXorProtocol implements NotProtocol {
@@ -61,12 +61,12 @@ public class NotFromXorProtocol implements NotProtocol {
 	}
 
 	@Override
-	public int getNextProtocols(NativeProtocol[] gates, int pos) {
+	public int getNextProtocols(NativeProtocol[] nativeProtocols, int pos) {
 		if (xorc == null) {
 			SBool t = sbool.getKnownConstantSBool(true);
 			xorc = xorcp.getXorProtocol(t, in, out);
 		}
-		return xorc.getNextProtocols(gates, pos);
+		return xorc.getNextProtocols(nativeProtocols, pos);
 	}
 
 

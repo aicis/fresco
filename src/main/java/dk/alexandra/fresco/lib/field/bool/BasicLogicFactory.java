@@ -48,15 +48,7 @@ public interface BasicLogicFactory extends 	IOBoolProtocolFactory,
 											SBoolFactory,
 											OBoolFactory,
 											AndProtocolFactory, 
-											//NandCircuitFactory,
-											//OrCircuitFactory, 
 											NotProtocolFactory, 
 											XorProtocolFactory
-											//XnorCircuitFactory
-											{
-	
-	
-	
-	
-	
+											{	
 }

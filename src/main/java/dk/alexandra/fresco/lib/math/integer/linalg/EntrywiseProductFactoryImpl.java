@@ -28,13 +28,13 @@ package dk.alexandra.fresco.lib.math.integer.linalg;
 
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.field.integer.MultCircuitFactory;
+import dk.alexandra.fresco.lib.field.integer.MultProtocolFactory;
 
 public class EntrywiseProductFactoryImpl implements EntrywiseProductFactory{
 
-	private final MultCircuitFactory mcf;
+	private final MultProtocolFactory mcf;
 	
-	public EntrywiseProductFactoryImpl(MultCircuitFactory mcf) {
+	public EntrywiseProductFactoryImpl(MultProtocolFactory mcf) {
 	this.mcf = mcf;
 	}
 	

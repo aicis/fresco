@@ -31,20 +31,20 @@ import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.MultByConstantFactory;
-import dk.alexandra.fresco.lib.field.integer.MultCircuitFactory;
+import dk.alexandra.fresco.lib.field.integer.MultProtocolFactory;
 import dk.alexandra.fresco.lib.helper.AbstractRepeatProtocol;
 
 public class EntrywiseProductProtocolImpl extends AbstractRepeatProtocol implements
 		EntrywiseProductProtocol {
 
-	private final MultCircuitFactory provider;
+	private final MultProtocolFactory provider;
 	private final MultByConstantFactory openMultProvider;
 	private final SInt[] as, bs, results;
 	private final OInt[] publicBs;
 	private int limit, i = 0;
 
 	public EntrywiseProductProtocolImpl(SInt[] as, SInt[] bs, SInt[] results,
-			MultCircuitFactory provider) {
+			MultProtocolFactory provider) {
 		if (as.length != bs.length && as.length != results.length) {
 			throw new MPCException(
 					"Can only compute dot-product with equal length input arrays");

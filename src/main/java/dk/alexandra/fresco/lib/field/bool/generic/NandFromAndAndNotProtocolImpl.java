@@ -41,30 +41,30 @@ public class NandFromAndAndNotProtocolImpl implements NandProtocol{
 	SBool left; 
 	SBool right; 
 	SBool out;
-	BasicLogicFactory provider;
-	private ProtocolProducer curGP = null;
+	BasicLogicFactory factory;
+	private ProtocolProducer curPP = null;
 	private boolean done = false;
 	
 	public NandFromAndAndNotProtocolImpl(SBool left, SBool right, SBool out,
-			BasicLogicFactory provider) {
+			BasicLogicFactory factory) {
 		this.left = left;
 		this.right = right;
 		this.out = out;
-		this.provider = provider;
+		this.factory = factory;
 	}
 
 	@Override
-	public int getNextProtocols(NativeProtocol[] gates, int pos) {
-		if(curGP == null){			
-			SBool tmpOut = provider.getSBool();
-			AndProtocol and = provider.getAndProtocol(left, right, tmpOut);
-			NotProtocol not = provider.getNotProtocol(tmpOut, out);
-			curGP = new SequentialProtocolProducer(and, not);
+	public int getNextProtocols(NativeProtocol[] nativeProtocols, int pos) {
+		if(curPP == null){			
+			SBool tmpOut = factory.getSBool();
+			AndProtocol and = factory.getAndProtocol(left, right, tmpOut);
+			NotProtocol not = factory.getNotProtocol(tmpOut, out);
+			curPP = new SequentialProtocolProducer(and, not);
 		}
-		if(curGP.hasNextProtocols()){
-			pos = curGP.getNextProtocols(gates, pos);
+		if(curPP.hasNextProtocols()){
+			pos = curPP.getNextProtocols(nativeProtocols, pos);
 		}
-		else if(!curGP.hasNextProtocols()){
+		else if(!curPP.hasNextProtocols()){
 			done = true;
 		}
 		return pos;

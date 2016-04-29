@@ -38,39 +38,39 @@ public class XnorFromXorAndNotProtocolImpl implements XnorProtocol{
 	SBool left; 
 	SBool right; 
 	SBool out;
-	BasicLogicFactory provider;
-	private ProtocolProducer curGP = null;
+	BasicLogicFactory factory;
+	private ProtocolProducer curPP = null;
 	private boolean done = false;
 	private boolean xorDone = false;
 	private SBool tmpOut;
 	
 	public XnorFromXorAndNotProtocolImpl(SBool left, SBool right, SBool out,
-			BasicLogicFactory provider) {
+			BasicLogicFactory factory) {
 		this.left = left;
 		this.right = right;
 		this.out = out;
-		this.provider = provider;
+		this.factory = factory;
 	}
 	
 	@Override
-	public int getNextProtocols(NativeProtocol[] gates, int pos) {
-		if (curGP == null) {
-			tmpOut = provider.getSBool();
-			curGP = provider.getXorProtocol(left, right, tmpOut);
-			pos = curGP.getNextProtocols(gates, pos);
+	public int getNextProtocols(NativeProtocol[] nativeProtocols, int pos) {
+		if (curPP == null) {
+			tmpOut = factory.getSBool();
+			curPP = factory.getXorProtocol(left, right, tmpOut);
+			pos = curPP.getNextProtocols(nativeProtocols, pos);
 			return pos;
 		}
-		if (!curGP.hasNextProtocols()) {
+		if (!curPP.hasNextProtocols()) {
 			if (!xorDone) {
-				curGP = provider.getNotProtocol(tmpOut, out);
+				curPP = factory.getNotProtocol(tmpOut, out);
 				xorDone = true;
-				pos = curGP.getNextProtocols(gates, pos);
+				pos = curPP.getNextProtocols(nativeProtocols, pos);
 				return pos;
 			} else {
 				done = true;
 			}
 		} else {
-			pos = curGP.getNextProtocols(gates, pos);
+			pos = curPP.getNextProtocols(nativeProtocols, pos);
 		}
 		return pos;
 	}

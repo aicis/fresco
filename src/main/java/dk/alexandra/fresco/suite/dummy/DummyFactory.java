@@ -114,17 +114,17 @@ public class DummyFactory implements BasicLogicFactory {
 	}
 
 	@Override
-	public OpenBoolProtocol getOpenCircuit(int target, SBool closed, OBool open) {
+	public OpenBoolProtocol getOpenProtocol(int target, SBool closed, OBool open) {
 		return new DummyOpenBoolProtocol(closed, open, target);
 	}
 	
 	@Override
-	public AndProtocol getAndCircuit(SBool inLeft, OBool inRight, SBool out) {
+	public AndProtocol getAndProtocol(SBool inLeft, OBool inRight, SBool out) {
 		throw new NotImplementedException();
 	}
 
 	@Override
-	public XorProtocol getXorCircuit(SBool inLeft, OBool inRight, SBool out) {
+	public XorProtocol getXorProtocol(SBool inLeft, OBool inRight, SBool out) {
 		throw new NotImplementedException();
 	}
 

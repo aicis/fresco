@@ -37,20 +37,20 @@ import dk.alexandra.fresco.lib.helper.CopyProtocolFactory;
 
 /**
  * An efficient way of OR'ing an SBool with an OBool if we can construct SBools
- * of constants and if we can copy gates.
+ * of constants and if we can copy protocols.
  * 
  */
 public class OrFromCopyConstProtocol implements OrProtocol {
 
 	private CopyProtocol<SBool> copyCir;
-	private CopyProtocolFactory<SBool> copyProvider;
-	private SBoolFactory sboolProvider;
+	private CopyProtocolFactory<SBool> copyFactory;
+	private SBoolFactory sboolFactory;
 	private SBool inLeft;
 	private OBool inRight;
 	private SBool out;
 	
-	public OrFromCopyConstProtocol(CopyProtocolFactory<SBool> copyProvider, SBoolFactory sboolProvider, SBool inLeft, OBool inRight, SBool out) {
-		this.copyProvider = copyProvider;
+	public OrFromCopyConstProtocol(CopyProtocolFactory<SBool> copyFactory, SBoolFactory sboolFactory, SBool inLeft, OBool inRight, SBool out) {
+		this.copyFactory = copyFactory;
 		this.inLeft = inLeft;
 		this.inRight = inRight;
 		this.out = out;
@@ -67,17 +67,17 @@ public class OrFromCopyConstProtocol implements OrProtocol {
 	}
 
 	@Override
-	public int getNextProtocols(NativeProtocol[] gates, int pos) {
+	public int getNextProtocols(NativeProtocol[] nativeProtocols, int pos) {
 	
 		if (copyCir == null) {
 			if (inRight.getValue()) {
-				copyCir = copyProvider.getCopyProtocol(sboolProvider.getKnownConstantSBool(true), out);
+				copyCir = copyFactory.getCopyProtocol(sboolFactory.getKnownConstantSBool(true), out);
 			} else {
-				copyCir = copyProvider.getCopyProtocol(inLeft, out);
+				copyCir = copyFactory.getCopyProtocol(inLeft, out);
 			}
 		}
 		
-		return copyCir.getNextProtocols(gates, pos);
+		return copyCir.getNextProtocols(nativeProtocols, pos);
 	}
 
 	@Override

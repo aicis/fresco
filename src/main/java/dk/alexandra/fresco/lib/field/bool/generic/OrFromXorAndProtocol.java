@@ -39,7 +39,7 @@ import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
 
 /**
- * This circuit implements
+ * This protocol implements
  * 
  *     a OR b
  *   
@@ -61,10 +61,10 @@ public class OrFromXorAndProtocol implements OrProtocol {
 	private SBool t0;
 	private SBool t1;
 
-	public OrFromXorAndProtocol(SBoolFactory sboolp, XorProtocolFactory xorcp, AndProtocolFactory andcp, SBool inA, SBool inB, SBool out) {
-		this.sboolp = sboolp;
-		this.xorcp = xorcp;
-		this.andcp = andcp;
+	public OrFromXorAndProtocol(SBoolFactory sboolf, XorProtocolFactory xorcf, AndProtocolFactory andcf, SBool inA, SBool inB, SBool out) {
+		this.sboolp = sboolf;
+		this.xorcp = xorcf;
+		this.andcp = andcf;
 		this.inA = inA;
 		this.inB = inB;
 		this.out = out;
@@ -76,24 +76,21 @@ public class OrFromXorAndProtocol implements OrProtocol {
 	}
 	
 	@Override
-	public int getNextProtocols(NativeProtocol[] gates, int pos) {
+	public int getNextProtocols(NativeProtocol[] nativeProtocols, int pos) {
 		// TODO: We could create less objects up front than this by using explicit program counter.
 		
-		// Lazy construction of inner circuits.
+		// Lazy construction of inner protocols.
 		if (c == null) {
 			t0 = sboolp.getSBool();
 			t1 = sboolp.getSBool();
 			Protocol c0 = andcp.getAndProtocol(inA, inB, t0);
 			Protocol c1 = xorcp.getXorProtocol(inA, inB, t1);
-			ProtocolProducer c2 = new ParallelProtocolProducer(c0, c1); // Get ParallelGateProducer in constructor?
+			ProtocolProducer c2 = new ParallelProtocolProducer(c0, c1); 
 			Protocol c3 = xorcp.getXorProtocol(t0, t1, out);
-			c = new SequentialProtocolProducer(c2, c3); // Get SequentialGateProducer in constructor?
+			c = new SequentialProtocolProducer(c2, c3); 
 		}
 
-		return c.getNextProtocols(gates, pos);
-		
-		// TODO: Should we nullify c here if no more gates?
-
+		return c.getNextProtocols(nativeProtocols, pos);
 	}
 
 	@Override

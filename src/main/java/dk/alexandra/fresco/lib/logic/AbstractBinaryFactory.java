@@ -143,7 +143,7 @@ public abstract class AbstractBinaryFactory implements BasicLogicFactory,
 	}
 
 	@Override
-	public AndProtocol getAndCircuit(SBool inLeft, OBool inRight, SBool out) {
+	public AndProtocol getAndProtocol(SBool inLeft, OBool inRight, SBool out) {
 		return new AndFromCopyConstProtocol(this, this, inLeft, inRight, out);
 	}
 

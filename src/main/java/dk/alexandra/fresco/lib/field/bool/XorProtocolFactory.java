@@ -34,6 +34,6 @@ public interface XorProtocolFactory extends ProtocolFactory {
 
 	public XorProtocol getXorProtocol(SBool inLeft, SBool inRight, SBool out);
 	
-	public XorProtocol getXorCircuit(SBool inLeft, OBool inRight, SBool out);
+	public XorProtocol getXorProtocol(SBool inLeft, OBool inRight, SBool out);
 	
 }

@@ -124,7 +124,7 @@ public class LogProtocolImpl implements LogProtocol{
 				for(int i = xors.length-2; i > -1; i--){
 					if(i == 0){
 						OBool zero = provider.getKnownConstantOBool(false); //get a 0 which we implicitly prepends to y (prefixOrOuts)						
-						xors[i] = provider.getXorCircuit(prefixOrOuts[i], zero, log[i]);
+						xors[i] = provider.getXorProtocol(prefixOrOuts[i], zero, log[i]);
 					}
 					else{
 						xors[i] = provider.getXorProtocol(prefixOrOuts[i-1], prefixOrOuts[i], log[i]);
@@ -152,7 +152,7 @@ public class LogProtocolImpl implements LogProtocol{
 					for(int i = 0; i < xors.length; i++){
 						xorHolders[i] = provider.getSBool();
 						boolean ithBit = Util.ithBit(xors.length-1-i, result.length-1-j); //j'th bit of i	
-						ands[i] = provider.getAndCircuit(log[i], provider.getKnownConstantOBool(ithBit), xorHolders[i]);
+						ands[i] = provider.getAndProtocol(log[i], provider.getKnownConstantOBool(ithBit), xorHolders[i]);
 						xors[i] = provider.getXorProtocol(xorHolders[i], result[j], result[j]);
 					}
 					XorProtocol preResult = provider.getXorProtocol(number[0], number[0], result[j]); //"hack" in order to make result be 0 from starting point.					

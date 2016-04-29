@@ -34,6 +34,6 @@ public interface AndProtocolFactory extends ProtocolFactory {
 
 	public AndProtocol getAndProtocol(SBool inLeft, SBool inRight, SBool out);
 	
-	public AndProtocol getAndCircuit(SBool inLeft, OBool inRight, SBool out);
+	public AndProtocol getAndProtocol(SBool inLeft, OBool inRight, SBool out);
 	
 }
