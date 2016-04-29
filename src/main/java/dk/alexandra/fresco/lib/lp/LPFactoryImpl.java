@@ -101,7 +101,7 @@ public class LPFactoryImpl implements LPFactory {
 	}
 
 	@Override
-	public MarkerProtocol getMarkerCircuit(String message) {
+	public MarkerProtocol getMarkerProtocol(String message) {
 		return new MarkerProtocolImpl(message);
 	}
 
