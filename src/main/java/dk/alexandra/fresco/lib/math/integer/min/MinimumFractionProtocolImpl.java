@@ -148,8 +148,8 @@ public class MinimumFractionProtocolImpl implements MinimumFractionProtocol {
 				dm2 = numericProvider.getSInt();
 				System.arraycopy(cs, 0, cs1_prime, 0, k1);
 				System.arraycopy(cs, k1, cs2_prime, 0, k2);
-				MinimumFractionProtocol min1 = lpProvider.getMinimumFractionCircuit(N1, D1, nm1, dm1, cs1_prime);
-				MinimumFractionProtocol min2 = lpProvider.getMinimumFractionCircuit(N2, D2, nm2, dm2, cs2_prime);
+				MinimumFractionProtocol min1 = lpProvider.getMinimumFractionProtocol(N1, D1, nm1, dm1, cs1_prime);
+				MinimumFractionProtocol min2 = lpProvider.getMinimumFractionProtocol(N2, D2, nm2, dm2, cs2_prime);
 				one = numericProvider.getSInt();
 				ProtocolProducer load1 = numericProvider.getSInt(1, one);
 				gp = new ParallelProtocolProducer(min1, min2, load1);
@@ -220,7 +220,7 @@ public class MinimumFractionProtocolImpl implements MinimumFractionProtocol {
 		MultProtocol mult1 = numericProvider.getMultProtocol(n0, d1, prod1);
 		MultProtocol mult2 = numericProvider.getMultProtocol(n1, d0, prod2);
 		ProtocolProducer multiplications = new ParallelProtocolProducer(mult1, mult2);
-		ComparisonProtocol comp = lpProvider.getComparisonCircuit(prod1, prod2, c, true);
+		ComparisonProtocol comp = lpProvider.getComparisonProtocol(prod1, prod2, c, true);
 		ConditionalSelectProtocol cond1 = lpProvider.getConditionalSelectProtocol(c, n0, n1, nm);
 		ConditionalSelectProtocol cond2 = lpProvider.getConditionalSelectProtocol(c, d0, d1, dm);
 		ProtocolProducer conditionalSelects = new ParallelProtocolProducer(cond1, cond2);

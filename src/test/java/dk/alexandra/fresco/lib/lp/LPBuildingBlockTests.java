@@ -136,7 +136,7 @@ public class LPBuildingBlockTests {
 			expectedIndex = enteringDanzigVariableIndex(constraints, updateMatrix, b, f);
 			SInt[] enteringIndex = npb.getSIntArray(n + m);
 			SInt minimum = npb.getSInt();
-			ProtocolProducer evc = lpf.getEnteringVariableCircuit(sTableau, sUpdateMatrix, enteringIndex, minimum);
+			ProtocolProducer evc = lpf.getEnteringVariableProtocol(sTableau, sUpdateMatrix, enteringIndex, minimum);
 			iob.addProtocolProducer(evc);
 			this.outputs = iob.outputArray(enteringIndex);
 			iob.endCurScope();
@@ -332,7 +332,7 @@ public class LPBuildingBlockTests {
 			SInt[] sExitingIndex = npb.getSIntArray(m);
 			SInt[] sUpdateCol = npb.getSIntArray(m+1);
 			SInt pivot = npb.getSInt();
-			ProtocolProducer evc = lpf.getExitingVariableCircuit(sTableau, sUpdateMatrix, sEnteringIdx, sExitingIndex, sUpdateCol, pivot);
+			ProtocolProducer evc = lpf.getExitingVariableProtocol(sTableau, sUpdateMatrix, sEnteringIdx, sExitingIndex, sUpdateCol, pivot);
 			iob.addProtocolProducer(evc);
 			OInt[] oExitingIndex = iob.outputArray(sExitingIndex);
 			OInt[] oUpdateCol = iob.outputArray(sUpdateCol);

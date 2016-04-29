@@ -36,14 +36,14 @@ import dk.alexandra.fresco.lib.helper.builder.NumericProtocolBuilder;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
 import dk.alexandra.fresco.lib.math.integer.linalg.EntrywiseProductProtocol;
 
-public class EnteringVariableCircuit extends AbstractRoundBasedProtocol {
+public class EnteringVariableProtocol extends AbstractRoundBasedProtocol {
 
 	private final LPTableau tableau;
 	private final Matrix<SInt> updateMatrix;
 	private final SInt[] enteringIndex;
 	private final SInt minimum;
-	private LPFactory lpProvider;
-	private BasicNumericFactory bnProvider;	
+	private LPFactory lpFactory;
+	private BasicNumericFactory bnFactory;	
 	int round = 0;
 	private SInt[] updatedF;
 
@@ -55,18 +55,18 @@ public class EnteringVariableCircuit extends AbstractRoundBasedProtocol {
 	 *            the left with the update matrix gives the new tableau
 	 * @param enteringIndex
 	 *            the index of the variable to enter the basis
-	 * @param provider
+	 * @param factory
 	 */
-	public EnteringVariableCircuit(LPTableau tableau,
+	public EnteringVariableProtocol(LPTableau tableau,
 			Matrix<SInt> updateMatrix, SInt[] enteringIndex, SInt minimum,
-			LPFactory lpProvider, BasicNumericFactory bnProvider) {
+			LPFactory lpFactory, BasicNumericFactory bnFactory) {
 		if (checkDimensions(tableau, updateMatrix, enteringIndex)) {
 			this.updateMatrix = updateMatrix;
 			this.tableau = tableau;
 			this.enteringIndex = enteringIndex;
 			this.minimum = minimum;
-			this.lpProvider = lpProvider;
-			this.bnProvider = bnProvider;
+			this.lpFactory = lpFactory;
+			this.bnFactory = bnFactory;
 		} else {
 			throw new MPCException("Dimensions of inputs do not match");
 		}
@@ -83,7 +83,7 @@ public class EnteringVariableCircuit extends AbstractRoundBasedProtocol {
 
 	@Override
 	public ProtocolProducer nextProtocolProducer() {
-		ProtocolProducer gp = null;
+		ProtocolProducer pp = null;
 		if (round == 0) {
 			int updateVectorDimension = updateMatrix.getHeight();
 			int numOfFs = tableau.getF().length;
@@ -97,29 +97,29 @@ public class EnteringVariableCircuit extends AbstractRoundBasedProtocol {
 				SInt[] temp = new SInt[updateVectorDimension - 1];
 				temp = tableau.getC().getIthColumn(i, temp);
 				for (int j = 0; j < updateVectorDimension - 1; j++) {
-					dotProductResult[j] = bnProvider.getSInt();
+					dotProductResult[j] = bnFactory.getSInt();
 					constraintColumn[j] = temp[j];
 				}
-				dotProductResult[updateVectorDimension - 1] = bnProvider
+				dotProductResult[updateVectorDimension - 1] = bnFactory
 						.getSInt();
 				constraintColumn[updateVectorDimension - 1] = tableau.getF()[i];
-				EntrywiseProductProtocol dpc = lpProvider.getDotProductCircuit(
+				EntrywiseProductProtocol dpc = lpFactory.getDotProductProtocol(
 						constraintColumn, updateVector, dotProductResult);
 				NumericProtocolBuilder build = new NumericProtocolBuilder(
-						bnProvider);
+						bnFactory);
 				updatedF[i] = build.sum(dotProductResult);
 				updateFis[i] = new SequentialProtocolProducer(dpc,
 						build.getProtocol());
 			}
-			gp = new ParallelProtocolProducer(updateFis);
+			pp = new ParallelProtocolProducer(updateFis);
 			round++;
 		} else if (round == 1) {
-			gp = lpProvider.getMinimumCircuit(updatedF, minimum, enteringIndex);
+			pp = lpFactory.getMinimumProtocol(updatedF, minimum, enteringIndex);
 			updatedF = null;
 			round++;
 		} else {
-			gp = null;
+			pp = null;
 		}
-		return gp;
+		return pp;
 	}
 }

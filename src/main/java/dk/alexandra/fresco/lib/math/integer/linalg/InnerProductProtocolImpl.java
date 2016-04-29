@@ -95,10 +95,10 @@ public class InnerProductProtocolImpl extends AbstractRoundBasedProtocol
 				results[i] = bnProvider.getSInt();
 			}
 			if (publicBVector != null) {
-				gp = dotProdProvider.getDotProductCircuit(aVector, publicBVector,
+				gp = dotProdProvider.getDotProductProtocol(aVector, publicBVector,
 						results);
 			} else {
-				gp = dotProdProvider.getDotProductCircuit(aVector, bVector, results);
+				gp = dotProdProvider.getDotProductProtocol(aVector, bVector, results);
 			}
 			round++;
 		} else if (round == 1) {

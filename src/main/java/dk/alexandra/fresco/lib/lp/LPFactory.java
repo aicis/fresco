@@ -68,7 +68,7 @@ public interface LPFactory
 	 *            outputs
 	 * @return
 	 */
-	public MinimumProtocol getMinimumCircuit(SInt[] as, SInt m, SInt[] cs);
+	public MinimumProtocol getMinimumProtocol(SInt[] as, SInt m, SInt[] cs);
 
 	/**
 	 * Finds the minimum in an list of fractions. Note fractions are given as
@@ -86,7 +86,7 @@ public interface LPFactory
 	 *            output - the index vector for indicating the minimum fraction
 	 * @return
 	 */
-	public MinimumFractionProtocol getMinimumFractionCircuit(SInt[] ns, SInt[] ds, SInt nm, SInt dm, SInt[] cs);
+	public MinimumFractionProtocol getMinimumFractionProtocol(SInt[] ns, SInt[] ds, SInt nm, SInt dm, SInt[] cs);
 
 	/**
 	 * 
@@ -101,10 +101,10 @@ public interface LPFactory
 	 *            use twice the bit length
 	 * @return
 	 */
-	public ComparisonProtocol getComparisonCircuit(SInt x1, SInt x2, SInt result, boolean longCompare);
+	public ComparisonProtocol getComparisonProtocol(SInt x1, SInt x2, SInt result, boolean longCompare);
 
 	/**
-	 * Returns a circuit for equality
+	 * Returns a protocol for equality
 	 * 
 	 * @param bitlength
 	 *            the maximum bitlength of the two arguments
@@ -117,7 +117,7 @@ public interface LPFactory
 	 * @param result
 	 *            output - [1] (true) or [0] (false) (result of x1 = x2)
 	 * 
-	 * @return a circuit for equality
+	 * @return a protocol for equality
 	 */
 	public EqualityProtocol getEqualityProtocol(int bitLength, int securityParam, SInt x, SInt y, SInt result);
 
@@ -136,7 +136,7 @@ public interface LPFactory
 	 *            output - the minimum entry in the F vector
 	 * @return
 	 */
-	public EnteringVariableCircuit getEnteringVariableCircuit(LPTableau tableau, Matrix<SInt> updateMatrix,
+	public EnteringVariableProtocol getEnteringVariableProtocol(LPTableau tableau, Matrix<SInt> updateMatrix,
 			SInt[] enteringIndex, SInt minimum);
 
 	/**
@@ -162,7 +162,7 @@ public interface LPFactory
 	 *            of this iteration
 	 * @return
 	 */
-	public ExitingVariableCircuit getExitingVariableCircuit(LPTableau tableau, Matrix<SInt> updateMatrix,
+	public ExitingVariableProtocol getExitingVariableProtocol(LPTableau tableau, Matrix<SInt> updateMatrix,
 			SInt[] enteringIndex, SInt[] exitingIndex, SInt[] updateColumn, SInt pivot);
 
 	/**
@@ -181,7 +181,7 @@ public interface LPFactory
 	 *            output - the new update matrix
 	 * @return
 	 */
-	public UpdateMatrixCircuit getUpdateMatrixCircuit(Matrix<SInt> oldUpdateMatrix, SInt[] L, SInt[] C, SInt p,
+	public UpdateMatrixProtocol getUpdateMatrixProtocol(Matrix<SInt> oldUpdateMatrix, SInt[] L, SInt[] C, SInt p,
 			SInt p_prime, Matrix<SInt> newUpdateMatrix);
 
 	/**
@@ -191,9 +191,9 @@ public interface LPFactory
 	 *            input - an n-dimensional vector
 	 * @param result
 	 *            output - the inner product of the two input input vectors
-	 * @return a circuit computing the inner product of two vectors
+	 * @return a protocol computing the inner product of two vectors
 	 */
-	public InnerProductProtocol getInnerProductCircuit(SInt[] aVector, SInt[] bVector, SInt result);
+	public InnerProductProtocol getInnerProductProtocol(SInt[] aVector, SInt[] bVector, SInt result);
 
 	/**
 	 * Computes the optimal value after the last simplex iteration
@@ -208,7 +208,7 @@ public interface LPFactory
 	 *            output - optimal value
 	 * @return
 	 */
-	public OptimalValueCircuit getOptimalValueCircuit(Matrix<SInt> updateMatrix, SInt[] B, SInt pivot,
+	public OptimalValueProtocol getOptimalValueProtocol(Matrix<SInt> updateMatrix, SInt[] B, SInt pivot,
 			SInt optimalValue);
 
 	/**
@@ -223,7 +223,7 @@ public interface LPFactory
 	 *            output - optimal numerator
 	 * @return
 	 */
-	public OptimalNumeratorCircuit getOptimalNumeratorCircuit(Matrix<SInt> updateMatrix, SInt[] B,
+	public OptimalNumeratorProtocol getOptimalNumeratorProtocol(Matrix<SInt> updateMatrix, SInt[] B,
 			SInt optimalNumerator);
 
 	/**
@@ -242,7 +242,7 @@ public interface LPFactory
 	 *            output - the rank
 	 * @return
 	 */
-	public RankCircuit getRankCircuit(SInt[] numerators, SInt[] denominators, SInt numerator, SInt denominator,
+	public RankProtocol getRankProtocol(SInt[] numerators, SInt[] denominators, SInt numerator, SInt denominator,
 			SInt rank);
 
 	/**
@@ -257,22 +257,22 @@ public interface LPFactory
 	 *            output - will contain the rank of the value to be ranked
 	 * @return
 	 */
-	public RankCircuit getRankCircuit(SInt[] values, SInt rankValue, SInt rank);
+	public RankProtocol getRankProtocol(SInt[] values, SInt rankValue, SInt rank);
 
 	/**
-	 * Returns a circuit solving an LP-problem from an initial tableau, update
+	 * Returns a protocol solving an LP-problem from an initial tableau, update
 	 * matrix and value for the previous pivot. (Usually the update matrix and
 	 * pivot will be initialized to the identity matrix and the value one
 	 * respectively). The update matrix and pivot will be update through the
 	 * computation, and used to compute the optimal value of the LP-problem
-	 * after the circuit has been evaluated.
+	 * after the protocol has been evaluated.
 	 * 
 	 * @param tableau
 	 * @param updateMatrix
 	 * @param pivot
-	 * @return an LPSolverCircuit
+	 * @return an LPSolverprotocol
 	 */
-	public LPSolverCircuit getLPSolverCircuit(LPTableau tableau, Matrix<SInt> updateMatrix, SInt pivot);
+	public LPSolverProtocol getLPSolverProtocol(LPTableau tableau, Matrix<SInt> updateMatrix, SInt pivot);
 
 	/**
 	 * Finds the minimum in an list of fractions. Note fractions are given as

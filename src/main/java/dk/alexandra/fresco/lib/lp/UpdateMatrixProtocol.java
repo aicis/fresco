@@ -40,39 +40,39 @@ import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
 import dk.alexandra.fresco.lib.math.integer.inv.InversionProtocol;
 
-public class UpdateMatrixCircuit implements Protocol{
+public class UpdateMatrixProtocol implements Protocol{
 
 	private Matrix<SInt> oldUpdateMatrix;
 	private Matrix<SInt> newUpdateMatrix;
 	private SInt[] L, C;
 	private SInt p, p_prime;
-	private LPFactory lpProvider;
-	private BasicNumericFactory numericProvider;
-	private ProtocolProducer curGP;
+	private LPFactory lpFactory;
+	private BasicNumericFactory numericFactory;
+	private ProtocolProducer curPP;
 	private boolean done = false;
 	
-	public UpdateMatrixCircuit(Matrix<SInt> oldUpdateMatrix, SInt[] L, SInt[] C, SInt p, SInt p_prime, Matrix<SInt> newUpdateMatrix, 
-			LPFactory lpProvider, BasicNumericFactory numericProvider){
+	public UpdateMatrixProtocol(Matrix<SInt> oldUpdateMatrix, SInt[] L, SInt[] C, SInt p, SInt p_prime, Matrix<SInt> newUpdateMatrix, 
+			LPFactory lpFactory, BasicNumericFactory numericFactory){
 		this.oldUpdateMatrix = oldUpdateMatrix;
 		this.newUpdateMatrix = newUpdateMatrix;
 		this.L = L;
 		this.C = C;
 		this.p = p;
 		this.p_prime = p_prime;
-		this.lpProvider = lpProvider;
-		this.numericProvider = numericProvider;
+		this.lpFactory = lpFactory;
+		this.numericFactory = numericFactory;
 	}
 	
 	@Override
 	public int getNextProtocols(NativeProtocol[] gates, int pos) {
-		if(curGP == null){
+		if(curPP == null){
 			SInt p_prime_inv, pp, one;
-			p_prime_inv = numericProvider.getSInt();
-			pp = numericProvider.getSInt();
-			one = numericProvider.getSInt(1);
+			p_prime_inv = numericFactory.getSInt();
+			pp = numericFactory.getSInt();
+			one = numericFactory.getSInt(1);
 			
-			InversionProtocol inv = lpProvider.getInversionProtocol(p_prime, p_prime_inv);
-			MultProtocol mult1 = numericProvider.getMultProtocol(p, p_prime_inv, pp);			
+			InversionProtocol inv = lpFactory.getInversionProtocol(p_prime, p_prime_inv);
+			MultProtocol mult1 = numericFactory.getMultProtocol(p, p_prime_inv, pp);			
 			
 			int h = oldUpdateMatrix.getHeight();
 			int w = oldUpdateMatrix.getWidth();
@@ -95,35 +95,35 @@ public class UpdateMatrixCircuit implements Protocol{
 			ProtocolProducer[] scales_c = new ProtocolProducer[C.length];
 			SInt[] scalings = new SInt[C.length];
 			for (int j = 0; j < C.length - 1; j++) {
-				scalings[j] = numericProvider.getSInt();
-				ConditionalSelectProtocol scaling = lpProvider.getConditionalSelectProtocol(L[j], one, p_prime_inv, scalings[j]);
-				MultProtocol divides_c_by_p_prime = numericProvider.getMultProtocol(C[j], scalings[j], C[j]);
+				scalings[j] = numericFactory.getSInt();
+				ConditionalSelectProtocol scaling = lpFactory.getConditionalSelectProtocol(L[j], one, p_prime_inv, scalings[j]);
+				MultProtocol divides_c_by_p_prime = numericFactory.getMultProtocol(C[j], scalings[j], C[j]);
 				scales_c[j] = new SequentialProtocolProducer(scaling, divides_c_by_p_prime);
 			}
-			scales_c[C.length - 1] = numericProvider.getMultProtocol(C[C.length - 1], p_prime_inv, C[C.length - 1]);
+			scales_c[C.length - 1] = numericFactory.getMultProtocol(C[C.length - 1], p_prime_inv, C[C.length - 1]);
 			ProtocolProducer gpDivideC = new ParallelProtocolProducer(scales_c);
 			
 			for(int i = 0; i < oldUpdateMatrix.getHeight(); i++){
-				lambdas_iOuts[i] = numericProvider.getSInt(0);
+				lambdas_iOuts[i] = numericFactory.getSInt(0);
 				for(int j = 0; j < oldUpdateMatrix.getWidth(); j++){
 					//first 3 - lambda_i's generation
-					lambdas_i_jOuts[j][i] = numericProvider.getSInt();
+					lambdas_i_jOuts[j][i] = numericFactory.getSInt();
 					if (j < oldUpdateMatrix.getWidth() - 1) {
-						mults_l_v[j][i] = numericProvider.getMultProtocol(L[j], oldUpdateMatrix.getElement(j, i), lambdas_i_jOuts[j][i]);
+						mults_l_v[j][i] = numericFactory.getMultProtocol(L[j], oldUpdateMatrix.getElement(j, i), lambdas_i_jOuts[j][i]);
 					} else {
-						lambdas_i_jOuts[j][i] = numericProvider.getSInt(0);
+						lambdas_i_jOuts[j][i] = numericFactory.getSInt(0);
 					}
 					//TODO: Check that we add the correct amount. (from j=1 to m+1)
-					addsLambda_i[j][i] = numericProvider.getAddProtocol(lambdas_i_jOuts[j][i], lambdas_iOuts[i], lambdas_iOuts[i]);
+					addsLambda_i[j][i] = numericFactory.getAddProtocol(lambdas_i_jOuts[j][i], lambdas_iOuts[i], lambdas_iOuts[i]);
 					
 					//next 4 - update matrix
-					subOuts[j][i] = numericProvider.getSInt();
-					subs[j][i] = numericProvider.getSubtractProtocol(oldUpdateMatrix.getElement(j, i), lambdas_i_jOuts[j][i], subOuts[j][i]);
-					mults_cAndLambda_iOuts[j][i] = numericProvider.getSInt();
-					mults_cAndLambda_i[j][i] = numericProvider.getMultProtocol(C[j], lambdas_iOuts[i], mults_cAndLambda_iOuts[j][i]);
-					mults_sub_and_ppOuts[j][i] = numericProvider.getSInt();
-					mults_sub_and_pp[j][i] = numericProvider.getMultProtocol(subOuts[j][i], pp, mults_sub_and_ppOuts[j][i]);
-					adds[j][i] = numericProvider.getAddProtocol(mults_cAndLambda_iOuts[j][i], mults_sub_and_ppOuts[j][i], newUpdateMatrix.getIthRow(j)[i]);
+					subOuts[j][i] = numericFactory.getSInt();
+					subs[j][i] = numericFactory.getSubtractProtocol(oldUpdateMatrix.getElement(j, i), lambdas_i_jOuts[j][i], subOuts[j][i]);
+					mults_cAndLambda_iOuts[j][i] = numericFactory.getSInt();
+					mults_cAndLambda_i[j][i] = numericFactory.getMultProtocol(C[j], lambdas_iOuts[i], mults_cAndLambda_iOuts[j][i]);
+					mults_sub_and_ppOuts[j][i] = numericFactory.getSInt();
+					mults_sub_and_pp[j][i] = numericFactory.getMultProtocol(subOuts[j][i], pp, mults_sub_and_ppOuts[j][i]);
+					adds[j][i] = numericFactory.getAddProtocol(mults_cAndLambda_iOuts[j][i], mults_sub_and_ppOuts[j][i], newUpdateMatrix.getIthRow(j)[i]);
 				}
 			}
 			
@@ -153,12 +153,12 @@ public class UpdateMatrixCircuit implements Protocol{
 			
 			ParallelProtocolProducer gpMults = new ParallelProtocolProducer(gpMultCAndLambda, gpMultSubAndPP);
 			
-			curGP = new SequentialProtocolProducer(seq2, gpMults, gpAdds);
+			curPP = new SequentialProtocolProducer(seq2, gpMults, gpAdds);
 		}
-		if(curGP.hasNextProtocols()){
-			pos = curGP.getNextProtocols(gates, pos);
-		}else if(!curGP.hasNextProtocols()){
-			curGP = null;
+		if(curPP.hasNextProtocols()){
+			pos = curPP.getNextProtocols(gates, pos);
+		}else if(!curPP.hasNextProtocols()){
+			curPP = null;
 			done = true;
 		}
 		return pos;

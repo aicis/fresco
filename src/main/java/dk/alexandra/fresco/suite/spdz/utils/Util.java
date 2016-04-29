@@ -174,19 +174,19 @@ public class Util {
 		return coefficients;
 	}
 	
-	public static ProtocolProducer makeOpenCircuit(SInt[][] closed, OInt[][] open, IOIntProtocolFactory provider) {
+	public static ProtocolProducer makeOpenProtocol(SInt[][] closed, OInt[][] open, IOIntProtocolFactory provider) {
 		if (open.length != closed.length) {
 			throw new IllegalArgumentException("Amount of closed and open integers does not match. " +
 					"Open: " + open.length + " Closed: " + closed.length);
 		}
 		ProtocolProducer[] openings = new ProtocolProducer[open.length];
 		for (int i = 0; i < open.length; i++) {
-			openings[i] = makeOpenCircuit(closed[i], open[i], provider);
+			openings[i] = makeOpenProtocol(closed[i], open[i], provider);
 		}
 		return new ParallelProtocolProducer(openings);
 	}
 	
-	public static ProtocolProducer makeOpenCircuit(SInt[] closed, OInt[] open, IOIntProtocolFactory provider) {
+	public static ProtocolProducer makeOpenProtocol(SInt[] closed, OInt[] open, IOIntProtocolFactory provider) {
 		if (open.length != closed.length) {
 			throw new IllegalArgumentException("Amount of closed and open integers does not match. " +
 					"Open: " + open.length + " Closed: " + closed.length);

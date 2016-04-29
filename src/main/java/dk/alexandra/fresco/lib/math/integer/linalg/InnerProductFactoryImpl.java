@@ -41,7 +41,7 @@ public class InnerProductFactoryImpl implements InnerProductFactory{
 	}
 	
 	@Override
-	public InnerProductProtocol getInnerProductCircuit(SInt[] aVector,
+	public InnerProductProtocol getInnerProductProtocol(SInt[] aVector,
 			SInt[] bVector, SInt result) {
 		return new InnerProductProtocolImpl(aVector, bVector, result, bnf, dotProductFactory);
 	}

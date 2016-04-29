@@ -111,13 +111,13 @@ public class LPFactoryImpl implements LPFactory {
 	}
 
 	@Override
-	public EntrywiseProductProtocol getDotProductCircuit(SInt[] as, SInt[] bs,
+	public EntrywiseProductProtocol getDotProductProtocol(SInt[] as, SInt[] bs,
 			SInt[] results) {
 		return new EntrywiseProductProtocolImpl(as, bs, results, bnf);
 	}
 
 	@Override
-	public EntrywiseProductProtocol getDotProductCircuit(SInt[] as, OInt[] bs,
+	public EntrywiseProductProtocol getDotProductProtocol(SInt[] as, OInt[] bs,
 			SInt[] results) {
 		return new EntrywiseProductProtocolImpl(as, bs, results, bnf);
 	}
@@ -129,12 +129,12 @@ public class LPFactoryImpl implements LPFactory {
 	}
 
 	@Override
-	public MinimumProtocol getMinimumCircuit(SInt[] as, SInt m, SInt[] cs) {
+	public MinimumProtocol getMinimumProtocol(SInt[] as, SInt m, SInt[] cs) {
 		return new MinimumProtocolImpl(as, m, cs, this, bnf);
 	}
 
 	@Override
-	public MinimumFractionProtocol getMinimumFractionCircuit(SInt[] ns,
+	public MinimumFractionProtocol getMinimumFractionProtocol(SInt[] ns,
 			SInt[] ds, SInt nm, SInt dm, SInt[] cs) {
 		return new MinimumFractionProtocolImpl(ns, ds, nm, dm, cs, bnf, this);
 	}
@@ -146,7 +146,7 @@ public class LPFactoryImpl implements LPFactory {
 	}
 
 	@Override
-	public ComparisonProtocol getComparisonCircuit(SInt x1, SInt x2,
+	public ComparisonProtocol getComparisonProtocol(SInt x1, SInt x2,
 			SInt result, boolean longCompare) {
 		int bitLength = bnf.getMaxBitLength();
 		if (longCompare) {
@@ -166,65 +166,65 @@ public class LPFactoryImpl implements LPFactory {
 	}
 
 	@Override
-	public EnteringVariableCircuit getEnteringVariableCircuit(
+	public EnteringVariableProtocol getEnteringVariableProtocol(
 			LPTableau tableau, Matrix<SInt> updateMatrix, SInt[] enteringIndex,
 			SInt minimum) {
-		return new EnteringVariableCircuit(tableau, updateMatrix,
+		return new EnteringVariableProtocol(tableau, updateMatrix,
 				enteringIndex, minimum, this, bnf);
 	}
 
 	@Override
-	public ExitingVariableCircuit getExitingVariableCircuit(LPTableau tableau,
+	public ExitingVariableProtocol getExitingVariableProtocol(LPTableau tableau,
 			Matrix<SInt> updateMatrix, SInt[] enteringIndex,
 			SInt[] exitingIndex, SInt[] updateColumn, SInt pivot) {
-		return new ExitingVariableCircuit(tableau, updateMatrix, enteringIndex,
+		return new ExitingVariableProtocol(tableau, updateMatrix, enteringIndex,
 				exitingIndex, updateColumn, pivot, this, bnf);
 	}
 
 	@Override
-	public UpdateMatrixCircuit getUpdateMatrixCircuit(
+	public UpdateMatrixProtocol getUpdateMatrixProtocol(
 			Matrix<SInt> oldUpdateMatrix, SInt[] L, SInt[] C, SInt p,
 			SInt p_prime, Matrix<SInt> newUpdateMatrix) {
-		return new UpdateMatrixCircuit(oldUpdateMatrix, L, C, p, p_prime,
+		return new UpdateMatrixProtocol(oldUpdateMatrix, L, C, p, p_prime,
 				newUpdateMatrix, this, bnf);
 	}
 
 	@Override
-	public InnerProductProtocol getInnerProductCircuit(SInt[] aVector,
+	public InnerProductProtocol getInnerProductProtocol(SInt[] aVector,
 			SInt[] bVector, SInt result) {
-		return this.innerProductFactory.getInnerProductCircuit(aVector,
+		return this.innerProductFactory.getInnerProductProtocol(aVector,
 				bVector, result);
 	}
 
 	@Override
-	public OptimalValueCircuit getOptimalValueCircuit(
+	public OptimalValueProtocol getOptimalValueProtocol(
 			Matrix<SInt> updateMatrix, SInt[] B, SInt pivot, SInt optimalValue) {
-		return new OptimalValueCircuit(updateMatrix, B, pivot, optimalValue,
+		return new OptimalValueProtocol(updateMatrix, B, pivot, optimalValue,
 				this, bnf);
 	}
 
 	@Override
-	public OptimalNumeratorCircuit getOptimalNumeratorCircuit(
+	public OptimalNumeratorProtocol getOptimalNumeratorProtocol(
 			Matrix<SInt> updateMatrix, SInt[] B, SInt optimalNumerator) {
-		return new OptimalNumeratorCircuit(updateMatrix, B, optimalNumerator,
+		return new OptimalNumeratorProtocol(updateMatrix, B, optimalNumerator,
 				this);
 	}
 
 	@Override
-	public RankCircuit getRankCircuit(SInt[] numerators, SInt[] denominators,
+	public RankProtocol getRankProtocol(SInt[] numerators, SInt[] denominators,
 			SInt numerator, SInt denominator, SInt rank) {
-		return new RankCircuit(numerators, denominators, numerator,
+		return new RankProtocol(numerators, denominators, numerator,
 				denominator, rank, bnf, this);
 	}
 
 	@Override
-	public RankCircuit getRankCircuit(SInt[] values, SInt rankValue, SInt rank) {
-		return new RankCircuit(values, rankValue, rank, bnf, this);
+	public RankProtocol getRankProtocol(SInt[] values, SInt rankValue, SInt rank) {
+		return new RankProtocol(values, rankValue, rank, bnf, this);
 	}
 
 	@Override
-	public LPSolverCircuit getLPSolverCircuit(LPTableau tableau,
+	public LPSolverProtocol getLPSolverProtocol(LPTableau tableau,
 			Matrix<SInt> updateMatrix, SInt pivot) {
-		return new LPSolverCircuit(tableau, updateMatrix, pivot, this, bnf);
+		return new LPSolverProtocol(tableau, updateMatrix, pivot, this, bnf);
 	}
 }

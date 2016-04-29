@@ -46,7 +46,7 @@ import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
 import dk.alexandra.fresco.lib.lp.LPFactory;
 import dk.alexandra.fresco.lib.lp.LPFactoryImpl;
 import dk.alexandra.fresco.lib.lp.LPPrefix;
-import dk.alexandra.fresco.lib.lp.LPSolverCircuit;
+import dk.alexandra.fresco.lib.lp.LPSolverProtocol;
 import dk.alexandra.fresco.lib.math.integer.PreprocessedNumericBitFactory;
 import dk.alexandra.fresco.lib.math.integer.exp.ExpFromOIntFactory;
 import dk.alexandra.fresco.lib.math.integer.exp.PreprocessedExpPipeFactory;
@@ -111,14 +111,14 @@ public class LPSolverTests {
 									throw new MPCException("IOException: "
 											+ e.getMessage(), e);
 								}
-								ProtocolProducer lpsolver = new LPSolverCircuit(
+								ProtocolProducer lpsolver = new LPSolverProtocol(
 										prefix.getTableau(),
 										prefix.getUpdateMatrix(),
 										prefix.getPivot(), lpFactory, bnFactory);
 								SInt sout = bnFactory.getSInt();
 								OInt out = bnFactory.getOInt();
 								ProtocolProducer outputter = lpFactory
-										.getOptimalValueCircuit(
+										.getOptimalValueProtocol(
 												prefix.getUpdateMatrix(),
 												prefix.getTableau().getB(),
 												prefix.getPivot(), sout);

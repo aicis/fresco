@@ -31,58 +31,37 @@ import dk.alexandra.fresco.framework.Protocol;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.framework.value.Value;
-import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
 
-public class OptimalValueCircuit implements Protocol {
-	
+public class OptimalNumeratorProtocol implements Protocol {
 	
 	private final SInt[] B;
 	private final Matrix<SInt> updateMatrix;
-	private final SInt pivot;
-	private final SInt optimalValue;
-	private LPFactory lpProvider;
-	private BasicNumericFactory numericProvider;
-	private ProtocolProducer gp;
+	private final SInt optimalNumerator;
+	private LPFactory lpFactory;
+	private ProtocolProducer pp;
 	private boolean done = false;
 	
-	public OptimalValueCircuit(Matrix<SInt> updateMatrix, SInt[] B, SInt pivot, SInt optimalValue, 
-			LPFactory lpProvider, BasicNumericFactory numericProvider) {
+	public OptimalNumeratorProtocol(Matrix<SInt> updateMatrix, SInt[] B, SInt optimalNumerator, LPFactory lpFactory) {
 		this.updateMatrix = updateMatrix;
 		this.B = B;
-		this.pivot = pivot;
-		this.optimalValue = optimalValue;
-		this.lpProvider = lpProvider;
-		this.numericProvider = numericProvider;
+		this.optimalNumerator = optimalNumerator;
+		this.lpFactory = lpFactory;
 	}
 
 	@Override
-	public int getNextProtocols(NativeProtocol[] gates, int pos) {
-		if (gp == null) {
-			SInt numerator = numericProvider.getSInt();
-			SInt invDenominator = numericProvider.getSInt();
-			
-			// DEBUG			
-			//GateProducer printNumerator = new OpenAndPrintCircuit("Num: ", numerator, numericProvider);
-			//GateProducer printPivot = new OpenAndPrintCircuit("Pivot: ", pivot, numericProvider);
-			//GateProducer printInvPivot = new OpenAndPrintCircuit("InvPivot: ", invDenominator, numericProvider);
-			//GateProducer printOpt = new OpenAndPrintCircuit("Optimal: ", optimalValue, numericProvider);
-			//SequentialGateProducer seq = new SequentialGateProducer(printInvPivot, printNumerator, printPivot, printOpt);
-			
+	public int getNextProtocols(NativeProtocol[] nativeProtocols, int pos) {
+		if (pp == null) {
 			SInt[] row = updateMatrix.getIthRow(updateMatrix.getHeight() - 1);
 			SInt[] shortenedRow = new SInt[B.length];
 			System.arraycopy(row, 0, shortenedRow, 0, B.length);
-			ProtocolProducer innerProduct = lpProvider.getInnerProductCircuit(B, shortenedRow, numerator);
-			ProtocolProducer inversion = lpProvider.getInversionProtocol(pivot, invDenominator);
-			ProtocolProducer multiplication = numericProvider.getMultProtocol(numerator, invDenominator, optimalValue);
-			gp = new SequentialProtocolProducer(innerProduct, inversion, multiplication);
-			// DEBUG
-			//gp = new SequentialGateProducer(innerProduct, inversion, multiplication, seq);
+			ProtocolProducer innerProduct = lpFactory.getInnerProductProtocol(B, shortenedRow, optimalNumerator);
+			pp = new SequentialProtocolProducer(innerProduct);
 		} 
-		if (gp.hasNextProtocols()) {
-			pos = gp.getNextProtocols(gates, pos);
-		} else if (!gp.hasNextProtocols()) {
-			gp = null;
+		if (pp.hasNextProtocols()) {
+			pos = pp.getNextProtocols(nativeProtocols, pos);
+		} else if (!pp.hasNextProtocols()) {
+			pp = null;
 			done = true;
 		}
 		return pos;

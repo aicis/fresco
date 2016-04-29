@@ -31,37 +31,47 @@ import dk.alexandra.fresco.framework.Protocol;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.framework.value.Value;
+import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
 
-public class OptimalNumeratorCircuit implements Protocol {
-	
+public class OptimalValueProtocol implements Protocol {
+		
 	private final SInt[] B;
 	private final Matrix<SInt> updateMatrix;
-	private final SInt optimalNumerator;
-	private LPFactory lpProvider;
-	private ProtocolProducer gp;
+	private final SInt pivot;
+	private final SInt optimalValue;
+	private LPFactory lpFactory;
+	private BasicNumericFactory numericFactory;
+	private ProtocolProducer pp;
 	private boolean done = false;
 	
-	public OptimalNumeratorCircuit(Matrix<SInt> updateMatrix, SInt[] B, SInt optimalNumerator, LPFactory lpProvider) {
+	public OptimalValueProtocol(Matrix<SInt> updateMatrix, SInt[] B, SInt pivot, SInt optimalValue, 
+			LPFactory lpFactory, BasicNumericFactory numericFactory) {
 		this.updateMatrix = updateMatrix;
 		this.B = B;
-		this.optimalNumerator = optimalNumerator;
-		this.lpProvider = lpProvider;
+		this.pivot = pivot;
+		this.optimalValue = optimalValue;
+		this.lpFactory = lpFactory;
+		this.numericFactory = numericFactory;
 	}
 
 	@Override
-	public int getNextProtocols(NativeProtocol[] gates, int pos) {
-		if (gp == null) {
+	public int getNextProtocols(NativeProtocol[] nativeProtocols, int pos) {
+		if (pp == null) {
+			SInt numerator = numericFactory.getSInt();
+			SInt invDenominator = numericFactory.getSInt();			
 			SInt[] row = updateMatrix.getIthRow(updateMatrix.getHeight() - 1);
 			SInt[] shortenedRow = new SInt[B.length];
 			System.arraycopy(row, 0, shortenedRow, 0, B.length);
-			ProtocolProducer innerProduct = lpProvider.getInnerProductCircuit(B, shortenedRow, optimalNumerator);
-			gp = new SequentialProtocolProducer(innerProduct);
+			ProtocolProducer innerProduct = lpFactory.getInnerProductProtocol(B, shortenedRow, numerator);
+			ProtocolProducer inversion = lpFactory.getInversionProtocol(pivot, invDenominator);
+			ProtocolProducer multiplication = numericFactory.getMultProtocol(numerator, invDenominator, optimalValue);
+			pp = new SequentialProtocolProducer(innerProduct, inversion, multiplication);
 		} 
-		if (gp.hasNextProtocols()) {
-			pos = gp.getNextProtocols(gates, pos);
-		} else if (!gp.hasNextProtocols()) {
-			gp = null;
+		if (pp.hasNextProtocols()) {
+			pos = pp.getNextProtocols(nativeProtocols, pos);
+		} else if (!pp.hasNextProtocols()) {
+			pp = null;
 			done = true;
 		}
 		return pos;

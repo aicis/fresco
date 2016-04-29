@@ -42,7 +42,7 @@ import dk.alexandra.fresco.lib.helper.CopyProtocol;
 import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
 
-public class LPSolverCircuit implements Protocol {
+public class LPSolverProtocol implements Protocol {
 
 	private final LPTableau tableau;
 	private final Matrix<SInt> updateMatrix;
@@ -53,9 +53,9 @@ public class LPSolverCircuit implements Protocol {
 	};
 
 	private STATE state;
-	private LPFactory lpProvider;
-	private BasicNumericFactory bnProvider;
-	private ProtocolProducer gp;
+	private LPFactory lpFactory;
+	private BasicNumericFactory bnFactory;
+	private ProtocolProducer pp;
 	private OInt terminationOut;
 	private Matrix<SInt> newUpdateMatrix;
 	private final SInt prevPivot;
@@ -63,16 +63,16 @@ public class LPSolverCircuit implements Protocol {
 	private SInt[] enteringIndex;
 	public static int iterations = 0;
 	
-	public LPSolverCircuit(LPTableau tableau, Matrix<SInt> updateMatrix,
-			SInt pivot, LPFactory lpProvider, BasicNumericFactory bnProvider) {
+	public LPSolverProtocol(LPTableau tableau, Matrix<SInt> updateMatrix,
+			SInt pivot, LPFactory lpFactory, BasicNumericFactory bnFactory) {
 		if (checkDimensions(tableau, updateMatrix)) {
 			this.tableau = tableau;
 			this.updateMatrix = updateMatrix;
 			this.prevPivot = pivot;
-			this.gp = null;
-			this.lpProvider = lpProvider;
-			this.bnProvider = bnProvider;
-			this.zero = bnProvider.getSInt(0);
+			this.pp = null;
+			this.lpFactory = lpFactory;
+			this.bnFactory = bnFactory;
+			this.zero = bnFactory.getSInt(0);
 			this.state = STATE.PHASE1;
 			iterations = 0;
 		} else {
@@ -89,40 +89,39 @@ public class LPSolverCircuit implements Protocol {
 	}
 	
 	@Override
-	public int getNextProtocols(NativeProtocol[] gates, int pos) {
-		if (gp == null) {
+	public int getNextProtocols(NativeProtocol[] nativeProtocols, int pos) {
+		if (pp == null) {
 			if (state == STATE.PHASE1) {
 				iterations++;
-				gp = phaseOneCircuit();
+				pp = phaseOneProtocol();
 				// gp = blandPhaseOneCircuit();				
 			} else if (state == STATE.PHASE2) {
 				boolean terminated = terminationOut.getValue().equals(
 						BigInteger.ONE);
 				if (!terminated) {					
-					gp = phaseTwoCircuit();					
+					pp = phaseTwoProtocol();					
 				} else {
 					state = STATE.TERMINATED;
-					gp = null;
+					pp = null;
 					return pos;
 				}
 			}
 		}
-		if (gp.hasNextProtocols()) {
-			int end = gp.getNextProtocols(gates, pos);
-			GateRegister.registerGates(gates, pos, end, this);
+		if (pp.hasNextProtocols()) {
+			int end = pp.getNextProtocols(nativeProtocols, pos);
 			pos = end;
-		} else if (!gp.hasNextProtocols()) {
+		} else if (!pp.hasNextProtocols()) {
 			switch (state) {
 			case PHASE1:
-				gp = null;
+				pp = null;
 				state = STATE.PHASE2;
 				break;
 			case PHASE2:
-				gp = null;
+				pp = null;
 				state = STATE.PHASE1;
 				break;
 			case TERMINATED:
-				gp = null;
+				pp = null;
 				break;
 			default:
 				break;
@@ -131,7 +130,7 @@ public class LPSolverCircuit implements Protocol {
 		return pos;
 	}
 
-	private ProtocolProducer phaseTwoCircuit() {
+	private ProtocolProducer phaseTwoProtocol() {
 		// Phase 2 - Finding the exiting variable and updating the tableau
 		ProtocolProducer phaseTwo = new AbstractRoundBasedProtocol() {
 			int round = 0;
@@ -145,16 +144,16 @@ public class LPSolverCircuit implements Protocol {
 				case 0:					
 					exitingIndex = new SInt[noConstraints];
 					for (int i = 0; i < exitingIndex.length; i++) {
-						exitingIndex[i] = bnProvider.getSInt();
+						exitingIndex[i] = bnFactory.getSInt();
 					}
 					updateColumn = new SInt[noConstraints + 1];
 					for (int i = 0; i < updateColumn.length; i++) {
-						updateColumn[i] = bnProvider.getSInt();
+						updateColumn[i] = bnFactory.getSInt();
 					}
 
-					pivot = bnProvider.getSInt();
-					ProtocolProducer exitingIndexProducer = lpProvider
-							.getExitingVariableCircuit(tableau, updateMatrix,
+					pivot = bnFactory.getSInt();
+					ProtocolProducer exitingIndexProducer = lpFactory
+							.getExitingVariableProtocol(tableau, updateMatrix,
 									enteringIndex, exitingIndex, updateColumn, pivot);
 					round++;
 					return exitingIndexProducer;
@@ -162,11 +161,11 @@ public class LPSolverCircuit implements Protocol {
 					newUpdate = new SInt[noConstraints + 1][noConstraints + 1];
 					for (int i = 0; i < newUpdate.length; i++) {
 						for (int j = 0; j < newUpdate[i].length; j++) {
-							newUpdate[i][j] = bnProvider.getSInt();
+							newUpdate[i][j] = bnFactory.getSInt();
 						}
 					}					
 					newUpdateMatrix = new Matrix<SInt>(newUpdate);
-					ProtocolProducer updateMatrixProducer = lpProvider.getUpdateMatrixCircuit(
+					ProtocolProducer updateMatrixProducer = lpFactory.getUpdateMatrixProtocol(
 							updateMatrix, exitingIndex, updateColumn, pivot, prevPivot,
 							newUpdateMatrix);
 					round++;
@@ -175,13 +174,13 @@ public class LPSolverCircuit implements Protocol {
 					ParallelProtocolProducer parCopy = new ParallelProtocolProducer();
 					for (int i = 0; i < newUpdate.length; i++) {
 						for (int j = 0; j < newUpdate[i].length; j++) {
-							CopyProtocol<SInt> copy = lpProvider.getCopyProtocol(
+							CopyProtocol<SInt> copy = lpFactory.getCopyProtocol(
 									newUpdateMatrix.getElement(i, j),
 									updateMatrix.getElement(i, j));
 							parCopy.append(copy);
 						}
 					}
-					CopyProtocol<SInt> copy = lpProvider.getCopyProtocol(pivot, prevPivot);
+					CopyProtocol<SInt> copy = lpFactory.getCopyProtocol(pivot, prevPivot);
 					parCopy.append(copy);
 					round++;
 					return parCopy;
@@ -194,24 +193,24 @@ public class LPSolverCircuit implements Protocol {
 		return phaseTwo;
 	}
 
-	private ProtocolProducer phaseOneCircuit() {
+	private ProtocolProducer phaseOneProtocol() {
 		int noVariables = tableau.getC().getWidth();
-		terminationOut = bnProvider.getOInt();
+		terminationOut = bnFactory.getOInt();
 		// Phase 1 - Finding the entering variable and outputting
 		// whether or not the corresponding F value is positive (a positive
 		// value indicating termination)
 		enteringIndex = new SInt[noVariables];
 		for (int i = 0; i < noVariables; i++) {
-			enteringIndex[i] = bnProvider.getSInt();
+			enteringIndex[i] = bnFactory.getSInt();
 		}
 
-		SInt minimum = bnProvider.getSInt();
-		ProtocolProducer enteringProducer = lpProvider.getEnteringVariableCircuit(
+		SInt minimum = bnFactory.getSInt();
+		ProtocolProducer enteringProducer = lpFactory.getEnteringVariableProtocol(
 				tableau, updateMatrix, enteringIndex, minimum);
-		SInt positive = bnProvider.getSInt();
-		ProtocolProducer comp = lpProvider.getComparisonCircuit(zero, minimum,
+		SInt positive = bnFactory.getSInt();
+		ProtocolProducer comp = lpFactory.getComparisonProtocol(zero, minimum,
 				positive, true);
-		ProtocolProducer output = bnProvider.getOpenProtocol(positive,
+		ProtocolProducer output = bnFactory.getOpenProtocol(positive,
 				terminationOut);
 		ProtocolProducer phaseOne = new SequentialProtocolProducer(enteringProducer,
 				comp, output);
@@ -219,22 +218,22 @@ public class LPSolverCircuit implements Protocol {
 	}
 		
 	@SuppressWarnings("unused")
-	private ProtocolProducer blandPhaseOneCircuit() {
+	private ProtocolProducer blandPhaseOneProtocol() {
 		int noVariables = tableau.getC().getWidth();
-		terminationOut = bnProvider.getOInt();
+		terminationOut = bnFactory.getOInt();
 		// Phase 1 - Finding the entering variable and outputting
 		// whether or not the corresponding F value is positive (a positive
 		// value indicating termination)
 		enteringIndex = new SInt[noVariables];
 		for (int i = 0; i < noVariables; i++) {
-			enteringIndex[i] = bnProvider.getSInt();
+			enteringIndex[i] = bnFactory.getSInt();
 		}
 
-		SInt first = bnProvider.getSInt();
-		ProtocolProducer blandEnter = new BlandEnteringVariableCircuit(tableau,
-				updateMatrix, enteringIndex, first, lpProvider, bnProvider);
+		SInt first = bnFactory.getSInt();
+		ProtocolProducer blandEnter = new BlandEnteringVariableProtocol(tableau,
+				updateMatrix, enteringIndex, first, lpFactory, bnFactory);
 
-		ProtocolProducer output = bnProvider.getOpenProtocol(first,
+		ProtocolProducer output = bnFactory.getOpenProtocol(first,
 				terminationOut);
 		ProtocolProducer phaseOne = new SequentialProtocolProducer(blandEnter, output);
 		return phaseOne;
@@ -262,15 +261,15 @@ public class LPSolverCircuit implements Protocol {
 		LPTableau tableau;
 		Matrix<SInt> updateMatrix;
 		SInt pivot;
-		LPFactory lpProvider;
-		BasicNumericFactory bnProvider;
+		LPFactory lpFactory;
+		BasicNumericFactory bnFactory;
 
 		public Builder() {
 			this.tableau = null;
 			this.updateMatrix = null;
 			this.pivot = null;
-			this.lpProvider = null;
-			this.bnProvider = null;
+			this.lpFactory = null;
+			this.bnFactory = null;
 		}
 
 		public Builder tableau(LPTableau tableau) {
@@ -288,29 +287,29 @@ public class LPSolverCircuit implements Protocol {
 			return this;
 		}
 
-		public Builder lpProvider(LPFactory lpProvider) {
-			this.lpProvider = lpProvider;
+		public Builder lpFactory(LPFactory lpf) {
+			this.lpFactory = lpf;
 			return this;
 		}
 
-		public Builder bnProvider(BasicNumericFactory bnProvider) {
-			this.bnProvider = bnProvider;
+		public Builder bnFactory(BasicNumericFactory bnf) {
+			this.bnFactory = bnf;
 			return this;
 		}
 
 		public <T extends BasicNumericFactory & LPFactory> Builder omniProvider(
-				T provider) {
-			this.lpProvider = provider;
-			this.bnProvider = provider;
+				T factory) {
+			this.lpFactory = factory;
+			this.bnFactory = factory;
 			return this;
 		}
 
-		public LPSolverCircuit build() {
+		public LPSolverProtocol build() {
 			if (this.tableau != null && this.updateMatrix != null
-					&& this.pivot != null && this.lpProvider != null
-					&& this.bnProvider != null) {
-				return new LPSolverCircuit(tableau, updateMatrix, pivot,
-						lpProvider, bnProvider);
+					&& this.pivot != null && this.lpFactory != null
+					&& this.bnFactory != null) {
+				return new LPSolverProtocol(tableau, updateMatrix, pivot,
+						lpFactory, bnFactory);
 			} else {
 				throw new IllegalStateException(
 						"Not ready to build. Some values where not set.");

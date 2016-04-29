@@ -75,7 +75,7 @@ public class MinimumProtocolImpl implements MinimumProtocol {
 				throw new MPCException(
 						"MinimumCircuit. k should never be 1. Just use the one you gave me as the minimum, fool ;)");
 			} else if (this.k == 2) {
-				ComparisonProtocol comp = lpProvider.getComparisonCircuit(
+				ComparisonProtocol comp = lpProvider.getComparisonProtocol(
 						this.xs[0], this.xs[1], this.cs[0], false);
 				ConditionalSelectProtocol cond = lpProvider
 						.getConditionalSelectProtocol(this.cs[0], this.xs[0],
@@ -87,7 +87,7 @@ public class MinimumProtocolImpl implements MinimumProtocol {
 						subtract });
 			} else if (this.k == 3) {
 				SInt c1_prime = numericProvider.getSInt();
-				ComparisonProtocol comp1 = lpProvider.getComparisonCircuit(
+				ComparisonProtocol comp1 = lpProvider.getComparisonProtocol(
 						this.xs[0], this.xs[1], c1_prime, false);
 				SInt m1 = numericProvider.getSInt();
 				ConditionalSelectProtocol cond1 = lpProvider
@@ -95,7 +95,7 @@ public class MinimumProtocolImpl implements MinimumProtocol {
 								this.xs[1], m1);
 
 				SInt c2_prime = numericProvider.getSInt();
-				ComparisonProtocol comp2 = lpProvider.getComparisonCircuit(m1,
+				ComparisonProtocol comp2 = lpProvider.getComparisonProtocol(m1,
 						this.xs[2], c2_prime, false);
 				ConditionalSelectProtocol cond2 = lpProvider
 						.getConditionalSelectProtocol(c2_prime, m1, this.xs[2],
@@ -155,15 +155,15 @@ public class MinimumProtocolImpl implements MinimumProtocol {
 				m2 = numericProvider.getSInt();
 				System.arraycopy(cs, 0, cs1_prime, 0, k1);
 				System.arraycopy(cs, k1, cs2_prime, 0, k2);
-				MinimumProtocol min1 = lpProvider.getMinimumCircuit(X1, m1,
+				MinimumProtocol min1 = lpProvider.getMinimumProtocol(X1, m1,
 						cs1_prime);
-				MinimumProtocol min2 = lpProvider.getMinimumCircuit(X2, m2,
+				MinimumProtocol min2 = lpProvider.getMinimumProtocol(X2, m2,
 						cs2_prime);
 				gp = new ParallelProtocolProducer(min1, min2);
 				round++;
 			} else if (round == 1){
 				SInt c = numericProvider.getSInt();
-				ComparisonProtocol comp = lpProvider.getComparisonCircuit(m1,
+				ComparisonProtocol comp = lpProvider.getComparisonProtocol(m1,
 						m2, c, false);
 				ConditionalSelectProtocol cond = lpProvider
 						.getConditionalSelectProtocol(c, m1, m2, m);

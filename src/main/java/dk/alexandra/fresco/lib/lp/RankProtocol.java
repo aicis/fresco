@@ -34,34 +34,34 @@ import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.helper.AbstractSimpleProtocol;
 import dk.alexandra.fresco.lib.helper.builder.NumericProtocolBuilder;
 
-public class RankCircuit extends AbstractSimpleProtocol {
+public class RankProtocol extends AbstractSimpleProtocol {
 	
 	private final SInt[] numerators;
 	private final SInt[] denominators;
 	private final SInt numerator;
 	private final SInt denominator;
 	private final SInt rank;
-	private BasicNumericFactory numericProvider;
-	private LPFactory lpProvider;
+	private BasicNumericFactory numericFactory;
+	private LPFactory lpFactory;
 	
-	public RankCircuit(SInt[] numerators, SInt[] denominators, SInt numerator, SInt denominator, 
-			SInt rank, BasicNumericFactory numericProvider, LPFactory lpProvider) {
+	public RankProtocol(SInt[] numerators, SInt[] denominators, SInt numerator, SInt denominator, 
+			SInt rank, BasicNumericFactory numericFactory, LPFactory lpFactory) {
 		this.numerators = numerators;
 		this.denominators = denominators;
 		this.numerator = numerator;
 		this.denominator = denominator;
 		this.rank = rank;
-		this.numericProvider = numericProvider;
-		this.lpProvider = lpProvider;
+		this.numericFactory = numericFactory;
+		this.lpFactory = lpFactory;
 	}
 	
-	public RankCircuit(SInt[] values, SInt rankValue, SInt rank, BasicNumericFactory numericProvider, LPFactory lpProvider) {
-		this(values, null, rankValue, null, rank, numericProvider, lpProvider);
+	public RankProtocol(SInt[] values, SInt rankValue, SInt rank, BasicNumericFactory numericFactory, LPFactory lpFactory) {
+		this(values, null, rankValue, null, rank, numericFactory, lpFactory);
 	}
 
 	@Override
 	protected ProtocolProducer initializeProtocolProducer() {
-		NumericProtocolBuilder build = new NumericProtocolBuilder(numericProvider);
+		NumericProtocolBuilder build = new NumericProtocolBuilder(numericFactory);
 		SInt[] compLeft = null;
 		SInt[] compRight = null;
 		if (denominators == null && denominator == null) {
@@ -77,12 +77,12 @@ public class RankCircuit extends AbstractSimpleProtocol {
 		SInt[] comparisonResults = build.getSIntArray(numerators.length);
 		build.beginParScope();
 		for (int i = 0; i < numerators.length; i++) {
-			ProtocolProducer comp = lpProvider.getComparisonCircuit(compLeft[i], compRight[i], comparisonResults[i], true);
+			ProtocolProducer comp = lpFactory.getComparisonProtocol(compLeft[i], compRight[i], comparisonResults[i], true);
 			build.addProtocolProducer(comp);
 		}
 		build.endCurScope();
 		SInt result = build.sum(comparisonResults);
-		build.addProtocolProducer(lpProvider.getCopyProtocol(result, rank));
+		build.addProtocolProducer(lpFactory.getCopyProtocol(result, rank));
 		return build.getProtocol();
 	}
 }

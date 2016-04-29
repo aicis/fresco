@@ -36,7 +36,7 @@ import dk.alexandra.fresco.lib.debug.MarkerProtocolImpl;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.suite.spdz.utils.Util;
 
-public class OpenAndPrintCircuit implements Protocol {
+public class OpenAndPrintProtocol implements Protocol {
 	
 	private SInt number = null;
 	private SInt[] vector = null;
@@ -50,26 +50,26 @@ public class OpenAndPrintCircuit implements Protocol {
 	private STATE state = STATE.OUTPUT;
 	private String label;
 	
-	ProtocolProducer gp = null;
+	ProtocolProducer pp = null;
 	
-	private BasicNumericFactory provider;
+	private BasicNumericFactory factory;
 	
 
-	public OpenAndPrintCircuit(String label, SInt number, BasicNumericFactory provider) {
+	public OpenAndPrintProtocol(String label, SInt number, BasicNumericFactory factory) {
 		this.number = number;
-		this.provider = provider;
+		this.factory = factory;
 		this.label = label;
 	}
 	
-	public OpenAndPrintCircuit(String label, SInt[] vector, BasicNumericFactory provider) {
+	public OpenAndPrintProtocol(String label, SInt[] vector, BasicNumericFactory factory) {
 		this.vector = vector;
-		this.provider = provider;
+		this.factory = factory;
 		this.label = label;
 	}
 	
-	public OpenAndPrintCircuit(String label, SInt[][] matrix, BasicNumericFactory provider) {
+	public OpenAndPrintProtocol(String label, SInt[][] matrix, BasicNumericFactory factory) {
 		this.matrix = matrix;
-		this.provider = provider;
+		this.factory = factory;
 		this.label = label;
 	}
 	
@@ -86,18 +86,18 @@ public class OpenAndPrintCircuit implements Protocol {
 	}
 
 	@Override
-	public int getNextProtocols(NativeProtocol[] gates, int pos) {
-		if (gp == null) {
+	public int getNextProtocols(NativeProtocol[] nativeProtocols, int pos) {
+		if (pp == null) {
 			if (state == STATE.OUTPUT) {
 				if (number != null) {
-					oNumber = provider.getOInt();
-					gp = provider.getOpenProtocol(number, oNumber);
+					oNumber = factory.getOInt();
+					pp = factory.getOpenProtocol(number, oNumber);
 				} else if (vector != null) {
-					oVector = Util.oIntFill(new OInt[vector.length], provider);
-					gp = Util.makeOpenCircuit(vector, oVector, provider);
+					oVector = Util.oIntFill(new OInt[vector.length], factory);
+					pp = Util.makeOpenProtocol(vector, oVector, factory);
 				} else {
-					oMatrix = Util.oIntFill(new OInt[matrix.length][matrix[0].length], provider);
-					gp = Util.makeOpenCircuit(matrix, oMatrix, provider);
+					oMatrix = Util.oIntFill(new OInt[matrix.length][matrix[0].length], factory);
+					pp = Util.makeOpenProtocol(matrix, oMatrix, factory);
 				}
 			} else if (state == STATE.WRITE) {
 				StringBuilder sb = new StringBuilder();
@@ -118,20 +118,20 @@ public class OpenAndPrintCircuit implements Protocol {
 						sb.append('\n');
 					}
 				}
-				gp = new MarkerProtocolImpl(sb.toString());
+				pp = new MarkerProtocolImpl(sb.toString());
 			}			
 		}
-		if (gp.hasNextProtocols()) {
-			pos = gp.getNextProtocols(gates, pos);
-		} else if (!gp.hasNextProtocols()) {
+		if (pp.hasNextProtocols()) {
+			pos = pp.getNextProtocols(nativeProtocols, pos);
+		} else if (!pp.hasNextProtocols()) {
 			switch (state) {
 			case OUTPUT:
 				state = STATE.WRITE;
-				gp = null;
+				pp = null;
 				break;
 			case WRITE:
 				state = STATE.DONE;
-				gp = null;
+				pp = null;
 				break;
 			default:
 				break;

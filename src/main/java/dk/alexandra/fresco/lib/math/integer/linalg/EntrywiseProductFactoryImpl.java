@@ -39,13 +39,13 @@ public class EntrywiseProductFactoryImpl implements EntrywiseProductFactory{
 	}
 	
 	@Override
-	public EntrywiseProductProtocol getDotProductCircuit(SInt[] as, SInt[] bs,
+	public EntrywiseProductProtocol getDotProductProtocol(SInt[] as, SInt[] bs,
 			SInt[] results) {
 		return new EntrywiseProductProtocolImpl(as, bs, results, mcf);
 	}
 
 	@Override
-	public EntrywiseProductProtocol getDotProductCircuit(SInt[] as, OInt[] bs,
+	public EntrywiseProductProtocol getDotProductProtocol(SInt[] as, OInt[] bs,
 			SInt[] results) {
 		return new EntrywiseProductProtocolImpl(as, bs, results, mcf);
 	}

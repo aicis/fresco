@@ -42,7 +42,7 @@ public interface InnerProductFactory {
 	 *            vector2
 	 * @return
 	 */
-	public InnerProductProtocol getInnerProductCircuit(SInt[] vector1, SInt[] vector2, SInt result);
+	public InnerProductProtocol getInnerProductProtocol(SInt[] vector1, SInt[] vector2, SInt result);
 
 	/**
 	 * Copmutes the inner product of the two vectors, i.e. if a = [a1, a2, ...,

@@ -36,33 +36,24 @@ import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
 import dk.alexandra.fresco.suite.spdz.utils.Util;
 
-public class BlandEnteringVariableCircuit extends AbstractSimpleProtocol {
+public class BlandEnteringVariableProtocol extends AbstractSimpleProtocol {
 
 	private final LPTableau tableau;
 	private final Matrix<SInt> updateMatrix;
 	private final SInt[] enteringIndex;
 	private final SInt termination;
-	private LPFactory lpProvider;
-	private BasicNumericFactory bnProvider;
+	private LPFactory lpFactory;
+	private BasicNumericFactory bnFactory;	
 	
-	
-	/**
-	 * @param tableau  an (m + 1)x(n + m + 1) tableau
-	 * @param updateMatrix an (m + 1)x(m + 1) update matrix, multiplying the tableau on the left 
-	 * with the update matrix gives the new tableau 
-	 * @param enteringIndex the index of the variable to enter the basis chosen by Blands rule
-	 * @param termination should have the value 1 if ready for termination, and 0 otherwise
-	 * @param provider
-	 */
-	public BlandEnteringVariableCircuit(LPTableau tableau, Matrix<SInt> updateMatrix, 
-			SInt[] enteringIndex, SInt termination, LPFactory lpProvider, BasicNumericFactory bnProvider) {
+	public BlandEnteringVariableProtocol(LPTableau tableau, Matrix<SInt> updateMatrix, 
+			SInt[] enteringIndex, SInt termination, LPFactory lpFactory, BasicNumericFactory bnFactory) {
 		if (checkDimensions(tableau, updateMatrix, enteringIndex)) {
 			this.updateMatrix = updateMatrix;
 			this.tableau = tableau;
 			this.enteringIndex = enteringIndex;
 			this.termination = termination;
-			this.lpProvider = lpProvider;
-			this.bnProvider = bnProvider;
+			this.lpFactory = lpFactory;
+			this.bnFactory = bnFactory;
 		} else {
 			throw new MPCException("Dimensions of inputs do not match");
 		}
@@ -74,38 +65,37 @@ public class BlandEnteringVariableCircuit extends AbstractSimpleProtocol {
 		int tableauHeight = tableau.getC().getHeight() + 1;
 		int tableauWidth = tableau.getC().getWidth() + 1;		
 		return (updateHeight == updateWidth && updateHeight == tableauHeight && enteringIndex.length == tableauWidth - 1);
-	}
-	
+	}	
 	
 	@Override
 	protected ProtocolProducer initializeProtocolProducer() {
-		SInt negativeOne = bnProvider.getSInt();
-		SInt one = bnProvider.getSInt();		
-		ProtocolProducer loadValues = new ParallelProtocolProducer(bnProvider.getSInt(-1, negativeOne), bnProvider.getSInt(1, one));
+		SInt negativeOne = bnFactory.getSInt();
+		SInt one = bnFactory.getSInt();		
+		ProtocolProducer loadValues = new ParallelProtocolProducer(bnFactory.getSInt(-1, negativeOne), bnFactory.getSInt(1, one));
 		
-		SInt[] updatedF = Util.sIntFill(new SInt[tableau.getF().length], bnProvider);
+		SInt[] updatedF = Util.sIntFill(new SInt[tableau.getF().length], bnFactory);
 		ProtocolProducer updateFProducer = getUpdateFProducer(updatedF);
-		SInt[] signs = Util.sIntFill(new SInt[updatedF.length], bnProvider);
+		SInt[] signs = Util.sIntFill(new SInt[updatedF.length], bnFactory);
 		ParallelProtocolProducer signTest = new ParallelProtocolProducer();
 		for (int i = 0; i < updatedF.length; i++) {
-			ProtocolProducer comp = lpProvider.getComparisonCircuit(
+			ProtocolProducer comp = lpFactory.getComparisonProtocol(
 					updatedF[i], negativeOne, signs[i], false);
 			signTest.append(comp);
 		}
 		
 		SequentialProtocolProducer prefixSum = new SequentialProtocolProducer();
 		for (int i = 1; i < updatedF.length; i++) {
-			prefixSum.append(bnProvider.getAddProtocol(
+			prefixSum.append(bnFactory.getAddProtocol(
 					signs[i-1], 
 					signs[i], 
 					signs[i]));
 		}
 		
-		SInt[] pairwiseSums = Util.sIntFill(new SInt[signs.length], bnProvider);
+		SInt[] pairwiseSums = Util.sIntFill(new SInt[signs.length], bnFactory);
 		ParallelProtocolProducer pairwiseSum = new ParallelProtocolProducer();
 		pairwiseSums[0] = signs[0];
 		for (int i = 1; i < updatedF.length; i++) {
-			pairwiseSum.append(bnProvider.getAddProtocol(
+			pairwiseSum.append(bnFactory.getAddProtocol(
 					signs[i-1], 
 					signs[i], 
 					pairwiseSums[i]));
@@ -115,7 +105,7 @@ public class BlandEnteringVariableCircuit extends AbstractSimpleProtocol {
 		int bitlength = (int)Math.log(signs.length)*2 + 1; 
 		for (int i = 0; i < updatedF.length; i++) {
 			// TODO: The below can probably be done more efficient with a zero test
-			ProtocolProducer eq = lpProvider.getEqualityProtocol(
+			ProtocolProducer eq = lpFactory.getEqualityProtocol(
 					bitlength, 
 					80, 
 					pairwiseSums[i], 
@@ -125,11 +115,11 @@ public class BlandEnteringVariableCircuit extends AbstractSimpleProtocol {
 		}		
 		
 		SequentialProtocolProducer decideTermination = new SequentialProtocolProducer();
-		decideTermination.append(lpProvider.getCopyProtocol(enteringIndex[0], termination));
+		decideTermination.append(lpFactory.getCopyProtocol(enteringIndex[0], termination));
 		for (int i = 1; i < enteringIndex.length; i++) {
-			decideTermination.append(bnProvider.getAddProtocol(termination, enteringIndex[i], termination));
+			decideTermination.append(bnFactory.getAddProtocol(termination, enteringIndex[i], termination));
 		}
-		decideTermination.append(bnProvider.getSubtractProtocol(one, termination, termination));
+		decideTermination.append(bnFactory.getSubtractProtocol(one, termination, termination));
 		
 		SequentialProtocolProducer gp = new SequentialProtocolProducer(
 				loadValues,
@@ -158,7 +148,7 @@ public class BlandEnteringVariableCircuit extends AbstractSimpleProtocol {
 			}
 			constraintColumn[updateVectorDimension - 1] = tableau.getF()[i];
 			
-			updateFis[i] = lpProvider.getInnerProductCircuit(
+			updateFis[i] = lpFactory.getInnerProductProtocol(
 					constraintColumn, 
 					updateVector, 
 					updatedF[i]);
