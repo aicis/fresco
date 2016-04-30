@@ -31,6 +31,6 @@ import dk.alexandra.fresco.framework.value.SInt;
 
 public interface HammingDistanceFactory {
 
-	public HammingDistanceProtocol getHammingdistanceCircuit(SInt[] vector, OInt publicValue, SInt result);
+	public HammingDistanceProtocol getHammingdistanceProtocol(SInt[] vector, OInt publicValue, SInt result);
 
 }

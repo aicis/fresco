@@ -69,7 +69,7 @@ public class SquareRootProtocolImpl extends AbstractSimpleProtocol implements Sq
 	}
 
 	@Override
-	protected ProtocolProducer initializeGateProducer() {
+	protected ProtocolProducer initializeProtocolProducer() {
 		SequentialProtocolProducer squareRootProtocol = new SequentialProtocolProducer();
 
 		/*

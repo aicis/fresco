@@ -30,25 +30,25 @@ import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 
 /**
- * This implementation is lazy in the sense that it only invokes hasMoreGates()
- * and getNextGates() on a circuit when needed.
+ * This implementation is lazy in the sense that it only invokes hasMoreprotocols()
+ * and getNextprotocols() on a protocol when needed.
  * 
  **/
 class SequentialHelper implements ProtocolProducer {
 
-	private GateProducerList producerList;
+	private ProtocolProducerList producerList;
 	private ProtocolProducer currentProducer = null;
 	
-	protected SequentialHelper(GateProducerList cl) {
+	protected SequentialHelper(ProtocolProducerList cl) {
 		this.producerList = cl;
 	}
 		
 	/*
-	 * If prune returns false, we are done and no more gates can be produced.
-	 * If prune returns true, currentCircuit is a circuit with gates to evaluate.
+	 * If prune returns false, we are done and no more protocols can be produced.
+	 * If prune returns true, currentprotocol is a protocol with protocols to evaluate.
 	 */
 	private boolean prune() {
-		// Bootstrapping (for when currentCircuit is initially null) 
+		// Bootstrapping (for when currentprotocol is initially null) 
 		if (currentProducer == null) {
 			if (producerList.hasNextInLine()) {
 				currentProducer = producerList.getNextInLine();
@@ -56,12 +56,12 @@ class SequentialHelper implements ProtocolProducer {
 				return false;
 			}
 		}
-		// Roll until a circuit has gates or the end is reached
+		// Roll until a protocol has protocols or the end is reached
 		while (!currentProducer.hasNextProtocols()) {
 			if (producerList.hasNextInLine()) {
 				currentProducer = producerList.getNextInLine();
 			} else {
-				/* NOTE: we could set currentCircuit to null here 
+				/* NOTE: we could set currentprotocol to null here 
 				 * to release it to the GC - it would not break the method 
 				 */
 				currentProducer = null;
@@ -77,9 +77,9 @@ class SequentialHelper implements ProtocolProducer {
 	}
 	
 	@Override
-	public int getNextProtocols(NativeProtocol[] gates, int pos) {
+	public int getNextProtocols(NativeProtocol[] nativeProtocols, int pos) {
 		if (prune()) 
-			return currentProducer.getNextProtocols(gates, pos);
+			return currentProducer.getNextProtocols(nativeProtocols, pos);
 		else
 			return pos;
 	}

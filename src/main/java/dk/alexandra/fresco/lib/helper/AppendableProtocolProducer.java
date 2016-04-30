@@ -32,7 +32,7 @@ import java.util.List;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 
 /**
- * GateProducers that can have other gateproducers appended to them
+ * ProtocolProducers that can have other Protocolproducers appended to them
  * 
  * @author psn
  *
@@ -40,10 +40,10 @@ import dk.alexandra.fresco.framework.ProtocolProducer;
 public interface AppendableProtocolProducer extends ProtocolProducer {
 
 	/**
-	 * Appends a GateProducer to this GateProducer. The exact meaning of
-	 * appending a GateProducer is dependent is defined by this GateProducer.
-	 * However, as a minimum calling nextGates on this GateProducer should
-	 * eventually produce the gates of the appended GateProducer.
+	 * Appends a ProtocolProducer to this ProtocolProducer. The exact meaning of
+	 * appending a ProtocolProducer is dependent is defined by this ProtocolProducer.
+	 * However, as a minimum calling nextProtocols on this ProtocolProducer should
+	 * eventually produce the Protocols of the appended ProtocolProducer.
 	 * 
 	 * @param gp
 	 */
@@ -52,11 +52,11 @@ public interface AppendableProtocolProducer extends ProtocolProducer {
 	public LinkedList<ProtocolProducer> merge();
 
 	/**
-	 * Returns the next level represented by a list of gateproducers (most often
-	 * the gateproducers internal list)
+	 * Returns the next level represented by a list of Protocolproducers (most often
+	 * the Protocolproducers internal list)
 	 * 
 	 * @return
 	 */
-	public List<ProtocolProducer> getNextGateProducerLevel();
+	public List<ProtocolProducer> getNextProtocolProducerLevel();
 
 }

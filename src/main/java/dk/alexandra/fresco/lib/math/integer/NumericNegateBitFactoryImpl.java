@@ -38,7 +38,7 @@ public class NumericNegateBitFactoryImpl implements NumericNegateBitFactory{
 	}
 	
 	@Override
-	public NumericNegateBitProtocol getNegatedBitCircuit(SInt bit, SInt out) {
+	public NumericNegateBitProtocol getNegatedBitProtocol(SInt bit, SInt out) {
 		return new NumericNegateBitProtocol(bit, out, bnf);
 	}
 

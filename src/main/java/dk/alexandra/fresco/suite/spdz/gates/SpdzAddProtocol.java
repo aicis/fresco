@@ -40,7 +40,7 @@ public class SpdzAddProtocol extends SpdzNativeProtocol implements AddProtocol {
 
 	private SpdzSInt left, right, out;
 	private SpdzOInt oInt;
-	private SpdzFactory provider;
+	private SpdzFactory factory;
 
 	public SpdzAddProtocol(SInt left, SInt right, SInt out) {
 		this.left = (SpdzSInt) left;
@@ -54,11 +54,11 @@ public class SpdzAddProtocol extends SpdzNativeProtocol implements AddProtocol {
 		this.out = out;
 	}
 
-	public SpdzAddProtocol(SInt left, OInt right, SInt out, SpdzFactory provider) {
+	public SpdzAddProtocol(SInt left, OInt right, SInt out, SpdzFactory factory) {
 		this.left = (SpdzSInt) left;
 		this.oInt = (SpdzOInt) right;
 		this.out = (SpdzSInt) out;
-		this.provider = provider;
+		this.factory = factory;
 	}
 
 	@Override
@@ -81,7 +81,7 @@ public class SpdzAddProtocol extends SpdzNativeProtocol implements AddProtocol {
 	public EvaluationStatus evaluate(int round, ResourcePool resourcePool,
 			SCENetwork network) {
 		if (oInt != null) {
-			SpdzSInt myShare = (SpdzSInt) provider.getSInt(oInt.getValue());
+			SpdzSInt myShare = (SpdzSInt) factory.getSInt(oInt.getValue());
 			out.value = left.value.add(myShare.value);
 		} else {
 			out.value = left.value.add(right.value);

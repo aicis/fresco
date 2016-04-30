@@ -39,17 +39,17 @@ import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
 public class InnerProductProtocolImpl extends AbstractRoundBasedProtocol
 		implements InnerProductProtocol {
 
-	private final BasicNumericFactory bnProvider;
-	private final EntrywiseProductFactory dotProdProvider;
+	private final BasicNumericFactory bnFactory;
+	private final EntrywiseProductFactory entrywiseFactory;
 	private final SInt[] aVector, bVector;
 	private final SInt result;
 	private final OInt[] publicBVector;
-	private ProtocolProducer gp;
+	private ProtocolProducer pp;
 	private int round = 0;
 	private SInt[] results;
 
 	public InnerProductProtocolImpl(SInt[] aVector, SInt[] bVector, SInt result,
-			BasicNumericFactory bnProvider, EntrywiseProductFactory dotProdProvider) {
+			BasicNumericFactory bnFactory, EntrywiseProductFactory entrywiseFactory) {
 		if (aVector.length != bVector.length) {
 			throw new MPCException("Lengths of input arrays do not match");
 		}
@@ -57,12 +57,12 @@ public class InnerProductProtocolImpl extends AbstractRoundBasedProtocol
 		this.bVector = bVector;
 		this.publicBVector = null;
 		this.result = result;
-		this.bnProvider = bnProvider;
-		this.dotProdProvider = dotProdProvider;
+		this.bnFactory = bnFactory;
+		this.entrywiseFactory = entrywiseFactory;
 	}
 
 	public InnerProductProtocolImpl(SInt[] aVector, OInt[] bVector, SInt result,
-			BasicNumericFactory bnProvider, EntrywiseProductFactory dotProdProvider) {
+			BasicNumericFactory bnFactory, EntrywiseProductFactory entrywiseFactory) {
 		if (aVector.length != bVector.length) {
 			throw new MPCException("Lengths of input arrays do not match");
 		}
@@ -70,47 +70,47 @@ public class InnerProductProtocolImpl extends AbstractRoundBasedProtocol
 		this.bVector = null;
 		this.publicBVector = bVector;
 		this.result = result;
-		this.bnProvider = bnProvider;
-		this.dotProdProvider = dotProdProvider;
+		this.bnFactory = bnFactory;
+		this.entrywiseFactory = entrywiseFactory;
 	}
 
 	@Override
-	public ProtocolProducer nextGateProducer() {
-		gp = null;
+	public ProtocolProducer nextProtocolProducer() {
+		pp = null;
 		if (round == 0) {
 			int vectorLength = aVector.length;
 			results = new SInt[vectorLength];
 			if (vectorLength == 1) {
 				round = 2;
 				if (publicBVector == null) {
-					gp = bnProvider.getMultCircuit(aVector[0], bVector[0],
+					pp = bnFactory.getMultProtocol(aVector[0], bVector[0],
 							result);
 				} else {
-					gp = bnProvider.getMultCircuit(publicBVector[0],
+					pp = bnFactory.getMultProtocol(publicBVector[0],
 							aVector[0], result);
 				}
-				return gp;
+				return pp;
 			}
 			for (int i = 0; i < vectorLength; i++) {
-				results[i] = bnProvider.getSInt();
+				results[i] = bnFactory.getSInt();
 			}
 			if (publicBVector != null) {
-				gp = dotProdProvider.getDotProductCircuit(aVector, publicBVector,
+				pp = entrywiseFactory.getEntrywiseProductProtocol(aVector, publicBVector,
 						results);
 			} else {
-				gp = dotProdProvider.getDotProductCircuit(aVector, bVector, results);
+				pp = entrywiseFactory.getEntrywiseProductProtocol(aVector, bVector, results);
 			}
 			round++;
 		} else if (round == 1) {
-			NumericProtocolBuilder build = new NumericProtocolBuilder(bnProvider);
+			NumericProtocolBuilder build = new NumericProtocolBuilder(bnFactory);
 			SInt sumresult = build.sum(results);
 			results = null;
 			ProtocolProducer copy = new CopyProtocolImpl<SInt>(sumresult,  result);			
-			gp = new SequentialProtocolProducer(build.getCircuit(), copy);
+			pp = new SequentialProtocolProducer(build.getProtocol(), copy);
 			round++;
 		} else {
-			gp = null;
+			pp = null;
 		}
-		return gp;
+		return pp;
 	}
 }

@@ -33,10 +33,10 @@ import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.framework.value.Value;
 import dk.alexandra.fresco.lib.compare.ComparisonProtocol;
-import dk.alexandra.fresco.lib.compare.ConditionalSelectCircuit;
+import dk.alexandra.fresco.lib.compare.ConditionalSelectProtocol;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.field.integer.MultProtocol;
-import dk.alexandra.fresco.lib.field.integer.SubtractCircuit;
+import dk.alexandra.fresco.lib.field.integer.SubtractProtocol;
 import dk.alexandra.fresco.lib.helper.AbstractRoundBasedProtocol;
 import dk.alexandra.fresco.lib.helper.AbstractSimpleProtocol;
 import dk.alexandra.fresco.lib.helper.AppendableProtocolProducer;
@@ -48,84 +48,84 @@ public class MinimumProtocolImpl implements MinimumProtocol {
 
 	private SInt[] xs, cs;
 	private SInt m;
-	private ProtocolProducer currGP;
-	private LPFactory lpProvider;
-	private BasicNumericFactory numericProvider;
+	private ProtocolProducer currPP;
+	private LPFactory lpFactory;
+	private BasicNumericFactory numericFactory;
 	private final int k;
 	private boolean done = false;
 
 	public MinimumProtocolImpl(SInt[] xs, SInt m, SInt[] cs,
-			LPFactory lpProvider, BasicNumericFactory numericProvider) {
+			LPFactory lpFactory, BasicNumericFactory numericFactory) {
 		if (xs.length != cs.length) {
 			throw new MPCException(
-					"Min circuit: Output array should be same size as intput array");
+					"Min protocol: Output array should be same size as intput array");
 		}
 		this.k = xs.length;
 		this.xs = xs;
 		this.cs = cs;
 		this.m = m;
-		this.lpProvider = lpProvider;
-		this.numericProvider = numericProvider;
+		this.lpFactory = lpFactory;
+		this.numericFactory = numericFactory;
 	}
 
 	@Override
-	public int getNextProtocols(NativeProtocol[] gates, int pos) {
-		if (currGP == null) {
+	public int getNextProtocols(NativeProtocol[] nativeProtocols, int pos) {
+		if (currPP == null) {
 			if (this.k == 1) {
 				throw new MPCException(
-						"MinimumCircuit. k should never be 1. Just use the one you gave me as the minimum, fool ;)");
+						"Minimum protocol. k should never be 1.");
 			} else if (this.k == 2) {
-				ComparisonProtocol comp = lpProvider.getComparisonCircuit(
+				ComparisonProtocol comp = lpFactory.getComparisonProtocol(
 						this.xs[0], this.xs[1], this.cs[0], false);
-				ConditionalSelectCircuit cond = lpProvider
-						.getConditionalSelectCircuit(this.cs[0], this.xs[0],
+				ConditionalSelectProtocol cond = lpFactory
+						.getConditionalSelectProtocol(this.cs[0], this.xs[0],
 								this.xs[1], this.m);
-				SInt one = numericProvider.getSInt(1);
-				SubtractCircuit subtract = numericProvider.getSubtractCircuit(
+				SInt one = numericFactory.getSInt(1);
+				SubtractProtocol subtract = numericFactory.getSubtractProtocol(
 						one, this.cs[0], this.cs[1]);
-				currGP = new SequentialProtocolProducer(new Protocol[] { comp, cond,
+				currPP = new SequentialProtocolProducer(new Protocol[] { comp, cond,
 						subtract });
 			} else if (this.k == 3) {
-				SInt c1_prime = numericProvider.getSInt();
-				ComparisonProtocol comp1 = lpProvider.getComparisonCircuit(
+				SInt c1_prime = numericFactory.getSInt();
+				ComparisonProtocol comp1 = lpFactory.getComparisonProtocol(
 						this.xs[0], this.xs[1], c1_prime, false);
-				SInt m1 = numericProvider.getSInt();
-				ConditionalSelectCircuit cond1 = lpProvider
-						.getConditionalSelectCircuit(c1_prime, this.xs[0],
+				SInt m1 = numericFactory.getSInt();
+				ConditionalSelectProtocol cond1 = lpFactory
+						.getConditionalSelectProtocol(c1_prime, this.xs[0],
 								this.xs[1], m1);
 
-				SInt c2_prime = numericProvider.getSInt();
-				ComparisonProtocol comp2 = lpProvider.getComparisonCircuit(m1,
+				SInt c2_prime = numericFactory.getSInt();
+				ComparisonProtocol comp2 = lpFactory.getComparisonProtocol(m1,
 						this.xs[2], c2_prime, false);
-				ConditionalSelectCircuit cond2 = lpProvider
-						.getConditionalSelectCircuit(c2_prime, m1, this.xs[2],
+				ConditionalSelectProtocol cond2 = lpFactory
+						.getConditionalSelectProtocol(c2_prime, m1, this.xs[2],
 								this.m);
 
-				MultProtocol mult1 = numericProvider.getMultCircuit(c1_prime,
+				MultProtocol mult1 = numericFactory.getMultProtocol(c1_prime,
 						c2_prime, this.cs[0]);
-				SubtractCircuit sub1 = numericProvider.getSubtractCircuit(
+				SubtractProtocol sub1 = numericFactory.getSubtractProtocol(
 						c2_prime, this.cs[0], this.cs[1]);
-				SInt one = numericProvider.getSInt(1);
-				SInt tmp = numericProvider.getSInt();
-				SubtractCircuit sub2 = numericProvider.getSubtractCircuit(one,
+				SInt one = numericFactory.getSInt(1);
+				SInt tmp = numericFactory.getSInt();
+				SubtractProtocol sub2 = numericFactory.getSubtractProtocol(one,
 						this.cs[0], tmp);
-				SubtractCircuit sub3 = numericProvider.getSubtractCircuit(tmp,
+				SubtractProtocol sub3 = numericFactory.getSubtractProtocol(tmp,
 						this.cs[1], this.cs[2]);
 
 				SequentialProtocolProducer seqGP = new SequentialProtocolProducer(
 						comp1, cond1, comp2, cond2, mult1);
 				ParallelProtocolProducer parGP = new ParallelProtocolProducer(sub1,
 						sub2);
-				currGP = new SequentialProtocolProducer(seqGP, parGP, sub3);
+				currPP = new SequentialProtocolProducer(seqGP, parGP, sub3);
 
 			} else { // k > 3
-				currGP = new RecursionPart();				
+				currPP = new RecursionPart();				
 			}
 		}
-		if (currGP.hasNextProtocols()) {
-			pos = currGP.getNextProtocols(gates, pos);
-		} else if (!currGP.hasNextProtocols()) {
-			currGP = null;
+		if (currPP.hasNextProtocols()) {
+			pos = currPP.getNextProtocols(nativeProtocols, pos);
+		} else if (!currPP.hasNextProtocols()) {
+			currPP = null;
 			done = true;
 		}
 		return pos;
@@ -140,7 +140,7 @@ public class MinimumProtocolImpl implements MinimumProtocol {
 		private SInt[] cs2_prime;
 		
 		@Override
-		public ProtocolProducer nextGateProducer() {
+		public ProtocolProducer nextProtocolProducer() {
 			ProtocolProducer gp = null;
 			if (round == 0) {
 				int k1 = k / 2;
@@ -151,30 +151,30 @@ public class MinimumProtocolImpl implements MinimumProtocol {
 				System.arraycopy(xs, X1.length, X2, 0, X2.length);
 				cs1_prime = new SInt[k1];
 				cs2_prime = new SInt[k2];
-				m1 = numericProvider.getSInt();
-				m2 = numericProvider.getSInt();
+				m1 = numericFactory.getSInt();
+				m2 = numericFactory.getSInt();
 				System.arraycopy(cs, 0, cs1_prime, 0, k1);
 				System.arraycopy(cs, k1, cs2_prime, 0, k2);
-				MinimumProtocol min1 = lpProvider.getMinimumCircuit(X1, m1,
+				MinimumProtocol min1 = lpFactory.getMinimumProtocol(X1, m1,
 						cs1_prime);
-				MinimumProtocol min2 = lpProvider.getMinimumCircuit(X2, m2,
+				MinimumProtocol min2 = lpFactory.getMinimumProtocol(X2, m2,
 						cs2_prime);
 				gp = new ParallelProtocolProducer(min1, min2);
 				round++;
 			} else if (round == 1){
-				SInt c = numericProvider.getSInt();
-				ComparisonProtocol comp = lpProvider.getComparisonCircuit(m1,
+				SInt c = numericFactory.getSInt();
+				ComparisonProtocol comp = lpFactory.getComparisonProtocol(m1,
 						m2, c, false);
-				ConditionalSelectCircuit cond = lpProvider
-						.getConditionalSelectCircuit(c, m1, m2, m);
-				SInt one = numericProvider.getSInt(1);
-				SInt oneMinusC = numericProvider.getSInt();
-				SubtractCircuit subtract = numericProvider.getSubtractCircuit(
+				ConditionalSelectProtocol cond = lpFactory
+						.getConditionalSelectProtocol(c, m1, m2, m);
+				SInt one = numericFactory.getSInt(1);
+				SInt oneMinusC = numericFactory.getSInt();
+				SubtractProtocol subtract = numericFactory.getSubtractProtocol(
 						one, c, oneMinusC);
 				VectorScale scale1 = new VectorScale(c, cs1_prime, cs, 0);
 				VectorScale scale2 = new VectorScale(oneMinusC, cs2_prime, cs, k/2);
 				ProtocolProducer scale = new ParallelProtocolProducer(scale1, scale2);
-				currGP = new SequentialProtocolProducer(comp, cond,	subtract, scale);
+				currPP = new SequentialProtocolProducer(comp, cond,	subtract, scale);
 				round++;
 			} else {
 				cs1_prime = null;
@@ -203,10 +203,10 @@ public class MinimumProtocolImpl implements MinimumProtocol {
 		
 		
 		@Override
-		protected ProtocolProducer initializeGateProducer() {
+		protected ProtocolProducer initializeProtocolProducer() {
 			AppendableProtocolProducer par = new ParallelProtocolProducer();
 			for (int i = 0; i < vector.length; i++) {
-				ProtocolProducer mult = numericProvider.getMultCircuit(scale, vector[i],
+				ProtocolProducer mult = numericFactory.getMultProtocol(scale, vector[i],
 						output[from + i]);
 				par.append(mult);
 			}

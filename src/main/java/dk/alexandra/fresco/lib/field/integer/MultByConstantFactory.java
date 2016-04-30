@@ -38,5 +38,5 @@ public interface MultByConstantFactory {
 	 * @param c output - [c]=a*[b]
 	 * @return
 	 */
-	public MultProtocol getMultCircuit(OInt a, SInt b, SInt c);
+	public MultProtocol getMultProtocol(OInt a, SInt b, SInt c);
 }

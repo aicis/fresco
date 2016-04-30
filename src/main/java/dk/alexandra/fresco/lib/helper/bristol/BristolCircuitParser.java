@@ -186,7 +186,7 @@ public class BristolCircuitParser {
 			}
 
 			
-			return this.boolFactory.getXorCircuit(leftInWireXor, rightInWireXor, outWireXor);
+			return this.boolFactory.getXorProtocol(leftInWireXor, rightInWireXor, outWireXor);
 		case "AND":
 			if (in.length != 2 || out.length != 1)
 				throw new IOException("Wrong circuit format for AND");
@@ -218,7 +218,7 @@ public class BristolCircuitParser {
 			}
 			
 			
-			return this.boolFactory.getAndCircuit(leftInWireAnd, rightInWireAnd, outWireAnd);
+			return this.boolFactory.getAndProtocol(leftInWireAnd, rightInWireAnd, outWireAnd);
 		case "INV":
 			if (in.length != 1 || out.length != 1)
 				throw new IOException("Wrong circuit format for INV");
@@ -240,7 +240,7 @@ public class BristolCircuitParser {
 				this.wires.put(out[0], outWireNot);
 			}
 			
-			return this.boolFactory.getNotCircuit(inWireNot, outWireNot);
+			return this.boolFactory.getNotProtocol(inWireNot, outWireNot);
 		default:
 			throw new MPCException("Unknown gate type: " + type);
 		}

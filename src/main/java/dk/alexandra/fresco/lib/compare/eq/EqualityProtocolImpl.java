@@ -34,7 +34,7 @@ import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.helper.AbstractSimpleProtocol;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
 
-/** Implements an equality circuit -- given inputs x, y set output to x==y
+/** Implements an equality protocol -- given inputs x, y set output to x==y
  * @author ttoft
  *
  */
@@ -46,21 +46,21 @@ public class EqualityProtocolImpl extends AbstractSimpleProtocol implements Equa
 	private final SInt x, y;
 	private final SInt output;
 	
-	// providers, etc
-	private final BasicNumericFactory provider;
-	private final ZeroTestProtocolFactory ztProvider;	
+	// Factories, etc
+	private final BasicNumericFactory bnFactory;
+	private final ZeroTestProtocolFactory ztFactory;	
 	
 	public EqualityProtocolImpl(int bitLength, int securityParameter, SInt x,
-			SInt y, SInt output, BasicNumericFactory provider,
-			ZeroTestProtocolFactory ztProvider) {
+			SInt y, SInt output, BasicNumericFactory bnFactory,
+			ZeroTestProtocolFactory ztFactory) {
 		super();
 		this.bitLength = bitLength;
 		this.securityParameter = securityParameter;
 		this.x = x;
 		this.y = y;
 		this.output = output;
-		this.provider = provider;
-		this.ztProvider = ztProvider;
+		this.bnFactory = bnFactory;
+		this.ztFactory = ztFactory;
 	}
 
 	@Override
@@ -76,15 +76,15 @@ public class EqualityProtocolImpl extends AbstractSimpleProtocol implements Equa
 	}
 
 	@Override
-	protected ProtocolProducer initializeGateProducer() {
+	protected ProtocolProducer initializeProtocolProducer() {
 		// z = x -y
-		SInt diff = provider.getSInt();
-		ProtocolProducer diffGP = provider.getSubtractCircuit(x, y, diff);
+		SInt diff = bnFactory.getSInt();
+		ProtocolProducer diffPP = bnFactory.getSubtractProtocol(x, y, diff);
 
 		// output = ZeroTest(z)
-		ProtocolProducer zeroTestGP = ztProvider.getZeroCircuit(bitLength, securityParameter, diff, output);
+		ProtocolProducer zeroTestPP = ztFactory.getZeroProtocol(bitLength, securityParameter, diff, output);
 		
-		return new SequentialProtocolProducer(diffGP, zeroTestGP);
+		return new SequentialProtocolProducer(diffPP, zeroTestPP);
 	}
 
 	

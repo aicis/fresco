@@ -29,7 +29,7 @@ package dk.alexandra.fresco.lib.compare;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.compare.eq.EqualityProtocol;
 import dk.alexandra.fresco.lib.compare.eq.EqualityProtocolImpl;
-import dk.alexandra.fresco.lib.compare.gt.GreaterThanReducerCircuitImpl;
+import dk.alexandra.fresco.lib.compare.gt.GreaterThanReducerProtocolImpl;
 import dk.alexandra.fresco.lib.compare.zerotest.ZeroTestProtocolFactory;
 import dk.alexandra.fresco.lib.compare.zerotest.ZeroTestProtocolFactoryImpl;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
@@ -77,7 +77,7 @@ public class ComparisonProtocolFactoryImpl implements ComparisonProtocolFactory 
 		if (longCompare) {
 			bitLength *= 2;
 		}
-		return new GreaterThanReducerCircuitImpl(bitLength, secParam, x1, x2,
+		return new GreaterThanReducerProtocolImpl(bitLength, secParam, x1, x2,
 				result, bnf, numericNegateBitFactory, randomAdditiveMaskFactory,
 				zeroTestProtocolFactory, misc, innerProductFactory,
 				localInvFactory);

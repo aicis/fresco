@@ -42,19 +42,19 @@ import dk.alexandra.fresco.suite.spdz.utils.Util;
  */
 public class MiscOIntGenerators {
 
-	private BasicNumericFactory provider;
+	private BasicNumericFactory factory;
 
 	Map<Integer, OInt[]> coefficientsOfPolynomiums;
 	OInt[] twoPowers;
 	// should twoPowers be a List?
 	
 	
-	public MiscOIntGenerators(BasicNumericFactory provider) {
-		this.provider = provider;
+	public MiscOIntGenerators(BasicNumericFactory factory) {
+		this.factory = factory;
 		coefficientsOfPolynomiums = new HashMap<Integer, OInt[]>();
 
 		twoPowers = new OInt[1];
-		twoPowers[0] = provider.getOInt();
+		twoPowers[0] = factory.getOInt();
 		twoPowers[0].setValue(BigInteger.ONE);		
 	}
 	
@@ -62,7 +62,7 @@ public class MiscOIntGenerators {
 	/**
 	 * Generate a degree l polynomium P such that P(1) = 1 and P(i) = 0 for i in {2,3,...,l+1}
 	 * @param l degree of polynomium
-	 * @param provider source of OInt's
+	 * @param factory source of OInt's
 	 * @return coefficients of P
 	 */
 	public OInt[] getPoly(int l) {
@@ -75,7 +75,7 @@ public class MiscOIntGenerators {
 
 			BigInteger[] coefficients = Util.constructPolynomial(l);
 			for (int i=0; i<=l ; i++) {
-				result[i] = provider.getOInt();
+				result[i] = factory.getOInt();
 				result[i].setValue(coefficients[coefficients.length - 1 - i]);
 			}
 			
@@ -87,7 +87,6 @@ public class MiscOIntGenerators {
 	/**
 	 * Generate all two-powers 2^i for i<l
 	 * @param l array length
-	 * @param provider Source of OInts
 	 * @return Array of length l with result[i] == 2^i
 	 */
 	public OInt[] getTwoPowers(int l) {
@@ -96,7 +95,7 @@ public class MiscOIntGenerators {
 			System.arraycopy(twoPowers, 0, newArray, 0, twoPowers.length);
 			BigInteger currentValue = twoPowers[twoPowers.length-1].getValue();
 			for (int i = twoPowers.length; i < newArray.length; i++) {
-				newArray[i] = provider.getOInt();
+				newArray[i] = factory.getOInt();
 				currentValue = currentValue.shiftLeft(1); // multiply previous value by two
 				newArray[i].setValue(currentValue);
 			}

@@ -31,6 +31,6 @@ import dk.alexandra.fresco.framework.value.SBool;
 
 public interface NotProtocolFactory extends ProtocolFactory {
 
-	public NotProtocol getNotCircuit(SBool in, SBool out);
+	public NotProtocol getNotProtocol(SBool in, SBool out);
 	
 }

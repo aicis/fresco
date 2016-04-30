@@ -94,10 +94,10 @@ public class StatisticsTests {
 						
 						@Override
 						public ProtocolProducer prepareApplication(
-								ProtocolFactory provider) {
+								ProtocolFactory factory) {
 							
-							BasicNumericFactory basicNumericFactory = (BasicNumericFactory) provider;
-							PreprocessedNumericBitFactory preprocessedNumericBitFactory = (PreprocessedNumericBitFactory) provider;
+							BasicNumericFactory basicNumericFactory = (BasicNumericFactory) factory;
+							PreprocessedNumericBitFactory preprocessedNumericBitFactory = (PreprocessedNumericBitFactory) factory;
 							RandomAdditiveMaskFactory randomAdditiveMaskFactory = new RandomAdditiveMaskFactoryImpl(basicNumericFactory, preprocessedNumericBitFactory);
 							RightShiftFactory rightShiftFactory = new RightShiftFactoryImpl(80, basicNumericFactory, randomAdditiveMaskFactory);
 							DivisionFactory euclidianDivisionFactory = new DivisionFactoryImpl(basicNumericFactory, rightShiftFactory);
@@ -119,7 +119,7 @@ public class StatisticsTests {
 							}
 							
 							SInt[][] input = ioBuilder.inputMatrix(new int[][] {data1, data2, data3}, 1);
-							sequentialProtocolProducer.append(ioBuilder.getCircuit());
+							sequentialProtocolProducer.append(ioBuilder.getProtocol());
 							
 							MeanProtocol arithmeticMeanProtocol = statisticsFactory.getMeanProtocol(input[0], 10, mean1);
 							sequentialProtocolProducer.append(arithmeticMeanProtocol);
@@ -142,7 +142,7 @@ public class StatisticsTests {
 							OInt output4 = ioBuilder.output(covariance);
 							OInt[][] output5 = ioBuilder.outputMatrix(covarianceMatrix);
 							
-							sequentialProtocolProducer.append(ioBuilder.getCircuit());
+							sequentialProtocolProducer.append(ioBuilder.getProtocol());
 							
 							ProtocolProducer gp = sequentialProtocolProducer;
 							

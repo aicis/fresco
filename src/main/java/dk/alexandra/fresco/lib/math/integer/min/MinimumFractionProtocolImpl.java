@@ -32,10 +32,10 @@ import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.framework.value.Value;
 import dk.alexandra.fresco.lib.compare.ComparisonProtocol;
-import dk.alexandra.fresco.lib.compare.ConditionalSelectCircuit;
+import dk.alexandra.fresco.lib.compare.ConditionalSelectProtocol;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.field.integer.MultProtocol;
-import dk.alexandra.fresco.lib.field.integer.SubtractCircuit;
+import dk.alexandra.fresco.lib.field.integer.SubtractProtocol;
 import dk.alexandra.fresco.lib.helper.AbstractRoundBasedProtocol;
 import dk.alexandra.fresco.lib.helper.AbstractSimpleProtocol;
 import dk.alexandra.fresco.lib.helper.AppendableProtocolProducer;
@@ -47,14 +47,14 @@ public class MinimumFractionProtocolImpl implements MinimumFractionProtocol {
 
 	private SInt[] ns, ds, cs;
 	private SInt nm, dm;
-	private ProtocolProducer currGP;
-	private LPFactory lpProvider;
-	private BasicNumericFactory numericProvider;
+	private ProtocolProducer currPP;
+	private LPFactory lpFactory;
+	private BasicNumericFactory numericFactory;
 	private final int k;
 	private boolean done = false;
 	
 	public MinimumFractionProtocolImpl(SInt[] ns, SInt[] ds, SInt nm, SInt dm, SInt[] cs,
-			BasicNumericFactory numericProvider, LPFactory lpProvider) {
+			BasicNumericFactory numericFactory, LPFactory lpFactory) {
 		if (ns.length == ds.length && ns.length == cs.length) {
 			this.k = ns.length;
 			this.ns = ns;
@@ -62,52 +62,52 @@ public class MinimumFractionProtocolImpl implements MinimumFractionProtocol {
 			this.nm = nm;
 			this.dm = dm;
 			this.cs = cs;
-			this.numericProvider = numericProvider;
-			this.lpProvider = lpProvider;
+			this.numericFactory = numericFactory;
+			this.lpFactory = lpFactory;
 		} else {
 			throw new MPCException("Sizes of input arrays does not match");
 		}
 	}
 
 	@Override
-	public int getNextProtocols(NativeProtocol[] gates, int pos) {
-		if(currGP == null) {
+	public int getNextProtocols(NativeProtocol[] nativeProtocols, int pos) {
+		if(currPP == null) {
 			if(this.k == 1) {
 				throw new MPCException("k should never be 1.");
 			} else if (this.k == 2) {
 				ProtocolProducer comparison = minFraction(ns[0], ds[0], ns[1], ds[1], cs[0], nm, dm);
-				SInt one = numericProvider.getSInt(1);
-				SubtractCircuit subtract = numericProvider.getSubtractCircuit(one, this.cs[0], this.cs[1]);
-				currGP = new SequentialProtocolProducer(comparison, subtract);
+				SInt one = numericFactory.getSInt(1);
+				SubtractProtocol subtract = numericFactory.getSubtractProtocol(one, this.cs[0], this.cs[1]);
+				currPP = new SequentialProtocolProducer(comparison, subtract);
 			} else if (this.k == 3) {
-				SInt c1_prime = numericProvider.getSInt();
-				SInt nm1 = numericProvider.getSInt();
-				SInt dm1 = numericProvider.getSInt();
+				SInt c1_prime = numericFactory.getSInt();
+				SInt nm1 = numericFactory.getSInt();
+				SInt dm1 = numericFactory.getSInt();
 				ProtocolProducer min1 = minFraction(ns[0], ds[0], ns[1], ds[1], c1_prime, nm1, dm1);
 				
-				SInt c2_prime = numericProvider.getSInt();
+				SInt c2_prime = numericFactory.getSInt();
 				ProtocolProducer min2 = minFraction(nm1, dm1, ns[2], ds[2], c2_prime, nm, dm);
 				
-				MultProtocol mult1 = numericProvider.getMultCircuit(c1_prime, c2_prime, this.cs[0]);
-				SubtractCircuit sub1 = numericProvider.getSubtractCircuit(c2_prime, this.cs[0], this.cs[1]);
-				SInt one = numericProvider.getSInt(1);
-				SInt tmp = numericProvider.getSInt();
-				SubtractCircuit sub2 = numericProvider.getSubtractCircuit(one, this.cs[0], tmp);
+				MultProtocol mult1 = numericFactory.getMultProtocol(c1_prime, c2_prime, this.cs[0]);
+				SubtractProtocol sub1 = numericFactory.getSubtractProtocol(c2_prime, this.cs[0], this.cs[1]);
+				SInt one = numericFactory.getSInt(1);
+				SInt tmp = numericFactory.getSInt();
+				SubtractProtocol sub2 = numericFactory.getSubtractProtocol(one, this.cs[0], tmp);
 				
-				SubtractCircuit sub3 = numericProvider.getSubtractCircuit(tmp, this.cs[1], this.cs[2]);
+				SubtractProtocol sub3 = numericFactory.getSubtractProtocol(tmp, this.cs[1], this.cs[2]);
 				
 				SequentialProtocolProducer seqGP = new SequentialProtocolProducer(min1, min2, mult1);
 				ParallelProtocolProducer parGP = new ParallelProtocolProducer(sub1, sub2);
-				currGP = new SequentialProtocolProducer(seqGP, parGP, sub3);				
+				currPP = new SequentialProtocolProducer(seqGP, parGP, sub3);				
 			} else {
-				currGP = new RecursionPart();				
+				currPP = new RecursionPart();				
 			}
 		}
-		if(currGP.hasNextProtocols()){
-			pos = currGP.getNextProtocols(gates, pos);
+		if(currPP.hasNextProtocols()){
+			pos = currPP.getNextProtocols(nativeProtocols, pos);
 		}
-		else if(!currGP.hasNextProtocols()){
-			currGP = null;
+		else if(!currPP.hasNextProtocols()){
+			currPP = null;
 			done = true;
 		}
 		return pos;
@@ -126,7 +126,7 @@ public class MinimumFractionProtocolImpl implements MinimumFractionProtocol {
 		private SInt one;
 		
 		@Override
-		public ProtocolProducer nextGateProducer() {
+		public ProtocolProducer nextProtocolProducer() {
 			ProtocolProducer gp = null;
 			if (round == 0) {
 				int k1 = k/2;
@@ -142,27 +142,27 @@ public class MinimumFractionProtocolImpl implements MinimumFractionProtocol {
 				
 				cs1_prime = new SInt[k1];
 				cs2_prime = new SInt[k2];
-				nm1 = numericProvider.getSInt();
-				dm1 = numericProvider.getSInt();
-				nm2 = numericProvider.getSInt();
-				dm2 = numericProvider.getSInt();
+				nm1 = numericFactory.getSInt();
+				dm1 = numericFactory.getSInt();
+				nm2 = numericFactory.getSInt();
+				dm2 = numericFactory.getSInt();
 				System.arraycopy(cs, 0, cs1_prime, 0, k1);
 				System.arraycopy(cs, k1, cs2_prime, 0, k2);
-				MinimumFractionProtocol min1 = lpProvider.getMinimumFractionCircuit(N1, D1, nm1, dm1, cs1_prime);
-				MinimumFractionProtocol min2 = lpProvider.getMinimumFractionCircuit(N2, D2, nm2, dm2, cs2_prime);
-				one = numericProvider.getSInt();
-				ProtocolProducer load1 = numericProvider.getSInt(1, one);
+				MinimumFractionProtocol min1 = lpFactory.getMinimumFractionProtocol(N1, D1, nm1, dm1, cs1_prime);
+				MinimumFractionProtocol min2 = lpFactory.getMinimumFractionProtocol(N2, D2, nm2, dm2, cs2_prime);
+				one = numericFactory.getSInt();
+				ProtocolProducer load1 = numericFactory.getSInt(1, one);
 				gp = new ParallelProtocolProducer(min1, min2, load1);
 				round++;
 			} else if (round == 1){
-				SInt c = numericProvider.getSInt();
+				SInt c = numericFactory.getSInt();
 				ProtocolProducer min = minFraction(nm1, dm1, nm2, dm2, c, nm, dm);	
-				SInt notC = numericProvider.getSInt();
-				SubtractCircuit subtract = numericProvider.getSubtractCircuit(one, c, notC);
+				SInt notC = numericFactory.getSInt();
+				SubtractProtocol subtract = numericFactory.getSubtractProtocol(one, c, notC);
 				VectorScale scale1 = new VectorScale(c, cs1_prime, cs, 0);
 				VectorScale scale2 = new VectorScale(notC, cs2_prime, cs, k/2);
-				ProtocolProducer multGates = new ParallelProtocolProducer(scale1, scale2);				
-				gp = new SequentialProtocolProducer(min, subtract, multGates);
+				ProtocolProducer mults = new ParallelProtocolProducer(scale1, scale2);				
+				gp = new SequentialProtocolProducer(min, subtract, mults);
 				round++;
 			} else {
 				cs1_prime = null;
@@ -191,10 +191,10 @@ public class MinimumFractionProtocolImpl implements MinimumFractionProtocol {
 		}		
 		
 		@Override
-		protected ProtocolProducer initializeGateProducer() {
+		protected ProtocolProducer initializeProtocolProducer() {
 			AppendableProtocolProducer par = new ParallelProtocolProducer();
 			for (int i = 0; i < vector.length; i++) {
-				ProtocolProducer mult = numericProvider.getMultCircuit(scale, vector[i],
+				ProtocolProducer mult = numericFactory.getMultProtocol(scale, vector[i],
 						output[from + i]);
 				par.append(mult);
 			}
@@ -215,14 +215,14 @@ public class MinimumFractionProtocolImpl implements MinimumFractionProtocol {
 	 */
 	private ProtocolProducer minFraction(SInt n0, SInt d0, SInt n1, SInt d1, 
 			SInt c, SInt nm, SInt dm) {
-		SInt prod1 = numericProvider.getSInt();
-		SInt prod2 = numericProvider.getSInt();
-		MultProtocol mult1 = numericProvider.getMultCircuit(n0, d1, prod1);
-		MultProtocol mult2 = numericProvider.getMultCircuit(n1, d0, prod2);
+		SInt prod1 = numericFactory.getSInt();
+		SInt prod2 = numericFactory.getSInt();
+		MultProtocol mult1 = numericFactory.getMultProtocol(n0, d1, prod1);
+		MultProtocol mult2 = numericFactory.getMultProtocol(n1, d0, prod2);
 		ProtocolProducer multiplications = new ParallelProtocolProducer(mult1, mult2);
-		ComparisonProtocol comp = lpProvider.getComparisonCircuit(prod1, prod2, c, true);
-		ConditionalSelectCircuit cond1 = lpProvider.getConditionalSelectCircuit(c, n0, n1, nm);
-		ConditionalSelectCircuit cond2 = lpProvider.getConditionalSelectCircuit(c, d0, d1, dm);
+		ComparisonProtocol comp = lpFactory.getComparisonProtocol(prod1, prod2, c, true);
+		ConditionalSelectProtocol cond1 = lpFactory.getConditionalSelectProtocol(c, n0, n1, nm);
+		ConditionalSelectProtocol cond2 = lpFactory.getConditionalSelectProtocol(c, d0, d1, dm);
 		ProtocolProducer conditionalSelects = new ParallelProtocolProducer(cond1, cond2);
 		return new SequentialProtocolProducer(multiplications, comp, conditionalSelects);		
 	}

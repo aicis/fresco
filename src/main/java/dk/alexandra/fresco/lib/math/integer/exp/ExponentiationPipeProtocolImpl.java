@@ -41,42 +41,42 @@ public class ExponentiationPipeProtocolImpl implements ExponentiationPipeProtoco
 	private final SInt R;
 	private final int exp_size;
 	private final SInt[] outputs;
-	private final InversionProtocolFactory invProvider;
-	private final BasicNumericFactory provider;
-	private final CopyProtocolFactory<SInt> copyProvider;
-	private ProtocolProducer gp;
+	private final InversionProtocolFactory invFactory;
+	private final BasicNumericFactory factory;
+	private final CopyProtocolFactory<SInt> copyFactory;
+	private ProtocolProducer pp;
 	private int state = 0;
 	private boolean running = false;
 	
 	public ExponentiationPipeProtocolImpl(SInt R, SInt[] outputs, 
-			InversionProtocolFactory invProvider, BasicNumericFactory provider, CopyProtocolFactory<SInt> copyProvider){
+			InversionProtocolFactory invFactory, BasicNumericFactory factory, CopyProtocolFactory<SInt> copyFactory){
 		this.R = R;
 		this.exp_size = outputs.length;
 		this.outputs = outputs;
-		this.invProvider = invProvider;
-		this.provider = provider;
-		this.copyProvider = copyProvider;
+		this.invFactory = invFactory;
+		this.factory = factory;
+		this.copyFactory = copyFactory;
 	}	
 
 	@Override
-	public int getNextProtocols(NativeProtocol[] gates, int pos) {
+	public int getNextProtocols(NativeProtocol[] nativeProtocols, int pos) {
 		if(state == 0){
-			Protocol invC = invProvider.getInversionProtocol(R, outputs[0]);
-			Protocol copyR = copyProvider.getCopyCircuit(R, outputs[1]);
-			Protocol mult = provider.getMultCircuit(R, R, outputs[2]);			
-			gp = new ParallelProtocolProducer(invC, copyR, mult);
+			Protocol invC = invFactory.getInversionProtocol(R, outputs[0]);
+			Protocol copyR = copyFactory.getCopyProtocol(R, outputs[1]);
+			Protocol mult = factory.getMultProtocol(R, R, outputs[2]);			
+			pp = new ParallelProtocolProducer(invC, copyR, mult);
 			state = 2;
 		}else if(!running){
 			//Should initially multiply R with R^2 => R^3 
-			Protocol mult = provider.getMultCircuit(R, outputs[state++], outputs[state]);
-			gp = new ParallelProtocolProducer(mult);
+			Protocol mult = factory.getMultProtocol(R, outputs[state++], outputs[state]);
+			pp = new ParallelProtocolProducer(mult);
 		}
-		if (gp.hasNextProtocols()){
-			pos = gp.getNextProtocols(gates, pos);
+		if (pp.hasNextProtocols()){
+			pos = pp.getNextProtocols(nativeProtocols, pos);
 			running = true;
 		}
-		else if (!gp.hasNextProtocols()){
-			gp = null;
+		else if (!pp.hasNextProtocols()){
+			pp = null;
 			running = false;
 		}
 		return pos;

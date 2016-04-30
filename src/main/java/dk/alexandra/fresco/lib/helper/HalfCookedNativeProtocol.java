@@ -37,15 +37,15 @@ public abstract class HalfCookedNativeProtocol implements NativeProtocol {
 	private boolean evaluated = false;
 
 	@Override
-	public int getNextProtocols(NativeProtocol[] gates, int pos) {
-		if (pos + 1 >= gates.length) {
+	public int getNextProtocols(NativeProtocol[] nativeProtocols, int pos) {
+		if (pos + 1 >= nativeProtocols.length) {
 			return pos;
 		}
 		if (evaluated) {
 			return pos;
 		} else {
 			evaluated = true;
-			gates[pos++] = this;
+			nativeProtocols[pos++] = this;
 			return pos;
 		}
 	}

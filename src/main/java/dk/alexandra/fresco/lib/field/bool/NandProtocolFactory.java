@@ -31,5 +31,5 @@ import dk.alexandra.fresco.framework.value.SBool;
 
 public interface NandProtocolFactory extends ProtocolFactory{
 
-	public NandProtocol getNandCircuit(SBool left, SBool right, SBool out);
+	public NandProtocol getNandProtocol(SBool left, SBool right, SBool out);
 }
