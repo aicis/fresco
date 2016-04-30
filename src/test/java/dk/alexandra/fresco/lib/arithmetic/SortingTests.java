@@ -62,12 +62,12 @@ public class SortingTests {
 											
 						@Override
 						public ProtocolProducer prepareApplication(
-								ProtocolFactory provider) {
-							BasicNumericFactory bnFactory = (BasicNumericFactory) provider;
-							LocalInversionFactory localInvFactory = (LocalInversionFactory) provider;
-							PreprocessedNumericBitFactory numericBitFactory = (PreprocessedNumericBitFactory) provider;
-							ExpFromOIntFactory expFromOIntFactory = (ExpFromOIntFactory) provider;
-							PreprocessedExpPipeFactory expFactory = (PreprocessedExpPipeFactory) provider;
+								ProtocolFactory factory) {
+							BasicNumericFactory bnFactory = (BasicNumericFactory) factory;
+							LocalInversionFactory localInvFactory = (LocalInversionFactory) factory;
+							PreprocessedNumericBitFactory numericBitFactory = (PreprocessedNumericBitFactory) factory;
+							ExpFromOIntFactory expFromOIntFactory = (ExpFromOIntFactory) factory;
+							PreprocessedExpPipeFactory expFactory = (PreprocessedExpPipeFactory) factory;
 							SequentialProtocolProducer seq = new SequentialProtocolProducer();
 							
 							ComparisonProtocolFactoryImpl compFactory = new ComparisonProtocolFactoryImpl(
@@ -120,12 +120,12 @@ public class SortingTests {
 											
 						@Override
 						public ProtocolProducer prepareApplication(
-								ProtocolFactory provider) {
-							BasicNumericFactory bnFactory = (BasicNumericFactory) provider;
-							LocalInversionFactory localInvFactory = (LocalInversionFactory) provider;
-							PreprocessedNumericBitFactory numericBitFactory = (PreprocessedNumericBitFactory) provider;
-							ExpFromOIntFactory expFromOIntFactory = (ExpFromOIntFactory) provider;
-							PreprocessedExpPipeFactory expFactory = (PreprocessedExpPipeFactory) provider;
+								ProtocolFactory factory) {
+							BasicNumericFactory bnFactory = (BasicNumericFactory) factory;
+							LocalInversionFactory localInvFactory = (LocalInversionFactory) factory;
+							PreprocessedNumericBitFactory numericBitFactory = (PreprocessedNumericBitFactory) factory;
+							ExpFromOIntFactory expFromOIntFactory = (ExpFromOIntFactory) factory;
+							PreprocessedExpPipeFactory expFactory = (PreprocessedExpPipeFactory) factory;
 							SequentialProtocolProducer seq = new SequentialProtocolProducer();
 							
 							ComparisonProtocolFactoryImpl compFactory = new ComparisonProtocolFactoryImpl(
@@ -177,12 +177,12 @@ public class SortingTests {
 											
 						@Override
 						public ProtocolProducer prepareApplication(
-								ProtocolFactory provider) {
-							BasicNumericFactory bnFactory = (BasicNumericFactory) provider;
-							LocalInversionFactory localInvFactory = (LocalInversionFactory) provider;
-							PreprocessedNumericBitFactory numericBitFactory = (PreprocessedNumericBitFactory) provider;
-							ExpFromOIntFactory expFromOIntFactory = (ExpFromOIntFactory) provider;
-							PreprocessedExpPipeFactory expFactory = (PreprocessedExpPipeFactory) provider;
+								ProtocolFactory factory) {
+							BasicNumericFactory bnFactory = (BasicNumericFactory) factory;
+							LocalInversionFactory localInvFactory = (LocalInversionFactory) factory;
+							PreprocessedNumericBitFactory numericBitFactory = (PreprocessedNumericBitFactory) factory;
+							ExpFromOIntFactory expFromOIntFactory = (ExpFromOIntFactory) factory;
+							PreprocessedExpPipeFactory expFactory = (PreprocessedExpPipeFactory) factory;
 							SequentialProtocolProducer seq = new SequentialProtocolProducer();
 							
 							ComparisonProtocolFactoryImpl compFactory = new ComparisonProtocolFactoryImpl(
@@ -244,12 +244,12 @@ public class SortingTests {
 						final int  SIZE=100;
 						@Override
 						public ProtocolProducer prepareApplication(
-								ProtocolFactory provider) {
-							BasicNumericFactory bnFactory = (BasicNumericFactory) provider;
-							LocalInversionFactory localInvFactory = (LocalInversionFactory) provider;
-							PreprocessedNumericBitFactory numericBitFactory = (PreprocessedNumericBitFactory) provider;
-							ExpFromOIntFactory expFromOIntFactory = (ExpFromOIntFactory) provider;
-							PreprocessedExpPipeFactory expFactory = (PreprocessedExpPipeFactory) provider;
+								ProtocolFactory factory) {
+							BasicNumericFactory bnFactory = (BasicNumericFactory) factory;
+							LocalInversionFactory localInvFactory = (LocalInversionFactory) factory;
+							PreprocessedNumericBitFactory numericBitFactory = (PreprocessedNumericBitFactory) factory;
+							ExpFromOIntFactory expFromOIntFactory = (ExpFromOIntFactory) factory;
+							PreprocessedExpPipeFactory expFactory = (PreprocessedExpPipeFactory) factory;
 							SequentialProtocolProducer seq = new SequentialProtocolProducer();
 							Random random=new Random();
 							

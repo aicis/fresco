@@ -27,7 +27,7 @@
 package dk.alexandra.fresco.suite.spdz;
 
 
-public class TestLookUpCircuit {
+public class TestLookUpProtocol {
 	/*
 	private abstract static class ThreadWithFixture extends TestThread {
 

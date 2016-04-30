@@ -94,7 +94,6 @@ public class LPSolverProtocol implements Protocol {
 			if (state == STATE.PHASE1) {
 				iterations++;
 				pp = phaseOneProtocol();
-				// gp = blandPhaseOneCircuit();				
 			} else if (state == STATE.PHASE2) {
 				boolean terminated = terminationOut.getValue().equals(
 						BigInteger.ONE);

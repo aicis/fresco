@@ -13,7 +13,7 @@
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * THE SOFTWARE IS facIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
@@ -91,10 +91,10 @@ public class BasicArithmeticTests {
 
 						@Override
 						public ProtocolProducer prepareApplication(
-								ProtocolFactory provider) {
-							BasicNumericFactory prov = (BasicNumericFactory) provider;
+								ProtocolFactory factory) {
+							BasicNumericFactory fac = (BasicNumericFactory) factory;
 							NumericIOBuilder ioBuilder = new NumericIOBuilder(
-									prov);
+									fac);
 							SInt input1 = ioBuilder.input(BigInteger.valueOf(10), 1);
 
 							OInt output = ioBuilder.output(input1);
@@ -128,10 +128,10 @@ public class BasicArithmeticTests {
 
 						@Override
 						public ProtocolProducer prepareApplication(
-								ProtocolFactory provider) {
-							BasicNumericFactory prov = (BasicNumericFactory) provider;
+								ProtocolFactory factory) {
+							BasicNumericFactory fac = (BasicNumericFactory) factory;
 							NumericIOBuilder ioBuilder = new NumericIOBuilder(
-									prov);
+									fac);
 							SInt input1 = ioBuilder.input(
 									BigInteger.valueOf(10), 1);
 
@@ -169,11 +169,11 @@ public class BasicArithmeticTests {
 
 						@Override
 						public ProtocolProducer prepareApplication(
-								ProtocolFactory provider) {
-							BasicNumericFactory prov = (BasicNumericFactory) provider;
+								ProtocolFactory factory) {
+							BasicNumericFactory fac = (BasicNumericFactory) factory;
 							SequentialProtocolProducer gp = new SequentialProtocolProducer();
 							NumericIOBuilder ioBuilder = new NumericIOBuilder(
-									prov);
+									fac);
 							SInt input1 = ioBuilder.input(
 									BigInteger.valueOf(10), 1);
 
@@ -181,9 +181,9 @@ public class BasicArithmeticTests {
 							ioBuilder.reset();
 							
 							BigInteger publicVal = BigInteger.valueOf(4);
-							OInt openInput = prov.getOInt(publicVal);
-							SInt out = prov.getSInt();
-							ProtocolProducer addProtocol = prov.getAddProtocol(input1, openInput, out);
+							OInt openInput = fac.getOInt(publicVal);
+							SInt out = fac.getSInt();
+							ProtocolProducer addProtocol = fac.getAddProtocol(input1, openInput, out);
 							gp.append(addProtocol);
 							
 							OInt output = ioBuilder.output(out);							
@@ -216,16 +216,16 @@ public class BasicArithmeticTests {
 
 						@Override
 						public ProtocolProducer prepareApplication(
-								ProtocolFactory provider) {
-							BasicNumericFactory prov = (BasicNumericFactory) provider;
+								ProtocolFactory factory) {
+							BasicNumericFactory fac = (BasicNumericFactory) factory;
 							NumericIOBuilder ioBuilder = new NumericIOBuilder(
-									prov);
+									fac);
 							
 							SInt closed = ioBuilder.input(BigInteger.ONE, 1);
 							ProtocolProducer inp = ioBuilder.getProtocol();
 							ioBuilder.reset();
 							
-							SInt into = prov.getSInt();
+							SInt into = fac.getSInt();
 							ProtocolProducer copy = new CopyProtocolImpl<SInt>(closed, into);
 							OInt open = ioBuilder.output(into);
 							ProtocolProducer out = ioBuilder.getProtocol();
@@ -259,11 +259,11 @@ public class BasicArithmeticTests {
 
 						@Override
 						public ProtocolProducer prepareApplication(
-								ProtocolFactory provider) {
-							BasicNumericFactory prov = (BasicNumericFactory) provider;
+								ProtocolFactory factory) {
+							BasicNumericFactory fac = (BasicNumericFactory) factory;
 							NumericIOBuilder ioBuilder = new NumericIOBuilder(
-									prov);
-							SInt knownInput = prov.getSInt(BigInteger.valueOf(200));
+									fac);
+							SInt knownInput = fac.getSInt(BigInteger.valueOf(200));
 							SInt[] inputs = createInputs(ioBuilder, openInputs,	1);
 							inputs[0] = knownInput;
 
@@ -300,14 +300,14 @@ public class BasicArithmeticTests {
 
 						@Override
 						public ProtocolProducer prepareApplication(
-								ProtocolFactory provider) {
-							BasicNumericFactory prov = (BasicNumericFactory) provider;
+								ProtocolFactory factory) {
+							BasicNumericFactory fac = (BasicNumericFactory) factory;
 							NumericIOBuilder ioBuilder = new NumericIOBuilder(
-									prov);
-							SInt knownInput1 = prov.getSInt(BigInteger.valueOf(200));
-							SInt knownInput2 = prov.getSInt(BigInteger.valueOf(300));
-							SInt knownInput3 = prov.getSInt(BigInteger.valueOf(1));
-							SInt knownInput4 = prov.getSInt(BigInteger.valueOf(2));
+									fac);
+							SInt knownInput1 = fac.getSInt(BigInteger.valueOf(200));
+							SInt knownInput2 = fac.getSInt(BigInteger.valueOf(300));
+							SInt knownInput3 = fac.getSInt(BigInteger.valueOf(1));
+							SInt knownInput4 = fac.getSInt(BigInteger.valueOf(2));
 							OInt knownOutput1 = ioBuilder.output(knownInput1);
 							OInt knownOutput2 = ioBuilder.output(knownInput2);
 							OInt knownOutput3 = ioBuilder.output(knownInput3);
@@ -341,10 +341,10 @@ public class BasicArithmeticTests {
 
 						@Override
 						public ProtocolProducer prepareApplication(
-								ProtocolFactory provider) {
-							BasicNumericFactory prov = (BasicNumericFactory) provider;
+								ProtocolFactory factory) {
+							BasicNumericFactory fac = (BasicNumericFactory) factory;
 							NumericIOBuilder ioBuilder = new NumericIOBuilder(
-									prov);
+									fac);
 
 							SInt[] inputs = createInputs(ioBuilder, openInputs,
 									1);
@@ -353,24 +353,24 @@ public class BasicArithmeticTests {
 							ioBuilder.reset();
 
 							// create wire
-							SInt sum = prov.getSInt();
+							SInt sum = fac.getSInt();
 
 							// create Sequence of protocols which eventually
 							// will compute the sum
 							SequentialProtocolProducer sumProtocol = new SequentialProtocolProducer();
 
-							sumProtocol.append(prov.getAddProtocol(inputs[0],
+							sumProtocol.append(fac.getAddProtocol(inputs[0],
 									inputs[1], sum));
 							if (inputs.length > 2) {
 								for (int i = 2; i < inputs.length; i++) {
 									// Add sum and next secret shared input and
 									// store in sum.
-									sumProtocol.append(prov.getAddProtocol(sum,
+									sumProtocol.append(fac.getAddProtocol(sum,
 											inputs[i], sum));
 								}
 							}
 
-							sumProtocol.append(prov.getMultProtocol(sum, sum,
+							sumProtocol.append(fac.getMultProtocol(sum, sum,
 									sum));
 
 							this.outputs = new OInt[] { ioBuilder.output(sum) };
@@ -426,10 +426,10 @@ public class BasicArithmeticTests {
 
 						@Override
 						public ProtocolProducer prepareApplication(
-								ProtocolFactory provider) {
-							BasicNumericFactory prov = (BasicNumericFactory) provider;
+								ProtocolFactory factory) {
+							BasicNumericFactory fac = (BasicNumericFactory) factory;
 							NumericIOBuilder ioBuilder = new NumericIOBuilder(
-									prov);
+									fac);
 							SInt input1 = ioBuilder.input(
 									BigInteger.valueOf(10), 1);
 							SInt input2 = ioBuilder.input(
@@ -438,7 +438,7 @@ public class BasicArithmeticTests {
 							ProtocolProducer inputs = ioBuilder.getProtocol();
 							ioBuilder.reset();
 							NumericProtocolBuilder builder = new NumericProtocolBuilder(
-									prov);
+									fac);
 							SInt addAndMult = builder.mult(input1,
 									builder.add(input1, input2));
 							ProtocolProducer circ = builder.getProtocol();
@@ -480,10 +480,10 @@ public class BasicArithmeticTests {
 
 						@Override
 						public ProtocolProducer prepareApplication(
-								ProtocolFactory provider) {
-							BasicNumericFactory prov = (BasicNumericFactory) provider;
-							NumericIOBuilder ioBuilder = new NumericIOBuilder(prov);
-							NumericProtocolBuilder builder = new NumericProtocolBuilder(prov);
+								ProtocolFactory factory) {
+							BasicNumericFactory fac = (BasicNumericFactory) factory;
+							NumericIOBuilder ioBuilder = new NumericIOBuilder(fac);
+							NumericProtocolBuilder builder = new NumericProtocolBuilder(fac);
 							SInt input1 = builder.getSInt(10);
 							SInt input2 = builder.getSInt(5);
 							SInt[] results = new SInt[REPS];
@@ -521,12 +521,12 @@ public class BasicArithmeticTests {
 						@Override
 						public ProtocolProducer prepareApplication(
 								ProtocolFactory factory) {
-							BasicNumericFactory prov = (BasicNumericFactory) factory;
-							ComparisonProtocolFactory comp = new ComparisonProtocolFactoryImpl(80, prov, 
+							BasicNumericFactory fac = (BasicNumericFactory) factory;
+							ComparisonProtocolFactory comp = new ComparisonProtocolFactoryImpl(80, fac, 
 									(LocalInversionFactory)factory, (PreprocessedNumericBitFactory)factory, 
 									(ExpFromOIntFactory)factory, (PreprocessedExpPipeFactory)factory);
-							NumericIOBuilder ioBuilder = new NumericIOBuilder(prov);
-							NumericProtocolBuilder builder = new NumericProtocolBuilder(prov);
+							NumericIOBuilder ioBuilder = new NumericIOBuilder(fac);
+							NumericProtocolBuilder builder = new NumericProtocolBuilder(fac);
 							BigInteger[] bns = new BigInteger[] { 
 									BigInteger.valueOf(10), 
 									BigInteger.valueOf(2),
@@ -571,7 +571,7 @@ public class BasicArithmeticTests {
 							SInt dm = builder.getSInt();
 							SInt infm = builder.getSInt();
 							ioBuilder.addProtocolProducer(builder.getProtocol());
-							ProtocolProducer pp = new MinInfFracProtocol(ns, ds, infs, nm, dm, infm, cs, prov, comp);
+							ProtocolProducer pp = new MinInfFracProtocol(ns, ds, infs, nm, dm, infm, cs, fac, comp);
 							ioBuilder.addProtocolProducer(pp);
 							SInt[] closedOutputs = new SInt[cs.length + 3];
 							closedOutputs[0] = nm;
@@ -613,7 +613,7 @@ public class BasicArithmeticTests {
 	/**
 	 * Test a computation of doing a many multiplications and additions 
 	 * alternating between the two. This should ensure batches with both 
-	 * types of gates.
+	 * types of protocols.
 	 */
 	public static class TestAlternatingMultAdd extends TestThreadFactory {
 
@@ -629,10 +629,10 @@ public class BasicArithmeticTests {
 
 						@Override
 						public ProtocolProducer prepareApplication(
-								ProtocolFactory provider) {
-							BasicNumericFactory prov = (BasicNumericFactory) provider;
-							NumericIOBuilder ioBuilder = new NumericIOBuilder(prov);
-							NumericProtocolBuilder builder = new NumericProtocolBuilder(prov);
+								ProtocolFactory factory) {
+							BasicNumericFactory fac = (BasicNumericFactory) factory;
+							NumericIOBuilder ioBuilder = new NumericIOBuilder(fac);
+							NumericProtocolBuilder builder = new NumericProtocolBuilder(fac);
 							ioBuilder.beginSeqScope();
 							ioBuilder.beginParScope();
 							SInt input1 = ioBuilder.input(BigInteger.valueOf(10), 1);

@@ -25,7 +25,7 @@
  * and Bouncy Castle. Please see these projects for any further licensing issues.
  *******************************************************************************/
 /**
- * Generic circuit for equality tests with secret output
+ * Generic protocol for equality tests with secret output
  */
 package dk.alexandra.fresco.lib.compare.eq;
 
