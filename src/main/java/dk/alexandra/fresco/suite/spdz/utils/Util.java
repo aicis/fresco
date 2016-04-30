@@ -174,71 +174,71 @@ public class Util {
 		return coefficients;
 	}
 	
-	public static ProtocolProducer makeOpenProtocol(SInt[][] closed, OInt[][] open, IOIntProtocolFactory provider) {
+	public static ProtocolProducer makeOpenProtocol(SInt[][] closed, OInt[][] open, IOIntProtocolFactory factory) {
 		if (open.length != closed.length) {
 			throw new IllegalArgumentException("Amount of closed and open integers does not match. " +
 					"Open: " + open.length + " Closed: " + closed.length);
 		}
 		ProtocolProducer[] openings = new ProtocolProducer[open.length];
 		for (int i = 0; i < open.length; i++) {
-			openings[i] = makeOpenProtocol(closed[i], open[i], provider);
+			openings[i] = makeOpenProtocol(closed[i], open[i], factory);
 		}
 		return new ParallelProtocolProducer(openings);
 	}
 	
-	public static ProtocolProducer makeOpenProtocol(SInt[] closed, OInt[] open, IOIntProtocolFactory provider) {
+	public static ProtocolProducer makeOpenProtocol(SInt[] closed, OInt[] open, IOIntProtocolFactory factory) {
 		if (open.length != closed.length) {
 			throw new IllegalArgumentException("Amount of closed and open integers does not match. " +
 					"Open: " + open.length + " Closed: " + closed.length);
 		}
 		OpenIntProtocol[] openings = new OpenIntProtocol[open.length]; 
 		for (int i = 0; i < open.length; i++) {
-			openings[i] = provider.getOpenProtocol(closed[i], open[i]);
+			openings[i] = factory.getOpenProtocol(closed[i], open[i]);
 		}
 		return new ParallelProtocolProducer(openings);
 	}
 	
-	public static OInt[][] oIntFill(OInt[][] matrix, BasicNumericFactory provider) {
+	public static OInt[][] oIntFill(OInt[][] matrix, BasicNumericFactory factory) {
 		for(OInt[] vector: matrix) {
-			vector = oIntFill(vector, provider);
+			vector = oIntFill(vector, factory);
 		}
 		return matrix;
 	}
 	
-	public static OInt[] oIntFill(OInt[] vector, BasicNumericFactory provider) {
+	public static OInt[] oIntFill(OInt[] vector, BasicNumericFactory factory) {
 		for(int i = 0; i < vector.length; i++) {
-			vector[i] = provider.getOInt();
+			vector[i] = factory.getOInt();
 		}
 		return vector;
 	}
 	
-	public static SInt[][] sIntFillRemaining(SInt[][] matrix, BasicNumericFactory provider) {
+	public static SInt[][] sIntFillRemaining(SInt[][] matrix, BasicNumericFactory factory) {
 		for(SInt[] vector: matrix) {
-			vector = sIntFillRemaining(vector, provider);
+			vector = sIntFillRemaining(vector, factory);
 		}
 		return matrix;
 	}
 		
-	public static SInt[][] sIntFill(SInt[][] matrix, BasicNumericFactory provider) {
+	public static SInt[][] sIntFill(SInt[][] matrix, BasicNumericFactory factory) {
 		for(SInt[] vector: matrix) {
-			vector = sIntFill(vector, provider);
+			vector = sIntFill(vector, factory);
 		}
 		return matrix;
 	}
 	
-	public static SInt[] sIntFillRemaining(SInt[] vector, BasicNumericFactory provider) {
+	public static SInt[] sIntFillRemaining(SInt[] vector, BasicNumericFactory factory) {
 		for(int i = 0; i < vector.length; i++) {
 			if (vector[i] == null) {
-				vector[i] = provider.getSInt();
+				vector[i] = factory.getSInt();
 			}
 		}
 		return vector;
 	}
 	
 	
-	public static SInt[] sIntFill(SInt[] vector, SIntFactory provider) {
+	public static SInt[] sIntFill(SInt[] vector, SIntFactory factory) {
 		for(int i = 0; i < vector.length; i++) {
-			vector[i] = provider.getSInt();
+			vector[i] = factory.getSInt();
 		}
 		return vector;
 	}
@@ -272,7 +272,7 @@ public class Util {
 		return vector;
 	}
 	
-	public static ProtocolProducer makeInputGates(BigInteger[][] values, int[][] pattern, SInt[][] matrix, BasicNumericFactory provider) {
+	public static ProtocolProducer makeInputProtocols(BigInteger[][] values, int[][] pattern, SInt[][] matrix, BasicNumericFactory factory) {
 		if (matrix.length != values.length || values.length != pattern.length || 
 				values[0].length != matrix[0].length || values[0].length != pattern[0].length) {
 			throw new RuntimeException("Input Dimensions are not equal");
@@ -281,22 +281,22 @@ public class Util {
 		for(int i = 0; i < matrix.length; i++) {
 			for (int j = 0; j < matrix[i].length; j++) {
 				if (pattern[i][j] != 0) {
-					par.append(provider.getCloseProtocol(values[i][j], matrix[i][j], pattern[i][j]));
+					par.append(factory.getCloseProtocol(values[i][j], matrix[i][j], pattern[i][j]));
 				}
 			}			
 		}
 		return par;
 	}
 	
-	public static ProtocolProducer makeInputGates(BigInteger[] values, int[] pattern, SInt[] vector, BasicNumericFactory provider) {
+	public static ProtocolProducer makeInputProtocols(BigInteger[] values, int[] pattern, SInt[] vector, BasicNumericFactory factory) {
 		if (vector.length != values.length || vector.length != pattern.length) {throw new RuntimeException("Inputs are not equal length");}
-		ParallelProtocolProducer inputGates = new ParallelProtocolProducer();
+		ParallelProtocolProducer input = new ParallelProtocolProducer();
 		for(int i = 0; i < vector.length; i++) {
 			if (pattern[i] != 0) {
-				inputGates.append(provider.getCloseProtocol(values[i], vector[i], pattern[i]));
+				input.append(factory.getCloseProtocol(values[i], vector[i], pattern[i]));
 			}
 		}
-		return inputGates;
+		return input;
 	}
 	
 	public static BigInteger getRandomNumber(Random rand) {

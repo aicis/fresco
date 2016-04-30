@@ -71,10 +71,10 @@ public class SpdzFactory implements BasicNumericFactory, PreprocessedNumericBitF
 	 * @param maxBitLength
 	 *            The maximum length in bits that the numbers in the
 	 *            application will have. If you have greater knowledge of your
-	 *            application, you can create several providers, each with a
+	 *            application, you can create several factorys, each with a
 	 *            different maxBitLength to increase performance.
 	 */
-	//TODO: Make SpdzProvider decoupled from the storage.
+	//TODO: Make Spdzfactory decoupled from the storage.
 	public SpdzFactory(SpdzStorage storage, int pID, int maxBitLength) {
 		this.maxBitLength = maxBitLength;
 		rand = new SecureRandom();
@@ -203,7 +203,7 @@ public class SpdzFactory implements BasicNumericFactory, PreprocessedNumericBitF
 	}
 
 	/****************************************
-	 * Native gates or circuits to Spdz *
+	 * Native protocols to Spdz *
 	 ****************************************/
 
 	@Override
@@ -241,7 +241,7 @@ public class SpdzFactory implements BasicNumericFactory, PreprocessedNumericBitF
 	}
 
 	/****************************************
-	 * IO Provider Stuff *
+	 * IO factory Stuff *
 	 ****************************************/
 
 	public CloseIntProtocol getCloseProtocol(BigInteger open,

@@ -34,27 +34,27 @@ import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.helper.builder.AbstractProtocolBuilder;
 
 /**
- * A circuit builder to handle spdz specific circuits and gates
+ * A protocol builder to handle spdz specific protocols and gates
  * 
  * @author psn
  *
  */
-public class SpdzCircuitBuilder extends AbstractProtocolBuilder {
+public class SpdzProtocolBuilder extends AbstractProtocolBuilder {
 
-	private final SpdzFactory provider;
+	private final SpdzFactory factory;
 	
-	public SpdzCircuitBuilder(SpdzFactory provider) {
-		this.provider = provider;
+	public SpdzProtocolBuilder(SpdzFactory factory) {
+		this.factory = factory;
 	}
 	
 	@Override
-	public void addProtocolProducer(ProtocolProducer gp) {
-		append(gp);
+	public void addProtocolProducer(ProtocolProducer pp) {
+		append(pp);
 	}
 	
 	public SInt input(BigInteger o, int inputterId) {
-		SInt s = provider.getSInt();
-		ProtocolProducer gp = provider.getCloseProtocol(o, s, inputterId);
+		SInt s = factory.getSInt();
+		ProtocolProducer gp = factory.getCloseProtocol(o, s, inputterId);
 		append(gp);
 		return s;
 	}
@@ -64,15 +64,15 @@ public class SpdzCircuitBuilder extends AbstractProtocolBuilder {
 	}
 	
 	public OInt outputAll(SInt s) {
-		OInt o = provider.getOInt();
-		ProtocolProducer gp = provider.getOpenProtocol(s, o);
+		OInt o = factory.getOInt();
+		ProtocolProducer gp = factory.getOpenProtocol(s, o);
 		append(gp);
 		return o;
 	}
 	
 	public OInt output(SInt s, int outputterId) {
-		OInt o = provider.getOInt();
-		ProtocolProducer gp = provider.getOpenProtocol(outputterId, s, o);
+		OInt o = factory.getOInt();
+		ProtocolProducer gp = factory.getOpenProtocol(outputterId, s, o);
 		append(gp);
 		return o;
 	}

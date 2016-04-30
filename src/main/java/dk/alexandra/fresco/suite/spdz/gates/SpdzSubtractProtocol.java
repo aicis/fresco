@@ -41,30 +41,30 @@ public class SpdzSubtractProtocol extends SpdzNativeProtocol implements Subtract
 
 	private SpdzSInt left, right, out;
 	private SpdzOInt openLeft;
-	private SpdzFactory provider;
+	private SpdzFactory factory;
 
 	public SpdzSubtractProtocol(SInt left, SInt right, SInt out,
-			SpdzFactory provider) {
+			SpdzFactory factory) {
 		this.left = (SpdzSInt) left;
 		this.right = (SpdzSInt) right;
 		this.out = (SpdzSInt) out;
-		this.provider = provider;
+		this.factory = factory;
 	}
 
 	public SpdzSubtractProtocol(SpdzSInt left, SpdzSInt right, SpdzSInt out,
-			SpdzFactory provider) {
+			SpdzFactory factory) {
 		this.left = left;
 		this.right = right;
 		this.out = out;
-		this.provider = provider;
+		this.factory = factory;
 	}
 
 	public SpdzSubtractProtocol(OInt left, SInt right, SInt out,
-			SpdzFactory provider) {
+			SpdzFactory factory) {
 		this.openLeft = (SpdzOInt) left;
 		this.right = (SpdzSInt) right;
 		this.out = (SpdzSInt) out;
-		this.provider = provider;
+		this.factory = factory;
 	}
 
 	@Override
@@ -91,7 +91,7 @@ public class SpdzSubtractProtocol extends SpdzNativeProtocol implements Subtract
 	public EvaluationStatus evaluate(int round, ResourcePool resourcePool,
 			SCENetwork network) {
 		if (openLeft != null) {
-			SpdzSInt converted = (SpdzSInt) provider.getSInt(openLeft
+			SpdzSInt converted = (SpdzSInt) factory.getSInt(openLeft
 					.getValue());
 			out.value = converted.value.subtract(right.value);
 		} else {

@@ -136,7 +136,7 @@ public class BgwFactory implements BasicNumericFactory, LocalInversionFactory, E
 	}
 
 	// test purpose only
-	public Protocol getInvertIntCircuit(SInt in, SInt out) {
+	public Protocol getInvertIntProtocol(SInt in, SInt out) {
 		return new BgwInvertIntProtocol(this, in, out);
 	}
 
