@@ -111,13 +111,13 @@ public class LPFactoryImpl implements LPFactory {
 	}
 
 	@Override
-	public EntrywiseProductProtocol getDotProductProtocol(SInt[] as, SInt[] bs,
+	public EntrywiseProductProtocol getEntrywiseProductProtocol(SInt[] as, SInt[] bs,
 			SInt[] results) {
 		return new EntrywiseProductProtocolImpl(as, bs, results, bnf);
 	}
 
 	@Override
-	public EntrywiseProductProtocol getDotProductProtocol(SInt[] as, OInt[] bs,
+	public EntrywiseProductProtocol getEntrywiseProductProtocol(SInt[] as, OInt[] bs,
 			SInt[] results) {
 		return new EntrywiseProductProtocolImpl(as, bs, results, bnf);
 	}

@@ -45,28 +45,28 @@ import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
 public class NumericNegateBitProtocol implements Protocol{
 
 	private SInt bit, out;
-	private BasicNumericFactory provider;
+	private BasicNumericFactory factory;
 	private boolean done = false;
-	private ProtocolProducer gp;
+	private ProtocolProducer pp;
 	
-	public NumericNegateBitProtocol(SInt bit, SInt out, BasicNumericFactory provider){
+	public NumericNegateBitProtocol(SInt bit, SInt out, BasicNumericFactory factory){
 		this.bit = bit;
 		this.out = out;
-		this.provider = provider;
+		this.factory = factory;
 	}
 	
 	@Override
-	public int getNextProtocols(NativeProtocol[] gates, int pos) {
-		if(gp == null){
-			OInt one = provider.getOInt(BigInteger.ONE);
-			Protocol subtractCircuit = provider.getSubtractProtocol(one, bit, out);
-			gp = new SequentialProtocolProducer(subtractCircuit);
+	public int getNextProtocols(NativeProtocol[] nativeProtocols, int pos) {
+		if(pp == null){
+			OInt one = factory.getOInt(BigInteger.ONE);
+			Protocol sub = factory.getSubtractProtocol(one, bit, out);
+			pp = new SequentialProtocolProducer(sub);
 		}
-		if(gp.hasNextProtocols()){
-			pos = gp.getNextProtocols(gates, pos);
+		if(pp.hasNextProtocols()){
+			pos = pp.getNextProtocols(nativeProtocols, pos);
 		}
-		else if(!gp.hasNextProtocols()){
-			gp = null;
+		else if(!pp.hasNextProtocols()){
+			pp = null;
 			done = true;
 		}
 		return pos;

@@ -34,7 +34,7 @@ import dk.alexandra.fresco.lib.field.bool.BasicLogicFactory;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
 
 /**
- * This class implements a Full Adder Circuit for Binary Circuits. 
+ * This class implements a Full Adder protocol for Binary protocols. 
  * It takes the naive approach of linking 1-Bit-Full Adders together to implement 
  * a generic length adder. 
  * @author Michael Stausholm
@@ -45,13 +45,13 @@ public class BitIncrementerProtocolImpl implements BitIncrementerProtocol{
 	private SBool[] base, outs;
 	private SBool increment;
 	private SBool tmpCarry;
-	private OneBitHalfAdderCircuitFactory FAProvider;
+	private OneBitHalfAdderProtocolFactory FAFactory;
 	private int round;
 	private int stopRound;
-	private ProtocolProducer curGP;
-	private BasicLogicFactory basicProvider;
+	private ProtocolProducer curPP;
+	private BasicLogicFactory basicFactory;
 	
-	public BitIncrementerProtocolImpl(SBool[] base, SBool increment, SBool[] outs, BasicLogicFactory basicProvider, OneBitHalfAdderCircuitFactory FAProvider){
+	public BitIncrementerProtocolImpl(SBool[] base, SBool increment, SBool[] outs, BasicLogicFactory basicFactory, OneBitHalfAdderProtocolFactory FAFactory){
 		/*if(base.length != (outs.length-1)){
 			throw new MPCException("output must be 1 larger than input.");
 		}*/
@@ -59,63 +59,63 @@ public class BitIncrementerProtocolImpl implements BitIncrementerProtocol{
 		
 		this.increment = increment;
 		this.outs = outs;
-		this.FAProvider = FAProvider;
+		this.FAFactory = FAFactory;
 		this.round = 0;
 		this.stopRound = base.length;
-		this.curGP = null;
+		this.curPP = null;
 		
-		this.basicProvider = basicProvider;
-		tmpCarry = basicProvider.getSBool();
+		this.basicFactory = basicFactory;
+		tmpCarry = basicFactory.getSBool();
 	}
 	
 	@Override
-	public int getNextProtocols(NativeProtocol[] gates, int pos) {
+	public int getNextProtocols(NativeProtocol[] nativeProtocols, int pos) {
 		if(round == 0){
-			if(curGP == null){				
-				ProtocolProducer bit1 = FAProvider.getOneBitHalfAdderProtocol(base[stopRound-1], increment, outs[stopRound-1], tmpCarry);
-				curGP = new SequentialProtocolProducer(bit1);
+			if(curPP == null){				
+				ProtocolProducer bit1 = FAFactory.getOneBitHalfAdderProtocol(base[stopRound-1], increment, outs[stopRound-1], tmpCarry);
+				curPP = new SequentialProtocolProducer(bit1);
 			}
-			if(curGP.hasNextProtocols()){
-				pos = curGP.getNextProtocols(gates, pos);
+			if(curPP.hasNextProtocols()){
+				pos = curPP.getNextProtocols(nativeProtocols, pos);
 			}
-			else if(!curGP.hasNextProtocols()){
+			else if(!curPP.hasNextProtocols()){
 				round++;
-				curGP = null;
+				curPP = null;
 			}
 		}
 		else if(round > 0 && round < stopRound-1){
 			//System.out.println("Got to round "+round);
-			if(curGP == null){								
-				//TODO: Using tmpCarry both as in and out might not be good for all implementations of a 1Bit FA circuit?
-				//But at least it works for OneBitFullAdderCircuitImpl.
-				ProtocolProducer bitAdder = FAProvider.getOneBitHalfAdderProtocol(base[stopRound-round-1], tmpCarry, outs[stopRound-round-1], tmpCarry);
-				curGP = new SequentialProtocolProducer(bitAdder);
+			if(curPP == null){								
+				//TODO: Using tmpCarry both as in and out might not be good for all implementations of a 1Bit FA protocol?
+				//But at least it works for OneBitFullAdderprotocolImpl.
+				ProtocolProducer bitAdder = FAFactory.getOneBitHalfAdderProtocol(base[stopRound-round-1], tmpCarry, outs[stopRound-round-1], tmpCarry);
+				curPP = new SequentialProtocolProducer(bitAdder);
 			}
-			if(curGP.hasNextProtocols()){
-				pos = curGP.getNextProtocols(gates, pos);
+			if(curPP.hasNextProtocols()){
+				pos = curPP.getNextProtocols(nativeProtocols, pos);
 			}
-			else if(!curGP.hasNextProtocols()){
+			else if(!curPP.hasNextProtocols()){
 				round++;
-				curGP = null;
+				curPP = null;
 			}
 		}
 		else if(round == stopRound-1){
 			//System.out.println("Got to final round");
-			if(curGP == null){	
-				SBool last = basicProvider.getKnownConstantSBool(false); 
+			if(curPP == null){	
+				SBool last = basicFactory.getKnownConstantSBool(false); 
 				if(outs.length > base.length){
 					last = outs[outs.length-base.length-1];
 				}
 				
-				ProtocolProducer bit8 = FAProvider.getOneBitHalfAdderProtocol(base[0], tmpCarry, outs[outs.length-base.length], last);
-				curGP = new SequentialProtocolProducer(bit8);
+				ProtocolProducer bit8 = FAFactory.getOneBitHalfAdderProtocol(base[0], tmpCarry, outs[outs.length-base.length], last);
+				curPP = new SequentialProtocolProducer(bit8);
 			}
-			if(curGP.hasNextProtocols()){
-				pos = curGP.getNextProtocols(gates, pos);
+			if(curPP.hasNextProtocols()){
+				pos = curPP.getNextProtocols(nativeProtocols, pos);
 			}
-			else if(!curGP.hasNextProtocols()){
+			else if(!curPP.hasNextProtocols()){
 				round++;
-				curGP = null;
+				curPP = null;
 			}
 		}
 		return pos;

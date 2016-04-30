@@ -102,7 +102,7 @@ public class RepeatedRightShiftProtocolImpl implements RepeatedRightShiftProtoco
 	}
 
 	@Override
-	public int getNextProtocols(NativeProtocol[] gates, int pos) {
+	public int getNextProtocols(NativeProtocol[] nativeProtocols, int pos) {
 		if (protocolProducer == null) {
 
 			if (round == 0) {
@@ -151,7 +151,7 @@ public class RepeatedRightShiftProtocolImpl implements RepeatedRightShiftProtoco
 
 		}
 		if (protocolProducer.hasNextProtocols()) {
-			pos = protocolProducer.getNextProtocols(gates, pos);
+			pos = protocolProducer.getNextProtocols(nativeProtocols, pos);
 		} else if (!protocolProducer.hasNextProtocols()) {
 			round++;
 			protocolProducer = null;

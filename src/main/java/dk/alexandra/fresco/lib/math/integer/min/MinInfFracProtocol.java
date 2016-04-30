@@ -116,7 +116,7 @@ public class MinInfFracProtocol extends AbstractRoundBasedProtocol implements Mi
 	}
 
 	/* (non-Javadoc)
-	 * @see dk.alexandra.fresco.lib.helper.AbstractRoundBasedProtocol#nextGateProducer()
+	 * @see dk.alexandra.fresco.lib.helper.AbstractRoundBasedProtocol#nextProtocolProducer()
 	 */
 	@Override
 	public ProtocolProducer nextProtocolProducer() {

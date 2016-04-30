@@ -103,7 +103,7 @@ public class EnteringVariableProtocol extends AbstractRoundBasedProtocol {
 				dotProductResult[updateVectorDimension - 1] = bnFactory
 						.getSInt();
 				constraintColumn[updateVectorDimension - 1] = tableau.getF()[i];
-				EntrywiseProductProtocol dpc = lpFactory.getDotProductProtocol(
+				EntrywiseProductProtocol dpc = lpFactory.getEntrywiseProductProtocol(
 						constraintColumn, updateVector, dotProductResult);
 				NumericProtocolBuilder build = new NumericProtocolBuilder(
 						bnFactory);

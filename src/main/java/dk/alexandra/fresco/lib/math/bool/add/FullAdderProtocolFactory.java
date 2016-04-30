@@ -29,7 +29,8 @@ package dk.alexandra.fresco.lib.math.bool.add;
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.value.SBool;
 
-public interface OneBitFullAdderCircuitFactory extends ProtocolFactory{
-	
-	public OneBitFullAdderProtocol getOneBitFullAdderProtocol(SBool left, SBool right, SBool carry, SBool outS, SBool outCarry);
+public interface FullAdderProtocolFactory extends ProtocolFactory{
+
+	public FullAdderProtocol getFullAdderProtocol(SBool[] lefts, SBool[] rights, SBool inCarry, SBool[] outs,
+			SBool outCarry);
 }

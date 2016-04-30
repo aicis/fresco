@@ -38,65 +38,65 @@ public class OneBitFullAdderProtocolImpl implements OneBitFullAdderProtocol{
 
 	private SBool a, b, c, outS, outCarry;
 	private SBool xor1Out, and1Out, and2Out;
-	private BasicLogicFactory provider;
-	private ProtocolProducer curGP;
+	private BasicLogicFactory factory;
+	private ProtocolProducer curPP;
 	private int round;
 	
 	public OneBitFullAdderProtocolImpl(SBool a, SBool b, SBool c, 
-			SBool outS, SBool outCarry, BasicLogicFactory provider){
+			SBool outS, SBool outCarry, BasicLogicFactory factory){
 		this.a = a;
 		this.b = b;
 		this.c = c;
 		this.outS = outS;
 		this.outCarry = outCarry;
-		this.provider = provider;
+		this.factory = factory;
 		this.round = 0;
 	}
 	
 	@Override
-	public int getNextProtocols(NativeProtocol[] gates, int pos) {
+	public int getNextProtocols(NativeProtocol[] nativeProtocols, int pos) {
 		if(round == 0){
-			if(curGP == null){
-				xor1Out = provider.getSBool();
-				and1Out = provider.getSBool();
-				ProtocolProducer xor1 = provider.getXorProtocol(a, b, xor1Out);
-				ProtocolProducer and1 = provider.getAndProtocol(a, b, and1Out);
-				curGP = new ParallelProtocolProducer(xor1, and1);				
+			if(curPP == null){
+				xor1Out = factory.getSBool();
+				and1Out = factory.getSBool();
+				ProtocolProducer xor1 = factory.getXorProtocol(a, b, xor1Out);
+				ProtocolProducer and1 = factory.getAndProtocol(a, b, and1Out);
+				curPP = new ParallelProtocolProducer(xor1, and1);				
 			}
-			if(curGP.hasNextProtocols()){
-				pos = curGP.getNextProtocols(gates, pos);
+			if(curPP.hasNextProtocols()){
+				pos = curPP.getNextProtocols(nativeProtocols, pos);
 			}
-			else if(!curGP.hasNextProtocols()){
+			else if(!curPP.hasNextProtocols()){
 				round++;
-				curGP = null;
+				curPP = null;
 			}
 		}
 		else if(round == 1){
-			if(curGP == null){
-				and2Out = provider.getSBool();
-				ProtocolProducer and2 = provider.getAndProtocol(xor1Out, c, and2Out);
-				ProtocolProducer xor2 = provider.getXorProtocol(xor1Out, c, outS);			
-				curGP = new ParallelProtocolProducer(and2, xor2);
+			if(curPP == null){
+				and2Out = factory.getSBool();
+				ProtocolProducer and2 = factory.getAndProtocol(xor1Out, c, and2Out);
+				ProtocolProducer xor2 = factory.getXorProtocol(xor1Out, c, outS);			
+				curPP = new ParallelProtocolProducer(and2, xor2);
 			}
-			if(curGP.hasNextProtocols()){
-				pos = curGP.getNextProtocols(gates, pos);
+			if(curPP.hasNextProtocols()){
+				pos = curPP.getNextProtocols(nativeProtocols, pos);
 			}
-			else if(!curGP.hasNextProtocols()){
+			else if(!curPP.hasNextProtocols()){
 				round++;
-				curGP = null;
+				curPP = null;
 			}
 		}
 		else if(round == 2){
-			if(curGP == null){
-				ProtocolProducer xor3 = provider.getXorProtocol(and2Out, and1Out, outCarry);
-				curGP = new SequentialProtocolProducer(xor3);
+			if(curPP == null){
+				ProtocolProducer xor3 = factory.getXorProtocol(and2Out, and1Out, outCarry);
+				curPP = new SequentialProtocolProducer(xor3);
 			}
-			if(curGP.hasNextProtocols()){
-				pos = curGP.getNextProtocols(gates, pos);
+			if(curPP.hasNextProtocols()){
+				pos = curPP.getNextProtocols(nativeProtocols, pos);
 			}
-			else if(!curGP.hasNextProtocols()){
+			else if(!curPP.hasNextProtocols()){
 				round++;
-				curGP = null;
+				curPP = null;
 			}
 		}
 		return pos;

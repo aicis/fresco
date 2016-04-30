@@ -38,7 +38,7 @@ import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
 
 /**
- * Circuit for computing the Hamming distance between an array of shared bits and a public value
+ * Protocol for computing the Hamming distance between an array of shared bits and a public value
  * @author ttoft
  *
  */
@@ -47,19 +47,19 @@ public class HammingDistanceProtocolImpl extends AbstractSimpleProtocol implemen
 	private final SInt[] aBits;
 	private final OInt b;
 	private final SInt result;
-	private final BasicNumericFactory provider;
-	private final NumericNegateBitFactory bitProvider; 
-	private AddProtocolFactory addProvider;
+	private final BasicNumericFactory factory;
+	private final NumericNegateBitFactory bitFactory; 
+	private AddProtocolFactory addFactory;
 	private final int length;
 	
 	public HammingDistanceProtocolImpl(SInt[] aBits, OInt b, SInt result, 
-			BasicNumericFactory provider, NumericNegateBitFactory bitProvider) {
+			BasicNumericFactory factory, NumericNegateBitFactory bitFactory) {
 		this.aBits = aBits;
 		this.b = b;
 		this.result = result;
-		this.provider = provider;
-		this.bitProvider = bitProvider;
-		this.addProvider = provider;
+		this.factory = factory;
+		this.bitFactory = bitFactory;
+		this.addFactory = factory;
 
 		this.length = aBits.length;
 	}
@@ -68,55 +68,55 @@ public class HammingDistanceProtocolImpl extends AbstractSimpleProtocol implemen
 	protected ProtocolProducer initializeProtocolProducer() {
 		BigInteger m = b.getValue();
 		SInt[] XOR = new SInt[length];
-		ParallelProtocolProducer XOR_GPs = new ParallelProtocolProducer();
-		ProtocolProducer gp;
+		ParallelProtocolProducer XOR_PPs = new ParallelProtocolProducer();
+		ProtocolProducer pp;
 		if (length == 1) {
 			if (m.testBit(0)) {
-				gp = bitProvider.getNegatedBitProtocol(aBits[0], result);
+				pp = bitFactory.getNegatedBitProtocol(aBits[0], result);
 			} else {
-				SInt tmp = provider.getSInt();
+				SInt tmp = factory.getSInt();
 				// TODO: undo this ugly hack -- output should be equal to input, hence we need a NOP-gate A better solution would be to add zero, however, adding OInt's is not provided
 				// Someone should incorporate all arithmetic into the BasicNumericProvider. /Tomas
-				gp = new SequentialProtocolProducer(bitProvider.getNegatedBitProtocol(aBits[0], tmp), bitProvider.getNegatedBitProtocol(tmp, result));
+				pp = new SequentialProtocolProducer(bitFactory.getNegatedBitProtocol(aBits[0], tmp), bitFactory.getNegatedBitProtocol(tmp, result));
 			}
 		} else {
 			// handle long-length
 			// for each bit i of m negate r_i if m_i is set
 			for (int i = 0; i < length; i++) {
 				if (m.testBit(i)) {
-					XOR[i] = provider.getSInt();
-					XOR_GPs.append(bitProvider.getNegatedBitProtocol(
+					XOR[i] = factory.getSInt();
+					XOR_PPs.append(bitFactory.getNegatedBitProtocol(
 							aBits[i], XOR[i]));
 				} else {
 					XOR[i] = aBits[i];
 				}
 			}
-			ProtocolProducer[] sumGPs = new ProtocolProducer[length - 1];
+			ProtocolProducer[] sumpps = new ProtocolProducer[length - 1];
 
 			SInt currentSum;
 			if (length == 2) {
 				currentSum = result;
 			} else {
-				currentSum = provider.getSInt();
+				currentSum = factory.getSInt();
 			}
-			sumGPs[0] = addProvider.getAddProtocol(XOR[0], XOR[1],
+			sumpps[0] = addFactory.getAddProtocol(XOR[0], XOR[1],
 					currentSum);
 
 			for (int i = 2; i < length; i++) {
 				SInt newSum;
 				// TODO: prettify -- not nice to have if in for-loop
 				if (i != length - 1)
-					newSum = provider.getSInt();
+					newSum = factory.getSInt();
 				else
 					newSum = result;
-				sumGPs[i - 1] = addProvider.getAddProtocol(currentSum,
+				sumpps[i - 1] = addFactory.getAddProtocol(currentSum,
 						XOR[i], newSum);
 				currentSum = newSum;
 			}
 
-			ProtocolProducer sumGP = new SequentialProtocolProducer(sumGPs);
-			gp = new SequentialProtocolProducer(XOR_GPs, sumGP);
+			ProtocolProducer sumpp = new SequentialProtocolProducer(sumpps);
+			pp = new SequentialProtocolProducer(XOR_PPs, sumpp);
 		}
-		return gp;
+		return pp;
 	}
 }

@@ -38,34 +38,34 @@ public class OneBitHalfAdderProtocolImpl implements OneBitHalfAdderProtocol{
 
 	private SBool left, right, outS;
 	private SBool outCarry;
-	private BasicLogicFactory provider;
+	private BasicLogicFactory factory;
 	private int round;
-	private ParallelProtocolProducer curGP;
+	private ParallelProtocolProducer curPP;
 	
 	public OneBitHalfAdderProtocolImpl(SBool left, SBool right, SBool outS,
-			SBool outCarry, BasicLogicFactory provider) {
+			SBool outCarry, BasicLogicFactory factory) {
 		this.left = left;
 		this.right = right;
 		this.outS = outS;
 		this.outCarry = outCarry;
-		this.provider = provider;
+		this.factory = factory;
 		this.round = 0;
-		this.curGP = null;
+		this.curPP = null;
 	}
 
 	@Override
-	public int getNextProtocols(NativeProtocol[] gates, int pos) {
+	public int getNextProtocols(NativeProtocol[] nativeProtocols, int pos) {
 		if(round == 0){
-			if(curGP == null){
-				XorProtocol xor = provider.getXorProtocol(left, right, outS);
-				AndProtocol and = provider.getAndProtocol(left, right, outCarry);
-				curGP = new ParallelProtocolProducer(xor, and);
+			if(curPP == null){
+				XorProtocol xor = factory.getXorProtocol(left, right, outS);
+				AndProtocol and = factory.getAndProtocol(left, right, outCarry);
+				curPP = new ParallelProtocolProducer(xor, and);
 			}
-			if(curGP.hasNextProtocols()){
-				pos = curGP.getNextProtocols(gates, pos);
+			if(curPP.hasNextProtocols()){
+				pos = curPP.getNextProtocols(nativeProtocols, pos);
 			}
-			else if(!curGP.hasNextProtocols()){
-				curGP = null;
+			else if(!curPP.hasNextProtocols()){
+				curPP = null;
 				round++;
 			}
 		}

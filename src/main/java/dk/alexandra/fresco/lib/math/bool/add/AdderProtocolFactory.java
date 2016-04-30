@@ -27,8 +27,8 @@
 package dk.alexandra.fresco.lib.math.bool.add;
 
 
-public interface AdderProtocolFactory extends FullAdderCircuitFactory, 
-											  OneBitHalfAdderCircuitFactory, 
-											  OneBitFullAdderCircuitFactory{
+public interface AdderProtocolFactory extends FullAdderProtocolFactory, 
+											  OneBitHalfAdderProtocolFactory, 
+											  OneBitFullAdderProtocolFactory{
 	
 }
