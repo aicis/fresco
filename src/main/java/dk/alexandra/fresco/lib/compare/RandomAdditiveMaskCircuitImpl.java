@@ -84,13 +84,10 @@ public class RandomAdditiveMaskCircuitImpl extends AbstractSimpleProtocol implem
 	@Override
 	protected ProtocolProducer initializeGateProducer() {
 		
-		OInt[] twoPows = miscOIntGenerator.getTwoPowers(securityParameter + bitLength);
-
 		// loadRandBits
 		// r[i] = i'th bit; 0 <= i < bitLength
 		// r[bitLenght] = r
 		SInt[] allbits = new SInt[bitLength + securityParameter];
-
 		ParallelProtocolProducer randomBits = new ParallelProtocolProducer();
 		int i;
 		for (i = 0; i < bitLength; i++) {
@@ -101,8 +98,9 @@ public class RandomAdditiveMaskCircuitImpl extends AbstractSimpleProtocol implem
 			allbits[i] = basicNumericFactory.getSInt();
 			randomBits.append(bitProvider.createRandomSecretSharedBitProtocol(allbits[i]));
 		}
-
-		return new SequentialProtocolProducer(randomBits, innerProdProvider.getInnerProductCircuit(allbits, twoPows, r[r.length - 1]));
+		
+		OInt[] twoPows = miscOIntGenerator.getTwoPowers(securityParameter + bitLength);
+		return new SequentialProtocolProducer(randomBits, innerProdProvider.getInnerProductCircuit(allbits, twoPows, r[bitLength]));
 	}
 
 }
