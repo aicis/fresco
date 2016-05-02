@@ -99,7 +99,7 @@ public class DivisionTests {
 							BasicNumericFactory basicNumericFactory = (BasicNumericFactory) provider;
 							PreprocessedNumericBitFactory preprocessedNumericBitFactory = (PreprocessedNumericBitFactory) provider;
 							RandomAdditiveMaskFactory randomAdditiveMaskFactory = new RandomAdditiveMaskFactoryImpl(basicNumericFactory, preprocessedNumericBitFactory);
-							RightShiftFactory rightShiftFactory = new RightShiftFactoryImpl(80, basicNumericFactory, randomAdditiveMaskFactory);
+							RightShiftFactory rightShiftFactory = new RightShiftFactoryImpl(basicNumericFactory, randomAdditiveMaskFactory);
 							DivisionFactory euclidianDivisionFactory = new DivisionFactoryImpl(basicNumericFactory, rightShiftFactory);
 							
 							SInt quotient = basicNumericFactory.getSInt();
@@ -163,7 +163,7 @@ public class DivisionTests {
 							BasicNumericFactory basicNumericFactory = (BasicNumericFactory) provider;
 							PreprocessedNumericBitFactory preprocessedNumericBitFactory = (PreprocessedNumericBitFactory) provider;
 							RandomAdditiveMaskFactory randomAdditiveMaskFactory = new RandomAdditiveMaskFactoryImpl(basicNumericFactory, preprocessedNumericBitFactory);
-							RightShiftFactory rightShiftFactory = new RightShiftFactoryImpl(80, basicNumericFactory, randomAdditiveMaskFactory);
+							RightShiftFactory rightShiftFactory = new RightShiftFactoryImpl(basicNumericFactory, randomAdditiveMaskFactory);
 							DivisionFactory divisionFactory = new DivisionFactoryImpl(basicNumericFactory, rightShiftFactory);
 							
 							SInt quotient = basicNumericFactory.getSInt();

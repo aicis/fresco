@@ -166,8 +166,10 @@ ExpFromOIntFactory expFromOIntProvider) {
 	private ProtocolProducer reduceProblemSize(SInt reducedProblem) {
 		// load random r and bits of r mod 2^length
 		SInt[] r = new SInt[bitLength+1];
-		SInt rValue = provider.getSInt();
-		Protocol randLoader = randomAddMaskProvider.getRandomAdditiveMaskCircuit(bitLength, securityParam, rValue);
+		for (int i = 0; i < r.length; i++) {
+			r[i] = provider.getSInt();
+		}		
+		Protocol randLoader = randomAddMaskProvider.getRandomAdditiveMaskCircuit(securityParam, r);
 
 		// mask and reveal difference
 		SInt subResult = provider.getSInt();

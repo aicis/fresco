@@ -49,7 +49,6 @@ public class RightShiftProtocolImpl implements RightShiftProtocol {
 	private SInt result;
 	private SInt remainder;
 	private int bitLength;
-	private int securityParameter;
 	
 	// Factories
 	private final BasicNumericFactory basicNumericFactory;
@@ -69,14 +68,12 @@ public class RightShiftProtocolImpl implements RightShiftProtocol {
 	 * @param input The input.
 	 * @param result The input shifted one bit to the right, input >> 1.
 	 * @param bitLength An upper bound for the bitLength of the input.
-	 * @param securityParameter Leakage will happen with propability <i>2<sup>-securityParameter</sup></i>.
 	 * @param basicNumericFactory
 	 * @param randomAdditiveMaskFactory
 	 * @param miscOIntGenerators
 	 * @param innerProductFactory
 	 */
-	public RightShiftProtocolImpl(SInt input, SInt result, int bitLength, int securityParameter,
-			BasicNumericFactory basicNumericFactory, 
+	public RightShiftProtocolImpl(SInt input, SInt result, int bitLength, BasicNumericFactory basicNumericFactory,
 			RandomAdditiveMaskFactory randomAdditiveMaskFactory, 
 			MiscOIntGenerators miscOIntGenerators, 
 			InnerProductFactory innerProductFactory) {
@@ -85,7 +82,6 @@ public class RightShiftProtocolImpl implements RightShiftProtocol {
 		this.result = result;
 		this.remainder = null;
 		this.bitLength = bitLength;
-		this.securityParameter = securityParameter;
 		
 		this.basicNumericFactory = basicNumericFactory;
 		this.randomAdditiveMaskFactory = randomAdditiveMaskFactory;
@@ -99,20 +95,18 @@ public class RightShiftProtocolImpl implements RightShiftProtocol {
 	 * @param result The input shifted one bit to the right, input >> 1.
 	 * @param remainder The least significant bit of the input (aka the bit that is thrown away in the shift).
 	 * @param bitLength An upper bound for the bitLength of the input.
-	 * @param securityParameter Leakage will happen with propability <i>2<sup>-securityParameter</sup></i>.
 	 * @param basicNumericFactory
 	 * @param randomAdditiveMaskFactory
 	 * @param miscOIntGenerators
 	 * @param innerProductFactory
 	 */
 	public RightShiftProtocolImpl(SInt input, SInt result, SInt remainder, 
-			int bitLength, int securityParameter,
-			BasicNumericFactory basicNumericFactory, 
+			int bitLength, BasicNumericFactory basicNumericFactory,
 			RandomAdditiveMaskFactory randomAdditiveMaskFactory, 
 			MiscOIntGenerators miscOIntGenerators, 
 			InnerProductFactory innerProductFactory) {
 
-		this(input, result, bitLength, securityParameter, basicNumericFactory, randomAdditiveMaskFactory, miscOIntGenerators, innerProductFactory);
+		this(input, result, bitLength, basicNumericFactory, randomAdditiveMaskFactory, miscOIntGenerators, innerProductFactory);
 		this.remainder = remainder;
 	}
 	
@@ -123,10 +117,11 @@ public class RightShiftProtocolImpl implements RightShiftProtocol {
 			switch (round) {
 			case 0:
 				// Load random r including binary expansion
-				SInt rOutput = basicNumericFactory.getSInt();
-				Protocol additiveMaskProtocol = randomAdditiveMaskFactory.getRandomAdditiveMaskCircuit(bitLength,
-						securityParameter, rOutput); // TODO: It seems the r we get here is wrong, so we need to calculate it in next round 
-				rExpansion = (SInt[]) additiveMaskProtocol.getOutputValues();
+				rExpansion = new SInt[bitLength + 1];
+				for (int i = 0; i < rExpansion.length; i++) {
+					rExpansion[i] = basicNumericFactory.getSInt();
+				}
+				Protocol additiveMaskProtocol = randomAdditiveMaskFactory.getRandomAdditiveMaskCircuit(0, rExpansion); // TODO: It seems the r we get here is wrong, so we need to calculate it in next round 
 				gp = additiveMaskProtocol;
 				break;
 
@@ -146,7 +141,7 @@ public class RightShiftProtocolImpl implements RightShiftProtocol {
 				Protocol findRTop = innerProductFactory.getInnerProductCircuit(rTopBits, twoPowers, rTop);
 
 				// r = 2 * rTop + rBottom
-				SInt r = basicNumericFactory.getSInt();
+				SInt r = rExpansion[rExpansion.length - 1];
 				SInt tmp = basicNumericFactory.getSInt();
 				Protocol twoTimesRTop = basicNumericFactory.getMultCircuit(basicNumericFactory.getOInt(BigInteger.valueOf(2)), rTop, tmp);
 				Protocol addRBottom = basicNumericFactory.getAddProtocol(tmp, rBottom, r);

@@ -118,7 +118,7 @@ public class GreaterThanReducerCircuitImpl implements GreaterThanCircuit {
 	private int round=0;
 	private ProtocolProducer gp;
 	
-	private SInt rValue, rTop, rBottom, rBar;
+	private SInt rTop, rBottom, rBar;
 	private SInt[] r;
 	private final OInt twoToBitLength;
 	private final OInt twoToNegBitLength;
@@ -150,9 +150,11 @@ public class GreaterThanReducerCircuitImpl implements GreaterThanCircuit {
 			switch (round){
 			case 0:
 				// LOAD r + bits
-				rValue = provider.getSInt();
-				Protocol maskCircuit = maskProvider.getRandomAdditiveMaskCircuit(bitLength, securityParameter, rValue);
-				r = (SInt[]) maskCircuit.getOutputValues();
+				r = new SInt[bitLength + 1];
+				for (int i = 0; i < r.length; i++) {
+					r[i] = provider.getSInt();
+				}
+				Protocol maskCircuit = maskProvider.getRandomAdditiveMaskCircuit(securityParameter, r);
 				gp = maskCircuit;
 				break;
 			case 1:
@@ -182,8 +184,8 @@ public class GreaterThanReducerCircuitImpl implements GreaterThanCircuit {
 
 				Protocol shiftCirc0 = mbcProvider.getMultCircuit(twoToBitLengthBottom, rTop, tmp1);
 				Protocol addCirc0 = provider.getAddProtocol(tmp1, rBottom, rBar);
-
-				// forget bits of rValue
+				
+				SInt rValue = r[r.length - 1];
 				r = null;
 				
 				// Actual work: mask and reveal 2^bitLength+x-y

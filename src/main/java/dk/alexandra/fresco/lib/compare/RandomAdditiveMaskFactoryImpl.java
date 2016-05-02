@@ -34,10 +34,10 @@ import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductFactoryImpl;
 
 public class RandomAdditiveMaskFactoryImpl implements RandomAdditiveMaskFactory {
 
-	private final BasicNumericFactory bnf;
 	private final PreprocessedNumericBitFactory numericBitFactory;
 	private final InnerProductFactory innerProductFactory;
 	private final MiscOIntGenerators misc;
+	private final BasicNumericFactory bnf;
 
 	public RandomAdditiveMaskFactoryImpl(BasicNumericFactory bnf,
 			PreprocessedNumericBitFactory numericBitFactory) {
@@ -48,10 +48,10 @@ public class RandomAdditiveMaskFactoryImpl implements RandomAdditiveMaskFactory 
 	}
 
 	@Override
-	public RandomAdditiveMaskCircuit getRandomAdditiveMaskCircuit(
-			int bitLength, int securityParameter, SInt r) {
-		return new RandomAdditiveMaskCircuitImpl(bitLength, securityParameter,
-				r, bnf, numericBitFactory, misc, innerProductFactory);
+	public RandomAdditiveMaskCircuit getRandomAdditiveMaskCircuit(int securityParameter,
+			SInt[] r) {
+		return new RandomAdditiveMaskCircuitImpl(securityParameter, r, bnf, numericBitFactory,
+				misc, innerProductFactory);
 	}
 
 }

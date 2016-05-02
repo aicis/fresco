@@ -47,7 +47,6 @@ public class ZeroTestReducerCircuitImpl extends AbstractSimpleProtocol implement
 	private ProtocolProducer gp = null;
 	private Protocol loadRandC = null;
 	private HammingDistanceFactory hammingProvider;
-	private SInt[] r;
 	
 	public ZeroTestReducerCircuitImpl(
 			int bitLength, 
@@ -69,10 +68,14 @@ public class ZeroTestReducerCircuitImpl extends AbstractSimpleProtocol implement
 
 	@Override
 	protected ProtocolProducer initializeGateProducer() {
+		
 		// LOAD r
-		SInt rValue = provider.getSInt();
-		loadRandC = maskProvider.getRandomAdditiveMaskCircuit(bitLength, securityParameter, rValue);
-		r = (SInt[]) loadRandC.getOutputValues();
+		SInt[] r = new SInt[bitLength + 1];
+		for (int i = 0; i < r.length; i++) {
+			r[i] = provider.getSInt();
+		}		
+		loadRandC = maskProvider.getRandomAdditiveMaskCircuit(securityParameter, r);
+		
 		SInt mS = provider.getSInt();
 		OInt mO = provider.getOInt();
 		Protocol addCircuit = provider.getAddProtocol(input, r[bitLength], mS);

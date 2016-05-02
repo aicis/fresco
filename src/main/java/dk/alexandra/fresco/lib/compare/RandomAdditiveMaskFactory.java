@@ -29,6 +29,7 @@ package dk.alexandra.fresco.lib.compare;
 import dk.alexandra.fresco.framework.value.SInt;
 
 public interface RandomAdditiveMaskFactory {
-	public RandomAdditiveMaskCircuit getRandomAdditiveMaskCircuit(int bitLength, int securityParameter, SInt r);
+	
+	public RandomAdditiveMaskCircuit getRandomAdditiveMaskCircuit(int securityParameter, SInt[] r);
 
 }

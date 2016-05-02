@@ -96,7 +96,7 @@ public class BinaryOperationsTests {
 							BasicNumericFactory basicNumericFactory = (BasicNumericFactory) provider;
 							PreprocessedNumericBitFactory preprocessedNumericBitFactory = (PreprocessedNumericBitFactory) provider;
 							RandomAdditiveMaskFactory randomAdditiveMaskFactory = new RandomAdditiveMaskFactoryImpl(basicNumericFactory, preprocessedNumericBitFactory);
-							RightShiftFactory rightShiftFactory = new RightShiftFactoryImpl(80, basicNumericFactory, randomAdditiveMaskFactory);
+							RightShiftFactory rightShiftFactory = new RightShiftFactoryImpl(basicNumericFactory, randomAdditiveMaskFactory);
 
 							SInt result = basicNumericFactory.getSInt();
 							SInt remainder = basicNumericFactory.getSInt();
@@ -156,7 +156,7 @@ public class BinaryOperationsTests {
 							BasicNumericFactory basicNumericFactory = (BasicNumericFactory) provider;
 							PreprocessedNumericBitFactory preprocessedNumericBitFactory = (PreprocessedNumericBitFactory) provider;
 							RandomAdditiveMaskFactory randomAdditiveMaskFactory = new RandomAdditiveMaskFactoryImpl(basicNumericFactory, preprocessedNumericBitFactory);
-							RightShiftFactory rightShiftFactory = new RightShiftFactoryImpl(80, basicNumericFactory, randomAdditiveMaskFactory);
+							RightShiftFactory rightShiftFactory = new RightShiftFactoryImpl(basicNumericFactory, randomAdditiveMaskFactory);
 
 							SInt result = basicNumericFactory.getSInt();
 							

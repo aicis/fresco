@@ -39,12 +39,9 @@ public class RightShiftFactoryImpl implements RightShiftFactory {
 	private final RandomAdditiveMaskFactory randomAdditiveMaskFactory;
 	private final MiscOIntGenerators miscOIntGenerators;
 	private final InnerProductFactory innerProductFactory;
-	private int securityParameter;
 	
-	public RightShiftFactoryImpl(int securityParameter, 
-			BasicNumericFactory basicNumericFactory, 
+	public RightShiftFactoryImpl(BasicNumericFactory basicNumericFactory, 
 			RandomAdditiveMaskFactory randomAdditiveMaskFactory) {
-		this.securityParameter = securityParameter;
 		this.basicNumericFactory = basicNumericFactory;
 		this.randomAdditiveMaskFactory = randomAdditiveMaskFactory;
 		this.miscOIntGenerators = new MiscOIntGenerators(basicNumericFactory);
@@ -53,9 +50,8 @@ public class RightShiftFactoryImpl implements RightShiftFactory {
 
 	@Override
 	public RightShiftProtocol getRightShiftProtocol(SInt x, SInt result) {
-		return new RightShiftProtocolImpl(x, result, basicNumericFactory.getMaxBitLength(), this.securityParameter, 
-				basicNumericFactory, 
-				randomAdditiveMaskFactory,
+		return new RightShiftProtocolImpl(x, result, basicNumericFactory.getMaxBitLength(), basicNumericFactory, 
+				randomAdditiveMaskFactory, 
 				miscOIntGenerators,
 				innerProductFactory);
 	}
@@ -63,9 +59,8 @@ public class RightShiftFactoryImpl implements RightShiftFactory {
 
 	@Override
 	public RightShiftProtocol getRightShiftProtocol(SInt x, SInt result, SInt remainder) {
-		return new RightShiftProtocolImpl(x, result, remainder, basicNumericFactory.getMaxBitLength(), this.securityParameter, 
-				basicNumericFactory, 
-				randomAdditiveMaskFactory,
+		return new RightShiftProtocolImpl(x, result, remainder, basicNumericFactory.getMaxBitLength(), basicNumericFactory, 
+				randomAdditiveMaskFactory, 
 				miscOIntGenerators,
 				innerProductFactory);
 	}
