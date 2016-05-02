@@ -70,21 +70,20 @@ public class ZeroTestReducerCircuitImpl extends AbstractSimpleProtocol implement
 	protected ProtocolProducer initializeGateProducer() {
 		
 		// LOAD r
-		SInt[] r = new SInt[bitLength + 1];
-		for (int i = 0; i < r.length; i++) {
-			r[i] = provider.getSInt();
+		SInt[] bits = new SInt[bitLength];
+		for (int i = 0; i < bitLength; i++) {
+			bits[i] = provider.getSInt();
 		}		
-		loadRandC = maskProvider.getRandomAdditiveMaskCircuit(securityParameter, r);
+		SInt r = provider.getSInt();
+		loadRandC = maskProvider.getRandomAdditiveMaskCircuit(securityParameter, bits, r);
 		
 		SInt mS = provider.getSInt();
 		OInt mO = provider.getOInt();
-		Protocol addCircuit = provider.getAddProtocol(input, r[bitLength], mS);
+		Protocol addCircuit = provider.getAddProtocol(input, r, mS);
 		// open m
 		OpenIntProtocol openCircuitAddMask = provider.getOpenProtocol(mS, mO);
 		// result = Hamming-dist_l(z,r);
-		SInt[] rBits = new SInt[bitLength];
-		System.arraycopy(r, 0, rBits, 0, rBits.length);
-		Protocol hammingCircuit = hammingProvider.getHammingdistanceCircuit(rBits, mO, output);
+		Protocol hammingCircuit = hammingProvider.getHammingdistanceCircuit(bits, mO, output);
 		gp = new SequentialProtocolProducer(loadRandC, addCircuit, openCircuitAddMask, hammingCircuit);			
 		return gp;
 	}

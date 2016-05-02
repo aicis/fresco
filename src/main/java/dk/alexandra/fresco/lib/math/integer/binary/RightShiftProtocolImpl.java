@@ -58,6 +58,7 @@ public class RightShiftProtocolImpl implements RightShiftProtocol {
 
 	// Variables used for calculation
 	private int round = 0;
+	private SInt r;
 	private SInt[] rExpansion;
 	private SInt rTop, rBottom;
 	private OInt mOpen;
@@ -117,23 +118,22 @@ public class RightShiftProtocolImpl implements RightShiftProtocol {
 			switch (round) {
 			case 0:
 				// Load random r including binary expansion
-				rExpansion = new SInt[bitLength + 1];
+				r = basicNumericFactory.getSInt();
+				rExpansion = new SInt[bitLength];
 				for (int i = 0; i < rExpansion.length; i++) {
 					rExpansion[i] = basicNumericFactory.getSInt();
 				}
-				Protocol additiveMaskProtocol = randomAdditiveMaskFactory.getRandomAdditiveMaskCircuit(0, rExpansion); // TODO: It seems the r we get here is wrong, so we need to calculate it in next round 
+				Protocol additiveMaskProtocol = randomAdditiveMaskFactory.getRandomAdditiveMaskCircuit(0, rExpansion, r); // TODO: It seems the r we get here is wrong, so we need to calculate it in next round 
 				gp = additiveMaskProtocol;
 				break;
 
 			case 1:
-
-				SInt r = rExpansion[rExpansion.length - 1];
 				
 				// rBottom is the least significant bit of r
 				rBottom = rExpansion[0];
 				
 				// Calculate 1, 2, 2^2, ..., 2^{l - 1}
-				int l = rExpansion.length - 2;
+				int l = rExpansion.length - 1;
 				OInt[] twoPowers = miscOIntGenerator.getTwoPowers(l);
 				
 				// Calculate rTop = (r - rBottom) >> 1 = (r_1, r_2, ..., r_l) . (1, 2, 4, ..., 2^{l-1})

@@ -119,7 +119,8 @@ public class GreaterThanReducerCircuitImpl implements GreaterThanCircuit {
 	private ProtocolProducer gp;
 	
 	private SInt rTop, rBottom, rBar;
-	private SInt[] r;
+	private SInt[] bits;
+	private SInt r;
 	private final OInt twoToBitLength;
 	private final OInt twoToNegBitLength;
 	private final OInt twoToBitLengthBottom;
@@ -150,11 +151,12 @@ public class GreaterThanReducerCircuitImpl implements GreaterThanCircuit {
 			switch (round){
 			case 0:
 				// LOAD r + bits
-				r = new SInt[bitLength + 1];
-				for (int i = 0; i < r.length; i++) {
-					r[i] = provider.getSInt();
+				bits = new SInt[bitLength];
+				for (int i = 0; i < bitLength; i++) {
+					bits[i] = provider.getSInt();
 				}
-				Protocol maskCircuit = maskProvider.getRandomAdditiveMaskCircuit(securityParameter, r);
+				r = provider.getSInt();
+				Protocol maskCircuit = maskProvider.getRandomAdditiveMaskCircuit(securityParameter, bits, r);
 				gp = maskCircuit;
 				break;
 			case 1:
@@ -167,8 +169,8 @@ public class GreaterThanReducerCircuitImpl implements GreaterThanCircuit {
 				SInt[] rTopBits = new SInt[bitLengthTop];
 				SInt[] rBottomBits = new SInt[bitLengthBottom];
 				
-				System.arraycopy(r, 0, rBottomBits, 0, bitLengthBottom);
-				System.arraycopy(r, bitLengthBottom, rTopBits, 0, bitLengthTop);
+				System.arraycopy(bits, 0, rBottomBits, 0, bitLengthBottom);
+				System.arraycopy(bits, bitLengthBottom, rTopBits, 0, bitLengthTop);
 				
 				OInt[] twoPowsTop, twoPowsBottom;
 
@@ -185,8 +187,7 @@ public class GreaterThanReducerCircuitImpl implements GreaterThanCircuit {
 				Protocol shiftCirc0 = mbcProvider.getMultCircuit(twoToBitLengthBottom, rTop, tmp1);
 				Protocol addCirc0 = provider.getAddProtocol(tmp1, rBottom, rBar);
 				
-				SInt rValue = r[r.length - 1];
-				r = null;
+				bits = null;
 				
 				// Actual work: mask and reveal 2^bitLength+x-y
 				// z = 2^bitLength + x -y  
@@ -199,7 +200,7 @@ public class GreaterThanReducerCircuitImpl implements GreaterThanCircuit {
 				// mO = open(z + r)
 				SInt mS = provider.getSInt();
 				mO = provider.getOInt();
-				Protocol addCircuit2 = provider.getAddProtocol(z, rValue, mS);
+				Protocol addCircuit2 = provider.getAddProtocol(z, r, mS);
 				OpenIntProtocol openCircuitAddMask = provider.getOpenProtocol(mS, mO);
 
 				gp  = new SequentialProtocolProducer(

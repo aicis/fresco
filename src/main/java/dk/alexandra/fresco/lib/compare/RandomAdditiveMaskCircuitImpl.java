@@ -50,7 +50,8 @@ public class RandomAdditiveMaskCircuitImpl extends AbstractSimpleProtocol implem
 	private final InnerProductFactory innerProdProvider;
 	private final PreprocessedNumericBitFactory bitProvider;
 	private final MiscOIntGenerators miscOIntGenerator;
-	private final SInt[] r;
+	private final SInt[] rBits;
+	private final SInt r;
 	private BasicNumericFactory basicNumericFactory;
 
 	/**
@@ -62,45 +63,45 @@ public class RandomAdditiveMaskCircuitImpl extends AbstractSimpleProtocol implem
 	 * @param securityParameter
 	 *            -- the desired security parameter, k, (leakage with
 	 *            probability 2^{-k}
+	 * @param bits
+	 *            the first l bits of r
 	 * @param r
-	 *            - r[i] = r_i for 0<=i<l; r[l] = r
+	 * 
 	 */
-	public RandomAdditiveMaskCircuitImpl(int securityParameter, SInt[] r,
-			BasicNumericFactory basicNumericFactory, PreprocessedNumericBitFactory bitProvider, MiscOIntGenerators miscOIntGenerator,
-			InnerProductFactory innerProdProvider) {
+	public RandomAdditiveMaskCircuitImpl(int securityParameter, SInt[] bits, SInt r,
+			BasicNumericFactory basicNumericFactory, PreprocessedNumericBitFactory bitProvider,
+			MiscOIntGenerators miscOIntGenerator, InnerProductFactory innerProdProvider) {
 		// Copy inputs, setup stuff
-		this.bitLength = r.length - 1;
+		this.bitLength = bits.length;
 		this.securityParameter = securityParameter;
+		this.rBits = bits;
 		this.r = r;
 		this.basicNumericFactory = basicNumericFactory;
 		this.innerProdProvider = innerProdProvider;
 		this.miscOIntGenerator = miscOIntGenerator;
 		this.bitProvider = bitProvider;
-		
-		this.setOutputValues(r);
-		
 	}
 
 	@Override
 	protected ProtocolProducer initializeGateProducer() {
-		
+
 		// loadRandBits
-		// r[i] = i'th bit; 0 <= i < bitLength
-		// r[bitLenght] = r
+		// bits[i] = i'th bit; 0 <= i < bitLength
 		SInt[] allbits = new SInt[bitLength + securityParameter];
 		ParallelProtocolProducer randomBits = new ParallelProtocolProducer();
 		int i;
 		for (i = 0; i < bitLength; i++) {
-			randomBits.append(bitProvider.createRandomSecretSharedBitProtocol(r[i]));
-			allbits[i] = r[i];
+			randomBits.append(bitProvider.createRandomSecretSharedBitProtocol(rBits[i]));
+			allbits[i] = rBits[i];
 		}
 		for (i = bitLength; i < bitLength + securityParameter; i++) {
 			allbits[i] = basicNumericFactory.getSInt();
 			randomBits.append(bitProvider.createRandomSecretSharedBitProtocol(allbits[i]));
 		}
-		
+
 		OInt[] twoPows = miscOIntGenerator.getTwoPowers(securityParameter + bitLength);
-		return new SequentialProtocolProducer(randomBits, innerProdProvider.getInnerProductCircuit(allbits, twoPows, r[bitLength]));
+		return new SequentialProtocolProducer(randomBits, innerProdProvider.getInnerProductCircuit(
+				allbits, twoPows, r));
 	}
 
 }

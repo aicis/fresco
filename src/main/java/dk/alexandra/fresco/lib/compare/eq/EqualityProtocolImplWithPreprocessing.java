@@ -165,11 +165,12 @@ ExpFromOIntFactory expFromOIntProvider) {
 
 	private ProtocolProducer reduceProblemSize(SInt reducedProblem) {
 		// load random r and bits of r mod 2^length
-		SInt[] r = new SInt[bitLength+1];
-		for (int i = 0; i < r.length; i++) {
-			r[i] = provider.getSInt();
+		SInt[] bits = new SInt[bitLength];
+		for (int i = 0; i < bitLength; i++) {
+			bits[i] = provider.getSInt();
 		}		
-		Protocol randLoader = randomAddMaskProvider.getRandomAdditiveMaskCircuit(securityParam, r);
+		SInt r = provider.getSInt();
+		Protocol randLoader = randomAddMaskProvider.getRandomAdditiveMaskCircuit(securityParam, bits, r);
 
 		// mask and reveal difference
 		SInt subResult = provider.getSInt();
@@ -178,14 +179,14 @@ ExpFromOIntFactory expFromOIntProvider) {
 
 		SubtractCircuit subCircuit = provider.getSubtractCircuit(x, y,
 				subResult);
-		AddProtocol addCircuit = provider.getAddProtocol(subResult, r[bitLength],
+		AddProtocol addCircuit = provider.getAddProtocol(subResult, r,
 				masked_S);
 		OpenIntProtocol openCircuitAddMask = provider
 				.getOpenProtocol(masked_S, masked_O);
 
 
 		// Compute Hamming distance
-		Protocol hammingCircuit = hammingProvider.getHammingdistanceCircuit(r, masked_O, reducedProblem);
+		Protocol hammingCircuit = hammingProvider.getHammingdistanceCircuit(bits, masked_O, reducedProblem);
 
 		return  new SequentialProtocolProducer(randLoader, subCircuit, addCircuit, openCircuitAddMask, hammingCircuit);
 	}
