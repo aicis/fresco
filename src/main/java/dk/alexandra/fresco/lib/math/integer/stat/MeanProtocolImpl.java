@@ -69,7 +69,7 @@ public class MeanProtocolImpl extends AbstractSimpleProtocol implements
 	}
 
 	@Override
-	protected ProtocolProducer initializeGateProducer() {
+	protected ProtocolProducer initializeProtocolProducer() {
 		
 		NumericProtocolBuilder numericProtocolBuilder = new NumericProtocolBuilder(basicNumericFactory);
 		
@@ -79,7 +79,7 @@ public class MeanProtocolImpl extends AbstractSimpleProtocol implements
 		int maxSumLength = maxInputLength + (int) Math.ceil(Math.log(data.length) / Math.log(2));		
 		Protocol divide = divisionFactory.getDivisionProtocol(sum, maxSumLength, n, result);
 		
-		return new SequentialProtocolProducer(numericProtocolBuilder.getCircuit(), divide);
+		return new SequentialProtocolProducer(numericProtocolBuilder.getProtocol(), divide);
 	}
 
 }

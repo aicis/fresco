@@ -62,12 +62,12 @@ public class SortingTests {
 											
 						@Override
 						public ProtocolProducer prepareApplication(
-								ProtocolFactory provider) {
-							BasicNumericFactory bnFactory = (BasicNumericFactory) provider;
-							LocalInversionFactory localInvFactory = (LocalInversionFactory) provider;
-							PreprocessedNumericBitFactory numericBitFactory = (PreprocessedNumericBitFactory) provider;
-							ExpFromOIntFactory expFromOIntFactory = (ExpFromOIntFactory) provider;
-							PreprocessedExpPipeFactory expFactory = (PreprocessedExpPipeFactory) provider;
+								ProtocolFactory factory) {
+							BasicNumericFactory bnFactory = (BasicNumericFactory) factory;
+							LocalInversionFactory localInvFactory = (LocalInversionFactory) factory;
+							PreprocessedNumericBitFactory numericBitFactory = (PreprocessedNumericBitFactory) factory;
+							ExpFromOIntFactory expFromOIntFactory = (ExpFromOIntFactory) factory;
+							PreprocessedExpPipeFactory expFactory = (PreprocessedExpPipeFactory) factory;
 							SequentialProtocolProducer seq = new SequentialProtocolProducer();
 							
 							ComparisonProtocolFactoryImpl compFactory = new ComparisonProtocolFactoryImpl(
@@ -81,7 +81,7 @@ public class SortingTests {
 							SInt[] unsorted = {ioBuilder.input(one,1), ioBuilder.input(two,1), ioBuilder.input(three,1), ioBuilder.input(five,2), ioBuilder.input(zero,1)};
 							SInt[] sorted = {ioBuilder.input(three,1), ioBuilder.input(four,1), ioBuilder.input(four,2)};
 							
-							seq.append(ioBuilder.getCircuit());
+							seq.append(ioBuilder.getProtocol());
 							
 							SInt isSortedResult1=isSortedBuilder.isSorted(unsorted);
 							SInt isSortedResult2=isSortedBuilder.isSorted(sorted);
@@ -90,8 +90,8 @@ public class SortingTests {
 							
 							outputs = new OInt[] {res1,res2};
 														
-							seq.append(isSortedBuilder.getCircuit());
-							seq.append(ioBuilder.getCircuit());
+							seq.append(isSortedBuilder.getProtocol());
+							seq.append(ioBuilder.getProtocol());
 							
 							return seq;
 						}
@@ -120,12 +120,12 @@ public class SortingTests {
 											
 						@Override
 						public ProtocolProducer prepareApplication(
-								ProtocolFactory provider) {
-							BasicNumericFactory bnFactory = (BasicNumericFactory) provider;
-							LocalInversionFactory localInvFactory = (LocalInversionFactory) provider;
-							PreprocessedNumericBitFactory numericBitFactory = (PreprocessedNumericBitFactory) provider;
-							ExpFromOIntFactory expFromOIntFactory = (ExpFromOIntFactory) provider;
-							PreprocessedExpPipeFactory expFactory = (PreprocessedExpPipeFactory) provider;
+								ProtocolFactory factory) {
+							BasicNumericFactory bnFactory = (BasicNumericFactory) factory;
+							LocalInversionFactory localInvFactory = (LocalInversionFactory) factory;
+							PreprocessedNumericBitFactory numericBitFactory = (PreprocessedNumericBitFactory) factory;
+							ExpFromOIntFactory expFromOIntFactory = (ExpFromOIntFactory) factory;
+							PreprocessedExpPipeFactory expFactory = (PreprocessedExpPipeFactory) factory;
 							SequentialProtocolProducer seq = new SequentialProtocolProducer();
 							
 							ComparisonProtocolFactoryImpl compFactory = new ComparisonProtocolFactoryImpl(
@@ -137,7 +137,7 @@ public class SortingTests {
 							SortingProtocolBuilder  isSortedBuilder = new SortingProtocolBuilder(compFactory, bnFactory);
 
 							SInt[] vals = {ioBuilder.input(two,1),ioBuilder.input(one,2)};						
-							seq.append(ioBuilder.getCircuit());
+							seq.append(ioBuilder.getProtocol());
 							
 							isSortedBuilder.compareAndSwap(0, 1, vals);
 							OInt res1 = ioBuilder.output(vals[0]);
@@ -145,8 +145,8 @@ public class SortingTests {
 							
 							outputs = new OInt[] {res1,res2};
 														
-							seq.append(isSortedBuilder.getCircuit());
-							seq.append(ioBuilder.getCircuit());
+							seq.append(isSortedBuilder.getProtocol());
+							seq.append(ioBuilder.getProtocol());
 							
 							return seq;
 						}
@@ -177,12 +177,12 @@ public class SortingTests {
 											
 						@Override
 						public ProtocolProducer prepareApplication(
-								ProtocolFactory provider) {
-							BasicNumericFactory bnFactory = (BasicNumericFactory) provider;
-							LocalInversionFactory localInvFactory = (LocalInversionFactory) provider;
-							PreprocessedNumericBitFactory numericBitFactory = (PreprocessedNumericBitFactory) provider;
-							ExpFromOIntFactory expFromOIntFactory = (ExpFromOIntFactory) provider;
-							PreprocessedExpPipeFactory expFactory = (PreprocessedExpPipeFactory) provider;
+								ProtocolFactory factory) {
+							BasicNumericFactory bnFactory = (BasicNumericFactory) factory;
+							LocalInversionFactory localInvFactory = (LocalInversionFactory) factory;
+							PreprocessedNumericBitFactory numericBitFactory = (PreprocessedNumericBitFactory) factory;
+							ExpFromOIntFactory expFromOIntFactory = (ExpFromOIntFactory) factory;
+							PreprocessedExpPipeFactory expFactory = (PreprocessedExpPipeFactory) factory;
 							SequentialProtocolProducer seq = new SequentialProtocolProducer();
 							
 							ComparisonProtocolFactoryImpl compFactory = new ComparisonProtocolFactoryImpl(
@@ -197,7 +197,7 @@ public class SortingTests {
 							SInt[] unsorted = {ioBuilder.input(one,1), ioBuilder.input(three,2), ioBuilder.input(three,1), ioBuilder.input(five,2), ioBuilder.input(zero,1)};
 							SInt[] toBeSorted = {ioBuilder.input(one,1), ioBuilder.input(three,2), ioBuilder.input(three,1), ioBuilder.input(five,2), ioBuilder.input(zero,1)};
 							
-							seq.append(ioBuilder.getCircuit());
+							seq.append(ioBuilder.getProtocol());
 							
 							SInt isSortedResult1=isSortedBuilder.isSorted(unsorted);
 							//sorted version of same data.
@@ -213,8 +213,8 @@ public class SortingTests {
 							
 							outputs = new OInt[] {res1,res2, res3, res4, res5, res6, res7};
 														
-							seq.append(isSortedBuilder.getCircuit());
-							seq.append(ioBuilder.getCircuit());
+							seq.append(isSortedBuilder.getProtocol());
+							seq.append(ioBuilder.getProtocol());
 							
 							return seq;
 						}
@@ -244,12 +244,12 @@ public class SortingTests {
 						final int  SIZE=100;
 						@Override
 						public ProtocolProducer prepareApplication(
-								ProtocolFactory provider) {
-							BasicNumericFactory bnFactory = (BasicNumericFactory) provider;
-							LocalInversionFactory localInvFactory = (LocalInversionFactory) provider;
-							PreprocessedNumericBitFactory numericBitFactory = (PreprocessedNumericBitFactory) provider;
-							ExpFromOIntFactory expFromOIntFactory = (ExpFromOIntFactory) provider;
-							PreprocessedExpPipeFactory expFactory = (PreprocessedExpPipeFactory) provider;
+								ProtocolFactory factory) {
+							BasicNumericFactory bnFactory = (BasicNumericFactory) factory;
+							LocalInversionFactory localInvFactory = (LocalInversionFactory) factory;
+							PreprocessedNumericBitFactory numericBitFactory = (PreprocessedNumericBitFactory) factory;
+							ExpFromOIntFactory expFromOIntFactory = (ExpFromOIntFactory) factory;
+							PreprocessedExpPipeFactory expFactory = (PreprocessedExpPipeFactory) factory;
 							SequentialProtocolProducer seq = new SequentialProtocolProducer();
 							Random random=new Random();
 							
@@ -271,7 +271,7 @@ public class SortingTests {
 							
 							for (int i=0;i<toBeSorted.length;i++)
 								toBeSorted[i]=ioBuilder.input(vals[i],1);
-							seq.append(ioBuilder.getCircuit());
+							seq.append(ioBuilder.getProtocol());
 							
 							SInt isSortedResult1=isSortedBuilder.isSorted(toBeSorted);
 							
@@ -284,8 +284,8 @@ public class SortingTests {
 							
 							outputs = new OInt[] {res1,res2};
 														
-							seq.append(isSortedBuilder.getCircuit());
-							seq.append(ioBuilder.getCircuit());
+							seq.append(isSortedBuilder.getProtocol());
+							seq.append(ioBuilder.getProtocol());
 							
 							return seq;
 						}

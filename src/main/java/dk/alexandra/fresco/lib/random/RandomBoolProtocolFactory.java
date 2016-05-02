@@ -31,6 +31,6 @@ import dk.alexandra.fresco.framework.value.SBool;
 
 public interface RandomBoolProtocolFactory extends ProtocolFactory {
 
-	public RandomBoolProtocol getRandomBitCircuit(SBool out);
+	public RandomBoolProtocol getRandomBitProtocol(SBool out);
 	
 }

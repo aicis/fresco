@@ -38,15 +38,15 @@ import dk.alexandra.fresco.lib.helper.CopyProtocolFactory;
 public class AndFromCopyConstProtocol implements AndProtocol {
 
 	private CopyProtocol<SBool> copyCir;
-	private CopyProtocolFactory<SBool> copyProvider;
-	private SBoolFactory sboolProvider;
+	private CopyProtocolFactory<SBool> copyFactory;
+	private SBoolFactory sboolFactory;
 	private SBool inLeft;
 	private OBool inRight;
 	private SBool out;
 	
-	public AndFromCopyConstProtocol(CopyProtocolFactory<SBool> copyProvider, SBoolFactory sboolProvider, SBool inLeft, OBool inRight, SBool out) {
-		this.copyProvider = copyProvider;
-		this.sboolProvider = sboolProvider;
+	public AndFromCopyConstProtocol(CopyProtocolFactory<SBool> copyFactory, SBoolFactory sboolFactory, SBool inLeft, OBool inRight, SBool out) {
+		this.copyFactory = copyFactory;
+		this.sboolFactory = sboolFactory;
 		this.inLeft = inLeft;
 		this.inRight = inRight;
 		this.out = out;
@@ -63,17 +63,17 @@ public class AndFromCopyConstProtocol implements AndProtocol {
 	}
 
 	@Override
-	public int getNextProtocols(NativeProtocol[] gates, int pos) {
+	public int getNextProtocols(NativeProtocol[] nativeProtocols, int pos) {
 	
 		if (copyCir == null) {
 			if (inRight.getValue()) {
-				copyCir = copyProvider.getCopyCircuit(inLeft, out);
+				copyCir = copyFactory.getCopyProtocol(inLeft, out);
 			} else {
-				copyCir = copyProvider.getCopyCircuit(sboolProvider.getKnownConstantSBool(false), out);
+				copyCir = copyFactory.getCopyProtocol(sboolFactory.getKnownConstantSBool(false), out);
 			}
 		}
 		
-		return copyCir.getNextProtocols(gates, pos);
+		return copyCir.getNextProtocols(nativeProtocols, pos);
 	}
 
 	@Override

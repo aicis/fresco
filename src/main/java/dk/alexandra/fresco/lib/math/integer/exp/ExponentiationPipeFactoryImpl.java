@@ -31,7 +31,7 @@ import dk.alexandra.fresco.framework.value.SInt;
 public class ExponentiationPipeFactoryImpl implements ExponentiationPipeFactory{
 
 	@Override
-	public ExponentiationPipeProtocol getExponentiationCircuit(SInt R,
+	public ExponentiationPipeProtocol getExponentiationProtocol(SInt R,
 			SInt[] outputs) {
 		// TODO Auto-generated method stub
 		return null;

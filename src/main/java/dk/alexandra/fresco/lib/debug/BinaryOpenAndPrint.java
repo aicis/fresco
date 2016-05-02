@@ -49,14 +49,14 @@ public class BinaryOpenAndPrint implements Protocol {
 	private STATE state = STATE.OUTPUT;
 	private String label;
 	
-	ProtocolProducer gp = null;
+	ProtocolProducer pp = null;
 	
-	private BasicLogicFactory provider;
+	private BasicLogicFactory factory;
 	
 
-	public BinaryOpenAndPrint(String label, SBool[] string, BasicLogicFactory provider) {
+	public BinaryOpenAndPrint(String label, SBool[] string, BasicLogicFactory factory) {
 		this.string = string;
-		this.provider = provider;
+		this.factory = factory;
 		this.label = label;
 	}
 	
@@ -73,20 +73,20 @@ public class BinaryOpenAndPrint implements Protocol {
 	}
 
 	@Override
-	public int getNextProtocols(NativeProtocol[] gates, int pos) {
-		if (gp == null) {
+	public int getNextProtocols(NativeProtocol[] nativeProtocols, int pos) {
+		if (pp == null) {
 			if (state == STATE.OUTPUT) {
 				if (number != null) {
-					oNumber = provider.getOBool();
-					gp = provider.getOpenProtocol(number, oNumber);
+					oNumber = factory.getOBool();
+					pp = factory.getOpenProtocol(number, oNumber);
 				} else if (string != null) {
 					oString = new OBool[string.length];
 					SequentialProtocolProducer seq = new SequentialProtocolProducer();
 					for (int i = 0; i < string.length; i++) {
-						oString[i] = provider.getOBool();
-						seq.append(provider.getOpenProtocol(string[i], oString[i]));
+						oString[i] = factory.getOBool();
+						seq.append(factory.getOpenProtocol(string[i], oString[i]));
 					}
-					gp = seq;
+					pp = seq;
 				} 
 			} else if (state == STATE.WRITE) {
 				StringBuilder sb = new StringBuilder();
@@ -103,20 +103,20 @@ public class BinaryOpenAndPrint implements Protocol {
 						}
 					}
 				}
-				gp = new MarkerProtocolImpl(sb.toString());
+				pp = new MarkerProtocolImpl(sb.toString());
 			}			
 		}
-		if (gp.hasNextProtocols()) {
-			pos = gp.getNextProtocols(gates, pos);
-		} else if (!gp.hasNextProtocols()) {
+		if (pp.hasNextProtocols()) {
+			pos = pp.getNextProtocols(nativeProtocols, pos);
+		} else if (!pp.hasNextProtocols()) {
 			switch (state) {
 			case OUTPUT:
 				state = STATE.WRITE;
-				gp = null;
+				pp = null;
 				break;
 			case WRITE:
 				state = STATE.DONE;
-				gp = null;
+				pp = null;
 				break;
 			default:
 				break;

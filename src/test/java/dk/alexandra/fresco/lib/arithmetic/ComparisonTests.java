@@ -85,12 +85,12 @@ public class ComparisonTests {
 						
 						@Override
 						public ProtocolProducer prepareApplication(
-								ProtocolFactory provider) {
-							BasicNumericFactory bnFactory = (BasicNumericFactory) provider;
-							LocalInversionFactory localInvFactory = (LocalInversionFactory) provider;
-							PreprocessedNumericBitFactory numericBitFactory = (PreprocessedNumericBitFactory) provider;
-							ExpFromOIntFactory expFromOIntFactory = (ExpFromOIntFactory) provider;
-							PreprocessedExpPipeFactory expFactory = (PreprocessedExpPipeFactory) provider;
+								ProtocolFactory factory) {
+							BasicNumericFactory bnFactory = (BasicNumericFactory) factory;
+							LocalInversionFactory localInvFactory = (LocalInversionFactory) factory;
+							PreprocessedNumericBitFactory numericBitFactory = (PreprocessedNumericBitFactory) factory;
+							ExpFromOIntFactory expFromOIntFactory = (ExpFromOIntFactory) factory;
+							PreprocessedExpPipeFactory expFactory = (PreprocessedExpPipeFactory) factory;
 							SequentialProtocolProducer seq = new SequentialProtocolProducer();
 
 							ComparisonProtocolFactoryImpl compFactory = new ComparisonProtocolFactoryImpl(
@@ -103,7 +103,7 @@ public class ComparisonTests {
 							
 							SInt x = ioBuilder.input(three, 1);
 							SInt y = ioBuilder.input(five, 1);
-							seq.append(ioBuilder.getCircuit());
+							seq.append(ioBuilder.getProtocol());
 							
 							SInt compResult1 = compBuilder.compare(x, y);
 							SInt compResult2 = compBuilder.compare(y, x);
@@ -111,8 +111,8 @@ public class ComparisonTests {
 							OInt res2 = ioBuilder.output(compResult2);
 							outputs = new OInt[] {res1, res2};
 							
-							seq.append(compBuilder.getCircuit());
-							seq.append(ioBuilder.getCircuit());
+							seq.append(compBuilder.getProtocol());
+							seq.append(ioBuilder.getProtocol());
 							
 							return seq;
 						}
@@ -145,12 +145,12 @@ public class ComparisonTests {
 						
 						@Override
 						public ProtocolProducer prepareApplication(
-								ProtocolFactory provider) {
-							BasicNumericFactory bnFactory = (BasicNumericFactory) provider;
-							LocalInversionFactory localInvFactory = (LocalInversionFactory) provider;
-							PreprocessedNumericBitFactory numericBitFactory = (PreprocessedNumericBitFactory) provider;
-							ExpFromOIntFactory expFromOIntFactory = (ExpFromOIntFactory) provider;
-							PreprocessedExpPipeFactory expFactory = (PreprocessedExpPipeFactory) provider;
+								ProtocolFactory factory) {
+							BasicNumericFactory bnFactory = (BasicNumericFactory) factory;
+							LocalInversionFactory localInvFactory = (LocalInversionFactory) factory;
+							PreprocessedNumericBitFactory numericBitFactory = (PreprocessedNumericBitFactory) factory;
+							ExpFromOIntFactory expFromOIntFactory = (ExpFromOIntFactory) factory;
+							PreprocessedExpPipeFactory expFactory = (PreprocessedExpPipeFactory) factory;
 							SequentialProtocolProducer seq = new SequentialProtocolProducer();
 
 							ComparisonProtocolFactoryImpl compFactory = new ComparisonProtocolFactoryImpl(
@@ -163,7 +163,7 @@ public class ComparisonTests {
 							
 							SInt x = ioBuilder.input(three, 1);
 							SInt y = ioBuilder.input(five, 1);
-							seq.append(ioBuilder.getCircuit());
+							seq.append(ioBuilder.getProtocol());
 							
 							SInt compResult1 = compBuilder.compareEqual(x, x);
 							SInt compResult2 = compBuilder.compareEqual(x, y);
@@ -171,8 +171,8 @@ public class ComparisonTests {
 							OInt res2 = ioBuilder.output(compResult2);
 							outputs = new OInt[] {res1, res2};
 							
-							seq.append(compBuilder.getCircuit());
-							seq.append(ioBuilder.getCircuit());
+							seq.append(compBuilder.getProtocol());
+							seq.append(ioBuilder.getProtocol());
 							
 							return seq;
 						}

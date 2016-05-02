@@ -48,21 +48,21 @@ public class BgwInvertIntProtocol implements Protocol {
 	public BgwSInt input;
 	private BgwSInt prod;
 	private BgwOInt oprod;
-	private BgwFactory gp;
-	private Protocol curCircuit;
+	private BgwFactory factory;
+	private Protocol pp;
 	private int innerRound = -1;
 	
-	public BgwInvertIntProtocol(BgwFactory gp, SInt in, SInt out) {
-		this(gp, (BgwSInt)in, (BgwSInt)out);
+	public BgwInvertIntProtocol(BgwFactory factory, SInt in, SInt out) {
+		this(factory, (BgwSInt)in, (BgwSInt)out);
 	}
 	
 
-	public BgwInvertIntProtocol(BgwFactory gp, BgwSInt in, BgwSInt out) {
-		this.gp = gp;
+	public BgwInvertIntProtocol(BgwFactory factory, BgwSInt in, BgwSInt out) {
+		this.factory = factory;
 		output = out;
 		input = in;
-		oprod = gp.getOInt();
-		prod = gp.getSInt();
+		oprod = factory.getOInt();
+		prod = factory.getSInt();
 //		this.parties = noOfParties;
 //		this.treshold = treshold;
 	}
@@ -87,31 +87,31 @@ public class BgwInvertIntProtocol implements Protocol {
 
 
 	@Override
-	public int getNextProtocols(NativeProtocol[] gates, int pos) {
+	public int getNextProtocols(NativeProtocol[] nativeProtocols, int pos) {
 		if(innerRound == -1){
-			if(curCircuit == null) {
-				curCircuit =gp.getRandomIntGate(output); 
+			if(pp == null) {
+				pp =factory.getRandomIntGate(output); 
 			}
-			if(curCircuit.hasNextProtocols()) pos = curCircuit.getNextProtocols(gates, pos);
-			if(!curCircuit.hasNextProtocols()){
+			if(pp.hasNextProtocols()) pos = pp.getNextProtocols(nativeProtocols, pos);
+			if(!pp.hasNextProtocols()){
 				innerRound++;
-				curCircuit = null;
+				pp = null;
 			}
 			return pos;
 		}else if(innerRound == 0){
-			if(curCircuit == null) curCircuit =gp.getMultCircuit(input, output, prod);
-			if(curCircuit.hasNextProtocols()) pos = curCircuit.getNextProtocols(gates, pos);
-			if(!curCircuit.hasNextProtocols()){
+			if(pp == null) pp =factory.getMultProtocol(input, output, prod);
+			if(pp.hasNextProtocols()) pos = pp.getNextProtocols(nativeProtocols, pos);
+			if(!pp.hasNextProtocols()){
 				innerRound++;
-				curCircuit = null;
+				pp = null;
 			}
 			return pos;
 		}else if(innerRound == 1){
-			if(curCircuit == null) 	curCircuit =gp.getOpenProtocol(prod,oprod); 
-			if(curCircuit.hasNextProtocols()) pos = curCircuit.getNextProtocols(gates, pos);
-			if(!curCircuit.hasNextProtocols()){
+			if(pp == null) 	pp =factory.getOpenProtocol(prod,oprod); 
+			if(pp.hasNextProtocols()) pos = pp.getNextProtocols(nativeProtocols, pos);
+			if(!pp.hasNextProtocols()){
 				innerRound++;
-				curCircuit = null;
+				pp = null;
 			}
 			return pos;
 		}else if(innerRound == 2){

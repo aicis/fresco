@@ -48,9 +48,9 @@ public class RandomAdditiveMaskFactoryImpl implements RandomAdditiveMaskFactory 
 	}
 
 	@Override
-	public RandomAdditiveMaskCircuit getRandomAdditiveMaskCircuit(
+	public RandomAdditiveMaskProtocol getRandomAdditiveMaskProtocol(
 			int bitLength, int securityParameter, SInt r) {
-		return new RandomAdditiveMaskCircuitImpl(bitLength, securityParameter,
+		return new RandomAdditiveMaskProtocolImpl(bitLength, securityParameter,
 				r, bnf, numericBitFactory, misc, innerProductFactory);
 	}
 

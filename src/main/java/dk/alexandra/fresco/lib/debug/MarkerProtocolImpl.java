@@ -42,7 +42,7 @@ public class MarkerProtocolImpl extends AbstractSimpleProtocol implements Marker
 	}
 	
 	@Override
-	protected ProtocolProducer initializeGateProducer() {
+	protected ProtocolProducer initializeProtocolProducer() {
 		System.out.println(message);
 		return null;
 	}

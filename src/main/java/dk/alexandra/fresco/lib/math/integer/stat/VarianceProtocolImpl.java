@@ -61,7 +61,7 @@ public class VarianceProtocolImpl extends AbstractSimpleProtocol implements Vari
 	}
 
 	@Override
-	protected ProtocolProducer initializeGateProducer() {
+	protected ProtocolProducer initializeProtocolProducer() {
 
 		SequentialProtocolProducer gp = new SequentialProtocolProducer();
 
@@ -86,7 +86,7 @@ public class VarianceProtocolImpl extends AbstractSimpleProtocol implements Vari
 		}
 		numericProtocolBuilder.endCurScope();
 
-		gp.append(numericProtocolBuilder.getCircuit());
+		gp.append(numericProtocolBuilder.getProtocol());
 
 		// The sample variance has df = n-1
 		gp.append(meanFactory.getMeanProtocol(terms, 2 * maxInputLength, data.length - 1, variance));

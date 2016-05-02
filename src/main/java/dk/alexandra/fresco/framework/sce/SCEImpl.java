@@ -161,7 +161,7 @@ public class SCEImpl implements SCE {
 			}			
 			this.protocolSuite.init(this.resourcePool, psConf);
 			// TODO: Fix this storage crap - not optimal to have the '0' put
-			// there. Need to make the provider decoupled from the storage.
+			// there. Need to make the factories decoupled from the storage.
 			dk.alexandra.fresco.suite.spdz.storage.SpdzStorage spdzStorage = ((SpdzProtocolSuite) this.protocolSuite)
 					.getStore(0);
 			int maxBitLength = ((SpdzConfiguration) psConf).getMaxBitLength();

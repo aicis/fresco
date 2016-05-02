@@ -32,9 +32,9 @@ import dk.alexandra.fresco.lib.compare.ComparisonProtocolFactory;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 
 /**
- * This circuit provides comparison stuff. It should really be merged into the
- * numeric circuit builder but at present this would require having an
- * LPProvider in the numeric circuit builder, which I thought would be a little
+ * This protocol provides comparison stuff. It should really be merged into the
+ * numeric protocol builder but at present this would require having an
+ * LPFactory in the numeric protocol builder, which I thought would be a little
  * ugly.
  * 
  * @author psn
@@ -42,26 +42,26 @@ import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
  */
 public class ComparisonProtocolBuilder extends AbstractProtocolBuilder {
 
-	private final ComparisonProtocolFactory comProvider;
+	private final ComparisonProtocolFactory comFactory;
 	private final BasicNumericFactory bnf;
 
-	protected ComparisonProtocolFactory getComProvider() {
-		return comProvider;
+	protected ComparisonProtocolFactory getComFactory() {
+		return comFactory;
 	}
 
 	protected BasicNumericFactory getBnf() {
 		return bnf;
 	}
 
-	public ComparisonProtocolBuilder(ComparisonProtocolFactory comProvider,
+	public ComparisonProtocolBuilder(ComparisonProtocolFactory comFactory,
 			BasicNumericFactory bnf) {
-		this.comProvider = comProvider;
+		this.comFactory = comFactory;
 		this.bnf = bnf;
 	}
 
 	@Override
-	public void addGateProducer(ProtocolProducer gp) {
-		append(gp);
+	public void addProtocolProducer(ProtocolProducer pp) {
+		append(pp);
 	}
 
 	/**
@@ -73,9 +73,9 @@ public class ComparisonProtocolBuilder extends AbstractProtocolBuilder {
 	 */
 	public SInt compare(SInt left, SInt right) {
 		SInt result = bnf.getSInt();
-		ProtocolProducer gp = comProvider.getGreaterThanProtocol(left, right,
+		ProtocolProducer pp = comFactory.getGreaterThanProtocol(left, right,
 				result, false);
-		append(gp);
+		append(pp);
 		return result;
 	}
 
@@ -90,9 +90,9 @@ public class ComparisonProtocolBuilder extends AbstractProtocolBuilder {
 	 */
 	public SInt longCompare(SInt left, SInt right) {
 		SInt result = bnf.getSInt();
-		ProtocolProducer gp = comProvider.getGreaterThanProtocol(left, right,
+		ProtocolProducer pp = comFactory.getGreaterThanProtocol(left, right,
 				result, true);
-		append(gp);
+		append(pp);
 		return result;
 	}
 
@@ -104,9 +104,9 @@ public class ComparisonProtocolBuilder extends AbstractProtocolBuilder {
 	 */
 	public SInt compareEqual(SInt x, SInt y) {
 		SInt result = bnf.getSInt();
-		ProtocolProducer gp = comProvider.getEqualityProtocol(
+		ProtocolProducer pp = comFactory.getEqualityProtocol(
 				bnf.getMaxBitLength(), x, y, result);
-		append(gp);
+		append(pp);
 		return result;
 	}
 }

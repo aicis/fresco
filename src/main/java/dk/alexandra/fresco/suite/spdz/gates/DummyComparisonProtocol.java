@@ -49,37 +49,37 @@ import dk.alexandra.fresco.suite.spdz.utils.Util;
 public class DummyComparisonProtocol implements ComparisonProtocol {
 
 	private final SpdzSInt a, b, result;
-	private final BasicNumericFactory provider;
-	private ProtocolProducer currGP;
+	private final BasicNumericFactory factory;
+	private ProtocolProducer currPP;
 	private boolean done = false;
 
 	public DummyComparisonProtocol(SInt a, SInt b, SInt result,
-			BasicNumericFactory provider) {
+			BasicNumericFactory factory) {
 		this.a = (SpdzSInt) a;
 		this.b = (SpdzSInt) b;
 		this.result = (SpdzSInt) result;
-		this.provider = provider;
+		this.factory = factory;
 	}
 
 	@Override
-	public int getNextProtocols(NativeProtocol[] gates, int pos) {
-		if (currGP == null) {
-			OInt a_open = provider.getOInt();
-			OInt b_open = provider.getOInt();
-			OpenIntProtocol openA = provider.getOpenProtocol(a, a_open);
-			OpenIntProtocol openB = provider.getOpenProtocol(b, b_open);
+	public int getNextProtocols(NativeProtocol[] nativeProtocols, int pos) {
+		if (currPP == null) {
+			OInt a_open = factory.getOInt();
+			OInt b_open = factory.getOInt();
+			OpenIntProtocol openA = factory.getOpenProtocol(a, a_open);
+			OpenIntProtocol openB = factory.getOpenProtocol(b, b_open);
 			SpdzOInt a_open_ = (SpdzOInt) a_open;
 			SpdzOInt b_open_ = (SpdzOInt) b_open;
 
 			DummyInternalChooseGate chooseGate = new DummyInternalChooseGate(
 					a_open_, b_open_, result);
 			ParallelProtocolProducer parrGP = new ParallelProtocolProducer(openA, openB);
-			currGP = new SequentialProtocolProducer(parrGP, chooseGate);
+			currPP = new SequentialProtocolProducer(parrGP, chooseGate);
 		}
-		if (currGP.hasNextProtocols()) {
-			pos = currGP.getNextProtocols(gates, pos);
-		} else if (!currGP.hasNextProtocols()) {
-			currGP = null;
+		if (currPP.hasNextProtocols()) {
+			pos = currPP.getNextProtocols(nativeProtocols, pos);
+		} else if (!currPP.hasNextProtocols()) {
+			currPP = null;
 			done = true;
 		}
 		return pos;

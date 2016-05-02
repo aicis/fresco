@@ -41,7 +41,7 @@ public interface EntrywiseProductFactory {
 	 *            output - result of as \cdot bs
 	 * @return
 	 */
-	public EntrywiseProductProtocol getDotProductCircuit(SInt[] as, SInt[] bs, SInt[] results);
+	public EntrywiseProductProtocol getEntrywiseProductProtocol(SInt[] as, SInt[] bs, SInt[] results);
 
 	/**
 	 * 
@@ -53,5 +53,5 @@ public interface EntrywiseProductFactory {
 	 *            output - result of as \cdot bs
 	 * @return
 	 */
-	public EntrywiseProductProtocol getDotProductCircuit(SInt[] as, OInt[] bs, SInt[] results);
+	public EntrywiseProductProtocol getEntrywiseProductProtocol(SInt[] as, OInt[] bs, SInt[] results);
 }

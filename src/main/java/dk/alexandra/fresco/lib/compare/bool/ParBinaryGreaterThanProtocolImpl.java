@@ -30,14 +30,14 @@ import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.SBool;
 import dk.alexandra.fresco.lib.helper.AbstractRoundBasedProtocol;
 import dk.alexandra.fresco.lib.helper.builder.BasicLogicBuilder;
-import dk.alexandra.fresco.lib.helper.builder.tree.TreeCircuit;
-import dk.alexandra.fresco.lib.helper.builder.tree.TreeCircuitNodeGenerator;
+import dk.alexandra.fresco.lib.helper.builder.tree.TreeProtocol;
+import dk.alexandra.fresco.lib.helper.builder.tree.TreeProtocolNodeGenerator;
 import dk.alexandra.fresco.lib.logic.AbstractBinaryFactory;
 
 /**
- * An experimental version of the BinaryComparisonCircuit. This attemps to get
+ * An experimental version of the BinaryComparisonprotocol. This attemps to get
  * better round complexity by doing as much work in parallel as possible. This
- * includes using a log depth tree structure to compute the last part of the circuit. 
+ * includes using a log depth tree structure to compute the last part of the protocol. 
  * 
  * Curiously however, this uses more time and memory than our alternatives. 
  * 
@@ -45,7 +45,7 @@ import dk.alexandra.fresco.lib.logic.AbstractBinaryFactory;
  * 
  */
 public class ParBinaryGreaterThanProtocolImpl extends AbstractRoundBasedProtocol
-		implements BinaryGreaterThanProtocol, TreeCircuitNodeGenerator {
+		implements BinaryGreaterThanProtocol, TreeProtocolNodeGenerator {
 
 	private SBool[] inA;
 	private SBool[] inB;
@@ -55,10 +55,10 @@ public class ParBinaryGreaterThanProtocolImpl extends AbstractRoundBasedProtocol
 	private int round = 0;
 	private int length;
 
-	private AbstractBinaryFactory provider;
+	private AbstractBinaryFactory factory;
 
 	/**
-	 * Construct a circuit to compare strings A and B. The bitstrings A and B
+	 * Construct a protocol to compare strings A and B. The bitstrings A and B
 	 * are assumed to be even length and to be ordered from most- to least
 	 * significant bit.
 	 * 
@@ -68,13 +68,13 @@ public class ParBinaryGreaterThanProtocolImpl extends AbstractRoundBasedProtocol
 	 *            input string B
 	 * @param outC
 	 *            a bit to hold the output C := A > B.
-	 * @param provider
-	 *            a circuit provider
+	 * @param factory
+	 *            a protocol factory
 	 */
 	public ParBinaryGreaterThanProtocolImpl(SBool[] inA, SBool[] inB, SBool outC,
-			AbstractBinaryFactory provider) {
+			AbstractBinaryFactory factory) {
 		if (inA.length == inB.length) {
-			this.provider = provider;
+			this.factory = factory;
 			this.outC = outC;
 			this.inA = inA;
 			this.inB = inB;
@@ -85,8 +85,8 @@ public class ParBinaryGreaterThanProtocolImpl extends AbstractRoundBasedProtocol
 	}
 
 	@Override
-	public ProtocolProducer nextGateProducer() {
-		BasicLogicBuilder blb = new BasicLogicBuilder(provider);
+	public ProtocolProducer nextProtocolProducer() {
+		BasicLogicBuilder blb = new BasicLogicBuilder(factory);
 		if (round == 0) {
 			eq = blb.xor(inA, inB);
 			round++;
@@ -99,23 +99,23 @@ public class ParBinaryGreaterThanProtocolImpl extends AbstractRoundBasedProtocol
 			round++;
 		} else if (round == 3) {
 			gt[0] = outC;
-			blb.addGateProducer(new TreeCircuit(this));
+			blb.addProtocolProducer(new TreeProtocol(this));
 			round++;
 		} else {
 			return null;
 		}
-		return blb.getCircuit();
+		return blb.getProtocol();
 	}
 
 	@Override
 	public ProtocolProducer getNode(int i, int j) {
-		BasicLogicBuilder builder = new BasicLogicBuilder(provider);
+		BasicLogicBuilder builder = new BasicLogicBuilder(factory);
 		builder.beginSeqScope();
 		builder.andInPlace(gt[j], gt[j], eq[i]);
 		builder.orInPlace(gt[i], gt[i], gt[j]);
 		builder.andInPlace(eq[i], eq[i], eq[j]);
 		builder.endCurScope();
-		return builder.getCircuit();
+		return builder.getProtocol();
 	}
 	
 	@Override

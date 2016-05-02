@@ -30,10 +30,10 @@ import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.value.Value;
 
 /**
- * With this provider one can copy (aka clone) a gate.
+ * With this factory one can copy (aka clone) a value.
  */
 public interface CopyProtocolFactory<T extends Value> extends ProtocolFactory {
 	
-	public CopyProtocol<T> getCopyCircuit(T in, T out);
+	public CopyProtocol<T> getCopyProtocol(T in, T out);
 	
 }

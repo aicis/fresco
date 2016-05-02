@@ -37,7 +37,7 @@ import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.field.integer.CloseIntProtocol;
 import dk.alexandra.fresco.lib.field.integer.MultProtocol;
 import dk.alexandra.fresco.lib.field.integer.OpenIntProtocol;
-import dk.alexandra.fresco.lib.field.integer.SubtractCircuit;
+import dk.alexandra.fresco.lib.field.integer.SubtractProtocol;
 import dk.alexandra.fresco.lib.math.integer.PreprocessedNumericBitFactory;
 import dk.alexandra.fresco.lib.math.integer.exp.ExpFromOIntFactory;
 import dk.alexandra.fresco.lib.math.integer.exp.PreprocessedExpPipeFactory;
@@ -71,10 +71,10 @@ public class SpdzFactory implements BasicNumericFactory, PreprocessedNumericBitF
 	 * @param maxBitLength
 	 *            The maximum length in bits that the numbers in the
 	 *            application will have. If you have greater knowledge of your
-	 *            application, you can create several providers, each with a
+	 *            application, you can create several factorys, each with a
 	 *            different maxBitLength to increase performance.
 	 */
-	//TODO: Make SpdzProvider decoupled from the storage.
+	//TODO: Make Spdzfactory decoupled from the storage.
 	public SpdzFactory(SpdzStorage storage, int pID, int maxBitLength) {
 		this.maxBitLength = maxBitLength;
 		rand = new SecureRandom();
@@ -178,22 +178,22 @@ public class SpdzFactory implements BasicNumericFactory, PreprocessedNumericBitF
 	}
 
 	@Override
-	public SubtractCircuit getSubtractCircuit(SInt a, SInt b, SInt out) {
+	public SubtractProtocol getSubtractProtocol(SInt a, SInt b, SInt out) {
 		return new SpdzSubtractProtocol(a, b, out, this);
 	}
 
 	@Override
-	public SubtractCircuit getSubtractCircuit(OInt a, SInt b, SInt out) {
+	public SubtractProtocol getSubtractProtocol(OInt a, SInt b, SInt out) {
 		return new SpdzSubtractProtocol(a, b, out, this);
 	}
 
 	@Override
-	public MultProtocol getMultCircuit(SInt a, SInt b, SInt out) {
+	public MultProtocol getMultProtocol(SInt a, SInt b, SInt out) {
 		return new SpdzMultProtocol(a, b, out);
 	}
 
 	@Override
-	public MultProtocol getMultCircuit(OInt a, SInt b, SInt out) {
+	public MultProtocol getMultProtocol(OInt a, SInt b, SInt out) {
 		return new SpdzMultProtocol(a, b, out);
 	}
 
@@ -203,11 +203,11 @@ public class SpdzFactory implements BasicNumericFactory, PreprocessedNumericBitF
 	}
 
 	/****************************************
-	 * Native gates or circuits to Spdz *
+	 * Native protocols to Spdz *
 	 ****************************************/
 
 	@Override
-	public LocalInversionProtocol getLocalInversionCircuit(OInt in, OInt out) {
+	public LocalInversionProtocol getLocalInversionProtocol(OInt in, OInt out) {
 		return new SpdzLocalInversionProtocol(in, out);
 	}
 
@@ -241,7 +241,7 @@ public class SpdzFactory implements BasicNumericFactory, PreprocessedNumericBitF
 	}
 
 	/****************************************
-	 * IO Provider Stuff *
+	 * IO factory Stuff *
 	 ****************************************/
 
 	public CloseIntProtocol getCloseProtocol(BigInteger open,

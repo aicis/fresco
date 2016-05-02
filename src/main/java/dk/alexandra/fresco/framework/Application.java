@@ -31,12 +31,12 @@ import java.io.Serializable;
 public interface Application extends Serializable{
 
 	/**
-	 * Takes a provider which is assumed to implement all needed interfaces for
+	 * Take a factory which is assumed to implement all needed interfaces for
 	 * the application to run. If this is not the case, a runtime exception
 	 * should be cast. It returns the resulting protocolProducer.
 	 * 
-	 * @param provider
+	 * @param factory
 	 * @return
 	 */
-	ProtocolProducer prepareApplication(ProtocolFactory provider);
+	ProtocolProducer prepareApplication(ProtocolFactory factory);
 }

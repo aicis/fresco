@@ -191,7 +191,7 @@ public class BristolCryptoFactory implements ProtocolFactory {
 	 * @return A protocol that computes one AES encryption.
 	 * 
 	 */
-	public BristolCircuit getAesCircuit(SBool[] plaintext, SBool[] key, SBool[] ciphertext) {
+	public BristolCircuit getAesProtocol(SBool[] plaintext, SBool[] key, SBool[] ciphertext) {
 		if (null == key || key.length != 128)
 			throw new IllegalArgumentException("Key must be array of 128 SBools");
 		if (null == plaintext || plaintext.length != 128)

@@ -116,10 +116,10 @@ public class MinInfFracProtocol extends AbstractRoundBasedProtocol implements Mi
 	}
 
 	/* (non-Javadoc)
-	 * @see dk.alexandra.fresco.lib.helper.AbstractRoundBasedProtocol#nextGateProducer()
+	 * @see dk.alexandra.fresco.lib.helper.AbstractRoundBasedProtocol#nextProtocolProducer()
 	 */
 	@Override
-	public ProtocolProducer nextGateProducer() {
+	public ProtocolProducer nextProtocolProducer() {
 		NumericProtocolBuilder npb = new NumericProtocolBuilder(nFac);
 		if (state == State.FIND_MIN) {
 			if (layer == 0) {
@@ -129,7 +129,7 @@ public class MinInfFracProtocol extends AbstractRoundBasedProtocol implements Mi
 					npb.copy(fm.d, fs[0].d);
 					npb.copy(fm.inf, fs[0].inf);
 					npb.copy(cs[0], one);
-					return npb.getCircuit();
+					return npb.getProtocol();
 				}
 			} else if (fs.length == 1) {
 				return null;
@@ -142,7 +142,7 @@ public class MinInfFracProtocol extends AbstractRoundBasedProtocol implements Mi
 			tmpCs = npb.getSIntArray(fs.length / 2);
 			npb.beginParScope();
 			for (int i = 0; i < tmpCs.length; i++) {
-				npb.addGateProducer(minFraction(fs[i * 2], fs[i * 2 + 1], tmpCs[i], tmpFs[i]));
+				npb.addProtocolProducer(minFraction(fs[i * 2], fs[i * 2 + 1], tmpCs[i], tmpFs[i]));
 			}
 			npb.endCurScope();
 			if (fs.length % 2 == 1) {
@@ -194,7 +194,7 @@ public class MinInfFracProtocol extends AbstractRoundBasedProtocol implements Mi
 			layer++;
 			state = State.FIND_MIN;
 		}
-		return npb.getCircuit();
+		return npb.getProtocol();
 	}
 
 	private ProtocolProducer minFraction(Frac f0, Frac f1, SInt c, Frac r) {
@@ -206,7 +206,7 @@ public class MinInfFracProtocol extends AbstractRoundBasedProtocol implements Mi
 		npb.beginSeqScope();
 		SInt tmpC = npb.getSInt();
 		ComparisonProtocol comp = cFac.getGreaterThanProtocol(p1, p2, tmpC, true);
-		npb.addGateProducer(comp);
+		npb.addProtocolProducer(comp);
 		SInt notInf0 = npb.sub(one, f0.inf);
 		tmpC = npb.mult(notInf0, tmpC);
 		tmpC = npb.conditionalSelect(f1.inf, f1.inf, tmpC);
@@ -222,7 +222,7 @@ public class MinInfFracProtocol extends AbstractRoundBasedProtocol implements Mi
 		npb.copy(r.inf, rinf);
 		npb.endCurScope();
 		npb.endCurScope();
-		return npb.getCircuit();
+		return npb.getProtocol();
 	}
 
 	/**
