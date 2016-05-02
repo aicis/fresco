@@ -142,9 +142,6 @@ public class RightShiftProtocolImpl implements RightShiftProtocol {
 
 				// r = 2 * rTop + rBottom
 				SInt r = rExpansion[rExpansion.length - 1];
-				SInt tmp = basicNumericFactory.getSInt();
-				Protocol twoTimesRTop = basicNumericFactory.getMultCircuit(basicNumericFactory.getOInt(BigInteger.valueOf(2)), rTop, tmp);
-				Protocol addRBottom = basicNumericFactory.getAddProtocol(tmp, rBottom, r);
 				
 				// mOpen = open(x + r)
 				SInt mClosed = basicNumericFactory.getSInt();
@@ -152,7 +149,7 @@ public class RightShiftProtocolImpl implements RightShiftProtocol {
 				Protocol addR = basicNumericFactory.getAddProtocol(input, r, mClosed);
 				OpenIntProtocol openAddMask = basicNumericFactory.getOpenProtocol(mClosed, mOpen);
 				
-				gp = new SequentialProtocolProducer(findRTop, twoTimesRTop, addRBottom, addR, openAddMask);
+				gp = new SequentialProtocolProducer(findRTop, addR, openAddMask);
 				break;
 
 			case 2:
