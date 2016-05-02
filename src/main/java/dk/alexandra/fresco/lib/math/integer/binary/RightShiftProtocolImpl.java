@@ -127,6 +127,8 @@ public class RightShiftProtocolImpl implements RightShiftProtocol {
 
 			case 1:
 
+				SInt r = rExpansion[rExpansion.length - 1];
+				
 				// rBottom is the least significant bit of r
 				rBottom = rExpansion[0];
 				
@@ -139,9 +141,6 @@ public class RightShiftProtocolImpl implements RightShiftProtocol {
 				SInt[] rTopBits = new SInt[l];
 				System.arraycopy(rExpansion, 1, rTopBits, 0, l);
 				Protocol findRTop = innerProductFactory.getInnerProductCircuit(rTopBits, twoPowers, rTop);
-
-				// r = 2 * rTop + rBottom
-				SInt r = rExpansion[rExpansion.length - 1];
 				
 				// mOpen = open(x + r)
 				SInt mClosed = basicNumericFactory.getSInt();
