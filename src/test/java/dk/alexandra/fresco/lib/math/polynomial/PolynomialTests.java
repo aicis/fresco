@@ -58,6 +58,7 @@ public class PolynomialTests {
 							PolynomialFactory polynomialFactory = new PolynomialFactoryImpl();
 							Polynomial p = polynomialFactory.createPolynomial(ioBuilder.inputArray(
 									coefficients, 1));
+							
 							SInt input = ioBuilder.input(x, 2);
 							SequentialProtocolProducer sequentialProtocolProducer = new SequentialProtocolProducer();
 							sequentialProtocolProducer.append(ioBuilder.getCircuit());

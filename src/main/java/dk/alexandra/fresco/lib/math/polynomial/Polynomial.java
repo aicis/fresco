@@ -19,8 +19,8 @@ public interface Polynomial {
 	public void setMaxDegree(int maxDegree);
 
 	/**
-	 * Get the <code>n</code>'th coefficient of this polynomial where n = 0
-	 * corresponds to the constant term.
+	 * Get the coefficient of the term of degree <code>n</code> of this
+	 * polynomial.
 	 * 
 	 * @param n
 	 * @return
@@ -28,8 +28,8 @@ public interface Polynomial {
 	public SInt getCoefficient(int n);
 
 	/**
-	 * Set the <code>n</code>'th coefficient of this polynomial where n = 0
-	 * corresponds to the constant term.
+	 * Set the coefficient for the term of degree <code>n</code> of this
+	 * polynomial.
 	 * 
 	 * @param n
 	 * @param coefficient

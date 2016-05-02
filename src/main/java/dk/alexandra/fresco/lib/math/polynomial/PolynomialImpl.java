@@ -9,8 +9,8 @@ public class PolynomialImpl implements Polynomial {
 	private SInt[] coefficients;
 
 	/**
-	 * Create a new Polynomial with <code>maxDegree</code> coefficients, which
-	 * all initially are <code>null</code>.
+	 * Create a new Polynomial with <code>maxDegree</code> coefficients, all
+	 * which are initialized as <code>null</code>.
 	 * 
 	 * @param maxDegree
 	 */
@@ -22,6 +22,9 @@ public class PolynomialImpl implements Polynomial {
 	 * Create a new polynomial with the given coefficients.
 	 * 
 	 * @param coefficients
+	 *            The coefficients of the polynomial,
+	 *            <code>coefficients[n]</code> being the coefficient for the
+	 *            term of degree <code>n</code>.
 	 */
 	public PolynomialImpl(SInt[] coefficients) {
 		this.coefficients = coefficients;

@@ -5,8 +5,8 @@ import dk.alexandra.fresco.framework.value.SInt;
 public class PolynomialFactoryImpl implements PolynomialFactory {
 
 	@Override
-	public Polynomial createPolynomial(int degree) {
-		return new PolynomialImpl(degree);
+	public Polynomial createPolynomial(int maxDegree) {
+		return new PolynomialImpl(maxDegree);
 	}
 
 	@Override
