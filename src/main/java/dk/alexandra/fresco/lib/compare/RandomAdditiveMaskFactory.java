@@ -29,7 +29,20 @@ package dk.alexandra.fresco.lib.compare;
 import dk.alexandra.fresco.framework.value.SInt;
 
 public interface RandomAdditiveMaskFactory {
-	
-	public RandomAdditiveMaskCircuit getRandomAdditiveMaskCircuit(int securityParameter, SInt[] bits, SInt r);
+
+	/**
+	 * Return a protocol which creates a secret shared <code>r</code> which is
+	 * picked uniformly randomly in Z<sub>2<sup>
+	 * <code>bits.length+securityParameter</code></sup></sub> and returns the
+	 * <code>bits.length</code> first bits of <code>r</code>, eg. the bits of
+	 * <code>r</code> (mod 2<sup> <code>bits.length</code></sup>).
+	 * 
+	 * @param securityParameter
+	 * @param bits
+	 * @param r
+	 * @return
+	 */
+	public RandomAdditiveMaskCircuit getRandomAdditiveMaskCircuit(int securityParameter,
+			SInt[] bits, SInt r);
 
 }
