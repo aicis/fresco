@@ -29,6 +29,7 @@ package dk.alexandra.fresco.lib.helper.builder;
 import java.math.BigInteger;
 
 import dk.alexandra.fresco.framework.ProtocolProducer;
+import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.helper.AbstractRepeatProtocol;
@@ -348,6 +349,21 @@ public class NumericProtocolBuilder extends AbstractProtocolBuilder {
 		return out;
 	}
 
+	/**
+	 * Multiplies an OInt and an SInt
+	 * 
+	 * @param left
+	 *            the lefthand input
+	 * @param right
+	 *            the righthand input
+	 * @return an SInt representing the result of the multiplication
+	 */
+	public SInt mult(OInt left, SInt right) {
+		SInt out = bnp.getSInt();
+		append(bnp.getMultCircuit(left, right, out));
+		return out;
+	}
+	
 	/**
 	 * Scales the right side array of SInts.
 	 * 
