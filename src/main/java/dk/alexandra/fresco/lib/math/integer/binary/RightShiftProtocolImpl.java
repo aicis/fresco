@@ -34,13 +34,14 @@ import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.framework.value.Value;
-import dk.alexandra.fresco.lib.compare.MiscOIntGenerators;
+import dk.alexandra.fresco.lib.compare.RandomAdditiveMaskCircuit;
 import dk.alexandra.fresco.lib.compare.RandomAdditiveMaskFactory;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.field.integer.OpenIntProtocol;
 import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
+import dk.alexandra.fresco.lib.helper.builder.NumericProtocolBuilder;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
-import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductFactory;
+import dk.alexandra.fresco.lib.math.integer.inv.LocalInversionFactory;
 
 public class RightShiftProtocolImpl implements RightShiftProtocol {
 	
@@ -49,12 +50,12 @@ public class RightShiftProtocolImpl implements RightShiftProtocol {
 	private SInt result;
 	private SInt remainder;
 	private int bitLength;
+	private int securityParameter;
 	
 	// Factories
 	private final BasicNumericFactory basicNumericFactory;
 	private final RandomAdditiveMaskFactory randomAdditiveMaskFactory;
-	private final MiscOIntGenerators miscOIntGenerator;
-	private final InnerProductFactory innerProductFactory;
+	private final LocalInversionFactory localInversionFactory;
 
 	// Variables used for calculation
 	private int round = 0;
@@ -69,25 +70,23 @@ public class RightShiftProtocolImpl implements RightShiftProtocol {
 	 * @param input The input.
 	 * @param result The input shifted one bit to the right, input >> 1.
 	 * @param bitLength An upper bound for the bitLength of the input.
+	 * @param securityParameter The security parameter used in {@link RandomAdditiveMaskCircuit}. Leakage of a bit with propability at most 2<sup>-<code>securityParameter</code></sup>.
 	 * @param basicNumericFactory
 	 * @param randomAdditiveMaskFactory
-	 * @param miscOIntGenerators
-	 * @param innerProductFactory
+	 * @param localInversionFactory
 	 */
-	public RightShiftProtocolImpl(SInt input, SInt result, int bitLength, BasicNumericFactory basicNumericFactory,
-			RandomAdditiveMaskFactory randomAdditiveMaskFactory, 
-			MiscOIntGenerators miscOIntGenerators, 
-			InnerProductFactory innerProductFactory) {
+	public RightShiftProtocolImpl(SInt input, SInt result, int bitLength, int securityParameter, BasicNumericFactory basicNumericFactory,
+			RandomAdditiveMaskFactory randomAdditiveMaskFactory, LocalInversionFactory localInversionFactory) {
 		
 		this.input = input;
 		this.result = result;
 		this.remainder = null;
 		this.bitLength = bitLength;
+		this.securityParameter = securityParameter;
 		
 		this.basicNumericFactory = basicNumericFactory;
 		this.randomAdditiveMaskFactory = randomAdditiveMaskFactory;
-		this.miscOIntGenerator = miscOIntGenerators;
-		this.innerProductFactory = innerProductFactory;
+		this.localInversionFactory = localInversionFactory;
 	}
 
 	/**
@@ -96,18 +95,16 @@ public class RightShiftProtocolImpl implements RightShiftProtocol {
 	 * @param result The input shifted one bit to the right, input >> 1.
 	 * @param remainder The least significant bit of the input (aka the bit that is thrown away in the shift).
 	 * @param bitLength An upper bound for the bitLength of the input.
+ 	 * @param securityParameter The security parameter used in {@link RandomAdditiveMaskCircuit}. Leakage of a bit with propability at most 2<sup>-<code>securityParameter</code></sup>.
 	 * @param basicNumericFactory
 	 * @param randomAdditiveMaskFactory
-	 * @param miscOIntGenerators
-	 * @param innerProductFactory
+	 * @param localInversionFactory
 	 */
 	public RightShiftProtocolImpl(SInt input, SInt result, SInt remainder, 
-			int bitLength, BasicNumericFactory basicNumericFactory,
-			RandomAdditiveMaskFactory randomAdditiveMaskFactory, 
-			MiscOIntGenerators miscOIntGenerators, 
-			InnerProductFactory innerProductFactory) {
+			int bitLength, int securityParameter, BasicNumericFactory basicNumericFactory,
+			RandomAdditiveMaskFactory randomAdditiveMaskFactory, LocalInversionFactory localInversionFactory) {
 
-		this(input, result, bitLength, basicNumericFactory, randomAdditiveMaskFactory, miscOIntGenerators, innerProductFactory);
+		this(input, result, bitLength, securityParameter, basicNumericFactory, randomAdditiveMaskFactory, localInversionFactory);
 		this.remainder = remainder;
 	}
 	
@@ -123,7 +120,7 @@ public class RightShiftProtocolImpl implements RightShiftProtocol {
 				for (int i = 0; i < rExpansion.length; i++) {
 					rExpansion[i] = basicNumericFactory.getSInt();
 				}
-				Protocol additiveMaskProtocol = randomAdditiveMaskFactory.getRandomAdditiveMaskCircuit(0, rExpansion, r); // TODO: It seems the r we get here is wrong, so we need to calculate it in next round 
+				Protocol additiveMaskProtocol = randomAdditiveMaskFactory.getRandomAdditiveMaskCircuit(securityParameter, rExpansion, r);
 				gp = additiveMaskProtocol;
 				break;
 
@@ -132,15 +129,11 @@ public class RightShiftProtocolImpl implements RightShiftProtocol {
 				// rBottom is the least significant bit of r
 				rBottom = rExpansion[0];
 				
-				// Calculate 1, 2, 2^2, ..., 2^{l - 1}
-				int l = rExpansion.length - 1;
-				OInt[] twoPowers = miscOIntGenerator.getTwoPowers(l);
-				
-				// Calculate rTop = (r - rBottom) >> 1 = (r_1, r_2, ..., r_l) . (1, 2, 4, ..., 2^{l-1})
-				rTop = basicNumericFactory.getSInt();
-				SInt[] rTopBits = new SInt[l];
-				System.arraycopy(rExpansion, 1, rTopBits, 0, l);
-				Protocol findRTop = innerProductFactory.getInnerProductCircuit(rTopBits, twoPowers, rTop);
+				/* Calculate rTop = (r - rBottom) * 2^{-1}. Note that r - rBottom must be even and the division in the field are equivalent of a division in the integers. */
+				NumericProtocolBuilder builder = new NumericProtocolBuilder(basicNumericFactory);
+				OInt inverseOfTwo = basicNumericFactory.getOInt();
+				builder.addGateProducer(localInversionFactory.getLocalInversionCircuit(basicNumericFactory.getOInt(BigInteger.valueOf(2)), inverseOfTwo));
+				rTop = builder.mult(inverseOfTwo, builder.sub(r, rBottom));
 				
 				// mOpen = open(x + r)
 				SInt mClosed = basicNumericFactory.getSInt();
@@ -148,15 +141,17 @@ public class RightShiftProtocolImpl implements RightShiftProtocol {
 				Protocol addR = basicNumericFactory.getAddProtocol(input, r, mClosed);
 				OpenIntProtocol openAddMask = basicNumericFactory.getOpenProtocol(mClosed, mOpen);
 				
-				gp = new SequentialProtocolProducer(findRTop, addR, openAddMask);
+				gp = new SequentialProtocolProducer(builder.getCircuit(), addR, openAddMask);
 				break;
 
 			case 2:
-				// 'carry' is either 0 or 1. It is 1 if and only if the addition
-				// m = x + r gave a carry from the first (least significant) bit
-				// to the second, ie. if the first bit of both x and r is 1.
-				// This happens if and only if the first bit of r is 1 and the
-				// first bit of m is 0 which in turn is equal to r_0 * (m + 1 (mod 2)).
+				/* 
+				 * 'carry' is either 0 or 1. It is 1 if and only if the addition
+				 * m = x + r gave a carry from the first (least significant) bit
+				 * to the second, ie. if the first bit of both x and r is 1.
+				 * This happens if and only if the first bit of r is 1 and the
+				 * first bit of m is 0 which in turn is equal to r_0 * (m + 1 (mod 2)).
+				 */
 				SInt carry = basicNumericFactory.getSInt();
 				OInt mBottomNegated = basicNumericFactory
 						.getOInt(mOpen.getValue().add(BigInteger.ONE).mod(BigInteger.valueOf(2)));
@@ -178,8 +173,9 @@ public class RightShiftProtocolImpl implements RightShiftProtocol {
 				findShiftAndRemainder.append(calculateShift);
 				
 				if (remainder != null) {
-					// We also need to calculate the remainder, aka. the bit we throw away in the shift: 
-					// x (mod 2) = xor(r_0, m mod 2) = r_0 + (m mod 2) - 2 (r_0 * (m mod 2))  
+					/* We also need to calculate the remainder, aka. the bit we throw away in the shift: 
+					 * x (mod 2) = xor(r_0, m mod 2) = r_0 + (m mod 2) - 2 (r_0 * (m mod 2)).
+					 */
 					OInt mBottom = basicNumericFactory.getOInt(mOpen.getValue().mod(BigInteger.valueOf(2)));
 					OInt twoMBottom = basicNumericFactory.getOInt(mBottom.getValue().shiftLeft(1)); 
 					SInt product = basicNumericFactory.getSInt();

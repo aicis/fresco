@@ -55,16 +55,22 @@ public class RandomAdditiveMaskCircuitImpl extends AbstractSimpleProtocol implem
 	private BasicNumericFactory basicNumericFactory;
 
 	/**
-	 * Circuit taking no input and generating uniformly random r in Z_{2^{l+k}}
-	 * along with the bits of r mod 2^l
+	 * Protocol taking no input and generating uniformly random r in
+	 * Z<sub>2<sup>l+k</sup></sub> along with the bits of r (mod 2<sup>l</sup>)
 	 * 
 	 * @param bitLength
-	 *            -- the desired number of least significant bits, l
+	 *            The desired number of least significant bits, l
 	 * @param securityParameter
-	 *            -- the desired security parameter, k, (leakage with
-	 *            probability 2^{-k}
+	 *            The security parameter k. Assuming that we are about to open
+	 *            m+r where m is a secret shared value and r is the value
+	 *            calculated by this protocol, there is a chance of leakage if
+	 *            the top bit of both r and m are 1 since this will give a
+	 *            carry. To avoid this we make r longer than the max bit length
+	 *            of m, and each bit we make it longer decreases the risk of
+	 *            leakage (k extra bits give a risk of leakage at most
+	 *            2<sup>-k</sup>).
 	 * @param bits
-	 *            the first l bits of r
+	 *            The first l bits of r
 	 * @param r
 	 * 
 	 */
