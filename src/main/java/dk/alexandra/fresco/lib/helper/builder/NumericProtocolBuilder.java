@@ -175,6 +175,21 @@ public class NumericProtocolBuilder extends AbstractProtocolBuilder {
 	}
 
 	/**
+	 * Adds an SInt and an OInt
+	 * 
+	 * @param left
+	 *            the lefthand input
+	 * @param right
+	 *            the righthand input
+	 * @return an SInt representing the result of the addition
+	 */
+	public SInt add(SInt left, OInt right) {
+		SInt out = bnp.getSInt();
+		append(bnp.getAddProtocol(left, right, out));
+		return out;
+	}
+	
+	/**
 	 * Adds the lefthand array of SInts element-wise to the righthand array.
 	 * Note this means the righthand array must be at least as long as the
 	 * lefthand array.
@@ -427,6 +442,21 @@ public class NumericProtocolBuilder extends AbstractProtocolBuilder {
 	}
 
 	/**
+	 * Subtracts the righthand SInt from the lefthand OInt.
+	 * 
+	 * @param left
+	 *            the lefthand input
+	 * @param right
+	 *            the righthand input
+	 * @return an SInt representing the result of the subtraction.
+	 */
+	public SInt sub(OInt left, SInt right) {
+		SInt out = bnp.getSInt();
+		append(bnp.getSubtractCircuit(left, right, out));
+		return out;
+	}
+	
+	/**
 	 * Subtracts the righthand array of SInts element-wise from the lefthand
 	 * array. The righthand array must be at least as long as the lefthand
 	 * array.
@@ -452,7 +482,7 @@ public class NumericProtocolBuilder extends AbstractProtocolBuilder {
 		endCurScope();
 		return out;
 	}
-
+	
 	/**
 	 * Computes the conditional selection operation. I.e., concretely computes
 	 * the value <code>r</code> as
@@ -523,4 +553,5 @@ public class NumericProtocolBuilder extends AbstractProtocolBuilder {
 	public void addGateProducer(ProtocolProducer gp) {
 		append(gp);
 	}
+
 }
