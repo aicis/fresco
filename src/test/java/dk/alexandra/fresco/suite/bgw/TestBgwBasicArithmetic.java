@@ -49,6 +49,7 @@ import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
 import dk.alexandra.fresco.framework.sce.resources.storage.Storage;
 import dk.alexandra.fresco.lib.arithmetic.BasicArithmeticTests;
+import dk.alexandra.fresco.lib.math.integer.binary.BinaryOperationsTests;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.bgw.configuration.BgwConfiguration;
 
@@ -223,5 +224,12 @@ public class TestBgwBasicArithmetic {
 	@Test
 	public void test_moderate_arithmetic_Sequential_3_1() throws Exception {
 		runTest(new BasicArithmeticTests.TestSumAndMult(), 3, 1, EvaluationStrategy.SEQUENTIAL);
+	}
+	
+	// ====== Binary operations ======
+	
+	@Test
+	public void test_right_shift_3_1() throws Exception {
+		runTest(new BinaryOperationsTests.TestRightShift(), 3, 1, EvaluationStrategy.SEQUENTIAL);
 	}
 }
