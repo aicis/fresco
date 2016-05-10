@@ -28,6 +28,7 @@ package dk.alexandra.fresco.lib.math.integer.binary;
 
 import java.math.BigInteger;
 
+import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.OInt;
@@ -231,7 +232,7 @@ public class RightShiftProtocolImpl implements RightShiftProtocol {
 					break;
 
 				default:
-					// ...
+					throw new MPCException("Protocol only has two rounds.");
 			}
 		}
 		if (gp.hasNextProtocols()) {
