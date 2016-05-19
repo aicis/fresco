@@ -26,6 +26,7 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.math.integer.sqrt;
 
+import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.math.integer.binary.RightShiftFactory;
@@ -36,7 +37,7 @@ public class SquareRootFactoryImpl implements SquareRootFactory {
 	private final BasicNumericFactory basicNumericFactory;
 	private final DivisionFactory divisionFactory;
 	private RightShiftFactory rightShiftFactory;
-	
+
 	public SquareRootFactoryImpl(BasicNumericFactory basicNumericFactory,
 			DivisionFactory divisionFactory, RightShiftFactory rightShiftFactory) {
 		this.basicNumericFactory = basicNumericFactory;
@@ -45,8 +46,16 @@ public class SquareRootFactoryImpl implements SquareRootFactory {
 	}
 
 	@Override
-	public SquareRootProtocol getSquareRootProtocol(SInt x, int maxInputLength, SInt sqrt) {
-		return new SquareRootProtocolImpl(x, maxInputLength, sqrt, basicNumericFactory, divisionFactory, rightShiftFactory);
+	public SquareRootProtocol getSquareRootProtocol(SInt input, int maxInputLength, SInt sqrt) {
+		return new SquareRootProtocolImpl(input, maxInputLength, sqrt, basicNumericFactory,
+				divisionFactory, rightShiftFactory);
+	}
+
+	@Override
+	public SquareRootProtocol getSquareRootProtocol(SInt input, int maxInputLength, SInt sqrt,
+			OInt precision) {
+		return new SquareRootProtocolImpl(input, maxInputLength, sqrt, precision,
+				basicNumericFactory, divisionFactory, rightShiftFactory);
 	}
 
 }

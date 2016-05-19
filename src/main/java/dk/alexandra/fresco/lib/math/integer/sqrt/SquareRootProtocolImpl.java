@@ -26,11 +26,14 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.math.integer.sqrt;
 
+import java.math.BigInteger;
+
 import dk.alexandra.fresco.framework.ProtocolProducer;
+import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.helper.AbstractSimpleProtocol;
-import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
+import dk.alexandra.fresco.lib.helper.builder.NumericProtocolBuilder;
 import dk.alexandra.fresco.lib.math.integer.binary.RightShiftFactory;
 import dk.alexandra.fresco.lib.math.integer.division.DivisionFactory;
 
@@ -49,6 +52,7 @@ public class SquareRootProtocolImpl extends AbstractSimpleProtocol implements Sq
 	private SInt input;
 	private int maxInputLength;
 	private SInt result;
+	private OInt precision;
 
 	// Factories
 	private final BasicNumericFactory basicNumericFactory;
@@ -68,49 +72,59 @@ public class SquareRootProtocolImpl extends AbstractSimpleProtocol implements Sq
 		this.rightShiftFactory = rightShiftFactory;
 	}
 
+	public SquareRootProtocolImpl(SInt input, int maxInputLength, SInt result, OInt precision,
+			BasicNumericFactory basicNumericFactory, DivisionFactory divisionFactory,
+			RightShiftFactory rightShiftFactory) {
+		
+		this(input, maxInputLength, result, basicNumericFactory, divisionFactory, rightShiftFactory);
+		this.precision = precision;
+	}
+	
 	@Override
 	protected ProtocolProducer initializeGateProducer() {
-		SequentialProtocolProducer squareRootProtocol = new SequentialProtocolProducer();
+
+		NumericProtocolBuilder builder = new NumericProtocolBuilder(basicNumericFactory);
+		builder.beginSeqScope();
 
 		/*
-		 * First guess is x << maxInputLength / 2
+		 * Convergence is quadratic (the number of correct digits rougly doubles
+		 * on each iteration) so assuming we have at least one digit correct
+		 * after first iteration, we need at about log2(maxInputLength)
+		 * iterations in total.
 		 */
-		SInt y = basicNumericFactory.getSInt();
-		squareRootProtocol.append(rightShiftFactory.getRepeatedRightShiftProtocol(input,
-				maxInputLength / 2, y));
+		int iterations = log2(maxInputLength) + 1;
 
 		/*
-		 * How much precision can we use for the division while still keep the
-		 * limit? See JavaDoc for getDivisionProtocol for details.
+		 * First guess is x << maxInputLength / 2 + 1. We add 1 to avoid the
+		 * this to be equal to zero since we divide by it later.
 		 */
-		int precision = log2((basicNumericFactory.getMaxBitLength() - maxInputLength)
-				/ log2(maxInputLength / 2));
+		SInt[] y = new SInt[iterations];
+		SInt tmp = builder.getSInt();
+		builder.addGateProducer(rightShiftFactory.getRepeatedRightShiftProtocol(input,
+				maxInputLength / 2, tmp));
+		y[0] = builder.add(tmp, basicNumericFactory.getOInt(BigInteger.ONE));
 
 		/*
 		 * We iterate y[n+1] = (y[n] + x / y[n]) / 2.
-		 * 
-		 * Convergence is quadratic (the number of correct digits rougly doubles
-		 * on each iteration) so assuming we have at least one digit correct
-		 * after first iteration, we need at most log2(maxInputLength)
-		 * iterations in total.
 		 */
-		int iterations = log2(maxInputLength);
 		for (int i = 1; i < iterations; i++) {
-			SInt quotient = basicNumericFactory.getSInt();
-			squareRootProtocol.append(divisionFactory.getDivisionProtocol(input, y,
-					maxInputLength / 2, precision, quotient));
-
-			SInt sum = basicNumericFactory.getSInt();
-			squareRootProtocol.append(basicNumericFactory.getAddProtocol(y, quotient, sum));
-
-			if (i < iterations - 1) {
-				y = basicNumericFactory.getSInt();
-				squareRootProtocol.append(rightShiftFactory.getRightShiftProtocol(sum, y));
-			} else {
-				squareRootProtocol.append(rightShiftFactory.getRightShiftProtocol(sum, result));
-			}
+			SInt quotient = builder.getSInt();
+			
+			/*
+			 * The lower bound on the precision from the division protocol will
+			 * also be a lower bound of the precision of this protocol.
+			 */
+			builder.addGateProducer(divisionFactory.getDivisionProtocol(input, maxInputLength,
+					y[i - 1], ceil(maxInputLength / 2) + 1, quotient, precision));
+			SInt sum = builder.add(y[i - 1], quotient);
+			y[i] = builder.getSInt();
+			builder.addGateProducer(rightShiftFactory.getRightShiftProtocol(sum, y[i]));
 		}
-		return squareRootProtocol;
+
+		builder.copy(result, y[iterations - 1]);
+
+		builder.endCurScope();
+		return builder.getCircuit();
 	}
 
 	/**
@@ -123,4 +137,8 @@ public class SquareRootProtocolImpl extends AbstractSimpleProtocol implements Sq
 		return (int) (Math.log(x) / Math.log(2));
 	}
 
+	private static int ceil(double x) {
+		return (int) Math.ceil(x);
+	}
+	
 }
