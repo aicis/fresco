@@ -26,9 +26,21 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.conversion;
 
-import dk.alexandra.fresco.framework.Protocol;
+import dk.alexandra.fresco.framework.ProtocolFactory;
+import dk.alexandra.fresco.framework.value.SInt;
 
+public interface BitsToIntegerFactory extends ProtocolFactory {
 
-public interface BitToNumeralCircuit extends Protocol {
+	/**
+	 * Convert an array of bits to an integer, with index 0 being the least
+	 * significant bit
+	 * 
+	 * @param in
+	 *            SInt array
+	 * @param out
+	 *            SInt
+	 * @return BitsToIntegerProtocol
+	 */
+	public BitsToIntegerProtocol getBitsToIntegerProtocol(SInt[] in, SInt out);
 
 }

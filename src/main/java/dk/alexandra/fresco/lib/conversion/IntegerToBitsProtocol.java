@@ -26,19 +26,9 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.conversion;
 
-import dk.alexandra.fresco.framework.ProtocolFactory;
-import dk.alexandra.fresco.framework.value.SBool;
-import dk.alexandra.fresco.framework.value.SInt;
+import dk.alexandra.fresco.framework.Protocol;
 
-public interface NumeralToBitCircuitFactory extends ProtocolFactory {
 
-	/**
-	 * Convert an integer to an array of bits, with index 0 being the least significant bit
-	 * 
-	 * @param in SInt
-	 * @param out SBool array
-	 * @return NumeralToBitCircuit
-	 */
-	public NumeralToBitCircuit getNumeralToBitCircuit(SInt in, SBool[] out);
-	
+public interface IntegerToBitsProtocol extends Protocol {
+
 }
