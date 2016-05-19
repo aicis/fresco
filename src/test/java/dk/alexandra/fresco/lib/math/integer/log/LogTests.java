@@ -29,7 +29,8 @@ package dk.alexandra.fresco.lib.math.integer.log;
 import java.io.IOException;
 import java.math.BigInteger;
 
-import junit.framework.Assert;
+import org.junit.Assert;
+
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.TestApplication;
