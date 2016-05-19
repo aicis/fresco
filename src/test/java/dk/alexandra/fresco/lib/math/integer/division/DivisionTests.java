@@ -43,12 +43,18 @@ import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.compare.RandomAdditiveMaskFactory;
 import dk.alexandra.fresco.lib.compare.RandomAdditiveMaskFactoryImpl;
+import dk.alexandra.fresco.lib.conversion.IntegerToBitsFactory;
+import dk.alexandra.fresco.lib.conversion.IntegerToBitsFactoryImpl;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.helper.builder.NumericIOBuilder;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
 import dk.alexandra.fresco.lib.math.integer.PreprocessedNumericBitFactory;
+import dk.alexandra.fresco.lib.math.integer.binary.BitLengthFactory;
+import dk.alexandra.fresco.lib.math.integer.binary.BitLengthFactoryImpl;
 import dk.alexandra.fresco.lib.math.integer.binary.RightShiftFactory;
 import dk.alexandra.fresco.lib.math.integer.binary.RightShiftFactoryImpl;
+import dk.alexandra.fresco.lib.math.integer.exp.ExponentiationFactory;
+import dk.alexandra.fresco.lib.math.integer.exp.ExponentiationFactoryImpl;
 import dk.alexandra.fresco.lib.math.integer.inv.LocalInversionFactory;
 
 
@@ -102,7 +108,10 @@ public class DivisionTests {
 							RandomAdditiveMaskFactory randomAdditiveMaskFactory = new RandomAdditiveMaskFactoryImpl(basicNumericFactory, preprocessedNumericBitFactory);
 							LocalInversionFactory localInversionFactory = (LocalInversionFactory) provider;
 							RightShiftFactory rightShiftFactory = new RightShiftFactoryImpl(basicNumericFactory, randomAdditiveMaskFactory, localInversionFactory);
-							DivisionFactory euclidianDivisionFactory = new DivisionFactoryImpl(basicNumericFactory, rightShiftFactory);
+							IntegerToBitsFactory integerToBitsFactory = new IntegerToBitsFactoryImpl(basicNumericFactory, rightShiftFactory);
+							BitLengthFactory bitLengthFactory = new BitLengthFactoryImpl(basicNumericFactory, integerToBitsFactory);
+							ExponentiationFactory exponentiationFactory = new ExponentiationFactoryImpl(basicNumericFactory, integerToBitsFactory);
+							DivisionFactory divisionFactory = new DivisionFactoryImpl(basicNumericFactory, rightShiftFactory, bitLengthFactory, exponentiationFactory);
 							
 							SInt quotient = basicNumericFactory.getSInt();
 							SInt remainder = basicNumericFactory.getSInt();
@@ -114,7 +123,7 @@ public class DivisionTests {
 							OInt input2 = basicNumericFactory.getOInt(d);
 							sequentialProtocolProducer.append(ioBuilder.getCircuit());
 							
-							DivisionProtocol euclidianDivisionProtocol = euclidianDivisionFactory.getDivisionProtocol(input1, x.bitLength() + 1, input2, quotient, remainder);
+							DivisionProtocol euclidianDivisionProtocol = divisionFactory.getDivisionProtocol(input1, x.bitLength() + 1, input2, quotient, remainder);
 							sequentialProtocolProducer.append(euclidianDivisionProtocol);
 							
 							OInt output1 = ioBuilder.output(quotient);
@@ -148,10 +157,12 @@ public class DivisionTests {
 		public TestThread next(TestThreadConfiguration conf) {
 			
 			return new ThreadWithFixture() {
-				private final BigInteger x = new BigInteger("8000");
-				private final BigInteger d = new BigInteger("3");
-				private final int precision = 4; // How many bits of precision do we get? Should be 2^p / l...
-
+				private final BigInteger[] x = new BigInteger[] {new BigInteger("1234567"), BigInteger.valueOf(1230121230), BigInteger.valueOf(313222110), BigInteger.valueOf(5111215), BigInteger.valueOf(6537) };
+				private final BigInteger d = BigInteger.valueOf(1110);
+				private final int n = x.length;
+				
+				OInt[] precision = new OInt[n];
+				
 				@Override
 				public void test() throws Exception {
 					TestApplication app = new TestApplication() {
@@ -166,42 +177,56 @@ public class DivisionTests {
 							PreprocessedNumericBitFactory preprocessedNumericBitFactory = (PreprocessedNumericBitFactory) provider;
 							RandomAdditiveMaskFactory randomAdditiveMaskFactory = new RandomAdditiveMaskFactoryImpl(basicNumericFactory, preprocessedNumericBitFactory);
 							LocalInversionFactory localInversionFactory = (LocalInversionFactory) provider;
-							RightShiftFactory rightShiftFactory = new RightShiftFactoryImpl(basicNumericFactory, randomAdditiveMaskFactory,localInversionFactory);
-							DivisionFactory divisionFactory = new DivisionFactoryImpl(basicNumericFactory, rightShiftFactory);
+							RightShiftFactory rightShiftFactory = new RightShiftFactoryImpl(basicNumericFactory, randomAdditiveMaskFactory, localInversionFactory);
+							IntegerToBitsFactory integerToBitsFactory = new IntegerToBitsFactoryImpl(basicNumericFactory, rightShiftFactory);
+							BitLengthFactory bitLengthFactory = new BitLengthFactoryImpl(basicNumericFactory, integerToBitsFactory);
+							ExponentiationFactory exponentiationFactory = new ExponentiationFactoryImpl(basicNumericFactory, integerToBitsFactory);
+							DivisionFactory divisionFactory = new DivisionFactoryImpl(basicNumericFactory, rightShiftFactory, bitLengthFactory, exponentiationFactory);
 							
-							SInt quotient = basicNumericFactory.getSInt();
-
+							SInt[] quotient = new SInt[n];
+							
 							NumericIOBuilder ioBuilder = new NumericIOBuilder(basicNumericFactory);
 							SequentialProtocolProducer sequentialProtocolProducer = new SequentialProtocolProducer();
 							
-							SInt input1 = ioBuilder.input(x, 1);
+							SInt[] inputs = ioBuilder.inputArray(x, 1);
 							SInt input2 = ioBuilder.input(d, 2);
 							sequentialProtocolProducer.append(ioBuilder.getCircuit());
 							
-							DivisionProtocol divisionProtocol = divisionFactory.getDivisionProtocol(input1, input2, d.bitLength() + 1, precision, quotient);
-							sequentialProtocolProducer.append(divisionProtocol);
+							for (int i = 0; i < n; i++) {
+								precision[i] = basicNumericFactory.getOInt();
+								quotient[i] = basicNumericFactory.getSInt();
+								DivisionProtocol divisionProtocol = divisionFactory.getDivisionProtocol(inputs[i], x[i].bitLength(), input2, d.bitLength(), quotient[i], precision[i]);
+								sequentialProtocolProducer.append(divisionProtocol);
+							}
 							
-							OInt output1 = ioBuilder.output(quotient);
+							this.outputs = ioBuilder.outputArray(quotient);
 							
 							sequentialProtocolProducer.append(ioBuilder.getCircuit());
 							
 							ProtocolProducer gp = sequentialProtocolProducer;
 							
-							outputs = new OInt[] {output1};
-							
 							return gp;
 						}
 					};
 					sce.runApplication(app);
-					BigInteger quotient = app.getOutputs()[0].getValue();
-					Assert.assertTrue(isInInterval(quotient, x.divide(d).intValue(), 1.0));
+					for (int i = 0; i < n; i++) {
+						BigInteger actual = app.getOutputs()[i].getValue();
+						
+						BigInteger expected = x[i].divide(d);
+						BigInteger difference = expected.subtract(actual).abs();
+						
+						int precision = expected.bitLength() - difference.bitLength();
+						
+						boolean isCorrect = expected.equals(actual);
+						
+						System.out.println(x[i] + "/" + d + " = " + actual + ", expected " + expected + ". " + (!isCorrect ? 
+								"Got precision " + precision + "/" + expected.bitLength() + ", expected at least " + this.precision[i].getValue().intValue() : ""));
+						if (!isCorrect) {
+							Assert.assertTrue(precision >= this.precision[i].getValue().intValue());
+						}
+					}
 				}
 			};
 		}
-		
-		private static boolean isInInterval(BigInteger value, double center, double tolerance) {
-			return value.intValue() >= center - tolerance && value.intValue() <= center + tolerance;
-		}
-
 	}
 }

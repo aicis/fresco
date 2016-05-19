@@ -24,13 +24,12 @@
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
  *******************************************************************************/
-package dk.alexandra.fresco.lib.math.integer.sqrt;
+package dk.alexandra.fresco.lib.math.integer.log;
 
 import java.io.IOException;
 import java.math.BigInteger;
 
-import org.junit.Assert;
-
+import junit.framework.Assert;
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.TestApplication;
@@ -53,13 +52,20 @@ import dk.alexandra.fresco.lib.math.integer.binary.BitLengthFactory;
 import dk.alexandra.fresco.lib.math.integer.binary.BitLengthFactoryImpl;
 import dk.alexandra.fresco.lib.math.integer.binary.RightShiftFactory;
 import dk.alexandra.fresco.lib.math.integer.binary.RightShiftFactoryImpl;
-import dk.alexandra.fresco.lib.math.integer.division.DivisionFactory;
-import dk.alexandra.fresco.lib.math.integer.division.DivisionFactoryImpl;
-import dk.alexandra.fresco.lib.math.integer.exp.ExponentiationFactory;
-import dk.alexandra.fresco.lib.math.integer.exp.ExponentiationFactoryImpl;
 import dk.alexandra.fresco.lib.math.integer.inv.LocalInversionFactory;
 
-public class SqrtTests {
+
+/**
+ * Generic test cases for basic finite field operations.
+ * 
+ * Can be reused by a test case for any protocol suite that implements the basic
+ * field protocol factory.
+ *
+ * TODO: Generic tests should not reside in the runtime package. Rather in
+ * mpc.lib or something.
+ *
+ */
+public class LogTests {
 
 	private abstract static class ThreadWithFixture extends TestThread {
 
@@ -72,30 +78,18 @@ public class SqrtTests {
 
 	}
 
-	public static class TestSquareRoot extends TestThreadFactory {
+	public static class TestLogarithm extends TestThreadFactory {
 
 		@Override
 		public TestThread next(TestThreadConfiguration conf) {
 			
 			return new ThreadWithFixture() {
-				
-				private final BigInteger[] x = new BigInteger[] { 
-						BigInteger.valueOf(1234), 
-						BigInteger.valueOf(12345), 
-						BigInteger.valueOf(123456), 
-						BigInteger.valueOf(1234567),
-						BigInteger.valueOf(12345678), 
-						BigInteger.valueOf(123456789) 
-						};
-				private final int n = x.length;
+				private final BigInteger[] x = { BigInteger.valueOf(201235), BigInteger.valueOf(1234), BigInteger.valueOf(405068), BigInteger.valueOf(123456), BigInteger.valueOf(110) };
 
-				private OInt[] precision = new OInt[n];
-				
 				@Override
 				public void test() throws Exception {
 					TestApplication app = new TestApplication() {
 
-						
 						private static final long serialVersionUID = 701623441111137585L;
 						
 						@Override
@@ -109,26 +103,22 @@ public class SqrtTests {
 							RightShiftFactory rightShiftFactory = new RightShiftFactoryImpl(basicNumericFactory, randomAdditiveMaskFactory, localInversionFactory);
 							IntegerToBitsFactory integerToBitsFactory = new IntegerToBitsFactoryImpl(basicNumericFactory, rightShiftFactory);
 							BitLengthFactory bitLengthFactory = new BitLengthFactoryImpl(basicNumericFactory, integerToBitsFactory);
-							ExponentiationFactory exponentiationFactory = new ExponentiationFactoryImpl(basicNumericFactory, integerToBitsFactory);
-							DivisionFactory divisionFactory = new DivisionFactoryImpl(basicNumericFactory, rightShiftFactory, bitLengthFactory, exponentiationFactory);
-							SquareRootFactory squareRootFactory = new SquareRootFactoryImpl(basicNumericFactory, divisionFactory, rightShiftFactory);
+							LogarithmFactory logarithmFactory = new LogarithmFactoryImpl(basicNumericFactory, rightShiftFactory, bitLengthFactory);
 							
-							SInt[] sqrt = new SInt[n];
-
 							NumericIOBuilder ioBuilder = new NumericIOBuilder(basicNumericFactory);
 							SequentialProtocolProducer sequentialProtocolProducer = new SequentialProtocolProducer();
 							
 							SInt[] inputs = ioBuilder.inputArray(x, 1);
 							sequentialProtocolProducer.append(ioBuilder.getCircuit());
+							SInt[] logs = new SInt[x.length];
 							
-							for (int i = 0; i < n; i++) {
-								sqrt[i] = basicNumericFactory.getSInt();
-								precision[i] = basicNumericFactory.getOInt();
-								SquareRootProtocol squareRootProtocol = squareRootFactory.getSquareRootProtocol(inputs[i], x[i].bitLength(), sqrt[i], precision[i]);
-								sequentialProtocolProducer.append(squareRootProtocol);
+							for (int i = 0; i < inputs.length; i++) {
+								logs[i] = basicNumericFactory.getSInt();
+								LogarithmProtocol logarithmProtocol = logarithmFactory.getLogarithmProtocol(inputs[i], x[i].bitLength(), logs[i]);
+								sequentialProtocolProducer.append(logarithmProtocol);
 							}
 							
-							OInt[] outputs = ioBuilder.outputArray(sqrt);
+							OInt[] outputs = ioBuilder.outputArray(logs);
 							
 							sequentialProtocolProducer.append(ioBuilder.getCircuit());
 							
@@ -139,28 +129,14 @@ public class SqrtTests {
 							return gp;
 						}
 					};
-					
 					sce.runApplication(app);
 					
-					for (int i = 0; i < n; i++) {
-						BigInteger actual = app.getOutputs()[i].getValue();
-						BigInteger expected = BigInteger.valueOf((long) Math.sqrt(x[i].intValue()));
-						
-						BigInteger difference = expected.subtract(actual).abs();
-						
-						int precision = expected.bitLength() - difference.bitLength();
-						
-						boolean shouldBeCorrect = precision >= expected.bitLength(); expected.equals(actual);
-						boolean isCorrect = expected.equals(actual);
-						
-						Assert.assertFalse(shouldBeCorrect && !isCorrect);
-						
-						System.out.println("sqrt(" + x[i] + ") = " + actual + ", expected " + expected + ". " + (!isCorrect ? 
-								"Got precision " + precision + "/" + expected.bitLength() + ", expected at least " + this.precision[i].getValue().intValue() : ""));
-						if (!isCorrect) {
-							Assert.assertTrue(precision >= this.precision[i].getValue().intValue());
-						}
-					}
+					for (int i = 0; i < x.length; i++) {
+						int actual = app.getOutputs()[i].getValue().intValue();
+						int expected = (int) Math.log(x[i].doubleValue());
+						int difference = Math.abs(actual - expected);						
+						Assert.assertTrue(difference <= 1);
+					}					
 				}
 			};
 		}

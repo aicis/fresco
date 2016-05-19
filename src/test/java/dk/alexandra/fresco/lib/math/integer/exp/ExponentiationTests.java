@@ -24,7 +24,7 @@
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
  *******************************************************************************/
-package dk.alexandra.fresco.lib.math.integer.sqrt;
+package dk.alexandra.fresco.lib.math.integer.exp;
 
 import java.io.IOException;
 import java.math.BigInteger;
@@ -49,17 +49,11 @@ import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.helper.builder.NumericIOBuilder;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
 import dk.alexandra.fresco.lib.math.integer.PreprocessedNumericBitFactory;
-import dk.alexandra.fresco.lib.math.integer.binary.BitLengthFactory;
-import dk.alexandra.fresco.lib.math.integer.binary.BitLengthFactoryImpl;
 import dk.alexandra.fresco.lib.math.integer.binary.RightShiftFactory;
 import dk.alexandra.fresco.lib.math.integer.binary.RightShiftFactoryImpl;
-import dk.alexandra.fresco.lib.math.integer.division.DivisionFactory;
-import dk.alexandra.fresco.lib.math.integer.division.DivisionFactoryImpl;
-import dk.alexandra.fresco.lib.math.integer.exp.ExponentiationFactory;
-import dk.alexandra.fresco.lib.math.integer.exp.ExponentiationFactoryImpl;
 import dk.alexandra.fresco.lib.math.integer.inv.LocalInversionFactory;
 
-public class SqrtTests {
+public class ExponentiationTests {
 
 	private abstract static class ThreadWithFixture extends TestThread {
 
@@ -72,30 +66,22 @@ public class SqrtTests {
 
 	}
 
-	public static class TestSquareRoot extends TestThreadFactory {
+	/**
+	 * Test binary right shift of a shared secret.
+	 */
+	public static class TestExponentiation extends TestThreadFactory {
 
 		@Override
 		public TestThread next(TestThreadConfiguration conf) {
 			
 			return new ThreadWithFixture() {
-				
-				private final BigInteger[] x = new BigInteger[] { 
-						BigInteger.valueOf(1234), 
-						BigInteger.valueOf(12345), 
-						BigInteger.valueOf(123456), 
-						BigInteger.valueOf(1234567),
-						BigInteger.valueOf(12345678), 
-						BigInteger.valueOf(123456789) 
-						};
-				private final int n = x.length;
+				private final BigInteger input = BigInteger.valueOf(12332157);
+				private final int exp = 12;
 
-				private OInt[] precision = new OInt[n];
-				
 				@Override
 				public void test() throws Exception {
 					TestApplication app = new TestApplication() {
 
-						
 						private static final long serialVersionUID = 701623441111137585L;
 						
 						@Override
@@ -108,61 +94,38 @@ public class SqrtTests {
 							LocalInversionFactory localInversionFactory = (LocalInversionFactory) provider;
 							RightShiftFactory rightShiftFactory = new RightShiftFactoryImpl(basicNumericFactory, randomAdditiveMaskFactory, localInversionFactory);
 							IntegerToBitsFactory integerToBitsFactory = new IntegerToBitsFactoryImpl(basicNumericFactory, rightShiftFactory);
-							BitLengthFactory bitLengthFactory = new BitLengthFactoryImpl(basicNumericFactory, integerToBitsFactory);
 							ExponentiationFactory exponentiationFactory = new ExponentiationFactoryImpl(basicNumericFactory, integerToBitsFactory);
-							DivisionFactory divisionFactory = new DivisionFactoryImpl(basicNumericFactory, rightShiftFactory, bitLengthFactory, exponentiationFactory);
-							SquareRootFactory squareRootFactory = new SquareRootFactoryImpl(basicNumericFactory, divisionFactory, rightShiftFactory);
-							
-							SInt[] sqrt = new SInt[n];
+
+							SInt result = basicNumericFactory.getSInt();
 
 							NumericIOBuilder ioBuilder = new NumericIOBuilder(basicNumericFactory);
 							SequentialProtocolProducer sequentialProtocolProducer = new SequentialProtocolProducer();
 							
-							SInt[] inputs = ioBuilder.inputArray(x, 1);
+							SInt input1 = ioBuilder.input(input, 1);
+							SInt input2 = ioBuilder.input(exp, 2);
 							sequentialProtocolProducer.append(ioBuilder.getCircuit());
+
+							ExponentiationProtocol exponentiationProtocol = exponentiationFactory.getExponentiationCircuit(input1, input2, 5, result);
+							sequentialProtocolProducer.append(exponentiationProtocol);
 							
-							for (int i = 0; i < n; i++) {
-								sqrt[i] = basicNumericFactory.getSInt();
-								precision[i] = basicNumericFactory.getOInt();
-								SquareRootProtocol squareRootProtocol = squareRootFactory.getSquareRootProtocol(inputs[i], x[i].bitLength(), sqrt[i], precision[i]);
-								sequentialProtocolProducer.append(squareRootProtocol);
-							}
-							
-							OInt[] outputs = ioBuilder.outputArray(sqrt);
+							OInt output1 = ioBuilder.output(result);
 							
 							sequentialProtocolProducer.append(ioBuilder.getCircuit());
 							
 							ProtocolProducer gp = sequentialProtocolProducer;
 							
-							this.outputs = outputs;
+							outputs = new OInt[] {output1};
 							
 							return gp;
 						}
 					};
-					
 					sce.runApplication(app);
+					BigInteger result = app.getOutputs()[0].getValue();
 					
-					for (int i = 0; i < n; i++) {
-						BigInteger actual = app.getOutputs()[i].getValue();
-						BigInteger expected = BigInteger.valueOf((long) Math.sqrt(x[i].intValue()));
-						
-						BigInteger difference = expected.subtract(actual).abs();
-						
-						int precision = expected.bitLength() - difference.bitLength();
-						
-						boolean shouldBeCorrect = precision >= expected.bitLength(); expected.equals(actual);
-						boolean isCorrect = expected.equals(actual);
-						
-						Assert.assertFalse(shouldBeCorrect && !isCorrect);
-						
-						System.out.println("sqrt(" + x[i] + ") = " + actual + ", expected " + expected + ". " + (!isCorrect ? 
-								"Got precision " + precision + "/" + expected.bitLength() + ", expected at least " + this.precision[i].getValue().intValue() : ""));
-						if (!isCorrect) {
-							Assert.assertTrue(precision >= this.precision[i].getValue().intValue());
-						}
-					}
+					Assert.assertEquals(input.pow(exp), result);
 				}
 			};
 		}
 	}
+	
 }

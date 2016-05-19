@@ -43,6 +43,8 @@ import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.compare.RandomAdditiveMaskFactory;
 import dk.alexandra.fresco.lib.compare.RandomAdditiveMaskFactoryImpl;
+import dk.alexandra.fresco.lib.conversion.IntegerToBitsFactory;
+import dk.alexandra.fresco.lib.conversion.IntegerToBitsFactoryImpl;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.helper.builder.NumericIOBuilder;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
@@ -205,4 +207,67 @@ public class BinaryOperationsTests {
 			};
 		}
 	}
+	
+	/**
+	 * Test binary right shift of a shared secret.
+	 */
+	public static class TestMostSignificantBit extends TestThreadFactory {
+
+		@Override
+		public TestThread next(TestThreadConfiguration conf) {
+			
+			return new ThreadWithFixture() {
+				private final BigInteger input = BigInteger.valueOf(5);
+
+				@Override
+				public void test() throws Exception {
+					TestApplication app = new TestApplication() {
+
+						private static final long serialVersionUID = 701623441111137585L;
+						
+						@Override
+						public ProtocolProducer prepareApplication(
+								ProtocolFactory provider) {
+							
+							BasicNumericFactory basicNumericFactory = (BasicNumericFactory) provider;
+							PreprocessedNumericBitFactory preprocessedNumericBitFactory = (PreprocessedNumericBitFactory) provider;
+							RandomAdditiveMaskFactory randomAdditiveMaskFactory = new RandomAdditiveMaskFactoryImpl(basicNumericFactory, preprocessedNumericBitFactory);
+							LocalInversionFactory localInversionFactory = (LocalInversionFactory) provider;
+							RightShiftFactory rightShiftFactory = new RightShiftFactoryImpl(basicNumericFactory, randomAdditiveMaskFactory, localInversionFactory);
+							IntegerToBitsFactory integerToBitsFactory = new IntegerToBitsFactoryImpl(basicNumericFactory, rightShiftFactory);
+							BitLengthFactory bitLengthFactory = new BitLengthFactoryImpl(basicNumericFactory, integerToBitsFactory);
+							
+							SInt result = basicNumericFactory.getSInt();
+
+							NumericIOBuilder ioBuilder = new NumericIOBuilder(basicNumericFactory);
+							SequentialProtocolProducer sequentialProtocolProducer = new SequentialProtocolProducer();
+							
+							SInt input1 = ioBuilder.input(input, 1);
+							sequentialProtocolProducer.append(ioBuilder.getCircuit());
+							
+							BitLengthProtocol bitLengthProtocol = bitLengthFactory.getMostSignificantBitProtocol(input1, result, input.bitLength() * 2);
+							sequentialProtocolProducer.append(bitLengthProtocol);
+							
+							OInt output1 = ioBuilder.output(result);
+							
+							sequentialProtocolProducer.append(ioBuilder.getCircuit());
+							
+							ProtocolProducer gp = sequentialProtocolProducer;
+							
+							outputs = new OInt[] {output1};
+							
+							return gp;
+						}
+					};
+					sce.runApplication(app);
+					BigInteger result = app.getOutputs()[0].getValue();
+					
+					System.out.println(result);
+					
+					Assert.assertEquals(BigInteger.valueOf(input.bitLength()), result);
+				}
+			};
+		}
+	}
+
 }
