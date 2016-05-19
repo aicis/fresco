@@ -85,10 +85,18 @@ public class LogarithmProtocolImpl extends AbstractSimpleProtocol implements Log
 		
 		builder.beginSeqScope();
 
+		/*
+		 * Find the bit length of the input. Unless the input is a power of two,
+		 * the bit length - 1 is the floor of the the logartihm with base 2 of
+		 * the input.
+		 */
 		SInt bitLength = builder.getSInt();
-		builder.addGateProducer(bitLengthFactory.getMostSignificantBitProtocol(input, bitLength, maxInputLength));
+		builder.addGateProducer(bitLengthFactory.getBitLengthProtocol(input, bitLength, maxInputLength));
 		SInt log2 = builder.sub(bitLength, basicNumericFactory.getOInt(BigInteger.ONE));
 		
+		/*
+		 * ln(x) = log_2(x) * ln(2), and we use 45426 >> 16 as an approximation of ln(2).
+		 */
 		SInt scaledLog = builder.mult(ln2, log2);
 		builder.addGateProducer(rightShiftFactory.getRepeatedRightShiftProtocol(scaledLog, shifts, result));
 		
