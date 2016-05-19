@@ -16,6 +16,20 @@ public class IntegerToBitsByShiftProtocolImpl extends AbstractSimpleProtocol imp
 	private final BasicNumericFactory basicNumericFactory;
 	private final RightShiftFactory rightShiftFactory;
 
+	/**
+	 * Create a protocol which finds the bit representation of a given integer.
+	 * This is done by repeadetly shifting the input to the right, so we need to
+	 * supply the number of bits we want to find as a parameter.
+	 * 
+	 * @param input
+	 *            An integer.
+	 * @param maxInputLength
+	 *            The number of bits we want to find.
+	 * @param output
+	 *            An array of bits.
+	 * @param basicNumericFactory
+	 * @param rightShiftFactory
+	 */
 	public IntegerToBitsByShiftProtocolImpl(SInt input, int maxInputLength, SInt[] output,
 			BasicNumericFactory basicNumericFactory, RightShiftFactory rightShiftFactory) {
 		this.input = input;

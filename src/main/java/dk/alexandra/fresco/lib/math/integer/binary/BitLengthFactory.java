@@ -30,6 +30,20 @@ import dk.alexandra.fresco.framework.value.SInt;
 
 public interface BitLengthFactory {
 
-	public BitLengthProtocol getMostSignificantBitProtocol(SInt input, SInt output, int maxInputLength);
-	
+	/**
+	 * Find the bit length of a given integer, ie. the number of bits needed to
+	 * represent the number.
+	 * 
+	 * @param input
+	 *            An integer.
+	 * @param output
+	 *            The number of bits needed to represent the input.
+	 * @param maxInputLength
+	 *            An upper bound for the output. The protocol will only consider
+	 *            the bits below this bound.
+	 * 
+	 * @return
+	 */
+	public BitLengthProtocol getBitLengthProtocol(SInt input, SInt output, int maxInputLength);
+
 }

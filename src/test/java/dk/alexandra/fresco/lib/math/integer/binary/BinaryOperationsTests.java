@@ -245,7 +245,7 @@ public class BinaryOperationsTests {
 							SInt input1 = ioBuilder.input(input, 1);
 							sequentialProtocolProducer.append(ioBuilder.getCircuit());
 							
-							BitLengthProtocol bitLengthProtocol = bitLengthFactory.getMostSignificantBitProtocol(input1, result, input.bitLength() * 2);
+							BitLengthProtocol bitLengthProtocol = bitLengthFactory.getBitLengthProtocol(input1, result, input.bitLength() * 2);
 							sequentialProtocolProducer.append(bitLengthProtocol);
 							
 							OInt output1 = ioBuilder.output(result);

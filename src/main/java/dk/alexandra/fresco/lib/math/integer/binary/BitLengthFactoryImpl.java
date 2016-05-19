@@ -41,7 +41,7 @@ public class BitLengthFactoryImpl implements BitLengthFactory {
 	}
 
 	@Override
-	public BitLengthProtocol getMostSignificantBitProtocol(SInt input, SInt output,
+	public BitLengthProtocol getBitLengthProtocol(SInt input, SInt output,
 			int maxInputLength) {
 		return new BitLengthProtocolImpl(input, output, maxInputLength,
 				basicNumericFactory, integerToBitsFactory);

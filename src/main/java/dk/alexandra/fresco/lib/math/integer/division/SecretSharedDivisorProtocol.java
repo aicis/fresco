@@ -149,7 +149,7 @@ public class SecretSharedDivisorProtocol extends AbstractSimpleProtocol implemen
 		 * Find the bitlength m of the divisor
 		 */
 		SInt mostSignificantBit = builder.getSInt();
-		builder.addGateProducer(bitLengthFactory.getMostSignificantBitProtocol(divisor,
+		builder.addGateProducer(bitLengthFactory.getBitLengthProtocol(divisor,
 				mostSignificantBit, maxDivisorLength));
 		SInt boundDifference = builder.sub(
 				basicNumericFactory.getOInt(BigInteger.valueOf(maxDivisorLength)),
