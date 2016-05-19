@@ -457,6 +457,21 @@ public class NumericProtocolBuilder extends AbstractProtocolBuilder {
 	}
 	
 	/**
+	 * Subtracts the righthand OInt from the lefthand SInt.
+	 * 
+	 * @param left
+	 *            the lefthand input
+	 * @param right
+	 *            the righthand input
+	 * @return an SInt representing the result of the subtraction.
+	 */
+	public SInt sub(SInt left, OInt right) {
+		SInt out = bnp.getSInt();
+		append(bnp.getSubtractCircuit(left, right, out));
+		return out;
+	}
+	
+	/**
 	 * Subtracts the righthand array of SInts element-wise from the lefthand
 	 * array. The righthand array must be at least as long as the lefthand
 	 * array.

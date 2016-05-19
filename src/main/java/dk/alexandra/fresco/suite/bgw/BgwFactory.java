@@ -59,6 +59,7 @@ import dk.alexandra.fresco.suite.bgw.integer.BgwRandomIntProtocol;
 import dk.alexandra.fresco.suite.bgw.integer.BgwSInt;
 import dk.alexandra.fresco.suite.bgw.integer.BgwSubtractFromPublicProtocol;
 import dk.alexandra.fresco.suite.bgw.integer.BgwSubtractProtocol;
+import dk.alexandra.fresco.suite.bgw.integer.BgwSubtractPublicProtocol;
 import dk.alexandra.fresco.suite.bgw.storage.BgwRandomBitSupplier;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzOInt;
 
@@ -135,6 +136,11 @@ public class BgwFactory implements BasicNumericFactory, LocalInversionFactory, E
 		return new BgwSubtractFromPublicProtocol(a, b, out);
 	}
 
+	@Override
+	public SubtractCircuit getSubtractCircuit(SInt a, OInt b, SInt out) {
+		return new BgwSubtractPublicProtocol(a, b, out);
+	}
+	
 	@Override
 	public MultProtocol getMultCircuit(SInt a, SInt b, SInt out) {
 		return new BgwMultProtocol(a, b, out);

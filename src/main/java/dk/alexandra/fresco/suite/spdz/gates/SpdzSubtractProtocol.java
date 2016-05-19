@@ -40,7 +40,7 @@ import dk.alexandra.fresco.suite.spdz.utils.SpdzFactory;
 public class SpdzSubtractProtocol extends SpdzNativeProtocol implements SubtractCircuit {
 
 	private SpdzSInt left, right, out;
-	private SpdzOInt openLeft;
+	private SpdzOInt openLeft, openRight;
 	private SpdzFactory provider;
 
 	public SpdzSubtractProtocol(SInt left, SInt right, SInt out,
@@ -67,11 +67,21 @@ public class SpdzSubtractProtocol extends SpdzNativeProtocol implements Subtract
 		this.provider = provider;
 	}
 
+	public SpdzSubtractProtocol(SInt left, OInt right, SInt out, SpdzFactory provider) {
+		this.left = (SpdzSInt) left;
+		this.openRight = (SpdzOInt) right;
+		this.out = (SpdzSInt) out;
+		this.provider = provider;
+	}
+
 	@Override
 	public String toString() {
 		if (openLeft != null) {
 			return "SpdzSubtractGate(" + openLeft.getValue() + ", "
 					+ right.value + ", " + out.value + ")";
+		} else if (openRight != null) {
+			return "SpdzSubtractGate(" + left.value + ", "
+					+ openRight.getValue() + ", " + out.value + ")";
 		}
 		return "SpdzSubtractGate(" + left.value + ", " + right.value + ", "
 				+ out.value + ")";
@@ -94,6 +104,10 @@ public class SpdzSubtractProtocol extends SpdzNativeProtocol implements Subtract
 			SpdzSInt converted = (SpdzSInt) provider.getSInt(openLeft
 					.getValue());
 			out.value = converted.value.subtract(right.value);
+		} else if (openRight != null) {
+			SpdzSInt converted = (SpdzSInt) provider.getSInt(openRight
+					.getValue());
+			out.value = left.value.subtract(converted.value);
 		} else {
 			SpdzElement elm = left.value.subtract(right.value);
 			out.value = elm;

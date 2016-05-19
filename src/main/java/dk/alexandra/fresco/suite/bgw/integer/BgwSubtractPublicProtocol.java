@@ -24,16 +24,48 @@
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
  *******************************************************************************/
-package dk.alexandra.fresco.lib.field.integer;
+package dk.alexandra.fresco.suite.bgw.integer;
 
-import dk.alexandra.fresco.framework.ProtocolFactory;
+import dk.alexandra.fresco.framework.network.SCENetwork;
+import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
+import dk.alexandra.fresco.framework.value.Value;
+import dk.alexandra.fresco.lib.field.integer.SubtractCircuit;
+import dk.alexandra.fresco.suite.bgw.BgwProtocol;
+import dk.alexandra.fresco.suite.bgw.ShamirShare;
 
-public interface SubtractCircuitFactory extends ProtocolFactory {
+public class BgwSubtractPublicProtocol extends BgwProtocol implements SubtractCircuit {
 
-	abstract public SubtractCircuit getSubtractCircuit(SInt a, SInt b, SInt out);
-	abstract public SubtractCircuit getSubtractCircuit(OInt a, SInt b, SInt out);
-	abstract public SubtractCircuit getSubtractCircuit(SInt a, OInt b, SInt out);
-	
+	private BgwSInt inA;
+	private OInt inB;
+	private BgwSInt outC;
+
+	public BgwSubtractPublicProtocol(SInt inA, OInt inB, SInt outC) {
+		this.inA = (BgwSInt) inA;
+		this.inB = inB;
+		this.outC = (BgwSInt) outC;
+	}
+
+	@Override
+	public String toString() {
+		return "ShamirSubtractGate(" + inA + "," + inB + "," + outC + ")";
+	}
+
+	@Override
+	public Value[] getInputValues() {
+		return new Value[] { inA, inB };
+	}
+
+	@Override
+	public Value[] getOutputValues() {
+		return new Value[] { outC };
+	}
+
+	@Override
+	public EvaluationStatus evaluate(int round, ResourcePool resourcePool, SCENetwork network) {
+		outC.value = new ShamirShare(inA.value.getPoint(), inA.value.getField().subtract(
+				inB.getValue()));
+		return EvaluationStatus.IS_DONE;
+	}
 }
