@@ -26,10 +26,14 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.math.integer.exp;
 
+import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 
 public interface ExponentiationFactory {
 
 	public ExponentiationProtocol getExponentiationCircuit(SInt x, SInt e, int maxExponentLength,
+			SInt output);
+	
+	public ExponentiationProtocol getExponentiationCircuit(OInt x, SInt e, int maxExponentLength,
 			SInt output);
 }

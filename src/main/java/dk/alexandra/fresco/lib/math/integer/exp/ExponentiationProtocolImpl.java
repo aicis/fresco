@@ -27,6 +27,7 @@
 package dk.alexandra.fresco.lib.math.integer.exp;
 
 import dk.alexandra.fresco.framework.ProtocolProducer;
+import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.conversion.IntegerToBitsFactory;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
@@ -35,7 +36,8 @@ import dk.alexandra.fresco.lib.helper.builder.NumericProtocolBuilder;
 
 public class ExponentiationProtocolImpl extends AbstractSimpleProtocol implements ExponentiationProtocol {
 
-	private final SInt input;
+	private SInt input;
+	private OInt openInput;
 	private final SInt exponent;
 	private final int maxExponentBitLength;
 	private final SInt output;
@@ -56,6 +58,19 @@ public class ExponentiationProtocolImpl extends AbstractSimpleProtocol implement
 		
 	}
 
+	public ExponentiationProtocolImpl(OInt input, SInt exponent, int maxExponentBitLength, SInt output,
+			BasicNumericFactory basicNumericFactory, IntegerToBitsFactory integerToBitsFactory) {
+		
+		this.openInput = input;
+		this.exponent = exponent;
+		this.maxExponentBitLength = maxExponentBitLength;
+		this.output = output;
+		
+		this.basicNumericFactory = basicNumericFactory;
+		this.integerToBitsFactory = integerToBitsFactory;
+		
+	}
+	
 	@Override
 	protected ProtocolProducer initializeGateProducer() {
 		
@@ -65,21 +80,43 @@ public class ExponentiationProtocolImpl extends AbstractSimpleProtocol implement
 		builder.addGateProducer(integerToBitsFactory.getIntegerToBitsCircuit(exponent, maxExponentBitLength, bits));
 		
 		SInt result = builder.getSInt(1);
-		SInt e = builder.getSInt();
-		builder.copy(e, input);
 		
-		for (int i = 0; i < maxExponentBitLength; i++) {
-			/*
-			 * result += bits[i] * (result * r - r) + r
-			 * 
-			 *  aka.
-			 * 
-			 *            result       if bits[i] = 0
-			 * result = {
-			 *            result * e   if bits[i] = 1
-			 */
-			result = builder.add(builder.mult(bits[i], builder.sub(builder.mult(result, e), result)), result);
-			e = builder.mult(e, e);
+		if (input != null) {
+			SInt e = builder.getSInt();
+			builder.copy(e, input);
+			
+			for (int i = 0; i < maxExponentBitLength; i++) {
+				/*
+				 * result += bits[i] * (result * r - r) + r
+				 * 
+				 *  aka.
+				 * 
+				 *            result       if bits[i] = 0
+				 * result = {
+				 *            result * e   if bits[i] = 1
+				 */
+				result = builder.add(builder.mult(bits[i], builder.sub(builder.mult(result, e), result)), result);
+				e = builder.mult(e, e);
+			}
+			
+		} else if (openInput != null) {
+			OInt e = basicNumericFactory.getOInt(openInput.getValue());
+			
+			for (int i = 0; i < maxExponentBitLength; i++) {
+				/*
+				 * result += bits[i] * (result * r - r) + r
+				 * 
+				 *  aka.
+				 * 
+				 *            result       if bits[i] = 0
+				 * result = {
+				 *            result * e   if bits[i] = 1
+				 */
+				result = builder.add(builder.mult(bits[i], builder.sub(builder.mult(e, result), result)), result);
+				e = basicNumericFactory.getOInt(e.getValue().multiply(e.getValue()));
+			}
+		} else {
+			throw new IllegalArgumentException("Either input or openInput must not be null");
 		}
 
 		builder.copy(output, result);
