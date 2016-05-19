@@ -195,6 +195,11 @@ public class SpdzFactory implements BasicNumericFactory, PreprocessedNumericBitF
 	}
 
 	@Override
+	public SubtractCircuit getSubtractCircuit(SInt a, OInt b, SInt out) {
+		return new SpdzSubtractProtocol(a, b, out, this);
+	}
+	
+	@Override
 	public MultProtocol getMultCircuit(SInt a, SInt b, SInt out) {
 		return new SpdzMultProtocol(a, b, out);
 	}
