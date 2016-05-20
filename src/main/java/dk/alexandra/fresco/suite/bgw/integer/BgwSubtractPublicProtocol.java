@@ -31,11 +31,11 @@ import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.framework.value.Value;
-import dk.alexandra.fresco.lib.field.integer.SubtractCircuit;
+import dk.alexandra.fresco.lib.field.integer.SubtractProtocol;
 import dk.alexandra.fresco.suite.bgw.BgwProtocol;
 import dk.alexandra.fresco.suite.bgw.ShamirShare;
 
-public class BgwSubtractPublicProtocol extends BgwProtocol implements SubtractCircuit {
+public class BgwSubtractPublicProtocol extends BgwProtocol implements SubtractProtocol {
 
 	private BgwSInt inA;
 	private OInt inB;

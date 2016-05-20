@@ -59,7 +59,7 @@ public class BristolCircuit implements Protocol {
 	@Override
 	public int getNextProtocols(NativeProtocol[] protocols, int pos) {
 		// TODO: This is a bit hacky. 
-		// It only works if the BasicLogicProvider given to CircuitParser
+		// It only works if the BasicLogicFactory given to CircuitParser
 		// produces circuits for AND, XOR, NOT that are native protocols.
 		// Otherwise, more book-keeping is needed here.
 		NativeProtocol[] tmp = new NativeProtocol[5];
@@ -79,7 +79,7 @@ public class BristolCircuit implements Protocol {
 				break; // End of circuit reached.
 			}
 			if (res != 1)
-				throw new MPCException("Seems like you gave circuit parser a logic provider with non-native XOR,AND,NOT protocols");
+				throw new MPCException("Seems like you gave circuit parser a logic factory with non-native XOR,AND,NOT protocols");
 			protocols[pos] = tmp[0];
 			pos++; this.pos++;
 		}

@@ -37,7 +37,7 @@ import dk.alexandra.fresco.lib.field.integer.generic.IOIntProtocolFactory;
 import dk.alexandra.fresco.lib.helper.AbstractRepeatProtocol;
 
 /**
- * A builder handling input/output related circuits for protocol suites
+ * A builder handling input/output related protocols for protocol suites
  * supporting arithmetic.
  * 
  * @author psn
@@ -45,50 +45,50 @@ import dk.alexandra.fresco.lib.helper.AbstractRepeatProtocol;
  */
 public class NumericIOBuilder extends AbstractProtocolBuilder {
 
-	private IOIntProtocolFactory iop;
-	private SIntFactory sip;
-	private OIntFactory oip;
+	private IOIntProtocolFactory iof;
+	private SIntFactory sif;
+	private OIntFactory oif;
 
 	/**
 	 * Constructs a new builder
 	 * 
 	 * @param iop
-	 *            provider of input/output circuits
+	 *            factory of input/output protocols
 	 * @param sip
-	 *            provider of SInts
+	 *            factory of SInts
 	 * @param oip
-	 *            provider of OInts
+	 *            factory of OInts
 	 */
 	public NumericIOBuilder(IOIntProtocolFactory iop, SIntFactory sip, OIntFactory oip) {
 		super();
-		this.iop = iop;
-		this.sip = sip;
-		this.oip = oip;
+		this.iof = iop;
+		this.sif = sip;
+		this.oif = oip;
 	}
 
 	/**
-	 * A convenient constructor when one provider implements all the needed
+	 * A convenient constructor when one factory implements all the needed
 	 * interfaces (which will usually be the case)
 	 * 
-	 * @param provider
-	 *            a provider providing SInt/OInt and input/output ciruicts.
+	 * @param factory
+	 *            a factory providing SInt/OInt and input/output ciruicts.
 	 */
-	public <T extends IOIntProtocolFactory & SIntFactory & OIntFactory> NumericIOBuilder(T provider) {
+	public <T extends IOIntProtocolFactory & SIntFactory & OIntFactory> NumericIOBuilder(T factory) {
 		super();
-		this.iop = provider;
-		this.sip = provider;
-		this.oip = provider;
+		this.iof = factory;
+		this.sif = factory;
+		this.oif = factory;
 	}
 
 	/**
-	 * Appends a circuit to input a matrix of BigIntegers.
+	 * Appends a protocol to input a matrix of BigIntegers.
 	 * 
 	 * @param is
 	 *            the BigInteger values
 	 * @param targetID
 	 *            the party to input
 	 * @return SInt's that will be loaded with the corresponding inputs, by the
-	 *         appended circuit.
+	 *         appended protocol.
 	 */
 	public SInt[][] inputMatrix(BigInteger[][] is, int targetID) {
 		SInt[][] sis = new SInt[is.length][is[0].length];
@@ -101,7 +101,7 @@ public class NumericIOBuilder extends AbstractProtocolBuilder {
 	}
 
 	/**
-	 * Appends a circuit to input an matrix of values by an other party. I.e.,
+	 * Appends a protocol to input an matrix of values by an other party. I.e.,
 	 * the values or not held by this party.
 	 * 
 	 * @param h
@@ -123,33 +123,33 @@ public class NumericIOBuilder extends AbstractProtocolBuilder {
 	}
 
 	/**
-	 * Appends a circuit to input a array of BigIntegers.
+	 * Appends a protocol to input a array of BigIntegers.
 	 * 
 	 * @param is
 	 *            the BigInteger values
 	 * @param targetID
 	 *            the party to input
 	 * @return SInt's that will be loaded with the corresponding inputs, by the
-	 *         appended circuit.
+	 *         appended protocol.
 	 */
 	public SInt[] inputArray(BigInteger[] is, int targetID) {
 		SInt[] sis = new SInt[is.length];
 		for (int i = 0; i < sis.length; i++) {
-			sis[i] = sip.getSInt();
+			sis[i] = sif.getSInt();
 		}
 		append(new InputArray(is, sis, targetID));
 		return sis;
 	}
 
 	/**
-	 * Appends a circuit to input a array of BigIntegers.
+	 * Appends a protocol to input a array of BigIntegers.
 	 * 
 	 * @param is
 	 *            the BigInteger values
 	 * @param targetID
 	 *            the party to input
 	 * @return SInt's that will be loaded with the corresponding inputs, by the
-	 *         appended circuit.
+	 *         appended protocol.
 	 */
 	public SInt[] inputArray(int[] is, int targetID) {
 		BigInteger[] tmp = new BigInteger[is.length];
@@ -160,14 +160,14 @@ public class NumericIOBuilder extends AbstractProtocolBuilder {
 	}
 
 	/**
-	 * Appends a circuit to input a matrix of int's
+	 * Appends a protocol to input a matrix of int's
 	 * 
 	 * @param m
 	 *            A matrix of integers
 	 * @param targetID
 	 *            The party to input
 	 * @return SInt's that will be loaded with the corresponding inputs by the
-	 *         appended circuit.
+	 *         appended protocol.
 	 */
 	public SInt[][] inputMatrix(int[][] m, int targetID) {
 		BigInteger[][] tmp = new BigInteger[m.length][m[0].length];
@@ -180,7 +180,7 @@ public class NumericIOBuilder extends AbstractProtocolBuilder {
 	}
 
 	/**
-	 * Appends a circuit to input an array of value by an other party. I.e., the
+	 * Appends a protocol to input an array of value by an other party. I.e., the
 	 * values or not held by this party.
 	 * 
 	 * @param length
@@ -192,7 +192,7 @@ public class NumericIOBuilder extends AbstractProtocolBuilder {
 	public SInt[] inputArray(int length, int targetID) {
 		SInt[] sis = new SInt[length];
 		for (int i = 0; i < length; i++) {
-			sis[i] = sip.getSInt();
+			sis[i] = sif.getSInt();
 		}
 		append(new InputArray(sis, targetID));
 		return sis;
@@ -229,14 +229,14 @@ public class NumericIOBuilder extends AbstractProtocolBuilder {
 		}
 
 		@Override
-		protected ProtocolProducer getNextGateProducer() {
+		protected ProtocolProducer getNextProtocolProducer() {
 			ProtocolProducer input = null;
 			if (i < length) {
-				OInt oi = oip.getOInt();
+				OInt oi = oif.getOInt();
 				if (is != null) {
 					oi.setValue(is[i]);
 				}
-				input = iop.getCloseProtocol(targetID, oi, sis[i]);
+				input = iof.getCloseProtocol(targetID, oi, sis[i]);
 				i++;
 			}
 			return input;
@@ -244,7 +244,7 @@ public class NumericIOBuilder extends AbstractProtocolBuilder {
 	}
 
 	/**
-	 * Appends a circuit to input a single BigInteger
+	 * Appends a protocol to input a single BigInteger
 	 * 
 	 * @param i
 	 *            the BigInteger value
@@ -253,15 +253,15 @@ public class NumericIOBuilder extends AbstractProtocolBuilder {
 	 * @return the SInt to be loaded with the input
 	 */
 	public SInt input(BigInteger i, int targetID) {
-		SInt si = sip.getSInt();
-		OInt oi = oip.getOInt();
+		SInt si = sif.getSInt();
+		OInt oi = oif.getOInt();
 		oi.setValue(i);
-		append(iop.getCloseProtocol(targetID, oi, si));
+		append(iof.getCloseProtocol(targetID, oi, si));
 		return si;
 	}
 
 	/**
-	 * Appends a circuit to input a single BigInteger
+	 * Appends a protocol to input a single BigInteger
 	 * 
 	 * @param i
 	 *            the integer value
@@ -270,15 +270,15 @@ public class NumericIOBuilder extends AbstractProtocolBuilder {
 	 * @return the SInt to be loaded with the input
 	 */
 	public SInt input(int i, int targetID) {
-		SInt si = sip.getSInt();
-		OInt oi = oip.getOInt();
+		SInt si = sif.getSInt();
+		OInt oi = oif.getOInt();
 		oi.setValue(BigInteger.valueOf(i));
-		append(iop.getCloseProtocol(targetID, oi, si));
+		append(iof.getCloseProtocol(targetID, oi, si));
 		return si;
 	}
 
 	/**
-	 * Appends a circuit to input a single value from an other party. I.e., the
+	 * Appends a protocol to input a single value from an other party. I.e., the
 	 * value is not given.
 	 * 
 	 * @param targetID
@@ -286,13 +286,13 @@ public class NumericIOBuilder extends AbstractProtocolBuilder {
 	 * @return SInt to be loaded with the input.
 	 */
 	public SInt input(int targetID) {
-		SInt si = sip.getSInt();
-		append(iop.getCloseProtocol(targetID, null, si));
+		SInt si = sif.getSInt();
+		append(iof.getCloseProtocol(targetID, null, si));
 		return si;
 	}
 
 	/**
-	 * Appends a circuit to open a matrix of SInts. Output should be given to
+	 * Appends a protocol to open a matrix of SInts. Output should be given to
 	 * all parties.
 	 * 
 	 * @param sis
@@ -310,7 +310,7 @@ public class NumericIOBuilder extends AbstractProtocolBuilder {
 	}
 
 	/**
-	 * Appends a circuit to open an array of SInts. Output should be given to
+	 * Appends a protocol to open an array of SInts. Output should be given to
 	 * all parties.
 	 * 
 	 * @param sis
@@ -320,7 +320,7 @@ public class NumericIOBuilder extends AbstractProtocolBuilder {
 	public OInt[] outputArray(SInt sis[]) {
 		OInt[] ois = new OInt[sis.length];
 		for (int i = 0; i < sis.length; i++) {
-			ois[i] = oip.getOInt();
+			ois[i] = oif.getOInt();
 		}
 		append(new OutputArray(sis, ois));
 		return ois;
@@ -343,10 +343,10 @@ public class NumericIOBuilder extends AbstractProtocolBuilder {
 		}
 
 		@Override
-		protected ProtocolProducer getNextGateProducer() {
+		protected ProtocolProducer getNextProtocolProducer() {
 			ProtocolProducer output = null;
 			if (i < ois.length) {
-				output = iop.getOpenProtocol(sis[i], ois[i]);
+				output = iof.getOpenProtocol(sis[i], ois[i]);
 				i++;
 			}
 			return output;
@@ -354,7 +354,7 @@ public class NumericIOBuilder extends AbstractProtocolBuilder {
 	}
 
 	/**
-	 * Appends a circuit to open a single SInt. Output should be given to all
+	 * Appends a protocol to open a single SInt. Output should be given to all
 	 * parties.
 	 * 
 	 * @param sis
@@ -362,13 +362,13 @@ public class NumericIOBuilder extends AbstractProtocolBuilder {
 	 * @return the OInt to be loaded with the opened SInt
 	 */
 	public OInt output(SInt si) {
-		OInt oi = oip.getOInt();
-		append(iop.getOpenProtocol(si, oi));
+		OInt oi = oif.getOInt();
+		append(iof.getOpenProtocol(si, oi));
 		return oi;
 	}
 
 	/**
-	 * Appends a circuit to open a single SInt. Output is given only to the
+	 * Appends a protocol to open a single SInt. Output is given only to the
 	 * target ID.
 	 * 
 	 * @param target
@@ -378,13 +378,13 @@ public class NumericIOBuilder extends AbstractProtocolBuilder {
 	 * @return
 	 */
 	public OInt outputToParty(int target, SInt si) {
-		OInt oi = oip.getOInt();
-		append(iop.getOpenProtocol(target, si, oi));
+		OInt oi = oif.getOInt();
+		append(iof.getOpenProtocol(target, si, oi));
 		return oi;
 	}
 
 	@Override
-	public void addGateProducer(ProtocolProducer gp) {
+	public void addProtocolProducer(ProtocolProducer gp) {
 		append(gp);
 	}
 }

@@ -111,7 +111,7 @@ public class SecretSharedDivisorProtocol extends AbstractSimpleProtocol implemen
 	}
 
 	@Override
-	protected ProtocolProducer initializeGateProducer() {
+	protected ProtocolProducer initializeProtocolProducer() {
 
 		NumericProtocolBuilder builder = new NumericProtocolBuilder(basicNumericFactory);
 
@@ -149,13 +149,13 @@ public class SecretSharedDivisorProtocol extends AbstractSimpleProtocol implemen
 		 * Find the bitlength m of the divisor
 		 */
 		SInt mostSignificantBit = builder.getSInt();
-		builder.addGateProducer(bitLengthFactory.getBitLengthProtocol(divisor,
+		builder.addProtocolProducer(bitLengthFactory.getBitLengthProtocol(divisor,
 				mostSignificantBit, maxDivisorLength));
 		SInt boundDifference = builder.sub(
 				basicNumericFactory.getOInt(BigInteger.valueOf(maxDivisorLength)),
 				mostSignificantBit);
 		SInt boundDifferencePower = builder.getSInt();
-		builder.addGateProducer(exponentiationFactory.getExponentiationCircuit(
+		builder.addProtocolProducer(exponentiationFactory.getExponentiationCircuit(
 				basicNumericFactory.getOInt(BigInteger.valueOf(2)), boundDifference,
 				log2(maxDivisorLength), boundDifferencePower));
 
@@ -191,10 +191,10 @@ public class SecretSharedDivisorProtocol extends AbstractSimpleProtocol implemen
 		 */
 		int shifts = ((1 << precision) - 2) * maxDivisorLength;
 		SInt tmp = builder.getSInt();
-		builder.addGateProducer(rightShiftFactory.getRepeatedRightShiftProtocol(numerator, shifts,
+		builder.addProtocolProducer(rightShiftFactory.getRepeatedRightShiftProtocol(numerator, shifts,
 				tmp));
 		SInt tmp2 = builder.mult(tmp, boundDifferencePower);
-		builder.addGateProducer(rightShiftFactory.getRepeatedRightShiftProtocol(tmp2,
+		builder.addProtocolProducer(rightShiftFactory.getRepeatedRightShiftProtocol(tmp2,
 				2 * maxDivisorLength, result));
 		builder.endCurScope();
 
@@ -207,7 +207,7 @@ public class SecretSharedDivisorProtocol extends AbstractSimpleProtocol implemen
 			this.precision.setValue(BigInteger.valueOf(2).pow(precision));
 		}
 
-		return builder.getCircuit();
+		return builder.getProtocol();
 	}
 
 	/**

@@ -41,7 +41,7 @@ import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
 
 /**
- * This class implements logarithm base 2 for binary circuits.
+ * This class implements logarithm base 2 for binary protocols.
  * It is currently up to the application programmer to check if the input is 0. 
  * It is well-defined to input 0 and will return 0, but this is not correct as log_2(0) = NaN
  * It uses a method consisting of 3 steps:
@@ -63,8 +63,8 @@ public class LogProtocolImpl implements LogProtocol{
 	private SBool[] number, result;
 	private SBool[] prefixOrOuts; //y
 	private SBool[] log, xorHolders, tmps;
-	private BasicLogicFactory provider;
-	private ProtocolProducer curGP;
+	private BasicLogicFactory factory;
+	private ProtocolProducer curPP;
 	private int round;	
 
 	/**
@@ -73,102 +73,102 @@ public class LogProtocolImpl implements LogProtocol{
 	 * 
 	 * @param number The number which we want to calculate log base 2 on.
 	 * @param result Placeholder for the result of the computation.
-	 * @param provider A Basic Logic provider
+	 * @param factory A Basic Logic factory
 	 */
-	public LogProtocolImpl(SBool[] number, SBool[] result, BasicLogicFactory provider){
+	public LogProtocolImpl(SBool[] number, SBool[] result, BasicLogicFactory factory){
 		if(result.length != Util.log2(number.length)+1){
 			throw new MPCException("Output array must be log size+1 that of the input array!");
 		}
 		this.number = number;
 		this.result = result;
-		this.provider = provider;
-		this.curGP = null;
+		this.factory = factory;
+		this.curPP = null;
 		this.round = 0;
 
 		prefixOrOuts = new SBool[number.length];		
 		for(int i = 0; i < number.length; i++){
-			prefixOrOuts[i] = provider.getSBool();			
+			prefixOrOuts[i] = factory.getSBool();			
 		}
 		
 		log = new SBool[number.length+1];		
 		tmps = new SBool[log.length];
 		for(int i = 0; i < log.length; i++){
-			log[i] = provider.getSBool();		
-			tmps[i] = provider.getSBool();
+			log[i] = factory.getSBool();		
+			tmps[i] = factory.getSBool();
 		}
 	}
 
 	@Override
-	public int getNextProtocols(NativeProtocol[] gates, int pos) {
+	public int getNextProtocols(NativeProtocol[] nativeProtocols, int pos) {
 		if(round == 0){
-			if(curGP == null){
+			if(curPP == null){
 				Protocol[] prefixOrs = new Protocol[number.length-1];
 				prefixOrOuts[0] = number[0];
 				for(int i = 1; i < number.length; i++){
-					Protocol or = new OrFromXorAndProtocol(provider, provider, provider, number[i], prefixOrOuts[i-1], prefixOrOuts[i]);
-					prefixOrs[i-1] = or;//provider.getOrCircuit(number[i], prefixOrOuts[i-1], prefixOrOuts[i]);
+					Protocol or = new OrFromXorAndProtocol(factory, factory, factory, number[i], prefixOrOuts[i-1], prefixOrOuts[i]);
+					prefixOrs[i-1] = or;
 				}
-				curGP = new SequentialProtocolProducer(prefixOrs);
+				curPP = new SequentialProtocolProducer(prefixOrs);
 			}
-			if(curGP.hasNextProtocols()){
-				pos = curGP.getNextProtocols(gates, pos);
+			if(curPP.hasNextProtocols()){
+				pos = curPP.getNextProtocols(nativeProtocols, pos);
 			}
-			else if(!curGP.hasNextProtocols()){
-				curGP = null;
+			else if(!curPP.hasNextProtocols()){
+				curPP = null;
 				round++;
 			}
 		}
 		else if(round == 1){
-			if(curGP == null){				
+			if(curPP == null){				
 				Protocol[] xors = new Protocol[number.length+1];				
 				for(int i = xors.length-2; i > -1; i--){
 					if(i == 0){
-						OBool zero = provider.getKnownConstantOBool(false); //get a 0 which we implicitly prepends to y (prefixOrOuts)						
-						xors[i] = provider.getXorCircuit(prefixOrOuts[i], zero, log[i]);
+						OBool zero = factory.getKnownConstantOBool(false); //get a 0 which we implicitly prepends to y (prefixOrOuts)						
+						xors[i] = factory.getXorProtocol(prefixOrOuts[i], zero, log[i]);
 					}
 					else{
-						xors[i] = provider.getXorCircuit(prefixOrOuts[i-1], prefixOrOuts[i], log[i]);
+						xors[i] = factory.getXorProtocol(prefixOrOuts[i-1], prefixOrOuts[i], log[i]);
 					}
 				}
-				xors[xors.length-1] = provider.getXorCircuit(prefixOrOuts[0], prefixOrOuts[0], log[xors.length-1]); //This is the same as saying that a 0 should 
+				xors[xors.length-1] = factory.getXorProtocol(prefixOrOuts[0], prefixOrOuts[0], log[xors.length-1]); //This is the same as saying that a 0 should 
 																													//always be at the least significant bit position at z 
-				curGP = new ParallelProtocolProducer(xors);
+				curPP = new ParallelProtocolProducer(xors);
 			}
-			if(curGP.hasNextProtocols()){
-				pos = curGP.getNextProtocols(gates, pos);
+			if(curPP.hasNextProtocols()){
+				pos = curPP.getNextProtocols(nativeProtocols, pos);
 			}
-			else if(!curGP.hasNextProtocols()){
-				curGP = null;
+			else if(!curPP.hasNextProtocols()){
+				curPP = null;
 				round++;
 			}
 		}
 		else if(round == 2){
-			if(curGP == null){
-				curGP = new ParallelProtocolProducer();
+			if(curPP == null){
+				curPP = new ParallelProtocolProducer();
 				for(int j = 0; j < result.length; j++){		
 					xorHolders = new SBool[log.length];
 					Protocol[] xors = new Protocol[log.length];
 					Protocol[] ands = new Protocol[log.length];					
 					for(int i = 0; i < xors.length; i++){
-						xorHolders[i] = provider.getSBool();
+						xorHolders[i] = factory.getSBool();
 						boolean ithBit = Util.ithBit(xors.length-1-i, result.length-1-j); //j'th bit of i	
-						ands[i] = provider.getAndCircuit(log[i], provider.getKnownConstantOBool(ithBit), xorHolders[i]);
-						xors[i] = provider.getXorCircuit(xorHolders[i], result[j], result[j]);
+						ands[i] = factory.getAndProtocol(log[i], factory.getKnownConstantOBool(ithBit), xorHolders[i]);
+						xors[i] = factory.getXorProtocol(xorHolders[i], result[j], result[j]);
 					}
-					XorProtocol preResult = provider.getXorCircuit(number[0], number[0], result[j]); //"hack" in order to make result be 0 from starting point.					
+					XorProtocol preResult = factory.getXorProtocol(number[0], number[0], result[j]); //"hack" in order to make result be 0 from starting point.					
 					SequentialProtocolProducer seq1 = new SequentialProtocolProducer(ands);
 					SequentialProtocolProducer tmp = new SequentialProtocolProducer(xors);
 					SequentialProtocolProducer seq2 = new SequentialProtocolProducer(preResult, tmp);
 					
-					((ParallelProtocolProducer)curGP).append(seq1);
-					((ParallelProtocolProducer)curGP).append(seq2);					
+					((ParallelProtocolProducer)curPP).append(seq1);
+					((ParallelProtocolProducer)curPP).append(seq2);					
 				}
 			}
-			if(curGP.hasNextProtocols()){
-				pos = curGP.getNextProtocols(gates, pos);
+			if(curPP.hasNextProtocols()){
+				pos = curPP.getNextProtocols(nativeProtocols, pos);
 			}
-			else if(!curGP.hasNextProtocols()){
-				curGP = null;
+			else if(!curPP.hasNextProtocols()){
+				curPP = null;
 				round++;
 			}
 		}

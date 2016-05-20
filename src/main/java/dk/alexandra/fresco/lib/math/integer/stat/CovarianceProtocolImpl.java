@@ -69,7 +69,7 @@ public class CovarianceProtocolImpl extends AbstractSimpleProtocol implements Co
 	}
 
 	@Override
-	protected ProtocolProducer initializeGateProducer() {
+	protected ProtocolProducer initializeProtocolProducer() {
 
 		if (data1.length != data2.length) {
 			throw new IllegalArgumentException("Must have same sample size.");
@@ -106,7 +106,7 @@ public class CovarianceProtocolImpl extends AbstractSimpleProtocol implements Co
 		}
 		numericProtocolBuilder.endCurScope();
 
-		gp.append(numericProtocolBuilder.getCircuit());
+		gp.append(numericProtocolBuilder.getProtocol());
 
 		// The sample variance has df = n-1
 		gp.append(meanFactory.getMeanProtocol(terms, 2 * maxInputLength, data1.length - 1,

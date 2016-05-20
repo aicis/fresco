@@ -70,14 +70,14 @@ public class BitLengthProtocolImpl extends AbstractSimpleProtocol implements Bit
 	}
 
 	@Override
-	protected ProtocolProducer initializeGateProducer() {
+	protected ProtocolProducer initializeProtocolProducer() {
 		NumericProtocolBuilder builder = new NumericProtocolBuilder(basicNumericFactory);
 
 		/*
 		 * Find the bit representation of the inpyt.
 		 */
 		SInt[] bits = builder.getSIntArray(maxBitLength);
-		builder.addGateProducer(integerToBitsFactory.getIntegerToBitsCircuit(input, maxBitLength,
+		builder.addProtocolProducer(integerToBitsFactory.getIntegerToBitsCircuit(input, maxBitLength,
 				bits));
 
 		SInt mostSignificantBitIndex = builder.getSInt(0);
@@ -99,7 +99,7 @@ public class BitLengthProtocolImpl extends AbstractSimpleProtocol implements Bit
 		 */
 		SInt bitLength = builder.add(mostSignificantBitIndex, basicNumericFactory.getOInt(BigInteger.ONE));
 		builder.copy(result, bitLength);
-		return builder.getCircuit();
+		return builder.getProtocol();
 	}
 
 }

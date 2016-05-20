@@ -101,12 +101,12 @@ public class DivisionTests {
 						
 						@Override
 						public ProtocolProducer prepareApplication(
-								ProtocolFactory provider) {
+								ProtocolFactory factory) {
 							
-							BasicNumericFactory basicNumericFactory = (BasicNumericFactory) provider;
-							PreprocessedNumericBitFactory preprocessedNumericBitFactory = (PreprocessedNumericBitFactory) provider;
+							BasicNumericFactory basicNumericFactory = (BasicNumericFactory) factory;
+							PreprocessedNumericBitFactory preprocessedNumericBitFactory = (PreprocessedNumericBitFactory) factory;
 							RandomAdditiveMaskFactory randomAdditiveMaskFactory = new RandomAdditiveMaskFactoryImpl(basicNumericFactory, preprocessedNumericBitFactory);
-							LocalInversionFactory localInversionFactory = (LocalInversionFactory) provider;
+							LocalInversionFactory localInversionFactory = (LocalInversionFactory) factory;
 							RightShiftFactory rightShiftFactory = new RightShiftFactoryImpl(basicNumericFactory, randomAdditiveMaskFactory, localInversionFactory);
 							IntegerToBitsFactory integerToBitsFactory = new IntegerToBitsFactoryImpl(basicNumericFactory, rightShiftFactory);
 							BitLengthFactory bitLengthFactory = new BitLengthFactoryImpl(basicNumericFactory, integerToBitsFactory);
@@ -121,7 +121,7 @@ public class DivisionTests {
 							
 							SInt input1 = ioBuilder.input(x, 1);
 							OInt input2 = basicNumericFactory.getOInt(d);
-							sequentialProtocolProducer.append(ioBuilder.getCircuit());
+							sequentialProtocolProducer.append(ioBuilder.getProtocol());
 							
 							DivisionProtocol euclidianDivisionProtocol = divisionFactory.getDivisionProtocol(input1, x.bitLength() + 1, input2, quotient, remainder);
 							sequentialProtocolProducer.append(euclidianDivisionProtocol);
@@ -129,7 +129,7 @@ public class DivisionTests {
 							OInt output1 = ioBuilder.output(quotient);
 							OInt output2 = ioBuilder.output(remainder);
 							
-							sequentialProtocolProducer.append(ioBuilder.getCircuit());
+							sequentialProtocolProducer.append(ioBuilder.getProtocol());
 							
 							ProtocolProducer gp = sequentialProtocolProducer;
 							
@@ -171,12 +171,12 @@ public class DivisionTests {
 						
 						@Override
 						public ProtocolProducer prepareApplication(
-								ProtocolFactory provider) {
+								ProtocolFactory factory) {
 							
-							BasicNumericFactory basicNumericFactory = (BasicNumericFactory) provider;
-							PreprocessedNumericBitFactory preprocessedNumericBitFactory = (PreprocessedNumericBitFactory) provider;
+							BasicNumericFactory basicNumericFactory = (BasicNumericFactory) factory;
+							PreprocessedNumericBitFactory preprocessedNumericBitFactory = (PreprocessedNumericBitFactory) factory;
 							RandomAdditiveMaskFactory randomAdditiveMaskFactory = new RandomAdditiveMaskFactoryImpl(basicNumericFactory, preprocessedNumericBitFactory);
-							LocalInversionFactory localInversionFactory = (LocalInversionFactory) provider;
+							LocalInversionFactory localInversionFactory = (LocalInversionFactory) factory;
 							RightShiftFactory rightShiftFactory = new RightShiftFactoryImpl(basicNumericFactory, randomAdditiveMaskFactory, localInversionFactory);
 							IntegerToBitsFactory integerToBitsFactory = new IntegerToBitsFactoryImpl(basicNumericFactory, rightShiftFactory);
 							BitLengthFactory bitLengthFactory = new BitLengthFactoryImpl(basicNumericFactory, integerToBitsFactory);
@@ -190,7 +190,7 @@ public class DivisionTests {
 							
 							SInt[] inputs = ioBuilder.inputArray(x, 1);
 							SInt input2 = ioBuilder.input(d, 2);
-							sequentialProtocolProducer.append(ioBuilder.getCircuit());
+							sequentialProtocolProducer.append(ioBuilder.getProtocol());
 							
 							for (int i = 0; i < n; i++) {
 								precision[i] = basicNumericFactory.getOInt();
@@ -201,7 +201,7 @@ public class DivisionTests {
 							
 							this.outputs = ioBuilder.outputArray(quotient);
 							
-							sequentialProtocolProducer.append(ioBuilder.getCircuit());
+							sequentialProtocolProducer.append(ioBuilder.getProtocol());
 							
 							ProtocolProducer gp = sequentialProtocolProducer;
 							

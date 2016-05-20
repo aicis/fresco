@@ -39,7 +39,7 @@ import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.field.integer.CloseIntProtocol;
 import dk.alexandra.fresco.lib.field.integer.MultProtocol;
 import dk.alexandra.fresco.lib.field.integer.OpenIntProtocol;
-import dk.alexandra.fresco.lib.field.integer.SubtractCircuit;
+import dk.alexandra.fresco.lib.field.integer.SubtractProtocol;
 import dk.alexandra.fresco.lib.helper.builder.NumericProtocolBuilder;
 import dk.alexandra.fresco.lib.math.integer.PreprocessedNumericBitFactory;
 import dk.alexandra.fresco.lib.math.integer.exp.ExpFromOIntFactory;
@@ -127,27 +127,27 @@ public class BgwFactory implements BasicNumericFactory, LocalInversionFactory, E
 	}
 
 	@Override
-	public SubtractCircuit getSubtractCircuit(SInt a, SInt b, SInt out) {
+	public SubtractProtocol getSubtractProtocol(SInt a, SInt b, SInt out) {
 		return new BgwSubtractProtocol(a, b, out);
 	}
 
 	@Override
-	public SubtractCircuit getSubtractCircuit(OInt a, SInt b, SInt out) {
+	public SubtractProtocol getSubtractProtocol(OInt a, SInt b, SInt out) {
 		return new BgwSubtractFromPublicProtocol(a, b, out);
 	}
 
 	@Override
-	public SubtractCircuit getSubtractCircuit(SInt a, OInt b, SInt out) {
+	public SubtractProtocol getSubtractProtocol(SInt a, OInt b, SInt out) {
 		return new BgwSubtractPublicProtocol(a, b, out);
 	}
 	
 	@Override
-	public MultProtocol getMultCircuit(SInt a, SInt b, SInt out) {
+	public MultProtocol getMultProtocol(SInt a, SInt b, SInt out) {
 		return new BgwMultProtocol(a, b, out);
 	}
 
 	// test purpose only
-	public Protocol getInvertIntCircuit(SInt in, SInt out) {
+	public Protocol getInvertIntProtocol(SInt in, SInt out) {
 		return new BgwInvertIntProtocol(this, in, out);
 	}
 
@@ -194,7 +194,7 @@ public class BgwFactory implements BasicNumericFactory, LocalInversionFactory, E
 
 
 	@Override
-	public MultProtocol getMultCircuit(OInt a, SInt b, SInt c) {
+	public MultProtocol getMultProtocol(OInt a, SInt b, SInt c) {
 		return new BgwMultWithPublicProtocol((BgwOInt)a, (BgwSInt)b, (BgwSInt)c);
 	}
 
@@ -213,7 +213,7 @@ public class BgwFactory implements BasicNumericFactory, LocalInversionFactory, E
 	}
 
 	@Override
-	public LocalInversionProtocol getLocalInversionCircuit(OInt x, OInt result) {
+	public LocalInversionProtocol getLocalInversionProtocol(OInt x, OInt result) {
 		return new BgwLocalInvProtocol((BgwOInt)x, (BgwOInt)result);
 	}
 
@@ -236,11 +236,11 @@ public class BgwFactory implements BasicNumericFactory, LocalInversionFactory, E
 		NumericProtocolBuilder builder = new NumericProtocolBuilder(this);
 		builder.beginSeqScope();
 		if (!bitSupplier.hasMoreBits()) {
-			builder.addGateProducer(bitSupplier.generateMoreBits());
+			builder.addProtocolProducer(bitSupplier.generateMoreBits());
 		}
 		builder.copy(bit, bitSupplier.getNextBit());
 		builder.endCurScope();
-		return builder.getCircuit();
+		return builder.getProtocol();
 	}
 
 }

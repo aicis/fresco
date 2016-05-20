@@ -37,7 +37,7 @@ import dk.alexandra.fresco.lib.lp.LPTableau;
 import dk.alexandra.fresco.lib.lp.Matrix;
 
 /**
- * This LPPrefix simply reads plaintext inputs from an LPInputReader and creates an input circuit to put the corresponding 
+ * This LPPrefix simply reads plaintext inputs from an LPInputReader and creates an input protocols to put the corresponding 
  * plaintext values into the SInts needed for the LPSolver.
  * @author psn
  *
@@ -49,7 +49,7 @@ public class PlainSpdzLPPrefix implements LPPrefix {
 	private final SInt pivot;
 	private ProtocolProducer prefix;
 		
-	public PlainSpdzLPPrefix(LPInputReader inputReader, BasicNumericFactory provider) throws IOException {
+	public PlainSpdzLPPrefix(LPInputReader inputReader, BasicNumericFactory factory) throws IOException {
 		if (!inputReader.isRead()) {
 			inputReader.readInput();
 		}
@@ -62,7 +62,7 @@ public class PlainSpdzLPPrefix implements LPPrefix {
 		for (int i = 0; i < C.length; i++) {
 			for (int j = 0; j < C[i].length; j++) {
 				if (inputReader.getCPattern()[i][j] == 0) {
-					C[i][j] = provider.getSInt(inputReader.getCValues()[i][j]);
+					C[i][j] = factory.getSInt(inputReader.getCValues()[i][j]);
 				} else {
 					C[i][j] = null;
 				}
@@ -70,14 +70,14 @@ public class PlainSpdzLPPrefix implements LPPrefix {
 		}
 		for (int i = 0; i < F.length; i++) {
 			if (inputReader.getFPattern()[i] == 0) {
-				F[i] = provider.getSInt(inputReader.getFValues()[i]);
+				F[i] = factory.getSInt(inputReader.getFValues()[i]);
 			} else {
 				F[i] = null;
 			}
 		}
 		for (int i = 0; i < B.length; i++) {
 			if (inputReader.getBPattern()[i] == 0) {
-				B[i] = provider.getSInt(inputReader.getBValues()[i]);
+				B[i] = factory.getSInt(inputReader.getBValues()[i]);
 			} else {
 				B[i] = null;
 			}
@@ -86,28 +86,28 @@ public class PlainSpdzLPPrefix implements LPPrefix {
 		for (int i = 0; i < noConstraints + 1; i++) {
 			for (int j = 0; j < noConstraints + 1; j++) {
 				if (i == j) {
-					update[i][j] = provider.getSInt(1);
+					update[i][j] = factory.getSInt(1);
 				} else {
-					update[i][j] = provider.getSInt(0);
+					update[i][j] = factory.getSInt(0);
 				}
 			}
 		}
-		SInt z = provider.getSInt(0);
+		SInt z = factory.getSInt(0);
 
-		C = Util.sIntFillRemaining(C, provider);
-		B = Util.sIntFillRemaining(B, provider);
-		F = Util.sIntFillRemaining(F, provider);		
+		C = Util.sIntFillRemaining(C, factory);
+		B = Util.sIntFillRemaining(B, factory);
+		F = Util.sIntFillRemaining(F, factory);		
 
-		ProtocolProducer cInputProducer = Util.makeInputGates(inputReader.getCValues(), 
-				inputReader.getCPattern(), C, provider);
-		ProtocolProducer bInputProducer = Util.makeInputGates(inputReader.getBValues(), 
-				inputReader.getBPattern(), B, provider);
-		ProtocolProducer fInputProducer = Util.makeInputGates(inputReader.getFValues(), 
-				inputReader.getFPattern(), F, provider);
+		ProtocolProducer cInputProducer = Util.makeInputProtocols(inputReader.getCValues(), 
+				inputReader.getCPattern(), C, factory);
+		ProtocolProducer bInputProducer = Util.makeInputProtocols(inputReader.getBValues(), 
+				inputReader.getBPattern(), B, factory);
+		ProtocolProducer fInputProducer = Util.makeInputProtocols(inputReader.getFValues(), 
+				inputReader.getFPattern(), F, factory);
 		ProtocolProducer input = new ParallelProtocolProducer(cInputProducer, bInputProducer, 
 				fInputProducer);
 		this.updateMatrix = new Matrix<SInt>(update);
-		this.pivot = provider.getSInt(1);
+		this.pivot = factory.getSInt(1);
 		this.tableau = new LPTableau(new Matrix<SInt>(C), B, F, z);
 		this.prefix = input;
 	}

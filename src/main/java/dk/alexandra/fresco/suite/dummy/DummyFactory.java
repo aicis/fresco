@@ -88,17 +88,17 @@ public class DummyFactory implements BasicLogicFactory {
 	}
 
 	@Override
-	public NotProtocol getNotCircuit(SBool in, SBool out) {
+	public NotProtocol getNotProtocol(SBool in, SBool out) {
 		return new DummyNotProtocol(in, out);
 	}
 
 	@Override
-	public XorProtocol getXorCircuit(SBool inLeft, SBool inRight, SBool out) {
+	public XorProtocol getXorProtocol(SBool inLeft, SBool inRight, SBool out) {
 		return new DummyXorProtocol(inLeft, inRight, out);
 	}
 
 	@Override
-	public AndProtocol getAndCircuit(SBool inLeft, SBool inRight, SBool out) {
+	public AndProtocol getAndProtocol(SBool inLeft, SBool inRight, SBool out) {
 		return new DummyAndProtocol(inLeft, inRight, out);
 	}
 
@@ -114,17 +114,17 @@ public class DummyFactory implements BasicLogicFactory {
 	}
 
 	@Override
-	public OpenBoolProtocol getOpenCircuit(int target, SBool closed, OBool open) {
+	public OpenBoolProtocol getOpenProtocol(int target, SBool closed, OBool open) {
 		return new DummyOpenBoolProtocol(closed, open, target);
 	}
 	
 	@Override
-	public AndProtocol getAndCircuit(SBool inLeft, OBool inRight, SBool out) {
+	public AndProtocol getAndProtocol(SBool inLeft, OBool inRight, SBool out) {
 		throw new NotImplementedException();
 	}
 
 	@Override
-	public XorProtocol getXorCircuit(SBool inLeft, OBool inRight, SBool out) {
+	public XorProtocol getXorProtocol(SBool inLeft, OBool inRight, SBool out) {
 		throw new NotImplementedException();
 	}
 

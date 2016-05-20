@@ -41,7 +41,7 @@ public class IntegerToBitsByShiftProtocolImpl extends AbstractSimpleProtocol imp
 	}
 
 	@Override
-	protected ProtocolProducer initializeGateProducer() {
+	protected ProtocolProducer initializeProtocolProducer() {
 
 		/*
 		 * The result of the shift is ignored - we only need the bits that was

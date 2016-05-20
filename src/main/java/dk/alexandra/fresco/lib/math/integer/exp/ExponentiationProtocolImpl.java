@@ -72,12 +72,12 @@ public class ExponentiationProtocolImpl extends AbstractSimpleProtocol implement
 	}
 	
 	@Override
-	protected ProtocolProducer initializeGateProducer() {
+	protected ProtocolProducer initializeProtocolProducer() {
 		
 		NumericProtocolBuilder builder = new NumericProtocolBuilder(basicNumericFactory);
 		
 		SInt[] bits = builder.getSIntArray(maxExponentBitLength);
-		builder.addGateProducer(integerToBitsFactory.getIntegerToBitsCircuit(exponent, maxExponentBitLength, bits));
+		builder.addProtocolProducer(integerToBitsFactory.getIntegerToBitsCircuit(exponent, maxExponentBitLength, bits));
 		
 		SInt result = builder.getSInt(1);
 		
@@ -120,6 +120,6 @@ public class ExponentiationProtocolImpl extends AbstractSimpleProtocol implement
 		}
 
 		builder.copy(output, result);
-		return builder.getCircuit();
+		return builder.getProtocol();
 	}
 }

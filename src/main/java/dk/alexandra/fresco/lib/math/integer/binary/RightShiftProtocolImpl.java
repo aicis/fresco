@@ -34,7 +34,6 @@ import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.framework.value.Value;
-import dk.alexandra.fresco.lib.compare.RandomAdditiveMaskCircuit;
 import dk.alexandra.fresco.lib.compare.RandomAdditiveMaskFactory;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.helper.builder.NumericProtocolBuilder;
@@ -58,9 +57,10 @@ public class RightShiftProtocolImpl implements RightShiftProtocol {
 	private int round = 0;
 	private SInt rTop, rBottom;
 	private OInt mOpen;
-	private ProtocolProducer gp;
-	private NumericProtocolBuilder builder;
 
+	private NumericProtocolBuilder builder;
+	private ProtocolProducer pp;
+	
 	/**
 	 * 
 	 * @param input
@@ -127,10 +127,11 @@ public class RightShiftProtocolImpl implements RightShiftProtocol {
 	}
 
 	@Override
-	public int getNextProtocols(NativeProtocol[] gates, int pos) {
-		if (gp == null) {
+	public int getNextProtocols(NativeProtocol[] nativeProtocols, int pos) {
+		if (pp == null) {
 
 			switch (round) {
+
 				case 0:
 					builder.reset();
 					builder.beginSeqScope();
@@ -141,8 +142,8 @@ public class RightShiftProtocolImpl implements RightShiftProtocol {
 					for (int i = 0; i < rExpansion.length; i++) {
 						rExpansion[i] = basicNumericFactory.getSInt();
 					}
-					builder.addGateProducer(randomAdditiveMaskFactory
-							.getRandomAdditiveMaskCircuit(securityParameter, rExpansion, r));
+					builder.addProtocolProducer(randomAdditiveMaskFactory
+							.getRandomAdditiveMaskProtocol(securityParameter, rExpansion, r));
 
 					// rBottom is the least significant bit of r
 					rBottom = rExpansion[0];
@@ -156,7 +157,7 @@ public class RightShiftProtocolImpl implements RightShiftProtocol {
 					
 					builder.beginSeqScope();
 					OInt inverseOfTwo = basicNumericFactory.getOInt();
-					builder.addGateProducer(localInversionFactory.getLocalInversionCircuit(
+					builder.addProtocolProducer(localInversionFactory.getLocalInversionProtocol(
 							basicNumericFactory.getOInt(BigInteger.valueOf(2)), inverseOfTwo));
 					rTop = builder.mult(inverseOfTwo, builder.sub(r, rBottom));
 					builder.endCurScope();
@@ -165,13 +166,13 @@ public class RightShiftProtocolImpl implements RightShiftProtocol {
 					builder.beginSeqScope();
 					mOpen = basicNumericFactory.getOInt();
 					SInt mClosed = builder.add(input,  r);
-					builder.addGateProducer(basicNumericFactory.getOpenProtocol(mClosed, mOpen));
+					builder.addProtocolProducer(basicNumericFactory.getOpenProtocol(mClosed, mOpen));
 					builder.endCurScope();
 					
 					builder.endCurScope();
 					
 					builder.endCurScope();
-					gp = builder.getCircuit();
+					pp = builder.getProtocol();
 					break;
 
 				case 1:
@@ -227,7 +228,7 @@ public class RightShiftProtocolImpl implements RightShiftProtocol {
 					}
 					builder.endCurScope();
 					builder.endCurScope();
-					gp = builder.getCircuit();
+					pp = builder.getProtocol();
 
 					break;
 
@@ -235,11 +236,11 @@ public class RightShiftProtocolImpl implements RightShiftProtocol {
 					throw new MPCException("Protocol only has two rounds.");
 			}
 		}
-		if (gp.hasNextProtocols()) {
-			pos = gp.getNextProtocols(gates, pos);
-		} else if (!gp.hasNextProtocols()) {
+		if (pp.hasNextProtocols()) {
+			pos = pp.getNextProtocols(nativeProtocols, pos);
+		} else if (!pp.hasNextProtocols()) {
 			round++;
-			gp = null;
+			pp = null;
 		}
 		return pos;
 	}

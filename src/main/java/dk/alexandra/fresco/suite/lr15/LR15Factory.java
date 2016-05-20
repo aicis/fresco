@@ -50,7 +50,7 @@ public class LR15Factory implements BasicLogicFactory {
 	}
 
 	@Override
-	public OpenBoolProtocol getOpenCircuit(int target, SBool closed, OBool open) {
+	public OpenBoolProtocol getOpenProtocol(int target, SBool closed, OBool open) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -92,31 +92,31 @@ public class LR15Factory implements BasicLogicFactory {
 	}
 
 	@Override
-	public AndProtocol getAndCircuit(SBool inLeft, SBool inRight, SBool out) {
+	public AndProtocol getAndProtocol(SBool inLeft, SBool inRight, SBool out) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public AndProtocol getAndCircuit(SBool inLeft, OBool inRight, SBool out) {
+	public AndProtocol getAndProtocol(SBool inLeft, OBool inRight, SBool out) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public NotProtocol getNotCircuit(SBool in, SBool out) {
+	public NotProtocol getNotProtocol(SBool in, SBool out) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public XorProtocol getXorCircuit(SBool inLeft, SBool inRight, SBool out) {
+	public XorProtocol getXorProtocol(SBool inLeft, SBool inRight, SBool out) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public XorProtocol getXorCircuit(SBool inLeft, OBool inRight, SBool out) {
+	public XorProtocol getXorProtocol(SBool inLeft, OBool inRight, SBool out) {
 		// TODO Auto-generated method stub
 		return null;
 	}

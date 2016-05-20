@@ -30,8 +30,8 @@ import dk.alexandra.fresco.framework.Protocol;
 import dk.alexandra.fresco.framework.value.Value;
 
 /**
- * A Circuit to look up a value in a set of values based on a key. I.e., given a
- * set of key/value pairs and a look up key the circuit should output the
+ * A protocol to look up a value in a set of values based on a key. I.e., given a
+ * set of key/value pairs and a look up key the protocol should output the
  * corresponding value, if the look up key is in the key/value pair set.
  * 
  * @author psn

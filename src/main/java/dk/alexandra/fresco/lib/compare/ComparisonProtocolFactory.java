@@ -48,7 +48,7 @@ public interface ComparisonProtocolFactory {
 			SInt result, boolean longCompare);
 
 	/**
-	 * Returns a circuit for equality
+	 * Returns a protocol for equality
 	 * 
 	 * @param bitlength
 	 *            the maximum bitlength of the two arguments
@@ -59,7 +59,7 @@ public interface ComparisonProtocolFactory {
 	 * @param result
 	 *            output - [1] (true) or [0] (false) (result of x1 = x2)
 	 * 
-	 * @return a circuit for equality
+	 * @return a protocol for equality
 	 */
 	public EqualityProtocol getEqualityProtocol(int bitLength, SInt x, SInt y,
 			SInt result);

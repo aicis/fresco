@@ -28,24 +28,24 @@ package dk.alexandra.fresco.lib.math.integer.linalg;
 
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.field.integer.MultCircuitFactory;
+import dk.alexandra.fresco.lib.field.integer.MultProtocolFactory;
 
 public class EntrywiseProductFactoryImpl implements EntrywiseProductFactory{
 
-	private final MultCircuitFactory mcf;
+	private final MultProtocolFactory mcf;
 	
-	public EntrywiseProductFactoryImpl(MultCircuitFactory mcf) {
+	public EntrywiseProductFactoryImpl(MultProtocolFactory mcf) {
 	this.mcf = mcf;
 	}
 	
 	@Override
-	public EntrywiseProductProtocol getDotProductCircuit(SInt[] as, SInt[] bs,
+	public EntrywiseProductProtocol getEntrywiseProductProtocol(SInt[] as, SInt[] bs,
 			SInt[] results) {
 		return new EntrywiseProductProtocolImpl(as, bs, results, mcf);
 	}
 
 	@Override
-	public EntrywiseProductProtocol getDotProductCircuit(SInt[] as, OInt[] bs,
+	public EntrywiseProductProtocol getEntrywiseProductProtocol(SInt[] as, OInt[] bs,
 			SInt[] results) {
 		return new EntrywiseProductProtocolImpl(as, bs, results, mcf);
 	}

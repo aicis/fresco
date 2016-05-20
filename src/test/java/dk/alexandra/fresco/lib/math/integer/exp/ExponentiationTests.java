@@ -103,14 +103,14 @@ public class ExponentiationTests {
 							
 							SInt input1 = ioBuilder.input(input, 1);
 							SInt input2 = ioBuilder.input(exp, 2);
-							sequentialProtocolProducer.append(ioBuilder.getCircuit());
+							sequentialProtocolProducer.append(ioBuilder.getProtocol());
 
 							ExponentiationProtocol exponentiationProtocol = exponentiationFactory.getExponentiationCircuit(input1, input2, 5, result);
 							sequentialProtocolProducer.append(exponentiationProtocol);
 							
 							OInt output1 = ioBuilder.output(result);
 							
-							sequentialProtocolProducer.append(ioBuilder.getCircuit());
+							sequentialProtocolProducer.append(ioBuilder.getProtocol());
 							
 							ProtocolProducer gp = sequentialProtocolProducer;
 							

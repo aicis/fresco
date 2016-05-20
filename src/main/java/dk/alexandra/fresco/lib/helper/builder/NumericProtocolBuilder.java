@@ -34,15 +34,15 @@ import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.helper.AbstractRepeatProtocol;
 import dk.alexandra.fresco.lib.helper.CopyProtocolImpl;
-import dk.alexandra.fresco.lib.helper.builder.tree.TreeCircuit;
-import dk.alexandra.fresco.lib.helper.builder.tree.TreeCircuitNodeGenerator;
+import dk.alexandra.fresco.lib.helper.builder.tree.TreeProtocol;
+import dk.alexandra.fresco.lib.helper.builder.tree.TreeProtocolNodeGenerator;
 
 public class NumericProtocolBuilder extends AbstractProtocolBuilder {
 
-	private BasicNumericFactory bnp;
+	private BasicNumericFactory bnf;
 
 	public NumericProtocolBuilder(BasicNumericFactory bnp) {
-		this.bnp = bnp;
+		this.bnf = bnp;
 	}
 
 	/**
@@ -81,7 +81,7 @@ public class NumericProtocolBuilder extends AbstractProtocolBuilder {
 	 * @return a SInt.
 	 */
 	public SInt getSInt(int value) {
-		return bnp.getSInt(value);
+		return bnf.getSInt(value);
 	}
 
 	/**
@@ -122,12 +122,12 @@ public class NumericProtocolBuilder extends AbstractProtocolBuilder {
 	 * @return a SInt.
 	 */
 	public SInt getSInt() {
-		return bnp.getSInt();
+		return bnf.getSInt();
 	}
 
 	public SInt known(BigInteger value) {
-		SInt sValue = bnp.getSInt();
-		ProtocolProducer loader = bnp.getSInt(value, sValue);
+		SInt sValue = bnf.getSInt();
+		ProtocolProducer loader = bnf.getSInt(value, sValue);
 		append(loader);
 		return sValue;
 	}
@@ -143,8 +143,8 @@ public class NumericProtocolBuilder extends AbstractProtocolBuilder {
 	}
 
 	public SInt known(int value) {
-		SInt sValue = bnp.getSInt();
-		ProtocolProducer loader = bnp.getSInt(value, sValue);
+		SInt sValue = bnf.getSInt();
+		ProtocolProducer loader = bnf.getSInt(value, sValue);
 		append(loader);
 		return sValue;
 	}
@@ -169,8 +169,8 @@ public class NumericProtocolBuilder extends AbstractProtocolBuilder {
 	 * @return an SInt representing the result of the addition
 	 */
 	public SInt add(SInt left, SInt right) {
-		SInt out = bnp.getSInt();
-		append(bnp.getAddProtocol(left, right, out));
+		SInt out = bnf.getSInt();
+		append(bnf.getAddProtocol(left, right, out));
 		return out;
 	}
 
@@ -184,8 +184,8 @@ public class NumericProtocolBuilder extends AbstractProtocolBuilder {
 	 * @return an SInt representing the result of the addition
 	 */
 	public SInt add(SInt left, OInt right) {
-		SInt out = bnp.getSInt();
-		append(bnp.getAddProtocol(left, right, out));
+		SInt out = bnf.getSInt();
+		append(bnf.getAddProtocol(left, right, out));
 		return out;
 	}
 	
@@ -229,9 +229,9 @@ public class NumericProtocolBuilder extends AbstractProtocolBuilder {
 		}
 
 		@Override
-		protected ProtocolProducer getNextGateProducer() {
+		protected ProtocolProducer getNextProtocolProducer() {
 			if (i < left.length) {
-				ProtocolProducer addition = bnp.getAddProtocol(left[i], right[i], out[i]);
+				ProtocolProducer addition = bnf.getAddProtocol(left[i], right[i], out[i]);
 				i++;
 				return addition;
 			} else {
@@ -241,7 +241,7 @@ public class NumericProtocolBuilder extends AbstractProtocolBuilder {
 	}
 
 	/**
-	 * Appends a circuit that sums an array of terms. The method uses a
+	 * Appends a protocol that sums an array of terms. The method uses a
 	 * recursive tree algorithm to parallelize the computation.
 	 * 
 	 * @param terms
@@ -250,12 +250,12 @@ public class NumericProtocolBuilder extends AbstractProtocolBuilder {
 	 */
 	public SInt sum(SInt[] terms) {
 		SInt sum = getSInt();
-		ProtocolProducer sumTree = new TreeCircuit(new SumNodeGenerator(terms, sum));
+		ProtocolProducer sumTree = new TreeProtocol(new SumNodeGenerator(terms, sum));
 		append(sumTree);
 		return sum;
 	}
 
-	private class SumNodeGenerator implements TreeCircuitNodeGenerator {
+	private class SumNodeGenerator implements TreeProtocolNodeGenerator {
 
 		private SInt[] terms;
 		private SInt[] intermediate;
@@ -286,7 +286,7 @@ public class NumericProtocolBuilder extends AbstractProtocolBuilder {
 				right = intermediate[j];
 			}
 			out = intermediate[i];
-			ProtocolProducer addition = bnp.getAddProtocol(left, right, out);
+			ProtocolProducer addition = bnf.getAddProtocol(left, right, out);
 			return addition;
 		}
 
@@ -303,12 +303,12 @@ public class NumericProtocolBuilder extends AbstractProtocolBuilder {
 	 */
 	public SInt mult(SInt[] factors) {
 		SInt sum = getSInt();
-		ProtocolProducer multTree = new TreeCircuit(new MultNodeGenerator(factors, sum));
+		ProtocolProducer multTree = new TreeProtocol(new MultNodeGenerator(factors, sum));
 		append(multTree);
 		return sum;
 	}
 
-	private class MultNodeGenerator implements TreeCircuitNodeGenerator {
+	private class MultNodeGenerator implements TreeProtocolNodeGenerator {
 
 		private SInt[] terms;
 		private SInt[] intermediate;
@@ -339,7 +339,7 @@ public class NumericProtocolBuilder extends AbstractProtocolBuilder {
 				right = intermediate[j];
 			}
 			out = intermediate[i];
-			ProtocolProducer mult = bnp.getMultCircuit(left, right, out);
+			ProtocolProducer mult = bnf.getMultProtocol(left, right, out);
 			return mult;
 		}
 
@@ -359,8 +359,8 @@ public class NumericProtocolBuilder extends AbstractProtocolBuilder {
 	 * @return an SInt representing the result of the multiplication
 	 */
 	public SInt mult(SInt left, SInt right) {
-		SInt out = bnp.getSInt();
-		append(bnp.getMultCircuit(left, right, out));
+		SInt out = bnf.getSInt();
+		append(bnf.getMultProtocol(left, right, out));
 		return out;
 	}
 
@@ -374,8 +374,8 @@ public class NumericProtocolBuilder extends AbstractProtocolBuilder {
 	 * @return an SInt representing the result of the multiplication
 	 */
 	public SInt mult(OInt left, SInt right) {
-		SInt out = bnp.getSInt();
-		append(bnp.getMultCircuit(left, right, out));
+		SInt out = bnf.getSInt();
+		append(bnf.getMultProtocol(left, right, out));
 		return out;
 	}
 	
@@ -436,8 +436,8 @@ public class NumericProtocolBuilder extends AbstractProtocolBuilder {
 	 * @return an SInt representing the result of the subtraction.
 	 */
 	public SInt sub(SInt left, SInt right) {
-		SInt out = bnp.getSInt();
-		append(bnp.getSubtractCircuit(left, right, out));
+		SInt out = bnf.getSInt();
+		append(bnf.getSubtractProtocol(left, right, out));
 		return out;
 	}
 
@@ -451,8 +451,8 @@ public class NumericProtocolBuilder extends AbstractProtocolBuilder {
 	 * @return an SInt representing the result of the subtraction.
 	 */
 	public SInt sub(OInt left, SInt right) {
-		SInt out = bnp.getSInt();
-		append(bnp.getSubtractCircuit(left, right, out));
+		SInt out = bnf.getSInt();
+		append(bnf.getSubtractProtocol(left, right, out));
 		return out;
 	}
 	
@@ -466,8 +466,8 @@ public class NumericProtocolBuilder extends AbstractProtocolBuilder {
 	 * @return an SInt representing the result of the subtraction.
 	 */
 	public SInt sub(SInt left, OInt right) {
-		SInt out = bnp.getSInt();
-		append(bnp.getSubtractCircuit(left, right, out));
+		SInt out = bnf.getSInt();
+		append(bnf.getSubtractProtocol(left, right, out));
 		return out;
 	}
 	
@@ -488,7 +488,7 @@ public class NumericProtocolBuilder extends AbstractProtocolBuilder {
 		beginParScope();
 		try {
 			for (int i = 0; i < left.length; i++) {
-				append(bnp.getSubtractCircuit(left[i], right[i], out[i]));
+				append(bnf.getSubtractProtocol(left[i], right[i], out[i]));
 			}
 		} catch (IndexOutOfBoundsException e) {
 			throw new IllegalArgumentException(
@@ -537,7 +537,7 @@ public class NumericProtocolBuilder extends AbstractProtocolBuilder {
 		beginSeqScope();
 		SInt diff = sub(left, right);
 		SInt prod = mult(diff, selector);
-		append(bnp.getAddProtocol(prod, right, result));
+		append(bnf.getAddProtocol(prod, right, result));
 		endCurScope();
 		return;
 	}
@@ -565,7 +565,7 @@ public class NumericProtocolBuilder extends AbstractProtocolBuilder {
 	}
 
 	@Override
-	public void addGateProducer(ProtocolProducer gp) {
+	public void addProtocolProducer(ProtocolProducer gp) {
 		append(gp);
 	}
 

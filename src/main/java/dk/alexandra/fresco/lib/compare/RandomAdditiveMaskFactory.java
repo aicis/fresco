@@ -42,7 +42,7 @@ public interface RandomAdditiveMaskFactory {
 	 * @param r
 	 * @return
 	 */
-	public RandomAdditiveMaskCircuit getRandomAdditiveMaskCircuit(int securityParameter,
+	public RandomAdditiveMaskProtocol getRandomAdditiveMaskProtocol(int securityParameter,
 			SInt[] bits, SInt r);
 
 }

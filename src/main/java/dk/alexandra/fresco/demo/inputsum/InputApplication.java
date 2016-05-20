@@ -58,15 +58,15 @@ public class InputApplication implements Application {
 	}
 
 	@Override
-	public ProtocolProducer prepareApplication(ProtocolFactory provider) {
-		BasicNumericFactory prov = (BasicNumericFactory) provider;
+	public ProtocolProducer prepareApplication(ProtocolFactory factory) {
+		BasicNumericFactory fac = (BasicNumericFactory) factory;
 		this.ssInputs = new SInt[this.length];
 		
-		NumericIOBuilder ioBuilder = new NumericIOBuilder(prov);
+		NumericIOBuilder ioBuilder = new NumericIOBuilder(fac);
 		ioBuilder.beginParScope();
 		for(int i = 0; i < this.length; i++) {
 			//create wires
-			this.ssInputs[i] = prov.getSInt();
+			this.ssInputs[i] = fac.getSInt();
 			if(this.inputs != null) {				
 				this.ssInputs[i] = ioBuilder.input(this.inputs[i], 1);
 			} else {
@@ -75,7 +75,7 @@ public class InputApplication implements Application {
 		}
 		ioBuilder.endCurScope();
 
-		return ioBuilder.getCircuit();
+		return ioBuilder.getProtocol();
 	}
 
 	public SInt[] getSecretSharedInput() {

@@ -31,8 +31,8 @@ import dk.alexandra.fresco.lib.compare.MiscOIntGenerators;
 import dk.alexandra.fresco.lib.compare.RandomAdditiveMaskFactory;
 import dk.alexandra.fresco.lib.compare.RandomAdditiveMaskFactoryImpl;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
-import dk.alexandra.fresco.lib.math.bool.add.IncrementByOneCircuitFactory;
-import dk.alexandra.fresco.lib.math.bool.add.IncrementByOneCircuitFactoryImpl;
+import dk.alexandra.fresco.lib.math.bool.add.IncrementByOneProtocolFactory;
+import dk.alexandra.fresco.lib.math.bool.add.IncrementByOneProtocolFactoryImpl;
 import dk.alexandra.fresco.lib.math.integer.HammingDistanceFactory;
 import dk.alexandra.fresco.lib.math.integer.HammingDistanceFactoryImpl;
 import dk.alexandra.fresco.lib.math.integer.NumericNegateBitFactory;
@@ -49,7 +49,7 @@ public class ZeroTestProtocolFactoryImpl implements ZeroTestProtocolFactory {
 	private final InnerProductFactory ipf;
 	private final ExpFromOIntFactory expFromOIntFactory;
 	private final PreprocessedExpPipeFactory expFactory;
-	private final IncrementByOneCircuitFactory incFactory;
+	private final IncrementByOneProtocolFactory incFactory;
 	private final RandomAdditiveMaskFactory maskFactory;
 	private final HammingDistanceFactory hammingFactory;
 
@@ -61,7 +61,7 @@ public class ZeroTestProtocolFactoryImpl implements ZeroTestProtocolFactory {
 		this.bnf = bnf;
 		this.miscOIntGenerator = new MiscOIntGenerators(bnf);
 		this.ipf = new InnerProductFactoryImpl(bnf);
-		this.incFactory = new IncrementByOneCircuitFactoryImpl(bnf);
+		this.incFactory = new IncrementByOneProtocolFactoryImpl(bnf);
 		this.expFromOIntFactory = expFromOIntFactory;
 		this.expFactory = expFactory;
 		this.maskFactory = new RandomAdditiveMaskFactoryImpl(bnf,
@@ -71,24 +71,24 @@ public class ZeroTestProtocolFactoryImpl implements ZeroTestProtocolFactory {
 	}
 
 	@Override
-	public ZeroTestBruteforceCircuit getZeroTestBruteforceCircuit(int maxInput,
+	public ZeroTestBruteforceProtocol getZeroTestBruteforceProtocol(int maxInput,
 			SInt input, SInt output) {
-		return new ZeroTestBruteforceCircuitImpl(maxInput, input, output, bnf,
+		return new ZeroTestBruteforceProtocolImpl(maxInput, input, output, bnf,
 				expFromOIntFactory, miscOIntGenerator, ipf, expFactory,
 				incFactory);
 	}
 
 	@Override
-	public ZeroTestReducerCircuit getZeroTestReducerCircuit(int bitLength,
+	public ZeroTestReducerProtocol getZeroTestReducerProtocol(int bitLength,
 			int securityParameter, SInt input, SInt output) {
-		return new ZeroTestReducerCircuitImpl(bitLength, securityParameter,
+		return new ZeroTestReducerProtocolImpl(bitLength, securityParameter,
 				input, output, maskFactory, bnf, hammingFactory);
 	}
 
 	@Override
-	public ZeroTestProtocol getZeroCircuit(int bitLength,
+	public ZeroTestProtocol getZeroProtocol(int bitLength,
 			int securityParameter, SInt input, SInt output) {
-		return new ZeroTestCircuitImpl(bitLength, securityParameter, input,
+		return new ZeroTestProtocolImpl(bitLength, securityParameter, input,
 				output, this, this, bnf);
 	}
 

@@ -31,10 +31,10 @@ public interface MarkerFactory {
 	
 	
 	/**
-	 * Only for debugging. This circuit does nothing, but will print a desired message when getNextGates is called the first time. 
+	 * Only for debugging. This protocol does nothing, but will print a desired message when getNextProtocol is called the first time. 
 	 * @param message 
 	 * @return
 	 */
-	public MarkerProtocol getMarkerCircuit(String message);
+	public MarkerProtocol getMarkerProtocol(String message);
 
 }

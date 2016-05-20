@@ -100,12 +100,12 @@ public class SqrtTests {
 						
 						@Override
 						public ProtocolProducer prepareApplication(
-								ProtocolFactory provider) {
+								ProtocolFactory factory) {
 							
-							BasicNumericFactory basicNumericFactory = (BasicNumericFactory) provider;
-							PreprocessedNumericBitFactory preprocessedNumericBitFactory = (PreprocessedNumericBitFactory) provider;
+							BasicNumericFactory basicNumericFactory = (BasicNumericFactory) factory;
+							PreprocessedNumericBitFactory preprocessedNumericBitFactory = (PreprocessedNumericBitFactory) factory;
 							RandomAdditiveMaskFactory randomAdditiveMaskFactory = new RandomAdditiveMaskFactoryImpl(basicNumericFactory, preprocessedNumericBitFactory);
-							LocalInversionFactory localInversionFactory = (LocalInversionFactory) provider;
+							LocalInversionFactory localInversionFactory = (LocalInversionFactory) factory;
 							RightShiftFactory rightShiftFactory = new RightShiftFactoryImpl(basicNumericFactory, randomAdditiveMaskFactory, localInversionFactory);
 							IntegerToBitsFactory integerToBitsFactory = new IntegerToBitsFactoryImpl(basicNumericFactory, rightShiftFactory);
 							BitLengthFactory bitLengthFactory = new BitLengthFactoryImpl(basicNumericFactory, integerToBitsFactory);
@@ -119,7 +119,7 @@ public class SqrtTests {
 							SequentialProtocolProducer sequentialProtocolProducer = new SequentialProtocolProducer();
 							
 							SInt[] inputs = ioBuilder.inputArray(x, 1);
-							sequentialProtocolProducer.append(ioBuilder.getCircuit());
+							sequentialProtocolProducer.append(ioBuilder.getProtocol());
 							
 							for (int i = 0; i < n; i++) {
 								sqrt[i] = basicNumericFactory.getSInt();
@@ -130,7 +130,7 @@ public class SqrtTests {
 							
 							OInt[] outputs = ioBuilder.outputArray(sqrt);
 							
-							sequentialProtocolProducer.append(ioBuilder.getCircuit());
+							sequentialProtocolProducer.append(ioBuilder.getProtocol());
 							
 							ProtocolProducer gp = sequentialProtocolProducer;
 							

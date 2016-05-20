@@ -231,7 +231,7 @@ public class AESDemo implements Application {
 		ProtocolProducer closeKeyAndPlain = new ParallelProtocolProducer(closeKey, closePlain);
 		
 		// Build an AES protocol.
-		Protocol doAES = new BristolCryptoFactory(boolFactory).getAesCircuit(plainClosed, keyClosed, outClosed);
+		Protocol doAES = new BristolCryptoFactory(boolFactory).getAesProtocol(plainClosed, keyClosed, outClosed);
 		
 		// Create wires that glue together the AES to the following open of the result.
 		this.result = boolFactory.getOBools(BLOCK_SIZE);

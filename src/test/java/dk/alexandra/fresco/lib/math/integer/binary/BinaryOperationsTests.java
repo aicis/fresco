@@ -94,12 +94,12 @@ public class BinaryOperationsTests {
 						
 						@Override
 						public ProtocolProducer prepareApplication(
-								ProtocolFactory provider) {
+								ProtocolFactory factory) {
 							
-							BasicNumericFactory basicNumericFactory = (BasicNumericFactory) provider;
-							PreprocessedNumericBitFactory preprocessedNumericBitFactory = (PreprocessedNumericBitFactory) provider;
+							BasicNumericFactory basicNumericFactory = (BasicNumericFactory) factory;
+							PreprocessedNumericBitFactory preprocessedNumericBitFactory = (PreprocessedNumericBitFactory) factory;
 							RandomAdditiveMaskFactory randomAdditiveMaskFactory = new RandomAdditiveMaskFactoryImpl(basicNumericFactory, preprocessedNumericBitFactory);
-							LocalInversionFactory localInversionFactory = (LocalInversionFactory) provider;
+							LocalInversionFactory localInversionFactory = (LocalInversionFactory) factory;
 							RightShiftFactory rightShiftFactory = new RightShiftFactoryImpl(basicNumericFactory, randomAdditiveMaskFactory, localInversionFactory);
 
 							SInt result = basicNumericFactory.getSInt();
@@ -109,7 +109,7 @@ public class BinaryOperationsTests {
 							SequentialProtocolProducer sequentialProtocolProducer = new SequentialProtocolProducer();
 							
 							SInt input1 = ioBuilder.input(input, 1);
-							sequentialProtocolProducer.append(ioBuilder.getCircuit());
+							sequentialProtocolProducer.append(ioBuilder.getProtocol());
 							
 							RightShiftProtocol rightShiftProtocol = rightShiftFactory.getRightShiftProtocol(input1, result, remainder);
 							sequentialProtocolProducer.append(rightShiftProtocol);
@@ -117,7 +117,7 @@ public class BinaryOperationsTests {
 							OInt output1 = ioBuilder.output(result);
 							OInt output2 = ioBuilder.output(remainder);
 							
-							sequentialProtocolProducer.append(ioBuilder.getCircuit());
+							sequentialProtocolProducer.append(ioBuilder.getProtocol());
 							
 							ProtocolProducer gp = sequentialProtocolProducer;
 							
@@ -155,12 +155,12 @@ public class BinaryOperationsTests {
 						
 						@Override
 						public ProtocolProducer prepareApplication(
-								ProtocolFactory provider) {
+								ProtocolFactory factory) {
 							
-							BasicNumericFactory basicNumericFactory = (BasicNumericFactory) provider;
-							PreprocessedNumericBitFactory preprocessedNumericBitFactory = (PreprocessedNumericBitFactory) provider;
+							BasicNumericFactory basicNumericFactory = (BasicNumericFactory) factory;
+							PreprocessedNumericBitFactory preprocessedNumericBitFactory = (PreprocessedNumericBitFactory) factory;
 							RandomAdditiveMaskFactory randomAdditiveMaskFactory = new RandomAdditiveMaskFactoryImpl(basicNumericFactory, preprocessedNumericBitFactory);
-							LocalInversionFactory localInversionFactory = (LocalInversionFactory) provider;
+							LocalInversionFactory localInversionFactory = (LocalInversionFactory) factory;
 							RightShiftFactory rightShiftFactory = new RightShiftFactoryImpl(basicNumericFactory, randomAdditiveMaskFactory, localInversionFactory);
 
 							SInt result = basicNumericFactory.getSInt();
@@ -174,14 +174,14 @@ public class BinaryOperationsTests {
 							SequentialProtocolProducer sequentialProtocolProducer = new SequentialProtocolProducer();
 							
 							SInt input1 = ioBuilder.input(input, 1);
-							sequentialProtocolProducer.append(ioBuilder.getCircuit());
+							sequentialProtocolProducer.append(ioBuilder.getProtocol());
 							
 							RepeatedRightShiftProtocol rightShiftProtocol = rightShiftFactory.getRepeatedRightShiftProtocol(input1, n, result, remainders);
 							sequentialProtocolProducer.append(rightShiftProtocol);
 							
 							OInt shiftOutput = ioBuilder.output(result);
 							OInt[] remainderOutput = ioBuilder.outputArray(remainders);
-							sequentialProtocolProducer.append(ioBuilder.getCircuit());
+							sequentialProtocolProducer.append(ioBuilder.getProtocol());
 							
 							ProtocolProducer gp = sequentialProtocolProducer;
 							
@@ -227,12 +227,12 @@ public class BinaryOperationsTests {
 						
 						@Override
 						public ProtocolProducer prepareApplication(
-								ProtocolFactory provider) {
+								ProtocolFactory factory) {
 							
-							BasicNumericFactory basicNumericFactory = (BasicNumericFactory) provider;
-							PreprocessedNumericBitFactory preprocessedNumericBitFactory = (PreprocessedNumericBitFactory) provider;
+							BasicNumericFactory basicNumericFactory = (BasicNumericFactory) factory;
+							PreprocessedNumericBitFactory preprocessedNumericBitFactory = (PreprocessedNumericBitFactory) factory;
 							RandomAdditiveMaskFactory randomAdditiveMaskFactory = new RandomAdditiveMaskFactoryImpl(basicNumericFactory, preprocessedNumericBitFactory);
-							LocalInversionFactory localInversionFactory = (LocalInversionFactory) provider;
+							LocalInversionFactory localInversionFactory = (LocalInversionFactory) factory;
 							RightShiftFactory rightShiftFactory = new RightShiftFactoryImpl(basicNumericFactory, randomAdditiveMaskFactory, localInversionFactory);
 							IntegerToBitsFactory integerToBitsFactory = new IntegerToBitsFactoryImpl(basicNumericFactory, rightShiftFactory);
 							BitLengthFactory bitLengthFactory = new BitLengthFactoryImpl(basicNumericFactory, integerToBitsFactory);
@@ -243,14 +243,14 @@ public class BinaryOperationsTests {
 							SequentialProtocolProducer sequentialProtocolProducer = new SequentialProtocolProducer();
 							
 							SInt input1 = ioBuilder.input(input, 1);
-							sequentialProtocolProducer.append(ioBuilder.getCircuit());
+							sequentialProtocolProducer.append(ioBuilder.getProtocol());
 							
 							BitLengthProtocol bitLengthProtocol = bitLengthFactory.getBitLengthProtocol(input1, result, input.bitLength() * 2);
 							sequentialProtocolProducer.append(bitLengthProtocol);
 							
 							OInt output1 = ioBuilder.output(result);
 							
-							sequentialProtocolProducer.append(ioBuilder.getCircuit());
+							sequentialProtocolProducer.append(ioBuilder.getProtocol());
 							
 							ProtocolProducer gp = sequentialProtocolProducer;
 							

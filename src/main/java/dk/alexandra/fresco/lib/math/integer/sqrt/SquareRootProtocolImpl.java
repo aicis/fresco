@@ -81,7 +81,7 @@ public class SquareRootProtocolImpl extends AbstractSimpleProtocol implements Sq
 	}
 	
 	@Override
-	protected ProtocolProducer initializeGateProducer() {
+	protected ProtocolProducer initializeProtocolProducer() {
 
 		NumericProtocolBuilder builder = new NumericProtocolBuilder(basicNumericFactory);
 		builder.beginSeqScope();
@@ -100,7 +100,7 @@ public class SquareRootProtocolImpl extends AbstractSimpleProtocol implements Sq
 		 */
 		SInt[] y = new SInt[iterations];
 		SInt tmp = builder.getSInt();
-		builder.addGateProducer(rightShiftFactory.getRepeatedRightShiftProtocol(input,
+		builder.addProtocolProducer(rightShiftFactory.getRepeatedRightShiftProtocol(input,
 				maxInputLength / 2, tmp));
 		y[0] = builder.add(tmp, basicNumericFactory.getOInt(BigInteger.ONE));
 
@@ -114,17 +114,17 @@ public class SquareRootProtocolImpl extends AbstractSimpleProtocol implements Sq
 			 * The lower bound on the precision from the division protocol will
 			 * also be a lower bound of the precision of this protocol.
 			 */
-			builder.addGateProducer(divisionFactory.getDivisionProtocol(input, maxInputLength,
+			builder.addProtocolProducer(divisionFactory.getDivisionProtocol(input, maxInputLength,
 					y[i - 1], ceil(maxInputLength / 2) + 1, quotient, precision));
 			SInt sum = builder.add(y[i - 1], quotient);
 			y[i] = builder.getSInt();
-			builder.addGateProducer(rightShiftFactory.getRightShiftProtocol(sum, y[i]));
+			builder.addProtocolProducer(rightShiftFactory.getRightShiftProtocol(sum, y[i]));
 		}
 
 		builder.copy(result, y[iterations - 1]);
 
 		builder.endCurScope();
-		return builder.getCircuit();
+		return builder.getProtocol();
 	}
 
 	/**

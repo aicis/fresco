@@ -13,8 +13,8 @@ import dk.alexandra.fresco.lib.helper.builder.ComparisonProtocolBuilder;
 
 public class SortingProtocolBuilder extends ComparisonProtocolBuilder {
 
-	public SortingProtocolBuilder(ComparisonProtocolFactory comProvider, BasicNumericFactory bnf) {
-		super(comProvider, bnf);
+	public SortingProtocolBuilder(ComparisonProtocolFactory cpf, BasicNumericFactory bnf) {
+		super(cpf, bnf);
 		// TODO Auto-generated constructor stub
 	}
 
@@ -24,7 +24,7 @@ public class SortingProtocolBuilder extends ComparisonProtocolBuilder {
 		//initialize comparisons array	
 		for (int i=0;i<comparisons.length;i++)
 			comparisons[i]=getBnf().getSInt();
-		//build parallel comparison circuit
+		//build parallel comparison protocol
 		beginParScope();  
 		//TODO maybe split this in chunks of reasonable sizes
 		for (int i=0;i<comparisons.length;i++) 
@@ -36,7 +36,7 @@ public class SortingProtocolBuilder extends ComparisonProtocolBuilder {
 		append(getBnf().getSInt(1,result));
 		//multiply by values from comparison
 		for (int i=0;i<comparisons.length;i++) 
-			append(getBnf().getMultCircuit(result, comparisons[i], result));
+			append(getBnf().getMultProtocol(result, comparisons[i], result));
 		return result;
 	}
 
@@ -64,9 +64,9 @@ public class SortingProtocolBuilder extends ComparisonProtocolBuilder {
 		//a = comparison*a+(1-comparison)*b ==> comparison*(a-b)+b
 		//b = comparison*b+(1-comparison)*a ==>  -comparison*(a-b)+a
 
-		append(getBnf().getSubtractCircuit(values[a], values[b], c));
-		append(getBnf().getMultCircuit(comparison, c, c));
-		append(getBnf().getMultCircuit(minusOne, c, d));
+		append(getBnf().getSubtractProtocol(values[a], values[b], c));
+		append(getBnf().getMultProtocol(comparison, c, c));
+		append(getBnf().getMultProtocol(minusOne, c, d));
 		
 		beginParScope();
 		append(getBnf().getAddProtocol(c, values[b], c));
@@ -96,15 +96,15 @@ public class SortingProtocolBuilder extends ComparisonProtocolBuilder {
 		beginParScope();
 		//a = comparison*a+(1-comparison)*b ==> comparison*(a-b)+b
 		beginSeqScope();
-		append(getBnf().getSubtractCircuit(values[a], values[b], c));
-		append(getBnf().getMultCircuit(comparison, c, c));
-		append(getBnf().getAddCircuit(c, values[b], c));
+		append(getBnf().getSubtractprotocol(values[a], values[b], c));
+		append(getBnf().getMultprotocol(comparison, c, c));
+		append(getBnf().getAddprotocol(c, values[b], c));
 		endCurScope();
 		//b = comparison*b+(1-comparison)*a ==>  comparison*(b-a)+a
 		beginSeqScope();
-		append(getBnf().getSubtractCircuit(values[b], values[a], d));
-		append(getBnf().getMultCircuit(comparison, d, d));
-		append(getBnf().getAddCircuit(d, values[a], d));		
+		append(getBnf().getSubtractprotocol(values[b], values[a], d));
+		append(getBnf().getMultprotocol(comparison, d, d));
+		append(getBnf().getAddprotocol(d, values[a], d));		
 		endCurScope();
 		endCurScope();
 

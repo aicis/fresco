@@ -46,7 +46,7 @@ import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
 import dk.alexandra.fresco.lib.lp.LPFactory;
 import dk.alexandra.fresco.lib.lp.LPFactoryImpl;
 import dk.alexandra.fresco.lib.lp.LPPrefix;
-import dk.alexandra.fresco.lib.lp.LPSolverCircuit;
+import dk.alexandra.fresco.lib.lp.LPSolverProtocol;
 import dk.alexandra.fresco.lib.math.integer.PreprocessedNumericBitFactory;
 import dk.alexandra.fresco.lib.math.integer.exp.ExpFromOIntFactory;
 import dk.alexandra.fresco.lib.math.integer.exp.PreprocessedExpPipeFactory;
@@ -80,12 +80,12 @@ public class LPSolverTests {
 
 						@Override
 						public ProtocolProducer prepareApplication(
-								ProtocolFactory provider) {
-							BasicNumericFactory bnFactory = (BasicNumericFactory) provider;
-							LocalInversionFactory localInvFactory = (LocalInversionFactory) provider;
-							PreprocessedNumericBitFactory numericBitFactory = (PreprocessedNumericBitFactory) provider;
-							ExpFromOIntFactory expFromOIntFactory = (ExpFromOIntFactory) provider;
-							PreprocessedExpPipeFactory expFactory = (PreprocessedExpPipeFactory) provider;
+								ProtocolFactory factory) {
+							BasicNumericFactory bnFactory = (BasicNumericFactory) factory;
+							LocalInversionFactory localInvFactory = (LocalInversionFactory) factory;
+							PreprocessedNumericBitFactory numericBitFactory = (PreprocessedNumericBitFactory) factory;
+							ExpFromOIntFactory expFromOIntFactory = (ExpFromOIntFactory) factory;
+							PreprocessedExpPipeFactory expFactory = (PreprocessedExpPipeFactory) factory;
 							LPFactory lpFactory = new LPFactoryImpl(80, bnFactory, localInvFactory, numericBitFactory, expFromOIntFactory, expFactory);
 							File pattern = new File("src/test/resources/lp/pattern7.csv");
 							File program = new File("src/test/resources/lp/program7.csv");
@@ -111,14 +111,14 @@ public class LPSolverTests {
 									throw new MPCException("IOException: "
 											+ e.getMessage(), e);
 								}
-								ProtocolProducer lpsolver = new LPSolverCircuit(
+								ProtocolProducer lpsolver = new LPSolverProtocol(
 										prefix.getTableau(),
 										prefix.getUpdateMatrix(),
 										prefix.getPivot(), lpFactory, bnFactory);
 								SInt sout = bnFactory.getSInt();
 								OInt out = bnFactory.getOInt();
 								ProtocolProducer outputter = lpFactory
-										.getOptimalValueCircuit(
+										.getOptimalValueProtocol(
 												prefix.getUpdateMatrix(),
 												prefix.getTableau().getB(),
 												prefix.getPivot(), sout);
@@ -145,11 +145,11 @@ public class LPSolverTests {
 	}
 /*
 	private String printMatrix(Matrix<SInt> matrix, String label, SCE sce,
-			SpdzProvider provider) {
+			Spdzfactory factory) {
 		SInt[][] C = matrix.getDoubleArray();
 		OInt[][] COut = Util
-				.oIntFill(new OInt[C.length][C[0].length], provider);
-		ProtocolProducer output = Util.makeOpenCircuit(C, COut, provider);
+				.oIntFill(new OInt[C.length][C[0].length], factory);
+		ProtocolProducer output = Util.makeOpenCircuit(C, COut, factory);
 		sce.runApplication(output);
 		return printBigIntegers(COut, label);
 	}
