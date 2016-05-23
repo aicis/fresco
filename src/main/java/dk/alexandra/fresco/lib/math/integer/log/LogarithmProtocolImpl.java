@@ -86,9 +86,8 @@ public class LogarithmProtocolImpl extends AbstractSimpleProtocol implements Log
 		builder.beginSeqScope();
 
 		/*
-		 * Find the bit length of the input. Unless the input is a power of two,
-		 * the bit length - 1 is the floor of the the logartihm with base 2 of
-		 * the input.
+		 * Find the bit length of the input. Note that bit length - 1 is the
+		 * floor of the the logartihm with base 2 of the input.
 		 */
 		SInt bitLength = builder.getSInt();
 		builder.addProtocolProducer(bitLengthFactory.getBitLengthProtocol(input, bitLength, maxInputLength));
