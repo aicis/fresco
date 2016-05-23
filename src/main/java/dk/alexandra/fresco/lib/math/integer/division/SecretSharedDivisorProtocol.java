@@ -146,7 +146,8 @@ public class SecretSharedDivisorProtocol extends AbstractSimpleProtocol implemen
 		}
 
 		/*
-		 * Find the bitlength m of the divisor
+		 * Find the actual bitlength m of the divisor and calculate
+		 * boundDifferencePower = 2^{M-m}
 		 */
 		SInt mostSignificantBit = builder.getSInt();
 		builder.addProtocolProducer(bitLengthFactory.getBitLengthProtocol(divisor,
@@ -157,8 +158,11 @@ public class SecretSharedDivisorProtocol extends AbstractSimpleProtocol implemen
 		SInt boundDifferencePower = builder.getSInt();
 		builder.addProtocolProducer(exponentiationFactory.getExponentiationCircuit(
 				basicNumericFactory.getOInt(BigInteger.valueOf(2)), boundDifference,
-				log2(maxDivisorLength), boundDifferencePower));
+				maxDivisorLength, boundDifferencePower));
 
+		/*
+		 * y = 2^M * 2^{M-m} = 2^m
+		 */
 		SInt y = builder.sub(twoPowers[0], builder.mult(boundDifferencePower, divisor));
 
 		/*
