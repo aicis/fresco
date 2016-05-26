@@ -33,6 +33,8 @@ import dk.alexandra.fresco.framework.sce.configuration.ProtocolSuiteConfiguratio
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.bgw.configuration.BgwConfiguration;
+import dk.alexandra.fresco.suite.bgw.storage.BgwRandomBitSupplier;
+import dk.alexandra.fresco.suite.bgw.storage.BgwRandomBitSupplierImpl;
 
 public class BgwProtocolSuite implements ProtocolSuite {
 
@@ -40,6 +42,8 @@ public class BgwProtocolSuite implements ProtocolSuite {
 	
 	private int threshold;
 	private BigInteger modulus;
+
+	private BgwRandomBitSupplierImpl bitSupplier;
 	
 	public BgwProtocolSuite() {
 		
@@ -58,6 +62,8 @@ public class BgwProtocolSuite implements ProtocolSuite {
 		this.threshold = sconf.getThreshold();
 		this.modulus = sconf.getModulus();
 		ShamirShare.setPrimeNumber(modulus);
+		
+		this.bitSupplier = new BgwRandomBitSupplierImpl();
 	}
 
 	@Override
@@ -85,6 +91,10 @@ public class BgwProtocolSuite implements ProtocolSuite {
 
 	public BigInteger getModulus() {
 		return this.modulus;
+	}
+	
+	public BgwRandomBitSupplier getBitSupplier() {
+		return this.bitSupplier;
 	}
 
 }

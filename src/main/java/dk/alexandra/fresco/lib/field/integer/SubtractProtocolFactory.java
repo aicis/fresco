@@ -34,5 +34,6 @@ public interface SubtractProtocolFactory extends ProtocolFactory {
 
 	abstract public SubtractProtocol getSubtractProtocol(SInt a, SInt b, SInt out);
 	abstract public SubtractProtocol getSubtractProtocol(OInt a, SInt b, SInt out);
+	abstract public SubtractProtocol getSubtractProtocol(SInt a, OInt b, SInt out);
 	
 }

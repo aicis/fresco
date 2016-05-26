@@ -24,34 +24,16 @@
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
  *******************************************************************************/
-package dk.alexandra.fresco.lib.compare;
+package dk.alexandra.fresco.lib.math.integer.exp;
 
+import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
-import dk.alexandra.fresco.lib.math.integer.PreprocessedNumericBitFactory;
-import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductFactory;
-import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductFactoryImpl;
 
-public class RandomAdditiveMaskFactoryImpl implements RandomAdditiveMaskFactory {
+public interface ExponentiationFactory {
 
-	private final PreprocessedNumericBitFactory numericBitFactory;
-	private final InnerProductFactory innerProductFactory;
-	private final MiscOIntGenerators misc;
-	private final BasicNumericFactory bnf;
-
-	public RandomAdditiveMaskFactoryImpl(BasicNumericFactory bnf,
-			PreprocessedNumericBitFactory numericBitFactory) {
-		this.bnf = bnf;
-		this.misc = new MiscOIntGenerators(bnf);
-		this.numericBitFactory = numericBitFactory;
-		this.innerProductFactory = new InnerProductFactoryImpl(bnf);
-	}
-
-	@Override
-	public RandomAdditiveMaskProtocol getRandomAdditiveMaskProtocol(int securityParameter,
-			SInt[] bits, SInt r) {
-		return new RandomAdditiveMaskProtocolImpl(securityParameter, bits, r, bnf, numericBitFactory,
-				misc, innerProductFactory);
-	}
-
+	public ExponentiationProtocol getExponentiationCircuit(SInt x, SInt e, int maxExponentLength,
+			SInt output);
+	
+	public ExponentiationProtocol getExponentiationCircuit(OInt x, SInt e, int maxExponentLength,
+			SInt output);
 }

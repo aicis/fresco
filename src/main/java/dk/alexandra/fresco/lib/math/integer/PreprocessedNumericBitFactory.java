@@ -26,14 +26,15 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.math.integer;
 
+import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.SInt;
 
 public interface PreprocessedNumericBitFactory {
 
 	/**
-	 * Returns a secret shared random bit. (This should be computed beforehand)
+	 * Returns a protocol which creates a secret shared random bit. (This should be computed beforehand)
 	 * 
 	 * @return
 	 */
-	public SInt getRandomSecretSharedBit();
+	public ProtocolProducer createRandomSecretSharedBitProtocol(SInt bit);
 }

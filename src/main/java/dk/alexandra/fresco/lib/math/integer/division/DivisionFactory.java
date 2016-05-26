@@ -75,34 +75,46 @@ public interface DivisionFactory {
 
 	/**
 	 * This protocol calculates an approximation of
-	 * <code>floor(x / divisor)</code>, which will be either correct or slightly
-	 * smaller than the correct result.
+	 * <code>floor(dividend / divisor)</code>, which will be either correct or
+	 * slightly smaller than the correct result.
 	 * 
 	 * @param dividend
-	 *            The dividend. To avoid overflow we require that
-	 *            <i>2<sup>2<sup>p</sup>m</sup> * dividend</i> should be
-	 *            representable, where <i>m</i> is <code>maxDivisorLength</code>
-	 *            and <i>p</i> is <code>precision</code>.
+	 *            The dividend.
+	 * @param maxDividendLength
+	 *            An upper bound for <i>log<sub>2</sub>(dividend)</i>.
 	 * @param divisor
 	 *            The divisor.
 	 * @param maxDivisorLength
 	 *            An upper bound for <i>log<sub>2</sub>(divisor)</i>.
-	 * @param precision
-	 *            A parameter determining the precision of the approximation. If
-	 *            the divisor is at least <i>2<sup>m-k</sup></i> then a
-	 *            precision of <i>p</i> gives at least <i>2<sup>p</sup> / k</i>
-	 *            bits of precision.
 	 * @param quotient
-	 *            An approximation of <i>dividend / divisor</i>. It will be \leq
-	 *            the correct result. More precisely it will be equal to
-	 *            <i>floor( (dividend + 1) / divisor) * (1 -
-	 *            ((2<sup>m</sup>-divisor
-	 *            )/2<sup>m</sup>)<sup>2<sup>p</sup></sup>) ) where <i>m</i> is
-	 *            <code>maxInputLength</code> and <i>p</i> is
-	 *            <code>precision</code>.
+	 *            An approximation of <i>dividend / divisor</i>.
 	 * @return
 	 */
-	public DivisionProtocol getDivisionProtocol(SInt dividend, SInt divisor, int maxDivisorLength,
-			int precision, SInt quotient);
+	public DivisionProtocol getDivisionProtocol(SInt dividend, int maxDividendLength, SInt divisor,
+			int maxDivisorLength, SInt quotient);
+	
+	/**
+	 * This protocol calculates an approximation of
+	 * <code>floor(dividend / divisor)</code>, which will be either correct or
+	 * slightly smaller than the correct result.
+	 * 
+	 * @param dividend
+	 *            The dividend.
+	 * @param maxDividendLength
+	 *            An upper bound for <i>log<sub>2</sub>(dividend)</i>.
+	 * @param divisor
+	 *            The divisor.
+	 * @param maxDivisorLength
+	 *            An upper bound for <i>log<sub>2</sub>(divisor)</i>.
+	 * @param quotient
+	 *            An approximation of <i>dividend / divisor</i>.
+	 * @param precision
+	 *            If this parameter is supplied, the protocol gives a guaranteed
+	 *            lower bound for the number of correct bits of the approximation.
+	 * @return
+	 */
+	public DivisionProtocol getDivisionProtocol(SInt dividend, int maxDividendLength, SInt divisor,
+			int maxDivisorLength, SInt quotient, OInt precision);
+
 
 }

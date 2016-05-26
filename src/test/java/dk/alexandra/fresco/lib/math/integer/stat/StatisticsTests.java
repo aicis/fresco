@@ -43,14 +43,21 @@ import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.compare.RandomAdditiveMaskFactory;
 import dk.alexandra.fresco.lib.compare.RandomAdditiveMaskFactoryImpl;
+import dk.alexandra.fresco.lib.conversion.IntegerToBitsFactory;
+import dk.alexandra.fresco.lib.conversion.IntegerToBitsFactoryImpl;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.helper.builder.NumericIOBuilder;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
 import dk.alexandra.fresco.lib.math.integer.PreprocessedNumericBitFactory;
+import dk.alexandra.fresco.lib.math.integer.binary.BitLengthFactory;
+import dk.alexandra.fresco.lib.math.integer.binary.BitLengthFactoryImpl;
 import dk.alexandra.fresco.lib.math.integer.binary.RightShiftFactory;
 import dk.alexandra.fresco.lib.math.integer.binary.RightShiftFactoryImpl;
 import dk.alexandra.fresco.lib.math.integer.division.DivisionFactory;
 import dk.alexandra.fresco.lib.math.integer.division.DivisionFactoryImpl;
+import dk.alexandra.fresco.lib.math.integer.exp.ExponentiationFactory;
+import dk.alexandra.fresco.lib.math.integer.exp.ExponentiationFactoryImpl;
+import dk.alexandra.fresco.lib.math.integer.inv.LocalInversionFactory;
 
 
 /**
@@ -99,8 +106,12 @@ public class StatisticsTests {
 							BasicNumericFactory basicNumericFactory = (BasicNumericFactory) factory;
 							PreprocessedNumericBitFactory preprocessedNumericBitFactory = (PreprocessedNumericBitFactory) factory;
 							RandomAdditiveMaskFactory randomAdditiveMaskFactory = new RandomAdditiveMaskFactoryImpl(basicNumericFactory, preprocessedNumericBitFactory);
-							RightShiftFactory rightShiftFactory = new RightShiftFactoryImpl(80, basicNumericFactory, randomAdditiveMaskFactory);
-							DivisionFactory euclidianDivisionFactory = new DivisionFactoryImpl(basicNumericFactory, rightShiftFactory);
+							LocalInversionFactory localInversionFactory = (LocalInversionFactory) factory;
+							RightShiftFactory rightShiftFactory = new RightShiftFactoryImpl(basicNumericFactory, randomAdditiveMaskFactory, localInversionFactory);
+							IntegerToBitsFactory integerToBitsFactory = new IntegerToBitsFactoryImpl(basicNumericFactory, rightShiftFactory);
+							BitLengthFactory bitLengthFactory = new BitLengthFactoryImpl(basicNumericFactory, integerToBitsFactory);
+							ExponentiationFactory exponentiationFactory = new ExponentiationFactoryImpl(basicNumericFactory, integerToBitsFactory);
+							DivisionFactory euclidianDivisionFactory = new DivisionFactoryImpl(basicNumericFactory, rightShiftFactory, bitLengthFactory, exponentiationFactory);
 							StatisticsFactory statisticsFactory = new StatisticsFactoryImpl(basicNumericFactory, euclidianDivisionFactory);
 							
 							NumericIOBuilder ioBuilder = new NumericIOBuilder(basicNumericFactory);

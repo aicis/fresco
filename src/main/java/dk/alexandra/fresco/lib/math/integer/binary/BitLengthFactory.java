@@ -24,34 +24,26 @@
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
  *******************************************************************************/
-package dk.alexandra.fresco.lib.compare;
+package dk.alexandra.fresco.lib.math.integer.binary;
 
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
-import dk.alexandra.fresco.lib.math.integer.PreprocessedNumericBitFactory;
-import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductFactory;
-import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductFactoryImpl;
 
-public class RandomAdditiveMaskFactoryImpl implements RandomAdditiveMaskFactory {
+public interface BitLengthFactory {
 
-	private final PreprocessedNumericBitFactory numericBitFactory;
-	private final InnerProductFactory innerProductFactory;
-	private final MiscOIntGenerators misc;
-	private final BasicNumericFactory bnf;
-
-	public RandomAdditiveMaskFactoryImpl(BasicNumericFactory bnf,
-			PreprocessedNumericBitFactory numericBitFactory) {
-		this.bnf = bnf;
-		this.misc = new MiscOIntGenerators(bnf);
-		this.numericBitFactory = numericBitFactory;
-		this.innerProductFactory = new InnerProductFactoryImpl(bnf);
-	}
-
-	@Override
-	public RandomAdditiveMaskProtocol getRandomAdditiveMaskProtocol(int securityParameter,
-			SInt[] bits, SInt r) {
-		return new RandomAdditiveMaskProtocolImpl(securityParameter, bits, r, bnf, numericBitFactory,
-				misc, innerProductFactory);
-	}
+	/**
+	 * Find the bit length of a given integer, ie. the number of bits needed to
+	 * represent the number.
+	 * 
+	 * @param input
+	 *            An integer.
+	 * @param output
+	 *            The number of bits needed to represent the input.
+	 * @param maxInputLength
+	 *            An upper bound for the output. The protocol will only consider
+	 *            the bits below this bound.
+	 * 
+	 * @return
+	 */
+	public BitLengthProtocol getBitLengthProtocol(SInt input, SInt output, int maxInputLength);
 
 }

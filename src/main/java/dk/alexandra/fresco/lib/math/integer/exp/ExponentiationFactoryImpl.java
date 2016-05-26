@@ -24,11 +24,35 @@
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
  *******************************************************************************/
-package dk.alexandra.fresco.lib.conversion;
+package dk.alexandra.fresco.lib.math.integer.exp;
 
-import dk.alexandra.fresco.framework.Protocol;
+import dk.alexandra.fresco.framework.value.OInt;
+import dk.alexandra.fresco.framework.value.SInt;
+import dk.alexandra.fresco.lib.conversion.IntegerToBitsFactory;
+import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 
 
-public interface NumeralToBitProtocol extends Protocol {
+public class ExponentiationFactoryImpl implements ExponentiationFactory {
+
+	private final BasicNumericFactory basicNumericFactory;
+	private final IntegerToBitsFactory integerToBitsFactory;
+
+	public ExponentiationFactoryImpl(BasicNumericFactory basicNumericFactory, IntegerToBitsFactory integerToBitsFactory) {
+		this.basicNumericFactory = basicNumericFactory;
+		this.integerToBitsFactory = integerToBitsFactory;
+	}
+	
+	@Override
+	public ExponentiationProtocol getExponentiationCircuit(SInt x, SInt e, int maxExponentLength,
+			SInt output) {
+		return new ExponentiationProtocolImpl(x, e, maxExponentLength, output, basicNumericFactory,
+				integerToBitsFactory);
+	}
+
+	@Override
+	public ExponentiationProtocol getExponentiationCircuit(OInt x, SInt e, int maxExponentLength,
+			SInt output) {
+		return new ExponentiationProtocolImpl(x, e, maxExponentLength, output, basicNumericFactory, integerToBitsFactory);
+	} 
 
 }

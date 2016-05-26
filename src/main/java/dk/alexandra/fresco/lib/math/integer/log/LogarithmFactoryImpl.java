@@ -24,34 +24,30 @@
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
  *******************************************************************************/
-package dk.alexandra.fresco.lib.compare;
+package dk.alexandra.fresco.lib.math.integer.log;
 
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
-import dk.alexandra.fresco.lib.math.integer.PreprocessedNumericBitFactory;
-import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductFactory;
-import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductFactoryImpl;
+import dk.alexandra.fresco.lib.math.integer.binary.BitLengthFactory;
+import dk.alexandra.fresco.lib.math.integer.binary.RightShiftFactory;
 
-public class RandomAdditiveMaskFactoryImpl implements RandomAdditiveMaskFactory {
+public class LogarithmFactoryImpl implements LogarithmFactory {
 
-	private final PreprocessedNumericBitFactory numericBitFactory;
-	private final InnerProductFactory innerProductFactory;
-	private final MiscOIntGenerators misc;
-	private final BasicNumericFactory bnf;
+	private final BasicNumericFactory basicNumericFactory;
+	private final RightShiftFactory rightShiftFactory;
+	private final BitLengthFactory bitLengthFactory;
 
-	public RandomAdditiveMaskFactoryImpl(BasicNumericFactory bnf,
-			PreprocessedNumericBitFactory numericBitFactory) {
-		this.bnf = bnf;
-		this.misc = new MiscOIntGenerators(bnf);
-		this.numericBitFactory = numericBitFactory;
-		this.innerProductFactory = new InnerProductFactoryImpl(bnf);
+	public LogarithmFactoryImpl(BasicNumericFactory basicNumericFactory,
+			RightShiftFactory rightShiftFactory, BitLengthFactory bitLengthFactory) {
+		this.basicNumericFactory = basicNumericFactory;
+		this.rightShiftFactory = rightShiftFactory;
+		this.bitLengthFactory = bitLengthFactory;
 	}
 
 	@Override
-	public RandomAdditiveMaskProtocol getRandomAdditiveMaskProtocol(int securityParameter,
-			SInt[] bits, SInt r) {
-		return new RandomAdditiveMaskProtocolImpl(securityParameter, bits, r, bnf, numericBitFactory,
-				misc, innerProductFactory);
+	public LogarithmProtocol getLogarithmProtocol(SInt x, int maxInputLength, SInt log) {
+		return new LogarithmProtocolImpl(x, maxInputLength, log, basicNumericFactory,
+				rightShiftFactory, bitLengthFactory);
 	}
 
 }

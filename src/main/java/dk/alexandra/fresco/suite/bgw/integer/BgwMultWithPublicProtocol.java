@@ -26,13 +26,12 @@
  *******************************************************************************/
 package dk.alexandra.fresco.suite.bgw.integer;
 
-import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.network.SCENetwork;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.Value;
 import dk.alexandra.fresco.lib.field.integer.MultProtocol;
 import dk.alexandra.fresco.suite.bgw.BgwProtocol;
-import dk.alexandra.fresco.suite.bgw.BgwProtocolSuite;
+import dk.alexandra.fresco.suite.bgw.ShamirShare;
 
 public class BgwMultWithPublicProtocol extends BgwProtocol implements MultProtocol{
 
@@ -49,26 +48,19 @@ public class BgwMultWithPublicProtocol extends BgwProtocol implements MultProtoc
 	@Override
 	public EvaluationStatus evaluate(int round, ResourcePool resourcePool,
 			SCENetwork network) {
-		int n = resourcePool.getNoOfParties();
-		int threshold = BgwProtocolSuite.getInstance().getThreshold();
-		switch (round) {
-		case 0:
-			throw new MPCException("Not implemented yet!");
-		default:
-			throw new MPCException("Cannot evaluate rounds larger than 1.");
-		}
+		outC.value = new ShamirShare(inB.value.getPoint(), inB.value.getField().multiply(
+				inA.getValue()));
+		return EvaluationStatus.IS_DONE;
 	}
 
 	@Override
 	public Value[] getInputValues() {
-		// TODO Auto-generated method stub
-		return null;
+		return new Value[] {inA, inB};
 	}
 
 	@Override
 	public Value[] getOutputValues() {
-		// TODO Auto-generated method stub
-		return null;
+		return new Value[] {outC};
 	}
 
 }

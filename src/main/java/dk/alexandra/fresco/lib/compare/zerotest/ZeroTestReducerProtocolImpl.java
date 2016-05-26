@@ -69,19 +69,24 @@ public class ZeroTestReducerProtocolImpl extends AbstractSimpleProtocol implemen
 
 	@Override
 	protected ProtocolProducer initializeProtocolProducer() {
+		
 		// LOAD r
-		SInt rValue = factory.getSInt();
-		loadRandC = maskFactory.getRandomAdditiveMaskProtocol(bitLength, securityParameter, rValue);
-		r = (SInt[]) loadRandC.getOutputValues();
+		SInt[] bits = new SInt[bitLength];
+		for (int i = 0; i < bitLength; i++) {
+			bits[i] = factory.getSInt();
+		}		
+		SInt r = factory.getSInt();
+		loadRandC = maskFactory.getRandomAdditiveMaskProtocol(securityParameter, bits, r);
+		
 		SInt mS = factory.getSInt();
 		OInt mO = factory.getOInt();
-		Protocol add = factory.getAddProtocol(input, r[bitLength], mS);
+		Protocol add = factory.getAddProtocol(input, r, mS);
+		
 		// open m
 		OpenIntProtocol openAddMask = factory.getOpenProtocol(mS, mO);
+		
 		// result = Hamming-dist_l(z,r);
-		SInt[] rBits = new SInt[bitLength];
-		System.arraycopy(r, 0, rBits, 0, rBits.length);
-		Protocol hamming = hammingFactory.getHammingdistanceProtocol(rBits, mO, output);
+		Protocol hamming = hammingFactory.getHammingdistanceProtocol(bits, mO, output);
 		gp = new SequentialProtocolProducer(loadRandC, add, openAddMask, hamming);			
 		return gp;
 	}

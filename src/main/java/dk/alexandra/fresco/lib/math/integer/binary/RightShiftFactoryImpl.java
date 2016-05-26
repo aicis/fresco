@@ -27,47 +27,38 @@
 package dk.alexandra.fresco.lib.math.integer.binary;
 
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.compare.MiscOIntGenerators;
 import dk.alexandra.fresco.lib.compare.RandomAdditiveMaskFactory;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
-import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductFactory;
-import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductFactoryImpl;
+import dk.alexandra.fresco.lib.math.integer.inv.LocalInversionFactory;
 
 public class RightShiftFactoryImpl implements RightShiftFactory {
 
 	private final BasicNumericFactory basicNumericFactory;
 	private final RandomAdditiveMaskFactory randomAdditiveMaskFactory;
-	private final MiscOIntGenerators miscOIntGenerators;
-	private final InnerProductFactory innerProductFactory;
-	private int securityParameter;
-	
-	public RightShiftFactoryImpl(int securityParameter, 
-			BasicNumericFactory basicNumericFactory, 
-			RandomAdditiveMaskFactory randomAdditiveMaskFactory) {
-		this.securityParameter = securityParameter;
+	private final LocalInversionFactory localInversionFactory;
+
+	private final int SECURITY_PARAMETER = 80;
+
+	public RightShiftFactoryImpl(BasicNumericFactory basicNumericFactory,
+			RandomAdditiveMaskFactory randomAdditiveMaskFactory,
+			LocalInversionFactory localInversionFactory) {
 		this.basicNumericFactory = basicNumericFactory;
 		this.randomAdditiveMaskFactory = randomAdditiveMaskFactory;
-		this.miscOIntGenerators = new MiscOIntGenerators(basicNumericFactory);
-		this.innerProductFactory = new InnerProductFactoryImpl(basicNumericFactory);
+		this.localInversionFactory = localInversionFactory;
 	}
 
 	@Override
 	public RightShiftProtocol getRightShiftProtocol(SInt x, SInt result) {
-		return new RightShiftProtocolImpl(x, result, basicNumericFactory.getMaxBitLength(), this.securityParameter, 
-				basicNumericFactory, 
-				randomAdditiveMaskFactory,
-				miscOIntGenerators,
-				innerProductFactory);
+		return new RightShiftProtocolImpl(x, result, basicNumericFactory.getMaxBitLength(),
+				SECURITY_PARAMETER, basicNumericFactory, randomAdditiveMaskFactory,
+				localInversionFactory);
 	}
-	
 
 	@Override
 	public RightShiftProtocol getRightShiftProtocol(SInt x, SInt result, SInt remainder) {
-		return new RightShiftProtocolImpl(x, result, remainder, basicNumericFactory.getMaxBitLength(), this.securityParameter, 
-				basicNumericFactory, 
-				randomAdditiveMaskFactory,
-				miscOIntGenerators,
-				innerProductFactory);
+		return new RightShiftProtocolImpl(x, result, remainder,
+				basicNumericFactory.getMaxBitLength(), SECURITY_PARAMETER, basicNumericFactory,
+				randomAdditiveMaskFactory, localInversionFactory);
 	}
 
 	@Override
@@ -76,7 +67,9 @@ public class RightShiftFactoryImpl implements RightShiftFactory {
 	}
 
 	@Override
-	public RepeatedRightShiftProtocol getRepeatedRightShiftProtocol(SInt x, int n, SInt result, SInt[] remainders) {
-		return new RepeatedRightShiftProtocolImpl(x, n, result, remainders, basicNumericFactory, this);
+	public RepeatedRightShiftProtocol getRepeatedRightShiftProtocol(SInt x, int n, SInt result,
+			SInt[] remainders) {
+		return new RepeatedRightShiftProtocolImpl(x, n, result, remainders, basicNumericFactory,
+				this);
 	}
 }

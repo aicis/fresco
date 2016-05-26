@@ -26,101 +26,89 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.compare;
 
-import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.framework.value.Value;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
+import dk.alexandra.fresco.lib.helper.AbstractSimpleProtocol;
+import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
+import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
 import dk.alexandra.fresco.lib.math.integer.PreprocessedNumericBitFactory;
 import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductFactory;
 
 /**
  * Load random value used as additive mask + bits
+ * 
  * @author ttoft
  *
  */
-public class RandomAdditiveMaskProtocolImpl implements RandomAdditiveMaskProtocol {
-	
-	private final int bitLength;
-	private final SInt[] r;
-	private SInt[] allbits;
-	private boolean done;
-	private ProtocolProducer pp;
-	private final InnerProductFactory innerProdFactory;
-	private final OInt[] twoPows;
+public class RandomAdditiveMaskProtocolImpl extends AbstractSimpleProtocol implements
+		RandomAdditiveMaskProtocol {
 
-	
-	/** 
-	 * protocol taking no input and generating uniformly random r in Z_{2^{l+k}} along with the bits of r mod 2^l
-	 * @param bitLength -- the desired number of least significant bits, l
-	 * @param securityParameter -- the desired security parameter, k, (leakage with probability 2^{-k}
-	 * @param r - r[i] = r_i for 0<=i<l; r[l] = r
+	private final int bitLength;
+	private final int securityParameter;
+	private final InnerProductFactory innerProdProvider;
+	private final PreprocessedNumericBitFactory bitProvider;
+	private final MiscOIntGenerators miscOIntGenerator;
+	private final SInt[] rBits;
+	private final SInt r;
+	private BasicNumericFactory basicNumericFactory;
+
+	/**
+	 * Protocol taking no input and generating uniformly random r in
+	 * Z<sub>2<sup>l+k</sup></sub> along with the bits of r (mod 2<sup>l</sup>)
+	 * 
+	 * @param bitLength
+	 *            The desired number of least significant bits, l
+	 * @param securityParameter
+	 *            The security parameter k. Assuming that we are about to open
+	 *            m+r where m is a secret shared value and r is the value
+	 *            calculated by this protocol, there is a chance of leakage if
+	 *            the top bit of both r and m are 1 since this will give a
+	 *            carry. To avoid this we make r longer than the max bit length
+	 *            of m, and each bit we make it longer decreases the risk of
+	 *            leakage (k extra bits give a risk of leakage at most
+	 *            2<sup>-k</sup>).
+	 * @param bits
+	 *            The first l bits of r
+	 * @param r
+	 * 
 	 */
-	public RandomAdditiveMaskProtocolImpl(
-			int bitLength, 
-			int securityParameter, 
-			SInt rValue, 
-			BasicNumericFactory factory, 
-			PreprocessedNumericBitFactory bitFactory, 
-			MiscOIntGenerators miscOIntGenerator, 
-			InnerProductFactory innerProdFactory) {
+	public RandomAdditiveMaskProtocolImpl(int securityParameter, SInt[] bits, SInt r,
+			BasicNumericFactory basicNumericFactory, PreprocessedNumericBitFactory bitProvider,
+			MiscOIntGenerators miscOIntGenerator, InnerProductFactory innerProdProvider) {
 		// Copy inputs, setup stuff
-		this.bitLength = bitLength;
-		this.innerProdFactory = innerProdFactory;
-		this.twoPows = miscOIntGenerator.getTwoPowers(securityParameter + bitLength);		
-		
-		done = false;
-		pp = null;
+		this.bitLength = bits.length;
+		this.securityParameter = securityParameter;
+		this.rBits = bits;
+		this.r = r;
+		this.basicNumericFactory = basicNumericFactory;
+		this.innerProdProvider = innerProdProvider;
+		this.miscOIntGenerator = miscOIntGenerator;
+		this.bitProvider = bitProvider;
+	}
+
+	@Override
+	protected ProtocolProducer initializeProtocolProducer() {
 
 		// loadRandBits
-		// r[i] = i'th bit; 0 <= i < bitLength
-		// r[bitLenght] = r
-		this.allbits = new SInt[bitLength+securityParameter];
-		this.r = new SInt[bitLength+1];
-
+		// bits[i] = i'th bit; 0 <= i < bitLength
+		SInt[] allbits = new SInt[bitLength + securityParameter];
+		ParallelProtocolProducer randomBits = new ParallelProtocolProducer();
 		int i;
-		for (i=0; i<bitLength; i++) {
-			allbits[i] = bitFactory.getRandomSecretSharedBit();
-			r[i] = allbits[i];
+		for (i = 0; i < bitLength; i++) {
+			randomBits.append(bitProvider.createRandomSecretSharedBitProtocol(rBits[i]));
+			allbits[i] = rBits[i];
 		}
-		for (i = bitLength; i<bitLength+securityParameter; i++) {
-			allbits[i] = bitFactory.getRandomSecretSharedBit();
-		}
-		this.r[bitLength] = rValue;
-	}
-	
-	@Override
-	public Value[] getInputValues() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+		for (i = bitLength; i < bitLength + securityParameter; i++) {
+			allbits[i] = basicNumericFactory.getSInt();
+			randomBits.append(bitProvider.createRandomSecretSharedBitProtocol(allbits[i]));
 
-	@Override
-	public Value[] getOutputValues() {
-		return r;
-	}
+		}
 
-	@Override
-	public int getNextProtocols(NativeProtocol[] nativeProtocols, int pos) {
-		if (pp == null) {
-			// compute r[bitLenght] = r = \sum_i 2^i*allbits[i]
-			// r[bitLength] initialized in constructor
-			pp = innerProdFactory.getInnerProductProtocol(allbits, twoPows, r[bitLength]);
-		}
-		if (pp.hasNextProtocols()){
-			pos = pp.getNextProtocols(nativeProtocols, pos);
-		}
-		else if (!pp.hasNextProtocols()){
-			pp = null;
-			done = true;
-		}
-		return pos;
-	}
-
-	@Override
-	public boolean hasNextProtocols() {
-		return !done;
+		OInt[] twoPows = miscOIntGenerator.getTwoPowers(securityParameter + bitLength);
+		return new SequentialProtocolProducer(randomBits, innerProdProvider.getInnerProductProtocol(
+				allbits, twoPows, r));
 	}
 
 }
