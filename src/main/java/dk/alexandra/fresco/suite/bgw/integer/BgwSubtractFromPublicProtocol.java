@@ -24,34 +24,48 @@
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
  *******************************************************************************/
-package dk.alexandra.fresco.lib.compare;
+package dk.alexandra.fresco.suite.bgw.integer;
 
+import dk.alexandra.fresco.framework.network.SCENetwork;
+import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
+import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
-import dk.alexandra.fresco.lib.math.integer.PreprocessedNumericBitFactory;
-import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductFactory;
-import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductFactoryImpl;
+import dk.alexandra.fresco.framework.value.Value;
+import dk.alexandra.fresco.lib.field.integer.SubtractProtocol;
+import dk.alexandra.fresco.suite.bgw.BgwProtocol;
+import dk.alexandra.fresco.suite.bgw.ShamirShare;
 
-public class RandomAdditiveMaskFactoryImpl implements RandomAdditiveMaskFactory {
+public class BgwSubtractFromPublicProtocol extends BgwProtocol implements SubtractProtocol {
 
-	private final PreprocessedNumericBitFactory numericBitFactory;
-	private final InnerProductFactory innerProductFactory;
-	private final MiscOIntGenerators misc;
-	private final BasicNumericFactory bnf;
+	private OInt inA;
+	private BgwSInt inB;
+	private BgwSInt outC;
 
-	public RandomAdditiveMaskFactoryImpl(BasicNumericFactory bnf,
-			PreprocessedNumericBitFactory numericBitFactory) {
-		this.bnf = bnf;
-		this.misc = new MiscOIntGenerators(bnf);
-		this.numericBitFactory = numericBitFactory;
-		this.innerProductFactory = new InnerProductFactoryImpl(bnf);
+	public BgwSubtractFromPublicProtocol(OInt inA, SInt inB, SInt outC) {
+		this.inA = inA;
+		this.inB = (BgwSInt) inB;
+		this.outC = (BgwSInt) outC;
 	}
 
 	@Override
-	public RandomAdditiveMaskProtocol getRandomAdditiveMaskProtocol(int securityParameter,
-			SInt[] bits, SInt r) {
-		return new RandomAdditiveMaskProtocolImpl(securityParameter, bits, r, bnf, numericBitFactory,
-				misc, innerProductFactory);
+	public String toString() {
+		return "ShamirSubtractGate(" + inA + "," + inB + "," + outC + ")";
 	}
 
+	@Override
+	public Value[] getInputValues() {
+		return new Value[] { inA, inB };
+	}
+
+	@Override
+	public Value[] getOutputValues() {
+		return new Value[] { outC };
+	}
+
+	@Override
+	public EvaluationStatus evaluate(int round, ResourcePool resourcePool, SCENetwork network) {
+		outC.value = new ShamirShare(inB.value.getPoint(), inA.getValue().subtract(
+				inB.value.getField()));
+		return EvaluationStatus.IS_DONE;
+	}
 }

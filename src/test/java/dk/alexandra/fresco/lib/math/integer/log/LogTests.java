@@ -24,7 +24,7 @@
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
  *******************************************************************************/
-package dk.alexandra.fresco.lib.math.integer.division;
+package dk.alexandra.fresco.lib.math.integer.log;
 
 import java.io.IOException;
 import java.math.BigInteger;
@@ -53,8 +53,6 @@ import dk.alexandra.fresco.lib.math.integer.binary.BitLengthFactory;
 import dk.alexandra.fresco.lib.math.integer.binary.BitLengthFactoryImpl;
 import dk.alexandra.fresco.lib.math.integer.binary.RightShiftFactory;
 import dk.alexandra.fresco.lib.math.integer.binary.RightShiftFactoryImpl;
-import dk.alexandra.fresco.lib.math.integer.exp.ExponentiationFactory;
-import dk.alexandra.fresco.lib.math.integer.exp.ExponentiationFactoryImpl;
 import dk.alexandra.fresco.lib.math.integer.inv.LocalInversionFactory;
 
 
@@ -68,7 +66,7 @@ import dk.alexandra.fresco.lib.math.integer.inv.LocalInversionFactory;
  * mpc.lib or something.
  *
  */
-public class DivisionTests {
+public class LogTests {
 
 	private abstract static class ThreadWithFixture extends TestThread {
 
@@ -81,17 +79,13 @@ public class DivisionTests {
 
 	}
 
-	/**
-	 * Test Euclidian division
-	 */
-	public static class TestEuclidianDivision extends TestThreadFactory {
+	public static class TestLogarithm extends TestThreadFactory {
 
 		@Override
 		public TestThread next(TestThreadConfiguration conf) {
 			
 			return new ThreadWithFixture() {
-				private final BigInteger x = new BigInteger("123978634193227335452345761");
-				private final BigInteger d = new BigInteger("6543212341214412");
+				private final BigInteger[] x = { BigInteger.valueOf(201235), BigInteger.valueOf(1234), BigInteger.valueOf(405068), BigInteger.valueOf(123456), BigInteger.valueOf(110) };
 
 				@Override
 				public void test() throws Exception {
@@ -110,121 +104,40 @@ public class DivisionTests {
 							RightShiftFactory rightShiftFactory = new RightShiftFactoryImpl(basicNumericFactory, randomAdditiveMaskFactory, localInversionFactory);
 							IntegerToBitsFactory integerToBitsFactory = new IntegerToBitsFactoryImpl(basicNumericFactory, rightShiftFactory);
 							BitLengthFactory bitLengthFactory = new BitLengthFactoryImpl(basicNumericFactory, integerToBitsFactory);
-							ExponentiationFactory exponentiationFactory = new ExponentiationFactoryImpl(basicNumericFactory, integerToBitsFactory);
-							DivisionFactory divisionFactory = new DivisionFactoryImpl(basicNumericFactory, rightShiftFactory, bitLengthFactory, exponentiationFactory);
-							
-							SInt quotient = basicNumericFactory.getSInt();
-							SInt remainder = basicNumericFactory.getSInt();
-
-							NumericIOBuilder ioBuilder = new NumericIOBuilder(basicNumericFactory);
-							SequentialProtocolProducer sequentialProtocolProducer = new SequentialProtocolProducer();
-							
-							SInt input1 = ioBuilder.input(x, 1);
-							OInt input2 = basicNumericFactory.getOInt(d);
-							sequentialProtocolProducer.append(ioBuilder.getProtocol());
-							
-							DivisionProtocol euclidianDivisionProtocol = divisionFactory.getDivisionProtocol(input1, x.bitLength() + 1, input2, quotient, remainder);
-							sequentialProtocolProducer.append(euclidianDivisionProtocol);
-							
-							OInt output1 = ioBuilder.output(quotient);
-							OInt output2 = ioBuilder.output(remainder);
-							
-							sequentialProtocolProducer.append(ioBuilder.getProtocol());
-							
-							ProtocolProducer gp = sequentialProtocolProducer;
-							
-							outputs = new OInt[] {output1, output2};
-							
-							return gp;
-						}
-					};
-					sce.runApplication(app);
-					BigInteger quotient = app.getOutputs()[0].getValue();
-					BigInteger remainder = app.getOutputs()[1].getValue();
-					Assert.assertEquals(quotient, x.divide(d));
-					Assert.assertEquals(remainder, x.mod(d));
-				}
-			};
-		}
-	}
-	
-	/**
-	 * Test division with secret shared divisor
-	 */
-	public static class TestSecretSharedDivision extends TestThreadFactory {
-
-		@Override
-		public TestThread next(TestThreadConfiguration conf) {
-			
-			return new ThreadWithFixture() {
-				private final BigInteger[] x = new BigInteger[] {new BigInteger("1234567"), BigInteger.valueOf(1230121230), BigInteger.valueOf(313222110), BigInteger.valueOf(5111215), BigInteger.valueOf(6537) };
-				private final BigInteger d = BigInteger.valueOf(1110);
-				private final int n = x.length;
-				
-				OInt[] precision = new OInt[n];
-				
-				@Override
-				public void test() throws Exception {
-					TestApplication app = new TestApplication() {
-
-						private static final long serialVersionUID = 701623441111137585L;
-						
-						@Override
-						public ProtocolProducer prepareApplication(
-								ProtocolFactory factory) {
-							
-							BasicNumericFactory basicNumericFactory = (BasicNumericFactory) factory;
-							PreprocessedNumericBitFactory preprocessedNumericBitFactory = (PreprocessedNumericBitFactory) factory;
-							RandomAdditiveMaskFactory randomAdditiveMaskFactory = new RandomAdditiveMaskFactoryImpl(basicNumericFactory, preprocessedNumericBitFactory);
-							LocalInversionFactory localInversionFactory = (LocalInversionFactory) factory;
-							RightShiftFactory rightShiftFactory = new RightShiftFactoryImpl(basicNumericFactory, randomAdditiveMaskFactory, localInversionFactory);
-							IntegerToBitsFactory integerToBitsFactory = new IntegerToBitsFactoryImpl(basicNumericFactory, rightShiftFactory);
-							BitLengthFactory bitLengthFactory = new BitLengthFactoryImpl(basicNumericFactory, integerToBitsFactory);
-							ExponentiationFactory exponentiationFactory = new ExponentiationFactoryImpl(basicNumericFactory, integerToBitsFactory);
-							DivisionFactory divisionFactory = new DivisionFactoryImpl(basicNumericFactory, rightShiftFactory, bitLengthFactory, exponentiationFactory);
-							
-							SInt[] quotient = new SInt[n];
+							LogarithmFactory logarithmFactory = new LogarithmFactoryImpl(basicNumericFactory, rightShiftFactory, bitLengthFactory);
 							
 							NumericIOBuilder ioBuilder = new NumericIOBuilder(basicNumericFactory);
 							SequentialProtocolProducer sequentialProtocolProducer = new SequentialProtocolProducer();
 							
 							SInt[] inputs = ioBuilder.inputArray(x, 1);
-							SInt input2 = ioBuilder.input(d, 2);
 							sequentialProtocolProducer.append(ioBuilder.getProtocol());
+							SInt[] logs = new SInt[x.length];
 							
-							for (int i = 0; i < n; i++) {
-								precision[i] = basicNumericFactory.getOInt();
-								quotient[i] = basicNumericFactory.getSInt();
-								DivisionProtocol divisionProtocol = divisionFactory.getDivisionProtocol(inputs[i], x[i].bitLength(), input2, d.bitLength(), quotient[i], precision[i]);
-								sequentialProtocolProducer.append(divisionProtocol);
+							for (int i = 0; i < inputs.length; i++) {
+								logs[i] = basicNumericFactory.getSInt();
+								LogarithmProtocol logarithmProtocol = logarithmFactory.getLogarithmProtocol(inputs[i], x[i].bitLength(), logs[i]);
+								sequentialProtocolProducer.append(logarithmProtocol);
 							}
 							
-							this.outputs = ioBuilder.outputArray(quotient);
+							OInt[] outputs = ioBuilder.outputArray(logs);
 							
 							sequentialProtocolProducer.append(ioBuilder.getProtocol());
 							
 							ProtocolProducer gp = sequentialProtocolProducer;
 							
+							this.outputs = outputs;
+							
 							return gp;
 						}
 					};
 					sce.runApplication(app);
-					for (int i = 0; i < n; i++) {
-						BigInteger actual = app.getOutputs()[i].getValue();
-						
-						BigInteger expected = x[i].divide(d);
-						BigInteger difference = expected.subtract(actual).abs();
-						
-						int precision = expected.bitLength() - difference.bitLength();
-						
-						boolean isCorrect = expected.equals(actual);
-						
-						System.out.println(x[i] + "/" + d + " = " + actual + ", expected " + expected + ". " + (!isCorrect ? 
-								"Got precision " + precision + "/" + expected.bitLength() + ", expected at least " + this.precision[i].getValue().intValue() : ""));
-						if (!isCorrect) {
-							Assert.assertTrue(precision >= this.precision[i].getValue().intValue());
-						}
-					}
+					
+					for (int i = 0; i < x.length; i++) {
+						int actual = app.getOutputs()[i].getValue().intValue();
+						int expected = (int) Math.log(x[i].doubleValue());
+						int difference = Math.abs(actual - expected);						
+						Assert.assertTrue(difference <= 1); // Difference should be less than a bit
+					}					
 				}
 			};
 		}

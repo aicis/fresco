@@ -118,8 +118,9 @@ public class GreaterThanReducerProtocolImpl implements GreaterThanProtocol {
 	private int round=0;
 	private ProtocolProducer pp;
 	
-	private SInt rValue, rTop, rBottom, rBar;
-	private SInt[] r;
+	private SInt rTop, rBottom, rBar;
+	private SInt[] bits;
+	private SInt r;
 	private final OInt twoToBitLength;
 	private final OInt twoToNegBitLength;
 	private final OInt twoToBitLengthBottom;
@@ -150,10 +151,13 @@ public class GreaterThanReducerProtocolImpl implements GreaterThanProtocol {
 			switch (round){
 			case 0:
 				// LOAD r + bits
-				rValue = factory.getSInt();
-				Protocol mask = maskFactory.getRandomAdditiveMaskProtocol(bitLength, securityParameter, rValue);
-				r = (SInt[]) mask.getOutputValues();
-				pp = mask;
+				bits = new SInt[bitLength];
+				for (int i = 0; i < bitLength; i++) {
+					bits[i] = factory.getSInt();
+				}
+				r = factory.getSInt();
+				Protocol maskCircuit = maskFactory.getRandomAdditiveMaskProtocol(securityParameter, bits, r);
+				pp = maskCircuit;
 				break;
 			case 1:
 				// construct r-values (rBar, rBottom, rTop) 
@@ -165,8 +169,8 @@ public class GreaterThanReducerProtocolImpl implements GreaterThanProtocol {
 				SInt[] rTopBits = new SInt[bitLengthTop];
 				SInt[] rBottomBits = new SInt[bitLengthBottom];
 				
-				System.arraycopy(r, 0, rBottomBits, 0, bitLengthBottom);
-				System.arraycopy(r, bitLengthBottom, rTopBits, 0, bitLengthTop);
+				System.arraycopy(bits, 0, rBottomBits, 0, bitLengthBottom);
+				System.arraycopy(bits, bitLengthBottom, rTopBits, 0, bitLengthTop);
 				
 				OInt[] twoPowsTop, twoPowsBottom;
 
@@ -184,7 +188,7 @@ public class GreaterThanReducerProtocolImpl implements GreaterThanProtocol {
 				Protocol addCirc0 = factory.getAddProtocol(tmp1, rBottom, rBar);
 
 				// forget bits of rValue
-				r = null;
+				bits = null;
 				
 				// Actual work: mask and reveal 2^bitLength+x-y
 				// z = 2^bitLength + x -y  
@@ -195,9 +199,10 @@ public class GreaterThanReducerProtocolImpl implements GreaterThanProtocol {
 				Protocol addprotocol1 = abcFactory.getAddProtocol(diff, twoToBitLength, z);
 
 				// mO = open(z + r)
+
 				SInt mS = factory.getSInt();
 				mO = factory.getOInt();
-				Protocol addprotocol2 = factory.getAddProtocol(z, rValue, mS);
+				Protocol addprotocol2 = factory.getAddProtocol(z, r, mS);
 				OpenIntProtocol openprotocolAddMask = factory.getOpenProtocol(mS, mO);
 
 				pp  = new SequentialProtocolProducer(

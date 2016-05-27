@@ -28,189 +28,212 @@ package dk.alexandra.fresco.lib.math.integer.binary;
 
 import java.math.BigInteger;
 
+import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.NativeProtocol;
-import dk.alexandra.fresco.framework.Protocol;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.framework.value.Value;
-import dk.alexandra.fresco.lib.compare.MiscOIntGenerators;
 import dk.alexandra.fresco.lib.compare.RandomAdditiveMaskFactory;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
-import dk.alexandra.fresco.lib.field.integer.OpenIntProtocol;
-import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
-import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
-import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductFactory;
+import dk.alexandra.fresco.lib.helper.builder.NumericProtocolBuilder;
+import dk.alexandra.fresco.lib.math.integer.inv.LocalInversionFactory;
 
 public class RightShiftProtocolImpl implements RightShiftProtocol {
-	
+
 	// Input
 	private SInt input;
 	private SInt result;
 	private SInt remainder;
 	private int bitLength;
 	private int securityParameter;
-	
+
 	// Factories
 	private final BasicNumericFactory basicNumericFactory;
 	private final RandomAdditiveMaskFactory randomAdditiveMaskFactory;
-	private final MiscOIntGenerators miscOIntGenerator;
-	private final InnerProductFactory innerProductFactory;
+	private final LocalInversionFactory localInversionFactory;
 
 	// Variables used for calculation
 	private int round = 0;
-	private SInt[] rExpansion;
 	private SInt rTop, rBottom;
 	private OInt mOpen;
+
+	private NumericProtocolBuilder builder;
 	private ProtocolProducer pp;
 	
 	/**
 	 * 
-	 * @param input The input.
-	 * @param result The input shifted one bit to the right, input >> 1.
-	 * @param bitLength An upper bound for the bitLength of the input.
-	 * @param securityParameter Leakage will happen with propability <i>2<sup>-securityParameter</sup></i>.
+	 * @param input
+	 *            The input.
+	 * @param result
+	 *            The input shifted one bit to the right, input >> 1.
+	 * @param bitLength
+	 *            An upper bound for the bitLength of the input.
+	 * @param securityParameter
+	 *            The security parameter used in
+	 *            {@link RandomAdditiveMaskCircuit}. Leakage of a bit with
+	 *            propability at most 2<sup>-<code>securityParameter</code>
+	 *            </sup>.
 	 * @param basicNumericFactory
 	 * @param randomAdditiveMaskFactory
-	 * @param miscOIntGenerators
-	 * @param innerProductFactory
+	 * @param localInversionFactory
 	 */
 	public RightShiftProtocolImpl(SInt input, SInt result, int bitLength, int securityParameter,
-			BasicNumericFactory basicNumericFactory, 
-			RandomAdditiveMaskFactory randomAdditiveMaskFactory, 
-			MiscOIntGenerators miscOIntGenerators, 
-			InnerProductFactory innerProductFactory) {
-		
+			BasicNumericFactory basicNumericFactory,
+			RandomAdditiveMaskFactory randomAdditiveMaskFactory,
+			LocalInversionFactory localInversionFactory) {
+
 		this.input = input;
 		this.result = result;
 		this.remainder = null;
 		this.bitLength = bitLength;
 		this.securityParameter = securityParameter;
-		
+
 		this.basicNumericFactory = basicNumericFactory;
 		this.randomAdditiveMaskFactory = randomAdditiveMaskFactory;
-		this.miscOIntGenerator = miscOIntGenerators;
-		this.innerProductFactory = innerProductFactory;
+		this.localInversionFactory = localInversionFactory;
+		
+		this.builder = new NumericProtocolBuilder(basicNumericFactory);
 	}
 
 	/**
 	 * 
-	 * @param input The input.
-	 * @param result The input shifted one bit to the right, input >> 1.
-	 * @param remainder The least significant bit of the input (aka the bit that is thrown away in the shift).
-	 * @param bitLength An upper bound for the bitLength of the input.
-	 * @param securityParameter Leakage will happen with propability <i>2<sup>-securityParameter</sup></i>.
+	 * @param input
+	 *            The input.
+	 * @param result
+	 *            The input shifted one bit to the right, input >> 1.
+	 * @param remainder
+	 *            The least significant bit of the input (aka the bit that is
+	 *            thrown away in the shift).
+	 * @param bitLength
+	 *            An upper bound for the bitLength of the input.
+	 * @param securityParameter
+	 *            The security parameter used in
+	 *            {@link RandomAdditiveMaskCircuit}. Leakage of a bit with
+	 *            propability at most 2<sup>-<code>securityParameter</code>
+	 *            </sup>.
 	 * @param basicNumericFactory
 	 * @param randomAdditiveMaskFactory
-	 * @param miscOIntGenerators
-	 * @param innerProductFactory
+	 * @param localInversionFactory
 	 */
-	public RightShiftProtocolImpl(SInt input, SInt result, SInt remainder, 
-			int bitLength, int securityParameter,
-			BasicNumericFactory basicNumericFactory, 
-			RandomAdditiveMaskFactory randomAdditiveMaskFactory, 
-			MiscOIntGenerators miscOIntGenerators, 
-			InnerProductFactory innerProductFactory) {
+	public RightShiftProtocolImpl(SInt input, SInt result, SInt remainder, int bitLength,
+			int securityParameter, BasicNumericFactory basicNumericFactory,
+			RandomAdditiveMaskFactory randomAdditiveMaskFactory,
+			LocalInversionFactory localInversionFactory) {
 
-		this(input, result, bitLength, securityParameter, basicNumericFactory, randomAdditiveMaskFactory, miscOIntGenerators, innerProductFactory);
+		this(input, result, bitLength, securityParameter, basicNumericFactory,
+				randomAdditiveMaskFactory, localInversionFactory);
 		this.remainder = remainder;
 	}
-	
+
 	@Override
 	public int getNextProtocols(NativeProtocol[] nativeProtocols, int pos) {
 		if (pp == null) {
 
 			switch (round) {
-			case 0:
-				// Load random r including binary expansion
-				SInt rOutput = basicNumericFactory.getSInt();
-				Protocol additiveMaskProtocol = randomAdditiveMaskFactory.getRandomAdditiveMaskProtocol(bitLength,
-						securityParameter, rOutput); // TODO: It seems the r we get here is wrong, so we need to calculate it in next round 
-				rExpansion = (SInt[]) additiveMaskProtocol.getOutputValues();
-				pp = additiveMaskProtocol;
-				break;
 
-			case 1:
+				case 0:
+					builder.reset();
+					builder.beginSeqScope();
 
-				// rBottom is the least significant bit of r
-				rBottom = rExpansion[0];
-				
-				// Calculate 1, 2, 2^2, ..., 2^{l - 1}
-				int l = rExpansion.length - 2;
-				OInt[] twoPowers = miscOIntGenerator.getTwoPowers(l);
-				
-				// Calculate rTop = (r - rBottom) >> 1 = (r_1, r_2, ..., r_l) . (1, 2, 4, ..., 2^{l-1})
-				rTop = basicNumericFactory.getSInt();
-				SInt[] rTopBits = new SInt[l];
-				System.arraycopy(rExpansion, 1, rTopBits, 0, l);
-				Protocol findRTop = innerProductFactory.getInnerProductProtocol(rTopBits, twoPowers, rTop);
+					// Load random r including binary expansion
+					SInt r = basicNumericFactory.getSInt();
+					SInt[] rExpansion = new SInt[bitLength];
+					for (int i = 0; i < rExpansion.length; i++) {
+						rExpansion[i] = basicNumericFactory.getSInt();
+					}
+					builder.addProtocolProducer(randomAdditiveMaskFactory
+							.getRandomAdditiveMaskProtocol(securityParameter, rExpansion, r));
 
-				// r = 2 * rTop + rBottom
-				SInt r = basicNumericFactory.getSInt();
-				SInt tmp = basicNumericFactory.getSInt();
-				Protocol twoTimesRTop = basicNumericFactory.getMultProtocol(basicNumericFactory.getOInt(BigInteger.valueOf(2)), rTop, tmp);
-				Protocol addRBottom = basicNumericFactory.getAddProtocol(tmp, rBottom, r);
-				
-				// mOpen = open(x + r)
-				SInt mClosed = basicNumericFactory.getSInt();
-				mOpen = basicNumericFactory.getOInt();
-				Protocol addR = basicNumericFactory.getAddProtocol(input, r, mClosed);
-				OpenIntProtocol openAddMask = basicNumericFactory.getOpenProtocol(mClosed, mOpen);
-				
-				pp = new SequentialProtocolProducer(findRTop, twoTimesRTop, addRBottom, addR, openAddMask);
-				break;
+					// rBottom is the least significant bit of r
+					rBottom = rExpansion[0];
 
-			case 2:
-				// 'carry' is either 0 or 1. It is 1 if and only if the addition
-				// m = x + r gave a carry from the first (least significant) bit
-				// to the second, ie. if the first bit of both x and r is 1.
-				// This happens if and only if the first bit of r is 1 and the
-				// first bit of m is 0 which in turn is equal to r_0 * (m + 1 (mod 2)).
-				SInt carry = basicNumericFactory.getSInt();
-				OInt mBottomNegated = basicNumericFactory
-						.getOInt(mOpen.getValue().add(BigInteger.ONE).mod(BigInteger.valueOf(2)));
-				Protocol calculateCarry = basicNumericFactory.getMultProtocol(mBottomNegated, rBottom, carry);
-
-				// The carry is needed by both the calculation of the shift and the remainder
-				SequentialProtocolProducer protocol = new SequentialProtocolProducer(calculateCarry);
-
-				// The shift and the remainder can be calculated in parallel
-				ParallelProtocolProducer findShiftAndRemainder = new ParallelProtocolProducer();
-				
-				// Now we calculate the shift, x >> 1 = mTop - rTop - carry
-				SInt mTopMinusRTop = basicNumericFactory.getSInt();
-				OInt mTop = basicNumericFactory.getOInt(mOpen.getValue().shiftRight(1));
-				Protocol subtractprotocol = basicNumericFactory.getSubtractProtocol(mTop, rTop, mTopMinusRTop);
-				Protocol addCarryprotocol = basicNumericFactory.getSubtractProtocol(mTopMinusRTop, carry, result);
-				SequentialProtocolProducer calculateShift = new SequentialProtocolProducer(subtractprotocol, addCarryprotocol);
-
-				findShiftAndRemainder.append(calculateShift);
-				
-				if (remainder != null) {
-					// We also need to calculate the remainder, aka. the bit we throw away in the shift: 
-					// x (mod 2) = xor(r_0, m mod 2) = r_0 + (m mod 2) - 2 (r_0 * (m mod 2))  
-					OInt mBottom = basicNumericFactory.getOInt(mOpen.getValue().mod(BigInteger.valueOf(2)));
-					OInt twoMBottom = basicNumericFactory.getOInt(mBottom.getValue().shiftLeft(1)); 
-					SInt product = basicNumericFactory.getSInt();
-					SInt sum = basicNumericFactory.getSInt();
-					Protocol remainderProtocolMult = basicNumericFactory.getMultProtocol(twoMBottom, rBottom, product);
-					Protocol remainderProtocolAdd = basicNumericFactory.getAddProtocol(rBottom, mBottom, sum);
-					Protocol remainderProtodolSubtract = basicNumericFactory.getSubtractProtocol(sum, product, remainder);
+					/*
+					 * Calculate rTop = (r - rBottom) * 2^{-1}. Note that r -
+					 * rBottom must be even so the division in the field are
+					 * actually a division in the integers.
+					 */
+					builder.beginParScope();
 					
-					SequentialProtocolProducer calculateRemainder = new SequentialProtocolProducer(
-							new ParallelProtocolProducer(remainderProtocolMult, remainderProtocolAdd),
-							remainderProtodolSubtract);
+					builder.beginSeqScope();
+					OInt inverseOfTwo = basicNumericFactory.getOInt();
+					builder.addProtocolProducer(localInversionFactory.getLocalInversionProtocol(
+							basicNumericFactory.getOInt(BigInteger.valueOf(2)), inverseOfTwo));
+					rTop = builder.mult(inverseOfTwo, builder.sub(r, rBottom));
+					builder.endCurScope();
 					
-					findShiftAndRemainder.append(calculateRemainder);
-				}
-				
-				protocol.append(findShiftAndRemainder);
-				pp = protocol;
+					// mOpen = open(x + r)
+					builder.beginSeqScope();
+					mOpen = basicNumericFactory.getOInt();
+					SInt mClosed = builder.add(input,  r);
+					builder.addProtocolProducer(basicNumericFactory.getOpenProtocol(mClosed, mOpen));
+					builder.endCurScope();
+					
+					builder.endCurScope();
+					
+					builder.endCurScope();
+					pp = builder.getProtocol();
+					break;
 
-				break;
-				
-			default:
-				// ...
+				case 1:
+					builder.reset();
+					
+					builder.beginSeqScope();
+
+					/*
+					 * 'carry' is either 0 or 1. It is 1 if and only if the
+					 * addition m = x + r gave a carry from the first (least
+					 * significant) bit to the second, ie. if the first bit of
+					 * both x and r is 1. This happens if and only if the first
+					 * bit of r is 1 and the first bit of m is 0 which in turn
+					 * is equal to r_0 * (m + 1 (mod 2)).
+					 */
+					OInt mBottomNegated = basicNumericFactory.getOInt(mOpen.getValue()
+							.add(BigInteger.ONE).mod(BigInteger.valueOf(2)));
+					SInt carry = builder.mult(mBottomNegated, rBottom);
+					
+					
+					// The carry is needed by both the calculation of the shift
+					// and the remainder, but the shift and the remainder can be
+					// calculated in parallel.
+					builder.beginParScope();
+
+					builder.beginSeqScope();
+					// Now we calculate the shift, x >> 1 = mTop - rTop - carry
+					OInt mTop = basicNumericFactory.getOInt(mOpen.getValue().shiftRight(1));
+					builder.copy(result, builder.sub(builder.sub(mTop,  rTop), carry));
+					
+					builder.endCurScope();
+
+					if (remainder != null) {
+						builder.beginSeqScope();
+						/*
+						 * We also need to calculate the remainder, aka. the bit
+						 * we throw away in the shift: x (mod 2) = xor(r_0, m
+						 * mod 2) = r_0 + (m mod 2) - 2 (r_0 * (m mod 2)).
+						 */
+						OInt mBottom = basicNumericFactory.getOInt(mOpen.getValue().mod(
+								BigInteger.valueOf(2)));
+						OInt twoMBottom = basicNumericFactory.getOInt(mBottom.getValue().shiftLeft(
+								1));
+						
+						builder.beginParScope();
+						SInt product = builder.mult(twoMBottom, rBottom);
+						SInt sum = builder.add(rBottom, mBottom);
+						builder.endCurScope();
+						
+						builder.copy(remainder, builder.sub(sum, product));
+						
+						builder.endCurScope();
+					}
+					builder.endCurScope();
+					builder.endCurScope();
+					pp = builder.getProtocol();
+
+					break;
+
+				default:
+					throw new MPCException("Protocol only has two rounds.");
 			}
 		}
 		if (pp.hasNextProtocols()) {
@@ -224,21 +247,21 @@ public class RightShiftProtocolImpl implements RightShiftProtocol {
 
 	@Override
 	public Value[] getInputValues() {
-		return new Value[] {input};
+		return new Value[] { input };
 	}
 
 	@Override
 	public Value[] getOutputValues() {
 		if (remainder != null) {
-			return new Value[] {result, remainder};
+			return new Value[] { result, remainder };
 		} else {
-			return new Value[] {result};
+			return new Value[] { result };
 		}
 	}
 
 	@Override
 	public boolean hasNextProtocols() {
-		return round < 3;
+		return round < 2;
 	}
 
 }

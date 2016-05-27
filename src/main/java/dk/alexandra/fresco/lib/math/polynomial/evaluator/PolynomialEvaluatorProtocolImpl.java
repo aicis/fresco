@@ -4,9 +4,7 @@ import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.helper.AbstractSimpleProtocol;
-import dk.alexandra.fresco.lib.helper.CopyProtocolImpl;
 import dk.alexandra.fresco.lib.helper.builder.NumericProtocolBuilder;
-import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
 import dk.alexandra.fresco.lib.math.polynomial.Polynomial;
 
 public class PolynomialEvaluatorProtocolImpl extends AbstractSimpleProtocol implements
@@ -47,10 +45,11 @@ public class PolynomialEvaluatorProtocolImpl extends AbstractSimpleProtocol impl
 				tmp = builder.add(tmp, p.getCoefficient(i));
 			}
 		}
+		
+		builder.copy(result, tmp);
 		builder.endCurScope();
 
-		return new SequentialProtocolProducer(builder.getProtocol(), new CopyProtocolImpl<SInt>(tmp,
-				result));
+		return builder.getProtocol();
 	}
 
 }

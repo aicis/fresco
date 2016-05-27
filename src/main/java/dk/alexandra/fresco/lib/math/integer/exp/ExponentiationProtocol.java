@@ -24,21 +24,10 @@
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
  *******************************************************************************/
-package dk.alexandra.fresco.lib.conversion;
+package dk.alexandra.fresco.lib.math.integer.exp;
 
-import dk.alexandra.fresco.framework.ProtocolFactory;
-import dk.alexandra.fresco.framework.value.SBool;
-import dk.alexandra.fresco.framework.value.SInt;
+import dk.alexandra.fresco.framework.Protocol;
 
-public interface BitToNumeralProtocolFactory extends ProtocolFactory {
+public interface ExponentiationProtocol extends Protocol{
 
-	/**
-	 * Convert an array of bits to an integer, with index 0 being the least significant bit
-	 * 
-	 * @param in SBool array
-	 * @param out SInt
-	 * @return BitToNumeralProtocol
-	 */
-	public BitToNumeralProtocol getBitToNumeralProtocol(SBool[] in, SInt out);
-	
 }

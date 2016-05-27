@@ -26,6 +26,7 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.math.integer.sqrt;
 
+import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 
 public interface SquareRootFactory {
@@ -41,5 +42,20 @@ public interface SquareRootFactory {
 	 * @return
 	 */
 	public SquareRootProtocol getSquareRootProtocol(SInt input, int maxInputLength, SInt sqrt);
+
+	/**
+	 * @param input
+	 *            The input.
+	 * @param maxInputLength
+	 *            An upper bound for <i>log<sub>2</sub>(input)</i>.
+	 * @param sqrt
+	 *            An approximation of the square root of the input.
+	 * @param precision
+	 *            If this parameter is not null then the protocol will give it a
+	 *            value which is a lower bound of the number of bits of
+	 *            precision of the approximation.
+	 * @return
+	 */
+	public SquareRootProtocol getSquareRootProtocol(SInt input, int maxInputLength, SInt sqrt, OInt precision);
 
 }

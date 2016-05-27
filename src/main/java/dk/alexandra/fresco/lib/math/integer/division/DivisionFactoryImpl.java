@@ -29,32 +29,55 @@ package dk.alexandra.fresco.lib.math.integer.division;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
+import dk.alexandra.fresco.lib.math.integer.binary.BitLengthFactory;
 import dk.alexandra.fresco.lib.math.integer.binary.RightShiftFactory;
+import dk.alexandra.fresco.lib.math.integer.exp.ExponentiationFactory;
 
 public class DivisionFactoryImpl implements DivisionFactory {
 
 	private final BasicNumericFactory basicNumericFactory;
 	private final RightShiftFactory rightShiftFactory;
-	
+	private final BitLengthFactory bitLengthFactory;
+	private final ExponentiationFactory exponentiationFactory;
+
 	public DivisionFactoryImpl(BasicNumericFactory basicNumericFactory,
-			RightShiftFactory rightShiftFactory) {
+			RightShiftFactory rightShiftFactory,
+			BitLengthFactory bitLengthFactory,
+			ExponentiationFactory exponentiationFactory) {
 		this.basicNumericFactory = basicNumericFactory;
 		this.rightShiftFactory = rightShiftFactory;
+		this.bitLengthFactory = bitLengthFactory;
+		this.exponentiationFactory = exponentiationFactory;
 	}
 
 	@Override
-	public DivisionProtocol getDivisionProtocol(SInt dividend, int maxInputLength, OInt divisor, SInt result) {
-		return new KnownDivisorProtocol(dividend, maxInputLength, divisor, result, basicNumericFactory, rightShiftFactory);
+	public DivisionProtocol getDivisionProtocol(SInt dividend, int maxInputLength, OInt divisor,
+			SInt result) {
+		return new KnownDivisorProtocol(dividend, maxInputLength, divisor, result,
+				basicNumericFactory, rightShiftFactory);
 	}
 
 	@Override
-	public DivisionProtocol getDivisionProtocol(SInt x, int maxInputLength, OInt divisor, SInt result, SInt remainder) {
-		return new KnownDivisorProtocol(x, maxInputLength, divisor, result, remainder, basicNumericFactory, rightShiftFactory);
+	public DivisionProtocol getDivisionProtocol(SInt x, int maxInputLength, OInt divisor,
+			SInt result, SInt remainder) {
+		return new KnownDivisorProtocol(x, maxInputLength, divisor, result, remainder,
+				basicNumericFactory, rightShiftFactory);
 	}
 
 	@Override
-	public DivisionProtocol getDivisionProtocol(SInt x, SInt divisor, int maxDivisorLength, int precision, SInt result) {
-		return new SecretSharedDivisorProtocol(x, divisor, maxDivisorLength, precision, result , basicNumericFactory, rightShiftFactory);
+	public DivisionProtocol getDivisionProtocol(SInt x, int maxDividendLength, SInt divisor,
+			int maxDivisorLength, SInt result) {
+		return new SecretSharedDivisorProtocol(x, maxDividendLength, divisor, maxDivisorLength,
+				result, basicNumericFactory, rightShiftFactory, bitLengthFactory,
+				exponentiationFactory);
+	}
+
+	@Override
+	public DivisionProtocol getDivisionProtocol(SInt dividend, int maxDividendLength, SInt divisor,
+			int maxDivisorLength, SInt result, OInt precision) {
+		return new SecretSharedDivisorProtocol(dividend, maxDividendLength, divisor, maxDivisorLength,
+				result, precision, basicNumericFactory, rightShiftFactory, bitLengthFactory,
+				exponentiationFactory);
 	}
 
 }

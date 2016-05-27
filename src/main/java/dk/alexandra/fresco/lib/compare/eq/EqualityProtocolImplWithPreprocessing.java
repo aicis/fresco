@@ -165,9 +165,12 @@ ExpFromOIntFactory expFromOIntFactory) {
 
 	private ProtocolProducer reduceProblemSize(SInt reducedProblem) {
 		// load random r and bits of r mod 2^length
-		SInt[] r = new SInt[bitLength+1];
-		SInt rValue = factory.getSInt();
-		Protocol randLoader = randomAddMaskFactory.getRandomAdditiveMaskProtocol(bitLength, securityParam, rValue);
+		SInt[] bits = new SInt[bitLength];
+		for (int i = 0; i < bitLength; i++) {
+			bits[i] = factory.getSInt();
+		}		
+		SInt r = factory.getSInt();
+		Protocol randLoader = randomAddMaskFactory.getRandomAdditiveMaskProtocol(securityParam, bits, r);
 
 		// mask and reveal difference
 		SInt subResult = factory.getSInt();
@@ -176,14 +179,14 @@ ExpFromOIntFactory expFromOIntFactory) {
 
 		SubtractProtocol sub = factory.getSubtractProtocol(x, y,
 				subResult);
-		AddProtocol add = factory.getAddProtocol(subResult, r[bitLength],
+		AddProtocol add = factory.getAddProtocol(subResult, r,
 				masked_S);
 		OpenIntProtocol openAddMask = factory
 				.getOpenProtocol(masked_S, masked_O);
 
 
 		// Compute Hamming distance
-		Protocol hamming = hammingFactory.getHammingdistanceProtocol(r, masked_O, reducedProblem);
+		Protocol hamming = hammingFactory.getHammingdistanceProtocol(bits, masked_O, reducedProblem);
 
 		return  new SequentialProtocolProducer(randLoader, sub, add, openAddMask, hamming);
 	}

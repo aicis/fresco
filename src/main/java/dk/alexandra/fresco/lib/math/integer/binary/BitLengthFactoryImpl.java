@@ -24,34 +24,27 @@
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
  *******************************************************************************/
-package dk.alexandra.fresco.lib.compare;
+package dk.alexandra.fresco.lib.math.integer.binary;
 
 import dk.alexandra.fresco.framework.value.SInt;
+import dk.alexandra.fresco.lib.conversion.IntegerToBitsFactory;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
-import dk.alexandra.fresco.lib.math.integer.PreprocessedNumericBitFactory;
-import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductFactory;
-import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductFactoryImpl;
 
-public class RandomAdditiveMaskFactoryImpl implements RandomAdditiveMaskFactory {
+public class BitLengthFactoryImpl implements BitLengthFactory {
 
-	private final PreprocessedNumericBitFactory numericBitFactory;
-	private final InnerProductFactory innerProductFactory;
-	private final MiscOIntGenerators misc;
-	private final BasicNumericFactory bnf;
+	private final BasicNumericFactory basicNumericFactory;
+	private final IntegerToBitsFactory integerToBitsFactory;
 
-	public RandomAdditiveMaskFactoryImpl(BasicNumericFactory bnf,
-			PreprocessedNumericBitFactory numericBitFactory) {
-		this.bnf = bnf;
-		this.misc = new MiscOIntGenerators(bnf);
-		this.numericBitFactory = numericBitFactory;
-		this.innerProductFactory = new InnerProductFactoryImpl(bnf);
+	public BitLengthFactoryImpl(BasicNumericFactory basicNumericFactory, IntegerToBitsFactory integerToBitsFactory) {
+		this.basicNumericFactory = basicNumericFactory;
+		this.integerToBitsFactory = integerToBitsFactory;
 	}
 
 	@Override
-	public RandomAdditiveMaskProtocol getRandomAdditiveMaskProtocol(int securityParameter,
-			SInt[] bits, SInt r) {
-		return new RandomAdditiveMaskProtocolImpl(securityParameter, bits, r, bnf, numericBitFactory,
-				misc, innerProductFactory);
+	public BitLengthProtocol getBitLengthProtocol(SInt input, SInt output,
+			int maxInputLength) {
+		return new BitLengthProtocolImpl(input, output, maxInputLength,
+				basicNumericFactory, integerToBitsFactory);
 	}
 
 }
