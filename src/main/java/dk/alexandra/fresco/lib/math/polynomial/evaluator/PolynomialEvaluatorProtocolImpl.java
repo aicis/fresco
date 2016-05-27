@@ -26,7 +26,7 @@ public class PolynomialEvaluatorProtocolImpl extends AbstractSimpleProtocol impl
 	}
 
 	@Override
-	protected ProtocolProducer initializeGateProducer() {
+	protected ProtocolProducer initializeProtocolProducer() {
 
 		NumericProtocolBuilder builder = new NumericProtocolBuilder(basicNumericFactory);
 
@@ -49,7 +49,7 @@ public class PolynomialEvaluatorProtocolImpl extends AbstractSimpleProtocol impl
 		}
 		builder.endCurScope();
 
-		return new SequentialProtocolProducer(builder.getCircuit(), new CopyProtocolImpl<SInt>(tmp,
+		return new SequentialProtocolProducer(builder.getProtocol(), new CopyProtocolImpl<SInt>(tmp,
 				result));
 	}
 

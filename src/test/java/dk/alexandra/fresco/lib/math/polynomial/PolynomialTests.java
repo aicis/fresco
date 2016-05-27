@@ -61,7 +61,7 @@ public class PolynomialTests {
 							
 							SInt input = ioBuilder.input(x, 2);
 							SequentialProtocolProducer sequentialProtocolProducer = new SequentialProtocolProducer();
-							sequentialProtocolProducer.append(ioBuilder.getCircuit());
+							sequentialProtocolProducer.append(ioBuilder.getProtocol());
 
 							SInt result = basicNumericFactory.getSInt();
 							PolynomialEvaluatorFactory polynomialEvaluatorFactory = new PolynomialEvaluatorFactoryImpl(
@@ -71,7 +71,7 @@ public class PolynomialTests {
 							sequentialProtocolProducer.append(polynomialEvaluatorProtocol);
 
 							OInt output = ioBuilder.output(result);
-							sequentialProtocolProducer.append(ioBuilder.getCircuit());
+							sequentialProtocolProducer.append(ioBuilder.getProtocol());
 
 							ProtocolProducer gp = sequentialProtocolProducer;
 							outputs = new OInt[] { output };
