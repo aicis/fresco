@@ -54,15 +54,15 @@ public class ComparisonBooleanTests {
 							AbstractBinaryFactory prov = (AbstractBinaryFactory) provider;
 							BasicLogicBuilder builder = new BasicLogicBuilder(prov);
 							
-							SBool[] in1 = builder.input(1, comp1);
-							SBool[] in2 = builder.input(1, comp2);
+							SBool[] in1 = builder.knownSBool(comp1);
+							SBool[] in2 = builder.knownSBool(comp2);
 							
 							SBool compRes1 = builder.greaterThan(in1, in2);
 							SBool compRes2 = builder.greaterThan(in2, in1);
 							
 							OBool[] output = builder.output(compRes1, compRes2);
 							this.outputs = output;
-							return builder.getCircuit();
+							return builder.getProtocol();
 						}
 					};
 

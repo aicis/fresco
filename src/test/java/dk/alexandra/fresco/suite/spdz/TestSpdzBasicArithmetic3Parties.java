@@ -33,7 +33,6 @@ import java.util.Map;
 import java.util.logging.Level;
 
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
@@ -205,7 +204,6 @@ public class TestSpdzBasicArithmetic3Parties {
 	}
 	
 	@Test
-	//@Ignore
 	public void test_Lots_Of_Mults_Sequential_Batched() throws Exception {
 		runTest(new BasicArithmeticTests.TestLotsMult(),
 				EvaluationStrategy.SEQUENTIAL_BATCHED,

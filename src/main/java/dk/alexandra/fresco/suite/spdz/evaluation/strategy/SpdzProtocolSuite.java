@@ -73,7 +73,7 @@ public class SpdzProtocolSuite implements ProtocolSuite {
 	public SpdzProtocolSuite() {
 	}
 
-	public static SpdzProtocolSuite getInstance(int id) {
+	public synchronized static SpdzProtocolSuite getInstance(int id) {
 		if (instances == null) {
 			instances = new HashMap<Integer, SpdzProtocolSuite>();
 		}

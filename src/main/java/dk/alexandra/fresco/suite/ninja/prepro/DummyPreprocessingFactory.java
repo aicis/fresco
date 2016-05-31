@@ -53,9 +53,8 @@ public class DummyPreprocessingFactory extends AbstractBinaryFactory implements 
 	}
 
 	@Override
-	public OpenBoolProtocol getOpenCircuit(int target, SBool closed, OBool open) {
-		// TODO Auto-generated method stub
-		return null;
+	public OpenBoolProtocol getOpenProtocol(int target, SBool closed, OBool open) {
+		throw new UnsupportedOperationException(this.getClass().getName() + "#getOpenProtocol");
 	}
 
 	@Override
@@ -74,14 +73,19 @@ public class DummyPreprocessingFactory extends AbstractBinaryFactory implements 
 
 	@Override
 	public SBool getKnownConstantSBool(boolean b) {
-		// TODO Auto-generated method stub
-		return null;
+		PreproNinjaSBool sbool = new PreproNinjaSBool(wireCounter++, (byte) 0);
+		sbool.setValue(b);
+		return sbool;
 	}
 
 	@Override
 	public SBool[] getKnownConstantSBools(boolean[] bools) {
-		// TODO Auto-generated method stub
-		return null;
+		PreproNinjaSBool[] sbools = new PreproNinjaSBool[bools.length];
+		for (int i = 0; i < sbools.length; i++) {
+			sbools[i] = new PreproNinjaSBool(wireCounter++, (byte) 0);
+			sbools[i].setValue(bools[i]);
+		}
+		return sbools;
 	}
 
 	@Override
@@ -95,30 +99,28 @@ public class DummyPreprocessingFactory extends AbstractBinaryFactory implements 
 	}
 
 	@Override
-	public AndProtocol getAndCircuit(SBool inLeft, SBool inRight, SBool out) {
+	public AndProtocol getAndProtocol(SBool inLeft, SBool inRight, SBool out) {
 		return new DummyPreproANDProtocol(counter++, (PreproNinjaSBool)inLeft, (PreproNinjaSBool)inRight, (PreproNinjaSBool)out);
 	}
 
 	@Override
-	public AndProtocol getAndCircuit(SBool inLeft, OBool inRight, SBool out) {
-		// TODO Auto-generated method stub
-		return null;
+	public AndProtocol getAndProtocol(SBool inLeft, OBool inRight, SBool out) {
+		throw new UnsupportedOperationException(this.getClass().getName() + "#getAndProtocol");
 	}
 
 	@Override
-	public NotProtocol getNotCircuit(SBool in, SBool out) {
+	public NotProtocol getNotProtocol(SBool in, SBool out) {
 		return new DummyPreproNOTProtocol(counter++, (PreproNinjaSBool)in, (PreproNinjaSBool)out);
 	}
 
 	@Override
-	public XorProtocol getXorCircuit(SBool inLeft, SBool inRight, SBool out) {
+	public XorProtocol getXorProtocol(SBool inLeft, SBool inRight, SBool out) {
 		return new DummyPreproXORProtocol(counter++, (PreproNinjaSBool)inLeft, (PreproNinjaSBool)inRight, (PreproNinjaSBool)out);
 	}
 
 	@Override
-	public XorProtocol getXorCircuit(SBool inLeft, OBool inRight, SBool out) {
-		// TODO Auto-generated method stub
-		return null;
+	public XorProtocol getXorProtocol(SBool inLeft, OBool inRight, SBool out) {
+		throw new UnsupportedOperationException(this.getClass().getName() + "#getXorProtocol");
 	}
 
 	

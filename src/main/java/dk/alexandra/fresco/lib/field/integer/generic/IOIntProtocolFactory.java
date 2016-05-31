@@ -40,57 +40,49 @@ import dk.alexandra.fresco.lib.field.integer.OpenIntProtocol;
 public interface IOIntProtocolFactory {
 	
 	/**
-	 * Gets a new open circuit.
+	 * Gets a new open protocol.
 	 * 
 	 * @param closed a closed value
 	 * @param open a known value
 	 * @param targetID the id of the specific player that provides the input.
-	 * @return the circuit to do the transformation
+	 * @return the protocol to do the transformation
 	 * 
 	 */
 	public CloseIntProtocol getCloseProtocol(BigInteger open, SInt closed,
 			int targetID);
 	
 	/**
-	 * Gets a new open circuit.
+	 * Gets a new open protocol.
 	 * 
 	 * @param closed a closed value
 	 * @param open a opened value
 	 * @param source the id of a specific player that provides the input.
-	 * @return the circuit to do the transformation
+	 * @return the protocol to do the transformation
 	 * 
 	 */
 	CloseIntProtocol getCloseProtocol(int source, OInt open, SInt closed);
 
 	
 	/**
-	 * Gets a new open circuit that opens up the integer to all.
+	 * Gets a new open protocol that opens up the integer to all.
 	 * 
 	 * @param closed a closed value
 	 * @param open a opened value
-	 * @return the circuit to do the transformation
+	 * @return the protocol to do the transformation
 	 * 
 	 */
 	OpenIntProtocol getOpenProtocol(SInt closed, OInt open);
 	
 	
 	/**
-	 * Gets a new open circuit
+	 * Gets a new open protocol
 	 * 
 	 * @param closed a closed value
 	 * @param open a opened value
 	 * @param targetID the id of a specific player to output to.
-	 * @return the circuit to do the transformation
+	 * @return the protocol to do the transformation
 	 * 
 	 */
 	OpenIntProtocol getOpenProtocol(int target, SInt closed, OInt open);
-	
-	
-//	/**
-//	 * Produces a circuit that opens up the given SInt to the set of players
-//	 * specified by the tagert set.
-//	 * 
-//	 */
-//	OpenIntCircuit getOpenCircuit(Set<Integer> targets, SInt closed, OInt open);
 	
 }

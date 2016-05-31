@@ -28,7 +28,8 @@ package dk.alexandra.fresco.suite.ninja.prepro;
 
 import dk.alexandra.fresco.framework.value.SBool;
 
-public class PreproNinjaSBool implements SBool{
+
+public class PreproNinjaSBool implements SBool {
 
 	/**
 	 * 
@@ -58,6 +59,10 @@ public class PreproNinjaSBool implements SBool{
 		
 	}
 
+	public void setValue(boolean b) {
+		
+	}
+	
 	@Override
 	public boolean isReady() {
 		return this.id != -1;

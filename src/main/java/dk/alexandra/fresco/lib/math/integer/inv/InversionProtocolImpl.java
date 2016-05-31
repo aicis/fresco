@@ -39,40 +39,40 @@ import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
 public class InversionProtocolImpl implements InversionProtocol {
 	
 	private final SInt x, result;
-	private final BasicNumericFactory provider;
-	private final LocalInversionFactory invProvider;
-	private ProtocolProducer gp;
+	private final BasicNumericFactory factory;
+	private final LocalInversionFactory invFactory;
+	private ProtocolProducer pp;
 	boolean done;
 	
-	public InversionProtocolImpl(SInt x, SInt result, BasicNumericFactory provider, 
-			LocalInversionFactory invProvider) {
+	public InversionProtocolImpl(SInt x, SInt result, BasicNumericFactory factory, 
+			LocalInversionFactory invFactory) {
 		this.x = x;
 		this.result = result;
-		this.provider = provider;
-		this.invProvider = invProvider;
-		this.gp = null;
+		this.factory = factory;
+		this.invFactory = invFactory;
+		this.pp = null;
 		this.done = false;
 	}
 
 	@Override
-	public int getNextProtocols(NativeProtocol[] gates, int pos){
-		if (gp == null){
-			OInt inverse = provider.getOInt();
-			SInt sProduct = provider.getSInt();
-			OInt oProduct = provider.getOInt();
-			SInt random = provider.getRandomSInt();
-			MultProtocol blindingCircuit = provider.getMultCircuit(x, random, sProduct);
-			OpenIntProtocol openCircuit = provider.getOpenProtocol(sProduct, oProduct);
-			LocalInversionProtocol lic = invProvider.getLocalInversionCircuit(oProduct, inverse);
-			MultProtocol unblindingCircuit = provider.getMultCircuit(inverse, random, result);
+	public int getNextProtocols(NativeProtocol[] nativeProtocols, int pos){
+		if (pp == null){
+			OInt inverse = factory.getOInt();
+			SInt sProduct = factory.getSInt();
+			OInt oProduct = factory.getOInt();
+			SInt random = factory.getRandomSInt();
+			MultProtocol blinding = factory.getMultProtocol(x, random, sProduct);
+			OpenIntProtocol open = factory.getOpenProtocol(sProduct, oProduct);
+			LocalInversionProtocol invert = invFactory.getLocalInversionProtocol(oProduct, inverse);
+			MultProtocol unblinding = factory.getMultProtocol(inverse, random, result);
 			
-			gp = new SequentialProtocolProducer(blindingCircuit, openCircuit, lic, unblindingCircuit);
+			pp = new SequentialProtocolProducer(blinding, open, invert, unblinding);
 		}
-		if (gp.hasNextProtocols()){
-			pos = gp.getNextProtocols(gates, pos);
+		if (pp.hasNextProtocols()){
+			pos = pp.getNextProtocols(nativeProtocols, pos);
 		}
-		else if (!gp.hasNextProtocols()){
-			gp = null;
+		else if (!pp.hasNextProtocols()){
+			pp = null;
 			done = true;
 		}
 		return pos;

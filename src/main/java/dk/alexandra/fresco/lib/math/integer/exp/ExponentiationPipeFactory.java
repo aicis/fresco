@@ -40,6 +40,6 @@ public interface ExponentiationPipeFactory {
 	 * @param outputs
 	 * @return
 	 */
-	public ExponentiationPipeProtocol getExponentiationCircuit(SInt R,
+	public ExponentiationPipeProtocol getExponentiationProtocol(SInt R,
 			SInt[] outputs);
 }

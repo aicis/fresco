@@ -79,8 +79,9 @@ public class BristolCryptoTests {
 	 * 
 	 */
 	private static boolean[] toBoolean(String hex) throws IllegalArgumentException {
-		if (hex.length() % 2 != 0)
+		if (hex.length() % 2 != 0) {
 			throw new IllegalArgumentException("Illegal hex string");
+		}
 		boolean[] res = new boolean[hex.length() * 4];
 		for (int i=0; i<hex.length() / 2; i++) {
 			String sub = hex.substring(2*i,2*i +2);
@@ -138,19 +139,19 @@ public class BristolCryptoTests {
 							boolean[] key_val = toBoolean(keyVec[0]);
 							boolean[] in_val = toBoolean(plainVec);
 							
-							plain = builder.input(1, in_val);
-							key = builder.input(1, key_val);
+							plain = builder.knownSBool(in_val);
+							key = builder.knownSBool(key_val);
 							cipher = prov.getSBools(128);
 
 							// Create AES circuit.
 							BristolCryptoFactory aesFac = new BristolCryptoFactory(prov);
-							BristolCircuit aes = aesFac.getAesCircuit(plain, key, cipher);
-							builder.addGateProducer(aes);
+							BristolCircuit aes = aesFac.getAesProtocol(plain, key, cipher);
+							builder.addProtocolProducer(aes);
 							
 							// Create circuits for opening result of AES.							
 							openedCipher = builder.output(cipher);
 							
-							return new SequentialProtocolProducer(builder.getCircuit());
+							return new SequentialProtocolProducer(builder.getProtocol());
 						}
 					};
 

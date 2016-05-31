@@ -31,20 +31,20 @@ import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.MultByConstantFactory;
-import dk.alexandra.fresco.lib.field.integer.MultCircuitFactory;
+import dk.alexandra.fresco.lib.field.integer.MultProtocolFactory;
 import dk.alexandra.fresco.lib.helper.AbstractRepeatProtocol;
 
 public class EntrywiseProductProtocolImpl extends AbstractRepeatProtocol implements
 		EntrywiseProductProtocol {
 
-	private final MultCircuitFactory provider;
-	private final MultByConstantFactory openMultProvider;
+	private final MultProtocolFactory factory;
+	private final MultByConstantFactory openMultFactory;
 	private final SInt[] as, bs, results;
 	private final OInt[] publicBs;
 	private int limit, i = 0;
 
 	public EntrywiseProductProtocolImpl(SInt[] as, SInt[] bs, SInt[] results,
-			MultCircuitFactory provider) {
+			MultProtocolFactory factory) {
 		if (as.length != bs.length && as.length != results.length) {
 			throw new MPCException(
 					"Can only compute dot-product with equal length input arrays");
@@ -53,13 +53,13 @@ public class EntrywiseProductProtocolImpl extends AbstractRepeatProtocol impleme
 		this.bs = bs;
 		this.publicBs = null;
 		this.results = results;
-		this.provider = provider;
-		this.openMultProvider = null;
+		this.factory = factory;
+		this.openMultFactory = null;
 		this.limit = as.length;
 	}
 
 	public EntrywiseProductProtocolImpl(SInt[] as, OInt[] bs, SInt[] results,
-			MultByConstantFactory openMultProvider) {
+			MultByConstantFactory openMultFactory) {
 		if (as.length != bs.length && as.length != results.length) {
 			throw new MPCException(
 					"Can only compute dot-product with equal length input arrays");
@@ -68,19 +68,19 @@ public class EntrywiseProductProtocolImpl extends AbstractRepeatProtocol impleme
 		this.bs = null;
 		this.publicBs = bs;
 		this.results = results;
-		this.provider = null;
-		this.openMultProvider = openMultProvider;
+		this.factory = null;
+		this.openMultFactory = openMultFactory;
 		this.limit = as.length;
 	}
 
-	protected ProtocolProducer getNextGateProducer() {
+	protected ProtocolProducer getNextProtocolProducer() {
 		if (i < limit) {
 			ProtocolProducer mult;
 			if (publicBs != null) {
-				mult = openMultProvider.getMultCircuit(publicBs[i], as[i],
+				mult = openMultFactory.getMultProtocol(publicBs[i], as[i],
 						results[i]);
 			} else {
-				mult = provider.getMultCircuit(as[i], bs[i], results[i]);
+				mult = factory.getMultProtocol(as[i], bs[i], results[i]);
 			}
 			i++;
 			return mult;

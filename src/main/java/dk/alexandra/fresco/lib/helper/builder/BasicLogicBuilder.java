@@ -32,8 +32,8 @@ import dk.alexandra.fresco.framework.value.SBool;
 import dk.alexandra.fresco.lib.logic.AbstractBinaryFactory;
 
 /**
- * This circuit builder wraps the abstract binary provider. I.e., supports
- * building binary circuits.
+ * This protocol builder wraps the abstract binary factory. I.e., supports
+ * building binary protocols.
  * 
  * Many methods comes in a plain and a 'inPlace' version. The plain version
  * generates and returns new SBools to hold the result of the computation. The
@@ -41,78 +41,29 @@ import dk.alexandra.fresco.lib.logic.AbstractBinaryFactory;
  * with the result. This way the 'inPlace' versions help save memory by not
  * creating temporary SBools when they are not needed.
  * 
- * @author psn
  * 
  */
 public class BasicLogicBuilder extends AbstractProtocolBuilder {
 
 	/**
-	 * The provider used to build all circuits
+	 * The factory used to build all protocols
 	 */
-	private AbstractBinaryFactory bp;
+	private AbstractBinaryFactory bf;
 
 	/**
-	 * Construct a new builder for basic Boolean circuits.
+	 * Construct a new builder for basic Boolean protocols.
 	 * 
 	 * @param bp
-	 *            a provider of binary circuits.
+	 *            a factory of binary protocols.
 	 */
 	public BasicLogicBuilder(AbstractBinaryFactory bp) {
-		this.bp = bp;
+		this.bf = bp;
 	}
 
 	/**
-	 * Appends a close protocol where the inputting party is the inputter,
-	 * inputting the given value as an OBool.
+	 * Appends an output protocol for an array of SBools
 	 * 
-	 * @param inputter the party to input the value
-	 * @param value the value to input (can be null if you are not the inputter)
-	 * @return
-	 */
-	public SBool input(int inputter, OBool value) {
-		SBool res = bp.getSBool();
-		append(this.bp.getCloseProtocol(inputter, value, res));
-		return res;
-	}
-
-	/**
-	 * Appends a close protocol where the inputting party is the inputter,
-	 * inputting the given value as a boolean.
-	 * 
-	 * @param inputter the party to input the value
-	 * @param value the value to input (can be null if you are not the inputter)
-	 * @return
-	 */
-	public SBool input(int inputter, boolean value) {
-		SBool res = bp.getSBool();
-		OBool known = bp.getKnownConstantOBool(value);
-		append(this.bp.getCloseProtocol(inputter, known, res));
-		return res;
-	}
-
-	/**
-	 * Appends a number of close protocols where the inputting party is the inputter,
-	 * inputting the given values as booleans.
-	 * 
-	 * @param inputter the party to input the values
-	 * @param values the values to input (can be null if you are not the inputter)
-	 * @return
-	 */
-	public SBool[] input(int inputter, boolean[] values) {
-		SBool[] res = new SBool[values.length];
-		beginParScope();
-		for (int i = 0; i < values.length; i++) {
-			res[i] = input(inputter, values[i]);
-		}
-		endCurScope();
-		return res;
-	}
-
-	/**
-	 * Appends an open to all protocol for an array of SBools
-	 * 
-	 * @param sb
-	 *            the SBools to be output
+	 * @param sb the SBools to be output
 	 * @return the OBools holding the resulting output
 	 */
 	public OBool[] output(SBool... sbs) {
@@ -126,15 +77,14 @@ public class BasicLogicBuilder extends AbstractProtocolBuilder {
 	}
 
 	/**
-	 * Appends an open to all circuit for a single SBool
+	 * Appends an output protocol for a single SBool
 	 * 
-	 * @param sb
-	 *            the SBool to be output
+	 * @param sb the SBool to be output
 	 * @return the OBool holding the resulting output
 	 */
 	public OBool output(SBool sb) {
-		OBool out = bp.getOBool();
-		append(bp.getOpenProtocol(sb, out));
+		OBool out = bf.getOBool();
+		append(bf.getOpenProtocol(sb, out));
 		return out;
 	}
 
@@ -148,7 +98,7 @@ public class BasicLogicBuilder extends AbstractProtocolBuilder {
 	public SBool[] knownSBool(boolean[] bs) {
 		SBool[] result = new SBool[bs.length];
 		for (int i = 0; i < bs.length; i++) {
-			result[i] = bp.getKnownConstantSBool(bs[i]);
+			result[i] = bf.getKnownConstantSBool(bs[i]);
 		}
 		return result;
 	}
@@ -161,7 +111,7 @@ public class BasicLogicBuilder extends AbstractProtocolBuilder {
 	 * @return the resulting SBool
 	 */
 	public SBool knownSBool(boolean b) {
-		SBool known = bp.getKnownConstantSBool(b);
+		SBool known = bf.getKnownConstantSBool(b);
 		return known;
 	}
 
@@ -176,10 +126,10 @@ public class BasicLogicBuilder extends AbstractProtocolBuilder {
 	public SBool[] knownSBool(byte[] bs) {
 		SBool[] result = new SBool[bs.length];
 		for (int i = 0; i < bs.length; i++) {
-			if (bs[i] == 0) {
-				result[i] = bp.getKnownConstantSBool(false);
+			if (bs[i] == 0){
+				result[i] = bf.getKnownConstantSBool(false);
 			} else {
-				result[i] = bp.getKnownConstantSBool(true);
+				result[i] = bf.getKnownConstantSBool(true);
 			}
 		}
 		return result;
@@ -193,37 +143,37 @@ public class BasicLogicBuilder extends AbstractProtocolBuilder {
 	 * @return an OBool containing the given value
 	 */
 	public OBool getOBool(boolean b) {
-		return bp.getKnownConstantOBool(b);
+		return bf.getKnownConstantOBool(b);
 	}
 
 	/**
-	 * Appends a AND gate to the current circuit.
+	 * Appends a AND protocol to the current protocol.
 	 * 
 	 * @param left
 	 *            the SBool holding the left argument.
 	 * @param right
 	 *            the SBool holding the right argument.
-	 * @return an SBool holding the output of the appended gate.
+	 * @return an SBool holding the output of the appended protocol.
 	 */
 	public SBool and(SBool left, SBool right) {
-		SBool result = bp.getSBool();
-		append(bp.getAndCircuit(left, right, result));
+		SBool result = bf.getSBool();
+		append(bf.getAndProtocol(left, right, result));
 		return result;
 	}
 
 	public void andInPlace(SBool result, SBool left, SBool right) {
-		append(bp.getAndCircuit(left, right, result));
+		append(bf.getAndProtocol(left, right, result));
 	}
 
 	/**
-	 * Appends AND gates to the current circuit to do entry-wise AND of two bit
+	 * Appends AND protocols to the current protocol to do entry-wise AND of two bit
 	 * strings.
 	 * 
 	 * @param left
 	 *            an SBool array holding the left bit string.
 	 * @param right
 	 *            an SBool array holding the right bit string.
-	 * @return an SBool array holding the output of the appended gates.
+	 * @return an SBool array holding the output of the appended protocols.
 	 */
 	public SBool[] and(SBool[] left, SBool[] right) {
 		checkLengths(left, right);
@@ -247,20 +197,20 @@ public class BasicLogicBuilder extends AbstractProtocolBuilder {
 	}
 
 	/**
-	 * Appends a NOT gate to the current circuit.
+	 * Appends a NOT protocol to the current protocol.
 	 * 
 	 * @param in
-	 *            the SBool holding the argument to be negated.
-	 * @return an SBool holding the output of the appended gate.
+	 *            the SBool holding the argument to be neprotocold.
+	 * @return an SBool holding the output of the appended protocol.
 	 */
 	public SBool not(SBool in) {
-		SBool result = bp.getSBool();
+		SBool result = bf.getSBool();
 		notInPlace(result, in);
 		return result;
 	}
 
 	public void notInPlace(SBool result, SBool in) {
-		append(bp.getNotCircuit(in, result));
+		append(bf.getNotProtocol(in, result));
 	}
 
 	public void notInPlace(SBool[] result, SBool[] in) {
@@ -273,33 +223,33 @@ public class BasicLogicBuilder extends AbstractProtocolBuilder {
 	}
 
 	/**
-	 * Appends a XOR gate to the current circuit.
+	 * Appends a XOR protocol to the current protocol.
 	 * 
 	 * @param left
 	 *            the SBool holding the left argument.
 	 * @param right
 	 *            the SBool holding the right argument.
-	 * @return an SBool holding the output of the appended gate.
+	 * @return an SBool holding the output of the appended protocol.
 	 */
 	public SBool xor(SBool left, SBool right) {
-		SBool result = bp.getSBool();
-		append(bp.getXorCircuit(left, right, result));
+		SBool result = bf.getSBool();
+		append(bf.getXorProtocol(left, right, result));
 		return result;
 	}
 
 	public void xorInPlace(SBool result, SBool left, SBool right) {
-		append(bp.getXorCircuit(left, right, result));
+		append(bf.getXorProtocol(left, right, result));
 	}
 
 	/**
-	 * Appends XOR gates to the current circuit to do entry-wise XOR of two bit
+	 * Appends XOR protocols to the current protocol to do entry-wise XOR of two bit
 	 * strings.
 	 * 
 	 * @param left
 	 *            an SBool array holding the left bit string.
 	 * @param right
 	 *            an SBool array holding the right bit string.
-	 * @return an SBool array holding the output of the appended gates.
+	 * @return an SBool array holding the output of the appended protocols.
 	 */
 	public SBool[] xor(SBool[] left, SBool[] right) {
 		checkLengths(left, right);
@@ -323,33 +273,33 @@ public class BasicLogicBuilder extends AbstractProtocolBuilder {
 	}
 
 	/**
-	 * Appends a OR gate to the current circuit.
+	 * Appends a OR protocol to the current protocol.
 	 * 
 	 * @param left
 	 *            the SBool holding the left argument.
 	 * @param right
 	 *            the SBool holding the right argument.
-	 * @return an SBool holding the output of the appended gate.
+	 * @return an SBool holding the output of the appended protocol.
 	 */
 	public SBool or(SBool left, SBool right) {
-		SBool result = bp.getSBool();
-		append(bp.getOrCircuit(left, right, result));
+		SBool result = bf.getSBool();
+		append(bf.getOrProtocol(left, right, result));
 		return result;
 	}
 
 	public void orInPlace(SBool result, SBool left, SBool right) {
-		append(bp.getOrCircuit(left, right, result));
+		append(bf.getOrProtocol(left, right, result));		
 	}
 
 	/**
-	 * Appends OR gates to the current circuit to do entry-wise OR of two bit
+	 * Appends OR protocols to the current protocol to do entry-wise OR of two bit
 	 * strings.
 	 * 
 	 * @param left
 	 *            an SBool array holding the left bit string.
 	 * @param right
 	 *            an SBool array holding the right bit string.
-	 * @return an SBool array holding the output of the appended gates.
+	 * @return an SBool array holding the output of the appended protocols.
 	 */
 	public SBool[] or(SBool[] left, SBool[] right) {
 		checkLengths(left, right);
@@ -363,8 +313,8 @@ public class BasicLogicBuilder extends AbstractProtocolBuilder {
 	}
 
 	/**
-	 * Appends a conditional select circuit to the current circuit. The output
-	 * of this circuit on inputs a and b and condition bit c is the bit r := c ?
+	 * Appends a conditional select protocol to the current protocol. The output
+	 * of this protocol on inputs a and b and condition bit c is the bit r := c ?
 	 * a : b.
 	 * 
 	 * @param condition
@@ -374,14 +324,14 @@ public class BasicLogicBuilder extends AbstractProtocolBuilder {
 	 *            the SBool holding the left argument.
 	 * @param right
 	 *            the SBool holding the right argument.
-	 * @return an SBool holding the output of the appended circuit.
+	 * @return an SBool holding the output of the appended protocol.
 	 */
 	public SBool condSelect(SBool condition, SBool left, SBool right) {
-		SBool result = bp.getSBool();
+		SBool result = bf.getSBool();
 		beginSeqScope();
 		SBool x = xor(left, right);
 		SBool y = and(condition, x);
-		append(bp.getXorCircuit(y, right, result));
+		append(bf.getXorProtocol(y, right, result));
 		endCurScope();
 		return result;
 	}
@@ -390,13 +340,13 @@ public class BasicLogicBuilder extends AbstractProtocolBuilder {
 		beginSeqScope();
 		SBool x = xor(left, right);
 		SBool y = and(condition, x);
-		append(bp.getXorCircuit(y, right, result));
+		append(bf.getXorProtocol(y, right, result));
 		endCurScope();
 	}
 
 	/**
-	 * Appends a conditional select circuit on bit strings to the current
-	 * circuit. The output of this circuit on input strings A and B and
+	 * Appends a conditional select protocol on bit strings to the current
+	 * protocol. The output of this protocol on input strings A and B and
 	 * condition c is the string R := c ? A : B.
 	 * 
 	 * @param condition
@@ -405,7 +355,7 @@ public class BasicLogicBuilder extends AbstractProtocolBuilder {
 	 *            the SBool array holding the left argument.
 	 * @param right
 	 *            the SBool array holding the right argument.
-	 * @return an SBool array holding the output of the appended circuit.
+	 * @return an SBool array holding the output of the appended protocol.
 	 */
 	public SBool[] condSelect(SBool condition, SBool[] left, SBool[] right) {
 		checkLengths(left, right);
@@ -429,24 +379,24 @@ public class BasicLogicBuilder extends AbstractProtocolBuilder {
 	}
 
 	/**
-	 * Appends a greater-than circuit to the current circuit. The output of this
-	 * circuit is the greater-than (<) relation between its two input strings.
+	 * Appends a greater-than protocol to the current protocol. The output of this
+	 * protocol is the greater-than (<) relation between its two input strings.
 	 * 
 	 * @param left
 	 *            the SBool array holding the left argument.
 	 * @param right
 	 *            the SBool array holding the right argument.
-	 * @return an SBool holding the output of the appended circuit.
+	 * @return an SBool holding the output of the appended protocol.
 	 */
 	public SBool greaterThan(SBool[] left, SBool[] right) {
 		checkLengths(left, right);
-		SBool result = bp.getSBool();
-		append(bp.getBinaryComparisonCircuit(left, right, result));
+		SBool result = bf.getSBool();
+		append(bf.getBinaryComparisonProtocol(left, right, result));
 		return result;
 	}
 
 	/**
-	 * Appends a keyed compare and swap circuit. This circuit swaps two
+	 * Appends a keyed compare and swap protocol. This protocol swaps two
 	 * key-value pairs to that the left pair becomes the pair with the largest
 	 * key.
 	 * 
@@ -462,29 +412,30 @@ public class BasicLogicBuilder extends AbstractProtocolBuilder {
 	public void keyedCompareAndSwap(SBool[] leftKey, SBool[] leftValue, SBool[] rightKey, SBool[] rightValue) {
 		checkLengths(leftKey, rightKey);
 		checkLengths(leftValue, rightValue);
-		append(bp.getKeyedCompareAndSwapCircuit(leftKey, leftValue, rightKey, rightValue));
+		append(bf.getKeyedCompareAndSwapProtocol(leftKey, leftValue, rightKey,
+				rightValue));
 		return;
 	}
 
 	/**
-	 * Appends a equality circuit to the current circuit. The output of this
-	 * circuit is the equals (==) relation between its two input strings.
+	 * Appends a equality protocol to the current protocol. The output of this
+	 * protocol is the equals (==) relation between its two input strings.
 	 * 
 	 * @param left
 	 *            the SBool array holding the left argument.
 	 * @param right
 	 *            the SBool array holding the right argument.
-	 * @return an SBool holding the output of the appended circuit.
+	 * @return an SBool holding the output of the appended protocol.
 	 */
 	public SBool equality(SBool[] left, SBool[] right) {
 		checkLengths(left, right);
-		SBool result = bp.getSBool();
-		append(bp.getBinaryEqualityCircuit(left, right, result));
+		SBool result = bf.getSBool();
+		append(bf.getBinaryEqualityProtocol(left, right, result));
 		return result;
 	}
 
 	/**
-	 * Appends a copy circuit to the current circuit copying the value of one
+	 * Appends a copy protocol to the current protocol copying the value of one
 	 * SBool to an other.
 	 * 
 	 * @param src
@@ -493,12 +444,12 @@ public class BasicLogicBuilder extends AbstractProtocolBuilder {
 	 *            the destination SBool
 	 */
 	public void copy(SBool src, SBool dest) {
-		append(bp.getCopyCircuit(src, dest));
+		append(bf.getCopyProtocol(src, dest));
 		return;
 	}
 
 	/**
-	 * Appends a copy circuit to the current circuit copying the values of an
+	 * Appends a copy protocol to the current protocol copying the values of an
 	 * SBool array to an other array of SBools.
 	 * 
 	 * @param src
@@ -532,7 +483,7 @@ public class BasicLogicBuilder extends AbstractProtocolBuilder {
 	}
 
 	@Override
-	public void addGateProducer(ProtocolProducer gp) {
+	public void addProtocolProducer(ProtocolProducer gp) {
 		append(gp);
 	}
 }

@@ -59,7 +59,7 @@ public class LR15ProtocolSuite implements ProtocolSuite {
 	}
 
 	@Override
-	public void synchronize(int gatesEvaluated) throws MPCException {
+	public void synchronize(int protocolsEvaluated) throws MPCException {
 		// TODO Auto-generated method stub
 		
 	}

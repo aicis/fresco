@@ -29,18 +29,20 @@ package dk.alexandra.fresco.lib.helper.builder;
 import java.math.BigInteger;
 
 import dk.alexandra.fresco.framework.ProtocolProducer;
+import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.helper.AbstractRepeatProtocol;
-import dk.alexandra.fresco.lib.helper.builder.tree.TreeCircuit;
-import dk.alexandra.fresco.lib.helper.builder.tree.TreeCircuitNodeGenerator;
+import dk.alexandra.fresco.lib.helper.CopyProtocolImpl;
+import dk.alexandra.fresco.lib.helper.builder.tree.TreeProtocol;
+import dk.alexandra.fresco.lib.helper.builder.tree.TreeProtocolNodeGenerator;
 
 public class NumericProtocolBuilder extends AbstractProtocolBuilder {
 
-	private BasicNumericFactory bnp;
+	private BasicNumericFactory bnf;
 
 	public NumericProtocolBuilder(BasicNumericFactory bnp) {
-		this.bnp = bnp;
+		this.bnf = bnp;
 	}
 
 	/**
@@ -79,7 +81,7 @@ public class NumericProtocolBuilder extends AbstractProtocolBuilder {
 	 * @return a SInt.
 	 */
 	public SInt getSInt(int value) {
-		return bnp.getSInt(value);
+		return bnf.getSInt(value);
 	}
 
 	/**
@@ -120,12 +122,12 @@ public class NumericProtocolBuilder extends AbstractProtocolBuilder {
 	 * @return a SInt.
 	 */
 	public SInt getSInt() {
-		return bnp.getSInt();
+		return bnf.getSInt();
 	}
 
 	public SInt known(BigInteger value) {
-		SInt sValue = bnp.getSInt();
-		ProtocolProducer loader = bnp.getSInt(value, sValue);
+		SInt sValue = bnf.getSInt();
+		ProtocolProducer loader = bnf.getSInt(value, sValue);
 		append(loader);
 		return sValue;
 	}
@@ -141,8 +143,8 @@ public class NumericProtocolBuilder extends AbstractProtocolBuilder {
 	}
 
 	public SInt known(int value) {
-		SInt sValue = bnp.getSInt();
-		ProtocolProducer loader = bnp.getSInt(value, sValue);
+		SInt sValue = bnf.getSInt();
+		ProtocolProducer loader = bnf.getSInt(value, sValue);
 		append(loader);
 		return sValue;
 	}
@@ -167,11 +169,26 @@ public class NumericProtocolBuilder extends AbstractProtocolBuilder {
 	 * @return an SInt representing the result of the addition
 	 */
 	public SInt add(SInt left, SInt right) {
-		SInt out = bnp.getSInt();
-		append(bnp.getAddProtocol(left, right, out));
+		SInt out = bnf.getSInt();
+		append(bnf.getAddProtocol(left, right, out));
 		return out;
 	}
 
+	/**
+	 * Adds an SInt and an OInt
+	 * 
+	 * @param left
+	 *            the lefthand input
+	 * @param right
+	 *            the righthand input
+	 * @return an SInt representing the result of the addition
+	 */
+	public SInt add(SInt left, OInt right) {
+		SInt out = bnf.getSInt();
+		append(bnf.getAddProtocol(left, right, out));
+		return out;
+	}
+	
 	/**
 	 * Adds the lefthand array of SInts element-wise to the righthand array.
 	 * Note this means the righthand array must be at least as long as the
@@ -193,8 +210,8 @@ public class NumericProtocolBuilder extends AbstractProtocolBuilder {
 				out[i] = add(left[i], right[i]);
 			}
 		} catch (IndexOutOfBoundsException e) {
-			throw new IllegalArgumentException("The righthand input array "
-					+ "most be at least as long as the left hand input arry", e);
+			throw new IllegalArgumentException(
+					"The righthand input array " + "most be at least as long as the left hand input arry", e);
 		}
 		endCurScope();
 		return out;
@@ -212,10 +229,9 @@ public class NumericProtocolBuilder extends AbstractProtocolBuilder {
 		}
 
 		@Override
-		protected ProtocolProducer getNextGateProducer() {
+		protected ProtocolProducer getNextProtocolProducer() {
 			if (i < left.length) {
-				ProtocolProducer addition = bnp.getAddProtocol(left[i], right[i],
-						out[i]);
+				ProtocolProducer addition = bnf.getAddProtocol(left[i], right[i], out[i]);
 				i++;
 				return addition;
 			} else {
@@ -225,7 +241,7 @@ public class NumericProtocolBuilder extends AbstractProtocolBuilder {
 	}
 
 	/**
-	 * Appends a circuit that sums an array of terms. The method uses a
+	 * Appends a protocol that sums an array of terms. The method uses a
 	 * recursive tree algorithm to parallelize the computation.
 	 * 
 	 * @param terms
@@ -234,12 +250,12 @@ public class NumericProtocolBuilder extends AbstractProtocolBuilder {
 	 */
 	public SInt sum(SInt[] terms) {
 		SInt sum = getSInt();
-		ProtocolProducer sumTree = new TreeCircuit(new SumNodeGenerator(terms, sum));
+		ProtocolProducer sumTree = new TreeProtocol(new SumNodeGenerator(terms, sum));
 		append(sumTree);
 		return sum;
 	}
 
-	private class SumNodeGenerator implements TreeCircuitNodeGenerator {
+	private class SumNodeGenerator implements TreeProtocolNodeGenerator {
 
 		private SInt[] terms;
 		private SInt[] intermediate;
@@ -270,7 +286,7 @@ public class NumericProtocolBuilder extends AbstractProtocolBuilder {
 				right = intermediate[j];
 			}
 			out = intermediate[i];
-			ProtocolProducer addition = bnp.getAddProtocol(left, right, out);
+			ProtocolProducer addition = bnf.getAddProtocol(left, right, out);
 			return addition;
 		}
 
@@ -279,20 +295,20 @@ public class NumericProtocolBuilder extends AbstractProtocolBuilder {
 			return terms.length;
 		}
 	}
-	
+
 	/**
 	 * Takes a number of values and multiplies them all.
-	 * @param terms
+	 * @param factors
 	 * @return
 	 */
-	public SInt mult(SInt[] terms) {
+	public SInt mult(SInt[] factors) {
 		SInt sum = getSInt();
-		ProtocolProducer multTree = new TreeCircuit(new MultNodeGenerator(terms, sum));
+		ProtocolProducer multTree = new TreeProtocol(new MultNodeGenerator(factors, sum));
 		append(multTree);
 		return sum;
 	}
-	
-	private class MultNodeGenerator implements TreeCircuitNodeGenerator {
+
+	private class MultNodeGenerator implements TreeProtocolNodeGenerator {
 
 		private SInt[] terms;
 		private SInt[] intermediate;
@@ -323,7 +339,7 @@ public class NumericProtocolBuilder extends AbstractProtocolBuilder {
 				right = intermediate[j];
 			}
 			out = intermediate[i];
-			ProtocolProducer mult = bnp.getMultCircuit(left, right, out);
+			ProtocolProducer mult = bnf.getMultProtocol(left, right, out);
 			return mult;
 		}
 
@@ -343,11 +359,26 @@ public class NumericProtocolBuilder extends AbstractProtocolBuilder {
 	 * @return an SInt representing the result of the multiplication
 	 */
 	public SInt mult(SInt left, SInt right) {
-		SInt out = bnp.getSInt();
-		append(bnp.getMultCircuit(left, right, out));
+		SInt out = bnf.getSInt();
+		append(bnf.getMultProtocol(left, right, out));
 		return out;
 	}
 
+	/**
+	 * Multiplies an OInt and an SInt
+	 * 
+	 * @param left
+	 *            the lefthand input
+	 * @param right
+	 *            the righthand input
+	 * @return an SInt representing the result of the multiplication
+	 */
+	public SInt mult(OInt left, SInt right) {
+		SInt out = bnf.getSInt();
+		append(bnf.getMultProtocol(left, right, out));
+		return out;
+	}
+	
 	/**
 	 * Scales the right side array of SInts.
 	 * 
@@ -388,8 +419,8 @@ public class NumericProtocolBuilder extends AbstractProtocolBuilder {
 				out[i] = mult(left[i], right[i]);
 			}
 		} catch (IndexOutOfBoundsException e) {
-			throw new IllegalArgumentException("The righthand input array "
-					+ "most be at least as long as the left hand input arry", e);
+			throw new IllegalArgumentException(
+					"The righthand input array " + "most be at least as long as the left hand input arry", e);
 		}
 		endCurScope();
 		return out;
@@ -405,11 +436,41 @@ public class NumericProtocolBuilder extends AbstractProtocolBuilder {
 	 * @return an SInt representing the result of the subtraction.
 	 */
 	public SInt sub(SInt left, SInt right) {
-		SInt out = bnp.getSInt();
-		append(bnp.getSubtractCircuit(left, right, out));
+		SInt out = bnf.getSInt();
+		append(bnf.getSubtractProtocol(left, right, out));
 		return out;
 	}
 
+	/**
+	 * Subtracts the righthand SInt from the lefthand OInt.
+	 * 
+	 * @param left
+	 *            the lefthand input
+	 * @param right
+	 *            the righthand input
+	 * @return an SInt representing the result of the subtraction.
+	 */
+	public SInt sub(OInt left, SInt right) {
+		SInt out = bnf.getSInt();
+		append(bnf.getSubtractProtocol(left, right, out));
+		return out;
+	}
+	
+	/**
+	 * Subtracts the righthand OInt from the lefthand SInt.
+	 * 
+	 * @param left
+	 *            the lefthand input
+	 * @param right
+	 *            the righthand input
+	 * @return an SInt representing the result of the subtraction.
+	 */
+	public SInt sub(SInt left, OInt right) {
+		SInt out = bnf.getSInt();
+		append(bnf.getSubtractProtocol(left, right, out));
+		return out;
+	}
+	
 	/**
 	 * Subtracts the righthand array of SInts element-wise from the lefthand
 	 * array. The righthand array must be at least as long as the lefthand
@@ -427,14 +488,58 @@ public class NumericProtocolBuilder extends AbstractProtocolBuilder {
 		beginParScope();
 		try {
 			for (int i = 0; i < left.length; i++) {
-				append(bnp.getSubtractCircuit(left[i], right[i], out[i]));
+				append(bnf.getSubtractProtocol(left[i], right[i], out[i]));
 			}
 		} catch (IndexOutOfBoundsException e) {
-			throw new IllegalArgumentException("The righthand input array "
-					+ "most be at least as long as the left hand input arry", e);
+			throw new IllegalArgumentException(
+					"The righthand input array " + "most be at least as long as the left hand input arry", e);
 		}
 		endCurScope();
 		return out;
+	}
+	
+	/**
+	 * Computes the conditional selection operation. I.e., concretely computes
+	 * the value <code>r</code> as
+	 * <code> selector*(left - right) + right </code> For
+	 * <code>selector == 0</code> this gives a value equal to <code>right</code>
+	 * , for <code>selector == 1</code> a value equal to <code>left</code>.
+	 * 
+	 * @param selector
+	 *            should be either 0 or 1.
+	 * @param left
+	 *            the left hand value
+	 * @param right
+	 *            the right hand value
+	 * @return a SInt holding the value of
+	 *         <code> selector*(left - right) + right </code>
+	 */
+	public SInt conditionalSelect(SInt selector, SInt left, SInt right) {
+		SInt r = getSInt();
+		conditionalSelect(selector, left, right, r);
+		return r;
+	}
+
+	/**
+	 * In place version of {@link #conditionalSelect(SInt, SInt, SInt)}
+	 * 
+	 * @param selector
+	 *            should be either 0 or 1.
+	 * @param left
+	 *            the left hand value
+	 * @param right
+	 *            the right hand value
+	 * @param result
+	 *            a SInt in which to put the result. I.e, the value of
+	 *            <code> selector*(left - right) + right </code>
+	 */
+	public void conditionalSelect(SInt selector, SInt left, SInt right, SInt result) {
+		beginSeqScope();
+		SInt diff = sub(left, right);
+		SInt prod = mult(diff, selector);
+		append(bnf.getAddProtocol(prod, right, result));
+		endCurScope();
+		return;
 	}
 
 	public SInt innerProduct(SInt[] left, SInt[] right) {
@@ -445,8 +550,23 @@ public class NumericProtocolBuilder extends AbstractProtocolBuilder {
 		return innerProduct;
 	}
 
+	/**
+	 * Copies the value of one SInt into an other SInt.
+	 * 
+	 * Note: this uses the generic CopyProtocol implementation, it is not clear
+	 * if this is safe for all protocol suites.
+	 * @param to
+	 *            the SInt to copy to
+	 * @param from
+	 *            the SInt to copy from
+	 */
+	public void copy(SInt to, SInt from) {
+		append(new CopyProtocolImpl<SInt>(from, to));
+	}
+
 	@Override
-	public void addGateProducer(ProtocolProducer gp) {
+	public void addProtocolProducer(ProtocolProducer gp) {
 		append(gp);
 	}
+
 }

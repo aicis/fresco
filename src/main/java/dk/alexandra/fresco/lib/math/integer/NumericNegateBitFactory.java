@@ -38,5 +38,5 @@ public interface NumericNegateBitFactory {
 	 * @param out
 	 * @return 1-bit
 	 */
-	public NumericNegateBitProtocol getNegatedBitCircuit(SInt bit, SInt out);
+	public NumericNegateBitProtocol getNegatedBitProtocol(SInt bit, SInt out);
 }

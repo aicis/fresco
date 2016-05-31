@@ -40,14 +40,14 @@ import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
  * XNOR b3) AND ...
  * 
  * The XNORs are done in parallel and the ANDs are done by a log-depth tree
- * structured circuit. 
+ * structured protocol. 
  * 
  * @author Kasper Damgaard
  * 
  */
 public class BinaryEqualityProtocolImpl implements BinaryEqualityProtocol {
 
-	private BasicLogicFactory provider;
+	private BasicLogicFactory factory;
 	private SBool[] inLeft;
 	private SBool[] inRight;
 	private SBool out;
@@ -58,11 +58,11 @@ public class BinaryEqualityProtocolImpl implements BinaryEqualityProtocol {
 	private int step = 1;
 	private boolean xnorDone = false;
 
-	private AppendableProtocolProducer curGP = null;
+	private AppendableProtocolProducer curPP = null;
 
 	public BinaryEqualityProtocolImpl(SBool[] inLeft, SBool[] inRight,
-			SBool out, BasicLogicFactory provider) {
-		this.provider = provider;
+			SBool out, BasicLogicFactory factory) {
+		this.factory = factory;
 		this.inLeft = inLeft;
 		this.inRight = inRight;
 		this.out = out;
@@ -74,46 +74,46 @@ public class BinaryEqualityProtocolImpl implements BinaryEqualityProtocol {
 	}
 
 	@Override
-	public int getNextProtocols(NativeProtocol[] gates, int pos) {
+	public int getNextProtocols(NativeProtocol[] nativeProtocols, int pos) {
 		if (xnorOuts == null) {
 			xnorOuts = new SBool[length];
 			for (int i = 1; i < length; i++) {
-				xnorOuts[i] = provider.getSBool();
+				xnorOuts[i] = factory.getSBool();
 			}
 			xnorOuts[0] = out;
 		}
-		if (curGP == null) {
+		if (curPP == null) {
 			if (!xnorDone) {
 				ParallelProtocolProducer parXOR = new ParallelProtocolProducer();
 				ParallelProtocolProducer parNOT = new ParallelProtocolProducer();
 				for (int i = 0; i < length; i++) {
-					parXOR.append(provider.getXorCircuit(inLeft[i], inRight[i],
+					parXOR.append(factory.getXorProtocol(inLeft[i], inRight[i],
 							xnorOuts[i]));
-					parNOT.append(provider.getNotCircuit(xnorOuts[i],
+					parNOT.append(factory.getNotProtocol(xnorOuts[i],
 							xnorOuts[i]));
 				}
-				curGP = new SequentialProtocolProducer(parXOR, parNOT);
+				curPP = new SequentialProtocolProducer(parXOR, parNOT);
 			} else {
 				ParallelProtocolProducer parAND = new ParallelProtocolProducer();
 				int i = 0;
 				while (i + step < length) {
-					Protocol and = provider.getAndCircuit(xnorOuts[i],
+					Protocol and = factory.getAndProtocol(xnorOuts[i],
 							xnorOuts[i + step], xnorOuts[i]);
 					parAND.append(and);
 					i += 2 * step;
 				}
-				curGP = parAND;
+				curPP = parAND;
 			}
 		}
-		if (curGP.hasNextProtocols()) {
-			pos = curGP.getNextProtocols(gates, pos);
-		} else if (!curGP.hasNextProtocols()) {
+		if (curPP.hasNextProtocols()) {
+			pos = curPP.getNextProtocols(nativeProtocols, pos);
+		} else if (!curPP.hasNextProtocols()) {
 			if (!xnorDone) {
 				xnorDone = true;
 			} else {
 				step *= 2;
 			}
-			curGP = null;
+			curPP = null;
 		}
 		return pos;
 	}

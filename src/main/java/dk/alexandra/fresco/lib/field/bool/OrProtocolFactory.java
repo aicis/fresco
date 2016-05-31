@@ -32,8 +32,8 @@ import dk.alexandra.fresco.framework.value.SBool;
 
 public interface OrProtocolFactory extends ProtocolFactory {
 
-	public OrProtocol getOrCircuit(SBool inLeft, SBool inRight, SBool out);
+	public OrProtocol getOrProtocol(SBool inLeft, SBool inRight, SBool out);
 	
-	public OrProtocol getOrCircuit(SBool inLeft, OBool inRight, SBool out);
+	public OrProtocol getOrProtocol(SBool inLeft, OBool inRight, SBool out);
 	
 }

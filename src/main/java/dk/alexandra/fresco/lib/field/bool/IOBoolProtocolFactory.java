@@ -37,45 +37,37 @@ public interface IOBoolProtocolFactory {
 	
 	
 	/**
-	 * Gets a new open circuit.
+	 * Gets a new open protocol.
 	 * 
 	 * @param closed a closed value
 	 * @param open a opened value
 	 * @param source the id of a specific player that provides the input.
-	 * @return the circuit to do the transformation
+	 * @return the protocol to do the transformation
 	 * 
 	 */
 	CloseBoolProtocol getCloseProtocol(int source, OBool open, SBool closed);
 
 	
 	/**
-	 * Gets a new open circuit that opens up the integer to all.
+	 * Gets a new open protocol that opens up the integer to all.
 	 * 
 	 * @param closed a closed value
 	 * @param open a opened value
-	 * @return the circuit to do the transformation
+	 * @return the protocol to do the transformation
 	 * 
 	 */
 	OpenBoolProtocol getOpenProtocol(SBool closed, OBool open);
 	
 	
 	/**
-	 * Gets a new open circuit
+	 * Gets a new open protocol
 	 * 
 	 * @param closed a closed value
 	 * @param open a opened value
 	 * @param targetID the id of a specific player to output to.
-	 * @return the circuit to do the transformation
+	 * @return the protocol to do the transformation
 	 * 
 	 */
-	OpenBoolProtocol getOpenCircuit(int target, SBool closed, OBool open);
-	
-	
-//	/**
-//	 * Generates a circuit that opens up the given SInt to the set of players
-//	 * specified by the tagert set.
-//	 * 
-//	 */
-//	OpenBoolCircuit getOpenCircuit(Set<Integer> targets, SBool closed, OBool open);
+	OpenBoolProtocol getOpenProtocol(int target, SBool closed, OBool open);
 	
 }

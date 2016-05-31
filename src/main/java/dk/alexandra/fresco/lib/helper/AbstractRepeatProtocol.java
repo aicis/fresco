@@ -32,15 +32,15 @@ import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.Value;
 
 /**
- * A circuit suited for doing the same simple operation (i.e., operations
- * requiring a very small amount of gates) many times in parallel.
+ * A protocol suited for doing the same simple operation (i.e., operations
+ * requiring a very small amount of protocols) many times in parallel.
  * 
- * The circuit tries to construct as few gates as possible. I.e., in each
- * invocation of the getNextGates method we try to produce only as many gates as
- * can fit in gate array.
+ * The protocol tries to construct as few protocols as possible. I.e., in each
+ * invocation of the getNextprotocols method we try to produce only as many protocols as
+ * can fit in protocol array.
  * 
- * This could be a more efficient alternative to the ParallelGateProducer.
- * because the GateProducers to be computed in parallel are generated on the
+ * This could be a more efficient alternative to the ParallelprotocolProducer.
+ * because the protocolProducers to be computed in parallel are generated on the
  * fly.
  * 
  * @author psn
@@ -54,14 +54,14 @@ public abstract class AbstractRepeatProtocol implements Protocol {
 	private ProtocolProducer current = null;
 
 	@Override
-	public int getNextProtocols(NativeProtocol[] gates, int pos) {
+	public int getNextProtocols(NativeProtocol[] nativeProtocols, int pos) {
 		if (current == null) {
-			current = getNextGateProducer();
+			current = getNextProtocolProducer();
 		}
-		while (current != null && pos < gates.length - 1) {
-			pos = current.getNextProtocols(gates, pos);
+		while (current != null && pos < nativeProtocols.length - 1) {
+			pos = current.getNextProtocols(nativeProtocols, pos);
 			if (!current.hasNextProtocols()) {
-				current = getNextGateProducer();
+				current = getNextProtocolProducer();
 			}
 		}
 		if (current == null) {
@@ -71,11 +71,11 @@ public abstract class AbstractRepeatProtocol implements Protocol {
 	}
 
 	/**
-	 * Generates the next GateProducer to be evaluated in parallel.
+	 * Generates the next protocolProducer to be evaluated in parallel.
 	 * 
 	 * @return
 	 */
-	protected abstract ProtocolProducer getNextGateProducer();
+	protected abstract ProtocolProducer getNextProtocolProducer();
 
 	@Override
 	public boolean hasNextProtocols() {
@@ -93,20 +93,20 @@ public abstract class AbstractRepeatProtocol implements Protocol {
 	}
 
 	/**
-	 * Sets the input values of this circuit.
+	 * Sets the input values of this protocol.
 	 * 
 	 * @param inputs
-	 *            the input values of the circuit.
+	 *            the input values of the protocol.
 	 */
 	protected void setInputValues(Value[] inputs) {
 		this.inputs = inputs;
 	}
 
 	/**
-	 * Sets the output values of this circuit.
+	 * Sets the output values of this protocol.
 	 * 
 	 * @param outputs
-	 *            the output values of the circuit.
+	 *            the output values of the protocol.
 	 */
 	protected void setOutputValues(Value[] outputs) {
 		this.outputs = outputs;

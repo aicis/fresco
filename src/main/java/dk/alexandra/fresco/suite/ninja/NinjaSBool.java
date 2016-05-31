@@ -60,6 +60,10 @@ public class NinjaSBool implements SBool{
 		return value;
 	}
 
+	public void setValue(boolean b) {
+		this.value = (byte) (b ? 1 : 0);
+	}
+	
 	public void setValue(byte value) {
 		this.value = value;
 	}

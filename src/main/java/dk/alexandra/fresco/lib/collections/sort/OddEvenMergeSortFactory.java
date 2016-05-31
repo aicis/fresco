@@ -34,7 +34,7 @@ import dk.alexandra.fresco.framework.value.SBool;
 public interface OddEvenMergeSortFactory {
 
 	/**
-	 * A circuit that merges two sorted arrays into a single sorted array
+	 * A protocol that merges two sorted arrays into a single sorted array
 	 * containing the elements of both argument arrays. The arrays contain
 	 * key/value pairs and are expected to be sorted in descending order on the
 	 * keys.
@@ -50,7 +50,7 @@ public interface OddEvenMergeSortFactory {
 	 * 
 	 * @return
 	 */
-	public OddEvenMergeCircuit getOddEvenMergeCircuit(
+	public OddEvenMergeProtocol getOddEvenMergeProtocol(
 			List<Pair<SBool[], SBool[]>> left, List<Pair<SBool[], SBool[]>> right,
 			List<Pair<SBool[], SBool[]>> sorted);
 

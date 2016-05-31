@@ -35,15 +35,14 @@ import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 
 /**
- * If a ParallelCircuit has n subcircuits and is asked to deliver m gates, it
- * requests m/n gates from each of the subcircuits.
+ * If a Parallelprotocol has n subprotocols and is asked to deliver m protocols, it
+ * requests m/n protocols from each of the subprotocols.
  * 
  */
 public class ParallelProtocolProducer implements ProtocolProducer,
 		AppendableProtocolProducer {
 
 	private LinkedList<ProtocolProducer> cs;
-	private ListIterator<ProtocolProducer> iterator;
 
 	public ParallelProtocolProducer() {
 		cs = new LinkedList<ProtocolProducer>();
@@ -62,8 +61,6 @@ public class ParallelProtocolProducer implements ProtocolProducer,
 	}
 
 	public void append(ProtocolProducer c) {
-		// TODO: Should we prevent appending a new circuit after first call to
-		// getNextGate?
 		cs.offer(c);
 	}
 
@@ -74,7 +71,7 @@ public class ParallelProtocolProducer implements ProtocolProducer,
 	}
 
 	/**
-	 * Removes any empty circuits.
+	 * Removes any empty protocols.
 	 * 
 	 */
 	private void prune() {
@@ -88,18 +85,18 @@ public class ParallelProtocolProducer implements ProtocolProducer,
 	}
 
 	@Override
-	public int getNextProtocols(NativeProtocol[] gates, int pos) {
-		if (pos < 0 || pos >= gates.length) {
+	public int getNextProtocols(NativeProtocol[] nativeProtocols, int pos) {
+		if (pos < 0 || pos >= nativeProtocols.length) {
 			throw new MPCException(
-					"Index out of bounds, gates.length=" + gates.length
+					"Index out of bounds, length=" + nativeProtocols.length
 							+ ", pos=" + pos);
 		}
 		// TODO: This is a simple, but very rough implementation.
-		// It requests an equal amount from each subcircuit and only asks once.
-		// A better implementation should try to fill up the gate array by
-		// requesting further gates from large circuits if the smaller circuits
+		// It requests an equal amount from each subprotocol and only asks once.
+		// A better implementation should try to fill up the protocol array by
+		// requesting further protocols from large protocols if the smaller protocols
 		// run dry.
-		// E.g. this implementation is inferior in that it may return less gates
+		// E.g. this implementation is inferior in that it may return less protocols
 		// than it could.
 		if (cs.size() == 0) {
 			return pos;
@@ -107,11 +104,11 @@ public class ParallelProtocolProducer implements ProtocolProducer,
 		ListIterator<ProtocolProducer> x = cs.listIterator();
 		while (x.hasNext()) {
 			ProtocolProducer c = x.next();
-			pos = c.getNextProtocols(gates, pos);
+			pos = c.getNextProtocols(nativeProtocols, pos);
 			if (!c.hasNextProtocols()) {
 				x.remove();
 			}
-			if (pos == gates.length) {
+			if (pos == nativeProtocols.length) {
 				break; // We've filled the array.
 			}
 		}
@@ -122,10 +119,10 @@ public class ParallelProtocolProducer implements ProtocolProducer,
 		ListIterator<ProtocolProducer> x = cs.listIterator();
 		LinkedList<ProtocolProducer> merged = new LinkedList<ProtocolProducer>();
 		while (x.hasNext()) {
-			ProtocolProducer gp = x.next();
-			if (gp instanceof ParallelProtocolProducer) {
+			ProtocolProducer pp = x.next();
+			if (pp instanceof ParallelProtocolProducer) {
 				x.remove();
-				ParallelProtocolProducer par = (ParallelProtocolProducer) gp;
+				ParallelProtocolProducer par = (ParallelProtocolProducer) pp;
 				for (ProtocolProducer p : par.cs) {
 					x.add(p);
 				}
@@ -135,7 +132,7 @@ public class ParallelProtocolProducer implements ProtocolProducer,
 		return merged;
 	}
 
-	public List<ProtocolProducer> getNextGateProducerLevel() {
+	public List<ProtocolProducer> getNextProtocolProducerLevel() {
 		return cs;
 	}
 }

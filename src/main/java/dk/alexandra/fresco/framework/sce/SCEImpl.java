@@ -57,6 +57,7 @@ import dk.alexandra.fresco.suite.bgw.BgwFactory;
 import dk.alexandra.fresco.suite.bgw.BgwProtocolSuite;
 import dk.alexandra.fresco.suite.bgw.configuration.BgwConfiguration;
 import dk.alexandra.fresco.suite.bgw.configuration.BgwConfigurationFromProperties;
+import dk.alexandra.fresco.suite.bgw.storage.BgwRandomBitSupplier;
 import dk.alexandra.fresco.suite.dummy.DummyConfiguration;
 import dk.alexandra.fresco.suite.dummy.DummyFactory;
 import dk.alexandra.fresco.suite.dummy.DummyProtocolSuite;
@@ -165,7 +166,7 @@ public class SCEImpl implements SCE {
 			}			
 			this.protocolSuite.init(this.resourcePool, psConf);
 			// TODO: Fix this storage crap - not optimal to have the '0' put
-			// there. Need to make the provider decoupled from the storage.
+			// there. Need to make the factories decoupled from the storage.
 			dk.alexandra.fresco.suite.spdz.storage.SpdzStorage spdzStorage = ((SpdzProtocolSuite) this.protocolSuite)
 					.getStore(0);
 			int maxBitLength = ((SpdzConfiguration) psConf).getMaxBitLength();
@@ -179,8 +180,9 @@ public class SCEImpl implements SCE {
 			this.protocolSuite.init(this.resourcePool, psConf);
 			int threshold = ((BgwConfiguration) psConf).getThreshold();
 			BigInteger modulus = ((BgwConfiguration) psConf).getModulus();
+			BgwRandomBitSupplier bitSupplier = ((BgwProtocolSuite) protocolSuite).getBitSupplier();
 			this.protocolFactory = new BgwFactory(this.resourcePool.getMyId(), this.resourcePool.getNoOfParties(),
-					threshold, modulus);
+					threshold, modulus, bitSupplier);
 			break;
 		case "ninja":
 			this.protocolSuite = NinjaProtocolSuite.getInstance(this.resourcePool.getMyId());

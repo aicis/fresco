@@ -45,16 +45,16 @@ public interface SIntFactory {
 	public SInt getSInt(BigInteger i);
 
 	/**
-	 * A Circuit to load a publicly known value into a SInt
+	 * A protocol to load a publicly known value into a SInt
 	 * TODO: This should not be how values are loaded
 	 * 
 	 */
 	public KnownSIntProtocol getSInt(int i, SInt si);
 	
 	/**
-	 * Gets a Circuit to load a publicly known value into a SInt. 
+	 * Gets a protocol to load a publicly known value into a SInt. 
 	 * The idea here is to not do the computation involved in loading the SInt 
-	 * while we are building the circuit.
+	 * while we are building the protocol.
 	 * TODO: This should not be how values are loaded
 	 * 
 	 */

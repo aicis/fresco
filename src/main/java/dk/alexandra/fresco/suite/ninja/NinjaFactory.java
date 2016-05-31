@@ -60,7 +60,7 @@ public class NinjaFactory extends AbstractBinaryFactory implements BasicLogicFac
 	}
 
 	@Override
-	public OpenBoolProtocol getOpenCircuit(int target, SBool closed, OBool open) {
+	public OpenBoolProtocol getOpenProtocol(int target, SBool closed, OBool open) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -81,12 +81,18 @@ public class NinjaFactory extends AbstractBinaryFactory implements BasicLogicFac
 
 	@Override
 	public SBool getKnownConstantSBool(boolean b) {
-		throw new RuntimeException("Not implemented - deprectated method.");
+		NinjaSBool bool = new NinjaSBool();
+		bool.setValue(b);
+		return bool;
 	}
 
 	@Override
 	public SBool[] getKnownConstantSBools(boolean[] bools) {
-		throw new RuntimeException("Not implemented - deprectated method.");
+		SBool[] ninjaSBools = new SBool[bools.length];
+		for (int i = 0; i < ninjaSBools.length; i++) {
+			ninjaSBools[i] = getKnownConstantSBool(bools[i]);
+		}
+		return ninjaSBools;
 	}
 
 	@Override
@@ -100,27 +106,27 @@ public class NinjaFactory extends AbstractBinaryFactory implements BasicLogicFac
 	}
 
 	@Override
-	public AndProtocol getAndCircuit(SBool inLeft, SBool inRight, SBool out) {
+	public AndProtocol getAndProtocol(SBool inLeft, SBool inRight, SBool out) {
 		return new NinjaANDProtocol(counter++, (NinjaSBool)inLeft, (NinjaSBool)inRight, (NinjaSBool)out);
 	}
 
 	@Override
-	public AndProtocol getAndCircuit(SBool inLeft, OBool inRight, SBool out) {
+	public AndProtocol getAndProtocol(SBool inLeft, OBool inRight, SBool out) {
 		throw new RuntimeException("Not implemented yet");
 	}
 
 	@Override
-	public NotProtocol getNotCircuit(SBool in, SBool out) {
+	public NotProtocol getNotProtocol(SBool in, SBool out) {
 		return new NinjaNOTProtocol(counter++, (NinjaSBool)in, (NinjaSBool)out);
 	}
 
 	@Override
-	public XorProtocol getXorCircuit(SBool inLeft, SBool inRight, SBool out) {
+	public XorProtocol getXorProtocol(SBool inLeft, SBool inRight, SBool out) {
 		return new NinjaXORProtocol(counter++, (NinjaSBool)inLeft, (NinjaSBool)inRight, (NinjaSBool)out);
 	}
 
 	@Override
-	public XorProtocol getXorCircuit(SBool inLeft, OBool inRight, SBool out) {
+	public XorProtocol getXorProtocol(SBool inLeft, OBool inRight, SBool out) {
 		throw new RuntimeException("Not implemented yet");
 	}
 

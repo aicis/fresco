@@ -32,8 +32,8 @@ import dk.alexandra.fresco.framework.value.SBool;
 
 public interface AndProtocolFactory extends ProtocolFactory {
 
-	public AndProtocol getAndCircuit(SBool inLeft, SBool inRight, SBool out);
+	public AndProtocol getAndProtocol(SBool inLeft, SBool inRight, SBool out);
 	
-	public AndProtocol getAndCircuit(SBool inLeft, OBool inRight, SBool out);
+	public AndProtocol getAndProtocol(SBool inLeft, OBool inRight, SBool out);
 	
 }

@@ -28,7 +28,7 @@ package dk.alexandra.fresco.framework.sce.evaluator;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -90,19 +90,16 @@ public class BatchedStrategy {
 			String channel, ResourcePool rp) throws IOException {
 		Network network = rp.getNetwork();
 		int round = 0;
-
 		Set<Integer> partyIds = new HashSet<Integer>();
-		// TODO: Cannot assume always that parties are in linear order.
 		for (int i = 1; i <= rp.getNoOfParties(); i++) {
 			partyIds.add(i);
-		}
-
+		}		
 		boolean[] dones = new boolean[numOfProtocols];
 		boolean done;
-		// while loop for rounds
+		// Do all rounds
 		do {
+			// Evaluate the current round for all protocols
 			done = true;
-			// For loop for protocols
 			for (int i = 0; i < numOfProtocols; i++) {
 				SCENetworkImpl sceNetwork = sceNetworks[i];
 				if (!dones[i]) {
@@ -114,53 +111,44 @@ public class BatchedStrategy {
 					}
 				}
 			}
-		
-			// send phase
+			// Send/Receive data for this round
+			ArrayList<Map<Integer, Queue<byte[]>>> inputs = new ArrayList<Map<Integer, Queue<byte[]>>>(numOfProtocols);
 			for (int i = 0; i < numOfProtocols; i++) {
-				SCENetworkImpl sceNetwork = sceNetworks[i];
-				Map<Integer, Queue<byte[]>> output = sceNetwork.getOutputFromThisRound();
-				// send to everyone no matter what
-				for (int pId : partyIds) {
-					Queue<byte[]> outputsTowardPid = output.get(pId);
-					if (outputsTowardPid != null) {
-						int totalSize = 0;
-						for (byte[] s : outputsTowardPid) {
-							totalSize += s.length;
+				inputs.add(new HashMap<Integer, Queue<byte[]>>());
+			}
+			for (int pId = 1; pId <= rp.getNoOfParties(); pId++) {
+				// If the current player id is you send your messages
+				if (pId == rp.getMyId()) { 
+					for (int i = 0; i < numOfProtocols; i++) {
+						SCENetworkImpl sceNet = sceNetworks[i];
+						Map<Integer, Queue<byte[]>> output = sceNet.getOutputFromThisRound();
+						for (Map.Entry<Integer, Queue<byte[]>> e: output.entrySet()) {
+							network.send(channel, e.getKey(), e.getValue().size());
+							for (Serializable s: e.getValue()) {
+								network.send(channel, e.getKey(), s);
+							}
 						}
-						ByteBuffer buffer = ByteBuffer.allocate(totalSize+2*outputsTowardPid.size());
-						for (byte[] s : outputsTowardPid) {
-							buffer.putShort((short)(s.length));
-							buffer.put(s);
+					}
+				}
+				// Receive messages from the current player id
+				for (int i = 0; i < numOfProtocols; i++) {
+					SCENetworkImpl sceNet = sceNetworks[i];
+					Map<Integer, Integer> expectInputFrom = sceNet.getExpectedInputForNextRound();
+					if (expectInputFrom.get(pId) != null && expectInputFrom.get(pId) > 0) {
+						int numMessages = network.receive(channel, pId);
+						Queue<byte[]> messages = new LinkedBlockingQueue<byte[]>();
+						for (int j = 0; j < numMessages; j++) {
+							byte[] s = network.receive(channel, pId);
+							messages.offer(s);
 						}
-						network.send(channel, pId, buffer.array());							
+						inputs.get(i).put(pId, messages);
 					}
 				}
 			}
-			
-			// receive phase
 			for (int i = 0; i < numOfProtocols; i++) {
-				SCENetworkImpl sceNetwork = sceNetworks[i];
-				Map<Integer, Integer> expectInputFrom = sceNetwork.getExpectedInputForNextRound();
-				Map<Integer, Queue<byte[]>> inputForThisRound = new HashMap<Integer, Queue<byte[]>>();
-				for (int pId : partyIds) {
-					// Only receive if we expect something.
-					if (expectInputFrom.get(pId) != null && expectInputFrom.get(pId)>0) {
-						ByteBuffer buffer = ByteBuffer.wrap(network.receive(channel, pId));
-						buffer.position(0);
-						Queue<byte[]> q = new LinkedBlockingQueue<>();
-						while(buffer.hasRemaining()) {
-							int size = buffer.getShort();
-							byte[] message = new byte[size];
-							buffer.get(message);
-							q.offer(message);
-						}					
-						inputForThisRound.put(pId, q);
-					}
-				}
-				sceNetworks[i].setInput(inputForThisRound);
+				sceNetworks[i].setInput(inputs.get(i));
 				sceNetworks[i].nextRound();
 			}
-
 			round++;
 		} while (!done);
 	}

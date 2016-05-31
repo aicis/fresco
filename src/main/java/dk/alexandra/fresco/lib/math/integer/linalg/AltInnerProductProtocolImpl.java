@@ -41,30 +41,30 @@ public class AltInnerProductProtocolImpl extends AbstractSimpleProtocol implemen
 	private final SInt[] aVector;
 	private final SInt[] bVector;
 	private SInt result;
-	private BasicNumericFactory bnProvider;
-	private CopyProtocolFactory<SInt> copyProvider;
+	private BasicNumericFactory bnFactory;
+	private CopyProtocolFactory<SInt> copyFactory;
 	
 	public AltInnerProductProtocolImpl(SInt[] aVector, SInt[] bVector, SInt result, 
-			BasicNumericFactory bnProvider, CopyProtocolFactory<SInt> copyProvider){
+			BasicNumericFactory bnFactory, CopyProtocolFactory<SInt> copyFactory){
 		if(aVector.length != bVector.length){
 			throw new MPCException("Lengths of input arrays do not match");
 		}
 		this.aVector = aVector;
 		this.bVector = bVector;
 		this.result = result;
-		this.bnProvider = bnProvider;
-		this.copyProvider = copyProvider;
+		this.bnFactory = bnFactory;
+		this.copyFactory = copyFactory;
 	}
 	
 	@Override
-	protected ProtocolProducer initializeGateProducer() {
-		NumericProtocolBuilder ncb = new NumericProtocolBuilder(bnProvider);
+	protected ProtocolProducer initializeProtocolProducer() {
+		NumericProtocolBuilder ncb = new NumericProtocolBuilder(bnFactory);
 		SInt[] directProduct = ncb.mult(aVector, bVector);
 		SInt innerproduct = directProduct[0];
 		for (int i = 1; i < directProduct.length; i++) {
 			innerproduct = ncb.add(innerproduct, directProduct[i]);
 		}
-		ProtocolProducer copyResult = copyProvider.getCopyCircuit(innerproduct, this.result);
-		return new SequentialProtocolProducer(ncb.getCircuit(), copyResult);
+		ProtocolProducer copyResult = copyFactory.getCopyProtocol(innerproduct, this.result);
+		return new SequentialProtocolProducer(ncb.getProtocol(), copyResult);
 	}
 }

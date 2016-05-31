@@ -31,20 +31,20 @@ import java.util.List;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.OBool;
 import dk.alexandra.fresco.framework.value.SBool;
-import dk.alexandra.fresco.lib.collections.sort.KeyedCompareAndSwapCircuitGetNextGatesImpl;
-import dk.alexandra.fresco.lib.collections.sort.OddEvenMergeCircuit;
-import dk.alexandra.fresco.lib.collections.sort.OddEvenMergeCircuitRec;
+import dk.alexandra.fresco.lib.collections.sort.KeyedCompareAndSwapProtocolGetNextProtocolImpl;
+import dk.alexandra.fresco.lib.collections.sort.OddEvenMergeProtocol;
+import dk.alexandra.fresco.lib.collections.sort.OddEvenMergeProtocolRec;
 import dk.alexandra.fresco.lib.collections.sort.OddEvenMergeSortFactory;
-import dk.alexandra.fresco.lib.compare.CompareAndSwapCircuit;
-import dk.alexandra.fresco.lib.compare.CompareAndSwapCircuitFactory;
-import dk.alexandra.fresco.lib.compare.CompareAndSwapCircuitImpl;
-import dk.alexandra.fresco.lib.compare.KeyedCompareAndSwapCircuit;
+import dk.alexandra.fresco.lib.compare.CompareAndSwapProtocol;
+import dk.alexandra.fresco.lib.compare.CompareAndSwapProtocolFactory;
+import dk.alexandra.fresco.lib.compare.CompareAndSwapProtocolImpl;
+import dk.alexandra.fresco.lib.compare.KeyedCompareAndSwapProtocol;
 import dk.alexandra.fresco.lib.compare.bool.BinaryGreaterThanProtocol;
 import dk.alexandra.fresco.lib.compare.bool.BinaryGreaterThanProtocolFactory;
 import dk.alexandra.fresco.lib.compare.bool.BinaryGreaterThanProtocolImpl;
 import dk.alexandra.fresco.lib.compare.bool.eq.AltBinaryEqualityProtocol;
-import dk.alexandra.fresco.lib.compare.bool.eq.BinaryEqualityCircuitFactory;
 import dk.alexandra.fresco.lib.compare.bool.eq.BinaryEqualityProtocol;
+import dk.alexandra.fresco.lib.compare.bool.eq.BinaryEqualityProtocolFactory;
 import dk.alexandra.fresco.lib.field.bool.AndProtocol;
 import dk.alexandra.fresco.lib.field.bool.BasicLogicFactory;
 import dk.alexandra.fresco.lib.field.bool.NandProtocol;
@@ -60,51 +60,44 @@ import dk.alexandra.fresco.lib.field.bool.generic.XnorFromXorAndNotProtocolImpl;
 import dk.alexandra.fresco.lib.helper.CopyProtocol;
 import dk.alexandra.fresco.lib.helper.CopyProtocolFactory;
 import dk.alexandra.fresco.lib.helper.CopyProtocolImpl;
-import dk.alexandra.fresco.lib.math.bool.add.AdderCircuitFactory;
-import dk.alexandra.fresco.lib.math.bool.add.BitIncrementerCircuit;
-import dk.alexandra.fresco.lib.math.bool.add.BitIncrementerCircuitFactory;
-import dk.alexandra.fresco.lib.math.bool.add.BitIncrementerCircuitImpl;
-import dk.alexandra.fresco.lib.math.bool.add.FullAdderCircuit;
-import dk.alexandra.fresco.lib.math.bool.add.FullAdderCircuitImpl;
-import dk.alexandra.fresco.lib.math.bool.add.OneBitFullAdderCircuit;
-import dk.alexandra.fresco.lib.math.bool.add.OneBitFullAdderCircuitImpl;
-import dk.alexandra.fresco.lib.math.bool.add.OneBitHalfAdderCircuit;
-import dk.alexandra.fresco.lib.math.bool.add.OneBitHalfAdderCircuitImpl;
-import dk.alexandra.fresco.lib.math.bool.log.LogCircuitFactory;
+import dk.alexandra.fresco.lib.math.bool.add.AdderProtocolFactory;
+import dk.alexandra.fresco.lib.math.bool.add.BitIncrementerProtocol;
+import dk.alexandra.fresco.lib.math.bool.add.BitIncrementerProtocolFactory;
+import dk.alexandra.fresco.lib.math.bool.add.BitIncrementerProtocolImpl;
+import dk.alexandra.fresco.lib.math.bool.add.FullAdderProtocol;
+import dk.alexandra.fresco.lib.math.bool.add.FullAdderProtocolImpl;
+import dk.alexandra.fresco.lib.math.bool.add.OneBitFullAdderProtocol;
+import dk.alexandra.fresco.lib.math.bool.add.OneBitFullAdderProtocolImpl;
+import dk.alexandra.fresco.lib.math.bool.add.OneBitHalfAdderProtocol;
+import dk.alexandra.fresco.lib.math.bool.add.OneBitHalfAdderProtocolImpl;
 import dk.alexandra.fresco.lib.math.bool.log.LogProtocol;
+import dk.alexandra.fresco.lib.math.bool.log.LogProtocolFactory;
 import dk.alexandra.fresco.lib.math.bool.log.LogProtocolImpl;
-import dk.alexandra.fresco.lib.math.bool.mult.BinaryMultCircuit;
-import dk.alexandra.fresco.lib.math.bool.mult.BinaryMultCircuitFactory;
-import dk.alexandra.fresco.lib.math.bool.mult.BinaryMultCircuitImpl;
+import dk.alexandra.fresco.lib.math.bool.mult.BinaryMultProtocol;
+import dk.alexandra.fresco.lib.math.bool.mult.BinaryMultProtocolFactory;
+import dk.alexandra.fresco.lib.math.bool.mult.BinaryMultProtocolImpl;
 
-public abstract class AbstractBinaryFactory implements BasicLogicFactory,
-		AdderCircuitFactory, BinaryMultCircuitFactory, LogCircuitFactory,
-		CopyProtocolFactory<SBool>, BinaryGreaterThanProtocolFactory,
-		BinaryEqualityCircuitFactory, CompareAndSwapCircuitFactory,
-		OddEvenMergeSortFactory, BitIncrementerCircuitFactory {
+public abstract class AbstractBinaryFactory
+		implements BasicLogicFactory, AdderProtocolFactory, BinaryMultProtocolFactory, LogProtocolFactory,
+		CopyProtocolFactory<SBool>, BinaryGreaterThanProtocolFactory, BinaryEqualityProtocolFactory,
+		CompareAndSwapProtocolFactory, OddEvenMergeSortFactory, BitIncrementerProtocolFactory {
 	/**
-	 * Advanced circuits - compare and swap functionality
+	 * Advanced protocols - compare and swap functionality
 	 */
 
 	@Override
-	public CompareAndSwapCircuit getCompareAndSwapCircuit(SBool[] left,
-			SBool[] right) {
-		return new CompareAndSwapCircuitImpl(left, right, this);
+	public CompareAndSwapProtocol getCompareAndSwapProtocol(SBool[] left, SBool[] right) {
+		return new CompareAndSwapProtocolImpl(left, right, this);
 	}
 
 	@Override
-	public KeyedCompareAndSwapCircuit getKeyedCompareAndSwapCircuit(
-			SBool[] leftKey, SBool[] leftValue, SBool[] rightKey,
-			SBool[] rightValue) {
-		// TODO Auto-generated method stub
-		// return new KeyedCompareAndSwapCircuitImpl(leftKey, leftValue,
-		// rightKey,
-		return new KeyedCompareAndSwapCircuitGetNextGatesImpl(leftKey,
-				leftValue, rightKey, rightValue, this);
+	public KeyedCompareAndSwapProtocol getKeyedCompareAndSwapProtocol(SBool[] leftKey, SBool[] leftValue,
+			SBool[] rightKey, SBool[] rightValue) {
+		return new KeyedCompareAndSwapProtocolGetNextProtocolImpl(leftKey, leftValue, rightKey, rightValue, this);
 	}
 
 	/**
-	 * simple circuits - basic functionality
+	 * simple protocols - basic functionality
 	 */
 	@Override
 	public SBool[] getSBools(int amount) {
@@ -115,6 +108,12 @@ public abstract class AbstractBinaryFactory implements BasicLogicFactory,
 		return res;
 	}
 
+	@Override
+	public CopyProtocol<SBool> getCopyProtocol(SBool in, SBool out) {
+		return new CopyProtocolImpl<SBool>(in, out);
+	}
+	
+	@Override
 	public SBool[] getKnownConstantSBools(boolean[] bools) {
 		int amount = bools.length;
 		SBool[] res = new SBool[amount];
@@ -124,116 +123,99 @@ public abstract class AbstractBinaryFactory implements BasicLogicFactory,
 		return res;
 	}
 
-	@Override
-	public CopyProtocol<SBool> getCopyCircuit(SBool in, SBool out) {
-		return new CopyProtocolImpl<SBool>(in, out);
-	}
-	
-	public XnorProtocol getXnorCircuit(SBool left, SBool right, SBool out) {
+	public XnorProtocol getXnorProtocol(SBool left, SBool right, SBool out) {
 		return new XnorFromXorAndNotProtocolImpl(left, right, out, this);
 	}
 
-	
-	public NandProtocol getNandCircuit(SBool left, SBool right, SBool out) {
+	public NandProtocol getNandProtocol(SBool left, SBool right, SBool out) {
 		return new NandFromAndAndNotProtocolImpl(left, right, out, this);
 	}
 
-	
-	public OrProtocol getOrCircuit(SBool inLeft, SBool inRight, SBool out) {
+	public OrProtocol getOrProtocol(SBool inLeft, SBool inRight, SBool out) {
 		return new OrFromXorAndProtocol(this, this, this, inLeft, inRight, out);
 	}
 
-	
-	public OrProtocol getOrCircuit(SBool inLeft, OBool inRight, SBool out) {
+	public OrProtocol getOrProtocol(SBool inLeft, OBool inRight, SBool out) {
 		return new OrFromCopyConstProtocol(this, this, inLeft, inRight, out);
 	}
 
 	@Override
-	public AndProtocol getAndCircuit(SBool inLeft, OBool inRight, SBool out) {
+	public AndProtocol getAndProtocol(SBool inLeft, OBool inRight, SBool out) {
 		return new AndFromCopyConstProtocol(this, this, inLeft, inRight, out);
 	}
 
 	@Override
-	public NotProtocol getNotCircuit(SBool in, SBool out) {
+	public NotProtocol getNotProtocol(SBool in, SBool out) {
 		return new NotFromXorProtocol(this, this, in, out);
 	}
 
 	/**
-	 * Advanced circuits - addition
+	 * Advanced protocols - addition
 	 */
 
 	@Override
-	public OneBitFullAdderCircuit getOneBitFullAdderCircuit(SBool left,
-			SBool right, SBool carry, SBool outS, SBool outCarry) {
-		return new OneBitFullAdderCircuitImpl(left, right, carry, outS,
-				outCarry, this);
+	public OneBitFullAdderProtocol getOneBitFullAdderProtocol(SBool left, SBool right, SBool carry, SBool outS,
+			SBool outCarry) {
+		return new OneBitFullAdderProtocolImpl(left, right, carry, outS, outCarry, this);
 	}
 
 	@Override
-	public FullAdderCircuit getFullAdderCircuit(SBool[] lefts, SBool[] rights,
-			SBool inCarry, SBool[] outs, SBool outCarry) {
-		return new FullAdderCircuitImpl(lefts, rights, inCarry, outs, outCarry,
-				this, this);
+	public FullAdderProtocol getFullAdderProtocol(SBool[] lefts, SBool[] rights, SBool inCarry, SBool[] outs,
+			SBool outCarry) {
+		return new FullAdderProtocolImpl(lefts, rights, inCarry, outs, outCarry, this, this);
 	}
 
 	@Override
-	public BitIncrementerCircuit getBitIncrementerCircuit(SBool[] base,
-			SBool increment, SBool[] outs) {
-		return new BitIncrementerCircuitImpl(base, increment, outs, this, this);
+	public BitIncrementerProtocol getBitIncrementerProtocol(SBool[] base, SBool increment, SBool[] outs) {
+		return new BitIncrementerProtocolImpl(base, increment, outs, this, this);
 	}
 
 	@Override
-	public OneBitHalfAdderCircuit getOneBitHalfAdderCircuit(SBool left,
-			SBool right, SBool outS, SBool outCarry) {
-		return new OneBitHalfAdderCircuitImpl(left, right, outS, outCarry, this);
+	public OneBitHalfAdderProtocol getOneBitHalfAdderProtocol(SBool left, SBool right, SBool outS, SBool outCarry) {
+		return new OneBitHalfAdderProtocolImpl(left, right, outS, outCarry, this);
 	}
 
 	/**
-	 * Advanced circuits - multiplication
+	 * Advanced protocols - multiplication
 	 */
 
 	@Override
-	public BinaryMultCircuit getBinaryMultCircuit(SBool[] lefts,
-			SBool[] rights, SBool[] outs) {
-		return new BinaryMultCircuitImpl(lefts, rights, outs, this, this);
+	public BinaryMultProtocol getBinaryMultProtocol(SBool[] lefts, SBool[] rights, SBool[] outs) {
+		return new BinaryMultProtocolImpl(lefts, rights, outs, this, this);
 	}
 
 	@Override
-	public LogProtocol getLogCircuit(SBool[] number, SBool[] result) {
+	public LogProtocol getLogProtocol(SBool[] number, SBool[] result) {
 		return new LogProtocolImpl(number, result, this);
 	}
 
 	/**
-	 * Advanced circuits - comparisons
+	 * Advanced protocols - comparisons
 	 */
 
 	@Override
-	public BinaryGreaterThanProtocol getBinaryComparisonCircuit(SBool[] inLeft,
-			SBool[] inRight, SBool out) {
+	public BinaryGreaterThanProtocol getBinaryComparisonProtocol(SBool[] inLeft, SBool[] inRight, SBool out) {
 		return new BinaryGreaterThanProtocolImpl(inLeft, inRight, out, this);
-		// return new BinaryComparisonCircuitNextGatesImpl(inLeft, inRight, out,
+		// return new BinaryComparisonprotocolNextProtocolsImpl(inLeft, inRight, out,
 		// this);
-		// return new GenericBinaryComparisonCircuit2(this, inLeft, inRight,
+		// return new GenericBinaryComparisonprotocol2(this, inLeft, inRight,
 		// out);
 	}
 
 	@Override
-	public BinaryEqualityProtocol getBinaryEqualityCircuit(SBool[] inLeft,
-			SBool[] inRight, SBool out) {
-		// return new BinaryEqualityCircuitImpl(inLeft, inRight, out, this);
+	public BinaryEqualityProtocol getBinaryEqualityProtocol(SBool[] inLeft, SBool[] inRight, SBool out) {
+		// return new BinaryEqualityprotocolImpl(inLeft, inRight, out, this);
 		return new AltBinaryEqualityProtocol(inLeft, inRight, out, this);
 	}
 
 	/**
-	 * Advanced circuits - sorting
+	 * Advanced protocols - sorting
 	 */
 
 	@Override
-	public OddEvenMergeCircuit getOddEvenMergeCircuit(
-			List<Pair<SBool[], SBool[]>> left,
-			List<Pair<SBool[], SBool[]>> right,
-			List<Pair<SBool[], SBool[]>> sorted) {
-		return new OddEvenMergeCircuitRec(left, right, sorted, this);
+	public OddEvenMergeProtocol getOddEvenMergeProtocol(List<Pair<SBool[], SBool[]>> left,
+			List<Pair<SBool[], SBool[]>> right, List<Pair<SBool[], SBool[]>> sorted) {
+		return new OddEvenMergeProtocolRec(left, right, sorted, this);
 	}
 
 }

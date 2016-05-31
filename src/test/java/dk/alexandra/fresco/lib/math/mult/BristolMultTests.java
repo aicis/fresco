@@ -79,8 +79,9 @@ public class BristolMultTests {
 	 * 
 	 */
 	private static boolean[] toBoolean(String hex) throws IllegalArgumentException {
-		if (hex.length() % 2 != 0)
+		if (hex.length() % 2 != 0) {
 			throw new IllegalArgumentException("Illegal hex string");
+		}
 		boolean[] res = new boolean[hex.length() * 4];
 		for (int i=0; i<hex.length() / 2; i++) {
 			String sub = hex.substring(2*i,2*i +2);
@@ -132,16 +133,16 @@ public class BristolMultTests {
 							BasicLogicBuilder builder = new BasicLogicBuilder(bool);						
 							
 							boolean[] in1_val = toBoolean(inv1);
-							in1 = builder.input(1, in1_val);							
+							in1 = builder.knownSBool(in1_val);							
 							boolean[] in2_val = toBoolean(inv2);
-							in2 = builder.input(1, in2_val);							
+							in2 = builder.knownSBool(in2_val);							
 							
 							out = bool.getSBools(64);
 
 							// Create mult circuit.
 							BristolCryptoFactory multFac = new BristolCryptoFactory(bool);
 							BristolCircuit mult = multFac.getMult32x32Circuit(in1, in2, out);
-							builder.addGateProducer(mult);
+							builder.addProtocolProducer(mult);
 							openedOut = builder.output(out);
 							
 							// Create circuits for opening result of 32x32 bit mult.
@@ -154,7 +155,7 @@ public class BristolMultTests {
 							}
 							ProtocolProducer open_all = new ParallelProtocolProducer(opens);
 							*/
-							return new SequentialProtocolProducer(builder.getCircuit());
+							return new SequentialProtocolProducer(builder.getProtocol());
 						}
 					};
 

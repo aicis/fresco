@@ -28,10 +28,9 @@ package dk.alexandra.fresco.suite.bgw;
 
 import java.math.BigInteger;
 
-import org.apache.commons.lang.NotImplementedException;
-
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.Protocol;
+import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.KnownSIntProtocol;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
@@ -40,11 +39,14 @@ import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.field.integer.CloseIntProtocol;
 import dk.alexandra.fresco.lib.field.integer.MultProtocol;
 import dk.alexandra.fresco.lib.field.integer.OpenIntProtocol;
-import dk.alexandra.fresco.lib.field.integer.SubtractCircuit;
+import dk.alexandra.fresco.lib.field.integer.SubtractProtocol;
+import dk.alexandra.fresco.lib.helper.builder.NumericProtocolBuilder;
+import dk.alexandra.fresco.lib.math.integer.PreprocessedNumericBitFactory;
 import dk.alexandra.fresco.lib.math.integer.exp.ExpFromOIntFactory;
-import dk.alexandra.fresco.lib.math.integer.inv.LocalInversionProtocol;
 import dk.alexandra.fresco.lib.math.integer.inv.LocalInversionFactory;
+import dk.alexandra.fresco.lib.math.integer.inv.LocalInversionProtocol;
 import dk.alexandra.fresco.suite.bgw.integer.BgwAddProtocol;
+import dk.alexandra.fresco.suite.bgw.integer.BgwAddPublicProtocol;
 import dk.alexandra.fresco.suite.bgw.integer.BgwCloseIntProtocol;
 import dk.alexandra.fresco.suite.bgw.integer.BgwInvertIntProtocol;
 import dk.alexandra.fresco.suite.bgw.integer.BgwKnownSIntProtocol;
@@ -55,21 +57,26 @@ import dk.alexandra.fresco.suite.bgw.integer.BgwOInt;
 import dk.alexandra.fresco.suite.bgw.integer.BgwOpenIntProtocol;
 import dk.alexandra.fresco.suite.bgw.integer.BgwRandomIntProtocol;
 import dk.alexandra.fresco.suite.bgw.integer.BgwSInt;
+import dk.alexandra.fresco.suite.bgw.integer.BgwSubtractFromPublicProtocol;
 import dk.alexandra.fresco.suite.bgw.integer.BgwSubtractProtocol;
+import dk.alexandra.fresco.suite.bgw.integer.BgwSubtractPublicProtocol;
+import dk.alexandra.fresco.suite.bgw.storage.BgwRandomBitSupplier;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzOInt;
 
-public class BgwFactory implements BasicNumericFactory, LocalInversionFactory, ExpFromOIntFactory {
+public class BgwFactory implements BasicNumericFactory, LocalInversionFactory, ExpFromOIntFactory, PreprocessedNumericBitFactory {
 
 	private int myId;
 	private int noOfParties;
 	private int threshold;
 	private BigInteger mod;
+	private BgwRandomBitSupplier bitSupplier;
 
-	public BgwFactory(int myId, int noOfParties, int threshold, BigInteger modulus) {
+	public BgwFactory(int myId, int noOfParties, int threshold, BigInteger modulus, BgwRandomBitSupplier bitSupplier) {
 		this.myId = myId;
 		this.noOfParties = noOfParties;
 		this.threshold = threshold;
 		this.mod = modulus;
+		this.bitSupplier = bitSupplier;
 	}
 
 	@Override
@@ -120,23 +127,27 @@ public class BgwFactory implements BasicNumericFactory, LocalInversionFactory, E
 	}
 
 	@Override
-	public SubtractCircuit getSubtractCircuit(SInt a, SInt b, SInt out) {
+	public SubtractProtocol getSubtractProtocol(SInt a, SInt b, SInt out) {
 		return new BgwSubtractProtocol(a, b, out);
 	}
 
 	@Override
-	public SubtractCircuit getSubtractCircuit(OInt a, SInt b, SInt out) {
-		throw new NotImplementedException(
-				"Cannot currently use BGW to subtract a secret value from a public value.");
+	public SubtractProtocol getSubtractProtocol(OInt a, SInt b, SInt out) {
+		return new BgwSubtractFromPublicProtocol(a, b, out);
 	}
 
 	@Override
-	public MultProtocol getMultCircuit(SInt a, SInt b, SInt out) {
+	public SubtractProtocol getSubtractProtocol(SInt a, OInt b, SInt out) {
+		return new BgwSubtractPublicProtocol(a, b, out);
+	}
+	
+	@Override
+	public MultProtocol getMultProtocol(SInt a, SInt b, SInt out) {
 		return new BgwMultProtocol(a, b, out);
 	}
 
 	// test purpose only
-	public Protocol getInvertIntCircuit(SInt in, SInt out) {
+	public Protocol getInvertIntProtocol(SInt in, SInt out) {
 		return new BgwInvertIntProtocol(this, in, out);
 	}
 
@@ -172,8 +183,7 @@ public class BgwFactory implements BasicNumericFactory, LocalInversionFactory, E
 
 	@Override
 	public AddProtocol getAddProtocol(SInt input, OInt openInput, SInt out) {
-		// TODO Auto-generated method stub
-		return null;
+		return new BgwAddPublicProtocol(input, openInput, out);
 	}
 
 	@Override
@@ -184,7 +194,7 @@ public class BgwFactory implements BasicNumericFactory, LocalInversionFactory, E
 
 
 	@Override
-	public MultProtocol getMultCircuit(OInt a, SInt b, SInt c) {
+	public MultProtocol getMultProtocol(OInt a, SInt b, SInt c) {
 		return new BgwMultWithPublicProtocol((BgwOInt)a, (BgwSInt)b, (BgwSInt)c);
 	}
 
@@ -203,7 +213,7 @@ public class BgwFactory implements BasicNumericFactory, LocalInversionFactory, E
 	}
 
 	@Override
-	public LocalInversionProtocol getLocalInversionCircuit(OInt x, OInt result) {
+	public LocalInversionProtocol getLocalInversionProtocol(OInt x, OInt result) {
 		return new BgwLocalInvProtocol((BgwOInt)x, (BgwOInt)result);
 	}
 
@@ -219,6 +229,18 @@ public class BgwFactory implements BasicNumericFactory, LocalInversionFactory, E
 			expPipe[i] = new SpdzOInt(exps[i]);
 		}
 		return expPipe;
+	}
+
+	@Override
+	public ProtocolProducer createRandomSecretSharedBitProtocol(SInt bit) {
+		NumericProtocolBuilder builder = new NumericProtocolBuilder(this);
+		builder.beginSeqScope();
+		if (!bitSupplier.hasMoreBits()) {
+			builder.addProtocolProducer(bitSupplier.generateMoreBits());
+		}
+		builder.copy(bit, bitSupplier.getNextBit());
+		builder.endCurScope();
+		return builder.getProtocol();
 	}
 
 }
