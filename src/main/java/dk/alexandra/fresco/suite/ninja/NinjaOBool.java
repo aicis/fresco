@@ -27,6 +27,7 @@
 package dk.alexandra.fresco.suite.ninja;
 
 import dk.alexandra.fresco.framework.value.OBool;
+import dk.alexandra.fresco.suite.ninja.util.NinjaUtil;
 
 public class NinjaOBool implements OBool{
 
@@ -34,47 +35,42 @@ public class NinjaOBool implements OBool{
 	 * 
 	 */
 	private static final long serialVersionUID = -7615308960489978540L;
-	private byte value;
-	
+	private boolean value;
+	private boolean isReady;
+
 	public NinjaOBool() {
-		this.value = -1;
+		this.value = false;
+		this.isReady = false;
 	}
 	
 	public NinjaOBool(boolean value) {
-		this.value = (byte) (value ? 1 : 0);
+		setValue(value);
 	}
 	
 	@Override
 	public byte[] getSerializableContent() {
-		return new byte[] {value};
+		return new byte[] { NinjaUtil.encodeBoolean(value) };
 	}
 
 	@Override
 	public void setSerializableContent(byte[] val) {
-		this.value = val[0];
+		setValue(NinjaUtil.decodeBoolean(val[0]));
 	}
 
 	@Override
 	public boolean isReady() {
-		return this.value != -1;
-	}
-
-	public byte getValueAsByte() {
-		return value;
+		return isReady;
 	}
 	
 	@Override
 	public boolean getValue() {
-		return value == 1 ? true : false;
+		return value;
 	}
 
 	@Override
 	public void setValue(boolean b) {
-		this.value = (byte) (b ? 1 : 0);
-	}
-
-	public void setByteValue(byte value) {
-		this.value = value;
+		this.value = b;
+		this.isReady = true;
 	}
 
 	@Override

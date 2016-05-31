@@ -30,16 +30,20 @@ import java.util.Arrays;
 
 public class PrecomputedOutputNinja {
 
-	private byte[] table;
+	private boolean[] table;
 	
-	public PrecomputedOutputNinja(byte[] table) {
+	public PrecomputedOutputNinja(boolean[] table) {
 		this.table = table;
 	}
 	
-	public byte lookup(byte value) {				
-		return table[value];
+	public boolean lookup(boolean value) {				
+		return table[getIndex(value)];
 	}
 
+	private int getIndex(boolean value) {
+		return value ? 1 : 0;
+	}
+	
 	@Override
 	public String toString() {
 		return "PrecomputedOutputNinja [table=" + Arrays.toString(table) + "]";

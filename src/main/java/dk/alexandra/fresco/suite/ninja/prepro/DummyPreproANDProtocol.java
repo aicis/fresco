@@ -62,8 +62,8 @@ public class DummyPreproANDProtocol extends NinjaProtocol implements AndProtocol
 	public EvaluationStatus evaluate(int round, ResourcePool resourcePool, SCENetwork network) {
 		NinjaStorage storage1 = NinjaProtocolSuite.getInstance(1).getStorage();
 		NinjaStorage storage2 = NinjaProtocolSuite.getInstance(2).getStorage();
-		PrecomputedNinja ninja1 = new PrecomputedNinja(new byte[] {0, 0, 0, 1});
-		PrecomputedNinja ninja2 = new PrecomputedNinja(new byte[] {0, 0, 0, 0});
+		PrecomputedNinja ninja1 = new PrecomputedNinja(new boolean[] {false, false, false, true});
+		PrecomputedNinja ninja2 = new PrecomputedNinja(new boolean[] {false, false, false, false});
 		storage1.storeNinja(id, ninja1);		
 		storage2.storeNinja(id, ninja2);		
 

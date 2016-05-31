@@ -31,11 +31,11 @@ import java.util.List;
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.network.SCENetwork;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
-import dk.alexandra.fresco.framework.util.ByteArithmetic;
 import dk.alexandra.fresco.framework.value.Value;
 import dk.alexandra.fresco.lib.field.bool.AndProtocol;
 import dk.alexandra.fresco.suite.ninja.NinjaProtocolSuite;
 import dk.alexandra.fresco.suite.ninja.NinjaSBool;
+import dk.alexandra.fresco.suite.ninja.util.NinjaUtil;
 
 public class NinjaANDProtocol extends NinjaProtocol implements AndProtocol{
 
@@ -65,15 +65,15 @@ public class NinjaANDProtocol extends NinjaProtocol implements AndProtocol{
 		NinjaProtocolSuite ps = NinjaProtocolSuite.getInstance(resourcePool.getMyId());		
 		switch(round) {
 		case 0: 
-			byte res = ps.getStorage().lookupNinjaTable(id, inLeft.getValue(), inRight.getValue());			
-			network.sendToAll(new byte[] {res});
+			boolean res = ps.getStorage().lookupNinjaTable(id, inLeft.getValue(), inRight.getValue());			
+			network.sendToAll(new byte[] { NinjaUtil.encodeBoolean(res) });
 			network.expectInputFromAll();
 			return EvaluationStatus.HAS_MORE_ROUNDS;
 		case 1:
 			List<byte[]> shares = network.receiveFromAll();			
-			res = shares.get(0)[0];
+			res = NinjaUtil.decodeBoolean(shares.get(0)[0]);
 			for(int i = 1; i < shares.size(); i++) {
-				res = ByteArithmetic.xor(res, shares.get(i)[0]);
+				res = res ^ NinjaUtil.decodeBoolean(shares.get(i)[0]);
 			}
 			this.out.setValue(res);
 			return EvaluationStatus.IS_DONE;

@@ -29,7 +29,6 @@ package dk.alexandra.fresco.suite.ninja.protocols;
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.network.SCENetwork;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
-import dk.alexandra.fresco.framework.util.ByteArithmetic;
 import dk.alexandra.fresco.framework.value.OBool;
 import dk.alexandra.fresco.framework.value.SBool;
 import dk.alexandra.fresco.framework.value.Value;
@@ -38,6 +37,7 @@ import dk.alexandra.fresco.suite.ninja.NinjaOBool;
 import dk.alexandra.fresco.suite.ninja.NinjaProtocolSuite;
 import dk.alexandra.fresco.suite.ninja.NinjaSBool;
 import dk.alexandra.fresco.suite.ninja.storage.PrecomputedInputNinja;
+import dk.alexandra.fresco.suite.ninja.util.NinjaUtil;
 
 public class NinjaCloseProtocol extends NinjaProtocol implements CloseBoolProtocol {
 
@@ -70,15 +70,15 @@ public class NinjaCloseProtocol extends NinjaProtocol implements CloseBoolProtoc
 		case 0: 			
 			if(resourcePool.getMyId() == this.inputter) {
 				inputNinja = ps.getStorage().getPrecomputedInputNinja(this.getId());
-				byte real = inputNinja.getRealValue();
-				byte x = this.in.getValueAsByte();
-				byte y = ByteArithmetic.xor(x, real);
-				network.sendToAll(new byte[] {y});
+				boolean real = inputNinja.getRealValue();
+				boolean x = this.in.getValue();
+				boolean y = x ^ real;
+				network.sendToAll(new byte[] { NinjaUtil.encodeBoolean(y) });
 			}
 			network.expectInputFromPlayer(inputter);
 			return EvaluationStatus.HAS_MORE_ROUNDS;
 		case 1:
-			byte y = network.receive(inputter)[0];
+			boolean y = NinjaUtil.decodeBoolean(network.receive(inputter)[0]);
 			this.out.setValue(y);
 			
 			inputNinja = null;

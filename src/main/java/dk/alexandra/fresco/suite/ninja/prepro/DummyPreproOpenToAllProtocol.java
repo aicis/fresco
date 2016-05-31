@@ -62,7 +62,7 @@ public class DummyPreproOpenToAllProtocol extends NinjaProtocol implements OpenB
 	@Override
 	public EvaluationStatus evaluate(int round, ResourcePool resourcePool, SCENetwork network) {		
 		NinjaStorage storage1 = NinjaProtocolSuite.getInstance(1).getStorage();
-		PrecomputedOutputNinja ninja = new PrecomputedOutputNinja(new byte[] {0, 1});
+		PrecomputedOutputNinja ninja = new PrecomputedOutputNinja(new boolean[] {false, true});
 		storage1.storeOutputNinja(id, ninja);
 		
 		NinjaStorage storage2 = NinjaProtocolSuite.getInstance(2).getStorage();

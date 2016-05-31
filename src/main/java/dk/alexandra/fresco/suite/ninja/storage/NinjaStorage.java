@@ -35,14 +35,14 @@ public interface NinjaStorage {
 	 * @param right
 	 * @return
 	 */
-	public byte lookupNinjaTable(int id, byte left, byte right);	
+	public boolean lookupNinjaTable(int id, boolean left, boolean right);	
 	
 	/**
 	 * Lookup table for single input (e.g. output protocol)
 	 * @param round
 	 * @param value
 	 */
-	public byte lookupNinjaTable(int id, byte value);
+	public boolean lookupNinjaTable(int id, boolean value);
 	
 	public PrecomputedInputNinja getPrecomputedInputNinja(int id);
 

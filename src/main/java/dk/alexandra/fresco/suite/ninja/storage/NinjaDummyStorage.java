@@ -26,7 +26,6 @@
  *******************************************************************************/
 package dk.alexandra.fresco.suite.ninja.storage;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -41,13 +40,13 @@ public class NinjaDummyStorage implements NinjaStorage{
 	}
 	
 	@Override
-	public byte lookupNinjaTable(int id, byte left, byte right) {
+	public boolean lookupNinjaTable(int id, boolean left, boolean right) {
 		//System.out.println("Getting ninja for id "+id +" "+ninjas.get(id));
 		return ninjas.get(id).lookup(left, right);
 	}
 	
 	@Override
-	public byte lookupNinjaTable(int id, byte value) {
+	public boolean lookupNinjaTable(int id, boolean value) {
 		//System.out.println("Getting output ninja for id "+id +" "+outputNinjas.get(id));
 		return outputNinjas.get(id).lookup(value);
 	}

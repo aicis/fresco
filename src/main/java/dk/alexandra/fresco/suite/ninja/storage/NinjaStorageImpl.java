@@ -40,36 +40,34 @@ public class NinjaStorageImpl implements NinjaStorage {
 		map = new ConcurrentHashMap<>();
 	}
 	
+	@Override
 	public PrecomputedInputNinja getPrecomputedInputNinja(int id) {
-		return null;
+		throw new UnsupportedOperationException("Not implemented, yet.");
 	}
 	
 	@Override
-	public byte lookupNinjaTable(int id, byte value) {
-		// TODO Auto-generated method stub
-		return 0;
+	public boolean lookupNinjaTable(int id, boolean value) {
+		throw new UnsupportedOperationException("Not implemented, yet.");
 	}
 
 	@Override
-	public byte lookupNinjaTable(int id, byte left, byte right) {
+	public boolean lookupNinjaTable(int id, boolean left, boolean right) {
 		return map.get(id).lookup(left, right);
 	}
 
 	@Override
 	public void storeInputNinja(int id, PrecomputedInputNinja inputNinja) {
-		
+		throw new UnsupportedOperationException("Not implemented, yet.");
 	}
 
 	@Override
 	public void storeNinja(int id, PrecomputedNinja ninja) {
-		// TODO Auto-generated method stub
-		
+		throw new UnsupportedOperationException("Not implemented, yet.");
 	}
 
 	@Override
 	public void storeOutputNinja(int id, PrecomputedOutputNinja ninja) {
-		// TODO Auto-generated method stub
-		
+		throw new UnsupportedOperationException("Not implemented, yet.");
 	}
 
 	

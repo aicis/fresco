@@ -28,15 +28,19 @@ package dk.alexandra.fresco.suite.ninja.storage;
 
 public class PrecomputedNinja {
 
-	private byte[] table;
+	private boolean[] table;
 	
-	public PrecomputedNinja(byte[] table) {
+	public PrecomputedNinja(boolean[] table) {
 		this.table = table;
 	}
 	
-	public byte lookup(byte left, byte right) {
-		byte shifted = (byte) (left << 1); 
-		byte lookup = (byte) (shifted ^ right);		
-		return table[lookup];
+	public boolean lookup(boolean left, boolean right) {
+		return table[getIndex(left, right)];
+	}
+	
+	private int getIndex(boolean left, boolean right) {
+		int i = left ? 2 : 0;
+		i += right ? 1 : 0;
+		return i;
 	}
 }

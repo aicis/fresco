@@ -63,7 +63,7 @@ public class DummyPreproCloseProtocol extends NinjaProtocol implements CloseBool
 
 	@Override
 	public EvaluationStatus evaluate(int round, ResourcePool resourcePool, SCENetwork network) {			
-		PrecomputedInputNinja inputNinjaWithRealVal = new PrecomputedInputNinja((byte)0);		
+		PrecomputedInputNinja inputNinjaWithRealVal = new PrecomputedInputNinja(false);		
 		NinjaStorage storage1 = NinjaProtocolSuite.getInstance(1).getStorage();
 		NinjaStorage storage2 = NinjaProtocolSuite.getInstance(2).getStorage();
 		

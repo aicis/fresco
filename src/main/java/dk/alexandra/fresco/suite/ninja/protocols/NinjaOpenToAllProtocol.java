@@ -63,7 +63,7 @@ public class NinjaOpenToAllProtocol extends NinjaProtocol implements OpenBoolPro
 		switch(round) {
 		case 0: 
 			NinjaStorage storage = NinjaProtocolSuite.getInstance(resourcePool.getMyId()).getStorage();
-			opened.setByteValue(storage.lookupNinjaTable(id, toOpen.getValue()));
+			opened.setValue(storage.lookupNinjaTable(id, toOpen.getValue()));
 			return EvaluationStatus.IS_DONE;
 		default:
 			throw new MPCException("Cannot evaluate rounds larger than 1");

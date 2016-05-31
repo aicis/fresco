@@ -28,17 +28,17 @@ package dk.alexandra.fresco.suite.ninja.storage;
 
 public class PrecomputedInputNinja {
 
-	private Byte realValue;
+	private boolean realValue;
 	
-	public PrecomputedInputNinja(Byte realValue) {
+	public PrecomputedInputNinja(boolean realValue) {
 		super();
 		this.realValue = realValue;
 	}
 		
-	public Byte getRealValue() {
+	public boolean getRealValue() {
 		return realValue;
 	}
-	public void setRealValue(Byte realValue) {
+	public void setRealValue(boolean realValue) {
 		this.realValue = realValue;
 	}
 
