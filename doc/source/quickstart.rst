@@ -124,7 +124,7 @@ code:
             ProtocolProducer closeKeyAndPlain = new ParallelProtocolProducer(closeKey, closePlain);
 
             // Build an AES protocol.
-            Protocol doAES = new BristolCryptoFactory(blf).getAesCircuit(plainClosed, keyClosed, outClosed);
+            Protocol doAES = new BristolCryptoFactory(blf).getAesProtocol(plainClosed, keyClosed, outClosed);
 
             // Create wires that glue together the AES to the following open of the result.
             this.out = blf.getOBools(BLOCK_SIZE);
