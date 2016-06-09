@@ -42,7 +42,6 @@ import org.junit.Test;
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.Reporter;
-import dk.alexandra.fresco.framework.TestFrameworkException;
 import dk.alexandra.fresco.framework.TestThreadRunner;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
@@ -107,7 +106,7 @@ public class TestTinyTables {
 				 */
 				String filename = getFilenameForTest(playerId, name);
 				TinyTableStorage storage = loadTinyTables(filename);
-				
+
 				if (storage != null) {
 					Reporter.info("Found TinyTables for " + name + " for player " + playerId);
 					TinyTableProtocolSuite.getInstance(playerId).setStorage(storage);
@@ -147,137 +146,126 @@ public class TestTinyTables {
 	/*
 	 * Helper methods
 	 */
-	
+
 	private String getFilenameForTest(int playerId, String name) {
 		return "tinytables/TinyTables_" + name + "_" + playerId;
 	}
-	
-	private void storeTinyTables(TinyTableStorage tinyTableStorage, String filename) throws IOException {
+
+	private void storeTinyTables(TinyTableStorage tinyTableStorage, String filename)
+			throws IOException {
 		FileOutputStream fout = new FileOutputStream(filename);
 		ObjectOutputStream oos = new ObjectOutputStream(fout);
 		oos.writeObject(tinyTableStorage);
 		System.out.println("Saving tables in file " + filename);
 		oos.close();
 	}
-	
-	private TinyTableStorage loadTinyTables(String filename) throws IOException, ClassNotFoundException {
+
+	private TinyTableStorage loadTinyTables(String filename) throws IOException,
+			ClassNotFoundException {
 		FileInputStream fin = new FileInputStream(filename);
 		ObjectInputStream is = new ObjectInputStream(fin);
 		TinyTableStorage storage = (TinyTableStorage) is.readObject();
 		is.close();
 		return storage;
 	}
-	
+
 	/*
 	 * Basic tests
 	 */
-	
+
 	@Test
 	public void testInput() throws Exception {
-		try {
-			runTest(new BasicBooleanTests.TestInput(), EvaluationStrategy.SEQUENTIAL, true,
-					"testInput");
-			runTest(new BasicBooleanTests.TestInput(), EvaluationStrategy.SEQUENTIAL, false,
-					"testInput");
-		} catch (TestFrameworkException ex) {
-			// likely an assertion error
-		}
+		runTest(new BasicBooleanTests.TestInput(), EvaluationStrategy.SEQUENTIAL, true, "testInput");
+		runTest(new BasicBooleanTests.TestInput(), EvaluationStrategy.SEQUENTIAL, false,
+				"testInput");
 	}
 
 	@Test
 	public void testXOR() throws Exception {
-		try {
-			runTest(new BasicBooleanTests.TestXOR(), EvaluationStrategy.SEQUENTIAL, true, "testXOR");
-			runTest(new BasicBooleanTests.TestXOR(), EvaluationStrategy.SEQUENTIAL, false, "testXOR");
-		} catch (TestFrameworkException ex) {
-			// likely an assertion error
-		}
+		runTest(new BasicBooleanTests.TestXOR(), EvaluationStrategy.SEQUENTIAL, true, "testXOR");
+		runTest(new BasicBooleanTests.TestXOR(), EvaluationStrategy.SEQUENTIAL, false, "testXOR");
 	}
-	
+
 	@Test
 	public void testAND() throws Exception {
-		try {
-			runTest(new BasicBooleanTests.TestAND(), EvaluationStrategy.SEQUENTIAL, true, "testAND");
-			runTest(new BasicBooleanTests.TestAND(), EvaluationStrategy.SEQUENTIAL, false, "testAND");
-		} catch (TestFrameworkException ex) {
-			// likely an assertion error
-		}
+		runTest(new BasicBooleanTests.TestAND(), EvaluationStrategy.SEQUENTIAL, true, "testAND");
+		runTest(new BasicBooleanTests.TestAND(), EvaluationStrategy.SEQUENTIAL, false, "testAND");
 	}
 
 	@Test
 	public void testNOT() throws Exception {
-		try {
-			runTest(new BasicBooleanTests.TestNOT(), EvaluationStrategy.SEQUENTIAL, true, "testNOT");
-			runTest(new BasicBooleanTests.TestNOT(), EvaluationStrategy.SEQUENTIAL, false, "testNOT");
-		} catch (TestFrameworkException ex) {
-			// likely an assertion error
-		}
+		runTest(new BasicBooleanTests.TestNOT(), EvaluationStrategy.SEQUENTIAL, true, "testNOT");
+		runTest(new BasicBooleanTests.TestNOT(), EvaluationStrategy.SEQUENTIAL, false, "testNOT");
 	}
 
 	@Test
 	public void testBasicProtocols() throws Exception {
-		try {
-			runTest(new BasicBooleanTests.TestBasicProtocols(), EvaluationStrategy.SEQUENTIAL,
-					true, "testBasicProtocols");
-			runTest(new BasicBooleanTests.TestBasicProtocols(), EvaluationStrategy.SEQUENTIAL,
-					false, "testBasicProtocols");
-		} catch (TestFrameworkException ex) {
-			// likely an assertion error
-		}
+		runTest(new BasicBooleanTests.TestBasicProtocols(), EvaluationStrategy.SEQUENTIAL, true,
+				"testBasicProtocols");
+		runTest(new BasicBooleanTests.TestBasicProtocols(), EvaluationStrategy.SEQUENTIAL, false,
+				"testBasicProtocols");
 	}
-	
+
 	/*
 	 * Advanced tests
 	 */
-	
+
 	@Test
 	public void testMult() throws Exception {
-		try {
-			runTest(new BristolMultTests.Mult32x32Test(), EvaluationStrategy.SEQUENTIAL, true, "testMult");
-			runTest(new BristolMultTests.Mult32x32Test(), EvaluationStrategy.SEQUENTIAL, false, "testMult");
-		} catch(TestFrameworkException ex) {
-			//likely an assertion error
-		}
+		runTest(new BristolMultTests.Mult32x32Test(), EvaluationStrategy.SEQUENTIAL, true,
+				"testMult");
+		runTest(new BristolMultTests.Mult32x32Test(), EvaluationStrategy.SEQUENTIAL, false,
+				"testMult");
 	}
-	
+
 	@Test
 	public void testAES() throws Exception {
-		try {
-			runTest(new BristolCryptoTests.AesTest(), EvaluationStrategy.SEQUENTIAL, true, "testAES");
-		} catch(TestFrameworkException ex) {
-			//likely an assertion error
-		}
-		runTest(new BristolCryptoTests.AesTest(), EvaluationStrategy.SEQUENTIAL, false,"testAES");
+		runTest(new BristolCryptoTests.AesTest(), EvaluationStrategy.SEQUENTIAL, true, "testAES");
+		runTest(new BristolCryptoTests.AesTest(), EvaluationStrategy.SEQUENTIAL, false, "testAES");
 	}
-	
+
 	@Test
 	public void testAES_parallel() throws Exception {
-		try {
-			runTest(new BristolCryptoTests.AesTest(), EvaluationStrategy.PARALLEL, true, "testAESParallel");
-		} catch(TestFrameworkException ex) {
-			//likely an assertion error
-		}
-		runTest(new BristolCryptoTests.AesTest(), EvaluationStrategy.PARALLEL, false, "testAESParallel");
+		runTest(new BristolCryptoTests.AesTest(), EvaluationStrategy.PARALLEL, true,
+				"testAESParallel");
+		runTest(new BristolCryptoTests.AesTest(), EvaluationStrategy.PARALLEL, false,
+				"testAESParallel");
 	}
-	
+
 	@Test
 	public void testAES_parallel_batched() throws Exception {
-		try {
-			runTest(new BristolCryptoTests.AesTest(), EvaluationStrategy.PARALLEL_BATCHED, true, "testAESParallelBatched");
-		} catch(TestFrameworkException ex) {
-			//likely an assertion error
-		}
-		runTest(new BristolCryptoTests.AesTest(), EvaluationStrategy.PARALLEL_BATCHED, false, "testAESParallelBatched");
+		runTest(new BristolCryptoTests.AesTest(), EvaluationStrategy.PARALLEL_BATCHED, true,
+				"testAESParallelBatched");
+		runTest(new BristolCryptoTests.AesTest(), EvaluationStrategy.PARALLEL_BATCHED, false,
+				"testAESParallelBatched");
 	}
-	
+
 	@Test
-	public void testGreaterThan() throws Exception{
-		try {
-			runTest(new ComparisonBooleanTests.TestGreaterThan(), EvaluationStrategy.SEQUENTIAL, true, "testGreaterThan");
-			runTest(new ComparisonBooleanTests.TestGreaterThan(), EvaluationStrategy.SEQUENTIAL, false, "testGreaterThan");
-		} catch(TestFrameworkException ex) {
-			//likely an assertion error			
-		}
+	public void test_Greater_Than() throws Exception {
+		runTest(new ComparisonBooleanTests.TestGreaterThan(), EvaluationStrategy.SEQUENTIAL, true,
+				"testGreaterThan");
+		runTest(new ComparisonBooleanTests.TestGreaterThan(), EvaluationStrategy.SEQUENTIAL, false,
+				"testGreaterThan");
 	}
-	
+
+	@Test
+	public void test_DES() throws Exception {
+		runTest(new BristolCryptoTests.DesTest(), EvaluationStrategy.SEQUENTIAL, true, "testDES");
+		runTest(new BristolCryptoTests.DesTest(), EvaluationStrategy.SEQUENTIAL, false, "testDES");
+	}
+
+	@Test
+	public void test_SHA1() throws Exception {
+		runTest(new BristolCryptoTests.Sha1Test(), EvaluationStrategy.SEQUENTIAL, true, "testSHA1");
+		runTest(new BristolCryptoTests.Sha1Test(), EvaluationStrategy.SEQUENTIAL, false, "testSHA1");
+	}
+
+	@Test
+	public void test_SHA256() throws Exception {
+		runTest(new BristolCryptoTests.Sha256Test(), EvaluationStrategy.SEQUENTIAL, true,
+				"testSHA256");
+		runTest(new BristolCryptoTests.Sha256Test(), EvaluationStrategy.SEQUENTIAL, false,
+				"testSHA256");
+	}
+
 }
