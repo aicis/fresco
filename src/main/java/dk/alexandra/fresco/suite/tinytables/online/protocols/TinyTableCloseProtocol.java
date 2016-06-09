@@ -24,53 +24,67 @@
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
  *******************************************************************************/
-package dk.alexandra.fresco.suite.ninja.prepro;
+package dk.alexandra.fresco.suite.tinytables.online.protocols;
 
+import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.network.SCENetwork;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
+import dk.alexandra.fresco.framework.value.OBool;
+import dk.alexandra.fresco.framework.value.SBool;
 import dk.alexandra.fresco.framework.value.Value;
-import dk.alexandra.fresco.lib.field.bool.XorProtocol;
-import dk.alexandra.fresco.suite.ninja.NinjaProtocolSuite;
-import dk.alexandra.fresco.suite.ninja.protocols.NinjaProtocol;
-import dk.alexandra.fresco.suite.ninja.storage.NinjaStorage;
-import dk.alexandra.fresco.suite.ninja.storage.PrecomputedNinja;
+import dk.alexandra.fresco.lib.field.bool.CloseBoolProtocol;
+import dk.alexandra.fresco.suite.tinytables.online.TinyTableProtocolSuite;
+import dk.alexandra.fresco.suite.tinytables.online.datatypes.TinyTableOBool;
+import dk.alexandra.fresco.suite.tinytables.online.datatypes.TinyTableSBool;
+import dk.alexandra.fresco.suite.tinytables.util.Encoding;
 
-public class DummyPreproXORProtocol extends NinjaProtocol implements XorProtocol{
+public class TinyTableCloseProtocol extends TinyTableProtocol implements CloseBoolProtocol {
 
-	private PreproNinjaSBool inLeft, inRight, out;
+	private int inputter;
+	private TinyTableOBool in;
+	private TinyTableSBool out;
 	
-	public DummyPreproXORProtocol(int id, PreproNinjaSBool inLeft, PreproNinjaSBool inRight, PreproNinjaSBool out) {
-		super();	
+	public TinyTableCloseProtocol(int id, int inputter, OBool in, SBool out) {
 		this.id = id;
-		this.inLeft = inLeft;
-		this.inRight = inRight;
-		this.out = out;
+		this.inputter = inputter;
+		this.in = (TinyTableOBool)in;
+		this.out = (TinyTableSBool)out;
 	}
 	
-	public DummyPreproXORProtocol() {
-		super();
-	}
-
 	@Override
 	public Value[] getInputValues() {
-		return new Value[] {};
+		return new Value[] {in};
 	}
 
 	@Override
 	public Value[] getOutputValues() {
-		return new Value[] {};
+		return new Value[] {out};
 	}
 
 	@Override
 	public EvaluationStatus evaluate(int round, ResourcePool resourcePool, SCENetwork network) {
-		NinjaStorage storage1 = NinjaProtocolSuite.getInstance(1).getStorage();
-		NinjaStorage storage2 = NinjaProtocolSuite.getInstance(2).getStorage();
-		
-		PrecomputedNinja ninja1 = new PrecomputedNinja(new boolean[] {false, true, true, false});
-		PrecomputedNinja ninja2 = new PrecomputedNinja(new boolean[] {false, false, false, false});
-		storage1.storeNinja(id, ninja1);
-		storage2.storeNinja(id, ninja2);
-		return EvaluationStatus.IS_DONE;
+		TinyTableProtocolSuite ps = TinyTableProtocolSuite.getInstance(resourcePool.getMyId()); 
+		switch(round) {
+		case 0: 			
+			if(resourcePool.getMyId() == this.inputter) {
+				boolean r = ps.getStorage().getMaskShare(id);
+				boolean e = this.in.getValue() ^ r;
+				out.setValue(e);
+				network.sendToAll(new byte[] { Encoding.encodeBoolean(e) } );
+			}
+			network.expectInputFromPlayer(this.inputter);
+			return EvaluationStatus.HAS_MORE_ROUNDS;
+			
+		case 1:
+			byte[] share = network.receive(this.inputter);
+			out.setValue(Encoding.decodeBoolean(share[0]));
+			return EvaluationStatus.IS_DONE;
+			
+		default:
+			throw new MPCException("Cannot evaluate rounds larger than 1");
+		}
 	}
+
+	
 
 }

@@ -50,6 +50,7 @@ import dk.alexandra.fresco.lib.helper.bristol.BristolCircuit;
 import dk.alexandra.fresco.lib.helper.builder.BasicLogicBuilder;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
 import dk.alexandra.fresco.lib.logic.AbstractBinaryFactory;
+import dk.alexandra.fresco.suite.tinytables.prepro.TinyTablePreproConfiguration;
 
 /**
  * Some generic tests for basic crypto primitives a la AES and SHA1.
@@ -156,20 +157,23 @@ public class BristolCryptoTests {
 					};
 
 					sce.runApplication(aesApp);
-
-					boolean[] expected = toBoolean(cipherVec[0]);
-					boolean[] actual = new boolean[128];
-					for (int i=0; i<128; i++) {
-						actual[i] = openedCipher[i].getValue();
+					
+					if (conf.protocolSuiteConf instanceof TinyTablePreproConfiguration) {
+						// Just preprocessing - do not check output
+					} else {
+						boolean[] expected = toBoolean(cipherVec[0]);
+						boolean[] actual = new boolean[128];
+						for (int i=0; i<128; i++) {
+							actual[i] = openedCipher[i].getValue();
+						}
+						
+						//					System.out.println("KEY       : " + Arrays.toString(toBoolean(keyVec)));
+						//					System.out.println("IN        : " + Arrays.toString(toBoolean(inVec[0])));
+						//					System.out.println("EXPECTED  : " + Arrays.toString(expected));
+						//					System.out.println("ACTUAL OPN: " + Arrays.toString(actual));
+						
+						Assert.assertTrue(Arrays.equals(expected, actual));
 					}
-					
-					//					System.out.println("KEY       : " + Arrays.toString(toBoolean(keyVec)));
-					//					System.out.println("IN        : " + Arrays.toString(toBoolean(inVec[0])));
-					//					System.out.println("EXPECTED  : " + Arrays.toString(expected));
-					//					System.out.println("ACTUAL OPN: " + Arrays.toString(actual));
-					
-					Assert.assertTrue(Arrays.equals(expected, actual));
-					
 				}
 			};
 		}
@@ -236,17 +240,21 @@ public class BristolCryptoTests {
 
 					sce.runApplication(aesApp);
 
-					boolean[] expected = toBoolean(out1);
-					boolean[] actual = new boolean[out.length];
-					for (int i=0; i<out.length; i++) {
-						actual[i] = openedOut[i].getValue();
+					if (conf.protocolSuiteConf instanceof TinyTablePreproConfiguration) {
+						// Do nothing
+					} else {
+						boolean[] expected = toBoolean(out1);
+						boolean[] actual = new boolean[out.length];
+						for (int i=0; i<out.length; i++) {
+							actual[i] = openedOut[i].getValue();
+						}
+	
+						//					System.out.println("IN        : " + Arrays.toString(AesTests.toBoolean(in1)));
+						//					System.out.println("EXPECTED  : " + Arrays.toString(expected));
+						//					System.out.println("ACTUAL    : " + Arrays.toString(actual));
+						
+						Assert.assertTrue(Arrays.equals(expected, actual));
 					}
-
-					//					System.out.println("IN        : " + Arrays.toString(AesTests.toBoolean(in1)));
-					//					System.out.println("EXPECTED  : " + Arrays.toString(expected));
-					//					System.out.println("ACTUAL    : " + Arrays.toString(actual));
-					
-					Assert.assertTrue(Arrays.equals(expected, actual));
 					
 				}
 			};

@@ -24,68 +24,28 @@
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
  *******************************************************************************/
-package dk.alexandra.fresco.suite.ninja.prepro;
+package dk.alexandra.fresco.suite.tinytables.storage;
 
-import dk.alexandra.fresco.framework.value.SBool;
+import java.io.Serializable;
 
 
-public class PreproNinjaSBool implements SBool {
+public interface TinyTableStorage extends Serializable {
 
 	/**
-	 * 
+	 * Looks up the table 
+	 * @param id
+	 * @param left
+	 * @param right
+	 * @return
 	 */
-	private static final long serialVersionUID = 7049163907480239087L;
-
-	//Id of wire
-	private int id;
+	public boolean lookupTinyTable(int id, boolean ... inputs);	
+		
+	public TinyTable getTinyTable(int id);
 	
-	//value of the random value assigned to the wire
-	private byte r;
-		
-	public PreproNinjaSBool(int id, byte r) {
-		this.id = id;
-		this.r = r;
-	}
-
-	@Override
-	public byte[] getSerializableContent() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void setSerializableContent(byte[] val) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	public void setValue(boolean b) {
-		
-	}
+	public void storeTinyTable(int id, TinyTable table);
 	
-	@Override
-	public boolean isReady() {
-		return this.id != -1;
-	}
-
-	public int getId() {
-		return id;
-	}
-
-	public void setId(int id) {
-		this.id = id;
-	}
-
-	public byte getR() {
-		return r;
-	}
-
-	public void setR(byte r) {
-		this.r = r;
-	}
-
-	@Override
-	public String toString() {
-		return "PreproNinjaSBool [id=" + id + ", r=" + r + "]";
-	}
+	public void storeMaskShare(int id, boolean r);
+	
+	public boolean getMaskShare(int id);
+	
 }

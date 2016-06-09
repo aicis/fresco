@@ -24,35 +24,57 @@
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
  *******************************************************************************/
-package dk.alexandra.fresco.suite.ninja;
+package dk.alexandra.fresco.suite.tinytables.storage;
 
-import dk.alexandra.fresco.framework.ProtocolFactory;
-import dk.alexandra.fresco.framework.sce.configuration.ProtocolSuiteConfiguration;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
-public class NinjaConfiguration implements ProtocolSuiteConfiguration{
+public class TinyTableDummyStorage implements TinyTableStorage {
 
-	private ProtocolFactory ninjaFactory;
-	private boolean dummy;
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -3455535991348570325L;
+	private Map<Integer, TinyTable> tinyTables = new ConcurrentHashMap<>();
+	private int storageId;
+	private Map<Integer, Boolean> maskShares = new ConcurrentHashMap<>();
 	
-	public NinjaConfiguration() {
-		//default is real factory
-		ninjaFactory = new NinjaFactory();
-		dummy = false;
+	
+	public TinyTableDummyStorage(int storageId) {
+		this.storageId = storageId;
+	}
+
+	@Override
+	public boolean lookupTinyTable(int id, boolean... inputs) {
+		TinyTable tinyTable = tinyTables.get(id);
+		if (tinyTable == null) {
+			throw new IllegalArgumentException("No TinyTable with ID " + id);
+		}
+		return tinyTable.getValue(inputs);
+	}
+
+	@Override
+	public TinyTable getTinyTable(int id) {
+		return tinyTables.get(id);
+	}
+
+	@Override
+	public void storeTinyTable(int id, TinyTable table) {
+		System.out.println("Storage(" + storageId + "): Storing TinyTable " + table + " for protocol with id " + id);
+		tinyTables.put(id, table);
+	}
+
+	@Override
+	public void storeMaskShare(int id, boolean r) {
+		System.out.println("Storage(" + storageId + "): Storing mask " + r + " for protocol with id " + id);
+		maskShares.put(id, r);
+	}
+
+	@Override
+	public boolean getMaskShare(int id) {
+		return maskShares.get(id);
 	}
 	
-	public void setNinjaFactory(ProtocolFactory ninjaFactory) {
-		this.ninjaFactory = ninjaFactory;
-	}
 	
-	public void setDummy(boolean useDummy) {
-		this.dummy = useDummy;
-	}
-	
-	public ProtocolFactory getProtocolFactory() {
-		return this.ninjaFactory;
-	}	
-	
-	public boolean useDummy() {
-		return dummy;
-	}
+
 }

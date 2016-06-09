@@ -24,69 +24,43 @@
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
  *******************************************************************************/
-package dk.alexandra.fresco.suite.ninja;
-
-import java.util.HashMap;
-import java.util.Map;
+package dk.alexandra.fresco.suite.tinytables.online.protocols;
 
 import dk.alexandra.fresco.framework.MPCException;
-import dk.alexandra.fresco.framework.sce.configuration.ProtocolSuiteConfiguration;
+import dk.alexandra.fresco.framework.network.SCENetwork;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
-import dk.alexandra.fresco.suite.ProtocolSuite;
-import dk.alexandra.fresco.suite.ninja.storage.NinjaDummyStorage;
-import dk.alexandra.fresco.suite.ninja.storage.NinjaStorage;
-import dk.alexandra.fresco.suite.ninja.storage.NinjaStorageImpl;
+import dk.alexandra.fresco.framework.value.Value;
+import dk.alexandra.fresco.lib.field.bool.NotProtocol;
+import dk.alexandra.fresco.suite.tinytables.online.datatypes.TinyTableSBool;
 
-public class NinjaProtocolSuite implements ProtocolSuite{
+public class TinyTableNOTProtocol extends TinyTableProtocol implements NotProtocol{
 
-	private NinjaStorage storage;
-	private static Map<Integer, NinjaProtocolSuite> instances = new HashMap<>();	
+	private TinyTableSBool in, out;
 	
-	public static NinjaProtocolSuite getInstance(int id) {
-		if(instances.get(id) == null) {			
-			instances.put(id, new NinjaProtocolSuite());
+	public TinyTableNOTProtocol(int id, TinyTableSBool in, TinyTableSBool out) {
+		this.id = id;
+		this.in = in;
+		this.out = out;
+	}
+
+	@Override
+	public Value[] getInputValues() {
+		return new Value[] { in };
+	}
+
+	@Override
+	public Value[] getOutputValues() {
+		return new Value[] { out };
+	}
+
+	@Override
+	public EvaluationStatus evaluate(int round, ResourcePool resourcePool, SCENetwork network) {
+		if (round == 0) {
+			this.out.setValue(!in.getValue());
+			return EvaluationStatus.IS_DONE;
+		} else {
+			throw new MPCException("Cannot evaluate NOT in round > 0");
 		}
-		return instances.get(id);
-	}
-	
-	private NinjaProtocolSuite() {
-		this.storage = new NinjaDummyStorage();
-	}
-	
-	@Override
-	public void init(ResourcePool resourcePool, ProtocolSuiteConfiguration conf) {
-		NinjaConfiguration ninjaConfig = (NinjaConfiguration)conf;
-		if(!ninjaConfig.useDummy()) {
-			this.storage = new NinjaStorageImpl(resourcePool.getStreamedStorage());	
-		}		
-		
-	}
-	
-	public NinjaStorage getStorage() {
-		return this.storage;
-	}
-
-	@Override
-	public void synchronize(int gatesEvaluated) throws MPCException {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void finishedEval() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void destroy() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public int getMessageSize() {
-		return 1;
 	}
 
 }

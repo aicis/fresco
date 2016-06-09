@@ -24,23 +24,20 @@
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
  *******************************************************************************/
-package dk.alexandra.fresco.suite.ninja.prepro;
+package dk.alexandra.fresco.suite.tinytables.online.protocols;
 
+import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.network.SCENetwork;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.Value;
-import dk.alexandra.fresco.lib.field.bool.AndProtocol;
-import dk.alexandra.fresco.suite.ninja.NinjaProtocolSuite;
-import dk.alexandra.fresco.suite.ninja.protocols.NinjaProtocol;
-import dk.alexandra.fresco.suite.ninja.storage.NinjaStorage;
-import dk.alexandra.fresco.suite.ninja.storage.PrecomputedNinja;
+import dk.alexandra.fresco.lib.field.bool.XorProtocol;
+import dk.alexandra.fresco.suite.tinytables.online.datatypes.TinyTableSBool;
 
-public class DummyPreproANDProtocol extends NinjaProtocol implements AndProtocol{
+public class TinyTableXORProtocol extends TinyTableProtocol implements XorProtocol{
 
-	private int id;
-	private PreproNinjaSBool inLeft, inRight, out;
+	private TinyTableSBool inLeft, inRight, out;
 	
-	public DummyPreproANDProtocol(int id, PreproNinjaSBool inLeft, PreproNinjaSBool inRight, PreproNinjaSBool out) {
+	public TinyTableXORProtocol(int id, TinyTableSBool inLeft, TinyTableSBool inRight, TinyTableSBool out) {
 		super();
 		this.id = id;
 		this.inLeft = inLeft;
@@ -60,14 +57,13 @@ public class DummyPreproANDProtocol extends NinjaProtocol implements AndProtocol
 
 	@Override
 	public EvaluationStatus evaluate(int round, ResourcePool resourcePool, SCENetwork network) {
-		NinjaStorage storage1 = NinjaProtocolSuite.getInstance(1).getStorage();
-		NinjaStorage storage2 = NinjaProtocolSuite.getInstance(2).getStorage();
-		PrecomputedNinja ninja1 = new PrecomputedNinja(new boolean[] {false, false, false, true});
-		PrecomputedNinja ninja2 = new PrecomputedNinja(new boolean[] {false, false, false, false});
-		storage1.storeNinja(id, ninja1);		
-		storage2.storeNinja(id, ninja2);		
-
-		return EvaluationStatus.IS_DONE;
+		if(round == 0) {
+			// Free XOR
+			this.out.setValue(inLeft.getValue() ^ inRight.getValue());
+			return EvaluationStatus.IS_DONE;
+		} else {
+			throw new MPCException("Cannot evaluate XOR in round > 0");
+		}
 	}
 
 }

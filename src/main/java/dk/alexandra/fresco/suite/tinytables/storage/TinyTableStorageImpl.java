@@ -24,32 +24,45 @@
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
  *******************************************************************************/
-package dk.alexandra.fresco.suite.ninja.storage;
+package dk.alexandra.fresco.suite.tinytables.storage;
 
-public interface NinjaStorage {
+import java.util.concurrent.ConcurrentHashMap;
 
-	/**
-	 * Looks up the table 
-	 * @param id
-	 * @param left
-	 * @param right
-	 * @return
-	 */
-	public boolean lookupNinjaTable(int id, boolean left, boolean right);	
+import dk.alexandra.fresco.framework.sce.resources.storage.StreamedStorage;
+
+public class TinyTableStorageImpl implements TinyTableStorage {
+
+	StreamedStorage storage;	
+	ConcurrentHashMap<Integer, TinyTable> map;
 	
-	/**
-	 * Lookup table for single input (e.g. output protocol)
-	 * @param round
-	 * @param value
-	 */
-	public boolean lookupNinjaTable(int id, boolean value);
-	
-	public PrecomputedInputNinja getPrecomputedInputNinja(int id);
+	public TinyTableStorageImpl(StreamedStorage storage) {
+		this.storage = storage;
+		map = new ConcurrentHashMap<>();
+	}
 
-	public void storeInputNinja(int id, PrecomputedInputNinja inputNinja);
-	
-	public void storeNinja(int id, PrecomputedNinja ninja);
+	@Override
+	public boolean lookupTinyTable(int id, boolean... inputs) {
+		throw new UnsupportedOperationException("Not implemented, yet.");
+	}
 
-	public void storeOutputNinja(int id, PrecomputedOutputNinja ninja);
+	@Override
+	public TinyTable getTinyTable(int id) {
+		throw new UnsupportedOperationException("Not implemented, yet.");
+	}
+
+	@Override
+	public void storeTinyTable(int id, TinyTable table) {
+		throw new UnsupportedOperationException("Not implemented, yet.");		
+	}
+
+	@Override
+	public void storeMaskShare(int id, boolean r) {
+		throw new UnsupportedOperationException("Not implemented, yet.");		
+	}
+
+	@Override
+	public boolean getMaskShare(int id) {
+		throw new UnsupportedOperationException("Not implemented, yet.");		
+	}
 	
 }

@@ -24,30 +24,58 @@
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
  *******************************************************************************/
-package dk.alexandra.fresco.suite.ninja.storage;
+package dk.alexandra.fresco.suite.tinytables.online.datatypes;
 
-import java.util.Arrays;
+import dk.alexandra.fresco.framework.value.OBool;
+import dk.alexandra.fresco.suite.tinytables.util.Encoding;
 
-public class PrecomputedOutputNinja {
+public class TinyTableOBool implements OBool{
 
-	private boolean[] table;
-	
-	public PrecomputedOutputNinja(boolean[] table) {
-		this.table = table;
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -7615308960489978540L;
+	private boolean value;
+	private boolean isReady;
+
+	public TinyTableOBool() {
+		this.value = false;
+		this.isReady = false;
 	}
 	
-	public boolean lookup(boolean value) {				
-		return table[getIndex(value)];
-	}
-
-	private int getIndex(boolean value) {
-		return value ? 1 : 0;
+	public TinyTableOBool(boolean value) {
+		setValue(value);
 	}
 	
 	@Override
-	public String toString() {
-		return "PrecomputedOutputNinja [table=" + Arrays.toString(table) + "]";
+	public byte[] getSerializableContent() {
+		return new byte[] { Encoding.encodeBoolean(value) };
+	}
+
+	@Override
+	public void setSerializableContent(byte[] val) {
+		setValue(Encoding.decodeBoolean(val[0]));
+	}
+
+	@Override
+	public boolean isReady() {
+		return isReady;
 	}
 	
-	
+	@Override
+	public boolean getValue() {
+		return value;
+	}
+
+	@Override
+	public void setValue(boolean b) {
+		this.value = b;
+		this.isReady = true;
+	}
+
+	@Override
+	public String toString() {
+		return "NinjaOBool [value=" + value + "]";
+	}
+
 }

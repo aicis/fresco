@@ -24,40 +24,35 @@
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
  *******************************************************************************/
-package dk.alexandra.fresco.suite.ninja.protocols;
+package dk.alexandra.fresco.suite.tinytables.online;
 
-import dk.alexandra.fresco.framework.network.SCENetwork;
-import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
-import dk.alexandra.fresco.framework.value.Value;
-import dk.alexandra.fresco.lib.field.bool.NotProtocol;
-import dk.alexandra.fresco.suite.ninja.NinjaSBool;
+import dk.alexandra.fresco.framework.ProtocolFactory;
+import dk.alexandra.fresco.framework.sce.configuration.ProtocolSuiteConfiguration;
 
-public class NinjaNOTProtocol extends NinjaProtocol implements NotProtocol{
+public class TinyTableConfiguration implements ProtocolSuiteConfiguration{
 
-	private NinjaSBool in, out;
+	private ProtocolFactory ninjaFactory;
+	private boolean dummy;
 	
-	public NinjaNOTProtocol(int id, NinjaSBool in, NinjaSBool out) {
-		this.id = id;
-		this.in = in;
-		this.out = out;
+	public TinyTableConfiguration() {
+		//default is real factory
+		ninjaFactory = new TinyTableFactory();
+		dummy = true;
 	}
-
-	@Override
-	public Value[] getInputValues() {
-		// TODO Auto-generated method stub
-		return null;
+	
+	public void setNinjaFactory(ProtocolFactory ninjaFactory) {
+		this.ninjaFactory = ninjaFactory;
 	}
-
-	@Override
-	public Value[] getOutputValues() {
-		// TODO Auto-generated method stub
-		return null;
+	
+	public void setDummy(boolean useDummy) {
+		this.dummy = useDummy;
 	}
-
-	@Override
-	public EvaluationStatus evaluate(int round, ResourcePool resourcePool, SCENetwork network) {
-		this.out.setValue(in.not());
-		return EvaluationStatus.IS_DONE;
+	
+	public ProtocolFactory getProtocolFactory() {
+		return this.ninjaFactory;
+	}	
+	
+	public boolean useDummy() {
+		return dummy;
 	}
-
 }

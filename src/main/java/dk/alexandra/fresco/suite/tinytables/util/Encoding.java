@@ -1,6 +1,6 @@
-package dk.alexandra.fresco.suite.ninja.util;
+package dk.alexandra.fresco.suite.tinytables.util;
 
-public class NinjaUtil {
+public class Encoding {
 
 	/**
 	 * Encode a boolean as a <code>byte</code>. We encode <code>true</code> as 1
@@ -10,7 +10,7 @@ public class NinjaUtil {
 	 * @return
 	 */
 	public static byte encodeBoolean(boolean b) {
-		return b ? (byte) 1 : (byte) 0;
+		return b ? (byte) 0x01 : (byte) 0x00;
 	}
 	
 	/**
@@ -20,7 +20,7 @@ public class NinjaUtil {
 	 * @return
 	 */
 	public static boolean decodeBoolean(byte b) {
-		return b == 0x00 ? false : true;
+		return b != 0x00 ? true : false;
 	}
 	
 }

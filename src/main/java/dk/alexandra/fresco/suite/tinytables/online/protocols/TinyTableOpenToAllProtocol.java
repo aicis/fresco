@@ -24,29 +24,30 @@
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
  *******************************************************************************/
-package dk.alexandra.fresco.suite.ninja.prepro;
+package dk.alexandra.fresco.suite.tinytables.online.protocols;
 
+import java.util.List;
+
+import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.network.SCENetwork;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.Value;
 import dk.alexandra.fresco.lib.field.bool.OpenBoolProtocol;
-import dk.alexandra.fresco.suite.ninja.NinjaOBool;
-import dk.alexandra.fresco.suite.ninja.NinjaProtocolSuite;
-import dk.alexandra.fresco.suite.ninja.protocols.NinjaProtocol;
-import dk.alexandra.fresco.suite.ninja.storage.NinjaStorage;
-import dk.alexandra.fresco.suite.ninja.storage.PrecomputedOutputNinja;
+import dk.alexandra.fresco.suite.tinytables.online.TinyTableProtocolSuite;
+import dk.alexandra.fresco.suite.tinytables.online.datatypes.TinyTableOBool;
+import dk.alexandra.fresco.suite.tinytables.online.datatypes.TinyTableSBool;
+import dk.alexandra.fresco.suite.tinytables.util.Encoding;
 
-public class DummyPreproOpenToAllProtocol extends NinjaProtocol implements OpenBoolProtocol{
+public class TinyTableOpenToAllProtocol extends TinyTableProtocol implements OpenBoolProtocol{
 
-	private PreproNinjaSBool toOpen;
-	private NinjaOBool opened;
+	private TinyTableSBool toOpen;
+	private TinyTableOBool opened;
 	
-	public DummyPreproOpenToAllProtocol(int id, PreproNinjaSBool toOpen, NinjaOBool opened) {
+	public TinyTableOpenToAllProtocol(int id, TinyTableSBool toOpen, TinyTableOBool opened) {
 		super();
 		this.id = id;
 		this.toOpen = toOpen;
 		this.opened = opened;
-
 	}
 
 	@Override
@@ -60,15 +61,32 @@ public class DummyPreproOpenToAllProtocol extends NinjaProtocol implements OpenB
 	}
 
 	@Override
-	public EvaluationStatus evaluate(int round, ResourcePool resourcePool, SCENetwork network) {		
-		NinjaStorage storage1 = NinjaProtocolSuite.getInstance(1).getStorage();
-		PrecomputedOutputNinja ninja = new PrecomputedOutputNinja(new boolean[] {false, true});
-		storage1.storeOutputNinja(id, ninja);
-		
-		NinjaStorage storage2 = NinjaProtocolSuite.getInstance(2).getStorage();
-		storage2.storeOutputNinja(id, ninja);
-		
-		return EvaluationStatus.IS_DONE;
+	public EvaluationStatus evaluate(int round, ResourcePool resourcePool, SCENetwork network) {
+		TinyTableProtocolSuite ps = TinyTableProtocolSuite.getInstance(resourcePool.getMyId()); 
+
+		/*
+		 * When opening a value, all players send their shares of the masking
+		 * value r to the other players, and each player can then calculate the
+		 * unmasked value as the XOR of the masked value and all the shares of
+		 * the mask.
+		 */
+		switch(round) {
+		case 0: 
+			boolean myR = ps.getStorage().getMaskShare(id);
+			network.sendToAll(new byte[] { Encoding.encodeBoolean(myR) } );
+			network.expectInputFromAll();
+			return EvaluationStatus.HAS_MORE_ROUNDS;
+		case 1:
+			List<byte[]> shares = network.receiveFromAll();
+			boolean result = toOpen.getValue();
+			for (byte[] share : shares) {
+				result ^= Encoding.decodeBoolean(share[0]);
+			}
+			opened.setValue(result);
+			return EvaluationStatus.IS_DONE;
+		default:
+			throw new MPCException("Cannot evaluate rounds larger than 1");
+		}
 	}
 
 }

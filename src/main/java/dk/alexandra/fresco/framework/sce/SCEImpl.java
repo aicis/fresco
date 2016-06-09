@@ -61,12 +61,14 @@ import dk.alexandra.fresco.suite.bgw.storage.BgwRandomBitSupplier;
 import dk.alexandra.fresco.suite.dummy.DummyConfiguration;
 import dk.alexandra.fresco.suite.dummy.DummyFactory;
 import dk.alexandra.fresco.suite.dummy.DummyProtocolSuite;
-import dk.alexandra.fresco.suite.ninja.NinjaConfiguration;
-import dk.alexandra.fresco.suite.ninja.NinjaProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.configuration.SpdzConfiguration;
 import dk.alexandra.fresco.suite.spdz.configuration.SpdzConfigurationFromProperties;
 import dk.alexandra.fresco.suite.spdz.evaluation.strategy.SpdzProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.utils.SpdzFactory;
+import dk.alexandra.fresco.suite.tinytables.online.TinyTableConfiguration;
+import dk.alexandra.fresco.suite.tinytables.online.TinyTableProtocolSuite;
+import dk.alexandra.fresco.suite.tinytables.prepro.TinyTablePreproConfiguration;
+import dk.alexandra.fresco.suite.tinytables.prepro.TinyTablePreproProtocolSuite;
 
 /**
  * Secure Computation Engine - responsible for having the overview of things and
@@ -184,12 +186,20 @@ public class SCEImpl implements SCE {
 			this.protocolFactory = new BgwFactory(this.resourcePool.getMyId(), this.resourcePool.getNoOfParties(),
 					threshold, modulus, bitSupplier);
 			break;
-		case "ninja":
-			this.protocolSuite = NinjaProtocolSuite.getInstance(this.resourcePool.getMyId());
+		case "tinytablesprepro":
+			this.protocolSuite = TinyTablePreproProtocolSuite.getInstance(this.resourcePool.getMyId());
 			if(psConf == null) {
-				psConf = new NinjaConfiguration();
+				psConf = new TinyTablePreproConfiguration();
 			}
-			this.protocolFactory = ((NinjaConfiguration)psConf).getProtocolFactory();
+			this.protocolFactory = ((TinyTablePreproConfiguration)psConf).getProtocolFactory();
+			this.protocolSuite.init(this.resourcePool, psConf);			
+			break;
+		case "tinytables":
+			this.protocolSuite = TinyTableProtocolSuite.getInstance(this.resourcePool.getMyId());
+			if(psConf == null) {
+				psConf = new TinyTableConfiguration();
+			}
+			this.protocolFactory = ((TinyTableConfiguration)psConf).getProtocolFactory();
 			this.protocolSuite.init(this.resourcePool, psConf);			
 			break;
 		case "dummy":

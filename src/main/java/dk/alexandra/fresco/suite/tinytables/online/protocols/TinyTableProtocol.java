@@ -24,27 +24,16 @@
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
  *******************************************************************************/
-package dk.alexandra.fresco.suite.ninja.storage;
+package dk.alexandra.fresco.suite.tinytables.online.protocols;
 
-public class PrecomputedInputNinja {
+import dk.alexandra.fresco.lib.helper.HalfCookedNativeProtocol;
 
-	private boolean realValue;
+public abstract class TinyTableProtocol extends HalfCookedNativeProtocol{
+
+	protected int id;
 	
-	public PrecomputedInputNinja(boolean realValue) {
-		super();
-		this.realValue = realValue;
-	}
-		
-	public boolean getRealValue() {
-		return realValue;
-	}
-	public void setRealValue(boolean realValue) {
-		this.realValue = realValue;
+	public int getId() {
+		return id;
 	}
 
-	@Override
-	public String toString() {
-		return "PrecomputedInputNinja [realValue=" + realValue + "]";
-	}
-	
 }

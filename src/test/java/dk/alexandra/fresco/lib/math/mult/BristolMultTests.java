@@ -49,6 +49,7 @@ import dk.alexandra.fresco.lib.helper.bristol.BristolCircuit;
 import dk.alexandra.fresco.lib.helper.builder.BasicLogicBuilder;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
 import dk.alexandra.fresco.lib.logic.AbstractBinaryFactory;
+import dk.alexandra.fresco.suite.tinytables.prepro.TinyTablePreproConfiguration;
 
 
 /**
@@ -161,18 +162,22 @@ public class BristolMultTests {
 
 					sce.runApplication(md5App);
 
-					boolean[] expected = toBoolean(outv);
-					boolean[] actual = new boolean[out.length];
-					for (int i=0; i<out.length; i++) {
-						actual[i] = openedOut[i].getValue();
+					if (conf.protocolSuiteConf instanceof TinyTablePreproConfiguration) {
+						// Do nothing
+					} else {
+						boolean[] expected = toBoolean(outv);
+						boolean[] actual = new boolean[out.length];
+						for (int i=0; i<out.length; i++) {
+							actual[i] = openedOut[i].getValue();
+						}
+	
+						//					System.out.println("IN1        : " + Arrays.toString(toBoolean(inv1)));
+						//					System.out.println("IN2        : " + Arrays.toString(toBoolean(inv2)));
+						//					System.out.println("EXPECTED   : " + Arrays.toString(expected));
+						//					System.out.println("ACTUAL     : " + Arrays.toString(actual));
+						
+						Assert.assertTrue(Arrays.equals(expected, actual));
 					}
-
-					//					System.out.println("IN1        : " + Arrays.toString(toBoolean(inv1)));
-					//					System.out.println("IN2        : " + Arrays.toString(toBoolean(inv2)));
-					//					System.out.println("EXPECTED   : " + Arrays.toString(expected));
-					//					System.out.println("ACTUAL     : " + Arrays.toString(actual));
-					
-					Assert.assertTrue(Arrays.equals(expected, actual));
 					
 				}
 			};

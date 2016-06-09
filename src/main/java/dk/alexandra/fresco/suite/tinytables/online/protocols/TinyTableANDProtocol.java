@@ -24,20 +24,25 @@
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
  *******************************************************************************/
-package dk.alexandra.fresco.suite.ninja.protocols;
+package dk.alexandra.fresco.suite.tinytables.online.protocols;
+
+import java.util.List;
 
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.network.SCENetwork;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.Value;
-import dk.alexandra.fresco.lib.field.bool.XorProtocol;
-import dk.alexandra.fresco.suite.ninja.NinjaSBool;
+import dk.alexandra.fresco.lib.field.bool.AndProtocol;
+import dk.alexandra.fresco.suite.tinytables.online.TinyTableProtocolSuite;
+import dk.alexandra.fresco.suite.tinytables.online.datatypes.TinyTableSBool;
+import dk.alexandra.fresco.suite.tinytables.util.Encoding;
 
-public class NinjaXORProtocol extends NinjaProtocol implements XorProtocol{
+public class TinyTableANDProtocol extends TinyTableProtocol implements AndProtocol{
 
-	private NinjaSBool inLeft, inRight, out;
+	private int id;
+	private TinyTableSBool inLeft, inRight, out;
 	
-	public NinjaXORProtocol(int id, NinjaSBool inLeft, NinjaSBool inRight, NinjaSBool out) {
+	public TinyTableANDProtocol(int id, TinyTableSBool inLeft, TinyTableSBool inRight, TinyTableSBool out) {
 		super();
 		this.id = id;
 		this.inLeft = inLeft;
@@ -57,11 +62,25 @@ public class NinjaXORProtocol extends NinjaProtocol implements XorProtocol{
 
 	@Override
 	public EvaluationStatus evaluate(int round, ResourcePool resourcePool, SCENetwork network) {
-		if(round == 0) {
-			this.out.setValue(inLeft.xor(inRight));
+		TinyTableProtocolSuite ps = TinyTableProtocolSuite.getInstance(resourcePool.getMyId());	
+		
+		switch(round) {
+		case 0: 
+			boolean myShare = ps.getStorage().lookupTinyTable(id, inLeft.getValue(), inRight.getValue());
+			
+			network.expectInputFromAll();
+			network.sendToAll(new byte[] { Encoding.encodeBoolean(myShare) });
+			return EvaluationStatus.HAS_MORE_ROUNDS;
+		case 1:
+			List<byte[]> shares = network.receiveFromAll();		
+			boolean res = false;
+			for(byte[] share : shares) {
+				res = res ^ Encoding.decodeBoolean(share[0]);
+			}
+			this.out.setValue(res);
 			return EvaluationStatus.IS_DONE;
-		} else {
-			throw new MPCException("Cannot evaluate XOR in round > 0");
+		default:
+			throw new MPCException("Cannot evaluate rounds larger than 0");
 		}
 	}
 

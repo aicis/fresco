@@ -34,8 +34,9 @@ import dk.alexandra.fresco.framework.sce.configuration.ProtocolSuiteConfiguratio
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.suite.bgw.BgwProtocolSuite;
 import dk.alexandra.fresco.suite.dummy.DummyProtocolSuite;
-import dk.alexandra.fresco.suite.ninja.NinjaProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.evaluation.strategy.SpdzProtocolSuite;
+import dk.alexandra.fresco.suite.tinytables.online.TinyTableProtocolSuite;
+import dk.alexandra.fresco.suite.tinytables.prepro.TinyTablePreproProtocolSuite;
 
 public interface ProtocolSuite {
 
@@ -94,7 +95,8 @@ public interface ProtocolSuite {
 	public static Set<String> getSupportedProtocolSuites() {
 		Set<String> res = new HashSet<String>();
 		res.add("dummy");
-		res.add("ninja");
+		res.add("tinytablesprepro");
+		res.add("tinytables");
 		res.add("bgw");
 		res.add("spdz");
 		return res;
@@ -105,8 +107,10 @@ public interface ProtocolSuite {
 			return "bgw";
 		} else if (suite instanceof SpdzProtocolSuite) {
 			return "spdz";
-		} else if (suite instanceof NinjaProtocolSuite) {
-			return "ninja";
+		} else if (suite instanceof TinyTablePreproProtocolSuite) {
+			return "tinytablesprepro";
+		} else if (suite instanceof TinyTableProtocolSuite) {
+			return "tinytables";
 		} else if (suite instanceof DummyProtocolSuite) {
 			return "dummy";
 		} else {

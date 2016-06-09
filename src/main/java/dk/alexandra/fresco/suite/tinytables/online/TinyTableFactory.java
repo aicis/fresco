@@ -24,7 +24,7 @@
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
  *******************************************************************************/
-package dk.alexandra.fresco.suite.ninja;
+package dk.alexandra.fresco.suite.tinytables.online;
 
 import dk.alexandra.fresco.framework.value.OBool;
 import dk.alexandra.fresco.framework.value.SBool;
@@ -35,28 +35,30 @@ import dk.alexandra.fresco.lib.field.bool.NotProtocol;
 import dk.alexandra.fresco.lib.field.bool.OpenBoolProtocol;
 import dk.alexandra.fresco.lib.field.bool.XorProtocol;
 import dk.alexandra.fresco.lib.logic.AbstractBinaryFactory;
-import dk.alexandra.fresco.suite.ninja.protocols.NinjaANDProtocol;
-import dk.alexandra.fresco.suite.ninja.protocols.NinjaCloseProtocol;
-import dk.alexandra.fresco.suite.ninja.protocols.NinjaNOTProtocol;
-import dk.alexandra.fresco.suite.ninja.protocols.NinjaOpenToAllProtocol;
-import dk.alexandra.fresco.suite.ninja.protocols.NinjaXORProtocol;
+import dk.alexandra.fresco.suite.tinytables.online.datatypes.TinyTableOBool;
+import dk.alexandra.fresco.suite.tinytables.online.datatypes.TinyTableSBool;
+import dk.alexandra.fresco.suite.tinytables.online.protocols.TinyTableANDProtocol;
+import dk.alexandra.fresco.suite.tinytables.online.protocols.TinyTableCloseProtocol;
+import dk.alexandra.fresco.suite.tinytables.online.protocols.TinyTableNOTProtocol;
+import dk.alexandra.fresco.suite.tinytables.online.protocols.TinyTableOpenToAllProtocol;
+import dk.alexandra.fresco.suite.tinytables.online.protocols.TinyTableXORProtocol;
 
-public class NinjaFactory extends AbstractBinaryFactory implements BasicLogicFactory {
+public class TinyTableFactory extends AbstractBinaryFactory implements BasicLogicFactory {
 
 	private int counter;
 	
-	public NinjaFactory() {
+	public TinyTableFactory() {
 		this.counter = 0;
 	}
 	
 	@Override
 	public CloseBoolProtocol getCloseProtocol(int source, OBool open, SBool closed) {
-		return new NinjaCloseProtocol(counter++, source, open, closed);
+		return new TinyTableCloseProtocol(counter++, source, open, closed);
 	}
 
 	@Override
 	public OpenBoolProtocol getOpenProtocol(SBool closed, OBool open) {
-		return new NinjaOpenToAllProtocol(counter++, (NinjaSBool)closed, (NinjaOBool)open);
+		return new TinyTableOpenToAllProtocol(counter++, (TinyTableSBool)closed, (TinyTableOBool)open);
 	}
 
 	@Override
@@ -67,7 +69,7 @@ public class NinjaFactory extends AbstractBinaryFactory implements BasicLogicFac
 
 	@Override
 	public SBool getSBool() {
-		return new NinjaSBool();
+		return new TinyTableSBool();
 	}
 
 	@Override
@@ -81,8 +83,7 @@ public class NinjaFactory extends AbstractBinaryFactory implements BasicLogicFac
 
 	@Override
 	public SBool getKnownConstantSBool(boolean b) {
-		NinjaSBool bool = new NinjaSBool();
-		bool.setValue(b);
+		TinyTableSBool bool = new TinyTableSBool(b);
 		return bool;
 	}
 
@@ -97,17 +98,17 @@ public class NinjaFactory extends AbstractBinaryFactory implements BasicLogicFac
 
 	@Override
 	public OBool getOBool() {
-		return new NinjaOBool();
+		return new TinyTableOBool();
 	}
 
 	@Override
 	public OBool getKnownConstantOBool(boolean b) {
-		return new NinjaOBool(b);
+		return new TinyTableOBool(b);
 	}
 
 	@Override
 	public AndProtocol getAndProtocol(SBool inLeft, SBool inRight, SBool out) {
-		return new NinjaANDProtocol(counter++, (NinjaSBool)inLeft, (NinjaSBool)inRight, (NinjaSBool)out);
+		return new TinyTableANDProtocol(counter++, (TinyTableSBool)inLeft, (TinyTableSBool)inRight, (TinyTableSBool)out);
 	}
 
 	@Override
@@ -117,12 +118,12 @@ public class NinjaFactory extends AbstractBinaryFactory implements BasicLogicFac
 
 	@Override
 	public NotProtocol getNotProtocol(SBool in, SBool out) {
-		return new NinjaNOTProtocol(counter++, (NinjaSBool)in, (NinjaSBool)out);
+		return new TinyTableNOTProtocol(counter++, (TinyTableSBool)in, (TinyTableSBool)out);
 	}
 
 	@Override
 	public XorProtocol getXorProtocol(SBool inLeft, SBool inRight, SBool out) {
-		return new NinjaXORProtocol(counter++, (NinjaSBool)inLeft, (NinjaSBool)inRight, (NinjaSBool)out);
+		return new TinyTableXORProtocol(counter++, (TinyTableSBool)inLeft, (TinyTableSBool)inRight, (TinyTableSBool)out);
 	}
 
 	@Override
