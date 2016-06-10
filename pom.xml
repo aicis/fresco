@@ -35,13 +35,11 @@
 	  <version>1.2</version>
     </dependency>
 
-<!-- 
 	<dependency>
 	  <groupId>org.bouncycastle</groupId>
 	  <artifactId>bcprov-jdk15on</artifactId>
 	  <version>1.53</version>
 	</dependency>
- -->
 	<!-- Database required jars -->
 
 	<dependency>
