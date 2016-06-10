@@ -85,14 +85,6 @@ public class DummySBool implements SBool {
 			return "DummySBool(" + this.id + "; null)";
 		}
 	}
-
-	public void setByteValue(byte b) {
-		if(b == 1) {
-			this.value = true;
-		} else {
-			this.value = false;
-		}
-	}
 	
 	
 }

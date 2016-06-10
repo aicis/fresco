@@ -73,25 +73,24 @@ public class SpdzOpenCommitProtocol extends SpdzNativeProtocol {
 		int players = resourcePool.getNoOfParties();
 		switch (round) {
 		case 0: // Send your opening to all players
-			byte[] value = this.commitment.getValue();
-			byte[] randomness = this.commitment.getRandomness();			
-			network.sendToAll(value);
-			network.sendToAll(randomness);
-			network.expectInputFromAll();
+			BigInteger value = this.commitment.getValue();
+			BigInteger randomness = this.commitment.getRandomness();
+			BigInteger[] opening = new BigInteger[] { value, randomness };
+			network.sendToAll(opening);
 			network.expectInputFromAll();
 			break;
 		case 1: // Receive openings from all parties and check they are valid
-			Map<Integer, byte[][]> openings = receiveFromAllMap(network);
+			Map<Integer, BigInteger[]> openings = receiveFromAllMap(network);
 			openingValidated = true;
-			byte[][] broadcastMessages = new byte[2 * openings.size()][];
+			BigInteger[] broadcastMessages = new BigInteger[2 * openings.size()];
 			for (int i : openings.keySet()) {
-				byte[][] open = openings.get(i);
-				byte[] com = commitments.get(i).toByteArray();
+				BigInteger[] open = openings.get(i);
+				BigInteger com = commitments.get(i);
 				boolean validate = SpdzCommitment.checkCommitment(
 						spdzPii.getMessageDigest(network.getThreadId()), com,
 						open[0], open[1]);
 				openingValidated = openingValidated && validate;
-				ss.put(i, new BigInteger(open[0]));
+				ss.put(i, open[0]);
 				broadcastMessages[(i - 1) * 2] = open[0];
 				broadcastMessages[(i - 1) * 2 + 1] = open[1];
 			}

@@ -26,6 +26,7 @@
  *******************************************************************************/
 package dk.alexandra.fresco.suite.spdz.gates;
 
+import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -37,17 +38,17 @@ import dk.alexandra.fresco.lib.helper.HalfCookedNativeProtocol;
 
 public abstract class SpdzNativeProtocol extends HalfCookedNativeProtocol {
 		
-	protected byte[] sendBroadcastValidation(MessageDigest dig, SCENetwork network, byte[] b, int players) {
-		dig.update(b);
+	protected byte[] sendBroadcastValidation(MessageDigest dig, SCENetwork network, BigInteger b, int players) {
+		dig.update(b.toByteArray());
 		byte[] digest = dig.digest();
 		dig.reset();
 		network.sendToAll(digest);		
 		return digest;
 	}
 	
-	protected byte[] sendBroadcastValidation(MessageDigest dig, SCENetwork network, List<byte[]> bs, int players) {
-		for (byte[] b: bs) {
-			dig.update(b);
+	protected byte[] sendBroadcastValidation(MessageDigest dig, SCENetwork network, List<BigInteger> bs, int players) {
+		for (BigInteger b: bs) {
+			dig.update(b.toByteArray());
 		}
 		byte[] digest = dig.digest();
 		dig.reset();
@@ -65,15 +66,11 @@ public abstract class SpdzNativeProtocol extends HalfCookedNativeProtocol {
 		return validated;
 	}	
 	
-	protected Map<Integer, byte[][]> receiveFromAllMap(SCENetwork network) {
-		Map<Integer, byte[][]> res = new HashMap<Integer, byte[][]>();
-		List<byte[]> values = network.receiveFromAll();
-		List<byte[]> randomnesses = network.receiveFromAll();
-		for (int i = 0; i < values.size(); i++) {
-			byte[][] tmp = new byte[2][];
-			tmp[0] = values.get(i);
-			tmp[1] = randomnesses.get(i);
-			res.put(i+1, tmp);
+	protected Map<Integer, BigInteger[]> receiveFromAllMap(SCENetwork network) {
+		Map<Integer, BigInteger[]> res = new HashMap<Integer, BigInteger[]>();
+		List<BigInteger[]> tmp = network.receiveFromAll();
+		for (int i = 0; i < tmp.size(); i++) {
+			res.put(i+1, tmp.get(i));
 		}
 		return res;
 	}	

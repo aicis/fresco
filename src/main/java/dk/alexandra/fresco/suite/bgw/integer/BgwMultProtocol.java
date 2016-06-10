@@ -81,11 +81,11 @@ public class BgwMultProtocol extends BgwProtocol implements MultProtocol {
 			outC.value = inA.value.mult(inB.value);
 			ShamirShare[] reshares = ShamirShare.createShares(
 					outC.value.getField(), n, threshold);
-			network.sendSharesToAll(sharesToBytes(reshares));
+			network.sendSharesToAll(reshares);
 			network.expectInputFromAll();
 			return EvaluationStatus.HAS_MORE_ROUNDS;
 		case 1:
-			List<ShamirShare> shares = bytesToShares(network.receiveFromAll());
+			List<ShamirShare> shares = network.receiveFromAll();
 			outC.value = new ShamirShare(resourcePool.getMyId(),
 					ShamirShare.recombine(shares, shares.size()));
 			return EvaluationStatus.IS_DONE;

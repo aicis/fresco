@@ -101,9 +101,8 @@ public class SpdzMultProtocol extends SpdzNativeProtocol implements MultProtocol
 				SpdzElement epsilon = in1.value.subtract(triple.getA());
 				SpdzElement delta = in2.value.subtract(triple.getB());
 
-				network.sendToAll(epsilon.getShare().toByteArray());
-				network.sendToAll(delta.getShare().toByteArray());				
-				network.expectInputFromAll();
+				network.sendToAll(new BigInteger[] { epsilon.getShare(),
+						delta.getShare() });
 				network.expectInputFromAll();
 				this.epsilon = epsilon;
 				this.delta = delta;
@@ -131,8 +130,9 @@ public class SpdzMultProtocol extends SpdzNativeProtocol implements MultProtocol
 			BigInteger[] epsilonShares = new BigInteger[noOfPlayers];
 			BigInteger[] deltaShares = new BigInteger[noOfPlayers];
 			for (int i = 0; i < noOfPlayers; i++) {
-				epsilonShares[i] = new BigInteger(network.receive(i + 1));
-				deltaShares[i] = new BigInteger(network.receive(i + 1));
+				BigInteger[] shares = network.receive(i + 1);
+				epsilonShares[i] = shares[0];
+				deltaShares[i] = shares[1];
 			}
 			SpdzElement res = triple.getC();
 			BigInteger e = epsilonShares[0];

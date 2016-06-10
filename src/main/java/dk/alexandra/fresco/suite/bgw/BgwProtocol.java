@@ -27,8 +27,6 @@
 package dk.alexandra.fresco.suite.bgw;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 import dk.alexandra.fresco.lib.helper.HalfCookedNativeProtocol;
@@ -42,20 +40,4 @@ public abstract class BgwProtocol extends HalfCookedNativeProtocol {
 		}
 		return res;
 	}	
-	
-	protected byte[][] sharesToBytes(ShamirShare[] shares) {
-		byte[][] res = new byte[shares.length][];
-		for(int i =0; i < shares.length; i++) {
-			res[i] = shares[i].getPayload();
-		}
-		return res;
-	}
-	
-	protected List<ShamirShare> bytesToShares(List<byte[]> bytes) {
-		List<ShamirShare> shares = new ArrayList<>();
-		for(byte[] b : bytes) {
-			shares.add(new ShamirShare(b));
-		}
-		return shares;
-	}
 }

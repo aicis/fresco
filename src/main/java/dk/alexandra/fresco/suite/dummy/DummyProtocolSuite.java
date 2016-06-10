@@ -62,11 +62,5 @@ public class DummyProtocolSuite implements ProtocolSuite {
 		// No destroy needed.
 	}
 
-	@Override
-	public int getMessageSize() {
-		// TODO Auto-generated method stub
-		return 1;
-	}
-
 
 }

@@ -26,6 +26,7 @@
  *******************************************************************************/
 package dk.alexandra.fresco.framework.network;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -45,14 +46,14 @@ public interface SCENetwork {
 	 *            The id of the player you want input from. Id's start from 1.
 	 * @return
 	 */
-	public byte[] receive(int id);
+	public <T extends Serializable> T receive(int id);
 
 	/**
 	 * Retrieves input from all players (including yourself)
 	 * 
 	 * @return
 	 */
-	public List<byte[]> receiveFromAll();
+	public <T extends Serializable> List<T> receiveFromAll();
 
 	/**
 	 * Queues up a value to be send towards the given id. Values are not send by
@@ -61,31 +62,29 @@ public interface SCENetwork {
 	 * 
 	 * @param id
 	 *            The id whom you want to send to. Id's start from 1.
-	 * @param bytes
-	 *            The bytes to send
+	 * @param o
+	 *            The value to send
 	 */
-	public void send(int id, byte[] bytes);
+	public void send(int id, Serializable o);
 
 	/**
 	 * Queues up a value to be send to all parties (yourself included). Values
 	 * are not send by TCP by calling this method, but queued up for the higher
 	 * layer to send later.
 	 * 
-	 * @param bytes
-	 *            The bytes to send to all parties
+	 * @param o
+	 *            The value to send
 	 */
-	public void sendToAll(byte[] bytes);
+	public void sendToAll(Serializable o);
 
 	/**
 	 * Queues up different values to be send to all parties (yourself included).
 	 * Values are not send by TCP by calling this method, but queued up for the
 	 * higher layer to send later.
 	 * 
-	 * @param bytes
-	 *            array of byte arrays that has to be the same size as the
-	 *            number of parties in the computation.
+	 * @param o
 	 */
-	public void sendSharesToAll(byte[][] bytes);
+	public void sendSharesToAll(Serializable[] o);
 
 	/**
 	 * Let's the network strategy know that you expect input from the given id
@@ -102,12 +101,10 @@ public interface SCENetwork {
 	 * everyone next round.
 	 */
 	public void expectInputFromAll();
-
-	// TODO: Remove from here when possible. Requires solution to preprocessed
-	// data.
+	
+	//TODO: Remove from here when possible. Requires solution to preprocessed data.
 	/**
 	 * Returns the threadId that this protocol network is part of.
-	 * 
 	 * @return
 	 */
 	public int getThreadId();

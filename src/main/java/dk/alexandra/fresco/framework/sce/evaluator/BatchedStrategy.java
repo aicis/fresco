@@ -112,17 +112,17 @@ public class BatchedStrategy {
 				}
 			}
 			// Send/Receive data for this round
-			ArrayList<Map<Integer, Queue<byte[]>>> inputs = new ArrayList<Map<Integer, Queue<byte[]>>>(numOfProtocols);
+			ArrayList<Map<Integer, Queue<Serializable>>> inputs = new ArrayList<Map<Integer, Queue<Serializable>>>(numOfProtocols);
 			for (int i = 0; i < numOfProtocols; i++) {
-				inputs.add(new HashMap<Integer, Queue<byte[]>>());
+				inputs.add(new HashMap<Integer, Queue<Serializable>>());
 			}
 			for (int pId = 1; pId <= rp.getNoOfParties(); pId++) {
 				// If the current player id is you send your messages
 				if (pId == rp.getMyId()) { 
 					for (int i = 0; i < numOfProtocols; i++) {
 						SCENetworkImpl sceNet = sceNetworks[i];
-						Map<Integer, Queue<byte[]>> output = sceNet.getOutputFromThisRound();
-						for (Map.Entry<Integer, Queue<byte[]>> e: output.entrySet()) {
+						Map<Integer, Queue<Serializable>> output = sceNet.getOutputFromThisRound();
+						for (Map.Entry<Integer, Queue<Serializable>> e: output.entrySet()) {
 							network.send(channel, e.getKey(), e.getValue().size());
 							for (Serializable s: e.getValue()) {
 								network.send(channel, e.getKey(), s);
@@ -133,12 +133,12 @@ public class BatchedStrategy {
 				// Receive messages from the current player id
 				for (int i = 0; i < numOfProtocols; i++) {
 					SCENetworkImpl sceNet = sceNetworks[i];
-					Map<Integer, Integer> expectInputFrom = sceNet.getExpectedInputForNextRound();
-					if (expectInputFrom.get(pId) != null && expectInputFrom.get(pId) > 0) {
+					Set<Integer> expectedInput = sceNet.getExpectedInputForNextRound();
+					if (expectedInput.contains(pId)) {
 						int numMessages = network.receive(channel, pId);
-						Queue<byte[]> messages = new LinkedBlockingQueue<byte[]>();
+						Queue<Serializable> messages = new LinkedBlockingQueue<Serializable>();
 						for (int j = 0; j < numMessages; j++) {
-							byte[] s = network.receive(channel, pId);
+							Serializable s = network.receive(channel, pId);
 							messages.offer(s);
 						}
 						inputs.get(i).put(pId, messages);

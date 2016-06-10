@@ -67,11 +67,11 @@ public class BgwRandomIntProtocol extends BgwProtocol implements Protocol {
 					.mod(mod);
 			ShamirShare[] reshares = ShamirShare.createShares(secret, parties,
 					treshold);
-			network.sendSharesToAll(sharesToBytes(reshares));
+			network.sendSharesToAll(reshares);
 			network.expectInputFromAll();
 			return EvaluationStatus.HAS_MORE_ROUNDS;
 		case 1:
-			List<ShamirShare> tmp = bytesToShares(network.receiveFromAll());
+			List<ShamirShare> tmp = network.receiveFromAll();
 			reshares = (ShamirShare[]) tmp.toArray();
 			BigInteger ll = ShamirShare.recombine(reshares, parties);
 			this.output.value = new ShamirShare(resourcePool.getMyId(), ll);

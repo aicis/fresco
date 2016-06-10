@@ -27,8 +27,8 @@
 package dk.alexandra.fresco.suite.spdz.evaluation.strategy;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.math.BigInteger;
-import java.nio.ByteBuffer;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
@@ -141,9 +141,9 @@ public class SpdzProtocolSuite implements ProtocolSuite {
 		Util.setModulus(this.p);
 		byte[] bytes = p.toByteArray();
 		if (bytes[0] == 0) {
-			Util.size = bytes.length - 1;
+			Util.size = p.toByteArray().length - 1;
 		} else {
-			Util.size = bytes.length;
+			Util.size = p.toByteArray().length;
 		}
 	}
 
@@ -178,7 +178,7 @@ public class SpdzProtocolSuite implements ProtocolSuite {
 	private void MACCheck() throws IOException {
 		// TODO: This is not truly random
 		BigInteger s = new BigInteger(Util.getModulus().bitLength(), rand).mod(Util.getModulus());
-		SpdzCommitment commitment = new SpdzCommitment(this.digs[0], s.toByteArray(), rand);
+		SpdzCommitment commitment = new SpdzCommitment(this.digs[0], s, rand);
 		Map<Integer, BigInteger> comms = new HashMap<Integer, BigInteger>();
 		SpdzCommitProtocol comm = new SpdzCommitProtocol(commitment, comms);
 		Map<Integer, BigInteger> ss = new HashMap<Integer, BigInteger>();
@@ -186,22 +186,74 @@ public class SpdzProtocolSuite implements ProtocolSuite {
 
 		SCENetworkImpl protocolNetwork = new SCENetworkImpl(this.rp.getNoOfParties(), 0);
 
-		runProtocol(protocolNetwork, comm, open);
+		EvaluationStatus status;
+		int i = 0;
+		do {
+			status = comm.evaluate(i, this.rp, protocolNetwork);
+			i++;
+			// send phase
+			Map<Integer, Queue<Serializable>> output = protocolNetwork.getOutputFromThisRound();
+			for (int pId : output.keySet()) {
+				// send array since queue is not serializable
+				network.send("0", pId, output.get(pId).toArray(new Serializable[0]));
+			}
+
+			// receive phase
+			Map<Integer, Queue<Serializable>> inputForThisRound = new HashMap<Integer, Queue<Serializable>>();
+			for (int pId : protocolNetwork.getExpectedInputForNextRound()) {
+				Serializable[] messages = network.receive("0", pId);
+				Queue<Serializable> q = new LinkedBlockingQueue<Serializable>();
+				// convert back from array to queue.
+				for (Serializable message : messages) {
+					q.offer(message);
+				}
+				inputForThisRound.put(pId, q);
+			}
+			protocolNetwork.setInput(inputForThisRound);
+			protocolNetwork.nextRound();
+		} while (status != EvaluationStatus.IS_DONE);
+
+		i = 0;
+		do {
+			status = open.evaluate(i, this.rp, protocolNetwork);
+			i++;
+			// send phase
+			Map<Integer, Queue<Serializable>> output = protocolNetwork.getOutputFromThisRound();
+			for (int pId : output.keySet()) {
+				// send array since queue is not serializable
+				network.send("0", pId, output.get(pId).toArray(new Serializable[0]));
+			}
+
+			// receive phase
+			Map<Integer, Queue<Serializable>> inputForThisRound = new HashMap<Integer, Queue<Serializable>>();
+			for (int pId : protocolNetwork.getExpectedInputForNextRound()) {
+				Serializable[] messages = network.receive("0", pId);
+				Queue<Serializable> q = new LinkedBlockingQueue<Serializable>();
+				// convert back from array to queue.
+				for (Serializable message : messages) {
+					q.offer(message);
+				}
+				inputForThisRound.put(pId, q);
+			}
+			protocolNetwork.setInput(inputForThisRound);
+			protocolNetwork.nextRound();
+		} while (status != EvaluationStatus.IS_DONE);
 
 		// Add all s's to get the common random value:
 		s = BigInteger.ZERO;
 		for (BigInteger otherS : ss.values()) {
 			s = s.add(otherS);
 		}
-		s = s.mod(getModulus());
 
+		// TODO: Need to gather all values from all stores in a smart manner
+		// that makes the check good.
 		List<BigInteger> as = this.store[0].getOpenedValues();
 		int t = as.size();
 
 		BigInteger[] rs = new BigInteger[t];
 		MessageDigest H = new Util().getHashFunction();
 		BigInteger r_temp = s;
-		for (int i = 0; i < t; i++) {
+		for (i = 0; i < t; i++) {
 			r_temp = new BigInteger(H.digest(r_temp.toByteArray())).mod(Util.getModulus());
 			rs[i] = r_temp;
 		}
@@ -209,7 +261,7 @@ public class SpdzProtocolSuite implements ProtocolSuite {
 		int index = 0;
 		for (BigInteger aa : as) {
 			a = a.add(aa.multiply(rs[index++])).mod(Util.getModulus());
-		}		
+		}
 		// compute gamma_i as the sum of all MAC's on the opened values times
 		// r_j.
 		List<SpdzElement> closedValues = store[0].getClosedValues();
@@ -226,13 +278,64 @@ public class SpdzProtocolSuite implements ProtocolSuite {
 		// compute delta_i as: gamma_i - alpha_i*a
 		BigInteger delta = gamma.subtract(store[0].getSSK().multiply(a)).mod(Util.getModulus());
 		// Commit to delta and open it afterwards
-		commitment = new SpdzCommitment(this.digs[0], delta.toByteArray(), rand);
+		commitment = new SpdzCommitment(this.digs[0], delta, rand);
 		comms = new HashMap<Integer, BigInteger>();
 		comm = new SpdzCommitProtocol(commitment, comms);
 		ss = new HashMap<Integer, BigInteger>();
 		open = new SpdzOpenCommitProtocol(commitment, comms, ss);
 
-		runProtocol(protocolNetwork, comm, open);
+		status = null;
+		i = 0;
+		do {
+			status = comm.evaluate(i, this.rp, protocolNetwork);
+			i++;
+			// send phase
+			Map<Integer, Queue<Serializable>> output = protocolNetwork.getOutputFromThisRound();
+			for (int pId : output.keySet()) {
+				// send array since queue is not serializable
+				network.send("0", pId, output.get(pId).toArray(new Serializable[0]));
+			}
+
+			// receive phase
+			Map<Integer, Queue<Serializable>> inputForThisRound = new HashMap<Integer, Queue<Serializable>>();
+			for (int pId : protocolNetwork.getExpectedInputForNextRound()) {
+				Serializable[] messages = network.receive("0", pId);
+				Queue<Serializable> q = new LinkedBlockingQueue<Serializable>();
+				// convert back from array to queue.
+				for (Serializable message : messages) {
+					q.offer(message);
+				}
+				inputForThisRound.put(pId, q);
+			}
+			protocolNetwork.setInput(inputForThisRound);
+			protocolNetwork.nextRound();
+		} while (status != EvaluationStatus.IS_DONE);
+
+		i = 0;
+		do {
+			status = open.evaluate(i, this.rp, protocolNetwork);
+			i++;
+			// send phase
+			Map<Integer, Queue<Serializable>> output = protocolNetwork.getOutputFromThisRound();
+			for (int pId : output.keySet()) {
+				// send array since queue is not serializable
+				network.send("0", pId, output.get(pId).toArray(new Serializable[0]));
+			}
+
+			// receive phase
+			Map<Integer, Queue<Serializable>> inputForThisRound = new HashMap<Integer, Queue<Serializable>>();
+			for (int pId : protocolNetwork.getExpectedInputForNextRound()) {
+				Serializable[] messages = network.receive("0", pId);
+				Queue<Serializable> q = new LinkedBlockingQueue<Serializable>();
+				// convert back from array to queue.
+				for (Serializable message : messages) {
+					q.offer(message);
+				}
+				inputForThisRound.put(pId, q);
+			}
+			protocolNetwork.setInput(inputForThisRound);
+			protocolNetwork.nextRound();
+		} while (status != EvaluationStatus.IS_DONE);
 
 		BigInteger deltaSum = BigInteger.ZERO;
 		for (BigInteger d : ss.values()) {
@@ -254,95 +357,4 @@ public class SpdzProtocolSuite implements ProtocolSuite {
 			store.shutdown();
 		}
 	}
-
-	@Override
-	public int getMessageSize() {
-		//TODO: Maybe this can be fixed such that the fast network can be used.
-		return -1;
-	}
-	
-	private void runProtocol(SCENetworkImpl protocolNetwork, SpdzCommitProtocol comm, SpdzOpenCommitProtocol open) throws IOException {
-		EvaluationStatus status;
-		int i = 0;
-		String DEFAULT_CHANNEL = "0";
-		do {
-			status = comm.evaluate(i, this.rp, protocolNetwork);			
-			//send phase
-			Map<Integer, Queue<byte[]>> output = protocolNetwork.getOutputFromThisRound();				
-			for(int pId : output.keySet()) {
-				//send array since queue is not serializable
-				Queue<byte[]> toSend = output.get(pId);
-				int totalSize = 0;
-				for(byte[] b : toSend) {
-					totalSize+=b.length;
-				}
-				ByteBuffer buffer = ByteBuffer.allocate(totalSize+2*toSend.size());
-				for(byte[] bytes : toSend) {
-					buffer.putShort((short)(bytes.length));
-					buffer.put(bytes);
-				}
-				this.network.send(DEFAULT_CHANNEL, pId, buffer.array());					
-			}
-			
-			//receive phase
-			Map<Integer, Queue<byte[]>> inputForThisRound = new HashMap<Integer, Queue<byte[]>>();
-			Map<Integer, Integer> expectedInputs = protocolNetwork.getExpectedInputForNextRound();
-			for(int pId : expectedInputs.keySet()) {
-				ByteBuffer buffer = ByteBuffer.wrap(this.network.receive(DEFAULT_CHANNEL, pId));
-				buffer.position(0);
-				Queue<byte[]> q = new LinkedBlockingQueue<>();
-				while(buffer.hasRemaining()) {
-					int size = buffer.getShort();
-					byte[] message = new byte[size];
-					buffer.get(message);
-					q.offer(message);
-				}					
-				inputForThisRound.put(pId, q);
-			}
-			protocolNetwork.setInput(inputForThisRound);				
-			protocolNetwork.nextRound();
-			i++;
-		} while (status.equals(EvaluationStatus.HAS_MORE_ROUNDS));		
-
-		i = 0;
-		do {
-			status = open.evaluate(i, this.rp, protocolNetwork);			
-			//send phase
-			Map<Integer, Queue<byte[]>> output = protocolNetwork.getOutputFromThisRound();				
-			for(int pId : output.keySet()) {
-				//send array since queue is not serializable
-				Queue<byte[]> toSend = output.get(pId);
-				int totalSize = 0;
-				for(byte[] b : toSend) {
-					totalSize+=b.length;
-				}
-				ByteBuffer buffer = ByteBuffer.allocate(totalSize+2*toSend.size());
-				for(byte[] bytes : toSend) {
-					buffer.putShort((short)(bytes.length));
-					buffer.put(bytes);
-				}
-				this.network.send(DEFAULT_CHANNEL, pId, buffer.array());					
-			}
-			
-			//receive phase
-			Map<Integer, Queue<byte[]>> inputForThisRound = new HashMap<Integer, Queue<byte[]>>();
-			Map<Integer, Integer> expectedInputs = protocolNetwork.getExpectedInputForNextRound();
-			for(int pId : expectedInputs.keySet()) {
-				ByteBuffer buffer = ByteBuffer.wrap(this.network.receive(DEFAULT_CHANNEL, pId));
-				buffer.position(0);
-				Queue<byte[]> q = new LinkedBlockingQueue<>();
-				while(buffer.hasRemaining()) {
-					int size = buffer.getShort();
-					byte[] message = new byte[size];
-					buffer.get(message);
-					q.offer(message);
-				}					
-				inputForThisRound.put(pId, q);
-			}
-			protocolNetwork.setInput(inputForThisRound);				
-			protocolNetwork.nextRound();
-			i++;
-		} while (status.equals(EvaluationStatus.HAS_MORE_ROUNDS));
-	}
-	
 }

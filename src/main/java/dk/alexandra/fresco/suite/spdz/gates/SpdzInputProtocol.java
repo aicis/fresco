@@ -88,16 +88,15 @@ public class SpdzInputProtocol extends SpdzNativeProtocol implements CloseIntPro
 			if (myId == this.inputter) {
 				BigInteger bcValue = this.input.subtract(this.inputMask.getRealValue());
 				bcValue = bcValue.mod(modulus);	
-				network.sendToAll(Util.convertBigIntToBytes(bcValue));
+				network.sendToAll(bcValue);
 			}
 			network.expectInputFromPlayer(inputter);
 			return EvaluationStatus.HAS_MORE_ROUNDS;
 		case 1:
-			byte[] value_masked_bytes = network.receive(inputter);
+			this.value_masked = network.receive(inputter);
 			this.digest = sendBroadcastValidation(
 					spdzPii.getMessageDigest(network.getThreadId()), network,
-					value_masked_bytes, players);
-			this.value_masked = new BigInteger(value_masked_bytes);
+					value_masked, players);
 			network.expectInputFromAll();
 			return EvaluationStatus.HAS_MORE_ROUNDS;
 		case 2:

@@ -76,12 +76,6 @@ public class LR15ProtocolSuite implements ProtocolSuite {
 		
 	}
 
-	@Override
-	public int getMessageSize() {
-		// TODO Auto-generated method stub
-		return -1;
-	}
-
 	
 
 }

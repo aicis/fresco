@@ -41,9 +41,10 @@ import dk.alexandra.fresco.suite.tinytables.prepro.TinyTablePreproProtocolSuite;
 public interface ProtocolSuite {
 
 	/**
-	 * Initializes the protocol suite by supplying any needed resources to the
-	 * protocol suite. The protocol invocation implementation is then in charge
-	 * of supplying the needed resources to it's internal protocols when needed.
+	 * Initializes the protocol suite by supplying any needed
+	 * resources to the protocol suite. The protocol invocation implementation is then
+	 * in charge of supplying the needed resources to it's internal protocols
+	 * when needed.
 	 * 
 	 * @param resourcePool
 	 * @param conf
@@ -52,10 +53,10 @@ public interface ProtocolSuite {
 	public void init(ResourcePool resourcePool, ProtocolSuiteConfiguration conf);
 
 	/**
-	 * Let's the protocol suite know that now is a possible point of
-	 * synchronization. The invariant is that all threads are done executing.
-	 * This means that no network connections are busy any more as all gates up
-	 * until now has been evaluated.
+	 * Let's the protocol suite know that now is a possible point of synchronization.
+	 * The invariant is that all threads are done executing. This means that no
+	 * network connections are busy any more as all gates up until now has been
+	 * evaluated.
 	 * 
 	 * @param gatesEvaluated
 	 *            Indicates how many gates was evaluated since last call to
@@ -65,8 +66,8 @@ public interface ProtocolSuite {
 	public void synchronize(int gatesEvaluated) throws MPCException;
 
 	/**
-	 * Let the protocol suite know that the evaluation has reached it's end.
-	 * Runtime can then do cleanup or resume background activities if needed.
+	 * Let the protocol suite know that the evaluation has reached it's end. Runtime
+	 * can then do cleanup or resume background activities if needed.
 	 */
 	public void finishedEval();
 
@@ -75,19 +76,11 @@ public interface ProtocolSuite {
 	 * close open streams and similar.
 	 */
 	public void destroy();
+	
+	
+	
 
-	/**
-	 * Returns the size in bytes of the messages send by the native protocols.
-	 * This is needed by the evaluators in order to optimize the network
-	 * traffic. If the size varies or is unknown, return -1.
-	 * 
-	 * If < 1 is returned, the evaluators will switch to a more expensive
-	 * pattern (sending the message size first)
-	 * 
-	 * @return
-	 */
-	public int getMessageSize();
-
+	
 	/**
 	 * The protocol suites currently supported by the framework.
 	 *
@@ -101,11 +94,11 @@ public interface ProtocolSuite {
 		res.add("spdz");
 		return res;
 	}
-
+	
 	public static String protocolSuiteToString(ProtocolSuite suite) {
-		if (suite instanceof BgwProtocolSuite) {
+		if(suite instanceof BgwProtocolSuite) {
 			return "bgw";
-		} else if (suite instanceof SpdzProtocolSuite) {
+		} else if(suite instanceof SpdzProtocolSuite) {
 			return "spdz";
 		} else if (suite instanceof TinyTablePreproProtocolSuite) {
 			return "tinytablesprepro";
@@ -114,9 +107,8 @@ public interface ProtocolSuite {
 		} else if (suite instanceof DummyProtocolSuite) {
 			return "dummy";
 		} else {
-			throw new IllegalArgumentException(
-					"FRESCO does not currently know about the given protocol suite: " + suite);
+			throw new IllegalArgumentException("FRESCO does not currently know about the given protocol suite: " +suite);
 		}
 	}
-
+	
 }

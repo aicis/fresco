@@ -26,8 +26,10 @@
  *******************************************************************************/
 package dk.alexandra.fresco.framework.network;
 
+import java.io.Serializable;
 import java.util.Map;
 import java.util.Queue;
+import java.util.Set;
 
 /**
  * Supplies the higher level layer with the outputs that the protocol queued up
@@ -40,15 +42,11 @@ import java.util.Queue;
  */
 public interface SCENetworkSupplier {
 
-	public void setInput(Map<Integer, Queue<byte[]>> inputForThisRound);
+	public void setInput(Map<Integer, Queue<Serializable>> inputForThisRound);
+	
+	public Map<Integer, Queue<Serializable>> getOutputFromThisRound();
 
-	public Map<Integer, Queue<byte[]>> getOutputFromThisRound();
-
-	/**
-	 * Returns the number of messages expected from each party.
-	 * @return
-	 */
-	public Map<Integer, Integer> getExpectedInputForNextRound();
+	public Set<Integer> getExpectedInputForNextRound();
 
 	/**
 	 * Clears the internal maps to ensure that the returned values next round is
