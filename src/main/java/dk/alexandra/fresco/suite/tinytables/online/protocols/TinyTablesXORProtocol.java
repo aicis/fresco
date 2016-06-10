@@ -24,72 +24,46 @@
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
  *******************************************************************************/
-package dk.alexandra.fresco.suite.tinytables.online;
-
-import java.util.HashMap;
-import java.util.Map;
+package dk.alexandra.fresco.suite.tinytables.online.protocols;
 
 import dk.alexandra.fresco.framework.MPCException;
-import dk.alexandra.fresco.framework.sce.configuration.ProtocolSuiteConfiguration;
+import dk.alexandra.fresco.framework.network.SCENetwork;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
-import dk.alexandra.fresco.suite.ProtocolSuite;
-import dk.alexandra.fresco.suite.tinytables.storage.TinyTableDummyStorage;
-import dk.alexandra.fresco.suite.tinytables.storage.TinyTableStorage;
-import dk.alexandra.fresco.suite.tinytables.storage.TinyTableStorageImpl;
+import dk.alexandra.fresco.framework.value.Value;
+import dk.alexandra.fresco.lib.field.bool.XorProtocol;
+import dk.alexandra.fresco.suite.tinytables.online.datatypes.TinyTablesSBool;
 
-public class TinyTableProtocolSuite implements ProtocolSuite{
+public class TinyTablesXORProtocol extends TinyTablesProtocol implements XorProtocol{
 
-	private TinyTableStorage storage;
-	private static volatile Map<Integer, TinyTableProtocolSuite> instances = new HashMap<>();	
+	private TinyTablesSBool inLeft, inRight, out;
 	
-	public static TinyTableProtocolSuite getInstance(int id) {
-		if(instances.get(id) == null) {			
-			instances.put(id, new TinyTableProtocolSuite(id));
+	public TinyTablesXORProtocol(int id, TinyTablesSBool inLeft, TinyTablesSBool inRight, TinyTablesSBool out) {
+		super();
+		this.id = id;
+		this.inLeft = inLeft;
+		this.inRight = inRight;
+		this.out = out;
+	}
+
+	@Override
+	public Value[] getInputValues() {
+		return new Value[] {inLeft, inRight};
+	}
+
+	@Override
+	public Value[] getOutputValues() {
+		return new Value[] {out};
+	}
+
+	@Override
+	public EvaluationStatus evaluate(int round, ResourcePool resourcePool, SCENetwork network) {
+		if(round == 0) {
+			// Free XOR
+			this.out.setValue(inLeft.getValue() ^ inRight.getValue());
+			return EvaluationStatus.IS_DONE;
+		} else {
+			throw new MPCException("Cannot evaluate XOR in round > 0");
 		}
-		return instances.get(id);
-	}
-	
-	private TinyTableProtocolSuite(int id) {
-		this.storage = new TinyTableDummyStorage(id);
-	}
-	
-	@Override
-	public void init(ResourcePool resourcePool, ProtocolSuiteConfiguration conf) {
-		TinyTableConfiguration ninjaConfig = (TinyTableConfiguration)conf;
-		if(!ninjaConfig.useDummy()) {
-			this.storage = new TinyTableStorageImpl(resourcePool.getStreamedStorage());	
-		}		
-	}
-	
-	public TinyTableStorage getStorage() {
-		return this.storage;
-	}
-
-	public void setStorage(TinyTableStorage storage) {
-		this.storage = storage;
-	}
-	
-	@Override
-	public void synchronize(int gatesEvaluated) throws MPCException {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void finishedEval() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void destroy() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public int getMessageSize() {
-		return 1;
 	}
 
 }

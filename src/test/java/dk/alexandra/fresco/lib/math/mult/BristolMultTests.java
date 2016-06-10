@@ -49,7 +49,7 @@ import dk.alexandra.fresco.lib.helper.bristol.BristolCircuit;
 import dk.alexandra.fresco.lib.helper.builder.BasicLogicBuilder;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
 import dk.alexandra.fresco.lib.logic.AbstractBinaryFactory;
-import dk.alexandra.fresco.suite.tinytables.prepro.TinyTablePreproConfiguration;
+import dk.alexandra.fresco.suite.tinytables.prepro.TinyTablesPreproConfiguration;
 
 
 /**
@@ -162,7 +162,7 @@ public class BristolMultTests {
 
 					sce.runApplication(md5App);
 
-					if (conf.protocolSuiteConf instanceof TinyTablePreproConfiguration) {
+					if (conf.protocolSuiteConf instanceof TinyTablesPreproConfiguration) {
 						// Do nothing
 					} else {
 						boolean[] expected = toBoolean(outv);

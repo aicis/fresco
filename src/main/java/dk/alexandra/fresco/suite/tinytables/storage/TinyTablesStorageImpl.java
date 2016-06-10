@@ -30,12 +30,12 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import dk.alexandra.fresco.framework.sce.resources.storage.StreamedStorage;
 
-public class TinyTableStorageImpl implements TinyTableStorage {
+public class TinyTablesStorageImpl implements TinyTablesStorage {
 
 	StreamedStorage storage;	
 	ConcurrentHashMap<Integer, TinyTable> map;
 	
-	public TinyTableStorageImpl(StreamedStorage storage) {
+	public TinyTablesStorageImpl(StreamedStorage storage) {
 		this.storage = storage;
 		map = new ConcurrentHashMap<>();
 	}

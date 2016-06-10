@@ -24,58 +24,16 @@
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
  *******************************************************************************/
-package dk.alexandra.fresco.suite.tinytables.online.datatypes;
+package dk.alexandra.fresco.suite.tinytables.online.protocols;
 
-import dk.alexandra.fresco.framework.value.OBool;
-import dk.alexandra.fresco.suite.tinytables.util.Encoding;
+import dk.alexandra.fresco.lib.helper.HalfCookedNativeProtocol;
 
-public class TinyTableOBool implements OBool{
+public abstract class TinyTablesProtocol extends HalfCookedNativeProtocol{
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -7615308960489978540L;
-	private boolean value;
-	private boolean isReady;
-
-	public TinyTableOBool() {
-		this.value = false;
-		this.isReady = false;
-	}
+	protected int id;
 	
-	public TinyTableOBool(boolean value) {
-		setValue(value);
-	}
-	
-	@Override
-	public byte[] getSerializableContent() {
-		return new byte[] { Encoding.encodeBoolean(value) };
-	}
-
-	@Override
-	public void setSerializableContent(byte[] val) {
-		setValue(Encoding.decodeBoolean(val[0]));
-	}
-
-	@Override
-	public boolean isReady() {
-		return isReady;
-	}
-	
-	@Override
-	public boolean getValue() {
-		return value;
-	}
-
-	@Override
-	public void setValue(boolean b) {
-		this.value = b;
-		this.isReady = true;
-	}
-
-	@Override
-	public String toString() {
-		return "NinjaOBool [value=" + value + "]";
+	public int getId() {
+		return id;
 	}
 
 }

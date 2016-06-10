@@ -57,12 +57,12 @@ import dk.alexandra.fresco.lib.bool.ComparisonBooleanTests;
 import dk.alexandra.fresco.lib.crypto.BristolCryptoTests;
 import dk.alexandra.fresco.lib.math.mult.BristolMultTests;
 import dk.alexandra.fresco.suite.ProtocolSuite;
-import dk.alexandra.fresco.suite.tinytables.online.TinyTableConfiguration;
-import dk.alexandra.fresco.suite.tinytables.online.TinyTableProtocolSuite;
-import dk.alexandra.fresco.suite.tinytables.prepro.TinyTablePreproConfiguration;
-import dk.alexandra.fresco.suite.tinytables.prepro.TinyTablePreproFactory;
-import dk.alexandra.fresco.suite.tinytables.prepro.TinyTablePreproProtocolSuite;
-import dk.alexandra.fresco.suite.tinytables.storage.TinyTableStorage;
+import dk.alexandra.fresco.suite.tinytables.online.TinyTablesConfiguration;
+import dk.alexandra.fresco.suite.tinytables.online.TinyTablesProtocolSuite;
+import dk.alexandra.fresco.suite.tinytables.prepro.TinyTablesPreproConfiguration;
+import dk.alexandra.fresco.suite.tinytables.prepro.TinyTablesPreproFactory;
+import dk.alexandra.fresco.suite.tinytables.prepro.TinyTablesPreproProtocolSuite;
+import dk.alexandra.fresco.suite.tinytables.storage.TinyTablesStorage;
 
 public class TestTinyTables {
 
@@ -93,23 +93,23 @@ public class TestTinyTables {
 
 			ProtocolSuiteConfiguration config = null;
 			if (preprocessing) {
-				config = new TinyTablePreproConfiguration();
-				((TinyTablePreproConfiguration) config)
-						.setTinyTableFactory(new TinyTablePreproFactory());
-				protocolSuite = TinyTablePreproProtocolSuite.getInstance(playerId);
+				config = new TinyTablesPreproConfiguration();
+				((TinyTablesPreproConfiguration) config)
+						.setTinyTableFactory(new TinyTablesPreproFactory());
+				protocolSuite = TinyTablesPreproProtocolSuite.getInstance(playerId);
 			} else {
-				config = new TinyTableConfiguration();
-				protocolSuite = TinyTableProtocolSuite.getInstance(playerId);
+				config = new TinyTablesConfiguration();
+				protocolSuite = TinyTablesProtocolSuite.getInstance(playerId);
 
 				/*
 				 * Load TinyTables from storage
 				 */
 				String filename = getFilenameForTest(playerId, name);
-				TinyTableStorage storage = loadTinyTables(filename);
+				TinyTablesStorage storage = loadTinyTables(filename);
 
 				if (storage != null) {
 					Reporter.info("Found TinyTables for " + name + " for player " + playerId);
-					TinyTableProtocolSuite.getInstance(playerId).setStorage(storage);
+					TinyTablesProtocolSuite.getInstance(playerId).setStorage(storage);
 				} else {
 					throw new MPCException("No TinyTables found for " + name + " for player "
 							+ playerId);
@@ -135,7 +135,7 @@ public class TestTinyTables {
 		 */
 		if (preprocessing) {
 			for (int playerId : netConf.keySet()) {
-				TinyTableStorage storage = TinyTablePreproProtocolSuite.getInstance(playerId)
+				TinyTablesStorage storage = TinyTablesPreproProtocolSuite.getInstance(playerId)
 						.getStorage();
 				String filename = getFilenameForTest(playerId, name);
 				storeTinyTables(storage, filename);
@@ -151,20 +151,20 @@ public class TestTinyTables {
 		return "tinytables/TinyTables_" + name + "_" + playerId;
 	}
 
-	private void storeTinyTables(TinyTableStorage tinyTableStorage, String filename)
+	private void storeTinyTables(TinyTablesStorage tinyTablesStorage, String filename)
 			throws IOException {
 		FileOutputStream fout = new FileOutputStream(filename);
 		ObjectOutputStream oos = new ObjectOutputStream(fout);
-		oos.writeObject(tinyTableStorage);
+		oos.writeObject(tinyTablesStorage);
 		System.out.println("Saving tables in file " + filename);
 		oos.close();
 	}
 
-	private TinyTableStorage loadTinyTables(String filename) throws IOException,
+	private TinyTablesStorage loadTinyTables(String filename) throws IOException,
 			ClassNotFoundException {
 		FileInputStream fin = new FileInputStream(filename);
 		ObjectInputStream is = new ObjectInputStream(fin);
-		TinyTableStorage storage = (TinyTableStorage) is.readObject();
+		TinyTablesStorage storage = (TinyTablesStorage) is.readObject();
 		is.close();
 		return storage;
 	}

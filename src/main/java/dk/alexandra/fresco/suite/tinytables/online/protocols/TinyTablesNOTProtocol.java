@@ -26,66 +26,40 @@
  *******************************************************************************/
 package dk.alexandra.fresco.suite.tinytables.online.protocols;
 
-import java.util.List;
-
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.network.SCENetwork;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.Value;
-import dk.alexandra.fresco.lib.field.bool.OpenBoolProtocol;
-import dk.alexandra.fresco.suite.tinytables.online.TinyTableProtocolSuite;
-import dk.alexandra.fresco.suite.tinytables.online.datatypes.TinyTableOBool;
-import dk.alexandra.fresco.suite.tinytables.online.datatypes.TinyTableSBool;
-import dk.alexandra.fresco.suite.tinytables.util.Encoding;
+import dk.alexandra.fresco.lib.field.bool.NotProtocol;
+import dk.alexandra.fresco.suite.tinytables.online.datatypes.TinyTablesSBool;
 
-public class TinyTableOpenToAllProtocol extends TinyTableProtocol implements OpenBoolProtocol{
+public class TinyTablesNOTProtocol extends TinyTablesProtocol implements NotProtocol{
 
-	private TinyTableSBool toOpen;
-	private TinyTableOBool opened;
+	private TinyTablesSBool in, out;
 	
-	public TinyTableOpenToAllProtocol(int id, TinyTableSBool toOpen, TinyTableOBool opened) {
-		super();
+	public TinyTablesNOTProtocol(int id, TinyTablesSBool in, TinyTablesSBool out) {
 		this.id = id;
-		this.toOpen = toOpen;
-		this.opened = opened;
+		this.in = in;
+		this.out = out;
 	}
 
 	@Override
 	public Value[] getInputValues() {
-		return new Value[] {toOpen};
+		return new Value[] { in };
 	}
 
 	@Override
 	public Value[] getOutputValues() {
-		return new Value[] {opened};
+		return new Value[] { out };
 	}
 
 	@Override
 	public EvaluationStatus evaluate(int round, ResourcePool resourcePool, SCENetwork network) {
-		TinyTableProtocolSuite ps = TinyTableProtocolSuite.getInstance(resourcePool.getMyId()); 
-
-		/*
-		 * When opening a value, all players send their shares of the masking
-		 * value r to the other players, and each player can then calculate the
-		 * unmasked value as the XOR of the masked value and all the shares of
-		 * the mask.
-		 */
-		switch(round) {
-		case 0: 
-			boolean myR = ps.getStorage().getMaskShare(id);
-			network.sendToAll(new byte[] { Encoding.encodeBoolean(myR) } );
-			network.expectInputFromAll();
-			return EvaluationStatus.HAS_MORE_ROUNDS;
-		case 1:
-			List<byte[]> shares = network.receiveFromAll();
-			boolean result = toOpen.getValue();
-			for (byte[] share : shares) {
-				result ^= Encoding.decodeBoolean(share[0]);
-			}
-			opened.setValue(result);
+		if (round == 0) {
+			this.out.setValue(!in.getValue());
 			return EvaluationStatus.IS_DONE;
-		default:
-			throw new MPCException("Cannot evaluate rounds larger than 1");
+		} else {
+			throw new MPCException("Cannot evaluate NOT in round > 0");
 		}
 	}
 

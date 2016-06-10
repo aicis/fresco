@@ -24,43 +24,67 @@
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
  *******************************************************************************/
-package dk.alexandra.fresco.suite.tinytables.online.protocols;
+package dk.alexandra.fresco.suite.tinytables.online;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import dk.alexandra.fresco.framework.MPCException;
-import dk.alexandra.fresco.framework.network.SCENetwork;
+import dk.alexandra.fresco.framework.sce.configuration.ProtocolSuiteConfiguration;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
-import dk.alexandra.fresco.framework.value.Value;
-import dk.alexandra.fresco.lib.field.bool.NotProtocol;
-import dk.alexandra.fresco.suite.tinytables.online.datatypes.TinyTableSBool;
+import dk.alexandra.fresco.suite.ProtocolSuite;
+import dk.alexandra.fresco.suite.tinytables.storage.TinyTablesDummyStorage;
+import dk.alexandra.fresco.suite.tinytables.storage.TinyTablesStorage;
+import dk.alexandra.fresco.suite.tinytables.storage.TinyTablesStorageImpl;
 
-public class TinyTableNOTProtocol extends TinyTableProtocol implements NotProtocol{
+public class TinyTablesProtocolSuite implements ProtocolSuite{
 
-	private TinyTableSBool in, out;
+	private TinyTablesStorage storage;
+	private static volatile Map<Integer, TinyTablesProtocolSuite> instances = new HashMap<>();	
 	
-	public TinyTableNOTProtocol(int id, TinyTableSBool in, TinyTableSBool out) {
-		this.id = id;
-		this.in = in;
-		this.out = out;
-	}
-
-	@Override
-	public Value[] getInputValues() {
-		return new Value[] { in };
-	}
-
-	@Override
-	public Value[] getOutputValues() {
-		return new Value[] { out };
-	}
-
-	@Override
-	public EvaluationStatus evaluate(int round, ResourcePool resourcePool, SCENetwork network) {
-		if (round == 0) {
-			this.out.setValue(!in.getValue());
-			return EvaluationStatus.IS_DONE;
-		} else {
-			throw new MPCException("Cannot evaluate NOT in round > 0");
+	public static TinyTablesProtocolSuite getInstance(int id) {
+		if(instances.get(id) == null) {			
+			instances.put(id, new TinyTablesProtocolSuite(id));
 		}
+		return instances.get(id);
+	}
+	
+	private TinyTablesProtocolSuite(int id) {
+		this.storage = new TinyTablesDummyStorage(id);
+	}
+	
+	@Override
+	public void init(ResourcePool resourcePool, ProtocolSuiteConfiguration conf) {
+		TinyTablesConfiguration tinyTableConfig = (TinyTablesConfiguration)conf;
+		if(!tinyTableConfig.useDummy()) {
+			this.storage = new TinyTablesStorageImpl(resourcePool.getStreamedStorage());	
+		}
+	}
+	
+	public TinyTablesStorage getStorage() {
+		return this.storage;
+	}
+
+	public void setStorage(TinyTablesStorage storage) {
+		this.storage = storage;
+	}
+	
+	@Override
+	public void synchronize(int gatesEvaluated) throws MPCException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void finishedEval() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void destroy() {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

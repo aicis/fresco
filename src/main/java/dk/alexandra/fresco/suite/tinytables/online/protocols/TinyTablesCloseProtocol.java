@@ -33,22 +33,22 @@ import dk.alexandra.fresco.framework.value.OBool;
 import dk.alexandra.fresco.framework.value.SBool;
 import dk.alexandra.fresco.framework.value.Value;
 import dk.alexandra.fresco.lib.field.bool.CloseBoolProtocol;
-import dk.alexandra.fresco.suite.tinytables.online.TinyTableProtocolSuite;
-import dk.alexandra.fresco.suite.tinytables.online.datatypes.TinyTableOBool;
-import dk.alexandra.fresco.suite.tinytables.online.datatypes.TinyTableSBool;
+import dk.alexandra.fresco.suite.tinytables.online.TinyTablesProtocolSuite;
+import dk.alexandra.fresco.suite.tinytables.online.datatypes.TinyTablesOBool;
+import dk.alexandra.fresco.suite.tinytables.online.datatypes.TinyTablesSBool;
 import dk.alexandra.fresco.suite.tinytables.util.Encoding;
 
-public class TinyTableCloseProtocol extends TinyTableProtocol implements CloseBoolProtocol {
+public class TinyTablesCloseProtocol extends TinyTablesProtocol implements CloseBoolProtocol {
 
 	private int inputter;
-	private TinyTableOBool in;
-	private TinyTableSBool out;
+	private TinyTablesOBool in;
+	private TinyTablesSBool out;
 	
-	public TinyTableCloseProtocol(int id, int inputter, OBool in, SBool out) {
+	public TinyTablesCloseProtocol(int id, int inputter, OBool in, SBool out) {
 		this.id = id;
 		this.inputter = inputter;
-		this.in = (TinyTableOBool)in;
-		this.out = (TinyTableSBool)out;
+		this.in = (TinyTablesOBool)in;
+		this.out = (TinyTablesSBool)out;
 	}
 	
 	@Override
@@ -63,7 +63,7 @@ public class TinyTableCloseProtocol extends TinyTableProtocol implements CloseBo
 
 	@Override
 	public EvaluationStatus evaluate(int round, ResourcePool resourcePool, SCENetwork network) {
-		TinyTableProtocolSuite ps = TinyTableProtocolSuite.getInstance(resourcePool.getMyId()); 
+		TinyTablesProtocolSuite ps = TinyTablesProtocolSuite.getInstance(resourcePool.getMyId()); 
 		switch(round) {
 		case 0: 			
 			if(resourcePool.getMyId() == this.inputter) {

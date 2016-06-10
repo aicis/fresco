@@ -24,46 +24,57 @@
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
  *******************************************************************************/
-package dk.alexandra.fresco.suite.tinytables.online.protocols;
+package dk.alexandra.fresco.suite.tinytables.storage;
 
-import dk.alexandra.fresco.framework.MPCException;
-import dk.alexandra.fresco.framework.network.SCENetwork;
-import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
-import dk.alexandra.fresco.framework.value.Value;
-import dk.alexandra.fresco.lib.field.bool.XorProtocol;
-import dk.alexandra.fresco.suite.tinytables.online.datatypes.TinyTableSBool;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
-public class TinyTableXORProtocol extends TinyTableProtocol implements XorProtocol{
+public class TinyTablesDummyStorage implements TinyTablesStorage {
 
-	private TinyTableSBool inLeft, inRight, out;
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -3455535991348570325L;
+	private Map<Integer, TinyTable> tinyTables = new ConcurrentHashMap<>();
+	private int storageId;
+	private Map<Integer, Boolean> maskShares = new ConcurrentHashMap<>();
 	
-	public TinyTableXORProtocol(int id, TinyTableSBool inLeft, TinyTableSBool inRight, TinyTableSBool out) {
-		super();
-		this.id = id;
-		this.inLeft = inLeft;
-		this.inRight = inRight;
-		this.out = out;
+	
+	public TinyTablesDummyStorage(int storageId) {
+		this.storageId = storageId;
 	}
 
 	@Override
-	public Value[] getInputValues() {
-		return new Value[] {inLeft, inRight};
-	}
-
-	@Override
-	public Value[] getOutputValues() {
-		return new Value[] {out};
-	}
-
-	@Override
-	public EvaluationStatus evaluate(int round, ResourcePool resourcePool, SCENetwork network) {
-		if(round == 0) {
-			// Free XOR
-			this.out.setValue(inLeft.getValue() ^ inRight.getValue());
-			return EvaluationStatus.IS_DONE;
-		} else {
-			throw new MPCException("Cannot evaluate XOR in round > 0");
+	public boolean lookupTinyTable(int id, boolean... inputs) {
+		TinyTable tinyTable = tinyTables.get(id);
+		if (tinyTable == null) {
+			throw new IllegalArgumentException("No TinyTable with ID " + id);
 		}
+		return tinyTable.getValue(inputs);
 	}
+
+	@Override
+	public TinyTable getTinyTable(int id) {
+		return tinyTables.get(id);
+	}
+
+	@Override
+	public void storeTinyTable(int id, TinyTable table) {
+		System.out.println("Storage(" + storageId + "): Storing TinyTable " + table + " for protocol with id " + id);
+		tinyTables.put(id, table);
+	}
+
+	@Override
+	public void storeMaskShare(int id, boolean r) {
+		System.out.println("Storage(" + storageId + "): Storing mask " + r + " for protocol with id " + id);
+		maskShares.put(id, r);
+	}
+
+	@Override
+	public boolean getMaskShare(int id) {
+		return maskShares.get(id);
+	}
+	
+	
 
 }

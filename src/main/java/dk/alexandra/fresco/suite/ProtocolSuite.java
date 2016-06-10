@@ -35,8 +35,8 @@ import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.suite.bgw.BgwProtocolSuite;
 import dk.alexandra.fresco.suite.dummy.DummyProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.evaluation.strategy.SpdzProtocolSuite;
-import dk.alexandra.fresco.suite.tinytables.online.TinyTableProtocolSuite;
-import dk.alexandra.fresco.suite.tinytables.prepro.TinyTablePreproProtocolSuite;
+import dk.alexandra.fresco.suite.tinytables.online.TinyTablesProtocolSuite;
+import dk.alexandra.fresco.suite.tinytables.prepro.TinyTablesPreproProtocolSuite;
 
 public interface ProtocolSuite {
 
@@ -100,9 +100,9 @@ public interface ProtocolSuite {
 			return "bgw";
 		} else if(suite instanceof SpdzProtocolSuite) {
 			return "spdz";
-		} else if (suite instanceof TinyTablePreproProtocolSuite) {
+		} else if (suite instanceof TinyTablesPreproProtocolSuite) {
 			return "tinytablesprepro";
-		} else if (suite instanceof TinyTableProtocolSuite) {
+		} else if (suite instanceof TinyTablesProtocolSuite) {
 			return "tinytables";
 		} else if (suite instanceof DummyProtocolSuite) {
 			return "dummy";

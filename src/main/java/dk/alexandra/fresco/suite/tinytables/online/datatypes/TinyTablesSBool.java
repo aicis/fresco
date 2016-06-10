@@ -24,28 +24,64 @@
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
  *******************************************************************************/
-package dk.alexandra.fresco.suite.tinytables.storage;
+package dk.alexandra.fresco.suite.tinytables.online.datatypes;
 
-import java.io.Serializable;
+import dk.alexandra.fresco.framework.value.SBool;
+import dk.alexandra.fresco.suite.tinytables.storage.TinyTable;
+import dk.alexandra.fresco.suite.tinytables.util.Encoding;
 
+public class TinyTablesSBool implements SBool {
 
-public interface TinyTableStorage extends Serializable {
-
-	/**
-	 * Looks up the table 
-	 * @param id
-	 * @param left
-	 * @param right
-	 * @return
-	 */
-	public boolean lookupTinyTable(int id, boolean ... inputs);	
-		
-	public TinyTable getTinyTable(int id);
+	private static final long serialVersionUID = 8582913017231020209L;
+	private boolean value;
+	private boolean isReady;
+	private TinyTable table;
 	
-	public void storeTinyTable(int id, TinyTable table);
+	public TinyTablesSBool() {
+		 value = false;
+		 isReady = false;
+	}
 	
-	public void storeMaskShare(int id, boolean r);
+	public TinyTablesSBool(boolean share) {
+		 this.value = share;
+		 isReady = true;
+	}
+
+	@Override
+	public byte[] getSerializableContent() {
+		return new byte[] { Encoding.encodeBoolean(value) };
+	}
+
+	@Override
+	public void setSerializableContent(byte[] val) {
+		setValue(Encoding.decodeBoolean(val[0]));
+	}
+
+	@Override
+	public boolean isReady() {
+		return this.isReady;
+	}
+
+	public boolean getValue() {
+		return value;
+	}
+
+	public void setValue(boolean b) {
+		this.value = b;
+		this.isReady = true;
+	}
+
+	@Override
+	public String toString() {
+		return "NinjaSBool [value=" + value + "]";
+	}
 	
-	public boolean getMaskShare(int id);
+	public void setTinyTable(TinyTable table) {
+		this.table = table;
+	}
+	
+	public TinyTable getTinyTable() {
+		return this.table;
+	}
 	
 }

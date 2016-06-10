@@ -35,30 +35,30 @@ import dk.alexandra.fresco.lib.field.bool.NotProtocol;
 import dk.alexandra.fresco.lib.field.bool.OpenBoolProtocol;
 import dk.alexandra.fresco.lib.field.bool.XorProtocol;
 import dk.alexandra.fresco.lib.logic.AbstractBinaryFactory;
-import dk.alexandra.fresco.suite.tinytables.online.datatypes.TinyTableOBool;
-import dk.alexandra.fresco.suite.tinytables.online.datatypes.TinyTableSBool;
-import dk.alexandra.fresco.suite.tinytables.online.protocols.TinyTableANDProtocol;
-import dk.alexandra.fresco.suite.tinytables.online.protocols.TinyTableCloseProtocol;
-import dk.alexandra.fresco.suite.tinytables.online.protocols.TinyTableNOTProtocol;
-import dk.alexandra.fresco.suite.tinytables.online.protocols.TinyTableOpenToAllProtocol;
-import dk.alexandra.fresco.suite.tinytables.online.protocols.TinyTableXORProtocol;
+import dk.alexandra.fresco.suite.tinytables.online.datatypes.TinyTablesOBool;
+import dk.alexandra.fresco.suite.tinytables.online.datatypes.TinyTablesSBool;
+import dk.alexandra.fresco.suite.tinytables.online.protocols.TinyTablesANDProtocol;
+import dk.alexandra.fresco.suite.tinytables.online.protocols.TinyTablesCloseProtocol;
+import dk.alexandra.fresco.suite.tinytables.online.protocols.TinyTablesNOTProtocol;
+import dk.alexandra.fresco.suite.tinytables.online.protocols.TinyTablesOpenToAllProtocol;
+import dk.alexandra.fresco.suite.tinytables.online.protocols.TinyTablesXORProtocol;
 
-public class TinyTableFactory extends AbstractBinaryFactory implements BasicLogicFactory {
+public class TinyTablesFactory extends AbstractBinaryFactory implements BasicLogicFactory {
 
 	private int counter;
 	
-	public TinyTableFactory() {
+	public TinyTablesFactory() {
 		this.counter = 0;
 	}
 	
 	@Override
 	public CloseBoolProtocol getCloseProtocol(int source, OBool open, SBool closed) {
-		return new TinyTableCloseProtocol(counter++, source, open, closed);
+		return new TinyTablesCloseProtocol(counter++, source, open, closed);
 	}
 
 	@Override
 	public OpenBoolProtocol getOpenProtocol(SBool closed, OBool open) {
-		return new TinyTableOpenToAllProtocol(counter++, (TinyTableSBool)closed, (TinyTableOBool)open);
+		return new TinyTablesOpenToAllProtocol(counter++, (TinyTablesSBool)closed, (TinyTablesOBool)open);
 	}
 
 	@Override
@@ -69,7 +69,7 @@ public class TinyTableFactory extends AbstractBinaryFactory implements BasicLogi
 
 	@Override
 	public SBool getSBool() {
-		return new TinyTableSBool();
+		return new TinyTablesSBool();
 	}
 
 	@Override
@@ -83,7 +83,7 @@ public class TinyTableFactory extends AbstractBinaryFactory implements BasicLogi
 
 	@Override
 	public SBool getKnownConstantSBool(boolean b) {
-		TinyTableSBool bool = new TinyTableSBool(b);
+		TinyTablesSBool bool = new TinyTablesSBool(b);
 		return bool;
 	}
 
@@ -98,17 +98,17 @@ public class TinyTableFactory extends AbstractBinaryFactory implements BasicLogi
 
 	@Override
 	public OBool getOBool() {
-		return new TinyTableOBool();
+		return new TinyTablesOBool();
 	}
 
 	@Override
 	public OBool getKnownConstantOBool(boolean b) {
-		return new TinyTableOBool(b);
+		return new TinyTablesOBool(b);
 	}
 
 	@Override
 	public AndProtocol getAndProtocol(SBool inLeft, SBool inRight, SBool out) {
-		return new TinyTableANDProtocol(counter++, (TinyTableSBool)inLeft, (TinyTableSBool)inRight, (TinyTableSBool)out);
+		return new TinyTablesANDProtocol(counter++, (TinyTablesSBool)inLeft, (TinyTablesSBool)inRight, (TinyTablesSBool)out);
 	}
 
 	@Override
@@ -118,12 +118,12 @@ public class TinyTableFactory extends AbstractBinaryFactory implements BasicLogi
 
 	@Override
 	public NotProtocol getNotProtocol(SBool in, SBool out) {
-		return new TinyTableNOTProtocol(counter++, (TinyTableSBool)in, (TinyTableSBool)out);
+		return new TinyTablesNOTProtocol(counter++, (TinyTablesSBool)in, (TinyTablesSBool)out);
 	}
 
 	@Override
 	public XorProtocol getXorProtocol(SBool inLeft, SBool inRight, SBool out) {
-		return new TinyTableXORProtocol(counter++, (TinyTableSBool)inLeft, (TinyTableSBool)inRight, (TinyTableSBool)out);
+		return new TinyTablesXORProtocol(counter++, (TinyTablesSBool)inLeft, (TinyTablesSBool)inRight, (TinyTablesSBool)out);
 	}
 
 	@Override

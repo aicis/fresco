@@ -24,35 +24,58 @@
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
  *******************************************************************************/
-package dk.alexandra.fresco.suite.tinytables.online;
+package dk.alexandra.fresco.suite.tinytables.online.datatypes;
 
-import dk.alexandra.fresco.framework.ProtocolFactory;
-import dk.alexandra.fresco.framework.sce.configuration.ProtocolSuiteConfiguration;
+import dk.alexandra.fresco.framework.value.OBool;
+import dk.alexandra.fresco.suite.tinytables.util.Encoding;
 
-public class TinyTableConfiguration implements ProtocolSuiteConfiguration{
+public class TinyTablesOBool implements OBool{
 
-	private ProtocolFactory ninjaFactory;
-	private boolean dummy;
-	
-	public TinyTableConfiguration() {
-		//default is real factory
-		ninjaFactory = new TinyTableFactory();
-		dummy = true;
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -7615308960489978540L;
+	private boolean value;
+	private boolean isReady;
+
+	public TinyTablesOBool() {
+		this.value = false;
+		this.isReady = false;
 	}
 	
-	public void setNinjaFactory(ProtocolFactory ninjaFactory) {
-		this.ninjaFactory = ninjaFactory;
+	public TinyTablesOBool(boolean value) {
+		setValue(value);
 	}
 	
-	public void setDummy(boolean useDummy) {
-		this.dummy = useDummy;
+	@Override
+	public byte[] getSerializableContent() {
+		return new byte[] { Encoding.encodeBoolean(value) };
+	}
+
+	@Override
+	public void setSerializableContent(byte[] val) {
+		setValue(Encoding.decodeBoolean(val[0]));
+	}
+
+	@Override
+	public boolean isReady() {
+		return isReady;
 	}
 	
-	public ProtocolFactory getProtocolFactory() {
-		return this.ninjaFactory;
-	}	
-	
-	public boolean useDummy() {
-		return dummy;
+	@Override
+	public boolean getValue() {
+		return value;
 	}
+
+	@Override
+	public void setValue(boolean b) {
+		this.value = b;
+		this.isReady = true;
+	}
+
+	@Override
+	public String toString() {
+		return "NinjaOBool [value=" + value + "]";
+	}
+
 }

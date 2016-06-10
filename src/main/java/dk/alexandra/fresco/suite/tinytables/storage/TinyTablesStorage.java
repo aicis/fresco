@@ -24,16 +24,28 @@
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
  *******************************************************************************/
-package dk.alexandra.fresco.suite.tinytables.online.protocols;
+package dk.alexandra.fresco.suite.tinytables.storage;
 
-import dk.alexandra.fresco.lib.helper.HalfCookedNativeProtocol;
+import java.io.Serializable;
 
-public abstract class TinyTableProtocol extends HalfCookedNativeProtocol{
 
-	protected int id;
+public interface TinyTablesStorage extends Serializable {
+
+	/**
+	 * Looks up the table 
+	 * @param id
+	 * @param left
+	 * @param right
+	 * @return
+	 */
+	public boolean lookupTinyTable(int id, boolean ... inputs);	
+		
+	public TinyTable getTinyTable(int id);
 	
-	public int getId() {
-		return id;
-	}
-
+	public void storeTinyTable(int id, TinyTable table);
+	
+	public void storeMaskShare(int id, boolean r);
+	
+	public boolean getMaskShare(int id);
+	
 }

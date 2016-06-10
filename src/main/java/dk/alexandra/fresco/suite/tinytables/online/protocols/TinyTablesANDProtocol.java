@@ -33,16 +33,16 @@ import dk.alexandra.fresco.framework.network.SCENetwork;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.Value;
 import dk.alexandra.fresco.lib.field.bool.AndProtocol;
-import dk.alexandra.fresco.suite.tinytables.online.TinyTableProtocolSuite;
-import dk.alexandra.fresco.suite.tinytables.online.datatypes.TinyTableSBool;
+import dk.alexandra.fresco.suite.tinytables.online.TinyTablesProtocolSuite;
+import dk.alexandra.fresco.suite.tinytables.online.datatypes.TinyTablesSBool;
 import dk.alexandra.fresco.suite.tinytables.util.Encoding;
 
-public class TinyTableANDProtocol extends TinyTableProtocol implements AndProtocol{
+public class TinyTablesANDProtocol extends TinyTablesProtocol implements AndProtocol{
 
 	private int id;
-	private TinyTableSBool inLeft, inRight, out;
+	private TinyTablesSBool inLeft, inRight, out;
 	
-	public TinyTableANDProtocol(int id, TinyTableSBool inLeft, TinyTableSBool inRight, TinyTableSBool out) {
+	public TinyTablesANDProtocol(int id, TinyTablesSBool inLeft, TinyTablesSBool inRight, TinyTablesSBool out) {
 		super();
 		this.id = id;
 		this.inLeft = inLeft;
@@ -62,7 +62,7 @@ public class TinyTableANDProtocol extends TinyTableProtocol implements AndProtoc
 
 	@Override
 	public EvaluationStatus evaluate(int round, ResourcePool resourcePool, SCENetwork network) {
-		TinyTableProtocolSuite ps = TinyTableProtocolSuite.getInstance(resourcePool.getMyId());	
+		TinyTablesProtocolSuite ps = TinyTablesProtocolSuite.getInstance(resourcePool.getMyId());	
 		
 		switch(round) {
 		case 0: 
