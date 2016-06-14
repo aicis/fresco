@@ -39,8 +39,14 @@ public class TinyTablesDummyStorage implements TinyTablesStorage {
 	private int storageId;
 	private Map<Integer, Boolean> maskShares = new ConcurrentHashMap<>();
 	
+	/*
+	 * sigmas and otInputs are only used during preprocessing, and should not be
+	 * serialized.
+	 */
+	private transient Map<Integer, boolean[]> sigmas = new ConcurrentHashMap<>();	
+	private transient Map<Integer, boolean[]> otInputs = new ConcurrentHashMap<>();
 	
-	public TinyTablesDummyStorage(int storageId) {
+	public TinyTablesDummyStorage(int id) {
 		this.storageId = storageId;
 	}
 
@@ -60,13 +66,11 @@ public class TinyTablesDummyStorage implements TinyTablesStorage {
 
 	@Override
 	public void storeTinyTable(int id, TinyTable table) {
-		System.out.println("Storage(" + storageId + "): Storing TinyTable " + table + " for protocol with id " + id);
 		tinyTables.put(id, table);
 	}
 
 	@Override
 	public void storeMaskShare(int id, boolean r) {
-		System.out.println("Storage(" + storageId + "): Storing mask " + r + " for protocol with id " + id);
 		maskShares.put(id, r);
 	}
 
@@ -74,7 +78,25 @@ public class TinyTablesDummyStorage implements TinyTablesStorage {
 	public boolean getMaskShare(int id) {
 		return maskShares.get(id);
 	}
-	
-	
+
+	@Override
+	public void storeOTSigma(int id, boolean... sigmas) {
+		this.sigmas.put(id, sigmas);
+	}
+
+	@Override
+	public boolean[] getOTSigmas(int id) {
+		return this.sigmas.get(id);
+	}
+
+	@Override
+	public void storeOTInput(int id, boolean... inputs) {
+		this.otInputs.put(id, inputs);
+	}
+
+	@Override
+	public boolean[] getOTInput(int id) {
+		return this.otInputs.get(id);
+	}
 
 }

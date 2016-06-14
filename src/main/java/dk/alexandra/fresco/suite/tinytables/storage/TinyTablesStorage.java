@@ -28,24 +28,58 @@ package dk.alexandra.fresco.suite.tinytables.storage;
 
 import java.io.Serializable;
 
-
 public interface TinyTablesStorage extends Serializable {
 
 	/**
-	 * Looks up the table 
+	 * Store a {@link TinyTable} for the protocol with the given <code>id</code>
+	 * .
+	 * 
 	 * @param id
-	 * @param left
-	 * @param right
+	 * @param table
+	 */
+	public void storeTinyTable(int id, TinyTable table);
+
+	/**
+	 * Looks up an entry in the TinyTable with the given id and index given by
+	 * the inputs, eg. entry <i>t<sub>i<sub>0</sub>i<sub>1</sub> ...
+	 * i<sub>j</sub></i> of the TinyTable with id <i>n</i> can be found as
+	 * <code>lookupTinyTable(n, i<sub>0</sub>, i<sub>1</sub>, ..., i<sub>j</sub>)</code>
+	 * .
+	 * 
+	 * @param id
+	 * @param inputs
 	 * @return
 	 */
-	public boolean lookupTinyTable(int id, boolean ... inputs);	
-		
+	public boolean lookupTinyTable(int id, boolean... inputs);
+
 	public TinyTable getTinyTable(int id);
-	
-	public void storeTinyTable(int id, TinyTable table);
-	
+
+	/**
+	 * Store a boolean for the protocol with the given ID. Can be used by a
+	 * player to store a mask that he has picked during preprocessing.
+	 * 
+	 * @param id
+	 * @param r
+	 */
 	public void storeMaskShare(int id, boolean r);
-	
+
 	public boolean getMaskShare(int id);
-	
+
+	/**
+	 * The receiver of the OT protocol to be performed for the protocol with the
+	 * given ID can store his sigma's. The OT-protocols will be executed when
+	 * the evaluation of the prepro-protocol is finished, and the results is
+	 * used to create TinyTables.
+	 * 
+	 * @param id
+	 * @param sigmas
+	 */
+	public void storeOTSigma(int id, boolean... sigmas);
+
+	public boolean[] getOTSigmas(int id);
+
+	public void storeOTInput(int id, boolean... inputs);
+
+	public boolean[] getOTInput(int id);
+
 }

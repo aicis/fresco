@@ -32,6 +32,10 @@ import dk.alexandra.fresco.framework.sce.resources.storage.StreamedStorage;
 
 public class TinyTablesStorageImpl implements TinyTablesStorage {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 995371807541938761L;
 	StreamedStorage storage;	
 	ConcurrentHashMap<Integer, TinyTable> map;
 	
@@ -62,6 +66,26 @@ public class TinyTablesStorageImpl implements TinyTablesStorage {
 
 	@Override
 	public boolean getMaskShare(int id) {
+		throw new UnsupportedOperationException("Not implemented, yet.");		
+	}
+
+	@Override
+	public void storeOTSigma(int id, boolean... sigmas) {
+		throw new UnsupportedOperationException("Not implemented, yet.");		
+	}
+
+	@Override
+	public boolean[] getOTSigmas(int id) {
+		throw new UnsupportedOperationException("Not implemented, yet.");		
+	}
+
+	@Override
+	public void storeOTInput(int id, boolean... inputs) {
+		throw new UnsupportedOperationException("Not implemented, yet.");		
+	}
+
+	@Override
+	public boolean[] getOTInput(int id) {
 		throw new UnsupportedOperationException("Not implemented, yet.");		
 	}
 	
