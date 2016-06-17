@@ -41,7 +41,6 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
-import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.Party;
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.Reporter;
@@ -178,6 +177,14 @@ public class CmdLineUtil {
 				.required(false)
 				.hasArg(true)
 				.build());
+		options.addOption(Option.builder("D")
+				.argName("property=value")
+				.desc("Use for special properties")
+				.required(false)
+				.hasArg()
+				.numberOfArgs(2)
+				.valueSeparator()
+				.build());	
 		
 		return options;
 	}
@@ -186,7 +193,9 @@ public class CmdLineUtil {
 	private int getDefaultNoOfThreads() {
 		int n = Runtime.getRuntime().availableProcessors();
 		if (n==1) return 1;
-		return n-1; // Heuristic that gives best performance: One thread for each worker and one for the 'system'.
+		// Heuristic that gives best performance: One thread for each worker 
+		// and one for the 'system'.
+		return n-1; 
 	}
 	
 	private int parseNonzeroInt(String optionId) throws ParseException {
@@ -369,8 +378,7 @@ public class CmdLineUtil {
 			};
 
 	}
-	
-	
+		
 	/**
 	 * For adding application specific options.
 	 * 
@@ -380,43 +388,34 @@ public class CmdLineUtil {
 		this.options.addOption(option);
 	}
 	
-	
-
-	
 	public CommandLine parse(String[] args) {
 		//System.out.println("Got args: " + Arrays.toString(args));
 		try {
 			CommandLineParser parser = new DefaultParser();
-			this.cmd = parser.parse(options, args);
+			this.cmd = parser.parse(options, args, false);
 			
 			if (cmd.hasOption("h")) {
 				displayHelp();
 				System.exit(0);
 			}
-
-			
 			validateStandardOptions();
-
-			
-			
 			
 			// TODO: Do this without hardcoding the protocol suite names here.
-			String[] remainingArgs = cmd.getArgs();
+			String[] remainingArgs = null;// = cmd.getArgs();
 			switch (this.sceConf.getProtocolSuiteName()) {
 			case "bgw":
-				this.psConf = BgwConfiguration.fromCmdArgs(this.sceConf, remainingArgs);
+				//this.psConf = BgwConfiguration.fromCmdArgs(this.sceConf, remainingArgs);
+				this.psConf = BgwConfiguration.fromCmdLine(sceConf, cmd);
 				break;
 			case "dummy":
-				this.psConf = DummyConfiguration.fromCmdArgs(this.sceConf, remainingArgs);
+				this.psConf = DummyConfiguration.fromCmdLine(this.sceConf, cmd);
 				break;
 			case "spdz":
-				this.psConf = SpdzConfiguration.fromCmdArgs(this.sceConf, remainingArgs);
+				this.psConf = SpdzConfiguration.fromCmdLine(this.sceConf, cmd);
 				break;
 			default:
-				throw new MPCException("Unknown protocol suite: " + this.getSCEConfiguration().getProtocolSuiteName());
+				throw new IllegalArgumentException("Unknown protocol suite: " + this.getSCEConfiguration().getProtocolSuiteName());
 			}
-	
-
 //			
 //			if (cmd.hasOption("v")) {
 //				log.log(Level.INFO, "Using cli argument -v=" + cmd.getOptionValue("v"));
@@ -424,9 +423,7 @@ public class CmdLineUtil {
 //			} else {
 //				log.log(Level.SEVERE, "MIssing v option");
 //				help();
-//			}
-
-			
+//			}		
 			
 //			// Parse input from cmd line
 //			// TODO: We want to run both player 1 and 2 from same place, so we override player id.
@@ -450,23 +447,13 @@ public class CmdLineUtil {
 			System.out.println();
 			displayHelp();
 			System.exit(-1); // TODO: Consider moving to top level.
-			
 		}
 		return this.cmd;
-
-
 	}
 
-
-	
-
-	
-	
 	public void displayHelp() {
 		HelpFormatter formatter = new HelpFormatter();
 		formatter.printHelp("general options are:", this.options);
 	}
-	
 
-	
 }
