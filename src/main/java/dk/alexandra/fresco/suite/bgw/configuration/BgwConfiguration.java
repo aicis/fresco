@@ -47,52 +47,33 @@ public interface BgwConfiguration extends ProtocolSuiteConfiguration {
 	 * 
 	 */
 	int getThreshold();
-	
+
 	/**
 	 * 
 	 * @return The modulus used in BGW
 	 */
 	BigInteger getModulus();
-	
-	/// Here comes methods for BGW specific parameters and their validation.
-	
-	
-	public static BgwConfiguration fromCmdArgs(SCEConfiguration sceConf, String[] args) throws ParseException {
-		Options options = new Options();
 
-		options.addOption(Option.builder("D")
-				.desc("The threshold security level. Must be a positive integer, must be at most n/2.")
-				.longOpt("bgw.threshold")
-				.required(true)
-				.hasArgs()
-				.build());		
-		
-		options.addOption(Option.builder("D")
-				.desc("The modulus of the field you want to work in. i.e. the field size")
-				.longOpt("bgw.modulus")
-				.required(false)
-				.hasArgs()
-				.build());
-		
-		CommandLineParser parser = new DefaultParser();
-		CommandLine cmd = parser.parse(options, args);
-		
+	/// Here comes methods for BGW specific parameters and their validation.
+	public static BgwConfiguration fromCmdLine(SCEConfiguration sceConf, CommandLine cmd) throws ParseException {
 		// Validate BGW specific arguments.
 		Properties p = cmd.getOptionProperties("D");
-		if (!p.contains("bgw.threshold")) {
-			throw new ParseException("BGW requires you to specify -Dbgw.threshold=[int]");
-		}		
-		
+		if (!p.containsKey("bgw.threshold")) {
+			throw new ParseException("BGW requires setting -Dbgw.threshold=[int]");
+		}
+
 		try {
-			final int threshold = Integer.parseInt(p.getProperty("bgw.threshold"));			
-			if (threshold < 1) throw new ParseException("bgw.threshold must be > 0");
-			if (threshold > sceConf.getParties().size() / 2) throw new ParseException("bgw.threshold must be < n/2");		
-			
+			final int threshold = Integer.parseInt(p.getProperty("bgw.threshold"));
+			if (threshold < 1)
+				throw new ParseException("bgw.threshold must be > 0");
+			if (threshold > sceConf.getParties().size() / 2)
+				throw new ParseException("bgw.threshold must be < n/2");
+
 			final BigInteger modulus = new BigInteger(p.getProperty("bgw.modulus", "618970019642690137449562111"));
-			if(!modulus.isProbablePrime(40)) {
+			if (!modulus.isProbablePrime(40)) {
 				throw new ParseException("BGW Modulus must be a prime number");
 			}
-			
+
 			return new BgwConfiguration() {
 
 				@Override
@@ -104,17 +85,10 @@ public interface BgwConfiguration extends ProtocolSuiteConfiguration {
 				public BigInteger getModulus() {
 					return modulus;
 				}
-				
+
 			};
 		} catch (NumberFormatException e) {
 			throw new ParseException("Invalid bgw.threshold value: '" + p.getProperty("bgw.threshold") + "'");
 		}
-		
-		
-		//List<String> rest = cmd.getArgList(); // TODO: Pass back for use in application.
-		
-	
-		
 	}
-	
 }
