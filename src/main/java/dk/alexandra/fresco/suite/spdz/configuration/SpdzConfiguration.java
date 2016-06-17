@@ -61,32 +61,12 @@ public interface SpdzConfiguration extends ProtocolSuiteConfiguration {
 	 */
 	public boolean useDummyData();
 	
-	static SpdzConfiguration fromCmdArgs(SCEConfiguration sceConf,
-			String[] remainingArgs) throws ParseException {
-		Options options = new Options();
-
-		options.addOption(Option
-				.builder("D")
-				.desc("The path to where the preprocessed data is located - e.g. the triples. Defaults to '/triples'")
-				.longOpt("spdz.triplePath").required(false).hasArgs().build());
-
-		options.addOption(Option
-				.builder("D")
-				.desc("The maximum bit length. A suggestion is half the size of the modulus, but might be required to be lower for some applications.")
-				.longOpt("spdz.maxBitLength").required(true).hasArgs().build());
-		
-		options.addOption(Option
-				.builder("D")
-				.desc("Set to true to use dummy data as preprocessed data.")
-				.longOpt("spdz.useDummyData").required(false).hasArgs().build());
-
-		CommandLineParser parser = new DefaultParser();
-		CommandLine cmd = parser.parse(options, remainingArgs);
-
-		// Validate BGW specific arguments.
+	static SpdzConfiguration fromCmdLine(SCEConfiguration sceConf,
+			CommandLine cmd) throws ParseException {
+		// Validate SPDZ specific arguments.
 		Properties p = cmd.getOptionProperties("D");
 		
-		if (!p.contains("spdz.securityParameter")) {
+		if (!p.containsKey("spdz.securityParameter")) {
 			throw new ParseException(
 					"SPDZ requires you to specify -Dspdz.securityParameter=[path]");
 		}
