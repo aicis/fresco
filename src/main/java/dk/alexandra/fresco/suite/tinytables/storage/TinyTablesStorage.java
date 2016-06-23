@@ -27,6 +27,7 @@
 package dk.alexandra.fresco.suite.tinytables.storage;
 
 import java.io.Serializable;
+import java.util.LinkedHashMap;
 
 public interface TinyTablesStorage extends Serializable {
 
@@ -66,20 +67,41 @@ public interface TinyTablesStorage extends Serializable {
 	public boolean getMaskShare(int id);
 
 	/**
+	 * Store an array of booleans for the protocol with the given ID. Note that
+	 * these booleans are not stored after the preprocessing phase, and should
+	 * only be used for data needed in the preprocessing.
+	 * 
+	 * @param id
+	 * @param booleans
+	 */
+	public void storeTemporaryBooleans(int id, boolean[] booleans);
+
+	public boolean[] getTemporaryBooleans(int id);
+
+	/**
 	 * The receiver of the OT protocol to be performed for the protocol with the
 	 * given ID can store his sigma's. The OT-protocols will be executed when
 	 * the evaluation of the prepro-protocol is finished, and the results is
-	 * used to create TinyTables.
+	 * used to create the TinyTables for the AND protocols.
 	 * 
 	 * @param id
 	 * @param sigmas
 	 */
-	public void storeOTSigma(int id, boolean... sigmas);
+	public void storeOTSigma(int id, boolean[] sigmas);
 
-	public boolean[] getOTSigmas(int id);
+	public LinkedHashMap<Integer, boolean[]> getOTSigmas();
 
-	public void storeOTInput(int id, boolean... inputs);
+	/**
+	 * The sender of the OT protocols to be performed can store his inputs. The
+	 * OT-protocols will be executed when the evaluation of the prepro-protocol
+	 * is finished, and the results is used to create the TinyTables for the AND
+	 * protocols.
+	 * 
+	 * @param id
+	 * @param inputs
+	 */
+	public void storeOTInput(int id, boolean[][] inputs);
 
-	public boolean[] getOTInput(int id);
+	public LinkedHashMap<Integer, boolean[][]> getOTInputs();
 
 }

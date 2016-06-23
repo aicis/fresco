@@ -26,6 +26,7 @@
  *******************************************************************************/
 package dk.alexandra.fresco.suite.tinytables.storage;
 
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -40,11 +41,12 @@ public class TinyTablesDummyStorage implements TinyTablesStorage {
 	private Map<Integer, Boolean> maskShares = new ConcurrentHashMap<>();
 	
 	/*
-	 * sigmas and otInputs are only used during preprocessing, and should not be
+	 * sigmas, otInputs and tmps are only used during preprocessing, and should not be
 	 * serialized.
 	 */
-	private transient Map<Integer, boolean[]> sigmas = new ConcurrentHashMap<>();	
-	private transient Map<Integer, boolean[]> otInputs = new ConcurrentHashMap<>();
+	private transient LinkedHashMap<Integer, boolean[]> sigmas = new LinkedHashMap<>();	
+	private transient LinkedHashMap<Integer, boolean[][]> otInputs = new LinkedHashMap<>();
+	private transient Map<Integer, boolean[]> tmps = new ConcurrentHashMap<>();
 	
 	public TinyTablesDummyStorage(int id) {
 		this.storageId = storageId;
@@ -80,23 +82,33 @@ public class TinyTablesDummyStorage implements TinyTablesStorage {
 	}
 
 	@Override
-	public void storeOTSigma(int id, boolean... sigmas) {
+	public void storeOTSigma(int id, boolean[] sigmas) {
 		this.sigmas.put(id, sigmas);
 	}
 
 	@Override
-	public boolean[] getOTSigmas(int id) {
-		return this.sigmas.get(id);
-	}
-
-	@Override
-	public void storeOTInput(int id, boolean... inputs) {
+	public void storeOTInput(int id, boolean[][] inputs) {
 		this.otInputs.put(id, inputs);
 	}
 
 	@Override
-	public boolean[] getOTInput(int id) {
-		return this.otInputs.get(id);
+	public LinkedHashMap<Integer, boolean[]> getOTSigmas() {
+		return sigmas;
+	}
+
+	@Override
+	public LinkedHashMap<Integer, boolean[][]> getOTInputs() {
+		return otInputs;
+	}
+
+	@Override
+	public void storeTemporaryBooleans(int id, boolean[] booleans) {
+		tmps.put(id, booleans);
+	}
+
+	@Override
+	public boolean[] getTemporaryBooleans(int id) {
+		return tmps.get(id);
 	}
 
 }

@@ -1,167 +1,66 @@
 package dk.alexandra.fresco.suite.tinytables.util.ot;
 
+import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
-import java.io.Serializable;
-import java.math.BigInteger;
-import java.security.SecureRandom;
-
-import org.bouncycastle.util.BigIntegers;
-
-import edu.biu.scapi.exceptions.FactoriesException;
-import edu.biu.scapi.interactiveMidProtocols.ot.OTRGroupElementPairMsg;
-import edu.biu.scapi.interactiveMidProtocols.ot.OTSMsg;
-import edu.biu.scapi.interactiveMidProtocols.ot.semiHonest.OTSemiHonestDDHOnByteArraySenderMsg;
-import edu.biu.scapi.primitives.dlog.DlogGroup;
-import edu.biu.scapi.primitives.dlog.GroupElement;
-import edu.biu.scapi.primitives.kdf.KeyDerivationFunction;
-import edu.biu.scapi.tools.Factories.KdfFactory;
+import java.io.InputStreamReader;
+import java.util.Arrays;
+import java.util.Base64;
+import java.util.stream.Collectors;
 
 /**
- * Implementation of an semi-honest OT receiver. Most of the code is taken from
- * <a href="https://github.com/cryptobiu/scapi">SCAPI</a>, but it is changed to
- * allow easier usage in FRESCO. In particular we make it possible to extract
- * the messages from the OT protocol.
+ * We use SCAPI's OT Extension library for doing oblivious transfers. However,
+ * this lib is implemented in C++ and we need to call it using JNI. Also, for
+ * testing we run the different players on the same machine in two different
+ * threads which seem to cause problems with the lib, so to avoid that we run
+ * the JNI in seperate processes.
  * 
  * @author jonas
  *
  */
 public class OTReceiver {
 
-	private DlogGroup dlog;
-	private KeyDerivationFunction kdf;
-	private SecureRandom random;
-
-	private BigInteger qMinusOne;
-
-	// State
-	private boolean[] sigmas;
-	private BigInteger[] alphas;
-
-	public OTReceiver() {
+	public static byte[] transfer(String host, int port, byte[] sigmas) {
+		
 		try {
-			// Default settings
-			dlog = new edu.biu.scapi.primitives.dlog.bc.BcDlogECF2m();
-			kdf = KdfFactory.getInstance().getObject("HKDF(HMac(SHA-256))");
-
-			random = new SecureRandom();
-			qMinusOne = dlog.getOrder().subtract(BigInteger.ONE);
 			
+			/*
+			 * There is an upper bound on how big a terminal cmd can be, so if
+			 * we have too many OT's we need to do them a batch at a time.
+			 */
+			if (sigmas.length > OTConfig.MAX_OTS) {
+				byte[] out1 = transfer(host, port, Arrays.copyOfRange(sigmas, 0, OTConfig.MAX_OTS));
+				byte[] out2 = transfer(host, port, Arrays.copyOfRange(sigmas, OTConfig.MAX_OTS, sigmas.length));
+				
+				byte[] out = new byte[out1.length + out2.length];
+				System.arraycopy(out1, 0, out, 0, out1.length);
+				System.arraycopy(out2, 0, out, out1.length, out2.length);
+				return out;
+			} else {
+				String base64sigmas = Base64.getEncoder().encodeToString(sigmas);
+				
+				ProcessBuilder builder = new ProcessBuilder(OTConfig.SCAPI_CMD, OTConfig.OT_RECEIVER, host,
+						Integer.toString(port), base64sigmas);
+				builder.directory(new File(OTConfig.PATH));
+				Process p = builder.start();
+				
+				p.waitFor();
+				
+				String base64output = new BufferedReader(new InputStreamReader(p.getInputStream()))
+				.lines().collect(Collectors.joining("\n"));
+				
+				byte[] output = Base64.getDecoder().decode(base64output);
+				return output;
+			}
 			
 		} catch (IOException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} catch (FactoriesException e) {
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-	}
-
-	/**
-	 * Create a message with the given sigma. Sigma should be either 0 or 1,
-	 * indicating which of the senders messages we would like to receive.
-	 * 
-	 * @param sigma
-	 * @return
-	 */
-	public Serializable createFirstMessages(boolean[] sigmas) {
-
-		this.sigmas = sigmas;
-		this.alphas = new BigInteger[sigmas.length];
-		OTRGroupElementPairMsg[] tuples = new OTRGroupElementPairMsg[sigmas.length];
-		
-		for (int i = 0; i < sigmas.length; i++) {
-			// Sample random alpha
-			this.alphas[i] = BigIntegers.createRandomInRange(BigInteger.ZERO, qMinusOne, random);;
-
-			// Compute h0, h1
-			tuples[i] = computeTuple(alphas[i], sigmas[i]);
-		}
-		return tuples;
-	}
-
-	/**
-	 * COMPUTE h0,h1 as follows: 1. If sigma = 0 then h0 = g^alpha and h1 = h 2.
-	 * If sigma = 1 then h0 = h and h1 = g^alpha"
-	 * 
-	 * @param alpha
-	 *            random value sampled by the protocol
-	 * @param sigma
-	 *            input for the protocol
-	 * @return OTRGroupElementPairMsg contains the tuple (h0, h1).
-	 */
-	private OTRGroupElementPairMsg computeTuple(BigInteger alpha, boolean sigma) {
-
-		// Sample random h.
-		GroupElement h = dlog.createRandomElement();
-
-		// Calculate g^alpha.
-		GroupElement g = dlog.getGenerator();
-		GroupElement gAlpha = dlog.exponentiate(g, alpha);
-
-		GroupElement h0 = null;
-		GroupElement h1 = null;
-		if (sigma) {
-			h0 = h;
-			h1 = gAlpha;
-		} else {
-			h0 = gAlpha;
-			h1 = h;
-		}
-		return new OTRGroupElementPairMsg(h0.generateSendableData(), h1.generateSendableData());
-	}
-
-	/**
-	 * Processes the response from the sender. Note that
-	 * {@link #createFirstMessages(byte)} must have been called first.
-	 * 
-	 * @param second
-	 *            A message generated by
-	 *            {@link OTSender#createSecondMessages(Serializable, byte[], byte[])}.
-	 * @return
-	 */
-	public byte[][] finalize(Serializable seconds) {
-		OTSMsg[] messages = (OTSMsg[]) seconds;
-
-		byte[][] responses = new byte[messages.length][];
-		for (int i = 0; i < messages.length; i++) {
-			OTSMsg message = messages[i];
-			boolean sigma = sigmas[i];
-			BigInteger alpha = alphas[i];
-			responses[i] = computeFinalXSigma(sigma, alpha, message);;
-		}
-		return responses;
-	}
-
-	private byte[] computeFinalXSigma(boolean sigma, BigInteger alpha, OTSMsg message) {
-		// If message is not instance of OTSOnByteArraySemiHonestMessage, throw Exception.
-		if (!(message instanceof OTSemiHonestDDHOnByteArraySenderMsg)) {
-			throw new IllegalArgumentException(
-					"message should be instance of OTSOnByteArraySemiHonestMessage");
-		}
-
-		OTSemiHonestDDHOnByteArraySenderMsg msg = (OTSemiHonestDDHOnByteArraySenderMsg) message;
-
-		// Compute kSigma:
-		GroupElement u = dlog.reconstructElement(true, msg.getU());
-		GroupElement kSigma = dlog.exponentiate(u, alpha);
-		byte[] kBytes = dlog.mapAnyGroupElementToByteArray(kSigma);
-
-		// Get v0 or v1 according to sigma.
-		byte[] vSigma = null;
-		if (sigma) {
-			vSigma = msg.getV1();
-		} else {
-			vSigma = msg.getV0();
-		}
-
-		// Compute kdf result:
-		int len = vSigma.length;
-		byte[] xSigma = kdf.deriveKey(kBytes, 0, kBytes.length, len).getEncoded();
-
-		// Xores the result from the kdf with vSigma.
-		for (int i = 0; i < len; i++) {
-			xSigma[i] = (byte) (vSigma[i] ^ xSigma[i]);
-		}
-
-		return xSigma;
+		return null;
 	}
 
 }

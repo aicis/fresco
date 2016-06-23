@@ -26,8 +26,6 @@
  *******************************************************************************/
 package dk.alexandra.fresco.suite.tinytables.prepro.protocols;
 
-import java.io.Serializable;
-
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.network.SCENetwork;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
@@ -36,7 +34,6 @@ import dk.alexandra.fresco.lib.field.bool.AndProtocol;
 import dk.alexandra.fresco.suite.tinytables.prepro.TinyTablesPreproProtocolSuite;
 import dk.alexandra.fresco.suite.tinytables.prepro.datatypes.TinyTablesPreproSBool;
 import dk.alexandra.fresco.suite.tinytables.storage.TinyTable;
-import dk.alexandra.fresco.suite.tinytables.util.Encoding;
 import dk.alexandra.fresco.suite.tinytables.util.RandomSourceImpl;
 import dk.alexandra.fresco.suite.tinytables.util.ot.OTReceiver;
 import dk.alexandra.fresco.suite.tinytables.util.ot.OTSender;
@@ -48,7 +45,7 @@ public class TinyTablesPreproANDProtocol extends TinyTablesPreproProtocol implem
 
 	OTReceiver otReceiver;
 	OTSender otSender;
-	
+
 	public TinyTablesPreproANDProtocol(int id, TinyTablesPreproSBool inLeft,
 			TinyTablesPreproSBool inRight, TinyTablesPreproSBool out) {
 		super();
@@ -71,91 +68,92 @@ public class TinyTablesPreproANDProtocol extends TinyTablesPreproProtocol implem
 	@Override
 	public EvaluationStatus evaluate(int round, ResourcePool resourcePool, SCENetwork network) {
 
-		TinyTablesPreproProtocolSuite ps = TinyTablesPreproProtocolSuite.getInstance(resourcePool.getMyId());
+		TinyTablesPreproProtocolSuite ps = TinyTablesPreproProtocolSuite.getInstance(resourcePool
+				.getMyId());
 
 		switch (round) {
 			case 0:
 				if (resourcePool.getMyId() == 1) {
-					network.expectInputFromPlayer(2);
-					return EvaluationStatus.HAS_MORE_ROUNDS;
+					/*
+					 * Player 1
+					 */
+
+					// Pick share for output gate
+					boolean rO = RandomSourceImpl.getInstance().getRandomBoolean();
+					out.setShare(rO);
+					
+					// Pick random entries for TinyTable
+					boolean[] s = RandomSourceImpl.getInstance().getRandomBooleans(4);
+
+					TinyTable tinyTable = new TinyTable(s);
+					ps.getStorage().storeTinyTable(id, tinyTable);
+
+					// Create inputs for OT's
+					boolean m = RandomSourceImpl.getInstance().getRandomBoolean();
+					boolean[][] otInputs = new boolean[2][2];
+					otInputs[0][0] = s[0] ^ rO ^ (inLeft.getShare() && inRight.getShare()) ^ m;
+					otInputs[0][1] = otInputs[0][0] ^ inLeft.getShare();
+					otInputs[1][0] = m;
+					otInputs[1][1] = otInputs[1][0] ^ inRight.getShare();
+					ps.getStorage().storeOTInput(id, otInputs);
+
+					// Send
+					boolean[] y = new boolean[3];
+					y[0] = s[0] ^ s[1] ^ inLeft.getShare();
+					y[1] = s[0] ^ s[2] ^ inRight.getShare();
+					y[2] = s[0] ^ s[3] ^ inLeft.getShare() ^ inRight.getShare();
+					network.send(2, y);
+
+					return EvaluationStatus.IS_DONE;
 				} else {
+					/*
+					 * Player 2
+					 */
+
 					/*
 					 * The receiver (player 2) uses his shares of the right and
 					 * left input resp. as sigmas in the two OT's.
 					 */
-					otReceiver = new OTReceiver();
 					boolean[] sigmas = new boolean[] { inRight.getShare(), inLeft.getShare() };
-					Serializable firsts = otReceiver.createFirstMessages(sigmas);
-					network.send(1, firsts);
+					ps.getStorage().storeOTSigma(id, sigmas);
+
+					network.expectInputFromPlayer(1);
+
 					return EvaluationStatus.HAS_MORE_ROUNDS;
 				}
 
 			case 1:
 				if (resourcePool.getMyId() == 1) {
+					/*
+					 * Player 1
+					 */
+					
+					// Already finished - ignore
+					return EvaluationStatus.IS_DONE;
+				} else {
+					/*
+					 * Player 2
+					 */
+					
+					boolean[] received = network.receive(1);
+					
+					// Pick share for output gate
 					boolean rO = RandomSourceImpl.getInstance().getRandomBoolean();
 					out.setShare(rO);
 
-					boolean[] s = RandomSourceImpl.getInstance().getRandomBooleans(4);
-					TinyTable tinyTableA = new TinyTable(s);
-					ps.getStorage().storeTinyTable(id, tinyTableA);
-
-					boolean m = RandomSourceImpl.getInstance().getRandomBoolean();
-					boolean input00 = s[0] ^ rO ^ (inLeft.getShare() && inRight.getShare()) ^ m;
-					boolean input01 = input00 ^ inLeft.getShare();
+					boolean[] tmps = new boolean[received.length + 1];
+					tmps[0] = rO;
+					for (int i = 0; i < received.length; i++) {
+						tmps[i+1] = received[i];
+					}
 					
-					boolean input10 = m; 
-					boolean input11 = input10 ^ inRight.getShare();					
-					
-					Serializable firsts = network.receive(2);
-					otSender = new OTSender();
-					Serializable seconds = otSender.createSecondMessages(firsts,
-							new byte[][] {new byte[] {Encoding.encodeBoolean(input00)}, new byte[] {Encoding.encodeBoolean(input10)}},
-							new byte[][] {new byte[] {Encoding.encodeBoolean(input01)}, new byte[] {Encoding.encodeBoolean(input11)}});
-					network.send(2, seconds);
-										
-					boolean[] toSend = new boolean[3];
-					toSend[0] = s[0] ^ s[1] ^ inLeft.getShare();
-					toSend[1] = s[0] ^ s[2] ^ inRight.getShare();
-					toSend[2] = s[0] ^ s[3] ^ inLeft.getShare() ^ inRight.getShare();
-					
-					network.send(2, toSend);
-					return EvaluationStatus.IS_DONE;
-				} else {
-					network.expectInputFromPlayer(1);
-					network.expectInputFromPlayer(1);
-					return EvaluationStatus.HAS_MORE_ROUNDS;
-				}
-				
-			case 2:
-				if (resourcePool.getMyId() == 1) {
-					// Do nothing...
-					return EvaluationStatus.IS_DONE;
-				} else {
-					boolean rO = RandomSourceImpl.getInstance().getRandomBoolean();
-					this.out.setShare(rO);
-					
-					Serializable seconds = network.receive(1);
-					byte[][] inputs = otReceiver.finalize(seconds);
-
-					boolean input0 = Encoding.decodeBoolean(inputs[0][0]);
-					boolean input1 = Encoding.decodeBoolean(inputs[1][0]);
-					
-					boolean[] t = new boolean[4];
-					t[0] = input0 ^ input1 ^ (inLeft.getShare() && inRight.getShare()) ^ rO; 
-
-					boolean[] shares = network.receive(1);
-					t[1] = t[0] ^ shares[0] ^ inLeft.getShare();
-					t[2] = t[0] ^ shares[1] ^ inRight.getShare();
-					t[3] = t[0] ^ shares[2] ^ inLeft.getShare() ^ inRight.getShare() ^ true;
-					
-					TinyTable tinyTableB = new TinyTable(t);					
-					ps.getStorage().storeTinyTable(id, tinyTableB);
-					
+					// Store [rO, y0, y1, y2] as tmps where 
+					ps.getStorage().storeTemporaryBooleans(id, tmps);
 					return EvaluationStatus.IS_DONE;
 				}
 
 			default:
-				throw new MPCException("Cannot evaluate more than two rounds");
+				throw new MPCException("Cannot evaluate more than one round");
 		}
 	}
 }

@@ -26,6 +26,7 @@
  *******************************************************************************/
 package dk.alexandra.fresco.suite.tinytables.storage;
 
+import java.util.LinkedHashMap;
 import java.util.concurrent.ConcurrentHashMap;
 
 import dk.alexandra.fresco.framework.sce.resources.storage.StreamedStorage;
@@ -70,23 +71,33 @@ public class TinyTablesStorageImpl implements TinyTablesStorage {
 	}
 
 	@Override
-	public void storeOTSigma(int id, boolean... sigmas) {
+	public void storeOTSigma(int id, boolean[] sigmas) {
 		throw new UnsupportedOperationException("Not implemented, yet.");		
 	}
 
 	@Override
-	public boolean[] getOTSigmas(int id) {
+	public void storeOTInput(int id, boolean[][] inputs) {
 		throw new UnsupportedOperationException("Not implemented, yet.");		
 	}
 
 	@Override
-	public void storeOTInput(int id, boolean... inputs) {
+	public LinkedHashMap<Integer, boolean[]> getOTSigmas() {
 		throw new UnsupportedOperationException("Not implemented, yet.");		
 	}
 
 	@Override
-	public boolean[] getOTInput(int id) {
+	public LinkedHashMap<Integer, boolean[][]> getOTInputs() {
 		throw new UnsupportedOperationException("Not implemented, yet.");		
+	}
+
+	@Override
+	public void storeTemporaryBooleans(int id, boolean[] booleans) {
+		throw new UnsupportedOperationException("Not implemented, yet.");
+	}
+
+	@Override
+	public boolean[] getTemporaryBooleans(int id) {
+		throw new UnsupportedOperationException("Not implemented, yet.");
 	}
 	
 }
