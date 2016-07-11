@@ -5,9 +5,9 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Base64;
 
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 import dk.alexandra.fresco.suite.tinytables.util.Encoding;
 import dk.alexandra.fresco.suite.tinytables.util.ot.datatypes.OTInput;
-import dk.alexandra.fresco.suite.tinytables.util.ot.scapi.NativeOTSender;
 
 /**
  * We use SCAPI's OT Extension library for doing oblivious transfers. However,
@@ -61,7 +61,8 @@ public class OTSender {
 					p.waitFor();
 				} else {
 					// TODO: Not usable in JUnit tests so this has NOT been tested yet.
-					NativeOTSender.send(host, port, input0, input1);
+					throw new NotImplementedException();
+					//NativeOTSender.send(host, port, input0, input1);
 				}
 				
 			}

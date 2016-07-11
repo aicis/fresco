@@ -8,9 +8,9 @@ import java.util.Arrays;
 import java.util.Base64;
 import java.util.stream.Collectors;
 
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 import dk.alexandra.fresco.suite.tinytables.util.Encoding;
 import dk.alexandra.fresco.suite.tinytables.util.ot.datatypes.OTSigma;
-import dk.alexandra.fresco.suite.tinytables.util.ot.scapi.NativeOTReceiver;
 
 /**
  * We use SCAPI's OT Extension library for doing oblivious transfers. However,
@@ -74,7 +74,8 @@ public class OTReceiver {
 					binaryOutput = Base64.getDecoder().decode(base64output);
 				} else {
 					// TODO: Not usable in JUnit tests so this has NOT been tested yet.
-					binaryOutput = NativeOTReceiver.receive(host, port, binarySigmas);
+					throw new NotImplementedException();
+					//binaryOutput = NativeOTReceiver.receive(host, port, binarySigmas);
 				}
 				
 				// Decode output to booleans
