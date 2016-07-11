@@ -60,6 +60,7 @@ public class OTSender {
 					Process p = builder.start();
 					p.waitFor();
 				} else {
+					// TODO: Not usable in JUnit tests so this has NOT been tested yet.
 					NativeOTSender.send(host, port, input0, input1);
 				}
 				

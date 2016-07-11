@@ -73,6 +73,7 @@ public class OTReceiver {
 
 					binaryOutput = Base64.getDecoder().decode(base64output);
 				} else {
+					// TODO: Not usable in JUnit tests so this has NOT been tested yet.
 					binaryOutput = NativeOTReceiver.receive(host, port, binarySigmas);
 				}
 				
