@@ -30,6 +30,9 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import dk.alexandra.fresco.suite.tinytables.util.ot.datatypes.OTInput;
+import dk.alexandra.fresco.suite.tinytables.util.ot.datatypes.OTSigma;
+
 public class TinyTablesDummyStorage implements TinyTablesStorage {
 
 	/**
@@ -44,8 +47,8 @@ public class TinyTablesDummyStorage implements TinyTablesStorage {
 	 * sigmas, otInputs and tmps are only used during preprocessing, and should not be
 	 * serialized.
 	 */
-	private transient LinkedHashMap<Integer, boolean[]> sigmas = new LinkedHashMap<>();	
-	private transient LinkedHashMap<Integer, boolean[][]> otInputs = new LinkedHashMap<>();
+	private transient LinkedHashMap<Integer, OTSigma[]> sigmas = new LinkedHashMap<>();	
+	private transient LinkedHashMap<Integer, OTInput[]> otInputs = new LinkedHashMap<>();
 	private transient Map<Integer, boolean[]> tmps = new ConcurrentHashMap<>();
 	
 	public TinyTablesDummyStorage(int id) {
@@ -82,22 +85,22 @@ public class TinyTablesDummyStorage implements TinyTablesStorage {
 	}
 
 	@Override
-	public void storeOTSigma(int id, boolean[] sigmas) {
+	public void storeOTSigma(int id, OTSigma[] sigmas) {
 		this.sigmas.put(id, sigmas);
 	}
 
 	@Override
-	public void storeOTInput(int id, boolean[][] inputs) {
+	public void storeOTInput(int id, OTInput[] inputs) {
 		this.otInputs.put(id, inputs);
 	}
 
 	@Override
-	public LinkedHashMap<Integer, boolean[]> getOTSigmas() {
+	public LinkedHashMap<Integer, OTSigma[]> getOTSigmas() {
 		return sigmas;
 	}
 
 	@Override
-	public LinkedHashMap<Integer, boolean[][]> getOTInputs() {
+	public LinkedHashMap<Integer, OTInput[]> getOTInputs() {
 		return otInputs;
 	}
 

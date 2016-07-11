@@ -59,9 +59,9 @@ public class ComparisonBooleanTests {
 							SBool[] in2 = builder.knownSBool(comp2);
 							
 							SBool compRes1 = builder.greaterThan(in1, in2);
-							//SBool compRes2 = builder.greaterThan(in2, in1);
+							SBool compRes2 = builder.greaterThan(in2, in1);
 							
-							OBool[] output = new OBool[]{builder.output(compRes1)};//, compRes2);
+							OBool[] output = new OBool[]{builder.output(compRes1), builder.output(compRes2)};
 							this.outputs = output;
 							return builder.getProtocol();
 						}
@@ -74,8 +74,8 @@ public class ComparisonBooleanTests {
 					} else {
 						Assert.assertEquals(false,
 								app.getOutputs()[0].getValue());
-//						Assert.assertEquals(true,
-//								app.getOutputs()[1].getValue());
+						Assert.assertEquals(true,
+								app.getOutputs()[1].getValue());
 					}
 				}
 			};

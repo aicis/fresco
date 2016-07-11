@@ -29,6 +29,9 @@ package dk.alexandra.fresco.suite.tinytables.storage;
 import java.io.Serializable;
 import java.util.LinkedHashMap;
 
+import dk.alexandra.fresco.suite.tinytables.util.ot.datatypes.OTInput;
+import dk.alexandra.fresco.suite.tinytables.util.ot.datatypes.OTSigma;
+
 public interface TinyTablesStorage extends Serializable {
 
 	/**
@@ -87,9 +90,9 @@ public interface TinyTablesStorage extends Serializable {
 	 * @param id
 	 * @param sigmas
 	 */
-	public void storeOTSigma(int id, boolean[] sigmas);
+	public void storeOTSigma(int id, OTSigma[] sigmas);
 
-	public LinkedHashMap<Integer, boolean[]> getOTSigmas();
+	public LinkedHashMap<Integer, OTSigma[]> getOTSigmas();
 
 	/**
 	 * The sender of the OT protocols to be performed can store his inputs. The
@@ -100,8 +103,8 @@ public interface TinyTablesStorage extends Serializable {
 	 * @param id
 	 * @param inputs
 	 */
-	public void storeOTInput(int id, boolean[][] inputs);
+	public void storeOTInput(int id, OTInput[] inputs);
 
-	public LinkedHashMap<Integer, boolean[][]> getOTInputs();
+	public LinkedHashMap<Integer, OTInput[]> getOTInputs();
 
 }

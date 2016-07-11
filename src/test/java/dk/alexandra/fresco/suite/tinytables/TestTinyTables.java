@@ -32,7 +32,6 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -55,7 +54,6 @@ import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
 import dk.alexandra.fresco.framework.sce.resources.storage.Storage;
 import dk.alexandra.fresco.lib.bool.BasicBooleanTests;
-import dk.alexandra.fresco.lib.bool.ComparisonBooleanTests;
 import dk.alexandra.fresco.lib.crypto.BristolCryptoTests;
 import dk.alexandra.fresco.lib.math.mult.BristolMultTests;
 import dk.alexandra.fresco.suite.ProtocolSuite;
@@ -65,8 +63,6 @@ import dk.alexandra.fresco.suite.tinytables.prepro.TinyTablesPreproConfiguration
 import dk.alexandra.fresco.suite.tinytables.prepro.TinyTablesPreproFactory;
 import dk.alexandra.fresco.suite.tinytables.prepro.TinyTablesPreproProtocolSuite;
 import dk.alexandra.fresco.suite.tinytables.storage.TinyTablesStorage;
-import dk.alexandra.fresco.suite.tinytables.util.ot.OTReceiver;
-import dk.alexandra.fresco.suite.tinytables.util.ot.OTSender;
 
 public class TestTinyTables {
 
@@ -186,8 +182,9 @@ public class TestTinyTables {
 
 	@Test
 	public void testXOR() throws Exception {
-		runTest(new BasicBooleanTests.TestXOR(), EvaluationStrategy.SEQUENTIAL, true, "testXOR");
-		runTest(new BasicBooleanTests.TestXOR(), EvaluationStrategy.SEQUENTIAL, false, "testXOR");
+			runTest(new BasicBooleanTests.TestXOR(), EvaluationStrategy.SEQUENTIAL, true, "testXOR");
+			runTest(new BasicBooleanTests.TestXOR(), EvaluationStrategy.SEQUENTIAL, false,
+					"testXOR");
 	}
 
 	@Test
@@ -247,14 +244,6 @@ public class TestTinyTables {
 	}
 
 	@Test
-	public void test_Greater_Than() throws Exception {
-		runTest(new ComparisonBooleanTests.TestGreaterThan(), EvaluationStrategy.SEQUENTIAL, true,
-				"testGreaterThan");
-		runTest(new ComparisonBooleanTests.TestGreaterThan(), EvaluationStrategy.SEQUENTIAL, false,
-				"testGreaterThan");
-	}
-
-	@Test
 	public void test_DES() throws Exception {
 		runTest(new BristolCryptoTests.DesTest(), EvaluationStrategy.SEQUENTIAL, true, "testDES");
 		runTest(new BristolCryptoTests.DesTest(), EvaluationStrategy.SEQUENTIAL, false, "testDES");
@@ -272,24 +261,6 @@ public class TestTinyTables {
 				"testSHA256");
 		runTest(new BristolCryptoTests.Sha256Test(), EvaluationStrategy.SEQUENTIAL, false,
 				"testSHA256");
-	}
-
-	//@Ignore
-	@Test
-	public void testOT() throws Exception {
-		
-		new Thread(new Runnable() {
-
-			@Override
-			public void run() {
-				OTSender.transfer("", 0, new byte[] {0x00, 0x01}, new byte[] {0x02,0x03});
-			}
-			
-		}).start();
-		
-		byte[] out = OTReceiver.transfer("", 0, new byte[]{0x00,0x01});
-		System.out.println(Arrays.toString(out));
-
 	}
 	
 }

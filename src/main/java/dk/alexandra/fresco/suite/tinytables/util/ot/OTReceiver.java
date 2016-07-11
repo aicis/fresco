@@ -8,6 +8,9 @@ import java.util.Arrays;
 import java.util.Base64;
 import java.util.stream.Collectors;
 
+import dk.alexandra.fresco.suite.tinytables.util.Encoding;
+import dk.alexandra.fresco.suite.tinytables.util.ot.datatypes.OTSigma;
+
 /**
  * We use SCAPI's OT Extension library for doing oblivious transfers. However,
  * this lib is implemented in C++ and we need to call it using JNI. Also, for
@@ -20,7 +23,7 @@ import java.util.stream.Collectors;
  */
 public class OTReceiver {
 
-	public static byte[] transfer(String host, int port, byte[] sigmas) {
+	public static boolean[] transfer(String host, int port, OTSigma[] sigmas) {
 		
 		try {
 			
@@ -29,15 +32,19 @@ public class OTReceiver {
 			 * we have too many OT's we need to do them a batch at a time.
 			 */
 			if (sigmas.length > OTConfig.MAX_OTS) {
-				byte[] out1 = transfer(host, port, Arrays.copyOfRange(sigmas, 0, OTConfig.MAX_OTS));
-				byte[] out2 = transfer(host, port, Arrays.copyOfRange(sigmas, OTConfig.MAX_OTS, sigmas.length));
+				boolean[] out1 = transfer(host, port, Arrays.copyOfRange(sigmas, 0, OTConfig.MAX_OTS));
+				boolean[] out2 = transfer(host, port, Arrays.copyOfRange(sigmas, OTConfig.MAX_OTS, sigmas.length));
 				
-				byte[] out = new byte[out1.length + out2.length];
+				boolean[] out = new boolean[out1.length + out2.length];
 				System.arraycopy(out1, 0, out, 0, out1.length);
 				System.arraycopy(out2, 0, out, out1.length, out2.length);
 				return out;
 			} else {
-				String base64sigmas = Base64.getEncoder().encodeToString(sigmas);
+				byte[] binarySigmas = new byte[sigmas.length];
+				for (int i = 0; i < binarySigmas.length; i++) {
+					binarySigmas[i] = Encoding.encodeBoolean(sigmas[i].getSigma());
+				}
+				String base64sigmas = Base64.getEncoder().encodeToString(binarySigmas);
 				
 				ProcessBuilder builder = new ProcessBuilder(OTConfig.SCAPI_CMD, OTConfig.OT_RECEIVER, host,
 						Integer.toString(port), base64sigmas);
@@ -49,7 +56,11 @@ public class OTReceiver {
 				String base64output = new BufferedReader(new InputStreamReader(p.getInputStream()))
 				.lines().collect(Collectors.joining("\n"));
 				
-				byte[] output = Base64.getDecoder().decode(base64output);
+				byte[] binary = Base64.getDecoder().decode(base64output);
+				boolean[] output = new boolean[binary.length];
+				for (int i = 0; i < binary.length; i++) {
+					output[i] = Encoding.decodeBoolean(binary[i]);
+				}
 				return output;
 			}
 			

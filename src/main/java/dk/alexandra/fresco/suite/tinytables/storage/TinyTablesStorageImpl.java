@@ -30,6 +30,8 @@ import java.util.LinkedHashMap;
 import java.util.concurrent.ConcurrentHashMap;
 
 import dk.alexandra.fresco.framework.sce.resources.storage.StreamedStorage;
+import dk.alexandra.fresco.suite.tinytables.util.ot.datatypes.OTInput;
+import dk.alexandra.fresco.suite.tinytables.util.ot.datatypes.OTSigma;
 
 public class TinyTablesStorageImpl implements TinyTablesStorage {
 
@@ -71,22 +73,22 @@ public class TinyTablesStorageImpl implements TinyTablesStorage {
 	}
 
 	@Override
-	public void storeOTSigma(int id, boolean[] sigmas) {
+	public void storeOTSigma(int id, OTSigma[] sigmas) {
 		throw new UnsupportedOperationException("Not implemented, yet.");		
 	}
 
 	@Override
-	public void storeOTInput(int id, boolean[][] inputs) {
+	public void storeOTInput(int id, OTInput[] inputs) {
 		throw new UnsupportedOperationException("Not implemented, yet.");		
 	}
 
 	@Override
-	public LinkedHashMap<Integer, boolean[]> getOTSigmas() {
+	public LinkedHashMap<Integer, OTSigma[]> getOTSigmas() {
 		throw new UnsupportedOperationException("Not implemented, yet.");		
 	}
 
 	@Override
-	public LinkedHashMap<Integer, boolean[][]> getOTInputs() {
+	public LinkedHashMap<Integer, OTInput[]> getOTInputs() {
 		throw new UnsupportedOperationException("Not implemented, yet.");		
 	}
 
