@@ -78,10 +78,7 @@ public class OTReceiver {
 				}
 				
 				// Decode output to booleans
-				boolean[] output = new boolean[binaryOutput.length];
-				for (int i = 0; i < binaryOutput.length; i++) {
-					output[i] = Encoding.decodeBoolean(binaryOutput[i]);
-				}
+				boolean[] output = Encoding.decodeBooleans(binaryOutput);
 				return output;
 			}
 			
