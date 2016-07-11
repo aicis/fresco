@@ -166,6 +166,11 @@ public class TinyTablesPreproProtocolSuite implements ProtocolSuite {
 			// TODO: Get host and port from configuration
 			boolean[] outputs = OTReceiver.transfer("localhost", 9005, sigmas);
 
+			if (outputs.length < 2*sigmasFromPrepro.size()) {
+				throw new MPCException("To few outputs from OT's: Expected "
+						+ sigmasFromPrepro.size() * 2 + " but got only " + outputs.length);
+			}
+			
 			int progress = 0;
 			for (int id : sigmasFromPrepro.keySet()) {
 

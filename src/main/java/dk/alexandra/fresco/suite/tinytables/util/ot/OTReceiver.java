@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 
 import dk.alexandra.fresco.suite.tinytables.util.Encoding;
 import dk.alexandra.fresco.suite.tinytables.util.ot.datatypes.OTSigma;
+import dk.alexandra.fresco.suite.tinytables.util.ot.scapi.NativeOTReceiver;
 
 /**
  * We use SCAPI's OT Extension library for doing oblivious transfers. However,
@@ -24,6 +25,11 @@ import dk.alexandra.fresco.suite.tinytables.util.ot.datatypes.OTSigma;
 public class OTReceiver {
 
 	public static boolean[] transfer(String host, int port, OTSigma[] sigmas) {
+		// As default we run it in a seperate process
+		return transfer(host, port, sigmas, true);
+	}
+	
+	public static boolean[] transfer(String host, int port, OTSigma[] sigmas, boolean seperateProcess) {
 		
 		try {
 			
@@ -31,7 +37,7 @@ public class OTReceiver {
 			 * There is an upper bound on how big a terminal cmd can be, so if
 			 * we have too many OT's we need to do them a batch at a time.
 			 */
-			if (sigmas.length > OTConfig.MAX_OTS) {
+			if (seperateProcess && sigmas.length > OTConfig.MAX_OTS) {
 				boolean[] out1 = transfer(host, port, Arrays.copyOfRange(sigmas, 0, OTConfig.MAX_OTS));
 				boolean[] out2 = transfer(host, port, Arrays.copyOfRange(sigmas, OTConfig.MAX_OTS, sigmas.length));
 				
@@ -44,22 +50,36 @@ public class OTReceiver {
 				for (int i = 0; i < binarySigmas.length; i++) {
 					binarySigmas[i] = Encoding.encodeBoolean(sigmas[i].getSigma());
 				}
-				String base64sigmas = Base64.getEncoder().encodeToString(binarySigmas);
 				
-				ProcessBuilder builder = new ProcessBuilder(OTConfig.SCAPI_CMD, OTConfig.OT_RECEIVER, host,
-						Integer.toString(port), base64sigmas);
-				builder.directory(new File(OTConfig.PATH));
-				Process p = builder.start();
+				byte[] binaryOutput = null;
+				if (seperateProcess) {
+					/*
+					 * We run the OT in a seperate process. Here we call the
+					 * main method of NativeOTReceiver. This is required when
+					 * running the JUnit tests where the players are on seperate
+					 * threads in the same JVM.
+					 */
+					String base64sigmas = Base64.getEncoder().encodeToString(binarySigmas);
+
+					ProcessBuilder builder = new ProcessBuilder(OTConfig.SCAPI_CMD,
+							OTConfig.OT_RECEIVER, host, Integer.toString(port), base64sigmas);
+					builder.directory(new File(OTConfig.PATH));
+					Process p = builder.start();
+
+					p.waitFor();
+
+					String base64output = new BufferedReader(new InputStreamReader(
+							p.getInputStream())).lines().collect(Collectors.joining("\n"));
+
+					binaryOutput = Base64.getDecoder().decode(base64output);
+				} else {
+					binaryOutput = NativeOTReceiver.receive(host, port, binarySigmas);
+				}
 				
-				p.waitFor();
-				
-				String base64output = new BufferedReader(new InputStreamReader(p.getInputStream()))
-				.lines().collect(Collectors.joining("\n"));
-				
-				byte[] binary = Base64.getDecoder().decode(base64output);
-				boolean[] output = new boolean[binary.length];
-				for (int i = 0; i < binary.length; i++) {
-					output[i] = Encoding.decodeBoolean(binary[i]);
+				// Decode output to booleans
+				boolean[] output = new boolean[binaryOutput.length];
+				for (int i = 0; i < binaryOutput.length; i++) {
+					output[i] = Encoding.decodeBoolean(binaryOutput[i]);
 				}
 				return output;
 			}

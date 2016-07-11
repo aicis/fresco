@@ -17,7 +17,7 @@ import edu.biu.scapi.interactiveMidProtocols.ot.otBatch.otExtension.OTSemiHonest
  * @author jonas
  *
  */
-public class OtReceiver {
+public class NativeOTReceiver {
 
 	public static void main(String[] args) throws UnknownHostException {
 
@@ -33,8 +33,6 @@ public class OtReceiver {
 			System.exit(-1);
 			return;
 		}
-		Party party = new Party(InetAddress.getByName(host), port);
-		OTSemiHonestExtensionReceiver receiver = new OTSemiHonestExtensionReceiver(party);
 		
 		byte[] sigmas;
 		try {
@@ -44,11 +42,18 @@ public class OtReceiver {
 			System.exit(-1);
 			return;
 		}
+		byte[] output = receive(host, port, sigmas);
+		String outputBase64 = Base64.getEncoder().encodeToString(output);
+		System.out.println(outputBase64);
+	}
+	
+	public static byte[] receive(String host, int port, byte[] sigmas) throws UnknownHostException {
+		Party party = new Party(InetAddress.getByName(host), port);
+		OTSemiHonestExtensionReceiver receiver = new OTSemiHonestExtensionReceiver(party);
+		
 		OTBatchRInput input = new OTExtensionGeneralRInput(sigmas, 8);
 		OTOnByteArrayROutput output = (OTOnByteArrayROutput) receiver.transfer(null, input);
-		
-		String outputBase64 = Base64.getEncoder().encodeToString(output.getXSigma());
-		System.out.println(outputBase64);
+		return output.getXSigma();
 	}
 
 }
