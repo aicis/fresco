@@ -26,6 +26,7 @@
  *******************************************************************************/
 package dk.alexandra.fresco.suite.tinytables.storage;
 
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -44,17 +45,28 @@ public class TinyTablesStorageImpl implements TinyTablesStorage {
 	private Map<Integer, Boolean> maskShares = new ConcurrentHashMap<>();
 	
 	/*
-	 * sigmas, otInputs and tmps are only used during preprocessing, and should not be
-	 * serialized.
+	 * sigmas, otInputs and tmps are only used during preprocessing, and should
+	 * not be serialized.
+	 * 
+	 * We use LinkedHashMap's because the order of the keys are preserved and is
+	 * the same as when they were inserted. This is necessary because the order
+	 * has to be the same for the two players when running the OT protocol at
+	 * the end of preprocessing.
 	 */
 	private transient LinkedHashMap<Integer, OTSigma[]> sigmas = new LinkedHashMap<>();	
 	private transient LinkedHashMap<Integer, OTInput[]> otInputs = new LinkedHashMap<>();
 	private transient Map<Integer, boolean[]> tmps = new ConcurrentHashMap<>();
 	
-	public TinyTablesStorageImpl(int id) {
-		this.storageId = storageId;
+	
+	public static Map<Integer, TinyTablesStorage> instances = new HashMap<>();
+	
+	public static TinyTablesStorage getInstance(int id) {
+		if (!instances.containsKey(id)) {
+			instances.put(id, new TinyTablesStorageImpl());
+		}
+		return instances.get(id);
 	}
-
+	
 	@Override
 	public boolean lookupTinyTable(int id, boolean... inputs) {
 		TinyTable tinyTable = tinyTables.get(id);

@@ -49,7 +49,7 @@ public class TinyTablesProtocolSuite implements ProtocolSuite{
 	}
 	
 	private TinyTablesProtocolSuite(int id) {
-		this.storage = new TinyTablesStorageImpl(id);
+		this.storage = TinyTablesStorageImpl.getInstance(id);
 	}
 	
 	@Override
