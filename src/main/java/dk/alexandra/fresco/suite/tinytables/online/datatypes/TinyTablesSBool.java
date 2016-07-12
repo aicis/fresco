@@ -73,7 +73,7 @@ public class TinyTablesSBool implements SBool {
 
 	@Override
 	public String toString() {
-		return "NinjaSBool [value=" + value + "]";
+		return "TinyTablesSBool [value=" + value + "]";
 	}
 	
 	public void setTinyTable(TinyTable table) {

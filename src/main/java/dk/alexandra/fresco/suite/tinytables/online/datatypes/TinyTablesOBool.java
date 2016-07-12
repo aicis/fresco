@@ -75,7 +75,7 @@ public class TinyTablesOBool implements OBool{
 
 	@Override
 	public String toString() {
-		return "NinjaOBool [value=" + value + "]";
+		return "TinyTablesOBool [value=" + value + "]";
 	}
 
 }
