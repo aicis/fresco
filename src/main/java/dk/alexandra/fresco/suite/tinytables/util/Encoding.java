@@ -28,7 +28,7 @@ public class Encoding {
 	}
 	
 	/**
-	 * Decode a byte-encoded boolean (see {@link #encodeBoolean(boolean)}.
+	 * Decode a byte-encoded boolean. See {@link #encodeBoolean(boolean)}.
 	 * 
 	 * @param b
 	 * @return
