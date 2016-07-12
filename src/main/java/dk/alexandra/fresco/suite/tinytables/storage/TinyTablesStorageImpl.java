@@ -41,7 +41,6 @@ public class TinyTablesStorageImpl implements TinyTablesStorage {
 	 */
 	private static final long serialVersionUID = -3455535991348570325L;
 	private Map<Integer, TinyTable> tinyTables = new ConcurrentHashMap<>();
-	private int storageId;
 	private Map<Integer, Boolean> maskShares = new ConcurrentHashMap<>();
 	
 	/*
