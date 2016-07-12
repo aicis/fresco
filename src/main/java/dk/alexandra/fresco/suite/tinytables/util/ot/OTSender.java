@@ -51,8 +51,9 @@ public class OTSender {
 					String base64input0 = Base64.getEncoder().encodeToString(input0);
 					String base64input1 = Base64.getEncoder().encodeToString(input1);
 
-					ProcessBuilder builder = new ProcessBuilder(OTConfig.SCAPI_CMD, OTConfig.OT_SENDER,
-							host, Integer.toString(port), base64input0, base64input1);
+					ProcessBuilder builder = new ProcessBuilder(OTConfig.SCAPI_CMD, "-cp",
+							OTConfig.CLASSPATH, OTConfig.OT_SENDER, host, Integer.toString(port),
+							base64input0, base64input1);
 					
 					String path = new File("") + OTConfig.PATH;	
 					

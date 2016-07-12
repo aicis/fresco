@@ -61,11 +61,13 @@ public class OTReceiver {
 					 */
 					String base64sigmas = Base64.getEncoder().encodeToString(binarySigmas);
 
-					ProcessBuilder builder = new ProcessBuilder(OTConfig.SCAPI_CMD,
-							OTConfig.OT_RECEIVER, host, Integer.toString(port), base64sigmas);
+					ProcessBuilder builder = new ProcessBuilder(OTConfig.SCAPI_CMD, "-cp",
+							OTConfig.CLASSPATH, OTConfig.OT_RECEIVER, host, Integer.toString(port),
+							base64sigmas);
 					builder.directory(new File(OTConfig.PATH));
+					
 					Process p = builder.start();
-
+					
 					p.waitFor();
 
 					String base64output = new BufferedReader(new InputStreamReader(
