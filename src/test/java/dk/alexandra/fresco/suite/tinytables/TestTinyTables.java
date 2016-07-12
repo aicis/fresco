@@ -156,7 +156,7 @@ public class TestTinyTables {
 		FileOutputStream fout = new FileOutputStream(filename);
 		ObjectOutputStream oos = new ObjectOutputStream(fout);
 		oos.writeObject(tinyTablesStorage);
-		System.out.println("Saving tables in file " + filename);
+		Reporter.info("Saving tables in file " + filename);
 		oos.close();
 	}
 
@@ -225,6 +225,11 @@ public class TestTinyTables {
 		runTest(new BristolCryptoTests.AesTest(), EvaluationStrategy.SEQUENTIAL, false, "testAES");
 	}
 
+	/*
+	 * TODO: Parallel evaluation does not work yet.
+	 * TinyTablesPreproProtocolSuite.finishedEval is called before all inputs
+	 * for the OT's are store.
+	 */
 	@Ignore
 	@Test
 	public void testAES_parallel() throws Exception {
