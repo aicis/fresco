@@ -33,7 +33,6 @@ import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.sce.configuration.ProtocolSuiteConfiguration;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.suite.ProtocolSuite;
-import dk.alexandra.fresco.suite.tinytables.storage.TinyTablesDummyStorage;
 import dk.alexandra.fresco.suite.tinytables.storage.TinyTablesStorage;
 import dk.alexandra.fresco.suite.tinytables.storage.TinyTablesStorageImpl;
 
@@ -50,15 +49,12 @@ public class TinyTablesProtocolSuite implements ProtocolSuite{
 	}
 	
 	private TinyTablesProtocolSuite(int id) {
-		this.storage = new TinyTablesDummyStorage(id);
+		this.storage = new TinyTablesStorageImpl(id);
 	}
 	
 	@Override
 	public void init(ResourcePool resourcePool, ProtocolSuiteConfiguration conf) {
-		TinyTablesConfiguration tinyTableConfig = (TinyTablesConfiguration)conf;
-		if(!tinyTableConfig.useDummy()) {
-			this.storage = new TinyTablesStorageImpl(resourcePool.getStreamedStorage());	
-		}
+		
 	}
 	
 	public TinyTablesStorage getStorage() {

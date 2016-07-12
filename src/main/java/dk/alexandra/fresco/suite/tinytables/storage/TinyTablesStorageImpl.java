@@ -27,9 +27,9 @@
 package dk.alexandra.fresco.suite.tinytables.storage;
 
 import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import dk.alexandra.fresco.framework.sce.resources.storage.StreamedStorage;
 import dk.alexandra.fresco.suite.tinytables.util.ot.datatypes.OTInput;
 import dk.alexandra.fresco.suite.tinytables.util.ot.datatypes.OTSigma;
 
@@ -38,68 +38,80 @@ public class TinyTablesStorageImpl implements TinyTablesStorage {
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 995371807541938761L;
-	StreamedStorage storage;	
-	ConcurrentHashMap<Integer, TinyTable> map;
+	private static final long serialVersionUID = -3455535991348570325L;
+	private Map<Integer, TinyTable> tinyTables = new ConcurrentHashMap<>();
+	private int storageId;
+	private Map<Integer, Boolean> maskShares = new ConcurrentHashMap<>();
 	
-	public TinyTablesStorageImpl(StreamedStorage storage) {
-		this.storage = storage;
-		map = new ConcurrentHashMap<>();
+	/*
+	 * sigmas, otInputs and tmps are only used during preprocessing, and should not be
+	 * serialized.
+	 */
+	private transient LinkedHashMap<Integer, OTSigma[]> sigmas = new LinkedHashMap<>();	
+	private transient LinkedHashMap<Integer, OTInput[]> otInputs = new LinkedHashMap<>();
+	private transient Map<Integer, boolean[]> tmps = new ConcurrentHashMap<>();
+	
+	public TinyTablesStorageImpl(int id) {
+		this.storageId = storageId;
 	}
 
 	@Override
 	public boolean lookupTinyTable(int id, boolean... inputs) {
-		throw new UnsupportedOperationException("Not implemented, yet.");
+		TinyTable tinyTable = tinyTables.get(id);
+		if (tinyTable == null) {
+			throw new IllegalArgumentException("No TinyTable with ID " + id);
+		}
+		return tinyTable.getValue(inputs);
 	}
 
 	@Override
 	public TinyTable getTinyTable(int id) {
-		throw new UnsupportedOperationException("Not implemented, yet.");
+		return tinyTables.get(id);
 	}
 
 	@Override
 	public void storeTinyTable(int id, TinyTable table) {
-		throw new UnsupportedOperationException("Not implemented, yet.");		
+		tinyTables.put(id, table);
 	}
 
 	@Override
 	public void storeMaskShare(int id, boolean r) {
-		throw new UnsupportedOperationException("Not implemented, yet.");		
+		maskShares.put(id, r);
 	}
 
 	@Override
 	public boolean getMaskShare(int id) {
-		throw new UnsupportedOperationException("Not implemented, yet.");		
+		return maskShares.get(id);
 	}
 
 	@Override
 	public void storeOTSigma(int id, OTSigma[] sigmas) {
-		throw new UnsupportedOperationException("Not implemented, yet.");		
+		this.sigmas.put(id, sigmas);
 	}
 
 	@Override
 	public void storeOTInput(int id, OTInput[] inputs) {
-		throw new UnsupportedOperationException("Not implemented, yet.");		
+		this.otInputs.put(id, inputs);
 	}
 
 	@Override
 	public LinkedHashMap<Integer, OTSigma[]> getOTSigmas() {
-		throw new UnsupportedOperationException("Not implemented, yet.");		
+		return sigmas;
 	}
 
 	@Override
 	public LinkedHashMap<Integer, OTInput[]> getOTInputs() {
-		throw new UnsupportedOperationException("Not implemented, yet.");		
+		return otInputs;
 	}
 
 	@Override
 	public void storeTemporaryBooleans(int id, boolean[] booleans) {
-		throw new UnsupportedOperationException("Not implemented, yet.");
+		tmps.put(id, booleans);
 	}
 
 	@Override
 	public boolean[] getTemporaryBooleans(int id) {
-		throw new UnsupportedOperationException("Not implemented, yet.");
+		return tmps.get(id);
 	}
-	
+
 }

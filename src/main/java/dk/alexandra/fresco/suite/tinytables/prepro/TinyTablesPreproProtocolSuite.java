@@ -36,7 +36,6 @@ import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.tinytables.prepro.protocols.TinyTablesPreproANDProtocol;
 import dk.alexandra.fresco.suite.tinytables.storage.TinyTable;
-import dk.alexandra.fresco.suite.tinytables.storage.TinyTablesDummyStorage;
 import dk.alexandra.fresco.suite.tinytables.storage.TinyTablesStorage;
 import dk.alexandra.fresco.suite.tinytables.storage.TinyTablesStorageImpl;
 import dk.alexandra.fresco.suite.tinytables.util.ot.OTReceiver;
@@ -73,17 +72,12 @@ public class TinyTablesPreproProtocolSuite implements ProtocolSuite {
 	}
 
 	private TinyTablesPreproProtocolSuite(int id) {
-		this.storage = new TinyTablesDummyStorage(id);
+		this.storage = new TinyTablesStorageImpl(id);
 	}
 
 	@Override
 	public void init(ResourcePool resourcePool, ProtocolSuiteConfiguration conf) {
-		TinyTablesPreproConfiguration tinyTablePreproConfig = (TinyTablesPreproConfiguration) conf;
 		this.resourcePool = resourcePool;
-
-		if (!tinyTablePreproConfig.useDummy()) {
-			this.storage = new TinyTablesStorageImpl(resourcePool.getStreamedStorage());
-		}
 	}
 
 	public TinyTablesStorage getStorage() {
