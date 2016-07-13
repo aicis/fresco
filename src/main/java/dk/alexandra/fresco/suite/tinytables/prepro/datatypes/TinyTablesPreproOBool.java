@@ -28,6 +28,15 @@ package dk.alexandra.fresco.suite.tinytables.prepro.datatypes;
 
 import dk.alexandra.fresco.framework.value.OBool;
 
+/**
+ * This class represents an open boolean value in the TinyTable preprocessing
+ * phase. Note that open values does not make sense in the preprocessing phase
+ * where wires are not assigned any values, so this is simply a dummy
+ * implementation.
+ * 
+ * @author Jonas Lindstrøm (jonas.lindstrom@alexandra.dk)
+ *
+ */
 public class TinyTablesPreproOBool implements OBool{
 
 	/**

@@ -29,19 +29,28 @@ package dk.alexandra.fresco.suite.tinytables.prepro.datatypes;
 import dk.alexandra.fresco.framework.value.SBool;
 import dk.alexandra.fresco.suite.tinytables.util.Encoding;
 
+/**
+ * This class represents a masked boolean value in the preprocessing phase of
+ * the TinyTables protocol suite. Note that in the preprocessing phase, no
+ * values are assigned to the wires, so this class only handles the players
+ * share of the masking parameter of the wire.
+ * 
+ * @author Jonas Lindstrøm (jonas.lindstrom@alexandra.dk)
+ *
+ */
 public class TinyTablesPreproSBool implements SBool {
 
 	private static final long serialVersionUID = 8582913017231020209L;
 	private boolean share; // Additive share of mask of this SBool
-	
+
 	public TinyTablesPreproSBool(boolean share) {
-		 this.share = share;
+		this.share = share;
 	}
-	
+
 	public TinyTablesPreproSBool() {
 		this.share = false;
 	}
-	
+
 	@Override
 	public byte[] getSerializableContent() {
 		return new byte[] { Encoding.encodeBoolean(share) };
@@ -57,10 +66,22 @@ public class TinyTablesPreproSBool implements SBool {
 		return true;
 	}
 
+	/**
+	 * Get this players share of the mask <i>r</i> of the wire this SBool
+	 * corresponds to.
+	 * 
+	 * @return
+	 */
 	public boolean getShare() {
 		return share;
 	}
 
+	/**
+	 * Set this players share of the mask <i>r</i> of the wire this SBool
+	 * corresponds to.
+	 * 
+	 * @param share
+	 */
 	public void setShare(boolean share) {
 		this.share = share;
 	}
