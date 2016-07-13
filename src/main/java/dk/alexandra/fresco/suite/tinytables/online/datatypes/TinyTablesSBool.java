@@ -27,7 +27,6 @@
 package dk.alexandra.fresco.suite.tinytables.online.datatypes;
 
 import dk.alexandra.fresco.framework.value.SBool;
-import dk.alexandra.fresco.suite.tinytables.storage.TinyTable;
 import dk.alexandra.fresco.suite.tinytables.util.Encoding;
 
 /**
@@ -44,7 +43,6 @@ public class TinyTablesSBool implements SBool {
 	private static final long serialVersionUID = 8582913017231020209L;
 	private boolean value;
 	private boolean isReady;
-	private TinyTable table;
 	
 	public TinyTablesSBool() {
 		 value = false;
@@ -83,14 +81,6 @@ public class TinyTablesSBool implements SBool {
 	@Override
 	public String toString() {
 		return "TinyTablesSBool [value=" + value + "]";
-	}
-	
-	public void setTinyTable(TinyTable table) {
-		this.table = table;
-	}
-	
-	public TinyTable getTinyTable() {
-		return this.table;
 	}
 	
 }
