@@ -33,9 +33,36 @@ import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.sce.configuration.ProtocolSuiteConfiguration;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.suite.ProtocolSuite;
+import dk.alexandra.fresco.suite.tinytables.online.protocols.TinyTablesANDProtocol;
+import dk.alexandra.fresco.suite.tinytables.online.protocols.TinyTablesCloseProtocol;
+import dk.alexandra.fresco.suite.tinytables.online.protocols.TinyTablesNOTProtocol;
+import dk.alexandra.fresco.suite.tinytables.online.protocols.TinyTablesOpenToAllProtocol;
+import dk.alexandra.fresco.suite.tinytables.online.protocols.TinyTablesXORProtocol;
+import dk.alexandra.fresco.suite.tinytables.prepro.TinyTablesPreproProtocolSuite;
 import dk.alexandra.fresco.suite.tinytables.storage.TinyTablesStorage;
-import dk.alexandra.fresco.suite.tinytables.storage.TinyTablesStorageImpl;
 
+/**
+ * <p>
+ * This protocol suite is intended for the online phase of the TinyTables
+ * protocol as created by Ivan Damgård, Jesper Buus Nielsen and Michael Nielsen
+ * from the Department of Computer Science at Aarhus University.
+ * </p>
+ * 
+ * <p>
+ * When evaluating a protocol in the online phase, it is assumed that the same
+ * protocol has been evaluated in the preprocessing phase (see
+ * {@link TinyTablesPreproProtocolSuite}), and that all protocols/gates are
+ * evaluated in the exact same order. In the preprocessing phase, the two
+ * players picked their additive shares of the masks for all wires. In the
+ * online phase, the players add actual input values to their share of the mask,
+ * and evaluate the protocol. The details on how this is done can be seen in the
+ * specific protocols: {@link TinyTablesANDProtocol},
+ * {@link TinyTablesCloseProtocol}, {@link TinyTablesNOTProtocol},
+ * {@link TinyTablesOpenToAllProtocol} and {@link TinyTablesXORProtocol}.
+ * </p>
+ * 
+ * @author Jonas Lindstrøm (jonas.lindstrom@alexandra.dk)
+ */
 public class TinyTablesProtocolSuite implements ProtocolSuite{
 
 	private TinyTablesStorage storage;
@@ -43,13 +70,9 @@ public class TinyTablesProtocolSuite implements ProtocolSuite{
 	
 	public static TinyTablesProtocolSuite getInstance(int id) {
 		if(instances.get(id) == null) {			
-			instances.put(id, new TinyTablesProtocolSuite(id));
+			instances.put(id, new TinyTablesProtocolSuite());
 		}
 		return instances.get(id);
-	}
-	
-	private TinyTablesProtocolSuite(int id) {
-		this.storage = TinyTablesStorageImpl.getInstance(id);
 	}
 	
 	@Override

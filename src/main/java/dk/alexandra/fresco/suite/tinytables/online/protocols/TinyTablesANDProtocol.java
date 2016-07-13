@@ -37,12 +37,66 @@ import dk.alexandra.fresco.suite.tinytables.online.TinyTablesProtocolSuite;
 import dk.alexandra.fresco.suite.tinytables.online.datatypes.TinyTablesSBool;
 import dk.alexandra.fresco.suite.tinytables.util.Encoding;
 
-public class TinyTablesANDProtocol extends TinyTablesProtocol implements AndProtocol{
+/**
+ * <p>
+ * This class represents an AND protocol in the TinyTables protocol's online
+ * phase.
+ * </p>
+ * <p>
+ * Here it is assumed that each of the two players have computed a TinyTable for
+ * the protocol. Player 1 has picked random values for his:
+ * </p>
+ * <table>
+ * <tr>
+ * <td><i>t<sub>00</sub></i></td>
+ * <td><i>t<sub>01</sub></i></td>
+ * </tr>
+ * <tr>
+ * <td><i>t<sub>10</sub></i></td>
+ * <td><i>t<sub>11</sub></i></td>
+ * </tr>
+ * </table>
+ * <p>
+ * and player 2 has computer a TinyTable which looks like this
+ * </p>
+ * <table>
+ * <tr>
+ * <td><i>t<sub>00</sub>+r<sub>O</sub>+r<sub>u</sub>r<sub>v</sub></i></td>
+ * <td><i>t<sub>01</sub>+r<sub>O</sub>+r<sub>u</sub>(r<sub>v</sub>+1)</i></td>
+ * </tr>
+ * <tr>
+ * <td><i>t<sub>10</sub>+r<sub>O</sub>+(r<sub>u</sub>+1)r<sub>v</sub></i></td>
+ * <td><i>t<sub>11</sub>+r<sub>O</sub>+(r<sub>u</sub>+1)(r<sub>v</sub>+1)</i></td>
+ * </tr>
+ * </table>
+ * <p>
+ * Now, both players know the encrypted inputs of the input wires wires
+ * <i>e<sub>u</sub> = b<sub>u</sub>+r<sub>u</sub></i> and <i>e<sub>v</sub> =
+ * b<sub>v</sub>+r<sub>v</sub></i> where <i>b<sub>u</sub></i> and
+ * <i>b<sub>v</sub></i> are the clear text bits, and each now looks up entry
+ * <i>(e<sub>u</sub>, e<sub>v</sub>)</i> in his TinyTable and shares this with
+ * the other player. Both players now add their share with the other players
+ * share to get
+ * </p>
+ * <p>
+ * <i>t<sub>e<sub>u</sub>e<sub>v</sub></sub> +
+ * t<sub>e<sub>u</sub>e<sub>v</sub></sub> + r<sub>O</sub> +
+ * (r<sub>u</sub>+e<sub>u</sub>)(r<sub>v</sub>+e<sub>v</sub>) = r<sub>O</sub> +
+ * b<sub>u</sub>b<sub>v</sub> = e<sub>O</sub></i>,
+ * </p>
+ * <p>
+ * which is the masked value of the output wire.
+ * </p>
+ * 
+ * @author Jonas Lindstrøm (jonas.lindstrom@alexandra.dk)
+ */
+public class TinyTablesANDProtocol extends TinyTablesProtocol implements AndProtocol {
 
 	private int id;
 	private TinyTablesSBool inLeft, inRight, out;
-	
-	public TinyTablesANDProtocol(int id, TinyTablesSBool inLeft, TinyTablesSBool inRight, TinyTablesSBool out) {
+
+	public TinyTablesANDProtocol(int id, TinyTablesSBool inLeft, TinyTablesSBool inRight,
+			TinyTablesSBool out) {
 		super();
 		this.id = id;
 		this.inLeft = inLeft;
@@ -52,35 +106,36 @@ public class TinyTablesANDProtocol extends TinyTablesProtocol implements AndProt
 
 	@Override
 	public Value[] getInputValues() {
-		return new Value[] {inLeft, inRight};
+		return new Value[] { inLeft, inRight };
 	}
 
 	@Override
 	public Value[] getOutputValues() {
-		return new Value[] {out};
+		return new Value[] { out };
 	}
 
 	@Override
 	public EvaluationStatus evaluate(int round, ResourcePool resourcePool, SCENetwork network) {
-		TinyTablesProtocolSuite ps = TinyTablesProtocolSuite.getInstance(resourcePool.getMyId());	
-		
-		switch(round) {
-		case 0: 
-			boolean myShare = ps.getStorage().lookupTinyTable(id, inLeft.getValue(), inRight.getValue());
-			
-			network.expectInputFromAll();
-			network.sendToAll(new byte[] { Encoding.encodeBoolean(myShare) });
-			return EvaluationStatus.HAS_MORE_ROUNDS;
-		case 1:
-			List<byte[]> shares = network.receiveFromAll();		
-			boolean res = false;
-			for(byte[] share : shares) {
-				res = res ^ Encoding.decodeBoolean(share[0]);
-			}
-			this.out.setValue(res);
-			return EvaluationStatus.IS_DONE;
-		default:
-			throw new MPCException("Cannot evaluate rounds larger than 0");
+		TinyTablesProtocolSuite ps = TinyTablesProtocolSuite.getInstance(resourcePool.getMyId());
+
+		switch (round) {
+			case 0:
+				boolean myShare = ps.getStorage().lookupTinyTable(id, inLeft.getValue(),
+						inRight.getValue());
+
+				network.expectInputFromAll();
+				network.sendToAll(new byte[] { Encoding.encodeBoolean(myShare) });
+				return EvaluationStatus.HAS_MORE_ROUNDS;
+			case 1:
+				List<byte[]> shares = network.receiveFromAll();
+				boolean res = false;
+				for (byte[] share : shares) {
+					res = res ^ Encoding.decodeBoolean(share[0]);
+				}
+				this.out.setValue(res);
+				return EvaluationStatus.IS_DONE;
+			default:
+				throw new MPCException("Cannot evaluate rounds larger than 0");
 		}
 	}
 

@@ -32,6 +32,21 @@ import dk.alexandra.fresco.framework.value.Value;
 import dk.alexandra.fresco.lib.field.bool.NotProtocol;
 import dk.alexandra.fresco.suite.tinytables.prepro.datatypes.TinyTablesPreproSBool;
 
+/**
+ * <p>
+ * This class represents a NOT protocol for the preprocessing phase of the
+ * TinyTables protocol suite.
+ * </p>
+ * 
+ * <p>
+ * Here both players assign their share of the mask of the output wire to be the
+ * same as their share of the input wire, hence letting the mask of the output
+ * wire to be equal to the mask of the input wire.
+ * </p>
+ * 
+ * @author Jonas Lindstrøm (jonas.lindstrom@alexandra.dk)
+ *
+ */
 public class TinyTablesPreproNOTProtocol extends TinyTablesPreproProtocol implements NotProtocol{
 
 	private TinyTablesPreproSBool in, out;

@@ -32,11 +32,28 @@ import dk.alexandra.fresco.framework.value.Value;
 import dk.alexandra.fresco.lib.field.bool.XorProtocol;
 import dk.alexandra.fresco.suite.tinytables.prepro.datatypes.TinyTablesPreproSBool;
 
-public class TinyTablesPreproXORProtocol extends TinyTablesPreproProtocol implements XorProtocol{
+/**
+ * <p>
+ * This class represents an XOR protocol in the preprocessing phase of the
+ * TinyTables protocol suite.
+ * </p>
+ * 
+ * <p>
+ * Here each player lets his additive share of the mask of the output wire,
+ * <i>r<sub>O</sub></i> be the sum of his shares of the masks of the input
+ * wires, <i>r<sub>u</sub></i> and <i>r<sub>v</sub></i>, so in turn,
+ * <i>r<sub>O</sub> = r<sub>u</sub> + r<sub>v</sub></i>.
+ * </p>
+ * 
+ * @author Jonas Lindstrøm (jonas.lindstrom@alexandra.dk)
+ *
+ */
+public class TinyTablesPreproXORProtocol extends TinyTablesPreproProtocol implements XorProtocol {
 
 	private TinyTablesPreproSBool inLeft, inRight, out;
-	
-	public TinyTablesPreproXORProtocol(int id, TinyTablesPreproSBool inLeft, TinyTablesPreproSBool inRight, TinyTablesPreproSBool out) {
+
+	public TinyTablesPreproXORProtocol(int id, TinyTablesPreproSBool inLeft,
+			TinyTablesPreproSBool inRight, TinyTablesPreproSBool out) {
 		super();
 		this.id = id;
 		this.inLeft = inLeft;
@@ -62,7 +79,7 @@ public class TinyTablesPreproXORProtocol extends TinyTablesPreproProtocol implem
 		 */
 		boolean r = inLeft.getShare() ^ inRight.getShare();
 		out.setShare(r);
-		
+
 		return EvaluationStatus.IS_DONE;
 	}
 

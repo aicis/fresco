@@ -34,6 +34,21 @@ import dk.alexandra.fresco.suite.tinytables.prepro.TinyTablesPreproProtocolSuite
 import dk.alexandra.fresco.suite.tinytables.prepro.datatypes.TinyTablesPreproOBool;
 import dk.alexandra.fresco.suite.tinytables.prepro.datatypes.TinyTablesPreproSBool;
 
+/**
+ * <p>
+ * This class represents an open-to-all protocol in the preprocessing phase of
+ * the TinyTables protocol.
+ * </p>
+ * 
+ * <p>
+ * Here each player stores his share of the mask of the input wire. In the
+ * online phase this is then shared with the other player to allow the unmasking
+ * of the input value.
+ * </p>
+ * 
+ * @author Jonas Lindstrøm (jonas.lindstrom@alexandra.dk)
+ *
+ */
 public class TinyTablesPreproOpenToAllProtocol extends TinyTablesPreproProtocol implements OpenBoolProtocol{
 
 	private TinyTablesPreproSBool toOpen;

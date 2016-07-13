@@ -38,11 +38,26 @@ import dk.alexandra.fresco.suite.tinytables.online.datatypes.TinyTablesOBool;
 import dk.alexandra.fresco.suite.tinytables.online.datatypes.TinyTablesSBool;
 import dk.alexandra.fresco.suite.tinytables.util.Encoding;
 
-public class TinyTablesOpenToAllProtocol extends TinyTablesProtocol implements OpenBoolProtocol{
+/**
+ * <p>
+ * This class represents an open-to-all protocol in the TinyTables preprocessing
+ * phase.
+ * </p>
+ *
+ * <p>
+ * Here, each of the two players send his share of the masking parameter
+ * <i>r</i> to the other player such that each player can add this to the masked
+ * input <i>e = b + r</i> to get the unmasked output <i>b</i>.
+ * </p>
+ * 
+ * @author Jonas Lindstrøm (jonas.lindstrom@alexandra.dk)
+ *
+ */
+public class TinyTablesOpenToAllProtocol extends TinyTablesProtocol implements OpenBoolProtocol {
 
 	private TinyTablesSBool toOpen;
 	private TinyTablesOBool opened;
-	
+
 	public TinyTablesOpenToAllProtocol(int id, TinyTablesSBool toOpen, TinyTablesOBool opened) {
 		super();
 		this.id = id;
@@ -52,17 +67,17 @@ public class TinyTablesOpenToAllProtocol extends TinyTablesProtocol implements O
 
 	@Override
 	public Value[] getInputValues() {
-		return new Value[] {toOpen};
+		return new Value[] { toOpen };
 	}
 
 	@Override
 	public Value[] getOutputValues() {
-		return new Value[] {opened};
+		return new Value[] { opened };
 	}
 
 	@Override
 	public EvaluationStatus evaluate(int round, ResourcePool resourcePool, SCENetwork network) {
-		TinyTablesProtocolSuite ps = TinyTablesProtocolSuite.getInstance(resourcePool.getMyId()); 
+		TinyTablesProtocolSuite ps = TinyTablesProtocolSuite.getInstance(resourcePool.getMyId());
 
 		/*
 		 * When opening a value, all players send their shares of the masking
@@ -70,22 +85,22 @@ public class TinyTablesOpenToAllProtocol extends TinyTablesProtocol implements O
 		 * unmasked value as the XOR of the masked value and all the shares of
 		 * the mask.
 		 */
-		switch(round) {
-		case 0: 
-			boolean myR = ps.getStorage().getMaskShare(id);
-			network.sendToAll(new byte[] { Encoding.encodeBoolean(myR) } );
-			network.expectInputFromAll();
-			return EvaluationStatus.HAS_MORE_ROUNDS;
-		case 1:
-			List<byte[]> shares = network.receiveFromAll();
-			boolean result = toOpen.getValue();
-			for (byte[] share : shares) {
-				result ^= Encoding.decodeBoolean(share[0]);
-			}
-			opened.setValue(result);
-			return EvaluationStatus.IS_DONE;
-		default:
-			throw new MPCException("Cannot evaluate rounds larger than 1");
+		switch (round) {
+			case 0:
+				boolean myR = ps.getStorage().getMaskShare(id);
+				network.sendToAll(new byte[] { Encoding.encodeBoolean(myR) });
+				network.expectInputFromAll();
+				return EvaluationStatus.HAS_MORE_ROUNDS;
+			case 1:
+				List<byte[]> shares = network.receiveFromAll();
+				boolean result = toOpen.getValue();
+				for (byte[] share : shares) {
+					result ^= Encoding.decodeBoolean(share[0]);
+				}
+				opened.setValue(result);
+				return EvaluationStatus.IS_DONE;
+			default:
+				throw new MPCException("Cannot evaluate rounds larger than 1");
 		}
 	}
 

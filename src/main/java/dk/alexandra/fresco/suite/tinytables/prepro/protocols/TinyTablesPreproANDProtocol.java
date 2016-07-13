@@ -40,6 +40,58 @@ import dk.alexandra.fresco.suite.tinytables.util.ot.OTSender;
 import dk.alexandra.fresco.suite.tinytables.util.ot.datatypes.OTInput;
 import dk.alexandra.fresco.suite.tinytables.util.ot.datatypes.OTSigma;
 
+/**
+ * <p>
+ * This class represents an AND protocol in the preprocessing phase of the
+ * TinyTables protocol.
+ * </p>
+ * 
+ * <p>
+ * Here, each of the two players picks random shares for the mask of the output
+ * wire, <i>r<sub>O</sub></i>. Each player also has to calculate a so called
+ * <i>TinyTable</i> for this protocol. Player 1 picks random values for his:
+ * </p>
+ * <table>
+ * <tr>
+ * <td><i>t<sub>00</sub></i></td>
+ * <td><i>t<sub>01</sub></i></td>
+ * </tr>
+ * <tr>
+ * <td><i>t<sub>10</sub></i></td>
+ * <td><i>t<sub>11</sub></i></td>
+ * </tr>
+ * </table>
+ * <p>
+ * and player 2 needs to compute a TinyTable which looks like this
+ * </p>
+ * <table>
+ * <tr>
+ * <td><i>t<sub>00</sub>+r<sub>O</sub>+r<sub>u</sub>r<sub>v</sub></i></td>
+ * <td><i>t<sub>01</sub>+r<sub>O</sub>+r<sub>u</sub>(r<sub>v</sub>+1)</i></td>
+ * </tr>
+ * <tr>
+ * <td><i>t<sub>10</sub>+r<sub>O</sub>+(r<sub>u</sub>+1)r<sub>v</sub></i></td>
+ * <td><i>t<sub>11</sub>+r<sub>O</sub>+(r<sub>u</sub>+1)(r<sub>v</sub>+1)</i></td>
+ * </tr>
+ * </table>
+ * <p>
+ * This is done using oblivious transfer, but for performance reasons this is
+ * not done until the end of the preprocessing phase where all oblivious
+ * transfers are done in one batch. So here, player 1 just stores his inputs to
+ * oblivious transfer, {@link #calculateOTInputs(TinyTable, boolean)}), and some
+ * additional valus needed by player 2 to calculate his TinyTable,
+ * {@link #calculateTmps(TinyTable)}.
+ * </p>
+ * <p>
+ * Now, after the oblivious transfers are finished, player 2 can compute his
+ * TinyTable using
+ * {@link #calculateTinyTable(boolean, boolean, boolean, boolean, boolean, boolean[])}
+ * .
+ * </p>
+ * 
+ * @author Jonas Lindstrøm (jonas.lindstrom@alexandra.dk)
+ *
+ */
 public class TinyTablesPreproANDProtocol extends TinyTablesPreproProtocol implements AndProtocol {
 
 	private int id;
@@ -113,8 +165,8 @@ public class TinyTablesPreproANDProtocol extends TinyTablesPreproProtocol implem
 					 */
 
 					/*
-					 * The receiver (player 2) uses rV2 and rU2 resp. as
-					 * sigmas for the two OT's.
+					 * The receiver (player 2) uses rV2 and rU2 resp. as sigmas
+					 * for the two OT's.
 					 */
 					OTSigma[] sigmas = new OTSigma[] { new OTSigma(inRight.getShare()),
 							new OTSigma(inLeft.getShare()) };
@@ -206,13 +258,12 @@ public class TinyTablesPreproANDProtocol extends TinyTablesPreproProtocol implem
 	private OTInput[] calculateOTInputs(TinyTable t, boolean rO) {
 		boolean m = RandomSourceImpl.getInstance().getRandomBoolean();
 		OTInput[] otInputs = new OTInput[2];
-		boolean x0 = t.getValue(false, false) ^ rO ^ (inLeft.getShare() && inRight.getShare())
-				^ m;
+		boolean x0 = t.getValue(false, false) ^ rO ^ (inLeft.getShare() && inRight.getShare()) ^ m;
 		otInputs[0] = new OTInput(x0, x0 ^ inLeft.getShare());
 		otInputs[1] = new OTInput(m, m ^ inRight.getShare());
 		return otInputs;
 	}
-	
+
 	/**
 	 * 
 	 * @param output0
@@ -240,38 +291,41 @@ public class TinyTablesPreproANDProtocol extends TinyTablesPreproProtocol implem
 	 *            r<sub>V</sub><sup>1</sup>, t<sub>00</sub> + t<sub>01</sub> +
 	 *            r<sub>U</sub><sup>1</sup> + r<sub>V</sub><sup>1</sup></i>]</i>
 	 *            where <i>t</i> is player 1's TinyTable.
-	 * @return
-	 * Player 2's TinyTable such that the <i>entry 
+	 * @return Player 2's TinyTable such that the <i>entry
 	 */
-	public static TinyTable calculateTinyTable(boolean output0, boolean output1, boolean rU, boolean rV,
-			boolean rO, boolean[] y) {
-		boolean[] t = new boolean[4];
+	public static TinyTable calculateTinyTable(boolean output0, boolean output1, boolean rU,
+			boolean rV, boolean rO, boolean[] y) {
+		boolean[] s = new boolean[4];
 		/*
-		 * In the comments below, we let s denote player 1's TinyTable and m
+		 * In the comments below, we let t denote player 1's TinyTable and m
 		 * denote a random mask chosen by player 1 during preprocessing.
 		 */
-		
-		/*
-		 * t[0] = t_00 = s_00 + rO^1 + rU1 rU1 + m + rU1 rV2 + m + rU2 rV1 + rU2 rV2 + rO^2 = s_00 + rO + rU rV
-		 */ 
-		t[0] = output0 ^ output1 ^ (rU && rV) ^ rO;
-		
-		/*
-		 * t[1] = t_01 = s_00 + rO + rU rV + s_00 + s_01 + rU1 + rU = s_01 + rO + rU !rV
-		 */
-		t[1] = t[0] ^ y[0] ^ rU; 
 
 		/*
-		 * t[2] = t_10 = s_00 + rO + rU rV + s_00 + s_10 + rV1 + rV2 = s_10 + rO + !rU rV
+		 * s[0] = s_00 = t_00 + rO^1 + rU1 rU1 + m + rU1 rV2 + m + rU2 rV1 + rU2
+		 * rV2 + rO^2 = t_00 + rO + rU rV
 		 */
-		t[2] = t[0] ^ y[1] ^ rV;
-		
+		s[0] = output0 ^ output1 ^ (rU && rV) ^ rO;
+
 		/*
-		 * t[3] = t_11 = s_00 + rO + rU & rV + s_00 + s_11 + rU1 + rV1 + rU2 + rV2 + 1 = s_11 + rO + !rU !rV
+		 * s[1] = s_01 = t_00 + rO + rU rV + t_00 + t_01 + rU1 + rU = t_01 + rO
+		 * + rU !rV
 		 */
-		t[3] = t[0] ^ y[2] ^ rU ^ rV ^ true; 
-		
-		TinyTable tinyTable = new TinyTable(t);
+		s[1] = s[0] ^ y[0] ^ rU;
+
+		/*
+		 * s[2] = s_10 = t_00 + rO + rU rV + t_00 + t_10 + rV1 + rV2 = t_10 + rO
+		 * + !rU rV
+		 */
+		s[2] = s[0] ^ y[1] ^ rV;
+
+		/*
+		 * s[3] = s_11 = t_00 + rO + rU & rV + t_00 + t_11 + rU1 + rV1 + rU2 +
+		 * rV2 + 1 = t_11 + rO + !rU !rV
+		 */
+		s[3] = s[0] ^ y[2] ^ rU ^ rV ^ true;
+
+		TinyTable tinyTable = new TinyTable(s);
 		return tinyTable;
-	}	
+	}
 }

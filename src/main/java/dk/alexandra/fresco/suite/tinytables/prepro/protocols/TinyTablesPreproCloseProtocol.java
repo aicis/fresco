@@ -37,6 +37,21 @@ import dk.alexandra.fresco.suite.tinytables.prepro.datatypes.TinyTablesPreproOBo
 import dk.alexandra.fresco.suite.tinytables.prepro.datatypes.TinyTablesPreproSBool;
 import dk.alexandra.fresco.suite.tinytables.util.RandomSourceImpl;
 
+/**
+ * <p>
+ * This class represents a close protocol in the preprocessing phase of the
+ * TinyTables protocol.
+ * </p>
+ * 
+ * <p>
+ * Here the one player, the inputter, knows the input value <i>b</i>, and he
+ * picks a random mask <i>r</i> and sends <i>e = b + r</i> to the other player,
+ * who simply assigns <code>false</code> to his share of the mask.
+ * </p>
+ * 
+ * @author Jonas Lindstrøm (jonas.lindstrom@alexandra.dk)
+ *
+ */
 public class TinyTablesPreproCloseProtocol extends TinyTablesPreproProtocol implements CloseBoolProtocol {
 
 	private int inputter;

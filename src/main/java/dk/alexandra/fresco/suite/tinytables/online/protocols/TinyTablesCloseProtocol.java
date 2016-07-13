@@ -36,55 +36,70 @@ import dk.alexandra.fresco.lib.field.bool.CloseBoolProtocol;
 import dk.alexandra.fresco.suite.tinytables.online.TinyTablesProtocolSuite;
 import dk.alexandra.fresco.suite.tinytables.online.datatypes.TinyTablesOBool;
 import dk.alexandra.fresco.suite.tinytables.online.datatypes.TinyTablesSBool;
+import dk.alexandra.fresco.suite.tinytables.prepro.protocols.TinyTablesPreproCloseProtocol;
 import dk.alexandra.fresco.suite.tinytables.util.Encoding;
 
+/**
+ * <p>
+ * This class represents a close protocol in the online phase of the TinyTables
+ * protocol.
+ * </p>
+ * <p>
+ * Here one of the players is the inputter and knows the unmasked input value
+ * <i>b</i>. During the preprocessing phase (see
+ * {@link TinyTablesPreproCloseProtocol}, the inputter picked a random mask
+ * <i>r</i>. Now, he sends the masked value <i>e = b + r</i> to the other
+ * player.
+ * </p>
+ * 
+ * @author Jonas Lindstrøm (jonas.lindstrom@alexandra.dk)
+ *
+ */
 public class TinyTablesCloseProtocol extends TinyTablesProtocol implements CloseBoolProtocol {
 
 	private int inputter;
 	private TinyTablesOBool in;
 	private TinyTablesSBool out;
-	
+
 	public TinyTablesCloseProtocol(int id, int inputter, OBool in, SBool out) {
 		this.id = id;
 		this.inputter = inputter;
-		this.in = (TinyTablesOBool)in;
-		this.out = (TinyTablesSBool)out;
+		this.in = (TinyTablesOBool) in;
+		this.out = (TinyTablesSBool) out;
 	}
-	
+
 	@Override
 	public Value[] getInputValues() {
-		return new Value[] {in};
+		return new Value[] { in };
 	}
 
 	@Override
 	public Value[] getOutputValues() {
-		return new Value[] {out};
+		return new Value[] { out };
 	}
 
 	@Override
 	public EvaluationStatus evaluate(int round, ResourcePool resourcePool, SCENetwork network) {
-		TinyTablesProtocolSuite ps = TinyTablesProtocolSuite.getInstance(resourcePool.getMyId()); 
-		switch(round) {
-		case 0: 			
-			if(resourcePool.getMyId() == this.inputter) {
-				boolean r = ps.getStorage().getMaskShare(id);
-				boolean e = this.in.getValue() ^ r;
-				out.setValue(e);
-				network.sendToAll(new byte[] { Encoding.encodeBoolean(e) } );
-			}
-			network.expectInputFromPlayer(this.inputter);
-			return EvaluationStatus.HAS_MORE_ROUNDS;
-			
-		case 1:
-			byte[] share = network.receive(this.inputter);
-			out.setValue(Encoding.decodeBoolean(share[0]));
-			return EvaluationStatus.IS_DONE;
-			
-		default:
-			throw new MPCException("Cannot evaluate rounds larger than 1");
+		TinyTablesProtocolSuite ps = TinyTablesProtocolSuite.getInstance(resourcePool.getMyId());
+		switch (round) {
+			case 0:
+				if (resourcePool.getMyId() == this.inputter) {
+					boolean r = ps.getStorage().getMaskShare(id);
+					boolean e = this.in.getValue() ^ r;
+					out.setValue(e);
+					network.sendToAll(new byte[] { Encoding.encodeBoolean(e) });
+				}
+				network.expectInputFromPlayer(this.inputter);
+				return EvaluationStatus.HAS_MORE_ROUNDS;
+
+			case 1:
+				byte[] share = network.receive(this.inputter);
+				out.setValue(Encoding.decodeBoolean(share[0]));
+				return EvaluationStatus.IS_DONE;
+
+			default:
+				throw new MPCException("Cannot evaluate rounds larger than 1");
 		}
 	}
-
-	
 
 }

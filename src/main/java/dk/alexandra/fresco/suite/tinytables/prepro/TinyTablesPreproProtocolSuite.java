@@ -34,6 +34,7 @@ import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.sce.configuration.ProtocolSuiteConfiguration;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.suite.ProtocolSuite;
+import dk.alexandra.fresco.suite.tinytables.online.TinyTablesProtocolSuite;
 import dk.alexandra.fresco.suite.tinytables.prepro.protocols.TinyTablesPreproANDProtocol;
 import dk.alexandra.fresco.suite.tinytables.storage.TinyTable;
 import dk.alexandra.fresco.suite.tinytables.storage.TinyTablesStorage;
@@ -44,18 +45,35 @@ import dk.alexandra.fresco.suite.tinytables.util.ot.datatypes.OTInput;
 import dk.alexandra.fresco.suite.tinytables.util.ot.datatypes.OTSigma;
 
 /**
- * This protocol suite is meant for the preprocessing phase of the TinyTables
- * protocol. Here each player picks his additive share of a mask for each wite
- * in a protocol, and for each AND protocol, each of the two players must also
- * calculate a so-called TinyTable which is used in the online phase. The
- * masking values and TinyTables are stored in a {@link TinyTablesStorage} which
- * can be stored for later use in the online phase.
+ * <p>
+ * This protocol suite is intended for the preprocessing phase of the TinyTables
+ * protocol as created by Ivan Damgård, Jesper Buus Nielsen and Michael Nielsen
+ * from the Department of Computer Science at Aarhus University.
+ * </p>
  * 
- * Since all the values found during the preprocessing phase is saved with a
- * protocols ID as key, it is important that the protocol is created exactly the
- * same way in the preprocessing and online phases.
+ * <p>
+ * The TinyTables protocol has to phases - a <i>preprocessing</i> and an
+ * <i>online</i> phase. In the preprocessing phase, each of the two players
+ * picks his additive share of a mask for each input wire of a protocol.
+ * Furthermore, for each AND protocol each of the two players must also
+ * calculate a so-called <i>TinyTable</i> which is used in the online phase (see
+ * {@link TinyTablesProtocolSuite}). This is done using oblivious transfer. To
+ * enhance performance, all oblivious transfers are done at the end of the
+ * preprocessing (see {@link TinyTablesPreproProtocolSuite#finishedEval()}).
+ * </p>
  * 
- * @author jonas
+ * <p>
+ * The masking values and TinyTables are stored in a {@link TinyTablesStorage}
+ * which can be stored for later use in the online phase. In order to avoid
+ * leaks, you should not reuse the values from a preprocessing in multiple
+ * evaluations of a protocol, but should instead preprocess once per evaluation.
+ * Note that all the values calculated during the preprocessing phase is saved
+ * with a protocols ID as key, which is simply incremented on each created
+ * protocol, it is important that the protocols are created in exactly the same
+ * order in the preprocessing and online phases.
+ * </p>
+ * 
+ * @author Jonas Lindstrøm (jonas.lindstrom@alexandra.dk)
  *
  */
 public class TinyTablesPreproProtocolSuite implements ProtocolSuite {
@@ -116,7 +134,9 @@ public class TinyTablesPreproProtocolSuite implements ProtocolSuite {
 			 * preprocessing. Note that the order of the sigmas and the order of
 			 * the inputs from the sender should be the same.
 			 */
-			int numberOfOts = 2 * inputsFromPrepro.keySet().size(); // Two OT's per AND-protocol
+			int numberOfOts = 2 * inputsFromPrepro.keySet().size(); // Two OT's
+																	// per
+																	// AND-protocol
 			OTInput[] inputs = new OTInput[numberOfOts];
 
 			int i = 0;
@@ -139,12 +159,13 @@ public class TinyTablesPreproProtocolSuite implements ProtocolSuite {
 			 */
 
 			/*
-			 * Create an array from the sigmas stored during preprocessing.
-			 * Note that the order of the sigmas and the order of the inputs
-			 * from the sender should be the same.
+			 * Create an array from the sigmas stored during preprocessing. Note
+			 * that the order of the sigmas and the order of the inputs from the
+			 * sender should be the same.
 			 */
 			LinkedHashMap<Integer, OTSigma[]> sigmasFromPrepro = storage.getOTSigmas();
-			int numberOfOts = sigmasFromPrepro.size() * 2; // Two OT's per AND-protocol
+			int numberOfOts = sigmasFromPrepro.size() * 2; // Two OT's per
+															// AND-protocol
 			OTSigma[] sigmas = new OTSigma[numberOfOts];
 			int i = 0;
 			for (int id : sigmasFromPrepro.keySet()) {
@@ -160,11 +181,11 @@ public class TinyTablesPreproProtocolSuite implements ProtocolSuite {
 			// TODO: Get host and port from configuration
 			boolean[] outputs = OTReceiver.transfer("localhost", 9005, sigmas);
 
-			if (outputs.length < 2*sigmasFromPrepro.size()) {
+			if (outputs.length < 2 * sigmasFromPrepro.size()) {
 				throw new MPCException("To few outputs from OT's: Expected "
 						+ sigmasFromPrepro.size() * 2 + " but got only " + outputs.length);
 			}
-			
+
 			int progress = 0;
 			for (int id : sigmasFromPrepro.keySet()) {
 
@@ -187,7 +208,8 @@ public class TinyTablesPreproProtocolSuite implements ProtocolSuite {
 				boolean rO = tmps[0];
 				boolean[] y = new boolean[] { tmps[1], tmps[2], tmps[3] };
 
-				TinyTable tinyTable = TinyTablesPreproANDProtocol.calculateTinyTable(output0, output1, rU, rV, rO, y);
+				TinyTable tinyTable = TinyTablesPreproANDProtocol.calculateTinyTable(output0,
+						output1, rU, rV, rO, y);
 				storage.storeTinyTable(id, tinyTable);
 
 				/*
@@ -199,7 +221,7 @@ public class TinyTablesPreproProtocolSuite implements ProtocolSuite {
 		}
 
 	}
-	
+
 	@Override
 	public void destroy() {
 		// TODO Auto-generated method stub
