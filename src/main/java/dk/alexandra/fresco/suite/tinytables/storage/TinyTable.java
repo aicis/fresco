@@ -7,9 +7,18 @@ import dk.alexandra.fresco.framework.math.Util;
 import dk.alexandra.fresco.suite.tinytables.util.RandomSource;
 
 /**
- * This class represents a table of booleans indexed by arrays of booleans of arbitrary size.
-
- * @author jonas
+ * <p>
+ * This class represents a table of booleans indexed by arrays of booleans of a
+ * fixed size.
+ * </p>
+ * 
+ * <p>
+ * In the TinyTables specifications, only TinyTables of dimension 2 is used, but
+ * we allow arbitrary dimension since we allow protocols to take an arbitrary
+ * number of inputs.
+ * </p>
+ * 
+ * @author Jonas Lindstrøm (jonas.lindstrom@alexandra.dk)
  *
  */
 public class TinyTable implements Serializable {
@@ -19,8 +28,8 @@ public class TinyTable implements Serializable {
 	 */
 	private static final long serialVersionUID = -802945096201320092L;
 	private boolean[] table;
-	private int numberOfInputs;
-	
+	private int dimension;
+
 	/**
 	 * Create a new TinyTable with the given values. Here the convention is that
 	 * the entry with index <i>[b<sub>0</sub>, b<sub>1</sub>, ...,
@@ -36,48 +45,51 @@ public class TinyTable implements Serializable {
 	 * @param values
 	 */
 	public TinyTable(boolean[] values) {
-		if ((values.length & (values.length - 1)) != 0) {
+		if (!Util.isPowerOfTwo(values.length)) {
 			throw new IllegalArgumentException("Array length must be a power of two");
 		}
 		this.table = values;
-		this.numberOfInputs = Util.log2(values.length);
+		this.dimension = Util.log2(values.length);
 	}
-	
+
 	/**
-	 * Create a new TinyTable with random entries.
+	 * Create a new <i>n</i> dimensional TinyTable with random entries.
 	 * 
 	 * @param randomSource
 	 */
-	public TinyTable(int inputs, RandomSource randomSource) {
-		this(randomSource.getRandomBooleans(1 << inputs));
+	public TinyTable(int dimension, RandomSource randomSource) {
+
+		// Table must have 2^dimension entries
+		this(randomSource.getRandomBooleans(1 << dimension));
 	}
-	
+
 	private boolean getValue(int index) {
 		return this.table[index];
 	}
-	
+
 	/**
-	 * Return the entry for this TinyTable corresponding to the given values of inputs.
+	 * Return the entry for this TinyTable corresponding to the given values of
+	 * inputs.
 	 * 
 	 * @param input
 	 * @return
 	 */
-	public boolean getValue(boolean ... input) {
-		if (input.length != numberOfInputs) {
+	public boolean getValue(boolean... input) {
+		if (input.length != dimension) {
 			throw new IllegalArgumentException("Input array is of wrong size");
 		}
 		return getValue(getIndex(input));
 	}
-	
+
 	/**
 	 * Return the number of boolean inputs used for this TinyTable.
 	 * 
 	 * @return
 	 */
 	public int getNumberOfInputs() {
-		return this.numberOfInputs;
+		return this.dimension;
 	}
-	
+
 	/**
 	 * Calculate the index used for the internal storage of the TinyTable which
 	 * is a one-dimensional boolean array. It is done by considering the input
@@ -87,7 +99,7 @@ public class TinyTable implements Serializable {
 	 * @return
 	 */
 	private int getIndex(boolean[] input) {
-		if (input.length != numberOfInputs) {
+		if (input.length != dimension) {
 			throw new IllegalArgumentException("Input array is of wrong size");
 		}
 
@@ -98,10 +110,10 @@ public class TinyTable implements Serializable {
 		}
 		return index;
 	}
-	
+
 	@Override
 	public String toString() {
 		return Arrays.toString(table);
 	}
-	
+
 }
