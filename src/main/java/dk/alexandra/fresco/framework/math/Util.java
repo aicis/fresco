@@ -74,7 +74,7 @@ public class Util {
 		return res;
 	}
 	
-	public boolean isPowerOfTwo(int n) {
+	public static boolean isPowerOfTwo(int n) {
 		return (n & (n - 1)) == 0;
 	}
 }
