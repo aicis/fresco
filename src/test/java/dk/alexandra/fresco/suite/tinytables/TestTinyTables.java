@@ -234,8 +234,10 @@ public class TestTinyTables {
 
 	/*
 	 * TODO: Parallel evaluation does not work yet.
+	 * 
 	 * TinyTablesPreproProtocolSuite.finishedEval is called before all inputs
-	 * for the OT's are store.
+	 * for the OT's are stored. And the id's associtated with each protocol does
+	 * not seem to be the same in the online phase since the order could vary.
 	 */
 	@Ignore
 	@Test
