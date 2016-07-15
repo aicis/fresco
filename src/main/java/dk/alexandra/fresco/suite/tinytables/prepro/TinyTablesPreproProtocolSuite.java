@@ -80,6 +80,7 @@ public class TinyTablesPreproProtocolSuite implements ProtocolSuite {
 
 	private TinyTablesStorage storage;
 	private ResourcePool resourcePool;
+	private TinyTablesPreproConfiguration configuration;
 	private static volatile Map<Integer, TinyTablesPreproProtocolSuite> instances = new HashMap<>();
 
 	public static TinyTablesPreproProtocolSuite getInstance(int id) {
@@ -94,8 +95,9 @@ public class TinyTablesPreproProtocolSuite implements ProtocolSuite {
 	}
 
 	@Override
-	public void init(ResourcePool resourcePool, ProtocolSuiteConfiguration conf) {
+	public void init(ResourcePool resourcePool, ProtocolSuiteConfiguration configuration) {
 		this.resourcePool = resourcePool;
+		this.configuration = (TinyTablesPreproConfiguration) configuration;
 	}
 
 	public TinyTablesStorage getStorage() {
@@ -151,7 +153,7 @@ public class TinyTablesPreproProtocolSuite implements ProtocolSuite {
 			 * Perform OT's with player 2
 			 */
 			// TODO: Get host and port from configuration
-			OTSender.transfer("localhost", 9005, inputs);
+			OTSender.transfer(configuration.getHostname(), configuration.getPort(), inputs);
 
 		} else {
 			/*
@@ -179,7 +181,8 @@ public class TinyTablesPreproProtocolSuite implements ProtocolSuite {
 			 * Do OT's with player 1.
 			 */
 			// TODO: Get host and port from configuration
-			boolean[] outputs = OTReceiver.transfer("localhost", 9005, sigmas);
+			boolean[] outputs = OTReceiver.transfer(configuration.getHostname(),
+					configuration.getPort(), sigmas);
 
 			if (outputs.length < 2 * sigmasFromPrepro.size()) {
 				throw new MPCException("To few outputs from OT's: Expected "

@@ -29,29 +29,60 @@ package dk.alexandra.fresco.suite.tinytables.prepro;
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.sce.configuration.ProtocolSuiteConfiguration;
 
-public class TinyTablesPreproConfiguration implements ProtocolSuiteConfiguration{
+public class TinyTablesPreproConfiguration implements ProtocolSuiteConfiguration {
 
 	private ProtocolFactory tinyTablesFactory;
-	private boolean dummy;
-	
+	private String hostname;
+	private int port;
+
 	public TinyTablesPreproConfiguration() {
 		tinyTablesFactory = new TinyTablesPreproFactory();
-		dummy = true;
 	}
-	
+
 	public void setTinyTableFactory(ProtocolFactory tinyTablesFactory) {
 		this.tinyTablesFactory = tinyTablesFactory;
 	}
-	
-	public void setDummy(boolean useDummy) {
-		this.dummy = useDummy;
-	}
-	
+
 	public ProtocolFactory getProtocolFactory() {
 		return this.tinyTablesFactory;
-	}	
-	
-	public boolean useDummy() {
-		return dummy;
+	}
+
+	/**
+	 * Set the hostname of the other player.
+	 * 
+	 * @param hostname
+	 */
+	public void setHostname(String hostname) {
+		this.hostname = hostname;
+	}
+
+	/**
+	 * Return the hostname of the other player. See also
+	 * {@link #setHostname(String)}.
+	 * 
+	 * @return
+	 */
+	public String getHostname() {
+		return this.hostname;
+	}
+
+	/**
+	 * Set the port number to perform the oblivious transfers through. Should be
+	 * the same for both players.
+	 * 
+	 * @param port
+	 */
+	public void setPort(int port) {
+		this.port = port;
+	}
+
+	/**
+	 * Return the port number to do oblivious transfers through. See also
+	 * {@link #setPort}.
+	 * 
+	 * @return
+	 */
+	public int getPort() {
+		return this.port;
 	}
 }

@@ -96,6 +96,14 @@ public class TestTinyTables {
 				config = new TinyTablesPreproConfiguration();
 				((TinyTablesPreproConfiguration) config)
 						.setTinyTableFactory(new TinyTablesPreproFactory());
+
+				/*
+				 * We assume that both players are running on localhost in the
+				 * tests.
+				 */
+				((TinyTablesPreproConfiguration) config).setHostname("localhost");
+				((TinyTablesPreproConfiguration) config).setPort(9005);
+
 				protocolSuite = TinyTablesPreproProtocolSuite.getInstance(playerId);
 			} else {
 				config = new TinyTablesConfiguration();
@@ -182,9 +190,8 @@ public class TestTinyTables {
 
 	@Test
 	public void testXOR() throws Exception {
-			runTest(new BasicBooleanTests.TestXOR(), EvaluationStrategy.SEQUENTIAL, true, "testXOR");
-			runTest(new BasicBooleanTests.TestXOR(), EvaluationStrategy.SEQUENTIAL, false,
-					"testXOR");
+		runTest(new BasicBooleanTests.TestXOR(), EvaluationStrategy.SEQUENTIAL, true, "testXOR");
+		runTest(new BasicBooleanTests.TestXOR(), EvaluationStrategy.SEQUENTIAL, false, "testXOR");
 	}
 
 	@Test
@@ -267,5 +274,5 @@ public class TestTinyTables {
 		runTest(new BristolCryptoTests.Sha256Test(), EvaluationStrategy.SEQUENTIAL, false,
 				"testSHA256");
 	}
-	
+
 }
