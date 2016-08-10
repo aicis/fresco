@@ -94,7 +94,6 @@ import dk.alexandra.fresco.suite.tinytables.util.ot.datatypes.OTSigma;
  */
 public class TinyTablesPreproANDProtocol extends TinyTablesPreproProtocol implements AndProtocol {
 
-	private int id;
 	private TinyTablesPreproSBool inLeft, inRight, out;
 
 	OTReceiver otReceiver;
