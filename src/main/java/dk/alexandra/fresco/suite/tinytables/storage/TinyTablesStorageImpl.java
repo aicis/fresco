@@ -81,12 +81,12 @@ public class TinyTablesStorageImpl implements TinyTablesStorage {
 	}
 
 	@Override
-	public void storeTinyTable(int id, TinyTable table) {
+	public synchronized void storeTinyTable(int id, TinyTable table) {
 		tinyTables.put(id, table);
 	}
 
 	@Override
-	public void storeMaskShare(int id, boolean r) {
+	public synchronized void storeMaskShare(int id, boolean r) {
 		maskShares.put(id, r);
 	}
 
@@ -96,12 +96,12 @@ public class TinyTablesStorageImpl implements TinyTablesStorage {
 	}
 
 	@Override
-	public void storeOTSigma(int id, OTSigma[] sigmas) {
+	public synchronized void storeOTSigma(int id, OTSigma[] sigmas) {
 		this.sigmas.put(id, sigmas);
 	}
 
 	@Override
-	public void storeOTInput(int id, OTInput[] inputs) {
+	public synchronized void storeOTInput(int id, OTInput[] inputs) {
 		this.otInputs.put(id, inputs);
 	}
 
@@ -116,7 +116,7 @@ public class TinyTablesStorageImpl implements TinyTablesStorage {
 	}
 
 	@Override
-	public void storeTemporaryBooleans(int id, boolean[] booleans) {
+	public synchronized void storeTemporaryBooleans(int id, boolean[] booleans) {
 		tmps.put(id, booleans);
 	}
 
