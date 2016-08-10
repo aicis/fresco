@@ -152,7 +152,6 @@ public class TinyTablesPreproProtocolSuite implements ProtocolSuite {
 			/*
 			 * Perform OT's with player 2
 			 */
-			// TODO: Get host and port from configuration
 			OTSender.transfer(configuration.getHostname(), configuration.getPort(), inputs);
 
 		} else {
@@ -180,7 +179,6 @@ public class TinyTablesPreproProtocolSuite implements ProtocolSuite {
 			/*
 			 * Do OT's with player 1.
 			 */
-			// TODO: Get host and port from configuration
 			boolean[] outputs = OTReceiver.transfer(configuration.getHostname(),
 					configuration.getPort(), sigmas);
 
