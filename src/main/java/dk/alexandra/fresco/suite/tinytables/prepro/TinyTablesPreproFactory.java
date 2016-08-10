@@ -88,11 +88,11 @@ public class TinyTablesPreproFactory extends AbstractBinaryFactory implements Ba
 
 	@Override
 	public SBool[] getKnownConstantSBools(boolean[] bools) {
-		SBool[] ninjaSBools = new SBool[bools.length];
-		for (int i = 0; i < ninjaSBools.length; i++) {
-			ninjaSBools[i] = getKnownConstantSBool(bools[i]);
+		SBool[] tinyTableSBools = new SBool[bools.length];
+		for (int i = 0; i < tinyTableSBools.length; i++) {
+			tinyTableSBools[i] = getKnownConstantSBool(bools[i]);
 		}
-		return ninjaSBools;
+		return tinyTableSBools;
 	}
 
 	@Override
