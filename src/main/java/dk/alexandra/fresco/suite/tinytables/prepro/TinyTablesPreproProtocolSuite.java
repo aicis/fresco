@@ -27,8 +27,8 @@
 package dk.alexandra.fresco.suite.tinytables.prepro;
 
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.sce.configuration.ProtocolSuiteConfiguration;
@@ -129,8 +129,8 @@ public class TinyTablesPreproProtocolSuite implements ProtocolSuite {
 			/*
 			 * Each AND-gate has stored inputs for two OT's in the storage.
 			 */
-			LinkedHashMap<Integer, OTInput[]> inputsFromPrepro = storage.getOTInputs();
-
+			TreeMap<Integer, OTInput[]> inputsFromPrepro = storage.getOTInputs();
+			
 			/*
 			 * Create an array of inputs to the OT's stored during
 			 * preprocessing. Note that the order of the sigmas and the order of
@@ -164,7 +164,7 @@ public class TinyTablesPreproProtocolSuite implements ProtocolSuite {
 			 * that the order of the sigmas and the order of the inputs from the
 			 * sender should be the same.
 			 */
-			LinkedHashMap<Integer, OTSigma[]> sigmasFromPrepro = storage.getOTSigmas();
+			TreeMap<Integer, OTSigma[]> sigmasFromPrepro = storage.getOTSigmas();
 			int numberOfOts = sigmasFromPrepro.size() * 2; // Two OT's per
 															// AND-protocol
 			OTSigma[] sigmas = new OTSigma[numberOfOts];

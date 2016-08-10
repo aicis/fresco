@@ -27,8 +27,8 @@
 package dk.alexandra.fresco.suite.tinytables.storage;
 
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 
 import dk.alexandra.fresco.suite.tinytables.util.ot.datatypes.OTInput;
@@ -52,8 +52,8 @@ public class TinyTablesStorageImpl implements TinyTablesStorage {
 	 * has to be the same for the two players when running the OT protocol at
 	 * the end of preprocessing.
 	 */
-	private transient LinkedHashMap<Integer, OTSigma[]> sigmas = new LinkedHashMap<>();	
-	private transient LinkedHashMap<Integer, OTInput[]> otInputs = new LinkedHashMap<>();
+	private transient TreeMap<Integer, OTSigma[]> sigmas = new TreeMap<>();	
+	private transient TreeMap<Integer, OTInput[]> otInputs = new TreeMap<>();
 	private transient Map<Integer, boolean[]> tmps = new ConcurrentHashMap<>();
 	
 	
@@ -106,12 +106,12 @@ public class TinyTablesStorageImpl implements TinyTablesStorage {
 	}
 
 	@Override
-	public LinkedHashMap<Integer, OTSigma[]> getOTSigmas() {
+	public TreeMap<Integer, OTSigma[]> getOTSigmas() {
 		return sigmas;
 	}
 
 	@Override
-	public LinkedHashMap<Integer, OTInput[]> getOTInputs() {
+	public TreeMap<Integer, OTInput[]> getOTInputs() {
 		return otInputs;
 	}
 
