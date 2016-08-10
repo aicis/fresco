@@ -37,7 +37,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 import dk.alexandra.fresco.framework.MPCException;
@@ -233,25 +232,22 @@ public class TestTinyTables {
 	}
 
 	/*
-	 * TODO: Parallel evaluation does not work yet.
-	 * 
-	 * TinyTablesPreproProtocolSuite.finishedEval is called before all inputs
-	 * for the OT's are stored. And the id's associtated with each protocol does
-	 * not seem to be the same in the online phase since the order could vary.
+	 * TODO: Preprocessing does not yet work when evaluation is done in
+	 * parallel, but it does work when using a sequential evaluation strategy.
+	 * When doing preprocessing in parallel, the test finishes but with a wrong
+	 * result after the online phase. Why does that happen?
 	 */
-	@Ignore
 	@Test
 	public void testAES_parallel() throws Exception {
-		runTest(new BristolCryptoTests.AesTest(), EvaluationStrategy.PARALLEL, true,
+		runTest(new BristolCryptoTests.AesTest(), EvaluationStrategy.SEQUENTIAL, true,
 				"testAESParallel");
 		runTest(new BristolCryptoTests.AesTest(), EvaluationStrategy.PARALLEL, false,
 				"testAESParallel");
 	}
 
-	@Ignore
 	@Test
 	public void testAES_parallel_batched() throws Exception {
-		runTest(new BristolCryptoTests.AesTest(), EvaluationStrategy.PARALLEL_BATCHED, true,
+		runTest(new BristolCryptoTests.AesTest(), EvaluationStrategy.SEQUENTIAL, true,
 				"testAESParallelBatched");
 		runTest(new BristolCryptoTests.AesTest(), EvaluationStrategy.PARALLEL_BATCHED, false,
 				"testAESParallelBatched");
