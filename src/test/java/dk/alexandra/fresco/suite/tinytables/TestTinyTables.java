@@ -231,15 +231,9 @@ public class TestTinyTables {
 		runTest(new BristolCryptoTests.AesTest(), EvaluationStrategy.SEQUENTIAL, false, "testAES");
 	}
 
-	/*
-	 * TODO: Preprocessing does not yet work when evaluation is done in
-	 * parallel, but it does work when using a sequential evaluation strategy.
-	 * When doing preprocessing in parallel, the test finishes but with a wrong
-	 * result after the online phase. Why does that happen?
-	 */
 	@Test
 	public void testAES_parallel() throws Exception {
-		runTest(new BristolCryptoTests.AesTest(), EvaluationStrategy.SEQUENTIAL, true,
+		runTest(new BristolCryptoTests.AesTest(), EvaluationStrategy.PARALLEL, true,
 				"testAESParallel");
 		runTest(new BristolCryptoTests.AesTest(), EvaluationStrategy.PARALLEL, false,
 				"testAESParallel");
@@ -247,7 +241,7 @@ public class TestTinyTables {
 
 	@Test
 	public void testAES_parallel_batched() throws Exception {
-		runTest(new BristolCryptoTests.AesTest(), EvaluationStrategy.SEQUENTIAL, true,
+		runTest(new BristolCryptoTests.AesTest(), EvaluationStrategy.PARALLEL_BATCHED, true,
 				"testAESParallelBatched");
 		runTest(new BristolCryptoTests.AesTest(), EvaluationStrategy.PARALLEL_BATCHED, false,
 				"testAESParallelBatched");
