@@ -44,7 +44,7 @@ import dk.alexandra.fresco.lib.helper.builder.NumericIOBuilder;
 import dk.alexandra.fresco.lib.helper.builder.NumericProtocolBuilder;
 
 /**
- * A simple demo the distance between two secret points
+ * A simple demo computing the distance between two secret points
  */
 public class DistanceDemo implements Application {
 	
@@ -72,7 +72,7 @@ public class DistanceDemo implements Application {
 			x2 = (myId == 2) ? iob.input(myX, 2) : iob.input(2); 
 			y2 = (myId == 2) ? iob.input(myY, 2) : iob.input(2); 
 		iob.endCurScope();
-		// Compute distance
+		// Compute distance squared (note, square root computation can be done publicly)
 		npb.beginParScope();
 			npb.beginSeqScope();
 				SInt dX = npb.sub(x1, x2);
