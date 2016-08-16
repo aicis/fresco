@@ -27,7 +27,7 @@
 package dk.alexandra.fresco.suite.tinytables.storage;
 
 import java.io.Serializable;
-import java.util.TreeMap;
+import java.util.SortedMap;
 
 import dk.alexandra.fresco.suite.tinytables.util.ot.datatypes.OTInput;
 import dk.alexandra.fresco.suite.tinytables.util.ot.datatypes.OTSigma;
@@ -92,7 +92,7 @@ public interface TinyTablesStorage extends Serializable {
 	 */
 	public void storeOTSigma(int id, OTSigma[] sigmas);
 
-	public TreeMap<Integer, OTSigma[]> getOTSigmas();
+	public SortedMap<Integer, OTSigma[]> getOTSigmas();
 
 	/**
 	 * The sender of the OT protocols to be performed can store his inputs. The
@@ -105,6 +105,6 @@ public interface TinyTablesStorage extends Serializable {
 	 */
 	public void storeOTInput(int id, OTInput[] inputs);
 
-	public TreeMap<Integer, OTInput[]> getOTInputs();
+	public SortedMap<Integer, OTInput[]> getOTInputs();
 
 }

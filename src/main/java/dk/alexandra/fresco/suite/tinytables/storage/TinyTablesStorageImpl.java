@@ -28,7 +28,9 @@ package dk.alexandra.fresco.suite.tinytables.storage;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.TreeMap;
+import java.util.SortedMap;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentSkipListMap;
 
 import dk.alexandra.fresco.suite.tinytables.util.ot.datatypes.OTInput;
 import dk.alexandra.fresco.suite.tinytables.util.ot.datatypes.OTSigma;
@@ -39,21 +41,22 @@ public class TinyTablesStorageImpl implements TinyTablesStorage {
 	 * 
 	 */
 	private static final long serialVersionUID = -3455535991348570325L;
-	private Map<Integer, TinyTable> tinyTables = new HashMap<>();
-	private Map<Integer, Boolean> maskShares = new HashMap<>();
+	private Map<Integer, TinyTable> tinyTables = new ConcurrentHashMap<>();
+	private Map<Integer, Boolean> maskShares = new ConcurrentHashMap<>();
 
 	/*
 	 * sigmas, otInputs and tmps are only used during preprocessing, and should
 	 * not be serialized.
 	 * 
-	 * We use TreeMaps's because the keys are sorted according to the natural
-	 * ordering. This is nessecary because the order of insertion is not the
-	 * same during preprocessing and the online phase when evaluating in
-	 * parallel.
+	 * We use SortedMap's because the keys are sorted according to the natural
+	 * ordering.
+	 * 
+	 * We use ConcurrentSkipListMaps and ConcurrentHashMap because they are
+	 * thread safe.
 	 */
-	private transient TreeMap<Integer, OTSigma[]> sigmas = new TreeMap<>();
-	private transient TreeMap<Integer, OTInput[]> otInputs = new TreeMap<>();
-	private transient Map<Integer, boolean[]> tmps = new HashMap<>();
+	private transient SortedMap<Integer, OTSigma[]> sigmas = new ConcurrentSkipListMap<>();
+	private transient SortedMap<Integer, OTInput[]> otInputs = new ConcurrentSkipListMap<>();
+	private transient Map<Integer, boolean[]> tmps = new ConcurrentHashMap<>();
 
 	public static Map<Integer, TinyTablesStorage> instances = new HashMap<>();
 
@@ -79,12 +82,12 @@ public class TinyTablesStorageImpl implements TinyTablesStorage {
 	}
 
 	@Override
-	public synchronized void storeTinyTable(int id, TinyTable table) {
+	public void storeTinyTable(int id, TinyTable table) {
 		tinyTables.put(id, table);
 	}
 
 	@Override
-	public synchronized void storeMaskShare(int id, boolean r) {
+	public void storeMaskShare(int id, boolean r) {
 		maskShares.put(id, r);
 	}
 
@@ -94,27 +97,27 @@ public class TinyTablesStorageImpl implements TinyTablesStorage {
 	}
 
 	@Override
-	public synchronized void storeOTSigma(int id, OTSigma[] sigmas) {
+	public void storeOTSigma(int id, OTSigma[] sigmas) {
 		this.sigmas.put(id, sigmas);
 	}
 
 	@Override
-	public synchronized void storeOTInput(int id, OTInput[] inputs) {
+	public void storeOTInput(int id, OTInput[] inputs) {
 		this.otInputs.put(id, inputs);
 	}
 
 	@Override
-	public TreeMap<Integer, OTSigma[]> getOTSigmas() {
+	public SortedMap<Integer, OTSigma[]> getOTSigmas() {
 		return sigmas;
 	}
 
 	@Override
-	public TreeMap<Integer, OTInput[]> getOTInputs() {
+	public SortedMap<Integer, OTInput[]> getOTInputs() {
 		return otInputs;
 	}
 
 	@Override
-	public synchronized void storeTemporaryBooleans(int id, boolean[] booleans) {
+	public void storeTemporaryBooleans(int id, boolean[] booleans) {
 		tmps.put(id, booleans);
 	}
 
