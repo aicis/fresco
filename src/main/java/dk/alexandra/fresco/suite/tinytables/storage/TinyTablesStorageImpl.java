@@ -29,7 +29,6 @@ package dk.alexandra.fresco.suite.tinytables.storage;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.concurrent.ConcurrentHashMap;
 
 import dk.alexandra.fresco.suite.tinytables.util.ot.datatypes.OTInput;
 import dk.alexandra.fresco.suite.tinytables.util.ot.datatypes.OTSigma;
@@ -40,32 +39,31 @@ public class TinyTablesStorageImpl implements TinyTablesStorage {
 	 * 
 	 */
 	private static final long serialVersionUID = -3455535991348570325L;
-	private Map<Integer, TinyTable> tinyTables = new ConcurrentHashMap<>();
-	private Map<Integer, Boolean> maskShares = new ConcurrentHashMap<>();
-	
+	private Map<Integer, TinyTable> tinyTables = new HashMap<>();
+	private Map<Integer, Boolean> maskShares = new HashMap<>();
+
 	/*
 	 * sigmas, otInputs and tmps are only used during preprocessing, and should
 	 * not be serialized.
 	 * 
-	 * We use LinkedHashMap's because the order of the keys are preserved and is
-	 * the same as when they were inserted. This is necessary because the order
-	 * has to be the same for the two players when running the OT protocol at
-	 * the end of preprocessing.
+	 * We use TreeMaps's because the keys are sorted according to the natural
+	 * ordering. This is nessecary because the order of insertion is not the
+	 * same during preprocessing and the online phase when evaluating in
+	 * parallel.
 	 */
-	private transient TreeMap<Integer, OTSigma[]> sigmas = new TreeMap<>();	
+	private transient TreeMap<Integer, OTSigma[]> sigmas = new TreeMap<>();
 	private transient TreeMap<Integer, OTInput[]> otInputs = new TreeMap<>();
-	private transient Map<Integer, boolean[]> tmps = new ConcurrentHashMap<>();
-	
-	
+	private transient Map<Integer, boolean[]> tmps = new HashMap<>();
+
 	public static Map<Integer, TinyTablesStorage> instances = new HashMap<>();
-	
+
 	public static TinyTablesStorage getInstance(int id) {
 		if (!instances.containsKey(id)) {
 			instances.put(id, new TinyTablesStorageImpl());
 		}
 		return instances.get(id);
 	}
-	
+
 	@Override
 	public boolean lookupTinyTable(int id, boolean... inputs) {
 		TinyTable tinyTable = tinyTables.get(id);
