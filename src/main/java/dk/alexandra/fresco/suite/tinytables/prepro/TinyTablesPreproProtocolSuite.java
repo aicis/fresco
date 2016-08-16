@@ -148,7 +148,7 @@ public class TinyTablesPreproProtocolSuite implements ProtocolSuite {
 					inputs[i++] = x;
 				}
 			}
-
+			
 			/*
 			 * Perform OT's with player 2
 			 */
@@ -214,7 +214,7 @@ public class TinyTablesPreproProtocolSuite implements ProtocolSuite {
 				storage.storeTinyTable(id, tinyTable);
 
 				/*
-				 * For each protocol, we do two OTs so the index need to be
+				 * For each protocol, we do two OTs so the index needs to be
 				 * increased by two.
 				 */
 				progress += 2;
