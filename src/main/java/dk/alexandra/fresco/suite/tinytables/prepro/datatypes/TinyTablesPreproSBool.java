@@ -42,9 +42,10 @@ public class TinyTablesPreproSBool implements SBool {
 
 	private static final long serialVersionUID = 8582913017231020209L;
 	private boolean share; // Additive share of mask of this SBool
+	private boolean ready;
 
 	public TinyTablesPreproSBool(boolean share) {
-		this.share = share;
+		this.setShare(share);
 	}
 
 	public TinyTablesPreproSBool() {
@@ -63,7 +64,7 @@ public class TinyTablesPreproSBool implements SBool {
 
 	@Override
 	public boolean isReady() {
-		return true;
+		return ready;
 	}
 
 	/**
@@ -84,6 +85,7 @@ public class TinyTablesPreproSBool implements SBool {
 	 */
 	public void setShare(boolean share) {
 		this.share = share;
+		this.ready = true;
 	}
 
 	@Override
