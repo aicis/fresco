@@ -30,10 +30,6 @@ import java.math.BigInteger;
 import java.util.Properties;
 
 import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.DefaultParser;
-import org.apache.commons.cli.Option;
-import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
 import dk.alexandra.fresco.framework.sce.configuration.ProtocolSuiteConfiguration;
@@ -54,7 +50,7 @@ public interface BgwConfiguration extends ProtocolSuiteConfiguration {
 	 */
 	BigInteger getModulus();
 
-	/// Here comes methods for BGW specific parameters and their validation.
+	// Here comes methods for BGW specific parameters and their validation.
 	public static BgwConfiguration fromCmdLine(SCEConfiguration sceConf, CommandLine cmd) throws ParseException {
 		// Validate BGW specific arguments.
 		Properties p = cmd.getOptionProperties("D");
@@ -91,4 +87,5 @@ public interface BgwConfiguration extends ProtocolSuiteConfiguration {
 			throw new ParseException("Invalid bgw.threshold value: '" + p.getProperty("bgw.threshold") + "'");
 		}
 	}
+
 }
