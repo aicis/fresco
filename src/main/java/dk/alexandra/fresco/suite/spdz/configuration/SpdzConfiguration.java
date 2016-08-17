@@ -29,10 +29,6 @@ package dk.alexandra.fresco.suite.spdz.configuration;
 import java.util.Properties;
 
 import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.DefaultParser;
-import org.apache.commons.cli.Option;
-import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
 import dk.alexandra.fresco.framework.sce.configuration.ProtocolSuiteConfiguration;
@@ -41,8 +37,12 @@ import dk.alexandra.fresco.framework.sce.configuration.SCEConfiguration;
 public interface SpdzConfiguration extends ProtocolSuiteConfiguration {
 
 	/**
-	 * 
-	 * @return The maximum bit length of any number in the field. It should be possible to multiply two numbers without overflow
+	 * Gets an approximation of the maximum bit length of any number appearing 
+	 * in an application. This is used by certain protocols, e.g., to avoid overflow 
+	 * when working in a Z_p field. 
+	 * TODO: Consider factoring out of the configuration as this is really specific
+	 * only to certain protocols.
+	 * @return the expected maximum bit length of any number appearing in the application.
 	 */
 	int getMaxBitLength();
 
@@ -61,42 +61,14 @@ public interface SpdzConfiguration extends ProtocolSuiteConfiguration {
 	 */
 	public boolean useDummyData();
 	
-	static SpdzConfiguration fromCmdArgs(SCEConfiguration sceConf,
-			String[] remainingArgs) throws ParseException {
-		Options options = new Options();
-
-		options.addOption(Option
-				.builder("D")
-				.desc("The path to where the preprocessed data is located - e.g. the triples. Defaults to '/triples'")
-				.longOpt("spdz.triplePath").required(false).hasArgs().build());
-
-		options.addOption(Option
-				.builder("D")
-				.desc("The maximum bit length. A suggestion is half the size of the modulus, but might be required to be lower for some applications.")
-				.longOpt("spdz.maxBitLength").required(true).hasArgs().build());
-		
-		options.addOption(Option
-				.builder("D")
-				.desc("Set to true to use dummy data as preprocessed data.")
-				.longOpt("spdz.useDummyData").required(false).hasArgs().build());
-
-		CommandLineParser parser = new DefaultParser();
-		CommandLine cmd = parser.parse(options, remainingArgs);
-
-		// Validate BGW specific arguments.
+	static SpdzConfiguration fromCmdLine(SCEConfiguration sceConf,
+			CommandLine cmd) throws ParseException {
 		Properties p = cmd.getOptionProperties("D");
-		
-		if (!p.contains("spdz.securityParameter")) {
-			throw new ParseException(
-					"SPDZ requires you to specify -Dspdz.securityParameter=[path]");
-		}
-				
-		final int maxBitLength = Integer.parseInt(p
-				.getProperty("spdz.maxBitLength"));
+		//TODO: Figure out a meaningful default for the below 
+		final int maxBitLength = Integer.parseInt(p.getProperty("spdz.maxBitLength", "64"));
 		if (maxBitLength < 2) {
 			throw new ParseException("spdz.maxBitLength must be > 1");
 		}
-
 		final String triplePath = p.getProperty("spdz.triplePath", "/triples");
 		final boolean useDummyData = Boolean.parseBoolean(p.getProperty("spdz.useDummyData", "False"));
 
