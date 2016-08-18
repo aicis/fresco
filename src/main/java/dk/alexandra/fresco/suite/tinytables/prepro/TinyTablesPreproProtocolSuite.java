@@ -26,11 +26,13 @@
  *******************************************************************************/
 package dk.alexandra.fresco.suite.tinytables.prepro;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.SortedMap;
 
 import dk.alexandra.fresco.framework.MPCException;
+import dk.alexandra.fresco.framework.Reporter;
 import dk.alexandra.fresco.framework.sce.configuration.ProtocolSuiteConfiguration;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.suite.ProtocolSuite;
@@ -43,8 +45,11 @@ import dk.alexandra.fresco.suite.tinytables.util.ot.OTReceiver;
 import dk.alexandra.fresco.suite.tinytables.util.ot.OTSender;
 import dk.alexandra.fresco.suite.tinytables.util.ot.datatypes.OTInput;
 import dk.alexandra.fresco.suite.tinytables.util.ot.datatypes.OTSigma;
+import dk.alexandra.fresco.suite.tinytables.util.ot.extension.OTExtensionConfig;
 import dk.alexandra.fresco.suite.tinytables.util.ot.extension.OTExtensionReceiver;
 import dk.alexandra.fresco.suite.tinytables.util.ot.extension.OTExtensionSender;
+import dk.alexandra.fresco.suite.tinytables.util.ot.java.JavaOTReceiver;
+import dk.alexandra.fresco.suite.tinytables.util.ot.java.JavaOTSender;
 
 /**
  * <p>
@@ -154,8 +159,23 @@ public class TinyTablesPreproProtocolSuite implements ProtocolSuite {
 			/*
 			 * Perform OT's with player 2
 			 */
-			OTSender otSender = new OTExtensionSender(configuration.getAddress());
-//			OTSender otSender = new JavaOTSender(resourcePool.getNetwork(), 1);
+			boolean hasOTExtensionLib = OTExtensionConfig.hasOTExtensionLib();
+			boolean doOTExtension = false;
+			try {
+				resourcePool.getNetwork().send("0", 2, hasOTExtensionLib);
+				boolean otherHasOTExtensionLib = resourcePool.getNetwork().receive("0", 2);
+				doOTExtension = hasOTExtensionLib && otherHasOTExtensionLib;
+			} catch (IOException e) {
+				// ...
+			}
+			
+			OTSender otSender;
+			if (doOTExtension) {
+				Reporter.info("Not possible to use OTExtension. Falling back to slower java version.");
+				otSender = new OTExtensionSender(configuration.getAddress());
+			} else {
+				otSender = new JavaOTSender(resourcePool.getNetwork(), 1);
+			}
 			otSender.send(inputs);
 
 		} else {
@@ -181,10 +201,27 @@ public class TinyTablesPreproProtocolSuite implements ProtocolSuite {
 			}
 
 			/*
-			 * Do OT's with player 1.
+			 * Do OT's with player 1. First negotiate whether we can use OT
+			 * Extension (which requires the SCAPI lib to be installed.
+			 * Otherwise we fall back to the much slower java version.
 			 */
-			OTReceiver otReceiver = new OTExtensionReceiver(configuration.getAddress());
-//			OTReceiver otReceiver = new JavaOTReceiver(resourcePool.getNetwork(), 2);
+			boolean hasOTExtensionLib = OTExtensionConfig.hasOTExtensionLib();
+			boolean doOTExtension = false;
+			try {
+				resourcePool.getNetwork().send("0", 1, hasOTExtensionLib);
+				boolean otherHasOTExtensionLib = resourcePool.getNetwork().receive("0", 1);
+				doOTExtension = hasOTExtensionLib && otherHasOTExtensionLib;
+			} catch (IOException e) {
+				// ...
+			}
+			
+			OTReceiver otReceiver;
+			if (doOTExtension) {
+				otReceiver = new OTExtensionReceiver(configuration.getAddress());
+			} else {
+				Reporter.info("Not possible to use OTExtension. Falling back to slower java version.");
+				otReceiver = new JavaOTReceiver(resourcePool.getNetwork(), 2);
+			}
 			boolean[] outputs = otReceiver.receive(sigmas);
 
 			if (outputs.length < 2 * sigmasFromPrepro.size()) {
