@@ -39,10 +39,10 @@ import dk.alexandra.fresco.suite.tinytables.prepro.protocols.TinyTablesPreproAND
 import dk.alexandra.fresco.suite.tinytables.storage.TinyTable;
 import dk.alexandra.fresco.suite.tinytables.storage.TinyTablesStorage;
 import dk.alexandra.fresco.suite.tinytables.storage.TinyTablesStorageImpl;
-import dk.alexandra.fresco.suite.tinytables.util.ot.OTExtensionReceiver;
-import dk.alexandra.fresco.suite.tinytables.util.ot.OTExtensionSender;
 import dk.alexandra.fresco.suite.tinytables.util.ot.datatypes.OTInput;
 import dk.alexandra.fresco.suite.tinytables.util.ot.datatypes.OTSigma;
+import dk.alexandra.fresco.suite.tinytables.util.ot.extension.OTExtensionReceiver;
+import dk.alexandra.fresco.suite.tinytables.util.ot.extension.OTExtensionSender;
 
 /**
  * <p>

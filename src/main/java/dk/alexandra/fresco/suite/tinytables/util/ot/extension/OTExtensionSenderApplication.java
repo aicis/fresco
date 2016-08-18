@@ -1,4 +1,4 @@
-package dk.alexandra.fresco.suite.tinytables.util.ot.scapi;
+package dk.alexandra.fresco.suite.tinytables.util.ot.extension;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Base64;

@@ -1,4 +1,4 @@
-package dk.alexandra.fresco.suite.tinytables.util.ot;
+package dk.alexandra.fresco.suite.tinytables.util.ot.extension;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 import dk.alexandra.fresco.suite.tinytables.util.Encoding;
+import dk.alexandra.fresco.suite.tinytables.util.ot.OTConfig;
 import dk.alexandra.fresco.suite.tinytables.util.ot.datatypes.OTSigma;
 
 /**
