@@ -2,6 +2,7 @@ package dk.alexandra.fresco.suite.tinytables.util.ot.java;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 
 import dk.alexandra.fresco.framework.network.Network;
@@ -9,9 +10,12 @@ import dk.alexandra.fresco.suite.tinytables.util.Encoding;
 import dk.alexandra.fresco.suite.tinytables.util.ot.OTReceiver;
 import dk.alexandra.fresco.suite.tinytables.util.ot.datatypes.OTSigma;
 import edu.biu.scapi.comm.Channel;
+import edu.biu.scapi.exceptions.FactoriesException;
+import edu.biu.scapi.exceptions.SecurityLevelException;
 import edu.biu.scapi.interactiveMidProtocols.ot.otBatch.OTBatchOnByteArrayROutput;
 import edu.biu.scapi.interactiveMidProtocols.ot.otBatch.OTBatchRBasicInput;
 import edu.biu.scapi.interactiveMidProtocols.ot.otBatch.semiHonest.OTSemiHonestDDHBatchOnByteArrayReceiver;
+import edu.biu.scapi.tools.Factories.KdfFactory;
 
 public class JavaOTReceiver implements OTReceiver {
 
@@ -26,7 +30,14 @@ public class JavaOTReceiver implements OTReceiver {
 	@Override
 	public boolean[] receive(OTSigma[] sigmas) {
 		
-		OTSemiHonestDDHBatchOnByteArrayReceiver receiver = new OTSemiHonestDDHBatchOnByteArrayReceiver();
+		OTSemiHonestDDHBatchOnByteArrayReceiver receiver;
+		try {
+			receiver = new OTSemiHonestDDHBatchOnByteArrayReceiver(
+					new edu.biu.scapi.primitives.dlog.bc.BcDlogECF2m(), KdfFactory.getInstance()
+							.getObject("HKDF(HMac(SHA-256))"), new SecureRandom());
+		} catch (SecurityLevelException | IOException | FactoriesException e1) {
+			return null; // Should not happen
+		}
 
 		ArrayList<Byte> s = new ArrayList<Byte>();
 		for (int i = 0; i < sigmas.length; i++) {

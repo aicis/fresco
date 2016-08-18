@@ -2,6 +2,7 @@ package dk.alexandra.fresco.suite.tinytables.util.ot.java;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 
 import dk.alexandra.fresco.framework.network.Network;
@@ -9,8 +10,11 @@ import dk.alexandra.fresco.suite.tinytables.util.Encoding;
 import dk.alexandra.fresco.suite.tinytables.util.ot.OTSender;
 import dk.alexandra.fresco.suite.tinytables.util.ot.datatypes.OTInput;
 import edu.biu.scapi.comm.Channel;
+import edu.biu.scapi.exceptions.FactoriesException;
+import edu.biu.scapi.exceptions.SecurityLevelException;
 import edu.biu.scapi.interactiveMidProtocols.ot.otBatch.OTBatchOnByteArraySInput;
 import edu.biu.scapi.interactiveMidProtocols.ot.otBatch.semiHonest.OTSemiHonestDDHBatchOnByteArraySender;
+import edu.biu.scapi.tools.Factories.KdfFactory;
 
 public class JavaOTSender implements OTSender {
 
@@ -32,7 +36,13 @@ public class JavaOTSender implements OTSender {
 			x1.add(new byte[] {Encoding.encodeBoolean(inputs[i].getX1())});
 		}
 		OTBatchOnByteArraySInput otsInputs = new OTBatchOnByteArraySInput(x0, x1);
-		OTSemiHonestDDHBatchOnByteArraySender sender = new OTSemiHonestDDHBatchOnByteArraySender();
+		OTSemiHonestDDHBatchOnByteArraySender sender;
+		try {
+			sender = new OTSemiHonestDDHBatchOnByteArraySender(new edu.biu.scapi.primitives.dlog.bc.BcDlogECF2m(), KdfFactory.getInstance()
+					.getObject("HKDF(HMac(SHA-256))"), new SecureRandom());
+		} catch (SecurityLevelException | IOException | FactoriesException e1) {
+			return; //Should not happen
+		}
 		
 		try {
 			sender.transfer(new Channel() {
