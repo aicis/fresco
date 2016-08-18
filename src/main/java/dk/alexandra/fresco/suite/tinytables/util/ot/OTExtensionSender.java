@@ -20,7 +20,7 @@ import dk.alexandra.fresco.suite.tinytables.util.ot.datatypes.OTInput;
  * @author jonas
  *
  */
-public class OTSender {
+public class OTExtensionSender {
 
 	public static void transfer(InetSocketAddress address, OTInput[] inputs) {
 		// As default we run it in a seperate process

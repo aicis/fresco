@@ -23,7 +23,7 @@ import dk.alexandra.fresco.suite.tinytables.util.ot.datatypes.OTSigma;
  * @author jonas
  *
  */
-public class OTReceiver {
+public class OTExtensionReceiver {
 
 	public static boolean[] transfer(InetSocketAddress address, OTSigma[] sigmas) {
 		// As default we run it in a seperate process

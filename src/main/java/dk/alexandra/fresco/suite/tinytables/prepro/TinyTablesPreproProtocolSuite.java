@@ -39,8 +39,8 @@ import dk.alexandra.fresco.suite.tinytables.prepro.protocols.TinyTablesPreproAND
 import dk.alexandra.fresco.suite.tinytables.storage.TinyTable;
 import dk.alexandra.fresco.suite.tinytables.storage.TinyTablesStorage;
 import dk.alexandra.fresco.suite.tinytables.storage.TinyTablesStorageImpl;
-import dk.alexandra.fresco.suite.tinytables.util.ot.OTReceiver;
-import dk.alexandra.fresco.suite.tinytables.util.ot.OTSender;
+import dk.alexandra.fresco.suite.tinytables.util.ot.OTExtensionReceiver;
+import dk.alexandra.fresco.suite.tinytables.util.ot.OTExtensionSender;
 import dk.alexandra.fresco.suite.tinytables.util.ot.datatypes.OTInput;
 import dk.alexandra.fresco.suite.tinytables.util.ot.datatypes.OTSigma;
 
@@ -152,7 +152,7 @@ public class TinyTablesPreproProtocolSuite implements ProtocolSuite {
 			/*
 			 * Perform OT's with player 2
 			 */
-			OTSender.transfer(configuration.getAddress(), inputs);
+			OTExtensionSender.transfer(configuration.getAddress(), inputs);
 
 		} else {
 			/*
@@ -179,7 +179,7 @@ public class TinyTablesPreproProtocolSuite implements ProtocolSuite {
 			/*
 			 * Do OT's with player 1.
 			 */
-			boolean[] outputs = OTReceiver.transfer(configuration.getAddress(), sigmas);
+			boolean[] outputs = OTExtensionReceiver.transfer(configuration.getAddress(), sigmas);
 
 			if (outputs.length < 2 * sigmasFromPrepro.size()) {
 				throw new MPCException("To few outputs from OT's: Expected "
