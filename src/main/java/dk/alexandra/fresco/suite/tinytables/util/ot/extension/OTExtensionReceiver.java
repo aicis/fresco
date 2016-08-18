@@ -9,7 +9,6 @@ import java.util.Arrays;
 import java.util.Base64;
 import java.util.stream.Collectors;
 
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 import dk.alexandra.fresco.suite.tinytables.util.Encoding;
 import dk.alexandra.fresco.suite.tinytables.util.ot.OTReceiver;
 import dk.alexandra.fresco.suite.tinytables.util.ot.datatypes.OTSigma;
@@ -90,7 +89,7 @@ public class OTExtensionReceiver implements OTReceiver {
 				} else {
 					// TODO: Not usable in JUnit tests so this has NOT been
 					// tested yet.
-					throw new NotImplementedException();
+					throw new UnsupportedOperationException("Not implemented yet");
 					// binaryOutput = NativeOTReceiver.receive(host, port,
 					// binarySigmas);
 				}

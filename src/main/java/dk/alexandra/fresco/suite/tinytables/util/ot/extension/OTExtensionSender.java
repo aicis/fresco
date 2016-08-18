@@ -6,7 +6,6 @@ import java.net.InetSocketAddress;
 import java.util.Arrays;
 import java.util.Base64;
 
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 import dk.alexandra.fresco.suite.tinytables.util.Encoding;
 import dk.alexandra.fresco.suite.tinytables.util.ot.OTSender;
 import dk.alexandra.fresco.suite.tinytables.util.ot.datatypes.OTInput;
@@ -76,7 +75,7 @@ public class OTExtensionSender implements OTSender {
 				} else {
 					// TODO: Not usable in JUnit tests so this has NOT been
 					// tested yet.
-					throw new NotImplementedException();
+					throw new UnsupportedOperationException("Not implemented yet");
 					// NativeOTSender.send(host, port, input0, input1);
 				}
 
