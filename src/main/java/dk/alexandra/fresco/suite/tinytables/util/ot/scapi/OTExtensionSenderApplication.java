@@ -7,7 +7,7 @@ import edu.biu.scapi.comm.Party;
 import edu.biu.scapi.interactiveMidProtocols.ot.otBatch.otExtension.OTExtensionGeneralSInput;
 import edu.biu.scapi.interactiveMidProtocols.ot.otBatch.otExtension.OTSemiHonestExtensionSender;
 
-public class NativeOTSender {
+public class OTExtensionSenderApplication {
 
 	public static void main(String[] args) throws UnknownHostException {
 		// System.loadLibrary("OtExtensionJavaInterface");	

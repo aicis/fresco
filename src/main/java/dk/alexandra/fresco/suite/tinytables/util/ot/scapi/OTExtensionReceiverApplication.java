@@ -17,7 +17,7 @@ import edu.biu.scapi.interactiveMidProtocols.ot.otBatch.otExtension.OTSemiHonest
  * @author jonas
  *
  */
-public class NativeOTReceiver {
+public class OTExtensionReceiverApplication {
 
 	public static void main(String[] args) throws UnknownHostException {
 
