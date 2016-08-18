@@ -8,6 +8,7 @@ import java.util.Base64;
 
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 import dk.alexandra.fresco.suite.tinytables.util.Encoding;
+import dk.alexandra.fresco.suite.tinytables.util.ot.OTSender;
 import dk.alexandra.fresco.suite.tinytables.util.ot.datatypes.OTInput;
 
 /**
@@ -20,14 +21,25 @@ import dk.alexandra.fresco.suite.tinytables.util.ot.datatypes.OTInput;
  * @author jonas
  *
  */
-public class OTExtensionSender {
+public class OTExtensionSender implements OTSender {
 
-	public static void transfer(InetSocketAddress address, OTInput[] inputs) {
-		// As default we run it in a seperate process
-		transfer(address, inputs, true);
+	private InetSocketAddress address;
+
+	public OTExtensionSender(InetSocketAddress address) {
+		this.address = address;
 	}
 
-	public static void transfer(InetSocketAddress address, OTInput[] inputs, boolean seperateProcess) {
+	@Override
+	public void send(OTInput[] inputs) {
+		transfer(inputs);
+	}
+	
+	private void transfer(OTInput[] inputs) {
+		// As default we run it in a seperate process
+		transfer(inputs, true);
+	}
+
+	private void transfer(OTInput[] inputs, boolean seperateProcess) {
 
 		try {
 
@@ -36,8 +48,8 @@ public class OTExtensionSender {
 			 * we have too many OT's we need to do them a batch at a time.
 			 */
 			if (seperateProcess && inputs.length > OTExtensionConfig.MAX_OTS) {
-				transfer(address, Arrays.copyOfRange(inputs, 0, OTExtensionConfig.MAX_OTS));
-				transfer(address, Arrays.copyOfRange(inputs, OTExtensionConfig.MAX_OTS, inputs.length));
+				transfer(Arrays.copyOfRange(inputs, 0, OTExtensionConfig.MAX_OTS));
+				transfer(Arrays.copyOfRange(inputs, OTExtensionConfig.MAX_OTS, inputs.length));
 			} else {
 
 				byte[] input0 = new byte[inputs.length];

@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 import dk.alexandra.fresco.suite.tinytables.util.Encoding;
+import dk.alexandra.fresco.suite.tinytables.util.ot.OTReceiver;
 import dk.alexandra.fresco.suite.tinytables.util.ot.datatypes.OTSigma;
 
 /**
@@ -23,15 +24,25 @@ import dk.alexandra.fresco.suite.tinytables.util.ot.datatypes.OTSigma;
  * @author jonas
  *
  */
-public class OTExtensionReceiver {
+public class OTExtensionReceiver implements OTReceiver {
 
-	public static boolean[] transfer(InetSocketAddress address, OTSigma[] sigmas) {
+	private InetSocketAddress address;
+
+	public OTExtensionReceiver(InetSocketAddress address) {
+		this.address = address;
+	}
+	
+	@Override
+	public boolean[] receive(OTSigma[] sigmas) {
+		return transfer(sigmas);
+	}
+	
+	private boolean[] transfer(OTSigma[] sigmas) {
 		// As default we run it in a seperate process
-		return transfer(address, sigmas, true);
+		return transfer(sigmas, true);
 	}
 
-	public static boolean[] transfer(InetSocketAddress address, OTSigma[] sigmas,
-			boolean seperateProcess) {
+	private boolean[] transfer(OTSigma[] sigmas, boolean seperateProcess) {
 
 		try {
 
@@ -40,9 +51,8 @@ public class OTExtensionReceiver {
 			 * we have too many OT's we need to do them a batch at a time.
 			 */
 			if (seperateProcess && sigmas.length > OTExtensionConfig.MAX_OTS) {
-				boolean[] out1 = transfer(address, Arrays.copyOfRange(sigmas, 0, OTExtensionConfig.MAX_OTS));
-				boolean[] out2 = transfer(address,
-						Arrays.copyOfRange(sigmas, OTExtensionConfig.MAX_OTS, sigmas.length));
+				boolean[] out1 = transfer(Arrays.copyOfRange(sigmas, 0, OTExtensionConfig.MAX_OTS));
+				boolean[] out2 = transfer(Arrays.copyOfRange(sigmas, OTExtensionConfig.MAX_OTS, sigmas.length));
 
 				boolean[] out = new boolean[out1.length + out2.length];
 				System.arraycopy(out1, 0, out, 0, out1.length);

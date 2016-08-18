@@ -39,6 +39,8 @@ import dk.alexandra.fresco.suite.tinytables.prepro.protocols.TinyTablesPreproAND
 import dk.alexandra.fresco.suite.tinytables.storage.TinyTable;
 import dk.alexandra.fresco.suite.tinytables.storage.TinyTablesStorage;
 import dk.alexandra.fresco.suite.tinytables.storage.TinyTablesStorageImpl;
+import dk.alexandra.fresco.suite.tinytables.util.ot.OTReceiver;
+import dk.alexandra.fresco.suite.tinytables.util.ot.OTSender;
 import dk.alexandra.fresco.suite.tinytables.util.ot.datatypes.OTInput;
 import dk.alexandra.fresco.suite.tinytables.util.ot.datatypes.OTSigma;
 import dk.alexandra.fresco.suite.tinytables.util.ot.extension.OTExtensionReceiver;
@@ -152,7 +154,8 @@ public class TinyTablesPreproProtocolSuite implements ProtocolSuite {
 			/*
 			 * Perform OT's with player 2
 			 */
-			OTExtensionSender.transfer(configuration.getAddress(), inputs);
+			OTSender otSender = new OTExtensionSender(configuration.getAddress());
+			otSender.send(inputs);
 
 		} else {
 			/*
@@ -179,7 +182,8 @@ public class TinyTablesPreproProtocolSuite implements ProtocolSuite {
 			/*
 			 * Do OT's with player 1.
 			 */
-			boolean[] outputs = OTExtensionReceiver.transfer(configuration.getAddress(), sigmas);
+			OTReceiver otReceiver = new OTExtensionReceiver(configuration.getAddress());
+			boolean[] outputs = otReceiver.receive(sigmas);
 
 			if (outputs.length < 2 * sigmasFromPrepro.size()) {
 				throw new MPCException("To few outputs from OT's: Expected "
