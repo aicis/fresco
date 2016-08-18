@@ -10,7 +10,6 @@ import edu.biu.scapi.interactiveMidProtocols.ot.otBatch.otExtension.OTSemiHonest
 public class OTExtensionSenderApplication {
 
 	public static void main(String[] args) throws UnknownHostException {
-		// System.loadLibrary("OtExtensionJavaInterface");	
 		
 		String host = args[0];
 		String portAsString = args[1];

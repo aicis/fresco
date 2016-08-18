@@ -15,4 +15,13 @@ public class OTExtensionConfig {
 	
 	public static final int MAX_OTS = 10000;
 
+	public static boolean hasOTExtensionLib() {
+		try {
+			System.loadLibrary("OtExtensionJavaInterface");	
+			return true;
+		} catch (java.lang.UnsatisfiedLinkError e) {
+			return false;
+		}
+	}
+	
 }

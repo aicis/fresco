@@ -155,6 +155,7 @@ public class TinyTablesPreproProtocolSuite implements ProtocolSuite {
 			 * Perform OT's with player 2
 			 */
 			OTSender otSender = new OTExtensionSender(configuration.getAddress());
+//			OTSender otSender = new JavaOTSender(resourcePool.getNetwork(), 1);
 			otSender.send(inputs);
 
 		} else {
@@ -183,6 +184,7 @@ public class TinyTablesPreproProtocolSuite implements ProtocolSuite {
 			 * Do OT's with player 1.
 			 */
 			OTReceiver otReceiver = new OTExtensionReceiver(configuration.getAddress());
+//			OTReceiver otReceiver = new JavaOTReceiver(resourcePool.getNetwork(), 2);
 			boolean[] outputs = otReceiver.receive(sigmas);
 
 			if (outputs.length < 2 * sigmasFromPrepro.size()) {
