@@ -11,7 +11,6 @@ import java.util.stream.Collectors;
 
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 import dk.alexandra.fresco.suite.tinytables.util.Encoding;
-import dk.alexandra.fresco.suite.tinytables.util.ot.OTConfig;
 import dk.alexandra.fresco.suite.tinytables.util.ot.datatypes.OTSigma;
 
 /**
@@ -40,10 +39,10 @@ public class OTExtensionReceiver {
 			 * There is an upper bound on how big a terminal cmd can be, so if
 			 * we have too many OT's we need to do them a batch at a time.
 			 */
-			if (seperateProcess && sigmas.length > OTConfig.MAX_OTS) {
-				boolean[] out1 = transfer(address, Arrays.copyOfRange(sigmas, 0, OTConfig.MAX_OTS));
+			if (seperateProcess && sigmas.length > OTExtensionConfig.MAX_OTS) {
+				boolean[] out1 = transfer(address, Arrays.copyOfRange(sigmas, 0, OTExtensionConfig.MAX_OTS));
 				boolean[] out2 = transfer(address,
-						Arrays.copyOfRange(sigmas, OTConfig.MAX_OTS, sigmas.length));
+						Arrays.copyOfRange(sigmas, OTExtensionConfig.MAX_OTS, sigmas.length));
 
 				boolean[] out = new boolean[out1.length + out2.length];
 				System.arraycopy(out1, 0, out, 0, out1.length);
@@ -65,10 +64,10 @@ public class OTExtensionReceiver {
 					 */
 					String base64sigmas = Base64.getEncoder().encodeToString(binarySigmas);
 
-					ProcessBuilder builder = new ProcessBuilder(OTConfig.SCAPI_CMD, "-cp",
-							OTConfig.CLASSPATH, OTConfig.OT_RECEIVER, address.getHostName(),
+					ProcessBuilder builder = new ProcessBuilder(OTExtensionConfig.SCAPI_CMD, "-cp",
+							OTExtensionConfig.CLASSPATH, OTExtensionConfig.OT_RECEIVER, address.getHostName(),
 							Integer.toString(address.getPort()), base64sigmas);
-					builder.directory(new File(OTConfig.PATH));
+					builder.directory(new File(OTExtensionConfig.PATH));
 
 					Process p = builder.start();
 

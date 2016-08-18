@@ -1,7 +1,7 @@
-package dk.alexandra.fresco.suite.tinytables.util.ot;
+package dk.alexandra.fresco.suite.tinytables.util.ot.extension;
 
 
-public class OTConfig {
+public class OTExtensionConfig {
 	
 	public static final String PATH = "target/classes";
 	
