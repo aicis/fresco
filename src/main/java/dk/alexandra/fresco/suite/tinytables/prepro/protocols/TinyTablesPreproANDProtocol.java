@@ -35,8 +35,6 @@ import dk.alexandra.fresco.suite.tinytables.prepro.TinyTablesPreproProtocolSuite
 import dk.alexandra.fresco.suite.tinytables.prepro.datatypes.TinyTablesPreproSBool;
 import dk.alexandra.fresco.suite.tinytables.storage.TinyTable;
 import dk.alexandra.fresco.suite.tinytables.util.RandomSourceImpl;
-import dk.alexandra.fresco.suite.tinytables.util.ot.OTExtensionReceiver;
-import dk.alexandra.fresco.suite.tinytables.util.ot.OTExtensionSender;
 import dk.alexandra.fresco.suite.tinytables.util.ot.datatypes.OTInput;
 import dk.alexandra.fresco.suite.tinytables.util.ot.datatypes.OTSigma;
 
@@ -95,9 +93,6 @@ import dk.alexandra.fresco.suite.tinytables.util.ot.datatypes.OTSigma;
 public class TinyTablesPreproANDProtocol extends TinyTablesPreproProtocol implements AndProtocol {
 
 	private TinyTablesPreproSBool inLeft, inRight, out;
-
-	OTExtensionReceiver otReceiver;
-	OTExtensionSender otSender;
 
 	public TinyTablesPreproANDProtocol(int id, TinyTablesPreproSBool inLeft,
 			TinyTablesPreproSBool inRight, TinyTablesPreproSBool out) {
