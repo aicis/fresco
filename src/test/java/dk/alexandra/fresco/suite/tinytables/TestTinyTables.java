@@ -31,6 +31,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -100,8 +101,7 @@ public class TestTinyTables {
 				 * We assume that both players are running on localhost in the
 				 * tests.
 				 */
-				((TinyTablesPreproConfiguration) config).setHostname("localhost");
-				((TinyTablesPreproConfiguration) config).setPort(9005);
+				((TinyTablesPreproConfiguration) config).setAddress(new InetSocketAddress("localhost", 9005));
 
 				protocolSuite = TinyTablesPreproProtocolSuite.getInstance(playerId);
 			} else {

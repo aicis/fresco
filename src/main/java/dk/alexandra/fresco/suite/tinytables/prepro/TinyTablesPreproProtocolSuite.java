@@ -152,7 +152,7 @@ public class TinyTablesPreproProtocolSuite implements ProtocolSuite {
 			/*
 			 * Perform OT's with player 2
 			 */
-			OTSender.transfer(configuration.getHostname(), configuration.getPort(), inputs);
+			OTSender.transfer(configuration.getAddress(), inputs);
 
 		} else {
 			/*
@@ -179,8 +179,7 @@ public class TinyTablesPreproProtocolSuite implements ProtocolSuite {
 			/*
 			 * Do OT's with player 1.
 			 */
-			boolean[] outputs = OTReceiver.transfer(configuration.getHostname(),
-					configuration.getPort(), sigmas);
+			boolean[] outputs = OTReceiver.transfer(configuration.getAddress(), sigmas);
 
 			if (outputs.length < 2 * sigmasFromPrepro.size()) {
 				throw new MPCException("To few outputs from OT's: Expected "
