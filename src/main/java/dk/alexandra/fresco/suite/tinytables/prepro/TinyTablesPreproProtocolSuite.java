@@ -41,15 +41,14 @@ import dk.alexandra.fresco.suite.tinytables.prepro.protocols.TinyTablesPreproAND
 import dk.alexandra.fresco.suite.tinytables.storage.TinyTable;
 import dk.alexandra.fresco.suite.tinytables.storage.TinyTablesStorage;
 import dk.alexandra.fresco.suite.tinytables.storage.TinyTablesStorageImpl;
+import dk.alexandra.fresco.suite.tinytables.util.ot.OTFactory;
 import dk.alexandra.fresco.suite.tinytables.util.ot.OTReceiver;
 import dk.alexandra.fresco.suite.tinytables.util.ot.OTSender;
 import dk.alexandra.fresco.suite.tinytables.util.ot.datatypes.OTInput;
 import dk.alexandra.fresco.suite.tinytables.util.ot.datatypes.OTSigma;
 import dk.alexandra.fresco.suite.tinytables.util.ot.extension.OTExtensionConfig;
-import dk.alexandra.fresco.suite.tinytables.util.ot.extension.OTExtensionReceiver;
-import dk.alexandra.fresco.suite.tinytables.util.ot.extension.OTExtensionSender;
-import dk.alexandra.fresco.suite.tinytables.util.ot.java.JavaOTReceiver;
-import dk.alexandra.fresco.suite.tinytables.util.ot.java.JavaOTSender;
+import dk.alexandra.fresco.suite.tinytables.util.ot.extension.OTExtensionFactory;
+import dk.alexandra.fresco.suite.tinytables.util.ot.java.JavaOTFactory;
 
 /**
  * <p>
@@ -88,7 +87,7 @@ public class TinyTablesPreproProtocolSuite implements ProtocolSuite {
 	private TinyTablesStorage storage;
 	private ResourcePool resourcePool;
 	private TinyTablesPreproConfiguration configuration;
-	private boolean useOTExtension;
+	private OTFactory otFactory;
 	private static volatile Map<Integer, TinyTablesPreproProtocolSuite> instances = new HashMap<>();
 
 	public static TinyTablesPreproProtocolSuite getInstance(int id) {
@@ -124,9 +123,13 @@ public class TinyTablesPreproProtocolSuite implements ProtocolSuite {
 			boolean iHaveOTExtensionLibrary = OTExtensionConfig.hasOTExtensionLib();
 			resourcePool.getNetwork().send("0", otherId(), iHaveOTExtensionLibrary);
 			boolean otherHasOTExtensionLibrary = resourcePool.getNetwork().receive("0", otherId());
-			this.useOTExtension = iHaveOTExtensionLibrary && otherHasOTExtensionLibrary;
+			boolean useOTExtension = iHaveOTExtensionLibrary && otherHasOTExtensionLibrary;
+
+			this.otFactory = useOTExtension ? new OTExtensionFactory(configuration.getAddress())
+					: new JavaOTFactory(resourcePool.getNetwork(), resourcePool.getMyId());
+			
 			Reporter.info("I have OT Extension library: " + iHaveOTExtensionLibrary);
-			Reporter.info("Using OT Extension: " + this.useOTExtension);
+			Reporter.info("Using OT Extension: " + useOTExtension);
 		} catch (IOException e) {
 			
 		}
@@ -188,13 +191,7 @@ public class TinyTablesPreproProtocolSuite implements ProtocolSuite {
 			/*
 			 * Perform OT's with player 2
 			 */
-			OTSender otSender;
-			if (this.useOTExtension) {
-				Reporter.info("Not possible to use SCAPI's OTExtension library. Falling back to slower java version.");
-				otSender = new OTExtensionSender(configuration.getAddress());
-			} else {
-				otSender = new JavaOTSender(resourcePool.getNetwork(), resourcePool.getMyId());
-			}
+			OTSender otSender = otFactory.createOTSender();
 			otSender.send(inputs);
 
 		} else {
@@ -225,13 +222,7 @@ public class TinyTablesPreproProtocolSuite implements ProtocolSuite {
 			 * SCAPI lib to be installed. Otherwise we fall back to the much
 			 * slower java version.
 			 */
-			OTReceiver otReceiver;
-			if (this.useOTExtension) {
-				otReceiver = new OTExtensionReceiver(configuration.getAddress());
-			} else {
-				Reporter.info("Not possible to use SCAPI's OTExtension library. Falling back to slower java version.");
-				otReceiver = new JavaOTReceiver(resourcePool.getNetwork(), resourcePool.getMyId());
-			}
+			OTReceiver otReceiver = otFactory.createOTReceiver();
 			boolean[] outputs = otReceiver.receive(sigmas);
 
 			if (outputs.length < 2 * sigmasFromPrepro.size()) {
