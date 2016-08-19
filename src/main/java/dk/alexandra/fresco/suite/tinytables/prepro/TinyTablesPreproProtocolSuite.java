@@ -88,6 +88,7 @@ public class TinyTablesPreproProtocolSuite implements ProtocolSuite {
 	private TinyTablesStorage storage;
 	private ResourcePool resourcePool;
 	private TinyTablesPreproConfiguration configuration;
+	private boolean useOTExtension;
 	private static volatile Map<Integer, TinyTablesPreproProtocolSuite> instances = new HashMap<>();
 
 	public static TinyTablesPreproProtocolSuite getInstance(int id) {
@@ -105,8 +106,36 @@ public class TinyTablesPreproProtocolSuite implements ProtocolSuite {
 	public void init(ResourcePool resourcePool, ProtocolSuiteConfiguration configuration) {
 		this.resourcePool = resourcePool;
 		this.configuration = (TinyTablesPreproConfiguration) configuration;
+		
+		negotiateOTExtension();
 	}
 
+	/**
+	 * SCAPI has a fast OT Extension library, but since it is part of SCAPI in
+	 * C++ (see https://scapi.readthedocs.io/en/latest/) and is called using
+	 * JNI, it requires SCAPI to be installed
+	 * (https://scapi.readthedocs.io/en/latest/install.html). If this is not
+	 * available for both players, we fall back to the java OT which is also
+	 * part of SCAPI. This is much slower, so we recommend that both players
+	 * install SCAPI and use the C++ lib.
+	 */
+	private void negotiateOTExtension() {
+		try {
+			boolean iHaveOTExtensionLibrary = OTExtensionConfig.hasOTExtensionLib();
+			resourcePool.getNetwork().send("0", otherId(), iHaveOTExtensionLibrary);
+			boolean otherHasOTExtensionLibrary = resourcePool.getNetwork().receive("0", otherId());
+			this.useOTExtension = iHaveOTExtensionLibrary && otherHasOTExtensionLibrary;
+			Reporter.info("I have OT Extension library: " + iHaveOTExtensionLibrary);
+			Reporter.info("Using OT Extension: " + this.useOTExtension);
+		} catch (IOException e) {
+			
+		}
+	}
+	
+	private int otherId() {
+		return resourcePool.getMyId() == 1 ? 2 : 1;
+	}
+	
 	public TinyTablesStorage getStorage() {
 		return this.storage;
 	}
@@ -159,22 +188,12 @@ public class TinyTablesPreproProtocolSuite implements ProtocolSuite {
 			/*
 			 * Perform OT's with player 2
 			 */
-			boolean hasOTExtensionLib = OTExtensionConfig.hasOTExtensionLib();
-			boolean doOTExtension = false;
-			try {
-				resourcePool.getNetwork().send("0", 2, hasOTExtensionLib);
-				boolean otherHasOTExtensionLib = resourcePool.getNetwork().receive("0", 2);
-				doOTExtension = hasOTExtensionLib && otherHasOTExtensionLib;
-			} catch (IOException e) {
-				// ...
-			}
-			
 			OTSender otSender;
-			if (doOTExtension) {
-				Reporter.info("Not possible to use OTExtension. Falling back to slower java version.");
+			if (this.useOTExtension) {
+				Reporter.info("Not possible to use SCAPI's OTExtension library. Falling back to slower java version.");
 				otSender = new OTExtensionSender(configuration.getAddress());
 			} else {
-				otSender = new JavaOTSender(resourcePool.getNetwork(), 1);
+				otSender = new JavaOTSender(resourcePool.getNetwork(), resourcePool.getMyId());
 			}
 			otSender.send(inputs);
 
@@ -201,26 +220,17 @@ public class TinyTablesPreproProtocolSuite implements ProtocolSuite {
 			}
 
 			/*
-			 * Do OT's with player 1. First negotiate whether we can use OT
-			 * Extension (which requires the SCAPI lib to be installed.
-			 * Otherwise we fall back to the much slower java version.
+			 * Do OT's with player 1. During initialization we negotiate with
+			 * other player whether we can use OT Extension (which requires the
+			 * SCAPI lib to be installed. Otherwise we fall back to the much
+			 * slower java version.
 			 */
-			boolean hasOTExtensionLib = OTExtensionConfig.hasOTExtensionLib();
-			boolean doOTExtension = false;
-			try {
-				resourcePool.getNetwork().send("0", 1, hasOTExtensionLib);
-				boolean otherHasOTExtensionLib = resourcePool.getNetwork().receive("0", 1);
-				doOTExtension = hasOTExtensionLib && otherHasOTExtensionLib;
-			} catch (IOException e) {
-				// ...
-			}
-			
 			OTReceiver otReceiver;
-			if (doOTExtension) {
+			if (this.useOTExtension) {
 				otReceiver = new OTExtensionReceiver(configuration.getAddress());
 			} else {
-				Reporter.info("Not possible to use OTExtension. Falling back to slower java version.");
-				otReceiver = new JavaOTReceiver(resourcePool.getNetwork(), 2);
+				Reporter.info("Not possible to use SCAPI's OTExtension library. Falling back to slower java version.");
+				otReceiver = new JavaOTReceiver(resourcePool.getNetwork(), resourcePool.getMyId());
 			}
 			boolean[] outputs = otReceiver.receive(sigmas);
 
