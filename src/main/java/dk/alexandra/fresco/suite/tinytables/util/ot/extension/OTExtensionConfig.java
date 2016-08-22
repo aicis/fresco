@@ -24,9 +24,6 @@ public class OTExtensionConfig {
 	 */
 	public static boolean hasOTExtensionLib() {
 		try {
-			String javaLibPath = System.getProperty("java.library.path");
-			System.out.println(javaLibPath);
-
 			System.loadLibrary("OtExtensionJavaInterface");
 			return true;
 		} catch (java.lang.UnsatisfiedLinkError e) {
