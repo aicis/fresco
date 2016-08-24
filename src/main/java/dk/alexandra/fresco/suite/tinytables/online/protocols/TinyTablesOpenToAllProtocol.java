@@ -36,7 +36,6 @@ import dk.alexandra.fresco.lib.field.bool.OpenBoolProtocol;
 import dk.alexandra.fresco.suite.tinytables.online.TinyTablesProtocolSuite;
 import dk.alexandra.fresco.suite.tinytables.online.datatypes.TinyTablesOBool;
 import dk.alexandra.fresco.suite.tinytables.online.datatypes.TinyTablesSBool;
-import dk.alexandra.fresco.suite.tinytables.util.Encoding;
 
 /**
  * <p>
@@ -88,14 +87,14 @@ public class TinyTablesOpenToAllProtocol extends TinyTablesProtocol implements O
 		switch (round) {
 			case 0:
 				boolean myR = ps.getStorage().getMaskShare(id);
-				network.sendToAll(new byte[] { Encoding.encodeBoolean(myR) });
+				network.sendToAll(myR);
 				network.expectInputFromAll();
 				return EvaluationStatus.HAS_MORE_ROUNDS;
 			case 1:
-				List<byte[]> shares = network.receiveFromAll();
+				List<Boolean> shares = network.receiveFromAll();
 				boolean result = toOpen.getValue();
-				for (byte[] share : shares) {
-					result ^= Encoding.decodeBoolean(share[0]);
+				for (boolean share : shares) {
+					result ^= share;
 				}
 				opened.setValue(result);
 				return EvaluationStatus.IS_DONE;

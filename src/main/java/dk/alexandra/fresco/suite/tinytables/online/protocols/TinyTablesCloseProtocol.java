@@ -37,7 +37,6 @@ import dk.alexandra.fresco.suite.tinytables.online.TinyTablesProtocolSuite;
 import dk.alexandra.fresco.suite.tinytables.online.datatypes.TinyTablesOBool;
 import dk.alexandra.fresco.suite.tinytables.online.datatypes.TinyTablesSBool;
 import dk.alexandra.fresco.suite.tinytables.prepro.protocols.TinyTablesPreproCloseProtocol;
-import dk.alexandra.fresco.suite.tinytables.util.Encoding;
 
 /**
  * <p>
@@ -87,14 +86,14 @@ public class TinyTablesCloseProtocol extends TinyTablesProtocol implements Close
 					boolean r = ps.getStorage().getMaskShare(id);
 					boolean e = this.in.getValue() ^ r;
 					out.setValue(e);
-					network.sendToAll(new byte[] { Encoding.encodeBoolean(e) });
+					network.sendToAll(e);
 				}
 				network.expectInputFromPlayer(this.inputter);
 				return EvaluationStatus.HAS_MORE_ROUNDS;
 
 			case 1:
-				byte[] share = network.receive(this.inputter);
-				out.setValue(Encoding.decodeBoolean(share[0]));
+				boolean share = network.receive(this.inputter);
+				out.setValue(share);
 				return EvaluationStatus.IS_DONE;
 
 			default:

@@ -35,7 +35,6 @@ import dk.alexandra.fresco.framework.value.Value;
 import dk.alexandra.fresco.lib.field.bool.AndProtocol;
 import dk.alexandra.fresco.suite.tinytables.online.TinyTablesProtocolSuite;
 import dk.alexandra.fresco.suite.tinytables.online.datatypes.TinyTablesSBool;
-import dk.alexandra.fresco.suite.tinytables.util.Encoding;
 
 /**
  * <p>
@@ -124,13 +123,13 @@ public class TinyTablesANDProtocol extends TinyTablesProtocol implements AndProt
 						inRight.getValue());
 
 				network.expectInputFromAll();
-				network.sendToAll(new byte[] { Encoding.encodeBoolean(myShare) });
+				network.sendToAll(myShare);
 				return EvaluationStatus.HAS_MORE_ROUNDS;
 			case 1:
-				List<byte[]> shares = network.receiveFromAll();
+				List<Boolean> shares = network.receiveFromAll();
 				boolean res = false;
-				for (byte[] share : shares) {
-					res = res ^ Encoding.decodeBoolean(share[0]);
+				for (boolean share : shares) {
+					res = res ^ share;
 				}
 				this.out.setValue(res);
 				return EvaluationStatus.IS_DONE;
