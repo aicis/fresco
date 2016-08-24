@@ -31,28 +31,17 @@ import dk.alexandra.fresco.framework.sce.configuration.ProtocolSuiteConfiguratio
 
 public class TinyTablesConfiguration implements ProtocolSuiteConfiguration{
 
-	private ProtocolFactory ninjaFactory;
-	private boolean dummy;
+	private ProtocolFactory tinyTablesFactory;
 	
 	public TinyTablesConfiguration() {
-		//default is real factory
-		ninjaFactory = new TinyTablesFactory();
-		dummy = true;
+		tinyTablesFactory = new TinyTablesFactory();
 	}
 	
-	public void setNinjaFactory(ProtocolFactory ninjaFactory) {
-		this.ninjaFactory = ninjaFactory;
-	}
-	
-	public void setDummy(boolean useDummy) {
-		this.dummy = useDummy;
+	public void setTinyTablesFactory(ProtocolFactory ninjaFactory) {
+		this.tinyTablesFactory = ninjaFactory;
 	}
 	
 	public ProtocolFactory getProtocolFactory() {
-		return this.ninjaFactory;
+		return this.tinyTablesFactory;
 	}	
-	
-	public boolean useDummy() {
-		return dummy;
-	}
 }
