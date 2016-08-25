@@ -14,21 +14,4 @@ public class OTExtensionConfig {
 
 	public static final int MAX_OTS = 10000;
 
-	/**
-	 * This method checks whether the OtExtensionJavaInterface library from
-	 * SCAPI is available on this platform. Check
-	 * http://scapi.readthedocs.io/en/latest/install.html for help on how to
-	 * install SCAPI on specific platforms.
-	 * 
-	 * @return
-	 */
-	public static boolean hasOTExtensionLib() {
-		try {
-			System.loadLibrary("OtExtensionJavaInterface");
-			return true;
-		} catch (java.lang.UnsatisfiedLinkError e) {
-			return false;
-		}
-	}
-
 }

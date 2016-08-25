@@ -46,7 +46,6 @@ import dk.alexandra.fresco.suite.tinytables.util.ot.OTReceiver;
 import dk.alexandra.fresco.suite.tinytables.util.ot.OTSender;
 import dk.alexandra.fresco.suite.tinytables.util.ot.datatypes.OTInput;
 import dk.alexandra.fresco.suite.tinytables.util.ot.datatypes.OTSigma;
-import dk.alexandra.fresco.suite.tinytables.util.ot.extension.OTExtensionConfig;
 import dk.alexandra.fresco.suite.tinytables.util.ot.extension.OTExtensionFactory;
 import dk.alexandra.fresco.suite.tinytables.util.ot.java.JavaOTFactory;
 
@@ -120,7 +119,7 @@ public class TinyTablesPreproProtocolSuite implements ProtocolSuite {
 	 */
 	private void negotiateOTExtension() {
 		try {
-			boolean iHaveOTExtensionLibrary = OTExtensionConfig.hasOTExtensionLib();
+			boolean iHaveOTExtensionLibrary = this.configuration.getUseOtExtension();
 			resourcePool.getNetwork().send("0", otherId(), iHaveOTExtensionLibrary);
 			boolean otherHasOTExtensionLibrary = resourcePool.getNetwork().receive("0", otherId());
 			boolean useOTExtension = iHaveOTExtensionLibrary && otherHasOTExtensionLibrary;
@@ -128,8 +127,8 @@ public class TinyTablesPreproProtocolSuite implements ProtocolSuite {
 			this.otFactory = useOTExtension ? new OTExtensionFactory(configuration.getAddress())
 					: new JavaOTFactory(resourcePool.getNetwork(), resourcePool.getMyId());
 			
-			Reporter.info("I have OT Extension library: " + iHaveOTExtensionLibrary);
-			Reporter.info("Using OT Extension: " + useOTExtension);
+			Reporter.fine("I have OT Extension library: " + iHaveOTExtensionLibrary);
+			Reporter.fine("Using OT Extension: " + useOTExtension);
 		} catch (IOException e) {
 			
 		}

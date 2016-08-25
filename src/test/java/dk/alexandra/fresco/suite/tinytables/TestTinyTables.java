@@ -103,6 +103,13 @@ public class TestTinyTables {
 				 */
 				((TinyTablesPreproConfiguration) config).setAddress(new InetSocketAddress("localhost", 9005));
 
+				/*
+				 * Set this to true if the SCAPI library has been installed.
+				 * This will greatly increase the performance of the
+				 * preprocessing.
+				 */
+				((TinyTablesPreproConfiguration) config).setUseOtExtension(false);
+				
 				protocolSuite = TinyTablesPreproProtocolSuite.getInstance(playerId);
 			} else {
 				config = new TinyTablesConfiguration();

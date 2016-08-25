@@ -35,6 +35,7 @@ public class TinyTablesPreproConfiguration implements ProtocolSuiteConfiguration
 
 	private ProtocolFactory tinyTablesFactory;
 	private InetSocketAddress address;
+	private boolean useOtExtension;
 
 	public TinyTablesPreproConfiguration() {
 		tinyTablesFactory = new TinyTablesPreproFactory();
@@ -66,6 +67,14 @@ public class TinyTablesPreproConfiguration implements ProtocolSuiteConfiguration
 	 */
 	public InetSocketAddress getAddress() {
 		return this.address;
+	}
+	
+	public void setUseOtExtension(boolean value) {
+		this.useOtExtension = value;
+	}
+	
+	public boolean getUseOtExtension() {
+		return this.useOtExtension;
 	}
 
 }
