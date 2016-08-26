@@ -36,7 +36,9 @@ public class Util {
 	 * Computes the floor(log_2(x))
 	 */
 	public static int log2(int n){
-	    if(n <= 0) throw new IllegalArgumentException();
+	    if(n <= 0) {
+			throw new IllegalArgumentException();
+		}
 	    return 31 - Integer.numberOfLeadingZeros(n);
 	}
 	
@@ -70,5 +72,9 @@ public class Util {
 			}
 		}
 		return res;
+	}
+	
+	public static boolean isPowerOfTwo(int n) {
+		return (n & (n - 1)) == 0;
 	}
 }

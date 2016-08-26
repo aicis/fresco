@@ -65,6 +65,10 @@ import dk.alexandra.fresco.suite.spdz.configuration.SpdzConfiguration;
 import dk.alexandra.fresco.suite.spdz.configuration.SpdzConfigurationFromProperties;
 import dk.alexandra.fresco.suite.spdz.evaluation.strategy.SpdzProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.utils.SpdzFactory;
+import dk.alexandra.fresco.suite.tinytables.online.TinyTablesConfiguration;
+import dk.alexandra.fresco.suite.tinytables.online.TinyTablesProtocolSuite;
+import dk.alexandra.fresco.suite.tinytables.prepro.TinyTablesPreproConfiguration;
+import dk.alexandra.fresco.suite.tinytables.prepro.TinyTablesPreproProtocolSuite;
 
 /**
  * Secure Computation Engine - responsible for having the overview of things and
@@ -86,24 +90,14 @@ public class SCEImpl implements SCE {
 	private boolean setup = false;
 
 	protected SCEImpl(SCEConfiguration sceConf) {
-		this.sceConf = sceConf;		
+		this(sceConf, null);
 	}
 
 	protected SCEImpl(SCEConfiguration sceConf, ProtocolSuiteConfiguration psConf) {
 		this.sceConf = sceConf;
 		this.psConf = psConf;		
-	}
-
-	@Override
-	public SCEConfiguration getSCEConfiguration() {
-		return this.sceConf;
-	}
-
-	@Override
-	public synchronized void setup() throws IOException {		
-		if (this.setup) {
-			return;
-		}
+		
+		//setup the basic stuff, but do not initialize anything yet
 		int myId = sceConf.getMyId();
 		Map<Integer, Party> parties = sceConf.getParties();
 		Level logLevel = sceConf.getLogLevel();
@@ -147,6 +141,18 @@ public class SCEImpl implements SCE {
 
 		this.resourcePool = new ResourcePoolImpl(sceConf.getMyId(), parties.size(), network, storage, streamedStorage,
 				rand, secRand, threadPool, threadPool);
+	}
+
+	@Override
+	public SCEConfiguration getSCEConfiguration() {
+		return this.sceConf;
+	}
+
+	@Override
+	public synchronized void setup() throws IOException {		
+		if (this.setup) {
+			return;
+		}
 
 		this.resourcePool.initializeRandom();
 		this.resourcePool.initializeThreadPool();
@@ -179,7 +185,22 @@ public class SCEImpl implements SCE {
 			BgwRandomBitSupplier bitSupplier = ((BgwProtocolSuite) protocolSuite).getBitSupplier();
 			this.protocolFactory = new BgwFactory(this.resourcePool.getMyId(), this.resourcePool.getNoOfParties(),
 					threshold, modulus, bitSupplier);
-			
+			break;
+		case "tinytablesprepro":
+			this.protocolSuite = TinyTablesPreproProtocolSuite.getInstance(this.resourcePool.getMyId());
+			if(psConf == null) {
+				psConf = new TinyTablesPreproConfiguration();
+			}
+			this.protocolFactory = ((TinyTablesPreproConfiguration)psConf).getProtocolFactory();
+			this.protocolSuite.init(this.resourcePool, psConf);			
+			break;
+		case "tinytables":
+			this.protocolSuite = TinyTablesProtocolSuite.getInstance(this.resourcePool.getMyId());
+			if(psConf == null) {
+				psConf = new TinyTablesConfiguration();
+			}
+			this.protocolFactory = ((TinyTablesConfiguration)psConf).getProtocolFactory();
+			this.protocolSuite.init(this.resourcePool, psConf);			
 			break;
 		case "dummy":
 			this.protocolSuite = new DummyProtocolSuite();
@@ -217,7 +238,11 @@ public class SCEImpl implements SCE {
 		} catch (IOException e) {
 			throw new MPCException("Could not run application due to errors during setup: " + e.getMessage(), e);
 		}
+		long then = System.currentTimeMillis();
 		evalApplication(application);
+		long now = System.currentTimeMillis();
+		long timeSpend = now-then;
+		Reporter.info("Running the application " + application.getClass().getSimpleName()+" took "+ timeSpend+" ms.");
 	}
 
 	private void evalApplication(Application app) {
@@ -240,6 +265,9 @@ public class SCEImpl implements SCE {
 		try {
 			if (this.resourcePool != null) {
 				this.resourcePool.shutdownNetwork();
+				if(this.resourcePool.getStreamedStorage() != null) {
+					this.resourcePool.getStreamedStorage().shutdown();
+				}
 				this.resourcePool = null;
 			}
 		} catch (IOException e) {

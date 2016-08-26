@@ -47,7 +47,10 @@ import dk.alexandra.fresco.framework.value.SBool;
 import dk.alexandra.fresco.lib.field.bool.BasicLogicFactory;
 import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
 import dk.alexandra.fresco.lib.helper.bristol.BristolCircuit;
+import dk.alexandra.fresco.lib.helper.builder.BasicLogicBuilder;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
+import dk.alexandra.fresco.lib.logic.AbstractBinaryFactory;
+import dk.alexandra.fresco.suite.tinytables.prepro.TinyTablesPreproConfiguration;
 
 /**
  * Some generic tests for basic crypto primitives a la AES and SHA1.
@@ -77,8 +80,9 @@ public class BristolCryptoTests {
 	 * 
 	 */
 	private static boolean[] toBoolean(String hex) throws IllegalArgumentException {
-		if (hex.length() % 2 != 0)
+		if (hex.length() % 2 != 0) {
 			throw new IllegalArgumentException("Illegal hex string");
+		}
 		boolean[] res = new boolean[hex.length() * 4];
 		for (int i=0; i<hex.length() / 2; i++) {
 			String sub = hex.substring(2*i,2*i +2);
@@ -115,8 +119,8 @@ public class BristolCryptoTests {
 				// This is just some fixed test vectors for AES in ECB mode that was
 				// found somewhere on the net, i.e., this is some known plaintexts and
 				// corresponding cipher texts that can be used for testing.
-				final String[] plainVec = new String[] { "000102030405060708090a0b0c0d0e0f"};
-				final String keyVec = "00112233445566778899aabbccddeeff";
+				final String[] keyVec = new String[] { "000102030405060708090a0b0c0d0e0f"};
+				final String plainVec = "00112233445566778899aabbccddeeff";
 				final String[] cipherVec = new String[] { "69c4e0d86a7b0430d8cdb78070b4c55a"};
 				
 				SBool[] plain, key, cipher;
@@ -130,46 +134,46 @@ public class BristolCryptoTests {
 
 						@Override
 						public ProtocolProducer prepareApplication(ProtocolFactory fac) {
-							BasicLogicFactory bool = (BasicLogicFactory)fac;
-
-							boolean[] key_val = toBoolean(keyVec);
-							boolean[] in_val = toBoolean(plainVec[0]);
-							plain = bool.getKnownConstantSBools(key_val);
-							key = bool.getKnownConstantSBools(in_val);
-							cipher = bool.getSBools(128);
+							AbstractBinaryFactory prov = (AbstractBinaryFactory) fac;
+							BasicLogicBuilder builder = new BasicLogicBuilder(prov);
+							
+							boolean[] key_val = toBoolean(keyVec[0]);
+							boolean[] in_val = toBoolean(plainVec);
+							
+							plain = builder.knownSBool(in_val);
+							key = builder.knownSBool(key_val);
+							cipher = prov.getSBools(128);
 
 							// Create AES circuit.
-							BristolCryptoFactory aesFac = new BristolCryptoFactory(bool);
+							BristolCryptoFactory aesFac = new BristolCryptoFactory(prov);
 							BristolCircuit aes = aesFac.getAesProtocol(plain, key, cipher);
+							builder.addProtocolProducer(aes);
 							
-							// Create circuits for opening result of AES.
-							ProtocolProducer[] opens = new ProtocolProducer[128];
-							openedCipher = new OBool[128];
-							for (int i=0; i<128; i++) {
-								openedCipher[i] = bool.getOBool();
-								opens[i] = bool.getOpenProtocol(cipher[i], openedCipher[i]);
-							}
-							ProtocolProducer open_all = new ParallelProtocolProducer(opens);
+							// Create circuits for opening result of AES.							
+							openedCipher = builder.output(cipher);
 							
-							return new SequentialProtocolProducer(aes, open_all);
+							return new SequentialProtocolProducer(builder.getProtocol());
 						}
 					};
 
 					sce.runApplication(aesApp);
-
-					boolean[] expected = toBoolean(cipherVec[0]);
-					boolean[] actual = new boolean[128];
-					for (int i=0; i<128; i++) {
-						actual[i] = openedCipher[i].getValue();
+					
+					if (conf.protocolSuiteConf instanceof TinyTablesPreproConfiguration) {
+						// Just preprocessing - do not check output
+					} else {
+						boolean[] expected = toBoolean(cipherVec[0]);
+						boolean[] actual = new boolean[128];
+						for (int i=0; i<128; i++) {
+							actual[i] = openedCipher[i].getValue();
+						}
+						
+						//					System.out.println("KEY       : " + Arrays.toString(toBoolean(keyVec)));
+						//					System.out.println("IN        : " + Arrays.toString(toBoolean(inVec[0])));
+						//					System.out.println("EXPECTED  : " + Arrays.toString(expected));
+						//					System.out.println("ACTUAL OPN: " + Arrays.toString(actual));
+						
+						Assert.assertTrue(Arrays.equals(expected, actual));
 					}
-					
-					//					System.out.println("KEY       : " + Arrays.toString(toBoolean(keyVec)));
-					//					System.out.println("IN        : " + Arrays.toString(toBoolean(inVec[0])));
-					//					System.out.println("EXPECTED  : " + Arrays.toString(expected));
-					//					System.out.println("ACTUAL OPN: " + Arrays.toString(actual));
-					
-					Assert.assertTrue(Arrays.equals(expected, actual));
-					
 				}
 			};
 		}
@@ -236,17 +240,21 @@ public class BristolCryptoTests {
 
 					sce.runApplication(aesApp);
 
-					boolean[] expected = toBoolean(out1);
-					boolean[] actual = new boolean[out.length];
-					for (int i=0; i<out.length; i++) {
-						actual[i] = openedOut[i].getValue();
+					if (conf.protocolSuiteConf instanceof TinyTablesPreproConfiguration) {
+						// Do nothing
+					} else {
+						boolean[] expected = toBoolean(out1);
+						boolean[] actual = new boolean[out.length];
+						for (int i=0; i<out.length; i++) {
+							actual[i] = openedOut[i].getValue();
+						}
+	
+						//					System.out.println("IN        : " + Arrays.toString(AesTests.toBoolean(in1)));
+						//					System.out.println("EXPECTED  : " + Arrays.toString(expected));
+						//					System.out.println("ACTUAL    : " + Arrays.toString(actual));
+						
+						Assert.assertTrue(Arrays.equals(expected, actual));
 					}
-
-					//					System.out.println("IN        : " + Arrays.toString(AesTests.toBoolean(in1)));
-					//					System.out.println("EXPECTED  : " + Arrays.toString(expected));
-					//					System.out.println("ACTUAL    : " + Arrays.toString(actual));
-					
-					Assert.assertTrue(Arrays.equals(expected, actual));
 					
 				}
 			};
@@ -318,18 +326,21 @@ public class BristolCryptoTests {
 
 					sce.runApplication(sha256App);
 
-					boolean[] expected = toBoolean(out1);
-					boolean[] actual = new boolean[out.length];
-					for (int i=0; i<out.length; i++) {
-						actual[i] = openedOut[i].getValue();
-					}
-
-					//					System.out.println("IN        : " + Arrays.toString(AesTests.toBoolean(in1)));
-					//					System.out.println("EXPECTED  : " + Arrays.toString(expected));
-					//					System.out.println("ACTUAL    : " + Arrays.toString(actual));
-					
-					Assert.assertTrue(Arrays.equals(expected, actual));
-					
+					if (conf.protocolSuiteConf instanceof TinyTablesPreproConfiguration) {
+						// Do nothing
+					} else {
+						boolean[] expected = toBoolean(out1);
+						boolean[] actual = new boolean[out.length];
+						for (int i=0; i<out.length; i++) {
+							actual[i] = openedOut[i].getValue();
+						}
+	
+						//					System.out.println("IN        : " + Arrays.toString(AesTests.toBoolean(in1)));
+						//					System.out.println("EXPECTED  : " + Arrays.toString(expected));
+						//					System.out.println("ACTUAL    : " + Arrays.toString(actual));
+						
+						Assert.assertTrue(Arrays.equals(expected, actual));
+					}					
 				}
 			};
 		}
@@ -397,18 +408,21 @@ public class BristolCryptoTests {
 
 					sce.runApplication(md5App);
 
-					boolean[] expected = toBoolean(out1);
-					boolean[] actual = new boolean[out.length];
-					for (int i=0; i<out.length; i++) {
-						actual[i] = openedOut[i].getValue();
+					if (conf.protocolSuiteConf instanceof TinyTablesPreproConfiguration) {
+						// Do nothing
+					} else {
+						boolean[] expected = toBoolean(out1);
+						boolean[] actual = new boolean[out.length];
+						for (int i=0; i<out.length; i++) {
+							actual[i] = openedOut[i].getValue();
+						}
+	
+						//					System.out.println("IN        : " + Arrays.toString(AesTests.toBoolean(in1)));
+						//					System.out.println("EXPECTED  : " + Arrays.toString(expected));
+						//					System.out.println("ACTUAL    : " + Arrays.toString(actual));
+						
+						Assert.assertTrue(Arrays.equals(expected, actual));
 					}
-
-					//					System.out.println("IN        : " + Arrays.toString(AesTests.toBoolean(in1)));
-					//					System.out.println("EXPECTED  : " + Arrays.toString(expected));
-					//					System.out.println("ACTUAL    : " + Arrays.toString(actual));
-					
-					Assert.assertTrue(Arrays.equals(expected, actual));
-					
 				}
 			};
 		}
@@ -434,7 +448,7 @@ public class BristolCryptoTests {
 				String outv = "0000000000000000";
 				@Override
 				public void test() throws Exception {
-					Application md5App = new Application() {
+					Application multApp = new Application() {
 
 						private static final long serialVersionUID = 36363636L;
 
@@ -465,20 +479,24 @@ public class BristolCryptoTests {
 						}
 					};
 
-					sce.runApplication(md5App);
+					sce.runApplication(multApp);
 
-					boolean[] expected = toBoolean(outv);
-					boolean[] actual = new boolean[out.length];
-					for (int i=0; i<out.length; i++) {
-						actual[i] = openedOut[i].getValue();
+					if (conf.protocolSuiteConf instanceof TinyTablesPreproConfiguration) {
+						// Do nothing
+					} else {
+						boolean[] expected = toBoolean(outv);
+						boolean[] actual = new boolean[out.length];
+						for (int i=0; i<out.length; i++) {
+							actual[i] = openedOut[i].getValue();
+						}
+	
+						//					System.out.println("IN1        : " + Arrays.toString(toBoolean(inv1)));
+						//					System.out.println("IN2        : " + Arrays.toString(toBoolean(inv2)));
+						//					System.out.println("EXPECTED   : " + Arrays.toString(expected));
+						//					System.out.println("ACTUAL     : " + Arrays.toString(actual));
+						
+						Assert.assertTrue(Arrays.equals(expected, actual));
 					}
-
-					//					System.out.println("IN1        : " + Arrays.toString(toBoolean(inv1)));
-					//					System.out.println("IN2        : " + Arrays.toString(toBoolean(inv2)));
-					//					System.out.println("EXPECTED   : " + Arrays.toString(expected));
-					//					System.out.println("ACTUAL     : " + Arrays.toString(actual));
-					
-					Assert.assertTrue(Arrays.equals(expected, actual));
 					
 				}
 			};
@@ -538,18 +556,22 @@ public class BristolCryptoTests {
 
 					sce.runApplication(md5App);
 
-					boolean[] expected = toBoolean(cipherV);
-					boolean[] actual = new boolean[cipher.length];
-					for (int i=0; i<cipher.length; i++) {
-						actual[i] = openedOut[i].getValue();
+					if (conf.protocolSuiteConf instanceof TinyTablesPreproConfiguration) {
+						// Do nothing
+					} else {
+						boolean[] expected = toBoolean(cipherV);
+						boolean[] actual = new boolean[cipher.length];
+						for (int i=0; i<cipher.length; i++) {
+							actual[i] = openedOut[i].getValue();
+						}
+	
+						//					System.out.println("IN1        : " + Arrays.toString(toBoolean(inv1)));
+						//					System.out.println("IN2        : " + Arrays.toString(toBoolean(inv2)));
+						//					System.out.println("EXPECTED   : " + Arrays.toString(expected));
+						//					System.out.println("ACTUAL     : " + Arrays.toString(actual));
+						
+						Assert.assertTrue(Arrays.equals(expected, actual));
 					}
-
-					//					System.out.println("IN1        : " + Arrays.toString(toBoolean(inv1)));
-					//					System.out.println("IN2        : " + Arrays.toString(toBoolean(inv2)));
-					//					System.out.println("EXPECTED   : " + Arrays.toString(expected));
-					//					System.out.println("ACTUAL     : " + Arrays.toString(actual));
-					
-					Assert.assertTrue(Arrays.equals(expected, actual));
 					
 				}
 			};

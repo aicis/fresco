@@ -68,6 +68,14 @@ public class ByteArithmetic {
 		}
 	}	
 	
+	public static byte not(byte value) {
+		if(value == 0) {
+			return 1;
+		} else {
+			return 0;
+		}
+	}
+	
 	public static void packBits(byte[] unpacked, byte[] packed) {
 		int packedLength = packed.length;
 		for (int i=0; i<packedLength; i++) {

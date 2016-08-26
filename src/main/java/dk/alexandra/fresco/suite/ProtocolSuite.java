@@ -35,6 +35,8 @@ import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.suite.bgw.BgwProtocolSuite;
 import dk.alexandra.fresco.suite.dummy.DummyProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.evaluation.strategy.SpdzProtocolSuite;
+import dk.alexandra.fresco.suite.tinytables.online.TinyTablesProtocolSuite;
+import dk.alexandra.fresco.suite.tinytables.prepro.TinyTablesPreproProtocolSuite;
 
 public interface ProtocolSuite {
 
@@ -86,6 +88,8 @@ public interface ProtocolSuite {
 	public static Set<String> getSupportedProtocolSuites() {
 		Set<String> res = new HashSet<String>();
 		res.add("dummy");
+		res.add("tinytablesprepro");
+		res.add("tinytables");
 		res.add("bgw");
 		res.add("spdz");
 		return res;
@@ -96,7 +100,11 @@ public interface ProtocolSuite {
 			return "bgw";
 		} else if(suite instanceof SpdzProtocolSuite) {
 			return "spdz";
-		} else if(suite instanceof DummyProtocolSuite) {
+		} else if (suite instanceof TinyTablesPreproProtocolSuite) {
+			return "tinytablesprepro";
+		} else if (suite instanceof TinyTablesProtocolSuite) {
+			return "tinytables";
+		} else if (suite instanceof DummyProtocolSuite) {
 			return "dummy";
 		} else {
 			throw new IllegalArgumentException("FRESCO does not currently know about the given protocol suite: " +suite);
