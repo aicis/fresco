@@ -60,7 +60,6 @@ import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.tinytables.online.TinyTablesConfiguration;
 import dk.alexandra.fresco.suite.tinytables.online.TinyTablesProtocolSuite;
 import dk.alexandra.fresco.suite.tinytables.prepro.TinyTablesPreproConfiguration;
-import dk.alexandra.fresco.suite.tinytables.prepro.TinyTablesPreproFactory;
 import dk.alexandra.fresco.suite.tinytables.prepro.TinyTablesPreproProtocolSuite;
 import dk.alexandra.fresco.suite.tinytables.storage.TinyTablesStorage;
 
@@ -94,8 +93,6 @@ public class TestTinyTables {
 			ProtocolSuiteConfiguration config = null;
 			if (preprocessing) {
 				config = new TinyTablesPreproConfiguration();
-				((TinyTablesPreproConfiguration) config)
-						.setTinyTableFactory(new TinyTablesPreproFactory());
 
 				/*
 				 * We assume that both players are running on localhost in the

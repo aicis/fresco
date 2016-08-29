@@ -30,6 +30,7 @@ import java.net.InetSocketAddress;
 
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.sce.configuration.ProtocolSuiteConfiguration;
+import dk.alexandra.fresco.framework.sce.configuration.SCEConfiguration;
 
 public class TinyTablesPreproConfiguration implements ProtocolSuiteConfiguration {
 
@@ -37,12 +38,12 @@ public class TinyTablesPreproConfiguration implements ProtocolSuiteConfiguration
 	private InetSocketAddress address;
 	private boolean useOtExtension;
 
+	public static ProtocolSuiteConfiguration fromCmdArgs(SCEConfiguration sceConf, String[] ramainingArgs) {
+		return null;
+	}
+	
 	public TinyTablesPreproConfiguration() {
 		tinyTablesFactory = new TinyTablesPreproFactory();
-	}
-
-	public void setTinyTableFactory(ProtocolFactory tinyTablesFactory) {
-		this.tinyTablesFactory = tinyTablesFactory;
 	}
 
 	public ProtocolFactory getProtocolFactory() {
