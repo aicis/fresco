@@ -26,8 +26,6 @@
  *******************************************************************************/
 package dk.alexandra.fresco.suite.tinytables.prepro.protocols;
 
-import java.security.SecureRandom;
-
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.network.SCENetwork;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
@@ -94,7 +92,6 @@ import dk.alexandra.fresco.suite.tinytables.util.ot.datatypes.OTSigma;
 public class TinyTablesPreproANDProtocol extends TinyTablesPreproProtocol implements AndProtocol {
 
 	private TinyTablesPreproSBool inLeft, inRight, out;
-	private SecureRandom secureRandomSource;
 
 	public TinyTablesPreproANDProtocol(int id, TinyTablesPreproSBool inLeft,
 			TinyTablesPreproSBool inRight, TinyTablesPreproSBool out) {
@@ -121,8 +118,6 @@ public class TinyTablesPreproANDProtocol extends TinyTablesPreproProtocol implem
 		TinyTablesPreproProtocolSuite ps = TinyTablesPreproProtocolSuite.getInstance(resourcePool
 				.getMyId());
 
-		this.secureRandomSource = resourcePool.getSecureRandom();
-		
 		switch (round) {
 			case 0:
 				if (resourcePool.getMyId() == 1) {
@@ -151,7 +146,8 @@ public class TinyTablesPreproANDProtocol extends TinyTablesPreproProtocol implem
 					 * For now we just store the inputs and then do all the OTs
 					 * in one batch at the end of the preprocessing phase.
 					 */
-					OTInput[] otInputs = calculateOTInputs(tinyTable, rO);
+					boolean m = resourcePool.getSecureRandom().nextBoolean();
+					OTInput[] otInputs = calculateOTInputs(tinyTable, rO, m);
 					ps.getStorage().storeOTInput(id, otInputs);
 
 					/*
@@ -258,8 +254,7 @@ public class TinyTablesPreproANDProtocol extends TinyTablesPreproProtocol implem
 	 *            <i>r<sub>O</sub><sup>1</sup></i>.
 	 * @return
 	 */
-	private OTInput[] calculateOTInputs(TinyTable t, boolean rO) {
-		boolean m = this.secureRandomSource.nextBoolean();
+	private OTInput[] calculateOTInputs(TinyTable t, boolean rO, boolean m) {
 		OTInput[] otInputs = new OTInput[2];
 		boolean x0 = t.getValue(false, false) ^ rO ^ (inLeft.getShare() && inRight.getShare()) ^ m;
 		otInputs[0] = new OTInput(x0, x0 ^ inLeft.getShare());
