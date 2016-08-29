@@ -252,6 +252,9 @@ public class TinyTablesPreproANDProtocol extends TinyTablesPreproProtocol implem
 	 * @param rO
 	 *            Player 1's share of the masking parameter for the output wire,
 	 *            <i>r<sub>O</sub><sup>1</sup></i>.
+	 * @param m
+	 *            A masking parameter. Should be picked at random.
+	 * 
 	 * @return
 	 */
 	private OTInput[] calculateOTInputs(TinyTable t, boolean rO, boolean m) {
