@@ -26,6 +26,8 @@
  *******************************************************************************/
 package dk.alexandra.fresco.suite.tinytables.prepro.protocols;
 
+import java.security.SecureRandom;
+
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.network.SCENetwork;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
@@ -34,7 +36,6 @@ import dk.alexandra.fresco.lib.field.bool.AndProtocol;
 import dk.alexandra.fresco.suite.tinytables.prepro.TinyTablesPreproProtocolSuite;
 import dk.alexandra.fresco.suite.tinytables.prepro.datatypes.TinyTablesPreproSBool;
 import dk.alexandra.fresco.suite.tinytables.storage.TinyTable;
-import dk.alexandra.fresco.suite.tinytables.util.RandomSourceImpl;
 import dk.alexandra.fresco.suite.tinytables.util.ot.datatypes.OTInput;
 import dk.alexandra.fresco.suite.tinytables.util.ot.datatypes.OTSigma;
 
@@ -93,6 +94,7 @@ import dk.alexandra.fresco.suite.tinytables.util.ot.datatypes.OTSigma;
 public class TinyTablesPreproANDProtocol extends TinyTablesPreproProtocol implements AndProtocol {
 
 	private TinyTablesPreproSBool inLeft, inRight, out;
+	private SecureRandom secureRandomSource;
 
 	public TinyTablesPreproANDProtocol(int id, TinyTablesPreproSBool inLeft,
 			TinyTablesPreproSBool inRight, TinyTablesPreproSBool out) {
@@ -119,6 +121,8 @@ public class TinyTablesPreproANDProtocol extends TinyTablesPreproProtocol implem
 		TinyTablesPreproProtocolSuite ps = TinyTablesPreproProtocolSuite.getInstance(resourcePool
 				.getMyId());
 
+		this.secureRandomSource = resourcePool.getSecureRandom();
+		
 		switch (round) {
 			case 0:
 				if (resourcePool.getMyId() == 1) {
@@ -127,11 +131,16 @@ public class TinyTablesPreproANDProtocol extends TinyTablesPreproProtocol implem
 					 */
 
 					// Pick share for output gate
-					boolean rO = RandomSourceImpl.getInstance().getRandomBoolean();
+					boolean rO = resourcePool.getSecureRandom().nextBoolean();
 					out.setShare(rO);
 
 					// Pick random entries for TinyTable
-					TinyTable tinyTable = new TinyTable(2, RandomSourceImpl.getInstance());
+					
+					boolean[] entries = new boolean[4];
+					for (int i = 0; i < entries.length; i++) {
+						entries[i] = resourcePool.getSecureRandom().nextBoolean();
+					}
+					TinyTable tinyTable = new TinyTable(entries);
 					ps.getStorage().storeTinyTable(id, tinyTable);
 
 					/*
@@ -187,7 +196,7 @@ public class TinyTablesPreproANDProtocol extends TinyTablesPreproProtocol implem
 					boolean[] received = network.receive(1);
 
 					// Pick share for output gate
-					boolean rO = RandomSourceImpl.getInstance().getRandomBoolean();
+					boolean rO = resourcePool.getSecureRandom().nextBoolean();
 					out.setShare(rO);
 
 					boolean[] tmps = new boolean[4];
@@ -250,7 +259,7 @@ public class TinyTablesPreproANDProtocol extends TinyTablesPreproProtocol implem
 	 * @return
 	 */
 	private OTInput[] calculateOTInputs(TinyTable t, boolean rO) {
-		boolean m = RandomSourceImpl.getInstance().getRandomBoolean();
+		boolean m = this.secureRandomSource.nextBoolean();
 		OTInput[] otInputs = new OTInput[2];
 		boolean x0 = t.getValue(false, false) ^ rO ^ (inLeft.getShare() && inRight.getShare()) ^ m;
 		otInputs[0] = new OTInput(x0, x0 ^ inLeft.getShare());

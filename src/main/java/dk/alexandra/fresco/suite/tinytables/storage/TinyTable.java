@@ -4,7 +4,6 @@ import java.io.Serializable;
 import java.util.Arrays;
 
 import dk.alexandra.fresco.framework.math.Util;
-import dk.alexandra.fresco.suite.tinytables.util.RandomSource;
 
 /**
  * <p>
@@ -50,17 +49,6 @@ public class TinyTable implements Serializable {
 		}
 		this.table = values;
 		this.dimension = Util.log2(values.length);
-	}
-
-	/**
-	 * Create a new <i>n</i> dimensional TinyTable with random entries.
-	 * 
-	 * @param randomSource
-	 */
-	public TinyTable(int dimension, RandomSource randomSource) {
-
-		// Table must have 2^dimension entries
-		this(randomSource.getRandomBooleans(1 << dimension));
 	}
 
 	private boolean getValue(int index) {
