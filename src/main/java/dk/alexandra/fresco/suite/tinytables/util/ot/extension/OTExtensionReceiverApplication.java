@@ -3,11 +3,9 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Base64;
 
+import dk.alexandra.fresco.suite.tinytables.util.Encoding;
+import dk.alexandra.fresco.suite.tinytables.util.ot.datatypes.OTSigma;
 import edu.biu.scapi.comm.Party;
-import edu.biu.scapi.interactiveMidProtocols.ot.OTOnByteArrayROutput;
-import edu.biu.scapi.interactiveMidProtocols.ot.otBatch.OTBatchRInput;
-import edu.biu.scapi.interactiveMidProtocols.ot.otBatch.otExtension.OTExtensionGeneralRInput;
-import edu.biu.scapi.interactiveMidProtocols.ot.otBatch.otExtension.OTSemiHonestExtensionReceiver;
 
 /**
  * Perform Oblivious transfer extension as the receiving part. Should be called
@@ -48,12 +46,14 @@ public class OTExtensionReceiverApplication {
 	}
 	
 	public static byte[] receive(String host, int port, byte[] sigmas) throws UnknownHostException {
-		Party party = new Party(InetAddress.getByName(host), port);
-		OTSemiHonestExtensionReceiver receiver = new OTSemiHonestExtensionReceiver(party);
 		
-		OTBatchRInput input = new OTExtensionGeneralRInput(sigmas, 8);
-		OTOnByteArrayROutput output = (OTOnByteArrayROutput) receiver.transfer(null, input);
-		return output.getXSigma();
+		OTExtensionReceiver receiver = new OTExtensionReceiver(new Party(InetAddress.getByName(host), port));
+		
+		OTSigma[] otSigmas = new OTSigma[sigmas.length];
+		for (int i = 0; i < sigmas.length; i++) {
+			otSigmas[i] = new OTSigma(Encoding.decodeBoolean(sigmas[i]));
+		}
+		return Encoding.encodeBooleans(receiver.receive(otSigmas));
 	}
 
 }

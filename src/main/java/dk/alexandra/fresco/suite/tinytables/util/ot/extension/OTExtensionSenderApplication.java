@@ -3,9 +3,9 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Base64;
 
+import dk.alexandra.fresco.suite.tinytables.util.Encoding;
+import dk.alexandra.fresco.suite.tinytables.util.ot.datatypes.OTInput;
 import edu.biu.scapi.comm.Party;
-import edu.biu.scapi.interactiveMidProtocols.ot.otBatch.otExtension.OTExtensionGeneralSInput;
-import edu.biu.scapi.interactiveMidProtocols.ot.otBatch.otExtension.OTSemiHonestExtensionSender;
 
 public class OTExtensionSenderApplication {
 
@@ -38,16 +38,12 @@ public class OTExtensionSenderApplication {
 	}
 	
 	public static void send(String host, int port, byte[] input0, byte[] input1) throws UnknownHostException {
-		Party party = new Party(InetAddress.getByName(host), port);
-		OTSemiHonestExtensionSender sender = new OTSemiHonestExtensionSender(party);
-		
-		if (input0.length != input1.length) {
-			System.err.println("Length of input arrays must match, " + input0.length + "!=" + input1.length);
+		OTExtensionSender sender = new OTExtensionSender(new Party(InetAddress.getByName(host), port));
+		OTInput[] otInputs = new OTInput[input0.length];
+		for (int i = 0; i < otInputs.length; i++) {
+			otInputs[i] = new OTInput(Encoding.decodeBoolean(input0[i]), Encoding.decodeBoolean(input1[i]));
 		}
-		int n = input0.length;
-		
-		OTExtensionGeneralSInput input = new OTExtensionGeneralSInput(input0, input1, n);
-		sender.transfer(null, input);
+		sender.send(otInputs);
 	}
 
 }

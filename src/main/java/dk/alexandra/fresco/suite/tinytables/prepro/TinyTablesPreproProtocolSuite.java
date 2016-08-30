@@ -90,6 +90,7 @@ public class TinyTablesPreproProtocolSuite implements ProtocolSuite {
 	private ResourcePool resourcePool;
 	private TinyTablesPreproConfiguration configuration;
 	private OTFactory otFactory;
+	private File tinyTablesFile;
 	private static volatile Map<Integer, TinyTablesPreproProtocolSuite> instances = new HashMap<>();
 
 	public static TinyTablesPreproProtocolSuite getInstance(int id) {
@@ -108,6 +109,7 @@ public class TinyTablesPreproProtocolSuite implements ProtocolSuite {
 		this.resourcePool = resourcePool;
 		this.configuration = (TinyTablesPreproConfiguration) configuration;
 		negotiateOTExtension();
+		this.tinyTablesFile = this.configuration.getTinyTablesFile();
 	}
 
 	/**
@@ -126,7 +128,11 @@ public class TinyTablesPreproProtocolSuite implements ProtocolSuite {
 			boolean otherHasOTExtensionLibrary = resourcePool.getNetwork().receive("0", otherId());
 			boolean useOTExtension = iHaveOTExtensionLibrary && otherHasOTExtensionLibrary;
 
-			this.otFactory = useOTExtension ? new OTExtensionFactory(configuration.getAddress())
+			/*
+			 * If we are testing in the same VM, we need to run the OTExtension
+			 * lib in seperate processes.
+			 */
+			this.otFactory = useOTExtension ? new OTExtensionFactory(configuration.getAddress(), configuration.isTesting())
 					: new JavaOTFactory(resourcePool.getNetwork(), resourcePool.getMyId());
 			
 			Reporter.fine("I have OT Extension library: " + iHaveOTExtensionLibrary);
@@ -263,7 +269,8 @@ public class TinyTablesPreproProtocolSuite implements ProtocolSuite {
 		}
 		
 		try {
-			storeTinyTables(storage, configuration.getTinyTablesFile());
+			System.out.println("File: " + this.tinyTablesFile);
+			storeTinyTables(storage, this.tinyTablesFile);
 		} catch (IOException e) {
 			Reporter.severe("Failed to save TinyTables: " + e.getMessage());
 		}
@@ -272,6 +279,7 @@ public class TinyTablesPreproProtocolSuite implements ProtocolSuite {
 
 	private void storeTinyTables(TinyTablesStorage tinyTablesStorage, File file)
 			throws IOException {
+		file.createNewFile();
 		FileOutputStream fout = new FileOutputStream(file);
 		ObjectOutputStream oos = new ObjectOutputStream(fout);
 		Reporter.info("Storing TinyTables to " + file);

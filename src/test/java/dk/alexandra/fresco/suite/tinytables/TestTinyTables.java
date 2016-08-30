@@ -106,6 +106,12 @@ public class TestTinyTables {
 				 */
 				((TinyTablesPreproConfiguration) config).setTinyTablesFile(new File(getFilenameForTest(playerId, name)));
 				
+				/*
+				 * We are testing with both players running in the same VM
+				 */
+			
+				((TinyTablesPreproConfiguration) config).setTesting(true);
+				
 				protocolSuite = TinyTablesPreproProtocolSuite.getInstance(playerId);
 			} else {
 				config = new TinyTablesConfiguration();
