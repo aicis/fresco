@@ -26,7 +26,10 @@
  *******************************************************************************/
 package dk.alexandra.fresco.suite.tinytables.prepro;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.SortedMap;
@@ -104,7 +107,6 @@ public class TinyTablesPreproProtocolSuite implements ProtocolSuite {
 	public void init(ResourcePool resourcePool, ProtocolSuiteConfiguration configuration) {
 		this.resourcePool = resourcePool;
 		this.configuration = (TinyTablesPreproConfiguration) configuration;
-		
 		negotiateOTExtension();
 	}
 
@@ -140,10 +142,6 @@ public class TinyTablesPreproProtocolSuite implements ProtocolSuite {
 	
 	public TinyTablesStorage getStorage() {
 		return this.storage;
-	}
-
-	public void setStorage(TinyTablesStorage storage) {
-		this.storage = storage;
 	}
 
 	@Override
@@ -261,10 +259,26 @@ public class TinyTablesPreproProtocolSuite implements ProtocolSuite {
 				 */
 				progress += 2;
 			}
+			
+		}
+		
+		try {
+			storeTinyTables(storage, configuration.getTinyTablesFile());
+		} catch (IOException e) {
+			Reporter.severe("Failed to save TinyTables: " + e.getMessage());
 		}
 
 	}
 
+	private void storeTinyTables(TinyTablesStorage tinyTablesStorage, File file)
+			throws IOException {
+		FileOutputStream fout = new FileOutputStream(file);
+		ObjectOutputStream oos = new ObjectOutputStream(fout);
+		Reporter.info("Storing TinyTables to " + file);
+		oos.writeObject(tinyTablesStorage);
+		oos.close();
+	}
+	
 	@Override
 	public void destroy() {
 		// TODO Auto-generated method stub

@@ -26,10 +26,15 @@
  *******************************************************************************/
 package dk.alexandra.fresco.suite.tinytables.online;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.util.HashMap;
 import java.util.Map;
 
 import dk.alexandra.fresco.framework.MPCException;
+import dk.alexandra.fresco.framework.Reporter;
 import dk.alexandra.fresco.framework.sce.configuration.ProtocolSuiteConfiguration;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.suite.ProtocolSuite;
@@ -77,17 +82,29 @@ public class TinyTablesProtocolSuite implements ProtocolSuite{
 	
 	@Override
 	public void init(ResourcePool resourcePool, ProtocolSuiteConfiguration conf) {
-		
+		try {
+			File tinyTablesFile = ((TinyTablesConfiguration) conf).getTinyTablesFile();
+			this.storage = loadTinyTables(tinyTablesFile);
+		} catch (ClassNotFoundException e) {
+		} catch (IOException e) {
+			Reporter.severe("Failed to load TinyTables: " + e.getMessage());
+		}
+	}
+
+	private TinyTablesStorage loadTinyTables(File file) throws IOException,
+			ClassNotFoundException {
+		FileInputStream fin = new FileInputStream(file);
+		ObjectInputStream is = new ObjectInputStream(fin);
+		Reporter.info("Loading TinyTabels from " + file);
+		TinyTablesStorage storage = (TinyTablesStorage) is.readObject();
+		is.close();
+		return storage;
 	}
 	
 	public TinyTablesStorage getStorage() {
 		return this.storage;
 	}
 
-	public void setStorage(TinyTablesStorage storage) {
-		this.storage = storage;
-	}
-	
 	@Override
 	public void synchronize(int gatesEvaluated) throws MPCException {
 		// TODO Auto-generated method stub

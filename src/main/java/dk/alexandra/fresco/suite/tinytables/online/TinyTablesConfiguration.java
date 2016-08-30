@@ -26,15 +26,26 @@
  *******************************************************************************/
 package dk.alexandra.fresco.suite.tinytables.online;
 
+import java.io.File;
+
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.sce.configuration.ProtocolSuiteConfiguration;
 
 public class TinyTablesConfiguration implements ProtocolSuiteConfiguration{
 
 	private ProtocolFactory tinyTablesFactory;
+	private File tinytablesfile;
 	
 	public TinyTablesConfiguration() {
 		tinyTablesFactory = new TinyTablesFactory();
+	}
+	
+	public void setTinyTablesFile(File file) {
+		this.tinytablesfile = file;
+	}
+	
+	public File getTinyTablesFile() {
+		return this.tinytablesfile;
 	}
 	
 	public void setTinyTablesFactory(ProtocolFactory ninjaFactory) {

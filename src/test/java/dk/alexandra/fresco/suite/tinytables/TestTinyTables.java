@@ -26,11 +26,7 @@
  *******************************************************************************/
 package dk.alexandra.fresco.suite.tinytables;
 
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.File;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -40,7 +36,6 @@ import java.util.logging.Level;
 
 import org.junit.Test;
 
-import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.Reporter;
 import dk.alexandra.fresco.framework.TestThreadRunner;
@@ -61,7 +56,6 @@ import dk.alexandra.fresco.suite.tinytables.online.TinyTablesConfiguration;
 import dk.alexandra.fresco.suite.tinytables.online.TinyTablesProtocolSuite;
 import dk.alexandra.fresco.suite.tinytables.prepro.TinyTablesPreproConfiguration;
 import dk.alexandra.fresco.suite.tinytables.prepro.TinyTablesPreproProtocolSuite;
-import dk.alexandra.fresco.suite.tinytables.storage.TinyTablesStorage;
 
 public class TestTinyTables {
 
@@ -105,7 +99,12 @@ public class TestTinyTables {
 				 * This will greatly increase the performance of the
 				 * preprocessing.
 				 */
-				((TinyTablesPreproConfiguration) config).setUseOtExtension(false);
+				((TinyTablesPreproConfiguration) config).setUseOtExtension(true);
+				
+				/*
+				 * Set path where the generated TinyTables should be stored
+				 */
+				((TinyTablesPreproConfiguration) config).setTinyTablesFile(new File(getFilenameForTest(playerId, name)));
 				
 				protocolSuite = TinyTablesPreproProtocolSuite.getInstance(playerId);
 			} else {
@@ -113,18 +112,11 @@ public class TestTinyTables {
 				protocolSuite = TinyTablesProtocolSuite.getInstance(playerId);
 
 				/*
-				 * Load TinyTables from storage
+				 * Set path where TinyTables generated during preprocessing can
+				 * be found
 				 */
-				String filename = getFilenameForTest(playerId, name);
-				TinyTablesStorage storage = loadTinyTables(filename);
-
-				if (storage != null) {
-					Reporter.info("Found TinyTables for " + name + " for player " + playerId);
-					TinyTablesProtocolSuite.getInstance(playerId).setStorage(storage);
-				} else {
-					throw new MPCException("No TinyTables found for " + name + " for player "
-							+ playerId);
-				}
+				File tinyTablesFile = new File(getFilenameForTest(playerId, name));
+				((TinyTablesConfiguration) config).setTinyTablesFile(tinyTablesFile);
 			}
 
 			evaluator = EvaluationStrategy.fromEnum(evalStrategy);
@@ -141,17 +133,6 @@ public class TestTinyTables {
 		}
 		TestThreadRunner.run(f, conf);
 
-		/*
-		 * If preprocessing, save all TinyTables
-		 */
-		if (preprocessing) {
-			for (int playerId : netConf.keySet()) {
-				TinyTablesStorage storage = TinyTablesPreproProtocolSuite.getInstance(playerId)
-						.getStorage();
-				String filename = getFilenameForTest(playerId, name);
-				storeTinyTables(storage, filename);
-			}
-		}
 	}
 
 	/*
@@ -160,24 +141,6 @@ public class TestTinyTables {
 
 	private String getFilenameForTest(int playerId, String name) {
 		return "tinytables/TinyTables_" + name + "_" + playerId;
-	}
-
-	private void storeTinyTables(TinyTablesStorage tinyTablesStorage, String filename)
-			throws IOException {
-		FileOutputStream fout = new FileOutputStream(filename);
-		ObjectOutputStream oos = new ObjectOutputStream(fout);
-		oos.writeObject(tinyTablesStorage);
-		Reporter.info("Saving tables in file " + filename);
-		oos.close();
-	}
-
-	private TinyTablesStorage loadTinyTables(String filename) throws IOException,
-			ClassNotFoundException {
-		FileInputStream fin = new FileInputStream(filename);
-		ObjectInputStream is = new ObjectInputStream(fin);
-		TinyTablesStorage storage = (TinyTablesStorage) is.readObject();
-		is.close();
-		return storage;
 	}
 
 	/*
