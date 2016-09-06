@@ -269,8 +269,8 @@ public class TinyTablesPreproProtocolSuite implements ProtocolSuite {
 		}
 		
 		try {
-			System.out.println("File: " + this.tinyTablesFile);
 			storeTinyTables(storage, this.tinyTablesFile);
+			Reporter.info("TinyTables stored to " + this.tinyTablesFile);
 		} catch (IOException e) {
 			Reporter.severe("Failed to save TinyTables: " + e.getMessage());
 		}
@@ -282,7 +282,6 @@ public class TinyTablesPreproProtocolSuite implements ProtocolSuite {
 		file.createNewFile();
 		FileOutputStream fout = new FileOutputStream(file);
 		ObjectOutputStream oos = new ObjectOutputStream(fout);
-		Reporter.info("Storing TinyTables to " + file);
 		oos.writeObject(tinyTablesStorage);
 		oos.close();
 	}
