@@ -90,9 +90,9 @@ public class TestTinyTables {
 
 				/*
 				 * We assume that both players are running on localhost in the
-				 * tests.
+				 * tests. So in particular the sender's address is localhost.
 				 */
-				((TinyTablesPreproConfiguration) config).setAddress(new InetSocketAddress("localhost", 9005));
+				((TinyTablesPreproConfiguration) config).setSenderAddress(new InetSocketAddress("localhost", 9005));
 
 				/*
 				 * Set this to true if the SCAPI library has been installed.

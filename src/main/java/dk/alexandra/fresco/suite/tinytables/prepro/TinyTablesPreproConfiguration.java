@@ -89,8 +89,8 @@ public class TinyTablesPreproConfiguration implements ProtocolSuiteConfiguration
 		configuration.setUseOtExtension(useOtExtension);
 		
 		int otExtensionPort = Integer.parseInt(p.getProperty(otExtensionPortOption, "9005"));
-		Party other = sceConf.getParties().get(getOtherId(sceConf.getMyId()));
-		configuration.setAddress(InetSocketAddress.createUnresolved(other.getHostname(), otExtensionPort));;
+		Party sender = sceConf.getParties().get(1);
+		configuration.setSenderAddress(InetSocketAddress.createUnresolved(sender.getHostname(), otExtensionPort));;
 		
 		String tinyTablesFilePath = p.getProperty(tinytablesFileOption, "tinytables");
 		File tinyTablesFile = new File(tinyTablesFilePath);
@@ -100,13 +100,6 @@ public class TinyTablesPreproConfiguration implements ProtocolSuiteConfiguration
 		configuration.setTesting(false);
 		
 		return configuration;
-	}
-	
-	private static int getOtherId(int myId) throws IllegalArgumentException {
-		if (myId < 1 || myId > 2) {
-			throw new IllegalArgumentException("MyID should be either 1 or 2");
-		}
-		return myId == 1 ? 2 : 1;
 	}
 	
 	public TinyTablesPreproConfiguration() {
@@ -145,22 +138,22 @@ public class TinyTablesPreproConfiguration implements ProtocolSuiteConfiguration
 	}
 	
 	/**
-	 * Set the inet address of the other player used for the OT extension. The port number should be the
-	 * same for both players and not the same as the one used for the other communication.
+	 * Set the inet address of the sender used for the OT extension. The port
+	 * number should not the same as the one used for the other communication.
 	 * 
 	 * @param host
 	 */
-	public void setAddress(InetSocketAddress host) {
+	public void setSenderAddress(InetSocketAddress host) {
 		this.address = host;
 	}
 
 	/**
 	 * Return the host of the other player. See also
-	 * {@link #setAddress(InetSocketAddress)}.
+	 * {@link #setSenderAddress(InetSocketAddress)}.
 	 * 
 	 * @return
 	 */
-	public InetSocketAddress getAddress() {
+	public InetSocketAddress getSenderAddress() {
 		return this.address;
 	}
 	

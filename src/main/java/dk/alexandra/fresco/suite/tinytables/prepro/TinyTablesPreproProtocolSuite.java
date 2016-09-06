@@ -132,7 +132,7 @@ public class TinyTablesPreproProtocolSuite implements ProtocolSuite {
 			 * If we are testing in the same VM, we need to run the OTExtension
 			 * lib in seperate processes.
 			 */
-			this.otFactory = useOTExtension ? new OTExtensionFactory(configuration.getAddress(), configuration.isTesting())
+			this.otFactory = useOTExtension ? new OTExtensionFactory(configuration.getSenderAddress(), configuration.isTesting())
 					: new JavaOTFactory(resourcePool.getNetwork(), resourcePool.getMyId());
 			
 			Reporter.fine("I have OT Extension library: " + iHaveOTExtensionLibrary);

@@ -14,14 +14,14 @@ public class OTExtensionFactory implements OTFactory {
 	private boolean seperate;
 	private Party party;
 
-	public OTExtensionFactory(InetSocketAddress address, boolean seperate) throws UnknownHostException {
+	public OTExtensionFactory(InetSocketAddress senderaddress, boolean seperate) throws UnknownHostException {
 		this.seperate = seperate;
 		
-		this.party = new Party(InetAddress.getByName(address.getHostName()), address.getPort());
+		this.party = new Party(InetAddress.getByName(senderaddress.getHostName()), senderaddress.getPort());
 	}
 
-	public OTExtensionFactory(InetSocketAddress address) throws UnknownHostException {
-		this(address, false);
+	public OTExtensionFactory(InetSocketAddress senderaddress) throws UnknownHostException {
+		this(senderaddress, false);
 	}
 	
 	@Override

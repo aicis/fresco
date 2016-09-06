@@ -21,6 +21,12 @@ public class OTExtensionSender implements OTSender {
 
 	private Party party;
 
+	/**
+	 * Create a new OTExtensionSender. The given <code>party</code> is the IP
+	 * address we should be listening on (eg. this party's IP).
+	 * 
+	 * @param party
+	 */
 	public OTExtensionSender(Party party) {
 		this.party = party;
 	}

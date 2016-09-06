@@ -13,6 +13,12 @@ public class OTExtensionReceiver implements OTReceiver {
 
 	private Party party;
 
+	/**
+	 * Create new OTExtensionReceiver with an OTExtensionSender running at the
+	 * specified party.
+	 * 
+	 * @param party
+	 */
 	public OTExtensionReceiver(Party party) {
 		this.party = party;
 	}
