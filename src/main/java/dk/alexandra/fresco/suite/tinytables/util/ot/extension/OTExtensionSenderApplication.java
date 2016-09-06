@@ -7,8 +7,17 @@ import dk.alexandra.fresco.suite.tinytables.util.Encoding;
 import dk.alexandra.fresco.suite.tinytables.util.ot.datatypes.OTInput;
 import edu.biu.scapi.comm.Party;
 
+/**
+ * Perform Oblivious transfer extension as the sending part. Should be called
+ * with three parameters: The host address of the sender (this party), the port
+ * number and the sigmas as a Base64-encoded byte-array with 0x00 = false and
+ * 0x01 = true.
+ * 
+ * @author jonas
+ *
+ */
 public class OTExtensionSenderApplication {
-
+	
 	public static void main(String[] args) throws UnknownHostException {
 		
 		String host = args[0];

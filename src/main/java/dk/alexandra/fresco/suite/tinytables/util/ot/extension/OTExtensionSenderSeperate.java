@@ -14,6 +14,12 @@ public class OTExtensionSenderSeperate implements OTSender {
 
 	private Party party;
 
+	/**
+	 * Create a new OTExtensionSenderSeperate running on the specified address
+	 * and port.
+	 * 
+	 * @param party
+	 */
 	public OTExtensionSenderSeperate(Party party) {
 		this.party = party;
 	}

@@ -27,6 +27,13 @@ public class OTExtensionReceiverSeperate implements OTReceiver {
 
 	private Party party;
 
+	/**
+	 * Create a new OTExtensionReceiverSeperate which will perform OTExtension
+	 * with a sender running at the address and port as specified in the
+	 * <code>party</code> parameter.
+	 * 
+	 * @param party
+	 */
 	public OTExtensionReceiverSeperate(Party party) {
 		this.party = party;
 	}

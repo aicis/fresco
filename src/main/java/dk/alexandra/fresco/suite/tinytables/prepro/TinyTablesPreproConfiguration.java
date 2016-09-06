@@ -148,7 +148,7 @@ public class TinyTablesPreproConfiguration implements ProtocolSuiteConfiguration
 	}
 
 	/**
-	 * Return the host of the other player. See also
+	 * Return the address of the sender. See also
 	 * {@link #setSenderAddress(InetSocketAddress)}.
 	 * 
 	 * @return

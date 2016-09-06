@@ -9,7 +9,7 @@ import edu.biu.scapi.comm.Party;
 
 /**
  * Perform Oblivious transfer extension as the receiving part. Should be called
- * with three parameters: The host address, the port number and the sigmas as a
+ * with three parameters: The host address of the sender, the port number and the sigmas as a
  * Base64-encoded byte-array with 0x00 = false and 0x01 = true.
  * 
  * @author jonas
