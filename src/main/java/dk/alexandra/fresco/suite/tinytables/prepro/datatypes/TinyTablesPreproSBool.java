@@ -49,7 +49,7 @@ public class TinyTablesPreproSBool implements SBool {
 	}
 
 	public TinyTablesPreproSBool() {
-		this.share = false;
+		this(false);
 	}
 
 	@Override
