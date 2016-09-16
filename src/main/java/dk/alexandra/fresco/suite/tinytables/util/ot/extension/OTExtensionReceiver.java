@@ -1,5 +1,7 @@
 package dk.alexandra.fresco.suite.tinytables.util.ot.extension;
 
+import java.util.List;
+
 import dk.alexandra.fresco.suite.tinytables.util.Encoding;
 import dk.alexandra.fresco.suite.tinytables.util.ot.OTReceiver;
 import dk.alexandra.fresco.suite.tinytables.util.ot.datatypes.OTSigma;
@@ -24,11 +26,8 @@ public class OTExtensionReceiver implements OTReceiver {
 	}
 
 	@Override
-	public boolean[] receive(OTSigma[] sigmas) {
-		byte[] binarySigmas = new byte[sigmas.length];
-		for (int i = 0; i < binarySigmas.length; i++) {
-			binarySigmas[i] = Encoding.encodeBoolean(sigmas[i].getSigma());
-		}
+	public List<Boolean> receive(List<OTSigma> sigmas) {
+		byte[] binarySigmas = Encoding.encodeBooleans(OTSigma.getAll(sigmas));
 
 		OTSemiHonestExtensionReceiver receiver = new OTSemiHonestExtensionReceiver(party);
 

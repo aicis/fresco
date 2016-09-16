@@ -26,6 +26,8 @@
  *******************************************************************************/
 package dk.alexandra.fresco.suite.tinytables.prepro.protocols;
 
+import java.util.List;
+
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.network.SCENetwork;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
@@ -34,6 +36,7 @@ import dk.alexandra.fresco.lib.field.bool.AndProtocol;
 import dk.alexandra.fresco.suite.tinytables.prepro.TinyTablesPreproProtocolSuite;
 import dk.alexandra.fresco.suite.tinytables.prepro.datatypes.TinyTablesPreproSBool;
 import dk.alexandra.fresco.suite.tinytables.storage.TinyTable;
+import dk.alexandra.fresco.suite.tinytables.storage.TinyTablesStorage;
 import dk.alexandra.fresco.suite.tinytables.util.ot.datatypes.OTInput;
 import dk.alexandra.fresco.suite.tinytables.util.ot.datatypes.OTSigma;
 
@@ -155,7 +158,7 @@ public class TinyTablesPreproANDProtocol extends TinyTablesPreproProtocol implem
 					 * calculate his TinyTable:
 					 */
 					boolean[] tmps = calculateTmps(tinyTable);
-					network.send(2, tmps);
+					ps.getStorage().storeTemporaryBooleans(id, tmps);
 
 					return EvaluationStatus.IS_DONE;
 				} else {
@@ -170,39 +173,12 @@ public class TinyTablesPreproANDProtocol extends TinyTablesPreproProtocol implem
 					OTSigma[] sigmas = new OTSigma[] { new OTSigma(inRight.getShare()),
 							new OTSigma(inLeft.getShare()) };
 					ps.getStorage().storeOTSigma(id, sigmas);
-
-					network.expectInputFromPlayer(1);
-
-					return EvaluationStatus.HAS_MORE_ROUNDS;
-				}
-
-			case 1:
-				if (resourcePool.getMyId() == 1) {
-					/*
-					 * Player 1
-					 */
-
-					// Already finished - ignore
-					return EvaluationStatus.IS_DONE;
-				} else {
-					/*
-					 * Player 2
-					 */
-
-					boolean[] received = network.receive(1);
-
+					
 					// Pick share for output gate
 					boolean rO = resourcePool.getSecureRandom().nextBoolean();
 					out.setShare(rO);
+					ps.getStorage().storeMaskShare(id, rO);
 
-					boolean[] tmps = new boolean[4];
-					tmps[0] = rO;
-					for (int i = 0; i < received.length; i++) {
-						tmps[i + 1] = received[i];
-					}
-
-					// Store [rO, y0, y1, y2] as tmps where
-					ps.getStorage().storeTemporaryBooleans(id, tmps);
 					return EvaluationStatus.IS_DONE;
 				}
 
@@ -294,7 +270,7 @@ public class TinyTablesPreproANDProtocol extends TinyTablesPreproProtocol implem
 	 *            where <i>t</i> is player 1's TinyTable.
 	 * @return Player 2's TinyTable such that the <i>entry
 	 */
-	public static TinyTable calculateTinyTable(boolean output0, boolean output1, boolean rU,
+	private static TinyTable calculateTinyTable(boolean output0, boolean output1, boolean rU,
 			boolean rV, boolean rO, boolean[] y) {
 		boolean[] s = new boolean[4];
 		/*
@@ -328,5 +304,46 @@ public class TinyTablesPreproANDProtocol extends TinyTablesPreproProtocol implem
 
 		TinyTable tinyTable = new TinyTable(s);
 		return tinyTable;
+	}
+	
+	/**
+	 * Given the outputs after performing OT's with player 1, this method
+	 * calculates and stores Player 2's TinyTables for all AND protocols.
+	 * 
+	 * @param otOutputs
+	 * @param storage
+	 */
+	public static void player2CalculateTinyTables(List<Boolean> otOutputs, TinyTablesStorage storage) {
+		int progress = 0;
+		for (int id : storage.getOTSigmas().keySet()) {
+
+			/*
+			 * Two OT's per AND gate
+			 */
+			boolean rV = storage.getOTSigmas().get(id)[0].getSigma();
+			boolean rU = storage.getOTSigmas().get(id)[1].getSigma();
+			boolean output0 = otOutputs.get(progress);
+			boolean output1 = otOutputs.get(progress + 1);
+
+			/*
+			 * We stored our share of r_O and player 1's s_00 + s_01 + rU^1,
+			 * s_00 + s_10 + rV^1 and s_00 + s_11 + rU^1 + rV^1 as tmp's
+			 * during preprocessing. Here rU^1 is player 1's share of rU
+			 * (left input wire) (likewise for rV) and s_ij is the ij'th
+			 * entry of player 1's TinyTable.
+			 */
+			boolean[] y = storage.getTemporaryBooleans().get(id);
+			boolean rO = storage.getMaskShare(id);
+
+			TinyTable tinyTable = TinyTablesPreproANDProtocol.calculateTinyTable(output0,
+					output1, rU, rV, rO, y);
+			storage.storeTinyTable(id, tinyTable);
+
+			/*
+			 * For each protocol, we do two OTs so the index needs to be
+			 * increased by two.
+			 */
+			progress += 2;
+		}
 	}
 }

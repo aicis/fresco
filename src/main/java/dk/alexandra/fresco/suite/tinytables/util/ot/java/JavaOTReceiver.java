@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.security.SecureRandom;
 import java.util.ArrayList;
+import java.util.List;
 
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.suite.tinytables.util.Encoding;
@@ -28,7 +29,7 @@ public class JavaOTReceiver implements OTReceiver {
 	}
 	
 	@Override
-	public boolean[] receive(OTSigma[] sigmas) {
+	public List<Boolean> receive(List<OTSigma> sigmas) {
 		
 		OTSemiHonestDDHBatchOnByteArrayReceiver receiver;
 		try {
@@ -40,8 +41,8 @@ public class JavaOTReceiver implements OTReceiver {
 		}
 
 		ArrayList<Byte> s = new ArrayList<Byte>();
-		for (int i = 0; i < sigmas.length; i++) {
-			s.add(Encoding.encodeBoolean(sigmas[i].getSigma()));
+		for (OTSigma sigma : sigmas) {
+			s.add(Encoding.encodeBoolean(sigma.getSigma()));
 		}
 		OTBatchRBasicInput input = new OTBatchRBasicInput(s);
 		
@@ -70,9 +71,9 @@ public class JavaOTReceiver implements OTReceiver {
 				
 			}, input);
 			
-			boolean[] results = new boolean[sigmas.length];
-			for (int i = 0; i < sigmas.length; i++) {
-				results[i] = Encoding.decodeBoolean(output.getXSigmaArr().get(i)[0]);
+			List<Boolean> results = new ArrayList<Boolean>();
+			for (int i = 0; i < sigmas.size(); i++) {
+				results.add(Encoding.decodeBoolean(output.getXSigmaArr().get(i)[0]));
 			}
 			
 			return results;

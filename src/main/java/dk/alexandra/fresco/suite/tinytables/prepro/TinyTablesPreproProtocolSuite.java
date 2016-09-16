@@ -30,7 +30,9 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
 
@@ -41,9 +43,9 @@ import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.tinytables.online.TinyTablesProtocolSuite;
 import dk.alexandra.fresco.suite.tinytables.prepro.protocols.TinyTablesPreproANDProtocol;
-import dk.alexandra.fresco.suite.tinytables.storage.TinyTable;
 import dk.alexandra.fresco.suite.tinytables.storage.TinyTablesStorage;
 import dk.alexandra.fresco.suite.tinytables.storage.TinyTablesStorageImpl;
+import dk.alexandra.fresco.suite.tinytables.util.Util;
 import dk.alexandra.fresco.suite.tinytables.util.ot.OTFactory;
 import dk.alexandra.fresco.suite.tinytables.util.ot.OTReceiver;
 import dk.alexandra.fresco.suite.tinytables.util.ot.OTSender;
@@ -167,104 +169,54 @@ public class TinyTablesPreproProtocolSuite implements ProtocolSuite {
 			/*
 			 * Player 1
 			 */
-
+		
 			/*
-			 * Each AND-gate has stored inputs for two OT's in the storage.
+			 * Send tmps to player 2
 			 */
-			SortedMap<Integer, OTInput[]> inputsFromPrepro = storage.getOTInputs();
-			
-			/*
-			 * Create an array of inputs to the OT's stored during
-			 * preprocessing. Note that the order of the sigmas and the order of
-			 * the inputs from the sender should be the same.
-			 */
-			int numberOfOts = 2 * inputsFromPrepro.keySet().size(); // Two OT's
-																	// per
-																	// AND-protocol
-			OTInput[] inputs = new OTInput[numberOfOts];
-
-			int i = 0;
-			for (int id : inputsFromPrepro.keySet()) {
-				OTInput[] inputsForProtocol = inputsFromPrepro.get(id);
-				for (OTInput x : inputsForProtocol) {
-					inputs[i++] = x;
-				}
+			try {
+				resourcePool.getNetwork().send("0", 2, (Serializable) storage.getTemporaryBooleans());
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
 			
 			/*
 			 * Perform OT's with player 2
 			 */
+			List<OTInput> otInputs = Util.getAll(storage.getOTInputs());
 			OTSender otSender = otFactory.createOTSender();
-			otSender.send(inputs);
-
+			otSender.send(otInputs);
+			
 		} else {
 			/*
 			 * Player 2
 			 */
 
 			/*
-			 * Create an array from the sigmas stored during preprocessing. Note
-			 * that the order of the sigmas and the order of the inputs from the
-			 * sender should be the same.
+			 * Get tmps from player 1
 			 */
-			SortedMap<Integer, OTSigma[]> sigmasFromPrepro = storage.getOTSigmas();
-			int numberOfOts = sigmasFromPrepro.size() * 2; // Two OT's per
-															// AND-protocol
-			OTSigma[] sigmas = new OTSigma[numberOfOts];
-			int i = 0;
-			for (int id : sigmasFromPrepro.keySet()) {
-				OTSigma[] sigmasForProtocol = sigmasFromPrepro.get(id);
-				for (OTSigma s : sigmasForProtocol) {
-					sigmas[i++] = s;
-				}
+			try {
+				SortedMap<Integer, boolean[]> in = resourcePool.getNetwork().receive("0", 1);
+				storage.getTemporaryBooleans().putAll(in);
+			} catch (IOException e) {
+				e.printStackTrace();
 			}
-
+			
 			/*
 			 * Do OT's with player 1. During initialization we negotiate with
 			 * other player whether we can use OT Extension (which requires the
 			 * SCAPI lib to be installed. Otherwise we fall back to the much
 			 * slower java version.
 			 */
+			List<OTSigma> sigmas = Util.getAll(storage.getOTSigmas());
 			OTReceiver otReceiver = otFactory.createOTReceiver();
-			boolean[] outputs = otReceiver.receive(sigmas);
-
-			if (outputs.length < 2 * sigmasFromPrepro.size()) {
+			List<Boolean> outputs = otReceiver.receive(sigmas);
+			if (outputs.size() < 2 * storage.getOTSigmas().size()) {
 				throw new MPCException("To few outputs from OT's: Expected "
-						+ sigmasFromPrepro.size() * 2 + " but got only " + outputs.length);
+						+ storage.getOTSigmas().size() * 2 + " but got only " + outputs.size());
 			}
-
-			int progress = 0;
-			for (int id : sigmasFromPrepro.keySet()) {
-
-				/*
-				 * Two OT's per AND gate
-				 */
-				boolean rV = sigmas[progress].getSigma();
-				boolean output0 = outputs[progress];
-				boolean rU = sigmas[progress + 1].getSigma();
-				boolean output1 = outputs[progress + 1];
-
-				/*
-				 * We stored our share of r_O and player 1's s_00 + s_01 + rU^1,
-				 * s_00 + s_10 + rV^1 and s_00 + s_11 + rU^1 + rV^1 as tmp's
-				 * during preprocessing. Here rU^1 is player 1's share of rU
-				 * (left input wire) (likewise for rV) and s_ij is the ij'th
-				 * entry of player 1's TinyTable.
-				 */
-				boolean[] tmps = storage.getTemporaryBooleans(id);
-				boolean rO = tmps[0];
-				boolean[] y = new boolean[] { tmps[1], tmps[2], tmps[3] };
-
-				TinyTable tinyTable = TinyTablesPreproANDProtocol.calculateTinyTable(output0,
-						output1, rU, rV, rO, y);
-				storage.storeTinyTable(id, tinyTable);
-
-				/*
-				 * For each protocol, we do two OTs so the index needs to be
-				 * increased by two.
-				 */
-				progress += 2;
-			}
+			
+			TinyTablesPreproANDProtocol.player2CalculateTinyTables(outputs, storage);
 			
 		}
 		

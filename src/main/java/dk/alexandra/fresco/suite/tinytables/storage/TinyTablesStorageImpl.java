@@ -56,7 +56,7 @@ public class TinyTablesStorageImpl implements TinyTablesStorage {
 	 */
 	private transient SortedMap<Integer, OTSigma[]> sigmas = new ConcurrentSkipListMap<>();
 	private transient SortedMap<Integer, OTInput[]> otInputs = new ConcurrentSkipListMap<>();
-	private transient Map<Integer, boolean[]> tmps = new ConcurrentHashMap<>();
+	private transient SortedMap<Integer, boolean[]> tmps = new ConcurrentSkipListMap<>();
 
 	public static Map<Integer, TinyTablesStorage> instances = new HashMap<>();
 
@@ -122,8 +122,7 @@ public class TinyTablesStorageImpl implements TinyTablesStorage {
 	}
 
 	@Override
-	public boolean[] getTemporaryBooleans(int id) {
-		return tmps.get(id);
+	public SortedMap<Integer, boolean[]> getTemporaryBooleans() {
+		return tmps;
 	}
-
 }

@@ -4,8 +4,9 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Base64;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import dk.alexandra.fresco.suite.tinytables.util.Encoding;
@@ -39,16 +40,11 @@ public class OTExtensionReceiverSeperate implements OTReceiver {
 	}
 
 	@Override
-	public boolean[] receive(OTSigma[] sigmas) {
+	public List<Boolean> receive(List<OTSigma> sigmas) {
 		return transfer(sigmas);
 	}
 
-	private boolean[] transfer(OTSigma[] sigmas) {
-		// As default we run it in a seperate process
-		return transfer(sigmas, false);
-	}
-
-	private boolean[] transfer(OTSigma[] sigmas, boolean seperateProcess) {
+	private List<Boolean> transfer(List<OTSigma> sigmas) {
 
 		try {
 
@@ -56,21 +52,16 @@ public class OTExtensionReceiverSeperate implements OTReceiver {
 			 * There is an upper bound on how big a terminal cmd can be, so if
 			 * we have too many OT's we need to do them a batch at a time.
 			 */
-			if (sigmas.length > OTExtensionConfig.MAX_OTS) {
-				boolean[] out1 = transfer(Arrays.copyOfRange(sigmas, 0, OTExtensionConfig.MAX_OTS));
-				boolean[] out2 = transfer(Arrays.copyOfRange(sigmas, OTExtensionConfig.MAX_OTS,
-						sigmas.length));
+			if (sigmas.size() > OTExtensionConfig.MAX_OTS) {
+				List<Boolean> out1 = transfer(sigmas.subList(0, OTExtensionConfig.MAX_OTS));
+				List<Boolean> out2 = transfer(sigmas.subList(OTExtensionConfig.MAX_OTS, sigmas.size()));
 
-				boolean[] out = new boolean[out1.length + out2.length];
-				System.arraycopy(out1, 0, out, 0, out1.length);
-				System.arraycopy(out2, 0, out, out1.length, out2.length);
+				List<Boolean> out = new ArrayList<Boolean>();
+				out.addAll(out1);
+				out.addAll(out2);
 				return out;
 			} else {
-				byte[] binarySigmas = new byte[sigmas.length];
-				for (int i = 0; i < binarySigmas.length; i++) {
-					binarySigmas[i] = Encoding.encodeBoolean(sigmas[i].getSigma());
-				}
-
+				byte[] binarySigmas = Encoding.encodeBooleans(OTSigma.getAll(sigmas));
 				byte[] binaryOutput = null;
 				/*
 				 * We run the OT in a seperate process. Here we call the main
@@ -95,7 +86,7 @@ public class OTExtensionReceiverSeperate implements OTReceiver {
 				binaryOutput = Base64.getDecoder().decode(base64output);
 
 				// Decode output to booleans
-				boolean[] output = Encoding.decodeBooleans(binaryOutput);
+				List<Boolean> output = Encoding.decodeBooleans(binaryOutput);
 				return output;
 			}
 

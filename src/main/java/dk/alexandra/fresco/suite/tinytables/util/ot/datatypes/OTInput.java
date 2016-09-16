@@ -1,5 +1,9 @@
 package dk.alexandra.fresco.suite.tinytables.util.ot.datatypes;
 
+import java.security.InvalidParameterException;
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * <p>This class represents the input to an oblivious transfer protocol from the
  * sender.</p>
@@ -30,4 +34,46 @@ public class OTInput {
 		return this.x1;
 	}
 
+	/**
+	 * Create a list of <code>OTInput</code>'s from lists of <i>x<sub>0</sub></i>'s and
+	 * <i>x<sub>1</sub></i>'s.
+	 * 
+	 * @param x0s
+	 * @param x1s
+	 * @return
+	 */
+	public static List<OTInput> fromLists(List<Boolean> x0s, List<Boolean> x1s) {
+		if (x0s.size() != x1s.size()) {
+			throw new InvalidParameterException("Must have same number of x0s and x1s");
+		}
+		List<OTInput> out = new ArrayList<OTInput>();
+		for (int i = 0; i < x0s.size(); i++) {
+			out.add(new OTInput(x0s.get(i), x1s.get(i)));
+		}
+		return out;
+	}
+	
+	/**
+	 * Given a list of OTInput's, this methods return a list of all
+	 * <i>x<sub>i</sub></i> from the inputs where <i>i = 0,1</i> is the specified
+	 * index.
+	 * 
+	 * @param inputs
+	 * @param index
+	 * @return
+	 */
+	public static List<Boolean> getAll(List<OTInput> inputs, int index) {
+		if (index < 0 || index > 1) {
+			throw new InvalidParameterException("Index must be either 0 or 1");
+		}
+		List<Boolean> out = new ArrayList<Boolean>();
+		for (OTInput input : inputs) {
+			if (index == 0) {
+				out.add(input.getX0());
+			} else {
+				out.add(input.getX1());
+			}
+		}
+		return out;
+	}
 }

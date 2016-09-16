@@ -2,6 +2,7 @@ package dk.alexandra.fresco.suite.tinytables.util.ot.extension;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Base64;
+import java.util.List;
 
 import dk.alexandra.fresco.suite.tinytables.util.Encoding;
 import dk.alexandra.fresco.suite.tinytables.util.ot.datatypes.OTSigma;
@@ -48,12 +49,10 @@ public class OTExtensionReceiverApplication {
 	public static byte[] receive(String host, int port, byte[] sigmas) throws UnknownHostException {
 		
 		OTExtensionReceiver receiver = new OTExtensionReceiver(new Party(InetAddress.getByName(host), port));
-		
-		OTSigma[] otSigmas = new OTSigma[sigmas.length];
-		for (int i = 0; i < sigmas.length; i++) {
-			otSigmas[i] = new OTSigma(Encoding.decodeBoolean(sigmas[i]));
-		}
-		return Encoding.encodeBooleans(receiver.receive(otSigmas));
+		List<OTSigma> otSigmas = OTSigma.fromList(Encoding.decodeBooleans(sigmas));
+		List<Boolean> outputs = receiver.receive(otSigmas);
+				
+		return Encoding.encodeBooleans(outputs);
 	}
 
 }

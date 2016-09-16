@@ -1,5 +1,7 @@
 package dk.alexandra.fresco.suite.tinytables.util.ot.extension;
 
+import java.util.List;
+
 import dk.alexandra.fresco.suite.tinytables.util.Encoding;
 import dk.alexandra.fresco.suite.tinytables.util.ot.OTSender;
 import dk.alexandra.fresco.suite.tinytables.util.ot.datatypes.OTInput;
@@ -32,17 +34,13 @@ public class OTExtensionSender implements OTSender {
 	}
 
 	@Override
-	public void send(OTInput[] inputs) {
-		byte[] input0 = new byte[inputs.length];
-		byte[] input1 = new byte[inputs.length];
+	public void send(List<OTInput> inputs) {
 
-		for (int i = 0; i < inputs.length; i++) {
-			input0[i] = Encoding.encodeBoolean(inputs[i].getX0());
-			input1[i] = Encoding.encodeBoolean(inputs[i].getX1());
-		}
-
+		byte[] input0 = Encoding.encodeBooleans(OTInput.getAll(inputs, 0));
+		byte[] input1 = Encoding.encodeBooleans(OTInput.getAll(inputs, 1));
+		
 		OTSemiHonestExtensionSender sender = new OTSemiHonestExtensionSender(party);
-		OTExtensionGeneralSInput input = new OTExtensionGeneralSInput(input0, input1, input0.length);
+		OTExtensionGeneralSInput input = new OTExtensionGeneralSInput(input0, input1, inputs.size());
 		sender.transfer(null, input);
 	}
 

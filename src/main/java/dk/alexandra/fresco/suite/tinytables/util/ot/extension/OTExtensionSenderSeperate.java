@@ -2,8 +2,8 @@ package dk.alexandra.fresco.suite.tinytables.util.ot.extension;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Base64;
+import java.util.List;
 
 import dk.alexandra.fresco.suite.tinytables.util.Encoding;
 import dk.alexandra.fresco.suite.tinytables.util.ot.OTSender;
@@ -25,22 +25,17 @@ public class OTExtensionSenderSeperate implements OTSender {
 	}
 
 	@Override
-	public void send(OTInput[] inputs) {
+	public void send(List<OTInput> inputs) {
 
-		if (inputs.length > OTExtensionConfig.MAX_OTS) {
-			send(Arrays.copyOfRange(inputs, 0, OTExtensionConfig.MAX_OTS));
-			send(Arrays.copyOfRange(inputs, OTExtensionConfig.MAX_OTS, inputs.length));
+		if (inputs.size() > OTExtensionConfig.MAX_OTS) {
+			send(inputs.subList(0, OTExtensionConfig.MAX_OTS));
+			send(inputs.subList(OTExtensionConfig.MAX_OTS, inputs.size()));
 		} else {
 
-			byte[] input0 = new byte[inputs.length];
-			byte[] input1 = new byte[inputs.length];
-
-			for (int i = 0; i < inputs.length; i++) {
-				input0[i] = Encoding.encodeBoolean(inputs[i].getX0());
-				input1[i] = Encoding.encodeBoolean(inputs[i].getX1());
-			}
-
+			byte[] input0 = Encoding.encodeBooleans(OTInput.getAll(inputs, 0));
 			String base64input0 = Base64.getEncoder().encodeToString(input0);
+
+			byte[] input1 = Encoding.encodeBooleans(OTInput.getAll(inputs, 1));
 			String base64input1 = Base64.getEncoder().encodeToString(input1);
 
 			ProcessBuilder builder = new ProcessBuilder(OTExtensionConfig.SCAPI_CMD, "-cp",
