@@ -30,11 +30,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
-import java.io.Serializable;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.SortedMap;
 
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.Reporter;
@@ -45,12 +42,7 @@ import dk.alexandra.fresco.suite.tinytables.online.TinyTablesProtocolSuite;
 import dk.alexandra.fresco.suite.tinytables.prepro.protocols.TinyTablesPreproANDProtocol;
 import dk.alexandra.fresco.suite.tinytables.storage.TinyTablesStorage;
 import dk.alexandra.fresco.suite.tinytables.storage.TinyTablesStorageImpl;
-import dk.alexandra.fresco.suite.tinytables.util.Util;
 import dk.alexandra.fresco.suite.tinytables.util.ot.OTFactory;
-import dk.alexandra.fresco.suite.tinytables.util.ot.OTReceiver;
-import dk.alexandra.fresco.suite.tinytables.util.ot.OTSender;
-import dk.alexandra.fresco.suite.tinytables.util.ot.datatypes.OTInput;
-import dk.alexandra.fresco.suite.tinytables.util.ot.datatypes.OTSigma;
 import dk.alexandra.fresco.suite.tinytables.util.ot.extension.OTExtensionFactory;
 import dk.alexandra.fresco.suite.tinytables.util.ot.java.JavaOTFactory;
 
@@ -159,66 +151,12 @@ public class TinyTablesPreproProtocolSuite implements ProtocolSuite {
 
 	@Override
 	public void finishedEval() {
+
 		/*
-		 * Finished preprocessing - now player 2 has to calculate his TinyTable.
-		 * This requires doing two OT's for each AND-protocol. The inputs for
-		 * the OT's was calculated and stored during the preprocessing.
+		 * The proprocessing of all AND gates has to be finished.
 		 */
-
-		if (resourcePool.getMyId() == 1) {
-			/*
-			 * Player 1
-			 */
-		
-			/*
-			 * Send tmps to player 2
-			 */
-			try {
-				resourcePool.getNetwork().send("0", 2, (Serializable) storage.getTemporaryBooleans());
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			
-			/*
-			 * Perform OT's with player 2
-			 */
-			List<OTInput> otInputs = Util.getAll(storage.getOTInputs());
-			OTSender otSender = otFactory.createOTSender();
-			otSender.send(otInputs);
-			
-		} else {
-			/*
-			 * Player 2
-			 */
-
-			/*
-			 * Get tmps from player 1
-			 */
-			try {
-				SortedMap<Integer, boolean[]> in = resourcePool.getNetwork().receive("0", 1);
-				storage.getTemporaryBooleans().putAll(in);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-			
-			/*
-			 * Do OT's with player 1. During initialization we negotiate with
-			 * other player whether we can use OT Extension (which requires the
-			 * SCAPI lib to be installed. Otherwise we fall back to the much
-			 * slower java version.
-			 */
-			List<OTSigma> sigmas = Util.getAll(storage.getOTSigmas());
-			OTReceiver otReceiver = otFactory.createOTReceiver();
-			List<Boolean> outputs = otReceiver.receive(sigmas);
-			if (outputs.size() < 2 * storage.getOTSigmas().size()) {
-				throw new MPCException("To few outputs from OT's: Expected "
-						+ storage.getOTSigmas().size() * 2 + " but got only " + outputs.size());
-			}
-			
-			TinyTablesPreproANDProtocol.player2CalculateTinyTables(outputs, storage);
-			
-		}
+		TinyTablesPreproANDProtocol.finishPreprocessing(resourcePool.getMyId(), otFactory, storage,
+				resourcePool.getNetwork());
 		
 		try {
 			storeTinyTables(storage, this.tinyTablesFile);

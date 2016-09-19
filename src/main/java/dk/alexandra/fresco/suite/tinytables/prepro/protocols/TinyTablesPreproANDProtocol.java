@@ -26,9 +26,13 @@
  *******************************************************************************/
 package dk.alexandra.fresco.suite.tinytables.prepro.protocols;
 
+import java.io.IOException;
+import java.io.Serializable;
 import java.util.List;
+import java.util.SortedMap;
 
 import dk.alexandra.fresco.framework.MPCException;
+import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.SCENetwork;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.Value;
@@ -37,6 +41,10 @@ import dk.alexandra.fresco.suite.tinytables.prepro.TinyTablesPreproProtocolSuite
 import dk.alexandra.fresco.suite.tinytables.prepro.datatypes.TinyTablesPreproSBool;
 import dk.alexandra.fresco.suite.tinytables.storage.TinyTable;
 import dk.alexandra.fresco.suite.tinytables.storage.TinyTablesStorage;
+import dk.alexandra.fresco.suite.tinytables.util.Util;
+import dk.alexandra.fresco.suite.tinytables.util.ot.OTFactory;
+import dk.alexandra.fresco.suite.tinytables.util.ot.OTReceiver;
+import dk.alexandra.fresco.suite.tinytables.util.ot.OTSender;
 import dk.alexandra.fresco.suite.tinytables.util.ot.datatypes.OTInput;
 import dk.alexandra.fresco.suite.tinytables.util.ot.datatypes.OTSigma;
 
@@ -344,6 +352,50 @@ public class TinyTablesPreproANDProtocol extends TinyTablesPreproProtocol implem
 			 * increased by two.
 			 */
 			progress += 2;
+		}
+	}
+	
+	public static void finishPreprocessing(int playerId, OTFactory otFactory, TinyTablesStorage storage, Network network) {
+		switch (playerId) {
+			case 1:
+				/*
+				 * Player 1
+				 */
+				try {
+					network.send("0", 2, (Serializable) storage.getTemporaryBooleans());
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+				OTSender sender = otFactory.createOTSender();
+				List<OTInput> inputs = Util.getAll(storage.getOTInputs());
+				sender.send(inputs);
+				break;
+				
+			case 2:
+				/*
+				 * Player 2
+				 */
+				try {
+					SortedMap<Integer, boolean[]> in = network.receive("0", 1);
+					storage.getTemporaryBooleans().putAll(in);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+				
+				/*
+				 * Do OT's with player 1 for all AND gates in the storage. Each of them
+				 * has stored two sigmas and player 1 has corresponding inputs.
+				 */
+				OTReceiver receiver = otFactory.createOTReceiver();
+				List<OTSigma> sigmas = Util.getAll(storage.getOTSigmas());
+				List<Boolean> outputs = receiver.receive(sigmas);
+				if (outputs.size() < 2 * storage.getOTSigmas().size()) {
+					throw new MPCException("To few outputs from OT's: Expected "
+							+ storage.getOTSigmas().size() * 2 + " but got only " + outputs.size());
+				}
+				
+				TinyTablesPreproANDProtocol.player2CalculateTinyTables(outputs, storage);
+				break;
 		}
 	}
 }
