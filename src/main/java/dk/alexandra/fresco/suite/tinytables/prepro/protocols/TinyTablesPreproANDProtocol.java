@@ -321,7 +321,7 @@ public class TinyTablesPreproANDProtocol extends TinyTablesPreproProtocol implem
 	 * @param otOutputs
 	 * @param storage
 	 */
-	public static void player2CalculateTinyTables(List<Boolean> otOutputs, TinyTablesStorage storage) {
+	private static void player2CalculateTinyTables(List<Boolean> otOutputs, TinyTablesStorage storage) {
 		int progress = 0;
 		for (int id : storage.getOTSigmas().keySet()) {
 
