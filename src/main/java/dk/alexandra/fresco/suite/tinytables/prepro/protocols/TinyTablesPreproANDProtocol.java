@@ -169,7 +169,7 @@ public class TinyTablesPreproANDProtocol extends TinyTablesPreproProtocol implem
 					}
 					TinyTable tinyTable = new TinyTable(entries);
 					ps.getStorage().storeTinyTable(id, tinyTable);
-					
+
 					/*
 					 * Player two need some additional values to be able to
 					 * calculate his TinyTable:
@@ -190,7 +190,7 @@ public class TinyTablesPreproANDProtocol extends TinyTablesPreproProtocol implem
 					OTSigma[] sigmas = new OTSigma[] { new OTSigma(inRight.getShare()),
 							new OTSigma(inLeft.getShare()) };
 					ps.getStorage().storeOTSigma(id, sigmas);
-					
+
 					// Pick share for output gate
 					boolean rO = resourcePool.getSecureRandom().nextBoolean();
 					out.setShare(rO);
@@ -275,13 +275,14 @@ public class TinyTablesPreproANDProtocol extends TinyTablesPreproProtocol implem
 			boolean rV, boolean rO, boolean[] y) {
 		boolean[] s = new boolean[4];
 		/*
-		 * In the comments below, we let t denote player 1's TinyTable and m
-		 * denote a random mask chosen by player 1 during preprocessing.
+		 * In the comments below, we let t denote player 1's TinyTable and x0
+		 * and x1 denote the random masks chosen by player 1 during
+		 * preprocessing.
 		 */
 
 		/*
-		 * s[0] = s_00 = t_00 + rO^1 + rU1 rU1 + m + rU1 rV2 + m + rU2 rV1 + rU2
-		 * rV2 + rO^2 = t_00 + rO + rU rV
+		 * s[0] = s_00 = t_00 + rO^1 + rU1 rU1 + x0 + x1 + rU1 rV2 + x0 + rU2
+		 * rV1 + x1 + rU2 rV2 + rO^2 = t_00 + rO + rU rV
 		 */
 		s[0] = output0 ^ output1 ^ (rU && rV) ^ rO;
 
@@ -306,7 +307,7 @@ public class TinyTablesPreproANDProtocol extends TinyTablesPreproProtocol implem
 		TinyTable tinyTable = new TinyTable(s);
 		return tinyTable;
 	}
-	
+
 	/**
 	 * Given the outputs after performing OT's with player 1, this method
 	 * calculates and stores Player 2's TinyTables for all AND protocols.
@@ -314,7 +315,8 @@ public class TinyTablesPreproANDProtocol extends TinyTablesPreproProtocol implem
 	 * @param otOutputs
 	 * @param storage
 	 */
-	private static void player2CalculateTinyTables(List<Boolean> otOutputs, TinyTablesStorage storage) {
+	private static void player2CalculateTinyTables(List<Boolean> otOutputs,
+			TinyTablesStorage storage) {
 		int progress = 0;
 		for (int id : storage.getOTSigmas().keySet()) {
 
@@ -328,16 +330,16 @@ public class TinyTablesPreproANDProtocol extends TinyTablesPreproProtocol implem
 
 			/*
 			 * We stored our share of r_O and player 1's s_00 + s_01 + rU^1,
-			 * s_00 + s_10 + rV^1 and s_00 + s_11 + rU^1 + rV^1 as tmp's
-			 * during preprocessing. Here rU^1 is player 1's share of rU
-			 * (left input wire) (likewise for rV) and s_ij is the ij'th
-			 * entry of player 1's TinyTable.
+			 * s_00 + s_10 + rV^1 and s_00 + s_11 + rU^1 + rV^1 as tmp's during
+			 * preprocessing. Here rU^1 is player 1's share of rU (left input
+			 * wire) (likewise for rV) and s_ij is the ij'th entry of player 1's
+			 * TinyTable.
 			 */
 			boolean[] y = storage.getTemporaryBooleans().get(id);
 			boolean rO = storage.getMaskShare(id);
 
-			TinyTable tinyTable = TinyTablesPreproANDProtocol.calculateTinyTable(output0,
-					output1, rU, rV, rO, y);
+			TinyTable tinyTable = TinyTablesPreproANDProtocol.calculateTinyTable(output0, output1,
+					rU, rV, rO, y);
 			storage.storeTinyTable(id, tinyTable);
 
 			/*
@@ -347,8 +349,9 @@ public class TinyTablesPreproANDProtocol extends TinyTablesPreproProtocol implem
 			progress += 2;
 		}
 	}
-	
-	public static void finishPreprocessing(int playerId, OTFactory otFactory, TinyTablesStorage storage, Network network) {
+
+	public static void finishPreprocessing(int playerId, OTFactory otFactory,
+			TinyTablesStorage storage, Network network) {
 		switch (playerId) {
 			case 1:
 				/*
@@ -363,7 +366,7 @@ public class TinyTablesPreproANDProtocol extends TinyTablesPreproProtocol implem
 				List<OTInput> inputs = Util.getAll(storage.getOTInputs());
 				sender.send(inputs);
 				break;
-				
+
 			case 2:
 				/*
 				 * Player 2
@@ -374,10 +377,11 @@ public class TinyTablesPreproANDProtocol extends TinyTablesPreproProtocol implem
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
-				
+
 				/*
-				 * Do OT's with player 1 for all AND gates in the storage. Each of them
-				 * has stored two sigmas and player 1 has corresponding inputs.
+				 * Do OT's with player 1 for all AND gates in the storage. Each
+				 * of them has stored two sigmas and player 1 has corresponding
+				 * inputs.
 				 */
 				OTReceiver receiver = otFactory.createOTReceiver();
 				List<OTSigma> sigmas = Util.getAll(storage.getOTSigmas());
@@ -386,7 +390,7 @@ public class TinyTablesPreproANDProtocol extends TinyTablesPreproProtocol implem
 					throw new MPCException("To few outputs from OT's: Expected "
 							+ storage.getOTSigmas().size() * 2 + " but got only " + outputs.size());
 				}
-				
+
 				TinyTablesPreproANDProtocol.player2CalculateTinyTables(outputs, storage);
 				break;
 		}
