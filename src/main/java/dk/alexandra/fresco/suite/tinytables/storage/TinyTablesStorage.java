@@ -77,9 +77,9 @@ public interface TinyTablesStorage extends Serializable {
 	 * @param id
 	 * @param booleans
 	 */
-	public void storeTemporaryBooleans(int id, boolean[] booleans);
+	public void storeZs(int id, boolean[] booleans);
 
-	public SortedMap<Integer, boolean[]> getTemporaryBooleans();
+	public SortedMap<Integer, boolean[]> getZs();
 
 	/**
 	 * The receiver of the OT protocol to be performed for the protocol with the

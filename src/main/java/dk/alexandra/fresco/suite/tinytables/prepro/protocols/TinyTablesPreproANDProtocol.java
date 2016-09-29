@@ -88,7 +88,7 @@ import dk.alexandra.fresco.suite.tinytables.util.ot.datatypes.OTSigma;
  * transfers are done in one batch. So here, player 1 just stores his inputs to
  * oblivious transfer, {@link #calculateOTInputs(TinyTable, boolean)}), and some
  * additional valus needed by player 2 to calculate his TinyTable,
- * {@link #calculateTmps(TinyTable)}.
+ * {@link #calculateZs(TinyTable)}.
  * </p>
  * <p>
  * Now, after the oblivious transfers are finished, player 2 can compute his
@@ -174,8 +174,8 @@ public class TinyTablesPreproANDProtocol extends TinyTablesPreproProtocol implem
 					 * Player two need some additional values to be able to
 					 * calculate his TinyTable:
 					 */
-					boolean[] tmps = calculateTmps(tinyTable);
-					ps.getStorage().storeTemporaryBooleans(id, tmps);
+					boolean[] z = calculateZs(tinyTable);
+					ps.getStorage().storeZs(id, z);
 
 					return EvaluationStatus.IS_DONE;
 				} else {
@@ -215,7 +215,7 @@ public class TinyTablesPreproANDProtocol extends TinyTablesPreproProtocol implem
 	 *            Player 1's TinyTable for this protocol
 	 * @return
 	 */
-	private boolean[] calculateTmps(TinyTable t) {
+	private boolean[] calculateZs(TinyTable t) {
 		boolean[] tmps = new boolean[3];
 		tmps[0] = t.getValue(false, false) ^ t.getValue(false, true) ^ inLeft.getShare();
 		tmps[1] = t.getValue(false, false) ^ t.getValue(true, false) ^ inRight.getShare();
@@ -325,8 +325,8 @@ public class TinyTablesPreproANDProtocol extends TinyTablesPreproProtocol implem
 			 */
 			boolean rV = storage.getOTSigmas().get(id)[0].getSigma();
 			boolean rU = storage.getOTSigmas().get(id)[1].getSigma();
-			boolean output0 = otOutputs.get(progress);
-			boolean output1 = otOutputs.get(progress + 1);
+			boolean y0 = otOutputs.get(progress);
+			boolean y1 = otOutputs.get(progress + 1);
 
 			/*
 			 * We stored our share of r_O and player 1's s_00 + s_01 + rU^1,
@@ -335,11 +335,11 @@ public class TinyTablesPreproANDProtocol extends TinyTablesPreproProtocol implem
 			 * wire) (likewise for rV) and s_ij is the ij'th entry of player 1's
 			 * TinyTable.
 			 */
-			boolean[] y = storage.getTemporaryBooleans().get(id);
+			boolean[] z = storage.getZs().get(id);
 			boolean rO = storage.getMaskShare(id);
 
-			TinyTable tinyTable = TinyTablesPreproANDProtocol.calculateTinyTable(output0, output1,
-					rU, rV, rO, y);
+			TinyTable tinyTable = TinyTablesPreproANDProtocol.calculateTinyTable(y0, y1,
+					rU, rV, rO, z);
 			storage.storeTinyTable(id, tinyTable);
 
 			/*
@@ -358,7 +358,10 @@ public class TinyTablesPreproANDProtocol extends TinyTablesPreproProtocol implem
 				 * Player 1
 				 */
 				try {
-					network.send("0", 2, (Serializable) storage.getTemporaryBooleans());
+					/*
+					 * Send all Z's to player 2
+					 */
+					network.send("0", 2, (Serializable) storage.getZs());
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
@@ -372,8 +375,12 @@ public class TinyTablesPreproANDProtocol extends TinyTablesPreproProtocol implem
 				 * Player 2
 				 */
 				try {
+					/*
+					 * Store receiver Z's - they need to be used for calcualtion
+					 * of the TinyTables for all AND gates.
+					 */
 					SortedMap<Integer, boolean[]> in = network.receive("0", 1);
-					storage.getTemporaryBooleans().putAll(in);
+					storage.getZs().putAll(in);
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
