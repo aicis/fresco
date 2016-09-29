@@ -4,9 +4,9 @@ public class OTExtensionConfig {
 
 	public static final String PATH = "target/classes";
 
-	public static final String OT_RECEIVER = "dk/alexandra/fresco/suite/tinytables/util/ot/extension/OTExtensionReceiverApplication";
+	public static final String OT_RECEIVER = "dk/alexandra/fresco/suite/tinytables/util/ot/extension/seperate/OTExtensionReceiverApplication";
 
-	public static final String OT_SENDER = "dk/alexandra/fresco/suite/tinytables/util/ot/extension/OTExtensionSenderApplication";
+	public static final String OT_SENDER = "dk/alexandra/fresco/suite/tinytables/util/ot/extension/seperate/OTExtensionSenderApplication";
 
 	public static final String SCAPI_CMD = "java";
 
