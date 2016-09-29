@@ -330,7 +330,7 @@ public class TinyTablesPreproANDProtocol extends TinyTablesPreproProtocol implem
 
 			/*
 			 * We stored our share of r_O and player 1's s_00 + s_01 + rU^1,
-			 * s_00 + s_10 + rV^1 and s_00 + s_11 + rU^1 + rV^1 as tmp's during
+			 * s_00 + s_10 + rV^1 and s_00 + s_11 + rU^1 + rV^1 as Z's during
 			 * preprocessing. Here rU^1 is player 1's share of rU (left input
 			 * wire) (likewise for rV) and s_ij is the ij'th entry of player 1's
 			 * TinyTable.
