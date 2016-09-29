@@ -99,7 +99,7 @@ public class TestTinyTables {
 				 * This will greatly increase the performance of the
 				 * preprocessing.
 				 */
-				((TinyTablesPreproConfiguration) config).setUseOtExtension(true);
+				((TinyTablesPreproConfiguration) config).setUseOtExtension(false);
 				
 				/*
 				 * Set path where the generated TinyTables should be stored
