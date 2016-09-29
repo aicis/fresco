@@ -376,7 +376,7 @@ public class TinyTablesPreproANDProtocol extends TinyTablesPreproProtocol implem
 				 */
 				try {
 					/*
-					 * Store receiver Z's - they need to be used for calcualtion
+					 * Store received Z's - they need to be used for calcualtion
 					 * of the TinyTables for all AND gates.
 					 */
 					SortedMap<Integer, boolean[]> in = network.receive("0", 1);
