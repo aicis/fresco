@@ -226,7 +226,7 @@ public class TinyTablesPreproANDProtocol extends TinyTablesPreproProtocol implem
 
 	/**
 	 * We use OT's to calculate the products rU1 & rV2 and rU2 & rV1. After the
-	 * OT, player 2 knows x0 + rU1 & rV2 and x1 = rU2 & rV1, and player 1 knows
+	 * OT, player 2 knows x0 + rU1 & rV2 and x1 + rU2 & rV1, and player 1 knows
 	 * x0 and x1, so they now have secret sharings of the two products.
 	 * 
 	 * @param x0
@@ -246,12 +246,12 @@ public class TinyTablesPreproANDProtocol extends TinyTablesPreproProtocol implem
 	 * 
 	 * @param y0
 	 *            Result of first OT for this protocol. Should be equal to
-	 *            <i>s<sub>00</sub> + r<sub>O</sub><sup>1</sup> +
-	 *            r<sub>U</sub><sup>1</sup> & r<sub>U</sub><sup>1</sup> + m +
-	 *            r<sub>U</sub><sup>1</sup> & r<sub>V</sub><sup>2</sup></i>.
+	 *            <i>r<sub>U</sub><sup>1</sup> & r<sub>V</sub><sup>2</sup> +
+	 *            x<sub>0</sub></i>.
 	 * @param y1
-	 *            Result of second OT for this protocol. Should be equal to <i>m
-	 *            + r<sub>U</sub><sup>2</sup> & r<sub>V</sub><sup>1</sup></i>.
+	 *            Result of second OT for this protocol. Should be equal to
+	 *            <i>r<sub>U</sub><sup>2</sup> & r<sub>V</sub><sup>1</sup> +
+	 *            x<sub>1</sub></i>.
 	 * @param rU
 	 *            Player 2's share of the left input wire,
 	 *            <i>r<sub>U</sub><sup>2</sup></i>.
@@ -262,14 +262,15 @@ public class TinyTablesPreproANDProtocol extends TinyTablesPreproProtocol implem
 	 *            Player 2's share of the output wire,
 	 *            <i>r<sub>O</sub><sup>2</sup></i>.
 	 * @param z
-	 *            Three additional values needed for calculating TinyTable.
-	 *            Player 1 should send these to player 2 during preprocessing.
-	 *            Should be equal to <i>[<i>t<sub>00</sub> + t<sub>01</sub> +
-	 *            r<sub>U</sub><sup>1</sup>,t<sub>00</sub> + t<sub>10</sub> +
-	 *            r<sub>V</sub><sup>1</sup>, t<sub>00</sub> + t<sub>01</sub> +
-	 *            r<sub>U</sub><sup>1</sup> + r<sub>V</sub><sup>1</sup></i>]</i>
-	 *            where <i>t</i> is player 1's TinyTable.
-	 * @return Player 2's TinyTable such that the <i>entry
+	 *            Array of three additional values needed for calculating
+	 *            TinyTable. Player 1 should send these to player 2 during
+	 *            preprocessing. Should be equal to <i>[<i>t<sub>00</sub> +
+	 *            t<sub>01</sub> + r<sub>U</sub><sup>1</sup>,t<sub>00</sub> +
+	 *            t<sub>10</sub> + r<sub>V</sub><sup>1</sup>, t<sub>00</sub> +
+	 *            t<sub>01</sub> + r<sub>U</sub><sup>1</sup> +
+	 *            r<sub>V</sub><sup>1</sup></i>]</i> where <i>t</i> is player
+	 *            1's TinyTable.
+	 * @return Player 2's TinyTable
 	 */
 	private static TinyTable calculateTinyTable(boolean y0, boolean y1, boolean rU, boolean rV,
 			boolean rO, boolean[] z) {
