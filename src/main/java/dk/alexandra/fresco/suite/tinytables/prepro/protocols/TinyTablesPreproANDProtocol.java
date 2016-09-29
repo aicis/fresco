@@ -184,8 +184,8 @@ public class TinyTablesPreproANDProtocol extends TinyTablesPreproProtocol implem
 					 */
 
 					/*
-					 * The receiver (player 2) uses rV2 and rU2 resp. as sigmas
-					 * for the two OT's.
+					 * The receiver (player 2) uses rV2 and rU2 resp. as
+					 * selection bits for the two OT's.
 					 */
 					OTSigma[] sigmas = new OTSigma[] { new OTSigma(inRight.getShare()),
 							new OTSigma(inLeft.getShare()) };
@@ -205,7 +205,7 @@ public class TinyTablesPreproANDProtocol extends TinyTablesPreproProtocol implem
 	}
 
 	/**
-	 * Calculate some additional values needed by player 2 to calculate his
+	 * Calculate three additional values needed by player 2 to calculate his
 	 * TinyTable: <i>t<sub>00</sub> + t<sub>01</sub> +
 	 * r<sub>U</sub><sup>1</sup>, t<sub>00</sub> + t<sub>10</sub> +
 	 * r<sub>V</sub><sup>1</sup></i> and <i>t<sub>00</sub> + t<sub>01</sub> +
@@ -216,12 +216,12 @@ public class TinyTablesPreproANDProtocol extends TinyTablesPreproProtocol implem
 	 * @return
 	 */
 	private boolean[] calculateZs(TinyTable t) {
-		boolean[] tmps = new boolean[3];
-		tmps[0] = t.getValue(false, false) ^ t.getValue(false, true) ^ inLeft.getShare();
-		tmps[1] = t.getValue(false, false) ^ t.getValue(true, false) ^ inRight.getShare();
-		tmps[2] = t.getValue(false, false) ^ t.getValue(true, true) ^ inLeft.getShare()
+		boolean[] z = new boolean[3];
+		z[0] = t.getValue(false, false) ^ t.getValue(false, true) ^ inLeft.getShare();
+		z[1] = t.getValue(false, false) ^ t.getValue(true, false) ^ inRight.getShare();
+		z[2] = t.getValue(false, false) ^ t.getValue(true, true) ^ inLeft.getShare()
 				^ inRight.getShare();
-		return tmps;
+		return z;
 	}
 
 	/**
@@ -244,12 +244,12 @@ public class TinyTablesPreproANDProtocol extends TinyTablesPreproProtocol implem
 
 	/**
 	 * 
-	 * @param output0
+	 * @param y0
 	 *            Result of first OT for this protocol. Should be equal to
 	 *            <i>s<sub>00</sub> + r<sub>O</sub><sup>1</sup> +
 	 *            r<sub>U</sub><sup>1</sup> & r<sub>U</sub><sup>1</sup> + m +
 	 *            r<sub>U</sub><sup>1</sup> & r<sub>V</sub><sup>2</sup></i>.
-	 * @param output1
+	 * @param y1
 	 *            Result of second OT for this protocol. Should be equal to <i>m
 	 *            + r<sub>U</sub><sup>2</sup> & r<sub>V</sub><sup>1</sup></i>.
 	 * @param rU
@@ -261,18 +261,18 @@ public class TinyTablesPreproANDProtocol extends TinyTablesPreproProtocol implem
 	 * @param rO
 	 *            Player 2's share of the output wire,
 	 *            <i>r<sub>O</sub><sup>2</sup></i>.
-	 * @param y
-	 *            Additional values needed for calculating TinyTable. Player 1
-	 *            should send these to player 2 during preprocessing. Should be
-	 *            equal to <i>[<i>t<sub>00</sub> + t<sub>01</sub> +
+	 * @param z
+	 *            Three additional values needed for calculating TinyTable.
+	 *            Player 1 should send these to player 2 during preprocessing.
+	 *            Should be equal to <i>[<i>t<sub>00</sub> + t<sub>01</sub> +
 	 *            r<sub>U</sub><sup>1</sup>,t<sub>00</sub> + t<sub>10</sub> +
 	 *            r<sub>V</sub><sup>1</sup>, t<sub>00</sub> + t<sub>01</sub> +
 	 *            r<sub>U</sub><sup>1</sup> + r<sub>V</sub><sup>1</sup></i>]</i>
 	 *            where <i>t</i> is player 1's TinyTable.
 	 * @return Player 2's TinyTable such that the <i>entry
 	 */
-	private static TinyTable calculateTinyTable(boolean output0, boolean output1, boolean rU,
-			boolean rV, boolean rO, boolean[] y) {
+	private static TinyTable calculateTinyTable(boolean y0, boolean y1, boolean rU, boolean rV,
+			boolean rO, boolean[] z) {
 		boolean[] s = new boolean[4];
 		/*
 		 * In the comments below, we let t denote player 1's TinyTable and x0
@@ -284,25 +284,25 @@ public class TinyTablesPreproANDProtocol extends TinyTablesPreproProtocol implem
 		 * s[0] = s_00 = t_00 + rO^1 + rU1 rU1 + x0 + x1 + rU1 rV2 + x0 + rU2
 		 * rV1 + x1 + rU2 rV2 + rO^2 = t_00 + rO + rU rV
 		 */
-		s[0] = output0 ^ output1 ^ (rU && rV) ^ rO;
+		s[0] = y0 ^ y1 ^ (rU && rV) ^ rO;
 
 		/*
 		 * s[1] = s_01 = t_00 + rO + rU rV + t_00 + t_01 + rU1 + rU = t_01 + rO
 		 * + rU !rV
 		 */
-		s[1] = s[0] ^ y[0] ^ rU;
+		s[1] = s[0] ^ z[0] ^ rU;
 
 		/*
 		 * s[2] = s_10 = t_00 + rO + rU rV + t_00 + t_10 + rV1 + rV2 = t_10 + rO
 		 * + !rU rV
 		 */
-		s[2] = s[0] ^ y[1] ^ rV;
+		s[2] = s[0] ^ z[1] ^ rV;
 
 		/*
 		 * s[3] = s_11 = t_00 + rO + rU & rV + t_00 + t_11 + rU1 + rV1 + rU2 +
 		 * rV2 + 1 = t_11 + rO + !rU !rV
 		 */
-		s[3] = s[0] ^ y[2] ^ rU ^ rV ^ true;
+		s[3] = s[0] ^ z[2] ^ rU ^ rV ^ true;
 
 		TinyTable tinyTable = new TinyTable(s);
 		return tinyTable;
@@ -338,8 +338,8 @@ public class TinyTablesPreproANDProtocol extends TinyTablesPreproProtocol implem
 			boolean[] z = storage.getZs().get(id);
 			boolean rO = storage.getMaskShare(id);
 
-			TinyTable tinyTable = TinyTablesPreproANDProtocol.calculateTinyTable(y0, y1,
-					rU, rV, rO, z);
+			TinyTable tinyTable = TinyTablesPreproANDProtocol.calculateTinyTable(y0, y1, rU, rV,
+					rO, z);
 			storage.storeTinyTable(id, tinyTable);
 
 			/*
@@ -393,10 +393,6 @@ public class TinyTablesPreproANDProtocol extends TinyTablesPreproProtocol implem
 				OTReceiver receiver = otFactory.createOTReceiver();
 				List<OTSigma> sigmas = Util.getAll(storage.getOTSigmas());
 				List<Boolean> outputs = receiver.receive(sigmas);
-				if (outputs.size() < 2 * storage.getOTSigmas().size()) {
-					throw new MPCException("To few outputs from OT's: Expected "
-							+ storage.getOTSigmas().size() * 2 + " but got only " + outputs.size());
-				}
 
 				TinyTablesPreproANDProtocol.player2CalculateTinyTables(outputs, storage);
 				break;

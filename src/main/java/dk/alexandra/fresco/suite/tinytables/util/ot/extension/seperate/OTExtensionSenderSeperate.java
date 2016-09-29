@@ -1,4 +1,4 @@
-package dk.alexandra.fresco.suite.tinytables.util.ot.extension;
+package dk.alexandra.fresco.suite.tinytables.util.ot.extension.seperate;
 
 import java.io.File;
 import java.io.IOException;
@@ -8,6 +8,7 @@ import java.util.List;
 import dk.alexandra.fresco.suite.tinytables.util.Encoding;
 import dk.alexandra.fresco.suite.tinytables.util.ot.OTSender;
 import dk.alexandra.fresco.suite.tinytables.util.ot.datatypes.OTInput;
+import dk.alexandra.fresco.suite.tinytables.util.ot.extension.OTExtensionConfig;
 import edu.biu.scapi.comm.Party;
 
 public class OTExtensionSenderSeperate implements OTSender {

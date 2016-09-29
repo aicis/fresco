@@ -1,4 +1,4 @@
-package dk.alexandra.fresco.suite.tinytables.util.ot.extension;
+package dk.alexandra.fresco.suite.tinytables.util.ot.extension.seperate;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 import dk.alexandra.fresco.suite.tinytables.util.Encoding;
 import dk.alexandra.fresco.suite.tinytables.util.ot.OTReceiver;
 import dk.alexandra.fresco.suite.tinytables.util.ot.datatypes.OTSigma;
+import dk.alexandra.fresco.suite.tinytables.util.ot.extension.OTExtensionConfig;
 import edu.biu.scapi.comm.Party;
 
 /**

@@ -7,6 +7,8 @@ import java.net.UnknownHostException;
 import dk.alexandra.fresco.suite.tinytables.util.ot.OTFactory;
 import dk.alexandra.fresco.suite.tinytables.util.ot.OTReceiver;
 import dk.alexandra.fresco.suite.tinytables.util.ot.OTSender;
+import dk.alexandra.fresco.suite.tinytables.util.ot.extension.seperate.OTExtensionReceiverSeperate;
+import dk.alexandra.fresco.suite.tinytables.util.ot.extension.seperate.OTExtensionSenderSeperate;
 import edu.biu.scapi.comm.Party;
 
 public class OTExtensionFactory implements OTFactory {
