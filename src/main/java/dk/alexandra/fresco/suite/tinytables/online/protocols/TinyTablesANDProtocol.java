@@ -43,31 +43,9 @@ import dk.alexandra.fresco.suite.tinytables.online.datatypes.TinyTablesSBool;
  * </p>
  * <p>
  * Here it is assumed that each of the two players have computed a TinyTable for
- * the protocol. Player 1 has picked random values for his:
- * </p>
- * <table>
- * <tr>
- * <td><i>t<sub>00</sub></i></td>
- * <td><i>t<sub>01</sub></i></td>
- * </tr>
- * <tr>
- * <td><i>t<sub>10</sub></i></td>
- * <td><i>t<sub>11</sub></i></td>
- * </tr>
- * </table>
- * <p>
- * and player 2 has computer a TinyTable which looks like this
- * </p>
- * <table>
- * <tr>
- * <td><i>t<sub>00</sub>+r<sub>O</sub>+r<sub>u</sub>r<sub>v</sub></i></td>
- * <td><i>t<sub>01</sub>+r<sub>O</sub>+r<sub>u</sub>(r<sub>v</sub>+1)</i></td>
- * </tr>
- * <tr>
- * <td><i>t<sub>10</sub>+r<sub>O</sub>+(r<sub>u</sub>+1)r<sub>v</sub></i></td>
- * <td><i>t<sub>11</sub>+r<sub>O</sub>+(r<sub>u</sub>+1)(r<sub>v</sub>+1)</i></td>
- * </tr>
- * </table>
+ * the protocol such that the <i>(c,d)</i>'th entries from the two tables is an
+ * additive secret sharing of <i>(r<sub>u</sub> + c)(r<sub>v</sub> + d) +
+ * r<sub>o</sub></i>.
  * <p>
  * Now, both players know the encrypted inputs of the input wires wires
  * <i>e<sub>u</sub> = b<sub>u</sub>+r<sub>u</sub></i> and <i>e<sub>v</sub> =
@@ -75,16 +53,7 @@ import dk.alexandra.fresco.suite.tinytables.online.datatypes.TinyTablesSBool;
  * <i>b<sub>v</sub></i> are the clear text bits, and each now looks up entry
  * <i>(e<sub>u</sub>, e<sub>v</sub>)</i> in his TinyTable and shares this with
  * the other player. Both players now add their share with the other players
- * share to get
- * </p>
- * <p>
- * <i>t<sub>e<sub>u</sub>e<sub>v</sub></sub> +
- * t<sub>e<sub>u</sub>e<sub>v</sub></sub> + r<sub>O</sub> +
- * (r<sub>u</sub>+e<sub>u</sub>)(r<sub>v</sub>+e<sub>v</sub>) = r<sub>O</sub> +
- * b<sub>u</sub>b<sub>v</sub> = e<sub>O</sub></i>,
- * </p>
- * <p>
- * which is the masked value of the output wire.
+ * share to get the masked value of the output wire.
  * </p>
  * 
  * @author Jonas Lindstrøm (jonas.lindstrom@alexandra.dk)

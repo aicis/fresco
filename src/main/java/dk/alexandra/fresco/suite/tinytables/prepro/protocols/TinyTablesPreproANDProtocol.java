@@ -54,31 +54,9 @@ import dk.alexandra.fresco.suite.tinytables.util.ot.datatypes.OTSigma;
  * <p>
  * Here, each of the two players picks random shares for the mask of the output
  * wire, <i>r<sub>O</sub></i>. Each player also has to calculate a so called
- * <i>TinyTable</i> for this protocol. Player 1 picks random values for his:
- * </p>
- * <table>
- * <tr>
- * <td><i>t<sub>00</sub></i></td>
- * <td><i>t<sub>01</sub></i></td>
- * </tr>
- * <tr>
- * <td><i>t<sub>10</sub></i></td>
- * <td><i>t<sub>11</sub></i></td>
- * </tr>
- * </table>
- * <p>
- * and player 2 needs to compute a TinyTable which looks like this
- * </p>
- * <table>
- * <tr>
- * <td><i>t<sub>00</sub>+r<sub>O</sub>+r<sub>u</sub>r<sub>v</sub></i></td>
- * <td><i>t<sub>01</sub>+r<sub>O</sub>+r<sub>u</sub>(r<sub>v</sub>+1)</i></td>
- * </tr>
- * <tr>
- * <td><i>t<sub>10</sub>+r<sub>O</sub>+(r<sub>u</sub>+1)r<sub>v</sub></i></td>
- * <td><i>t<sub>11</sub>+r<sub>O</sub>+(r<sub>u</sub>+1)(r<sub>v</sub>+1)</i></td>
- * </tr>
- * </table>
+ * <i>TinyTable</i> for this protocol, which are 2x2 matrices such that the
+ * <i>(c,d)</i>'th entries from the two tables is an additive secret sharing of
+ * <i>(r<sub>u</sub> + c)(r<sub>v</sub> + d) + r<sub>o</sub></i>.
  * <p>
  * This is done using oblivious transfer, but for performance reasons this is
  * not done until the end of the preprocessing phase where all oblivious
@@ -90,7 +68,7 @@ import dk.alexandra.fresco.suite.tinytables.util.ot.datatypes.OTSigma;
  * <p>
  * Now, after the oblivious transfers are finished, player 2 can compute his
  * TinyTable using
- * {@link #calculateTinyTable(boolean, boolean, boolean, boolean, boolean, boolean[])}
+ * {@link #calculateTinyTable(boolean, boolean, boolean, boolean, boolean)}
  * .
  * </p>
  * 
