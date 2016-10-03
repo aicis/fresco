@@ -89,11 +89,11 @@ public class TinyTablesFactory extends AbstractBinaryFactory implements BasicLog
 
 	@Override
 	public SBool[] getKnownConstantSBools(boolean[] bools) {
-		SBool[] ninjaSBools = new SBool[bools.length];
-		for (int i = 0; i < ninjaSBools.length; i++) {
-			ninjaSBools[i] = getKnownConstantSBool(bools[i]);
+		SBool[] sBools = new SBool[bools.length];
+		for (int i = 0; i < sBools.length; i++) {
+			sBools[i] = getKnownConstantSBool(bools[i]);
 		}
-		return ninjaSBools;
+		return sBools;
 	}
 
 	@Override
