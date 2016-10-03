@@ -70,18 +70,6 @@ public interface TinyTablesStorage extends Serializable {
 	public boolean getMaskShare(int id);
 
 	/**
-	 * Store an array of booleans for the protocol with the given ID. Note that
-	 * these booleans are not stored after the preprocessing phase, and should
-	 * only be used for data needed in the preprocessing.
-	 * 
-	 * @param id
-	 * @param booleans
-	 */
-	public void storeZs(int id, boolean[] booleans);
-
-	public SortedMap<Integer, boolean[]> getZs();
-
-	/**
 	 * The receiver of the OT protocol to be performed for the protocol with the
 	 * given ID can store his sigma's. The OT-protocols will be executed when
 	 * the evaluation of the prepro-protocol is finished, and the results is

@@ -26,10 +26,7 @@
  *******************************************************************************/
 package dk.alexandra.fresco.suite.tinytables.prepro.protocols;
 
-import java.io.IOException;
-import java.io.Serializable;
 import java.util.List;
-import java.util.SortedMap;
 
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.network.Network;
@@ -164,18 +161,11 @@ public class TinyTablesPreproANDProtocol extends TinyTablesPreproProtocol implem
 					 */
 					boolean[] entries = new boolean[4];
 					entries[0] = inRight.getShare() & inLeft.getShare() ^ rO ^ x0 ^ x1;
-					for (int i = 1; i < entries.length; i++) {
-						entries[i] = resourcePool.getSecureRandom().nextBoolean();
-					}
+					entries[1] = entries[0] ^ inLeft.getShare();
+					entries[2] = entries[0] ^ inRight.getShare();
+					entries[3] = entries[0] ^ inLeft.getShare() ^ inRight.getShare();
 					TinyTable tinyTable = new TinyTable(entries);
 					ps.getStorage().storeTinyTable(id, tinyTable);
-
-					/*
-					 * Player two need some additional values to be able to
-					 * calculate his TinyTable:
-					 */
-					boolean[] z = calculateZs(tinyTable);
-					ps.getStorage().storeZs(id, z);
 
 					return EvaluationStatus.IS_DONE;
 				} else {
@@ -202,26 +192,6 @@ public class TinyTablesPreproANDProtocol extends TinyTablesPreproProtocol implem
 			default:
 				throw new MPCException("Cannot evaluate more than one round");
 		}
-	}
-
-	/**
-	 * Calculate three additional values needed by player 2 to calculate his
-	 * TinyTable: <i>t<sub>00</sub> + t<sub>01</sub> +
-	 * r<sub>U</sub><sup>1</sup>, t<sub>00</sub> + t<sub>10</sub> +
-	 * r<sub>V</sub><sup>1</sup></i> and <i>t<sub>00</sub> + t<sub>01</sub> +
-	 * r<sub>U</sub><sup>1</sup> + r<sub>V</sub><sup>1</sup></i>.
-	 * 
-	 * @param t
-	 *            Player 1's TinyTable for this protocol
-	 * @return
-	 */
-	private boolean[] calculateZs(TinyTable t) {
-		boolean[] z = new boolean[3];
-		z[0] = t.getValue(false, false) ^ t.getValue(false, true) ^ inLeft.getShare();
-		z[1] = t.getValue(false, false) ^ t.getValue(true, false) ^ inRight.getShare();
-		z[2] = t.getValue(false, false) ^ t.getValue(true, true) ^ inLeft.getShare()
-				^ inRight.getShare();
-		return z;
 	}
 
 	/**
@@ -261,19 +231,10 @@ public class TinyTablesPreproANDProtocol extends TinyTablesPreproProtocol implem
 	 * @param rO
 	 *            Player 2's share of the output wire,
 	 *            <i>r<sub>O</sub><sup>2</sup></i>.
-	 * @param z
-	 *            Array of three additional values needed for calculating
-	 *            TinyTable. Player 1 should send these to player 2 during
-	 *            preprocessing. Should be equal to <i>[<i>t<sub>00</sub> +
-	 *            t<sub>01</sub> + r<sub>U</sub><sup>1</sup>,t<sub>00</sub> +
-	 *            t<sub>10</sub> + r<sub>V</sub><sup>1</sup>, t<sub>00</sub> +
-	 *            t<sub>01</sub> + r<sub>U</sub><sup>1</sup> +
-	 *            r<sub>V</sub><sup>1</sup></i>]</i> where <i>t</i> is player
-	 *            1's TinyTable.
 	 * @return Player 2's TinyTable
 	 */
 	private static TinyTable calculateTinyTable(boolean y0, boolean y1, boolean rU, boolean rV,
-			boolean rO, boolean[] z) {
+			boolean rO) {
 		boolean[] s = new boolean[4];
 		/*
 		 * In the comments below, we let t denote player 1's TinyTable and x0
@@ -281,29 +242,10 @@ public class TinyTablesPreproANDProtocol extends TinyTablesPreproProtocol implem
 		 * preprocessing.
 		 */
 
-		/*
-		 * s[0] = s_00 = t_00 + rO^1 + rU1 rU1 + x0 + x1 + rU1 rV2 + x0 + rU2
-		 * rV1 + x1 + rU2 rV2 + rO^2 = t_00 + rO + rU rV
-		 */
 		s[0] = y0 ^ y1 ^ (rU && rV) ^ rO;
-
-		/*
-		 * s[1] = s_01 = t_00 + rO + rU rV + t_00 + t_01 + rU1 + rU = t_01 + rO
-		 * + rU !rV
-		 */
-		s[1] = s[0] ^ z[0] ^ rU;
-
-		/*
-		 * s[2] = s_10 = t_00 + rO + rU rV + t_00 + t_10 + rV1 + rV2 = t_10 + rO
-		 * + !rU rV
-		 */
-		s[2] = s[0] ^ z[1] ^ rV;
-
-		/*
-		 * s[3] = s_11 = t_00 + rO + rU & rV + t_00 + t_11 + rU1 + rV1 + rU2 +
-		 * rV2 + 1 = t_11 + rO + !rU !rV
-		 */
-		s[3] = s[0] ^ z[2] ^ rU ^ rV ^ true;
+		s[1] = s[0] ^ rU;
+		s[2] = s[0] ^ rV;
+		s[3] = s[0] ^ rU ^ rV ^ true;
 
 		TinyTable tinyTable = new TinyTable(s);
 		return tinyTable;
@@ -321,26 +263,14 @@ public class TinyTablesPreproANDProtocol extends TinyTablesPreproProtocol implem
 		int progress = 0;
 		for (int id : storage.getOTSigmas().keySet()) {
 
-			/*
-			 * Two OT's per AND gate
-			 */
 			boolean rV = storage.getOTSigmas().get(id)[0].getSigma();
 			boolean rU = storage.getOTSigmas().get(id)[1].getSigma();
 			boolean y0 = otOutputs.get(progress);
 			boolean y1 = otOutputs.get(progress + 1);
-
-			/*
-			 * We stored our share of r_O and player 1's s_00 + s_01 + rU^1,
-			 * s_00 + s_10 + rV^1 and s_00 + s_11 + rU^1 + rV^1 as Z's during
-			 * preprocessing. Here rU^1 is player 1's share of rU (left input
-			 * wire) (likewise for rV) and s_ij is the ij'th entry of player 1's
-			 * TinyTable.
-			 */
-			boolean[] z = storage.getZs().get(id);
 			boolean rO = storage.getMaskShare(id);
 
 			TinyTable tinyTable = TinyTablesPreproANDProtocol.calculateTinyTable(y0, y1, rU, rV,
-					rO, z);
+					rO);
 			storage.storeTinyTable(id, tinyTable);
 
 			/*
@@ -358,14 +288,6 @@ public class TinyTablesPreproANDProtocol extends TinyTablesPreproProtocol implem
 				/*
 				 * Player 1
 				 */
-				try {
-					/*
-					 * Send all Z's to player 2
-					 */
-					network.send("0", 2, (Serializable) storage.getZs());
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
 				OTSender sender = otFactory.createOTSender();
 				List<OTInput> inputs = Util.getAll(storage.getOTInputs());
 				sender.send(inputs);
@@ -375,16 +297,6 @@ public class TinyTablesPreproANDProtocol extends TinyTablesPreproProtocol implem
 				/*
 				 * Player 2
 				 */
-				try {
-					/*
-					 * Store received Z's - they need to be used for calcualtion
-					 * of the TinyTables for all AND gates.
-					 */
-					SortedMap<Integer, boolean[]> in = network.receive("0", 1);
-					storage.getZs().putAll(in);
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
 
 				/*
 				 * Do OT's with player 1 for all AND gates in the storage. Each
