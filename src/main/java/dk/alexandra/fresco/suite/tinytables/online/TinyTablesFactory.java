@@ -51,14 +51,18 @@ public class TinyTablesFactory extends AbstractBinaryFactory implements BasicLog
 		this.counter = 0;
 	}
 	
+	private int getNextId() {
+		return counter++;
+	}
+	
 	@Override
 	public CloseBoolProtocol getCloseProtocol(int source, OBool open, SBool closed) {
-		return new TinyTablesCloseProtocol(counter++, source, open, closed);
+		return new TinyTablesCloseProtocol(getNextId(), source, open, closed);
 	}
 
 	@Override
 	public OpenBoolProtocol getOpenProtocol(SBool closed, OBool open) {
-		return new TinyTablesOpenToAllProtocol(counter++, (TinyTablesSBool)closed, (TinyTablesOBool)open);
+		return new TinyTablesOpenToAllProtocol(getNextId(), (TinyTablesSBool)closed, (TinyTablesOBool)open);
 	}
 
 	@Override
@@ -108,7 +112,7 @@ public class TinyTablesFactory extends AbstractBinaryFactory implements BasicLog
 
 	@Override
 	public AndProtocol getAndProtocol(SBool inLeft, SBool inRight, SBool out) {
-		return new TinyTablesANDProtocol(counter++, (TinyTablesSBool)inLeft, (TinyTablesSBool)inRight, (TinyTablesSBool)out);
+		return new TinyTablesANDProtocol(getNextId(), (TinyTablesSBool)inLeft, (TinyTablesSBool)inRight, (TinyTablesSBool)out);
 	}
 
 	@Override
@@ -118,12 +122,12 @@ public class TinyTablesFactory extends AbstractBinaryFactory implements BasicLog
 
 	@Override
 	public NotProtocol getNotProtocol(SBool in, SBool out) {
-		return new TinyTablesNOTProtocol(counter++, (TinyTablesSBool)in, (TinyTablesSBool)out);
+		return new TinyTablesNOTProtocol(getNextId(), (TinyTablesSBool)in, (TinyTablesSBool)out);
 	}
 
 	@Override
 	public XorProtocol getXorProtocol(SBool inLeft, SBool inRight, SBool out) {
-		return new TinyTablesXORProtocol(counter++, (TinyTablesSBool)inLeft, (TinyTablesSBool)inRight, (TinyTablesSBool)out);
+		return new TinyTablesXORProtocol(getNextId(), (TinyTablesSBool)inLeft, (TinyTablesSBool)inRight, (TinyTablesSBool)out);
 	}
 
 	@Override
