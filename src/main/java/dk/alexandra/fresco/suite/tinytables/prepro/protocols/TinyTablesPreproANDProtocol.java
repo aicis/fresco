@@ -236,11 +236,6 @@ public class TinyTablesPreproANDProtocol extends TinyTablesPreproProtocol implem
 	private static TinyTable calculateTinyTable(boolean y0, boolean y1, boolean rU, boolean rV,
 			boolean rO) {
 		boolean[] s = new boolean[4];
-		/*
-		 * In the comments below, we let t denote player 1's TinyTable and x0
-		 * and x1 denote the random masks chosen by player 1 during
-		 * preprocessing.
-		 */
 
 		s[0] = y0 ^ y1 ^ (rU && rV) ^ rO;
 		s[1] = s[0] ^ rU;
