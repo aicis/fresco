@@ -26,14 +26,15 @@
  *******************************************************************************/
 package dk.alexandra.fresco.suite.dummy;
 
+import org.apache.commons.cli.CommandLine;
+
 import dk.alexandra.fresco.framework.sce.configuration.ProtocolSuiteConfiguration;
 import dk.alexandra.fresco.framework.sce.configuration.SCEConfiguration;
 
 public class DummyConfiguration implements ProtocolSuiteConfiguration {
 
-	public static ProtocolSuiteConfiguration fromCmdArgs(SCEConfiguration sceConf, String[] remainingArgs) {
+	public static ProtocolSuiteConfiguration fromCmdLine(SCEConfiguration sceConf, CommandLine cmd) {
 		return new DummyConfiguration();
 	}
-
 	
 }

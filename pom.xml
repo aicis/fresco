@@ -1,4 +1,3 @@
-
 <?xml version="1.0"?>
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
@@ -40,7 +39,6 @@
 	  <artifactId>bcprov-jdk15on</artifactId>
 	  <version>1.53</version>
 	</dependency>
-
 	<!-- Database required jars -->
 
 	<dependency>
@@ -123,7 +121,9 @@
             <artifactId>maven-surefire-plugin</artifactId>
             <version>2.18.1</version>
             <configuration>
-                <excludedGroups>dk.alexandra.fresco.IntegrationTest</excludedGroups>
+              <forkCount>1</forkCount>
+              <reuseForks>false</reuseForks>
+              <excludedGroups>dk.alexandra.fresco.IntegrationTest</excludedGroups>
             </configuration>
         </plugin>
 

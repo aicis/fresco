@@ -55,7 +55,6 @@ import dk.alexandra.fresco.suite.spdz.evaluation.strategy.SpdzProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.storage.InitializeStorage;
 
 public class TestSpdzLPSolver2Parties {
-
 	
 	private void runTest(TestThreadFactory f, int noPlayers, int noOfVmThreads,
 			EvaluationStrategy evalStrategy, StorageStrategy storageStrategy, boolean useDummyData)
@@ -114,6 +113,9 @@ public class TestSpdzLPSolver2Parties {
 			conf.put(playerId, ttc);
 		}
 		TestThreadRunner.run(f, conf);
+		for (int i : conf.keySet()) {
+			SpdzProtocolSuite.getInstance(i).destroy();
+		}
 	}
 
 	private static final InMemoryStorage inMemStore = new InMemoryStorage();

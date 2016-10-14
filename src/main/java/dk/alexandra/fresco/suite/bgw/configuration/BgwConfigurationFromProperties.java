@@ -31,36 +31,71 @@ import java.io.InputStream;
 import java.math.BigInteger;
 import java.util.Properties;
 
-import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.configuration.ConfigurationException;
 import dk.alexandra.fresco.framework.sce.util.Util;
 
 public class BgwConfigurationFromProperties implements BgwConfiguration {
 
-	private Properties prop;
 	private final String defaultPropertiesLocation = "properties/bgw/bgw.properties";
+	private int threshold;
+	private BigInteger modulus;
 
 	public BgwConfigurationFromProperties() {
 		InputStream is;
 		try {
 			is = Util.getInputStream(defaultPropertiesLocation);
-			prop = new Properties();
+			Properties prop = new Properties();
 			prop.load(is);
+			parseProperties(prop);
 		} catch (IOException e) {
-			throw new MPCException("Could not locate the BGW properties file. ", e);
+			throw new ConfigurationException("Could not locate the BGW properties file. ", e);
+		}
+	}
+	
+	private void parseProperties(Properties prop) {
+		StringBuilder sb = new StringBuilder();
+		boolean failed = false;
+		String propName;
+		String propString;
+		// Required properties
+		propName = "bgw.threshold";
+		propString = prop.getProperty(propName);
+		if (propString != null) {
+			try { 
+				this.threshold = Integer.parseInt(propString); 
+			} catch (NumberFormatException e) {
+				failed = true;
+				sb.append("Value of property " + propName + " did not parse as a number:" + e.getLocalizedMessage() + "\n");
+			}
+			if (threshold < 1) {
+				failed = true;
+				sb.append("Value of property "  + propName + " was " + threshold + " but must be larger then 0.\n");
+			}
+		}
+		// Properties with defaults
+		propName = "bgw.modulus";
+		propString = prop.getProperty(propName, "618970019642690137449562111");
+		try {
+			this.modulus = new BigInteger(propString);
+		} catch (NumberFormatException e) {
+			failed = true;
+			sb.append("Value of property " + propName + " did not parse as a number.\n");
+		}
+		if (!modulus.isProbablePrime(40)) {
+			failed = true;
+			sb.append("Value of property " + propName + " was " + modulus + " but must be a prime.\n");
+		}
+		if (failed) {
+			throw new ConfigurationException("Building Bgw configuration failded. " + sb.toString());
 		}
 	}
 
 	public int getThreshold() {
-		return Integer.parseInt(prop.getProperty("threshold"));
+		return threshold;
 	}
 
 	@Override
 	public BigInteger getModulus() {
-		BigInteger mod = new BigInteger(prop.getProperty("modulus", "618970019642690137449562111"));
-		if(!mod.isProbablePrime(40)) {
-			throw new ConfigurationException("BGW Modulus must be a prime number");
-		}
-		return mod;
+		return modulus;
 	}
 }

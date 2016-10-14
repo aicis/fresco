@@ -47,7 +47,13 @@ public interface SCEConfiguration {
 	 */
 	public Level getLogLevel();
 
-	public String getProtocolSuiteName();	
+	/**
+	 * Returns the name of the protocol suite that should run the MPC
+	 * computations.
+	 * 
+	 * @return
+	 */
+	public String getProtocolSuiteName();
 
 	/**
 	 * Returns -1 if no such property is found.
@@ -55,7 +61,7 @@ public interface SCEConfiguration {
 	 * @return
 	 */
 	public int getNoOfThreads();
-	
+
 	/**
 	 * Reads the config for an indication on which kind of GateEvaluator should
 	 * be used.
@@ -63,29 +69,32 @@ public interface SCEConfiguration {
 	 * @return
 	 */
 	public ProtocolEvaluator getEvaluator();
-	
+
 	/**
 	 * Returns -1 if no such property is found.
 	 * 
 	 * @return
 	 */
 	public int getNoOfVMThreads();
-	
+
 	/**
 	 * Returns the storage requested.
+	 * 
 	 * @return
 	 */
 	public Storage getStorage();
-	
+
 	/**
 	 * Returns the streamed storage requested.
+	 * 
 	 * @return
 	 */
 	public StreamedStorage getStreamedStorage();
-	
+
 	/**
 	 * Returns the maximum batch size that the evaluators should run with.
+	 * 
 	 * @return
 	 */
-	public int getMaxBatchSize();		
+	public int getMaxBatchSize();
 }

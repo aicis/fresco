@@ -62,10 +62,11 @@ public class BasicLogicBuilder extends AbstractProtocolBuilder {
 
 	/**
 	 * Appends an output protocol for an array of SBools
+	 * 
 	 * @param sb the SBools to be output
 	 * @return the OBools holding the resulting output
 	 */
-	public OBool[] outputs(SBool[] sbs) {
+	public OBool[] output(SBool... sbs) {
 		OBool[] outs = new OBool[sbs.length];
 		beginParScope();
 		for (int i = 0; i < sbs.length; i++) {
@@ -77,6 +78,7 @@ public class BasicLogicBuilder extends AbstractProtocolBuilder {
 
 	/**
 	 * Appends an output protocol for a single SBool
+	 * 
 	 * @param sb the SBool to be output
 	 * @return the OBool holding the resulting output
 	 */
@@ -87,8 +89,10 @@ public class BasicLogicBuilder extends AbstractProtocolBuilder {
 	}
 
 	/**
-	 * Gets an array of known SBools from an array of values 
-	 * @param bs the values 
+	 * Gets an array of known SBools from an array of values
+	 * 
+	 * @param bs
+	 *            the values
 	 * @return the resulting SBools
 	 */
 	public SBool[] knownSBool(boolean[] bs) {
@@ -101,30 +105,47 @@ public class BasicLogicBuilder extends AbstractProtocolBuilder {
 
 	/**
 	 * Gets a single known SBool of a given value
-	 * @param b the value
+	 * 
+	 * @param b
+	 *            the value
 	 * @return the resulting SBool
 	 */
 	public SBool knownSBool(boolean b) {
 		SBool known = bf.getKnownConstantSBool(b);
 		return known;
 	}
-	
+
 	/**
-	 * Gets an array of known SBools from an array of values with values given as bytes. 
-	 * @param bs the values 
+	 * Gets an array of known SBools from an array of values with values given
+	 * as bytes.
+	 * 
+	 * @param bs
+	 *            the values
 	 * @return the resulting SBools
 	 */
-	public SBool[] knownSBool(byte[] bs){
+	public SBool[] knownSBool(byte[] bs) {
 		SBool[] result = new SBool[bs.length];
 		for (int i = 0; i < bs.length; i++) {
-			if(bs[i] == 0){
+			if (bs[i] == 0){
 				result[i] = bf.getKnownConstantSBool(false);
-			}else{
+			} else {
 				result[i] = bf.getKnownConstantSBool(true);
 			}
 		}
 		return result;
 	}
+
+	/**
+	 * Creates a known public OBool value from the given boolean.
+	 * 
+	 * @param b
+	 *            the value to assign to the OBool
+	 * @return an OBool containing the given value
+	 */
+	public OBool getOBool(boolean b) {
+		return bf.getKnownConstantOBool(b);
+	}
+
 	/**
 	 * Appends a AND protocol to the current protocol.
 	 * 
@@ -139,9 +160,9 @@ public class BasicLogicBuilder extends AbstractProtocolBuilder {
 		append(bf.getAndProtocol(left, right, result));
 		return result;
 	}
-	
+
 	public void andInPlace(SBool result, SBool left, SBool right) {
-		append(bf.getAndProtocol(left, right, result));		
+		append(bf.getAndProtocol(left, right, result));
 	}
 
 	/**
@@ -164,7 +185,7 @@ public class BasicLogicBuilder extends AbstractProtocolBuilder {
 		endCurScope();
 		return result;
 	}
-	
+
 	public void andInPlace(SBool[] result, SBool[] left, SBool[] right) {
 		checkLengths(left, right);
 		checkLengths(left, result);
@@ -173,8 +194,8 @@ public class BasicLogicBuilder extends AbstractProtocolBuilder {
 			andInPlace(result[i], left[i], right[i]);
 		}
 		endCurScope();
-	}	
-	
+	}
+
 	/**
 	 * Appends a NOT protocol to the current protocol.
 	 * 
@@ -187,11 +208,11 @@ public class BasicLogicBuilder extends AbstractProtocolBuilder {
 		notInPlace(result, in);
 		return result;
 	}
-	
+
 	public void notInPlace(SBool result, SBool in) {
 		append(bf.getNotProtocol(in, result));
 	}
-	
+
 	public void notInPlace(SBool[] result, SBool[] in) {
 		beginParScope();
 		for (int i = 0; i < in.length; i++) {
@@ -199,8 +220,8 @@ public class BasicLogicBuilder extends AbstractProtocolBuilder {
 		}
 		endCurScope();
 		return;
-	}	
-	
+	}
+
 	/**
 	 * Appends a XOR protocol to the current protocol.
 	 * 
@@ -215,9 +236,9 @@ public class BasicLogicBuilder extends AbstractProtocolBuilder {
 		append(bf.getXorProtocol(left, right, result));
 		return result;
 	}
-	
+
 	public void xorInPlace(SBool result, SBool left, SBool right) {
-				append(bf.getXorProtocol(left, right, result));
+		append(bf.getXorProtocol(left, right, result));
 	}
 
 	/**
@@ -232,7 +253,7 @@ public class BasicLogicBuilder extends AbstractProtocolBuilder {
 	 */
 	public SBool[] xor(SBool[] left, SBool[] right) {
 		checkLengths(left, right);
-		SBool[] result = new SBool[left.length];	
+		SBool[] result = new SBool[left.length];
 		beginParScope();
 		for (int i = 0; i < left.length; i++) {
 			result[i] = xor(left[i], right[i]);
@@ -240,7 +261,7 @@ public class BasicLogicBuilder extends AbstractProtocolBuilder {
 		endCurScope();
 		return result;
 	}
-	
+
 	public void xorInPlace(SBool[] result, SBool[] left, SBool[] right) {
 		checkLengths(left, right);
 		checkLengths(left, result);
@@ -265,7 +286,7 @@ public class BasicLogicBuilder extends AbstractProtocolBuilder {
 		append(bf.getOrProtocol(left, right, result));
 		return result;
 	}
-	
+
 	public void orInPlace(SBool result, SBool left, SBool right) {
 		append(bf.getOrProtocol(left, right, result));		
 	}
@@ -289,7 +310,7 @@ public class BasicLogicBuilder extends AbstractProtocolBuilder {
 		}
 		endCurScope();
 		return result;
-	}	
+	}
 
 	/**
 	 * Appends a conditional select protocol to the current protocol. The output
@@ -314,7 +335,7 @@ public class BasicLogicBuilder extends AbstractProtocolBuilder {
 		endCurScope();
 		return result;
 	}
-	
+
 	public void condSelectInPlace(SBool result, SBool condition, SBool left, SBool right) {
 		beginSeqScope();
 		SBool x = xor(left, right);
@@ -346,7 +367,7 @@ public class BasicLogicBuilder extends AbstractProtocolBuilder {
 		endCurScope();
 		return result;
 	}
-	
+
 	public void condSelectInPlace(SBool[] result, SBool condition, SBool[] left, SBool[] right) {
 		checkLengths(left, right);
 		checkLengths(left, result);
@@ -373,6 +394,7 @@ public class BasicLogicBuilder extends AbstractProtocolBuilder {
 		append(bf.getBinaryComparisonProtocol(left, right, result));
 		return result;
 	}
+
 	/**
 	 * Appends a keyed compare and swap protocol. This protocol swaps two
 	 * key-value pairs to that the left pair becomes the pair with the largest
@@ -387,14 +409,14 @@ public class BasicLogicBuilder extends AbstractProtocolBuilder {
 	 * @param rightValue
 	 *            an SBool array representing the value of the right pair
 	 */
-	public void keyedCompareAndSwap(SBool[] leftKey, SBool[] leftValue,
-			SBool[] rightKey, SBool[] rightValue) {
+	public void keyedCompareAndSwap(SBool[] leftKey, SBool[] leftValue, SBool[] rightKey, SBool[] rightValue) {
 		checkLengths(leftKey, rightKey);
 		checkLengths(leftValue, rightValue);
 		append(bf.getKeyedCompareAndSwapProtocol(leftKey, leftValue, rightKey,
 				rightValue));
 		return;
 	}
+
 	/**
 	 * Appends a equality protocol to the current protocol. The output of this
 	 * protocol is the equals (==) relation between its two input strings.
@@ -410,7 +432,8 @@ public class BasicLogicBuilder extends AbstractProtocolBuilder {
 		SBool result = bf.getSBool();
 		append(bf.getBinaryEqualityProtocol(left, right, result));
 		return result;
-	}	
+	}
+
 	/**
 	 * Appends a copy protocol to the current protocol copying the value of one
 	 * SBool to an other.
@@ -446,13 +469,15 @@ public class BasicLogicBuilder extends AbstractProtocolBuilder {
 
 	/**
 	 * Checks the length of two arrays to see if they are equal.
-	 * @param left the left array 
-	 * @param right the right array
+	 * 
+	 * @param left
+	 *            the left array
+	 * @param right
+	 *            the right array
 	 */
 	private void checkLengths(SBool[] left, SBool[] right) {
 		if (left.length != right.length) {
-			throw new IllegalArgumentException(
-					"Arguments must be of equal length");
+			throw new IllegalArgumentException("Arguments must be of equal length");
 		}
 		return;
 	}

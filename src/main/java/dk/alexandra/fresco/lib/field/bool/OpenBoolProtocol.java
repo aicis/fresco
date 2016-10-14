@@ -29,7 +29,7 @@ package dk.alexandra.fresco.lib.field.bool;
 import dk.alexandra.fresco.framework.Protocol;
 
 /**
- * A protocol that converts a SInt to an OInt
+ * A protocol that converts a SBool to an OBool
  * 
  */
 public interface OpenBoolProtocol extends Protocol {
