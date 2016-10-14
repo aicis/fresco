@@ -128,50 +128,60 @@ public class Util {
 	}
 	
 	/**
-	 * Returns the coefficients of a polynomial of degree l such that f(1) = 1
-	 * and f(n) = 0 for n=2,3,...,l+1 in Z_p. The first element in the array is
-	 * the coefficient of the term with the highest degree.
+	 * Returns the coefficients of a polynomial of degree l such that f(m) = 1
+	 * and f(n) = 0 for 1 <= n <= l+1 and n != m in Z_p (p should be set in
+	 * {@link #setModulus(BigInteger)}). The first element in the array is the
+	 * coefficient of the term with the highest degree, eg. degree l.
 	 * 
 	 * @param l
+	 * @param m
 	 * @return
 	 */
-	public static BigInteger[] constructPolynomial(int l) {
-		BigInteger[] coefficients = new BigInteger[2];
-		BigInteger[] oldCoefficients;
+	public static BigInteger[] constructPolynomial(int l, int m) {
+		BigInteger[] f = new BigInteger[l+1];
 		
-		// First we find the coefficients of f_l(x) = (x-2)(x-3)...(x-(l+1))
-		// recursively using the formula a_{i,j} = a_{i-1,j} - (i+1) a_{i-1,j-1}
-		// where a_{i,j} is the j'th coefficient of f_i.
+		/*
+		 * Let f_i be the polynoimial which is the product of the first i of
+		 * (x-1), (x-2), ..., (x-(m-1)), (x-(m+1)), ..., (x-(l+1)). Then f_0 = 1
+		 * and f_i = (x-k) f_{i-1} where k = i if i < m and i+1 otherwise. Note
+		 * that we are interested in calculating f_l.
+		 * 
+		 * We use this to create a recurrence relation on the coefficients of
+		 * f_i. If we let f_ij denote the j'th coefficient of f_i we have
+		 * 
+		 * f_i0 = 1 for all i (highest degree coefficient) f_ij = f_{i-1, j} -
+		 * f_{i-1, j-1} * k for j = 1,...,i f_ij = 0 for j > i
+		 */
 		
-		// Initial values: When l=1 the polynomial is x-2
-		coefficients[0] = BigInteger.valueOf(1);
-		coefficients[1] = BigInteger.valueOf(-2);
-		oldCoefficients = coefficients;
+		// Initial value: f_0 = 1
+		f[0] = BigInteger.valueOf(1);
 		
-		int i,j;
-		for (i=2; i<=l; i++) {
-			coefficients = new BigInteger[i+1];
+		BigInteger fm = BigInteger.ONE;
+		
+		for (int i = 1; i <= l; i++) {
+			int k = i;
+			if (i >= m) {
+				k++;
+			}
+
+			// Constant term is the constant term of f times -k
+			f[i] = f[i - 1].multiply(BigInteger.valueOf(-k));
+
+			for (int j = i - 1; j > 0; j--) {
+				f[j] = f[j].subtract(BigInteger.valueOf(k).multiply(f[j - 1]));
+			}
 			
-			coefficients[0] = BigInteger.valueOf(1); // First coefficient is always 1
-			for (j=1; j<i; j++)
-				coefficients[j] = oldCoefficients[j].subtract(BigInteger.valueOf(i+1).multiply(oldCoefficients[j-1]));
-			coefficients[i] = oldCoefficients[i-1].multiply(BigInteger.valueOf(-i-1));
-			
-			oldCoefficients = coefficients;
+			// We calculate f(m) = (m-1)...(m-(m-1))(m-(m+1))...(m-(l+1))
+			fm = fm.multiply(BigInteger.valueOf(m - k)).mod(p);
+		}
+
+		// Scale f by f(m) to ensure that f(m) = 1
+		fm = fm.modInverse(p);
+		for (int i = 0; i < f.length; i++) {
+			f[i] = f[i].multiply(fm).mod(p);
 		}
 		
-		// The polynomial now satisfies that f_l(n) = 0 for n=2,3,...,l+1. To make
-		// f_l(1) = 1 true, we need to divide by f_l(1). Note that f_l(x) =
-		// (x-2)(x-3)...(x-(l+1)) so f(1) = (-1)(-2)(-3)...(-l)
-		BigInteger f = BigInteger.ONE;
-		for (i=1; i<=l; i++)
-			f = f.multiply(BigInteger.valueOf(i)).negate().mod(p);
-		f = f.modInverse(p);
-		
-		for (i=0; i<coefficients.length; i++)
-			coefficients[i] = coefficients[i].multiply(f).mod(p);
-		
-		return coefficients;
+		return f;
 	}
 	
 	public static ProtocolProducer makeOpenProtocol(SInt[][] closed, OInt[][] open, IOIntProtocolFactory factory) {
