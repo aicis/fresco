@@ -30,6 +30,7 @@ import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.helper.AbstractSimpleProtocol;
+import dk.alexandra.fresco.lib.helper.CopyProtocolImpl;
 import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
 
@@ -151,7 +152,8 @@ public class CovarianceMatrixProtocolImpl extends AbstractSimpleProtocol impleme
 				} else {
 					findCovariances.append(covarianceFactory.getCovarianceProtocol(data[i],
 							data[j], maxInputLength, result[i][j]));
-					result[j][i] = result[i][j];
+					// Covariance matrix is symmetric
+					findCovariances.append(new CopyProtocolImpl<SInt>(result[i][j], result[j][i]));
 				}
 			}
 		}
