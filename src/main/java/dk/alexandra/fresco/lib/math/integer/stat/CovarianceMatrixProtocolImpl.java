@@ -153,7 +153,7 @@ public class CovarianceMatrixProtocolImpl extends AbstractSimpleProtocol impleme
 					findCovariances.append(covarianceFactory.getCovarianceProtocol(data[i],
 							data[j], maxInputLength, result[i][j]));
 					// Covariance matrix is symmetric
-					findCovariances.append(new CopyProtocolImpl<SInt>(result[j][i], result[i][j]));
+					findCovariances.append(new CopyProtocolImpl<SInt>(result[i][j], result[j][i]));
 				}
 			}
 		}
