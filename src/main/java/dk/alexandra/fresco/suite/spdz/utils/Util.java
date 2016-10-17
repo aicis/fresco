@@ -176,9 +176,9 @@ public class Util {
 			}
 
 			// Apply recurrence relation
-			f[i] = f[i - 1].multiply(BigInteger.valueOf(-k));
+			f[i] = f[i - 1].multiply(BigInteger.valueOf(-k)).mod(p);
 			for (int j = i - 1; j > 0; j--) {
-				f[j] = f[j].subtract(BigInteger.valueOf(k).multiply(f[j - 1]));
+				f[j] = f[j].subtract(BigInteger.valueOf(k).multiply(f[j - 1]).mod(p)).mod(p);
 			}
 			
 			fm = fm.multiply(BigInteger.valueOf(m - k)).mod(p);
