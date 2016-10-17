@@ -128,34 +128,45 @@ public class Util {
 	}
 	
 	/**
-	 * Returns the coefficients of a polynomial of degree l such that f(m) = 1
-	 * and f(n) = 0 for 1 <= n <= l+1 and n != m in Z_p (p should be set in
+	 * Returns the coefficients of a polynomial of degree <i>l</i> such that
+	 * <i>f(m) = 1</i> and <i>f(n) = 0</i> for <i>1 &le; n &le; l+1</i> and <i>n
+	 * &ne; m</i> in <i>Z<sub>p</sub></i> (<i>p</i> should be set in
 	 * {@link #setModulus(BigInteger)}). The first element in the array is the
-	 * coefficient of the term with the highest degree, eg. degree l.
+	 * coefficient of the term with the highest degree, eg. degree <i>l</i>.
 	 * 
 	 * @param l
+	 *            The desired degree of <i>f</i>
 	 * @param m
+	 *            The only non-zero integer point for <i>f</i> in the range
+	 *            <i>1,2,...,l+1</i>.
 	 * @return
 	 */
 	public static BigInteger[] constructPolynomial(int l, int m) {
-		BigInteger[] f = new BigInteger[l+1];
 		
 		/*
 		 * Let f_i be the polynoimial which is the product of the first i of
 		 * (x-1), (x-2), ..., (x-(m-1)), (x-(m+1)), ..., (x-(l+1)). Then f_0 = 1
-		 * and f_i = (x-k) f_{i-1} where k = i if i < m and i+1 otherwise. Note
-		 * that we are interested in calculating f_l.
+		 * and f_i = (x-k) f_{i-1} where k = i if i < m and k = i+1 if i >= m.
+		 * Note that we are interested in calculating f(x) = f_l(x) / f_l(m).
 		 * 
-		 * We use this to create a recurrence relation on the coefficients of
-		 * f_i. If we let f_ij denote the j'th coefficient of f_i we have
+		 * If we let f_ij denote the j'th coefficient of f_i we have the
+		 * recurrence relations:
 		 * 
-		 * f_i0 = 1 for all i (highest degree coefficient) f_ij = f_{i-1, j} -
-		 * f_{i-1, j-1} * k for j = 1,...,i f_ij = 0 for j > i
+		 * f_i0 = 1 for all i (highest degree coefficient)
+		 * 
+		 * f_ij = f_{i-1, j} - f_{i-1, j-1} * k for j = 1,...,i
+		 * 
+		 * f_ij = 0 for j > i
 		 */
-		
+		BigInteger[] f = new BigInteger[l+1];
+
 		// Initial value: f_0 = 1
 		f[0] = BigInteger.valueOf(1);
-		
+
+		/*
+		 * We also calculate f_i(m) in order to be able to normalize f such that
+		 * f(m) = 1. Note that f_i(m) = f_{i-1}(m)(m - k) with the above notation.
+		 */
 		BigInteger fm = BigInteger.ONE;
 		
 		for (int i = 1; i <= l; i++) {
@@ -164,18 +175,16 @@ public class Util {
 				k++;
 			}
 
-			// Constant term is the constant term of f times -k
+			// Apply recurrence relation
 			f[i] = f[i - 1].multiply(BigInteger.valueOf(-k));
-
 			for (int j = i - 1; j > 0; j--) {
 				f[j] = f[j].subtract(BigInteger.valueOf(k).multiply(f[j - 1]));
 			}
 			
-			// We calculate f(m) = (m-1)...(m-(m-1))(m-(m+1))...(m-(l+1))
 			fm = fm.multiply(BigInteger.valueOf(m - k)).mod(p);
 		}
 
-		// Scale f by f(m) to ensure that f(m) = 1
+		// Scale all coefficients of f_l by f_l(m)^{-1}.
 		fm = fm.modInverse(p);
 		for (int i = 0; i < f.length; i++) {
 			f[i] = f[i].multiply(fm).mod(p);
