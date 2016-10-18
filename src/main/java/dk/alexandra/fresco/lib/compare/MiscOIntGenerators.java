@@ -73,7 +73,7 @@ public class MiscOIntGenerators {
 			// Generate a new set of OInts and store them...
 			result = new OInt[l+1];
 
-			BigInteger[] coefficients = Util.constructPolynomial(l);
+			BigInteger[] coefficients = Util.constructPolynomial(l, 1);
 			for (int i=0; i<=l ; i++) {
 				result[i] = factory.getOInt();
 				result[i].setValue(coefficients[coefficients.length - 1 - i]);

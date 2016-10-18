@@ -41,7 +41,6 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
-import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.Party;
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.Reporter;
@@ -60,24 +59,24 @@ import dk.alexandra.fresco.suite.spdz.configuration.SpdzConfiguration;
 import dk.alexandra.fresco.suite.tinytables.online.TinyTablesConfiguration;
 import dk.alexandra.fresco.suite.tinytables.prepro.TinyTablesPreproConfiguration;
 
-
 /**
  * Utility for reading all configuration from command line.
- * 
+ * <p>
  * A set of default configurations are used when parameters are not specified at runtime.
+ * </p>
  * 
  */
 public class CmdLineUtil {
 
 	private final Options options;
+	private Options appOptions;
 	private CommandLine cmd;
-	
 	private SCEConfiguration sceConf;
 	private ProtocolSuiteConfiguration psConf;
 	
 	public CmdLineUtil() {
+		this.appOptions = new Options();
 		this.options = buildStandardOptions();
-	
 	}
 	
 	public SCEConfiguration getSCEConfiguration() {
@@ -89,16 +88,6 @@ public class CmdLineUtil {
 	}
 	
 	/**
-	 * To be called after parse(). Returns remaining arguments that can be used for the specific application.
-	 * 
-	 * @return The arguments that are not for SCE and protocol suite.
-	 * 
-	 */
-	public String[] getRemainingArgs() {
-		return this.cmd.getArgs();
-	}
-	
-	/**
 	 * Adds standard options.
 	 * 
 	 * TODO: Move standard options to SCE.
@@ -106,22 +95,14 @@ public class CmdLineUtil {
 	 * For instance, options for setting player id and protocol suite.
 	 * 
 	 */
-	private Options buildStandardOptions() {
+	private static Options buildStandardOptions() {
 		Options options = new Options();
-
-		options.addOption(Option.builder("h")
-				.desc("Displays this help message")
-				.longOpt("help")
-				.required(false)
-				.hasArg(false)
-				.build());
 		
 		options.addOption(Option.builder("i")
 				.desc("The id of this player. Must be a unique positive integer.")
 				.longOpt("id")
 				.required(true)
 				.hasArg()
-				 //.type(Integer.class) // Dosn't work for some reason.
 				.build());
 		
 		options.addOption(Option.builder("s")
@@ -133,18 +114,17 @@ public class CmdLineUtil {
 				.hasArg()
 				.build());
 		
-		options.addOption(Option.builder("p")
-			.desc("Connection data for a party. Use -p multiple times to specify many players. You must always at least include yourself."
+		options.addOption(Option.builder("p")	
+				.desc("Connection data for a party. Use -p multiple times to specify many players. You must always at least include yourself."
 					+ "Must be on the form [id]:[hostname]:[port] or [id]:[hostname]:[port]:[shared key]. "
 					+ "id is a unique positive integer for the player, host and port is where to find the player, "
 					+ " shared key is an optional string defining a secret key that is shared by you and the other player "
 					+ " (the other player must submit the same key for you as you do for him). "
 					)
-			.longOpt("party")
-			.required(true)
-			.hasArgs()
-			.build());
-
+				.longOpt("party")
+				.required(true)
+				.hasArgs()
+				.build());
 		
 		options.addOption(Option.builder("l")
 				.desc("The log level. Can be either OFF, SEVERE, CONFIG, WARNING, INFO, FINE, FINER, FINEST. Default is 'WARNING'")
@@ -181,16 +161,25 @@ public class CmdLineUtil {
 				.hasArg(true)
 				.build());
 		
+		options.addOption(Option.builder("D")
+				.argName("property=value")
+				.desc("Used to set properties of protocol suite and other customizable components.")
+				.required(false)
+				.hasArg()
+				.numberOfArgs(2)
+				.valueSeparator()
+				.build());
+		
 		return options;
 	}
 	
 	
-	private int getDefaultNoOfThreads() {
+	private static int getDefaultNoOfThreads() {
 		int n = Runtime.getRuntime().availableProcessors();
-		if (n==1) {
-			return 1;
-		}
-		return n-1; // Heuristic that gives best performance: One thread for each worker and one for the 'system'.
+		if (n==1) return 1;
+		// Heuristic that gives best performance: One thread for each worker 
+		// and one for the 'system'.
+		return n-1; 
 	}
 	
 	private int parseNonzeroInt(String optionId) throws ParseException {
@@ -211,23 +200,17 @@ public class CmdLineUtil {
 	}
 
 	private void validateStandardOptions() throws ParseException {
-		
 		int myId;
 		Level logLevel;
 		
 		Object suiteObj = this.cmd.getParsedOptionValue("s");
-		if (suiteObj == null) {
-			throw new ParseException("Cannot parse '" + this.cmd.getOptionValue("s") + "' as a string");
-		}
-		
-		
+		if (suiteObj == null) throw new ParseException("Cannot parse '" + this.cmd.getOptionValue("s") + "' as a string");
+				
 		final Map<Integer,Party> parties = new HashMap<Integer,Party>();
 		final String suite = (String) suiteObj;
-		
-		
-		if (!ProtocolSuite.getSupportedProtocolSuites().contains(suite.toLowerCase())) {
+				
+		if (!ProtocolSuite.getSupportedProtocolSuites().contains(suite.toLowerCase()))
 			throw new ParseException("Unknown protocol suite: " + suite);
-		}
 		
 		myId = parseNonzeroInt("i");
 		if (myId == 0) {
@@ -249,19 +232,18 @@ public class CmdLineUtil {
 				} else {
 					party = new Party(id, p[1], port, p[3]);
 				}
-				if (parties.containsKey(id)) {
-					throw new ParseException("Player ids must be unique");
-				}
+				if (parties.containsKey(id))
+					throw new ParseException("Party ids must be unique");
 				parties.put(id, party);
 			} catch (NumberFormatException | UnknownHostException e) {
 				throw new ParseException("Could not parse '" + pStr + "': " + e.getMessage());
 			}
 		}
-		if (!parties.containsKey(myId)) {
-			throw new ParseException("You must at least include yourself in the list of players");
-		}
-		
+		if (!parties.containsKey(myId))
+			throw new ParseException("This party is given the id " + myId + 
+					" but this id is not present in the list of parties " + parties.keySet());
 
+        
 		if (this.cmd.hasOption("l")) {
 			System.out.println(this.cmd.getOptionValue("l"));
 			logLevel = Level.parse(this.cmd.getOptionValue("l"));
@@ -314,8 +296,7 @@ public class CmdLineUtil {
 			}
 		} else {
 			maxBatchSize = 4096;
-		}
-		
+		}		
 		
 		// TODO: Rather: Just log sceConf.toString()
 		Reporter.config("Player id          : " + myId);
@@ -386,48 +367,51 @@ public class CmdLineUtil {
 			};
 
 	}
-	
-	
+		
 	/**
 	 * For adding application specific options.
 	 * 
 	 */
 	public void addOption(Option option) {
-		// TODO: Rather, application specific options.
-		this.options.addOption(option);
+		this.appOptions.addOption(option);
 	}
 	
-	
-
-	
 	public CommandLine parse(String[] args) {
-		//System.out.println("Got args: " + Arrays.toString(args));
 		try {
 			CommandLineParser parser = new DefaultParser();
-			this.cmd = parser.parse(options, args, true);
+			Options helpOpt = new Options();
+			helpOpt.addOption(Option.builder("h")
+					.desc("Displays this help message")
+					.longOpt("help")
+					.required(false)
+					.hasArg(false)
+					.build());
 			
+			cmd = parser.parse(helpOpt, args, true);
 			if (cmd.hasOption("h")) {
 				displayHelp();
 				System.exit(0);
 			}
-
+			Options allOpts = new Options();
+			for (Option o : options.getOptions()) {
+				allOpts.addOption(o);
+			}
+			for (Option o : appOptions.getOptions()) {
+				allOpts.addOption(o);
+			}			
+			cmd = parser.parse(allOpts, args);
 			
 			validateStandardOptions();
-
-			
-			
-			
 			// TODO: Do this without hardcoding the protocol suite names here.
-			String[] remainingArgs = cmd.getArgs();
 			switch (this.sceConf.getProtocolSuiteName()) {
 			case "bgw":
-				this.psConf = BgwConfiguration.fromCmdArgs(this.sceConf, remainingArgs);
+				this.psConf = BgwConfiguration.fromCmdLine(this.sceConf, cmd);
 				break;
 			case "dummy":
-				this.psConf = DummyConfiguration.fromCmdArgs(this.sceConf, remainingArgs);
+				this.psConf = DummyConfiguration.fromCmdLine(this.sceConf, cmd);
 				break;
 			case "spdz":
-				this.psConf = SpdzConfiguration.fromCmdArgs(this.sceConf, remainingArgs);
+				this.psConf = SpdzConfiguration.fromCmdLine(this.sceConf, cmd);
 				break;
 			case "tinytablesprepro":
 				this.psConf = TinyTablesPreproConfiguration.fromCmdArgs(this.sceConf, remainingArgs);
@@ -436,58 +420,23 @@ public class CmdLineUtil {
 				this.psConf = TinyTablesConfiguration.fromCmdArgs(this.sceConf, remainingArgs);
 				break;
 			default:
-				throw new MPCException("Unknown protocol suite: " + this.getSCEConfiguration().getProtocolSuiteName());
-			}
-	
-
-//			
-//			if (cmd.hasOption("v")) {
-//				log.log(Level.INFO, "Using cli argument -v=" + cmd.getOptionValue("v"));
-//				// Whatever you want to do with the setting goes here
-//			} else {
-//				log.log(Level.SEVERE, "MIssing v option");
-//				help();
-//			}
-
-			
-			
-//			// Parse input from cmd line
-//			// TODO: We want to run both player 1 and 2 from same place, so we override player id.
-//			int myId = Integer.parseInt(args[0]);
-//			boolean[] in = null;
-//			if (args[1].length() != 16)
-//				throw new IllegalArgumentException("bad input hex string or player id");
-//			if (myId == 1 || myId == 2) {
-//				in = toBoolean(args[1]);
-//			}
-//			// Do the secure computation using config from property files.
-//			CmdLineUtil aes = new CmdLineUtil(myId, in);
-//			SCE sce = SCE.getInstance(myId);
-//			sce.runApplication(aes);
-//			
-//			// Print result.
-//			System.out.println("The resulting ciphertext is: " + Arrays.toString(aes.result));
-			
+				throw new ParseException("Unknown protocol suite: " + this.getSCEConfiguration().getProtocolSuiteName());
+			}			
 		} catch (ParseException e) {
 			System.out.println("Error while parsing arguments: " + e.getLocalizedMessage());
 			System.out.println();
 			displayHelp();
 			System.exit(-1); // TODO: Consider moving to top level.
-		} catch (IllegalArgumentException e) {
-			System.out.println("Error: " + e.getLocalizedMessage());
-			System.out.println();
-			displayHelp();
-			System.exit(-1); // TODO: Consider moving to top level.
 		}
 		return this.cmd;
-
 	}
-	
+    
 	public void displayHelp() {
 		HelpFormatter formatter = new HelpFormatter();
-		formatter.printHelp("general options are:", this.options);
+		formatter.setSyntaxPrefix("");
+		formatter.printHelp("General SCE options are:", this.options);
+		formatter.setSyntaxPrefix("");
+		formatter.printHelp("Application specific options are:", this.appOptions);
 	}
-	
 
-	
 }
