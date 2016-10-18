@@ -29,7 +29,11 @@ package dk.alexandra.fresco.framework;
 import dk.alexandra.fresco.framework.value.OInt;
 
 public abstract class TestApplication implements Application {
-
+	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -3392896741851185657L;
 	public OInt[] outputs;
 	
 	public OInt[] getOutputs() {

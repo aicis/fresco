@@ -39,7 +39,6 @@
 	  <artifactId>bcprov-jdk15on</artifactId>
 	  <version>1.53</version>
 	</dependency>
-
 	<!-- Database required jars -->
 
 	<dependency>

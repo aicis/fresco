@@ -45,10 +45,11 @@ import dk.alexandra.fresco.framework.sce.SCEFactory;
 import dk.alexandra.fresco.framework.value.OBool;
 import dk.alexandra.fresco.framework.value.SBool;
 import dk.alexandra.fresco.lib.crypto.BristolCryptoFactory;
-import dk.alexandra.fresco.lib.field.bool.BasicLogicFactory;
-import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
 import dk.alexandra.fresco.lib.helper.bristol.BristolCircuit;
+import dk.alexandra.fresco.lib.helper.builder.BasicLogicBuilder;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
+import dk.alexandra.fresco.lib.logic.AbstractBinaryFactory;
+import dk.alexandra.fresco.suite.tinytables.prepro.TinyTablesPreproConfiguration;
 
 
 /**
@@ -79,8 +80,9 @@ public class BristolMultTests {
 	 * 
 	 */
 	private static boolean[] toBoolean(String hex) throws IllegalArgumentException {
-		if (hex.length() % 2 != 0)
+		if (hex.length() % 2 != 0) {
 			throw new IllegalArgumentException("Illegal hex string");
+		}
 		boolean[] res = new boolean[hex.length() * 4];
 		for (int i=0; i<hex.length() / 2; i++) {
 			String sub = hex.substring(2*i,2*i +2);
@@ -128,19 +130,24 @@ public class BristolMultTests {
 
 						@Override
 						public ProtocolProducer prepareApplication(ProtocolFactory fac) {
-							BasicLogicFactory bool = (BasicLogicFactory)fac;
-
+							AbstractBinaryFactory bool = (AbstractBinaryFactory) fac;
+							BasicLogicBuilder builder = new BasicLogicBuilder(bool);						
+							
 							boolean[] in1_val = toBoolean(inv1);
-							in1 = bool.getKnownConstantSBools(in1_val);
+							in1 = builder.knownSBool(in1_val);							
 							boolean[] in2_val = toBoolean(inv2);
-							in2 = bool.getKnownConstantSBools(in2_val);
+							in2 = builder.knownSBool(in2_val);							
+							
 							out = bool.getSBools(64);
 
 							// Create mult circuit.
 							BristolCryptoFactory multFac = new BristolCryptoFactory(bool);
 							BristolCircuit mult = multFac.getMult32x32Circuit(in1, in2, out);
+							builder.addProtocolProducer(mult);
+							openedOut = builder.output(out);
 							
 							// Create circuits for opening result of 32x32 bit mult.
+							/*
 							ProtocolProducer[] opens = new ProtocolProducer[out.length];
 							openedOut = new OBool[out.length];
 							for (int i=0; i<out.length; i++) {
@@ -148,25 +155,29 @@ public class BristolMultTests {
 								opens[i] = bool.getOpenProtocol(out[i], openedOut[i]);
 							}
 							ProtocolProducer open_all = new ParallelProtocolProducer(opens);
-							
-							return new SequentialProtocolProducer(mult, open_all);
+							*/
+							return new SequentialProtocolProducer(builder.getProtocol());
 						}
 					};
 
 					sce.runApplication(md5App);
 
-					boolean[] expected = toBoolean(outv);
-					boolean[] actual = new boolean[out.length];
-					for (int i=0; i<out.length; i++) {
-						actual[i] = openedOut[i].getValue();
+					if (conf.protocolSuiteConf instanceof TinyTablesPreproConfiguration) {
+						// Do nothing
+					} else {
+						boolean[] expected = toBoolean(outv);
+						boolean[] actual = new boolean[out.length];
+						for (int i=0; i<out.length; i++) {
+							actual[i] = openedOut[i].getValue();
+						}
+	
+						//					System.out.println("IN1        : " + Arrays.toString(toBoolean(inv1)));
+						//					System.out.println("IN2        : " + Arrays.toString(toBoolean(inv2)));
+						//					System.out.println("EXPECTED   : " + Arrays.toString(expected));
+						//					System.out.println("ACTUAL     : " + Arrays.toString(actual));
+						
+						Assert.assertTrue(Arrays.equals(expected, actual));
 					}
-
-					//					System.out.println("IN1        : " + Arrays.toString(toBoolean(inv1)));
-					//					System.out.println("IN2        : " + Arrays.toString(toBoolean(inv2)));
-					//					System.out.println("EXPECTED   : " + Arrays.toString(expected));
-					//					System.out.println("ACTUAL     : " + Arrays.toString(actual));
-					
-					Assert.assertTrue(Arrays.equals(expected, actual));
 					
 				}
 			};

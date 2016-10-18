@@ -45,6 +45,7 @@ import dk.alexandra.fresco.framework.sce.configuration.TestSCEConfiguration;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
 import dk.alexandra.fresco.framework.sce.resources.storage.Storage;
+import dk.alexandra.fresco.lib.bool.ComparisonBooleanTests;
 import dk.alexandra.fresco.lib.crypto.BristolCryptoTests;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 
@@ -131,6 +132,11 @@ public class TestDummyProtocolSuite {
 	@Test
 	public void test_SHA256_Parallel() throws Exception {
 		runTest(new BristolCryptoTests.Sha256Test(), EvaluationStrategy.PARALLEL);
+	}	
+	
+	@Test
+	public void test_comparison() throws Exception {
+		runTest(new ComparisonBooleanTests.TestGreaterThan(), EvaluationStrategy.SEQUENTIAL);
 	}	
 
 }

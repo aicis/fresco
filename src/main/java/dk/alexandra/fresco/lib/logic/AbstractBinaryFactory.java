@@ -43,8 +43,8 @@ import dk.alexandra.fresco.lib.compare.bool.BinaryGreaterThanProtocol;
 import dk.alexandra.fresco.lib.compare.bool.BinaryGreaterThanProtocolFactory;
 import dk.alexandra.fresco.lib.compare.bool.BinaryGreaterThanProtocolImpl;
 import dk.alexandra.fresco.lib.compare.bool.eq.AltBinaryEqualityProtocol;
-import dk.alexandra.fresco.lib.compare.bool.eq.BinaryEqualityProtocolFactory;
 import dk.alexandra.fresco.lib.compare.bool.eq.BinaryEqualityProtocol;
+import dk.alexandra.fresco.lib.compare.bool.eq.BinaryEqualityProtocolFactory;
 import dk.alexandra.fresco.lib.field.bool.AndProtocol;
 import dk.alexandra.fresco.lib.field.bool.BasicLogicFactory;
 import dk.alexandra.fresco.lib.field.bool.NandProtocol;
@@ -57,7 +57,9 @@ import dk.alexandra.fresco.lib.field.bool.generic.NotFromXorProtocol;
 import dk.alexandra.fresco.lib.field.bool.generic.OrFromCopyConstProtocol;
 import dk.alexandra.fresco.lib.field.bool.generic.OrFromXorAndProtocol;
 import dk.alexandra.fresco.lib.field.bool.generic.XnorFromXorAndNotProtocolImpl;
+import dk.alexandra.fresco.lib.helper.CopyProtocol;
 import dk.alexandra.fresco.lib.helper.CopyProtocolFactory;
+import dk.alexandra.fresco.lib.helper.CopyProtocolImpl;
 import dk.alexandra.fresco.lib.math.bool.add.AdderProtocolFactory;
 import dk.alexandra.fresco.lib.math.bool.add.BitIncrementerProtocol;
 import dk.alexandra.fresco.lib.math.bool.add.BitIncrementerProtocolFactory;
@@ -68,8 +70,8 @@ import dk.alexandra.fresco.lib.math.bool.add.OneBitFullAdderProtocol;
 import dk.alexandra.fresco.lib.math.bool.add.OneBitFullAdderProtocolImpl;
 import dk.alexandra.fresco.lib.math.bool.add.OneBitHalfAdderProtocol;
 import dk.alexandra.fresco.lib.math.bool.add.OneBitHalfAdderProtocolImpl;
-import dk.alexandra.fresco.lib.math.bool.log.LogProtocolFactory;
 import dk.alexandra.fresco.lib.math.bool.log.LogProtocol;
+import dk.alexandra.fresco.lib.math.bool.log.LogProtocolFactory;
 import dk.alexandra.fresco.lib.math.bool.log.LogProtocolImpl;
 import dk.alexandra.fresco.lib.math.bool.mult.BinaryMultProtocol;
 import dk.alexandra.fresco.lib.math.bool.mult.BinaryMultProtocolFactory;
@@ -106,6 +108,12 @@ public abstract class AbstractBinaryFactory
 		return res;
 	}
 
+	@Override
+	public CopyProtocol<SBool> getCopyProtocol(SBool in, SBool out) {
+		return new CopyProtocolImpl<SBool>(in, out);
+	}
+	
+	@Override
 	public SBool[] getKnownConstantSBools(boolean[] bools) {
 		int amount = bools.length;
 		SBool[] res = new SBool[amount];

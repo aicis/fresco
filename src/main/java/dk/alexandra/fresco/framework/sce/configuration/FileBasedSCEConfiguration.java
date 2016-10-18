@@ -85,11 +85,15 @@ public class FileBasedSCEConfiguration implements SCEConfiguration {
 					break;
 				}
 				String[] ipAndPort = party.split(",");
-				if (ipAndPort.length != 2) {
+				if (ipAndPort.length != 2 && ipAndPort.length != 3) {
 					throw new IllegalArgumentException(
-							"a party configuration should contain something similar to 'party1=192.168.0.1,8000'");
+							"a party configuration should contain something similar to 'party1=192.168.0.1,8000' or possibly 'party1=192.168.0.1,8000,w+1qn2ooNMCN7am9YmYQFQ=='");
 				}
-				Party p = new Party(i, ipAndPort[0], Integer.parseInt(ipAndPort[1]));			
+				String secretSharedKey = null;
+				if(ipAndPort.length == 3) {
+					secretSharedKey = ipAndPort[2];
+				}
+				Party p = new Party(i, ipAndPort[0], Integer.parseInt(ipAndPort[1]), secretSharedKey);			
 				parties.put(i, p);
 				i++;
 			}

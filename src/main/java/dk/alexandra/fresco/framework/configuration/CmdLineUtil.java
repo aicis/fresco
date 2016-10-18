@@ -56,6 +56,8 @@ import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.bgw.configuration.BgwConfiguration;
 import dk.alexandra.fresco.suite.dummy.DummyConfiguration;
 import dk.alexandra.fresco.suite.spdz.configuration.SpdzConfiguration;
+import dk.alexandra.fresco.suite.tinytables.online.TinyTablesConfiguration;
+import dk.alexandra.fresco.suite.tinytables.prepro.TinyTablesPreproConfiguration;
 
 /**
  * Utility for reading all configuration from command line.
@@ -174,7 +176,9 @@ public class CmdLineUtil {
 	
 	private static int getDefaultNoOfThreads() {
 		int n = Runtime.getRuntime().availableProcessors();
-		if (n==1) return 1;
+		if (n==1) {
+			return 1;
+		}
 		// Heuristic that gives best performance: One thread for each worker 
 		// and one for the 'system'.
 		return n-1; 
@@ -183,11 +187,14 @@ public class CmdLineUtil {
 	private int parseNonzeroInt(String optionId) throws ParseException {
 		int res;
 		String opStr = this.cmd.getOptionValue(optionId);
-		if (opStr == null) throw new ParseException("No value for option: " + optionId);
+		if (opStr == null) {
+			throw new ParseException("No value for option: " + optionId);
+		}
 		try {
 			res  = Integer.parseInt(opStr);
-			if (res < 0)
+			if (res < 0) {
 				throw new ParseException(optionId + " must be a positive integer");
+			}
 		} catch (NumberFormatException e) {
 			throw new ParseException("Cannot parse '" + this.cmd.getOptionValue(optionId) + "' as an integer");
 		}
@@ -199,21 +206,27 @@ public class CmdLineUtil {
 		Level logLevel;
 		
 		Object suiteObj = this.cmd.getParsedOptionValue("s");
-		if (suiteObj == null) throw new ParseException("Cannot parse '" + this.cmd.getOptionValue("s") + "' as a string");
+		if (suiteObj == null) {
+			throw new ParseException("Cannot parse '" + this.cmd.getOptionValue("s") + "' as a string");
+		}
 				
 		final Map<Integer,Party> parties = new HashMap<Integer,Party>();
 		final String suite = (String) suiteObj;
 				
-		if (!ProtocolSuite.getSupportedProtocolSuites().contains(suite.toLowerCase()))
+		if (!ProtocolSuite.getSupportedProtocolSuites().contains(suite.toLowerCase())) {
 			throw new ParseException("Unknown protocol suite: " + suite);
+		}
 		
 		myId = parseNonzeroInt("i");
-		if (myId == 0) throw new ParseException("Player id must be positive, non-zero integer");
+		if (myId == 0) {
+			throw new ParseException("Player id must be positive, non-zero integer");
+		}
 		
 		for (String pStr : this.cmd.getOptionValues("p")) {
 			String[] p = pStr.split(":");
-			if (p.length < 3 || p.length > 4)
+			if (p.length < 3 || p.length > 4) {
 				throw new ParseException("Could not parse '" + pStr + "' as [id]:[host]:[port] or [id]:[host]:[port]:[shared key]");
+			}
 			try {
 				int id = Integer.parseInt(p[0]);
 				InetAddress.getByName(p[1]); // Check that hostname is valid.
@@ -224,16 +237,18 @@ public class CmdLineUtil {
 				} else {
 					party = new Party(id, p[1], port, p[3]);
 				}
-				if (parties.containsKey(id))
+				if (parties.containsKey(id)) {
 					throw new ParseException("Party ids must be unique");
+				}
 				parties.put(id, party);
 			} catch (NumberFormatException | UnknownHostException e) {
 				throw new ParseException("Could not parse '" + pStr + "': " + e.getMessage());
 			}
 		}
-		if (!parties.containsKey(myId))
+		if (!parties.containsKey(myId)) {
 			throw new ParseException("This party is given the id " + myId + 
 					" but this id is not present in the list of parties " + parties.keySet());
+		}
 		
 
 		if (this.cmd.hasOption("l")) {
@@ -246,14 +261,16 @@ public class CmdLineUtil {
 		
 
 		int noOfThreads = this.cmd.hasOption("t") ? parseNonzeroInt("t") : getDefaultNoOfThreads();
-		if (noOfThreads > Runtime.getRuntime().availableProcessors())
+		if (noOfThreads > Runtime.getRuntime().availableProcessors()) {
 			Reporter.warn("You are using " + noOfThreads + " but system has only " + Runtime.getRuntime().availableProcessors()
 					+ " available processors. This is likely to result in less than optimal performance.");
+		}
 		
 		int vmThreads = this.cmd.hasOption("vt") ? parseNonzeroInt("vt") : getDefaultNoOfThreads();
-		if (vmThreads > Runtime.getRuntime().availableProcessors())
+		if (vmThreads > Runtime.getRuntime().availableProcessors()) {
 			Reporter.warn("You are using " + vmThreads + " but system has only " + Runtime.getRuntime().availableProcessors()
 					+ " available processors. This is likely to result in less than optimal performance.");
+		}
 		
 		final ProtocolEvaluator evaluator;
 		if (this.cmd.hasOption("e")) {
@@ -402,6 +419,12 @@ public class CmdLineUtil {
 				break;
 			case "spdz":
 				this.psConf = SpdzConfiguration.fromCmdLine(this.sceConf, cmd);
+				break;
+			case "tinytablesprepro":
+				this.psConf = TinyTablesPreproConfiguration.fromCmdLine(this.sceConf, cmd);
+				break;
+			case "tinytables":
+				this.psConf = TinyTablesConfiguration.fromCmdLine(this.sceConf, cmd);
 				break;
 			default:
 				throw new ParseException("Unknown protocol suite: " + this.getSCEConfiguration().getProtocolSuiteName());
