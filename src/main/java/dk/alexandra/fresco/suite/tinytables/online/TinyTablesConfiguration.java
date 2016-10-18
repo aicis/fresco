@@ -26,15 +26,58 @@
  *******************************************************************************/
 package dk.alexandra.fresco.suite.tinytables.online;
 
+import java.io.File;
+import java.util.Properties;
+
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
+
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.sce.configuration.ProtocolSuiteConfiguration;
+import dk.alexandra.fresco.framework.sce.configuration.SCEConfiguration;
 
 public class TinyTablesConfiguration implements ProtocolSuiteConfiguration{
 
 	private ProtocolFactory tinyTablesFactory;
+	private File tinytablesfile;
 	
 	public TinyTablesConfiguration() {
 		tinyTablesFactory = new TinyTablesFactory();
+	}
+	
+	public static ProtocolSuiteConfiguration fromCmdLine(SCEConfiguration sceConf,
+			CommandLine cmd) throws ParseException, IllegalArgumentException {
+		
+		Options options = new Options();
+		
+		TinyTablesConfiguration configuration = new TinyTablesConfiguration();
+		
+		String tinyTablesFileOption = "tinytables.file";
+		
+		options.addOption(Option
+				.builder("D")
+				.desc("The file where the generated TinyTables is leaded from.")
+				.longOpt(tinyTablesFileOption).required(false).hasArgs().build());
+		
+		Properties p = cmd.getOptionProperties("D");
+		
+		String tinyTablesFilePath = p.getProperty(tinyTablesFileOption, "tinytables");
+		File tinyTablesFile = new File(tinyTablesFilePath);
+		configuration.setTinyTablesFile(tinyTablesFile);
+		
+		System.out.println("FromCmdArgs: " + configuration.getTinyTablesFile());
+		
+		return configuration;
+	}
+	
+	public void setTinyTablesFile(File file) {
+		this.tinytablesfile = file;
+	}
+	
+	public File getTinyTablesFile() {
+		return this.tinytablesfile;
 	}
 	
 	public void setTinyTablesFactory(ProtocolFactory ninjaFactory) {

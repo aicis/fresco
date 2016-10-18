@@ -68,9 +68,9 @@ import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
  * 
  * The two players can then run this application with these parameters:
  * 
- * P1: $ java -jar aes.jar -i1 -s dummy -p1:localhost:9292 -p2:localhost:9994 -in000102030405060708090a0b0c0d0e0f
+ * P1: $ java -jar aes.jar -i1 -s dummy -p1:localhost:9292 -p2:localhost:9994 -in 000102030405060708090a0b0c0d0e0f
  * 
- * P2: $ java -jar aes.jar -i2 -s dummy -p1:localhost:9292 -p2:localhost:9994 -in00112233445566778899aabbccddeeff
+ * P2: $ java -jar aes.jar -i2 -s dummy -p1:localhost:9292 -p2:localhost:9994 -in 00112233445566778899aabbccddeeff
  * 
  * This results in this output (at both parties):
  * 
@@ -128,19 +128,21 @@ public class AESDemo implements Application {
 			
 			CommandLine cmd = util.parse(args);
 			sceConf = util.getSCEConfiguration();
-			
+
 			// Get and validate the AES specific input.
 			if (sceConf.getMyId() == 1 || sceConf.getMyId() == 2) {
 				if (!cmd.hasOption("in")) {
 					throw new ParseException("Player 1 and 2 must submit input");
 				} else {
-					if (cmd.getOptionValue("in").length() != INPUT_LENGTH)
+					if (cmd.getOptionValue("in").length() != INPUT_LENGTH) {
 						throw new IllegalArgumentException("bad input hex string: must be hex string of length " + INPUT_LENGTH);
+					}
 					input = ByteArithmetic.toBoolean(cmd.getOptionValue("in"));
 				}
 			} else {
-				if (cmd.hasOption("in")) 
+				if (cmd.hasOption("in")) {
 					throw new ParseException("Only player 1 and 2 should submit input");
+				}
 			}
 			
 		} catch (ParseException | IllegalArgumentException e) {
@@ -152,7 +154,7 @@ public class AESDemo implements Application {
 
 		// Do the secure computation using config from property files.
 		AESDemo aes = new AESDemo(sceConf.getMyId(), input);
-		SCE sce = SCEFactory.getSCEFromConfiguration(sceConf);
+		SCE sce = SCEFactory.getSCEFromConfiguration(sceConf, util.getProtocolSuiteConfiguration());
 		
 		try {
 			sce.runApplication(aes);

@@ -51,14 +51,18 @@ public class TinyTablesPreproFactory extends AbstractBinaryFactory implements Ba
 		this.counter = 0;
 	}
 	
+	private int getNextId() {
+		return counter++;
+	}
+	
 	@Override
 	public CloseBoolProtocol getCloseProtocol(int source, OBool open, SBool closed) {
-		return new TinyTablesPreproCloseProtocol(counter++, source, open, closed);
+		return new TinyTablesPreproCloseProtocol(getNextId(), source, open, closed);
 	}
 
 	@Override
 	public OpenBoolProtocol getOpenProtocol(SBool closed, OBool open) {
-		return new TinyTablesPreproOpenToAllProtocol(counter++, (TinyTablesPreproSBool)closed, (TinyTablesPreproOBool)open);
+		return new TinyTablesPreproOpenToAllProtocol(getNextId(), (TinyTablesPreproSBool)closed, (TinyTablesPreproOBool)open);
 	}
 
 	@Override
@@ -107,7 +111,7 @@ public class TinyTablesPreproFactory extends AbstractBinaryFactory implements Ba
 
 	@Override
 	public AndProtocol getAndProtocol(SBool inLeft, SBool inRight, SBool out) {
-		return new TinyTablesPreproANDProtocol(counter++, (TinyTablesPreproSBool)inLeft, (TinyTablesPreproSBool)inRight, (TinyTablesPreproSBool)out);
+		return new TinyTablesPreproANDProtocol(getNextId(), (TinyTablesPreproSBool)inLeft, (TinyTablesPreproSBool)inRight, (TinyTablesPreproSBool)out);
 	}
 
 	@Override
@@ -117,12 +121,12 @@ public class TinyTablesPreproFactory extends AbstractBinaryFactory implements Ba
 
 	@Override
 	public NotProtocol getNotProtocol(SBool in, SBool out) {
-		return new TinyTablesPreproNOTProtocol(counter++, (TinyTablesPreproSBool)in, (TinyTablesPreproSBool)out);
+		return new TinyTablesPreproNOTProtocol(getNextId(), (TinyTablesPreproSBool)in, (TinyTablesPreproSBool)out);
 	}
 
 	@Override
 	public XorProtocol getXorProtocol(SBool inLeft, SBool inRight, SBool out) {
-		return new TinyTablesPreproXORProtocol(counter++, (TinyTablesPreproSBool)inLeft, (TinyTablesPreproSBool)inRight, (TinyTablesPreproSBool)out);
+		return new TinyTablesPreproXORProtocol(getNextId(), (TinyTablesPreproSBool)inLeft, (TinyTablesPreproSBool)inRight, (TinyTablesPreproSBool)out);
 	}
 
 	@Override

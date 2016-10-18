@@ -26,7 +26,10 @@
  *******************************************************************************/
 package dk.alexandra.fresco.suite.tinytables.prepro.protocols;
 
+import java.util.List;
+
 import dk.alexandra.fresco.framework.MPCException;
+import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.SCENetwork;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.Value;
@@ -34,7 +37,11 @@ import dk.alexandra.fresco.lib.field.bool.AndProtocol;
 import dk.alexandra.fresco.suite.tinytables.prepro.TinyTablesPreproProtocolSuite;
 import dk.alexandra.fresco.suite.tinytables.prepro.datatypes.TinyTablesPreproSBool;
 import dk.alexandra.fresco.suite.tinytables.storage.TinyTable;
-import dk.alexandra.fresco.suite.tinytables.util.RandomSourceImpl;
+import dk.alexandra.fresco.suite.tinytables.storage.TinyTablesStorage;
+import dk.alexandra.fresco.suite.tinytables.util.Util;
+import dk.alexandra.fresco.suite.tinytables.util.ot.OTFactory;
+import dk.alexandra.fresco.suite.tinytables.util.ot.OTReceiver;
+import dk.alexandra.fresco.suite.tinytables.util.ot.OTSender;
 import dk.alexandra.fresco.suite.tinytables.util.ot.datatypes.OTInput;
 import dk.alexandra.fresco.suite.tinytables.util.ot.datatypes.OTSigma;
 
@@ -47,43 +54,21 @@ import dk.alexandra.fresco.suite.tinytables.util.ot.datatypes.OTSigma;
  * <p>
  * Here, each of the two players picks random shares for the mask of the output
  * wire, <i>r<sub>O</sub></i>. Each player also has to calculate a so called
- * <i>TinyTable</i> for this protocol. Player 1 picks random values for his:
- * </p>
- * <table>
- * <tr>
- * <td><i>t<sub>00</sub></i></td>
- * <td><i>t<sub>01</sub></i></td>
- * </tr>
- * <tr>
- * <td><i>t<sub>10</sub></i></td>
- * <td><i>t<sub>11</sub></i></td>
- * </tr>
- * </table>
- * <p>
- * and player 2 needs to compute a TinyTable which looks like this
- * </p>
- * <table>
- * <tr>
- * <td><i>t<sub>00</sub>+r<sub>O</sub>+r<sub>u</sub>r<sub>v</sub></i></td>
- * <td><i>t<sub>01</sub>+r<sub>O</sub>+r<sub>u</sub>(r<sub>v</sub>+1)</i></td>
- * </tr>
- * <tr>
- * <td><i>t<sub>10</sub>+r<sub>O</sub>+(r<sub>u</sub>+1)r<sub>v</sub></i></td>
- * <td><i>t<sub>11</sub>+r<sub>O</sub>+(r<sub>u</sub>+1)(r<sub>v</sub>+1)</i></td>
- * </tr>
- * </table>
+ * <i>TinyTable</i> for this protocol, which are 2x2 matrices such that the
+ * <i>(c,d)</i>'th entries from the two tables is an additive secret sharing of
+ * <i>(r<sub>u</sub> + c)(r<sub>v</sub> + d) + r<sub>o</sub></i>.
  * <p>
  * This is done using oblivious transfer, but for performance reasons this is
  * not done until the end of the preprocessing phase where all oblivious
  * transfers are done in one batch. So here, player 1 just stores his inputs to
  * oblivious transfer, {@link #calculateOTInputs(TinyTable, boolean)}), and some
  * additional valus needed by player 2 to calculate his TinyTable,
- * {@link #calculateTmps(TinyTable)}.
+ * {@link #calculateZs(TinyTable)}.
  * </p>
  * <p>
  * Now, after the oblivious transfers are finished, player 2 can compute his
  * TinyTable using
- * {@link #calculateTinyTable(boolean, boolean, boolean, boolean, boolean, boolean[])}
+ * {@link #calculateTinyTable(boolean, boolean, boolean, boolean, boolean)}
  * .
  * </p>
  * 
@@ -127,12 +112,8 @@ public class TinyTablesPreproANDProtocol extends TinyTablesPreproProtocol implem
 					 */
 
 					// Pick share for output gate
-					boolean rO = RandomSourceImpl.getInstance().getRandomBoolean();
+					boolean rO = resourcePool.getSecureRandom().nextBoolean();
 					out.setShare(rO);
-
-					// Pick random entries for TinyTable
-					TinyTable tinyTable = new TinyTable(2, RandomSourceImpl.getInstance());
-					ps.getStorage().storeTinyTable(id, tinyTable);
 
 					/*
 					 * Calculate inputs for OT's. The reason for using OTs is
@@ -142,15 +123,27 @@ public class TinyTablesPreproANDProtocol extends TinyTablesPreproProtocol implem
 					 * For now we just store the inputs and then do all the OTs
 					 * in one batch at the end of the preprocessing phase.
 					 */
-					OTInput[] otInputs = calculateOTInputs(tinyTable, rO);
+					boolean x0 = resourcePool.getSecureRandom().nextBoolean();
+					boolean x1 = resourcePool.getSecureRandom().nextBoolean();
+
+					OTInput[] otInputs = calculateOTInputs(x0, x1);
 					ps.getStorage().storeOTInput(id, otInputs);
 
 					/*
-					 * Player two need some additional values to be able to
-					 * calculate his TinyTable:
+					 * We let the (0,0)'th entry of player 1's TinyTable be rU1
+					 * & rU2 + rO1 + x0 + x1, where x0 and x1 are the random
+					 * masks from the OT's described above. Now, if player 2 let
+					 * the (0,0)'th entry of his TinyTable to be rU2 & rV2 + rU1
+					 * & rV2 + rU2 & rV1 + rO2, then the two entries are a
+					 * secret sharing of rO + rU & rV.
 					 */
-					boolean[] tmps = calculateTmps(tinyTable);
-					network.send(2, tmps);
+					boolean[] entries = new boolean[4];
+					entries[0] = inRight.getShare() & inLeft.getShare() ^ rO ^ x0 ^ x1;
+					entries[1] = entries[0] ^ inLeft.getShare();
+					entries[2] = entries[0] ^ inRight.getShare();
+					entries[3] = entries[0] ^ inLeft.getShare() ^ inRight.getShare();
+					TinyTable tinyTable = new TinyTable(entries);
+					ps.getStorage().storeTinyTable(id, tinyTable);
 
 					return EvaluationStatus.IS_DONE;
 				} else {
@@ -159,45 +152,18 @@ public class TinyTablesPreproANDProtocol extends TinyTablesPreproProtocol implem
 					 */
 
 					/*
-					 * The receiver (player 2) uses rV2 and rU2 resp. as sigmas
-					 * for the two OT's.
+					 * The receiver (player 2) uses rV2 and rU2 resp. as
+					 * selection bits for the two OT's.
 					 */
 					OTSigma[] sigmas = new OTSigma[] { new OTSigma(inRight.getShare()),
 							new OTSigma(inLeft.getShare()) };
 					ps.getStorage().storeOTSigma(id, sigmas);
 
-					network.expectInputFromPlayer(1);
-
-					return EvaluationStatus.HAS_MORE_ROUNDS;
-				}
-
-			case 1:
-				if (resourcePool.getMyId() == 1) {
-					/*
-					 * Player 1
-					 */
-
-					// Already finished - ignore
-					return EvaluationStatus.IS_DONE;
-				} else {
-					/*
-					 * Player 2
-					 */
-
-					boolean[] received = network.receive(1);
-
 					// Pick share for output gate
-					boolean rO = RandomSourceImpl.getInstance().getRandomBoolean();
+					boolean rO = resourcePool.getSecureRandom().nextBoolean();
 					out.setShare(rO);
+					ps.getStorage().storeMaskShare(id, rO);
 
-					boolean[] tmps = new boolean[4];
-					tmps[0] = rO;
-					for (int i = 0; i < received.length; i++) {
-						tmps[i + 1] = received[i];
-					}
-
-					// Store [rO, y0, y1, y2] as tmps where
-					ps.getStorage().storeTemporaryBooleans(id, tmps);
 					return EvaluationStatus.IS_DONE;
 				}
 
@@ -207,67 +173,33 @@ public class TinyTablesPreproANDProtocol extends TinyTablesPreproProtocol implem
 	}
 
 	/**
-	 * Calculate some additional values needed by player 2 to calculate his
-	 * TinyTable: <i>t<sub>00</sub> + t<sub>01</sub> +
-	 * r<sub>U</sub><sup>1</sup>, t<sub>00</sub> + t<sub>10</sub> +
-	 * r<sub>V</sub><sup>1</sup></i> and <i>t<sub>00</sub> + t<sub>01</sub> +
-	 * r<sub>U</sub><sup>1</sup> + r<sub>V</sub><sup>1</sup></i>.
+	 * We use OT's to calculate the products rU1 & rV2 and rU2 & rV1. After the
+	 * OT, player 2 knows x0 + rU1 & rV2 and x1 + rU2 & rV1, and player 1 knows
+	 * x0 and x1, so they now have secret sharings of the two products.
 	 * 
-	 * @param t
-	 *            Player 1's TinyTable for this protocol
+	 * @param x0
+	 *            A randomly chosen boolean.
+	 * @param x1
+	 *            A randomly chosen boolean.
 	 * @return
 	 */
-	private boolean[] calculateTmps(TinyTable t) {
-		boolean[] tmps = new boolean[3];
-		tmps[0] = t.getValue(false, false) ^ t.getValue(false, true) ^ inLeft.getShare();
-		tmps[1] = t.getValue(false, false) ^ t.getValue(true, false) ^ inRight.getShare();
-		tmps[2] = t.getValue(false, false) ^ t.getValue(true, true) ^ inLeft.getShare()
-				^ inRight.getShare();
-		return tmps;
-	}
-
-	/**
-	 * Create inputs for OT's. Assuming that player 2 uses
-	 * <i>r<sub>V</sub><sup>2</sup></i> and <i>r<sub>U</sub><sup>2</sup></i>
-	 * resp. as sigmas for the OT's, the result is that player 2 knows the
-	 * values of
-	 * <p>
-	 * <i>t<sub>00</sub> + r<sub>O</sub> +
-	 * r<sub>V</sub><sup>1</sup>r<sub>U</sub><sup>1</sup> + m +
-	 * r<sub>U</sub><sup>1</sup>r<sub>V</sub><sup>2</sup></i>
-	 * </p>
-	 * and
-	 * <p>
-	 * <i>m + r<sub>U</sub><sup>2</sup>r<sub>V</sub><sup>1</sup></i>.
-	 * </p>
-	 * where <i>m</i> is a randomly chosen masking parameter.
-	 * 
-	 * @param t
-	 *            Player 1's TinyTable for this protocol
-	 * @param rO
-	 *            Player 1's share of the masking parameter for the output wire,
-	 *            <i>r<sub>O</sub><sup>1</sup></i>.
-	 * @return
-	 */
-	private OTInput[] calculateOTInputs(TinyTable t, boolean rO) {
-		boolean m = RandomSourceImpl.getInstance().getRandomBoolean();
+	private OTInput[] calculateOTInputs(boolean x0, boolean x1) {
 		OTInput[] otInputs = new OTInput[2];
-		boolean x0 = t.getValue(false, false) ^ rO ^ (inLeft.getShare() && inRight.getShare()) ^ m;
 		otInputs[0] = new OTInput(x0, x0 ^ inLeft.getShare());
-		otInputs[1] = new OTInput(m, m ^ inRight.getShare());
+		otInputs[1] = new OTInput(x1, x1 ^ inRight.getShare());
 		return otInputs;
 	}
 
 	/**
 	 * 
-	 * @param output0
+	 * @param y0
 	 *            Result of first OT for this protocol. Should be equal to
-	 *            <i>s<sub>00</sub> + r<sub>O</sub><sup>1</sup> +
-	 *            r<sub>U</sub><sup>1</sup> & r<sub>U</sub><sup>1</sup> + m +
-	 *            r<sub>U</sub><sup>1</sup> & r<sub>V</sub><sup>2</sup></i>.
-	 * @param output1
-	 *            Result of second OT for this protocol. Should be equal to <i>m
-	 *            + r<sub>U</sub><sup>2</sup> & r<sub>V</sub><sup>1</sup></i>.
+	 *            <i>r<sub>U</sub><sup>1</sup> & r<sub>V</sub><sup>2</sup> +
+	 *            x<sub>0</sub></i>.
+	 * @param y1
+	 *            Result of second OT for this protocol. Should be equal to
+	 *            <i>r<sub>U</sub><sup>2</sup> & r<sub>V</sub><sup>1</sup> +
+	 *            x<sub>1</sub></i>.
 	 * @param rU
 	 *            Player 2's share of the left input wire,
 	 *            <i>r<sub>U</sub><sup>2</sup></i>.
@@ -277,49 +209,79 @@ public class TinyTablesPreproANDProtocol extends TinyTablesPreproProtocol implem
 	 * @param rO
 	 *            Player 2's share of the output wire,
 	 *            <i>r<sub>O</sub><sup>2</sup></i>.
-	 * @param y
-	 *            Additional values needed for calculating TinyTable. Player 1
-	 *            should send these to player 2 during preprocessing. Should be
-	 *            equal to <i>[<i>t<sub>00</sub> + t<sub>01</sub> +
-	 *            r<sub>U</sub><sup>1</sup>,t<sub>00</sub> + t<sub>10</sub> +
-	 *            r<sub>V</sub><sup>1</sup>, t<sub>00</sub> + t<sub>01</sub> +
-	 *            r<sub>U</sub><sup>1</sup> + r<sub>V</sub><sup>1</sup></i>]</i>
-	 *            where <i>t</i> is player 1's TinyTable.
-	 * @return Player 2's TinyTable such that the <i>entry
+	 * @return Player 2's TinyTable
 	 */
-	public static TinyTable calculateTinyTable(boolean output0, boolean output1, boolean rU,
-			boolean rV, boolean rO, boolean[] y) {
+	private static TinyTable calculateTinyTable(boolean y0, boolean y1, boolean rU, boolean rV,
+			boolean rO) {
 		boolean[] s = new boolean[4];
-		/*
-		 * In the comments below, we let t denote player 1's TinyTable and m
-		 * denote a random mask chosen by player 1 during preprocessing.
-		 */
 
-		/*
-		 * s[0] = s_00 = t_00 + rO^1 + rU1 rU1 + m + rU1 rV2 + m + rU2 rV1 + rU2
-		 * rV2 + rO^2 = t_00 + rO + rU rV
-		 */
-		s[0] = output0 ^ output1 ^ (rU && rV) ^ rO;
-
-		/*
-		 * s[1] = s_01 = t_00 + rO + rU rV + t_00 + t_01 + rU1 + rU = t_01 + rO
-		 * + rU !rV
-		 */
-		s[1] = s[0] ^ y[0] ^ rU;
-
-		/*
-		 * s[2] = s_10 = t_00 + rO + rU rV + t_00 + t_10 + rV1 + rV2 = t_10 + rO
-		 * + !rU rV
-		 */
-		s[2] = s[0] ^ y[1] ^ rV;
-
-		/*
-		 * s[3] = s_11 = t_00 + rO + rU & rV + t_00 + t_11 + rU1 + rV1 + rU2 +
-		 * rV2 + 1 = t_11 + rO + !rU !rV
-		 */
-		s[3] = s[0] ^ y[2] ^ rU ^ rV ^ true;
+		s[0] = y0 ^ y1 ^ (rU && rV) ^ rO;
+		s[1] = s[0] ^ rU;
+		s[2] = s[0] ^ rV;
+		s[3] = s[0] ^ rU ^ rV ^ true;
 
 		TinyTable tinyTable = new TinyTable(s);
 		return tinyTable;
+	}
+
+	/**
+	 * Given the outputs after performing OT's with player 1, this method
+	 * calculates and stores Player 2's TinyTables for all AND protocols.
+	 * 
+	 * @param otOutputs
+	 * @param storage
+	 */
+	private static void player2CalculateTinyTables(List<Boolean> otOutputs,
+			TinyTablesStorage storage) {
+		int progress = 0;
+		for (int id : storage.getOTSigmas().keySet()) {
+
+			boolean rV = storage.getOTSigmas().get(id)[0].getSigma();
+			boolean rU = storage.getOTSigmas().get(id)[1].getSigma();
+			boolean y0 = otOutputs.get(progress);
+			boolean y1 = otOutputs.get(progress + 1);
+			boolean rO = storage.getMaskShare(id);
+
+			TinyTable tinyTable = TinyTablesPreproANDProtocol.calculateTinyTable(y0, y1, rU, rV,
+					rO);
+			storage.storeTinyTable(id, tinyTable);
+
+			/*
+			 * For each protocol, we do two OTs so the index needs to be
+			 * increased by two.
+			 */
+			progress += 2;
+		}
+	}
+
+	public static void finishPreprocessing(int playerId, OTFactory otFactory,
+			TinyTablesStorage storage, Network network) {
+		switch (playerId) {
+			case 1:
+				/*
+				 * Player 1
+				 */
+				OTSender sender = otFactory.createOTSender();
+				List<OTInput> inputs = Util.getAll(storage.getOTInputs());
+				sender.send(inputs);
+				break;
+
+			case 2:
+				/*
+				 * Player 2
+				 */
+
+				/*
+				 * Do OT's with player 1 for all AND gates in the storage. Each
+				 * of them has stored two sigmas and player 1 has corresponding
+				 * inputs.
+				 */
+				OTReceiver receiver = otFactory.createOTReceiver();
+				List<OTSigma> sigmas = Util.getAll(storage.getOTSigmas());
+				List<Boolean> outputs = receiver.receive(sigmas);
+
+				TinyTablesPreproANDProtocol.player2CalculateTinyTables(outputs, storage);
+				break;
+		}
 	}
 }

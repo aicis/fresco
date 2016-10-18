@@ -35,7 +35,6 @@ import dk.alexandra.fresco.lib.field.bool.CloseBoolProtocol;
 import dk.alexandra.fresco.suite.tinytables.prepro.TinyTablesPreproProtocolSuite;
 import dk.alexandra.fresco.suite.tinytables.prepro.datatypes.TinyTablesPreproOBool;
 import dk.alexandra.fresco.suite.tinytables.prepro.datatypes.TinyTablesPreproSBool;
-import dk.alexandra.fresco.suite.tinytables.util.RandomSourceImpl;
 
 /**
  * <p>
@@ -85,7 +84,7 @@ public class TinyTablesPreproCloseProtocol extends TinyTablesPreproProtocol impl
 			 * If you are the inputter, you are responsible for picking a random
 			 * share.
 			 */
-			boolean r = RandomSourceImpl.getInstance().getRandomBoolean();
+			boolean r = resourcePool.getSecureRandom().nextBoolean();
 			out.setShare(r);
 
 			// We store the share for the online phase

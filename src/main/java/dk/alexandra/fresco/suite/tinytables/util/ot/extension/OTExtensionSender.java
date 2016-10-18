@@ -1,14 +1,13 @@
 package dk.alexandra.fresco.suite.tinytables.util.ot.extension;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.util.Arrays;
-import java.util.Base64;
+import java.util.List;
 
 import dk.alexandra.fresco.suite.tinytables.util.Encoding;
 import dk.alexandra.fresco.suite.tinytables.util.ot.OTSender;
 import dk.alexandra.fresco.suite.tinytables.util.ot.datatypes.OTInput;
+import edu.biu.scapi.comm.Party;
+import edu.biu.scapi.interactiveMidProtocols.ot.otBatch.otExtension.OTExtensionGeneralSInput;
+import edu.biu.scapi.interactiveMidProtocols.ot.otBatch.otExtension.OTSemiHonestExtensionSender;
 
 /**
  * We use SCAPI's OT Extension library for doing oblivious transfers. However,
@@ -22,73 +21,27 @@ import dk.alexandra.fresco.suite.tinytables.util.ot.datatypes.OTInput;
  */
 public class OTExtensionSender implements OTSender {
 
-	private InetSocketAddress address;
+	private Party party;
 
-	public OTExtensionSender(InetSocketAddress address) {
-		this.address = address;
+	/**
+	 * Create a new OTExtensionSender. The given <code>party</code> is the ip
+	 * and port address we should be listening on (eg. this party's address).
+	 * 
+	 * @param party
+	 */
+	public OTExtensionSender(Party party) {
+		this.party = party;
 	}
 
 	@Override
-	public void send(OTInput[] inputs) {
-		transfer(inputs);
-	}
-	
-	private void transfer(OTInput[] inputs) {
-		// As default we run it in a seperate process
-		transfer(inputs, true);
-	}
+	public void send(List<OTInput> inputs) {
 
-	private void transfer(OTInput[] inputs, boolean seperateProcess) {
-
-		try {
-
-			/*
-			 * There is an upper bound on how big a terminal cmd can be, so if
-			 * we have too many OT's we need to do them a batch at a time.
-			 */
-			if (seperateProcess && inputs.length > OTExtensionConfig.MAX_OTS) {
-				transfer(Arrays.copyOfRange(inputs, 0, OTExtensionConfig.MAX_OTS));
-				transfer(Arrays.copyOfRange(inputs, OTExtensionConfig.MAX_OTS, inputs.length));
-			} else {
-
-				byte[] input0 = new byte[inputs.length];
-				byte[] input1 = new byte[inputs.length];
-
-				for (int i = 0; i < inputs.length; i++) {
-					input0[i] = Encoding.encodeBoolean(inputs[i].getX0());
-					input1[i] = Encoding.encodeBoolean(inputs[i].getX1());
-				}
-
-				if (seperateProcess) {
-					String base64input0 = Base64.getEncoder().encodeToString(input0);
-					String base64input1 = Base64.getEncoder().encodeToString(input1);
-
-					ProcessBuilder builder = new ProcessBuilder(OTExtensionConfig.SCAPI_CMD, "-cp",
-							OTExtensionConfig.CLASSPATH, OTExtensionConfig.OT_SENDER, address.getHostName(),
-							Integer.toString(address.getPort()), base64input0, base64input1);
-
-					String path = new File("") + OTExtensionConfig.PATH;
-
-					builder.directory(new File(path));
-					Process p = builder.start();
-					p.waitFor();
-				} else {
-					// TODO: Not usable in JUnit tests so this has NOT been
-					// tested yet.
-					throw new UnsupportedOperationException("Not implemented yet");
-					// NativeOTSender.send(host, port, input0, input1);
-				}
-
-			}
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		return;
+		byte[] input0 = Encoding.encodeBooleans(OTInput.getAll(inputs, 0));
+		byte[] input1 = Encoding.encodeBooleans(OTInput.getAll(inputs, 1));
+		
+		OTSemiHonestExtensionSender sender = new OTSemiHonestExtensionSender(party);
+		OTExtensionGeneralSInput input = new OTExtensionGeneralSInput(input0, input1, inputs.size());
+		sender.transfer(null, input);
 	}
 
 }

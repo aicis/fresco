@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.security.SecureRandom;
 import java.util.ArrayList;
+import java.util.List;
 
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.suite.tinytables.util.Encoding;
@@ -27,13 +28,13 @@ public class JavaOTSender implements OTSender {
 	}
 	
 	@Override
-	public void send(OTInput[] inputs) {
+	public void send(List<OTInput> inputs) {
 		
 		ArrayList<byte[]> x0 = new ArrayList<byte[]>();
 		ArrayList<byte[]> x1 = new ArrayList<byte[]>();
-		for (int i = 0; i < inputs.length; i++) {
-			x0.add(new byte[] {Encoding.encodeBoolean(inputs[i].getX0())});
-			x1.add(new byte[] {Encoding.encodeBoolean(inputs[i].getX1())});
+		for (OTInput input : inputs) {
+			x0.add(new byte[] {Encoding.encodeBoolean(input.getX0())});
+			x1.add(new byte[] {Encoding.encodeBoolean(input.getX1())});
 		}
 		OTBatchOnByteArraySInput otsInputs = new OTBatchOnByteArraySInput(x0, x1);
 		OTSemiHonestDDHBatchOnByteArraySender sender;

@@ -1,17 +1,17 @@
-package dk.alexandra.fresco.suite.tinytables.util.ot.extension;
+package dk.alexandra.fresco.suite.tinytables.util.ot.extension.seperate;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Base64;
+import java.util.List;
 
+import dk.alexandra.fresco.suite.tinytables.util.Encoding;
+import dk.alexandra.fresco.suite.tinytables.util.ot.datatypes.OTSigma;
+import dk.alexandra.fresco.suite.tinytables.util.ot.extension.OTExtensionReceiver;
 import edu.biu.scapi.comm.Party;
-import edu.biu.scapi.interactiveMidProtocols.ot.OTOnByteArrayROutput;
-import edu.biu.scapi.interactiveMidProtocols.ot.otBatch.OTBatchRInput;
-import edu.biu.scapi.interactiveMidProtocols.ot.otBatch.otExtension.OTExtensionGeneralRInput;
-import edu.biu.scapi.interactiveMidProtocols.ot.otBatch.otExtension.OTSemiHonestExtensionReceiver;
 
 /**
  * Perform Oblivious transfer extension as the receiving part. Should be called
- * with three parameters: The host address, the port number and the sigmas as a
+ * with three parameters: The host address of the sender, the port number and the sigmas as a
  * Base64-encoded byte-array with 0x00 = false and 0x01 = true.
  * 
  * @author jonas
@@ -48,12 +48,12 @@ public class OTExtensionReceiverApplication {
 	}
 	
 	public static byte[] receive(String host, int port, byte[] sigmas) throws UnknownHostException {
-		Party party = new Party(InetAddress.getByName(host), port);
-		OTSemiHonestExtensionReceiver receiver = new OTSemiHonestExtensionReceiver(party);
 		
-		OTBatchRInput input = new OTExtensionGeneralRInput(sigmas, 8);
-		OTOnByteArrayROutput output = (OTOnByteArrayROutput) receiver.transfer(null, input);
-		return output.getXSigma();
+		OTExtensionReceiver receiver = new OTExtensionReceiver(new Party(InetAddress.getByName(host), port));
+		List<OTSigma> otSigmas = OTSigma.fromList(Encoding.decodeBooleans(sigmas));
+		List<Boolean> outputs = receiver.receive(otSigmas);
+				
+		return Encoding.encodeBooleans(outputs);
 	}
 
 }
