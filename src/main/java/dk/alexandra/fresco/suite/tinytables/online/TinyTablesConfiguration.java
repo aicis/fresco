@@ -30,8 +30,6 @@ import java.io.File;
 import java.util.Properties;
 
 import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
@@ -49,8 +47,8 @@ public class TinyTablesConfiguration implements ProtocolSuiteConfiguration{
 		tinyTablesFactory = new TinyTablesFactory();
 	}
 	
-	public static ProtocolSuiteConfiguration fromCmdArgs(SCEConfiguration sceConf,
-			String[] remainingArgs) throws ParseException, IllegalArgumentException {
+	public static ProtocolSuiteConfiguration fromCmdLine(SCEConfiguration sceConf,
+			CommandLine cmd) throws ParseException, IllegalArgumentException {
 		
 		Options options = new Options();
 		
@@ -62,9 +60,6 @@ public class TinyTablesConfiguration implements ProtocolSuiteConfiguration{
 				.builder("D")
 				.desc("The file where the generated TinyTables is leaded from.")
 				.longOpt(tinyTablesFileOption).required(false).hasArgs().build());
-		
-		CommandLineParser parser = new DefaultParser();
-		CommandLine cmd = parser.parse(options, remainingArgs);
 		
 		Properties p = cmd.getOptionProperties("D");
 		

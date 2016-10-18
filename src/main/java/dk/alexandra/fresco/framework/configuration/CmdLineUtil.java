@@ -176,7 +176,9 @@ public class CmdLineUtil {
 	
 	private static int getDefaultNoOfThreads() {
 		int n = Runtime.getRuntime().availableProcessors();
-		if (n==1) return 1;
+		if (n==1) {
+			return 1;
+		}
 		// Heuristic that gives best performance: One thread for each worker 
 		// and one for the 'system'.
 		return n-1; 
@@ -204,13 +206,16 @@ public class CmdLineUtil {
 		Level logLevel;
 		
 		Object suiteObj = this.cmd.getParsedOptionValue("s");
-		if (suiteObj == null) throw new ParseException("Cannot parse '" + this.cmd.getOptionValue("s") + "' as a string");
+		if (suiteObj == null) {
+			throw new ParseException("Cannot parse '" + this.cmd.getOptionValue("s") + "' as a string");
+		}
 				
 		final Map<Integer,Party> parties = new HashMap<Integer,Party>();
 		final String suite = (String) suiteObj;
 				
-		if (!ProtocolSuite.getSupportedProtocolSuites().contains(suite.toLowerCase()))
+		if (!ProtocolSuite.getSupportedProtocolSuites().contains(suite.toLowerCase())) {
 			throw new ParseException("Unknown protocol suite: " + suite);
+		}
 		
 		myId = parseNonzeroInt("i");
 		if (myId == 0) {
@@ -232,16 +237,18 @@ public class CmdLineUtil {
 				} else {
 					party = new Party(id, p[1], port, p[3]);
 				}
-				if (parties.containsKey(id))
+				if (parties.containsKey(id)) {
 					throw new ParseException("Party ids must be unique");
+				}
 				parties.put(id, party);
 			} catch (NumberFormatException | UnknownHostException e) {
 				throw new ParseException("Could not parse '" + pStr + "': " + e.getMessage());
 			}
 		}
-		if (!parties.containsKey(myId))
+		if (!parties.containsKey(myId)) {
 			throw new ParseException("This party is given the id " + myId + 
 					" but this id is not present in the list of parties " + parties.keySet());
+		}
 		
 
 		if (this.cmd.hasOption("l")) {
@@ -414,10 +421,10 @@ public class CmdLineUtil {
 				this.psConf = SpdzConfiguration.fromCmdLine(this.sceConf, cmd);
 				break;
 			case "tinytablesprepro":
-				this.psConf = TinyTablesPreproConfiguration.fromCmdArgs(this.sceConf, remainingArgs);
+				this.psConf = TinyTablesPreproConfiguration.fromCmdLine(this.sceConf, cmd);
 				break;
 			case "tinytables":
-				this.psConf = TinyTablesConfiguration.fromCmdArgs(this.sceConf, remainingArgs);
+				this.psConf = TinyTablesConfiguration.fromCmdLine(this.sceConf, cmd);
 				break;
 			default:
 				throw new ParseException("Unknown protocol suite: " + this.getSCEConfiguration().getProtocolSuiteName());
