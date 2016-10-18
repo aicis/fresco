@@ -56,8 +56,11 @@ import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.bgw.configuration.BgwConfiguration;
 import dk.alexandra.fresco.suite.dummy.DummyConfiguration;
 import dk.alexandra.fresco.suite.spdz.configuration.SpdzConfiguration;
+<<<<<<< HEAD
 import dk.alexandra.fresco.suite.tinytables.online.TinyTablesConfiguration;
 import dk.alexandra.fresco.suite.tinytables.prepro.TinyTablesPreproConfiguration;
+=======
+>>>>>>> master
 
 /**
  * Utility for reading all configuration from command line.
@@ -242,7 +245,6 @@ public class CmdLineUtil {
 		if (!parties.containsKey(myId))
 			throw new ParseException("This party is given the id " + myId + 
 					" but this id is not present in the list of parties " + parties.keySet());
-
         
 		if (this.cmd.hasOption("l")) {
 			System.out.println(this.cmd.getOptionValue("l"));
@@ -430,8 +432,8 @@ public class CmdLineUtil {
 		}
 		return this.cmd;
 	}
-    
-	public void displayHelp() {
+
+    public void displayHelp() {
 		HelpFormatter formatter = new HelpFormatter();
 		formatter.setSyntaxPrefix("");
 		formatter.printHelp("General SCE options are:", this.options);
