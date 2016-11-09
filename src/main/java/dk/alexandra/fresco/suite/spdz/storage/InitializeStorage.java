@@ -27,7 +27,14 @@
 package dk.alexandra.fresco.suite.spdz.storage;
 
 import java.io.File;
+import java.io.IOException;
 import java.math.BigInteger;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,6 +46,45 @@ import dk.alexandra.fresco.suite.spdz.datatypes.SpdzTriple;
 
 public class InitializeStorage {
 
+	/**
+	 * Removes all preprocessed material previously produced by this class' init*Storage methods.
+	 */
+	public static void cleanup() throws IOException{		
+		String folder = SpdzStorageConstants.STORAGE_FOLDER;
+		if(!new File(folder).exists()) {
+			System.out.println("The folder '"+folder+"' does not exist. Continuing without removing anything");
+			return;
+		}
+		System.out.println("Removing any preprocessed material from the folder "+folder);		
+		deleteFileOrFolder(Paths.get(folder));		
+	}
+	
+	private static void deleteFileOrFolder(final Path path) throws IOException {
+		Files.walkFileTree(path, new SimpleFileVisitor<Path>(){
+			@Override public FileVisitResult visitFile(final Path file, final BasicFileAttributes attrs)
+					throws IOException {
+				Files.delete(file);
+				return FileVisitResult.CONTINUE;
+			}
+
+			@Override public FileVisitResult visitFileFailed(final Path file, final IOException e) {
+				return handleException(e);
+			}
+
+			private FileVisitResult handleException(final IOException e) {
+				e.printStackTrace(); // replace with more robust error handling
+				return FileVisitResult.TERMINATE;
+			}
+
+			@Override public FileVisitResult postVisitDirectory(final Path dir, final IOException e)
+					throws IOException {
+				if(e!=null)return handleException(e);
+				Files.delete(dir);
+				return FileVisitResult.CONTINUE;
+			}
+		});
+	};
+	
 	/**
 	 * Generates on runtime the necessary preprocessed data for SPDZ tests and
 	 * stores it in the different stores that were given as argument.

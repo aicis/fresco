@@ -33,7 +33,9 @@ import java.util.Map;
 import java.util.logging.Level;
 
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
+import dk.alexandra.fresco.IntegrationTest;
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.Reporter;
 import dk.alexandra.fresco.framework.TestThreadRunner;
@@ -43,6 +45,7 @@ import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.TestConfiguration;
 import dk.alexandra.fresco.framework.sce.configuration.TestSCEConfiguration;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
+import dk.alexandra.fresco.framework.sce.resources.storage.FilebasedStreamedStorageImpl;
 import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
 import dk.alexandra.fresco.framework.sce.resources.storage.Storage;
 import dk.alexandra.fresco.framework.sce.resources.storage.StorageStrategy;
@@ -102,7 +105,12 @@ public class TestSpdzLPSolver3Parties {
 			switch (storageStrategy) {
 			case IN_MEMORY:
 				storage = inMemStore;
+				break;
+			case STREAMED_STORAGE:
+				storage = new FilebasedStreamedStorageImpl(inMemStore);
+				break;
 			case MYSQL:
+				throw new RuntimeException("mySQL currently not supported");
 				//ttc.storage = mySQLStore;
 			}
 			ttc.sceConf = new TestSCEConfiguration(suite, evaluator, noOfThreads, noOfVMThreads, ttc.netConf, storage, useSecureConnection);
@@ -112,33 +120,23 @@ public class TestSpdzLPSolver3Parties {
 	}
 
 	private static final InMemoryStorage inMemStore = new InMemoryStorage();
-	//private static final MySQLStorage mySQLStore = MySQLStorage.getInstance();
 
-	/**
-	 * Makes sure that the preprocessed data exists in the storage's used in
-	 * this test class. Not needed if we set useDummyData to true in spdzConfig.
-	 */
-	/*
-	@BeforeClass
-	public static void initStorage() {
-		Storage[] storages = new Storage[] {
-				inMemStore};//, mySQLStore };
-		InitializeStorage.initStorage(storages, 3, 10000, 1000, 500000, 2000);
-	}
-	*/
-
+	//Test only with sequential. The rest only when running integration tests
+	
 	@Test
 	public void test_LPSolver_3_Sequential() throws Exception {
 		runTest(new LPSolverTests.TestLPSolver(), 3,
 				EvaluationStrategy.SEQUENTIAL, StorageStrategy.IN_MEMORY);
 	}
 	
+	@Category(IntegrationTest.class)
 	@Test
 	public void test_LPSolver_3_Parallel() throws Exception {
 		runTest(new LPSolverTests.TestLPSolver(), 3,
 				EvaluationStrategy.PARALLEL, StorageStrategy.IN_MEMORY);
 	}
 	
+	@Category(IntegrationTest.class)
 	@Test
 	public void test_LPSolver_3_Parallel_Batched() throws Exception {
 		runTest(new LPSolverTests.TestLPSolver(), 3,

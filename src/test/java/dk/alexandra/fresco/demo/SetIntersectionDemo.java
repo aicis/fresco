@@ -35,9 +35,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
+import dk.alexandra.fresco.IntegrationTest;
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.Reporter;
 import dk.alexandra.fresco.framework.TestThreadRunner;
@@ -108,6 +111,7 @@ public class SetIntersectionDemo {
 	 * actual computation phase.
 	 * @throws Exception
 	 */
+	@Category(IntegrationTest.class)
 	@Test
 	public void tinyTablesTest() throws Exception{
 		// Generic configuration
@@ -166,6 +170,17 @@ public class SetIntersectionDemo {
 		// Finally we run the processing phase and verify the result
 		String[] result = this.setIntersectionDemo(conf);
 		Assert.assertTrue(verifyResult(result));
+	}
+	
+	//ensure that test files are removed after the test ends. 
+	@After
+	public void cleanup() {
+		for(int i = 0; i < 2; i++) {
+			File f = getTinyTablesFile(i);
+			if(f.exists()) {
+				f.delete();
+			}
+		}
 	}
 	
 
