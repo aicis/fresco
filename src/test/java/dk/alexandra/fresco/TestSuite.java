@@ -1,5 +1,7 @@
 package dk.alexandra.fresco;
 
+import org.junit.experimental.categories.Categories;
+import org.junit.experimental.categories.Categories.ExcludeCategory;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
@@ -19,7 +21,7 @@ import dk.alexandra.fresco.suite.spdz.TestSpdzSorting;
 import dk.alexandra.fresco.suite.spdz.TestSpdzStatistics;
 import dk.alexandra.fresco.suite.tinytables.TestTinyTables;
 
-@RunWith(Suite.class)
+@RunWith(Categories.class)
 @Suite.SuiteClasses({
 	//BGW protocol suite
 	TestBgwBasicArithmetic.class,
@@ -36,6 +38,7 @@ import dk.alexandra.fresco.suite.tinytables.TestTinyTables;
 	//applications
 	SetIntersectionDemo.class
 })
+@ExcludeCategory(IntegrationTest.class)
 public class TestSuite {
   //nothing
 }
