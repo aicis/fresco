@@ -29,7 +29,6 @@ package dk.alexandra.fresco.suite.tinytables.online;
 import dk.alexandra.fresco.framework.value.OBool;
 import dk.alexandra.fresco.framework.value.SBool;
 import dk.alexandra.fresco.lib.field.bool.AndProtocol;
-import dk.alexandra.fresco.lib.field.bool.BasicLogicFactory;
 import dk.alexandra.fresco.lib.field.bool.CloseBoolProtocol;
 import dk.alexandra.fresco.lib.field.bool.NotProtocol;
 import dk.alexandra.fresco.lib.field.bool.OpenBoolProtocol;
@@ -43,7 +42,7 @@ import dk.alexandra.fresco.suite.tinytables.online.protocols.TinyTablesNOTProtoc
 import dk.alexandra.fresco.suite.tinytables.online.protocols.TinyTablesOpenToAllProtocol;
 import dk.alexandra.fresco.suite.tinytables.online.protocols.TinyTablesXORProtocol;
 
-public class TinyTablesFactory extends AbstractBinaryFactory implements BasicLogicFactory {
+public class TinyTablesFactory extends AbstractBinaryFactory {
 
 	private int counter;
 	
@@ -67,8 +66,7 @@ public class TinyTablesFactory extends AbstractBinaryFactory implements BasicLog
 
 	@Override
 	public OpenBoolProtocol getOpenProtocol(int target, SBool closed, OBool open) {
-		// TODO Auto-generated method stub
-		return null;
+		throw new RuntimeException("Not implemented yet");
 	}
 
 	@Override
