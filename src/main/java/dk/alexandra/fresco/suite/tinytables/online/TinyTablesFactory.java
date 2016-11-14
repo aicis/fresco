@@ -29,6 +29,7 @@ package dk.alexandra.fresco.suite.tinytables.online;
 import dk.alexandra.fresco.framework.value.OBool;
 import dk.alexandra.fresco.framework.value.SBool;
 import dk.alexandra.fresco.lib.field.bool.AndProtocol;
+import dk.alexandra.fresco.lib.field.bool.BasicLogicFactory;
 import dk.alexandra.fresco.lib.field.bool.CloseBoolProtocol;
 import dk.alexandra.fresco.lib.field.bool.NotProtocol;
 import dk.alexandra.fresco.lib.field.bool.OpenBoolProtocol;
@@ -42,7 +43,7 @@ import dk.alexandra.fresco.suite.tinytables.online.protocols.TinyTablesNOTProtoc
 import dk.alexandra.fresco.suite.tinytables.online.protocols.TinyTablesOpenToAllProtocol;
 import dk.alexandra.fresco.suite.tinytables.online.protocols.TinyTablesXORProtocol;
 
-public class TinyTablesFactory extends AbstractBinaryFactory {
+public class TinyTablesFactory extends AbstractBinaryFactory implements BasicLogicFactory {
 
 	private int counter;
 	
