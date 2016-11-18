@@ -32,8 +32,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 
-import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
@@ -48,12 +46,10 @@ import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
 import dk.alexandra.fresco.framework.sce.resources.storage.StorageStrategy;
 import dk.alexandra.fresco.lib.arithmetic.ComparisonTests;
-import dk.alexandra.fresco.lib.arithmetic.SortingTests;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.configuration.SpdzConfiguration;
 import dk.alexandra.fresco.suite.spdz.configuration.SpdzConfigurationFromProperties;
 import dk.alexandra.fresco.suite.spdz.evaluation.strategy.SpdzProtocolSuite;
-import dk.alexandra.fresco.suite.spdz.storage.InitializeStorage;
 
 public class TestSpdzComparison {
 	private static final int noOfParties = 2;
@@ -92,14 +88,7 @@ public class TestSpdzComparison {
 			ProtocolSuite suite = SpdzProtocolSuite.getInstance(playerId);
 			ProtocolEvaluator evaluator = EvaluationStrategy
 					.fromEnum(evalStrategy);
-			dk.alexandra.fresco.framework.sce.resources.storage.Storage storage = null;
-			switch (storageStrategy) {
-			case IN_MEMORY:
-				storage = inMemStore;
-				break;
-			case MYSQL:
-				break;
-			}
+			dk.alexandra.fresco.framework.sce.resources.storage.Storage storage = inMemStore;			
 			ttc.sceConf = new TestSCEConfiguration(suite, evaluator,
 					noOfThreads, noOfVMThreads, ttc.netConf, storage,
 					useSecureConnection);
@@ -109,22 +98,6 @@ public class TestSpdzComparison {
 	}
 
 	private static InMemoryStorage inMemStore = new InMemoryStorage();
-
-	/**
-	 * Makes sure that the preprocessed data exists in the storage's used in
-	 * this test class.
-	 */
-	@BeforeClass
-	public static void initStorage() {
-		Reporter.init(Level.INFO);
-		// dk.alexandra.fresco.framework.sce.resources.storage.Storage[]
-		// storages = new
-		// dk.alexandra.fresco.framework.sce.resources.storage.Storage[] {
-		// inMemStore, mySQLStore };
-		dk.alexandra.fresco.framework.sce.resources.storage.Storage[] storages = new dk.alexandra.fresco.framework.sce.resources.storage.Storage[] { inMemStore };
-		InitializeStorage.initStorage(storages, noOfParties, 10000, 1000,
-				100000, 100);
-	}
 
 	@Test
 	public void test_compareLT_Sequential() throws Exception {

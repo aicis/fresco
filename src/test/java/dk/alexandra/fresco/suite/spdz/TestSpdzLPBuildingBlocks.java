@@ -33,7 +33,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
@@ -46,14 +45,11 @@ import dk.alexandra.fresco.framework.configuration.TestConfiguration;
 import dk.alexandra.fresco.framework.sce.configuration.TestSCEConfiguration;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
-import dk.alexandra.fresco.framework.sce.resources.storage.MySQLStorage;
-import dk.alexandra.fresco.framework.sce.resources.storage.Storage;
 import dk.alexandra.fresco.framework.sce.resources.storage.StorageStrategy;
 import dk.alexandra.fresco.lib.lp.LPBuildingBlockTests;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.configuration.SpdzConfiguration;
 import dk.alexandra.fresco.suite.spdz.evaluation.strategy.SpdzProtocolSuite;
-import dk.alexandra.fresco.suite.spdz.storage.InitializeStorage;
 
 public class TestSpdzLPBuildingBlocks {	
 	
@@ -105,15 +101,7 @@ public class TestSpdzLPBuildingBlocks {
 			ProtocolSuite suite = SpdzProtocolSuite.getInstance(playerId);
 			ProtocolEvaluator evaluator = EvaluationStrategy
 					.fromEnum(evalStrategy);
-			dk.alexandra.fresco.framework.sce.resources.storage.Storage storage = null;
-			switch (storageStrategy) {
-			case IN_MEMORY:
-				storage = inMemStore;
-				break;
-			case MYSQL:
-				storage = mySQLStore;
-				break;
-			}
+			dk.alexandra.fresco.framework.sce.resources.storage.Storage storage = inMemStore;			
 			ttc.sceConf = new TestSCEConfiguration(suite, evaluator,
 					noOfThreads, noOfVMThreads, ttc.netConf, storage,
 					useSecureConnection);
@@ -126,21 +114,7 @@ public class TestSpdzLPBuildingBlocks {
 	}
 
 	private static InMemoryStorage inMemStore = new InMemoryStorage();
-	private static MySQLStorage mySQLStore = null;
 
-	/**
-	 * Makes sure that the preprocessed data exists in the storage's used in
-	 * this test class.
-	 */
-	@BeforeClass
-	public static void initStorage() {
-		Reporter.init(Level.INFO);
-		// Storage[] storages = new Storage[] { inMemStore, mySQLStore };
-		Storage[] storages = new Storage[] { inMemStore };
-		InitializeStorage.initStorage(storages, noOfParties, 10000, 10000,
-				1000000, 10000);
-	}	
-	
 	@Test
 	public void test_Exiting_Variable_Sequential() throws Exception {
 		configure(EvaluationStrategy.SEQUENTIAL, StorageStrategy.IN_MEMORY);
