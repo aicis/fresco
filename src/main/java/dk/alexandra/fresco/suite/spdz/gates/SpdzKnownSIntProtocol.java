@@ -90,10 +90,10 @@ public class SpdzKnownSIntProtocol extends SpdzNativeProtocol implements KnownSI
 		BigInteger globalKeyShare = spdzPii.getStore(network.getThreadId())
 				.getSSK();
 		if (resourcePool.getMyId() == 1) {
-			elm = new SpdzElement(value, value.multiply(globalKeyShare));
+			elm = new SpdzElement(value, value.multiply(globalKeyShare).mod(Util.getModulus()));
 		} else {
 			elm = new SpdzElement(BigInteger.ZERO,
-					value.multiply(globalKeyShare));
+					value.multiply(globalKeyShare).mod(Util.getModulus()));
 		}
 		sValue.value = elm;
 		return EvaluationStatus.IS_DONE;
