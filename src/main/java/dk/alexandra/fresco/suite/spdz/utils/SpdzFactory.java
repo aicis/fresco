@@ -226,16 +226,7 @@ public class SpdzFactory implements BasicNumericFactory, PreprocessedNumericBitF
 	@Override
 	@Deprecated
 	public SInt getSInt(int i) {
-
-		BigInteger b = BigInteger.valueOf(i).mod(Util.getModulus());
-		SpdzElement elm;
-		if (pID == 1) {
-			elm = new SpdzElement(b, b.multiply(this.storage.getSSK()));
-		} else {
-			elm = new SpdzElement(BigInteger.ZERO, b.multiply(this.storage
-					.getSSK()));
-		}
-		return new SpdzSInt(elm);
+		return getSInt(BigInteger.valueOf(i));
 	}
 
 	@Override
@@ -244,10 +235,10 @@ public class SpdzFactory implements BasicNumericFactory, PreprocessedNumericBitF
 		b = b.mod(Util.getModulus());
 		SpdzElement elm;
 		if (pID == 1) {
-			elm = new SpdzElement(b, b.multiply(this.storage.getSSK()));
+			elm = new SpdzElement(b, b.multiply(this.storage.getSSK()).mod(Util.getModulus()));
 		} else {
 			elm = new SpdzElement(BigInteger.ZERO, b.multiply(this.storage
-					.getSSK()));
+					.getSSK()).mod(Util.getModulus()));
 		}
 		return new SpdzSInt(elm);
 	}
