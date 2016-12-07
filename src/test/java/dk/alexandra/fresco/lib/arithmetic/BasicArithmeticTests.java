@@ -51,7 +51,6 @@ import dk.alexandra.fresco.lib.helper.builder.OmniBuilder;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
 import dk.alexandra.fresco.lib.math.integer.PreprocessedNumericBitFactory;
 import dk.alexandra.fresco.lib.math.integer.exp.ExpFromOIntFactory;
-import dk.alexandra.fresco.lib.math.integer.exp.ExponentiationPipeFactory;
 import dk.alexandra.fresco.lib.math.integer.exp.PreprocessedExpPipeFactory;
 import dk.alexandra.fresco.lib.math.integer.inv.LocalInversionFactory;
 import dk.alexandra.fresco.lib.math.integer.min.MinInfFracProtocol;

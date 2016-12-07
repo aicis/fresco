@@ -32,9 +32,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
+import dk.alexandra.fresco.IntegrationTest;
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.Reporter;
 import dk.alexandra.fresco.framework.TestThreadRunner;
@@ -45,14 +46,12 @@ import dk.alexandra.fresco.framework.configuration.TestConfiguration;
 import dk.alexandra.fresco.framework.sce.configuration.TestSCEConfiguration;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
-import dk.alexandra.fresco.framework.sce.resources.storage.MySQLStorage;
 import dk.alexandra.fresco.framework.sce.resources.storage.StorageStrategy;
 import dk.alexandra.fresco.lib.arithmetic.BasicArithmeticTests;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.configuration.SpdzConfiguration;
 import dk.alexandra.fresco.suite.spdz.configuration.SpdzConfigurationFromProperties;
 import dk.alexandra.fresco.suite.spdz.evaluation.strategy.SpdzProtocolSuite;
-import dk.alexandra.fresco.suite.spdz.storage.InitializeStorage;
 
 /**
  * Basic arithmetic tests using the SPDZ protocol suite with 3 parties. Have to
@@ -99,15 +98,7 @@ public class TestSpdzBasicArithmetic3Parties {
 			ProtocolSuite suite = SpdzProtocolSuite.getInstance(playerId);
 			ProtocolEvaluator evaluator = EvaluationStrategy
 					.fromEnum(evalStrategy);
-			dk.alexandra.fresco.framework.sce.resources.storage.Storage storage = null;
-			switch (storageStrategy) {
-			case IN_MEMORY:
-				storage = inMemStore;
-				break;
-			case MYSQL:
-				storage = mySQLStore;
-				break;
-			}
+			dk.alexandra.fresco.framework.sce.resources.storage.Storage storage = inMemStore;			
 			ttc.sceConf = new TestSCEConfiguration(suite, evaluator,
 					noOfThreads, noOfVMThreads, ttc.netConf, storage,
 					useSecureConnection, BATCH_SIZE);
@@ -117,23 +108,6 @@ public class TestSpdzBasicArithmetic3Parties {
 	}
 
 	private static InMemoryStorage inMemStore = new InMemoryStorage();
-	private static MySQLStorage mySQLStore = null;
-
-	/**
-	 * Makes sure that the preprocessed data exists in the storage's used in
-	 * this test class.
-	 */
-	@BeforeClass
-	public static void initStorage() {
-		Reporter.init(Level.INFO);
-		// dk.alexandra.fresco.framework.sce.resources.storage.Storage[]
-		// storages = new
-		// dk.alexandra.fresco.framework.sce.resources.storage.Storage[] {
-		// inMemStore, mySQLStore };
-		dk.alexandra.fresco.framework.sce.resources.storage.Storage[] storages = new dk.alexandra.fresco.framework.sce.resources.storage.Storage[] { inMemStore };
-		InitializeStorage.initStorage(storages, noOfParties, 100000, 100000,
-				100000, 10);
-	}
 
 	@Test
 	public void test_Copy_Sequential() throws Exception {
@@ -155,12 +129,6 @@ public class TestSpdzBasicArithmetic3Parties {
 
 	@Test
 	public void test_Lots_Of_Inputs_Sequential() throws Exception {
-		runTest(new BasicArithmeticTests.TestLotsOfInputs(),
-				EvaluationStrategy.SEQUENTIAL, StorageStrategy.IN_MEMORY);
-	}
-
-	@Test
-	public void test_MultAndAdd_Sequential() throws Exception {
 		runTest(new BasicArithmeticTests.TestLotsOfInputs(),
 				EvaluationStrategy.SEQUENTIAL, StorageStrategy.IN_MEMORY);
 	}
@@ -188,13 +156,6 @@ public class TestSpdzBasicArithmetic3Parties {
 		runTest(new BasicArithmeticTests.TestSumAndMult(),
 				EvaluationStrategy.PARALLEL_BATCHED, StorageStrategy.IN_MEMORY);
 	}
-
-	@Test
-	public void test_Lots_Of_Inputs_SequentialBatched() throws Exception {
-		runTest(new BasicArithmeticTests.TestLotsOfInputs(),
-				EvaluationStrategy.SEQUENTIAL_BATCHED,
-				StorageStrategy.IN_MEMORY);
-	}
 	
 	@Test
 	public void test_Lots_Of_Mults_Sequential() throws Exception {
@@ -202,6 +163,7 @@ public class TestSpdzBasicArithmetic3Parties {
 				EvaluationStrategy.SEQUENTIAL,
 				StorageStrategy.IN_MEMORY);
 	}
+	
 	
 	@Test
 	public void test_Lots_Of_Mults_Sequential_Batched() throws Exception {
