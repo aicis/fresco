@@ -56,10 +56,6 @@ import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
  */
 public abstract class AbstractProtocolBuilder implements ProtocolBuilder {
 
-	//A parent is only set if the method setParent is called. 
-	//It forces this builder to use the internal stack of the parent.
-	private AbstractProtocolBuilder parent;
-	
 	private AppendableProtocolProducer curpp = new SequentialProtocolProducer();
 	private Stack<AppendableProtocolProducer> producerStack = 
 			new Stack<AppendableProtocolProducer>();
@@ -71,10 +67,6 @@ public abstract class AbstractProtocolBuilder implements ProtocolBuilder {
 	 */
 	@Override
 	public void beginParScope() {
-		if(parent != null){
-			parent.beginParScope();
-			return;
-		}
 		ParallelProtocolProducer ppp = new ParallelProtocolProducer();
 		append(ppp);
 		pushProducer(ppp);
@@ -87,10 +79,6 @@ public abstract class AbstractProtocolBuilder implements ProtocolBuilder {
 	 */
 	@Override
 	public void beginSeqScope() {
-		if(parent != null){
-			parent.beginSeqScope();
-			return;
-		}
 		SequentialProtocolProducer spp = new SequentialProtocolProducer();
 		append(spp);
 		pushProducer(spp);
@@ -103,10 +91,6 @@ public abstract class AbstractProtocolBuilder implements ProtocolBuilder {
 	 */
 	@Override
 	public void endCurScope() {
-		if(parent != null){
-			parent.endCurScope();
-			return;
-		}
 		if (producerStack.isEmpty()) {
 			throw new MPCException("Cannot end root scope");
 		}
@@ -121,10 +105,6 @@ public abstract class AbstractProtocolBuilder implements ProtocolBuilder {
 	 *            the ProtocolProducer to append
 	 */
 	protected void append(ProtocolProducer pp) {
-		if(parent != null){
-			parent.append(pp);
-			return;
-		}
 		this.curpp.append(pp);
 	}
 
@@ -132,10 +112,6 @@ public abstract class AbstractProtocolBuilder implements ProtocolBuilder {
 	 * Pops the top of the stack and makes it the new current ProtocolProducer.
 	 */
 	protected void popProducer() {
-		if(parent != null){
-			parent.popProducer();
-			return;
-		}
 		this.curpp = producerStack.pop();
 	}
 
@@ -148,10 +124,6 @@ public abstract class AbstractProtocolBuilder implements ProtocolBuilder {
 	 *            ProtocolProducer
 	 */
 	protected void pushProducer(AppendableProtocolProducer nextProducer) {
-		if(parent != null){
-			parent.pushProducer(nextProducer);
-			return;
-		}
 		producerStack.push(curpp);
 		this.curpp = nextProducer;
 	}
@@ -163,9 +135,6 @@ public abstract class AbstractProtocolBuilder implements ProtocolBuilder {
 	 */
 	@Override
 	public ProtocolProducer getProtocol() {
-		if(parent != null){
-			return parent.getProtocol();
-		}
 		if (producerStack.isEmpty()) {
 			ProtocolProducer res = curpp;
 			reset();
@@ -177,19 +146,7 @@ public abstract class AbstractProtocolBuilder implements ProtocolBuilder {
 	
 	@Override
 	public void reset() {
-		if(parent != null){
-			parent.reset();
-			return;
-		}
 		curpp = new SequentialProtocolProducer();
 		producerStack = new Stack<AppendableProtocolProducer>();
-	}
-	
-	/**
-	 * Sets the parent of this builder meaning that the internal stack of the builder will be the parents. 
-	 * @param parent
-	 */
-	protected void setParentBuilder(AbstractProtocolBuilder parent){
-		this.parent = parent;
 	}
 }

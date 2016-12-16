@@ -67,7 +67,8 @@ public class TinyTablesFactory extends AbstractBinaryFactory implements BasicLog
 
 	@Override
 	public OpenBoolProtocol getOpenProtocol(int target, SBool closed, OBool open) {
-		throw new RuntimeException("Not implemented yet");
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	@Override
