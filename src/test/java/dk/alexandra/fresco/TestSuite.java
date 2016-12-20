@@ -43,6 +43,7 @@ import dk.alexandra.fresco.suite.spdz.TestSpdzComparison;
 import dk.alexandra.fresco.suite.spdz.TestSpdzLPBuildingBlocks;
 import dk.alexandra.fresco.suite.spdz.TestSpdzLPSolver2Parties;
 import dk.alexandra.fresco.suite.spdz.TestSpdzLPSolver3Parties;
+import dk.alexandra.fresco.suite.spdz.TestSpdzMiMC;
 import dk.alexandra.fresco.suite.spdz.TestSpdzSorting;
 import dk.alexandra.fresco.suite.spdz.TestSpdzStatistics;
 import dk.alexandra.fresco.suite.tinytables.TestTinyTables;
@@ -58,7 +59,7 @@ import dk.alexandra.fresco.suite.tinytables.TestTinyTables;
 	TestFakeTripGen.class, TestLookUpProtocol.class, TestSpdzBasicArithmetic2Parties.class, 
 	TestSpdzBasicArithmetic3Parties.class, TestSpdzComparison.class, TestSpdzLPBuildingBlocks.class,
 	TestSpdzLPSolver2Parties.class, TestSpdzLPSolver3Parties.class, TestSpdzSorting.class, 
-	TestSpdzStatistics.class,
+	TestSpdzStatistics.class, TestSpdzMiMC.class,
 	//Tinytables protocol suite
 	TestTinyTables.class,
 	//applications

@@ -29,6 +29,9 @@ package dk.alexandra.fresco.lib.lp;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.math.BigInteger;
+
+import org.junit.Assert;
 
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.ProtocolFactory;
@@ -75,6 +78,7 @@ public class LPSolverTests {
 			return new ThreadWithFixture() {
 				@Override
 				public void test() throws Exception {
+					OInt[] outs = new OInt[1];
 					TestApplication app = new TestApplication() {
 
 						private static final long serialVersionUID = 4338818809103728010L;
@@ -119,6 +123,7 @@ public class LPSolverTests {
 										prefix.getPivot(), lpFactory, bnFactory);
 								SInt sout = bnFactory.getSInt();
 								OInt out = bnFactory.getOInt();
+								outs[0] = out;
 								ProtocolProducer outputter = lpFactory
 										.getOptimalValueProtocol(
 												prefix.getUpdateMatrix(),
@@ -141,6 +146,8 @@ public class LPSolverTests {
 					long endTime = System.nanoTime();
 					System.out.println("============ Seq Time: "
 							+ ((endTime - startTime) / 1000000));
+					//TODO: Ensure that this is indeed the correct result. 
+					Assert.assertEquals(new BigInteger("161"), outs[0].getValue());
 				}
 			};
 		}
