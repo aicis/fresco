@@ -21,7 +21,7 @@ import dk.alexandra.fresco.lib.compare.SortingProtocolBuilder;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.helper.builder.NumericIOBuilder;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
-import dk.alexandra.fresco.lib.math.integer.PreprocessedNumericBitFactory;
+import dk.alexandra.fresco.lib.math.integer.NumericBitFactory;
 import dk.alexandra.fresco.lib.math.integer.exp.ExpFromOIntFactory;
 import dk.alexandra.fresco.lib.math.integer.exp.PreprocessedExpPipeFactory;
 import dk.alexandra.fresco.lib.math.integer.inv.LocalInversionFactory;
@@ -65,7 +65,7 @@ public class SortingTests {
 								ProtocolFactory factory) {
 							BasicNumericFactory bnFactory = (BasicNumericFactory) factory;
 							LocalInversionFactory localInvFactory = (LocalInversionFactory) factory;
-							PreprocessedNumericBitFactory numericBitFactory = (PreprocessedNumericBitFactory) factory;
+							NumericBitFactory numericBitFactory = (NumericBitFactory) factory;
 							ExpFromOIntFactory expFromOIntFactory = (ExpFromOIntFactory) factory;
 							PreprocessedExpPipeFactory expFactory = (PreprocessedExpPipeFactory) factory;
 							SequentialProtocolProducer seq = new SequentialProtocolProducer();
@@ -123,7 +123,7 @@ public class SortingTests {
 								ProtocolFactory factory) {
 							BasicNumericFactory bnFactory = (BasicNumericFactory) factory;
 							LocalInversionFactory localInvFactory = (LocalInversionFactory) factory;
-							PreprocessedNumericBitFactory numericBitFactory = (PreprocessedNumericBitFactory) factory;
+							NumericBitFactory numericBitFactory = (NumericBitFactory) factory;
 							ExpFromOIntFactory expFromOIntFactory = (ExpFromOIntFactory) factory;
 							PreprocessedExpPipeFactory expFactory = (PreprocessedExpPipeFactory) factory;
 							SequentialProtocolProducer seq = new SequentialProtocolProducer();
@@ -180,7 +180,7 @@ public class SortingTests {
 								ProtocolFactory factory) {
 							BasicNumericFactory bnFactory = (BasicNumericFactory) factory;
 							LocalInversionFactory localInvFactory = (LocalInversionFactory) factory;
-							PreprocessedNumericBitFactory numericBitFactory = (PreprocessedNumericBitFactory) factory;
+							NumericBitFactory numericBitFactory = (NumericBitFactory) factory;
 							ExpFromOIntFactory expFromOIntFactory = (ExpFromOIntFactory) factory;
 							PreprocessedExpPipeFactory expFactory = (PreprocessedExpPipeFactory) factory;
 							SequentialProtocolProducer seq = new SequentialProtocolProducer();
@@ -247,7 +247,7 @@ public class SortingTests {
 								ProtocolFactory factory) {
 							BasicNumericFactory bnFactory = (BasicNumericFactory) factory;
 							LocalInversionFactory localInvFactory = (LocalInversionFactory) factory;
-							PreprocessedNumericBitFactory numericBitFactory = (PreprocessedNumericBitFactory) factory;
+							NumericBitFactory numericBitFactory = (NumericBitFactory) factory;
 							ExpFromOIntFactory expFromOIntFactory = (ExpFromOIntFactory) factory;
 							PreprocessedExpPipeFactory expFactory = (PreprocessedExpPipeFactory) factory;
 							SequentialProtocolProducer seq = new SequentialProtocolProducer();
