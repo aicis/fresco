@@ -29,7 +29,7 @@ package dk.alexandra.fresco.lib.math.integer;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.SInt;
 
-public interface PreprocessedNumericBitFactory {
+public interface NumericBitFactory {
 
 	/**
 	 * Returns a protocol which creates a secret shared random bit. (This should be computed beforehand)

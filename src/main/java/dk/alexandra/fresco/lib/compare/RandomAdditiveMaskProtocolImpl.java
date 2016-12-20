@@ -33,7 +33,7 @@ import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.helper.AbstractSimpleProtocol;
 import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
-import dk.alexandra.fresco.lib.math.integer.PreprocessedNumericBitFactory;
+import dk.alexandra.fresco.lib.math.integer.NumericBitFactory;
 import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductFactory;
 
 /**
@@ -48,7 +48,7 @@ public class RandomAdditiveMaskProtocolImpl extends AbstractSimpleProtocol imple
 	private final int bitLength;
 	private final int securityParameter;
 	private final InnerProductFactory innerProdProvider;
-	private final PreprocessedNumericBitFactory bitProvider;
+	private final NumericBitFactory bitProvider;
 	private final MiscOIntGenerators miscOIntGenerator;
 	private final SInt[] rBits;
 	private final SInt r;
@@ -75,7 +75,7 @@ public class RandomAdditiveMaskProtocolImpl extends AbstractSimpleProtocol imple
 	 * 
 	 */
 	public RandomAdditiveMaskProtocolImpl(int securityParameter, SInt[] bits, SInt r,
-			BasicNumericFactory basicNumericFactory, PreprocessedNumericBitFactory bitProvider,
+			BasicNumericFactory basicNumericFactory, NumericBitFactory bitProvider,
 			MiscOIntGenerators miscOIntGenerator, InnerProductFactory innerProdProvider) {
 		// Copy inputs, setup stuff
 		this.bitLength = bits.length;

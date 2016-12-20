@@ -28,19 +28,19 @@ package dk.alexandra.fresco.lib.compare;
 
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
-import dk.alexandra.fresco.lib.math.integer.PreprocessedNumericBitFactory;
+import dk.alexandra.fresco.lib.math.integer.NumericBitFactory;
 import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductFactory;
 import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductFactoryImpl;
 
 public class RandomAdditiveMaskFactoryImpl implements RandomAdditiveMaskFactory {
 
-	private final PreprocessedNumericBitFactory numericBitFactory;
+	private final NumericBitFactory numericBitFactory;
 	private final InnerProductFactory innerProductFactory;
 	private final MiscOIntGenerators misc;
 	private final BasicNumericFactory bnf;
 
 	public RandomAdditiveMaskFactoryImpl(BasicNumericFactory bnf,
-			PreprocessedNumericBitFactory numericBitFactory) {
+			NumericBitFactory numericBitFactory) {
 		this.bnf = bnf;
 		this.misc = new MiscOIntGenerators(bnf);
 		this.numericBitFactory = numericBitFactory;

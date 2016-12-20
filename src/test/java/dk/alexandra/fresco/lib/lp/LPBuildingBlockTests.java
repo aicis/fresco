@@ -47,7 +47,7 @@ import dk.alexandra.fresco.lib.debug.MarkerProtocolImpl;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.helper.builder.NumericIOBuilder;
 import dk.alexandra.fresco.lib.helper.builder.NumericProtocolBuilder;
-import dk.alexandra.fresco.lib.math.integer.PreprocessedNumericBitFactory;
+import dk.alexandra.fresco.lib.math.integer.NumericBitFactory;
 import dk.alexandra.fresco.lib.math.integer.exp.ExpFromOIntFactory;
 import dk.alexandra.fresco.lib.math.integer.exp.PreprocessedExpPipeFactory;
 import dk.alexandra.fresco.lib.math.integer.inv.LocalInversionFactory;
@@ -233,7 +233,7 @@ public class LPBuildingBlockTests {
 						public ProtocolProducer prepareApplication(ProtocolFactory factory) {
 							BasicNumericFactory bnFactory = (BasicNumericFactory) factory;
 							LocalInversionFactory localInvFactory = (LocalInversionFactory) factory;
-							PreprocessedNumericBitFactory numericBitFactory = (PreprocessedNumericBitFactory) factory;
+							NumericBitFactory numericBitFactory = (NumericBitFactory) factory;
 							ExpFromOIntFactory expFromOIntFactory = (ExpFromOIntFactory) factory;
 							PreprocessedExpPipeFactory expFactory = (PreprocessedExpPipeFactory) factory;
 							LPFactory lpFactory = new LPFactoryImpl(80, bnFactory, localInvFactory, numericBitFactory,

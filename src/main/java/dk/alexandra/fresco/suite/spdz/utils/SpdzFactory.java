@@ -40,7 +40,6 @@ import dk.alexandra.fresco.lib.field.integer.MultProtocol;
 import dk.alexandra.fresco.lib.field.integer.OpenIntProtocol;
 import dk.alexandra.fresco.lib.field.integer.SubtractProtocol;
 import dk.alexandra.fresco.lib.helper.builder.NumericProtocolBuilder;
-import dk.alexandra.fresco.lib.math.integer.PreprocessedNumericBitFactory;
 import dk.alexandra.fresco.lib.math.integer.exp.ExpFromOIntFactory;
 import dk.alexandra.fresco.lib.math.integer.exp.PreprocessedExpPipeFactory;
 import dk.alexandra.fresco.lib.math.integer.inv.LocalInversionFactory;
@@ -58,7 +57,7 @@ import dk.alexandra.fresco.suite.spdz.gates.SpdzOutputToAllProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzSubtractProtocol;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
 
-public class SpdzFactory implements BasicNumericFactory, PreprocessedNumericBitFactory,
+public class SpdzFactory implements BasicNumericFactory,
 		PreprocessedExpPipeFactory, ExpFromOIntFactory, LocalInversionFactory {
 
 	private int maxBitLength;

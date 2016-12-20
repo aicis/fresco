@@ -32,6 +32,7 @@ import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.framework.value.SIntFactory;
 import dk.alexandra.fresco.lib.field.integer.generic.AddProtocolFactory;
 import dk.alexandra.fresco.lib.field.integer.generic.IOIntProtocolFactory;
+import dk.alexandra.fresco.lib.math.integer.NumericBitFactory;
 
 /**
  * A factory that produces protocols that operate on elements in a finite field.
@@ -39,7 +40,7 @@ import dk.alexandra.fresco.lib.field.integer.generic.IOIntProtocolFactory;
  */
 public interface BasicNumericFactory extends SIntFactory, OIntFactory,
 		AddProtocolFactory, SubtractProtocolFactory, MultProtocolFactory,
-		ProtocolFactory, IOIntProtocolFactory {
+		ProtocolFactory, IOIntProtocolFactory, NumericBitFactory {
 
 	/**
 	 * Returns the maximum number of bits a number in the field can contain.
