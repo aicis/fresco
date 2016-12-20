@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 FRESCO (http://github.com/aicis/fresco).
+ * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
  *
@@ -29,7 +29,6 @@ package dk.alexandra.fresco.suite.bgw;
 import java.math.BigInteger;
 
 import dk.alexandra.fresco.framework.MPCException;
-import dk.alexandra.fresco.framework.Protocol;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.KnownSIntProtocol;
 import dk.alexandra.fresco.framework.value.OInt;
@@ -39,6 +38,8 @@ import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.field.integer.CloseIntProtocol;
 import dk.alexandra.fresco.lib.field.integer.MultProtocol;
 import dk.alexandra.fresco.lib.field.integer.OpenIntProtocol;
+import dk.alexandra.fresco.lib.field.integer.RandomFieldElementFactory;
+import dk.alexandra.fresco.lib.field.integer.RandomFieldElementProtocol;
 import dk.alexandra.fresco.lib.field.integer.SubtractProtocol;
 import dk.alexandra.fresco.lib.helper.builder.NumericProtocolBuilder;
 import dk.alexandra.fresco.lib.math.integer.PreprocessedNumericBitFactory;
@@ -48,7 +49,6 @@ import dk.alexandra.fresco.lib.math.integer.inv.LocalInversionProtocol;
 import dk.alexandra.fresco.suite.bgw.integer.BgwAddProtocol;
 import dk.alexandra.fresco.suite.bgw.integer.BgwAddPublicProtocol;
 import dk.alexandra.fresco.suite.bgw.integer.BgwCloseIntProtocol;
-import dk.alexandra.fresco.suite.bgw.integer.BgwInvertIntProtocol;
 import dk.alexandra.fresco.suite.bgw.integer.BgwKnownSIntProtocol;
 import dk.alexandra.fresco.suite.bgw.integer.BgwLocalInvProtocol;
 import dk.alexandra.fresco.suite.bgw.integer.BgwMultProtocol;
@@ -63,7 +63,7 @@ import dk.alexandra.fresco.suite.bgw.integer.BgwSubtractPublicProtocol;
 import dk.alexandra.fresco.suite.bgw.storage.BgwRandomBitSupplier;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzOInt;
 
-public class BgwFactory implements BasicNumericFactory, LocalInversionFactory, ExpFromOIntFactory, PreprocessedNumericBitFactory {
+public class BgwFactory implements BasicNumericFactory, LocalInversionFactory, ExpFromOIntFactory, PreprocessedNumericBitFactory, RandomFieldElementFactory {
 
 	private int myId;
 	private int noOfParties;
@@ -92,17 +92,6 @@ public class BgwFactory implements BasicNumericFactory, LocalInversionFactory, E
 	@Override
 	public BgwSInt getSInt(int i) {
 		return this.getSInt(BigInteger.valueOf(i));
-	}
-
-	public BgwRandomIntProtocol getRandomIntGate(SInt s) {
-		BgwRandomIntProtocol ig = new BgwRandomIntProtocol(s, noOfParties,
-				threshold);
-		return ig;
-	}
-
-	@Override
-	public BgwSInt getRandomSInt() {
-		throw new MPCException("Not implemented yet");
 	}
 
 	@Override
@@ -144,11 +133,6 @@ public class BgwFactory implements BasicNumericFactory, LocalInversionFactory, E
 	@Override
 	public MultProtocol getMultProtocol(SInt a, SInt b, SInt out) {
 		return new BgwMultProtocol(a, b, out);
-	}
-
-	// test purpose only
-	public Protocol getInvertIntProtocol(SInt in, SInt out) {
-		return new BgwInvertIntProtocol(this, in, out);
 	}
 
 	@Override
@@ -241,6 +225,18 @@ public class BgwFactory implements BasicNumericFactory, LocalInversionFactory, E
 		builder.copy(bit, bitSupplier.getNextBit());
 		builder.endCurScope();
 		return builder.getProtocol();
+	}
+
+	@Override
+	public RandomFieldElementProtocol getRandomFieldElement(SInt randomElement) {
+		BgwRandomIntProtocol ig = new BgwRandomIntProtocol(randomElement, noOfParties,
+				threshold);
+		return ig;
+	}
+
+	@Override
+	public BigInteger getModulus() {
+		return this.mod;
 	}
 
 }

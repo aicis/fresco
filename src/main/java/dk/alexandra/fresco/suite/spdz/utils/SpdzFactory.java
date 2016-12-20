@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 FRESCO (http://github.com/aicis/fresco).
+ * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
  *
@@ -38,6 +38,8 @@ import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.field.integer.CloseIntProtocol;
 import dk.alexandra.fresco.lib.field.integer.MultProtocol;
 import dk.alexandra.fresco.lib.field.integer.OpenIntProtocol;
+import dk.alexandra.fresco.lib.field.integer.RandomFieldElementFactory;
+import dk.alexandra.fresco.lib.field.integer.RandomFieldElementProtocol;
 import dk.alexandra.fresco.lib.field.integer.SubtractProtocol;
 import dk.alexandra.fresco.lib.helper.builder.NumericProtocolBuilder;
 import dk.alexandra.fresco.lib.math.integer.PreprocessedNumericBitFactory;
@@ -55,11 +57,12 @@ import dk.alexandra.fresco.suite.spdz.gates.SpdzLocalInversionProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzMultProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzOutputProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzOutputToAllProtocol;
+import dk.alexandra.fresco.suite.spdz.gates.SpdzRandomProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzSubtractProtocol;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
 
 public class SpdzFactory implements BasicNumericFactory, PreprocessedNumericBitFactory,
-		PreprocessedExpPipeFactory, ExpFromOIntFactory, LocalInversionFactory {
+		PreprocessedExpPipeFactory, ExpFromOIntFactory, LocalInversionFactory, RandomFieldElementFactory {
 
 	private int maxBitLength;
 	private SpdzStorage storage;
@@ -151,11 +154,6 @@ public class SpdzFactory implements BasicNumericFactory, PreprocessedNumericBitF
 			expPipe[i] = new SpdzOInt(res[i]);
 		}
 		return expPipe;
-	}
-
-	@Override
-	public SInt getRandomSInt() {
-		return new SpdzSInt(storage.getSupplier().getNextTriple().getA());
 	}
 
 	@Override
@@ -267,6 +265,16 @@ public class SpdzFactory implements BasicNumericFactory, PreprocessedNumericBitF
 	@Override
 	public OpenIntProtocol getOpenProtocol(SInt closed, OInt open) {
 		return new SpdzOutputToAllProtocol(closed, open);
+	}
+
+	@Override
+	public RandomFieldElementProtocol getRandomFieldElement(SInt randomElement) {
+		return new SpdzRandomProtocol(randomElement);
+	}
+
+	@Override
+	public BigInteger getModulus() {
+		return this.storage.getSupplier().getModulus();
 	}
 
 }

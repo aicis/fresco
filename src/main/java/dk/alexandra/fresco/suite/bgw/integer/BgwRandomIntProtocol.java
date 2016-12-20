@@ -31,16 +31,16 @@ import java.security.SecureRandom;
 import java.util.List;
 
 import dk.alexandra.fresco.framework.MPCException;
-import dk.alexandra.fresco.framework.Protocol;
 import dk.alexandra.fresco.framework.network.SCENetwork;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.framework.value.Value;
+import dk.alexandra.fresco.lib.field.integer.RandomFieldElementProtocol;
 import dk.alexandra.fresco.suite.bgw.BgwProtocol;
 import dk.alexandra.fresco.suite.bgw.BgwProtocolSuite;
 import dk.alexandra.fresco.suite.bgw.ShamirShare;
 
-public class BgwRandomIntProtocol extends BgwProtocol implements Protocol {
+public class BgwRandomIntProtocol extends BgwProtocol implements RandomFieldElementProtocol {
 
 	public BgwSInt output;
 	private int parties, treshold;
