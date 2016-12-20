@@ -50,7 +50,7 @@ import dk.alexandra.fresco.lib.field.integer.RandomFieldElementFactory;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
 import dk.alexandra.fresco.lib.lp.LPFactory;
 import dk.alexandra.fresco.lib.lp.LPFactoryImpl;
-import dk.alexandra.fresco.lib.math.integer.PreprocessedNumericBitFactory;
+import dk.alexandra.fresco.lib.math.integer.NumericBitFactory;
 import dk.alexandra.fresco.lib.math.integer.exp.ExpFromOIntFactory;
 import dk.alexandra.fresco.lib.math.integer.exp.PreprocessedExpPipeFactory;
 import dk.alexandra.fresco.lib.math.integer.inv.LocalInversionFactory;
@@ -111,7 +111,7 @@ public class SearchingTests {
 							public ProtocolProducer prepareApplication(ProtocolFactory factory) {
 								BasicNumericFactory bnf = (BasicNumericFactory) factory;
 								LocalInversionFactory localInvFactory = (LocalInversionFactory) factory;
-								PreprocessedNumericBitFactory numericBitFactory = (PreprocessedNumericBitFactory) factory;
+								NumericBitFactory numericBitFactory = (NumericBitFactory) factory;
 								ExpFromOIntFactory expFromOIntFactory = (ExpFromOIntFactory) factory;
 								PreprocessedExpPipeFactory expFactory = (PreprocessedExpPipeFactory) factory;
 								RandomFieldElementFactory randFactory = (RandomFieldElementFactory) factory;

@@ -39,7 +39,7 @@ import dk.alexandra.fresco.lib.conversion.IntegerToBitsFactoryImpl;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.field.integer.generic.IOIntProtocolFactory;
 import dk.alexandra.fresco.lib.logic.AbstractBinaryFactory;
-import dk.alexandra.fresco.lib.math.integer.PreprocessedNumericBitFactory;
+import dk.alexandra.fresco.lib.math.integer.NumericBitFactory;
 import dk.alexandra.fresco.lib.math.integer.binary.BitLengthFactory;
 import dk.alexandra.fresco.lib.math.integer.binary.BitLengthFactoryImpl;
 import dk.alexandra.fresco.lib.math.integer.binary.RightShiftFactory;
@@ -173,7 +173,7 @@ public class OmniBuilder extends AbstractProtocolBuilder{
 		if(comparisonProtocolBuilder == null){
 			BasicNumericFactory bnf = (BasicNumericFactory)factory;
 			LocalInversionFactory localInvFactory = (LocalInversionFactory) factory;
-			PreprocessedNumericBitFactory numericBitFactory = (PreprocessedNumericBitFactory) factory;
+			NumericBitFactory numericBitFactory = (NumericBitFactory) factory;
 			ExpFromOIntFactory expFromOIntFactory = (ExpFromOIntFactory) factory;
 			PreprocessedExpPipeFactory expFactory = (PreprocessedExpPipeFactory) factory;
 			ComparisonProtocolFactory comFactory = new ComparisonProtocolFactoryImpl(statisticalSecurityParameter, bnf, localInvFactory, numericBitFactory, expFromOIntFactory, expFactory);
@@ -196,7 +196,7 @@ public class OmniBuilder extends AbstractProtocolBuilder{
 		if(statisticsProtocolBuilder == null){
 			BasicNumericFactory basicNumericFactory = (BasicNumericFactory)factory;
 			LocalInversionFactory localInversionFactory = (LocalInversionFactory) factory;
-			PreprocessedNumericBitFactory preprocessedNumericBitFactory = (PreprocessedNumericBitFactory) factory;			
+			NumericBitFactory preprocessedNumericBitFactory = (NumericBitFactory) factory;			
 			RandomAdditiveMaskFactory randomAdditiveMaskFactory = new RandomAdditiveMaskFactoryImpl(basicNumericFactory, preprocessedNumericBitFactory);			
 			RightShiftFactory rightShiftFactory = new RightShiftFactoryImpl(basicNumericFactory, randomAdditiveMaskFactory, localInversionFactory);
 			IntegerToBitsFactory integerToBitsFactory = new IntegerToBitsFactoryImpl(basicNumericFactory, rightShiftFactory);

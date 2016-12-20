@@ -48,7 +48,7 @@ import dk.alexandra.fresco.lib.conversion.IntegerToBitsFactoryImpl;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.helper.builder.NumericIOBuilder;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
-import dk.alexandra.fresco.lib.math.integer.PreprocessedNumericBitFactory;
+import dk.alexandra.fresco.lib.math.integer.NumericBitFactory;
 import dk.alexandra.fresco.lib.math.integer.inv.LocalInversionFactory;
 
 
@@ -97,7 +97,7 @@ public class BinaryOperationsTests {
 								ProtocolFactory factory) {
 							
 							BasicNumericFactory basicNumericFactory = (BasicNumericFactory) factory;
-							PreprocessedNumericBitFactory preprocessedNumericBitFactory = (PreprocessedNumericBitFactory) factory;
+							NumericBitFactory preprocessedNumericBitFactory = (NumericBitFactory) factory;
 							RandomAdditiveMaskFactory randomAdditiveMaskFactory = new RandomAdditiveMaskFactoryImpl(basicNumericFactory, preprocessedNumericBitFactory);
 							LocalInversionFactory localInversionFactory = (LocalInversionFactory) factory;
 							RightShiftFactory rightShiftFactory = new RightShiftFactoryImpl(basicNumericFactory, randomAdditiveMaskFactory, localInversionFactory);
@@ -158,7 +158,7 @@ public class BinaryOperationsTests {
 								ProtocolFactory factory) {
 							
 							BasicNumericFactory basicNumericFactory = (BasicNumericFactory) factory;
-							PreprocessedNumericBitFactory preprocessedNumericBitFactory = (PreprocessedNumericBitFactory) factory;
+							NumericBitFactory preprocessedNumericBitFactory = (NumericBitFactory) factory;
 							RandomAdditiveMaskFactory randomAdditiveMaskFactory = new RandomAdditiveMaskFactoryImpl(basicNumericFactory, preprocessedNumericBitFactory);
 							LocalInversionFactory localInversionFactory = (LocalInversionFactory) factory;
 							RightShiftFactory rightShiftFactory = new RightShiftFactoryImpl(basicNumericFactory, randomAdditiveMaskFactory, localInversionFactory);
@@ -230,7 +230,7 @@ public class BinaryOperationsTests {
 								ProtocolFactory factory) {
 							
 							BasicNumericFactory basicNumericFactory = (BasicNumericFactory) factory;
-							PreprocessedNumericBitFactory preprocessedNumericBitFactory = (PreprocessedNumericBitFactory) factory;
+							NumericBitFactory preprocessedNumericBitFactory = (NumericBitFactory) factory;
 							RandomAdditiveMaskFactory randomAdditiveMaskFactory = new RandomAdditiveMaskFactoryImpl(basicNumericFactory, preprocessedNumericBitFactory);
 							LocalInversionFactory localInversionFactory = (LocalInversionFactory) factory;
 							RightShiftFactory rightShiftFactory = new RightShiftFactoryImpl(basicNumericFactory, randomAdditiveMaskFactory, localInversionFactory);

@@ -38,11 +38,9 @@ import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.field.integer.CloseIntProtocol;
 import dk.alexandra.fresco.lib.field.integer.MultProtocol;
 import dk.alexandra.fresco.lib.field.integer.OpenIntProtocol;
-import dk.alexandra.fresco.lib.field.integer.RandomFieldElementFactory;
 import dk.alexandra.fresco.lib.field.integer.RandomFieldElementProtocol;
 import dk.alexandra.fresco.lib.field.integer.SubtractProtocol;
 import dk.alexandra.fresco.lib.helper.builder.NumericProtocolBuilder;
-import dk.alexandra.fresco.lib.math.integer.PreprocessedNumericBitFactory;
 import dk.alexandra.fresco.lib.math.integer.exp.ExpFromOIntFactory;
 import dk.alexandra.fresco.lib.math.integer.inv.LocalInversionFactory;
 import dk.alexandra.fresco.lib.math.integer.inv.LocalInversionProtocol;
@@ -63,7 +61,8 @@ import dk.alexandra.fresco.suite.bgw.integer.BgwSubtractPublicProtocol;
 import dk.alexandra.fresco.suite.bgw.storage.BgwRandomBitSupplier;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzOInt;
 
-public class BgwFactory implements BasicNumericFactory, LocalInversionFactory, ExpFromOIntFactory, PreprocessedNumericBitFactory, RandomFieldElementFactory {
+public class BgwFactory implements BasicNumericFactory, LocalInversionFactory, ExpFromOIntFactory {
+
 
 	private int myId;
 	private int noOfParties;

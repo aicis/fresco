@@ -47,6 +47,7 @@ import dk.alexandra.fresco.framework.sce.configuration.TestSCEConfiguration;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.resources.storage.FilebasedStreamedStorageImpl;
 import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
+import dk.alexandra.fresco.framework.sce.resources.storage.SQLStorage;
 import dk.alexandra.fresco.framework.sce.resources.storage.Storage;
 import dk.alexandra.fresco.framework.sce.resources.storage.StorageStrategy;
 import dk.alexandra.fresco.lib.lp.LPSolverTests;
@@ -109,9 +110,8 @@ public class TestSpdzLPSolver3Parties {
 			case STREAMED_STORAGE:
 				storage = new FilebasedStreamedStorageImpl(inMemStore);
 				break;
-			case MYSQL:
-				throw new RuntimeException("mySQL currently not supported");
-				//ttc.storage = mySQLStore;
+			case SQL:				
+				storage = SQLStorage.getInstance();
 			}
 			ttc.sceConf = new TestSCEConfiguration(suite, evaluator, noOfThreads, noOfVMThreads, ttc.netConf, storage, useSecureConnection);
 			conf.put(playerId, ttc);

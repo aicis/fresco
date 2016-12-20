@@ -49,7 +49,7 @@ import dk.alexandra.fresco.lib.helper.CopyProtocol;
 import dk.alexandra.fresco.lib.helper.CopyProtocolImpl;
 import dk.alexandra.fresco.lib.math.integer.NumericNegateBitFactory;
 import dk.alexandra.fresco.lib.math.integer.NumericNegateBitFactoryImpl;
-import dk.alexandra.fresco.lib.math.integer.PreprocessedNumericBitFactory;
+import dk.alexandra.fresco.lib.math.integer.NumericBitFactory;
 import dk.alexandra.fresco.lib.math.integer.exp.ExpFromOIntFactory;
 import dk.alexandra.fresco.lib.math.integer.exp.PreprocessedExpPipeFactory;
 import dk.alexandra.fresco.lib.math.integer.inv.InversionProtocolImpl;
@@ -81,7 +81,7 @@ public class LPFactoryImpl implements LPFactory {
 
 	public LPFactoryImpl(int securityParameter, BasicNumericFactory bnf,
 			LocalInversionFactory localInvFactory,
-			PreprocessedNumericBitFactory numericBitFactory,
+			NumericBitFactory numericBitFactory,
 			ExpFromOIntFactory expFromOIntFactory,
 			PreprocessedExpPipeFactory expFactory,
 			RandomFieldElementFactory randFactory) {

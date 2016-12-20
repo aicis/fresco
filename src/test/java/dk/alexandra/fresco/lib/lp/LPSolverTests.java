@@ -51,7 +51,7 @@ import dk.alexandra.fresco.lib.lp.LPFactory;
 import dk.alexandra.fresco.lib.lp.LPFactoryImpl;
 import dk.alexandra.fresco.lib.lp.LPPrefix;
 import dk.alexandra.fresco.lib.lp.LPSolverProtocol;
-import dk.alexandra.fresco.lib.math.integer.PreprocessedNumericBitFactory;
+import dk.alexandra.fresco.lib.math.integer.NumericBitFactory;
 import dk.alexandra.fresco.lib.math.integer.exp.ExpFromOIntFactory;
 import dk.alexandra.fresco.lib.math.integer.exp.PreprocessedExpPipeFactory;
 import dk.alexandra.fresco.lib.math.integer.inv.LocalInversionFactory;
@@ -88,7 +88,7 @@ public class LPSolverTests {
 								ProtocolFactory factory) {
 							BasicNumericFactory bnFactory = (BasicNumericFactory) factory;
 							LocalInversionFactory localInvFactory = (LocalInversionFactory) factory;
-							PreprocessedNumericBitFactory numericBitFactory = (PreprocessedNumericBitFactory) factory;
+							NumericBitFactory numericBitFactory = (NumericBitFactory) factory;
 							ExpFromOIntFactory expFromOIntFactory = (ExpFromOIntFactory) factory;
 							PreprocessedExpPipeFactory expFactory = (PreprocessedExpPipeFactory) factory;
 							RandomFieldElementFactory randFactory = (RandomFieldElementFactory) factory;
