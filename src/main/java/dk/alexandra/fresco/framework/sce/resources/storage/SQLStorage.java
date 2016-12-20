@@ -45,22 +45,22 @@ import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.Reporter;
 import dk.alexandra.fresco.framework.sce.configuration.DatabaseConfiguration;
 
-public class MySQLStorage implements Storage {
+public class SQLStorage implements Storage {
 
 	private JdbcTemplate jdbcTemplate;
-	private static MySQLStorage instance;
+	private static SQLStorage instance;
 	
 	private static final String KEY = "key_id";
 	private static final String DATA_ID = "data";
 
-	public static MySQLStorage getInstance() {
+	public static SQLStorage getInstance() {
 		if (instance == null) {
-			instance = new MySQLStorage();
+			instance = new SQLStorage();
 		}
 		return instance;
 	}
 
-	private MySQLStorage() {
+	private SQLStorage() {
 		this.jdbcTemplate = new JdbcTemplate();
 		DataSource dataSource = dataSource();
 		this.jdbcTemplate.setDataSource(dataSource);
@@ -83,27 +83,8 @@ public class MySQLStorage implements Storage {
 		return dataSource;
 	}
 
-	private boolean tableExists(String tableName) {
-		String sqlStm = "SHOW TABLES LIKE ?;";
-		try {
-			boolean exists = this.jdbcTemplate.query(sqlStm,
-					new Object[] { tableName },
-					new ResultSetExtractor<Boolean>() {
-
-				@Override
-				public Boolean extractData(ResultSet rs)
-						throws SQLException, DataAccessException {
-					return rs.first();
-				}
-			});
-			return exists;
-		} catch (Exception e) {
-			return false;
-		}
-	}
-
 	private boolean createTable(String tableName) {		
-		String sqlStm = "CREATE TABLE "+tableName+" ("
+		String sqlStm = "CREATE TABLE IF NOT EXISTS "+tableName+" ("
 				+ KEY + " VARCHAR(255) NOT NULL PRIMARY KEY, "
 				+ DATA_ID + " BLOB NOT NULL);";
 		int rows = this.jdbcTemplate.update(sqlStm);
@@ -115,9 +96,7 @@ public class MySQLStorage implements Storage {
 
 	@Override
 	public boolean putObject(String name, String key, Serializable o) {
-		if (!tableExists(name)) {
-			createTable(name);
-		}
+		createTable(name);
 		String sqlStm = "INSERT INTO "+name+" ("+KEY+", "+DATA_ID+") VALUES (?, ?);";
 		try {
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
