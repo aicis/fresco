@@ -79,6 +79,7 @@ public class OmniBuilder extends AbstractProtocolBuilder{
 	private ComparisonProtocolBuilder comparisonProtocolBuilder;
 	private StatisticsProtocolBuilder statisticsProtocolBuilder;
 	private SymmetricEncryptionBuilder symmetricEncryptionBuilder;
+	private UtilityBuilder utilityBuilder;
 	
 	//Used in various protocols - typically for comparisons. 
 	//TODO: Better explanation as to what this is, and what it means for performance/security. 
@@ -220,13 +221,29 @@ public class OmniBuilder extends AbstractProtocolBuilder{
 		if(symmetricEncryptionBuilder == null) {
 			BasicNumericFactory basicNumericFactory = (BasicNumericFactory)factory;
 			symmetricEncryptionBuilder = new SymmetricEncryptionBuilder(basicNumericFactory);
+			symmetricEncryptionBuilder.setParentBuilder(this);
 		}
 		return symmetricEncryptionBuilder;
 	}
 
+	/**
+	 * Builder used primarily for debug purposes, so be careful including this in production code. 
+	 * Currently expects that the constructor given factory implements one of the interfaces listed below:
+	 * - BasicNumericFactory
+	 * - BasicLogicFactory
+	 * @return A builder that constructs primarily debug protocols.
+	 */
+	public UtilityBuilder getUtilityBuilder() {
+		if(utilityBuilder == null) {
+			utilityBuilder = new UtilityBuilder(factory);
+			utilityBuilder.setParentBuilder(this);
+		}
+		return utilityBuilder;
+	}
+	
 	@Override
 	public void addProtocolProducer(ProtocolProducer pp) {
 		append(pp);
 	}
-	
+
 }
