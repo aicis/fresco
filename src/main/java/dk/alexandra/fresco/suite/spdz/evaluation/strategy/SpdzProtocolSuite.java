@@ -138,13 +138,7 @@ public class SpdzProtocolSuite implements ProtocolSuite {
 		// Initialize various fields global to the computation.
 		this.keyShare = store[0].getSSK();
 		this.p = store[0].getSupplier().getModulus();
-		Util.setModulus(this.p);
-		byte[] bytes = p.toByteArray();
-		if (bytes[0] == 0) {
-			Util.size = p.toByteArray().length - 1;
-		} else {
-			Util.size = p.toByteArray().length;
-		}
+		Util.setModulus(this.p);		
 	}
 
 	@Override

@@ -102,8 +102,8 @@ public class TestSpdzMiMC {
 			boolean useSecureConnection = false; // No tests of secure
 													// connection
 													// here.
-			int noOfVMThreads = 3;
-			int noOfThreads = 3;
+			int noOfVMThreads = 1;
+			int noOfThreads = 1;
 			ProtocolSuite suite = new SpdzProtocolSuite();
 			ProtocolEvaluator evaluator = EvaluationStrategy
 					.fromEnum(evalStrategy);
@@ -120,7 +120,7 @@ public class TestSpdzMiMC {
 	@Test
 	public void test_mimc_same_enc() throws Exception {
 		InMemoryStreamedStorage inMemStore = new InMemoryStreamedStorage(new InMemoryStorage());		
-		InitializeStorage.initStreamedStorage(new StreamedStorage[] {inMemStore}, 2, 3, 100, 0, 0, 0, new BigInteger("1031"));
+		InitializeStorage.initStreamedStorage(new StreamedStorage[] {inMemStore}, 2, 1, 10000, 0, 0, 0, new BigInteger("2582249878086908589655919172003011874329705792829223512830659356540647622016841194629645353280137831435903171972747493557"));
 		runTest(new MiMCTests.TestMiMCEncSameEnc(),
 				EvaluationStrategy.SEQUENTIAL, StorageStrategy.IN_MEMORY, inMemStore);
 	}
@@ -128,18 +128,8 @@ public class TestSpdzMiMC {
 	@Test
 	public void test_mimc_enc_dec() throws Exception {
 		InMemoryStreamedStorage inMemStore = new InMemoryStreamedStorage(new InMemoryStorage());		
-		InitializeStorage.initStreamedStorage(new StreamedStorage[] {inMemStore}, 2, 3, 100000, 0, 0, 0, new BigInteger("1031"));
+		InitializeStorage.initStreamedStorage(new StreamedStorage[] {inMemStore}, 2, 1, 100000, 0, 0, 0, new BigInteger("1031"));
 		runTest(new MiMCTests.TestMiMCEncDec(),
 				EvaluationStrategy.SEQUENTIAL, StorageStrategy.IN_MEMORY, inMemStore);
-	}
-	
-	@Test
-	public void test() {
-		BigInteger p = new BigInteger("1031");
-		BigInteger expP = p.subtract(BigInteger.ONE);
-		BigInteger threeInv = BigInteger.valueOf(3).modInverse(expP);
-		System.out.println(threeInv);
-		
-		System.out.println(MiMCConstants.getConstant(0, p));
 	}
 }
