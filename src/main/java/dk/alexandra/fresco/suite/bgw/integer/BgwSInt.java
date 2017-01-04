@@ -58,7 +58,7 @@ public class BgwSInt implements SInt {
 	@Override
 	public boolean isReady() {
 		if (this.value == null) return false;
-		return value.isReady();
+		return true;
 	}
 
 	@Override

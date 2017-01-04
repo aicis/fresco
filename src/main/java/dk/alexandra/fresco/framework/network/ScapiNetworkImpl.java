@@ -291,7 +291,7 @@ public class ScapiNetworkImpl implements Network {
 		if(partyId == this.conf.getMyId()) {
 			Serializable res = this.queues.get(channel).poll();
 			if(res == null){
-				throw new MPCException("Self(" + partyId + ") have not send anything on channel 1 before receive was called.");
+				throw new MPCException("Self(" + partyId + ") have not send anything on channel " + channel + "before receive was called.");
 			}
 			return (T) res;
 		} else {

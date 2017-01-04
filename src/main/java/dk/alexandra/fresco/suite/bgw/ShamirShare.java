@@ -40,16 +40,6 @@ public final class ShamirShare implements Serializable {
 	private static final long serialVersionUID = -7986019375218481628L;
 
 	private static BigInteger[] vector;
-
-    // private static final String primeNumber = "30916444023318367583";
-    // private static final String primeNumber =
-    // "35742549198872617291353508656626642567";
-    // public static final BigInteger primeNumber = BigInteger.valueOf(19);
- //    public static final BigInteger primeNumber = new BigInteger(
- //    "18446744073709551667");
-  //   public static final BigInteger primeNumber = new BigInteger("618970019642690137449562111"); // 2^89-1, we need a Mersenne prime for the comparison protocol to be correct
-  //  public static final BigInteger primeNumber = new BigInteger(
-  //  "2147483647");
 	
 	private static BigInteger primeNumber;
 	public static void setPrimeNumber(BigInteger mod) {
@@ -57,7 +47,6 @@ public final class ShamirShare implements Serializable {
 	}
 
     private static SecureRandom random = new SecureRandom();
-    //public static final int size = 9;
     public static final int size = 12;
     private static byte[] randomBytesBuffer;
     public static int partyId;
@@ -65,15 +54,10 @@ public final class ShamirShare implements Serializable {
 
     private byte point;
     private BigInteger fieldValue;
-    public long p1, p2, p3, p4, p5, p6, p7;
-
-    //private boolean ready = false; //indicates if we know the secret
     
     public ShamirShare(int point, BigInteger v) {
-  //  	System.out.println("pr: "+primeNumber.bitLength());
         if (point > 255) {
-            throw new IllegalArgumentException(
-            "point is too large, it is more than 255.");
+            throw new IllegalArgumentException("Point is too large, it is more than 255.");
         }
         this.point = (byte) point;
         this.fieldValue = v.mod(primeNumber);
@@ -145,95 +129,57 @@ public final class ShamirShare implements Serializable {
 
     public static BigInteger recombine(ShamirShare[] shares,
             int numberOfParties) {
-        // ShamirReporter.report(partyId, "");
-        // ShamirReporter.report(partyId, " === Recombine ===");
-        //
-        // ShamirReporter.report(partyId, shares.toString());
-
-        // System.out.println(Arrays.toString(shares));
         if ((vector != null) && (vector.length == numberOfParties)) {
-            // System.out.println("Recombine using vector: "
-            // + Arrays.toString(vector));
             return recombine(shares);
         } else {
-            // System.out.println("Computing vector.");
             vector = computeCoefficients(numberOfParties);
-            // System.out.println("Recombine using vector: "
-            // + Arrays.toString(vector));
             return recombine(shares);
         }
     }
     
     public static BigInteger recombine(List<ShamirShare> shares,
             int numberOfParties) {
-        ShamirShare[] tmp = new ShamirShare[shares.size()];
-        for(int i = 0; i < shares.size(); i++) {
-        	tmp[i] = shares.get(i);
-        }
+    	ShamirShare[] tmp = shares.toArray(new ShamirShare[shares.size()]);
         return recombine(tmp, numberOfParties);
     }
 
     private static BigInteger recombine(ShamirShare[] shares) {
         BigInteger s = BigInteger.ZERO;
         for (int inx = 0; inx < vector.length; inx++) {
-            // System.out.println("Multing: " + shares[inx] + ", " +
-            // vector[inx]);
             ShamirShare share = shares[inx];
-            s = s.add(share.fieldValue.multiply(vector[inx]));
-
-            // System.out.println("Res: " + s);
+            s = s.add(share.fieldValue.multiply(vector[inx]).mod(primeNumber)).mod(primeNumber);
         }
-        // System.out.println("s = " + s.mod(primeNumber));
         return s.mod(primeNumber);
     }
 
     private static BigInteger[] computeCoefficients(int numberOfParties) {
         BigInteger[] vector = new BigInteger[numberOfParties];
         for (byte pi = 1; pi <= numberOfParties; pi++) {
-            // String str = "";
-            List<BigInteger> factors = new ArrayList<BigInteger>(
-                    numberOfParties);
+            List<BigInteger> factors = new ArrayList<BigInteger>(numberOfParties);
             for (byte pk = 1; pk <= numberOfParties; pk++) {
                 if (pi != pk) {
                     BigInteger x_k = BigInteger.valueOf(pk);
                     BigInteger x_i = BigInteger.valueOf(pi);
-                    BigInteger subtractionResult = x_i.subtract(x_k);
+                    BigInteger subtractionResult = x_k.subtract(x_i);
                     BigInteger subtractionResultModInverse = subtractionResult.modInverse(primeNumber);
-                    // System.out.println(subtractionResult);
-                    // System.out.println(subtractionResultModInverse);
-                    BigInteger multiplicationResult = x_k
-                    .multiply(subtractionResultModInverse);
-                    BigInteger factor = multiplicationResult;
-                    // str = " f_" + pi + " = " + factor + " = " + pk
-                    // + "/(" + pi + "-" + pk + ")";
-                    // System.out.println(str + " % " + primeNumber);
-                    factors.add(factor);
+                    BigInteger multiplicationResult = x_k.multiply(subtractionResultModInverse);
+                    factors.add(multiplicationResult.mod(primeNumber));
                 }
             }
-            // System.out.println("Pi: " + pi + " factors: " + factors);
-
             if (factors.size() > 0) {
-                // str = "";
                 BigInteger r = factors.remove(0);
                 for (BigInteger f : factors) {
-                    // str += r + " * " + f;
-                    r = r.multiply(f);
+                    r = r.multiply(f).mod(primeNumber);
                 }
-
-                // System.out.println("r: " + r + " = " + str
-                // + " % "
-                // + primeNumber);
-                vector[pi - 1] = r;
+                vector[pi - 1] = r.mod(primeNumber);
             }
         }
         return vector;
     }
-
     
     public byte getType() {
         return 1;
     }
-
     
     public byte[] getPayload() {
         return this.toByteArray();
@@ -255,9 +201,6 @@ public final class ShamirShare implements Serializable {
         }
 
         ShamirShare[] shares = new ShamirShare[numberOfParties];
-
-        // ShamirReporter.report(this.partyId, "coeff: " +
-        // coefficients.toString());
         for (int inx = 1; inx <= numberOfParties; inx++) {
             // Instead of calculating s_i as
             // s_i = s + a_1 x_i + a_2 x_i^2 + ... + a_t x_i^t
@@ -279,8 +222,7 @@ public final class ShamirShare implements Serializable {
             shares[inx - 1] = new ShamirShare(inx, cur_share);
         }
         return shares;
-    }
-    
+    }    
     
     public void setField(BigInteger field) {
         this.fieldValue = field;
@@ -288,28 +230,18 @@ public final class ShamirShare implements Serializable {
 
     public static BigInteger random() {
         byte[] bytes = new byte[8];
-        // ShamirReporter.report(partyId, "Marker: " + randomBytesMarker);
-        // if (randomBytesBuffer != null) {
-        // ShamirReporter.report(partyId, "D: "
-        // + randomBytesBuffer.length);
-        // }
         if ((randomBytesBuffer != null)
                 && (randomBytesMarker + 8 < randomBytesBuffer.length)) {
-            // ShamirReporter.report(partyId, "Reuse");
             System.arraycopy(randomBytesBuffer, randomBytesMarker, bytes, 0, 8);
             randomBytesMarker += 8;
             return new BigInteger(bytes);
         } else {
-            // ShamirReporter.report(partyId, "New");
             randomBytesBuffer = random0(16384);
             randomBytesMarker = 0;
             System.arraycopy(randomBytesBuffer, randomBytesMarker, bytes, 0, 8);
             randomBytesMarker += 8;
         }
         return new BigInteger(bytes);
-        // byte bytes[] = new byte[8];
-        // random.nextBytes(bytes);
-        // return new GaloisField(new BigInteger(bytes));
     }
 
     private static byte[] random0(int numberOfBytes) {
@@ -348,9 +280,5 @@ public final class ShamirShare implements Serializable {
     	byte[] b = new byte[getSize()];
     	System.arraycopy(bytes, offset, b, 0, getSize());
     	return new ShamirShare(b);
-    }
-    //stub
-    public boolean isReady(){
-    	return false;
     }
 }

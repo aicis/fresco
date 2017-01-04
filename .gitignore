@@ -9,9 +9,9 @@ target/
 .settings
 .project
 
-lpinputs/
-triples/
-spdz/
+./lpinputs/
+./triples/
+./spdz/
 
 /tinytables/*
 

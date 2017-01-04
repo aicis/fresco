@@ -32,8 +32,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 
+import org.junit.Ignore;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
+import dk.alexandra.fresco.IntegrationTest;
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.Reporter;
 import dk.alexandra.fresco.framework.TestThreadRunner;
@@ -47,8 +50,8 @@ import dk.alexandra.fresco.framework.sce.resources.storage.FilebasedStreamedStor
 import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
 import dk.alexandra.fresco.framework.sce.resources.storage.Storage;
 import dk.alexandra.fresco.framework.sce.resources.storage.StorageStrategy;
-import dk.alexandra.fresco.lib.lp.LPSolverTests;
 import dk.alexandra.fresco.framework.sce.resources.storage.StreamedStorage;
+import dk.alexandra.fresco.lib.lp.LPSolverTests;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.configuration.SpdzConfiguration;
 import dk.alexandra.fresco.suite.spdz.evaluation.strategy.SpdzProtocolSuite;
@@ -104,9 +107,12 @@ public class TestSpdzLPSolver2Parties {
 			switch (storageStrategy) {
 			case IN_MEMORY:
 				storage = inMemStore;
+				break;
 			case STREAMED_STORAGE:
 				storage = new FilebasedStreamedStorageImpl(inMemStore);
+				break;
 			case MYSQL:
+				throw new RuntimeException("mySQL currently not supported");
 				//storage = mySQLStore;
 			}
 			ttc.sceConf = new TestSCEConfiguration(suite, evaluator, noOfPSThreads, noOfVmThreads, ttc.netConf, storage, useSecureConnection);
@@ -120,33 +126,23 @@ public class TestSpdzLPSolver2Parties {
 
 	private static final InMemoryStorage inMemStore = new InMemoryStorage();
 	private static final StreamedStorage streamedStorage = new FilebasedStreamedStorageImpl(inMemStore);
-	//private static final MySQLStorage mySQLStore = MySQLStorage.getInstance();
 
-	/**
-	 * Makes sure that the preprocessed data exists in the storage's used in
-	 * this test class. Not needed if we set useDummyData to true in spdz config. 
-	 */
-	/*
-	@BeforeClass
-	public static void initStorage() {
-		Storage[] storages = new Storage[] {
-				inMemStore};//, mySQLStore };
-		InitializeStorage.initStorage(storages, 2, 10000, 1000, 500000, 2000);
-	}
-	*/
-
+	//Run the test with the sequential evaluator. The rest is tested only in integration test phase.
+	
 	@Test
 	public void test_LPSolver_2_Sequential_dummy() throws Exception {
 		runTest(new LPSolverTests.TestLPSolver(), 2, 1,
 				EvaluationStrategy.SEQUENTIAL, StorageStrategy.IN_MEMORY, true);
 	}
 	
+	@Category(IntegrationTest.class)
 	@Test
 	public void test_LPSolver_2_Parallel_dummy() throws Exception {
 		runTest(new LPSolverTests.TestLPSolver(), 2, 1,
 				EvaluationStrategy.PARALLEL, StorageStrategy.IN_MEMORY, true);
 	}
 	
+	@Category(IntegrationTest.class)
 	@Test
 	public void test_LPSolver_2_Parallel_batched_dummy() throws Exception {
 		int numberOfVMThreads = 4;
@@ -154,180 +150,69 @@ public class TestSpdzLPSolver2Parties {
 				EvaluationStrategy.PARALLEL_BATCHED, StorageStrategy.IN_MEMORY, true);
 	}
 	
+	@Category(IntegrationTest.class)
 	@Test
 	public void test_LPSolver_2_Sequential_batched_dummy() throws Exception {
 		runTest(new LPSolverTests.TestLPSolver(), 2, 1,
 				EvaluationStrategy.SEQUENTIAL_BATCHED, StorageStrategy.IN_MEMORY, true);
-	}
-
+	}	
+	
+	@Category(IntegrationTest.class)
 	@Test
 	public void test_LPSolver_2_Sequential_streamed() throws Exception {
 		int noOfThreads = 1;
-		InitializeStorage.initStreamedStorage(new StreamedStorage[] {streamedStorage}, 2, noOfThreads, 10000, 1000, 500000, 2000);
-		runTest(new LPSolverTests.TestLPSolver(), 2, noOfThreads,
-				EvaluationStrategy.SEQUENTIAL, StorageStrategy.STREAMED_STORAGE, false);
+		InitializeStorage.cleanup();
+		try {
+			InitializeStorage.initStreamedStorage(new StreamedStorage[] {streamedStorage}, 2, noOfThreads, 10000, 1000, 500000, 2000);
+			runTest(new LPSolverTests.TestLPSolver(), 2, noOfThreads,
+					EvaluationStrategy.SEQUENTIAL, StorageStrategy.STREAMED_STORAGE, false);
+		} finally {
+			InitializeStorage.cleanup();
+		}
 	}
 	
+	//ignoring the last streamed tests since they take too long with respect to generating preprocessed material
+	//TODO: Maybe add the @Category(IntegrationTest.class) instead of @Ignore. 
+	
 	@Test
+	@Ignore
 	public void test_LPSolver_2_Parallel_streamed() throws Exception {
-		int noOfThreads = 2;		
-		InitializeStorage.initStreamedStorage(new StreamedStorage[] {streamedStorage}, 2, noOfThreads, 10000, 1000, 500000, 2000);
-		runTest(new LPSolverTests.TestLPSolver(), 2, noOfThreads,
-				EvaluationStrategy.PARALLEL, StorageStrategy.STREAMED_STORAGE, false);
+		int noOfThreads = 2;
+		InitializeStorage.cleanup();
+		try {
+			InitializeStorage.initStreamedStorage(new StreamedStorage[] {streamedStorage}, 2, noOfThreads, 10000, 1000, 500000, 2000);			
+			runTest(new LPSolverTests.TestLPSolver(), 2, noOfThreads,
+					EvaluationStrategy.PARALLEL, StorageStrategy.STREAMED_STORAGE, false);
+		} finally {
+			InitializeStorage.cleanup();
+		}
 	}
 	
 	@Test
+	@Ignore
 	public void test_LPSolver_2_ParallelBatched_streamed() throws Exception {
 		int noOfThreads = 2;		
-		InitializeStorage.initStreamedStorage(new StreamedStorage[] {streamedStorage}, 2, noOfThreads, 10000, 1000, 500000, 2000);
-		runTest(new LPSolverTests.TestLPSolver(), 2, noOfThreads,
-				EvaluationStrategy.PARALLEL_BATCHED, StorageStrategy.STREAMED_STORAGE, false);
+		InitializeStorage.cleanup();
+		try {
+			InitializeStorage.initStreamedStorage(new StreamedStorage[] {streamedStorage}, 2, noOfThreads, 10000, 1000, 500000, 2000);
+			runTest(new LPSolverTests.TestLPSolver(), 2, noOfThreads,
+					EvaluationStrategy.PARALLEL_BATCHED, StorageStrategy.STREAMED_STORAGE, false);
+		} finally {
+			InitializeStorage.cleanup();
+		}
 	}
 	
 	@Test
+	@Ignore
 	public void test_LPSolver_2_SequentialBatched_streamed() throws Exception {
 		int noOfThreads = 2;		
-		InitializeStorage.initStreamedStorage(new StreamedStorage[] {streamedStorage}, 2, noOfThreads, 10000, 1000, 500000, 2000);
-		runTest(new LPSolverTests.TestLPSolver(), 2, noOfThreads,
-				EvaluationStrategy.SEQUENTIAL_BATCHED, StorageStrategy.STREAMED_STORAGE, false);
-	}
-	
-	/*
-	@Test
-	public void testSolverPar() throws Exception {
-		TestThreadRunner.run(new TestThreadFactory() {
-			@Override
-			public TestThread next(TestThreadConfiguration conf) {
-				return new ThreadWithFixture() {
-					@Override
-					public void test() throws Exception {
-						
-						
-						{
-							File pattern = new File("lpinputs/pattern7.csv");
-							File program = new File("lpinputs/program7.csv");
-							LPInputReader inputreader = PlainLPInputReader.getFileInputReader(program, pattern, conf.getMyId());
-							ParallelGateProducer par = new ParallelGateProducer();
-							for (int i = 0; i < 1; i++) {
-								LPPrefix prefix = new PlainSpdzLPPrefix(inputreader, provider);
-								ProtocolProducer lpsolver = new LPSolverCircuit(
-										prefix.getTableau(),
-										prefix.getUpdateMatrix(), 
-										prefix.getPivot(), 
-										provider, provider);
-								SInt sout = provider.getSInt();
-								OInt out = provider.getOInt();
-								ProtocolProducer outputter = provider.getOptimalValueCircuit(
-										prefix.getUpdateMatrix(), 
-										prefix.getTableau().getB(), 
-										prefix.getPivot(), sout);
-								ProtocolProducer open = provider.getOpenIntCircuit(sout, out);
-								ProtocolProducer seq = new SequentialProtocolProducer(prefix.getProducer(), lpsolver, outputter, open);
-								par.append(seq);
-							}
-							sce.runApplication(par);
-						}
-						{	
-							File pattern = new File("lpinputs/pattern7.csv");
-							File program = new File("lpinputs/program7.csv");
-							LPInputReader inputreader = PlainLPInputReader.getFileInputReader(program, pattern, conf.getMyId());
-							ParallelGateProducer par = new ParallelGateProducer();
-							for (int i = 0; i < 5; i++) {
-								LPPrefix prefix = new PlainSpdzLPPrefix(inputreader, provider);
-								ProtocolProducer lpsolver = new LPSolverCircuit(
-										prefix.getTableau(),
-										prefix.getUpdateMatrix(), 
-										prefix.getPivot(), 
-										provider, provider);
-								SInt sout = provider.getSInt();
-								OInt out = provider.getOInt();
-								ProtocolProducer outputter = provider.getOptimalValueCircuit(
-										prefix.getUpdateMatrix(), 
-										prefix.getTableau().getB(), 
-										prefix.getPivot(), sout);
-								ProtocolProducer open = provider.getOpenIntCircuit(sout, out);
-								ProtocolProducer seq = new SequentialProtocolProducer(prefix.getProducer(), lpsolver, outputter, open);
-								par.append(seq);
-							}
-							long startTime = System.nanoTime();
-							sce.runApplication(par);
-							long endTime = System.nanoTime();
-							System.out.println("==================== Par Time: " + ((endTime - startTime)/1000000));
-						}
-					}
-				};
-			}
-		}, 2);
-
-	}
-	
-	@Test
-	public void testSolverSeq() throws Exception {
-		TestThreadRunner.run(new TestThreadFactory() {
-			@Override
-			public TestThread next(TestThreadConfiguration conf) {
-				return new ThreadWithFixture() {
-					@Override
-					public void test() throws Exception {
-						
-						{
-							File pattern = new File("lpinputs/pattern7.csv");
-							File program = new File("lpinputs/program7.csv");
-							LPInputReader inputreader = PlainLPInputReader.getFileInputReader(program, pattern, conf.getMyId());
-							SequentialProtocolProducer sseq = new SequentialProtocolProducer();
-							for (int i = 0; i < 1; i++) {
-								LPPrefix prefix = new PlainSpdzLPPrefix(inputreader, provider);
-								ProtocolProducer lpsolver = new LPSolverCircuit(
-										prefix.getTableau(),
-										prefix.getUpdateMatrix(), 
-										prefix.getPivot(), 
-										provider, provider);
-								SInt sout = provider.getSInt();
-								OInt out = provider.getOInt();
-								ProtocolProducer outputter = provider.getOptimalValueCircuit(
-										prefix.getUpdateMatrix(), 
-										prefix.getTableau().getB(), 
-										prefix.getPivot(), sout);
-								ProtocolProducer open = provider.getOpenIntCircuit(sout, out);
-								ProtocolProducer seq = new SequentialProtocolProducer(prefix.getProducer(), lpsolver, outputter, open);
-								sseq.append(seq);
-							}
-							sce.runApplication(sseq);
-						}
-						{
-							File pattern = new File("lpinputs/pattern7.csv");
-							File program = new File("lpinputs/program7.csv");
-							LPInputReader inputreader = PlainLPInputReader.getFileInputReader(program, pattern, conf.getMyId());
-							SequentialProtocolProducer sseq = new SequentialProtocolProducer();
-							for (int i = 0; i < 5; i++) {
-								LPPrefix prefix = new PlainSpdzLPPrefix(inputreader, provider);
-								ProtocolProducer lpsolver = new LPSolverCircuit(
-										prefix.getTableau(),
-										prefix.getUpdateMatrix(), 
-										prefix.getPivot(), 
-										provider, provider);
-								SInt sout = provider.getSInt();
-								OInt out = provider.getOInt();
-								ProtocolProducer outputter = provider.getOptimalValueCircuit(
-										prefix.getUpdateMatrix(), 
-										prefix.getTableau().getB(), 
-										prefix.getPivot(), sout);
-								ProtocolProducer open = provider.getOpenIntCircuit(sout, out);
-								ProtocolProducer seq = new SequentialProtocolProducer(prefix.getProducer(), lpsolver, outputter, open);
-								sseq.append(seq);
-							}
-							long startTime = System.nanoTime();
-							sce.runApplication(sseq);
-							long endTime = System.nanoTime();
-							System.out.println("============ Seq Time: " + ((endTime - startTime)/1000000));
-						}
-					}
-				};
-			}
-		}, 2);
-
-	}
-	
-	*/
-	
+		InitializeStorage.cleanup();
+		try {
+			InitializeStorage.initStreamedStorage(new StreamedStorage[] {streamedStorage}, 2, noOfThreads, 10000, 1000, 500000, 2000);
+			runTest(new LPSolverTests.TestLPSolver(), 2, noOfThreads,
+					EvaluationStrategy.SEQUENTIAL_BATCHED, StorageStrategy.STREAMED_STORAGE, false);
+		} finally {
+			InitializeStorage.cleanup();
+		}
+	}	
 }

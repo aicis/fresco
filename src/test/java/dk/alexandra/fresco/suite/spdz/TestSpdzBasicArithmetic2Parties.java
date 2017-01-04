@@ -32,11 +32,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 
-import dk.alexandra.fresco.IntegrationTest;
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.Reporter;
 import dk.alexandra.fresco.framework.TestThreadRunner;
@@ -47,14 +44,11 @@ import dk.alexandra.fresco.framework.configuration.TestConfiguration;
 import dk.alexandra.fresco.framework.sce.configuration.TestSCEConfiguration;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
-import dk.alexandra.fresco.framework.sce.resources.storage.MySQLStorage;
-import dk.alexandra.fresco.framework.sce.resources.storage.Storage;
 import dk.alexandra.fresco.framework.sce.resources.storage.StorageStrategy;
 import dk.alexandra.fresco.lib.arithmetic.BasicArithmeticTests;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.configuration.SpdzConfiguration;
 import dk.alexandra.fresco.suite.spdz.evaluation.strategy.SpdzProtocolSuite;
-import dk.alexandra.fresco.suite.spdz.storage.InitializeStorage;
 
 /**
  * Basic arithmetic tests using the SPDZ protocol suite with 2 parties. Have to
@@ -112,15 +106,7 @@ public class TestSpdzBasicArithmetic2Parties {
 			ProtocolSuite suite = new SpdzProtocolSuite();
 			ProtocolEvaluator evaluator = EvaluationStrategy
 					.fromEnum(evalStrategy);
-			dk.alexandra.fresco.framework.sce.resources.storage.Storage storage = null;
-			switch (storageStrategy) {
-			case IN_MEMORY:
-				storage = inMemStore;
-				break;
-			case MYSQL:
-				storage = mySQLStore;
-				break;
-			}
+			dk.alexandra.fresco.framework.sce.resources.storage.Storage storage = inMemStore;
 			ttc.sceConf = new TestSCEConfiguration(suite, evaluator,
 					noOfThreads, noOfVMThreads, ttc.netConf, storage,
 					useSecureConnection);
@@ -130,20 +116,6 @@ public class TestSpdzBasicArithmetic2Parties {
 	}
 
 	private static InMemoryStorage inMemStore = new InMemoryStorage();
-	private static MySQLStorage mySQLStore = null;
-
-	/**
-	 * Makes sure that the preprocessed data exists in the storage's used in
-	 * this test class.
-	 */
-	@BeforeClass
-	public static void initStorage() {
-		Reporter.init(Level.INFO);
-		// Storage[] storages = new Storage[] { inMemStore, mySQLStore };
-		Storage[] storages = new Storage[] { inMemStore };
-		InitializeStorage.initStorage(storages, noOfParties, 1000, 100,
-				1000, 10);
-	}
 	
 	@Test
 	public void test_Copy_Sequential() throws Exception {
@@ -239,22 +211,4 @@ public class TestSpdzBasicArithmetic2Parties {
 				EvaluationStrategy.PARALLEL_BATCHED,
 				StorageStrategy.IN_MEMORY);
 	}
-
-	// TODO: Test with different security parameters.
-
-	@Category(IntegrationTest.class)
-	@Test
-	public void test_Lots_Of_Inputs_SequentialBatched_MySQL()
-			throws Exception {
-
-		// Additional setup for mysql integration
-		mySQLStore = MySQLStorage.getInstance();
-		Storage[] storages = new Storage[] { mySQLStore };
-		InitializeStorage.initStorage(storages, noOfParties, 1000, 100,
-				1000, 10);
-
-		runTest(new BasicArithmeticTests.TestLotsOfInputs(),
-				EvaluationStrategy.SEQUENTIAL_BATCHED, StorageStrategy.MYSQL);
-	}
-
 }
