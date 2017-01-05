@@ -27,14 +27,24 @@
 package dk.alexandra.fresco.suite.tinytables;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
+import dk.alexandra.fresco.IntegrationTest;
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.Reporter;
 import dk.alexandra.fresco.framework.TestThreadRunner;
@@ -134,10 +144,58 @@ public class TestTinyTables {
 		return "tinytables/TinyTables_" + name + "_" + playerId;
 	}
 
+	private static void deleteFileOrFolder(final Path path) throws IOException {
+		Files.walkFileTree(path, new SimpleFileVisitor<Path>(){
+			@Override public FileVisitResult visitFile(final Path file, final BasicFileAttributes attrs)
+					throws IOException {
+				Files.delete(file);
+				return FileVisitResult.CONTINUE;
+			}
+
+			@Override public FileVisitResult visitFileFailed(final Path file, final IOException e) {
+				return handleException(e);
+			}
+
+			private FileVisitResult handleException(final IOException e) {
+				e.printStackTrace(); // replace with more robust error handling
+				return FileVisitResult.TERMINATE;
+			}
+
+			@Override public FileVisitResult postVisitDirectory(final Path dir, final IOException e)
+					throws IOException {
+				if(e!=null) {
+					return handleException(e);
+				}
+				Files.delete(dir);
+				return FileVisitResult.CONTINUE;
+			}
+		});
+	};
+	
 	/*
 	 * Basic tests
 	 */
 
+	//ensure that the tinytables folder is new for each test and is deleted upon exiting each test.
+	@Before
+	public void checkFolderExists() throws IOException{
+		File f = new File("tinytables");
+		if(f.exists()) {
+			deleteFileOrFolder(f.toPath());
+			f.mkdir();
+		} else {
+			f.mkdir();
+		}
+	}
+	
+	@After
+	public void removeFolder() throws IOException{
+		File f = new File("tinytables");
+		if(f.exists()) {
+			deleteFileOrFolder(f.toPath());
+		}
+	}
+	
 	@Test
 	public void testInput() throws Exception {
 		runTest(new BasicBooleanTests.TestInput(), EvaluationStrategy.SEQUENTIAL, true, "testInput");
@@ -174,7 +232,7 @@ public class TestTinyTables {
 	/*
 	 * Advanced tests
 	 */
-
+	@Category(IntegrationTest.class)	
 	@Test
 	public void testMult() throws Exception {
 		runTest(new BristolMultTests.Mult32x32Test(), EvaluationStrategy.SEQUENTIAL, true,
@@ -183,12 +241,14 @@ public class TestTinyTables {
 				"testMult");
 	}
 
+	@Category(IntegrationTest.class)
 	@Test
 	public void testAES() throws Exception {
 		runTest(new BristolCryptoTests.AesTest(), EvaluationStrategy.SEQUENTIAL, true, "testAES");
 		runTest(new BristolCryptoTests.AesTest(), EvaluationStrategy.SEQUENTIAL, false, "testAES");
 	}
 
+	@Category(IntegrationTest.class)
 	@Test
 	public void testAES_parallel() throws Exception {
 		runTest(new BristolCryptoTests.AesTest(), EvaluationStrategy.PARALLEL, true,
@@ -197,6 +257,7 @@ public class TestTinyTables {
 				"testAESParallel");
 	}
 
+	@Category(IntegrationTest.class)
 	@Test
 	public void testAES_parallel_batched() throws Exception {
 		runTest(new BristolCryptoTests.AesTest(), EvaluationStrategy.PARALLEL_BATCHED, true,
@@ -205,18 +266,21 @@ public class TestTinyTables {
 				"testAESParallelBatched");
 	}
 
+	@Category(IntegrationTest.class)
 	@Test
 	public void test_DES() throws Exception {
 		runTest(new BristolCryptoTests.DesTest(), EvaluationStrategy.SEQUENTIAL, true, "testDES");
 		runTest(new BristolCryptoTests.DesTest(), EvaluationStrategy.SEQUENTIAL, false, "testDES");
 	}
 
+	@Category(IntegrationTest.class)
 	@Test
 	public void test_SHA1() throws Exception {
 		runTest(new BristolCryptoTests.Sha1Test(), EvaluationStrategy.SEQUENTIAL, true, "testSHA1");
 		runTest(new BristolCryptoTests.Sha1Test(), EvaluationStrategy.SEQUENTIAL, false, "testSHA1");
 	}
 
+	@Category(IntegrationTest.class)
 	@Test
 	public void test_SHA256() throws Exception {
 		runTest(new BristolCryptoTests.Sha256Test(), EvaluationStrategy.SEQUENTIAL, true,

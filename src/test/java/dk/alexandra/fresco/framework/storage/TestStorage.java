@@ -26,6 +26,7 @@
  *******************************************************************************/
 package dk.alexandra.fresco.framework.storage;
 
+import java.io.File;
 import java.io.Serializable;
 import java.math.BigInteger;
 import java.util.logging.Level;
@@ -73,6 +74,10 @@ public class TestStorage {
 		testStorage(storage);
 		testStoreBigInteger(storage);
 		testStreamedStorage(storage);
+		File f = new File("testName");
+		if(f.exists()) {
+			f.delete();
+		}
 	}
 	
 	private void testStreamedStorage(StreamedStorage storage) {

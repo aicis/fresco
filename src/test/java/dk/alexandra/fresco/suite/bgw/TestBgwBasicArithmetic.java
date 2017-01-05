@@ -84,7 +84,7 @@ public class TestBgwBasicArithmetic {
 
 				@Override
 				public BigInteger getModulus() {
-					return new BigInteger("618970019642690137449562111");
+					return new BigInteger("618970019642690137449562111");					
 				}
 			};
 			NetworkConfiguration net = netConf.get(playerId);
@@ -112,6 +112,11 @@ public class TestBgwBasicArithmetic {
 	}
 	
 	@Test
+	public void test_Input_Sequential_4_1() throws Exception {
+		runTest(new BasicArithmeticTests.TestInput(), 4, 1, EvaluationStrategy.SEQUENTIAL);
+	}
+	
+	@Test
 	public void test_Input_Sequential_5_2() throws Exception {
 		runTest(new BasicArithmeticTests.TestInput(), 5, 2, EvaluationStrategy.SEQUENTIAL);
 	}
@@ -126,9 +131,19 @@ public class TestBgwBasicArithmetic {
 		runTest(new BasicArithmeticTests.TestLotsOfInputs(), 3, 1, EvaluationStrategy.SEQUENTIAL);
 	}
 	
+	@Test
+	public void test_Lots_Of_Inputs_Sequential_4_1() throws Exception {
+		runTest(new BasicArithmeticTests.TestLotsOfInputs(), 4, 1, EvaluationStrategy.SEQUENTIAL);
+	}
+	
 	@Test 
 	public void test_Known_SInt_Seuential() throws Exception {
 		runTest(new BasicArithmeticTests.TestKnownSInt(), 3, 1, EvaluationStrategy.SEQUENTIAL);
+	}
+	
+	@Test 
+	public void test_Known_SInt_Sequential_4_1() throws Exception {
+		runTest(new BasicArithmeticTests.TestKnownSInt(), 4, 1, EvaluationStrategy.SEQUENTIAL);
 	}
 	
 	@Test
@@ -138,27 +153,29 @@ public class TestBgwBasicArithmetic {
 	
 	@Test
 	public void test_MultAndAdd_Sequential_3_1() throws Exception {
-		runTest(new BasicArithmeticTests.TestLotsOfInputs(), 3, 1, EvaluationStrategy.SEQUENTIAL);
+		runTest(new BasicArithmeticTests.TestSimpleMultAndAdd(), 3, 1, EvaluationStrategy.SEQUENTIAL);
+	}
+	
+	@Test
+	public void test_MultAndAdd_Sequential_4_1() throws Exception {
+		runTest(new BasicArithmeticTests.TestSimpleMultAndAdd(), 4, 1, EvaluationStrategy.SEQUENTIAL);
 	}
 	
 	@Test
 	public void test_MultAndAdd_Sequential_5_2() throws Exception {
-		runTest(new BasicArithmeticTests.TestLotsOfInputs(), 5, 2, EvaluationStrategy.SEQUENTIAL);
+		runTest(new BasicArithmeticTests.TestSimpleMultAndAdd(), 5, 2, EvaluationStrategy.SEQUENTIAL);
 	}
 	
 	@Test @Category(SlowTest.class)
 	public void test_MultAndAdd_Sequential_7_3() throws Exception {
-		runTest(new BasicArithmeticTests.TestLotsOfInputs(), 7, 3, EvaluationStrategy.SEQUENTIAL);
+		runTest(new BasicArithmeticTests.TestSimpleMultAndAdd(), 7, 3, EvaluationStrategy.SEQUENTIAL);
 	}
 	
 	@Category(SlowTest.class)
 	@Test
 	public void test_MultAndAdd_Sequential_9_4() throws Exception {
-		runTest(new BasicArithmeticTests.TestLotsOfInputs(), 9, 4, EvaluationStrategy.SEQUENTIAL);
+		runTest(new BasicArithmeticTests.TestSimpleMultAndAdd(), 9, 4, EvaluationStrategy.SEQUENTIAL);
 	}
-	
-	
-	
 	
 	@Test
 	public void test_Input_Parallel_3_1() throws Exception {
@@ -166,8 +183,18 @@ public class TestBgwBasicArithmetic {
 	}
 	
 	@Test
+	public void test_Input_Parallel_4_1() throws Exception {
+		runTest(new BasicArithmeticTests.TestInput(), 4, 1, EvaluationStrategy.PARALLEL);
+	}
+	
+	@Test
 	public void test_Lots_Of_Inputs_Parallel_3_1() throws Exception {
 		runTest(new BasicArithmeticTests.TestLotsOfInputs(), 3, 1, EvaluationStrategy.PARALLEL);
+	}
+	
+	@Test
+	public void test_Lots_Of_Inputs_Parallel_4_1() throws Exception {
+		runTest(new BasicArithmeticTests.TestLotsOfInputs(), 4, 1, EvaluationStrategy.PARALLEL);
 	}
 	
 	@Test
@@ -177,7 +204,12 @@ public class TestBgwBasicArithmetic {
 	
 	@Test
 	public void test_MultAndAdd_Parallel_3_1() throws Exception {
-		runTest(new BasicArithmeticTests.TestLotsOfInputs(), 3, 1, EvaluationStrategy.PARALLEL);
+		runTest(new BasicArithmeticTests.TestSimpleMultAndAdd(), 3, 1, EvaluationStrategy.PARALLEL);
+	}
+	
+	@Test
+	public void test_MultAndAdd_Parallel_4_1() throws Exception {
+		runTest(new BasicArithmeticTests.TestSimpleMultAndAdd(), 4, 1, EvaluationStrategy.PARALLEL);
 	}
 	
 
@@ -196,7 +228,7 @@ public class TestBgwBasicArithmetic {
 	
 	@Test
 	public void test_MultAndAdd_SequentialBatched_5_2() throws Exception {
-		runTest(new BasicArithmeticTests.TestLotsOfInputs(), 5, 2, EvaluationStrategy.SEQUENTIAL_BATCHED);
+		runTest(new BasicArithmeticTests.TestSimpleMultAndAdd(), 5, 2, EvaluationStrategy.SEQUENTIAL_BATCHED);
 	}
 	
 	@Test
@@ -211,7 +243,7 @@ public class TestBgwBasicArithmetic {
 	
 	@Test
 	public void test_MultAndAdd_ParallelBatched_5_2() throws Exception {
-		runTest(new BasicArithmeticTests.TestLotsOfInputs(), 5, 2, EvaluationStrategy.PARALLEL_BATCHED);
+		runTest(new BasicArithmeticTests.TestSimpleMultAndAdd(), 5, 2, EvaluationStrategy.PARALLEL_BATCHED);
 	}
 	
 	// ======= Mult and sum =======
@@ -231,5 +263,10 @@ public class TestBgwBasicArithmetic {
 	@Test
 	public void test_right_shift_3_1() throws Exception {
 		runTest(new BinaryOperationsTests.TestRightShift(), 3, 1, EvaluationStrategy.SEQUENTIAL);
+	}
+	
+	@Test
+	public void test_right_shift_4_1() throws Exception {
+		runTest(new BinaryOperationsTests.TestRightShift(), 4, 1, EvaluationStrategy.SEQUENTIAL);
 	}
 }
