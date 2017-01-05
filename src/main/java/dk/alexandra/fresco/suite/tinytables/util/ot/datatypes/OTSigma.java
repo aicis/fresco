@@ -1,10 +1,7 @@
 package dk.alexandra.fresco.suite.tinytables.util.ot.datatypes;
 
 import java.util.ArrayList;
-import java.util.BitSet;
 import java.util.List;
-
-import dk.alexandra.fresco.suite.tinytables.util.BitSetUtils;
 
 /**
  * <p>This class represents the input to an oblivious transfer protocol from the
@@ -43,18 +40,6 @@ public class OTSigma {
 			out.add(new OTSigma(s));
 		}
 		return out;
-	}
-	
-	/**
-	 * Create a list of <code>OTSigma</code>'s from a BitSet of
-	 * <i>&sigma;</i>'s.
-	 * 
-	 * @param sigmas
-	 * @param n
-	 * @return
-	 */
-	public static List<OTSigma> fromBitSet(BitSet sigmas, int n) {
-		return fromList(BitSetUtils.toList(sigmas, n));
 	}
 	
 	/**

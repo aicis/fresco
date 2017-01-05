@@ -39,12 +39,12 @@ public class SemiHonestOTExtensionSender implements OTSender {
 		int stringLength = inputs.get(0).getLength();
 		
 		/*
-		 * 
+		 * Randomize sigmas
 		 */
 		BitSet s = BitSetUtils.getRandomBits(securityParameter, random);
 		
 		OTReceiver receiver = baseOT.createOTReceiver();
-		List<OTSigma> sigmas = OTSigma.fromBitSet(s, securityParameter);
+		List<OTSigma> sigmas = OTSigma.fromList(BitSetUtils.toList(s, securityParameter));
 	
 		/*
 		 * The output of  Columns of q
