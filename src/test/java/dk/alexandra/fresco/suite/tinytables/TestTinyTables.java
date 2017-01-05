@@ -27,7 +27,6 @@
 package dk.alexandra.fresco.suite.tinytables;
 
 import java.io.File;
-import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -89,28 +88,14 @@ public class TestTinyTables {
 				config = new TinyTablesPreproConfiguration();
 
 				/*
-				 * We assume that both players are running on localhost in the
-				 * tests. So in particular the sender's address is localhost.
+				 * Set security parameter for OTs
 				 */
-				((TinyTablesPreproConfiguration) config).setSenderAddress(new InetSocketAddress("localhost", 9005));
-
-				/*
-				 * Set this to true if the SCAPI library has been installed.
-				 * This will greatly increase the performance of the
-				 * preprocessing.
-				 */
-				((TinyTablesPreproConfiguration) config).setUseOtExtension(false);
+				((TinyTablesPreproConfiguration) config).setSecurityParameter(256);
 				
 				/*
 				 * Set path where the generated TinyTables should be stored
 				 */
 				((TinyTablesPreproConfiguration) config).setTinyTablesFile(new File(getFilenameForTest(playerId, name)));
-				
-				/*
-				 * We are testing with both players running in the same VM
-				 */
-			
-				((TinyTablesPreproConfiguration) config).setTesting(true);
 				
 				protocolSuite = TinyTablesPreproProtocolSuite.getInstance(playerId);
 			} else {

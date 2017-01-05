@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.security.SecureRandom;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import dk.alexandra.fresco.framework.network.Network;
@@ -22,23 +23,34 @@ public class JavaOTReceiver implements OTReceiver {
 
 	private Network network;
 	private int myId;
+	private SecureRandom random;
 
-	public JavaOTReceiver(Network network, int myId) {
+	private static OTSemiHonestDDHBatchOnByteArrayReceiver receiver;
+	private OTSemiHonestDDHBatchOnByteArrayReceiver getInstance(SecureRandom random) {
+		if (receiver == null) {
+			try {
+				receiver = new OTSemiHonestDDHBatchOnByteArrayReceiver(
+						new edu.biu.scapi.primitives.dlog.bc.BcDlogECF2m(), KdfFactory.getInstance()
+						.getObject("HKDF(HMac(SHA-256))"), random);
+			} catch (SecurityLevelException | IOException | FactoriesException e) {
+				e.printStackTrace();
+			}
+		} 
+		return receiver;
+	}
+	
+	
+	
+	public JavaOTReceiver(Network network, int myId, SecureRandom random) {
 		this.network = network;
 		this.myId = myId;
+		this.random = random;
 	}
 	
 	@Override
-	public List<Boolean> receive(List<OTSigma> sigmas) {
+	public List<boolean[]> receive(List<OTSigma> sigmas, int expectedLength) {
 		
-		OTSemiHonestDDHBatchOnByteArrayReceiver receiver;
-		try {
-			receiver = new OTSemiHonestDDHBatchOnByteArrayReceiver(
-					new edu.biu.scapi.primitives.dlog.bc.BcDlogECF2m(), KdfFactory.getInstance()
-							.getObject("HKDF(HMac(SHA-256))"), new SecureRandom());
-		} catch (SecurityLevelException | IOException | FactoriesException e1) {
-			return null; // Should not happen
-		}
+		OTSemiHonestDDHBatchOnByteArrayReceiver receiver = getInstance(random);
 
 		ArrayList<Byte> s = new ArrayList<Byte>();
 		for (OTSigma sigma : sigmas) {
@@ -71,9 +83,9 @@ public class JavaOTReceiver implements OTReceiver {
 				
 			}, input);
 			
-			List<Boolean> results = new ArrayList<Boolean>();
+			List<boolean[]> results = new ArrayList<boolean[]>();
 			for (int i = 0; i < sigmas.size(); i++) {
-				results.add(Encoding.decodeBoolean(output.getXSigmaArr().get(i)[0]));
+				results.add(Arrays.copyOf(Encoding.decodeBooleans(output.getXSigmaArr().get(i)), expectedLength));
 			}
 			
 			return results;

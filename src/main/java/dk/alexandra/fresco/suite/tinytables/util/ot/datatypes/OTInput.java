@@ -19,24 +19,35 @@ import java.util.List;
  */
 public class OTInput {
 
-	private boolean x0, x1;
+	private boolean[] x0, x1;
 
 	public OTInput(boolean x0, boolean x1) {
-		this.x0 = x0;
-		this.x1 = x1;
+		this(new boolean[] {x0}, new boolean[] {x1});
 	}
 
-	public boolean getX0() {
+	public OTInput(boolean[] x0, boolean[] x1) {
+		this.x0 = x0;
+		this.x1 = x1;
+		if (this.x0.length != this.x1.length) {
+			throw new InvalidParameterException("Inputs must have same lenght");
+		}
+	}
+
+	public int getLength() {
+		return x0.length;
+	}
+	
+	public boolean[] getX0() {
 		return this.x0;
 	}
 
-	public boolean getX1() {
+	public boolean[] getX1() {
 		return this.x1;
 	}
 
 	/**
 	 * Create a list of <code>OTInput</code>'s from lists of <i>x<sub>0</sub></i>'s and
-	 * <i>x<sub>1</sub></i>'s.
+	 * <i>x<sub>1</sub></i>'s of length 1.
 	 * 
 	 * @param x0s
 	 * @param x1s
@@ -62,11 +73,11 @@ public class OTInput {
 	 * @param index
 	 * @return
 	 */
-	public static List<Boolean> getAll(List<OTInput> inputs, int index) {
+	public static List<boolean[]> getAll(List<OTInput> inputs, int index) {
 		if (index < 0 || index > 1) {
 			throw new InvalidParameterException("Index must be either 0 or 1");
 		}
-		List<Boolean> out = new ArrayList<Boolean>();
+		List<boolean[]> out = new ArrayList<boolean[]>();
 		for (OTInput input : inputs) {
 			if (index == 0) {
 				out.add(input.getX0());

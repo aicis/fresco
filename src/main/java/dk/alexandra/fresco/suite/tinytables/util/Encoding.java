@@ -1,6 +1,7 @@
 package dk.alexandra.fresco.suite.tinytables.util;
 
-import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.BitSet;
 import java.util.List;
 
 public class Encoding {
@@ -23,11 +24,19 @@ public class Encoding {
 	 * @return
 	 */
 	public static byte[] encodeBooleans(List<Boolean> booleans) {
-		byte[] bytes = new byte[booleans.size()];
-		for (int i = 0; i < booleans.size(); i++) {
-			bytes[i] = encodeBoolean(booleans.get(i));
-		}
-		return bytes;
+		int size = booleans.size() + 7 / 8;
+		return Arrays.copyOf(BitSetUtils.fromList(booleans).toByteArray(), size);
+	}
+	
+	/**
+	 * Encode array of booleans as bytes. See also {@link #encodeBoolean(boolean)}.
+	 * 
+	 * @param b
+	 * @return
+	 */
+	public static byte[] encodeBooleans(boolean[] booleans) {
+		int size = booleans.length + 7 / 8;
+		return Arrays.copyOf(BitSetUtils.fromArray(booleans).toByteArray(), size);
 	}
 	
 	/**
@@ -47,12 +56,9 @@ public class Encoding {
 	 * @param b
 	 * @return
 	 */
-	public static List<Boolean> decodeBooleans(byte[] bytes) {
-		List<Boolean> booleans = new ArrayList<Boolean>();
-		for (byte b : bytes) {
-			booleans.add(decodeBoolean(b));
-		}
-		return booleans;
+	public static boolean[] decodeBooleans(byte[] bytes) {
+		BitSet bitset = BitSet.valueOf(bytes);
+		return BitSetUtils.toArray(bitset, bytes.length * 8);
 	}
 	
 }

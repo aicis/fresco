@@ -43,7 +43,7 @@ import dk.alexandra.fresco.suite.tinytables.prepro.protocols.TinyTablesPreproAND
 import dk.alexandra.fresco.suite.tinytables.storage.TinyTablesStorage;
 import dk.alexandra.fresco.suite.tinytables.storage.TinyTablesStorageImpl;
 import dk.alexandra.fresco.suite.tinytables.util.ot.OTFactory;
-import dk.alexandra.fresco.suite.tinytables.util.ot.extension.OTExtensionFactory;
+import dk.alexandra.fresco.suite.tinytables.util.ot.extension.semihonest.SemiHonestOTExtensionFactory;
 import dk.alexandra.fresco.suite.tinytables.util.ot.java.JavaOTFactory;
 
 /**
@@ -102,44 +102,12 @@ public class TinyTablesPreproProtocolSuite implements ProtocolSuite {
 	public void init(ResourcePool resourcePool, ProtocolSuiteConfiguration configuration) {
 		this.resourcePool = resourcePool;
 		this.configuration = (TinyTablesPreproConfiguration) configuration;
-		negotiateOTExtension();
 		this.tinyTablesFile = this.configuration.getTinyTablesFile();
+		this.otFactory = new SemiHonestOTExtensionFactory(resourcePool.getNetwork(), resourcePool.getMyId(), 128, 
+				new JavaOTFactory(resourcePool.getNetwork(), resourcePool.getMyId(), resourcePool.getSecureRandom()), resourcePool.getSecureRandom());
+
 	}
 
-	/**
-	 * SCAPI has a fast OT Extension library, but since it is part of SCAPI in
-	 * C++ (see https://scapi.readthedocs.io/en/latest/) and is called using
-	 * JNI, it requires SCAPI to be installed
-	 * (https://scapi.readthedocs.io/en/latest/install.html). If this is not
-	 * available for both players, we fall back to the java OT which is also
-	 * part of SCAPI. This is much slower, so we recommend that both players
-	 * install SCAPI and use the C++ lib.
-	 */
-	private void negotiateOTExtension() {
-		try {
-			boolean iHaveOTExtensionLibrary = this.configuration.getUseOtExtension();
-			resourcePool.getNetwork().send("0", otherId(), iHaveOTExtensionLibrary);
-			boolean otherHasOTExtensionLibrary = resourcePool.getNetwork().receive("0", otherId());
-			boolean useOTExtension = iHaveOTExtensionLibrary && otherHasOTExtensionLibrary;
-
-			/*
-			 * If we are testing in the same VM, we need to run the OTExtension
-			 * lib in seperate processes.
-			 */
-			this.otFactory = useOTExtension ? new OTExtensionFactory(configuration.getSenderAddress(), configuration.isTesting())
-					: new JavaOTFactory(resourcePool.getNetwork(), resourcePool.getMyId());
-			
-			Reporter.fine("I have OT Extension library: " + iHaveOTExtensionLibrary);
-			Reporter.fine("Using OT Extension: " + useOTExtension);
-		} catch (IOException e) {
-			
-		}
-	}
-	
-	private int otherId() {
-		return resourcePool.getMyId() == 1 ? 2 : 1;
-	}
-	
 	public TinyTablesStorage getStorage() {
 		return this.storage;
 	}

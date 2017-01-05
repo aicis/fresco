@@ -21,10 +21,26 @@ public class JavaOTSender implements OTSender {
 
 	private Network network;
 	private int myId;
+	private SecureRandom random;
 
-	public JavaOTSender(Network network, int myId) {
+	private static OTSemiHonestDDHBatchOnByteArraySender sender;
+	private OTSemiHonestDDHBatchOnByteArraySender getInstance(SecureRandom random) {
+		if (sender == null) {
+			try {
+				sender = new OTSemiHonestDDHBatchOnByteArraySender(
+						new edu.biu.scapi.primitives.dlog.bc.BcDlogECF2m(), KdfFactory.getInstance()
+						.getObject("HKDF(HMac(SHA-256))"), random);
+			} catch (SecurityLevelException | IOException | FactoriesException e) {
+				e.printStackTrace();
+			}
+		}
+		return sender;
+	}
+	
+	public JavaOTSender(Network network, int myId, SecureRandom random) {
 		this.network = network;
 		this.myId = myId;
+		this.random = random;
 	}
 	
 	@Override
@@ -33,17 +49,16 @@ public class JavaOTSender implements OTSender {
 		ArrayList<byte[]> x0 = new ArrayList<byte[]>();
 		ArrayList<byte[]> x1 = new ArrayList<byte[]>();
 		for (OTInput input : inputs) {
-			x0.add(new byte[] {Encoding.encodeBoolean(input.getX0())});
-			x1.add(new byte[] {Encoding.encodeBoolean(input.getX1())});
+			byte[] x0i = Encoding.encodeBooleans(input.getX0());
+			x0.add(x0i);
+			
+			byte[] x1i = Encoding.encodeBooleans(input.getX1());
+			x1.add(x1i);
 		}
+		
+		
 		OTBatchOnByteArraySInput otsInputs = new OTBatchOnByteArraySInput(x0, x1);
-		OTSemiHonestDDHBatchOnByteArraySender sender;
-		try {
-			sender = new OTSemiHonestDDHBatchOnByteArraySender(new edu.biu.scapi.primitives.dlog.bc.BcDlogECF2m(), KdfFactory.getInstance()
-					.getObject("HKDF(HMac(SHA-256))"), new SecureRandom());
-		} catch (SecurityLevelException | IOException | FactoriesException e1) {
-			return; //Should not happen
-		}
+		OTSemiHonestDDHBatchOnByteArraySender sender = getInstance(random);
 		
 		try {
 			sender.transfer(new Channel() {
