@@ -1,4 +1,4 @@
-package dk.alexandra.fresco.framework.util.ot.java;
+package dk.alexandra.fresco.framework.util.ot.base;
 
 import java.io.IOException;
 import java.security.SecureRandom;
@@ -23,7 +23,7 @@ import edu.biu.scapi.tools.Factories.KdfFactory;
  * @author Jonas Lindstrøm (jonas.lindstrom@alexandra.dk)
  *
  */
-public class JavaOTSender implements OTSender {
+public class BaseOTSender implements OTSender {
 
 	private Network network;
 	private int myId;
@@ -49,7 +49,7 @@ public class JavaOTSender implements OTSender {
 		return sender;
 	}
 	
-	public JavaOTSender(Network network, int myId, SecureRandom random) {
+	public BaseOTSender(Network network, int myId, SecureRandom random) {
 		this.network = network;
 		this.myId = myId;
 		this.random = random;

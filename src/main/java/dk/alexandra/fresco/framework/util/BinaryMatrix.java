@@ -2,8 +2,19 @@ package dk.alexandra.fresco.framework.util;
 
 import java.io.Serializable;
 import java.util.BitSet;
+import java.util.List;
 import java.util.Random;
 
+/**
+ * Instances of this class represents binary matrices, eg. 0-1 matrices.
+ * 
+ * Note that this implementation is optimized for reading columns, and it uses a
+ * {@link BitSet} for the underlying representation of the entries in the
+ * matrix.
+ * 
+ * @author Jonas Lindstrøm (jonas.lindstrom@alexandra.dk)
+ *
+ */
 public class BinaryMatrix implements Serializable {
 
 	/**
@@ -92,7 +103,8 @@ public class BinaryMatrix implements Serializable {
 	}
 
 	/**
-	 * Return a new matrix which is formed of a subset of this matrix as specified by the given int array.
+	 * Return a new matrix which is formed of a subset of this matrix as
+	 * specified by the given int array.
 	 * 
 	 * @param rows
 	 * @return
@@ -133,6 +145,7 @@ public class BinaryMatrix implements Serializable {
 
 	/**
 	 * Multiply this matrix onto the vector <i>v</i>.
+	 * 
 	 * @param v
 	 * @return
 	 */
@@ -162,7 +175,7 @@ public class BinaryMatrix implements Serializable {
 	 */
 	public void setColumn(int j, BitSet v) {
 		for (int i = 0; i < getHeight(); i++) {
-			set(i,j, v.get(i));
+			set(i, j, v.get(i));
 		}
 	}
 
@@ -191,16 +204,16 @@ public class BinaryMatrix implements Serializable {
 	}
 
 	/**
-	 * Replace this matrix with its own transpose.
+	 * Return the transpose of this matrix.
 	 */
-	public void transpose() {
+	public BinaryMatrix transpose() {
+		BinaryMatrix matrix = new BinaryMatrix(getWidth(), getHeight());
 		for (int i = 0; i < getWidth(); i++) {
-			for (int j = 0; j < i; j++) {
-				boolean tmp = this.get(i, j);
-				set(i, j, get(j, i));
-				set(j, i, tmp);
+			for (int j = 0; j < getHeight(); j++) {
+				matrix.set(i, j, get(j, i));
 			}
 		}
+		return matrix;
 	}
 
 	/**
@@ -278,11 +291,27 @@ public class BinaryMatrix implements Serializable {
 		return a;
 	}
 
+	/**
+	 * Given a list of columns, represented as boolean arrays, this method
+	 * returns a {@link BinaryMatrix} with the given columns.
+	 * 
+	 * @param columns
+	 * @return
+	 */
+	public static BinaryMatrix fromColumns(List<boolean[]> columns) {
+		BinaryMatrix matrix = new BinaryMatrix(columns.get(0).length, columns.size());
+		for (int j = 0; j < matrix.getWidth(); j++) {
+			BitSet column = BitSetUtils.fromArray(columns.get(j));
+			matrix.setColumn(j, column);
+		}
+		return matrix;
+	}
+
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) {
 			return true;
-		} 
+		}
 		if (o == null) {
 			return false;
 		}
@@ -290,7 +319,7 @@ public class BinaryMatrix implements Serializable {
 			return false;
 		}
 		BinaryMatrix other = (BinaryMatrix) o;
-		
+
 		if (getWidth() != other.getWidth() || getHeight() != other.getHeight()) {
 			return false;
 		}

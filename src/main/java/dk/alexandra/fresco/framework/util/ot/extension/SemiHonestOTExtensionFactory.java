@@ -1,4 +1,4 @@
-package dk.alexandra.fresco.framework.util.ot.extension.semihonest;
+package dk.alexandra.fresco.framework.util.ot.extension;
 
 import java.util.Random;
 

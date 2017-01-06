@@ -18,9 +18,10 @@ public class Encoding {
 	public static byte encodeBoolean(boolean b) {
 		return b ? (byte) 0x01 : (byte) 0x00;
 	}
-	
+
 	/**
-	 * Encode array of booleans as bytes. See also {@link #encodeBoolean(boolean)}.
+	 * Encode array of booleans as bytes. To decode, use
+	 * {@link #decodeBooleans(byte[])}.
 	 * 
 	 * @param b
 	 * @return
@@ -29,9 +30,10 @@ public class Encoding {
 		int size = booleans.size() + 7 / 8;
 		return Arrays.copyOf(BitSetUtils.fromList(booleans).toByteArray(), size);
 	}
-	
+
 	/**
-	 * Encode array of booleans as bytes. See also {@link #encodeBoolean(boolean)}.
+	 * Encode array of booleans as bytes. To decode, use
+	 * {@link #decodeBooleans(byte[])}.
 	 * 
 	 * @param b
 	 * @return
@@ -40,9 +42,10 @@ public class Encoding {
 		int size = booleans.length + 7 / 8;
 		return Arrays.copyOf(BitSetUtils.fromArray(booleans).toByteArray(), size);
 	}
-	
+
 	/**
-	 * Decode a byte-encoded boolean. See {@link #encodeBoolean(boolean)}.
+	 * Decode a byte-encoded boolean encoded using
+	 * {@link #encodeBooleans(boolean[])}.
 	 * 
 	 * @param b
 	 * @return
@@ -50,10 +53,10 @@ public class Encoding {
 	public static boolean decodeBoolean(byte b) {
 		return b != 0x00 ? true : false;
 	}
-	
+
 	/**
-	 * Decode an array of byte-encoded booleans. See also
-	 * {@link #decodeBoolean(byte)}.
+	 * Decode an array of byte-encoded booleans encoded using
+	 * {@link #encodeBooleans(boolean[])}.
 	 * 
 	 * @param b
 	 * @return
@@ -62,5 +65,5 @@ public class Encoding {
 		BitSet bitset = BitSet.valueOf(bytes);
 		return BitSetUtils.toArray(bitset, bytes.length * 8);
 	}
-	
+
 }

@@ -1,4 +1,4 @@
-package dk.alexandra.fresco.framework.util.ot.java;
+package dk.alexandra.fresco.framework.util.ot.base;
 
 import java.io.IOException;
 import java.security.SecureRandom;
@@ -25,7 +25,7 @@ import edu.biu.scapi.tools.Factories.KdfFactory;
  * @author Jonas Lindstrøm (jonas.lindstrom@alexandra.dk)
  *
  */
-public class JavaOTReceiver implements OTReceiver {
+public class BaseOTReceiver implements OTReceiver {
 
 	private Network network;
 	private int myId;
@@ -50,7 +50,7 @@ public class JavaOTReceiver implements OTReceiver {
 		return receiver;
 	}
 	
-	public JavaOTReceiver(Network network, int myId, SecureRandom random) {
+	public BaseOTReceiver(Network network, int myId, SecureRandom random) {
 		this.network = network;
 		this.myId = myId;
 		this.random = random;

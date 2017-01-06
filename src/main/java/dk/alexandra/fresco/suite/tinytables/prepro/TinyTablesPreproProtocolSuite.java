@@ -38,8 +38,8 @@ import dk.alexandra.fresco.framework.Reporter;
 import dk.alexandra.fresco.framework.sce.configuration.ProtocolSuiteConfiguration;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.util.ot.OTFactory;
-import dk.alexandra.fresco.framework.util.ot.extension.semihonest.SemiHonestOTExtensionFactory;
-import dk.alexandra.fresco.framework.util.ot.java.JavaOTFactory;
+import dk.alexandra.fresco.framework.util.ot.base.BaseOTFactory;
+import dk.alexandra.fresco.framework.util.ot.extension.SemiHonestOTExtensionFactory;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.tinytables.online.TinyTablesProtocolSuite;
 import dk.alexandra.fresco.suite.tinytables.prepro.protocols.TinyTablesPreproANDProtocol;
@@ -104,7 +104,7 @@ public class TinyTablesPreproProtocolSuite implements ProtocolSuite {
 		this.configuration = (TinyTablesPreproConfiguration) configuration;
 		this.tinyTablesFile = this.configuration.getTinyTablesFile();
 		this.otFactory = new SemiHonestOTExtensionFactory(resourcePool.getNetwork(), resourcePool.getMyId(), 128, 
-				new JavaOTFactory(resourcePool.getNetwork(), resourcePool.getMyId(), resourcePool.getSecureRandom()), resourcePool.getSecureRandom());
+				new BaseOTFactory(resourcePool.getNetwork(), resourcePool.getMyId(), resourcePool.getSecureRandom()), resourcePool.getSecureRandom());
 
 	}
 

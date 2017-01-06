@@ -1,4 +1,4 @@
-package dk.alexandra.fresco.framework.util.ot.extension.semihonest;
+package dk.alexandra.fresco.framework.util.ot.extension;
 
 import java.io.IOException;
 import java.util.BitSet;
@@ -15,6 +15,14 @@ import dk.alexandra.fresco.framework.util.ot.datatypes.OTInput;
 import dk.alexandra.fresco.framework.util.ot.datatypes.OTSigma;
 import dk.alexandra.fresco.suite.tinytables.util.Util;
 
+/**
+ * This class represents the senders part of an implementation of the
+ * semi-honest OT Extension as presented in
+ * "Extending Oblivious Transfers Efficiently" by Ishai et.al.
+ * 
+ * @author Jonas Lindstrøm (jonas.lindstrom@alexandra.dk)
+ *
+ */
 public class SemiHonestOTExtensionSender implements OTSender {
 
 	private Network network;
@@ -39,7 +47,7 @@ public class SemiHonestOTExtensionSender implements OTSender {
 		int stringLength = inputs.get(0).getLength();
 		
 		/*
-		 * Randomize sigmas
+		 * Randomize selection bits for base OT's
 		 */
 		BitSet s = BitSetUtils.getRandomBits(securityParameter, random);
 		
@@ -47,23 +55,31 @@ public class SemiHonestOTExtensionSender implements OTSender {
 		List<OTSigma> sigmas = OTSigma.fromList(BitSetUtils.toList(s, securityParameter));
 	
 		/*
-		 * The output of  Columns of q
+		 * The output of the OT's are used as columns of a matrix Q
 		 */
 		List<boolean[]> otOutput = receiver.receive(sigmas, inputs.size());
-		BinaryMatrix q = fromListOfColumns(otOutput);
-		
+		BinaryMatrix q = BinaryMatrix.fromColumns(otOutput);
+
+		/*
+		 * We build a matrix Y with two columns for each OTInput:
+		 */
 		BinaryMatrix y = new BinaryMatrix(stringLength, 2*inputs.size());
 		for (int i = 0; i < inputs.size(); i++) {
+			
+			/*
+			 * First column for an input i is x0 + H(i, q_i)...
+			 */
 			BitSet x0 = BitSetUtils.fromArray(inputs.get(i).getX0());
-			BitSet x1 = BitSetUtils.fromArray(inputs.get(i).getX1());
-			
 			BitSet row = q.getRow(i);
-			
 			x0.xor(Util.hash(i, row, stringLength));
 			y.setColumn(2*i, x0);
 			
+			/*
+			 * ...and the second column is x1 + H(i, q_i) + s.
+			 */
+			BitSet x1 = BitSetUtils.fromArray(inputs.get(i).getX1());
 			row.xor(s);
-			x1.xor(Util.hash(i, row, stringLength));
+			x1.xor(Util.hash(i, row, stringLength));			
 			y.setColumn(2*i + 1, x1);
 		}
 		
@@ -75,13 +91,5 @@ public class SemiHonestOTExtensionSender implements OTSender {
 		
 	}
 	
-	private BinaryMatrix fromListOfColumns(List<boolean[]> columns) {
-		BinaryMatrix matrix = new BinaryMatrix(columns.get(0).length, columns.size());
-		for (int j = 0; j < matrix.getWidth(); j++) {
-			BitSet column = BitSetUtils.fromArray(columns.get(j));
-			matrix.setColumn(j, column);
-		}
-		return matrix;
-	}
 	
 }

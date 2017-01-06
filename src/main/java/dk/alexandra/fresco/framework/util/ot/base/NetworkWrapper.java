@@ -1,4 +1,4 @@
-package dk.alexandra.fresco.framework.util.ot.java;
+package dk.alexandra.fresco.framework.util.ot.base;
 
 import java.io.IOException;
 import java.io.Serializable;

@@ -1,4 +1,4 @@
-package dk.alexandra.fresco.framework.util.ot.extension.semihonest;
+package dk.alexandra.fresco.framework.util.ot.extension;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -16,6 +16,14 @@ import dk.alexandra.fresco.framework.util.ot.datatypes.OTInput;
 import dk.alexandra.fresco.framework.util.ot.datatypes.OTSigma;
 import dk.alexandra.fresco.suite.tinytables.util.Util;
 
+/**
+ * This class represents the receivers part of an implementation of the
+ * semi-honest OT Extension as presented in
+ * "Extending Oblivious Transfers Efficiently" by Ishai et.al.
+ * 
+ * @author Jonas Lindstrøm (jonas.lindstrom@alexandra.dk)
+ *
+ */
 public class SemiHonestOTExtensionReceiver implements OTReceiver {
 
 	private Network network;
@@ -48,7 +56,8 @@ public class SemiHonestOTExtensionReceiver implements OTReceiver {
 		BitSet r = BitSetUtils.fromList(OTSigma.getAll(sigmas));
 		
 		/*
-		 * The inputs for the base OT's are (t, r+t).
+		 * The inputs for the base OT's are (t_i, r+t_i) for all columns t_i of
+		 * the matrix T.
 		 */
 		List<OTInput> otInputs= new ArrayList<OTInput>();
 		for (int i = 0; i < securityParameter; i++) {
@@ -61,9 +70,6 @@ public class SemiHonestOTExtensionReceiver implements OTReceiver {
 		OTSender sender = baseOT.createOTSender();
 		sender.send(otInputs);
 
-		/*
-		 * Receive y's from the sender
-		 */
 		BinaryMatrix y;
 		try {
 			y = network.receive("0", Util.otherPlayerId(myId));
@@ -73,11 +79,17 @@ public class SemiHonestOTExtensionReceiver implements OTReceiver {
 		}
 
 		/*
-		 * Return z = y_sigma + H(j,t)
+		 * Y has two columns per sigma. Now for each sigma, the output is z =
+		 * Y_sigma + H(j,t).
 		 */
 		List<boolean[]> output = new ArrayList<boolean[]>();
 		for (int j = 0; j < sigmas.size(); j++) {
 			boolean sigma = r.get(j);
+			
+			/*
+			 * If sigma is false, we take the first of the two columns.
+			 * Otherwise we take the second.
+			 */
 			BitSet z = y.getColumn(2*j + (sigma ? 1 : 0));
 			z.xor(Util.hash(j, t.getRow(j), expectedLength));
 			output.add(BitSetUtils.toArray(z, expectedLength));

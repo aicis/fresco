@@ -1,8 +1,6 @@
 package dk.alexandra.fresco.framework.util.ot.datatypes;
 
 import java.security.InvalidParameterException;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * <p>This class represents the input to an oblivious transfer protocol from the
@@ -21,10 +19,25 @@ public class OTInput {
 
 	private boolean[] x0, x1;
 
+	/**
+	 * Create a new {@link OTInput} where both <i>x<sub>0</sub></i> and
+	 * <i>x<sub>1</sub></i> are single bits.
+	 * 
+	 * @param x0
+	 * @param x1
+	 */
 	public OTInput(boolean x0, boolean x1) {
 		this(new boolean[] {x0}, new boolean[] {x1});
 	}
 
+	/**
+	 * Create a new {@link OTInput} where <i>x<sub>0</sub></i> and
+	 * <i>x<sub>1</sub></i> are arrays of bits. Note that they should have the
+	 * same length.
+	 * 
+	 * @param x0
+	 * @param x1
+	 */
 	public OTInput(boolean[] x0, boolean[] x1) {
 		this.x0 = x0;
 		this.x1 = x1;
@@ -33,58 +46,38 @@ public class OTInput {
 		}
 	}
 
+	/**
+	 * Return the length of <i>x<sub>0</sub></i> and <i>x<sub>1</sub></i> (which
+	 * are equal).
+	 * 
+	 * @return
+	 */
 	public int getLength() {
 		return x0.length;
 	}
 	
 	public boolean[] getX0() {
-		return this.x0;
+		return getX(false);
 	}
 
 	public boolean[] getX1() {
-		return this.x1;
+		return getX(true);
 	}
 
 	/**
-	 * Create a list of <code>OTInput</code>'s from lists of <i>x<sub>0</sub></i>'s and
-	 * <i>x<sub>1</sub></i>'s of length 1.
+	 * If selection is <code>true</code>, this method returns
+	 * <i>x<sub>1</sub></i> and if selection is <code>false</code>, this method
+	 * returns <i>x<sub>0</sub></i>.
 	 * 
-	 * @param x0s
-	 * @param x1s
+	 * @param selection
 	 * @return
 	 */
-	public static List<OTInput> fromLists(List<Boolean> x0s, List<Boolean> x1s) {
-		if (x0s.size() != x1s.size()) {
-			throw new InvalidParameterException("Must have same number of x0s and x1s");
+	public boolean[] getX(boolean selection) {
+		if (selection) {
+			return this.x1;
+		} else {
+			return this.x0;
 		}
-		List<OTInput> out = new ArrayList<OTInput>();
-		for (int i = 0; i < x0s.size(); i++) {
-			out.add(new OTInput(x0s.get(i), x1s.get(i)));
-		}
-		return out;
 	}
-	
-	/**
-	 * Given a list of OTInput's, this methods return a list of all
-	 * <i>x<sub>i</sub></i> from the inputs where <i>i = 0,1</i> is the specified
-	 * index.
-	 * 
-	 * @param inputs
-	 * @param index
-	 * @return
-	 */
-	public static List<boolean[]> getAll(List<OTInput> inputs, int index) {
-		if (index < 0 || index > 1) {
-			throw new InvalidParameterException("Index must be either 0 or 1");
-		}
-		List<boolean[]> out = new ArrayList<boolean[]>();
-		for (OTInput input : inputs) {
-			if (index == 0) {
-				out.add(input.getX0());
-			} else {
-				out.add(input.getX1());
-			}
-		}
-		return out;
-	}
+
 }
