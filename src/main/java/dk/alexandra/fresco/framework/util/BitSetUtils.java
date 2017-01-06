@@ -1,4 +1,4 @@
-package dk.alexandra.fresco.suite.tinytables.util;
+package dk.alexandra.fresco.framework.util;
 
 import java.security.SecureRandom;
 import java.util.ArrayList;

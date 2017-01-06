@@ -1,4 +1,4 @@
-package dk.alexandra.fresco.suite.tinytables.util.ot.extension.semihonest;
+package dk.alexandra.fresco.framework.util.ot.extension.semihonest;
 
 import java.io.IOException;
 import java.util.BitSet;
@@ -6,14 +6,14 @@ import java.util.List;
 import java.util.Random;
 
 import dk.alexandra.fresco.framework.network.Network;
-import dk.alexandra.fresco.suite.tinytables.util.BinaryMatrix;
-import dk.alexandra.fresco.suite.tinytables.util.BitSetUtils;
+import dk.alexandra.fresco.framework.util.BinaryMatrix;
+import dk.alexandra.fresco.framework.util.BitSetUtils;
+import dk.alexandra.fresco.framework.util.ot.OTFactory;
+import dk.alexandra.fresco.framework.util.ot.OTReceiver;
+import dk.alexandra.fresco.framework.util.ot.OTSender;
+import dk.alexandra.fresco.framework.util.ot.datatypes.OTInput;
+import dk.alexandra.fresco.framework.util.ot.datatypes.OTSigma;
 import dk.alexandra.fresco.suite.tinytables.util.Util;
-import dk.alexandra.fresco.suite.tinytables.util.ot.OTFactory;
-import dk.alexandra.fresco.suite.tinytables.util.ot.OTReceiver;
-import dk.alexandra.fresco.suite.tinytables.util.ot.OTSender;
-import dk.alexandra.fresco.suite.tinytables.util.ot.datatypes.OTInput;
-import dk.alexandra.fresco.suite.tinytables.util.ot.datatypes.OTSigma;
 
 public class SemiHonestOTExtensionSender implements OTSender {
 

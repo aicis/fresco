@@ -1,11 +1,11 @@
-package dk.alexandra.fresco.suite.tinytables.util.ot.extension.semihonest;
+package dk.alexandra.fresco.framework.util.ot.extension.semihonest;
 
 import java.util.Random;
 
 import dk.alexandra.fresco.framework.network.Network;
-import dk.alexandra.fresco.suite.tinytables.util.ot.OTFactory;
-import dk.alexandra.fresco.suite.tinytables.util.ot.OTReceiver;
-import dk.alexandra.fresco.suite.tinytables.util.ot.OTSender;
+import dk.alexandra.fresco.framework.util.ot.OTFactory;
+import dk.alexandra.fresco.framework.util.ot.OTReceiver;
+import dk.alexandra.fresco.framework.util.ot.OTSender;
 
 public class SemiHonestOTExtensionFactory implements OTFactory {
 

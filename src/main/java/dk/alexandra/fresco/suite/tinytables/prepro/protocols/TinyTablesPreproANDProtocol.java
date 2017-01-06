@@ -32,6 +32,11 @@ import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.SCENetwork;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
+import dk.alexandra.fresco.framework.util.ot.OTFactory;
+import dk.alexandra.fresco.framework.util.ot.OTReceiver;
+import dk.alexandra.fresco.framework.util.ot.OTSender;
+import dk.alexandra.fresco.framework.util.ot.datatypes.OTInput;
+import dk.alexandra.fresco.framework.util.ot.datatypes.OTSigma;
 import dk.alexandra.fresco.framework.value.Value;
 import dk.alexandra.fresco.lib.field.bool.AndProtocol;
 import dk.alexandra.fresco.suite.tinytables.prepro.TinyTablesPreproProtocolSuite;
@@ -39,11 +44,6 @@ import dk.alexandra.fresco.suite.tinytables.prepro.datatypes.TinyTablesPreproSBo
 import dk.alexandra.fresco.suite.tinytables.storage.TinyTable;
 import dk.alexandra.fresco.suite.tinytables.storage.TinyTablesStorage;
 import dk.alexandra.fresco.suite.tinytables.util.Util;
-import dk.alexandra.fresco.suite.tinytables.util.ot.OTFactory;
-import dk.alexandra.fresco.suite.tinytables.util.ot.OTReceiver;
-import dk.alexandra.fresco.suite.tinytables.util.ot.OTSender;
-import dk.alexandra.fresco.suite.tinytables.util.ot.datatypes.OTInput;
-import dk.alexandra.fresco.suite.tinytables.util.ot.datatypes.OTSigma;
 
 /**
  * <p>

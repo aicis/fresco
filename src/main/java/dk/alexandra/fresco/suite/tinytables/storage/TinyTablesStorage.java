@@ -29,8 +29,8 @@ package dk.alexandra.fresco.suite.tinytables.storage;
 import java.io.Serializable;
 import java.util.SortedMap;
 
-import dk.alexandra.fresco.suite.tinytables.util.ot.datatypes.OTInput;
-import dk.alexandra.fresco.suite.tinytables.util.ot.datatypes.OTSigma;
+import dk.alexandra.fresco.framework.util.ot.datatypes.OTInput;
+import dk.alexandra.fresco.framework.util.ot.datatypes.OTSigma;
 
 public interface TinyTablesStorage extends Serializable {
 

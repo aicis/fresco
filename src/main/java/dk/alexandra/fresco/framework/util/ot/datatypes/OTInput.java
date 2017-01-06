@@ -1,4 +1,4 @@
-package dk.alexandra.fresco.suite.tinytables.util.ot.datatypes;
+package dk.alexandra.fresco.framework.util.ot.datatypes;
 
 import java.security.InvalidParameterException;
 import java.util.ArrayList;

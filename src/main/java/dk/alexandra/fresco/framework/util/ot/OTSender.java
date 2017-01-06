@@ -1,8 +1,8 @@
-package dk.alexandra.fresco.suite.tinytables.util.ot;
+package dk.alexandra.fresco.framework.util.ot;
 
 import java.util.List;
 
-import dk.alexandra.fresco.suite.tinytables.util.ot.datatypes.OTInput;
+import dk.alexandra.fresco.framework.util.ot.datatypes.OTInput;
 
 public interface OTSender {
 

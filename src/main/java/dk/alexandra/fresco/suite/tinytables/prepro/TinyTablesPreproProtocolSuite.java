@@ -37,14 +37,14 @@ import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.Reporter;
 import dk.alexandra.fresco.framework.sce.configuration.ProtocolSuiteConfiguration;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
+import dk.alexandra.fresco.framework.util.ot.OTFactory;
+import dk.alexandra.fresco.framework.util.ot.extension.semihonest.SemiHonestOTExtensionFactory;
+import dk.alexandra.fresco.framework.util.ot.java.JavaOTFactory;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.tinytables.online.TinyTablesProtocolSuite;
 import dk.alexandra.fresco.suite.tinytables.prepro.protocols.TinyTablesPreproANDProtocol;
 import dk.alexandra.fresco.suite.tinytables.storage.TinyTablesStorage;
 import dk.alexandra.fresco.suite.tinytables.storage.TinyTablesStorageImpl;
-import dk.alexandra.fresco.suite.tinytables.util.ot.OTFactory;
-import dk.alexandra.fresco.suite.tinytables.util.ot.extension.semihonest.SemiHonestOTExtensionFactory;
-import dk.alexandra.fresco.suite.tinytables.util.ot.java.JavaOTFactory;
 
 /**
  * <p>

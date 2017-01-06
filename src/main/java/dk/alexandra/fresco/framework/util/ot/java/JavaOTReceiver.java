@@ -1,4 +1,4 @@
-package dk.alexandra.fresco.suite.tinytables.util.ot.java;
+package dk.alexandra.fresco.framework.util.ot.java;
 
 import java.io.IOException;
 import java.security.SecureRandom;
@@ -7,9 +7,9 @@ import java.util.Arrays;
 import java.util.List;
 
 import dk.alexandra.fresco.framework.network.Network;
-import dk.alexandra.fresco.suite.tinytables.util.Encoding;
-import dk.alexandra.fresco.suite.tinytables.util.ot.OTReceiver;
-import dk.alexandra.fresco.suite.tinytables.util.ot.datatypes.OTSigma;
+import dk.alexandra.fresco.framework.util.ot.Encoding;
+import dk.alexandra.fresco.framework.util.ot.OTReceiver;
+import dk.alexandra.fresco.framework.util.ot.datatypes.OTSigma;
 import edu.biu.scapi.exceptions.FactoriesException;
 import edu.biu.scapi.exceptions.SecurityLevelException;
 import edu.biu.scapi.interactiveMidProtocols.ot.otBatch.OTBatchOnByteArrayROutput;

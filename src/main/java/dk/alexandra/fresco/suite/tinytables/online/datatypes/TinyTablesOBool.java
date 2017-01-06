@@ -26,8 +26,8 @@
  *******************************************************************************/
 package dk.alexandra.fresco.suite.tinytables.online.datatypes;
 
+import dk.alexandra.fresco.framework.util.ot.Encoding;
 import dk.alexandra.fresco.framework.value.OBool;
-import dk.alexandra.fresco.suite.tinytables.util.Encoding;
 
 public class TinyTablesOBool implements OBool{
 

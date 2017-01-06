@@ -1,4 +1,4 @@
-package dk.alexandra.fresco.suite.tinytables.util.ot.java;
+package dk.alexandra.fresco.framework.util.ot.java;
 
 import java.io.IOException;
 import java.io.Serializable;

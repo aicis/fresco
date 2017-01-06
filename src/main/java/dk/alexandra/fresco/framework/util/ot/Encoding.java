@@ -1,8 +1,10 @@
-package dk.alexandra.fresco.suite.tinytables.util;
+package dk.alexandra.fresco.framework.util.ot;
 
 import java.util.Arrays;
 import java.util.BitSet;
 import java.util.List;
+
+import dk.alexandra.fresco.framework.util.BitSetUtils;
 
 public class Encoding {
 

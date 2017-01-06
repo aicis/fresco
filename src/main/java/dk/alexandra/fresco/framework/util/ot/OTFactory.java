@@ -1,4 +1,4 @@
-package dk.alexandra.fresco.suite.tinytables.util.ot;
+package dk.alexandra.fresco.framework.util.ot;
 
 public interface OTFactory {
 
