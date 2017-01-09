@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 FRESCO (http://github.com/aicis/fresco).
+ * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
  *
@@ -141,5 +141,11 @@ public class DataSupplierImpl implements DataSupplier {
 			throw new MPCException("SSK was not present in the storage "+ storageName);
 		}
 		return this.ssk;
+	}
+
+	@Override
+	public SpdzSInt getNextRandomFieldElement() {
+		// TODO: We should probably have a random element storage stream 
+		return new SpdzSInt(this.getNextTriple().getA());
 	}
 }

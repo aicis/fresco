@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 FRESCO (http://github.com/aicis/fresco).
+ * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
  *
@@ -58,13 +58,6 @@ public interface SIntFactory {
 	 * TODO: This should not be how values are loaded
 	 * 
 	 */
-	public KnownSIntProtocol getSInt(BigInteger i, SInt si);
-	
-	/**
-	 * Create a uniformly distributed pseudo-random secret integer. 
-	 * 
-	 */
-	public SInt getRandomSInt();
-	
+	public KnownSIntProtocol getSInt(BigInteger i, SInt si);	
 	
 }

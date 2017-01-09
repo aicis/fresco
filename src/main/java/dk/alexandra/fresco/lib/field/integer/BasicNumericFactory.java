@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 FRESCO (http://github.com/aicis/fresco).
+ * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
  *
@@ -26,6 +26,8 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.field.integer;
 
+import java.math.BigInteger;
+
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.value.OIntFactory;
 import dk.alexandra.fresco.framework.value.SInt;
@@ -40,7 +42,7 @@ import dk.alexandra.fresco.lib.math.integer.NumericBitFactory;
  */
 public interface BasicNumericFactory extends SIntFactory, OIntFactory,
 		AddProtocolFactory, SubtractProtocolFactory, MultProtocolFactory,
-		ProtocolFactory, IOIntProtocolFactory, NumericBitFactory {
+		ProtocolFactory, IOIntProtocolFactory, NumericBitFactory, RandomFieldElementFactory {
 
 	/**
 	 * Returns the maximum number of bits a number in the field can contain.
@@ -56,4 +58,11 @@ public interface BasicNumericFactory extends SIntFactory, OIntFactory,
 	 * @return
 	 */
 	public SInt getSqrtOfMaxValue();
+
+	/**
+	 * Returns the modulus used in the underlying arithmetic protocol suite.
+	 * 
+	 * @return The modulus used.
+	 */
+	public BigInteger getModulus();
 }

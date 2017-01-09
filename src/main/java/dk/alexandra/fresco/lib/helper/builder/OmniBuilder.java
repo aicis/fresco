@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 FRESCO (http://github.com/aicis/fresco).
+ * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
  *
@@ -78,6 +78,8 @@ public class OmniBuilder extends AbstractProtocolBuilder{
 	private NumericProtocolBuilder numericProtocolBuilder;
 	private ComparisonProtocolBuilder comparisonProtocolBuilder;
 	private StatisticsProtocolBuilder statisticsProtocolBuilder;
+	private SymmetricEncryptionBuilder symmetricEncryptionBuilder;
+	private UtilityBuilder utilityBuilder;
 	
 	//Used in various protocols - typically for comparisons. 
 	//TODO: Better explanation as to what this is, and what it means for performance/security. 
@@ -209,11 +211,39 @@ public class OmniBuilder extends AbstractProtocolBuilder{
 	}
 
 
+	/**
+	 * Builder used for doing symmetric encryption within arithmetic fields. 
+	 * Currently expects that the constructor given factory implements all interfaces listed below:
+	 * - BasicNumericFactory
+	 * @return A builder that constructs symmetric encryption protocols
+	 */
+	public SymmetricEncryptionBuilder getSymmetricEncryptionBuilder() {
+		if(symmetricEncryptionBuilder == null) {
+			BasicNumericFactory basicNumericFactory = (BasicNumericFactory)factory;
+			symmetricEncryptionBuilder = new SymmetricEncryptionBuilder(basicNumericFactory);
+			symmetricEncryptionBuilder.setParentBuilder(this);
+		}
+		return symmetricEncryptionBuilder;
+	}
 
+	/**
+	 * Builder used primarily for debug purposes, so be careful including this in production code. 
+	 * Currently expects that the constructor given factory implements one of the interfaces listed below:
+	 * - BasicNumericFactory
+	 * - BasicLogicFactory
+	 * @return A builder that constructs primarily debug protocols.
+	 */
+	public UtilityBuilder getUtilityBuilder() {
+		if(utilityBuilder == null) {
+			utilityBuilder = new UtilityBuilder(factory);
+			utilityBuilder.setParentBuilder(this);
+		}
+		return utilityBuilder;
+	}
+	
 	@Override
 	public void addProtocolProducer(ProtocolProducer pp) {
 		append(pp);
 	}
-	
-	
+
 }

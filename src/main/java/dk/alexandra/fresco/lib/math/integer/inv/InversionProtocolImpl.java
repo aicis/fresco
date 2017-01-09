@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 FRESCO (http://github.com/aicis/fresco).
+ * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
  *
@@ -34,6 +34,8 @@ import dk.alexandra.fresco.framework.value.Value;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.field.integer.MultProtocol;
 import dk.alexandra.fresco.lib.field.integer.OpenIntProtocol;
+import dk.alexandra.fresco.lib.field.integer.RandomFieldElementFactory;
+import dk.alexandra.fresco.lib.field.integer.RandomFieldElementProtocol;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
 
 public class InversionProtocolImpl implements InversionProtocol {
@@ -41,15 +43,17 @@ public class InversionProtocolImpl implements InversionProtocol {
 	private final SInt x, result;
 	private final BasicNumericFactory factory;
 	private final LocalInversionFactory invFactory;
+	private final RandomFieldElementFactory randFactory;
 	private ProtocolProducer pp;
 	boolean done;
 	
 	public InversionProtocolImpl(SInt x, SInt result, BasicNumericFactory factory, 
-			LocalInversionFactory invFactory) {
+			LocalInversionFactory invFactory, RandomFieldElementFactory randFactory) {
 		this.x = x;
 		this.result = result;
 		this.factory = factory;
 		this.invFactory = invFactory;
+		this.randFactory = randFactory;
 		this.pp = null;
 		this.done = false;
 	}
@@ -60,13 +64,14 @@ public class InversionProtocolImpl implements InversionProtocol {
 			OInt inverse = factory.getOInt();
 			SInt sProduct = factory.getSInt();
 			OInt oProduct = factory.getOInt();
-			SInt random = factory.getRandomSInt();
+			SInt random = factory.getSInt();
+			RandomFieldElementProtocol randomProt = randFactory.getRandomFieldElement(random);
 			MultProtocol blinding = factory.getMultProtocol(x, random, sProduct);
 			OpenIntProtocol open = factory.getOpenProtocol(sProduct, oProduct);
 			LocalInversionProtocol invert = invFactory.getLocalInversionProtocol(oProduct, inverse);
 			MultProtocol unblinding = factory.getMultProtocol(inverse, random, result);
 			
-			pp = new SequentialProtocolProducer(blinding, open, invert, unblinding);
+			pp = new SequentialProtocolProducer(randomProt, blinding, open, invert, unblinding);
 		}
 		if (pp.hasNextProtocols()){
 			pos = pp.getNextProtocols(nativeProtocols, pos);

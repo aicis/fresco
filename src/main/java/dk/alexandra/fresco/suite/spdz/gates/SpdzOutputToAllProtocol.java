@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 FRESCO (http://github.com/aicis/fresco).
+ * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
  *
@@ -74,7 +74,7 @@ public class SpdzOutputToAllProtocol extends SpdzNativeProtocol implements
 			storage.addOpenedValue(openedVal);
 			storage.addClosedValue(in.value);
 			BigInteger tmpOut = openedVal;
-			tmpOut = Util.convertRepresentation(tmpOut);
+			//tmpOut = Util.convertRepresentation(tmpOut);
 			out.setValue(tmpOut);
 			return EvaluationStatus.IS_DONE;
 		default:

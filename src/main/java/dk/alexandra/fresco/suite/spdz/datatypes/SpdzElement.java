@@ -61,7 +61,7 @@ public class SpdzElement implements Serializable{
 	}
 
 	public static int getSize(){
-		return Util.size; //cause we only do partial openings meaning sending a share
+		return Util.getModulusSize(); //cause we only do partial openings meaning sending a share
 	}
 	
 	public byte[] toByteArray(){		

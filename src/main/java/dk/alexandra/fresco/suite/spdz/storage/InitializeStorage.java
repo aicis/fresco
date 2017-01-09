@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 FRESCO (http://github.com/aicis/fresco).
+ * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
  *
@@ -47,27 +47,29 @@ import dk.alexandra.fresco.suite.spdz.datatypes.SpdzTriple;
 public class InitializeStorage {
 
 	/**
-	 * Removes all preprocessed material previously produced by this class' init*Storage methods.
+	 * Removes all preprocessed material previously produced by this class'
+	 * init*Storage methods.
 	 */
-	public static void cleanup() throws IOException{		
+	public static void cleanup() throws IOException {
 		String folder = SpdzStorageConstants.STORAGE_FOLDER;
-		if(!new File(folder).exists()) {
-			System.out.println("The folder '"+folder+"' does not exist. Continuing without removing anything");
+		if (!new File(folder).exists()) {
+			System.out.println("The folder '" + folder + "' does not exist. Continuing without removing anything");
 			return;
 		}
-		System.out.println("Removing any preprocessed material from the folder "+folder);		
-		deleteFileOrFolder(Paths.get(folder));		
+		System.out.println("Removing any preprocessed material from the folder " + folder);
+		deleteFileOrFolder(Paths.get(folder));
 	}
-	
+
 	private static void deleteFileOrFolder(final Path path) throws IOException {
-		Files.walkFileTree(path, new SimpleFileVisitor<Path>(){
-			@Override public FileVisitResult visitFile(final Path file, final BasicFileAttributes attrs)
-					throws IOException {
+		Files.walkFileTree(path, new SimpleFileVisitor<Path>() {
+			@Override
+			public FileVisitResult visitFile(final Path file, final BasicFileAttributes attrs) throws IOException {
 				Files.delete(file);
 				return FileVisitResult.CONTINUE;
 			}
 
-			@Override public FileVisitResult visitFileFailed(final Path file, final IOException e) {
+			@Override
+			public FileVisitResult visitFileFailed(final Path file, final IOException e) {
 				return handleException(e);
 			}
 
@@ -76,15 +78,16 @@ public class InitializeStorage {
 				return FileVisitResult.TERMINATE;
 			}
 
-			@Override public FileVisitResult postVisitDirectory(final Path dir, final IOException e)
-					throws IOException {
-				if(e!=null)return handleException(e);
+			@Override
+			public FileVisitResult postVisitDirectory(final Path dir, final IOException e) throws IOException {
+				if (e != null)
+					return handleException(e);
 				Files.delete(dir);
 				return FileVisitResult.CONTINUE;
 			}
 		});
 	};
-	
+
 	/**
 	 * Generates on runtime the necessary preprocessed data for SPDZ tests and
 	 * stores it in the different stores that were given as argument.
@@ -176,14 +179,36 @@ public class InitializeStorage {
 		}
 	}
 
+	/**
+	 * Initializes the storage
+	 * 
+	 * @param streamedStorages
+	 *            The storages to initialize (multiple storages are used when
+	 *            using a strategy with multiple threads)
+	 * @param noOfPlayers
+	 *            The number of players
+	 * @param noOfThreads
+	 *            The number of threads used
+	 * @param noOfTriples
+	 *            The number of triples to generate
+	 * @param noOfInputMasks
+	 *            The number of masks for input to generate.
+	 * @param noOfBits
+	 *            The number of random bits to generate
+	 * @param noOfExpPipes
+	 *            The number of exponentiation pipes to generate.
+	 * @param p
+	 *            The modulus to use.
+	 */
 	public static void initStreamedStorage(StreamedStorage[] streamedStorages, int noOfPlayers, int noOfThreads,
-			int noOfTriples, int noOfInputMasks, int noOfBits, int noOfExpPipes) {
+			int noOfTriples, int noOfInputMasks, int noOfBits, int noOfExpPipes, BigInteger p) {
 		List<Storage> tmpStores = new ArrayList<Storage>();
 		for (StreamedStorage s : streamedStorages) {
 			try {
-				//Try get the last thread file. If that fails, we need to generate the files
-				if (s.getNext(
-						SpdzStorageConstants.STORAGE_NAME_PREFIX + noOfThreads+ "_"+1+"_"+0+"_"+SpdzStorageConstants.MODULUS_KEY) == null) {
+				// Try get the last thread file. If that fails, we need to
+				// generate the files
+				if (s.getNext(SpdzStorageConstants.STORAGE_NAME_PREFIX + noOfThreads + "_" + 1 + "_" + 0 + "_"
+						+ SpdzStorageConstants.MODULUS_KEY) == null) {
 					tmpStores.add(s);
 				}
 			} catch (Exception e) {
@@ -195,14 +220,11 @@ public class InitializeStorage {
 		}
 		System.out.println("Generating preprocessed data!");
 		File f = new File("spdz");
-		if(!f.exists()) {
+		if (!f.exists()) {
 			f.mkdirs();
 		}
-		
-		StreamedStorage[] storages = tmpStores.toArray(new StreamedStorage[0]);
 
-		BigInteger p = new BigInteger(
-				"6703903964971298549787012499123814115273848577471136527425966013026501536706464354255445443244279389455058889493431223951165286470575994074291745908195329");
+		StreamedStorage[] storages = tmpStores.toArray(new StreamedStorage[0]);
 
 		List<BigInteger> alphaShares = FakeTripGen.generateAlphaShares(noOfPlayers, p);
 		BigInteger alpha = BigInteger.ZERO;
@@ -219,7 +241,8 @@ public class InitializeStorage {
 		for (StreamedStorage store : storages) {
 			for (int i = 1; i < noOfPlayers + 1; i++) {
 				for (int threadId = 0; threadId < noOfThreads; threadId++) {
-					String storageName = SpdzStorageConstants.STORAGE_NAME_PREFIX + noOfThreads+"_"+ i + "_" + threadId+"_";
+					String storageName = SpdzStorageConstants.STORAGE_NAME_PREFIX + noOfThreads + "_" + i + "_"
+							+ threadId + "_";
 					store.putNext(storageName + SpdzStorageConstants.MODULUS_KEY, p);
 					store.putNext(storageName + SpdzStorageConstants.SSK_KEY, alphaShares.get(i - 1));
 				}
@@ -228,7 +251,8 @@ public class InitializeStorage {
 			for (SpdzTriple[] triple : triples) {
 				for (int i = 0; i < noOfPlayers; i++) {
 					for (int threadId = 0; threadId < noOfThreads; threadId++) {
-						String storageName = SpdzStorageConstants.STORAGE_NAME_PREFIX + noOfThreads+"_"+ (i + 1) + "_" + threadId+"_";
+						String storageName = SpdzStorageConstants.STORAGE_NAME_PREFIX + noOfThreads + "_" + (i + 1)
+								+ "_" + threadId + "_";
 						store.putNext(storageName + SpdzStorageConstants.TRIPLE_STORAGE, triple[i]);
 					}
 				}
@@ -241,7 +265,8 @@ public class InitializeStorage {
 					// single shares of that input
 					for (int i = 0; i < noOfPlayers; i++) {
 						for (int threadId = 0; threadId < noOfThreads; threadId++) {
-							String storageName = SpdzStorageConstants.STORAGE_NAME_PREFIX + noOfThreads+"_"+ (i + 1) + "_" + threadId+"_";
+							String storageName = SpdzStorageConstants.STORAGE_NAME_PREFIX + noOfThreads + "_" + (i + 1)
+									+ "_" + threadId + "_";
 							store.putNext(storageName + SpdzStorageConstants.INPUT_STORAGE + towardsPlayer, masks[i]);
 						}
 					}
@@ -252,7 +277,8 @@ public class InitializeStorage {
 			for (SpdzSInt[] bit : bits) {
 				for (int i = 0; i < noOfPlayers; i++) {
 					for (int threadId = 0; threadId < noOfThreads; threadId++) {
-						String storageName = SpdzStorageConstants.STORAGE_NAME_PREFIX + noOfThreads+"_"+ (i + 1) + "_" + threadId+"_";
+						String storageName = SpdzStorageConstants.STORAGE_NAME_PREFIX + noOfThreads + "_" + (i + 1)
+								+ "_" + threadId + "_";
 						store.putNext(storageName + SpdzStorageConstants.BIT_STORAGE, bit[i]);
 					}
 				}
@@ -262,11 +288,26 @@ public class InitializeStorage {
 			for (SpdzSInt[][] expPipe : expPipes) {
 				for (int i = 0; i < noOfPlayers; i++) {
 					for (int threadId = 0; threadId < noOfThreads; threadId++) {
-						String storageName = SpdzStorageConstants.STORAGE_NAME_PREFIX + noOfThreads+"_"+ (i + 1) + "_" + threadId+"_";
+						String storageName = SpdzStorageConstants.STORAGE_NAME_PREFIX + noOfThreads + "_" + (i + 1)
+								+ "_" + threadId + "_";
 						store.putNext(storageName + SpdzStorageConstants.EXP_PIPE_STORAGE, expPipe[i]);
 					}
 				}
 			}
 		}
+	}
+
+	/**
+	 * Does the same as
+	 * {@link #initStreamedStorage(StreamedStorage[], int, int, int, int, int, int, BigInteger)}
+	 * but where the chosen modulus is chosen for you, and is the same as the
+	 * one found in: {@link DummyDataSupplierImpl}
+	 */
+	public static void initStreamedStorage(StreamedStorage[] streamedStorages, int noOfPlayers, int noOfThreads,
+			int noOfTriples, int noOfInputMasks, int noOfBits, int noOfExpPipes) {
+		BigInteger p = new BigInteger(
+				"6703903964971298549787012499123814115273848577471136527425966013026501536706464354255445443244279389455058889493431223951165286470575994074291745908195329");
+		InitializeStorage.initStreamedStorage(streamedStorages, noOfPlayers, noOfThreads, noOfTriples, noOfInputMasks,
+				noOfBits, noOfExpPipes, p);
 	}
 }
