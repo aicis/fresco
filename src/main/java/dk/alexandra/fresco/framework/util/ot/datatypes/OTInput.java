@@ -1,6 +1,9 @@
 package dk.alexandra.fresco.framework.util.ot.datatypes;
 
 import java.security.InvalidParameterException;
+import java.util.BitSet;
+
+import dk.alexandra.fresco.framework.util.BitSetUtils;
 
 /**
  * <p>This class represents the input to an oblivious transfer protocol from the
@@ -17,7 +20,9 @@ import java.security.InvalidParameterException;
  */
 public class OTInput {
 
-	private boolean[] x0, x1;
+	
+	private BitSet x0, x1;
+	private int length;
 
 	/**
 	 * Create a new {@link OTInput} where both <i>x<sub>0</sub></i> and
@@ -39,13 +44,20 @@ public class OTInput {
 	 * @param x1
 	 */
 	public OTInput(boolean[] x0, boolean[] x1) {
-		this.x0 = x0;
-		this.x1 = x1;
-		if (this.x0.length != this.x1.length) {
+		if (x0.length != x1.length) {
 			throw new InvalidParameterException("Inputs must have same lenght");
 		}
+		this.length = x0.length;
+		this.x0 = BitSetUtils.fromArray(x0);
+		this.x1 = BitSetUtils.fromArray(x1);
 	}
 
+	public OTInput(BitSet x0, BitSet x1, int length) {
+		this.x0 = x0;
+		this.x1 = x1;
+		this.length = length;
+	}
+	
 	/**
 	 * Return the length of <i>x<sub>0</sub></i> and <i>x<sub>1</sub></i> (which
 	 * are equal).
@@ -53,15 +65,15 @@ public class OTInput {
 	 * @return
 	 */
 	public int getLength() {
-		return x0.length;
+		return this.length;
 	}
-	
-	public boolean[] getX0() {
-		return getX(false);
+		
+	public BitSet getX0() {
+		return x0;
 	}
 
-	public boolean[] getX1() {
-		return getX(true);
+	public BitSet getX1() {
+		return x1;
 	}
 
 	/**
@@ -72,7 +84,7 @@ public class OTInput {
 	 * @param selection
 	 * @return
 	 */
-	public boolean[] getX(boolean selection) {
+	public BitSet getX(boolean selection) {
 		if (selection) {
 			return this.x1;
 		} else {

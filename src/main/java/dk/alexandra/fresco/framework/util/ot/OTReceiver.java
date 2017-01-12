@@ -1,5 +1,6 @@
 package dk.alexandra.fresco.framework.util.ot;
 
+import java.util.BitSet;
 import java.util.List;
 
 import dk.alexandra.fresco.framework.util.ot.datatypes.OTSigma;
@@ -25,6 +26,6 @@ public interface OTReceiver {
 	 *            expected to have the same length.
 	 * @return
 	 */
-	public List<boolean[]> receive(List<OTSigma> sigmas, int expectedLength);
+	public List<BitSet> receive(List<OTSigma> sigmas, int expectedLength);
 	
 }

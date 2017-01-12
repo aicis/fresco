@@ -23,37 +23,6 @@ public class BitSetUtils {
 	public static BitSet copy(BitSet b) {
 		return (BitSet) b.clone();
 	}
-
-	/**
-	 * This method returns a combination of the given BitSets. Note that each
-	 * BitSet is represented only <i>until</i> the highest set bit.
-	 * 
-	 * @param sets
-	 * @return
-	 */
-	public static BitSet combine(BitSet... sets) {
-		BitSet result = new BitSet();
-		int i = 0;
-		for (BitSet set : sets) {
-			xor(result, set, i);
-			i += set.length();
-		}
-		return result;
-	}
-	
-	/**
-	 * XOR the bits from one BitSet onto another, starting specified index in
-	 * the <code>to</code> BitSet.
-	 * 
-	 * @param to
-	 * @param from
-	 * @param toIndex
-	 */
-	public static void xor(BitSet to, BitSet from, int startIndex) {
-		BitSet buffer = copy(from);
-		shiftRight(buffer, startIndex);
-		to.xor(buffer);
-	}
 	
 	/**
 	 * Returns a new BitSet such that the first <i>n</i> bits are set at random
@@ -125,11 +94,12 @@ public class BitSetUtils {
 	 * @param bits
 	 * @param shifts
 	 */
-	public static void shiftRight(BitSet bits, int shifts) {
+	public static BitSet shiftRight(BitSet bits, int shifts) {
+		BitSet buffer = new BitSet(bits.length() + shifts);
 		for (int i = bits.length() - 1; i >= 0; i--) {
-			bits.set(i + shifts, bits.get(i));
+			buffer.set(i + shifts, bits.get(i));
 		}
-		bits.clear(0, shifts);
+		return buffer;
 	}
 	
 	/**
@@ -138,12 +108,8 @@ public class BitSetUtils {
 	 * @param bits
 	 * @param shifts
 	 */
-	public static void shiftLeft(BitSet bits, int shifts) {
-		int l = bits.length();
-		for (int i = 0; i < l - shifts; i++) {
-			bits.set(i, bits.get(i + shifts));
-		}
-		bits.clear(l - shifts, l);
+	public static BitSet shiftLeft(BitSet bits, int shifts) {
+		return bits.get(shifts, bits.length());
 	}
 
 	/*

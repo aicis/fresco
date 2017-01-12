@@ -8,6 +8,7 @@ import java.util.Random;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.BinaryMatrix;
 import dk.alexandra.fresco.framework.util.BitSetUtils;
+import dk.alexandra.fresco.framework.util.Timing;
 import dk.alexandra.fresco.framework.util.ot.OTFactory;
 import dk.alexandra.fresco.framework.util.ot.OTReceiver;
 import dk.alexandra.fresco.framework.util.ot.OTSender;
@@ -43,6 +44,10 @@ public class SemiHonestOTExtensionSender implements OTSender {
 	@Override
 	public void send(List<OTInput> inputs) {
 		
+		Timing timing = new Timing();
+		timing.start();
+		int t = 0;
+		
 		// We assume that all inputs have same length.
 		int stringLength = inputs.get(0).getLength();
 		
@@ -51,15 +56,21 @@ public class SemiHonestOTExtensionSender implements OTSender {
 		 */
 		BitSet s = BitSetUtils.getRandomBits(securityParameter, random);
 		
+		System.out.println("1: " + timing.stop() / 1000000);
+		
 		OTReceiver receiver = baseOT.createOTReceiver();
 		List<OTSigma> sigmas = OTSigma.fromList(BitSetUtils.toList(s, securityParameter));
-	
+
+		System.out.println("2: " + timing.stop() / 1000000);
+		
 		/*
 		 * The output of the OT's are used as columns of a matrix Q
 		 */
-		List<boolean[]> otOutput = receiver.receive(sigmas, inputs.size());
-		BinaryMatrix q = BinaryMatrix.fromColumns(otOutput);
+		List<BitSet> otOutput = receiver.receive(sigmas, inputs.size());
+		BinaryMatrix q = BinaryMatrix.fromColumns(otOutput, inputs.size());
 
+		System.out.println("3: " + timing.stop() / 1000000);
+		
 		/*
 		 * We build a matrix Y with two columns for each OTInput:
 		 */
@@ -69,7 +80,7 @@ public class SemiHonestOTExtensionSender implements OTSender {
 			/*
 			 * First column for an input i is x0 + H(i, q_i)...
 			 */
-			BitSet x0 = BitSetUtils.fromArray(inputs.get(i).getX0());
+			BitSet x0 = inputs.get(i).getX0();
 			BitSet row = q.getRow(i);
 			x0.xor(Util.hash(i, row, stringLength));
 			y.setColumn(2*i, x0);
@@ -77,11 +88,13 @@ public class SemiHonestOTExtensionSender implements OTSender {
 			/*
 			 * ...and the second column is x1 + H(i, q_i) + s.
 			 */
-			BitSet x1 = BitSetUtils.fromArray(inputs.get(i).getX1());
+			BitSet x1 = inputs.get(i).getX1();
 			row.xor(s);
 			x1.xor(Util.hash(i, row, stringLength));			
 			y.setColumn(2*i + 1, x1);
 		}
+		
+		System.out.println("4: " + timing.stop() / 1000000);
 		
 		try {
 			network.send("0", Util.otherPlayerId(myId), y);
@@ -89,6 +102,8 @@ public class SemiHonestOTExtensionSender implements OTSender {
 			e.printStackTrace();
 		}
 		
+		System.out.println("5: " + timing.stop() / 1000000);
+
 	}
 	
 	

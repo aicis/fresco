@@ -3,7 +3,7 @@ package dk.alexandra.fresco.framework.util.ot.base;
 import java.io.IOException;
 import java.security.SecureRandom;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.BitSet;
 import java.util.List;
 
 import dk.alexandra.fresco.framework.network.Network;
@@ -57,7 +57,7 @@ public class BaseOTReceiver implements OTReceiver {
 	}
 	
 	@Override
-	public List<boolean[]> receive(List<OTSigma> sigmas, int expectedLength) {
+	public List<BitSet> receive(List<OTSigma> sigmas, int expectedLength) {
 		
 		OTSemiHonestDDHBatchOnByteArrayReceiver receiver = getInstance(random);
 
@@ -71,9 +71,9 @@ public class BaseOTReceiver implements OTReceiver {
 			OTBatchOnByteArrayROutput output = (OTBatchOnByteArrayROutput) receiver.transfer(
 					new NetworkWrapper(network, myId), input);
 			
-			List<boolean[]> results = new ArrayList<boolean[]>();
+			List<BitSet> results = new ArrayList<BitSet>();
 			for (int i = 0; i < sigmas.size(); i++) {
-				results.add(Arrays.copyOf(Encoding.decodeBooleans(output.getXSigmaArr().get(i)), expectedLength));
+				results.add(Encoding.decodeBitSet(output.getXSigmaArr().get(i)));
 			}
 			
 			return results;

@@ -26,6 +26,7 @@
  *******************************************************************************/
 package dk.alexandra.fresco.suite.tinytables.prepro.protocols;
 
+import java.util.BitSet;
 import java.util.List;
 
 import dk.alexandra.fresco.framework.MPCException;
@@ -231,15 +232,15 @@ public class TinyTablesPreproANDProtocol extends TinyTablesPreproProtocol implem
 	 * @param otOutputs
 	 * @param storage
 	 */
-	private static void player2CalculateTinyTables(List<boolean[]> otOutputs,
+	private static void player2CalculateTinyTables(List<BitSet> otOutputs,
 			TinyTablesStorage storage) {
 		int progress = 0;
 		for (int id : storage.getOTSigmas().keySet()) {
 
 			boolean rV = storage.getOTSigmas().get(id)[0].getSigma();
 			boolean rU = storage.getOTSigmas().get(id)[1].getSigma();
-			boolean y0 = otOutputs.get(progress)[0];
-			boolean y1 = otOutputs.get(progress + 1)[0];
+			boolean y0 = otOutputs.get(progress).get(0);
+			boolean y1 = otOutputs.get(progress + 1).get(0);
 			boolean rO = storage.getMaskShare(id);
 
 			TinyTable tinyTable = TinyTablesPreproANDProtocol.calculateTinyTable(y0, y1, rU, rV,
@@ -278,7 +279,7 @@ public class TinyTablesPreproANDProtocol extends TinyTablesPreproProtocol implem
 				 */
 				OTReceiver receiver = otFactory.createOTReceiver();
 				List<OTSigma> sigmas = Util.getAll(storage.getOTSigmas());
-				List<boolean[]> outputs = receiver.receive(sigmas, 1);
+				List<BitSet> outputs = receiver.receive(sigmas, 1);
 
 				TinyTablesPreproANDProtocol.player2CalculateTinyTables(outputs, storage);
 				break;

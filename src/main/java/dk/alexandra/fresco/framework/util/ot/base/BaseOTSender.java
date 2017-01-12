@@ -61,11 +61,8 @@ public class BaseOTSender implements OTSender {
 		ArrayList<byte[]> x0 = new ArrayList<byte[]>();
 		ArrayList<byte[]> x1 = new ArrayList<byte[]>();
 		for (OTInput input : inputs) {
-			byte[] x0i = Encoding.encodeBooleans(input.getX0());
-			x0.add(x0i);
-			
-			byte[] x1i = Encoding.encodeBooleans(input.getX1());
-			x1.add(x1i);
+			x0.add(Encoding.encodeBitSet(input.getX0(), input.getLength()));
+			x1.add(Encoding.encodeBitSet(input.getX1(), input.getLength()));
 		}
 		
 		OTBatchOnByteArraySInput otsInputs = new OTBatchOnByteArraySInput(x0, x1);

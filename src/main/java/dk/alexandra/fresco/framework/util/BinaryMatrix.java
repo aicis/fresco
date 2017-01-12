@@ -290,19 +290,11 @@ public class BinaryMatrix implements Serializable {
 		}
 		return a;
 	}
-
-	/**
-	 * Given a list of columns, represented as boolean arrays, this method
-	 * returns a {@link BinaryMatrix} with the given columns.
-	 * 
-	 * @param columns
-	 * @return
-	 */
-	public static BinaryMatrix fromColumns(List<boolean[]> columns) {
-		BinaryMatrix matrix = new BinaryMatrix(columns.get(0).length, columns.size());
-		for (int j = 0; j < matrix.getWidth(); j++) {
-			BitSet column = BitSetUtils.fromArray(columns.get(j));
-			matrix.setColumn(j, column);
+	
+	public static BinaryMatrix fromColumns(List<BitSet> columns, int height) {
+		BinaryMatrix matrix = new BinaryMatrix(height, columns.size());
+		for (int j = 0; j < columns.size(); j++) {
+			matrix.setColumn(j, columns.get(j));
 		}
 		return matrix;
 	}

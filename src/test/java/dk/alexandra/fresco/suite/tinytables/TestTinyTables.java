@@ -100,7 +100,7 @@ public class TestTinyTables {
 				/*
 				 * Set security parameter for OTs
 				 */
-				((TinyTablesPreproConfiguration) config).setSecurityParameter(256);
+				((TinyTablesPreproConfiguration) config).setSecurityParameter(64);
 				
 				/*
 				 * Set path where the generated TinyTables should be stored

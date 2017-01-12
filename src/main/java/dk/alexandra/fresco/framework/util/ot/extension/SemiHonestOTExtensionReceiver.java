@@ -42,7 +42,7 @@ public class SemiHonestOTExtensionReceiver implements OTReceiver {
 	}
 
 	@Override
-	public List<boolean[]> receive(List<OTSigma> sigmas, int expectedLength) {
+	public List<BitSet> receive(List<OTSigma> sigmas, int expectedLength) {
 
 		/*
 		 * T is a random binary matrix of size m x k where m is the number of
@@ -82,7 +82,7 @@ public class SemiHonestOTExtensionReceiver implements OTReceiver {
 		 * Y has two columns per sigma. Now for each sigma, the output is z =
 		 * Y_sigma + H(j,t).
 		 */
-		List<boolean[]> output = new ArrayList<boolean[]>();
+		List<BitSet> output = new ArrayList<BitSet>();
 		for (int j = 0; j < sigmas.size(); j++) {
 			boolean sigma = r.get(j);
 			
@@ -92,7 +92,7 @@ public class SemiHonestOTExtensionReceiver implements OTReceiver {
 			 */
 			BitSet z = y.getColumn(2*j + (sigma ? 1 : 0));
 			z.xor(Util.hash(j, t.getRow(j), expectedLength));
-			output.add(BitSetUtils.toArray(z, expectedLength));
+			output.add(z);
 		}
 		return output;
 	}

@@ -20,6 +20,22 @@ public class Encoding {
 	}
 
 	/**
+	 * Encode the first <code>length</code> bits of a BitSet as an array of bytes.
+	 * 
+	 * @param bitset
+	 * @param length
+	 * @return
+	 */
+	public static byte[] encodeBitSet(BitSet bitset, int length) {
+		int size = length + 7 / 8;
+		return Arrays.copyOf(bitset.get(0, length).toByteArray(), size);
+	}
+	
+	public static BitSet decodeBitSet(byte[] bytes) {
+		return BitSet.valueOf(bytes);
+	}
+	
+	/**
 	 * Encode array of booleans as bytes. To decode, use
 	 * {@link #decodeBooleans(byte[])}.
 	 * 
