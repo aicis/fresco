@@ -42,9 +42,11 @@ import dk.alexandra.fresco.framework.util.ot.base.BaseOTFactory;
 import dk.alexandra.fresco.framework.util.ot.extension.SemiHonestOTExtensionFactory;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.tinytables.online.TinyTablesProtocolSuite;
-import dk.alexandra.fresco.suite.tinytables.prepro.protocols.TinyTablesPreproANDProtocol;
 import dk.alexandra.fresco.suite.tinytables.storage.TinyTablesStorage;
 import dk.alexandra.fresco.suite.tinytables.storage.TinyTablesStorageImpl;
+import dk.alexandra.fresco.suite.tinytables.storage.TinyTablesTripleProvider;
+import dk.alexandra.fresco.suite.tinytables.storage.TinyTablesTripleStorage;
+import dk.alexandra.fresco.suite.tinytables.util.TinyTablesTripleGenerator;
 
 /**
  * <p>
@@ -81,10 +83,9 @@ import dk.alexandra.fresco.suite.tinytables.storage.TinyTablesStorageImpl;
 public class TinyTablesPreproProtocolSuite implements ProtocolSuite {
 
 	private TinyTablesStorage storage;
-	private ResourcePool resourcePool;
 	private TinyTablesPreproConfiguration configuration;
-	private OTFactory otFactory;
 	private File tinyTablesFile;
+	private TinyTablesTripleProvider tinyTablesTripleProvider;
 	private static volatile Map<Integer, TinyTablesPreproProtocolSuite> instances = new HashMap<>();
 
 	public static TinyTablesPreproProtocolSuite getInstance(int id) {
@@ -100,11 +101,13 @@ public class TinyTablesPreproProtocolSuite implements ProtocolSuite {
 
 	@Override
 	public void init(ResourcePool resourcePool, ProtocolSuiteConfiguration configuration) {
-		this.resourcePool = resourcePool;
 		this.configuration = (TinyTablesPreproConfiguration) configuration;
 		this.tinyTablesFile = this.configuration.getTinyTablesFile();
-		this.otFactory = new SemiHonestOTExtensionFactory(resourcePool.getNetwork(), resourcePool.getMyId(), 128, 
+
+		OTFactory otFactory = new SemiHonestOTExtensionFactory(resourcePool.getNetwork(), resourcePool.getMyId(), 128, 
 				new BaseOTFactory(resourcePool.getNetwork(), resourcePool.getMyId(), resourcePool.getSecureRandom()), resourcePool.getSecureRandom());
+		
+		this.tinyTablesTripleProvider = new TinyTablesTripleStorage(new TinyTablesTripleGenerator(resourcePool.getMyId(), resourcePool.getSecureRandom(), otFactory));
 
 	}
 
@@ -112,6 +115,10 @@ public class TinyTablesPreproProtocolSuite implements ProtocolSuite {
 		return this.storage;
 	}
 
+	public TinyTablesTripleProvider getTinyTablesTripleProvider() {
+		return this.tinyTablesTripleProvider;
+	}
+	
 	@Override
 	public void synchronize(int gatesEvaluated) throws MPCException {
 		// TODO Auto-generated method stub
@@ -119,12 +126,6 @@ public class TinyTablesPreproProtocolSuite implements ProtocolSuite {
 
 	@Override
 	public void finishedEval() {
-
-		/*
-		 * The proprocessing of all AND gates has to be finished.
-		 */
-		TinyTablesPreproANDProtocol.finishPreprocessing(resourcePool.getMyId(), otFactory, storage,
-				resourcePool.getNetwork());
 		
 		try {
 			storeTinyTables(storage, this.tinyTablesFile);

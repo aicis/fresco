@@ -252,7 +252,6 @@ public class SetIntersectionDemo {
 	private ProtocolSuiteConfiguration getTinyTablesPreproConfiguration(int myPort, int playerId){
 		TinyTablesPreproConfiguration config = new TinyTablesPreproConfiguration();
 		config.setTinyTablesFile(getTinyTablesFile(playerId));
-		config.setSecurityParameter(128);
 		return config;
 	}
 	

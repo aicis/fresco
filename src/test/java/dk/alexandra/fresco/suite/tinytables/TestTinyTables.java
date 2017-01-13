@@ -98,11 +98,6 @@ public class TestTinyTables {
 				config = new TinyTablesPreproConfiguration();
 
 				/*
-				 * Set security parameter for OTs
-				 */
-				((TinyTablesPreproConfiguration) config).setSecurityParameter(64);
-				
-				/*
 				 * Set path where the generated TinyTables should be stored
 				 */
 				((TinyTablesPreproConfiguration) config).setTinyTablesFile(new File(getFilenameForTest(playerId, name)));
@@ -288,5 +283,5 @@ public class TestTinyTables {
 		runTest(new BristolCryptoTests.Sha256Test(), EvaluationStrategy.SEQUENTIAL, false,
 				"testSHA256");
 	}
-
+	
 }

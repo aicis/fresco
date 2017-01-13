@@ -35,6 +35,7 @@ import dk.alexandra.fresco.framework.value.Value;
 import dk.alexandra.fresco.lib.field.bool.AndProtocol;
 import dk.alexandra.fresco.suite.tinytables.online.TinyTablesProtocolSuite;
 import dk.alexandra.fresco.suite.tinytables.online.datatypes.TinyTablesSBool;
+import dk.alexandra.fresco.suite.tinytables.storage.TinyTable;
 
 /**
  * <p>
@@ -88,8 +89,8 @@ public class TinyTablesANDProtocol extends TinyTablesProtocol implements AndProt
 
 		switch (round) {
 			case 0:
-				boolean myShare = ps.getStorage().lookupTinyTable(id, inLeft.getValue(),
-						inRight.getValue());
+				TinyTable tinyTable = ps.getStorage().getTinyTable(id);
+				boolean myShare = tinyTable.getValue(inLeft.getValue(), inRight.getValue());
 
 				network.expectInputFromAll();
 				network.sendToAll(myShare);

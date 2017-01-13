@@ -8,7 +8,6 @@ import java.util.Random;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.BinaryMatrix;
 import dk.alexandra.fresco.framework.util.BitSetUtils;
-import dk.alexandra.fresco.framework.util.Timing;
 import dk.alexandra.fresco.framework.util.ot.OTFactory;
 import dk.alexandra.fresco.framework.util.ot.OTReceiver;
 import dk.alexandra.fresco.framework.util.ot.OTSender;
@@ -44,10 +43,6 @@ public class SemiHonestOTExtensionSender implements OTSender {
 	@Override
 	public void send(List<OTInput> inputs) {
 		
-		Timing timing = new Timing();
-		timing.start();
-		int t = 0;
-		
 		// We assume that all inputs have same length.
 		int stringLength = inputs.get(0).getLength();
 		
@@ -56,20 +51,14 @@ public class SemiHonestOTExtensionSender implements OTSender {
 		 */
 		BitSet s = BitSetUtils.getRandomBits(securityParameter, random);
 		
-		System.out.println("1: " + timing.stop() / 1000000);
-		
 		OTReceiver receiver = baseOT.createOTReceiver();
 		List<OTSigma> sigmas = OTSigma.fromList(BitSetUtils.toList(s, securityParameter));
 
-		System.out.println("2: " + timing.stop() / 1000000);
-		
 		/*
 		 * The output of the OT's are used as columns of a matrix Q
 		 */
 		List<BitSet> otOutput = receiver.receive(sigmas, inputs.size());
 		BinaryMatrix q = BinaryMatrix.fromColumns(otOutput, inputs.size());
-
-		System.out.println("3: " + timing.stop() / 1000000);
 		
 		/*
 		 * We build a matrix Y with two columns for each OTInput:
@@ -94,15 +83,11 @@ public class SemiHonestOTExtensionSender implements OTSender {
 			y.setColumn(2*i + 1, x1);
 		}
 		
-		System.out.println("4: " + timing.stop() / 1000000);
-		
 		try {
 			network.send("0", Util.otherPlayerId(myId), y);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
-		System.out.println("5: " + timing.stop() / 1000000);
 
 	}
 	

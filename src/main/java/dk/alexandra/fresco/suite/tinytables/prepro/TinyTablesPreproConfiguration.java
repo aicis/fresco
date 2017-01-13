@@ -42,7 +42,6 @@ public class TinyTablesPreproConfiguration implements ProtocolSuiteConfiguration
 
 	private ProtocolFactory tinyTablesFactory;
 	private File tinytablesfile;
-	private int securityParameter;
 
 	public static ProtocolSuiteConfiguration fromCmdLine(SCEConfiguration sceConf,
 			CommandLine cmd) throws ParseException, IllegalArgumentException {
@@ -57,13 +56,6 @@ public class TinyTablesPreproConfiguration implements ProtocolSuiteConfiguration
 		
 		String tinytablesFileOption = "tinytables.file";
 
-		String securityParameterOption = "128";
-
-		options.addOption(Option
-				.builder("D")
-				.desc("Security parameter for the OT extension.")
-				.longOpt(securityParameterOption).required(false).hasArgs().build());
-		
 		options.addOption(Option
 				.builder("D")
 				.desc("The file where the generated TinyTables should be stored.")
@@ -71,22 +63,11 @@ public class TinyTablesPreproConfiguration implements ProtocolSuiteConfiguration
 		
 		Properties p = cmd.getOptionProperties("D");
 		
-		int otExtensionSecurityParameter = Integer.parseInt(p.getProperty(securityParameterOption, "128"));
-		configuration.setSecurityParameter(otExtensionSecurityParameter);
-		
 		String tinyTablesFilePath = p.getProperty(tinytablesFileOption, "tinytables");
 		File tinyTablesFile = new File(tinyTablesFilePath);
 		configuration.setTinyTablesFile(tinyTablesFile);
 		
 		return configuration;
-	}
-	
-	public void setSecurityParameter(int securityParameter) {
-		this.securityParameter = securityParameter;
-	}
-	
-	public int getSecurityParameter() {
-		return this.securityParameter;
 	}
 
 	public TinyTablesPreproConfiguration() {
