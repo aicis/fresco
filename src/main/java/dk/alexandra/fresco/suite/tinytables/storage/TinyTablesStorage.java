@@ -28,6 +28,13 @@ package dk.alexandra.fresco.suite.tinytables.storage;
 
 import java.io.Serializable;
 
+/**
+ * This class handles the data which has to be carried from the preprocessing to
+ * the online phase.
+ * 
+ * @author Jonas Lindstrøm (jonas.lindstrom@alexandra.dk)
+ *
+ */
 public interface TinyTablesStorage extends Serializable {
 
 	/**

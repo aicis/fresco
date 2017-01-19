@@ -103,5 +103,5 @@ public class TinyTable implements Serializable {
 	public String toString() {
 		return Arrays.toString(table);
 	}
-
+	
 }

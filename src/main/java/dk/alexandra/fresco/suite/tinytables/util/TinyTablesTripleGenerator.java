@@ -26,8 +26,8 @@ public class TinyTablesTripleGenerator {
 	}
 
 	/**
-	 * Generate new multiplication triples. The two players need to call this 
-	 * method at the same time and with the same parameter.
+	 * Generate new multiplication triples (a,b,c). The two players need to call
+	 * this method at the same time and with the same amount parameter.
 	 * 
 	 * @param amount
 	 * @return
@@ -40,11 +40,12 @@ public class TinyTablesTripleGenerator {
 			case 1:
 				List<OTInput> otInputs = new ArrayList<OTInput>();
 				for (int i = 0; i < amount; i++) {
-					// My shares of a and b
+					
+					// Pick random shares of a and b
 					boolean a = random.nextBoolean();
 					boolean b = random.nextBoolean();
 					
-					// Masks
+					// Masks for the OTs
 					boolean x = random.nextBoolean();
 					boolean y = random.nextBoolean();
 
@@ -62,9 +63,13 @@ public class TinyTablesTripleGenerator {
 				break;
 
 			case 2:
-
 				List<OTSigma> otSigmas = new ArrayList<OTSigma>();
 				for (int i = 0; i < amount; i++) {
+					
+					/*
+					 * Pick random shares of a and b and use them for sigmas in
+					 * the OT's:
+					 */
 					boolean a = random.nextBoolean();
 					boolean b = random.nextBoolean();
 					otSigmas.add(new OTSigma(b));

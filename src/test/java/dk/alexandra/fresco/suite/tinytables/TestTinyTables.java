@@ -100,8 +100,17 @@ public class TestTinyTables {
 				/*
 				 * Set path where the generated TinyTables should be stored
 				 */
-				((TinyTablesPreproConfiguration) config).setTinyTablesFile(new File(getFilenameForTest(playerId, name)));
-				
+				((TinyTablesPreproConfiguration) config).setTinyTablesFile(new File(
+						getFilenameForTest(playerId, name)));
+
+				/*
+				 * 
+				 */
+				((TinyTablesPreproConfiguration) config).setTriplesBatchSize(4096);
+
+				((TinyTablesPreproConfiguration) config).setTriplesFile(new File(
+						"triples_" + playerId));
+
 				protocolSuite = TinyTablesPreproProtocolSuite.getInstance(playerId);
 			} else {
 				config = new TinyTablesConfiguration();

@@ -90,6 +90,9 @@ public class TinyTablesANDProtocol extends TinyTablesProtocol implements AndProt
 		switch (round) {
 			case 0:
 				TinyTable tinyTable = ps.getStorage().getTinyTable(id);
+				if (tinyTable == null) {
+					throw new MPCException("Unable to find TinyTable for gate with id " + id);
+				}
 				boolean myShare = tinyTable.getValue(inLeft.getValue(), inRight.getValue());
 
 				network.expectInputFromAll();

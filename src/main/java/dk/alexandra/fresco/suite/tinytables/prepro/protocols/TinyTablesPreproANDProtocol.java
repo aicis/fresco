@@ -26,8 +26,6 @@
  *******************************************************************************/
 package dk.alexandra.fresco.suite.tinytables.prepro.protocols;
 
-import java.util.List;
-
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.network.SCENetwork;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
@@ -58,7 +56,6 @@ import dk.alexandra.fresco.suite.tinytables.storage.TinyTable;
 public class TinyTablesPreproANDProtocol extends TinyTablesPreproProtocol implements AndProtocol {
 
 	private TinyTablesPreproSBool inLeft, inRight, out;
-	private TinyTablesTriple triple;
 
 	public TinyTablesPreproANDProtocol(int id, TinyTablesPreproSBool inLeft,
 			TinyTablesPreproSBool inRight, TinyTablesPreproSBool out) {
@@ -66,9 +63,21 @@ public class TinyTablesPreproANDProtocol extends TinyTablesPreproProtocol implem
 		this.id = id;
 		this.inLeft = inLeft;
 		this.inRight = inRight;
-		this.out = out;
+		this.out = out;		
 	}
 
+	public TinyTablesPreproSBool getInLeft() {
+		return inLeft;
+	}
+
+	public TinyTablesPreproSBool getInRight() {
+		return inRight;
+	}
+
+	public TinyTablesPreproSBool getOut() {
+		return out;
+	}
+	
 	@Override
 	public Value[] getInputValues() {
 		return new Value[] { inLeft, inRight };
@@ -81,7 +90,7 @@ public class TinyTablesPreproANDProtocol extends TinyTablesPreproProtocol implem
 
 	@Override
 	public EvaluationStatus evaluate(int round, ResourcePool resourcePool, SCENetwork network) {
-
+		
 		TinyTablesPreproProtocolSuite ps = TinyTablesPreproProtocolSuite.getInstance(resourcePool
 				.getMyId());
 
@@ -89,72 +98,54 @@ public class TinyTablesPreproANDProtocol extends TinyTablesPreproProtocol implem
 			case 0:
 
 				/*
-				 * Take the next multiplication (Beaver) triple from storage.
-				 * This is a secret sharing of values a,b,c such that a&b = c.
+				 * Here we only pick the mask of the output wire. The TinyTable
+				 * is calculated after all AND gates has been preprocessed.
 				 */
-				// TODO: How to make this work in parallel?
-				this.triple = ps.getTinyTablesTripleProvider().getNextTriple();
-
-				/*
-				 * Calculate a share of e = right + a and d = left + b, and open
-				 * it to the other player.
-				 */
-				boolean epsilon = inRight.getShare() ^ triple.getA();
-				boolean delta = inLeft.getShare() ^ triple.getB();
-
-				network.sendToAll(new boolean[] { epsilon, delta });
-				network.expectInputFromAll();
-
-				return EvaluationStatus.HAS_MORE_ROUNDS;
-
-			case 1:
-				List<boolean[]> allShares = network.receiveFromAll();
-
-				/*
-				 * Calculate e and d from the shares.
-				 */
-				boolean e = false;
-				boolean d = false;
-				for (boolean[] share : allShares) {
-					e ^= share[0];
-					d ^= share[1];
-				}
-
-				/*
-				 * Calculate a share of the product of the values of the input
-				 * wires.
-				 */
-				boolean product = triple.getC() ^ e & triple.getB() ^ d & triple.getA();
-				if (resourcePool.getMyId() == 1) {
-					/*
-					 * The players should also share the value e&d, which is
-					 * known to both players. We do this by letting player 1
-					 * define his share as e&d and player 2 has share 0.
-					 */
-					product ^= e & d;
-				}
-
 				boolean rO = resourcePool.getSecureRandom().nextBoolean();
 				out.setShare(rO);
 
 				/*
-				 * Calculate this players TinyTable. Entry i,j is a secret
-				 * sharing of (left + i)(right + j) + r_O.
+				 * We need to finish the processing of this gate after all
+				 * preprocessing is done (see calculateTinyTable). To do this,
+				 * we keep a reference to all AND gates.
 				 */
-				boolean[] entries = new boolean[4];
-				entries[0] = product ^ rO;
-				entries[1] = entries[0] ^ inLeft.getShare();
-				entries[2] = entries[0] ^ inRight.getShare();
-				entries[3] = entries[0] ^ inLeft.getShare() ^ inRight.getShare();
-				if (resourcePool.getMyId() == 1) {
-					entries[3] ^= true;
-				}
+				ps.addANDGate(this);
 
-				ps.getStorage().storeTinyTable(id, new TinyTable(entries));
 				return EvaluationStatus.IS_DONE;
 
 			default:
 				throw new MPCException("Cannot evaluate more than one round");
 		}
 	}
+
+	/**
+	 * Calculate the TinyTable for this gate.
+	 * 
+	 * @param playerId
+	 *            The ID of this player.
+	 * @param triple
+	 *            A set of shares for a multiplication triple (a,b,c).
+	 * @param e
+	 *            This should be equal to inRight - a (opened to both players).
+	 * @param d
+	 *            This should be equal to inLeft - b (opened to both players).
+	 * @return
+	 */
+	public TinyTable calculateTinyTable(int playerId, TinyTablesTriple triple, boolean e, boolean d) {
+		boolean product = triple.getC() ^ e & triple.getB() ^ d & triple.getA();
+		if (playerId == 1) {
+			product ^= e & d;
+		}
+		boolean[] entries = new boolean[4];
+		entries[0] = product ^ this.out.getShare();
+		entries[1] = product ^ this.out.getShare() ^ inLeft.getShare();
+		entries[2] = product ^ this.out.getShare() ^ inRight.getShare();
+		entries[3] = product ^ this.out.getShare() ^ inLeft.getShare() ^ inRight.getShare();
+		if (playerId == 1) {
+			entries[3] ^= true;
+		}
+
+		return new TinyTable(entries);
+	}
+
 }
