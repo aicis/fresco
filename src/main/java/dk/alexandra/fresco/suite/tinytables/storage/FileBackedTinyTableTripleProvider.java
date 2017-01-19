@@ -74,7 +74,7 @@ public class FileBackedTinyTableTripleProvider implements TinyTablesTripleProvid
 	/**
 	 * Generate new batches of triples and save them to the triples file.
 	 */
-	private void generateNewTriples() {
+	private void generateAndSaveNewTriples() {
 		Reporter.info("Generating " + batchSize * batchesInFile
 				+ " new triples and saving them to " + file);
 		try {
@@ -94,15 +94,17 @@ public class FileBackedTinyTableTripleProvider implements TinyTablesTripleProvid
 	/**
 	 * Read the next batch of triples into the memory.
 	 */
-	private void readNextBatch() {
+	private void loadNextBatch() {
 		try {
 			byte[] buffer = new byte[(int) bytesPerTriples(batchSize)];
 			int read = is.read(buffer);
 			if (read == -1) {
-				is.close();
-				generateNewTriples();
-				is = new FileInputStream(file);
-				readNextBatch();
+				// We have reached the end of the fil
+				stop();
+				generateAndSaveNewTriples();
+				start();
+				
+				loadNextBatch();
 			}
 			currentBatch.addAll(TinyTablesTriple.decode(buffer));
 		} catch (IOException e) {
@@ -113,7 +115,7 @@ public class FileBackedTinyTableTripleProvider implements TinyTablesTripleProvid
 	@Override
 	public TinyTablesTriple getNextTriple() {
 		if (currentBatch.isEmpty()) {
-			readNextBatch();
+			loadNextBatch();
 		}
 		return currentBatch.poll();
 	}
@@ -136,14 +138,23 @@ public class FileBackedTinyTableTripleProvider implements TinyTablesTripleProvid
 				os.write(buffer, 0, l);
 			}
 			os.close();
-			is.close();
 			tmp.renameTo(file);
 			Reporter.info("Kept " + triplesPerBytes(file.length()) + " triples in file " + file);
+			stop();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
 
+	/**
+	 * Close the file input stream to the triples file.
+	 * 
+	 * @throws IOException
+	 */
+	private void stop() throws IOException {
+		is.close();
+	}
+	
 	/**
 	 * Returns how many triples can be stored in the given number of bytes,
 	 * assuming that the number of bytes is divisible by 3.
