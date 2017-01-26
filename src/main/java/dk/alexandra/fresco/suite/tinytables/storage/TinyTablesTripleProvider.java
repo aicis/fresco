@@ -1,6 +1,6 @@
 package dk.alexandra.fresco.suite.tinytables.storage;
 
-import dk.alexandra.fresco.suite.tinytables.prepro.datatypes.TinyTablesTriple;
+import dk.alexandra.fresco.suite.tinytables.datatypes.TinyTablesTriple;
 
 public interface TinyTablesTripleProvider {
 

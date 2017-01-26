@@ -5,7 +5,7 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import dk.alexandra.fresco.framework.Reporter;
-import dk.alexandra.fresco.suite.tinytables.prepro.datatypes.TinyTablesTriple;
+import dk.alexandra.fresco.suite.tinytables.datatypes.TinyTablesTriple;
 import dk.alexandra.fresco.suite.tinytables.util.TinyTablesTripleGenerator;
 
 /**

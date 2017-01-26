@@ -32,8 +32,8 @@ import dk.alexandra.fresco.framework.value.SBool;
 /**
  * This class represents a masked boolean value in the online phase of the
  * TinyTables protocol. The two players both know the masked value, <i>e = r +
- * b</i>, but each player only knows his share of the mask <i>r</i>, which was
- * picked during the preprocessing phase.
+ * b</i>, but each player only knows his share of the value <i>e</i> (and of the
+ * mask <i>r</i>, which was picked during the preprocessing phase).
  * 
  * @author Jonas Lindstrøm (jonas.lindstrom@alexandra.dk)
  *
@@ -41,27 +41,27 @@ import dk.alexandra.fresco.framework.value.SBool;
 public class TinyTablesSBool implements SBool {
 
 	private static final long serialVersionUID = 8582913017231020209L;
-	private boolean value;
+	private boolean share;
 	private boolean isReady;
 	
 	public TinyTablesSBool() {
-		 value = false;
+		 share = false;
 		 isReady = false;
 	}
 	
 	public TinyTablesSBool(boolean share) {
-		 this.value = share;
+		 this.share = share;
 		 isReady = true;
 	}
 
 	@Override
 	public byte[] getSerializableContent() {
-		return new byte[] { Encoding.encodeBoolean(value) };
+		return new byte[] { Encoding.encodeBoolean(share) };
 	}
 
 	@Override
 	public void setSerializableContent(byte[] val) {
-		setValue(Encoding.decodeBoolean(val[0]));
+		setShare(Encoding.decodeBoolean(val[0]));
 	}
 
 	@Override
@@ -69,18 +69,18 @@ public class TinyTablesSBool implements SBool {
 		return this.isReady;
 	}
 
-	public boolean getValue() {
-		return value;
+	public boolean getShare() {
+		return share;
 	}
 
-	public void setValue(boolean b) {
-		this.value = b;
+	public void setShare(boolean b) {
+		this.share = b;
 		this.isReady = true;
 	}
 
 	@Override
 	public String toString() {
-		return "TinyTablesSBool [value=" + value + "]";
+		return "TinyTablesSBool [value=" + share + "]";
 	}
 	
 }

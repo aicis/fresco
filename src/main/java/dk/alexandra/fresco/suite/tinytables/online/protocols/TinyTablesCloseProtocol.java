@@ -85,7 +85,7 @@ public class TinyTablesCloseProtocol extends TinyTablesProtocol implements Close
 				if (resourcePool.getMyId() == this.inputter) {
 					boolean r = ps.getStorage().getMaskShare(id);
 					boolean e = this.in.getValue() ^ r;
-					out.setValue(e);
+					out.setShare(e);
 					network.sendToAll(e);
 				}
 				network.expectInputFromPlayer(this.inputter);
@@ -93,7 +93,7 @@ public class TinyTablesCloseProtocol extends TinyTablesProtocol implements Close
 
 			case 1:
 				boolean share = network.receive(this.inputter);
-				out.setValue(share);
+				out.setShare(share);
 				return EvaluationStatus.IS_DONE;
 
 			default:

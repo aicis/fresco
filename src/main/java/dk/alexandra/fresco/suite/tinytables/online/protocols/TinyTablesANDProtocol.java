@@ -33,9 +33,9 @@ import dk.alexandra.fresco.framework.network.SCENetwork;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.Value;
 import dk.alexandra.fresco.lib.field.bool.AndProtocol;
+import dk.alexandra.fresco.suite.tinytables.datatypes.TinyTable;
 import dk.alexandra.fresco.suite.tinytables.online.TinyTablesProtocolSuite;
 import dk.alexandra.fresco.suite.tinytables.online.datatypes.TinyTablesSBool;
-import dk.alexandra.fresco.suite.tinytables.storage.TinyTable;
 
 /**
  * <p>
@@ -93,7 +93,7 @@ public class TinyTablesANDProtocol extends TinyTablesProtocol implements AndProt
 				if (tinyTable == null) {
 					throw new MPCException("Unable to find TinyTable for gate with id " + id);
 				}
-				boolean myShare = tinyTable.getValue(inLeft.getValue(), inRight.getValue());
+				boolean myShare = tinyTable.getValue(inLeft.getShare(), inRight.getShare());
 
 				network.expectInputFromAll();
 				network.sendToAll(myShare);
@@ -104,7 +104,7 @@ public class TinyTablesANDProtocol extends TinyTablesProtocol implements AndProt
 				for (boolean share : shares) {
 					res = res ^ share;
 				}
-				this.out.setValue(res);
+				this.out.setShare(res);
 				return EvaluationStatus.IS_DONE;
 			default:
 				throw new MPCException("Cannot evaluate rounds larger than 0");

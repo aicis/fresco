@@ -30,6 +30,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import dk.alexandra.fresco.suite.tinytables.datatypes.TinyTable;
+
 public class TinyTablesStorageImpl implements TinyTablesStorage {
 
 	/**

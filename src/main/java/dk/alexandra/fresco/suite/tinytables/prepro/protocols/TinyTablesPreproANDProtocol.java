@@ -31,10 +31,10 @@ import dk.alexandra.fresco.framework.network.SCENetwork;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.Value;
 import dk.alexandra.fresco.lib.field.bool.AndProtocol;
+import dk.alexandra.fresco.suite.tinytables.datatypes.TinyTable;
+import dk.alexandra.fresco.suite.tinytables.datatypes.TinyTablesTriple;
 import dk.alexandra.fresco.suite.tinytables.prepro.TinyTablesPreproProtocolSuite;
 import dk.alexandra.fresco.suite.tinytables.prepro.datatypes.TinyTablesPreproSBool;
-import dk.alexandra.fresco.suite.tinytables.prepro.datatypes.TinyTablesTriple;
-import dk.alexandra.fresco.suite.tinytables.storage.TinyTable;
 
 /**
  * <p>

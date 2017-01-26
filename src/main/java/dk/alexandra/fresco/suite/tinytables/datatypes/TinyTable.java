@@ -1,4 +1,4 @@
-package dk.alexandra.fresco.suite.tinytables.storage;
+package dk.alexandra.fresco.suite.tinytables.datatypes;
 
 import java.io.Serializable;
 import java.nio.ByteBuffer;

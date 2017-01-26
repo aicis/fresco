@@ -2,6 +2,7 @@ package dk.alexandra.fresco.suite.tinytables.storage;
 
 import java.util.List;
 
+import dk.alexandra.fresco.suite.tinytables.datatypes.TinyTable;
 import dk.alexandra.fresco.suite.tinytables.prepro.protocols.TinyTablesPreproANDProtocol;
 
 public interface TinyTablesPreproStorage {

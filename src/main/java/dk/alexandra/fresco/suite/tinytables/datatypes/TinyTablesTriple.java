@@ -1,4 +1,4 @@
-package dk.alexandra.fresco.suite.tinytables.prepro.datatypes;
+package dk.alexandra.fresco.suite.tinytables.datatypes;
 
 import java.io.Serializable;
 import java.util.ArrayList;

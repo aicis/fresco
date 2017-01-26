@@ -92,7 +92,7 @@ public class TinyTablesOpenToAllProtocol extends TinyTablesProtocol implements O
 				return EvaluationStatus.HAS_MORE_ROUNDS;
 			case 1:
 				List<Boolean> shares = network.receiveFromAll();
-				boolean result = toOpen.getValue();
+				boolean result = toOpen.getShare();
 				for (boolean share : shares) {
 					result ^= share;
 				}
