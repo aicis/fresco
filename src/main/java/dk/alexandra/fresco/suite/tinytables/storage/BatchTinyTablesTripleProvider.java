@@ -39,7 +39,7 @@ public class BatchTinyTablesTripleProvider implements TinyTablesTripleProvider {
 	
 	private void generateNewTriples() {
 		Reporter.info("Generating " + batchSize + " new TinyTableTriples...");
-		List<TinyTablesTriple> newTriples = generator.get(batchSize);
+		List<TinyTablesTriple> newTriples = generator.generate(batchSize);
 		for (TinyTablesTriple triple : newTriples) {
 			triples.offer(triple);
 		}

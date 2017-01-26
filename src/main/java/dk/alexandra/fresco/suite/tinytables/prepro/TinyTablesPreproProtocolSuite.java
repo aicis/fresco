@@ -49,7 +49,7 @@ import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.tinytables.online.TinyTablesProtocolSuite;
 import dk.alexandra.fresco.suite.tinytables.prepro.datatypes.TinyTablesTriple;
 import dk.alexandra.fresco.suite.tinytables.prepro.protocols.TinyTablesPreproANDProtocol;
-import dk.alexandra.fresco.suite.tinytables.storage.FileBackedTinyTableTripleProvider;
+import dk.alexandra.fresco.suite.tinytables.storage.BatchTinyTablesTripleProvider;
 import dk.alexandra.fresco.suite.tinytables.storage.TinyTable;
 import dk.alexandra.fresco.suite.tinytables.storage.TinyTablesStorage;
 import dk.alexandra.fresco.suite.tinytables.storage.TinyTablesStorageImpl;
@@ -119,20 +119,10 @@ public class TinyTablesPreproProtocolSuite implements ProtocolSuite {
 				resourcePool.getMyId(), 128, new BaseOTFactory(resourcePool.getNetwork(),
 						resourcePool.getMyId(), resourcePool.getSecureRandom()),
 				resourcePool.getSecureRandom());
-
-		try {
-			this.tinyTablesTripleProvider = new FileBackedTinyTableTripleProvider(
-					this.configuration.getTriplesFile(),
-					new TinyTablesTripleGenerator(resourcePool.getMyId(),
-					resourcePool.getSecureRandom(), otFactory),
-					this.configuration.getTriplesBatchSize(), 128);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
 		
-//		this.tinyTablesTripleProvider = new BatchTinyTablesTripleProvider(
-//				new TinyTablesTripleGenerator(resourcePool.getMyId(),
-//						resourcePool.getSecureRandom(), otFactory), 1000);
+		this.tinyTablesTripleProvider = new BatchTinyTablesTripleProvider(
+				new TinyTablesTripleGenerator(resourcePool.getMyId(),
+						resourcePool.getSecureRandom(), otFactory), 10000);
 		
 		this.unprocessedAndGates = Collections
 				.synchronizedList(new ArrayList<TinyTablesPreproANDProtocol>());
@@ -154,7 +144,9 @@ public class TinyTablesPreproProtocolSuite implements ProtocolSuite {
 
 	@Override
 	public void synchronize(int gatesEvaluated) throws MPCException {
-		// Two triples per gate
+		/*
+		 * When 1000 AND gates needs to be processed, we do it.
+		 */
 		if (this.unprocessedAndGates.size() > 1000) {
 			calculateTinyTablesForUnprocessedANDGates();
 		}

@@ -11,9 +11,8 @@ import dk.alexandra.fresco.framework.util.ot.OTSender;
 import dk.alexandra.fresco.framework.util.ot.datatypes.OTInput;
 import dk.alexandra.fresco.framework.util.ot.datatypes.OTSigma;
 import dk.alexandra.fresco.suite.tinytables.prepro.datatypes.TinyTablesTriple;
-import dk.alexandra.fresco.suite.tinytables.storage.batchedStorage.EntryProvider;
 
-public class TinyTablesTripleGenerator implements EntryProvider<TinyTablesTriple>{
+public class TinyTablesTripleGenerator {
 
 	private int playerId;
 	private OTFactory otFactory;
@@ -33,8 +32,7 @@ public class TinyTablesTripleGenerator implements EntryProvider<TinyTablesTriple
 	 * @param amount
 	 * @return
 	 */
-	@Override
-	public List<TinyTablesTriple> get(int amount) {
+	public List<TinyTablesTriple> generate(int amount) {
 
 		List<TinyTablesTriple> triples = new ArrayList<TinyTablesTriple>();
 
