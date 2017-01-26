@@ -35,6 +35,7 @@ import dk.alexandra.fresco.lib.field.bool.NotProtocol;
 import dk.alexandra.fresco.lib.field.bool.OpenBoolProtocol;
 import dk.alexandra.fresco.lib.field.bool.XorProtocol;
 import dk.alexandra.fresco.lib.logic.AbstractBinaryFactory;
+import dk.alexandra.fresco.suite.tinytables.datatypes.TinyTablesElement;
 import dk.alexandra.fresco.suite.tinytables.prepro.datatypes.TinyTablesPreproOBool;
 import dk.alexandra.fresco.suite.tinytables.prepro.datatypes.TinyTablesPreproSBool;
 import dk.alexandra.fresco.suite.tinytables.prepro.protocols.TinyTablesPreproANDProtocol;
@@ -87,7 +88,7 @@ public class TinyTablesPreproFactory extends AbstractBinaryFactory implements Ba
 
 	@Override
 	public SBool getKnownConstantSBool(boolean b) {
-		return new TinyTablesPreproSBool(false); // Ignore the value and use trivial mask
+		return new TinyTablesPreproSBool(new TinyTablesElement(false)); // Ignore the value and use trivial mask
 	}
 
 	@Override

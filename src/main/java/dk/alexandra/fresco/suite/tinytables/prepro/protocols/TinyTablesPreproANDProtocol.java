@@ -32,7 +32,7 @@ import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.Value;
 import dk.alexandra.fresco.lib.field.bool.AndProtocol;
 import dk.alexandra.fresco.suite.tinytables.datatypes.TinyTable;
-import dk.alexandra.fresco.suite.tinytables.datatypes.TinyTablesTriple;
+import dk.alexandra.fresco.suite.tinytables.datatypes.TinyTablesElement;
 import dk.alexandra.fresco.suite.tinytables.prepro.TinyTablesPreproProtocolSuite;
 import dk.alexandra.fresco.suite.tinytables.prepro.datatypes.TinyTablesPreproSBool;
 
@@ -102,7 +102,7 @@ public class TinyTablesPreproANDProtocol extends TinyTablesPreproProtocol implem
 				 * is calculated after all AND gates has been preprocessed.
 				 */
 				boolean rO = resourcePool.getSecureRandom().nextBoolean();
-				out.setShare(rO);
+				out.setValue(new TinyTablesElement(rO));
 
 				/*
 				 * We need to finish the processing of this gate after all
@@ -123,29 +123,21 @@ public class TinyTablesPreproANDProtocol extends TinyTablesPreproProtocol implem
 	 * 
 	 * @param playerId
 	 *            The ID of this player.
-	 * @param triple
-	 *            A set of shares for a multiplication triple (a,b,c).
-	 * @param e
-	 *            This should be equal to inRight - a (opened to both players).
-	 * @param d
-	 *            This should be equal to inLeft - b (opened to both players).
+	 * @param product
+	 *            A share of the product of input values for this gate.
 	 * @return
 	 */
-	public TinyTable calculateTinyTable(int playerId, TinyTablesTriple triple, boolean e, boolean d) {
-		boolean product = triple.getC() ^ e & triple.getB() ^ d & triple.getA();
+	public TinyTable calculateTinyTable(int playerId, TinyTablesElement product) {
+		
+		TinyTablesElement[] entries = new TinyTablesElement[4];
+		entries[0] = product.add(this.out.getValue());
+		entries[1] = entries[0].add(inLeft.getValue());
+		entries[2] = entries[0].add(inRight.getValue());
+		entries[3] = entries[0].add(inLeft.getValue()).add(inRight.getValue());
 		if (playerId == 1) {
-			product ^= e & d;
+			entries[3] = entries[3].not();
 		}
-		boolean[] entries = new boolean[4];
-		entries[0] = product ^ this.out.getShare();
-		entries[1] = product ^ this.out.getShare() ^ inLeft.getShare();
-		entries[2] = product ^ this.out.getShare() ^ inRight.getShare();
-		entries[3] = product ^ this.out.getShare() ^ inLeft.getShare() ^ inRight.getShare();
-		if (playerId == 1) {
-			entries[3] ^= true;
-		}
-
 		return new TinyTable(entries);
 	}
-
+	
 }

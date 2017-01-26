@@ -31,6 +31,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import dk.alexandra.fresco.suite.tinytables.datatypes.TinyTable;
+import dk.alexandra.fresco.suite.tinytables.datatypes.TinyTablesElement;
 
 public class TinyTablesStorageImpl implements TinyTablesStorage {
 
@@ -39,7 +40,7 @@ public class TinyTablesStorageImpl implements TinyTablesStorage {
 	 */
 	private static final long serialVersionUID = -1135044173153933992L;
 	private Map<Integer, TinyTable> tinyTables = new ConcurrentHashMap<>();
-	private Map<Integer, Boolean> maskShares = new ConcurrentHashMap<>();
+	private Map<Integer, TinyTablesElement> maskShares = new ConcurrentHashMap<>();
 		
 	public static Map<Integer, TinyTablesStorage> instances = new HashMap<>();
 
@@ -61,12 +62,12 @@ public class TinyTablesStorageImpl implements TinyTablesStorage {
 	}
 
 	@Override
-	public void storeMaskShare(int id, boolean r) {
+	public void storeMaskShare(int id, TinyTablesElement r) {
 		maskShares.put(id, r);
 	}
 
 	@Override
-	public boolean getMaskShare(int id) {
+	public TinyTablesElement getMaskShare(int id) {
 		return maskShares.get(id);
 	}
 

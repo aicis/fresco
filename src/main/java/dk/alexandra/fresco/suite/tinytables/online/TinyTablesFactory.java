@@ -35,6 +35,7 @@ import dk.alexandra.fresco.lib.field.bool.NotProtocol;
 import dk.alexandra.fresco.lib.field.bool.OpenBoolProtocol;
 import dk.alexandra.fresco.lib.field.bool.XorProtocol;
 import dk.alexandra.fresco.lib.logic.AbstractBinaryFactory;
+import dk.alexandra.fresco.suite.tinytables.datatypes.TinyTablesElement;
 import dk.alexandra.fresco.suite.tinytables.online.datatypes.TinyTablesOBool;
 import dk.alexandra.fresco.suite.tinytables.online.datatypes.TinyTablesSBool;
 import dk.alexandra.fresco.suite.tinytables.online.protocols.TinyTablesANDProtocol;
@@ -87,7 +88,7 @@ public class TinyTablesFactory extends AbstractBinaryFactory implements BasicLog
 
 	@Override
 	public SBool getKnownConstantSBool(boolean b) {
-		TinyTablesSBool bool = new TinyTablesSBool(b);
+		TinyTablesSBool bool = new TinyTablesSBool(new TinyTablesElement(b));
 		return bool;
 	}
 

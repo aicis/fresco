@@ -10,6 +10,7 @@ import dk.alexandra.fresco.framework.util.ot.OTReceiver;
 import dk.alexandra.fresco.framework.util.ot.OTSender;
 import dk.alexandra.fresco.framework.util.ot.datatypes.OTInput;
 import dk.alexandra.fresco.framework.util.ot.datatypes.OTSigma;
+import dk.alexandra.fresco.suite.tinytables.datatypes.TinyTablesElement;
 import dk.alexandra.fresco.suite.tinytables.datatypes.TinyTablesTriple;
 
 public class TinyTablesTripleGenerator {
@@ -54,7 +55,7 @@ public class TinyTablesTripleGenerator {
 					
 					boolean c = a & b ^ x ^ y;
 
-					triples.add(new TinyTablesTriple(a, b, c));
+					triples.add(TinyTablesTriple.fromShares(a, b, c));
 
 				}
 				
@@ -76,7 +77,7 @@ public class TinyTablesTripleGenerator {
 					otSigmas.add(new OTSigma(a));
 					
 					// We don't know c until after we have done the OT's
-					triples.add(new TinyTablesTriple(a, b, false));	
+					triples.add(TinyTablesTriple.fromShares(a, b, false));	
 				}
 				
 				OTReceiver receiver = otFactory.createOTReceiver();
@@ -84,8 +85,8 @@ public class TinyTablesTripleGenerator {
 				
 				for (int i = 0; i < amount; i++) {
 					boolean c = results.get(2 * i).get(0) ^ results.get(2 * i + 1).get(0)
-							^ triples.get(i).getA() & triples.get(i).getB();
-					triples.get(i).setC(c);
+							^ triples.get(i).getA().getShare() & triples.get(i).getB().getShare();
+					triples.get(i).setC(new TinyTablesElement(c));
 				}
 				
 				break;

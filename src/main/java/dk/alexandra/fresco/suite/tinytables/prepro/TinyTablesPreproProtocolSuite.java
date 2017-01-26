@@ -31,7 +31,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
-import java.util.BitSet;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -42,11 +41,15 @@ import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.Reporter;
 import dk.alexandra.fresco.framework.sce.configuration.ProtocolSuiteConfiguration;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
+import dk.alexandra.fresco.framework.util.BitVector;
+import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.util.ot.OTFactory;
 import dk.alexandra.fresco.framework.util.ot.base.BaseOTFactory;
 import dk.alexandra.fresco.framework.util.ot.extension.SemiHonestOTExtensionFactory;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.tinytables.datatypes.TinyTable;
+import dk.alexandra.fresco.suite.tinytables.datatypes.TinyTablesElement;
+import dk.alexandra.fresco.suite.tinytables.datatypes.TinyTablesElementVector;
 import dk.alexandra.fresco.suite.tinytables.datatypes.TinyTablesTriple;
 import dk.alexandra.fresco.suite.tinytables.online.TinyTablesProtocolSuite;
 import dk.alexandra.fresco.suite.tinytables.prepro.protocols.TinyTablesPreproANDProtocol;
@@ -169,34 +172,39 @@ public class TinyTablesPreproProtocolSuite implements ProtocolSuite {
 			});
 
 			// Two bits per gate
-			BitSet shares = new BitSet(unprocessedGates * 2);
+			TinyTablesElementVector shares = new TinyTablesElementVector(unprocessedGates * 2);
 			List<TinyTablesTriple> usedTriples = new ArrayList<TinyTablesTriple>();
 			for (int i = 0; i < unprocessedGates; i++) {
 				TinyTablesPreproANDProtocol gate = this.unprocessedAndGates.get(i);
 				TinyTablesTriple triple = this.tinyTablesTripleProvider.getNextTriple();
 				usedTriples.add(triple);
 
-				boolean e = gate.getInRight().getShare() ^ triple.getA();
-				boolean d = gate.getInLeft().getShare() ^ triple.getB();
-
-				shares.set(2 * i, e);
-				shares.set(2 * i + 1, d);
+				/*
+				 * Calculate temp values e, d for multiplication. These should
+				 * be opened before calling finalize.
+				 */
+				Pair<TinyTablesElement, TinyTablesElement> msg = gate.getInRight().getValue().multiply(gate.getInLeft().getValue(), triple);
+				
+				shares.setShare(2 * i, msg.getFirst().getShare());
+				shares.setShare(2 * i + 1, msg.getSecond().getShare());
 			}
 
 			this.resourcePool.getNetwork().send("0",
 					Util.otherPlayerId(resourcePool.getMyId()), shares);
-			BitSet otherShares = this.resourcePool.getNetwork().receive("0",
+			TinyTablesElementVector otherShares = this.resourcePool.getNetwork().receive("0",
 					Util.otherPlayerId(resourcePool.getMyId()));
-			shares.xor(otherShares);
-
+			
+			BitVector open = TinyTablesElementVector.open(shares, otherShares);
 			
 			for (int i = 0; i < unprocessedGates; i++) {
 				TinyTablesPreproANDProtocol gate = this.unprocessedAndGates.get(i);
-				boolean e = shares.get(2*i);
-				boolean d = shares.get(2*i + 1);
+				boolean e = open.get(2*i);
+				boolean d = open.get(2*i + 1);
 
-				TinyTable tinyTable = gate.calculateTinyTable(this.resourcePool.getMyId(),
-						usedTriples.get(i), e, d);
+				TinyTablesElement product = TinyTablesElement.finalizeMultiplication(e, d,
+						usedTriples.get(i), this.resourcePool.getMyId());
+				
+				TinyTable tinyTable = gate.calculateTinyTable(this.resourcePool.getMyId(), product);
 				
 				this.storage.storeTinyTable(gate.getId(), tinyTable);
 			}

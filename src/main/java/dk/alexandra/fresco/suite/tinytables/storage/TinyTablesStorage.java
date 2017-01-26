@@ -29,6 +29,7 @@ package dk.alexandra.fresco.suite.tinytables.storage;
 import java.io.Serializable;
 
 import dk.alexandra.fresco.suite.tinytables.datatypes.TinyTable;
+import dk.alexandra.fresco.suite.tinytables.datatypes.TinyTablesElement;
 
 /**
  * This class handles the data which has to be carried from the preprocessing to
@@ -57,8 +58,8 @@ public interface TinyTablesStorage extends Serializable {
 	 * @param id
 	 * @param r
 	 */
-	public void storeMaskShare(int id, boolean r);
+	public void storeMaskShare(int id, TinyTablesElement r);
 
-	public boolean getMaskShare(int id);
+	public TinyTablesElement getMaskShare(int id);
 
 }

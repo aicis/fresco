@@ -11,35 +11,40 @@ public class TinyTablesTriple implements Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = -2666542565038907636L;
-	private boolean a, b, c;
+	private TinyTablesElement a, b, c;
 	
-	public TinyTablesTriple(boolean a, boolean b, boolean c) {
+	public static TinyTablesTriple fromShares(boolean aShare, boolean bShare, boolean cShare) {
+		return new TinyTablesTriple(new TinyTablesElement(aShare), new TinyTablesElement(bShare),
+				new TinyTablesElement(cShare));
+	}
+	
+	public TinyTablesTriple(TinyTablesElement a, TinyTablesElement b, TinyTablesElement c) {
 		this.a = a;
 		this.b = b;
 		this.c = c;
 	}
 	
-	public boolean getA() {
+	public TinyTablesElement getA() {
 		return this.a;
 	}
 	
-	public boolean getB() {
+	public TinyTablesElement getB() {
 		return this.b;
 	}
 
-	public boolean getC() {
+	public TinyTablesElement getC() {
 		return this.c;
 	}
 	
-	public void setA(boolean a) {
+	public void setA(TinyTablesElement a) {
 		this.a = a;
 	}
 	
-	public void setB(boolean b) {
+	public void setB(TinyTablesElement b) {
 		this.b = b;
 	}
 	
-	public void setC(boolean c) {
+	public void setC(TinyTablesElement c) {
 		this.c = c;
 	}
 	
@@ -56,9 +61,9 @@ public class TinyTablesTriple implements Serializable {
 		BitSet tmp = new BitSet(triples.size() * 3);
 		for (int i = 0; i < triples.size(); i++) {
 			TinyTablesTriple triple = triples.get(i);
-			tmp.set(3*i+0, triple.getA());
-			tmp.set(3*i+1, triple.getB());
-			tmp.set(3*i+2, triple.getC());
+			tmp.set(3*i+0, triple.getA().getShare());
+			tmp.set(3*i+1, triple.getB().getShare());
+			tmp.set(3*i+2, triple.getC().getShare());
 		}
 		return tmp.toByteArray();
 	}
@@ -75,7 +80,8 @@ public class TinyTablesTriple implements Serializable {
 			boolean a = tmp.get(3*i + 0);
 			boolean b = tmp.get(3*i + 1);
 			boolean c = tmp.get(3*i + 2);
-			TinyTablesTriple triple = new TinyTablesTriple(a, b, c);
+			TinyTablesTriple triple = new TinyTablesTriple(new TinyTablesElement(a),
+					new TinyTablesElement(b), new TinyTablesElement(c));
 			triples.add(triple);
 		}
 		return triples;

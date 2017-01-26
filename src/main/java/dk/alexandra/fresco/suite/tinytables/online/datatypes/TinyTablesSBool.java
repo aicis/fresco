@@ -28,6 +28,7 @@ package dk.alexandra.fresco.suite.tinytables.online.datatypes;
 
 import dk.alexandra.fresco.framework.util.ot.Encoding;
 import dk.alexandra.fresco.framework.value.SBool;
+import dk.alexandra.fresco.suite.tinytables.datatypes.TinyTablesElement;
 
 /**
  * This class represents a masked boolean value in the online phase of the
@@ -41,46 +42,42 @@ import dk.alexandra.fresco.framework.value.SBool;
 public class TinyTablesSBool implements SBool {
 
 	private static final long serialVersionUID = 8582913017231020209L;
-	private boolean share;
-	private boolean isReady;
+	private TinyTablesElement value;
 	
 	public TinyTablesSBool() {
-		 share = false;
-		 isReady = false;
 	}
 	
-	public TinyTablesSBool(boolean share) {
-		 this.share = share;
-		 isReady = true;
-	}
-
-	@Override
-	public byte[] getSerializableContent() {
-		return new byte[] { Encoding.encodeBoolean(share) };
-	}
-
-	@Override
-	public void setSerializableContent(byte[] val) {
-		setShare(Encoding.decodeBoolean(val[0]));
+	public TinyTablesSBool(TinyTablesElement share) {
+		 this.value = share;
 	}
 
 	@Override
 	public boolean isReady() {
-		return this.isReady;
+		return (this.value != null);
 	}
 
-	public boolean getShare() {
-		return share;
+	public TinyTablesElement getValue() {
+		return value;
 	}
 
-	public void setShare(boolean b) {
-		this.share = b;
-		this.isReady = true;
+	public void setValue(TinyTablesElement share) {
+		this.value = share;
 	}
 
 	@Override
 	public String toString() {
-		return "TinyTablesSBool [value=" + share + "]";
+		return "TinyTablesSBool [value=" + value + "]";
+	}
+
+	@Override
+	public byte[] getSerializableContent() {
+		return new byte[] { Encoding.encodeBoolean(value.getShare()) };
+	}
+
+	@Override
+	public void setSerializableContent(byte[] val) {
+		boolean share = Encoding.decodeBoolean(val[0]);
+		this.setValue(new TinyTablesElement(share));
 	}
 	
 }

@@ -77,8 +77,7 @@ public class TinyTablesPreproXORProtocol extends TinyTablesPreproProtocol implem
 		/*
 		 * Set r_O = r_u XOR r_v
 		 */
-		boolean r = inLeft.getShare() ^ inRight.getShare();
-		out.setShare(r);
+		out.setValue(inLeft.getValue().add(inRight.getValue()));
 
 		return EvaluationStatus.IS_DONE;
 	}
