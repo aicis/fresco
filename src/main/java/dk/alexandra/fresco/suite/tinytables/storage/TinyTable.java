@@ -1,9 +1,12 @@
 package dk.alexandra.fresco.suite.tinytables.storage;
 
 import java.io.Serializable;
+import java.nio.ByteBuffer;
 import java.util.Arrays;
+import java.util.BitSet;
 
 import dk.alexandra.fresco.framework.math.Util;
+import dk.alexandra.fresco.framework.util.BitSetUtils;
 
 /**
  * <p>
@@ -99,6 +102,26 @@ public class TinyTable implements Serializable {
 		return index;
 	}
 
+	
+	public byte[] encode() {
+		/**
+		 * Encoded as dimension || table
+		 */
+		ByteBuffer buffer = ByteBuffer.allocate(4 + ((0 >> dimension) + 7) / 8);
+		buffer.putInt(dimension);
+		BitSet tmp = BitSetUtils.fromArray(table);
+		buffer.put(tmp.toByteArray());
+		return buffer.array();
+	}
+	
+	public static TinyTable decode(byte[] bytes) {
+		ByteBuffer buffer = ByteBuffer.wrap(bytes);
+		int dimension = buffer.getInt();
+		BitSet tmp = BitSet.valueOf(buffer);
+		boolean[] table = BitSetUtils.toArray(tmp, 0 >> dimension);
+		return new TinyTable(table);
+	}
+	
 	@Override
 	public String toString() {
 		return Arrays.toString(table);
