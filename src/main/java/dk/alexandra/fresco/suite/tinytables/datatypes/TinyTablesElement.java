@@ -6,7 +6,7 @@ import java.util.List;
 import dk.alexandra.fresco.framework.util.Pair;
 
 /**
- * Instances of this class represents an additive share of a boolean value a.
+ * Instances of this class represents an additive share of a boolean value.
  * 
  * @author Jonas Lindstrøm (jonas.lindstrom@alexandra.dk)
  *
@@ -55,7 +55,7 @@ public class TinyTablesElement implements Serializable {
 	}
 
 	/**
-	 * Returns a share of <i>s & b</i>.
+	 * Returns a share of this with a known boolean s.
 	 * 
 	 * @param s
 	 * @return
@@ -64,7 +64,20 @@ public class TinyTablesElement implements Serializable {
 		return new TinyTablesElement(s & this.share);
 	}
 	
-	public TinyTablesElement not() {
+	public TinyTablesElement not(int playerId) {
+		if (playerId == 1) {
+			return flip();
+		}
+		return new TinyTablesElement(this.share);
+	}
+	
+	/**
+	 * Flips this share. Note that if both (or more precisely, an even number
+	 * of) parties does this, the shared value is not changed.
+	 * 
+	 * @return
+	 */
+	public TinyTablesElement flip() {
 		return new TinyTablesElement(!this.share);
 	}
 	
@@ -88,13 +101,19 @@ public class TinyTablesElement implements Serializable {
 		TinyTablesElement d = other.add(triple.getB());
 		return new Pair<TinyTablesElement, TinyTablesElement>(e, d);
 	}
-
+	
 	/**
 	 * Finalize a multiplication started by a call to {@link multiply}.
 	 * 
 	 * @param e
+	 *            The opened value of the first element returned by
+	 *            {@link #multiply(TinyTablesElement, TinyTablesTriple)}.
 	 * @param d
+	 *            The opened value of the second element returned by
+	 *            {@link #multiply(TinyTablesElement, TinyTablesTriple)}.
 	 * @param triple
+	 *            The triple used in
+	 *            {@link #multiply(TinyTablesElement, TinyTablesTriple)}.
 	 * @param playerId
 	 * @return
 	 */

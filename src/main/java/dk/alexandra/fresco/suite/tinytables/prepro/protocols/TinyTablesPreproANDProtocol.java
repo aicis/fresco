@@ -133,10 +133,7 @@ public class TinyTablesPreproANDProtocol extends TinyTablesPreproProtocol implem
 		entries[0] = product.add(this.out.getValue());
 		entries[1] = entries[0].add(inLeft.getValue());
 		entries[2] = entries[0].add(inRight.getValue());
-		entries[3] = entries[0].add(inLeft.getValue()).add(inRight.getValue());
-		if (playerId == 1) {
-			entries[3] = entries[3].not();
-		}
+		entries[3] = entries[0].add(inLeft.getValue()).add(inRight.getValue()).not(playerId);
 		return new TinyTable(entries);
 	}
 	
