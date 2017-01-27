@@ -68,6 +68,8 @@ import dk.alexandra.fresco.suite.tinytables.prepro.TinyTablesPreproProtocolSuite
 
 public class TestTinyTables {
 
+	private static final int TRIPLES_BATCH_SIZE = 4096;
+	
 	private void runTest(TestThreadFactory f, EvaluationStrategy evalStrategy,
 			boolean preprocessing, String name) throws Exception {
 		int noPlayers = 2;
@@ -106,7 +108,7 @@ public class TestTinyTables {
 				/*
 				 * 
 				 */
-				((TinyTablesPreproConfiguration) config).setTriplesBatchSize(4096);
+				((TinyTablesPreproConfiguration) config).setTriplesBatchSize(TRIPLES_BATCH_SIZE);
 
 				((TinyTablesPreproConfiguration) config).setTriplesFile(new File(
 						"triples_" + playerId));
