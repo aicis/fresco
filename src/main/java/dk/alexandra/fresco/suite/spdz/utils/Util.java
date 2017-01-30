@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 FRESCO (http://github.com/aicis/fresco).
+ * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
  *
@@ -54,7 +54,7 @@ public class Util {
 	
 	private static BigInteger p = null; //Should be set by an initiation call
 	private static BigInteger p_half;
-	public static int size = 0; //should be set by an initiation call
+	private static int size = 0; //should be set by an initiation call
 	public static int EXP_PIPE_SIZE = 200+1; //R^-1, R, R^2, ..., R^200		
 	
 	public static final String ENCODING = "UTF-8";	
@@ -65,10 +65,20 @@ public class Util {
 		}
 		return p;
 	}
-
-	public static void setModulus(BigInteger p) {
+	
+	public static void setModulus(BigInteger p) {		
 		Util.p = p;
 		Util.p_half = p.divide(BigInteger.valueOf(2));
+		byte[] bytes = p.toByteArray();
+		if (bytes[0] == 0) {
+			Util.size = p.toByteArray().length - 1;
+		} else {
+			Util.size = p.toByteArray().length;
+		}
+	}
+	
+	public static int getModulusSize() {
+		return size;
 	}
 
 	private MessageDigest H;

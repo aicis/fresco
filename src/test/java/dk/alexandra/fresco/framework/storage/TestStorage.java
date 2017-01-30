@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 FRESCO (http://github.com/aicis/fresco).
+ * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
  *
@@ -33,13 +33,12 @@ import java.util.logging.Level;
 
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import dk.alexandra.fresco.framework.Reporter;
 import dk.alexandra.fresco.framework.sce.resources.storage.FilebasedStreamedStorageImpl;
 import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
-import dk.alexandra.fresco.framework.sce.resources.storage.MySQLStorage;
+import dk.alexandra.fresco.framework.sce.resources.storage.SQLStorage;
 import dk.alexandra.fresco.framework.sce.resources.storage.Storage;
 import dk.alexandra.fresco.framework.sce.resources.storage.StreamedStorage;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
@@ -59,11 +58,9 @@ public class TestStorage {
 		testStoreBigInteger(storage);
 	}
 	
-	//TODO: Should we not ignore? Requires user's computer to have installed mysql etc.
-	@Ignore
 	@Test 
-	public void testMySQLStorage() {
-		Storage storage = MySQLStorage.getInstance();
+	public void testSQLStorage() {
+		Storage storage = SQLStorage.getInstance();
 		testStorage(storage);
 		testStoreBigInteger(storage);
 	}

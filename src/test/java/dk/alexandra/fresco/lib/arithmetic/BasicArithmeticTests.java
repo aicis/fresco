@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 FRESCO (http://github.com/aicis/fresco).
+ * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
  *
@@ -48,7 +48,7 @@ import dk.alexandra.fresco.lib.helper.CopyProtocolImpl;
 import dk.alexandra.fresco.lib.helper.builder.NumericIOBuilder;
 import dk.alexandra.fresco.lib.helper.builder.NumericProtocolBuilder;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
-import dk.alexandra.fresco.lib.math.integer.PreprocessedNumericBitFactory;
+import dk.alexandra.fresco.lib.math.integer.NumericBitFactory;
 import dk.alexandra.fresco.lib.math.integer.exp.ExpFromOIntFactory;
 import dk.alexandra.fresco.lib.math.integer.exp.PreprocessedExpPipeFactory;
 import dk.alexandra.fresco.lib.math.integer.inv.LocalInversionFactory;
@@ -522,7 +522,7 @@ public class BasicArithmeticTests {
 								ProtocolFactory factory) {
 							BasicNumericFactory fac = (BasicNumericFactory) factory;
 							ComparisonProtocolFactory comp = new ComparisonProtocolFactoryImpl(80, fac, 
-									(LocalInversionFactory)factory, (PreprocessedNumericBitFactory)factory, 
+									(LocalInversionFactory)factory, (NumericBitFactory)factory, 
 									(ExpFromOIntFactory)factory, (PreprocessedExpPipeFactory)factory);
 							NumericIOBuilder ioBuilder = new NumericIOBuilder(fac);
 							NumericProtocolBuilder builder = new NumericProtocolBuilder(fac);

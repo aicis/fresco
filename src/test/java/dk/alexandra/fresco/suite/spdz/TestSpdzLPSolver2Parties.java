@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 FRESCO (http://github.com/aicis/fresco).
+ * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
  *
@@ -48,6 +48,7 @@ import dk.alexandra.fresco.framework.sce.configuration.TestSCEConfiguration;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.resources.storage.FilebasedStreamedStorageImpl;
 import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
+import dk.alexandra.fresco.framework.sce.resources.storage.SQLStorage;
 import dk.alexandra.fresco.framework.sce.resources.storage.Storage;
 import dk.alexandra.fresco.framework.sce.resources.storage.StorageStrategy;
 import dk.alexandra.fresco.framework.sce.resources.storage.StreamedStorage;
@@ -111,9 +112,8 @@ public class TestSpdzLPSolver2Parties {
 			case STREAMED_STORAGE:
 				storage = new FilebasedStreamedStorageImpl(inMemStore);
 				break;
-			case MYSQL:
-				throw new RuntimeException("mySQL currently not supported");
-				//storage = mySQLStore;
+			case SQL:
+				storage = SQLStorage.getInstance();
 			}
 			ttc.sceConf = new TestSCEConfiguration(suite, evaluator, noOfPSThreads, noOfVmThreads, ttc.netConf, storage, useSecureConnection);
 			conf.put(playerId, ttc);

@@ -1,3 +1,29 @@
+/*******************************************************************************
+ * Copyright (c) 2016 FRESCO (http://github.com/aicis/fresco).
+ *
+ * This file is part of the FRESCO project.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
+ * and Bouncy Castle. Please see these projects for any further licensing issues.
+ *******************************************************************************/
 package dk.alexandra.fresco.lib.arithmetic;
 
 import java.io.IOException;
@@ -20,10 +46,11 @@ import dk.alexandra.fresco.lib.collections.LookUpProtocol;
 import dk.alexandra.fresco.lib.collections.LookUpProtocolFactory;
 import dk.alexandra.fresco.lib.collections.LookupProtocolFactoryImpl;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
+import dk.alexandra.fresco.lib.field.integer.RandomFieldElementFactory;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
 import dk.alexandra.fresco.lib.lp.LPFactory;
 import dk.alexandra.fresco.lib.lp.LPFactoryImpl;
-import dk.alexandra.fresco.lib.math.integer.PreprocessedNumericBitFactory;
+import dk.alexandra.fresco.lib.math.integer.NumericBitFactory;
 import dk.alexandra.fresco.lib.math.integer.exp.ExpFromOIntFactory;
 import dk.alexandra.fresco.lib.math.integer.exp.PreprocessedExpPipeFactory;
 import dk.alexandra.fresco.lib.math.integer.inv.LocalInversionFactory;
@@ -84,10 +111,11 @@ public class SearchingTests {
 							public ProtocolProducer prepareApplication(ProtocolFactory factory) {
 								BasicNumericFactory bnf = (BasicNumericFactory) factory;
 								LocalInversionFactory localInvFactory = (LocalInversionFactory) factory;
-								PreprocessedNumericBitFactory numericBitFactory = (PreprocessedNumericBitFactory) factory;
+								NumericBitFactory numericBitFactory = (NumericBitFactory) factory;
 								ExpFromOIntFactory expFromOIntFactory = (ExpFromOIntFactory) factory;
 								PreprocessedExpPipeFactory expFactory = (PreprocessedExpPipeFactory) factory;
-								LPFactory lpFactory = new LPFactoryImpl(80, bnf, localInvFactory, numericBitFactory, expFromOIntFactory, expFactory);
+								RandomFieldElementFactory randFactory = (RandomFieldElementFactory) factory;
+								LPFactory lpFactory = new LPFactoryImpl(80, bnf, localInvFactory, numericBitFactory, expFromOIntFactory, expFactory, randFactory);
 								LookUpProtocolFactory<SInt> lpf = new LookupProtocolFactoryImpl(80, lpFactory, bnf);
 								SInt sOut = bnf.getSInt(NOTFOUND);																
 								LookUpProtocol<SInt> luc = lpf

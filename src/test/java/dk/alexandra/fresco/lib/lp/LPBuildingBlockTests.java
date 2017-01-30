@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 FRESCO (http://github.com/aicis/fresco).
+ * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
  *
@@ -45,9 +45,10 @@ import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.debug.MarkerProtocolImpl;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
+import dk.alexandra.fresco.lib.field.integer.RandomFieldElementFactory;
 import dk.alexandra.fresco.lib.helper.builder.NumericIOBuilder;
 import dk.alexandra.fresco.lib.helper.builder.NumericProtocolBuilder;
-import dk.alexandra.fresco.lib.math.integer.PreprocessedNumericBitFactory;
+import dk.alexandra.fresco.lib.math.integer.NumericBitFactory;
 import dk.alexandra.fresco.lib.math.integer.exp.ExpFromOIntFactory;
 import dk.alexandra.fresco.lib.math.integer.exp.PreprocessedExpPipeFactory;
 import dk.alexandra.fresco.lib.math.integer.inv.LocalInversionFactory;
@@ -233,11 +234,12 @@ public class LPBuildingBlockTests {
 						public ProtocolProducer prepareApplication(ProtocolFactory factory) {
 							BasicNumericFactory bnFactory = (BasicNumericFactory) factory;
 							LocalInversionFactory localInvFactory = (LocalInversionFactory) factory;
-							PreprocessedNumericBitFactory numericBitFactory = (PreprocessedNumericBitFactory) factory;
+							NumericBitFactory numericBitFactory = (NumericBitFactory) factory;
 							ExpFromOIntFactory expFromOIntFactory = (ExpFromOIntFactory) factory;
 							PreprocessedExpPipeFactory expFactory = (PreprocessedExpPipeFactory) factory;
+							RandomFieldElementFactory randFactory = (RandomFieldElementFactory) factory;
 							LPFactory lpFactory = new LPFactoryImpl(80, bnFactory, localInvFactory, numericBitFactory,
-									expFromOIntFactory, expFactory);
+									expFromOIntFactory, expFactory, randFactory);
 							return setupRandom(10, 10, bnFactory, lpFactory);
 						}
 					};

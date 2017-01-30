@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 FRESCO (http://github.com/aicis/fresco).
+ * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
  *
@@ -35,7 +35,7 @@ import dk.alexandra.fresco.lib.compare.zerotest.ZeroTestProtocolFactoryImpl;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.math.integer.NumericNegateBitFactory;
 import dk.alexandra.fresco.lib.math.integer.NumericNegateBitFactoryImpl;
-import dk.alexandra.fresco.lib.math.integer.PreprocessedNumericBitFactory;
+import dk.alexandra.fresco.lib.math.integer.NumericBitFactory;
 import dk.alexandra.fresco.lib.math.integer.exp.ExpFromOIntFactory;
 import dk.alexandra.fresco.lib.math.integer.exp.PreprocessedExpPipeFactory;
 import dk.alexandra.fresco.lib.math.integer.inv.LocalInversionFactory;
@@ -55,7 +55,7 @@ public class ComparisonProtocolFactoryImpl implements ComparisonProtocolFactory 
 
 	public ComparisonProtocolFactoryImpl(int statisticalSecurityParameter,
 			BasicNumericFactory bnf, LocalInversionFactory localInvFactory,
-			PreprocessedNumericBitFactory numericBitFactory,
+			NumericBitFactory numericBitFactory,
 			ExpFromOIntFactory expFromOIntFactory,
 			PreprocessedExpPipeFactory expFactory) {
 		this.secParam = statisticalSecurityParameter;

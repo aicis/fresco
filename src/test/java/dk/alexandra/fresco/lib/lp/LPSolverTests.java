@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 FRESCO (http://github.com/aicis/fresco).
+ * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
  *
@@ -29,6 +29,9 @@ package dk.alexandra.fresco.lib.lp;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.math.BigInteger;
+
+import org.junit.Assert;
 
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.ProtocolFactory;
@@ -42,12 +45,13 @@ import dk.alexandra.fresco.framework.sce.SCEFactory;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
+import dk.alexandra.fresco.lib.field.integer.RandomFieldElementFactory;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
 import dk.alexandra.fresco.lib.lp.LPFactory;
 import dk.alexandra.fresco.lib.lp.LPFactoryImpl;
 import dk.alexandra.fresco.lib.lp.LPPrefix;
 import dk.alexandra.fresco.lib.lp.LPSolverProtocol;
-import dk.alexandra.fresco.lib.math.integer.PreprocessedNumericBitFactory;
+import dk.alexandra.fresco.lib.math.integer.NumericBitFactory;
 import dk.alexandra.fresco.lib.math.integer.exp.ExpFromOIntFactory;
 import dk.alexandra.fresco.lib.math.integer.exp.PreprocessedExpPipeFactory;
 import dk.alexandra.fresco.lib.math.integer.inv.LocalInversionFactory;
@@ -74,6 +78,7 @@ public class LPSolverTests {
 			return new ThreadWithFixture() {
 				@Override
 				public void test() throws Exception {
+					OInt[] outs = new OInt[1];
 					TestApplication app = new TestApplication() {
 
 						private static final long serialVersionUID = 4338818809103728010L;
@@ -83,10 +88,11 @@ public class LPSolverTests {
 								ProtocolFactory factory) {
 							BasicNumericFactory bnFactory = (BasicNumericFactory) factory;
 							LocalInversionFactory localInvFactory = (LocalInversionFactory) factory;
-							PreprocessedNumericBitFactory numericBitFactory = (PreprocessedNumericBitFactory) factory;
+							NumericBitFactory numericBitFactory = (NumericBitFactory) factory;
 							ExpFromOIntFactory expFromOIntFactory = (ExpFromOIntFactory) factory;
 							PreprocessedExpPipeFactory expFactory = (PreprocessedExpPipeFactory) factory;
-							LPFactory lpFactory = new LPFactoryImpl(80, bnFactory, localInvFactory, numericBitFactory, expFromOIntFactory, expFactory);
+							RandomFieldElementFactory randFactory = (RandomFieldElementFactory) factory;
+							LPFactory lpFactory = new LPFactoryImpl(80, bnFactory, localInvFactory, numericBitFactory, expFromOIntFactory, expFactory, randFactory);
 							File pattern = new File("src/test/resources/lp/pattern7.csv");
 							File program = new File("src/test/resources/lp/program7.csv");
 							LPInputReader inputreader = null;
@@ -117,6 +123,7 @@ public class LPSolverTests {
 										prefix.getPivot(), lpFactory, bnFactory);
 								SInt sout = bnFactory.getSInt();
 								OInt out = bnFactory.getOInt();
+								outs[0] = out;
 								ProtocolProducer outputter = lpFactory
 										.getOptimalValueProtocol(
 												prefix.getUpdateMatrix(),
@@ -139,6 +146,8 @@ public class LPSolverTests {
 					long endTime = System.nanoTime();
 					System.out.println("============ Seq Time: "
 							+ ((endTime - startTime) / 1000000));
+					//TODO: Ensure that this is indeed the correct result. 
+					Assert.assertEquals(new BigInteger("161"), outs[0].getValue());
 				}
 			};
 		}

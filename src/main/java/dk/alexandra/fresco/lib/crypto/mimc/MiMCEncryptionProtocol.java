@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 FRESCO (http://github.com/aicis/fresco).
+ * Copyright (c) 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
  *
@@ -24,17 +24,17 @@
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
  *******************************************************************************/
-package dk.alexandra.fresco.lib.math.integer;
+package dk.alexandra.fresco.lib.crypto.mimc;
 
-import dk.alexandra.fresco.framework.ProtocolProducer;
-import dk.alexandra.fresco.framework.value.SInt;
+import dk.alexandra.fresco.framework.Protocol;
 
-public interface PreprocessedNumericBitFactory {
+/**
+ * There are two versions of this protocol. One that requires extra preprocessed
+ * values, and one that uses just normal triples/squares.
+ * 
+ * @author Kasper Damgaard
+ *
+ */
+public interface MiMCEncryptionProtocol extends Protocol{
 
-	/**
-	 * Returns a protocol which creates a secret shared random bit. (This should be computed beforehand)
-	 * 
-	 * @return
-	 */
-	public ProtocolProducer createRandomSecretSharedBitProtocol(SInt bit);
 }

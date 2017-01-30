@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 FRESCO (http://github.com/aicis/fresco).
+ * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
  *
@@ -30,7 +30,7 @@ public enum StorageStrategy {
 
 	IN_MEMORY,
 	STREAMED_STORAGE,
-	MYSQL;
+	SQL;
 	
 	public static Storage fromString(String storageString) {
 		final String ss = storageString.toUpperCase();
@@ -38,9 +38,9 @@ public enum StorageStrategy {
 		case "IN_MEMORY":
 		case "INMEMORY":
 			return new InMemoryStorage();
-		case "MYSQL":
-		case "MY_SQL":
-			return MySQLStorage.getInstance();
+		case "SQL":
+		case "H2":
+			return SQLStorage.getInstance();
 		case "STREAMED_STORAGE":
 		case "FILE_BASED_STORAGE":
 			return new FilebasedStreamedStorageImpl(new InMemoryStorage());
@@ -52,8 +52,8 @@ public enum StorageStrategy {
 	public static String storageToString(Storage storage) {
 		if(storage instanceof InMemoryStorage) {
 			return IN_MEMORY.name();
-		} else if(storage instanceof MySQLStorage) {
-			return MYSQL.name();
+		} else if(storage instanceof SQLStorage) {
+			return SQL.name();
 		} else if(storage instanceof FilebasedStreamedStorageImpl){
 			return STREAMED_STORAGE.name();
 		} else {

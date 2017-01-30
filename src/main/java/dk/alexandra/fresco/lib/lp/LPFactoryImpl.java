@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 FRESCO (http://github.com/aicis/fresco).
+ * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
  *
@@ -44,11 +44,12 @@ import dk.alexandra.fresco.lib.compare.zerotest.ZeroTestProtocolFactoryImpl;
 import dk.alexandra.fresco.lib.debug.MarkerProtocol;
 import dk.alexandra.fresco.lib.debug.MarkerProtocolImpl;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
+import dk.alexandra.fresco.lib.field.integer.RandomFieldElementFactory;
 import dk.alexandra.fresco.lib.helper.CopyProtocol;
 import dk.alexandra.fresco.lib.helper.CopyProtocolImpl;
 import dk.alexandra.fresco.lib.math.integer.NumericNegateBitFactory;
 import dk.alexandra.fresco.lib.math.integer.NumericNegateBitFactoryImpl;
-import dk.alexandra.fresco.lib.math.integer.PreprocessedNumericBitFactory;
+import dk.alexandra.fresco.lib.math.integer.NumericBitFactory;
 import dk.alexandra.fresco.lib.math.integer.exp.ExpFromOIntFactory;
 import dk.alexandra.fresco.lib.math.integer.exp.PreprocessedExpPipeFactory;
 import dk.alexandra.fresco.lib.math.integer.inv.InversionProtocolImpl;
@@ -72,6 +73,7 @@ public class LPFactoryImpl implements LPFactory {
 	private final LocalInversionFactory localInvFactory;
 	private final NumericNegateBitFactory numericNegateBitFactory;
 	private final RandomAdditiveMaskFactory randomAdditiveMaskFactory;
+	private final RandomFieldElementFactory randFactory;
 	private final InnerProductFactory innerProductFactory;
 	private final ZeroTestProtocolFactory zeroTestProtocolFactory;
 	private final MiscOIntGenerators misc;
@@ -79,14 +81,16 @@ public class LPFactoryImpl implements LPFactory {
 
 	public LPFactoryImpl(int securityParameter, BasicNumericFactory bnf,
 			LocalInversionFactory localInvFactory,
-			PreprocessedNumericBitFactory numericBitFactory,
+			NumericBitFactory numericBitFactory,
 			ExpFromOIntFactory expFromOIntFactory,
-			PreprocessedExpPipeFactory expFactory) {
+			PreprocessedExpPipeFactory expFactory,
+			RandomFieldElementFactory randFactory) {
 		this.securityParameter = securityParameter;
 		this.bnf = bnf;
 		this.localInvFactory = localInvFactory;
+		this.randFactory = randFactory;
 		this.numericNegateBitFactory = new NumericNegateBitFactoryImpl(bnf);
-		this.innerProductFactory = new InnerProductFactoryImpl(bnf);
+		this.innerProductFactory = new InnerProductFactoryImpl(bnf);		
 		randomAdditiveMaskFactory = new RandomAdditiveMaskFactoryImpl(bnf,
 				numericBitFactory);
 		misc = new MiscOIntGenerators(bnf);
@@ -97,7 +101,7 @@ public class LPFactoryImpl implements LPFactory {
 
 	@Override
 	public InversionProtocol getInversionProtocol(SInt x, SInt result) {
-		return new InversionProtocolImpl(x, result, bnf, localInvFactory);
+		return new InversionProtocolImpl(x, result, bnf, localInvFactory, randFactory);
 	}
 
 	@Override

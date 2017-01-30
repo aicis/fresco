@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 FRESCO (http://github.com/aicis/fresco).
+ * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
  *
@@ -44,7 +44,7 @@ import dk.alexandra.fresco.lib.field.integer.generic.AddProtocolFactory;
 import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
 import dk.alexandra.fresco.lib.math.integer.HammingDistanceFactory;
-import dk.alexandra.fresco.lib.math.integer.PreprocessedNumericBitFactory;
+import dk.alexandra.fresco.lib.math.integer.NumericBitFactory;
 import dk.alexandra.fresco.lib.math.integer.exp.ExpFromOIntFactory;
 import dk.alexandra.fresco.lib.math.integer.exp.PreprocessedExpPipeFactory;
 import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductFactory;
@@ -88,7 +88,7 @@ public class EqualityProtocolImplWithPreprocessing implements EqualityProtocol {
 //RandomAdditiveMaskProvider randomAddMaskProvider) {
 		public EqualityProtocolImplWithPreprocessing(int bitLength, int securityParam,
 				SInt x, SInt y, SInt result,
-BasicNumericFactory factory, MultByConstantFactory mbcFactory, PreprocessedNumericBitFactory bitProvider,
+BasicNumericFactory factory, MultByConstantFactory mbcFactory, NumericBitFactory bitProvider,
 PreprocessedExpPipeFactory expFactory, AddProtocolFactory addFactory,
 InnerProductFactory innerProdFactory, MiscOIntGenerators miscOIntGenerator,
 ExpFromOIntFactory expFromOIntFactory) {

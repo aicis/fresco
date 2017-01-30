@@ -72,4 +72,10 @@ public interface DataSupplier {
 	 */
 	public abstract BigInteger getSSK();
 
+	/**
+	 * Returns the next random field element
+	 * @return A SpdzSInt representing a random secret shared field element.
+	 */
+	public abstract SpdzSInt getNextRandomFieldElement();
+
 }

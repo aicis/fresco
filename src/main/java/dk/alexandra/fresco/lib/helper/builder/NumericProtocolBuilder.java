@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 FRESCO (http://github.com/aicis/fresco).
+ * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
  *
@@ -125,6 +125,23 @@ public class NumericProtocolBuilder extends AbstractProtocolBuilder {
 		return bnf.getSInt();
 	}
 
+	public OInt knownOInt(int value) {
+		return knownOInt(BigInteger.valueOf(value));
+	}
+
+	public OInt knownOInt(BigInteger value) {
+		OInt oValue = bnf.getOInt(value);
+		return oValue;
+	}
+
+	public OInt[] knownOInts(BigInteger[] values) {
+		OInt[] res = new OInt[values.length];
+		for (int i = 0; i < values.length; i++) {
+			res[i] = knownOInt(values[i]);
+		}
+		return res;
+	}
+
 	public SInt known(BigInteger value) {
 		SInt sValue = bnf.getSInt();
 		ProtocolProducer loader = bnf.getSInt(value, sValue);
@@ -160,6 +177,20 @@ public class NumericProtocolBuilder extends AbstractProtocolBuilder {
 	}
 
 	/**
+	 * Appends a protocol that creates a random SInt to be used after
+	 * evaluation. Has to be called in sequence to where it's used. It might be
+	 * drawn from a pool of already existing random elements, in which case only
+	 * local work is done.
+	 * 
+	 * @return An SInt that, upon evaluation, will contain a random field element.
+	 */
+	public SInt rand() {
+		SInt randomElement = bnf.getSInt();
+		append(bnf.getRandomFieldElement(randomElement));
+		return randomElement;
+	}
+
+	/**
 	 * Adds to SInts
 	 * 
 	 * @param left
@@ -188,7 +219,7 @@ public class NumericProtocolBuilder extends AbstractProtocolBuilder {
 		append(bnf.getAddProtocol(left, right, out));
 		return out;
 	}
-	
+
 	/**
 	 * Adds the lefthand array of SInts element-wise to the righthand array.
 	 * Note this means the righthand array must be at least as long as the
@@ -298,6 +329,7 @@ public class NumericProtocolBuilder extends AbstractProtocolBuilder {
 
 	/**
 	 * Takes a number of values and multiplies them all.
+	 * 
 	 * @param factors
 	 * @return
 	 */
@@ -378,7 +410,7 @@ public class NumericProtocolBuilder extends AbstractProtocolBuilder {
 		append(bnf.getMultProtocol(left, right, out));
 		return out;
 	}
-	
+
 	/**
 	 * Scales the right side array of SInts.
 	 * 
@@ -455,7 +487,7 @@ public class NumericProtocolBuilder extends AbstractProtocolBuilder {
 		append(bnf.getSubtractProtocol(left, right, out));
 		return out;
 	}
-	
+
 	/**
 	 * Subtracts the righthand OInt from the lefthand SInt.
 	 * 
@@ -470,7 +502,7 @@ public class NumericProtocolBuilder extends AbstractProtocolBuilder {
 		append(bnf.getSubtractProtocol(left, right, out));
 		return out;
 	}
-	
+
 	/**
 	 * Subtracts the righthand array of SInts element-wise from the lefthand
 	 * array. The righthand array must be at least as long as the lefthand
@@ -497,7 +529,7 @@ public class NumericProtocolBuilder extends AbstractProtocolBuilder {
 		endCurScope();
 		return out;
 	}
-	
+
 	/**
 	 * Computes the conditional selection operation. I.e., concretely computes
 	 * the value <code>r</code> as
@@ -555,6 +587,7 @@ public class NumericProtocolBuilder extends AbstractProtocolBuilder {
 	 * 
 	 * Note: this uses the generic CopyProtocol implementation, it is not clear
 	 * if this is safe for all protocol suites.
+	 * 
 	 * @param to
 	 *            the SInt to copy to
 	 * @param from
