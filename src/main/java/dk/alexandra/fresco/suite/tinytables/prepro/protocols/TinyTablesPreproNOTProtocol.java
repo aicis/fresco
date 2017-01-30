@@ -73,7 +73,7 @@ public class TinyTablesPreproNOTProtocol extends TinyTablesPreproProtocol implem
 		/*
 		 * Use same masking parameter for the output
 		 */
-		out.setShare(in.getShare());
+		out.setValue(in.getValue());
 		
 		return EvaluationStatus.IS_DONE;
 	}

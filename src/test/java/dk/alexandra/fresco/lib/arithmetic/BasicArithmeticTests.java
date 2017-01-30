@@ -47,7 +47,6 @@ import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.helper.CopyProtocolImpl;
 import dk.alexandra.fresco.lib.helper.builder.NumericIOBuilder;
 import dk.alexandra.fresco.lib.helper.builder.NumericProtocolBuilder;
-import dk.alexandra.fresco.lib.helper.builder.OmniBuilder;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
 import dk.alexandra.fresco.lib.math.integer.NumericBitFactory;
 import dk.alexandra.fresco.lib.math.integer.exp.ExpFromOIntFactory;
@@ -170,37 +169,28 @@ public class BasicArithmeticTests {
 						@Override
 						public ProtocolProducer prepareApplication(
 								ProtocolFactory factory) {
-							OmniBuilder builder = new OmniBuilder(factory);
-							SInt input1 = builder.getNumericIOBuilder().input(
+							BasicNumericFactory fac = (BasicNumericFactory) factory;
+							SequentialProtocolProducer gp = new SequentialProtocolProducer();
+							NumericIOBuilder ioBuilder = new NumericIOBuilder(
+									fac);
+							SInt input1 = ioBuilder.input(
 									BigInteger.valueOf(10), 1);
-							OInt openInput = builder.getNumericProtocolBuilder().knownOInt(4);							
-							SInt out = builder.getNumericProtocolBuilder().add(input1, openInput);
-							OInt output = builder.getNumericIOBuilder().output(out);
-							this.outputs = new OInt[] {output};
-							return builder.getProtocol();
+
+							gp.append(ioBuilder.getProtocol());
+							ioBuilder.reset();
 							
-//							BasicNumericFactory fac = (BasicNumericFactory) factory;
-//							SequentialProtocolProducer gp = new SequentialProtocolProducer();
-//							NumericIOBuilder ioBuilder = new NumericIOBuilder(
-//									fac);
-//							SInt input1 = ioBuilder.input(
-//									BigInteger.valueOf(10), 1);
-//
-//							gp.append(ioBuilder.getProtocol());
-//							ioBuilder.reset();
-//							
-//							BigInteger publicVal = BigInteger.valueOf(4);
-//							OInt openInput = fac.getOInt(publicVal);
-//							SInt out = fac.getSInt();
-//							ProtocolProducer addProtocol = fac.getAddProtocol(input1, openInput, out);
-//							gp.append(addProtocol);
-//							
-//							OInt output = ioBuilder.output(out);							
-//							ProtocolProducer io = ioBuilder.getProtocol();
-//							gp.append(io);
-//							
-//							this.outputs = new OInt[] { output };
-//							return gp;
+							BigInteger publicVal = BigInteger.valueOf(4);
+							OInt openInput = fac.getOInt(publicVal);
+							SInt out = fac.getSInt();
+							ProtocolProducer addProtocol = fac.getAddProtocol(input1, openInput, out);
+							gp.append(addProtocol);
+							
+							OInt output = ioBuilder.output(out);							
+							ProtocolProducer io = ioBuilder.getProtocol();
+							gp.append(io);
+							
+							this.outputs = new OInt[] { output };
+							return gp;
 						}
 					};
 

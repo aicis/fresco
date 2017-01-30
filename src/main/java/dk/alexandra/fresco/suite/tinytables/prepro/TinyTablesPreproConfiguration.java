@@ -27,7 +27,6 @@
 package dk.alexandra.fresco.suite.tinytables.prepro;
 
 import java.io.File;
-import java.net.InetSocketAddress;
 import java.util.Properties;
 
 import org.apache.commons.cli.CommandLine;
@@ -35,7 +34,6 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
-import dk.alexandra.fresco.framework.Party;
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.sce.configuration.ProtocolSuiteConfiguration;
 import dk.alexandra.fresco.framework.sce.configuration.SCEConfiguration;
@@ -43,128 +41,118 @@ import dk.alexandra.fresco.framework.sce.configuration.SCEConfiguration;
 public class TinyTablesPreproConfiguration implements ProtocolSuiteConfiguration {
 
 	private ProtocolFactory tinyTablesFactory;
-	private InetSocketAddress address;
-	private boolean useOtExtension;
 	private File tinytablesfile;
-	private boolean testing;
+	private File triplesFile;
+	private int triplesBatchSize;
 
-	public static ProtocolSuiteConfiguration fromCmdLine(SCEConfiguration sceConf,
-			CommandLine cmd) throws ParseException, IllegalArgumentException {
-		
+	public static ProtocolSuiteConfiguration fromCmdLine(SCEConfiguration sceConf, CommandLine cmd)
+			throws ParseException, IllegalArgumentException {
+
 		Options options = new Options();
-		
+
 		TinyTablesPreproConfiguration configuration = new TinyTablesPreproConfiguration();
 
 		/*
 		 * Parse TinyTables specific options
 		 */
-		
-		String otExtensionOption = "tinytables.otExtension";
-		String otExtensionPortOption = "tinytables.otExtensionPort";
-		String tinytablesFileOption = "tinytables.file";
-		
-		options.addOption(Option
-				.builder("D")
-				.desc("Specify whether we should try to use SCAPIs OT-Extension lib. This requires the SCAPI library to be installed.")
-				.longOpt(otExtensionOption).required(false).hasArgs().build());
-						
-		options.addOption(Option
-				.builder("D")
-				.desc("The port number for the OT-Extension lib. Both players should specify the same here.")
-				.longOpt(otExtensionPortOption).required(false).hasArgs().build());
 
-		options.addOption(Option
-				.builder("D")
+		String tinytablesFileOption = "tinytables.file";
+		options.addOption(Option.builder("D")
 				.desc("The file where the generated TinyTables should be stored.")
 				.longOpt(tinytablesFileOption).required(false).hasArgs().build());
-		
+
+		String triplesFileOption = "triples.file";
+		options.addOption(Option.builder("D")
+				.desc("A file for storing generated multiplication triples")
+				.longOpt(triplesFileOption).required(false).hasArgs().build());
+
+		String batchSizeOption = "triples.batchSize";
+		options.addOption(Option.builder("D")
+				.desc("The amount of triples to keep in memory at a time").longOpt(batchSizeOption)
+				.required(false).hasArgs().build());
+
 		Properties p = cmd.getOptionProperties("D");
-		
-		boolean useOtExtension = Boolean.parseBoolean(p.getProperty(otExtensionOption, "false"));
-		configuration.setUseOtExtension(useOtExtension);
-		
-		int otExtensionPort = Integer.parseInt(p.getProperty(otExtensionPortOption, "9005"));
-		Party sender = sceConf.getParties().get(1);
-		configuration.setSenderAddress(InetSocketAddress.createUnresolved(sender.getHostname(), otExtensionPort));;
-		
+
 		String tinyTablesFilePath = p.getProperty(tinytablesFileOption, "tinytables");
 		File tinyTablesFile = new File(tinyTablesFilePath);
 		configuration.setTinyTablesFile(tinyTablesFile);
-		
-		// We are not testing when running from command line
-		configuration.setTesting(false);
-		
+
+		String triplesFilePath = p.getProperty(triplesFileOption, "triples");
+		File triplesFile = new File(triplesFilePath);
+		configuration.setTriplesFile(triplesFile);
+
+		int batchSize = Integer.parseInt(p.getProperty(batchSizeOption, "1024"));
+		configuration.setTriplesBatchSize(batchSize);
+
 		return configuration;
 	}
-	
+
 	public TinyTablesPreproConfiguration() {
 		tinyTablesFactory = new TinyTablesPreproFactory();
 	}
 
 	/**
-	 * Set what file the generated TinyTables should be stored to when
-	 * preprocessing is finished.
+	 * Set file where generated TinyTables should be stored. Each AND gate need
+	 * one TinyTable, and a TinyTable should only be used once in the online
+	 * phase
 	 * 
 	 * @param file
 	 */
 	public void setTinyTablesFile(File file) {
 		this.tinytablesfile = file;
 	}
-	
+
+	/**
+	 * Get the file where TinyTables are stored to.
+	 * 
+	 * @return
+	 */
 	public File getTinyTablesFile() {
 		return this.tinytablesfile;
 	}
-	
+
 	public ProtocolFactory getProtocolFactory() {
 		return this.tinyTablesFactory;
 	}
 
-	public void setTesting(boolean testing) {
-		this.testing = testing;
+	/**
+	 * Set file where multipliaction (Beaver) triples can be stored and
+	 * loaded from. If a file with triples alread exists, we use these
+	 * triples. Otherwise we generate new ones and store them to this file.
+	 * 
+	 * @param triplesFile
+	 */
+	public void setTriplesFile(File triplesFile) {
+		this.triplesFile = triplesFile;
 	}
 
 	/**
-	 * Should return true iff we are running with both players in the same VM.
+	 * Get the file wher multiplication triples are stored and loaded from.
 	 * 
 	 * @return
 	 */
-	public boolean isTesting() {
-		return testing;
-	}
-	
-	/**
-	 * Set the inet address of the sender used for the OT extension. The port
-	 * number should not the same as the one used for the other communication.
-	 * 
-	 * @param host
-	 */
-	public void setSenderAddress(InetSocketAddress host) {
-		this.address = host;
+	public File getTriplesFile() {
+		return this.triplesFile;
 	}
 
 	/**
-	 * Return the address of the sender. See also
-	 * {@link #setSenderAddress(InetSocketAddress)}.
+	 * Set the number of triples that we want to load at a time. Decreasing this
+	 * will use less memory but increasing it will decrease the number of times
+	 * we need to generate and load triples.
+	 * 
+	 * @param batchSize
+	 */
+	public void setTriplesBatchSize(int batchSize) {
+		this.triplesBatchSize = batchSize;
+	}
+
+	/**
+	 * Get the number of triples loaded at a time.
 	 * 
 	 * @return
 	 */
-	public InetSocketAddress getSenderAddress() {
-		return this.address;
-	}
-	
-	/**
-	 * Set whether we should try to use SCAPI's OT Extension lib during
-	 * preprocessing. Both players should have the SCAPI lib installed for this
-	 * to work.
-	 * 
-	 * @param value
-	 */
-	public void setUseOtExtension(boolean value) {
-		this.useOtExtension = value;
-	}
-	
-	public boolean getUseOtExtension() {
-		return this.useOtExtension;
+	public int getTriplesBatchSize() {
+		return this.triplesBatchSize;
 	}
 
 }

@@ -92,7 +92,7 @@ public class TinyTablesXORProtocol extends TinyTablesProtocol implements XorProt
 	public EvaluationStatus evaluate(int round, ResourcePool resourcePool, SCENetwork network) {
 		if (round == 0) {
 			// Free XOR
-			this.out.setValue(inLeft.getValue() ^ inRight.getValue());
+			this.out.setValue(inLeft.getValue().add(inRight.getValue()));
 			return EvaluationStatus.IS_DONE;
 		} else {
 			throw new MPCException("Cannot evaluate XOR in round > 0");

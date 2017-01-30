@@ -26,14 +26,15 @@
  *******************************************************************************/
 package dk.alexandra.fresco.suite.tinytables.online.datatypes;
 
+import dk.alexandra.fresco.framework.util.ot.Encoding;
 import dk.alexandra.fresco.framework.value.SBool;
-import dk.alexandra.fresco.suite.tinytables.util.Encoding;
+import dk.alexandra.fresco.suite.tinytables.datatypes.TinyTablesElement;
 
 /**
  * This class represents a masked boolean value in the online phase of the
  * TinyTables protocol. The two players both know the masked value, <i>e = r +
- * b</i>, but each player only knows his share of the mask <i>r</i>, which was
- * picked during the preprocessing phase.
+ * b</i>, but each player only knows his share of the value <i>e</i> (and of the
+ * mask <i>r</i>, which was picked during the preprocessing phase).
  * 
  * @author Jonas Lindstrøm (jonas.lindstrom@alexandra.dk)
  *
@@ -41,46 +42,42 @@ import dk.alexandra.fresco.suite.tinytables.util.Encoding;
 public class TinyTablesSBool implements SBool {
 
 	private static final long serialVersionUID = 8582913017231020209L;
-	private boolean value;
-	private boolean isReady;
+	private TinyTablesElement value;
 	
 	public TinyTablesSBool() {
-		 value = false;
-		 isReady = false;
 	}
 	
-	public TinyTablesSBool(boolean share) {
+	public TinyTablesSBool(TinyTablesElement share) {
 		 this.value = share;
-		 isReady = true;
-	}
-
-	@Override
-	public byte[] getSerializableContent() {
-		return new byte[] { Encoding.encodeBoolean(value) };
-	}
-
-	@Override
-	public void setSerializableContent(byte[] val) {
-		setValue(Encoding.decodeBoolean(val[0]));
 	}
 
 	@Override
 	public boolean isReady() {
-		return this.isReady;
+		return (this.value != null);
 	}
 
-	public boolean getValue() {
+	public TinyTablesElement getValue() {
 		return value;
 	}
 
-	public void setValue(boolean b) {
-		this.value = b;
-		this.isReady = true;
+	public void setValue(TinyTablesElement share) {
+		this.value = share;
 	}
 
 	@Override
 	public String toString() {
 		return "TinyTablesSBool [value=" + value + "]";
+	}
+
+	@Override
+	public byte[] getSerializableContent() {
+		return new byte[] { Encoding.encodeBoolean(value.getShare()) };
+	}
+
+	@Override
+	public void setSerializableContent(byte[] val) {
+		boolean share = Encoding.decodeBoolean(val[0]);
+		this.setValue(new TinyTablesElement(share));
 	}
 	
 }

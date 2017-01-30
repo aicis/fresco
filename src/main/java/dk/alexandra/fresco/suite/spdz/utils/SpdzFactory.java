@@ -222,7 +222,16 @@ public class SpdzFactory implements BasicNumericFactory,
 	@Override
 	@Deprecated
 	public SInt getSInt(int i) {
-		return getSInt(BigInteger.valueOf(i));
+
+		BigInteger b = BigInteger.valueOf(i).mod(Util.getModulus());
+		SpdzElement elm;
+		if (pID == 1) {
+			elm = new SpdzElement(b, b.multiply(this.storage.getSSK()));
+		} else {
+			elm = new SpdzElement(BigInteger.ZERO, b.multiply(this.storage
+					.getSSK()));
+		}
+		return new SpdzSInt(elm);
 	}
 
 	@Override
@@ -231,10 +240,10 @@ public class SpdzFactory implements BasicNumericFactory,
 		b = b.mod(Util.getModulus());
 		SpdzElement elm;
 		if (pID == 1) {
-			elm = new SpdzElement(b, b.multiply(this.storage.getSSK()).mod(Util.getModulus()));
+			elm = new SpdzElement(b, b.multiply(this.storage.getSSK()));
 		} else {
 			elm = new SpdzElement(BigInteger.ZERO, b.multiply(this.storage
-					.getSSK()).mod(Util.getModulus()));
+					.getSSK()));
 		}
 		return new SpdzSInt(elm);
 	}
