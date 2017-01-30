@@ -26,8 +26,9 @@
  *******************************************************************************/
 package dk.alexandra.fresco.suite.tinytables.prepro.datatypes;
 
+import dk.alexandra.fresco.framework.util.ot.Encoding;
 import dk.alexandra.fresco.framework.value.SBool;
-import dk.alexandra.fresco.suite.tinytables.util.Encoding;
+import dk.alexandra.fresco.suite.tinytables.datatypes.TinyTablesElement;
 
 /**
  * This class represents a masked boolean value in the preprocessing phase of
@@ -41,11 +42,11 @@ import dk.alexandra.fresco.suite.tinytables.util.Encoding;
 public class TinyTablesPreproSBool implements SBool {
 
 	private static final long serialVersionUID = 8582913017231020209L;
-	private boolean share; // Additive share of mask of this SBool
+	private TinyTablesElement value; // Additive share of mask of this SBool
 	private boolean ready;
 
-	public TinyTablesPreproSBool(boolean share) {
-		this.setShare(share);
+	public TinyTablesPreproSBool(TinyTablesElement share) {
+		this.setValue(share);
 	}
 
 	public TinyTablesPreproSBool() {
@@ -54,12 +55,12 @@ public class TinyTablesPreproSBool implements SBool {
 
 	@Override
 	public byte[] getSerializableContent() {
-		return new byte[] { Encoding.encodeBoolean(share) };
+		return new byte[] { Encoding.encodeBoolean(value.getShare()) };
 	}
 
 	@Override
 	public void setSerializableContent(byte[] val) {
-		setShare(Encoding.decodeBoolean(val[0]));
+		setValue(new TinyTablesElement(Encoding.decodeBoolean(val[0])));
 	}
 
 	@Override
@@ -73,8 +74,8 @@ public class TinyTablesPreproSBool implements SBool {
 	 * 
 	 * @return
 	 */
-	public boolean getShare() {
-		return share;
+	public TinyTablesElement getValue() {
+		return value;
 	}
 
 	/**
@@ -83,14 +84,14 @@ public class TinyTablesPreproSBool implements SBool {
 	 * 
 	 * @param share
 	 */
-	public void setShare(boolean share) {
-		this.share = share;
+	public void setValue(TinyTablesElement share) {
+		this.value = share;
 		this.ready = true;
 	}
 
 	@Override
 	public String toString() {
-		return "TinyTablePreproSBool [share=" + share + "]";
+		return "TinyTablePreproSBool [share=" + value + "]";
 	}
 
 }

@@ -30,21 +30,35 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.Reporter;
 import dk.alexandra.fresco.framework.sce.configuration.ProtocolSuiteConfiguration;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
+import dk.alexandra.fresco.framework.util.BitVector;
+import dk.alexandra.fresco.framework.util.Pair;
+import dk.alexandra.fresco.framework.util.ot.OTFactory;
+import dk.alexandra.fresco.framework.util.ot.base.BaseOTFactory;
+import dk.alexandra.fresco.framework.util.ot.extension.SemiHonestOTExtensionFactory;
 import dk.alexandra.fresco.suite.ProtocolSuite;
+import dk.alexandra.fresco.suite.tinytables.datatypes.TinyTable;
+import dk.alexandra.fresco.suite.tinytables.datatypes.TinyTablesElement;
+import dk.alexandra.fresco.suite.tinytables.datatypes.TinyTablesElementVector;
+import dk.alexandra.fresco.suite.tinytables.datatypes.TinyTablesTriple;
 import dk.alexandra.fresco.suite.tinytables.online.TinyTablesProtocolSuite;
 import dk.alexandra.fresco.suite.tinytables.prepro.protocols.TinyTablesPreproANDProtocol;
+import dk.alexandra.fresco.suite.tinytables.storage.BatchTinyTablesTripleProvider;
 import dk.alexandra.fresco.suite.tinytables.storage.TinyTablesStorage;
 import dk.alexandra.fresco.suite.tinytables.storage.TinyTablesStorageImpl;
-import dk.alexandra.fresco.suite.tinytables.util.ot.OTFactory;
-import dk.alexandra.fresco.suite.tinytables.util.ot.extension.OTExtensionFactory;
-import dk.alexandra.fresco.suite.tinytables.util.ot.java.JavaOTFactory;
+import dk.alexandra.fresco.suite.tinytables.storage.TinyTablesTripleProvider;
+import dk.alexandra.fresco.suite.tinytables.util.TinyTablesTripleGenerator;
+import dk.alexandra.fresco.suite.tinytables.util.Util;
 
 /**
  * <p>
@@ -81,10 +95,11 @@ import dk.alexandra.fresco.suite.tinytables.util.ot.java.JavaOTFactory;
 public class TinyTablesPreproProtocolSuite implements ProtocolSuite {
 
 	private TinyTablesStorage storage;
-	private ResourcePool resourcePool;
 	private TinyTablesPreproConfiguration configuration;
-	private OTFactory otFactory;
 	private File tinyTablesFile;
+	private TinyTablesTripleProvider tinyTablesTripleProvider;
+	private List<TinyTablesPreproANDProtocol> unprocessedAndGates;
+	private ResourcePool resourcePool;
 	private static volatile Map<Integer, TinyTablesPreproProtocolSuite> instances = new HashMap<>();
 
 	public static TinyTablesPreproProtocolSuite getInstance(int id) {
@@ -100,64 +115,114 @@ public class TinyTablesPreproProtocolSuite implements ProtocolSuite {
 
 	@Override
 	public void init(ResourcePool resourcePool, ProtocolSuiteConfiguration configuration) {
-		this.resourcePool = resourcePool;
 		this.configuration = (TinyTablesPreproConfiguration) configuration;
-		negotiateOTExtension();
 		this.tinyTablesFile = this.configuration.getTinyTablesFile();
+
+		OTFactory otFactory = new SemiHonestOTExtensionFactory(resourcePool.getNetwork(),
+				resourcePool.getMyId(), 128, new BaseOTFactory(resourcePool.getNetwork(),
+						resourcePool.getMyId(), resourcePool.getSecureRandom()),
+				resourcePool.getSecureRandom());
+		
+		this.tinyTablesTripleProvider = new BatchTinyTablesTripleProvider(
+				new TinyTablesTripleGenerator(resourcePool.getMyId(),
+						resourcePool.getSecureRandom(), otFactory), 10000);
+		
+		this.unprocessedAndGates = Collections
+				.synchronizedList(new ArrayList<TinyTablesPreproANDProtocol>());
+
+		this.resourcePool = resourcePool;
 	}
 
-	/**
-	 * SCAPI has a fast OT Extension library, but since it is part of SCAPI in
-	 * C++ (see https://scapi.readthedocs.io/en/latest/) and is called using
-	 * JNI, it requires SCAPI to be installed
-	 * (https://scapi.readthedocs.io/en/latest/install.html). If this is not
-	 * available for both players, we fall back to the java OT which is also
-	 * part of SCAPI. This is much slower, so we recommend that both players
-	 * install SCAPI and use the C++ lib.
-	 */
-	private void negotiateOTExtension() {
-		try {
-			boolean iHaveOTExtensionLibrary = this.configuration.getUseOtExtension();
-			resourcePool.getNetwork().send("0", otherId(), iHaveOTExtensionLibrary);
-			boolean otherHasOTExtensionLibrary = resourcePool.getNetwork().receive("0", otherId());
-			boolean useOTExtension = iHaveOTExtensionLibrary && otherHasOTExtensionLibrary;
-
-			/*
-			 * If we are testing in the same VM, we need to run the OTExtension
-			 * lib in seperate processes.
-			 */
-			this.otFactory = useOTExtension ? new OTExtensionFactory(configuration.getSenderAddress(), configuration.isTesting())
-					: new JavaOTFactory(resourcePool.getNetwork(), resourcePool.getMyId());
-			
-			Reporter.fine("I have OT Extension library: " + iHaveOTExtensionLibrary);
-			Reporter.fine("Using OT Extension: " + useOTExtension);
-		} catch (IOException e) {
-			
-		}
-	}
-	
-	private int otherId() {
-		return resourcePool.getMyId() == 1 ? 2 : 1;
-	}
-	
 	public TinyTablesStorage getStorage() {
 		return this.storage;
 	}
 
-	@Override
-	public void synchronize(int gatesEvaluated) throws MPCException {
-		// TODO Auto-generated method stub
+	public void addANDGate(TinyTablesPreproANDProtocol gate) {
+		this.unprocessedAndGates.add(gate);
+	}
+
+	public TinyTablesTripleProvider getTinyTablesTripleProvider() {
+		return this.tinyTablesTripleProvider;
 	}
 
 	@Override
-	public void finishedEval() {
-
+	public void synchronize(int gatesEvaluated) throws MPCException {
 		/*
-		 * The proprocessing of all AND gates has to be finished.
+		 * When 1000 AND gates needs to be processed, we do it.
 		 */
-		TinyTablesPreproANDProtocol.finishPreprocessing(resourcePool.getMyId(), otFactory, storage,
-				resourcePool.getNetwork());
-		
+		if (this.unprocessedAndGates.size() > 1000) {
+			calculateTinyTablesForUnprocessedANDGates();
+		}
+	}
+
+	private void calculateTinyTablesForUnprocessedANDGates() {
+		try {
+			int unprocessedGates = this.unprocessedAndGates.size();
+
+			/*
+			 * Sort the unprocessed gates to make sure that the players
+			 * process them in the same order.
+			 */
+			this.unprocessedAndGates.sort(new Comparator<TinyTablesPreproANDProtocol>() {
+				@Override
+				public int compare(TinyTablesPreproANDProtocol o1,
+						TinyTablesPreproANDProtocol o2) {
+					return Integer.compare(o1.getId(), o2.getId());
+				}
+			});
+
+			// Two bits per gate
+			TinyTablesElementVector shares = new TinyTablesElementVector(unprocessedGates * 2);
+			List<TinyTablesTriple> usedTriples = new ArrayList<TinyTablesTriple>();
+			for (int i = 0; i < unprocessedGates; i++) {
+				TinyTablesPreproANDProtocol gate = this.unprocessedAndGates.get(i);
+				TinyTablesTriple triple = this.tinyTablesTripleProvider.getNextTriple();
+				usedTriples.add(triple);
+
+				/*
+				 * Calculate temp values e, d for multiplication. These should
+				 * be opened before calling finalize.
+				 */
+				Pair<TinyTablesElement, TinyTablesElement> msg = gate.getInRight().getValue().multiply(gate.getInLeft().getValue(), triple);
+				
+				shares.setShare(2 * i, msg.getFirst().getShare());
+				shares.setShare(2 * i + 1, msg.getSecond().getShare());
+			}
+
+			this.resourcePool.getNetwork().send("0",
+					Util.otherPlayerId(resourcePool.getMyId()), shares);
+			TinyTablesElementVector otherShares = this.resourcePool.getNetwork().receive("0",
+					Util.otherPlayerId(resourcePool.getMyId()));
+			
+			BitVector open = TinyTablesElementVector.open(shares, otherShares);
+			
+			for (int i = 0; i < unprocessedGates; i++) {
+				TinyTablesPreproANDProtocol gate = this.unprocessedAndGates.get(i);
+				boolean e = open.get(2*i);
+				boolean d = open.get(2*i + 1);
+
+				TinyTablesElement product = TinyTablesElement.finalizeMultiplication(e, d,
+						usedTriples.get(i), this.resourcePool.getMyId());
+				
+				TinyTable tinyTable = gate.calculateTinyTable(this.resourcePool.getMyId(), product);
+				
+				this.storage.storeTinyTable(gate.getId(), tinyTable);
+			}
+			
+			this.unprocessedAndGates.clear();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	@Override
+	public void finishedEval() {
+		calculateTinyTablesForUnprocessedANDGates();
+		tinyTablesTripleProvider.close();
+		/*
+		 * Store the TinyTables to a file.
+		 */
 		try {
 			storeTinyTables(storage, this.tinyTablesFile);
 			Reporter.info("TinyTables stored to " + this.tinyTablesFile);
@@ -167,18 +232,16 @@ public class TinyTablesPreproProtocolSuite implements ProtocolSuite {
 
 	}
 
-	private void storeTinyTables(TinyTablesStorage tinyTablesStorage, File file)
-			throws IOException {
+	private void storeTinyTables(TinyTablesStorage tinyTablesStorage, File file) throws IOException {
 		file.createNewFile();
 		FileOutputStream fout = new FileOutputStream(file);
 		ObjectOutputStream oos = new ObjectOutputStream(fout);
 		oos.writeObject(tinyTablesStorage);
 		oos.close();
 	}
-	
+
 	@Override
 	public void destroy() {
-		// TODO Auto-generated method stub
 	}
 
 }

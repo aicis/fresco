@@ -33,6 +33,8 @@ import dk.alexandra.fresco.framework.network.SCENetwork;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.Value;
 import dk.alexandra.fresco.lib.field.bool.AndProtocol;
+import dk.alexandra.fresco.suite.tinytables.datatypes.TinyTable;
+import dk.alexandra.fresco.suite.tinytables.datatypes.TinyTablesElement;
 import dk.alexandra.fresco.suite.tinytables.online.TinyTablesProtocolSuite;
 import dk.alexandra.fresco.suite.tinytables.online.datatypes.TinyTablesSBool;
 
@@ -88,19 +90,19 @@ public class TinyTablesANDProtocol extends TinyTablesProtocol implements AndProt
 
 		switch (round) {
 			case 0:
-				boolean myShare = ps.getStorage().lookupTinyTable(id, inLeft.getValue(),
-						inRight.getValue());
+				TinyTable tinyTable = ps.getStorage().getTinyTable(id);
+				if (tinyTable == null) {
+					throw new MPCException("Unable to find TinyTable for gate with id " + id);
+				}
+				TinyTablesElement myShare = tinyTable.getValue(inLeft.getValue(), inRight.getValue());
 
 				network.expectInputFromAll();
 				network.sendToAll(myShare);
 				return EvaluationStatus.HAS_MORE_ROUNDS;
 			case 1:
-				List<Boolean> shares = network.receiveFromAll();
-				boolean res = false;
-				for (boolean share : shares) {
-					res = res ^ share;
-				}
-				this.out.setValue(res);
+				List<TinyTablesElement> shares = network.receiveFromAll();
+				boolean open = TinyTablesElement.open(shares);
+				this.out.setValue(new TinyTablesElement(open));
 				return EvaluationStatus.IS_DONE;
 			default:
 				throw new MPCException("Cannot evaluate rounds larger than 0");
