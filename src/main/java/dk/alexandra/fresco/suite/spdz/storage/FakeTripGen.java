@@ -30,6 +30,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
@@ -183,6 +184,51 @@ public class FakeTripGen {
 		}
 		return triples;
 	}
+	
+	/**
+	 * Generates the given amount of triples times however many streams are contained in the first list. 
+	 * This method writes the triples directly to the given streams.
+	 * 
+	 * @param amount
+	 * @param noOfParties
+	 * @param modulus
+	 * @param alpha
+	 * @param streams the streams to write to. Innermost list should have size of parties, while outermost is per thread used online.  
+	 * @throws IOException 
+	 */
+	public void generateTripleStream(int amount,
+			int noOfParties, BigInteger modulus, BigInteger alpha, Random rand, List<List<ObjectOutputStream>> streams) throws IOException {
+		FakeTripGen.rand = rand;
+		FakeTripGen.alpha = alpha;
+		FakeTripGen.mod = modulus;
+
+		for(List<ObjectOutputStream> ooss : streams) {
+			for (int i = 0; i < amount; i++) {
+				BigInteger a = sample();
+				BigInteger macA = getMac(a);
+				List<SpdzElement> elementsA = toShares(a, macA, noOfParties);
+
+				BigInteger b = sample();
+				BigInteger macB = getMac(b);
+				List<SpdzElement> elementsB = toShares(b, macB, noOfParties);
+
+				BigInteger c = b.multiply(a).mod(mod);
+				BigInteger macC = getMac(c);
+				List<SpdzElement> elementsC = toShares(c, macC, noOfParties);
+
+				for (int j = 0; j < elementsA.size(); j++) {
+					ooss.get(j).writeObject(new SpdzTriple(elementsA.get(j), elementsB.get(j),
+							elementsC.get(j)));
+				}
+				if(i % 10000 == 0) {
+					for(ObjectOutputStream oos : ooss) {
+						oos.flush();
+						oos.reset();
+					}
+				}
+			}
+		}
+	}
 
 	/**
 	 * Returns a list of a list of inputmasks. Read as: the innermost array is
@@ -229,6 +275,43 @@ public class FakeTripGen {
 		}
 		return res;
 	}
+	
+	/**
+	 * Generates input masks which can be used only if the party inputting has the same ID as the inputterId in this method. 
+	 * This streams the data and writes directly to the given object output stream.
+	 * @param amount The amount of input masks to generate
+	 * @param noOfParties The number of parties in the MPC computation
+	 * @param inputterId The ID of the party inputting data
+	 * @param modulus The modulus used
+	 * @param alpha The secret key used
+	 * @param rand The randomness used
+	 * @param streams The streams to write to. Innermost list should have size of parties, while outermost is per thread used online.
+	 * @throws IOException
+	 */
+	public void generateInputMaskStream(int amount,
+			int noOfParties, int inputterId, BigInteger modulus, BigInteger alpha, Random rand, List<List<ObjectOutputStream>> streams) throws IOException {
+		FakeTripGen.rand = rand;
+		FakeTripGen.alpha = alpha;
+		FakeTripGen.mod = modulus;
+		
+		for(List<ObjectOutputStream> ooss : streams) {
+			for (int i = 0; i < amount; i++) {
+				BigInteger mask = sample();
+				List<SpdzElement> elements = toShares(mask, getMac(mask),
+						noOfParties);
+				for (int pId = 0; pId < noOfParties; pId++) {
+					SpdzElement elm = elements.get(pId);
+					SpdzInputMask inpMask;
+					if (pId == inputterId) {
+						inpMask = new SpdzInputMask(elm, mask);
+					} else {
+						inpMask = new SpdzInputMask(elm);
+					}
+					ooss.get(pId).writeObject(inpMask);
+				}
+			}
+		}
+	}
 
 	public static List<SpdzSInt[]> generateBits(int amount, int noOfParties,
 			BigInteger modulus, BigInteger alpha) {
@@ -241,7 +324,7 @@ public class FakeTripGen {
 		for (int i = 0; i < amount; i++) {
 			bit = new BigInteger(1, rand);
 			BigInteger mac = getMac(bit);
-			List<SpdzElement> elements = toShares(bit, mac, noOfParties);
+			List<SpdzElement> elements = toShares(bit, mac, noOfParties);			
 			SpdzSInt[] shares = new SpdzSInt[noOfParties];
 			for(int j = 0; j < noOfParties; j++) {
 				shares[j] = new SpdzSInt(elements.get(j));
@@ -249,6 +332,41 @@ public class FakeTripGen {
 			res.add(shares);
 		}
 		return res;
+	}
+	
+	/**
+	 * Writes secret shared bits directly to the given streams. 
+	 * @param amount
+	 * @param noOfParties
+	 * @param modulus
+	 * @param alpha
+	 * @param rand
+	 * @param streams the streams to write to. Innermost list should have size of parties, while outermost is per thread used online.
+	 * @throws IOException
+	 */
+	public void generateBitStream(int amount, int noOfParties,
+			BigInteger modulus, BigInteger alpha, Random rand, List<List<ObjectOutputStream>> streams) throws IOException {
+		FakeTripGen.rand = rand;
+		FakeTripGen.alpha = alpha;
+		FakeTripGen.mod = modulus;
+
+		BigInteger bit;
+		for(List<ObjectOutputStream> ooss : streams) {
+			for (int i = 0; i < amount; i++) {
+				bit = new BigInteger(1, rand);
+				BigInteger mac = getMac(bit);
+				List<SpdzElement> elements = toShares(bit, mac, noOfParties);
+				for(int j = 0; j < noOfParties; j++) {
+					ooss.get(j).writeObject(new SpdzSInt(elements.get(j)));
+				}			
+				if(i % 30000 == 0) {
+					for(ObjectOutputStream oos : ooss) {
+						oos.flush();
+						oos.reset();
+					}
+				}
+			}
+		}
 	}
 
 	/**
@@ -288,6 +406,45 @@ public class FakeTripGen {
 			res.add(expPipe);
 		}
 		return res;
+	}
+	
+	public void generateExpPipeStream(int amount, int noOfParties,
+			BigInteger modulus, BigInteger alpha, Random rand, List<List<ObjectOutputStream>> streams) throws IOException {
+		FakeTripGen.rand = rand;
+		FakeTripGen.alpha = alpha;
+		FakeTripGen.mod = modulus;
+
+		for(List<ObjectOutputStream> ooss :  streams) {
+			for (int j = 0; j < amount; j++) {
+				SpdzSInt[][] expPipe = new SpdzSInt[noOfParties][Util.EXP_PIPE_SIZE];
+				BigInteger r = sample();
+				BigInteger rInv = r.modInverse(mod);
+				BigInteger mac = getMac(rInv);
+				List<SpdzElement> elements = toShares(rInv, mac, noOfParties);
+				for(int i = 0; i < noOfParties; i++) {				
+					expPipe[i][0] = new SpdzSInt(elements.get(i));
+				}
+	
+				BigInteger exp = BigInteger.ONE;			
+				for (int i = 1; i < Util.EXP_PIPE_SIZE; i++) {
+					exp = exp.multiply(r).mod(mod);
+					mac = getMac(exp);
+					elements = toShares(exp, mac, noOfParties);
+					for(int p = 0; p < noOfParties; p++) {
+						expPipe[p][i] = new SpdzSInt(elements.get(p));
+					}
+				}
+				for(int i = 0; i < noOfParties; i++) {
+					ooss.get(i).writeObject(expPipe[i]);
+				}
+				if(j % 150 == 0) {
+					for(ObjectOutputStream oos : ooss) {						
+						oos.flush();
+						oos.reset();
+					}
+				}
+			}
+		}
 	}
 
 	public static List<BigInteger> generateAlphaShares(int noOfParties, BigInteger modulus) {

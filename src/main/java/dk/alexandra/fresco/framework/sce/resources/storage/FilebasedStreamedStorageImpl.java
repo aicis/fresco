@@ -37,6 +37,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.Reporter;
+import dk.alexandra.fresco.framework.sce.resources.storage.exceptions.NoMoreElementsException;
 
 /**
  * Streamed Storage based on files.
@@ -57,7 +58,7 @@ public class FilebasedStreamedStorageImpl implements StreamedStorage {
 	
 	@SuppressWarnings("unchecked")
 	@Override
-	public <T extends Serializable> T getNext(String name) {
+	public <T extends Serializable> T getNext(String name) throws NoMoreElementsException {
 		if(!oiss.containsKey(name)) {			
 			FileInputStream fis;
 			try {
@@ -87,8 +88,7 @@ public class FilebasedStreamedStorageImpl implements StreamedStorage {
 			throw new MPCException("Class not found: " + e.getMessage());
 		} catch (IOException e) {
 			Reporter.severe("IO-Exception. Could not read object from: "+name+". This is most likely because there are no more elements available.");
-			e.printStackTrace();			
-			throw new MPCException("IOException - most likely because there are no more elements available." , e);
+			throw new NoMoreElementsException("IOException - most likely because there are no more elements available." , e);
 		}
 		
 	}
