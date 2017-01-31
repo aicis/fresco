@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 FRESCO (http://github.com/aicis/fresco).
+ * Copyright (c) 2017 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
  *
@@ -24,45 +24,30 @@
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
  *******************************************************************************/
-package dk.alexandra.fresco.suite.spdz.configuration;
+package dk.alexandra.fresco.framework.configuration;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Properties;
+/**
+ * Used by protocol suites which deals with preprocessed material.
+ * @author Kasper Damgaard
+ *
+ */
+public enum PreprocessingStrategy {
 
-import dk.alexandra.fresco.framework.MPCException;
-import dk.alexandra.fresco.framework.configuration.PreprocessingStrategy;
-import dk.alexandra.fresco.framework.sce.util.Util;
-
-public class SpdzConfigurationFromProperties implements SpdzConfiguration {
+	DUMMY, // Use a dummy approach (e.g. always the same data)
+	STATIC, // Use data already present on the machine it's running on. 
+	FUELSTATION; // Use the fuel station tool to obtain data.
 	
-	private Properties prop;
-	private final String defaultPropertiesLocation = "properties/spdz/spdz.properties";
-	
-	public SpdzConfigurationFromProperties() {
-		InputStream is;
-		try {
-			is = Util.getInputStream(defaultPropertiesLocation);		
-			prop = new Properties();		
-			prop.load(is);			
-		} catch (IOException e) {
-			throw new MPCException("Could not locate the SPDZ properties file. ", e);
+	public static PreprocessingStrategy fromString(String s) {
+		switch(s.toUpperCase()) {
+		case "DUMMY":
+			return PreprocessingStrategy.DUMMY;
+		case "STATIC":
+			return PreprocessingStrategy.STATIC;
+		case "FUEL":
+		case "FUELSTATION":
+		case "FUEL_STATION":
+			return FUELSTATION;
 		}
+		throw new IllegalArgumentException("Unkown strategy "+s+". Should be one of the following: DUMMY, STATIC, FUELSTATION");
 	}
-
-	@Override
-	public int getMaxBitLength() {
-		return Integer.parseInt(prop.getProperty("maxBitLength"));		
-	}
-
-	@Override
-	public PreprocessingStrategy getPreprocessingStrategy() {
-		return PreprocessingStrategy.fromString(prop.getProperty("preprocessingStrategy"));
-	}
-
-	@Override
-	public String fuelStationBaseUrl() {
-		return prop.getProperty("fuelStationBaseUrl", null);
-	}
-	
 }

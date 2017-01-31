@@ -28,6 +28,8 @@ package dk.alexandra.fresco.framework.sce.resources.storage;
 
 import java.io.Serializable;
 
+import dk.alexandra.fresco.framework.sce.resources.storage.exceptions.NoMoreElementsException;
+
 public interface StreamedStorage extends Storage {
 
 	/**
@@ -39,7 +41,7 @@ public interface StreamedStorage extends Storage {
 	 *            filename.
 	 * @return the next object in line
 	 */
-	public <T extends Serializable> T getNext(String name);
+	public <T extends Serializable> T getNext(String name) throws NoMoreElementsException;
 
 	/**
 	 * Inserts an object into the storage with the given name. This could be
@@ -56,5 +58,5 @@ public interface StreamedStorage extends Storage {
 	/**
 	 * Closes any open connections to the storage.
 	 */
-	public void shutdown();	
+	public void shutdown();
 }

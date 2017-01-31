@@ -110,11 +110,16 @@ public class SpdzProtocolSuite implements ProtocolSuite {
 		int noOfThreads = resourcePool.getVMThreadCount();
 		this.store = new SpdzStorage[noOfThreads];
 		for (int i = 0; i < noOfThreads; i++) {
-			if (spdzConf.useDummyData()) {
+			switch(spdzConf.getPreprocessingStrategy()) {
+			case DUMMY:
 				store[i] = new SpdzStorageDummyImpl(resourcePool.getMyId(), resourcePool.getNoOfParties());
-			} else {
+				break;
+			case STATIC:
 				store[i] = new SpdzStorageImpl(resourcePool, i);
-			}
+				break;
+			case FUELSTATION:
+				store[i] = new SpdzStorageImpl(resourcePool, i, true, spdzConf.fuelStationBaseUrl());
+			}			
 		}
 		this.rand = resourcePool.getSecureRandom();
 		this.rp = resourcePool;

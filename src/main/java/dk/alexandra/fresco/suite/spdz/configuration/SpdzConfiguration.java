@@ -31,6 +31,7 @@ import java.util.Properties;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.ParseException;
 
+import dk.alexandra.fresco.framework.configuration.PreprocessingStrategy;
 import dk.alexandra.fresco.framework.sce.configuration.ProtocolSuiteConfiguration;
 import dk.alexandra.fresco.framework.sce.configuration.SCEConfiguration;
 
@@ -47,19 +48,17 @@ public interface SpdzConfiguration extends ProtocolSuiteConfiguration {
 	int getMaxBitLength();
 
 	/**
-	 * The path to where preprocessed data is located, including the triples
-	 * used for e.g. multiplication.
-	 * 
-	 * @return
-	 */
-	public String getTriplePath();
-
-	/**
 	 * True: system will use dummy data for preprocessed data.
 	 * False: System will read data from the FRESCO native storage.
-	 * @return
+	 * @return The preprocessing strategy to use.
 	 */
-	public boolean useDummyData();
+	public PreprocessingStrategy getPreprocessingStrategy();
+	
+	/**
+	 * Should return the base url (e.g. 154.92.132.12:80) where the fuel station is deployed.
+	 * @return The base URL for the fuel station.
+	 */
+	public String fuelStationBaseUrl();
 	
 	static SpdzConfiguration fromCmdLine(SCEConfiguration sceConf,
 			CommandLine cmd) throws ParseException {
@@ -69,25 +68,28 @@ public interface SpdzConfiguration extends ProtocolSuiteConfiguration {
 		if (maxBitLength < 2) {
 			throw new ParseException("spdz.maxBitLength must be > 1");
 		}
-		final String triplePath = p.getProperty("spdz.triplePath", "/triples");
-		final boolean useDummyData = Boolean.parseBoolean(p.getProperty("spdz.useDummyData", "False"));
+		
+		final String fuelStationBaseUrl = p.getProperty("spdz.fuelStationBaseUrl", null);
+		String strat = p.getProperty("spdz.preprocessingStrategy");
+		final PreprocessingStrategy strategy = PreprocessingStrategy.fromString(strat);
 
 		return new SpdzConfiguration() {
-
-			@Override
-			public String getTriplePath() {
-				return triplePath;
-			}
-
+			
 			@Override
 			public int getMaxBitLength() {
 				return maxBitLength;
 			}
 
 			@Override
-			public boolean useDummyData() {
-				return useDummyData;
+			public PreprocessingStrategy getPreprocessingStrategy() {
+				return strategy;
 			}
+
+			@Override
+			public String fuelStationBaseUrl() {
+				return fuelStationBaseUrl;
+			}
+
 		};
 	}
 

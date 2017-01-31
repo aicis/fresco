@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
+ * Copyright (c) 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
  *
@@ -24,8 +24,9 @@
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
  *******************************************************************************/
-package dk.alexandra.fresco.suite.spdz;
+package dk.alexandra.fresco.integrationtest;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -33,7 +34,13 @@ import java.util.Map;
 import java.util.logging.Level;
 
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.boot.context.embedded.LocalServerPort;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
+import org.springframework.test.context.junit4.SpringRunner;
 
+import dk.alexandra.fresco.Application;
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.Reporter;
 import dk.alexandra.fresco.framework.TestThreadRunner;
@@ -44,25 +51,29 @@ import dk.alexandra.fresco.framework.configuration.PreprocessingStrategy;
 import dk.alexandra.fresco.framework.configuration.TestConfiguration;
 import dk.alexandra.fresco.framework.sce.configuration.TestSCEConfiguration;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
+import dk.alexandra.fresco.framework.sce.resources.storage.FilebasedStreamedStorageImpl;
 import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
+import dk.alexandra.fresco.framework.sce.resources.storage.Storage;
 import dk.alexandra.fresco.framework.sce.resources.storage.StorageStrategy;
-import dk.alexandra.fresco.lib.arithmetic.BasicArithmeticTests;
+import dk.alexandra.fresco.lib.arithmetic.MiMCTests;
+import dk.alexandra.fresco.services.PreprocesserImpl;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.configuration.SpdzConfiguration;
 import dk.alexandra.fresco.suite.spdz.evaluation.strategy.SpdzProtocolSuite;
+import dk.alexandra.fresco.suite.spdz.storage.InitializeStorage;
 
-/**
- * Basic arithmetic tests using the SPDZ protocol suite with 2 parties. Have to
- * hardcode the number of parties for now, since the storage is currently build
- * to handle a fixed number of parties.
- * 
- */
-public class TestSpdzBasicArithmetic2Parties {
-
+@RunWith(SpringRunner.class)
+@SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT, 
+	classes= {PreprocesserImpl.class, Application.class})
+public class ITSpdzMIMCApplicationTest {
+	
+	@LocalServerPort
+	private int port;
+	
 	private static final int noOfParties = 2;
 
 	private void runTest(TestThreadFactory f, EvaluationStrategy evalStrategy,
-			StorageStrategy storageStrategy) throws Exception {
+			StorageStrategy storageStrategy, Storage storage) throws Exception {
 		Level logLevel = Level.FINE;
 		Reporter.init(logLevel);
 
@@ -80,34 +91,32 @@ public class TestSpdzBasicArithmetic2Parties {
 		for (int playerId : netConf.keySet()) {
 			TestThreadConfiguration ttc = new TestThreadConfiguration();
 			ttc.netConf = netConf.get(playerId);
-			
-			SpdzConfiguration spdzConf = new SpdzConfiguration() {
-				
-				@Override
-				public PreprocessingStrategy getPreprocessingStrategy() {
-					return PreprocessingStrategy.STATIC;
-				}
 
-				@Override
-				public String fuelStationBaseUrl() {
-					return null;
-				}
-				
+			SpdzConfiguration spdzConf = new SpdzConfiguration() {
 				@Override
 				public int getMaxBitLength() {
 					return 150;
 				}
+
+				@Override
+				public PreprocessingStrategy getPreprocessingStrategy() {
+					return PreprocessingStrategy.FUELSTATION;
+				}
+
+				@Override
+				public String fuelStationBaseUrl() {
+					return "http://localhost:"+port;
+				}
 			};
 			ttc.protocolSuiteConf = spdzConf;
 			boolean useSecureConnection = false; // No tests of secure
-													// connection
-													// here.
-			int noOfVMThreads = 3;
-			int noOfThreads = 3;
+			// connection
+			// here.
+			int noOfVMThreads = 1;
+			int noOfThreads = 1;
 			ProtocolSuite suite = new SpdzProtocolSuite();
 			ProtocolEvaluator evaluator = EvaluationStrategy
 					.fromEnum(evalStrategy);
-			dk.alexandra.fresco.framework.sce.resources.storage.Storage storage = inMemStore;
 			ttc.sceConf = new TestSCEConfiguration(suite, evaluator,
 					noOfThreads, noOfVMThreads, ttc.netConf, storage,
 					useSecureConnection);
@@ -116,100 +125,17 @@ public class TestSpdzBasicArithmetic2Parties {
 		TestThreadRunner.run(f, conf);
 	}
 
-	private static InMemoryStorage inMemStore = new InMemoryStorage();
-	
 	@Test
-	public void test_Copy_Sequential() throws Exception {
-		runTest(new BasicArithmeticTests.TestCopyProtocol(),
-				EvaluationStrategy.SEQUENTIAL, StorageStrategy.IN_MEMORY);
-	}
-
-	@Test
-	public void test_Input_Sequential() throws Exception {
-		runTest(new BasicArithmeticTests.TestInput(),
-				EvaluationStrategy.SEQUENTIAL, StorageStrategy.IN_MEMORY);
-	}
-	
-	@Test
-	public void test_OutputToTarget_Sequential() throws Exception {
-		runTest(new BasicArithmeticTests.TestOutputToSingleParty(),
-				EvaluationStrategy.SEQUENTIAL, StorageStrategy.IN_MEMORY);
-	}
-	
-	@Test
-	public void test_AddPublicValue_Sequential() throws Exception {
-		runTest(new BasicArithmeticTests.TestAddPublicValue(),
-				EvaluationStrategy.SEQUENTIAL, StorageStrategy.IN_MEMORY);
-	}
-
-	@Test
-	public void test_Lots_Of_Inputs_Sequential() throws Exception {
-		runTest(new BasicArithmeticTests.TestLotsOfInputs(),
-				EvaluationStrategy.SEQUENTIAL, StorageStrategy.IN_MEMORY);
-	}
-
-	@Test
-	public void test_MultAndAdd_Sequential() throws Exception {
-		runTest(new BasicArithmeticTests.TestLotsOfInputs(),
-				EvaluationStrategy.SEQUENTIAL, StorageStrategy.IN_MEMORY);
-	}
-
-	@Test
-	public void test_Lots_Of_Inputs_Parallel() throws Exception {
-		runTest(new BasicArithmeticTests.TestLotsOfInputs(),
-				EvaluationStrategy.PARALLEL, StorageStrategy.IN_MEMORY);
-	}
-
-	@Test
-	public void test_Lots_Of_Inputs_ParallelBatched() throws Exception {
-		runTest(new BasicArithmeticTests.TestLotsOfInputs(),
-				EvaluationStrategy.PARALLEL_BATCHED, StorageStrategy.IN_MEMORY);
-	}
-
-	@Test
-	public void test_Sum_And_Output_Sequential() throws Exception {
-		runTest(new BasicArithmeticTests.TestSumAndMult(),
-				EvaluationStrategy.SEQUENTIAL, StorageStrategy.IN_MEMORY);
-	}
-
-	@Test
-	public void test_Sum_And_Output_ParallelBatched() throws Exception {
-		runTest(new BasicArithmeticTests.TestSumAndMult(),
-				EvaluationStrategy.PARALLEL_BATCHED, StorageStrategy.IN_MEMORY);
-	}
-
-	@Test
-	public void test_Lots_Of_Inputs_SequentialBatched() throws Exception {
-		runTest(new BasicArithmeticTests.TestLotsOfInputs(),
-				EvaluationStrategy.SEQUENTIAL_BATCHED,
-				StorageStrategy.IN_MEMORY);
-	}
-	
-	@Test
-	public void test_MinInfFrac_Sequential() throws Exception {
-		runTest(new BasicArithmeticTests.TestMinInfFrac(),
-				EvaluationStrategy.SEQUENTIAL,
-				StorageStrategy.IN_MEMORY);
-	}
-	
-	@Test
-	public void test_MinInfFrac_SequentialBatched() throws Exception {
-		runTest(new BasicArithmeticTests.TestMinInfFrac(),
-				EvaluationStrategy.SEQUENTIAL_BATCHED,
-				StorageStrategy.IN_MEMORY);
-	}
-	
-	@Test
-	public void test_MinInfFrac_Parallel() throws Exception {
-		runTest(new BasicArithmeticTests.TestMinInfFrac(),
-				EvaluationStrategy.PARALLEL,
-				StorageStrategy.IN_MEMORY);
-	}
-	
-	@Test
-	public void test_MinInfFrac_ParallelBatched() throws Exception {
-		runTest(new BasicArithmeticTests.TestMinInfFrac(),
-				EvaluationStrategy.PARALLEL_BATCHED,
-				StorageStrategy.IN_MEMORY);
+	public void test_mimc_same_enc() throws Exception {
+		InitializeStorage.cleanup();
+		try {
+			FilebasedStreamedStorageImpl store = new FilebasedStreamedStorageImpl(new InMemoryStorage());		
+			InitializeStorage.initStreamedStorage(store, 2, 1, 10000, 10, 0, 0, new BigInteger("2582249878086908589655919172003011874329705792829223512830659356540647622016841194629645353280137831435903171972747493557"));
+			runTest(new MiMCTests.TestMiMCEncSameEnc(),
+					EvaluationStrategy.SEQUENTIAL, StorageStrategy.IN_MEMORY, store);
+		} catch(Exception e) {
+			InitializeStorage.cleanup();
+			throw e;
+		}
 	}
 }
