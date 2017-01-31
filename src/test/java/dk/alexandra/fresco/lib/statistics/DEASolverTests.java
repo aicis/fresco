@@ -132,9 +132,9 @@ public class DEASolverTests {
 							
 							sseq.append(solver.prepareApplication(factory));
 							for(int i = 0; i< outs.length; i++){
-								outs[i] = solver.getResult()[i];
+								outs[i] = ioBuilder.output(solver.getResult()[i]);
 							}
-							
+							sseq.append(ioBuilder.getProtocol());
 							// Solve the problem using a plaintext solver
 							PlaintextDEASolver plainSolver = new PlaintextDEASolver();
 							plainSolver.addBasis(rawBasisInputs, rawBasisOutputs);

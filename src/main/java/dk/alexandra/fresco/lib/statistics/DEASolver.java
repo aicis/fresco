@@ -69,8 +69,22 @@ public class DEASolver implements Application{
 	private List<List<SInt>> inputDataSet, outputDataSet; 
 	
 	private SInt[] optimal;
-	private OInt[] output;
 	
+	/**
+	 * Construct a DEA problem for the solver to solve.
+	 * The problem consists of 4 matrixes:
+	 * 2 basis input/output matrices containing the 
+	 * dataset which the queries will be measured against
+	 * 
+	 * 2 query input/output matrices containing the
+	 * data to be evaluated.
+	 * 
+	 * @param inputValues Matrix of query input values 
+	 * @param outputValues Matrix of query output values
+	 * @param setInput Matrix containing the basis input 
+	 * @param setOutput Matrix containing the basis output
+	 * @throws MPCException
+	 */
 	public DEASolver(
 			List<List<SInt>> inputValues, List<List<SInt>> outputValues, 
 			List<List<SInt>> setInput, List<List<SInt>> setOutput) throws MPCException {
@@ -124,7 +138,6 @@ public class DEASolver implements Application{
 	public ProtocolProducer prepareApplication(ProtocolFactory provider) {
 		
 		SequentialProtocolProducer seq = new SequentialProtocolProducer();
-		ParallelProtocolProducer par = new ParallelProtocolProducer();
 
 		LPPrefix[] prefixes = getPrefixWithSecretSharedValues(
 			this.targetInputs, this.targetOutputs, (BasicNumericFactory)provider);
@@ -139,13 +152,11 @@ public class DEASolver implements Application{
 		//TODO get security parameter from somewhere
 		LPFactory lpFactory = new LPFactoryImpl(64, bnFactory, localInvFactory, numericBitFactory, expFromOIntFactory, expFactory, randFactory);
 		
-		par = new ParallelProtocolProducer();
 		for(LPPrefix prefix : prefixes) {
 			seq.append(prefix.getPrefix());
 		}
 		//TODO processing the prefixes in parallel, causes a null pointer.
 		// Investigate why this is the case
-		//seq.append(par); 
 
 		optimal = new SInt[targetInputs.size()];
 		
@@ -167,21 +178,11 @@ public class DEASolver implements Application{
 			
 			seq.append(iSeq);
 		}
-		this.output = new OInt[targetInputs.size()];
-		par = new ParallelProtocolProducer();
-		for(int i = 0; i< output.length; i++){
-			this.output[i] = bnFactory.getOInt();
-			ProtocolProducer open = bnFactory
-				.getOpenProtocol(optimal[i], this.output[i]);
-			par.append(open);
-		}
-		seq.append(par);
-		
 		return seq;
 	}
 	
-	public OInt[] getResult(){
-		return this.output;
+	public SInt[] getResult(){
+		return this.optimal;
 	}
 
 	private LPPrefix[] getPrefixWithSecretSharedValues(
