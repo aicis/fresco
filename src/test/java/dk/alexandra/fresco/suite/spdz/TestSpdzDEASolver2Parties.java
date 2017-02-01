@@ -43,6 +43,7 @@ import dk.alexandra.fresco.framework.TestThreadRunner;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
+import dk.alexandra.fresco.framework.configuration.PreprocessingStrategy;
 import dk.alexandra.fresco.framework.configuration.TestConfiguration;
 import dk.alexandra.fresco.framework.sce.configuration.TestSCEConfiguration;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
@@ -86,21 +87,21 @@ public class TestSpdzDEASolver2Parties {
 			TestThreadConfiguration ttc = new TestThreadConfiguration();
 			ttc.netConf = netConf.get(playerId);
 
-			SpdzConfiguration spdzConf = new SpdzConfiguration() {
-				
-				@Override
-				public boolean useDummyData() {
-					return useDummyData;
-				}
-				
-				@Override
-				public String getTriplePath() {
-					return null;
-				}
+			SpdzConfiguration spdzConf = new SpdzConfiguration() {				
 				
 				@Override
 				public int getMaxBitLength() {
 					return 150;
+				}
+
+				@Override
+				public PreprocessingStrategy getPreprocessingStrategy() {
+					return PreprocessingStrategy.STATIC;
+				}
+
+				@Override
+				public String fuelStationBaseUrl() {
+					return null;
 				}
 			};
 			ttc.protocolSuiteConf = spdzConf;
