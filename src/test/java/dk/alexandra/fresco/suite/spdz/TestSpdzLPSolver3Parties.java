@@ -83,7 +83,7 @@ public class TestSpdzLPSolver3Parties {
 				
 				@Override
 				public PreprocessingStrategy getPreprocessingStrategy() {
-					return PreprocessingStrategy.STATIC;
+					return PreprocessingStrategy.DUMMY;
 				}
 
 				@Override

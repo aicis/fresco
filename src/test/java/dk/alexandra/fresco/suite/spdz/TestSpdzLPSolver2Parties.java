@@ -85,7 +85,11 @@ public class TestSpdzLPSolver2Parties {
 				
 				@Override
 				public PreprocessingStrategy getPreprocessingStrategy() {
-					return PreprocessingStrategy.STATIC;
+					if(useDummyData) {
+						return PreprocessingStrategy.DUMMY;
+					} else {
+						return PreprocessingStrategy.STATIC;
+					}
 				}
 
 				@Override

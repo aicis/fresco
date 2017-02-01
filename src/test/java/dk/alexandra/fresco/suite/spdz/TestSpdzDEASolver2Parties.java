@@ -96,7 +96,11 @@ public class TestSpdzDEASolver2Parties {
 
 				@Override
 				public PreprocessingStrategy getPreprocessingStrategy() {
-					return PreprocessingStrategy.STATIC;
+					if(useDummyData) {
+						return PreprocessingStrategy.DUMMY;
+					} else {
+						return PreprocessingStrategy.STATIC;
+					}
 				}
 
 				@Override
@@ -131,7 +135,7 @@ public class TestSpdzDEASolver2Parties {
 	}
 
 	private static final InMemoryStorage inMemStore = new InMemoryStorage();
-	private static final StreamedStorage streamedStorage = new FilebasedStreamedStorageImpl(inMemStore);
+	private static final FilebasedStreamedStorageImpl streamedStorage = new FilebasedStreamedStorageImpl(inMemStore);
 
 	@Test
 	public void test_DEASolver_2_Parallel_batched_dummy() throws Exception {
@@ -172,7 +176,7 @@ public class TestSpdzDEASolver2Parties {
 		int noOfThreads = 1;
 		InitializeStorage.cleanup();
 		try {
-			InitializeStorage.initStreamedStorage(new StreamedStorage[] {streamedStorage}, 2, noOfThreads, 20000, 500, 800000, 3000);
+			InitializeStorage.initStreamedStorage(streamedStorage, 2, noOfThreads, 20000, 500, 800000, 3000);
 			runTest(new DEASolverTests.TestDEASolver(4, 1, 10, 2), 2, noOfThreads,
 					EvaluationStrategy.SEQUENTIAL_BATCHED, StorageStrategy.STREAMED_STORAGE, false);
 		} finally {
@@ -186,7 +190,7 @@ public class TestSpdzDEASolver2Parties {
 		int noOfThreads = 2;
 		InitializeStorage.cleanup();
 		try {
-			InitializeStorage.initStreamedStorage(new StreamedStorage[] {streamedStorage}, 2, noOfThreads, 20000, 500, 800000, 3000);
+			InitializeStorage.initStreamedStorage(streamedStorage, 2, noOfThreads, 20000, 500, 800000, 3000);
 			runTest(new DEASolverTests.TestDEASolver(4, 1, 10, 2), 2, noOfThreads,
 					EvaluationStrategy.PARALLEL, StorageStrategy.STREAMED_STORAGE, false);
 		} finally {
@@ -200,7 +204,7 @@ public class TestSpdzDEASolver2Parties {
 		int noOfThreads = 2;		
 		InitializeStorage.cleanup();
 		try {
-			InitializeStorage.initStreamedStorage(new StreamedStorage[] {streamedStorage}, 2, noOfThreads, 20000, 500, 800000, 3000);
+			InitializeStorage.initStreamedStorage(streamedStorage, 2, noOfThreads, 20000, 500, 800000, 3000);
 			runTest(new DEASolverTests.TestDEASolver(4, 1, 10, 2), 2, noOfThreads,
 					EvaluationStrategy.PARALLEL_BATCHED, StorageStrategy.STREAMED_STORAGE, false);
 		} finally {
@@ -214,7 +218,7 @@ public class TestSpdzDEASolver2Parties {
 		int noOfThreads = 2;		
 		InitializeStorage.cleanup();
 		try {
-			InitializeStorage.initStreamedStorage(new StreamedStorage[] {streamedStorage}, 2, noOfThreads, 20000, 500, 800000, 3000);
+			InitializeStorage.initStreamedStorage(streamedStorage, 2, noOfThreads, 20000, 500, 800000, 3000);
 			runTest(new DEASolverTests.TestDEASolver(4, 1, 10, 2), 2, noOfThreads,
 					EvaluationStrategy.SEQUENTIAL_BATCHED, StorageStrategy.STREAMED_STORAGE, false);
 		} finally {

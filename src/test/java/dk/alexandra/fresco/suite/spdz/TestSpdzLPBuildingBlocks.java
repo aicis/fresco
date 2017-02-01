@@ -80,7 +80,7 @@ public class TestSpdzLPBuildingBlocks {
 				
 				@Override
 				public PreprocessingStrategy getPreprocessingStrategy() {
-					return PreprocessingStrategy.STATIC;
+					return PreprocessingStrategy.DUMMY;
 				}
 
 				@Override

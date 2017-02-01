@@ -37,8 +37,8 @@ public class BaseOTSender implements OTSender {
 		if (sender == null) {
 			try {
 				sender = new OTSemiHonestDDHBatchOnByteArraySender(
-						//new edu.biu.scapi.primitives.dlog.bc.BcDlogECF2m(), 
-						new edu.biu.scapi.primitives.dlog.openSSL.OpenSSLDlogECF2m(), 
+						new edu.biu.scapi.primitives.dlog.bc.BcDlogECF2m(), 
+						//new edu.biu.scapi.primitives.dlog.openSSL.OpenSSLDlogECF2m(), 
 						KdfFactory.getInstance()
 						.getObject("HKDF(HMac(SHA-256))"), random);
 			} catch (SecurityLevelException | FactoriesException | IOException e) {
