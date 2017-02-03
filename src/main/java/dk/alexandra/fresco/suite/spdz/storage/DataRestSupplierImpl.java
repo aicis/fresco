@@ -19,6 +19,7 @@ import org.apache.http.impl.client.HttpClients;
 import org.h2.util.IOUtils;
 
 import dk.alexandra.fresco.framework.MPCException;
+import dk.alexandra.fresco.framework.Reporter;
 import dk.alexandra.fresco.framework.sce.resources.storage.FilebasedStreamedStorageImpl;
 import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
 import dk.alexandra.fresco.framework.sce.resources.storage.exceptions.NoMoreElementsException;
@@ -80,7 +81,7 @@ public class DataRestSupplierImpl implements DataSupplier{
 				httpget = new HttpGet(this.restEndPoint + type+"/"+amount+"/"+this.myId);
 			}
 
-            System.out.println("Executing request " + httpget.getRequestLine());            
+            Reporter.fine("Executing request " + httpget.getRequestLine());            
 
             // Create a custom response handler
             ResponseHandler<Path> responseHandler = new ResponseHandler<Path>() {
@@ -208,7 +209,7 @@ public class DataRestSupplierImpl implements DataSupplier{
 		try {			
             HttpGet httpget = new HttpGet(this.restEndPoint + endpoint);
 
-            System.out.println("Executing request " + httpget.getRequestLine());            
+            Reporter.fine("Executing request " + httpget.getRequestLine());            
 
             // Create a custom response handler
             ResponseHandler<BigInteger> responseHandler = new ResponseHandler<BigInteger>() {
