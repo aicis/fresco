@@ -37,7 +37,7 @@ public class DataRestSupplierImpl implements DataSupplier{
 	//token based security such that only the parties with access can obtain the different parties shares.
 	//Maybe use certificates and SSL connections instead, but this is harder to test and make work.
 	
-	private final static int tripleAmount = 100;
+	private final static int tripleAmount = 10000;
 	private final static int expAmount = 1000;
 	private final static int bitAmount = 100000;
 	private final static int inputAmount = 1000;
