@@ -179,10 +179,12 @@ public interface LPFactory
 	 *            input - the previous pivot element
 	 * @param newUpdateMatrix
 	 *            output - the new update matrix
+	 * @param lambdas
+	 *            The lambda values after the update has been run.
 	 * @return
 	 */
 	public UpdateMatrixProtocol getUpdateMatrixProtocol(Matrix<SInt> oldUpdateMatrix, SInt[] L, SInt[] C, SInt p,
-			SInt p_prime, Matrix<SInt> newUpdateMatrix);
+			SInt p_prime, Matrix<SInt> newUpdateMatrix, SInt[] lambdas);
 
 	/**
 	 * @param aVector
@@ -270,9 +272,10 @@ public interface LPFactory
 	 * @param tableau
 	 * @param updateMatrix
 	 * @param pivot
+	 * @param lambdas
 	 * @return an LPSolverprotocol
 	 */
-	public LPSolverProtocol getLPSolverProtocol(LPTableau tableau, Matrix<SInt> updateMatrix, SInt pivot);
+	public LPSolverProtocol getLPSolverProtocol(LPTableau tableau, Matrix<SInt> updateMatrix, SInt pivot, SInt[] lambdas);
 
 	/**
 	 * Finds the minimum in an list of fractions. Note fractions are given as
