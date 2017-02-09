@@ -34,12 +34,14 @@ public class SimpleLPPrefix implements LPPrefix {
 	private final Matrix<SInt> updateMatrix;
 	private final LPTableau tableau;
 	private final SInt pivot;
+	private final SInt[] lambdas;
 	private ProtocolProducer prefix;
 	
-	public SimpleLPPrefix(Matrix<SInt> updateMatrix, LPTableau tableau, SInt pivot, ProtocolProducer prefix) {
+	public SimpleLPPrefix(Matrix<SInt> updateMatrix, LPTableau tableau, SInt pivot, SInt[] lambdas, ProtocolProducer prefix) {
 		this.updateMatrix = updateMatrix;
 		this.tableau = tableau;
 		this.pivot = pivot;
+		this.lambdas = lambdas;
 		this.prefix = prefix;
 	}
 	
@@ -61,5 +63,10 @@ public class SimpleLPPrefix implements LPPrefix {
 	@Override
 	public SInt getPivot() {
 		return pivot;
+	}
+
+	@Override
+	public SInt[] getLambdas() {
+		return lambdas;
 	}
 }

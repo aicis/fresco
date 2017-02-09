@@ -550,6 +550,7 @@ public class DEAPrefixBuilder {
 				provider);
 		SInt z = provider.getSInt(0);
 		SInt pivot = provider.getSInt(1);
+		SInt[] lambdas_ = new SInt[lambdas];
 		LPTableau tab = new LPTableau(new Matrix<SInt>(C), B, F, z);
 		Matrix<SInt> updateMatrix = new Matrix<SInt>(getIdentity(
 				constraints + 1, provider));
@@ -559,7 +560,7 @@ public class DEAPrefixBuilder {
 		}
 		seqGP.append(copyTargetToBasis);
 		seqGP.append(negateBasisOutput);
-		return new SimpleLPPrefix(updateMatrix, tab, pivot, seqGP);
+		return new SimpleLPPrefix(updateMatrix, tab, pivot, lambdas_, seqGP);
 	}
 
 	private boolean consistent() {

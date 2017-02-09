@@ -69,6 +69,7 @@ public class DEASolver implements Application{
 	private List<List<SInt>> inputDataSet, outputDataSet; 
 	
 	private SInt[] optimal;
+	private SInt[][] lambdas;
 	
 	/**
 	 * Construct a DEA problem for the solver to solve.
@@ -159,16 +160,18 @@ public class DEASolver implements Application{
 		// Investigate why this is the case
 
 		optimal = new SInt[targetInputs.size()];
-		
+		lambdas = new SInt[targetInputs.size()][];
 		for(int i= 0; i< targetInputs.size(); i++){
 			optimal[i] = bnFactory.getSInt();
 			
 			SInt pivot = prefixes[i].getPivot();
 			LPTableau tableau = prefixes[i].getTableau();
 			Matrix<SInt> update = prefixes[i].getUpdateMatrix();
+			SInt[] lambdas = prefixes[i].getLambdas();
+			this.lambdas[i] = lambdas;
 			
 			final ProtocolProducer currentPrefix = prefixes[i].getPrefix();
-			final ProtocolProducer solver = lpFactory.getLPSolverProtocol(tableau, update, pivot);
+			final ProtocolProducer solver = lpFactory.getLPSolverProtocol(tableau, update, pivot, lambdas);
 			final ProtocolProducer optimalComputer = lpFactory.getOptimalValueProtocol(update, tableau.getB(), pivot, optimal[i]);
 			
 			SequentialProtocolProducer iSeq = new SequentialProtocolProducer();
@@ -179,6 +182,10 @@ public class DEASolver implements Application{
 			seq.append(iSeq);
 		}
 		return seq;
+	}
+	
+	public SInt[][] getLambdas() {
+		return this.lambdas;
 	}
 	
 	public SInt[] getResult(){

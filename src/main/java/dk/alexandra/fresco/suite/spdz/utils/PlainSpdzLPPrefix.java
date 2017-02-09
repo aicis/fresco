@@ -47,6 +47,7 @@ public class PlainSpdzLPPrefix implements LPPrefix {
 	private final Matrix<SInt> updateMatrix;
 	private final LPTableau tableau;
 	private final SInt pivot;
+	private final SInt[] lambdas;
 	private ProtocolProducer prefix;
 		
 	public PlainSpdzLPPrefix(LPInputReader inputReader, BasicNumericFactory factory) throws IOException {
@@ -109,7 +110,8 @@ public class PlainSpdzLPPrefix implements LPPrefix {
 		this.updateMatrix = new Matrix<SInt>(update);
 		this.pivot = factory.getSInt(1);
 		this.tableau = new LPTableau(new Matrix<SInt>(C), B, F, z);
-		this.prefix = input;
+		this.lambdas = new SInt[updateMatrix.getHeight()];		
+		this.prefix = input;		
 	}
 
 	@Override
@@ -130,5 +132,10 @@ public class PlainSpdzLPPrefix implements LPPrefix {
 	@Override
 	public SInt getPivot() {
 		return this.pivot;
+	}
+
+	@Override
+	public SInt[] getLambdas() {
+		return this.lambdas;
 	}
 }
