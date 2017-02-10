@@ -29,7 +29,9 @@ package dk.alexandra.fresco.suite.spdz.storage;
 import java.math.BigInteger;
 
 import dk.alexandra.fresco.framework.MPCException;
+import dk.alexandra.fresco.framework.Reporter;
 import dk.alexandra.fresco.framework.sce.resources.storage.StreamedStorage;
+import dk.alexandra.fresco.framework.sce.resources.storage.exceptions.NoMoreElementsException;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzTriple;
@@ -76,42 +78,54 @@ public class DataSupplierImpl implements DataSupplier {
 
 	@Override
 	public SpdzTriple getNextTriple() {
-		SpdzTriple trip = this.storage.getNext(storageName+
-				SpdzStorageConstants.TRIPLE_STORAGE);
-		if(trip == null) {
-			throw new MPCException("Triple no. "+tripleCounter+" was not present in the storage "+ storageName);
-		}
+		SpdzTriple trip;
+		try {
+			trip = this.storage.getNext(storageName+
+					SpdzStorageConstants.TRIPLE_STORAGE);
+		} catch (NoMoreElementsException e) {
+			Reporter.warn("Triple no. "+tripleCounter+" was not present in the storage "+ storageName);
+			return null;
+		}		
 		tripleCounter ++;
 		return trip;
 	}
 
 	@Override
 	public SpdzSInt[] getNextExpPipe() {
-		SpdzSInt[] expPipe = this.storage.getNext(storageName+SpdzStorageConstants.EXP_PIPE_STORAGE);
-		if(expPipe == null) {
-			throw new MPCException("expPipe no. "+expPipeCounter+" was not present in the storage" + storageName);
-		}
+		SpdzSInt[] expPipe;
+		try {
+			expPipe = this.storage.getNext(storageName+SpdzStorageConstants.EXP_PIPE_STORAGE);
+		} catch (NoMoreElementsException e) {
+			Reporter.warn("expPipe no. "+expPipeCounter+" was not present in the storage" + storageName);
+			return null;
+		}	
 		expPipeCounter ++;
 		return expPipe;
 	}
 
 	@Override
 	public SpdzInputMask getNextInputMask(int towardPlayerID) {
-		SpdzInputMask mask = this.storage.getNext(storageName +
-				SpdzStorageConstants.INPUT_STORAGE + towardPlayerID);
-		inputMaskCounters[towardPlayerID-1]++;
-		if(mask == null) {
-			throw new MPCException("Mask no. "+inputMaskCounters[towardPlayerID-1]+" towards player "+towardPlayerID+" was not present in the storage " + storageName);
+		SpdzInputMask mask;
+		try {
+			mask = this.storage.getNext(storageName +
+					SpdzStorageConstants.INPUT_STORAGE + towardPlayerID);
+		} catch (NoMoreElementsException e) {
+			Reporter.warn("Mask no. "+inputMaskCounters[towardPlayerID-1]+" towards player "+towardPlayerID+" was not present in the storage " + (storageName+SpdzStorageConstants.INPUT_STORAGE + towardPlayerID));
+			return null;
 		}
+		inputMaskCounters[towardPlayerID-1]++;		
 		return mask;
 	}
 
 	@Override
 	public SpdzSInt getNextBit() {
-		SpdzSInt bit = this.storage.getNext(storageName + 
-				SpdzStorageConstants.BIT_STORAGE);
-		if(bit == null) {
-			throw new MPCException("Bit no. "+bitCounter+" was not present in the storage "+ storageName);
+		SpdzSInt bit;
+		try {
+			bit = this.storage.getNext(storageName + 
+					SpdzStorageConstants.BIT_STORAGE);
+		} catch (NoMoreElementsException e) {
+			Reporter.warn("Bit no. "+bitCounter+" was not present in the storage "+ storageName);
+			return null;
 		}
 		bitCounter++;
 		return bit;
@@ -122,11 +136,12 @@ public class DataSupplierImpl implements DataSupplier {
 		if(this.mod != null) {
 			return this.mod;
 		}
-		this.mod = this.storage.getNext(storageName +
-				SpdzStorageConstants.MODULUS_KEY);
-		if(this.mod == null) {
+		try {
+			this.mod = this.storage.getNext(storageName +
+					SpdzStorageConstants.MODULUS_KEY);
+		} catch (NoMoreElementsException e) {
 			throw new MPCException("Modulus was not present in the storage "+ storageName);
-		}
+		}		
 		return this.mod;
 	}
 
@@ -135,9 +150,10 @@ public class DataSupplierImpl implements DataSupplier {
 		if(this.ssk != null) {
 			return this.ssk;
 		}
-		this.ssk = this.storage.getNext(storageName+
-				SpdzStorageConstants.SSK_KEY);
-		if(this.ssk == null) {
+		try {
+			this.ssk = this.storage.getNext(storageName+
+					SpdzStorageConstants.SSK_KEY);
+		} catch (NoMoreElementsException e) {
 			throw new MPCException("SSK was not present in the storage "+ storageName);
 		}
 		return this.ssk;

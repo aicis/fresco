@@ -41,17 +41,15 @@ import dk.alexandra.fresco.framework.TestThreadRunner;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
+import dk.alexandra.fresco.framework.configuration.PreprocessingStrategy;
 import dk.alexandra.fresco.framework.configuration.TestConfiguration;
 import dk.alexandra.fresco.framework.sce.configuration.TestSCEConfiguration;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
+import dk.alexandra.fresco.framework.sce.resources.storage.FilebasedStreamedStorageImpl;
 import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
-import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStreamedStorage;
 import dk.alexandra.fresco.framework.sce.resources.storage.Storage;
 import dk.alexandra.fresco.framework.sce.resources.storage.StorageStrategy;
-import dk.alexandra.fresco.framework.sce.resources.storage.StreamedStorage;
-import dk.alexandra.fresco.lib.arithmetic.BasicArithmeticTests;
 import dk.alexandra.fresco.lib.arithmetic.MiMCTests;
-import dk.alexandra.fresco.lib.crypto.mimc.MiMCConstants;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.configuration.SpdzConfiguration;
 import dk.alexandra.fresco.suite.spdz.evaluation.strategy.SpdzProtocolSuite;
@@ -80,28 +78,27 @@ public class TestSpdzMiMC {
 		for (int playerId : netConf.keySet()) {
 			TestThreadConfiguration ttc = new TestThreadConfiguration();
 			ttc.netConf = netConf.get(playerId);
-			
+
 			SpdzConfiguration spdzConf = new SpdzConfiguration() {
-				
-				@Override
-				public boolean useDummyData() {
-					return false;
-				}
-				
-				@Override
-				public String getTriplePath() {
-					return null;
-				}
-				
 				@Override
 				public int getMaxBitLength() {
 					return 150;
 				}
+
+				@Override
+				public PreprocessingStrategy getPreprocessingStrategy() {
+					return PreprocessingStrategy.STATIC;
+				}
+
+				@Override
+				public String fuelStationBaseUrl() {
+					return null;
+				}
 			};
 			ttc.protocolSuiteConf = spdzConf;
 			boolean useSecureConnection = false; // No tests of secure
-													// connection
-													// here.
+			// connection
+			// here.
 			int noOfVMThreads = 1;
 			int noOfThreads = 1;
 			ProtocolSuite suite = new SpdzProtocolSuite();
@@ -115,21 +112,33 @@ public class TestSpdzMiMC {
 		TestThreadRunner.run(f, conf);
 	}
 
-	
-	
+
+
 	@Test
 	public void test_mimc_same_enc() throws Exception {
-		InMemoryStreamedStorage inMemStore = new InMemoryStreamedStorage(new InMemoryStorage());		
-		InitializeStorage.initStreamedStorage(new StreamedStorage[] {inMemStore}, 2, 1, 10000, 0, 0, 0, new BigInteger("2582249878086908589655919172003011874329705792829223512830659356540647622016841194629645353280137831435903171972747493557"));
-		runTest(new MiMCTests.TestMiMCEncSameEnc(),
-				EvaluationStrategy.SEQUENTIAL, StorageStrategy.IN_MEMORY, inMemStore);
+		InitializeStorage.cleanup();
+		try {
+			FilebasedStreamedStorageImpl store = new FilebasedStreamedStorageImpl(new InMemoryStorage());		
+			InitializeStorage.initStreamedStorage(store, 2, 1, 10000, 10, 0, 0, new BigInteger("2582249878086908589655919172003011874329705792829223512830659356540647622016841194629645353280137831435903171972747493557"));
+			runTest(new MiMCTests.TestMiMCEncSameEnc(),
+					EvaluationStrategy.SEQUENTIAL, StorageStrategy.IN_MEMORY, store);
+		} catch(Exception e) {
+			InitializeStorage.cleanup();
+			throw e;
+		}
 	}
-	
+
 	@Test
 	public void test_mimc_enc_dec() throws Exception {
-		InMemoryStreamedStorage inMemStore = new InMemoryStreamedStorage(new InMemoryStorage());		
-		InitializeStorage.initStreamedStorage(new StreamedStorage[] {inMemStore}, 2, 1, 100000, 0, 0, 0, new BigInteger("1031"));
-		runTest(new MiMCTests.TestMiMCEncDec(),
-				EvaluationStrategy.SEQUENTIAL, StorageStrategy.IN_MEMORY, inMemStore);
+		InitializeStorage.cleanup();
+		try {
+			FilebasedStreamedStorageImpl store = new FilebasedStreamedStorageImpl(new InMemoryStorage());		
+			InitializeStorage.initStreamedStorage(store, 2, 1, 100000, 0, 0, 0, new BigInteger("1031"));
+			runTest(new MiMCTests.TestMiMCEncDec(),
+					EvaluationStrategy.SEQUENTIAL, StorageStrategy.IN_MEMORY, store);
+		} catch(Exception e) {
+			InitializeStorage.cleanup();
+			throw e;
+		}
 	}
 }

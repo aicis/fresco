@@ -42,6 +42,7 @@ import dk.alexandra.fresco.framework.TestThreadRunner;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
+import dk.alexandra.fresco.framework.configuration.PreprocessingStrategy;
 import dk.alexandra.fresco.framework.configuration.TestConfiguration;
 import dk.alexandra.fresco.framework.sce.configuration.TestSCEConfiguration;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
@@ -81,12 +82,12 @@ public class TestSpdzLPSolver3Parties {
 			SpdzConfiguration spdzConf = new SpdzConfiguration() {
 				
 				@Override
-				public boolean useDummyData() {
-					return true;
+				public PreprocessingStrategy getPreprocessingStrategy() {
+					return PreprocessingStrategy.DUMMY;
 				}
-				
+
 				@Override
-				public String getTriplePath() {
+				public String fuelStationBaseUrl() {
 					return null;
 				}
 				

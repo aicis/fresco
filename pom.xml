@@ -33,6 +33,19 @@
 	  <artifactId>commons-exec</artifactId>
 	  <version>1.2</version>
     </dependency>
+    
+    <!-- USed for plaintext LP solving -->
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-math3</artifactId>
+      <version>3.5</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.httpcomponents</groupId>
+      <artifactId>httpclient</artifactId>
+      <version>4.5.2</version>
+	</dependency>
 
 	<dependency>
 	  <groupId>org.bouncycastle</groupId>
@@ -164,14 +177,6 @@
               See http://stackoverflow.com/questions/574594/how-can-i-create-an-executable-jar-with-dependencies-using-maven -->
          <plugin>
              <artifactId>maven-assembly-plugin</artifactId>
-             <executions>
-              <execution>
-                 <phase>package</phase>
-                 <goals>
-                   <goal>single</goal>
-                 </goals>
-               </execution>
-	     	</executions>             
              <configuration>
                <archive>
                  <manifest>

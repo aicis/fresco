@@ -32,6 +32,7 @@ import dk.alexandra.fresco.framework.value.OBool;
 import dk.alexandra.fresco.framework.value.SBool;
 import dk.alexandra.fresco.framework.value.Value;
 import dk.alexandra.fresco.lib.field.bool.CloseBoolProtocol;
+import dk.alexandra.fresco.suite.tinytables.datatypes.TinyTablesElement;
 import dk.alexandra.fresco.suite.tinytables.prepro.TinyTablesPreproProtocolSuite;
 import dk.alexandra.fresco.suite.tinytables.prepro.datatypes.TinyTablesPreproOBool;
 import dk.alexandra.fresco.suite.tinytables.prepro.datatypes.TinyTablesPreproSBool;
@@ -84,8 +85,8 @@ public class TinyTablesPreproCloseProtocol extends TinyTablesPreproProtocol impl
 			 * If you are the inputter, you are responsible for picking a random
 			 * share.
 			 */
-			boolean r = resourcePool.getSecureRandom().nextBoolean();
-			out.setShare(r);
+			TinyTablesElement r = new TinyTablesElement(resourcePool.getSecureRandom().nextBoolean());
+			out.setValue(r);
 
 			// We store the share for the online phase
 			ps.getStorage().storeMaskShare(id, r);
@@ -94,7 +95,7 @@ public class TinyTablesPreproCloseProtocol extends TinyTablesPreproProtocol impl
 			/*
 			 * All other players set a trivial (false) share.
 			 */
-			out.setShare(false);
+			out.setValue(new TinyTablesElement(false));
 		}
 		return EvaluationStatus.IS_DONE;
 	}

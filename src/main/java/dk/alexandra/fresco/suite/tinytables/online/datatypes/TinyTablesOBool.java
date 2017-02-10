@@ -26,56 +26,22 @@
  *******************************************************************************/
 package dk.alexandra.fresco.suite.tinytables.online.datatypes;
 
-import dk.alexandra.fresco.framework.value.OBool;
-import dk.alexandra.fresco.suite.tinytables.util.Encoding;
+import dk.alexandra.fresco.framework.value.GenericOBool;
 
-public class TinyTablesOBool implements OBool{
+public class TinyTablesOBool extends GenericOBool {
 
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = -7615308960489978540L;
-	private boolean value;
-	private boolean isReady;
+	private static final long serialVersionUID = -1340439724971753441L;
 
 	public TinyTablesOBool() {
-		this.value = false;
-		this.isReady = false;
+		super();
 	}
 	
 	public TinyTablesOBool(boolean value) {
-		setValue(value);
-	}
-	
-	@Override
-	public byte[] getSerializableContent() {
-		return new byte[] { Encoding.encodeBoolean(value) };
+		super(value);
 	}
 
-	@Override
-	public void setSerializableContent(byte[] val) {
-		setValue(Encoding.decodeBoolean(val[0]));
-	}
-
-	@Override
-	public boolean isReady() {
-		return isReady;
-	}
-	
-	@Override
-	public boolean getValue() {
-		return value;
-	}
-
-	@Override
-	public void setValue(boolean b) {
-		this.value = b;
-		this.isReady = true;
-	}
-
-	@Override
-	public String toString() {
-		return "TinyTablesOBool [value=" + value + "]";
-	}
 
 }

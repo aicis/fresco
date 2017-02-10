@@ -28,7 +28,6 @@ package dk.alexandra.fresco.demo;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -252,16 +251,7 @@ public class SetIntersectionDemo {
 
 	private ProtocolSuiteConfiguration getTinyTablesPreproConfiguration(int myPort, int playerId){
 		TinyTablesPreproConfiguration config = new TinyTablesPreproConfiguration();
-		config.setSenderAddress(new InetSocketAddress("localhost", myPort));
-
-		/*
-		 * Set this to true if the SCAPI library has been installed.
-		 * This will greatly increase the performance of the
-		 * preprocessing.
-		 */
-		config.setUseOtExtension(false);
 		config.setTinyTablesFile(getTinyTablesFile(playerId));
-		config.setTesting(true);
 		return config;
 	}
 	

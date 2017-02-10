@@ -27,11 +27,17 @@
 package dk.alexandra.fresco.suite.tinytables.storage;
 
 import java.io.Serializable;
-import java.util.SortedMap;
 
-import dk.alexandra.fresco.suite.tinytables.util.ot.datatypes.OTInput;
-import dk.alexandra.fresco.suite.tinytables.util.ot.datatypes.OTSigma;
+import dk.alexandra.fresco.suite.tinytables.datatypes.TinyTable;
+import dk.alexandra.fresco.suite.tinytables.datatypes.TinyTablesElement;
 
+/**
+ * This class handles the data which has to be carried from the preprocessing to
+ * the online phase.
+ * 
+ * @author Jonas Lindstrøm (jonas.lindstrom@alexandra.dk)
+ *
+ */
 public interface TinyTablesStorage extends Serializable {
 
 	/**
@@ -43,19 +49,6 @@ public interface TinyTablesStorage extends Serializable {
 	 */
 	public void storeTinyTable(int id, TinyTable table);
 
-	/**
-	 * Looks up an entry in the TinyTable with the given id and index given by
-	 * the inputs, eg. entry <i>t<sub>i<sub>0</sub>i<sub>1</sub> ...
-	 * i<sub>j</sub></i> of the TinyTable with id <i>n</i> can be found as
-	 * <code>lookupTinyTable(n, i<sub>0</sub>, i<sub>1</sub>, ..., i<sub>j</sub>)</code>
-	 * .
-	 * 
-	 * @param id
-	 * @param inputs
-	 * @return
-	 */
-	public boolean lookupTinyTable(int id, boolean... inputs);
-
 	public TinyTable getTinyTable(int id);
 
 	/**
@@ -65,34 +58,8 @@ public interface TinyTablesStorage extends Serializable {
 	 * @param id
 	 * @param r
 	 */
-	public void storeMaskShare(int id, boolean r);
+	public void storeMaskShare(int id, TinyTablesElement r);
 
-	public boolean getMaskShare(int id);
-
-	/**
-	 * The receiver of the OT protocol to be performed for the protocol with the
-	 * given ID can store his sigma's. The OT-protocols will be executed when
-	 * the evaluation of the prepro-protocol is finished, and the results is
-	 * used to create the TinyTables for the AND protocols.
-	 * 
-	 * @param id
-	 * @param sigmas
-	 */
-	public void storeOTSigma(int id, OTSigma[] sigmas);
-
-	public SortedMap<Integer, OTSigma[]> getOTSigmas();
-
-	/**
-	 * The sender of the OT protocols to be performed can store his inputs. The
-	 * OT-protocols will be executed when the evaluation of the prepro-protocol
-	 * is finished, and the results is used to create the TinyTables for the AND
-	 * protocols.
-	 * 
-	 * @param id
-	 * @param inputs
-	 */
-	public void storeOTInput(int id, OTInput[] inputs);
-
-	public SortedMap<Integer, OTInput[]> getOTInputs();
+	public TinyTablesElement getMaskShare(int id);
 
 }

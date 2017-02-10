@@ -75,7 +75,7 @@ public class TinyTablesNOTProtocol extends TinyTablesProtocol implements NotProt
 	@Override
 	public EvaluationStatus evaluate(int round, ResourcePool resourcePool, SCENetwork network) {
 		if (round == 0) {
-			this.out.setValue(!in.getValue());
+			this.out.setValue(in.getValue().flip());
 			return EvaluationStatus.IS_DONE;
 		} else {
 			throw new MPCException("Cannot evaluate NOT in round > 0");

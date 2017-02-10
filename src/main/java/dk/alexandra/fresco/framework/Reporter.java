@@ -50,7 +50,7 @@ public class Reporter {
 	public synchronized static void init(Level logLevel) {
 		
 		if (logger != null) {
-			logger.warning("Reporter already initialized");
+			logger.fine("Reporter already initialized");
 			return;
 		}
 		

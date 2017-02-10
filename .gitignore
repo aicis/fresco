@@ -11,7 +11,7 @@ target/
 
 ./lpinputs/
 ./triples/
-./spdz/
+/spdz/
 
 /tinytables/*
 

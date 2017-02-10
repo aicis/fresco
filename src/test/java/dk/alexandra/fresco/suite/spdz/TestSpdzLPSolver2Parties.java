@@ -43,6 +43,7 @@ import dk.alexandra.fresco.framework.TestThreadRunner;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
+import dk.alexandra.fresco.framework.configuration.PreprocessingStrategy;
 import dk.alexandra.fresco.framework.configuration.TestConfiguration;
 import dk.alexandra.fresco.framework.sce.configuration.TestSCEConfiguration;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
@@ -51,7 +52,6 @@ import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
 import dk.alexandra.fresco.framework.sce.resources.storage.SQLStorage;
 import dk.alexandra.fresco.framework.sce.resources.storage.Storage;
 import dk.alexandra.fresco.framework.sce.resources.storage.StorageStrategy;
-import dk.alexandra.fresco.framework.sce.resources.storage.StreamedStorage;
 import dk.alexandra.fresco.lib.lp.LPSolverTests;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.configuration.SpdzConfiguration;
@@ -84,12 +84,16 @@ public class TestSpdzLPSolver2Parties {
 			SpdzConfiguration spdzConf = new SpdzConfiguration() {
 				
 				@Override
-				public boolean useDummyData() {
-					return useDummyData;
+				public PreprocessingStrategy getPreprocessingStrategy() {
+					if(useDummyData) {
+						return PreprocessingStrategy.DUMMY;
+					} else {
+						return PreprocessingStrategy.STATIC;
+					}
 				}
-				
+
 				@Override
-				public String getTriplePath() {
+				public String fuelStationBaseUrl() {
 					return null;
 				}
 				
@@ -125,7 +129,7 @@ public class TestSpdzLPSolver2Parties {
 	}
 
 	private static final InMemoryStorage inMemStore = new InMemoryStorage();
-	private static final StreamedStorage streamedStorage = new FilebasedStreamedStorageImpl(inMemStore);
+	private static final FilebasedStreamedStorageImpl streamedStorage = new FilebasedStreamedStorageImpl(inMemStore);
 
 	//Run the test with the sequential evaluator. The rest is tested only in integration test phase.
 	
@@ -163,7 +167,7 @@ public class TestSpdzLPSolver2Parties {
 		int noOfThreads = 1;
 		InitializeStorage.cleanup();
 		try {
-			InitializeStorage.initStreamedStorage(new StreamedStorage[] {streamedStorage}, 2, noOfThreads, 10000, 1000, 500000, 2000);
+			InitializeStorage.initStreamedStorage(streamedStorage, 2, noOfThreads, 10000, 1000, 500000, 2000);
 			runTest(new LPSolverTests.TestLPSolver(), 2, noOfThreads,
 					EvaluationStrategy.SEQUENTIAL, StorageStrategy.STREAMED_STORAGE, false);
 		} finally {
@@ -180,7 +184,7 @@ public class TestSpdzLPSolver2Parties {
 		int noOfThreads = 2;
 		InitializeStorage.cleanup();
 		try {
-			InitializeStorage.initStreamedStorage(new StreamedStorage[] {streamedStorage}, 2, noOfThreads, 10000, 1000, 500000, 2000);			
+			InitializeStorage.initStreamedStorage(streamedStorage, 2, noOfThreads, 10000, 1000, 500000, 2000);			
 			runTest(new LPSolverTests.TestLPSolver(), 2, noOfThreads,
 					EvaluationStrategy.PARALLEL, StorageStrategy.STREAMED_STORAGE, false);
 		} finally {
@@ -194,7 +198,7 @@ public class TestSpdzLPSolver2Parties {
 		int noOfThreads = 2;		
 		InitializeStorage.cleanup();
 		try {
-			InitializeStorage.initStreamedStorage(new StreamedStorage[] {streamedStorage}, 2, noOfThreads, 10000, 1000, 500000, 2000);
+			InitializeStorage.initStreamedStorage(streamedStorage, 2, noOfThreads, 10000, 1000, 500000, 2000);
 			runTest(new LPSolverTests.TestLPSolver(), 2, noOfThreads,
 					EvaluationStrategy.PARALLEL_BATCHED, StorageStrategy.STREAMED_STORAGE, false);
 		} finally {
@@ -208,7 +212,7 @@ public class TestSpdzLPSolver2Parties {
 		int noOfThreads = 2;		
 		InitializeStorage.cleanup();
 		try {
-			InitializeStorage.initStreamedStorage(new StreamedStorage[] {streamedStorage}, 2, noOfThreads, 10000, 1000, 500000, 2000);
+			InitializeStorage.initStreamedStorage(streamedStorage, 2, noOfThreads, 10000, 1000, 500000, 2000);
 			runTest(new LPSolverTests.TestLPSolver(), 2, noOfThreads,
 					EvaluationStrategy.SEQUENTIAL_BATCHED, StorageStrategy.STREAMED_STORAGE, false);
 		} finally {

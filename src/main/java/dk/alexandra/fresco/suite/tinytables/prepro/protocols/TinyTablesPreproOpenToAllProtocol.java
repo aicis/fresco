@@ -79,8 +79,7 @@ public class TinyTablesPreproOpenToAllProtocol extends TinyTablesPreproProtocol 
 		 * To open a value, we use the same mask share as for the input which
 		 * will cancel out the mask when the shares are combined.
 		 */
-		boolean r = toOpen.getShare();
-		ps.getStorage().storeMaskShare(id, r);
+		ps.getStorage().storeMaskShare(id, toOpen.getValue());
 		
 		return EvaluationStatus.IS_DONE;
 	}

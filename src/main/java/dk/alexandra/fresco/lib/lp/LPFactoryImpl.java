@@ -188,9 +188,9 @@ public class LPFactoryImpl implements LPFactory {
 	@Override
 	public UpdateMatrixProtocol getUpdateMatrixProtocol(
 			Matrix<SInt> oldUpdateMatrix, SInt[] L, SInt[] C, SInt p,
-			SInt p_prime, Matrix<SInt> newUpdateMatrix) {
+			SInt p_prime, Matrix<SInt> newUpdateMatrix, SInt[] lambdas) {
 		return new UpdateMatrixProtocol(oldUpdateMatrix, L, C, p, p_prime,
-				newUpdateMatrix, this, bnf);
+				newUpdateMatrix, lambdas, this, bnf);
 	}
 
 	@Override
@@ -228,7 +228,7 @@ public class LPFactoryImpl implements LPFactory {
 
 	@Override
 	public LPSolverProtocol getLPSolverProtocol(LPTableau tableau,
-			Matrix<SInt> updateMatrix, SInt pivot) {
-		return new LPSolverProtocol(tableau, updateMatrix, pivot, this, bnf);
+			Matrix<SInt> updateMatrix, SInt pivot, SInt[] lambdas) {
+		return new LPSolverProtocol(tableau, updateMatrix, pivot, lambdas, this, bnf);
 	}
 }

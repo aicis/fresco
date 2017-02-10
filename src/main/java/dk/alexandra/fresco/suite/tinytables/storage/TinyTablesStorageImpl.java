@@ -28,35 +28,20 @@ package dk.alexandra.fresco.suite.tinytables.storage;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.SortedMap;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentSkipListMap;
 
-import dk.alexandra.fresco.suite.tinytables.util.ot.datatypes.OTInput;
-import dk.alexandra.fresco.suite.tinytables.util.ot.datatypes.OTSigma;
+import dk.alexandra.fresco.suite.tinytables.datatypes.TinyTable;
+import dk.alexandra.fresco.suite.tinytables.datatypes.TinyTablesElement;
 
 public class TinyTablesStorageImpl implements TinyTablesStorage {
 
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = -3455535991348570325L;
+	private static final long serialVersionUID = -1135044173153933992L;
 	private Map<Integer, TinyTable> tinyTables = new ConcurrentHashMap<>();
-	private Map<Integer, Boolean> maskShares = new ConcurrentHashMap<>();
-
-	/*
-	 * sigmas, otInputs and tmps are only used during preprocessing, and should
-	 * not be serialized.
-	 * 
-	 * We use SortedMap's because the keys are sorted according to the natural
-	 * ordering.
-	 * 
-	 * We use ConcurrentSkipListMaps and ConcurrentHashMap because they are
-	 * thread safe.
-	 */
-	private transient SortedMap<Integer, OTSigma[]> sigmas = new ConcurrentSkipListMap<>();
-	private transient SortedMap<Integer, OTInput[]> otInputs = new ConcurrentSkipListMap<>();
-
+	private Map<Integer, TinyTablesElement> maskShares = new ConcurrentHashMap<>();
+		
 	public static Map<Integer, TinyTablesStorage> instances = new HashMap<>();
 
 	public static TinyTablesStorage getInstance(int id) {
@@ -64,15 +49,6 @@ public class TinyTablesStorageImpl implements TinyTablesStorage {
 			instances.put(id, new TinyTablesStorageImpl());
 		}
 		return instances.get(id);
-	}
-
-	@Override
-	public boolean lookupTinyTable(int id, boolean... inputs) {
-		TinyTable tinyTable = tinyTables.get(id);
-		if (tinyTable == null) {
-			throw new IllegalArgumentException("No TinyTable with ID " + id);
-		}
-		return tinyTable.getValue(inputs);
 	}
 
 	@Override
@@ -86,33 +62,13 @@ public class TinyTablesStorageImpl implements TinyTablesStorage {
 	}
 
 	@Override
-	public void storeMaskShare(int id, boolean r) {
+	public void storeMaskShare(int id, TinyTablesElement r) {
 		maskShares.put(id, r);
 	}
 
 	@Override
-	public boolean getMaskShare(int id) {
+	public TinyTablesElement getMaskShare(int id) {
 		return maskShares.get(id);
-	}
-
-	@Override
-	public void storeOTSigma(int id, OTSigma[] sigmas) {
-		this.sigmas.put(id, sigmas);
-	}
-
-	@Override
-	public void storeOTInput(int id, OTInput[] inputs) {
-		this.otInputs.put(id, inputs);
-	}
-
-	@Override
-	public SortedMap<Integer, OTSigma[]> getOTSigmas() {
-		return sigmas;
-	}
-
-	@Override
-	public SortedMap<Integer, OTInput[]> getOTInputs() {
-		return otInputs;
 	}
 
 }

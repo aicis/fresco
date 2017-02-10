@@ -28,7 +28,6 @@ package dk.alexandra.fresco.suite.tinytables;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.InetSocketAddress;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -42,7 +41,6 @@ import java.util.logging.Level;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
@@ -70,6 +68,8 @@ import dk.alexandra.fresco.suite.tinytables.prepro.TinyTablesPreproProtocolSuite
 
 public class TestTinyTables {
 
+	private static final int TRIPLES_BATCH_SIZE = 4096;
+	
 	private void runTest(TestThreadFactory f, EvaluationStrategy evalStrategy,
 			boolean preprocessing, String name) throws Exception {
 		int noPlayers = 2;
@@ -100,29 +100,19 @@ public class TestTinyTables {
 				config = new TinyTablesPreproConfiguration();
 
 				/*
-				 * We assume that both players are running on localhost in the
-				 * tests. So in particular the sender's address is localhost.
-				 */
-				((TinyTablesPreproConfiguration) config).setSenderAddress(new InetSocketAddress("localhost", 9005));
-
-				/*
-				 * Set this to true if the SCAPI library has been installed.
-				 * This will greatly increase the performance of the
-				 * preprocessing.
-				 */
-				((TinyTablesPreproConfiguration) config).setUseOtExtension(false);
-				
-				/*
 				 * Set path where the generated TinyTables should be stored
 				 */
-				((TinyTablesPreproConfiguration) config).setTinyTablesFile(new File(getFilenameForTest(playerId, name)));
-				
+				((TinyTablesPreproConfiguration) config).setTinyTablesFile(new File(
+						getFilenameForTest(playerId, name)));
+
 				/*
-				 * We are testing with both players running in the same VM
+				 * 
 				 */
-			
-				((TinyTablesPreproConfiguration) config).setTesting(true);
-				
+				((TinyTablesPreproConfiguration) config).setTriplesBatchSize(TRIPLES_BATCH_SIZE);
+
+				((TinyTablesPreproConfiguration) config).setTriplesFile(new File(
+						"triples_" + playerId));
+
 				protocolSuite = TinyTablesPreproProtocolSuite.getInstance(playerId);
 			} else {
 				config = new TinyTablesConfiguration();
@@ -179,7 +169,9 @@ public class TestTinyTables {
 
 			@Override public FileVisitResult postVisitDirectory(final Path dir, final IOException e)
 					throws IOException {
-				if(e!=null)return handleException(e);
+				if(e!=null) {
+					return handleException(e);
+				}
 				Files.delete(dir);
 				return FileVisitResult.CONTINUE;
 			}
@@ -302,5 +294,5 @@ public class TestTinyTables {
 		runTest(new BristolCryptoTests.Sha256Test(), EvaluationStrategy.SEQUENTIAL, false,
 				"testSHA256");
 	}
-
+	
 }

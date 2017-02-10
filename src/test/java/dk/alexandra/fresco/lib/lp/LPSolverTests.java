@@ -46,11 +46,8 @@ import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.field.integer.RandomFieldElementFactory;
+import dk.alexandra.fresco.lib.helper.builder.OmniBuilder;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
-import dk.alexandra.fresco.lib.lp.LPFactory;
-import dk.alexandra.fresco.lib.lp.LPFactoryImpl;
-import dk.alexandra.fresco.lib.lp.LPPrefix;
-import dk.alexandra.fresco.lib.lp.LPSolverProtocol;
 import dk.alexandra.fresco.lib.math.integer.NumericBitFactory;
 import dk.alexandra.fresco.lib.math.integer.exp.ExpFromOIntFactory;
 import dk.alexandra.fresco.lib.math.integer.exp.PreprocessedExpPipeFactory;
@@ -72,12 +69,24 @@ public class LPSolverTests {
 
 	}
 
+	public static class Container {
+		private Object o;
+		public void store(Object o) {
+			this.o = o;
+		}
+		@SuppressWarnings("unchecked")
+		public <T> T fetch(){
+			return (T)o;
+		}
+	}
+	
 	public static class TestLPSolver extends TestThreadFactory {
 		@Override
 		public TestThread next(TestThreadConfiguration conf) {
 			return new ThreadWithFixture() {
 				@Override
 				public void test() throws Exception {
+					final Container c = new Container(); 
 					OInt[] outs = new OInt[1];
 					TestApplication app = new TestApplication() {
 
@@ -120,7 +129,9 @@ public class LPSolverTests {
 								ProtocolProducer lpsolver = new LPSolverProtocol(
 										prefix.getTableau(),
 										prefix.getUpdateMatrix(),
-										prefix.getPivot(), lpFactory, bnFactory);
+										prefix.getPivot(), 
+										prefix.getLambdas(), 
+										lpFactory, bnFactory);
 								SInt sout = bnFactory.getSInt();
 								OInt out = bnFactory.getOInt();
 								outs[0] = out;
@@ -131,11 +142,17 @@ public class LPSolverTests {
 												prefix.getPivot(), sout);
 								ProtocolProducer open = bnFactory
 										.getOpenProtocol(sout, out);
+								
+								OmniBuilder builder = new OmniBuilder(factory);
+								OInt[] lambdas = builder.getNumericIOBuilder().outputArray(prefix.getLambdas());
+								c.store(lambdas);
+								
 								ProtocolProducer seq = new SequentialProtocolProducer(
 										prefix.getPrefix(), 
 										lpsolver,
 										outputter, 
-										open);
+										open,
+										builder.getProtocol());
 								sseq.append(seq);
 							}
 							return sseq;
@@ -148,6 +165,7 @@ public class LPSolverTests {
 							+ ((endTime - startTime) / 1000000));
 					//TODO: Ensure that this is indeed the correct result. 
 					Assert.assertEquals(new BigInteger("161"), outs[0].getValue());
+					//TODO: Check lambdas					
 				}
 			};
 		}

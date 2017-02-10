@@ -41,6 +41,7 @@ import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
 import dk.alexandra.fresco.framework.sce.resources.storage.SQLStorage;
 import dk.alexandra.fresco.framework.sce.resources.storage.Storage;
 import dk.alexandra.fresco.framework.sce.resources.storage.StreamedStorage;
+import dk.alexandra.fresco.framework.sce.resources.storage.exceptions.NoMoreElementsException;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzTriple;
 
@@ -66,7 +67,7 @@ public class TestStorage {
 	}
 	
 	@Test
-	public void testFilebasedStorage() {
+	public void testFilebasedStorage() throws NoMoreElementsException {
 		StreamedStorage storage = new FilebasedStreamedStorageImpl(new InMemoryStorage());
 		testStorage(storage);
 		testStoreBigInteger(storage);
@@ -77,7 +78,7 @@ public class TestStorage {
 		}
 	}
 	
-	private void testStreamedStorage(StreamedStorage storage) {
+	private void testStreamedStorage(StreamedStorage storage) throws NoMoreElementsException {
 		storage.putNext("testName", BigInteger.TEN);
 		Serializable o = storage.getNext("testName");
 		Assert.assertEquals(BigInteger.TEN, o);
