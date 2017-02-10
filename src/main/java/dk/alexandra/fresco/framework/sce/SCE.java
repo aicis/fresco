@@ -53,6 +53,28 @@ public interface SCE {
 	public abstract void runApplication(Application application);
 
 	/**
+	 * This method will do essentially the same as
+	 * {@link #runApplication(Application) runApplication}, but by essentially
+	 * wrapping the applications within a
+	 * {@link dk.alexandra.fresco.lib.helper.ParallelProtocolProducer}.
+	 * 
+	 * @param applications
+	 *            The applications to be run in parallel
+	 */
+	public void runApplicationsInParallel(Application... applications);
+
+	/**
+	 * This method will do essentially the same as
+	 * {@link #runApplication(Application) runApplication}, but by essentially
+	 * wrapping the applications within a
+	 * {@link dk.alexandra.fresco.lib.helper.SequentialProtocolProducer}.
+	 * 
+	 * @param applications
+	 *            The applications to be run in sequence
+	 */
+	public void runApplicationsInSequence(Application... applications);
+
+	/**
 	 * Initializes the SCE by setting up the resource pool including network.
 	 * This also calls \code{init} on the configured protocol suite. Calling
 	 * this multiple times does nothing as an SCE can only be setup once. This
