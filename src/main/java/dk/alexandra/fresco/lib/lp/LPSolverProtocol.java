@@ -60,22 +60,20 @@ public class LPSolverProtocol implements Protocol {
 	private final SInt prevPivot;
 	private SInt pivot;
 	private SInt[] enteringIndex;
-	private SInt[] lambdas;
 	public static int iterations = 0;
 	
 	public LPSolverProtocol(LPTableau tableau, Matrix<SInt> updateMatrix,
-			SInt pivot, SInt[] lambdas, LPFactory lpFactory, BasicNumericFactory bnFactory) {
+			SInt pivot, LPFactory lpFactory, BasicNumericFactory bnFactory) {
 		if (checkDimensions(tableau, updateMatrix)) {
 			this.tableau = tableau;
 			this.updateMatrix = updateMatrix;
 			this.prevPivot = pivot;
-			this.lambdas = lambdas;
 			this.pp = null;
 			this.lpFactory = lpFactory;
 			this.bnFactory = bnFactory;
 			this.zero = bnFactory.getSInt(0);
 			this.state = STATE.PHASE1;
-			iterations = 0;			
+			iterations = 0;
 		} else {
 			throw new MPCException("Dimensions of inputs does not match");
 		}
@@ -167,7 +165,7 @@ public class LPSolverProtocol implements Protocol {
 					newUpdateMatrix = new Matrix<SInt>(newUpdate);
 					ProtocolProducer updateMatrixProducer = lpFactory.getUpdateMatrixProtocol(
 							updateMatrix, exitingIndex, updateColumn, pivot, prevPivot,
-							newUpdateMatrix, lambdas);
+							newUpdateMatrix);
 					round++;
 					return updateMatrixProducer;
 				case 2:
@@ -254,5 +252,66 @@ public class LPSolverProtocol implements Protocol {
 	public Value[] getOutputValues() {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	public static class Builder {
+
+		LPTableau tableau;
+		Matrix<SInt> updateMatrix;
+		SInt pivot;
+		LPFactory lpFactory;
+		BasicNumericFactory bnFactory;
+
+		public Builder() {
+			this.tableau = null;
+			this.updateMatrix = null;
+			this.pivot = null;
+			this.lpFactory = null;
+			this.bnFactory = null;
+		}
+
+		public Builder tableau(LPTableau tableau) {
+			this.tableau = tableau;
+			return this;
+		}
+
+		public Builder updateMatrix(Matrix<SInt> updateMatrix) {
+			this.updateMatrix = updateMatrix;
+			return this;
+		}
+
+		public Builder pivot(SInt pivot) {
+			this.pivot = pivot;
+			return this;
+		}
+
+		public Builder lpFactory(LPFactory lpf) {
+			this.lpFactory = lpf;
+			return this;
+		}
+
+		public Builder bnFactory(BasicNumericFactory bnf) {
+			this.bnFactory = bnf;
+			return this;
+		}
+
+		public <T extends BasicNumericFactory & LPFactory> Builder omniProvider(
+				T factory) {
+			this.lpFactory = factory;
+			this.bnFactory = factory;
+			return this;
+		}
+
+		public LPSolverProtocol build() {
+			if (this.tableau != null && this.updateMatrix != null
+					&& this.pivot != null && this.lpFactory != null
+					&& this.bnFactory != null) {
+				return new LPSolverProtocol(tableau, updateMatrix, pivot,
+						lpFactory, bnFactory);
+			} else {
+				throw new IllegalStateException(
+						"Not ready to build. Some values where not set.");
+			}
+		}
 	}
 }

@@ -44,14 +44,14 @@ public class UpdateMatrixProtocol implements Protocol{
 
 	private Matrix<SInt> oldUpdateMatrix;
 	private Matrix<SInt> newUpdateMatrix;
-	private SInt[] L, C, lambdas_iOuts;
+	private SInt[] L, C;
 	private SInt p, p_prime;
 	private LPFactory lpFactory;
 	private BasicNumericFactory numericFactory;
 	private ProtocolProducer curPP;
 	private boolean done = false;
 	
-	public UpdateMatrixProtocol(Matrix<SInt> oldUpdateMatrix, SInt[] L, SInt[] C, SInt p, SInt p_prime, Matrix<SInt> newUpdateMatrix, SInt[] lambdas,
+	public UpdateMatrixProtocol(Matrix<SInt> oldUpdateMatrix, SInt[] L, SInt[] C, SInt p, SInt p_prime, Matrix<SInt> newUpdateMatrix, 
 			LPFactory lpFactory, BasicNumericFactory numericFactory){
 		this.oldUpdateMatrix = oldUpdateMatrix;
 		this.newUpdateMatrix = newUpdateMatrix;
@@ -61,7 +61,6 @@ public class UpdateMatrixProtocol implements Protocol{
 		this.p_prime = p_prime;
 		this.lpFactory = lpFactory;
 		this.numericFactory = numericFactory;
-		this.lambdas_iOuts = lambdas;
 	}
 	
 	@Override
@@ -79,7 +78,7 @@ public class UpdateMatrixProtocol implements Protocol{
 			int w = oldUpdateMatrix.getWidth();
 			// These 3 for the generation of lambda_i's
 			SInt[][] lambdas_i_jOuts = new SInt[h][w];
-			//SInt[] lambdas_iOuts = new SInt[h]; // same as [v'_i,L]
+			SInt[] lambdas_iOuts = new SInt[h]; // same as [v'_i,L]
 			MultProtocol[][] mults_l_v = new MultProtocol[h - 1][w];
 			AddProtocol[][] addsLambda_i = new AddProtocol[h][w];
 			
@@ -103,7 +102,7 @@ public class UpdateMatrixProtocol implements Protocol{
 			}
 			scales_c[C.length - 1] = numericFactory.getMultProtocol(C[C.length - 1], p_prime_inv, C[C.length - 1]);
 			ProtocolProducer gpDivideC = new ParallelProtocolProducer(scales_c);
-
+			
 			for(int i = 0; i < oldUpdateMatrix.getHeight(); i++){
 				lambdas_iOuts[i] = numericFactory.getSInt(0);
 				for(int j = 0; j < oldUpdateMatrix.getWidth(); j++){

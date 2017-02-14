@@ -24,14 +24,12 @@
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
  *******************************************************************************/
-package dk.alexandra.fresco.lib.lp;
+package dk.alexandra.fresco.lib.arithmetic;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.math.BigInteger;
-
-import org.junit.Assert;
 
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.ProtocolFactory;
@@ -58,6 +56,7 @@ import dk.alexandra.fresco.lib.math.integer.inv.LocalInversionFactory;
 import dk.alexandra.fresco.suite.spdz.utils.LPInputReader;
 import dk.alexandra.fresco.suite.spdz.utils.PlainLPInputReader;
 import dk.alexandra.fresco.suite.spdz.utils.PlainSpdzLPPrefix;
+import org.junit.Assert;
 
 public class LPSolverTests {
 
@@ -78,7 +77,6 @@ public class LPSolverTests {
 			return new ThreadWithFixture() {
 				@Override
 				public void test() throws Exception {
-					OInt[] outs = new OInt[1];
 					TestApplication app = new TestApplication() {
 
 						private static final long serialVersionUID = 4338818809103728010L;
@@ -123,7 +121,6 @@ public class LPSolverTests {
 										prefix.getPivot(), lpFactory, bnFactory);
 								SInt sout = bnFactory.getSInt();
 								OInt out = bnFactory.getOInt();
-								outs[0] = out;
 								ProtocolProducer outputter = lpFactory
 										.getOptimalValueProtocol(
 												prefix.getUpdateMatrix(),
@@ -137,6 +134,7 @@ public class LPSolverTests {
 										outputter, 
 										open);
 								sseq.append(seq);
+								this.outputs = new OInt[] {out};
 							}
 							return sseq;
 						}
@@ -146,19 +144,18 @@ public class LPSolverTests {
 					long endTime = System.nanoTime();
 					System.out.println("============ Seq Time: "
 							+ ((endTime - startTime) / 1000000));
-					//TODO: Ensure that this is indeed the correct result. 
-					Assert.assertEquals(new BigInteger("161"), outs[0].getValue());
+					Assert.assertTrue(BigInteger.valueOf(161).equals(app.getOutputs()[0].getValue()));
 				}
 			};
 		}
 	}
 /*
 	private String printMatrix(Matrix<SInt> matrix, String label, SCE sce,
-			Spdzfactory factory) {
+			SpdzProvider provider) {
 		SInt[][] C = matrix.getDoubleArray();
 		OInt[][] COut = Util
-				.oIntFill(new OInt[C.length][C[0].length], factory);
-		ProtocolProducer output = Util.makeOpenCircuit(C, COut, factory);
+				.oIntFill(new OInt[C.length][C[0].length], provider);
+		ProtocolProducer output = Util.makeOpenCircuit(C, COut, provider);
 		sce.runApplication(output);
 		return printBigIntegers(COut, label);
 	}
