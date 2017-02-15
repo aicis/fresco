@@ -15,6 +15,7 @@ import dk.alexandra.fresco.framework.sce.SCE;
 import dk.alexandra.fresco.framework.sce.SCEFactory;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
+import dk.alexandra.fresco.lib.debug.MarkerProtocolImpl;
 import dk.alexandra.fresco.lib.helper.builder.OmniBuilder;
 
 /**

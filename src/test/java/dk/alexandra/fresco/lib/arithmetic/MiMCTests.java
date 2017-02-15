@@ -93,6 +93,7 @@ public class MiMCTests {
 					sce.runApplication(app);
 
 					Assert.assertEquals(app.getOutputs()[0].getValue(), app.getOutputs()[1].getValue());
+					sce.shutdownSCE();
 				}
 			};
 		}

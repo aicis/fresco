@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 FRESCO (http://github.com/aicis/fresco).
+ * Copyright (c) 2017 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
  *
@@ -24,48 +24,27 @@
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
  *******************************************************************************/
-package dk.alexandra.fresco.suite.spdz.datatypes;
-
-import java.io.Serializable;
-import java.math.BigInteger;
+package dk.alexandra.fresco.suite.spdz.storage.rest;
 
 /**
- * An inputmask for player_i is random value r 
- * shared among parties so that only player_i knows the real value r.
+ * Used exclusively for the {@link DataRestSupplierImpl}.
+ * @author Kasper Damgaard
+ *
  */
-public class SpdzInputMask implements Serializable{
+public enum Type {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 506302228523568567L;
-	private SpdzElement mask; 
-	BigInteger realValue;
+	TRIPLE("triples"),
+	EXP("exp"),
+	INPUT("inputs"),
+	BIT("bits");
 	
-	public SpdzInputMask(SpdzElement mask, BigInteger realValue){
-		this.mask = mask;
-		this.realValue = realValue;
-	}
-	
-	public SpdzInputMask(SpdzElement mask){
-		this.mask = mask;
-		this.realValue = null;
-	}
-	
-	public SpdzElement getMask(){
-		return mask;
-	}
-	
-	/**
-	 * @return For the player that owns this inputmask, the 
-	 * shared real value of the mask. Otherwise null.
-	 */
-	public BigInteger getRealValue(){
-		return realValue;
-	}
+	private final String restName;
 
-	@Override
-	public String toString() {
-		return "SpdzInputMask [mask=" + mask + ", realValue=" + realValue + "]";
-	}
+    private Type(String restName) {
+        this.restName = restName;
+    }
+
+    public String getRestName() {
+        return restName;
+    }
 }

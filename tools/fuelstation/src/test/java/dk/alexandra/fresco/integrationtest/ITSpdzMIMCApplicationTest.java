@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016 FRESCO (http://github.com/aicis/fresco).
+ * Copyright (c) 2017 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
  *
@@ -26,7 +26,6 @@
  *******************************************************************************/
 package dk.alexandra.fresco.integrationtest;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -51,29 +50,26 @@ import dk.alexandra.fresco.framework.configuration.PreprocessingStrategy;
 import dk.alexandra.fresco.framework.configuration.TestConfiguration;
 import dk.alexandra.fresco.framework.sce.configuration.TestSCEConfiguration;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
-import dk.alexandra.fresco.framework.sce.resources.storage.FilebasedStreamedStorageImpl;
 import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
-import dk.alexandra.fresco.framework.sce.resources.storage.Storage;
 import dk.alexandra.fresco.framework.sce.resources.storage.StorageStrategy;
 import dk.alexandra.fresco.lib.arithmetic.MiMCTests;
-import dk.alexandra.fresco.services.PreprocesserImpl;
+import dk.alexandra.fresco.services.DataGeneratorImpl;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.configuration.SpdzConfiguration;
 import dk.alexandra.fresco.suite.spdz.evaluation.strategy.SpdzProtocolSuite;
-import dk.alexandra.fresco.suite.spdz.storage.InitializeStorage;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT, 
-	classes= {PreprocesserImpl.class, Application.class})
+classes= {DataGeneratorImpl.class, Application.class})
 public class ITSpdzMIMCApplicationTest {
-	
+
 	@LocalServerPort
 	private int port;
-	
+
 	private static final int noOfParties = 2;
 
 	private void runTest(TestThreadFactory f, EvaluationStrategy evalStrategy,
-			StorageStrategy storageStrategy, Storage storage) throws Exception {
+			StorageStrategy storageStrategy) throws Exception {
 		Level logLevel = Level.FINE;
 		Reporter.init(logLevel);
 
@@ -118,7 +114,7 @@ public class ITSpdzMIMCApplicationTest {
 			ProtocolEvaluator evaluator = EvaluationStrategy
 					.fromEnum(evalStrategy);
 			ttc.sceConf = new TestSCEConfiguration(suite, evaluator,
-					noOfThreads, noOfVMThreads, ttc.netConf, storage,
+					noOfThreads, noOfVMThreads, ttc.netConf, new InMemoryStorage(),
 					useSecureConnection);
 			conf.put(playerId, ttc);
 		}
@@ -127,15 +123,7 @@ public class ITSpdzMIMCApplicationTest {
 
 	@Test
 	public void test_mimc_same_enc() throws Exception {
-		InitializeStorage.cleanup();
-		try {
-			FilebasedStreamedStorageImpl store = new FilebasedStreamedStorageImpl(new InMemoryStorage());		
-			InitializeStorage.initStreamedStorage(store, 2, 1, 10000, 10, 0, 0, new BigInteger("2582249878086908589655919172003011874329705792829223512830659356540647622016841194629645353280137831435903171972747493557"));
-			runTest(new MiMCTests.TestMiMCEncSameEnc(),
-					EvaluationStrategy.SEQUENTIAL, StorageStrategy.IN_MEMORY, store);
-		} catch(Exception e) {
-			InitializeStorage.cleanup();
-			throw e;
-		}
+		runTest(new MiMCTests.TestMiMCEncSameEnc(),
+				EvaluationStrategy.SEQUENTIAL, StorageStrategy.IN_MEMORY);
 	}
 }
