@@ -61,12 +61,12 @@ code:
 
             // Read FRESCO configuration from command line args.
             CmdLineUtil util = new CmdLineUtil();
-            util.parse(args);
+            CommandLine parsedCommandLine = util.parse(args);
             SCEConfiguration sceConf = util.getSCEConfiguration();
             ProtocolSuiteConfiguration psConf = util.getProtocolSuiteConfiguration();
 
 	    // Read and parse key or plaintext.
-            String in = util.getRemainingArgs()[0];
+            String in = parsedCommandLine.getArgs()[0];
             boolean[] input = ByteArithmetic.toBoolean(in);
 
             // Run secure computation.
