@@ -177,6 +177,14 @@
               See http://stackoverflow.com/questions/574594/how-can-i-create-an-executable-jar-with-dependencies-using-maven -->
          <plugin>
              <artifactId>maven-assembly-plugin</artifactId>
+             <executions>		
+               <execution>		
+                  <phase>package</phase>		
+                  <goals>		
+                    <goal>single</goal>		
+                  </goals>		
+                </execution>		
+ 	     	</executions> 
              <configuration>
                <archive>
                  <manifest>
