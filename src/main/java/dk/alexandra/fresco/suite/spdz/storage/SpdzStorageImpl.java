@@ -74,7 +74,7 @@ public class SpdzStorageImpl implements SpdzStorage {
 		opened_values = new LinkedList<BigInteger>();
 		closed_values = new LinkedList<SpdzElement>();
 
-		this.supplier = new DataRestSupplierImpl(myId, rp.getNoOfParties(), fuelStationBaseUrl);
+		this.supplier = new DataRestSupplierImpl(myId, rp.getNoOfParties(), fuelStationBaseUrl, storageId);
 	}
 
 	@Override

@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.RestController;
 import dk.alexandra.fresco.services.DataGenerator;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
-import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzTriple;
 
 @RestController
@@ -21,24 +20,24 @@ public class FuelEndpoint {
 	@Autowired
 	private DataGenerator generator;
 	
-	@RequestMapping(value="/triples/{amount}/{partyId}", method = RequestMethod.GET)
-	private SpdzTriple[] generateTriples(@PathVariable int amount, @PathVariable int partyId) throws InterruptedException {		
-		return generator.getTriples(amount, partyId);
+	@RequestMapping(value="/triples/{amount}/party/{partyId}/thread/{thread}", method = RequestMethod.GET)
+	private SpdzTriple[] generateTriples(@PathVariable int amount, @PathVariable int partyId, @PathVariable int thread) throws InterruptedException {		
+		return generator.getTriples(amount, partyId, thread);
 	}
 	
-	@RequestMapping(value="/bits/{amount}/{partyId}", method = RequestMethod.GET)
-	private SpdzElement[] generateBits(@PathVariable int amount, @PathVariable int partyId) throws InterruptedException {
-		return generator.getBits(amount, partyId);
+	@RequestMapping(value="/bits/{amount}/party/{partyId}/thread/{thread}", method = RequestMethod.GET)
+	private SpdzElement[] generateBits(@PathVariable int amount, @PathVariable int partyId, @PathVariable int thread) throws InterruptedException {
+		return generator.getBits(amount, partyId, thread);
 	}
 	
-	@RequestMapping(value="/exp/{amount}/{partyId}", method = RequestMethod.GET)
-	private SpdzElement[][] generateExpPipes(@PathVariable int amount, @PathVariable int partyId) throws InterruptedException {
-		return generator.getExpPipes(amount, partyId);
+	@RequestMapping(value="/exp/{amount}/party/{partyId}/thread/{thread}", method = RequestMethod.GET)
+	private SpdzElement[][] generateExpPipes(@PathVariable int amount, @PathVariable int partyId, @PathVariable int thread) throws InterruptedException {
+		return generator.getExpPipes(amount, partyId, thread);
 	}
 	
-	@RequestMapping(value="/inputs/{amount}/{partyId}/towards/{towardsId}", method = RequestMethod.GET)
-	private SpdzInputMask[] generateInputMasks(@PathVariable int amount, @PathVariable int partyId, @PathVariable int towardsId) throws InterruptedException {
-		return generator.getInputMasks(amount, partyId, towardsId);
+	@RequestMapping(value="/inputs/{amount}/party/{partyId}/towards/{towardsId}/thread/{thread}", method = RequestMethod.GET)
+	private SpdzInputMask[] generateInputMasks(@PathVariable int amount, @PathVariable int partyId, @PathVariable int towardsId, @PathVariable int thread) throws InterruptedException {
+		return generator.getInputMasks(amount, partyId, towardsId, thread);
 	}
 	
 	@RequestMapping(value="/modulus", method = RequestMethod.GET)

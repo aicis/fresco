@@ -124,6 +124,6 @@ public class ITSpdzMIMCApplicationTest {
 	@Test
 	public void test_mimc_same_enc() throws Exception {
 		runTest(new MiMCTests.TestMiMCEncSameEnc(),
-				EvaluationStrategy.SEQUENTIAL, StorageStrategy.IN_MEMORY);
+				EvaluationStrategy.SEQUENTIAL_BATCHED, StorageStrategy.IN_MEMORY);
 	}
 }

@@ -81,7 +81,7 @@ public class DataRestSupplierImpl implements DataSupplier{
 	
 	private final List<RetrieverThread> threads = new ArrayList<>();
 
-	public DataRestSupplierImpl(int myId, int noOfParties, String restEndPoint) {		
+	public DataRestSupplierImpl(int myId, int noOfParties, String restEndPoint, int threadId) {		
 		this.myId = myId;
 		this.restEndPoint = restEndPoint;
 		if(!this.restEndPoint.endsWith("/")) {
@@ -102,23 +102,23 @@ public class DataRestSupplierImpl implements DataSupplier{
 			RetrieverThread thread = null;
 			switch(t) {
 			case TRIPLE:
-				thread = new RetrieverThread(restEndPoint, myId, this, t, tripleAmount);
+				thread = new RetrieverThread(this.restEndPoint, myId, this, t, tripleAmount, threadId);
 				thread.start();
 				threads.add(thread);
 				break;
 			case BIT:
-				thread = new RetrieverThread(restEndPoint, myId, this, t, bitAmount);
+				thread = new RetrieverThread(this.restEndPoint, myId, this, t, bitAmount, threadId);
 				thread.start();
 				threads.add(thread);
 				break;
 			case EXP:
-				thread = new RetrieverThread(restEndPoint, myId, this, t, expAmount);
+				thread = new RetrieverThread(this.restEndPoint, myId, this, t, expAmount, threadId);
 				thread.start();
 				threads.add(thread);
 				break;
 			case INPUT:
 				for(int i = 1; i <= noOfParties; i++) {
-					thread = new RetrieverThread(restEndPoint, myId, this, t, inputAmount, i);
+					thread = new RetrieverThread(this.restEndPoint, myId, this, t, inputAmount, threadId, i);
 					thread.start();
 					threads.add(thread);
 				}

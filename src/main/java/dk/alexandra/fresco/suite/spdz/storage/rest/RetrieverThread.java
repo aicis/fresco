@@ -54,26 +54,24 @@ public class RetrieverThread extends Thread {
 	private final Type type;
 	private final int amount;		
 	private final int towardsId;
+	private final int threadId;
 	private final Semaphore semaphore;
 	
 	private static final int waitTimeInMs = 1000;
 	private boolean running = true;
 
-	public RetrieverThread(String restEndPoint, int myId, DataRestSupplierImpl supplier, Type type, int amount) {
-		this(restEndPoint, myId, supplier, type, amount, -1);
+	public RetrieverThread(String restEndPoint, int myId, DataRestSupplierImpl supplier, Type type, int amount, int threadId) {
+		this(restEndPoint, myId, supplier, type, amount, threadId, -1);
 	}
 
-	public RetrieverThread(String restEndPoint, int myId, DataRestSupplierImpl supplier, Type type, int amount, int towardsId) {
+	public RetrieverThread(String restEndPoint, int myId, DataRestSupplierImpl supplier, Type type, int amount, int threadId, int towardsId) {
 		super();
-		this.restEndPoint = restEndPoint;
-		if(!restEndPoint.endsWith("/")) {
-			this.restEndPoint += "/";
-		}		
-		this.restEndPoint += "api/fuel/";
+		this.restEndPoint = restEndPoint;		
 		this.myId = myId;
 		this.supplier = supplier;
 		this.type = type;
 		this.amount = amount;
+		this.threadId = threadId;
 		this.towardsId = towardsId;
 		this.semaphore = new Semaphore(1);
 	}
@@ -100,9 +98,9 @@ public class RetrieverThread extends Thread {
 
 				HttpGet httpget = null;
 				if(towardsId > -1) {
-					httpget = new HttpGet(this.restEndPoint + type.getRestName()+"/"+amount+"/"+this.myId+"/towards/"+towardsId);
+					httpget = new HttpGet(this.restEndPoint + type.getRestName()+"/"+amount+"/party/"+this.myId+"/towards/"+towardsId+"/thread/"+threadId);
 				} else {
-					httpget = new HttpGet(this.restEndPoint + type.getRestName()+"/"+amount+"/"+this.myId);
+					httpget = new HttpGet(this.restEndPoint + type.getRestName()+"/"+amount+"/party/"+this.myId+"/thread/"+threadId);
 				}
 
 				Reporter.fine("Executing request " + httpget.getRequestLine());            
@@ -157,7 +155,6 @@ public class RetrieverThread extends Thread {
 							}        
 							//TODO: Consider releasing at the start to start fetching new stuff ASAP.
 							semaphore.release();
-							System.out.println("Retriever of type "+type+" just released lock. Should fire new GET req. veery soon.");
 						} else {
 							throw new ClientProtocolException("Unexpected response status: " + status);
 						}

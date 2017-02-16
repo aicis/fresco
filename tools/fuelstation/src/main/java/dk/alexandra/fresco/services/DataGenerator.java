@@ -28,25 +28,26 @@ public interface DataGenerator {
 	 * @param triples
 	 * @throws InterruptedException
 	 */
-	public void addTriples(List<SpdzTriple[]> triples) throws InterruptedException;
+	public void addTriples(List<SpdzTriple[]> triples, int thread) throws InterruptedException;
 	
 	/**
 	 * Fetches the next {@code amount} triples. 
 	 * @param amount
 	 * @param partyId The party whose shares should be given.
+	 * @param thread The VM thread number
 	 * @return An array containing the given number of triples.
 	 */
-	public SpdzTriple[] getTriples(int amount, int partyId) throws InterruptedException;
+	public SpdzTriple[] getTriples(int amount, int partyId, int thread) throws InterruptedException;
 	
-	public void addBits(List<SpdzSInt[]> bits) throws InterruptedException;
+	public void addBits(List<SpdzSInt[]> bits, int thread) throws InterruptedException;
 	
-	public SpdzElement[] getBits(int amount, int partyId) throws InterruptedException;
+	public SpdzElement[] getBits(int amount, int partyId, int thread) throws InterruptedException;
 	
-	public void addExpPipes(List<SpdzSInt[][]> expPipes) throws InterruptedException;
+	public void addExpPipes(List<SpdzSInt[][]> expPipes, int thread) throws InterruptedException;
 	
-	public SpdzElement[][] getExpPipes(int amount, int partyId) throws InterruptedException;
+	public SpdzElement[][] getExpPipes(int amount, int partyId, int thread) throws InterruptedException;
 
-	public void addInputMasks(int i, List<SpdzInputMask[]> inpMasks) throws InterruptedException;
+	public void addInputMasks(int i, List<SpdzInputMask[]> inpMasks, int thread) throws InterruptedException;
 	
-	public SpdzInputMask[] getInputMasks(int amount, int partyId, int towardsPartyId) throws InterruptedException;
+	public SpdzInputMask[] getInputMasks(int amount, int partyId, int towardsPartyId, int thread) throws InterruptedException;
 }
