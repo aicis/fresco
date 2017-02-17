@@ -49,4 +49,9 @@ public class FuelEndpoint {
 	private BigInteger getAlpha(@PathVariable int partyId) throws IllegalArgumentException {
 		return generator.getAlpha(partyId);		
 	}
+	
+	@RequestMapping(value="/reset/{partyId}", method = RequestMethod.GET)
+	private Boolean reset(@PathVariable int partyId) throws IllegalArgumentException {
+		return generator.reset(partyId);		
+	}
 }

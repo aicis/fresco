@@ -54,6 +54,7 @@ import dk.alexandra.fresco.suite.spdz.gates.SpdzOpenCommitProtocol;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageDummyImpl;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageImpl;
+import dk.alexandra.fresco.suite.spdz.storage.rest.DataRestSupplierImpl;
 import dk.alexandra.fresco.suite.spdz.utils.Util;
 
 public class SpdzProtocolSuite implements ProtocolSuite {
@@ -342,6 +343,12 @@ public class SpdzProtocolSuite implements ProtocolSuite {
 		}
 		deltaSum = deltaSum.mod(Util.getModulus());
 		if (!deltaSum.equals(BigInteger.ZERO)) {			
+			//If running with fuel station, triples might be out of sync, so we send a reset signal and clear our cache. 
+			for (SpdzStorage store : this.store) {
+				if(store.getSupplier() instanceof DataRestSupplierImpl) {
+					((DataRestSupplierImpl)store.getSupplier()).reset();
+				}
+			}
 			throw new MPCException("The sum of delta's was not 0. Someone was corrupting something amongst " + t
 					+ " macs. Sum was " + deltaSum.toString() + " Aborting!");
 		}

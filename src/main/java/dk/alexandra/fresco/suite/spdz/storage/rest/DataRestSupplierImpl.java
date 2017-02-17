@@ -65,32 +65,40 @@ public class DataRestSupplierImpl implements DataSupplier{
 
 	private final static int tripleAmount = 10000;
 	private final static int expAmount = 1000;
-	private final static int bitAmount = 10000;
+	private final static int bitAmount = 50000;
 	private final static int inputAmount = 1000;
 
 	private String restEndPoint;
 	private int myId;
-
+	private int noOfParties;
+	private int threadId; 
+	
 	private BigInteger modulus;
 	private BigInteger alpha;
 
-	private final BlockingQueue<SpdzTriple> triples;
-	private final BlockingQueue<SpdzSInt> bits;
-	private final BlockingQueue<SpdzSInt[]> exps;
-	private final Map<Integer, BlockingQueue<SpdzInputMask>> inputs;
+	private BlockingQueue<SpdzTriple> triples;
+	private BlockingQueue<SpdzSInt> bits;
+	private BlockingQueue<SpdzSInt[]> exps;
+	private Map<Integer, BlockingQueue<SpdzInputMask>> inputs;
 	
 	private final List<RetrieverThread> threads = new ArrayList<>();
 
 	public DataRestSupplierImpl(int myId, int noOfParties, String restEndPoint, int threadId) {		
 		this.myId = myId;
+		this.noOfParties = noOfParties;
 		this.restEndPoint = restEndPoint;
+		this.threadId = threadId;
 		if(!this.restEndPoint.endsWith("/")) {
 			this.restEndPoint += "/";
 		}		
 		this.restEndPoint += "api/fuel/";
-
+		
+		init();
+	}	
+	
+	private void init() {
 		this.triples = new ArrayBlockingQueue<>(tripleAmount*3);
-		this.bits = new ArrayBlockingQueue<>(bitAmount*10);
+		this.bits = new ArrayBlockingQueue<>(bitAmount*3);
 		this.exps= new ArrayBlockingQueue<>(expAmount*3);
 		this.inputs = new HashMap<>();
 		for(int i = 1; i <= noOfParties; i++) {
@@ -125,7 +133,7 @@ public class DataRestSupplierImpl implements DataSupplier{
 				break;
 			}
 		}
-	}	
+	}
 
 	public void addTriples(SpdzTriple[] trips) throws InterruptedException {
 		for(SpdzTriple t : trips) {
@@ -266,6 +274,64 @@ public class DataRestSupplierImpl implements DataSupplier{
 			t.stopThread();
 			t.interrupt();			
 		}
+	}
+
+	/**
+	 * Clears the cache and sends a reset signal to the fuel station. 
+	 */
+	public void reset() {
+		for(RetrieverThread t : threads) {
+			t.stopThread();
+			t.interrupt();			
+		}
+		
+		//Only send signal if we're thread 0.
+		if(threadId == 0) {
+			CloseableHttpClient httpClient = HttpClients.createDefault();
+			try {			
+				HttpGet httpget = new HttpGet(this.restEndPoint + "/reset");
+	
+				Reporter.fine("Executing request " + httpget.getRequestLine());            
+	
+				// Create a custom response handler
+				ResponseHandler<Boolean> responseHandler = new ResponseHandler<Boolean>() {
+	
+					@Override
+					public Boolean handleResponse(
+							final HttpResponse response) throws ClientProtocolException, IOException {
+						int status = response.getStatusLine().getStatusCode();
+						if (status >= 200 && status < 300) {                        
+							BufferedReader rd = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
+							StringBuffer result = new StringBuffer();
+							String line = "";
+							while ((line = rd.readLine()) != null) {
+								result.append(line);
+							}
+							return Boolean.parseBoolean(result.toString());
+						} else {
+							throw new ClientProtocolException("Unexpected response status: " + status);
+						}
+					}
+	
+				};
+				boolean success = httpClient.execute(httpget, responseHandler);
+				if(!success) {
+					throw new MPCException("Fuelstation refused reset signal.");
+				}
+			} catch (ClientProtocolException e) {
+				throw new MPCException("Could not complete the http request", e);
+			} catch (IOException e) {
+				throw new MPCException("IO error", e);
+			} finally {
+				try {
+					httpClient.close();
+				} catch (IOException e) {
+					//silent crashing - nothing to do at this point. 
+				}        	
+			}
+		}
+		
+		init();
 	}
 
 

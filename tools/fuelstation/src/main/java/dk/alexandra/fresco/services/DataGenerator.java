@@ -50,4 +50,11 @@ public interface DataGenerator {
 	public void addInputMasks(int i, List<SpdzInputMask[]> inpMasks, int thread) throws InterruptedException;
 	
 	public SpdzInputMask[] getInputMasks(int amount, int partyId, int towardsPartyId, int thread) throws InterruptedException;
+
+	/**
+	 * Clears cache and resets the generator. All parties must call this before it happens.
+	 * @param partyId
+	 * @return True if accepted.
+	 */
+	public Boolean reset(int partyId);
 }

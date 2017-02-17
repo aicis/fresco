@@ -2,6 +2,7 @@ package dk.alexandra.fresco.services;
 
 import java.io.IOException;
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,7 +34,7 @@ public class DataGeneratorImpl implements DataGenerator{
 	@Value("${mod}")
 	private BigInteger mod;
 
-	private List<BigInteger> alphas;	
+	private List<BigInteger> alphas;		
 	
 	@Value("${noOfPlayers}")
 	private int noOfPlayers;
@@ -47,16 +48,22 @@ public class DataGeneratorImpl implements DataGenerator{
 	private final Map<Integer, Map<Integer, BlockingQueue<SpdzElement[]>>> expPipesQueue = new HashMap<>();
 	private final Map<Integer, Map<Integer, Map<Integer, BlockingQueue<SpdzInputMask>>>> inputMaskQueue = new HashMap<>();
 	
+	private final Map<Integer, Boolean> reset = new HashMap<>();
+	private final List<GeneratorThread> threads = new ArrayList<>();
+	
 	@PostConstruct
 	public void clearAndInit() throws IOException {
 		this.alphas = FakeTripGen.generateAlphaShares(noOfPlayers, mod);
-		
+		init();
+	}	
+	
+	private void init() {
 		BigInteger alpha = BigInteger.ZERO;
 		for(BigInteger alphaShare : alphas) {
 			alpha = alpha.add(alphaShare);
 		}
 		alpha = alpha.mod(mod);
-			
+		
 		int tripleAmount = 10000;
 		int bitAmount = 100000;
 		int expPipeAmount = 2000;
@@ -97,9 +104,10 @@ public class DataGeneratorImpl implements DataGenerator{
 			for(int threadId = 0; threadId < noOfVMThreads; threadId++) {
 				GeneratorThread thread = new GeneratorThread(this, t, amount, noOfPlayers, threadId, alpha, mod);
 				thread.start();
+				threads.add(thread);
 			}
 		}
-	}	
+	}
 
 	@Override
 	public BigInteger getModulus() {
@@ -190,5 +198,30 @@ public class DataGeneratorImpl implements DataGenerator{
 			res[i] = this.inputMaskQueue.get(thread).get(partyId).get(towardsPartyId).take();
 		}
 		return res;
+	}
+
+	@Override
+	public Boolean reset(int partyId) {
+		reset.put(partyId, true);
+		if(reset.values().size() == noOfPlayers) {
+			boolean doReset = true;
+			for(boolean b : reset.values()) {
+				doReset = doReset & b;
+			}
+			if(doReset) {
+				//Clear cache and restart generation threads. 
+				//TODO
+				for(GeneratorThread t : threads) {
+					t.interrupt();
+				}
+				threads.clear();
+				this.tripleQueue.clear();
+				this.bitsQueue.clear();
+				this.expPipesQueue.clear();
+				this.inputMaskQueue.clear();
+				init();
+			}
+		}
+		return true;
 	}
 }
