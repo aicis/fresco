@@ -51,6 +51,7 @@ import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzTriple;
 import dk.alexandra.fresco.suite.spdz.storage.DataSupplier;
+import dk.alexandra.fresco.suite.spdz.utils.Util;
 
 /**
  * Uses the gas station to fetch the next piece of preprocessed data.
@@ -104,6 +105,10 @@ public class DataRestSupplierImpl implements DataSupplier{
 		for(int i = 1; i <= noOfParties; i++) {
 			this.inputs.put(i, new ArrayBlockingQueue<>(inputAmount));
 		}
+		
+		//get mod for the util static class
+		BigInteger mod = this.getModulus();
+		Util.setModulus(mod);
 
 		//Start retriver threads
 		for(Type t : Type.values()) {

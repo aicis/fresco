@@ -55,6 +55,7 @@ import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
 import dk.alexandra.fresco.framework.sce.resources.storage.StorageStrategy;
 import dk.alexandra.fresco.lib.arithmetic.BasicArithmeticTests;
 import dk.alexandra.fresco.lib.arithmetic.MiMCTests;
+import dk.alexandra.fresco.lib.statistics.DEASolverTests;
 import dk.alexandra.fresco.rest.FuelEndpoint;
 import dk.alexandra.fresco.services.DataGeneratorImpl;
 import dk.alexandra.fresco.suite.ProtocolSuite;
@@ -130,6 +131,12 @@ public class ITSpdzMIMCApplicationTest {
 	public void test_mimc_same_enc() throws Exception {
 		runTest(new MiMCTests.TestMiMCEncSameEnc(),
 				EvaluationStrategy.SEQUENTIAL_BATCHED, StorageStrategy.IN_MEMORY);				
+	}
+	
+	@Test
+	public void test_dea() throws Exception {
+		runTest(new DEASolverTests.TestDEASolver(5, 1, 5, 1),
+				EvaluationStrategy.PARALLEL_BATCHED, StorageStrategy.IN_MEMORY);
 	}
 	
 	@Test

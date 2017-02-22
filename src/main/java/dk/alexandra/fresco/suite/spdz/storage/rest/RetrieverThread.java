@@ -26,25 +26,18 @@
  *******************************************************************************/
 package dk.alexandra.fresco.suite.spdz.storage.rest;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.ObjectInputStream;
 import java.math.BigInteger;
-import java.util.Scanner;
 import java.util.concurrent.Semaphore;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.ByteArrayBuffer;
-import org.apache.http.util.EntityUtils;
-
-import com.google.gson.Gson;
 
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.Reporter;
@@ -160,7 +153,7 @@ public class RetrieverThread extends Thread {
 									break;
 								case EXP:																	
 									for(int i = 0; i < amount; i++) {
-										SpdzElement[] exp = new SpdzElement[instream.read()];
+										SpdzElement[] exp = new SpdzElement[Util.EXP_PIPE_SIZE];
 										for(int inx = 0; inx < exp.length; inx++) {	
 											elm = readData(instream, elmSize);
 											exp[inx] = new SpdzElement(elm);

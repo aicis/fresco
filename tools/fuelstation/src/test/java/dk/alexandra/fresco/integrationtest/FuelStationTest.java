@@ -168,7 +168,7 @@ public class FuelStationTest {
 				
 		byte[] bs = content.getContentAsByteArray();
 		ByteArrayInputStream bis = new ByteArrayInputStream(bs);
-		SpdzElement[] exp1 = new SpdzElement[bis.read()];
+		SpdzElement[] exp1 = new SpdzElement[Util.EXP_PIPE_SIZE];
 		for(int i = 0; i < exp1.length; i++) {
 			byte[] elm = new byte[Util.getModulusSize()*2];
 			bis.read(elm);
@@ -184,7 +184,7 @@ public class FuelStationTest {
 
 		bs = content.getContentAsByteArray();
 		bis = new ByteArrayInputStream(bs);
-		SpdzElement[] exp2 = new SpdzElement[bis.read()];
+		SpdzElement[] exp2 = new SpdzElement[Util.EXP_PIPE_SIZE];
 		for(int i = 0; i < exp2.length; i++) {
 			byte[] elm = new byte[Util.getModulusSize()*2];
 			bis.read(elm);

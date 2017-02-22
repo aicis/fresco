@@ -53,7 +53,6 @@ public class FuelEndpoint {
 	private void generateExpPipes(@PathVariable int amount, @PathVariable int partyId, @PathVariable int thread, HttpServletResponse response) throws InterruptedException, IOException {
 		SpdzElement[][] pipes = generator.getExpPipes(amount, partyId, thread);
 		OutputStream os = response.getOutputStream();
-		os.write(pipes[0].length); //First write the length of the exp pipes.
 		for(SpdzElement[] p : pipes) {			
 			for(SpdzElement elm : p) {
 				os.write(elm.toByteArray());
