@@ -63,9 +63,4 @@ public interface LPPrefix {
 	 * @return the SInt that after running the prefix protocol should hold the initial pivot
 	 */
 	public SInt getPivot();
-
-	/**
-	 * @return The lambdas after the computation has finished
-	 */
-	public SInt[] getLambdas();
 }
