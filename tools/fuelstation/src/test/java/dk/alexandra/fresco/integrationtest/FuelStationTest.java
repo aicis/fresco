@@ -4,6 +4,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.math.BigInteger;
 import java.util.Arrays;
@@ -29,6 +31,7 @@ import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzTriple;
+import dk.alexandra.fresco.suite.spdz.utils.Util;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = { 
@@ -48,6 +51,21 @@ public class FuelStationTest {
 		this.mockMvc = MockMvcBuilders.standaloneSetup(fuelEndpoint).build();		
 	}
 
+	private SpdzTriple[] convertToTriples(InputStream is, int amount) throws IOException {
+		SpdzTriple[] res = new SpdzTriple[amount];
+		for(int i = 0; i < amount; i++) {
+			int elmSize = Util.getModulusSize()*2;
+			byte[] a = new byte[elmSize];
+			byte[] b = new byte[elmSize];
+			byte[] c = new byte[elmSize];
+			is.read(a);
+			is.read(b);
+			is.read(c);
+			res[i] = new SpdzTriple(new SpdzElement(a), new SpdzElement(b), new SpdzElement(c));
+		}
+		return res;
+	}
+	
 	@Test
 	public void integrationTestTriples() throws Exception {
 		
@@ -60,43 +78,42 @@ public class FuelStationTest {
 		String modString = resp.getContentAsString();
 		BigInteger mod = new BigInteger(modString);
 		
+		int amount = 5000;
+		
 		resp = this.mockMvc
 				.perform(
-						get("/api/fuel/triples/1/1").contentType("application/json")
+						get("/api/fuel/triples/"+amount+"/party/1/thread/0").contentType("application/json")
 						.accept(MediaType.APPLICATION_JSON))
 				.andExpect(status().isOk())
 				.andReturn().getResponse();
 		
-		Gson gson = new Gson();
-		SpdzTriple[] ts = gson.fromJson(resp.getContentAsString(), SpdzTriple[].class);
+		SpdzTriple[] triple11 = convertToTriples(new ByteArrayInputStream(resp.getContentAsByteArray()), amount);
 		
-		SpdzTriple triple11 = ts[0];
-		
-		String content = this.mockMvc
+		resp = this.mockMvc
 				.perform(
-						get("/api/fuel/triples/1/1").contentType("application/json")
+						get("/api/fuel/triples/"+amount+"/party/1/thread/0").contentType("application/json")
 						.accept(MediaType.APPLICATION_JSON))
 				.andExpect(status().isOk())
-				.andReturn().getResponse().getContentAsString();
+				.andReturn().getResponse();
 
-		ts = gson.fromJson(content, SpdzTriple[].class);
-		SpdzTriple triple21 = ts[0];
+		SpdzTriple[] triple21 = convertToTriples(new ByteArrayInputStream(resp.getContentAsByteArray()), amount);
 		Assert.assertNotEquals(triple11, triple21);
 		
-		content = this.mockMvc
+		resp = this.mockMvc
 				.perform(
-						get("/api/fuel/triples/1/2").contentType("application/json")
+						get("/api/fuel/triples/"+amount+"/party/2/thread/0").contentType("application/json")
 						.accept(MediaType.APPLICATION_JSON))
 				.andExpect(status().isOk())
-				.andReturn().getResponse().getContentAsString();
+				.andReturn().getResponse();
 
-		ts = gson.fromJson(content, SpdzTriple[].class);
-		SpdzTriple triple12 = ts[0];
-		BigInteger a = triple11.getA().getShare().add(triple12.getA().getShare()).mod(mod);
-		BigInteger b = triple11.getB().getShare().add(triple12.getB().getShare()).mod(mod);
-		BigInteger c = triple11.getC().getShare().add(triple12.getC().getShare()).mod(mod);
-		
-		Assert.assertEquals(a.multiply(b).mod(mod), c);
+		SpdzTriple[] triple12 = convertToTriples(new ByteArrayInputStream(resp.getContentAsByteArray()), amount);
+		for(int i = 0; i < amount; i++) {
+			BigInteger a = triple11[i].getA().getShare().add(triple12[i].getA().getShare()).mod(mod);
+			BigInteger b = triple11[i].getB().getShare().add(triple12[i].getB().getShare()).mod(mod);
+			BigInteger c = triple11[i].getC().getShare().add(triple12[i].getC().getShare()).mod(mod);
+			
+			Assert.assertEquals(a.multiply(b).mod(mod), c);
+		}
 	}
 	
 	@Test
@@ -110,25 +127,23 @@ public class FuelStationTest {
 				.andReturn().getResponse().getContentAsString();
 		BigInteger mod = new BigInteger(modString);
 		
-		String content = this.mockMvc
+		MockHttpServletResponse content = this.mockMvc
 				.perform(
-						get("/api/fuel/bits/1/1").contentType("application/json")
+						get("/api/fuel/bits/1/party/1/thread/0").contentType("application/json")
 						.accept(MediaType.APPLICATION_JSON))
 				.andExpect(status().isOk())
-				.andReturn().getResponse().getContentAsString();
+				.andReturn().getResponse();		
 		
-		Gson gson = new Gson();
-		
-		SpdzElement bit1 = gson.fromJson(content, SpdzElement[].class)[0];
+		SpdzElement bit1 = new SpdzElement(content.getContentAsByteArray());
 		
 		content = this.mockMvc
 				.perform(
-						get("/api/fuel/bits/1/2").contentType("application/json")
+						get("/api/fuel/bits/1/party/2/thread/0").contentType("application/json")
 						.accept(MediaType.APPLICATION_JSON))
 				.andExpect(status().isOk())
-				.andReturn().getResponse().getContentAsString();
+				.andReturn().getResponse();
 
-		SpdzElement bit2 = gson.fromJson(content, SpdzElement[].class)[0];
+		SpdzElement bit2 = new SpdzElement(content.getContentAsByteArray());
 		
 		BigInteger bit = bit1.getShare().add(bit2.getShare()).mod(mod);
 		Assert.assertTrue(bit.equals(BigInteger.ZERO) || bit.equals(BigInteger.ONE));
@@ -136,7 +151,6 @@ public class FuelStationTest {
 	
 	@Test
 	public void integrationTestExpPipes() throws Exception {
-		
 		String modString = this.mockMvc
 				.perform(
 						get("/api/fuel/modulus").contentType("application/json")
@@ -145,30 +159,58 @@ public class FuelStationTest {
 				.andReturn().getResponse().getContentAsString();
 		BigInteger mod = new BigInteger(modString);
 		
-		String content = this.mockMvc
+		MockHttpServletResponse content = this.mockMvc
 				.perform(
-						get("/api/fuel/exp/1/1").contentType("application/json")
+						get("/api/fuel/exp/1/party/1/thread/0").contentType("application/json")
 						.accept(MediaType.APPLICATION_JSON))
 				.andExpect(status().isOk())
-				.andReturn().getResponse().getContentAsString();
-		
-		Gson gson = new Gson();
-		SpdzElement[] exp1 = gson.fromJson(content, SpdzElement[][].class)[0];
+				.andReturn().getResponse();
+				
+		byte[] bs = content.getContentAsByteArray();
+		ByteArrayInputStream bis = new ByteArrayInputStream(bs);
+		SpdzElement[] exp1 = new SpdzElement[bis.read()];
+		for(int i = 0; i < exp1.length; i++) {
+			byte[] elm = new byte[Util.getModulusSize()*2];
+			bis.read(elm);
+			exp1[i] = new SpdzElement(elm);
+		}
 		
 		content = this.mockMvc
 				.perform(
-						get("/api/fuel/exp/1/2").contentType("application/json")
+						get("/api/fuel/exp/1/party/2/thread/0").contentType("application/json")
 						.accept(MediaType.APPLICATION_JSON))
 				.andExpect(status().isOk())
-				.andReturn().getResponse().getContentAsString();
+				.andReturn().getResponse();
 
-		SpdzElement[] exp2 = gson.fromJson(content, SpdzElement[][].class)[0];
+		bs = content.getContentAsByteArray();
+		bis = new ByteArrayInputStream(bs);
+		SpdzElement[] exp2 = new SpdzElement[bis.read()];
+		for(int i = 0; i < exp2.length; i++) {
+			byte[] elm = new byte[Util.getModulusSize()*2];
+			bis.read(elm);
+			exp2[i] = new SpdzElement(elm);
+		}
 
 		BigInteger rInv = exp1[0].getShare().add(exp2[0].getShare()).mod(mod);
 		BigInteger r = exp1[1].getShare().add(exp2[1].getShare()).mod(mod);
 		BigInteger rSquared = exp1[2].getShare().add(exp2[2].getShare()).mod(mod);
 		Assert.assertEquals(r.modInverse(mod), rInv);
 		Assert.assertEquals(r.multiply(r).mod(mod), rSquared);
+	}
+	
+	private SpdzInputMask convertToMask(byte[] arr) throws IOException {
+		ByteArrayInputStream is = new ByteArrayInputStream(arr);
+		int length = is.read();
+		byte[] elm = new byte[Util.getModulusSize()*2];
+		if(length == 0) {
+			is.read(elm);
+			return new SpdzInputMask(new SpdzElement(elm));
+		} else {
+			byte[] real = new byte[length];
+			is.read(real);
+			is.read(elm);
+			return new SpdzInputMask(new SpdzElement(elm), new BigInteger(real));
+		}
 	}
 	
 	@Test
@@ -182,44 +224,41 @@ public class FuelStationTest {
 				.andReturn().getResponse().getContentAsString();
 		BigInteger mod = new BigInteger(modString);
 		
-		String content = this.mockMvc
+		MockHttpServletResponse content = this.mockMvc
 				.perform(
-						get("/api/fuel/inputs/1/1/towards/1").contentType("application/json")
+						get("/api/fuel/inputs/1/party/1/towards/1/thread/0").contentType("application/json")
 						.accept(MediaType.APPLICATION_JSON))
 				.andExpect(status().isOk())
-				.andReturn().getResponse().getContentAsString();
+				.andReturn().getResponse();
 		
-		Gson gson = new Gson();		
-		SpdzInputMask mask1 = gson.fromJson(content, SpdzInputMask[].class)[0];		
-		System.out.println(mask1);
+		SpdzInputMask mask1 = convertToMask(content.getContentAsByteArray());		
 		content = this.mockMvc
 				.perform(
-						get("/api/fuel/inputs/1/2/towards/1").contentType("application/json")
+						get("/api/fuel/inputs/1/party/2/towards/1/thread/0").contentType("application/json")
 						.accept(MediaType.APPLICATION_JSON))
 				.andExpect(status().isOk())
-				.andReturn().getResponse().getContentAsString();
+				.andReturn().getResponse();
 
-		SpdzInputMask mask2 = gson.fromJson(content, SpdzInputMask[].class)[0];
-		System.out.println(mask2);		
+		SpdzInputMask mask2 = convertToMask(content.getContentAsByteArray());
 		Assert.assertEquals(mask1.getRealValue(), mask1.getMask().getShare().add(mask2.getMask().getShare()).mod(mod));
 		
 		content = this.mockMvc
 				.perform(
-						get("/api/fuel/inputs/1/1/towards/2").contentType("application/json")
+						get("/api/fuel/inputs/1/party/1/towards/2/thread/0").contentType("application/json")
 						.accept(MediaType.APPLICATION_JSON))
 				.andExpect(status().isOk())
-				.andReturn().getResponse().getContentAsString();
+				.andReturn().getResponse();
 		
-		mask1 = gson.fromJson(content, SpdzInputMask[].class)[0];
+		mask1 = convertToMask(content.getContentAsByteArray());
 		
 		content = this.mockMvc
 				.perform(
-						get("/api/fuel/inputs/1/2/towards/2").contentType("application/json")
+						get("/api/fuel/inputs/1/party/2/towards/2/thread/0").contentType("application/json")
 						.accept(MediaType.APPLICATION_JSON))
 				.andExpect(status().isOk())
-				.andReturn().getResponse().getContentAsString();
+				.andReturn().getResponse();
 
-		mask2 = gson.fromJson(content, SpdzInputMask[].class)[0];
+		mask2 = convertToMask(content.getContentAsByteArray());
 		
 		Assert.assertEquals(mask2.getRealValue(), mask1.getMask().getShare().add(mask2.getMask().getShare()).mod(mod));
 	}

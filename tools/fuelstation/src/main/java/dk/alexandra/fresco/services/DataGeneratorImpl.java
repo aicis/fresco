@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+import java.util.logging.Level;
 
 import javax.annotation.PostConstruct;
 
@@ -17,12 +18,14 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
 
+import dk.alexandra.fresco.framework.Reporter;
 import dk.alexandra.fresco.model.Type;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzTriple;
 import dk.alexandra.fresco.suite.spdz.storage.FakeTripGen;
+import dk.alexandra.fresco.suite.spdz.utils.Util;
 import threads.GeneratorThread;
 
 @Component
@@ -53,11 +56,15 @@ public class DataGeneratorImpl implements DataGenerator{
 	
 	@PostConstruct
 	public void clearAndInit() throws IOException {
+		//set mod in spdz
+		Util.setModulus(mod);
+		
+		Reporter.init(Level.INFO);
 		this.alphas = FakeTripGen.generateAlphaShares(noOfPlayers, mod);
 		init();
 	}	
 	
-	private void init() {
+	private void init() {				
 		BigInteger alpha = BigInteger.ZERO;
 		for(BigInteger alphaShare : alphas) {
 			alpha = alpha.add(alphaShare);
@@ -75,8 +82,8 @@ public class DataGeneratorImpl implements DataGenerator{
 			this.inputMaskQueue.put(i, new HashMap<>());
 			for(int j = 1; j <= noOfPlayers; j++) {
 				this.tripleQueue.get(i).put(j, new ArrayBlockingQueue<>(tripleAmount));
-				this.bitsQueue.get(i).put(j, new ArrayBlockingQueue<>(tripleAmount));
-				this.expPipesQueue.get(i).put(j, new ArrayBlockingQueue<>(tripleAmount));
+				this.bitsQueue.get(i).put(j, new ArrayBlockingQueue<>(bitAmount));
+				this.expPipesQueue.get(i).put(j, new ArrayBlockingQueue<>(expPipeAmount));
 				this.inputMaskQueue.get(i).put(j, new HashMap<>());
 				for(int towards = 1; towards <= noOfPlayers; towards++) {
 					this.inputMaskQueue.get(i).get(j).put(towards, new ArrayBlockingQueue<>(inputAmount));
@@ -88,17 +95,17 @@ public class DataGeneratorImpl implements DataGenerator{
 			int amount = 0;
 			switch(t) {
 			case TRIPLES:
-				amount = tripleAmount;
+				amount = 1000;
 				break;
 			case BITS:
-				amount = bitAmount;
+				amount = 3000;
 				break;
 			case EXPPIPES:
-				amount = expPipeAmount;
+				amount = 50;
 				break;
 			case INPUT_1:				
 			case INPUT_2:
-				amount = inputAmount;
+				amount = 100;
 				break;
 			}
 			for(int threadId = 0; threadId < noOfVMThreads; threadId++) {

@@ -64,9 +64,9 @@ public class DataRestSupplierImpl implements DataSupplier{
 	//Maybe use certificates and SSL connections instead, but this is harder to test and make work.
 
 	private final static int tripleAmount = 10000;
-	private final static int expAmount = 1000;
+	private final static int expAmount = 3000;
 	private final static int bitAmount = 50000;
-	private final static int inputAmount = 1000;
+	private final static int inputAmount = 2000;
 
 	private String restEndPoint;
 	private int myId;
@@ -97,12 +97,12 @@ public class DataRestSupplierImpl implements DataSupplier{
 	}	
 	
 	private void init() {
-		this.triples = new ArrayBlockingQueue<>(tripleAmount*3);
-		this.bits = new ArrayBlockingQueue<>(bitAmount*3);
-		this.exps= new ArrayBlockingQueue<>(expAmount*3);
+		this.triples = new ArrayBlockingQueue<>(tripleAmount);
+		this.bits = new ArrayBlockingQueue<>(bitAmount);
+		this.exps= new ArrayBlockingQueue<>(expAmount);
 		this.inputs = new HashMap<>();
 		for(int i = 1; i <= noOfParties; i++) {
-			this.inputs.put(i, new ArrayBlockingQueue<>(inputAmount*2));
+			this.inputs.put(i, new ArrayBlockingQueue<>(inputAmount));
 		}
 
 		//Start retriver threads
@@ -110,23 +110,23 @@ public class DataRestSupplierImpl implements DataSupplier{
 			RetrieverThread thread = null;
 			switch(t) {
 			case TRIPLE:
-				thread = new RetrieverThread(this.restEndPoint, myId, this, t, tripleAmount, threadId);
+				thread = new RetrieverThread(this.restEndPoint, myId, this, t, 2000, threadId);
 				thread.start();
 				threads.add(thread);
 				break;
 			case BIT:
-				thread = new RetrieverThread(this.restEndPoint, myId, this, t, bitAmount, threadId);
+				thread = new RetrieverThread(this.restEndPoint, myId, this, t, 5000, threadId);
 				thread.start();
 				threads.add(thread);
 				break;
 			case EXP:
-				thread = new RetrieverThread(this.restEndPoint, myId, this, t, expAmount, threadId);
+				thread = new RetrieverThread(this.restEndPoint, myId, this, t, 200, threadId);
 				thread.start();
 				threads.add(thread);
 				break;
 			case INPUT:
 				for(int i = 1; i <= noOfParties; i++) {
-					thread = new RetrieverThread(this.restEndPoint, myId, this, t, inputAmount, threadId, i);
+					thread = new RetrieverThread(this.restEndPoint, myId, this, t, 1000, threadId, i);
 					thread.start();
 					threads.add(thread);
 				}
@@ -135,40 +135,43 @@ public class DataRestSupplierImpl implements DataSupplier{
 		}
 	}
 
-	public void addTriples(SpdzTriple[] trips) throws InterruptedException {
-		for(SpdzTriple t : trips) {
-			this.triples.put(t);
-		}
+	public void addTriple(SpdzTriple trip) throws InterruptedException {
+		this.triples.put(trip);
 	}
 
-	public void addExps(SpdzElement[][] exp) throws InterruptedException {
-		for(SpdzElement[] es : exp) {
-			SpdzSInt[] pipe = new SpdzSInt[es.length];
-			int i = 0;
-			for(SpdzElement elm : es) {
-				pipe[i] = new SpdzSInt(elm);
-				i++;
-			}
-			this.exps.put(pipe);
+	public void addExp(SpdzElement[] es) throws InterruptedException {
+		SpdzSInt[] pipe = new SpdzSInt[es.length];
+		int i = 0;
+		for(SpdzElement elm : es) {
+			pipe[i] = new SpdzSInt(elm);
+			i++;
 		}
+		this.exps.put(pipe);
 	}
 
-	public void addBits(SpdzElement[] bits) throws InterruptedException {
-		for(SpdzElement elm : bits) {
-			this.bits.put(new SpdzSInt(elm));
-		}
+	public void addBit(SpdzElement b) throws InterruptedException {
+		this.bits.put(new SpdzSInt(b));
 	}
 
-	public void addInputs(SpdzInputMask[] inps, int towardsId) throws InterruptedException {
-		for(SpdzInputMask mask : inps) {
-			this.inputs.get(towardsId).put(mask);
-		}
+	public void addInput(SpdzInputMask mask, int towardsId) throws InterruptedException {
+		this.inputs.get(towardsId).put(mask);
 	}
 
 	@Override
 	public SpdzTriple getNextTriple() {		
 		try {
-			return this.triples.take();
+			boolean print = false;
+			long then = 0;
+			if(this.triples.peek() == null) {
+				print = true;
+				then = System.currentTimeMillis();
+			}
+			SpdzTriple t = this.triples.take();
+			if(print) {
+				long now = System.currentTimeMillis();
+				Reporter.warn("Triple queue got back online within "+(now-then)+"ms.");
+			}
+			return t;
 		} catch (InterruptedException e) {
 			throw new MPCException("Supplier got interrupted before a new triple was made available", e);
 		}
@@ -179,7 +182,20 @@ public class DataRestSupplierImpl implements DataSupplier{
 	@Override
 	public SpdzSInt[] getNextExpPipe() {
 		try {
-			return this.exps.take();
+			boolean print = false;
+			long then = 0;
+			if(this.exps.peek() == null) {
+				Reporter.warn("No more exp pipes in the queue");
+				print = true;
+				then = System.currentTimeMillis();
+			}
+			SpdzSInt[] exp = this.exps.take();
+			if(print) {
+				long now = System.currentTimeMillis();
+				Reporter.warn("Exp pipe queue got back online within "+(now-then)+"ms.");
+			}
+			
+			return exp;
 		} catch (InterruptedException e) {
 			throw new MPCException("Supplier got interrupted before a new exp pipe was made available", e);
 		}
@@ -196,7 +212,7 @@ public class DataRestSupplierImpl implements DataSupplier{
 
 	@Override
 	public SpdzSInt getNextBit() {
-		try {
+		try {			
 			return this.bits.take();
 		} catch (InterruptedException e) {
 			throw new MPCException("Supplier got interrupted before a new triple was made available", e);
@@ -289,7 +305,7 @@ public class DataRestSupplierImpl implements DataSupplier{
 		if(threadId == 0) {
 			CloseableHttpClient httpClient = HttpClients.createDefault();
 			try {			
-				HttpGet httpget = new HttpGet(this.restEndPoint + "/reset");
+				HttpGet httpget = new HttpGet(this.restEndPoint + "/reset/"+myId);
 	
 				Reporter.fine("Executing request " + httpget.getRequestLine());            
 	

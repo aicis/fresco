@@ -26,8 +26,11 @@
  *******************************************************************************/
 package dk.alexandra.fresco.suite.spdz.storage.rest;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.math.BigInteger;
 import java.util.Scanner;
 import java.util.concurrent.Semaphore;
 
@@ -35,8 +38,10 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
 
 import com.google.gson.Gson;
 
@@ -45,6 +50,7 @@ import dk.alexandra.fresco.framework.Reporter;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzTriple;
+import dk.alexandra.fresco.suite.spdz.utils.Util;
 
 public class RetrieverThread extends Thread {
 	
@@ -76,18 +82,13 @@ public class RetrieverThread extends Thread {
 		this.semaphore = new Semaphore(1);
 	}
 
-	private static String convertStreamToString(InputStream is) {
-		//TODO: Consider using apache commons IOUtils.toString instead
-		java.util.Scanner s = new Scanner(is).useDelimiter("\\A");
-		String res = s.hasNext() ? s.next() : "";
-		s.close();
-		return res;
-	}
-	
 	public void stopThread() {
 		running = false;
 	}
 
+	public static byte[] tripleContent;
+	public static boolean first = true;
+	
 	@Override
 	public void run() {
 		CloseableHttpClient httpClient = null;
@@ -112,47 +113,66 @@ public class RetrieverThread extends Thread {
 					public Void handleResponse(
 							final HttpResponse response) throws ClientProtocolException, IOException {						
 						int status = response.getStatusLine().getStatusCode();
-						if (status >= 200 && status < 300) {														
-							String s = convertStreamToString(response.getEntity().getContent());
+						if (status >= 200 && status < 300) {													
+							byte[] content = EntityUtils.toByteArray(response.getEntity());
+							ByteArrayInputStream is = new ByteArrayInputStream(content);
+							//
 							if(!running) {
 								//Shut down thread. Resources are dead. 
 								return null;
 							}
-							Gson gson = new Gson();
-							switch(type) {
-							case TRIPLE:
-								SpdzTriple[] trips = gson.fromJson(s, SpdzTriple[].class);								
-								try {
-									supplier.addTriples(trips);
-								} catch (InterruptedException e) {
-									running = false;									
-								}
-								break;
-							case EXP:
-								SpdzElement[][] exps = gson.fromJson(s, SpdzElement[][].class);								
-								try {
-									supplier.addExps(exps);
-								} catch (InterruptedException e) {
-									running = false;
-								}
-								break;
-							case BIT:
-								SpdzElement[] bits = gson.fromJson(s, SpdzElement[].class);								
-								try {
-									supplier.addBits(bits);
-								} catch (InterruptedException e) {
-									running = false;
-								}
-								break;
-							case INPUT:
-								SpdzInputMask[] inps = gson.fromJson(s, SpdzInputMask[].class);								
-								try {
-									supplier.addInputs(inps, towardsId);
-								} catch (InterruptedException e) {
-									running = false;
-								}
-								break;
-							}        
+							int elmSize = Util.getModulusSize()*2;
+							byte[] elm = new byte[Util.getModulusSize()*2];
+							try {
+								switch(type) {
+								case TRIPLE:
+									SpdzTriple t = null;
+									for(int i = 0; i < amount; i++) {
+										byte[] a = new byte[elmSize];
+										byte[] b = new byte[elmSize];
+										byte[] c = new byte[elmSize];
+										is.read(a);
+										is.read(b);
+										is.read(c);										
+										t = new SpdzTriple(new SpdzElement(a), new SpdzElement(b), new SpdzElement(c));
+										supplier.addTriple(t);
+									}									
+									break;
+								case EXP:																	
+									for(int i = 0; i < amount; i++) {
+										SpdzElement[] exp = new SpdzElement[is.read()];
+										for(int inx = 0; inx < exp.length; inx++) {											
+											is.read(elm);
+											exp[inx] = new SpdzElement(elm);
+										}
+										supplier.addExp(exp);
+									}
+									break;
+								case BIT:
+									for(int i = 0; i < amount; i++) {										
+										is.read(elm);
+										supplier.addBit(new SpdzElement(elm));
+									}
+									break;
+								case INPUT:									
+									for(int i = 0; i < amount; i++) {										
+										int length = is.read();										
+										if(length == 0) {
+											is.read(elm);
+											supplier.addInput(new SpdzInputMask(new SpdzElement(elm)), towardsId);
+										} else {											
+											byte[] real = new byte[length];											
+											is.read(real);
+											is.read(elm);
+											
+											supplier.addInput(new SpdzInputMask(new SpdzElement(elm), new BigInteger(real)), towardsId);
+										}
+									}									
+									break;
+								}        
+							} catch(InterruptedException e) {
+								running = false;
+							}
 							//TODO: Consider releasing at the start to start fetching new stuff ASAP.
 							semaphore.release();
 						} else {
