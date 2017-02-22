@@ -41,6 +41,7 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.ByteArrayBuffer;
 import org.apache.http.util.EntityUtils;
 
 import com.google.gson.Gson;
@@ -86,8 +87,24 @@ public class RetrieverThread extends Thread {
 		running = false;
 	}
 
-	public static byte[] tripleContent;
-	public static boolean first = true;
+	public static byte[] readData(InputStream is, int toFillLength) throws IOException {
+		ByteArrayBuffer buffer = new ByteArrayBuffer(toFillLength);
+		int l = 0;		
+		int total = 0;
+		byte[] tmp = new byte[toFillLength];
+		while (true) {
+			l = is.read(tmp);
+			buffer.append(tmp, 0, l);
+			total+=l;
+			if(total < toFillLength) {
+				//We have not read everything, so read some more. 
+				tmp = new byte[toFillLength-total];
+			} else {
+				break;
+			}
+		}
+		return buffer.toByteArray();
+	}
 	
 	@Override
 	public void run() {
@@ -113,57 +130,59 @@ public class RetrieverThread extends Thread {
 					public Void handleResponse(
 							final HttpResponse response) throws ClientProtocolException, IOException {						
 						int status = response.getStatusLine().getStatusCode();
-						if (status >= 200 && status < 300) {													
-							byte[] content = EntityUtils.toByteArray(response.getEntity());
-							ByteArrayInputStream is = new ByteArrayInputStream(content);
+						if (status >= 200 && status < 300) {	
+							int contentLength = (int)response.getEntity().getContentLength();
+							if (contentLength < 0) {
+								contentLength = 4096;
+							}
+							InputStream instream = response.getEntity().getContent();
+							
+//							byte[] content = EntityUtils.toByteArray(response.getEntity());
+//							ByteArrayInputStream is = new ByteArrayInputStream(content);
 							//
 							if(!running) {
 								//Shut down thread. Resources are dead. 
 								return null;
 							}
 							int elmSize = Util.getModulusSize()*2;
-							byte[] elm = new byte[Util.getModulusSize()*2];
+							byte[] elm = new byte[elmSize];
 							try {
 								switch(type) {
 								case TRIPLE:
 									SpdzTriple t = null;
 									for(int i = 0; i < amount; i++) {
-										byte[] a = new byte[elmSize];
-										byte[] b = new byte[elmSize];
-										byte[] c = new byte[elmSize];
-										is.read(a);
-										is.read(b);
-										is.read(c);										
+										byte[] a = readData(instream, elmSize);
+										byte[] b = readData(instream, elmSize);
+										byte[] c = readData(instream, elmSize);										
 										t = new SpdzTriple(new SpdzElement(a), new SpdzElement(b), new SpdzElement(c));
 										supplier.addTriple(t);
 									}									
 									break;
 								case EXP:																	
 									for(int i = 0; i < amount; i++) {
-										SpdzElement[] exp = new SpdzElement[is.read()];
-										for(int inx = 0; inx < exp.length; inx++) {											
-											is.read(elm);
+										SpdzElement[] exp = new SpdzElement[instream.read()];
+										for(int inx = 0; inx < exp.length; inx++) {	
+											elm = readData(instream, elmSize);
 											exp[inx] = new SpdzElement(elm);
 										}
 										supplier.addExp(exp);
 									}
 									break;
 								case BIT:
-									for(int i = 0; i < amount; i++) {										
-										is.read(elm);
+									for(int i = 0; i < amount; i++) {
+										elm = readData(instream, elmSize);
 										supplier.addBit(new SpdzElement(elm));
 									}
 									break;
 								case INPUT:									
 									for(int i = 0; i < amount; i++) {										
-										int length = is.read();										
+										int length = instream.read();
 										if(length == 0) {
-											is.read(elm);
+											elm = readData(instream, elmSize);
 											supplier.addInput(new SpdzInputMask(new SpdzElement(elm)), towardsId);
 										} else {											
-											byte[] real = new byte[length];											
-											is.read(real);
-											is.read(elm);
+											byte[] real = readData(instream, length);
+											elm = readData(instream, elmSize);
 											
 											supplier.addInput(new SpdzInputMask(new SpdzElement(elm), new BigInteger(real)), towardsId);
 										}
