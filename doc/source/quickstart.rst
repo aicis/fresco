@@ -42,6 +42,7 @@ code:
     import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
     import dk.alexandra.fresco.lib.crypto.BristolCryptoFactory;
 
+    import org.apache.commons.cli.CommandLine;
 
     public class AESDemo implements Application {
 
