@@ -34,6 +34,7 @@ import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzTriple;
+import dk.alexandra.fresco.suite.spdz.utils.Util;
 
 public class DummyDataSupplierImpl implements DataSupplier{
 
@@ -51,6 +52,7 @@ public class DummyDataSupplierImpl implements DataSupplier{
 	Map<Integer, Map<Integer,SpdzInputMask>> inputs_3party;
 	
 	public DummyDataSupplierImpl(int myId, int numberOfPlayers) {
+		Util.setModulus(getModulus());
 		this.myId = myId;
 		this.numberOfPlayers = numberOfPlayers;
 		
