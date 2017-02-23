@@ -26,31 +26,11 @@
  *******************************************************************************/
 package dk.alexandra.fresco.suite.spdz;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.logging.Level;
-
-import dk.alexandra.fresco.lib.arithmetic.DivisionTests;
 import org.junit.Test;
 
-import dk.alexandra.fresco.framework.ProtocolEvaluator;
-import dk.alexandra.fresco.framework.Reporter;
-import dk.alexandra.fresco.framework.TestThreadRunner;
-import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
-import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
-import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
-import dk.alexandra.fresco.framework.configuration.PreprocessingStrategy;
-import dk.alexandra.fresco.framework.configuration.TestConfiguration;
-import dk.alexandra.fresco.framework.sce.configuration.TestSCEConfiguration;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
-import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
 import dk.alexandra.fresco.framework.sce.resources.storage.StorageStrategy;
 import dk.alexandra.fresco.lib.arithmetic.BasicArithmeticTests;
-import dk.alexandra.fresco.suite.ProtocolSuite;
-import dk.alexandra.fresco.suite.spdz.configuration.SpdzConfiguration;
-import dk.alexandra.fresco.suite.spdz.evaluation.strategy.SpdzProtocolSuite;
 
 /**
  * Basic arithmetic tests using the SPDZ protocol suite with 2 parties. Have to
