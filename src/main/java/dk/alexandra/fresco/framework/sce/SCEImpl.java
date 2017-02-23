@@ -42,6 +42,8 @@ import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.Reporter;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.NetworkConfigurationImpl;
+import dk.alexandra.fresco.framework.network.KryoNetNetwork;
+import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.ScapiNetworkImpl;
 import dk.alexandra.fresco.framework.sce.configuration.ProtocolSuiteConfiguration;
 import dk.alexandra.fresco.framework.sce.configuration.SCEConfiguration;
@@ -128,8 +130,9 @@ public class SCEImpl implements SCE {
 		if (this.evaluator instanceof ParallelEvaluator || this.evaluator instanceof BatchedParallelEvaluator) {
 			channelAmount = noOfvmThreads;
 		}
-		ScapiNetworkImpl network = new ScapiNetworkImpl(conf, channelAmount);
-
+		//Network network = new ScapiNetworkImpl(conf, channelAmount);
+		Network network = new KryoNetNetwork(conf);
+		
 		if (noOfvmThreads == -1) {
 			// default to 1 allowed VM thread only - otherwise certain
 			// strategies are going to outright fail.

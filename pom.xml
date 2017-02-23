@@ -97,6 +97,12 @@
 	  <version>b82956805dc9694d95d04e211c7bffab54294c21</version>
 	</dependency>
 
+    <!-- KryoNet -->
+    <dependency>
+    	<groupId>com.esotericsoftware</groupId>
+    	<artifactId>kryonet</artifactId>
+    	<version>2.22.0-RC1</version>
+	</dependency>
     
     <!-- Library for parsing command line arguments. -->
     <dependency>
@@ -232,6 +238,5 @@
       <url>file://${basedir}/lib</url>
     </repository>
   </repositories>
-  
 
 </project>
