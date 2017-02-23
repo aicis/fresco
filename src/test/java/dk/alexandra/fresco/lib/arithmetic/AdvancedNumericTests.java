@@ -34,7 +34,7 @@ import dk.alexandra.fresco.framework.sce.SCE;
 import dk.alexandra.fresco.framework.sce.SCEFactory;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.helper.builder.DivisionBuilder;
+import dk.alexandra.fresco.lib.helper.builder.AdvancedNumericBuilder;
 import dk.alexandra.fresco.lib.helper.builder.NumericIOBuilder;
 import dk.alexandra.fresco.lib.helper.builder.OmniBuilder;
 import org.junit.Assert;
@@ -42,7 +42,7 @@ import org.junit.Assert;
 import java.io.IOException;
 import java.math.BigInteger;
 
-public class DivisionTests {
+public class AdvancedNumericTests {
     public static class TestDivision extends TestThreadRunner.TestThreadFactory {
 
         private abstract static class ThreadWithFixture extends TestThreadRunner.TestThread {
@@ -68,11 +68,11 @@ public class DivisionTests {
                         public ProtocolProducer prepareApplication(ProtocolFactory factory) {
                             OmniBuilder builder = new OmniBuilder(factory);
                             NumericIOBuilder io = builder.getNumericIOBuilder();
-                            DivisionBuilder division = builder.getDivisionBuilder();
+                            AdvancedNumericBuilder numeric = builder.getAdvancedNumericBuilder();
 
                             SInt p = io.input(9, 1);
                             SInt q = io.input(4, 1);
-                            SInt result = division.div(p, 4, q, 4);
+                            SInt result = numeric.div(p, 4, q, 4);
 
                             outputs = new OInt[] { io.output(result) };
 

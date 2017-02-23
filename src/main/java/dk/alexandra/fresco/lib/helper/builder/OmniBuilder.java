@@ -76,7 +76,7 @@ public class OmniBuilder extends AbstractProtocolBuilder{
 	private BasicLogicBuilder basicLogicBuilder;
 	private NumericIOBuilder numericIOBuilder;
 	private NumericProtocolBuilder numericProtocolBuilder;
-	private DivisionBuilder divisionBuilder;
+	private AdvancedNumericBuilder advancedNumericBuilder;
 	private ComparisonProtocolBuilder comparisonProtocolBuilder;
 	private StatisticsProtocolBuilder statisticsProtocolBuilder;
 	private SymmetricEncryptionBuilder symmetricEncryptionBuilder;
@@ -160,14 +160,14 @@ public class OmniBuilder extends AbstractProtocolBuilder{
 		return numericProtocolBuilder;
 	}
 
-	public DivisionBuilder getDivisionBuilder() {
-		if (divisionBuilder == null) {
+	public AdvancedNumericBuilder getAdvancedNumericBuilder() {
+		if (advancedNumericBuilder == null) {
 			SIntFactory intFactory = (SIntFactory)factory;
 			DivisionFactory divisionFactory = getDivisionFactory();
-			divisionBuilder = new DivisionBuilder(divisionFactory, intFactory);
-			divisionBuilder.setParentBuilder(this);
+			advancedNumericBuilder = new AdvancedNumericBuilder(divisionFactory, intFactory);
+			advancedNumericBuilder.setParentBuilder(this);
 		}
-		return divisionBuilder;
+		return advancedNumericBuilder;
 	}
 
 	private DivisionFactory getDivisionFactory() {

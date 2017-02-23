@@ -28,14 +28,14 @@ package dk.alexandra.fresco.suite.spdz;
 
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.resources.storage.StorageStrategy;
-import dk.alexandra.fresco.lib.arithmetic.DivisionTests;
+import dk.alexandra.fresco.lib.arithmetic.AdvancedNumericTests;
 import org.junit.Test;
 
-public class TestSpdzDivision extends TestSpdz2Parties {
+public class TestSpdzAdvancedNumeric extends TestSpdz2Parties {
 
     @Test
     public void test_Division() throws Exception {
-        runTest(new DivisionTests.TestDivision(),
+        runTest(new AdvancedNumericTests.TestDivision(),
                 EvaluationStrategy.SEQUENTIAL, StorageStrategy.IN_MEMORY);
     }
 

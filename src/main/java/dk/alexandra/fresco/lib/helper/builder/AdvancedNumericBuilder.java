@@ -5,12 +5,12 @@ import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.framework.value.SIntFactory;
 import dk.alexandra.fresco.lib.math.integer.division.DivisionFactory;
 
-public class DivisionBuilder extends AbstractProtocolBuilder {
+public class AdvancedNumericBuilder extends AbstractProtocolBuilder {
 
     private DivisionFactory divisionFactory;
     private SIntFactory intFactory;
 
-    public DivisionBuilder(DivisionFactory divisionFactory, SIntFactory intFactory) {
+    public AdvancedNumericBuilder(DivisionFactory divisionFactory, SIntFactory intFactory) {
         this.divisionFactory = divisionFactory;
         this.intFactory = intFactory;
     }
