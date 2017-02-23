@@ -150,7 +150,7 @@ public class TestSpdzBasicArithmetic2Parties {
 
 	@Test
 	public void test_MultAndAdd_Sequential() throws Exception {
-		runTest(new BasicArithmeticTests.TestLotsOfInputs(),
+		runTest(new BasicArithmeticTests.TestSimpleMultAndAdd(),
 				EvaluationStrategy.SEQUENTIAL, StorageStrategy.IN_MEMORY);
 	}
 
