@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 
+import org.junit.Before;
 import org.junit.Test;
 
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
@@ -54,6 +55,7 @@ import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.configuration.SpdzConfiguration;
 import dk.alexandra.fresco.suite.spdz.evaluation.strategy.SpdzProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.storage.InitializeStorage;
+import dk.alexandra.fresco.suite.spdz.utils.Util;
 
 public class TestSpdzMiMC {
 
@@ -63,7 +65,6 @@ public class TestSpdzMiMC {
 			StorageStrategy storageStrategy, Storage storage) throws Exception {
 		Level logLevel = Level.FINE;
 		Reporter.init(logLevel);
-
 		// Since SCAPI currently does not work with ports > 9999 we use fixed
 		// ports
 		// here instead of relying on ephemeral ports which are often > 9999.
@@ -112,14 +113,19 @@ public class TestSpdzMiMC {
 		TestThreadRunner.run(f, conf);
 	}
 
-
+	@Before
+	public void setup(){
+		//Util.setModulus(new BigInteger("6703903964971298549787012499123814115273848577471136527425966013026501536706464354255445443244279389455058889493431223951165286470575994074291745908195329"));
+		//Util.setModulus(new BigInteger("2582249878086908589655919172003011874329705792829223512830659356540647622016841194629645353280137831435903171972747493557"));
+		Util.setModulus(new BigInteger("1031"));
+	}
 
 	@Test
 	public void test_mimc_same_enc() throws Exception {
 		InitializeStorage.cleanup();
 		try {
 			FilebasedStreamedStorageImpl store = new FilebasedStreamedStorageImpl(new InMemoryStorage());		
-			InitializeStorage.initStreamedStorage(store, 2, 1, 10000, 10, 0, 0, new BigInteger("2582249878086908589655919172003011874329705792829223512830659356540647622016841194629645353280137831435903171972747493557"));
+			InitializeStorage.initStreamedStorage(store, 2, 1, 10000, 10, 0, 0, Util.getModulus());
 			runTest(new MiMCTests.TestMiMCEncSameEnc(),
 					EvaluationStrategy.SEQUENTIAL, StorageStrategy.IN_MEMORY, store);
 		} catch(Exception e) {
@@ -133,7 +139,7 @@ public class TestSpdzMiMC {
 		InitializeStorage.cleanup();
 		try {
 			FilebasedStreamedStorageImpl store = new FilebasedStreamedStorageImpl(new InMemoryStorage());		
-			InitializeStorage.initStreamedStorage(store, 2, 1, 100000, 0, 0, 0, new BigInteger("1031"));
+			InitializeStorage.initStreamedStorage(store, 2, 1, 100000, 0, 0, 0, Util.getModulus());
 			runTest(new MiMCTests.TestMiMCEncDec(),
 					EvaluationStrategy.SEQUENTIAL, StorageStrategy.IN_MEMORY, store);
 		} catch(Exception e) {

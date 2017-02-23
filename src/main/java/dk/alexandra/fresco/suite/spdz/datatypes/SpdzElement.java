@@ -36,6 +36,7 @@ public class SpdzElement implements Serializable{
 	private static final long serialVersionUID = 6794633112697012286L;
 	private BigInteger share;
 	private BigInteger mac;
+	private static final BigInteger mod = Util.getModulus();
 	
 	public SpdzElement(){
 		this.share = null;
@@ -92,8 +93,8 @@ public class SpdzElement implements Serializable{
 	
 	//Arithmetic operations:
 	public SpdzElement add(SpdzElement e){
-		BigInteger rShare = this.share.add(e.getShare()).mod(Util.getModulus());
-		BigInteger rMac = this.mac.add(e.getMac()).mod(Util.getModulus());		
+		BigInteger rShare = this.share.add(e.getShare()).mod(mod);
+		BigInteger rMac = this.mac.add(e.getMac()).mod(mod);		
 		return new SpdzElement(rShare, rMac);
 	}
 	
@@ -106,18 +107,18 @@ public class SpdzElement implements Serializable{
 	public SpdzElement add(SpdzElement e, int pID){
 		BigInteger rShare = this.share;
 		BigInteger rMac = this.mac;
-		rMac = rMac.add(e.getMac()).mod(Util.getModulus());
+		rMac = rMac.add(e.getMac()).mod(mod);
 		if(pID == 1){
-			rShare = rShare.add(e.getShare()).mod(Util.getModulus());			
+			rShare = rShare.add(e.getShare()).mod(mod);			
 		}
 		return new SpdzElement(rShare, rMac);
 	}
 	
 	public SpdzElement subtract(SpdzElement e){
 		BigInteger eShare = e.getShare();
-		BigInteger rShare = this.share.subtract(eShare).mod(Util.getModulus());
+		BigInteger rShare = this.share.subtract(eShare).mod(mod);
 		BigInteger eMac = e.getMac();
-		BigInteger rMac = this.mac.subtract(eMac).mod(Util.getModulus());				
+		BigInteger rMac = this.mac.subtract(eMac).mod(mod);				
 		return new SpdzElement(rShare, rMac);
 	}
 	
@@ -130,16 +131,16 @@ public class SpdzElement implements Serializable{
 	public SpdzElement subtract(SpdzElement e, int pID) {
 		BigInteger rShare = this.share;
 		if(pID == 1){
-			rShare = this.share.subtract(e.getShare()).mod(Util.getModulus());
+			rShare = this.share.subtract(e.getShare()).mod(mod);
 		}
 		BigInteger eMac = e.getMac();
-		BigInteger rMac = this.mac.subtract(eMac).mod(Util.getModulus());				
+		BigInteger rMac = this.mac.subtract(eMac).mod(mod);				
 		return new SpdzElement(rShare, rMac);
 	}
 	
 	public SpdzElement multiply(BigInteger c){
-		BigInteger rShare = this.share.multiply(c).mod(Util.getModulus());
-		BigInteger rMac = this.mac.multiply(c).mod(Util.getModulus());				
+		BigInteger rShare = this.share.multiply(c).mod(mod);
+		BigInteger rMac = this.mac.multiply(c).mod(mod);				
 		return new SpdzElement(rShare, rMac);		
 	}
 	
