@@ -30,6 +30,7 @@ import dk.alexandra.fresco.framework.Protocol;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
+import dk.alexandra.fresco.lib.compare.ComparisonProtocolFactory;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.helper.AbstractSimpleProtocol;
 import dk.alexandra.fresco.lib.helper.builder.NumericProtocolBuilder;
@@ -68,12 +69,14 @@ public class SecretSharedDivisorProtocol extends AbstractSimpleProtocol implemen
 	private final RightShiftFactory rightShiftFactory;
 	private final BitLengthFactory bitLengthFactory;
 	private final ExponentiationFactory exponentiationFactory;
+	private final ComparisonProtocolFactory comparisonFactory;
 
 	public SecretSharedDivisorProtocol(SInt numerator, SInt denominator,
 									   SInt result, BasicNumericFactory basicNumericFactory,
 									   RightShiftFactory rightShiftFactory,
 									   BitLengthFactory bitLengthFactory,
-									   ExponentiationFactory exponentiationFactory) {
+									   ExponentiationFactory exponentiationFactory,
+									   ComparisonProtocolFactory comparisonFactory) {
 		this.numerator = numerator;
 		this.denominator = denominator;
 		this.result = result;
@@ -82,16 +85,18 @@ public class SecretSharedDivisorProtocol extends AbstractSimpleProtocol implemen
 		this.rightShiftFactory = rightShiftFactory;
 		this.bitLengthFactory = bitLengthFactory;
 		this.exponentiationFactory = exponentiationFactory;
+		this.comparisonFactory = comparisonFactory;
 	}
 
 	public SecretSharedDivisorProtocol(SInt numerator, SInt denominator,
 									   SInt result, OInt precision,
 									   BasicNumericFactory basicNumericFactory, RightShiftFactory rightShiftFactory,
 									   BitLengthFactory bitLengthFactory,
-									   ExponentiationFactory exponentiationFactory) {
+									   ExponentiationFactory exponentiationFactory,
+									   ComparisonProtocolFactory comparisonFactory) {
 
 		this(numerator, denominator, result, basicNumericFactory,
-				rightShiftFactory, bitLengthFactory, exponentiationFactory);
+				rightShiftFactory, bitLengthFactory, exponentiationFactory, comparisonFactory);
 		this.precision = precision;
 	}
 
