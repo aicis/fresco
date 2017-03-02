@@ -114,8 +114,8 @@ public class SquareRootProtocolImpl extends AbstractSimpleProtocol implements Sq
 			 * The lower bound on the precision from the division protocol will
 			 * also be a lower bound of the precision of this protocol.
 			 */
-			builder.addProtocolProducer(divisionFactory.getDivisionProtocol(input, maxInputLength,
-					y[i - 1], ceil(maxInputLength / 2) + 1, quotient, precision));
+			builder.addProtocolProducer(divisionFactory.getDivisionProtocol(input,
+					y[i - 1], quotient, precision));
 			SInt sum = builder.add(y[i - 1], quotient);
 			y[i] = builder.getSInt();
 			builder.addProtocolProducer(rightShiftFactory.getRightShiftProtocol(sum, y[i]));

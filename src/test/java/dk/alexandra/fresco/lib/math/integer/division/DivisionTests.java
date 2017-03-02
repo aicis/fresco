@@ -195,7 +195,7 @@ public class DivisionTests {
 							for (int i = 0; i < n; i++) {
 								precision[i] = basicNumericFactory.getOInt();
 								quotient[i] = basicNumericFactory.getSInt();
-								DivisionProtocol divisionProtocol = divisionFactory.getDivisionProtocol(inputs[i], x[i].bitLength(), input2, d.bitLength(), quotient[i], precision[i]);
+								DivisionProtocol divisionProtocol = divisionFactory.getDivisionProtocol(inputs[i], input2, quotient[i], precision[i]);
 								sequentialProtocolProducer.append(divisionProtocol);
 							}
 							

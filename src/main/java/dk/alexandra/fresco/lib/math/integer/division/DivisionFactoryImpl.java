@@ -65,17 +65,17 @@ public class DivisionFactoryImpl implements DivisionFactory {
 	}
 
 	@Override
-	public DivisionProtocol getDivisionProtocol(SInt x, int maxDividendLength, SInt divisor,
-			int maxDivisorLength, SInt result) {
-		return new SecretSharedDivisorProtocol(x, maxDividendLength, divisor, maxDivisorLength,
+	public DivisionProtocol getDivisionProtocol(SInt x, SInt divisor,
+												SInt result) {
+		return new SecretSharedDivisorProtocol(x, divisor,
 				result, basicNumericFactory, rightShiftFactory, bitLengthFactory,
 				exponentiationFactory);
 	}
 
 	@Override
-	public DivisionProtocol getDivisionProtocol(SInt dividend, int maxDividendLength, SInt divisor,
-			int maxDivisorLength, SInt result, OInt precision) {
-		return new SecretSharedDivisorProtocol(dividend, maxDividendLength, divisor, maxDivisorLength,
+	public DivisionProtocol getDivisionProtocol(SInt dividend, SInt divisor,
+												SInt result, OInt precision) {
+		return new SecretSharedDivisorProtocol(dividend, divisor,
 				result, precision, basicNumericFactory, rightShiftFactory, bitLengthFactory,
 				exponentiationFactory);
 	}

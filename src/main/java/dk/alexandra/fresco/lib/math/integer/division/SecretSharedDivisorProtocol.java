@@ -69,8 +69,8 @@ public class SecretSharedDivisorProtocol extends AbstractSimpleProtocol implemen
 	private final BitLengthFactory bitLengthFactory;
 	private final ExponentiationFactory exponentiationFactory;
 
-	public SecretSharedDivisorProtocol(SInt numerator, int maxNumeratorLength, SInt denominator,
-									   int maxDenominatorLength, SInt result, BasicNumericFactory basicNumericFactory,
+	public SecretSharedDivisorProtocol(SInt numerator, SInt denominator,
+									   SInt result, BasicNumericFactory basicNumericFactory,
 									   RightShiftFactory rightShiftFactory,
 									   BitLengthFactory bitLengthFactory,
 									   ExponentiationFactory exponentiationFactory) {
@@ -84,13 +84,13 @@ public class SecretSharedDivisorProtocol extends AbstractSimpleProtocol implemen
 		this.exponentiationFactory = exponentiationFactory;
 	}
 
-	public SecretSharedDivisorProtocol(SInt numerator, int maxNumeratorLength, SInt denominator,
-									   int maxDenominatorLength, SInt result, OInt precision,
+	public SecretSharedDivisorProtocol(SInt numerator, SInt denominator,
+									   SInt result, OInt precision,
 									   BasicNumericFactory basicNumericFactory, RightShiftFactory rightShiftFactory,
 									   BitLengthFactory bitLengthFactory,
 									   ExponentiationFactory exponentiationFactory) {
 
-		this(numerator, maxNumeratorLength, denominator, maxDenominatorLength, result, basicNumericFactory,
+		this(numerator, denominator, result, basicNumericFactory,
 				rightShiftFactory, bitLengthFactory, exponentiationFactory);
 		this.precision = precision;
 	}

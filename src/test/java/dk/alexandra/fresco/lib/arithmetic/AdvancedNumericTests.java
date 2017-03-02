@@ -69,7 +69,7 @@ public class AdvancedNumericTests {
 
                             SInt p = io.input(numerator, 1);
                             SInt q = io.input(denominator, 1);
-                            SInt result = advanced.div(p, 4, q, 4);
+                            SInt result = advanced.div(p, q);
 
                             outputs = new OInt[] { io.output(result) };
 
@@ -104,7 +104,7 @@ public class AdvancedNumericTests {
                             SInt p = io.input(9, 1);
                             SInt q = io.input(4, 1);
                             OInt precision = numeric.knownOInt(4);
-                            SInt result = advanced.div(p, 4, q, 4, precision);
+                            SInt result = advanced.div(p, q, precision);
 
                             outputs = new OInt[] { io.output(result) };
 
