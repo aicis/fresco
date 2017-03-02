@@ -38,6 +38,7 @@ import dk.alexandra.fresco.lib.helper.builder.AdvancedNumericBuilder;
 import dk.alexandra.fresco.lib.helper.builder.NumericIOBuilder;
 import dk.alexandra.fresco.lib.helper.builder.NumericProtocolBuilder;
 import dk.alexandra.fresco.lib.helper.builder.OmniBuilder;
+import dk.alexandra.fresco.suite.spdz.utils.Util;
 import org.junit.Assert;
 
 import java.io.IOException;
@@ -80,7 +81,7 @@ public class AdvancedNumericTests {
                     sce.runApplication(app);
 
                     Assert.assertEquals(BigInteger.valueOf(numerator / denominator),
-                            app.getOutputs()[0].getValue());
+                            Util.convertRepresentation(app.getOutputs()[0].getValue()));
                 }
             };
         }

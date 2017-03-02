@@ -117,6 +117,14 @@ public class SecretSharedDivisorProtocol extends AbstractSimpleProtocol implemen
 		// Convert 2 to fixed point notation with 'maximumBitLength' decimals.
 		OInt two = builder.knownOInt(BigInteger.valueOf(2).shiftLeft(maximumBitLength));
 
+		// Determine sign of numerator and denominator
+		SInt numeratorSign = sign(builder, numerator);
+		SInt denominatorSign = sign(builder, denominator);
+
+		// Ensure that numerator and denominator are both positive
+		numerator = builder.mult(numeratorSign, numerator);
+		denominator = builder.mult(denominatorSign, denominator);
+
 		// Determine the actual number of bits in the denominator.
 		SInt denominatorBitLength = getBitLength(builder, denominator, maximumBitLength);
 
@@ -149,6 +157,10 @@ public class SecretSharedDivisorProtocol extends AbstractSimpleProtocol implemen
 		n = builder.add(n, builder.knownOInt(1));
 		n = shiftRight(builder, n, maximumBitLength);
 
+		// Ensure that result has the correct sign
+		n = builder.mult(n, numeratorSign);
+		n = builder.mult(n, denominatorSign);
+
 		builder.copy(result, n);
 
 		// Set precision to number of correct bits in the result
@@ -166,6 +178,25 @@ public class SecretSharedDivisorProtocol extends AbstractSimpleProtocol implemen
 	private SInt getBitLength(ProtocolBuilder builder, SInt input, int maximumBitLength) {
 		SInt result = basicNumericFactory.getSInt();
 		Protocol protocol = bitLengthFactory.getBitLengthProtocol(input, result, maximumBitLength);
+		builder.addProtocolProducer(protocol);
+		return result;
+	}
+
+	private SInt sign(NumericProtocolBuilder builder, SInt input) {
+		SInt result = gte(builder, input, builder.known(0));
+		result = builder.mult(builder.knownOInt(2), result);
+		result = builder.sub(result, builder.knownOInt(1));
+		return result;
+	}
+
+	private SInt gte(NumericProtocolBuilder builder, SInt left, SInt right) {
+
+		// TODO: workaround for the fact that the GreaterThanProtocol actually calculated left <= right.
+		SInt actualLeft = right;
+		SInt actualRight = left;
+
+		SInt result = basicNumericFactory.getSInt();
+		Protocol protocol = comparisonFactory.getGreaterThanProtocol(actualLeft, actualRight, result, false);
 		builder.addProtocolProducer(protocol);
 		return result;
 	}
