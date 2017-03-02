@@ -47,6 +47,14 @@ public class AdvancedNumericTests {
 
     public static class TestDivision extends TestThreadRunner.TestThreadFactory {
 
+        private int numerator;
+        private int denominator;
+
+        public TestDivision(int numerator, int denominator) {
+            this.numerator = numerator;
+            this.denominator = denominator;
+        }
+
         @Override
         public TestThreadRunner.TestThread next(TestThreadRunner.TestThreadConfiguration conf) {
             return new ThreadWithFixture() {
@@ -59,8 +67,8 @@ public class AdvancedNumericTests {
                             NumericIOBuilder io = builder.getNumericIOBuilder();
                             AdvancedNumericBuilder advanced = builder.getAdvancedNumericBuilder();
 
-                            SInt p = io.input(8, 1);
-                            SInt q = io.input(4, 1);
+                            SInt p = io.input(numerator, 1);
+                            SInt q = io.input(denominator, 1);
                             SInt result = advanced.div(p, 4, q, 4);
 
                             outputs = new OInt[] { io.output(result) };
@@ -71,7 +79,7 @@ public class AdvancedNumericTests {
 
                     sce.runApplication(app);
 
-                    Assert.assertEquals(BigInteger.valueOf(8 / 4),
+                    Assert.assertEquals(BigInteger.valueOf(numerator / denominator),
                             app.getOutputs()[0].getValue());
                 }
             };
