@@ -26,70 +26,56 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.math.integer.division;
 
-import java.math.BigInteger;
-
-import dk.alexandra.fresco.framework.MPCException;
+import dk.alexandra.fresco.framework.Protocol;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.helper.AbstractSimpleProtocol;
 import dk.alexandra.fresco.lib.helper.builder.NumericProtocolBuilder;
+import dk.alexandra.fresco.lib.helper.builder.ProtocolBuilder;
 import dk.alexandra.fresco.lib.math.integer.binary.BitLengthFactory;
 import dk.alexandra.fresco.lib.math.integer.binary.RightShiftFactory;
 import dk.alexandra.fresco.lib.math.integer.exp.ExponentiationFactory;
 
+import java.math.BigInteger;
+
 /**
  * <p>
- * This protocol approximates division where both dividend and divisor is secret
- * shared. If the divisor is a known number {@link KnownDivisorProtocol} should
+ * This protocol implements integer division where both numerator and denominator are secret
+ * shared. If the denominator is a known number {@link KnownDivisorProtocol} should
  * be used instead.
  * </p>
  * 
  * <p>
  * The protocol uses <a href=
  * "https://en.wikipedia.org/wiki/Division_algorithm#Goldschmidt_division"
- * >Goldschmidt Division</a> (aka. the 'IBM Method'). Here we calculate <i>n / d
- * = n / (1-x) = n(1+x) / (1-x<sup>2</sup>) = n(1+x)(1+x<sup>2</sup>) /
- * (1-x<sup>4</sup>) = n(1+x)(1+x<sup>2</sup>) ...
- * (1+x<sup>2<sup>p-1</sup></sup>) / (1-x<sup>2<sup>p</sup></sup>),</i> where
- * <i>x = 1-d</i>, repeatedly exploiting that <i>(1+x)(1-x) =
- * 1-x<sup>2</sup></i>, and note that if we scale <i>n</i> and <i>d</i> such
- * that <i>1/2 < d < 1</i> then the denominator will converge to <i>1</i> as
- * <i>p</i> increases, se we can use the numerator as an approximation for <i>n
- * / d</i>. Now, to keep everything integer we need to shift all numbers to the
- * left and then shift back when we are done.
+ * >Goldschmidt Division</a> (aka. the 'IBM Method').
  * </p>
- * 
- * @author Jonas Lindstrøm (jonas.lindstrom@alexandra.dk)
  *
+ * Its results approximate regular integer division with n bits, where n is equal to
+ * {@link BasicNumericFactory#getMaxBitLength()} / 4.
+ * Just like regular integer division, this division will always truncate the result instead of rounding.
  */
 public class SecretSharedDivisorProtocol extends AbstractSimpleProtocol implements DivisionProtocol {
 
-	// Input
-	private SInt dividend;
-	private int maxDividendLength;
-	private SInt divisor;
-	private int maxDivisorLength;
+	private SInt numerator;
+	private SInt denominator;
 	private SInt result;
 	private OInt precision;
 
-	// Factories
 	private final BasicNumericFactory basicNumericFactory;
 	private final RightShiftFactory rightShiftFactory;
 	private final BitLengthFactory bitLengthFactory;
 	private final ExponentiationFactory exponentiationFactory;
 
-	public SecretSharedDivisorProtocol(SInt dividend, int maxDividendLength, SInt divisor,
-			int maxDivisorLength, SInt result, BasicNumericFactory basicNumericFactory,
-			RightShiftFactory rightShiftFactory,
-			BitLengthFactory bitLengthFactory,
-			ExponentiationFactory exponentiationFactory) {
-		this.dividend = dividend;
-		this.maxDividendLength = maxDividendLength;
-		this.divisor = divisor;
-		this.maxDivisorLength = maxDivisorLength;
-
+	public SecretSharedDivisorProtocol(SInt numerator, int maxNumeratorLength, SInt denominator,
+									   int maxDenominatorLength, SInt result, BasicNumericFactory basicNumericFactory,
+									   RightShiftFactory rightShiftFactory,
+									   BitLengthFactory bitLengthFactory,
+									   ExponentiationFactory exponentiationFactory) {
+		this.numerator = numerator;
+		this.denominator = denominator;
 		this.result = result;
 
 		this.basicNumericFactory = basicNumericFactory;
@@ -98,15 +84,14 @@ public class SecretSharedDivisorProtocol extends AbstractSimpleProtocol implemen
 		this.exponentiationFactory = exponentiationFactory;
 	}
 
-	public SecretSharedDivisorProtocol(SInt dividend, int maxDividendLength, SInt divisor,
-			int maxDivisorLength, SInt result, OInt precision,
-			BasicNumericFactory basicNumericFactory, RightShiftFactory rightShiftFactory,
-			BitLengthFactory bitLengthFactory,
-			ExponentiationFactory exponentiationFactory) {
-		
-		this(dividend, maxDividendLength, divisor, maxDivisorLength, result, basicNumericFactory,
-				rightShiftFactory, bitLengthFactory, exponentiationFactory);
+	public SecretSharedDivisorProtocol(SInt numerator, int maxNumeratorLength, SInt denominator,
+									   int maxDenominatorLength, SInt result, OInt precision,
+									   BasicNumericFactory basicNumericFactory, RightShiftFactory rightShiftFactory,
+									   BitLengthFactory bitLengthFactory,
+									   ExponentiationFactory exponentiationFactory) {
 
+		this(numerator, maxNumeratorLength, denominator, maxDenominatorLength, result, basicNumericFactory,
+				rightShiftFactory, bitLengthFactory, exponentiationFactory);
 		this.precision = precision;
 	}
 
@@ -115,113 +100,83 @@ public class SecretSharedDivisorProtocol extends AbstractSimpleProtocol implemen
 
 		NumericProtocolBuilder builder = new NumericProtocolBuilder(basicNumericFactory);
 
-		/*
-		 * 2^{(2^p - 1) * M + p} * dividend has to be representable, so the
-		 * logarithm of this has to be smaller than
-		 * basicNumericFactory.getMaxBitLength(). This is the case when p is
-		 * defined as follows:
-		 * 
-		 * Note that we are comparing the logarithm with the bitlength, so we
-		 * may add one to the logarithm.
-		 */
-		int precision = log2((basicNumericFactory.getMaxBitLength() - maxDivisorLength)
-				/ maxDividendLength) + 1; 
+		// Calculate maximum number of bits we can represent without overflows.
+		// We lose half of the precision because we need to multiply two numbers without overflow.
+		// And we lose half again because we need to be able to shift the numerator left,
+		// depending on the bit length of the denominator
+		int maximumBitLength = basicNumericFactory.getMaxBitLength() / 4;
 
-		if (precision < 2) {
-			throw new MPCException("Division protocol can only guarantee " + precision + " bits of precision. This is likely because the inputs are to large.");
-		}
-		
-		builder.beginSeqScope();
+		// Calculate amount of iterations that are needed to get a precise answer in all decimal bits
+		int amountOfIterations = log2(maximumBitLength);
 
-		/*
-		 * Calculate 2^M, 2^{2M}, ..., 2^{2^{p-1} M} where M = maxDivisorLength
-		 * and p = precision.
-		 */
-		OInt[] twoPowers = new OInt[precision];
-		twoPowers[0] = basicNumericFactory.getOInt(BigInteger.valueOf(1)
-				.shiftLeft(maxDivisorLength));
-		for (int i = 1; i < precision; i++) {
-			BigInteger previous = twoPowers[i - 1].getValue();
-			twoPowers[i] = basicNumericFactory.getOInt(previous.multiply(previous));
-		}
+		// Convert 2 to fixed point notation with 'maximumBitLength' decimals.
+		OInt two = builder.knownOInt(BigInteger.valueOf(2).shiftLeft(maximumBitLength));
 
-		/*
-		 * Find the actual bitlength m of the divisor and calculate
-		 * boundDifferencePower = 2^{M-m}
-		 */
-		SInt mostSignificantBit = builder.getSInt();
-		builder.addProtocolProducer(bitLengthFactory.getBitLengthProtocol(divisor,
-				mostSignificantBit, maxDivisorLength));
-		SInt boundDifference = builder.sub(
-				basicNumericFactory.getOInt(BigInteger.valueOf(maxDivisorLength)),
-				mostSignificantBit);
-		SInt boundDifferencePower = builder.getSInt();
-		builder.addProtocolProducer(exponentiationFactory.getExponentiationCircuit(
-				basicNumericFactory.getOInt(BigInteger.valueOf(2)), boundDifference,
-				maxDivisorLength, boundDifferencePower));
+		// Determine the actual number of bits in the denominator.
+		SInt denominatorBitLength = getBitLength(builder, denominator, maximumBitLength);
 
-		/*
-		 * y = 2^M * 2^{M-m} = 2^m
-		 */
-		SInt y = builder.sub(twoPowers[0], builder.mult(boundDifferencePower, divisor));
+		// Determine the maximum number of bits we can shift the denominator left in order to gain more precision.
+		SInt leftShift = builder.sub(builder.knownOInt(maximumBitLength), denominatorBitLength);
 
-		/*
-		 * Calculate y, y^2, ..., y^{2{p-1}}.
-		 */
-		SInt[] yPowers = new SInt[precision];
-		yPowers[0] = y;
-		for (int i = 1; i < precision; i++) {
-			yPowers[i] = builder.mult(yPowers[i - 1], yPowers[i - 1]);
-		}
-
-		/*
-		 * Calculate x(2^M + y)(2^{2M} + y^2) ... (2^{2^{p-1} M} y^{2^{p-1}}).
-		 */
+		// Left shift numerator and denominator for greater precision.
+		// We're allowed to do this because shifting numerator and denominator by the same amount
+		// doesn't change the outcome of the division.
+		SInt leftShiftFactor = exp2(builder, leftShift, log2(maximumBitLength));
 		builder.beginParScope();
-		SInt[] factors = new SInt[precision + 1];
-		factors[0] = dividend;
-		for (int i = 0; i < precision; i++) {
-			factors[i + 1] = builder.add(yPowers[i], twoPowers[i]);
+			SInt n = builder.mult(numerator, leftShiftFactor);
+			SInt d = builder.mult(denominator, leftShiftFactor);
+		builder.endCurScope();
+
+		// Goldschmidt iteration
+		for (int i=0; i<amountOfIterations; i++) {
+			SInt f = builder.sub(two, d);
+			builder.beginParScope();
+				n = builder.mult(f, n);
+				d = builder.mult(f, d);
+			builder.endCurScope();
+			builder.beginParScope();
+				n = shiftRight(builder, n, maximumBitLength);
+				d = shiftRight(builder, d, maximumBitLength);
+			builder.endCurScope();
 		}
-		builder.endCurScope();
 
-		builder.beginSeqScope();
-		SInt numerator = builder.mult(factors);
+		// Right shift to remove decimals, rounding last decimal up.
+		n = builder.add(n, builder.knownOInt(1));
+		n = shiftRight(builder, n, maximumBitLength);
 
-		/*
-		 * To get the right result we need to shift back (2^p - 1) M + m steps.
-		 * We do this by shifting (2^p - 2) M bits. Then we multiply by 2^{M -
-		 * m} and finally shift 2M bits.
-		 */
-		int shifts = ((1 << precision) - 2) * maxDivisorLength;
-		SInt tmp = builder.getSInt();
-		builder.addProtocolProducer(rightShiftFactory.getRepeatedRightShiftProtocol(numerator, shifts,
-				tmp));
-		SInt tmp2 = builder.mult(tmp, boundDifferencePower);
-		builder.addProtocolProducer(rightShiftFactory.getRepeatedRightShiftProtocol(tmp2,
-				2 * maxDivisorLength, result));
-		builder.endCurScope();
+		builder.copy(result, n);
 
-		builder.endCurScope();
-
-		/*
-		 * We get at least 2^precision bits of precision.
-		 */
-		if (this.precision != null) {
-			this.precision.setValue(BigInteger.valueOf(2).pow(precision));
+		// Set precision to number of correct bits in the result
+		if (precision != null) {
+			precision.setValue(BigInteger.valueOf(maximumBitLength));
 		}
 
 		return builder.getProtocol();
 	}
 
-	/**
-	 * Calculate the base-2 logarithm of <i>x</i>, <i>log<sub>2</sub>(x)</i>.
-	 * 
-	 * @param x
-	 * @return
-	 */
-	private static int log2(int x) {
-		return (int) (Math.log(x) / Math.log(2));
+	private int log2(int number) {
+		return (int)Math.ceil(Math.log(number) / Math.log(2));
 	}
 
+	private SInt getBitLength(ProtocolBuilder builder, SInt input, int maximumBitLength) {
+		SInt result = basicNumericFactory.getSInt();
+		Protocol protocol = bitLengthFactory.getBitLengthProtocol(input, result, maximumBitLength);
+		builder.addProtocolProducer(protocol);
+		return result;
+	}
+
+	private SInt exp2(ProtocolBuilder builder, SInt exponent, int maxExponentLength) {
+		SInt result = basicNumericFactory.getSInt();
+		OInt base = basicNumericFactory.getOInt(BigInteger.valueOf(2));
+		Protocol protocol = exponentiationFactory.getExponentiationCircuit(base, exponent, maxExponentLength, result);
+		builder.addProtocolProducer(protocol);
+		return result;
+	}
+
+	private SInt shiftRight(ProtocolBuilder builder, SInt input, int numberOfPositions) {
+		SInt result = basicNumericFactory.getSInt();
+		Protocol protocol = rightShiftFactory.getRepeatedRightShiftProtocol(input, numberOfPositions, result);
+		builder.addProtocolProducer(protocol);
+		return result;
+	}
 }

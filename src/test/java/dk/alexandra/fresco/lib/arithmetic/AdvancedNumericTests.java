@@ -59,7 +59,7 @@ public class AdvancedNumericTests {
                             NumericIOBuilder io = builder.getNumericIOBuilder();
                             AdvancedNumericBuilder advanced = builder.getAdvancedNumericBuilder();
 
-                            SInt p = io.input(9, 1);
+                            SInt p = io.input(8, 1);
                             SInt q = io.input(4, 1);
                             SInt result = advanced.div(p, 4, q, 4);
 
@@ -71,7 +71,7 @@ public class AdvancedNumericTests {
 
                     sce.runApplication(app);
 
-                    Assert.assertEquals(BigInteger.valueOf(9 / 4),
+                    Assert.assertEquals(BigInteger.valueOf(8 / 4),
                             app.getOutputs()[0].getValue());
                 }
             };
