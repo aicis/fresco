@@ -36,6 +36,7 @@ import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.helper.builder.AdvancedNumericBuilder;
 import dk.alexandra.fresco.lib.helper.builder.NumericIOBuilder;
+import dk.alexandra.fresco.lib.helper.builder.NumericProtocolBuilder;
 import dk.alexandra.fresco.lib.helper.builder.OmniBuilder;
 import org.junit.Assert;
 
@@ -43,20 +44,8 @@ import java.io.IOException;
 import java.math.BigInteger;
 
 public class AdvancedNumericTests {
+
     public static class TestDivision extends TestThreadRunner.TestThreadFactory {
-
-        private abstract static class ThreadWithFixture extends TestThreadRunner.TestThread {
-
-            protected SCE sce;
-
-            @Override
-            public void setUp() throws IOException {
-                sce = SCEFactory.getSCEFromConfiguration(conf.sceConf,
-                        conf.protocolSuiteConf);
-            }
-
-        }
-
 
         @Override
         public TestThreadRunner.TestThread next(TestThreadRunner.TestThreadConfiguration conf) {
@@ -68,17 +57,18 @@ public class AdvancedNumericTests {
                         public ProtocolProducer prepareApplication(ProtocolFactory factory) {
                             OmniBuilder builder = new OmniBuilder(factory);
                             NumericIOBuilder io = builder.getNumericIOBuilder();
-                            AdvancedNumericBuilder numeric = builder.getAdvancedNumericBuilder();
+                            AdvancedNumericBuilder advanced = builder.getAdvancedNumericBuilder();
 
                             SInt p = io.input(9, 1);
                             SInt q = io.input(4, 1);
-                            SInt result = numeric.div(p, 4, q, 4);
+                            SInt result = advanced.div(p, 4, q, 4);
 
                             outputs = new OInt[] { io.output(result) };
 
                             return builder.getProtocol();
                         }
                     };
+
                     sce.runApplication(app);
 
                     Assert.assertEquals(BigInteger.valueOf(9 / 4),
@@ -86,5 +76,156 @@ public class AdvancedNumericTests {
                 }
             };
         }
+    }
+
+    public static class TestDivisionWithPrecision extends TestThreadRunner.TestThreadFactory {
+
+        @Override
+        public TestThreadRunner.TestThread next(TestThreadRunner.TestThreadConfiguration conf) {
+            return new ThreadWithFixture() {
+                @Override
+                public void test() throws Exception {
+                    TestApplication app = new TestApplication() {
+                        @Override
+                        public ProtocolProducer prepareApplication(ProtocolFactory factory) {
+                            OmniBuilder builder = new OmniBuilder(factory);
+                            NumericIOBuilder io = builder.getNumericIOBuilder();
+                            NumericProtocolBuilder numeric = builder.getNumericProtocolBuilder();
+                            AdvancedNumericBuilder advanced = builder.getAdvancedNumericBuilder();
+
+                            SInt p = io.input(9, 1);
+                            SInt q = io.input(4, 1);
+                            OInt precision = numeric.knownOInt(4);
+                            SInt result = advanced.div(p, 4, q, 4, precision);
+
+                            outputs = new OInt[] { io.output(result) };
+
+                            return builder.getProtocol();
+                        }
+                    };
+
+                    sce.runApplication(app);
+
+                    Assert.assertEquals(BigInteger.valueOf(9 / 4),
+                            app.getOutputs()[0].getValue());
+                }
+            };
+        }
+    }
+
+    public static class TestDivisionWithKnownDenominator extends TestThreadRunner.TestThreadFactory {
+
+        @Override
+        public TestThreadRunner.TestThread next(TestThreadRunner.TestThreadConfiguration conf) {
+            return new ThreadWithFixture() {
+                @Override
+                public void test() throws Exception {
+                    TestApplication app = new TestApplication() {
+                        @Override
+                        public ProtocolProducer prepareApplication(ProtocolFactory factory) {
+                            OmniBuilder builder = new OmniBuilder(factory);
+                            NumericIOBuilder io = builder.getNumericIOBuilder();
+                            NumericProtocolBuilder numeric = builder.getNumericProtocolBuilder();
+                            AdvancedNumericBuilder advanced = builder.getAdvancedNumericBuilder();
+
+                            SInt p = io.input(8, 1);
+                            OInt q = numeric.knownOInt(4);
+                            SInt result = advanced.div(p, 4, q);
+
+                            outputs = new OInt[] { io.output(result) };
+
+                            return builder.getProtocol();
+                        }
+                    };
+
+                    sce.runApplication(app);
+
+                    Assert.assertEquals(BigInteger.valueOf(8 / 4),
+                            app.getOutputs()[0].getValue());
+                }
+            };
+        }
+    }
+
+    public static class TestDivisionWithRemainder extends TestThreadRunner.TestThreadFactory {
+
+        @Override
+        public TestThreadRunner.TestThread next(TestThreadRunner.TestThreadConfiguration conf) {
+            return new ThreadWithFixture() {
+                @Override
+                public void test() throws Exception {
+                    TestApplication app = new TestApplication() {
+                        @Override
+                        public ProtocolProducer prepareApplication(ProtocolFactory factory) {
+                            OmniBuilder builder = new OmniBuilder(factory);
+                            NumericIOBuilder io = builder.getNumericIOBuilder();
+                            NumericProtocolBuilder numeric = builder.getNumericProtocolBuilder();
+                            AdvancedNumericBuilder advanced = builder.getAdvancedNumericBuilder();
+
+                            SInt p = io.input(9, 1);
+                            OInt q = numeric.knownOInt(4);
+                            SInt[] results = advanced.divWithRemainder(p, 4, q);
+
+                            outputs = io.outputArray(results);
+
+                            return builder.getProtocol();
+                        }
+                    };
+
+                    sce.runApplication(app);
+
+                    Assert.assertEquals(BigInteger.valueOf(9 / 4),
+                            app.getOutputs()[0].getValue());
+                    Assert.assertEquals(BigInteger.valueOf(9 % 4),
+                            app.getOutputs()[1].getValue());
+                }
+            };
+        }
+    }
+
+    public static class TestModulus extends TestThreadRunner.TestThreadFactory {
+
+        @Override
+        public TestThreadRunner.TestThread next(TestThreadRunner.TestThreadConfiguration conf) {
+            return new ThreadWithFixture() {
+                @Override
+                public void test() throws Exception {
+                    TestApplication app = new TestApplication() {
+                        @Override
+                        public ProtocolProducer prepareApplication(ProtocolFactory factory) {
+                            OmniBuilder builder = new OmniBuilder(factory);
+                            NumericIOBuilder io = builder.getNumericIOBuilder();
+                            NumericProtocolBuilder numeric = builder.getNumericProtocolBuilder();
+                            AdvancedNumericBuilder advanced = builder.getAdvancedNumericBuilder();
+
+                            SInt p = io.input(9, 1);
+                            OInt q = numeric.knownOInt(4);
+                            SInt result = advanced.mod(p, 4, q);
+
+                            outputs = new OInt[] { io.output(result) };
+
+                            return builder.getProtocol();
+                        }
+                    };
+
+                    sce.runApplication(app);
+
+                    Assert.assertEquals(BigInteger.valueOf(9 % 4),
+                            app.getOutputs()[0].getValue());
+                }
+            };
+        }
+    }
+
+    private abstract static class ThreadWithFixture extends TestThreadRunner.TestThread {
+
+        protected SCE sce;
+
+        @Override
+        public void setUp() throws IOException {
+            sce = SCEFactory.getSCEFromConfiguration(conf.sceConf,
+                    conf.protocolSuiteConf);
+        }
+
     }
 }

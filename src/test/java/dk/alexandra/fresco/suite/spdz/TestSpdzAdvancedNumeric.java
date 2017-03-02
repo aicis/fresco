@@ -39,4 +39,27 @@ public class TestSpdzAdvancedNumeric extends TestSpdz2Parties {
                 EvaluationStrategy.SEQUENTIAL, StorageStrategy.IN_MEMORY);
     }
 
+    @Test
+    public void test_DivisionWithPrecision() throws Exception {
+        runTest(new AdvancedNumericTests.TestDivisionWithPrecision(),
+                EvaluationStrategy.SEQUENTIAL, StorageStrategy.IN_MEMORY);
+    }
+
+    @Test
+    public void test_DivisionWithKnownDenominator() throws Exception {
+        runTest(new AdvancedNumericTests.TestDivisionWithKnownDenominator(),
+                EvaluationStrategy.SEQUENTIAL, StorageStrategy.IN_MEMORY);
+    }
+
+    @Test
+    public void test_DivisionWithRemainder() throws Exception {
+        runTest(new AdvancedNumericTests.TestDivisionWithRemainder(),
+                EvaluationStrategy.SEQUENTIAL, StorageStrategy.IN_MEMORY);
+    }
+
+    @Test
+    public void test_Modulus() throws Exception {
+        runTest(new AdvancedNumericTests.TestModulus(),
+            EvaluationStrategy.SEQUENTIAL, StorageStrategy.IN_MEMORY);
+    }
 }
