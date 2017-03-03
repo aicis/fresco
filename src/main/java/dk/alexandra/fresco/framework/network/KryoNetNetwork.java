@@ -3,6 +3,7 @@ package dk.alexandra.fresco.framework.network;
 import java.io.IOException;
 import java.io.Serializable;
 import java.math.BigInteger;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -21,28 +22,27 @@ import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 
 public class KryoNetNetwork implements Network {
 
-	private final Server server;
+	private final Map<Integer, Server> servers;
 	private final Map<Integer, Client> clients;
 	private final NetworkConfiguration conf;
 	private final Map<Integer, BlockingQueue<Object>> queues;
 
 	public KryoNetNetwork(NetworkConfiguration conf) {
-		this.conf = conf;
-		this.server = new Server();
-		Registrator.register(server);
+		this.conf = conf;		
 		this.clients = new HashMap<>();
-		try {
-			this.server.bind(conf.getMe().getPort());
-			this.server.start();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		this.servers = new HashMap<>();
+		for(int i = 1; i <= conf.noOfParties(); i++) {
+			if(conf.getMyId() != i) {
+				Server server = new Server();
+				Registrator.register(server);
+				this.servers.put(i, server);
+			}
+		}				
 		this.queues = new HashMap<>();
-		for (int i = 1; i <= conf.noOfParties(); i++) {
-			Client client = new Client();
-			Registrator.register(client);
+		for (int i = 1; i <= conf.noOfParties(); i++) {			
 			if (i != conf.getMyId()) {
+				Client client = new Client();
+				Registrator.register(client);
 				clients.put(i, client);				
 			}
 			this.queues.put(i, new ArrayBlockingQueue<>(1000));
@@ -59,25 +59,39 @@ public class KryoNetNetwork implements Network {
 		}
 
 		@Override
-		public void received(Connection connection, Object object) {
+		public void received(Connection connection, Object object) {		
 			queue.offer(object);
 		}
 	}
-
+	
 	@Override
 	public void connect(int timeoutMillis) throws IOException {
 		final Semaphore semaphore = new Semaphore(-(conf.noOfParties()-2));
+		int inc = 0;
 		for (int i = 1; i <= conf.noOfParties(); i++) {
 			if (i != conf.getMyId()) {
-				Client client = clients.get(i);				
-				client.start();
+				Server server = this.servers.get(i);
+				try {
+					server.bind(conf.getMe().getPort() + inc++);
+					server.start();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 				
+				server.addListener(new NaiveListener(queues.get(i)));
+				
+				Client client = clients.get(i);
+
 				client.addListener(new Listener(){
 					@Override
 					public void connected (Connection connection) {
 						semaphore.release();
 					}
 				});
+				
+				client.start();
+				
 				
 				String hostname = conf.getParty(i).getHostname();
 				int port = conf.getParty(i).getPort(); 
@@ -91,8 +105,7 @@ public class KryoNetNetwork implements Network {
 							System.exit(1);
 						}
 					}
-				}.start();
-				this.server.addListener(new NaiveListener(queues.get(i)));
+				}.start();				
 			}
 		}
 		try {
@@ -127,10 +140,12 @@ public class KryoNetNetwork implements Network {
 	}
 
 	@Override
-	public void close() throws IOException {
-		this.server.close();
+	public void close() throws IOException {		
 		for (int i = 1; i <= conf.noOfParties(); i++) {
-			this.clients.get(i).close();
+			if (i != conf.getMyId()) {
+				this.clients.get(i).close();
+				this.servers.get(i).close();
+			}
 		}
 	}
 	

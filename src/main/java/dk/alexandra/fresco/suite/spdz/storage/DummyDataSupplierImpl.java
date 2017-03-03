@@ -51,10 +51,11 @@ public class DummyDataSupplierImpl implements DataSupplier{
 	Map<Integer, SpdzSInt[]> exp_3party;
 	Map<Integer, Map<Integer,SpdzInputMask>> inputs_3party;
 	
-	public DummyDataSupplierImpl(int myId, int numberOfPlayers) {
-		Util.setModulus(getModulus());
+	public DummyDataSupplierImpl(int myId, int numberOfPlayers) {		
 		this.myId = myId;
 		this.numberOfPlayers = numberOfPlayers;
+		
+		Util.setModulus(getModulus());
 		
 		this.triples_2party = new HashMap<Integer, SpdzTriple>();
 		this.bits_2party = new HashMap<Integer, SpdzSInt>();
@@ -66,8 +67,13 @@ public class DummyDataSupplierImpl implements DataSupplier{
 		this.exp_3party = new HashMap<Integer, SpdzSInt[]>();
 		this.inputs_3party = new HashMap<Integer, Map<Integer,SpdzInputMask>>();
 		
-		fillout2PartyData();
-		fillout3PartyData();
+		if(numberOfPlayers == 2) {
+			fillout2PartyData();
+		} else if(numberOfPlayers == 3){
+			fillout3PartyData();	
+		} else {
+			throw new IllegalArgumentException("Dummy supplier currently only supports 2 or 3 parties.");
+		}
 	}
 	
 	@Override
