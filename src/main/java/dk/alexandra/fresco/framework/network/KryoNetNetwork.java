@@ -3,7 +3,6 @@ package dk.alexandra.fresco.framework.network;
 import java.io.IOException;
 import java.io.Serializable;
 import java.math.BigInteger;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -17,7 +16,6 @@ import com.esotericsoftware.kryonet.EndPoint;
 import com.esotericsoftware.kryonet.FrameworkMessage;
 import com.esotericsoftware.kryonet.Listener;
 import com.esotericsoftware.kryonet.Server;
-import com.esotericsoftware.minlog.Log;
 
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
@@ -64,7 +62,8 @@ public class KryoNetNetwork implements Network {
 
 		@Override
 		public void received(Connection connection, Object object) {		
-			//Maybe a keep alive message will be offered to the queue. - so we should ignore it. 
+			//Maybe a keep alive message will be offered to the queue. - so we should ignore it.
+			//TODO: When only byte[] are received, we should change to instanceof byte[] to avoid also Ping messages etc.
 			if(!(object instanceof FrameworkMessage.KeepAlive)) {
 				queue.offer(object);	
 			}			
