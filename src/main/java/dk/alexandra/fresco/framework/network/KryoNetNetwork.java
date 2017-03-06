@@ -14,8 +14,10 @@ import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryonet.Client;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.EndPoint;
+import com.esotericsoftware.kryonet.FrameworkMessage;
 import com.esotericsoftware.kryonet.Listener;
 import com.esotericsoftware.kryonet.Server;
+import com.esotericsoftware.minlog.Log;
 
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
@@ -28,6 +30,8 @@ public class KryoNetNetwork implements Network {
 	private final Map<Integer, BlockingQueue<Object>> queues;
 
 	public KryoNetNetwork(NetworkConfiguration conf) {
+		//Log.set(Log.LEVEL_DEBUG);
+		
 		this.conf = conf;		
 		this.clients = new HashMap<>();
 		this.servers = new HashMap<>();
@@ -41,8 +45,8 @@ public class KryoNetNetwork implements Network {
 		this.queues = new HashMap<>();
 		for (int i = 1; i <= conf.noOfParties(); i++) {			
 			if (i != conf.getMyId()) {
-				Client client = new Client();
-				Registrator.register(client);
+				Client client = new Client();				
+				Registrator.register(client);				
 				clients.put(i, client);				
 			}
 			this.queues.put(i, new ArrayBlockingQueue<>(1000));
@@ -60,7 +64,10 @@ public class KryoNetNetwork implements Network {
 
 		@Override
 		public void received(Connection connection, Object object) {		
-			queue.offer(object);
+			//Maybe a keep alive message will be offered to the queue. - so we should ignore it. 
+			if(!(object instanceof FrameworkMessage.KeepAlive)) {
+				queue.offer(object);	
+			}			
 		}
 	}
 	
@@ -79,13 +86,14 @@ public class KryoNetNetwork implements Network {
 					e.printStackTrace();
 				}
 				
-				server.addListener(new NaiveListener(queues.get(i)));
+				server.addListener(new NaiveListener(queues.get(i)));				
 				
 				Client client = clients.get(i);
 
 				client.addListener(new Listener(){
 					@Override
 					public void connected (Connection connection) {
+						System.out.println("Client connected. Yea!");
 						semaphore.release();
 					}
 				});
@@ -97,12 +105,19 @@ public class KryoNetNetwork implements Network {
 				int port = conf.getParty(i).getPort(); 
 				new Thread("Connect") {
 					public void run () {
-						try {
-							client.connect(5000, hostname, port);
-							// Server communication after connection can go here, or in Listener#connected().
-						} catch (IOException ex) {
-							ex.printStackTrace();
-							System.exit(1);
+						boolean success = false;
+						while(!success) {
+							try {							
+								client.connect(5000, hostname, port);
+								// Server communication after connection can go here, or in Listener#connected().
+								success = true;
+							} catch (IOException ex) {								
+								try {
+									Thread.sleep(500);
+								} catch (InterruptedException e) {
+									throw new RuntimeException("Thread got interrupted while trying to reconnect.");
+								}
+							}
 						}
 					}
 				}.start();				
