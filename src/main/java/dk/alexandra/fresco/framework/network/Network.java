@@ -27,10 +27,9 @@
 package dk.alexandra.fresco.framework.network;
 
 import java.io.IOException;
-import java.io.Serializable;
 
 /**
- * A player's view of a network. 
+ * A player's view of a network.
  * 
  */
 public interface Network {
@@ -47,9 +46,10 @@ public interface Network {
 	void connect(int timeoutMillis) throws IOException;
 
 	/**
-	 * Send data to other party with id partyId.
+	 * Send data to other party with id partyId. This network will automatically
+	 * figure out the size on the receiving end.
 	 * 
-	 * @param channel
+	 * @param channelId
 	 *            the channel to send data over.
 	 * @param partyId
 	 *            the party to send data to
@@ -58,14 +58,13 @@ public interface Network {
 	 * @throws IOException
 	 *             thrown if the connection has problems.
 	 */
-	void send(String channel, int partyId, Serializable data)
-			throws IOException;
+	void send(int channelId, int partyId, byte[] data) throws IOException;
 
 	/**
 	 * Blocking call that only returns once the data has been fully received and
 	 * deserialized.
 	 * 
-	 * @param channel
+	 * @param channelId
 	 *            the channel to receive from
 	 * @param partyId
 	 *            the party to receive from
@@ -73,7 +72,7 @@ public interface Network {
 	 * @throws IOException
 	 *             if the channel times out or other connection issues occurs.
 	 */
-	<T extends Serializable> T receive(String channel, int partyId) throws IOException;
+	byte[] receive(int channelId, int partyId) throws IOException;
 
 	public void close() throws IOException;
 }

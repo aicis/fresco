@@ -26,15 +26,17 @@
  *******************************************************************************/
 package dk.alexandra.fresco.framework.network;
 
-import java.io.Serializable;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Queue;
 import java.util.Set;
-import java.util.concurrent.LinkedBlockingQueue;
+
+import dk.alexandra.fresco.framework.MPCException;
 
 public class SCENetworkImpl implements SCENetwork, SCENetworkSupplier {
 
@@ -42,59 +44,60 @@ public class SCENetworkImpl implements SCENetwork, SCENetworkSupplier {
 	//TODO: Remove when possible - also from interface.
 	private int threadId;
 	
-	private Map<Integer, Queue<Serializable>> input;
-	private Map<Integer, Queue<Serializable>> output;
+	private Map<Integer, ByteBuffer> input;
+	private Map<Integer, ByteArrayOutputStream> output;
 	private Set<Integer> expectedInputForNextRound;		
 	
 	public SCENetworkImpl(int noOfParties, int threadId) {
 		this.noOfParties = noOfParties;
 		this.threadId = threadId;
-		this.output = new HashMap<Integer, Queue<Serializable>>();
+		this.output = new HashMap<Integer, ByteArrayOutputStream>();
 		this.expectedInputForNextRound = new HashSet<Integer>();
 	}
 	
 	//ProtocolNetwork
-	
-	@SuppressWarnings("unchecked")
 	@Override
-	public <T extends Serializable> T receive(int id) {
-		return (T) this.input.get(id).poll();
+	public ByteBuffer receive(int id) {
+		return this.input.get(id);
 	}
 	
-	@SuppressWarnings("unchecked")
 	@Override
-	public <T extends Serializable> List<T> receiveFromAll() {
-		List<T> res = new ArrayList<T>();
+	public List<ByteBuffer> receiveFromAll() {
+		List<ByteBuffer> res = new ArrayList<ByteBuffer>();
 		for(int i = 1; i <= noOfParties; i++) {
-			res.add((T) this.input.get(i).poll()); 
+			res.add(this.input.get(i)); 
 		}
 		return res;
 	}
 	
 	@Override
-	public void send(int id, Serializable o) {
+	public void send(int id, byte[] data) {
 		if(id < 1) {
 			throw new IllegalArgumentException("Cannot send to an Id smaller than 1");
 		}
-		Queue<Serializable> q = this.output.get(id);
-		if(q == null) {
-			q = new LinkedBlockingQueue<Serializable>();
-			this.output.put(id, q);
+		ByteArrayOutputStream buffer = this.output.get(id);
+		if(buffer == null) {
+			buffer = new ByteArrayOutputStream();
+			this.output.put(id, buffer);
 		}
-		q.offer(o);
-	}
-	
-	@Override
-	public void sendToAll(Serializable o) {
-		for(int i = 1; i <= noOfParties; i++) {
-			send(i, o);
+		try {
+			buffer.write(data);
+		} catch (IOException e) {
+			throw new MPCException("Should never happen, but an IOException occured trying to write bytes to a byte array output stream. ", e);
 		}
 	}
 	
 	@Override
-	public void sendSharesToAll(Serializable[] o) {
+	public void sendToAll(byte[] data) {
 		for(int i = 1; i <= noOfParties; i++) {
-			send(i, o[i-1]);
+			send(i, data);
+		}
+	}
+	
+	@Override
+	public void sendSharesToAll(byte[][] data) {
+		for(int i = 1; i <= noOfParties; i++) {
+			send(i, data[i-1]);
 		}
 	}
 	
@@ -120,12 +123,12 @@ public class SCENetworkImpl implements SCENetwork, SCENetworkSupplier {
 	//ProtocolNetworkSupplier
 	
 	@Override
-	public void setInput(Map<Integer, Queue<Serializable>> inputForThisRound) {
+	public void setInput(Map<Integer, ByteBuffer> inputForThisRound) {
 		this.input = inputForThisRound;
 	}
 
 	@Override
-	public Map<Integer, Queue<Serializable>> getOutputFromThisRound() {
+	public Map<Integer, ByteArrayOutputStream> getOutputFromThisRound() {
 		return this.output;
 	}
 

@@ -26,6 +26,8 @@
  *******************************************************************************/
 package dk.alexandra.fresco.suite.bgw.integer;
 
+import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.List;
 
 import dk.alexandra.fresco.framework.MPCException;
@@ -81,11 +83,20 @@ public class BgwMultProtocol extends BgwProtocol implements MultProtocol {
 			outC.value = inA.value.mult(inB.value);
 			ShamirShare[] reshares = ShamirShare.createShares(
 					outC.value.getField(), n, threshold);
-			network.sendSharesToAll(reshares);
+			byte[][] data = new byte[reshares.length][];
+			for(int i = 0; i < reshares.length; i++) {
+				data[i] = reshares[i].toByteArray();
+			}
+			network.sendSharesToAll(data);
 			network.expectInputFromAll();
 			return EvaluationStatus.HAS_MORE_ROUNDS;
 		case 1:
-			List<ShamirShare> shares = network.receiveFromAll();
+			List<ByteBuffer> buffers = network.receiveFromAll();
+			List<ShamirShare> shares = new ArrayList<>();
+			for(int i = 0; i < buffers.size(); i++) {
+				byte[] tmp = new byte[ShamirShare.size];
+				shares.add(ShamirShare.deSerialize(tmp, 0));
+			}
 			outC.value = new ShamirShare(resourcePool.getMyId(),
 					ShamirShare.recombine(shares, shares.size()));
 			return EvaluationStatus.IS_DONE;
