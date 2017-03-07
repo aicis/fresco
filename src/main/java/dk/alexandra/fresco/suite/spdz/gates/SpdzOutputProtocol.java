@@ -72,15 +72,15 @@ public class SpdzOutputProtocol extends SpdzNativeProtocol implements OpenIntPro
 	}
 
 	@Override
-	public EvaluationStatus evaluate(int round, ResourcePool resourcePool,
-			SCENetwork network) {
-		SpdzProtocolSuite spdzpii = SpdzProtocolSuite
-				.getInstance(resourcePool.getMyId());
-		int myId = resourcePool.getMyId();		
-		SpdzStorage storage = spdzpii.getStore(network.getThreadId());		
+	public EvaluationStatus evaluate(int round, ResourcePool resourcePool, SCENetwork network) {		
+		SpdzProtocolSuite spdzpii = SpdzProtocolSuite.getInstance(resourcePool.getMyId());
+		spdzpii.outputProtocolUsedInBatch();
 		
+		int myId = resourcePool.getMyId();
+		SpdzStorage storage = spdzpii.getStore(network.getThreadId());
+
 		switch (round) {
-		case 0: 
+		case 0:
 			this.mask = storage.getSupplier().getNextInputMask(target_player);
 			SpdzElement inMinusMask = this.in.value.subtract(this.mask.getMask());
 			storage.addClosedValue(inMinusMask);
@@ -95,7 +95,7 @@ public class SpdzOutputProtocol extends SpdzNativeProtocol implements OpenIntPro
 			}
 			openedVal = openedVal.mod(Util.getModulus());
 			storage.addOpenedValue(openedVal);
-			if(target_player == myId) {
+			if (target_player == myId) {
 				openedVal = openedVal.add(this.mask.getRealValue());
 				BigInteger tmpOut = openedVal;
 				tmpOut = Util.convertRepresentation(tmpOut);
@@ -104,7 +104,7 @@ public class SpdzOutputProtocol extends SpdzNativeProtocol implements OpenIntPro
 			return EvaluationStatus.IS_DONE;
 		default:
 			throw new MPCException("No more rounds to evaluate.");
-		}		
+		}
 	}
 
 }
