@@ -28,6 +28,7 @@ package dk.alexandra.fresco.suite.dummy;
 
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.network.SCENetwork;
+import dk.alexandra.fresco.framework.network.converters.BooleanConverter;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.OBool;
 import dk.alexandra.fresco.framework.value.SBool;
@@ -52,12 +53,12 @@ public class DummyCloseBoolProtocol extends DummyProtocol implements CloseBoolPr
 		switch (round) {
 		case 0:
 			if (resourcePool.getMyId() == sender) {
-				network.sendToAll(input.getValue());
+				network.sendToAll(BooleanConverter.toBytes(input.getValue()));
 			}
 			network.expectInputFromPlayer(sender);
 			return EvaluationStatus.HAS_MORE_ROUNDS;
 		case 1:
-			boolean r = network.receive(sender);
+			boolean r = BooleanConverter.fromBytes(network.receive(sender));
 			this.output.setValue(r);
 			return EvaluationStatus.IS_DONE;
 		default:

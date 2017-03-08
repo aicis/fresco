@@ -121,25 +121,21 @@ public class BatchedParallelEvaluator implements ProtocolEvaluator {
 
 		private NativeProtocol[] protocols;
 		private int numOfProtocols;
-		private String channel;
+		private int channel;
 		private ResourcePool rp;
-		private SCENetworkImpl[] sceNetworks;
+		private SCENetworkImpl sceNetwork;
 
 		public BatchTask(NativeProtocol[] protocols, int threadId, int numOfProtocols, ResourcePool rp) {
-			this.channel = ""+threadId;
+			this.channel = threadId;
 			this.protocols = protocols;
 			this.rp = rp;
 			this.numOfProtocols = numOfProtocols;
-			this.sceNetworks = new SCENetworkImpl[numOfProtocols];
-			for (int i = 0; i < numOfProtocols; i++) {
-				this.sceNetworks[i] = new SCENetworkImpl(
-						this.rp.getNoOfParties(), threadId);
-			}
+			this.sceNetwork = new SCENetworkImpl(this.rp.getNoOfParties(), threadId);			
 		}
 
 		@Override
 		public Object call() throws Exception {		
-			BatchedStrategy.processBatch(protocols, numOfProtocols, sceNetworks, channel, rp);
+			BatchedStrategy.processBatch(protocols, numOfProtocols, sceNetwork, channel, rp);
 			return null;
 		}
 	}

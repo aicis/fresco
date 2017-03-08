@@ -68,7 +68,7 @@ public class TestDummyProtocolSuite {
 		// here instead of relying on ephemeral ports which are often > 9999.
 		List<Integer> ports = new ArrayList<Integer>(noPlayers);
 		for (int i=1; i<=noPlayers; i++) {
-			ports.add(9000 + i);
+			ports.add(9000 + i*10);
 		}
 		
 		Map<Integer, NetworkConfiguration> netConf = TestConfiguration.getNetworkConfigurations(noPlayers, ports, logLevel);

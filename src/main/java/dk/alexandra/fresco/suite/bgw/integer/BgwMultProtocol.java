@@ -94,7 +94,8 @@ public class BgwMultProtocol extends BgwProtocol implements MultProtocol {
 			List<ByteBuffer> buffers = network.receiveFromAll();
 			List<ShamirShare> shares = new ArrayList<>();
 			for(int i = 0; i < buffers.size(); i++) {
-				byte[] tmp = new byte[ShamirShare.size];
+				byte[] tmp = new byte[ShamirShare.getSize()];
+				buffers.get(i).get(tmp);
 				shares.add(ShamirShare.deSerialize(tmp, 0));
 			}
 			outC.value = new ShamirShare(resourcePool.getMyId(),

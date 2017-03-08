@@ -27,6 +27,7 @@
 package dk.alexandra.fresco.suite.bgw.integer;
 
 import java.math.BigInteger;
+import java.util.Arrays;
 
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.network.SCENetwork;
@@ -65,13 +66,13 @@ public class BgwCloseIntProtocol extends BgwProtocol implements
 				byte[][] toSend = new byte[shares.length][];
 				for(int i = 0; i < shares.length; i++) {
 					toSend[i] = shares[i].toByteArray();
-				}
+				}				
 				network.sendSharesToAll(toSend);
 			}
 			network.expectInputFromPlayer(inputter);
 			return EvaluationStatus.HAS_MORE_ROUNDS;
 		case 1:
-			byte[] data = new byte[ShamirShare.size]; 
+			byte[] data = new byte[ShamirShare.getSize()]; 
 			network.receive(inputter).get(data);
 			this.output.value = ShamirShare.deSerialize(data, 0);
 			return EvaluationStatus.IS_DONE;

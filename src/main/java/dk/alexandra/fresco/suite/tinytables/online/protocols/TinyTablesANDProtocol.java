@@ -26,10 +26,13 @@
  *******************************************************************************/
 package dk.alexandra.fresco.suite.tinytables.online.protocols;
 
+import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.List;
 
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.network.SCENetwork;
+import dk.alexandra.fresco.framework.network.converters.BooleanConverter;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.Value;
 import dk.alexandra.fresco.lib.field.bool.AndProtocol;
@@ -97,10 +100,14 @@ public class TinyTablesANDProtocol extends TinyTablesProtocol implements AndProt
 				TinyTablesElement myShare = tinyTable.getValue(inLeft.getValue(), inRight.getValue());
 
 				network.expectInputFromAll();
-				network.sendToAll(myShare);
+				network.sendToAll(BooleanConverter.toBytes(myShare.getShare()));
 				return EvaluationStatus.HAS_MORE_ROUNDS;
 			case 1:
-				List<TinyTablesElement> shares = network.receiveFromAll();
+				List<ByteBuffer> buffers = network.receiveFromAll();
+				List<TinyTablesElement> shares = new ArrayList<>();
+				for(int i = 0; i < buffers.size(); i++) {
+					shares.add(new TinyTablesElement(BooleanConverter.fromBytes(buffers.get(i))));
+				}
 				boolean open = TinyTablesElement.open(shares);
 				this.out.setValue(new TinyTablesElement(open));
 				return EvaluationStatus.IS_DONE;

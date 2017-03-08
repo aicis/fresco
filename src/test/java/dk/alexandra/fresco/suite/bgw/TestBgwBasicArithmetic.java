@@ -67,8 +67,9 @@ public class TestBgwBasicArithmetic {
 		// Since SCAPI currently does not work with ports > 9999 we use fixed ports
 		// here instead of relying on ephemeral ports which are often > 9999.
 		List<Integer> ports = new ArrayList<Integer>(noPlayers);
+		int noOfVMThreads = 3;
 		for (int i=1; i<=noPlayers; i++) {
-			ports.add(9000 + i);
+			ports.add(9000 + i*noOfVMThreads);
 		}
 		
 		Map<Integer, NetworkConfiguration> netConf = TestConfiguration.getNetworkConfigurations(noPlayers, ports,logLevel);
@@ -93,7 +94,7 @@ public class TestBgwBasicArithmetic {
 			ProtocolEvaluator evaluator = EvaluationStrategy.fromEnum(evalStrategy);			
 			Storage storage = new InMemoryStorage();
 			int noOfThreads = 1;
-			int noOfVMThreads = 3;
+			
 			ttc.sceConf = new TestSCEConfiguration(suite, evaluator, noOfThreads, noOfVMThreads, net, storage, useSecureConnection);
 			conf.put(playerId, ttc);
 		}

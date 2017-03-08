@@ -26,7 +26,9 @@
  *******************************************************************************/
 package dk.alexandra.fresco.framework.sce.evaluator;
 
+import java.io.ByteArrayOutputStream;
 import java.io.Serializable;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -118,12 +120,12 @@ public class ParallelEvaluator implements ProtocolEvaluator {
 
 		NativeProtocol[] gates;
 		int offset, interval, totalGates;
-		String channel;
+		int channel;
 		ResourcePool rp;
 
 		public BatchTask(NativeProtocol[] gates, int offset, int interval, int totalGates, ResourcePool rp) {
 			this.offset = offset;
-			this.channel = ""+offset;
+			this.channel = offset;
 			this.interval = interval;
 			this.gates = gates;
 			this.rp = rp;
@@ -140,22 +142,17 @@ public class ParallelEvaluator implements ProtocolEvaluator {
 				do {					
 					status = gates[i].evaluate(round, this.rp, protocolNetwork);
 					//send phase
-					Map<Integer, Queue<Serializable>> output = protocolNetwork.getOutputFromThisRound();				
+					Map<Integer, ByteArrayOutputStream> output = protocolNetwork.getOutputFromThisRound();				
 					for(int pId : output.keySet()) {
 						//send array since queue is not serializable
-						network.send(channel, pId, output.get(pId).toArray(new Serializable[0]));					
+						network.send(channel, pId, output.get(pId).toByteArray());					
 					}
 					
 					//receive phase
-					Map<Integer, Queue<Serializable>> inputForThisRound = new HashMap<Integer, Queue<Serializable>>();
+					Map<Integer, ByteBuffer> inputForThisRound = new HashMap<Integer, ByteBuffer>();
 					for(int pId : protocolNetwork.getExpectedInputForNextRound()) {					
-						Serializable[] messages = network.receive(channel, pId);
-						Queue<Serializable> q = new LinkedBlockingQueue<Serializable>();
-						//convert back from array to queue.
-						for(Serializable message : messages) {
-							q.offer(message);
-						}
-						inputForThisRound.put(pId, q);
+						byte[] messages = network.receive(channel, pId);						
+						inputForThisRound.put(pId, ByteBuffer.wrap(messages));
 					}
 					protocolNetwork.setInput(inputForThisRound);
 					protocolNetwork.nextRound();

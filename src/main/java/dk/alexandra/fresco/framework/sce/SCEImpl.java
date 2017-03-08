@@ -91,7 +91,7 @@ public class SCEImpl implements SCE {
 	private ProtocolSuite protocolSuite;
 	private ProtocolSuiteConfiguration psConf;
 
-	private boolean setup = false;
+	private boolean setup;
 
 	protected SCEImpl(SCEConfiguration sceConf) {
 		this(sceConf, null);
@@ -99,7 +99,9 @@ public class SCEImpl implements SCE {
 
 	protected SCEImpl(SCEConfiguration sceConf, ProtocolSuiteConfiguration psConf) {
 		this.sceConf = sceConf;
-		this.psConf = psConf;		
+		this.psConf = psConf;
+		
+		this.setup = false;
 		
 		//setup the basic stuff, but do not initialize anything yet
 		int myId = sceConf.getMyId();
@@ -131,7 +133,7 @@ public class SCEImpl implements SCE {
 			channelAmount = noOfvmThreads;
 		}
 		//Network network = new ScapiNetworkImpl(conf, channelAmount);
-		Network network = new KryoNetNetwork(conf);
+		Network network = new KryoNetNetwork(conf, channelAmount);
 		
 		if (noOfvmThreads == -1) {
 			// default to 1 allowed VM thread only - otherwise certain
@@ -154,7 +156,7 @@ public class SCEImpl implements SCE {
 	}
 
 	@Override
-	public synchronized void setup() throws IOException {		
+	public synchronized void setup() throws IOException {
 		if (this.setup) {
 			return;
 		}
@@ -219,7 +221,7 @@ public class SCEImpl implements SCE {
 			throw new IllegalArgumentException(
 					"Could not understand the specified runtime. This framework currently supports:\n\t-spdz\n\t-bgw\n\t-dummy");
 		}
-
+		
 		this.setup = true;
 	}
 
@@ -304,7 +306,7 @@ public class SCEImpl implements SCE {
 
 	@Override
 	public void shutdownSCE() {
-		if (!setup) {
+		if (!this.setup) {
 			return;
 		}
 		this.evaluator = null;
@@ -330,6 +332,7 @@ public class SCEImpl implements SCE {
 		}
 		this.resourcePool = null;
 		this.protocolFactory = null;
+		this.setup = false;
 	}
 
 }

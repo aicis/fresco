@@ -80,7 +80,7 @@ public class BgwRandomIntProtocol extends BgwProtocol implements RandomFieldElem
 			List<ByteBuffer> buffers = network.receiveFromAll();
 			List<ShamirShare> shares = new ArrayList<>();
 			for(int i = 0; i < buffers.size(); i++) {
-				byte[] tmp = new byte[ShamirShare.size];
+				byte[] tmp = new byte[ShamirShare.getSize()];
 				shares.add(ShamirShare.deSerialize(tmp, 0));
 			}
 			reshares = (ShamirShare[]) shares.toArray();

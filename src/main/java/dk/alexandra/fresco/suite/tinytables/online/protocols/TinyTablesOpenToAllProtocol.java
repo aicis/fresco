@@ -26,10 +26,13 @@
  *******************************************************************************/
 package dk.alexandra.fresco.suite.tinytables.online.protocols;
 
+import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.List;
 
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.network.SCENetwork;
+import dk.alexandra.fresco.framework.network.converters.BooleanConverter;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.Value;
 import dk.alexandra.fresco.lib.field.bool.OpenBoolProtocol;
@@ -88,11 +91,15 @@ public class TinyTablesOpenToAllProtocol extends TinyTablesProtocol implements O
 		switch (round) {
 			case 0:
 				TinyTablesElement myR = ps.getStorage().getMaskShare(id);
-				network.sendToAll(myR);
+				network.sendToAll(BooleanConverter.toBytes(myR.getShare()));
 				network.expectInputFromAll();
 				return EvaluationStatus.HAS_MORE_ROUNDS;
 			case 1:
-				List<TinyTablesElement> maskShares = network.receiveFromAll();
+				List<ByteBuffer> buffers = network.receiveFromAll();
+				List<TinyTablesElement> maskShares = new ArrayList<>();
+				for(int i = 0; i < buffers.size(); i++) {
+					maskShares.add(new TinyTablesElement(BooleanConverter.fromBytes(buffers.get(i))));
+				}
 				boolean mask = TinyTablesElement.open(maskShares);
 				boolean result = toOpen.getValue().getShare() ^ mask;
 				opened.setValue(result);

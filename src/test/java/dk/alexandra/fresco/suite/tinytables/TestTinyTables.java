@@ -80,8 +80,9 @@ public class TestTinyTables {
 		// ports
 		// here instead of relying on ephemeral ports which are often > 9999.
 		List<Integer> ports = new ArrayList<Integer>(noPlayers);
+		int noOfVMThreads = 3;
 		for (int i = 1; i <= noPlayers; i++) {
-			ports.add(9000 + i);
+			ports.add(9000 + i*noOfVMThreads);
 		}
 
 		Map<Integer, NetworkConfiguration> netConf = TestConfiguration.getNetworkConfigurations(
@@ -131,7 +132,7 @@ public class TestTinyTables {
 
 			boolean useSecureConnection = false; // No tests of secure
 													// connection here.
-			int noOfVMThreads = 3;
+			
 			int noOfThreads = 3;
 			Storage storage = new InMemoryStorage();
 			ttc.sceConf = new TestSCEConfiguration(protocolSuite, evaluator, noOfThreads,

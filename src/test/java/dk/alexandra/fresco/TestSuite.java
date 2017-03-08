@@ -51,12 +51,13 @@ import dk.alexandra.fresco.suite.tinytables.TestTinyTables;
 @RunWith(Categories.class)
 @Suite.SuiteClasses({
 	//BGW protocol suite
-	TestBgwBasicArithmetic.class,
-	TestBgwComparison.class,
+	//TestBgwBasicArithmetic.class,
+	//TestBgwComparison.class,
 	//Dummy protocol suite
-	TestDummyProtocolSuite.class,
+	//TestDummyProtocolSuite.class,
 	//Spdz protocol suite
-	TestFakeTripGen.class, TestLookUpProtocol.class, TestSpdzBasicArithmetic2Parties.class, 
+	TestFakeTripGen.class, 
+	TestLookUpProtocol.class, TestSpdzBasicArithmetic2Parties.class, 
 	TestSpdzBasicArithmetic3Parties.class, TestSpdzComparison.class, TestSpdzLPBuildingBlocks.class,
 	TestSpdzLPSolver2Parties.class, TestSpdzLPSolver3Parties.class, TestSpdzSorting.class, 
 	TestSpdzStatistics.class, TestSpdzMiMC.class,
