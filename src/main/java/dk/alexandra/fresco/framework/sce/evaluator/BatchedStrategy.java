@@ -123,12 +123,10 @@ public class BatchedStrategy {
 			for(int i : expected) {
 				byte[] data = network.receive(channel, i);
 				inputs.put(i, ByteBuffer.wrap(data));
-			}
+			}			
 			
-			for (int i = 0; i < numOfProtocols; i++) {
-				sceNetwork.setInput(inputs);
-				sceNetwork.nextRound();
-			}
+			sceNetwork.setInput(inputs);
+			sceNetwork.nextRound();			
 			
 			round++;
 		} while (!done);
