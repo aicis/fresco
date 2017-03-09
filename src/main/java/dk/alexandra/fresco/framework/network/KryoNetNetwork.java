@@ -16,10 +16,12 @@ import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.EndPoint;
 import com.esotericsoftware.kryonet.Listener;
 import com.esotericsoftware.kryonet.Server;
+import com.esotericsoftware.minlog.Log;
 
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.Reporter;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
+import dk.alexandra.fresco.framework.crypto.AES;
 
 public class KryoNetNetwork implements Network {
 
@@ -29,10 +31,17 @@ public class KryoNetNetwork implements Network {
 	private final Map<Integer, List<Client>> clients;
 	private final NetworkConfiguration conf;
 	
+	private final Map<Integer, AES> ciphers;
+	
 	//List is as long as channelAmount and contains a map for each partyId to a queue
 	private final List<Map<Integer, BlockingQueue<byte[]>>> queues;
 	private final int channelAmount;
 	
+	private boolean encryption;
+	
+	public static void setLogLevel(int level) {
+		Log.set(level);
+	}
 
 	public KryoNetNetwork(NetworkConfiguration conf, int channelAmount) {
 		//Log.set(Log.LEVEL_DEBUG);
@@ -43,16 +52,18 @@ public class KryoNetNetwork implements Network {
 		
 		this.conf = conf;		
 		this.channelAmount = channelAmount;
-		this.clients = new HashMap<>();
+		this.clients = new HashMap<>();		
 		this.servers = new ArrayList<>();
 		this.queues = new ArrayList<>();
+		
+		this.ciphers = new HashMap<>();
 
 		//TODO: How to reason about the upper boundries of what can be send in a single round?
 		int writeBufferSize = 1048576;
 		int objectBufferSize = writeBufferSize;		
 		
 		for(int j = 0; j < channelAmount; j++) {					
-			Server server = new Server(writeBufferSize, objectBufferSize);
+			Server server = new Server(1024, objectBufferSize);
 			Registrator.register(server);					
 			this.servers.add(server);
 			this.queues.add(new HashMap<>());
@@ -62,9 +73,15 @@ public class KryoNetNetwork implements Network {
 			if (i != conf.getMyId()) {
 				this.clients.put(i, new ArrayList<>());
 				for(int j = 0; j < channelAmount; j++) {
-					Client client = new Client(writeBufferSize, objectBufferSize);				
+					Client client = new Client(writeBufferSize, 1024);				
 					Registrator.register(client);				
 					clients.get(i).add(client);				
+				}
+				
+				String secretSharedKey = conf.getParty(i).getSecretSharedKey();
+				if(secretSharedKey != null) {
+					this.ciphers.put(i, new AES(secretSharedKey, writeBufferSize));
+					this.encryption = true;
 				}
 			}
 			
@@ -85,7 +102,7 @@ public class KryoNetNetwork implements Network {
 			this.idToPort = new HashMap<>();
 		}
 		
-		public BlockingQueue<byte[]> getQueue(Connection conn) {
+		private BlockingQueue<byte[]> getQueue(Connection conn) {
 			InetSocketAddress addr = conn.getRemoteAddressTCP();
 			String hostname = addr.getHostName();
 			int port = addr.getPort();
@@ -101,13 +118,37 @@ public class KryoNetNetwork implements Network {
 			}
 			throw new RuntimeException("Uknown connection: " + hostname+":"+port);
 		}
+		
+		private int getPartyId(Connection conn) {
+			InetSocketAddress addr = conn.getRemoteAddressTCP();
+			String hostname = addr.getHostName();
+			int port = addr.getPort();
+			for(int i = 1; i <= conf.noOfParties(); i++) {
+				String pHost = conf.getParty(1).getHostname();
+				Integer pPort = this.idToPort.get(i);
+				if(pPort == null) {
+					continue;
+				}
+				if(pHost.equals(hostname) && pPort == port) {
+					return i;
+				}
+			}
+			throw new RuntimeException("Uknown connection: " + hostname+":"+port);
+		}
 
 		@Override
 		public void received(Connection connection, Object object) {			
 			//Maybe a keep alive message will be offered to the queue. - so we should ignore it.
-			//TODO: When only byte[] are received, we should change to instanceof byte[] to avoid also Ping messages etc.
-			if(object instanceof byte[]) {				
-				getQueue(connection).offer((byte[])object);
+			if(object instanceof byte[]) {
+				byte[] data = (byte[]) object;
+				if(encryption) {
+					try {
+						data = ciphers.get(getPartyId(connection)).decrypt(data);
+					} catch (IOException e) {
+						throw new RuntimeException("IOException occured while decrypting data stream", e);
+					}
+				}
+				getQueue(connection).offer(data);
 			} else if(object instanceof Integer) {
 				this.idToPort.put((Integer)object, connection.getRemoteAddressTCP().getPort());
 			}
@@ -192,6 +233,9 @@ public class KryoNetNetwork implements Network {
 				e.printStackTrace();
 			}
 		} else {
+			if(encryption) {
+				data = this.ciphers.get(partyId).encrypt(data);
+			}
 			this.clients.get(partyId).get(channel).sendTCP(data);
 		}
 	}

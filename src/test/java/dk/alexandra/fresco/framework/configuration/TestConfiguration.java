@@ -61,6 +61,11 @@ public class TestConfiguration implements NetworkConfiguration {
 		Party p = new Party(id, host, port);
 		parties.put(id, p);
 	}
+	
+	public void add(int id, String host, int port, String secretKey) {
+		Party p = new Party(id, host, port, secretKey);
+		parties.put(id, p);
+	}
 
 	@Override
 	public Party getParty(int id) {
@@ -106,6 +111,22 @@ public class TestConfiguration implements NetworkConfiguration {
 			int id = 1;
 			for (int port : ports) {
 				conf.add(id++, "localhost", port);
+			}
+			conf.setMe(i + 1);
+			conf.setLogLevel(logLevel);
+			confs.put(i + 1, conf);
+		}
+		return confs;
+	}
+	
+	public static Map<Integer, NetworkConfiguration> getNetworkConfigurationsWithSecretKeys(int n, List<Integer> ports, Level logLevel) {
+		Map<Integer, NetworkConfiguration> confs = new HashMap<Integer, NetworkConfiguration>(n);
+		for (int i=0; i<n; i++) {
+			TestConfiguration conf = new TestConfiguration();
+			int id = 1;
+			for (int port : ports) {
+				conf.add(id, "localhost", port, "89yhsd7823hiebu9h2/du2");
+				id++;
 			}
 			conf.setMe(i + 1);
 			conf.setLogLevel(logLevel);

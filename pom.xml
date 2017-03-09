@@ -40,6 +40,13 @@
 		<version>2.8.0</version>
 	</dependency>
     
+    <!-- AES functionality -->
+    <dependency>
+    	<groupId>org.apache.commons</groupId>
+    	<artifactId>commons-crypto</artifactId>
+    	<version>1.0.0</version>
+	</dependency>
+    
     <!-- USed for plaintext LP solving -->
     <dependency>
       <groupId>org.apache.commons</groupId>

@@ -33,8 +33,11 @@ import java.util.Random;
 import java.util.Set;
 import java.util.logging.Level;
 
+import com.esotericsoftware.minlog.Log;
+
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.TestConfiguration;
+import dk.alexandra.fresco.framework.network.KryoNetNetwork;
 import dk.alexandra.fresco.framework.sce.SCE;
 import dk.alexandra.fresco.framework.sce.SCEFactory;
 import dk.alexandra.fresco.framework.sce.configuration.ProtocolSuiteConfiguration;
@@ -77,6 +80,7 @@ public class TestThreadRunner {
 				if(conf.sceConf != null && conf.protocolSuiteConf != null) {
 					sce = SCEFactory.getSCEFromConfiguration(conf.sceConf, conf.protocolSuiteConf);
 				}
+				KryoNetNetwork.setLogLevel(Log.LEVEL_WARN);
 				setUp();
 				runTest();
 			} catch (Throwable e) {
