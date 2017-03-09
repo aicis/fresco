@@ -40,6 +40,7 @@ import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.configuration.CmdLineUtil;
 import dk.alexandra.fresco.framework.sce.SCE;
 import dk.alexandra.fresco.framework.sce.SCEFactory;
+import dk.alexandra.fresco.framework.sce.configuration.ProtocolSuiteConfiguration;
 import dk.alexandra.fresco.framework.sce.configuration.SCEConfiguration;
 import dk.alexandra.fresco.framework.util.ByteArithmetic;
 import dk.alexandra.fresco.framework.value.OBool;
@@ -132,6 +133,7 @@ public class PrivateSetDemo implements Application {
 	public static void main(String[] args) {
 		CmdLineUtil util = new CmdLineUtil();
 		SCEConfiguration sceConf = null;
+		ProtocolSuiteConfiguration psConf = null;
 		boolean[] key = null;
 		int[] inputs  = null;
 		try {
@@ -154,6 +156,7 @@ public class PrivateSetDemo implements Application {
 			
 			CommandLine cmd = util.parse(args);
 			sceConf = util.getSCEConfiguration();
+			psConf = util.getProtocolSuiteConfiguration();
 			
 			// Get and validate the AES specific input.
 			if (sceConf.getMyId() == 1 || sceConf.getMyId() == 2) {
@@ -185,7 +188,7 @@ public class PrivateSetDemo implements Application {
 
 		// Do the secure computation using config from property files.
 		PrivateSetDemo privateSetDemo = new PrivateSetDemo(sceConf.getMyId(), key, inputs);
-		SCE sce = SCEFactory.getSCEFromConfiguration(sceConf);
+		SCE sce = SCEFactory.getSCEFromConfiguration(sceConf, psConf);
 		
 		try {
 			sce.runApplication(privateSetDemo);
