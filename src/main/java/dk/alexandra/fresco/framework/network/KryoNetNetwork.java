@@ -107,7 +107,7 @@ public class KryoNetNetwork implements Network {
 			String hostname = addr.getHostName();
 			int port = addr.getPort();
 			for(int i = 1; i <= conf.noOfParties(); i++) {
-				String pHost = conf.getParty(1).getHostname();
+				String pHost = conf.getParty(i).getHostname();
 				Integer pPort = this.idToPort.get(i);
 				if(pPort == null) {
 					continue;
