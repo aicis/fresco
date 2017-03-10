@@ -154,7 +154,7 @@ public class ScapiNetworkImpl implements Network {
 					PartyData pd = idToPartyData.get(partyId);
 					Map<String, Channel> channels = connections.get(pd);
 					String cStr = "" + i;
-					PlainChannel c = (PlainChannel)channels.get(cStr);
+					Channel c = channels.get(cStr);
 					Channel secureChannel;
 					String sharedSecretKey = sharedSecretKeys.get(id); 
 					try {
@@ -185,7 +185,7 @@ public class ScapiNetworkImpl implements Network {
 		return authedChannel;
 	}
 
-	private EncryptedChannel getSecureChannel(PlainChannel ch, String base64EncodedSSKey) throws InvalidKeyException, SecurityLevelException {
+	private EncryptedChannel getSecureChannel(Channel c, String base64EncodedSSKey) throws InvalidKeyException, SecurityLevelException {
 		byte[] aesFixedKey = Base64.decodeFromString(base64EncodedSSKey);
 		SecretKey aesKey = new SecretKeySpec(aesFixedKey, "AES");
 		AES encryptAes = new BcAES();
@@ -195,7 +195,7 @@ public class ScapiNetworkImpl implements Network {
 		macAes.setKey(aesKey);
 		ScCbcMacPrepending cbcMac = new ScCbcMacPrepending(macAes);
 		ScEncryptThenMac encThenMac = new ScEncryptThenMac(enc, cbcMac);
-		EncryptedChannel secureChannel = new EncryptedChannel(ch, encThenMac);
+		EncryptedChannel secureChannel = new EncryptedChannel(c, encThenMac);
 		return secureChannel;
 	}
 	
