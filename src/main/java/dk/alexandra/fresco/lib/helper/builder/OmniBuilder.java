@@ -76,6 +76,7 @@ public class OmniBuilder extends AbstractProtocolBuilder{
 	private BasicLogicBuilder basicLogicBuilder;
 	private NumericIOBuilder numericIOBuilder;
 	private NumericProtocolBuilder numericProtocolBuilder;
+	private AdvancedNumericBuilder advancedNumericBuilder;
 	private ComparisonProtocolBuilder comparisonProtocolBuilder;
 	private StatisticsProtocolBuilder statisticsProtocolBuilder;
 	private SymmetricEncryptionBuilder symmetricEncryptionBuilder;
@@ -84,7 +85,7 @@ public class OmniBuilder extends AbstractProtocolBuilder{
 	//Used in various protocols - typically for comparisons. 
 	//TODO: Better explanation as to what this is, and what it means for performance/security. 
 	private final int statisticalSecurityParameter;
-	
+
 	/**
 	 * Creates a builder that can create all currently known functions used in FRESCO. 
 	 * This constructor has a default statistical security parameter of 80. 
@@ -159,6 +160,27 @@ public class OmniBuilder extends AbstractProtocolBuilder{
 		return numericProtocolBuilder;
 	}
 
+	public AdvancedNumericBuilder getAdvancedNumericBuilder() {
+		if (advancedNumericBuilder == null) {
+			SIntFactory intFactory = (SIntFactory)factory;
+			DivisionFactory divisionFactory = getDivisionFactory();
+			advancedNumericBuilder = new AdvancedNumericBuilder(divisionFactory, intFactory);
+			advancedNumericBuilder.setParentBuilder(this);
+		}
+		return advancedNumericBuilder;
+	}
+
+	private DivisionFactory getDivisionFactory() {
+		BasicNumericFactory basicNumericFactory = (BasicNumericFactory)factory;
+		LocalInversionFactory localInversionFactory = (LocalInversionFactory) factory;
+		NumericBitFactory preprocessedNumericBitFactory = (NumericBitFactory) factory;
+		RandomAdditiveMaskFactory randomAdditiveMaskFactory = new RandomAdditiveMaskFactoryImpl(basicNumericFactory, preprocessedNumericBitFactory);
+		RightShiftFactory rightShiftFactory = new RightShiftFactoryImpl(basicNumericFactory, randomAdditiveMaskFactory, localInversionFactory);
+		IntegerToBitsFactory integerToBitsFactory = new IntegerToBitsFactoryImpl(basicNumericFactory, rightShiftFactory);
+		BitLengthFactory bitLengthFactory = new BitLengthFactoryImpl(basicNumericFactory, integerToBitsFactory);
+		ExponentiationFactory exponentiationFactory = new ExponentiationFactoryImpl(basicNumericFactory, integerToBitsFactory);
+		return new DivisionFactoryImpl(basicNumericFactory, rightShiftFactory, bitLengthFactory, exponentiationFactory);
+	}
 
 	/**
 	 * Builder used to do comparisons. Currently expects that the constructor given factory implements all interfaces listed below:
@@ -195,14 +217,7 @@ public class OmniBuilder extends AbstractProtocolBuilder{
 	public StatisticsProtocolBuilder getStatisticsProtocolBuilder() {
 		if(statisticsProtocolBuilder == null){
 			BasicNumericFactory basicNumericFactory = (BasicNumericFactory)factory;
-			LocalInversionFactory localInversionFactory = (LocalInversionFactory) factory;
-			NumericBitFactory preprocessedNumericBitFactory = (NumericBitFactory) factory;			
-			RandomAdditiveMaskFactory randomAdditiveMaskFactory = new RandomAdditiveMaskFactoryImpl(basicNumericFactory, preprocessedNumericBitFactory);			
-			RightShiftFactory rightShiftFactory = new RightShiftFactoryImpl(basicNumericFactory, randomAdditiveMaskFactory, localInversionFactory);
-			IntegerToBitsFactory integerToBitsFactory = new IntegerToBitsFactoryImpl(basicNumericFactory, rightShiftFactory);
-			BitLengthFactory bitLengthFactory = new BitLengthFactoryImpl(basicNumericFactory, integerToBitsFactory);
-			ExponentiationFactory exponentiationFactory = new ExponentiationFactoryImpl(basicNumericFactory, integerToBitsFactory);
-			DivisionFactory euclidianDivisionFactory = new DivisionFactoryImpl(basicNumericFactory, rightShiftFactory, bitLengthFactory, exponentiationFactory);
+			DivisionFactory euclidianDivisionFactory = getDivisionFactory();
 			StatisticsFactory statFac = new StatisticsFactoryImpl(basicNumericFactory, euclidianDivisionFactory);
 			statisticsProtocolBuilder = new StatisticsProtocolBuilder(statFac, basicNumericFactory);
 			statisticsProtocolBuilder.setParentBuilder(this);
