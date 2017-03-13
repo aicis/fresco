@@ -24,7 +24,7 @@
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
  *******************************************************************************/
-package dk.alexandra.fresco.framework.configuration;
+package dk.alexandra.fresco.cli;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -41,9 +41,13 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
+import dk.alexandra.fresco.configurations.BGWConfigurationFromCmdLine;
+import dk.alexandra.fresco.configurations.SpdzConfigurationFromCmdLine;
+import dk.alexandra.fresco.configurations.TinyTablesConfigurationFromCmdLine;
 import dk.alexandra.fresco.framework.Party;
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.Reporter;
+import dk.alexandra.fresco.framework.configuration.ConfigurationException;
 import dk.alexandra.fresco.framework.sce.configuration.ProtocolSuiteConfiguration;
 import dk.alexandra.fresco.framework.sce.configuration.SCEConfiguration;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
@@ -55,9 +59,6 @@ import dk.alexandra.fresco.framework.sce.resources.storage.StreamedStorage;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.bgw.configuration.BgwConfiguration;
 import dk.alexandra.fresco.suite.dummy.DummyConfiguration;
-import dk.alexandra.fresco.suite.spdz.configuration.SpdzConfiguration;
-import dk.alexandra.fresco.suite.tinytables.online.TinyTablesConfiguration;
-import dk.alexandra.fresco.suite.tinytables.prepro.TinyTablesPreproConfiguration;
 
 /**
  * Utility for reading all configuration from command line.
@@ -412,19 +413,19 @@ public class CmdLineUtil {
 			// TODO: Do this without hardcoding the protocol suite names here.
 			switch (this.sceConf.getProtocolSuiteName()) {
 			case "bgw":
-				this.psConf = BgwConfiguration.fromCmdLine(this.sceConf, cmd);
+				this.psConf = BGWConfigurationFromCmdLine.fromCmdLine(this.sceConf, cmd);
 				break;
 			case "dummy":
-				this.psConf = DummyConfiguration.fromCmdLine(this.sceConf, cmd);
+				this.psConf = new DummyConfiguration();
 				break;
 			case "spdz":
-				this.psConf = SpdzConfiguration.fromCmdLine(this.sceConf, cmd);
+				this.psConf = SpdzConfigurationFromCmdLine.fromCmdLine(cmd);
 				break;
 			case "tinytablesprepro":
-				this.psConf = TinyTablesPreproConfiguration.fromCmdLine(this.sceConf, cmd);
+				this.psConf = TinyTablesConfigurationFromCmdLine.preProFromCmdLine(cmd);
 				break;
 			case "tinytables":
-				this.psConf = TinyTablesConfiguration.fromCmdLine(this.sceConf, cmd);
+				this.psConf = TinyTablesConfigurationFromCmdLine.fromCmdLine(cmd);
 				break;
 			default:
 				throw new ParseException("Unknown protocol suite: " + this.getSCEConfiguration().getProtocolSuiteName());
