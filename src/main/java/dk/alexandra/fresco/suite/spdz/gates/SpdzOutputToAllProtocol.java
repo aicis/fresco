@@ -42,8 +42,7 @@ import dk.alexandra.fresco.suite.spdz.evaluation.strategy.SpdzProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
 import dk.alexandra.fresco.suite.spdz.utils.Util;
 
-public class SpdzOutputToAllProtocol extends SpdzNativeProtocol implements
-		OpenIntProtocol {
+public class SpdzOutputToAllProtocol extends SpdzNativeProtocol implements OpenIntProtocol {
 
 	private SpdzSInt in;
 	private SpdzOInt out;
@@ -54,10 +53,10 @@ public class SpdzOutputToAllProtocol extends SpdzNativeProtocol implements
 	}
 
 	@Override
-	public EvaluationStatus evaluate(int round, ResourcePool resourcePool,
-			SCENetwork network) {
-		SpdzProtocolSuite spdzpii = SpdzProtocolSuite
-				.getInstance(resourcePool.getMyId());
+	public EvaluationStatus evaluate(int round, ResourcePool resourcePool, SCENetwork network) {		
+		SpdzProtocolSuite spdzpii = SpdzProtocolSuite.getInstance(resourcePool.getMyId());
+		spdzpii.outputProtocolUsedInBatch();
+		
 		SpdzStorage storage = spdzpii.getStore(network.getThreadId());
 		switch (round) {
 		case 0:
@@ -74,7 +73,7 @@ public class SpdzOutputToAllProtocol extends SpdzNativeProtocol implements
 			storage.addOpenedValue(openedVal);
 			storage.addClosedValue(in.value);
 			BigInteger tmpOut = openedVal;
-			//tmpOut = Util.convertRepresentation(tmpOut);
+			// tmpOut = Util.convertRepresentation(tmpOut);
 			out.setValue(tmpOut);
 			return EvaluationStatus.IS_DONE;
 		default:

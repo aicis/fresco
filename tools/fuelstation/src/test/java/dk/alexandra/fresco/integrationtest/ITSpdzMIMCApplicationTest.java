@@ -27,7 +27,6 @@
 package dk.alexandra.fresco.integrationtest;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,7 +34,6 @@ import java.util.logging.Level;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.embedded.LocalServerPort;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
@@ -57,13 +55,10 @@ import dk.alexandra.fresco.framework.sce.resources.storage.StorageStrategy;
 import dk.alexandra.fresco.lib.arithmetic.BasicArithmeticTests;
 import dk.alexandra.fresco.lib.arithmetic.MiMCTests;
 import dk.alexandra.fresco.lib.statistics.DEASolverTests;
-import dk.alexandra.fresco.rest.FuelEndpoint;
 import dk.alexandra.fresco.services.DataGeneratorImpl;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.configuration.SpdzConfiguration;
 import dk.alexandra.fresco.suite.spdz.evaluation.strategy.SpdzProtocolSuite;
-import dk.alexandra.fresco.suite.spdz.storage.rest.RetrieverThread;
-import org.junit.Assert;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT, 
@@ -72,9 +67,6 @@ public class ITSpdzMIMCApplicationTest {
 
 	@LocalServerPort
 	private int port;
-
-	@Autowired
-	private DataGeneratorImpl generator;
 	
 	private void runTest(TestThreadFactory f, EvaluationStrategy evalStrategy,
 			StorageStrategy storageStrategy, int noOfParties) throws Exception {
