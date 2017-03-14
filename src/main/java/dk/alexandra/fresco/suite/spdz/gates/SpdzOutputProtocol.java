@@ -32,7 +32,8 @@ import java.util.List;
 
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.network.SCENetwork;
-import dk.alexandra.fresco.framework.network.converters.BigIntegerConverter;
+import dk.alexandra.fresco.framework.network.serializers.BigIntegerSerializer;
+import dk.alexandra.fresco.framework.network.serializers.BigIntegerWithFixedLengthSerializer;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
@@ -86,14 +87,14 @@ public class SpdzOutputProtocol extends SpdzNativeProtocol implements OpenIntPro
 			this.mask = storage.getSupplier().getNextInputMask(target_player);
 			SpdzElement inMinusMask = this.in.value.subtract(this.mask.getMask());
 			storage.addClosedValue(inMinusMask);
-			network.sendToAll(BigIntegerConverter.toBytes(inMinusMask.getShare()));
+			network.sendToAll(BigIntegerWithFixedLengthSerializer.toBytes(inMinusMask.getShare(), Util.getModulusSize()));
 			network.expectInputFromAll();
 			return EvaluationStatus.HAS_MORE_ROUNDS;
 		case 1:
 			List<ByteBuffer> shares = network.receiveFromAll();
 			BigInteger openedVal = BigInteger.valueOf(0);
 			for (ByteBuffer buffer : shares) {
-				openedVal = openedVal.add(BigIntegerConverter.toBigInteger(buffer));
+				openedVal = openedVal.add(BigIntegerWithFixedLengthSerializer.toBigInteger(buffer, Util.getModulusSize()));
 			}
 			openedVal = openedVal.mod(Util.getModulus());
 			storage.addOpenedValue(openedVal);

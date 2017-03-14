@@ -35,7 +35,7 @@ import java.util.Map;
 
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.network.SCENetwork;
-import dk.alexandra.fresco.framework.network.converters.BigIntegerConverter;
+import dk.alexandra.fresco.framework.network.serializers.BigIntegerSerializer;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.Value;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzCommitment;
@@ -80,14 +80,14 @@ public class SpdzOpenCommitProtocol extends SpdzNativeProtocol {
 			BigInteger value = this.commitment.getValue();
 			BigInteger randomness = this.commitment.getRandomness();
 			BigInteger[] opening = new BigInteger[] { value, randomness };
-			network.sendToAll(BigIntegerConverter.toBytes(opening));
+			network.sendToAll(BigIntegerSerializer.toBytes(opening));
 			network.expectInputFromAll();
 			break;
 		case 1: // Receive openings from all parties and check they are valid
 			List<ByteBuffer> buffers = network.receiveFromAll();
 			Map<Integer, BigInteger[]> openings = new HashMap<>();
 			for(int i = 0; i < buffers.size(); i++) {
-				opening = BigIntegerConverter.toBigIntegers(buffers.get(i), 2);
+				opening = BigIntegerSerializer.toBigIntegers(buffers.get(i), 2);
 				openings.put(i+1, opening);
 			}
 			

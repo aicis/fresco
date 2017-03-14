@@ -128,8 +128,12 @@ public class SCENetworkImpl implements SCENetwork, SCENetworkSupplier {
 	}
 
 	@Override
-	public Map<Integer, ByteArrayOutputStream> getOutputFromThisRound() {
-		return this.output;
+	public Map<Integer, byte[]> getOutputFromThisRound() {
+		Map<Integer, byte[]> res = new HashMap<>();
+		for(int pid : this.output.keySet()) {
+			res.put(pid, this.output.get(pid).toByteArray());
+		}
+		return res;
 	}
 
 	@Override

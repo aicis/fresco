@@ -142,10 +142,10 @@ public class ParallelEvaluator implements ProtocolEvaluator {
 				do {					
 					status = gates[i].evaluate(round, this.rp, protocolNetwork);
 					//send phase
-					Map<Integer, ByteArrayOutputStream> output = protocolNetwork.getOutputFromThisRound();				
+					Map<Integer, byte[]> output = protocolNetwork.getOutputFromThisRound();				
 					for(int pId : output.keySet()) {
 						//send array since queue is not serializable
-						network.send(channel, pId, output.get(pId).toByteArray());					
+						network.send(channel, pId, output.get(pId));					
 					}
 					
 					//receive phase

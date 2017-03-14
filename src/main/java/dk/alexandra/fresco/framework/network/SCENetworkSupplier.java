@@ -26,7 +26,6 @@
  *******************************************************************************/
 package dk.alexandra.fresco.framework.network;
 
-import java.io.ByteArrayOutputStream;
 import java.nio.ByteBuffer;
 import java.util.Map;
 import java.util.Set;
@@ -44,7 +43,7 @@ public interface SCENetworkSupplier {
 
 	public void setInput(Map<Integer, ByteBuffer> inputForThisRound);
 	
-	public Map<Integer, ByteArrayOutputStream> getOutputFromThisRound();
+	public Map<Integer, byte[]> getOutputFromThisRound();
 
 	public Set<Integer> getExpectedInputForNextRound();
 

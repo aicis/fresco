@@ -34,7 +34,7 @@ import java.util.Collection;
 import java.util.List;
 
 import dk.alexandra.fresco.framework.network.SCENetwork;
-import dk.alexandra.fresco.framework.network.converters.ByteArrayHelper;
+import dk.alexandra.fresco.framework.network.serializers.ByteArrayHelper;
 import dk.alexandra.fresco.lib.helper.HalfCookedNativeProtocol;
 
 public abstract class SpdzNativeProtocol extends HalfCookedNativeProtocol {

@@ -30,7 +30,8 @@ import java.math.BigInteger;
 
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.network.SCENetwork;
-import dk.alexandra.fresco.framework.network.converters.BigIntegerConverter;
+import dk.alexandra.fresco.framework.network.serializers.BigIntegerSerializer;
+import dk.alexandra.fresco.framework.network.serializers.BigIntegerWithFixedLengthSerializer;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
@@ -102,8 +103,8 @@ public class SpdzMultProtocol extends SpdzNativeProtocol implements MultProtocol
 				SpdzElement epsilon = in1.value.subtract(triple.getA());
 				SpdzElement delta = in2.value.subtract(triple.getB());
 
-				network.sendToAll(BigIntegerConverter.toBytes(new BigInteger[] { epsilon.getShare(),
-						delta.getShare() }));
+				network.sendToAll(BigIntegerWithFixedLengthSerializer.toBytes(new BigInteger[] { epsilon.getShare(),
+						delta.getShare() }, Util.getModulusSize()));
 				network.expectInputFromAll();
 				this.epsilon = epsilon;
 				this.delta = delta;
@@ -131,7 +132,7 @@ public class SpdzMultProtocol extends SpdzNativeProtocol implements MultProtocol
 			BigInteger[] epsilonShares = new BigInteger[noOfPlayers];
 			BigInteger[] deltaShares = new BigInteger[noOfPlayers];
 			for (int i = 0; i < noOfPlayers; i++) {
-				BigInteger[] shares = BigIntegerConverter.toBigIntegers(network.receive(i + 1), 2);
+				BigInteger[] shares = BigIntegerWithFixedLengthSerializer.toBigIntegers(network.receive(i + 1), 2, Util.getModulusSize());
 				epsilonShares[i] = shares[0];
 				deltaShares[i] = shares[1];
 			}

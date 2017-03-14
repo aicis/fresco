@@ -30,7 +30,8 @@ import java.math.BigInteger;
 
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.network.SCENetwork;
-import dk.alexandra.fresco.framework.network.converters.BigIntegerConverter;
+import dk.alexandra.fresco.framework.network.serializers.BigIntegerSerializer;
+import dk.alexandra.fresco.framework.network.serializers.BigIntegerWithFixedLengthSerializer;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
@@ -89,12 +90,12 @@ public class SpdzInputProtocol extends SpdzNativeProtocol implements CloseIntPro
 			if (myId == this.inputter) {
 				BigInteger bcValue = this.input.subtract(this.inputMask.getRealValue());
 				bcValue = bcValue.mod(modulus);	
-				network.sendToAll(BigIntegerConverter.toBytes(bcValue));
+				network.sendToAll(BigIntegerWithFixedLengthSerializer.toBytes(bcValue, Util.getModulusSize()));
 			}
 			network.expectInputFromPlayer(inputter);
 			return EvaluationStatus.HAS_MORE_ROUNDS;
 		case 1:
-			this.value_masked = BigIntegerConverter.toBigInteger(network.receive(inputter));
+			this.value_masked = BigIntegerWithFixedLengthSerializer.toBigInteger(network.receive(inputter), Util.getModulusSize());
 			this.digest = sendBroadcastValidation(
 					spdzPii.getMessageDigest(network.getThreadId()), network,
 					value_masked, players);

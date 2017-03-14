@@ -160,10 +160,10 @@ public class SequentialEvaluator implements ProtocolEvaluator {
 			do {
 				status = protocols[i].evaluate(round, this.resourcePool, sceNetwork);				
 				//send phase
-				Map<Integer, ByteArrayOutputStream> output = sceNetwork.getOutputFromThisRound();				
+				Map<Integer, byte[]> output = sceNetwork.getOutputFromThisRound();				
 				for(int pId : output.keySet()) {
 					//send array since queue is not serializable
-					this.network.send(DEFAULT_CHANNEL, pId, output.get(pId).toByteArray());					
+					this.network.send(DEFAULT_CHANNEL, pId, output.get(pId));					
 				}
 				
 				//receive phase

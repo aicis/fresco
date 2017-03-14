@@ -165,7 +165,7 @@ public class KryoNetNetwork implements Network {
 			Server server = this.servers.get(j);
 			try {
 				int port = conf.getMe().getPort() + j;
-				System.out.println("P"+conf.getMyId()+": Trying to bind to "+port);
+				Reporter.fine("P"+conf.getMyId()+": Trying to bind to "+port);
 				server.bind(port);
 				server.start();
 			} catch (IOException e) {

@@ -112,10 +112,9 @@ public class BatchedStrategy {
 			Map<Integer, ByteBuffer> inputs = new HashMap<Integer, ByteBuffer>();			
 			
 			//Send data
-			Map<Integer, ByteArrayOutputStream> output = sceNetwork.getOutputFromThisRound();
-			for (Map.Entry<Integer, ByteArrayOutputStream> e: output.entrySet()) {
-				byte[] data = e.getValue().toByteArray();
-				network.send(channel, e.getKey(), data);							
+			Map<Integer, byte[]> output = sceNetwork.getOutputFromThisRound();
+			for (Map.Entry<Integer, byte[]> e: output.entrySet()) {
+				network.send(channel, e.getKey(), e.getValue());							
 			}
 			
 			//receive data

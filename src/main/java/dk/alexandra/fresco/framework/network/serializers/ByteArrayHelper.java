@@ -1,4 +1,4 @@
-package dk.alexandra.fresco.framework.network.converters;
+package dk.alexandra.fresco.framework.network.serializers;
 
 import java.nio.ByteBuffer;
 
@@ -12,18 +12,18 @@ public class ByteArrayHelper {
 
 	/**
 	 * Helper method which takes a byte array and returns a new array 2 bytes
-	 * longer, with the length prepended to the array.
+	 * longer, with the length prepended to the array. This means that the
+	 * length of the byte array cannot be longer than 65.536.
 	 * 
 	 * @param b
 	 *            The array to add a size to.
 	 * @return An array containing both the size and the original array.
 	 */
 	public static byte[] addSize(byte[] b) {
-		byte[] length = ByteBuffer.allocate(2).putShort((short) b.length).array();
-		byte[] res = new byte[2 + b.length];
-		System.arraycopy(length, 0, res, 0, 2);
-		System.arraycopy(b, 0, res, 2, b.length);
-		return res;
+		ByteBuffer buf = ByteBuffer.allocate(2+b.length);
+		buf.putShort((short)b.length);
+		buf.put(b);
+		return buf.array();		
 	}
 
 	/**

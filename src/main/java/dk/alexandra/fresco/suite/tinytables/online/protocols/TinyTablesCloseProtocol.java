@@ -28,7 +28,7 @@ package dk.alexandra.fresco.suite.tinytables.online.protocols;
 
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.network.SCENetwork;
-import dk.alexandra.fresco.framework.network.converters.BooleanConverter;
+import dk.alexandra.fresco.framework.network.serializers.BooleanSerializer;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.OBool;
 import dk.alexandra.fresco.framework.value.SBool;
@@ -88,13 +88,13 @@ public class TinyTablesCloseProtocol extends TinyTablesProtocol implements Close
 					TinyTablesElement r = ps.getStorage().getMaskShare(id);
 					TinyTablesElement e = new TinyTablesElement(this.in.getValue() ^ r.getShare());
 					out.setValue(e);
-					network.sendToAll(BooleanConverter.toBytes(e.getShare()));
+					network.sendToAll(BooleanSerializer.toBytes(e.getShare()));
 				}
 				network.expectInputFromPlayer(this.inputter);
 				return EvaluationStatus.HAS_MORE_ROUNDS;
 
 			case 1:
-				TinyTablesElement share = new TinyTablesElement(BooleanConverter.fromBytes(network.receive(this.inputter)));
+				TinyTablesElement share = new TinyTablesElement(BooleanSerializer.fromBytes(network.receive(this.inputter)));
 				out.setValue(share);
 				return EvaluationStatus.IS_DONE;
 
