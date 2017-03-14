@@ -2,6 +2,7 @@ package dk.alexandra.fresco.framework.network;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -80,8 +81,9 @@ public class KryoNetNetwork implements Network {
 				
 				String secretSharedKey = conf.getParty(i).getSecretSharedKey();
 				if(secretSharedKey != null) {
-					this.ciphers.put(i, new AES(secretSharedKey, writeBufferSize));
+					this.ciphers.put(i, new AES(secretSharedKey, writeBufferSize, new SecureRandom()));
 					this.encryption = true;
+					Reporter.warn("Encrypted channel towards Party "+i+" enabled - but the channel might be insecure due to not fully tested and checked use of AES.");
 				}
 			}
 			

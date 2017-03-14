@@ -40,7 +40,7 @@ public class TestBasicArithmeticWithEncryption {
 		}
 
 		Map<Integer, NetworkConfiguration> netConf = TestConfiguration
-				.getNetworkConfigurationsWithSecretKeys(noOfParties, ports, logLevel);
+				.getNetworkConfigurations(noOfParties, ports, logLevel);
 		Map<Integer, TestThreadConfiguration> conf = new HashMap<Integer, TestThreadConfiguration>();
 		for (int playerId : netConf.keySet()) {
 			TestThreadConfiguration ttc = new TestThreadConfiguration();
@@ -64,9 +64,7 @@ public class TestBasicArithmeticWithEncryption {
 				}
 			};
 			ttc.protocolSuiteConf = spdzConf;
-			boolean useSecureConnection = false; // No tests of secure
-													// connection
-													// here.
+			boolean useSecureConnection = true; 
 			
 			int noOfThreads = 3;
 			ProtocolSuite suite = new SpdzProtocolSuite();

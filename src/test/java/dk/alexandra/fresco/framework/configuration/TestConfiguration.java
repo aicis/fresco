@@ -118,23 +118,6 @@ public class TestConfiguration implements NetworkConfiguration {
 		}
 		return confs;
 	}
-	
-	public static Map<Integer, NetworkConfiguration> getNetworkConfigurationsWithSecretKeys(int n, List<Integer> ports, Level logLevel) {
-		Map<Integer, NetworkConfiguration> confs = new HashMap<Integer, NetworkConfiguration>(n);
-		for (int i=0; i<n; i++) {
-			TestConfiguration conf = new TestConfiguration();
-			int id = 1;
-			for (int port : ports) {
-				conf.add(id, "localhost", port, "89yhsd7823hiebu9h2/du2");
-				id++;
-			}
-			conf.setMe(i + 1);
-			conf.setLogLevel(logLevel);
-			confs.put(i + 1, conf);
-		}
-		return confs;
-	}
-
 
 	/**
 	 * As getConfigurations(n, ports, loglevel) but tries to find free ephemeral
