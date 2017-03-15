@@ -93,7 +93,11 @@ public class ScapiNetworkImpl implements Network {
 	 * @param conf - The configuration with info about whom to connect to.
 	 * @param channelAmount The amount of channels each player needs to each other.
 	 */
-	public ScapiNetworkImpl(NetworkConfiguration conf, int channelAmount) {
+	public ScapiNetworkImpl() {		 
+	}
+	
+	@Override
+	public void init(NetworkConfiguration conf, int channelAmount) {
 		this.channelAmount = channelAmount;
 		this.conf = conf;
 	}

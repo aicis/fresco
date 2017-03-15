@@ -38,6 +38,7 @@ import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.Party;
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.configuration.ConfigurationException;
+import dk.alexandra.fresco.framework.network.NetworkingStrategy;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.resources.storage.Storage;
 import dk.alexandra.fresco.framework.sce.resources.storage.StorageStrategy;
@@ -60,6 +61,7 @@ public class FileBasedSCEConfiguration implements SCEConfiguration {
 	private ProtocolEvaluator evaluator;
 	private Storage storage;
 	private StreamedStorage streamedStorage;
+	private NetworkingStrategy network;
 
 	private FileBasedSCEConfiguration(String propertiesLocation) {
 		this.propertiesLocation = propertiesLocation;
@@ -73,7 +75,10 @@ public class FileBasedSCEConfiguration implements SCEConfiguration {
 			prop.load(is);
 			
 			//load myId
-			this.myId = Integer.parseInt(prop.getProperty("myId"));
+			this.myId = Integer.parseInt(prop.getProperty("myId", "-1"));
+			if(this.myId == -1) {
+				throw new ConfigurationException("The property 'myId' must be set and be within the range 1 to the total amount of parties");
+			}
 			
 			//load parties
 			Map<Integer, Party> parties = new HashMap<Integer, Party>();
@@ -87,7 +92,7 @@ public class FileBasedSCEConfiguration implements SCEConfiguration {
 				String[] ipAndPort = party.split(",");
 				if (ipAndPort.length != 2 && ipAndPort.length != 3) {
 					throw new IllegalArgumentException(
-							"a party configuration should contain something similar to 'party1=192.168.0.1,8000' or possibly 'party1=192.168.0.1,8000,w+1qn2ooNMCN7am9YmYQFQ=='");
+							"a party configuration should contain something similar to 'party1=192.168.0.1,8000' or possibly 'party1=192.168.0.1,8000,w+1qn2ooNMCN7am9YmYQFQ==' if encrypted and authenticated channels are wanted");
 				}
 				String secretSharedKey = null;
 				if(ipAndPort.length == 3) {
@@ -138,7 +143,7 @@ public class FileBasedSCEConfiguration implements SCEConfiguration {
 			//load no of threads
 			String threads = prop.getProperty("noOfThreads");
 			if (threads == null) {
-				this.noOfThreads = -1;
+				this.noOfThreads = 1;
 			} else {
 				this.noOfThreads = Integer.parseInt(threads); 			
 			}
@@ -146,7 +151,7 @@ public class FileBasedSCEConfiguration implements SCEConfiguration {
 			//load no of vm threads
 			String vmThreads = prop.getProperty("noOfVmThreads");
 			if (vmThreads == null) {
-				this.noOfVmThreads = -1;
+				this.noOfVmThreads = 1;
 			} else {
 				this.noOfVmThreads = Integer.parseInt(vmThreads); 			
 			}
@@ -174,6 +179,19 @@ public class FileBasedSCEConfiguration implements SCEConfiguration {
 			}
 			
 			this.maxBatchSize = Integer.parseInt(prop.getProperty("maxBatchSize", "4096"));
+			
+			String networkString = prop.getProperty("network", "kryoNet");
+			switch(networkString.toLowerCase()) {
+			case "kryo":
+			case "kryonet":
+				this.network = NetworkingStrategy.KRYONET;
+				break;
+			case "scapi":
+				this.network = NetworkingStrategy.SCAPI;
+				break;
+			default:
+				throw new ConfigurationException("Unknown networking strategy " + networkString+". Should be one of: [kryonet,scapi]");
+			}
 			
 			loaded = true;
 		} catch (IOException e) {
@@ -283,5 +301,10 @@ public class FileBasedSCEConfiguration implements SCEConfiguration {
 				+ ", protocolSuite=" + protocolSuite + ", parties=" + parties + ", myId=" + myId + ", level=" + level
 				+ ", noOfThreads=" + noOfThreads + ", noOfVmThreads=" + noOfVmThreads + ", maxBatchSize=" + maxBatchSize
 				+ ", evaluator=" + evaluator + ", storage=" + storage + ", streamedStorage=" + streamedStorage + "]";
+	}
+
+	@Override
+	public NetworkingStrategy getNetwork() {
+		return this.network;
 	}	
 }

@@ -2,13 +2,11 @@ package dk.alexandra.fresco.framework.network.serializers;
 
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
-import java.util.Arrays;
 
+import org.junit.Assert;
 import org.junit.Test;
 
 import dk.alexandra.fresco.suite.spdz.utils.Util;
-
-import org.junit.Assert;
 
 /**
  * Tests that the Serializers works as expected.

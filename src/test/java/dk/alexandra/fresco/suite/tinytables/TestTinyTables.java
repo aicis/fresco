@@ -52,6 +52,7 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.TestConfiguration;
+import dk.alexandra.fresco.framework.network.NetworkingStrategy;
 import dk.alexandra.fresco.framework.sce.configuration.ProtocolSuiteConfiguration;
 import dk.alexandra.fresco.framework.sce.configuration.TestSCEConfiguration;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
@@ -135,7 +136,7 @@ public class TestTinyTables {
 			
 			int noOfThreads = 3;
 			Storage storage = new InMemoryStorage();
-			ttc.sceConf = new TestSCEConfiguration(protocolSuite, evaluator, noOfThreads,
+			ttc.sceConf = new TestSCEConfiguration(protocolSuite, NetworkingStrategy.KRYONET, evaluator, noOfThreads,
 					noOfVMThreads, ttc.netConf, storage, useSecureConnection);
 			conf.put(playerId, ttc);
 		}

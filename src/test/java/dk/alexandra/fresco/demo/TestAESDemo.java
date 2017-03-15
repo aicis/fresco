@@ -43,6 +43,7 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.TestConfiguration;
+import dk.alexandra.fresco.framework.network.NetworkingStrategy;
 import dk.alexandra.fresco.framework.sce.SCE;
 import dk.alexandra.fresco.framework.sce.SCEFactory;
 import dk.alexandra.fresco.framework.sce.configuration.TestSCEConfiguration;
@@ -80,7 +81,7 @@ public class TestAESDemo {
 			ProtocolEvaluator evaluator = new SequentialEvaluator();
 			Storage storage = new InMemoryStorage();
 			boolean useSecureConnection = true;
-			ttc.sceConf = new TestSCEConfiguration(suite, evaluator, noOfThreads, noOfVMThreads,
+			ttc.sceConf = new TestSCEConfiguration(suite, NetworkingStrategy.KRYONET, evaluator, noOfThreads, noOfVMThreads,
 					ttc.netConf, storage, useSecureConnection);
 			conf.put(playerId, ttc);
 		}

@@ -26,17 +26,17 @@ import dk.alexandra.fresco.framework.crypto.AES;
 
 public class KryoNetNetwork implements Network {
 
-	private final List<Server> servers;
+	private List<Server> servers;
 	
 	//Map per partyId to a list of clients where the length of the list is equal to channelAmount.
-	private final Map<Integer, List<Client>> clients;
-	private final NetworkConfiguration conf;
+	private Map<Integer, List<Client>> clients;
+	private NetworkConfiguration conf;
 	
-	private final Map<Integer, AES> ciphers;
+	private Map<Integer, AES> ciphers;
 	
 	//List is as long as channelAmount and contains a map for each partyId to a queue
-	private final List<Map<Integer, BlockingQueue<byte[]>>> queues;
-	private final int channelAmount;
+	private List<Map<Integer, BlockingQueue<byte[]>>> queues;
+	private int channelAmount;
 	
 	private boolean encryption;
 	
@@ -44,13 +44,15 @@ public class KryoNetNetwork implements Network {
 		Log.set(level);
 	}
 
-	public KryoNetNetwork(NetworkConfiguration conf, int channelAmount) {
-		//Log.set(Log.LEVEL_DEBUG);
+	public KryoNetNetwork() {
 		
+	}
+	
+	@Override
+	public void init(NetworkConfiguration conf, int channelAmount) {		
 		if(channelAmount < 1) {
 			throw new IllegalArgumentException("The number of channels must be at least 1");
 		}
-		
 		this.conf = conf;		
 		this.channelAmount = channelAmount;
 		this.clients = new HashMap<>();		
@@ -160,7 +162,6 @@ public class KryoNetNetwork implements Network {
 	@Override
 	public void connect(int timeoutMillis) throws IOException {
 		final Semaphore semaphore = new Semaphore(-((conf.noOfParties()-1)*channelAmount-1));
-		
 		for(int j = 0; j < channelAmount; j++) {
 			Server server = this.servers.get(j);
 			try {

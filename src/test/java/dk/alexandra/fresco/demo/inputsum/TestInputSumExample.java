@@ -40,6 +40,7 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.TestConfiguration;
+import dk.alexandra.fresco.framework.network.NetworkingStrategy;
 import dk.alexandra.fresco.framework.sce.configuration.TestSCEConfiguration;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchedSequentialEvaluator;
 import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
@@ -72,7 +73,7 @@ public class TestInputSumExample {
 			TestThreadConfiguration ttc = new TestThreadConfiguration();
 			ttc.netConf = netConf.get(i);
 			ttc.protocolSuiteConf = new BgwConfigurationFromProperties();
-			ttc.sceConf = new TestSCEConfiguration(BgwProtocolSuite.getInstance(), new BatchedSequentialEvaluator(), 3, 3, ttc.netConf, new InMemoryStorage(), true);
+			ttc.sceConf = new TestSCEConfiguration(BgwProtocolSuite.getInstance(), NetworkingStrategy.KRYONET, new BatchedSequentialEvaluator(), 3, 3, ttc.netConf, new InMemoryStorage(), true);
 			conf.put(i, ttc);
 		}
 		TestThreadRunner.run(test, conf);

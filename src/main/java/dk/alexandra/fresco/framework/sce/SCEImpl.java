@@ -40,10 +40,13 @@ import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.Reporter;
+import dk.alexandra.fresco.framework.configuration.ConfigurationException;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.NetworkConfigurationImpl;
 import dk.alexandra.fresco.framework.network.KryoNetNetwork;
 import dk.alexandra.fresco.framework.network.Network;
+import dk.alexandra.fresco.framework.network.NetworkingStrategy;
+import dk.alexandra.fresco.framework.network.ScapiNetworkImpl;
 import dk.alexandra.fresco.framework.sce.configuration.ProtocolSuiteConfiguration;
 import dk.alexandra.fresco.framework.sce.configuration.SCEConfiguration;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchedParallelEvaluator;
@@ -131,8 +134,19 @@ public class SCEImpl implements SCE {
 		if (this.evaluator instanceof ParallelEvaluator || this.evaluator instanceof BatchedParallelEvaluator) {
 			channelAmount = noOfvmThreads;
 		}
-		//Network network = new ScapiNetworkImpl(conf, channelAmount);
-		Network network = new KryoNetNetwork(conf, channelAmount);
+		NetworkingStrategy networkStrat = sceConf.getNetwork();
+		Network network = null;
+		switch(networkStrat) {
+		case KRYONET:
+			network = new KryoNetNetwork();
+			break;
+		case SCAPI:
+			network = new ScapiNetworkImpl();
+			break;
+		default:
+			throw new ConfigurationException("Unknown networking strategy "+ networkStrat);
+		}
+		network.init(conf, channelAmount);
 		
 		if (noOfvmThreads == -1) {
 			// default to 1 allowed VM thread only - otherwise certain
@@ -305,9 +319,6 @@ public class SCEImpl implements SCE {
 
 	@Override
 	public void shutdownSCE() {
-		if (!this.setup) {
-			return;
-		}
 		this.evaluator = null;
 		try {
 			if (this.resourcePool != null) {

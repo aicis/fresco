@@ -27,7 +27,6 @@
 package dk.alexandra.fresco.suite.bgw.integer;
 
 import java.math.BigInteger;
-import java.util.Arrays;
 
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.network.SCENetwork;

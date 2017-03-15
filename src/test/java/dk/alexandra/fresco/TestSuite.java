@@ -32,9 +32,6 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
 import dk.alexandra.fresco.demo.SetIntersectionDemo;
-import dk.alexandra.fresco.suite.bgw.TestBgwBasicArithmetic;
-import dk.alexandra.fresco.suite.bgw.TestBgwComparison;
-import dk.alexandra.fresco.suite.dummy.TestDummyProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.TestFakeTripGen;
 import dk.alexandra.fresco.suite.spdz.TestLookUpProtocol;
 import dk.alexandra.fresco.suite.spdz.TestSpdzBasicArithmetic2Parties;

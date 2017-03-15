@@ -28,11 +28,26 @@ package dk.alexandra.fresco.framework.network;
 
 import java.io.IOException;
 
+import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
+
 /**
  * A player's view of a network.
  * 
  */
 public interface Network {
+
+	/**
+	 * Initializes the network using the given {@code conf} and prepares
+	 * {@code channelAmount} channels towards each party. This method does not
+	 * actually connect any parties to each other. For that, call
+	 * {@link #connect(int)}.
+	 * 
+	 * @param conf
+	 *            The network configuration to use.
+	 * @param channelAmount
+	 *            The amount of channels towards each party.
+	 */
+	void init(NetworkConfiguration conf, int channelAmount);
 
 	/**
 	 * Attempts to connect with other players.

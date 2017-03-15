@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
+ * Copyright (c) 2017 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
  *
@@ -24,89 +24,91 @@
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
  *******************************************************************************/
-package dk.alexandra.fresco.suite.bgw;
+package dk.alexandra.fresco.suite.spdz;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 
-import org.junit.Ignore;
-import org.junit.Test;
-
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.Reporter;
 import dk.alexandra.fresco.framework.TestThreadRunner;
-import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
-import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
+import dk.alexandra.fresco.framework.configuration.PreprocessingStrategy;
 import dk.alexandra.fresco.framework.configuration.TestConfiguration;
 import dk.alexandra.fresco.framework.network.NetworkingStrategy;
 import dk.alexandra.fresco.framework.sce.configuration.TestSCEConfiguration;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
+import dk.alexandra.fresco.framework.sce.resources.storage.FilebasedStreamedStorageImpl;
 import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
 import dk.alexandra.fresco.framework.sce.resources.storage.Storage;
-import dk.alexandra.fresco.lib.arithmetic.ComparisonTests;
 import dk.alexandra.fresco.suite.ProtocolSuite;
-import dk.alexandra.fresco.suite.bgw.configuration.BgwConfiguration;
+import dk.alexandra.fresco.suite.spdz.configuration.SpdzConfiguration;
+import dk.alexandra.fresco.suite.spdz.evaluation.strategy.SpdzProtocolSuite;
 
-public class TestBgwComparison {
+/**
+ * Abstract class which handles a lot of boiler plate testing code. This makes
+ * running a single test using different parameters quite easy.
+ *
+ */
+public abstract class AbstractSpdzTest {
 
-	private void runTest(TestThreadFactory f, int noPlayers, final int threshold, EvaluationStrategy evalStrategy) throws Exception {
+	protected void runTest(TestThreadRunner.TestThreadFactory f, EvaluationStrategy evalStrategy, NetworkingStrategy network,
+			PreprocessingStrategy preProStrat, int noOfParties) throws Exception {
 		Level logLevel = Level.FINE;
 		Reporter.init(logLevel);
-		
-		// Since SCAPI currently does not work with ports > 9999 we use fixed ports
+
+		// Since SCAPI currently does not work with ports > 9999 we use fixed
+		// ports
 		// here instead of relying on ephemeral ports which are often > 9999.
-		List<Integer> ports = new ArrayList<Integer>(noPlayers);
-		for (int i=1; i<=noPlayers; i++) {
-			ports.add(9000 + i*10);
+		int noOfVMThreads = 3;
+		int noOfThreads = 3;
+		List<Integer> ports = new ArrayList<Integer>(noOfParties);
+		for (int i = 1; i <= noOfParties; i++) {
+			ports.add(9000 + i * noOfVMThreads*(noOfParties-1));
 		}
-		
-		Map<Integer, NetworkConfiguration> netConf = TestConfiguration.getNetworkConfigurations(noPlayers, ports,logLevel);
-		Map<Integer, TestThreadConfiguration> conf = new HashMap<Integer, TestThreadConfiguration>();
+
+		Map<Integer, NetworkConfiguration> netConf = TestConfiguration.getNetworkConfigurations(noOfParties, ports,
+				logLevel);
+		Map<Integer, TestThreadRunner.TestThreadConfiguration> conf = new HashMap<Integer, TestThreadRunner.TestThreadConfiguration>();
 		for (int playerId : netConf.keySet()) {
-			TestThreadConfiguration ttc = new TestThreadConfiguration();
+			TestThreadRunner.TestThreadConfiguration ttc = new TestThreadRunner.TestThreadConfiguration();
 			ttc.netConf = netConf.get(playerId);
-			ttc.protocolSuiteConf = new BgwConfiguration() {
+
+			SpdzConfiguration spdzConf = new SpdzConfiguration() {
+
 				@Override
-				public int getThreshold() {
-					return threshold;
+				public PreprocessingStrategy getPreprocessingStrategy() {
+					return preProStrat;
 				}
 
 				@Override
-				public BigInteger getModulus() {
-					return new BigInteger("618970019642690137449562111");
+				public String fuelStationBaseUrl() {
+					return null;
+				}
+
+				@Override
+				public int getMaxBitLength() {
+					return 150;
 				}
 			};
-			NetworkConfiguration net = netConf.get(playerId);
-			boolean useSecureConnection = false; // No tests of secure connection here.
-			ProtocolSuite suite = new BgwProtocolSuite();
-			ProtocolEvaluator evaluator = EvaluationStrategy.fromEnum(evalStrategy);			
+			ttc.protocolSuiteConf = spdzConf;
+			boolean useSecureConnection = false; // No tests of secure
+													// connection
+													// here.
+
+			ProtocolSuite suite = new SpdzProtocolSuite();
+			ProtocolEvaluator evaluator = EvaluationStrategy.fromEnum(evalStrategy);
 			Storage storage = new InMemoryStorage();
-			int noOfThreads = 1;
-			int noOfVMThreads = 3;
-			ttc.sceConf = new TestSCEConfiguration(suite, NetworkingStrategy.KRYONET, evaluator, noOfThreads, noOfVMThreads, net, storage, useSecureConnection);
+			if (preProStrat == PreprocessingStrategy.STATIC) {
+				storage = new FilebasedStreamedStorageImpl(new InMemoryStorage());
+			}
+			ttc.sceConf = new TestSCEConfiguration(suite, network, evaluator, noOfThreads, noOfVMThreads, ttc.netConf,
+					storage, useSecureConnection);
 			conf.put(playerId, ttc);
 		}
 		TestThreadRunner.run(f, conf);
 	}
-
-	//BgwFactory cannot yet support the needed interfaces. Requires preprocessed data. We refer to SPDZ for this.
-	@Ignore
-	@Test
-	public void test_compareLT_3_1_Sequential() throws Exception {
-		runTest(new ComparisonTests.TestCompareLT(), 3, 1,
-				EvaluationStrategy.SEQUENTIAL);
-	}
-	
-	@Ignore
-	@Test
-	public void test_compareEQ_3_1_Sequential() throws Exception {
-		runTest(new ComparisonTests.TestCompareEQ(), 3, 1,
-				EvaluationStrategy.SEQUENTIAL);
-	}
-	
 }

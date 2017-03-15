@@ -29,7 +29,6 @@ package dk.alexandra.fresco.suite.bgw.integer;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import dk.alexandra.fresco.framework.MPCException;
