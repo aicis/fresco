@@ -44,6 +44,7 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.TestConfiguration;
+import dk.alexandra.fresco.framework.network.NetworkingStrategy;
 import dk.alexandra.fresco.framework.sce.configuration.TestSCEConfiguration;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
@@ -67,8 +68,9 @@ public class TestBgwBasicArithmetic {
 		// Since SCAPI currently does not work with ports > 9999 we use fixed ports
 		// here instead of relying on ephemeral ports which are often > 9999.
 		List<Integer> ports = new ArrayList<Integer>(noPlayers);
+		int noOfVMThreads = 3;
 		for (int i=1; i<=noPlayers; i++) {
-			ports.add(9000 + i);
+			ports.add(9000 + i*noOfVMThreads);
 		}
 		
 		Map<Integer, NetworkConfiguration> netConf = TestConfiguration.getNetworkConfigurations(noPlayers, ports,logLevel);
@@ -93,8 +95,8 @@ public class TestBgwBasicArithmetic {
 			ProtocolEvaluator evaluator = EvaluationStrategy.fromEnum(evalStrategy);			
 			Storage storage = new InMemoryStorage();
 			int noOfThreads = 1;
-			int noOfVMThreads = 3;
-			ttc.sceConf = new TestSCEConfiguration(suite, evaluator, noOfThreads, noOfVMThreads, net, storage, useSecureConnection);
+			
+			ttc.sceConf = new TestSCEConfiguration(suite, NetworkingStrategy.KRYONET, evaluator, noOfThreads, noOfVMThreads, net, storage, useSecureConnection);
 			conf.put(playerId, ttc);
 		}
 		TestThreadRunner.run(f, conf);

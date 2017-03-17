@@ -26,7 +26,6 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.arithmetic;
 
-import java.io.IOException;
 import java.math.BigInteger;
 
 import org.junit.Assert;
@@ -37,8 +36,6 @@ import dk.alexandra.fresco.framework.TestApplication;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
-import dk.alexandra.fresco.framework.sce.SCE;
-import dk.alexandra.fresco.framework.sce.SCEFactory;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.compare.ComparisonProtocolFactory;
@@ -67,21 +64,10 @@ import dk.alexandra.fresco.lib.math.integer.min.MinInfFracProtocol;
  */
 public class BasicArithmeticTests {
 
-	private abstract static class ThreadWithFixture extends TestThread {
-
-		protected SCE sce;
-
-		@Override
-		public void setUp() throws IOException {
-			sce = SCEFactory.getSCEFromConfiguration(conf.sceConf, conf.protocolSuiteConf);
-		}
-
-	}
-
 	public static class TestInput extends TestThreadFactory {
 		@Override
 		public TestThread next(TestThreadConfiguration conf) {
-			return new ThreadWithFixture() {
+			return new TestThread() {
 				@Override
 				public void test() throws Exception {
 					TestApplication app = new TestApplication() {
@@ -118,7 +104,7 @@ public class BasicArithmeticTests {
 	public static class TestOutputToSingleParty extends TestThreadFactory {
 		@Override
 		public TestThread next(TestThreadConfiguration conf) {
-			return new ThreadWithFixture() {
+			return new TestThread() {
 				@Override
 				public void test() throws Exception {
 					TestApplication app = new TestApplication() {
@@ -159,7 +145,7 @@ public class BasicArithmeticTests {
 	public static class TestAddPublicValue extends TestThreadFactory {
 		@Override
 		public TestThread next(TestThreadConfiguration conf) {
-			return new ThreadWithFixture() {
+			return new TestThread() {
 				@Override
 				public void test() throws Exception {
 					TestApplication app = new TestApplication() {
@@ -206,7 +192,7 @@ public class BasicArithmeticTests {
 
 		@Override
 		public TestThread next(TestThreadConfiguration conf) {
-			return new ThreadWithFixture() {
+			return new TestThread() {
 				@Override
 				public void test() throws Exception {
 					TestApplication app = new TestApplication() {
@@ -247,7 +233,7 @@ public class BasicArithmeticTests {
 
 		@Override
 		public TestThread next(TestThreadConfiguration conf) {
-			return new ThreadWithFixture() {
+			return new TestThread() {
 				@Override
 				public void test() throws Exception {
 					final int[] openInputs = new int[] { 11, 2, 3, 4, 5, 6, 7,
@@ -289,7 +275,7 @@ public class BasicArithmeticTests {
 
 		@Override
 		public TestThread next(TestThreadConfiguration conf) {
-			return new ThreadWithFixture() {
+			return new TestThread() {
 				@Override
 				public void test() throws Exception {
 					final int[] openInputs = new int[] { 200, 300, 1, 2 };
@@ -329,7 +315,7 @@ public class BasicArithmeticTests {
 	public static class TestSumAndMult extends TestThreadFactory {
 		@Override
 		public TestThread next(TestThreadConfiguration conf) {
-			return new ThreadWithFixture() {
+			return new TestThread() {
 				@Override
 				public void test() throws Exception {
 					final int[] openInputs = new int[] { 1, 2, 3, 4, 5, 6, 7,
@@ -416,7 +402,7 @@ public class BasicArithmeticTests {
 
 		@Override
 		public TestThread next(TestThreadConfiguration conf) {
-			return new ThreadWithFixture() {
+			return new TestThread() {
 				@Override
 				public void test() throws Exception {
 					TestApplication app = new TestApplication() {
@@ -470,7 +456,7 @@ public class BasicArithmeticTests {
 		@Override
 		public TestThread next(TestThreadConfiguration conf) {
 			
-			return new ThreadWithFixture() {
+			return new TestThread() {
 				@Override
 				public void test() throws Exception {
 					TestApplication app = new TestApplication() {
@@ -512,7 +498,7 @@ public class BasicArithmeticTests {
 		@Override
 		public TestThread next(TestThreadConfiguration conf) {
 			
-			return new ThreadWithFixture() {
+			return new TestThread() {
 				public void test() throws Exception {
 					TestApplication app = new TestApplication() {
 						private static final long serialVersionUID = 701623441111137585L;
@@ -619,7 +605,7 @@ public class BasicArithmeticTests {
 		@Override
 		public TestThread next(TestThreadConfiguration conf) {
 			
-			return new ThreadWithFixture() {
+			return new TestThread() {
 				@Override
 				public void test() throws Exception {
 					TestApplication app = new TestApplication() {

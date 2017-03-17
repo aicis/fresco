@@ -27,12 +27,9 @@
 package dk.alexandra.fresco.framework.sce.evaluator;
 
 import java.io.IOException;
-import java.io.Serializable;
-import java.util.Arrays;
+import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Queue;
-import java.util.concurrent.LinkedBlockingQueue;
 
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.NativeProtocol;
@@ -57,7 +54,7 @@ public class SequentialEvaluator implements ProtocolEvaluator {
 
 	private static final int DEFAULT_THREAD_ID = 0;
 
-	private static final String DEFAULT_CHANNEL = "0";
+	private static final int DEFAULT_CHANNEL = 0;
 
 	/**
 	 * Quit if more than this amount of empty batches are returned in a row from
@@ -158,19 +155,17 @@ public class SequentialEvaluator implements ProtocolEvaluator {
 			do {
 				status = protocols[i].evaluate(round, this.resourcePool, sceNetwork);				
 				//send phase
-				Map<Integer, Queue<Serializable>> output = sceNetwork.getOutputFromThisRound();				
+				Map<Integer, byte[]> output = sceNetwork.getOutputFromThisRound();				
 				for(int pId : output.keySet()) {
 					//send array since queue is not serializable
-					this.network.send(DEFAULT_CHANNEL, pId, output.get(pId).toArray(new Serializable[0]));					
+					this.network.send(DEFAULT_CHANNEL, pId, output.get(pId));					
 				}
 				
 				//receive phase
-				Map<Integer, Queue<Serializable>> inputForThisRound = new HashMap<Integer, Queue<Serializable>>();
+				Map<Integer, ByteBuffer> inputForThisRound = new HashMap<Integer, ByteBuffer>();
 				for(int pId : sceNetwork.getExpectedInputForNextRound()) {
-					Serializable[] messages = this.network.receive(DEFAULT_CHANNEL, pId);
-					//convert back from array to queue.
-					Queue<Serializable> q = new LinkedBlockingQueue<Serializable>(Arrays.asList(messages));					
-					inputForThisRound.put(pId, q);
+					byte[] messages = this.network.receive(DEFAULT_CHANNEL, pId);					
+					inputForThisRound.put(pId, ByteBuffer.wrap(messages));
 				}
 				sceNetwork.setInput(inputForThisRound);				
 				sceNetwork.nextRound();

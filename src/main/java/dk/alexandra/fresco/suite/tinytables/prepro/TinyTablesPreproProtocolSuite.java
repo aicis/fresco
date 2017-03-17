@@ -30,6 +30,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -125,7 +126,7 @@ public class TinyTablesPreproProtocolSuite implements ProtocolSuite {
 		
 		this.tinyTablesTripleProvider = new BatchTinyTablesTripleProvider(
 				new TinyTablesTripleGenerator(resourcePool.getMyId(),
-						resourcePool.getSecureRandom(), otFactory), 10000);
+						resourcePool.getSecureRandom(), otFactory), 1500);
 		
 		this.unprocessedAndGates = Collections
 				.synchronizedList(new ArrayList<TinyTablesPreproANDProtocol>());
@@ -189,10 +190,20 @@ public class TinyTablesPreproProtocolSuite implements ProtocolSuite {
 				shares.setShare(2 * i + 1, msg.getSecond().getShare());
 			}
 
-			this.resourcePool.getNetwork().send("0",
-					Util.otherPlayerId(resourcePool.getMyId()), shares);
-			TinyTablesElementVector otherShares = this.resourcePool.getNetwork().receive("0",
+			byte[] size = ByteBuffer.allocate(2).putShort((short)shares.getSize()).array();
+			//send
+			this.resourcePool.getNetwork().send(0,
+					Util.otherPlayerId(resourcePool.getMyId()), size);
+			this.resourcePool.getNetwork().send(0,
+					Util.otherPlayerId(resourcePool.getMyId()), shares.payload());
+			
+			//receive 
+			size = this.resourcePool.getNetwork().receive(0,
 					Util.otherPlayerId(resourcePool.getMyId()));
+			short length = ByteBuffer.wrap(size).getShort();
+			byte[] data = this.resourcePool.getNetwork().receive(0,
+					Util.otherPlayerId(resourcePool.getMyId()));
+			TinyTablesElementVector otherShares = new TinyTablesElementVector(data, length);
 			
 			BitVector open = TinyTablesElementVector.open(shares, otherShares);
 			

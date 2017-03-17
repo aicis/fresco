@@ -48,6 +48,7 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.TestConfiguration;
+import dk.alexandra.fresco.framework.network.NetworkingStrategy;
 import dk.alexandra.fresco.framework.sce.SCE;
 import dk.alexandra.fresco.framework.sce.SCEFactory;
 import dk.alexandra.fresco.framework.sce.configuration.ProtocolSuiteConfiguration;
@@ -77,7 +78,7 @@ public class SetIntersectionDemo {
 		// Generic configuration
 		List<Integer> ports = new ArrayList<Integer>(noPlayers);
 		for (int i=1; i<=noPlayers; i++) {
-			ports.add(9000 + i);
+			ports.add(9000 + i*10);
 		}
 		Map<Integer, NetworkConfiguration> netConf = TestConfiguration.getNetworkConfigurations(noPlayers, ports, logLevel);
 		Map<Integer, TestThreadConfiguration> conf = new HashMap<Integer, TestThreadConfiguration>();
@@ -96,7 +97,7 @@ public class SetIntersectionDemo {
 			ProtocolEvaluator evaluator = new SequentialEvaluator();
 			Storage storage = new InMemoryStorage();
 			boolean useSecureConnection = true;
-			ttc.sceConf = new TestSCEConfiguration(suite, evaluator, noOfThreads, noOfVMThreads,
+			ttc.sceConf = new TestSCEConfiguration(suite, NetworkingStrategy.KRYONET, evaluator, noOfThreads, noOfVMThreads,
 					ttc.netConf, storage, useSecureConnection);
 			conf.put(playerId, ttc);
 		}
@@ -135,7 +136,7 @@ public class SetIntersectionDemo {
 			ProtocolEvaluator evaluator = new SequentialEvaluator();
 			Storage storage = new InMemoryStorage();
 			boolean useSecureConnection = true;
-			ttc.sceConf = new TestSCEConfiguration(suite, evaluator, noOfThreads, noOfVMThreads,
+			ttc.sceConf = new TestSCEConfiguration(suite, NetworkingStrategy.KRYONET, evaluator, noOfThreads, noOfVMThreads,
 					ttc.netConf, storage, useSecureConnection);
 			conf.put(playerId, ttc);
 		}
@@ -161,7 +162,7 @@ public class SetIntersectionDemo {
 			ProtocolEvaluator evaluator = new SequentialEvaluator();
 			Storage storage = new InMemoryStorage();
 			boolean useSecureConnection = true;
-			ttc.sceConf = new TestSCEConfiguration(suite, evaluator, noOfThreads, noOfVMThreads,
+			ttc.sceConf = new TestSCEConfiguration(suite, NetworkingStrategy.KRYONET, evaluator, noOfThreads, noOfVMThreads,
 					ttc.netConf, storage, useSecureConnection);
 			conf.put(playerId, ttc);
 		}

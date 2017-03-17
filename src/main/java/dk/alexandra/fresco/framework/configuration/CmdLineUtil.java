@@ -44,6 +44,7 @@ import org.apache.commons.cli.ParseException;
 import dk.alexandra.fresco.framework.Party;
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.Reporter;
+import dk.alexandra.fresco.framework.network.NetworkingStrategy;
 import dk.alexandra.fresco.framework.sce.configuration.ProtocolSuiteConfiguration;
 import dk.alexandra.fresco.framework.sce.configuration.SCEConfiguration;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
@@ -370,6 +371,11 @@ public class CmdLineUtil {
 					} else{
 						return null;
 					}
+				}
+
+				@Override
+				public NetworkingStrategy getNetwork() {
+					return NetworkingStrategy.KRYONET;
 				}
 			};
 

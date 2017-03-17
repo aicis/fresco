@@ -28,8 +28,9 @@ package dk.alexandra.fresco.suite.spdz;
 
 import org.junit.Test;
 
+import dk.alexandra.fresco.framework.configuration.PreprocessingStrategy;
+import dk.alexandra.fresco.framework.network.NetworkingStrategy;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
-import dk.alexandra.fresco.framework.sce.resources.storage.StorageStrategy;
 import dk.alexandra.fresco.lib.arithmetic.BasicArithmeticTests;
 
 /**
@@ -38,100 +39,95 @@ import dk.alexandra.fresco.lib.arithmetic.BasicArithmeticTests;
  * to handle a fixed number of parties.
  * 
  */
-public class TestSpdzBasicArithmetic2Parties extends TestSpdz2Parties {
+public class TestSpdzBasicArithmetic2Parties extends AbstractSpdzTest {
 
 	@Test
 	public void test_Copy_Sequential() throws Exception {
-		runTest(new BasicArithmeticTests.TestCopyProtocol(),
-				EvaluationStrategy.SEQUENTIAL, StorageStrategy.IN_MEMORY);
+		runTest(new BasicArithmeticTests.TestCopyProtocol(), EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET,
+				PreprocessingStrategy.DUMMY, 2);
 	}
 
 	@Test
 	public void test_Input_Sequential() throws Exception {
-		runTest(new BasicArithmeticTests.TestInput(),
-				EvaluationStrategy.SEQUENTIAL, StorageStrategy.IN_MEMORY);
+		runTest(new BasicArithmeticTests.TestInput(), EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET,
+				PreprocessingStrategy.DUMMY, 2);
 	}
-	
+
 	@Test
 	public void test_OutputToTarget_Sequential() throws Exception {
-		runTest(new BasicArithmeticTests.TestOutputToSingleParty(),
-				EvaluationStrategy.SEQUENTIAL, StorageStrategy.IN_MEMORY);
+		runTest(new BasicArithmeticTests.TestOutputToSingleParty(), EvaluationStrategy.SEQUENTIAL,
+				NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
 	}
-	
+
 	@Test
 	public void test_AddPublicValue_Sequential() throws Exception {
-		runTest(new BasicArithmeticTests.TestAddPublicValue(),
-				EvaluationStrategy.SEQUENTIAL, StorageStrategy.IN_MEMORY);
+		runTest(new BasicArithmeticTests.TestAddPublicValue(), EvaluationStrategy.SEQUENTIAL,
+				NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
 	}
 
 	@Test
 	public void test_Lots_Of_Inputs_Sequential() throws Exception {
-		runTest(new BasicArithmeticTests.TestLotsOfInputs(),
-				EvaluationStrategy.SEQUENTIAL, StorageStrategy.IN_MEMORY);
+		runTest(new BasicArithmeticTests.TestLotsOfInputs(), EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET,
+				PreprocessingStrategy.DUMMY, 2);
 	}
 
 	@Test
 	public void test_MultAndAdd_Sequential() throws Exception {
-		runTest(new BasicArithmeticTests.TestSimpleMultAndAdd(),
-				EvaluationStrategy.SEQUENTIAL, StorageStrategy.IN_MEMORY);
+		runTest(new BasicArithmeticTests.TestSimpleMultAndAdd(), EvaluationStrategy.SEQUENTIAL,
+				NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
 	}
 
 	@Test
 	public void test_Lots_Of_Inputs_Parallel() throws Exception {
-		runTest(new BasicArithmeticTests.TestLotsOfInputs(),
-				EvaluationStrategy.PARALLEL, StorageStrategy.IN_MEMORY);
+		runTest(new BasicArithmeticTests.TestLotsOfInputs(), EvaluationStrategy.PARALLEL, NetworkingStrategy.KRYONET,
+				PreprocessingStrategy.DUMMY, 2);
 	}
 
 	@Test
 	public void test_Lots_Of_Inputs_ParallelBatched() throws Exception {
-		runTest(new BasicArithmeticTests.TestLotsOfInputs(),
-				EvaluationStrategy.PARALLEL_BATCHED, StorageStrategy.IN_MEMORY);
+		runTest(new BasicArithmeticTests.TestLotsOfInputs(), EvaluationStrategy.PARALLEL_BATCHED,
+				NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
 	}
 
 	@Test
 	public void test_Sum_And_Output_Sequential() throws Exception {
-		runTest(new BasicArithmeticTests.TestSumAndMult(),
-				EvaluationStrategy.SEQUENTIAL, StorageStrategy.IN_MEMORY);
+		runTest(new BasicArithmeticTests.TestSumAndMult(), EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET,
+				PreprocessingStrategy.DUMMY, 2);
 	}
 
 	@Test
 	public void test_Sum_And_Output_ParallelBatched() throws Exception {
-		runTest(new BasicArithmeticTests.TestSumAndMult(),
-				EvaluationStrategy.PARALLEL_BATCHED, StorageStrategy.IN_MEMORY);
+		runTest(new BasicArithmeticTests.TestSumAndMult(), EvaluationStrategy.PARALLEL_BATCHED,
+				NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
 	}
 
 	@Test
 	public void test_Lots_Of_Inputs_SequentialBatched() throws Exception {
-		runTest(new BasicArithmeticTests.TestLotsOfInputs(),
-				EvaluationStrategy.SEQUENTIAL_BATCHED,
-				StorageStrategy.IN_MEMORY);
+		runTest(new BasicArithmeticTests.TestLotsOfInputs(), EvaluationStrategy.SEQUENTIAL_BATCHED,
+				NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
 	}
-	
+
 	@Test
 	public void test_MinInfFrac_Sequential() throws Exception {
-		runTest(new BasicArithmeticTests.TestMinInfFrac(),
-				EvaluationStrategy.SEQUENTIAL,
-				StorageStrategy.IN_MEMORY);
+		runTest(new BasicArithmeticTests.TestMinInfFrac(), EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET,
+				PreprocessingStrategy.DUMMY, 2);
 	}
-	
+
 	@Test
 	public void test_MinInfFrac_SequentialBatched() throws Exception {
-		runTest(new BasicArithmeticTests.TestMinInfFrac(),
-				EvaluationStrategy.SEQUENTIAL_BATCHED,
-				StorageStrategy.IN_MEMORY);
+		runTest(new BasicArithmeticTests.TestMinInfFrac(), EvaluationStrategy.SEQUENTIAL_BATCHED,
+				NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
 	}
-	
+
 	@Test
 	public void test_MinInfFrac_Parallel() throws Exception {
-		runTest(new BasicArithmeticTests.TestMinInfFrac(),
-				EvaluationStrategy.PARALLEL,
-				StorageStrategy.IN_MEMORY);
+		runTest(new BasicArithmeticTests.TestMinInfFrac(), EvaluationStrategy.PARALLEL, NetworkingStrategy.KRYONET,
+				PreprocessingStrategy.DUMMY, 2);
 	}
-	
+
 	@Test
 	public void test_MinInfFrac_ParallelBatched() throws Exception {
-		runTest(new BasicArithmeticTests.TestMinInfFrac(),
-				EvaluationStrategy.PARALLEL_BATCHED,
-				StorageStrategy.IN_MEMORY);
+		runTest(new BasicArithmeticTests.TestMinInfFrac(), EvaluationStrategy.PARALLEL_BATCHED,
+				NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
 	}
 }

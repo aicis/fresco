@@ -43,12 +43,12 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.TestConfiguration;
+import dk.alexandra.fresco.framework.network.NetworkingStrategy;
 import dk.alexandra.fresco.framework.sce.configuration.TestSCEConfiguration;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
 import dk.alexandra.fresco.framework.sce.resources.storage.Storage;
 import dk.alexandra.fresco.lib.arithmetic.ComparisonTests;
-import dk.alexandra.fresco.lib.arithmetic.SortingTests;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.bgw.configuration.BgwConfiguration;
 
@@ -62,7 +62,7 @@ public class TestBgwComparison {
 		// here instead of relying on ephemeral ports which are often > 9999.
 		List<Integer> ports = new ArrayList<Integer>(noPlayers);
 		for (int i=1; i<=noPlayers; i++) {
-			ports.add(9000 + i);
+			ports.add(9000 + i*10);
 		}
 		
 		Map<Integer, NetworkConfiguration> netConf = TestConfiguration.getNetworkConfigurations(noPlayers, ports,logLevel);
@@ -88,7 +88,7 @@ public class TestBgwComparison {
 			Storage storage = new InMemoryStorage();
 			int noOfThreads = 1;
 			int noOfVMThreads = 3;
-			ttc.sceConf = new TestSCEConfiguration(suite, evaluator, noOfThreads, noOfVMThreads, net, storage, useSecureConnection);
+			ttc.sceConf = new TestSCEConfiguration(suite, NetworkingStrategy.KRYONET, evaluator, noOfThreads, noOfVMThreads, net, storage, useSecureConnection);
 			conf.put(playerId, ttc);
 		}
 		TestThreadRunner.run(f, conf);
