@@ -1,0 +1,25 @@
+<project>
+  <parent>
+    <groupId>dk.alexandra.fresco</groupId>
+    <artifactId>master-pom</artifactId>
+    <version>0.2-SNAPSHOT</version>
+  </parent>
+  
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>dk.alexandra.fresco</groupId>
+  <artifactId>tools-master-pom</artifactId>
+  <version>0.2-SNAPSHOT</version>
+  <packaging>pom</packaging>
+
+  <dependencies>
+    <dependency>
+      <groupId>dk.alexandra.fresco</groupId>
+      <artifactId>core</artifactId>
+      <version>0.2-SNAPSHOT</version>
+    </dependency>
+  </dependencies>
+  
+  <modules>
+    <module>fuelstation</module>
+  </modules>
+</project>
