@@ -161,6 +161,8 @@ public class AESDemo implements Application {
 		} catch (MPCException e) {
 			System.out.println("Error while doing MPC: " + e.getMessage());
 			System.exit(-1);
+		} finally {
+			sce.shutdownSCE();
 		}
 		
 		// Print result.

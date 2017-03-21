@@ -10,8 +10,8 @@ To run the demonstrator, use the Makefile and write
 
 * make build
 * make runPrePro
-* Wait approximately 20 seconds until the log files within the two server
-* directories outputs a lot of 0's. Ignore this output as it's not the actual one.
+* Wait approximately 30 seconds until the log files within the two server
+  directories outputs a lot of 0's. Ignore this output as it's not the actual one.
 * make run
 
 The first target runs the compilation process and generates a runnable jar with
@@ -27,4 +27,6 @@ result should be read as a concatinated list of all the inputs, where each has
 been deterministicly encrypted using AES within MPC. This means that if some of
 the first half's hex strings are equal to the second half, there is an
 intersection for that number. Indices are kept, so for the demo inputs, you
-should be able to observe equality for index 1,2,3 and 7. 
+should be able to observe equality for index 1, 2, 3 and 7. This translates into
+equality between the ciphertext indices: 0 and 7, 1 and 8, 2 and 9 and finally 6
+and 13.

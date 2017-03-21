@@ -29,6 +29,7 @@ package dk.alexandra.fresco.demo;
 import dk.alexandra.fresco.cli.CmdLineUtil;
 import dk.alexandra.fresco.framework.sce.SCE;
 import dk.alexandra.fresco.framework.sce.SCEFactory;
+import dk.alexandra.fresco.framework.sce.configuration.ProtocolSuiteConfiguration;
 import dk.alexandra.fresco.framework.sce.configuration.SCEConfiguration;
 
 public class InputSumExample {
@@ -57,16 +58,33 @@ public class InputSumExample {
 	}
 
 	public static void main(String[] args) {
-		int myId = Integer.parseInt(args[0]);	
 		CmdLineUtil util = new CmdLineUtil();
-		SCEConfiguration sceConf = null;
-
-		util.parse(args);
-		sceConf = util.getSCEConfiguration();
-
-		SCE sce = SCEFactory.getSCEFromConfiguration(sceConf);
-
-		runApplication(myId, sce);
+		
+		SCE sce = null;
+		try {										
+			util.parse(args);
+			SCEConfiguration sceConf = null;
+			ProtocolSuiteConfiguration psConf = null;
+			
+			sceConf = util.getSCEConfiguration();
+			psConf = util.getProtocolSuiteConfiguration();
+			
+			sce = SCEFactory.getSCEFromConfiguration(sceConf, psConf);
+			
+			runApplication(sceConf.getMyId(), sce);			
+			
+		} catch (IllegalArgumentException e) {
+			System.out.println("Error: " + e);
+			System.out.println();
+			util.displayHelp();
+			System.exit(-1);	
+		} finally {
+			if(sce != null) {
+				sce.shutdownSCE();
+			}
+		}
+		
+		
 	}
-
+	
 }

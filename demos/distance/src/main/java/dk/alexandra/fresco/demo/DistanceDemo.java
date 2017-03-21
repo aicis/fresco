@@ -36,6 +36,7 @@ import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.sce.SCE;
 import dk.alexandra.fresco.framework.sce.SCEFactory;
+import dk.alexandra.fresco.framework.sce.configuration.ProtocolSuiteConfiguration;
 import dk.alexandra.fresco.framework.sce.configuration.SCEConfiguration;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
@@ -93,6 +94,7 @@ public class DistanceDemo implements Application {
 	public static void main(String[] args) {
 		CmdLineUtil cmdUtil = new CmdLineUtil();
 		SCEConfiguration sceConf = null;
+		ProtocolSuiteConfiguration psConf = null;
 		int x, y;
 		x = y = 0;
 		try {	
@@ -108,6 +110,7 @@ public class DistanceDemo implements Application {
 					.build());
 			CommandLine cmd = cmdUtil.parse(args);
 			sceConf = cmdUtil.getSCEConfiguration();
+			psConf = cmdUtil.getProtocolSuiteConfiguration();
 			
 			if (sceConf.getMyId() == 1 || sceConf.getMyId() == 2) {
 				if (!cmd.hasOption("x") || !cmd.hasOption("y")) {
@@ -128,17 +131,19 @@ public class DistanceDemo implements Application {
 			System.exit(-1);	
 		} 
 		DistanceDemo distDemo = new DistanceDemo(sceConf.getMyId(), x, y);
-		SCE sce = SCEFactory.getSCEFromConfiguration(sceConf);
+		SCE sce = SCEFactory.getSCEFromConfiguration(sceConf, psConf);
 		try {
 			sce.runApplication(distDemo);
 		} catch (Exception e) {
 			System.out.println("Error while doing MPC: " + e.getMessage());
 			e.printStackTrace();
 			System.exit(-1);
+		} finally {
+			sce.shutdownSCE();
 		}
 		double dist = distDemo.distance.getValue().doubleValue();
 		dist = Math.sqrt(dist);
-		System.out.println("Distance between party 1 and 2 is " + dist);
+		System.out.println("Distance between party 1 and 2 is: " + dist);
 	}
 
 }

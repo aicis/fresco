@@ -13,7 +13,7 @@ import dk.alexandra.fresco.suite.tinytables.prepro.TinyTablesPreproConfiguration
 
 public class TinyTablesConfigurationFromCmdLine {
 
-	public static TinyTablesConfiguration preProFromCmdLine(CommandLine cmd)
+	public static TinyTablesConfiguration fromCmdLine(CommandLine cmd)
 			throws ParseException, IllegalArgumentException {
 
 		Options options = new Options();
@@ -34,7 +34,7 @@ public class TinyTablesConfigurationFromCmdLine {
 		return configuration;
 	}
 
-	public static TinyTablesPreproConfiguration fromCmdLine(CommandLine cmd)
+	public static TinyTablesPreproConfiguration preProFromCmdLine(CommandLine cmd)
 			throws ParseException, IllegalArgumentException {
 
 		Options options = new Options();

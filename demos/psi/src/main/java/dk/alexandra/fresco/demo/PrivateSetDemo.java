@@ -193,8 +193,10 @@ public class PrivateSetDemo implements Application {
 		try {
 			sce.runApplication(privateSetDemo);
 		} catch (MPCException e) {
-			System.out.println("Error while doing MPC: " + e.getMessage());
+			System.out.println("Error while doing MPC: " + e.getMessage());			
 			System.exit(-1);
+		} finally {
+			sce.shutdownSCE();
 		}
 		
 		// Print result.

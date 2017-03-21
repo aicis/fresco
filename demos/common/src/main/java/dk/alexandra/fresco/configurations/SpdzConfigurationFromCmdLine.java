@@ -1,5 +1,6 @@
 package dk.alexandra.fresco.configurations;
 
+import java.util.Arrays;
 import java.util.Properties;
 
 import org.apache.commons.cli.CommandLine;
@@ -11,8 +12,7 @@ import dk.alexandra.fresco.suite.spdz.configuration.SpdzConfiguration;
 public class SpdzConfigurationFromCmdLine {
 
 	public static SpdzConfiguration fromCmdLine(CommandLine cmd) throws ParseException {
-		Properties p = cmd.getOptionProperties("D");
-		//TODO: Figure out a meaningful default for the below 
+		Properties p = cmd.getOptionProperties("D"); 
 		final int maxBitLength = Integer.parseInt(p.getProperty("spdz.maxBitLength", "64"));
 		if (maxBitLength < 2) {
 			throw new ParseException("spdz.maxBitLength must be > 1");
@@ -20,7 +20,12 @@ public class SpdzConfigurationFromCmdLine {
 		
 		final String fuelStationBaseUrl = p.getProperty("spdz.fuelStationBaseUrl", null);
 		String strat = p.getProperty("spdz.preprocessingStrategy");
-		final PreprocessingStrategy strategy = PreprocessingStrategy.fromString(strat);
+		final PreprocessingStrategy strategy;
+		if(strat != null) {
+			 strategy = PreprocessingStrategy.fromString(strat);
+		} else {
+			throw new IllegalArgumentException("The property -Dspdz.preprocessingStrategy must be set to one of the values: " + Arrays.toString(PreprocessingStrategy.values()));
+		}
 
 		return new SpdzConfiguration() {
 			
