@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016 FRESCO (http://github.com/aicis/fresco).
+ * Copyright (c) 2017 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
  *
@@ -26,8 +26,8 @@
  *******************************************************************************/
 package dk.alexandra.fresco.integrationtest;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -49,33 +49,35 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.PreprocessingStrategy;
 import dk.alexandra.fresco.framework.configuration.TestConfiguration;
+import dk.alexandra.fresco.framework.network.NetworkingStrategy;
 import dk.alexandra.fresco.framework.sce.configuration.TestSCEConfiguration;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
-import dk.alexandra.fresco.framework.sce.resources.storage.FilebasedStreamedStorageImpl;
 import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
-import dk.alexandra.fresco.framework.sce.resources.storage.Storage;
 import dk.alexandra.fresco.framework.sce.resources.storage.StorageStrategy;
+import dk.alexandra.fresco.lib.arithmetic.BasicArithmeticTests;
 import dk.alexandra.fresco.lib.arithmetic.MiMCTests;
-import dk.alexandra.fresco.services.PreprocesserImpl;
+import dk.alexandra.fresco.lib.statistics.DEASolverTests;
+import dk.alexandra.fresco.rest.FuelEndpoint;
+import dk.alexandra.fresco.services.DataGeneratorImpl;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.configuration.SpdzConfiguration;
 import dk.alexandra.fresco.suite.spdz.evaluation.strategy.SpdzProtocolSuite;
-import dk.alexandra.fresco.suite.spdz.storage.InitializeStorage;
+import dk.alexandra.fresco.suite.spdz.storage.rest.RetrieverThread;
+import org.junit.Assert;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT, 
-	classes= {PreprocesserImpl.class, Application.class})
+classes= {DataGeneratorImpl.class, Application.class})
 public class ITSpdzMIMCApplicationTest {
-	
+
 	@LocalServerPort
 	private int port;
-	
+
 	private static final int noOfParties = 2;
 
 	private void runTest(TestThreadFactory f, EvaluationStrategy evalStrategy,
-			StorageStrategy storageStrategy, Storage storage) throws Exception {
-		Level logLevel = Level.FINE;
-		Reporter.init(logLevel);
+			StorageStrategy storageStrategy) throws Exception {
+		Level logLevel = Level.INFO;
 
 		// Since SCAPI currently does not work with ports > 9999 we use fixed
 		// ports
@@ -117,8 +119,8 @@ public class ITSpdzMIMCApplicationTest {
 			ProtocolSuite suite = new SpdzProtocolSuite();
 			ProtocolEvaluator evaluator = EvaluationStrategy
 					.fromEnum(evalStrategy);
-			ttc.sceConf = new TestSCEConfiguration(suite, evaluator,
-					noOfThreads, noOfVMThreads, ttc.netConf, storage,
+			ttc.sceConf = new TestSCEConfiguration(suite, NetworkingStrategy.KRYONET, evaluator,
+					noOfThreads, noOfVMThreads, ttc.netConf, new InMemoryStorage(),
 					useSecureConnection);
 			conf.put(playerId, ttc);
 		}
@@ -127,15 +129,19 @@ public class ITSpdzMIMCApplicationTest {
 
 	@Test
 	public void test_mimc_same_enc() throws Exception {
-		InitializeStorage.cleanup();
-		try {
-			FilebasedStreamedStorageImpl store = new FilebasedStreamedStorageImpl(new InMemoryStorage());		
-			InitializeStorage.initStreamedStorage(store, 2, 1, 10000, 10, 0, 0, new BigInteger("2582249878086908589655919172003011874329705792829223512830659356540647622016841194629645353280137831435903171972747493557"));
-			runTest(new MiMCTests.TestMiMCEncSameEnc(),
-					EvaluationStrategy.SEQUENTIAL, StorageStrategy.IN_MEMORY, store);
-		} catch(Exception e) {
-			InitializeStorage.cleanup();
-			throw e;
-		}
+		runTest(new MiMCTests.TestMiMCEncSameEnc(),
+				EvaluationStrategy.SEQUENTIAL_BATCHED, StorageStrategy.IN_MEMORY);				
+	}
+	
+	@Test
+	public void test_dea() throws Exception {
+		runTest(new DEASolverTests.TestDEASolver(5, 1, 5, 1),
+				EvaluationStrategy.PARALLEL_BATCHED, StorageStrategy.IN_MEMORY);
+	}
+	
+	@Test
+	public void test_mult_single() throws Exception {
+		runTest(new BasicArithmeticTests.TestSumAndMult(),
+				EvaluationStrategy.SEQUENTIAL_BATCHED, StorageStrategy.IN_MEMORY);
 	}
 }

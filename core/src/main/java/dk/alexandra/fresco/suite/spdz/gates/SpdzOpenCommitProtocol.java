@@ -27,11 +27,15 @@
 package dk.alexandra.fresco.suite.spdz.gates;
 
 import java.math.BigInteger;
+import java.nio.ByteBuffer;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.network.SCENetwork;
+import dk.alexandra.fresco.framework.network.serializers.BigIntegerSerializer;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.Value;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzCommitment;
@@ -76,11 +80,17 @@ public class SpdzOpenCommitProtocol extends SpdzNativeProtocol {
 			BigInteger value = this.commitment.getValue();
 			BigInteger randomness = this.commitment.getRandomness();
 			BigInteger[] opening = new BigInteger[] { value, randomness };
-			network.sendToAll(opening);
+			network.sendToAll(BigIntegerSerializer.toBytes(opening));
 			network.expectInputFromAll();
 			break;
 		case 1: // Receive openings from all parties and check they are valid
-			Map<Integer, BigInteger[]> openings = receiveFromAllMap(network);
+			List<ByteBuffer> buffers = network.receiveFromAll();
+			Map<Integer, BigInteger[]> openings = new HashMap<>();
+			for(int i = 0; i < buffers.size(); i++) {
+				opening = BigIntegerSerializer.toBigIntegers(buffers.get(i), 2);
+				openings.put(i+1, opening);
+			}
+			
 			openingValidated = true;
 			BigInteger[] broadcastMessages = new BigInteger[2 * openings.size()];
 			for (int i : openings.keySet()) {

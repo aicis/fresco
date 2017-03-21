@@ -177,14 +177,11 @@ public class SpdzProtocolSuite implements ProtocolSuite {
 		
 		int batchSize = 128;
 		NativeProtocol[] nextProtocols = new NativeProtocol[batchSize];
-		SCENetworkImpl[] sceNetworks = new SCENetworkImpl[batchSize];
-		for (int i = 0; i < batchSize; i++) {
-			sceNetworks[i] = new SCENetworkImpl(this.rp.getNoOfParties(), 0);
-		}
+		SCENetworkImpl sceNetworks = new SCENetworkImpl(this.rp.getNoOfParties(), 0);
 		
 		do {
 			int numOfProtocolsInBatch = macCheck.getNextProtocols(nextProtocols, 0);		
-			BatchedStrategy.processBatch(nextProtocols, numOfProtocolsInBatch, sceNetworks, "0",
+			BatchedStrategy.processBatch(nextProtocols, numOfProtocolsInBatch, sceNetworks, 0,
 					this.rp);		
 		} while (macCheck.hasNextProtocols());
 		

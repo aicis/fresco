@@ -76,7 +76,7 @@ public class ScapiNetworkImpl implements Network {
 
 	// Unless explicitly named, SCAPI channels are named with
 	// strings "0", "1", etc.
-	private String defaultChannel = "0";
+	private int defaultChannel = 0;
 
 	// List of all parties, with this party as first entry.
 	private List<PartyData> parties;
@@ -86,14 +86,18 @@ public class ScapiNetworkImpl implements Network {
 	private int channelAmount;
 
 	//Queue for self-sending
-	private Map<String, BlockingQueue<Serializable>> queues;
+	private Map<Integer, BlockingQueue<Serializable>> queues;
 
 	/**
 	 * 
 	 * @param conf - The configuration with info about whom to connect to.
 	 * @param channelAmount The amount of channels each player needs to each other.
 	 */
-	public ScapiNetworkImpl(NetworkConfiguration conf, int channelAmount) {
+	public ScapiNetworkImpl() {		 
+	}
+	
+	@Override
+	public void init(NetworkConfiguration conf, int channelAmount) {
 		this.channelAmount = channelAmount;
 		this.conf = conf;
 	}
@@ -129,14 +133,14 @@ public class ScapiNetworkImpl implements Network {
 		HashMap<PartyData, Object> connectionsPerParty = new HashMap<PartyData, Object>(
 				others.size());
 		//queue to self
-		this.queues = new HashMap<String, BlockingQueue<Serializable>>();
+		this.queues = new HashMap<Integer, BlockingQueue<Serializable>>();
 		for (int i = 0; i < others.size(); i++) {
 			connectionsPerParty.put(others.get(i), this.channelAmount);
 		}
 
 		for(int i = 0; i < this.channelAmount; i++) {
 			//TODO: figure out correct number for capacity.
-			this.queues.put(""+i, new ArrayBlockingQueue<Serializable>(10000));
+			this.queues.put(i, new ArrayBlockingQueue<Serializable>(10000));
 		}
 
 		try {
@@ -228,7 +232,7 @@ public class ScapiNetworkImpl implements Network {
 	 * @throws IOException 
 	 * 
 	 */
-	public void send(int receiverId, Serializable data) throws IOException {
+	public void send(int receiverId, byte[] data) throws IOException {
 		send(defaultChannel, receiverId, data);
 	}
 
@@ -241,21 +245,21 @@ public class ScapiNetworkImpl implements Network {
 	 * @throws IOException 
 	 * 
 	 */
-	public Serializable receive(int id) throws IOException{
+	public byte[] receive(int id) throws IOException{
 		return receive(defaultChannel, id);
 	}
 
-	public void send(String channel, Map<Integer, Serializable> output) throws IOException {
+	public void send(int channel, Map<Integer, byte[]> output) throws IOException {
 		for(int playerId: output.keySet()) {
 			this.send(channel, playerId, output.get(playerId));
 		}
 	}
 
-	public Map<Integer, Serializable> receive(String channel, Set<Integer> expectedInputForNextRound) throws IOException {
+	public Map<Integer, Serializable> receive(int channel, Set<Integer> expectedInputForNextRound) throws IOException {
 		//TODO: Maybe use threading for each player
 		Map<Integer, Serializable> res = new HashMap<Integer, Serializable>();
 		for(int i : expectedInputForNextRound){
-			Serializable r = this.receive(channel, i);
+			byte[] r = this.receive(channel, i);
 			res.put(i, r);
 		}
 		return res;
@@ -270,7 +274,7 @@ public class ScapiNetworkImpl implements Network {
 	}
 
 	@Override
-	public void send(String channel, int partyId, Serializable data)
+	public void send(int channel, int partyId, byte[] data)
 			throws IOException {
 		if(partyId == this.conf.getMyId()) {
 			this.queues.get(channel).add(data);
@@ -281,34 +285,33 @@ public class ScapiNetworkImpl implements Network {
 		}
 		PartyData receiver = idToPartyData.get(partyId);
 		Map<String,Channel> channels = connections.get(receiver);
-		Channel c = channels.get(channel);
+		Channel c = channels.get(""+channel);
 		c.send(data);		
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
-	public <T extends Serializable> T receive(String channel, int partyId) throws IOException {
+	public byte[] receive(int channel, int partyId) throws IOException {
 		if(partyId == this.conf.getMyId()) {
-			Serializable res = this.queues.get(channel).poll();
+			byte[] res = (byte[]) this.queues.get(channel).poll();
 			if(res == null){
 				throw new MPCException("Self(" + partyId + ") have not send anything on channel " + channel + "before receive was called.");
 			}
-			return (T) res;
+			return res;
 		} else {
 			PartyData receiver = idToPartyData.get(partyId);
 			Map<String,Channel> channels = connections.get(receiver);
-			Channel c = channels.get(channel);
+			Channel c = channels.get(""+channel);
 			if (c == null) {
 				throw new MPCException(
 						"Trying to send via channel " + channel + ", but this network was initiated with only " + this.channelAmount + " channels.");
 			}
-			Serializable res = null;
+			byte[] res = null;
 			try {
-				res = c.receive();
+				res = (byte[]) c.receive();
 			} catch (ClassNotFoundException e) {
 				throw new RuntimeException("Weird class not found exception, sry. ", e);
 			}			
-			return (T) res;
+			return res;
 		}
 	}
 

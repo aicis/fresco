@@ -3,6 +3,7 @@
   <groupId>dk.alexandra.fresco</groupId>
   <artifactId>master-pom</artifactId>
   <version>0.2-SNAPSHOT</version>
+
   <packaging>pom</packaging>
 
   <properties>

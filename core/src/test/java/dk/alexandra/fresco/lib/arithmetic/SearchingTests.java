@@ -26,7 +26,6 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.arithmetic;
 
-import java.io.IOException;
 import java.util.Random;
 
 import org.junit.Assert;
@@ -38,8 +37,6 @@ import dk.alexandra.fresco.framework.TestApplication;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
-import dk.alexandra.fresco.framework.sce.SCE;
-import dk.alexandra.fresco.framework.sce.SCEFactory;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.collections.LookUpProtocol;
@@ -56,23 +53,11 @@ import dk.alexandra.fresco.lib.math.integer.exp.PreprocessedExpPipeFactory;
 import dk.alexandra.fresco.lib.math.integer.inv.LocalInversionFactory;
 
 public class SearchingTests {
-
-	private abstract static class ThreadWithFixture extends TestThread {
-
-		protected SCE sce;
-
-		@Override
-		public void setUp() throws IOException {
-			sce = SCEFactory.getSCEFromConfiguration(conf.sceConf,
-					conf.protocolSuiteConf);
-		}
-
-	}
 	
 	public static class TestIsSorted extends TestThreadFactory {
 		@Override
 		public TestThread next(TestThreadConfiguration conf) {
-			return new ThreadWithFixture() {
+			return new TestThread() {
 				@Override
 				public void test() throws Exception {
 					final int PAIRS = 10;
@@ -150,7 +135,7 @@ public class SearchingTests {
 		TestThreadRunner.run(new TestThreadFactory() {
 			@Override
 			public TestThread next(TestThreadConfiguration conf) {
-				return new ThreadWithFixture() {
+				return new TestThread() {
 					@Override
 					public void test() throws Exception {
 						NumericCircuitFactory ncb = new NumericCircuitFactory(
@@ -209,7 +194,7 @@ public class SearchingTests {
 		TestThreadRunner.run(new TestThreadFactory() {
 			@Override
 			public TestThread next(TestThreadConfiguration conf) {
-				return new ThreadWithFixture() {
+				return new TestThread() {
 					@Override
 					public void test() throws Exception {
 						NumericCircuitFactory ncb = new NumericCircuitFactory(
@@ -270,7 +255,7 @@ public class SearchingTests {
 		TestThreadRunner.run(new TestThreadFactory() {
 			@Override
 			public TestThread next(TestThreadConfiguration conf) {
-				return new ThreadWithFixture() {
+				return new TestThread() {
 					@Override
 					public void test() throws Exception {
 						final int PAIRS = 50;

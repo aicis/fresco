@@ -48,6 +48,7 @@ import dk.alexandra.fresco.framework.Party;
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.Reporter;
 import dk.alexandra.fresco.framework.configuration.ConfigurationException;
+import dk.alexandra.fresco.framework.network.NetworkingStrategy;
 import dk.alexandra.fresco.framework.sce.configuration.ProtocolSuiteConfiguration;
 import dk.alexandra.fresco.framework.sce.configuration.SCEConfiguration;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
@@ -57,7 +58,6 @@ import dk.alexandra.fresco.framework.sce.resources.storage.Storage;
 import dk.alexandra.fresco.framework.sce.resources.storage.StorageStrategy;
 import dk.alexandra.fresco.framework.sce.resources.storage.StreamedStorage;
 import dk.alexandra.fresco.suite.ProtocolSuite;
-import dk.alexandra.fresco.suite.bgw.configuration.BgwConfiguration;
 import dk.alexandra.fresco.suite.dummy.DummyConfiguration;
 
 /**
@@ -158,6 +158,13 @@ public class CmdLineUtil {
 		options.addOption(Option.builder("b")
 				.desc("The maximum number of native protocols kept in memory at any point in time. Defaults to 4096")
 				.longOpt("max-batch")
+				.required(false)
+				.hasArg(true)
+				.build());
+		
+		options.addOption(Option.builder("n")
+				.desc("The network to use. Defaults to KryoNet")
+				.longOpt("network")
 				.required(false)
 				.hasArg(true)
 				.build());
@@ -299,12 +306,26 @@ public class CmdLineUtil {
 		if(this.cmd.hasOption("b")) {
 			try {
 				maxBatchSize = Integer.parseInt(this.cmd.getOptionValue("b"));
+				if(maxBatchSize < 0) {
+					throw new IllegalArgumentException();
+				}
 			} catch(Exception e) {
-				throw new ParseException("");
+				throw new ParseException("The maximum batch size has to be a valid integer larger than 0");
 			}
 		} else {
 			maxBatchSize = 4096;
 		}		
+		
+		final NetworkingStrategy networkingStrategy;
+		if(this.cmd.hasOption("n")) {
+			try {
+				networkingStrategy = NetworkingStrategy.valueOf(this.cmd.getOptionValue("n"));
+			} catch(Exception e) {
+				throw new ParseException("Network strategy unknown. Please enter one of the following: " + Arrays.toString(NetworkingStrategy.values()));
+			}
+		} else {
+			networkingStrategy = NetworkingStrategy.KRYONET;
+		}
 		
 		// TODO: Rather: Just log sceConf.toString()
 		Reporter.config("Player id          : " + myId);
@@ -371,6 +392,11 @@ public class CmdLineUtil {
 					} else{
 						return null;
 					}
+				}
+
+				@Override
+				public NetworkingStrategy getNetwork() {
+					return networkingStrategy;
 				}
 			};
 

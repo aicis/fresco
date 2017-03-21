@@ -84,7 +84,7 @@ public class SemiHonestOTExtensionSender implements OTSender {
 		}
 		
 		try {
-			network.send("0", Util.otherPlayerId(myId), y);
+			network.send(0, Util.otherPlayerId(myId), y.toByteArray());
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

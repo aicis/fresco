@@ -277,6 +277,46 @@ public class FakeTripGen {
 	}
 	
 	/**
+	 * Returns a list of a list of inputmasks. The innermost array is
+	 * as large as noOfParties and contains a sharing of a single inputMask
+	 * where player {@code towardsPartyId} has the real value. 
+	 * 
+	 * @param amount
+	 * @param towardsPartyId Id starting from index 1. 
+	 * @param noOfParties
+	 * @param modulus
+	 * @param alpha
+	 * @return
+	 */
+	public static List<SpdzInputMask[]> generateInputMasks(int amount, int towardsPartyId,
+			int noOfParties, BigInteger modulus, BigInteger alpha) {
+		FakeTripGen.rand = new Random();
+		FakeTripGen.alpha = alpha;
+		FakeTripGen.mod = modulus;
+
+		List<SpdzInputMask[]> inputs = new ArrayList<SpdzInputMask[]>(
+				amount);
+		for (int i = 0; i < amount; i++) {
+			BigInteger mask = sample();
+			List<SpdzElement> elements = toShares(mask, getMac(mask),
+					noOfParties);
+			SpdzInputMask[] inputMasks = new SpdzInputMask[noOfParties];
+			for (int pId = 0; pId < noOfParties; pId++) {
+				SpdzElement elm = elements.get(pId);
+				SpdzInputMask inpMask;
+				if (pId == towardsPartyId-1) {
+					inpMask = new SpdzInputMask(elm, mask);
+				} else {
+					inpMask = new SpdzInputMask(elm);
+				}
+				inputMasks[pId] = inpMask;
+			}
+			inputs.add(inputMasks);
+		}
+		return inputs;
+	}
+	
+	/**
 	 * Generates input masks which can be used only if the party inputting has the same ID as the inputterId in this method. 
 	 * This streams the data and writes directly to the given object output stream.
 	 * @param amount The amount of input masks to generate

@@ -1,6 +1,7 @@
 package dk.alexandra.fresco.framework.util;
 
 import java.io.Serializable;
+import java.nio.ByteBuffer;
 import java.util.BitSet;
 import java.util.List;
 import java.util.Random;
@@ -316,5 +317,23 @@ public class BinaryMatrix implements Serializable {
 			return false;
 		}
 		return bits.equals(other.bits);
+	}
+
+	public byte[] toByteArray() {
+		byte[] data = bits.toByteArray();		
+		byte[] m_arr = ByteBuffer.allocate(2).putShort((short)m).array();
+		byte[] n_arr = ByteBuffer.allocate(2).putShort((short)n).array();
+		byte[] res = new byte[2+2+data.length];
+		System.arraycopy(m_arr, 0, res, 0, 2);
+		System.arraycopy(n_arr, 0, res, 2, 2);
+		System.arraycopy(data, 0, res, 4, data.length);
+		return res;
+	}
+	
+	public BinaryMatrix(byte[] data) {
+		ByteBuffer buf = ByteBuffer.wrap(data);
+		this.m = buf.getShort();
+		this.n = buf.getShort();
+		this.bits = BitSet.valueOf(buf);
 	}
 }

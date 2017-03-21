@@ -31,6 +31,7 @@ import java.util.logging.Level;
 
 import dk.alexandra.fresco.framework.Party;
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
+import dk.alexandra.fresco.framework.network.NetworkingStrategy;
 import dk.alexandra.fresco.framework.sce.resources.storage.Storage;
 import dk.alexandra.fresco.framework.sce.resources.storage.StreamedStorage;
 
@@ -54,6 +55,12 @@ public interface SCEConfiguration {
 	 * @return
 	 */
 	public String getProtocolSuiteName();
+	
+	/**
+	 * Creates the network without connecting anything yet. 
+	 * @return The network wanted.
+	 */
+	public NetworkingStrategy getNetwork();
 
 	/**
 	 * Returns -1 if no such property is found.
