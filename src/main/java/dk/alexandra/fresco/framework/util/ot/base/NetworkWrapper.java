@@ -53,7 +53,6 @@ public class NetworkWrapper implements Channel {
 		oos.flush();
 		oos.close();
 		byte[] toSend = bos.toByteArray();
-		System.out.println("ToSend length: " + toSend.length);
 		network.send(0, Util.otherPlayerId(myId), toSend);
 	}
 

@@ -74,8 +74,7 @@ public class TestTinyTables {
 	private void runTest(TestThreadFactory f, EvaluationStrategy evalStrategy,
 			boolean preprocessing, String name) throws Exception {
 		int noPlayers = 2;
-		Level logLevel = Level.FINE;
-		Reporter.init(logLevel);
+		Level logLevel = Level.INFO;
 
 		// Since SCAPI currently does not work with ports > 9999 we use fixed
 		// ports

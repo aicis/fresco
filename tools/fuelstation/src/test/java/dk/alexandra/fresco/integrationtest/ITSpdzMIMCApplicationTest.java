@@ -77,8 +77,7 @@ public class ITSpdzMIMCApplicationTest {
 
 	private void runTest(TestThreadFactory f, EvaluationStrategy evalStrategy,
 			StorageStrategy storageStrategy) throws Exception {
-		Level logLevel = Level.FINE;
-		Reporter.init(logLevel);
+		Level logLevel = Level.INFO;
 
 		// Since SCAPI currently does not work with ports > 9999 we use fixed
 		// ports

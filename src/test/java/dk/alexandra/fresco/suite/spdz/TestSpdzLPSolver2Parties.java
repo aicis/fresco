@@ -47,21 +47,18 @@ public class TestSpdzLPSolver2Parties extends AbstractSpdzTest {
 				PreprocessingStrategy.DUMMY, 2);
 	}
 
-	@Category(IntegrationTest.class)
 	@Test
 	public void test_LPSolver_2_Parallel_dummy() throws Exception {
 		runTest(new LPSolverTests.TestLPSolver(), EvaluationStrategy.PARALLEL, NetworkingStrategy.KRYONET,
 				PreprocessingStrategy.DUMMY, 2);
 	}
 
-	@Category(IntegrationTest.class)
 	@Test
 	public void test_LPSolver_2_Parallel_batched_dummy() throws Exception {
 		runTest(new LPSolverTests.TestLPSolver(), EvaluationStrategy.PARALLEL_BATCHED, NetworkingStrategy.KRYONET,
 				PreprocessingStrategy.DUMMY, 2);
 	}
 
-	@Category(IntegrationTest.class)
 	@Test
 	public void test_LPSolver_2_Sequential_batched_dummy() throws Exception {
 		runTest(new LPSolverTests.TestLPSolver(), EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET,
@@ -70,14 +67,14 @@ public class TestSpdzLPSolver2Parties extends AbstractSpdzTest {
 
 	@Category(IntegrationTest.class)
 	@Test
-	public void test_LPSolver_2_Sequential_streamed() throws Exception {
-		int noOfThreads = 1;
+	public void test_LPSolver_2_Sequential_Batched_streamed() throws Exception {
+		int noOfThreads = 3;
 		InitializeStorage.cleanup();
 		try {
 			InitializeStorage.initStreamedStorage(new FilebasedStreamedStorageImpl(new InMemoryStorage()), 2,
 					noOfThreads, 10000, 1000, 500000, 2000);
 
-			runTest(new LPSolverTests.TestLPSolver(), EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET,
+			runTest(new LPSolverTests.TestLPSolver(), EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET,
 					PreprocessingStrategy.STATIC, 2);
 		} finally {
 			InitializeStorage.cleanup();
@@ -118,18 +115,4 @@ public class TestSpdzLPSolver2Parties extends AbstractSpdzTest {
 		}
 	}
 
-	@Test
-	@Ignore
-	public void test_LPSolver_2_SequentialBatched_streamed() throws Exception {
-		int noOfThreads = 2;
-		InitializeStorage.cleanup();
-		try {
-			InitializeStorage.initStreamedStorage(new FilebasedStreamedStorageImpl(new InMemoryStorage()), 2,
-					noOfThreads, 10000, 1000, 500000, 2000);
-			runTest(new LPSolverTests.TestLPSolver(), EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET,
-					PreprocessingStrategy.STATIC, 2);
-		} finally {
-			InitializeStorage.cleanup();
-		}
-	}
 }
