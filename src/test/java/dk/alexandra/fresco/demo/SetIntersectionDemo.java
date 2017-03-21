@@ -206,7 +206,6 @@ public class SetIntersectionDemo {
 
 	
 	public String[] setIntersectionDemo(Map<Integer, TestThreadConfiguration>conf) throws Exception {
-		Reporter.init(logLevel);
 		String[] result = new String[8];
 		TestThreadFactory f = new TestThreadFactory() {
 			@Override
@@ -226,7 +225,6 @@ public class SetIntersectionDemo {
 						
 						PrivateSetDemo app = new PrivateSetDemo(conf.netConf.getMyId(), key, inputList);
 
-						SCE sce = SCEFactory.getSCEFromConfiguration(conf.sceConf, conf.protocolSuiteConf);
 						sce.runApplication(app);
 
 						boolean[][] actualBoolean = new boolean[app.result.length][app.result[0].length];

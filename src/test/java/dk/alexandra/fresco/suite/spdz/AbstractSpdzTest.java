@@ -57,8 +57,7 @@ public abstract class AbstractSpdzTest {
 
 	protected void runTest(TestThreadRunner.TestThreadFactory f, EvaluationStrategy evalStrategy, NetworkingStrategy network,
 			PreprocessingStrategy preProStrat, int noOfParties) throws Exception {
-		Level logLevel = Level.FINE;
-		Reporter.init(logLevel);
+		Level logLevel = Level.INFO;
 
 		// Since SCAPI currently does not work with ports > 9999 we use fixed
 		// ports

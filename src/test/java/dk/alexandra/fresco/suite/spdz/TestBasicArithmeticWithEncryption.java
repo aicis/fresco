@@ -28,8 +28,7 @@ import dk.alexandra.fresco.suite.spdz.evaluation.strategy.SpdzProtocolSuite;
 public class TestBasicArithmeticWithEncryption {
 
 	private void runTest(TestThreadFactory f, int noOfParties) throws Exception {
-		Level logLevel = Level.FINE;
-		Reporter.init(logLevel);
+		Level logLevel = Level.INFO;
 
 		// Since SCAPI currently does not work with ports > 9999 we use fixed
 		// ports

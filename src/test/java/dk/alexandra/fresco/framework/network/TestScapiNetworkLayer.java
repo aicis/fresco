@@ -130,7 +130,6 @@ public class TestScapiNetworkLayer {
 	
 	@Test
 	public void testPlainSocketChannel() throws Exception {
-		Reporter.init(Level.INFO);
 		final byte[] data = new byte[] { -61, -19, 106, -9 -67, 98, 102, 16, 21 };
 		final TestThreadFactory test = new TestThreadFactory() {
 			@Override
@@ -159,7 +158,6 @@ public class TestScapiNetworkLayer {
 	
 	@Test
 	public void testAuthenticatedSocketChannel() throws Exception {
-		Reporter.init(Level.INFO);
 		final byte[] data = new byte[] { -61, -19, 106, -9 -67, 98, 102, 16, 21 };
 		final TestThreadFactory test = new TestThreadFactory() {
 			@Override
@@ -190,7 +188,6 @@ public class TestScapiNetworkLayer {
 	
 	@Test
 	public void testSecureSocketChannel() throws Exception {
-		Reporter.init(Level.INFO);
 		final byte[] data = new byte[] { -61, -19, 106, -9 -67, 98, 102, 16, 21 };
 		final TestThreadFactory test = new TestThreadFactory() {
 			@Override

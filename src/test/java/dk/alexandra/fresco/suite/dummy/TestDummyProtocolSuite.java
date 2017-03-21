@@ -62,8 +62,7 @@ public class TestDummyProtocolSuite {
 	private void runTest(TestThreadFactory f, EvaluationStrategy evalStrategy) throws Exception {
 		// The dummy protocol suite has the nice property that it can be run by just one player.
 		int noPlayers = 1;
-		Level logLevel = Level.FINE;
-		Reporter.init(logLevel);
+		Level logLevel = Level.INFO;
 		
 		// Since SCAPI currently does not work with ports > 9999 we use fixed ports
 		// here instead of relying on ephemeral ports which are often > 9999.

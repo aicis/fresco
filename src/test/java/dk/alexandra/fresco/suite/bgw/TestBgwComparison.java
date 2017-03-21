@@ -55,8 +55,7 @@ import dk.alexandra.fresco.suite.bgw.configuration.BgwConfiguration;
 public class TestBgwComparison {
 
 	private void runTest(TestThreadFactory f, int noPlayers, final int threshold, EvaluationStrategy evalStrategy) throws Exception {
-		Level logLevel = Level.FINE;
-		Reporter.init(logLevel);
+		Level logLevel = Level.INFO;
 		
 		// Since SCAPI currently does not work with ports > 9999 we use fixed ports
 		// here instead of relying on ephemeral ports which are often > 9999.

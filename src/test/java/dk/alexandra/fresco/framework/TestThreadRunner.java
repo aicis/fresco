@@ -76,7 +76,8 @@ public class TestThreadRunner {
 		@Override
 		public void run() {
 			try {
-				Reporter.init(Level.INFO);
+				Level level = conf.sceConf.getLogLevel();
+				Reporter.init(level);
 				if(conf.sceConf != null && conf.protocolSuiteConf != null) {
 					sce = SCEFactory.getSCEFromConfiguration(conf.sceConf, conf.protocolSuiteConf);
 				}

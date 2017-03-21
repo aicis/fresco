@@ -61,8 +61,7 @@ public class TestAESDemo {
 	@Test
 	public void testAESDemo() throws Exception {
 		int noPlayers = 2;
-		Level logLevel = Level.FINE;
-		Reporter.init(logLevel);
+		Level logLevel = Level.INFO;
 		// Since SCAPI currently does not work with ports > 9999 we use fixed ports
 		// here instead of relying on ephemeral ports which are often > 9999.
 		List<Integer> ports = new ArrayList<Integer>(noPlayers);
