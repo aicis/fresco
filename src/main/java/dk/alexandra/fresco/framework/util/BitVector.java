@@ -17,6 +17,11 @@ public class BitVector implements Serializable {
 		this.size = vector.length;
 	}
 	
+	public BitVector(byte[] vector, int size) {
+		this.bits = BitSet.valueOf(vector);
+		this.size = size;
+	}
+	
 	public BitVector(int size) {
 		this.bits = new BitSet(size);
 	}
@@ -31,6 +36,10 @@ public class BitVector implements Serializable {
 	
 	public void set(int index, boolean value) {
 		this.bits.set(index, value);
+	}
+	
+	public byte[] asByteArr() {
+		return bits.toByteArray();
 	}
 	
 	public boolean[] asBooleans() {

@@ -17,3 +17,10 @@ target/
 
 # OS X meta files
 .DS_Store
+
+# IDEA files
+.idea/*
+!.idea/codeStyleSettings.xml
+!.idea/fileTemplates
+!.idea/fileTemplates/*
+fresco.iml

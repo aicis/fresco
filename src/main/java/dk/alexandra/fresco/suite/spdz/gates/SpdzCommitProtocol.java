@@ -27,15 +27,18 @@
 package dk.alexandra.fresco.suite.spdz.gates;
 
 import java.math.BigInteger;
+import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.Map;
 
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.network.SCENetwork;
+import dk.alexandra.fresco.framework.network.serializers.BigIntegerWithFixedLengthSerializer;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.Value;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzCommitment;
 import dk.alexandra.fresco.suite.spdz.evaluation.strategy.SpdzProtocolSuite;
+import dk.alexandra.fresco.suite.spdz.utils.Util;
 
 public class SpdzCommitProtocol extends SpdzNativeProtocol {
 
@@ -66,13 +69,13 @@ public class SpdzCommitProtocol extends SpdzNativeProtocol {
 		int players = resourcePool.getNoOfParties();
 		switch (round) {
 		case 0:
-			network.sendToAll(commitment.getCommitment());
+			network.sendToAll(BigIntegerWithFixedLengthSerializer.toBytes(commitment.getCommitment(), Util.getModulusSize()));
 			network.expectInputFromAll();
 			break;
 		case 1:
-			List<BigInteger> commitments = network.receiveFromAll();
+			List<ByteBuffer> commitments = network.receiveFromAll();
 			for (int i = 0; i < commitments.size(); i++) {
-				comms.put(i + 1, commitments.get(i));
+				comms.put(i + 1, BigIntegerWithFixedLengthSerializer.toBigInteger(commitments.get(i), Util.getModulusSize()));
 			}
 			if (players < 3) {
 				done = true;
@@ -80,7 +83,7 @@ public class SpdzCommitProtocol extends SpdzNativeProtocol {
 				broadcastDigest = sendBroadcastValidation(
 						SpdzProtocolSuite.getInstance(
 								resourcePool.getMyId()).getMessageDigest(
-								network.getThreadId()), network, commitments,
+								network.getThreadId()), network, comms.values(),
 						players);
 				network.expectInputFromAll();
 			}

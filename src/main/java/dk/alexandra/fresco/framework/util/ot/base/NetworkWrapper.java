@@ -1,6 +1,10 @@
 package dk.alexandra.fresco.framework.util.ot.base;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
 import dk.alexandra.fresco.framework.network.Network;
@@ -36,12 +40,20 @@ public class NetworkWrapper implements Channel {
 
 	@Override
 	public Serializable receive() throws ClassNotFoundException, IOException {
-		return network.receive("0", Util.otherPlayerId(myId));
+		byte[] data = network.receive(0, Util.otherPlayerId(myId));
+		ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(data));
+		return (Serializable) ois.readObject();
 	}
 
 	@Override
-	public void send(Serializable otInputs) throws IOException {
-		network.send("0", Util.otherPlayerId(myId), otInputs);
+	public void send(Serializable otInputs) throws IOException {		
+		ByteArrayOutputStream bos = new ByteArrayOutputStream();
+		ObjectOutputStream oos = new ObjectOutputStream(bos);
+		oos.writeObject(otInputs);
+		oos.flush();
+		oos.close();
+		byte[] toSend = bos.toByteArray();
+		network.send(0, Util.otherPlayerId(myId), toSend);
 	}
 
 }

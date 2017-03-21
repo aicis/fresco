@@ -57,7 +57,7 @@ public class TestScapiLR15 {
 		// here instead of relying on ephemeral ports which are often > 9999.
 		List<Integer> ports = new ArrayList<Integer>(n);
 		for (int i=1; i<=n; i++) {
-			ports.add(9000 + i);
+			ports.add(9000 + i*10);
 		}
 		Map<Integer, NetworkConfiguration> netConf = TestConfiguration.getNetworkConfigurations(n, ports, Level.FINE);
 		Map<Integer, TestThreadConfiguration> conf = new HashMap<Integer, TestThreadConfiguration>();

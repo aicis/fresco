@@ -27,6 +27,8 @@
 package dk.alexandra.fresco.suite.bgw.integer;
 
 import java.math.BigInteger;
+import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.List;
 
 import dk.alexandra.fresco.framework.MPCException;
@@ -75,17 +77,23 @@ public class BgwOpenIntProtocol extends BgwProtocol implements OpenIntProtocol {
 		switch (round) {
 		case 0:
 			if (targetId != -1) {
-				network.send(targetId, this.input.value);
+				network.send(targetId, this.input.value.toByteArray());
 				if (targetId == resourcePool.getMyId()) {
 					network.expectInputFromAll();
 				}
 			} else {
-				network.sendToAll(this.input.value);
+				network.sendToAll(this.input.value.toByteArray());
 				network.expectInputFromAll();
 			}
 			return EvaluationStatus.HAS_MORE_ROUNDS;
 		case 1:
-			List<ShamirShare> shares = network.receiveFromAll();
+			List<ByteBuffer> buffers = network.receiveFromAll();
+			List<ShamirShare> shares = new ArrayList<>();
+			for(int i = 0; i < buffers.size(); i++) {
+				byte[] tmp = new byte[ShamirShare.getSize()];
+				buffers.get(i).get(tmp);
+				shares.add(ShamirShare.deSerialize(tmp, 0));
+			}
 			BigInteger recombined = ShamirShare
 					.recombine(shares, shares.size());
 			this.output.setValue(recombined);

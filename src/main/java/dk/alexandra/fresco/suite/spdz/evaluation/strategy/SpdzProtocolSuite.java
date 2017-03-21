@@ -27,30 +27,23 @@
 package dk.alexandra.fresco.suite.spdz.evaluation.strategy;
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Queue;
-import java.util.Random;
-import java.util.concurrent.LinkedBlockingQueue;
 
 import dk.alexandra.fresco.framework.MPCException;
-import dk.alexandra.fresco.framework.NativeProtocol.EvaluationStatus;
+import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.Reporter;
-import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.SCENetworkImpl;
 import dk.alexandra.fresco.framework.sce.configuration.ProtocolSuiteConfiguration;
+import dk.alexandra.fresco.framework.sce.evaluator.BatchedStrategy;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.configuration.SpdzConfiguration;
-import dk.alexandra.fresco.suite.spdz.datatypes.SpdzCommitment;
-import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
-import dk.alexandra.fresco.suite.spdz.gates.SpdzCommitProtocol;
-import dk.alexandra.fresco.suite.spdz.gates.SpdzOpenCommitProtocol;
+import dk.alexandra.fresco.suite.spdz.gates.SpdzMacCheckProtocol;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageDummyImpl;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageImpl;
@@ -60,8 +53,7 @@ public class SpdzProtocolSuite implements ProtocolSuite {
 
 	private static Map<Integer, SpdzProtocolSuite> instances;
 
-	private Network network;
-	private Random rand;
+	private SecureRandom rand;
 	private SpdzStorage[] store;
 	private ResourcePool rp;
 	private int gatesEvaluated = 0;
@@ -69,7 +61,14 @@ public class SpdzProtocolSuite implements ProtocolSuite {
 	private BigInteger keyShare, p;
 	private MessageDigest[] digs;
 	private SpdzConfiguration spdzConf;
-
+	
+	//This is set whenever an output protocol was evaluated. It means that the sync point needs to do a MAC check.
+	private boolean outputProtocolInBatch = false;
+	
+	public void outputProtocolUsedInBatch() {
+		outputProtocolInBatch = true;
+	}
+	
 	public SpdzProtocolSuite() {
 	}
 
@@ -106,7 +105,6 @@ public class SpdzProtocolSuite implements ProtocolSuite {
 	@Override
 	public void init(ResourcePool resourcePool, ProtocolSuiteConfiguration conf) {
 		spdzConf = (SpdzConfiguration) conf;
-		this.network = resourcePool.getNetwork();
 		int noOfThreads = resourcePool.getVMThreadCount();
 		this.store = new SpdzStorage[noOfThreads];
 		for (int i = 0; i < noOfThreads; i++) {
@@ -149,7 +147,7 @@ public class SpdzProtocolSuite implements ProtocolSuite {
 	@Override
 	public void synchronize(int gatesEvaluated) throws MPCException {
 		this.gatesEvaluated += gatesEvaluated;
-		if (this.gatesEvaluated > macCheckThreshold) {
+		if (this.gatesEvaluated > macCheckThreshold || outputProtocolInBatch) {
 			try {
 				for (int i = 1; i < store.length; i++) {
 					store[0].getOpenedValues().addAll(store[i].getOpenedValues());
@@ -175,179 +173,20 @@ public class SpdzProtocolSuite implements ProtocolSuite {
 	}
 
 	private void MACCheck() throws IOException {
-		// TODO: This is not truly random
-		BigInteger s = new BigInteger(Util.getModulus().bitLength(), rand).mod(Util.getModulus());
-		SpdzCommitment commitment = new SpdzCommitment(this.digs[0], s, rand);
-		Map<Integer, BigInteger> comms = new HashMap<Integer, BigInteger>();
-		SpdzCommitProtocol comm = new SpdzCommitProtocol(commitment, comms);
-		Map<Integer, BigInteger> ss = new HashMap<Integer, BigInteger>();
-		SpdzOpenCommitProtocol open = new SpdzOpenCommitProtocol(commitment, comms, ss);
-
-		SCENetworkImpl protocolNetwork = new SCENetworkImpl(this.rp.getNoOfParties(), 0);
-
-		EvaluationStatus status;
-		int i = 0;
+		SpdzMacCheckProtocol macCheck = new SpdzMacCheckProtocol(rand, this.digs[0], store[0]);
+		
+		int batchSize = 128;
+		NativeProtocol[] nextProtocols = new NativeProtocol[batchSize];
+		SCENetworkImpl sceNetworks = new SCENetworkImpl(this.rp.getNoOfParties(), 0);
+		
 		do {
-			status = comm.evaluate(i, this.rp, protocolNetwork);
-			i++;
-			// send phase
-			Map<Integer, Queue<Serializable>> output = protocolNetwork.getOutputFromThisRound();
-			for (int pId : output.keySet()) {
-				// send array since queue is not serializable
-				network.send("0", pId, output.get(pId).toArray(new Serializable[0]));
-			}
-
-			// receive phase
-			Map<Integer, Queue<Serializable>> inputForThisRound = new HashMap<Integer, Queue<Serializable>>();
-			for (int pId : protocolNetwork.getExpectedInputForNextRound()) {
-				Serializable[] messages = network.receive("0", pId);
-				Queue<Serializable> q = new LinkedBlockingQueue<Serializable>();
-				// convert back from array to queue.
-				for (Serializable message : messages) {
-					q.offer(message);
-				}
-				inputForThisRound.put(pId, q);
-			}
-			protocolNetwork.setInput(inputForThisRound);
-			protocolNetwork.nextRound();
-		} while (status != EvaluationStatus.IS_DONE);
-
-		i = 0;
-		do {
-			status = open.evaluate(i, this.rp, protocolNetwork);
-			i++;
-			// send phase
-			Map<Integer, Queue<Serializable>> output = protocolNetwork.getOutputFromThisRound();
-			for (int pId : output.keySet()) {
-				// send array since queue is not serializable
-				network.send("0", pId, output.get(pId).toArray(new Serializable[0]));
-			}
-
-			// receive phase
-			Map<Integer, Queue<Serializable>> inputForThisRound = new HashMap<Integer, Queue<Serializable>>();
-			for (int pId : protocolNetwork.getExpectedInputForNextRound()) {
-				Serializable[] messages = network.receive("0", pId);
-				Queue<Serializable> q = new LinkedBlockingQueue<Serializable>();
-				// convert back from array to queue.
-				for (Serializable message : messages) {
-					q.offer(message);
-				}
-				inputForThisRound.put(pId, q);
-			}
-			protocolNetwork.setInput(inputForThisRound);
-			protocolNetwork.nextRound();
-		} while (status != EvaluationStatus.IS_DONE);
-
-		// Add all s's to get the common random value:
-		s = BigInteger.ZERO;
-		for (BigInteger otherS : ss.values()) {
-			s = s.add(otherS);
-		}
-
-		// TODO: Need to gather all values from all stores in a smart manner
-		// that makes the check good.
-		List<BigInteger> as = this.store[0].getOpenedValues();
-		int t = as.size();
-
-		BigInteger[] rs = new BigInteger[t];
-		MessageDigest H = new Util().getHashFunction();
-		BigInteger r_temp = s;
-		for (i = 0; i < t; i++) {
-			r_temp = new BigInteger(H.digest(r_temp.toByteArray())).mod(Util.getModulus());
-			rs[i] = r_temp;
-		}
-		BigInteger a = BigInteger.ZERO;
-		int index = 0;
-		for (BigInteger aa : as) {
-			a = a.add(aa.multiply(rs[index++])).mod(Util.getModulus());
-		}
-		// compute gamma_i as the sum of all MAC's on the opened values times
-		// r_j.
-		List<SpdzElement> closedValues = store[0].getClosedValues();
-		if (closedValues.size() != t) {
-			throw new MPCException(
-					"Amount of closed values does not equal the amount of partially opened values. Aborting!");
-		}
-		BigInteger gamma = BigInteger.ZERO;
-		index = 0;
-		for (SpdzElement c : closedValues) {
-			gamma = gamma.add(rs[index++].multiply(c.getMac())).mod(Util.getModulus());
-		}
-
-		// compute delta_i as: gamma_i - alpha_i*a
-		BigInteger delta = gamma.subtract(store[0].getSSK().multiply(a)).mod(Util.getModulus());
-		// Commit to delta and open it afterwards
-		commitment = new SpdzCommitment(this.digs[0], delta, rand);
-		comms = new HashMap<Integer, BigInteger>();
-		comm = new SpdzCommitProtocol(commitment, comms);
-		ss = new HashMap<Integer, BigInteger>();
-		open = new SpdzOpenCommitProtocol(commitment, comms, ss);
-
-		status = null;
-		i = 0;
-		do {
-			status = comm.evaluate(i, this.rp, protocolNetwork);
-			i++;
-			// send phase
-			Map<Integer, Queue<Serializable>> output = protocolNetwork.getOutputFromThisRound();
-			for (int pId : output.keySet()) {
-				// send array since queue is not serializable
-				network.send("0", pId, output.get(pId).toArray(new Serializable[0]));
-			}
-
-			// receive phase
-			Map<Integer, Queue<Serializable>> inputForThisRound = new HashMap<Integer, Queue<Serializable>>();
-			for (int pId : protocolNetwork.getExpectedInputForNextRound()) {
-				Serializable[] messages = network.receive("0", pId);
-				Queue<Serializable> q = new LinkedBlockingQueue<Serializable>();
-				// convert back from array to queue.
-				for (Serializable message : messages) {
-					q.offer(message);
-				}
-				inputForThisRound.put(pId, q);
-			}
-			protocolNetwork.setInput(inputForThisRound);
-			protocolNetwork.nextRound();
-		} while (status != EvaluationStatus.IS_DONE);
-
-		i = 0;
-		do {
-			status = open.evaluate(i, this.rp, protocolNetwork);
-			i++;
-			// send phase
-			Map<Integer, Queue<Serializable>> output = protocolNetwork.getOutputFromThisRound();
-			for (int pId : output.keySet()) {
-				// send array since queue is not serializable
-				network.send("0", pId, output.get(pId).toArray(new Serializable[0]));
-			}
-
-			// receive phase
-			Map<Integer, Queue<Serializable>> inputForThisRound = new HashMap<Integer, Queue<Serializable>>();
-			for (int pId : protocolNetwork.getExpectedInputForNextRound()) {
-				Serializable[] messages = network.receive("0", pId);
-				Queue<Serializable> q = new LinkedBlockingQueue<Serializable>();
-				// convert back from array to queue.
-				for (Serializable message : messages) {
-					q.offer(message);
-				}
-				inputForThisRound.put(pId, q);
-			}
-			protocolNetwork.setInput(inputForThisRound);
-			protocolNetwork.nextRound();
-		} while (status != EvaluationStatus.IS_DONE);
-
-		BigInteger deltaSum = BigInteger.ZERO;
-		for (BigInteger d : ss.values()) {
-			deltaSum = deltaSum.add(d);
-		}
-		deltaSum = deltaSum.mod(Util.getModulus());
-		if (!deltaSum.equals(BigInteger.ZERO)) {			
-			throw new MPCException("The sum of delta's was not 0. Someone was corrupting something amongst " + t
-					+ " macs. Sum was " + deltaSum.toString() + " Aborting!");
-		}
-		// clean up store before returning to evaluating such that we only
-		// evaluate the next macs, not those we already checked.
-		this.store[0].reset();
+			int numOfProtocolsInBatch = macCheck.getNextProtocols(nextProtocols, 0);		
+			BatchedStrategy.processBatch(nextProtocols, numOfProtocolsInBatch, sceNetworks, 0,
+					this.rp);		
+		} while (macCheck.hasNextProtocols());
+		
+		//reset boolean value
+		this.outputProtocolInBatch = false;		
 	}
 
 	@Override

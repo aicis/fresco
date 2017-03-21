@@ -28,7 +28,6 @@ package dk.alexandra.fresco.lib.math.mult;
 
 import static org.junit.Assert.assertTrue;
 
-import java.io.IOException;
 import java.util.Arrays;
 
 import org.junit.Assert;
@@ -40,8 +39,6 @@ import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
-import dk.alexandra.fresco.framework.sce.SCE;
-import dk.alexandra.fresco.framework.sce.SCEFactory;
 import dk.alexandra.fresco.framework.value.OBool;
 import dk.alexandra.fresco.framework.value.SBool;
 import dk.alexandra.fresco.lib.crypto.BristolCryptoFactory;
@@ -59,19 +56,7 @@ import dk.alexandra.fresco.suite.tinytables.prepro.TinyTablesPreproConfiguration
  *
  */
 public class BristolMultTests {
-	
-	private abstract static class ThreadWithFixture extends TestThread {
 
-
-		protected SCE sce;
-
-		@Override
-		public void setUp() throws IOException {
-			sce = SCEFactory.getSCEFromConfiguration(conf.sceConf, conf.protocolSuiteConf);	
-		}
-
-	}
-	
 
 	/**
 	 * Convert hex string to boolean array.
@@ -115,7 +100,7 @@ public class BristolMultTests {
 	public static class Mult32x32Test extends TestThreadFactory {
 		@Override
 		public TestThread next(TestThreadConfiguration conf) {
-			return new ThreadWithFixture() {
+			return new TestThread() {
 				SBool[] in1, in2, out;
 				OBool[] openedOut;
 				
