@@ -40,6 +40,7 @@ import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.helper.AlgebraUtil;
 import dk.alexandra.fresco.lib.helper.CopyProtocolImpl;
 import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
+import dk.alexandra.fresco.lib.helper.builder.NumericProtocolBuilder;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
 import dk.alexandra.fresco.lib.lp.LPPrefix;
 import dk.alexandra.fresco.lib.lp.LPTableau;
@@ -550,6 +551,11 @@ public class DEAPrefixBuilder {
 				provider);
 		SInt z = provider.getSInt(0);
 		SInt pivot = provider.getSInt(1);
+		SInt[] basis = new SInt[constraints];
+		for(int i = 0; i < constraints; i++) {
+			basis[i] = provider.getSInt(0);
+		}
+		
 		LPTableau tab = new LPTableau(new Matrix<SInt>(C), B, F, z);
 		Matrix<SInt> updateMatrix = new Matrix<SInt>(getIdentity(
 				constraints + 1, provider));
@@ -559,7 +565,7 @@ public class DEAPrefixBuilder {
 		}
 		seqGP.append(copyTargetToBasis);
 		seqGP.append(negateBasisOutput);
-		return new SimpleLPPrefix(updateMatrix, tab, pivot, seqGP);
+		return new SimpleLPPrefix(updateMatrix, tab, pivot, basis, seqGP);
 	}
 
 	private boolean consistent() {

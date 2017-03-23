@@ -228,7 +228,7 @@ public class LPFactoryImpl implements LPFactory {
 
 	@Override
 	public LPSolverProtocol getLPSolverProtocol(LPTableau tableau,
-			Matrix<SInt> updateMatrix, SInt pivot) {
-		return new LPSolverProtocol(tableau, updateMatrix, pivot, this, bnf);
+			Matrix<SInt> updateMatrix, SInt pivot, SInt[] basis) {
+		return new LPSolverProtocol(tableau, updateMatrix, pivot, basis, this, bnf);
 	}
 }

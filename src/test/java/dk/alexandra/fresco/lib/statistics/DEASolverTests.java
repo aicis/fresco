@@ -27,6 +27,7 @@
 package dk.alexandra.fresco.lib.statistics;
 
 import java.math.BigInteger;
+import java.util.Arrays;
 import java.util.Random;
 
 import org.junit.Assert;
@@ -39,6 +40,7 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
+import dk.alexandra.fresco.lib.debug.MarkerProtocolImpl;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.helper.AlgebraUtil;
 import dk.alexandra.fresco.lib.helper.builder.NumericIOBuilder;
@@ -79,6 +81,7 @@ public class DEASolverTests {
 				public void test() throws Exception {
 					
 					OInt[] outs = new OInt[targetQueries];
+					OInt[][] basis = new OInt[targetQueries][];
 					double[] plainResult = new double[targetQueries];
 					TestApplication app = new TestApplication() {
 
@@ -120,6 +123,12 @@ public class DEASolverTests {
 							for(int i = 0; i< outs.length; i++){
 								outs[i] = ioBuilder.output(solver.getResult()[i]);
 							}
+							
+							for(int i = 0; i< basis.length; i++){
+								SInt[] bs = solver.getBasis()[i];
+								basis[i] = ioBuilder.outputArray(bs);
+							}
+							
 							sseq.append(ioBuilder.getProtocol());
 							// Solve the problem using a plaintext solver
 							PlaintextDEASolver plainSolver = new PlaintextDEASolver();
@@ -139,8 +148,13 @@ public class DEASolverTests {
 					System.out.println("============ Seq Time: "
 							+ ((endTime - startTime) / 1000000));
 					// Perform postprocessing and compare MPC result with plaintext result
+					int max = inputVariables+outputVariables+datasetRows;
 					for(int i =0; i< outs.length; i++){
 						Assert.assertEquals(plainResult[i], postProcess(outs[i]), 0.0000001);
+						System.out.println("Final Basis for request no. "+i+" is: "+Arrays.toString(basis[i]));						
+						for(int j = 0; j < basis[i].length; j++) {
+							Assert.assertTrue("Basis value "+basis[i][j].getValue().intValue()+", was larger than "+max, basis[i][j].getValue().intValue() <= max );
+						}
 					}
 					
 				}

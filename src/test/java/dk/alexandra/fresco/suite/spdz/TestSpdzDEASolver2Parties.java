@@ -48,12 +48,12 @@ public class TestSpdzDEASolver2Parties extends AbstractSpdzTest{
 
 	@Test
 	public void test_DEASolver_2_Parallel_batched_dummy() throws Exception {
-		runTest(new DEASolverTests.TestDEASolver(5, 1, 30, 5), EvaluationStrategy.PARALLEL_BATCHED, NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
+		runTest(new DEASolverTests.TestDEASolver(5, 1, 30, 3), EvaluationStrategy.PARALLEL_BATCHED, NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
 	}
 	
 	@Test
 	public void test_DEASolver_2_Sequential_batched_dummy() throws Exception {
-		runTest(new DEASolverTests.TestDEASolver(5, 1, 30, 5), 
+		runTest(new DEASolverTests.TestDEASolver(5, 1, 30, 3), 
 				EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
 	}
 

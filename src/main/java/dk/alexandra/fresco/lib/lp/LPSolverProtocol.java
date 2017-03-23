@@ -35,11 +35,15 @@ import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.framework.value.Value;
+import dk.alexandra.fresco.lib.debug.MarkerProtocolImpl;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.helper.AbstractRoundBasedProtocol;
 import dk.alexandra.fresco.lib.helper.CopyProtocol;
 import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
+import dk.alexandra.fresco.lib.helper.builder.OmniBuilder;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
+import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductFactory;
+import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductFactoryImpl;
 
 public class LPSolverProtocol implements Protocol {
 
@@ -60,10 +64,17 @@ public class LPSolverProtocol implements Protocol {
 	private final SInt prevPivot;
 	private SInt pivot;
 	private SInt[] enteringIndex;
+	
+	private final SInt[] basis;
+	private final OInt[] enumeratedVariables; //[1,2,3,...]
+	private SInt E; //tmp variable for which variable is entering the basis
+	
 	public static int iterations = 0;
+	private final int noVariables;
+	private final int noConstraints;
 	
 	public LPSolverProtocol(LPTableau tableau, Matrix<SInt> updateMatrix,
-			SInt pivot, LPFactory lpFactory, BasicNumericFactory bnFactory) {
+			SInt pivot, SInt[] basis, LPFactory lpFactory, BasicNumericFactory bnFactory) {
 		if (checkDimensions(tableau, updateMatrix)) {
 			this.tableau = tableau;
 			this.updateMatrix = updateMatrix;
@@ -74,6 +85,16 @@ public class LPSolverProtocol implements Protocol {
 			this.zero = bnFactory.getSInt(0);
 			this.state = STATE.PHASE1;
 			iterations = 0;
+			
+			this.basis = basis;
+			this.noVariables = tableau.getC().getWidth();
+			this.noConstraints = tableau.getC().getHeight();
+			
+			this.enumeratedVariables = new OInt[noVariables];
+			for(int i = 1; i <= enumeratedVariables.length; i++) {
+				this.enumeratedVariables[i-1] = this.bnFactory.getOInt(BigInteger.valueOf(i));
+			}
+			
 		} else {
 			throw new MPCException("Dimensions of inputs does not match");
 		}
@@ -137,7 +158,6 @@ public class LPSolverProtocol implements Protocol {
 			
 			@Override
 			public ProtocolProducer nextProtocolProducer() {
-				int noConstraints = tableau.getC().getHeight();
 				switch (round) {
 				case 0:					
 					exitingIndex = new SInt[noConstraints];
@@ -148,14 +168,27 @@ public class LPSolverProtocol implements Protocol {
 					for (int i = 0; i < updateColumn.length; i++) {
 						updateColumn[i] = bnFactory.getSInt();
 					}
-
 					pivot = bnFactory.getSInt();
 					ProtocolProducer exitingIndexProducer = lpFactory
 							.getExitingVariableProtocol(tableau, updateMatrix,
 									enteringIndex, exitingIndex, updateColumn, pivot);
+					
 					round++;
+					
 					return exitingIndexProducer;
 				case 1:
+					SequentialProtocolProducer seq = new SequentialProtocolProducer();
+					//update basis							
+					OmniBuilder b = new OmniBuilder(bnFactory);
+					seq.append(b.getProtocol());
+					ParallelProtocolProducer par = new ParallelProtocolProducer();
+					for(int i = 0; i < noConstraints; i++) {
+						par.append(lpFactory.getConditionalSelectProtocol(exitingIndex[i], E, basis[i], basis[i]));
+					}
+					
+					seq.append(par);
+					
+					//Update matrix
 					newUpdate = new SInt[noConstraints + 1][noConstraints + 1];
 					for (int i = 0; i < newUpdate.length; i++) {
 						for (int j = 0; j < newUpdate[i].length; j++) {
@@ -167,7 +200,8 @@ public class LPSolverProtocol implements Protocol {
 							updateMatrix, exitingIndex, updateColumn, pivot, prevPivot,
 							newUpdateMatrix);
 					round++;
-					return updateMatrixProducer;
+					seq.append(updateMatrixProducer);
+					return seq;
 				case 2:
 					ParallelProtocolProducer parCopy = new ParallelProtocolProducer();
 					for (int i = 0; i < newUpdate.length; i++) {
@@ -192,7 +226,6 @@ public class LPSolverProtocol implements Protocol {
 	}
 
 	private ProtocolProducer phaseOneProtocol() {
-		int noVariables = tableau.getC().getWidth();
 		terminationOut = bnFactory.getOInt();
 		// Phase 1 - Finding the entering variable and outputting
 		// whether or not the corresponding F value is positive (a positive
@@ -210,14 +243,20 @@ public class LPSolverProtocol implements Protocol {
 				positive, true);
 		ProtocolProducer output = bnFactory.getOpenProtocol(positive,
 				terminationOut);
+		
+		//entering found and is on the form [0,0,...,1,0,0,...], where the 1 is at the index of the entering variable
+		//We now do the inner product between entering and [1,2,3,...,n] where n is the number of variables.
+		InnerProductFactory ipf = new InnerProductFactoryImpl(bnFactory);
+		E = bnFactory.getSInt();
+		ProtocolProducer ipp = ipf.getInnerProductProtocol(enteringIndex, enumeratedVariables, E);
+		
 		ProtocolProducer phaseOne = new SequentialProtocolProducer(enteringProducer,
-				comp, output);
+				comp, output, ipp);
 		return phaseOne;
 	}
 		
 	@SuppressWarnings("unused")
 	private ProtocolProducer blandPhaseOneProtocol() {
-		int noVariables = tableau.getC().getWidth();
 		terminationOut = bnFactory.getOInt();
 		// Phase 1 - Finding the entering variable and outputting
 		// whether or not the corresponding F value is positive (a positive
@@ -259,6 +298,7 @@ public class LPSolverProtocol implements Protocol {
 		LPTableau tableau;
 		Matrix<SInt> updateMatrix;
 		SInt pivot;
+		SInt[] basis;
 		LPFactory lpFactory;
 		BasicNumericFactory bnFactory;
 
@@ -266,7 +306,8 @@ public class LPSolverProtocol implements Protocol {
 			this.tableau = null;
 			this.updateMatrix = null;
 			this.pivot = null;
-			this.lpFactory = null;
+			this.basis = null;
+			this.lpFactory = null;			
 			this.bnFactory = null;
 		}
 
@@ -282,6 +323,11 @@ public class LPSolverProtocol implements Protocol {
 
 		public Builder pivot(SInt pivot) {
 			this.pivot = pivot;
+			return this;
+		}
+		
+		public Builder basis(SInt[] basis) {
+			this.basis = basis;
 			return this;
 		}
 
@@ -304,10 +350,10 @@ public class LPSolverProtocol implements Protocol {
 
 		public LPSolverProtocol build() {
 			if (this.tableau != null && this.updateMatrix != null
-					&& this.pivot != null && this.lpFactory != null
+					&& this.pivot != null && this.basis != null && this.lpFactory != null
 					&& this.bnFactory != null) {
 				return new LPSolverProtocol(tableau, updateMatrix, pivot,
-						lpFactory, bnFactory);
+						basis, lpFactory, bnFactory);
 			} else {
 				throw new IllegalStateException(
 						"Not ready to build. Some values where not set.");

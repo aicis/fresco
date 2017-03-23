@@ -270,9 +270,10 @@ public interface LPFactory
 	 * @param tableau
 	 * @param updateMatrix
 	 * @param pivot
+	 * @param basis Array containing the variables that defines the final basis.
 	 * @return an LPSolverprotocol
 	 */
-	public LPSolverProtocol getLPSolverProtocol(LPTableau tableau, Matrix<SInt> updateMatrix, SInt pivot);
+	public LPSolverProtocol getLPSolverProtocol(LPTableau tableau, Matrix<SInt> updateMatrix, SInt pivot, SInt[] basis);
 
 	/**
 	 * Finds the minimum in an list of fractions. Note fractions are given as
