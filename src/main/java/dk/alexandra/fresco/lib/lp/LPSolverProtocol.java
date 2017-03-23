@@ -187,13 +187,7 @@ public class LPSolverProtocol implements Protocol {
 						par.append(lpFactory.getConditionalSelectProtocol(exitingIndex[i], E, basis[i], basis[i]));
 					}
 					
-					seq.append(par);
-					OmniBuilder b = new OmniBuilder(bnFactory);
-					b.getUtilityBuilder().openAndPrint("Exiting:", exitingIndex);
-					b.getUtilityBuilder().openAndPrint("E:", E);
-					b.getUtilityBuilder().openAndPrint("basis after the fact:", basis);
-					seq.append(b.getProtocol());
-					
+					seq.append(par);					
 					
 					//Update matrix
 					newUpdate = new SInt[noConstraints + 1][noConstraints + 1];
