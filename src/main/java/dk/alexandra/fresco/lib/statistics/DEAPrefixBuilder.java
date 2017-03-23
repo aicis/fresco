@@ -551,10 +551,7 @@ public class DEAPrefixBuilder {
 				provider);
 		SInt z = provider.getSInt(0);
 		SInt pivot = provider.getSInt(1);
-		SInt[] basis = new SInt[constraints];
-		for(int i = 0; i < constraints; i++) {
-			basis[i] = provider.getSInt(0);
-		}
+		SInt[] basis = new SInt[constraints];		
 		
 		LPTableau tab = new LPTableau(new Matrix<SInt>(C), B, F, z);
 		Matrix<SInt> updateMatrix = new Matrix<SInt>(getIdentity(

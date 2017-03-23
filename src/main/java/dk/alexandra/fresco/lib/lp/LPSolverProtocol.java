@@ -66,8 +66,9 @@ public class LPSolverProtocol implements Protocol {
 	private SInt[] enteringIndex;
 	
 	private final SInt[] basis;
+	public static final int DEFAULT_BASIS_VALUE = 0; 
 	private final OInt[] enumeratedVariables; //[1,2,3,...]
-	private SInt E; //tmp variable for which variable is entering the basis
+	private SInt E; //tmp variable for which variable is entering the basis	
 	
 	public static int iterations = 0;
 	private final int noVariables;
@@ -87,9 +88,11 @@ public class LPSolverProtocol implements Protocol {
 			iterations = 0;
 			
 			this.basis = basis;
+			for(int i = 0; i < this.basis.length; i++) {
+				this.basis[i] = bnFactory.getSInt(DEFAULT_BASIS_VALUE);
+			}
 			this.noVariables = tableau.getC().getWidth();
 			this.noConstraints = tableau.getC().getHeight();
-			
 			this.enumeratedVariables = new OInt[noVariables];
 			for(int i = 1; i <= enumeratedVariables.length; i++) {
 				this.enumeratedVariables[i-1] = this.bnFactory.getOInt(BigInteger.valueOf(i));
@@ -178,15 +181,19 @@ public class LPSolverProtocol implements Protocol {
 					return exitingIndexProducer;
 				case 1:
 					SequentialProtocolProducer seq = new SequentialProtocolProducer();
-					//update basis							
-					OmniBuilder b = new OmniBuilder(bnFactory);
-					seq.append(b.getProtocol());
+					//update basis												
 					ParallelProtocolProducer par = new ParallelProtocolProducer();
 					for(int i = 0; i < noConstraints; i++) {
 						par.append(lpFactory.getConditionalSelectProtocol(exitingIndex[i], E, basis[i], basis[i]));
 					}
 					
 					seq.append(par);
+					OmniBuilder b = new OmniBuilder(bnFactory);
+					b.getUtilityBuilder().openAndPrint("Exiting:", exitingIndex);
+					b.getUtilityBuilder().openAndPrint("E:", E);
+					b.getUtilityBuilder().openAndPrint("basis after the fact:", basis);
+					seq.append(b.getProtocol());
+					
 					
 					//Update matrix
 					newUpdate = new SInt[noConstraints + 1][noConstraints + 1];

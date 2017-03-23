@@ -169,10 +169,7 @@ public class DEASolver implements Application {
 			Matrix<SInt> update = prefixes[i].getUpdateMatrix();
 
 			this.basis[i] = new SInt[tableau.getC().getHeight()];
-			for(int j = 0; j < this.basis[i].length; j++) {
-				this.basis[i][j] = bnFactory.getSInt(0);
-			}
-
+			
 			final ProtocolProducer currentPrefix = prefixes[i].getPrefix();
 			final ProtocolProducer solver = lpFactory.getLPSolverProtocol(tableau, update, pivot, basis[i]);
 			final ProtocolProducer optimalComputer = lpFactory.getOptimalValueProtocol(update, tableau.getB(), pivot,

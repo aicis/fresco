@@ -148,14 +148,20 @@ public class DEASolverTests {
 					System.out.println("============ Seq Time: "
 							+ ((endTime - startTime) / 1000000));
 					// Perform postprocessing and compare MPC result with plaintext result
-					int max = inputVariables+outputVariables+datasetRows;
+					int lambdas = datasetRows;
+					int constraints = inputVariables + outputVariables + 1;
+					int slackvariables = constraints;
+					int variables = lambdas + slackvariables + 1;
+					System.out.println("variables:" + variables);
 					for(int i =0; i< outs.length; i++){
 						Assert.assertEquals(plainResult[i], postProcess(outs[i]), 0.0000001);
 						System.out.println("Final Basis for request no. "+i+" is: "+Arrays.toString(basis[i]));						
 						for(int j = 0; j < basis[i].length; j++) {
-							Assert.assertTrue("Basis value "+basis[i][j].getValue().intValue()+", was larger than "+max, basis[i][j].getValue().intValue() <= max );
+							Assert.assertTrue("Basis value "+basis[i][j].getValue().intValue()+", was larger than "+(variables-1), basis[i][j].getValue().intValue() < variables );
 						}
 					}
+					//Determine which lambda's should be included
+					
 					
 				}
 			};

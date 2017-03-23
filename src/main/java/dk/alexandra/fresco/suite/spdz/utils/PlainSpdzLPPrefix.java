@@ -110,10 +110,7 @@ public class PlainSpdzLPPrefix implements LPPrefix {
 				fInputProducer);
 		this.updateMatrix = new Matrix<SInt>(update);
 		this.pivot = factory.getSInt(1);
-		this.basis = new SInt[noConstraints];
-		for(int i = 0; i < noConstraints; i++) {
-			this.basis[i] = factory.getSInt(0);
-		}
+		this.basis = new SInt[noConstraints];		
 		this.tableau = new LPTableau(new Matrix<SInt>(C), B, F, z);
 		this.prefix = input;
 	}
