@@ -30,6 +30,7 @@ import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.Random;
 
+import org.apache.commons.math3.optim.nonlinear.scalar.GoalType;
 import org.junit.Assert;
 
 import dk.alexandra.fresco.framework.ProtocolFactory;
@@ -40,7 +41,6 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.debug.MarkerProtocolImpl;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.helper.AlgebraUtil;
 import dk.alexandra.fresco.lib.helper.builder.NumericIOBuilder;
@@ -66,12 +66,14 @@ public class DEASolverTests {
 		private int outputVariables;
 		private int datasetRows;
 		private int targetQueries;
+		private GoalType type;
 		
-		public TestDEASolver(int inputVariables, int outputVariables, int rows, int queries) {
+		public TestDEASolver(int inputVariables, int outputVariables, int rows, int queries, GoalType type) {
 			this.inputVariables = inputVariables;
 			this.outputVariables = outputVariables;
 			this.datasetRows = rows;
 			this.targetQueries = queries;
+			this.type = type;
 		}
 
 		@Override
@@ -114,7 +116,7 @@ public class DEASolverTests {
 
 							sseq.append(ioBuilder.getProtocol());
 							
-							DEASolver solver = new DEASolver(AlgebraUtil.arrayToList(targetInputs),
+							DEASolver solver = new DEASolver(type, AlgebraUtil.arrayToList(targetInputs),
 									AlgebraUtil.arrayToList(targetOutputs),
 									AlgebraUtil.arrayToList(basisInputs), 
 									AlgebraUtil.arrayToList(basisOutputs));
@@ -134,7 +136,7 @@ public class DEASolverTests {
 							PlaintextDEASolver plainSolver = new PlaintextDEASolver();
 							plainSolver.addBasis(rawBasisInputs, rawBasisOutputs);
 							
-							double[] plain = plainSolver.solve(rawTargetInputs, rawTargetOutputs);
+							double[] plain = plainSolver.solve(rawTargetInputs, rawTargetOutputs, type);
 							for(int i= 0; i< plain.length; i++){
 								plainResult[i] = plain[i]; 
 							}
@@ -154,8 +156,10 @@ public class DEASolverTests {
 					int variables = lambdas + slackvariables + 1;
 					System.out.println("variables:" + variables);
 					for(int i =0; i< outs.length; i++){
-						Assert.assertEquals(plainResult[i], postProcess(outs[i]), 0.0000001);
-						System.out.println("Final Basis for request no. "+i+" is: "+Arrays.toString(basis[i]));						
+						Assert.assertEquals(plainResult[i], postProcess(outs[i], type), 0.0000001);
+						System.out.println("DEA Score (plain result): " + plainResult[i]);
+						System.out.println("DEA Score (solver result): " + postProcess(outs[i], type));
+//						System.out.println("Final Basis for request no. "+i+" is: "+Arrays.toString(basis[i]));						
 						for(int j = 0; j < basis[i].length; j++) {
 							Assert.assertTrue("Basis value "+basis[i][j].getValue().intValue()+", was larger than "+(variables-1), basis[i][j].getValue().intValue() < variables );
 						}
@@ -171,38 +175,69 @@ public class DEASolverTests {
 	/**
 	 * Reduces a field-element to a double using Gauss reduction. 
 	 */
-	private static double postProcess(OInt input){
-		BigInteger[] gauss = gauss(input.getValue());
-		return (gauss[0].doubleValue()/gauss[1].doubleValue())-BENCHMARKING_BIG_M;
+	private static double postProcess(OInt input, GoalType type){
+		BigInteger[] gauss = gauss(input.getValue(), Util.getModulus());
+		double res = (gauss[0].doubleValue()/gauss[1].doubleValue());
+		if(type == GoalType.MAXIMIZE) {
+			res -= BENCHMARKING_BIG_M;
+		} else {
+			res *= -1;
+		}
+		return res;
 	}
 
-
-	private static BigInteger[] gauss(BigInteger product) {
-		BigInteger[] u = {Util.getModulus(),
-				BigInteger.ZERO };
+	/**
+	 * Converts a number of the form <i>t = r*s<sup>-1</sup> mod N</i> to the
+	 * rational number <i>r/s</i> represented as a reduced fraction.
+	 * <p>
+	 * This is useful outputting non-integer rational numbers from MPC, when
+	 * outputting a non-reduced fraction may leak too much information. The
+	 * technique used is adapted from the paper "CryptoComputing With Rationals"
+	 * of Fouque et al. Financial Cryptography 2002. This methods restricts us
+	 * to integers <i>t = r*s<sup>-1</sup> mod N</i> so that <i>2r*s < N</i>.
+	 * See
+	 * <a href="https://www.di.ens.fr/~stern/data/St100.pdf">https://www.di.ens.
+	 * fr/~stern/data/St100.pdf</a>
+	 * </p>
+	 * 
+	 * @param product
+	 *            The integer <i>t = r*s<sup>-1</sup>mod N</i>. Note that we
+	 *            must have that <i>2r*s < N</i>.
+	 *
+	 * @param mod
+	 *            the modulus, i.e., <i>N</i>.
+	 * 
+	 * @return The fraction as represented as the rational number <i>r/s</i>.
+	 */
+	static BigInteger[] gauss(BigInteger product, BigInteger mod) {
+		product = product.mod(mod);
+		BigInteger[] u = { mod, BigInteger.ZERO };
 		BigInteger[] v = { product, BigInteger.ONE };
 		BigInteger two = BigInteger.valueOf(2);
-		BigInteger lenU = innerproduct(u, u);
-		BigInteger lenV = innerproduct(v, v);
-		if (lenU.compareTo(lenV) < 0) {
-			BigInteger[] temp = u;
-			u = v;
-			v = temp;
-		}
+		BigInteger uv = innerproduct(u, v);
+		BigInteger vv = innerproduct(v, v);
+		BigInteger uu = innerproduct(u, u);
 		do {
-			BigInteger uv = innerproduct(u, v);
-			BigInteger[] q = uv.divideAndRemainder(innerproduct(v, v));
-			if (uv.compareTo(q[1].divide(two)) < 0) {
-				q[0] = q[0].add(BigInteger.ONE);
+			BigInteger[] q = uv.divideAndRemainder(vv);
+			boolean negRes = q[1].signum() == -1;
+			if (!negRes) {
+				if (vv.compareTo(q[1].multiply(two)) <= 0) {
+					q[0] = q[0].add(BigInteger.ONE);
+				}
+			} else {
+				if (vv.compareTo(q[1].multiply(two.negate())) <= 0) {
+					q[0] = q[0].subtract(BigInteger.ONE);
+				}
 			}
 			BigInteger r0 = u[0].subtract(v[0].multiply(q[0]));
 			BigInteger r1 = u[1].subtract(v[1].multiply(q[0]));
 			u = v;
 			v = new BigInteger[] { r0, r1 };
-			lenU = innerproduct(u, u);
-			lenV = innerproduct(v, v);
-		} while (lenU.compareTo(lenV) > 0);
-		return u;
+			uu = vv;
+			uv = innerproduct(u, v);
+			vv = innerproduct(v, v);
+		} while (uu.compareTo(vv) > 0);
+		return new BigInteger[] { u[0], u[1] };
 	}
 
 	private static BigInteger innerproduct(BigInteger[] u, BigInteger[] v) {

@@ -29,6 +29,8 @@ package dk.alexandra.fresco.lib.statistics;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.commons.math3.optim.nonlinear.scalar.GoalType;
+
 import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.ProtocolFactory;
@@ -66,6 +68,7 @@ public class DEASolver implements Application {
 
 	private SInt[] optimal;
 	private SInt[][] basis;
+	private GoalType type;
 
 	/**
 	 * Construct a DEA problem for the solver to solve. The problem consists of
@@ -84,8 +87,9 @@ public class DEASolver implements Application {
 	 *            Matrix containing the basis output
 	 * @throws MPCException
 	 */
-	public DEASolver(List<List<SInt>> inputValues, List<List<SInt>> outputValues, List<List<SInt>> setInput,
+	public DEASolver(GoalType type, List<List<SInt>> inputValues, List<List<SInt>> outputValues, List<List<SInt>> setInput,
 			List<List<SInt>> setOutput) throws MPCException {
+		this.type = type;
 		this.targetInputs = inputValues;
 		this.targetOutputs = outputValues;
 		this.inputDataSet = setInput;
@@ -138,8 +142,7 @@ public class DEASolver implements Application {
 
 		SequentialProtocolProducer seq = new SequentialProtocolProducer();
 
-		LPPrefix[] prefixes = getPrefixWithSecretSharedValues(this.targetInputs, this.targetOutputs,
-				(BasicNumericFactory) provider);
+		LPPrefix[] prefixes = getPrefixWithSecretSharedValues((BasicNumericFactory) provider);
 
 		BasicNumericFactory bnFactory = (BasicNumericFactory) provider;
 		LocalInversionFactory localInvFactory = (LocalInversionFactory) provider;
@@ -200,18 +203,16 @@ public class DEASolver implements Application {
 		return this.basis;
 	}
 
-	private LPPrefix[] getPrefixWithSecretSharedValues(List<List<SInt>> inputValues, List<List<SInt>> outputValues,
-			BasicNumericFactory provider) {
-		if (inputValues.size() != outputValues.size()) {
+	private LPPrefix[] getPrefixWithSecretSharedValues(BasicNumericFactory provider) {
+		if (this.targetInputs.size() != targetOutputs.size()) {
 			throw new RuntimeException();
 		}
 
 		int dataSetSize = this.inputDataSet.size();
 
-		DEAPrefixBuilder basisBuilder = new DEAPrefixBuilder();
-		LPPrefix[] prefixes = new LPPrefix[inputValues.size()];
+				
+		LPPrefix[] prefixes = new LPPrefix[this.targetInputs.size()];
 
-		basisBuilder.provider(provider);
 		int lpInputs = this.inputDataSet.get(0).size();
 		int lpOutputs = this.outputDataSet.get(0).size();
 		SInt[][] basisInputs = new SInt[lpInputs][dataSetSize];
@@ -227,13 +228,21 @@ public class DEASolver implements Application {
 				basisOutputs[j][i] = current.get(j);
 			}
 		}
-
+		
+		DEAPrefixBuilder basisBuilder = null; 
+		
+		if(type == GoalType.MINIMIZE) {
+			basisBuilder = new DEAPrefixBuilderMinimum();
+		} else if(type == GoalType.MAXIMIZE) {
+			basisBuilder = new DEAPrefixBuilderMaximize();
+		}
+		basisBuilder.provider(provider);
 		basisBuilder.basisInputs(Arrays.asList(basisInputs));
 		basisBuilder.basisOutputs(Arrays.asList(basisOutputs));
 
-		DEAPrefixBuilder[] basisBuilderCopies = new DEAPrefixBuilder[inputValues.size()];
+		DEAPrefixBuilder[] basisBuilderCopies = new DEAPrefixBuilder[this.targetInputs.size()];
 
-		for (int i = 0; i < inputValues.size(); i++) {
+		for (int i = 0; i < this.targetInputs.size(); i++) {
 			if (i == 0) {
 				basisBuilderCopies[i] = basisBuilder;
 			} else {
@@ -241,8 +250,13 @@ public class DEASolver implements Application {
 			}
 		}
 
-		for (int i = 0; i < inputValues.size(); i++) {
-			DEAPrefixBuilder targetBuilder = new DEAPrefixBuilder();
+		for (int i = 0; i < this.targetInputs.size(); i++) {
+			DEAPrefixBuilder targetBuilder = null;
+			if(type == GoalType.MINIMIZE) {
+				targetBuilder = new DEAPrefixBuilderMinimum();
+			} else if(type == GoalType.MAXIMIZE) {
+				targetBuilder = new DEAPrefixBuilderMaximize();
+			}
 			targetBuilder.provider(provider);
 			List<SInt> current = targetInputs.get(i);
 			for (int j = 0; j < current.size(); j++) {

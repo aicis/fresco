@@ -49,7 +49,7 @@ import org.apache.commons.math3.optim.nonlinear.scalar.GoalType;
  * 
  */
 public class PlaintextDEASolver {
-
+	
 	private Map<String, List<Double>> inputs;
 	private Map<String, List<Double>> outputs;
 	private int size;
@@ -73,7 +73,7 @@ public class PlaintextDEASolver {
 	 * @return the DEA score of the given target.
 	 */
 	public double solve(Map<String, Double> targetInputs,
-			Map<String, Double> targetOutputs) {
+			Map<String, Double> targetOutputs, GoalType type) {
 		int sizePlusTarget = size + 2;
 		/*
 		 * We number the variables as follows:
@@ -149,7 +149,7 @@ public class PlaintextDEASolver {
 		SimplexSolver solver = new SimplexSolver();
 		LinearConstraintSet set = new LinearConstraintSet(constraints);
 		PointValuePair pvp = solver.optimize(objectiveFuntion, set,
-				GoalType.MAXIMIZE, new NonNegativeConstraint(true));
+				type, new NonNegativeConstraint(true));
 		return pvp.getValue();
 	}
 
@@ -209,7 +209,7 @@ public class PlaintextDEASolver {
 	 * @param rawTargetOutputs A matrix containing output values
 	 * @return An array of results.
 	 */
-	public double[] solve(BigInteger[][] rawTargetInputs, BigInteger[][] rawTargetOutputs){
+	public double[] solve(BigInteger[][] rawTargetInputs, BigInteger[][] rawTargetOutputs, GoalType type){
 		double[] results = new double[rawTargetInputs.length];
 		for(int i = 0; i<rawTargetInputs.length; i++){
 			Map<String, Double> targetRowInput = new HashMap<String, Double>();
@@ -221,7 +221,7 @@ public class PlaintextDEASolver {
 			for(int j= 0; j< rawTargetOutputs[i].length; j++){
 				targetRowOutput.put("output_"+j, rawTargetOutputs[i][j].doubleValue());
 			}
-			results[i] = solve(targetRowInput, targetRowOutput);
+			results[i] = solve(targetRowInput, targetRowOutput, type);
 		}
 		return results;
 	}
