@@ -40,8 +40,12 @@ import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.Reporter;
+import dk.alexandra.fresco.framework.configuration.ConfigurationException;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.NetworkConfigurationImpl;
+import dk.alexandra.fresco.framework.network.KryoNetNetwork;
+import dk.alexandra.fresco.framework.network.Network;
+import dk.alexandra.fresco.framework.network.NetworkingStrategy;
 import dk.alexandra.fresco.framework.network.ScapiNetworkImpl;
 import dk.alexandra.fresco.framework.sce.configuration.ProtocolSuiteConfiguration;
 import dk.alexandra.fresco.framework.sce.configuration.SCEConfiguration;
@@ -52,6 +56,8 @@ import dk.alexandra.fresco.framework.sce.resources.SCEResourcePool;
 import dk.alexandra.fresco.framework.sce.resources.storage.Storage;
 import dk.alexandra.fresco.framework.sce.resources.storage.StreamedStorage;
 import dk.alexandra.fresco.framework.sce.resources.threads.ThreadPoolImpl;
+import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
+import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.bgw.BgwFactory;
 import dk.alexandra.fresco.suite.bgw.BgwProtocolSuite;
@@ -87,7 +93,7 @@ public class SCEImpl implements SCE {
 	private ProtocolSuite protocolSuite;
 	private ProtocolSuiteConfiguration psConf;
 
-	private boolean setup = false;
+	private boolean setup;
 
 	protected SCEImpl(SCEConfiguration sceConf) {
 		this(sceConf, null);
@@ -95,7 +101,9 @@ public class SCEImpl implements SCE {
 
 	protected SCEImpl(SCEConfiguration sceConf, ProtocolSuiteConfiguration psConf) {
 		this.sceConf = sceConf;
-		this.psConf = psConf;		
+		this.psConf = psConf;
+		
+		this.setup = false;
 		
 		//setup the basic stuff, but do not initialize anything yet
 		int myId = sceConf.getMyId();
@@ -126,8 +134,20 @@ public class SCEImpl implements SCE {
 		if (this.evaluator instanceof ParallelEvaluator || this.evaluator instanceof BatchedParallelEvaluator) {
 			channelAmount = noOfvmThreads;
 		}
-		ScapiNetworkImpl network = new ScapiNetworkImpl(conf, channelAmount);
-
+		NetworkingStrategy networkStrat = sceConf.getNetwork();
+		Network network = null;
+		switch(networkStrat) {
+		case KRYONET:
+			network = new KryoNetNetwork();
+			break;
+		case SCAPI:
+			network = new ScapiNetworkImpl();
+			break;
+		default:
+			throw new ConfigurationException("Unknown networking strategy "+ networkStrat);
+		}
+		network.init(conf, channelAmount);
+		
 		if (noOfvmThreads == -1) {
 			// default to 1 allowed VM thread only - otherwise certain
 			// strategies are going to outright fail.
@@ -149,7 +169,7 @@ public class SCEImpl implements SCE {
 	}
 
 	@Override
-	public synchronized void setup() throws IOException {		
+	public synchronized void setup() throws IOException {
 		if (this.setup) {
 			return;
 		}
@@ -214,7 +234,7 @@ public class SCEImpl implements SCE {
 			throw new IllegalArgumentException(
 					"Could not understand the specified runtime. This framework currently supports:\n\t-spdz\n\t-bgw\n\t-dummy");
 		}
-
+		
 		this.setup = true;
 	}
 
@@ -226,30 +246,71 @@ public class SCEImpl implements SCE {
 	 * .framework.Application)
 	 */
 	@Override
-	public void runApplication(Application application) {
-		try {
-			Reporter.init(this.getSCEConfiguration().getLogLevel());			
-			setup();
-			Reporter.info("Running application: " + application.getClass().getSimpleName() + " using protocol suite: "
-					+ this.getSCEConfiguration().getProtocolSuiteName());
-			Reporter.info("Using the configuration: " + this.getSCEConfiguration());			
+	public void runApplication(Application application) {				
+		prepareEvaluator();
+		ProtocolProducer prod = application.prepareApplication(this.protocolFactory);
+		String appName = application.getClass().getName();
+		Reporter.info("Running application: " + appName + " using protocol suite: "
+				+ this.getSCEConfiguration().getProtocolSuiteName());
+		evalApplication(prod, appName);		
+	}
+	
+	private void prepareEvaluator() {
+		try {						
+			Reporter.init(this.getSCEConfiguration().getLogLevel());
+			setup();									
 			this.evaluator.setResourcePool(this.resourcePool);
 			this.evaluator.setProtocolInvocation(this.protocolSuite);
 		} catch (IOException e) {
 			throw new MPCException("Could not run application due to errors during setup: " + e.getMessage(), e);
 		}
-		long then = System.currentTimeMillis();
-		evalApplication(application);
-		long now = System.currentTimeMillis();
-		long timeSpend = now-then;
-		Reporter.info("Running the application " + application.getClass().getSimpleName()+" took "+ timeSpend+" ms.");
+	}
+	
+	@Override
+	public void runApplicationsInParallel(Application... applications) {
+		prepareEvaluator();
+		ParallelProtocolProducer parallelProtocolProducer = new ParallelProtocolProducer();
+		String name = "";
+		for(int i = 0; i < applications.length; i++) {
+			Application app = applications[i];
+			parallelProtocolProducer.append(app.prepareApplication(protocolFactory));
+			name += app.getClass().getSimpleName();
+			if(i != applications.length-1) {
+				name += " AND ";
+			}
+		}
+		Reporter.info("Running applications in parallel: (" + name + ") using protocol suite: "
+				+ this.getSCEConfiguration().getProtocolSuiteName());
+		evalApplication(parallelProtocolProducer, name);
 	}
 
-	private void evalApplication(Application app) {
-		try {
-			ProtocolProducer prod = app.prepareApplication(this.protocolFactory);
-			if(prod != null) {
+	@Override
+	public void runApplicationsInSequence(Application... applications) {
+		prepareEvaluator();
+		SequentialProtocolProducer sequentialProtocolProducer = new SequentialProtocolProducer();
+		String name = "";
+		for(int i = 0; i < applications.length; i++) {
+			Application app = applications[i];
+			sequentialProtocolProducer.append(app.prepareApplication(protocolFactory));
+			name += app.getClass().getSimpleName();
+			if(i != applications.length-1) {
+				name += " AND ";
+			}
+		}
+		Reporter.info("Running applications in sequence: (" + name + ") using protocol suite: "
+				+ this.getSCEConfiguration().getProtocolSuiteName());
+		evalApplication(sequentialProtocolProducer, name);
+	}
+
+	private void evalApplication(ProtocolProducer prod, String appName) {
+		try {			
+			if(prod != null) {								
+				Reporter.info("Using the configuration: " + this.getSCEConfiguration());
+				long then = System.currentTimeMillis();
 				this.evaluator.eval(prod);
+				long now = System.currentTimeMillis();
+				long timeSpend = now-then;
+				Reporter.info("Running the application " + appName+" took "+ timeSpend+" ms.");
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -258,9 +319,6 @@ public class SCEImpl implements SCE {
 
 	@Override
 	public void shutdownSCE() {
-		if (!setup) {
-			return;
-		}
 		this.evaluator = null;
 		try {
 			if (this.resourcePool != null) {
@@ -284,6 +342,7 @@ public class SCEImpl implements SCE {
 		}
 		this.resourcePool = null;
 		this.protocolFactory = null;
+		this.setup = false;
 	}
 
 }

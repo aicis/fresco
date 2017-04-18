@@ -40,17 +40,11 @@ import dk.alexandra.fresco.framework.TestApplication;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
-import dk.alexandra.fresco.framework.sce.SCE;
-import dk.alexandra.fresco.framework.sce.SCEFactory;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.field.integer.RandomFieldElementFactory;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
-import dk.alexandra.fresco.lib.lp.LPFactory;
-import dk.alexandra.fresco.lib.lp.LPFactoryImpl;
-import dk.alexandra.fresco.lib.lp.LPPrefix;
-import dk.alexandra.fresco.lib.lp.LPSolverProtocol;
 import dk.alexandra.fresco.lib.math.integer.NumericBitFactory;
 import dk.alexandra.fresco.lib.math.integer.exp.ExpFromOIntFactory;
 import dk.alexandra.fresco.lib.math.integer.exp.PreprocessedExpPipeFactory;
@@ -61,21 +55,10 @@ import dk.alexandra.fresco.suite.spdz.utils.PlainSpdzLPPrefix;
 
 public class LPSolverTests {
 
-	private abstract static class ThreadWithFixture extends TestThread {
-
-		protected SCE sce;
-
-		@Override
-		public void setUp() throws IOException {
-			sce = SCEFactory.getSCEFromConfiguration(conf.sceConf, conf.protocolSuiteConf);
-		}
-
-	}
-
 	public static class TestLPSolver extends TestThreadFactory {
 		@Override
 		public TestThread next(TestThreadConfiguration conf) {
-			return new ThreadWithFixture() {
+			return new TestThread() {
 				@Override
 				public void test() throws Exception {
 					OInt[] outs = new OInt[1];

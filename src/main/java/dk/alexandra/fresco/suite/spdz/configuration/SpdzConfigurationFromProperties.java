@@ -31,6 +31,7 @@ import java.io.InputStream;
 import java.util.Properties;
 
 import dk.alexandra.fresco.framework.MPCException;
+import dk.alexandra.fresco.framework.configuration.PreprocessingStrategy;
 import dk.alexandra.fresco.framework.sce.util.Util;
 
 public class SpdzConfigurationFromProperties implements SpdzConfiguration {
@@ -49,21 +50,19 @@ public class SpdzConfigurationFromProperties implements SpdzConfiguration {
 		}
 	}
 
+	@Override
 	public int getMaxBitLength() {
 		return Integer.parseInt(prop.getProperty("maxBitLength"));		
 	}
-	
-	public int getSecurityParameter() {
-		return Integer.parseInt(prop.getProperty("securityParameter"));		
-	}
-	
-	public String getTriplePath() {
-		return prop.getProperty("triplePath");		
+
+	@Override
+	public PreprocessingStrategy getPreprocessingStrategy() {
+		return PreprocessingStrategy.fromString(prop.getProperty("preprocessingStrategy"));
 	}
 
 	@Override
-	public boolean useDummyData() {
-		return Boolean.parseBoolean(prop.getProperty("useDummyData", "False"));
+	public String fuelStationBaseUrl() {
+		return prop.getProperty("fuelStationBaseUrl", null);
 	}
 	
 }

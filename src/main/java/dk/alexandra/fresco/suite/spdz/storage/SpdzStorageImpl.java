@@ -31,8 +31,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
-import dk.alexandra.fresco.framework.sce.resources.storage.StreamedStorage;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
+import dk.alexandra.fresco.suite.spdz.storage.rest.DataRestSupplierImpl;
 
 /**
  * Uses the D14.2 storage concept as backend
@@ -41,8 +41,6 @@ import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
  *
  */
 public class SpdzStorageImpl implements SpdzStorage {
-
-	private StreamedStorage storage;
 
 	private List<BigInteger> opened_values;
 	private List<SpdzElement> closed_values;
@@ -58,7 +56,6 @@ public class SpdzStorageImpl implements SpdzStorage {
 	 *            of the thread that will use this storage object
 	 */
 	public SpdzStorageImpl(ResourcePool rp, int storageId) {
-		this.storage = rp.getStreamedStorage();
 		int noOfThreadsUsed = rp.getVMThreadCount();
 		int noOfParties = rp.getNoOfParties();
 		int myId = rp.getMyId();
@@ -68,12 +65,21 @@ public class SpdzStorageImpl implements SpdzStorage {
 		opened_values = new LinkedList<BigInteger>();
 		closed_values = new LinkedList<SpdzElement>();
 
-		this.supplier = new DataSupplierImpl(storage, storageName, noOfParties);
+		this.supplier = new DataSupplierImpl(rp.getStreamedStorage(), storageName, noOfParties);
+	}
+	
+	public SpdzStorageImpl(ResourcePool rp, int storageId, boolean useFuelStation, String fuelStationBaseUrl) {
+		int myId = rp.getMyId();
+
+		opened_values = new LinkedList<BigInteger>();
+		closed_values = new LinkedList<SpdzElement>();
+
+		this.supplier = new DataRestSupplierImpl(myId, rp.getNoOfParties(), fuelStationBaseUrl, storageId);
 	}
 
 	@Override
 	public void shutdown() {
-
+		this.supplier.shutdown();
 	}
 
 	@Override

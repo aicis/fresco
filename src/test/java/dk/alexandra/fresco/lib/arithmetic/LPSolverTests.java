@@ -31,6 +31,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.math.BigInteger;
 
+import org.junit.Assert;
+
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.ProtocolProducer;
@@ -38,8 +40,6 @@ import dk.alexandra.fresco.framework.TestApplication;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
-import dk.alexandra.fresco.framework.sce.SCE;
-import dk.alexandra.fresco.framework.sce.SCEFactory;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
@@ -56,25 +56,13 @@ import dk.alexandra.fresco.lib.math.integer.inv.LocalInversionFactory;
 import dk.alexandra.fresco.suite.spdz.utils.LPInputReader;
 import dk.alexandra.fresco.suite.spdz.utils.PlainLPInputReader;
 import dk.alexandra.fresco.suite.spdz.utils.PlainSpdzLPPrefix;
-import org.junit.Assert;
 
 public class LPSolverTests {
-
-	private abstract static class ThreadWithFixture extends TestThread {
-
-		protected SCE sce;
-
-		@Override
-		public void setUp() throws IOException {
-			sce = SCEFactory.getSCEFromConfiguration(conf.sceConf, conf.protocolSuiteConf);
-		}
-
-	}
 
 	public static class TestLPSolver extends TestThreadFactory {
 		@Override
 		public TestThread next(TestThreadConfiguration conf) {
-			return new ThreadWithFixture() {
+			return new TestThread() {
 				@Override
 				public void test() throws Exception {
 					TestApplication app = new TestApplication() {

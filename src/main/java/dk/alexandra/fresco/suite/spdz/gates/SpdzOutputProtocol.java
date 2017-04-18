@@ -27,10 +27,12 @@
 package dk.alexandra.fresco.suite.spdz.gates;
 
 import java.math.BigInteger;
+import java.nio.ByteBuffer;
 import java.util.List;
 
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.network.SCENetwork;
+import dk.alexandra.fresco.framework.network.serializers.BigIntegerWithFixedLengthSerializer;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
@@ -72,39 +74,39 @@ public class SpdzOutputProtocol extends SpdzNativeProtocol implements OpenIntPro
 	}
 
 	@Override
-	public EvaluationStatus evaluate(int round, ResourcePool resourcePool,
-			SCENetwork network) {
-		SpdzProtocolSuite spdzpii = SpdzProtocolSuite
-				.getInstance(resourcePool.getMyId());
-		int myId = resourcePool.getMyId();		
-		SpdzStorage storage = spdzpii.getStore(network.getThreadId());		
+	public EvaluationStatus evaluate(int round, ResourcePool resourcePool, SCENetwork network) {		
+		SpdzProtocolSuite spdzpii = SpdzProtocolSuite.getInstance(resourcePool.getMyId());
+		spdzpii.outputProtocolUsedInBatch();
 		
+		int myId = resourcePool.getMyId();
+		SpdzStorage storage = spdzpii.getStore(network.getThreadId());
+
 		switch (round) {
-		case 0: 
+		case 0:
 			this.mask = storage.getSupplier().getNextInputMask(target_player);
 			SpdzElement inMinusMask = this.in.value.subtract(this.mask.getMask());
 			storage.addClosedValue(inMinusMask);
-			network.sendToAll(inMinusMask.getShare());
+			network.sendToAll(BigIntegerWithFixedLengthSerializer.toBytes(inMinusMask.getShare(), Util.getModulusSize()));
 			network.expectInputFromAll();
 			return EvaluationStatus.HAS_MORE_ROUNDS;
 		case 1:
-			List<BigInteger> shares = network.receiveFromAll();
+			List<ByteBuffer> shares = network.receiveFromAll();
 			BigInteger openedVal = BigInteger.valueOf(0);
-			for (BigInteger share : shares) {
-				openedVal = openedVal.add(share);
+			for (ByteBuffer buffer : shares) {
+				openedVal = openedVal.add(BigIntegerWithFixedLengthSerializer.toBigInteger(buffer, Util.getModulusSize()));
 			}
 			openedVal = openedVal.mod(Util.getModulus());
 			storage.addOpenedValue(openedVal);
-			if(target_player == myId) {
-				openedVal = openedVal.add(this.mask.getRealValue());
+			if (target_player == myId) {
+				openedVal = openedVal.add(this.mask.getRealValue()).mod(Util.getModulus());
 				BigInteger tmpOut = openedVal;
-				tmpOut = Util.convertRepresentation(tmpOut);
+				//tmpOut = Util.convertRepresentation(tmpOut);
 				out.setValue(tmpOut);
 			}
 			return EvaluationStatus.IS_DONE;
 		default:
 			throw new MPCException("No more rounds to evaluate.");
-		}		
+		}
 	}
 
 }

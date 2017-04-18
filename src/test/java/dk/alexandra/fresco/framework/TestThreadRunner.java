@@ -33,8 +33,13 @@ import java.util.Random;
 import java.util.Set;
 import java.util.logging.Level;
 
+import com.esotericsoftware.minlog.Log;
+
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.TestConfiguration;
+import dk.alexandra.fresco.framework.network.KryoNetNetwork;
+import dk.alexandra.fresco.framework.sce.SCE;
+import dk.alexandra.fresco.framework.sce.SCEFactory;
 import dk.alexandra.fresco.framework.sce.configuration.ProtocolSuiteConfiguration;
 import dk.alexandra.fresco.framework.sce.configuration.SCEConfiguration;
 
@@ -56,6 +61,8 @@ public class TestThreadRunner {
 		protected Throwable testException;
 
 		protected Throwable teardownException;
+		
+		protected SCE sce;
 
 		void setConfiguration(TestThreadConfiguration conf) {
 			this.conf = conf;
@@ -69,7 +76,12 @@ public class TestThreadRunner {
 		@Override
 		public void run() {
 			try {
-				Reporter.init(Level.INFO);
+				Level level = conf.sceConf.getLogLevel();
+				Reporter.init(level);
+				if(conf.sceConf != null && conf.protocolSuiteConf != null) {
+					sce = SCEFactory.getSCEFromConfiguration(conf.sceConf, conf.protocolSuiteConf);
+				}
+				KryoNetNetwork.setLogLevel(Log.LEVEL_WARN);
 				setUp();
 				runTest();
 			} catch (Throwable e) {
@@ -97,6 +109,9 @@ public class TestThreadRunner {
 
 		private void runTearDown() {
 			try {
+				if(sce != null) {
+					sce.shutdownSCE();
+				}
 				tearDown();
 				finished = true;
 			} catch (Exception e) {

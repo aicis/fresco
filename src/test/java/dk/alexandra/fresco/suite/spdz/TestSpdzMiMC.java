@@ -27,109 +27,41 @@
 package dk.alexandra.fresco.suite.spdz;
 
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.logging.Level;
 
 import org.junit.Test;
 
-import dk.alexandra.fresco.framework.ProtocolEvaluator;
-import dk.alexandra.fresco.framework.Reporter;
-import dk.alexandra.fresco.framework.TestThreadRunner;
-import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
-import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
-import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
-import dk.alexandra.fresco.framework.configuration.TestConfiguration;
-import dk.alexandra.fresco.framework.sce.configuration.TestSCEConfiguration;
+import dk.alexandra.fresco.framework.configuration.PreprocessingStrategy;
+import dk.alexandra.fresco.framework.network.NetworkingStrategy;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
+import dk.alexandra.fresco.framework.sce.resources.storage.FilebasedStreamedStorageImpl;
 import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
-import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStreamedStorage;
-import dk.alexandra.fresco.framework.sce.resources.storage.Storage;
-import dk.alexandra.fresco.framework.sce.resources.storage.StorageStrategy;
-import dk.alexandra.fresco.framework.sce.resources.storage.StreamedStorage;
-import dk.alexandra.fresco.lib.arithmetic.BasicArithmeticTests;
 import dk.alexandra.fresco.lib.arithmetic.MiMCTests;
-import dk.alexandra.fresco.lib.crypto.mimc.MiMCConstants;
-import dk.alexandra.fresco.suite.ProtocolSuite;
-import dk.alexandra.fresco.suite.spdz.configuration.SpdzConfiguration;
-import dk.alexandra.fresco.suite.spdz.evaluation.strategy.SpdzProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.storage.InitializeStorage;
 
-public class TestSpdzMiMC {
+public class TestSpdzMiMC extends AbstractSpdzTest {
 
-	private static final int noOfParties = 2;
-
-	private void runTest(TestThreadFactory f, EvaluationStrategy evalStrategy,
-			StorageStrategy storageStrategy, Storage storage) throws Exception {
-		Level logLevel = Level.FINE;
-		Reporter.init(logLevel);
-
-		// Since SCAPI currently does not work with ports > 9999 we use fixed
-		// ports
-		// here instead of relying on ephemeral ports which are often > 9999.
-		List<Integer> ports = new ArrayList<Integer>(noOfParties);
-		for (int i = 1; i <= noOfParties; i++) {
-			ports.add(9000 + i);
-		}
-
-		Map<Integer, NetworkConfiguration> netConf = TestConfiguration
-				.getNetworkConfigurations(noOfParties, ports, logLevel);
-		Map<Integer, TestThreadConfiguration> conf = new HashMap<Integer, TestThreadConfiguration>();
-		for (int playerId : netConf.keySet()) {
-			TestThreadConfiguration ttc = new TestThreadConfiguration();
-			ttc.netConf = netConf.get(playerId);
-			
-			SpdzConfiguration spdzConf = new SpdzConfiguration() {
-				
-				@Override
-				public boolean useDummyData() {
-					return false;
-				}
-				
-				@Override
-				public String getTriplePath() {
-					return null;
-				}
-				
-				@Override
-				public int getMaxBitLength() {
-					return 150;
-				}
-			};
-			ttc.protocolSuiteConf = spdzConf;
-			boolean useSecureConnection = false; // No tests of secure
-													// connection
-													// here.
-			int noOfVMThreads = 1;
-			int noOfThreads = 1;
-			ProtocolSuite suite = new SpdzProtocolSuite();
-			ProtocolEvaluator evaluator = EvaluationStrategy
-					.fromEnum(evalStrategy);
-			ttc.sceConf = new TestSCEConfiguration(suite, evaluator,
-					noOfThreads, noOfVMThreads, ttc.netConf, storage,
-					useSecureConnection);
-			conf.put(playerId, ttc);
-		}
-		TestThreadRunner.run(f, conf);
-	}
-
-	
-	
 	@Test
 	public void test_mimc_same_enc() throws Exception {
-		InMemoryStreamedStorage inMemStore = new InMemoryStreamedStorage(new InMemoryStorage());		
-		InitializeStorage.initStreamedStorage(new StreamedStorage[] {inMemStore}, 2, 1, 10000, 0, 0, 0, new BigInteger("2582249878086908589655919172003011874329705792829223512830659356540647622016841194629645353280137831435903171972747493557"));
-		runTest(new MiMCTests.TestMiMCEncSameEnc(),
-				EvaluationStrategy.SEQUENTIAL, StorageStrategy.IN_MEMORY, inMemStore);
+		runTest(new MiMCTests.TestMiMCEncSameEnc(), EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET,
+				PreprocessingStrategy.DUMMY, 2);
 	}
-	
+
 	@Test
 	public void test_mimc_enc_dec() throws Exception {
-		InMemoryStreamedStorage inMemStore = new InMemoryStreamedStorage(new InMemoryStorage());		
-		InitializeStorage.initStreamedStorage(new StreamedStorage[] {inMemStore}, 2, 1, 100000, 0, 0, 0, new BigInteger("1031"));
-		runTest(new MiMCTests.TestMiMCEncDec(),
-				EvaluationStrategy.SEQUENTIAL, StorageStrategy.IN_MEMORY, inMemStore);
+		// Use a static preprocessing approach since otherwise, we would have to
+		// create an array of size ~2^500 since 3^-1 in the dummy field is of
+		// approximately that size.
+		int noOfThreads = 3;
+		InitializeStorage.cleanup();
+		try {
+			InitializeStorage.initStreamedStorage(new FilebasedStreamedStorageImpl(new InMemoryStorage()), 2,
+					noOfThreads, 10000, 1000, 0, 0, new BigInteger("1031"));
+			runTest(new MiMCTests.TestMiMCEncDec(), EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET,
+					PreprocessingStrategy.STATIC, 2);
+		} catch (Exception e) {
+			throw e;
+		} finally {
+			InitializeStorage.cleanup();
+		}
 	}
 }

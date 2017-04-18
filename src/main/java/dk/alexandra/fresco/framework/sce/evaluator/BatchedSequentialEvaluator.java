@@ -39,26 +39,23 @@ public class BatchedSequentialEvaluator implements ProtocolEvaluator {
 
 	private static final int DEFAULT_THREAD_ID = 0;
 
-	private static final String DEFAULT_CHANNEL = "0";
+	private static final int DEFAULT_CHANNEL = 0;
 
 	private int maxBatchSize;
 
 	private SCEResourcePool resourcePool;
 	private ProtocolSuite protocolSuite;
 
-	private SCENetworkImpl[] sceNetworks;
+	private SCENetworkImpl sceNetwork;
 
 	public BatchedSequentialEvaluator() {
 		this.maxBatchSize = 4096;
-		this.sceNetworks = new SCENetworkImpl[this.maxBatchSize];
 	}
 
 	@Override
 	public void setResourcePool(SCEResourcePool resourcePool) {
 		this.resourcePool = resourcePool;
-		for (int i = 0; i < this.maxBatchSize; i++) {
-			this.sceNetworks[i] = new SCENetworkImpl(this.resourcePool.getNoOfParties(), DEFAULT_THREAD_ID);
-		}
+		this.sceNetwork = new SCENetworkImpl(this.resourcePool.getNoOfParties(), DEFAULT_THREAD_ID);		
 	}
 
 	public ProtocolSuite getProtocolInvocation() {
@@ -82,7 +79,6 @@ public class BatchedSequentialEvaluator implements ProtocolEvaluator {
 	 */
 	@Override
 	public void setMaxBatchSize(int maxBatchSize) {
-		this.sceNetworks = new SCENetworkImpl[maxBatchSize];
 		this.maxBatchSize = maxBatchSize;
 	}
 
@@ -90,7 +86,7 @@ public class BatchedSequentialEvaluator implements ProtocolEvaluator {
 		do {
 			NativeProtocol[] nextProtocols = new NativeProtocol[maxBatchSize];
 			int numOfProtocolsInBatch = c.getNextProtocols(nextProtocols, 0);
-			BatchedStrategy.processBatch(nextProtocols, numOfProtocolsInBatch, sceNetworks, DEFAULT_CHANNEL,
+			BatchedStrategy.processBatch(nextProtocols, numOfProtocolsInBatch, sceNetwork, DEFAULT_CHANNEL,
 					resourcePool);
 			this.protocolSuite.synchronize(numOfProtocolsInBatch);
 		} while (c.hasNextProtocols());

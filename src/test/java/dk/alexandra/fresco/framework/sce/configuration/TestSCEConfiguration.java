@@ -33,6 +33,7 @@ import java.util.logging.Level;
 import dk.alexandra.fresco.framework.Party;
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
+import dk.alexandra.fresco.framework.network.NetworkingStrategy;
 import dk.alexandra.fresco.framework.sce.resources.storage.Storage;
 import dk.alexandra.fresco.framework.sce.resources.storage.StreamedStorage;
 import dk.alexandra.fresco.suite.ProtocolSuite;
@@ -40,6 +41,7 @@ import dk.alexandra.fresco.suite.ProtocolSuite;
 public class TestSCEConfiguration implements SCEConfiguration {
 
 	private String protocolSuite;
+	private NetworkingStrategy network;
 	private Storage storage;
 	private Map<Integer, Party> parties;
 	private int myId;
@@ -48,14 +50,15 @@ public class TestSCEConfiguration implements SCEConfiguration {
 	private ProtocolEvaluator evaluator;
 	private int maxBatchSize;
 	
-	public TestSCEConfiguration(ProtocolSuite suite, ProtocolEvaluator evaluator,
+	public TestSCEConfiguration(ProtocolSuite suite, NetworkingStrategy network, ProtocolEvaluator evaluator,
 			int noOfThreads, int noOfvmThreads, NetworkConfiguration conf, Storage storage, boolean useSecureConn) {
-		this(suite, evaluator, noOfThreads, noOfvmThreads, conf, storage, useSecureConn, 4096);
+		this(suite, network, evaluator, noOfThreads, noOfvmThreads, conf, storage, useSecureConn, 4096);
 		
 	}
-	public TestSCEConfiguration(ProtocolSuite suite, ProtocolEvaluator evaluator,
+	public TestSCEConfiguration(ProtocolSuite suite, NetworkingStrategy network, ProtocolEvaluator evaluator,
 			int noOfThreads, int noOfvmThreads, NetworkConfiguration conf, Storage storage, boolean useSecureConn, int maxBatchSize) {
 		this.protocolSuite = ProtocolSuite.protocolSuiteToString(suite);
+		this.network = network;
 		this.storage = storage;
 		this.evaluator = evaluator;
 		this.noOfThreads = noOfThreads;
@@ -128,4 +131,8 @@ public class TestSCEConfiguration implements SCEConfiguration {
 		}
 	}
 
+	@Override
+	public NetworkingStrategy getNetwork() {
+		return this.network;
+	}
 }

@@ -27,14 +27,11 @@
 package dk.alexandra.fresco.framework.sce.evaluator;
 
 import java.io.IOException;
-import java.io.Serializable;
-import java.util.ArrayList;
+import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Queue;
 import java.util.Set;
-import java.util.concurrent.LinkedBlockingQueue;
 
 import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.NativeProtocol.EvaluationStatus;
@@ -86,8 +83,8 @@ public class BatchedStrategy {
 	 * 
 	 * @throws IOException
 	 */
-	public static void processBatch(NativeProtocol[] protocols, int numOfProtocols, SCENetworkImpl[] sceNetworks,
-			String channel, ResourcePool rp) throws IOException {
+	public static void processBatch(NativeProtocol[] protocols, int numOfProtocols, SCENetworkImpl sceNetwork,
+			int channel, ResourcePool rp) throws IOException {
 		Network network = rp.getNetwork();
 		int round = 0;
 		Set<Integer> partyIds = new HashSet<Integer>();
@@ -101,7 +98,6 @@ public class BatchedStrategy {
 			// Evaluate the current round for all protocols
 			done = true;
 			for (int i = 0; i < numOfProtocols; i++) {
-				SCENetworkImpl sceNetwork = sceNetworks[i];
 				if (!dones[i]) {
 					EvaluationStatus status = protocols[i].evaluate(round, rp, sceNetwork);
 					if (status.equals(EvaluationStatus.IS_DONE)) {
@@ -112,43 +108,24 @@ public class BatchedStrategy {
 				}
 			}
 			// Send/Receive data for this round
-			ArrayList<Map<Integer, Queue<Serializable>>> inputs = new ArrayList<Map<Integer, Queue<Serializable>>>(numOfProtocols);
-			for (int i = 0; i < numOfProtocols; i++) {
-				inputs.add(new HashMap<Integer, Queue<Serializable>>());
+			Map<Integer, ByteBuffer> inputs = new HashMap<Integer, ByteBuffer>();			
+			
+			//Send data
+			Map<Integer, byte[]> output = sceNetwork.getOutputFromThisRound();
+			for (Map.Entry<Integer, byte[]> e: output.entrySet()) {
+				network.send(channel, e.getKey(), e.getValue());							
 			}
-			for (int pId = 1; pId <= rp.getNoOfParties(); pId++) {
-				// If the current player id is you send your messages
-				if (pId == rp.getMyId()) { 
-					for (int i = 0; i < numOfProtocols; i++) {
-						SCENetworkImpl sceNet = sceNetworks[i];
-						Map<Integer, Queue<Serializable>> output = sceNet.getOutputFromThisRound();
-						for (Map.Entry<Integer, Queue<Serializable>> e: output.entrySet()) {
-							network.send(channel, e.getKey(), e.getValue().size());
-							for (Serializable s: e.getValue()) {
-								network.send(channel, e.getKey(), s);
-							}
-						}
-					}
-				}
-				// Receive messages from the current player id
-				for (int i = 0; i < numOfProtocols; i++) {
-					SCENetworkImpl sceNet = sceNetworks[i];
-					Set<Integer> expectedInput = sceNet.getExpectedInputForNextRound();
-					if (expectedInput.contains(pId)) {
-						int numMessages = network.receive(channel, pId);
-						Queue<Serializable> messages = new LinkedBlockingQueue<Serializable>();
-						for (int j = 0; j < numMessages; j++) {
-							Serializable s = network.receive(channel, pId);
-							messages.offer(s);
-						}
-						inputs.get(i).put(pId, messages);
-					}
-				}
-			}
-			for (int i = 0; i < numOfProtocols; i++) {
-				sceNetworks[i].setInput(inputs.get(i));
-				sceNetworks[i].nextRound();
-			}
+			
+			//receive data
+			Set<Integer> expected = sceNetwork.getExpectedInputForNextRound();
+			for(int i : expected) {
+				byte[] data = network.receive(channel, i);
+				inputs.put(i, ByteBuffer.wrap(data));
+			}			
+			
+			sceNetwork.setInput(inputs);
+			sceNetwork.nextRound();			
+			
 			round++;
 		} while (!done);
 	}

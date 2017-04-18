@@ -226,10 +226,10 @@ public class SpdzFactory implements BasicNumericFactory,
 		BigInteger b = BigInteger.valueOf(i).mod(Util.getModulus());
 		SpdzElement elm;
 		if (pID == 1) {
-			elm = new SpdzElement(b, b.multiply(this.storage.getSSK()));
+			elm = new SpdzElement(b, b.multiply(this.storage.getSSK()).mod(getModulus()));
 		} else {
 			elm = new SpdzElement(BigInteger.ZERO, b.multiply(this.storage
-					.getSSK()));
+					.getSSK()).mod(getModulus()));
 		}
 		return new SpdzSInt(elm);
 	}
@@ -240,10 +240,10 @@ public class SpdzFactory implements BasicNumericFactory,
 		b = b.mod(Util.getModulus());
 		SpdzElement elm;
 		if (pID == 1) {
-			elm = new SpdzElement(b, b.multiply(this.storage.getSSK()));
+			elm = new SpdzElement(b, b.multiply(this.storage.getSSK()).mod(getModulus()));
 		} else {
 			elm = new SpdzElement(BigInteger.ZERO, b.multiply(this.storage
-					.getSSK()));
+					.getSSK()).mod(getModulus()));
 		}
 		return new SpdzSInt(elm);
 	}

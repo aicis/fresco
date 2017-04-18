@@ -44,21 +44,7 @@ public class PreprocessedDataValidator {
 	private static int numberOfInputMasks;
 	private static int numberOfExpPipes;
 	private static int numberOfBits;
-/*
-	private abstract static class ThreadWithFixture extends TestThread {
 
-		protected SCE sce;
-		private String runtime;
-
-		@Override
-		public void setUp() throws IOException {
-			sce = SCE.getInstance(conf.getMyId());
-			sce.resetInstance();
-			sce.setSCEConfiguration(new TestSCEConfiguration(runtime,
-					new SequentialEvaluator(), 3, conf));
-		}
-	}
-*/
 	private static final int ARGS_BEFORE_ADDR = 3 + 4;
 
 	public static void main(String[] args) {

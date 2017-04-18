@@ -26,7 +26,6 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.arithmetic;
 
-import java.io.IOException;
 import java.math.BigInteger;
 
 import org.junit.Assert;
@@ -37,31 +36,19 @@ import dk.alexandra.fresco.framework.TestApplication;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
-import dk.alexandra.fresco.framework.sce.SCE;
-import dk.alexandra.fresco.framework.sce.SCEFactory;
 import dk.alexandra.fresco.framework.value.KnownSIntProtocol;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
+import dk.alexandra.fresco.lib.helper.builder.OmniBuilder;
 import dk.alexandra.fresco.lib.helper.builder.SymmetricEncryptionBuilder;
 
 public class MiMCTests {
 
-	private abstract static class ThreadWithFixture extends TestThread {
-
-		protected SCE sce;
-
-		@Override
-		public void setUp() throws IOException {
-			sce = SCEFactory.getSCEFromConfiguration(conf.sceConf, conf.protocolSuiteConf);
-		}
-
-	}
-
 	public static class TestMiMCEncSameEnc extends TestThreadFactory {
 		@Override
 		public TestThread next(TestThreadConfiguration conf) {
-			return new ThreadWithFixture() {
+			return new TestThread() {
 				@Override
 				public void test() throws Exception {
 					TestApplication app = new TestApplication() {
@@ -71,31 +58,28 @@ public class MiMCTests {
 						@Override
 						public ProtocolProducer prepareApplication(
 								ProtocolFactory factory) {
-							BasicNumericFactory fac = (BasicNumericFactory) factory;
-							SymmetricEncryptionBuilder symBuilder = new SymmetricEncryptionBuilder(fac);
-							SInt k = fac.getSInt();
-							KnownSIntProtocol knownKProtocol = fac.getSInt(527618, k);
+							OmniBuilder builder = new OmniBuilder(factory);
+							SInt k = builder.getNumericIOBuilder().input(BigInteger.valueOf(527618), 2);							
+							SInt x = builder.getNumericIOBuilder().input(BigInteger.valueOf(10), 1);
 							
-							SInt x = fac.getSInt();
-							KnownSIntProtocol knownXProtocol = fac.getSInt(10, x);
-							symBuilder.addProtocolProducer(knownKProtocol);
-							symBuilder.addProtocolProducer(knownXProtocol);
-							SInt encX1 = symBuilder.mimcEncrypt(x,k);
-							SInt encX2 = symBuilder.mimcEncrypt(x,k);
+//							SInt k = builder.getNumericProtocolBuilder().known(527618);							
+//							SInt x = builder.getNumericProtocolBuilder().known(10);
 							
-							OInt out1 = fac.getOInt();
-							OInt out2 = fac.getOInt();
-							symBuilder.addProtocolProducer(fac.getOpenProtocol(encX1, out1));
-							symBuilder.addProtocolProducer(fac.getOpenProtocol(encX2, out2));
+							SInt encX1 = builder.getSymmetricEncryptionBuilder().mimcEncrypt(x,k);
+							SInt encX2 = builder.getSymmetricEncryptionBuilder().mimcEncrypt(x,k);
+							
+							OInt out1 = builder.getNumericIOBuilder().output(encX1);
+							OInt out2 = builder.getNumericIOBuilder().output(encX2);							
 							
 							this.outputs = new OInt[] { out1, out2 };
-							return symBuilder.getProtocol();
+							return builder.getProtocol();
 						}
 					};
 
 					sce.runApplication(app);
 
 					Assert.assertEquals(app.getOutputs()[0].getValue(), app.getOutputs()[1].getValue());
+					sce.shutdownSCE();
 				}
 			};
 		}
@@ -104,7 +88,7 @@ public class MiMCTests {
 	public static class TestMiMCEncDec extends TestThreadFactory {
 		@Override
 		public TestThread next(TestThreadConfiguration conf) {
-			return new ThreadWithFixture() {
+			return new TestThread() {
 				@Override
 				public void test() throws Exception {
 					BigInteger x_big = BigInteger.valueOf(10);

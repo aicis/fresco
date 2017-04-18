@@ -26,121 +26,35 @@
  *******************************************************************************/
 package dk.alexandra.fresco.suite.spdz;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.logging.Level;
-
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import dk.alexandra.fresco.IntegrationTest;
-import dk.alexandra.fresco.framework.ProtocolEvaluator;
-import dk.alexandra.fresco.framework.Reporter;
-import dk.alexandra.fresco.framework.TestThreadRunner;
-import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
-import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
-import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
-import dk.alexandra.fresco.framework.configuration.TestConfiguration;
-import dk.alexandra.fresco.framework.sce.configuration.TestSCEConfiguration;
+import dk.alexandra.fresco.framework.configuration.PreprocessingStrategy;
+import dk.alexandra.fresco.framework.network.NetworkingStrategy;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
-import dk.alexandra.fresco.framework.sce.resources.storage.FilebasedStreamedStorageImpl;
-import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
-import dk.alexandra.fresco.framework.sce.resources.storage.SQLStorage;
-import dk.alexandra.fresco.framework.sce.resources.storage.Storage;
-import dk.alexandra.fresco.framework.sce.resources.storage.StorageStrategy;
 import dk.alexandra.fresco.lib.lp.LPSolverTests;
-import dk.alexandra.fresco.suite.ProtocolSuite;
-import dk.alexandra.fresco.suite.spdz.configuration.SpdzConfiguration;
-import dk.alexandra.fresco.suite.spdz.evaluation.strategy.SpdzProtocolSuite;
 
-public class TestSpdzLPSolver3Parties {
+public class TestSpdzLPSolver3Parties extends AbstractSpdzTest {
 
-	private void runTest(TestThreadFactory f, int noPlayers,
-			EvaluationStrategy evalStrategy, StorageStrategy storageStrategy)
-			throws Exception {
-		Level logLevel = Level.FINE;
-		Reporter.init(logLevel);
-
-		// Since SCAPI currently does not work with ports > 9999 we use fixed
-		// ports
-		// here instead of relying on ephemeral ports which are often > 9999.
-		List<Integer> ports = new ArrayList<Integer>(noPlayers);
-		for (int i = 1; i <= noPlayers; i++) {
-			ports.add(9000 + i);
-		}
-
-		Map<Integer, NetworkConfiguration> netConf = TestConfiguration
-				.getNetworkConfigurations(noPlayers, ports, logLevel);
-		Map<Integer, TestThreadConfiguration> conf = new HashMap<Integer, TestThreadConfiguration>();
-		for (int playerId : netConf.keySet()) {
-			TestThreadConfiguration ttc = new TestThreadConfiguration();
-			ttc.netConf = netConf.get(playerId);
-			
-			SpdzConfiguration spdzConf = new SpdzConfiguration() {
-				
-				@Override
-				public boolean useDummyData() {
-					return true;
-				}
-				
-				@Override
-				public String getTriplePath() {
-					return null;
-				}
-				
-				@Override
-				public int getMaxBitLength() {
-					return 150;
-				}
-			};
-			ttc.protocolSuiteConf = spdzConf;
-			boolean useSecureConnection = false; // No tests of secure connection
-												// here.
-			int noOfVMThreads = 3;
-			int noOfThreads = 3;
-			ProtocolSuite suite = SpdzProtocolSuite.getInstance(playerId);
-			ProtocolEvaluator evaluator = EvaluationStrategy.fromEnum(evalStrategy);			
-			Storage storage = null;
-			switch (storageStrategy) {
-			case IN_MEMORY:
-				storage = inMemStore;
-				break;
-			case STREAMED_STORAGE:
-				storage = new FilebasedStreamedStorageImpl(inMemStore);
-				break;
-			case SQL:				
-				storage = SQLStorage.getInstance();
-			}
-			ttc.sceConf = new TestSCEConfiguration(suite, evaluator, noOfThreads, noOfVMThreads, ttc.netConf, storage, useSecureConnection);
-			conf.put(playerId, ttc);
-		}
-		TestThreadRunner.run(f, conf);
-	}
-
-	private static final InMemoryStorage inMemStore = new InMemoryStorage();
-
-	//Test only with sequential. The rest only when running integration tests
-	
 	@Test
 	public void test_LPSolver_3_Sequential() throws Exception {
-		runTest(new LPSolverTests.TestLPSolver(), 3,
-				EvaluationStrategy.SEQUENTIAL, StorageStrategy.IN_MEMORY);
+		runTest(new LPSolverTests.TestLPSolver(), EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET,
+				PreprocessingStrategy.DUMMY, 3);
 	}
-	
+
 	@Category(IntegrationTest.class)
 	@Test
 	public void test_LPSolver_3_Parallel() throws Exception {
-		runTest(new LPSolverTests.TestLPSolver(), 3,
-				EvaluationStrategy.PARALLEL, StorageStrategy.IN_MEMORY);
+		runTest(new LPSolverTests.TestLPSolver(), EvaluationStrategy.PARALLEL, NetworkingStrategy.KRYONET,
+				PreprocessingStrategy.DUMMY, 3);
 	}
-	
+
 	@Category(IntegrationTest.class)
 	@Test
 	public void test_LPSolver_3_Parallel_Batched() throws Exception {
-		runTest(new LPSolverTests.TestLPSolver(), 3,
-				EvaluationStrategy.PARALLEL_BATCHED, StorageStrategy.IN_MEMORY);
+		runTest(new LPSolverTests.TestLPSolver(), EvaluationStrategy.PARALLEL_BATCHED, NetworkingStrategy.KRYONET,
+				PreprocessingStrategy.DUMMY, 3);
 	}
-	
+
 }

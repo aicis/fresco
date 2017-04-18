@@ -39,8 +39,8 @@ public class BaseOTReceiver implements OTReceiver {
 		if (receiver == null) {
 			try {
 				receiver = new OTSemiHonestDDHBatchOnByteArrayReceiver(
-						//new edu.biu.scapi.primitives.dlog.bc.BcDlogECF2m(),
-						new edu.biu.scapi.primitives.dlog.openSSL.OpenSSLDlogECF2m(), 
+						new edu.biu.scapi.primitives.dlog.bc.BcDlogECF2m(),
+						//new edu.biu.scapi.primitives.dlog.openSSL.OpenSSLDlogECF2m(), 
 						KdfFactory.getInstance()
 						.getObject("HKDF(HMac(SHA-256))"), random);
 			} catch (SecurityLevelException | FactoriesException | IOException e) {
