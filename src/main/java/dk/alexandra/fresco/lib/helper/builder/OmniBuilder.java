@@ -179,7 +179,8 @@ public class OmniBuilder extends AbstractProtocolBuilder{
 		IntegerToBitsFactory integerToBitsFactory = new IntegerToBitsFactoryImpl(basicNumericFactory, rightShiftFactory);
 		BitLengthFactory bitLengthFactory = new BitLengthFactoryImpl(basicNumericFactory, integerToBitsFactory);
 		ExponentiationFactory exponentiationFactory = new ExponentiationFactoryImpl(basicNumericFactory, integerToBitsFactory);
-		return new DivisionFactoryImpl(basicNumericFactory, rightShiftFactory, bitLengthFactory, exponentiationFactory);
+		ComparisonProtocolFactory comparisonFactory = getComparisonProtocolFactory();
+		return new DivisionFactoryImpl(basicNumericFactory, rightShiftFactory, bitLengthFactory, exponentiationFactory, comparisonFactory);
 	}
 
 	/**
@@ -194,15 +195,20 @@ public class OmniBuilder extends AbstractProtocolBuilder{
 	public ComparisonProtocolBuilder getComparisonProtocolBuilder() {
 		if(comparisonProtocolBuilder == null){
 			BasicNumericFactory bnf = (BasicNumericFactory)factory;
-			LocalInversionFactory localInvFactory = (LocalInversionFactory) factory;
-			NumericBitFactory numericBitFactory = (NumericBitFactory) factory;
-			ExpFromOIntFactory expFromOIntFactory = (ExpFromOIntFactory) factory;
-			PreprocessedExpPipeFactory expFactory = (PreprocessedExpPipeFactory) factory;
-			ComparisonProtocolFactory comFactory = new ComparisonProtocolFactoryImpl(statisticalSecurityParameter, bnf, localInvFactory, numericBitFactory, expFromOIntFactory, expFactory);
+			ComparisonProtocolFactory comFactory = getComparisonProtocolFactory();
 			comparisonProtocolBuilder = new ComparisonProtocolBuilder(comFactory, bnf);
 			comparisonProtocolBuilder.setParentBuilder(this);
 		}
 		return comparisonProtocolBuilder;
+	}
+
+	private ComparisonProtocolFactory getComparisonProtocolFactory() {
+		BasicNumericFactory bnf = (BasicNumericFactory)factory;
+		LocalInversionFactory localInvFactory = (LocalInversionFactory) factory;
+		NumericBitFactory numericBitFactory = (NumericBitFactory) factory;
+		ExpFromOIntFactory expFromOIntFactory = (ExpFromOIntFactory) factory;
+		PreprocessedExpPipeFactory expFactory = (PreprocessedExpPipeFactory) factory;
+		return new ComparisonProtocolFactoryImpl(statisticalSecurityParameter, bnf, localInvFactory, numericBitFactory, expFromOIntFactory, expFactory);
 	}
 
 
