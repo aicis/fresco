@@ -54,7 +54,7 @@ public class TestSpdzAdvancedNumeric extends AbstractSpdzTest {
 
     private void test_Division(int numerator, int denominator) throws Exception {
         runTest(new AdvancedNumericTests.TestDivision(numerator, denominator),
-                EvaluationStrategy.SEQUENTIAL, StorageStrategy.IN_MEMORY);
+                EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
     }
 
     @Test
