@@ -28,6 +28,10 @@ package dk.alexandra.fresco.lib.math.integer.stat;
 
 import java.math.BigInteger;
 
+import dk.alexandra.fresco.lib.compare.ComparisonProtocolFactory;
+import dk.alexandra.fresco.lib.compare.ComparisonProtocolFactoryImpl;
+import dk.alexandra.fresco.lib.math.integer.exp.ExpFromOIntFactory;
+import dk.alexandra.fresco.lib.math.integer.exp.PreprocessedExpPipeFactory;
 import org.springframework.util.Assert;
 
 import dk.alexandra.fresco.framework.ProtocolFactory;
@@ -88,18 +92,21 @@ public class StatisticsTests {
 						@Override
 						public ProtocolProducer prepareApplication(
 								ProtocolFactory factory) {
-							
+
 							BasicNumericFactory basicNumericFactory = (BasicNumericFactory) factory;
 							NumericBitFactory preprocessedNumericBitFactory = (NumericBitFactory) factory;
+							ExpFromOIntFactory expFromOIntFactory = (ExpFromOIntFactory)factory;
+							PreprocessedExpPipeFactory preprocessedExpPipeFactory = (PreprocessedExpPipeFactory)factory;
 							RandomAdditiveMaskFactory randomAdditiveMaskFactory = new RandomAdditiveMaskFactoryImpl(basicNumericFactory, preprocessedNumericBitFactory);
 							LocalInversionFactory localInversionFactory = (LocalInversionFactory) factory;
 							RightShiftFactory rightShiftFactory = new RightShiftFactoryImpl(basicNumericFactory, randomAdditiveMaskFactory, localInversionFactory);
 							IntegerToBitsFactory integerToBitsFactory = new IntegerToBitsFactoryImpl(basicNumericFactory, rightShiftFactory);
 							BitLengthFactory bitLengthFactory = new BitLengthFactoryImpl(basicNumericFactory, integerToBitsFactory);
 							ExponentiationFactory exponentiationFactory = new ExponentiationFactoryImpl(basicNumericFactory, integerToBitsFactory);
-							DivisionFactory euclidianDivisionFactory = new DivisionFactoryImpl(basicNumericFactory, rightShiftFactory, bitLengthFactory, exponentiationFactory);
+							ComparisonProtocolFactory comparisonFactory = new ComparisonProtocolFactoryImpl(80, basicNumericFactory, localInversionFactory, preprocessedNumericBitFactory, expFromOIntFactory, preprocessedExpPipeFactory);
+							DivisionFactory euclidianDivisionFactory = new DivisionFactoryImpl(basicNumericFactory, rightShiftFactory, bitLengthFactory, exponentiationFactory, comparisonFactory);
 							StatisticsFactory statisticsFactory = new StatisticsFactoryImpl(basicNumericFactory, euclidianDivisionFactory);
-							
+
 							NumericIOBuilder ioBuilder = new NumericIOBuilder(basicNumericFactory);
 							SequentialProtocolProducer sequentialProtocolProducer = new SequentialProtocolProducer();
 							
