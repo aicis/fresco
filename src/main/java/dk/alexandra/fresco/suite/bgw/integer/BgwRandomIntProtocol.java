@@ -27,7 +27,9 @@
 package dk.alexandra.fresco.suite.bgw.integer;
 
 import java.math.BigInteger;
+import java.nio.ByteBuffer;
 import java.security.SecureRandom;
+import java.util.ArrayList;
 import java.util.List;
 
 import dk.alexandra.fresco.framework.MPCException;
@@ -67,12 +69,21 @@ public class BgwRandomIntProtocol extends BgwProtocol implements RandomFieldElem
 					.mod(mod);
 			ShamirShare[] reshares = ShamirShare.createShares(secret, parties,
 					treshold);
-			network.sendSharesToAll(reshares);
+			byte[][] data = new byte[reshares.length][];
+			for(int i = 0; i < reshares.length; i++) {
+				data[i] = reshares[i].toByteArray();
+			}
+			network.sendSharesToAll(data);
 			network.expectInputFromAll();
 			return EvaluationStatus.HAS_MORE_ROUNDS;
 		case 1:
-			List<ShamirShare> tmp = network.receiveFromAll();
-			reshares = (ShamirShare[]) tmp.toArray();
+			List<ByteBuffer> buffers = network.receiveFromAll();
+			List<ShamirShare> shares = new ArrayList<>();
+			for(int i = 0; i < buffers.size(); i++) {
+				byte[] tmp = new byte[ShamirShare.getSize()];
+				shares.add(ShamirShare.deSerialize(tmp, 0));
+			}
+			reshares = (ShamirShare[]) shares.toArray();
 			BigInteger ll = ShamirShare.recombine(reshares, parties);
 			this.output.value = new ShamirShare(resourcePool.getMyId(), ll);
 			return EvaluationStatus.IS_DONE;

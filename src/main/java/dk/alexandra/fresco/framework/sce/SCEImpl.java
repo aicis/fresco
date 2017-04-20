@@ -40,8 +40,12 @@ import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.Reporter;
+import dk.alexandra.fresco.framework.configuration.ConfigurationException;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.NetworkConfigurationImpl;
+import dk.alexandra.fresco.framework.network.KryoNetNetwork;
+import dk.alexandra.fresco.framework.network.Network;
+import dk.alexandra.fresco.framework.network.NetworkingStrategy;
 import dk.alexandra.fresco.framework.network.ScapiNetworkImpl;
 import dk.alexandra.fresco.framework.sce.configuration.ProtocolSuiteConfiguration;
 import dk.alexandra.fresco.framework.sce.configuration.SCEConfiguration;
@@ -89,7 +93,7 @@ public class SCEImpl implements SCE {
 	private ProtocolSuite protocolSuite;
 	private ProtocolSuiteConfiguration psConf;
 
-	private boolean setup = false;
+	private boolean setup;
 
 	protected SCEImpl(SCEConfiguration sceConf) {
 		this(sceConf, null);
@@ -97,7 +101,9 @@ public class SCEImpl implements SCE {
 
 	protected SCEImpl(SCEConfiguration sceConf, ProtocolSuiteConfiguration psConf) {
 		this.sceConf = sceConf;
-		this.psConf = psConf;		
+		this.psConf = psConf;
+		
+		this.setup = false;
 		
 		//setup the basic stuff, but do not initialize anything yet
 		int myId = sceConf.getMyId();
@@ -128,8 +134,20 @@ public class SCEImpl implements SCE {
 		if (this.evaluator instanceof ParallelEvaluator || this.evaluator instanceof BatchedParallelEvaluator) {
 			channelAmount = noOfvmThreads;
 		}
-		ScapiNetworkImpl network = new ScapiNetworkImpl(conf, channelAmount);
-
+		NetworkingStrategy networkStrat = sceConf.getNetwork();
+		Network network = null;
+		switch(networkStrat) {
+		case KRYONET:
+			network = new KryoNetNetwork();
+			break;
+		case SCAPI:
+			network = new ScapiNetworkImpl();
+			break;
+		default:
+			throw new ConfigurationException("Unknown networking strategy "+ networkStrat);
+		}
+		network.init(conf, channelAmount);
+		
 		if (noOfvmThreads == -1) {
 			// default to 1 allowed VM thread only - otherwise certain
 			// strategies are going to outright fail.
@@ -151,7 +169,7 @@ public class SCEImpl implements SCE {
 	}
 
 	@Override
-	public synchronized void setup() throws IOException {		
+	public synchronized void setup() throws IOException {
 		if (this.setup) {
 			return;
 		}
@@ -216,7 +234,7 @@ public class SCEImpl implements SCE {
 			throw new IllegalArgumentException(
 					"Could not understand the specified runtime. This framework currently supports:\n\t-spdz\n\t-bgw\n\t-dummy");
 		}
-
+		
 		this.setup = true;
 	}
 
@@ -301,9 +319,6 @@ public class SCEImpl implements SCE {
 
 	@Override
 	public void shutdownSCE() {
-		if (!setup) {
-			return;
-		}
 		this.evaluator = null;
 		try {
 			if (this.resourcePool != null) {
@@ -327,6 +342,7 @@ public class SCEImpl implements SCE {
 		}
 		this.resourcePool = null;
 		this.protocolFactory = null;
+		this.setup = false;
 	}
 
 }

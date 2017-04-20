@@ -26,12 +26,14 @@
  *******************************************************************************/
 package dk.alexandra.fresco.suite.spdz;
 
-import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
-import dk.alexandra.fresco.framework.sce.resources.storage.StorageStrategy;
-import dk.alexandra.fresco.lib.arithmetic.AdvancedNumericTests;
 import org.junit.Test;
 
-public class TestSpdzAdvancedNumeric extends TestSpdz2Parties {
+import dk.alexandra.fresco.framework.configuration.PreprocessingStrategy;
+import dk.alexandra.fresco.framework.network.NetworkingStrategy;
+import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
+import dk.alexandra.fresco.lib.arithmetic.AdvancedNumericTests;
+
+public class TestSpdzAdvancedNumeric extends AbstractSpdzTest {
 
     @Test
     public void test_Division() throws Exception {
@@ -58,24 +60,24 @@ public class TestSpdzAdvancedNumeric extends TestSpdz2Parties {
     @Test
     public void test_DivisionWithPrecision() throws Exception {
         runTest(new AdvancedNumericTests.TestDivisionWithPrecision(),
-                EvaluationStrategy.SEQUENTIAL, StorageStrategy.IN_MEMORY);
+                EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
     }
 
     @Test
     public void test_DivisionWithKnownDenominator() throws Exception {
         runTest(new AdvancedNumericTests.TestDivisionWithKnownDenominator(),
-                EvaluationStrategy.SEQUENTIAL, StorageStrategy.IN_MEMORY);
+                EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
     }
 
     @Test
     public void test_DivisionWithRemainder() throws Exception {
         runTest(new AdvancedNumericTests.TestDivisionWithRemainder(),
-                EvaluationStrategy.SEQUENTIAL, StorageStrategy.IN_MEMORY);
+                EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
     }
 
     @Test
     public void test_Modulus() throws Exception {
         runTest(new AdvancedNumericTests.TestModulus(),
-            EvaluationStrategy.SEQUENTIAL, StorageStrategy.IN_MEMORY);
+            EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
     }
 }

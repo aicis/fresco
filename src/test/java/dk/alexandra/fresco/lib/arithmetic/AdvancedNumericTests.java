@@ -26,12 +26,17 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.arithmetic;
 
+import java.math.BigInteger;
+
+import org.junit.Assert;
+
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.TestApplication;
 import dk.alexandra.fresco.framework.TestThreadRunner;
-import dk.alexandra.fresco.framework.sce.SCE;
-import dk.alexandra.fresco.framework.sce.SCEFactory;
+import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
+import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
+import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.helper.builder.AdvancedNumericBuilder;
@@ -46,7 +51,7 @@ import java.math.BigInteger;
 
 public class AdvancedNumericTests {
 
-    public static class TestDivision extends TestThreadRunner.TestThreadFactory {
+    public static class TestDivision extends TestThreadFactory {
 
         private int numerator;
         private int denominator;
@@ -57,8 +62,8 @@ public class AdvancedNumericTests {
         }
 
         @Override
-        public TestThreadRunner.TestThread next(TestThreadRunner.TestThreadConfiguration conf) {
-            return new ThreadWithFixture() {
+        public TestThread next(TestThreadConfiguration conf) {
+            return new TestThread() {
                 @Override
                 public void test() throws Exception {
                     TestApplication app = new TestApplication() {
@@ -91,7 +96,7 @@ public class AdvancedNumericTests {
 
         @Override
         public TestThreadRunner.TestThread next(TestThreadRunner.TestThreadConfiguration conf) {
-            return new ThreadWithFixture() {
+            return new TestThread() {
                 @Override
                 public void test() throws Exception {
                     TestApplication app = new TestApplication() {
@@ -126,7 +131,7 @@ public class AdvancedNumericTests {
 
         @Override
         public TestThreadRunner.TestThread next(TestThreadRunner.TestThreadConfiguration conf) {
-            return new ThreadWithFixture() {
+            return new TestThread() {
                 @Override
                 public void test() throws Exception {
                     TestApplication app = new TestApplication() {
@@ -160,7 +165,7 @@ public class AdvancedNumericTests {
 
         @Override
         public TestThreadRunner.TestThread next(TestThreadRunner.TestThreadConfiguration conf) {
-            return new ThreadWithFixture() {
+            return new TestThread() {
                 @Override
                 public void test() throws Exception {
                     TestApplication app = new TestApplication() {
@@ -196,7 +201,7 @@ public class AdvancedNumericTests {
 
         @Override
         public TestThreadRunner.TestThread next(TestThreadRunner.TestThreadConfiguration conf) {
-            return new ThreadWithFixture() {
+            return new TestThread() {
                 @Override
                 public void test() throws Exception {
                     TestApplication app = new TestApplication() {
@@ -224,17 +229,5 @@ public class AdvancedNumericTests {
                 }
             };
         }
-    }
-
-    private abstract static class ThreadWithFixture extends TestThreadRunner.TestThread {
-
-        protected SCE sce;
-
-        @Override
-        public void setUp() throws IOException {
-            sce = SCEFactory.getSCEFromConfiguration(conf.sceConf,
-                    conf.protocolSuiteConf);
-        }
-
     }
 }

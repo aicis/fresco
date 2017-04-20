@@ -35,9 +35,9 @@ import dk.alexandra.fresco.lib.helper.CopyProtocolFactory;
 import dk.alexandra.fresco.lib.math.integer.inv.InversionProtocolFactory;
 import dk.alexandra.fresco.lib.math.integer.linalg.EntrywiseProductFactory;
 import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductProtocol;
-import dk.alexandra.fresco.lib.math.integer.min.MinimumProtocol;
 import dk.alexandra.fresco.lib.math.integer.min.MinInfFracProtocol;
 import dk.alexandra.fresco.lib.math.integer.min.MinimumFractionProtocol;
+import dk.alexandra.fresco.lib.math.integer.min.MinimumProtocol;
 
 public interface LPFactory
 		extends InversionProtocolFactory, MarkerFactory, CopyProtocolFactory<SInt>, EntrywiseProductFactory {

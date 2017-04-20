@@ -63,4 +63,9 @@ public class SpdzInputMask implements Serializable{
 	public BigInteger getRealValue(){
 		return realValue;
 	}
+
+	@Override
+	public String toString() {
+		return "SpdzInputMask [mask=" + mask + ", realValue=" + realValue + "]";
+	}
 }

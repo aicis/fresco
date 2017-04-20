@@ -1,6 +1,5 @@
 package dk.alexandra.fresco.lib.arithmetic;
 
-import java.io.IOException;
 import java.math.BigInteger;
 
 import org.junit.Assert;
@@ -11,8 +10,6 @@ import dk.alexandra.fresco.framework.TestApplication;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
-import dk.alexandra.fresco.framework.sce.SCE;
-import dk.alexandra.fresco.framework.sce.SCEFactory;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.helper.builder.OmniBuilder;
@@ -26,21 +23,10 @@ import dk.alexandra.fresco.lib.helper.builder.OmniBuilder;
  */
 public class ParallelAndSequenceTests {
 
-	private abstract static class ThreadWithFixture extends TestThread {
-
-		protected SCE sce;
-
-		@Override
-		public void setUp() throws IOException {
-			sce = SCEFactory.getSCEFromConfiguration(conf.sceConf, conf.protocolSuiteConf);
-		}
-
-	}
-
 	public static class TestSequentialEvaluation extends TestThreadFactory {
 		@Override
 		public TestThread next(TestThreadConfiguration conf) {
-			return new ThreadWithFixture() {
+			return new TestThread() {
 				@Override
 				public void test() throws Exception {
 					TestApplicationSum sumApp = new ParallelAndSequenceTests().new TestApplicationSum();
@@ -60,7 +46,7 @@ public class ParallelAndSequenceTests {
 	public static class TestParallelEvaluation extends TestThreadFactory {
 		@Override
 		public TestThread next(TestThreadConfiguration conf) {
-			return new ThreadWithFixture() {
+			return new TestThread() {
 				@Override
 				public void test() throws Exception {
 					TestApplicationSum sumApp = new ParallelAndSequenceTests().new TestApplicationSum();

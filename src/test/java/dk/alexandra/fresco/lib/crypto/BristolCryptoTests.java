@@ -28,7 +28,6 @@ package dk.alexandra.fresco.lib.crypto;
 
 import static org.junit.Assert.assertTrue;
 
-import java.io.IOException;
 import java.util.Arrays;
 
 import org.junit.Assert;
@@ -40,8 +39,6 @@ import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
-import dk.alexandra.fresco.framework.sce.SCE;
-import dk.alexandra.fresco.framework.sce.SCEFactory;
 import dk.alexandra.fresco.framework.value.OBool;
 import dk.alexandra.fresco.framework.value.SBool;
 import dk.alexandra.fresco.lib.field.bool.BasicLogicFactory;
@@ -59,19 +56,6 @@ import dk.alexandra.fresco.suite.tinytables.prepro.TinyTablesPreproConfiguration
  *
  */
 public class BristolCryptoTests {
-	
-	private abstract static class ThreadWithFixture extends TestThread {
-
-
-		protected SCE sce;
-
-		@Override
-		public void setUp() throws IOException {
-			sce = SCEFactory.getSCEFromConfiguration(conf.sceConf, conf.protocolSuiteConf);				
-		}
-
-	}
-	
 
 	/**
 	 * Convert hex string to boolean array.
@@ -114,7 +98,7 @@ public class BristolCryptoTests {
 	public static class AesTest extends TestThreadFactory {
 		@Override
 		public TestThread next(TestThreadConfiguration conf) {
-			return new ThreadWithFixture() {
+			return new TestThread() {
 				
 				// This is just some fixed test vectors for AES in ECB mode that was
 				// found somewhere on the net, i.e., this is some known plaintexts and
@@ -190,7 +174,7 @@ public class BristolCryptoTests {
 	public static class Sha1Test extends TestThreadFactory {
 		@Override
 		public TestThread next(TestThreadConfiguration conf) {
-			return new ThreadWithFixture() {
+			return new TestThread() {
 				SBool[] in, out;
 				OBool[] openedOut;
 				
@@ -274,7 +258,7 @@ public class BristolCryptoTests {
 	public static class Sha256Test extends TestThreadFactory {
 		@Override
 		public TestThread next(TestThreadConfiguration conf) {
-			return new ThreadWithFixture() {
+			return new TestThread() {
 				SBool[] in, out;
 				OBool[] openedOut;
 				
@@ -356,7 +340,7 @@ public class BristolCryptoTests {
 	public static class MD5Test extends TestThreadFactory {
 		@Override
 		public TestThread next(TestThreadConfiguration conf) {
-			return new ThreadWithFixture() {
+			return new TestThread() {
 				SBool[] in, out;
 				OBool[] openedOut;
 				
@@ -439,7 +423,7 @@ public class BristolCryptoTests {
 	public static class Mult32x32Test extends TestThreadFactory {
 		@Override
 		public TestThread next(TestThreadConfiguration conf) {
-			return new ThreadWithFixture() {
+			return new TestThread() {
 				SBool[] in1, in2, out;
 				OBool[] openedOut;
 				
@@ -514,7 +498,7 @@ public class BristolCryptoTests {
 	public static class DesTest extends TestThreadFactory {
 		@Override
 		public TestThread next(TestThreadConfiguration conf) {
-			return new ThreadWithFixture() {
+			return new TestThread() {
 				SBool[] plain, key, cipher;
 				OBool[] openedOut;
 				

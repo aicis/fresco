@@ -78,4 +78,9 @@ public interface DataSupplier {
 	 */
 	public abstract SpdzSInt getNextRandomFieldElement();
 
+	/**
+	 * Kills any resources/threads used.
+	 */
+	public abstract void shutdown();
+
 }

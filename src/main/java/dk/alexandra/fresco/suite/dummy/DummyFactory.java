@@ -36,7 +36,6 @@ import dk.alexandra.fresco.lib.field.bool.CloseBoolProtocol;
 import dk.alexandra.fresco.lib.field.bool.NotProtocol;
 import dk.alexandra.fresco.lib.field.bool.OpenBoolProtocol;
 import dk.alexandra.fresco.lib.field.bool.XorProtocol;
-import dk.alexandra.fresco.lib.helper.CopyProtocol;
 import dk.alexandra.fresco.lib.logic.AbstractBinaryFactory;
 
 public class DummyFactory extends AbstractBinaryFactory implements BasicLogicFactory {

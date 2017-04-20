@@ -69,12 +69,7 @@ public class Util {
 	public static void setModulus(BigInteger p) {		
 		Util.p = p;
 		Util.p_half = p.divide(BigInteger.valueOf(2));
-		byte[] bytes = p.toByteArray();
-		if (bytes[0] == 0) {
-			Util.size = p.toByteArray().length - 1;
-		} else {
-			Util.size = p.toByteArray().length;
-		}
+		Util.size = p.toByteArray().length;
 	}
 	
 	public static int getModulusSize() {
