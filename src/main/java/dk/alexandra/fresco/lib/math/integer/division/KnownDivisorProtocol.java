@@ -78,12 +78,11 @@ public class KnownDivisorProtocol extends AbstractSimpleProtocol implements Divi
 		BigInteger divisorAbs = signedDivisor.abs();
 
 		/*
-		 * The quotient will have length 2 * maxBitLength + divisorBitLength,
-		 * and this has to be shifted maxBitLength + divisorBitLength. So in
-		 * total we need 3 * maxBitLength + 2 * divisorBitLength to be
-		 * representable.
+		 * The quotient will have bit length < 2 * maxBitLength, and this has to
+		 * be shifted maxBitLength + divisorBitLength. So in total we need 3 *
+		 * maxBitLength + divisorBitLength to be representable.
 		 */
-		int maxBitLength = (basicNumericFactory.getMaxBitLength() - 2 * divisorAbs.bitLength()) / 3;
+		int maxBitLength = (basicNumericFactory.getMaxBitLength() - divisorAbs.bitLength()) / 3;
 		int shifts = maxBitLength + divisorAbs.bitLength();
 
 		/*
