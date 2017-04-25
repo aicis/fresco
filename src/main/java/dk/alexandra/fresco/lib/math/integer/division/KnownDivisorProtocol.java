@@ -86,7 +86,7 @@ public class KnownDivisorProtocol extends AbstractSimpleProtocol implements Divi
 		 * representable.
 		 */
 		int maxBitLength = (basicNumericFactory.getMaxBitLength() - 2 * divisorAbs.bitLength()) / 3;
-		int shifts = maxBitLength + divisorAbs.bitLength() - 1;
+		int shifts = maxBitLength + divisorAbs.bitLength();
 
 		/*
 		 * Compute the sign of the dividend
