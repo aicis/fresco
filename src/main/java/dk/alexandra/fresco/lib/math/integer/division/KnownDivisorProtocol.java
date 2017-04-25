@@ -7,6 +7,7 @@ import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.helper.AbstractSimpleProtocol;
+import dk.alexandra.fresco.lib.helper.builder.NumericProtocolBuilder;
 import dk.alexandra.fresco.lib.helper.builder.OmniBuilder;
 import dk.alexandra.fresco.lib.math.integer.binary.RightShiftFactory;
 import dk.alexandra.fresco.suite.spdz.utils.Util;
@@ -62,9 +63,10 @@ public class KnownDivisorProtocol extends AbstractSimpleProtocol implements Divi
 		 */
 
 		OmniBuilder builder = new OmniBuilder(basicNumericFactory);
+		NumericProtocolBuilder numeric = builder.getNumericProtocolBuilder();
 
 		builder.beginSeqScope();
-		
+
 		/*
 		 * Numbers larger than half the field size is considered to be negative.
 		 * 
@@ -88,33 +90,39 @@ public class KnownDivisorProtocol extends AbstractSimpleProtocol implements Divi
 		 * Compute the sign of the dividend
 		 */
 		SInt dividendSign = builder.getComparisonProtocolBuilder().sign(dividend);
-		SInt dividendAbs = builder.getNumericProtocolBuilder().mult(dividend, dividendSign);
+		SInt dividendAbs = numeric.mult(dividend, dividendSign);
 
 		/*
 		 * We need m * d \geq 2^{N+l}, so we add one to the result of the
 		 * division to ensure that this is indeed the case.
 		 */
-		OInt m = builder.getNumericProtocolBuilder()
-				.knownOInt(BigInteger.ONE.shiftLeft(shifts).divide(divisorAbs).add(BigInteger.ONE));
-		SInt quotientAbs = builder.getNumericProtocolBuilder().mult(m, dividendAbs);
+		OInt m = numeric.knownOInt(BigInteger.ONE.shiftLeft(shifts).divide(divisorAbs).add(BigInteger.ONE));
+		SInt quotientAbs = numeric.mult(m, dividendAbs);
 
-		SInt q = builder.getNumericProtocolBuilder().getSInt();
+		/*
+		 * Now quotientAbs is the result shifted SHIFTS bits to the left, so we
+		 * shift it back to get the result in absolute value, q.
+		 */
+		SInt q = numeric.getSInt();
 		builder.addProtocolProducer(rightShiftFactory.getRepeatedRightShiftProtocol(quotientAbs, shifts, q));
 
 		/*
-		 * Adjust sign
+		 * Adjust the sign of the result.
 		 */
-		SInt sign = builder.getNumericProtocolBuilder().mult(builder.getNumericProtocolBuilder().knownOInt(divisorSign),
-				dividendSign);
-		builder.getNumericProtocolBuilder().copy(result, builder.getNumericProtocolBuilder().mult(q, sign));
+		SInt sign = builder.getNumericProtocolBuilder().mult(numeric.knownOInt(divisorSign), dividendSign);
+		numeric.copy(result, numeric.mult(q, sign));
 
+		/*
+		 * If the remainder is requested, we calculate it here. Note that this
+		 * only makes sense if both divisor and dividend are nonnegative -
+		 * otherwise the remainder could be negative.
+		 */
 		if (remainder != null) {
-			builder.getNumericProtocolBuilder().copy(remainder, builder.getNumericProtocolBuilder().sub(dividend,
-					builder.getNumericProtocolBuilder().mult(divisor, result)));
+			numeric.copy(remainder, numeric.sub(dividend, numeric.mult(divisor, result)));
 		}
 
 		builder.endCurScope();
-		
+
 		return builder.getProtocol();
 	}
 
