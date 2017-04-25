@@ -51,7 +51,7 @@ public interface DivisionFactory {
 	 * 
 	 * @return
 	 */
-	public DivisionProtocol getDivisionProtocol(SInt dividend, int maxDividendLength, OInt divisor,
+	public DivisionProtocol getDivisionProtocol(SInt dividend, OInt divisor,
 			SInt quotient);
 
 	/**
@@ -70,7 +70,7 @@ public interface DivisionFactory {
 	 * 
 	 * @return
 	 */
-	public DivisionProtocol getDivisionProtocol(SInt dividend, int maxDividendLength, OInt divisor,
+	public DivisionProtocol getDivisionProtocol(SInt dividend, OInt divisor,
 			SInt quotient, SInt remainder);
 
 	/**

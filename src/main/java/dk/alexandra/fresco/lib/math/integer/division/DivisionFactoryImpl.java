@@ -55,16 +55,16 @@ public class DivisionFactoryImpl implements DivisionFactory {
 	}
 
 	@Override
-	public DivisionProtocol getDivisionProtocol(SInt dividend, int maxInputLength, OInt divisor,
+	public DivisionProtocol getDivisionProtocol(SInt dividend, OInt divisor,
 			SInt result) {
-		return new KnownDivisorProtocol(dividend, maxInputLength, divisor, result,
+		return new KnownDivisorProtocol(dividend, divisor, result,
 				basicNumericFactory, rightShiftFactory);
 	}
 
 	@Override
-	public DivisionProtocol getDivisionProtocol(SInt x, int maxInputLength, OInt divisor,
+	public DivisionProtocol getDivisionProtocol(SInt x, OInt divisor,
 			SInt result, SInt remainder) {
-		return new KnownDivisorProtocol(x, maxInputLength, divisor, result, remainder,
+		return new KnownDivisorProtocol(x, divisor, result, remainder,
 				basicNumericFactory, rightShiftFactory);
 	}
 

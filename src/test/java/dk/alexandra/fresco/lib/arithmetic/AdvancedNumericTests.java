@@ -129,6 +129,14 @@ public class AdvancedNumericTests {
 
     public static class TestDivisionWithKnownDenominator extends TestThreadRunner.TestThreadFactory {
 
+        private int numerator;
+        private int denominator;
+
+        public TestDivisionWithKnownDenominator(int numerator, int denominator) {
+            this.numerator = numerator;
+            this.denominator = denominator;
+        }
+    	
         @Override
         public TestThreadRunner.TestThread next(TestThreadRunner.TestThreadConfiguration conf) {
             return new TestThread() {
@@ -142,9 +150,9 @@ public class AdvancedNumericTests {
                             NumericProtocolBuilder numeric = builder.getNumericProtocolBuilder();
                             AdvancedNumericBuilder advanced = builder.getAdvancedNumericBuilder();
 
-                            SInt p = io.input(8, 1);
-                            OInt q = numeric.knownOInt(4);
-                            SInt result = advanced.div(p, 4, q);
+                            SInt p = io.input(numerator, 1);
+                            OInt q = numeric.knownOInt(denominator);
+                            SInt result = advanced.div(p, q);
 
                             outputs = new OInt[] { io.output(result) };
 
@@ -154,15 +162,18 @@ public class AdvancedNumericTests {
 
                     sce.runApplication(app);
 
-                    Assert.assertEquals(BigInteger.valueOf(8 / 4),
-                            app.getOutputs()[0].getValue());
+                    Assert.assertEquals(BigInteger.valueOf(numerator / denominator),
+                            Util.convertRepresentation(app.getOutputs()[0].getValue()));
                 }
             };
         }
     }
 
     public static class TestDivisionWithRemainder extends TestThreadRunner.TestThreadFactory {
-
+    	
+    	public static int numerator = 9;
+    	public static int denominator = 4;
+    	
         @Override
         public TestThreadRunner.TestThread next(TestThreadRunner.TestThreadConfiguration conf) {
             return new TestThread() {
@@ -176,9 +187,9 @@ public class AdvancedNumericTests {
                             NumericProtocolBuilder numeric = builder.getNumericProtocolBuilder();
                             AdvancedNumericBuilder advanced = builder.getAdvancedNumericBuilder();
 
-                            SInt p = io.input(9, 1);
-                            OInt q = numeric.knownOInt(4);
-                            SInt[] results = advanced.divWithRemainder(p, 4, q);
+                            SInt p = io.input(numerator, 1);
+                            OInt q = numeric.knownOInt(denominator);
+                            SInt[] results = advanced.divWithRemainder(p, q);
 
                             outputs = io.outputArray(results);
 
@@ -188,9 +199,9 @@ public class AdvancedNumericTests {
 
                     sce.runApplication(app);
 
-                    Assert.assertEquals(BigInteger.valueOf(9 / 4),
+                    Assert.assertEquals(BigInteger.valueOf(numerator / denominator),
                             app.getOutputs()[0].getValue());
-                    Assert.assertEquals(BigInteger.valueOf(9 % 4),
+                    Assert.assertEquals(BigInteger.valueOf(numerator % denominator),
                             app.getOutputs()[1].getValue());
                 }
             };
@@ -214,7 +225,7 @@ public class AdvancedNumericTests {
 
                             SInt p = io.input(9, 1);
                             OInt q = numeric.knownOInt(4);
-                            SInt result = advanced.mod(p, 4, q);
+                            SInt result = advanced.mod(p, q);
 
                             outputs = new OInt[] { io.output(result) };
 
