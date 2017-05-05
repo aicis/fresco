@@ -187,9 +187,6 @@ public class DEASolver implements Application{
 			List<List<SInt>> inputValues, 
 			List<List<SInt>> outputValues, 
 			BasicNumericFactory provider) {
-		if(inputValues.size() != outputValues.size()){
-			throw new RuntimeException();
-		}
 		
 		int dataSetSize = this.inputDataSet.size();	
 
