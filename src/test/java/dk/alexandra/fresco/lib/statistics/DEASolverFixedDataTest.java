@@ -24,14 +24,12 @@
 package dk.alexandra.fresco.lib.statistics;
 
 import java.math.BigInteger;
-import java.util.Arrays;
 
 import org.junit.Assert;
 
 import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.ProtocolProducer;
-import dk.alexandra.fresco.framework.TestApplication;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
