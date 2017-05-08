@@ -175,7 +175,7 @@ public class DEASolver implements Application {
 			
 			final ProtocolProducer currentPrefix = prefixes[i].getPrefix();
 			final ProtocolProducer solver = lpFactory.getLPSolverProtocol(tableau, update, pivot, basis[i]);
-			final ProtocolProducer optimalComputer = lpFactory.getOptimalValueProtocol(update, tableau.getB(), pivot,
+			final ProtocolProducer optimalComputer = lpFactory.getOptimalValueProtocol(update, tableau, pivot,
 					optimal[i]);
 
 			SequentialProtocolProducer iSeq = new SequentialProtocolProducer();
@@ -232,7 +232,7 @@ public class DEASolver implements Application {
 		DEAPrefixBuilder basisBuilder = null; 
 		
 		if(type == GoalType.MINIMIZE) {
-			basisBuilder = new DEAPrefixBuilderMinimum();
+			basisBuilder = new DEAInputEfficiencyPrefixBuilder();
 		} else if(type == GoalType.MAXIMIZE) {
 			basisBuilder = new DEAPrefixBuilderMaximize();
 		}
@@ -253,7 +253,7 @@ public class DEASolver implements Application {
 		for (int i = 0; i < this.targetInputs.size(); i++) {
 			DEAPrefixBuilder targetBuilder = null;
 			if(type == GoalType.MINIMIZE) {
-				targetBuilder = new DEAPrefixBuilderMinimum();
+				targetBuilder = new DEAInputEfficiencyPrefixBuilder();
 			} else if(type == GoalType.MAXIMIZE) {
 				targetBuilder = new DEAPrefixBuilderMaximize();
 			}
