@@ -106,7 +106,8 @@ public class LPSolverTests {
 								ProtocolProducer lpsolver = new LPSolverProtocol(
 										prefix.getTableau(),
 										prefix.getUpdateMatrix(),
-										prefix.getPivot(), lpFactory, bnFactory);
+										prefix.getPivot(), 
+										prefix.getBasis(), lpFactory, bnFactory);
 								SInt sout = bnFactory.getSInt();
 								OInt out = bnFactory.getOInt();
 								ProtocolProducer outputter = lpFactory

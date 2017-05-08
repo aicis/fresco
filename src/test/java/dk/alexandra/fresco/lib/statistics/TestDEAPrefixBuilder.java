@@ -34,12 +34,10 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
-import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
 
 public class TestDEAPrefixBuilder {
 
@@ -52,7 +50,7 @@ public class TestDEAPrefixBuilder {
   
   @Before
   public void setup(){
-    builder = new DEAPrefixBuilder();
+    builder = new DEAInputEfficiencyPrefixBuilder();
     
     inputValues = new ArrayList<List<SInt>>(); 
     outputValues = new ArrayList<List<SInt>>();
@@ -70,7 +68,7 @@ public class TestDEAPrefixBuilder {
     builder.prefix(producer);
     Assert.assertThat(((DummyProducer)builder.getCircuit()).getName(), Is.is("first"));
     
-    builder = new DEAPrefixBuilder();
+    builder = new DEAInputEfficiencyPrefixBuilder();
     builder.addPrefix(producer);
     Assert.assertThat(((DummyProducer)builder.getCircuit()).getName(), Is.is("first"));
     ProtocolProducer second = new DummyProducer("second");
