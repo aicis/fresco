@@ -26,6 +26,7 @@
  *******************************************************************************/
 package dk.alexandra.fresco.suite.spdz;
 
+import org.apache.commons.math3.optim.nonlinear.scalar.GoalType;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -47,13 +48,19 @@ import dk.alexandra.fresco.suite.spdz.storage.InitializeStorage;
 public class TestSpdzDEASolver2Parties extends AbstractSpdzTest{
 
 	@Test
-	public void test_DEASolver_2_Parallel_batched_dummy() throws Exception {
-		runTest(new DEASolverTests.TestDEASolver(5, 1, 30, 5), EvaluationStrategy.PARALLEL_BATCHED, NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
+	public void test_DEASolver_2_Sequential_batched_dummy_minimize() throws Exception {
+		runTest(new DEASolverTests.TestDEASolver(3, 1, 20, 3, GoalType.MINIMIZE), 
+				EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
 	}
 	
 	@Test
-	public void test_DEASolver_2_Sequential_batched_dummy() throws Exception {
-		runTest(new DEASolverTests.TestDEASolver(5, 1, 30, 5), 
+	public void test_DEASolver_2_Parallel_batched_dummy() throws Exception {
+		runTest(new DEASolverTests.TestDEASolver(5, 1, 30, 3, GoalType.MAXIMIZE), EvaluationStrategy.PARALLEL_BATCHED, NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
+	}
+	
+	@Test
+	public void test_DEASolver_2_Sequential_batched_dummy_maximize() throws Exception {
+		runTest(new DEASolverTests.TestDEASolver(5, 1, 30, 3, GoalType.MAXIMIZE), 
 				EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
 	}
 
@@ -63,14 +70,14 @@ public class TestSpdzDEASolver2Parties extends AbstractSpdzTest{
 	@Category(IntegrationTest.class)
 	@Test
 	public void test_DEASolver_2_Sequential_dummy() throws Exception {
-		runTest(new DEASolverTests.TestDEASolver(2, 1, 5, 1), 
+		runTest(new DEASolverTests.TestDEASolver(2, 1, 5, 1, GoalType.MAXIMIZE), 
 				EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
 	}
 	
 	@Category(IntegrationTest.class)
 	@Test
 	public void test_DEASolver_2_Parallel_dummy() throws Exception {
-		runTest(new DEASolverTests.TestDEASolver(5, 1, 5, 1), 
+		runTest(new DEASolverTests.TestDEASolver(5, 1, 5, 1, GoalType.MAXIMIZE), 
 				EvaluationStrategy.PARALLEL, NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
 	}
 	
@@ -84,7 +91,7 @@ public class TestSpdzDEASolver2Parties extends AbstractSpdzTest{
 		InitializeStorage.cleanup();
 		try {
 			InitializeStorage.initStreamedStorage(new FilebasedStreamedStorageImpl(new InMemoryStorage()), 2, noOfThreads, 20000, 500, 800000, 3000);
-			runTest(new DEASolverTests.TestDEASolver(4, 1, 10, 2), 
+			runTest(new DEASolverTests.TestDEASolver(4, 1, 10, 2, GoalType.MAXIMIZE), 
 					EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET, PreprocessingStrategy.STATIC, 2);
 		} finally {
 			InitializeStorage.cleanup();
@@ -98,7 +105,7 @@ public class TestSpdzDEASolver2Parties extends AbstractSpdzTest{
 		InitializeStorage.cleanup();
 		try {
 			InitializeStorage.initStreamedStorage(new FilebasedStreamedStorageImpl(new InMemoryStorage()), 2, noOfThreads, 20000, 500, 800000, 3000);
-			runTest(new DEASolverTests.TestDEASolver(4, 1, 10, 2), 
+			runTest(new DEASolverTests.TestDEASolver(4, 1, 10, 2, GoalType.MAXIMIZE), 
 					EvaluationStrategy.PARALLEL, NetworkingStrategy.KRYONET, PreprocessingStrategy.STATIC, 2);
 		} finally {
 			InitializeStorage.cleanup();
@@ -112,7 +119,7 @@ public class TestSpdzDEASolver2Parties extends AbstractSpdzTest{
 		InitializeStorage.cleanup();
 		try {
 			InitializeStorage.initStreamedStorage(new FilebasedStreamedStorageImpl(new InMemoryStorage()), 2, noOfThreads, 20000, 500, 800000, 3000);
-			runTest(new DEASolverTests.TestDEASolver(4, 1, 10, 2),
+			runTest(new DEASolverTests.TestDEASolver(4, 1, 10, 2, GoalType.MAXIMIZE),
 					EvaluationStrategy.PARALLEL_BATCHED, NetworkingStrategy.KRYONET, PreprocessingStrategy.STATIC, 2);
 		} finally {
 			InitializeStorage.cleanup();
@@ -126,7 +133,7 @@ public class TestSpdzDEASolver2Parties extends AbstractSpdzTest{
 		InitializeStorage.cleanup();
 		try {
 			InitializeStorage.initStreamedStorage(new FilebasedStreamedStorageImpl(new InMemoryStorage()), 2, noOfThreads, 20000, 500, 800000, 3000);
-			runTest(new DEASolverTests.TestDEASolver(4, 1, 10, 2),
+			runTest(new DEASolverTests.TestDEASolver(4, 1, 10, 2, GoalType.MAXIMIZE),
 					EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET, PreprocessingStrategy.STATIC, 2);
 		} finally {
 			InitializeStorage.cleanup();
