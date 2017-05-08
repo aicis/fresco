@@ -107,13 +107,13 @@ public class OpenAndPrintProtocol implements Protocol {
 				} else if (oVector != null) {
 					sb.append('\n');
 					for (OInt entry: oVector) {
-						sb.append(entry.getValue().toString() + "\t");
+						sb.append(entry.getValue().toString() + ",\t");
 					}
 				} else if (oMatrix != null) {
 					sb.append('\n');
 					for (OInt[] row: oMatrix) {
 						for (OInt entry: row) {
-							sb.append(entry.getValue().toString() + "\t");
+							sb.append(entry.getValue().toString()+ "," + "\t");
 						}
 						sb.append('\n');
 					}
