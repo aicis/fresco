@@ -42,7 +42,6 @@ import javax.crypto.spec.SecretKeySpec;
 import org.junit.Test;
 
 import dk.alexandra.fresco.framework.Party;
-import dk.alexandra.fresco.framework.Reporter;
 import dk.alexandra.fresco.framework.TestThreadRunner;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
