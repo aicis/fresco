@@ -40,6 +40,7 @@ import org.apache.commons.math3.optim.linear.Relationship;
 import org.apache.commons.math3.optim.linear.SimplexSolver;
 import org.apache.commons.math3.optim.nonlinear.scalar.GoalType;
 
+import dk.alexandra.fresco.lib.statistics.DEASolver.AnalysisType;
 
 /**
  * Solves the DEA problem on a given plaintext dataset.
@@ -68,7 +69,7 @@ public class PlaintextDEASolver {
    * @return the DEA score of the given target.
    */
   public double solve(Map<String, Double> targetInputs, Map<String, Double> targetOutputs,
-      GoalType type) {
+      DEASolver.AnalysisType type) {
     int sizePlusTheta = size + 2;
     /*
      * We number the variables as follows:
@@ -96,7 +97,7 @@ public class PlaintextDEASolver {
     LinearObjectiveFunction objectiveFuntion = new LinearObjectiveFunction(objectiveCoeffs, 0);
 
     LinkedList<LinearConstraint> constraints = null;
-    if (type == GoalType.MAXIMIZE) { 
+    if (type == AnalysisType.OUTPUT_EFFICIENCY) { 
       constraints = buildOutputEfficienceConstraints(targetInputs, targetOutputs, sizePlusTheta);
     } else {
       constraints = buildInputEfficienceConstraints(targetInputs, targetOutputs, sizePlusTheta - 1);
@@ -105,8 +106,9 @@ public class PlaintextDEASolver {
     // Solve
     SimplexSolver solver = new SimplexSolver();
     LinearConstraintSet set = new LinearConstraintSet(constraints);
+    GoalType goal = (type == AnalysisType.OUTPUT_EFFICIENCY) ? GoalType.MAXIMIZE : GoalType.MINIMIZE;
     PointValuePair pvp =
-        solver.optimize(objectiveFuntion, set, type, new NonNegativeConstraint(true));
+        solver.optimize(objectiveFuntion, set, goal, new NonNegativeConstraint(true));
     return pvp.getValue();
   }
 
@@ -250,7 +252,7 @@ public class PlaintextDEASolver {
    * @return An array of results.
    */
   public double[] solve(BigInteger[][] rawTargetInputs, BigInteger[][] rawTargetOutputs,
-      GoalType type) {
+      AnalysisType type) {
     double[] results = new double[rawTargetInputs.length];
     for (int i = 0; i < rawTargetInputs.length; i++) {
       Map<String, Double> targetRowInput = new HashMap<String, Double>();

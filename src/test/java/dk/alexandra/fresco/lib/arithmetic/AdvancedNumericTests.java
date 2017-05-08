@@ -44,10 +44,6 @@ import dk.alexandra.fresco.lib.helper.builder.NumericIOBuilder;
 import dk.alexandra.fresco.lib.helper.builder.NumericProtocolBuilder;
 import dk.alexandra.fresco.lib.helper.builder.OmniBuilder;
 import dk.alexandra.fresco.suite.spdz.utils.Util;
-import org.junit.Assert;
-
-import java.io.IOException;
-import java.math.BigInteger;
 
 public class AdvancedNumericTests {
 

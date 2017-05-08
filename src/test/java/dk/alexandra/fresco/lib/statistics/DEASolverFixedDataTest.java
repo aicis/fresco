@@ -24,15 +24,12 @@
 package dk.alexandra.fresco.lib.statistics;
 
 import java.math.BigInteger;
-import java.util.Arrays;
 
-import org.apache.commons.math3.optim.nonlinear.scalar.GoalType;
 import org.junit.Assert;
 
 import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.ProtocolProducer;
-import dk.alexandra.fresco.framework.TestApplication;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
@@ -41,6 +38,7 @@ import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.helper.AlgebraUtil;
 import dk.alexandra.fresco.lib.helper.builder.NumericIOBuilder;
+import dk.alexandra.fresco.lib.statistics.DEASolver.AnalysisType;
 import dk.alexandra.fresco.suite.spdz.utils.Util;
 
 /**
@@ -67,9 +65,9 @@ public class DEASolverFixedDataTest {
 
   public static class TestDEASolverScores extends TestThreadFactory {
 
-    private GoalType type;
+    private DEASolver.AnalysisType type;
 
-    public TestDEASolverScores(GoalType type) {
+    public TestDEASolverScores(DEASolver.AnalysisType type) {
       this.type = type;
     }
 
@@ -106,10 +104,10 @@ public class DEASolverFixedDataTest {
     private static final long serialVersionUID = 1L;
     public double[] plainResult;
     public OInt[] solverResult;
-    private GoalType type;
+    private DEASolver.AnalysisType type;
     private int[][] dataSet;
     
-    public DEATestApp(int[][] dataSet, GoalType type) {
+    public DEATestApp(int[][] dataSet, DEASolver.AnalysisType type) {
       this.type = type;
       this.dataSet = dataSet;
     }
@@ -147,7 +145,7 @@ public class DEASolverFixedDataTest {
       // Solve the problem using a plaintext solver
       PlaintextDEASolver plainSolver = new PlaintextDEASolver();
       plainSolver.addBasis(rawBasisInputs, rawBasisOutputs);
-
+      
       double[] plain = plainSolver.solve(rawTargetInputs, rawTargetOutputs, type);
       for (int i = 0; i < plain.length; i++) {
         plainResult[i] = plain[i];
@@ -159,10 +157,10 @@ public class DEASolverFixedDataTest {
   /**
    * Reduces a field-element to a double using Gauss reduction.
    */
-  private static double postProcess(OInt input, GoalType type) {
+  private static double postProcess(OInt input, AnalysisType type) {
     BigInteger[] gauss = gauss(input.getValue(), Util.getModulus());
     double res = (gauss[0].doubleValue() / gauss[1].doubleValue());
-    if (type == GoalType.MAXIMIZE) {
+    if (type == AnalysisType.OUTPUT_EFFICIENCY) {
       res -= BENCHMARKING_BIG_M;
     } else {
       res *= -1;

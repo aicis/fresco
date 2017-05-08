@@ -29,7 +29,6 @@ package dk.alexandra.fresco.lib.statistics;
 import java.math.BigInteger;
 import java.util.Random;
 
-import org.apache.commons.math3.optim.nonlinear.scalar.GoalType;
 import org.junit.Assert;
 
 import dk.alexandra.fresco.framework.ProtocolFactory;
@@ -65,9 +64,9 @@ public class DEASolverTests {
 		private int outputVariables;
 		private int datasetRows;
 		private int targetQueries;
-		private GoalType type;
+		private DEASolver.AnalysisType type;
 		
-		public TestDEASolver(int inputVariables, int outputVariables, int rows, int queries, GoalType type) {
+		public TestDEASolver(int inputVariables, int outputVariables, int rows, int queries, DEASolver.AnalysisType type) {
 			this.inputVariables = inputVariables;
 			this.outputVariables = outputVariables;
 			this.datasetRows = rows;
@@ -174,10 +173,10 @@ public class DEASolverTests {
 	/**
 	 * Reduces a field-element to a double using Gauss reduction. 
 	 */
-	private static double postProcess(OInt input, GoalType type){
+	private static double postProcess(OInt input, DEASolver.AnalysisType type){
 		BigInteger[] gauss = gauss(input.getValue(), Util.getModulus());
 		double res = (gauss[0].doubleValue()/gauss[1].doubleValue());
-		if(type == GoalType.MAXIMIZE) {
+		if(type == DEASolver.AnalysisType.OUTPUT_EFFICIENCY) {
 			res -= BENCHMARKING_BIG_M;
 		} else {
 			res *= -1;
