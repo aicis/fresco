@@ -29,8 +29,6 @@ package dk.alexandra.fresco.lib.statistics;
 import java.util.Arrays;
 import java.util.List;
 
-import org.apache.commons.math3.optim.nonlinear.scalar.GoalType;
-
 import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.ProtocolFactory;
@@ -68,7 +66,9 @@ public class DEASolver implements Application {
 
 	private SInt[] optimal;
 	private SInt[][] basis;
-	private GoalType type;
+	private AnalysisType type;
+	
+	public enum AnalysisType { INPUT_EFFICIENCY, OUTPUT_EFFICIENCY }
 
 	/**
 	 * Construct a DEA problem for the solver to solve. The problem consists of
@@ -77,6 +77,8 @@ public class DEASolver implements Application {
 	 * 
 	 * 2 query input/output matrices containing the data to be evaluated.
 	 * 
+	 * @param type 
+	 *         The type of analysis to do
 	 * @param inputValues
 	 *            Matrix of query input values
 	 * @param outputValues
@@ -87,7 +89,7 @@ public class DEASolver implements Application {
 	 *            Matrix containing the basis output
 	 * @throws MPCException
 	 */
-	public DEASolver(GoalType type, List<List<SInt>> inputValues, List<List<SInt>> outputValues, List<List<SInt>> setInput,
+	public DEASolver(AnalysisType type, List<List<SInt>> inputValues, List<List<SInt>> outputValues, List<List<SInt>> setInput,
 			List<List<SInt>> setOutput) throws MPCException {
 		this.type = type;
 		this.targetInputs = inputValues;
@@ -231,9 +233,9 @@ public class DEASolver implements Application {
 		
 		DEAPrefixBuilder basisBuilder = null; 
 		
-		if(type == GoalType.MINIMIZE) {
+		if(type == AnalysisType.INPUT_EFFICIENCY) {
 			basisBuilder = new DEAInputEfficiencyPrefixBuilder();
-		} else if(type == GoalType.MAXIMIZE) {
+		} else if(type == AnalysisType.OUTPUT_EFFICIENCY) {
 			basisBuilder = new DEAPrefixBuilderMaximize();
 		}
 		basisBuilder.provider(provider);
@@ -252,9 +254,9 @@ public class DEASolver implements Application {
 
 		for (int i = 0; i < this.targetInputs.size(); i++) {
 			DEAPrefixBuilder targetBuilder = null;
-			if(type == GoalType.MINIMIZE) {
+			if(type == AnalysisType.INPUT_EFFICIENCY) {
 				targetBuilder = new DEAInputEfficiencyPrefixBuilder();
-			} else if(type == GoalType.MAXIMIZE) {
+			} else if(type == AnalysisType.OUTPUT_EFFICIENCY) {
 				targetBuilder = new DEAPrefixBuilderMaximize();
 			}
 			targetBuilder.provider(provider);
