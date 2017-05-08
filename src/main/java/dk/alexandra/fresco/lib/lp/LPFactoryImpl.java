@@ -196,18 +196,32 @@ public class LPFactoryImpl implements LPFactory {
 	@Override
 	public InnerProductProtocol getInnerProductProtocol(SInt[] aVector,
 			SInt[] bVector, SInt result) {
-		return this.innerProductFactory.getInnerProductProtocol(aVector,
-				bVector, result);
+	  return this.innerProductFactory.getInnerProductProtocol(aVector,
+          bVector, result);
 	}
 
 	@Override
+  public InnerProductProtocol getInnerProductProtocol(SInt[] aVector, OInt[] bVector, SInt result) {
+	  return this.innerProductFactory.getInnerProductProtocol(aVector,
+          bVector, result);
+  }
+
+  @Override
 	public OptimalValueProtocol getOptimalValueProtocol(
 			Matrix<SInt> updateMatrix, SInt[] B, SInt pivot, SInt optimalValue) {
-		return new OptimalValueProtocol(updateMatrix, B, pivot, optimalValue,
-				this, bnf);
+	  return new OptimalValueProtocol(updateMatrix, B, pivot, optimalValue,
+          this, bnf);
 	}
 
+	
 	@Override
+  public OptimalValueProtocol getOptimalValueProtocol(Matrix<SInt> updateMatrix, LPTableau tableau,
+      SInt pivot, SInt optimalValue) {
+	  return new OptimalValueProtocol(updateMatrix, tableau, pivot, optimalValue,
+          this, bnf);
+  }
+
+  @Override
 	public OptimalNumeratorProtocol getOptimalNumeratorProtocol(
 			Matrix<SInt> updateMatrix, SInt[] B, SInt optimalNumerator) {
 		return new OptimalNumeratorProtocol(updateMatrix, B, optimalNumerator,
