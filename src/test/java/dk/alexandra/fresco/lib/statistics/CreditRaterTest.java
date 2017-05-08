@@ -27,7 +27,6 @@
 package dk.alexandra.fresco.lib.statistics;
 
 import java.math.BigInteger;
-import java.util.Random;
 
 import org.hamcrest.core.Is;
 import org.junit.Assert;
@@ -44,7 +43,6 @@ import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.helper.AlgebraUtil;
 import dk.alexandra.fresco.lib.helper.builder.NumericIOBuilder;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
-import dk.alexandra.fresco.suite.spdz.utils.Util;
 
 /**
  * Test class for the DEASolver.
@@ -111,13 +109,8 @@ public class CreditRaterTest {
 							return sseq;
 						}
 					};
-				//	long startTime = System.nanoTime();
 					sce.runApplication(app);
-				//	long endTime = System.nanoTime();
-				//	System.out.println("============ Seq Time: "
-				//			+ ((endTime - startTime) / 1000000));
 					Assert.assertThat(result[0].getValue(), Is.is(BigInteger.valueOf(PlaintextCreditRater.calculateScore(values, intervals, scores))));
-					
 				}
 			};
 		}

@@ -308,27 +308,6 @@ public class DEAPrefixBuilder {
 	}
 
 	/**
-	 * Checks if this builder is ready to be build. I.e. if all needed values
-	 * have been set.
-	 * 
-	 * @return true if all needed values are set. false otherwise.
-	 */
-	public boolean ready() {
-		boolean ready = true;
-		ready = (basisInputs != null); // &&
-		// basisOutputs != null &&
-		// targetInputs != null &&
-		// targetOutputs != null &&
-		// provider != null &&
-		// prefix != null &&
-		// !basisInputs.isEmpty() &&
-		// !basisOutputs.isEmpty() &&
-		// !targetInputs.isEmpty() &&
-		// !targetOutputs.isEmpty());
-		return ready;
-	}
-
-	/**
 	 * Appends the inputs and outputs of an other builder to this builder. The
 	 * prefix is changed to be one evaluating the prefix of this builder and the
 	 * other builder in parallel. Note this builder and the other builder must
@@ -466,7 +445,7 @@ public class DEAPrefixBuilder {
 	 */
 	public LPPrefix build() {
 		// TODO: this should only be done once
-		if (!ready()) {
+		if (basisInputs == null || basisOutputs == null) {
 			throw new IllegalStateException(
 					"Builder not ready to build LPPrefix not enough data supplied!");
 		}
@@ -565,7 +544,7 @@ public class DEAPrefixBuilder {
 	private boolean consistent() {
 		boolean consistent = true;
 		boolean printedError = false;
-		if (!ready()) {
+		if (basisInputs == null) {
 			return false;
 		}
 		consistent = consistent && (basisInputs.size() == targetInputs.size());
@@ -700,15 +679,6 @@ public class DEAPrefixBuilder {
 			index++;
 		}
 		return row;
-	}
-
-	private static SInt[] fillPublicVector(int size, BigInteger value,
-			BasicNumericFactory provider) {
-		SInt[] vector = new SInt[size];
-		for (int i = 0; i < size; i++) {
-			vector[i] = provider.getSInt(value);
-		}
-		return vector;
 	}
 
 }
