@@ -37,6 +37,7 @@ import dk.alexandra.fresco.framework.network.NetworkingStrategy;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.resources.storage.FilebasedStreamedStorageImpl;
 import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
+import dk.alexandra.fresco.lib.statistics.DEASolverFixedDataTest;
 import dk.alexandra.fresco.lib.statistics.DEASolverTests;
 import dk.alexandra.fresco.suite.spdz.storage.InitializeStorage;
 
@@ -49,7 +50,7 @@ public class TestSpdzDEASolver2Parties extends AbstractSpdzTest{
 
 	@Test
 	public void test_DEASolver_2_Sequential_batched_dummy_minimize() throws Exception {
-		runTest(new DEASolverTests.TestDEASolver(3, 1, 20, 3, GoalType.MINIMIZE), 
+		runTest(new DEASolverFixedDataTest.TestDEASolverScores(GoalType.MINIMIZE), 
 				EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
 	}
 	
