@@ -430,21 +430,20 @@ public abstract class DEAPrefixBuilder {
   }
 	
 	protected boolean consistent() {
-	  System.out.println("first: "+basisInputs.size() +" - "+targetInputs.size());
 		if (basisInputs.size() != targetInputs.size()) {
 			log.warning("BasisInputs size (" + basisInputs.size()
 					+ ")does not equal targetInputs size ("
 					+ targetInputs.size() + ")");
 			return false;
 		}
-    System.out.println("second: "+basisOutputs.size() +" - "+targetOutputs.size());
+
 		if (basisOutputs.size() != targetOutputs.size()) {;
 			log.warning("BasisOutputs size (" + basisOutputs.size()
 					+ ")does not equal targetOutputs size ("
 					+ targetOutputs.size() + ")");
 			return false;
 		}
-		System.out.println("third: "+basisInputs.get(0).length);
+
 		int dbSize = basisInputs.get(0).length;
 		for (SInt[] inputs : basisInputs) {
 		  if (inputs.length != dbSize) {
@@ -453,7 +452,7 @@ public abstract class DEAPrefixBuilder {
 		  }
 			
 		}
-		System.out.println("fourth ");
+
 		for (SInt[] outputs : basisOutputs) {
 		  if (outputs.length != dbSize) {
 		    log.warning("All basisOutputs does not agree on the length of the SInt array");
