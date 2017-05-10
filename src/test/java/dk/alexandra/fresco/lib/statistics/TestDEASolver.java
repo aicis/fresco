@@ -35,6 +35,7 @@ import org.junit.Test;
 
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.value.SInt;
+import dk.alexandra.fresco.lib.statistics.DEASolver.AnalysisType;
 
 public class TestDEASolver {
 
@@ -170,6 +171,13 @@ public class TestDEASolver {
     } catch(MPCException e) {
       Assert.assertThat(e.getMessage(), Is.is("Inconsistent dataset / query data"));
     }
+  }
+  
+  
+  @Test
+  public void testAnalysisType() {
+    Assert.assertThat(DEASolver.AnalysisType.INPUT_EFFICIENCY.toString(), Is.is("INPUT_EFFICIENCY"));
+    Assert.assertThat(DEASolver.AnalysisType.valueOf("INPUT_EFFICIENCY"), Is.is(AnalysisType.INPUT_EFFICIENCY));
   }
   
   @SuppressWarnings("serial")

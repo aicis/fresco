@@ -407,113 +407,6 @@ public abstract class DEAPrefixBuilder {
 		}
 		return copyBuilder;
 	}
-
-
-	/**
-	 * Builds an LPPrefix from the given SInts, provider and prefix. Attempts to
-	 * check if the values given are consistent before building the prefix. If
-	 * this is not the case a IllegalStateException will be thrown.
-	 * 
-	 * @return an LPPrefix
-	 */
-/*	public LPPrefix build() {
-		// TODO: this should only be done once
-		if (basisInputs == null || basisOutputs == null) {
-			throw new IllegalStateException(
-					"Builder not ready to build LPPrefix not enough data supplied!");
-		}
-		if (!consistent()) {
-			throw new IllegalStateException(
-					"Trying to build LPPrefix from inconsistent data!");
-		}
-		
-		 * First copy the target values to the basis. This ensures that the
-		 * target values are in the basis thus the score must at least be 1.
-		
-		ParallelProtocolProducer copyTargetToBasis = new ParallelProtocolProducer();
-		List<SInt[]> newBasisInputs = new LinkedList<SInt[]>();
-		List<SInt[]> newBasisOutputs = new LinkedList<SInt[]>();
-
-		ListIterator<SInt[]> basisIt = basisInputs.listIterator();
-		ListIterator<SInt> targetIt = targetInputs.listIterator();
-		while (basisIt.hasNext() && targetIt.hasNext()) {
-			SInt[] basisInput = basisIt.next();
-			SInt targetInput = targetIt.next();
-			SInt[] newInputs = new SInt[basisInput.length + 1];
-			SInt copy = provider.getSInt();
-			copyTargetToBasis
-					.append(new CopyProtocolImpl<SInt>(targetInput, copy));
-			System.arraycopy(basisInput, 0, newInputs, 0, basisInput.length);
-			newInputs[newInputs.length - 1] = copy;
-			newBasisInputs.add(newInputs);
-		}
-		this.basisInputs = newBasisInputs;
-		basisIt = basisOutputs.listIterator();
-		targetIt = targetOutputs.listIterator();
-		while (basisIt.hasNext() && targetIt.hasNext()) {
-			SInt[] basisOutput = basisIt.next();
-			SInt targetOutput = targetIt.next();
-			SInt[] newOutputs = new SInt[basisOutput.length + 1];
-			SInt copy = provider.getSInt();
-			copyTargetToBasis.append(new CopyProtocolImpl<SInt>(targetOutput, copy));
-			System.arraycopy(basisOutput, 0, newOutputs, 0, basisOutput.length);
-			newOutputs[newOutputs.length - 1] = copy;
-			newBasisOutputs.add(newOutputs);
-		}
-		this.basisOutputs = newBasisOutputs;
-		
-		
-		 * NeProtocol the basis output 
-		
-		int lambdas = basisInputs.get(0).length;
-
-		ParallelProtocolProducer negateBasisOutput = new ParallelProtocolProducer();
-		List<SInt[]> negatedBasisOutputs = new ArrayList<SInt[]>(basisOutputs.size());
-		OInt negativeOne = provider.getOInt(BigInteger.valueOf(-1));
-		for (SInt[] outputs : basisOutputs) {
-			SInt[] negOutputs = new SInt[outputs.length];
-			int idx = 0;
-			for (SInt output : outputs) {
-				negOutputs[idx] = provider.getSInt();
-				negateBasisOutput.append(provider.getMultProtocol(negativeOne,
-						output, negOutputs[idx]));
-				idx++;
-			}
-			negatedBasisOutputs.add(negOutputs);	
-		}
-
-		int constraints = basisInputs.size() + basisOutputs.size() + 1;
-		int slackvariables = constraints;
-		int variables = lambdas + slackvariables + 1;
-		SInt[][] slack = getIdentity(slackvariables, provider);
-		SInt[][] C = new SInt[constraints][variables];
-		for (int i = 0; i < basisInputs.size(); i++) {
-			C[i] = inputRow(basisInputs.get(i), slack[i], provider);
-		}
-
-		for (int i = basisInputs.size(); i < constraints - 1; i++) {
-			C[i] = outputRow(negatedBasisOutputs.get(i - basisInputs.size()),
-					targetOutputs.get(i - basisInputs.size()), slack[i]);
-		}
-		C[C.length - 1] = lambdaRow(lambdas, slack[C.length - 1], provider);
-
-		SInt F[] = fVector(variables, lambdas, provider);
-		SInt B[] = bVector(constraints, targetInputs.toArray(new SInt[1]),
-				provider);
-		SInt z = provider.getSInt(0);
-		SInt pivot = provider.getSInt(1);
-		LPTableau tab = new LPTableau(new Matrix<SInt>(C), B, F, z);
-		Matrix<SInt> updateMatrix = new Matrix<SInt>(getIdentity(
-				constraints + 1, provider));
-		SequentialProtocolProducer seqGP = new SequentialProtocolProducer();
-		if (this.prefix != null) {
-			seqGP.append(this.prefix);
-		}
-		seqGP.append(copyTargetToBasis);
-		seqGP.append(negateBasisOutput);
-		return new SimpleLPPrefix(updateMatrix, tab, pivot, seqGP);
-	}
-*/
 	
   /**
    * Checks if this builder is ready to be build. I.e. if all needed values
@@ -537,41 +430,37 @@ public abstract class DEAPrefixBuilder {
   }
 	
 	protected boolean consistent() {
-		boolean consistent = true;
-		boolean printedError = false;
-		if (basisInputs == null) {
-			return false;
-		}
-		consistent = consistent && (basisInputs.size() == targetInputs.size());
-		if (!consistent) {
+	  System.out.println("first: "+basisInputs.size() +" - "+targetInputs.size());
+		if (basisInputs.size() != targetInputs.size()) {
 			log.warning("BasisInputs size (" + basisInputs.size()
 					+ ")does not equal targetInputs size ("
 					+ targetInputs.size() + ")");
-			printedError = true;
+			return false;
 		}
-		consistent = consistent
-				&& (basisOutputs.size() == targetOutputs.size());
-		if (!consistent && !printedError) {
+    System.out.println("second: "+basisOutputs.size() +" - "+targetOutputs.size());
+		if (basisOutputs.size() != targetOutputs.size()) {;
 			log.warning("BasisOutputs size (" + basisOutputs.size()
 					+ ")does not equal targetOutputs size ("
 					+ targetOutputs.size() + ")");
-			printedError = true;
+			return false;
 		}
+		System.out.println("third: "+basisInputs.get(0).length);
 		int dbSize = basisInputs.get(0).length;
 		for (SInt[] inputs : basisInputs) {
-			consistent = consistent && (inputs.length == dbSize);
+		  if (inputs.length != dbSize) {
+		    log.warning("All basisInputs does not agree on the length of the SInt array");
+		    return false;
+		  }
+			
 		}
-		if (!consistent && !printedError) {
-			log.warning("All basisInputs does not agree on the length of the SInt array");
-			printedError = true;
-		}
+		System.out.println("fourth ");
 		for (SInt[] outputs : basisOutputs) {
-			consistent = consistent && (outputs.length == dbSize);
+		  if (outputs.length != dbSize) {
+		    log.warning("All basisOutputs does not agree on the length of the SInt array");
+		    return false;
+		  }
 		}
-		if (!consistent && !printedError) {
-			log.warning("All basisOutputs does not agree on the length of the SInt array");
-		}
-		return consistent;
+		return true;
 	}
 
 	protected static SInt[][] getIdentity(int dimension, BasicNumericFactory provider) {
@@ -586,32 +475,6 @@ public abstract class DEAPrefixBuilder {
 			}
 		}
 		return identity;
-	}
-
-	private static SInt[] lambdaRow(int lambdas, SInt[] slackVariables,
-			BasicNumericFactory provider) {
-		SInt[] row = new SInt[lambdas + slackVariables.length + 1];
-		int index = 0;
-		row[0] = provider.getSInt(0);
-		index++;
-		while (index < lambdas + 1) {
-			row[index] = provider.getSInt(BigInteger.ONE);
-			index++;
-		}
-		for (SInt slack : slackVariables) {
-			row[index] = slack;
-			index++;
-		}
-		return row;
-	}
-
-	protected static SInt[] fillPublicVector(int size, BigInteger value,
-			BasicNumericFactory provider) {
-		SInt[] vector = new SInt[size];
-		for (int i = 0; i < size; i++) {
-			vector[i] = provider.getSInt(value);
-		}
-		return vector;
 	}
 
 }

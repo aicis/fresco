@@ -91,7 +91,7 @@ public class DEAPrefixBuilderMaximize extends DEAPrefixBuilder {
 
 		ListIterator<SInt[]> basisIt = basisInputs.listIterator();
 		ListIterator<SInt> targetIt = targetInputs.listIterator();
-		while (basisIt.hasNext() && targetIt.hasNext()) {
+		while (basisIt.hasNext()) {
 			SInt[] basisInput = basisIt.next();
 			SInt targetInput = targetIt.next();
 			SInt[] newInputs = new SInt[basisInput.length + 1];
@@ -105,7 +105,7 @@ public class DEAPrefixBuilderMaximize extends DEAPrefixBuilder {
 		this.basisInputs = newBasisInputs;
 		basisIt = basisOutputs.listIterator();
 		targetIt = targetOutputs.listIterator();
-		while (basisIt.hasNext() && targetIt.hasNext()) {
+		while (basisIt.hasNext()) {
 			SInt[] basisOutput = basisIt.next();
 			SInt targetOutput = targetIt.next();
 			SInt[] newOutputs = new SInt[basisOutput.length + 1];

@@ -39,18 +39,18 @@ import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
 
-public class TestDEAPrefixBuilder {
+public class TestDEAPrefixBuilderMaximize {
 
   private List<List<SInt>> inputValues = new ArrayList<List<SInt>>(); 
   private List<List<SInt>> outputValues = new ArrayList<List<SInt>>();
   private List<List<SInt>> inputBasis = new ArrayList<List<SInt>>(); 
   private List<List<SInt>> outputBasis = new ArrayList<List<SInt>>();
   
-  private DEAPrefixBuilder builder;
+  private DEAPrefixBuilderMaximize builder;
   
   @Before
   public void setup(){
-    builder = new DEAInputEfficiencyPrefixBuilder();
+    builder = new DEAPrefixBuilderMaximize();
     
     inputValues = new ArrayList<List<SInt>>(); 
     outputValues = new ArrayList<List<SInt>>();
@@ -62,13 +62,61 @@ public class TestDEAPrefixBuilder {
     outputBasis.add(new ArrayList<SInt>());
   }
   
+  @Test //This will test the abstract PrefixBuilder class
+  public void testBuildWithInconsistencies() {
+    try{
+      builder.basisInputs(null);
+      builder.build();
+      Assert.fail("Can not build when not ready.");
+    } catch(IllegalStateException e) {
+    }
+
+    
+    try{
+      builder.basisInputs(new ArrayList<SInt[]>());
+      builder.getBasisInputs().add(new SInt[2]);
+      builder.build();
+      Assert.fail("Can not build on inconsistent data.");
+    }catch(IllegalStateException e) {
+    }
+    System.out.println("check 1 passed");
+    try{
+      builder.getTargetInputs().add(new DummySInt());
+      builder.getBasisOutputs().add(new SInt[2]);
+      builder.build();
+      Assert.fail("Can not build on inconsistent data.");
+    }catch(IllegalStateException e) {
+    }
+    System.out.println("check 2 passed");
+    try{
+      builder.getTargetOutputs().add(new DummySInt());
+      builder.getBasisInputs().add(new SInt[4]);
+      builder.getTargetInputs().add(new DummySInt());
+      builder.build();
+      Assert.fail("Can not build on inconsistent data.");
+    }catch(IllegalStateException e) {
+    }
+    System.out.println("check 3 passed");
+    try{
+      builder.basisInputs(new ArrayList<SInt[]>());
+      builder.getBasisInputs().add(new SInt[2]);
+      builder.getTargetInputs().remove(1);
+      builder.getTargetOutputs().add(new DummySInt());
+      builder.getBasisOutputs().add(new SInt[4]);
+      builder.build();
+      Assert.fail("Can not build on inconsistent data.");
+    }catch(IllegalStateException e) {
+    }
+    System.out.println("check 5 passed");
+  }
+  
   @Test
   public void testPrefixHandling() {
     ProtocolProducer producer = new DummyProducer("first");
     builder.prefix(producer);
     Assert.assertThat(((DummyProducer)builder.getCircuit()).getName(), Is.is("first"));
     
-    builder = new DEAInputEfficiencyPrefixBuilder();
+    builder = new DEAPrefixBuilderMaximize();
     builder.addPrefix(producer);
     Assert.assertThat(((DummyProducer)builder.getCircuit()).getName(), Is.is("first"));
     ProtocolProducer second = new DummyProducer("second");

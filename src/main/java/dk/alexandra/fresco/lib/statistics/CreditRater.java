@@ -97,8 +97,11 @@ public class CreditRater implements Application{
           this.intervalScores.get(i), 
           omniBuilder);
     }
-
-    this.score = omniBuilder.getNumericProtocolBuilder().sum(individualScores);
+    if(individualScores.length == 1) {
+      this.score = individualScores[0];
+    } else {
+      this.score = omniBuilder.getNumericProtocolBuilder().sum(individualScores);
+    }
     SequentialProtocolProducer seq = new SequentialProtocolProducer();
 
     seq.append(omniBuilder.getProtocol());

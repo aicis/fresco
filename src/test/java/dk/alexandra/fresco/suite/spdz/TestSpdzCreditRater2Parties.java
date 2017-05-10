@@ -64,6 +64,41 @@ public class TestSpdzCreditRater2Parties extends AbstractSpdzTest{
   }
   
   
+  @Test
+  public void test_CreditRater_alternate_values() throws Exception {
+    values = new int[]{101};
+    intervals = new int[1][];
+    intervals[0] = new int[]{100, 500};
+    scores = new int[1][];
+    scores[0] = new int[]{10, 13, 15};
+    runTest(new CreditRaterTest.TestCreditRater(values, intervals, scores), EvaluationStrategy.PARALLEL_BATCHED, NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
+   
+    values = new int[]{10};
+    runTest(new CreditRaterTest.TestCreditRater(values, intervals, scores), EvaluationStrategy.PARALLEL_BATCHED, NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
+    values = new int[]{100};
+    runTest(new CreditRaterTest.TestCreditRater(values, intervals, scores), EvaluationStrategy.PARALLEL_BATCHED, NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
+    values = new int[]{500};
+    runTest(new CreditRaterTest.TestCreditRater(values, intervals, scores), EvaluationStrategy.PARALLEL_BATCHED, NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
+    values = new int[]{1000};
+    runTest(new CreditRaterTest.TestCreditRater(values, intervals, scores), EvaluationStrategy.PARALLEL_BATCHED, NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
+    
+    intervals[0] = new int[]{1000};
+    scores[0] = new int[]{10, 20};
+    runTest(new CreditRaterTest.TestCreditRater(values, intervals, scores), EvaluationStrategy.PARALLEL_BATCHED, NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
+    
+    values = new int[]{101, 440, 442};
+    intervals = new int[3][];
+    intervals[0] = new int[]{100, 500};
+    intervals[1] = new int[]{100, 200};
+    intervals[2] = new int[]{50, 800};
+    scores = new int[3][];
+    scores[0] = new int[]{10, 13, 15};
+    scores[1] = new int[]{1, 3, 21};
+    scores[2] = new int[]{16, 15, 11};
+    runTest(new CreditRaterTest.TestCreditRater(values, intervals, scores), EvaluationStrategy.PARALLEL_BATCHED, NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
+
+  }  
+  
 	@Test
 	public void test_CreditRater_2_Parallel_batched_dummy() throws Exception {
 		runTest(new CreditRaterTest.TestCreditRater(values, intervals, scores), EvaluationStrategy.PARALLEL_BATCHED, NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);

@@ -206,12 +206,7 @@ public class DEASolver implements Application {
   }
 
 	private LPPrefix[] getPrefixWithSecretSharedValues(BasicNumericFactory provider) {
-		if (this.targetInputs.size() != targetOutputs.size()) {
-			throw new RuntimeException();
-		}
-
 		int dataSetSize = this.inputDataSet.size();
-
 				
 		LPPrefix[] prefixes = new LPPrefix[this.targetInputs.size()];
 
@@ -235,7 +230,7 @@ public class DEASolver implements Application {
 		
 		if(type == AnalysisType.INPUT_EFFICIENCY) {
 			basisBuilder = new DEAInputEfficiencyPrefixBuilder();
-		} else if(type == AnalysisType.OUTPUT_EFFICIENCY) {
+		} else {
 			basisBuilder = new DEAPrefixBuilderMaximize();
 		}
 		basisBuilder.provider(provider);
@@ -256,7 +251,7 @@ public class DEASolver implements Application {
 			DEAPrefixBuilder targetBuilder = null;
 			if(type == AnalysisType.INPUT_EFFICIENCY) {
 				targetBuilder = new DEAInputEfficiencyPrefixBuilder();
-			} else if(type == AnalysisType.OUTPUT_EFFICIENCY) {
+			} else {
 				targetBuilder = new DEAPrefixBuilderMaximize();
 			}
 			targetBuilder.provider(provider);

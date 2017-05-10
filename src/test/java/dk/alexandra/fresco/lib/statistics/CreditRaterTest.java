@@ -97,7 +97,7 @@ public class CreditRaterTest {
                 secretScores[i] = ioBuilder.inputArray(scores[i], 1);
               }
 							sseq.append(ioBuilder.getProtocol());
-							
+		
 							CreditRater rater = new CreditRater(AlgebraUtil.arrayToList(secretValues), 
 							    AlgebraUtil.arrayToList(secretIntervals),
 							    AlgebraUtil.arrayToList(secretScores));
