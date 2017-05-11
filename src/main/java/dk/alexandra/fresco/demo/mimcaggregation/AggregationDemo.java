@@ -1,4 +1,4 @@
-package dk.alexandra.fresco.demo.aggregation;
+package dk.alexandra.fresco.demo.mimcaggregation;
 
 import dk.alexandra.fresco.framework.sce.configuration.SCEConfiguration;
 import dk.alexandra.fresco.framework.sce.configuration.ProtocolSuiteConfiguration;
@@ -43,22 +43,34 @@ public class AggregationDemo {
             {2, 100},
             {1, 50},
             {3, 15},
+            {3, 15},
             {2, 70}
         };
+//        int numTuples = 10;
+//        int[][] inputTuples = new int[numTuples][2];
+//        for (int i = 0; i < numTuples; i++) {
+//        	inputTuples[i][0] = i;
+//        	inputTuples[i][1] = i;
+//        }
         
-        AggregationStep aggStep = new AggregationStep(inputTuples);
-        sce.runApplication(aggStep);
-        RemoveTailStep remTailStep = new RemoveTailStep(
-        	aggStep.getResultWithTail(), 
-        	aggStep.getEmptyTuplesCount().getValue().intValue()
+        int keyColumn = 0;
+        int aggColumn = 1;
+        
+        EncryptAndRevealStep encStep = new EncryptAndRevealStep(
+        		inputTuples, keyColumn, aggColumn);
+        sce.runApplication(encStep);
+        
+        AggregateStep aggStep = new AggregateStep(
+        	encStep.getKeyCiphers(), 
+        	encStep.getValues(), 
+        	encStep.getMimcKey(), 
+        	keyColumn, 
+        	aggColumn
         );
-        sce.runApplication(remTailStep);
-        OInt[][] result = remTailStep.getResult();
+        sce.runApplication(aggStep);
         
-        for (OInt[] tuple: result) {
-        	System.out.println(
-        		tuple[0].getValue() + " " + tuple[1].getValue()
-        	);
+        for (OInt[] tuple: aggStep.getResult()) {
+        	System.out.println(tuple[keyColumn] + " " + tuple[aggColumn]);
         }
     }
     
