@@ -194,24 +194,19 @@ public class DEASolver implements Application {
 		return this.optimal;
 	}
 
-	/**
-	 * First array is the size of targetInputs, i.e. the number of LP instances
-	 * to compute. Innermost array will, after evaluation, contain the final
-	 * basis of the tableau, i.e. the variables that the basis consists of.
-	 * 
-	 * @return The final basis.
-	 */
-	public SInt[][] getBasis() {
-		return this.basis;
-	}
+	 /**
+   * First array is the size of targetInputs, i.e. the number of LP instances
+   * to compute. Innermost array will, after evaluation, contain the final
+   * basis of the tableau, i.e. the variables that the basis consists of.
+   * 
+   * @return The final basis.
+   */
+  public SInt[][] getBasis() {
+    return this.basis;
+  }
 
 	private LPPrefix[] getPrefixWithSecretSharedValues(BasicNumericFactory provider) {
-		if (this.targetInputs.size() != targetOutputs.size()) {
-			throw new RuntimeException();
-		}
-
 		int dataSetSize = this.inputDataSet.size();
-
 				
 		LPPrefix[] prefixes = new LPPrefix[this.targetInputs.size()];
 
@@ -235,7 +230,7 @@ public class DEASolver implements Application {
 		
 		if(type == AnalysisType.INPUT_EFFICIENCY) {
 			basisBuilder = new DEAInputEfficiencyPrefixBuilder();
-		} else if(type == AnalysisType.OUTPUT_EFFICIENCY) {
+		} else {
 			basisBuilder = new DEAPrefixBuilderMaximize();
 		}
 		basisBuilder.provider(provider);
@@ -256,7 +251,7 @@ public class DEASolver implements Application {
 			DEAPrefixBuilder targetBuilder = null;
 			if(type == AnalysisType.INPUT_EFFICIENCY) {
 				targetBuilder = new DEAInputEfficiencyPrefixBuilder();
-			} else if(type == AnalysisType.OUTPUT_EFFICIENCY) {
+			} else {
 				targetBuilder = new DEAPrefixBuilderMaximize();
 			}
 			targetBuilder.provider(provider);

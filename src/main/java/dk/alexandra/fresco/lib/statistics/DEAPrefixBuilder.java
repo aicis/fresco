@@ -280,27 +280,6 @@ public abstract class DEAPrefixBuilder {
 	}
 
 	/**
-	 * Checks if this builder is ready to be build. I.e. if all needed values
-	 * have been set.
-	 * 
-	 * @return true if all needed values are set. false otherwise.
-	 */
-	public boolean ready() {
-		boolean ready = true;
-		ready = (basisInputs != null); // &&
-		// basisOutputs != null &&
-		// targetInputs != null &&
-		// targetOutputs != null &&
-		// provider != null &&
-		// prefix != null &&
-		// !basisInputs.isEmpty() &&
-		// !basisOutputs.isEmpty() &&
-		// !targetInputs.isEmpty() &&
-		// !targetOutputs.isEmpty());
-		return ready;
-	}
-	
-	/**
 	 * Appends the inputs and outputs of an other builder to this builder. The
 	 * prefix is changed to be one evaluating the prefix of this builder and the
 	 * other builder in parallel. Note this builder and the other builder must
@@ -429,42 +408,58 @@ public abstract class DEAPrefixBuilder {
 		return copyBuilder;
 	}
 	
+  /**
+   * Checks if this builder is ready to be build. I.e. if all needed values
+   * have been set.
+   * 
+   * @return true if all needed values are set. false otherwise.
+   */
+  public boolean ready() {
+    boolean ready = true;
+    ready = (basisInputs != null); // &&
+    // basisOutputs != null &&
+    // targetInputs != null &&
+    // targetOutputs != null &&
+    // provider != null &&
+    // prefix != null &&
+    // !basisInputs.isEmpty() &&
+    // !basisOutputs.isEmpty() &&
+    // !targetInputs.isEmpty() &&
+    // !targetOutputs.isEmpty());
+    return ready;
+  }
+	
 	protected boolean consistent() {
-		boolean consistent = true;
-		boolean printedError = false;
-		if (!ready()) {
-			return false;
-		}
-		consistent = consistent && (basisInputs.size() == targetInputs.size());
-		if (!consistent) {
+		if (basisInputs.size() != targetInputs.size()) {
 			log.warning("BasisInputs size (" + basisInputs.size()
 					+ ")does not equal targetInputs size ("
 					+ targetInputs.size() + ")");
-			printedError = true;
+			return false;
 		}
-		consistent = consistent
-				&& (basisOutputs.size() == targetOutputs.size());
-		if (!consistent && !printedError) {
+
+		if (basisOutputs.size() != targetOutputs.size()) {;
 			log.warning("BasisOutputs size (" + basisOutputs.size()
 					+ ")does not equal targetOutputs size ("
 					+ targetOutputs.size() + ")");
-			printedError = true;
+			return false;
 		}
+
 		int dbSize = basisInputs.get(0).length;
 		for (SInt[] inputs : basisInputs) {
-			consistent = consistent && (inputs.length == dbSize);
+		  if (inputs.length != dbSize) {
+		    log.warning("All basisInputs does not agree on the length of the SInt array");
+		    return false;
+		  }
+			
 		}
-		if (!consistent && !printedError) {
-			log.warning("All basisInputs does not agree on the length of the SInt array");
-			printedError = true;
-		}
+
 		for (SInt[] outputs : basisOutputs) {
-			consistent = consistent && (outputs.length == dbSize);
+		  if (outputs.length != dbSize) {
+		    log.warning("All basisOutputs does not agree on the length of the SInt array");
+		    return false;
+		  }
 		}
-		if (!consistent && !printedError) {
-			log.warning("All basisOutputs does not agree on the length of the SInt array");
-		}
-		return consistent;
+		return true;
 	}
 
 	protected static SInt[][] getIdentity(int dimension, BasicNumericFactory provider) {
@@ -481,12 +476,4 @@ public abstract class DEAPrefixBuilder {
 		return identity;
 	}
 
-	protected static SInt[] fillPublicVector(int size, BigInteger value,
-			BasicNumericFactory provider) {
-		SInt[] vector = new SInt[size];
-		for (int i = 0; i < size; i++) {
-			vector[i] = provider.getSInt(value);
-		}
-		return vector;
-	}
 }
