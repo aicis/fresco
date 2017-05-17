@@ -2,17 +2,11 @@ package dk.alexandra.fresco.demo.mimcaggregation;
 
 import dk.alexandra.fresco.framework.sce.configuration.SCEConfiguration;
 import dk.alexandra.fresco.framework.sce.configuration.ProtocolSuiteConfiguration;
-import dk.alexandra.fresco.framework.Application;
-import dk.alexandra.fresco.framework.ProtocolFactory;
-import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
+import dk.alexandra.fresco.framework.value.Value;
 import dk.alexandra.fresco.framework.sce.SCE;
 import dk.alexandra.fresco.framework.sce.SCEFactory;
-import dk.alexandra.fresco.lib.helper.builder.OmniBuilder;
-import dk.alexandra.fresco.lib.helper.builder.NumericProtocolBuilder;
-import dk.alexandra.fresco.lib.helper.builder.NumericIOBuilder;
-import dk.alexandra.fresco.lib.helper.builder.SortingProtocolBuilder;
 import dk.alexandra.fresco.suite.spdz.configuration.SpdzConfiguration;
 import dk.alexandra.fresco.framework.configuration.PreprocessingStrategy;
 import dk.alexandra.fresco.framework.Party;
@@ -20,7 +14,6 @@ import dk.alexandra.fresco.framework.network.NetworkingStrategy;
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
 import dk.alexandra.fresco.framework.sce.resources.storage.Storage;
-import dk.alexandra.fresco.framework.sce.resources.storage.StorageStrategy;
 import dk.alexandra.fresco.framework.sce.resources.storage.StreamedStorage;
 import dk.alexandra.fresco.framework.sce.evaluator.SequentialEvaluator;
 
@@ -28,50 +21,93 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 
+import org.bouncycastle.jcajce.provider.asymmetric.ec.SignatureSpi.ecNR;
+
 public class AggregationDemo {
 
-    /**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
+    public int[][] readInputs() {
+		return new int[][]{
+			{1, 10},
+			{1, 7},
+			{2, 100},
+			{1, 50},
+			{3, 15},
+			{3, 15},
+			{2, 70}
+		};
+	}
     
+    public void writeOutputs(int[][] result) {
+    	for (int[] row: result) {
+    		for (int value : row) {
+    			System.out.print(value + " ");    			
+    		}
+    		System.out.println();
+    	}
+    }
+	
+	public Value[][] encryptAndReveal(SCE sce, SInt[][] inputRows, int columnIndex) {
+		EncryptAndRevealStep ear = new EncryptAndRevealStep(inputRows, columnIndex);
+		sce.runApplication(ear);
+		return ear.getRowsWithOpenedCiphers();
+	}
+	
+	public SInt[][] aggregate(SCE sce, SInt[][] inputRows, int keyColumn, int aggColumn) {
+		// TODO: need to shuffle input rows and result
+		Value[][] rowsWithOpenenedCiphers = encryptAndReveal(sce, inputRows, keyColumn);
+		AggregateStep aggStep = new AggregateStep(
+				rowsWithOpenenedCiphers, 2, keyColumn, aggColumn);
+		sce.runApplication(aggStep);
+		return aggStep.getResult();
+	}
+	
+	public SInt[][] secretShare(SCE sce, int[][] inputRows, int pid) {
+		InputStep inputStep = new InputStep(inputRows, pid);
+		sce.runApplication(inputStep);
+		return inputStep.getSecretSharedRows();
+	}
+		
+	// This will have to be re-implemented anyways, so quick and dirty for now.
+	public int[][] open(SCE sce, SInt[][] secretShares) {
+		OutputStep outputStep = new OutputStep(secretShares);
+		sce.runApplication(outputStep);
+		OInt[][] _opened = outputStep.getOpenedRows();
+		int[][] opened = new int[_opened.length][_opened[0].length];
+		int rowIndex = 0,
+			colIndex = 0;
+		for (OInt[] row : _opened) {
+			for (OInt value : row) {
+				opened[rowIndex][colIndex] = value.getValue().intValue();
+				colIndex++;
+			}
+			rowIndex++;
+			colIndex = 0;
+		}
+		return opened;
+	}
+	
     public void runApplication(SCE sce) {
+    	int pid = sce.getSCEConfiguration().getMyId();
+    	int keyColumnIndex = 0;
+    	int aggColumnIndex = 1;
     	
-    	int[][] inputTuples = new int[][]{
-            {1, 10},
-            {1, 7},
-            {2, 100},
-            {1, 50},
-            {3, 15},
-            {3, 15},
-            {2, 70}
-        };
-//        int numTuples = 10;
-//        int[][] inputTuples = new int[numTuples][2];
-//        for (int i = 0; i < numTuples; i++) {
-//        	inputTuples[i][0] = i;
-//        	inputTuples[i][1] = i;
-//        }
-        
-        int keyColumn = 0;
-        int aggColumn = 1;
-        
-        EncryptAndRevealStep encStep = new EncryptAndRevealStep(
-        		inputTuples, keyColumn, aggColumn);
-        sce.runApplication(encStep);
-        
-        AggregateStep aggStep = new AggregateStep(
-        	encStep.getKeyCiphers(), 
-        	encStep.getValues(), 
-        	encStep.getMimcKey(), 
-        	keyColumn, 
-        	aggColumn
-        );
-        sce.runApplication(aggStep);
-        
-        for (OInt[] tuple: aggStep.getResult()) {
-        	System.out.println(tuple[keyColumn] + " " + tuple[aggColumn]);
-        }
+    	// Read inputs. For now this just returns a hard-coded array of values.
+    	int[][] inputRows = readInputs();
+    	
+    	// Secret-share the inputs.
+    	SInt[][] secretSharedRows = secretShare(sce, inputRows, pid);
+    	
+    	// Aggregate
+    	SInt[][] aggregated = aggregate(
+    			sce, secretSharedRows, keyColumnIndex, aggColumnIndex);
+    	
+    	// Recombine the secret shares of the result    	
+    	int[][] openedResult = open(sce, aggregated);
+    	
+    	// Write outputs. For now this just prints the results to the console.    	
+    	writeOutputs(openedResult);
+    	
+    	sce.shutdownSCE();
     }
     
     public static void main(String[] args) {
