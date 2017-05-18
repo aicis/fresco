@@ -9,7 +9,6 @@ import dk.alexandra.fresco.framework.value.Value;
 import dk.alexandra.fresco.lib.helper.builder.OmniBuilder;
 import dk.alexandra.fresco.lib.helper.builder.NumericProtocolBuilder;
 import dk.alexandra.fresco.lib.helper.builder.NumericIOBuilder;
-import dk.alexandra.fresco.lib.helper.builder.SortingProtocolBuilder;
 import dk.alexandra.fresco.lib.helper.builder.SymmetricEncryptionBuilder;
 
 public class EncryptAndRevealStep implements Application {
@@ -28,7 +27,8 @@ public class EncryptAndRevealStep implements Application {
 		super();
 		this.inputRows = inputRows;
 		this.toEncryptIndex = toEncryptIndex;
-		this.rowsWithOpenedCiphers = new Value[this.inputRows.length][this.inputRows.length + 1];
+		int numElementsPerRow = inputRows[0].length;
+		this.rowsWithOpenedCiphers = new Value[inputRows.length][numElementsPerRow + 1];
 	}
 
 	public SInt getMimcKey() {
@@ -51,12 +51,18 @@ public class EncryptAndRevealStep implements Application {
 
         	// Encrypt desired column and open resulting cipher text
         	for (int r = 0; r < inputRows.length; r++) {
-        		SInt toEncrypt = inputRows[r][toEncryptIndex];
+        		SInt[] row = inputRows[r];
+        		
+        		SInt toEncrypt = row[toEncryptIndex];
         		SInt _cipherText = seb.mimcEncrypt(toEncrypt, mimcKey);
-        		OInt cipherText = niob.output(_cipherText);        		
-        		rowsWithOpenedCiphers[r][inputRows[r].length] = cipherText;
-        		for (int c = 0; c < inputRows[r].length; c++) {
-        			rowsWithOpenedCiphers[r][c] = inputRows[r][c];
+        		OInt cipherText = niob.output(_cipherText);
+        		
+        		// Since our result array has rows that are one element
+        		// longer than our input, this is correct        		
+        		int lastElementIndex = row.length;
+        		rowsWithOpenedCiphers[r][lastElementIndex] = cipherText;
+        		for (int c = 0; c < row.length; c++) {
+        			rowsWithOpenedCiphers[r][c] = row[c];
         		}
         	}
         	

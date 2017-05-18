@@ -3,12 +3,8 @@ package dk.alexandra.fresco.demo.mimcaggregation;
 import java.util.List;
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.Map;
-import java.util.Set;
+import java.util.HashMap;
 
 import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.ProtocolFactory;
@@ -17,20 +13,13 @@ import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.framework.value.Value;
 import dk.alexandra.fresco.lib.helper.builder.OmniBuilder;
-import dk.alexandra.fresco.lib.helper.builder.SymmetricEncryptionBuilder;
 import dk.alexandra.fresco.lib.helper.builder.NumericProtocolBuilder;
-import dk.alexandra.fresco.lib.helper.builder.NumericIOBuilder;
 
 public class AggregateStep implements Application {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = -420207687882983242L;
 	
-	private List<BigInteger> cipherTexts;
-	private List<SInt> keys;
-	private List<SInt> values;
+	private List<Triple<SInt,SInt,BigInteger>> triples;
 	private int cipherColumn;
     private int keyColumn;
     private int aggColumn;
@@ -41,20 +30,18 @@ public class AggregateStep implements Application {
 		this.cipherColumn = cipherColumn;
 		this.keyColumn = keyColumn;
 		this.aggColumn = aggColumn;
-		this.cipherTexts = new ArrayList<>(inputRows.length);
-		this.keys = new ArrayList<>(inputRows.length);
-		this.values = new ArrayList<>(inputRows.length);
-		unzipInputRows(inputRows);
+		this.triples = new ArrayList<>(inputRows.length);
+		convertToTriples(inputRows);
 	}
     
-    private void unzipInputRows(Value[][] inputRows) {
+    private void convertToTriples(Value[][] inputRows) {
     	for (Value[] row : inputRows) {
-    		OInt _cipherText = (OInt) row[this.cipherColumn];
-    		this.cipherTexts.add(_cipherText.getValue());
-    		this.keys.add((SInt) row[this.keyColumn]);
-    		System.out.println(row[this.keyColumn]);
-    		this.values.add((SInt) row[this.aggColumn]);
-    		System.out.println(row[this.aggColumn]);
+    		Triple<SInt,SInt,BigInteger> triple = new Triple<SInt,SInt,BigInteger>(
+    				(SInt)row[this.keyColumn], 
+    				(SInt)row[this.aggColumn], 
+    				((OInt)row[this.cipherColumn]).getValue()
+    		);
+    		this.triples.add(triple);
     	}
     }
     
@@ -66,24 +53,20 @@ public class AggregateStep implements Application {
         Map<BigInteger, SInt> groupedByCipher = new HashMap<>();
         Map<BigInteger, SInt> cipherToShare = new HashMap<>();
         
-        Iterator<BigInteger> c = cipherTexts.iterator();
-        Iterator<SInt> v = values.iterator();
-        Iterator<SInt> k = keys.iterator();
-        
         // Note: this is not optimized as it constructs the entire circuit in place        
         builder.beginSeqScope();
         
-	    	while (c.hasNext() && k.hasNext() && v.hasNext()) {
-	    		BigInteger cipher = c.next();
-	    		SInt key = k.next();
-	    		SInt value = v.next();
+	    	for (Triple<SInt,SInt,BigInteger> triple : this.triples) {
+	    		BigInteger cipher = triple.cipher;
+	    		SInt key = triple.key;
+	    		SInt value = triple.value;
 	    		
 	    		if (!groupedByCipher.containsKey(cipher)) {
 	    			groupedByCipher.put(cipher, npb.known(0));
 	    			cipherToShare.put(cipher, key);
 	    		}
 	    		
-	    		SInt subTotal = npb.add(groupedByCipher.get(key), value);
+	    		SInt subTotal = npb.add(groupedByCipher.get(cipher), value);
 	    		groupedByCipher.put(cipher, subTotal);
 	    	}
 	    	
@@ -102,5 +85,18 @@ public class AggregateStep implements Application {
 	
 	public SInt[][] getResult() {
 		return this.result;
+	}
+		
+	private class Triple<K, V, C> {
+		private K key;
+		private V value;
+		private C cipher;
+		
+		public Triple(K key, V value, C cipher) {
+			super();
+			this.key = key;
+			this.value = value;
+			this.cipher = cipher;
+		}
 	}
 }

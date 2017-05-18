@@ -21,10 +21,14 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 
-import org.bouncycastle.jcajce.provider.asymmetric.ec.SignatureSpi.ecNR;
-
 public class AggregationDemo {
 
+	/**
+	 * 
+	 * @return
+	 * 
+	 * Generates mock input data.
+	 */
     public int[][] readInputs() {
 		return new int[][]{
 			{1, 10},
@@ -37,6 +41,12 @@ public class AggregationDemo {
 		};
 	}
     
+    /**
+     * 
+     * @param result
+     * 
+     * Prints result values to console.
+     */
     public void writeOutputs(int[][] result) {
     	for (int[] row: result) {
     		for (int value : row) {
@@ -45,29 +55,82 @@ public class AggregationDemo {
     		System.out.println();
     	}
     }
-	
+    
+    /**
+     * 
+     * @param sce
+     * @param inputRows
+     * @param columnIndex
+     * @return
+     * 
+     * Uses deterministic encryption (in this case MiMC) for encrypt, under MPC, the
+     * values in the specified column, and opens the resulting cipher texts. The resulting
+     * OInts are appended to the end of each row.
+     * 
+     * NOTE: This leaks the equality of the encrypted input values.
+     * 
+     * Example: ([k], [v]) -> ([k], [v], enc(k))
+     * for columnIndex = 0
+     * 
+     */
 	public Value[][] encryptAndReveal(SCE sce, SInt[][] inputRows, int columnIndex) {
 		EncryptAndRevealStep ear = new EncryptAndRevealStep(inputRows, columnIndex);
 		sce.runApplication(ear);
 		return ear.getRowsWithOpenedCiphers();
 	}
 	
+	/**
+	 * 
+	 * @param sce
+	 * @param inputRows
+	 * @param keyColumn
+	 * @param aggColumn
+	 * @return
+	 * 
+	 * Takes in a secret-shared collection of rows (2d-array) and returns
+	 * the secret-shared result of a sum aggregation of the values in the agg column
+	 * grouped by the values in the key column.
+	 * 
+	 * This method invokes encryptAndReveal and the aggregate step.
+	 * 
+	 * Example: ([1], [2]), ([1], [3]), ([2], [4]) -> ([1], [5]), ([2], [4])
+	 * for keyColumn = 0 and aggColumn = 1  
+	 * 
+	 */
 	public SInt[][] aggregate(SCE sce, SInt[][] inputRows, int keyColumn, int aggColumn) {
 		// TODO: need to shuffle input rows and result
-		Value[][] rowsWithOpenenedCiphers = encryptAndReveal(sce, inputRows, keyColumn);
+		Value[][] rowsWithOpenenedCiphers = encryptAndReveal(sce, inputRows, keyColumn);		
 		AggregateStep aggStep = new AggregateStep(
 				rowsWithOpenenedCiphers, 2, keyColumn, aggColumn);
 		sce.runApplication(aggStep);
 		return aggStep.getResult();
 	}
 	
+	/**
+	 * 
+	 * @param sce
+	 * @param inputRows
+	 * @param pid
+	 * @return
+	 * 
+	 * Runs the input step which secret shares all int values in inputRows.
+	 * Returns and SInt array containing the resulting shares. 
+	 */
 	public SInt[][] secretShare(SCE sce, int[][] inputRows, int pid) {
 		InputStep inputStep = new InputStep(inputRows, pid);
 		sce.runApplication(inputStep);
 		return inputStep.getSecretSharedRows();
 	}
 		
-	// This will have to be re-implemented anyways, so quick and dirty for now.
+	/**
+	 * 
+	 * @param sce
+	 * @param secretShares
+	 * @return
+	 * 
+	 * Runs the output step which opens all secret shares.
+	 * It converts the result to ints.
+	 */
 	public int[][] open(SCE sce, SInt[][] secretShares) {
 		OutputStep outputStep = new OutputStep(secretShares);
 		sce.runApplication(outputStep);
