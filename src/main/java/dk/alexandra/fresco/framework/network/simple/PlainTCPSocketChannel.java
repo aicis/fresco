@@ -114,6 +114,8 @@ public class PlainTCPSocketChannel {
         int length = msg.length;
         outStream.write(length);
         outStream.write(length >> 8);
+        outStream.write(length >> 16);
+        outStream.write(length >> 24);
         outStream.write(msg);
     }
 
@@ -129,14 +131,16 @@ public class PlainTCPSocketChannel {
 
         int lengthPart1 = inStream.read();
         int lengthPart2 = inStream.read();
+        int lengthPart3 = inStream.read();
+        int lengthPart4 = inStream.read();
 
-        if (lengthPart1 == -1)
+        if (lengthPart1 == -1 || lengthPart3 == -1 || lengthPart4 == -1)
             throw new RuntimeException("Closed?");
         if (lengthPart2 == -1)
             throw new RuntimeException("Closed?");
 
         int offset = 0;
-        byte[] bytes = new byte[(lengthPart2 << 8) + lengthPart1];
+        byte[] bytes = new byte[(lengthPart4 << 24)+ (lengthPart3 << 16)+ (lengthPart2 << 8) + lengthPart1];
 //        Logging.getLogger().info("Receiving... length=" + bytes.length);
         while (true) {
             int read = inStream.read(bytes, offset, bytes.length - offset);
