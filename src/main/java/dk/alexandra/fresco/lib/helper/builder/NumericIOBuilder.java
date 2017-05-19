@@ -135,8 +135,9 @@ public class NumericIOBuilder extends AbstractProtocolBuilder {
 	public SInt[] inputArray(BigInteger[] is, int targetID) {
 		SInt[] sis = new SInt[is.length];
 		for (int i = 0; i < sis.length; i++) {
-			sis[i] = input(is[i], targetID);
+			sis[i] = sif.getSInt();
 		}
+		append(new InputArray(is, sis, targetID));
 		return sis;
 	}
 

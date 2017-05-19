@@ -78,7 +78,6 @@ public class OmniBuilder extends AbstractProtocolBuilder{
 	private NumericProtocolBuilder numericProtocolBuilder;
 	private AdvancedNumericBuilder advancedNumericBuilder;
 	private ComparisonProtocolBuilder comparisonProtocolBuilder;
-	private SortingProtocolBuilder sortingProtocolBuilder;
 	private StatisticsProtocolBuilder statisticsProtocolBuilder;
 	private SymmetricEncryptionBuilder symmetricEncryptionBuilder;
 	private UtilityBuilder utilityBuilder;
@@ -206,31 +205,6 @@ public class OmniBuilder extends AbstractProtocolBuilder{
 		return comparisonProtocolBuilder;
 	}
 
-	/**
-	 * Builder used to do sorting. Currently expects that the constructor given factory implements all interfaces listed below:
-	 * - BasicNumericFactory
-	 * - ComparisonProtocolFactory 
-	 * @return
-	 */
-	public SortingProtocolBuilder getSortingProtocolBuilder() {
-		if (sortingProtocolBuilder == null) {
-			BasicNumericFactory basicNumericFactory = (BasicNumericFactory) factory;
-			LocalInversionFactory localInvFactory = (LocalInversionFactory) factory;
-			NumericBitFactory numericBitFactory = (NumericBitFactory) factory;
-			ExpFromOIntFactory expFromOIntFactory = (ExpFromOIntFactory) factory;
-			PreprocessedExpPipeFactory expFactory = (PreprocessedExpPipeFactory) factory;
-			ComparisonProtocolFactory comFactory = new ComparisonProtocolFactoryImpl(
-				statisticalSecurityParameter, 
-				basicNumericFactory, 
-				localInvFactory, 
-				numericBitFactory, 
-				expFromOIntFactory, 
-				expFactory);
-			sortingProtocolBuilder = new SortingProtocolBuilder(comFactory, basicNumericFactory);
-			sortingProtocolBuilder.setParentBuilder(this);
-		}
-		return sortingProtocolBuilder;
-	}
 
 	/**
 	 * Builder used for statistical functionalities such as mean, variance, covariance.
