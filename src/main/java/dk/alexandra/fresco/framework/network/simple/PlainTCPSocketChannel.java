@@ -209,10 +209,10 @@ public class PlainTCPSocketChannel {
     }
 
     protected void sendIdentity() throws IOException {
-        Logger.getLogger("TCP Socker").info("Sending identity" + me.getPort());
+        Logging.getLogger().info("Sending identity" + me.getPort());
         byte[] port = ByteBuffer.allocate(4).putInt(me.getPort()).array();
         sendSocket.getOutputStream().write(port, 0, port.length);
-        Logger.getLogger("TCP Socker").info("Sent identity" + me.getPort());
+        Logging.getLogger().info("Sent identity" + me.getPort());
     }
 
     /**
@@ -238,7 +238,7 @@ public class PlainTCPSocketChannel {
      * @param socket the receive socket to set.
      */
     public void setReceiveSocket(Socket socket) {
-        Logger.getLogger("foo").info("Set recive socket" + me.getPort());
+        Logging.getLogger().info("Set recive socket" + me.getPort());
         this.receiveSocket = socket;
 
         try {

@@ -67,6 +67,7 @@ class SocketMultipartyListenerThread extends Thread{
      * @param me The data of the current application.
      */
     protected void createServerSocket(SocketPartyData me) {
+        Logging.getLogger().info("Create server socket");
         //Open the ServerSocket using the ip and port in the given SocketPartyData object.
         try {
             ServerSocketChannel channel = ServerSocketChannel.open();
@@ -97,6 +98,7 @@ class SocketMultipartyListenerThread extends Thread{
      * as long as the flag bStopped is false or until we have got as much connections as we should.<p>
      */
     public void run() {
+        Logging.getLogger().info("run");
         //Prepare a map to hold the number of connected channels for each party.
         Map<PartyData, Integer> partiesChannelsCount = new HashMap<PartyData, Integer>();
 
@@ -157,7 +159,7 @@ class SocketMultipartyListenerThread extends Thread{
      * @return The number of connected sockets of all parties.
      */
     protected int setSocket(Map<PartyData, Integer> partiesChannelsCount, int i, Socket socket) {
-        Logger.getLogger("Simple").info("Got socket:" + socket);
+        Logging.getLogger().info("Got socket:" + socket);
         //Get the port of the calling party in order to determine which party is calling.
         SocketPartyData acceptedParty = createIncomingParty(socket);
 
@@ -190,6 +192,7 @@ class SocketMultipartyListenerThread extends Thread{
      * @return The data of the calling party.
      */
     protected SocketPartyData createIncomingParty(Socket socket) {
+        Logging.getLogger().info("create Incoming party");
         //Get the ip of the client socket.
         InetAddress inetAddr = socket.getInetAddress();
         //Receive the port of the client socket.
@@ -213,6 +216,7 @@ class SocketMultipartyListenerThread extends Thread{
      * @return The number of channels that should be connected.
      */
     protected int setConnectingState(Map<PartyData, Integer> partiesChannelsCount) {
+        Logging.getLogger().info("Set connecting state");
         //Create an iterator that go over the parties list.
         Iterator<SocketPartyData> parties = channels.keySet().iterator();
         int count = 0;
