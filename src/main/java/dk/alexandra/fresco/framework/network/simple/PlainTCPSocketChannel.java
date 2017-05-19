@@ -100,6 +100,8 @@ public class PlainTCPSocketChannel {
         this.me = me;
     }
 
+
+    private int sent = 0;
     /**
      * Sends the message to the other user of the channel with TCP protocol.
      *
@@ -107,7 +109,12 @@ public class PlainTCPSocketChannel {
      * @throws IOException Any of the usual Input/Output related exceptions.
      */
     public void send(byte[] msg) throws IOException {
-        Logging.getLogger().info("Sending: " + msg.length);
+        sent ++;
+        if (sent > 100) {
+            Logging.getLogger().info("Sent: " + sent);
+            sent = 0;
+        }
+
         //For some reason it turns out that writing complex objects first to a byte array message is faster than using the stream
         //of the socket to write the object. Thus we create here a Message object and translate it back to the actual object in the receive method
         //The use of a local stream that does the writeObject is faster than the writeObject of outStream member variable of this class
@@ -141,7 +148,7 @@ public class PlainTCPSocketChannel {
 
         int offset = 0;
         byte[] bytes = new byte[(lengthPart4 << 24)+ (lengthPart3 << 16)+ (lengthPart2 << 8) + lengthPart1];
-        Logging.getLogger().info("Receiving... length=" + bytes.length);
+//        Logging.getLogger().info("Receiving... length=" + bytes.length);
         while (true) {
             int read = inStream.read(bytes, offset, bytes.length - offset);
             if (read == -1) throw new RuntimeException("Closed`?asd");
