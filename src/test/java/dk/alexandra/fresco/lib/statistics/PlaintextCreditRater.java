@@ -24,49 +24,60 @@
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
  *******************************************************************************/
-package dk.alexandra.fresco.lib.lp;
+package dk.alexandra.fresco.lib.statistics;
 
-import dk.alexandra.fresco.framework.ProtocolProducer;
-import dk.alexandra.fresco.framework.value.SInt;
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
-public class SimpleLPPrefix implements LPPrefix {
-	
-	private final Matrix<SInt> updateMatrix;
-	private final LPTableau tableau;
-	private final SInt pivot;
-	private final SInt[] basis;
-	private ProtocolProducer prefix;
-	
-	public SimpleLPPrefix(Matrix<SInt> updateMatrix, LPTableau tableau, SInt pivot, SInt[] basis, ProtocolProducer prefix) {
-		this.updateMatrix = updateMatrix;
-		this.tableau = tableau;
-		this.pivot = pivot;
-		this.basis = basis;
-		this.prefix = prefix;
-	}
-	
-	@Override
-	public ProtocolProducer getPrefix() {
-		return prefix;
-	}
+import org.apache.commons.math3.optim.PointValuePair;
+import org.apache.commons.math3.optim.linear.LinearConstraint;
+import org.apache.commons.math3.optim.linear.LinearConstraintSet;
+import org.apache.commons.math3.optim.linear.LinearObjectiveFunction;
+import org.apache.commons.math3.optim.linear.NonNegativeConstraint;
+import org.apache.commons.math3.optim.linear.Relationship;
+import org.apache.commons.math3.optim.linear.SimplexSolver;
+import org.apache.commons.math3.optim.nonlinear.scalar.GoalType;
 
-	@Override
-	public LPTableau getTableau() {
-		return tableau;
-	}
 
-	@Override
-	public Matrix<SInt> getUpdateMatrix() {
-		return updateMatrix;
-	}
+/**
+ * Performs a credit rating using plaintext
+ * 
+ */
+public class PlaintextCreditRater {
 
-	@Override
-	public SInt getPivot() {
-		return pivot;
-	}
+  /**
+   * It is assumed that there is an interval for each value.
+   * @param values
+   * @param intervals
+   * @param scores
+   * @return
+   */
+  public static int calculateScore(int[] values, int[][] intervals, int[][] scores) {
+    int score = 0;
+    
+    for(int i =0; i< values.length; i++) {
+      score += computeInterval(values[i], intervals[i], scores[i]);
+    }
+    
+    return score;
+  }
 
-	@Override
-	public SInt[] getBasis() {
-		return basis;
-	}
+
+  private static int computeInterval(int value, int[] interval, int[] scores) {
+    int count = 0;
+    for(int i = 0; i < interval.length; i++) {
+      if(value <= interval[i]) {
+        return scores[count];
+      }
+      count++;
+    }
+    
+    return scores[count];
+  }
+  
 }

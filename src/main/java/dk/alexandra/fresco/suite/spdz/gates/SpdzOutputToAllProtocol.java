@@ -75,7 +75,7 @@ public class SpdzOutputToAllProtocol extends SpdzNativeProtocol implements OpenI
 			storage.addOpenedValue(openedVal);
 			storage.addClosedValue(in.value);
 			BigInteger tmpOut = openedVal;
-			// tmpOut = Util.convertRepresentation(tmpOut);
+			 tmpOut = Util.convertRepresentation(tmpOut);
 			out.setValue(tmpOut);
 			return EvaluationStatus.IS_DONE;
 		default:

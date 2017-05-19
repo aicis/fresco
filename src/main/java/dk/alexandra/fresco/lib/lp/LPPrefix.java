@@ -30,37 +30,52 @@ import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.SInt;
 
 /**
- * The LPPrefix models that the SInts used as input to the LPSolver should be prepared in some way. 
- * E.g. they may be the result of some prior secure computation. An LPPrefix thus both 
- * supplies the SInts for the LPSolver and a ProtocolProducer representing a protocol to be evaluated in order
- * to prepare the SInts for use in the LPSolver.
+ * The LPPrefix models that the SInts used as input to the LPSolver should be
+ * prepared in some way. E.g. they may be the result of some prior secure
+ * computation. An LPPrefix thus both supplies the SInts for the LPSolver and a
+ * ProtocolProducer representing a protocol to be evaluated in order to prepare
+ * the SInts for use in the LPSolver.
+ * 
  * @author psn
  *
  */
 public interface LPPrefix {
 
 	/**
-	 * Gives a ProtocolProducer preparing inputs to an LPSolver. 
-	 * @param tableau output - the tableau as it should be prepared before the first iteration 
-	 * @param lpfactory input - an LP factory
-	 * @param numericfactory input - an LP factory
-	 * @return a ProtocolProducer representing the modification of inputs 
+	 * Gives a ProtocolProducer preparing inputs to an LPSolver.
+	 * 
+	 * @param tableau
+	 *            output - the tableau as it should be prepared before the first
+	 *            iteration
+	 * @param lpfactory
+	 *            input - an LP factory
+	 * @param numericfactory
+	 *            input - an LP factory
+	 * @return a ProtocolProducer representing the modification of inputs
 	 */
 	public ProtocolProducer getPrefix();
-	
+
 	/**
-	 * @return the SInts that after running the prefix protocol should hold the initial tableau
+	 * @return the SInts that after running the prefix protocol should hold the
+	 *         initial tableau
 	 */
 	public LPTableau getTableau();
-	
+
 	/**
-	 * @return the SInts that after running the prefix protocol should hold the initial update matrix
+	 * @return the SInts that after running the prefix protocol should hold the
+	 *         initial update matrix
 	 */
 	public Matrix<SInt> getUpdateMatrix();
-	
-	
+
 	/**
-	 * @return the SInt that after running the prefix protocol should hold the initial pivot
+	 * @return the SInt that after running the prefix protocol should hold the
+	 *         initial pivot
 	 */
 	public SInt getPivot();
+
+	/**
+	 * @return The final basis consisting of the variables which defines the
+	 *         basis of the final LP solution.
+	 */
+	public SInt[] getBasis();
 }

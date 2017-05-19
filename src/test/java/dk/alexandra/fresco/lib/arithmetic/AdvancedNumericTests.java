@@ -43,10 +43,19 @@ import dk.alexandra.fresco.lib.helper.builder.AdvancedNumericBuilder;
 import dk.alexandra.fresco.lib.helper.builder.NumericIOBuilder;
 import dk.alexandra.fresco.lib.helper.builder.NumericProtocolBuilder;
 import dk.alexandra.fresco.lib.helper.builder.OmniBuilder;
+import dk.alexandra.fresco.suite.spdz.utils.Util;
 
 public class AdvancedNumericTests {
 
     public static class TestDivision extends TestThreadFactory {
+
+        private int numerator;
+        private int denominator;
+
+        public TestDivision(int numerator, int denominator) {
+            this.numerator = numerator;
+            this.denominator = denominator;
+        }
 
         @Override
         public TestThread next(TestThreadConfiguration conf) {
@@ -60,9 +69,9 @@ public class AdvancedNumericTests {
                             NumericIOBuilder io = builder.getNumericIOBuilder();
                             AdvancedNumericBuilder advanced = builder.getAdvancedNumericBuilder();
 
-                            SInt p = io.input(9, 1);
-                            SInt q = io.input(4, 1);
-                            SInt result = advanced.div(p, 4, q, 4);
+                            SInt p = io.input(numerator, 1);
+                            SInt q = io.input(denominator, 1);
+                            SInt result = advanced.div(p, q);
 
                             outputs = new OInt[] { io.output(result) };
 
@@ -72,8 +81,8 @@ public class AdvancedNumericTests {
 
                     sce.runApplication(app);
 
-                    Assert.assertEquals(BigInteger.valueOf(9 / 4),
-                            app.getOutputs()[0].getValue());
+                    Assert.assertEquals(BigInteger.valueOf(numerator / denominator),
+                            Util.convertRepresentation(app.getOutputs()[0].getValue()));
                 }
             };
         }
@@ -97,7 +106,7 @@ public class AdvancedNumericTests {
                             SInt p = io.input(9, 1);
                             SInt q = io.input(4, 1);
                             OInt precision = numeric.knownOInt(4);
-                            SInt result = advanced.div(p, 4, q, 4, precision);
+                            SInt result = advanced.div(p, q, precision);
 
                             outputs = new OInt[] { io.output(result) };
 
