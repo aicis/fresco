@@ -101,7 +101,7 @@ public class SimpleNetworkImpl implements Network {
      * @throws IOException
      */
     public void send(int receiverId, byte[] data) throws IOException {
-        Logging.getLogger().info("Send to:" + receiverId + "data.length=" + data.length);
+//        Logging.getLogger().info("Send to:" + receiverId + "data.length=" + data.length);
         send(defaultPlainTCPSocketChannel, receiverId, data);
     }
 
@@ -159,7 +159,7 @@ public class SimpleNetworkImpl implements Network {
 
     @Override
     public byte[] receive(int PlainTCPSocketChannel, int partyId) throws IOException {
-        Logging.getLogger().info("Receive from:" + partyId + "(Me=" + this.conf.getMyId() + ")");
+//        Logging.getLogger().info("Receive from:" + partyId + "(Me=" + this.conf.getMyId() + ")");
         if (partyId == this.conf.getMyId()) {
             byte[] res = (byte[]) this.queues.get(PlainTCPSocketChannel).poll();
             if (res == null) {
