@@ -213,7 +213,8 @@ public class TwoPartySocketConnector {
                 plainTCPChannel = (PlainTCPSocketChannel) plainTCPSocketChannel;
 
                 //Enable nagle.
-                plainTCPChannel.enableNage(true);
+                //EBO: TCP No Delay
+                plainTCPChannel.enableNage(false);
             }
         }
 
