@@ -63,7 +63,7 @@ public class PlainTCPSocketChannel {
     protected Socket sendSocket;                //A socket used to send messages.
     private Socket receiveSocket;                //A socket used to receive messages.
     protected OutputStream outStream;        //Used to send a message
-    private ObjectInputStream inStream;            //Used to receive a message.
+    private InputStream inStream;            //Used to receive a message.
     protected InetSocketAddress socketAddress;    //The address of the other party.
     private Message intermediate;
     private Message msgObj;
@@ -123,6 +123,7 @@ public class PlainTCPSocketChannel {
      * @throws IOException            Any of the usual Input/Output related exceptions.
      */
     public byte[] receive() throws ClassNotFoundException, IOException {
+        Logging.getLogger().info("Receiving...");
         outStream.flush();
 
         int lengthPart1 = inStream.read();
@@ -135,6 +136,7 @@ public class PlainTCPSocketChannel {
 
         int offset = 0;
         byte[] bytes = new byte[lengthPart2 << 8 + lengthPart1];
+        Logging.getLogger().info("Receiving... length=" + bytes.length);
         while (true) {
             int read = inStream.read(bytes, offset, bytes.length - offset);
             if (read == -1) throw new RuntimeException("Closed`?asd");
@@ -243,7 +245,7 @@ public class PlainTCPSocketChannel {
 
         try {
             //set the input and output streams
-            inStream = new ObjectInputStream(socket.getInputStream());
+            inStream = socket.getInputStream();
             //After the receive socket is connected, need to check if the send socket is also connected.
             //If so, set the channel state to READY.
             setReady();
