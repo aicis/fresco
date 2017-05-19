@@ -26,17 +26,12 @@
  *******************************************************************************/
 package dk.alexandra.fresco.suite.spdz;
 
-import java.math.BigInteger;
-
 import org.junit.Test;
 
 import dk.alexandra.fresco.framework.configuration.PreprocessingStrategy;
 import dk.alexandra.fresco.framework.network.NetworkingStrategy;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
-import dk.alexandra.fresco.framework.sce.resources.storage.FilebasedStreamedStorageImpl;
-import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
 import dk.alexandra.fresco.lib.arithmetic.MiMCTests;
-import dk.alexandra.fresco.suite.spdz.storage.InitializeStorage;
 
 public class TestSpdzMiMC extends AbstractSpdzTest {
 
@@ -45,23 +40,22 @@ public class TestSpdzMiMC extends AbstractSpdzTest {
 		runTest(new MiMCTests.TestMiMCEncSameEnc(), EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET,
 				PreprocessingStrategy.DUMMY, 2);
 	}
+	
+	@Test
+	public void test_mimc_diff_enc() throws Exception {
+		runTest(new MiMCTests.TestMiMCDifferentPlainTexts(), EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET,
+				PreprocessingStrategy.DUMMY, 2);
+	}
+	
+	@Test
+	public void test_mimc_det_enc() throws Exception {
+		runTest(new MiMCTests.TestMiMCEncryptsDeterministically(), EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET,
+				PreprocessingStrategy.DUMMY, 2);
+	}
 
 	@Test
 	public void test_mimc_enc_dec() throws Exception {
-		// Use a static preprocessing approach since otherwise, we would have to
-		// create an array of size ~2^500 since 3^-1 in the dummy field is of
-		// approximately that size.
-		int noOfThreads = 3;
-		InitializeStorage.cleanup();
-		try {
-			InitializeStorage.initStreamedStorage(new FilebasedStreamedStorageImpl(new InMemoryStorage()), 2,
-					noOfThreads, 10000, 1000, 0, 0, new BigInteger("1031"));
-			runTest(new MiMCTests.TestMiMCEncDec(), EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET,
-					PreprocessingStrategy.STATIC, 2);
-		} catch (Exception e) {
-			throw e;
-		} finally {
-			InitializeStorage.cleanup();
-		}
+		runTest(new MiMCTests.TestMiMCEncDec(), EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET,
+				PreprocessingStrategy.DUMMY, 2);
 	}
 }
