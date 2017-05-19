@@ -48,6 +48,7 @@ import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageDummyImpl;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageImpl;
 import dk.alexandra.fresco.suite.spdz.utils.Util;
+import edu.biu.scapi.generals.Logging;
 
 public class SpdzProtocolSuite implements ProtocolSuite {
 
@@ -173,6 +174,7 @@ public class SpdzProtocolSuite implements ProtocolSuite {
 	}
 
 	private void MACCheck() throws IOException {
+		Logging.getLogger().info("MacChecking. noOfGates=" + this.gatesEvaluated);
 		SpdzMacCheckProtocol macCheck = new SpdzMacCheckProtocol(rand, this.digs[0], store[0]);
 		
 		int batchSize = 128;
@@ -186,7 +188,8 @@ public class SpdzProtocolSuite implements ProtocolSuite {
 		} while (macCheck.hasNextProtocols());
 		
 		//reset boolean value
-		this.outputProtocolInBatch = false;		
+		this.outputProtocolInBatch = false;
+		Logging.getLogger().info("Done MacChecking.");
 	}
 
 	@Override
