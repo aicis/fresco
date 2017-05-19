@@ -23,7 +23,6 @@ public class SimpleNetworkImpl implements Network {
     private LinkedList<PartyData> parties;
     private HashMap<Integer, PartyData> idToPartyData;
     private HashMap<Integer, BlockingQueue<Serializable>> queues;
-    private Watchdog watchdog;
     private Map<PartyData, Map<String, PlainTCPSocketChannel>> connections;
 
     @Override

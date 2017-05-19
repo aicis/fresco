@@ -14,6 +14,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import edu.biu.scapi.comm.twoPartyComm.PartyData;
 import edu.biu.scapi.comm.twoPartyComm.SocketPartyData;
@@ -156,6 +157,7 @@ class SocketMultipartyListenerThread extends Thread{
      * @return The number of connected sockets of all parties.
      */
     protected int setSocket(Map<PartyData, Integer> partiesChannelsCount, int i, Socket socket) {
+        Logger.getLogger("Simple").info("Got socket:" + socket);
         //Get the port of the calling party in order to determine which party is calling.
         SocketPartyData acceptedParty = createIncomingParty(socket);
 
