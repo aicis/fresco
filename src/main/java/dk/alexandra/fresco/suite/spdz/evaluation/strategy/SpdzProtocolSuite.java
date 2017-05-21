@@ -26,14 +26,6 @@
  *******************************************************************************/
 package dk.alexandra.fresco.suite.spdz.evaluation.strategy;
 
-import java.io.IOException;
-import java.math.BigInteger;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
-import java.util.HashMap;
-import java.util.Map;
-
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.Reporter;
@@ -50,6 +42,14 @@ import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageImpl;
 import dk.alexandra.fresco.suite.spdz.utils.Util;
 import edu.biu.scapi.generals.Logging;
 
+import java.io.IOException;
+import java.math.BigInteger;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.util.HashMap;
+import java.util.Map;
+
 public class SpdzProtocolSuite implements ProtocolSuite {
 
 	private static Map<Integer, SpdzProtocolSuite> instances;
@@ -62,14 +62,17 @@ public class SpdzProtocolSuite implements ProtocolSuite {
 	private BigInteger keyShare, p;
 	private MessageDigest[] digs;
 	private SpdzConfiguration spdzConf;
-	
+
 	//This is set whenever an output protocol was evaluated. It means that the sync point needs to do a MAC check.
 	private boolean outputProtocolInBatch = false;
-	
-	public void outputProtocolUsedInBatch() {
+    private long totalMacTime;
+    private long lastMacEnd;
+    private long totalNoneMacTime;
+
+    public void outputProtocolUsedInBatch() {
 		outputProtocolInBatch = true;
 	}
-	
+
 	public SpdzProtocolSuite() {
 	}
 
@@ -118,7 +121,7 @@ public class SpdzProtocolSuite implements ProtocolSuite {
 				break;
 			case FUELSTATION:
 				store[i] = new SpdzStorageImpl(resourcePool, i, true, spdzConf.fuelStationBaseUrl());
-			}			
+			}
 		}
 		this.rand = resourcePool.getSecureRandom();
 		this.rp = resourcePool;
@@ -142,7 +145,7 @@ public class SpdzProtocolSuite implements ProtocolSuite {
 		// Initialize various fields global to the computation.
 		this.keyShare = store[0].getSSK();
 		this.p = store[0].getSupplier().getModulus();
-		Util.setModulus(this.p);		
+		Util.setModulus(this.p);
 	}
 
 	@Override
@@ -174,22 +177,29 @@ public class SpdzProtocolSuite implements ProtocolSuite {
 	}
 
 	private void MACCheck() throws IOException {
-		Logging.getLogger().info("MacChecking. noOfGates=" + this.gatesEvaluated);
-		SpdzMacCheckProtocol macCheck = new SpdzMacCheckProtocol(rand, this.digs[0], store[0]);
-		
+        long start = System.currentTimeMillis();
+        if(lastMacEnd>0)
+            totalNoneMacTime += start - lastMacEnd;
+
+        Logging.getLogger().info("MacChecking. noOfGates=" + this.gatesEvaluated + " MacTime: " + totalMacTime + ", noneMacTime" + totalNoneMacTime);
+        SpdzMacCheckProtocol macCheck = new SpdzMacCheckProtocol(rand, this.digs[0], store[0]);
+
 		int batchSize = 128;
 		NativeProtocol[] nextProtocols = new NativeProtocol[batchSize];
 		SCENetworkImpl sceNetworks = new SCENetworkImpl(this.rp.getNoOfParties(), 0);
-		
+
 		do {
-			int numOfProtocolsInBatch = macCheck.getNextProtocols(nextProtocols, 0);		
+			int numOfProtocolsInBatch = macCheck.getNextProtocols(nextProtocols, 0);
 			BatchedStrategy.processBatch(nextProtocols, numOfProtocolsInBatch, sceNetworks, 0,
-					this.rp);		
+					this.rp);
 		} while (macCheck.hasNextProtocols());
-		
+
 		//reset boolean value
 		this.outputProtocolInBatch = false;
+        totalMacTime += System.currentTimeMillis() - start;
+        lastMacEnd = System.currentTimeMillis();
 		Logging.getLogger().info("Done MacChecking.");
+
 	}
 
 	@Override

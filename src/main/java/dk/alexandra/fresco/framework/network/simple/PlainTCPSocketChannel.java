@@ -27,14 +27,16 @@ package dk.alexandra.fresco.framework.network.simple;
 import edu.biu.scapi.comm.twoPartyComm.SocketPartyData;
 import edu.biu.scapi.generals.Logging;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.Serializable;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketException;
 import java.nio.ByteBuffer;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class PlainTCPSocketChannel {
     /**
@@ -102,6 +104,8 @@ public class PlainTCPSocketChannel {
 
 
     private int sent = 0;
+    private int sentSize = 0;
+
     /**
      * Sends the message to the other user of the channel with TCP protocol.
      *
@@ -109,7 +113,8 @@ public class PlainTCPSocketChannel {
      * @throws IOException Any of the usual Input/Output related exceptions.
      */
     public void send(byte[] msg) throws IOException {
-        sent ++;
+        sentSize += msg.length;
+        sent++;
         if (sent > 100) {
             Logging.getLogger().info("Sent: " + sent);
             sent = 0;
@@ -133,7 +138,9 @@ public class PlainTCPSocketChannel {
      * @throws IOException            Any of the usual Input/Output related exceptions.
      */
     public byte[] receive() throws ClassNotFoundException, IOException {
-//        Logging.getLogger().info("Receiving...");
+        Logging.getLogger().info("Send " + sentSize + " - now receiving...");
+        sentSize = 0;
+
         outStream.flush();
 
         int lengthPart1 = inStream.read();
@@ -147,7 +154,7 @@ public class PlainTCPSocketChannel {
             throw new RuntimeException("Closed?");
 
         int offset = 0;
-        byte[] bytes = new byte[(lengthPart4 << 24)+ (lengthPart3 << 16)+ (lengthPart2 << 8) + lengthPart1];
+        byte[] bytes = new byte[(lengthPart4 << 24) + (lengthPart3 << 16) + (lengthPart2 << 8) + lengthPart1];
 //        Logging.getLogger().info("Receiving... length=" + bytes.length);
         while (true) {
             int read = inStream.read(bytes, offset, bytes.length - offset);
