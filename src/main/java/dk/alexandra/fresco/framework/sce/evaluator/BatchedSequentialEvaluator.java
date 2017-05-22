@@ -97,8 +97,6 @@ public class BatchedSequentialEvaluator implements ProtocolEvaluator {
             Function<Integer, Boolean> initialSync = null;
             // Do all rounds
 
-            boolean first = true;
-
             do {
                 // Evaluate the current round for all protocols
                 done = true;
@@ -112,12 +110,13 @@ public class BatchedSequentialEvaluator implements ProtocolEvaluator {
                         }
                     }
                 }
-                if (first && this.protocolSuite instanceof SpdzProtocolSuite) {
+                if (round == 0 && this.protocolSuite instanceof SpdzProtocolSuite) {
                     initialSync = ((SpdzProtocolSuite) this.protocolSuite).getInitialSync(sceNetwork);
-                    first = false;
                 }
-                if (initialSync != null)
-                    done = done && initialSync.apply(round);
+                if (initialSync != null) {
+                    boolean apply = initialSync.apply(round);
+                    done = done && apply;
+                }
                 // Send/Receive data for this round
                 Map<Integer, ByteBuffer> inputs = new HashMap<>();
 
