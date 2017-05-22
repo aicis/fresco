@@ -271,8 +271,10 @@ public class PlainTCPSocketChannel {
 
                         } catch (ClosedByInterruptException e) {
                             // Closing down
+                            Logging.getLogger().info("Closed by ClosedByInterruptException");
                             return;
                         } catch (IOException e) {
+                            Logging.getLogger().info("Error: " + e.getMessage());
                             throw new RuntimeException(e);
                         }
                     }
@@ -303,8 +305,10 @@ public class PlainTCPSocketChannel {
                             outStream.write(msg, offset, length - offset);
                         } catch (InterruptedException e) {
                             // All is dandy, we should stop now
+                            Logging.getLogger().info("Closed by InterruptException");
                             return;
                         } catch (Exception e) {
+                            Logging.getLogger().info("Error: " + e.getMessage());
                             throw new RuntimeException(e);
                         }
 
