@@ -179,7 +179,7 @@ public class SpdzProtocolSuite implements ProtocolSuite {
 
     private int logCount = 0;
     private int synchronizeCalls;
-    private int smalls = 0;
+    private long smalls = 0;
 
     private void MACCheck() throws IOException {
         long start = System.currentTimeMillis();
@@ -192,14 +192,15 @@ public class SpdzProtocolSuite implements ProtocolSuite {
 
         if (this.gatesEvaluated > 500 || logCount++ > 500) {
             Logging.getLogger().info("MacChecking(" + logCount + ")"
-                    + ". noOfGates=" + this.gatesEvaluated
-                    + ", openedValuesSize=" + storage.getOpenedValues().size()
+                    + ". NoOfGates=" + this.gatesEvaluated
+                    + ", AverageSmallSize=" + smalls / logCount
+                    + ", OpenedValuesSize=" + storage.getOpenedValues().size()
                     + ", SynchronizeCalls=" + synchronizeCalls
-                    + ", AverageSmallSize=" + smalls / (double)logCount
                     + ", MacTime=" + totalMacTime
                     + ", noneMacTime=" + totalNoneMacTime);
             logCount = 0;
             synchronizeCalls = 0;
+            smalls=0;
         }
         SpdzMacCheckProtocol macCheck = new SpdzMacCheckProtocol(rand, this.digs[0], storage);
 
