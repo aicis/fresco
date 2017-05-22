@@ -6,7 +6,6 @@ import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.network.Network;
 import edu.biu.scapi.comm.twoPartyComm.PartyData;
 import edu.biu.scapi.comm.twoPartyComm.SocketPartyData;
-import edu.biu.scapi.generals.Logging;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -176,7 +175,7 @@ public class SimpleNetworkImpl implements Network {
             }
             byte[] res = null;
             try {
-                res = (byte[]) c.receive();
+                res = c.receive();
             } catch (ClassNotFoundException e) {
                 throw new RuntimeException("Weird class not found exception, sry. ", e);
             }
