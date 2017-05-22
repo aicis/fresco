@@ -151,6 +151,7 @@ public class SpdzProtocolSuite implements ProtocolSuite {
     @Override
     public void synchronize(int gatesEvaluated) throws MPCException {
         this.gatesEvaluated += gatesEvaluated;
+        this.synchronizeCalls++;
         if (this.gatesEvaluated > macCheckThreshold || outputProtocolInBatch) {
             try {
                 for (int i = 1; i < store.length; i++) {
@@ -176,16 +177,24 @@ public class SpdzProtocolSuite implements ProtocolSuite {
         }
     }
 
+    private int logCount = 0;
+    private int synchronizeCalls;
+
     private void MACCheck() throws IOException {
         long start = System.currentTimeMillis();
         if (lastMacEnd > 0)
             totalNoneMacTime += start - lastMacEnd;
 
         SpdzStorage storage = store[0];
-        Logging.getLogger().info("MacChecking. noOfGates=" + this.gatesEvaluated
-                + ", openedValuesSize=" + storage.getOpenedValues().size()
-                + ", MacTime=" + totalMacTime
-                + ", noneMacTime=" + totalNoneMacTime);
+        if (logCount++ > 1000) {
+            Logging.getLogger().info("MacChecking. noOfGates=" + this.gatesEvaluated
+                    + ", openedValuesSize=" + storage.getOpenedValues().size()
+                    + ", SynchronizeCalls=" + synchronizeCalls
+                    + ", MacTime=" + totalMacTime
+                    + ", noneMacTime=" + totalNoneMacTime);
+            logCount = 0;
+            synchronizeCalls = 0;
+        }
         SpdzMacCheckProtocol macCheck = new SpdzMacCheckProtocol(rand, this.digs[0], storage);
 
         int batchSize = 128;
