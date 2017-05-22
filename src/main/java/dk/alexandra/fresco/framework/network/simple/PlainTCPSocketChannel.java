@@ -62,16 +62,13 @@ public class PlainTCPSocketChannel {
     }
 
     //	private State state;						// The state of the channel.
-    protected Socket sendSocket;                //A socket used to send messages.
+    private Socket sendSocket;                //A socket used to send messages.
     private Socket receiveSocket;                //A socket used to receive messages.
-    protected OutputStream outStream;        //Used to send a message
+    private OutputStream outStream;        //Used to send a message
     private InputStream inStream;            //Used to receive a message.
-    protected InetSocketAddress socketAddress;    //The address of the other party.
-    private Message intermediate;
-    private Message msgObj;
-    private byte[] msgBytes;
+    private InetSocketAddress socketAddress;    //The address of the other party.
     private SocketPartyData me;                    //Used to send the identity if needed.
-    protected boolean checkIdentity;            //Indicated if there is a need to verify identity.
+    private boolean checkIdentity;            //Indicated if there is a need to verify identity.
 
     /**
      * A constructor that set the state of this channel to not ready.

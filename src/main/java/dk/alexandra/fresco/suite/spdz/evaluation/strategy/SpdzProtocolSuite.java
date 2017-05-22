@@ -202,8 +202,6 @@ public class SpdzProtocolSuite implements ProtocolSuite {
         this.outputProtocolInBatch = false;
         totalMacTime += System.currentTimeMillis() - start;
         lastMacEnd = System.currentTimeMillis();
-        Logging.getLogger().info("Done MacChecking.");
-
     }
 
     @Override
