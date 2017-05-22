@@ -115,7 +115,7 @@ public class BatchedSequentialEvaluator implements ProtocolEvaluator {
                 }
                 if (initialSync != null) {
                     boolean apply = initialSync.apply(round);
-                    done = done && apply;
+                    done = apply && done;
                 }
                 // Send/Receive data for this round
                 Map<Integer, ByteBuffer> inputs = new HashMap<>();
