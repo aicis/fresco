@@ -31,11 +31,12 @@ import edu.biu.scapi.generals.Logging;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketException;
 import java.nio.ByteBuffer;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.logging.Level;
@@ -71,9 +72,6 @@ public class PlainTCPSocketChannel {
     }
 
 
-    private int sent = 0;
-    private int sentSize = 0;
-
     /**
      * Sends the message to the other user of the channel with TCP protocol.
      *
@@ -82,6 +80,8 @@ public class PlainTCPSocketChannel {
      */
     public void send(byte[] msg) throws IOException {
         try {
+            if (msg.length == 0)
+                throw new RuntimeException("Insane, why send a null length array?");
             pendingOutput.put(msg);
         } catch (InterruptedException e) {
             throw new MPCException("Error", e);
@@ -225,40 +225,48 @@ public class PlainTCPSocketChannel {
 
             if (sendSocket.isConnected() && receiveSocket.isConnected()) {
                 closed = false;
-                inputReader = new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        while (!closed) {
-                            try {
-                                //        Logging.getLogger().info("Send " + sentSize + " - now receiving...");
-                                sentSize = 0;
+                inputReader = new Thread(() -> {
+                    while (!closed) {
+                        try {
+                            int lengthPart1 = inStream.read();
+                            int lengthPart2 = inStream.read();
+                            int lengthPart3 = inStream.read();
+                            int lengthPart4 = inStream.read();
 
-                                int lengthPart1 = 0;
+                            if (lengthPart1 == -1
+                                    || lengthPart2 == -1
+                                    || lengthPart3 == -1
+                                    || lengthPart4 == -1)
+                                throw new RuntimeException("Closed during packet header parsing?");
+
+                            int offset = 0;
+                            List<byte[]> overflowBytes = null;
+                            while (lengthPart1 == 0
+                                    && lengthPart2 == 0
+                                    && lengthPart3 == 0
+                                    && lengthPart4 == 0) {
+                                byte[] bytes = new byte[1 << 23];
+                                if (overflowBytes == null)
+                                    overflowBytes = new LinkedList<>();
+
+                                overflowBytes.add(bytes);
+                                readBytesFromStream(offset, bytes);
+
                                 lengthPart1 = inStream.read();
-
-                                int lengthPart2 = inStream.read();
-                                int lengthPart3 = inStream.read();
-                                int lengthPart4 = inStream.read();
-
-                                if (lengthPart1 == -1 || lengthPart3 == -1 || lengthPart4 == -1)
-                                    throw new RuntimeException("Closed?");
-                                if (lengthPart2 == -1)
-                                    throw new RuntimeException("Closed?");
-
-                                int offset = 0;
-                                byte[] bytes = new byte[(lengthPart4 << 24) + (lengthPart3 << 16) + (lengthPart2 << 8) + lengthPart1];
-//        Logging.getLogger().info("Receiving... length=" + bytes.length);
-                                while (true) {
-                                    int read = inStream.read(bytes, offset, bytes.length - offset);
-                                    if (read == -1) throw new RuntimeException("Closed`?asd");
-                                    offset = offset + read;
-                                    if (offset == bytes.length) break;
-                                }
-
-                                pendingInput.add(bytes);
-                            } catch (IOException e) {
-                                throw new RuntimeException(e);
+                                lengthPart2 = inStream.read();
+                                lengthPart3 = inStream.read();
+                                lengthPart4 = inStream.read();
                             }
+
+                            byte[] bytes = new byte[(lengthPart4 << 24) + (lengthPart3 << 16) + (lengthPart2 << 8) + lengthPart1];
+                            readBytesFromStream(offset, bytes);
+
+                            if (overflowBytes != null)
+                                pendingInput.add(concatenateByteArrays(overflowBytes, bytes));
+                            else
+                                pendingInput.add(bytes);
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
                         }
                     }
                 });
@@ -267,19 +275,28 @@ public class PlainTCPSocketChannel {
                     while (!closed) {
                         try {
                             byte[] msg = pendingOutput.take();
-                            sentSize += msg.length;
-                            sent++;
-                            if (sent > 100) {
-//            Logging.getLogger().info("Sent: " + sent);
-                                sent = 0;
-                            }
 
                             int length = msg.length;
+                            int offset = 0;
+                            while (length - offset > 1 << 23) {
+                                // Overflow
+                                outStream.write(0);
+                                outStream.write(0);
+                                outStream.write(0);
+                                outStream.write(0);
+                                outStream.write(msg, offset, 1 << 23);
+                                offset += 1 << 23;
+                            }
+
+
                             outStream.write(length);
                             outStream.write(length >> 8);
                             outStream.write(length >> 16);
                             outStream.write(length >> 24);
-                            outStream.write(msg);
+                            outStream.write(msg, offset, length - offset);
+                        } catch (InterruptedException e) {
+                            // All is dandy, we should stop now
+                            return;
                         } catch (Exception e) {
                             throw new RuntimeException(e);
                         }
@@ -291,6 +308,32 @@ public class PlainTCPSocketChannel {
                 this.setState(State.READY);
                 Logging.getLogger().log(Level.INFO, "state: ready " + toString());
             }
+        }
+    }
+
+    private byte[] concatenateByteArrays(List<byte[]> overflowBytes, byte[] bytes) {
+        int size = bytes.length;
+        for (byte[] overflowByte : overflowBytes) {
+            size += overflowByte.length;
+        }
+
+        ByteBuffer bb = ByteBuffer.allocate(size);
+        for (byte[] overflowByte : overflowBytes) {
+            bb.put(overflowByte);
+        }
+        bb.put(bytes);
+        return bb.array();
+    }
+
+    private void readBytesFromStream(int offset, byte[] bytes) throws IOException {
+        while (true) {
+            int read = inStream.read(bytes, offset, bytes.length - offset);
+            if (read == -1)
+                throw new RuntimeException("Closed during read?");
+
+            offset = offset + read;
+            if (offset == bytes.length)
+                return;
         }
     }
 
