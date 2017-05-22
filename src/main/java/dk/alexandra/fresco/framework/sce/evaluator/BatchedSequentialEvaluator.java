@@ -54,7 +54,7 @@ public class BatchedSequentialEvaluator implements ProtocolEvaluator {
     private SCENetworkImpl sceNetwork;
 
     public BatchedSequentialEvaluator() {
-        this.maxBatchSize = 4096;
+        this.maxBatchSize = 16 * 4096;
     }
 
     @Override
