@@ -23,8 +23,6 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.lp;
 
-import java.math.BigInteger;
-
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.Protocol;
@@ -37,20 +35,23 @@ import dk.alexandra.fresco.lib.helper.AbstractRoundBasedProtocol;
 import dk.alexandra.fresco.lib.helper.CopyProtocol;
 import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
+import edu.biu.scapi.generals.Logging;
+
+import java.math.BigInteger;
 
 /**
- * A protocol for solving LP problems using the Simplex method. 
- * 
+ * A protocol for solving LP problems using the Simplex method.
+ *
  * <p>
- * We basically use the method of 
+ * We basically use the method of
  * <a href="http://fc09.ifca.ai/papers/69_Solving_linear_programs.pdf">Toft 2009</a>.
- * 
+ *
  * We optimize this protocol by using the so called <i>Revised Simplex</i> method.
  * I.e., instead of updating the tableau it self, we keep track of much smaller
  * update matrix representing changes to the initial tableau. Do this only requires
  * multiplication with a small sparse matrix, which can be done more efficiently
  * than general matrix multiplication.
- * </p> 
+ * </p>
  *
  */
 public class LPSolverProtocol implements Protocol {
@@ -121,6 +122,7 @@ public class LPSolverProtocol implements Protocol {
     if (pp == null) {
       if (state == STATE.PHASE1) {
         iterations++;
+        Logging.getLogger().info("LP Iterations: " + iterations);
         pp = phaseOneProtocol();
       } else if (state == STATE.PHASE2) {
         boolean terminated = terminationOut.getValue().equals(BigInteger.ONE);
@@ -158,17 +160,17 @@ public class LPSolverProtocol implements Protocol {
 
   /**
    * Creates a ProtocolProducer computing the second half of a simplex iteration.
-   * 
+   *
    * <p>
-   * This finds the exiting variable index by finding the most constraining 
-   * constraint on the entering variable. Having the exiting variable index also 
+   * This finds the exiting variable index by finding the most constraining
+   * constraint on the entering variable. Having the exiting variable index also
    * gives us the pivot. Having the entering and exiting indices and the pivot
    * allows us to compute the new update matrix for the next iteration.
-   * 
-   * Additionally, having the entering and exiting variables we can update 
+   *
+   * Additionally, having the entering and exiting variables we can update
    * the basis of the current solution.
    * </p>
-   * 
+   *
    * @return
    */
   private ProtocolProducer phaseTwoProtocol() {
@@ -180,7 +182,7 @@ public class LPSolverProtocol implements Protocol {
       @Override
       public ProtocolProducer nextProtocolProducer() {
         switch (round) {
-          case 0:            
+          case 0:
             exitingIndex = new SInt[noConstraints];
             for (int i = 0; i < exitingIndex.length; i++) {
               exitingIndex[i] = bnFactory.getSInt();
@@ -194,17 +196,17 @@ public class LPSolverProtocol implements Protocol {
                 updateMatrix, enteringIndex, exitingIndex, updateColumn, pivot);
             round++;
             return exitingIndexProducer;
-          case 1:            
+          case 1:
             // Update Basis
             SequentialProtocolProducer updateBasisProducer = new SequentialProtocolProducer();
             ParallelProtocolProducer par = new ParallelProtocolProducer();
             SInt ent = bnFactory.getSInt();
-            ProtocolProducer ipp = lpFactory.getInnerProductProtocol(enteringIndex, 
+            ProtocolProducer ipp = lpFactory.getInnerProductProtocol(enteringIndex,
                 enumeratedVariables, ent);
             updateBasisProducer.append(ipp);
             for (int i = 0; i < noConstraints; i++) {
               par.append(
-                  lpFactory.getConditionalSelectProtocol(exitingIndex[i], ent, 
+                  lpFactory.getConditionalSelectProtocol(exitingIndex[i], ent,
                       basis[i], basis[i]));
             }
             updateBasisProducer.append(par);
@@ -221,7 +223,7 @@ public class LPSolverProtocol implements Protocol {
             round++;
             return new ParallelProtocolProducer(updateBasisProducer, updateMatrixProducer);
           case 2:
-            // Copy the resulting new update matrix to overwrite the current 
+            // Copy the resulting new update matrix to overwrite the current
             ParallelProtocolProducer parCopy = new ParallelProtocolProducer();
             for (int i = 0; i < newUpdate.length; i++) {
               for (int j = 0; j < newUpdate[i].length; j++) {
@@ -247,10 +249,10 @@ public class LPSolverProtocol implements Protocol {
    * Creates a ProtocolProducer to compute the first half of a simplex iteration.
    * <p>
    * This finds the variable to enter the basis, based on the pivot rule of most
-   * negative entry in the <i>F</i> vector. Also tests if no negative entry in 
-   * the <i>F</i> vector is present. If this is the case we should terminate 
+   * negative entry in the <i>F</i> vector. Also tests if no negative entry in
+   * the <i>F</i> vector is present. If this is the case we should terminate
    * the simplex method.
-   * </p>   
+   * </p>
    * @return a protocol producer for the first half of a simplex iteration
    */
   private ProtocolProducer phaseOneProtocol() {
@@ -260,8 +262,8 @@ public class LPSolverProtocol implements Protocol {
       enteringIndex[i] = bnFactory.getSInt();
     }
     SInt minimum = bnFactory.getSInt();
-    // Compute potential entering variable index and corresponding value of 
-    // entry in F 
+    // Compute potential entering variable index and corresponding value of
+    // entry in F
     ProtocolProducer enteringProducer =
         lpFactory.getEnteringVariableProtocol(tableau, updateMatrix, enteringIndex, minimum);
     // Check if the entry in F is non-negative
@@ -275,11 +277,11 @@ public class LPSolverProtocol implements Protocol {
   /**
    * Creates a ProtocolProducer to compute the first half of a simplex iteration.
    * <p>
-   * This finds the variable to enter the basis, based on Blands the pivot rule 
-   * using the first  negative entry in the <i>F</i> vector. Also tests if no 
-   * negative entry in the <i>F</i> vector is present. If this is the case we 
+   * This finds the variable to enter the basis, based on Blands the pivot rule
+   * using the first  negative entry in the <i>F</i> vector. Also tests if no
+   * negative entry in the <i>F</i> vector is present. If this is the case we
    * should terminate the simplex method.
-   * </p>   
+   * </p>
    * @return a protocol producer for the first half of a simplex iteration
    */
   @SuppressWarnings("unused")
