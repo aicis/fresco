@@ -116,7 +116,7 @@ public class PlainTCPSocketChannel {
         sentSize += msg.length;
         sent++;
         if (sent > 100) {
-            Logging.getLogger().info("Sent: " + sent);
+//            Logging.getLogger().info("Sent: " + sent);
             sent = 0;
         }
 
@@ -138,7 +138,7 @@ public class PlainTCPSocketChannel {
      * @throws IOException            Any of the usual Input/Output related exceptions.
      */
     public byte[] receive() throws ClassNotFoundException, IOException {
-        Logging.getLogger().info("Send " + sentSize + " - now receiving...");
+//        Logging.getLogger().info("Send " + sentSize + " - now receiving...");
         sentSize = 0;
 
         outStream.flush();
