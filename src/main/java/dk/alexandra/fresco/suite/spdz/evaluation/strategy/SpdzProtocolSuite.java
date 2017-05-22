@@ -29,13 +29,17 @@ package dk.alexandra.fresco.suite.spdz.evaluation.strategy;
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.Reporter;
+import dk.alexandra.fresco.framework.network.SCENetwork;
 import dk.alexandra.fresco.framework.network.SCENetworkImpl;
 import dk.alexandra.fresco.framework.sce.configuration.ProtocolSuiteConfiguration;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchedStrategy;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.configuration.SpdzConfiguration;
+import dk.alexandra.fresco.suite.spdz.datatypes.SpdzCommitment;
+import dk.alexandra.fresco.suite.spdz.gates.SpdzCommitProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzMacCheckProtocol;
+import dk.alexandra.fresco.suite.spdz.gates.SpdzOpenCommitProtocol;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageDummyImpl;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageImpl;
@@ -49,6 +53,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Function;
 
 public class SpdzProtocolSuite implements ProtocolSuite {
 
@@ -70,7 +75,7 @@ public class SpdzProtocolSuite implements ProtocolSuite {
     private long totalNoneMacTime;
 
     public void outputProtocolUsedInBatch() {
-//        outputProtocolInBatch = true;
+        outputProtocolInBatch = true;
     }
 
     public SpdzProtocolSuite() {
@@ -149,25 +154,6 @@ public class SpdzProtocolSuite implements ProtocolSuite {
     }
 
     @Override
-    public void synchronize(int gatesEvaluated) throws MPCException {
-        this.gatesEvaluated += gatesEvaluated;
-        this.synchronizeCalls++;
-        if (this.gatesEvaluated > macCheckThreshold || outputProtocolInBatch) {
-            try {
-                for (int i = 1; i < store.length; i++) {
-                    store[0].getOpenedValues().addAll(store[i].getOpenedValues());
-                    store[0].getClosedValues().addAll(store[i].getClosedValues());
-                    store[i].reset();
-                }
-                MACCheck();
-            } catch (IOException e) {
-                throw new MPCException("Could not complete MACCheck.", e);
-            }
-            this.gatesEvaluated = 0;
-        }
-    }
-
-    @Override
     public void finishedEval() {
         try {
             MACCheck();
@@ -202,7 +188,7 @@ public class SpdzProtocolSuite implements ProtocolSuite {
             synchronizeCalls = 0;
             smalls = 0;
         }
-        SpdzMacCheckProtocol macCheck = new SpdzMacCheckProtocol(rand, this.digs[0], storage);
+        SpdzMacCheckProtocol macCheck = new SpdzMacCheckProtocol(rand, this.digs[0], storage, commitments);
 
         int batchSize = 128;
         NativeProtocol[] nextProtocols = new NativeProtocol[batchSize];
@@ -213,6 +199,8 @@ public class SpdzProtocolSuite implements ProtocolSuite {
             BatchedStrategy.processBatch(nextProtocols, numOfProtocolsInBatch, sceNetworks, 0,
                     this.rp);
         } while (macCheck.hasNextProtocols());
+
+        this.commitments = null;
 
         //reset boolean value
         this.outputProtocolInBatch = false;
@@ -225,5 +213,62 @@ public class SpdzProtocolSuite implements ProtocolSuite {
         for (SpdzStorage store : this.store) {
             store.shutdown();
         }
+    }
+
+    @Override
+    public void synchronize(int gatesEvaluated) throws MPCException {
+        this.gatesEvaluated += gatesEvaluated;
+        this.synchronizeCalls++;
+        if (this.gatesEvaluated > macCheckThreshold || outputProtocolInBatch) {
+            try {
+                for (int i = 1; i < store.length; i++) {
+                    store[0].getOpenedValues().addAll(store[i].getOpenedValues());
+                    store[0].getClosedValues().addAll(store[i].getClosedValues());
+                    store[i].reset();
+                }
+                MACCheck();
+            } catch (IOException e) {
+                throw new MPCException("Could not complete MACCheck.", e);
+            }
+            this.gatesEvaluated = 0;
+        }
+    }
+
+    private Map<Integer, BigInteger> commitments;
+
+    public Function<Integer, Boolean> getInitialSync(SCENetwork sceNetwork) {
+
+        boolean outputProtocolUsedInBatch = outputProtocolInBatch;
+        if (outputProtocolUsedInBatch) {
+            BigInteger s = new BigInteger(Util.getModulus().bitLength(), rand).mod(Util.getModulus());
+            SpdzCommitment commitment = new SpdzCommitment(digs[0], s, rand);
+            Map<Integer, BigInteger> comms = new HashMap<Integer, BigInteger>();
+            SpdzCommitProtocol commitProtocol = new SpdzCommitProtocol(commitment, comms);
+            SpdzOpenCommitProtocol openProtocol = new SpdzOpenCommitProtocol(commitment, comms, commitments);
+            Map<Integer, BigInteger> commitments = new HashMap<>();
+            return new Function<Integer, Boolean>() {
+                boolean commitDone = false;
+                boolean openDone = false;
+                int roundNumber = 0;
+
+                @Override
+                public Boolean apply(Integer integer) {
+                    int round = integer.intValue();
+                    if (!commitDone) {
+                        NativeProtocol.EvaluationStatus evaluate = commitProtocol.evaluate(round, rp, sceNetwork);
+                        roundNumber = round + 1;
+                        commitDone = evaluate.equals(NativeProtocol.EvaluationStatus.IS_DONE);
+                        return false;
+                    }
+                    if (!openDone) {
+                        NativeProtocol.EvaluationStatus evaluate = openProtocol.evaluate(round - roundNumber, rp, sceNetwork);
+                        openDone = evaluate.equals(NativeProtocol.EvaluationStatus.IS_DONE);
+                        if (openDone)
+                            SpdzProtocolSuite.this.commitments = commitments;
+                    }
+                    return openDone;
+                }
+            };
+        } else return null;
     }
 }
