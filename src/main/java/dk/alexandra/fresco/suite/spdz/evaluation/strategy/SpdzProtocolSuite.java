@@ -52,160 +52,164 @@ import java.util.Map;
 
 public class SpdzProtocolSuite implements ProtocolSuite {
 
-	private static Map<Integer, SpdzProtocolSuite> instances;
+    private static Map<Integer, SpdzProtocolSuite> instances;
 
-	private SecureRandom rand;
-	private SpdzStorage[] store;
-	private ResourcePool rp;
-	private int gatesEvaluated = 0;
-	private int macCheckThreshold = 100000;
-	private BigInteger keyShare, p;
-	private MessageDigest[] digs;
-	private SpdzConfiguration spdzConf;
+    private SecureRandom rand;
+    private SpdzStorage[] store;
+    private ResourcePool rp;
+    private int gatesEvaluated = 0;
+    private int macCheckThreshold = 100000;
+    private BigInteger keyShare, p;
+    private MessageDigest[] digs;
+    private SpdzConfiguration spdzConf;
 
-	//This is set whenever an output protocol was evaluated. It means that the sync point needs to do a MAC check.
-	private boolean outputProtocolInBatch = false;
+    //This is set whenever an output protocol was evaluated. It means that the sync point needs to do a MAC check.
+    private boolean outputProtocolInBatch = false;
     private long totalMacTime;
     private long lastMacEnd;
     private long totalNoneMacTime;
 
     public void outputProtocolUsedInBatch() {
-		outputProtocolInBatch = true;
-	}
+        outputProtocolInBatch = true;
+    }
 
-	public SpdzProtocolSuite() {
-	}
+    public SpdzProtocolSuite() {
+    }
 
-	public synchronized static SpdzProtocolSuite getInstance(int id) {
-		if (instances == null) {
-			instances = new HashMap<Integer, SpdzProtocolSuite>();
-		}
-		if (instances.get(id) == null) {
-			instances.put(id, new SpdzProtocolSuite());
-		}
-		return instances.get(id);
-	}
+    public synchronized static SpdzProtocolSuite getInstance(int id) {
+        if (instances == null) {
+            instances = new HashMap<Integer, SpdzProtocolSuite>();
+        }
+        if (instances.get(id) == null) {
+            instances.put(id, new SpdzProtocolSuite());
+        }
+        return instances.get(id);
+    }
 
-	public SpdzStorage getStore(int i) {
-		return store[i];
-	}
+    public SpdzStorage getStore(int i) {
+        return store[i];
+    }
 
-	public BigInteger getKeyShare() {
-		return keyShare;
-	}
+    public BigInteger getKeyShare() {
+        return keyShare;
+    }
 
-	public BigInteger getModulus() {
-		return p;
-	}
+    public BigInteger getModulus() {
+        return p;
+    }
 
-	public SpdzConfiguration getConf() {
-		return this.spdzConf;
-	}
+    public SpdzConfiguration getConf() {
+        return this.spdzConf;
+    }
 
-	public MessageDigest getMessageDigest(int threadId) {
-		return this.digs[threadId];
-	}
+    public MessageDigest getMessageDigest(int threadId) {
+        return this.digs[threadId];
+    }
 
-	@Override
-	public void init(ResourcePool resourcePool, ProtocolSuiteConfiguration conf) {
-		spdzConf = (SpdzConfiguration) conf;
-		int noOfThreads = resourcePool.getVMThreadCount();
-		this.store = new SpdzStorage[noOfThreads];
-		for (int i = 0; i < noOfThreads; i++) {
-			switch(spdzConf.getPreprocessingStrategy()) {
-			case DUMMY:
-				store[i] = new SpdzStorageDummyImpl(resourcePool.getMyId(), resourcePool.getNoOfParties());
-				break;
-			case STATIC:
-				store[i] = new SpdzStorageImpl(resourcePool, i);
-				break;
-			case FUELSTATION:
-				store[i] = new SpdzStorageImpl(resourcePool, i, true, spdzConf.fuelStationBaseUrl());
-			}
-		}
-		this.rand = resourcePool.getSecureRandom();
-		this.rp = resourcePool;
+    @Override
+    public void init(ResourcePool resourcePool, ProtocolSuiteConfiguration conf) {
+        spdzConf = (SpdzConfiguration) conf;
+        int noOfThreads = resourcePool.getVMThreadCount();
+        this.store = new SpdzStorage[noOfThreads];
+        for (int i = 0; i < noOfThreads; i++) {
+            switch (spdzConf.getPreprocessingStrategy()) {
+                case DUMMY:
+                    store[i] = new SpdzStorageDummyImpl(resourcePool.getMyId(), resourcePool.getNoOfParties());
+                    break;
+                case STATIC:
+                    store[i] = new SpdzStorageImpl(resourcePool, i);
+                    break;
+                case FUELSTATION:
+                    store[i] = new SpdzStorageImpl(resourcePool, i, true, spdzConf.fuelStationBaseUrl());
+            }
+        }
+        this.rand = resourcePool.getSecureRandom();
+        this.rp = resourcePool;
 
-		try {
-			this.digs = new MessageDigest[noOfThreads];
-			for (int i = 0; i < this.digs.length; i++) {
-				this.digs[i] = MessageDigest.getInstance("SHA-256");
-			}
-		} catch (NoSuchAlgorithmException e) {
-			Reporter.warn("SHA-256 not supported as digest on this system. Might not influence "
-					+ "computation if your chosen SCPS does not depend on a hash function.");
-		}
+        try {
+            this.digs = new MessageDigest[noOfThreads];
+            for (int i = 0; i < this.digs.length; i++) {
+                this.digs[i] = MessageDigest.getInstance("SHA-256");
+            }
+        } catch (NoSuchAlgorithmException e) {
+            Reporter.warn("SHA-256 not supported as digest on this system. Might not influence "
+                    + "computation if your chosen SCPS does not depend on a hash function.");
+        }
 
-		try {
-			this.store[0].getSSK();
-		} catch (MPCException e) {
-			throw new MPCException("No preprocessed data found for SPDZ - aborting.", e);
-		}
+        try {
+            this.store[0].getSSK();
+        } catch (MPCException e) {
+            throw new MPCException("No preprocessed data found for SPDZ - aborting.", e);
+        }
 
-		// Initialize various fields global to the computation.
-		this.keyShare = store[0].getSSK();
-		this.p = store[0].getSupplier().getModulus();
-		Util.setModulus(this.p);
-	}
+        // Initialize various fields global to the computation.
+        this.keyShare = store[0].getSSK();
+        this.p = store[0].getSupplier().getModulus();
+        Util.setModulus(this.p);
+    }
 
-	@Override
-	public void synchronize(int gatesEvaluated) throws MPCException {
-		this.gatesEvaluated += gatesEvaluated;
-		if (this.gatesEvaluated > macCheckThreshold || outputProtocolInBatch) {
-			try {
-				for (int i = 1; i < store.length; i++) {
-					store[0].getOpenedValues().addAll(store[i].getOpenedValues());
-					store[0].getClosedValues().addAll(store[i].getClosedValues());
-					store[i].reset();
-				}
-				MACCheck();
-			} catch (IOException e) {
-				throw new MPCException("Could not complete MACCheck.", e);
-			}
-			this.gatesEvaluated = 0;
-		}
-	}
+    @Override
+    public void synchronize(int gatesEvaluated) throws MPCException {
+        this.gatesEvaluated += gatesEvaluated;
+        if (this.gatesEvaluated > macCheckThreshold || outputProtocolInBatch) {
+            try {
+                for (int i = 1; i < store.length; i++) {
+                    store[0].getOpenedValues().addAll(store[i].getOpenedValues());
+                    store[0].getClosedValues().addAll(store[i].getClosedValues());
+                    store[i].reset();
+                }
+                MACCheck();
+            } catch (IOException e) {
+                throw new MPCException("Could not complete MACCheck.", e);
+            }
+            this.gatesEvaluated = 0;
+        }
+    }
 
-	@Override
-	public void finishedEval() {
-		try {
-			MACCheck();
-			this.gatesEvaluated = 0;
-		} catch (IOException e) {
-			throw new MPCException("Could not complete MACCheck.", e);
-		}
-	}
+    @Override
+    public void finishedEval() {
+        try {
+            MACCheck();
+            this.gatesEvaluated = 0;
+        } catch (IOException e) {
+            throw new MPCException("Could not complete MACCheck.", e);
+        }
+    }
 
-	private void MACCheck() throws IOException {
+    private void MACCheck() throws IOException {
         long start = System.currentTimeMillis();
-        if(lastMacEnd>0)
+        if (lastMacEnd > 0)
             totalNoneMacTime += start - lastMacEnd;
 
-        Logging.getLogger().info("MacChecking. noOfGates=" + this.gatesEvaluated + " MacTime: " + totalMacTime + ", noneMacTime" + totalNoneMacTime);
-        SpdzMacCheckProtocol macCheck = new SpdzMacCheckProtocol(rand, this.digs[0], store[0]);
+        SpdzStorage storage = store[0];
+        Logging.getLogger().info("MacChecking. noOfGates=" + this.gatesEvaluated
+                + ", openedValuesSize" + storage.getOpenedValues().size()
+                + ", MacTime: " + totalMacTime
+                + ", noneMacTime" + totalNoneMacTime);
+        SpdzMacCheckProtocol macCheck = new SpdzMacCheckProtocol(rand, this.digs[0], storage);
 
-		int batchSize = 128;
-		NativeProtocol[] nextProtocols = new NativeProtocol[batchSize];
-		SCENetworkImpl sceNetworks = new SCENetworkImpl(this.rp.getNoOfParties(), 0);
+        int batchSize = 128;
+        NativeProtocol[] nextProtocols = new NativeProtocol[batchSize];
+        SCENetworkImpl sceNetworks = new SCENetworkImpl(this.rp.getNoOfParties(), 0);
 
-		do {
-			int numOfProtocolsInBatch = macCheck.getNextProtocols(nextProtocols, 0);
-			BatchedStrategy.processBatch(nextProtocols, numOfProtocolsInBatch, sceNetworks, 0,
-					this.rp);
-		} while (macCheck.hasNextProtocols());
+        do {
+            int numOfProtocolsInBatch = macCheck.getNextProtocols(nextProtocols, 0);
+            BatchedStrategy.processBatch(nextProtocols, numOfProtocolsInBatch, sceNetworks, 0,
+                    this.rp);
+        } while (macCheck.hasNextProtocols());
 
-		//reset boolean value
-		this.outputProtocolInBatch = false;
+        //reset boolean value
+        this.outputProtocolInBatch = false;
         totalMacTime += System.currentTimeMillis() - start;
         lastMacEnd = System.currentTimeMillis();
-		Logging.getLogger().info("Done MacChecking.");
+        Logging.getLogger().info("Done MacChecking.");
 
-	}
+    }
 
-	@Override
-	public void destroy() {
-		for (SpdzStorage store : this.store) {
-			store.shutdown();
-		}
-	}
+    @Override
+    public void destroy() {
+        for (SpdzStorage store : this.store) {
+            store.shutdown();
+        }
+    }
 }
