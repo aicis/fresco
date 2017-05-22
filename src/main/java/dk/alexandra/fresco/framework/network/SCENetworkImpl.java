@@ -56,7 +56,7 @@ public class SCENetworkImpl implements SCENetwork, SCENetworkSupplier {
 		this(noOfParties, threadId, null);
 	}
 
-	public SCENetworkImpl(int noOfParties, int defaultThreadId, Network network) {
+	public SCENetworkImpl(int noOfParties, int threadId, Network network) {
 		this.noOfParties = noOfParties;
 		this.threadId = threadId;
 		this.output = new HashMap<Integer, ByteArrayOutputStream>();
