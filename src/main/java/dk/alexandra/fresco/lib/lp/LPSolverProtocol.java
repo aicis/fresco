@@ -122,7 +122,7 @@ public class LPSolverProtocol implements Protocol {
     if (pp == null) {
       if (state == STATE.PHASE1) {
         iterations++;
-        Logging.getLogger().info("LP Iterations: " + iterations);
+        Logging.getLogger().info("LP Iterations=" + iterations);
         pp = phaseOneProtocol();
       } else if (state == STATE.PHASE2) {
         boolean terminated = terminationOut.getValue().equals(BigInteger.ONE);
