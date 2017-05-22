@@ -35,6 +35,7 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketException;
 import java.nio.ByteBuffer;
+import java.nio.channels.ClosedByInterruptException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
@@ -236,8 +237,10 @@ public class PlainTCPSocketChannel {
                             if (lengthPart1 == -1
                                     || lengthPart2 == -1
                                     || lengthPart3 == -1
-                                    || lengthPart4 == -1)
-                                throw new RuntimeException("Closed during packet header parsing?");
+                                    || lengthPart4 == -1) {
+                                Logging.getLogger().info("Closed during packet header parsing?");
+                                return;
+                            }
 
                             int offset = 0;
                             List<byte[]> overflowBytes = null;
@@ -265,6 +268,10 @@ public class PlainTCPSocketChannel {
                                 pendingInput.add(concatenateByteArrays(overflowBytes, bytes));
                             else
                                 pendingInput.add(bytes);
+
+                        } catch (ClosedByInterruptException e) {
+                            // Closing down
+                            return;
                         } catch (IOException e) {
                             throw new RuntimeException(e);
                         }
