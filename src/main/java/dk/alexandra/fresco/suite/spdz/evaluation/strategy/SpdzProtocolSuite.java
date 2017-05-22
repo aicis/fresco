@@ -244,8 +244,8 @@ public class SpdzProtocolSuite implements ProtocolSuite {
             SpdzCommitment commitment = new SpdzCommitment(digs[0], s, rand);
             Map<Integer, BigInteger> comms = new HashMap<Integer, BigInteger>();
             SpdzCommitProtocol commitProtocol = new SpdzCommitProtocol(commitment, comms);
-            SpdzOpenCommitProtocol openProtocol = new SpdzOpenCommitProtocol(commitment, comms, commitments);
             Map<Integer, BigInteger> commitments = new HashMap<>();
+            SpdzOpenCommitProtocol openProtocol = new SpdzOpenCommitProtocol(commitment, comms, commitments);
             return new Function<Integer, Boolean>() {
                 boolean commitDone = false;
                 boolean openDone = false;
