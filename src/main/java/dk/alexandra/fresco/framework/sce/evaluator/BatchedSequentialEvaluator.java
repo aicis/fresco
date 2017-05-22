@@ -55,7 +55,7 @@ public class BatchedSequentialEvaluator implements ProtocolEvaluator {
 	@Override
 	public void setResourcePool(SCEResourcePool resourcePool) {
 		this.resourcePool = resourcePool;
-		this.sceNetwork = new SCENetworkImpl(this.resourcePool.getNoOfParties(), DEFAULT_THREAD_ID);		
+		this.sceNetwork = new SCENetworkImpl(this.resourcePool.getNoOfParties(), DEFAULT_THREAD_ID, this.resourcePool.getNetwork());
 	}
 
 	public ProtocolSuite getProtocolInvocation() {
