@@ -24,44 +24,31 @@
 
 package dk.alexandra.fresco.framework.network.simple;
 
+import dk.alexandra.fresco.framework.MPCException;
 import edu.biu.scapi.comm.twoPartyComm.SocketPartyData;
 import edu.biu.scapi.generals.Logging;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.Serializable;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketException;
 import java.nio.ByteBuffer;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.logging.Level;
 
 public class PlainTCPSocketChannel {
-    /**
-     * A nested class to use in the send and receive functions.
-     */
-    public static class Message implements Serializable {
 
-        private static final long serialVersionUID = 4996749071831550038L;
-        private byte[] data = null;
+    private Thread inputReader;
+    private Thread outputWriter;
 
-        public Message(byte[] data) {
-            this.data = data;
-        }
+    private BlockingQueue<byte[]> pendingOutput = new LinkedBlockingQueue<>();
+    private BlockingQueue<byte[]> pendingInput = new LinkedBlockingQueue<>();
 
-        public void setData(byte[] data) {
-            this.data = data;
-        }
 
-        public byte[] getData() {
-            return data;
-        }
-
-    }
-
-    //	private State state;						// The state of the channel.
     private Socket sendSocket;                //A socket used to send messages.
     private Socket receiveSocket;                //A socket used to receive messages.
     private OutputStream outStream;        //Used to send a message
@@ -69,6 +56,7 @@ public class PlainTCPSocketChannel {
     private InetSocketAddress socketAddress;    //The address of the other party.
     private SocketPartyData me;                    //Used to send the identity if needed.
     private boolean checkIdentity;            //Indicated if there is a need to verify identity.
+    private boolean closed;
 
     /**
      * A constructor that set the state of this channel to not ready.
@@ -110,22 +98,11 @@ public class PlainTCPSocketChannel {
      * @throws IOException Any of the usual Input/Output related exceptions.
      */
     public void send(byte[] msg) throws IOException {
-        sentSize += msg.length;
-        sent++;
-        if (sent > 100) {
-//            Logging.getLogger().info("Sent: " + sent);
-            sent = 0;
+        try {
+            pendingOutput.put(msg);
+        } catch (InterruptedException e) {
+            throw new MPCException("Error", e);
         }
-
-        //For some reason it turns out that writing complex objects first to a byte array message is faster than using the stream
-        //of the socket to write the object. Thus we create here a Message object and translate it back to the actual object in the receive method
-        //The use of a local stream that does the writeObject is faster than the writeObject of outStream member variable of this class
-        int length = msg.length;
-        outStream.write(length);
-        outStream.write(length >> 8);
-        outStream.write(length >> 16);
-        outStream.write(length >> 24);
-        outStream.write(msg);
     }
 
     /**
@@ -135,32 +112,11 @@ public class PlainTCPSocketChannel {
      * @throws IOException            Any of the usual Input/Output related exceptions.
      */
     public byte[] receive() throws ClassNotFoundException, IOException {
-//        Logging.getLogger().info("Send " + sentSize + " - now receiving...");
-        sentSize = 0;
-
-        outStream.flush();
-
-        int lengthPart1 = inStream.read();
-        int lengthPart2 = inStream.read();
-        int lengthPart3 = inStream.read();
-        int lengthPart4 = inStream.read();
-
-        if (lengthPart1 == -1 || lengthPart3 == -1 || lengthPart4 == -1)
-            throw new RuntimeException("Closed?");
-        if (lengthPart2 == -1)
-            throw new RuntimeException("Closed?");
-
-        int offset = 0;
-        byte[] bytes = new byte[(lengthPart4 << 24) + (lengthPart3 << 16) + (lengthPart2 << 8) + lengthPart1];
-//        Logging.getLogger().info("Receiving... length=" + bytes.length);
-        while (true) {
-            int read = inStream.read(bytes, offset, bytes.length - offset);
-            if (read == -1) throw new RuntimeException("Closed`?asd");
-            offset = offset + read;
-            if (offset == bytes.length) break;
+        try {
+            return pendingInput.take();
+        } catch (InterruptedException e) {
+            throw new MPCException("Error", e);
         }
-
-        return bytes;
     }
 
     /**
@@ -169,10 +125,17 @@ public class PlainTCPSocketChannel {
     public void close() {
 
         try {
+            closed = true;
             if (sendSocket != null) {
                 outStream.close();
                 sendSocket.close();
 
+            }
+            if (outputWriter != null) {
+                outputWriter.interrupt();
+            }
+            if (inputReader != null) {
+                inputReader.interrupt();
             }
             if (receiveSocket != null) {
 
@@ -278,6 +241,69 @@ public class PlainTCPSocketChannel {
         if (sendSocket != null && receiveSocket != null) {
 
             if (sendSocket.isConnected() && receiveSocket.isConnected()) {
+                closed = false;
+                inputReader = new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        while (!closed) {
+                            try {
+                                //        Logging.getLogger().info("Send " + sentSize + " - now receiving...");
+                                sentSize = 0;
+
+                                int lengthPart1 = 0;
+                                lengthPart1 = inStream.read();
+
+                                int lengthPart2 = inStream.read();
+                                int lengthPart3 = inStream.read();
+                                int lengthPart4 = inStream.read();
+
+                                if (lengthPart1 == -1 || lengthPart3 == -1 || lengthPart4 == -1)
+                                    throw new RuntimeException("Closed?");
+                                if (lengthPart2 == -1)
+                                    throw new RuntimeException("Closed?");
+
+                                int offset = 0;
+                                byte[] bytes = new byte[(lengthPart4 << 24) + (lengthPart3 << 16) + (lengthPart2 << 8) + lengthPart1];
+//        Logging.getLogger().info("Receiving... length=" + bytes.length);
+                                while (true) {
+                                    int read = inStream.read(bytes, offset, bytes.length - offset);
+                                    if (read == -1) throw new RuntimeException("Closed`?asd");
+                                    offset = offset + read;
+                                    if (offset == bytes.length) break;
+                                }
+
+                                pendingInput.add(bytes);
+                            } catch (IOException e) {
+                                throw new RuntimeException(e);
+                            }
+                        }
+                    }
+                });
+                inputReader.start();
+                outputWriter = new Thread(() -> {
+                    while (!closed) {
+                        try {
+                            byte[] msg = pendingOutput.take();
+                            sentSize += msg.length;
+                            sent++;
+                            if (sent > 100) {
+//            Logging.getLogger().info("Sent: " + sent);
+                                sent = 0;
+                            }
+
+                            int length = msg.length;
+                            outStream.write(length);
+                            outStream.write(length >> 8);
+                            outStream.write(length >> 16);
+                            outStream.write(length >> 24);
+                            outStream.write(msg);
+                        } catch (Exception e) {
+                            throw new RuntimeException(e);
+                        }
+
+                    }
+                });
+                outputWriter.start();
                 //set the channel state to READY
                 this.setState(State.READY);
                 Logging.getLogger().log(Level.INFO, "state: ready " + toString());
