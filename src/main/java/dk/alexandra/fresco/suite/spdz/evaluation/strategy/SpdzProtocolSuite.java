@@ -70,7 +70,7 @@ public class SpdzProtocolSuite implements ProtocolSuite {
     private long totalNoneMacTime;
 
     public void outputProtocolUsedInBatch() {
-        outputProtocolInBatch = true;
+//        outputProtocolInBatch = true;
     }
 
     public SpdzProtocolSuite() {
