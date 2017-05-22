@@ -11,8 +11,8 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.net.InetAddress;
 import java.util.*;
-import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeoutException;
 
 public class SimpleNetworkImpl implements Network {
@@ -21,7 +21,7 @@ public class SimpleNetworkImpl implements Network {
     private NetworkConfiguration conf;
     private LinkedList<PartyData> parties;
     private HashMap<Integer, PartyData> idToPartyData;
-    private HashMap<Integer, BlockingQueue<Serializable>> queues;
+    private HashMap<Integer, BlockingQueue<byte[]>> queuesToSelf;
     private Map<PartyData, Map<String, PlainTCPSocketChannel>> connections;
 
     @Override
@@ -57,13 +57,13 @@ public class SimpleNetworkImpl implements Network {
         HashMap<PartyData, Object> connectionsPerParty = new HashMap<PartyData, Object>(
                 others.size());
         //queue to self
-        this.queues = new HashMap<Integer, BlockingQueue<Serializable>>();
+        this.queuesToSelf = new HashMap<>();
         for (int i = 0; i < others.size(); i++) {
             connectionsPerParty.put(others.get(i), this.PlainTCPSocketChannelAmount);
         }
 
         for (int i = 0; i < this.PlainTCPSocketChannelAmount; i++) {
-            this.queues.put(i, new ArrayBlockingQueue<Serializable>(10000));
+            this.queuesToSelf.put(i, new LinkedBlockingQueue<>());
         }
 
         try {
@@ -144,7 +144,7 @@ public class SimpleNetworkImpl implements Network {
     public void send(int PlainTCPSocketChannel, int partyId, byte[] data)
             throws IOException {
         if (partyId == this.conf.getMyId()) {
-            this.queues.get(PlainTCPSocketChannel).add(data);
+            this.queuesToSelf.get(PlainTCPSocketChannel).add(data);
             return;
         }
         if (!idToPartyData.containsKey(partyId)) {
@@ -160,7 +160,7 @@ public class SimpleNetworkImpl implements Network {
     public byte[] receive(int PlainTCPSocketChannel, int partyId) throws IOException {
 //        Logging.getLogger().info("Receive from:" + partyId + "(Me=" + this.conf.getMyId() + ")");
         if (partyId == this.conf.getMyId()) {
-            byte[] res = (byte[]) this.queues.get(PlainTCPSocketChannel).poll();
+            byte[] res = (byte[]) this.queuesToSelf.get(PlainTCPSocketChannel).poll();
             if (res == null) {
                 throw new MPCException("Self(" + partyId + ") have not send anything on PlainTCPSocketChannel " + PlainTCPSocketChannel + "before receive was called.");
             }
