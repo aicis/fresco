@@ -59,23 +59,6 @@ public class PlainTCPSocketChannel {
     private boolean closed;
 
     /**
-     * A constructor that set the state of this channel to not ready.
-     */
-    public PlainTCPSocketChannel() {
-        setState(State.NOT_INIT);
-    }
-
-    /**
-     * A constructor that create the socket address according to the given ip and port and set the state of this channel to not ready.
-     *
-     * @param ipAddress other party's IP address.
-     * @param port      other party's port.
-     */
-    public PlainTCPSocketChannel(InetAddress ipAddress, int port, boolean checkIdentity, SocketPartyData me) {
-        this(new InetSocketAddress(ipAddress, port), checkIdentity, me);
-    }
-
-    /**
      * A constructor that set the given socket address and set the state of this channel to not ready.
      *
      * @param socketAddress other end's InetSocketAddress
