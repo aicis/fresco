@@ -193,14 +193,14 @@ public class SpdzProtocolSuite implements ProtocolSuite {
         if (this.gatesEvaluated > 500 || logCount++ > 500) {
             Logging.getLogger().info("MacChecking(" + logCount + ")"
                     + ". NoOfGates=" + this.gatesEvaluated
-                    + ", AverageSmallSize=" + smalls / logCount
+                    + ", AverageSmallSize=" + (logCount > 0 ? smalls / logCount : "?")
                     + ", OpenedValuesSize=" + storage.getOpenedValues().size()
                     + ", SynchronizeCalls=" + synchronizeCalls
                     + ", MacTime=" + totalMacTime
                     + ", noneMacTime=" + totalNoneMacTime);
             logCount = 0;
             synchronizeCalls = 0;
-            smalls=0;
+            smalls = 0;
         }
         SpdzMacCheckProtocol macCheck = new SpdzMacCheckProtocol(rand, this.digs[0], storage);
 
