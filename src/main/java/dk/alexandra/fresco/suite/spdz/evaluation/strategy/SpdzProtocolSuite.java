@@ -183,9 +183,9 @@ public class SpdzProtocolSuite implements ProtocolSuite {
 
         SpdzStorage storage = store[0];
         Logging.getLogger().info("MacChecking. noOfGates=" + this.gatesEvaluated
-                + ", openedValuesSize" + storage.getOpenedValues().size()
-                + ", MacTime: " + totalMacTime
-                + ", noneMacTime" + totalNoneMacTime);
+                + ", openedValuesSize=" + storage.getOpenedValues().size()
+                + ", MacTime=" + totalMacTime
+                + ", noneMacTime=" + totalNoneMacTime);
         SpdzMacCheckProtocol macCheck = new SpdzMacCheckProtocol(rand, this.digs[0], storage);
 
         int batchSize = 128;
