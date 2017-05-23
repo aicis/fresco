@@ -245,7 +245,6 @@ public class PlainTCPSocketChannel {
                     while (!closed) {
                         try {
                             byte[] msg = pendingOutput.take();
-
                             int length = msg.length;
                             outStream.writeInt(length);
                             outStream.write(msg);
