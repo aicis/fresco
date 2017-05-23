@@ -243,6 +243,7 @@ public class PlainTCPSocketChannel {
                         }
                     }
                 });
+                inputReader.setName("ChannelReceiver-" + inputReader.getId());
                 inputReader.start();
                 outputWriter = new Thread(() -> {
                     while (!closed) {
@@ -262,6 +263,7 @@ public class PlainTCPSocketChannel {
 
                     }
                 });
+                outputWriter.setName("ChannelSender-" + inputReader.getId());
                 outputWriter.start();
                 //set the channel state to READY
                 this.setState(State.READY);
