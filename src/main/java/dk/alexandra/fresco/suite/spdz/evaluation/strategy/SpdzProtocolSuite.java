@@ -73,6 +73,7 @@ public class SpdzProtocolSuite implements ProtocolSuite {
     private long totalMacTime;
     private long lastMacEnd;
     private long totalNoneMacTime;
+    private int totalSizeOfValues;
 
     public void outputProtocolUsedInBatch() {
         outputProtocolInBatch = true;
@@ -174,17 +175,19 @@ public class SpdzProtocolSuite implements ProtocolSuite {
 
         SpdzStorage storage = store[0];
         sumOfGates += this.gatesEvaluated;
+        totalSizeOfValues += storage.getOpenedValues().size();
 
         if (logCount++ > 1500) {
             Logging.getLogger().info("MacChecking(" + logCount + ")"
-                    + ", AverageSmallSize=" + (logCount > 0 ? sumOfGates / logCount : "?")
-                    + ", OpenedValuesSize=" + storage.getOpenedValues().size()
+                    + ", AverageGateSize=" + (logCount > 0 ? sumOfGates / logCount : "?")
+                    + ", OpenedValuesSize=" + totalSizeOfValues
                     + ", SynchronizeCalls=" + synchronizeCalls
                     + ", MacTime=" + totalMacTime
                     + ", noneMacTime=" + totalNoneMacTime);
             logCount = 0;
             synchronizeCalls = 0;
             sumOfGates = 0;
+            totalSizeOfValues = 0;
         }
         SpdzMacCheckProtocol macCheck = new SpdzMacCheckProtocol(rand, this.digs[0], storage, commitments);
 
