@@ -73,6 +73,7 @@ public class ParallelEvaluator implements ProtocolEvaluator {
 	 * first one is finished
 	 */
 	public void processBatch(NativeProtocol[] gates, int numOfGates) {
+		ProtocolSuite.RoundSynchronization roundSynchronization = pii.createRoundSynchronization();
 		int jobs = 1;
 		if (numOfGates > 15) {
 			jobs = (numOfGates > threads) ? threads : numOfGates;
@@ -93,7 +94,7 @@ public class ParallelEvaluator implements ProtocolEvaluator {
 		} catch (ExecutionException e) {
 			Reporter.severe("Exception during evaluation.", e);
 		}
-		pii.synchronize(numOfGates);
+		roundSynchronization.finishedBatch(numOfGates);
 	}
 
 	@Override

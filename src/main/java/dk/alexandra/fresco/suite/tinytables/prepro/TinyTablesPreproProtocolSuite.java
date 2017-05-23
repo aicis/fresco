@@ -26,18 +26,6 @@
  *******************************************************************************/
 package dk.alexandra.fresco.suite.tinytables.prepro;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
-import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.Reporter;
 import dk.alexandra.fresco.framework.sce.configuration.ProtocolSuiteConfiguration;
@@ -60,6 +48,13 @@ import dk.alexandra.fresco.suite.tinytables.storage.TinyTablesStorageImpl;
 import dk.alexandra.fresco.suite.tinytables.storage.TinyTablesTripleProvider;
 import dk.alexandra.fresco.suite.tinytables.util.TinyTablesTripleGenerator;
 import dk.alexandra.fresco.suite.tinytables.util.Util;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.nio.ByteBuffer;
+import java.util.*;
 
 /**
  * <p>
@@ -147,13 +142,18 @@ public class TinyTablesPreproProtocolSuite implements ProtocolSuite {
 	}
 
 	@Override
-	public void synchronize(int gatesEvaluated) throws MPCException {
-		/*
-		 * When 1000 AND gates needs to be processed, we do it.
-		 */
-		if (this.unprocessedAndGates.size() > 1000) {
-			calculateTinyTablesForUnprocessedANDGates();
-		}
+	public RoundSynchronization createRoundSynchronization() {
+		return new DummyRoundSynchronization() {
+			@Override
+			public void finishedBatch(int gatesEvaluated) throws MPCException {
+				/*
+				 * When 1000 AND gates needs to be processed, we do it.
+				 */
+				if (TinyTablesPreproProtocolSuite.this.unprocessedAndGates.size() > 1000) {
+					calculateTinyTablesForUnprocessedANDGates();
+				}
+			}
+		};
 	}
 
 	private void calculateTinyTablesForUnprocessedANDGates() {

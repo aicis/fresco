@@ -53,7 +53,6 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Function;
 
 public class SpdzProtocolSuite implements ProtocolSuite {
 
@@ -157,24 +156,36 @@ public class SpdzProtocolSuite implements ProtocolSuite {
     @Override
     public void finishedEval() {
         try {
-            MACCheck();
+            MACCheck(null);
             this.gatesEvaluated = 0;
         } catch (IOException e) {
             throw new MPCException("Could not complete MACCheck.", e);
         }
     }
 
+    @Override
+    public void destroy() {
+        for (SpdzStorage store : this.store) {
+            store.shutdown();
+        }
+    }
+
+    @Override
+    public RoundSynchronization createRoundSynchronization() {
+        return new SpdzRoundSynchronization();
+    }
+
     private int logCount = 0;
     private int synchronizeCalls;
     private long sumOfGates = 0;
 
-    private void MACCheck() throws IOException {
+    private void MACCheck(Map<Integer, BigInteger> commitments) throws IOException {
         long start = System.currentTimeMillis();
         if (lastMacEnd > 0)
             totalNoneMacTime += start - lastMacEnd;
 
         SpdzStorage storage = store[0];
-        sumOfGates += this.gatesEvaluated;
+        sumOfGates += SpdzProtocolSuite.this.gatesEvaluated;
         totalSizeOfValues += storage.getOpenedValues().size();
 
         if (logCount++ > 1500) {
@@ -189,87 +200,78 @@ public class SpdzProtocolSuite implements ProtocolSuite {
             sumOfGates = 0;
             totalSizeOfValues = 0;
         }
-        SpdzMacCheckProtocol macCheck = new SpdzMacCheckProtocol(rand, this.digs[0], storage, commitments);
+        SpdzMacCheckProtocol macCheck = new SpdzMacCheckProtocol(rand, SpdzProtocolSuite.this.digs[0], storage, commitments);
 
         int batchSize = 128;
         NativeProtocol[] nextProtocols = new NativeProtocol[batchSize];
-        SCENetworkImpl sceNetworks = new SCENetworkImpl(this.rp.getNoOfParties(), 0, rp.getNetwork());
+        SCENetworkImpl sceNetworks = new SCENetworkImpl(SpdzProtocolSuite.this.rp.getNoOfParties(), 0, rp.getNetwork());
 
         do {
             int numOfProtocolsInBatch = macCheck.getNextProtocols(nextProtocols, 0);
             BatchedStrategy.processBatch(nextProtocols, numOfProtocolsInBatch, sceNetworks, 0,
-                    this.rp);
+                    SpdzProtocolSuite.this.rp);
         } while (macCheck.hasNextProtocols());
 
-        this.commitments = null;
-
         //reset boolean value
-        this.outputProtocolInBatch = false;
+        SpdzProtocolSuite.this.outputProtocolInBatch = false;
         totalMacTime += System.currentTimeMillis() - start;
         lastMacEnd = System.currentTimeMillis();
     }
 
-    @Override
-    public void destroy() {
-        for (SpdzStorage store : this.store) {
-            store.shutdown();
-        }
-    }
+    private class SpdzRoundSynchronization implements RoundSynchronization {
+        private Map<Integer, BigInteger> commitments;
+        boolean commitDone = false;
+        boolean openDone = false;
+        int roundNumber = 0;
+        private final SpdzCommitProtocol commitProtocol;
+        private final SpdzOpenCommitProtocol openProtocol;
 
-    @Override
-    public void synchronize(int gatesEvaluated) throws MPCException {
-        this.gatesEvaluated += gatesEvaluated;
-        this.synchronizeCalls++;
-        if (this.gatesEvaluated > macCheckThreshold || outputProtocolInBatch) {
-            try {
-                for (int i = 1; i < store.length; i++) {
-                    store[0].getOpenedValues().addAll(store[i].getOpenedValues());
-                    store[0].getClosedValues().addAll(store[i].getClosedValues());
-                    store[i].reset();
-                }
-                MACCheck();
-            } catch (IOException e) {
-                throw new MPCException("Could not complete MACCheck.", e);
-            }
-            this.gatesEvaluated = 0;
-        }
-    }
-
-    private Map<Integer, BigInteger> commitments;
-
-    public Function<Integer, Boolean> getInitialSync(SCENetwork sceNetwork) {
-
-        boolean outputProtocolUsedInBatch = outputProtocolInBatch;
-        if (outputProtocolUsedInBatch) {
+        public SpdzRoundSynchronization() {
             BigInteger s = new BigInteger(Util.getModulus().bitLength(), rand).mod(Util.getModulus());
             SpdzCommitment commitment = new SpdzCommitment(digs[0], s, rand);
-            Map<Integer, BigInteger> comms = new HashMap<Integer, BigInteger>();
-            SpdzCommitProtocol commitProtocol = new SpdzCommitProtocol(commitment, comms);
+            Map<Integer, BigInteger> comms = new HashMap<>();
+            commitProtocol = new SpdzCommitProtocol(commitment, comms);
             Map<Integer, BigInteger> commitments = new HashMap<>();
-            SpdzOpenCommitProtocol openProtocol = new SpdzOpenCommitProtocol(commitment, comms, commitments);
-            return new Function<Integer, Boolean>() {
-                boolean commitDone = false;
-                boolean openDone = false;
-                int roundNumber = 0;
+            openProtocol = new SpdzOpenCommitProtocol(commitment, comms, commitments);
+        }
 
-                @Override
-                public Boolean apply(Integer integer) {
-                    int round = integer.intValue();
-                    if (!commitDone) {
-                        NativeProtocol.EvaluationStatus evaluate = commitProtocol.evaluate(round, rp, sceNetwork);
-                        roundNumber = round + 1;
-                        commitDone = evaluate.equals(NativeProtocol.EvaluationStatus.IS_DONE);
-                        return false;
+        @Override
+        public void finishedBatch(int gatesEvaluated) throws MPCException {
+            SpdzProtocolSuite.this.gatesEvaluated += gatesEvaluated;
+            SpdzProtocolSuite.this.synchronizeCalls++;
+            if (SpdzProtocolSuite.this.gatesEvaluated > macCheckThreshold || outputProtocolInBatch) {
+                try {
+                    for (int i = 1; i < store.length; i++) {
+                        store[0].getOpenedValues().addAll(store[i].getOpenedValues());
+                        store[0].getClosedValues().addAll(store[i].getClosedValues());
+                        store[i].reset();
                     }
-                    if (!openDone) {
-                        NativeProtocol.EvaluationStatus evaluate = openProtocol.evaluate(round - roundNumber, rp, sceNetwork);
-                        openDone = evaluate.equals(NativeProtocol.EvaluationStatus.IS_DONE);
-                        if (openDone)
-                            SpdzProtocolSuite.this.commitments = commitments;
-                    }
-                    return openDone;
+                    MACCheck(openDone ? this.commitments : null);
+                    this.commitments = null;
+                } catch (IOException e) {
+                    throw new MPCException("Could not complete MACCheck.", e);
                 }
-            };
-        } else return null;
+                SpdzProtocolSuite.this.gatesEvaluated = 0;
+            }
+        }
+
+        @Override
+        public boolean roundFinished(int round, ResourcePool resourcePool, SCENetwork sceNetwork) throws MPCException {
+            if (outputProtocolInBatch) {
+
+                if (!commitDone) {
+                    NativeProtocol.EvaluationStatus evaluate = commitProtocol.evaluate(round, resourcePool, sceNetwork);
+                    roundNumber = round + 1;
+                    commitDone = evaluate.equals(NativeProtocol.EvaluationStatus.IS_DONE);
+                    return false;
+                }
+                if (!openDone) {
+                    NativeProtocol.EvaluationStatus evaluate = openProtocol.evaluate(round - roundNumber, resourcePool, sceNetwork);
+                    openDone = evaluate.equals(NativeProtocol.EvaluationStatus.IS_DONE);
+                }
+                return openDone;
+            }
+            return true;
+        }
     }
 }

@@ -73,6 +73,7 @@ public class BatchedParallelEvaluator implements ProtocolEvaluator {
 	 * first one is finished
 	 */
 	public void processBatch(NativeProtocol[] protocols, int numOfProtocols) {
+		ProtocolSuite.RoundSynchronization roundSynchronization = pii.createRoundSynchronization();
 		ArrayList<BatchTask> tasks = new ArrayList<BatchTask>(threads);
 		int jobs = 1;
 		if (numOfProtocols > 7) {
@@ -103,7 +104,7 @@ public class BatchedParallelEvaluator implements ProtocolEvaluator {
 		} catch (ExecutionException e) {
 			Reporter.severe("Exception during evaluation.", e);
 		}
-		pii.synchronize(numOfProtocols);
+		roundSynchronization.finishedBatch(numOfProtocols);
 	}
 
 	@Override

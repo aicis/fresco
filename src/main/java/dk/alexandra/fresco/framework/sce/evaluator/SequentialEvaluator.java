@@ -108,10 +108,11 @@ public class SequentialEvaluator implements ProtocolEvaluator {
 	
 	
 	private int doOneRound(ProtocolProducer c) throws IOException {
+		ProtocolSuite.RoundSynchronization roundSynchronization = protocolSuite.createRoundSynchronization();
 		NativeProtocol[] nextProtocols = new NativeProtocol[maxBatchSize];
 		int numOfProtocolsInBatch = c.getNextProtocols(nextProtocols, 0);
 		processBatch(nextProtocols, numOfProtocolsInBatch);
-		this.protocolSuite.synchronize(numOfProtocolsInBatch);
+		roundSynchronization.finishedBatch(numOfProtocolsInBatch);
 		return numOfProtocolsInBatch;
 	}
 	

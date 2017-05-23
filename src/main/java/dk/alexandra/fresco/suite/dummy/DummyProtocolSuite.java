@@ -26,7 +26,6 @@
  *******************************************************************************/
 package dk.alexandra.fresco.suite.dummy;
 
-import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.sce.configuration.ProtocolSuiteConfiguration;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.suite.ProtocolSuite;
@@ -48,8 +47,8 @@ public class DummyProtocolSuite implements ProtocolSuite {
 	}
 
 	@Override
-	public void synchronize(int gatesEvaluated) throws MPCException {
-		// No sync needed.
+	public RoundSynchronization createRoundSynchronization() {
+		return new DummyRoundSynchronization();
 	}
 
 	@Override

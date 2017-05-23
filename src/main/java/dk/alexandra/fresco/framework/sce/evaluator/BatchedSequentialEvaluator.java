@@ -32,7 +32,6 @@ import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.network.SCENetworkImpl;
 import dk.alexandra.fresco.framework.sce.resources.SCEResourcePool;
 import dk.alexandra.fresco.suite.ProtocolSuite;
-import dk.alexandra.fresco.suite.spdz.evaluation.strategy.SpdzProtocolSuite;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -89,12 +88,12 @@ public class BatchedSequentialEvaluator implements ProtocolEvaluator {
     public void eval(ProtocolProducer c) throws IOException {
         NativeProtocol[] nextProtocols = new NativeProtocol[maxBatchSize];
         do {
+            ProtocolSuite.RoundSynchronization roundSynchronization = protocolSuite.createRoundSynchronization();
             int numOfProtocolsInBatch = c.getNextProtocols(nextProtocols, 0);
             int round = 0;
 
             boolean[] dones = new boolean[numOfProtocolsInBatch];
             boolean done;
-            Function<Integer, Boolean> initialSync = null;
             // Do all rounds
 
             do {
@@ -110,13 +109,9 @@ public class BatchedSequentialEvaluator implements ProtocolEvaluator {
                         }
                     }
                 }
-                if (round == 0 && this.protocolSuite instanceof SpdzProtocolSuite) {
-                    initialSync = ((SpdzProtocolSuite) this.protocolSuite).getInitialSync(sceNetwork);
-                }
-                if (initialSync != null) {
-                    boolean apply = initialSync.apply(round);
-                        if (!apply)
-                        done = false;
+                boolean synchronizationDone = roundSynchronization.roundFinished(round, resourcePool, sceNetwork);
+                if (!synchronizationDone) {
+                    done = false;
                 }
                 // Send/Receive data for this round
                 Map<Integer, ByteBuffer> inputs = new HashMap<>();
@@ -126,7 +121,7 @@ public class BatchedSequentialEvaluator implements ProtocolEvaluator {
 
                 round++;
             } while (!done);
-            this.protocolSuite.synchronize(numOfProtocolsInBatch);
+            roundSynchronization.finishedBatch(numOfProtocolsInBatch);
         } while (c.hasNextProtocols());
 
         this.protocolSuite.finishedEval();
