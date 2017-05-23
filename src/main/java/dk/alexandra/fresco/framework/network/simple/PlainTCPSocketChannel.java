@@ -36,8 +36,6 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.nio.ByteBuffer;
 import java.nio.channels.ClosedByInterruptException;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.logging.Level;
@@ -243,31 +241,15 @@ public class PlainTCPSocketChannel {
                             }
 
                             int offset = 0;
-                            List<byte[]> overflowBytes = null;
-                            while (lengthPart1 == 0
-                                    && lengthPart2 == 0
-                                    && lengthPart3 == 0
-                                    && lengthPart4 == 0) {
-                                byte[] bytes = new byte[1 << 23];
-                                if (overflowBytes == null)
-                                    overflowBytes = new LinkedList<>();
 
-                                overflowBytes.add(bytes);
-                                readBytesFromStream(offset, bytes);
-
-                                lengthPart1 = inStream.read();
-                                lengthPart2 = inStream.read();
-                                lengthPart3 = inStream.read();
-                                lengthPart4 = inStream.read();
-                            }
-
-                            byte[] bytes = new byte[(lengthPart4 << 24) + (lengthPart3 << 16) + (lengthPart2 << 8) + lengthPart1];
+                            lengthPart1 = (lengthPart1) & 0xFF;
+                            lengthPart2 = (lengthPart2 << 8) & 0xFF;
+                            lengthPart3 = (lengthPart3 << 16) & 0xFF;
+                            lengthPart4 = (lengthPart4 << 24) & 0xFF;
+                            byte[] bytes = new byte[lengthPart1 + lengthPart2 + lengthPart3 + lengthPart4];
                             readBytesFromStream(offset, bytes);
 
-                            if (overflowBytes != null)
-                                pendingInput.add(concatenateByteArrays(overflowBytes, bytes));
-                            else
-                                pendingInput.add(bytes);
+                            pendingInput.add(bytes);
 
                         } catch (ClosedByInterruptException e) {
                             // Closing down
@@ -287,16 +269,6 @@ public class PlainTCPSocketChannel {
 
                             int length = msg.length;
                             int offset = 0;
-                            while (length - offset > 1 << 23) {
-                                // Overflow
-                                outStream.write(0);
-                                outStream.write(0);
-                                outStream.write(0);
-                                outStream.write(0);
-                                outStream.write(msg, offset, 1 << 23);
-                                offset += 1 << 23;
-                            }
-
 
                             outStream.write(length);
                             outStream.write(length >> 8);
@@ -320,20 +292,6 @@ public class PlainTCPSocketChannel {
                 Logging.getLogger().log(Level.INFO, "state: ready " + toString());
             }
         }
-    }
-
-    private byte[] concatenateByteArrays(List<byte[]> overflowBytes, byte[] bytes) {
-        int size = bytes.length;
-        for (byte[] overflowByte : overflowBytes) {
-            size += overflowByte.length;
-        }
-
-        ByteBuffer bb = ByteBuffer.allocate(size);
-        for (byte[] overflowByte : overflowBytes) {
-            bb.put(overflowByte);
-        }
-        bb.put(bytes);
-        return bb.array();
     }
 
     private void readBytesFromStream(int offset, byte[] bytes) throws IOException {
