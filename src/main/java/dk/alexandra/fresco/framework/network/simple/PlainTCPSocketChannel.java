@@ -240,10 +240,10 @@ public class PlainTCPSocketChannel {
                                 return;
                             }
 
-                            lengthPart1 = (lengthPart1);
-                            lengthPart2 = (lengthPart2 << 8);
-                            lengthPart3 = (lengthPart3 << 16);
-                            lengthPart4 = (lengthPart4 << 24);
+                            lengthPart1 = (lengthPart1 & 0xFF);
+                            lengthPart2 = (lengthPart2 & 0xFF) << 8;
+                            lengthPart3 = (lengthPart3 & 0xFF) << 16;
+                            lengthPart4 = (lengthPart4 & 0xFF) << 24;
                             byte[] bytes = new byte[lengthPart1 + lengthPart2 + lengthPart3 + lengthPart4];
                             readBytesFromStream(bytes);
 
