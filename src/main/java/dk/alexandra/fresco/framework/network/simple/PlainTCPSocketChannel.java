@@ -78,6 +78,7 @@ public class PlainTCPSocketChannel {
      * @throws IOException Any of the usual Input/Output related exceptions.
      */
     public void send(byte[] msg) throws IOException {
+        Logging.getLogger().fine("Adding to send queue. length=" + msg.length);
         try {
             if (msg.length == 0)
                 throw new RuntimeException("Insane, why send a null length array?");
@@ -95,7 +96,9 @@ public class PlainTCPSocketChannel {
      */
     public byte[] receive() throws ClassNotFoundException, IOException {
         try {
-            return pendingInput.take();
+            byte[] result = pendingInput.take();
+            Logging.getLogger().fine("Taking from receive queue. length=" + result.length);
+            return result;
         } catch (InterruptedException e) {
             throw new MPCException("Error", e);
         }
@@ -228,6 +231,7 @@ public class PlainTCPSocketChannel {
                     while (!closed) {
                         try {
                             int length = inStream.readInt();
+                            Logging.getLogger().fine("Receiving from socket: " + length);
                             if (length == 0)
                                 throw new RuntimeException("Insane, why are we receiving an empty array?");
 
@@ -250,6 +254,7 @@ public class PlainTCPSocketChannel {
                         try {
                             byte[] msg = pendingOutput.take();
                             int length = msg.length;
+                            Logging.getLogger().fine("Sending to socket: " + length);
                             outStream.writeInt(length);
                             outStream.write(msg);
                         } catch (InterruptedException e) {
