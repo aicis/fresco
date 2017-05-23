@@ -87,8 +87,8 @@ public class BatchedSequentialEvaluator implements ProtocolEvaluator {
     }
 
     public void eval(ProtocolProducer c) throws IOException {
+        NativeProtocol[] nextProtocols = new NativeProtocol[maxBatchSize];
         do {
-            NativeProtocol[] nextProtocols = new NativeProtocol[maxBatchSize];
             int numOfProtocolsInBatch = c.getNextProtocols(nextProtocols, 0);
             int round = 0;
 
