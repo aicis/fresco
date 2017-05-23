@@ -241,7 +241,6 @@ public class PlainTCPSocketChannel {
                             }
 
                             int offset = 0;
-
                             lengthPart1 = (lengthPart1) & 0xFF;
                             lengthPart2 = (lengthPart2 << 8) & 0xFF;
                             lengthPart3 = (lengthPart3 << 16) & 0xFF;
@@ -267,13 +266,12 @@ public class PlainTCPSocketChannel {
                             byte[] msg = pendingOutput.take();
 
                             int length = msg.length;
-                            int offset = 0;
 
                             outStream.write(length);
                             outStream.write(length >> 8);
                             outStream.write(length >> 16);
                             outStream.write(length >> 24);
-                            outStream.write(msg, offset, length - offset);
+                            outStream.write(msg);
                         } catch (InterruptedException e) {
                             // All is dandy, we should stop now
                             Logging.getLogger().info("Closed by InterruptException");
