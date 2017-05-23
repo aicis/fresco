@@ -228,12 +228,9 @@ public class PlainTCPSocketChannel {
                     while (!closed) {
                         try {
                             int length = inStream.readInt();
-
                             byte[] bytes = new byte[length];
                             inStream.readFully(bytes);
-
                             pendingInput.add(bytes);
-
                         } catch (ClosedChannelException e) {
                             // Closing down
                             Logging.getLogger().info("Closed by interruption");
