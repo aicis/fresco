@@ -240,13 +240,12 @@ public class PlainTCPSocketChannel {
                                 return;
                             }
 
-                            int offset = 0;
                             lengthPart1 = (lengthPart1) & 0xFF;
                             lengthPart2 = (lengthPart2 << 8) & 0xFF;
                             lengthPart3 = (lengthPart3 << 16) & 0xFF;
                             lengthPart4 = (lengthPart4 << 24) & 0xFF;
                             byte[] bytes = new byte[lengthPart1 + lengthPart2 + lengthPart3 + lengthPart4];
-                            readBytesFromStream(offset, bytes);
+                            readBytesFromStream(bytes);
 
                             pendingInput.add(bytes);
 
@@ -291,7 +290,8 @@ public class PlainTCPSocketChannel {
         }
     }
 
-    private void readBytesFromStream(int offset, byte[] bytes) throws IOException {
+    private void readBytesFromStream( byte[] bytes) throws IOException {
+        int offset= 0;
         while (true) {
             int read = inStream.read(bytes, offset, bytes.length - offset);
             if (read == -1)
