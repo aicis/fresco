@@ -35,7 +35,7 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketException;
 import java.nio.ByteBuffer;
-import java.nio.channels.ClosedByInterruptException;
+import java.nio.channels.ClosedChannelException;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.logging.Level;
@@ -251,10 +251,9 @@ public class PlainTCPSocketChannel {
 
                             pendingInput.add(bytes);
 
-                        } catch (ClosedByInterruptException e) {
+                        } catch (ClosedChannelException e) {
                             // Closing down
-                            Logging.getLogger().info("Closed by ClosedByInterruptException");
-                            return;
+                            Logging.getLogger().info("Closed by interruption");
                         } catch (IOException e) {
                             Logging.getLogger().info("Error: " + e.getMessage());
                             throw new RuntimeException(e);
