@@ -28,9 +28,9 @@ import dk.alexandra.fresco.framework.MPCException;
 import edu.biu.scapi.comm.twoPartyComm.SocketPartyData;
 import edu.biu.scapi.generals.Logging;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketException;
@@ -51,8 +51,8 @@ public class PlainTCPSocketChannel {
 
     private Socket sendSocket;                //A socket used to send messages.
     private Socket receiveSocket;                //A socket used to receive messages.
-    private OutputStream outStream;        //Used to send a message
-    private InputStream inStream;            //Used to receive a message.
+    private DataOutputStream outStream;        //Used to send a message
+    private DataInputStream inStream;            //Used to receive a message.
     private InetSocketAddress socketAddress;    //The address of the other party.
     private SocketPartyData me;                    //Used to send the identity if needed.
     private boolean checkIdentity;            //Indicated if there is a need to verify identity.
@@ -157,7 +157,7 @@ public class PlainTCPSocketChannel {
                 }
 
                 Logging.getLogger().log(Level.INFO, "Socket connected");
-                outStream = sendSocket.getOutputStream();
+                outStream = new DataOutputStream(sendSocket.getOutputStream());
 
                 //After the send socket is connected, need to check if the receive socket is also connected.
                 //If so, set the channel state to READY.
@@ -206,7 +206,7 @@ public class PlainTCPSocketChannel {
 
         try {
             //set the input and output streams
-            inStream = socket.getInputStream();
+            inStream = new DataInputStream(socket.getInputStream());
             //After the receive socket is connected, need to check if the send socket is also connected.
             //If so, set the channel state to READY.
             setReady();
@@ -227,25 +227,10 @@ public class PlainTCPSocketChannel {
                 inputReader = new Thread(() -> {
                     while (!closed) {
                         try {
-                            int lengthPart1 = inStream.read();
-                            int lengthPart2 = inStream.read();
-                            int lengthPart3 = inStream.read();
-                            int lengthPart4 = inStream.read();
+                            int length = inStream.readInt();
 
-                            if (lengthPart1 == -1
-                                    || lengthPart2 == -1
-                                    || lengthPart3 == -1
-                                    || lengthPart4 == -1) {
-                                Logging.getLogger().info("Closed during packet header parsing?");
-                                return;
-                            }
-
-                            lengthPart1 = (lengthPart1 & 0xFF);
-                            lengthPart2 = (lengthPart2 & 0xFF) << 8;
-                            lengthPart3 = (lengthPart3 & 0xFF) << 16;
-                            lengthPart4 = (lengthPart4 & 0xFF) << 24;
-                            byte[] bytes = new byte[lengthPart1 + lengthPart2 + lengthPart3 + lengthPart4];
-                            readBytesFromStream(bytes);
+                            byte[] bytes = new byte[length];
+                            inStream.readFully(bytes);
 
                             pendingInput.add(bytes);
 
@@ -265,11 +250,7 @@ public class PlainTCPSocketChannel {
                             byte[] msg = pendingOutput.take();
 
                             int length = msg.length;
-
                             outStream.write(length);
-                            outStream.write(length >> 8);
-                            outStream.write(length >> 16);
-                            outStream.write(length >> 24);
                             outStream.write(msg);
                         } catch (InterruptedException e) {
                             // All is dandy, we should stop now
@@ -287,19 +268,6 @@ public class PlainTCPSocketChannel {
                 this.setState(State.READY);
                 Logging.getLogger().log(Level.INFO, "state: ready " + toString());
             }
-        }
-    }
-
-    private void readBytesFromStream(byte[] bytes) throws IOException {
-        int offset = 0;
-        while (true) {
-            int read = inStream.read(bytes, offset, bytes.length - offset);
-            if (read == -1)
-                throw new RuntimeException("Closed during read?");
-
-            offset = offset + read;
-            if (offset == bytes.length)
-                return;
         }
     }
 
