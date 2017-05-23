@@ -222,7 +222,10 @@ public class PlainTCPSocketChannel {
     /**
      * This function sets the channel state to READY in case both send and receive sockets are connected.
      */
-    protected void setReady() {
+    private synchronized void setReady() {
+        if (state == State.READY) {
+            return;
+        }
         if (sendSocket != null && receiveSocket != null) {
 
             if (sendSocket.isConnected() && receiveSocket.isConnected()) {
