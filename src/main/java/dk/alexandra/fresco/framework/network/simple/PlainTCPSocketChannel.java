@@ -228,6 +228,9 @@ public class PlainTCPSocketChannel {
                     while (!closed) {
                         try {
                             int length = inStream.readInt();
+                            if (length == 0)
+                                throw new RuntimeException("Insane, why are we receiving an empty array?");
+
                             byte[] bytes = new byte[length];
                             inStream.readFully(bytes);
                             pendingInput.add(bytes);
