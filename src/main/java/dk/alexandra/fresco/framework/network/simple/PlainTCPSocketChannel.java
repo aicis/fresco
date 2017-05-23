@@ -250,7 +250,7 @@ public class PlainTCPSocketChannel {
                             byte[] msg = pendingOutput.take();
 
                             int length = msg.length;
-                            outStream.write(length);
+                            outStream.writeInt(length);
                             outStream.write(msg);
                         } catch (InterruptedException e) {
                             // All is dandy, we should stop now
