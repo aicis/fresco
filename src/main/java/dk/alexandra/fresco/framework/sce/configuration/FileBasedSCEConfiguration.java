@@ -38,6 +38,8 @@ import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.Party;
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.configuration.ConfigurationException;
+import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
+import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.NetworkingStrategy;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.resources.storage.Storage;
@@ -304,7 +306,12 @@ public class FileBasedSCEConfiguration implements SCEConfiguration {
 	}
 
 	@Override
-	public NetworkingStrategy getNetwork() {
+	public NetworkingStrategy getNetworkStrategy() {
 		return this.network;
-	}	
+	}
+
+	@Override
+	public Network getNetwork(NetworkConfiguration configuration, int channelAmount) {
+		return null;
+	}
 }

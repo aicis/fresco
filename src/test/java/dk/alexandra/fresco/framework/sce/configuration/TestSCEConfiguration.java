@@ -33,6 +33,7 @@ import java.util.logging.Level;
 import dk.alexandra.fresco.framework.Party;
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
+import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.NetworkingStrategy;
 import dk.alexandra.fresco.framework.sce.resources.storage.Storage;
 import dk.alexandra.fresco.framework.sce.resources.storage.StreamedStorage;
@@ -132,7 +133,12 @@ public class TestSCEConfiguration implements SCEConfiguration {
 	}
 
 	@Override
-	public NetworkingStrategy getNetwork() {
+	public NetworkingStrategy getNetworkStrategy() {
 		return this.network;
+	}
+
+	@Override
+	public Network getNetwork(NetworkConfiguration configuration, int channelAmount) {
+		return null;
 	}
 }

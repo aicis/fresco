@@ -34,7 +34,6 @@ import dk.alexandra.fresco.framework.network.KryoNetNetwork;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.NetworkingStrategy;
 import dk.alexandra.fresco.framework.network.ScapiNetworkImpl;
-import dk.alexandra.fresco.framework.network.simple.SimpleNetworkImpl;
 import dk.alexandra.fresco.framework.sce.configuration.ProtocolSuiteConfiguration;
 import dk.alexandra.fresco.framework.sce.configuration.SCEConfiguration;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchedParallelEvaluator;
@@ -128,22 +127,21 @@ public class SCEImpl implements SCE {
         if (this.evaluator instanceof ParallelEvaluator || this.evaluator instanceof BatchedParallelEvaluator) {
             channelAmount = noOfvmThreads;
         }
-        NetworkingStrategy networkStrat = sceConf.getNetwork();
-        Network network = null;
-        switch (networkStrat) {
-            case KRYONET:
-                network = new KryoNetNetwork();
-                break;
-            case SCAPI:
-                network = new ScapiNetworkImpl();
-                break;
-            case SIMPLE:
-                network = new SimpleNetworkImpl();
-                break;
-            default:
-                throw new ConfigurationException("Unknown networking strategy " + networkStrat);
+        Network network = sceConf.getNetwork(conf, channelAmount);
+        if (network == null) {
+            NetworkingStrategy networkStrat = sceConf.getNetworkStrategy();
+            switch (networkStrat) {
+                case KRYONET:
+                    network = new KryoNetNetwork();
+                    break;
+                case SCAPI:
+                    network = new ScapiNetworkImpl();
+                    break;
+                default:
+                    throw new ConfigurationException("Unknown networking strategy " + networkStrat);
+            }
+            network.init(conf, channelAmount);
         }
-        network.init(conf, channelAmount);
 
         if (noOfvmThreads == -1) {
             // default to 1 allowed VM thread only - otherwise certain

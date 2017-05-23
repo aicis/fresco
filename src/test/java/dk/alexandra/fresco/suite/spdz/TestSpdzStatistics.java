@@ -37,11 +37,11 @@ public class TestSpdzStatistics extends AbstractSpdzTest{
 	
 	@Test
 	public void test_Exiting_Variable_2_parties() throws Exception {		
-		runTest(new StatisticsTests.TestStatistics(), EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.SIMPLE, PreprocessingStrategy.DUMMY, 2);
+		runTest(new StatisticsTests.TestStatistics(), EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
 	}
-	
+
 	@Test
-	public void test_Exiting_Variable_3_parties() throws Exception {		
-		runTest(new StatisticsTests.TestStatistics(), EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.SIMPLE, PreprocessingStrategy.DUMMY, 3);
+	public void test_Exiting_Variable_3_parties() throws Exception {
+		runTest(new StatisticsTests.TestStatistics(), EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 3);
 	}
 }

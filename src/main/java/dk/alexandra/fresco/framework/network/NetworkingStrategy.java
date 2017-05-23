@@ -9,5 +9,5 @@ package dk.alexandra.fresco.framework.network;
  */
 public enum NetworkingStrategy {
 
-	KRYONET, SCAPI, SIMPLE;
+	KRYONET, SCAPI;
 }
