@@ -125,7 +125,7 @@ public class Util {
 	 * @return M, M^2, M^3, ..., M^maxBitSize
 	 */
 	public static BigInteger[] getClearExpPipe(BigInteger M, int maxBitSize){
-		BigInteger[] Ms = new BigInteger[maxBitSize];
+		BigInteger[] Ms = new BigInteger[EXP_PIPE_SIZE - 1];
 		Ms[0] = M;
 		for(int i = 1; i < Ms.length; i++){
 			Ms[i] = Ms[i-1].multiply(M).mod(p);
