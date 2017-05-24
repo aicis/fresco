@@ -40,7 +40,6 @@ import dk.alexandra.fresco.framework.MPCException;
 
 public class SCENetworkImpl implements SCENetwork, SCENetworkSupplier {
 
-	private final Network network;
 	private int noOfParties;
 	//TODO: Remove when possible - also from interface.
 	private int threadId;
@@ -48,37 +47,25 @@ public class SCENetworkImpl implements SCENetwork, SCENetworkSupplier {
 	private Map<Integer, ByteBuffer> input;
 	private Map<Integer, ByteArrayOutputStream> output;
 	private Set<Integer> expectedInputForNextRound;
-	//TODO
-	private int channel = 0;
 
 	public SCENetworkImpl(int noOfParties, int threadId) {
-		//TODO Network
-		this(noOfParties, threadId, null);
-	}
-
-	public SCENetworkImpl(int noOfParties, int threadId, Network network) {
 		this.noOfParties = noOfParties;
 		this.threadId = threadId;
 		this.output = new HashMap<Integer, ByteArrayOutputStream>();
 		this.expectedInputForNextRound = new HashSet<Integer>();
-		this.network = network;
 	}
 
 	//ProtocolNetwork
 	@Override
 	public ByteBuffer receive(int id) {
-		try {
-			return ByteBuffer.wrap(network.receive(channel, id));
-		} catch (IOException e) {
-			throw new MPCException("Error in receive", e);
-		}
+		return this.input.get(id);
 	}
 	
 	@Override
 	public List<ByteBuffer> receiveFromAll() {
 		List<ByteBuffer> res = new ArrayList<ByteBuffer>();
 		for(int i = 1; i <= noOfParties; i++) {
-			res.add(receive(i));
+			res.add(this.input.get(i));
 		}
 		return res;
 	}
@@ -88,21 +75,22 @@ public class SCENetworkImpl implements SCENetwork, SCENetworkSupplier {
 		if(id < 1) {
 			throw new IllegalArgumentException("Cannot send to an Id smaller than 1");
 		}
-		doSend(id, data);
-	}
-
-	private void doSend(int id, byte[] data) {
+		ByteArrayOutputStream buffer = this.output.get(id);
+		if(buffer == null) {
+			buffer = new ByteArrayOutputStream();
+			this.output.put(id, buffer);
+		}
 		try {
-			network.send(channel, id, data);
+			buffer.write(data);
 		} catch (IOException e) {
-			throw new MPCException("error in send", e);
+			throw new MPCException("Should never happen, but an IOException occured trying to write bytes to a byte array output stream. ", e);
 		}
 	}
 
 	@Override
 	public void sendToAll(byte[] data) {
 		for(int i = 1; i <= noOfParties; i++) {
-			doSend(i, data);
+			send(i, data);
 		}
 	}
 	
@@ -122,7 +110,6 @@ public class SCENetworkImpl implements SCENetwork, SCENetworkSupplier {
 	}
 	@Override
 	public void expectInputFromAll() {
-		//TODO ensure that expected is received?
 		for(int i = 1; i <= noOfParties; i++) {
 			this.expectedInputForNextRound.add(i);
 		}

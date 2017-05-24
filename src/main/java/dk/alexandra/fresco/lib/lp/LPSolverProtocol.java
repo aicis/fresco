@@ -23,10 +23,9 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.lp;
 
-import dk.alexandra.fresco.framework.MPCException;
-import dk.alexandra.fresco.framework.NativeProtocol;
-import dk.alexandra.fresco.framework.Protocol;
-import dk.alexandra.fresco.framework.ProtocolProducer;
+import java.math.BigInteger;
+
+import dk.alexandra.fresco.framework.*;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.framework.value.Value;
@@ -35,9 +34,6 @@ import dk.alexandra.fresco.lib.helper.AbstractRoundBasedProtocol;
 import dk.alexandra.fresco.lib.helper.CopyProtocol;
 import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
-import edu.biu.scapi.generals.Logging;
-
-import java.math.BigInteger;
 
 /**
  * A protocol for solving LP problems using the Simplex method.
@@ -122,7 +118,7 @@ public class LPSolverProtocol implements Protocol {
     if (pp == null) {
       if (state == STATE.PHASE1) {
         iterations++;
-        Logging.getLogger().info("LP Iterations=" + iterations);
+        Reporter.info("LP Iterations=" + iterations);
         pp = phaseOneProtocol();
       } else if (state == STATE.PHASE2) {
         boolean terminated = terminationOut.getValue().equals(BigInteger.ONE);

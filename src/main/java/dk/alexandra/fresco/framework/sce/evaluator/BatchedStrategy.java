@@ -26,20 +26,19 @@
  *******************************************************************************/
 package dk.alexandra.fresco.framework.sce.evaluator;
 
+import dk.alexandra.fresco.framework.NativeProtocol;
+import dk.alexandra.fresco.framework.NativeProtocol.EvaluationStatus;
+import dk.alexandra.fresco.framework.network.Network;
+import dk.alexandra.fresco.framework.network.SCENetwork;
+import dk.alexandra.fresco.framework.network.SCENetworkSupplier;
+import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
+
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-
-import dk.alexandra.fresco.framework.NativeProtocol;
-import dk.alexandra.fresco.framework.NativeProtocol.EvaluationStatus;
-import dk.alexandra.fresco.framework.network.Network;
-import dk.alexandra.fresco.framework.network.SCENetwork;
-import dk.alexandra.fresco.framework.network.SCENetworkImpl;
-import dk.alexandra.fresco.framework.network.SCENetworkSupplier;
-import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 
 /**
  * This class implements the core of a general batched communication strategy

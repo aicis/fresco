@@ -66,10 +66,7 @@ public class BigIntegerWithFixedLengthSerializer {
 	 * @return The deserialized BigInteger.
 	 */
 	public static BigInteger toBigInteger(ByteBuffer buffer, int lengthInBytes) {
-        if (buffer.remaining() < lengthInBytes)
-            throw new MPCException("Cannot load " + lengthInBytes + "/" + buffer.remaining() + " from byteBuffer " + buffer.toString());
-
-        byte[] content = new byte[lengthInBytes];
+		byte[] content = new byte[lengthInBytes];
 		buffer.get(content);
 		return new BigInteger(content);
 	}
@@ -87,9 +84,9 @@ public class BigIntegerWithFixedLengthSerializer {
 	 */
 	public static BigInteger[] toBigIntegers(ByteBuffer buffer, int amount, int lengthInBytes) {
 		BigInteger[] res = new BigInteger[amount];
-        for (int i = 0; i < amount; i++) {
-            res[i] = toBigInteger(buffer, lengthInBytes);
-        }
-        return res;
+		for (int i = 0; i < amount; i++) {
+			res[i] = toBigInteger(buffer, lengthInBytes);
+		}
+		return res;
 	}
 }

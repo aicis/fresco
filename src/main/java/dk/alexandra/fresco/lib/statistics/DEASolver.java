@@ -26,6 +26,9 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.statistics;
 
+import java.util.Arrays;
+import java.util.List;
+
 import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.ProtocolFactory;
@@ -35,14 +38,15 @@ import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.field.integer.RandomFieldElementFactory;
 import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
-import dk.alexandra.fresco.lib.lp.*;
+import dk.alexandra.fresco.lib.lp.LPFactory;
+import dk.alexandra.fresco.lib.lp.LPFactoryImpl;
+import dk.alexandra.fresco.lib.lp.LPPrefix;
+import dk.alexandra.fresco.lib.lp.LPTableau;
+import dk.alexandra.fresco.lib.lp.Matrix;
 import dk.alexandra.fresco.lib.math.integer.NumericBitFactory;
 import dk.alexandra.fresco.lib.math.integer.exp.ExpFromOIntFactory;
 import dk.alexandra.fresco.lib.math.integer.exp.PreprocessedExpPipeFactory;
 import dk.alexandra.fresco.lib.math.integer.inv.LocalInversionFactory;
-
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * Protocol for solving DEA problems.

@@ -26,6 +26,8 @@
  *******************************************************************************/
 package dk.alexandra.fresco.framework.sce.evaluator;
 
+import java.io.IOException;
+
 import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.ProtocolProducer;
@@ -33,68 +35,67 @@ import dk.alexandra.fresco.framework.network.SCENetworkImpl;
 import dk.alexandra.fresco.framework.sce.resources.SCEResourcePool;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 
-import java.io.IOException;
-
 public class BatchedSequentialEvaluator implements ProtocolEvaluator {
 
-    private static final int DEFAULT_THREAD_ID = 0;
+	private static final int DEFAULT_THREAD_ID = 0;
 
-    private static final int DEFAULT_CHANNEL = 0;
+	private static final int DEFAULT_CHANNEL = 0;
 
-    private int maxBatchSize;
+	private int maxBatchSize;
 
-    private SCEResourcePool resourcePool;
-    private ProtocolSuite protocolSuite;
+	private SCEResourcePool resourcePool;
+	private ProtocolSuite protocolSuite;
 
-    private SCENetworkImpl sceNetwork;
+	private SCENetworkImpl sceNetwork;
 
-    public BatchedSequentialEvaluator() {
-        this.maxBatchSize = 4096;
-    }
+	public BatchedSequentialEvaluator() {
+		this.maxBatchSize = 4096;
+	}
 
-    @Override
-    public void setResourcePool(SCEResourcePool resourcePool) {
-        this.resourcePool = resourcePool;
-        this.sceNetwork = createSceNetwork();
-    }
+	@Override
+	public void setResourcePool(SCEResourcePool resourcePool) {
+		this.resourcePool = resourcePool;
+		this.sceNetwork = createSceNetwork();
+	}
 
-    public ProtocolSuite getProtocolInvocation() {
-        return protocolSuite;
-    }
+	public ProtocolSuite getProtocolInvocation() {
+		return protocolSuite;
+	}
 
-    @Override
-    public void setProtocolInvocation(ProtocolSuite pii) {
-        this.protocolSuite = pii;
-    }
+	@Override
+	public void setProtocolInvocation(ProtocolSuite pii) {
+		this.protocolSuite = pii;
+	}
 
-    public int getMaxBatchSize() {
-        return maxBatchSize;
-    }
+	public int getMaxBatchSize() {
+		return maxBatchSize;
+	}
 
-    /**
-     * Sets the maximum amount of gates evaluated in each batch.
-     *
-     * @param maxBatchSize the maximum batch size.
-     */
-    @Override
-    public void setMaxBatchSize(int maxBatchSize) {
-        this.maxBatchSize = maxBatchSize;
-    }
+	/**
+	 * Sets the maximum amount of gates evaluated in each batch.
+	 *
+	 * @param maxBatchSize
+	 *            the maximum batch size.
+	 */
+	@Override
+	public void setMaxBatchSize(int maxBatchSize) {
+		this.maxBatchSize = maxBatchSize;
+	}
 
-    public void eval(ProtocolProducer c) throws IOException {
-        do {
-            ProtocolSuite.RoundSynchronization roundSynchronization = this.protocolSuite.createRoundSynchronization();
-            NativeProtocol[] nextProtocols = new NativeProtocol[maxBatchSize];
-            int numOfProtocolsInBatch = c.getNextProtocols(nextProtocols, 0);
-            BatchedStrategy.processBatch(nextProtocols, numOfProtocolsInBatch, sceNetwork, DEFAULT_CHANNEL,
-                    resourcePool);
-            roundSynchronization.finishedBatch(numOfProtocolsInBatch, resourcePool, sceNetwork);
-        } while (c.hasNextProtocols());
+	public void eval(ProtocolProducer c) throws IOException {
+		do {
+			ProtocolSuite.RoundSynchronization roundSynchronization = this.protocolSuite.createRoundSynchronization();
+			NativeProtocol[] nextProtocols = new NativeProtocol[maxBatchSize];
+			int numOfProtocolsInBatch = c.getNextProtocols(nextProtocols, 0);
+			BatchedStrategy.processBatch(nextProtocols, numOfProtocolsInBatch, sceNetwork, DEFAULT_CHANNEL,
+					resourcePool);
+			roundSynchronization.finishedBatch(numOfProtocolsInBatch, resourcePool, sceNetwork);
+		} while (c.hasNextProtocols());
 
-        this.protocolSuite.finishedEval(resourcePool, sceNetwork);
-    }
+		this.protocolSuite.finishedEval(resourcePool, sceNetwork);
+	}
 
-    private SCENetworkImpl createSceNetwork() {
-        return new SCENetworkImpl(this.resourcePool.getNoOfParties(), DEFAULT_THREAD_ID);
-    }
+	private SCENetworkImpl createSceNetwork() {
+		return new SCENetworkImpl(this.resourcePool.getNoOfParties(), DEFAULT_THREAD_ID);
+	}
 }

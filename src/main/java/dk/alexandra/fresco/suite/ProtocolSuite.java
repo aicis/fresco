@@ -26,6 +26,9 @@
  *******************************************************************************/
 package dk.alexandra.fresco.suite;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.network.SCENetwork;
 import dk.alexandra.fresco.framework.sce.configuration.ProtocolSuiteConfiguration;
@@ -35,9 +38,6 @@ import dk.alexandra.fresco.suite.dummy.DummyProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.evaluation.strategy.SpdzProtocolSuite;
 import dk.alexandra.fresco.suite.tinytables.online.TinyTablesProtocolSuite;
 import dk.alexandra.fresco.suite.tinytables.prepro.TinyTablesPreproProtocolSuite;
-
-import java.util.HashSet;
-import java.util.Set;
 
 public interface ProtocolSuite {
 
@@ -53,20 +53,18 @@ public interface ProtocolSuite {
 	 */
 	public void init(ResourcePool resourcePool, ProtocolSuiteConfiguration conf);
 
-    /**
-     * Get a RoundSynchronization used by evaluators to signal progress and
-     * allow protocols to do additional work during evaluation.
-     * Only RoundSynchronization.finishedBatch is guaranteed to be called by the evaluator.
-     *
-     * @return a RoundSynchronization that can be used by current evaluation.
-     */
-    public RoundSynchronization createRoundSynchronization();
+	/**
+	 * Get a RoundSynchronization used by evaluators to signal progress and
+	 * allow protocols to do additional work during evaluation.
+	 * Only RoundSynchronization.finishedBatch is guaranteed to be called by the evaluator.
+	 *
+	 * @return a RoundSynchronization that can be used by current evaluation.
+	 */
+	public RoundSynchronization createRoundSynchronization();
 
 	/**
 	 * Let the protocol suite know that the evaluation has reached it's end. Runtime
 	 * can then do cleanup or resume background activities if needed.
-	 * @param resourcePool
-	 * @param sceNetwork
 	 */
 	public void finishedEval(ResourcePool resourcePool, SCENetwork sceNetwork);
 
@@ -75,10 +73,6 @@ public interface ProtocolSuite {
 	 * close open streams and similar.
 	 */
 	public void destroy();
-
-
-
-
 
 	/**
 	 * The protocol suites currently supported by the framework.
