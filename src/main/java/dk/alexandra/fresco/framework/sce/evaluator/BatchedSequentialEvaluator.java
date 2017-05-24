@@ -34,10 +34,6 @@ import dk.alexandra.fresco.framework.sce.resources.SCEResourcePool;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.function.Function;
 
 public class BatchedSequentialEvaluator implements ProtocolEvaluator {
 
@@ -53,13 +49,13 @@ public class BatchedSequentialEvaluator implements ProtocolEvaluator {
     private SCENetworkImpl sceNetwork;
 
     public BatchedSequentialEvaluator() {
-        this.maxBatchSize = 16 * 4096;
+        this.maxBatchSize = 4096;
     }
 
     @Override
     public void setResourcePool(SCEResourcePool resourcePool) {
         this.resourcePool = resourcePool;
-        this.sceNetwork = new SCENetworkImpl(this.resourcePool.getNoOfParties(), DEFAULT_THREAD_ID, this.resourcePool.getNetwork());
+        this.sceNetwork = createSceNetwork();
     }
 
     public ProtocolSuite getProtocolInvocation() {
@@ -86,44 +82,19 @@ public class BatchedSequentialEvaluator implements ProtocolEvaluator {
     }
 
     public void eval(ProtocolProducer c) throws IOException {
-        NativeProtocol[] nextProtocols = new NativeProtocol[maxBatchSize];
         do {
-            ProtocolSuite.RoundSynchronization roundSynchronization = protocolSuite.createRoundSynchronization();
+            ProtocolSuite.RoundSynchronization roundSynchronization = this.protocolSuite.createRoundSynchronization();
+            NativeProtocol[] nextProtocols = new NativeProtocol[maxBatchSize];
             int numOfProtocolsInBatch = c.getNextProtocols(nextProtocols, 0);
-            int round = 0;
-
-            boolean[] dones = new boolean[numOfProtocolsInBatch];
-            boolean done;
-            // Do all rounds
-
-            do {
-                // Evaluate the current round for all protocols
-                done = true;
-                for (int i = 0; i < numOfProtocolsInBatch; i++) {
-                    if (!dones[i]) {
-                        NativeProtocol.EvaluationStatus status = nextProtocols[i].evaluate(round, resourcePool, sceNetwork);
-                        if (status.equals(NativeProtocol.EvaluationStatus.IS_DONE)) {
-                            dones[i] = true;
-                        } else {
-                            done = false;
-                        }
-                    }
-                }
-                boolean synchronizationDone = roundSynchronization.roundFinished(round, resourcePool, sceNetwork);
-                if (!synchronizationDone) {
-                    done = false;
-                }
-                // Send/Receive data for this round
-                Map<Integer, ByteBuffer> inputs = new HashMap<>();
-
-                sceNetwork.setInput(inputs);
-                sceNetwork.nextRound();
-
-                round++;
-            } while (!done);
-            roundSynchronization.finishedBatch(numOfProtocolsInBatch);
+            BatchedStrategy.processBatch(nextProtocols, numOfProtocolsInBatch, sceNetwork, DEFAULT_CHANNEL,
+                    resourcePool);
+            roundSynchronization.finishedBatch(numOfProtocolsInBatch, resourcePool, sceNetwork);
         } while (c.hasNextProtocols());
 
-        this.protocolSuite.finishedEval();
+        this.protocolSuite.finishedEval(resourcePool, sceNetwork);
+    }
+
+    private SCENetworkImpl createSceNetwork() {
+        return new SCENetworkImpl(this.resourcePool.getNoOfParties(), DEFAULT_THREAD_ID);
     }
 }

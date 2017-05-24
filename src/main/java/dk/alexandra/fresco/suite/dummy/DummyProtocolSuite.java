@@ -26,6 +26,7 @@
  *******************************************************************************/
 package dk.alexandra.fresco.suite.dummy;
 
+import dk.alexandra.fresco.framework.network.SCENetwork;
 import dk.alexandra.fresco.framework.sce.configuration.ProtocolSuiteConfiguration;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.suite.ProtocolSuite;
@@ -52,7 +53,7 @@ public class DummyProtocolSuite implements ProtocolSuite {
 	}
 
 	@Override
-	public void finishedEval() {
+	public void finishedEval(ResourcePool resourcePool, SCENetwork sceNetwork) {
 		// No finish needed.
 	}
 

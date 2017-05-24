@@ -28,6 +28,7 @@ package dk.alexandra.fresco.suite.bgw;
 
 import java.math.BigInteger;
 
+import dk.alexandra.fresco.framework.network.SCENetwork;
 import dk.alexandra.fresco.framework.sce.configuration.ProtocolSuiteConfiguration;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.suite.ProtocolSuite;
@@ -71,7 +72,7 @@ public class BgwProtocolSuite implements ProtocolSuite {
 	}
 
 	@Override
-	public void finishedEval() {
+	public void finishedEval(ResourcePool resourcePool, SCENetwork sceNetwork) {
 		//Do nothing
 	}
 

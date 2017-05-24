@@ -36,7 +36,9 @@ import java.util.Set;
 import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.NativeProtocol.EvaluationStatus;
 import dk.alexandra.fresco.framework.network.Network;
+import dk.alexandra.fresco.framework.network.SCENetwork;
 import dk.alexandra.fresco.framework.network.SCENetworkImpl;
+import dk.alexandra.fresco.framework.network.SCENetworkSupplier;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 
 /**
@@ -83,7 +85,7 @@ public class BatchedStrategy {
 	 * 
 	 * @throws IOException
 	 */
-	public static void processBatch(NativeProtocol[] protocols, int numOfProtocols, SCENetworkImpl sceNetwork,
+	public static void processBatch(NativeProtocol[] protocols, int numOfProtocols, SCENetwork sceNetwork,
 			int channel, ResourcePool rp) throws IOException {
 		Network network = rp.getNetwork();
 		int round = 0;
@@ -107,24 +109,27 @@ public class BatchedStrategy {
 					}
 				}
 			}
-			// Send/Receive data for this round
-			Map<Integer, ByteBuffer> inputs = new HashMap<Integer, ByteBuffer>();			
-			
-//			//Send data
-//			Map<Integer, byte[]> output = sceNetwork.getOutputFromThisRound();
-//			for (Map.Entry<Integer, byte[]> e: output.entrySet()) {
-//				network.send(channel, e.getKey(), e.getValue());
-//			}
-//
-//			//receive data
-//			Set<Integer> expected = sceNetwork.getExpectedInputForNextRound();
-//			for(int i : expected) {
-//				byte[] data = network.receive(channel, i);
-//				inputs.put(i, ByteBuffer.wrap(data));
-//			}
-			
-			sceNetwork.setInput(inputs);
-			sceNetwork.nextRound();			
+			if (sceNetwork instanceof SCENetworkSupplier) {
+				// Send/Receive data for this round if SCENetwork is a supplier
+				SCENetworkSupplier sceNetworkSupplier = (SCENetworkSupplier) sceNetwork;
+				Map<Integer, ByteBuffer> inputs = new HashMap<Integer, ByteBuffer>();
+
+				//Send data
+				Map<Integer, byte[]> output = sceNetworkSupplier.getOutputFromThisRound();
+				for (Map.Entry<Integer, byte[]> e : output.entrySet()) {
+					network.send(channel, e.getKey(), e.getValue());
+				}
+
+				//receive data
+				Set<Integer> expected = sceNetworkSupplier.getExpectedInputForNextRound();
+				for (int i : expected) {
+					byte[] data = network.receive(channel, i);
+					inputs.put(i, ByteBuffer.wrap(data));
+				}
+
+				sceNetworkSupplier.setInput(inputs);
+				sceNetworkSupplier.nextRound();
+			}
 			
 			round++;
 		} while (!done);

@@ -65,8 +65,10 @@ public interface ProtocolSuite {
 	/**
 	 * Let the protocol suite know that the evaluation has reached it's end. Runtime
 	 * can then do cleanup or resume background activities if needed.
+	 * @param resourcePool
+	 * @param sceNetwork
 	 */
-	public void finishedEval();
+	public void finishedEval(ResourcePool resourcePool, SCENetwork sceNetwork);
 
 	/**
 	 * Sends a signal to the protocol suite to shut down any running threads and
@@ -119,8 +121,9 @@ public interface ProtocolSuite {
 		 *            Indicates how many gates was evaluated since last call to
 		 *            synchronize. It is therefore _not_ indicative of a total
 		 *            amount.
+		 * @param sceNetwork
 		 */
-		public void finishedBatch(int gatesEvaluated) throws MPCException;
+		public void finishedBatch(int gatesEvaluated, ResourcePool resourcePool, SCENetwork sceNetwork) throws MPCException;
 
         /**
          * Method called after a round has finished.
@@ -141,7 +144,7 @@ public interface ProtocolSuite {
     public class DummyRoundSynchronization implements RoundSynchronization {
 
         @Override
-        public void finishedBatch(int gatesEvaluated) throws MPCException {
+        public void finishedBatch(int gatesEvaluated, ResourcePool resourcePool, SCENetwork sceNetwork) throws MPCException {
 
         }
 

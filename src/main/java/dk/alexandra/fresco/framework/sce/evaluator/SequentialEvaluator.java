@@ -112,7 +112,7 @@ public class SequentialEvaluator implements ProtocolEvaluator {
 		NativeProtocol[] nextProtocols = new NativeProtocol[maxBatchSize];
 		int numOfProtocolsInBatch = c.getNextProtocols(nextProtocols, 0);
 		processBatch(nextProtocols, numOfProtocolsInBatch);
-		roundSynchronization.finishedBatch(numOfProtocolsInBatch);
+		roundSynchronization.finishedBatch(numOfProtocolsInBatch, resourcePool, createSceNetwork());
 		return numOfProtocolsInBatch;
 	}
 	
@@ -139,7 +139,7 @@ public class SequentialEvaluator implements ProtocolEvaluator {
 						"Number of empty batches in a row reached " + MAX_EMPTY_BATCHES_IN_A_ROW + "; probably there is a bug in your protocol producer.");
 			}
 		} while (c.hasNextProtocols());
-		this.protocolSuite.finishedEval();
+		this.protocolSuite.finishedEval(resourcePool, createSceNetwork());
 		Reporter.fine("Sequential evaluator done. Evaluated a total of " + totalProtocols + " native protocols in " + totalBatches + " batches.");
 	}
 
@@ -149,7 +149,7 @@ public class SequentialEvaluator implements ProtocolEvaluator {
 	 * first one is finished
 	 */
 	public void processBatch(NativeProtocol[] protocols, int numOfProtocols) throws IOException {	
-		SCENetworkImpl sceNetwork = new SCENetworkImpl(this.resourcePool.getNoOfParties(), DEFAULT_THREAD_ID);
+		SCENetworkImpl sceNetwork = createSceNetwork();
 		for (int i=0; i<numOfProtocols; i++) {
 			int round = 0;
 			EvaluationStatus status;
@@ -183,5 +183,9 @@ public class SequentialEvaluator implements ProtocolEvaluator {
 			//}
 			
 		}		
+	}
+
+	private SCENetworkImpl createSceNetwork() {
+		return new SCENetworkImpl(this.resourcePool.getNoOfParties(), DEFAULT_THREAD_ID);
 	}
 }

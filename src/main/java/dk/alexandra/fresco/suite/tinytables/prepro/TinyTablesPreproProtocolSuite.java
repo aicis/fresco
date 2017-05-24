@@ -28,6 +28,7 @@ package dk.alexandra.fresco.suite.tinytables.prepro;
 
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.Reporter;
+import dk.alexandra.fresco.framework.network.SCENetwork;
 import dk.alexandra.fresco.framework.sce.configuration.ProtocolSuiteConfiguration;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.util.BitVector;
@@ -145,7 +146,7 @@ public class TinyTablesPreproProtocolSuite implements ProtocolSuite {
 	public RoundSynchronization createRoundSynchronization() {
 		return new DummyRoundSynchronization() {
 			@Override
-			public void finishedBatch(int gatesEvaluated) throws MPCException {
+			public void finishedBatch(int gatesEvaluated, ResourcePool resourcePool, SCENetwork sceNetwork) throws MPCException {
 				/*
 				 * When 1000 AND gates needs to be processed, we do it.
 				 */
@@ -228,7 +229,7 @@ public class TinyTablesPreproProtocolSuite implements ProtocolSuite {
 	}
 	
 	@Override
-	public void finishedEval() {
+	public void finishedEval(ResourcePool resourcePool, SCENetwork sceNetwork) {
 		calculateTinyTablesForUnprocessedANDGates();
 		tinyTablesTripleProvider.close();
 		/*

@@ -30,7 +30,6 @@ import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.Reporter;
 import dk.alexandra.fresco.framework.network.SCENetwork;
-import dk.alexandra.fresco.framework.network.SCENetworkImpl;
 import dk.alexandra.fresco.framework.sce.configuration.ProtocolSuiteConfiguration;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchedStrategy;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
@@ -154,9 +153,9 @@ public class SpdzProtocolSuite implements ProtocolSuite {
     }
 
     @Override
-    public void finishedEval() {
+    public void finishedEval(ResourcePool resourcePool, SCENetwork sceNetwork) {
         try {
-            MACCheck(null);
+            MACCheck(null, resourcePool, sceNetwork);
             this.gatesEvaluated = 0;
         } catch (IOException e) {
             throw new MPCException("Could not complete MACCheck.", e);
@@ -179,7 +178,13 @@ public class SpdzProtocolSuite implements ProtocolSuite {
     private int synchronizeCalls;
     private long sumOfGates = 0;
 
-    private void MACCheck(Map<Integer, BigInteger> commitments) throws IOException {
+    private void MACCheck(Map<Integer, BigInteger> commitments, ResourcePool resourcePool, SCENetwork sceNetworks) throws IOException {
+        for (int i = 1; i < store.length; i++) {
+            store[0].getOpenedValues().addAll(store[i].getOpenedValues());
+            store[0].getClosedValues().addAll(store[i].getClosedValues());
+            store[i].reset();
+        }
+
         long start = System.currentTimeMillis();
         if (lastMacEnd > 0)
             totalNoneMacTime += start - lastMacEnd;
@@ -200,20 +205,25 @@ public class SpdzProtocolSuite implements ProtocolSuite {
             sumOfGates = 0;
             totalSizeOfValues = 0;
         }
-        SpdzMacCheckProtocol macCheck = new SpdzMacCheckProtocol(rand, SpdzProtocolSuite.this.digs[0], storage, commitments);
+        SpdzMacCheckProtocol macCheck = new SpdzMacCheckProtocol(
+                rand,
+                this.digs[sceNetworks.getThreadId()],
+                storage,
+                commitments);
 
         int batchSize = 128;
         NativeProtocol[] nextProtocols = new NativeProtocol[batchSize];
-        SCENetworkImpl sceNetworks = new SCENetworkImpl(SpdzProtocolSuite.this.rp.getNoOfParties(), 0, rp.getNetwork());
 
         do {
             int numOfProtocolsInBatch = macCheck.getNextProtocols(nextProtocols, 0);
-            BatchedStrategy.processBatch(nextProtocols, numOfProtocolsInBatch, sceNetworks, 0,
-                    SpdzProtocolSuite.this.rp);
+
+            BatchedStrategy.processBatch(
+                    nextProtocols, numOfProtocolsInBatch, sceNetworks, 0, resourcePool);
         } while (macCheck.hasNextProtocols());
 
         //reset boolean value
-        SpdzProtocolSuite.this.outputProtocolInBatch = false;
+        this.outputProtocolInBatch = false;
+        this.gatesEvaluated = 0;
         totalMacTime += System.currentTimeMillis() - start;
         lastMacEnd = System.currentTimeMillis();
     }
@@ -236,22 +246,17 @@ public class SpdzProtocolSuite implements ProtocolSuite {
         }
 
         @Override
-        public void finishedBatch(int gatesEvaluated) throws MPCException {
+        public void finishedBatch(int gatesEvaluated, ResourcePool resourcePool, SCENetwork sceNetwork) throws MPCException {
             SpdzProtocolSuite.this.gatesEvaluated += gatesEvaluated;
             SpdzProtocolSuite.this.synchronizeCalls++;
             if (SpdzProtocolSuite.this.gatesEvaluated > macCheckThreshold || outputProtocolInBatch) {
                 try {
-                    for (int i = 1; i < store.length; i++) {
-                        store[0].getOpenedValues().addAll(store[i].getOpenedValues());
-                        store[0].getClosedValues().addAll(store[i].getClosedValues());
-                        store[i].reset();
-                    }
-                    MACCheck(openDone ? this.commitments : null);
+
+                    MACCheck(openDone ? this.commitments : null, resourcePool, sceNetwork);
                     this.commitments = null;
                 } catch (IOException e) {
                     throw new MPCException("Could not complete MACCheck.", e);
                 }
-                SpdzProtocolSuite.this.gatesEvaluated = 0;
             }
         }
 
