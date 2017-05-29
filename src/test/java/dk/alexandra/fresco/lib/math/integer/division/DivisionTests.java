@@ -116,7 +116,7 @@ public class DivisionTests {
 							OInt input2 = basicNumericFactory.getOInt(d);
 							sequentialProtocolProducer.append(ioBuilder.getProtocol());
 							
-							DivisionProtocol euclidianDivisionProtocol = divisionFactory.getDivisionProtocol(input1, x.bitLength() + 1, input2, quotient, remainder);
+							DivisionProtocol euclidianDivisionProtocol = divisionFactory.getDivisionProtocol(input1, input2, quotient, remainder);
 							sequentialProtocolProducer.append(euclidianDivisionProtocol);
 							
 							OInt output1 = ioBuilder.output(quotient);

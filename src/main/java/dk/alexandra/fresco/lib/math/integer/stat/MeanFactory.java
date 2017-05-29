@@ -34,22 +34,17 @@ public interface MeanFactory {
 	 * 
 	 * @param data
 	 *            The data set to be analysed.
-	 * @param maxInputLength
-	 *            An upper bound for the bitlength of each entry.
 	 * @param result
-	 *            The floor of the sample mean of the given data,
-	 *            sum(data[i]) / data.length.
+	 *            The floor of the sample mean of the given data, sum(data[i]) /
+	 *            data.length.
 	 * @return
 	 */
-	public MeanProtocol getMeanProtocol(SInt[] data, int maxInputLength,
-			SInt result);
+	public MeanProtocol getMeanProtocol(SInt[] data, SInt result);
 
 	/**
 	 * 
 	 * @param data
 	 *            The data set to be analysed.
-	 * @param maxInputLength
-	 *            An upper bound for the bitlength of each entry.
 	 * @param degreesOfFreedom
 	 *            The degrees of freedom of the sample whose expected value we
 	 *            are estimating.
@@ -58,7 +53,6 @@ public interface MeanFactory {
 	 *            sum(data[i]) / degreesOfFreedom.
 	 * @return
 	 */
-	public MeanProtocol getMeanProtocol(SInt[] data, int maxInputLength,
-			int degreesOfFreedom, SInt result);
+	public MeanProtocol getMeanProtocol(SInt[] data, int degreesOfFreedom, SInt result);
 
 }

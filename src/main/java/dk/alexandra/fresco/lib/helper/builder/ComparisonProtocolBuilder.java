@@ -26,6 +26,8 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.helper.builder;
 
+import java.math.BigInteger;
+
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.compare.ComparisonProtocolFactory;
@@ -107,6 +109,15 @@ public class ComparisonProtocolBuilder extends AbstractProtocolBuilder {
 		ProtocolProducer pp = comFactory.getEqualityProtocol(
 				bnf.getMaxBitLength(), x, y, result);
 		append(pp);
+		return result;
+	}
+	
+	public SInt sign(SInt x) {
+		SInt compare = compare(bnf.getSInt(0), x);
+		SInt twice = bnf.getSInt();
+		append(bnf.getMultProtocol(bnf.getOInt(BigInteger.valueOf(2)), compare, twice));
+		SInt result = bnf.getSInt();
+		append(bnf.getSubtractProtocol(twice, bnf.getOInt(BigInteger.ONE), result));
 		return result;
 	}
 }

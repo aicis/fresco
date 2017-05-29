@@ -125,19 +125,19 @@ public class StatisticsTests {
 							SInt[][] input = ioBuilder.inputMatrix(new int[][] {data1, data2, data3}, 1);
 							sequentialProtocolProducer.append(ioBuilder.getProtocol());
 							
-							MeanProtocol arithmeticMeanProtocol = statisticsFactory.getMeanProtocol(input[0], 10, mean1);
+							MeanProtocol arithmeticMeanProtocol = statisticsFactory.getMeanProtocol(input[0], mean1);
 							sequentialProtocolProducer.append(arithmeticMeanProtocol);
 
-							MeanProtocol arithmeticMeanProtocol2 = statisticsFactory.getMeanProtocol(input[1], 10, mean2);
+							MeanProtocol arithmeticMeanProtocol2 = statisticsFactory.getMeanProtocol(input[1], mean2);
 							sequentialProtocolProducer.append(arithmeticMeanProtocol2);
 
-							VarianceProtocol varianceProtocol = statisticsFactory.getVarianceProtocol(input[0], 10, mean1, variance);
+							VarianceProtocol varianceProtocol = statisticsFactory.getVarianceProtocol(input[0], mean1, variance);
 							sequentialProtocolProducer.append(varianceProtocol);
 							
-							CovarianceProtocol covarianceProtocol = statisticsFactory.getCovarianceProtocol(input[0], input[1], 10, mean1, mean2, covariance);
+							CovarianceProtocol covarianceProtocol = statisticsFactory.getCovarianceProtocol(input[0], input[1], mean1, mean2, covariance);
 							sequentialProtocolProducer.append(covarianceProtocol);
 							
-							CovarianceMatrixProtocol covarianceMatrixProtocol = statisticsFactory.getCovarianceMatrixProtocol(input, 10, covarianceMatrix);
+							CovarianceMatrixProtocol covarianceMatrixProtocol = statisticsFactory.getCovarianceMatrixProtocol(input, covarianceMatrix);
 							sequentialProtocolProducer.append(covarianceMatrixProtocol);
 							
 							OInt output1 = ioBuilder.output(mean1);

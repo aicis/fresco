@@ -46,14 +46,12 @@ public class MeanProtocolImpl extends AbstractSimpleProtocol implements
 
 	private SInt[] data;
 	private SInt result;
-	private int maxInputLength;
 	private int degreesOfFreedom;
 
-	public MeanProtocolImpl(SInt[] data, int maxInputLength, SInt result, 
+	public MeanProtocolImpl(SInt[] data, SInt result, 
 			BasicNumericFactory basicNumericFactory,
 			DivisionFactory divisionFactory) {
 		this.data = data;
-		this.maxInputLength = maxInputLength;
 		this.degreesOfFreedom = data.length;
 		this.result = result;
 		this.basicNumericFactory = basicNumericFactory;
@@ -61,10 +59,10 @@ public class MeanProtocolImpl extends AbstractSimpleProtocol implements
 		
 	}
 	
-	public MeanProtocolImpl(SInt[] data, int maxInputLength, int degreesOfFreedom, SInt result, 
+	public MeanProtocolImpl(SInt[] data, int degreesOfFreedom, SInt result, 
 			BasicNumericFactory basicNumericFactory,
 			DivisionFactory divisionFactory) {
-		this(data, maxInputLength, result, basicNumericFactory, divisionFactory);
+		this(data, result, basicNumericFactory, divisionFactory);
 		this.degreesOfFreedom = degreesOfFreedom;
 	}
 
@@ -76,8 +74,7 @@ public class MeanProtocolImpl extends AbstractSimpleProtocol implements
 		SInt sum = numericProtocolBuilder.sum(data);
 		OInt n = basicNumericFactory.getOInt(BigInteger.valueOf(this.degreesOfFreedom));
 		
-		int maxSumLength = maxInputLength + (int) Math.ceil(Math.log(data.length) / Math.log(2));		
-		Protocol divide = divisionFactory.getDivisionProtocol(sum, maxSumLength, n, result);
+		Protocol divide = divisionFactory.getDivisionProtocol(sum, n, result);
 		
 		return new SequentialProtocolProducer(numericProtocolBuilder.getProtocol(), divide);
 	}

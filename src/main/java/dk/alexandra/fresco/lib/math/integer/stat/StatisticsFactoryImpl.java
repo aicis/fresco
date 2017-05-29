@@ -35,62 +35,53 @@ public class StatisticsFactoryImpl implements StatisticsFactory {
 	private BasicNumericFactory basicNumericFactory;
 	private DivisionFactory divisionFactory;
 
-	public StatisticsFactoryImpl(BasicNumericFactory basicNumericFactory,
-			DivisionFactory euclideanDivisionFactory) {
+	public StatisticsFactoryImpl(BasicNumericFactory basicNumericFactory, DivisionFactory euclideanDivisionFactory) {
 		this.basicNumericFactory = basicNumericFactory;
 		this.divisionFactory = euclideanDivisionFactory;
 	}
 
 	@Override
-	public MeanProtocol getMeanProtocol(SInt[] data, int maxInputLength,
-			SInt result) {
-		return new MeanProtocolImpl(data, maxInputLength, result, basicNumericFactory,
-				divisionFactory);
+	public MeanProtocol getMeanProtocol(SInt[] data, SInt result) {
+		return new MeanProtocolImpl(data, result, basicNumericFactory, divisionFactory);
 	}
 
 	@Override
-	public MeanProtocol getMeanProtocol(SInt[] data, int maxInputLength, int degreesOfFreedom,
-			SInt result) {
-		return new MeanProtocolImpl(data, maxInputLength, degreesOfFreedom, result, basicNumericFactory,
-				divisionFactory);
-	}
-
-	
-	@Override
-	public VarianceProtocol getVarianceProtocol(SInt[] data, int maxInputLength, SInt mean,
-			SInt result) {
-		return new VarianceProtocolImpl(data, maxInputLength, mean, result, basicNumericFactory, this);
+	public MeanProtocol getMeanProtocol(SInt[] data, int degreesOfFreedom, SInt result) {
+		return new MeanProtocolImpl(data, degreesOfFreedom, result, basicNumericFactory, divisionFactory);
 	}
 
 	@Override
-	public VarianceProtocol getVarianceProtocol(SInt[] data, int maxInputLength, SInt result) {
-		return new VarianceProtocolImpl(data, maxInputLength, result, basicNumericFactory, this);
+	public VarianceProtocol getVarianceProtocol(SInt[] data, SInt mean, SInt result) {
+		return new VarianceProtocolImpl(data, mean, result, basicNumericFactory, this);
 	}
 
 	@Override
-	public CovarianceMatrixProtocol getCovarianceMatrixProtocol(SInt[][] data, int maxInputLength, SInt[] mean,
+	public VarianceProtocol getVarianceProtocol(SInt[] data, SInt result) {
+		return new VarianceProtocolImpl(data, result, basicNumericFactory, this);
+	}
+
+	@Override
+	public CovarianceMatrixProtocol getCovarianceMatrixProtocol(SInt[][] data, SInt[] mean,
 			SInt[][] result) {
-		return new CovarianceMatrixProtocolImpl(data, maxInputLength, mean, result, basicNumericFactory, this, this, this);
+		return new CovarianceMatrixProtocolImpl(data, mean, result, basicNumericFactory, this, this,
+				this);
 	}
 
 	@Override
-	public CovarianceMatrixProtocol getCovarianceMatrixProtocol(SInt[][] data, int maxInputLength,
-			SInt[][] result) {
-		return new CovarianceMatrixProtocolImpl(data, maxInputLength, result, basicNumericFactory, this, this, this);
+	public CovarianceMatrixProtocol getCovarianceMatrixProtocol(SInt[][] data, SInt[][] result) {
+		return new CovarianceMatrixProtocolImpl(data, result, basicNumericFactory, this, this, this);
 	}
 
 	@Override
-	public CovarianceProtocol getCovarianceProtocol(SInt[] data1, SInt[] data2, int maxInputLength,
-			SInt result) {
-		return new CovarianceProtocolImpl(data1, data2, maxInputLength, result,
-				basicNumericFactory, this);
+	public CovarianceProtocol getCovarianceProtocol(SInt[] data1, SInt[] data2, SInt result) {
+		return new CovarianceProtocolImpl(data1, data2, result, basicNumericFactory, this);
 	}
 
 	@Override
-	public CovarianceProtocol getCovarianceProtocol(SInt[] data1, SInt[] data2, int maxInputLength,
-			SInt mean1, SInt mean2, SInt result) {
-		return new CovarianceProtocolImpl(data1, data2, maxInputLength, mean1, mean2, result,
-				basicNumericFactory, this);
+	public CovarianceProtocol getCovarianceProtocol(SInt[] data1, SInt[] data2, SInt mean1,
+			SInt mean2, SInt result) {
+		return new CovarianceProtocolImpl(data1, data2, mean1, mean2, result, basicNumericFactory,
+				this);
 	}
 
 }

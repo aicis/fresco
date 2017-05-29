@@ -38,23 +38,19 @@ public class CovarianceProtocolImpl extends AbstractSimpleProtocol implements Co
 
 	private SInt[] data1, data2;
 	private SInt mean1, mean2;
-	private int maxInputLength;
 	private SInt covariance;
 
 	private final BasicNumericFactory basicNumericFactory;
 	private final MeanFactory meanFactory;
 
-	public CovarianceProtocolImpl(SInt[] data1, SInt[] data2, int maxInputLength, SInt mean1,
-			SInt mean2, SInt covariance, BasicNumericFactory basicNumericFactory,
-			MeanFactory meanFactory) {
+	public CovarianceProtocolImpl(SInt[] data1, SInt[] data2, SInt mean1, SInt mean2, SInt covariance,
+			BasicNumericFactory basicNumericFactory, MeanFactory meanFactory) {
 
 		this.data1 = data1;
 		this.data2 = data2;
-		
+
 		this.mean1 = mean1;
 		this.mean2 = mean2;
-
-		this.maxInputLength = maxInputLength;
 
 		this.covariance = covariance;
 
@@ -62,10 +58,10 @@ public class CovarianceProtocolImpl extends AbstractSimpleProtocol implements Co
 		this.meanFactory = meanFactory;
 	}
 
-	public CovarianceProtocolImpl(SInt[] data1, SInt[] data2, int maxInputLength, SInt covariance,
-			BasicNumericFactory basicNumericFactory, MeanFactory meanFactory) {
+	public CovarianceProtocolImpl(SInt[] data1, SInt[] data2, SInt covariance, BasicNumericFactory basicNumericFactory,
+			MeanFactory meanFactory) {
 
-		this(data1, data2, maxInputLength, null, null, covariance, basicNumericFactory, meanFactory);
+		this(data1, data2, null, null, covariance, basicNumericFactory, meanFactory);
 	}
 
 	@Override
@@ -83,18 +79,17 @@ public class CovarianceProtocolImpl extends AbstractSimpleProtocol implements Co
 		ParallelProtocolProducer findMeans = new ParallelProtocolProducer();
 		if (mean1 == null) {
 			this.mean1 = basicNumericFactory.getSInt();
-			findMeans.append(meanFactory.getMeanProtocol(data1, maxInputLength, mean1));
+			findMeans.append(meanFactory.getMeanProtocol(data1, mean1));
 		}
 		if (mean2 == null) {
 			this.mean2 = basicNumericFactory.getSInt();
-			findMeans.append(meanFactory.getMeanProtocol(data2, maxInputLength, mean2));
+			findMeans.append(meanFactory.getMeanProtocol(data2, mean2));
 		}
 		if (!findMeans.getProducers().isEmpty()) {
 			gp.append(findMeans);
 		}
 
-		NumericProtocolBuilder numericProtocolBuilder = new NumericProtocolBuilder(
-				basicNumericFactory);
+		NumericProtocolBuilder numericProtocolBuilder = new NumericProtocolBuilder(basicNumericFactory);
 		numericProtocolBuilder.beginParScope();
 		SInt[] terms = new SInt[data1.length];
 		for (int k = 0; k < data1.length; k++) {
@@ -109,8 +104,7 @@ public class CovarianceProtocolImpl extends AbstractSimpleProtocol implements Co
 		gp.append(numericProtocolBuilder.getProtocol());
 
 		// The sample variance has df = n-1
-		gp.append(meanFactory.getMeanProtocol(terms, 2 * maxInputLength, data1.length - 1,
-				covariance));
+		gp.append(meanFactory.getMeanProtocol(terms, data1.length - 1, covariance));
 
 		return gp;
 	}
