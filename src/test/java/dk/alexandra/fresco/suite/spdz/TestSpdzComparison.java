@@ -32,6 +32,8 @@ import dk.alexandra.fresco.framework.configuration.PreprocessingStrategy;
 import dk.alexandra.fresco.framework.network.NetworkingStrategy;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.lib.arithmetic.ComparisonTests;
+import dk.alexandra.fresco.lib.arithmetic.LogicTests;
+import dk.alexandra.fresco.lib.arithmetic.SortingTests;
 
 public class TestSpdzComparison extends AbstractSpdzTest{	
 
@@ -44,34 +46,33 @@ public class TestSpdzComparison extends AbstractSpdzTest{
 	@Test
 	public void test_compareEQ_Sequential() throws Exception {
 		runTest(new ComparisonTests.TestCompareEQ(),
-				EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
+		    EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
 	}
 	
 	@Test
 	public void test_isSorted() throws Exception {
 		runTest(new SortingTests.TestIsSorted(),
-				EvaluationStrategy.SEQUENTIAL,StorageStrategy.IN_MEMORY);
+		    EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
 	}
 	
 	@Test
 	public void test_compareAndSwap() throws Exception {
 		runTest(new SortingTests.TestCompareAndSwap(),
-				EvaluationStrategy.SEQUENTIAL,StorageStrategy.IN_MEMORY);
+		    EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
 	}
 	@Test
 	public void test_Sort() throws Exception {
 		runTest(new SortingTests.TestSort(),
-				EvaluationStrategy.SEQUENTIAL,StorageStrategy.IN_MEMORY);
+		    EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
 	}
 	@Test
-	@Ignore
 	public void test_Big_Sort() throws Exception {
 		runTest(new SortingTests.TestBigSort(),
-				EvaluationStrategy.SEQUENTIAL,StorageStrategy.IN_MEMORY);
+		    EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
 	}
 	@Test
 	public void test_logic() throws Exception {
 		runTest(new LogicTests.TestLogic(),
-				EvaluationStrategy.SEQUENTIAL,StorageStrategy.IN_MEMORY);
+		    EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
 	}
 }

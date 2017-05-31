@@ -61,7 +61,7 @@ public class SortingCircuitImpl extends AbstractSimpleProtocol implements Sortin
 	
 	
 	@Override
-	protected ProtocolProducer initializeGateProducer() {
+	protected ProtocolProducer initializeProtocolProducer() {
 		// TODO Auto-generated method stub
 		return null;
 	}

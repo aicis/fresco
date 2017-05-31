@@ -33,39 +33,39 @@ public class LogicProtocolBuilder extends AbstractProtocolBuilder{
 	 * @see dk.alexandra.fresco.lib.helper.builder.CircuitBuilder#addGateProducer(dk.alexandra.fresco.framework.ProtocolProducer)
 	 */
 	@Override
-	public void addGateProducer(ProtocolProducer gp) {
+	public void addProtocolProducer(ProtocolProducer gp) {
 		append(gp);
 	}
 	
     
     public SInt and(SInt a, SInt b) {
     	SInt result=bnf.getSInt();
-    	append(bnf.getMultCircuit(a, b, result));
+    	append(bnf.getMultProtocol(a, b, result));
     	return result;
     }
     
     public SInt or(SInt a, SInt b) {
     	SInt result=bnf.getSInt();
-    	append(bnf.getMultCircuit(a, b, result));
+    	append(bnf.getMultProtocol(a, b, result));
     	SInt result2=bnf.getSInt();
-    	append(bnf.getAddCircuit(a, b, result2));
+    	append(bnf.getAddProtocol(a, b, result2));
     	SInt result3=bnf.getSInt();
-    	append(bnf.getSubtractCircuit(result2, result, result3));
+    	append(bnf.getSubtractProtocol(result2, result, result3));
     	return result3;
     }
     
     public SInt xor(SInt a, SInt b) {
     	SInt result=or(a,b);
     	SInt result2=bnf.getSInt();
-    	append(bnf.getMultCircuit(a, b, result2));
+    	append(bnf.getMultProtocol(a, b, result2));
     	SInt result3=bnf.getSInt();
-    	append(bnf.getSubtractCircuit(result, result2, result3));
+    	append(bnf.getSubtractProtocol(result, result2, result3));
     	return result3;
     } 
     
     public SInt not(SInt a) {
     	SInt result=bnf.getSInt();
-    	append(bnf.getSubtractCircuit(trueSInt, a, result));
+    	append(bnf.getSubtractProtocol(trueSInt, a, result));
     	return result;
     } 
     

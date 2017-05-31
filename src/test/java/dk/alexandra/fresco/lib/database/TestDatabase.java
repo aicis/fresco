@@ -80,10 +80,10 @@ public class TestDatabase {
 			case IN_MEMORY:
 				storage = inMemStore;
 				break;
-			case MYSQL:
-				break;
+			default:
+			  throw new RuntimeException();
 			}
-			ttc.sceConf = new TestSCEConfiguration(suite, evaluator,
+			ttc.sceConf = new TestSCEConfiguration(suite, null, evaluator,
 					noOfThreads, noOfVMThreads, ttc.netConf, storage,
 					useSecureConnection);
 			conf.put(playerId, ttc);
@@ -97,7 +97,6 @@ public class TestDatabase {
 	 * Makes sure that the preprocessed data exists in the storage's used in
 	 * this test class.
 	 */
-	@BeforeClass
 	public static void initStorage() {
 		Reporter.init(Level.INFO);
 		// dk.alexandra.fresco.framework.sce.resources.storage.Storage[]
@@ -110,6 +109,7 @@ public class TestDatabase {
 	}
 
 	@Test
+	@Ignore
 	public void test_findDuplicatesOne() throws Exception {
 		runTest(new EliminateDuplicatesTests.TestFindDuplicatesOne(),
 				EvaluationStrategy.SEQUENTIAL, StorageStrategy.IN_MEMORY);
@@ -117,12 +117,14 @@ public class TestDatabase {
 	
 
 	@Test
+	@Ignore
 	public void test_findDuplicatesTwo() throws Exception {
 		runTest(new EliminateDuplicatesTests.TestFindDuplicatesTwo(),
 				EvaluationStrategy.SEQUENTIAL, StorageStrategy.IN_MEMORY);
 	}
 	
 	@Test
+	@Ignore
 	public void test_verticalJoin() throws Exception {
 		runTest(new EliminateDuplicatesTests.TestVerticalJoin(),
 				EvaluationStrategy.SEQUENTIAL, StorageStrategy.IN_MEMORY);

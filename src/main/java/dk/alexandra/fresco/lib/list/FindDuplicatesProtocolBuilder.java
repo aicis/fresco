@@ -3,8 +3,6 @@
  */
 package dk.alexandra.fresco.lib.list;
 
-import java.math.BigInteger;
-
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.compare.ComparisonProtocolFactory;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
@@ -31,11 +29,11 @@ public class FindDuplicatesProtocolBuilder extends ComparisonProtocolBuilder {
 
 	 private SInt or(SInt a, SInt b) {
 	    	SInt result=bnf.getSInt();
-	    	append(bnf.getMultCircuit(a, b, result));
+	    	append(bnf.getMultProtocol(a, b, result));
 	    	SInt result2=bnf.getSInt();
-	    	append(bnf.getAddCircuit(a, b, result2));
+	    	append(bnf.getAddProtocol(a, b, result2));
 	    	SInt result3=bnf.getSInt();
-	    	append(bnf.getSubtractCircuit(result2, result, result3));
+	    	append(bnf.getSubtractProtocol(result2, result, result3));
 	    	return result3;
 	    }
 	 

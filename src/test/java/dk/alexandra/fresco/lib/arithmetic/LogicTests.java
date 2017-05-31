@@ -18,16 +18,9 @@ import dk.alexandra.fresco.framework.sce.SCE;
 import dk.alexandra.fresco.framework.sce.SCEFactory;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.compare.ComparisonProtocolFactoryImpl;
-import dk.alexandra.fresco.lib.compare.SortingProtocolBuilder;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
-import dk.alexandra.fresco.lib.helper.builder.ComparisonProtocolBuilder;
 import dk.alexandra.fresco.lib.helper.builder.NumericIOBuilder;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
-import dk.alexandra.fresco.lib.math.PreprocessedNumericBitFactory;
-import dk.alexandra.fresco.lib.math.exp.ExpFromOIntFactory;
-import dk.alexandra.fresco.lib.math.exp.PreprocessedExpPipeFactory;
-import dk.alexandra.fresco.lib.math.inv.LocalInversionFactory;
 import dk.alexandra.fresco.lib.math.logic.LogicProtocolBuilder;
 
 /**
@@ -68,7 +61,7 @@ public class LogicTests {
 
 							LogicProtocolBuilder logicBuilder= new LogicProtocolBuilder(bnFactory);
 							
-							seq.append(ioBuilder.getCircuit());
+							seq.append(ioBuilder.getProtocol());
 
 							
 							//set up logic tests
@@ -126,13 +119,14 @@ public class LogicTests {
 
 							outputs = new OInt[] {res1,res2,res3,res4,res5,res6, res7, res8,res9,res10, res11, res12,res13,res14, res15, res16};
 							
-							seq.append(logicBuilder.getCircuit());
-							seq.append(ioBuilder.getCircuit());
+							seq.append(logicBuilder.getProtocol());
+							seq.append(ioBuilder.getProtocol());
 
 							return seq;
 						}
 					};
 					sce.runApplication(app);
+					sce.shutdownSCE();
 					Assert.assertEquals(BigInteger.ONE, app.getOutputs()[0].getValue());
 					Assert.assertEquals(BigInteger.ZERO, app.getOutputs()[1].getValue());
 					Assert.assertEquals(BigInteger.ONE, app.getOutputs()[2].getValue());
