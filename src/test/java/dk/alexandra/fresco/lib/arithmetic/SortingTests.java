@@ -109,6 +109,7 @@ public class SortingTests {
 						}
 					};
 					sce.runApplication(app);
+					sce.shutdownSCE();
 					Assert.assertEquals(BigInteger.ZERO, app.getOutputs()[0].getValue());
 					Assert.assertEquals(BigInteger.ONE, app.getOutputs()[1].getValue());
 				}
@@ -164,6 +165,7 @@ public class SortingTests {
 						}
 					};
 					sce.runApplication(app);
+					sce.shutdownSCE();
 					Assert.assertEquals(BigInteger.ONE, app.getOutputs()[0].getValue());
 					Assert.assertEquals(BigInteger.valueOf(2), app.getOutputs()[1].getValue());
 				}
@@ -232,6 +234,7 @@ public class SortingTests {
 						}
 					};
 					sce.runApplication(app);
+					sce.shutdownSCE();
 					Assert.assertEquals(BigInteger.ZERO, app.getOutputs()[0].getValue()); //unsorted is unsorted
 					Assert.assertEquals(BigInteger.valueOf(0),app.getOutputs()[2].getValue());
 					Assert.assertEquals(BigInteger.valueOf(1),app.getOutputs()[3].getValue());
@@ -303,6 +306,7 @@ public class SortingTests {
 						}
 					};
 					sce.runApplication(app);
+					sce.shutdownSCE();
 					Assert.assertEquals(BigInteger.ZERO, app.getOutputs()[0].getValue()); //unsorted is unsorted to start 
 					Assert.assertEquals(BigInteger.ONE, app.getOutputs()[1].getValue()); //tobesorted is sorted at the end
 				}
