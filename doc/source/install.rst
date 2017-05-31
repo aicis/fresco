@@ -21,6 +21,7 @@ To install from source, make sure you have installed `git
 <https://maven.apache.org/>`_. Then run: ::
 
   $ git clone https://github.com/aicis/fresco/fresco.git
+  $ cd fresco
   $ mvn install -DskipITs
 
 This will download some dependencies, compile FRESCO, and run a number
