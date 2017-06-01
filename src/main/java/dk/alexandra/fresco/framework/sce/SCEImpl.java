@@ -79,9 +79,9 @@ import dk.alexandra.fresco.suite.tinytables.prepro.TinyTablesPreproProtocolSuite
 /**
  * Secure Computation Engine - responsible for having the overview of things and
  * setting everything up, e.g., based on properties.
- * 
+ *
  * @author Kasper Damgaard (.. and others)
- * 
+ *
  */
 public class SCEImpl implements SCE {
 
@@ -102,9 +102,9 @@ public class SCEImpl implements SCE {
 	protected SCEImpl(SCEConfiguration sceConf, ProtocolSuiteConfiguration psConf) {
 		this.sceConf = sceConf;
 		this.psConf = psConf;
-		
+
 		this.setup = false;
-		
+
 		//setup the basic stuff, but do not initialize anything yet
 		int myId = sceConf.getMyId();
 		Map<Integer, Party> parties = sceConf.getParties();
@@ -134,20 +134,22 @@ public class SCEImpl implements SCE {
 		if (this.evaluator instanceof ParallelEvaluator || this.evaluator instanceof BatchedParallelEvaluator) {
 			channelAmount = noOfvmThreads;
 		}
-		NetworkingStrategy networkStrat = sceConf.getNetwork();
-		Network network = null;
-		switch(networkStrat) {
-		case KRYONET:
-			network = new KryoNetNetwork();
-			break;
-		case SCAPI:
-			network = new ScapiNetworkImpl();
-			break;
-		default:
-			throw new ConfigurationException("Unknown networking strategy "+ networkStrat);
-		}
-		network.init(conf, channelAmount);
-		
+		Network network = sceConf.getNetwork(conf, channelAmount);
+		if (network == null) {
+			NetworkingStrategy networkStrat = sceConf.getNetworkStrategy();
+			switch (networkStrat) {
+				case KRYONET:
+					network = new KryoNetNetwork();
+					break;
+				case SCAPI:
+					network = new ScapiNetworkImpl();
+					break;
+				default:
+					throw new ConfigurationException("Unknown networking strategy " + networkStrat);
+			}
+			network.init(conf, channelAmount);
+        }
+
 		if (noOfvmThreads == -1) {
 			// default to 1 allowed VM thread only - otherwise certain
 			// strategies are going to outright fail.
@@ -177,7 +179,7 @@ public class SCEImpl implements SCE {
 		this.resourcePool.initializeRandom();
 		this.resourcePool.initializeThreadPool();
 		this.resourcePool.initilizeStorage();
-		this.resourcePool.initializeNetwork();		
+		this.resourcePool.initializeNetwork();
 
 		String runtime = sceConf.getProtocolSuiteName();
 		switch (runtime.toLowerCase()) {
@@ -185,7 +187,7 @@ public class SCEImpl implements SCE {
 			this.protocolSuite = SpdzProtocolSuite.getInstance(this.resourcePool.getMyId());
 			if (psConf == null) {
 				psConf = new SpdzConfigurationFromProperties();
-			}			
+			}
 			this.protocolSuite.init(this.resourcePool, psConf);
 			// TODO: Fix this storage crap - not optimal to have the '0' put
 			// there. Need to make the factories decoupled from the storage.
@@ -212,7 +214,7 @@ public class SCEImpl implements SCE {
 				psConf = new TinyTablesPreproConfiguration();
 			}
 			this.protocolFactory = ((TinyTablesPreproConfiguration)psConf).getProtocolFactory();
-			this.protocolSuite.init(this.resourcePool, psConf);			
+			this.protocolSuite.init(this.resourcePool, psConf);
 			break;
 		case "tinytables":
 			this.protocolSuite = TinyTablesProtocolSuite.getInstance(this.resourcePool.getMyId());
@@ -220,7 +222,7 @@ public class SCEImpl implements SCE {
 				psConf = new TinyTablesConfiguration();
 			}
 			this.protocolFactory = ((TinyTablesConfiguration)psConf).getProtocolFactory();
-			this.protocolSuite.init(this.resourcePool, psConf);			
+			this.protocolSuite.init(this.resourcePool, psConf);
 			break;
 		case "dummy":
 			this.protocolSuite = new DummyProtocolSuite();
@@ -234,38 +236,38 @@ public class SCEImpl implements SCE {
 			throw new IllegalArgumentException(
 					"Could not understand the specified runtime. This framework currently supports:\n\t-spdz\n\t-bgw\n\t-dummy");
 		}
-		
+
 		this.setup = true;
 	}
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * dk.alexandra.fresco.framework.sce.SCE#runApplication(dk.alexandra.fresco
 	 * .framework.Application)
 	 */
 	@Override
-	public void runApplication(Application application) {				
+	public void runApplication(Application application) {
 		prepareEvaluator();
 		ProtocolProducer prod = application.prepareApplication(this.protocolFactory);
 		String appName = application.getClass().getName();
 		Reporter.info("Running application: " + appName + " using protocol suite: "
 				+ this.getSCEConfiguration().getProtocolSuiteName());
-		evalApplication(prod, appName);		
+		evalApplication(prod, appName);
 	}
-	
+
 	private void prepareEvaluator() {
-		try {						
+		try {
 			Reporter.init(this.getSCEConfiguration().getLogLevel());
-			setup();									
+			setup();
 			this.evaluator.setResourcePool(this.resourcePool);
 			this.evaluator.setProtocolInvocation(this.protocolSuite);
 		} catch (IOException e) {
 			throw new MPCException("Could not run application due to errors during setup: " + e.getMessage(), e);
 		}
 	}
-	
+
 	@Override
 	public void runApplicationsInParallel(Application... applications) {
 		prepareEvaluator();
@@ -303,8 +305,8 @@ public class SCEImpl implements SCE {
 	}
 
 	private void evalApplication(ProtocolProducer prod, String appName) {
-		try {			
-			if(prod != null) {								
+		try {
+			if(prod != null) {
 				Reporter.info("Using the configuration: " + this.getSCEConfiguration());
 				long then = System.currentTimeMillis();
 				this.evaluator.eval(prod);

@@ -46,15 +46,15 @@ public class SCENetworkImpl implements SCENetwork, SCENetworkSupplier {
 	
 	private Map<Integer, ByteBuffer> input;
 	private Map<Integer, ByteArrayOutputStream> output;
-	private Set<Integer> expectedInputForNextRound;		
-	
+	private Set<Integer> expectedInputForNextRound;
+
 	public SCENetworkImpl(int noOfParties, int threadId) {
 		this.noOfParties = noOfParties;
 		this.threadId = threadId;
 		this.output = new HashMap<Integer, ByteArrayOutputStream>();
 		this.expectedInputForNextRound = new HashSet<Integer>();
 	}
-	
+
 	//ProtocolNetwork
 	@Override
 	public ByteBuffer receive(int id) {
@@ -65,7 +65,7 @@ public class SCENetworkImpl implements SCENetwork, SCENetworkSupplier {
 	public List<ByteBuffer> receiveFromAll() {
 		List<ByteBuffer> res = new ArrayList<ByteBuffer>();
 		for(int i = 1; i <= noOfParties; i++) {
-			res.add(this.input.get(i)); 
+			res.add(this.input.get(i));
 		}
 		return res;
 	}
@@ -86,7 +86,7 @@ public class SCENetworkImpl implements SCENetwork, SCENetworkSupplier {
 			throw new MPCException("Should never happen, but an IOException occured trying to write bytes to a byte array output stream. ", e);
 		}
 	}
-	
+
 	@Override
 	public void sendToAll(byte[] data) {
 		for(int i = 1; i <= noOfParties; i++) {

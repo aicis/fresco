@@ -37,13 +37,16 @@ import java.util.Map;
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.Reporter;
-import dk.alexandra.fresco.framework.network.SCENetworkImpl;
+import dk.alexandra.fresco.framework.network.SCENetwork;
 import dk.alexandra.fresco.framework.sce.configuration.ProtocolSuiteConfiguration;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchedStrategy;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.configuration.SpdzConfiguration;
+import dk.alexandra.fresco.suite.spdz.datatypes.SpdzCommitment;
+import dk.alexandra.fresco.suite.spdz.gates.SpdzCommitProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzMacCheckProtocol;
+import dk.alexandra.fresco.suite.spdz.gates.SpdzOpenCommitProtocol;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageDummyImpl;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageImpl;
@@ -61,14 +64,18 @@ public class SpdzProtocolSuite implements ProtocolSuite {
 	private BigInteger keyShare, p;
 	private MessageDigest[] digs;
 	private SpdzConfiguration spdzConf;
-	
+
 	//This is set whenever an output protocol was evaluated. It means that the sync point needs to do a MAC check.
 	private boolean outputProtocolInBatch = false;
-	
+	private long totalMacTime;
+	private long lastMacEnd;
+	private long totalNoneMacTime;
+	private int totalSizeOfValues;
+
 	public void outputProtocolUsedInBatch() {
 		outputProtocolInBatch = true;
 	}
-	
+
 	public SpdzProtocolSuite() {
 	}
 
@@ -117,7 +124,7 @@ public class SpdzProtocolSuite implements ProtocolSuite {
 				break;
 			case FUELSTATION:
 				store[i] = new SpdzStorageImpl(resourcePool, i, true, spdzConf.fuelStationBaseUrl());
-			}			
+			}
 		}
 		this.rand = resourcePool.getSecureRandom();
 		this.rp = resourcePool;
@@ -141,58 +148,134 @@ public class SpdzProtocolSuite implements ProtocolSuite {
 		// Initialize various fields global to the computation.
 		this.keyShare = store[0].getSSK();
 		this.p = store[0].getSupplier().getModulus();
-		Util.setModulus(this.p);		
+		Util.setModulus(this.p);
 	}
 
 	@Override
-	public void synchronize(int gatesEvaluated) throws MPCException {
-		this.gatesEvaluated += gatesEvaluated;
-		if (this.gatesEvaluated > macCheckThreshold || outputProtocolInBatch) {
-			try {
-				for (int i = 1; i < store.length; i++) {
-					store[0].getOpenedValues().addAll(store[i].getOpenedValues());
-					store[0].getClosedValues().addAll(store[i].getClosedValues());
-					store[i].reset();
-				}
-				MACCheck();
-			} catch (IOException e) {
-				throw new MPCException("Could not complete MACCheck.", e);
-			}
-			this.gatesEvaluated = 0;
-		}
-	}
-
-	@Override
-	public void finishedEval() {
+	public void finishedEval(ResourcePool resourcePool, SCENetwork sceNetwork) {
 		try {
-			MACCheck();
+			MACCheck(null, resourcePool, sceNetwork);
 			this.gatesEvaluated = 0;
 		} catch (IOException e) {
 			throw new MPCException("Could not complete MACCheck.", e);
 		}
 	}
 
-	private void MACCheck() throws IOException {
-		SpdzMacCheckProtocol macCheck = new SpdzMacCheckProtocol(rand, this.digs[0], store[0]);
-		
-		int batchSize = 128;
-		NativeProtocol[] nextProtocols = new NativeProtocol[batchSize];
-		SCENetworkImpl sceNetworks = new SCENetworkImpl(this.rp.getNoOfParties(), 0);
-		
-		do {
-			int numOfProtocolsInBatch = macCheck.getNextProtocols(nextProtocols, 0);		
-			BatchedStrategy.processBatch(nextProtocols, numOfProtocolsInBatch, sceNetworks, 0,
-					this.rp);		
-		} while (macCheck.hasNextProtocols());
-		
-		//reset boolean value
-		this.outputProtocolInBatch = false;		
-	}
-
 	@Override
 	public void destroy() {
 		for (SpdzStorage store : this.store) {
 			store.shutdown();
+		}
+	}
+
+	@Override
+	public RoundSynchronization createRoundSynchronization() {
+		return new SpdzRoundSynchronization();
+	}
+
+	private int logCount = 0;
+	private int synchronizeCalls;
+	private long sumOfGates = 0;
+
+	private void MACCheck(Map<Integer, BigInteger> commitments, ResourcePool resourcePool, SCENetwork sceNetworks) throws IOException {
+		for (int i = 1; i < store.length; i++) {
+			store[0].getOpenedValues().addAll(store[i].getOpenedValues());
+			store[0].getClosedValues().addAll(store[i].getClosedValues());
+			store[i].reset();
+		}
+
+		long start = System.currentTimeMillis();
+		if (lastMacEnd > 0)
+			totalNoneMacTime += start - lastMacEnd;
+
+		SpdzStorage storage = store[0];
+		sumOfGates += SpdzProtocolSuite.this.gatesEvaluated;
+		totalSizeOfValues += storage.getOpenedValues().size();
+
+		if (logCount++ > 1500) {
+			Reporter.info("MacChecking(" + logCount + ")"
+					+ ", AverageGateSize=" + (logCount > 0 ? sumOfGates / logCount : "?")
+					+ ", OpenedValuesSize=" + totalSizeOfValues
+					+ ", SynchronizeCalls=" + synchronizeCalls
+					+ ", MacTime=" + totalMacTime
+					+ ", noneMacTime=" + totalNoneMacTime);
+			logCount = 0;
+			synchronizeCalls = 0;
+			sumOfGates = 0;
+			totalSizeOfValues = 0;
+		}
+		SpdzMacCheckProtocol macCheck = new SpdzMacCheckProtocol(
+				rand,
+				this.digs[sceNetworks.getThreadId()],
+				storage,
+				commitments);
+
+		int batchSize = 128;
+		NativeProtocol[] nextProtocols = new NativeProtocol[batchSize];
+
+		do {
+			int numOfProtocolsInBatch = macCheck.getNextProtocols(nextProtocols, 0);
+
+			BatchedStrategy.processBatch(
+					nextProtocols, numOfProtocolsInBatch, sceNetworks, 0, resourcePool);
+		} while (macCheck.hasNextProtocols());
+
+		//reset boolean value
+		this.outputProtocolInBatch = false;
+		this.gatesEvaluated = 0;
+		totalMacTime += System.currentTimeMillis() - start;
+		lastMacEnd = System.currentTimeMillis();
+	}
+
+	private class SpdzRoundSynchronization implements RoundSynchronization {
+		private Map<Integer, BigInteger> commitments;
+		boolean commitDone = false;
+		boolean openDone = false;
+		int roundNumber = 0;
+		private final SpdzCommitProtocol commitProtocol;
+		private final SpdzOpenCommitProtocol openProtocol;
+
+		public SpdzRoundSynchronization() {
+			BigInteger s = new BigInteger(Util.getModulus().bitLength(), rand).mod(Util.getModulus());
+			SpdzCommitment commitment = new SpdzCommitment(digs[0], s, rand);
+			Map<Integer, BigInteger> comms = new HashMap<>();
+			commitProtocol = new SpdzCommitProtocol(commitment, comms);
+			Map<Integer, BigInteger> commitments = new HashMap<>();
+			openProtocol = new SpdzOpenCommitProtocol(commitment, comms, commitments);
+		}
+
+		@Override
+		public void finishedBatch(int gatesEvaluated, ResourcePool resourcePool, SCENetwork sceNetwork) throws MPCException {
+			SpdzProtocolSuite.this.gatesEvaluated += gatesEvaluated;
+			SpdzProtocolSuite.this.synchronizeCalls++;
+			if (SpdzProtocolSuite.this.gatesEvaluated > macCheckThreshold || outputProtocolInBatch) {
+				try {
+
+					MACCheck(openDone ? this.commitments : null, resourcePool, sceNetwork);
+					this.commitments = null;
+				} catch (IOException e) {
+					throw new MPCException("Could not complete MACCheck.", e);
+				}
+			}
+		}
+
+		@Override
+		public boolean roundFinished(int round, ResourcePool resourcePool, SCENetwork sceNetwork) throws MPCException {
+			if (outputProtocolInBatch) {
+
+				if (!commitDone) {
+					NativeProtocol.EvaluationStatus evaluate = commitProtocol.evaluate(round, resourcePool, sceNetwork);
+					roundNumber = round + 1;
+					commitDone = evaluate.equals(NativeProtocol.EvaluationStatus.IS_DONE);
+					return false;
+				}
+				if (!openDone) {
+					NativeProtocol.EvaluationStatus evaluate = openProtocol.evaluate(round - roundNumber, resourcePool, sceNetwork);
+					openDone = evaluate.equals(NativeProtocol.EvaluationStatus.IS_DONE);
+				}
+				return openDone;
+			}
+			return true;
 		}
 	}
 }

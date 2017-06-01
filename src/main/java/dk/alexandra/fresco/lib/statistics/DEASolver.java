@@ -36,6 +36,7 @@ import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.field.integer.RandomFieldElementFactory;
+import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
 import dk.alexandra.fresco.lib.lp.LPFactory;
 import dk.alexandra.fresco.lib.lp.LPFactoryImpl;
@@ -49,11 +50,11 @@ import dk.alexandra.fresco.lib.math.integer.inv.LocalInversionFactory;
 
 /**
  * Protocol for solving DEA problems.
- * 
+ *
  * Given a dataset (two matrices of inputs and outputs) and a number of query
  * vectors, the protocol will compute how well the query vectors perform
  * compared to the dataset.
- * 
+ *
  * The result/score of the computation must be converted to a double using Gauss
  * reduction to be meaningful. See the DEASolverTests for an example.
  *
@@ -67,17 +68,17 @@ public class DEASolver implements Application {
 	private SInt[] optimal;
 	private SInt[][] basis;
 	private AnalysisType type;
-	
+
 	public enum AnalysisType { INPUT_EFFICIENCY, OUTPUT_EFFICIENCY }
 
 	/**
 	 * Construct a DEA problem for the solver to solve. The problem consists of
 	 * 4 matrixes: 2 basis input/output matrices containing the dataset which
 	 * the queries will be measured against
-	 * 
+	 *
 	 * 2 query input/output matrices containing the data to be evaluated.
-	 * 
-	 * @param type 
+	 *
+	 * @param type
 	 *         The type of analysis to do
 	 * @param inputValues
 	 *            Matrix of query input values
@@ -103,7 +104,7 @@ public class DEASolver implements Application {
 
 	/**
 	 * Verify that the input is consistent
-	 * 
+	 *
 	 * @return If the input is consistent.
 	 */
 	private boolean consistencyCheck() {
@@ -163,6 +164,9 @@ public class DEASolver implements Application {
 		// TODO processing the prefixes in parallel, causes a null pointer.
 		// Investigate why this is the case
 
+		ParallelProtocolProducer parallelProtocolProducer = new ParallelProtocolProducer();
+		seq.append(parallelProtocolProducer);
+
 		optimal = new SInt[targetInputs.size()];
 		this.basis = new SInt[targetInputs.size()][];
 
@@ -174,18 +178,16 @@ public class DEASolver implements Application {
 			Matrix<SInt> update = prefixes[i].getUpdateMatrix();
 
 			this.basis[i] = new SInt[tableau.getC().getHeight()];
-			
-			final ProtocolProducer currentPrefix = prefixes[i].getPrefix();
+
 			final ProtocolProducer solver = lpFactory.getLPSolverProtocol(tableau, update, pivot, basis[i]);
 			final ProtocolProducer optimalComputer = lpFactory.getOptimalValueProtocol(update, tableau, pivot,
 					optimal[i]);
 
 			SequentialProtocolProducer iSeq = new SequentialProtocolProducer();
-			seq.append(currentPrefix);
 			iSeq.append(solver);
 			iSeq.append(optimalComputer);
 
-			seq.append(iSeq);
+			parallelProtocolProducer.append(iSeq);
 		}
 		return seq;
 	}
@@ -198,7 +200,7 @@ public class DEASolver implements Application {
    * First array is the size of targetInputs, i.e. the number of LP instances
    * to compute. Innermost array will, after evaluation, contain the final
    * basis of the tableau, i.e. the variables that the basis consists of.
-   * 
+   *
    * @return The final basis.
    */
   public SInt[][] getBasis() {
@@ -207,7 +209,7 @@ public class DEASolver implements Application {
 
 	private LPPrefix[] getPrefixWithSecretSharedValues(BasicNumericFactory provider) {
 		int dataSetSize = this.inputDataSet.size();
-				
+
 		LPPrefix[] prefixes = new LPPrefix[this.targetInputs.size()];
 
 		int lpInputs = this.inputDataSet.get(0).size();
@@ -225,9 +227,9 @@ public class DEASolver implements Application {
 				basisOutputs[j][i] = current.get(j);
 			}
 		}
-		
-		DEAPrefixBuilder basisBuilder = null; 
-		
+
+		DEAPrefixBuilder basisBuilder = null;
+
 		if(type == AnalysisType.INPUT_EFFICIENCY) {
 			basisBuilder = new DEAInputEfficiencyPrefixBuilder();
 		} else {

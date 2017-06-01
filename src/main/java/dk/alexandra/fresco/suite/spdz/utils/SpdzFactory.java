@@ -146,7 +146,7 @@ public class SpdzFactory implements BasicNumericFactory,
 
 	@Override
 	public OInt[] getExpFromOInt(OInt value, int maxBitSize) {
-		BigInteger[] res = Util.getClearExpPipe(value.getValue());
+		BigInteger[] res = Util.getClearExpPipe(value.getValue(), maxBitSize);
 		OInt[] expPipe = new OInt[res.length];
 		for (int i = 0; i < res.length; i++) {
 			expPipe[i] = new SpdzOInt(res[i]);

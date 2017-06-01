@@ -33,6 +33,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 
+import dk.alexandra.fresco.framework.network.Network;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
@@ -374,10 +375,15 @@ public class CmdLineUtil {
 				}
 
 				@Override
-				public NetworkingStrategy getNetwork() {
+				public NetworkingStrategy getNetworkStrategy() {
 					return NetworkingStrategy.KRYONET;
 				}
-			};
+
+			@Override
+			public Network getNetwork(NetworkConfiguration configuration, int channelAmount) {
+				return null;
+			}
+		};
 
 	}
 		

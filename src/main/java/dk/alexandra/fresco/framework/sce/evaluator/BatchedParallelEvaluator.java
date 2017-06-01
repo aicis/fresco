@@ -44,6 +44,7 @@ import dk.alexandra.fresco.suite.ProtocolSuite;
 
 public class BatchedParallelEvaluator implements ProtocolEvaluator {
 
+	private static final int DEFAULT_THREAD_ID = 0;
 	private int maxBatchSize, threads;
 	private SCEResourcePool rp;
 	private ProtocolSuite pii;
@@ -59,7 +60,7 @@ public class BatchedParallelEvaluator implements ProtocolEvaluator {
 			int numOfGatesInBatch = c.getNextProtocols(nextGates, 0);
 			processBatch(nextGates, numOfGatesInBatch);
 		} while (c.hasNextProtocols());
-		this.pii.finishedEval();
+		this.pii.finishedEval(rp, createSceNetwork());
 	}
 	
 	@Override
@@ -73,6 +74,7 @@ public class BatchedParallelEvaluator implements ProtocolEvaluator {
 	 * first one is finished
 	 */
 	public void processBatch(NativeProtocol[] protocols, int numOfProtocols) {
+		ProtocolSuite.RoundSynchronization roundSynchronization = pii.createRoundSynchronization();
 		ArrayList<BatchTask> tasks = new ArrayList<BatchTask>(threads);
 		int jobs = 1;
 		if (numOfProtocols > 7) {
@@ -103,7 +105,7 @@ public class BatchedParallelEvaluator implements ProtocolEvaluator {
 		} catch (ExecutionException e) {
 			Reporter.severe("Exception during evaluation.", e);
 		}
-		pii.synchronize(numOfProtocols);
+		roundSynchronization.finishedBatch(numOfProtocols, rp, createSceNetwork());
 	}
 
 	@Override
@@ -116,7 +118,12 @@ public class BatchedParallelEvaluator implements ProtocolEvaluator {
 		this.rp = resourcePool;
 		this.threads = resourcePool.getVMThreadPool().getVMThreadCount();
 	}
-	
+
+
+	private SCENetworkImpl createSceNetwork() {
+		return new SCENetworkImpl(this.rp.getNoOfParties(), DEFAULT_THREAD_ID);
+	}
+
 	private class BatchTask implements Callable<Object> {
 
 		private NativeProtocol[] protocols;
