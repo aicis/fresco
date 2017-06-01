@@ -36,7 +36,7 @@ public class SpdzElement implements Serializable{
 	private static final long serialVersionUID = 6794633112697012286L;
 	private BigInteger share;
 	private BigInteger mac;
-	private static final BigInteger mod = Util.getModulus();
+	private final BigInteger mod = Util.getModulus();
 	
 	public SpdzElement(){
 		this.share = null;

@@ -27,13 +27,14 @@
 package dk.alexandra.fresco.suite.spdz.gates;
 
 import java.math.BigInteger;
+import java.nio.ByteBuffer;
 import java.security.MessageDigest;
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
 import dk.alexandra.fresco.framework.network.SCENetwork;
+import dk.alexandra.fresco.framework.network.serializers.ByteArrayHelper;
 import dk.alexandra.fresco.lib.helper.HalfCookedNativeProtocol;
 
 public abstract class SpdzNativeProtocol extends HalfCookedNativeProtocol {
@@ -42,36 +43,28 @@ public abstract class SpdzNativeProtocol extends HalfCookedNativeProtocol {
 		dig.update(b.toByteArray());
 		byte[] digest = dig.digest();
 		dig.reset();
-		network.sendToAll(digest);		
+		network.sendToAll(ByteArrayHelper.addSize(digest));		
 		return digest;
 	}
 	
-	protected byte[] sendBroadcastValidation(MessageDigest dig, SCENetwork network, List<BigInteger> bs, int players) {
+	protected byte[] sendBroadcastValidation(MessageDigest dig, SCENetwork network, Collection<BigInteger> bs, int players) {
 		for (BigInteger b: bs) {
 			dig.update(b.toByteArray());
 		}
 		byte[] digest = dig.digest();
 		dig.reset();
-		network.sendToAll(digest);		
+		network.sendToAll(ByteArrayHelper.addSize(digest));		
 		return digest;
 	}
 	
 	protected boolean receiveBroadcastValidation(SCENetwork network, byte[] digest) {
 		//TODO: should we check that we get messages from all players?
 		boolean validated = true;
-		List<byte[]> digests = network.receiveFromAll();
-		for (byte[] d : digests) {
+		List<ByteBuffer> digests = network.receiveFromAll();
+		for (ByteBuffer buffer : digests) {
+			byte[] d = ByteArrayHelper.getByteObject(buffer);
 			validated = validated && Arrays.equals(d, digest);
 		}
 		return validated;
-	}	
-	
-	protected Map<Integer, BigInteger[]> receiveFromAllMap(SCENetwork network) {
-		Map<Integer, BigInteger[]> res = new HashMap<Integer, BigInteger[]>();
-		List<BigInteger[]> tmp = network.receiveFromAll();
-		for (int i = 0; i < tmp.size(); i++) {
-			res.put(i+1, tmp.get(i));
-		}
-		return res;
 	}	
 }

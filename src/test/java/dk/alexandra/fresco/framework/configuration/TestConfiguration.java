@@ -61,6 +61,11 @@ public class TestConfiguration implements NetworkConfiguration {
 		Party p = new Party(id, host, port);
 		parties.put(id, p);
 	}
+	
+	public void add(int id, String host, int port, String secretKey) {
+		Party p = new Party(id, host, port, secretKey);
+		parties.put(id, p);
+	}
 
 	@Override
 	public Party getParty(int id) {
@@ -113,7 +118,6 @@ public class TestConfiguration implements NetworkConfiguration {
 		}
 		return confs;
 	}
-
 
 	/**
 	 * As getConfigurations(n, ports, loglevel) but tries to find free ephemeral

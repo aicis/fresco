@@ -26,9 +26,8 @@
  *******************************************************************************/
 package dk.alexandra.fresco.framework.network;
 
-import java.io.Serializable;
+import java.nio.ByteBuffer;
 import java.util.Map;
-import java.util.Queue;
 import java.util.Set;
 
 /**
@@ -42,9 +41,9 @@ import java.util.Set;
  */
 public interface SCENetworkSupplier {
 
-	public void setInput(Map<Integer, Queue<Serializable>> inputForThisRound);
+	public void setInput(Map<Integer, ByteBuffer> inputForThisRound);
 	
-	public Map<Integer, Queue<Serializable>> getOutputFromThisRound();
+	public Map<Integer, byte[]> getOutputFromThisRound();
 
 	public Set<Integer> getExpectedInputForNextRound();
 

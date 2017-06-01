@@ -33,6 +33,7 @@ import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.helper.AbstractRepeatProtocol;
+import dk.alexandra.fresco.lib.helper.AbstractRoundBasedProtocol;
 import dk.alexandra.fresco.lib.helper.CopyProtocolImpl;
 import dk.alexandra.fresco.lib.helper.builder.tree.TreeProtocol;
 import dk.alexandra.fresco.lib.helper.builder.tree.TreeProtocolNodeGenerator;
@@ -457,6 +458,93 @@ public class NumericProtocolBuilder extends AbstractProtocolBuilder {
 		endCurScope();
 		return out;
 	}
+	
+	/**
+	 * Computes the square of an SInt
+	 * @param a the SInt to square
+	 * @return an SInt representing the result
+	 */
+	public SInt square(SInt a) {
+	  SInt res = mult(a, a);
+	  return res;
+	}
+	
+	/**
+	 * Computes the exponentiation of a SInt with a public exponent
+	 * @param value the SInt to exponentiate
+	 * @param exponent the exponent
+	 * @return an SInt representing the result
+	 */
+	public SInt exp(SInt value, BigInteger exponent) {
+	  SInt res = bnf.getSInt();
+	  append(new ExponentiationProtocol(value, exponent, res));
+	  return res;
+	}
+	
+	/**
+	 * Wrapper for exp(SInt value, BigInteger exponent)
+	 * @param value
+	 * @param exponent
+	 * @return
+	 */
+	public SInt exp(SInt value, int exponent) {
+		return exp(value, BigInteger.valueOf(exponent));
+	}
+	
+	/**
+	 * A helper class to compute the exponentiation. Uses a standard squaring
+	 * method.
+	 */    
+	private class ExponentiationProtocol extends AbstractRoundBasedProtocol {
+	  
+	  BigInteger exponent;
+	  SInt value;
+	  SInt accEven;
+	  SInt accOdd;
+	  SInt result;
+	  boolean init = false;	    
+	    
+	  public ExponentiationProtocol(SInt value, BigInteger exponent, SInt result) {
+	    super();
+	    this.exponent = exponent;
+	    this.value = value;
+	    this.result = result;
+	    this.accEven = result;
+	    this.accOdd = bnf.getSInt();
+	  }
+
+	  @Override
+	  public ProtocolProducer nextProtocolProducer() {
+	    NumericProtocolBuilder b = new NumericProtocolBuilder(bnf);
+	    if (!init) {
+	      accOdd = b.known(1);
+	      if (exponent.equals(BigInteger.ZERO)) {
+	        b.copy(accEven, accOdd);
+	      } else {
+	        b.copy(accEven, value);
+	      }
+	      init = true;
+	      return b.getProtocol();
+	    }
+	    if (exponent.equals(BigInteger.ONE)) {
+	      exponent = exponent.subtract(BigInteger.ONE);
+	      accEven = b.mult(accEven, accOdd);
+	      b.copy(result, accEven);
+	      return b.getProtocol();
+	    } else if (exponent.getLowestSetBit() > 0) {
+	      exponent = exponent.shiftRight(1);
+	      accEven = b.square(accEven);
+	      return b.getProtocol();
+	    } else if (exponent.getLowestSetBit() == 0) {
+	      accOdd = b.mult(accOdd, accEven);
+	      accEven = b.square(accEven);
+	      exponent = exponent.subtract(BigInteger.ONE).shiftRight(1);
+	      return b.getProtocol();
+	    }
+	    return null;
+	  } 
+	}
+
 
 	/**
 	 * Subtracts the righthand SInt from the lefthand SInt.
@@ -601,5 +689,4 @@ public class NumericProtocolBuilder extends AbstractProtocolBuilder {
 	public void addProtocolProducer(ProtocolProducer gp) {
 		append(gp);
 	}
-
 }

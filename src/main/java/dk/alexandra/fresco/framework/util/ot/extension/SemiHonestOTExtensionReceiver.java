@@ -72,7 +72,8 @@ public class SemiHonestOTExtensionReceiver implements OTReceiver {
 
 		BinaryMatrix y;
 		try {
-			y = network.receive("0", Util.otherPlayerId(myId));
+			byte[] data = network.receive(0, Util.otherPlayerId(myId));
+			y = new BinaryMatrix(data);
 		} catch (IOException e) {
 			e.printStackTrace();
 			return null;

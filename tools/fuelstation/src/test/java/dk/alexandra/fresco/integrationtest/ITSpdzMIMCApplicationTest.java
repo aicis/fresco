@@ -48,6 +48,7 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.PreprocessingStrategy;
 import dk.alexandra.fresco.framework.configuration.TestConfiguration;
+import dk.alexandra.fresco.framework.network.NetworkingStrategy;
 import dk.alexandra.fresco.framework.sce.configuration.TestSCEConfiguration;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
@@ -69,9 +70,8 @@ public class ITSpdzMIMCApplicationTest {
 	private int port;
 	
 	private void runTest(TestThreadFactory f, EvaluationStrategy evalStrategy,
-			StorageStrategy storageStrategy, int noOfParties) throws Exception {
-		Level logLevel = Level.FINE;
-		Reporter.init(logLevel);
+			StorageStrategy storageStrategy) throws Exception {
+		Level logLevel = Level.INFO;
 
 		// Since SCAPI currently does not work with ports > 9999 we use fixed
 		// ports
@@ -113,7 +113,7 @@ public class ITSpdzMIMCApplicationTest {
 			ProtocolSuite suite = new SpdzProtocolSuite();
 			ProtocolEvaluator evaluator = EvaluationStrategy
 					.fromEnum(evalStrategy);
-			ttc.sceConf = new TestSCEConfiguration(suite, evaluator,
+			ttc.sceConf = new TestSCEConfiguration(suite, NetworkingStrategy.KRYONET, evaluator,
 					noOfThreads, noOfVMThreads, ttc.netConf, new InMemoryStorage(),
 					useSecureConnection);
 			conf.put(playerId, ttc);

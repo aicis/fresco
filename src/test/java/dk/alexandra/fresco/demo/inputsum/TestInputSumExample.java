@@ -26,7 +26,6 @@
  *******************************************************************************/
 package dk.alexandra.fresco.demo.inputsum;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -41,39 +40,40 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.TestConfiguration;
-import dk.alexandra.fresco.framework.sce.SCE;
-import dk.alexandra.fresco.framework.sce.SCEFactory;
+import dk.alexandra.fresco.framework.network.NetworkingStrategy;
 import dk.alexandra.fresco.framework.sce.configuration.TestSCEConfiguration;
-import dk.alexandra.fresco.framework.sce.evaluator.BatchedParallelEvaluator;
+import dk.alexandra.fresco.framework.sce.evaluator.BatchedSequentialEvaluator;
 import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
-import dk.alexandra.fresco.framework.sce.resources.storage.Storage;
 import dk.alexandra.fresco.suite.bgw.BgwProtocolSuite;
+import dk.alexandra.fresco.suite.bgw.configuration.BgwConfigurationFromProperties;
 
 public class TestInputSumExample {
 		
-	private abstract class ThreadWithFixture extends TestThread {
-
-		protected SCE sce;
-		@Override
-		public void setUp() throws IOException {
-			BatchedParallelEvaluator evaluator = new BatchedParallelEvaluator();
-			Storage storage = new InMemoryStorage();
-			sce = SCEFactory.getSCEFromConfiguration((new TestSCEConfiguration(BgwProtocolSuite.getInstance(), evaluator, 3, 3, conf.netConf, storage, true)));
-		}
-
-	}
+//	private abstract class ThreadWithFixture extends TestThread {
+//
+//		protected SCE sce;
+//		@Override
+//		public void setUp() throws IOException {
+//			BatchedParallelEvaluator evaluator = new BatchedParallelEvaluator();
+//			Storage storage = new InMemoryStorage();
+//			sce = SCEFactory.getSCEFromConfiguration((new TestSCEConfiguration(BgwProtocolSuite.getInstance(), evaluator, 3, 3, conf.netConf, storage, true)));
+//		}
+//
+//	}
 	private static void runTest(TestThreadFactory test, int n) {
 		// Since SCAPI currently does not work with ports > 9999 we use fixed ports
 		// here instead of relying on ephemeral ports which are often > 9999.
 		List<Integer> ports = new ArrayList<Integer>(n);
 		for (int i=1; i<=n; i++) {
-			ports.add(9000 + i);
+			ports.add(9000 + i*10);
 		}
 		Map<Integer, NetworkConfiguration> netConf = TestConfiguration.getNetworkConfigurations(n, ports, Level.FINE);
 		Map<Integer, TestThreadConfiguration> conf = new HashMap<Integer, TestThreadConfiguration>();
 		for (int i : netConf.keySet()) {
 			TestThreadConfiguration ttc = new TestThreadConfiguration();
 			ttc.netConf = netConf.get(i);
+			ttc.protocolSuiteConf = new BgwConfigurationFromProperties();
+			ttc.sceConf = new TestSCEConfiguration(BgwProtocolSuite.getInstance(), NetworkingStrategy.KRYONET, new BatchedSequentialEvaluator(), 3, 3, ttc.netConf, new InMemoryStorage(), true);
 			conf.put(i, ttc);
 		}
 		TestThreadRunner.run(test, conf);
@@ -85,7 +85,7 @@ public class TestInputSumExample {
 		final TestThreadFactory f = new TestThreadFactory() {
 			@Override
 			public TestThread next(TestThreadConfiguration conf) {
-				return new ThreadWithFixture() {
+				return new TestThread() {
 					@Override
 					public void test() throws Exception {		
 						InputSumExample.runApplication(conf.getMyId(), sce);						

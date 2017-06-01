@@ -46,12 +46,12 @@ import org.junit.experimental.categories.Category;
 
 import dk.alexandra.fresco.IntegrationTest;
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
-import dk.alexandra.fresco.framework.Reporter;
 import dk.alexandra.fresco.framework.TestThreadRunner;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.TestConfiguration;
+import dk.alexandra.fresco.framework.network.NetworkingStrategy;
 import dk.alexandra.fresco.framework.sce.configuration.ProtocolSuiteConfiguration;
 import dk.alexandra.fresco.framework.sce.configuration.TestSCEConfiguration;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
@@ -73,15 +73,15 @@ public class TestTinyTables {
 	private void runTest(TestThreadFactory f, EvaluationStrategy evalStrategy,
 			boolean preprocessing, String name) throws Exception {
 		int noPlayers = 2;
-		Level logLevel = Level.FINE;
-		Reporter.init(logLevel);
+		Level logLevel = Level.INFO;
 
 		// Since SCAPI currently does not work with ports > 9999 we use fixed
 		// ports
 		// here instead of relying on ephemeral ports which are often > 9999.
 		List<Integer> ports = new ArrayList<Integer>(noPlayers);
+		int noOfVMThreads = 3;
 		for (int i = 1; i <= noPlayers; i++) {
-			ports.add(9000 + i);
+			ports.add(9000 + i*noOfVMThreads);
 		}
 
 		Map<Integer, NetworkConfiguration> netConf = TestConfiguration.getNetworkConfigurations(
@@ -131,10 +131,10 @@ public class TestTinyTables {
 
 			boolean useSecureConnection = false; // No tests of secure
 													// connection here.
-			int noOfVMThreads = 3;
+			
 			int noOfThreads = 3;
 			Storage storage = new InMemoryStorage();
-			ttc.sceConf = new TestSCEConfiguration(protocolSuite, evaluator, noOfThreads,
+			ttc.sceConf = new TestSCEConfiguration(protocolSuite, NetworkingStrategy.KRYONET, evaluator, noOfThreads,
 					noOfVMThreads, ttc.netConf, storage, useSecureConnection);
 			conf.put(playerId, ttc);
 		}

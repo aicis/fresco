@@ -51,7 +51,7 @@ public interface DivisionFactory {
 	 * 
 	 * @return
 	 */
-	public DivisionProtocol getDivisionProtocol(SInt dividend, int maxDividendLength, OInt divisor,
+	public DivisionProtocol getDivisionProtocol(SInt dividend, OInt divisor,
 			SInt quotient);
 
 	/**
@@ -70,7 +70,7 @@ public interface DivisionFactory {
 	 * 
 	 * @return
 	 */
-	public DivisionProtocol getDivisionProtocol(SInt dividend, int maxDividendLength, OInt divisor,
+	public DivisionProtocol getDivisionProtocol(SInt dividend, OInt divisor,
 			SInt quotient, SInt remainder);
 
 	/**
@@ -80,18 +80,14 @@ public interface DivisionFactory {
 	 * 
 	 * @param dividend
 	 *            The dividend.
-	 * @param maxDividendLength
-	 *            An upper bound for <i>log<sub>2</sub>(dividend)</i>.
 	 * @param divisor
 	 *            The divisor.
-	 * @param maxDivisorLength
-	 *            An upper bound for <i>log<sub>2</sub>(divisor)</i>.
 	 * @param quotient
 	 *            An approximation of <i>dividend / divisor</i>.
 	 * @return
 	 */
-	public DivisionProtocol getDivisionProtocol(SInt dividend, int maxDividendLength, SInt divisor,
-			int maxDivisorLength, SInt quotient);
+	public DivisionProtocol getDivisionProtocol(SInt dividend, SInt divisor,
+												SInt quotient);
 	
 	/**
 	 * This protocol calculates an approximation of
@@ -100,12 +96,8 @@ public interface DivisionFactory {
 	 * 
 	 * @param dividend
 	 *            The dividend.
-	 * @param maxDividendLength
-	 *            An upper bound for <i>log<sub>2</sub>(dividend)</i>.
 	 * @param divisor
 	 *            The divisor.
-	 * @param maxDivisorLength
-	 *            An upper bound for <i>log<sub>2</sub>(divisor)</i>.
 	 * @param quotient
 	 *            An approximation of <i>dividend / divisor</i>.
 	 * @param precision
@@ -113,8 +105,8 @@ public interface DivisionFactory {
 	 *            lower bound for the number of correct bits of the approximation.
 	 * @return
 	 */
-	public DivisionProtocol getDivisionProtocol(SInt dividend, int maxDividendLength, SInt divisor,
-			int maxDivisorLength, SInt quotient, OInt precision);
+	public DivisionProtocol getDivisionProtocol(SInt dividend, SInt divisor,
+												SInt quotient, OInt precision);
 
 
 }

@@ -34,13 +34,14 @@ import dk.alexandra.fresco.lib.debug.MarkerFactory;
 import dk.alexandra.fresco.lib.helper.CopyProtocolFactory;
 import dk.alexandra.fresco.lib.math.integer.inv.InversionProtocolFactory;
 import dk.alexandra.fresco.lib.math.integer.linalg.EntrywiseProductFactory;
-import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductProtocol;
-import dk.alexandra.fresco.lib.math.integer.min.MinimumProtocol;
+import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductFactory;
 import dk.alexandra.fresco.lib.math.integer.min.MinInfFracProtocol;
 import dk.alexandra.fresco.lib.math.integer.min.MinimumFractionProtocol;
+import dk.alexandra.fresco.lib.math.integer.min.MinimumProtocol;
 
 public interface LPFactory
-		extends InversionProtocolFactory, MarkerFactory, CopyProtocolFactory<SInt>, EntrywiseProductFactory {
+		extends InversionProtocolFactory, MarkerFactory, CopyProtocolFactory<SInt>, 
+		EntrywiseProductFactory, InnerProductFactory {
 
 	/**
 	 * 
@@ -184,16 +185,6 @@ public interface LPFactory
 	public UpdateMatrixProtocol getUpdateMatrixProtocol(Matrix<SInt> oldUpdateMatrix, SInt[] L, SInt[] C, SInt p,
 			SInt p_prime, Matrix<SInt> newUpdateMatrix);
 
-	/**
-	 * @param aVector
-	 *            input - an n-dimensional vector
-	 * @param bVector
-	 *            input - an n-dimensional vector
-	 * @param result
-	 *            output - the inner product of the two input input vectors
-	 * @return a protocol computing the inner product of two vectors
-	 */
-	public InnerProductProtocol getInnerProductProtocol(SInt[] aVector, SInt[] bVector, SInt result);
 
 	/**
 	 * Computes the optimal value after the last simplex iteration
@@ -210,6 +201,22 @@ public interface LPFactory
 	 */
 	public OptimalValueProtocol getOptimalValueProtocol(Matrix<SInt> updateMatrix, SInt[] B, SInt pivot,
 			SInt optimalValue);
+	
+	/**
+     * Computes the optimal value after the last simplex iteration
+     * 
+     * @param updateMatrix
+     *            input - the current update matrix
+     * @param tableau
+     *            input - the tableau
+     * @param pivot
+     *            input - the previous pivot element
+     * @param optimalValue
+     *            output - optimal value
+     * @return
+     */
+    public OptimalValueProtocol getOptimalValueProtocol(Matrix<SInt> updateMatrix, LPTableau tableau, SInt pivot,
+            SInt optimalValue);
 
 	/**
 	 * Computes the numerator of the optimal value after the last simplex
@@ -270,9 +277,10 @@ public interface LPFactory
 	 * @param tableau
 	 * @param updateMatrix
 	 * @param pivot
+	 * @param basis Array containing the variables that defines the final basis.
 	 * @return an LPSolverprotocol
 	 */
-	public LPSolverProtocol getLPSolverProtocol(LPTableau tableau, Matrix<SInt> updateMatrix, SInt pivot);
+	public LPSolverProtocol getLPSolverProtocol(LPTableau tableau, Matrix<SInt> updateMatrix, SInt pivot, SInt[] basis);
 
 	/**
 	 * Finds the minimum in an list of fractions. Note fractions are given as

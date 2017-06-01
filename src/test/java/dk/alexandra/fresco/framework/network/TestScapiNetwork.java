@@ -37,7 +37,6 @@ import java.util.logging.Level;
 
 import org.junit.Test;
 
-import dk.alexandra.fresco.framework.Reporter;
 import dk.alexandra.fresco.framework.TestThreadRunner;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
@@ -58,8 +57,8 @@ public class TestScapiNetwork {
 		
 		@Override
 		public void setUp() {
-			Reporter.init(Level.INFO);
-			network = new ScapiNetworkImpl(conf.netConf, noOfChannels());
+			network = new ScapiNetworkImpl();
+			network.init(conf.netConf, noOfChannels());
 		}
 
 	}
@@ -158,12 +157,12 @@ public class TestScapiNetwork {
 					public void test() throws Exception {
 						network.connect(timeoutMillis);
 						if (conf.getMyId() == 1) {
-							network.send("0", 2, data2);
-							byte[] received = (byte[])network.receive("1", 2);
+							network.send(0, 2, data2);
+							byte[] received = (byte[])network.receive(1, 2);
 							assertTrue(Arrays.equals(data1, received ));
 						} else if (conf.getMyId() == 2) {
-							network.send("1", 1, data1);
-							byte[] received = (byte[])network.receive("0", 1);
+							network.send(1, 1, data1);
+							byte[] received = (byte[])network.receive(0, 1);
 							assertTrue(Arrays.equals(data2, received ));
 						}
 						network.close();

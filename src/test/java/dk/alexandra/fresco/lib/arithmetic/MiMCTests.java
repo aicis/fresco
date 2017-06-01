@@ -26,7 +26,6 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.arithmetic;
 
-import java.io.IOException;
 import java.math.BigInteger;
 
 import org.junit.Assert;
@@ -37,32 +36,90 @@ import dk.alexandra.fresco.framework.TestApplication;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
-import dk.alexandra.fresco.framework.sce.SCE;
-import dk.alexandra.fresco.framework.sce.SCEFactory;
 import dk.alexandra.fresco.framework.value.KnownSIntProtocol;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
+import dk.alexandra.fresco.lib.helper.builder.NumericIOBuilder;
 import dk.alexandra.fresco.lib.helper.builder.OmniBuilder;
 import dk.alexandra.fresco.lib.helper.builder.SymmetricEncryptionBuilder;
 
 public class MiMCTests {
 
-	private abstract static class ThreadWithFixture extends TestThread {
-
-		protected SCE sce;
-
+    /*
+     * Note: This unit test is a rather ugly workaround for the following issue:
+     * MiMC encryption is deterministic, however its results depend on the modulus
+     * used by the backend arithmetic suite. So in order to assert
+     * that a call to the encryption functionality always produces the same result
+     * is to ensure that the modulus we use is the one we expect to see. I put in
+     * an explicit assertion on the modulus because each suite that provides
+     * concrete implementations for this test will do its own set up and if the 
+     * modulus is not set correctly this test will fail (rather mysteriously).
+     */
+	public static class TestMiMCEncryptsDeterministically extends TestThreadFactory {
+		
 		@Override
-		public void setUp() throws IOException {
-			sce = SCEFactory.getSCEFromConfiguration(conf.sceConf, conf.protocolSuiteConf);
+		public TestThread next(TestThreadConfiguration conf) {
+			
+			abstract class MyTestApplication extends TestApplication {
+	
+				private static final long serialVersionUID = 1L;
+				private BigInteger modulus;
+				
+				public BigInteger getModulus() {
+					return modulus;
+				}
+
+				public void setModulus(BigInteger modulus) {
+					this.modulus = modulus;
+				}
+				
+			}
+			
+			return new TestThread() {
+				@Override
+				public void test() throws Exception {
+					MyTestApplication app = new MyTestApplication() {
+
+						private static final long serialVersionUID = 4338818809103728010L;
+						
+						@Override
+						public ProtocolProducer prepareApplication(
+								ProtocolFactory factory) {
+							BasicNumericFactory bnf = (BasicNumericFactory)factory;
+							this.setModulus(bnf.getModulus());
+							OmniBuilder builder = new OmniBuilder(factory);
+							SymmetricEncryptionBuilder seb = builder.getSymmetricEncryptionBuilder();
+							NumericIOBuilder niob = builder.getNumericIOBuilder();
+							
+							SInt mimcKey = niob.input(BigInteger.valueOf(527618), 2);							
+							SInt plainText = niob.input(BigInteger.valueOf(10), 1);
+							
+							SInt cipherText = seb.mimcEncrypt(plainText, mimcKey);
+							OInt cipherTextOpen = niob.output(cipherText);
+							
+							this.outputs = new OInt[] {cipherTextOpen};
+							return builder.getProtocol();
+						}
+					};
+
+					sce.runApplication(app);
+					
+					BigInteger expectedModulus = new BigInteger("2582249878086908589655919172003011874329705792829223512830659356540647622016841194629645353280137831435903171972747493557");
+					Assert.assertEquals(expectedModulus, app.getModulus());
+					BigInteger expectedCipherText = new BigInteger("10388336824440235723309131431891968131690383663436711590309818298349333623568340591094832870178074855376232596303647115");
+					Assert.assertEquals(expectedCipherText, app.getOutputs()[0].getValue());
+					
+					sce.shutdownSCE();
+				}
+			};
 		}
-
 	}
-
+	
 	public static class TestMiMCEncSameEnc extends TestThreadFactory {
 		@Override
 		public TestThread next(TestThreadConfiguration conf) {
-			return new ThreadWithFixture() {
+			return new TestThread() {
 				@Override
 				public void test() throws Exception {
 					TestApplication app = new TestApplication() {
@@ -75,9 +132,6 @@ public class MiMCTests {
 							OmniBuilder builder = new OmniBuilder(factory);
 							SInt k = builder.getNumericIOBuilder().input(BigInteger.valueOf(527618), 2);							
 							SInt x = builder.getNumericIOBuilder().input(BigInteger.valueOf(10), 1);
-							
-//							SInt k = builder.getNumericProtocolBuilder().known(527618);							
-//							SInt x = builder.getNumericProtocolBuilder().known(10);
 							
 							SInt encX1 = builder.getSymmetricEncryptionBuilder().mimcEncrypt(x,k);
 							SInt encX2 = builder.getSymmetricEncryptionBuilder().mimcEncrypt(x,k);
@@ -99,10 +153,52 @@ public class MiMCTests {
 		}
 	}
 	
+	public static class TestMiMCDifferentPlainTexts extends TestThreadFactory {
+		@Override
+		public TestThread next(TestThreadConfiguration conf) {
+			return new TestThread() {
+				@Override
+				public void test() throws Exception {
+					TestApplication app = new TestApplication() {
+
+						private static final long serialVersionUID = 4338818809103728010L;
+
+						@Override
+						public ProtocolProducer prepareApplication(
+								ProtocolFactory factory) {
+							OmniBuilder builder = new OmniBuilder(factory);
+							SymmetricEncryptionBuilder seb = builder.getSymmetricEncryptionBuilder();
+							NumericIOBuilder niob = builder.getNumericIOBuilder();
+							
+							SInt mimcKey = niob.input(BigInteger.valueOf(527618), 2);							
+							
+							SInt plainTextA = niob.input(BigInteger.valueOf(10), 1);
+							SInt plainTextB = niob.input(BigInteger.valueOf(11), 1);
+							
+							SInt cipherTextA = seb.mimcEncrypt(plainTextA, mimcKey);
+							SInt cipherTextB = seb.mimcEncrypt(plainTextB, mimcKey);
+							
+							OInt cipherTextAOpen = builder.getNumericIOBuilder().output(cipherTextA);
+							OInt cipherTextBOpen = builder.getNumericIOBuilder().output(cipherTextB);							
+							
+							this.outputs = new OInt[] { cipherTextAOpen, cipherTextBOpen };
+							return builder.getProtocol();
+						}
+					};
+
+					sce.runApplication(app);
+
+					Assert.assertNotEquals(app.getOutputs()[0].getValue(), app.getOutputs()[1].getValue());
+					sce.shutdownSCE();
+				}
+			};
+		}
+	}
+	
 	public static class TestMiMCEncDec extends TestThreadFactory {
 		@Override
 		public TestThread next(TestThreadConfiguration conf) {
-			return new ThreadWithFixture() {
+			return new TestThread() {
 				@Override
 				public void test() throws Exception {
 					BigInteger x_big = BigInteger.valueOf(10);

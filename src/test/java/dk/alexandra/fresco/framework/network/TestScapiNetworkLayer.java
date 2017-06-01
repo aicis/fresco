@@ -42,7 +42,6 @@ import javax.crypto.spec.SecretKeySpec;
 import org.junit.Test;
 
 import dk.alexandra.fresco.framework.Party;
-import dk.alexandra.fresco.framework.Reporter;
 import dk.alexandra.fresco.framework.TestThreadRunner;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
@@ -130,7 +129,6 @@ public class TestScapiNetworkLayer {
 	
 	@Test
 	public void testPlainSocketChannel() throws Exception {
-		Reporter.init(Level.INFO);
 		final byte[] data = new byte[] { -61, -19, 106, -9 -67, 98, 102, 16, 21 };
 		final TestThreadFactory test = new TestThreadFactory() {
 			@Override
@@ -159,7 +157,6 @@ public class TestScapiNetworkLayer {
 	
 	@Test
 	public void testAuthenticatedSocketChannel() throws Exception {
-		Reporter.init(Level.INFO);
 		final byte[] data = new byte[] { -61, -19, 106, -9 -67, 98, 102, 16, 21 };
 		final TestThreadFactory test = new TestThreadFactory() {
 			@Override
@@ -190,7 +187,6 @@ public class TestScapiNetworkLayer {
 	
 	@Test
 	public void testSecureSocketChannel() throws Exception {
-		Reporter.init(Level.INFO);
 		final byte[] data = new byte[] { -61, -19, 106, -9 -67, 98, 102, 16, 21 };
 		final TestThreadFactory test = new TestThreadFactory() {
 			@Override

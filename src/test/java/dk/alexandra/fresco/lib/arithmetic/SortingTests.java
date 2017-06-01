@@ -26,7 +26,6 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.arithmetic;
 
-import java.io.IOException;
 import java.math.BigInteger;
 import java.util.Random;
 
@@ -38,8 +37,6 @@ import dk.alexandra.fresco.framework.TestApplication;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
-import dk.alexandra.fresco.framework.sce.SCE;
-import dk.alexandra.fresco.framework.sce.SCEFactory;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.compare.ComparisonProtocolFactoryImpl;
@@ -53,22 +50,11 @@ import dk.alexandra.fresco.lib.math.integer.exp.PreprocessedExpPipeFactory;
 import dk.alexandra.fresco.lib.math.integer.inv.LocalInversionFactory;
 
 public class SortingTests {
-	private abstract static class ThreadWithFixture extends TestThread {
-
-		protected SCE sce;
-
-		@Override
-		public void setUp() throws IOException {
-			sce = SCEFactory.getSCEFromConfiguration(conf.sceConf,
-					conf.protocolSuiteConf);
-		}
-
-	}
 	
 	public static class TestIsSorted extends TestThreadFactory {
 		@Override
 		public TestThread next(TestThreadConfiguration conf) {
-			return new ThreadWithFixture() {
+			return new TestThread() {
 				@Override
 				public void test() throws Exception {
 					TestApplication app = new TestApplication() {
@@ -123,6 +109,7 @@ public class SortingTests {
 						}
 					};
 					sce.runApplication(app);
+					sce.shutdownSCE();
 					Assert.assertEquals(BigInteger.ZERO, app.getOutputs()[0].getValue());
 					Assert.assertEquals(BigInteger.ONE, app.getOutputs()[1].getValue());
 				}
@@ -133,7 +120,7 @@ public class SortingTests {
 	public static class TestCompareAndSwap extends TestThreadFactory {
 		@Override
 		public TestThread next(TestThreadConfiguration conf) {
-			return new ThreadWithFixture() {
+			return new TestThread() {
 				@Override
 				public void test() throws Exception {
 					TestApplication app = new TestApplication() {
@@ -178,6 +165,7 @@ public class SortingTests {
 						}
 					};
 					sce.runApplication(app);
+					sce.shutdownSCE();
 					Assert.assertEquals(BigInteger.ONE, app.getOutputs()[0].getValue());
 					Assert.assertEquals(BigInteger.valueOf(2), app.getOutputs()[1].getValue());
 				}
@@ -189,7 +177,7 @@ public class SortingTests {
 	public static class TestSort extends TestThreadFactory {
 		@Override
 		public TestThread next(TestThreadConfiguration conf) {
-			return new ThreadWithFixture() {
+			return new TestThread() {
 				@Override
 				public void test() throws Exception {
 					TestApplication app = new TestApplication() {
@@ -246,6 +234,7 @@ public class SortingTests {
 						}
 					};
 					sce.runApplication(app);
+					sce.shutdownSCE();
 					Assert.assertEquals(BigInteger.ZERO, app.getOutputs()[0].getValue()); //unsorted is unsorted
 					Assert.assertEquals(BigInteger.valueOf(0),app.getOutputs()[2].getValue());
 					Assert.assertEquals(BigInteger.valueOf(1),app.getOutputs()[3].getValue());
@@ -261,7 +250,7 @@ public class SortingTests {
 	public static class TestBigSort extends TestThreadFactory {
 		@Override
 		public TestThread next(TestThreadConfiguration conf) {
-			return new ThreadWithFixture() {
+			return new TestThread() {
 				@Override
 				public void test() throws Exception {
 					TestApplication app = new TestApplication() {
@@ -317,6 +306,7 @@ public class SortingTests {
 						}
 					};
 					sce.runApplication(app);
+					sce.shutdownSCE();
 					Assert.assertEquals(BigInteger.ZERO, app.getOutputs()[0].getValue()); //unsorted is unsorted to start 
 					Assert.assertEquals(BigInteger.ONE, app.getOutputs()[1].getValue()); //tobesorted is sorted at the end
 				}

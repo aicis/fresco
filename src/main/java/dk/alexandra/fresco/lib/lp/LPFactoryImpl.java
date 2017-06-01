@@ -47,24 +47,24 @@ import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.field.integer.RandomFieldElementFactory;
 import dk.alexandra.fresco.lib.helper.CopyProtocol;
 import dk.alexandra.fresco.lib.helper.CopyProtocolImpl;
+import dk.alexandra.fresco.lib.math.integer.NumericBitFactory;
 import dk.alexandra.fresco.lib.math.integer.NumericNegateBitFactory;
 import dk.alexandra.fresco.lib.math.integer.NumericNegateBitFactoryImpl;
-import dk.alexandra.fresco.lib.math.integer.NumericBitFactory;
 import dk.alexandra.fresco.lib.math.integer.exp.ExpFromOIntFactory;
 import dk.alexandra.fresco.lib.math.integer.exp.PreprocessedExpPipeFactory;
-import dk.alexandra.fresco.lib.math.integer.inv.InversionProtocolImpl;
 import dk.alexandra.fresco.lib.math.integer.inv.InversionProtocol;
+import dk.alexandra.fresco.lib.math.integer.inv.InversionProtocolImpl;
 import dk.alexandra.fresco.lib.math.integer.inv.LocalInversionFactory;
 import dk.alexandra.fresco.lib.math.integer.linalg.EntrywiseProductProtocol;
 import dk.alexandra.fresco.lib.math.integer.linalg.EntrywiseProductProtocolImpl;
 import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductFactory;
 import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductFactoryImpl;
 import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductProtocol;
-import dk.alexandra.fresco.lib.math.integer.min.MinimumProtocol;
-import dk.alexandra.fresco.lib.math.integer.min.MinimumProtocolImpl;
 import dk.alexandra.fresco.lib.math.integer.min.MinInfFracProtocol;
 import dk.alexandra.fresco.lib.math.integer.min.MinimumFractionProtocol;
 import dk.alexandra.fresco.lib.math.integer.min.MinimumFractionProtocolImpl;
+import dk.alexandra.fresco.lib.math.integer.min.MinimumProtocol;
+import dk.alexandra.fresco.lib.math.integer.min.MinimumProtocolImpl;
 
 public class LPFactoryImpl implements LPFactory {
 
@@ -196,18 +196,32 @@ public class LPFactoryImpl implements LPFactory {
 	@Override
 	public InnerProductProtocol getInnerProductProtocol(SInt[] aVector,
 			SInt[] bVector, SInt result) {
-		return this.innerProductFactory.getInnerProductProtocol(aVector,
-				bVector, result);
+	  return this.innerProductFactory.getInnerProductProtocol(aVector,
+          bVector, result);
 	}
 
 	@Override
+  public InnerProductProtocol getInnerProductProtocol(SInt[] aVector, OInt[] bVector, SInt result) {
+	  return this.innerProductFactory.getInnerProductProtocol(aVector,
+          bVector, result);
+  }
+
+  @Override
 	public OptimalValueProtocol getOptimalValueProtocol(
 			Matrix<SInt> updateMatrix, SInt[] B, SInt pivot, SInt optimalValue) {
-		return new OptimalValueProtocol(updateMatrix, B, pivot, optimalValue,
-				this, bnf);
+	  return new OptimalValueProtocol(updateMatrix, B, pivot, optimalValue,
+          this, bnf);
 	}
 
+	
 	@Override
+  public OptimalValueProtocol getOptimalValueProtocol(Matrix<SInt> updateMatrix, LPTableau tableau,
+      SInt pivot, SInt optimalValue) {
+	  return new OptimalValueProtocol(updateMatrix, tableau, pivot, optimalValue,
+          this, bnf);
+  }
+
+  @Override
 	public OptimalNumeratorProtocol getOptimalNumeratorProtocol(
 			Matrix<SInt> updateMatrix, SInt[] B, SInt optimalNumerator) {
 		return new OptimalNumeratorProtocol(updateMatrix, B, optimalNumerator,
@@ -228,7 +242,7 @@ public class LPFactoryImpl implements LPFactory {
 
 	@Override
 	public LPSolverProtocol getLPSolverProtocol(LPTableau tableau,
-			Matrix<SInt> updateMatrix, SInt pivot) {
-		return new LPSolverProtocol(tableau, updateMatrix, pivot, this, bnf);
+			Matrix<SInt> updateMatrix, SInt pivot, SInt[] basis) {
+		return new LPSolverProtocol(tableau, updateMatrix, pivot, basis, this, bnf);
 	}
 }

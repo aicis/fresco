@@ -26,32 +26,12 @@
  *******************************************************************************/
 package dk.alexandra.fresco.suite.spdz;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.logging.Level;
-
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 
-import dk.alexandra.fresco.IntegrationTest;
-import dk.alexandra.fresco.framework.ProtocolEvaluator;
-import dk.alexandra.fresco.framework.Reporter;
-import dk.alexandra.fresco.framework.TestThreadRunner;
-import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
-import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
-import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
-import dk.alexandra.fresco.framework.configuration.TestConfiguration;
-import dk.alexandra.fresco.framework.sce.configuration.TestSCEConfiguration;
+import dk.alexandra.fresco.framework.configuration.PreprocessingStrategy;
+import dk.alexandra.fresco.framework.network.NetworkingStrategy;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
-import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
-import dk.alexandra.fresco.framework.sce.resources.storage.StorageStrategy;
 import dk.alexandra.fresco.lib.arithmetic.BasicArithmeticTests;
-import dk.alexandra.fresco.suite.ProtocolSuite;
-import dk.alexandra.fresco.suite.spdz.configuration.SpdzConfiguration;
-import dk.alexandra.fresco.suite.spdz.configuration.SpdzConfigurationFromProperties;
-import dk.alexandra.fresco.suite.spdz.evaluation.strategy.SpdzProtocolSuite;
 
 /**
  * Basic arithmetic tests using the SPDZ protocol suite with 3 parties. Have to
@@ -59,109 +39,61 @@ import dk.alexandra.fresco.suite.spdz.evaluation.strategy.SpdzProtocolSuite;
  * to handle a fixed number of parties.
  * 
  */
-public class TestSpdzBasicArithmetic3Parties {
-
-	private static final int noOfParties = 3;
-	private static final int BATCH_SIZE = 4096;
-
-	private void runTest(TestThreadFactory f, EvaluationStrategy evalStrategy,
-			StorageStrategy storageStrategy) throws Exception {
-		Level logLevel = Level.FINE;
-		Reporter.init(logLevel);
-
-		// Since SCAPI currently does not work with ports > 9999 we use fixed
-		// ports
-		// here instead of relying on ephemeral ports which are often > 9999.
-		List<Integer> ports = new ArrayList<Integer>(noOfParties);
-		for (int i = 1; i <= noOfParties; i++) {
-			ports.add(9000 + i);
-		}
-
-		Map<Integer, NetworkConfiguration> netConf = TestConfiguration
-				.getNetworkConfigurations(noOfParties, ports, logLevel);
-		Map<Integer, TestThreadConfiguration> conf = new HashMap<Integer, TestThreadConfiguration>();
-		for (int playerId : netConf.keySet()) {
-			TestThreadConfiguration ttc = new TestThreadConfiguration();
-			ttc.netConf = netConf.get(playerId);
-
-			// This fixes parameters, e.g., security parameter 80 is always
-			// used.
-			// To run tests with varying parameters, do as in the BGW case with
-			// different thresholds.
-			SpdzConfiguration spdzConf = new SpdzConfigurationFromProperties();
-			ttc.protocolSuiteConf = spdzConf;
-			boolean useSecureConnection = false; // No tests of secure
-													// connection
-													// here.
-			int noOfVMThreads = 3;
-			int noOfThreads = 3;
-			ProtocolSuite suite = SpdzProtocolSuite.getInstance(playerId);
-			ProtocolEvaluator evaluator = EvaluationStrategy
-					.fromEnum(evalStrategy);
-			dk.alexandra.fresco.framework.sce.resources.storage.Storage storage = inMemStore;			
-			ttc.sceConf = new TestSCEConfiguration(suite, evaluator,
-					noOfThreads, noOfVMThreads, ttc.netConf, storage,
-					useSecureConnection, BATCH_SIZE);
-			conf.put(playerId, ttc);
-		}
-		TestThreadRunner.run(f, conf);
-	}
-
-	private static InMemoryStorage inMemStore = new InMemoryStorage();
+public class TestSpdzBasicArithmetic3Parties extends AbstractSpdzTest{	
 
 	@Test
 	public void test_Copy_Sequential() throws Exception {
 		runTest(new BasicArithmeticTests.TestCopyProtocol(),
-				EvaluationStrategy.SEQUENTIAL, StorageStrategy.IN_MEMORY);
+				EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 3);
 	}
 
 	@Test
 	public void test_Input_Sequential() throws Exception {
 		runTest(new BasicArithmeticTests.TestInput(),
-				EvaluationStrategy.SEQUENTIAL, StorageStrategy.IN_MEMORY);
+				EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 3);
 	}
 	
 	@Test
 	public void test_Input_SequentialBatched() throws Exception {
 		runTest(new BasicArithmeticTests.TestInput(),
-				EvaluationStrategy.SEQUENTIAL_BATCHED, StorageStrategy.IN_MEMORY);
+				EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 3);
 	}
 
 	@Test
 	public void test_Lots_Of_Inputs_Sequential() throws Exception {
 		runTest(new BasicArithmeticTests.TestLotsOfInputs(),
-				EvaluationStrategy.SEQUENTIAL, StorageStrategy.IN_MEMORY);
+				EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 3);
 	}
 
 	@Test
 	public void test_Lots_Of_Inputs_Parallel() throws Exception {
 		runTest(new BasicArithmeticTests.TestLotsOfInputs(),
-				EvaluationStrategy.PARALLEL, StorageStrategy.IN_MEMORY);
+				EvaluationStrategy.PARALLEL, NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 3);
 	}
 
 	@Test
 	public void test_Lots_Of_Inputs_ParallelBatched() throws Exception {
 		runTest(new BasicArithmeticTests.TestLotsOfInputs(),
-				EvaluationStrategy.PARALLEL_BATCHED, StorageStrategy.IN_MEMORY);
+				EvaluationStrategy.PARALLEL_BATCHED, NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 3);
 	}
 
 	@Test
 	public void test_Sum_And_Output_Sequential() throws Exception {
 		runTest(new BasicArithmeticTests.TestSumAndMult(),
-				EvaluationStrategy.SEQUENTIAL, StorageStrategy.IN_MEMORY);
+				EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 3);
 	}
 
 	@Test
 	public void test_Sum_And_Output_ParallelBatched() throws Exception {
 		runTest(new BasicArithmeticTests.TestSumAndMult(),
-				EvaluationStrategy.PARALLEL_BATCHED, StorageStrategy.IN_MEMORY);
+				EvaluationStrategy.PARALLEL_BATCHED, NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 3);
 	}
 	
 	@Test
 	public void test_Lots_Of_Mults_Sequential() throws Exception {
 		runTest(new BasicArithmeticTests.TestLotsMult(),
 				EvaluationStrategy.SEQUENTIAL,
-				StorageStrategy.IN_MEMORY);
+				NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 3);
 	}
 	
 	
@@ -169,49 +101,49 @@ public class TestSpdzBasicArithmetic3Parties {
 	public void test_Lots_Of_Mults_Sequential_Batched() throws Exception {
 		runTest(new BasicArithmeticTests.TestLotsMult(),
 				EvaluationStrategy.SEQUENTIAL_BATCHED,
-				StorageStrategy.IN_MEMORY);
+				NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 3);
 	}
 	
 	@Test
 	public void test_Lots_Of_Mults_Parallel() throws Exception {
 		runTest(new BasicArithmeticTests.TestLotsMult(),
 				EvaluationStrategy.PARALLEL,
-				StorageStrategy.IN_MEMORY);
+				NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 3);
 	}
 	
 	@Test
 	public void test_Lots_Of_Mults_Parallel_Batched() throws Exception {
 		runTest(new BasicArithmeticTests.TestLotsMult(),
 				EvaluationStrategy.PARALLEL_BATCHED,
-				StorageStrategy.IN_MEMORY);
+				NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 3);
 	}
 	
 	@Test
 	public void test_Alternating_Sequential() throws Exception {
 		runTest(new BasicArithmeticTests.TestAlternatingMultAdd(),
 				EvaluationStrategy.SEQUENTIAL,
-				StorageStrategy.IN_MEMORY);
+				NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 3);
 	}
 	
 	@Test
 	public void test_Alternating_Sequential_Batched() throws Exception {
 		runTest(new BasicArithmeticTests.TestAlternatingMultAdd(),
 				EvaluationStrategy.SEQUENTIAL_BATCHED,
-				StorageStrategy.IN_MEMORY);
+				NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 3);
 	}
 	
 	@Test
 	public void test_Alternating_Parallel_Batched() throws Exception {
 		runTest(new BasicArithmeticTests.TestAlternatingMultAdd(),
 				EvaluationStrategy.PARALLEL_BATCHED,
-				StorageStrategy.IN_MEMORY);
+				NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 3);
 	}
 	
 	@Test
 	public void test_Alternating_Parallel() throws Exception {
 		runTest(new BasicArithmeticTests.TestAlternatingMultAdd(),
 				EvaluationStrategy.PARALLEL,
-				StorageStrategy.IN_MEMORY);
+				NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 3);
 	}
 
 	// TODO: Test with different security parameters.

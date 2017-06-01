@@ -27,6 +27,10 @@ public class TinyTablesElementVector implements Serializable {
 		this.values = new BitVector(shares);
 	}
 	
+	public TinyTablesElementVector(byte[] shares, int size) {
+		this.values = new BitVector(shares, size);
+	}
+	
 	public TinyTablesElementVector(int size) {
 		this.values = new BitVector(size);
 	}
@@ -41,6 +45,10 @@ public class TinyTablesElementVector implements Serializable {
 	
 	public TinyTablesElement get(int index) {
 		return new TinyTablesElement(values.get(index));
+	}
+	
+	public byte[] payload() {
+		return this.values.asByteArr();
 	}
 	
 	public int getSize() {

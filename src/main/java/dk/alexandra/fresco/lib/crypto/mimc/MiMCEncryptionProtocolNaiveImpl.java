@@ -31,49 +31,93 @@ import java.math.BigInteger;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
+import dk.alexandra.fresco.lib.helper.AbstractRoundBasedProtocol;
 import dk.alexandra.fresco.lib.helper.AbstractSimpleProtocol;
 import dk.alexandra.fresco.lib.helper.builder.NumericProtocolBuilder;
 
-public class MiMCEncryptionProtocolNaiveImpl extends AbstractSimpleProtocol implements MiMCEncryptionProtocol{
+public class MiMCEncryptionProtocolNaiveImpl extends AbstractRoundBasedProtocol implements MiMCEncryptionProtocol {
 
-	private SInt message;
-	private SInt key;
-	private SInt encryptedMessage;
-	private int noOfRounds;
-	BasicNumericFactory bnf;
-	NumericProtocolBuilder builder;
+	// TODO: require that our modulus - 1 and 3 are co-prime
 	
+	private SInt mimcKey;
+	private SInt cipherText;
+	private int requiredRounds;
+	private int round;
+	private BasicNumericFactory bnf;
+	private SInt nextRoundMessage;
+
 	/**
-	 * Naive implementation of the MiMC encryption.
-	 * @param message The message to encrypt
-	 * @param key The key to encrypt under
-	 * @param noOfRounds The number of rounds to use. If you don't know the correct number, always use log_3(modulus) rounded up.
+	 * Implementation of the MiMC decryption protocol.
+	 * 
+	 * @param plainText
+	 *            The secret-shared plain text to encrypt.
+	 * @param mimcKey
+	 *            The symmetric (secret-shared) key we will use to encrypt.
+	 * @param cipherText
+	 * 			  The secret-shared result of the encryption will be stored here.
+	 * @param requiredRounds
+	 *            The number of rounds to use. If you don't know the correct
+	 *            number, we use log_3(modulus) rounded up.
+	 * @param bnf
+	 * 			  Factory we will use for arithmetic operations.
 	 */
-	public MiMCEncryptionProtocolNaiveImpl(SInt message, SInt key, SInt encryptedMessage, int noOfRounds, BasicNumericFactory bnf) {
-		this.message = message;
-		this.key = key;
-		this.encryptedMessage = encryptedMessage;
-		this.noOfRounds = noOfRounds;
+	public MiMCEncryptionProtocolNaiveImpl(SInt plainText, SInt mimcKey, SInt cipherText, 
+			int requiredRounds, BasicNumericFactory bnf) {
+		this.mimcKey = mimcKey;
+		this.cipherText = cipherText;
+		this.requiredRounds = requiredRounds;
 		this.bnf = bnf; 
-		this.builder = new NumericProtocolBuilder(bnf);
+		this.nextRoundMessage = plainText;
+		this.round = 0;
 	}
 	
 	@Override
-	protected ProtocolProducer initializeProtocolProducer() {		
-		SInt nextRoundMessage = message;
-		for(int i = 0; i < noOfRounds; i++) {
-			nextRoundMessage = oneRound(i, nextRoundMessage);			
+	public ProtocolProducer nextProtocolProducer() {
+		NumericProtocolBuilder b = new NumericProtocolBuilder(bnf);
+		
+		if (round == 0) {
+			/*
+			 * In the first round we compute c = (p + K)^{3}
+			 * where p is the plain text.
+			 */
+			SInt masked = b.add(nextRoundMessage, mimcKey);
+			nextRoundMessage = b.exp(masked, 3);
+			
+			round++;
+			return b.getProtocol();
 		}
-		builder.addProtocolProducer(bnf.getAddProtocol(nextRoundMessage, key, encryptedMessage));
-		
-		return builder.getProtocol();
-	}
-
-	public SInt oneRound(int round, SInt thisRoundMessage) {
-		BigInteger c_r_big = MiMCConstants.getConstant(round, bnf.getModulus());		
-		SInt c_r = builder.known(c_r_big);
-		
-		SInt res = builder.add(c_r, builder.add(thisRoundMessage, key));
-		return builder.mult(res, builder.mult(res, res));		
+		if (round < requiredRounds) {
+			/* 
+			 * We're in an intermediate round where we compute
+			 * c_{i} = (c_{i - 1} + K + r_{i})^{3}
+			 * where K is the symmetric key
+			 * i is the reverse of the current round count
+			 * r_{i} is the round constant
+			 * c_{i - 1} is the cipher text we have computed
+			 * in the previous round
+			 */
+			BigInteger _roundConstant = MiMCConstants.getConstant(round, bnf.getModulus());		
+			SInt roundConstant = b.known(_roundConstant);
+			
+			// Add key and round constant			
+			SInt masked = b.add(roundConstant, b.add(nextRoundMessage, mimcKey));
+			// Compute the cube
+			nextRoundMessage = b.exp(masked, 3);
+			
+			round++;
+			return b.getProtocol();
+		}
+		else if (round == requiredRounds) {
+			/* 
+			 * We're in the last round so we just mask the current
+			 * cipher text with the encryption key
+			 */
+			b.copy(cipherText, b.add(nextRoundMessage, mimcKey));
+			round++;
+			return b.getProtocol();
+		}
+		else {
+			return null;
+		}
 	}
 }

@@ -26,9 +26,12 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.math.integer.stat;
 
-import java.io.IOException;
 import java.math.BigInteger;
 
+import dk.alexandra.fresco.lib.compare.ComparisonProtocolFactory;
+import dk.alexandra.fresco.lib.compare.ComparisonProtocolFactoryImpl;
+import dk.alexandra.fresco.lib.math.integer.exp.ExpFromOIntFactory;
+import dk.alexandra.fresco.lib.math.integer.exp.PreprocessedExpPipeFactory;
 import org.springframework.util.Assert;
 
 import dk.alexandra.fresco.framework.ProtocolFactory;
@@ -37,8 +40,6 @@ import dk.alexandra.fresco.framework.TestApplication;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
-import dk.alexandra.fresco.framework.sce.SCE;
-import dk.alexandra.fresco.framework.sce.SCEFactory;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.compare.RandomAdditiveMaskFactory;
@@ -72,23 +73,12 @@ import dk.alexandra.fresco.lib.math.integer.inv.LocalInversionFactory;
  */
 public class StatisticsTests {
 
-	private abstract static class ThreadWithFixture extends TestThread {
-
-		protected SCE sce;
-
-		@Override
-		public void setUp() throws IOException {
-			sce = SCEFactory.getSCEFromConfiguration(conf.sceConf, conf.protocolSuiteConf);
-		}
-
-	}
-
 	public static class TestStatistics extends TestThreadFactory {
 
 		@Override
 		public TestThread next(TestThreadConfiguration conf) {
 			
-			return new ThreadWithFixture() {
+			return new TestThread() {
 				private final int[] data1 = {543,520,532,497,450,432};
 				private final int[] data2 = {432,620,232,337,250,433};
 				private final int[] data3 = {80,90,123,432,145,606};
@@ -102,18 +92,21 @@ public class StatisticsTests {
 						@Override
 						public ProtocolProducer prepareApplication(
 								ProtocolFactory factory) {
-							
+
 							BasicNumericFactory basicNumericFactory = (BasicNumericFactory) factory;
 							NumericBitFactory preprocessedNumericBitFactory = (NumericBitFactory) factory;
+							ExpFromOIntFactory expFromOIntFactory = (ExpFromOIntFactory)factory;
+							PreprocessedExpPipeFactory preprocessedExpPipeFactory = (PreprocessedExpPipeFactory)factory;
 							RandomAdditiveMaskFactory randomAdditiveMaskFactory = new RandomAdditiveMaskFactoryImpl(basicNumericFactory, preprocessedNumericBitFactory);
 							LocalInversionFactory localInversionFactory = (LocalInversionFactory) factory;
 							RightShiftFactory rightShiftFactory = new RightShiftFactoryImpl(basicNumericFactory, randomAdditiveMaskFactory, localInversionFactory);
 							IntegerToBitsFactory integerToBitsFactory = new IntegerToBitsFactoryImpl(basicNumericFactory, rightShiftFactory);
 							BitLengthFactory bitLengthFactory = new BitLengthFactoryImpl(basicNumericFactory, integerToBitsFactory);
 							ExponentiationFactory exponentiationFactory = new ExponentiationFactoryImpl(basicNumericFactory, integerToBitsFactory);
-							DivisionFactory euclidianDivisionFactory = new DivisionFactoryImpl(basicNumericFactory, rightShiftFactory, bitLengthFactory, exponentiationFactory);
+							ComparisonProtocolFactory comparisonFactory = new ComparisonProtocolFactoryImpl(80, basicNumericFactory, localInversionFactory, preprocessedNumericBitFactory, expFromOIntFactory, preprocessedExpPipeFactory);
+							DivisionFactory euclidianDivisionFactory = new DivisionFactoryImpl(basicNumericFactory, rightShiftFactory, bitLengthFactory, exponentiationFactory, comparisonFactory);
 							StatisticsFactory statisticsFactory = new StatisticsFactoryImpl(basicNumericFactory, euclidianDivisionFactory);
-							
+
 							NumericIOBuilder ioBuilder = new NumericIOBuilder(basicNumericFactory);
 							SequentialProtocolProducer sequentialProtocolProducer = new SequentialProtocolProducer();
 							
@@ -132,19 +125,19 @@ public class StatisticsTests {
 							SInt[][] input = ioBuilder.inputMatrix(new int[][] {data1, data2, data3}, 1);
 							sequentialProtocolProducer.append(ioBuilder.getProtocol());
 							
-							MeanProtocol arithmeticMeanProtocol = statisticsFactory.getMeanProtocol(input[0], 10, mean1);
+							MeanProtocol arithmeticMeanProtocol = statisticsFactory.getMeanProtocol(input[0], mean1);
 							sequentialProtocolProducer.append(arithmeticMeanProtocol);
 
-							MeanProtocol arithmeticMeanProtocol2 = statisticsFactory.getMeanProtocol(input[1], 10, mean2);
+							MeanProtocol arithmeticMeanProtocol2 = statisticsFactory.getMeanProtocol(input[1], mean2);
 							sequentialProtocolProducer.append(arithmeticMeanProtocol2);
 
-							VarianceProtocol varianceProtocol = statisticsFactory.getVarianceProtocol(input[0], 10, mean1, variance);
+							VarianceProtocol varianceProtocol = statisticsFactory.getVarianceProtocol(input[0], mean1, variance);
 							sequentialProtocolProducer.append(varianceProtocol);
 							
-							CovarianceProtocol covarianceProtocol = statisticsFactory.getCovarianceProtocol(input[0], input[1], 10, mean1, mean2, covariance);
+							CovarianceProtocol covarianceProtocol = statisticsFactory.getCovarianceProtocol(input[0], input[1], mean1, mean2, covariance);
 							sequentialProtocolProducer.append(covarianceProtocol);
 							
-							CovarianceMatrixProtocol covarianceMatrixProtocol = statisticsFactory.getCovarianceMatrixProtocol(input, 10, covarianceMatrix);
+							CovarianceMatrixProtocol covarianceMatrixProtocol = statisticsFactory.getCovarianceMatrixProtocol(input, covarianceMatrix);
 							sequentialProtocolProducer.append(covarianceMatrixProtocol);
 							
 							OInt output1 = ioBuilder.output(mean1);

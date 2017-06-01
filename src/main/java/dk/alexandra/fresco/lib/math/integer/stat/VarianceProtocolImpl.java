@@ -37,27 +37,25 @@ public class VarianceProtocolImpl extends AbstractSimpleProtocol implements Vari
 
 	private SInt[] data;
 	private SInt variance;
-	private int maxInputLength;
 	private SInt mean;
 
 	private final BasicNumericFactory basicNumericFactory;
 	private final MeanFactory meanFactory;
 
-	public VarianceProtocolImpl(SInt[] data, int maxInputLength, SInt mean, SInt variance,
-			BasicNumericFactory basicNumericFactory, MeanFactory meanFactory) {
+	public VarianceProtocolImpl(SInt[] data, SInt mean, SInt variance, BasicNumericFactory basicNumericFactory,
+			MeanFactory meanFactory) {
 		this.data = data;
 		this.mean = mean;
-		
-		this.maxInputLength = maxInputLength;
+
 		this.variance = variance;
 
 		this.basicNumericFactory = basicNumericFactory;
 		this.meanFactory = meanFactory;
 	}
 
-	public VarianceProtocolImpl(SInt[] data, int maxInputLength, SInt variance,
-			BasicNumericFactory basicNumericFactory, MeanFactory meanFactory) {
-		this(data, maxInputLength, null, variance, basicNumericFactory, meanFactory);
+	public VarianceProtocolImpl(SInt[] data, SInt variance, BasicNumericFactory basicNumericFactory,
+			MeanFactory meanFactory) {
+		this(data, null, variance, basicNumericFactory, meanFactory);
 	}
 
 	@Override
@@ -70,11 +68,10 @@ public class VarianceProtocolImpl extends AbstractSimpleProtocol implements Vari
 		 */
 		if (mean == null) {
 			this.mean = basicNumericFactory.getSInt();
-			gp.append(meanFactory.getMeanProtocol(data, maxInputLength, mean));
+			gp.append(meanFactory.getMeanProtocol(data, mean));
 		}
 
-		NumericProtocolBuilder numericProtocolBuilder = new NumericProtocolBuilder(
-				basicNumericFactory);
+		NumericProtocolBuilder numericProtocolBuilder = new NumericProtocolBuilder(basicNumericFactory);
 
 		numericProtocolBuilder.beginParScope();
 		SInt[] terms = new SInt[data.length];
@@ -89,7 +86,7 @@ public class VarianceProtocolImpl extends AbstractSimpleProtocol implements Vari
 		gp.append(numericProtocolBuilder.getProtocol());
 
 		// The sample variance has df = n-1
-		gp.append(meanFactory.getMeanProtocol(terms, 2 * maxInputLength, data.length - 1, variance));
+		gp.append(meanFactory.getMeanProtocol(terms, data.length - 1, variance));
 
 		return gp;
 	}

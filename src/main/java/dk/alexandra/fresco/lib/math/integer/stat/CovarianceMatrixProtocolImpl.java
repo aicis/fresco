@@ -39,7 +39,6 @@ public class CovarianceMatrixProtocolImpl extends AbstractSimpleProtocol impleme
 
 	private SInt[][] data;
 	private SInt[] mean;
-	private int maxInputLength;
 
 	private SInt[][] result;
 
@@ -69,13 +68,12 @@ public class CovarianceMatrixProtocolImpl extends AbstractSimpleProtocol impleme
 	 * @param varianceFactory
 	 * @param covarianceFactory
 	 */
-	public CovarianceMatrixProtocolImpl(SInt[][] data, int maxInputLength, SInt[] mean,
+	public CovarianceMatrixProtocolImpl(SInt[][] data, SInt[] mean,
 			SInt[][] result, BasicNumericFactory basicNumericFactory, MeanFactory meanFactory,
 			VarianceFactory varianceFactory, CovarianceFactory covarianceFactory) {
 		this.data = data;
 		this.mean = mean;
 
-		this.maxInputLength = maxInputLength;
 		this.result = result;
 
 		this.basicNumericFactory = basicNumericFactory;
@@ -97,10 +95,10 @@ public class CovarianceMatrixProtocolImpl extends AbstractSimpleProtocol impleme
 	 * @param varianceFactory
 	 * @param covarianceFactory
 	 */
-	public CovarianceMatrixProtocolImpl(SInt[][] data, int maxInputLength, SInt[][] result,
+	public CovarianceMatrixProtocolImpl(SInt[][] data, SInt[][] result,
 			BasicNumericFactory basicNumericFactory, MeanFactory meanFactory,
 			VarianceFactory varianceFactory, CovarianceFactory covarianceFactory) {
-		this(data, maxInputLength, null, result, basicNumericFactory, meanFactory, varianceFactory,
+		this(data, null, result, basicNumericFactory, meanFactory, varianceFactory,
 				covarianceFactory);
 	}
 
@@ -129,7 +127,7 @@ public class CovarianceMatrixProtocolImpl extends AbstractSimpleProtocol impleme
 		for (int i = 0; i < numOfDataSets; i++) {
 			if (mean[i] == null) {
 				mean[i] = basicNumericFactory.getSInt();
-				findMeans.append(meanFactory.getMeanProtocol(data[i], maxInputLength, mean[i]));
+				findMeans.append(meanFactory.getMeanProtocol(data[i], mean[i]));
 			}
 		}
 		if (!findMeans.getProducers().isEmpty()) {
@@ -148,12 +146,12 @@ public class CovarianceMatrixProtocolImpl extends AbstractSimpleProtocol impleme
 					// which saves us one subtraction per data entry compared to
 					// calculating the covariance
 					findCovariances.append(varianceFactory.getVarianceProtocol(data[i],
-							maxInputLength, mean[i], result[i][j]));
+							mean[i], result[i][j]));
 				} else {
 					SequentialProtocolProducer findCovariance = new SequentialProtocolProducer();
 					
 					findCovariance.append(covarianceFactory.getCovarianceProtocol(data[i],
-							data[j], maxInputLength, result[i][j]));
+							data[j], result[i][j]));
 					// Covariance matrix is symmetric
 					findCovariance.append(new CopyProtocolImpl<SInt>(result[i][j], result[j][i]));
 					
