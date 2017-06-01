@@ -1,10 +1,13 @@
 package dk.alexandra.fresco.model;
 
+/**
+ * The different types of preprocessed material that currently exists in FRESCO
+ * for the SPDZ protocol suite.
+ * 
+ * @author Kasper Damgaard
+ *
+ */
 public enum Type {
 
-	TRIPLES,
-	BITS,
-	EXPPIPES,
-	INPUT_1, //towards party 1
-	INPUT_2 // towards party 2
+	TRIPLES, BITS, EXPPIPES, INPUT
 }

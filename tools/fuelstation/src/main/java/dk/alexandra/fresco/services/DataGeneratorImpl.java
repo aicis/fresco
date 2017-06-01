@@ -54,6 +54,27 @@ public class DataGeneratorImpl implements DataGenerator{
 	private final Map<Integer, Boolean> reset = new HashMap<>();
 	private final List<GeneratorThread> threads = new ArrayList<>();
 	
+	/**
+	 * Present for test purposes
+	 * @param noOfParties
+	 */
+	public void setNoOfParties(int noOfParties) {
+		this.noOfPlayers = noOfParties;
+	}
+	
+	public void resetAndInit() throws IOException {
+		for(GeneratorThread t : threads) {
+			t.interrupt();
+		}
+		threads.clear();
+		this.tripleQueue.clear();
+		this.bitsQueue.clear();
+		this.expPipesQueue.clear();
+		this.inputMaskQueue.clear();
+		
+		clearAndInit();
+	}
+	
 	@PostConstruct
 	public void clearAndInit() throws IOException {
 		//set mod in spdz
@@ -93,22 +114,28 @@ public class DataGeneratorImpl implements DataGenerator{
 		
 		for(Type t : Type.values()) {
 			int amount = 0;
-			switch(t) {
-			case TRIPLES:
-				amount = 1000;
-				break;
-			case BITS:
-				amount = 3000;
-				break;
-			case EXPPIPES:
-				amount = 50;
-				break;
-			case INPUT_1:				
-			case INPUT_2:
-				amount = 100;
-				break;
-			}
 			for(int threadId = 0; threadId < noOfVMThreads; threadId++) {
+				switch(t) {
+				case TRIPLES:
+					amount = 1000;
+					break;
+				case BITS:
+					amount = 3000;
+					break;
+				case EXPPIPES:
+					amount = 50;
+					break;
+				case INPUT:
+					amount = 100;
+					for(int myId = 1; myId <= noOfPlayers; myId++) {
+						GeneratorThread thread = new GeneratorThread(this, t, amount, noOfPlayers, threadId, alpha, mod, myId);
+						thread.start();
+						threads.add(thread);
+					}
+					//Created the threads for input, contiue to next thread/type
+					continue;
+				}
+			
 				GeneratorThread thread = new GeneratorThread(this, t, amount, noOfPlayers, threadId, alpha, mod);
 				thread.start();
 				threads.add(thread);
