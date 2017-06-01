@@ -8,8 +8,10 @@ import dk.alexandra.fresco.framework.value.Value;
 import dk.alexandra.fresco.framework.sce.SCE;
 import dk.alexandra.fresco.framework.sce.SCEFactory;
 import dk.alexandra.fresco.suite.spdz.configuration.SpdzConfiguration;
+import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.PreprocessingStrategy;
 import dk.alexandra.fresco.framework.Party;
+import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.NetworkingStrategy;
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
@@ -240,8 +242,13 @@ public class AggregationDemo {
             }
 
             @Override
-            public NetworkingStrategy getNetwork() {
+            public NetworkingStrategy getNetworkStrategy() {
                 return NetworkingStrategy.KRYONET;
+            }
+
+            @Override
+            public Network getNetwork(NetworkConfiguration configuration, int channelAmount) {
+              return null;
             }
         };
 
