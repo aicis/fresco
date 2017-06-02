@@ -100,7 +100,7 @@ public class TestTinyTables {
             getFilenameForTest(playerId, name)));
 
 				/*
-				 * 
+         *
 				 */
         ((TinyTablesPreproConfiguration) config).setTriplesBatchSize(TRIPLES_BATCH_SIZE);
 
@@ -170,10 +170,8 @@ public class TestTinyTables {
     });
   }
 
-  ;
-
-	/*
-	 * Basic tests
+  /*
+   * Basic tests
 	 */
 
   //ensure that the tinytables folder is new for each test and is deleted upon exiting each test.
