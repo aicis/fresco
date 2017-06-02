@@ -56,7 +56,7 @@ import dk.alexandra.fresco.lib.math.integer.exp.ExponentiationFactoryImpl;
 import dk.alexandra.fresco.lib.math.integer.exp.PreprocessedExpPipeFactory;
 import dk.alexandra.fresco.lib.math.integer.inv.LocalInversionFactory;
 import java.math.BigInteger;
-import org.springframework.util.Assert;
+import org.junit.Assert;
 
 
 /**
@@ -185,12 +185,13 @@ public class StatisticsTests {
 					covarianceExact /= (data1.length - 1);
 					
 					double tolerance = 1.0;
-					Assert.isTrue(isInInterval(mean1, mean1Exact, tolerance));
-					Assert.isTrue(isInInterval(mean2, mean2Exact, tolerance));
-					Assert.isTrue(isInInterval(variance, varianceExact, tolerance));
-					Assert.isTrue(isInInterval(covariance, covarianceExact, tolerance));
-					Assert.isTrue(isInInterval(app.getOutputs()[4].getValue(), varianceExact, tolerance));
-					Assert.isTrue(isInInterval(app.getOutputs()[5].getValue(), covarianceExact, tolerance));
+          Assert.assertTrue(isInInterval(mean1, mean1Exact, tolerance));
+          Assert.assertTrue(isInInterval(mean2, mean2Exact, tolerance));
+          Assert.assertTrue(isInInterval(variance, varianceExact, tolerance));
+          Assert.assertTrue(isInInterval(covariance, covarianceExact, tolerance));
+          Assert.assertTrue(isInInterval(app.getOutputs()[4].getValue(), varianceExact, tolerance));
+          Assert
+              .assertTrue(isInInterval(app.getOutputs()[5].getValue(), covarianceExact, tolerance));
 
 				}
 			};

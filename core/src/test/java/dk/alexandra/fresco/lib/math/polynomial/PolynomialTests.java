@@ -41,7 +41,7 @@ import dk.alexandra.fresco.lib.math.polynomial.evaluator.PolynomialEvaluatorFact
 import dk.alexandra.fresco.lib.math.polynomial.evaluator.PolynomialEvaluatorFactoryImpl;
 import dk.alexandra.fresco.lib.math.polynomial.evaluator.PolynomialEvaluatorProtocol;
 import java.math.BigInteger;
-import org.springframework.util.Assert;
+import org.junit.Assert;
 
 public class PolynomialTests {
 
@@ -98,7 +98,7 @@ public class PolynomialTests {
 						power *= x;
 					}
 					BigInteger result = app.getOutputs()[0].getValue();
-					Assert.isTrue(result.intValue() == f);
+					Assert.assertTrue(result.intValue() == f);
 				}
 			};
 		}
