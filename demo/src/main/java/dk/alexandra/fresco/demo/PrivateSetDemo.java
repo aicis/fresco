@@ -26,20 +26,13 @@
  *******************************************************************************/
 package dk.alexandra.fresco.demo;
 
-import java.util.BitSet;
-
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.Option;
-import org.apache.commons.cli.ParseException;
-
 import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.Protocol;
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.ProtocolProducer;
-import dk.alexandra.fresco.framework.configuration.CmdLineUtil;
-import dk.alexandra.fresco.framework.sce.SCE;
-import dk.alexandra.fresco.framework.sce.SCEFactory;
+import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
+import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.configuration.SCEConfiguration;
 import dk.alexandra.fresco.framework.util.ByteArithmetic;
 import dk.alexandra.fresco.framework.value.OBool;
@@ -48,6 +41,10 @@ import dk.alexandra.fresco.lib.crypto.BristolCryptoFactory;
 import dk.alexandra.fresco.lib.field.bool.BasicLogicFactory;
 import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
+import java.util.BitSet;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.ParseException;
 
 
 /**
@@ -185,7 +182,10 @@ public class PrivateSetDemo implements Application {
 
 		// Do the secure computation using config from property files.
 		PrivateSetDemo privateSetDemo = new PrivateSetDemo(sceConf.getMyId(), key, inputs);
-		SCE sce = SCEFactory.getSCEFromConfiguration(sceConf);
+		SCEConfiguration sceConf1 = sceConf;
+		dk.alexandra.fresco.framework.sce.configuration.ProtocolSuiteConfiguration psConf = util
+				.getProtocolSuiteConfiguration();
+		SecureComputationEngine sce = new SecureComputationEngineImpl(sceConf1, psConf);
 		
 		try {
 			sce.runApplication(privateSetDemo);

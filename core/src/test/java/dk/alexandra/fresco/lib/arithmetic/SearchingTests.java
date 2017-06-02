@@ -26,10 +26,6 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.arithmetic;
 
-import java.util.Random;
-
-import org.junit.Assert;
-
 import dk.alexandra.fresco.framework.Protocol;
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.ProtocolProducer;
@@ -51,6 +47,8 @@ import dk.alexandra.fresco.lib.math.integer.NumericBitFactory;
 import dk.alexandra.fresco.lib.math.integer.exp.ExpFromOIntFactory;
 import dk.alexandra.fresco.lib.math.integer.exp.PreprocessedExpPipeFactory;
 import dk.alexandra.fresco.lib.math.integer.inv.LocalInversionFactory;
+import java.util.Random;
+import org.junit.Assert;
 
 public class SearchingTests {
 	
@@ -87,8 +85,8 @@ public class SearchingTests {
 							return seq;
 						}
 					};
-					sce.runApplication(app);
-					for (int i = 0; i < PAIRS; i++) {
+          secureComputationEngine.runApplication(app);
+          for (int i = 0; i < PAIRS; i++) {
 						final int counter = i;
 						TestApplication app1 = new TestApplication() {
 							
@@ -112,8 +110,8 @@ public class SearchingTests {
 								return new SequentialProtocolProducer(luc, p);
 							}
 						};
-						
-						sce.runApplication(app1);
+
+            secureComputationEngine.runApplication(app1);
 
 						Assert.assertEquals(values[i], app1.outputs[0].getValue()
 								.intValue());
@@ -130,7 +128,7 @@ public class SearchingTests {
 	 * @throws Exception
 	 */
 	/*
-	@Test
+  @Test
 	public void testCorrectLookUpArray() throws Exception {
 		TestThreadRunner.run(new TestThreadFactory() {
 			@Override
@@ -170,7 +168,7 @@ public class SearchingTests {
 							niob.addGateProducer(luc);
 							OInt[] outs = niob.outputArray(sOut);
 							niob.endCurScope();
-							sce.runApplication(niob.getCircuit());
+							secureComputationEngine.runApplication(niob.getCircuit());
 							for (int j = 0; j < outs.length; j++) {
 								Assert.assertEquals(values[i][j], outs[j]
 										.getValue().intValue());
@@ -189,7 +187,7 @@ public class SearchingTests {
 	 * @throws Exception
 	 */
 	/*
-	@Test
+  @Test
 	public void testIncorrectLookUpArray() throws Exception {
 		TestThreadRunner.run(new TestThreadFactory() {
 			@Override
@@ -231,7 +229,7 @@ public class SearchingTests {
 							niob.addGateProducer(luc);
 							OInt[] outs = niob.outputArray(sOut);
 							niob.endCurScope();
-							sce.runApplication(niob.getCircuit());
+							secureComputationEngine.runApplication(niob.getCircuit());
 							for (int j = 0; j < outs.length; j++) {
 								Assert.assertEquals(NOTFOUND, outs[j]
 										.getValue().intValue());
@@ -250,7 +248,7 @@ public class SearchingTests {
 	 * @throws Exception
 	 */
 	/*
-	@Test
+  @Test
 	public void testIncorrectLookUp() throws Exception {
 		TestThreadRunner.run(new TestThreadFactory() {
 			@Override
@@ -282,7 +280,7 @@ public class SearchingTests {
 											sValues, sOut);
 							agp.append(luc);
 							agp.append(provider.getOpenIntCircuit(sOut, out));
-							sce.runApplication(agp);
+							secureComputationEngine.runApplication(agp);
 
 							Assert.assertEquals(NOTFOUND, out.getValue()
 									.intValue());

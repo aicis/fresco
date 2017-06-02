@@ -1,0 +1,37 @@
+<project>
+  <parent>
+    <groupId>dk.alexandra.fresco</groupId>
+    <artifactId>master-pom</artifactId>
+    <version>0.2-SNAPSHOT</version>
+  </parent>
+
+  <modelVersion>4.0.0</modelVersion>
+  <artifactId>suite-pom</artifactId>
+  <version>0.2-SNAPSHOT</version>
+
+  <packaging>pom</packaging>
+
+  <!-- Test -->
+
+  <dependencies>
+    <dependency>
+      <groupId>dk.alexandra.fresco</groupId>
+      <artifactId>core</artifactId>
+      <version>${fresco-version}</version>
+    </dependency>
+    <!-- TODO Proper handling would imply these utilities to be present in a seperate module -->
+    <dependency>
+      <groupId>dk.alexandra.fresco</groupId>
+      <artifactId>core</artifactId>
+      <version>${fresco-version}</version>
+      <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+
+  <modules>
+    <module>spdz</module>
+    <module>tinytables</module>
+  </modules>
+</project>

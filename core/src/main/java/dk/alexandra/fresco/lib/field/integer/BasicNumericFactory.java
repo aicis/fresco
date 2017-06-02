@@ -26,8 +26,6 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.field.integer;
 
-import java.math.BigInteger;
-
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.value.OIntFactory;
 import dk.alexandra.fresco.framework.value.SInt;
@@ -35,6 +33,7 @@ import dk.alexandra.fresco.framework.value.SIntFactory;
 import dk.alexandra.fresco.lib.field.integer.generic.AddProtocolFactory;
 import dk.alexandra.fresco.lib.field.integer.generic.IOIntProtocolFactory;
 import dk.alexandra.fresco.lib.math.integer.NumericBitFactory;
+import java.math.BigInteger;
 
 /**
  * A factory that produces protocols that operate on elements in a finite field.
@@ -49,7 +48,7 @@ public interface BasicNumericFactory extends SIntFactory, OIntFactory,
 	 * 
 	 * @return
 	 */
-	public int getMaxBitLength();
+  int getMaxBitLength();
 
 	/**
 	 * Returns the largest possible value containable in the field that we can
@@ -57,12 +56,12 @@ public interface BasicNumericFactory extends SIntFactory, OIntFactory,
 	 * 
 	 * @return
 	 */
-	public SInt getSqrtOfMaxValue();
+  SInt getSqrtOfMaxValue();
 
 	/**
 	 * Returns the modulus used in the underlying arithmetic protocol suite.
 	 * 
 	 * @return The modulus used.
 	 */
-	public BigInteger getModulus();
+  BigInteger getModulus();
 }

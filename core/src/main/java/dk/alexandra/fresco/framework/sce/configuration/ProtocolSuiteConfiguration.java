@@ -27,6 +27,8 @@
 package dk.alexandra.fresco.framework.sce.configuration;
 
 
+import dk.alexandra.fresco.suite.ProtocolSuite;
+
 /**
  * A type used to hold configuration that is specific to a given protocol suite.
  * 
@@ -34,6 +36,7 @@ package dk.alexandra.fresco.framework.sce.configuration;
  *
  */
 public interface ProtocolSuiteConfiguration {
-	
+
+  ProtocolSuite createProtocolSuite(int myPlayerId);
 
 }

@@ -23,10 +23,6 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.statistics;
 
-import java.math.BigInteger;
-
-import org.junit.Assert;
-
 import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.ProtocolProducer;
@@ -39,33 +35,34 @@ import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.helper.AlgebraUtil;
 import dk.alexandra.fresco.lib.helper.builder.NumericIOBuilder;
 import dk.alexandra.fresco.lib.statistics.DEASolver.AnalysisType;
-import dk.alexandra.fresco.suite.spdz.utils.Util;
+import java.math.BigInteger;
+import org.junit.Assert;
 
 /**
- * Test class for the DEASolver. 
- *
+ * Test class for the DEASolver.
  */
 public class DEASolverFixedDataTest {
 
   private static final int BENCHMARKING_BIG_M = 1000000;
 
-  private static int[][] dataSet1 = new int[][] {
-    new int[] {29, 13451, 14409, 16477}, // Score 1
-    new int[] {2, 581, 531, 1037}, // Score 1
-    new int[] {26, 13352, 1753, 13528}, // Score 1
-    new int[] {15, 4828, 949, 5126}, // Score 0.9857962644001192
-    new int[] {20, 6930, 6376, 9680}  //
+  private static int[][] dataSet1 = new int[][]{
+      new int[]{29, 13451, 14409, 16477}, // Score 1
+      new int[]{2, 581, 531, 1037}, // Score 1
+      new int[]{26, 13352, 1753, 13528}, // Score 1
+      new int[]{15, 4828, 949, 5126}, // Score 0.9857962644001192
+      new int[]{20, 6930, 6376, 9680}  //
   };
-  private static int[][] dataSet2 = new int[][] {
-    new int[] {10, 20, 30, 1000},
-    new int[] {5, 10, 15, 1000},
-    new int[] {200, 300, 400, 100}
+  private static int[][] dataSet2 = new int[][]{
+      new int[]{10, 20, 30, 1000},
+      new int[]{5, 10, 15, 1000},
+      new int[]{200, 300, 400, 100}
   };
-  
+
 
   public static class TestDEASolverScores extends TestThreadFactory {
 
     private DEASolver.AnalysisType type;
+    // MAde null to find where this test is activated from
 
     public TestDEASolverScores(DEASolver.AnalysisType type) {
       this.type = type;
@@ -76,48 +73,52 @@ public class DEASolverFixedDataTest {
       return new TestThread() {
         @Override
         public void test() throws Exception {
-          
+
           DEATestApp app1 = new DEATestApp(dataSet1, type);
-          sce.runApplication(app1);
-          for (int i = 0; i < app1.solverResult.length; i++) {            
-            Assert.assertEquals(app1.plainResult[i], postProcess(app1.solverResult[i], type), 0.0000001);
-          }          
+          secureComputationEngine.runApplication(app1);
+          for (int i = 0; i < app1.solverResult.length; i++) {
+            Assert.assertEquals(app1.plainResult[i], postProcess(app1.solverResult[i], type,
+                app1.modulus), 0.0000001);
+          }
           DEATestApp app2 = new DEATestApp(dataSet2, type);
-          sce.runApplication(app2);
-          for (int i = 0; i < app2.solverResult.length; i++) {            
-            Assert.assertEquals(app2.plainResult[i], postProcess(app2.solverResult[i], type), 0.0000001);
+          secureComputationEngine.runApplication(app2);
+          for (int i = 0; i < app2.solverResult.length; i++) {
+            Assert.assertEquals(app2.plainResult[i], postProcess(app2.solverResult[i], type,
+                app1.modulus), 0.0000001);
           }
         }
       };
     }
   }
-  
+
   /**
    * A test application class.
-   * 
+   *
    * <p>
-   * Output is conveniently extracted from public fields. 
+   * Output is conveniently extracted from public fields.
    * </p>
    */
   private static class DEATestApp implements Application {
-    
+
     private static final long serialVersionUID = 1L;
     public double[] plainResult;
     public OInt[] solverResult;
     private DEASolver.AnalysisType type;
     private int[][] dataSet;
-    
+    private BigInteger modulus;
+
     public DEATestApp(int[][] dataSet, DEASolver.AnalysisType type) {
       this.type = type;
       this.dataSet = dataSet;
     }
-    
+
     @Override
     public ProtocolProducer prepareApplication(ProtocolFactory factory) {
       plainResult = new double[dataSet.length];
       solverResult = new OInt[dataSet.length];
       BasicNumericFactory bnFactory = (BasicNumericFactory) factory;
       NumericIOBuilder ioBuilder = new NumericIOBuilder(bnFactory);
+      modulus = bnFactory.getModulus();
 
       BigInteger[][] rawBasisInputs = new BigInteger[dataSet.length][dataSet1[0].length - 1];
       BigInteger[][] rawBasisOutputs = new BigInteger[dataSet.length][1];
@@ -129,7 +130,7 @@ public class DEASolverFixedDataTest {
       }
       BigInteger[][] rawTargetInputs = rawBasisInputs;
       BigInteger[][] rawTargetOutputs = rawBasisOutputs;
-      
+
       SInt[][] basisInputs = ioBuilder.inputMatrix(rawBasisInputs, 1);
       SInt[][] basisOutputs = ioBuilder.inputMatrix(rawBasisOutputs, 1);
       SInt[][] targetInputs = ioBuilder.inputMatrix(rawTargetInputs, 2);
@@ -145,20 +146,20 @@ public class DEASolverFixedDataTest {
       // Solve the problem using a plaintext solver
       PlaintextDEASolver plainSolver = new PlaintextDEASolver();
       plainSolver.addBasis(rawBasisInputs, rawBasisOutputs);
-      
+
       double[] plain = plainSolver.solve(rawTargetInputs, rawTargetOutputs, type);
       for (int i = 0; i < plain.length; i++) {
         plainResult[i] = plain[i];
       }
       return ioBuilder.getProtocol();
-    }    
+    }
   }
 
   /**
    * Reduces a field-element to a double using Gauss reduction.
    */
-  private static double postProcess(OInt input, AnalysisType type) {
-    BigInteger[] gauss = gauss(input.getValue(), Util.getModulus());
+  private static double postProcess(OInt input, AnalysisType type, BigInteger modulus) {
+    BigInteger[] gauss = gauss(input.getValue(), modulus);
     double res = (gauss[0].doubleValue() / gauss[1].doubleValue());
     if (type == AnalysisType.OUTPUT_EFFICIENCY) {
       res -= BENCHMARKING_BIG_M;
@@ -179,12 +180,10 @@ public class DEASolverFixedDataTest {
    * <a href="https://www.di.ens.fr/~stern/data/St100.pdf">https://www.di.ens.
    * fr/~stern/data/St100.pdf</a>
    * </p>
-   * 
-   * @param product The integer <i>t = r*s<sup>-1</sup>mod N</i>. Note that we must have that
-   *        <i>2r*s < N</i>.
    *
+   * @param product The integer <i>t = r*s<sup>-1</sup>mod N</i>. Note that we must have that
+   * <i>2r*s < N</i>.
    * @param mod the modulus, i.e., <i>N</i>.
-   * 
    * @return The fraction as represented as the rational number <i>r/s</i>.
    */
   static BigInteger[] gauss(BigInteger product, BigInteger mod) {
@@ -210,18 +209,17 @@ public class DEASolverFixedDataTest {
       BigInteger r0 = u[0].subtract(v[0].multiply(q[0]));
       BigInteger r1 = u[1].subtract(v[1].multiply(q[0]));
       u = v;
-      v = new BigInteger[] {r0, r1};
+      v = new BigInteger[]{r0, r1};
       uu = vv;
       uv = innerproduct(u, v);
       vv = innerproduct(v, v);
     } while (uu.compareTo(vv) > 0);
-    return new BigInteger[] {u[0], u[1]};
+    return new BigInteger[]{u[0], u[1]};
   }
 
   private static BigInteger innerproduct(BigInteger[] u, BigInteger[] v) {
     return u[0].multiply(v[0]).add(u[1].multiply(v[1]));
   }
-  
-  
+
 
 }

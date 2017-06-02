@@ -28,36 +28,20 @@ package dk.alexandra.fresco.framework.sce.resources.storage;
 
 public enum StorageStrategy {
 
-	IN_MEMORY,
-	STREAMED_STORAGE,
-	SQL;
-	
-	public static Storage fromString(String storageString) {
-		final String ss = storageString.toUpperCase();
-		switch(ss) {
-		case "IN_MEMORY":
-		case "INMEMORY":
-			return new InMemoryStorage();
-		case "SQL":
-		case "H2":
-			return SQLStorage.getInstance();
-		case "STREAMED_STORAGE":
-		case "FILE_BASED_STORAGE":
-			return new FilebasedStreamedStorageImpl(new InMemoryStorage());
-		default:
-			return null;
-		}
-	}
+  IN_MEMORY,
+  STREAMED_STORAGE;
 
-	public static String storageToString(Storage storage) {
-		if(storage instanceof InMemoryStorage) {
-			return IN_MEMORY.name();
-		} else if(storage instanceof SQLStorage) {
-			return SQL.name();
-		} else if(storage instanceof FilebasedStreamedStorageImpl){
-			return STREAMED_STORAGE.name();
-		} else {
-			return null;
-		}
-	}
+  public static Storage fromString(String storageString) {
+    final String ss = storageString.toUpperCase();
+    switch (ss) {
+      case "IN_MEMORY":
+      case "INMEMORY":
+        return new InMemoryStorage();
+      case "STREAMED_STORAGE":
+      case "FILE_BASED_STORAGE":
+        return new FilebasedStreamedStorageImpl(new InMemoryStorage());
+      default:
+        return null;
+    }
+  }
 }

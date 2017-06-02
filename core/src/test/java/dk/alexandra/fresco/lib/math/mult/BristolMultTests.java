@@ -28,11 +28,6 @@ package dk.alexandra.fresco.lib.math.mult;
 
 import static org.junit.Assert.assertTrue;
 
-import java.util.Arrays;
-
-import org.junit.Assert;
-import org.junit.Test;
-
 import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.ProtocolProducer;
@@ -46,94 +41,96 @@ import dk.alexandra.fresco.lib.helper.bristol.BristolCircuit;
 import dk.alexandra.fresco.lib.helper.builder.BasicLogicBuilder;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
 import dk.alexandra.fresco.lib.logic.AbstractBinaryFactory;
-import dk.alexandra.fresco.suite.tinytables.prepro.TinyTablesPreproConfiguration;
+import java.util.Arrays;
+import org.junit.Assert;
+import org.junit.Test;
 
 
 /**
  * Some generic tests for basic crypto primitives a la AES and SHA1.
- * 
- * Can be used to test any protocol suite that supports BasicLogicFactory.
  *
+ * Can be used to test any protocol suite that supports BasicLogicFactory.
  */
 public class BristolMultTests {
 
 
-	/**
-	 * Convert hex string to boolean array.
-	 * 
-	 * 	// 1 --> true, 0 --> false
-	 * 
-	 */
-	private static boolean[] toBoolean(String hex) throws IllegalArgumentException {
-		if (hex.length() % 2 != 0) {
-			throw new IllegalArgumentException("Illegal hex string");
-		}
-		boolean[] res = new boolean[hex.length() * 4];
-		for (int i=0; i<hex.length() / 2; i++) {
-			String sub = hex.substring(2*i,2*i +2);
-			int value = Integer.parseInt(sub, 16);
-			int numOfBits = 8;
-			for (int j = 0; j < numOfBits; j++) {
-				boolean val = (value & 1 << j) != 0;
-		        res[8*i + (numOfBits - j - 1)] = val;
-		    }
-		}
-		return res;
-	}
-	
-	
-	@Test
-	public void testToBoolean() throws Exception {
-		boolean[] res = toBoolean("2b7e151628aed2a6abf7158809cf4f3c");
-		assertTrue(
-				Arrays.equals(new boolean[] { false, false, true, false, true, false, true, true, false, true, true, true }, Arrays.copyOf(res, 12)));
-	}
-	
+  /**
+   * Convert hex string to boolean array.
+   *
+   * // 1 --> true, 0 --> false
+   */
+  private static boolean[] toBoolean(String hex) throws IllegalArgumentException {
+    if (hex.length() % 2 != 0) {
+      throw new IllegalArgumentException("Illegal hex string");
+    }
+    boolean[] res = new boolean[hex.length() * 4];
+    for (int i = 0; i < hex.length() / 2; i++) {
+      String sub = hex.substring(2 * i, 2 * i + 2);
+      int value = Integer.parseInt(sub, 16);
+      int numOfBits = 8;
+      for (int j = 0; j < numOfBits; j++) {
+        boolean val = (value & 1 << j) != 0;
+        res[8 * i + (numOfBits - j - 1)] = val;
+      }
+    }
+    return res;
+  }
 
 
-	/**
-	 * Testing circuit for mult of two 32-bit numbers.
-	 * 
-	 * TODO: Include more test vectors. Oddly enough, 1x1=2 :-)
-	 *
-	 */
-	public static class Mult32x32Test extends TestThreadFactory {
-		@Override
-		public TestThread next(TestThreadConfiguration conf) {
-			return new TestThread() {
-				SBool[] in1, in2, out;
-				OBool[] openedOut;
-				
-				String inv1 = "00000000";
-				String inv2 = "00000000";
-				String outv = "0000000000000000";
-				@Override
-				public void test() throws Exception {
-					Application md5App = new Application() {
+  @Test
+  public void testToBoolean() throws Exception {
+    boolean[] res = toBoolean("2b7e151628aed2a6abf7158809cf4f3c");
+    assertTrue(
+        Arrays.equals(
+            new boolean[]{false, false, true, false, true, false, true, true, false, true, true,
+                true}, Arrays.copyOf(res, 12)));
+  }
 
-						private static final long serialVersionUID = 36363636L;
 
-						@Override
-						public ProtocolProducer prepareApplication(ProtocolFactory fac) {
-							AbstractBinaryFactory bool = (AbstractBinaryFactory) fac;
-							BasicLogicBuilder builder = new BasicLogicBuilder(bool);						
-							
-							boolean[] in1_val = toBoolean(inv1);
-							in1 = builder.knownSBool(in1_val);							
-							boolean[] in2_val = toBoolean(inv2);
-							in2 = builder.knownSBool(in2_val);							
-							
-							out = bool.getSBools(64);
+  /**
+   * Testing circuit for mult of two 32-bit numbers.
+   *
+   * TODO: Include more test vectors. Oddly enough, 1x1=2 :-)
+   */
+  public static class Mult32x32Test extends TestThreadFactory {
 
-							// Create mult circuit.
-							BristolCryptoFactory multFac = new BristolCryptoFactory(bool);
-							BristolCircuit mult = multFac.getMult32x32Circuit(in1, in2, out);
-							builder.addProtocolProducer(mult);
-							openedOut = builder.output(out);
-							
-							// Create circuits for opening result of 32x32 bit mult.
-							/*
-							ProtocolProducer[] opens = new ProtocolProducer[out.length];
+    @Override
+    public TestThread next(TestThreadConfiguration conf) {
+      return new TestThread() {
+        SBool[] in1, in2, out;
+        OBool[] openedOut;
+
+        String inv1 = "00000000";
+        String inv2 = "00000000";
+        String outv = "0000000000000000";
+
+        @Override
+        public void test() throws Exception {
+          Application md5App = new Application() {
+
+            private static final long serialVersionUID = 36363636L;
+
+            @Override
+            public ProtocolProducer prepareApplication(ProtocolFactory fac) {
+              AbstractBinaryFactory bool = (AbstractBinaryFactory) fac;
+              BasicLogicBuilder builder = new BasicLogicBuilder(bool);
+
+              boolean[] in1_val = toBoolean(inv1);
+              in1 = builder.knownSBool(in1_val);
+              boolean[] in2_val = toBoolean(inv2);
+              in2 = builder.knownSBool(in2_val);
+
+              out = bool.getSBools(64);
+
+              // Create mult circuit.
+              BristolCryptoFactory multFac = new BristolCryptoFactory(bool);
+              BristolCircuit mult = multFac.getMult32x32Circuit(in1, in2, out);
+              builder.addProtocolProducer(mult);
+              openedOut = builder.output(out);
+
+              // Create circuits for opening result of 32x32 bit mult.
+              /*
+              ProtocolProducer[] opens = new ProtocolProducer[out.length];
 							openedOut = new OBool[out.length];
 							for (int i=0; i<out.length; i++) {
 								openedOut[i] = bool.getOBool();
@@ -141,34 +138,28 @@ public class BristolMultTests {
 							}
 							ProtocolProducer open_all = new ParallelProtocolProducer(opens);
 							*/
-							return new SequentialProtocolProducer(builder.getProtocol());
-						}
-					};
+              return new SequentialProtocolProducer(builder.getProtocol());
+            }
+          };
 
-					sce.runApplication(md5App);
+          secureComputationEngine.runApplication(md5App);
 
-					if (conf.protocolSuiteConf instanceof TinyTablesPreproConfiguration) {
-						// Do nothing
-					} else {
-						boolean[] expected = toBoolean(outv);
-						boolean[] actual = new boolean[out.length];
-						for (int i=0; i<out.length; i++) {
-							actual[i] = openedOut[i].getValue();
-						}
-	
-						//					System.out.println("IN1        : " + Arrays.toString(toBoolean(inv1)));
-						//					System.out.println("IN2        : " + Arrays.toString(toBoolean(inv2)));
-						//					System.out.println("EXPECTED   : " + Arrays.toString(expected));
-						//					System.out.println("ACTUAL     : " + Arrays.toString(actual));
-						
-						Assert.assertTrue(Arrays.equals(expected, actual));
-					}
-					
-				}
-			};
-		}
-	}
-	
+          boolean[] expected = toBoolean(outv);
+          boolean[] actual = new boolean[out.length];
+          for (int i = 0; i < out.length; i++) {
+            actual[i] = openedOut[i].getValue();
+          }
 
-	
+          //					System.out.println("IN1        : " + Arrays.toString(toBoolean(inv1)));
+          //					System.out.println("IN2        : " + Arrays.toString(toBoolean(inv2)));
+          //					System.out.println("EXPECTED   : " + Arrays.toString(expected));
+          //					System.out.println("ACTUAL     : " + Arrays.toString(actual));
+
+          Assert.assertTrue(Arrays.equals(expected, actual));
+        }
+      };
+    }
+  }
+
+
 }

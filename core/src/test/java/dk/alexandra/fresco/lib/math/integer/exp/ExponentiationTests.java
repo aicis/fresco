@@ -26,10 +26,6 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.math.integer.exp;
 
-import java.math.BigInteger;
-
-import org.junit.Assert;
-
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.TestApplication;
@@ -49,6 +45,8 @@ import dk.alexandra.fresco.lib.math.integer.NumericBitFactory;
 import dk.alexandra.fresco.lib.math.integer.binary.RightShiftFactory;
 import dk.alexandra.fresco.lib.math.integer.binary.RightShiftFactoryImpl;
 import dk.alexandra.fresco.lib.math.integer.inv.LocalInversionFactory;
+import java.math.BigInteger;
+import org.junit.Assert;
 
 public class ExponentiationTests {
 
@@ -105,8 +103,8 @@ public class ExponentiationTests {
 							return gp;
 						}
 					};
-					sce.runApplication(app);
-					BigInteger result = app.getOutputs()[0].getValue();
+          secureComputationEngine.runApplication(app);
+          BigInteger result = app.getOutputs()[0].getValue();
 					
 					Assert.assertEquals(input.pow(exp), result);
 				}

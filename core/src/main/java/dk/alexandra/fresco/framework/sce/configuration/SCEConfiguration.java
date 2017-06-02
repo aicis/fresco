@@ -26,9 +26,6 @@
  *******************************************************************************/
 package dk.alexandra.fresco.framework.sce.configuration;
 
-import java.util.Map;
-import java.util.logging.Level;
-
 import dk.alexandra.fresco.framework.Party;
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
@@ -36,6 +33,8 @@ import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.NetworkingStrategy;
 import dk.alexandra.fresco.framework.sce.resources.storage.Storage;
 import dk.alexandra.fresco.framework.sce.resources.storage.StreamedStorage;
+import java.util.Map;
+import java.util.logging.Level;
 
 public interface SCEConfiguration {
 
@@ -50,14 +49,6 @@ public interface SCEConfiguration {
 	 */
 	public Level getLogLevel();
 
-	/**
-	 * Returns the name of the protocol suite that should run the MPC
-	 * computations.
-	 * 
-	 * @return
-	 */
-	public String getProtocolSuiteName();
-	
 	/**
 	 * Get the network strategy to use, is only used when getNetwork returns null.
 	 * @return The network strategy wanted.

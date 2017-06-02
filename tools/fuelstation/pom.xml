@@ -5,7 +5,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>fresco</groupId>
 	<artifactId>fuelstation</artifactId>
-	<version>0.2-SNAPSHOT</version>
+  <version>${fresco-version}</version>
 	<packaging>jar</packaging>
 	<name>Fuelstation</name>
 	<properties>
@@ -20,7 +20,7 @@
 		<dependency>
 			<groupId>fresco</groupId>
 			<artifactId>fresco</artifactId>
-			<version>0.2-SNAPSHOT</version>
+      <version>${fresco-version}</version>
 		</dependency>
 
 		<dependency>
@@ -39,7 +39,7 @@
 		<dependency>
 			<groupId>fresco</groupId>
 			<artifactId>fresco</artifactId>
-			<version>0.2-SNAPSHOT</version>
+      <version>${fresco-version}</version>
 			<type>test-jar</type>
 			<scope>test</scope>
 		</dependency>

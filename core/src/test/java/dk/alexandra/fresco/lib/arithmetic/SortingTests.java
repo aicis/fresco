@@ -26,11 +26,6 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.arithmetic;
 
-import java.math.BigInteger;
-import java.util.Random;
-
-import org.junit.Assert;
-
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.TestApplication;
@@ -48,6 +43,9 @@ import dk.alexandra.fresco.lib.math.integer.NumericBitFactory;
 import dk.alexandra.fresco.lib.math.integer.exp.ExpFromOIntFactory;
 import dk.alexandra.fresco.lib.math.integer.exp.PreprocessedExpPipeFactory;
 import dk.alexandra.fresco.lib.math.integer.inv.LocalInversionFactory;
+import java.math.BigInteger;
+import java.util.Random;
+import org.junit.Assert;
 
 public class SortingTests {
 	
@@ -108,9 +106,9 @@ public class SortingTests {
 							return seq;
 						}
 					};
-					sce.runApplication(app);
-					sce.shutdownSCE();
-					Assert.assertEquals(BigInteger.ZERO, app.getOutputs()[0].getValue());
+          secureComputationEngine.runApplication(app);
+          secureComputationEngine.shutdownSCE();
+          Assert.assertEquals(BigInteger.ZERO, app.getOutputs()[0].getValue());
 					Assert.assertEquals(BigInteger.ONE, app.getOutputs()[1].getValue());
 				}
 			};	
@@ -164,9 +162,9 @@ public class SortingTests {
 							return seq;
 						}
 					};
-					sce.runApplication(app);
-					sce.shutdownSCE();
-					Assert.assertEquals(BigInteger.ONE, app.getOutputs()[0].getValue());
+          secureComputationEngine.runApplication(app);
+          secureComputationEngine.shutdownSCE();
+          Assert.assertEquals(BigInteger.ONE, app.getOutputs()[0].getValue());
 					Assert.assertEquals(BigInteger.valueOf(2), app.getOutputs()[1].getValue());
 				}
 			};	
@@ -233,9 +231,9 @@ public class SortingTests {
 							return seq;
 						}
 					};
-					sce.runApplication(app);
-					sce.shutdownSCE();
-					Assert.assertEquals(BigInteger.ZERO, app.getOutputs()[0].getValue()); //unsorted is unsorted
+          secureComputationEngine.runApplication(app);
+          secureComputationEngine.shutdownSCE();
+          Assert.assertEquals(BigInteger.ZERO, app.getOutputs()[0].getValue()); //unsorted is unsorted
 					Assert.assertEquals(BigInteger.valueOf(0),app.getOutputs()[2].getValue());
 					Assert.assertEquals(BigInteger.valueOf(1),app.getOutputs()[3].getValue());
 					Assert.assertEquals(BigInteger.valueOf(3),app.getOutputs()[4].getValue());
@@ -305,9 +303,9 @@ public class SortingTests {
 							return seq;
 						}
 					};
-					sce.runApplication(app);
-					sce.shutdownSCE();
-					Assert.assertEquals(BigInteger.ZERO, app.getOutputs()[0].getValue()); //unsorted is unsorted to start 
+          secureComputationEngine.runApplication(app);
+          secureComputationEngine.shutdownSCE();
+          Assert.assertEquals(BigInteger.ZERO, app.getOutputs()[0].getValue()); //unsorted is unsorted to start
 					Assert.assertEquals(BigInteger.ONE, app.getOutputs()[1].getValue()); //tobesorted is sorted at the end
 				}
 			};	

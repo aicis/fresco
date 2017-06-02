@@ -26,10 +26,6 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.arithmetic;
 
-import java.math.BigInteger;
-
-import org.junit.Assert;
-
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.TestApplication;
@@ -47,6 +43,8 @@ import dk.alexandra.fresco.lib.math.integer.NumericBitFactory;
 import dk.alexandra.fresco.lib.math.integer.exp.ExpFromOIntFactory;
 import dk.alexandra.fresco.lib.math.integer.exp.PreprocessedExpPipeFactory;
 import dk.alexandra.fresco.lib.math.integer.inv.LocalInversionFactory;
+import java.math.BigInteger;
+import org.junit.Assert;
 
 public class ComparisonTests {
 
@@ -102,8 +100,8 @@ public class ComparisonTests {
 							return seq;
 						}
 					};
-					sce.runApplication(app);
-					Assert.assertEquals(BigInteger.ONE, app.getOutputs()[0].getValue());
+          secureComputationEngine.runApplication(app);
+          Assert.assertEquals(BigInteger.ONE, app.getOutputs()[0].getValue());
 					Assert.assertEquals(BigInteger.ZERO, app.getOutputs()[1].getValue());
 				}
 			};
@@ -162,8 +160,8 @@ public class ComparisonTests {
 							return seq;
 						}
 					};
-					sce.runApplication(app);
-					Assert.assertEquals(BigInteger.ONE, app.getOutputs()[0].getValue());
+          secureComputationEngine.runApplication(app);
+          Assert.assertEquals(BigInteger.ONE, app.getOutputs()[0].getValue());
 					Assert.assertEquals(BigInteger.ZERO, app.getOutputs()[1].getValue());
 				}
 			};

@@ -1,0 +1,175 @@
+<?xml version="1.0"?>
+
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+  <parent>
+    <groupId>dk.alexandra.fresco</groupId>
+    <artifactId>suite-pom</artifactId>
+    <version>0.2-SNAPSHOT</version>
+  </parent>
+
+  <modelVersion>4.0.0</modelVersion>
+  <artifactId>tinytables</artifactId>
+  <version>0.2-SNAPSHOT</version>
+  <packaging>jar</packaging>
+  <name>fresco-tinytables</name>
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
+
+  <!-- ================ FRESCO BUILD ========================== -->
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>2.0.2</version>
+        <configuration>
+          <encoding>UTF-8</encoding>
+          <source>1.8</source>
+          <target>1.8</target>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <version>2.2</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>test-jar</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+      <!-- This does that 'mvn test' does not involve IntegrationTests. See
+         http://www.javacodegeeks.com/2015/01/separating-integration-tests-from-unit-tests-using-maven-failsafe-junit-category.html -->
+      <plugin>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>2.18.1</version>
+        <configuration>
+          <forkCount>1</forkCount>
+          <reuseForks>false</reuseForks>
+          <excludedGroups>dk.alexandra.fresco.IntegrationTest</excludedGroups>
+        </configuration>
+      </plugin>
+
+      <!-- Make 'mvn integration-test' do all tests, including, well, IntegrationTests. See
+           http://www.javacodegeeks.com/2015/01/separating-integration-tests-from-unit-tests-using-maven-failsafe-junit-category.html -->
+      <plugin>
+        <artifactId>maven-failsafe-plugin</artifactId>
+        <version>2.18.1</version>
+        <configuration>
+          <includes>
+            <include>**/*.java</include>
+          </includes>
+          <groups>dk.alexandra.fresco.IntegrationTest</groups>
+        </configuration>
+        <executions>
+          <execution>
+            <goals>
+              <goal>integration-test</goal>
+              <goal>verify</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+      <!-- This plugin is for building a jar with all included. We use that in the Quickstart documentation.
+           See http://stackoverflow.com/questions/574594/how-can-i-create-an-executable-jar-with-dependencies-using-maven -->
+      <plugin>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>single</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <archive>
+            <manifest>
+              <mainClass>fully.qualified.MainClass</mainClass>
+            </manifest>
+          </archive>
+          <descriptorRefs>
+            <descriptorRef>jar-with-dependencies</descriptorRef>
+          </descriptorRefs>
+        </configuration>
+      </plugin>
+      <!-- CODE COVERAGE -->
+      <plugin>
+        <groupId>org.jacoco</groupId>
+        <artifactId>jacoco-maven-plugin</artifactId>
+        <version>0.7.9</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>prepare-agent</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>report</id>
+            <phase>test</phase>
+            <goals>
+              <goal>report</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <!--  CHECKSTYLE -->
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-checkstyle-plugin</artifactId>
+        <version>2.17</version>
+        <configuration>
+          <linkXRef>false</linkXRef>
+          <configLocation>google_checks.xml</configLocation>
+        </configuration>
+        <dependencies>
+          <dependency>
+            <groupId>com.puppycrawl.tools</groupId>
+            <artifactId>checkstyle</artifactId>
+            <version>7.6</version>
+          </dependency>
+        </dependencies>
+      </plugin>
+
+    </plugins>
+  </build>
+
+
+  <!-- We has SCAPI as dependency. Since scapi is not included
+       in any standard mvn repository, and we dont want to set up
+       our own corporate repository, we create a 'local' repository
+       in the file system (i.e., in our git reopostory).
+
+       See e.g. http://stackoverflow.com/questions/2229757/
+                maven-add-a-dependency-to-a-jar-by-relative-path
+
+       I installed the SCAPI jar using this command:
+
+        tpj@ubuntu:~/fresco$ mvn org.apache.maven.plugins:maven-install-plugin:2.3.1:install-file
+	      -Dfile=/Users/tpj/Scapi-2.4.0.jar
+	      -DgroupId=scapi
+	      -DartifactId=scapi
+	      -Dpackaging=jar
+	      -Dversion=2.4.0
+	      -DlocalRepositoryPath=./lib
+
+  -->
+  <repositories>
+    <repository>
+      <id>mvn-local-repo</id>
+      <url>file://${basedir}/lib</url>
+    </repository>
+  </repositories>
+
+</project>

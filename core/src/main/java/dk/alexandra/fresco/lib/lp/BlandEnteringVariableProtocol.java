@@ -32,9 +32,9 @@ import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.framework.value.Value;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.helper.AbstractSimpleProtocol;
+import dk.alexandra.fresco.lib.helper.AlgebraUtil;
 import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
-import dk.alexandra.fresco.suite.spdz.utils.Util;
 
 public class BlandEnteringVariableProtocol extends AbstractSimpleProtocol {
 
@@ -72,11 +72,11 @@ public class BlandEnteringVariableProtocol extends AbstractSimpleProtocol {
 		SInt negativeOne = bnFactory.getSInt();
 		SInt one = bnFactory.getSInt();		
 		ProtocolProducer loadValues = new ParallelProtocolProducer(bnFactory.getSInt(-1, negativeOne), bnFactory.getSInt(1, one));
-		
-		SInt[] updatedF = Util.sIntFill(new SInt[tableau.getF().length], bnFactory);
-		ProtocolProducer updateFProducer = getUpdateFProducer(updatedF);
-		SInt[] signs = Util.sIntFill(new SInt[updatedF.length], bnFactory);
-		ParallelProtocolProducer signTest = new ParallelProtocolProducer();
+
+    SInt[] updatedF = AlgebraUtil.sIntFill(new SInt[tableau.getF().length], bnFactory);
+    ProtocolProducer updateFProducer = getUpdateFProducer(updatedF);
+    SInt[] signs = AlgebraUtil.sIntFill(new SInt[updatedF.length], bnFactory);
+    ParallelProtocolProducer signTest = new ParallelProtocolProducer();
 		for (int i = 0; i < updatedF.length; i++) {
 			ProtocolProducer comp = lpFactory.getComparisonProtocol(
 					updatedF[i], negativeOne, signs[i], false);
@@ -90,9 +90,9 @@ public class BlandEnteringVariableProtocol extends AbstractSimpleProtocol {
 					signs[i], 
 					signs[i]));
 		}
-		
-		SInt[] pairwiseSums = Util.sIntFill(new SInt[signs.length], bnFactory);
-		ParallelProtocolProducer pairwiseSum = new ParallelProtocolProducer();
+
+    SInt[] pairwiseSums = AlgebraUtil.sIntFill(new SInt[signs.length], bnFactory);
+    ParallelProtocolProducer pairwiseSum = new ParallelProtocolProducer();
 		pairwiseSums[0] = signs[0];
 		for (int i = 1; i < updatedF.length; i++) {
 			pairwiseSum.append(bnFactory.getAddProtocol(

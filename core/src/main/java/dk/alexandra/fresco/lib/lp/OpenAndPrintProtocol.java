@@ -34,116 +34,146 @@ import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.framework.value.Value;
 import dk.alexandra.fresco.lib.debug.MarkerProtocolImpl;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
-import dk.alexandra.fresco.suite.spdz.utils.Util;
+import dk.alexandra.fresco.lib.field.integer.OpenIntProtocol;
+import dk.alexandra.fresco.lib.field.integer.generic.IOIntProtocolFactory;
+import dk.alexandra.fresco.lib.helper.AlgebraUtil;
+import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
 
 public class OpenAndPrintProtocol implements Protocol {
-	
-	private SInt number = null;
-	private SInt[] vector = null;
-	private SInt[][] matrix = null;
-	
-	private OInt oNumber = null;
-	private OInt[] oVector = null;
-	private OInt[][] oMatrix = null;
-	
-	private enum STATE {OUTPUT, WRITE, DONE};
-	private STATE state = STATE.OUTPUT;
-	private String label;
-	
-	ProtocolProducer pp = null;
-	
-	private BasicNumericFactory factory;
-	
 
-	public OpenAndPrintProtocol(String label, SInt number, BasicNumericFactory factory) {
-		this.number = number;
-		this.factory = factory;
-		this.label = label;
-	}
-	
-	public OpenAndPrintProtocol(String label, SInt[] vector, BasicNumericFactory factory) {
-		this.vector = vector;
-		this.factory = factory;
-		this.label = label;
-	}
-	
-	public OpenAndPrintProtocol(String label, SInt[][] matrix, BasicNumericFactory factory) {
-		this.matrix = matrix;
-		this.factory = factory;
-		this.label = label;
-	}
-	
-	@Override
-	public Value[] getInputValues() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+  private SInt number = null;
+  private SInt[] vector = null;
+  private SInt[][] matrix = null;
 
-	@Override
-	public Value[] getOutputValues() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+  private OInt oNumber = null;
+  private OInt[] oVector = null;
+  private OInt[][] oMatrix = null;
 
-	@Override
-	public int getNextProtocols(NativeProtocol[] nativeProtocols, int pos) {
-		if (pp == null) {
-			if (state == STATE.OUTPUT) {
-				if (number != null) {
-					oNumber = factory.getOInt();
-					pp = factory.getOpenProtocol(number, oNumber);
-				} else if (vector != null) {
-					oVector = Util.oIntFill(new OInt[vector.length], factory);
-					pp = Util.makeOpenProtocol(vector, oVector, factory);
-				} else {
-					oMatrix = Util.oIntFill(new OInt[matrix.length][matrix[0].length], factory);
-					pp = Util.makeOpenProtocol(matrix, oMatrix, factory);
-				}
-			} else if (state == STATE.WRITE) {
-				StringBuilder sb = new StringBuilder();
-				sb.append(label);
-				if (oNumber != null) {
-					sb.append(oNumber.getValue().toString());
-				} else if (oVector != null) {
-					sb.append('\n');
-					for (OInt entry: oVector) {
-						sb.append(entry.getValue().toString() + ",\t");
-					}
-				} else if (oMatrix != null) {
-					sb.append('\n');
-					for (OInt[] row: oMatrix) {
-						for (OInt entry: row) {
-							sb.append(entry.getValue().toString()+ "," + "\t");
-						}
-						sb.append('\n');
-					}
-				}
-				pp = new MarkerProtocolImpl(sb.toString());
-			}			
-		}
-		if (pp.hasNextProtocols()) {
-			pos = pp.getNextProtocols(nativeProtocols, pos);
-		} else if (!pp.hasNextProtocols()) {
-			switch (state) {
-			case OUTPUT:
-				state = STATE.WRITE;
-				pp = null;
-				break;
-			case WRITE:
-				state = STATE.DONE;
-				pp = null;
-				break;
-			default:
-				break;
-			}
-		}
-		return pos;
-	}
+  private enum STATE {OUTPUT, WRITE, DONE}
 
-	@Override
-	public boolean hasNextProtocols() {
-		// TODO Auto-generated method stub
-		return state != STATE.DONE;
-	}
-	
+  ;
+  private STATE state = STATE.OUTPUT;
+  private String label;
+
+  ProtocolProducer pp = null;
+
+  private BasicNumericFactory factory;
+
+
+  public OpenAndPrintProtocol(String label, SInt number, BasicNumericFactory factory) {
+    this.number = number;
+    this.factory = factory;
+    this.label = label;
+  }
+
+  public OpenAndPrintProtocol(String label, SInt[] vector, BasicNumericFactory factory) {
+    this.vector = vector;
+    this.factory = factory;
+    this.label = label;
+  }
+
+  public OpenAndPrintProtocol(String label, SInt[][] matrix, BasicNumericFactory factory) {
+    this.matrix = matrix;
+    this.factory = factory;
+    this.label = label;
+  }
+
+  @Override
+  public Value[] getInputValues() {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public Value[] getOutputValues() {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public int getNextProtocols(NativeProtocol[] nativeProtocols, int pos) {
+    if (pp == null) {
+      if (state == STATE.OUTPUT) {
+        if (number != null) {
+          oNumber = factory.getOInt();
+          pp = factory.getOpenProtocol(number, oNumber);
+        } else if (vector != null) {
+          oVector = AlgebraUtil.oIntFill(new OInt[vector.length], factory);
+          pp = makeOpenProtocol(vector, oVector, factory);
+        } else {
+          oMatrix = AlgebraUtil.oIntFill(new OInt[matrix.length][matrix[0].length], factory);
+          pp = makeOpenProtocol(matrix, oMatrix, factory);
+        }
+      } else if (state == STATE.WRITE) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(label);
+        if (oNumber != null) {
+          sb.append(oNumber.getValue().toString());
+        } else if (oVector != null) {
+          sb.append('\n');
+          for (OInt entry : oVector) {
+            sb.append(entry.getValue().toString() + ",\t");
+          }
+        } else if (oMatrix != null) {
+          sb.append('\n');
+          for (OInt[] row : oMatrix) {
+            for (OInt entry : row) {
+              sb.append(entry.getValue().toString() + "," + "\t");
+            }
+            sb.append('\n');
+          }
+        }
+        pp = new MarkerProtocolImpl(sb.toString());
+      }
+    }
+    if (pp.hasNextProtocols()) {
+      pos = pp.getNextProtocols(nativeProtocols, pos);
+    } else if (!pp.hasNextProtocols()) {
+      switch (state) {
+        case OUTPUT:
+          state = STATE.WRITE;
+          pp = null;
+          break;
+        case WRITE:
+          state = STATE.DONE;
+          pp = null;
+          break;
+        default:
+          break;
+      }
+    }
+    return pos;
+  }
+
+  ProtocolProducer makeOpenProtocol(SInt[][] closed, OInt[][] open, IOIntProtocolFactory factory) {
+    if (open.length != closed.length) {
+      throw new IllegalArgumentException("Amount of closed and open integers does not match. " +
+          "Open: " + open.length + " Closed: " + closed.length);
+    }
+    ProtocolProducer[] openings = new ProtocolProducer[open.length];
+    for (int i = 0; i < open.length; i++) {
+      openings[i] = makeOpenProtocol(closed[i], open[i], factory);
+    }
+    return new ParallelProtocolProducer(openings);
+  }
+
+  ProtocolProducer makeOpenProtocol(SInt[] closed, OInt[] open, IOIntProtocolFactory factory) {
+    if (open.length != closed.length) {
+      throw new IllegalArgumentException("Amount of closed and open integers does not match. " +
+          "Open: " + open.length + " Closed: " + closed.length);
+    }
+    OpenIntProtocol[] openings = new OpenIntProtocol[open.length];
+    for (int i = 0; i < open.length; i++) {
+      openings[i] = factory.getOpenProtocol(closed[i], open[i]);
+    }
+    return new ParallelProtocolProducer(openings);
+  }
+
+
+  @Override
+  public boolean hasNextProtocols() {
+    // TODO Auto-generated method stub
+    return state != STATE.DONE;
+  }
+
 }

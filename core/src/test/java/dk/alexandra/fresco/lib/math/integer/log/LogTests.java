@@ -26,10 +26,6 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.math.integer.log;
 
-import java.math.BigInteger;
-
-import org.junit.Assert;
-
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.TestApplication;
@@ -51,6 +47,8 @@ import dk.alexandra.fresco.lib.math.integer.binary.BitLengthFactoryImpl;
 import dk.alexandra.fresco.lib.math.integer.binary.RightShiftFactory;
 import dk.alexandra.fresco.lib.math.integer.binary.RightShiftFactoryImpl;
 import dk.alexandra.fresco.lib.math.integer.inv.LocalInversionFactory;
+import java.math.BigInteger;
+import org.junit.Assert;
 
 
 /**
@@ -116,9 +114,9 @@ public class LogTests {
 							return gp;
 						}
 					};
-					sce.runApplication(app);
-					
-					for (int i = 0; i < x.length; i++) {
+          secureComputationEngine.runApplication(app);
+
+          for (int i = 0; i < x.length; i++) {
 						int actual = app.getOutputs()[i].getValue().intValue();
 						int expected = (int) Math.log(x[i].doubleValue());
 						int difference = Math.abs(actual - expected);						

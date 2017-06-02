@@ -28,10 +28,10 @@ code:
     import dk.alexandra.fresco.framework.Protocol;
     import dk.alexandra.fresco.framework.ProtocolProducer;
     import dk.alexandra.fresco.framework.ProtocolFactory;
-    import dk.alexandra.fresco.framework.sce.SCE;
-    import dk.alexandra.fresco.framework.sce.SCEFactory;
-    import dk.alexandra.fresco.framework.sce.configuration.SCEConfiguration;
-    import dk.alexandra.fresco.framework.sce.configuration.ProtocolSuiteConfiguration;
+    import dk.alexandra.fresco.framework.sce.SecureComputationEngineomputationEngine.SCE;
+    import dk.alexandra.fresco.framework.secureComputationEngine.SCEFactory;
+    import dk.alexandra.fresco.framework.secureComputationEngine.configuration.SCEConfiguration;
+    import dk.alexandra.fresco.framework.secureComputationEngine.configuration.ProtocolSuiteConfiguration;
     import dk.alexandra.fresco.framework.value.OBool;
     import dk.alexandra.fresco.framework.value.SBool;
     import dk.alexandra.fresco.framework.configuration.CmdLineUtil;
@@ -72,8 +72,8 @@ code:
 
             // Run secure computation.
             AESDemo aes = new AESDemo(sceConf.getMyId(), input);
-            SCE sce = SCEFactory.getSCEFromConfiguration(sceConf, psConf);
-            sce.runApplication(aes);
+            SCE secureComputationEngine = SCEFactory.getSCEFromConfiguration(sceConf, psConf);
+            secureComputationEngine.runApplication(aes);
 
             // Print result.
             boolean[] res = new boolean[BLOCK_SIZE];
@@ -213,11 +213,11 @@ To create a ``SCE`` we need a ``SCEConfiguration`` and a
 ``ProtocolSuiteConfiguration``. These are objects that define various
 parameters for the computation and the protocol suite. In our case we
 use ``CmdLineUtil`` to create these from command line arguments. Once
-we have our application ``aes`` and our ``sce``, we simply write:
+we have our application ``aes`` and our ``secureComputationEngine``, we simply write:
 
 .. sourcecode:: java
 
-    sce.runApplication(aes);
+    secureComputationEngine.runApplication(aes);
 
 to launch the secure computation.
 

@@ -26,10 +26,6 @@
  *******************************************************************************/
 package dk.alexandra.fresco.framework.sce.configuration;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.logging.Level;
-
 import dk.alexandra.fresco.framework.Party;
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
@@ -37,108 +33,115 @@ import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.NetworkingStrategy;
 import dk.alexandra.fresco.framework.sce.resources.storage.Storage;
 import dk.alexandra.fresco.framework.sce.resources.storage.StreamedStorage;
-import dk.alexandra.fresco.suite.ProtocolSuite;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.logging.Level;
 
 public class TestSCEConfiguration implements SCEConfiguration {
 
-	private String protocolSuite;
-	private NetworkingStrategy network;
-	private Storage storage;
-	private Map<Integer, Party> parties;
-	private int myId;
-	private int noOfThreads;
-	private int noOfVmThreads;
-	private ProtocolEvaluator evaluator;
-	private int maxBatchSize;
-	
-	public TestSCEConfiguration(ProtocolSuite suite, NetworkingStrategy network, ProtocolEvaluator evaluator,
-			int noOfThreads, int noOfvmThreads, NetworkConfiguration conf, Storage storage, boolean useSecureConn) {
-		this(suite, network, evaluator, noOfThreads, noOfvmThreads, conf, storage, useSecureConn, 4096);
-		
-	}
-	public TestSCEConfiguration(ProtocolSuite suite, NetworkingStrategy network, ProtocolEvaluator evaluator,
-			int noOfThreads, int noOfvmThreads, NetworkConfiguration conf, Storage storage, boolean useSecureConn, int maxBatchSize) {
-		this.protocolSuite = ProtocolSuite.protocolSuiteToString(suite);
-		this.network = network;
-		this.storage = storage;
-		this.evaluator = evaluator;
-		this.noOfThreads = noOfThreads;
-		this.noOfVmThreads = noOfvmThreads;
-		this.myId = conf.getMyId();
-		parties = new HashMap<Integer, Party>();
-		for (int i = 1; i <= conf.noOfParties(); i++) {
-			if(useSecureConn) {
-				Party p = conf.getParty(i);
-				//Use the same hardcoded test 128 bit AES key for all connections
-				p.setSecretSharedKey("w+1qn2ooNMCN7am9YmYQFQ==");
-				parties.put(i, p);
-			} else {
-				parties.put(i, conf.getParty(i));
-			}
-		}
-		this.maxBatchSize = maxBatchSize;
-	}
+  private final ProtocolSuiteConfiguration suite;
+  private NetworkingStrategy network;
+  private Storage storage;
+  private Map<Integer, Party> parties;
+  private int myId;
+  private int noOfThreads;
+  private int noOfVmThreads;
+  private ProtocolEvaluator evaluator;
+  private int maxBatchSize;
 
-	@Override
-	public int getMyId() {
-		return myId;
-	}
+  public TestSCEConfiguration(ProtocolSuiteConfiguration suite, NetworkingStrategy network,
+      ProtocolEvaluator evaluator,
+      int noOfThreads, int noOfvmThreads, NetworkConfiguration conf, Storage storage,
+      boolean useSecureConn) {
+    this(suite, network, evaluator, noOfThreads, noOfvmThreads, conf, storage, useSecureConn, 4096);
 
-	@Override
-	public Map<Integer, Party> getParties() {
-		return parties;
-	}
+  }
 
-	@Override
-	public Level getLogLevel() {
-		return Level.INFO;
-	}
+  public TestSCEConfiguration(ProtocolSuiteConfiguration suite, NetworkingStrategy network,
+      ProtocolEvaluator evaluator,
+      int noOfThreads, int noOfvmThreads, NetworkConfiguration conf, Storage storage,
+      boolean useSecureConn, int maxBatchSize) {
+    this.suite = suite;
+    this.network = network;
+    this.storage = storage;
+    this.evaluator = evaluator;
+    this.noOfThreads = noOfThreads;
+    this.noOfVmThreads = noOfvmThreads;
+    this.myId = conf.getMyId();
+    parties = new HashMap<Integer, Party>();
+    for (int i = 1; i <= conf.noOfParties(); i++) {
+      if (useSecureConn) {
+        Party p = conf.getParty(i);
+        //Use the same hardcoded test 128 bit AES key for all connections
+        p.setSecretSharedKey("w+1qn2ooNMCN7am9YmYQFQ==");
+        parties.put(i, p);
+      } else {
+        parties.put(i, conf.getParty(i));
+      }
+    }
+    this.maxBatchSize = maxBatchSize;
+  }
 
-	@Override
-	public String getProtocolSuiteName() {
-		return protocolSuite;
-	}
+  @Override
+  public int getMyId() {
+    return myId;
+  }
 
-	@Override
-	public int getNoOfThreads() {
-		return this.noOfThreads;
-	}
+  @Override
+  public Map<Integer, Party> getParties() {
+    return parties;
+  }
 
-	@Override
-	public ProtocolEvaluator getEvaluator() {
-		return this.evaluator;
-	}
+  @Override
+  public Level getLogLevel() {
+    return Level.INFO;
+  }
 
-	@Override
-	public int getNoOfVMThreads() {
-		return this.noOfVmThreads;
-	}
+  @Override
+  public int getNoOfThreads() {
+    return this.noOfThreads;
+  }
 
-	@Override
-	public Storage getStorage() {
-		return this.storage;
-	}
+  @Override
+  public ProtocolEvaluator getEvaluator() {
+    return this.evaluator;
+  }
 
-	@Override
-	public int getMaxBatchSize() {
-		return this.maxBatchSize;
-	}
-	@Override
-	public StreamedStorage getStreamedStorage() {
-		if(this.storage instanceof StreamedStorage) {
-			return (StreamedStorage)this.storage;
-		} else {
-			return null;
-		}
-	}
+  @Override
+  public int getNoOfVMThreads() {
+    return this.noOfVmThreads;
+  }
 
-	@Override
-	public NetworkingStrategy getNetworkStrategy() {
-		return this.network;
-	}
+  @Override
+  public Storage getStorage() {
+    return this.storage;
+  }
 
-	@Override
-	public Network getNetwork(NetworkConfiguration configuration, int channelAmount) {
-		return null;
-	}
+  @Override
+  public int getMaxBatchSize() {
+    return this.maxBatchSize;
+  }
+
+  @Override
+  public StreamedStorage getStreamedStorage() {
+    if (this.storage instanceof StreamedStorage) {
+      return (StreamedStorage) this.storage;
+    } else {
+      return null;
+    }
+  }
+
+  public ProtocolSuiteConfiguration getSuite() {
+    return suite;
+  }
+
+  @Override
+  public NetworkingStrategy getNetworkStrategy() {
+    return this.network;
+  }
+
+  @Override
+  public Network getNetwork(NetworkConfiguration configuration, int channelAmount) {
+    return null;
+  }
 }

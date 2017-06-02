@@ -26,14 +26,6 @@
  *******************************************************************************/
 package dk.alexandra.fresco.framework.sce.configuration;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
-import java.util.logging.Level;
-
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.Party;
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
@@ -46,6 +38,13 @@ import dk.alexandra.fresco.framework.sce.resources.storage.Storage;
 import dk.alexandra.fresco.framework.sce.resources.storage.StorageStrategy;
 import dk.alexandra.fresco.framework.sce.resources.storage.StreamedStorage;
 import dk.alexandra.fresco.framework.sce.util.Util;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
+import java.util.logging.Level;
 
 public class FileBasedSCEConfiguration implements SCEConfiguration {
 
@@ -198,7 +197,7 @@ public class FileBasedSCEConfiguration implements SCEConfiguration {
 			loaded = true;
 		} catch (IOException e) {
 			throw new MPCException(
-					"Could not locate the SCE properties file. ", e);
+					"Could not locate the SecureComputationEngine properties file. ", e);
 		}
 	}
 
@@ -234,14 +233,6 @@ public class FileBasedSCEConfiguration implements SCEConfiguration {
 			loadProperties();
 		}		
 		return this.level;
-	}
-
-	@Override
-	public String getProtocolSuiteName() {
-		if (!loaded) {
-			loadProperties();
-		}		
-		return this.protocolSuite;
 	}
 
 	/**

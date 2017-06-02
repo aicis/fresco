@@ -26,8 +26,6 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.bool;
 
-import org.junit.Assert;
-
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.TestBoolApplication;
@@ -38,7 +36,7 @@ import dk.alexandra.fresco.framework.value.OBool;
 import dk.alexandra.fresco.framework.value.SBool;
 import dk.alexandra.fresco.lib.helper.builder.BasicLogicBuilder;
 import dk.alexandra.fresco.lib.logic.AbstractBinaryFactory;
-import dk.alexandra.fresco.suite.tinytables.prepro.TinyTablesPreproConfiguration;
+import org.junit.Assert;
 
 public class ComparisonBooleanTests {
 
@@ -78,16 +76,12 @@ public class ComparisonBooleanTests {
 						}
 					};
 
-					sce.runApplication(app);
+          secureComputationEngine.runApplication(app);
 
-					if (conf.protocolSuiteConf instanceof TinyTablesPreproConfiguration) {
-						// Just preprocessing - do not check output
-					} else {
 						Assert.assertEquals(false,
 								app.getOutputs()[0].getValue());
 						Assert.assertEquals(true,
 								app.getOutputs()[1].getValue());
-					}
 				}
 			};
 		}
