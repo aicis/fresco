@@ -26,11 +26,6 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.lp;
 
-import java.math.BigInteger;
-import java.util.Random;
-
-import org.junit.Assert;
-
 import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.ProtocolProducer;
@@ -49,6 +44,9 @@ import dk.alexandra.fresco.lib.math.integer.NumericBitFactory;
 import dk.alexandra.fresco.lib.math.integer.exp.ExpFromOIntFactory;
 import dk.alexandra.fresco.lib.math.integer.exp.PreprocessedExpPipeFactory;
 import dk.alexandra.fresco.lib.math.integer.inv.LocalInversionFactory;
+import java.math.BigInteger;
+import java.util.Random;
+import org.junit.Assert;
 
 public class LPBuildingBlockTests {
 
@@ -190,8 +188,8 @@ public class LPBuildingBlockTests {
 						}
 
 					};
-					sce.runApplication(app);
-				}
+          secureComputationEngine.runApplication(app);
+        }
 			};
 			return t;
 		}
@@ -229,8 +227,8 @@ public class LPBuildingBlockTests {
 						}
 					};
 					app.mod = mod;
-					sce.runApplication(app);
-					int actualIndex = 0;
+          secureComputationEngine.runApplication(app);
+          int actualIndex = 0;
 					int sum = 0;
 					BigInteger zero = BigInteger.ZERO;
 					BigInteger one = BigInteger.ONE;
@@ -268,8 +266,8 @@ public class LPBuildingBlockTests {
 						}
 					};
 
-					sce.runApplication(app);
-				}
+          secureComputationEngine.runApplication(app);
+        }
 			};
 		}
 	}
@@ -292,8 +290,8 @@ public class LPBuildingBlockTests {
 						}
 					};
 
-					sce.runApplication(app);
-				}
+          secureComputationEngine.runApplication(app);
+        }
 			};
 		}
 	}

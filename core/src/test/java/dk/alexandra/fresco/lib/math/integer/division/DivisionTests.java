@@ -26,14 +26,6 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.math.integer.division;
 
-import java.math.BigInteger;
-
-import dk.alexandra.fresco.lib.compare.ComparisonProtocolFactory;
-import dk.alexandra.fresco.lib.compare.ComparisonProtocolFactoryImpl;
-import dk.alexandra.fresco.lib.math.integer.exp.ExpFromOIntFactory;
-import dk.alexandra.fresco.lib.math.integer.exp.PreprocessedExpPipeFactory;
-import org.junit.Assert;
-
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.TestApplication;
@@ -42,6 +34,8 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
+import dk.alexandra.fresco.lib.compare.ComparisonProtocolFactory;
+import dk.alexandra.fresco.lib.compare.ComparisonProtocolFactoryImpl;
 import dk.alexandra.fresco.lib.compare.RandomAdditiveMaskFactory;
 import dk.alexandra.fresco.lib.compare.RandomAdditiveMaskFactoryImpl;
 import dk.alexandra.fresco.lib.conversion.IntegerToBitsFactory;
@@ -54,9 +48,13 @@ import dk.alexandra.fresco.lib.math.integer.binary.BitLengthFactory;
 import dk.alexandra.fresco.lib.math.integer.binary.BitLengthFactoryImpl;
 import dk.alexandra.fresco.lib.math.integer.binary.RightShiftFactory;
 import dk.alexandra.fresco.lib.math.integer.binary.RightShiftFactoryImpl;
+import dk.alexandra.fresco.lib.math.integer.exp.ExpFromOIntFactory;
 import dk.alexandra.fresco.lib.math.integer.exp.ExponentiationFactory;
 import dk.alexandra.fresco.lib.math.integer.exp.ExponentiationFactoryImpl;
+import dk.alexandra.fresco.lib.math.integer.exp.PreprocessedExpPipeFactory;
 import dk.alexandra.fresco.lib.math.integer.inv.LocalInversionFactory;
+import java.math.BigInteger;
+import org.junit.Assert;
 
 
 /**
@@ -131,8 +129,8 @@ public class DivisionTests {
 							return gp;
 						}
 					};
-					sce.runApplication(app);
-					BigInteger quotient = app.getOutputs()[0].getValue();
+          secureComputationEngine.runApplication(app);
+          BigInteger quotient = app.getOutputs()[0].getValue();
 					BigInteger remainder = app.getOutputs()[1].getValue();
 					Assert.assertEquals(quotient, x.divide(d));
 					Assert.assertEquals(remainder, x.mod(d));
@@ -204,8 +202,8 @@ public class DivisionTests {
 							return gp;
 						}
 					};
-					sce.runApplication(app);
-					for (int i = 0; i < n; i++) {
+          secureComputationEngine.runApplication(app);
+          for (int i = 0; i < n; i++) {
 						BigInteger actual = app.getOutputs()[i].getValue();
 						
 						BigInteger expected = x[i].divide(d);

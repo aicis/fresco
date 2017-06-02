@@ -34,7 +34,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 /**
- * The thread pool of an SCE. Manages two independent pools, one for the VM and
+ * The thread pool of an SecureComputationEngine. Manages two independent pools, one for the VM and
  * one for the protocol suites. This models two possible layers of parallelism:
  * 
  * At the VM layer we can parallelize the calls to protocols of the underlying

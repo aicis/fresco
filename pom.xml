@@ -2,16 +2,26 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>dk.alexandra.fresco</groupId>
   <artifactId>master-pom</artifactId>
-  <version>0.2-SNAPSHOT</version>
-  
-  <packaging>pom</packaging>
-  
   <properties>
-    <junit-version>4.12</junit-version>
+    <fresco-version>0.2-SNAPSHOT</fresco-version>
   </properties>
-  
+  <version>0.2-SNAPSHOT</version>
+
+  <packaging>pom</packaging>
+
+  <!-- Test -->
+  <dependencies>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.12</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
   <modules>
     <module>core</module>
+    <module>suite</module>
     <module>demo</module>
   </modules>
 </project>

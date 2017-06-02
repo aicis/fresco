@@ -23,10 +23,6 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.statistics;
 
-import java.math.BigInteger;
-
-import org.junit.Assert;
-
 import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.ProtocolProducer;
@@ -39,7 +35,8 @@ import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.helper.AlgebraUtil;
 import dk.alexandra.fresco.lib.helper.builder.NumericIOBuilder;
 import dk.alexandra.fresco.lib.statistics.DEASolver.AnalysisType;
-import dk.alexandra.fresco.suite.spdz.utils.Util;
+import java.math.BigInteger;
+import org.junit.Assert;
 
 /**
  * Test class for the DEASolver. 
@@ -66,6 +63,8 @@ public class DEASolverFixedDataTest {
   public static class TestDEASolverScores extends TestThreadFactory {
 
     private DEASolver.AnalysisType type;
+    // MAde null to find where this test is activated from
+    private BigInteger modulus = null;
 
     public TestDEASolverScores(DEASolver.AnalysisType type) {
       this.type = type;
@@ -78,14 +77,16 @@ public class DEASolverFixedDataTest {
         public void test() throws Exception {
           
           DEATestApp app1 = new DEATestApp(dataSet1, type);
-          sce.runApplication(app1);
-          for (int i = 0; i < app1.solverResult.length; i++) {            
-            Assert.assertEquals(app1.plainResult[i], postProcess(app1.solverResult[i], type), 0.0000001);
+          secureComputationEngine.runApplication(app1);
+          for (int i = 0; i < app1.solverResult.length; i++) {
+            Assert.assertEquals(app1.plainResult[i], postProcess(app1.solverResult[i], type,
+                modulus), 0.0000001);
           }          
           DEATestApp app2 = new DEATestApp(dataSet2, type);
-          sce.runApplication(app2);
-          for (int i = 0; i < app2.solverResult.length; i++) {            
-            Assert.assertEquals(app2.plainResult[i], postProcess(app2.solverResult[i], type), 0.0000001);
+          secureComputationEngine.runApplication(app2);
+          for (int i = 0; i < app2.solverResult.length; i++) {
+            Assert.assertEquals(app2.plainResult[i], postProcess(app2.solverResult[i], type,
+                modulus), 0.0000001);
           }
         }
       };
@@ -157,8 +158,8 @@ public class DEASolverFixedDataTest {
   /**
    * Reduces a field-element to a double using Gauss reduction.
    */
-  private static double postProcess(OInt input, AnalysisType type) {
-    BigInteger[] gauss = gauss(input.getValue(), Util.getModulus());
+  private static double postProcess(OInt input, AnalysisType type, BigInteger modulus) {
+    BigInteger[] gauss = gauss(input.getValue(), modulus);
     double res = (gauss[0].doubleValue() / gauss[1].doubleValue());
     if (type == AnalysisType.OUTPUT_EFFICIENCY) {
       res -= BENCHMARKING_BIG_M;

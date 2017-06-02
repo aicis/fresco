@@ -26,10 +26,6 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.arithmetic;
 
-import java.math.BigInteger;
-
-import org.junit.Assert;
-
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.TestApplication;
@@ -50,6 +46,8 @@ import dk.alexandra.fresco.lib.math.integer.exp.ExpFromOIntFactory;
 import dk.alexandra.fresco.lib.math.integer.exp.PreprocessedExpPipeFactory;
 import dk.alexandra.fresco.lib.math.integer.inv.LocalInversionFactory;
 import dk.alexandra.fresco.lib.math.integer.min.MinInfFracProtocol;
+import java.math.BigInteger;
+import org.junit.Assert;
 
 
 /**
@@ -92,7 +90,7 @@ public class BasicArithmeticTests {
 						}
 					};
 
-					sce.runApplication(app);
+          secureComputationEngine.runApplication(app);
 
 					Assert.assertEquals(BigInteger.valueOf(10),
 							app.getOutputs()[0].getValue());
@@ -130,8 +128,8 @@ public class BasicArithmeticTests {
 						}
 					};
 
-					sce.runApplication(app);
-					if(conf.netConf.getMyId() == 1) {
+          secureComputationEngine.runApplication(app);
+          if(conf.netConf.getMyId() == 1) {
 						Assert.assertEquals(BigInteger.valueOf(10),
 								app.getOutputs()[0].getValue());
 					} else {
@@ -180,8 +178,8 @@ public class BasicArithmeticTests {
 						}
 					};
 
-					sce.runApplication(app);					
-					Assert.assertEquals(BigInteger.valueOf(14),
+          secureComputationEngine.runApplication(app);
+          Assert.assertEquals(BigInteger.valueOf(14),
 							app.getOutputs()[0].getValue());					
 				}
 			};
@@ -221,7 +219,7 @@ public class BasicArithmeticTests {
 							return seq;
 						}
 					};
-					sce.runApplication(app);
+          secureComputationEngine.runApplication(app);
 
 					Assert.assertEquals(app.getOutputs()[0].getValue(), BigInteger.ONE);
 				}
@@ -263,9 +261,9 @@ public class BasicArithmeticTests {
 							return gp;
 						}
 					};
-					sce.runApplication(app);
-					
-					checkOutputs(openInputs, app.getOutputs());
+          secureComputationEngine.runApplication(app);
+
+          checkOutputs(openInputs, app.getOutputs());
 				}
 			};
 		}
@@ -304,9 +302,9 @@ public class BasicArithmeticTests {
 							return gp;
 						}
 					};
-					sce.runApplication(app);
-					
-					checkOutputs(openInputs, app.getOutputs());
+          secureComputationEngine.runApplication(app);
+
+          checkOutputs(openInputs, app.getOutputs());
 				}
 			};
 		}
@@ -367,8 +365,8 @@ public class BasicArithmeticTests {
 							return gp;
 						}
 					};
-					sce.runApplication(app);
-					int sum = 0;
+          secureComputationEngine.runApplication(app);
+          int sum = 0;
 					for (int i : openInputs) {
 						sum += i;
 					}
@@ -437,7 +435,7 @@ public class BasicArithmeticTests {
 							return gp;
 						}
 					};
-					sce.runApplication(app);
+          secureComputationEngine.runApplication(app);
 
 					Assert.assertEquals(BigInteger.valueOf(10 * (10 + 5)),
 							app.getOutputs()[0].getValue());
@@ -483,8 +481,8 @@ public class BasicArithmeticTests {
 							return gp;
 						}
 					};
-					sce.runApplication(app);
-					OInt[] outputs = app.getOutputs();
+          secureComputationEngine.runApplication(app);
+          OInt[] outputs = app.getOutputs();
 					for (OInt o : outputs) {
 						Assert.assertEquals(o.getValue(), BigInteger.valueOf(50));
 					}
@@ -570,8 +568,8 @@ public class BasicArithmeticTests {
 							return ioBuilder.getProtocol();
 						}
 					};
-					sce.runApplication(app);
-					OInt[] outputs = app.getOutputs();
+          secureComputationEngine.runApplication(app);
+          OInt[] outputs = app.getOutputs();
 					Assert.assertEquals(BigInteger.valueOf(2), outputs[0].getValue());
 					Assert.assertEquals(BigInteger.valueOf(10), outputs[1].getValue());
 					Assert.assertEquals(BigInteger.ZERO, outputs[2].getValue());
@@ -639,8 +637,8 @@ public class BasicArithmeticTests {
 							return gp;
 						}
 					};
-					sce.runApplication(app);					
-				}
+          secureComputationEngine.runApplication(app);
+        }
 			};
 		}
 	}

@@ -26,13 +26,12 @@
  *******************************************************************************/
 package dk.alexandra.fresco.framework.sce.resources;
 
-import java.security.SecureRandom;
-import java.util.Random;
-
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.resources.storage.Storage;
 import dk.alexandra.fresco.framework.sce.resources.storage.StreamedStorage;
 import dk.alexandra.fresco.framework.sce.resources.threads.ProtocolThreadPool;
+import java.security.SecureRandom;
+import java.util.Random;
 
 public interface ResourcePool {
 
@@ -52,17 +51,17 @@ public interface ResourcePool {
 
 	/**
 	 * Returns the threadpool a protocol suite can use for doing multithreaded
-	 * work that is not controlled by the SCE. We advise that protocol suite
-	 * developers use this since the control over how many threads are in use is
-	 * then delegated to the SCE.
-	 * 
+   * work that is not controlled by the SecureComputationEngine. We advise that protocol suite
+   * developers use this since the control over how many threads are in use is
+   * then delegated to the SecureComputationEngine.
+   *
 	 * @return
 	 */
 	public abstract ProtocolThreadPool getThreadPool();
 
 	/**
-	 * Returns the number of threads that the SCE will maximally use when
-	 * evaluating.
+   * Returns the number of threads that the SecureComputationEngine will maximally use when
+   * evaluating.
 	 * 
 	 * @return
 	 */

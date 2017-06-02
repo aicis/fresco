@@ -2,11 +2,8 @@ package dk.alexandra.fresco.framework.network.serializers;
 
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
-
 import org.junit.Assert;
 import org.junit.Test;
-
-import dk.alexandra.fresco.suite.spdz.utils.Util;
 
 /**
  * Tests that the Serializers works as expected.
@@ -28,19 +25,19 @@ public class TestSerializers {
 	@Test
 	public void testBigIntegerWithFixedLengthSerializer() {
 		BigInteger mod = new BigInteger("1298376217321832134223");
-		Util.setModulus(mod);
 
 		BigInteger b = new BigInteger("1298376217321832");
-		byte[] bytes = BigIntegerWithFixedLengthSerializer.toBytes(b, Util.getModulusSize());
-		ByteBuffer buf = ByteBuffer.wrap(bytes);
-		BigInteger bb = BigIntegerWithFixedLengthSerializer.toBigInteger(buf, Util.getModulusSize());
-		Assert.assertEquals(b, bb);
+    int modulusSize = mod.toByteArray().length;
+    byte[] bytes = BigIntegerWithFixedLengthSerializer.toBytes(b, modulusSize);
+    ByteBuffer buf = ByteBuffer.wrap(bytes);
+    BigInteger bb = BigIntegerWithFixedLengthSerializer.toBigInteger(buf, modulusSize);
+    Assert.assertEquals(b, bb);
 
 		b = BigInteger.ZERO;
-		bytes = BigIntegerWithFixedLengthSerializer.toBytes(b, Util.getModulusSize());
-		buf = ByteBuffer.wrap(bytes);
-		bb = BigIntegerWithFixedLengthSerializer.toBigInteger(buf, Util.getModulusSize());
-		Assert.assertEquals(b, bb);
+    bytes = BigIntegerWithFixedLengthSerializer.toBytes(b, modulusSize);
+    buf = ByteBuffer.wrap(bytes);
+    bb = BigIntegerWithFixedLengthSerializer.toBigInteger(buf, modulusSize);
+    Assert.assertEquals(b, bb);
 	}
 
 	@Test

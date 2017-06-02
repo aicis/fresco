@@ -219,8 +219,8 @@ ExpFromOIntFactory expFromOIntFactory) {
 			unmaskGPs[i] = mbcFactory.getMultProtocol(maskedPowers[i], R[i], powers[i]);
 		}
 
-		OInt[] polynomialCoefficients = miscOIntGenerator.getPoly(bitLength);
-		ProtocolProducer polynomialGP = innerProdFactory.getInnerProductProtocol(powers, polynomialCoefficients, this.result); 
+    OInt[] polynomialCoefficients = miscOIntGenerator.getPoly(bitLength, factory.getModulus());
+    ProtocolProducer polynomialGP = innerProdFactory.getInnerProductProtocol(powers, polynomialCoefficients, this.result);
 
 		return new SequentialProtocolProducer(mult, open, new ParallelProtocolProducer(unmaskGPs), polynomialGP);
 	}

@@ -26,10 +26,6 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.math.polynomial;
 
-import java.math.BigInteger;
-
-import org.springframework.util.Assert;
-
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.TestApplication;
@@ -44,6 +40,8 @@ import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
 import dk.alexandra.fresco.lib.math.polynomial.evaluator.PolynomialEvaluatorFactory;
 import dk.alexandra.fresco.lib.math.polynomial.evaluator.PolynomialEvaluatorFactoryImpl;
 import dk.alexandra.fresco.lib.math.polynomial.evaluator.PolynomialEvaluatorProtocol;
+import java.math.BigInteger;
+import org.springframework.util.Assert;
 
 public class PolynomialTests {
 
@@ -91,7 +89,7 @@ public class PolynomialTests {
 							return gp;
 						}
 					};
-					sce.runApplication(app);
+          secureComputationEngine.runApplication(app);
 
 					int f = 0;
 					int power = 1;

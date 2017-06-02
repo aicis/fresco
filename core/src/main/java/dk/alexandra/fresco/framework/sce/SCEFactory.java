@@ -26,62 +26,22 @@
  *******************************************************************************/
 package dk.alexandra.fresco.framework.sce;
 
-import dk.alexandra.fresco.framework.sce.configuration.FileBasedSCEConfiguration;
 import dk.alexandra.fresco.framework.sce.configuration.ProtocolSuiteConfiguration;
 import dk.alexandra.fresco.framework.sce.configuration.SCEConfiguration;
 
 public class SCEFactory {
 
-	private static final String defaultPropertiesDir = "properties";
-
-	/**
-	 * Generates a SCE based on the property files located in the folder
-	 * determined by the environment variable FRESCO_HOME. Default is set to
-	 * '/properties'. This also applies for the protocol suite specific
-	 * properties which are assumed by default to be within the property files
-	 * folder. Other environment variables might apply here. Check the protocol
-	 * suite specific documentation if needed.
-	 * 
-	 * @return
-	 */
-	public static synchronized SCE getSCEFromProperties() {
-		String propertiesDir = System.getenv("FRESCO_HOME");
-		if (propertiesDir == null) {
-			propertiesDir = defaultPropertiesDir;
-		}
-		SCEConfiguration sceConf = FileBasedSCEConfiguration
-				.getInstance(propertiesDir);
-		return getSCEFromConfiguration(sceConf);
-	}
-
-	/**
-	 * Generates an SCE based on the given configuration. This will still assume
-	 * that protocol suite configuration is loaded via property files. If this
-	 * is not wanted, use the factory method
-	 * {@code SCEFactory.getSCEFromConfiguration(SCEConfiguration conf,
-	 * ProtocolSuiteConfiguration psConf} instead.
-	 * 
-	 * @param conf
-	 * @return
-	 */
-	public static synchronized SCE getSCEFromConfiguration(SCEConfiguration conf) {
-		SCE sce = new SCEImpl(conf);
-		return sce;
-	}
-
-	/**
-	 * Generates an SCE based on the given SCEConfiguration and the given
-	 * ProtocolSuiteConfiguration. This is useful when you do not want to rely
-	 * on a file-based approach to configuring your SCE, and strongly advised
-	 * when testing.
-	 * 
-	 * @param conf
-	 * @param psConf
-	 * @return
-	 */
-	public static synchronized SCE getSCEFromConfiguration(
-			SCEConfiguration conf, ProtocolSuiteConfiguration psConf) {
-		SCE sce = new SCEImpl(conf, psConf);
-		return sce;
-	}
+  /**
+   * Generates an SecureComputationEngine based on the given configuration. This will still assume
+   * that protocol suite configuration is loaded via property files. If this
+   * is not wanted, use the factory method
+   * {@code SCEFactory.getSCEFromConfiguration(SCEConfiguration conf,
+   * ProtocolSuiteConfiguration psConf} instead.
+   */
+  public static SecureComputationEngine getSCEFromConfiguration(SCEConfiguration conf,
+      ProtocolSuiteConfiguration protocolSuite) {
+    SecureComputationEngine secureComputationEngine = new SecureComputationEngineImpl(conf,
+        protocolSuite);
+    return secureComputationEngine;
+  }
 }

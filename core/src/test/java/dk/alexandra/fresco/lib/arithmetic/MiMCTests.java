@@ -26,10 +26,6 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.arithmetic;
 
-import java.math.BigInteger;
-
-import org.junit.Assert;
-
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.TestApplication;
@@ -43,6 +39,8 @@ import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.helper.builder.NumericIOBuilder;
 import dk.alexandra.fresco.lib.helper.builder.OmniBuilder;
 import dk.alexandra.fresco.lib.helper.builder.SymmetricEncryptionBuilder;
+import java.math.BigInteger;
+import org.junit.Assert;
 
 public class MiMCTests {
 
@@ -103,15 +101,15 @@ public class MiMCTests {
 						}
 					};
 
-					sce.runApplication(app);
-					
-					BigInteger expectedModulus = new BigInteger("2582249878086908589655919172003011874329705792829223512830659356540647622016841194629645353280137831435903171972747493557");
+          secureComputationEngine.runApplication(app);
+
+          BigInteger expectedModulus = new BigInteger("2582249878086908589655919172003011874329705792829223512830659356540647622016841194629645353280137831435903171972747493557");
 					Assert.assertEquals(expectedModulus, app.getModulus());
 					BigInteger expectedCipherText = new BigInteger("10388336824440235723309131431891968131690383663436711590309818298349333623568340591094832870178074855376232596303647115");
 					Assert.assertEquals(expectedCipherText, app.getOutputs()[0].getValue());
-					
-					sce.shutdownSCE();
-				}
+
+          secureComputationEngine.shutdownSCE();
+        }
 			};
 		}
 	}
@@ -144,11 +142,11 @@ public class MiMCTests {
 						}
 					};
 
-					sce.runApplication(app);
+          secureComputationEngine.runApplication(app);
 
 					Assert.assertEquals(app.getOutputs()[0].getValue(), app.getOutputs()[1].getValue());
-					sce.shutdownSCE();
-				}
+          secureComputationEngine.shutdownSCE();
+        }
 			};
 		}
 	}
@@ -186,11 +184,11 @@ public class MiMCTests {
 						}
 					};
 
-					sce.runApplication(app);
+          secureComputationEngine.runApplication(app);
 
 					Assert.assertNotEquals(app.getOutputs()[0].getValue(), app.getOutputs()[1].getValue());
-					sce.shutdownSCE();
-				}
+          secureComputationEngine.shutdownSCE();
+        }
 			};
 		}
 	}
@@ -231,8 +229,8 @@ public class MiMCTests {
 						}
 					};
 
-					sce.runApplication(app);
-					Assert.assertEquals(x_big, app.getOutputs()[1].getValue());
+          secureComputationEngine.runApplication(app);
+          Assert.assertEquals(x_big, app.getOutputs()[1].getValue());
 				}
 			};
 		}

@@ -132,9 +132,9 @@ public class ZeroTestBruteforceProtocolImpl implements ZeroTestBruteforceProtoco
 					powers[i] = factory.getSInt();
 					unmaskGPs[i] = mbcFactory.getMultProtocol(maskedPowers[i], R[i+1], powers[i]);
 				}
-				OInt[] polynomialCoefficients = miscOIntGenerator.getPoly(maxInput);
-				
-				OInt[] mostSignificantPolynomialCoefficients = new OInt[maxInput];
+        OInt[] polynomialCoefficients = miscOIntGenerator.getPoly(maxInput, factory.getModulus());
+
+        OInt[] mostSignificantPolynomialCoefficients = new OInt[maxInput];
 				System.arraycopy(polynomialCoefficients, 1, 
 						mostSignificantPolynomialCoefficients, 0, maxInput);
 				SInt tmp = factory.getSInt();

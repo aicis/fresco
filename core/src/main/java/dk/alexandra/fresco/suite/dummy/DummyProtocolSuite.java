@@ -27,40 +27,38 @@
 package dk.alexandra.fresco.suite.dummy;
 
 import dk.alexandra.fresco.framework.network.SCENetwork;
-import dk.alexandra.fresco.framework.sce.configuration.ProtocolSuiteConfiguration;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 
 
 /**
  * Dummy protocol suite that does no secret computation. Only for testing purposes.
- *  
- * Do NOT use in production! :-)
- * 
- * Currently it only implements basic logic operations "natively".
  *
+ * Do NOT use in production! :-)
+ *
+ * Currently it only implements basic logic operations "natively".
  */
 public class DummyProtocolSuite implements ProtocolSuite {
 
-	@Override
-	public void init(ResourcePool resourcePool, ProtocolSuiteConfiguration conf) {
-		// No init needed.
-	}
+  @Override
+  public DummyFactory init(ResourcePool resourcePool) {
+    return new DummyFactory();
+  }
 
-	@Override
-	public RoundSynchronization createRoundSynchronization() {
-		return new DummyRoundSynchronization();
-	}
+  @Override
+  public RoundSynchronization createRoundSynchronization() {
+    return new DummyRoundSynchronization();
+  }
 
-	@Override
-	public void finishedEval(ResourcePool resourcePool, SCENetwork sceNetwork) {
-		// No finish needed.
-	}
+  @Override
+  public void finishedEval(ResourcePool resourcePool, SCENetwork sceNetwork) {
+    // No finish needed.
+  }
 
-	@Override
-	public void destroy() {
-		// No destroy needed.
-	}
+  @Override
+  public void destroy() {
+    // No destroy needed.
+  }
 
 
 }

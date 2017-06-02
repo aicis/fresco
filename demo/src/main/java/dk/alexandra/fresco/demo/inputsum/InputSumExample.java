@@ -26,15 +26,15 @@
  *******************************************************************************/
 package dk.alexandra.fresco.demo.inputsum;
 
-import dk.alexandra.fresco.framework.configuration.CmdLineUtil;
-import dk.alexandra.fresco.framework.sce.SCE;
-import dk.alexandra.fresco.framework.sce.SCEFactory;
+import dk.alexandra.fresco.demo.CmdLineUtil;
+import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
+import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.configuration.SCEConfiguration;
 
 public class InputSumExample {
 
-	static void runApplication(int myId, SCE sce) {
-		InputApplication inputApp = null;
+  static void runApplication(int myId, SecureComputationEngine sce) {
+    InputApplication inputApp = null;
 
 		int[] inputs = new int[]{1, 2, 3, 7, 8, 12, 15, 17};
 		if(myId == 1){
@@ -64,7 +64,10 @@ public class InputSumExample {
 		util.parse(args);
 		sceConf = util.getSCEConfiguration();
 
-		SCE sce = SCEFactory.getSCEFromConfiguration(sceConf);
+    SCEConfiguration sceConf1 = sceConf;
+    dk.alexandra.fresco.framework.sce.configuration.ProtocolSuiteConfiguration psConf = util
+        .getProtocolSuiteConfiguration();
+    SecureComputationEngine sce = new SecureComputationEngineImpl(sceConf1, psConf);
 
 		runApplication(myId, sce);
 	}
