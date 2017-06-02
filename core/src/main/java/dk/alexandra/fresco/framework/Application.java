@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -28,15 +28,15 @@ package dk.alexandra.fresco.framework;
 
 import java.io.Serializable;
 
-public interface Application extends Serializable{
+public interface Application extends Serializable {
 
-	/**
-	 * Take a factory which is assumed to implement all needed interfaces for
-	 * the application to run. If this is not the case, a runtime exception
-	 * should be cast. It returns the resulting protocolProducer.
-	 * 
-	 * @param factory
-	 * @return
-	 */
-	ProtocolProducer prepareApplication(ProtocolFactory factory);
+  /**
+   * Take a factory which is assumed to implement all needed interfaces for
+   * the application to run. If this is not the case, a runtime exception
+   * should be cast. It returns the resulting protocolProducer.
+   *
+   * @param factory the factory
+   * @return the resulting protocol producer
+   */
+  ProtocolProducer prepareApplication(ProtocolFactory factory);
 }
