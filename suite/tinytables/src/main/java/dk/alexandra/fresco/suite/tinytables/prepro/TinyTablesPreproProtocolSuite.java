@@ -43,6 +43,7 @@ import dk.alexandra.fresco.suite.tinytables.ot.OTFactory;
 import dk.alexandra.fresco.suite.tinytables.ot.base.BaseOTFactory;
 import dk.alexandra.fresco.suite.tinytables.ot.extension.SemiHonestOTExtensionFactory;
 import dk.alexandra.fresco.suite.tinytables.prepro.protocols.TinyTablesPreproANDProtocol;
+import dk.alexandra.fresco.suite.tinytables.prepro.protocols.TinyTablesPreproProtocol;
 import dk.alexandra.fresco.suite.tinytables.storage.BatchTinyTablesTripleProvider;
 import dk.alexandra.fresco.suite.tinytables.storage.TinyTablesStorage;
 import dk.alexandra.fresco.suite.tinytables.storage.TinyTablesStorageImpl;
@@ -76,7 +77,7 @@ import java.util.Map;
  * calculate a so-called <i>TinyTable</i> which is used in the online phase (see
  * {@link TinyTablesProtocolSuite}). This is done using oblivious transfer. To
  * enhance performance, all oblivious transfers are done at the end of the
- * preprocessing (see {@link TinyTablesPreproProtocolSuite#finishedEval()}).
+ * preprocessing (see {@link TinyTablesPreproProtocolSuite#finishedEval(ResourcePool, SCENetwork)}).
  * </p>
  *
  * <p>
@@ -100,7 +101,8 @@ public class TinyTablesPreproProtocolSuite implements ProtocolSuite {
   private TinyTablesTripleProvider tinyTablesTripleProvider;
   private List<TinyTablesPreproANDProtocol> unprocessedAndGates;
   private ResourcePool resourcePool;
-  private static volatile Map<Integer, TinyTablesPreproProtocolSuite> instances = new HashMap<>();
+  private static volatile Map<Integer, TinyTablesPreproProtocolSuite> instances =
+      Collections.synchronizedMap(new HashMap<>());
 
   public static TinyTablesPreproProtocolSuite getInstance(int id) {
     return instances.get(id);
@@ -168,17 +170,11 @@ public class TinyTablesPreproProtocolSuite implements ProtocolSuite {
        * Sort the unprocessed gates to make sure that the players
 			 * process them in the same order.
 			 */
-      this.unprocessedAndGates.sort(new Comparator<TinyTablesPreproANDProtocol>() {
-        @Override
-        public int compare(TinyTablesPreproANDProtocol o1,
-            TinyTablesPreproANDProtocol o2) {
-          return Integer.compare(o1.getId(), o2.getId());
-        }
-      });
+      this.unprocessedAndGates.sort(Comparator.comparingInt(TinyTablesPreproProtocol::getId));
 
       // Two bits per gate
       TinyTablesElementVector shares = new TinyTablesElementVector(unprocessedGates * 2);
-      List<TinyTablesTriple> usedTriples = new ArrayList<TinyTablesTriple>();
+      List<TinyTablesTriple> usedTriples = new ArrayList<>();
       for (int i = 0; i < unprocessedGates; i++) {
         TinyTablesPreproANDProtocol gate = this.unprocessedAndGates.get(i);
         TinyTablesTriple triple = this.tinyTablesTripleProvider.getNextTriple();
@@ -237,7 +233,7 @@ public class TinyTablesPreproProtocolSuite implements ProtocolSuite {
     calculateTinyTablesForUnprocessedANDGates();
     tinyTablesTripleProvider.close();
     /*
-		 * Store the TinyTables to a file.
+     * Store the TinyTables to a file.
 		 */
     try {
       storeTinyTables(storage, this.tinyTablesFile);

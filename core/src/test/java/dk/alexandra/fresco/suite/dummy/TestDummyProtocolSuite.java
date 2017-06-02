@@ -61,24 +61,23 @@ public class TestDummyProtocolSuite {
 
     // Since SCAPI currently does not work with ports > 9999 we use fixed ports
     // here instead of relying on ephemeral ports which are often > 9999.
-    List<Integer> ports = new ArrayList<Integer>(noPlayers);
+    List<Integer> ports = new ArrayList<>(noPlayers);
     for (int i = 1; i <= noPlayers; i++) {
       ports.add(9000 + i * 10);
     }
 
     Map<Integer, NetworkConfiguration> netConf = TestConfiguration
         .getNetworkConfigurations(noPlayers, ports, logLevel);
-    Map<Integer, TestThreadConfiguration> conf = new HashMap<Integer, TestThreadConfiguration>();
+    Map<Integer, TestThreadConfiguration> conf = new HashMap<>();
     for (int playerId : netConf.keySet()) {
       TestThreadConfiguration ttc = new TestThreadConfiguration();
       ttc.netConf = netConf.get(playerId);
-      boolean useSecureConnection = false; // No tests of secure connection here.
       int noOfVMThreads = 3;
       int noOfThreads = 3;
       ProtocolEvaluator evaluator = EvaluationStrategy.fromEnum(evalStrategy);
       Storage storage = new InMemoryStorage();
       ttc.sceConf = new TestSCEConfiguration(new DummyConfiguration(), NetworkingStrategy.KRYONET,
-          evaluator, noOfThreads, noOfVMThreads, ttc.netConf, storage, useSecureConnection);
+          evaluator, noOfThreads, noOfVMThreads, ttc.netConf, storage, false);
       conf.put(playerId, ttc);
     }
     TestThreadRunner.run(f, conf);
@@ -86,47 +85,47 @@ public class TestDummyProtocolSuite {
 
   @Test
   public void test_Mult32x32_Sequential() throws Exception {
-    runTest(new BristolCryptoTests.Mult32x32Test(), EvaluationStrategy.SEQUENTIAL);
+    runTest(new BristolCryptoTests.Mult32x32Test(true), EvaluationStrategy.SEQUENTIAL);
   }
 
   @Test
   public void test_AES_Sequential() throws Exception {
-    runTest(new BristolCryptoTests.AesTest(), EvaluationStrategy.SEQUENTIAL);
+    runTest(new BristolCryptoTests.AesTest(true), EvaluationStrategy.SEQUENTIAL);
   }
 
   @Test
   public void test_AES_Parallel() throws Exception {
-    runTest(new BristolCryptoTests.AesTest(), EvaluationStrategy.PARALLEL);
+    runTest(new BristolCryptoTests.AesTest(true), EvaluationStrategy.PARALLEL);
   }
 
   @Test
   public void test_AES_SequentialBatched() throws Exception {
-    runTest(new BristolCryptoTests.AesTest(), EvaluationStrategy.SEQUENTIAL_BATCHED);
+    runTest(new BristolCryptoTests.AesTest(true), EvaluationStrategy.SEQUENTIAL_BATCHED);
   }
 
   @Test
   public void test_AES_ParallelBatched() throws Exception {
-    runTest(new BristolCryptoTests.AesTest(), EvaluationStrategy.PARALLEL_BATCHED);
+    runTest(new BristolCryptoTests.AesTest(true), EvaluationStrategy.PARALLEL_BATCHED);
   }
 
   @Test
   public void test_DES_Sequential() throws Exception {
-    runTest(new BristolCryptoTests.DesTest(), EvaluationStrategy.SEQUENTIAL);
+    runTest(new BristolCryptoTests.DesTest(true), EvaluationStrategy.SEQUENTIAL);
   }
 
   @Test
   public void test_SHA1_Sequential() throws Exception {
-    runTest(new BristolCryptoTests.Sha1Test(), EvaluationStrategy.SEQUENTIAL);
+    runTest(new BristolCryptoTests.Sha1Test(true), EvaluationStrategy.SEQUENTIAL);
   }
 
   @Test
   public void test_SHA256_Sequential() throws Exception {
-    runTest(new BristolCryptoTests.Sha256Test(), EvaluationStrategy.SEQUENTIAL);
+    runTest(new BristolCryptoTests.Sha256Test(true), EvaluationStrategy.SEQUENTIAL);
   }
 
   @Test
   public void test_SHA256_Parallel() throws Exception {
-    runTest(new BristolCryptoTests.Sha256Test(), EvaluationStrategy.PARALLEL);
+    runTest(new BristolCryptoTests.Sha256Test(true), EvaluationStrategy.PARALLEL);
   }
 
   @Test

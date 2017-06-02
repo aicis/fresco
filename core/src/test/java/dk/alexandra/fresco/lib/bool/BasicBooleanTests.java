@@ -42,6 +42,12 @@ public class BasicBooleanTests {
 
   public static class TestInput extends TestThreadFactory {
 
+    private boolean assertAsExpected;
+
+    public TestInput(boolean assertAsExpected) {
+      this.assertAsExpected = assertAsExpected;
+    }
+
     @Override
     public TestThread next(TestThreadConfiguration conf) {
       return new TestThread() {
@@ -65,6 +71,9 @@ public class BasicBooleanTests {
 
           secureComputationEngine.runApplication(app);
 
+          if (!assertAsExpected) {
+            return;
+          }
           Assert.assertEquals(true,
               app.getOutputs()[0].getValue());
         }
@@ -73,6 +82,12 @@ public class BasicBooleanTests {
   }
 
   public static class TestXOR extends TestThreadFactory {
+
+    private boolean assertAsExpected;
+
+    public TestXOR(boolean assertAsExpected) {
+      this.assertAsExpected = assertAsExpected;
+    }
 
     @Override
     public TestThread next(TestThreadConfiguration conf) {
@@ -108,14 +123,16 @@ public class BasicBooleanTests {
 
               SBool xor11 = builder.xor(inp111, inp211);
 
-              OBool[] output = builder.output(xor00, xor10, xor01, xor11);
-              this.outputs = output;
+              this.outputs = builder.output(xor00, xor10, xor01, xor11);
               return builder.getProtocol();
             }
           };
 
           secureComputationEngine.runApplication(app);
 
+          if (!assertAsExpected) {
+            return;
+          }
           Assert.assertEquals(false,
               app.getOutputs()[0].getValue());
           Assert.assertEquals(true,
@@ -130,6 +147,12 @@ public class BasicBooleanTests {
   }
 
   public static class TestAND extends TestThreadFactory {
+
+    private boolean assertAsExpected;
+
+    public TestAND(boolean assertAsExpected) {
+      this.assertAsExpected = assertAsExpected;
+    }
 
     @Override
     public TestThread next(TestThreadConfiguration conf) {
@@ -165,6 +188,9 @@ public class BasicBooleanTests {
 
           secureComputationEngine.runApplication(app);
 
+          if (!assertAsExpected) {
+            return;
+          }
           Assert.assertEquals(true,
               app.getOutputs()[0].getValue());
         }
@@ -173,6 +199,12 @@ public class BasicBooleanTests {
   }
 
   public static class TestNOT extends TestThreadFactory {
+
+    private boolean assertAsExpected;
+
+    public TestNOT(boolean assertAsExpected) {
+      this.assertAsExpected = assertAsExpected;
+    }
 
     @Override
     public TestThread next(TestThreadConfiguration conf) {
@@ -200,6 +232,9 @@ public class BasicBooleanTests {
 
           secureComputationEngine.runApplication(app);
 
+          if (!assertAsExpected) {
+            return;
+          }
           Assert.assertEquals(false,
               app.getOutputs()[0].getValue());
         }
@@ -212,6 +247,12 @@ public class BasicBooleanTests {
    * Computes all variants of: NOT((i1 XOR i2) AND i1)
    */
   public static class TestBasicProtocols extends TestThreadFactory {
+
+    private boolean assertAsExpected;
+
+    public TestBasicProtocols(boolean assertAsExpected) {
+      this.assertAsExpected = assertAsExpected;
+    }
 
     @Override
     public TestThread next(TestThreadConfiguration conf) {
@@ -257,13 +298,16 @@ public class BasicBooleanTests {
               SBool anot11 = builder.not(ainp211);
               SBool aand11 = builder.and(ainp111, anot11);
 
-              OBool[] output = builder.output(not00, not10, not01, not11, aand11);
-              this.outputs = output;
+              this.outputs = builder.output(not00, not10, not01, not11, aand11);
               return builder.getProtocol();
             }
           };
 
           secureComputationEngine.runApplication(app);
+
+          if (!assertAsExpected) {
+            return;
+          }
 
           Assert.assertEquals(true,
               app.getOutputs()[0].getValue());
