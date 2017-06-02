@@ -29,7 +29,6 @@ package dk.alexandra.fresco.suite.spdz;
 import dk.alexandra.fresco.framework.Reporter;
 import dk.alexandra.fresco.framework.sce.resources.storage.FilebasedStreamedStorageImpl;
 import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
-import dk.alexandra.fresco.framework.sce.resources.storage.SQLStorage;
 import dk.alexandra.fresco.framework.sce.resources.storage.Storage;
 import dk.alexandra.fresco.framework.sce.resources.storage.StreamedStorage;
 import dk.alexandra.fresco.framework.sce.resources.storage.exceptions.NoMoreElementsException;
@@ -58,14 +57,8 @@ public class TestStorage {
 		testStorage(storage);
 		testStoreBigInteger(storage);
 	}
-	
-	@Test 
-	public void testSQLStorage() {
-		Storage storage = SQLStorage.getInstance();
-		testStorage(storage);
-		testStoreBigInteger(storage);
-	}
-	
+
+
 	@Test
 	public void testFilebasedStorage() throws NoMoreElementsException {
 		StreamedStorage storage = new FilebasedStreamedStorageImpl(new InMemoryStorage());
