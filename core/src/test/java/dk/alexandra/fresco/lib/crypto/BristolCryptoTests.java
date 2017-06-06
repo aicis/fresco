@@ -93,6 +93,12 @@ public class BristolCryptoTests {
    */
   public static class AesTest extends TestThreadFactory {
 
+    private boolean assertAsExpected;
+
+    public AesTest(boolean assertAsExpected) {
+      this.assertAsExpected = assertAsExpected;
+    }
+
     @Override
     public TestThread next(TestThreadConfiguration conf) {
       return new TestThread() {
@@ -139,6 +145,9 @@ public class BristolCryptoTests {
 
           secureComputationEngine.runApplication(aesApp);
 
+          if (!assertAsExpected) {
+            return;
+          }
           boolean[] expected = toBoolean(cipherVec[0]);
           boolean[] actual = new boolean[128];
           for (int i = 0; i < 128; i++) {
@@ -163,6 +172,12 @@ public class BristolCryptoTests {
    * TODO: Include all three test vectors.
    */
   public static class Sha1Test extends TestThreadFactory {
+
+    private boolean assertAsExpected;
+
+    public Sha1Test(boolean assertAsExpected) {
+      this.assertAsExpected = assertAsExpected;
+    }
 
     @Override
     public TestThread next(TestThreadConfiguration conf) {
@@ -215,7 +230,9 @@ public class BristolCryptoTests {
           };
 
           secureComputationEngine.runApplication(aesApp);
-
+          if (!assertAsExpected) {
+            return;
+          }
           boolean[] expected = toBoolean(out1);
           boolean[] actual = new boolean[out.length];
           for (int i = 0; i < out.length; i++) {
@@ -239,6 +256,12 @@ public class BristolCryptoTests {
    * TODO: Include all three test vectors.
    */
   public static class Sha256Test extends TestThreadFactory {
+
+    private boolean assertAsExpected;
+
+    public Sha256Test(boolean assertAsExpected) {
+      this.assertAsExpected = assertAsExpected;
+    }
 
     @Override
     public TestThread next(TestThreadConfiguration conf) {
@@ -294,6 +317,9 @@ public class BristolCryptoTests {
 
           secureComputationEngine.runApplication(sha256App);
 
+          if (!assertAsExpected) {
+            return;
+          }
           boolean[] expected = toBoolean(out1);
           boolean[] actual = new boolean[out.length];
           for (int i = 0; i < out.length; i++) {
@@ -317,6 +343,12 @@ public class BristolCryptoTests {
    * TODO: Include all three test vectors.
    */
   public static class MD5Test extends TestThreadFactory {
+
+    private boolean assertAsExpected;
+
+    public MD5Test(boolean assertAsExpected) {
+      this.assertAsExpected = assertAsExpected;
+    }
 
     @Override
     public TestThread next(TestThreadConfiguration conf) {
@@ -372,6 +404,9 @@ public class BristolCryptoTests {
 
           secureComputationEngine.runApplication(md5App);
 
+          if (!assertAsExpected) {
+            return;
+          }
           boolean[] expected = toBoolean(out1);
           boolean[] actual = new boolean[out.length];
           for (int i = 0; i < out.length; i++) {
@@ -395,6 +430,12 @@ public class BristolCryptoTests {
    * TODO: Include more test vectors. Oddly enough, 1x1=2 :-)
    */
   public static class Mult32x32Test extends TestThreadFactory {
+
+    private boolean assertAsExpected;
+
+    public Mult32x32Test(boolean assertAsExpected) {
+      this.assertAsExpected = assertAsExpected;
+    }
 
     @Override
     public TestThread next(TestThreadConfiguration conf) {
@@ -441,6 +482,9 @@ public class BristolCryptoTests {
 
           secureComputationEngine.runApplication(multApp);
 
+          if (!assertAsExpected) {
+            return;
+          }
           boolean[] expected = toBoolean(outv);
           boolean[] actual = new boolean[out.length];
           for (int i = 0; i < out.length; i++) {
@@ -466,6 +510,12 @@ public class BristolCryptoTests {
    * https://dl.dropboxusercontent.com/u/25980826/des.test
    */
   public static class DesTest extends TestThreadFactory {
+
+    private boolean assertAsExpected;
+
+    public DesTest(boolean assertAsExpected) {
+      this.assertAsExpected = assertAsExpected;
+    }
 
     @Override
     public TestThread next(TestThreadConfiguration conf) {
@@ -512,6 +562,9 @@ public class BristolCryptoTests {
 
           secureComputationEngine.runApplication(md5App);
 
+          if (!assertAsExpected) {
+            return;
+          }
           boolean[] expected = toBoolean(cipherV);
           boolean[] actual = new boolean[cipher.length];
           for (int i = 0; i < cipher.length; i++) {

@@ -94,6 +94,11 @@ public class BristolMultTests {
    */
   public static class Mult32x32Test extends TestThreadFactory {
 
+    private boolean assertAsExpected;
+
+    public Mult32x32Test(boolean assertAsExpected) {
+      this.assertAsExpected = assertAsExpected;
+    }
     @Override
     public TestThread next(TestThreadConfiguration conf) {
       return new TestThread() {
@@ -144,6 +149,9 @@ public class BristolMultTests {
 
           secureComputationEngine.runApplication(md5App);
 
+          if (!assertAsExpected) {
+            return;
+          }
           boolean[] expected = toBoolean(outv);
           boolean[] actual = new boolean[out.length];
           for (int i = 0; i < out.length; i++) {
