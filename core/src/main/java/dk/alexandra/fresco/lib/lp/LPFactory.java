@@ -55,7 +55,8 @@ public interface LPFactory
 	 *            output - either a or b.
 	 * @return
 	 */
-	public ConditionalSelectProtocol getConditionalSelectProtocol(SInt selector, SInt a, SInt b, SInt result);
+	ConditionalSelectProtocol getConditionalSelectProtocol(SInt selector, SInt a, SInt b,
+			SInt result);
 
 	/**
 	 * inputs are the as, m is the base recursion result, and cs are the outputs
@@ -69,7 +70,7 @@ public interface LPFactory
 	 *            outputs
 	 * @return
 	 */
-	public MinimumProtocol getMinimumProtocol(SInt[] as, SInt m, SInt[] cs);
+	MinimumProtocol getMinimumProtocol(SInt[] as, SInt m, SInt[] cs);
 
 	/**
 	 * Finds the minimum in an list of fractions. Note fractions are given as
@@ -87,7 +88,8 @@ public interface LPFactory
 	 *            output - the index vector for indicating the minimum fraction
 	 * @return
 	 */
-	public MinimumFractionProtocol getMinimumFractionProtocol(SInt[] ns, SInt[] ds, SInt nm, SInt dm, SInt[] cs);
+	MinimumFractionProtocol getMinimumFractionProtocol(SInt[] ns, SInt[] ds, SInt nm, SInt dm,
+			SInt[] cs);
 
 	/**
 	 * 
@@ -102,7 +104,7 @@ public interface LPFactory
 	 *            use twice the bit length
 	 * @return
 	 */
-	public ComparisonProtocol getComparisonProtocol(SInt x1, SInt x2, SInt result, boolean longCompare);
+	ComparisonProtocol getComparisonProtocol(SInt x1, SInt x2, SInt result, boolean longCompare);
 
 	/**
 	 * Returns a protocol for equality
@@ -120,7 +122,8 @@ public interface LPFactory
 	 * 
 	 * @return a protocol for equality
 	 */
-	public EqualityProtocol getEqualityProtocol(int bitLength, int securityParam, SInt x, SInt y, SInt result);
+	EqualityProtocol getEqualityProtocol(int bitLength, int securityParam, SInt x, SInt y,
+			SInt result);
 
 	/**
 	 * Computes the index of the entering variable.
@@ -137,7 +140,7 @@ public interface LPFactory
 	 *            output - the minimum entry in the F vector
 	 * @return
 	 */
-	public EnteringVariableProtocol getEnteringVariableProtocol(LPTableau tableau, Matrix<SInt> updateMatrix,
+	EnteringVariableProtocol getEnteringVariableProtocol(LPTableau tableau, Matrix<SInt> updateMatrix,
 			SInt[] enteringIndex, SInt minimum);
 
 	/**
@@ -163,7 +166,7 @@ public interface LPFactory
 	 *            of this iteration
 	 * @return
 	 */
-	public ExitingVariableProtocol getExitingVariableProtocol(LPTableau tableau, Matrix<SInt> updateMatrix,
+	ExitingVariableProtocol getExitingVariableProtocol(LPTableau tableau, Matrix<SInt> updateMatrix,
 			SInt[] enteringIndex, SInt[] exitingIndex, SInt[] updateColumn, SInt pivot);
 
 	/**
@@ -182,7 +185,8 @@ public interface LPFactory
 	 *            output - the new update matrix
 	 * @return
 	 */
-	public UpdateMatrixProtocol getUpdateMatrixProtocol(Matrix<SInt> oldUpdateMatrix, SInt[] L, SInt[] C, SInt p,
+	UpdateMatrixProtocol getUpdateMatrixProtocol(Matrix<SInt> oldUpdateMatrix, SInt[] L, SInt[] C,
+			SInt p,
 			SInt p_prime, Matrix<SInt> newUpdateMatrix);
 
 
@@ -199,7 +203,7 @@ public interface LPFactory
 	 *            output - optimal value
 	 * @return
 	 */
-	public OptimalValueProtocol getOptimalValueProtocol(Matrix<SInt> updateMatrix, SInt[] B, SInt pivot,
+	OptimalValueProtocol getOptimalValueProtocol(Matrix<SInt> updateMatrix, SInt[] B, SInt pivot,
 			SInt optimalValue);
 	
 	/**
@@ -215,8 +219,9 @@ public interface LPFactory
      *            output - optimal value
      * @return
      */
-    public OptimalValueProtocol getOptimalValueProtocol(Matrix<SInt> updateMatrix, LPTableau tableau, SInt pivot,
-            SInt optimalValue);
+	OptimalValueProtocol getOptimalValueProtocol(Matrix<SInt> updateMatrix, LPTableau tableau,
+			SInt pivot,
+			SInt optimalValue);
 
 	/**
 	 * Computes the numerator of the optimal value after the last simplex
@@ -230,7 +235,7 @@ public interface LPFactory
 	 *            output - optimal numerator
 	 * @return
 	 */
-	public OptimalNumeratorProtocol getOptimalNumeratorProtocol(Matrix<SInt> updateMatrix, SInt[] B,
+	OptimalNumeratorProtocol getOptimalNumeratorProtocol(Matrix<SInt> updateMatrix, SInt[] B,
 			SInt optimalNumerator);
 
 	/**
@@ -249,7 +254,8 @@ public interface LPFactory
 	 *            output - the rank
 	 * @return
 	 */
-	public RankProtocol getRankProtocol(SInt[] numerators, SInt[] denominators, SInt numerator, SInt denominator,
+	RankProtocol getRankProtocol(SInt[] numerators, SInt[] denominators, SInt numerator,
+			SInt denominator,
 			SInt rank);
 
 	/**
@@ -264,7 +270,7 @@ public interface LPFactory
 	 *            output - will contain the rank of the value to be ranked
 	 * @return
 	 */
-	public RankProtocol getRankProtocol(SInt[] values, SInt rankValue, SInt rank);
+	RankProtocol getRankProtocol(SInt[] values, SInt rankValue, SInt rank);
 
 	/**
 	 * Returns a protocol solving an LP-problem from an initial tableau, update
@@ -280,7 +286,8 @@ public interface LPFactory
 	 * @param basis Array containing the variables that defines the final basis.
 	 * @return an LPSolverprotocol
 	 */
-	public LPSolverProtocol getLPSolverProtocol(LPTableau tableau, Matrix<SInt> updateMatrix, SInt pivot, SInt[] basis);
+	LPSolverProtocol getLPSolverProtocol(LPTableau tableau, Matrix<SInt> updateMatrix, SInt pivot,
+			SInt[] basis);
 
 	/**
 	 * Finds the minimum in an list of fractions. Note fractions are given as

@@ -65,29 +65,11 @@ public class TestSpdzBasicArithmetic3Parties extends AbstractSpdzTest{
 	}
 
 	@Test
-	public void test_Lots_Of_Inputs_Parallel() throws Exception {
-		runTest(new BasicArithmeticTests.TestLotsOfInputs(),
-				EvaluationStrategy.PARALLEL, NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 3);
-	}
-
-	@Test
-	public void test_Lots_Of_Inputs_ParallelBatched() throws Exception {
-		runTest(new BasicArithmeticTests.TestLotsOfInputs(),
-				EvaluationStrategy.PARALLEL_BATCHED, NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 3);
-	}
-
-	@Test
 	public void test_Sum_And_Output_Sequential() throws Exception {
 		runTest(new BasicArithmeticTests.TestSumAndMult(),
 				EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 3);
 	}
 
-	@Test
-	public void test_Sum_And_Output_ParallelBatched() throws Exception {
-		runTest(new BasicArithmeticTests.TestSumAndMult(),
-				EvaluationStrategy.PARALLEL_BATCHED, NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 3);
-	}
-	
 	@Test
 	public void test_Lots_Of_Mults_Sequential() throws Exception {
 		runTest(new BasicArithmeticTests.TestLotsMult(),
@@ -104,20 +86,6 @@ public class TestSpdzBasicArithmetic3Parties extends AbstractSpdzTest{
 	}
 	
 	@Test
-	public void test_Lots_Of_Mults_Parallel() throws Exception {
-		runTest(new BasicArithmeticTests.TestLotsMult(),
-				EvaluationStrategy.PARALLEL,
-				NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 3);
-	}
-	
-	@Test
-	public void test_Lots_Of_Mults_Parallel_Batched() throws Exception {
-		runTest(new BasicArithmeticTests.TestLotsMult(),
-				EvaluationStrategy.PARALLEL_BATCHED,
-				NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 3);
-	}
-	
-	@Test
 	public void test_Alternating_Sequential() throws Exception {
 		runTest(new BasicArithmeticTests.TestAlternatingMultAdd(),
 				EvaluationStrategy.SEQUENTIAL,
@@ -130,20 +98,4 @@ public class TestSpdzBasicArithmetic3Parties extends AbstractSpdzTest{
 				EvaluationStrategy.SEQUENTIAL_BATCHED,
 				NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 3);
 	}
-	
-	@Test
-	public void test_Alternating_Parallel_Batched() throws Exception {
-		runTest(new BasicArithmeticTests.TestAlternatingMultAdd(),
-				EvaluationStrategy.PARALLEL_BATCHED,
-				NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 3);
-	}
-	
-	@Test
-	public void test_Alternating_Parallel() throws Exception {
-		runTest(new BasicArithmeticTests.TestAlternatingMultAdd(),
-				EvaluationStrategy.PARALLEL,
-				NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 3);
-	}
-
-	// TODO: Test with different security parameters.
 }

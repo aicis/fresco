@@ -26,107 +26,106 @@
  *******************************************************************************/
 package dk.alexandra.fresco.suite.dummy;
 
-import org.apache.commons.lang.NotImplementedException;
-
+import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.OBool;
 import dk.alexandra.fresco.framework.value.SBool;
 import dk.alexandra.fresco.lib.field.bool.AndProtocol;
 import dk.alexandra.fresco.lib.field.bool.BasicLogicFactory;
 import dk.alexandra.fresco.lib.field.bool.CloseBoolProtocol;
-import dk.alexandra.fresco.lib.field.bool.NotProtocol;
 import dk.alexandra.fresco.lib.field.bool.OpenBoolProtocol;
 import dk.alexandra.fresco.lib.field.bool.XorProtocol;
+import dk.alexandra.fresco.lib.helper.SingleProtocolProducer;
 import dk.alexandra.fresco.lib.logic.AbstractBinaryFactory;
+import org.apache.commons.lang.NotImplementedException;
 
 public class DummyFactory extends AbstractBinaryFactory implements BasicLogicFactory {
 
-	/**
-	 * For unique names to values. For debugging.
-	 * 
-	 */
-	private int counter;
-	
-	public DummyFactory() {
-		this.counter = 0;
-	}
-	
-	@Override
-	public SBool getSBool() {
-		return new DummySBool("" + this.counter++);
-	}
+  /**
+   * For unique names to values. For debugging.
+   */
+  private int counter;
 
-	@Override
-	public SBool[] getSBools(int amount) {
-		SBool[] res = new DummySBool[amount];
-		for (int i=0; i<amount; i++) {
-			res[i] = getSBool();
-		}
-		return res;
-	}
+  public DummyFactory() {
+    this.counter = 0;
+  }
 
-	@Override
-	public SBool getKnownConstantSBool(boolean b) {
-		return new DummySBool("" + this.counter++, b);
-	}
+  @Override
+  public SBool getSBool() {
+    return new DummySBool("" + this.counter++);
+  }
 
-	@Override
-	public SBool[] getKnownConstantSBools(boolean[] bools) {
-		DummySBool[] res = new DummySBool[bools.length];
-		for (int i=0; i<bools.length; i++) {
-			res[i] = new DummySBool("" + this.counter++, bools[i]);
-		}
-		return res;
-	}
+  @Override
+  public SBool[] getSBools(int amount) {
+    SBool[] res = new DummySBool[amount];
+    for (int i = 0; i < amount; i++) {
+      res[i] = getSBool();
+    }
+    return res;
+  }
 
-	@Override
-	public OBool getOBool() {
-		return new DummyOBool("" + this.counter++);
-	}
+  @Override
+  public SBool getKnownConstantSBool(boolean b) {
+    return new DummySBool("" + this.counter++, b);
+  }
 
-	@Override
-	public OBool getKnownConstantOBool(boolean b) {
-		return new DummyOBool("" + this.counter++, b);
-	}
+  @Override
+  public SBool[] getKnownConstantSBools(boolean[] bools) {
+    DummySBool[] res = new DummySBool[bools.length];
+    for (int i = 0; i < bools.length; i++) {
+      res[i] = new DummySBool("" + this.counter++, bools[i]);
+    }
+    return res;
+  }
 
-	@Override
-	public NotProtocol getNotProtocol(SBool in, SBool out) {
-		return new DummyNotProtocol(in, out);
-	}
+  @Override
+  public OBool getOBool() {
+    return new DummyOBool("" + this.counter++);
+  }
 
-	@Override
-	public XorProtocol getXorProtocol(SBool inLeft, SBool inRight, SBool out) {
-		return new DummyXorProtocol(inLeft, inRight, out);
-	}
+  @Override
+  public OBool getKnownConstantOBool(boolean b) {
+    return new DummyOBool("" + this.counter++, b);
+  }
 
-	@Override
-	public AndProtocol getAndProtocol(SBool inLeft, SBool inRight, SBool out) {
-		return new DummyAndProtocol(inLeft, inRight, out);
-	}
+  @Override
+  public ProtocolProducer getNotProtocol(SBool in, SBool out) {
+    return SingleProtocolProducer.wrap(new DummyNotProtocol(in, out));
+  }
 
-	
-	@Override
-	public CloseBoolProtocol getCloseProtocol(int source, OBool open, SBool closed) {
-		return new DummyCloseBoolProtocol(open, closed, source);
-	}
+  @Override
+  public XorProtocol getXorProtocol(SBool inLeft, SBool inRight, SBool out) {
+    return new DummyXorProtocol(inLeft, inRight, out);
+  }
 
-	@Override
-	public OpenBoolProtocol getOpenProtocol(SBool closed, OBool open) {
-		return new DummyOpenBoolProtocol(closed, open);
-	}
+  @Override
+  public ProtocolProducer getAndProtocol(SBool inLeft, SBool inRight, SBool out) {
+    return SingleProtocolProducer.wrap(new DummyAndProtocol(inLeft, inRight, out));
+  }
 
-	@Override
-	public OpenBoolProtocol getOpenProtocol(int target, SBool closed, OBool open) {
-		return new DummyOpenBoolProtocol(closed, open, target);
-	}
-	
-	@Override
-	public AndProtocol getAndProtocol(SBool inLeft, OBool inRight, SBool out) {
-		throw new NotImplementedException();
-	}
 
-	@Override
-	public XorProtocol getXorProtocol(SBool inLeft, OBool inRight, SBool out) {
-		throw new NotImplementedException();
-	}
+  @Override
+  public CloseBoolProtocol getCloseProtocol(int source, OBool open, SBool closed) {
+    return new DummyCloseBoolProtocol(open, closed, source);
+  }
+
+  @Override
+  public OpenBoolProtocol getOpenProtocol(SBool closed, OBool open) {
+    return new DummyOpenBoolProtocol(closed, open);
+  }
+
+  @Override
+  public OpenBoolProtocol getOpenProtocol(int target, SBool closed, OBool open) {
+    return new DummyOpenBoolProtocol(closed, open, target);
+  }
+
+  @Override
+  public AndProtocol getAndProtocol(SBool inLeft, OBool inRight, SBool out) {
+    throw new NotImplementedException();
+  }
+
+  @Override
+  public XorProtocol getXorProtocol(SBool inLeft, OBool inRight, SBool out) {
+    throw new NotImplementedException();
+  }
 
 }

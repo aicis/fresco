@@ -26,89 +26,51 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.helper;
 
-import dk.alexandra.fresco.framework.NativeProtocol;
-import dk.alexandra.fresco.framework.Protocol;
+import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.ProtocolProducer;
-import dk.alexandra.fresco.framework.value.Value;
 
 /**
  * A protocol suited for doing the same simple operation (i.e., operations
  * requiring a very small amount of protocols) many times in parallel.
- * 
+ *
  * The protocol tries to construct as few protocols as possible. I.e., in each
  * invocation of the getNextprotocols method we try to produce only as many protocols as
  * can fit in protocol array.
- * 
+ *
  * This could be a more efficient alternative to the ParallelprotocolProducer.
  * because the protocolProducers to be computed in parallel are generated on the
  * fly.
- * 
+ *
  * @author psn
- * 
  */
-public abstract class AbstractRepeatProtocol implements Protocol {
+public abstract class AbstractRepeatProtocol implements ProtocolProducer {
 
-	private boolean done = false;
-	private Value[] inputs = null;
-	private Value[] outputs = null;
-	private ProtocolProducer current = null;
+  private boolean done = false;
+  private ProtocolProducer current = null;
 
-	@Override
-	public int getNextProtocols(NativeProtocol[] nativeProtocols, int pos) {
-		if (current == null) {
-			current = getNextProtocolProducer();
-		}
-		while (current != null && pos < nativeProtocols.length - 1) {
-			pos = current.getNextProtocols(nativeProtocols, pos);
-			if (!current.hasNextProtocols()) {
-				current = getNextProtocolProducer();
-			}
-		}
-		if (current == null) {
-			done = true;
-		}
-		return pos;
-	}
+  @Override
+  public void getNextProtocols(ProtocolCollection protocolCollection) {
+    if (current == null) {
+      current = getNextProtocolProducer();
+    }
+    while (current != null && protocolCollection.hasFreeCapacity()) {
+      current.getNextProtocols(protocolCollection);
+      if (!current.hasNextProtocols()) {
+        current = getNextProtocolProducer();
+      }
+    }
+    if (current == null) {
+      done = true;
+    }
+  }
 
-	/**
-	 * Generates the next protocolProducer to be evaluated in parallel.
-	 * 
-	 * @return
-	 */
-	protected abstract ProtocolProducer getNextProtocolProducer();
+  /**
+   * Generates the next protocolProducer to be evaluated in parallel.
+   */
+  protected abstract ProtocolProducer getNextProtocolProducer();
 
-	@Override
-	public boolean hasNextProtocols() {
-		return !done;
-	}
-
-	@Override
-	public Value[] getInputValues() {
-		return inputs;
-	}
-
-	@Override
-	public Value[] getOutputValues() {
-		return outputs;
-	}
-
-	/**
-	 * Sets the input values of this protocol.
-	 * 
-	 * @param inputs
-	 *            the input values of the protocol.
-	 */
-	protected void setInputValues(Value[] inputs) {
-		this.inputs = inputs;
-	}
-
-	/**
-	 * Sets the output values of this protocol.
-	 * 
-	 * @param outputs
-	 *            the output values of the protocol.
-	 */
-	protected void setOutputValues(Value[] outputs) {
-		this.outputs = outputs;
-	}
+  @Override
+  public boolean hasNextProtocols() {
+    return !done;
+  }
 }

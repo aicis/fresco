@@ -29,11 +29,11 @@ package dk.alexandra.fresco.lib.math.polynomial.evaluator;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
-import dk.alexandra.fresco.lib.helper.AbstractSimpleProtocol;
+import dk.alexandra.fresco.lib.helper.SimpleProtocolProducer;
 import dk.alexandra.fresco.lib.helper.builder.NumericProtocolBuilder;
 import dk.alexandra.fresco.lib.math.polynomial.Polynomial;
 
-public class PolynomialEvaluatorProtocolImpl extends AbstractSimpleProtocol implements
+public class PolynomialEvaluatorProtocolImpl extends SimpleProtocolProducer implements
 		PolynomialEvaluatorProtocol {
 
 	private final SInt x;

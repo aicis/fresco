@@ -27,64 +27,65 @@
 package dk.alexandra.fresco.demo.inputsum;
 
 import dk.alexandra.fresco.framework.Application;
+import dk.alexandra.fresco.framework.Protocol;
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
+import dk.alexandra.fresco.lib.helper.SingleProtocolProducer;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
 
 /**
  * Tiny application for a two party case which computes the sum of the inputs,
  * and outputs the result.
- * 
+ *
  * @author kasperdamgard
- * 
  */
 public class SumAndOutputApplication implements Application {
 
-	private static final long serialVersionUID = 4556762525827528147L;
-	private InputApplication inputApp;
-	private OInt output;
+  private static final long serialVersionUID = 4556762525827528147L;
+  private InputApplication inputApp;
+  private OInt output;
 
-	public SumAndOutputApplication(InputApplication inputApp) {
-		this.inputApp = inputApp;
-	}
+  public SumAndOutputApplication(InputApplication inputApp) {
+    this.inputApp = inputApp;
+  }
 
-	@Override
-	public ProtocolProducer prepareApplication(ProtocolFactory factory) {
-		ProtocolProducer inputProtocol = inputApp.prepareApplication(factory);
+  @Override
+  public ProtocolProducer prepareApplication(ProtocolFactory factory) {
+    ProtocolProducer inputProtocol = inputApp.prepareApplication(factory);
 
-		SInt[] ssInputs = inputApp.getSecretSharedInput();
+    SInt[] ssInputs = inputApp.getSecretSharedInput();
 
-		BasicNumericFactory fac = (BasicNumericFactory) factory;
+    BasicNumericFactory fac = (BasicNumericFactory) factory;
 
-		// create wire
-		SInt sum = fac.getSInt();
+    // create wire
+    SInt sum = fac.getSInt();
 
-		// create Sequence of protocols which eventually will compute the sum
-		SequentialProtocolProducer sumProtocol = new SequentialProtocolProducer();
+    // create Sequence of protocols which eventually will compute the sum
+    SequentialProtocolProducer sumProtocol = new SequentialProtocolProducer();
 
-		sumProtocol.append(fac.getAddProtocol(ssInputs[0], ssInputs[1], sum));
-		if (ssInputs.length > 2) {
-			for (int i = 2; i < ssInputs.length; i++) {
-				// Add sum and next secret shared input and store in sum.
-				sumProtocol.append(fac.getAddProtocol(sum, ssInputs[i], sum));
-			}
-		}
+    sumProtocol.append(fac.getAddProtocol(ssInputs[0], ssInputs[1], sum));
+    if (ssInputs.length > 2) {
+      for (int i = 2; i < ssInputs.length; i++) {
+        // Add sum and next secret shared input and store in sum.
+        sumProtocol.append(fac.getAddProtocol(sum, ssInputs[i], sum));
+      }
+    }
 
-		// create output wire
-		this.output = fac.getOInt();
-		ProtocolProducer outputProtocol = fac.getOpenProtocol(sum,
-				this.output);
+    // create output wire
+    this.output = fac.getOInt();
+    Protocol outputProtocol = fac.getOpenProtocol(sum,
+        this.output);
 
-		// Connect all protocols into a single protocol
-		ProtocolProducer gp = new SequentialProtocolProducer(inputProtocol,
-				sumProtocol, outputProtocol);
-		return gp;
-	}
+    // Connect all protocols into a single protocol
+    ProtocolProducer gp = new SequentialProtocolProducer(inputProtocol,
+        sumProtocol, SingleProtocolProducer.wrap(outputProtocol));
+    return gp;
+  }
 
-	public OInt getOutput() {
-		return this.output;
-	}
+  public OInt getOutput() {
+    return this.output;
+  }
 }

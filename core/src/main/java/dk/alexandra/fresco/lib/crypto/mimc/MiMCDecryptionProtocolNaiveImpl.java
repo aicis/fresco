@@ -26,15 +26,12 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.crypto.mimc;
 
-import java.math.BigInteger;
-
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.helper.AbstractRoundBasedProtocol;
-import dk.alexandra.fresco.lib.helper.AbstractSimpleProtocol;
-import dk.alexandra.fresco.lib.helper.CopyProtocolImpl;
 import dk.alexandra.fresco.lib.helper.builder.NumericProtocolBuilder;
+import java.math.BigInteger;
 
 public class MiMCDecryptionProtocolNaiveImpl extends AbstractRoundBasedProtocol {
 

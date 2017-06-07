@@ -26,7 +26,6 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.arithmetic;
 
-import dk.alexandra.fresco.framework.Protocol;
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.TestApplication;
@@ -35,7 +34,6 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.collections.LookUpProtocol;
 import dk.alexandra.fresco.lib.collections.LookUpProtocolFactory;
 import dk.alexandra.fresco.lib.collections.LookupProtocolFactoryImpl;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
@@ -51,83 +49,87 @@ import java.util.Random;
 import org.junit.Assert;
 
 public class SearchingTests {
-	
-	public static class TestIsSorted extends TestThreadFactory {
-		@Override
-		public TestThread next(TestThreadConfiguration conf) {
-			return new TestThread() {
-				@Override
-				public void test() throws Exception {
-					final int PAIRS = 10;
-					final int MAXVALUE = 20000;
-					final int NOTFOUND = -1;
-					int[] keys = new int[PAIRS];
-					int[] values = new int[PAIRS];
-					SInt[] sKeys = new SInt[PAIRS];
-					SInt[] sValues = new SInt[PAIRS];
-					TestApplication app = new TestApplication() {
-						private static final long serialVersionUID = 7960372460887688296L;
-																	
-						@Override
-						public ProtocolProducer prepareApplication(
-								ProtocolFactory factory) {
-							BasicNumericFactory bnf = (BasicNumericFactory) factory;
-							SequentialProtocolProducer seq = new SequentialProtocolProducer();
-							Random rand = new Random(0);
-							for (int i = 0; i < PAIRS; i++) {
-								keys[i] = i;
-								sKeys[i] = bnf.getSInt();
-								sValues[i] = bnf.getSInt();
-								seq.append(bnf.getSInt(i, sKeys[i]));
-								values[i] = rand.nextInt(MAXVALUE);
-								seq.append(bnf.getSInt(values[i], sValues[i]));
-							}
-							return seq;
-						}
-					};
+
+  public static class TestIsSorted extends TestThreadFactory {
+
+    @Override
+    public TestThread next(TestThreadConfiguration conf) {
+      return new TestThread() {
+        @Override
+        public void test() throws Exception {
+          final int PAIRS = 10;
+          final int MAXVALUE = 20000;
+          final int NOTFOUND = -1;
+          int[] keys = new int[PAIRS];
+          int[] values = new int[PAIRS];
+          SInt[] sKeys = new SInt[PAIRS];
+          SInt[] sValues = new SInt[PAIRS];
+          TestApplication app = new TestApplication() {
+            private static final long serialVersionUID = 7960372460887688296L;
+
+            @Override
+            public ProtocolProducer prepareApplication(
+                ProtocolFactory factory) {
+              BasicNumericFactory bnf = (BasicNumericFactory) factory;
+              SequentialProtocolProducer seq = new SequentialProtocolProducer();
+              Random rand = new Random(0);
+              for (int i = 0; i < PAIRS; i++) {
+                keys[i] = i;
+                sKeys[i] = bnf.getSInt();
+                sValues[i] = bnf.getSInt();
+                seq.append(bnf.getSInt(i, sKeys[i]));
+                values[i] = rand.nextInt(MAXVALUE);
+                seq.append(bnf.getSInt(values[i], sValues[i]));
+              }
+              return seq;
+            }
+          };
           secureComputationEngine.runApplication(app);
           for (int i = 0; i < PAIRS; i++) {
-						final int counter = i;
-						TestApplication app1 = new TestApplication() {
-							
-							@Override
-							public ProtocolProducer prepareApplication(ProtocolFactory factory) {
-								BasicNumericFactory bnf = (BasicNumericFactory) factory;
-								LocalInversionFactory localInvFactory = (LocalInversionFactory) factory;
-								NumericBitFactory numericBitFactory = (NumericBitFactory) factory;
-								ExpFromOIntFactory expFromOIntFactory = (ExpFromOIntFactory) factory;
-								PreprocessedExpPipeFactory expFactory = (PreprocessedExpPipeFactory) factory;
-								RandomFieldElementFactory randFactory = (RandomFieldElementFactory) factory;
-								LPFactory lpFactory = new LPFactoryImpl(80, bnf, localInvFactory, numericBitFactory, expFromOIntFactory, expFactory, randFactory);
-								LookUpProtocolFactory<SInt> lpf = new LookupProtocolFactoryImpl(80, lpFactory, bnf);
-								SInt sOut = bnf.getSInt(NOTFOUND);																
-								LookUpProtocol<SInt> luc = lpf
-										.getLookUpProtocol(sKeys[counter], sKeys, sValues,
-												sOut);
-								OInt out = bnf.getOInt();
-								Protocol p = bnf.getOpenProtocol(sOut, out);
-								this.outputs = new OInt[] {out};
-								return new SequentialProtocolProducer(luc, p);
-							}
-						};
+            final int counter = i;
+            TestApplication app1 = new TestApplication() {
+
+              @Override
+              public ProtocolProducer prepareApplication(ProtocolFactory factory) {
+                BasicNumericFactory bnf = (BasicNumericFactory) factory;
+                LocalInversionFactory localInvFactory = (LocalInversionFactory) factory;
+                NumericBitFactory numericBitFactory = (NumericBitFactory) factory;
+                ExpFromOIntFactory expFromOIntFactory = (ExpFromOIntFactory) factory;
+                PreprocessedExpPipeFactory expFactory = (PreprocessedExpPipeFactory) factory;
+                RandomFieldElementFactory randFactory = (RandomFieldElementFactory) factory;
+                LPFactory lpFactory = new LPFactoryImpl(80, bnf, localInvFactory, numericBitFactory,
+                    expFromOIntFactory, expFactory, randFactory);
+                LookUpProtocolFactory<SInt> lpf = new LookupProtocolFactoryImpl(80, lpFactory, bnf);
+                SInt sOut = bnf.getSInt(NOTFOUND);
+                SequentialProtocolProducer sequentialProtocolProducer = new SequentialProtocolProducer();
+
+                sequentialProtocolProducer.append(lpf
+                    .getLookUpProtocol(sKeys[counter], sKeys, sValues,
+                        sOut));
+                OInt out = bnf.getOInt();
+                sequentialProtocolProducer.append(bnf.getOpenProtocol(sOut, out));
+                this.outputs = new OInt[]{out};
+                return sequentialProtocolProducer;
+              }
+            };
 
             secureComputationEngine.runApplication(app1);
 
-						Assert.assertEquals(values[i], app1.outputs[0].getValue()
-								.intValue());
-					}
-				}
-			};	
-		}
-	}
+            Assert.assertEquals(values[i], app1.outputs[0].getValue()
+                .intValue());
+          }
+        }
+      };
+    }
+  }
 
-	/**
-	 * Tests that looking up keys that are present in the key/value pairs works
-	 * also when the value is a list of values.
-	 * 
-	 * @throws Exception
-	 */
-	/*
+  /**
+   * Tests that looking up keys that are present in the key/value pairs works
+   * also when the value is a list of values.
+   *
+   * @throws Exception
+   */
+  /*
   @Test
 	public void testCorrectLookUpArray() throws Exception {
 		TestThreadRunner.run(new TestThreadFactory() {
@@ -180,13 +182,13 @@ public class SearchingTests {
 		}, 2);
 	}
 */
-	/**
-	 * Tests that looking up keys that are not present in the key/value pairs
-	 * works also when the value is a list of values.
-	 * 
-	 * @throws Exception
-	 */
-	/*
+  /**
+   * Tests that looking up keys that are not present in the key/value pairs
+   * works also when the value is a list of values.
+   *
+   * @throws Exception
+   */
+  /*
   @Test
 	public void testIncorrectLookUpArray() throws Exception {
 		TestThreadRunner.run(new TestThreadFactory() {
@@ -241,13 +243,13 @@ public class SearchingTests {
 		}, 2);
 	}
 */
-	/**
-	 * Tests that looking up keys that are not present in the key/value pairs
-	 * works
-	 * 
-	 * @throws Exception
-	 */
-	/*
+  /**
+   * Tests that looking up keys that are not present in the key/value pairs
+   * works
+   *
+   * @throws Exception
+   */
+  /*
   @Test
 	public void testIncorrectLookUp() throws Exception {
 		TestThreadRunner.run(new TestThreadFactory() {

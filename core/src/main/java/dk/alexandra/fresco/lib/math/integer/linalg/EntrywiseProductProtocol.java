@@ -26,13 +26,12 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.math.integer.linalg;
 
-import dk.alexandra.fresco.framework.Protocol;
+import dk.alexandra.fresco.framework.ProtocolProducer;
 
 /**
  * Will multiply each entry of the same position and return an array with the result. i.e.
  * if a = [a1, a2, ..., an], b = [b1, b2, ..., bn], then the result c = [a1*b1, a2*b2, ...,an*bn]
- *
  */
-public interface EntrywiseProductProtocol extends Protocol{
+public interface EntrywiseProductProtocol extends ProtocolProducer {
 
 }

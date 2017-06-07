@@ -26,67 +26,52 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.math.bool.add;
 
-import dk.alexandra.fresco.framework.NativeProtocol;
+import dk.alexandra.fresco.framework.ProtocolCollection;
+import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.SBool;
-import dk.alexandra.fresco.framework.value.Value;
-import dk.alexandra.fresco.lib.field.bool.AndProtocol;
 import dk.alexandra.fresco.lib.field.bool.BasicLogicFactory;
 import dk.alexandra.fresco.lib.field.bool.XorProtocol;
 import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
 
-public class OneBitHalfAdderProtocolImpl implements OneBitHalfAdderProtocol{
+public class OneBitHalfAdderProtocolImpl implements OneBitHalfAdderProtocol {
 
-	private SBool left, right, outS;
-	private SBool outCarry;
-	private BasicLogicFactory factory;
-	private int round;
-	private ParallelProtocolProducer curPP;
-	
-	public OneBitHalfAdderProtocolImpl(SBool left, SBool right, SBool outS,
-			SBool outCarry, BasicLogicFactory factory) {
-		this.left = left;
-		this.right = right;
-		this.outS = outS;
-		this.outCarry = outCarry;
-		this.factory = factory;
-		this.round = 0;
-		this.curPP = null;
-	}
+  private SBool left, right, outS;
+  private SBool outCarry;
+  private BasicLogicFactory factory;
+  private int round;
+  private ParallelProtocolProducer curPP;
 
-	@Override
-	public int getNextProtocols(NativeProtocol[] nativeProtocols, int pos) {
-		if(round == 0){
-			if(curPP == null){
-				XorProtocol xor = factory.getXorProtocol(left, right, outS);
-				AndProtocol and = factory.getAndProtocol(left, right, outCarry);
-				curPP = new ParallelProtocolProducer(xor, and);
-			}
-			if(curPP.hasNextProtocols()){
-				pos = curPP.getNextProtocols(nativeProtocols, pos);
-			}
-			else if(!curPP.hasNextProtocols()){
-				curPP = null;
-				round++;
-			}
-		}
-		return pos;
-	}
+  public OneBitHalfAdderProtocolImpl(SBool left, SBool right, SBool outS,
+      SBool outCarry, BasicLogicFactory factory) {
+    this.left = left;
+    this.right = right;
+    this.outS = outS;
+    this.outCarry = outCarry;
+    this.factory = factory;
+    this.round = 0;
+    this.curPP = null;
+  }
 
-	@Override
-	public boolean hasNextProtocols() {
-		return round < 1;
-	}
-	
-	@Override
-	public Value[] getInputValues() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+  @Override
+  public void getNextProtocols(ProtocolCollection protocolCollection) {
+    if (round == 0) {
+      if (curPP == null) {
+        XorProtocol xor = factory.getXorProtocol(left, right, outS);
+        ProtocolProducer and = factory.getAndProtocol(left, right, outCarry);
+        curPP = new ParallelProtocolProducer(xor);
+        curPP.append(and);
+      }
+      if (curPP.hasNextProtocols()) {
+        curPP.getNextProtocols(protocolCollection);
+      } else if (!curPP.hasNextProtocols()) {
+        curPP = null;
+        round++;
+      }
+    }
+  }
 
-	@Override
-	public Value[] getOutputValues() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
+  @Override
+  public boolean hasNextProtocols() {
+    return round < 1;
+  }
 }

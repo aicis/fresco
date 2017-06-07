@@ -26,40 +26,27 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.helper;
 
-import dk.alexandra.fresco.framework.NativeProtocol;
+import dk.alexandra.fresco.framework.network.SCENetwork;
+import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.Value;
 
 public class CopyProtocolImpl<T extends Value> implements CopyProtocol<T> {
 
-	private T toCopy, into;
-	private boolean done = false;
-	
-	public CopyProtocolImpl(T toCopy, T into) {
-		this.toCopy = toCopy;
-		this.into = into;
-	}
+  private T toCopy, into;
 
-	@Override
-	public Value[] getInputValues() {
-		return new Value[] {toCopy};
-	}
+  public CopyProtocolImpl(T toCopy, T into) {
+    this.toCopy = toCopy;
+    this.into = into;
+  }
 
-	@Override
-	public Value[] getOutputValues() {
-		return new Value[] {into};
-	}
+  @Override
+  public T getOutputValues() {
+    return into;
+  }
 
-	@Override
-	public int getNextProtocols(NativeProtocol[] protocols, int pos) {
-		into.setSerializableContent(this.toCopy.getSerializableContent());
-		done = true;
-		return pos;
-	}
-
-	@Override
-	public boolean hasNextProtocols() {
-		return !done;
-	}
-	
-	
+  @Override
+  public EvaluationStatus evaluate(int round, ResourcePool resourcePool, SCENetwork network) {
+    into.setSerializableContent(this.toCopy.getSerializableContent());
+    return EvaluationStatus.IS_DONE;
+  }
 }

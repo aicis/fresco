@@ -26,6 +26,10 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.statistics;
 
+import dk.alexandra.fresco.framework.ProtocolCollection;
+import dk.alexandra.fresco.framework.ProtocolProducer;
+import dk.alexandra.fresco.framework.value.SInt;
+import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
 import java.util.ArrayList;
 import java.util.List;
 import org.hamcrest.core.Is;
@@ -33,11 +37,6 @@ import org.hamcrest.core.IsCollectionContaining;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-
-import dk.alexandra.fresco.framework.NativeProtocol;
-import dk.alexandra.fresco.framework.ProtocolProducer;
-import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
 
 public class TestDEAPrefixBuilderMaximize {
 
@@ -173,19 +172,17 @@ public class TestDEAPrefixBuilderMaximize {
   private class DummyProducer implements ProtocolProducer {
 
     private final String name;
-    
-    public DummyProducer(String name) {
+
+    DummyProducer(String name) {
       this.name = name;
     }
-    
-    public String getName() {
+
+    String getName() {
       return name;
     }
     
     @Override
-    public int getNextProtocols(NativeProtocol[] protocols, int pos) {
-      // TODO Auto-generated method stub
-      return 0;
+    public void getNextProtocols(ProtocolCollection protocolCollection) {
     }
 
     @Override
@@ -199,7 +196,8 @@ public class TestDEAPrefixBuilderMaximize {
     
   @SuppressWarnings("serial")
   private class DummySInt implements SInt{
-    public DummySInt() {
+
+    DummySInt() {
       
     }
 

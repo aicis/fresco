@@ -30,8 +30,8 @@ import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
-import dk.alexandra.fresco.lib.helper.AbstractSimpleProtocol;
 import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
+import dk.alexandra.fresco.lib.helper.SimpleProtocolProducer;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
 import dk.alexandra.fresco.lib.math.integer.NumericBitFactory;
 import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductFactory;
@@ -42,8 +42,8 @@ import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductFactory;
  * @author ttoft
  *
  */
-public class RandomAdditiveMaskProtocolImpl extends AbstractSimpleProtocol implements
-		RandomAdditiveMaskProtocol {
+public class RandomAdditiveMaskProtocolImpl extends SimpleProtocolProducer implements
+    RandomAdditiveMaskProtocol {
 
 	private final int bitLength;
 	private final int securityParameter;

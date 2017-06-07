@@ -26,17 +26,14 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.compare;
 
-import java.util.Arrays;
-
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.SBool;
-import dk.alexandra.fresco.framework.value.Value;
-import dk.alexandra.fresco.lib.helper.AbstractSimpleProtocol;
+import dk.alexandra.fresco.lib.helper.SimpleProtocolProducer;
 import dk.alexandra.fresco.lib.helper.builder.BasicLogicBuilder;
 import dk.alexandra.fresco.lib.logic.AbstractBinaryFactory;
 
-public class CompareAndSwapProtocolImpl extends AbstractSimpleProtocol implements
-		CompareAndSwapProtocol {
+public class CompareAndSwapProtocolImpl extends SimpleProtocolProducer implements
+    CompareAndSwapProtocol {
 
 	private SBool[] left;
 	private SBool[] right;
@@ -47,10 +44,6 @@ public class CompareAndSwapProtocolImpl extends AbstractSimpleProtocol implement
 		this.bp = bp;
 		this.left = left;
 		this.right = right;
-		Value[] values = Arrays.copyOf(left, left.length + right.length);
-		System.arraycopy(right, 0, values, left.length, right.length);
-		setInputValues(values);
-		setOutputValues(values);
 	}
 
 	@Override

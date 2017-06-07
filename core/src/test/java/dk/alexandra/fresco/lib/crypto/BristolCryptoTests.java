@@ -29,6 +29,7 @@ package dk.alexandra.fresco.lib.crypto;
 import static org.junit.Assert.assertTrue;
 
 import dk.alexandra.fresco.framework.Application;
+import dk.alexandra.fresco.framework.Protocol;
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
@@ -133,7 +134,7 @@ public class BristolCryptoTests {
               // Create circuits for opening result of AES.
               openedCipher = builder.output(cipher);
 
-              return new SequentialProtocolProducer(builder.getProtocol());
+              return builder.getProtocol();
             }
           };
 
@@ -150,7 +151,7 @@ public class BristolCryptoTests {
           //					System.out.println("EXPECTED  : " + Arrays.toString(expected));
           //					System.out.println("ACTUAL OPN: " + Arrays.toString(actual));
 
-          Assert.assertTrue(Arrays.equals(expected, actual));
+          Assert.assertArrayEquals(expected, actual);
         }
       };
     }
@@ -202,7 +203,7 @@ public class BristolCryptoTests {
               BristolCircuit aes = sha1Fac.getSha1Circuit(in, out);
 
               // Create circuits for opening result of AES.
-              ProtocolProducer[] opens = new ProtocolProducer[out.length];
+              Protocol[] opens = new Protocol[out.length];
               openedOut = new OBool[out.length];
               for (int i = 0; i < out.length; i++) {
                 openedOut[i] = bool.getOBool();
@@ -280,7 +281,7 @@ public class BristolCryptoTests {
               BristolCircuit sha256 = sha256Fac.getSha256Circuit(in, out);
 
               // Create circuits for opening result of SHA 256.
-              ProtocolProducer[] opens = new ProtocolProducer[out.length];
+              Protocol[] opens = new Protocol[out.length];
               openedOut = new OBool[out.length];
               for (int i = 0; i < out.length; i++) {
                 openedOut[i] = bool.getOBool();
@@ -358,7 +359,7 @@ public class BristolCryptoTests {
               BristolCircuit md5 = md5Fac.getMD5Circuit(in, out);
 
               // Create circuits for opening result of MD5.
-              ProtocolProducer[] opens = new ProtocolProducer[out.length];
+              Protocol[] opens = new Protocol[out.length];
               openedOut = new OBool[out.length];
               for (int i = 0; i < out.length; i++) {
                 openedOut[i] = bool.getOBool();
@@ -427,7 +428,7 @@ public class BristolCryptoTests {
               BristolCircuit mult = multFac.getMult32x32Circuit(in1, in2, out);
 
               // Create circuits for opening result of 32x32 bit mult.
-              ProtocolProducer[] opens = new ProtocolProducer[out.length];
+              Protocol[] opens = new Protocol[out.length];
               openedOut = new OBool[out.length];
               for (int i = 0; i < out.length; i++) {
                 openedOut[i] = bool.getOBool();
@@ -498,7 +499,7 @@ public class BristolCryptoTests {
               BristolCircuit des = desFac.getDesCircuit(plain, key, cipher);
 
               // Create circuits for opening result of DES.
-              ProtocolProducer[] opens = new ProtocolProducer[cipher.length];
+              Protocol[] opens = new Protocol[cipher.length];
               openedOut = new OBool[cipher.length];
               for (int i = 0; i < cipher.length; i++) {
                 openedOut[i] = bool.getOBool();

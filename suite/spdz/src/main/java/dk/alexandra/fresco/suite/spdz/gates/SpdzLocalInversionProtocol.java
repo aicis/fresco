@@ -50,11 +50,6 @@ public class SpdzLocalInversionProtocol extends SpdzNativeProtocol implements
 	}
 
 	@Override
-	public Value[] getInputValues() {
-		return new Value[] { in };
-	}
-
-	@Override
 	public Value[] getOutputValues() {
 		return new Value[] { out };
 	}

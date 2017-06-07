@@ -68,11 +68,6 @@ public class TinyTablesOpenToAllProtocol extends TinyTablesProtocol implements O
 	}
 
 	@Override
-	public Value[] getInputValues() {
-		return new Value[] { toOpen };
-	}
-
-	@Override
 	public Value[] getOutputValues() {
 		return new Value[] { opened };
 	}

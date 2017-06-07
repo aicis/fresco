@@ -26,8 +26,8 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.math.integer;
 
-import dk.alexandra.fresco.framework.Protocol;
+import dk.alexandra.fresco.framework.ProtocolProducer;
 
-public interface HammingDistanceProtocol  extends Protocol {
+public interface HammingDistanceProtocol extends ProtocolProducer {
 
 }

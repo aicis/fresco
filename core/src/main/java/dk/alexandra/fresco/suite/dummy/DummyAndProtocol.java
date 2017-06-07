@@ -29,41 +29,34 @@ package dk.alexandra.fresco.suite.dummy;
 import dk.alexandra.fresco.framework.network.SCENetwork;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SBool;
-import dk.alexandra.fresco.framework.value.Value;
-import dk.alexandra.fresco.lib.field.bool.AndProtocol;
 
 
-public class DummyAndProtocol extends DummyProtocol implements AndProtocol {
+public class DummyAndProtocol extends DummyProtocol {
 
-	private DummySBool inLeft;
-	private DummySBool inRight;
-	private DummySBool out;
+  private DummySBool inLeft;
+  private DummySBool inRight;
+  private DummySBool out;
 
-	public DummyAndProtocol(SBool inLeft, SBool inRight, SBool out) {
-		this.inLeft = (DummySBool)inLeft;
-		this.inRight = (DummySBool)inRight;
-		this.out = (DummySBool)out;
-	}
+  public DummyAndProtocol(SBool inLeft, SBool inRight, SBool out) {
+    this.inLeft = (DummySBool) inLeft;
+    this.inRight = (DummySBool) inRight;
+    this.out = (DummySBool) out;
+  }
 
-	@Override
-	public String toString() {
-		return "DummyAndGate(" + inLeft + "," + inRight + "," + out + ")";
-	}
+  @Override
+  public String toString() {
+    return "DummyAndGate(" + inLeft + "," + inRight + "," + out + ")";
+  }
 
-	@Override
-	public Value[] getInputValues() {
-		return new Value[]{inLeft, inRight};
-	}
+  @Override
+  public SBool getOutputValues() {
+    return out;
+  }
 
-	@Override
-	public Value[] getOutputValues() {
-		return new Value[]{out};
-	}
-
-	@Override
-	public EvaluationStatus evaluate(int round, ResourcePool resourcePool,
-			SCENetwork network) {
-		this.out.setValue(this.inLeft.getValue() & this.inRight.getValue());
-		return EvaluationStatus.IS_DONE;
-	}
+  @Override
+  public EvaluationStatus evaluate(int round, ResourcePool resourcePool,
+      SCENetwork network) {
+    this.out.setValue(this.inLeft.getValue() & this.inRight.getValue());
+    return EvaluationStatus.IS_DONE;
+  }
 }

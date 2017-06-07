@@ -31,29 +31,26 @@ import dk.alexandra.fresco.framework.ProtocolProducer;
 /**
  * Generates the nodes of computation for a TreeProtocol. A node should do some
  * operation on two elements specified by two indices into some underlying list.
- * 
+ *
  * @author psn
- * 
  */
 public interface TreeProtocolNodeGenerator {
 
-	/**
-	 * Generates a node of computation for a TreeProtocol.
-	 * 
-	 * @param i
-	 *            index of the first input, this element is assumed to be
-	 *            overwritten by the result of the computation.
-	 * @param j
-	 *            index of the second input.
-	 * @return a protocol defining the computation of a node.
-	 */
-	public ProtocolProducer getNode(int i, int j);
+  /**
+   * Generates a node of computation for a TreeProtocol.
+   *
+   * @param i index of the first input, this element is assumed to be overwritten by the result of
+   * the computation.
+   * @param j index of the second input.
+   * @return a protocol defining the computation of a node.
+   */
+  ProtocolProducer getNode(int i, int j);
 
-	/**
-	 * Gives the length of the underlying list.
-	 * 
-	 * @return the length of the underlying list.
-	 */
-	public int getLength();
+  /**
+   * Gives the length of the underlying list.
+   *
+   * @return the length of the underlying list.
+   */
+  int getLength();
 
 }

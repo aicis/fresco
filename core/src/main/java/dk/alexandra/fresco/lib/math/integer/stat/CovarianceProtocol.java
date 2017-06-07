@@ -26,11 +26,11 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.math.integer.stat;
 
-import dk.alexandra.fresco.framework.Protocol;
+import dk.alexandra.fresco.framework.ProtocolProducer;
 
 /**
  * This protocol calculates an approximation of the variance of a given data set.
  */
-public interface CovarianceProtocol extends Protocol {
+public interface CovarianceProtocol extends ProtocolProducer {
 
 }

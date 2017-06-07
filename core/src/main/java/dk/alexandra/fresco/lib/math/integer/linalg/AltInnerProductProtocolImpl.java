@@ -27,15 +27,16 @@
 package dk.alexandra.fresco.lib.math.integer.linalg;
 
 import dk.alexandra.fresco.framework.MPCException;
+import dk.alexandra.fresco.framework.Protocol;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
-import dk.alexandra.fresco.lib.helper.AbstractSimpleProtocol;
 import dk.alexandra.fresco.lib.helper.CopyProtocolFactory;
+import dk.alexandra.fresco.lib.helper.SimpleProtocolProducer;
 import dk.alexandra.fresco.lib.helper.builder.NumericProtocolBuilder;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
 
-public class AltInnerProductProtocolImpl extends AbstractSimpleProtocol implements
+public class AltInnerProductProtocolImpl extends SimpleProtocolProducer implements
 		InnerProductProtocol {
 
 	private final SInt[] aVector;
@@ -64,7 +65,7 @@ public class AltInnerProductProtocolImpl extends AbstractSimpleProtocol implemen
 		for (int i = 1; i < directProduct.length; i++) {
 			innerproduct = ncb.add(innerproduct, directProduct[i]);
 		}
-		ProtocolProducer copyResult = copyFactory.getCopyProtocol(innerproduct, this.result);
+		Protocol copyResult = copyFactory.getCopyProtocol(innerproduct, this.result);
 		return new SequentialProtocolProducer(ncb.getProtocol(), copyResult);
 	}
 }

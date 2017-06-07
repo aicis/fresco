@@ -120,12 +120,6 @@ public class SpdzInputProtocol extends SpdzNativeProtocol implements CloseIntPro
 	}
 
 	@Override
-	public Value[] getInputValues() {
-		// No point in getting input from an input gate...
-		return null;
-	}
-
-	@Override
 	public Value[] getOutputValues() {
 		return new Value[] { out };
 	}

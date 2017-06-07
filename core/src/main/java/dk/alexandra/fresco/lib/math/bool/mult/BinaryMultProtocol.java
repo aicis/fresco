@@ -26,8 +26,8 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.math.bool.mult;
 
-import dk.alexandra.fresco.framework.Protocol;
+import dk.alexandra.fresco.framework.ProtocolProducer;
 
-public interface BinaryMultProtocol extends Protocol{
+public interface BinaryMultProtocol extends ProtocolProducer {
 
 }

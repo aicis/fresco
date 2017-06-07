@@ -26,37 +26,35 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.helper;
 
-import java.util.LinkedList;
-import java.util.List;
-
+import dk.alexandra.fresco.framework.Protocol;
 import dk.alexandra.fresco.framework.ProtocolProducer;
+import java.util.List;
 
 /**
  * ProtocolProducers that can have other Protocolproducers appended to them
- * 
- * @author psn
  *
+ * @author psn
  */
 public interface AppendableProtocolProducer extends ProtocolProducer {
 
-	/**
-	 * Appends a ProtocolProducer to this ProtocolProducer. The exact meaning of
-	 * appending a ProtocolProducer is dependent is defined by this ProtocolProducer.
-	 * However, as a minimum calling nextProtocols on this ProtocolProducer should
-	 * eventually produce the Protocols of the appended ProtocolProducer.
-	 * 
-	 * @param gp
-	 */
-	public void append(ProtocolProducer gp);
+  /**
+   * Appends a ProtocolProducer to this ProtocolProducer. The exact meaning of
+   * appending a ProtocolProducer is dependent is defined by this ProtocolProducer.
+   * However, as a minimum calling nextProtocols on this ProtocolProducer should
+   * eventually produce the Protocols of the appended ProtocolProducer.
+   *
+   * @param protocolProducer the protocol producer to append
+   */
+  void append(ProtocolProducer protocolProducer);
 
-	public LinkedList<ProtocolProducer> merge();
+  void append(Protocol gp);
 
-	/**
-	 * Returns the next level represented by a list of Protocolproducers (most often
-	 * the Protocolproducers internal list)
-	 * 
-	 * @return
-	 */
-	public List<ProtocolProducer> getNextProtocolProducerLevel();
+  /**
+   * Returns the next level represented by a list of Protocolproducers (most often
+   * the Protocol producers internal list)
+   *
+   * @return the
+   */
+  List<ProtocolProducer> getNextProtocolProducerLevel();
 
 }

@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -26,20 +26,19 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.lp;
 
-import dk.alexandra.fresco.framework.NativeProtocol;
-import dk.alexandra.fresco.framework.Protocol;
+import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.framework.value.Value;
 import dk.alexandra.fresco.lib.debug.MarkerProtocolImpl;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.field.integer.OpenIntProtocol;
 import dk.alexandra.fresco.lib.field.integer.generic.IOIntProtocolFactory;
 import dk.alexandra.fresco.lib.helper.AlgebraUtil;
 import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
+import dk.alexandra.fresco.lib.helper.SingleProtocolProducer;
 
-public class OpenAndPrintProtocol implements Protocol {
+public class OpenAndPrintProtocol implements ProtocolProducer {
 
   private SInt number = null;
   private SInt[] vector = null;
@@ -79,24 +78,12 @@ public class OpenAndPrintProtocol implements Protocol {
   }
 
   @Override
-  public Value[] getInputValues() {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-  @Override
-  public Value[] getOutputValues() {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-  @Override
-  public int getNextProtocols(NativeProtocol[] nativeProtocols, int pos) {
+  public void getNextProtocols(ProtocolCollection protocolCollection) {
     if (pp == null) {
       if (state == STATE.OUTPUT) {
         if (number != null) {
           oNumber = factory.getOInt();
-          pp = factory.getOpenProtocol(number, oNumber);
+          pp = SingleProtocolProducer.wrap(factory.getOpenProtocol(number, oNumber));
         } else if (vector != null) {
           oVector = AlgebraUtil.oIntFill(new OInt[vector.length], factory);
           pp = makeOpenProtocol(vector, oVector, factory);
@@ -127,7 +114,7 @@ public class OpenAndPrintProtocol implements Protocol {
       }
     }
     if (pp.hasNextProtocols()) {
-      pos = pp.getNextProtocols(nativeProtocols, pos);
+      pp.getNextProtocols(protocolCollection);
     } else if (!pp.hasNextProtocols()) {
       switch (state) {
         case OUTPUT:
@@ -142,7 +129,6 @@ public class OpenAndPrintProtocol implements Protocol {
           break;
       }
     }
-    return pos;
   }
 
   ProtocolProducer makeOpenProtocol(SInt[][] closed, OInt[][] open, IOIntProtocolFactory factory) {
@@ -157,6 +143,7 @@ public class OpenAndPrintProtocol implements Protocol {
     return new ParallelProtocolProducer(openings);
   }
 
+
   ProtocolProducer makeOpenProtocol(SInt[] closed, OInt[] open, IOIntProtocolFactory factory) {
     if (open.length != closed.length) {
       throw new IllegalArgumentException("Amount of closed and open integers does not match. " +
@@ -168,7 +155,6 @@ public class OpenAndPrintProtocol implements Protocol {
     }
     return new ParallelProtocolProducer(openings);
   }
-
 
   @Override
   public boolean hasNextProtocols() {

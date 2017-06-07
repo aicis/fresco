@@ -26,16 +26,15 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.math.integer.binary;
 
-import java.math.BigInteger;
-
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.conversion.IntegerToBitsFactory;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
-import dk.alexandra.fresco.lib.helper.AbstractSimpleProtocol;
+import dk.alexandra.fresco.lib.helper.SimpleProtocolProducer;
 import dk.alexandra.fresco.lib.helper.builder.NumericProtocolBuilder;
+import java.math.BigInteger;
 
-public class BitLengthProtocolImpl extends AbstractSimpleProtocol implements BitLengthProtocol {
+public class BitLengthProtocolImpl extends SimpleProtocolProducer implements BitLengthProtocol {
 
 	private SInt input;
 	private SInt result;

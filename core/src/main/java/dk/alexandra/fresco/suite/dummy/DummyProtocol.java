@@ -26,9 +26,9 @@
  *******************************************************************************/
 package dk.alexandra.fresco.suite.dummy;
 
-import dk.alexandra.fresco.lib.helper.HalfCookedNativeProtocol;
+import dk.alexandra.fresco.framework.Protocol;
 
-public abstract class DummyProtocol extends HalfCookedNativeProtocol {
+public abstract class DummyProtocol implements Protocol {
 
-	
+
 }

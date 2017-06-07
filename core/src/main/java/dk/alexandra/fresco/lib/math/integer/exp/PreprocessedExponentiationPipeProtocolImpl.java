@@ -29,11 +29,12 @@ package dk.alexandra.fresco.lib.math.integer.exp;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.framework.value.Value;
-import dk.alexandra.fresco.lib.helper.AbstractSimpleProtocol;
 import dk.alexandra.fresco.lib.helper.CopyProtocolImpl;
 import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
+import dk.alexandra.fresco.lib.helper.SimpleProtocolProducer;
 
-public class PreprocessedExponentiationPipeProtocolImpl extends AbstractSimpleProtocol implements ExponentiationPipeProtocol{
+public class PreprocessedExponentiationPipeProtocolImpl extends SimpleProtocolProducer implements
+		ExponentiationPipeProtocol {
 
 	private SInt[] expPipe;
 	private PreprocessedExpPipeFactory preproExpPipeFactory;

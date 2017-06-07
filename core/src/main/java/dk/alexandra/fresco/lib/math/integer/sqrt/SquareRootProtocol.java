@@ -26,11 +26,11 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.math.integer.sqrt;
 
-import dk.alexandra.fresco.framework.Protocol;
+import dk.alexandra.fresco.framework.ProtocolProducer;
 
 /**
  * This protocol will return an approximation of the square root of the input.
  */
-public interface SquareRootProtocol extends Protocol {
+public interface SquareRootProtocol extends ProtocolProducer {
 
 }

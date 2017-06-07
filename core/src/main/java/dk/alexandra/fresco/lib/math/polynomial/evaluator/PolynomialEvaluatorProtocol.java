@@ -26,8 +26,8 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.math.polynomial.evaluator;
 
-import dk.alexandra.fresco.framework.Protocol;
+import dk.alexandra.fresco.framework.ProtocolProducer;
 
-public interface PolynomialEvaluatorProtocol extends Protocol {
-	
+public interface PolynomialEvaluatorProtocol extends ProtocolProducer {
+
 }

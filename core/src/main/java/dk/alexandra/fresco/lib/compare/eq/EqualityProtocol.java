@@ -29,12 +29,12 @@
  */
 package dk.alexandra.fresco.lib.compare.eq;
 
-import dk.alexandra.fresco.framework.Protocol;
+import dk.alexandra.fresco.framework.ProtocolProducer;
 
 /**
  * @author ttoft
  *
  */
-public interface EqualityProtocol extends Protocol {
+public interface EqualityProtocol extends ProtocolProducer {
 
 }

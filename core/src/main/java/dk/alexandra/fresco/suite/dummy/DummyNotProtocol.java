@@ -55,11 +55,6 @@ public class DummyNotProtocol extends DummyProtocol implements NotProtocol {
 	}
 
 	@Override
-	public Value[] getInputValues() {
-		return new Value[] {this.input};
-	}
-
-	@Override
 	public Value[] getOutputValues() {
 		return new Value[] {this.output};
 	}

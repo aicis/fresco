@@ -11,10 +11,6 @@ target/
 
 ./lpinputs/
 ./triples/
-/spdz/
-
-/tinytables/*
-
 # OS X meta files
 .DS_Store
 

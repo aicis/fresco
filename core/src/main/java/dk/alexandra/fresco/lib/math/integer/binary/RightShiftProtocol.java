@@ -26,11 +26,11 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.math.integer.binary;
 
-import dk.alexandra.fresco.framework.Protocol;
+import dk.alexandra.fresco.framework.ProtocolProducer;
 
 /**
  * This protocol will return the binary right shift of the given input.
  */
-public interface RightShiftProtocol extends Protocol{
+public interface RightShiftProtocol extends ProtocolProducer {
 
 }

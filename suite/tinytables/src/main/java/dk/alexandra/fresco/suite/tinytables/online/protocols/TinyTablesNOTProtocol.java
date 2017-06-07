@@ -63,11 +63,6 @@ public class TinyTablesNOTProtocol extends TinyTablesProtocol implements NotProt
 	}
 
 	@Override
-	public Value[] getInputValues() {
-		return new Value[] { in };
-	}
-
-	@Override
 	public Value[] getOutputValues() {
 		return new Value[] { out };
 	}

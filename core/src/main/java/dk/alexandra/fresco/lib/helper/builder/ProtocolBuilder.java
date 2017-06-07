@@ -59,36 +59,36 @@ public interface ProtocolBuilder {
 	 * given to this ProtocolBuilder can be done in parallel.
 	 * Note: One should be careful and remember to close scopes
 	 */
-	public abstract void beginParScope();
+	void beginParScope();
 
 	/**
 	 * Starts a sequential scope. I.e. Specifies that the following instructions 
 	 * given to this ProtocolBuilder must not be done in sequence.
 	 * Note: One should be careful and remember to close scopes
 	 */
-	public abstract void beginSeqScope();
+	void beginSeqScope();
 
 	/**
 	 * Ends the current scope returning to the previous scope.
 	 * Note: One should be careful and remember to close scopes and not close to many scopes
 	 */
-	public abstract void endCurScope();
+	void endCurScope();
 	
 	/**
 	 * Adds a ProtocolProducer to the Protocol being build. This to allow adding Protocols that cannot be created with 
 	 * this ProtocolBuilder.
 	 * @param pp a ProtocolProducer  
 	 */
-	public abstract void addProtocolProducer(ProtocolProducer pp);
+	void addProtocolProducer(ProtocolProducer pp);
 
 	/**
 	 * Gets the ProtocolProducer corresponding the entire Protocol build by this ProtocolBuilder.
 	 * @return a ProtocolProducer corresponding to the Protocol build.
 	 */
-	public abstract ProtocolProducer getProtocol();
+	ProtocolProducer getProtocol();
 
 	/**
 	 * Resets the current builder - meaning this can be treated as a new instance again.
 	 */
-	public abstract void reset();
+	void reset();
 }

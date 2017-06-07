@@ -27,7 +27,8 @@
 package dk.alexandra.fresco.suite.spdz.evaluation.strategy;
 
 import dk.alexandra.fresco.framework.MPCException;
-import dk.alexandra.fresco.framework.NativeProtocol;
+import dk.alexandra.fresco.framework.Protocol;
+import dk.alexandra.fresco.framework.ProtocolCollectionLinkedList;
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.Reporter;
 import dk.alexandra.fresco.framework.network.SCENetwork;
@@ -217,13 +218,14 @@ public class SpdzProtocolSuite implements ProtocolSuite {
         commitments);
 
     int batchSize = 128;
-    NativeProtocol[] nextProtocols = new NativeProtocol[batchSize];
 
     do {
-      int numOfProtocolsInBatch = macCheck.getNextProtocols(nextProtocols, 0);
+      ProtocolCollectionLinkedList protocolCollectionLinkedList =
+          new ProtocolCollectionLinkedList(batchSize);
+      macCheck.getNextProtocols(protocolCollectionLinkedList);
 
       BatchedStrategy.processBatch(
-          nextProtocols, numOfProtocolsInBatch, sceNetworks, 0, resourcePool);
+          protocolCollectionLinkedList.getProtocols(), sceNetworks, 0, resourcePool);
     } while (macCheck.hasNextProtocols());
 
     //reset boolean value
@@ -273,16 +275,16 @@ public class SpdzProtocolSuite implements ProtocolSuite {
       if (outputProtocolInBatch) {
 
         if (!commitDone) {
-          NativeProtocol.EvaluationStatus evaluate = commitProtocol
+          Protocol.EvaluationStatus evaluate = commitProtocol
               .evaluate(round, resourcePool, sceNetwork);
           roundNumber = round + 1;
-          commitDone = evaluate.equals(NativeProtocol.EvaluationStatus.IS_DONE);
+          commitDone = evaluate.equals(Protocol.EvaluationStatus.IS_DONE);
           return false;
         }
         if (!openDone) {
-          NativeProtocol.EvaluationStatus evaluate = openProtocol
+          Protocol.EvaluationStatus evaluate = openProtocol
               .evaluate(round - roundNumber, resourcePool, sceNetwork);
-          openDone = evaluate.equals(NativeProtocol.EvaluationStatus.IS_DONE);
+          openDone = evaluate.equals(Protocol.EvaluationStatus.IS_DONE);
         }
         return openDone;
       }

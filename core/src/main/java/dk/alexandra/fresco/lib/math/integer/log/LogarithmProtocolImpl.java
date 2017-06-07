@@ -26,16 +26,15 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.math.integer.log;
 
-import java.math.BigInteger;
-
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
-import dk.alexandra.fresco.lib.helper.AbstractSimpleProtocol;
+import dk.alexandra.fresco.lib.helper.SimpleProtocolProducer;
 import dk.alexandra.fresco.lib.helper.builder.NumericProtocolBuilder;
 import dk.alexandra.fresco.lib.math.integer.binary.BitLengthFactory;
 import dk.alexandra.fresco.lib.math.integer.binary.RightShiftFactory;
+import java.math.BigInteger;
 
 /**
  * This class implements a protocol for finding the natural logarithm of a
@@ -49,7 +48,7 @@ import dk.alexandra.fresco.lib.math.integer.binary.RightShiftFactory;
  * @author Jonas Lindstrøm (jonas.lindstrom@alexandra.dk)
  *
  */
-public class LogarithmProtocolImpl extends AbstractSimpleProtocol implements LogarithmProtocol {
+public class LogarithmProtocolImpl extends SimpleProtocolProducer implements LogarithmProtocol {
 
 	// Input
 	private SInt input;

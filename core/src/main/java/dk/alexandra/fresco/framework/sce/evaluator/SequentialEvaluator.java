@@ -26,14 +26,10 @@
  *******************************************************************************/
 package dk.alexandra.fresco.framework.sce.evaluator;
 
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.util.HashMap;
-import java.util.Map;
-
 import dk.alexandra.fresco.framework.MPCException;
-import dk.alexandra.fresco.framework.NativeProtocol;
-import dk.alexandra.fresco.framework.NativeProtocol.EvaluationStatus;
+import dk.alexandra.fresco.framework.Protocol;
+import dk.alexandra.fresco.framework.Protocol.EvaluationStatus;
+import dk.alexandra.fresco.framework.ProtocolCollectionLinkedList;
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.Reporter;
@@ -41,151 +37,159 @@ import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.SCENetworkImpl;
 import dk.alexandra.fresco.framework.sce.resources.SCEResourcePool;
 import dk.alexandra.fresco.suite.ProtocolSuite;
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Generic Evaluator for doing simple gate-by-gate (or protocol by protocol in
  * Practice terms). It is super sequential since each gate is evaluated
  * completely (including network communication).
- * 
- * @author Kasper Damgaard
  *
+ * @author Kasper Damgaard
  */
 public class SequentialEvaluator implements ProtocolEvaluator {
 
-	private static final int DEFAULT_THREAD_ID = 0;
+  private static final int DEFAULT_THREAD_ID = 0;
 
-	private static final int DEFAULT_CHANNEL = 0;
+  private static final int DEFAULT_CHANNEL = 0;
 
-	/**
-	 * Quit if more than this amount of empty batches are returned in a row from
-	 * the protocol producer.
-	 * 
-	 * This is just to avoid an infinite loop if there is an error in the
-	 * protocol producer.
-	 * 
-	 */
-	private static final int MAX_EMPTY_BATCHES_IN_A_ROW = 10;
+  /**
+   * Quit if more than this amount of empty batches are returned in a row from
+   * the protocol producer.
+   *
+   * This is just to avoid an infinite loop if there is an error in the
+   * protocol producer.
+   */
+  private static final int MAX_EMPTY_BATCHES_IN_A_ROW = 10;
 
-	private int maxBatchSize;
+  private int maxBatchSize;
 
-	private SCEResourcePool resourcePool;
-	private ProtocolSuite protocolSuite;
-	private Network network;
-	
-	public SequentialEvaluator() {
-		maxBatchSize = 4096;
-	}
+  private SCEResourcePool resourcePool;
+  private ProtocolSuite protocolSuite;
+  private Network network;
 
-	@Override
-	public void setResourcePool(SCEResourcePool resourcePool) {
-		this.resourcePool = resourcePool;
-		this.network = resourcePool.getNetwork();
-	}
+  public SequentialEvaluator() {
+    maxBatchSize = 4096;
+  }
 
-	public ProtocolSuite getProtocolInvocation() {
-		return protocolSuite;
-	}
+  @Override
+  public void setResourcePool(SCEResourcePool resourcePool) {
+    this.resourcePool = resourcePool;
+    this.network = resourcePool.getNetwork();
+  }
 
-	@Override
-	public void setProtocolInvocation(ProtocolSuite pii) {
-		this.protocolSuite = pii;
-	}
+  public ProtocolSuite getProtocolInvocation() {
+    return protocolSuite;
+  }
 
-	public int getMaxBatchSize() {
-		return maxBatchSize;
-	}
+  @Override
+  public void setProtocolInvocation(ProtocolSuite pii) {
+    this.protocolSuite = pii;
+  }
 
-	/**
-	 * Sets the maximum amount of gates evaluated in each batch.
-	 * 
-	 * @param maxBatchSize
-	 *            the maximum batch size.
-	 */
-	@Override
-	public void setMaxBatchSize(int maxBatchSize) {
-		this.maxBatchSize = maxBatchSize;
-	}
-	
-	
-	private int doOneRound(ProtocolProducer c) throws IOException {
-		ProtocolSuite.RoundSynchronization roundSynchronization = protocolSuite.createRoundSynchronization();
-		NativeProtocol[] nextProtocols = new NativeProtocol[maxBatchSize];
-		int numOfProtocolsInBatch = c.getNextProtocols(nextProtocols, 0);
-		processBatch(nextProtocols, numOfProtocolsInBatch);
-		roundSynchronization.finishedBatch(numOfProtocolsInBatch, resourcePool, createSceNetwork());
-		return numOfProtocolsInBatch;
-	}
-	
-	public void eval(ProtocolProducer c) throws IOException {
-		int batch = 0;
-		int totalProtocols = 0;
-		int totalBatches = 0;
-		int zeroBatches = 0;
-		do {
-			int numOfProtocolsInBatch = doOneRound(c);
-			Reporter.finest("Done evaluating batch: " + batch++ + " with " + numOfProtocolsInBatch + " native protocols");
-			if (numOfProtocolsInBatch == 0) {
-				Reporter.finest("Batch " + batch + " is empty");
-			}
-			totalProtocols += numOfProtocolsInBatch;
-			totalBatches += 1;
-			if (numOfProtocolsInBatch == 0) {
-				zeroBatches++;
-			} else {
-				zeroBatches = 0;
-			}
-			if (zeroBatches > MAX_EMPTY_BATCHES_IN_A_ROW) {
-				throw new MPCException(
-						"Number of empty batches in a row reached " + MAX_EMPTY_BATCHES_IN_A_ROW + "; probably there is a bug in your protocol producer.");
-			}
-		} while (c.hasNextProtocols());
-		this.protocolSuite.finishedEval(resourcePool, createSceNetwork());
-		Reporter.fine("Sequential evaluator done. Evaluated a total of " + totalProtocols + " native protocols in " + totalBatches + " batches.");
-	}
+  public int getMaxBatchSize() {
+    return maxBatchSize;
+  }
 
-	/*
-	 * As soon as this method finishes, it may be called again with a new batch
-	 * -- ie to process more than one batch at a time, simply return before the
-	 * first one is finished
-	 */
-	public void processBatch(NativeProtocol[] protocols, int numOfProtocols) throws IOException {	
-		SCENetworkImpl sceNetwork = createSceNetwork();
-		for (int i=0; i<numOfProtocols; i++) {
-			int round = 0;
-			EvaluationStatus status;
-			do {
-				status = protocols[i].evaluate(round, this.resourcePool, sceNetwork);				
-				//send phase
-				Map<Integer, byte[]> output = sceNetwork.getOutputFromThisRound();				
-				for(int pId : output.keySet()) {
-					//send array since queue is not serializable
-					this.network.send(DEFAULT_CHANNEL, pId, output.get(pId));					
-				}
-				
-				//receive phase
-				Map<Integer, ByteBuffer> inputForThisRound = new HashMap<Integer, ByteBuffer>();
-				for(int pId : sceNetwork.getExpectedInputForNextRound()) {
-					byte[] messages = this.network.receive(DEFAULT_CHANNEL, pId);					
-					inputForThisRound.put(pId, ByteBuffer.wrap(messages));
-				}
-				sceNetwork.setInput(inputForThisRound);				
-				sceNetwork.nextRound();
-				round++;
-			} while (status.equals(EvaluationStatus.HAS_MORE_ROUNDS));
-			
-			// Just a sanity check:
-			// System.out.println("Sequential evaluator completely done with protocol: " + protocols[i]);
-			//for (Value v : protocols[i].getOutputValues()) {
-			//	//System.out.println("" + i + ": ---> Value is ready: " + v + "; hash " + v.hashCode());
-			//	if (!v.isReady())
-			//		throw new MPCException(
-			//				"For some reason the protocol: " + protocols[i] + " says its not ready, though it returned EvaluationStatus.IS_DONE");
-			//}
-			
-		}		
-	}
+  /**
+   * Sets the maximum amount of gates evaluated in each batch.
+   *
+   * @param maxBatchSize the maximum batch size.
+   */
+  @Override
+  public void setMaxBatchSize(int maxBatchSize) {
+    this.maxBatchSize = maxBatchSize;
+  }
 
-	private SCENetworkImpl createSceNetwork() {
-		return new SCENetworkImpl(this.resourcePool.getNoOfParties(), DEFAULT_THREAD_ID);
-	}
+
+  private int doOneRound(ProtocolProducer c) throws IOException {
+    ProtocolSuite.RoundSynchronization roundSynchronization = protocolSuite
+        .createRoundSynchronization();
+    ProtocolCollectionLinkedList protcols = new ProtocolCollectionLinkedList(maxBatchSize);
+//    System.out.println("Getting next protocols from " + c);
+    c.getNextProtocols(protcols);
+    List<Protocol> protocols = protcols.getProtocols();
+    processBatch(protocols);
+    roundSynchronization.finishedBatch(protocols.size(), resourcePool, createSceNetwork());
+    return protocols.size();
+  }
+
+  public void eval(ProtocolProducer c) throws IOException {
+    int batch = 0;
+    int totalProtocols = 0;
+    int totalBatches = 0;
+    int zeroBatches = 0;
+    do {
+      int numOfProtocolsInBatch = doOneRound(c);
+      Reporter.finest("Done evaluating batch: " + batch++ + " with " + numOfProtocolsInBatch
+          + " native protocols");
+      if (numOfProtocolsInBatch == 0) {
+        Reporter.finest("Batch " + batch + " is empty");
+      }
+      totalProtocols += numOfProtocolsInBatch;
+      totalBatches += 1;
+      if (numOfProtocolsInBatch == 0) {
+        zeroBatches++;
+      } else {
+        zeroBatches = 0;
+      }
+      if (zeroBatches > MAX_EMPTY_BATCHES_IN_A_ROW) {
+        throw new MPCException(
+            "Number of empty batches in a row reached " + MAX_EMPTY_BATCHES_IN_A_ROW
+                + "; probably there is a bug in your protocol producer.");
+      }
+    } while (c.hasNextProtocols());
+    this.protocolSuite.finishedEval(resourcePool, createSceNetwork());
+    Reporter.fine("Sequential evaluator done. Evaluated a total of " + totalProtocols
+        + " native protocols in " + totalBatches + " batches.");
+  }
+
+  /*
+   * As soon as this method finishes, it may be called again with a new batch
+   * -- ie to process more than one batch at a time, simply return before the
+   * first one is finished
+   */
+  private void processBatch(List<Protocol> protocols) throws IOException {
+    SCENetworkImpl sceNetwork = createSceNetwork();
+    for (Protocol protocol : protocols) {
+      int round = 0;
+      EvaluationStatus status;
+      do {
+        status = protocol.evaluate(round, this.resourcePool, sceNetwork);
+        //send phase
+        Map<Integer, byte[]> output = sceNetwork.getOutputFromThisRound();
+        for (int pId : output.keySet()) {
+          //send array since queue is not serializable
+          this.network.send(DEFAULT_CHANNEL, pId, output.get(pId));
+        }
+
+        //receive phase
+        Map<Integer, ByteBuffer> inputForThisRound = new HashMap<Integer, ByteBuffer>();
+        for (int pId : sceNetwork.getExpectedInputForNextRound()) {
+          byte[] messages = this.network.receive(DEFAULT_CHANNEL, pId);
+          inputForThisRound.put(pId, ByteBuffer.wrap(messages));
+        }
+        sceNetwork.setInput(inputForThisRound);
+        sceNetwork.nextRound();
+        round++;
+      } while (status.equals(EvaluationStatus.HAS_MORE_ROUNDS));
+
+      // Just a sanity check:
+      // System.out.println("Sequential evaluator completely done with protocol: " + protocols[i]);
+      //for (Value v : protocols[i].getOutputValues()) {
+      //	//System.out.println("" + i + ": ---> Value is ready: " + v + "; hash " + v.hashCode());
+      //	if (!v.isReady())
+      //		throw new MPCException(
+      //				"For some reason the protocol: " + protocols[i] + " says its not ready, though it returned EvaluationStatus.IS_DONE");
+      //}
+
+    }
+  }
+
+  private SCENetworkImpl createSceNetwork() {
+    return new SCENetworkImpl(this.resourcePool.getNoOfParties(), DEFAULT_THREAD_ID);
+  }
 }

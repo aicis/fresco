@@ -79,11 +79,6 @@ public class TinyTablesXORProtocol extends TinyTablesProtocol implements XorProt
 	}
 
 	@Override
-	public Value[] getInputValues() {
-		return new Value[] { inLeft, inRight };
-	}
-
-	@Override
 	public Value[] getOutputValues() {
 		return new Value[] { out };
 	}

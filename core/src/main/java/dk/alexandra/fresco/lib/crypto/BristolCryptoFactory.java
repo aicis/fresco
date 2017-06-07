@@ -93,8 +93,8 @@ public class BristolCryptoFactory implements ProtocolFactory {
 		if (null == out || out.length != 64)
 			throw new IllegalArgumentException("'out' must be array of 64 SBools");
 		BristolCircuitParser parser = BristolCircuitParser.readCircuitDescription(this.blf, "circuits/mult_32x32.txt", in1, in2, out);
-		return new BristolCircuit(parser, in1, in2, out);
-	}
+    return new BristolCircuit(parser);
+  }
 	
 	
 	/**
@@ -120,8 +120,8 @@ public class BristolCryptoFactory implements ProtocolFactory {
 			throw new IllegalArgumentException("'out' must be array of 128 SBools");
 		SBool[] in2= new SBool[0]; // Bristol circuits expects two inputs.
 		BristolCircuitParser parser = BristolCircuitParser.readCircuitDescription(this.blf, "circuits/md5.txt", in, in2, out);
-		return new BristolCircuit(parser, in, in2, out);
-	}
+    return new BristolCircuit(parser);
+  }
 	
 	
 	/**
@@ -145,8 +145,8 @@ public class BristolCryptoFactory implements ProtocolFactory {
 			throw new IllegalArgumentException("'out' must be array of 160 SBools");
 		SBool[] in2= new SBool[0]; // Bristol circuits expects two inputs.
 		BristolCircuitParser parser = BristolCircuitParser.readCircuitDescription(this.blf, "circuits/sha-1.txt", in, in2, out);
-		return new BristolCircuit(parser, in, in2, out);
-	}
+    return new BristolCircuit(parser);
+  }
 	
 	
 	/**
@@ -169,8 +169,8 @@ public class BristolCryptoFactory implements ProtocolFactory {
 			throw new IllegalArgumentException("'out' must be array of 256 SBools");
 		SBool[] in2= new SBool[0]; // Bristol circuits expects two inputs.
 		BristolCircuitParser parser = BristolCircuitParser.readCircuitDescription(this.blf, "circuits/sha-256.txt", in, in2, out);
-		return new BristolCircuit(parser, in, in2, out);
-	}
+    return new BristolCircuit(parser);
+  }
 
 	
 	/**
@@ -199,8 +199,8 @@ public class BristolCryptoFactory implements ProtocolFactory {
 		if (null == ciphertext || ciphertext.length != 128)
 			throw new IllegalArgumentException("Ciphertext must be array of 128 SBools");
 		BristolCircuitParser parser = BristolCircuitParser.readCircuitDescription(this.blf, "circuits/AES-non-expanded.txt", plaintext, key, ciphertext);
-		return new BristolCircuit(parser, plaintext, key, ciphertext);
-	}
+    return new BristolCircuit(parser);
+  }
 	
 	
 	/**
@@ -224,7 +224,7 @@ public class BristolCryptoFactory implements ProtocolFactory {
 		if (null == ciphertext || ciphertext.length != 64)
 			throw new IllegalArgumentException("Ciphertext must be array of 64 SBools");
 		BristolCircuitParser parser = BristolCircuitParser.readCircuitDescription(this.blf, "circuits/DES-non-expanded.txt", plaintext, key, ciphertext);
-		return new BristolCircuit(parser, plaintext, key, ciphertext);
-	}
+    return new BristolCircuit(parser);
+  }
 	
 }

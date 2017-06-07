@@ -39,7 +39,6 @@ import dk.alexandra.fresco.framework.value.SBool;
 import dk.alexandra.fresco.lib.crypto.BristolCryptoFactory;
 import dk.alexandra.fresco.lib.helper.bristol.BristolCircuit;
 import dk.alexandra.fresco.lib.helper.builder.BasicLogicBuilder;
-import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
 import dk.alexandra.fresco.lib.logic.AbstractBinaryFactory;
 import java.util.Arrays;
 import org.junit.Assert;
@@ -138,7 +137,7 @@ public class BristolMultTests {
 							}
 							ProtocolProducer open_all = new ParallelProtocolProducer(opens);
 							*/
-              return new SequentialProtocolProducer(builder.getProtocol());
+              return builder.getProtocol();
             }
           };
 

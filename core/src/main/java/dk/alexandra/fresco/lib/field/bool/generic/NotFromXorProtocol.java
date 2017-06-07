@@ -26,61 +26,45 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.field.bool.generic;
 
-import dk.alexandra.fresco.framework.NativeProtocol;
+import dk.alexandra.fresco.framework.ProtocolCollection;
+import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.SBool;
 import dk.alexandra.fresco.framework.value.SBoolFactory;
-import dk.alexandra.fresco.framework.value.Value;
 import dk.alexandra.fresco.lib.field.bool.NotProtocol;
 import dk.alexandra.fresco.lib.field.bool.XorProtocol;
 import dk.alexandra.fresco.lib.field.bool.XorProtocolFactory;
 
 /**
- * This protocol implements "NOT x" as "TRUE XOR x". 
- *
+ * This protocol implements "NOT x" as "TRUE XOR x".
  */
-public class NotFromXorProtocol implements NotProtocol {
+public class NotFromXorProtocol implements NotProtocol, ProtocolProducer {
 
-	private XorProtocolFactory xorcp;
-	private SBoolFactory sbool;
-	private SBool in;
-	private SBool out;
-	
-	private XorProtocol xorc = null;
+  private XorProtocolFactory xorcp;
+  private SBoolFactory sbool;
+  private SBool in;
+  private SBool out;
 
-	public NotFromXorProtocol(XorProtocolFactory xorcp, SBoolFactory sbool, SBool in, SBool out) {
-		this.xorcp = xorcp;
-		this.sbool = sbool;
-		this.in = in;
-		this.out = out;
-	}
-	
+  private XorProtocol xorc = null;
 
-	@Override
-	public boolean hasNextProtocols() {
-		return (xorc == null || xorc.hasNextProtocols());
-	}
-
-	@Override
-	public int getNextProtocols(NativeProtocol[] nativeProtocols, int pos) {
-		if (xorc == null) {
-			SBool t = sbool.getKnownConstantSBool(true);
-			xorc = xorcp.getXorProtocol(t, in, out);
-		}
-		return xorc.getNextProtocols(nativeProtocols, pos);
-	}
+  public NotFromXorProtocol(XorProtocolFactory xorcp, SBoolFactory sbool, SBool in, SBool out) {
+    this.xorcp = xorcp;
+    this.sbool = sbool;
+    this.in = in;
+    this.out = out;
+  }
 
 
-	@Override
-	public Value[] getInputValues() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+  @Override
+  public boolean hasNextProtocols() {
+    return xorc == null;
+  }
 
-
-	@Override
-	public Value[] getOutputValues() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	
+  @Override
+  public void getNextProtocols(ProtocolCollection protocolCollection) {
+    if (xorc == null) {
+      SBool t = sbool.getKnownConstantSBool(true);
+      xorc = xorcp.getXorProtocol(t, in, out);
+    }
+    protocolCollection.addProtocol(xorc);
+  }
 }

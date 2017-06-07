@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -26,10 +26,8 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.helper;
 
-import dk.alexandra.fresco.framework.NativeProtocol;
-import dk.alexandra.fresco.framework.Protocol;
+import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.ProtocolProducer;
-import dk.alexandra.fresco.framework.value.Value;
 
 /**
  * A skeleton for a generic round based protocol. I.e., a protocol that consisting
@@ -37,73 +35,38 @@ import dk.alexandra.fresco.framework.value.Value;
  * can be a little more lightweight than using the SequentialprotocolProducer as
  * makes it easier to write a protocol where the sub-protocols are generated only
  * after the previous sub-protocols have been evaluated.
- * 
+ *
  * @author psn
- * 
  */
-public abstract class AbstractRoundBasedProtocol implements Protocol {
+public abstract class AbstractRoundBasedProtocol implements ProtocolProducer {
 
-	private boolean done = false;
-	private ProtocolProducer pp = null;
-	private Value[] inputs = null;
-	private Value[] outputs = null;
+  private boolean done = false;
+  private ProtocolProducer pp = null;
 
-	@Override
-	public int getNextProtocols(NativeProtocol[] nativeProtocols, int pos) {
-		if (pp == null || !pp.hasNextProtocols()) {
-			pp = nextProtocolProducer();
-			if (pp == null) {
-				done = true;
-				return pos;
-			}
-		}
-		if (pp.hasNextProtocols()) {
-			pos = pp.getNextProtocols(nativeProtocols, pos);
-		}
-		return pos;
-	}
+  @Override
+  public void getNextProtocols(ProtocolCollection protocolCollection) {
+    if (pp == null || !pp.hasNextProtocols()) {
+      pp = nextProtocolProducer();
+      if (pp == null) {
+        done = true;
+        return;
+      }
+    }
+    if (pp.hasNextProtocols()) {
+      pp.getNextProtocols(protocolCollection);
+    }
+  }
 
-	/**
-	 * Gives the sub-protocol for the next round. All protocols of the preceding
-	 * round are assumed to be evaluated before the next round is evaluated.
-	 * 
-	 * @return a protocolProducer for the next round.
-	 */
-	public abstract ProtocolProducer nextProtocolProducer();
+  /**
+   * Gives the sub-protocol for the next round. All protocols of the preceding
+   * round are assumed to be evaluated before the next round is evaluated.
+   *
+   * @return a protocolProducer for the next round.
+   */
+  public abstract ProtocolProducer nextProtocolProducer();
 
-	@Override
-	public boolean hasNextProtocols() {
-		return !done;
-	}
-
-	@Override
-	public Value[] getInputValues() {
-		return inputs;
-	}
-
-	@Override
-	public Value[] getOutputValues() {
-		return outputs;
-	}
-
-	/**
-	 * Sets the input values of this protocol.
-	 * 
-	 * @param inputs
-	 *            the input values of the protocol.
-	 */
-	protected void setInputValues(Value[] inputs) {
-		this.inputs = inputs;
-	}
-
-	/**
-	 * Sets the output values of this protocol.
-	 * 
-	 * @param outputs
-	 *            the output values of the protocol.
-	 */
-	protected void setOutputValues(Value[] outputs) {
-		this.outputs = outputs;
-	}
-
+  @Override
+  public boolean hasNextProtocols() {
+    return !done;
+  }
 }

@@ -64,11 +64,6 @@ public class TinyTablesPreproCloseProtocol extends TinyTablesPreproProtocol impl
 		this.in = (TinyTablesPreproOBool) in;
 		this.out = (TinyTablesPreproSBool) out;
 	}
-	
-	@Override
-	public Value[] getInputValues() {
-		return new Value[] { in };
-	}
 
 	@Override
 	public Value[] getOutputValues() {

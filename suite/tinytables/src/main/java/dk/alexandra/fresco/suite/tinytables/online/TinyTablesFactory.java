@@ -26,14 +26,15 @@
  *******************************************************************************/
 package dk.alexandra.fresco.suite.tinytables.online;
 
+import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.OBool;
 import dk.alexandra.fresco.framework.value.SBool;
 import dk.alexandra.fresco.lib.field.bool.AndProtocol;
 import dk.alexandra.fresco.lib.field.bool.BasicLogicFactory;
 import dk.alexandra.fresco.lib.field.bool.CloseBoolProtocol;
-import dk.alexandra.fresco.lib.field.bool.NotProtocol;
 import dk.alexandra.fresco.lib.field.bool.OpenBoolProtocol;
 import dk.alexandra.fresco.lib.field.bool.XorProtocol;
+import dk.alexandra.fresco.lib.helper.SingleProtocolProducer;
 import dk.alexandra.fresco.lib.logic.AbstractBinaryFactory;
 import dk.alexandra.fresco.suite.tinytables.datatypes.TinyTablesElement;
 import dk.alexandra.fresco.suite.tinytables.online.datatypes.TinyTablesOBool;
@@ -46,94 +47,99 @@ import dk.alexandra.fresco.suite.tinytables.online.protocols.TinyTablesXORProtoc
 
 public class TinyTablesFactory extends AbstractBinaryFactory implements BasicLogicFactory {
 
-	private int counter;
-	
-	public TinyTablesFactory() {
-		this.counter = 0;
-	}
-	
-	private int getNextId() {
-		return counter++;
-	}
-	
-	@Override
-	public CloseBoolProtocol getCloseProtocol(int source, OBool open, SBool closed) {
-		return new TinyTablesCloseProtocol(getNextId(), source, open, closed);
-	}
+  private int counter;
 
-	@Override
-	public OpenBoolProtocol getOpenProtocol(SBool closed, OBool open) {
-		return new TinyTablesOpenToAllProtocol(getNextId(), (TinyTablesSBool)closed, (TinyTablesOBool)open);
-	}
+  public TinyTablesFactory() {
+    this.counter = 0;
+  }
 
-	@Override
-	public OpenBoolProtocol getOpenProtocol(int target, SBool closed, OBool open) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+  private int getNextId() {
+    return counter++;
+  }
 
-	@Override
-	public SBool getSBool() {
-		return new TinyTablesSBool();
-	}
+  @Override
+  public CloseBoolProtocol getCloseProtocol(int source, OBool open, SBool closed) {
+    return new TinyTablesCloseProtocol(getNextId(), source, open, closed);
+  }
 
-	@Override
-	public SBool[] getSBools(int amount) {
-		SBool[] res = new SBool[amount];
-		for(int i = 0; i < amount; i++) {
-			res [i] = this.getSBool();
-		}
-		return res;
-	}
+  @Override
+  public OpenBoolProtocol getOpenProtocol(SBool closed, OBool open) {
+    return new TinyTablesOpenToAllProtocol(getNextId(), (TinyTablesSBool) closed,
+        (TinyTablesOBool) open);
+  }
 
-	@Override
-	public SBool getKnownConstantSBool(boolean b) {
-		TinyTablesSBool bool = new TinyTablesSBool(new TinyTablesElement(b));
-		return bool;
-	}
+  @Override
+  public OpenBoolProtocol getOpenProtocol(int target, SBool closed, OBool open) {
+    // TODO Auto-generated method stub
+    return null;
+  }
 
-	@Override
-	public SBool[] getKnownConstantSBools(boolean[] bools) {
-		SBool[] sBools = new SBool[bools.length];
-		for (int i = 0; i < sBools.length; i++) {
-			sBools[i] = getKnownConstantSBool(bools[i]);
-		}
-		return sBools;
-	}
+  @Override
+  public SBool getSBool() {
+    return new TinyTablesSBool();
+  }
 
-	@Override
-	public OBool getOBool() {
-		return new TinyTablesOBool();
-	}
+  @Override
+  public SBool[] getSBools(int amount) {
+    SBool[] res = new SBool[amount];
+    for (int i = 0; i < amount; i++) {
+      res[i] = this.getSBool();
+    }
+    return res;
+  }
 
-	@Override
-	public OBool getKnownConstantOBool(boolean b) {
-		return new TinyTablesOBool(b);
-	}
+  @Override
+  public SBool getKnownConstantSBool(boolean b) {
+    TinyTablesSBool bool = new TinyTablesSBool(new TinyTablesElement(b));
+    return bool;
+  }
 
-	@Override
-	public AndProtocol getAndProtocol(SBool inLeft, SBool inRight, SBool out) {
-		return new TinyTablesANDProtocol(getNextId(), (TinyTablesSBool)inLeft, (TinyTablesSBool)inRight, (TinyTablesSBool)out);
-	}
+  @Override
+  public SBool[] getKnownConstantSBools(boolean[] bools) {
+    SBool[] sBools = new SBool[bools.length];
+    for (int i = 0; i < sBools.length; i++) {
+      sBools[i] = getKnownConstantSBool(bools[i]);
+    }
+    return sBools;
+  }
 
-	@Override
-	public AndProtocol getAndProtocol(SBool inLeft, OBool inRight, SBool out) {
-		throw new RuntimeException("Not implemented yet");
-	}
+  @Override
+  public OBool getOBool() {
+    return new TinyTablesOBool();
+  }
 
-	@Override
-	public NotProtocol getNotProtocol(SBool in, SBool out) {
-		return new TinyTablesNOTProtocol(getNextId(), (TinyTablesSBool)in, (TinyTablesSBool)out);
-	}
+  @Override
+  public OBool getKnownConstantOBool(boolean b) {
+    return new TinyTablesOBool(b);
+  }
 
-	@Override
-	public XorProtocol getXorProtocol(SBool inLeft, SBool inRight, SBool out) {
-		return new TinyTablesXORProtocol(getNextId(), (TinyTablesSBool)inLeft, (TinyTablesSBool)inRight, (TinyTablesSBool)out);
-	}
+  @Override
+  public ProtocolProducer getAndProtocol(SBool inLeft, SBool inRight, SBool out) {
+    return SingleProtocolProducer.wrap(
+        new TinyTablesANDProtocol(getNextId(), (TinyTablesSBool) inLeft, (TinyTablesSBool) inRight,
+            (TinyTablesSBool) out));
+  }
 
-	@Override
-	public XorProtocol getXorProtocol(SBool inLeft, OBool inRight, SBool out) {
-		throw new RuntimeException("Not implemented yet");
-	}
+  @Override
+  public AndProtocol getAndProtocol(SBool inLeft, OBool inRight, SBool out) {
+    throw new RuntimeException("Not implemented yet");
+  }
+
+  @Override
+  public ProtocolProducer getNotProtocol(SBool in, SBool out) {
+    return SingleProtocolProducer
+        .wrap(new TinyTablesNOTProtocol(getNextId(), (TinyTablesSBool) in, (TinyTablesSBool) out));
+  }
+
+  @Override
+  public XorProtocol getXorProtocol(SBool inLeft, SBool inRight, SBool out) {
+    return new TinyTablesXORProtocol(getNextId(), (TinyTablesSBool) inLeft,
+        (TinyTablesSBool) inRight, (TinyTablesSBool) out);
+  }
+
+  @Override
+  public XorProtocol getXorProtocol(SBool inLeft, OBool inRight, SBool out) {
+    throw new RuntimeException("Not implemented yet");
+  }
 
 }

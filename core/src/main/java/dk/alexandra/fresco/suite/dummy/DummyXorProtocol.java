@@ -51,11 +51,6 @@ public class DummyXorProtocol extends DummyProtocol implements XorProtocol {
 	}
 
 	@Override
-	public Value[] getInputValues() {
-		return new Value[]{inA, inB};
-	}
-
-	@Override
 	public Value[] getOutputValues() {
 		return new Value[]{outC};
 	}

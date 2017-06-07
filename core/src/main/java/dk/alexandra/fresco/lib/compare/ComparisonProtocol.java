@@ -26,8 +26,8 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.compare;
 
-import dk.alexandra.fresco.framework.Protocol;
+import dk.alexandra.fresco.framework.ProtocolProducer;
 
-public interface ComparisonProtocol extends Protocol{
+public interface ComparisonProtocol extends ProtocolProducer {
 
 }

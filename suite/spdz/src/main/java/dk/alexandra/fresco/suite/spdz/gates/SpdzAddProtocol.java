@@ -38,54 +38,50 @@ import dk.alexandra.fresco.suite.spdz.utils.SpdzFactory;
 
 public class SpdzAddProtocol extends SpdzNativeProtocol implements AddProtocol {
 
-	private SpdzSInt left, right, out;
-	private SpdzOInt oInt;
-	private SpdzFactory factory;
+  private SpdzSInt left, right, out;
+  private SpdzOInt oInt;
+  private SpdzFactory factory;
 
-	public SpdzAddProtocol(SInt left, SInt right, SInt out) {
-		this.left = (SpdzSInt) left;
-		this.right = (SpdzSInt) right;
-		this.out = (SpdzSInt) out;
-	}
+  public SpdzAddProtocol(SInt left, SInt right, SInt out) {
+    this.left = (SpdzSInt) left;
+    this.right = (SpdzSInt) right;
+    this.out = (SpdzSInt) out;
+  }
 
-	public SpdzAddProtocol(SpdzSInt left, SpdzSInt right, SpdzSInt out) {
-		this.left = left;
-		this.right = right;
-		this.out = out;
-	}
+  public SpdzAddProtocol(SpdzSInt left, SpdzSInt right, SpdzSInt out) {
+    this.left = left;
+    this.right = right;
+    this.out = out;
+  }
 
-	public SpdzAddProtocol(SInt left, OInt right, SInt out, SpdzFactory factory) {
-		this.left = (SpdzSInt) left;
-		this.oInt = (SpdzOInt) right;
-		this.out = (SpdzSInt) out;
-		this.factory = factory;
-	}
+  public SpdzAddProtocol(SInt left, OInt right, SInt out, SpdzFactory factory) {
+    this.left = (SpdzSInt) left;
+    this.oInt = (SpdzOInt) right;
+    this.out = (SpdzSInt) out;
+    this.factory = factory;
+  }
 
-	@Override
-	public String toString() {
-		return "SpdzAddGate(" + left.value + ", " + right.value + ", "
-				+ out.value + ")";
-	}
+  @Override
+  public String toString() {
+    return "SpdzAddGate(" + left.value + ", "
+        + (right != null ? right.value : "N/A") + ", "
+        + (out != null ? out.value : "N/A") + ")";
+  }
 
-	@Override
-	public Value[] getInputValues() {
-		return new Value[] { left, right };
-	}
+  @Override
+  public Value[] getOutputValues() {
+    return new Value[]{out};
+  }
 
-	@Override
-	public Value[] getOutputValues() {
-		return new Value[] { out };
-	}
-
-	@Override
-	public EvaluationStatus evaluate(int round, ResourcePool resourcePool,
-			SCENetwork network) {
-		if (oInt != null) {
-			SpdzSInt myShare = (SpdzSInt) factory.getSInt(oInt.getValue());
-			out.value = left.value.add(myShare.value);
-		} else {
-			out.value = left.value.add(right.value);
-		}
-		return EvaluationStatus.IS_DONE;
-	}
+  @Override
+  public EvaluationStatus evaluate(int round, ResourcePool resourcePool,
+      SCENetwork network) {
+    if (oInt != null) {
+      SpdzSInt myShare = (SpdzSInt) factory.getSInt(oInt.getValue());
+      out.value = left.value.add(myShare.value);
+    } else {
+      out.value = left.value.add(right.value);
+    }
+    return EvaluationStatus.IS_DONE;
+  }
 }

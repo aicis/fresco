@@ -26,12 +26,30 @@
  *******************************************************************************/
 package dk.alexandra.fresco.framework;
 
-import dk.alexandra.fresco.framework.value.Value;
+import dk.alexandra.fresco.framework.network.SCENetwork;
+import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 
+public interface Protocol<OutputT> {
 
-public interface Protocol extends ProtocolProducer {
+  enum EvaluationStatus {
+    IS_DONE, HAS_MORE_ROUNDS;
+  }
 
-	public Value[] getInputValues();
-	
-	public Value[] getOutputValues();
+  OutputT getOutputValues();
+
+  /**
+   * One round of evaluating the gate. Each round consist of only local
+   * computation.
+   *
+   * @param round Number of current round, starting with round 0.
+   * @param resourcePool available resources can be found here. This also includes a threadpool if
+   * needed. It is advised to use only resources found here instead of creating them yourself. It is
+   * strongly advised not to use the network found here, but instead use the protocol network.
+   * @param network A protocol's view of the network. This network does not immediately send data,
+   * but queues it for later use by the one calling this function.
+   * @return True if there are more rounds, i.e., if evaluate needs to be called again, false if
+   * this is the last round.
+   */
+  EvaluationStatus evaluate(int round, ResourcePool resourcePool, SCENetwork network);
+
 }

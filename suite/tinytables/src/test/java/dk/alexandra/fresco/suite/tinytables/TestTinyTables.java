@@ -250,24 +250,6 @@ public class TestTinyTables {
 
 	@Category(IntegrationTest.class)
 	@Test
-	public void testAES_parallel() throws Exception {
-		runTest(new BristolCryptoTests.AesTest(), EvaluationStrategy.PARALLEL, true,
-				"testAESParallel");
-		runTest(new BristolCryptoTests.AesTest(), EvaluationStrategy.PARALLEL, false,
-				"testAESParallel");
-	}
-
-	@Category(IntegrationTest.class)
-	@Test
-	public void testAES_parallel_batched() throws Exception {
-		runTest(new BristolCryptoTests.AesTest(), EvaluationStrategy.PARALLEL_BATCHED, true,
-				"testAESParallelBatched");
-		runTest(new BristolCryptoTests.AesTest(), EvaluationStrategy.PARALLEL_BATCHED, false,
-				"testAESParallelBatched");
-	}
-
-	@Category(IntegrationTest.class)
-	@Test
 	public void test_DES() throws Exception {
 		runTest(new BristolCryptoTests.DesTest(), EvaluationStrategy.SEQUENTIAL, true, "testDES");
 		runTest(new BristolCryptoTests.DesTest(), EvaluationStrategy.SEQUENTIAL, false, "testDES");

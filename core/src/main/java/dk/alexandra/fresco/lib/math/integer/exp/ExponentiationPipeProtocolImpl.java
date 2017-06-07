@@ -26,11 +26,10 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.math.integer.exp;
 
-import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.Protocol;
+import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.framework.value.Value;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.helper.CopyProtocolFactory;
 import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
@@ -38,64 +37,51 @@ import dk.alexandra.fresco.lib.math.integer.inv.InversionProtocolFactory;
 
 public class ExponentiationPipeProtocolImpl implements ExponentiationPipeProtocol {
 
-	private final SInt R;
-	private final int exp_size;
-	private final SInt[] outputs;
-	private final InversionProtocolFactory invFactory;
-	private final BasicNumericFactory factory;
-	private final CopyProtocolFactory<SInt> copyFactory;
-	private ProtocolProducer pp;
-	private int state = 0;
-	private boolean running = false;
-	
-	public ExponentiationPipeProtocolImpl(SInt R, SInt[] outputs, 
-			InversionProtocolFactory invFactory, BasicNumericFactory factory, CopyProtocolFactory<SInt> copyFactory){
-		this.R = R;
-		this.exp_size = outputs.length;
-		this.outputs = outputs;
-		this.invFactory = invFactory;
-		this.factory = factory;
-		this.copyFactory = copyFactory;
-	}	
+  private final SInt R;
+  private final int exp_size;
+  private final SInt[] outputs;
+  private final InversionProtocolFactory invFactory;
+  private final BasicNumericFactory factory;
+  private final CopyProtocolFactory<SInt> copyFactory;
+  private ProtocolProducer pp;
+  private int state = 0;
+  private boolean running = false;
 
-	@Override
-	public int getNextProtocols(NativeProtocol[] nativeProtocols, int pos) {
-		if(state == 0){
-			Protocol invC = invFactory.getInversionProtocol(R, outputs[0]);
-			Protocol copyR = copyFactory.getCopyProtocol(R, outputs[1]);
-			Protocol mult = factory.getMultProtocol(R, R, outputs[2]);			
-			pp = new ParallelProtocolProducer(invC, copyR, mult);
-			state = 2;
-		}else if(!running){
-			//Should initially multiply R with R^2 => R^3 
-			Protocol mult = factory.getMultProtocol(R, outputs[state++], outputs[state]);
-			pp = new ParallelProtocolProducer(mult);
-		}
-		if (pp.hasNextProtocols()){
-			pos = pp.getNextProtocols(nativeProtocols, pos);
-			running = true;
-		}
-		else if (!pp.hasNextProtocols()){
-			pp = null;
-			running = false;
-		}
-		return pos;
-	}
+  public ExponentiationPipeProtocolImpl(SInt R, SInt[] outputs,
+      InversionProtocolFactory invFactory, BasicNumericFactory factory,
+      CopyProtocolFactory<SInt> copyFactory) {
+    this.R = R;
+    this.exp_size = outputs.length;
+    this.outputs = outputs;
+    this.invFactory = invFactory;
+    this.factory = factory;
+    this.copyFactory = copyFactory;
+  }
 
-	@Override
-	public boolean hasNextProtocols() {
-		return state < exp_size-1;
-	}
+  @Override
+  public void getNextProtocols(ProtocolCollection protocolCollection) {
+    if (state == 0) {
+      ProtocolProducer invC = invFactory.getInversionProtocol(R, outputs[0]);
+      Protocol copyR = copyFactory.getCopyProtocol(R, outputs[1]);
+      Protocol mult = factory.getMultProtocol(R, R, outputs[2]);
+      pp = new ParallelProtocolProducer(invC, copyR, mult);
+      state = 2;
+    } else if (!running) {
+      //Should initially multiply R with R^2 => R^3
+      Protocol mult = factory.getMultProtocol(R, outputs[state++], outputs[state]);
+      pp = new ParallelProtocolProducer(mult);
+    }
+    if (pp.hasNextProtocols()) {
+      pp.getNextProtocols(protocolCollection);
+      running = true;
+    } else {
+      pp = null;
+      running = false;
+    }
+  }
 
-	@Override
-	public Value[] getInputValues() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Value[] getOutputValues() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+  @Override
+  public boolean hasNextProtocols() {
+    return state < exp_size - 1;
+  }
 }

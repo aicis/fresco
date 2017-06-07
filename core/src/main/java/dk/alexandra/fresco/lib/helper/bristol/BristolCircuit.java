@@ -26,80 +26,55 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.helper.bristol;
 
-import org.apache.commons.lang.ArrayUtils;
-
 import dk.alexandra.fresco.framework.MPCException;
-import dk.alexandra.fresco.framework.NativeProtocol;
-import dk.alexandra.fresco.framework.Protocol;
-import dk.alexandra.fresco.framework.value.SBool;
-import dk.alexandra.fresco.framework.value.Value;
+import dk.alexandra.fresco.framework.ProtocolCollection;
+import dk.alexandra.fresco.framework.ProtocolProducer;
 
 /**
  * A circuit that is based on Bristol circuits, i.e., it reads a textual
  * description of a circuit in Bristol format (see
  * https://www.cs.bris.ac.uk/Research/CryptographySecurity/MPC/) using the
  * BristolCircuitParser.
- * 
  */
-public class BristolCircuit implements Protocol {
+public class BristolCircuit implements ProtocolProducer {
 
-	private SBool[] in1, in2, out;
-	
-	private BristolCircuitParser parser;
-	
-	private int pos = 0;
-	
-	public BristolCircuit(BristolCircuitParser parser, SBool[] in1, SBool[] in2, SBool[] out) {
-		this.in1= in1;
-		this.in2= in2;
-		this.out = out;
-		this.parser = parser;
-	}
+  private BristolCircuitParser parser;
 
-	@Override
-	public int getNextProtocols(NativeProtocol[] protocols, int pos) {
-		// TODO: This is a bit hacky. 
-		// It only works if the BasicLogicFactory given to CircuitParser
-		// produces circuits for AND, XOR, NOT that are native protocols.
-		// Otherwise, more book-keeping is needed here.
-		NativeProtocol[] tmp = new NativeProtocol[5];
-		Protocol[] c = new Protocol[1];
-		while (pos < protocols.length) {
-			int resCircuit = this.parser.getNext(c, 0);
-			if (resCircuit == 0) {
-				// The next circuit has input that depends on some unReady input, or end of circuit reached. End batch.
-				break;
-			} else if (resCircuit != 1) {
-				throw new MPCException("Weird, should give one circuit exactly, pos: " + resCircuit);
-			}
-			
-			// Got exactly one circuit.
-			int res = c[0].getNextProtocols(tmp, 0);
-			if (res == 0) {
-				break; // End of circuit reached.
-			}
-			if (res != 1)
-				throw new MPCException("Seems like you gave circuit parser a logic factory with non-native XOR,AND,NOT protocols");
-			protocols[pos] = tmp[0];
-			pos++; this.pos++;
-		}
-		//System.out.println("Returning protocols; internal pos: " + this.pos);
-		return pos;
-	}
+  private int pos = 0;
 
-	@Override
-	public boolean hasNextProtocols() {
-		return this.pos < this.parser.getNoOfGates();
-	}
+  public BristolCircuit(BristolCircuitParser parser) {
+    this.parser = parser;
+  }
 
-	@Override
-	public Value[] getInputValues() {
-		return (Value[])ArrayUtils.addAll(this.in1, this.in2);
-	}
+  @Override
+  public void getNextProtocols(ProtocolCollection protocolCollection) {
+    // TODO: This is a bit hacky.
+    // It only works if the BasicLogicFactory given to CircuitParser
+    // produces circuits for AND, XOR, NOT that are native protocols.
+    // Otherwise, more book-keeping is needed here.
+    ProtocolProducer[] c = new ProtocolProducer[1];
+    while (protocolCollection.hasFreeCapacity()) {
+      int resCircuit = this.parser.getNext(c, 0);
+      if (resCircuit == 0) {
+        // The next circuit has input that depends on some unReady input, or end of circuit reached. End batch.
+        break;
+      } else if (resCircuit != 1) {
+        throw new MPCException("Weird, should give one circuit exactly, pos: " + resCircuit);
+      }
 
-	@Override
-	public Value[] getOutputValues() {
-		return this.out;
-	}
+      // Got exactly one circuit.
+      ProtocolProducer protocolProducer = c[0];
+      if (!protocolProducer.hasNextProtocols()) {
+        return;
+      }
+      protocolProducer.getNextProtocols(protocolCollection);
+      this.pos++;
+    }
+    //System.out.println("Returning protocols; internal pos: " + this.pos);
+  }
 
+  @Override
+  public boolean hasNextProtocols() {
+    return this.pos < this.parser.getNoOfGates();
+  }
 }

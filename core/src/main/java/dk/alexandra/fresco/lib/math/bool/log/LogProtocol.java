@@ -26,8 +26,8 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.math.bool.log;
 
-import dk.alexandra.fresco.framework.Protocol;
+import dk.alexandra.fresco.framework.ProtocolProducer;
 
-public interface LogProtocol extends Protocol{
+public interface LogProtocol extends ProtocolProducer {
 
 }

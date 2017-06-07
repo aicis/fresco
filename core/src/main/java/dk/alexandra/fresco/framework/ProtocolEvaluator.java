@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -26,10 +26,9 @@
  *******************************************************************************/
 package dk.alexandra.fresco.framework;
 
-import java.io.IOException;
-
 import dk.alexandra.fresco.framework.sce.resources.SCEResourcePool;
 import dk.alexandra.fresco.suite.ProtocolSuite;
+import java.io.IOException;
 
 public interface ProtocolEvaluator {
 
@@ -39,26 +38,26 @@ public interface ProtocolEvaluator {
 	 * @param c
 	 * @throws IOException
 	 */
-	public void eval(ProtocolProducer c) throws IOException;
+  void eval(ProtocolProducer c) throws IOException;
 
 	/**
 	 * Set the protocol invocation which the gate evaluator should call.
 	 * 
 	 * @param pii
 	 */
-	public void setProtocolInvocation(ProtocolSuite pii);
+  void setProtocolInvocation(ProtocolSuite pii);
 
 	/**
 	 * Sets the maximum batch size. If not called, the default will be 4096.
 	 * 
 	 * @param maxBatchSize
 	 */
-	public void setMaxBatchSize(int maxBatchSize);
+  void setMaxBatchSize(int maxBatchSize);
 
 	/**
 	 * Set the resource pool.
 	 * 
 	 * @param resourcePool
 	 */
-	public void setResourcePool(SCEResourcePool resourcePool);
+  void setResourcePool(SCEResourcePool resourcePool);
 }

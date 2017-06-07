@@ -58,11 +58,6 @@ public class TinyTablesPreproNOTProtocol extends TinyTablesPreproProtocol implem
 	}
 
 	@Override
-	public Value[] getInputValues() {
-		return new Value[] { in };
-	}
-
-	@Override
 	public Value[] getOutputValues() {
 		return new Value[] { out };
 	}

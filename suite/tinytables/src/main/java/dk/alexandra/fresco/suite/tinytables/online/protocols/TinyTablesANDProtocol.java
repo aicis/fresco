@@ -31,7 +31,6 @@ import dk.alexandra.fresco.framework.network.SCENetwork;
 import dk.alexandra.fresco.framework.network.serializers.BooleanSerializer;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.Value;
-import dk.alexandra.fresco.lib.field.bool.AndProtocol;
 import dk.alexandra.fresco.suite.tinytables.datatypes.TinyTable;
 import dk.alexandra.fresco.suite.tinytables.datatypes.TinyTablesElement;
 import dk.alexandra.fresco.suite.tinytables.online.TinyTablesProtocolSuite;
@@ -59,60 +58,55 @@ import java.util.List;
  * the other player. Both players now add their share with the other players
  * share to get the masked value of the output wire.
  * </p>
- * 
+ *
  * @author Jonas Lindstrøm (jonas.lindstrom@alexandra.dk)
  */
-public class TinyTablesANDProtocol extends TinyTablesProtocol implements AndProtocol {
+public class TinyTablesANDProtocol extends TinyTablesProtocol {
 
-	private int id;
-	private TinyTablesSBool inLeft, inRight, out;
+  private int id;
+  private TinyTablesSBool inLeft, inRight, out;
 
-	public TinyTablesANDProtocol(int id, TinyTablesSBool inLeft, TinyTablesSBool inRight,
-			TinyTablesSBool out) {
-		super();
-		this.id = id;
-		this.inLeft = inLeft;
-		this.inRight = inRight;
-		this.out = out;
-	}
+  public TinyTablesANDProtocol(int id, TinyTablesSBool inLeft, TinyTablesSBool inRight,
+      TinyTablesSBool out) {
+    super();
+    this.id = id;
+    this.inLeft = inLeft;
+    this.inRight = inRight;
+    this.out = out;
+  }
 
-	@Override
-	public Value[] getInputValues() {
-		return new Value[] { inLeft, inRight };
-	}
+  @Override
+  public Value[] getOutputValues() {
+    return new Value[]{out};
+  }
 
-	@Override
-	public Value[] getOutputValues() {
-		return new Value[] { out };
-	}
+  @Override
+  public EvaluationStatus evaluate(int round, ResourcePool resourcePool, SCENetwork network) {
+    TinyTablesProtocolSuite ps = TinyTablesProtocolSuite.getInstance(resourcePool.getMyId());
 
-	@Override
-	public EvaluationStatus evaluate(int round, ResourcePool resourcePool, SCENetwork network) {
-		TinyTablesProtocolSuite ps = TinyTablesProtocolSuite.getInstance(resourcePool.getMyId());
+    switch (round) {
+      case 0:
+        TinyTable tinyTable = ps.getStorage().getTinyTable(id);
+        if (tinyTable == null) {
+          throw new MPCException("Unable to find TinyTable for gate with id " + id);
+        }
+        TinyTablesElement myShare = tinyTable.getValue(inLeft.getValue(), inRight.getValue());
 
-		switch (round) {
-			case 0:
-				TinyTable tinyTable = ps.getStorage().getTinyTable(id);
-				if (tinyTable == null) {
-					throw new MPCException("Unable to find TinyTable for gate with id " + id);
-				}
-				TinyTablesElement myShare = tinyTable.getValue(inLeft.getValue(), inRight.getValue());
-
-				network.expectInputFromAll();
-				network.sendToAll(BooleanSerializer.toBytes(myShare.getShare()));
-				return EvaluationStatus.HAS_MORE_ROUNDS;
-			case 1:
-				List<ByteBuffer> buffers = network.receiveFromAll();
-				List<TinyTablesElement> shares = new ArrayList<>();
-				for(int i = 0; i < buffers.size(); i++) {
-					shares.add(new TinyTablesElement(BooleanSerializer.fromBytes(buffers.get(i))));
-				}
-				boolean open = TinyTablesElement.open(shares);
-				this.out.setValue(new TinyTablesElement(open));
-				return EvaluationStatus.IS_DONE;
-			default:
-				throw new MPCException("Cannot evaluate rounds larger than 0");
-		}
-	}
+        network.expectInputFromAll();
+        network.sendToAll(BooleanSerializer.toBytes(myShare.getShare()));
+        return EvaluationStatus.HAS_MORE_ROUNDS;
+      case 1:
+        List<ByteBuffer> buffers = network.receiveFromAll();
+        List<TinyTablesElement> shares = new ArrayList<>();
+        for (int i = 0; i < buffers.size(); i++) {
+          shares.add(new TinyTablesElement(BooleanSerializer.fromBytes(buffers.get(i))));
+        }
+        boolean open = TinyTablesElement.open(shares);
+        this.out.setValue(new TinyTablesElement(open));
+        return EvaluationStatus.IS_DONE;
+      default:
+        throw new MPCException("Cannot evaluate rounds larger than 0");
+    }
+  }
 
 }

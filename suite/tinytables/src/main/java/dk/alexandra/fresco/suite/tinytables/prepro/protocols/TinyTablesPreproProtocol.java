@@ -26,14 +26,14 @@
  *******************************************************************************/
 package dk.alexandra.fresco.suite.tinytables.prepro.protocols;
 
-import dk.alexandra.fresco.lib.helper.HalfCookedNativeProtocol;
+import dk.alexandra.fresco.framework.Protocol;
 
-public abstract class TinyTablesPreproProtocol extends HalfCookedNativeProtocol{
+public abstract class TinyTablesPreproProtocol implements Protocol {
 
-	protected int id;
-	
-	public int getId() {
-		return id;
-	}
+  protected int id;
+
+  public int getId() {
+    return id;
+  }
 
 }

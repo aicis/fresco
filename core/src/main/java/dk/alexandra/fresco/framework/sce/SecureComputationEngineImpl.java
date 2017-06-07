@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -41,8 +41,6 @@ import dk.alexandra.fresco.framework.network.NetworkingStrategy;
 import dk.alexandra.fresco.framework.network.ScapiNetworkImpl;
 import dk.alexandra.fresco.framework.sce.configuration.ProtocolSuiteConfiguration;
 import dk.alexandra.fresco.framework.sce.configuration.SCEConfiguration;
-import dk.alexandra.fresco.framework.sce.evaluator.BatchedParallelEvaluator;
-import dk.alexandra.fresco.framework.sce.evaluator.ParallelEvaluator;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
 import dk.alexandra.fresco.framework.sce.resources.SCEResourcePool;
 import dk.alexandra.fresco.framework.sce.resources.storage.Storage;
@@ -93,7 +91,7 @@ public class SecureComputationEngineImpl implements SecureComputationEngine {
     int noOfvmThreads = sceConf.getNoOfVMThreads();
     NetworkConfiguration conf = new NetworkConfigurationImpl(myId, parties, logLevel);
 
-    ThreadPoolImpl threadPool = null;
+    ThreadPoolImpl threadPool;
     Storage storage = sceConf.getStorage();
     StreamedStorage streamedStorage = sceConf.getStreamedStorage();
     // Secure random by default.
@@ -103,13 +101,7 @@ public class SecureComputationEngineImpl implements SecureComputationEngine {
     this.evaluator = this.sceConf.getEvaluator();
     this.evaluator.setMaxBatchSize(sceConf.getMaxBatchSize());
     int channelAmount = 1;
-    // If the evaluator is of a parallel sort,
-    // we need the same amount of channels as the number of VM threads we
-    // use.
-    if (this.evaluator instanceof ParallelEvaluator
-        || this.evaluator instanceof BatchedParallelEvaluator) {
-      channelAmount = noOfvmThreads;
-    }
+
     Network network = sceConf.getNetwork(conf, channelAmount);
     if (network == null) {
       NetworkingStrategy networkStrat = sceConf.getNetworkStrategy();
@@ -140,7 +132,7 @@ public class SecureComputationEngineImpl implements SecureComputationEngine {
       threadPool = new ThreadPoolImpl(noOfvmThreads, 0);
     }
 
-    this.resourcePool = new ResourcePoolImpl(sceConf.getMyId(), parties.size(), network, storage,
+    this.resourcePool = new ResourcePoolImpl(myId, parties.size(), network, storage,
         streamedStorage,
         rand, secRand, threadPool, threadPool);
   }

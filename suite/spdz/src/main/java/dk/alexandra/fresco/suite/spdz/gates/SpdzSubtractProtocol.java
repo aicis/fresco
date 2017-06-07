@@ -88,11 +88,6 @@ public class SpdzSubtractProtocol extends SpdzNativeProtocol implements Subtract
 	}
 
 	@Override
-	public Value[] getInputValues() {
-		return new Value[] { left, right };
-	}
-
-	@Override
 	public Value[] getOutputValues() {
 		return new Value[] { out };
 	}

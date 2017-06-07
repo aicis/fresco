@@ -30,52 +30,28 @@ import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.configuration.ConfigurationException;
 
 public enum EvaluationStrategy {
-    SEQUENTIAL, PARALLEL, PARALLEL_BATCHED, SEQUENTIAL_BATCHED;
+  SEQUENTIAL, SEQUENTIAL_BATCHED;
 
-	public static ProtocolEvaluator fromString(String evalStr) throws ConfigurationException {
-		EvaluationStrategy evalStrategy = EvaluationStrategy.valueOf(evalStr.toUpperCase());
-		switch(evalStrategy) {
-		case SEQUENTIAL:
-			return new SequentialEvaluator();
-		case PARALLEL:
-			return new ParallelEvaluator();
-		case SEQUENTIAL_BATCHED:
-			return new BatchedSequentialEvaluator();
-		case PARALLEL_BATCHED:
-			return new BatchedParallelEvaluator();
-		default:
-			throw new ConfigurationException("Unrecognized evaluation strategy:" + evalStr);
-		}
-	}
-	
-	public static ProtocolEvaluator fromEnum(EvaluationStrategy strat) throws ConfigurationException {
-		switch(strat) {
-		case SEQUENTIAL:
-			return new SequentialEvaluator();
-		case PARALLEL:
-			return new ParallelEvaluator();
-		case SEQUENTIAL_BATCHED:
-			return new BatchedSequentialEvaluator();
-		case PARALLEL_BATCHED:
-			return new BatchedParallelEvaluator();
-		default:
-			throw new ConfigurationException("Unrecognized evaluation strategy:" + strat);
-		}
-	}
-	
-	public static String evaluatorToString(ProtocolEvaluator evaluator) {
-		if(evaluator instanceof SequentialEvaluator) {
-			return SEQUENTIAL.name();
-		} else if(evaluator instanceof ParallelEvaluator) {
-			return PARALLEL.name();
-		}
-		else if(evaluator instanceof BatchedSequentialEvaluator) {
-			return SEQUENTIAL_BATCHED.name();
-		}
-		else if(evaluator instanceof BatchedParallelEvaluator) {
-			return PARALLEL_BATCHED.name();
-		} else {
-			throw new ConfigurationException("Unrecognized evaluation strategy:" + evaluator.toString());
-		}
-	}
+  public static ProtocolEvaluator fromString(String evalStr) throws ConfigurationException {
+    EvaluationStrategy evalStrategy = EvaluationStrategy.valueOf(evalStr.toUpperCase());
+    switch (evalStrategy) {
+      case SEQUENTIAL:
+        return new SequentialEvaluator();
+      case SEQUENTIAL_BATCHED:
+        return new BatchedSequentialEvaluator();
+      default:
+        throw new ConfigurationException("Unrecognized evaluation strategy:" + evalStr);
+    }
+  }
+
+  public static ProtocolEvaluator fromEnum(EvaluationStrategy strat) throws ConfigurationException {
+    switch (strat) {
+      case SEQUENTIAL:
+        return new SequentialEvaluator();
+      case SEQUENTIAL_BATCHED:
+        return new BatchedSequentialEvaluator();
+      default:
+        throw new ConfigurationException("Unrecognized evaluation strategy:" + strat);
+    }
+  }
 }

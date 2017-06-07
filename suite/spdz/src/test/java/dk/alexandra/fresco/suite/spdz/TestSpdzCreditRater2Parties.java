@@ -69,20 +69,32 @@ public class TestSpdzCreditRater2Parties extends AbstractSpdzTest{
     intervals[0] = new int[]{100, 500};
     scores = new int[1][];
     scores[0] = new int[]{10, 13, 15};
-    runTest(new CreditRaterTest.TestCreditRater(values, intervals, scores), EvaluationStrategy.PARALLEL_BATCHED, NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
+    runTest(new CreditRaterTest.TestCreditRater(values, intervals, scores),
+        EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET,
+        PreprocessingStrategy.DUMMY, 2);
    
     values = new int[]{10};
-    runTest(new CreditRaterTest.TestCreditRater(values, intervals, scores), EvaluationStrategy.PARALLEL_BATCHED, NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
+    runTest(new CreditRaterTest.TestCreditRater(values, intervals, scores),
+        EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET,
+        PreprocessingStrategy.DUMMY, 2);
     values = new int[]{100};
-    runTest(new CreditRaterTest.TestCreditRater(values, intervals, scores), EvaluationStrategy.PARALLEL_BATCHED, NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
+    runTest(new CreditRaterTest.TestCreditRater(values, intervals, scores),
+        EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET,
+        PreprocessingStrategy.DUMMY, 2);
     values = new int[]{500};
-    runTest(new CreditRaterTest.TestCreditRater(values, intervals, scores), EvaluationStrategy.PARALLEL_BATCHED, NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
+    runTest(new CreditRaterTest.TestCreditRater(values, intervals, scores),
+        EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET,
+        PreprocessingStrategy.DUMMY, 2);
     values = new int[]{1000};
-    runTest(new CreditRaterTest.TestCreditRater(values, intervals, scores), EvaluationStrategy.PARALLEL_BATCHED, NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
+    runTest(new CreditRaterTest.TestCreditRater(values, intervals, scores),
+        EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET,
+        PreprocessingStrategy.DUMMY, 2);
     
     intervals[0] = new int[]{1000};
     scores[0] = new int[]{10, 20};
-    runTest(new CreditRaterTest.TestCreditRater(values, intervals, scores), EvaluationStrategy.PARALLEL_BATCHED, NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
+    runTest(new CreditRaterTest.TestCreditRater(values, intervals, scores),
+        EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET,
+        PreprocessingStrategy.DUMMY, 2);
     
     values = new int[]{101, 440, 442};
     intervals = new int[3][];
@@ -93,18 +105,14 @@ public class TestSpdzCreditRater2Parties extends AbstractSpdzTest{
     scores[0] = new int[]{10, 13, 15};
     scores[1] = new int[]{1, 3, 21};
     scores[2] = new int[]{16, 15, 11};
-    runTest(new CreditRaterTest.TestCreditRater(values, intervals, scores), EvaluationStrategy.PARALLEL_BATCHED, NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
+    runTest(new CreditRaterTest.TestCreditRater(values, intervals, scores),
+        EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET,
+        PreprocessingStrategy.DUMMY, 2);
 
-  }  
-  
-	@Test
-	public void test_CreditRater_2_Parallel_batched_dummy() throws Exception {
-		runTest(new CreditRaterTest.TestCreditRater(values, intervals, scores), EvaluationStrategy.PARALLEL_BATCHED, NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
-	}
-	
-	
-	
-	@Test
+  }
+
+
+  @Test
 	public void test_CreditRater_2_Sequential_batched_dummy() throws Exception {
 		runTest(new CreditRaterTest.TestCreditRater(values, intervals, scores), 
 				EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
@@ -119,15 +127,9 @@ public class TestSpdzCreditRater2Parties extends AbstractSpdzTest{
 		runTest(new CreditRaterTest.TestCreditRater(values, intervals, scores), 
 				EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
 	}
-	
-	@Category(IntegrationTest.class)
-	@Test
-	public void test_CreditRater_2_Parallel_dummy() throws Exception {
-		runTest(new CreditRaterTest.TestCreditRater(values, intervals, scores), 
-				EvaluationStrategy.PARALLEL, NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
-	}
-	
-	// Ignoring the streamed tests since they take too long with respect to generating preprocessed material
+
+
+  // Ignoring the streamed tests since they take too long with respect to generating preprocessed material
 	// Note that the poor performance of non-batched evaulation is most likely also the case here.
 	//TODO: Maybe add the @Category(IntegrationTest.class) instead of @Ignore.
 	//TODO Does not work atm
@@ -140,34 +142,6 @@ public class TestSpdzCreditRater2Parties extends AbstractSpdzTest{
 			InitializeStorage.initStreamedStorage(new FilebasedStreamedStorageImpl(new InMemoryStorage()), 2, noOfThreads, 20000, 500, 500000, 2000);
 			runTest(new CreditRaterTest.TestCreditRater(values, intervals, scores), 
 					EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET, PreprocessingStrategy.STATIC, 2);
-		} finally {
-			InitializeStorage.cleanup();
-		}
-	}
-	
-	@Ignore
-	@Test
-	public void test_CreditRater_2_Parallel_streamed() throws Exception {
-		int noOfThreads = 2;
-		InitializeStorage.cleanup();
-		try {
-			InitializeStorage.initStreamedStorage(new FilebasedStreamedStorageImpl(new InMemoryStorage()), 2, noOfThreads, 20000, 500, 800000, 3000);
-			runTest(new CreditRaterTest.TestCreditRater(values, intervals, scores), 
-					EvaluationStrategy.PARALLEL, NetworkingStrategy.KRYONET, PreprocessingStrategy.STATIC, 2);
-		} finally {
-			InitializeStorage.cleanup();
-		}
-	}
-	
-	@Ignore
-	@Test
-	public void test_CreditRater_2_ParallelBatched_streamed() throws Exception {
-		int noOfThreads = 2;		
-		InitializeStorage.cleanup();
-		try {
-			InitializeStorage.initStreamedStorage(new FilebasedStreamedStorageImpl(new InMemoryStorage()), 2, noOfThreads, 20000, 500, 800000, 3000);
-			runTest(new CreditRaterTest.TestCreditRater(values, intervals, scores),
-					EvaluationStrategy.PARALLEL_BATCHED, NetworkingStrategy.KRYONET, PreprocessingStrategy.STATIC, 2);
 		} finally {
 			InitializeStorage.cleanup();
 		}

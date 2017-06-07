@@ -26,83 +26,71 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.field.bool.generic;
 
-import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.Protocol;
+import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.SBool;
 import dk.alexandra.fresco.framework.value.SBoolFactory;
-import dk.alexandra.fresco.framework.value.Value;
 import dk.alexandra.fresco.lib.field.bool.AndProtocolFactory;
 import dk.alexandra.fresco.lib.field.bool.OrProtocol;
 import dk.alexandra.fresco.lib.field.bool.XorProtocolFactory;
+import dk.alexandra.fresco.lib.helper.AppendableProtocolProducer;
 import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
 
 /**
  * This protocol implements
- * 
- *     a OR b
- *   
- * as
- * 
- *     (a AND b) XOR a XOR b
  *
+ * a OR b
+ *
+ * as
+ *
+ * (a AND b) XOR a XOR b
  */
 public class OrFromXorAndProtocol implements OrProtocol {
 
-	private SBoolFactory sboolp;
-	private XorProtocolFactory xorcp;
-	private AndProtocolFactory andcp;
-	private SBool inA;
-	private SBool inB;
-	private SBool out;
-	
-	private ProtocolProducer c;
-	private SBool t0;
-	private SBool t1;
+  private SBoolFactory sboolp;
+  private XorProtocolFactory xorcp;
+  private AndProtocolFactory andcp;
+  private SBool inA;
+  private SBool inB;
+  private SBool out;
 
-	public OrFromXorAndProtocol(SBoolFactory sboolf, XorProtocolFactory xorcf, AndProtocolFactory andcf, SBool inA, SBool inB, SBool out) {
-		this.sboolp = sboolf;
-		this.xorcp = xorcf;
-		this.andcp = andcf;
-		this.inA = inA;
-		this.inB = inB;
-		this.out = out;
-	}
+  private ProtocolProducer c;
+  private SBool t0;
+  private SBool t1;
 
-	@Override
-	public boolean hasNextProtocols() {
-		return c == null || c.hasNextProtocols();
-	}
-	
-	@Override
-	public int getNextProtocols(NativeProtocol[] nativeProtocols, int pos) {
-		// TODO: We could create less objects up front than this by using explicit program counter.
-		
-		// Lazy construction of inner protocols.
-		if (c == null) {
-			t0 = sboolp.getSBool();
-			t1 = sboolp.getSBool();
-			Protocol c0 = andcp.getAndProtocol(inA, inB, t0);
-			Protocol c1 = xorcp.getXorProtocol(inA, inB, t1);
-			ProtocolProducer c2 = new ParallelProtocolProducer(c0, c1); 
-			Protocol c3 = xorcp.getXorProtocol(t0, t1, out);
-			c = new SequentialProtocolProducer(c2, c3); 
-		}
+  public OrFromXorAndProtocol(SBoolFactory sboolf, XorProtocolFactory xorcf,
+      AndProtocolFactory andcf, SBool inA, SBool inB, SBool out) {
+    this.sboolp = sboolf;
+    this.xorcp = xorcf;
+    this.andcp = andcf;
+    this.inA = inA;
+    this.inB = inB;
+    this.out = out;
+  }
 
-		return c.getNextProtocols(nativeProtocols, pos);
-	}
+  @Override
+  public boolean hasNextProtocols() {
+    return c == null || c.hasNextProtocols();
+  }
 
-	@Override
-	public Value[] getInputValues() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+  @Override
+  public void getNextProtocols(ProtocolCollection protocolCollection) {
+    // TODO: We could create less objects up front than this by using explicit program counter.
 
-	@Override
-	public Value[] getOutputValues() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    // Lazy construction of inner protocols.
+    if (c == null) {
+      t0 = sboolp.getSBool();
+      t1 = sboolp.getSBool();
+      AppendableProtocolProducer c2 = new ParallelProtocolProducer();
+      c2.append(andcp.getAndProtocol(inA, inB, t0));
+      c2.append(xorcp.getXorProtocol(inA, inB, t1));
 
+      Protocol c3 = xorcp.getXorProtocol(t0, t1, out);
+      c = new SequentialProtocolProducer(c2, c3);
+    }
+
+    c.getNextProtocols(protocolCollection);
+  }
 }

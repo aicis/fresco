@@ -37,6 +37,7 @@ import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.field.integer.RandomFieldElementFactory;
+import dk.alexandra.fresco.lib.helper.AppendableProtocolProducer;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
 import dk.alexandra.fresco.lib.lp.LPFactory;
 import dk.alexandra.fresco.lib.lp.LPFactoryImpl;
@@ -104,7 +105,7 @@ public class LPSolverTests {
 								ProtocolProducer lpsolver = new LPSolverProtocol(
 										prefix.getTableau(),
 										prefix.getUpdateMatrix(),
-										prefix.getPivot(), 
+										prefix.getPivot(),
 										prefix.getBasis(), lpFactory, bnFactory);
 								SInt sout = bnFactory.getSInt();
 								OInt out = bnFactory.getOInt();
@@ -113,13 +114,12 @@ public class LPSolverTests {
 												prefix.getUpdateMatrix(),
 												prefix.getTableau().getB(),
 												prefix.getPivot(), sout);
-								ProtocolProducer open = bnFactory
-										.getOpenProtocol(sout, out);
-								ProtocolProducer seq = new SequentialProtocolProducer(
-										prefix.getPrefix(), 
+								AppendableProtocolProducer seq = new SequentialProtocolProducer(
+										prefix.getPrefix(),
 										lpsolver,
-										outputter, 
-										open);
+										outputter);
+								seq.append(bnFactory
+										.getOpenProtocol(sout, out));
 								sseq.append(seq);
 								this.outputs = new OInt[] {out};
 							}

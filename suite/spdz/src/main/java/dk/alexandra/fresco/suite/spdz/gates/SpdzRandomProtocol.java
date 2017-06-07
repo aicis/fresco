@@ -42,11 +42,6 @@ public class SpdzRandomProtocol extends SpdzNativeProtocol implements RandomFiel
 	public SpdzRandomProtocol(SInt randomElement) {
 		this.randomElement = (SpdzSInt)randomElement;
 	}
-	
-	@Override
-	public Value[] getInputValues() {
-		return new Value[] {randomElement};
-	}
 
 	@Override
 	public Value[] getOutputValues() {

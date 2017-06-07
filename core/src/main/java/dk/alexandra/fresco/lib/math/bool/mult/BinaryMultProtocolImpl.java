@@ -27,11 +27,9 @@
 package dk.alexandra.fresco.lib.math.bool.mult;
 
 import dk.alexandra.fresco.framework.MPCException;
-import dk.alexandra.fresco.framework.NativeProtocol;
-import dk.alexandra.fresco.framework.Protocol;
+import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.SBool;
-import dk.alexandra.fresco.framework.value.Value;
 import dk.alexandra.fresco.lib.field.bool.BasicLogicFactory;
 import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
@@ -39,158 +37,150 @@ import dk.alexandra.fresco.lib.math.bool.add.AdderProtocolFactory;
 
 /**
  * This class implements a Binary Multiplication protocol by doing the school method.
- * This means that we connect O(n^2) 1-Bit-FullAdders in order to get the result. 
- * As one would imagine, this is not the most efficient method, but it works as a basic case. 
- * @author Kasper Damgaard
+ * This means that we connect O(n^2) 1-Bit-FullAdders in order to get the result.
+ * As one would imagine, this is not the most efficient method, but it works as a basic case.
  *
+ * @author Kasper Damgaard
  */
-public class BinaryMultProtocolImpl implements BinaryMultProtocol{	
+public class BinaryMultProtocolImpl implements BinaryMultProtocol {
 
-	private SBool[] lefts, rights, outs;
-	private SBool[][] andMatrix;
-	private SBool[] intermediateResults;
-	private SBool[] carries;
-	private BasicLogicFactory basicFactory;
-	private AdderProtocolFactory adderFactory;
-	private int round;
-	private int stopRound;
-	private ProtocolProducer curPP;
-	
-	public BinaryMultProtocolImpl(SBool[] lefts, SBool[] rights, SBool[] outs,
-			BasicLogicFactory basicFactory, AdderProtocolFactory adderFactory) {
-		if(lefts.length+rights.length != outs.length){
-			throw new MPCException("input arrays must be same length, and output array must be twice that of the inputs.");
-		}
-		this.lefts = lefts;
-		this.rights = rights;
-		this.outs = outs;
-		this.basicFactory = basicFactory;
-		this.adderFactory = adderFactory;
-		this.round = 0;
-		this.stopRound = rights.length;		
-		this.curPP = null;
-		
-		//For the rest of the file: j equals row or round
-		//i is index in that row 
-		
-		this.carries = new SBool[lefts.length];
-		for(int i = 0; i < carries.length; i++){
-			carries[i] = basicFactory.getSBool();
-		}
-		
-		intermediateResults = new SBool[lefts.length];
-		andMatrix = new SBool[lefts.length][rights.length-1];
-		
-		for(int i = 0; i < lefts.length; i++){	
-			intermediateResults[i] = basicFactory.getSBool();
-			for(int j = 0; j < rights.length-1; j++){				
-				andMatrix[i][j] = basicFactory.getSBool();
-			}
-		}
-	}
+  private SBool[] lefts, rights, outs;
+  private SBool[][] andMatrix;
+  private SBool[] intermediateResults;
+  private SBool[] carries;
+  private BasicLogicFactory basicFactory;
+  private AdderProtocolFactory adderFactory;
+  private int round;
+  private int stopRound;
+  private ProtocolProducer curPP;
 
-	/**
-	 * Round 1: Create a matrix that is the AND of every possible input combination. 
-	 * Round 2-(stopRound-1): Create layers of adders that takes the last layers result
-	 * 	as well as the corresponding andMatrix layer and adds it. 
-	 * Round stopRound-1: Do the final layer. Same as the other rounds, except the last carry is outputted.
-	 */
-	@Override
-	public int getNextProtocols(NativeProtocol[] nativeProtocols, int pos) {
-		if(round == 0){
-			if(curPP == null){				
-				curPP = new ParallelProtocolProducer();
-				for(int i = 0; i < lefts.length; i++){
-					for(int j = 0; j < rights.length; j++){
-						if(j == rights.length-1){ //corresponding to having least significant bit steady. 
-							if(i == lefts.length-1){
-								((ParallelProtocolProducer)curPP).append(basicFactory.getAndProtocol(lefts[i], rights[j], outs[outs.length-1]));
-							}else{
-								((ParallelProtocolProducer)curPP).append(basicFactory.getAndProtocol(lefts[i], rights[j], intermediateResults[intermediateResults.length-2-i]));
-							}
-						}
-						else{
-							((ParallelProtocolProducer)curPP).append(basicFactory.getAndProtocol(lefts[i], rights[j], andMatrix[lefts.length-1-i][rights.length-2-j]));
-						}
-					}
-				}
-			}
-			if(curPP.hasNextProtocols()){
-				pos = curPP.getNextProtocols(nativeProtocols, pos);
-			}
-			else if(!curPP.hasNextProtocols()){
-				round++;
-				curPP = null;
-			}
-		}
-		else if(round > 0 && round < stopRound-1){
-			if(curPP == null){								
-				Protocol firstHA = adderFactory.getOneBitHalfAdderProtocol(andMatrix[0][round-1], intermediateResults[0], outs[outs.length-1-round], carries[0]);
-				Protocol[] FAs = new Protocol[lefts.length-1];
-				for(int i = 1; i < lefts.length; i++){
-					if(round == 1 && i == lefts.length-1){
-						//special case where we need a half adder, not a full adder since we do not have a carry from first layer. 
-						FAs[i-1] = adderFactory.getOneBitHalfAdderProtocol(andMatrix[i][round-1], carries[i-1], intermediateResults[i-1], intermediateResults[i]);
-					}
-					else if(i == lefts.length-1){
-						FAs[i-1] = adderFactory.getOneBitFullAdderProtocol(andMatrix[i][round-1], intermediateResults[i], carries[i-1], intermediateResults[i-1], intermediateResults[i]);
-					}					
-					else{						
-						FAs[i-1] = adderFactory.getOneBitFullAdderProtocol(andMatrix[i][round-1], intermediateResults[i], carries[i-1], intermediateResults[i-1], carries[i]);
-					}
-				}
-				SequentialProtocolProducer tmp = new SequentialProtocolProducer(FAs); 
-				curPP = new SequentialProtocolProducer(firstHA, tmp);				
-			}
-			if(curPP.hasNextProtocols()){
-				pos = curPP.getNextProtocols(nativeProtocols, pos);
-			}
-			else if(!curPP.hasNextProtocols()){
-				round++;
-				curPP = null;
-			}
-		}
-		else if(round == stopRound-1){			
-			if(curPP == null){				
-				Protocol firstHA = adderFactory.getOneBitHalfAdderProtocol(andMatrix[0][round-1], intermediateResults[0], outs[outs.length-1-round], carries[0]);
-				Protocol[] FAs = new Protocol[lefts.length-1];
-				for(int i = 1; i < lefts.length; i++){
-					if(i == lefts.length-1){
-						FAs[i-1] = adderFactory.getOneBitFullAdderProtocol(andMatrix[i][round-1], intermediateResults[i], carries[i-1], outs[1], outs[0]);
-					}
-					else{
-						FAs[i-1] = adderFactory.getOneBitFullAdderProtocol(andMatrix[i][round-1], intermediateResults[i], carries[i-1], outs[outs.length-1-round-i], carries[i]);
-					}
-				}
-				SequentialProtocolProducer tmp = new SequentialProtocolProducer(FAs); 
-				curPP = new SequentialProtocolProducer(firstHA, tmp);					
-			}
-			if(curPP.hasNextProtocols()){
-				pos = curPP.getNextProtocols(nativeProtocols, pos);
-			}
-			else if(!curPP.hasNextProtocols()){
-				round++;
-				curPP = null;
-			}
-		}
-		return pos;
-	}
+  public BinaryMultProtocolImpl(SBool[] lefts, SBool[] rights, SBool[] outs,
+      BasicLogicFactory basicFactory, AdderProtocolFactory adderFactory) {
+    if (lefts.length + rights.length != outs.length) {
+      throw new MPCException(
+          "input arrays must be same length, and output array must be twice that of the inputs.");
+    }
+    this.lefts = lefts;
+    this.rights = rights;
+    this.outs = outs;
+    this.basicFactory = basicFactory;
+    this.adderFactory = adderFactory;
+    this.round = 0;
+    this.stopRound = rights.length;
+    this.curPP = null;
 
-	@Override
-	public boolean hasNextProtocols() {
-		return round < stopRound;
-	}
-	
-	@Override
-	public Value[] getInputValues() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    //For the rest of the file: j equals row or round
+    //i is index in that row
 
-	@Override
-	public Value[] getOutputValues() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    this.carries = new SBool[lefts.length];
+    for (int i = 0; i < carries.length; i++) {
+      carries[i] = basicFactory.getSBool();
+    }
 
+    intermediateResults = new SBool[lefts.length];
+    andMatrix = new SBool[lefts.length][rights.length - 1];
+
+    for (int i = 0; i < lefts.length; i++) {
+      intermediateResults[i] = basicFactory.getSBool();
+      for (int j = 0; j < rights.length - 1; j++) {
+        andMatrix[i][j] = basicFactory.getSBool();
+      }
+    }
+  }
+
+  /**
+   * Round 1: Create a matrix that is the AND of every possible input combination. Round
+   * 2-(stopRound-1): Create layers of adders that takes the last layers result as well as the
+   * corresponding andMatrix layer and adds it. Round stopRound-1: Do the final layer. Same as the
+   * other rounds, except the last carry is outputted.
+   */
+  @Override
+  public void getNextProtocols(ProtocolCollection protocolCollection) {
+    if (round == 0) {
+      if (curPP == null) {
+        curPP = new ParallelProtocolProducer();
+        for (int i = 0; i < lefts.length; i++) {
+          for (int j = 0; j < rights.length; j++) {
+            if (j == rights.length - 1) { //corresponding to having least significant bit steady.
+              if (i == lefts.length - 1) {
+                ((ParallelProtocolProducer) curPP).append(
+                    basicFactory.getAndProtocol(lefts[i], rights[j], outs[outs.length - 1]));
+              } else {
+                ((ParallelProtocolProducer) curPP).append(basicFactory
+                    .getAndProtocol(lefts[i], rights[j],
+                        intermediateResults[intermediateResults.length - 2 - i]));
+              }
+            } else {
+              ((ParallelProtocolProducer) curPP).append(basicFactory
+                  .getAndProtocol(lefts[i], rights[j],
+                      andMatrix[lefts.length - 1 - i][rights.length - 2 - j]));
+            }
+          }
+        }
+      }
+      getNextFromPp(protocolCollection);
+
+    } else if (round > 0 && round < stopRound - 1) {
+      if (curPP == null) {
+        ProtocolProducer firstHA = adderFactory
+            .getOneBitHalfAdderProtocol(andMatrix[0][round - 1], intermediateResults[0],
+                outs[outs.length - 1 - round], carries[0]);
+        ProtocolProducer[] FAs = new ProtocolProducer[lefts.length - 1];
+        for (int i = 1; i < lefts.length; i++) {
+          if (round == 1 && i == lefts.length - 1) {
+            //special case where we need a half adder, not a full adder since we do not have a carry from first layer.
+            FAs[i - 1] = adderFactory
+                .getOneBitHalfAdderProtocol(andMatrix[i][round - 1], carries[i - 1],
+                    intermediateResults[i - 1], intermediateResults[i]);
+          } else if (i == lefts.length - 1) {
+            FAs[i - 1] = adderFactory
+                .getOneBitFullAdderProtocol(andMatrix[i][round - 1], intermediateResults[i],
+                    carries[i - 1], intermediateResults[i - 1], intermediateResults[i]);
+          } else {
+            FAs[i - 1] = adderFactory
+                .getOneBitFullAdderProtocol(andMatrix[i][round - 1], intermediateResults[i],
+                    carries[i - 1], intermediateResults[i - 1], carries[i]);
+          }
+        }
+        SequentialProtocolProducer tmp = new SequentialProtocolProducer(FAs);
+        curPP = new SequentialProtocolProducer(firstHA, tmp);
+      }
+      getNextFromPp(protocolCollection);
+    } else if (round == stopRound - 1) {
+      if (curPP == null) {
+        ProtocolProducer firstHA = adderFactory
+            .getOneBitHalfAdderProtocol(andMatrix[0][round - 1], intermediateResults[0],
+                outs[outs.length - 1 - round], carries[0]);
+        ProtocolProducer[] FAs = new ProtocolProducer[lefts.length - 1];
+        for (int i = 1; i < lefts.length; i++) {
+          if (i == lefts.length - 1) {
+            FAs[i - 1] = adderFactory
+                .getOneBitFullAdderProtocol(andMatrix[i][round - 1], intermediateResults[i],
+                    carries[i - 1], outs[1], outs[0]);
+          } else {
+            FAs[i - 1] = adderFactory
+                .getOneBitFullAdderProtocol(andMatrix[i][round - 1], intermediateResults[i],
+                    carries[i - 1], outs[outs.length - 1 - round - i], carries[i]);
+          }
+        }
+        SequentialProtocolProducer tmp = new SequentialProtocolProducer(FAs);
+        curPP = new SequentialProtocolProducer(firstHA, tmp);
+      }
+      getNextFromPp(protocolCollection);
+    }
+  }
+
+  private void getNextFromPp(ProtocolCollection protocolCollection) {
+    if (curPP.hasNextProtocols()) {
+      curPP.getNextProtocols(protocolCollection);
+    } else {
+      round++;
+      curPP = null;
+    }
+  }
+
+  @Override
+  public boolean hasNextProtocols() {
+    return round < stopRound;
+  }
 }

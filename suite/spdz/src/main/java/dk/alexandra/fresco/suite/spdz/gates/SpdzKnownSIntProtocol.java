@@ -32,7 +32,6 @@ import dk.alexandra.fresco.framework.value.KnownSIntProtocol;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.framework.value.Value;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
-import dk.alexandra.fresco.suite.spdz.datatypes.SpdzOInt;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.evaluation.strategy.SpdzProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.utils.Util;
@@ -66,12 +65,6 @@ public class SpdzKnownSIntProtocol extends SpdzNativeProtocol implements KnownSI
 	 */
 	public SpdzKnownSIntProtocol(int value, SInt sValue) {
 		this(BigInteger.valueOf(value), sValue);
-	}
-
-	@Override
-	public Value[] getInputValues() {
-		SpdzOInt oValue = new SpdzOInt(value);
-		return new Value[] { oValue };
 	}
 
 	@Override

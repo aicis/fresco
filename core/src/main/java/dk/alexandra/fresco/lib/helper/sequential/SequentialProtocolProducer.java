@@ -26,67 +26,89 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.helper.sequential;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.ListIterator;
-
-import dk.alexandra.fresco.framework.NativeProtocol;
+import dk.alexandra.fresco.framework.Protocol;
+import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.lib.helper.AppendableProtocolProducer;
+import dk.alexandra.fresco.lib.helper.SingleProtocolProducer;
+import java.util.LinkedList;
+import java.util.List;
 
-public class SequentialProtocolProducer implements ProtocolProducer, ProtocolProducerList, AppendableProtocolProducer {
+public class SequentialProtocolProducer implements ProtocolProducer, ProtocolProducerList,
+    AppendableProtocolProducer {
 
-	private SequentialHelper seqh;
-	
-	protected LinkedList<ProtocolProducer> cs = new LinkedList<ProtocolProducer>();
+  private SequentialHelper seqh;
 
-	public SequentialProtocolProducer(ProtocolProducer... cs) {
-		seqh = new SequentialHelper(this);
-		for (ProtocolProducer c : cs) {
-			this.cs.add(c);
-		}
-	}
-	
-	public void append(ProtocolProducer c) {
-		this.cs.add(c);
-	}
+  protected LinkedList<ProtocolProducer> cs = new LinkedList<ProtocolProducer>();
 
-	@Override
-	public int getNextProtocols(NativeProtocol[] nativeProtocols, int pos) {
-		return seqh.getNextProtocols(nativeProtocols, pos);
-	}
+  public SequentialProtocolProducer(ProtocolProducer... cs) {
+    this();
+    for (ProtocolProducer c : cs) {
+      append(c);
+    }
+  }
 
-	@Override
-	public boolean hasNextProtocols() {
-		return seqh.hasNextProtocols();
-	}
+  public SequentialProtocolProducer(Protocol... protocols) {
+    this();
+    for (Protocol protocol : protocols) {
+      append(protocol);
+    }
+  }
 
-	@Override
-	public ProtocolProducer getNextInLine() {
-		return cs.pop();
-	}
+  public SequentialProtocolProducer(ProtocolProducer firstProtocolProducer, Protocol... protocols) {
+    this();
+    append(firstProtocolProducer);
+    for (Protocol protocol : protocols) {
+      append(protocol);
+    }
+  }
 
-	@Override
-	public boolean hasNextInLine() {
-		return !(cs.isEmpty());
-	}	
-	
-	public LinkedList<ProtocolProducer> merge() {
-		ListIterator<ProtocolProducer> x = cs.listIterator();
-		while (x.hasNext()) {
-			ProtocolProducer gp = x.next();
-			if (gp instanceof SequentialProtocolProducer) {
-				x.remove();
-				SequentialProtocolProducer seq = (SequentialProtocolProducer)gp;
-				for (ProtocolProducer p: seq.cs) {
-					x.add(p);
-				}
-			}
-		}
-		return cs;
-	}
-	
-	public List<ProtocolProducer> getNextProtocolProducerLevel(){
-		return cs;
-	}
+  public SequentialProtocolProducer() {
+    seqh = new SequentialHelper(this);
+  }
+
+  public void append(ProtocolProducer protocolProducer) {
+    this.cs.add(protocolProducer);
+  }
+
+  public void append(Protocol protocol) {
+    this.cs.add(SingleProtocolProducer.wrap(protocol));
+  }
+
+  @Override
+  public void getNextProtocols(ProtocolCollection protocolCollection) {
+    seqh.getNextProtocols(protocolCollection);
+  }
+
+  @Override
+  public boolean hasNextProtocols() {
+    return seqh.hasNextProtocols();
+  }
+
+  @Override
+  public ProtocolProducer getNextInLine() {
+    return cs.pop();
+  }
+
+  @Override
+  public boolean hasNextInLine() {
+    return !(cs.isEmpty());
+  }
+
+  public List<ProtocolProducer> getNextProtocolProducerLevel() {
+    return cs;
+  }
+
+  @Override
+  public String toString() {
+    return "SequentialProtocolProducer{"
+        + "seqh=" + seqh
+        + ", cs=" + cs
+        + '}';
+  }
+
+  public void logProgress(
+      Class<?> aClass) {
+    seqh.logProgess(aClass);
+  }
 }

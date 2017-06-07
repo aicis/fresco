@@ -26,6 +26,10 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.statistics;
 
+import dk.alexandra.fresco.framework.ProtocolCollection;
+import dk.alexandra.fresco.framework.ProtocolProducer;
+import dk.alexandra.fresco.framework.value.SInt;
+import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
 import java.util.ArrayList;
 import java.util.List;
 import org.hamcrest.core.Is;
@@ -34,32 +38,27 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import dk.alexandra.fresco.framework.NativeProtocol;
-import dk.alexandra.fresco.framework.ProtocolProducer;
-import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
-
 public class TestDEAInputEfficiencyPrefixBuilder {
 
-  private List<List<SInt>> inputValues = new ArrayList<List<SInt>>(); 
-  private List<List<SInt>> outputValues = new ArrayList<List<SInt>>();
-  private List<List<SInt>> inputBasis = new ArrayList<List<SInt>>(); 
-  private List<List<SInt>> outputBasis = new ArrayList<List<SInt>>();
+  private List<List<SInt>> inputValues = new ArrayList<>();
+  private List<List<SInt>> outputValues = new ArrayList<>();
+  private List<List<SInt>> inputBasis = new ArrayList<>();
+  private List<List<SInt>> outputBasis = new ArrayList<>();
   
   private DEAInputEfficiencyPrefixBuilder builder;
   
   @Before
   public void setup(){
     builder = new DEAInputEfficiencyPrefixBuilder();
-    
-    inputValues = new ArrayList<List<SInt>>(); 
-    outputValues = new ArrayList<List<SInt>>();
-    inputBasis = new ArrayList<List<SInt>>(); 
-    outputBasis = new ArrayList<List<SInt>>();
-    inputValues.add(new ArrayList<SInt>());
-    outputValues.add(new ArrayList<SInt>());
-    inputBasis.add(new ArrayList<SInt>());
-    outputBasis.add(new ArrayList<SInt>());
+
+    inputValues = new ArrayList<>();
+    outputValues = new ArrayList<>();
+    inputBasis = new ArrayList<>();
+    outputBasis = new ArrayList<>();
+    inputValues.add(new ArrayList<>());
+    outputValues.add(new ArrayList<>());
+    inputBasis.add(new ArrayList<>());
+    outputBasis.add(new ArrayList<>());
   }
   
   @Test
@@ -71,7 +70,7 @@ public class TestDEAInputEfficiencyPrefixBuilder {
     } catch(IllegalStateException e) {
     }
     try{
-      builder.basisInputs(new ArrayList<SInt[]>());
+      builder.basisInputs(new ArrayList<>());
       builder.getBasisInputs().add(new SInt[2]);
       builder.build();
       Assert.fail("Can not build on incosistent data.");
@@ -93,7 +92,7 @@ public class TestDEAInputEfficiencyPrefixBuilder {
     
     builder.addPrefix(second);
     ParallelProtocolProducer par = (ParallelProtocolProducer) builder.getCircuit();
-    List<String> producerNames = new ArrayList<String>();
+    List<String> producerNames = new ArrayList<>();
     for(ProtocolProducer prod :  par.getNextProtocolProducerLevel()) {
       producerNames.add(((DummyProducer)prod).getName());
     }
@@ -153,9 +152,7 @@ public class TestDEAInputEfficiencyPrefixBuilder {
     }
     
     @Override
-    public int getNextProtocols(NativeProtocol[] protocols, int pos) {
-      // TODO Auto-generated method stub
-      return 0;
+    public void getNextProtocols(ProtocolCollection protocolCollection) {
     }
 
     @Override

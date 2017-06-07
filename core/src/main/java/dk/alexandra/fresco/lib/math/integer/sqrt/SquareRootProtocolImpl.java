@@ -26,16 +26,15 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.math.integer.sqrt;
 
-import java.math.BigInteger;
-
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
-import dk.alexandra.fresco.lib.helper.AbstractSimpleProtocol;
+import dk.alexandra.fresco.lib.helper.SimpleProtocolProducer;
 import dk.alexandra.fresco.lib.helper.builder.NumericProtocolBuilder;
 import dk.alexandra.fresco.lib.math.integer.binary.RightShiftFactory;
 import dk.alexandra.fresco.lib.math.integer.division.DivisionFactory;
+import java.math.BigInteger;
 
 /**
  * This class implements a protocol for approximating the square root of a
@@ -46,7 +45,7 @@ import dk.alexandra.fresco.lib.math.integer.division.DivisionFactory;
  * @author Jonas Lindstrøm (jonas.lindstrom@alexandra.dk)
  *
  */
-public class SquareRootProtocolImpl extends AbstractSimpleProtocol implements SquareRootProtocol {
+public class SquareRootProtocolImpl extends SimpleProtocolProducer implements SquareRootProtocol {
 
 	// Input
 	private SInt input;

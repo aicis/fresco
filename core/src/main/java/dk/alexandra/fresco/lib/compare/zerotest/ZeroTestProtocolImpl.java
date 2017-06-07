@@ -29,7 +29,7 @@ package dk.alexandra.fresco.lib.compare.zerotest;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
-import dk.alexandra.fresco.lib.helper.AbstractSimpleProtocol;
+import dk.alexandra.fresco.lib.helper.SimpleProtocolProducer;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
 
 /** 
@@ -37,7 +37,7 @@ import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
  * @author ttoft
  *
  */
-public class ZeroTestProtocolImpl  extends AbstractSimpleProtocol implements ZeroTestProtocol{
+public class ZeroTestProtocolImpl extends SimpleProtocolProducer implements ZeroTestProtocol {
 
 	// input size
 	private final int bitLength;
