@@ -5,11 +5,11 @@ import java.util.List;
 
 public class ProtocolCollectionLinkedList implements ProtocolCollection {
 
-  private int capacoty;
+  private int capacity;
   private List<Protocol> protocols;
 
-  public ProtocolCollectionLinkedList(int capacoty) {
-    this.capacoty = capacoty;
+  public ProtocolCollectionLinkedList(int capacity) {
+    this.capacity = capacity;
     this.protocols = new LinkedList<>();
   }
 
@@ -20,7 +20,7 @@ public class ProtocolCollectionLinkedList implements ProtocolCollection {
 
   @Override
   public boolean hasFreeCapacity() {
-    return protocols.size() < capacoty;
+    return protocols.size() < capacity;
   }
 
   /**
