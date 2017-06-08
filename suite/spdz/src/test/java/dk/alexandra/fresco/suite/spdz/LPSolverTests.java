@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -37,7 +37,6 @@ import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.field.integer.RandomFieldElementFactory;
-import dk.alexandra.fresco.lib.helper.AppendableProtocolProducer;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
 import dk.alexandra.fresco.lib.lp.LPFactory;
 import dk.alexandra.fresco.lib.lp.LPFactoryImpl;
@@ -56,86 +55,88 @@ import java.io.IOException;
 import java.math.BigInteger;
 import org.junit.Assert;
 
-public class LPSolverTests {
+class LPSolverTests {
 
-	public static class TestLPSolver extends TestThreadFactory {
-		@Override
-		public TestThread next(TestThreadConfiguration conf) {
-			return new TestThread() {
-				@Override
-				public void test() throws Exception {
-					TestApplication app = new TestApplication() {
+  public static class TestLPSolver extends TestThreadFactory {
 
-						private static final long serialVersionUID = 4338818809103728010L;
+    @Override
+    public TestThread next(TestThreadConfiguration conf) {
+      return new TestThread() {
+        @Override
+        public void test() throws Exception {
+          TestApplication app = new TestApplication() {
 
-						@Override
-						public ProtocolProducer prepareApplication(
-								ProtocolFactory factory) {
-							BasicNumericFactory bnFactory = (BasicNumericFactory) factory;
-							LocalInversionFactory localInvFactory = (LocalInversionFactory) factory;
-							NumericBitFactory numericBitFactory = (NumericBitFactory) factory;
-							ExpFromOIntFactory expFromOIntFactory = (ExpFromOIntFactory) factory;
-							PreprocessedExpPipeFactory expFactory = (PreprocessedExpPipeFactory) factory;
-							RandomFieldElementFactory randFactory = (RandomFieldElementFactory) factory;
-							LPFactory lpFactory = new LPFactoryImpl(80, bnFactory, localInvFactory, numericBitFactory, expFromOIntFactory, expFactory, randFactory);
-							File pattern = new File("src/test/resources/lp/pattern7.csv");
-							File program = new File("src/test/resources/lp/program7.csv");
-							LPInputReader inputreader = null;
-							try {
-								inputreader = PlainLPInputReader
-										.getFileInputReader(program, pattern,
-												conf.getMyId());
-							} catch (FileNotFoundException e) {
-								e.printStackTrace();
-								throw new MPCException(
-										"Could not read needed files: "
-												+ e.getMessage(), e);
-							}
-							SequentialProtocolProducer sseq = new SequentialProtocolProducer();
-							for (int i = 0; i < 1; i++) {
-								LPPrefix prefix = null;
-								try {
-									prefix = new PlainSpdzLPPrefix(inputreader,
-											bnFactory);
-								} catch (IOException e) {
-									e.printStackTrace();
-									throw new MPCException("IOException: "
-											+ e.getMessage(), e);
-								}
-								ProtocolProducer lpsolver = new LPSolverProtocol(
-										prefix.getTableau(),
-										prefix.getUpdateMatrix(),
-										prefix.getPivot(),
-										prefix.getBasis(), lpFactory, bnFactory);
-								SInt sout = bnFactory.getSInt();
-								OInt out = bnFactory.getOInt();
-								ProtocolProducer outputter = lpFactory
-										.getOptimalValueProtocol(
-												prefix.getUpdateMatrix(),
-												prefix.getTableau().getB(),
-												prefix.getPivot(), sout);
-								AppendableProtocolProducer seq = new SequentialProtocolProducer(
-										prefix.getPrefix(),
-										lpsolver,
-										outputter);
-								seq.append(bnFactory
-										.getOpenProtocol(sout, out));
-								sseq.append(seq);
-								this.outputs = new OInt[] {out};
-							}
-							return sseq;
-						}
-					};
-					long startTime = System.nanoTime();
+            private static final long serialVersionUID = 4338818809103728010L;
+
+            @Override
+            public ProtocolProducer prepareApplication(
+                ProtocolFactory factory) {
+              BasicNumericFactory bnFactory = (BasicNumericFactory) factory;
+              LocalInversionFactory localInvFactory = (LocalInversionFactory) factory;
+              NumericBitFactory numericBitFactory = (NumericBitFactory) factory;
+              ExpFromOIntFactory expFromOIntFactory = (ExpFromOIntFactory) factory;
+              PreprocessedExpPipeFactory expFactory = (PreprocessedExpPipeFactory) factory;
+              RandomFieldElementFactory randFactory = (RandomFieldElementFactory) factory;
+              LPFactory lpFactory = new LPFactoryImpl(80, bnFactory, localInvFactory,
+                  numericBitFactory, expFromOIntFactory, expFactory, randFactory);
+              File pattern = new File("src/test/resources/lp/pattern7.csv");
+              File program = new File("src/test/resources/lp/program7.csv");
+              LPInputReader inputreader;
+              try {
+                inputreader = PlainLPInputReader
+                    .getFileInputReader(program, pattern,
+                        conf.getMyId());
+              } catch (FileNotFoundException e) {
+                e.printStackTrace();
+                throw new MPCException(
+                    "Could not read needed files: "
+                        + e.getMessage(), e);
+              }
+              SequentialProtocolProducer sseq = new SequentialProtocolProducer();
+              for (int i = 0; i < 1; i++) {
+                LPPrefix prefix;
+                try {
+                  prefix = new PlainSpdzLPPrefix(inputreader,
+                      bnFactory);
+                } catch (IOException e) {
+                  e.printStackTrace();
+                  throw new MPCException("IOException: "
+                      + e.getMessage(), e);
+                }
+                ProtocolProducer lpsolver = new LPSolverProtocol(
+                    prefix.getTableau(),
+                    prefix.getUpdateMatrix(),
+                    prefix.getPivot(),
+                    prefix.getBasis(), lpFactory, bnFactory);
+                SInt sout = bnFactory.getSInt();
+                OInt out = bnFactory.getOInt();
+                ProtocolProducer outputter = lpFactory
+                    .getOptimalValueProtocol(
+                        prefix.getUpdateMatrix(),
+                        prefix.getTableau().getB(),
+                        prefix.getPivot(), sout);
+                SequentialProtocolProducer seq = new SequentialProtocolProducer(
+                    prefix.getPrefix(),
+                    lpsolver,
+                    outputter);
+                seq.append(bnFactory
+                    .getOpenProtocol(sout, out));
+                sseq.append(seq);
+                this.outputs = new OInt[]{out};
+              }
+              return sseq;
+            }
+          };
+          long startTime = System.nanoTime();
           secureComputationEngine.runApplication(app);
           long endTime = System.nanoTime();
-					System.out.println("============ Seq Time: "
-							+ ((endTime - startTime) / 1000000));
-					Assert.assertTrue(BigInteger.valueOf(161).equals(app.getOutputs()[0].getValue()));
-				}
-			};
-		}
-	}
+          System.out.println("============ Seq Time: "
+              + ((endTime - startTime) / 1000000));
+          Assert.assertTrue(BigInteger.valueOf(161).equals(app.getOutputs()[0].getValue()));
+        }
+      };
+    }
+  }
 /*
   private String printMatrix(Matrix<SInt> matrix, String label, SecureComputationEngine secureComputationEngine,
 			SpdzProvider provider) {

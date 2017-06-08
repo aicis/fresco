@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -37,7 +37,6 @@ import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.field.integer.MultProtocol;
 import dk.alexandra.fresco.lib.field.integer.SubtractProtocol;
 import dk.alexandra.fresco.lib.helper.AbstractRoundBasedProtocol;
-import dk.alexandra.fresco.lib.helper.AppendableProtocolProducer;
 import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
 import dk.alexandra.fresco.lib.helper.SimpleProtocolProducer;
 import dk.alexandra.fresco.lib.helper.SingleProtocolProducer;
@@ -186,7 +185,7 @@ public class MinimumFractionProtocolImpl implements MinimumFractionProtocol {
     SInt[] output;
     int from;
 
-    public VectorScale(SInt scale, SInt[] vector, SInt[] output, int from) {
+    VectorScale(SInt scale, SInt[] vector, SInt[] output, int from) {
       this.scale = scale;
       this.vector = vector;
       this.output = output;
@@ -195,7 +194,7 @@ public class MinimumFractionProtocolImpl implements MinimumFractionProtocol {
 
     @Override
     protected ProtocolProducer initializeProtocolProducer() {
-      AppendableProtocolProducer par = new ParallelProtocolProducer();
+      ParallelProtocolProducer par = new ParallelProtocolProducer();
       for (int i = 0; i < vector.length; i++) {
         Protocol mult = numericFactory.getMultProtocol(scale, vector[i],
             output[from + i]);

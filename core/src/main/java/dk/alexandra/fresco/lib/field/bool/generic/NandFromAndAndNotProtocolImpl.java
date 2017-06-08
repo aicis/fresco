@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -30,7 +30,6 @@ import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.value.SBool;
 import dk.alexandra.fresco.lib.field.bool.BasicLogicFactory;
 import dk.alexandra.fresco.lib.field.bool.NandProtocol;
-import dk.alexandra.fresco.lib.helper.AppendableProtocolProducer;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
 
 public class NandFromAndAndNotProtocolImpl implements NandProtocol {
@@ -39,7 +38,7 @@ public class NandFromAndAndNotProtocolImpl implements NandProtocol {
   private SBool right;
   private SBool out;
   private BasicLogicFactory factory;
-  private AppendableProtocolProducer curPP = null;
+  private SequentialProtocolProducer curPP = null;
   private boolean done = false;
 
   public NandFromAndAndNotProtocolImpl(SBool left, SBool right, SBool out,

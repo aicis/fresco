@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -30,23 +30,23 @@ import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.Protocol;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.Reporter;
-import dk.alexandra.fresco.lib.helper.AppendableProtocolProducer;
 import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
+import dk.alexandra.fresco.lib.helper.ProtocolProducerCollection;
 import dk.alexandra.fresco.lib.helper.SingleProtocolProducer;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
 import java.util.Stack;
 
 /**
- * Internally AbstractProtocolBuilder keeps an AppendableProtocolProducer (These are
+ * Internally AbstractProtocolBuilder keeps an ProtocolProducerCollection (These are
  * the basic structural ProtocolProducers such as Sequential- and
  * ParallelProtocolProducers), here called the "current ProtocolProducer". Each
  * instruction to the builder results in a corresponding ProtocolProducer being
  * appended to the current ProtocolProducer.
  *
- * When a new scope is declared a corresponding AppendableProtocolProducer is
+ * When a new scope is declared a corresponding ProtocolProducerCollection is
  * constructed and appended to the current ProtocolProducer. The current
  * ProtocolProducer is then pushed on a stack and the newly created
- * AppendableProtocolProducer is made the new current ProtocolProducer. When the current
+ * ProtocolProducerCollection is made the new current ProtocolProducer. When the current
  * scope is ended the ProtocolBuilder returns to the previous scope by popping
  * the top of stack making it the new current ProtocolProducer.
  *
@@ -58,9 +58,9 @@ public abstract class AbstractProtocolBuilder implements ProtocolBuilder {
   //It forces this builder to use the internal stack of the parent.
   private AbstractProtocolBuilder parent;
 
-  private AppendableProtocolProducer curpp = new SequentialProtocolProducer();
-  private Stack<AppendableProtocolProducer> producerStack =
-      new Stack<AppendableProtocolProducer>();
+  private ProtocolProducerCollection curpp = new SequentialProtocolProducer();
+  private Stack<ProtocolProducerCollection> producerStack =
+      new Stack<>();
 
   /*
    * (non-Javadoc)
@@ -137,7 +137,7 @@ public abstract class AbstractProtocolBuilder implements ProtocolBuilder {
   /**
    * Pops the top of the stack and makes it the new current ProtocolProducer.
    */
-  protected void popProducer() {
+  private void popProducer() {
     if (parent != null) {
       parent.popProducer();
       return;
@@ -147,11 +147,11 @@ public abstract class AbstractProtocolBuilder implements ProtocolBuilder {
 
   /**
    * Pushes the current ProtocolProducer on the stack and makes the given
-   * AppendableProtocolProducer the new current ProtocolProducer.
+   * ProtocolProducerCollection the new current ProtocolProducer.
    *
-   * @param nextProducer the AppendableProtocolProducer to be made the new current ProtocolProducer
+   * @param nextProducer the ProtocolProducerCollection to be made the new current ProtocolProducer
    */
-  protected void pushProducer(AppendableProtocolProducer nextProducer) {
+  private void pushProducer(ProtocolProducerCollection nextProducer) {
     if (parent != null) {
       parent.pushProducer(nextProducer);
       return;
@@ -171,12 +171,12 @@ public abstract class AbstractProtocolBuilder implements ProtocolBuilder {
       return parent.getProtocol();
     }
     if (producerStack.isEmpty()) {
-      ProtocolProducer res = curpp;
+      ProtocolProducer res = (ProtocolProducer) curpp;
       reset();
       return res;
     }
     Reporter.warn("Builder did not close all scopes.");
-    return producerStack.firstElement();
+    return (ProtocolProducer) producerStack.firstElement();
   }
 
   @Override
@@ -186,14 +186,14 @@ public abstract class AbstractProtocolBuilder implements ProtocolBuilder {
       return;
     }
     curpp = new SequentialProtocolProducer();
-    producerStack = new Stack<AppendableProtocolProducer>();
+    producerStack = new Stack<>();
   }
 
   /**
    * Sets the parent of this builder meaning that the internal stack of the builder will be the
    * parents.
    */
-  protected void setParentBuilder(AbstractProtocolBuilder parent) {
+  void setParentBuilder(AbstractProtocolBuilder parent) {
     this.parent = parent;
   }
 }

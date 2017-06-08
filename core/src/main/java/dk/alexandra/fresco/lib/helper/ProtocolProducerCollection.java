@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -28,14 +28,13 @@ package dk.alexandra.fresco.lib.helper;
 
 import dk.alexandra.fresco.framework.Protocol;
 import dk.alexandra.fresco.framework.ProtocolProducer;
-import java.util.List;
 
 /**
  * ProtocolProducers that can have other Protocolproducers appended to them
  *
  * @author psn
  */
-public interface AppendableProtocolProducer extends ProtocolProducer {
+public interface ProtocolProducerCollection {
 
   /**
    * Appends a ProtocolProducer to this ProtocolProducer. The exact meaning of
@@ -47,14 +46,12 @@ public interface AppendableProtocolProducer extends ProtocolProducer {
    */
   void append(ProtocolProducer protocolProducer);
 
-  void append(Protocol gp);
-
   /**
-   * Returns the next level represented by a list of Protocolproducers (most often
-   * the Protocol producers internal list)
+   * Appends a Protocol to this ProtocolProducer. This just
+   * adds a single protocol producer with the supplied protocal.
    *
-   * @return the
+   * @param protocol the protocol  to append
    */
-  List<ProtocolProducer> getNextProtocolProducerLevel();
+  void append(Protocol protocol);
 
 }

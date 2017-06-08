@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -34,7 +34,6 @@ import dk.alexandra.fresco.framework.value.SBoolFactory;
 import dk.alexandra.fresco.lib.field.bool.AndProtocolFactory;
 import dk.alexandra.fresco.lib.field.bool.OrProtocol;
 import dk.alexandra.fresco.lib.field.bool.XorProtocolFactory;
-import dk.alexandra.fresco.lib.helper.AppendableProtocolProducer;
 import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
 
@@ -83,7 +82,7 @@ public class OrFromXorAndProtocol implements OrProtocol {
     if (c == null) {
       t0 = sboolp.getSBool();
       t1 = sboolp.getSBool();
-      AppendableProtocolProducer c2 = new ParallelProtocolProducer();
+      ParallelProtocolProducer c2 = new ParallelProtocolProducer();
       c2.append(andcp.getAndProtocol(inA, inB, t0));
       c2.append(xorcp.getXorProtocol(inA, inB, t1));
 

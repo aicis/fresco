@@ -30,7 +30,6 @@ import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
-import dk.alexandra.fresco.lib.helper.AppendableProtocolProducer;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
 
 /**
@@ -46,7 +45,7 @@ public class OptimalValueProtocol implements ProtocolProducer {
   private final LPTableau tableau;
   private LPFactory lpFactory;
   private BasicNumericFactory numericFactory;
-  private AppendableProtocolProducer pp;
+  private SequentialProtocolProducer pp;
   private boolean done = false;
 
   /**

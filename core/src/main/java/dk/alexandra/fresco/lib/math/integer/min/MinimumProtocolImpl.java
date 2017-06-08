@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -36,8 +36,8 @@ import dk.alexandra.fresco.lib.compare.ConditionalSelectProtocol;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.field.integer.SubtractProtocol;
 import dk.alexandra.fresco.lib.helper.AbstractRoundBasedProtocol;
-import dk.alexandra.fresco.lib.helper.AppendableProtocolProducer;
 import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
+import dk.alexandra.fresco.lib.helper.ProtocolProducerCollection;
 import dk.alexandra.fresco.lib.helper.SimpleProtocolProducer;
 import dk.alexandra.fresco.lib.helper.SingleProtocolProducer;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
@@ -121,7 +121,7 @@ public class MinimumProtocolImpl implements MinimumProtocol {
         ParallelProtocolProducer parGP = new ParallelProtocolProducer(sub1,
             sub2);
         currPP = new SequentialProtocolProducer(seqGP, parGP);
-        ((AppendableProtocolProducer) currPP).append(sub3);
+        ((ProtocolProducerCollection) currPP).append(sub3);
 
       } else { // k > 3
         currPP = new RecursionPart();
@@ -198,7 +198,7 @@ public class MinimumProtocolImpl implements MinimumProtocol {
     SInt[] output;
     int from;
 
-    public VectorScale(SInt scale, SInt[] vector, SInt[] output, int from) {
+    VectorScale(SInt scale, SInt[] vector, SInt[] output, int from) {
       this.scale = scale;
       this.vector = vector;
       this.output = output;
@@ -208,7 +208,7 @@ public class MinimumProtocolImpl implements MinimumProtocol {
 
     @Override
     protected ProtocolProducer initializeProtocolProducer() {
-      AppendableProtocolProducer par = new ParallelProtocolProducer();
+      ParallelProtocolProducer par = new ParallelProtocolProducer();
       for (int i = 0; i < vector.length; i++) {
         Protocol mult = numericFactory.getMultProtocol(scale, vector[i],
             output[from + i]);

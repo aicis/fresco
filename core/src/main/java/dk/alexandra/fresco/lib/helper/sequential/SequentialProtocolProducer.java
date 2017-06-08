@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -29,17 +29,16 @@ package dk.alexandra.fresco.lib.helper.sequential;
 import dk.alexandra.fresco.framework.Protocol;
 import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.ProtocolProducer;
-import dk.alexandra.fresco.lib.helper.AppendableProtocolProducer;
+import dk.alexandra.fresco.lib.helper.ProtocolProducerCollection;
 import dk.alexandra.fresco.lib.helper.SingleProtocolProducer;
 import java.util.LinkedList;
-import java.util.List;
 
 public class SequentialProtocolProducer implements ProtocolProducer, ProtocolProducerList,
-    AppendableProtocolProducer {
+    ProtocolProducerCollection {
 
   private SequentialHelper seqh;
 
-  protected LinkedList<ProtocolProducer> cs = new LinkedList<ProtocolProducer>();
+  protected LinkedList<ProtocolProducer> cs = new LinkedList<>();
 
   public SequentialProtocolProducer(ProtocolProducer... cs) {
     this();
@@ -93,10 +92,6 @@ public class SequentialProtocolProducer implements ProtocolProducer, ProtocolPro
   @Override
   public boolean hasNextInLine() {
     return !(cs.isEmpty());
-  }
-
-  public List<ProtocolProducer> getNextProtocolProducerLevel() {
-    return cs;
   }
 
   @Override

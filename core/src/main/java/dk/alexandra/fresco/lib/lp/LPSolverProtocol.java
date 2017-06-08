@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -32,7 +32,6 @@ import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.helper.AbstractRoundBasedProtocol;
-import dk.alexandra.fresco.lib.helper.AppendableProtocolProducer;
 import dk.alexandra.fresco.lib.helper.CopyProtocol;
 import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
@@ -73,10 +72,10 @@ public class LPSolverProtocol implements ProtocolProducer {
   private SInt[] enteringIndex;
 
   private final SInt[] basis;
-  public static final int DEFAULT_BASIS_VALUE = 0;
+  private static final int DEFAULT_BASIS_VALUE = 0;
   private final OInt[] enumeratedVariables; // [1,2,3,...]
 
-  public int iterations = 0;
+  private int iterations = 0;
   private final int noVariables;
   private final int noConstraints;
 
@@ -122,7 +121,7 @@ public class LPSolverProtocol implements ProtocolProducer {
         iterations++;
         Reporter.info("LP Iterations=" + iterations);
         pp = phaseOneProtocol();
-      } else if (state == STATE.PHASE2) {
+      } else { // if (state == STATE.PHASE2)
         boolean terminated = terminationOut.getValue().equals(BigInteger.ONE);
         if (!terminated) {
           pp = phaseTwoProtocol();
@@ -212,7 +211,7 @@ public class LPSolverProtocol implements ProtocolProducer {
                 newUpdate[i][j] = bnFactory.getSInt();
               }
             }
-            newUpdateMatrix = new Matrix<SInt>(newUpdate);
+            newUpdateMatrix = new Matrix<>(newUpdate);
             ProtocolProducer updateMatrixProducer = lpFactory.getUpdateMatrixProtocol(updateMatrix,
                 exitingIndex, updateColumn, pivot, prevPivot, newUpdateMatrix);
             round++;
@@ -265,7 +264,7 @@ public class LPSolverProtocol implements ProtocolProducer {
     // Check if the entry in F is non-negative
     SInt positive = bnFactory.getSInt();
     ProtocolProducer comp = lpFactory.getComparisonProtocol(zero, minimum, positive, true);
-    AppendableProtocolProducer phaseOne = new SequentialProtocolProducer(enteringProducer, comp);
+    SequentialProtocolProducer phaseOne = new SequentialProtocolProducer(enteringProducer, comp);
     Protocol output = bnFactory.getOpenProtocol(positive, terminationOut);
     phaseOne.append(output);
     return phaseOne;
@@ -298,8 +297,7 @@ public class LPSolverProtocol implements ProtocolProducer {
         enteringIndex, first, lpFactory, bnFactory);
 
     Protocol output = bnFactory.getOpenProtocol(first, terminationOut);
-    ProtocolProducer phaseOne = new SequentialProtocolProducer(blandEnter, output);
-    return phaseOne;
+    return new SequentialProtocolProducer(blandEnter, output);
   }
 
 

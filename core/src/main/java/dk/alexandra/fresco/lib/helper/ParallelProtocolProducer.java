@@ -38,7 +38,7 @@ import java.util.ListIterator;
  * requests m/n protocols from each of the sub-protocols.
  */
 public class ParallelProtocolProducer implements ProtocolProducer,
-    AppendableProtocolProducer {
+    ProtocolProducerCollection {
 
   private LinkedList<ProtocolProducer> cs;
 
@@ -77,8 +77,8 @@ public class ParallelProtocolProducer implements ProtocolProducer,
     cs.offer(protocolProducer);
   }
 
-  public void append(Protocol nativeProtocol) {
-    cs.offer(SingleProtocolProducer.wrap(nativeProtocol));
+  public void append(Protocol protocol) {
+    cs.offer(SingleProtocolProducer.wrap(protocol));
   }
 
   @Override
@@ -125,7 +125,4 @@ public class ParallelProtocolProducer implements ProtocolProducer,
     }
   }
 
-  public List<ProtocolProducer> getNextProtocolProducerLevel() {
-    return cs;
-  }
 }
