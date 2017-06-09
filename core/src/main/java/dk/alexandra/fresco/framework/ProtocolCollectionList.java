@@ -7,7 +7,7 @@ import java.util.List;
 public class ProtocolCollectionList implements ProtocolCollection {
 
   private int capacity;
-  private List<Protocol> protocols;
+  private List<NativeProtocol> protocols;
 
   public ProtocolCollectionList(int capacity) {
     this.capacity = capacity;
@@ -15,7 +15,7 @@ public class ProtocolCollectionList implements ProtocolCollection {
   }
 
   @Override
-  public void addProtocol(Protocol protocol) {
+  public void addProtocol(NativeProtocol protocol) {
     protocols.add(protocol);
   }
 
@@ -29,12 +29,12 @@ public class ProtocolCollectionList implements ProtocolCollection {
    *
    * @return the protocols previously added
    */
-  public List<Protocol> getProtocols() {
+  public List<NativeProtocol> getProtocols() {
     return protocols;
   }
 
   @Override
-  public Iterator<Protocol> iterator() {
+  public Iterator<NativeProtocol> iterator() {
     return protocols.iterator();
   }
 

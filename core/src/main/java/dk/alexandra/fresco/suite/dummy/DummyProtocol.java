@@ -26,9 +26,9 @@
  *******************************************************************************/
 package dk.alexandra.fresco.suite.dummy;
 
-import dk.alexandra.fresco.framework.Protocol;
+import dk.alexandra.fresco.framework.NativeProtocol;
 
-public abstract class DummyProtocol implements Protocol {
+public abstract class DummyProtocol implements NativeProtocol {
 
 
 }

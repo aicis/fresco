@@ -26,7 +26,7 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.field.bool.generic;
 
-import dk.alexandra.fresco.framework.Protocol;
+import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.SBool;
@@ -86,7 +86,7 @@ public class OrFromXorAndProtocol implements OrProtocol {
       c2.append(andcp.getAndProtocol(inA, inB, t0));
       c2.append(xorcp.getXorProtocol(inA, inB, t1));
 
-      Protocol c3 = xorcp.getXorProtocol(t0, t1, out);
+      NativeProtocol c3 = xorcp.getXorProtocol(t0, t1, out);
       c = new SequentialProtocolProducer(c2, c3);
     }
 

@@ -27,7 +27,7 @@
 package dk.alexandra.fresco.demo.inputsum;
 
 import dk.alexandra.fresco.framework.Application;
-import dk.alexandra.fresco.framework.Protocol;
+import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.OInt;
@@ -76,7 +76,7 @@ public class SumAndOutputApplication implements Application {
 
     // create output wire
     this.output = fac.getOInt();
-    Protocol outputProtocol = fac.getOpenProtocol(sum,
+    NativeProtocol outputProtocol = fac.getOpenProtocol(sum,
         this.output);
 
     // Connect all protocols into a single protocol

@@ -29,7 +29,7 @@ package dk.alexandra.fresco.framework;
 import dk.alexandra.fresco.framework.network.SCENetwork;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 
-public interface Protocol<OutputT, ResourcePoolT extends ResourcePool> {
+public interface NativeProtocol<OutputT, ResourcePoolT extends ResourcePool> {
 
   enum EvaluationStatus {
     IS_DONE, HAS_MORE_ROUNDS

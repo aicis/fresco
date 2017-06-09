@@ -26,9 +26,9 @@
  *******************************************************************************/
 package dk.alexandra.fresco.suite.tinytables.prepro.protocols;
 
-import dk.alexandra.fresco.framework.Protocol;
+import dk.alexandra.fresco.framework.NativeProtocol;
 
-public abstract class TinyTablesPreproProtocol implements Protocol {
+public abstract class TinyTablesPreproProtocol implements NativeProtocol {
 
   protected int id;
 

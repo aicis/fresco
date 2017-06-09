@@ -25,7 +25,7 @@ code:
 .. sourcecode:: java
 
     import dk.alexandra.fresco.framework.Application;
-    import dk.alexandra.fresco.framework.Protocol;
+    import dk.alexandra.fresco.framework.NativeProtocol;
     import dk.alexandra.fresco.framework.ProtocolProducer;
     import dk.alexandra.fresco.framework.ProtocolFactory;
     import dk.alexandra.fresco.framework.sce.SecureComputationEngineomputationEngine.SCE;

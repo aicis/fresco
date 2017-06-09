@@ -26,9 +26,9 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.field.integer;
 
-import dk.alexandra.fresco.framework.Protocol;
+import dk.alexandra.fresco.framework.NativeProtocol;
 
 
-public interface MultProtocol extends Protocol {
-	
+public interface MultProtocol extends NativeProtocol {
+
 }

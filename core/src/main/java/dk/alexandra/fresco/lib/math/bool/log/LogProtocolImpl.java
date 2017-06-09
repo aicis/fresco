@@ -27,7 +27,7 @@
 package dk.alexandra.fresco.lib.math.bool.log;
 
 import dk.alexandra.fresco.framework.MPCException;
-import dk.alexandra.fresco.framework.Protocol;
+import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.math.Util;
@@ -110,7 +110,7 @@ public class LogProtocolImpl implements LogProtocol {
       getNextFromCur(protocolCollection);
     } else if (round == 1) {
       if (curPP == null) {
-        Protocol[] xors = new Protocol[number.length + 1];
+        NativeProtocol[] xors = new NativeProtocol[number.length + 1];
         for (int i = xors.length - 2; i > -1; i--) {
           if (i == 0) {
             OBool zero = factory.getKnownConstantOBool(

@@ -26,9 +26,9 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.field.bool;
 
-import dk.alexandra.fresco.framework.Protocol;
+import dk.alexandra.fresco.framework.NativeProtocol;
 
 
-public interface XorProtocol extends Protocol {
+public interface XorProtocol extends NativeProtocol {
 
 }

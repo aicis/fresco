@@ -27,7 +27,7 @@
 package dk.alexandra.fresco.suite.spdz.evaluation.strategy;
 
 import dk.alexandra.fresco.framework.MPCException;
-import dk.alexandra.fresco.framework.Protocol;
+import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.ProtocolCollectionList;
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.Reporter;
@@ -217,8 +217,7 @@ public class SpdzProtocolSuite implements ProtocolSuite {
           new ProtocolCollectionList(batchSize);
       macCheck.getNextProtocols(protocolCollectionList);
 
-      BatchedStrategy.processBatch(
-          protocolCollectionList.getProtocols(), sceNetworks, 0, resourcePool);
+      BatchedStrategy.processBatch(protocolCollectionList, sceNetworks, 0, resourcePool);
     } while (macCheck.hasNextProtocols());
 
     //reset boolean value
@@ -268,16 +267,16 @@ public class SpdzProtocolSuite implements ProtocolSuite {
       if (outputProtocolInBatch) {
 
         if (!commitDone) {
-          Protocol.EvaluationStatus evaluate = commitProtocol
+          NativeProtocol.EvaluationStatus evaluate = commitProtocol
               .evaluate(round, resourcePool, sceNetwork);
           roundNumber = round + 1;
-          commitDone = evaluate.equals(Protocol.EvaluationStatus.IS_DONE);
+          commitDone = evaluate.equals(NativeProtocol.EvaluationStatus.IS_DONE);
           return false;
         }
         if (!openDone) {
-          Protocol.EvaluationStatus evaluate = openProtocol
+          NativeProtocol.EvaluationStatus evaluate = openProtocol
               .evaluate(round - roundNumber, resourcePool, sceNetwork);
-          openDone = evaluate.equals(Protocol.EvaluationStatus.IS_DONE);
+          openDone = evaluate.equals(NativeProtocol.EvaluationStatus.IS_DONE);
         }
         return openDone;
       }

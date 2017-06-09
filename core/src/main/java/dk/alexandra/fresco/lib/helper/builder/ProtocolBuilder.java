@@ -31,19 +31,19 @@ import dk.alexandra.fresco.framework.ProtocolProducer;
 /**
  * ProtocolBuilders provide a more natural interface than working with raw Protocols
  * when writing secure computation applications. The goal is to have a more "code-like" 
- * way of specifying the Protocol. 
- * 
- * To build a Protocol the application programmer 
- * calls methods on a ProtocolBuilder corresponding to the operations the final Protocol 
+ * way of specifying the NativeProtocol.
+ *
+ * To build a NativeProtocol the application programmer
+ * calls methods on a ProtocolBuilder corresponding to the operations the final NativeProtocol
  * should apply to given SInts. Behind the scenes the ProtocolBuilder constructs the corresponding
- * Protocol and returns the corresponding ProtocolProducer when needed. 
- * 
- * I.e. ProtocolBuilders hides away the raw Protocol and (to some extend) its structure, and lets
+ * NativeProtocol and returns the corresponding ProtocolProducer when needed.
+ *
+ * I.e. ProtocolBuilders hides away the raw NativeProtocol and (to some extend) its structure, and lets
  * the application programmer work solely with Values.
  * 
  * The ProtocolBuilder interface provides general methods for controlling the structure of
- * the Protocol, i.e. to specify whether the computation can be done in parallel or must be 
- * done sequentially. To switch between parallel and sequential Protocol building one sets declares 
+ * the NativeProtocol, i.e. to specify whether the computation can be done in parallel or must be
+ * done sequentially. To switch between parallel and sequential NativeProtocol building one sets declares
  * a "scope" for a sequence of instructions.
  * 
  * TODO: Eventually ProtocolBuilders could maybe also be used to analyze and optimize the Protocols
@@ -75,17 +75,17 @@ public interface ProtocolBuilder {
 	void endCurScope();
 	
 	/**
-	 * Adds a ProtocolProducer to the Protocol being build. This to allow adding Protocols that cannot be created with 
-	 * this ProtocolBuilder.
-	 * @param pp a ProtocolProducer  
+   * Adds a ProtocolProducer to the NativeProtocol being build. This to allow adding Protocols that cannot be created with
+   * this ProtocolBuilder.
+   * @param pp a ProtocolProducer
 	 */
 	void addProtocolProducer(ProtocolProducer pp);
 
 	/**
-	 * Gets the ProtocolProducer corresponding the entire Protocol build by this ProtocolBuilder.
-	 * @return a ProtocolProducer corresponding to the Protocol build.
-	 */
-	ProtocolProducer getProtocol();
+   * Gets the ProtocolProducer corresponding the entire NativeProtocol build by this ProtocolBuilder.
+   * @return a ProtocolProducer corresponding to the NativeProtocol build.
+   */
+  ProtocolProducer getProtocol();
 
 	/**
 	 * Resets the current builder - meaning this can be treated as a new instance again.

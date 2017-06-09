@@ -316,7 +316,7 @@ public class CmdLineUtil {
 
     // TODO: Rather: Just log sceConf.toString()
     Reporter.config("Player id          : " + myId);
-    Reporter.config("Protocol suite     : " + suite);
+    Reporter.config("NativeProtocol suite     : " + suite);
     Reporter.config("Players            : " + parties);
     Reporter.config("Log level          : " + logLevel);
     Reporter.config("No of threads      : " + noOfThreads);

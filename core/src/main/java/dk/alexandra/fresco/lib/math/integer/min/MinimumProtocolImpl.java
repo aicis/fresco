@@ -27,7 +27,7 @@
 package dk.alexandra.fresco.lib.math.integer.min;
 
 import dk.alexandra.fresco.framework.MPCException;
-import dk.alexandra.fresco.framework.Protocol;
+import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.SInt;
@@ -210,7 +210,7 @@ public class MinimumProtocolImpl implements MinimumProtocol {
     protected ProtocolProducer initializeProtocolProducer() {
       ParallelProtocolProducer par = new ParallelProtocolProducer();
       for (int i = 0; i < vector.length; i++) {
-        Protocol mult = numericFactory.getMultProtocol(scale, vector[i],
+        NativeProtocol mult = numericFactory.getMultProtocol(scale, vector[i],
             output[from + i]);
         par.append(mult);
       }

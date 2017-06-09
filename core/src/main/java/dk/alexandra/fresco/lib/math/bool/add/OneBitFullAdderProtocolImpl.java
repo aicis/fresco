@@ -26,7 +26,7 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.math.bool.add;
 
-import dk.alexandra.fresco.framework.Protocol;
+import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.SBool;
@@ -59,7 +59,7 @@ public class OneBitFullAdderProtocolImpl implements OneBitFullAdderProtocol {
       if (curPP == null) {
         xor1Out = factory.getSBool();
         and1Out = factory.getSBool();
-        Protocol xor1 = factory.getXorProtocol(a, b, xor1Out);
+        NativeProtocol xor1 = factory.getXorProtocol(a, b, xor1Out);
         ProtocolProducer and1 = factory.getAndProtocol(a, b, and1Out);
         curPP = new ParallelProtocolProducer(and1, xor1);
       }
@@ -68,13 +68,13 @@ public class OneBitFullAdderProtocolImpl implements OneBitFullAdderProtocol {
       if (curPP == null) {
         and2Out = factory.getSBool();
         ProtocolProducer and2 = factory.getAndProtocol(xor1Out, c, and2Out);
-        Protocol xor2 = factory.getXorProtocol(xor1Out, c, outS);
+        NativeProtocol xor2 = factory.getXorProtocol(xor1Out, c, outS);
         curPP = new ParallelProtocolProducer(and2, xor2);
       }
       getNextFromCur(protocolCollection);
     } else if (round == 2) {
       if (curPP == null) {
-        Protocol xor3 = factory.getXorProtocol(and2Out, and1Out, outCarry);
+        NativeProtocol xor3 = factory.getXorProtocol(and2Out, and1Out, outCarry);
         curPP = new SequentialProtocolProducer(xor3);
       }
       getNextFromCur(protocolCollection);

@@ -26,11 +26,11 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.math.bool.add;
 
-import dk.alexandra.fresco.framework.Protocol;
+import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.value.SInt;
 
 public interface IncrementByOneProtocolFactory extends ProtocolFactory {
 
-  Protocol getIncrementByOneProtocol(SInt in, SInt out);
+  NativeProtocol getIncrementByOneProtocol(SInt in, SInt out);
 }

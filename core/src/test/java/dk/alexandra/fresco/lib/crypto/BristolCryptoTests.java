@@ -29,7 +29,7 @@ package dk.alexandra.fresco.lib.crypto;
 import static org.junit.Assert.assertTrue;
 
 import dk.alexandra.fresco.framework.Application;
-import dk.alexandra.fresco.framework.Protocol;
+import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
@@ -220,7 +220,7 @@ public class BristolCryptoTests {
               BristolCircuit aes = sha1Fac.getSha1Circuit(in, out);
 
               // Create circuits for opening result of AES.
-              Protocol[] opens = new Protocol[out.length];
+              NativeProtocol[] opens = new NativeProtocol[out.length];
               openedOut = new OBool[out.length];
               for (int i = 0; i < out.length; i++) {
                 openedOut[i] = bool.getOBool();
@@ -307,7 +307,7 @@ public class BristolCryptoTests {
               BristolCircuit sha256 = sha256Fac.getSha256Circuit(in, out);
 
               // Create circuits for opening result of SHA 256.
-              Protocol[] opens = new Protocol[out.length];
+              NativeProtocol[] opens = new NativeProtocol[out.length];
               openedOut = new OBool[out.length];
               for (int i = 0; i < out.length; i++) {
                 openedOut[i] = bool.getOBool();
@@ -395,7 +395,7 @@ public class BristolCryptoTests {
               BristolCircuit md5 = md5Fac.getMD5Circuit(in, out);
 
               // Create circuits for opening result of MD5.
-              Protocol[] opens = new Protocol[out.length];
+              NativeProtocol[] opens = new NativeProtocol[out.length];
               openedOut = new OBool[out.length];
               for (int i = 0; i < out.length; i++) {
                 openedOut[i] = bool.getOBool();
@@ -474,7 +474,7 @@ public class BristolCryptoTests {
               BristolCircuit mult = multFac.getMult32x32Circuit(in1, in2, out);
 
               // Create circuits for opening result of 32x32 bit mult.
-              Protocol[] opens = new Protocol[out.length];
+              NativeProtocol[] opens = new NativeProtocol[out.length];
               openedOut = new OBool[out.length];
               for (int i = 0; i < out.length; i++) {
                 openedOut[i] = bool.getOBool();
@@ -555,7 +555,7 @@ public class BristolCryptoTests {
               BristolCircuit des = desFac.getDesCircuit(plain, key, cipher);
 
               // Create circuits for opening result of DES.
-              Protocol[] opens = new Protocol[cipher.length];
+              NativeProtocol[] opens = new NativeProtocol[cipher.length];
               openedOut = new OBool[cipher.length];
               for (int i = 0; i < cipher.length; i++) {
                 openedOut[i] = bool.getOBool();

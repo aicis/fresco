@@ -26,7 +26,7 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.helper.builder;
 
-import dk.alexandra.fresco.framework.Protocol;
+import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.OIntFactory;
@@ -209,7 +209,7 @@ public class NumericIOBuilder extends AbstractProtocolBuilder {
 
     @Override
     protected ProtocolProducer getNextProtocolProducer() {
-      Protocol input = null;
+      NativeProtocol input = null;
       if (i < length) {
         OInt oi = oif.getOInt();
         if (is != null) {
@@ -316,7 +316,7 @@ public class NumericIOBuilder extends AbstractProtocolBuilder {
 
     @Override
     protected ProtocolProducer getNextProtocolProducer() {
-      Protocol output = null;
+      NativeProtocol output = null;
       if (i < ois.length) {
         output = iof.getOpenProtocol(sis[i], ois[i]);
         i++;
@@ -329,7 +329,7 @@ public class NumericIOBuilder extends AbstractProtocolBuilder {
    * Appends a protocol to open a single SInt. Output should be given to all
    * parties.
    *
-   * @param sis SInt to open
+   * @param si SInt to open
    * @return the OInt to be loaded with the opened SInt
    */
   public OInt output(SInt si) {

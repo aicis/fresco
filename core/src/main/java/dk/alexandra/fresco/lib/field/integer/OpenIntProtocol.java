@@ -26,12 +26,12 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.field.integer;
 
-import dk.alexandra.fresco.framework.Protocol;
+import dk.alexandra.fresco.framework.NativeProtocol;
 
 /**
  * A protocol that converts a SInt to an OInt
  * 
  */
-public interface OpenIntProtocol extends Protocol {
+public interface OpenIntProtocol extends NativeProtocol {
 
 }

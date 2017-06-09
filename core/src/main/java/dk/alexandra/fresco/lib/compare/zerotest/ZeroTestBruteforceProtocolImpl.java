@@ -27,7 +27,7 @@
 package dk.alexandra.fresco.lib.compare.zerotest;
 
 import dk.alexandra.fresco.framework.MPCException;
-import dk.alexandra.fresco.framework.Protocol;
+import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.OInt;
@@ -105,7 +105,7 @@ public class ZeroTestBruteforceProtocolImpl implements ZeroTestBruteforceProtoco
           SInt masked_S = factory.getSInt();
 
           masked_O = factory.getOInt();
-          Protocol incr = incrFactory.getIncrementByOneProtocol(input, increased);
+          NativeProtocol incr = incrFactory.getIncrementByOneProtocol(input, increased);
           MultProtocol mult = factory.getMultProtocol(increased, R[0], masked_S);
           OpenIntProtocol open = factory.getOpenProtocol(masked_S, masked_O);
 
@@ -116,7 +116,7 @@ public class ZeroTestBruteforceProtocolImpl implements ZeroTestBruteforceProtoco
           // compute powers and evaluate polynomial
           OInt[] maskedPowers = expFromOIntFactory.getExpFromOInt(masked_O, maxInput);
 
-          Protocol[] unmaskGPs = new Protocol[maxInput];
+          NativeProtocol[] unmaskGPs = new NativeProtocol[maxInput];
           SInt[] powers = new SInt[maxInput];
           for (int i = 0; i < maxInput; i++) {
             powers[i] = factory.getSInt();
@@ -130,7 +130,7 @@ public class ZeroTestBruteforceProtocolImpl implements ZeroTestBruteforceProtoco
           SInt tmp = factory.getSInt();
           ProtocolProducer polynomialGP = innerProdFactory.getInnerProductProtocol(powers,
               mostSignificantPolynomialCoefficients, tmp);
-          Protocol add = abcFactory.getAddProtocol(tmp,
+          NativeProtocol add = abcFactory.getAddProtocol(tmp,
               polynomialCoefficients[0], output);
           pp = new SequentialProtocolProducer(new ParallelProtocolProducer(unmaskGPs),
               polynomialGP, SingleProtocolProducer.wrap(add));

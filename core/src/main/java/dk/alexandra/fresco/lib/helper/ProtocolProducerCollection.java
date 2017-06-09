@@ -26,7 +26,7 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.helper;
 
-import dk.alexandra.fresco.framework.Protocol;
+import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 
 /**
@@ -47,11 +47,11 @@ public interface ProtocolProducerCollection {
   void append(ProtocolProducer protocolProducer);
 
   /**
-   * Appends a Protocol to this ProtocolProducer. This just
+   * Appends a NativeProtocol to this ProtocolProducer. This just
    * adds a single protocol producer with the supplied protocal.
    *
    * @param protocol the protocol  to append
    */
-  void append(Protocol protocol);
+  void append(NativeProtocol protocol);
 
 }

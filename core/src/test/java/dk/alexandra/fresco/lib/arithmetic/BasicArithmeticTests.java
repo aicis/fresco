@@ -26,7 +26,7 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.arithmetic;
 
-import dk.alexandra.fresco.framework.Protocol;
+import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.TestApplication;
@@ -166,7 +166,7 @@ public class BasicArithmeticTests {
               BigInteger publicVal = BigInteger.valueOf(4);
               OInt openInput = fac.getOInt(publicVal);
               SInt out = fac.getSInt();
-              Protocol addProtocol = fac.getAddProtocol(input1, openInput, out);
+              NativeProtocol addProtocol = fac.getAddProtocol(input1, openInput, out);
               gp.append(addProtocol);
 
               OInt output = ioBuilder.output(out);

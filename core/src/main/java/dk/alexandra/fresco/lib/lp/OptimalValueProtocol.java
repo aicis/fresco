@@ -33,7 +33,7 @@ import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
 
 /**
- * Protocol extracting the optimal value from a {@link LPTableau} and an update
+ * NativeProtocol extracting the optimal value from a {@link LPTableau} and an update
  * matrix representing a terminated Simplex method.
  */
 public class OptimalValueProtocol implements ProtocolProducer {

@@ -27,7 +27,7 @@
 package dk.alexandra.fresco.lib.math.integer.linalg;
 
 import dk.alexandra.fresco.framework.MPCException;
-import dk.alexandra.fresco.framework.Protocol;
+import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
@@ -65,7 +65,7 @@ public class AltInnerProductProtocolImpl extends SimpleProtocolProducer implemen
 		for (int i = 1; i < directProduct.length; i++) {
 			innerproduct = ncb.add(innerproduct, directProduct[i]);
 		}
-		Protocol copyResult = copyFactory.getCopyProtocol(innerproduct, this.result);
+		NativeProtocol copyResult = copyFactory.getCopyProtocol(innerproduct, this.result);
 		return new SequentialProtocolProducer(ncb.getProtocol(), copyResult);
 	}
 }

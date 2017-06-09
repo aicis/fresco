@@ -55,9 +55,9 @@ public class RandomAdditiveMaskProtocolImpl extends SimpleProtocolProducer imple
 	private BasicNumericFactory basicNumericFactory;
 
 	/**
-	 * Protocol taking no input and generating uniformly random r in
-	 * Z<sub>2<sup>l+k</sup></sub> along with the bits of r (mod 2<sup>l</sup>)
-	 * 
+   * NativeProtocol taking no input and generating uniformly random r in
+   * Z<sub>2<sup>l+k</sup></sub> along with the bits of r (mod 2<sup>l</sup>)
+   *
 	 * @param bitLength
 	 *            The desired number of least significant bits, l
 	 * @param securityParameter

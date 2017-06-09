@@ -26,12 +26,12 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.field.bool;
 
-import dk.alexandra.fresco.framework.Protocol;
+import dk.alexandra.fresco.framework.NativeProtocol;
 
 /**
  * A protocol that converts a SBool to an OBool
  * 
  */
-public interface OpenBoolProtocol extends Protocol {
+public interface OpenBoolProtocol extends NativeProtocol {
 
 }

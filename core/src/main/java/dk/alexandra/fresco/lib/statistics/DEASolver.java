@@ -26,9 +26,6 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.statistics;
 
-import java.util.Arrays;
-import java.util.List;
-
 import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.ProtocolFactory;
@@ -47,9 +44,11 @@ import dk.alexandra.fresco.lib.math.integer.NumericBitFactory;
 import dk.alexandra.fresco.lib.math.integer.exp.ExpFromOIntFactory;
 import dk.alexandra.fresco.lib.math.integer.exp.PreprocessedExpPipeFactory;
 import dk.alexandra.fresco.lib.math.integer.inv.LocalInversionFactory;
+import java.util.Arrays;
+import java.util.List;
 
 /**
- * Protocol for solving DEA problems.
+ * NativeProtocol for solving DEA problems.
  *
  * Given a dataset (two matrices of inputs and outputs) and a number of query
  * vectors, the protocol will compute how well the query vectors perform

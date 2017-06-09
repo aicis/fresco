@@ -26,8 +26,8 @@
  *******************************************************************************/
 package dk.alexandra.fresco.framework.sce.evaluator;
 
-import dk.alexandra.fresco.framework.Protocol;
-import dk.alexandra.fresco.framework.Protocol.EvaluationStatus;
+import dk.alexandra.fresco.framework.NativeProtocol;
+import dk.alexandra.fresco.framework.NativeProtocol.EvaluationStatus;
 import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.SCENetwork;
@@ -87,9 +87,9 @@ public class BatchedStrategy {
 
   private static void evaluateCurrentRound(ProtocolCollection protocols, SCENetwork sceNetwork,
       int channel, ResourcePool rp, Network network, int round) throws IOException {
-    Iterator<Protocol> iterator = protocols.iterator();
+    Iterator<NativeProtocol> iterator = protocols.iterator();
     while (iterator.hasNext()) {
-      Protocol protocol = iterator.next();
+      NativeProtocol protocol = iterator.next();
       EvaluationStatus status = protocol.evaluate(round, rp, sceNetwork);
       if (status.equals(EvaluationStatus.IS_DONE)) {
         iterator.remove();

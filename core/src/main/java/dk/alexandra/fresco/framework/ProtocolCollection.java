@@ -4,14 +4,14 @@ package dk.alexandra.fresco.framework;
  * A collection of protocol that has a specific capacity. Elements can be added but not expected
  * after the capacity has been reacehd, the Iterable allows traversal and removal.
  */
-public interface ProtocolCollection extends Iterable<Protocol> {
+public interface ProtocolCollection extends Iterable<NativeProtocol> {
 
   /**
    * Receives a protocol to be added to the collection.
    *
    * @param protocol new protocol
    */
-  void addProtocol(Protocol protocol);
+  void addProtocol(NativeProtocol protocol);
 
   /**
    * Checks if this collection has a free slots.

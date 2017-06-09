@@ -26,9 +26,9 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.conversion;
 
-import dk.alexandra.fresco.framework.Protocol;
+import dk.alexandra.fresco.framework.NativeProtocol;
 
 
-public interface BitsToIntegerProtocol extends Protocol {
+public interface BitsToIntegerProtocol extends NativeProtocol {
 
 }

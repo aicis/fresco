@@ -26,7 +26,7 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.math.integer;
 
-import dk.alexandra.fresco.framework.Protocol;
+import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.OInt;
@@ -55,7 +55,7 @@ public class NumericNegateBitProtocol implements ProtocolProducer {
   public void getNextProtocols(ProtocolCollection protocolCollection) {
     if (pp == null) {
       OInt one = factory.getOInt(BigInteger.ONE);
-      Protocol sub = factory.getSubtractProtocol(one, bit, out);
+      NativeProtocol sub = factory.getSubtractProtocol(one, bit, out);
       pp = new SequentialProtocolProducer(sub);
     }
     if (pp.hasNextProtocols()) {

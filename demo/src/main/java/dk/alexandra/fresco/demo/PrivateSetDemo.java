@@ -28,7 +28,7 @@ package dk.alexandra.fresco.demo;
 
 import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.MPCException;
-import dk.alexandra.fresco.framework.Protocol;
+import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
@@ -256,14 +256,14 @@ public class PrivateSetDemo implements Application {
     SBool[] key2Closed = boolFactory.getSBools(BLOCK_SIZE);
 
     // Build protocol where player 1 closes his key.
-    Protocol[] closeKey1Bits = new Protocol[BLOCK_SIZE];
+    NativeProtocol[] closeKey1Bits = new NativeProtocol[BLOCK_SIZE];
     for (int i = 0; i < BLOCK_SIZE; i++) {
       closeKey1Bits[i] = boolFactory.getCloseProtocol(1, key1Open[i], key1Closed[i]);
     }
     ProtocolProducer closeKey1 = new ParallelProtocolProducer(closeKey1Bits);
 
     // Build protocol where player 2 closes his key.
-    Protocol[] closeKey2Bits = new Protocol[BLOCK_SIZE];
+    NativeProtocol[] closeKey2Bits = new NativeProtocol[BLOCK_SIZE];
     for (int i = 0; i < BLOCK_SIZE; i++) {
       closeKey2Bits[i] = boolFactory.getCloseProtocol(2, key2Open[i], key2Closed[i]);
     }
@@ -274,7 +274,7 @@ public class PrivateSetDemo implements Application {
 
     // XOR the keys together.
     SBool[] combinedKey = boolFactory.getSBools(BLOCK_SIZE);
-    Protocol[] combineKeyBits = new Protocol[BLOCK_SIZE];
+    NativeProtocol[] combineKeyBits = new NativeProtocol[BLOCK_SIZE];
     for (int i = 0; i < BLOCK_SIZE; i++) {
       combineKeyBits[i] = boolFactory.getXorProtocol(key1Closed[i], key2Closed[i], combinedKey[i]);
     }
@@ -309,7 +309,7 @@ public class PrivateSetDemo implements Application {
     }
 
     // Build protocols where the inputs are closed.
-    Protocol[][] closeInputBits = new Protocol[this.inSet.length * 2][BLOCK_SIZE];
+    NativeProtocol[][] closeInputBits = new NativeProtocol[this.inSet.length * 2][BLOCK_SIZE];
     for (int j = 0; j < this.inSet.length; j++) {
       for (int i = 0; i < BLOCK_SIZE; i++) {
         closeInputBits[j][i] = boolFactory
@@ -335,7 +335,7 @@ public class PrivateSetDemo implements Application {
     ProtocolProducer compute = new ParallelProtocolProducer(aesProtocols);
 
     // Construct protocol for opening up the result.
-    Protocol[][] opens = new Protocol[this.inSet.length * 2][BLOCK_SIZE];
+    NativeProtocol[][] opens = new NativeProtocol[this.inSet.length * 2][BLOCK_SIZE];
     ProtocolProducer[] openInputs = new ProtocolProducer[this.inSet.length * 2];
     for (int j = 0; j < this.inSet.length * 2; j++) {
       for (int i = 0; i < BLOCK_SIZE; i++) {

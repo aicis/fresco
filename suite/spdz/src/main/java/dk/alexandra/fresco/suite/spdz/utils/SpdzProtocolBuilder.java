@@ -26,7 +26,7 @@
  *******************************************************************************/
 package dk.alexandra.fresco.suite.spdz.utils;
 
-import dk.alexandra.fresco.framework.Protocol;
+import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
@@ -54,7 +54,7 @@ public class SpdzProtocolBuilder extends AbstractProtocolBuilder {
 	
 	public SInt input(BigInteger o, int inputterId) {
 		SInt s = factory.getSInt();
-		Protocol gp = factory.getCloseProtocol(o, s, inputterId);
+		NativeProtocol gp = factory.getCloseProtocol(o, s, inputterId);
 		append(gp);
 		return s;
 	}
@@ -65,14 +65,14 @@ public class SpdzProtocolBuilder extends AbstractProtocolBuilder {
 	
 	public OInt outputAll(SInt s) {
 		OInt o = factory.getOInt();
-		Protocol gp = factory.getOpenProtocol(s, o);
+		NativeProtocol gp = factory.getOpenProtocol(s, o);
 		append(gp);
 		return o;
 	}
 	
 	public OInt output(SInt s, int outputterId) {
 		OInt o = factory.getOInt();
-		Protocol gp = factory.getOpenProtocol(outputterId, s, o);
+		NativeProtocol gp = factory.getOpenProtocol(outputterId, s, o);
 		append(gp);
 		return o;
 	}

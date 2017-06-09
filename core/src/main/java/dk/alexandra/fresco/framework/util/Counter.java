@@ -26,11 +26,10 @@
  *******************************************************************************/
 package dk.alexandra.fresco.framework.util;
 
+import dk.alexandra.fresco.framework.MPCException;
+import dk.alexandra.fresco.framework.NativeProtocol;
 import java.util.HashMap;
 import java.util.Stack;
-
-import dk.alexandra.fresco.framework.MPCException;
-import dk.alexandra.fresco.framework.Protocol;
 
 public class Counter {
 
@@ -40,10 +39,10 @@ public class Counter {
 	
 	private static HashMap<Class, Integer> instantiations = new HashMap<Class, Integer>();
 	private static HashMap<String, String> evaluationSnapshots = new HashMap<String, String>();
-	private static Stack<Protocol> stack = new Stack<Protocol>();
+	private static Stack<NativeProtocol> stack = new Stack<NativeProtocol>();
 	private static boolean record = false;
-	
-	public static void register(Protocol c){
+
+	public static void register(NativeProtocol c) {
 		if (!record) {return;}
 		synchronized (instantiations) {
 			if(instantiations.containsKey(c.getClass())){
@@ -54,20 +53,20 @@ public class Counter {
 			}
 		}
 	}
-	
-	public static void entering(Protocol c){
+
+	public static void entering(NativeProtocol c) {
 		if (!record) {return;}
 		stack.push(c);
 	}
-	
-	public static void leaving(Protocol c){
+
+	public static void leaving(NativeProtocol c) {
 		if (!record) {return;}
 		if(stack.pop() != c){
 			throw new MPCException("Object are not alike. Someone forgot to enter or hiding in the closet");
 		}
 	}
-	
-	public static void recordEval(Protocol c, String hashCodes){
+
+	public static void recordEval(NativeProtocol c, String hashCodes) {
 		if (!record) {return;}
 		String stackRecord = stack.toString();
 		//evaluationSnapshots.put(c.hashCode(), stackRecord + " - " + hashCodes);
@@ -86,6 +85,6 @@ public class Counter {
 		if (!record) {return;}
 		instantiations = new HashMap<Class, Integer>();
 		evaluationSnapshots = new HashMap<String, String>();
-		stack = new Stack<Protocol>();
+		stack = new Stack<NativeProtocol>();
 	}
 }

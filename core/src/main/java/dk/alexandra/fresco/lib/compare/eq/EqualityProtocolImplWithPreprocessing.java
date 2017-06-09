@@ -26,7 +26,7 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.compare.eq;
 
-import dk.alexandra.fresco.framework.Protocol;
+import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.OInt;
@@ -198,7 +198,7 @@ public class EqualityProtocolImplWithPreprocessing implements EqualityProtocol {
     // compute powers and evaluate polynomial
     OInt[] maskedPowers = expFromOIntFactory.getExpFromOInt(masked_O, bitLength);
 
-    Protocol[] unmaskGPs = new Protocol[bitLength];
+    NativeProtocol[] unmaskGPs = new NativeProtocol[bitLength];
     SInt[] powers = new SInt[bitLength];
     for (int i = 0; i < bitLength; i++) {
       powers[i] = factory.getSInt();

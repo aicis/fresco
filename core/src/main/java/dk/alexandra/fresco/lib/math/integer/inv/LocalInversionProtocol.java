@@ -26,8 +26,8 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.math.integer.inv;
 
-import dk.alexandra.fresco.framework.Protocol;
+import dk.alexandra.fresco.framework.NativeProtocol;
 
-public interface LocalInversionProtocol extends Protocol {
+public interface LocalInversionProtocol extends NativeProtocol {
 
 }

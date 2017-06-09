@@ -26,7 +26,7 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.lp;
 
-import dk.alexandra.fresco.framework.Protocol;
+import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.SInt;
@@ -175,7 +175,7 @@ public class UpdateMatrixProtocol implements ProtocolProducer {
     }
   }
 
-  private ParallelProtocolProducer getParallelGP(Protocol[][] c) {
+  private ParallelProtocolProducer getParallelGP(NativeProtocol[][] c) {
     ParallelProtocolProducer[] gps = new ParallelProtocolProducer[c.length];
     for (int i = 0; i < c.length; i++) {
       gps[i] = new ParallelProtocolProducer(c[i]);

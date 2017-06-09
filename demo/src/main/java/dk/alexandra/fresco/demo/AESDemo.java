@@ -28,7 +28,7 @@ package dk.alexandra.fresco.demo;
 
 import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.MPCException;
-import dk.alexandra.fresco.framework.Protocol;
+import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
@@ -212,14 +212,14 @@ public class AESDemo implements Application {
     SBool[] outClosed = boolFactory.getSBools(BLOCK_SIZE);
 
     // Build protocol where player 1 closes his key.
-    Protocol[] closeKeyBits = new Protocol[BLOCK_SIZE];
+    NativeProtocol[] closeKeyBits = new NativeProtocol[BLOCK_SIZE];
     for (int i = 0; i < BLOCK_SIZE; i++) {
       closeKeyBits[i] = boolFactory.getCloseProtocol(1, keyOpen[i], keyClosed[i]);
     }
     ProtocolProducer closeKey = new ParallelProtocolProducer(closeKeyBits);
 
     // Buil protocol where player 2 closes his plaintext.
-    Protocol[] closePlainBits = new Protocol[BLOCK_SIZE];
+    NativeProtocol[] closePlainBits = new NativeProtocol[BLOCK_SIZE];
     for (int i = 0; i < BLOCK_SIZE; i++) {
       closePlainBits[i] = boolFactory.getCloseProtocol(2, plainOpen[i], plainClosed[i]);
     }
@@ -236,7 +236,7 @@ public class AESDemo implements Application {
     this.result = boolFactory.getOBools(BLOCK_SIZE);
 
     // Construct protocol for opening up the result.
-    Protocol[] opens = new Protocol[BLOCK_SIZE];
+    NativeProtocol[] opens = new NativeProtocol[BLOCK_SIZE];
     for (int i = 0; i < BLOCK_SIZE; i++) {
       opens[i] = boolFactory.getOpenProtocol(outClosed[i], result[i]);
     }

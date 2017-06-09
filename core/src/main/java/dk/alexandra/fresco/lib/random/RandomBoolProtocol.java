@@ -26,9 +26,9 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.random;
 
-import dk.alexandra.fresco.framework.Protocol;
+import dk.alexandra.fresco.framework.NativeProtocol;
 
 
-public interface RandomBoolProtocol extends Protocol {
+public interface RandomBoolProtocol extends NativeProtocol {
 
 }

@@ -26,8 +26,8 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.compare.gt;
 
-import dk.alexandra.fresco.framework.Protocol;
+import dk.alexandra.fresco.framework.NativeProtocol;
 
-public interface GreaterThanReducerProtocol extends Protocol {
+public interface GreaterThanReducerProtocol extends NativeProtocol {
 
 }

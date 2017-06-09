@@ -65,7 +65,7 @@ public class RightShiftProtocolImpl implements RightShiftProtocol {
    * @param input The input.
    * @param result The input shifted one bit to the right, input >> 1.
    * @param bitLength An upper bound for the bitLength of the input.
-   * @param securityParameter The security parameter used in {@link RandomAdditiveMaskCircuit}.
+   * @param securityParameter The security parameter .
    * Leakage of a bit with propability at most 2<sup>-<code>securityParameter</code> </sup>.
    */
   public RightShiftProtocolImpl(SInt input, SInt result, int bitLength, int securityParameter,
@@ -215,7 +215,7 @@ public class RightShiftProtocolImpl implements RightShiftProtocol {
           break;
 
         default:
-          throw new MPCException("Protocol only has two rounds.");
+          throw new MPCException("NativeProtocol only has two rounds.");
       }
     }
     if (pp.hasNextProtocols()) {

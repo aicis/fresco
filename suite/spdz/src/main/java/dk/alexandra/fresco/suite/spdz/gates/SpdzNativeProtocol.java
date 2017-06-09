@@ -26,7 +26,7 @@
  *******************************************************************************/
 package dk.alexandra.fresco.suite.spdz.gates;
 
-import dk.alexandra.fresco.framework.Protocol;
+import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.network.SCENetwork;
 import dk.alexandra.fresco.framework.network.serializers.ByteArrayHelper;
 import java.math.BigInteger;
@@ -36,7 +36,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
-public abstract class SpdzNativeProtocol implements Protocol {
+public abstract class SpdzNativeProtocol implements NativeProtocol {
 
   byte[] sendBroadcastValidation(MessageDigest dig, SCENetwork network, BigInteger b,
       int players) {

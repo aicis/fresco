@@ -26,7 +26,7 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.helper.builder;
 
-import dk.alexandra.fresco.framework.Protocol;
+import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
@@ -141,7 +141,7 @@ public class NumericProtocolBuilder extends AbstractProtocolBuilder {
 
   public SInt known(BigInteger value) {
     SInt sValue = bnf.getSInt();
-    Protocol loader = bnf.getSInt(value, sValue);
+    NativeProtocol loader = bnf.getSInt(value, sValue);
     append(loader);
     return sValue;
   }
@@ -158,7 +158,7 @@ public class NumericProtocolBuilder extends AbstractProtocolBuilder {
 
   public SInt known(int value) {
     SInt sValue = bnf.getSInt();
-    Protocol loader = bnf.getSInt(value, sValue);
+    NativeProtocol loader = bnf.getSInt(value, sValue);
     append(loader);
     return sValue;
   }
@@ -254,7 +254,7 @@ public class NumericProtocolBuilder extends AbstractProtocolBuilder {
     @Override
     protected ProtocolProducer getNextProtocolProducer() {
       if (i < left.length) {
-        Protocol addition = bnf.getAddProtocol(left[i], right[i], out[i]);
+        NativeProtocol addition = bnf.getAddProtocol(left[i], right[i], out[i]);
         i++;
         return SingleProtocolProducer.wrap(addition);
       } else {
@@ -308,7 +308,7 @@ public class NumericProtocolBuilder extends AbstractProtocolBuilder {
         right = intermediate[j];
       }
       out = intermediate[i];
-      Protocol addition = bnf.getAddProtocol(left, right, out);
+      NativeProtocol addition = bnf.getAddProtocol(left, right, out);
       return SingleProtocolProducer.wrap(addition);
     }
 
@@ -359,7 +359,7 @@ public class NumericProtocolBuilder extends AbstractProtocolBuilder {
         right = intermediate[j];
       }
       out = intermediate[i];
-      Protocol mult = bnf.getMultProtocol(left, right, out);
+      NativeProtocol mult = bnf.getMultProtocol(left, right, out);
       return SingleProtocolProducer.wrap(mult);
     }
 

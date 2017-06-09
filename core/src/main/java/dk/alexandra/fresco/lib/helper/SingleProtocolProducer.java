@@ -1,6 +1,6 @@
 package dk.alexandra.fresco.lib.helper;
 
-import dk.alexandra.fresco.framework.Protocol;
+import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 
@@ -9,10 +9,10 @@ import dk.alexandra.fresco.framework.ProtocolProducer;
  */
 public class SingleProtocolProducer implements ProtocolProducer {
 
-  private Protocol protocol;
+  private NativeProtocol protocol;
   private boolean evaluated = false;
 
-  private SingleProtocolProducer(Protocol protocol) {
+  private SingleProtocolProducer(NativeProtocol protocol) {
     this.protocol = protocol;
   }
 
@@ -33,12 +33,12 @@ public class SingleProtocolProducer implements ProtocolProducer {
   }
 
   /**
-   * Creates a new Protocol producer that only serves the protocol in this call
+   * Creates a new NativeProtocol producer that only serves the protocol in this call
    *
    * @param protocol the protocol to wrap
    * @return the producer
    */
-  public static ProtocolProducer wrap(Protocol protocol) {
+  public static ProtocolProducer wrap(NativeProtocol protocol) {
     if (protocol == null) {
       return null;
     }

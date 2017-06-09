@@ -1,5 +1,4 @@
-/*******************************************************************************
- * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
+/******************************************************************************* * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
  *
@@ -26,7 +25,7 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.math.integer;
 
-import dk.alexandra.fresco.framework.Protocol;
+import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
@@ -38,7 +37,7 @@ import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
 import java.math.BigInteger;
 
 /**
- * Protocol for computing the Hamming distance between an array of shared bits and a public value
+ * NativeProtocol for computing the Hamming distance between an array of shared bits and a public value
  * @author ttoft
  *
  */
@@ -92,7 +91,7 @@ public class HammingDistanceProtocolImpl extends SimpleProtocolProducer implemen
 					XOR[i] = aBits[i];
 				}
 			}
-			Protocol[] sumpps = new Protocol[length - 1];
+			NativeProtocol[] sumpps = new NativeProtocol[length - 1];
 
 			SInt currentSum;
 			if (length == 2) {

@@ -27,8 +27,8 @@
 package dk.alexandra.fresco.framework.sce.evaluator;
 
 import dk.alexandra.fresco.framework.MPCException;
-import dk.alexandra.fresco.framework.Protocol;
-import dk.alexandra.fresco.framework.Protocol.EvaluationStatus;
+import dk.alexandra.fresco.framework.NativeProtocol;
+import dk.alexandra.fresco.framework.NativeProtocol.EvaluationStatus;
 import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.ProtocolCollectionList;
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
@@ -147,7 +147,7 @@ public class SequentialEvaluator implements ProtocolEvaluator {
       throws IOException {
     Network network = resourcePool.getNetwork();
     SCENetworkImpl sceNetwork = createSceNetwork(resourcePool.getNoOfParties());
-    for (Protocol protocol : protocols) {
+    for (NativeProtocol protocol : protocols) {
       int round = 0;
       EvaluationStatus status;
       do {

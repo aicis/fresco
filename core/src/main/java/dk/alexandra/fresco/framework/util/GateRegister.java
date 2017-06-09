@@ -26,14 +26,14 @@
  *******************************************************************************/
 package dk.alexandra.fresco.framework.util;
 
-import dk.alexandra.fresco.framework.Protocol;
+import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import java.util.HashMap;
 import java.util.LinkedList;
 
 public class GateRegister {
 
-  private final static HashMap<Protocol, LinkedList<ProtocolProducer>> gateMap = new HashMap<Protocol, LinkedList<ProtocolProducer>>();
+  private final static HashMap<NativeProtocol, LinkedList<ProtocolProducer>> gateMap = new HashMap<NativeProtocol, LinkedList<ProtocolProducer>>();
   private static final boolean record = false;
 
   private GateRegister() {
@@ -45,7 +45,7 @@ public class GateRegister {
     return record;
   }
 
-  private static void registerGate(Protocol g, ProtocolProducer p) {
+  private static void registerGate(NativeProtocol g, ProtocolProducer p) {
     synchronized (gateMap) {
       if (!record) {
         return;
@@ -61,18 +61,18 @@ public class GateRegister {
     }
   }
 
-  public static void registerGates(Protocol[] gs, ProtocolProducer p) {
+  public static void registerGates(NativeProtocol[] gs, ProtocolProducer p) {
     if (!record) {
       return;
     }
     synchronized (gateMap) {
-      for (Protocol g : gs) {
+      for (NativeProtocol g : gs) {
         registerGate(g, p);
       }
     }
   }
 
-  public static void registerGates(Protocol[] gs, int start, int end, ProtocolProducer p) {
+  public static void registerGates(NativeProtocol[] gs, int start, int end, ProtocolProducer p) {
     if (!record) {
       return;
     }
@@ -92,7 +92,7 @@ public class GateRegister {
     }
   }
 
-  public static LinkedList<ProtocolProducer> lookUp(Protocol g) {
+  public static LinkedList<ProtocolProducer> lookUp(NativeProtocol g) {
     if (!record) {
       return null;
     }
@@ -101,7 +101,7 @@ public class GateRegister {
     }
   }
 
-  public static String gateToString(Protocol g) {
+  public static String gateToString(NativeProtocol g) {
     if (!record) {
       return null;
     }
