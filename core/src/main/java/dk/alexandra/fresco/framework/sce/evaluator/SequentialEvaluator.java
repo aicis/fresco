@@ -29,7 +29,8 @@ package dk.alexandra.fresco.framework.sce.evaluator;
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.Protocol;
 import dk.alexandra.fresco.framework.Protocol.EvaluationStatus;
-import dk.alexandra.fresco.framework.ProtocolCollectionLinkedList;
+import dk.alexandra.fresco.framework.ProtocolCollection;
+import dk.alexandra.fresco.framework.ProtocolCollectionList;
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.Reporter;
@@ -41,7 +42,6 @@ import dk.alexandra.fresco.suite.ProtocolSuite;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -94,15 +94,16 @@ public class SequentialEvaluator implements ProtocolEvaluator {
   private int doOneRound(ProtocolProducer c, ResourcePool resourcePool) throws IOException {
     ProtocolSuite.RoundSynchronization roundSynchronization =
         protocolSuite.createRoundSynchronization();
-    ProtocolCollectionLinkedList protcols = new ProtocolCollectionLinkedList(maxBatchSize);
-    c.getNextProtocols(protcols);
-    List<Protocol> protocols = protcols.getProtocols();
+    ProtocolCollectionList protocols = new ProtocolCollectionList(maxBatchSize);
+    c.getNextProtocols(protocols);
+    int size = protocols.size();
+
     processBatch(protocols, resourcePool);
     roundSynchronization.finishedBatch(
-        protocols.size(),
+        size,
         resourcePool,
         createSceNetwork(resourcePool.getNoOfParties()));
-    return protocols.size();
+    return size;
   }
 
   public void eval(ProtocolProducer protocolProducer, ResourcePoolImpl resourcePool)
@@ -142,7 +143,7 @@ public class SequentialEvaluator implements ProtocolEvaluator {
    * -- ie to process more than one batch at a time, simply return before the
    * first one is finished
    */
-  private void processBatch(List<Protocol> protocols, ResourcePool resourcePool)
+  private void processBatch(ProtocolCollection protocols, ResourcePool resourcePool)
       throws IOException {
     Network network = resourcePool.getNetwork();
     SCENetworkImpl sceNetwork = createSceNetwork(resourcePool.getNoOfParties());

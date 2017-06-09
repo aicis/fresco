@@ -28,6 +28,7 @@ package dk.alexandra.fresco.framework.sce.evaluator;
 
 import dk.alexandra.fresco.framework.Protocol;
 import dk.alexandra.fresco.framework.Protocol.EvaluationStatus;
+import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.SCENetwork;
 import dk.alexandra.fresco.framework.network.SCENetworkSupplier;
@@ -36,7 +37,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -68,53 +69,52 @@ public class BatchedStrategy {
    * @param channel string indicating the channel to communicate over.
    * @param rp the resource pool.
    */
-  public static void processBatch(List<Protocol> protocols,
+  public static void processBatch(ProtocolCollection protocols,
       SCENetwork sceNetwork, int channel, ResourcePool rp) throws IOException {
     Network network = rp.getNetwork();
     int round = 0;
-    Set<Integer> partyIds = new HashSet<Integer>();
+    Set<Integer> partyIds = new HashSet<>();
     for (int i = 1; i <= rp.getNoOfParties(); i++) {
       partyIds.add(i);
     }
-    boolean[] dones = new boolean[protocols.size()];
-    boolean done;
-    // Do all rounds
-    do {
-      // Evaluate the current round for all protocols
-      done = true;
-      for (int i = 0; i < protocols.size(); i++) {
-        if (!dones[i]) {
-          EvaluationStatus status = protocols.get(i).evaluate(round, rp, sceNetwork);
-          if (status.equals(EvaluationStatus.IS_DONE)) {
-            dones[i] = true;
-          } else {
-            done = false;
-          }
-        }
-      }
-      if (sceNetwork instanceof SCENetworkSupplier) {
-        // Send/Receive data for this round if SCENetwork is a supplier
-        SCENetworkSupplier sceNetworkSupplier = (SCENetworkSupplier) sceNetwork;
-        Map<Integer, ByteBuffer> inputs = new HashMap<Integer, ByteBuffer>();
 
-        //Send data
-        Map<Integer, byte[]> output = sceNetworkSupplier.getOutputFromThisRound();
-        for (Map.Entry<Integer, byte[]> e : output.entrySet()) {
-          network.send(channel, e.getKey(), e.getValue());
-        }
-
-        //receive data
-        Set<Integer> expected = sceNetworkSupplier.getExpectedInputForNextRound();
-        for (int i : expected) {
-          byte[] data = network.receive(channel, i);
-          inputs.put(i, ByteBuffer.wrap(data));
-        }
-
-        sceNetworkSupplier.setInput(inputs);
-        sceNetworkSupplier.nextRound();
-      }
+    while (protocols.size() > 0) {
+      evaluateCurrentRound(protocols, sceNetwork, channel, rp, network, round);
 
       round++;
-    } while (!done);
+    }
+  }
+
+  private static void evaluateCurrentRound(ProtocolCollection protocols, SCENetwork sceNetwork,
+      int channel, ResourcePool rp, Network network, int round) throws IOException {
+    Iterator<Protocol> iterator = protocols.iterator();
+    while (iterator.hasNext()) {
+      Protocol protocol = iterator.next();
+      EvaluationStatus status = protocol.evaluate(round, rp, sceNetwork);
+      if (status.equals(EvaluationStatus.IS_DONE)) {
+        iterator.remove();
+      }
+    }
+    if (sceNetwork instanceof SCENetworkSupplier) {
+      // Send/Receive data for this round if SCENetwork is a supplier
+      SCENetworkSupplier sceNetworkSupplier = (SCENetworkSupplier) sceNetwork;
+      Map<Integer, ByteBuffer> inputs = new HashMap<>();
+
+      //Send data
+      Map<Integer, byte[]> output = sceNetworkSupplier.getOutputFromThisRound();
+      for (Map.Entry<Integer, byte[]> e : output.entrySet()) {
+        network.send(channel, e.getKey(), e.getValue());
+      }
+
+      //receive data
+      Set<Integer> expected = sceNetworkSupplier.getExpectedInputForNextRound();
+      for (int i : expected) {
+        byte[] data = network.receive(channel, i);
+        inputs.put(i, ByteBuffer.wrap(data));
+      }
+
+      sceNetworkSupplier.setInput(inputs);
+      sceNetworkSupplier.nextRound();
+    }
   }
 }

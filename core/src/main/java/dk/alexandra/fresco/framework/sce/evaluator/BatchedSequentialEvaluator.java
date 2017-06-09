@@ -26,8 +26,7 @@
  *******************************************************************************/
 package dk.alexandra.fresco.framework.sce.evaluator;
 
-import dk.alexandra.fresco.framework.Protocol;
-import dk.alexandra.fresco.framework.ProtocolCollectionLinkedList;
+import dk.alexandra.fresco.framework.ProtocolCollectionList;
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.network.SCENetworkImpl;
@@ -35,7 +34,6 @@ import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import java.io.IOException;
-import java.util.List;
 
 public class BatchedSequentialEvaluator implements ProtocolEvaluator {
 
@@ -72,11 +70,12 @@ public class BatchedSequentialEvaluator implements ProtocolEvaluator {
     do {
       ProtocolSuite.RoundSynchronization roundSynchronization =
           protocolSuite.createRoundSynchronization();
-      ProtocolCollectionLinkedList protocols = new ProtocolCollectionLinkedList(maxBatchSize);
+      ProtocolCollectionList protocols = new ProtocolCollectionList(maxBatchSize);
       protocolProducer.getNextProtocols(protocols);
-      List<Protocol> protocols1 = protocols.getProtocols();
-      BatchedStrategy.processBatch(protocols1, sceNetwork, DEFAULT_CHANNEL, resourcePool);
-      roundSynchronization.finishedBatch(protocols1.size(), resourcePool, sceNetwork);
+      int size = protocols.size();
+
+      BatchedStrategy.processBatch(protocols, sceNetwork, DEFAULT_CHANNEL, resourcePool);
+      roundSynchronization.finishedBatch(size, resourcePool, sceNetwork);
     } while (protocolProducer.hasNextProtocols());
 
     this.protocolSuite.finishedEval(resourcePool, sceNetwork);

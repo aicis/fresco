@@ -28,7 +28,7 @@ package dk.alexandra.fresco.suite.spdz.evaluation.strategy;
 
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.Protocol;
-import dk.alexandra.fresco.framework.ProtocolCollectionLinkedList;
+import dk.alexandra.fresco.framework.ProtocolCollectionList;
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.Reporter;
 import dk.alexandra.fresco.framework.network.SCENetwork;
@@ -213,12 +213,12 @@ public class SpdzProtocolSuite implements ProtocolSuite {
     int batchSize = 128;
 
     do {
-      ProtocolCollectionLinkedList protocolCollectionLinkedList =
-          new ProtocolCollectionLinkedList(batchSize);
-      macCheck.getNextProtocols(protocolCollectionLinkedList);
+      ProtocolCollectionList protocolCollectionList =
+          new ProtocolCollectionList(batchSize);
+      macCheck.getNextProtocols(protocolCollectionList);
 
       BatchedStrategy.processBatch(
-          protocolCollectionLinkedList.getProtocols(), sceNetworks, 0, resourcePool);
+          protocolCollectionList.getProtocols(), sceNetworks, 0, resourcePool);
     } while (macCheck.hasNextProtocols());
 
     //reset boolean value

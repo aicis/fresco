@@ -1,14 +1,15 @@
 package dk.alexandra.fresco.framework;
 
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-public class ProtocolCollectionLinkedList implements ProtocolCollection {
+public class ProtocolCollectionList implements ProtocolCollection {
 
   private int capacity;
   private List<Protocol> protocols;
 
-  public ProtocolCollectionLinkedList(int capacity) {
+  public ProtocolCollectionList(int capacity) {
     this.capacity = capacity;
     this.protocols = new LinkedList<>();
   }
@@ -30,5 +31,14 @@ public class ProtocolCollectionLinkedList implements ProtocolCollection {
    */
   public List<Protocol> getProtocols() {
     return protocols;
+  }
+
+  @Override
+  public Iterator<Protocol> iterator() {
+    return protocols.iterator();
+  }
+
+  public int size() {
+    return protocols.size();
   }
 }

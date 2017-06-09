@@ -1,9 +1,10 @@
 package dk.alexandra.fresco.framework;
 
 /**
- * A collection of protocol that has a specific capacity.
+ * A collection of protocol that has a specific capacity. Elements can be added but not expected
+ * after the capacity has been reacehd, the Iterable allows traversal and removal.
  */
-public interface ProtocolCollection {
+public interface ProtocolCollection extends Iterable<Protocol> {
 
   /**
    * Receives a protocol to be added to the collection.
@@ -18,4 +19,11 @@ public interface ProtocolCollection {
    * @return true if there is availabe capacity
    */
   boolean hasFreeCapacity();
+
+  /**
+   * Gets the actual number of protocols in the collection.
+   *
+   * @return the number of elements
+   */
+  int size();
 }
