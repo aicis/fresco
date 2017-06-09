@@ -55,7 +55,7 @@ import java.util.Map;
 
 public class SpdzProtocolSuite implements ProtocolSuite {
 
-  private static final Map<Integer, SpdzProtocolSuite> instances = new HashMap<>();
+  private static Map<Integer, SpdzProtocolSuite> instances = new HashMap<>();
 
   private SecureRandom rand;
   private SpdzStorage[] store;
