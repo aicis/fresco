@@ -59,16 +59,14 @@ import org.junit.Assert;
 
 class LPSolverTests {
 
-  public static class TestLPSolver extends TestThreadFactory {
+  public static class TestLPSolver<ResourcePoolT extends ResourcePool> extends TestThreadFactory {
 
     @Override
     public TestThread next(TestThreadConfiguration conf) {
-      return new TestThread() {
+      return new TestThread<ResourcePoolT>() {
         @Override
         public void test() throws Exception {
           TestApplication app = new TestApplication() {
-
-            private static final long serialVersionUID = 4338818809103728010L;
 
             @Override
             public ProtocolProducer prepareApplication(
@@ -130,7 +128,7 @@ class LPSolverTests {
             }
           };
           long startTime = System.nanoTime();
-          ResourcePool resourcePool = SecureComputationEngineImpl.createResourcePool(
+          ResourcePoolT resourcePool = SecureComputationEngineImpl.createResourcePool(
               conf.sceConf, conf.sceConf.getSuite());
           secureComputationEngine.runApplication(app, resourcePool);
           long endTime = System.nanoTime();
