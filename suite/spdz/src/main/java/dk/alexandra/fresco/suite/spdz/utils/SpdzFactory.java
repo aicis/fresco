@@ -177,12 +177,24 @@ public class SpdzFactory implements BasicNumericFactory<SpdzSInt>,
   }
 
   @Override
+  public NativeProtocol<? extends SInt, ?> getAddProtocol(SInt a, SInt b) {
+    SInt out = getSInt();
+    return new SpdzAddProtocol(a, b, out);
+  }
+
+  @Override
   public NativeProtocol<? extends SInt, ?> getAddProtocol(SInt a, OInt b, SInt out) {
     return new SpdzAddProtocol(a, b, out, this);
   }
 
   @Override
   public NativeProtocol<? extends SInt, ?> getSubtractProtocol(SInt a, SInt b, SInt out) {
+    return new SpdzSubtractProtocol(a, b, out, this);
+  }
+
+  @Override
+  public NativeProtocol<? extends SInt, ?> getSubtractProtocol(SInt a, SInt b) {
+    SInt out = getSInt();
     return new SpdzSubtractProtocol(a, b, out, this);
   }
 
@@ -198,6 +210,12 @@ public class SpdzFactory implements BasicNumericFactory<SpdzSInt>,
 
   @Override
   public NativeProtocol<? extends SInt, ?> getMultProtocol(SInt a, SInt b, SInt out) {
+    return new SpdzMultProtocol(a, b, out);
+  }
+
+  @Override
+  public NativeProtocol<? extends SInt, ?> getMultProtocol(SInt a, SInt b) {
+    SInt out = getSInt();
     return new SpdzMultProtocol(a, b, out);
   }
 

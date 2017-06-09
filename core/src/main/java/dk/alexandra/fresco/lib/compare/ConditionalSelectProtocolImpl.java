@@ -54,11 +54,8 @@ public class ConditionalSelectProtocolImpl implements ConditionalSelectProtocol 
   @Override
   public void getNextProtocols(ProtocolCollection protocolCollection) {
     if (pp == null) {
-      SInt subResult = factory.getSInt();
-      SInt multResult = factory.getSInt();
-      NativeProtocol<? extends SInt, ?> sub = factory.getSubtractProtocol(a, b, subResult);
-      NativeProtocol<? extends SInt, ?> mult = factory
-          .getMultProtocol(selector, sub.getOutput(), multResult);
+      NativeProtocol<? extends SInt, ?> sub = factory.getSubtractProtocol(a, b);
+      NativeProtocol<? extends SInt, ?> mult = factory.getMultProtocol(selector, sub.getOutput());
       NativeProtocol<? extends SInt, ?> add = factory.getAddProtocol(mult.getOutput(), b, result);
 
       this.pp = new SequentialProtocolProducer(sub, mult, add);

@@ -36,5 +36,7 @@ public interface AddProtocolFactory extends ProtocolFactory, AddByConstantProtoc
 
   NativeProtocol<? extends SInt, ?> getAddProtocol(SInt a, SInt b, SInt out);
 
+  NativeProtocol<? extends SInt, ?> getAddProtocol(SInt a, SInt b);
+
   NativeProtocol<? extends SInt, ?> getAddProtocol(SInt input, OInt openInput, SInt out);
 }

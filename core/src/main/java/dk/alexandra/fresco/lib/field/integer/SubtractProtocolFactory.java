@@ -35,6 +35,8 @@ public interface SubtractProtocolFactory extends ProtocolFactory {
 
   NativeProtocol<? extends SInt, ?> getSubtractProtocol(SInt a, SInt b, SInt out);
 
+  NativeProtocol<? extends SInt, ?> getSubtractProtocol(SInt a, SInt b);
+
   NativeProtocol<? extends SInt, ?> getSubtractProtocol(OInt a, SInt b, SInt out);
 
   NativeProtocol<? extends SInt, ?> getSubtractProtocol(SInt a, OInt b, SInt out);
