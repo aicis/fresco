@@ -31,7 +31,7 @@ import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import java.io.IOException;
 import java.util.concurrent.Future;
 
-public interface SecureComputationEngine {
+public interface SecureComputationEngine<ResourcePoolT extends ResourcePool> {
 
   /**
    * Executes an application based on the current SCEConfiguration. If the SecureComputationEngine
@@ -40,7 +40,7 @@ public interface SecureComputationEngine {
    *
    * @param application The application to evaluate.
    */
-  void runApplication(Application application, ResourcePool resources);
+  void runApplication(Application application, ResourcePoolT resources);
 
   /**
    * Executes an application based on the current SCEConfiguration. If the SecureComputationEngine
@@ -49,7 +49,7 @@ public interface SecureComputationEngine {
    *
    * @param application The application to evaluate.
    */
-  Future<?> startApplication(Application application, ResourcePool resources);
+  Future<?> startApplication(Application application, ResourcePoolT resources);
 
 
   /**

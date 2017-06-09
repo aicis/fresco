@@ -50,7 +50,7 @@ public class TestBasicArithmeticWithEncryption {
           .fromEnum(EvaluationStrategy.SEQUENTIAL_BATCHED);
       dk.alexandra.fresco.framework.sce.resources.storage.Storage storage = new InMemoryStorage();
       ttc.sceConf = new TestSCEConfiguration(spdzConf, NetworkingStrategy.KRYONET,
-          evaluator, noOfThreads, noOfVMThreads, ttc.netConf, storage,
+          evaluator, ttc.netConf, storage,
           useSecureConnection);
       conf.put(playerId, ttc);
     }

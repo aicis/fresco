@@ -20,7 +20,7 @@ class TestSpdzConfiguration implements SpdzConfiguration {
 
   @Override
   public ProtocolSuite createProtocolSuite(int myPlayerId) {
-    return new SpdzProtocolSuite(myPlayerId, this);
+    return new SpdzProtocolSuite(this);
   }
 
   @Override

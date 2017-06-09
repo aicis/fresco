@@ -70,7 +70,7 @@ public class TestDatabase {
           throw new RuntimeException();
       }
       ttc.sceConf = new TestSCEConfiguration(new DummyConfiguration(), null, evaluator,
-          noOfThreads, noOfVMThreads, ttc.netConf, storage,
+          ttc.netConf, storage,
           useSecureConnection);
       conf.put(playerId, ttc);
     }

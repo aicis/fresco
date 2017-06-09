@@ -34,6 +34,7 @@ import dk.alexandra.fresco.framework.sce.SCEFactory;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
 import dk.alexandra.fresco.framework.sce.configuration.ProtocolSuiteConfiguration;
 import dk.alexandra.fresco.framework.sce.configuration.TestSCEConfiguration;
+import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -45,11 +46,11 @@ public class TestThreadRunner {
 
   private static final long MAX_WAIT_FOR_THREAD = 6000000;
 
-  public abstract static class TestThread extends Thread {
+  public abstract static class TestThread<ResourcePoolT extends ResourcePool> extends Thread {
 
     private boolean finished = false;
 
-    protected TestThreadConfiguration conf;
+    protected TestThreadConfiguration<ResourcePoolT> conf;
 
     // Randomness to use in test.
     Random rand;
@@ -60,9 +61,9 @@ public class TestThreadRunner {
 
     Throwable teardownException;
 
-    protected SecureComputationEngine secureComputationEngine;
+    protected SecureComputationEngine<ResourcePoolT> secureComputationEngine;
 
-    void setConfiguration(TestThreadConfiguration conf) {
+    void setConfiguration(TestThreadConfiguration<ResourcePoolT> conf) {
       this.conf = conf;
     }
 
@@ -75,7 +76,7 @@ public class TestThreadRunner {
     public void run() {
       try {
         if (conf.sceConf != null) {
-          ProtocolSuiteConfiguration suite = conf.sceConf.getSuite();
+          ProtocolSuiteConfiguration<ResourcePoolT> suite = conf.sceConf.getSuite();
           secureComputationEngine =
               SCEFactory.getSCEFromConfiguration(conf.sceConf, suite);
         }
@@ -129,7 +130,7 @@ public class TestThreadRunner {
 
     public abstract void test() throws Exception;
 
-    public void setRandom(long nextLong) {
+    void setRandom(long nextLong) {
       this.rand = new Random(nextLong);
 
     }
@@ -140,10 +141,10 @@ public class TestThreadRunner {
   /**
    * Container for all the configuration that one thread should have.
    */
-  public static class TestThreadConfiguration {
+  public static class TestThreadConfiguration<ResourcePoolT extends ResourcePool> {
 
     public NetworkConfiguration netConf;
-    public TestSCEConfiguration sceConf;
+    public TestSCEConfiguration<ResourcePoolT> sceConf;
 
     public int getMyId() {
       return this.netConf.getMyId();

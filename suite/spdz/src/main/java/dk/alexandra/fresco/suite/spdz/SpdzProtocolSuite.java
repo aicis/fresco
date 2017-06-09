@@ -59,7 +59,7 @@ public class SpdzProtocolSuite implements ProtocolSuite<SpdzResourcePool> {
   private long totalNoneMacTime;
   private int totalSizeOfValues;
 
-  public SpdzProtocolSuite(int id, SpdzConfiguration spdzConf) {
+  public SpdzProtocolSuite(SpdzConfiguration spdzConf) {
     this.spdzConf = spdzConf;
   }
 

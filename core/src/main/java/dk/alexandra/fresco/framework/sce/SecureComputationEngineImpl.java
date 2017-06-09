@@ -42,7 +42,6 @@ import dk.alexandra.fresco.framework.network.ScapiNetworkImpl;
 import dk.alexandra.fresco.framework.sce.configuration.ProtocolSuiteConfiguration;
 import dk.alexandra.fresco.framework.sce.configuration.SCEConfiguration;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
-import dk.alexandra.fresco.framework.sce.resources.storage.StreamedStorage;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import java.io.IOException;
 import java.security.SecureRandom;
@@ -61,18 +60,19 @@ import java.util.concurrent.TimeoutException;
  *
  * @author Kasper Damgaard (.. and others)
  */
-public class SecureComputationEngineImpl implements SecureComputationEngine {
+public class SecureComputationEngineImpl<ResourcePoolT extends ResourcePool> implements
+    SecureComputationEngine<ResourcePoolT> {
 
-  private ProtocolEvaluator evaluator;
+  private ProtocolEvaluator<ResourcePoolT> evaluator;
   private SCEConfiguration sceConf;
-  private ProtocolSuiteConfiguration protocolSuiteConfiguration;
+  private ProtocolSuiteConfiguration<ResourcePoolT> protocolSuiteConfiguration;
   private ExecutorService executorService = Executors.newCachedThreadPool();
 
   private boolean setup;
-  private ProtocolSuite protocolSuite;
+  private ProtocolSuite<ResourcePoolT> protocolSuite;
 
   public SecureComputationEngineImpl(SCEConfiguration sceConf,
-      ProtocolSuiteConfiguration protocolSuite) {
+      ProtocolSuiteConfiguration<ResourcePoolT> protocolSuite) {
     this.sceConf = sceConf;
     this.protocolSuiteConfiguration = protocolSuite;
 
@@ -124,7 +124,6 @@ public class SecureComputationEngineImpl implements SecureComputationEngine {
     int myId = sceConf.getMyId();
     Map<Integer, Party> parties = sceConf.getParties();
 
-    StreamedStorage streamedStorage = sceConf.getStreamedStorage();
     // Secure random by default.
     Random rand = new Random(0);
     SecureRandom secRand = new SecureRandom();
@@ -147,15 +146,8 @@ public class SecureComputationEngineImpl implements SecureComputationEngine {
     this.setup = true;
   }
 
-  /*
-   * (non-Javadoc)
-   *
-   * @see
-   * dk.alexandra.fresco.framework.sce.SecureComputationEngine#runApplication(dk.alexandra.fresco
-   * .framework.Application)
-   */
   @Override
-  public void runApplication(Application application, ResourcePool sceNetwork) {
+  public void runApplication(Application application, ResourcePoolT sceNetwork) {
     try {
       startApplication(application, sceNetwork).get(10, TimeUnit.MINUTES);
     } catch (InterruptedException | ExecutionException | TimeoutException e) {
@@ -163,7 +155,7 @@ public class SecureComputationEngineImpl implements SecureComputationEngine {
     }
   }
 
-  public Future<?> startApplication(Application application, ResourcePool resourcePool) {
+  public Future<?> startApplication(Application application, ResourcePoolT resourcePool) {
     prepareEvaluator();
     ProtocolFactory protocolFactory = this.protocolSuite.init(resourcePool);
     ProtocolProducer prod = application.prepareApplication(protocolFactory);
@@ -186,7 +178,7 @@ public class SecureComputationEngineImpl implements SecureComputationEngine {
   }
 
   private void evalApplication(ProtocolProducer prod, String appName,
-      ResourcePool resourcePool) {
+      ResourcePoolT resourcePool) {
     try {
       if (prod != null) {
         Reporter.info("Using the configuration: " + this.sceConf);

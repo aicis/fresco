@@ -92,7 +92,6 @@ public class SetIntersectionDemo {
       boolean useSecureConnection = true;
       ttc.sceConf = new TestSCEConfiguration(new DummyConfiguration(), NetworkingStrategy.KRYONET,
           evaluator,
-          noOfThreads, noOfVMThreads,
           ttc.netConf, storage, useSecureConnection);
       conf.put(playerId, ttc);
     }
@@ -130,7 +129,6 @@ public class SetIntersectionDemo {
       ttc.sceConf = new TestSCEConfiguration(
           getTinyTablesPreproConfiguration(9000 + ttc.netConf.getMyId(), playerId),
           NetworkingStrategy.KRYONET, evaluator,
-          noOfThreads, noOfVMThreads,
           ttc.netConf, storage, useSecureConnection);
       conf.put(playerId, ttc);
     }
@@ -154,7 +152,6 @@ public class SetIntersectionDemo {
       boolean useSecureConnection = true;
       ttc.sceConf = new TestSCEConfiguration(getTinyTablesConfiguration(playerId),
           NetworkingStrategy.KRYONET, evaluator,
-          noOfThreads, noOfVMThreads,
           ttc.netConf, storage, useSecureConnection);
       conf.put(playerId, ttc);
     }

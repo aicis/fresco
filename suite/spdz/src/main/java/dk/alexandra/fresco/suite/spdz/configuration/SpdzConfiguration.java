@@ -85,7 +85,7 @@ public interface SpdzConfiguration extends ProtocolSuiteConfiguration {
 
       @Override
       public ProtocolSuite createProtocolSuite(int myPlayerId) {
-        return new SpdzProtocolSuite(myPlayerId, this);
+        return new SpdzProtocolSuite(this);
       }
 
       @Override

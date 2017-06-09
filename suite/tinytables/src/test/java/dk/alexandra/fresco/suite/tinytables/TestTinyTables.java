@@ -123,8 +123,7 @@ public class TestTinyTables {
       int noOfThreads = 3;
       Storage storage = new InMemoryStorage();
       ttc.sceConf = new TestSCEConfiguration(config, NetworkingStrategy.KRYONET, evaluator,
-          noOfThreads,
-          noOfVMThreads, ttc.netConf, storage, false);
+          ttc.netConf, storage, false);
       conf.put(playerId, ttc);
     }
     TestThreadRunner.run(f, conf);

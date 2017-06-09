@@ -77,7 +77,6 @@ public class TestAESDemo {
       boolean useSecureConnection = true;
       ttc.sceConf = new TestSCEConfiguration(new DummyConfiguration(), NetworkingStrategy.KRYONET,
           evaluator,
-          noOfThreads, noOfVMThreads,
           ttc.netConf, storage, useSecureConnection);
       conf.put(playerId, ttc);
     }

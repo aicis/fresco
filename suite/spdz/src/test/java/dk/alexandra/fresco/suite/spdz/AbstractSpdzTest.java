@@ -82,9 +82,9 @@ public abstract class AbstractSpdzTest {
 			if (preProStrat == PreprocessingStrategy.STATIC) {
 				storage = new FilebasedStreamedStorageImpl(new InMemoryStorage());
 			}
-      ttc.sceConf = new TestSCEConfiguration(spdzConf, network, evaluator, noOfThreads,
-          noOfVMThreads, ttc.netConf,
-          storage, useSecureConnection);
+			ttc.sceConf = new TestSCEConfiguration(spdzConf, network, evaluator,
+					ttc.netConf,
+					storage, useSecureConnection);
 			conf.put(playerId, ttc);
 		}
 		TestThreadRunner.run(f, conf);
