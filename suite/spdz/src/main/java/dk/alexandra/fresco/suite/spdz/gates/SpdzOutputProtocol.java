@@ -37,7 +37,6 @@ import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzOInt;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
-import dk.alexandra.fresco.suite.spdz.utils.Util;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.util.List;
@@ -77,7 +76,7 @@ public class SpdzOutputProtocol extends SpdzNativeProtocol<SpdzOInt> {
         SpdzElement inMinusMask = this.in.value.subtract(this.mask.getMask());
         storage.addClosedValue(inMinusMask);
         network.sendToAll(BigIntegerWithFixedLengthSerializer
-            .toBytes(inMinusMask.getShare(), Util.getModulusSize()));
+            .toBytes(inMinusMask.getShare(), spdzResourcePool.getModulusSize()));
         network.expectInputFromAll();
         return EvaluationStatus.HAS_MORE_ROUNDS;
       case 1:
@@ -85,7 +84,8 @@ public class SpdzOutputProtocol extends SpdzNativeProtocol<SpdzOInt> {
         BigInteger openedVal = BigInteger.valueOf(0);
         for (ByteBuffer buffer : shares) {
           openedVal = openedVal
-              .add(BigIntegerWithFixedLengthSerializer.toBigInteger(buffer, Util.getModulusSize()));
+              .add(BigIntegerWithFixedLengthSerializer
+                  .toBigInteger(buffer, spdzResourcePool.getModulusSize()));
         }
         openedVal = openedVal.mod(spdzResourcePool.getModulus());
         storage.addOpenedValue(openedVal);

@@ -36,7 +36,6 @@ import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
-import dk.alexandra.fresco.suite.spdz.utils.Util;
 import java.math.BigInteger;
 
 public class SpdzInputProtocol extends SpdzNativeProtocol<SpdzSInt> {
@@ -73,13 +72,14 @@ public class SpdzInputProtocol extends SpdzNativeProtocol<SpdzSInt> {
           BigInteger bcValue = this.input.subtract(this.inputMask.getRealValue());
           bcValue = bcValue.mod(modulus);
           network.sendToAll(
-              BigIntegerWithFixedLengthSerializer.toBytes(bcValue, Util.getModulusSize()));
+              BigIntegerWithFixedLengthSerializer
+                  .toBytes(bcValue, spdzResourcePool.getModulusSize()));
         }
         network.expectInputFromPlayer(inputter);
         return EvaluationStatus.HAS_MORE_ROUNDS;
       case 1:
         this.value_masked = BigIntegerWithFixedLengthSerializer
-            .toBigInteger(network.receive(inputter), Util.getModulusSize());
+            .toBigInteger(network.receive(inputter), spdzResourcePool.getModulusSize());
         this.digest = sendBroadcastValidation(
             spdzResourcePool.getMessageDigest(), network,
             value_masked);

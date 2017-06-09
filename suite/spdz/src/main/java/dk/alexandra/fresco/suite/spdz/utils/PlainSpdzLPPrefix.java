@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -28,12 +28,14 @@ package dk.alexandra.fresco.suite.spdz.utils;
 
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.SInt;
+import dk.alexandra.fresco.framework.value.SIntFactory;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
 import dk.alexandra.fresco.lib.lp.LPPrefix;
 import dk.alexandra.fresco.lib.lp.LPTableau;
 import dk.alexandra.fresco.lib.lp.Matrix;
 import java.io.IOException;
+import java.math.BigInteger;
 
 /**
  * This LPPrefix simply reads plaintext inputs from an LPInputReader and creates an input protocols
@@ -95,15 +97,15 @@ public class PlainSpdzLPPrefix implements LPPrefix {
     }
     SInt z = factory.getSInt(0);
 
-    C = Util.sIntFillRemaining(C, factory);
-    B = Util.sIntFill(B, factory);
-    F = Util.sIntFill(F, factory);
+    C = sIntFillRemaining(C, factory);
+    B = sIntFill(B, factory);
+    F = sIntFill(F, factory);
 
-    ProtocolProducer cInputProducer = Util.makeInputProtocols(inputReader.getCValues(),
+    ProtocolProducer cInputProducer = makeInputProtocols(inputReader.getCValues(),
         inputReader.getCPattern(), C, factory);
-    ProtocolProducer bInputProducer = Util.makeInputProtocols(inputReader.getBValues(),
+    ProtocolProducer bInputProducer = makeInputProtocols(inputReader.getBValues(),
         inputReader.getBPattern(), B, factory);
-    ProtocolProducer fInputProducer = Util.makeInputProtocols(inputReader.getFValues(),
+    ProtocolProducer fInputProducer = makeInputProtocols(inputReader.getFValues(),
         inputReader.getFPattern(), F, factory);
     ProtocolProducer input = new ParallelProtocolProducer(cInputProducer, bInputProducer,
         fInputProducer);
@@ -112,6 +114,52 @@ public class PlainSpdzLPPrefix implements LPPrefix {
     this.basis = new SInt[noConstraints];
     this.tableau = new LPTableau(new Matrix<SInt>(C), B, F, z);
     this.prefix = input;
+  }
+
+  private SInt[][] sIntFillRemaining(SInt[][] matrix, BasicNumericFactory factory) {
+    for (SInt[] vector : matrix) {
+      sIntFill(vector, factory);
+    }
+    return matrix;
+  }
+
+
+  private SInt[] sIntFill(SInt[] vector, SIntFactory factory) {
+    for (int i = 0; i < vector.length; i++) {
+      vector[i] = factory.getSInt();
+    }
+    return vector;
+  }
+
+  private ProtocolProducer makeInputProtocols(BigInteger[] values, int[] pattern,
+      SInt[] vector, BasicNumericFactory factory) {
+    if (vector.length != values.length || vector.length != pattern.length) {
+      throw new RuntimeException("Inputs are not equal length");
+    }
+    ParallelProtocolProducer input = new ParallelProtocolProducer();
+    for (int i = 0; i < vector.length; i++) {
+      if (pattern[i] != 0) {
+        input.append(factory.getCloseProtocol(values[i], vector[i], pattern[i]));
+      }
+    }
+    return input;
+  }
+
+  private ProtocolProducer makeInputProtocols(BigInteger[][] values, int[][] pattern,
+      SInt[][] matrix, BasicNumericFactory factory) {
+    if (matrix.length != values.length || values.length != pattern.length ||
+        values[0].length != matrix[0].length || values[0].length != pattern[0].length) {
+      throw new RuntimeException("Input Dimensions are not equal");
+    }
+    ParallelProtocolProducer par = new ParallelProtocolProducer();
+    for (int i = 0; i < matrix.length; i++) {
+      for (int j = 0; j < matrix[i].length; j++) {
+        if (pattern[i][j] != 0) {
+          par.append(factory.getCloseProtocol(values[i][j], matrix[i][j], pattern[i][j]));
+        }
+      }
+    }
+    return par;
   }
 
   @Override

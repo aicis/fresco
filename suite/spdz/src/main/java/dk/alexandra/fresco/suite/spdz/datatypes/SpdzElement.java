@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -31,24 +31,24 @@ import java.io.Serializable;
 import java.math.BigInteger;
 
 public class SpdzElement implements Serializable{
-	
+
 	private static final long serialVersionUID = 6794633112697012286L;
 	private BigInteger share;
 	private BigInteger mac;
 	private final BigInteger mod = Util.getModulus();
-	
+
 	public SpdzElement(){
 		this.share = null;
 		this.mac = null;
 	}
-		
+
 	public SpdzElement(BigInteger share, BigInteger mac){
 		this.share = share;
-		this.mac = mac;		
-	}
-	
-	//Communication methods	
-	public SpdzElement(byte[] data){
+    this.mac = mac;
+  }
+
+  //Communication methods
+  public SpdzElement(byte[] data){
 		int size = getSize();
 		byte[] shareBytes = new byte[size];
 		byte[] macBytes = new byte[size];
@@ -60,72 +60,70 @@ public class SpdzElement implements Serializable{
 		this.mac = new BigInteger(macBytes);
 	}
 
-	public static int getSize(){
-		return Util.getModulusSize(); //cause we only do partial openings meaning sending a share
+  private int getSize() {
+    return Util.getModulusSize(); //cause we only do partial openings meaning sending a share
 	}
-	
-	public byte[] toByteArray(){		
-		byte[] share_invert = new byte[getSize()];
+
+  public byte[] toByteArray() {
+    byte[] share_invert = new byte[getSize()];
 		byte[] mac_invert = new byte[getSize()];
 		copyAndInvertArray(share_invert, this.share.toByteArray());
 		copyAndInvertArray(mac_invert, this.mac.toByteArray());
 		byte[] res = new byte[getSize()*2];
 		System.arraycopy(share_invert, 0, res, 0, getSize());
 		System.arraycopy(mac_invert, 0, res, getSize(), getSize());
-		return res;		
-	}
-	
+    return res;
+  }
+
 	private void copyAndInvertArray(byte[] bytes, byte[] byteArray) {
-        for (int inx = 0; inx < byteArray.length; inx++) {       
-            bytes[bytes.length - byteArray.length + inx] = byteArray[inx];            
-        }
+    System.arraycopy(byteArray, 0, bytes, bytes.length - byteArray.length, byteArray.length);
     }
-	
+
 	//get operations
 	public BigInteger getShare(){
 		return share;
-	}	
-	
+  }
+
 	public BigInteger getMac(){
 		return mac;
 	}
-	
+
 	//Arithmetic operations:
 	public SpdzElement add(SpdzElement e){
 		BigInteger rShare = this.share.add(e.getShare()).mod(mod);
-		BigInteger rMac = this.mac.add(e.getMac()).mod(mod);		
-		return new SpdzElement(rShare, rMac);
+    BigInteger rMac = this.mac.add(e.getMac()).mod(mod);
+    return new SpdzElement(rShare, rMac);
 	}
-	
+
 	/**
 	 * Public value added
 	 * @param e
-	 * @param myId
-	 * @return
+   * @param pID
+   * @return
 	 */
 	public SpdzElement add(SpdzElement e, int pID){
 		BigInteger rShare = this.share;
 		BigInteger rMac = this.mac;
 		rMac = rMac.add(e.getMac()).mod(mod);
 		if(pID == 1){
-			rShare = rShare.add(e.getShare()).mod(mod);			
-		}
+      rShare = rShare.add(e.getShare()).mod(mod);
+    }
 		return new SpdzElement(rShare, rMac);
 	}
-	
-	public SpdzElement subtract(SpdzElement e){
+
+  public SpdzElement subtract(SpdzElement e){
 		BigInteger eShare = e.getShare();
 		BigInteger rShare = this.share.subtract(eShare).mod(mod);
 		BigInteger eMac = e.getMac();
-		BigInteger rMac = this.mac.subtract(eMac).mod(mod);				
-		return new SpdzElement(rShare, rMac);
+    BigInteger rMac = this.mac.subtract(eMac).mod(mod);
+    return new SpdzElement(rShare, rMac);
 	}
-	
-	/**
+
+  /**
 	 * Public value subtracted
 	 * @param e
-	 * @param myId
-	 * @return
+   * @param pID
+   * @return
 	 */
 	public SpdzElement subtract(SpdzElement e, int pID) {
 		BigInteger rShare = this.share;
@@ -133,28 +131,28 @@ public class SpdzElement implements Serializable{
 			rShare = this.share.subtract(e.getShare()).mod(mod);
 		}
 		BigInteger eMac = e.getMac();
-		BigInteger rMac = this.mac.subtract(eMac).mod(mod);				
-		return new SpdzElement(rShare, rMac);
+    BigInteger rMac = this.mac.subtract(eMac).mod(mod);
+    return new SpdzElement(rShare, rMac);
 	}
-	
-	public SpdzElement multiply(BigInteger c){
+
+  public SpdzElement multiply(BigInteger c){
 		BigInteger rShare = this.share.multiply(c).mod(mod);
-		BigInteger rMac = this.mac.multiply(c).mod(mod);				
-		return new SpdzElement(rShare, rMac);		
-	}
-	
-	
-	//Utility methods
+    BigInteger rMac = this.mac.multiply(c).mod(mod);
+    return new SpdzElement(rShare, rMac);
+  }
+
+
+  //Utility methods
 	@Override
 	public String toString(){
 		return "spdz("+share+", "+mac+")";
 	}
-	
-	@Override
+
+  @Override
 	public boolean equals(Object o){
 		if(o instanceof SpdzElement){
-			SpdzElement e = (SpdzElement)o;		
-			return (e.getShare().equals(share) && e.getMac().equals(mac));
+      SpdzElement e = (SpdzElement) o;
+      return (e.getShare().equals(share) && e.getMac().equals(mac));
 		}else{
 			return false;
 		}

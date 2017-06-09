@@ -131,12 +131,28 @@ public class SpdzFactory implements BasicNumericFactory<SpdzSInt>,
 
   @Override
   public OInt[] getExpFromOInt(OInt value, int maxBitSize) {
-    BigInteger[] res = Util.getClearExpPipe(value.getValue(), maxBitSize);
+    BigInteger[] res = getClearExpPipe(value.getValue(), maxBitSize);
     OInt[] expPipe = new OInt[res.length];
     for (int i = 0; i < res.length; i++) {
       expPipe[i] = new SpdzOInt(res[i]);
     }
     return expPipe;
+  }
+
+  /**
+   * Returns the numbers: M, M^2, M^3, ..., M^maxBitSize
+   *
+   * @param M the number for exponentiation
+   * @param maxBitSize number of exp to get
+   * @return M, M^2, M^3, ..., M^maxBitSize
+   */
+  private BigInteger[] getClearExpPipe(BigInteger M, int maxBitSize) {
+    BigInteger[] Ms = new BigInteger[maxBitSize];
+    Ms[0] = M;
+    for (int i = 1; i < Ms.length; i++) {
+      Ms[i] = Ms[i - 1].multiply(M).mod(getModulus());
+    }
+    return Ms;
   }
 
   @Override
