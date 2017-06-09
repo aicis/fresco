@@ -10,7 +10,6 @@ import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.configuration.ProtocolSuiteConfiguration;
 import dk.alexandra.fresco.framework.sce.configuration.SCEConfiguration;
 import dk.alexandra.fresco.framework.sce.evaluator.SequentialEvaluator;
-import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.sce.resources.storage.StreamedStorage;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
@@ -223,7 +222,7 @@ public class AggregationDemo {
       }
 
       @Override
-      public ResourcePool createResourcePool(int myId, int size, Network network, Random rand,
+      public SpdzResourcePool createResourcePool(int myId, int size, Network network, Random rand,
           SecureRandom secRand) {
         return new SpdzResourcePool(myId, size, network, sceConfig.getStreamedStorage(), rand,
             secRand, this);

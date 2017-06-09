@@ -27,20 +27,10 @@
 package dk.alexandra.fresco.suite.spdz.configuration;
 
 import dk.alexandra.fresco.framework.configuration.PreprocessingStrategy;
-import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.configuration.ProtocolSuiteConfiguration;
-import dk.alexandra.fresco.framework.sce.configuration.SCEConfiguration;
-import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
-import dk.alexandra.fresco.suite.ProtocolSuite;
-import dk.alexandra.fresco.suite.spdz.SpdzProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
-import java.security.SecureRandom;
-import java.util.Properties;
-import java.util.Random;
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.ParseException;
 
-public interface SpdzConfiguration extends ProtocolSuiteConfiguration {
+public interface SpdzConfiguration extends ProtocolSuiteConfiguration<SpdzResourcePool> {
 
   /**
    * Gets an approximation of the maximum bit length of any number appearing
@@ -67,50 +57,4 @@ public interface SpdzConfiguration extends ProtocolSuiteConfiguration {
    * @return The base URL for the fuel station.
    */
   String fuelStationBaseUrl();
-
-  static SpdzConfiguration fromCmdLine(SCEConfiguration sceConf,
-      CommandLine cmd) throws ParseException {
-    Properties p = cmd.getOptionProperties("D");
-    //TODO: Figure out a meaningful default for the below
-    final int maxBitLength = Integer.parseInt(p.getProperty("spdz.maxBitLength", "64"));
-    if (maxBitLength < 2) {
-      throw new ParseException("spdz.maxBitLength must be > 1");
-    }
-
-    final String fuelStationBaseUrl = p.getProperty("spdz.fuelStationBaseUrl", null);
-    String strat = p.getProperty("spdz.preprocessingStrategy");
-    final PreprocessingStrategy strategy = PreprocessingStrategy.fromString(strat);
-
-    return new SpdzConfiguration() {
-
-      @Override
-      public ProtocolSuite createProtocolSuite(int myPlayerId) {
-        return new SpdzProtocolSuite(this);
-      }
-
-      @Override
-      public ResourcePool createResourcePool(int myId, int size, Network network, Random rand,
-          SecureRandom secRand) {
-        return new SpdzResourcePool(myId, size, network, sceConf.getStreamedStorage(), rand,
-            secRand, this);
-      }
-
-      @Override
-      public int getMaxBitLength() {
-        return maxBitLength;
-      }
-
-      @Override
-      public PreprocessingStrategy getPreprocessingStrategy() {
-        return strategy;
-      }
-
-      @Override
-      public String fuelStationBaseUrl() {
-        return fuelStationBaseUrl;
-      }
-
-    };
-  }
-
 }

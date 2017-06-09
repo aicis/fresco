@@ -30,6 +30,8 @@ import dk.alexandra.fresco.framework.Party;
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.Reporter;
 import dk.alexandra.fresco.framework.configuration.ConfigurationException;
+import dk.alexandra.fresco.framework.configuration.PreprocessingStrategy;
+import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.NetworkingStrategy;
 import dk.alexandra.fresco.framework.sce.configuration.ProtocolSuiteConfiguration;
 import dk.alexandra.fresco.framework.sce.configuration.SCEConfiguration;
@@ -39,15 +41,21 @@ import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
 import dk.alexandra.fresco.framework.sce.resources.storage.Storage;
 import dk.alexandra.fresco.framework.sce.resources.storage.StorageStrategy;
 import dk.alexandra.fresco.framework.sce.resources.storage.StreamedStorage;
+import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.dummy.DummyConfiguration;
+import dk.alexandra.fresco.suite.spdz.SpdzProtocolSuite;
+import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
 import dk.alexandra.fresco.suite.spdz.configuration.SpdzConfiguration;
 import dk.alexandra.fresco.suite.tinytables.online.TinyTablesConfiguration;
 import dk.alexandra.fresco.suite.tinytables.prepro.TinyTablesPreproConfiguration;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
+import java.util.Random;
 import java.util.logging.Level;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -409,7 +417,7 @@ public class CmdLineUtil {
           this.psConf = DummyConfiguration.fromCmdLine(this.sceConf, cmd);
           break;
         case "spdz":
-          this.psConf = SpdzConfiguration.fromCmdLine(this.sceConf, cmd);
+          this.psConf = SpdzConfigurationFromCmdLine(this.sceConf, cmd);
           break;
         case "tinytablesprepro":
           this.psConf = TinyTablesPreproConfiguration.fromCmdLine(this.sceConf, cmd);
@@ -428,6 +436,51 @@ public class CmdLineUtil {
       System.exit(-1); // TODO: Consider moving to top level.
     }
     return this.cmd;
+  }
+
+  private ProtocolSuiteConfiguration SpdzConfigurationFromCmdLine(SCEConfiguration sceConf,
+      CommandLine cmd) {
+    Properties p = cmd.getOptionProperties("D");
+    //TODO: Figure out a meaningful default for the below
+    final int maxBitLength = Integer.parseInt(p.getProperty("spdz.maxBitLength", "64"));
+    if (maxBitLength < 2) {
+      throw new RuntimeException("spdz.maxBitLength must be > 1");
+    }
+
+    final String fuelStationBaseUrl = p.getProperty("spdz.fuelStationBaseUrl", null);
+    String strat = p.getProperty("spdz.preprocessingStrategy");
+    final PreprocessingStrategy strategy = PreprocessingStrategy.fromString(strat);
+
+    return new SpdzConfiguration() {
+
+      @Override
+      public ProtocolSuite<SpdzResourcePool> createProtocolSuite(int myPlayerId) {
+        return new SpdzProtocolSuite(this);
+      }
+
+      @Override
+      public SpdzResourcePool createResourcePool(int myId, int size, Network network, Random rand,
+          SecureRandom secRand) {
+        return new SpdzResourcePool(myId, size, network, sceConf.getStreamedStorage(), rand,
+            secRand, this);
+      }
+
+      @Override
+      public int getMaxBitLength() {
+        return maxBitLength;
+      }
+
+      @Override
+      public PreprocessingStrategy getPreprocessingStrategy() {
+        return strategy;
+      }
+
+      @Override
+      public String fuelStationBaseUrl() {
+        return fuelStationBaseUrl;
+      }
+
+    };
   }
 
   void displayHelp() {

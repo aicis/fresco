@@ -73,18 +73,15 @@ public abstract class AbstractSpdzTest {
 			ttc.netConf = netConf.get(playerId);
 
 			SpdzConfiguration spdzConf = new TestSpdzConfiguration(noOfParties, preProStrat);
-			boolean useSecureConnection = false; // No tests of secure
-			// connection
-													// here.
 
 			ProtocolEvaluator evaluator = EvaluationStrategy.fromEnum(evalStrategy);
 			Storage storage = new InMemoryStorage();
 			if (preProStrat == PreprocessingStrategy.STATIC) {
 				storage = new FilebasedStreamedStorageImpl(new InMemoryStorage());
 			}
-			ttc.sceConf = new TestSCEConfiguration(spdzConf, network, evaluator,
+			ttc.sceConf = new TestSCEConfiguration<>(spdzConf, network, evaluator,
 					ttc.netConf,
-					storage, useSecureConnection);
+					storage, false);
 			conf.put(playerId, ttc);
 		}
 		TestThreadRunner.run(f, conf);

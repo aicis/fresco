@@ -2,7 +2,6 @@ package dk.alexandra.fresco.suite.spdz;
 
 import dk.alexandra.fresco.framework.configuration.PreprocessingStrategy;
 import dk.alexandra.fresco.framework.network.Network;
-import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.configuration.SpdzConfiguration;
 import java.security.SecureRandom;
@@ -19,12 +18,12 @@ class TestSpdzConfiguration implements SpdzConfiguration {
   }
 
   @Override
-  public ProtocolSuite createProtocolSuite(int myPlayerId) {
+  public ProtocolSuite<SpdzResourcePool> createProtocolSuite(int myPlayerId) {
     return new SpdzProtocolSuite(this);
   }
 
   @Override
-  public ResourcePool createResourcePool(int myId, int size, Network network, Random rand,
+  public SpdzResourcePool createResourcePool(int myId, int size, Network network, Random rand,
       SecureRandom secRand) {
     return new SpdzResourcePool(myId, noOfParties, network, null, rand, secRand, this);
   }
