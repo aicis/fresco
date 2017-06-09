@@ -130,7 +130,8 @@ public class DistanceDemo implements Application {
         .getProtocolSuiteConfiguration();
     SecureComputationEngine sce = new SecureComputationEngineImpl(sceConf, psConf);
     try {
-      sce.runApplication(distDemo, SecureComputationEngineImpl.createResourcePool(sceConf));
+      sce.runApplication(distDemo, SecureComputationEngineImpl.createResourcePool(sceConf,
+          psConf));
     } catch (Exception e) {
       System.out.println("Error while doing MPC: " + e.getMessage());
       e.printStackTrace();

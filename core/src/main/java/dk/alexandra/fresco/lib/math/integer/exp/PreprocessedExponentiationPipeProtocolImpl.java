@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -28,7 +28,6 @@ package dk.alexandra.fresco.lib.math.integer.exp;
 
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.framework.value.Value;
 import dk.alexandra.fresco.lib.helper.CopyProtocolImpl;
 import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
 import dk.alexandra.fresco.lib.helper.SimpleProtocolProducer;
@@ -49,7 +48,7 @@ public class PreprocessedExponentiationPipeProtocolImpl extends SimpleProtocolPr
 		SInt[] exp = this.preproExpPipeFactory.getExponentiationPipe();
 		ParallelProtocolProducer par = new ParallelProtocolProducer();
 		for(int i = 0; i < this.expPipe.length; i++) {
-			par.append(new CopyProtocolImpl<Value>(exp[i], expPipe[i]));
+			par.append(new CopyProtocolImpl<>(exp[i], expPipe[i]));
 		}
 		return par;
 	}

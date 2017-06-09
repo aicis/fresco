@@ -148,7 +148,8 @@ public class BristolMultTests {
           };
 
           secureComputationEngine
-              .runApplication(md5App, SecureComputationEngineImpl.createResourcePool(conf.sceConf));
+              .runApplication(md5App, SecureComputationEngineImpl.createResourcePool(conf.sceConf,
+                  conf.sceConf.getSuite()));
 
           if (!assertAsExpected) {
             return;

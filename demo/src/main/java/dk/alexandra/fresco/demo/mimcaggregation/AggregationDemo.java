@@ -3,25 +3,36 @@ package dk.alexandra.fresco.demo.mimcaggregation;
 import dk.alexandra.fresco.framework.Party;
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.configuration.PreprocessingStrategy;
+import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.NetworkingStrategy;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.configuration.ProtocolSuiteConfiguration;
 import dk.alexandra.fresco.framework.sce.configuration.SCEConfiguration;
 import dk.alexandra.fresco.framework.sce.evaluator.SequentialEvaluator;
+import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.sce.resources.storage.StreamedStorage;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.framework.value.Value;
 import dk.alexandra.fresco.suite.ProtocolSuite;
+import dk.alexandra.fresco.suite.spdz.SpdzProtocolSuite;
+import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
 import dk.alexandra.fresco.suite.spdz.configuration.SpdzConfiguration;
-import dk.alexandra.fresco.suite.spdz.evaluation.strategy.SpdzProtocolSuite;
 import java.io.IOException;
+import java.security.SecureRandom;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 import java.util.logging.Level;
 
 public class AggregationDemo {
+
+  private ProtocolSuiteConfiguration protocolSuiteConfig;
+
+  public AggregationDemo(ProtocolSuiteConfiguration protocolSuiteConfig) {
+    this.protocolSuiteConfig = protocolSuiteConfig;
+  }
 
   /**
    * @return Generates mock input data.
@@ -64,7 +75,8 @@ public class AggregationDemo {
       SecureComputationEngine sce, SInt[][] inputRows,
       int columnIndex) throws IOException {
     EncryptAndRevealStep ear = new EncryptAndRevealStep(inputRows, columnIndex);
-    sce.runApplication(ear, SecureComputationEngineImpl.createResourcePool(sceConf));
+    sce.runApplication(ear, SecureComputationEngineImpl.createResourcePool(sceConf,
+        protocolSuiteConfig));
     return ear.getRowsWithOpenedCiphers();
   }
 
@@ -86,7 +98,8 @@ public class AggregationDemo {
     Value[][] rowsWithOpenenedCiphers = encryptAndReveal(sceConf, sce, inputRows, keyColumn);
     AggregateStep aggStep = new AggregateStep(
         rowsWithOpenenedCiphers, 2, keyColumn, aggColumn);
-    sce.runApplication(aggStep, SecureComputationEngineImpl.createResourcePool(sceConf));
+    sce.runApplication(aggStep, SecureComputationEngineImpl.createResourcePool(sceConf,
+        protocolSuiteConfig));
     return aggStep.getResult();
   }
 
@@ -98,7 +111,8 @@ public class AggregationDemo {
       SCEConfiguration sceConf,
       SecureComputationEngine sce, int[][] inputRows, int pid) throws IOException {
     InputStep inputStep = new InputStep(inputRows, pid);
-    sce.runApplication(inputStep, SecureComputationEngineImpl.createResourcePool(sceConf));
+    sce.runApplication(inputStep, SecureComputationEngineImpl.createResourcePool(sceConf,
+        protocolSuiteConfig));
     return inputStep.getSecretSharedRows();
   }
 
@@ -108,7 +122,8 @@ public class AggregationDemo {
   public int[][] open(SCEConfiguration sceConf,
       SecureComputationEngine sce, SInt[][] secretShares) throws IOException {
     OutputStep outputStep = new OutputStep(secretShares);
-    sce.runApplication(outputStep, SecureComputationEngineImpl.createResourcePool(sceConf));
+    sce.runApplication(outputStep, SecureComputationEngineImpl.createResourcePool(sceConf,
+        protocolSuiteConfig));
     OInt[][] _opened = outputStep.getOpenedRows();
     int[][] opened = new int[_opened.length][_opened[0].length];
     int rowIndex = 0,
@@ -208,6 +223,13 @@ public class AggregationDemo {
       }
 
       @Override
+      public ResourcePool createResourcePool(int myId, int size, Network network, Random rand,
+          SecureRandom secRand) {
+        return new SpdzResourcePool(myId, size, network, sceConfig.getStreamedStorage(), rand,
+            secRand, this);
+      }
+
+      @Override
       public PreprocessingStrategy getPreprocessingStrategy() {
         return PreprocessingStrategy.DUMMY;
       }
@@ -227,7 +249,7 @@ public class AggregationDemo {
     SecureComputationEngine sce = new SecureComputationEngineImpl(sceConfig, protocolSuiteConfig);
 
     // Create application we are going run
-    AggregationDemo app = new AggregationDemo();
+    AggregationDemo app = new AggregationDemo(protocolSuiteConfig);
 
     app.runApplication(sceConfig, sce);
   }

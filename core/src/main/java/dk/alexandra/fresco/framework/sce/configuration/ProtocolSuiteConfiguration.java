@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -27,16 +27,20 @@
 package dk.alexandra.fresco.framework.sce.configuration;
 
 
+import dk.alexandra.fresco.framework.network.Network;
+import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.suite.ProtocolSuite;
+import java.security.SecureRandom;
+import java.util.Random;
 
 /**
  * A type used to hold configuration that is specific to a given protocol suite.
- * 
- * Example: The threshold t for the BGW protocol suite.
- *
  */
-public interface ProtocolSuiteConfiguration {
+public interface ProtocolSuiteConfiguration<ResourcePoolT extends ResourcePool> {
 
-  ProtocolSuite createProtocolSuite(int myPlayerId);
+  ProtocolSuite<ResourcePoolT> createProtocolSuite(int myPlayerId);
 
+  ResourcePoolT createResourcePool(
+      int myId, int size, Network network,
+      Random rand, SecureRandom secRand);
 }

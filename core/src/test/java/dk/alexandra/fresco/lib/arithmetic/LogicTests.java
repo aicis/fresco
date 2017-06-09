@@ -120,7 +120,8 @@ public class LogicTests {
             }
           };
           secureComputationEngine
-              .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf));
+              .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf,
+                  conf.sceConf.getSuite()));
           secureComputationEngine.shutdownSCE();
           Assert.assertEquals(BigInteger.ONE, app.getOutputs()[0].getValue());
           Assert.assertEquals(BigInteger.ZERO, app.getOutputs()[1].getValue());

@@ -27,6 +27,7 @@
 package dk.alexandra.fresco.suite.spdz.storage;
 
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
+import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
 import dk.alexandra.fresco.suite.spdz.storage.rest.DataRestSupplierImpl;
 import java.math.BigInteger;
@@ -54,10 +55,10 @@ public class SpdzStorageImpl implements SpdzStorage {
 	 *            The unique id of the storage. This could e.g. be the threadId
 	 *            of the thread that will use this storage object
 	 */
-	public SpdzStorageImpl(ResourcePool rp, int storageId) {
-		int noOfThreadsUsed = 1;
-		int noOfParties = rp.getNoOfParties();
-		int myId = rp.getMyId();
+  public SpdzStorageImpl(SpdzResourcePool rp, int storageId) {
+    int noOfThreadsUsed = 1;
+    int noOfParties = rp.getNoOfParties();
+    int myId = rp.getMyId();
 
 		String storageName = SpdzStorageConstants.STORAGE_NAME_PREFIX + noOfThreadsUsed + "_" + myId + "_" + storageId+"_";
 

@@ -110,12 +110,13 @@ public class BinaryOperationsTests {
 						}
 					};
 					secureComputationEngine
-							.runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf));
-					BigInteger result = app.getOutputs()[0].getValue();
-					BigInteger remainder = app.getOutputs()[1].getValue();
-					
-					Assert.assertEquals(result, input.shiftRight(1));
-					Assert.assertEquals(remainder, input.mod(BigInteger.valueOf(2)));
+              .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf,
+                  conf.sceConf.getSuite()));
+          BigInteger result = app.getOutputs()[0].getValue();
+          BigInteger remainder = app.getOutputs()[1].getValue();
+
+          Assert.assertEquals(result, input.shiftRight(1));
+          Assert.assertEquals(remainder, input.mod(BigInteger.valueOf(2)));
 				}
 			};
 		}
@@ -174,7 +175,8 @@ public class BinaryOperationsTests {
 						}
 					};
 					secureComputationEngine
-							.runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf));
+              .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf,
+                  conf.sceConf.getSuite()));
 
           BigInteger output = app.getOutputs()[0].getValue();
 					Assert.assertEquals(input.shiftRight(n), output);
@@ -239,13 +241,14 @@ public class BinaryOperationsTests {
 						}
 					};
 					secureComputationEngine
-							.runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf));
-					BigInteger result = app.getOutputs()[0].getValue();
-					
-					System.out.println(result);
-					
-					Assert.assertEquals(BigInteger.valueOf(input.bitLength()), result);
-				}
+              .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf,
+                  conf.sceConf.getSuite()));
+          BigInteger result = app.getOutputs()[0].getValue();
+
+          System.out.println(result);
+
+          Assert.assertEquals(BigInteger.valueOf(input.bitLength()), result);
+        }
 			};
 		}
 	}

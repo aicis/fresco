@@ -72,7 +72,8 @@ public class BasicBooleanTests {
           };
 
           secureComputationEngine.runApplication(app,
-              SecureComputationEngineImpl.createResourcePool(conf.sceConf));
+              SecureComputationEngineImpl.createResourcePool(conf.sceConf,
+                  conf.sceConf.getSuite()));
 
           if (!assertAsExpected) {
             return;
@@ -132,7 +133,8 @@ public class BasicBooleanTests {
           };
 
           secureComputationEngine
-              .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf));
+              .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf,
+                  conf.sceConf.getSuite()));
 
           if (!assertAsExpected) {
             return;
@@ -193,7 +195,8 @@ public class BasicBooleanTests {
           };
 
           secureComputationEngine
-              .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf));
+              .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf,
+                  conf.sceConf.getSuite()));
 
           if (!assertAsExpected) {
             return;
@@ -238,7 +241,8 @@ public class BasicBooleanTests {
           };
 
           secureComputationEngine
-              .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf));
+              .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf,
+                  conf.sceConf.getSuite()));
 
           if (!assertAsExpected) {
             return;
@@ -312,7 +316,8 @@ public class BasicBooleanTests {
           };
 
           secureComputationEngine
-              .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf));
+              .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf,
+                  conf.sceConf.getSuite()));
 
           if (!assertAsExpected) {
             return;

@@ -31,11 +31,11 @@ import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.network.SCENetworkImpl;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
-import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import java.io.IOException;
 
-public class BatchedSequentialEvaluator implements ProtocolEvaluator {
+public class BatchedSequentialEvaluator<ResourcePoolT extends ResourcePool> implements
+    ProtocolEvaluator<ResourcePoolT> {
 
   private static final int DEFAULT_THREAD_ID = 0;
 
@@ -43,7 +43,7 @@ public class BatchedSequentialEvaluator implements ProtocolEvaluator {
 
   private int maxBatchSize;
 
-  private ProtocolSuite protocolSuite;
+  private ProtocolSuite<ResourcePoolT> protocolSuite;
 
   BatchedSequentialEvaluator() {
     this.maxBatchSize = 4096;
@@ -65,10 +65,10 @@ public class BatchedSequentialEvaluator implements ProtocolEvaluator {
   }
 
   public void eval(ProtocolProducer protocolProducer,
-      ResourcePoolImpl resourcePool) throws IOException {
+      ResourcePoolT resourcePool) throws IOException {
     SCENetworkImpl sceNetwork = createSceNetwork(resourcePool);
     do {
-      ProtocolSuite.RoundSynchronization roundSynchronization =
+      ProtocolSuite.RoundSynchronization<ResourcePoolT> roundSynchronization =
           protocolSuite.createRoundSynchronization();
       ProtocolCollectionList protocols = new ProtocolCollectionList(maxBatchSize);
       protocolProducer.getNextProtocols(protocols);

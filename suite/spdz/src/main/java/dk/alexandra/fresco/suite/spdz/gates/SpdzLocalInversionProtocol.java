@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -27,48 +27,37 @@
 package dk.alexandra.fresco.suite.spdz.gates;
 
 import dk.alexandra.fresco.framework.network.SCENetwork;
-import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
-import dk.alexandra.fresco.framework.value.OInt;
-import dk.alexandra.fresco.framework.value.Value;
-import dk.alexandra.fresco.lib.math.integer.inv.LocalInversionProtocol;
+import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzOInt;
-import dk.alexandra.fresco.suite.spdz.utils.Util;
 
-public class SpdzLocalInversionProtocol extends SpdzNativeProtocol implements
-		LocalInversionProtocol {
+public class SpdzLocalInversionProtocol extends SpdzNativeProtocol<SpdzOInt> {
 
-	private SpdzOInt in, out;
+  private SpdzOInt in, out;
 
-	public SpdzLocalInversionProtocol(OInt in, OInt out) {
-		this.in = (SpdzOInt) in;
-		this.out = (SpdzOInt) out;
-	}
+  public SpdzLocalInversionProtocol(SpdzOInt in, SpdzOInt out) {
+    this.in = in;
+    this.out = out;
+  }
 
-	public SpdzLocalInversionProtocol(SpdzOInt in, SpdzOInt out) {
-		this.in = in;
-		this.out = out;
-	}
+  @Override
+  public SpdzOInt getOutput() {
+    return out;
+  }
 
-	@Override
-	public Value[] getOutputValues() {
-		return new Value[] { out };
-	}
+  @Override
+  public EvaluationStatus evaluate(int round, SpdzResourcePool spdzResourcePool,
+      SCENetwork network) {
+    try {
+      out.setValue(in.getValue().modInverse(spdzResourcePool.getModulus()));
+    } catch (ArithmeticException e) {
+      System.out.println("Non invertable value: " + in.getValue());
+      throw e;
+    }
+    return EvaluationStatus.IS_DONE;
+  }
 
-	@Override
-	public EvaluationStatus evaluate(int round, ResourcePool resourcePool,
-			SCENetwork network) {
-		try {
-			out.setValue(in.getValue().modInverse(Util.getModulus()));
-		} catch (ArithmeticException e) {
-			System.out.println("Non invertable value: " + in.getValue());
-			throw e;
-		}
-		return EvaluationStatus.IS_DONE;
-	}
-
-	public String toString() {
-		return "SpdzLocalInversionGate(" + in.getValue() + ", "
-				+ out.getValue() + ")";
-	}
-
+  public String toString() {
+    return "SpdzLocalInversionGate(" + in.getValue() + ", "
+        + out.getValue() + ")";
+  }
 }

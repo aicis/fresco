@@ -108,7 +108,7 @@ public class InnerProductProtocolImpl extends AbstractRoundBasedProtocol
       NumericProtocolBuilder build = new NumericProtocolBuilder(bnFactory);
       SInt sumresult = build.sum(results);
       results = null;
-      NativeProtocol copy = new CopyProtocolImpl<SInt>(sumresult, result);
+      NativeProtocol copy = new CopyProtocolImpl<>(sumresult, result);
       pp = new SequentialProtocolProducer(build.getProtocol(), copy);
       round++;
     } else {

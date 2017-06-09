@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -27,8 +27,8 @@
 package dk.alexandra.fresco.lib.lp;
 
 import dk.alexandra.fresco.framework.MPCException;
+import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.ProtocolProducer;
-import dk.alexandra.fresco.framework.value.KnownSIntProtocol;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.helper.AbstractRoundBasedProtocol;
@@ -53,7 +53,7 @@ public class ExitingVariableProtocol extends AbstractRoundBasedProtocol {
   private SInt[] updatedEnteringColumn;
   private SInt zero, one;
 
-  public ExitingVariableProtocol(LPTableau tableau, Matrix<SInt> updateMatrix,
+  ExitingVariableProtocol(LPTableau tableau, Matrix<SInt> updateMatrix,
       SInt[] enteringIndex, SInt[] exitingIndex, SInt[] updateColumn, SInt pivot,
       LPFactory lpFactory, BasicNumericFactory bnFactory) {
     if (checkDimensions(tableau, updateMatrix, enteringIndex, exitingIndex, updateColumn)) {
@@ -91,8 +91,8 @@ public class ExitingVariableProtocol extends AbstractRoundBasedProtocol {
     if (round == 0) {
       one = bnf.getSInt();
       zero = bnf.getSInt();
-      KnownSIntProtocol load0 = bnf.getSInt(0, zero);
-      KnownSIntProtocol load1 = bnf.getSInt(1, one);
+      NativeProtocol<SInt, ?> load0 = bnf.getSInt(0, zero);
+      NativeProtocol<SInt, ?> load1 = bnf.getSInt(1, one);
 
       // Extract entering column
       enteringColumn = new SInt[tableauHeight];

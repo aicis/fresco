@@ -32,7 +32,6 @@ import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.debug.MarkerProtocolImpl;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
-import dk.alexandra.fresco.lib.field.integer.OpenIntProtocol;
 import dk.alexandra.fresco.lib.field.integer.generic.IOIntProtocolFactory;
 import dk.alexandra.fresco.lib.helper.AlgebraUtil;
 import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
@@ -149,11 +148,11 @@ public class OpenAndPrintProtocol implements ProtocolProducer {
       throw new IllegalArgumentException("Amount of closed and open integers does not match. " +
           "Open: " + open.length + " Closed: " + closed.length);
     }
-    OpenIntProtocol[] openings = new OpenIntProtocol[open.length];
+    ParallelProtocolProducer parallelProtocolProducer = new ParallelProtocolProducer();
     for (int i = 0; i < open.length; i++) {
-      openings[i] = factory.getOpenProtocol(closed[i], open[i]);
+      parallelProtocolProducer.append(factory.getOpenProtocol(closed[i], open[i]));
     }
-    return new ParallelProtocolProducer(openings);
+    return parallelProtocolProducer;
   }
 
   @Override

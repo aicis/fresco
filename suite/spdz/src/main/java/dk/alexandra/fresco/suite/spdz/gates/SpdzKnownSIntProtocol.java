@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -27,67 +27,58 @@
 package dk.alexandra.fresco.suite.spdz.gates;
 
 import dk.alexandra.fresco.framework.network.SCENetwork;
-import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
-import dk.alexandra.fresco.framework.value.KnownSIntProtocol;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.framework.value.Value;
+import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
-import dk.alexandra.fresco.suite.spdz.evaluation.strategy.SpdzProtocolSuite;
-import dk.alexandra.fresco.suite.spdz.utils.Util;
 import java.math.BigInteger;
 
-public class SpdzKnownSIntProtocol extends SpdzNativeProtocol implements KnownSIntProtocol {
+public class SpdzKnownSIntProtocol extends SpdzNativeProtocol<SInt> {
 
-	BigInteger value;
-	SpdzSInt sValue;
+  BigInteger value;
+  private SpdzSInt sValue;
 
-	/**
-	 * Creates a gate loading a given value into a given SInt
-	 * 
-	 * @param value
-	 *            the value
-	 * @param sValue
-	 *            the SInt
-	 */
-	public SpdzKnownSIntProtocol(BigInteger value, SInt sValue) {
-		this.value = value;
-		this.sValue = (SpdzSInt) sValue;
-	}
+  /**
+   * Creates a gate loading a given value into a given SInt
+   *
+   * @param value the value
+   * @param sValue the SInt
+   */
+  public SpdzKnownSIntProtocol(BigInteger value, SInt sValue) {
+    this.value = value;
+    this.sValue = (SpdzSInt) sValue;
+  }
 
-	/**
-	 * Creates a gate loading a given value into a given SInt
-	 * 
-	 * @param value
-	 *            the value
-	 * @param sValue
-	 *            the SInt
-	 */
-	public SpdzKnownSIntProtocol(int value, SInt sValue) {
-		this(BigInteger.valueOf(value), sValue);
-	}
+  /**
+   * Creates a gate loading a given value into a given SInt
+   *
+   * @param value the value
+   * @param sValue the SInt
+   */
+  public SpdzKnownSIntProtocol(int value, SInt sValue) {
+    this(BigInteger.valueOf(value), sValue);
+  }
 
-	@Override
-	public Value[] getOutputValues() {
-		return new Value[] { sValue };
-	}
+  @Override
+  public SInt getOutput() {
+    return sValue;
+  }
 
-	@Override
-	public EvaluationStatus evaluate(int round, ResourcePool resourcePool,
-			SCENetwork network) {
-		SpdzProtocolSuite spdzPii = SpdzProtocolSuite
-				.getInstance(resourcePool.getMyId());
-		value = value.mod(Util.getModulus());
-		SpdzElement elm;
-		BigInteger globalKeyShare = spdzPii.getStore(network.getThreadId())
-				.getSSK();
-		if (resourcePool.getMyId() == 1) {
-			elm = new SpdzElement(value, value.multiply(globalKeyShare).mod(Util.getModulus()));
-		} else {
-			elm = new SpdzElement(BigInteger.ZERO,
-					value.multiply(globalKeyShare).mod(Util.getModulus()));
-		}
-		sValue.value = elm;
-		return EvaluationStatus.IS_DONE;
-	}
+  @Override
+  public EvaluationStatus evaluate(
+      int round,
+      SpdzResourcePool spdzResourcePool,
+      SCENetwork network) {
+    BigInteger modulus = spdzResourcePool.getModulus();
+    value = value.mod(modulus);
+    SpdzElement elm;
+    BigInteger globalKeyShare = spdzResourcePool.getStore().getSSK();
+    if (spdzResourcePool.getMyId() == 1) {
+      elm = new SpdzElement(value, value.multiply(globalKeyShare).mod(modulus));
+    } else {
+      elm = new SpdzElement(BigInteger.ZERO, value.multiply(globalKeyShare).mod(modulus));
+    }
+    sValue.value = elm;
+    return EvaluationStatus.IS_DONE;
+  }
 }

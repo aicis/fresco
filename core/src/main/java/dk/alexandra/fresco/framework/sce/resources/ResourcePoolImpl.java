@@ -27,7 +27,6 @@
 package dk.alexandra.fresco.framework.sce.resources;
 
 import dk.alexandra.fresco.framework.network.Network;
-import dk.alexandra.fresco.framework.sce.resources.storage.StreamedStorage;
 import java.security.SecureRandom;
 import java.util.Random;
 
@@ -41,16 +40,14 @@ public class ResourcePoolImpl implements ResourcePool {
   private int myId;
   private int noOfPlayers;
   protected Network network;
-  private StreamedStorage streamedStorage;
   protected Random random;
   private SecureRandom secRand;
 
   public ResourcePoolImpl(int myId, int noOfPlayers, Network network,
-      StreamedStorage streamedStorage, Random random, SecureRandom secRand) {
+      Random random, SecureRandom secRand) {
     this.myId = myId;
     this.noOfPlayers = noOfPlayers;
     this.network = network;
-    this.streamedStorage = streamedStorage;
     this.random = random;
     this.secRand = secRand;
   }
@@ -58,11 +55,6 @@ public class ResourcePoolImpl implements ResourcePool {
   @Override
   public Network getNetwork() {
     return this.network;
-  }
-
-  @Override
-  public StreamedStorage getStreamedStorage() {
-    return this.streamedStorage;
   }
 
   @Override

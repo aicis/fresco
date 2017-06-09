@@ -131,7 +131,8 @@ public class SqrtTests {
 					};
 
 					secureComputationEngine
-							.runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf));
+              .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf,
+                  conf.sceConf.getSuite()));
 
           for (int i = 0; i < n; i++) {
 						BigInteger actual = app.getOutputs()[i].getValue();

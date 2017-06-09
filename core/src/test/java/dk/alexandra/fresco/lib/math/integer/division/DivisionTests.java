@@ -129,11 +129,12 @@ public class DivisionTests {
 						}
 					};
 					secureComputationEngine
-							.runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf));
-					BigInteger quotient = app.getOutputs()[0].getValue();
-					BigInteger remainder = app.getOutputs()[1].getValue();
-					Assert.assertEquals(quotient, x.divide(d));
-					Assert.assertEquals(remainder, x.mod(d));
+              .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf,
+                  conf.sceConf.getSuite()));
+          BigInteger quotient = app.getOutputs()[0].getValue();
+          BigInteger remainder = app.getOutputs()[1].getValue();
+          Assert.assertEquals(quotient, x.divide(d));
+          Assert.assertEquals(remainder, x.mod(d));
 				}
 			};
 		}
@@ -201,12 +202,13 @@ public class DivisionTests {
 						}
 					};
 					secureComputationEngine
-							.runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf));
-					for (int i = 0; i < n; i++) {
-						BigInteger actual = app.getOutputs()[i].getValue();
-						
-						BigInteger expected = x[i].divide(d);
-						BigInteger difference = expected.subtract(actual).abs();
+              .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf,
+                  conf.sceConf.getSuite()));
+          for (int i = 0; i < n; i++) {
+            BigInteger actual = app.getOutputs()[i].getValue();
+
+            BigInteger expected = x[i].divide(d);
+            BigInteger difference = expected.subtract(actual).abs();
 						
 						int precision = expected.bitLength() - difference.bitLength();
 						

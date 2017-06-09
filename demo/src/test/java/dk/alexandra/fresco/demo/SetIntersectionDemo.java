@@ -218,7 +218,8 @@ public class SetIntersectionDemo {
             PrivateSetDemo app = new PrivateSetDemo(conf.netConf.getMyId(), key, inputList);
 
             secureComputationEngine
-                .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf));
+                .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf,
+                    conf.sceConf.getSuite()));
 
             boolean[][] actualBoolean = new boolean[app.result.length][app.result[0].length];
 

@@ -86,7 +86,8 @@ public class SearchingTests {
             }
           };
           secureComputationEngine
-              .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf));
+              .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf,
+                  conf.sceConf.getSuite()));
           for (int i = 0; i < PAIRS; i++) {
             final int counter = i;
             TestApplication app1 = new TestApplication() {
@@ -116,7 +117,8 @@ public class SearchingTests {
             };
 
             secureComputationEngine
-                .runApplication(app1, SecureComputationEngineImpl.createResourcePool(conf.sceConf));
+                .runApplication(app1, SecureComputationEngineImpl.createResourcePool(conf.sceConf,
+                    conf.sceConf.getSuite()));
 
             Assert.assertEquals(values[i], app1.outputs[0].getValue()
                 .intValue());

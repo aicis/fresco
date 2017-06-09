@@ -26,23 +26,16 @@
  *******************************************************************************/
 package dk.alexandra.fresco.suite.spdz.utils;
 
+import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.ProtocolProducer;
-import dk.alexandra.fresco.framework.value.KnownSIntProtocol;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.field.integer.AddProtocol;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
-import dk.alexandra.fresco.lib.field.integer.CloseIntProtocol;
-import dk.alexandra.fresco.lib.field.integer.MultProtocol;
-import dk.alexandra.fresco.lib.field.integer.OpenIntProtocol;
-import dk.alexandra.fresco.lib.field.integer.RandomFieldElementProtocol;
-import dk.alexandra.fresco.lib.field.integer.SubtractProtocol;
 import dk.alexandra.fresco.lib.helper.CopyProtocolImpl;
 import dk.alexandra.fresco.lib.helper.SingleProtocolProducer;
 import dk.alexandra.fresco.lib.math.integer.exp.ExpFromOIntFactory;
 import dk.alexandra.fresco.lib.math.integer.exp.PreprocessedExpPipeFactory;
 import dk.alexandra.fresco.lib.math.integer.inv.LocalInversionFactory;
-import dk.alexandra.fresco.lib.math.integer.inv.LocalInversionProtocol;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzOInt;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
@@ -59,8 +52,8 @@ import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 
-public class SpdzFactory implements BasicNumericFactory,
-    PreprocessedExpPipeFactory, ExpFromOIntFactory, LocalInversionFactory {
+public class SpdzFactory implements BasicNumericFactory<SpdzSInt>,
+    PreprocessedExpPipeFactory, ExpFromOIntFactory, LocalInversionFactory<SpdzOInt> {
 
   private int maxBitLength;
   private SpdzStorage storage;
@@ -72,10 +65,9 @@ public class SpdzFactory implements BasicNumericFactory,
    * If you have greater knowledge of your application, you can create several factorys, each with a
    * different maxBitLength to increase performance.
    */
-  //TODO: Make Spdzfactory decoupled from the storage.
   public SpdzFactory(SpdzStorage storage, int pID, int maxBitLength) {
     this.maxBitLength = maxBitLength;
-    rand = new SecureRandom();
+    this.rand = new SecureRandom();
     this.storage = storage;
     this.pID = pID;
   }
@@ -90,7 +82,7 @@ public class SpdzFactory implements BasicNumericFactory,
    */
 
   @Override
-  public KnownSIntProtocol getSInt(int i, SInt si) {
+  public NativeProtocol<SInt, ?> getSInt(int i, SInt si) {
     return new SpdzKnownSIntProtocol(i, si);
   }
 
@@ -98,7 +90,7 @@ public class SpdzFactory implements BasicNumericFactory,
    * Careful - This creates a publicly known integer which is secret shared.
    */
   @Override
-  public KnownSIntProtocol getSInt(BigInteger value, SInt sValue) {
+  public NativeProtocol<SInt, ?> getSInt(BigInteger value, SInt sValue) {
     return new SpdzKnownSIntProtocol(value, sValue);
   }
 
@@ -112,7 +104,7 @@ public class SpdzFactory implements BasicNumericFactory,
   public SInt getSqrtOfMaxValue() {
     SpdzElement elm;
     BigInteger two = BigInteger.valueOf(2);
-    BigInteger max = Util.getModulus().subtract(BigInteger.ONE).divide(two);
+    BigInteger max = getModulus().subtract(BigInteger.ONE).divide(two);
     int bitlength = max.bitLength();
     BigInteger approxMaxSqrt = two.pow(bitlength / 2);
 
@@ -154,47 +146,47 @@ public class SpdzFactory implements BasicNumericFactory,
 
   @Override
   public OInt getOInt(BigInteger i) {
-    return new SpdzOInt(i.mod(Util.getModulus()));
+    return new SpdzOInt(i.mod(getModulus()));
   }
 
   @Override
   public OInt getRandomOInt() {
     return new SpdzOInt(new BigInteger(
-        Util.getModulus().toByteArray().length, rand));
+        getModulus().toByteArray().length, rand));
   }
 
   @Override
-  public AddProtocol getAddProtocol(SInt a, SInt b, SInt out) {
+  public NativeProtocol<? extends SInt, ?> getAddProtocol(SInt a, SInt b, SInt out) {
     return new SpdzAddProtocol(a, b, out);
   }
 
   @Override
-  public AddProtocol getAddProtocol(SInt a, OInt b, SInt out) {
+  public NativeProtocol<? extends SInt, ?> getAddProtocol(SInt a, OInt b, SInt out) {
     return new SpdzAddProtocol(a, b, out, this);
   }
 
   @Override
-  public SubtractProtocol getSubtractProtocol(SInt a, SInt b, SInt out) {
+  public NativeProtocol<? extends SInt, ?> getSubtractProtocol(SInt a, SInt b, SInt out) {
     return new SpdzSubtractProtocol(a, b, out, this);
   }
 
   @Override
-  public SubtractProtocol getSubtractProtocol(OInt a, SInt b, SInt out) {
+  public NativeProtocol<? extends SInt, ?> getSubtractProtocol(OInt a, SInt b, SInt out) {
     return new SpdzSubtractProtocol(a, b, out, this);
   }
 
   @Override
-  public SubtractProtocol getSubtractProtocol(SInt a, OInt b, SInt out) {
+  public NativeProtocol<? extends SInt, ?> getSubtractProtocol(SInt a, OInt b, SInt out) {
     return new SpdzSubtractProtocol(a, b, out, this);
   }
 
   @Override
-  public MultProtocol getMultProtocol(SInt a, SInt b, SInt out) {
+  public NativeProtocol<? extends SInt, ?> getMultProtocol(SInt a, SInt b, SInt out) {
     return new SpdzMultProtocol(a, b, out);
   }
 
   @Override
-  public MultProtocol getMultProtocol(OInt a, SInt b, SInt out) {
+  public NativeProtocol<? extends SInt, ?> getMultProtocol(OInt a, SInt b, SInt out) {
     return new SpdzMultProtocol(a, b, out);
   }
 
@@ -208,7 +200,7 @@ public class SpdzFactory implements BasicNumericFactory,
    ****************************************/
 
   @Override
-  public LocalInversionProtocol getLocalInversionProtocol(OInt in, OInt out) {
+  public NativeProtocol<SpdzOInt, ?> getLocalInversionProtocol(SpdzOInt in, SpdzOInt out) {
     return new SpdzLocalInversionProtocol(in, out);
   }
 
@@ -216,7 +208,7 @@ public class SpdzFactory implements BasicNumericFactory,
   @Deprecated
   public SInt getSInt(int i) {
 
-    BigInteger b = BigInteger.valueOf(i).mod(Util.getModulus());
+    BigInteger b = BigInteger.valueOf(i).mod(getModulus());
     SpdzElement elm;
     if (pID == 1) {
       elm = new SpdzElement(b, b.multiply(this.storage.getSSK()).mod(getModulus()));
@@ -230,7 +222,7 @@ public class SpdzFactory implements BasicNumericFactory,
   @Override
   @Deprecated
   public SInt getSInt(BigInteger b) {
-    b = b.mod(Util.getModulus());
+    b = b.mod(getModulus());
     SpdzElement elm;
     if (pID == 1) {
       elm = new SpdzElement(b, b.multiply(this.storage.getSSK()).mod(getModulus()));
@@ -246,29 +238,29 @@ public class SpdzFactory implements BasicNumericFactory,
    ****************************************/
 
   @Override
-  public CloseIntProtocol getCloseProtocol(BigInteger open,
+  public NativeProtocol<? extends SInt, ?> getCloseProtocol(BigInteger open,
       SInt closed, int targetID) {
     return new SpdzInputProtocol(open, closed, targetID);
   }
 
 
   @Override
-  public CloseIntProtocol getCloseProtocol(int source, OInt open, SInt closed) {
+  public NativeProtocol<? extends SInt, ?> getCloseProtocol(int source, OInt open, SInt closed) {
     return new SpdzInputProtocol(open, closed, source);
   }
 
   @Override
-  public OpenIntProtocol getOpenProtocol(int target, SInt closed, OInt open) {
+  public NativeProtocol<? extends OInt, ?> getOpenProtocol(int target, SInt closed, OInt open) {
     return new SpdzOutputProtocol(closed, open, target);
   }
 
   @Override
-  public OpenIntProtocol getOpenProtocol(SInt closed, OInt open) {
+  public NativeProtocol<? extends OInt, ?> getOpenProtocol(SInt closed, OInt open) {
     return new SpdzOutputToAllProtocol(closed, open);
   }
 
   @Override
-  public RandomFieldElementProtocol getRandomFieldElement(SInt randomElement) {
+  public NativeProtocol<SpdzSInt, ?> getRandomFieldElement(SpdzSInt randomElement) {
     return new SpdzRandomProtocol(randomElement);
   }
 

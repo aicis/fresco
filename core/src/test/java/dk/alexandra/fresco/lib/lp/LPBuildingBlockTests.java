@@ -190,10 +190,11 @@ public class LPBuildingBlockTests {
 
 					};
 					secureComputationEngine
-							.runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf));
-				}
-			};
-		}
+              .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf,
+                  conf.sceConf.getSuite()));
+        }
+      };
+    }
 
 	}
 
@@ -229,11 +230,12 @@ public class LPBuildingBlockTests {
 					};
 					app.mod = mod;
 					secureComputationEngine
-							.runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf));
-					int actualIndex = 0;
-					int sum = 0;
-					BigInteger zero = BigInteger.ZERO;
-					BigInteger one = BigInteger.ONE;
+              .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf,
+                  conf.sceConf.getSuite()));
+          int actualIndex = 0;
+          int sum = 0;
+          BigInteger zero = BigInteger.ZERO;
+          BigInteger one = BigInteger.ONE;
 					for (OInt b : app.outputs) {
 						if (b.getValue().compareTo(zero) == 0) {
 							actualIndex = (sum < 1) ? actualIndex + 1 : actualIndex;
@@ -268,11 +270,12 @@ public class LPBuildingBlockTests {
 					};
 
 					secureComputationEngine
-							.runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf));
-				}
-			};
-		}
-	}
+              .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf,
+                  conf.sceConf.getSuite()));
+        }
+      };
+    }
+  }
 
 	public static class TestUpdateMatrix extends TestThreadFactory {
 		@Override
@@ -293,11 +296,12 @@ public class LPBuildingBlockTests {
 					};
 
 					secureComputationEngine
-							.runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf));
-				}
-			};
-		}
-	}
+              .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf,
+                  conf.sceConf.getSuite()));
+        }
+      };
+    }
+  }
 
 	abstract static class ExitingTester extends LPTester {
 

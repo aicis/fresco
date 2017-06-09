@@ -20,15 +20,14 @@ public class SpdzMacCheckProtocol implements ProtocolProducer {
   private SecureRandom rand;
   private MessageDigest digest;
   private List<BigInteger> as;
-  private List<SpdzElement> closedValues;
   private SpdzStorage storage;
-  private BigInteger s;
   private int round = 0;
   private ProtocolProducer pp;
   private Map<Integer, BigInteger> commitments;
+  private BigInteger modulus;
 
   public SpdzMacCheckProtocol(SecureRandom rand, MessageDigest digest, SpdzStorage storage,
-      Map<Integer, BigInteger> commitments) {
+      Map<Integer, BigInteger> commitments, BigInteger modulus) {
     this.rand = rand;
     this.digest = digest;
     this.storage = storage;
@@ -38,13 +37,14 @@ public class SpdzMacCheckProtocol implements ProtocolProducer {
     } else {
       this.commitments = new HashMap<>();
     }
+    this.modulus = modulus;
   }
 
   @Override
   public void getNextProtocols(ProtocolCollection protocolCollection) {
     if (pp == null) {
       if (round == 0) {
-        BigInteger s = new BigInteger(Util.getModulus().bitLength(), rand).mod(Util.getModulus());
+        BigInteger s = new BigInteger(modulus.bitLength(), rand).mod(modulus);
         SpdzCommitment commitment = new SpdzCommitment(digest, s, rand);
         Map<Integer, BigInteger> comms = new HashMap<>();
         SpdzCommitProtocol comm = new SpdzCommitProtocol(commitment, comms);
@@ -54,10 +54,10 @@ public class SpdzMacCheckProtocol implements ProtocolProducer {
       } else if (round == 1) {
         BigInteger alpha = storage.getSSK();
         this.as = storage.getOpenedValues();
-        this.closedValues = storage.getClosedValues();
+        List<SpdzElement> closedValues = storage.getClosedValues();
 
         // Add all s's to get the common random value:
-        s = BigInteger.ZERO;
+        BigInteger s = BigInteger.ZERO;
         for (BigInteger otherS : commitments.values()) {
           s = s.add(otherS);
         }
@@ -68,13 +68,13 @@ public class SpdzMacCheckProtocol implements ProtocolProducer {
         MessageDigest H = new Util().getHashFunction();
         BigInteger r_temp = s;
         for (int i = 0; i < t; i++) {
-          r_temp = new BigInteger(H.digest(r_temp.toByteArray())).mod(Util.getModulus());
+          r_temp = new BigInteger(H.digest(r_temp.toByteArray())).mod(modulus);
           rs[i] = r_temp;
         }
         BigInteger a = BigInteger.ZERO;
         int index = 0;
         for (BigInteger aa : as) {
-          a = a.add(aa.multiply(rs[index++])).mod(Util.getModulus());
+          a = a.add(aa.multiply(rs[index++])).mod(modulus);
         }
 
         // compute gamma_i as the sum of all MAC's on the opened values times
@@ -86,11 +86,11 @@ public class SpdzMacCheckProtocol implements ProtocolProducer {
         BigInteger gamma = BigInteger.ZERO;
         index = 0;
         for (SpdzElement c : closedValues) {
-          gamma = gamma.add(rs[index++].multiply(c.getMac())).mod(Util.getModulus());
+          gamma = gamma.add(rs[index++].multiply(c.getMac())).mod(modulus);
         }
 
         // compute delta_i as: gamma_i - alpha_i*a
-        BigInteger delta = gamma.subtract(alpha.multiply(a)).mod(Util.getModulus());
+        BigInteger delta = gamma.subtract(alpha.multiply(a)).mod(modulus);
         // Commit to delta and open it afterwards
         SpdzCommitment commitment = new SpdzCommitment(digest, delta, rand);
         Map<Integer, BigInteger> comms = new HashMap<>();
@@ -104,7 +104,7 @@ public class SpdzMacCheckProtocol implements ProtocolProducer {
         for (BigInteger d : commitments.values()) {
           deltaSum = deltaSum.add(d);
         }
-        deltaSum = deltaSum.mod(Util.getModulus());
+        deltaSum = deltaSum.mod(modulus);
         if (!deltaSum.equals(BigInteger.ZERO)) {
           throw new MPCException(
               "The sum of delta's was not 0. Someone was corrupting something amongst " + as.size()

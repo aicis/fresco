@@ -91,7 +91,8 @@ public class PolynomialTests {
 						}
 					};
 					secureComputationEngine
-							.runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf));
+              .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf,
+                  conf.sceConf.getSuite()));
 
 					int f = 0;
 					int power = 1;

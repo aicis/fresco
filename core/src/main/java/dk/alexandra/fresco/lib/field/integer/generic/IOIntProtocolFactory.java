@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -26,63 +26,54 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.field.integer.generic;
 
-import java.math.BigInteger;
-
+import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.field.integer.CloseIntProtocol;
-import dk.alexandra.fresco.lib.field.integer.OpenIntProtocol;
+import java.math.BigInteger;
 
 /**
  * Factory for protocols that converts between open and closed integers.
- * 
  */
 public interface IOIntProtocolFactory {
-	
-	/**
-	 * Gets a new open protocol.
-	 * 
-	 * @param closed a closed value
-	 * @param open a known value
-	 * @param targetID the id of the specific player that provides the input.
-	 * @return the protocol to do the transformation
-	 * 
-	 */
-	public CloseIntProtocol getCloseProtocol(BigInteger open, SInt closed,
-			int targetID);
-	
-	/**
-	 * Gets a new open protocol.
-	 * 
-	 * @param closed a closed value
-	 * @param open a opened value
-	 * @param source the id of a specific player that provides the input.
-	 * @return the protocol to do the transformation
-	 * 
-	 */
-	CloseIntProtocol getCloseProtocol(int source, OInt open, SInt closed);
 
-	
-	/**
-	 * Gets a new open protocol that opens up the integer to all.
-	 * 
-	 * @param closed a closed value
-	 * @param open a opened value
-	 * @return the protocol to do the transformation
-	 * 
-	 */
-	OpenIntProtocol getOpenProtocol(SInt closed, OInt open);
-	
-	
-	/**
-	 * Gets a new open protocol
-	 * 
-	 * @param closed a closed value
-	 * @param open a opened value
-	 * @param targetID the id of a specific player to output to.
-	 * @return the protocol to do the transformation
-	 * 
-	 */
-	OpenIntProtocol getOpenProtocol(int target, SInt closed, OInt open);
-	
+  /**
+   * Gets a new open protocol.
+   *
+   * @param open a known value
+   * @param closed a closed value
+   * @param targetID the id of the specific player that provides the input.
+   * @return the protocol to do the transformation
+   */
+  NativeProtocol<? extends SInt, ?> getCloseProtocol(BigInteger open, SInt closed, int targetID);
+
+  /**
+   * Gets a new open protocol.
+   *
+   * @param source the id of a specific player that provides the input.
+   * @param open a opened value
+   * @param closed a closed value
+   * @return the protocol to do the transformation
+   */
+  NativeProtocol<? extends SInt, ?> getCloseProtocol(int source, OInt open, SInt closed);
+
+
+  /**
+   * Gets a new open protocol that opens up the integer to all.
+   *
+   * @param closed a closed value
+   * @param open a opened value
+   * @return the protocol to do the transformation
+   */
+  NativeProtocol<? extends OInt, ?> getOpenProtocol(SInt closed, OInt open);
+
+
+  /**
+   * Gets a new open protocol
+   *
+   * @param closed a closed value
+   * @param open a opened value
+   * @return the protocol to do the transformation
+   */
+  NativeProtocol<? extends OInt, ?> getOpenProtocol(int target, SInt closed, OInt open);
+
 }

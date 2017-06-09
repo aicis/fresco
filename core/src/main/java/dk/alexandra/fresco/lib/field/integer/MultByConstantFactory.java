@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -26,6 +26,7 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.field.integer;
 
+import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 
@@ -36,7 +37,7 @@ public interface MultByConstantFactory {
 	 * @param a input - constant which is known
 	 * @param b input - secret shared element
 	 * @param c output - [c]=a*[b]
-	 * @return
+	 * @return the protocol that computes the multiplication
 	 */
-	public MultProtocol getMultProtocol(OInt a, SInt b, SInt c);
+	NativeProtocol<? extends SInt, ?> getMultProtocol(OInt a, SInt b, SInt c);
 }

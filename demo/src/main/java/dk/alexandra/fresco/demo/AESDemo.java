@@ -154,7 +154,8 @@ public class AESDemo implements Application {
     SecureComputationEngine sce = new SecureComputationEngineImpl(sceConf, psConf);
 
     try {
-      sce.runApplication(aes, SecureComputationEngineImpl.createResourcePool(sceConf));
+      sce.runApplication(aes, SecureComputationEngineImpl.createResourcePool(sceConf,
+          psConf));
     } catch (Exception e) {
       System.out.println("Error while doing MPC: " + e.getMessage());
       System.exit(-1);

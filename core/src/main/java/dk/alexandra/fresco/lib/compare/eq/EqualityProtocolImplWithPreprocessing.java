@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -33,12 +33,8 @@ import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.compare.MiscOIntGenerators;
 import dk.alexandra.fresco.lib.compare.RandomAdditiveMaskFactory;
-import dk.alexandra.fresco.lib.field.integer.AddProtocol;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.field.integer.MultByConstantFactory;
-import dk.alexandra.fresco.lib.field.integer.MultProtocol;
-import dk.alexandra.fresco.lib.field.integer.OpenIntProtocol;
-import dk.alexandra.fresco.lib.field.integer.SubtractProtocol;
 import dk.alexandra.fresco.lib.field.integer.generic.AddProtocolFactory;
 import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
@@ -144,8 +140,7 @@ public class EqualityProtocolImplWithPreprocessing implements EqualityProtocol {
   private SInt[] loadRandomMultiplicativeMask() {
     // R[0] = r^{-1}
     // R[i] = R^i
-    SInt[] R = expFactory.getExponentiationPipe();
-    return R;
+    return expFactory.getExponentiationPipe();
   }
 
   private ProtocolProducer reduceProblemSize(SInt reducedProblem) {
@@ -163,11 +158,11 @@ public class EqualityProtocolImplWithPreprocessing implements EqualityProtocol {
     SInt masked_S = factory.getSInt();
     OInt masked_O = factory.getOInt();
 
-    SubtractProtocol sub = factory.getSubtractProtocol(x, y,
+    NativeProtocol<? extends SInt, ?> sub = factory.getSubtractProtocol(x, y,
         subResult);
-    AddProtocol add = factory.getAddProtocol(subResult, r,
+    NativeProtocol<? extends SInt, ?> add = factory.getAddProtocol(subResult, r,
         masked_S);
-    OpenIntProtocol openAddMask = factory
+    NativeProtocol<? extends OInt, ?> openAddMask = factory
         .getOpenProtocol(masked_S, masked_O);
     SequentialProtocolProducer sequentialProtocolProducer = new SequentialProtocolProducer(
         randLoader, sub, add, openAddMask);
@@ -192,8 +187,9 @@ public class EqualityProtocolImplWithPreprocessing implements EqualityProtocol {
     SInt masked_S = factory.getSInt();
     OInt masked_O = factory.getOInt();
 
-    MultProtocol mult = factory.getMultProtocol(reducedProblem, R[0], masked_S);
-    OpenIntProtocol open = factory.getOpenProtocol(masked_S, masked_O);
+    NativeProtocol<? extends SInt, ?> mult = factory
+        .getMultProtocol(reducedProblem, R[0], masked_S);
+    NativeProtocol<? extends OInt, ?> open = factory.getOpenProtocol(masked_S, masked_O);
 
     // compute powers and evaluate polynomial
     OInt[] maskedPowers = expFromOIntFactory.getExpFromOInt(masked_O, bitLength);

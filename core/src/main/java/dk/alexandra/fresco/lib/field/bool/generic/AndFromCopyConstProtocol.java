@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -26,18 +26,18 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.field.bool.generic;
 
+import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.OBool;
 import dk.alexandra.fresco.framework.value.SBool;
 import dk.alexandra.fresco.framework.value.SBoolFactory;
 import dk.alexandra.fresco.lib.field.bool.AndProtocol;
-import dk.alexandra.fresco.lib.helper.CopyProtocol;
 import dk.alexandra.fresco.lib.helper.CopyProtocolFactory;
 
 public class AndFromCopyConstProtocol implements AndProtocol, ProtocolProducer {
 
-  private CopyProtocol<SBool> copyCir;
+  private NativeProtocol copyCir;
   private CopyProtocolFactory<SBool> copyFactory;
   private SBoolFactory sboolFactory;
   private SBool inLeft;

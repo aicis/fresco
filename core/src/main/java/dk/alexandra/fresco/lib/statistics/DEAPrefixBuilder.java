@@ -96,10 +96,10 @@ public abstract class DEAPrefixBuilder {
    * Constructs an empty builder
    */
   DEAPrefixBuilder() {
-    basisInputs = new ArrayList<SInt[]>();
-    basisOutputs = new ArrayList<SInt[]>();
-    targetInputs = new ArrayList<SInt>();
-    targetOutputs = new ArrayList<SInt>();
+    basisInputs = new ArrayList<>();
+    basisOutputs = new ArrayList<>();
+    targetInputs = new ArrayList<>();
+    targetOutputs = new ArrayList<>();
     provider = null;
     prefix = null;
   }
@@ -127,7 +127,7 @@ public abstract class DEAPrefixBuilder {
    */
   DEAPrefixBuilder addBasisInput(SInt[] inputs) {
     if (this.basisInputs == null) {
-      this.basisInputs = new ArrayList<SInt[]>();
+      this.basisInputs = new ArrayList<>();
     }
     this.basisInputs.add(inputs);
     return this;
@@ -158,7 +158,7 @@ public abstract class DEAPrefixBuilder {
    */
   DEAPrefixBuilder addBasisOutput(SInt[] outputs) {
     if (this.basisOutputs == null) {
-      this.basisOutputs = new ArrayList<SInt[]>();
+      this.basisOutputs = new ArrayList<>();
     }
     this.basisOutputs.add(outputs);
     return this;
@@ -187,7 +187,7 @@ public abstract class DEAPrefixBuilder {
    */
   DEAPrefixBuilder addTargetInput(SInt targetInput) {
     if (this.targetInputs == null) {
-      this.targetInputs = new ArrayList<SInt>();
+      this.targetInputs = new ArrayList<>();
     }
     this.targetInputs.add(targetInput);
     return this;
@@ -216,7 +216,7 @@ public abstract class DEAPrefixBuilder {
    */
   DEAPrefixBuilder addTargetOutput(SInt targetOutput) {
     if (this.targetOutputs == null) {
-      this.targetOutputs = new ArrayList<SInt>();
+      this.targetOutputs = new ArrayList<>();
     }
     this.targetOutputs.add(targetOutput);
     return this;
@@ -334,44 +334,44 @@ public abstract class DEAPrefixBuilder {
    * @return a copy of this prefix builder
    */
   public DEAPrefixBuilder copy() {
-    List<SInt[]> copyBasisInputs = new ArrayList<SInt[]>(this
+    List<SInt[]> copyBasisInputs = new ArrayList<>(this
         .getBasisInputs().size());
     ParallelProtocolProducer copyProducer = new ParallelProtocolProducer();
     for (SInt[] inputs : this.getBasisInputs()) {
       SInt[] copyInputs = AlgebraUtil
           .sIntFill(new SInt[inputs.length], provider);
       for (int i = 0; i < inputs.length; i++) {
-        copyProducer.append(new CopyProtocolImpl<SInt>(inputs[i],
+        copyProducer.append(new CopyProtocolImpl<>(inputs[i],
             copyInputs[i]));
       }
       copyBasisInputs.add(copyInputs);
     }
 
-    List<SInt[]> copyBasisOutputs = new ArrayList<SInt[]>(this
+    List<SInt[]> copyBasisOutputs = new ArrayList<>(this
         .getBasisOutputs().size());
     for (SInt[] outputs : this.getBasisOutputs()) {
       SInt[] copyOutputs = AlgebraUtil.sIntFill(new SInt[outputs.length],
           provider);
       for (int i = 0; i < outputs.length; i++) {
-        copyProducer.append(new CopyProtocolImpl<SInt>(outputs[i],
+        copyProducer.append(new CopyProtocolImpl<>(outputs[i],
             copyOutputs[i]));
       }
       copyBasisOutputs.add(copyOutputs);
     }
 
-    List<SInt> copyTargetInputs = new ArrayList<SInt>(this
+    List<SInt> copyTargetInputs = new ArrayList<>(this
         .getTargetInputs().size());
     for (SInt input : this.getTargetInputs()) {
       SInt copyInput = provider.getSInt();
-      copyProducer.append(new CopyProtocolImpl<SInt>(input, copyInput));
+      copyProducer.append(new CopyProtocolImpl<>(input, copyInput));
       copyTargetInputs.add(copyInput);
     }
 
-    List<SInt> copyTargetOutputs = new ArrayList<SInt>(this
+    List<SInt> copyTargetOutputs = new ArrayList<>(this
         .getTargetOutputs().size());
     for (SInt output : this.getTargetOutputs()) {
       SInt copyOutput = provider.getSInt();
-      copyProducer.append(new CopyProtocolImpl<SInt>(output, copyOutput));
+      copyProducer.append(new CopyProtocolImpl<>(output, copyOutput));
       copyTargetOutputs.add(copyOutput);
     }
 

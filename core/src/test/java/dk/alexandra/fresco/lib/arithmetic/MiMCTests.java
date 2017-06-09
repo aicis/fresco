@@ -26,6 +26,7 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.arithmetic;
 
+import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.TestApplication;
@@ -33,7 +34,6 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
-import dk.alexandra.fresco.framework.value.KnownSIntProtocol;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
@@ -104,7 +104,8 @@ public class MiMCTests {
           };
 
           secureComputationEngine
-              .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf));
+              .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf,
+                  conf.sceConf.getSuite()));
 
           BigInteger expectedModulus = new BigInteger(
               "2582249878086908589655919172003011874329705792829223512830659356540647622016841194629645353280137831435903171972747493557");
@@ -149,7 +150,8 @@ public class MiMCTests {
           };
 
           secureComputationEngine
-              .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf));
+              .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf,
+                  conf.sceConf.getSuite()));
 
           Assert.assertEquals(app.getOutputs()[0].getValue(), app.getOutputs()[1].getValue());
           secureComputationEngine.shutdownSCE();
@@ -193,7 +195,8 @@ public class MiMCTests {
           };
 
           secureComputationEngine
-              .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf));
+              .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf,
+                  conf.sceConf.getSuite()));
 
           Assert.assertNotEquals(app.getOutputs()[0].getValue(), app.getOutputs()[1].getValue());
           secureComputationEngine.shutdownSCE();
@@ -220,10 +223,10 @@ public class MiMCTests {
               BasicNumericFactory fac = (BasicNumericFactory) factory;
               SymmetricEncryptionBuilder symBuilder = new SymmetricEncryptionBuilder(fac);
               SInt k = fac.getSInt();
-              KnownSIntProtocol knownKProtocol = fac.getSInt(20, k);
+              NativeProtocol<SInt, ?> knownKProtocol = fac.getSInt(20, k);
 
               SInt x = fac.getSInt();
-              KnownSIntProtocol knownXProtocol = fac.getSInt(x_big, x);
+              NativeProtocol<SInt, ?> knownXProtocol = fac.getSInt(x_big, x);
               symBuilder.addProtocolProducer(SingleProtocolProducer.wrap(knownKProtocol));
               symBuilder.addProtocolProducer(SingleProtocolProducer.wrap(knownXProtocol));
               SInt encX = symBuilder.mimcEncrypt(x, k);
@@ -242,7 +245,8 @@ public class MiMCTests {
           };
 
           secureComputationEngine
-              .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf));
+              .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf,
+                  conf.sceConf.getSuite()));
           Assert.assertEquals(x_big, app.getOutputs()[1].getValue());
         }
       };

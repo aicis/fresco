@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -60,13 +60,13 @@ public class TestAESDemo {
     Level logLevel = Level.INFO;
     // Since SCAPI currently does not work with ports > 9999 we use fixed ports
     // here instead of relying on ephemeral ports which are often > 9999.
-    List<Integer> ports = new ArrayList<Integer>(noPlayers);
+    List<Integer> ports = new ArrayList<>(noPlayers);
     for (int i = 1; i <= noPlayers; i++) {
       ports.add(9000 + i * 10);
     }
     Map<Integer, NetworkConfiguration> netConf = TestConfiguration
         .getNetworkConfigurations(noPlayers, ports, logLevel);
-    Map<Integer, TestThreadConfiguration> conf = new HashMap<Integer, TestThreadConfiguration>();
+    Map<Integer, TestThreadConfiguration> conf = new HashMap<>();
     for (int playerId : netConf.keySet()) {
       TestThreadConfiguration ttc = new TestThreadConfiguration();
       ttc.netConf = netConf.get(playerId);
@@ -102,7 +102,8 @@ public class TestAESDemo {
 
             SecureComputationEngine sce = SCEFactory.getSCEFromConfiguration(conf.sceConf,
                 conf.sceConf.getSuite());
-            sce.runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf));
+            sce.runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf,
+                conf.sceConf.getSuite()));
 
             // Verify output state.
             String expected = "69c4e0d86a7b0430d8cdb78070b4c55a"; // expected cipher

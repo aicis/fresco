@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -27,16 +27,14 @@
 package dk.alexandra.fresco.suite.spdz.gates;
 
 import dk.alexandra.fresco.framework.network.SCENetwork;
-import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.framework.value.Value;
-import dk.alexandra.fresco.lib.field.integer.AddProtocol;
+import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzOInt;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.utils.SpdzFactory;
 
-public class SpdzAddProtocol extends SpdzNativeProtocol implements AddProtocol {
+public class SpdzAddProtocol extends SpdzNativeProtocol<SpdzSInt> {
 
   private SpdzSInt left, right, out;
   private SpdzOInt oInt;
@@ -69,12 +67,12 @@ public class SpdzAddProtocol extends SpdzNativeProtocol implements AddProtocol {
   }
 
   @Override
-  public Value[] getOutputValues() {
-    return new Value[]{out};
+  public SpdzSInt getOutput() {
+    return out;
   }
 
   @Override
-  public EvaluationStatus evaluate(int round, ResourcePool resourcePool,
+  public EvaluationStatus evaluate(int round, SpdzResourcePool spdzResourcePool,
       SCENetwork network) {
     if (oInt != null) {
       SpdzSInt myShare = (SpdzSInt) factory.getSInt(oInt.getValue());

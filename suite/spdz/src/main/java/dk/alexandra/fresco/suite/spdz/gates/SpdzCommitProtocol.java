@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -29,20 +29,17 @@ package dk.alexandra.fresco.suite.spdz.gates;
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.network.SCENetwork;
 import dk.alexandra.fresco.framework.network.serializers.BigIntegerWithFixedLengthSerializer;
-import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
-import dk.alexandra.fresco.framework.value.Value;
+import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzCommitment;
-import dk.alexandra.fresco.suite.spdz.evaluation.strategy.SpdzProtocolSuite;
-import dk.alexandra.fresco.suite.spdz.utils.Util;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.Map;
 
-public class SpdzCommitProtocol extends SpdzNativeProtocol {
+public class SpdzCommitProtocol extends SpdzNativeProtocol<Void> {
 
-	protected SpdzCommitment commitment;
-	protected Map<Integer, BigInteger> comms;
+	private SpdzCommitment commitment;
+	private Map<Integer, BigInteger> comms;
 	private boolean done = false;
 	private byte[] broadcastDigest;
 
@@ -53,32 +50,33 @@ public class SpdzCommitProtocol extends SpdzNativeProtocol {
 	}
 
 	@Override
-	public Value[] getOutputValues() {
+	public Void getOutput() {
 		return null;
 	}
 
 	@Override
-	public EvaluationStatus evaluate(int round, ResourcePool resourcePool,
+	public EvaluationStatus evaluate(int round, SpdzResourcePool spdzResourcePool,
 			SCENetwork network) {
-		int players = resourcePool.getNoOfParties();
+		int players = spdzResourcePool.getNoOfParties();
 		switch (round) {
 		case 0:
-			network.sendToAll(BigIntegerWithFixedLengthSerializer.toBytes(commitment.getCommitment(), Util.getModulusSize()));
+			network.sendToAll(BigIntegerWithFixedLengthSerializer
+					.toBytes(commitment.getCommitment(spdzResourcePool.getModulus()),
+							spdzResourcePool.getModulusSize()));
 			network.expectInputFromAll();
 			break;
 		case 1:
 			List<ByteBuffer> commitments = network.receiveFromAll();
 			for (int i = 0; i < commitments.size(); i++) {
-				comms.put(i + 1, BigIntegerWithFixedLengthSerializer.toBigInteger(commitments.get(i), Util.getModulusSize()));
+				comms.put(i + 1, BigIntegerWithFixedLengthSerializer
+						.toBigInteger(commitments.get(i), spdzResourcePool.getModulusSize()));
 			}
 			if (players < 3) {
 				done = true;
 			} else {
 				broadcastDigest = sendBroadcastValidation(
-						SpdzProtocolSuite.getInstance(
-								resourcePool.getMyId()).getMessageDigest(
-								network.getThreadId()), network, comms.values(),
-						players);
+						spdzResourcePool.getMessageDigest(), network, comms.values()
+				);
 				network.expectInputFromAll();
 			}
 			break;
@@ -94,8 +92,10 @@ public class SpdzCommitProtocol extends SpdzNativeProtocol {
 		default:
 			throw new MPCException("No further rounds.");
 		}
-		EvaluationStatus status = (done) ? EvaluationStatus.IS_DONE
-				: EvaluationStatus.HAS_MORE_ROUNDS;
-		return status;
+		if (done) {
+			return EvaluationStatus.IS_DONE;
+		} else {
+			return EvaluationStatus.HAS_MORE_ROUNDS;
+		}
 	}
 }

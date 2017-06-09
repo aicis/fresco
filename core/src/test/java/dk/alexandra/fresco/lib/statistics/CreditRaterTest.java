@@ -109,11 +109,13 @@ public class CreditRaterTest {
 						}
 					};
 					secureComputationEngine
-							.runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf));
-					Assert.assertThat(result[0].getValue(), Is.is(BigInteger.valueOf(PlaintextCreditRater.calculateScore(values, intervals, scores))));
-				}
-			};
-		}
+              .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf,
+                  conf.sceConf.getSuite()));
+          Assert.assertThat(result[0].getValue(), Is.is(
+              BigInteger.valueOf(PlaintextCreditRater.calculateScore(values, intervals, scores))));
+        }
+      };
+    }
 	}
 
 }

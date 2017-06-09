@@ -26,23 +26,20 @@
  *******************************************************************************/
 package dk.alexandra.fresco.suite.spdz.gates;
 
+import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.network.SCENetwork;
-import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.framework.value.Value;
 import dk.alexandra.fresco.lib.compare.ComparisonProtocol;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
-import dk.alexandra.fresco.lib.field.integer.OpenIntProtocol;
 import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
+import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzOInt;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
-import dk.alexandra.fresco.suite.spdz.evaluation.strategy.SpdzProtocolSuite;
-import dk.alexandra.fresco.suite.spdz.utils.Util;
 import java.math.BigInteger;
 
 public class DummyComparisonProtocol implements ComparisonProtocol {
@@ -65,8 +62,8 @@ public class DummyComparisonProtocol implements ComparisonProtocol {
     if (currPP == null) {
       OInt a_open = factory.getOInt();
       OInt b_open = factory.getOInt();
-      OpenIntProtocol openA = factory.getOpenProtocol(a, a_open);
-      OpenIntProtocol openB = factory.getOpenProtocol(b, b_open);
+      NativeProtocol<? extends OInt, ?> openA = factory.getOpenProtocol(a, a_open);
+      NativeProtocol<? extends OInt, ?> openB = factory.getOpenProtocol(b, b_open);
       SpdzOInt a_open_ = (SpdzOInt) a_open;
       SpdzOInt b_open_ = (SpdzOInt) b_open;
 
@@ -88,7 +85,7 @@ public class DummyComparisonProtocol implements ComparisonProtocol {
     return !done;
   }
 
-  private class DummyInternalChooseGate extends SpdzNativeProtocol {
+  private class DummyInternalChooseGate extends SpdzNativeProtocol<SpdzSInt> {
 
     private SpdzOInt a, b;
     private SpdzSInt result;
@@ -100,24 +97,22 @@ public class DummyComparisonProtocol implements ComparisonProtocol {
     }
 
     @Override
-    public EvaluationStatus evaluate(int round, ResourcePool resourcePool,
+    public EvaluationStatus evaluate(int round, SpdzResourcePool spdzResourcePool,
         SCENetwork network) {
-      SpdzProtocolSuite spdzPii = SpdzProtocolSuite
-          .getInstance(resourcePool.getMyId());
-      SpdzOInt min = null;
-      if (compareModP(a.getValue(), b.getValue()) <= 0) {
+      SpdzOInt min;
+      if (compareModP(a.getValue(), b.getValue(), spdzResourcePool.getModulus()) <= 0) {
         min = new SpdzOInt(BigInteger.ONE);
       } else {
         min = new SpdzOInt(BigInteger.ZERO);
       }
       SpdzElement elm;
       if (min.getValue().equals(BigInteger.ONE)) {
-        if (resourcePool.getMyId() == 1) {
+        if (spdzResourcePool.getMyId() == 1) {
           elm = new SpdzElement(BigInteger.ONE, min.getValue()
-              .multiply(spdzPii.getStore(network.getThreadId()).getSSK()));
+              .multiply(spdzResourcePool.getStore().getSSK()));
         } else {
           elm = new SpdzElement(BigInteger.ZERO, min.getValue()
-              .multiply(spdzPii.getStore(network.getThreadId()).getSSK()));
+              .multiply(spdzResourcePool.getStore().getSSK()));
         }
       } else {
         elm = new SpdzElement(BigInteger.ZERO, BigInteger.ZERO);
@@ -130,24 +125,22 @@ public class DummyComparisonProtocol implements ComparisonProtocol {
      * @return a comparison where numbers (P - a) that are larger than ((P - 1) / 2) are interpreted
      * as the negative number (- a)
      */
-    private int compareModP(BigInteger a, BigInteger b) {
+    private int compareModP(BigInteger a, BigInteger b, BigInteger modulus) {
       BigInteger realA = a;
       BigInteger realB = b;
-      BigInteger halfPoint = Util.getModulus().subtract(BigInteger.ONE)
-          .divide((BigInteger.valueOf(2)));
+      BigInteger halfPoint = modulus.subtract(BigInteger.ONE).divide((BigInteger.valueOf(2)));
       if (a.compareTo(halfPoint) > 0) {
-        realA = a.subtract(Util.getModulus());
+        realA = a.subtract(modulus);
       }
       if (b.compareTo(halfPoint) > 0) {
-        realB = b.subtract(Util.getModulus());
+        realB = b.subtract(modulus);
       }
       return realA.compareTo(realB);
     }
 
     @Override
-    public Value[] getOutputValues() {
-      // TODO Auto-generated method stub
-      return null;
+    public SpdzSInt getOutput() {
+      return result;
     }
 
   }

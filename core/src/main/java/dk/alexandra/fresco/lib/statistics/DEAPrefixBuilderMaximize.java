@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -26,12 +26,6 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.statistics;
 
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.ListIterator;
-
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
@@ -42,6 +36,11 @@ import dk.alexandra.fresco.lib.lp.LPPrefix;
 import dk.alexandra.fresco.lib.lp.LPTableau;
 import dk.alexandra.fresco.lib.lp.Matrix;
 import dk.alexandra.fresco.lib.lp.SimpleLPPrefix;
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.ListIterator;
 
 /**
  * A helper class used to build the LPPrefix from the SInts representing the
@@ -60,7 +59,7 @@ public class DEAPrefixBuilderMaximize extends DEAPrefixBuilder {
 	/**
 	 * Constructs an empty builder
 	 */
-	public DEAPrefixBuilderMaximize() {
+	DEAPrefixBuilderMaximize() {
 		super();
 	}
 
@@ -86,8 +85,8 @@ public class DEAPrefixBuilderMaximize extends DEAPrefixBuilder {
 		 * target values are in the basis thus the score must at least be 1.
 		 */
 		ParallelProtocolProducer copyTargetToBasis = new ParallelProtocolProducer();
-		List<SInt[]> newBasisInputs = new LinkedList<SInt[]>();
-		List<SInt[]> newBasisOutputs = new LinkedList<SInt[]>();
+		List<SInt[]> newBasisInputs = new LinkedList<>();
+		List<SInt[]> newBasisOutputs = new LinkedList<>();
 
 		ListIterator<SInt[]> basisIt = basisInputs.listIterator();
 		ListIterator<SInt> targetIt = targetInputs.listIterator();
@@ -97,7 +96,7 @@ public class DEAPrefixBuilderMaximize extends DEAPrefixBuilder {
 			SInt[] newInputs = new SInt[basisInput.length + 1];
 			SInt copy = provider.getSInt();
 			copyTargetToBasis
-					.append(new CopyProtocolImpl<SInt>(targetInput, copy));
+					.append(new CopyProtocolImpl<>(targetInput, copy));
 			System.arraycopy(basisInput, 0, newInputs, 0, basisInput.length);
 			newInputs[newInputs.length - 1] = copy;
 			newBasisInputs.add(newInputs);
@@ -110,7 +109,7 @@ public class DEAPrefixBuilderMaximize extends DEAPrefixBuilder {
 			SInt targetOutput = targetIt.next();
 			SInt[] newOutputs = new SInt[basisOutput.length + 1];
 			SInt copy = provider.getSInt();
-			copyTargetToBasis.append(new CopyProtocolImpl<SInt>(targetOutput, copy));
+			copyTargetToBasis.append(new CopyProtocolImpl<>(targetOutput, copy));
 			System.arraycopy(basisOutput, 0, newOutputs, 0, basisOutput.length);
 			newOutputs[newOutputs.length - 1] = copy;
 			newBasisOutputs.add(newOutputs);
@@ -123,7 +122,7 @@ public class DEAPrefixBuilderMaximize extends DEAPrefixBuilder {
 		int lambdas = basisInputs.get(0).length;
 
 		ParallelProtocolProducer negateBasisOutput = new ParallelProtocolProducer();
-		List<SInt[]> negatedBasisOutputs = new ArrayList<SInt[]>(basisOutputs.size());
+		List<SInt[]> negatedBasisOutputs = new ArrayList<>(basisOutputs.size());
 		OInt negativeOne = provider.getOInt(BigInteger.valueOf(-1));
 		for (SInt[] outputs : basisOutputs) {
 			SInt[] negOutputs = new SInt[outputs.length];
@@ -157,10 +156,10 @@ public class DEAPrefixBuilderMaximize extends DEAPrefixBuilder {
 				provider);
 		SInt z = provider.getSInt(0);
 		SInt pivot = provider.getSInt(1);
-		SInt[] basis = new SInt[constraints];		
-		
-		LPTableau tab = new LPTableau(new Matrix<SInt>(C), B, F, z);
-		Matrix<SInt> updateMatrix = new Matrix<SInt>(getIdentity(
+		SInt[] basis = new SInt[constraints];
+
+		LPTableau tab = new LPTableau(new Matrix<>(C), B, F, z);
+		Matrix<SInt> updateMatrix = new Matrix<>(getIdentity(
 				constraints + 1, provider));
 		SequentialProtocolProducer seqGP = new SequentialProtocolProducer();
 		if (this.prefix != null) {

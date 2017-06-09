@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -26,11 +26,13 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.helper;
 
+import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.network.SCENetwork;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.Value;
 
-public class CopyProtocolImpl<T extends Value> implements CopyProtocol<T> {
+public class CopyProtocolImpl<T extends Value, S extends ResourcePool> implements
+    NativeProtocol<T, S> {
 
   private T toCopy, into;
 
@@ -40,7 +42,7 @@ public class CopyProtocolImpl<T extends Value> implements CopyProtocol<T> {
   }
 
   @Override
-  public T getOutputValues() {
+  public T getOutput() {
     return into;
   }
 

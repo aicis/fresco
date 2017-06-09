@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -26,6 +26,7 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.logic;
 
+import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.OBool;
@@ -55,7 +56,6 @@ import dk.alexandra.fresco.lib.field.bool.generic.NotFromXorProtocol;
 import dk.alexandra.fresco.lib.field.bool.generic.OrFromCopyConstProtocol;
 import dk.alexandra.fresco.lib.field.bool.generic.OrFromXorAndProtocol;
 import dk.alexandra.fresco.lib.field.bool.generic.XnorFromXorAndNotProtocolImpl;
-import dk.alexandra.fresco.lib.helper.CopyProtocol;
 import dk.alexandra.fresco.lib.helper.CopyProtocolFactory;
 import dk.alexandra.fresco.lib.helper.CopyProtocolImpl;
 import dk.alexandra.fresco.lib.math.bool.add.AdderProtocolFactory;
@@ -112,7 +112,7 @@ public abstract class AbstractBinaryFactory
   }
 
   @Override
-  public CopyProtocol<SBool> getCopyProtocol(SBool in, SBool out) {
+  public NativeProtocol<SBool, ?> getCopyProtocol(SBool in, SBool out) {
     return new CopyProtocolImpl<>(in, out);
   }
 

@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -28,35 +28,34 @@ package dk.alexandra.fresco.suite.spdz.gates;
 
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.network.SCENetwork;
-import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.framework.value.Value;
 import dk.alexandra.fresco.lib.helper.CopyProtocol;
+import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 
-public class SpdzCopyProtocol extends SpdzNativeProtocol implements CopyProtocol<SInt> {
+public class SpdzCopyProtocol extends SpdzNativeProtocol<SpdzSInt> implements CopyProtocol {
 
-	SpdzSInt in, out;
+  SpdzSInt in, out;
 
-	public SpdzCopyProtocol(SInt in, SInt out) {
-		try {
-			this.in = (SpdzSInt) in;
-			this.out = (SpdzSInt) out;
-		} catch (ClassCastException cce) {
-			throw new MPCException(
-					"SpdzCopyGate can only be constructed with SpdzInt's", cce);
-		}
-	}
+  public SpdzCopyProtocol(SInt in, SInt out) {
+    try {
+      this.in = (SpdzSInt) in;
+      this.out = (SpdzSInt) out;
+    } catch (ClassCastException cce) {
+      throw new MPCException(
+          "SpdzCopyGate can only be constructed with SpdzInt's", cce);
+    }
+  }
 
-	@Override
-	public Value[] getOutputValues() {
-		return new Value[] { out };
-	}
+  @Override
+  public SpdzSInt getOutput() {
+    return out;
+  }
 
-	@Override
-	public EvaluationStatus evaluate(int round, ResourcePool resourcePool,
-			SCENetwork network) {
-		this.out.value = this.in.value;
-		return EvaluationStatus.IS_DONE;
-	}
+  @Override
+  public EvaluationStatus evaluate(int round, SpdzResourcePool SpdzResourcePool,
+      SCENetwork network) {
+    this.out.value = this.in.value;
+    return EvaluationStatus.IS_DONE;
+  }
 }

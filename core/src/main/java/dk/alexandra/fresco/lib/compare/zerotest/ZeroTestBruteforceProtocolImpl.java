@@ -36,8 +36,6 @@ import dk.alexandra.fresco.lib.compare.MiscOIntGenerators;
 import dk.alexandra.fresco.lib.field.integer.AddByConstantProtocolFactory;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.field.integer.MultByConstantFactory;
-import dk.alexandra.fresco.lib.field.integer.MultProtocol;
-import dk.alexandra.fresco.lib.field.integer.OpenIntProtocol;
 import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
 import dk.alexandra.fresco.lib.helper.SingleProtocolProducer;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
@@ -106,8 +104,9 @@ public class ZeroTestBruteforceProtocolImpl implements ZeroTestBruteforceProtoco
 
           masked_O = factory.getOInt();
           NativeProtocol incr = incrFactory.getIncrementByOneProtocol(input, increased);
-          MultProtocol mult = factory.getMultProtocol(increased, R[0], masked_S);
-          OpenIntProtocol open = factory.getOpenProtocol(masked_S, masked_O);
+          NativeProtocol<? extends SInt, ?> mult = factory
+              .getMultProtocol(increased, R[0], masked_S);
+          NativeProtocol<? extends OInt, ?> open = factory.getOpenProtocol(masked_S, masked_O);
 
           pp = new SequentialProtocolProducer(incr, mult, open);
 

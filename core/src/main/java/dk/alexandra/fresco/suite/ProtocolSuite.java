@@ -31,7 +31,7 @@ import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.network.SCENetwork;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 
-public interface ProtocolSuite {
+public interface ProtocolSuite<ResourcePoolT extends ResourcePool> {
 
   /**
    * Initializes the protocol suite by supplying any needed
@@ -39,7 +39,7 @@ public interface ProtocolSuite {
    * in charge of supplying the needed resources to it's internal protocols
    * when needed.
    */
-  ProtocolFactory init(ResourcePool resourcePool);
+  ProtocolFactory init(ResourcePoolT resourcePool);
 
   /**
    * Get a RoundSynchronization used by evaluators to signal progress and
@@ -48,13 +48,13 @@ public interface ProtocolSuite {
    *
    * @return a RoundSynchronization that can be used by current evaluation.
    */
-  RoundSynchronization createRoundSynchronization();
+  RoundSynchronization<ResourcePoolT> createRoundSynchronization();
 
   /**
    * Let the protocol suite know that the evaluation has reached it's end. Runtime
    * can then do cleanup or resume background activities if needed.
    */
-  void finishedEval(ResourcePool resourcePool, SCENetwork sceNetwork);
+  void finishedEval(ResourcePoolT resourcePool, SCENetwork sceNetwork);
 
   /**
    * Sends a signal to the protocol suite to shut down any running threads and
@@ -62,7 +62,7 @@ public interface ProtocolSuite {
    */
   void destroy();
 
-  interface RoundSynchronization {
+  interface RoundSynchronization<ResourcePoolT> {
 
     /**
      * Let's the protocol suite know that now is a possible point of synchronization.
@@ -73,7 +73,7 @@ public interface ProtocolSuite {
      * @param gatesEvaluated Indicates how many gates was evaluated since last call to synchronize.
      * It is therefore _not_ indicative of a total amount.
      */
-    void finishedBatch(int gatesEvaluated, ResourcePool resourcePool, SCENetwork sceNetwork)
+    void finishedBatch(int gatesEvaluated, ResourcePoolT resourcePool, SCENetwork sceNetwork)
         throws MPCException;
 
     /**
@@ -86,13 +86,13 @@ public interface ProtocolSuite {
      * @throws MPCException on error
      */
     boolean roundFinished(
-        int round, ResourcePool resourcePool, SCENetwork network) throws MPCException;
+        int round, ResourcePoolT resourcePool, SCENetwork network) throws MPCException;
   }
 
   /**
    * Dummy round synchronization that does nothing.
    */
-  class DummyRoundSynchronization implements RoundSynchronization {
+  class DummyRoundSynchronization implements RoundSynchronization<ResourcePool> {
 
     @Override
     public void finishedBatch(int gatesEvaluated, ResourcePool resourcePool, SCENetwork sceNetwork)

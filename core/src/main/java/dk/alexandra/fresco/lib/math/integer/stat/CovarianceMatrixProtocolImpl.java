@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -55,12 +55,11 @@ public class CovarianceMatrixProtocolImpl extends SimpleProtocolProducer impleme
    * they should be left as <code>null</code>.
    *
    * @param data The data, one sample set for each column
-   * @param maxInputLength An upper bound for the size of each data entry
    * @param mean The means
    * @param result The covariance matrix <i>(c<sub>ij</sub>)</i> such that <i>c_ij =
    * Cov(<code>data[i]</code>, <code>data[j]</code>)</i>
    */
-  public CovarianceMatrixProtocolImpl(SInt[][] data, SInt[] mean,
+  CovarianceMatrixProtocolImpl(SInt[][] data, SInt[] mean,
       SInt[][] result, BasicNumericFactory basicNumericFactory, MeanFactory meanFactory,
       VarianceFactory varianceFactory, CovarianceFactory covarianceFactory) {
     this.data = data;
@@ -76,10 +75,10 @@ public class CovarianceMatrixProtocolImpl extends SimpleProtocolProducer impleme
 
   /**
    * Wrapper constructor for when the means are not known. Will just pass on parameters to {@link
-   * #CovarianceMatrixProtocolImpl(SInt[][], int, SInt[], SInt[][], BasicNumericFactory,
-   * MeanFactory, VarianceFactory, CovarianceFactory)} with <code>mean = null</code>.
+   * #CovarianceMatrixProtocolImpl(SInt[][], SInt[], SInt[][], BasicNumericFactory, MeanFactory,
+   * VarianceFactory, CovarianceFactory)} with <code>mean = null</code>.
    */
-  public CovarianceMatrixProtocolImpl(SInt[][] data, SInt[][] result,
+  CovarianceMatrixProtocolImpl(SInt[][] data, SInt[][] result,
       BasicNumericFactory basicNumericFactory, MeanFactory meanFactory,
       VarianceFactory varianceFactory, CovarianceFactory covarianceFactory) {
     this(data, null, result, basicNumericFactory, meanFactory, varianceFactory,
@@ -119,7 +118,7 @@ public class CovarianceMatrixProtocolImpl extends SimpleProtocolProducer impleme
     }
 
 		/*
-		 * Calculate the covariance matrix (c_ij) such that c_ij = Cov(data[i],
+     * Calculate the covariance matrix (c_ij) such that c_ij = Cov(data[i],
 		 * data[j])
 		 */
     ParallelProtocolProducer findCovariances = new ParallelProtocolProducer();
@@ -137,7 +136,7 @@ public class CovarianceMatrixProtocolImpl extends SimpleProtocolProducer impleme
           findCovariance.append(covarianceFactory.getCovarianceProtocol(data[i],
               data[j], result[i][j]));
           // Covariance matrix is symmetric
-          findCovariance.append(new CopyProtocolImpl<SInt>(result[i][j], result[j][i]));
+          findCovariance.append(new CopyProtocolImpl<>(result[i][j], result[j][i]));
 
           findCovariances.append(findCovariance);
         }

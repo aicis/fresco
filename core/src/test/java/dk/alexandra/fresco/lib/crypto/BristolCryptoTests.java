@@ -146,7 +146,8 @@ public class BristolCryptoTests {
           };
 
           secureComputationEngine
-              .runApplication(aesApp, SecureComputationEngineImpl.createResourcePool(conf.sceConf));
+              .runApplication(aesApp, SecureComputationEngineImpl.createResourcePool(conf.sceConf,
+                  conf.sceConf.getSuite()));
 
           if (!assertAsExpected) {
             return;
@@ -233,7 +234,8 @@ public class BristolCryptoTests {
           };
 
           secureComputationEngine
-              .runApplication(aesApp, SecureComputationEngineImpl.createResourcePool(conf.sceConf));
+              .runApplication(aesApp, SecureComputationEngineImpl.createResourcePool(conf.sceConf,
+                  conf.sceConf.getSuite()));
           if (!assertAsExpected) {
             return;
           }
@@ -320,7 +322,8 @@ public class BristolCryptoTests {
           };
 
           secureComputationEngine.runApplication(sha256App,
-              SecureComputationEngineImpl.createResourcePool(conf.sceConf));
+              SecureComputationEngineImpl.createResourcePool(conf.sceConf,
+                  conf.sceConf.getSuite()));
 
           if (!assertAsExpected) {
             return;
@@ -408,7 +411,8 @@ public class BristolCryptoTests {
           };
 
           secureComputationEngine
-              .runApplication(md5App, SecureComputationEngineImpl.createResourcePool(conf.sceConf));
+              .runApplication(md5App, SecureComputationEngineImpl.createResourcePool(conf.sceConf,
+                  conf.sceConf.getSuite()));
 
           if (!assertAsExpected) {
             return;
@@ -487,7 +491,8 @@ public class BristolCryptoTests {
           };
 
           secureComputationEngine.runApplication(multApp,
-              SecureComputationEngineImpl.createResourcePool(conf.sceConf));
+              SecureComputationEngineImpl.createResourcePool(conf.sceConf,
+                  conf.sceConf.getSuite()));
 
           if (!assertAsExpected) {
             return;
@@ -568,7 +573,8 @@ public class BristolCryptoTests {
           };
 
           secureComputationEngine
-              .runApplication(md5App, SecureComputationEngineImpl.createResourcePool(conf.sceConf));
+              .runApplication(md5App, SecureComputationEngineImpl.createResourcePool(conf.sceConf,
+                  conf.sceConf.getSuite()));
 
           if (!assertAsExpected) {
             return;

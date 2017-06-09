@@ -34,7 +34,6 @@ import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.compare.ComparisonProtocol;
 import dk.alexandra.fresco.lib.compare.ConditionalSelectProtocol;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
-import dk.alexandra.fresco.lib.field.integer.SubtractProtocol;
 import dk.alexandra.fresco.lib.helper.AbstractRoundBasedProtocol;
 import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
 import dk.alexandra.fresco.lib.helper.ProtocolProducerCollection;
@@ -109,13 +108,13 @@ public class MinimumProtocolImpl implements MinimumProtocol {
         seqGP.append(
             numericFactory.getMultProtocol(c1_prime,
                 c2_prime, this.cs[0]));
-        SubtractProtocol sub1 = numericFactory.getSubtractProtocol(
+        NativeProtocol<? extends SInt, ?> sub1 = numericFactory.getSubtractProtocol(
             c2_prime, this.cs[0], this.cs[1]);
         SInt one = numericFactory.getSInt(1);
         SInt tmp = numericFactory.getSInt();
-        SubtractProtocol sub2 = numericFactory.getSubtractProtocol(one,
+        NativeProtocol<? extends SInt, ?> sub2 = numericFactory.getSubtractProtocol(one,
             this.cs[0], tmp);
-        SubtractProtocol sub3 = numericFactory.getSubtractProtocol(tmp,
+        NativeProtocol<? extends SInt, ?> sub3 = numericFactory.getSubtractProtocol(tmp,
             this.cs[1], this.cs[2]);
 
         ParallelProtocolProducer parGP = new ParallelProtocolProducer(sub1,
@@ -173,7 +172,7 @@ public class MinimumProtocolImpl implements MinimumProtocol {
             .getConditionalSelectProtocol(c, m1, m2, m);
         SInt one = numericFactory.getSInt(1);
         SInt oneMinusC = numericFactory.getSInt();
-        SubtractProtocol subtract = numericFactory.getSubtractProtocol(
+        NativeProtocol<? extends SInt, ?> subtract = numericFactory.getSubtractProtocol(
             one, c, oneMinusC);
         VectorScale scale1 = new VectorScale(c, cs1_prime, cs, 0);
         VectorScale scale2 = new VectorScale(oneMinusC, cs2_prime, cs, k / 2);

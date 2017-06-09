@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -96,17 +96,17 @@ public class ExponentiationTests {
 							OInt output1 = ioBuilder.output(result);
 							
 							sequentialProtocolProducer.append(ioBuilder.getProtocol());
-							
-							ProtocolProducer gp = sequentialProtocolProducer;
-							
+
 							outputs = new OInt[] {output1};
-							
-							return gp;
+
+							return sequentialProtocolProducer;
 						}
 					};
-          secureComputationEngine
-              .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf));
-          BigInteger result = app.getOutputs()[0].getValue();
+					secureComputationEngine
+							.runApplication(app, SecureComputationEngineImpl.createResourcePool(
+									conf.sceConf,
+									conf.sceConf.getSuite()));
+					BigInteger result = app.getOutputs()[0].getValue();
 					
 					Assert.assertEquals(input.pow(exp), result);
 				}

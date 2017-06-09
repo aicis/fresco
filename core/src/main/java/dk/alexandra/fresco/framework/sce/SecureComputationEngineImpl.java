@@ -41,7 +41,7 @@ import dk.alexandra.fresco.framework.network.NetworkingStrategy;
 import dk.alexandra.fresco.framework.network.ScapiNetworkImpl;
 import dk.alexandra.fresco.framework.sce.configuration.ProtocolSuiteConfiguration;
 import dk.alexandra.fresco.framework.sce.configuration.SCEConfiguration;
-import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
+import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.sce.resources.storage.StreamedStorage;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import java.io.IOException;
@@ -117,7 +117,10 @@ public class SecureComputationEngineImpl implements SecureComputationEngine {
     return network;
   }
 
-  public static ResourcePoolImpl createResourcePool(SCEConfiguration sceConf) throws IOException {
+  public static <ResourcePoolT extends ResourcePool> ResourcePoolT createResourcePool(
+      SCEConfiguration sceConf,
+      ProtocolSuiteConfiguration<ResourcePoolT> protocolSuiteConfiguration) throws IOException {
+
     int myId = sceConf.getMyId();
     Map<Integer, Party> parties = sceConf.getParties();
 
@@ -129,11 +132,9 @@ public class SecureComputationEngineImpl implements SecureComputationEngine {
     Network network = getNetworkFromConfiguration(sceConf, myId, parties);
     network.connect(10000);
 
-    ResourcePoolImpl resourcePool =
-        new ResourcePoolImpl(myId, parties.size(),
-            network, streamedStorage, rand, secRand);
-
-    return resourcePool;
+    return protocolSuiteConfiguration.createResourcePool(
+        myId, parties.size(),
+        network, rand, secRand);
 
   }
 
@@ -154,7 +155,7 @@ public class SecureComputationEngineImpl implements SecureComputationEngine {
    * .framework.Application)
    */
   @Override
-  public void runApplication(Application application, ResourcePoolImpl sceNetwork) {
+  public void runApplication(Application application, ResourcePool sceNetwork) {
     try {
       startApplication(application, sceNetwork).get(10, TimeUnit.MINUTES);
     } catch (InterruptedException | ExecutionException | TimeoutException e) {
@@ -162,7 +163,7 @@ public class SecureComputationEngineImpl implements SecureComputationEngine {
     }
   }
 
-  public Future<?> startApplication(Application application, ResourcePoolImpl resourcePool) {
+  public Future<?> startApplication(Application application, ResourcePool resourcePool) {
     prepareEvaluator();
     ProtocolFactory protocolFactory = this.protocolSuite.init(resourcePool);
     ProtocolProducer prod = application.prepareApplication(protocolFactory);
@@ -185,13 +186,12 @@ public class SecureComputationEngineImpl implements SecureComputationEngine {
   }
 
   private void evalApplication(ProtocolProducer prod, String appName,
-      ResourcePoolImpl resourcePool) {
+      ResourcePool resourcePool) {
     try {
       if (prod != null) {
         Reporter.info("Using the configuration: " + this.sceConf);
         long then = System.currentTimeMillis();
-        this.evaluator.eval(prod,
-            resourcePool);
+        this.evaluator.eval(prod, resourcePool);
         long now = System.currentTimeMillis();
         long timeSpend = now - then;
         Reporter.info("Running the application " + appName + " took " + timeSpend + " ms.");

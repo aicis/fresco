@@ -1,4 +1,5 @@
-/*******************************************************************************
+/*
+ *
  * Copyright (c) 2015 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -36,8 +37,8 @@ public class DummyNotProtocol extends DummyProtocol implements NotProtocol {
 
 	public DummySBool input;
 	public DummySBool output;
-	
-	public DummyNotProtocol(SBool in, SBool out) {
+
+	DummyNotProtocol(SBool in, SBool out) {
 		input = (DummySBool)in;
 		output = (DummySBool)out;
 	}
@@ -55,8 +56,8 @@ public class DummyNotProtocol extends DummyProtocol implements NotProtocol {
 	}
 
 	@Override
-	public Value[] getOutputValues() {
-		return new Value[] {this.output};
+	public Value[] getOutput() {
+		return new Value[]{this.output};
 	}
 
 	

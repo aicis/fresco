@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -27,11 +27,16 @@
 package dk.alexandra.fresco.suite.spdz.configuration;
 
 import dk.alexandra.fresco.framework.configuration.PreprocessingStrategy;
+import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.configuration.ProtocolSuiteConfiguration;
 import dk.alexandra.fresco.framework.sce.configuration.SCEConfiguration;
+import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.suite.ProtocolSuite;
-import dk.alexandra.fresco.suite.spdz.evaluation.strategy.SpdzProtocolSuite;
+import dk.alexandra.fresco.suite.spdz.SpdzProtocolSuite;
+import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
+import java.security.SecureRandom;
 import java.util.Properties;
+import java.util.Random;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.ParseException;
 
@@ -54,14 +59,14 @@ public interface SpdzConfiguration extends ProtocolSuiteConfiguration {
    *
    * @return The preprocessing strategy to use.
    */
-  public PreprocessingStrategy getPreprocessingStrategy();
+  PreprocessingStrategy getPreprocessingStrategy();
 
   /**
    * Should return the base url (e.g. 154.92.132.12:80) where the fuel station is deployed.
    *
    * @return The base URL for the fuel station.
    */
-  public String fuelStationBaseUrl();
+  String fuelStationBaseUrl();
 
   static SpdzConfiguration fromCmdLine(SCEConfiguration sceConf,
       CommandLine cmd) throws ParseException {
@@ -81,6 +86,13 @@ public interface SpdzConfiguration extends ProtocolSuiteConfiguration {
       @Override
       public ProtocolSuite createProtocolSuite(int myPlayerId) {
         return new SpdzProtocolSuite(myPlayerId, this);
+      }
+
+      @Override
+      public ResourcePool createResourcePool(int myId, int size, Network network, Random rand,
+          SecureRandom secRand) {
+        return new SpdzResourcePool(myId, size, network, sceConf.getStreamedStorage(), rand,
+            secRand, this);
       }
 
       @Override

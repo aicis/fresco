@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -26,6 +26,7 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.field.integer;
 
+import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.value.SInt;
 
@@ -37,7 +38,7 @@ import dk.alexandra.fresco.framework.value.SInt;
  * @author Kasper Damgaard
  *
  */
-public interface RandomFieldElementFactory extends ProtocolFactory {
+public interface RandomFieldElementFactory<SIntT extends SInt> extends ProtocolFactory {
 
 	/**
 	 * Creates a protocol that upon evaluation will fill in the given SInt with
@@ -48,5 +49,5 @@ public interface RandomFieldElementFactory extends ProtocolFactory {
 	 * @return A protocol that fills in the given SInt with a secret shared
 	 *         random value.
 	 */
-	public RandomFieldElementProtocol getRandomFieldElement(SInt randomElement);
+	NativeProtocol<SIntT, ?> getRandomFieldElement(SIntT randomElement);
 }

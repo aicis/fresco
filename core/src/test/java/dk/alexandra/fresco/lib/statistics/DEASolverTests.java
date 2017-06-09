@@ -141,7 +141,8 @@ public class DEASolverTests {
           };
           long startTime = System.nanoTime();
           secureComputationEngine
-              .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf));
+              .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf,
+                  conf.sceConf.getSuite()));
           long endTime = System.nanoTime();
           System.out.println("============ Seq Time: "
               + ((endTime - startTime) / 1000000));

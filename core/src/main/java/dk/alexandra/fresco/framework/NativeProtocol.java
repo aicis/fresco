@@ -35,7 +35,7 @@ public interface NativeProtocol<OutputT, ResourcePoolT extends ResourcePool> {
     IS_DONE, HAS_MORE_ROUNDS
   }
 
-  OutputT getOutputValues();
+  OutputT getOutput();
 
   /**
    * One round of evaluating the gate. Each round consist of only local

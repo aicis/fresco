@@ -26,7 +26,7 @@ public class UtilityBuilder extends AbstractProtocolBuilder {
 	 *            Needs to be either a BasicNumericFactory or a
 	 *            BasicLogicFactory
 	 */
-	public UtilityBuilder(ProtocolFactory factory) {
+	UtilityBuilder(ProtocolFactory factory) {
 		this.factory = factory;
 	}
 
@@ -55,7 +55,7 @@ public class UtilityBuilder extends AbstractProtocolBuilder {
 	public SInt copy(SInt toCopy) {
 		BasicNumericFactory bnf = (BasicNumericFactory) factory;
 		SInt into = bnf.getSInt();
-		this.append(new CopyProtocolImpl<SInt>(toCopy, into));
+		this.append(new CopyProtocolImpl<>(toCopy, into));
 		return into;
 	}
 
@@ -69,7 +69,7 @@ public class UtilityBuilder extends AbstractProtocolBuilder {
 	public SBool copy(SBool toCopy) {
 		BasicLogicFactory blf = (BasicLogicFactory) factory;
 		SBool into = blf.getSBool();
-		this.append(new CopyProtocolImpl<SBool>(toCopy, into));
+		this.append(new CopyProtocolImpl<>(toCopy, into));
 		return into;
 	}
 

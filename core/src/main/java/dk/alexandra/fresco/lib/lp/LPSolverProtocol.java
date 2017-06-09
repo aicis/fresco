@@ -32,7 +32,6 @@ import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.helper.AbstractRoundBasedProtocol;
-import dk.alexandra.fresco.lib.helper.CopyProtocol;
 import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
 import java.math.BigInteger;
@@ -224,12 +223,12 @@ public class LPSolverProtocol implements ProtocolProducer {
             ParallelProtocolProducer parCopy = new ParallelProtocolProducer();
             for (int i = 0; i < newUpdate.length; i++) {
               for (int j = 0; j < newUpdate[i].length; j++) {
-                CopyProtocol<SInt> copy = lpFactory.getCopyProtocol(
+                NativeProtocol<SInt, ?> copy = lpFactory.getCopyProtocol(
                     newUpdateMatrix.getElement(i, j), updateMatrix.getElement(i, j));
                 parCopy.append(copy);
               }
             }
-            CopyProtocol<SInt> copy = lpFactory.getCopyProtocol(pivot, prevPivot);
+            NativeProtocol<SInt, ?> copy = lpFactory.getCopyProtocol(pivot, prevPivot);
             parCopy.append(copy);
             round++;
             return parCopy;

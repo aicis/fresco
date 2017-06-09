@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -31,10 +31,7 @@ import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.compare.ConditionalSelectProtocol;
-import dk.alexandra.fresco.lib.field.integer.AddProtocol;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
-import dk.alexandra.fresco.lib.field.integer.MultProtocol;
-import dk.alexandra.fresco.lib.field.integer.SubtractProtocol;
 import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
 import dk.alexandra.fresco.lib.helper.SingleProtocolProducer;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
@@ -51,7 +48,7 @@ public class UpdateMatrixProtocol implements ProtocolProducer {
   private ProtocolProducer curPP;
   private boolean done = false;
 
-  public UpdateMatrixProtocol(Matrix<SInt> oldUpdateMatrix, SInt[] L, SInt[] C, SInt p,
+  UpdateMatrixProtocol(Matrix<SInt> oldUpdateMatrix, SInt[] L, SInt[] C, SInt p,
       SInt p_prime, Matrix<SInt> newUpdateMatrix,
       LPFactory lpFactory, BasicNumericFactory numericFactory) {
     this.oldUpdateMatrix = oldUpdateMatrix;
@@ -73,24 +70,24 @@ public class UpdateMatrixProtocol implements ProtocolProducer {
       one = numericFactory.getSInt(1);
 
       InversionProtocol inv = lpFactory.getInversionProtocol(p_prime, p_prime_inv);
-      MultProtocol mult1 = numericFactory.getMultProtocol(p, p_prime_inv, pp);
+      NativeProtocol<? extends SInt, ?> mult1 = numericFactory.getMultProtocol(p, p_prime_inv, pp);
 
       int h = oldUpdateMatrix.getHeight();
       int w = oldUpdateMatrix.getWidth();
       // These 3 for the generation of lambda_i's
       SInt[][] lambdas_i_jOuts = new SInt[h][w];
       SInt[] lambdas_iOuts = new SInt[h]; // same as [v'_i,L]
-      MultProtocol[][] mults_l_v = new MultProtocol[h - 1][w];
-      AddProtocol[][] addsLambda_i = new AddProtocol[h][w];
+      NativeProtocol[][] mults_l_v = new NativeProtocol[h - 1][w];
+      NativeProtocol[][] addsLambda_i = new NativeProtocol[h][w];
 
       // next 4 for the update equation
       SInt[][] subOuts = new SInt[h][w];
-      SubtractProtocol[][] subs = new SubtractProtocol[h][w];
+      NativeProtocol[][] subs = new NativeProtocol[h][w];
       SInt[][] mults_cAndLambda_iOuts = new SInt[h][w];
-      MultProtocol[][] mults_cAndLambda_i = new MultProtocol[h][w];
+      NativeProtocol[][] mults_cAndLambda_i = new NativeProtocol[h][w];
       SInt[][] mults_sub_and_ppOuts = new SInt[h][w];
-      MultProtocol[][] mults_sub_and_pp = new MultProtocol[h][w];
-      AddProtocol[][] adds = new AddProtocol[h][w];
+      NativeProtocol[][] mults_sub_and_pp = new NativeProtocol[h][w];
+      NativeProtocol[][] adds = new NativeProtocol[h][w];
 
       // This one divides C by the previous pivot
       ProtocolProducer[] scales_c = new ProtocolProducer[C.length];
@@ -99,7 +96,8 @@ public class UpdateMatrixProtocol implements ProtocolProducer {
         scalings[j] = numericFactory.getSInt();
         ConditionalSelectProtocol scaling = lpFactory
             .getConditionalSelectProtocol(L[j], one, p_prime_inv, scalings[j]);
-        MultProtocol divides_c_by_p_prime = numericFactory.getMultProtocol(C[j], scalings[j], C[j]);
+        NativeProtocol<? extends SInt, ?> divides_c_by_p_prime = numericFactory
+            .getMultProtocol(C[j], scalings[j], C[j]);
         scales_c[j] = new SequentialProtocolProducer(scaling, divides_c_by_p_prime);
       }
       scales_c[C.length - 1] =

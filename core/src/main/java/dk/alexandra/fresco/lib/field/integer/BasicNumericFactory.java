@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -37,31 +37,26 @@ import java.math.BigInteger;
 
 /**
  * A factory that produces protocols that operate on elements in a finite field.
- *
  */
-public interface BasicNumericFactory extends SIntFactory, OIntFactory,
-		AddProtocolFactory, SubtractProtocolFactory, MultProtocolFactory,
-		ProtocolFactory, IOIntProtocolFactory, NumericBitFactory, RandomFieldElementFactory {
+public interface BasicNumericFactory<SIntT extends SInt> extends SIntFactory, OIntFactory,
+    AddProtocolFactory, SubtractProtocolFactory, MultProtocolFactory,
+    ProtocolFactory, IOIntProtocolFactory, NumericBitFactory, RandomFieldElementFactory<SIntT> {
 
-	/**
-	 * Returns the maximum number of bits a number in the field can contain.
-	 * 
-	 * @return
-	 */
+  /**
+   * Returns the maximum number of bits a number in the field can contain.
+   */
   int getMaxBitLength();
 
-	/**
-	 * Returns the largest possible value containable in the field that we can
-	 * still multiply with and get no overflow.
-	 * 
-	 * @return
-	 */
+  /**
+   * Returns the largest possible value containable in the field that we can
+   * still multiply with and get no overflow.
+   */
   SInt getSqrtOfMaxValue();
 
-	/**
-	 * Returns the modulus used in the underlying arithmetic protocol suite.
-	 * 
-	 * @return The modulus used.
-	 */
+  /**
+   * Returns the modulus used in the underlying arithmetic protocol suite.
+   *
+   * @return The modulus used.
+   */
   BigInteger getModulus();
 }

@@ -77,7 +77,8 @@ public class ComparisonBooleanTests {
 					};
 
 					secureComputationEngine
-							.runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf));
+							.runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf,
+									conf.sceConf.getSuite()));
 
 						Assert.assertEquals(false,
 								app.getOutputs()[0].getValue());

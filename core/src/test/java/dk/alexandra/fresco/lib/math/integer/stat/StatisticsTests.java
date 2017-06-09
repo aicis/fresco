@@ -153,11 +153,12 @@ public class StatisticsTests {
 						}
 					};
 					secureComputationEngine
-							.runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf));
-					BigInteger mean1 = app.getOutputs()[0].getValue();
-					BigInteger mean2 = app.getOutputs()[1].getValue();
-					BigInteger variance = app.getOutputs()[2].getValue();
-					BigInteger covariance = app.getOutputs()[3].getValue();
+              .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf,
+                  conf.sceConf.getSuite()));
+          BigInteger mean1 = app.getOutputs()[0].getValue();
+          BigInteger mean2 = app.getOutputs()[1].getValue();
+          BigInteger variance = app.getOutputs()[2].getValue();
+          BigInteger covariance = app.getOutputs()[3].getValue();
 					
 					double sum = 0.0;
 					for (int entry : data1) {

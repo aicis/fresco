@@ -12,9 +12,7 @@ import dk.alexandra.fresco.framework.sce.configuration.TestSCEConfiguration;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
 import dk.alexandra.fresco.lib.arithmetic.BasicArithmeticTests;
-import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.configuration.SpdzConfiguration;
-import dk.alexandra.fresco.suite.spdz.evaluation.strategy.SpdzProtocolSuite;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -30,7 +28,7 @@ public class TestBasicArithmeticWithEncryption {
     // Since SCAPI currently does not work with ports > 9999 we use fixed
     // ports
     // here instead of relying on ephemeral ports which are often > 9999.
-    List<Integer> ports = new ArrayList<Integer>(noOfParties);
+    List<Integer> ports = new ArrayList<>(noOfParties);
     int noOfVMThreads = 2;
     for (int i = 1; i <= noOfParties; i++) {
       ports.add(9000 + i * 10);
@@ -38,33 +36,13 @@ public class TestBasicArithmeticWithEncryption {
 
     Map<Integer, NetworkConfiguration> netConf = TestConfiguration
         .getNetworkConfigurations(noOfParties, ports, logLevel);
-    Map<Integer, TestThreadConfiguration> conf = new HashMap<Integer, TestThreadConfiguration>();
+    Map<Integer, TestThreadConfiguration> conf = new HashMap<>();
     for (int playerId : netConf.keySet()) {
       TestThreadConfiguration ttc = new TestThreadConfiguration();
       ttc.netConf = netConf.get(playerId);
 
-      SpdzConfiguration spdzConf = new SpdzConfiguration() {
-
-        @Override
-        public ProtocolSuite createProtocolSuite(int myPlayerId) {
-          return new SpdzProtocolSuite(myPlayerId, this);
-        }
-
-        @Override
-        public PreprocessingStrategy getPreprocessingStrategy() {
-          return PreprocessingStrategy.DUMMY;
-        }
-
-        @Override
-        public String fuelStationBaseUrl() {
-          return null;
-        }
-
-        @Override
-        public int getMaxBitLength() {
-          return 150;
-        }
-      };
+      SpdzConfiguration spdzConf = new TestSpdzConfiguration(noOfParties,
+          PreprocessingStrategy.DUMMY);
       boolean useSecureConnection = true;
 
       int noOfThreads = 3;

@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -26,15 +26,16 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.math.integer.inv;
 
+import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.value.OInt;
 
-public interface LocalInversionFactory {
+public interface LocalInversionFactory<OIntT extends OInt> {
 
 	/**
-	 * 
-	 * @param x input
-	 * @param result output -  x^-1
-	 * @return
-	 */
-	LocalInversionProtocol getLocalInversionProtocol(OInt x, OInt result);
+   *
+   * @param x input
+   * @param result output -  x^-1
+   * @return the native protocol that computes this.
+   */
+  NativeProtocol<OIntT, ?> getLocalInversionProtocol(OIntT x, OIntT result);
 }

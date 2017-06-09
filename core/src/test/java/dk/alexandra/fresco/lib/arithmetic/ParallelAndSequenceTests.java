@@ -32,9 +32,11 @@ public class ParallelAndSequenceTests {
 					TestApplicationMult multApp = new ParallelAndSequenceTests().new TestApplicationMult();
 
 					secureComputationEngine
-							.runApplication(sumApp, SecureComputationEngineImpl.createResourcePool(conf.sceConf));
+							.runApplication(sumApp, SecureComputationEngineImpl.createResourcePool(conf.sceConf,
+									conf.sceConf.getSuite()));
 					secureComputationEngine.runApplication(multApp,
-							SecureComputationEngineImpl.createResourcePool(conf.sceConf));
+							SecureComputationEngineImpl.createResourcePool(conf.sceConf,
+									conf.sceConf.getSuite()));
 
 					OInt sum = sumApp.getOutputs()[0];
 					OInt mult = multApp.getOutputs()[0];
@@ -55,9 +57,11 @@ public class ParallelAndSequenceTests {
 					TestApplicationMult multApp = new ParallelAndSequenceTests().new TestApplicationMult();
 
 					secureComputationEngine
-							.runApplication(sumApp, SecureComputationEngineImpl.createResourcePool(conf.sceConf));
+							.runApplication(sumApp, SecureComputationEngineImpl.createResourcePool(conf.sceConf,
+									conf.sceConf.getSuite()));
 					secureComputationEngine.runApplication(multApp,
-							SecureComputationEngineImpl.createResourcePool(conf.sceConf));
+							SecureComputationEngineImpl.createResourcePool(conf.sceConf,
+									conf.sceConf.getSuite()));
 
           OInt sum = sumApp.getOutputs()[0];
           OInt mult = multApp.getOutputs()[0];

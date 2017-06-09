@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -26,12 +26,12 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.field.bool.generic;
 
+import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.value.OBool;
 import dk.alexandra.fresco.framework.value.SBool;
 import dk.alexandra.fresco.framework.value.SBoolFactory;
 import dk.alexandra.fresco.lib.field.bool.OrProtocol;
-import dk.alexandra.fresco.lib.helper.CopyProtocol;
 import dk.alexandra.fresco.lib.helper.CopyProtocolFactory;
 
 /**
@@ -40,7 +40,7 @@ import dk.alexandra.fresco.lib.helper.CopyProtocolFactory;
  */
 public class OrFromCopyConstProtocol implements OrProtocol {
 
-  private CopyProtocol<SBool> copyCir;
+  private NativeProtocol copyCir;
   private CopyProtocolFactory<SBool> copyFactory;
   private SBoolFactory sboolFactory;
   private SBool inLeft;
@@ -50,6 +50,7 @@ public class OrFromCopyConstProtocol implements OrProtocol {
   public OrFromCopyConstProtocol(CopyProtocolFactory<SBool> copyFactory, SBoolFactory sboolFactory,
       SBool inLeft, OBool inRight, SBool out) {
     this.copyFactory = copyFactory;
+    this.sboolFactory = sboolFactory;
     this.inLeft = inLeft;
     this.inRight = inRight;
     this.out = out;

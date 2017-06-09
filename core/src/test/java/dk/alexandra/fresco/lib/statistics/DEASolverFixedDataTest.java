@@ -77,14 +77,16 @@ public class DEASolverFixedDataTest {
 
           DEATestApp app1 = new DEATestApp(dataSet1, type);
           secureComputationEngine
-              .runApplication(app1, SecureComputationEngineImpl.createResourcePool(conf.sceConf));
+              .runApplication(app1, SecureComputationEngineImpl.createResourcePool(conf.sceConf,
+                  conf.sceConf.getSuite()));
           for (int i = 0; i < app1.solverResult.length; i++) {
             Assert.assertEquals(app1.plainResult[i], postProcess(app1.solverResult[i], type,
                 app1.modulus), 0.0000001);
           }
           DEATestApp app2 = new DEATestApp(dataSet2, type);
           secureComputationEngine
-              .runApplication(app2, SecureComputationEngineImpl.createResourcePool(conf.sceConf));
+              .runApplication(app2, SecureComputationEngineImpl.createResourcePool(conf.sceConf,
+                  conf.sceConf.getSuite()));
           for (int i = 0; i < app2.solverResult.length; i++) {
             Assert.assertEquals(app2.plainResult[i], postProcess(app2.solverResult[i], type,
                 app1.modulus), 0.0000001);

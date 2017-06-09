@@ -26,11 +26,11 @@
  *******************************************************************************/
 package dk.alexandra.fresco.framework;
 
-import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
+import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import java.io.IOException;
 
-public interface ProtocolEvaluator {
+public interface ProtocolEvaluator<ResourcePoolT extends ResourcePool> {
 
 	/**
 	 * Evaluates all gates produced by a GateProducer.
@@ -39,15 +39,14 @@ public interface ProtocolEvaluator {
 	 * @param resourcePool the resource pool (for other resources than network)
 	 * @throws IOException inheritly from the network
 	 */
-	void eval(ProtocolProducer protocolProducer,
-			ResourcePoolImpl resourcePool) throws IOException;
+	void eval(ProtocolProducer protocolProducer, ResourcePoolT resourcePool) throws IOException;
 
 	/**
 	 * Set the protocol invocation which the gate evaluator should call.
 	 *
 	 * @param pii
 	 */
-  void setProtocolInvocation(ProtocolSuite pii);
+	void setProtocolInvocation(ProtocolSuite<ResourcePoolT> pii);
 
 	/**
 	 * Sets the maximum batch size. If not called, the default will be 4096.

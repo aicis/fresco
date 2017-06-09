@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -26,6 +26,7 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.helper;
 
+import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.value.Value;
 
@@ -33,7 +34,7 @@ import dk.alexandra.fresco.framework.value.Value;
  * With this factory one can copy (aka clone) a value.
  */
 public interface CopyProtocolFactory<T extends Value> extends ProtocolFactory {
-	
-	public CopyProtocol<T> getCopyProtocol(T in, T out);
-	
+
+  NativeProtocol<T, ?> getCopyProtocol(T in, T out);
+
 }

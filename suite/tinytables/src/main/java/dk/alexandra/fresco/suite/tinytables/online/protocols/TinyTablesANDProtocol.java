@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -76,7 +76,7 @@ public class TinyTablesANDProtocol extends TinyTablesProtocol {
   }
 
   @Override
-  public Value[] getOutputValues() {
+  public Value[] getOutput() {
     return new Value[]{out};
   }
 
@@ -98,8 +98,8 @@ public class TinyTablesANDProtocol extends TinyTablesProtocol {
       case 1:
         List<ByteBuffer> buffers = network.receiveFromAll();
         List<TinyTablesElement> shares = new ArrayList<>();
-        for (int i = 0; i < buffers.size(); i++) {
-          shares.add(new TinyTablesElement(BooleanSerializer.fromBytes(buffers.get(i))));
+        for (ByteBuffer buffer : buffers) {
+          shares.add(new TinyTablesElement(BooleanSerializer.fromBytes(buffer)));
         }
         boolean open = TinyTablesElement.open(shares);
         this.out.setValue(new TinyTablesElement(open));

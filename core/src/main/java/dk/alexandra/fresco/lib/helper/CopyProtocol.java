@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -26,17 +26,12 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.helper;
 
-import dk.alexandra.fresco.framework.NativeProtocol;
-import dk.alexandra.fresco.framework.value.Value;
-
 /**
  * Copy any value to any value of the same type T where the only requirement is
  * that it should extend/implement the Value interface.
- * 
- * @author Kasper Damgaard
  *
- * @param <T>
+ * @author Kasper Damgaard
  */
-public interface CopyProtocol<T extends Value> extends NativeProtocol {
+public interface CopyProtocol {
 
 }

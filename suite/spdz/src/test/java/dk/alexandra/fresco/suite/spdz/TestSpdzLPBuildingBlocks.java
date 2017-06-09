@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -30,7 +30,7 @@ import dk.alexandra.fresco.framework.configuration.PreprocessingStrategy;
 import dk.alexandra.fresco.framework.network.NetworkingStrategy;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.lib.lp.LPBuildingBlockTests;
-import dk.alexandra.fresco.suite.spdz.evaluation.strategy.SpdzProtocolSuite;
+import dk.alexandra.fresco.suite.spdz.utils.Util;
 import java.math.BigInteger;
 import org.junit.Test;
 
@@ -40,7 +40,7 @@ public class TestSpdzLPBuildingBlocks extends AbstractSpdzTest {
   public void test_Exiting_Variable_Sequential() throws Exception {
     runTest(new LPBuildingBlockTests.TestDummy(), EvaluationStrategy.SEQUENTIAL,
         NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
-    BigInteger mod = SpdzProtocolSuite.getInstance(1).getModulus();
+    BigInteger mod = Util.getModulus();
     runTest(new LPBuildingBlockTests.TestDanzigEnteringVariable(mod), EvaluationStrategy.SEQUENTIAL,
         NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
   }
@@ -49,7 +49,7 @@ public class TestSpdzLPBuildingBlocks extends AbstractSpdzTest {
   public void test_Exiting_Variable_Sequential_Batched() throws Exception {
     runTest(new LPBuildingBlockTests.TestDummy(), EvaluationStrategy.SEQUENTIAL_BATCHED,
         NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
-    BigInteger mod = SpdzProtocolSuite.getInstance(1).getModulus();
+    BigInteger mod = Util.getModulus();
     runTest(new LPBuildingBlockTests.TestDanzigEnteringVariable(mod),
         EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET,
         PreprocessingStrategy.DUMMY, 2);

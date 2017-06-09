@@ -81,7 +81,9 @@ public class AdvancedNumericTests {
           };
 
           secureComputationEngine
-              .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf));
+              .runApplication(app,
+                  SecureComputationEngineImpl.createResourcePool(conf.sceConf,
+                      conf.sceConf.getSuite()));
 
           Assert.assertEquals(BigInteger.valueOf(numerator / denominator),
               convertRepresentation(app.getOutputs()[0].getValue(), modulus));
@@ -128,7 +130,8 @@ public class AdvancedNumericTests {
           };
 
           secureComputationEngine
-              .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf));
+              .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf,
+                  conf.sceConf.getSuite()));
 
           Assert.assertEquals(BigInteger.valueOf(9 / 4),
               app.getOutputs()[0].getValue());
@@ -173,7 +176,8 @@ public class AdvancedNumericTests {
           };
 
           secureComputationEngine
-              .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf));
+              .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf,
+                  conf.sceConf.getSuite()));
 
           Assert.assertEquals(BigInteger.valueOf(numerator / denominator),
               convertRepresentation(app.getOutputs()[0].getValue(), modulus));
@@ -211,7 +215,8 @@ public class AdvancedNumericTests {
           };
 
           secureComputationEngine
-              .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf));
+              .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf,
+                  conf.sceConf.getSuite()));
 
           Assert.assertEquals(BigInteger.valueOf(numerator / denominator),
               app.getOutputs()[0].getValue());
@@ -248,7 +253,8 @@ public class AdvancedNumericTests {
           };
 
           secureComputationEngine
-              .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf));
+              .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf,
+                  conf.sceConf.getSuite()));
 
           Assert.assertEquals(BigInteger.valueOf(9 % 4),
               app.getOutputs()[0].getValue());

@@ -37,7 +37,6 @@ import dk.alexandra.fresco.framework.Reporter;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.SCENetworkImpl;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
-import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -51,7 +50,8 @@ import java.util.Map;
  *
  * @author Kasper Damgaard
  */
-public class SequentialEvaluator implements ProtocolEvaluator {
+public class SequentialEvaluator<ResourcePoolT extends ResourcePool> implements
+    ProtocolEvaluator<ResourcePoolT> {
 
   private static final int DEFAULT_THREAD_ID = 0;
 
@@ -68,7 +68,7 @@ public class SequentialEvaluator implements ProtocolEvaluator {
 
   private int maxBatchSize;
 
-  private ProtocolSuite protocolSuite;
+  private ProtocolSuite<ResourcePoolT> protocolSuite;
 
   public SequentialEvaluator() {
     maxBatchSize = 4096;
@@ -91,8 +91,8 @@ public class SequentialEvaluator implements ProtocolEvaluator {
   }
 
 
-  private int doOneRound(ProtocolProducer c, ResourcePool resourcePool) throws IOException {
-    ProtocolSuite.RoundSynchronization roundSynchronization =
+  private int doOneRound(ProtocolProducer c, ResourcePoolT resourcePool) throws IOException {
+    ProtocolSuite.RoundSynchronization<ResourcePoolT> roundSynchronization =
         protocolSuite.createRoundSynchronization();
     ProtocolCollectionList protocols = new ProtocolCollectionList(maxBatchSize);
     c.getNextProtocols(protocols);
@@ -106,7 +106,7 @@ public class SequentialEvaluator implements ProtocolEvaluator {
     return size;
   }
 
-  public void eval(ProtocolProducer protocolProducer, ResourcePoolImpl resourcePool)
+  public void eval(ProtocolProducer protocolProducer, ResourcePoolT resourcePool)
       throws IOException {
     int batch = 0;
     int totalProtocols = 0;
@@ -143,11 +143,11 @@ public class SequentialEvaluator implements ProtocolEvaluator {
    * -- ie to process more than one batch at a time, simply return before the
    * first one is finished
    */
-  private void processBatch(ProtocolCollection protocols, ResourcePool resourcePool)
+  private void processBatch(ProtocolCollection protocols, ResourcePoolT resourcePool)
       throws IOException {
     Network network = resourcePool.getNetwork();
     SCENetworkImpl sceNetwork = createSceNetwork(resourcePool.getNoOfParties());
-    for (NativeProtocol protocol : protocols) {
+    for (NativeProtocol<?, ResourcePoolT> protocol : protocols) {
       int round = 0;
       EvaluationStatus status;
       do {

@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -26,15 +26,15 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.field.integer.generic;
 
+import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.AddByConstantProtocolFactory;
-import dk.alexandra.fresco.lib.field.integer.AddProtocol;
 
 public interface AddProtocolFactory extends ProtocolFactory, AddByConstantProtocolFactory {
 
-  AddProtocol getAddProtocol(SInt a, SInt b, SInt out);
+  NativeProtocol<? extends SInt, ?> getAddProtocol(SInt a, SInt b, SInt out);
 
-  AddProtocol getAddProtocol(SInt input, OInt openInput, SInt out);
+  NativeProtocol<? extends SInt, ?> getAddProtocol(SInt input, OInt openInput, SInt out);
 }

@@ -26,13 +26,11 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.compare;
 
+import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.field.integer.AddProtocol;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
-import dk.alexandra.fresco.lib.field.integer.MultProtocol;
-import dk.alexandra.fresco.lib.field.integer.SubtractProtocol;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
 
 public class ConditionalSelectProtocolImpl implements ConditionalSelectProtocol {
@@ -58,9 +56,10 @@ public class ConditionalSelectProtocolImpl implements ConditionalSelectProtocol 
     if (pp == null) {
       SInt subResult = factory.getSInt();
       SInt multResult = factory.getSInt();
-      SubtractProtocol sub = factory.getSubtractProtocol(a, b, subResult);
-      MultProtocol mult = factory.getMultProtocol(selector, subResult, multResult);
-      AddProtocol add = factory.getAddProtocol(multResult, b, result);
+      NativeProtocol<? extends SInt, ?> sub = factory.getSubtractProtocol(a, b, subResult);
+      NativeProtocol<? extends SInt, ?> mult = factory
+          .getMultProtocol(selector, sub.getOutput(), multResult);
+      NativeProtocol<? extends SInt, ?> add = factory.getAddProtocol(mult.getOutput(), b, result);
 
       this.pp = new SequentialProtocolProducer(sub, mult, add);
     }

@@ -77,7 +77,7 @@ public class TinyTablesPreproANDProtocol extends TinyTablesPreproProtocol {
   }
 
   @Override
-  public Value[] getOutputValues() {
+  public Value[] getOutput() {
     return new Value[]{out};
   }
 
