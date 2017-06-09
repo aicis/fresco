@@ -26,14 +26,15 @@
  *******************************************************************************/
 package dk.alexandra.fresco.suite.tinytables.prepro;
 
+import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.OBool;
 import dk.alexandra.fresco.framework.value.SBool;
 import dk.alexandra.fresco.lib.field.bool.AndProtocol;
 import dk.alexandra.fresco.lib.field.bool.BasicLogicFactory;
 import dk.alexandra.fresco.lib.field.bool.CloseBoolProtocol;
-import dk.alexandra.fresco.lib.field.bool.NotProtocol;
 import dk.alexandra.fresco.lib.field.bool.OpenBoolProtocol;
 import dk.alexandra.fresco.lib.field.bool.XorProtocol;
+import dk.alexandra.fresco.lib.helper.SingleProtocolProducer;
 import dk.alexandra.fresco.lib.logic.AbstractBinaryFactory;
 import dk.alexandra.fresco.suite.tinytables.datatypes.TinyTablesElement;
 import dk.alexandra.fresco.suite.tinytables.prepro.datatypes.TinyTablesPreproOBool;
@@ -46,93 +47,100 @@ import dk.alexandra.fresco.suite.tinytables.prepro.protocols.TinyTablesPreproXOR
 
 public class TinyTablesPreproFactory extends AbstractBinaryFactory implements BasicLogicFactory {
 
-	private int counter;
-	
-	public TinyTablesPreproFactory() {
-		this.counter = 0;
-	}
-	
-	private int getNextId() {
-		return counter++;
-	}
-	
-	@Override
-	public CloseBoolProtocol getCloseProtocol(int source, OBool open, SBool closed) {
-		return new TinyTablesPreproCloseProtocol(getNextId(), source, open, closed);
-	}
+  private int counter;
 
-	@Override
-	public OpenBoolProtocol getOpenProtocol(SBool closed, OBool open) {
-		return new TinyTablesPreproOpenToAllProtocol(getNextId(), (TinyTablesPreproSBool)closed, (TinyTablesPreproOBool)open);
-	}
+  public TinyTablesPreproFactory() {
+    this.counter = 0;
+  }
 
-	@Override
-	public OpenBoolProtocol getOpenProtocol(int target, SBool closed, OBool open) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+  private int getNextId() {
+    return counter++;
+  }
 
-	@Override
-	public SBool getSBool() {
-		return new TinyTablesPreproSBool();
-	}
+  @Override
+  public CloseBoolProtocol getCloseProtocol(int source, OBool open, SBool closed) {
+    return new TinyTablesPreproCloseProtocol(getNextId(), source, open, closed);
+  }
 
-	@Override
-	public SBool[] getSBools(int amount) {
-		SBool[] res = new SBool[amount];
-		for(int i = 0; i < amount; i++) {
-			res [i] = this.getSBool();
-		}
-		return res;
-	}
+  @Override
+  public OpenBoolProtocol getOpenProtocol(SBool closed, OBool open) {
+    return new TinyTablesPreproOpenToAllProtocol(getNextId(), (TinyTablesPreproSBool) closed,
+        (TinyTablesPreproOBool) open);
+  }
 
-	@Override
-	public SBool getKnownConstantSBool(boolean b) {
-		return new TinyTablesPreproSBool(new TinyTablesElement(false)); // Ignore the value and use trivial mask
-	}
+  @Override
+  public OpenBoolProtocol getOpenProtocol(int target, SBool closed, OBool open) {
+    // TODO Auto-generated method stub
+    return null;
+  }
 
-	@Override
-	public SBool[] getKnownConstantSBools(boolean[] bools) {
-		SBool[] tinyTableSBools = new SBool[bools.length];
-		for (int i = 0; i < tinyTableSBools.length; i++) {
-			tinyTableSBools[i] = getKnownConstantSBool(bools[i]);
-		}
-		return tinyTableSBools;
-	}
+  @Override
+  public SBool getSBool() {
+    return new TinyTablesPreproSBool();
+  }
 
-	@Override
-	public OBool getOBool() {
-		return new TinyTablesPreproOBool();
-	}
+  @Override
+  public SBool[] getSBools(int amount) {
+    SBool[] res = new SBool[amount];
+    for (int i = 0; i < amount; i++) {
+      res[i] = this.getSBool();
+    }
+    return res;
+  }
 
-	@Override
-	public OBool getKnownConstantOBool(boolean b) {
-		return getOBool(); // The assigned value to OBools does not make sense here
-	}
+  @Override
+  public SBool getKnownConstantSBool(boolean b) {
+    return new TinyTablesPreproSBool(
+        new TinyTablesElement(false)); // Ignore the value and use trivial mask
+  }
 
-	@Override
-	public AndProtocol getAndProtocol(SBool inLeft, SBool inRight, SBool out) {
-		return new TinyTablesPreproANDProtocol(getNextId(), (TinyTablesPreproSBool)inLeft, (TinyTablesPreproSBool)inRight, (TinyTablesPreproSBool)out);
-	}
+  @Override
+  public SBool[] getKnownConstantSBools(boolean[] bools) {
+    SBool[] tinyTableSBools = new SBool[bools.length];
+    for (int i = 0; i < tinyTableSBools.length; i++) {
+      tinyTableSBools[i] = getKnownConstantSBool(bools[i]);
+    }
+    return tinyTableSBools;
+  }
 
-	@Override
-	public AndProtocol getAndProtocol(SBool inLeft, OBool inRight, SBool out) {
-		throw new RuntimeException("Not implemented yet");
-	}
+  @Override
+  public OBool getOBool() {
+    return new TinyTablesPreproOBool();
+  }
 
-	@Override
-	public NotProtocol getNotProtocol(SBool in, SBool out) {
-		return new TinyTablesPreproNOTProtocol(getNextId(), (TinyTablesPreproSBool)in, (TinyTablesPreproSBool)out);
-	}
+  @Override
+  public OBool getKnownConstantOBool(boolean b) {
+    return getOBool(); // The assigned value to OBools does not make sense here
+  }
 
-	@Override
-	public XorProtocol getXorProtocol(SBool inLeft, SBool inRight, SBool out) {
-		return new TinyTablesPreproXORProtocol(getNextId(), (TinyTablesPreproSBool)inLeft, (TinyTablesPreproSBool)inRight, (TinyTablesPreproSBool)out);
-	}
+  @Override
+  public ProtocolProducer getAndProtocol(SBool inLeft, SBool inRight, SBool out) {
+    return SingleProtocolProducer.wrap(
+        new TinyTablesPreproANDProtocol(getNextId(), (TinyTablesPreproSBool) inLeft,
+            (TinyTablesPreproSBool) inRight, (TinyTablesPreproSBool) out));
+  }
 
-	@Override
-	public XorProtocol getXorProtocol(SBool inLeft, OBool inRight, SBool out) {
-		throw new RuntimeException("Not implemented yet");
-	}
+  @Override
+  public AndProtocol getAndProtocol(SBool inLeft, OBool inRight, SBool out) {
+    throw new RuntimeException("Not implemented yet");
+  }
+
+  @Override
+  public ProtocolProducer getNotProtocol(SBool in, SBool out) {
+    return SingleProtocolProducer.wrap(
+        new TinyTablesPreproNOTProtocol(getNextId(), (TinyTablesPreproSBool) in,
+            (TinyTablesPreproSBool) out));
+  }
+
+  @Override
+  public XorProtocol getXorProtocol(SBool inLeft, SBool inRight, SBool out) {
+    return new TinyTablesPreproXORProtocol(getNextId(), (TinyTablesPreproSBool) inLeft,
+        (TinyTablesPreproSBool) inRight, (TinyTablesPreproSBool) out);
+  }
+
+  @Override
+  public XorProtocol getXorProtocol(SBool inLeft, OBool inRight, SBool out) {
+    throw new RuntimeException("Not implemented yet");
+  }
 
 }

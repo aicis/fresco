@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -35,6 +35,7 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.TestConfiguration;
 import dk.alexandra.fresco.framework.network.NetworkingStrategy;
+import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.configuration.ProtocolSuiteConfiguration;
 import dk.alexandra.fresco.framework.sce.configuration.TestSCEConfiguration;
 import dk.alexandra.fresco.framework.sce.evaluator.SequentialEvaluator;
@@ -71,13 +72,13 @@ public class SetIntersectionDemo {
   @Test
   public void dummyTest() throws Exception {
     // Generic configuration
-    List<Integer> ports = new ArrayList<Integer>(noPlayers);
+    List<Integer> ports = new ArrayList<>(noPlayers);
     for (int i = 1; i <= noPlayers; i++) {
       ports.add(9000 + i * 10);
     }
     Map<Integer, NetworkConfiguration> netConf = TestConfiguration
         .getNetworkConfigurations(noPlayers, ports, logLevel);
-    Map<Integer, TestThreadConfiguration> conf = new HashMap<Integer, TestThreadConfiguration>();
+    Map<Integer, TestThreadConfiguration> conf = new HashMap<>();
     for (int playerId : netConf.keySet()) {
       TestThreadConfiguration ttc = new TestThreadConfiguration();
       ttc.netConf = netConf.get(playerId);
@@ -108,13 +109,13 @@ public class SetIntersectionDemo {
   @Test
   public void tinyTablesTest() throws Exception {
     // Generic configuration
-    List<Integer> ports = new ArrayList<Integer>(noPlayers);
+    List<Integer> ports = new ArrayList<>(noPlayers);
     for (int i = 1; i <= noPlayers; i++) {
       ports.add(9000 + i);
     }
     Map<Integer, NetworkConfiguration> netConf = TestConfiguration
         .getNetworkConfigurations(noPlayers, ports, logLevel);
-    Map<Integer, TestThreadConfiguration> conf = new HashMap<Integer, TestThreadConfiguration>();
+    Map<Integer, TestThreadConfiguration> conf = new HashMap<>();
     for (int playerId : netConf.keySet()) {
       TestThreadConfiguration ttc = new TestThreadConfiguration();
       ttc.netConf = netConf.get(playerId);
@@ -140,7 +141,7 @@ public class SetIntersectionDemo {
     // Preprocessing is complete, now we configure a new instance of the
     // computation and run it
     netConf = TestConfiguration.getNetworkConfigurations(noPlayers, ports, logLevel);
-    conf = new HashMap<Integer, TestThreadConfiguration>();
+    conf = new HashMap<>();
     for (int playerId : netConf.keySet()) {
       TestThreadConfiguration ttc = new TestThreadConfiguration();
       ttc.netConf = netConf.get(playerId);
@@ -195,7 +196,8 @@ public class SetIntersectionDemo {
   }
 
 
-  public String[] setIntersectionDemo(Map<Integer, TestThreadConfiguration> conf) throws Exception {
+  private String[] setIntersectionDemo(Map<Integer, TestThreadConfiguration> conf)
+      throws Exception {
     String[] result = new String[8];
     TestThreadFactory f = new TestThreadFactory() {
       @Override
@@ -215,7 +217,8 @@ public class SetIntersectionDemo {
 
             PrivateSetDemo app = new PrivateSetDemo(conf.netConf.getMyId(), key, inputList);
 
-            secureComputationEngine.runApplication(app);
+            secureComputationEngine
+                .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf));
 
             boolean[][] actualBoolean = new boolean[app.result.length][app.result[0].length];
 

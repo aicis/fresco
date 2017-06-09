@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -28,6 +28,7 @@ package dk.alexandra.fresco.suite.spdz.evaluation.strategy;
 
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.NativeProtocol;
+import dk.alexandra.fresco.framework.ProtocolCollectionList;
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.Reporter;
 import dk.alexandra.fresco.framework.network.SCENetwork;
@@ -54,14 +55,13 @@ import java.util.Map;
 
 public class SpdzProtocolSuite implements ProtocolSuite {
 
-  private static final Map<Integer, SpdzProtocolSuite> instances = new HashMap<Integer, SpdzProtocolSuite>();
+  private static Map<Integer, SpdzProtocolSuite> instances = new HashMap<>();
 
   private SecureRandom rand;
   private SpdzStorage[] store;
-  private ResourcePool rp;
   private int gatesEvaluated = 0;
-  private int macCheckThreshold = 100000;
-  private BigInteger keyShare, p;
+  private static final int macCheckThreshold = 100000;
+  private BigInteger p;
   private MessageDigest[] digs;
   private SpdzConfiguration spdzConf;
 
@@ -94,10 +94,6 @@ public class SpdzProtocolSuite implements ProtocolSuite {
     return store[i];
   }
 
-  public BigInteger getKeyShare() {
-    return keyShare;
-  }
-
   public BigInteger getModulus() {
     return p;
   }
@@ -112,7 +108,7 @@ public class SpdzProtocolSuite implements ProtocolSuite {
 
   @Override
   public ProtocolFactory init(ResourcePool resourcePool) {
-    int noOfThreads = resourcePool.getVMThreadCount();
+    int noOfThreads = 1;
     this.store = new SpdzStorage[noOfThreads];
     for (int i = 0; i < noOfThreads; i++) {
       switch (spdzConf.getPreprocessingStrategy()) {
@@ -128,7 +124,6 @@ public class SpdzProtocolSuite implements ProtocolSuite {
       }
     }
     this.rand = resourcePool.getSecureRandom();
-    this.rp = resourcePool;
 
     try {
       this.digs = new MessageDigest[noOfThreads];
@@ -147,7 +142,6 @@ public class SpdzProtocolSuite implements ProtocolSuite {
     }
 
     // Initialize various fields global to the computation.
-    this.keyShare = store[0].getSSK();
     this.p = store[0].getSupplier().getModulus();
     Util.setModulus(this.p);
 
@@ -217,13 +211,13 @@ public class SpdzProtocolSuite implements ProtocolSuite {
         commitments);
 
     int batchSize = 128;
-    NativeProtocol[] nextProtocols = new NativeProtocol[batchSize];
 
     do {
-      int numOfProtocolsInBatch = macCheck.getNextProtocols(nextProtocols, 0);
+      ProtocolCollectionList protocolCollectionList =
+          new ProtocolCollectionList(batchSize);
+      macCheck.getNextProtocols(protocolCollectionList);
 
-      BatchedStrategy.processBatch(
-          nextProtocols, numOfProtocolsInBatch, sceNetworks, 0, resourcePool);
+      BatchedStrategy.processBatch(protocolCollectionList, sceNetworks, 0, resourcePool);
     } while (macCheck.hasNextProtocols());
 
     //reset boolean value
@@ -242,7 +236,7 @@ public class SpdzProtocolSuite implements ProtocolSuite {
     private final SpdzCommitProtocol commitProtocol;
     private final SpdzOpenCommitProtocol openProtocol;
 
-    public SpdzRoundSynchronization() {
+    SpdzRoundSynchronization() {
       BigInteger s = new BigInteger(Util.getModulus().bitLength(), rand).mod(Util.getModulus());
       SpdzCommitment commitment = new SpdzCommitment(digs[0], s, rand);
       Map<Integer, BigInteger> comms = new HashMap<>();

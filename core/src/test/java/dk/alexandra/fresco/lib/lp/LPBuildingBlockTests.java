@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -33,6 +33,7 @@ import dk.alexandra.fresco.framework.TestApplication;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
+import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.debug.MarkerProtocolImpl;
@@ -52,25 +53,25 @@ public class LPBuildingBlockTests {
 
 	private static abstract class LPTester extends TestApplication {
 
-		protected Random rand = new Random(42);
-		protected BigInteger mod;
-		protected Matrix<BigInteger> updateMatrix;
-		protected Matrix<BigInteger> constraints;
-		protected BigInteger[] b;
+		Random rand = new Random(42);
+		BigInteger mod;
+		Matrix<BigInteger> updateMatrix;
+		Matrix<BigInteger> constraints;
+		BigInteger[] b;
 		protected BigInteger[] f;
-		protected LPTableau sTableau;
-		protected Matrix<SInt> sUpdateMatrix;
+		LPTableau sTableau;
+		Matrix<SInt> sUpdateMatrix;
 
-		protected void randomTableau(int n, int m) {
+		void randomTableau(int n, int m) {
 			BigInteger[][] um = randomMatrix(m + 1, m + 1);
 			BigInteger[][] c = randomMatrix(m, n + m);
 			this.b = randomArray(m);
 			this.f = randomArray(n + m);
-			updateMatrix = new Matrix<BigInteger>(um);
-			constraints = new Matrix<BigInteger>(c);
+			updateMatrix = new Matrix<>(um);
+			constraints = new Matrix<>(c);
 		}
 
-		protected ProtocolProducer inputTableau(BasicNumericFactory bnf) {
+		ProtocolProducer inputTableau(BasicNumericFactory bnf) {
 			NumericProtocolBuilder npb = new NumericProtocolBuilder(bnf);
 			NumericIOBuilder iob = new NumericIOBuilder(bnf);
 			iob.beginParScope();
@@ -79,13 +80,13 @@ public class LPBuildingBlockTests {
 			SInt[][] c = iob.inputMatrix(constraints.toArray(), 1);
 			SInt[][] um = iob.inputMatrix(updateMatrix.toArray(), 1);
 			iob.endCurScope();
-			sUpdateMatrix = new Matrix<SInt>(um);
-			Matrix<SInt> cMatrix = new Matrix<SInt>(c);
+			sUpdateMatrix = new Matrix<>(um);
+			Matrix<SInt> cMatrix = new Matrix<>(c);
 			sTableau = new LPTableau(cMatrix, b, f, npb.getSInt());
 			return iob.getProtocol();
 		}
 
-		protected BigInteger[][] randomMatrix(int n, int m) {
+		BigInteger[][] randomMatrix(int n, int m) {
 			BigInteger[][] result = new BigInteger[n][m];
 			for (int i = 0; i < n; i++) {
 				result[i] = randomArray(m);
@@ -93,7 +94,7 @@ public class LPBuildingBlockTests {
 			return result;
 		}
 
-		protected BigInteger[] randomArray(int m) {
+		BigInteger[] randomArray(int m) {
 			BigInteger[] result = new BigInteger[m];
 			for (int i = 0; i < m; i++) {
 				result[i] = new BigInteger(32, rand);
@@ -106,11 +107,11 @@ public class LPBuildingBlockTests {
 
 		private int expectedIndex;
 
-		public int getExpextedIndex() {
+		int getExpextedIndex() {
 			return expectedIndex;
 		}
 
-		protected ProtocolProducer setupRandom(int n, int m, BasicNumericFactory bnf, LPFactory lpf) {
+		ProtocolProducer setupRandom(int n, int m, BasicNumericFactory bnf, LPFactory lpf) {
 			NumericProtocolBuilder npb = new NumericProtocolBuilder(bnf);
 			NumericIOBuilder iob = new NumericIOBuilder(bnf);
 			iob.beginSeqScope();
@@ -175,7 +176,7 @@ public class LPBuildingBlockTests {
 
 		@Override
 		public TestThread next(TestThreadConfiguration conf) {
-			TestThread t = new TestThread() {
+			return new TestThread() {
 				@Override
 				public void test() throws Exception {
 					Application app = new Application() {
@@ -188,10 +189,10 @@ public class LPBuildingBlockTests {
 						}
 
 					};
-          secureComputationEngine.runApplication(app);
-        }
+					secureComputationEngine
+							.runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf));
+				}
 			};
-			return t;
 		}
 
 	}
@@ -206,7 +207,7 @@ public class LPBuildingBlockTests {
 
 		@Override
 		public TestThread next(TestThreadConfiguration conf) {
-			TestThread t = new TestThread() {
+			return new TestThread() {
 				@Override
 				public void test() throws Exception {
 					EnteringVariableTester app = new EnteringVariableTester() {
@@ -227,8 +228,9 @@ public class LPBuildingBlockTests {
 						}
 					};
 					app.mod = mod;
-          secureComputationEngine.runApplication(app);
-          int actualIndex = 0;
+					secureComputationEngine
+							.runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf));
+					int actualIndex = 0;
 					int sum = 0;
 					BigInteger zero = BigInteger.ZERO;
 					BigInteger one = BigInteger.ONE;
@@ -244,7 +246,6 @@ public class LPBuildingBlockTests {
 					Assert.assertEquals(app.getExpextedIndex(), actualIndex);
 				}
 			};
-			return t;
 		}
 	}
 
@@ -266,8 +267,9 @@ public class LPBuildingBlockTests {
 						}
 					};
 
-          secureComputationEngine.runApplication(app);
-        }
+					secureComputationEngine
+							.runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf));
+				}
 			};
 		}
 	}
@@ -290,17 +292,18 @@ public class LPBuildingBlockTests {
 						}
 					};
 
-          secureComputationEngine.runApplication(app);
-        }
+					secureComputationEngine
+							.runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf));
+				}
 			};
 		}
 	}
 
-	public abstract static class ExitingTester extends LPTester {
-		
-		public int exitingIdx;
+	abstract static class ExitingTester extends LPTester {
 
-		public ProtocolProducer setupRandom(int n, int m, BasicNumericFactory bnf, LPFactory lpf) {
+		int exitingIdx;
+
+		ProtocolProducer setupRandom(int n, int m, BasicNumericFactory bnf, LPFactory lpf) {
 			randomTableau(n, m);
 			ProtocolProducer input = inputTableau(bnf);
 			NumericIOBuilder iob = new NumericIOBuilder(bnf);
@@ -377,32 +380,4 @@ public class LPBuildingBlockTests {
 			return result;
 		}
 	}
-
-	public static class TestExitingMatrix extends TestThreadFactory {
-
-		public BigInteger mod;
-		
-		public TestExitingMatrix(BigInteger mod) {
-			this.mod = mod;
-		}
-		
-		@Override
-		public TestThread next(TestThreadConfiguration conf) {
-			TestThread t = new TestThread() {
-				@Override
-				public void test() throws Exception {
-					ExitingTester app = new ExitingTester () {
-						@Override
-						public ProtocolProducer prepareApplication(ProtocolFactory factory) {							
-							return setupRandom(10, 10, (BasicNumericFactory)factory, (LPFactory)factory);
-						}
-					};
-					app.mod = mod;
-					
-				}
-			};
-			return t;
-		}
-	}
-
 }

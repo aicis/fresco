@@ -26,8 +26,8 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.math.integer.exp;
 
-import dk.alexandra.fresco.framework.Protocol;
+import dk.alexandra.fresco.framework.ProtocolProducer;
 
-public interface ExponentiationProtocol extends Protocol{
+public interface ExponentiationProtocol extends ProtocolProducer {
 
 }

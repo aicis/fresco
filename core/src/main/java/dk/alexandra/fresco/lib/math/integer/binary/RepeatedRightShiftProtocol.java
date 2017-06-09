@@ -26,12 +26,12 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.math.integer.binary;
 
-import dk.alexandra.fresco.framework.Protocol;
+import dk.alexandra.fresco.framework.ProtocolProducer;
 
 /**
  * This protocol will return the binary right shift a given number of times of
  * the input.
  */
-public interface RepeatedRightShiftProtocol extends Protocol{
+public interface RepeatedRightShiftProtocol extends ProtocolProducer {
 
 }

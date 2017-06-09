@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -30,8 +30,6 @@ import dk.alexandra.fresco.framework.Party;
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.Reporter;
 import dk.alexandra.fresco.framework.configuration.ConfigurationException;
-import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
-import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.NetworkingStrategy;
 import dk.alexandra.fresco.framework.sce.configuration.ProtocolSuiteConfiguration;
 import dk.alexandra.fresco.framework.sce.configuration.SCEConfiguration;
@@ -220,7 +218,7 @@ public class CmdLineUtil {
       throw new ParseException("Cannot parse '" + this.cmd.getOptionValue("s") + "' as a string");
     }
 
-    final Map<Integer, Party> parties = new HashMap<Integer, Party>();
+    final Map<Integer, Party> parties = new HashMap<>();
     final String suite = (String) suiteObj;
 
     if (!getSupportedProtocolSuites().contains(suite.toLowerCase())) {
@@ -318,7 +316,7 @@ public class CmdLineUtil {
 
     // TODO: Rather: Just log sceConf.toString()
     Reporter.config("Player id          : " + myId);
-    Reporter.config("Protocol suite     : " + suite);
+    Reporter.config("NativeProtocol suite     : " + suite);
     Reporter.config("Players            : " + parties);
     Reporter.config("Log level          : " + logLevel);
     Reporter.config("No of threads      : " + noOfThreads);
@@ -345,23 +343,8 @@ public class CmdLineUtil {
       }
 
       @Override
-      public int getNoOfThreads() {
-        return noOfThreads;
-      }
-
-      @Override
-      public int getNoOfVMThreads() {
-        return vmThreads;
-      }
-
-      @Override
       public ProtocolEvaluator getEvaluator() {
         return evaluator;
-      }
-
-      @Override
-      public Storage getStorage() {
-        return storage;
       }
 
       @Override
@@ -383,10 +366,6 @@ public class CmdLineUtil {
         return NetworkingStrategy.KRYONET;
       }
 
-      @Override
-      public Network getNetwork(NetworkConfiguration configuration, int channelAmount) {
-        return null;
-      }
     };
 
   }
@@ -394,7 +373,7 @@ public class CmdLineUtil {
   /**
    * For adding application specific options.
    */
-  public void addOption(Option option) {
+  void addOption(Option option) {
     this.appOptions.addOption(option);
   }
 
@@ -451,7 +430,7 @@ public class CmdLineUtil {
     return this.cmd;
   }
 
-  public void displayHelp() {
+  void displayHelp() {
     HelpFormatter formatter = new HelpFormatter();
     formatter.setSyntaxPrefix("");
     formatter.printHelp("General SCE options are:", this.options);

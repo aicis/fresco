@@ -29,12 +29,12 @@ package dk.alexandra.fresco.lib.math.integer.stat;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
-import dk.alexandra.fresco.lib.helper.AbstractSimpleProtocol;
 import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
+import dk.alexandra.fresco.lib.helper.SimpleProtocolProducer;
 import dk.alexandra.fresco.lib.helper.builder.NumericProtocolBuilder;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
 
-public class CovarianceProtocolImpl extends AbstractSimpleProtocol implements CovarianceProtocol {
+public class CovarianceProtocolImpl extends SimpleProtocolProducer implements CovarianceProtocol {
 
 	private SInt[] data1, data2;
 	private SInt mean1, mean2;

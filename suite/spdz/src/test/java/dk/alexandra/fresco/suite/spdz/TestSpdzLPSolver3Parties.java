@@ -26,33 +26,17 @@
  *******************************************************************************/
 package dk.alexandra.fresco.suite.spdz;
 
-import dk.alexandra.fresco.IntegrationTest;
 import dk.alexandra.fresco.framework.configuration.PreprocessingStrategy;
 import dk.alexandra.fresco.framework.network.NetworkingStrategy;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 
 public class TestSpdzLPSolver3Parties extends AbstractSpdzTest {
 
 	@Test
 	public void test_LPSolver_3_Sequential() throws Exception {
-		runTest(new LPSolverTests.TestLPSolver(), EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET,
+		runTest(new LPSolverTests.TestLPSolver(), EvaluationStrategy.SEQUENTIAL_BATCHED,
+				NetworkingStrategy.KRYONET,
 				PreprocessingStrategy.DUMMY, 3);
 	}
-
-	@Category(IntegrationTest.class)
-	@Test
-	public void test_LPSolver_3_Parallel() throws Exception {
-		runTest(new LPSolverTests.TestLPSolver(), EvaluationStrategy.PARALLEL, NetworkingStrategy.KRYONET,
-				PreprocessingStrategy.DUMMY, 3);
-	}
-
-	@Category(IntegrationTest.class)
-	@Test
-	public void test_LPSolver_3_Parallel_Batched() throws Exception {
-		runTest(new LPSolverTests.TestLPSolver(), EvaluationStrategy.PARALLEL_BATCHED, NetworkingStrategy.KRYONET,
-				PreprocessingStrategy.DUMMY, 3);
-	}
-
 }

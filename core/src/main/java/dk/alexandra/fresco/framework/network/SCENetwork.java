@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -48,7 +48,7 @@ public interface SCENetwork {
 	 *         wanted bytes from, or use the different converters to extract
 	 *         certain data classes.
 	 */
-	public ByteBuffer receive(int id);
+	ByteBuffer receive(int id);
 
 	/**
 	 * Retrieves input from all players (including yourself)
@@ -56,7 +56,7 @@ public interface SCENetwork {
 	 * @return A list of byte buffers where the data from party 1 resides at
 	 *         index 0 and so forth.
 	 */
-	public List<ByteBuffer> receiveFromAll();
+	List<ByteBuffer> receiveFromAll();
 
 	/**
 	 * Queues up a value to be send towards the given id. Values are not send by
@@ -68,7 +68,7 @@ public interface SCENetwork {
 	 * @param data
 	 *            The value to send
 	 */
-	public void send(int id, byte[] data);
+	void send(int id, byte[] data);
 
 	/**
 	 * Queues up a value to be send to all parties (yourself included). Values
@@ -78,17 +78,7 @@ public interface SCENetwork {
 	 * @param data
 	 *            The value to send to all parties
 	 */
-	public void sendToAll(byte[] data);
-
-	/**
-	 * Queues up different values to be send to all parties (yourself included).
-	 * Values are not send by TCP by calling this method, but queued up for the
-	 * higher layer to send later.
-	 * 
-	 * @param data
-	 *            The data to send to the parties.
-	 */
-	public void sendSharesToAll(byte[][] data);
+	void sendToAll(byte[] data);
 
 	/**
 	 * Let's the network strategy know that you expect input from the given id
@@ -98,13 +88,13 @@ public interface SCENetwork {
 	 *            The id to expect input from in the next round. Id's start from
 	 *            1.
 	 */
-	public void expectInputFromPlayer(int id);
+	void expectInputFromPlayer(int id);
 
 	/**
 	 * Let's the network strategy know that you expect to receive input from
 	 * everyone next round.
 	 */
-	public void expectInputFromAll();
+	void expectInputFromAll();
 
 	// TODO: Remove from here when possible. Requires solution to preprocessed
 	// data.
@@ -113,6 +103,6 @@ public interface SCENetwork {
 	 * 
 	 * @return
 	 */
-	public int getThreadId();
+	int getThreadId();
 
 }

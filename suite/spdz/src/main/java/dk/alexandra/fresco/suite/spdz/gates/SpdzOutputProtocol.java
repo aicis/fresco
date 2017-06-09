@@ -63,11 +63,6 @@ public class SpdzOutputProtocol extends SpdzNativeProtocol implements OpenIntPro
 	}
 
 	@Override
-	public Value[] getInputValues() {
-		return new Value[] { in };
-	}
-
-	@Override
 	public Value[] getOutputValues() {
 		return new Value[] { out };
 	}

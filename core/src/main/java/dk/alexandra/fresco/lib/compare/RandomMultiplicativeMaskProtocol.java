@@ -26,8 +26,8 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.compare;
 
-import dk.alexandra.fresco.framework.Protocol;
+import dk.alexandra.fresco.framework.NativeProtocol;
 
-public interface RandomMultiplicativeMaskProtocol extends Protocol {
+public interface RandomMultiplicativeMaskProtocol extends NativeProtocol {
 
 }

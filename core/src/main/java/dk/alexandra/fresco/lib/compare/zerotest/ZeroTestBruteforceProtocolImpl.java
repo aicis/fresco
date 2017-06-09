@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -26,11 +26,12 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.compare.zerotest;
 
+import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.NativeProtocol;
+import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.framework.value.Value;
 import dk.alexandra.fresco.lib.compare.MiscOIntGenerators;
 import dk.alexandra.fresco.lib.field.integer.AddByConstantProtocolFactory;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
@@ -38,6 +39,7 @@ import dk.alexandra.fresco.lib.field.integer.MultByConstantFactory;
 import dk.alexandra.fresco.lib.field.integer.MultProtocol;
 import dk.alexandra.fresco.lib.field.integer.OpenIntProtocol;
 import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
+import dk.alexandra.fresco.lib.helper.SingleProtocolProducer;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
 import dk.alexandra.fresco.lib.math.bool.add.IncrementByOneProtocolFactory;
 import dk.alexandra.fresco.lib.math.integer.exp.ExpFromOIntFactory;
@@ -46,121 +48,107 @@ import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductFactory;
 
 public class ZeroTestBruteforceProtocolImpl implements ZeroTestBruteforceProtocol {
 
-	// maximal input
-	private final int maxInput;
+  // maximal input
+  private final int maxInput;
 
-	// I/O-storage
-	private final SInt input, output;
+  // I/O-storage
+  private final SInt input, output;
 
-	// Factories
-	private final BasicNumericFactory factory;
-	private final MultByConstantFactory mbcFactory;
-	private final ExpFromOIntFactory expFromOIntFactory;
-	private final MiscOIntGenerators miscOIntGenerator;
-	private final InnerProductFactory innerProdFactory;
-	private final AddByConstantProtocolFactory abcFactory;
-	private final PreprocessedExpPipeFactory expFactory;
-	private final IncrementByOneProtocolFactory incrFactory;
+  // Factories
+  private final BasicNumericFactory factory;
+  private final MultByConstantFactory mbcFactory;
+  private final ExpFromOIntFactory expFromOIntFactory;
+  private final MiscOIntGenerators miscOIntGenerator;
+  private final InnerProductFactory innerProdFactory;
+  private final AddByConstantProtocolFactory abcFactory;
+  private final PreprocessedExpPipeFactory expFactory;
+  private final IncrementByOneProtocolFactory incrFactory;
 
-	// local stuff
-	private static final int numRounds = 2;
-	private int round=0;
-	private ProtocolProducer pp = null;
-	private OInt masked_O;
-	private SInt[] R;
-	
-	public ZeroTestBruteforceProtocolImpl(int maxInput, SInt input, SInt output,
-			BasicNumericFactory factory, 
-			ExpFromOIntFactory expFromOIntFactory,
-			MiscOIntGenerators miscOIntGenerator,
-			InnerProductFactory innerProdFactory,
-			PreprocessedExpPipeFactory expFactory,
-			IncrementByOneProtocolFactory incrFactory) {
-		this.maxInput = maxInput;
-		this.input = input;
-		this.output = output;
-		this.factory = factory;
-		this.mbcFactory = factory;
-		this.expFromOIntFactory = expFromOIntFactory;
-		this.miscOIntGenerator = miscOIntGenerator;
-		this.innerProdFactory = innerProdFactory;
-		this.expFactory = expFactory;
-		
-		this.abcFactory = factory;
-		this.incrFactory = incrFactory;
-		
-	}
+  // local stuff
+  private static final int numRounds = 2;
+  private int round = 0;
+  private ProtocolProducer pp = null;
+  private OInt masked_O;
+  private SInt[] R;
 
-	@Override
-	public Value[] getInputValues() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+  ZeroTestBruteforceProtocolImpl(int maxInput, SInt input, SInt output,
+      BasicNumericFactory factory,
+      ExpFromOIntFactory expFromOIntFactory,
+      MiscOIntGenerators miscOIntGenerator,
+      InnerProductFactory innerProdFactory,
+      PreprocessedExpPipeFactory expFactory,
+      IncrementByOneProtocolFactory incrFactory) {
+    this.maxInput = maxInput;
+    this.input = input;
+    this.output = output;
+    this.factory = factory;
+    this.mbcFactory = factory;
+    this.expFromOIntFactory = expFromOIntFactory;
+    this.miscOIntGenerator = miscOIntGenerator;
+    this.innerProdFactory = innerProdFactory;
+    this.expFactory = expFactory;
 
-	@Override
-	public Value[] getOutputValues() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    this.abcFactory = factory;
+    this.incrFactory = incrFactory;
 
-	@Override
-	public int getNextProtocols(NativeProtocol[] nativeProtocols, int pos) {
-		if (pp == null){
-			switch (round){
-			case 0:
-				// load rand, addOne, mult and unmask
-				R = expFactory.getExponentiationPipe();
+  }
 
-				SInt increased = factory.getSInt();
-				SInt masked_S = factory.getSInt();
-				
-				masked_O = factory.getOInt();
-				ProtocolProducer incr = incrFactory.getIncrementByOneProtocol(input, increased);
-				MultProtocol mult = factory.getMultProtocol(increased, R[0], masked_S);
-				OpenIntProtocol open = factory.getOpenProtocol(masked_S, masked_O);
-				
-				pp = new SequentialProtocolProducer(incr, mult, open);
+  @Override
+  public void getNextProtocols(ProtocolCollection protocolCollection) {
+    if (pp == null) {
+      switch (round) {
+        case 0:
+          // load rand, addOne, mult and unmask
+          R = expFactory.getExponentiationPipe();
 
-				break;
-			case 1:
-				// compute powers and evaluate polynomial
-				OInt[] maskedPowers = expFromOIntFactory.getExpFromOInt(masked_O, maxInput);
+          SInt increased = factory.getSInt();
+          SInt masked_S = factory.getSInt();
 
-				ProtocolProducer[] unmaskGPs = new ProtocolProducer[maxInput];
-				SInt[] powers = new SInt[maxInput];
-				for (int i=0; i<maxInput; i++) {
-					powers[i] = factory.getSInt();
-					unmaskGPs[i] = mbcFactory.getMultProtocol(maskedPowers[i], R[i+1], powers[i]);
-				}
-        OInt[] polynomialCoefficients = miscOIntGenerator.getPoly(maxInput, factory.getModulus());
+          masked_O = factory.getOInt();
+          NativeProtocol incr = incrFactory.getIncrementByOneProtocol(input, increased);
+          MultProtocol mult = factory.getMultProtocol(increased, R[0], masked_S);
+          OpenIntProtocol open = factory.getOpenProtocol(masked_S, masked_O);
 
-        OInt[] mostSignificantPolynomialCoefficients = new OInt[maxInput];
-				System.arraycopy(polynomialCoefficients, 1, 
-						mostSignificantPolynomialCoefficients, 0, maxInput);
-				SInt tmp = factory.getSInt();
-				ProtocolProducer polynomialGP = innerProdFactory.getInnerProductProtocol(powers, 
-						mostSignificantPolynomialCoefficients, tmp);
-				ProtocolProducer add = abcFactory.getAddProtocol(tmp, 
-						polynomialCoefficients[0], output);
-				pp = new SequentialProtocolProducer(new ParallelProtocolProducer(unmaskGPs), 
-						polynomialGP, add);
-				break;
-			default:
-				// TODO: handle bad stuff
-			}
-		}
-		if (pp.hasNextProtocols()){
-			pos = pp.getNextProtocols(nativeProtocols, pos);
-		}
-		else if (!pp.hasNextProtocols()){
-			round++;
-			pp = null;
-		}
-		return pos;
-	}
+          pp = new SequentialProtocolProducer(incr, mult, open);
 
-	@Override
-	public boolean hasNextProtocols() {
-		return round < numRounds;
-	}
+          break;
+        case 1:
+          // compute powers and evaluate polynomial
+          OInt[] maskedPowers = expFromOIntFactory.getExpFromOInt(masked_O, maxInput);
+
+          NativeProtocol[] unmaskGPs = new NativeProtocol[maxInput];
+          SInt[] powers = new SInt[maxInput];
+          for (int i = 0; i < maxInput; i++) {
+            powers[i] = factory.getSInt();
+            unmaskGPs[i] = mbcFactory.getMultProtocol(maskedPowers[i], R[i + 1], powers[i]);
+          }
+          OInt[] polynomialCoefficients = miscOIntGenerator.getPoly(maxInput, factory.getModulus());
+
+          OInt[] mostSignificantPolynomialCoefficients = new OInt[maxInput];
+          System.arraycopy(polynomialCoefficients, 1,
+              mostSignificantPolynomialCoefficients, 0, maxInput);
+          SInt tmp = factory.getSInt();
+          ProtocolProducer polynomialGP = innerProdFactory.getInnerProductProtocol(powers,
+              mostSignificantPolynomialCoefficients, tmp);
+          NativeProtocol add = abcFactory.getAddProtocol(tmp,
+              polynomialCoefficients[0], output);
+          pp = new SequentialProtocolProducer(new ParallelProtocolProducer(unmaskGPs),
+              polynomialGP, SingleProtocolProducer.wrap(add));
+          break;
+        default:
+          throw new MPCException("Internal count error when finding pp");
+      }
+    }
+    if (pp.hasNextProtocols()) {
+      pp.getNextProtocols(protocolCollection);
+    } else {
+      round++;
+      pp = null;
+    }
+  }
+
+  @Override
+  public boolean hasNextProtocols() {
+    return round < numRounds;
+  }
 }

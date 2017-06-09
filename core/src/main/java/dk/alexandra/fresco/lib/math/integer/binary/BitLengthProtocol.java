@@ -26,9 +26,9 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.math.integer.binary;
 
-import dk.alexandra.fresco.framework.Protocol;
+import dk.alexandra.fresco.framework.ProtocolProducer;
 
 
-public interface BitLengthProtocol extends Protocol {
+public interface BitLengthProtocol extends ProtocolProducer {
 
 }

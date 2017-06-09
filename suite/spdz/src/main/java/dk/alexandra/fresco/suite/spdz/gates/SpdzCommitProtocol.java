@@ -53,11 +53,6 @@ public class SpdzCommitProtocol extends SpdzNativeProtocol {
 	}
 
 	@Override
-	public Value[] getInputValues() {
-		return null;
-	}
-
-	@Override
 	public Value[] getOutputValues() {
 		return null;
 	}

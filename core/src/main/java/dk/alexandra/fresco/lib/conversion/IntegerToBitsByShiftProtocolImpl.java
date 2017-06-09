@@ -29,11 +29,11 @@ package dk.alexandra.fresco.lib.conversion;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
-import dk.alexandra.fresco.lib.helper.AbstractSimpleProtocol;
+import dk.alexandra.fresco.lib.helper.SimpleProtocolProducer;
 import dk.alexandra.fresco.lib.math.integer.binary.RightShiftFactory;
 
-public class IntegerToBitsByShiftProtocolImpl extends AbstractSimpleProtocol implements
-		IntegerToBitsProtocol {
+public class IntegerToBitsByShiftProtocolImpl extends SimpleProtocolProducer implements
+    IntegerToBitsProtocol {
 
 	private final SInt input;
 	private final int maxInputLength;

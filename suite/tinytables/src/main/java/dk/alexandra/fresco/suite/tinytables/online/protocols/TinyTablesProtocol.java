@@ -26,9 +26,9 @@
  *******************************************************************************/
 package dk.alexandra.fresco.suite.tinytables.online.protocols;
 
-import dk.alexandra.fresco.lib.helper.HalfCookedNativeProtocol;
+import dk.alexandra.fresco.framework.NativeProtocol;
 
-public abstract class TinyTablesProtocol extends HalfCookedNativeProtocol{
+public abstract class TinyTablesProtocol implements NativeProtocol {
 
 	protected int id;
 	

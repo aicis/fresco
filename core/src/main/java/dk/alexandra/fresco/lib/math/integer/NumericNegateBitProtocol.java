@@ -26,67 +26,48 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.math.integer;
 
-import java.math.BigInteger;
-
 import dk.alexandra.fresco.framework.NativeProtocol;
-import dk.alexandra.fresco.framework.Protocol;
+import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.framework.value.Value;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
+import java.math.BigInteger;
 
 /**
  * Assumes input is 0 or 1 and negates this by outputting 1-input.
- * 
- *
  */
-public class NumericNegateBitProtocol implements Protocol{
+public class NumericNegateBitProtocol implements ProtocolProducer {
 
-	private SInt bit, out;
-	private BasicNumericFactory factory;
-	private boolean done = false;
-	private ProtocolProducer pp;
-	
-	public NumericNegateBitProtocol(SInt bit, SInt out, BasicNumericFactory factory){
-		this.bit = bit;
-		this.out = out;
-		this.factory = factory;
-	}
-	
-	@Override
-	public int getNextProtocols(NativeProtocol[] nativeProtocols, int pos) {
-		if(pp == null){
-			OInt one = factory.getOInt(BigInteger.ONE);
-			Protocol sub = factory.getSubtractProtocol(one, bit, out);
-			pp = new SequentialProtocolProducer(sub);
-		}
-		if(pp.hasNextProtocols()){
-			pos = pp.getNextProtocols(nativeProtocols, pos);
-		}
-		else if(!pp.hasNextProtocols()){
-			pp = null;
-			done = true;
-		}
-		return pos;
-	}
+  private SInt bit, out;
+  private BasicNumericFactory factory;
+  private boolean done = false;
+  private ProtocolProducer pp;
 
-	@Override
-	public boolean hasNextProtocols() {
-		return !done;
-	}
+  public NumericNegateBitProtocol(SInt bit, SInt out, BasicNumericFactory factory) {
+    this.bit = bit;
+    this.out = out;
+    this.factory = factory;
+  }
 
-	@Override
-	public Value[] getInputValues() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+  @Override
+  public void getNextProtocols(ProtocolCollection protocolCollection) {
+    if (pp == null) {
+      OInt one = factory.getOInt(BigInteger.ONE);
+      NativeProtocol sub = factory.getSubtractProtocol(one, bit, out);
+      pp = new SequentialProtocolProducer(sub);
+    }
+    if (pp.hasNextProtocols()) {
+      pp.getNextProtocols(protocolCollection);
+    } else {
+      pp = null;
+      done = true;
+    }
+  }
 
-	@Override
-	public Value[] getOutputValues() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
+  @Override
+  public boolean hasNextProtocols() {
+    return !done;
+  }
 }

@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -26,7 +26,7 @@
  *******************************************************************************/
 package dk.alexandra.fresco.suite.spdz.gates;
 
-import dk.alexandra.fresco.framework.NativeProtocol;
+import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.network.SCENetwork;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
@@ -47,129 +47,108 @@ import java.math.BigInteger;
 
 public class DummyComparisonProtocol implements ComparisonProtocol {
 
-	private final SpdzSInt a, b, result;
-	private final BasicNumericFactory factory;
-	private ProtocolProducer currPP;
-	private boolean done = false;
+  private final SpdzSInt a, b, result;
+  private final BasicNumericFactory factory;
+  private ProtocolProducer currPP;
+  private boolean done = false;
 
-	public DummyComparisonProtocol(SInt a, SInt b, SInt result,
-			BasicNumericFactory factory) {
-		this.a = (SpdzSInt) a;
-		this.b = (SpdzSInt) b;
-		this.result = (SpdzSInt) result;
-		this.factory = factory;
-	}
+  public DummyComparisonProtocol(SInt a, SInt b, SInt result,
+      BasicNumericFactory factory) {
+    this.a = (SpdzSInt) a;
+    this.b = (SpdzSInt) b;
+    this.result = (SpdzSInt) result;
+    this.factory = factory;
+  }
 
-	@Override
-	public int getNextProtocols(NativeProtocol[] nativeProtocols, int pos) {
-		if (currPP == null) {
-			OInt a_open = factory.getOInt();
-			OInt b_open = factory.getOInt();
-			OpenIntProtocol openA = factory.getOpenProtocol(a, a_open);
-			OpenIntProtocol openB = factory.getOpenProtocol(b, b_open);
-			SpdzOInt a_open_ = (SpdzOInt) a_open;
-			SpdzOInt b_open_ = (SpdzOInt) b_open;
+  @Override
+  public void getNextProtocols(ProtocolCollection protocolCollection) {
+    if (currPP == null) {
+      OInt a_open = factory.getOInt();
+      OInt b_open = factory.getOInt();
+      OpenIntProtocol openA = factory.getOpenProtocol(a, a_open);
+      OpenIntProtocol openB = factory.getOpenProtocol(b, b_open);
+      SpdzOInt a_open_ = (SpdzOInt) a_open;
+      SpdzOInt b_open_ = (SpdzOInt) b_open;
 
-			DummyInternalChooseGate chooseGate = new DummyInternalChooseGate(
-					a_open_, b_open_, result);
-			ParallelProtocolProducer parrGP = new ParallelProtocolProducer(openA, openB);
-			currPP = new SequentialProtocolProducer(parrGP, chooseGate);
-		}
-		if (currPP.hasNextProtocols()) {
-			pos = currPP.getNextProtocols(nativeProtocols, pos);
-		} else if (!currPP.hasNextProtocols()) {
-			currPP = null;
-			done = true;
-		}
-		return pos;
-	}
+      DummyInternalChooseGate chooseGate = new DummyInternalChooseGate(
+          a_open_, b_open_, result);
+      ParallelProtocolProducer parrGP = new ParallelProtocolProducer(openA, openB);
+      currPP = new SequentialProtocolProducer(parrGP, chooseGate);
+    }
+    if (currPP.hasNextProtocols()) {
+      currPP.getNextProtocols(protocolCollection);
+    } else {
+      currPP = null;
+      done = true;
+    }
+  }
 
-	@Override
-	public boolean hasNextProtocols() {
-		return !done;
-	}
+  @Override
+  public boolean hasNextProtocols() {
+    return !done;
+  }
 
-	@Override
-	public Value[] getInputValues() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+  private class DummyInternalChooseGate extends SpdzNativeProtocol {
 
-	@Override
-	public Value[] getOutputValues() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    private SpdzOInt a, b;
+    private SpdzSInt result;
 
-	private class DummyInternalChooseGate extends SpdzNativeProtocol {
+    DummyInternalChooseGate(SpdzOInt a, SpdzOInt b, SInt result) {
+      this.a = a;
+      this.b = b;
+      this.result = (SpdzSInt) result;
+    }
 
-		private SpdzOInt a, b;
-		private SpdzSInt result;
+    @Override
+    public EvaluationStatus evaluate(int round, ResourcePool resourcePool,
+        SCENetwork network) {
+      SpdzProtocolSuite spdzPii = SpdzProtocolSuite
+          .getInstance(resourcePool.getMyId());
+      SpdzOInt min = null;
+      if (compareModP(a.getValue(), b.getValue()) <= 0) {
+        min = new SpdzOInt(BigInteger.ONE);
+      } else {
+        min = new SpdzOInt(BigInteger.ZERO);
+      }
+      SpdzElement elm;
+      if (min.getValue().equals(BigInteger.ONE)) {
+        if (resourcePool.getMyId() == 1) {
+          elm = new SpdzElement(BigInteger.ONE, min.getValue()
+              .multiply(spdzPii.getStore(network.getThreadId()).getSSK()));
+        } else {
+          elm = new SpdzElement(BigInteger.ZERO, min.getValue()
+              .multiply(spdzPii.getStore(network.getThreadId()).getSSK()));
+        }
+      } else {
+        elm = new SpdzElement(BigInteger.ZERO, BigInteger.ZERO);
+      }
+      this.result.value = elm;
+      return EvaluationStatus.IS_DONE;
+    }
 
-		public DummyInternalChooseGate(SpdzOInt a, SpdzOInt b, SInt result) {
-			this.a = a;
-			this.b = b;
-			this.result = (SpdzSInt) result;
-		}
+    /**
+     * @return a comparison where numbers (P - a) that are larger than ((P - 1) / 2) are interpreted
+     * as the negative number (- a)
+     */
+    private int compareModP(BigInteger a, BigInteger b) {
+      BigInteger realA = a;
+      BigInteger realB = b;
+      BigInteger halfPoint = Util.getModulus().subtract(BigInteger.ONE)
+          .divide((BigInteger.valueOf(2)));
+      if (a.compareTo(halfPoint) > 0) {
+        realA = a.subtract(Util.getModulus());
+      }
+      if (b.compareTo(halfPoint) > 0) {
+        realB = b.subtract(Util.getModulus());
+      }
+      return realA.compareTo(realB);
+    }
 
-		@Override
-		public EvaluationStatus evaluate(int round, ResourcePool resourcePool,
-				SCENetwork network) {
-			SpdzProtocolSuite spdzPii = SpdzProtocolSuite
-					.getInstance(resourcePool.getMyId());
-			SpdzOInt min = null;
-			if (compareModP(a.getValue(), b.getValue()) <= 0) {
-				min = new SpdzOInt(BigInteger.ONE);
-			} else {
-				min = new SpdzOInt(BigInteger.ZERO);
-			}
-			SpdzElement elm;
-			if (min.getValue().equals(BigInteger.ONE)) {
-				if (resourcePool.getMyId() == 1) {
-					elm = new SpdzElement(BigInteger.ONE, min.getValue()
-							.multiply(spdzPii.getStore(network.getThreadId()).getSSK()));
-				} else {
-					elm = new SpdzElement(BigInteger.ZERO, min.getValue()
-							.multiply(spdzPii.getStore(network.getThreadId()).getSSK()));
-				}
-			} else {
-				elm = new SpdzElement(BigInteger.ZERO, BigInteger.ZERO);
-			}
-			this.result.value = elm;
-			return EvaluationStatus.IS_DONE;
-		}
+    @Override
+    public Value[] getOutputValues() {
+      // TODO Auto-generated method stub
+      return null;
+    }
 
-		/**
-		 * @param a
-		 * @param b
-		 * @return a comparison where numbers (P - a) that are larger than ((P -
-		 *         1) / 2) are interpreted as the negative number (- a)
-		 */
-		private int compareModP(BigInteger a, BigInteger b) {
-			BigInteger realA = a;
-			BigInteger realB = b;
-			BigInteger halfPoint = Util.getModulus().subtract(BigInteger.ONE)
-					.divide((BigInteger.valueOf(2)));
-			if (a.compareTo(halfPoint) > 0) {
-				realA = a.subtract(Util.getModulus());
-			}
-			if (b.compareTo(halfPoint) > 0) {
-				realB = b.subtract(Util.getModulus());
-			}
-			return realA.compareTo(realB);
-		}
-
-		@Override
-		public Value[] getInputValues() {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public Value[] getOutputValues() {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-	}
+  }
 }

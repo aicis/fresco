@@ -26,11 +26,10 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.math.integer.inv;
 
-import dk.alexandra.fresco.framework.NativeProtocol;
+import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.framework.value.Value;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.field.integer.MultProtocol;
 import dk.alexandra.fresco.lib.field.integer.OpenIntProtocol;
@@ -39,65 +38,50 @@ import dk.alexandra.fresco.lib.field.integer.RandomFieldElementProtocol;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
 
 public class InversionProtocolImpl implements InversionProtocol {
-	
-	private final SInt x, result;
-	private final BasicNumericFactory factory;
-	private final LocalInversionFactory invFactory;
-	private final RandomFieldElementFactory randFactory;
-	private ProtocolProducer pp;
-	boolean done;
-	
-	public InversionProtocolImpl(SInt x, SInt result, BasicNumericFactory factory, 
-			LocalInversionFactory invFactory, RandomFieldElementFactory randFactory) {
-		this.x = x;
-		this.result = result;
-		this.factory = factory;
-		this.invFactory = invFactory;
-		this.randFactory = randFactory;
-		this.pp = null;
-		this.done = false;
-	}
 
-	@Override
-	public int getNextProtocols(NativeProtocol[] nativeProtocols, int pos){
-		if (pp == null){
-			OInt inverse = factory.getOInt();
-			SInt sProduct = factory.getSInt();
-			OInt oProduct = factory.getOInt();
-			SInt random = factory.getSInt();
-			RandomFieldElementProtocol randomProt = randFactory.getRandomFieldElement(random);
-			MultProtocol blinding = factory.getMultProtocol(x, random, sProduct);
-			OpenIntProtocol open = factory.getOpenProtocol(sProduct, oProduct);
-			LocalInversionProtocol invert = invFactory.getLocalInversionProtocol(oProduct, inverse);
-			MultProtocol unblinding = factory.getMultProtocol(inverse, random, result);
-			
-			pp = new SequentialProtocolProducer(randomProt, blinding, open, invert, unblinding);
-		}
-		if (pp.hasNextProtocols()){
-			pos = pp.getNextProtocols(nativeProtocols, pos);
-		}
-		else if (!pp.hasNextProtocols()){
-			pp = null;
-			done = true;
-		}
-		return pos;
-	}
+  private final SInt x, result;
+  private final BasicNumericFactory factory;
+  private final LocalInversionFactory invFactory;
+  private final RandomFieldElementFactory randFactory;
+  private ProtocolProducer pp;
+  boolean done;
 
-	@Override
-	public boolean hasNextProtocols() {
-		return !done;
-	}
+  public InversionProtocolImpl(SInt x, SInt result, BasicNumericFactory factory,
+      LocalInversionFactory invFactory, RandomFieldElementFactory randFactory) {
+    this.x = x;
+    this.result = result;
+    this.factory = factory;
+    this.invFactory = invFactory;
+    this.randFactory = randFactory;
+    this.pp = null;
+    this.done = false;
+  }
 
-	@Override
-	public Value[] getInputValues() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+  @Override
+  public void getNextProtocols(ProtocolCollection protocolCollection) {
+    if (pp == null) {
+      OInt inverse = factory.getOInt();
+      SInt sProduct = factory.getSInt();
+      OInt oProduct = factory.getOInt();
+      SInt random = factory.getSInt();
+      RandomFieldElementProtocol randomProt = randFactory.getRandomFieldElement(random);
+      MultProtocol blinding = factory.getMultProtocol(x, random, sProduct);
+      OpenIntProtocol open = factory.getOpenProtocol(sProduct, oProduct);
+      LocalInversionProtocol invert = invFactory.getLocalInversionProtocol(oProduct, inverse);
+      MultProtocol unblinding = factory.getMultProtocol(inverse, random, result);
 
-	@Override
-	public Value[] getOutputValues() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+      pp = new SequentialProtocolProducer(randomProt, blinding, open, invert, unblinding);
+    }
+    if (pp.hasNextProtocols()) {
+      pp.getNextProtocols(protocolCollection);
+    } else {
+      pp = null;
+      done = true;
+    }
+  }
 
+  @Override
+  public boolean hasNextProtocols() {
+    return !done;
+  }
 }

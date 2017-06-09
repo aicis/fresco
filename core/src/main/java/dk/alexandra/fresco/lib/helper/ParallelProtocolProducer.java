@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -26,113 +26,103 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.helper;
 
+import dk.alexandra.fresco.framework.NativeProtocol;
+import dk.alexandra.fresco.framework.ProtocolCollection;
+import dk.alexandra.fresco.framework.ProtocolProducer;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 
-import dk.alexandra.fresco.framework.MPCException;
-import dk.alexandra.fresco.framework.NativeProtocol;
-import dk.alexandra.fresco.framework.ProtocolProducer;
-
 /**
- * If a Parallelprotocol has n subprotocols and is asked to deliver m protocols, it
- * requests m/n protocols from each of the subprotocols.
- * 
+ * If a Parallel protocol has n sub-protocols and is asked to deliver m protocols, it
+ * requests m/n protocols from each of the sub-protocols.
  */
 public class ParallelProtocolProducer implements ProtocolProducer,
-		AppendableProtocolProducer {
+    ProtocolProducerCollection {
 
-	private LinkedList<ProtocolProducer> cs;
+  private LinkedList<ProtocolProducer> cs;
 
-	public ParallelProtocolProducer() {
-		cs = new LinkedList<ProtocolProducer>();
-	}
+  public ParallelProtocolProducer() {
+    cs = new LinkedList<>();
+  }
 
-	public ParallelProtocolProducer(ProtocolProducer... cs) {
-		this();
-		for (ProtocolProducer c : cs) {
-			append(c);
-		}
-	}
+  public ParallelProtocolProducer(ProtocolProducer... cs) {
+    this();
+    for (ProtocolProducer c : cs) {
+      append(c);
+    }
+  }
 
-	public List<ProtocolProducer> getProducers() {
-		// this.merge();
-		return cs;
-	}
+  public ParallelProtocolProducer(ProtocolProducer protocolProducer, NativeProtocol... protocols) {
+    this();
+    append(protocolProducer);
+    for (NativeProtocol protocol : protocols) {
+      append(protocol);
+    }
+  }
 
-	public void append(ProtocolProducer c) {
-		cs.offer(c);
-	}
+  public ParallelProtocolProducer(NativeProtocol... protocols) {
+    this();
+    for (NativeProtocol protocol : protocols) {
+      append(protocol);
+    }
+  }
 
-	@Override
-	public boolean hasNextProtocols() {
-		prune();
-		return !cs.isEmpty();
-	}
+  public List<ProtocolProducer> getProducers() {
+    // this.merge();
+    return cs;
+  }
 
-	/**
-	 * Removes any empty protocols.
-	 * 
-	 */
-	private void prune() {
-		while (!cs.isEmpty()) {
-			if (cs.getFirst().hasNextProtocols()) {
-				return;
-			} else {
-				cs.remove();
-			}
-		}
-	}
+  public void append(ProtocolProducer protocolProducer) {
+    cs.offer(protocolProducer);
+  }
 
-	@Override
-	public int getNextProtocols(NativeProtocol[] nativeProtocols, int pos) {
-		if (pos < 0 || pos >= nativeProtocols.length) {
-			throw new MPCException(
-					"Index out of bounds, length=" + nativeProtocols.length
-							+ ", pos=" + pos);
-		}
-		// TODO: This is a simple, but very rough implementation.
-		// It requests an equal amount from each subprotocol and only asks once.
-		// A better implementation should try to fill up the protocol array by
-		// requesting further protocols from large protocols if the smaller protocols
-		// run dry.
-		// E.g. this implementation is inferior in that it may return less protocols
-		// than it could.
-		if (cs.size() == 0) {
-			return pos;
-		}
-		ListIterator<ProtocolProducer> x = cs.listIterator();
-		while (x.hasNext()) {
-			ProtocolProducer c = x.next();
-			pos = c.getNextProtocols(nativeProtocols, pos);
-			if (!c.hasNextProtocols()) {
-				x.remove();
-			}
-			if (pos == nativeProtocols.length) {
-				break; // We've filled the array.
-			}
-		}
-		return pos;
-	}
+  public void append(NativeProtocol protocol) {
+    cs.offer(SingleProtocolProducer.wrap(protocol));
+  }
 
-	public LinkedList<ProtocolProducer> merge() {
-		ListIterator<ProtocolProducer> x = cs.listIterator();
-		LinkedList<ProtocolProducer> merged = new LinkedList<ProtocolProducer>();
-		while (x.hasNext()) {
-			ProtocolProducer pp = x.next();
-			if (pp instanceof ParallelProtocolProducer) {
-				x.remove();
-				ParallelProtocolProducer par = (ParallelProtocolProducer) pp;
-				for (ProtocolProducer p : par.cs) {
-					x.add(p);
-				}
-			}
-		}
-		merged.addAll(cs);
-		return merged;
-	}
+  @Override
+  public boolean hasNextProtocols() {
+    prune();
+    return !cs.isEmpty();
+  }
 
-	public List<ProtocolProducer> getNextProtocolProducerLevel() {
-		return cs;
-	}
+  /**
+   * Removes any empty protocols.
+   */
+  private void prune() {
+    while (!cs.isEmpty()) {
+      if (cs.getFirst().hasNextProtocols()) {
+        return;
+      } else {
+        cs.remove();
+      }
+    }
+  }
+
+  @Override
+  public void getNextProtocols(ProtocolCollection protocolCollection) {
+    // TODO: This is a simple, but very rough implementation.
+    // It requests an equal amount from each subprotocol and only asks once.
+    // A better implementation should try to fill up the protocol array by
+    // requesting further protocols from large protocols if the smaller protocols
+    // run dry.
+    // E.g. this implementation is inferior in that it may return less protocols
+    // than it could.
+    if (cs.size() == 0) {
+      return;
+    }
+    ListIterator<ProtocolProducer> x = cs.listIterator();
+    while (x.hasNext()) {
+      ProtocolProducer c = x.next();
+      c.getNextProtocols(protocolCollection);
+      if (!c.hasNextProtocols()) {
+        x.remove();
+      }
+      if (!protocolCollection.hasFreeCapacity()) {
+        return; // We've filled the array.
+      }
+    }
+  }
+
 }

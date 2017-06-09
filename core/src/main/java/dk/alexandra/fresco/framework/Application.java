@@ -26,9 +26,7 @@
  *******************************************************************************/
 package dk.alexandra.fresco.framework;
 
-import java.io.Serializable;
-
-public interface Application extends Serializable {
+public interface Application {
 
   /**
    * Take a factory which is assumed to implement all needed interfaces for

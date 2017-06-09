@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -27,16 +27,11 @@
 package dk.alexandra.fresco.framework.sce;
 
 import dk.alexandra.fresco.framework.Application;
-import dk.alexandra.fresco.framework.sce.configuration.SCEConfiguration;
+import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
 import java.io.IOException;
+import java.util.concurrent.Future;
 
 public interface SecureComputationEngine {
-
-  /**
-   * Returns the current SecureComputationEngine configuration (protocol suite, evaluation
-   * strategy etc.)
-   */
-  SCEConfiguration getSCEConfiguration();
 
   /**
    * Executes an application based on the current SCEConfiguration. If the SecureComputationEngine
@@ -45,7 +40,16 @@ public interface SecureComputationEngine {
    *
    * @param application The application to evaluate.
    */
-  void runApplication(Application application);
+  void runApplication(Application application, ResourcePoolImpl resources);
+
+  /**
+   * Executes an application based on the current SCEConfiguration. If the SecureComputationEngine
+   * is not setup before (e.g. connected to other parties etc.), the SecureComputationEngine will
+   * do the setup phase before running the application.
+   *
+   * @param application The application to evaluate.
+   */
+  Future<?> startApplication(Application application, ResourcePoolImpl resources);
 
 
   /**

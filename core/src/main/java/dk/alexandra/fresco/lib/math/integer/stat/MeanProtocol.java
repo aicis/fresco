@@ -26,11 +26,11 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.math.integer.stat;
 
-import dk.alexandra.fresco.framework.Protocol;
+import dk.alexandra.fresco.framework.ProtocolProducer;
 
 /**
  * This protocol calculates the arithmetic mean of a data set.
  */
-public interface MeanProtocol extends Protocol{
+public interface MeanProtocol extends ProtocolProducer {
 
 }

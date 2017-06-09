@@ -27,11 +27,10 @@
 package dk.alexandra.fresco.lib.compare.eq;
 
 import dk.alexandra.fresco.framework.NativeProtocol;
-import dk.alexandra.fresco.framework.Protocol;
+import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.framework.value.Value;
 import dk.alexandra.fresco.lib.compare.MiscOIntGenerators;
 import dk.alexandra.fresco.lib.compare.RandomAdditiveMaskFactory;
 import dk.alexandra.fresco.lib.field.integer.AddProtocol;
@@ -51,178 +50,169 @@ import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductFactory;
 
 /**
  * @author ttoft
- *
  */
 public class EqualityProtocolImplWithPreprocessing implements EqualityProtocol {
 
-	// parameters
-	private final int bitLength, securityParam;
+  // parameters
+  private final int bitLength, securityParam;
 
-	// variables for input/output
-	private final SInt x, y, result;
+  // variables for input/output
+  private final SInt x, y, result;
 
-	// Factories
-	private final BasicNumericFactory factory;
-	private final MultByConstantFactory mbcFactory;
-//	private final NumericBitProvider bitProvider; 
-	private final PreprocessedExpPipeFactory expFactory;
-//	private final AddProvider addProvider;
-	private final InnerProductFactory innerProdFactory;
-	private final ExpFromOIntFactory expFromOIntFactory;
-	private final HammingDistanceFactory hammingFactory;	
-	private final RandomAdditiveMaskFactory randomAddMaskFactory;
-	
-	private final MiscOIntGenerators miscOIntGenerator;
+  // Factories
+  private final BasicNumericFactory factory;
+  private final MultByConstantFactory mbcFactory;
+  //	private final NumericBitProvider bitProvider;
+  private final PreprocessedExpPipeFactory expFactory;
+  //	private final AddProvider addProvider;
+  private final InnerProductFactory innerProdFactory;
+  private final ExpFromOIntFactory expFromOIntFactory;
+  private final HammingDistanceFactory hammingFactory;
+  private final RandomAdditiveMaskFactory randomAddMaskFactory;
+
+  private final MiscOIntGenerators miscOIntGenerator;
 
 //	private final OInt[] twoPows;
-	
-	private ProtocolProducer pp;
-	boolean done;
 
-//	public EqualityImplWithPreprocessing(int bitLength, int securityParam,
+  private ProtocolProducer pp;
+  boolean done;
+
+  //	public EqualityImplWithPreprocessing(int bitLength, int securityParam,
 //			SInt x, SInt y, SInt result,
 //BasicNumericProvider provider, MultByConstantProvider mbcProvider, NumericBitProvider bitProvider,
 //ExponentiationProvider expProvider, AddProvider addProvider,
 //InnerProductProvider innerProdProvider, MiscOIntGenerators miscOIntGenerator,
 //ExpFromOIntProvider expFromOIntProvider, HammingDistanceProvider hammingProvider,
 //RandomAdditiveMaskProvider randomAddMaskProvider) {
-		public EqualityProtocolImplWithPreprocessing(int bitLength, int securityParam,
-				SInt x, SInt y, SInt result,
-BasicNumericFactory factory, MultByConstantFactory mbcFactory, NumericBitFactory bitProvider,
-PreprocessedExpPipeFactory expFactory, AddProtocolFactory addFactory,
-InnerProductFactory innerProdFactory, MiscOIntGenerators miscOIntGenerator,
-ExpFromOIntFactory expFromOIntFactory) {
-		this.bitLength = bitLength;
-		this.securityParam = securityParam;
-		this.x = x;
-		this.y = y;
-		this.result = result;
-		this.factory = factory;
-		this.mbcFactory = mbcFactory;
+  public EqualityProtocolImplWithPreprocessing(int bitLength, int securityParam,
+      SInt x, SInt y, SInt result,
+      BasicNumericFactory factory, MultByConstantFactory mbcFactory, NumericBitFactory bitProvider,
+      PreprocessedExpPipeFactory expFactory, AddProtocolFactory addFactory,
+      InnerProductFactory innerProdFactory, MiscOIntGenerators miscOIntGenerator,
+      ExpFromOIntFactory expFromOIntFactory) {
+    this.bitLength = bitLength;
+    this.securityParam = securityParam;
+    this.x = x;
+    this.y = y;
+    this.result = result;
+    this.factory = factory;
+    this.mbcFactory = mbcFactory;
 //		this.bitProvider = bitProvider;
-		this.expFactory = expFactory;
+    this.expFactory = expFactory;
 //		this.addProvider = addProvider;
-		this.innerProdFactory = innerProdFactory;
-		this.expFromOIntFactory = expFromOIntFactory;
-		this.hammingFactory = null; // hammingProvider;
-		this.randomAddMaskFactory = null; //randomAddMaskProvider;
-		
-		// TODO: should we generate it here, or have a global one? Probably have a global one...
-		this.miscOIntGenerator = miscOIntGenerator;
-		
-		this.pp = null;
-		this.done = false;
+    this.innerProdFactory = innerProdFactory;
+    this.expFromOIntFactory = expFromOIntFactory;
+    this.hammingFactory = null; // hammingProvider;
+    this.randomAddMaskFactory = null; //randomAddMaskProvider;
+
+    // TODO: should we generate it here, or have a global one? Probably have a global one...
+    this.miscOIntGenerator = miscOIntGenerator;
+
+    this.pp = null;
+    this.done = false;
 
 //		this.twoPows = miscOIntGenerator.getTwoPowers(securityParam+ bitLength);		
-	}
-
-	@Override
-	public Value[] getInputValues() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Value[] getOutputValues() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public int getNextProtocols(NativeProtocol[] nativeProtocols, int pos) {
-		if (pp == null){
-			ProtocolProducer problemReducerPP, EqSolverGP;
-			SInt reducedProblem = factory.getSInt();
-			
-			problemReducerPP = reduceProblemSize(reducedProblem);
-
-			EqSolverGP = reducedEqSolverGP(reducedProblem);
-			
-			this.pp = new SequentialProtocolProducer(problemReducerPP, EqSolverGP);
-		}
-		if (pp.hasNextProtocols()){
-			pos = pp.getNextProtocols(nativeProtocols, pos);
-		}
-		else if (!pp.hasNextProtocols()){
-			pp = null;
-			done = true;
-		}
-		return pos;
-	}
-
-	@Override
-	public boolean hasNextProtocols() {
-		return !done;
-	}
+  }
 
 
-	private SInt[] loadRandomMultiplicativeMask() {
-		// R[0] = r^{-1}
-		// R[i] = R^i
-		SInt[] R = expFactory.getExponentiationPipe();
-		return R;
-	}
+  @Override
+  public void getNextProtocols(ProtocolCollection protocolCollection) {
+    if (pp == null) {
+      ProtocolProducer problemReducerPP, EqSolverGP;
+      SInt reducedProblem = factory.getSInt();
 
-	private ProtocolProducer reduceProblemSize(SInt reducedProblem) {
-		// load random r and bits of r mod 2^length
-		SInt[] bits = new SInt[bitLength];
-		for (int i = 0; i < bitLength; i++) {
-			bits[i] = factory.getSInt();
-		}		
-		SInt r = factory.getSInt();
-		Protocol randLoader = randomAddMaskFactory.getRandomAdditiveMaskProtocol(securityParam, bits, r);
+      problemReducerPP = reduceProblemSize(reducedProblem);
 
-		// mask and reveal difference
-		SInt subResult = factory.getSInt();
-		SInt masked_S = factory.getSInt();
-		OInt masked_O = factory.getOInt();
+      EqSolverGP = reducedEqSolverGP(reducedProblem);
 
-		SubtractProtocol sub = factory.getSubtractProtocol(x, y,
-				subResult);
-		AddProtocol add = factory.getAddProtocol(subResult, r,
-				masked_S);
-		OpenIntProtocol openAddMask = factory
-				.getOpenProtocol(masked_S, masked_O);
+      this.pp = new SequentialProtocolProducer(problemReducerPP, EqSolverGP);
+    }
+    if (pp.hasNextProtocols()) {
+      pp.getNextProtocols(protocolCollection);
+    } else {
+      pp = null;
+      done = true;
+    }
+  }
+
+  @Override
+  public boolean hasNextProtocols() {
+    return !done;
+  }
 
 
-		// Compute Hamming distance
-		Protocol hamming = hammingFactory.getHammingdistanceProtocol(bits, masked_O, reducedProblem);
+  private SInt[] loadRandomMultiplicativeMask() {
+    // R[0] = r^{-1}
+    // R[i] = R^i
+    SInt[] R = expFactory.getExponentiationPipe();
+    return R;
+  }
 
-		return  new SequentialProtocolProducer(randLoader, sub, add, openAddMask, hamming);
-	}
+  private ProtocolProducer reduceProblemSize(SInt reducedProblem) {
+    // load random r and bits of r mod 2^length
+    SInt[] bits = new SInt[bitLength];
+    for (int i = 0; i < bitLength; i++) {
+      bits[i] = factory.getSInt();
+    }
+    SInt r = factory.getSInt();
+    ProtocolProducer randLoader = randomAddMaskFactory
+        .getRandomAdditiveMaskProtocol(securityParam, bits, r);
 
-	
-	/**
-	 * @param reducedProblem equalToZero-input where the value is at most bitLength
-	 * @return SInt stating if the input was zero (1) or non-zero (0)
-	 */
-	private ProtocolProducer reducedEqSolverGP(SInt reducedProblem) {
-		// load random R and relevant powers
-		SInt[] R = loadRandomMultiplicativeMask();
-		
-	
-		// mask (multiplicatively) and reveal
-		SInt masked_S = factory.getSInt();
-		OInt masked_O = factory.getOInt();
+    // mask and reveal difference
+    SInt subResult = factory.getSInt();
+    SInt masked_S = factory.getSInt();
+    OInt masked_O = factory.getOInt();
 
-		MultProtocol mult = factory.getMultProtocol(reducedProblem, R[0], masked_S);
-		OpenIntProtocol open = factory.getOpenProtocol(masked_S, masked_O);		
-		
-		
-		// compute powers and evaluate polynomial
-		OInt[] maskedPowers = expFromOIntFactory.getExpFromOInt(masked_O, bitLength);
+    SubtractProtocol sub = factory.getSubtractProtocol(x, y,
+        subResult);
+    AddProtocol add = factory.getAddProtocol(subResult, r,
+        masked_S);
+    OpenIntProtocol openAddMask = factory
+        .getOpenProtocol(masked_S, masked_O);
+    SequentialProtocolProducer sequentialProtocolProducer = new SequentialProtocolProducer(
+        randLoader, sub, add, openAddMask);
 
-		ProtocolProducer[] unmaskGPs = new ProtocolProducer[bitLength];
-		SInt[] powers = new SInt[bitLength];
-		for (int i=0; i<bitLength; i++) {
-			powers[i] = factory.getSInt();
-			unmaskGPs[i] = mbcFactory.getMultProtocol(maskedPowers[i], R[i], powers[i]);
-		}
+    // Compute Hamming distance
+    sequentialProtocolProducer.append(hammingFactory
+        .getHammingdistanceProtocol(bits, masked_O, reducedProblem));
+
+    return sequentialProtocolProducer;
+  }
+
+
+  /**
+   * @param reducedProblem equalToZero-input where the value is at most bitLength
+   * @return SInt stating if the input was zero (1) or non-zero (0)
+   */
+  private ProtocolProducer reducedEqSolverGP(SInt reducedProblem) {
+    // load random R and relevant powers
+    SInt[] R = loadRandomMultiplicativeMask();
+
+    // mask (multiplicatively) and reveal
+    SInt masked_S = factory.getSInt();
+    OInt masked_O = factory.getOInt();
+
+    MultProtocol mult = factory.getMultProtocol(reducedProblem, R[0], masked_S);
+    OpenIntProtocol open = factory.getOpenProtocol(masked_S, masked_O);
+
+    // compute powers and evaluate polynomial
+    OInt[] maskedPowers = expFromOIntFactory.getExpFromOInt(masked_O, bitLength);
+
+    NativeProtocol[] unmaskGPs = new NativeProtocol[bitLength];
+    SInt[] powers = new SInt[bitLength];
+    for (int i = 0; i < bitLength; i++) {
+      powers[i] = factory.getSInt();
+      unmaskGPs[i] = mbcFactory.getMultProtocol(maskedPowers[i], R[i], powers[i]);
+    }
 
     OInt[] polynomialCoefficients = miscOIntGenerator.getPoly(bitLength, factory.getModulus());
-    ProtocolProducer polynomialGP = innerProdFactory.getInnerProductProtocol(powers, polynomialCoefficients, this.result);
+    ProtocolProducer polynomialGP = innerProdFactory
+        .getInnerProductProtocol(powers, polynomialCoefficients, this.result);
 
-		return new SequentialProtocolProducer(mult, open, new ParallelProtocolProducer(unmaskGPs), polynomialGP);
-	}
-
+    SequentialProtocolProducer sequentialProtocolProducer =
+        new SequentialProtocolProducer(mult, open);
+    sequentialProtocolProducer.append(new ParallelProtocolProducer(unmaskGPs));
+    sequentialProtocolProducer.append(polynomialGP);
+    return sequentialProtocolProducer;
+  }
 }

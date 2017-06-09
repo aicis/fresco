@@ -28,64 +28,52 @@ package dk.alexandra.fresco.lib.compare.eq;
 
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.framework.value.Value;
 import dk.alexandra.fresco.lib.compare.zerotest.ZeroTestProtocolFactory;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
-import dk.alexandra.fresco.lib.helper.AbstractSimpleProtocol;
+import dk.alexandra.fresco.lib.helper.SimpleProtocolProducer;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
 
-/** Implements an equality protocol -- given inputs x, y set output to x==y
- * @author ttoft
+/**
+ * Implements an equality protocol -- given inputs x, y set output to x==y
  *
+ * @author ttoft
  */
-public class EqualityProtocolImpl extends AbstractSimpleProtocol implements EqualityProtocol {
+public class EqualityProtocolImpl extends SimpleProtocolProducer implements EqualityProtocol {
 
-	// params
-	private final int bitLength;
-	private final int securityParameter;
-	private final SInt x, y;
-	private final SInt output;
-	
-	// Factories, etc
-	private final BasicNumericFactory bnFactory;
-	private final ZeroTestProtocolFactory ztFactory;	
-	
-	public EqualityProtocolImpl(int bitLength, int securityParameter, SInt x,
-			SInt y, SInt output, BasicNumericFactory bnFactory,
-			ZeroTestProtocolFactory ztFactory) {
-		super();
-		this.bitLength = bitLength;
-		this.securityParameter = securityParameter;
-		this.x = x;
-		this.y = y;
-		this.output = output;
-		this.bnFactory = bnFactory;
-		this.ztFactory = ztFactory;
-	}
+  // params
+  private final int bitLength;
+  private final int securityParameter;
+  private final SInt x, y;
+  private final SInt output;
 
-	@Override
-	public Value[] getInputValues() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+  // Factories, etc
+  private final BasicNumericFactory bnFactory;
+  private final ZeroTestProtocolFactory ztFactory;
 
-	@Override
-	public Value[] getOutputValues() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+  public EqualityProtocolImpl(int bitLength, int securityParameter, SInt x,
+      SInt y, SInt output, BasicNumericFactory bnFactory,
+      ZeroTestProtocolFactory ztFactory) {
+    super();
+    this.bitLength = bitLength;
+    this.securityParameter = securityParameter;
+    this.x = x;
+    this.y = y;
+    this.output = output;
+    this.bnFactory = bnFactory;
+    this.ztFactory = ztFactory;
+  }
 
-	@Override
-	protected ProtocolProducer initializeProtocolProducer() {
-		// z = x -y
-		SInt diff = bnFactory.getSInt();
-		ProtocolProducer diffPP = bnFactory.getSubtractProtocol(x, y, diff);
+  @Override
+  protected ProtocolProducer initializeProtocolProducer() {
+    // z = x -y
+    SInt diff = bnFactory.getSInt();
+    SequentialProtocolProducer protocolProducer = new SequentialProtocolProducer();
+    protocolProducer.append(bnFactory.getSubtractProtocol(x, y, diff));
+    // output = ZeroTest(z)
+    protocolProducer.append(ztFactory.getZeroProtocol(bitLength, securityParameter, diff, output));
 
-		// output = ZeroTest(z)
-		ProtocolProducer zeroTestPP = ztFactory.getZeroProtocol(bitLength, securityParameter, diff, output);
-		
-		return new SequentialProtocolProducer(diffPP, zeroTestPP);
-	}
+    return protocolProducer;
+  }
 
-	
+
 }

@@ -28,55 +28,53 @@ package dk.alexandra.fresco.lib.helper.bristol;
 
 import static org.junit.Assert.assertEquals;
 
+import dk.alexandra.fresco.framework.ProtocolProducer;
+import dk.alexandra.fresco.framework.value.SBool;
+import dk.alexandra.fresco.lib.field.bool.BasicLogicFactory;
+import dk.alexandra.fresco.suite.dummy.DummyFactory;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.stream.Stream;
-
 import org.junit.Test;
 
-import dk.alexandra.fresco.framework.Protocol;
-import dk.alexandra.fresco.framework.value.SBool;
-import dk.alexandra.fresco.lib.field.bool.BasicLogicFactory;
-import dk.alexandra.fresco.suite.dummy.DummyFactory;
-
 public class TestBristolCircuitParser {
-	
-	@Test
-	public void testCircuitParser() throws Exception {
-		String path = "circuits/AES-non-expanded.txt";
-		InputStream circuit = getClass().getClassLoader().getResourceAsStream(path);
-		Stream<String> lines = new BufferedReader(new InputStreamReader(circuit)).lines();
-		
-		BasicLogicFactory boolFac = new DummyFactory();
-		
-		// Some plaintext input.
-		boolean[] in1_vals = new boolean[128];
-		boolean[] in2_vals = new boolean[128];
-		for (int i=0; i<128; i++) {
-			in1_vals[i] = true;
-			in2_vals[i] = true;			
-		}
-		
-		SBool[] in1 = boolFac.getKnownConstantSBools(in1_vals);			
-		SBool[] in2 = boolFac.getKnownConstantSBools(in2_vals);
-		SBool[] out = boolFac.getSBools(128);
-		BristolCircuitParser cp = new BristolCircuitParser(lines, boolFac, in1, in2, out);
 
-		assertEquals(33872, cp.getNoOfWires());
-		Protocol[] c = new Protocol[500]; // More than enough.
-		int i = 0;
-		int[] size = new int[3];
-		while (i<3) {
-			size[i++] = cp.getNext(c, 0);
-			//System.out.println("Read " + size[i] + " circuits");
-		}
-		
-		// The first layer in the AES circuit consist of exactly 168 gates.
-		assertEquals(168, size[0]);
-		assertEquals(0, size[1]);
-		assertEquals(0, size[2]);
-		
-	}
-	
+  @Test
+  public void testCircuitParser() throws Exception {
+    String path = "circuits/AES-non-expanded.txt";
+    InputStream circuit = getClass().getClassLoader().getResourceAsStream(path);
+    Stream<String> lines = new BufferedReader(new InputStreamReader(circuit)).lines();
+
+    BasicLogicFactory boolFac = new DummyFactory();
+
+    // Some plaintext input.
+    boolean[] in1_vals = new boolean[128];
+    boolean[] in2_vals = new boolean[128];
+    for (int i = 0; i < 128; i++) {
+      in1_vals[i] = true;
+      in2_vals[i] = true;
+    }
+
+    SBool[] in1 = boolFac.getKnownConstantSBools(in1_vals);
+    SBool[] in2 = boolFac.getKnownConstantSBools(in2_vals);
+    SBool[] out = boolFac.getSBools(128);
+    BristolCircuitParser cp = new BristolCircuitParser(lines, boolFac, in1, in2, out);
+
+    assertEquals(33872, cp.getNoOfWires());
+    ProtocolProducer[] c = new ProtocolProducer[500]; // More than enough.
+    int i = 0;
+    int[] size = new int[3];
+    while (i < 3) {
+      size[i++] = cp.getNext(c, 0);
+      //System.out.println("Read " + size[i] + " circuits");
+    }
+
+    // The first layer in the AES circuit consist of exactly 168 gates.
+    assertEquals(168, size[0]);
+    assertEquals(0, size[1]);
+    assertEquals(0, size[2]);
+
+  }
+
 }

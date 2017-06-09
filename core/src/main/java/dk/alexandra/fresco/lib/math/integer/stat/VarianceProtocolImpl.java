@@ -29,11 +29,11 @@ package dk.alexandra.fresco.lib.math.integer.stat;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
-import dk.alexandra.fresco.lib.helper.AbstractSimpleProtocol;
+import dk.alexandra.fresco.lib.helper.SimpleProtocolProducer;
 import dk.alexandra.fresco.lib.helper.builder.NumericProtocolBuilder;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
 
-public class VarianceProtocolImpl extends AbstractSimpleProtocol implements VarianceProtocol {
+public class VarianceProtocolImpl extends SimpleProtocolProducer implements VarianceProtocol {
 
 	private SInt[] data;
 	private SInt variance;
@@ -42,7 +42,8 @@ public class VarianceProtocolImpl extends AbstractSimpleProtocol implements Vari
 	private final BasicNumericFactory basicNumericFactory;
 	private final MeanFactory meanFactory;
 
-	public VarianceProtocolImpl(SInt[] data, SInt mean, SInt variance, BasicNumericFactory basicNumericFactory,
+	VarianceProtocolImpl(SInt[] data, SInt mean, SInt variance,
+			BasicNumericFactory basicNumericFactory,
 			MeanFactory meanFactory) {
 		this.data = data;
 		this.mean = mean;
@@ -53,7 +54,7 @@ public class VarianceProtocolImpl extends AbstractSimpleProtocol implements Vari
 		this.meanFactory = meanFactory;
 	}
 
-	public VarianceProtocolImpl(SInt[] data, SInt variance, BasicNumericFactory basicNumericFactory,
+	VarianceProtocolImpl(SInt[] data, SInt variance, BasicNumericFactory basicNumericFactory,
 			MeanFactory meanFactory) {
 		this(data, null, variance, basicNumericFactory, meanFactory);
 	}

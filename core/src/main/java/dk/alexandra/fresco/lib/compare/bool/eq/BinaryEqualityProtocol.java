@@ -26,8 +26,8 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.compare.bool.eq;
 
-import dk.alexandra.fresco.framework.Protocol;
+import dk.alexandra.fresco.framework.ProtocolProducer;
 
-public interface BinaryEqualityProtocol extends Protocol{
+public interface BinaryEqualityProtocol extends ProtocolProducer {
 
 }

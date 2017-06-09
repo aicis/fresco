@@ -26,7 +26,7 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.field.integer;
 
-import dk.alexandra.fresco.framework.Protocol;
+import dk.alexandra.fresco.framework.NativeProtocol;
 
 /**
  * This interface should be implemented by each protocol suite in order to
@@ -36,6 +36,6 @@ import dk.alexandra.fresco.framework.Protocol;
  * @author Kasper Damgaard
  *
  */
-public interface RandomFieldElementProtocol extends Protocol {
+public interface RandomFieldElementProtocol extends NativeProtocol {
 
 }

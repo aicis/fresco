@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -32,8 +32,10 @@ import dk.alexandra.fresco.framework.TestBoolApplication;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
+import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.value.OBool;
 import dk.alexandra.fresco.framework.value.SBool;
+import dk.alexandra.fresco.lib.helper.SingleProtocolProducer;
 import dk.alexandra.fresco.lib.helper.builder.BasicLogicBuilder;
 import dk.alexandra.fresco.lib.logic.AbstractBinaryFactory;
 import org.junit.Assert;
@@ -69,7 +71,8 @@ public class BasicBooleanTests {
             }
           };
 
-          secureComputationEngine.runApplication(app);
+          secureComputationEngine.runApplication(app,
+              SecureComputationEngineImpl.createResourcePool(conf.sceConf));
 
           if (!assertAsExpected) {
             return;
@@ -128,7 +131,8 @@ public class BasicBooleanTests {
             }
           };
 
-          secureComputationEngine.runApplication(app);
+          secureComputationEngine
+              .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf));
 
           if (!assertAsExpected) {
             return;
@@ -173,9 +177,11 @@ public class BasicBooleanTests {
               SBool inp2 = prov.getSBool();
 
               builder.addProtocolProducer(
-                  prov.getCloseProtocol(1, prov.getKnownConstantOBool(true), inp1));
+                  SingleProtocolProducer.wrap(
+                      prov.getCloseProtocol(1, prov.getKnownConstantOBool(true), inp1)));
               builder.addProtocolProducer(
-                  prov.getCloseProtocol(2, prov.getKnownConstantOBool(true), inp2));
+                  SingleProtocolProducer.wrap(
+                      prov.getCloseProtocol(2, prov.getKnownConstantOBool(true), inp2)));
 
               SBool and = builder.and(inp1, inp2);
 
@@ -186,7 +192,8 @@ public class BasicBooleanTests {
             }
           };
 
-          secureComputationEngine.runApplication(app);
+          secureComputationEngine
+              .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf));
 
           if (!assertAsExpected) {
             return;
@@ -230,7 +237,8 @@ public class BasicBooleanTests {
             }
           };
 
-          secureComputationEngine.runApplication(app);
+          secureComputationEngine
+              .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf));
 
           if (!assertAsExpected) {
             return;
@@ -303,7 +311,8 @@ public class BasicBooleanTests {
             }
           };
 
-          secureComputationEngine.runApplication(app);
+          secureComputationEngine
+              .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf));
 
           if (!assertAsExpected) {
             return;

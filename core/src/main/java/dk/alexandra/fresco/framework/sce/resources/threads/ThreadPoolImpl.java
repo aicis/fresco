@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -36,33 +36,32 @@ import java.util.concurrent.Future;
 /**
  * The thread pool of an SecureComputationEngine. Manages two independent pools, one for the VM and
  * one for the protocol suites. This models two possible layers of parallelism:
- * 
+ *
  * At the VM layer we can parallelize the calls to protocols of the underlying
  * protocol suite. Independent calls can thus been run in parallel.
- * 
+ *
  * At the protocol suite layer we may want to parallelize the evaluation of
  * single protocols. Since the VM does not know the internals of the protocol
  * suite and its protocols, this must be done by the protocol suite itself.
- * 
+ *
  * This design allows for both types of parallelism. By configuration the number
  * of threads in each pool the parallelism can be assigned to either of the two,
  * or be mixed over both layers.
- * 
- * 
- * 
+ *
+ *
+ *
  * @author psn
- * 
+ *
  */
-public class ThreadPoolImpl implements ProtocolThreadPool, VMThreadPool {
+public class ThreadPoolImpl implements VMThreadPool {
 
-	private int protocolThreads;
 	private int vmThreads;
 	private ExecutorService vmPool;
 	private ExecutorService protocolPool;
 
 	/**
 	 * Constructs a new threadpool with specified number of threads.
-	 * 
+	 *
 	 * @param vmThreads
 	 *            number of threads for the vm
 	 * @param protocolThreads
@@ -70,18 +69,10 @@ public class ThreadPoolImpl implements ProtocolThreadPool, VMThreadPool {
 	 */
 	public ThreadPoolImpl(int vmThreads, int protocolThreads) {
 		this.vmThreads = vmThreads;
-		this.protocolThreads = protocolThreads;
 		this.vmPool = Executors.newFixedThreadPool(vmThreads);
 		this.protocolPool = Executors.newFixedThreadPool(protocolThreads);
 	}
 
-	/* (non-Javadoc)
-	 * @see dk.alexandra.fresco.framework.sce.resources.threads.ThreadPool#getProtocolThreadCount()
-	 */
-	@Override
-	public int getThreadCount() {
-		return protocolThreads;
-	}
 
 	/* (non-Javadoc)
 	 * @see dk.alexandra.fresco.framework.sce.resources.threads.VMThreadPool#getVMThreadCount()
@@ -97,14 +88,6 @@ public class ThreadPoolImpl implements ProtocolThreadPool, VMThreadPool {
 	@Override
 	public <T> Future<T> submitVMTask(Callable<T> task) {
 		return vmPool.submit(task);
-	}
-
-	/* (non-Javadoc)
-	 * @see dk.alexandra.fresco.framework.sce.resources.threads.ThreadPool#submitProtocolTask(java.util.concurrent.Callable)
-	 */
-	@Override
-	public <T> Future<T> submitTask(Callable<T> task) {
-		return protocolPool.submit(task);
 	}
 
 	/* (non-Javadoc)
@@ -124,11 +107,5 @@ public class ThreadPoolImpl implements ProtocolThreadPool, VMThreadPool {
 	public <T> List<Future<T>> submitVMTasks(
 			Collection<? extends Callable<T>> tasks) throws InterruptedException {
 		return this.vmPool.invokeAll(tasks);
-	}
-
-	@Override
-	public <T> List<Future<T>> submitTasks(
-			Collection<? extends Callable<T>> tasks) throws InterruptedException {
-		return this.protocolPool.invokeAll(tasks);
 	}
 }

@@ -27,12 +27,14 @@
 package dk.alexandra.fresco.lib.math.integer.linalg;
 
 import dk.alexandra.fresco.framework.MPCException;
+import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.MultByConstantFactory;
 import dk.alexandra.fresco.lib.field.integer.MultProtocolFactory;
 import dk.alexandra.fresco.lib.helper.AbstractRepeatProtocol;
+import dk.alexandra.fresco.lib.helper.SingleProtocolProducer;
 
 public class EntrywiseProductProtocolImpl extends AbstractRepeatProtocol implements
 		EntrywiseProductProtocol {
@@ -75,7 +77,7 @@ public class EntrywiseProductProtocolImpl extends AbstractRepeatProtocol impleme
 
 	protected ProtocolProducer getNextProtocolProducer() {
 		if (i < limit) {
-			ProtocolProducer mult;
+			NativeProtocol mult;
 			if (publicBs != null) {
 				mult = openMultFactory.getMultProtocol(publicBs[i], as[i],
 						results[i]);
@@ -83,7 +85,7 @@ public class EntrywiseProductProtocolImpl extends AbstractRepeatProtocol impleme
 				mult = factory.getMultProtocol(as[i], bs[i], results[i]);
 			}
 			i++;
-			return mult;
+			return SingleProtocolProducer.wrap(mult);
 		} else {
 			return null;
 		}

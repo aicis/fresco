@@ -94,18 +94,8 @@ public class TestDummyProtocolSuite {
   }
 
   @Test
-  public void test_AES_Parallel() throws Exception {
-    runTest(new BristolCryptoTests.AesTest(true), EvaluationStrategy.PARALLEL);
-  }
-
-  @Test
   public void test_AES_SequentialBatched() throws Exception {
     runTest(new BristolCryptoTests.AesTest(true), EvaluationStrategy.SEQUENTIAL_BATCHED);
-  }
-
-  @Test
-  public void test_AES_ParallelBatched() throws Exception {
-    runTest(new BristolCryptoTests.AesTest(true), EvaluationStrategy.PARALLEL_BATCHED);
   }
 
   @Test
@@ -121,11 +111,6 @@ public class TestDummyProtocolSuite {
   @Test
   public void test_SHA256_Sequential() throws Exception {
     runTest(new BristolCryptoTests.Sha256Test(true), EvaluationStrategy.SEQUENTIAL);
-  }
-
-  @Test
-  public void test_SHA256_Parallel() throws Exception {
-    runTest(new BristolCryptoTests.Sha256Test(true), EvaluationStrategy.PARALLEL);
   }
 
   @Test

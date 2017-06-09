@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -34,12 +34,12 @@ import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
+import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.value.OBool;
 import dk.alexandra.fresco.framework.value.SBool;
 import dk.alexandra.fresco.lib.crypto.BristolCryptoFactory;
 import dk.alexandra.fresco.lib.helper.bristol.BristolCircuit;
 import dk.alexandra.fresco.lib.helper.builder.BasicLogicBuilder;
-import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
 import dk.alexandra.fresco.lib.logic.AbstractBinaryFactory;
 import java.util.Arrays;
 import org.junit.Assert;
@@ -143,11 +143,12 @@ public class BristolMultTests {
 							}
 							ProtocolProducer open_all = new ParallelProtocolProducer(opens);
 							*/
-              return new SequentialProtocolProducer(builder.getProtocol());
+              return builder.getProtocol();
             }
           };
 
-          secureComputationEngine.runApplication(md5App);
+          secureComputationEngine
+              .runApplication(md5App, SecureComputationEngineImpl.createResourcePool(conf.sceConf));
 
           if (!assertAsExpected) {
             return;

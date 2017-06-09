@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -32,6 +32,7 @@ import dk.alexandra.fresco.framework.TestApplication;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
+import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.compare.ComparisonProtocolFactoryImpl;
@@ -100,8 +101,9 @@ public class ComparisonTests {
 							return seq;
 						}
 					};
-          secureComputationEngine.runApplication(app);
-          Assert.assertEquals(BigInteger.ONE, app.getOutputs()[0].getValue());
+					secureComputationEngine
+							.runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf));
+					Assert.assertEquals(BigInteger.ONE, app.getOutputs()[0].getValue());
 					Assert.assertEquals(BigInteger.ZERO, app.getOutputs()[1].getValue());
 				}
 			};
@@ -160,8 +162,9 @@ public class ComparisonTests {
 							return seq;
 						}
 					};
-          secureComputationEngine.runApplication(app);
-          Assert.assertEquals(BigInteger.ONE, app.getOutputs()[0].getValue());
+					secureComputationEngine
+							.runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf));
+					Assert.assertEquals(BigInteger.ONE, app.getOutputs()[0].getValue());
 					Assert.assertEquals(BigInteger.ZERO, app.getOutputs()[1].getValue());
 				}
 			};

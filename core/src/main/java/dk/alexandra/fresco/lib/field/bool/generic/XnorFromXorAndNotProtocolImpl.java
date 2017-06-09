@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -26,68 +26,53 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.field.bool.generic;
 
-import dk.alexandra.fresco.framework.NativeProtocol;
+import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.SBool;
-import dk.alexandra.fresco.framework.value.Value;
 import dk.alexandra.fresco.lib.field.bool.BasicLogicFactory;
 import dk.alexandra.fresco.lib.field.bool.XnorProtocol;
+import dk.alexandra.fresco.lib.helper.SingleProtocolProducer;
 
-public class XnorFromXorAndNotProtocolImpl implements XnorProtocol{
+public class XnorFromXorAndNotProtocolImpl implements XnorProtocol {
 
-	SBool left; 
-	SBool right; 
-	SBool out;
-	BasicLogicFactory factory;
-	private ProtocolProducer curPP = null;
-	private boolean done = false;
-	private boolean xorDone = false;
-	private SBool tmpOut;
-	
-	public XnorFromXorAndNotProtocolImpl(SBool left, SBool right, SBool out,
-			BasicLogicFactory factory) {
-		this.left = left;
-		this.right = right;
-		this.out = out;
-		this.factory = factory;
-	}
-	
-	@Override
-	public int getNextProtocols(NativeProtocol[] nativeProtocols, int pos) {
-		if (curPP == null) {
-			tmpOut = factory.getSBool();
-			curPP = factory.getXorProtocol(left, right, tmpOut);
-			pos = curPP.getNextProtocols(nativeProtocols, pos);
-			return pos;
-		}
-		if (!curPP.hasNextProtocols()) {
-			if (!xorDone) {
-				curPP = factory.getNotProtocol(tmpOut, out);
-				xorDone = true;
-				pos = curPP.getNextProtocols(nativeProtocols, pos);
-				return pos;
-			} else {
-				done = true;
-			}
-		} else {
-			pos = curPP.getNextProtocols(nativeProtocols, pos);
-		}
-		return pos;
-	}
+  private SBool left;
+  private SBool right;
+  private SBool out;
+  private BasicLogicFactory factory;
+  private ProtocolProducer curPP = null;
+  private boolean done = false;
+  private boolean xorDone = false;
+  private SBool tmpOut;
 
-	@Override
-	public boolean hasNextProtocols() {
-		return !done;
-	}
-	
-	@Override
-	public Value[] getInputValues() {
-		return new Value[]{left, right};
-	}
+  public XnorFromXorAndNotProtocolImpl(SBool left, SBool right, SBool out,
+      BasicLogicFactory factory) {
+    this.left = left;
+    this.right = right;
+    this.out = out;
+    this.factory = factory;
+  }
 
-	@Override
-	public Value[] getOutputValues() {
-		return new Value[]{out};
-	}
+  @Override
+  public void getNextProtocols(ProtocolCollection protocolCollection) {
+    if (curPP == null) {
+      tmpOut = factory.getSBool();
+      curPP = SingleProtocolProducer.wrap(factory.getXorProtocol(left, right, tmpOut));
+      curPP.getNextProtocols(protocolCollection);
+    } else if (!curPP.hasNextProtocols()) {
+      if (!xorDone) {
+        curPP = factory.getNotProtocol(tmpOut, out);
+        xorDone = true;
+        curPP.getNextProtocols(protocolCollection);
+      } else {
+        done = true;
+      }
+    } else {
+      curPP.getNextProtocols(protocolCollection);
+    }
+  }
 
+  @Override
+  public boolean hasNextProtocols() {
+    return !done;
+  }
 }

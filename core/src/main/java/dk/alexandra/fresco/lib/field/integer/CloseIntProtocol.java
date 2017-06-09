@@ -26,12 +26,12 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.field.integer;
 
-import dk.alexandra.fresco.framework.Protocol;
+import dk.alexandra.fresco.framework.NativeProtocol;
 
 /**
  * A protocol that converts a SBool to an OBool
  * 
  */
-public interface CloseIntProtocol extends Protocol {
+public interface CloseIntProtocol extends NativeProtocol {
 
 }

@@ -26,63 +26,65 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.lp;
 
-import java.util.Arrays;
-
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
-import dk.alexandra.fresco.lib.helper.AbstractSimpleProtocol;
+import dk.alexandra.fresco.lib.helper.SimpleProtocolProducer;
 import dk.alexandra.fresco.lib.helper.builder.NumericProtocolBuilder;
+import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
+import java.util.Arrays;
 
-public class RankProtocol extends AbstractSimpleProtocol {
-	
-	private final SInt[] numerators;
-	private final SInt[] denominators;
-	private final SInt numerator;
-	private final SInt denominator;
-	private final SInt rank;
-	private BasicNumericFactory numericFactory;
-	private LPFactory lpFactory;
-	
-	public RankProtocol(SInt[] numerators, SInt[] denominators, SInt numerator, SInt denominator, 
-			SInt rank, BasicNumericFactory numericFactory, LPFactory lpFactory) {
-		this.numerators = numerators;
-		this.denominators = denominators;
-		this.numerator = numerator;
-		this.denominator = denominator;
-		this.rank = rank;
-		this.numericFactory = numericFactory;
-		this.lpFactory = lpFactory;
-	}
-	
-	public RankProtocol(SInt[] values, SInt rankValue, SInt rank, BasicNumericFactory numericFactory, LPFactory lpFactory) {
-		this(values, null, rankValue, null, rank, numericFactory, lpFactory);
-	}
+public class RankProtocol extends SimpleProtocolProducer {
 
-	@Override
-	protected ProtocolProducer initializeProtocolProducer() {
-		NumericProtocolBuilder build = new NumericProtocolBuilder(numericFactory);
-		SInt[] compLeft = null;
-		SInt[] compRight = null;
-		if (denominators == null && denominator == null) {
-			compLeft = numerators;
-			compRight = new SInt[compLeft.length];
-			Arrays.fill(compRight, numerator);
-		} else {
-			build.beginParScope();
-			compLeft = build.scale(denominator, numerators);
-			compRight = build.scale(numerator, denominators);
-			build.endCurScope();
-		}
-		SInt[] comparisonResults = build.getSIntArray(numerators.length);
-		build.beginParScope();
-		for (int i = 0; i < numerators.length; i++) {
-			ProtocolProducer comp = lpFactory.getComparisonProtocol(compLeft[i], compRight[i], comparisonResults[i], true);
-			build.addProtocolProducer(comp);
-		}
-		build.endCurScope();
-		SInt result = build.sum(comparisonResults);
-		build.addProtocolProducer(lpFactory.getCopyProtocol(result, rank));
-		return build.getProtocol();
-	}
+  private final SInt[] numerators;
+  private final SInt[] denominators;
+  private final SInt numerator;
+  private final SInt denominator;
+  private final SInt rank;
+  private BasicNumericFactory numericFactory;
+  private LPFactory lpFactory;
+
+  public RankProtocol(SInt[] numerators, SInt[] denominators, SInt numerator, SInt denominator,
+      SInt rank, BasicNumericFactory numericFactory, LPFactory lpFactory) {
+    this.numerators = numerators;
+    this.denominators = denominators;
+    this.numerator = numerator;
+    this.denominator = denominator;
+    this.rank = rank;
+    this.numericFactory = numericFactory;
+    this.lpFactory = lpFactory;
+  }
+
+  public RankProtocol(SInt[] values, SInt rankValue, SInt rank, BasicNumericFactory numericFactory,
+      LPFactory lpFactory) {
+    this(values, null, rankValue, null, rank, numericFactory, lpFactory);
+  }
+
+  @Override
+  protected ProtocolProducer initializeProtocolProducer() {
+    NumericProtocolBuilder build = new NumericProtocolBuilder(numericFactory);
+    SInt[] compLeft = null;
+    SInt[] compRight = null;
+    if (denominators == null && denominator == null) {
+      compLeft = numerators;
+      compRight = new SInt[compLeft.length];
+      Arrays.fill(compRight, numerator);
+    } else {
+      build.beginParScope();
+      compLeft = build.scale(denominator, numerators);
+      compRight = build.scale(numerator, denominators);
+      build.endCurScope();
+    }
+    SInt[] comparisonResults = build.getSIntArray(numerators.length);
+    build.beginParScope();
+    for (int i = 0; i < numerators.length; i++) {
+      ProtocolProducer comp = lpFactory
+          .getComparisonProtocol(compLeft[i], compRight[i], comparisonResults[i], true);
+      build.addProtocolProducer(comp);
+    }
+    build.endCurScope();
+    SInt result = build.sum(comparisonResults);
+    return new SequentialProtocolProducer(build.getProtocol(),
+        lpFactory.getCopyProtocol(result, rank));
+  }
 }

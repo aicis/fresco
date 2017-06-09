@@ -26,8 +26,8 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.compare.zerotest;
 
-import dk.alexandra.fresco.framework.Protocol;
+import dk.alexandra.fresco.framework.ProtocolProducer;
 
-public interface ZeroTestBruteforceProtocol extends Protocol {
+public interface ZeroTestBruteforceProtocol extends ProtocolProducer {
 
 }

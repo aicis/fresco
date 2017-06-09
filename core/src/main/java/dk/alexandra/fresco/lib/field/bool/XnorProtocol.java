@@ -26,8 +26,8 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.field.bool;
 
-import dk.alexandra.fresco.framework.Protocol;
+import dk.alexandra.fresco.framework.ProtocolProducer;
 
-public interface XnorProtocol extends Protocol{
+public interface XnorProtocol extends ProtocolProducer {
 
 }

@@ -26,7 +26,7 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.helper;
 
-import dk.alexandra.fresco.framework.Protocol;
+import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.value.Value;
 
 /**
@@ -37,6 +37,6 @@ import dk.alexandra.fresco.framework.value.Value;
  *
  * @param <T>
  */
-public interface CopyProtocol<T extends Value> extends Protocol {
+public interface CopyProtocol<T extends Value> extends NativeProtocol {
 
 }

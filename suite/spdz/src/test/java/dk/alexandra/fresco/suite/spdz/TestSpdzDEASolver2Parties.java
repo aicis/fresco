@@ -52,11 +52,7 @@ public class TestSpdzDEASolver2Parties extends AbstractSpdzTest{
 		runTest(new DEASolverFixedDataTest.TestDEASolverScores(AnalysisType.INPUT_EFFICIENCY), 
 				EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
 	}
-	
-	@Test
-	public void test_DEASolver_2_Parallel_batched_dummy() throws Exception {
-		runTest(new DEASolverTests.TestDEASolver(5, 1, 30, 3, AnalysisType.OUTPUT_EFFICIENCY), EvaluationStrategy.PARALLEL_BATCHED, NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
-	}
+
 	
 	@Test
 	public void test_DEASolver_2_Sequential_batched_dummy_maximize() throws Exception {
@@ -73,14 +69,8 @@ public class TestSpdzDEASolver2Parties extends AbstractSpdzTest{
 		runTest(new DEASolverTests.TestDEASolver(2, 1, 5, 1, AnalysisType.OUTPUT_EFFICIENCY), 
 				EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
 	}
-	
-	@Category(IntegrationTest.class)
-	@Test
-	public void test_DEASolver_2_Parallel_dummy() throws Exception {
-		runTest(new DEASolverTests.TestDEASolver(5, 1, 5, 1, AnalysisType.OUTPUT_EFFICIENCY), 
-				EvaluationStrategy.PARALLEL, NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
-	}
-	
+
+
 	// Ignoring the streamed tests since they take too long with respect to generating preprocessed material
 	// Note that the poor performance of non-batched evaulation is most likely also the case here.
 	//TODO: Maybe add the @Category(IntegrationTest.class) instead of @Ignore. 
@@ -97,35 +87,8 @@ public class TestSpdzDEASolver2Parties extends AbstractSpdzTest{
 			InitializeStorage.cleanup();
 		}
 	}
-	
-	@Test
-	@Ignore
-	public void test_DEASolver_2_Parallel_streamed() throws Exception {
-		int noOfThreads = 2;
-		InitializeStorage.cleanup();
-		try {
-			InitializeStorage.initStreamedStorage(new FilebasedStreamedStorageImpl(new InMemoryStorage()), 2, noOfThreads, 20000, 500, 800000, 3000);
-			runTest(new DEASolverTests.TestDEASolver(4, 1, 10, 2, AnalysisType.OUTPUT_EFFICIENCY), 
-					EvaluationStrategy.PARALLEL, NetworkingStrategy.KRYONET, PreprocessingStrategy.STATIC, 2);
-		} finally {
-			InitializeStorage.cleanup();
-		}
-	}
-	
-	@Test
-	@Ignore
-	public void test_DEASolver_2_ParallelBatched_streamed() throws Exception {
-		int noOfThreads = 2;		
-		InitializeStorage.cleanup();
-		try {
-			InitializeStorage.initStreamedStorage(new FilebasedStreamedStorageImpl(new InMemoryStorage()), 2, noOfThreads, 20000, 500, 800000, 3000);
-			runTest(new DEASolverTests.TestDEASolver(4, 1, 10, 2, AnalysisType.OUTPUT_EFFICIENCY),
-					EvaluationStrategy.PARALLEL_BATCHED, NetworkingStrategy.KRYONET, PreprocessingStrategy.STATIC, 2);
-		} finally {
-			InitializeStorage.cleanup();
-		}
-	}
-	
+
+
 	@Test
 	@Ignore
 	public void test_DEASolver_2_SequentialBatched_streamed() throws Exception {

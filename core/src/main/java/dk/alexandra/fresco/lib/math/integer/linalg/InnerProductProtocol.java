@@ -26,13 +26,12 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.math.integer.linalg;
 
-import dk.alexandra.fresco.framework.Protocol;
+import dk.alexandra.fresco.framework.ProtocolProducer;
 
 /**
  * Will compute the inner product of the two given vectors, i.e. if
- * a = [a1, a2, ..., an], b = [b1, b2, ..., bn], then the result c = a1*b1+a2*b2+...+an*bn 
- *
+ * a = [a1, a2, ..., an], b = [b1, b2, ..., bn], then the result c = a1*b1+a2*b2+...+an*bn
  */
-public interface InnerProductProtocol extends Protocol {
+public interface InnerProductProtocol extends ProtocolProducer {
 
 }

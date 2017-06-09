@@ -26,9 +26,7 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.field.bool;
 
-import dk.alexandra.fresco.framework.Protocol;
 
-
-public interface NotProtocol extends Protocol {
+public interface NotProtocol {
 
 }

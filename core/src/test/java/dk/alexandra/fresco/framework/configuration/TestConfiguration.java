@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -26,6 +26,9 @@
  *******************************************************************************/
 package dk.alexandra.fresco.framework.configuration;
 
+import dk.alexandra.fresco.framework.MPCException;
+import dk.alexandra.fresco.framework.Party;
+import dk.alexandra.fresco.framework.TestFrameworkException;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.util.ArrayList;
@@ -34,15 +37,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 
-import dk.alexandra.fresco.framework.MPCException;
-import dk.alexandra.fresco.framework.Party;
-import dk.alexandra.fresco.framework.TestFrameworkException;
-
 public class TestConfiguration implements NetworkConfiguration {
 
 	private int myId;
 
-	private Map<Integer, Party> parties = new HashMap<Integer, Party>();
+	private Map<Integer, Party> parties = new HashMap<>();
 
 	private Level logLevel;
 
@@ -90,22 +89,18 @@ public class TestConfiguration implements NetworkConfiguration {
 		return parties.size();
 	}
 
-	public void setMe(int id) {
+	private void setMe(int id) {
 		this.myId = id;
 	}
 
-	public void setLogLevel(Level logLevel) {
+	private void setLogLevel(Level logLevel) {
 		this.logLevel = logLevel;
 	}
 
-	@Override
-	public Level getLogLevel() {
-		return this.logLevel;
-	}
 
-	
-	public static Map<Integer, NetworkConfiguration> getNetworkConfigurations(int n, List<Integer> ports, Level logLevel) {
-		Map<Integer, NetworkConfiguration> confs = new HashMap<Integer, NetworkConfiguration>(n);
+	public static Map<Integer, NetworkConfiguration> getNetworkConfigurations(int n,
+			List<Integer> ports, Level logLevel) {
+		Map<Integer, NetworkConfiguration> confs = new HashMap<>(n);
 		for (int i=0; i<n; i++) {
 			TestConfiguration conf = new TestConfiguration();
 			int id = 1;
@@ -132,7 +127,7 @@ public class TestConfiguration implements NetworkConfiguration {
 	
 	private static List<Integer> getFreePorts(int n) {
 		try{
-			List<Integer> ports = new ArrayList<Integer>(n);
+			List<Integer> ports = new ArrayList<>(n);
 			for (int i=0; i<n; i++) {
 				ServerSocket s = new ServerSocket(0);
 				ports.add(s.getLocalPort());

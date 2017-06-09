@@ -26,9 +26,9 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.compare.bool;
 
-import dk.alexandra.fresco.framework.Protocol;
+import dk.alexandra.fresco.framework.ProtocolProducer;
 
 
-public interface BinaryGreaterThanProtocol extends Protocol {
+public interface BinaryGreaterThanProtocol extends ProtocolProducer {
 
 }

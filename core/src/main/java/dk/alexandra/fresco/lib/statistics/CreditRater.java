@@ -26,9 +26,6 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.statistics;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.ProtocolFactory;
@@ -38,9 +35,11 @@ import dk.alexandra.fresco.lib.helper.builder.ComparisonProtocolBuilder;
 import dk.alexandra.fresco.lib.helper.builder.NumericProtocolBuilder;
 import dk.alexandra.fresco.lib.helper.builder.OmniBuilder;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- * Protocol for performing credit rating.
+ * NativeProtocol for performing credit rating.
  * 
  * Given a dataset (a vector of values)
  * and a credit rating function (a set of intervals for each value)

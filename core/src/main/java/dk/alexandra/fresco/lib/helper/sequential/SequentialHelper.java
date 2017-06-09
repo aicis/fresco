@@ -26,61 +26,87 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.helper.sequential;
 
-import dk.alexandra.fresco.framework.NativeProtocol;
+import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 
 /**
  * This implementation is lazy in the sense that it only invokes hasMoreprotocols()
  * and getNextprotocols() on a protocol when needed.
- * 
  **/
 class SequentialHelper implements ProtocolProducer {
 
-	private ProtocolProducerList producerList;
-	private ProtocolProducer currentProducer = null;
-	
-	protected SequentialHelper(ProtocolProducerList cl) {
-		this.producerList = cl;
-	}
-		
-	/*
-	 * If prune returns false, we are done and no more protocols can be produced.
-	 * If prune returns true, currentprotocol is a protocol with protocols to evaluate.
-	 */
-	private boolean prune() {
-		// Bootstrapping (for when currentprotocol is initially null) 
-		if (currentProducer == null) {
-			if (producerList.hasNextInLine()) {
-				currentProducer = producerList.getNextInLine();
-			} else {
-				return false;
-			}
-		}
-		// Roll until a protocol has protocols or the end is reached
-		while (!currentProducer.hasNextProtocols()) {
-			if (producerList.hasNextInLine()) {
-				currentProducer = producerList.getNextInLine();
-			} else {
-				/* NOTE: we could set currentprotocol to null here 
-				 * to release it to the GC - it would not break the method 
+  private ProtocolProducerList producerList;
+  private ProtocolProducer currentProducer = null;
+  private boolean log;
+  private Class<?> aClass;
+
+  SequentialHelper(ProtocolProducerList cl) {
+    this.producerList = cl;
+  }
+
+  /*
+   * If prune returns false, we are done and no more protocols can be produced.
+   * If prune returns true, currentprotocol is a protocol with protocols to evaluate.
+   */
+  private boolean prune() {
+    // Bootstrapping (for when currentprotocol is initially null)
+    if (currentProducer == null) {
+      if (producerList.hasNextInLine()) {
+        currentProducer = producerList.getNextInLine();
+      } else {
+        return false;
+      }
+    }
+    if (log && currentProducer.hasNextProtocols()) {
+      log("Reiterating on " + currentProducer);
+    }
+    // Roll until a protocol has protocols or the end is reached
+    while (!currentProducer.hasNextProtocols()) {
+      if (producerList.hasNextInLine()) {
+        currentProducer = producerList.getNextInLine();
+        if (log) {
+          log("Iterating on " + currentProducer);
+        }
+      } else {
+        /* NOTE: we could set currentprotocol to null here
+         * to release it to the GC - it would not break the method
 				 */
-				currentProducer = null;
-				return false;
-			}
-		}		
-		return true;
-	}
-	
-	@Override
-	public boolean hasNextProtocols() {
-		return prune();
-	}
-	
-	@Override
-	public int getNextProtocols(NativeProtocol[] nativeProtocols, int pos) {
-		if (prune()) 
-			return currentProducer.getNextProtocols(nativeProtocols, pos);
-		else
-			return pos;
-	}
+        currentProducer = null;
+        if (log) {
+          log("Done iterating");
+        }
+        return false;
+      }
+    }
+    return true;
+  }
+
+  private void log(String x) {
+    System.out.println(aClass.getSimpleName() + " " + x);
+  }
+
+  @Override
+  public boolean hasNextProtocols() {
+    return prune();
+  }
+
+  @Override
+  public void getNextProtocols(ProtocolCollection protocolCollection) {
+
+    if (prune()) {
+      currentProducer.getNextProtocols(protocolCollection);
+    }
+  }
+
+  @Override
+  public String toString() {
+    return "SequentialHelper{"
+        + "currentProducer=" + currentProducer
+        + '}';
+  }
+
+  public void logProgess(Class<?> aClass) {
+    this.aClass = aClass;
+    log = true;
+  }
 }

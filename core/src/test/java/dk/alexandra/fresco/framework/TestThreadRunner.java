@@ -217,7 +217,8 @@ public class TestThreadRunner {
       if (t.setupException != null) {
         throw new TestFrameworkException(t + " threw exception in setup (see stderr)");
       } else if (t.testException != null) {
-        throw new TestFrameworkException(t + " threw exception in test (see stderr)");
+        throw new TestFrameworkException(t + " threw exception in test (see stderr)",
+            t.testException);
       } else if (t.teardownException != null) {
         throw new TestFrameworkException(t + " threw exception in teardown (see stderr)");
       }

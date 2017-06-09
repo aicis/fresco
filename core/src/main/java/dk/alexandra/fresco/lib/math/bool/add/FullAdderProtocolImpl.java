@@ -27,109 +27,79 @@
 package dk.alexandra.fresco.lib.math.bool.add;
 
 import dk.alexandra.fresco.framework.MPCException;
-import dk.alexandra.fresco.framework.NativeProtocol;
+import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.SBool;
-import dk.alexandra.fresco.framework.value.Value;
 import dk.alexandra.fresco.lib.field.bool.BasicLogicFactory;
-import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
 
 /**
- * This class implements a Full Adder protocol for Binary protocols. 
- * It takes the naive approach of linking 1-Bit-Full Adders together to implement 
- * a generic length adder. 
- * @author Kasper Damgaard
+ * This class implements a Full Adder protocol for Binary protocols.
+ * It takes the naive approach of linking 1-Bit-Full Adders together to implement
+ * a generic length adder.
  *
+ * @author Kasper Damgaard
  */
-public class FullAdderProtocolImpl implements FullAdderProtocol{
+public class FullAdderProtocolImpl implements FullAdderProtocol {
 
-	private SBool[] lefts, rights, outs;
-	private SBool inCarry, outCarry;
-	private SBool tmpCarry;
-	private OneBitFullAdderProtocolFactory FAFactory;
-	private int round;
-	private int stopRound;
-	private ProtocolProducer curPP;
-	
-	public FullAdderProtocolImpl(SBool[] lefts, SBool[] rights, SBool inCarry, SBool[] outs,
-			SBool outCarry, BasicLogicFactory basicFactory, OneBitFullAdderProtocolFactory FAFactory){
-		if(lefts.length != rights.length || lefts.length != outs.length){
-			throw new MPCException("input and output arrays for Full Adder must be of same length.");
-		}
-		this.lefts = lefts;
-		this.rights = rights;
-		this.inCarry = inCarry;
-		this.outs = outs;
-		this.outCarry = outCarry;
-		this.FAFactory = FAFactory;
-		this.round = 0;
-		this.stopRound = lefts.length;
-		this.curPP = null;
-		
-		tmpCarry = basicFactory.getSBool();
-	}
-	
-	@Override
-	public int getNextProtocols(NativeProtocol[] nativeProtocols, int pos) {
-		if(round == 0){
-			if(curPP == null){				
-				ProtocolProducer bit1 = FAFactory.getOneBitFullAdderProtocol(lefts[stopRound-1], rights[stopRound-1], inCarry, outs[stopRound-1], tmpCarry);
-				curPP = new SequentialProtocolProducer(bit1);
-			}
-			if(curPP.hasNextProtocols()){
-				pos = curPP.getNextProtocols(nativeProtocols, pos);
-			}
-			else if(!curPP.hasNextProtocols()){
-				round++;
-				curPP = null;
-			}
-		}
-		else if(round > 0 && round < stopRound-1){
-			if(curPP == null){								
-				//TODO: Using tmpCarry both as in and out might not be good for all implementations of a 1Bit FA protocol?
-				//But at least it works for OneBitFullAdderprotocolImpl.
-				ProtocolProducer bitAdder = FAFactory.getOneBitFullAdderProtocol(lefts[stopRound-round-1], rights[stopRound-round-1], tmpCarry, outs[stopRound-round-1], tmpCarry);
-				curPP = new SequentialProtocolProducer(bitAdder);
-			}
-			if(curPP.hasNextProtocols()){
-				pos = curPP.getNextProtocols(nativeProtocols, pos);
-			}
-			else if(!curPP.hasNextProtocols()){
-				round++;
-				curPP = null;
-			}
-		}
-		else if(round == stopRound-1){
-			if(curPP == null){				
-				ProtocolProducer bit8 = FAFactory.getOneBitFullAdderProtocol(lefts[0], rights[0], tmpCarry, outs[0], outCarry);
-				curPP = new SequentialProtocolProducer(bit8);
-			}
-			if(curPP.hasNextProtocols()){
-				pos = curPP.getNextProtocols(nativeProtocols, pos);
-			}
-			else if(!curPP.hasNextProtocols()){
-				round++;
-				curPP = null;
-			}
-		}
-		return pos;
-	}
+  private SBool[] lefts, rights, outs;
+  private SBool inCarry, outCarry;
+  private SBool tmpCarry;
+  private OneBitFullAdderProtocolFactory FAFactory;
+  private int round;
+  private int stopRound;
+  private ProtocolProducer curPP;
 
-	@Override
-	public boolean hasNextProtocols() {
-		return round < stopRound;
-	}
+  public FullAdderProtocolImpl(SBool[] lefts, SBool[] rights, SBool inCarry, SBool[] outs,
+      SBool outCarry, BasicLogicFactory basicFactory, OneBitFullAdderProtocolFactory FAFactory) {
+    if (lefts.length != rights.length || lefts.length != outs.length) {
+      throw new MPCException("input and output arrays for Full Adder must be of same length.");
+    }
+    this.lefts = lefts;
+    this.rights = rights;
+    this.inCarry = inCarry;
+    this.outs = outs;
+    this.outCarry = outCarry;
+    this.FAFactory = FAFactory;
+    this.round = 0;
+    this.stopRound = lefts.length;
+    this.curPP = null;
 
-	@Override
-	public Value[] getInputValues() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    tmpCarry = basicFactory.getSBool();
+  }
 
-	@Override
-	public Value[] getOutputValues() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+  @Override
+  public void getNextProtocols(ProtocolCollection protocolCollection) {
+    if (round == 0) {
+      if (curPP == null) {
+        curPP = FAFactory
+            .getOneBitFullAdderProtocol(lefts[stopRound - 1], rights[stopRound - 1], inCarry,
+                outs[stopRound - 1], tmpCarry);
+      }
+    } else if (round > 0 && round < stopRound - 1) {
+      if (curPP == null) {
+        //TODO: Using tmpCarry both as in and out might not be good for all implementations of a 1Bit FA protocol?
+        //But at least it works for OneBitFullAdderprotocolImpl.
+        curPP = FAFactory
+            .getOneBitFullAdderProtocol(lefts[stopRound - round - 1], rights[stopRound - round - 1],
+                tmpCarry, outs[stopRound - round - 1], tmpCarry);
+      }
+    } else if (round == stopRound - 1) {
+      if (curPP == null) {
+        curPP = FAFactory
+            .getOneBitFullAdderProtocol(lefts[0], rights[0], tmpCarry, outs[0], outCarry);
+      }
+    }
+    if (curPP != null && curPP.hasNextProtocols()) {
+      curPP.getNextProtocols(protocolCollection);
+    } else {
+      round++;
+      curPP = null;
+    }
+  }
+
+  @Override
+  public boolean hasNextProtocols() {
+    return round < stopRound;
+  }
 
 }

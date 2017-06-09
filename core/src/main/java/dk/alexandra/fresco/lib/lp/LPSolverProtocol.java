@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -23,17 +23,19 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.lp;
 
-import java.math.BigInteger;
-
-import dk.alexandra.fresco.framework.*;
+import dk.alexandra.fresco.framework.MPCException;
+import dk.alexandra.fresco.framework.NativeProtocol;
+import dk.alexandra.fresco.framework.ProtocolCollection;
+import dk.alexandra.fresco.framework.ProtocolProducer;
+import dk.alexandra.fresco.framework.Reporter;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.framework.value.Value;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.helper.AbstractRoundBasedProtocol;
 import dk.alexandra.fresco.lib.helper.CopyProtocol;
 import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
+import java.math.BigInteger;
 
 /**
  * A protocol for solving LP problems using the Simplex method.
@@ -48,17 +50,17 @@ import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
  * multiplication with a small sparse matrix, which can be done more efficiently
  * than general matrix multiplication.
  * </p>
- *
  */
-public class LPSolverProtocol implements Protocol {
+public class LPSolverProtocol implements ProtocolProducer {
 
   private final LPTableau tableau;
   private final Matrix<SInt> updateMatrix;
   private final SInt zero;
+  private int identityHashCode;
 
   private enum STATE {
     PHASE1, PHASE2, TERMINATED
-  };
+  }
 
   private STATE state;
   private LPFactory lpFactory;
@@ -71,10 +73,10 @@ public class LPSolverProtocol implements Protocol {
   private SInt[] enteringIndex;
 
   private final SInt[] basis;
-  public static final int DEFAULT_BASIS_VALUE = 0;
+  private static final int DEFAULT_BASIS_VALUE = 0;
   private final OInt[] enumeratedVariables; // [1,2,3,...]
 
-  public int iterations = 0;
+  private int iterations = 0;
   private final int noVariables;
   private final int noConstraints;
 
@@ -103,6 +105,7 @@ public class LPSolverProtocol implements Protocol {
     } else {
       throw new MPCException("Dimensions of inputs does not match");
     }
+    identityHashCode = System.identityHashCode(this);
   }
 
   private boolean checkDimensions(LPTableau tableau, Matrix<SInt> updateMatrix) {
@@ -114,27 +117,27 @@ public class LPSolverProtocol implements Protocol {
   }
 
   @Override
-  public int getNextProtocols(NativeProtocol[] nativeProtocols, int pos) {
+  public void getNextProtocols(ProtocolCollection protocolCollection) {
     if (pp == null) {
       if (state == STATE.PHASE1) {
         iterations++;
-        Reporter.info("LP Iterations=" + iterations);
+        Reporter.info("LP Iterations=" + iterations + " solving " +
+            identityHashCode);
         pp = phaseOneProtocol();
-      } else if (state == STATE.PHASE2) {
+      } else { // if (state == STATE.PHASE2)
         boolean terminated = terminationOut.getValue().equals(BigInteger.ONE);
         if (!terminated) {
           pp = phaseTwoProtocol();
         } else {
           state = STATE.TERMINATED;
           pp = null;
-          return pos;
+          return;
         }
       }
     }
     if (pp.hasNextProtocols()) {
-      int end = pp.getNextProtocols(nativeProtocols, pos);
-      pos = end;
-    } else if (!pp.hasNextProtocols()) {
+      pp.getNextProtocols(protocolCollection);
+    } else {
       switch (state) {
         case PHASE1:
           pp = null;
@@ -151,7 +154,6 @@ public class LPSolverProtocol implements Protocol {
           break;
       }
     }
-    return pos;
   }
 
   /**
@@ -166,15 +168,14 @@ public class LPSolverProtocol implements Protocol {
    * Additionally, having the entering and exiting variables we can update
    * the basis of the current solution.
    * </p>
-   *
-   * @return
    */
   private ProtocolProducer phaseTwoProtocol() {
     // Phase 2 - Finding the exiting variable and updating the tableau
-    ProtocolProducer phaseTwo = new AbstractRoundBasedProtocol() {
+    return new AbstractRoundBasedProtocol() {
       int round = 0;
       SInt[] exitingIndex, updateColumn;
       SInt[][] newUpdate;
+
       @Override
       public ProtocolProducer nextProtocolProducer() {
         switch (round) {
@@ -213,7 +214,7 @@ public class LPSolverProtocol implements Protocol {
                 newUpdate[i][j] = bnFactory.getSInt();
               }
             }
-            newUpdateMatrix = new Matrix<SInt>(newUpdate);
+            newUpdateMatrix = new Matrix<>(newUpdate);
             ProtocolProducer updateMatrixProducer = lpFactory.getUpdateMatrixProtocol(updateMatrix,
                 exitingIndex, updateColumn, pivot, prevPivot, newUpdateMatrix);
             round++;
@@ -238,7 +239,6 @@ public class LPSolverProtocol implements Protocol {
         return null;
       }
     };
-    return phaseTwo;
   }
 
   /**
@@ -249,6 +249,7 @@ public class LPSolverProtocol implements Protocol {
    * the <i>F</i> vector is present. If this is the case we should terminate
    * the simplex method.
    * </p>
+   *
    * @return a protocol producer for the first half of a simplex iteration
    */
   private ProtocolProducer phaseOneProtocol() {
@@ -265,8 +266,9 @@ public class LPSolverProtocol implements Protocol {
     // Check if the entry in F is non-negative
     SInt positive = bnFactory.getSInt();
     ProtocolProducer comp = lpFactory.getComparisonProtocol(zero, minimum, positive, true);
-    ProtocolProducer output = bnFactory.getOpenProtocol(positive, terminationOut);
-    ProtocolProducer phaseOne = new SequentialProtocolProducer(enteringProducer, comp, output);
+    SequentialProtocolProducer phaseOne = new SequentialProtocolProducer(enteringProducer, comp);
+    NativeProtocol output = bnFactory.getOpenProtocol(positive, terminationOut);
+    phaseOne.append(output);
     return phaseOne;
   }
 
@@ -278,6 +280,7 @@ public class LPSolverProtocol implements Protocol {
    * negative entry in the <i>F</i> vector is present. If this is the case we
    * should terminate the simplex method.
    * </p>
+   *
    * @return a protocol producer for the first half of a simplex iteration
    */
   @SuppressWarnings("unused")
@@ -295,26 +298,14 @@ public class LPSolverProtocol implements Protocol {
     ProtocolProducer blandEnter = new BlandEnteringVariableProtocol(tableau, updateMatrix,
         enteringIndex, first, lpFactory, bnFactory);
 
-    ProtocolProducer output = bnFactory.getOpenProtocol(first, terminationOut);
-    ProtocolProducer phaseOne = new SequentialProtocolProducer(blandEnter, output);
-    return phaseOne;
+    NativeProtocol output = bnFactory.getOpenProtocol(first, terminationOut);
+    return new SequentialProtocolProducer(blandEnter, output);
   }
+
 
   @Override
   public boolean hasNextProtocols() {
     return (state != STATE.TERMINATED);
-  }
-
-  @Override
-  public Value[] getInputValues() {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-  @Override
-  public Value[] getOutputValues() {
-    // TODO Auto-generated method stub
-    return null;
   }
 
   public static class Builder {

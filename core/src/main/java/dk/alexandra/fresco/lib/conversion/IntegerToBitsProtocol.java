@@ -26,9 +26,9 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.conversion;
 
-import dk.alexandra.fresco.framework.Protocol;
+import dk.alexandra.fresco.framework.ProtocolProducer;
 
 
-public interface IntegerToBitsProtocol extends Protocol {
+public interface IntegerToBitsProtocol extends ProtocolProducer {
 
 }

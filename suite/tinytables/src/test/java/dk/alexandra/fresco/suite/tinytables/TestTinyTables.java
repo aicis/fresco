@@ -111,7 +111,7 @@ public class TestTinyTables {
         config = new TinyTablesConfiguration();
 
 				/*
-				 * Set path where TinyTables generated during preprocessing can
+         * Set path where TinyTables generated during preprocessing can
 				 * be found
 				 */
         File tinyTablesFile = new File(getFilenameForTest(playerId, name));
@@ -245,24 +245,6 @@ public class TestTinyTables {
   public void testAES() throws Exception {
     runTest(new BristolCryptoTests.AesTest(false), EvaluationStrategy.SEQUENTIAL, true, "testAES");
     runTest(new BristolCryptoTests.AesTest(true), EvaluationStrategy.SEQUENTIAL, false, "testAES");
-  }
-
-  @Category(IntegrationTest.class)
-  @Test
-  public void testAES_parallel() throws Exception {
-    runTest(new BristolCryptoTests.AesTest(false), EvaluationStrategy.PARALLEL, true,
-        "testAESParallel");
-    runTest(new BristolCryptoTests.AesTest(true), EvaluationStrategy.PARALLEL, false,
-        "testAESParallel");
-  }
-
-  @Category(IntegrationTest.class)
-  @Test
-  public void testAES_parallel_batched() throws Exception {
-    runTest(new BristolCryptoTests.AesTest(false), EvaluationStrategy.PARALLEL_BATCHED, true,
-        "testAESParallelBatched");
-    runTest(new BristolCryptoTests.AesTest(true), EvaluationStrategy.PARALLEL_BATCHED, false,
-        "testAESParallelBatched");
   }
 
   @Category(IntegrationTest.class)

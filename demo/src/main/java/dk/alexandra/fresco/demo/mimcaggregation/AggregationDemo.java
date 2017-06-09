@@ -2,17 +2,13 @@ package dk.alexandra.fresco.demo.mimcaggregation;
 
 import dk.alexandra.fresco.framework.Party;
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
-import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.PreprocessingStrategy;
-import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.NetworkingStrategy;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.configuration.ProtocolSuiteConfiguration;
 import dk.alexandra.fresco.framework.sce.configuration.SCEConfiguration;
 import dk.alexandra.fresco.framework.sce.evaluator.SequentialEvaluator;
-import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
-import dk.alexandra.fresco.framework.sce.resources.storage.Storage;
 import dk.alexandra.fresco.framework.sce.resources.storage.StreamedStorage;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
@@ -20,6 +16,7 @@ import dk.alexandra.fresco.framework.value.Value;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.configuration.SpdzConfiguration;
 import dk.alexandra.fresco.suite.spdz.evaluation.strategy.SpdzProtocolSuite;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
@@ -62,10 +59,12 @@ public class AggregationDemo {
    *
    * Example: ([k], [v]) -> ([k], [v], enc(k)) for columnIndex = 0
    */
-  public Value[][] encryptAndReveal(SecureComputationEngine sce, SInt[][] inputRows,
-      int columnIndex) {
+  public Value[][] encryptAndReveal(
+      SCEConfiguration sceConf,
+      SecureComputationEngine sce, SInt[][] inputRows,
+      int columnIndex) throws IOException {
     EncryptAndRevealStep ear = new EncryptAndRevealStep(inputRows, columnIndex);
-    sce.runApplication(ear);
+    sce.runApplication(ear, SecureComputationEngineImpl.createResourcePool(sceConf));
     return ear.getRowsWithOpenedCiphers();
   }
 
@@ -79,13 +78,15 @@ public class AggregationDemo {
    * Example: ([1], [2]), ([1], [3]), ([2], [4]) -> ([1], [5]), ([2], [4]) for keyColumn = 0 and
    * aggColumn = 1
    */
-  public SInt[][] aggregate(SecureComputationEngine sce, SInt[][] inputRows, int keyColumn,
-      int aggColumn) {
+  public SInt[][] aggregate(
+      SCEConfiguration sceConf,
+      SecureComputationEngine sce, SInt[][] inputRows, int keyColumn,
+      int aggColumn) throws IOException {
     // TODO: need to shuffle input rows and result
-    Value[][] rowsWithOpenenedCiphers = encryptAndReveal(sce, inputRows, keyColumn);
+    Value[][] rowsWithOpenenedCiphers = encryptAndReveal(sceConf, sce, inputRows, keyColumn);
     AggregateStep aggStep = new AggregateStep(
         rowsWithOpenenedCiphers, 2, keyColumn, aggColumn);
-    sce.runApplication(aggStep);
+    sce.runApplication(aggStep, SecureComputationEngineImpl.createResourcePool(sceConf));
     return aggStep.getResult();
   }
 
@@ -93,18 +94,21 @@ public class AggregationDemo {
    * @return Runs the input step which secret shares all int values in inputRows. Returns and SInt
    * array containing the resulting shares.
    */
-  public SInt[][] secretShare(SecureComputationEngine sce, int[][] inputRows, int pid) {
+  public SInt[][] secretShare(
+      SCEConfiguration sceConf,
+      SecureComputationEngine sce, int[][] inputRows, int pid) throws IOException {
     InputStep inputStep = new InputStep(inputRows, pid);
-    sce.runApplication(inputStep);
+    sce.runApplication(inputStep, SecureComputationEngineImpl.createResourcePool(sceConf));
     return inputStep.getSecretSharedRows();
   }
 
   /**
    * @return Runs the output step which opens all secret shares. It converts the result to ints.
    */
-  public int[][] open(SecureComputationEngine sce, SInt[][] secretShares) {
+  public int[][] open(SCEConfiguration sceConf,
+      SecureComputationEngine sce, SInt[][] secretShares) throws IOException {
     OutputStep outputStep = new OutputStep(secretShares);
-    sce.runApplication(outputStep);
+    sce.runApplication(outputStep, SecureComputationEngineImpl.createResourcePool(sceConf));
     OInt[][] _opened = outputStep.getOpenedRows();
     int[][] opened = new int[_opened.length][_opened[0].length];
     int rowIndex = 0,
@@ -120,8 +124,10 @@ public class AggregationDemo {
     return opened;
   }
 
-  public void runApplication(SecureComputationEngine sce) {
-    int pid = sce.getSCEConfiguration().getMyId();
+  public void runApplication(
+      SCEConfiguration sceConf,
+      SecureComputationEngine sce) throws IOException {
+    int pid = sceConf.getMyId();
     int keyColumnIndex = 0;
     int aggColumnIndex = 1;
 
@@ -129,14 +135,14 @@ public class AggregationDemo {
     int[][] inputRows = readInputs();
 
     // Secret-share the inputs.
-    SInt[][] secretSharedRows = secretShare(sce, inputRows, pid);
+    SInt[][] secretSharedRows = secretShare(sceConf, sce, inputRows, pid);
 
     // Aggregate
-    SInt[][] aggregated = aggregate(
+    SInt[][] aggregated = aggregate(sceConf,
         sce, secretSharedRows, keyColumnIndex, aggColumnIndex);
 
     // Recombine the secret shares of the result
-    int[][] openedResult = open(sce, aggregated);
+    int[][] openedResult = open(sceConf, sce, aggregated);
 
     // Write outputs. For now this just prints the results to the console.
     writeOutputs(openedResult);
@@ -144,7 +150,7 @@ public class AggregationDemo {
     sce.shutdownSCE();
   }
 
-  public static void main(String[] args) {
+  public static void main(String[] args) throws IOException {
 
     // My player ID
     int myPID = Integer.parseInt(args[0]);
@@ -160,7 +166,7 @@ public class AggregationDemo {
       @Override
       public Map<Integer, Party> getParties() {
         // Set up network details of our two players
-        Map<Integer, Party> parties = new HashMap<Integer, Party>();
+        Map<Integer, Party> parties = new HashMap<>();
         parties.put(1, new Party(1, "localhost", 8001));
         parties.put(2, new Party(2, "localhost", 8002));
         return parties;
@@ -172,25 +178,9 @@ public class AggregationDemo {
       }
 
       @Override
-      public int getNoOfThreads() {
-        return 2;
-      }
-
-      @Override
-      public int getNoOfVMThreads() {
-        return 2;
-      }
-
-      @Override
       public ProtocolEvaluator getEvaluator() {
         // We will use a sequential evaluation strategy
-        ProtocolEvaluator evaluator = new SequentialEvaluator();
-        return evaluator;
-      }
-
-      @Override
-      public Storage getStorage() {
-        return new InMemoryStorage();
+        return new SequentialEvaluator();
       }
 
       @Override
@@ -209,10 +199,6 @@ public class AggregationDemo {
         return NetworkingStrategy.KRYONET;
       }
 
-      @Override
-      public Network getNetwork(NetworkConfiguration configuration, int channelAmount) {
-        return null;
-      }
     };
 
     ProtocolSuiteConfiguration protocolSuiteConfig = new SpdzConfiguration() {
@@ -238,16 +224,11 @@ public class AggregationDemo {
     };
 
     // Instantiate environment
-    SCEConfiguration sceConf = sceConfig;
-    ProtocolSuiteConfiguration psConf = protocolSuiteConfig;
-    SecureComputationEngine sce = new SecureComputationEngineImpl(sceConf, psConf);
+    SecureComputationEngine sce = new SecureComputationEngineImpl(sceConfig, protocolSuiteConfig);
 
     // Create application we are going run
     AggregationDemo app = new AggregationDemo();
 
-    app.runApplication(sce);
-
-    return;
-
+    app.runApplication(sceConfig, sce);
   }
 }

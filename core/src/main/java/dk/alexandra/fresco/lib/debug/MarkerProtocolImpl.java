@@ -27,13 +27,13 @@
 package dk.alexandra.fresco.lib.debug;
 
 import dk.alexandra.fresco.framework.ProtocolProducer;
-import dk.alexandra.fresco.lib.helper.AbstractSimpleProtocol;
+import dk.alexandra.fresco.lib.helper.SimpleProtocolProducer;
 
 /**
  * When evaluated, prints out the message from the constructor. 
  *
  */
-public class MarkerProtocolImpl extends AbstractSimpleProtocol implements MarkerProtocol {
+public class MarkerProtocolImpl extends SimpleProtocolProducer implements MarkerProtocol {
 
 	private final String message;
 	

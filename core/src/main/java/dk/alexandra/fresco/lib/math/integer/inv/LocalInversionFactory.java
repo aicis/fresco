@@ -36,5 +36,5 @@ public interface LocalInversionFactory {
 	 * @param result output -  x^-1
 	 * @return
 	 */
-	public LocalInversionProtocol getLocalInversionProtocol(OInt x, OInt result);
+	LocalInversionProtocol getLocalInversionProtocol(OInt x, OInt result);
 }

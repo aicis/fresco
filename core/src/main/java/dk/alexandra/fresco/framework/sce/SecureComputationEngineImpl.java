@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -41,19 +41,19 @@ import dk.alexandra.fresco.framework.network.NetworkingStrategy;
 import dk.alexandra.fresco.framework.network.ScapiNetworkImpl;
 import dk.alexandra.fresco.framework.sce.configuration.ProtocolSuiteConfiguration;
 import dk.alexandra.fresco.framework.sce.configuration.SCEConfiguration;
-import dk.alexandra.fresco.framework.sce.evaluator.BatchedParallelEvaluator;
-import dk.alexandra.fresco.framework.sce.evaluator.ParallelEvaluator;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
-import dk.alexandra.fresco.framework.sce.resources.SCEResourcePool;
-import dk.alexandra.fresco.framework.sce.resources.storage.Storage;
 import dk.alexandra.fresco.framework.sce.resources.storage.StreamedStorage;
-import dk.alexandra.fresco.framework.sce.resources.threads.ThreadPoolImpl;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import java.io.IOException;
 import java.security.SecureRandom;
 import java.util.Map;
 import java.util.Random;
-import java.util.logging.Level;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 /**
  * Secure Computation Engine - responsible for having the overview of things and
@@ -64,11 +64,9 @@ import java.util.logging.Level;
 public class SecureComputationEngineImpl implements SecureComputationEngine {
 
   private ProtocolEvaluator evaluator;
-  private ThreadPoolImpl threadPool;
-  private SCEResourcePool resourcePool;
-  private ProtocolFactory protocolFactory;
   private SCEConfiguration sceConf;
   private ProtocolSuiteConfiguration protocolSuiteConfiguration;
+  private ExecutorService executorService = Executors.newCachedThreadPool();
 
   private boolean setup;
   private ProtocolSuite protocolSuite;
@@ -81,73 +79,62 @@ public class SecureComputationEngineImpl implements SecureComputationEngine {
     this.setup = false;
 
     //setup the basic stuff, but do not initialize anything yet
-    int myId = sceConf.getMyId();
-    Map<Integer, Party> parties = sceConf.getParties();
-    Level logLevel = sceConf.getLogLevel();
-    Reporter.init(logLevel);
-    if (parties.isEmpty()) {
+    Reporter.init(sceConf.getLogLevel());
+    if (sceConf.getParties().isEmpty()) {
       throw new IllegalArgumentException(
           "Properties file should contain at least one party of the form 'party1=192.168.0.1,8000'");
     }
-    int noOfThreads = sceConf.getNoOfThreads();
-    int noOfvmThreads = sceConf.getNoOfVMThreads();
-    NetworkConfiguration conf = new NetworkConfigurationImpl(myId, parties, logLevel);
 
-    ThreadPoolImpl threadPool = null;
-    Storage storage = sceConf.getStorage();
+    this.evaluator = this.sceConf.getEvaluator();
+    this.evaluator.setMaxBatchSize(sceConf.getMaxBatchSize());
+
+  }
+
+  private static Network getNetworkFromConfiguration(SCEConfiguration sceConf,
+      int myId, Map<Integer, Party> parties) {
+    int channelAmount = 1;
+    NetworkConfiguration conf = new NetworkConfigurationImpl(myId, parties);
+    return buildNetwork(conf, channelAmount, sceConf.getNetworkStrategy());
+  }
+
+  private static Network buildNetwork(NetworkConfiguration conf,
+      int channelAmount, NetworkingStrategy networkStrat) {
+    Network network;
+    switch (networkStrat) {
+      case KRYONET:
+        // TODO[PSN]
+        // This might work on mac?
+//          network = new KryoNetNetwork();
+        network = new ScapiNetworkImpl();
+        break;
+      case SCAPI:
+        network = new ScapiNetworkImpl();
+        break;
+      default:
+        throw new ConfigurationException("Unknown networking strategy " + networkStrat);
+    }
+    network.init(conf, channelAmount);
+    return network;
+  }
+
+  public static ResourcePoolImpl createResourcePool(SCEConfiguration sceConf) throws IOException {
+    int myId = sceConf.getMyId();
+    Map<Integer, Party> parties = sceConf.getParties();
+
     StreamedStorage streamedStorage = sceConf.getStreamedStorage();
     // Secure random by default.
     Random rand = new Random(0);
     SecureRandom secRand = new SecureRandom();
 
-    this.evaluator = this.sceConf.getEvaluator();
-    this.evaluator.setMaxBatchSize(sceConf.getMaxBatchSize());
-    int channelAmount = 1;
-    // If the evaluator is of a parallel sort,
-    // we need the same amount of channels as the number of VM threads we
-    // use.
-    if (this.evaluator instanceof ParallelEvaluator
-        || this.evaluator instanceof BatchedParallelEvaluator) {
-      channelAmount = noOfvmThreads;
-    }
-    Network network = sceConf.getNetwork(conf, channelAmount);
-    if (network == null) {
-      NetworkingStrategy networkStrat = sceConf.getNetworkStrategy();
-      switch (networkStrat) {
-        case KRYONET:
-          // TODO[PSN]
-          // This might work on mac?
-//          network = new KryoNetNetwork();
-          network = new ScapiNetworkImpl();
-          break;
-        case SCAPI:
-          network = new ScapiNetworkImpl();
-          break;
-        default:
-          throw new ConfigurationException("Unknown networking strategy " + networkStrat);
-      }
-      network.init(conf, channelAmount);
-    }
+    Network network = getNetworkFromConfiguration(sceConf, myId, parties);
+    network.connect(10000);
 
-    if (noOfvmThreads == -1) {
-      // default to 1 allowed VM thread only - otherwise certain
-      // strategies are going to outright fail.
-      noOfvmThreads = 1;
-    }
-    if (noOfThreads != -1) {
-      threadPool = new ThreadPoolImpl(noOfvmThreads, noOfThreads);
-    } else {
-      threadPool = new ThreadPoolImpl(noOfvmThreads, 0);
-    }
+    ResourcePoolImpl resourcePool =
+        new ResourcePoolImpl(myId, parties.size(),
+            network, streamedStorage, rand, secRand);
 
-    this.resourcePool = new ResourcePoolImpl(sceConf.getMyId(), parties.size(), network, storage,
-        streamedStorage,
-        rand, secRand, threadPool, threadPool);
-  }
+    return resourcePool;
 
-  @Override
-  public SCEConfiguration getSCEConfiguration() {
-    return this.sceConf;
   }
 
   @Override
@@ -155,14 +142,7 @@ public class SecureComputationEngineImpl implements SecureComputationEngine {
     if (this.setup) {
       return;
     }
-
-    this.resourcePool.initializeRandom();
-    this.resourcePool.initializeThreadPool();
-    this.resourcePool.initilizeStorage();
-    this.resourcePool.initializeNetwork();
-
     this.protocolSuite = this.protocolSuiteConfiguration.createProtocolSuite(sceConf.getMyId());
-    this.protocolFactory = this.protocolSuite.init(this.resourcePool);
     this.setup = true;
   }
 
@@ -174,20 +154,29 @@ public class SecureComputationEngineImpl implements SecureComputationEngine {
    * .framework.Application)
    */
   @Override
-  public void runApplication(Application application) {
+  public void runApplication(Application application, ResourcePoolImpl sceNetwork) {
+    try {
+      startApplication(application, sceNetwork).get(10, TimeUnit.MINUTES);
+    } catch (InterruptedException | ExecutionException | TimeoutException e) {
+      throw new RuntimeException("Internal error in waiting", e);
+    }
+  }
+
+  public Future<?> startApplication(Application application, ResourcePoolImpl resourcePool) {
     prepareEvaluator();
-    ProtocolProducer prod = application.prepareApplication(this.protocolFactory);
+    ProtocolFactory protocolFactory = this.protocolSuite.init(resourcePool);
+    ProtocolProducer prod = application.prepareApplication(protocolFactory);
     String appName = application.getClass().getName();
     Reporter.info("Running application: " + appName + " using protocol suite: "
         + this.protocolSuite);
-    evalApplication(prod, appName);
+
+    return executorService.submit(() -> evalApplication(prod, appName, resourcePool));
   }
 
   private void prepareEvaluator() {
     try {
-      Reporter.init(this.getSCEConfiguration().getLogLevel());
+      Reporter.init(this.sceConf.getLogLevel());
       setup();
-      this.evaluator.setResourcePool(this.resourcePool);
       this.evaluator.setProtocolInvocation(this.protocolSuite);
     } catch (IOException e) {
       throw new MPCException(
@@ -195,12 +184,14 @@ public class SecureComputationEngineImpl implements SecureComputationEngine {
     }
   }
 
-  private void evalApplication(ProtocolProducer prod, String appName) {
+  private void evalApplication(ProtocolProducer prod, String appName,
+      ResourcePoolImpl resourcePool) {
     try {
       if (prod != null) {
-        Reporter.info("Using the configuration: " + this.getSCEConfiguration());
+        Reporter.info("Using the configuration: " + this.sceConf);
         long then = System.currentTimeMillis();
-        this.evaluator.eval(prod);
+        this.evaluator.eval(prod,
+            resourcePool);
         long now = System.currentTimeMillis();
         long timeSpend = now - then;
         Reporter.info("Running the application " + appName + " took " + timeSpend + " ms.");
@@ -212,29 +203,10 @@ public class SecureComputationEngineImpl implements SecureComputationEngine {
 
   @Override
   public void shutdownSCE() {
-    this.evaluator = null;
-    try {
-      if (this.resourcePool != null) {
-        this.resourcePool.shutdownNetwork();
-        if (this.resourcePool.getStreamedStorage() != null) {
-          this.resourcePool.getStreamedStorage().shutdown();
-        }
-        this.resourcePool = null;
-      }
-    } catch (IOException e) {
-      // Do nothing about it..
-    }
-    if (this.threadPool != null) {
-      // shuts down both vm and protocol threadpools
-      this.threadPool.shutdown();
-      this.threadPool = null;
-    }
+    this.executorService.shutdown();
     if (this.protocolSuite != null) {
       this.protocolSuite.destroy();
-      this.protocolSuite = null;
     }
-    this.resourcePool = null;
-    this.protocolFactory = null;
     this.setup = false;
   }
 

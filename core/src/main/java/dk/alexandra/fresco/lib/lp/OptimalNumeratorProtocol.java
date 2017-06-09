@@ -26,61 +26,46 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.lp;
 
-import dk.alexandra.fresco.framework.NativeProtocol;
-import dk.alexandra.fresco.framework.Protocol;
+import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.framework.value.Value;
-import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
 
-public class OptimalNumeratorProtocol implements Protocol {
-	
-	private final SInt[] B;
-	private final Matrix<SInt> updateMatrix;
-	private final SInt optimalNumerator;
-	private LPFactory lpFactory;
-	private ProtocolProducer pp;
-	private boolean done = false;
-	
-	public OptimalNumeratorProtocol(Matrix<SInt> updateMatrix, SInt[] B, SInt optimalNumerator, LPFactory lpFactory) {
-		this.updateMatrix = updateMatrix;
-		this.B = B;
-		this.optimalNumerator = optimalNumerator;
-		this.lpFactory = lpFactory;
-	}
+public class OptimalNumeratorProtocol implements ProtocolProducer {
 
-	@Override
-	public int getNextProtocols(NativeProtocol[] nativeProtocols, int pos) {
-		if (pp == null) {
-			SInt[] row = updateMatrix.getIthRow(updateMatrix.getHeight() - 1);
-			SInt[] shortenedRow = new SInt[B.length];
-			System.arraycopy(row, 0, shortenedRow, 0, B.length);
-			ProtocolProducer innerProduct = lpFactory.getInnerProductProtocol(B, shortenedRow, optimalNumerator);
-			pp = new SequentialProtocolProducer(innerProduct);
-		} 
-		if (pp.hasNextProtocols()) {
-			pos = pp.getNextProtocols(nativeProtocols, pos);
-		} else if (!pp.hasNextProtocols()) {
-			pp = null;
-			done = true;
-		}
-		return pos;
-	}
+  private final SInt[] B;
+  private final Matrix<SInt> updateMatrix;
+  private final SInt optimalNumerator;
+  private LPFactory lpFactory;
+  private ProtocolProducer pp;
+  private boolean done = false;
 
-	@Override
-	public boolean hasNextProtocols() {
-		return !done;
-	}
+  public OptimalNumeratorProtocol(Matrix<SInt> updateMatrix, SInt[] B, SInt optimalNumerator,
+      LPFactory lpFactory) {
+    this.updateMatrix = updateMatrix;
+    this.B = B;
+    this.optimalNumerator = optimalNumerator;
+    this.lpFactory = lpFactory;
+  }
 
-	@Override
-	public Value[] getInputValues() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+  @Override
+  public void getNextProtocols(ProtocolCollection protocolCollection) {
+    if (pp == null) {
+      SInt[] row = updateMatrix.getIthRow(updateMatrix.getHeight() - 1);
+      SInt[] shortenedRow = new SInt[B.length];
+      System.arraycopy(row, 0, shortenedRow, 0, B.length);
+      pp = lpFactory
+          .getInnerProductProtocol(B, shortenedRow, optimalNumerator);
+    }
+    if (pp.hasNextProtocols()) {
+      pp.getNextProtocols(protocolCollection);
+    } else {
+      pp = null;
+      done = true;
+    }
+  }
 
-	@Override
-	public Value[] getOutputValues() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+  @Override
+  public boolean hasNextProtocols() {
+    return !done;
+  }
 }

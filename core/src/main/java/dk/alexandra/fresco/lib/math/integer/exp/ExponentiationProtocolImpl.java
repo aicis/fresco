@@ -31,10 +31,11 @@ import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.conversion.IntegerToBitsFactory;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
-import dk.alexandra.fresco.lib.helper.AbstractSimpleProtocol;
+import dk.alexandra.fresco.lib.helper.SimpleProtocolProducer;
 import dk.alexandra.fresco.lib.helper.builder.NumericProtocolBuilder;
 
-public class ExponentiationProtocolImpl extends AbstractSimpleProtocol implements ExponentiationProtocol {
+public class ExponentiationProtocolImpl extends SimpleProtocolProducer implements
+		ExponentiationProtocol {
 
 	private SInt input;
 	private OInt openInput;

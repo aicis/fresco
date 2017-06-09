@@ -57,12 +57,6 @@ public class SpdzOpenCommitProtocol extends SpdzNativeProtocol {
 	}
 
 	@Override
-	public Value[] getInputValues() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
 	public Value[] getOutputValues() {
 		// TODO Auto-generated method stub
 		return null;

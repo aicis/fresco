@@ -40,7 +40,7 @@ public interface CovarianceFactory {
 	 *            The covariance of the two data sets.
 	 * @return
 	 */
-	public CovarianceProtocol getCovarianceProtocol(SInt[] data1, SInt[] data2, SInt result);
+	CovarianceProtocol getCovarianceProtocol(SInt[] data1, SInt[] data2, SInt result);
 
 	/**
 	 * 
@@ -57,6 +57,7 @@ public interface CovarianceFactory {
 	 *            The covariance of the two data sets.
 	 * @return
 	 */
-	public CovarianceProtocol getCovarianceProtocol(SInt[] data1, SInt[] data2, SInt mean1, SInt mean2, SInt result);
+	CovarianceProtocol getCovarianceProtocol(SInt[] data1, SInt[] data2, SInt mean1, SInt mean2,
+			SInt result);
 
 }

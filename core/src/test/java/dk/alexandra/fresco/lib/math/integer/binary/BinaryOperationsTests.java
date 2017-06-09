@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -32,6 +32,7 @@ import dk.alexandra.fresco.framework.TestApplication;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
+import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.compare.RandomAdditiveMaskFactory;
@@ -102,16 +103,15 @@ public class BinaryOperationsTests {
 							OInt output2 = ioBuilder.output(remainder);
 							
 							sequentialProtocolProducer.append(ioBuilder.getProtocol());
-							
-							ProtocolProducer gp = sequentialProtocolProducer;
-							
+
 							outputs = new OInt[] {output1, output2};
-							
-							return gp;
+
+							return sequentialProtocolProducer;
 						}
 					};
-          secureComputationEngine.runApplication(app);
-          BigInteger result = app.getOutputs()[0].getValue();
+					secureComputationEngine
+							.runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf));
+					BigInteger result = app.getOutputs()[0].getValue();
 					BigInteger remainder = app.getOutputs()[1].getValue();
 					
 					Assert.assertEquals(result, input.shiftRight(1));
@@ -166,18 +166,15 @@ public class BinaryOperationsTests {
 							OInt shiftOutput = ioBuilder.output(result);
 							OInt[] remainderOutput = ioBuilder.outputArray(remainders);
 							sequentialProtocolProducer.append(ioBuilder.getProtocol());
-							
-							ProtocolProducer gp = sequentialProtocolProducer;
-							
+
 							outputs = new OInt[n+1];
 							outputs[0] = shiftOutput;
-							for (int i = 0; i < n; i++) { 
-								outputs[i+1] = remainderOutput[i];
-							}
-							return gp;
+							System.arraycopy(remainderOutput, 0, outputs, 1, n);
+							return sequentialProtocolProducer;
 						}
 					};
-          secureComputationEngine.runApplication(app);
+					secureComputationEngine
+							.runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf));
 
           BigInteger output = app.getOutputs()[0].getValue();
 					Assert.assertEquals(input.shiftRight(n), output);
@@ -235,16 +232,15 @@ public class BinaryOperationsTests {
 							OInt output1 = ioBuilder.output(result);
 							
 							sequentialProtocolProducer.append(ioBuilder.getProtocol());
-							
-							ProtocolProducer gp = sequentialProtocolProducer;
-							
+
 							outputs = new OInt[] {output1};
-							
-							return gp;
+
+							return sequentialProtocolProducer;
 						}
 					};
-          secureComputationEngine.runApplication(app);
-          BigInteger result = app.getOutputs()[0].getValue();
+					secureComputationEngine
+							.runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf));
+					BigInteger result = app.getOutputs()[0].getValue();
 					
 					System.out.println(result);
 					

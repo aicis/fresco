@@ -26,14 +26,13 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.collections.sort;
 
-import java.util.List;
-
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SBool;
-import dk.alexandra.fresco.lib.helper.AbstractSimpleProtocol;
+import dk.alexandra.fresco.lib.helper.SimpleProtocolProducer;
 import dk.alexandra.fresco.lib.helper.builder.BasicLogicBuilder;
 import dk.alexandra.fresco.lib.logic.AbstractBinaryFactory;
+import java.util.List;
 
 /**
  * An implementation of the OddEvenMergeProtocol. This does not support threading,
@@ -42,8 +41,8 @@ import dk.alexandra.fresco.lib.logic.AbstractBinaryFactory;
  * @author psn
  *
  */
-public class OddEvenMergeProtocolImpl extends AbstractSimpleProtocol implements
-		OddEvenMergeProtocol {
+public class OddEvenMergeProtocolImpl extends SimpleProtocolProducer implements
+    OddEvenMergeProtocol {
 
 	private BasicLogicBuilder blb;
 	private List<Pair<SBool[], SBool[]>> sorted;

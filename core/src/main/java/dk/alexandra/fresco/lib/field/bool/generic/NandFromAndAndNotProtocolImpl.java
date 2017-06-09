@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -26,63 +26,47 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.field.bool.generic;
 
-import dk.alexandra.fresco.framework.NativeProtocol;
-import dk.alexandra.fresco.framework.ProtocolProducer;
+import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.value.SBool;
-import dk.alexandra.fresco.framework.value.Value;
-import dk.alexandra.fresco.lib.field.bool.AndProtocol;
 import dk.alexandra.fresco.lib.field.bool.BasicLogicFactory;
 import dk.alexandra.fresco.lib.field.bool.NandProtocol;
-import dk.alexandra.fresco.lib.field.bool.NotProtocol;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
 
-public class NandFromAndAndNotProtocolImpl implements NandProtocol{
+public class NandFromAndAndNotProtocolImpl implements NandProtocol {
 
-	SBool left; 
-	SBool right; 
-	SBool out;
-	BasicLogicFactory factory;
-	private ProtocolProducer curPP = null;
-	private boolean done = false;
-	
-	public NandFromAndAndNotProtocolImpl(SBool left, SBool right, SBool out,
-			BasicLogicFactory factory) {
-		this.left = left;
-		this.right = right;
-		this.out = out;
-		this.factory = factory;
-	}
+  private SBool left;
+  private SBool right;
+  private SBool out;
+  private BasicLogicFactory factory;
+  private SequentialProtocolProducer curPP = null;
+  private boolean done = false;
 
-	@Override
-	public int getNextProtocols(NativeProtocol[] nativeProtocols, int pos) {
-		if(curPP == null){			
-			SBool tmpOut = factory.getSBool();
-			AndProtocol and = factory.getAndProtocol(left, right, tmpOut);
-			NotProtocol not = factory.getNotProtocol(tmpOut, out);
-			curPP = new SequentialProtocolProducer(and, not);
-		}
-		if(curPP.hasNextProtocols()){
-			pos = curPP.getNextProtocols(nativeProtocols, pos);
-		}
-		else if(!curPP.hasNextProtocols()){
-			done = true;
-		}
-		return pos;
-	}
+  public NandFromAndAndNotProtocolImpl(SBool left, SBool right, SBool out,
+      BasicLogicFactory factory) {
+    this.left = left;
+    this.right = right;
+    this.out = out;
+    this.factory = factory;
+  }
 
-	@Override
-	public boolean hasNextProtocols() {
-		return !done;
-	}
-	
-	@Override
-	public Value[] getInputValues() {
-		return new Value[]{left, right};
-	}
+  @Override
+  public void getNextProtocols(ProtocolCollection protocolCollection) {
+    if (curPP == null) {
+      SBool tmpOut = factory.getSBool();
+      curPP = new SequentialProtocolProducer();
+      curPP.append(factory.getAndProtocol(left, right, tmpOut));
+      curPP.append(factory.getNotProtocol(tmpOut, out));
+    }
+    if (curPP.hasNextProtocols()) {
+      curPP.getNextProtocols(protocolCollection);
+    } else {
+      done = true;
+    }
+  }
 
-	@Override
-	public Value[] getOutputValues() {
-		return new Value[]{out};
-	}
+  @Override
+  public boolean hasNextProtocols() {
+    return !done;
+  }
 
 }

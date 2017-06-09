@@ -35,29 +35,29 @@ public interface SIntFactory {
 	 * Creates an empty container.
 	 * 
 	 */
-	public SInt getSInt();
-	
-	
-	@Deprecated
-	public SInt getSInt(int i);
-	
-	@Deprecated
-	public SInt getSInt(BigInteger i);
+  SInt getSInt();
+
+
+  @Deprecated
+  SInt getSInt(int i);
+
+  @Deprecated
+  SInt getSInt(BigInteger i);
 
 	/**
 	 * A protocol to load a publicly known value into a SInt
 	 * TODO: This should not be how values are loaded
 	 * 
 	 */
-	public KnownSIntProtocol getSInt(int i, SInt si);
-	
-	/**
+  KnownSIntProtocol getSInt(int i, SInt si);
+
+  /**
 	 * Gets a protocol to load a publicly known value into a SInt. 
 	 * The idea here is to not do the computation involved in loading the SInt 
 	 * while we are building the protocol.
 	 * TODO: This should not be how values are loaded
 	 * 
 	 */
-	public KnownSIntProtocol getSInt(BigInteger i, SInt si);	
-	
+  KnownSIntProtocol getSInt(BigInteger i, SInt si);
+
 }

@@ -26,108 +26,96 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.debug;
 
-import dk.alexandra.fresco.framework.NativeProtocol;
-import dk.alexandra.fresco.framework.Protocol;
+import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.OBool;
 import dk.alexandra.fresco.framework.value.SBool;
-import dk.alexandra.fresco.framework.value.Value;
 import dk.alexandra.fresco.lib.field.bool.BasicLogicFactory;
+import dk.alexandra.fresco.lib.helper.SingleProtocolProducer;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
 
 
-public class BinaryOpenAndPrint implements Protocol {
+public class BinaryOpenAndPrint implements ProtocolProducer {
 
-	private SBool number = null;
-	private SBool[] string = null;
-		
-	private OBool oNumber = null;
-	private OBool[] oString = null;
-	
-	
-	private enum STATE {OUTPUT, WRITE, DONE};
-	private STATE state = STATE.OUTPUT;
-	private String label;
-	
-	ProtocolProducer pp = null;
-	
-	private BasicLogicFactory factory;
-	
+  private SBool number = null;
+  private SBool[] string = null;
 
-	public BinaryOpenAndPrint(String label, SBool[] string, BasicLogicFactory factory) {
-		this.string = string;
-		this.factory = factory;
-		this.label = label;
-	}
-	
-	@Override
-	public Value[] getInputValues() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+  private OBool oNumber = null;
+  private OBool[] oString = null;
 
-	@Override
-	public Value[] getOutputValues() {
-		// TODO Auto-generated method stub
-		return null;
-	}
 
-	@Override
-	public int getNextProtocols(NativeProtocol[] nativeProtocols, int pos) {
-		if (pp == null) {
-			if (state == STATE.OUTPUT) {
-				if (number != null) {
-					oNumber = factory.getOBool();
-					pp = factory.getOpenProtocol(number, oNumber);
-				} else if (string != null) {
-					oString = new OBool[string.length];
-					SequentialProtocolProducer seq = new SequentialProtocolProducer();
-					for (int i = 0; i < string.length; i++) {
-						oString[i] = factory.getOBool();
-						seq.append(factory.getOpenProtocol(string[i], oString[i]));
-					}
-					pp = seq;
-				} 
-			} else if (state == STATE.WRITE) {
-				StringBuilder sb = new StringBuilder();
-				sb.append(label);
-				if (oNumber != null) {
-					sb.append(oNumber.getValue());
-				} else if (oString != null) {
-					sb.append('\n');
-					for (OBool entry: oString) {
-						if (entry.getValue()) {
-							sb.append(1);
-						} else {
-							sb.append(0);
-						}
-					}
-				}
-				pp = new MarkerProtocolImpl(sb.toString());
-			}			
-		}
-		if (pp.hasNextProtocols()) {
-			pos = pp.getNextProtocols(nativeProtocols, pos);
-		} else if (!pp.hasNextProtocols()) {
-			switch (state) {
-			case OUTPUT:
-				state = STATE.WRITE;
-				pp = null;
-				break;
-			case WRITE:
-				state = STATE.DONE;
-				pp = null;
-				break;
-			default:
-				break;
-			}
-		}
-		return pos;
-	}
+  private enum STATE {OUTPUT, WRITE, DONE}
 
-	@Override
-	public boolean hasNextProtocols() {
-		// TODO Auto-generated method stub
-		return state != STATE.DONE;
-	}
+  ;
+  private STATE state = STATE.OUTPUT;
+  private String label;
+
+  ProtocolProducer pp = null;
+
+  private BasicLogicFactory factory;
+
+
+  public BinaryOpenAndPrint(String label, SBool[] string, BasicLogicFactory factory) {
+    this.string = string;
+    this.factory = factory;
+    this.label = label;
+  }
+
+  @Override
+  public void getNextProtocols(ProtocolCollection protocolCollection) {
+    if (pp == null) {
+      if (state == STATE.OUTPUT) {
+        if (number != null) {
+          oNumber = factory.getOBool();
+          pp = SingleProtocolProducer.wrap(factory.getOpenProtocol(number, oNumber));
+        } else if (string != null) {
+          oString = new OBool[string.length];
+          SequentialProtocolProducer seq = new SequentialProtocolProducer();
+          for (int i = 0; i < string.length; i++) {
+            oString[i] = factory.getOBool();
+            seq.append(factory.getOpenProtocol(string[i], oString[i]));
+          }
+          pp = seq;
+        }
+      } else if (state == STATE.WRITE) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(label);
+        if (oNumber != null) {
+          sb.append(oNumber.getValue());
+        } else if (oString != null) {
+          sb.append('\n');
+          for (OBool entry : oString) {
+            if (entry.getValue()) {
+              sb.append(1);
+            } else {
+              sb.append(0);
+            }
+          }
+        }
+        pp = new MarkerProtocolImpl(sb.toString());
+      }
+    }
+    if (pp.hasNextProtocols()) {
+      pp.getNextProtocols(protocolCollection);
+    } else {
+      switch (state) {
+        case OUTPUT:
+          state = STATE.WRITE;
+          pp = null;
+          break;
+        case WRITE:
+          state = STATE.DONE;
+          pp = null;
+          break;
+        default:
+          break;
+      }
+    }
+  }
+
+  @Override
+  public boolean hasNextProtocols() {
+    // TODO Auto-generated method stub
+    return state != STATE.DONE;
+  }
 }

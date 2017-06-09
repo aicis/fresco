@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -26,55 +26,32 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.helper;
 
-import java.io.Serializable;
-import java.util.Map;
-import java.util.Set;
-
 import dk.alexandra.fresco.framework.NativeProtocol;
+import dk.alexandra.fresco.framework.ProtocolProducer;
 
-public abstract class HalfCookedNativeProtocol implements NativeProtocol {
+/**
+ * ProtocolProducers that can have other Protocolproducers appended to them
+ *
+ * @author psn
+ */
+public interface ProtocolProducerCollection {
 
-	private boolean evaluated = false;
+  /**
+   * Appends a ProtocolProducer to this ProtocolProducer. The exact meaning of
+   * appending a ProtocolProducer is dependent is defined by this ProtocolProducer.
+   * However, as a minimum calling nextProtocols on this ProtocolProducer should
+   * eventually produce the Protocols of the appended ProtocolProducer.
+   *
+   * @param protocolProducer the protocol producer to append
+   */
+  void append(ProtocolProducer protocolProducer);
 
-	@Override
-	public int getNextProtocols(NativeProtocol[] nativeProtocols, int pos) {
-		if (pos + 1 >= nativeProtocols.length) {
-			return pos;
-		}
-		if (evaluated) {
-			return pos;
-		} else {
-			evaluated = true;
-			nativeProtocols[pos++] = this;
-			return pos;
-		}
-	}
+  /**
+   * Appends a NativeProtocol to this ProtocolProducer. This just
+   * adds a single protocol producer with the supplied protocal.
+   *
+   * @param protocol the protocol  to append
+   */
+  void append(NativeProtocol protocol);
 
-	@Override
-	public boolean hasNextProtocols() {
-		return !evaluated;
-	}
-
-	/* Helper methods for network communication */
-
-	protected void sendToAll(Map<Integer, Serializable> output,
-			Serializable[] toSend) {
-		for (int i = 0; i < toSend.length; i++) {
-			output.put(i + 1, toSend[i]);
-		}
-	}
-
-	protected void sendToAll(Map<Integer, Serializable> output,
-			Serializable toSend, int noOfPlayers) {
-		for (int i = 0; i < noOfPlayers; i++) {
-			output.put(i + 1, toSend);
-		}
-	}
-
-	protected void expectFromAll(int noOfPlayers,
-			Set<Integer> expectedInputForNextRound) {
-		for (int i = 1; i <= noOfPlayers; i++) {
-			expectedInputForNextRound.add(i);
-		}
-	}
 }

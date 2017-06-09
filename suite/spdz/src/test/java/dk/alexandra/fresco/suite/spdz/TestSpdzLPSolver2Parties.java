@@ -33,7 +33,6 @@ import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.resources.storage.FilebasedStreamedStorageImpl;
 import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
 import dk.alexandra.fresco.suite.spdz.storage.InitializeStorage;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
@@ -42,18 +41,6 @@ public class TestSpdzLPSolver2Parties extends AbstractSpdzTest {
 	@Test
 	public void test_LPSolver_2_Sequential_dummy() throws Exception {
 		runTest(new LPSolverTests.TestLPSolver(), EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET,
-				PreprocessingStrategy.DUMMY, 2);
-	}
-
-	@Test
-	public void test_LPSolver_2_Parallel_dummy() throws Exception {
-		runTest(new LPSolverTests.TestLPSolver(), EvaluationStrategy.PARALLEL, NetworkingStrategy.KRYONET,
-				PreprocessingStrategy.DUMMY, 2);
-	}
-
-	@Test
-	public void test_LPSolver_2_Parallel_batched_dummy() throws Exception {
-		runTest(new LPSolverTests.TestLPSolver(), EvaluationStrategy.PARALLEL_BATCHED, NetworkingStrategy.KRYONET,
 				PreprocessingStrategy.DUMMY, 2);
 	}
 
@@ -78,39 +65,4 @@ public class TestSpdzLPSolver2Parties extends AbstractSpdzTest {
 			InitializeStorage.cleanup();
 		}
 	}
-
-	// ignoring the last streamed tests since they take too long with respect to
-	// generating preprocessed material
-	// TODO: Maybe add the @Category(IntegrationTest.class) instead of @Ignore.
-
-	@Test
-	@Ignore
-	public void test_LPSolver_2_Parallel_streamed() throws Exception {
-		int noOfThreads = 2;
-		InitializeStorage.cleanup();
-		try {
-			InitializeStorage.initStreamedStorage(new FilebasedStreamedStorageImpl(new InMemoryStorage()), 2,
-					noOfThreads, 10000, 1000, 500000, 2000);
-			runTest(new LPSolverTests.TestLPSolver(), EvaluationStrategy.PARALLEL, NetworkingStrategy.KRYONET,
-					PreprocessingStrategy.STATIC, 2);
-		} finally {
-			InitializeStorage.cleanup();
-		}
-	}
-
-	@Test
-	@Ignore
-	public void test_LPSolver_2_ParallelBatched_streamed() throws Exception {
-		int noOfThreads = 2;
-		InitializeStorage.cleanup();
-		try {
-			InitializeStorage.initStreamedStorage(new FilebasedStreamedStorageImpl(new InMemoryStorage()), 2,
-					noOfThreads, 10000, 1000, 500000, 2000);
-			runTest(new LPSolverTests.TestLPSolver(), EvaluationStrategy.PARALLEL_BATCHED, NetworkingStrategy.KRYONET,
-					PreprocessingStrategy.STATIC, 2);
-		} finally {
-			InitializeStorage.cleanup();
-		}
-	}
-
 }

@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -26,8 +26,6 @@
  *******************************************************************************/
 package dk.alexandra.fresco.framework.configuration;
 
-import java.util.logging.Level;
-
 import dk.alexandra.fresco.framework.Party;
 
 public interface NetworkConfiguration {
@@ -45,7 +43,5 @@ public interface NetworkConfiguration {
 	int getMyId();
 	
 	int noOfParties();
-
-	Level getLogLevel();
 
 }

@@ -26,15 +26,14 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.crypto.mimc;
 
-import dk.alexandra.fresco.framework.Protocol;
+import dk.alexandra.fresco.framework.ProtocolProducer;
 
 /**
  * There are two versions of this protocol. One that requires extra preprocessed
  * values, and one that uses just normal triples/squares.
- * 
- * @author Kasper Damgaard
  *
+ * @author Kasper Damgaard
  */
-public interface MiMCEncryptionProtocol extends Protocol{
+public interface MiMCEncryptionProtocol extends ProtocolProducer {
 
 }

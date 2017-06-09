@@ -26,8 +26,8 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.debug;
 
-import dk.alexandra.fresco.framework.Protocol;
+import dk.alexandra.fresco.framework.ProtocolProducer;
 
-public interface MarkerProtocol extends Protocol {
+public interface MarkerProtocol extends ProtocolProducer {
 
 }

@@ -27,10 +27,11 @@
 package dk.alexandra.fresco.lib.field.bool;
 
 import dk.alexandra.fresco.framework.ProtocolFactory;
+import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.SBool;
 
 public interface NotProtocolFactory extends ProtocolFactory {
 
-	public NotProtocol getNotProtocol(SBool in, SBool out);
-	
+  ProtocolProducer getNotProtocol(SBool in, SBool out);
+
 }

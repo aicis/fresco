@@ -26,57 +26,55 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.math.integer.stat;
 
-import java.math.BigInteger;
-
-import dk.alexandra.fresco.framework.Protocol;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
-import dk.alexandra.fresco.lib.helper.AbstractSimpleProtocol;
+import dk.alexandra.fresco.lib.helper.SimpleProtocolProducer;
 import dk.alexandra.fresco.lib.helper.builder.NumericProtocolBuilder;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
 import dk.alexandra.fresco.lib.math.integer.division.DivisionFactory;
+import java.math.BigInteger;
 
-public class MeanProtocolImpl extends AbstractSimpleProtocol implements
-		MeanProtocol {
+public class MeanProtocolImpl extends SimpleProtocolProducer implements
+    MeanProtocol {
 
-	private final BasicNumericFactory basicNumericFactory;
-	private final DivisionFactory divisionFactory;
+  private final BasicNumericFactory basicNumericFactory;
+  private final DivisionFactory divisionFactory;
 
-	private SInt[] data;
-	private SInt result;
-	private int degreesOfFreedom;
+  private SInt[] data;
+  private SInt result;
+  private int degreesOfFreedom;
 
-	public MeanProtocolImpl(SInt[] data, SInt result, 
-			BasicNumericFactory basicNumericFactory,
-			DivisionFactory divisionFactory) {
-		this.data = data;
-		this.degreesOfFreedom = data.length;
-		this.result = result;
-		this.basicNumericFactory = basicNumericFactory;
-		this.divisionFactory = divisionFactory;
-		
-	}
-	
-	public MeanProtocolImpl(SInt[] data, int degreesOfFreedom, SInt result, 
-			BasicNumericFactory basicNumericFactory,
-			DivisionFactory divisionFactory) {
-		this(data, result, basicNumericFactory, divisionFactory);
-		this.degreesOfFreedom = degreesOfFreedom;
-	}
+  public MeanProtocolImpl(SInt[] data, SInt result,
+      BasicNumericFactory basicNumericFactory,
+      DivisionFactory divisionFactory) {
+    this.data = data;
+    this.degreesOfFreedom = data.length;
+    this.result = result;
+    this.basicNumericFactory = basicNumericFactory;
+    this.divisionFactory = divisionFactory;
 
-	@Override
-	protected ProtocolProducer initializeProtocolProducer() {
-		
-		NumericProtocolBuilder numericProtocolBuilder = new NumericProtocolBuilder(basicNumericFactory);
-		
-		SInt sum = numericProtocolBuilder.sum(data);
-		OInt n = basicNumericFactory.getOInt(BigInteger.valueOf(this.degreesOfFreedom));
-		
-		Protocol divide = divisionFactory.getDivisionProtocol(sum, n, result);
-		
-		return new SequentialProtocolProducer(numericProtocolBuilder.getProtocol(), divide);
-	}
+  }
+
+  public MeanProtocolImpl(SInt[] data, int degreesOfFreedom, SInt result,
+      BasicNumericFactory basicNumericFactory,
+      DivisionFactory divisionFactory) {
+    this(data, result, basicNumericFactory, divisionFactory);
+    this.degreesOfFreedom = degreesOfFreedom;
+  }
+
+  @Override
+  protected ProtocolProducer initializeProtocolProducer() {
+
+    NumericProtocolBuilder numericProtocolBuilder = new NumericProtocolBuilder(basicNumericFactory);
+
+    SInt sum = numericProtocolBuilder.sum(data);
+    OInt n = basicNumericFactory.getOInt(BigInteger.valueOf(this.degreesOfFreedom));
+
+    ProtocolProducer divide = divisionFactory.getDivisionProtocol(sum, n, result);
+
+    return new SequentialProtocolProducer(numericProtocolBuilder.getProtocol(), divide);
+  }
 
 }

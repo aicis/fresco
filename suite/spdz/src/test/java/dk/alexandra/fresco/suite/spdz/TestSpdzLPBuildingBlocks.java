@@ -34,36 +34,27 @@ import dk.alexandra.fresco.suite.spdz.evaluation.strategy.SpdzProtocolSuite;
 import java.math.BigInteger;
 import org.junit.Test;
 
-public class TestSpdzLPBuildingBlocks extends AbstractSpdzTest {		
-	
-	@Test
-	public void test_Exiting_Variable_Sequential() throws Exception {
-		runTest(new LPBuildingBlockTests.TestDummy(), EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);		
-		BigInteger mod = SpdzProtocolSuite.getInstance(1).getModulus();
-		runTest(new LPBuildingBlockTests.TestDanzigEnteringVariable(mod), EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
-	}
-	
-	@Test
-	public void test_Exiting_Variable_Parallel() throws Exception {
-		runTest(new LPBuildingBlockTests.TestDummy(), EvaluationStrategy.PARALLEL, NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);		
-		BigInteger mod = SpdzProtocolSuite.getInstance(1).getModulus();
-		runTest(new LPBuildingBlockTests.TestDanzigEnteringVariable(mod), EvaluationStrategy.PARALLEL, NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
-	}
-	
-	@Test
-	public void test_Exiting_Variable_Sequential_Batched() throws Exception {
-		runTest(new LPBuildingBlockTests.TestDummy(), EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);		
-		BigInteger mod = SpdzProtocolSuite.getInstance(1).getModulus();
-		runTest(new LPBuildingBlockTests.TestDanzigEnteringVariable(mod), EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);		
-	}
-	
-	@Test
-	public void test_Exiting_Variable_Parallel_Batched() throws Exception {
-		runTest(new LPBuildingBlockTests.TestDummy(), EvaluationStrategy.PARALLEL_BATCHED, NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);		
-		BigInteger mod = SpdzProtocolSuite.getInstance(1).getModulus();
-		runTest(new LPBuildingBlockTests.TestDanzigEnteringVariable(mod), EvaluationStrategy.PARALLEL_BATCHED, NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);		
-	}
-	
+public class TestSpdzLPBuildingBlocks extends AbstractSpdzTest {
+
+  @Test
+  public void test_Exiting_Variable_Sequential() throws Exception {
+    runTest(new LPBuildingBlockTests.TestDummy(), EvaluationStrategy.SEQUENTIAL,
+        NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
+    BigInteger mod = SpdzProtocolSuite.getInstance(1).getModulus();
+    runTest(new LPBuildingBlockTests.TestDanzigEnteringVariable(mod), EvaluationStrategy.SEQUENTIAL,
+        NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
+  }
+
+  @Test
+  public void test_Exiting_Variable_Sequential_Batched() throws Exception {
+    runTest(new LPBuildingBlockTests.TestDummy(), EvaluationStrategy.SEQUENTIAL_BATCHED,
+        NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
+    BigInteger mod = SpdzProtocolSuite.getInstance(1).getModulus();
+    runTest(new LPBuildingBlockTests.TestDanzigEnteringVariable(mod),
+        EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET,
+        PreprocessingStrategy.DUMMY, 2);
+  }
+
 /*
 	private abstract static class ThreadWithFixture extends TestThread {
 

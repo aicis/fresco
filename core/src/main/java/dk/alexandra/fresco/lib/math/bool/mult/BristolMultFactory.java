@@ -93,7 +93,7 @@ public class BristolMultFactory implements ProtocolFactory {
 		if (null == out || out.length != 64)
 			throw new IllegalArgumentException("'out' must be array of 64 SBools");
 		BristolCircuitParser parser = BristolCircuitParser.readCircuitDescription(this.blf, "circuits/mult_32x32.txt", in1, in2, out);
-		return new BristolCircuit(parser, in1, in2, out);
+		return new BristolCircuit(parser);
 	}
 	
 

@@ -26,17 +26,15 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.collections.sort;
 
-import dk.alexandra.fresco.framework.Protocol;
+import dk.alexandra.fresco.framework.ProtocolProducer;
 
 /**
  * A protocol to merge two sorted lists into a single sorted list using the merge
  * method of Batchers Odd/Even merge sort sorting network.
- * 
+ *
  * Note this is not a full sorting algorithm as the inputs must be already
  * sorted.
- * 
- * 
  */
-public interface OddEvenMergeProtocol extends Protocol {
+public interface OddEvenMergeProtocol extends ProtocolProducer {
 
 }

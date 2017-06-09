@@ -27,96 +27,71 @@
 package dk.alexandra.fresco.lib.math.bool.add;
 
 import dk.alexandra.fresco.framework.NativeProtocol;
+import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.SBool;
-import dk.alexandra.fresco.framework.value.Value;
 import dk.alexandra.fresco.lib.field.bool.BasicLogicFactory;
 import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
 
-public class OneBitFullAdderProtocolImpl implements OneBitFullAdderProtocol{
+public class OneBitFullAdderProtocolImpl implements OneBitFullAdderProtocol {
 
-	private SBool a, b, c, outS, outCarry;
-	private SBool xor1Out, and1Out, and2Out;
-	private BasicLogicFactory factory;
-	private ProtocolProducer curPP;
-	private int round;
-	
-	public OneBitFullAdderProtocolImpl(SBool a, SBool b, SBool c, 
-			SBool outS, SBool outCarry, BasicLogicFactory factory){
-		this.a = a;
-		this.b = b;
-		this.c = c;
-		this.outS = outS;
-		this.outCarry = outCarry;
-		this.factory = factory;
-		this.round = 0;
-	}
-	
-	@Override
-	public int getNextProtocols(NativeProtocol[] nativeProtocols, int pos) {
-		if(round == 0){
-			if(curPP == null){
-				xor1Out = factory.getSBool();
-				and1Out = factory.getSBool();
-				ProtocolProducer xor1 = factory.getXorProtocol(a, b, xor1Out);
-				ProtocolProducer and1 = factory.getAndProtocol(a, b, and1Out);
-				curPP = new ParallelProtocolProducer(xor1, and1);				
-			}
-			if(curPP.hasNextProtocols()){
-				pos = curPP.getNextProtocols(nativeProtocols, pos);
-			}
-			else if(!curPP.hasNextProtocols()){
-				round++;
-				curPP = null;
-			}
-		}
-		else if(round == 1){
-			if(curPP == null){
-				and2Out = factory.getSBool();
-				ProtocolProducer and2 = factory.getAndProtocol(xor1Out, c, and2Out);
-				ProtocolProducer xor2 = factory.getXorProtocol(xor1Out, c, outS);			
-				curPP = new ParallelProtocolProducer(and2, xor2);
-			}
-			if(curPP.hasNextProtocols()){
-				pos = curPP.getNextProtocols(nativeProtocols, pos);
-			}
-			else if(!curPP.hasNextProtocols()){
-				round++;
-				curPP = null;
-			}
-		}
-		else if(round == 2){
-			if(curPP == null){
-				ProtocolProducer xor3 = factory.getXorProtocol(and2Out, and1Out, outCarry);
-				curPP = new SequentialProtocolProducer(xor3);
-			}
-			if(curPP.hasNextProtocols()){
-				pos = curPP.getNextProtocols(nativeProtocols, pos);
-			}
-			else if(!curPP.hasNextProtocols()){
-				round++;
-				curPP = null;
-			}
-		}
-		return pos;
-	}
+  private SBool a, b, c, outS, outCarry;
+  private SBool xor1Out, and1Out, and2Out;
+  private BasicLogicFactory factory;
+  private ProtocolProducer curPP;
+  private int round;
 
-	@Override
-	public boolean hasNextProtocols() {
-		return round < 3;
-	}
+  public OneBitFullAdderProtocolImpl(SBool a, SBool b, SBool c,
+      SBool outS, SBool outCarry, BasicLogicFactory factory) {
+    this.a = a;
+    this.b = b;
+    this.c = c;
+    this.outS = outS;
+    this.outCarry = outCarry;
+    this.factory = factory;
+    this.round = 0;
+  }
 
-	@Override
-	public Value[] getInputValues() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+  @Override
+  public void getNextProtocols(ProtocolCollection protocolCollection) {
+    if (round == 0) {
+      if (curPP == null) {
+        xor1Out = factory.getSBool();
+        and1Out = factory.getSBool();
+        NativeProtocol xor1 = factory.getXorProtocol(a, b, xor1Out);
+        ProtocolProducer and1 = factory.getAndProtocol(a, b, and1Out);
+        curPP = new ParallelProtocolProducer(and1, xor1);
+      }
+      getNextFromCur(protocolCollection);
+    } else if (round == 1) {
+      if (curPP == null) {
+        and2Out = factory.getSBool();
+        ProtocolProducer and2 = factory.getAndProtocol(xor1Out, c, and2Out);
+        NativeProtocol xor2 = factory.getXorProtocol(xor1Out, c, outS);
+        curPP = new ParallelProtocolProducer(and2, xor2);
+      }
+      getNextFromCur(protocolCollection);
+    } else if (round == 2) {
+      if (curPP == null) {
+        NativeProtocol xor3 = factory.getXorProtocol(and2Out, and1Out, outCarry);
+        curPP = new SequentialProtocolProducer(xor3);
+      }
+      getNextFromCur(protocolCollection);
+    }
+  }
 
-	@Override
-	public Value[] getOutputValues() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+  private void getNextFromCur(ProtocolCollection protocolCollection) {
+    if (curPP.hasNextProtocols()) {
+      curPP.getNextProtocols(protocolCollection);
+    } else {
+      round++;
+      curPP = null;
+    }
+  }
 
+  @Override
+  public boolean hasNextProtocols() {
+    return round < 3;
+  }
 }

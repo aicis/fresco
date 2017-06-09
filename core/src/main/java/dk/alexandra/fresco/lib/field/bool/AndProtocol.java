@@ -26,9 +26,9 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.field.bool;
 
-import dk.alexandra.fresco.framework.Protocol;
+import dk.alexandra.fresco.framework.ProtocolProducer;
 
 
-public interface AndProtocol extends Protocol {
+public interface AndProtocol extends ProtocolProducer {
 
 }

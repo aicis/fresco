@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -26,12 +26,10 @@
  *******************************************************************************/
 package dk.alexandra.fresco.framework.configuration;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.logging.Level;
-
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.Party;
+import java.util.HashMap;
+import java.util.Map;
 
 public class NetworkConfigurationImpl implements NetworkConfiguration {
 
@@ -39,17 +37,10 @@ public class NetworkConfigurationImpl implements NetworkConfiguration {
 
 	private Map<Integer, Party> parties = new HashMap<Integer, Party>();
 
-	private Level logLevel;
-
-	public NetworkConfigurationImpl() {
-	}
-
-	public NetworkConfigurationImpl(int myId, Map<Integer, Party> parties,
-			Level logLevel) {
+	public NetworkConfigurationImpl(int myId, Map<Integer, Party> parties) {
 		super();
 		this.myId = myId;
 		this.parties = parties;
-		this.logLevel = logLevel;
 	}
 
 	public void add(int id, String host, int port) {
@@ -80,23 +71,10 @@ public class NetworkConfigurationImpl implements NetworkConfiguration {
 		return parties.size();
 	}
 
-	public void setMe(int id) {
-		this.myId = id;
-	}
-
-	public void setLogLevel(Level logLevel) {
-		this.logLevel = logLevel;
-	}
-
-	@Override
-	public Level getLogLevel() {
-		return this.logLevel;
-	}
-
 	@Override
 	public String toString() {
 		return "NetworkConfigurationImpl [myId=" + myId + ", parties="
-				+ parties + ", logLevel=" + logLevel + "]";
+				+ parties + "]";
 	}
 
 	

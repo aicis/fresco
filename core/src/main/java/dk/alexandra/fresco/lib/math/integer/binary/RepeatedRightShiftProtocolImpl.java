@@ -26,8 +26,7 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.math.integer.binary;
 
-import dk.alexandra.fresco.framework.NativeProtocol;
-import dk.alexandra.fresco.framework.Protocol;
+import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.framework.value.Value;
@@ -35,151 +34,130 @@ import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 
 public class RepeatedRightShiftProtocolImpl implements RepeatedRightShiftProtocol {
 
-	// Input
-	private SInt input;
-	private int shifts;
-	private SInt result;
+  // Input
+  private SInt input;
+  private int shifts;
+  private SInt result;
 
-	// Factories
-	private final BasicNumericFactory basicNumericFactory;
-	private final RightShiftFactory rightShiftFactory;
+  // Factories
+  private final BasicNumericFactory basicNumericFactory;
+  private final RightShiftFactory rightShiftFactory;
 
-	// Variables used for calculation
-	private int round = 0;
-	private SInt in, out;
-	private ProtocolProducer protocolProducer;
-	private SInt[] remainders;
+  // Variables used for calculation
+  private int round = 0;
+  private SInt in, out;
+  private ProtocolProducer protocolProducer;
+  private SInt[] remainders;
 
-	/**
-	 * 
-	 * @param input
-	 *            The input
-	 * @param shifts
-	 *            The number fo shifts to do
-	 * @param result
-	 *            input >> shifts
-	 * @param basicNumericFactory
-	 * @param rightShiftFactory
-	 */
-	public RepeatedRightShiftProtocolImpl(SInt input, int shifts, SInt result,
-			BasicNumericFactory basicNumericFactory, RightShiftFactory rightShiftFactory) {
+  /**
+   * @param input The input
+   * @param shifts The number fo shifts to do
+   * @param result input >> shifts
+   */
+  public RepeatedRightShiftProtocolImpl(SInt input, int shifts, SInt result,
+      BasicNumericFactory basicNumericFactory, RightShiftFactory rightShiftFactory) {
 
-		if (shifts < 1) {
-			throw new IllegalArgumentException("n must be positive");
-		}
+    if (shifts < 1) {
+      throw new IllegalArgumentException("n must be positive");
+    }
 
-		this.input = input;
-		this.shifts = shifts;
-		this.result = result;
+    this.input = input;
+    this.shifts = shifts;
+    this.result = result;
 
-		this.basicNumericFactory = basicNumericFactory;
-		this.rightShiftFactory = rightShiftFactory;
-	}
+    this.basicNumericFactory = basicNumericFactory;
+    this.rightShiftFactory = rightShiftFactory;
+  }
 
-	/**
-	 * 
-	 * @param input
-	 *            The input
-	 * @param shifts
-	 *            The number of shifts to do
-	 * @param result
-	 *            input >> shifts
-	 * @param remainders
-	 *            The <code>shifts</code> least significant bits of the input,
-	 *            the least significant having index 0.
-	 * @param basicNumericFactory
-	 * @param rightShiftFactory
-	 */
-	public RepeatedRightShiftProtocolImpl(SInt input, int shifts, SInt result, SInt[] remainders,
-			BasicNumericFactory basicNumericFactory, RightShiftFactory rightShiftFactory) {
+  /**
+   * @param input The input
+   * @param shifts The number of shifts to do
+   * @param result input >> shifts
+   * @param remainders The <code>shifts</code> least significant bits of the input, the least
+   * significant having index 0.
+   */
+  public RepeatedRightShiftProtocolImpl(SInt input, int shifts, SInt result, SInt[] remainders,
+      BasicNumericFactory basicNumericFactory, RightShiftFactory rightShiftFactory) {
 
-		this(input, shifts, result, basicNumericFactory, rightShiftFactory);
-		if (remainders.length != shifts) {
-			throw new IllegalArgumentException(
-					"Length of array for remainders must match number of performed shifts");
-		}
-		this.remainders = remainders;
-	}
+    this(input, shifts, result, basicNumericFactory, rightShiftFactory);
+    if (remainders.length != shifts) {
+      throw new IllegalArgumentException(
+          "Length of array for remainders must match number of performed shifts");
+    }
+    this.remainders = remainders;
+  }
 
-	@Override
-	public int getNextProtocols(NativeProtocol[] nativeProtocols, int pos) {
-		if (protocolProducer == null) {
-
-			if (round == 0) {
-				/*
-				 * First round
+  @Override
+  public void getNextProtocols(ProtocolCollection protocolCollection) {
+    if (protocolProducer == null) {
+      if (round == 0) {
+        /*
+         * First round
 				 */
-				out = basicNumericFactory.getSInt();
+        out = basicNumericFactory.getSInt();
 
-				Protocol rightShift;
-				if (remainders != null) {
-					rightShift = rightShiftFactory.getRightShiftProtocol(input, out,
-							remainders[round]);
-				} else {
-					rightShift = rightShiftFactory.getRightShiftProtocol(input, out);
-				}
-				protocolProducer = rightShift;
-			} else if (round < shifts - 1) {
-				/*
-				 * Intermediate rounds
+        ProtocolProducer rightShift;
+        if (remainders != null) {
+          rightShift = rightShiftFactory.getRightShiftProtocol(input, out,
+              remainders[round]);
+        } else {
+          rightShift = rightShiftFactory.getRightShiftProtocol(input, out);
+        }
+        protocolProducer = rightShift;
+      } else if (round < shifts - 1) {
+        /*
+         * Intermediate rounds
 				 */
-				in = out;
-				out = basicNumericFactory.getSInt();
-				Protocol rightShift;
-				if (remainders != null) {
-					rightShift = rightShiftFactory
-							.getRightShiftProtocol(in, out, remainders[round]);
-				} else {
-					rightShift = rightShiftFactory.getRightShiftProtocol(in, out);
-				}
-				protocolProducer = rightShift;
-			} else if (round == shifts - 1) {
-				/*
-				 * Last round
+        in = out;
+        out = basicNumericFactory.getSInt();
+        ProtocolProducer rightShift;
+        if (remainders != null) {
+          rightShift = rightShiftFactory
+              .getRightShiftProtocol(in, out, remainders[round]);
+        } else {
+          rightShift = rightShiftFactory.getRightShiftProtocol(in, out);
+        }
+        protocolProducer = rightShift;
+      } else if (round == shifts - 1) {
+        /*
+         * Last round
 				 */
-				in = out;
-				out = null;
-				Protocol rightShift;
-				if (remainders != null) {
-					rightShift = rightShiftFactory.getRightShiftProtocol(in, result,
-							remainders[round]);
-				} else {
-					rightShift = rightShiftFactory.getRightShiftProtocol(in, result);
-				}
-				protocolProducer = rightShift;
-			}
+        in = out;
+        out = null;
+        ProtocolProducer rightShift;
+        if (remainders != null) {
+          rightShift = rightShiftFactory.getRightShiftProtocol(in, result,
+              remainders[round]);
+        } else {
+          rightShift = rightShiftFactory.getRightShiftProtocol(in, result);
+        }
+        protocolProducer = rightShift;
+      }
+    }
 
-		}
-		if (protocolProducer.hasNextProtocols()) {
-			pos = protocolProducer.getNextProtocols(nativeProtocols, pos);
-		} else if (!protocolProducer.hasNextProtocols()) {
-			round++;
-			protocolProducer = null;
-		}
-		return pos;
-	}
+    if (protocolProducer.hasNextProtocols()) {
+      protocolProducer.getNextProtocols(protocolCollection);
+    } else {
+      round++;
+      protocolProducer = null;
+    }
+  }
 
-	@Override
-	public Value[] getInputValues() {
-		return new Value[] { input };
-	}
+  public Value[] getOutputValues() {
+    Value[] outputValues;
+    if (remainders != null) {
+      outputValues = new Value[1 + remainders.length];
+      outputValues[0] = result;
+      System.arraycopy(remainders, 0, outputValues, 1, remainders.length);
+    } else {
+      outputValues = new Value[]{result};
+    }
+    return outputValues;
+  }
 
-	@Override
-	public Value[] getOutputValues() {
-		Value[] outputValues;
-		if (remainders != null) {
-			outputValues = new Value[1 + remainders.length];
-			outputValues[0] = result;
-			System.arraycopy(remainders, 0, outputValues, 1, remainders.length);
-		} else {
-			outputValues = new Value[] { result };
-		}
-		return outputValues;
-	}
-
-	@Override
-	public boolean hasNextProtocols() {
-		return round < shifts;
-	}
+  @Override
+  public boolean hasNextProtocols() {
+    return round < shifts;
+  }
 
 }

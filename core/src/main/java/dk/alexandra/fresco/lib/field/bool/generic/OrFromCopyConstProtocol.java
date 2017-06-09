@@ -26,11 +26,10 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.field.bool.generic;
 
-import dk.alexandra.fresco.framework.NativeProtocol;
+import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.value.OBool;
 import dk.alexandra.fresco.framework.value.SBool;
 import dk.alexandra.fresco.framework.value.SBoolFactory;
-import dk.alexandra.fresco.framework.value.Value;
 import dk.alexandra.fresco.lib.field.bool.OrProtocol;
 import dk.alexandra.fresco.lib.helper.CopyProtocol;
 import dk.alexandra.fresco.lib.helper.CopyProtocolFactory;
@@ -38,51 +37,41 @@ import dk.alexandra.fresco.lib.helper.CopyProtocolFactory;
 /**
  * An efficient way of OR'ing an SBool with an OBool if we can construct SBools
  * of constants and if we can copy protocols.
- * 
  */
 public class OrFromCopyConstProtocol implements OrProtocol {
 
-	private CopyProtocol<SBool> copyCir;
-	private CopyProtocolFactory<SBool> copyFactory;
-	private SBoolFactory sboolFactory;
-	private SBool inLeft;
-	private OBool inRight;
-	private SBool out;
-	
-	public OrFromCopyConstProtocol(CopyProtocolFactory<SBool> copyFactory, SBoolFactory sboolFactory, SBool inLeft, OBool inRight, SBool out) {
-		this.copyFactory = copyFactory;
-		this.inLeft = inLeft;
-		this.inRight = inRight;
-		this.out = out;
-	}
-	
-	@Override
-	public Value[] getInputValues() {
-		return new Value[] { inLeft, inRight };
-	}
+  private CopyProtocol<SBool> copyCir;
+  private CopyProtocolFactory<SBool> copyFactory;
+  private SBoolFactory sboolFactory;
+  private SBool inLeft;
+  private OBool inRight;
+  private SBool out;
 
-	@Override
-	public Value[] getOutputValues() {
-		return new Value[] { out };
-	}
+  public OrFromCopyConstProtocol(CopyProtocolFactory<SBool> copyFactory, SBoolFactory sboolFactory,
+      SBool inLeft, OBool inRight, SBool out) {
+    this.copyFactory = copyFactory;
+    this.inLeft = inLeft;
+    this.inRight = inRight;
+    this.out = out;
+  }
 
-	@Override
-	public int getNextProtocols(NativeProtocol[] nativeProtocols, int pos) {
-	
-		if (copyCir == null) {
-			if (inRight.getValue()) {
-				copyCir = copyFactory.getCopyProtocol(sboolFactory.getKnownConstantSBool(true), out);
-			} else {
-				copyCir = copyFactory.getCopyProtocol(inLeft, out);
-			}
-		}
-		
-		return copyCir.getNextProtocols(nativeProtocols, pos);
-	}
+  @Override
+  public void getNextProtocols(ProtocolCollection protocolCollection) {
 
-	@Override
-	public boolean hasNextProtocols() {
-		return (copyCir == null || copyCir.hasNextProtocols());
-	}
+    if (copyCir == null) {
+      if (inRight.getValue()) {
+        copyCir = copyFactory.getCopyProtocol(sboolFactory.getKnownConstantSBool(true), out);
+      } else {
+        copyCir = copyFactory.getCopyProtocol(inLeft, out);
+      }
+    }
+
+    protocolCollection.addProtocol(copyCir);
+  }
+
+  @Override
+  public boolean hasNextProtocols() {
+    return (copyCir == null);
+  }
 
 }

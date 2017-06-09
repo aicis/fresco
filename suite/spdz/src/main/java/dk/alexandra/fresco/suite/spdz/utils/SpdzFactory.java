@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -37,7 +37,8 @@ import dk.alexandra.fresco.lib.field.integer.MultProtocol;
 import dk.alexandra.fresco.lib.field.integer.OpenIntProtocol;
 import dk.alexandra.fresco.lib.field.integer.RandomFieldElementProtocol;
 import dk.alexandra.fresco.lib.field.integer.SubtractProtocol;
-import dk.alexandra.fresco.lib.helper.builder.NumericProtocolBuilder;
+import dk.alexandra.fresco.lib.helper.CopyProtocolImpl;
+import dk.alexandra.fresco.lib.helper.SingleProtocolProducer;
 import dk.alexandra.fresco.lib.math.integer.exp.ExpFromOIntFactory;
 import dk.alexandra.fresco.lib.math.integer.exp.PreprocessedExpPipeFactory;
 import dk.alexandra.fresco.lib.math.integer.inv.LocalInversionFactory;
@@ -59,228 +60,221 @@ import java.math.BigInteger;
 import java.security.SecureRandom;
 
 public class SpdzFactory implements BasicNumericFactory,
-		PreprocessedExpPipeFactory, ExpFromOIntFactory, LocalInversionFactory {
+    PreprocessedExpPipeFactory, ExpFromOIntFactory, LocalInversionFactory {
 
-	private int maxBitLength;
-	private SpdzStorage storage;
-	private SecureRandom rand;
-	private int pID;
+  private int maxBitLength;
+  private SpdzStorage storage;
+  private SecureRandom rand;
+  private int pID;
 
-	/**
-	 * 
-	 * @param storage
-	 * @param pID
-	 * @param maxBitLength
-	 *            The maximum length in bits that the numbers in the
-	 *            application will have. If you have greater knowledge of your
-	 *            application, you can create several factorys, each with a
-	 *            different maxBitLength to increase performance.
-	 */
-	//TODO: Make Spdzfactory decoupled from the storage.
-	public SpdzFactory(SpdzStorage storage, int pID, int maxBitLength) {
-		this.maxBitLength = maxBitLength;
-		rand = new SecureRandom();
-		this.storage = storage;
-		this.pID = pID;
-	}
+  /**
+   * @param maxBitLength The maximum length in bits that the numbers in the application will have.
+   * If you have greater knowledge of your application, you can create several factorys, each with a
+   * different maxBitLength to increase performance.
+   */
+  //TODO: Make Spdzfactory decoupled from the storage.
+  public SpdzFactory(SpdzStorage storage, int pID, int maxBitLength) {
+    this.maxBitLength = maxBitLength;
+    rand = new SecureRandom();
+    this.storage = storage;
+    this.pID = pID;
+  }
 
-	@Override
-	public SInt getSInt() {
-		return new SpdzSInt();
-	}
+  @Override
+  public SInt getSInt() {
+    return new SpdzSInt();
+  }
 
-	/**
-	 * Careful - This creates a publicly known integer which is secret shared.
-	 */
+  /**
+   * Careful - This creates a publicly known integer which is secret shared.
+   */
 
-	@Override
-	public KnownSIntProtocol getSInt(int i, SInt si) {
-		return new SpdzKnownSIntProtocol(i, si);
-	}
+  @Override
+  public KnownSIntProtocol getSInt(int i, SInt si) {
+    return new SpdzKnownSIntProtocol(i, si);
+  }
 
-	/**
-	 * Careful - This creates a publicly known integer which is secret shared.
-	 */
-	@Override
-	public KnownSIntProtocol getSInt(BigInteger value, SInt sValue) {
-		return new SpdzKnownSIntProtocol(value, sValue);
-	}
+  /**
+   * Careful - This creates a publicly known integer which is secret shared.
+   */
+  @Override
+  public KnownSIntProtocol getSInt(BigInteger value, SInt sValue) {
+    return new SpdzKnownSIntProtocol(value, sValue);
+  }
 
-	/**
-	 * Careful - This creates a publicly known integer which is secret shared.
-	 * This is (approximately) the square root of the maximum representable
-	 * value. We set "max" to this value as we may want to multiply the "max"
-	 * value with an other number, and still not get overflow.
-	 */
-	@Override
-	public SInt getSqrtOfMaxValue() {
-		SpdzElement elm;
-		BigInteger two = BigInteger.valueOf(2);
-		BigInteger max = Util.getModulus().subtract(BigInteger.ONE).divide(two);
-		int bitlength = max.bitLength();
-		BigInteger approxMaxSqrt = two.pow(bitlength / 2);
+  /**
+   * Careful - This creates a publicly known integer which is secret shared.
+   * This is (approximately) the square root of the maximum representable
+   * value. We set "max" to this value as we may want to multiply the "max"
+   * value with an other number, and still not get overflow.
+   */
+  @Override
+  public SInt getSqrtOfMaxValue() {
+    SpdzElement elm;
+    BigInteger two = BigInteger.valueOf(2);
+    BigInteger max = Util.getModulus().subtract(BigInteger.ONE).divide(two);
+    int bitlength = max.bitLength();
+    BigInteger approxMaxSqrt = two.pow(bitlength / 2);
 
-		if (pID == 1) {
-			elm = new SpdzElement(approxMaxSqrt,
-					approxMaxSqrt.multiply(this.storage.getSSK()));
-		} else {
-			elm = new SpdzElement(BigInteger.ZERO,
-					approxMaxSqrt.multiply(this.storage.getSSK()));
-		}
-		return new SpdzSInt(elm);
-	}
+    if (pID == 1) {
+      elm = new SpdzElement(approxMaxSqrt,
+          approxMaxSqrt.multiply(this.storage.getSSK()));
+    } else {
+      elm = new SpdzElement(BigInteger.ZERO,
+          approxMaxSqrt.multiply(this.storage.getSSK()));
+    }
+    return new SpdzSInt(elm);
+  }
 
-	@Override
-	public ProtocolProducer createRandomSecretSharedBitProtocol(SInt bit) {
-		SInt local = this.storage.getSupplier().getNextBit();
-		NumericProtocolBuilder builder = new NumericProtocolBuilder(this);
-		builder.copy(bit, local);
-		return builder.getProtocol();
-	}
+  @Override
+  public ProtocolProducer createRandomSecretSharedBitProtocol(SInt from) {
+    SInt local = this.storage.getSupplier().getNextBit();
+    return SingleProtocolProducer.wrap(new CopyProtocolImpl<>(local, from));
+  }
 
-	@Override
-	public SInt[] getExponentiationPipe() {
-		return this.storage.getSupplier().getNextExpPipe();
-	}
+  @Override
+  public SInt[] getExponentiationPipe() {
+    return this.storage.getSupplier().getNextExpPipe();
+  }
 
-	@Override
-	public OInt[] getExpFromOInt(OInt value, int maxBitSize) {
-		BigInteger[] res = Util.getClearExpPipe(value.getValue(), maxBitSize);
-		OInt[] expPipe = new OInt[res.length];
-		for (int i = 0; i < res.length; i++) {
-			expPipe[i] = new SpdzOInt(res[i]);
-		}
-		return expPipe;
-	}
+  @Override
+  public OInt[] getExpFromOInt(OInt value, int maxBitSize) {
+    BigInteger[] res = Util.getClearExpPipe(value.getValue(), maxBitSize);
+    OInt[] expPipe = new OInt[res.length];
+    for (int i = 0; i < res.length; i++) {
+      expPipe[i] = new SpdzOInt(res[i]);
+    }
+    return expPipe;
+  }
 
-	@Override
-	public OInt getOInt() {
-		return new SpdzOInt();
-	}
+  @Override
+  public OInt getOInt() {
+    return new SpdzOInt();
+  }
 
-	@Override
-	public OInt getOInt(BigInteger i) {
-		return new SpdzOInt(i.mod(Util.getModulus()));
-	}
+  @Override
+  public OInt getOInt(BigInteger i) {
+    return new SpdzOInt(i.mod(Util.getModulus()));
+  }
 
-	@Override
-	public OInt getRandomOInt() {
-		return new SpdzOInt(new BigInteger(
-				Util.getModulus().toByteArray().length, rand));
-	}
+  @Override
+  public OInt getRandomOInt() {
+    return new SpdzOInt(new BigInteger(
+        Util.getModulus().toByteArray().length, rand));
+  }
 
-	@Override
-	public AddProtocol getAddProtocol(SInt a, SInt b, SInt out) {
-		return new SpdzAddProtocol(a, b, out);
-	}
+  @Override
+  public AddProtocol getAddProtocol(SInt a, SInt b, SInt out) {
+    return new SpdzAddProtocol(a, b, out);
+  }
 
-	@Override
-	public AddProtocol getAddProtocol(SInt a, OInt b, SInt out) {
-		return new SpdzAddProtocol(a, b, out, this);
-	}
+  @Override
+  public AddProtocol getAddProtocol(SInt a, OInt b, SInt out) {
+    return new SpdzAddProtocol(a, b, out, this);
+  }
 
-	@Override
-	public SubtractProtocol getSubtractProtocol(SInt a, SInt b, SInt out) {
-		return new SpdzSubtractProtocol(a, b, out, this);
-	}
+  @Override
+  public SubtractProtocol getSubtractProtocol(SInt a, SInt b, SInt out) {
+    return new SpdzSubtractProtocol(a, b, out, this);
+  }
 
-	@Override
-	public SubtractProtocol getSubtractProtocol(OInt a, SInt b, SInt out) {
-		return new SpdzSubtractProtocol(a, b, out, this);
-	}
+  @Override
+  public SubtractProtocol getSubtractProtocol(OInt a, SInt b, SInt out) {
+    return new SpdzSubtractProtocol(a, b, out, this);
+  }
 
-	@Override
-	public SubtractProtocol getSubtractProtocol(SInt a, OInt b, SInt out) {
-		return new SpdzSubtractProtocol(a, b, out, this);
-	}
-	
-	@Override
-	public MultProtocol getMultProtocol(SInt a, SInt b, SInt out) {
-		return new SpdzMultProtocol(a, b, out);
-	}
+  @Override
+  public SubtractProtocol getSubtractProtocol(SInt a, OInt b, SInt out) {
+    return new SpdzSubtractProtocol(a, b, out, this);
+  }
 
-	@Override
-	public MultProtocol getMultProtocol(OInt a, SInt b, SInt out) {
-		return new SpdzMultProtocol(a, b, out);
-	}
+  @Override
+  public MultProtocol getMultProtocol(SInt a, SInt b, SInt out) {
+    return new SpdzMultProtocol(a, b, out);
+  }
 
-	@Override
-	public int getMaxBitLength() {
-		return this.maxBitLength;
-	}
+  @Override
+  public MultProtocol getMultProtocol(OInt a, SInt b, SInt out) {
+    return new SpdzMultProtocol(a, b, out);
+  }
 
-	/****************************************
-	 * Native protocols to Spdz *
-	 ****************************************/
+  @Override
+  public int getMaxBitLength() {
+    return this.maxBitLength;
+  }
 
-	@Override
-	public LocalInversionProtocol getLocalInversionProtocol(OInt in, OInt out) {
-		return new SpdzLocalInversionProtocol(in, out);
-	}
+  /****************************************
+   * Native protocols to Spdz *
+   ****************************************/
 
-	@Override
-	@Deprecated
-	public SInt getSInt(int i) {
+  @Override
+  public LocalInversionProtocol getLocalInversionProtocol(OInt in, OInt out) {
+    return new SpdzLocalInversionProtocol(in, out);
+  }
 
-		BigInteger b = BigInteger.valueOf(i).mod(Util.getModulus());
-		SpdzElement elm;
-		if (pID == 1) {
-			elm = new SpdzElement(b, b.multiply(this.storage.getSSK()).mod(getModulus()));
-		} else {
-			elm = new SpdzElement(BigInteger.ZERO, b.multiply(this.storage
-					.getSSK()).mod(getModulus()));
-		}
-		return new SpdzSInt(elm);
-	}
+  @Override
+  @Deprecated
+  public SInt getSInt(int i) {
 
-	@Override
-	@Deprecated
-	public SInt getSInt(BigInteger b) {
-		b = b.mod(Util.getModulus());
-		SpdzElement elm;
-		if (pID == 1) {
-			elm = new SpdzElement(b, b.multiply(this.storage.getSSK()).mod(getModulus()));
-		} else {
-			elm = new SpdzElement(BigInteger.ZERO, b.multiply(this.storage
-					.getSSK()).mod(getModulus()));
-		}
-		return new SpdzSInt(elm);
-	}
+    BigInteger b = BigInteger.valueOf(i).mod(Util.getModulus());
+    SpdzElement elm;
+    if (pID == 1) {
+      elm = new SpdzElement(b, b.multiply(this.storage.getSSK()).mod(getModulus()));
+    } else {
+      elm = new SpdzElement(BigInteger.ZERO, b.multiply(this.storage
+          .getSSK()).mod(getModulus()));
+    }
+    return new SpdzSInt(elm);
+  }
 
-	/****************************************
-	 * IO factory Stuff *
-	 ****************************************/
+  @Override
+  @Deprecated
+  public SInt getSInt(BigInteger b) {
+    b = b.mod(Util.getModulus());
+    SpdzElement elm;
+    if (pID == 1) {
+      elm = new SpdzElement(b, b.multiply(this.storage.getSSK()).mod(getModulus()));
+    } else {
+      elm = new SpdzElement(BigInteger.ZERO, b.multiply(this.storage
+          .getSSK()).mod(getModulus()));
+    }
+    return new SpdzSInt(elm);
+  }
 
-	@Override
-	public CloseIntProtocol getCloseProtocol(BigInteger open,
-			SInt closed, int targetID) {
-		return new SpdzInputProtocol(open, closed, targetID);
-	}
+  /****************************************
+   * IO factory Stuff *
+   ****************************************/
+
+  @Override
+  public CloseIntProtocol getCloseProtocol(BigInteger open,
+      SInt closed, int targetID) {
+    return new SpdzInputProtocol(open, closed, targetID);
+  }
 
 
-	@Override
-	public CloseIntProtocol getCloseProtocol(int source, OInt open, SInt closed) {
-		return new SpdzInputProtocol(open, closed, source);
-	}
+  @Override
+  public CloseIntProtocol getCloseProtocol(int source, OInt open, SInt closed) {
+    return new SpdzInputProtocol(open, closed, source);
+  }
 
-	@Override
-	public OpenIntProtocol getOpenProtocol(int target, SInt closed, OInt open) {
-		return new SpdzOutputProtocol(closed, open, target);
-	}
+  @Override
+  public OpenIntProtocol getOpenProtocol(int target, SInt closed, OInt open) {
+    return new SpdzOutputProtocol(closed, open, target);
+  }
 
-	@Override
-	public OpenIntProtocol getOpenProtocol(SInt closed, OInt open) {
-		return new SpdzOutputToAllProtocol(closed, open);
-	}
+  @Override
+  public OpenIntProtocol getOpenProtocol(SInt closed, OInt open) {
+    return new SpdzOutputToAllProtocol(closed, open);
+  }
 
-	@Override
-	public RandomFieldElementProtocol getRandomFieldElement(SInt randomElement) {
-		return new SpdzRandomProtocol(randomElement);
-	}
+  @Override
+  public RandomFieldElementProtocol getRandomFieldElement(SInt randomElement) {
+    return new SpdzRandomProtocol(randomElement);
+  }
 
-	@Override
-	public BigInteger getModulus() {
-		return this.storage.getSupplier().getModulus();
-	}
+  @Override
+  public BigInteger getModulus() {
+    return this.storage.getSupplier().getModulus();
+  }
 
 }
