@@ -158,32 +158,4 @@
 
     </plugins>
   </build>
-
-
-  <!-- We has SCAPI as dependency. Since scapi is not included
-       in any standard mvn repository, and we dont want to set up
-       our own corporate repository, we create a 'local' repository
-       in the file system (i.e., in our git reopostory).
-
-       See e.g. http://stackoverflow.com/questions/2229757/
-                maven-add-a-dependency-to-a-jar-by-relative-path
-
-       I installed the SCAPI jar using this command:
-
-        tpj@ubuntu:~/fresco$ mvn org.apache.maven.plugins:maven-install-plugin:2.3.1:install-file 
-	      -Dfile=/Users/tpj/Scapi-2.4.0.jar
-	      -DgroupId=scapi 
-	      -DartifactId=scapi 
-	      -Dpackaging=jar 
-	      -Dversion=2.4.0 
-	      -DlocalRepositoryPath=./lib
-
-  -->
-  <repositories>
-    <repository>
-      <id>mvn-local-repo</id>
-      <url>file://${basedir}/lib</url>
-    </repository>
-  </repositories>
-
 </project>

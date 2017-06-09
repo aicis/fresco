@@ -238,7 +238,7 @@
   <repositories>
     <repository>
       <id>mvn-local-repo</id>
-      <url>file://${basedir}/lib</url>
+      <url>file://${basedir}/../lib</url>
     </repository>
   </repositories>
 
