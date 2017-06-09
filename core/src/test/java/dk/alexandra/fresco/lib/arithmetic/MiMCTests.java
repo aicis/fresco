@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -32,6 +32,7 @@ import dk.alexandra.fresco.framework.TestApplication;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
+import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.value.KnownSIntProtocol;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
@@ -65,11 +66,11 @@ public class MiMCTests {
         private static final long serialVersionUID = 1L;
         private BigInteger modulus;
 
-        public BigInteger getModulus() {
+        BigInteger getModulus() {
           return modulus;
         }
 
-        public void setModulus(BigInteger modulus) {
+        void setModulus(BigInteger modulus) {
           this.modulus = modulus;
         }
 
@@ -102,7 +103,8 @@ public class MiMCTests {
             }
           };
 
-          secureComputationEngine.runApplication(app);
+          secureComputationEngine
+              .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf));
 
           BigInteger expectedModulus = new BigInteger(
               "2582249878086908589655919172003011874329705792829223512830659356540647622016841194629645353280137831435903171972747493557");
@@ -146,7 +148,8 @@ public class MiMCTests {
             }
           };
 
-          secureComputationEngine.runApplication(app);
+          secureComputationEngine
+              .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf));
 
           Assert.assertEquals(app.getOutputs()[0].getValue(), app.getOutputs()[1].getValue());
           secureComputationEngine.shutdownSCE();
@@ -189,7 +192,8 @@ public class MiMCTests {
             }
           };
 
-          secureComputationEngine.runApplication(app);
+          secureComputationEngine
+              .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf));
 
           Assert.assertNotEquals(app.getOutputs()[0].getValue(), app.getOutputs()[1].getValue());
           secureComputationEngine.shutdownSCE();
@@ -237,7 +241,8 @@ public class MiMCTests {
             }
           };
 
-          secureComputationEngine.runApplication(app);
+          secureComputationEngine
+              .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf));
           Assert.assertEquals(x_big, app.getOutputs()[1].getValue());
         }
       };

@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -30,8 +30,6 @@ import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.Party;
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.configuration.ConfigurationException;
-import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
-import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.NetworkingStrategy;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.resources.storage.Storage;
@@ -82,7 +80,7 @@ public class FileBasedSCEConfiguration implements SCEConfiguration {
 			}
 			
 			//load parties
-			Map<Integer, Party> parties = new HashMap<Integer, Party>();
+			Map<Integer, Party> parties = new HashMap<>();
 			int i = 1;
 			while (true) {
 				String party = prop.getProperty("party" + i);
@@ -235,41 +233,12 @@ public class FileBasedSCEConfiguration implements SCEConfiguration {
 		return this.level;
 	}
 
-	/**
-	 * Returns -1 if no such property is found.
-	 * 
-	 * @return
-	 */
-	@Override
-	public int getNoOfThreads() {
-		if (!loaded) {
-			loadProperties();
-		}		
-		return this.noOfThreads;
-	}
-	
-	@Override
-	public int getNoOfVMThreads() {
-		if (!loaded) {
-			loadProperties();
-		}		
-		return this.noOfVmThreads;
-	}
-
 	@Override
 	public ProtocolEvaluator getEvaluator() {
 		if(!loaded) {
 			loadProperties();
 		}		
 		return this.evaluator;
-	}
-
-	@Override
-	public Storage getStorage() {
-		if(!loaded) {
-			loadProperties();
-		}
-		return this.storage;
 	}
 
 	@Override
@@ -301,8 +270,4 @@ public class FileBasedSCEConfiguration implements SCEConfiguration {
 		return this.network;
 	}
 
-	@Override
-	public Network getNetwork(NetworkConfiguration configuration, int channelAmount) {
-		return null;
-	}
 }

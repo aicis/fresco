@@ -56,6 +56,7 @@ public class LPSolverProtocol implements ProtocolProducer {
   private final LPTableau tableau;
   private final Matrix<SInt> updateMatrix;
   private final SInt zero;
+  private int identityHashCode;
 
   private enum STATE {
     PHASE1, PHASE2, TERMINATED
@@ -104,6 +105,7 @@ public class LPSolverProtocol implements ProtocolProducer {
     } else {
       throw new MPCException("Dimensions of inputs does not match");
     }
+    identityHashCode = System.identityHashCode(this);
   }
 
   private boolean checkDimensions(LPTableau tableau, Matrix<SInt> updateMatrix) {
@@ -119,7 +121,8 @@ public class LPSolverProtocol implements ProtocolProducer {
     if (pp == null) {
       if (state == STATE.PHASE1) {
         iterations++;
-        Reporter.info("LP Iterations=" + iterations);
+        Reporter.info("LP Iterations=" + iterations + " solving " +
+            identityHashCode);
         pp = phaseOneProtocol();
       } else { // if (state == STATE.PHASE2)
         boolean terminated = terminationOut.getValue().equals(BigInteger.ONE);
@@ -168,7 +171,7 @@ public class LPSolverProtocol implements ProtocolProducer {
    */
   private ProtocolProducer phaseTwoProtocol() {
     // Phase 2 - Finding the exiting variable and updating the tableau
-    ProtocolProducer phaseTwo = new AbstractRoundBasedProtocol() {
+    return new AbstractRoundBasedProtocol() {
       int round = 0;
       SInt[] exitingIndex, updateColumn;
       SInt[][] newUpdate;
@@ -236,7 +239,6 @@ public class LPSolverProtocol implements ProtocolProducer {
         return null;
       }
     };
-    return phaseTwo;
   }
 
   /**

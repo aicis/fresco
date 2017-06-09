@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -32,6 +32,7 @@ import dk.alexandra.fresco.framework.TestApplication;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
+import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
@@ -107,8 +108,9 @@ public class CreditRaterTest {
 							return sseq;
 						}
 					};
-          secureComputationEngine.runApplication(app);
-          Assert.assertThat(result[0].getValue(), Is.is(BigInteger.valueOf(PlaintextCreditRater.calculateScore(values, intervals, scores))));
+					secureComputationEngine
+							.runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf));
+					Assert.assertThat(result[0].getValue(), Is.is(BigInteger.valueOf(PlaintextCreditRater.calculateScore(values, intervals, scores))));
 				}
 			};
 		}

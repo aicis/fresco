@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -29,6 +29,7 @@ import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
+import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
@@ -75,13 +76,15 @@ public class DEASolverFixedDataTest {
         public void test() throws Exception {
 
           DEATestApp app1 = new DEATestApp(dataSet1, type);
-          secureComputationEngine.runApplication(app1);
+          secureComputationEngine
+              .runApplication(app1, SecureComputationEngineImpl.createResourcePool(conf.sceConf));
           for (int i = 0; i < app1.solverResult.length; i++) {
             Assert.assertEquals(app1.plainResult[i], postProcess(app1.solverResult[i], type,
                 app1.modulus), 0.0000001);
           }
           DEATestApp app2 = new DEATestApp(dataSet2, type);
-          secureComputationEngine.runApplication(app2);
+          secureComputationEngine
+              .runApplication(app2, SecureComputationEngineImpl.createResourcePool(conf.sceConf));
           for (int i = 0; i < app2.solverResult.length; i++) {
             Assert.assertEquals(app2.plainResult[i], postProcess(app2.solverResult[i], type,
                 app1.modulus), 0.0000001);
@@ -101,13 +104,13 @@ public class DEASolverFixedDataTest {
   private static class DEATestApp implements Application {
 
     private static final long serialVersionUID = 1L;
-    public double[] plainResult;
-    public OInt[] solverResult;
+    double[] plainResult;
+    OInt[] solverResult;
     private DEASolver.AnalysisType type;
     private int[][] dataSet;
     private BigInteger modulus;
 
-    public DEATestApp(int[][] dataSet, DEASolver.AnalysisType type) {
+    DEATestApp(int[][] dataSet, DEASolver.AnalysisType type) {
       this.type = type;
       this.dataSet = dataSet;
     }
@@ -128,13 +131,11 @@ public class DEASolverFixedDataTest {
         }
         rawBasisOutputs[i][0] = BigInteger.valueOf(dataSet[i][dataSet[i].length - 1]);
       }
-      BigInteger[][] rawTargetInputs = rawBasisInputs;
-      BigInteger[][] rawTargetOutputs = rawBasisOutputs;
 
       SInt[][] basisInputs = ioBuilder.inputMatrix(rawBasisInputs, 1);
       SInt[][] basisOutputs = ioBuilder.inputMatrix(rawBasisOutputs, 1);
-      SInt[][] targetInputs = ioBuilder.inputMatrix(rawTargetInputs, 2);
-      SInt[][] targetOutputs = ioBuilder.inputMatrix(rawTargetOutputs, 2);
+      SInt[][] targetInputs = ioBuilder.inputMatrix(rawBasisInputs, 2);
+      SInt[][] targetOutputs = ioBuilder.inputMatrix(rawBasisOutputs, 2);
 
       DEASolver solver = new DEASolver(type, AlgebraUtil.arrayToList(targetInputs),
           AlgebraUtil.arrayToList(targetOutputs), AlgebraUtil.arrayToList(basisInputs),
@@ -147,10 +148,8 @@ public class DEASolverFixedDataTest {
       PlaintextDEASolver plainSolver = new PlaintextDEASolver();
       plainSolver.addBasis(rawBasisInputs, rawBasisOutputs);
 
-      double[] plain = plainSolver.solve(rawTargetInputs, rawTargetOutputs, type);
-      for (int i = 0; i < plain.length; i++) {
-        plainResult[i] = plain[i];
-      }
+      double[] plain = plainSolver.solve(rawBasisInputs, rawBasisOutputs, type);
+      System.arraycopy(plain, 0, plainResult, 0, plain.length);
       return ioBuilder.getProtocol();
     }
   }
@@ -186,7 +185,7 @@ public class DEASolverFixedDataTest {
    * @param mod the modulus, i.e., <i>N</i>.
    * @return The fraction as represented as the rational number <i>r/s</i>.
    */
-  static BigInteger[] gauss(BigInteger product, BigInteger mod) {
+  private static BigInteger[] gauss(BigInteger product, BigInteger mod) {
     product = product.mod(mod);
     BigInteger[] u = {mod, BigInteger.ZERO};
     BigInteger[] v = {product, BigInteger.ONE};

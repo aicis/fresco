@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -32,6 +32,7 @@ import dk.alexandra.fresco.framework.TestApplication;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
+import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.compare.ComparisonProtocolFactory;
@@ -121,16 +122,15 @@ public class DivisionTests {
 							OInt output2 = ioBuilder.output(remainder);
 							
 							sequentialProtocolProducer.append(ioBuilder.getProtocol());
-							
-							ProtocolProducer gp = sequentialProtocolProducer;
-							
+
 							outputs = new OInt[] {output1, output2};
-							
-							return gp;
+
+							return sequentialProtocolProducer;
 						}
 					};
-          secureComputationEngine.runApplication(app);
-          BigInteger quotient = app.getOutputs()[0].getValue();
+					secureComputationEngine
+							.runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf));
+					BigInteger quotient = app.getOutputs()[0].getValue();
 					BigInteger remainder = app.getOutputs()[1].getValue();
 					Assert.assertEquals(quotient, x.divide(d));
 					Assert.assertEquals(remainder, x.mod(d));
@@ -196,14 +196,13 @@ public class DivisionTests {
 							this.outputs = ioBuilder.outputArray(quotient);
 							
 							sequentialProtocolProducer.append(ioBuilder.getProtocol());
-							
-							ProtocolProducer gp = sequentialProtocolProducer;
-							
-							return gp;
+
+							return sequentialProtocolProducer;
 						}
 					};
-          secureComputationEngine.runApplication(app);
-          for (int i = 0; i < n; i++) {
+					secureComputationEngine
+							.runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf));
+					for (int i = 0; i < n; i++) {
 						BigInteger actual = app.getOutputs()[i].getValue();
 						
 						BigInteger expected = x[i].divide(d);

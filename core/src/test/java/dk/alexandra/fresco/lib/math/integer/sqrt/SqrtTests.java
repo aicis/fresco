@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -32,6 +32,7 @@ import dk.alexandra.fresco.framework.TestApplication;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
+import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.compare.ComparisonProtocolFactory;
@@ -122,16 +123,15 @@ public class SqrtTests {
 							OInt[] outputs = ioBuilder.outputArray(sqrt);
 							
 							sequentialProtocolProducer.append(ioBuilder.getProtocol());
-							
-							ProtocolProducer gp = sequentialProtocolProducer;
-							
+
 							this.outputs = outputs;
-							
-							return gp;
+
+							return sequentialProtocolProducer;
 						}
 					};
 
-          secureComputationEngine.runApplication(app);
+					secureComputationEngine
+							.runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf));
 
           for (int i = 0; i < n; i++) {
 						BigInteger actual = app.getOutputs()[i].getValue();
@@ -140,8 +140,9 @@ public class SqrtTests {
 						BigInteger difference = expected.subtract(actual).abs();
 						
 						int precision = expected.bitLength() - difference.bitLength();
-						
-						boolean shouldBeCorrect = precision >= expected.bitLength(); expected.equals(actual);
+
+						boolean shouldBeCorrect = precision >= expected.bitLength();
+						expected.equals(actual);
 						boolean isCorrect = expected.equals(actual);
 						
 						Assert.assertFalse(shouldBeCorrect && !isCorrect);

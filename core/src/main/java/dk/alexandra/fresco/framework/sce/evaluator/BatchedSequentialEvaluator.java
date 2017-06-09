@@ -31,7 +31,8 @@ import dk.alexandra.fresco.framework.ProtocolCollectionLinkedList;
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.network.SCENetworkImpl;
-import dk.alexandra.fresco.framework.sce.resources.SCEResourcePool;
+import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
+import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import java.io.IOException;
 import java.util.List;
@@ -44,32 +45,15 @@ public class BatchedSequentialEvaluator implements ProtocolEvaluator {
 
   private int maxBatchSize;
 
-  private SCEResourcePool resourcePool;
   private ProtocolSuite protocolSuite;
 
-  private SCENetworkImpl sceNetwork;
-
-  public BatchedSequentialEvaluator() {
+  BatchedSequentialEvaluator() {
     this.maxBatchSize = 4096;
-  }
-
-  @Override
-  public void setResourcePool(SCEResourcePool resourcePool) {
-    this.resourcePool = resourcePool;
-    this.sceNetwork = createSceNetwork();
-  }
-
-  public ProtocolSuite getProtocolInvocation() {
-    return protocolSuite;
   }
 
   @Override
   public void setProtocolInvocation(ProtocolSuite pii) {
     this.protocolSuite = pii;
-  }
-
-  public int getMaxBatchSize() {
-    return maxBatchSize;
   }
 
   /**
@@ -82,21 +66,23 @@ public class BatchedSequentialEvaluator implements ProtocolEvaluator {
     this.maxBatchSize = maxBatchSize;
   }
 
-  public void eval(ProtocolProducer c) throws IOException {
+  public void eval(ProtocolProducer protocolProducer,
+      ResourcePoolImpl resourcePool) throws IOException {
+    SCENetworkImpl sceNetwork = createSceNetwork(resourcePool);
     do {
-      ProtocolSuite.RoundSynchronization roundSynchronization = this.protocolSuite
-          .createRoundSynchronization();
+      ProtocolSuite.RoundSynchronization roundSynchronization =
+          protocolSuite.createRoundSynchronization();
       ProtocolCollectionLinkedList protocols = new ProtocolCollectionLinkedList(maxBatchSize);
-      c.getNextProtocols(protocols);
+      protocolProducer.getNextProtocols(protocols);
       List<Protocol> protocols1 = protocols.getProtocols();
       BatchedStrategy.processBatch(protocols1, sceNetwork, DEFAULT_CHANNEL, resourcePool);
       roundSynchronization.finishedBatch(protocols1.size(), resourcePool, sceNetwork);
-    } while (c.hasNextProtocols());
+    } while (protocolProducer.hasNextProtocols());
 
     this.protocolSuite.finishedEval(resourcePool, sceNetwork);
   }
 
-  private SCENetworkImpl createSceNetwork() {
-    return new SCENetworkImpl(this.resourcePool.getNoOfParties(), DEFAULT_THREAD_ID);
+  private SCENetworkImpl createSceNetwork(ResourcePool resourcePool) {
+    return new SCENetworkImpl(resourcePool.getNoOfParties(), DEFAULT_THREAD_ID);
   }
 }

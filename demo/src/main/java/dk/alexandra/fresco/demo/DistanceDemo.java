@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -49,10 +49,9 @@ public class DistanceDemo implements Application {
   private static final long serialVersionUID = 6415583508947017554L;
 
   private int myId, myX, myY;
-  private SInt x1, y1, x2, y2;
-  public OInt distance;
+  private OInt distance;
 
-  public DistanceDemo(int id, int x, int y) {
+  private DistanceDemo(int id, int x, int y) {
     this.myId = id;
     this.myX = x;
     this.myY = y;
@@ -65,10 +64,10 @@ public class DistanceDemo implements Application {
     NumericIOBuilder iob = new NumericIOBuilder(bnFac);
     // Input points
     iob.beginParScope();
-    x1 = (myId == 1) ? iob.input(myX, 1) : iob.input(1);
-    y1 = (myId == 1) ? iob.input(myY, 1) : iob.input(1);
-    x2 = (myId == 2) ? iob.input(myX, 2) : iob.input(2);
-    y2 = (myId == 2) ? iob.input(myY, 2) : iob.input(2);
+    SInt x1 = (myId == 1) ? iob.input(myX, 1) : iob.input(1);
+    SInt y1 = (myId == 1) ? iob.input(myY, 1) : iob.input(1);
+    SInt x2 = (myId == 2) ? iob.input(myX, 2) : iob.input(2);
+    SInt y2 = (myId == 2) ? iob.input(myY, 2) : iob.input(2);
     iob.endCurScope();
     // Compute distance squared (note, square root computation can be done publicly)
     npb.beginParScope();
@@ -127,12 +126,11 @@ public class DistanceDemo implements Application {
       System.exit(-1);
     }
     DistanceDemo distDemo = new DistanceDemo(sceConf.getMyId(), x, y);
-    SCEConfiguration sceConf1 = sceConf;
     dk.alexandra.fresco.framework.sce.configuration.ProtocolSuiteConfiguration psConf = cmdUtil
         .getProtocolSuiteConfiguration();
-    SecureComputationEngine sce = new SecureComputationEngineImpl(sceConf1, psConf);
+    SecureComputationEngine sce = new SecureComputationEngineImpl(sceConf, psConf);
     try {
-      sce.runApplication(distDemo);
+      sce.runApplication(distDemo, SecureComputationEngineImpl.createResourcePool(sceConf));
     } catch (Exception e) {
       System.out.println("Error while doing MPC: " + e.getMessage());
       e.printStackTrace();

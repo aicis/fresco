@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -28,45 +28,29 @@ package dk.alexandra.fresco.framework.sce.configuration;
 
 import dk.alexandra.fresco.framework.Party;
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
-import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
-import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.NetworkingStrategy;
-import dk.alexandra.fresco.framework.sce.resources.storage.Storage;
 import dk.alexandra.fresco.framework.sce.resources.storage.StreamedStorage;
 import java.util.Map;
 import java.util.logging.Level;
 
 public interface SCEConfiguration {
 
-	public int getMyId();
+	int getMyId();
 
-	public Map<Integer, Party> getParties();
+	Map<Integer, Party> getParties();
 
 	/**
 	 * Defaults to info if logLevel is not found in the properties file.
 	 * 
 	 * @return
 	 */
-	public Level getLogLevel();
+	Level getLogLevel();
 
 	/**
 	 * Get the network strategy to use, is only used when getNetwork returns null.
 	 * @return The network strategy wanted.
 	 */
-	public NetworkingStrategy getNetworkStrategy();
-
-	/**
-	 * Creates the network without connecting anything yet.
-	 * @return The network to use or null if a network strategy is provided.
-	 */
-	public Network getNetwork(NetworkConfiguration configuration, int channelAmount);
-
-	/**
-	 * Returns -1 if no such property is found.
-	 * 
-	 * @return
-	 */
-	public int getNoOfThreads();
+	NetworkingStrategy getNetworkStrategy();
 
 	/**
 	 * Reads the config for an indication on which kind of GateEvaluator should
@@ -74,33 +58,19 @@ public interface SCEConfiguration {
 	 * 
 	 * @return
 	 */
-	public ProtocolEvaluator getEvaluator();
-
-	/**
-	 * Returns -1 if no such property is found.
-	 * 
-	 * @return
-	 */
-	public int getNoOfVMThreads();
-
-	/**
-	 * Returns the storage requested.
-	 * 
-	 * @return
-	 */
-	public Storage getStorage();
+	ProtocolEvaluator getEvaluator();
 
 	/**
 	 * Returns the streamed storage requested.
 	 * 
 	 * @return
 	 */
-	public StreamedStorage getStreamedStorage();
+	StreamedStorage getStreamedStorage();
 
 	/**
 	 * Returns the maximum batch size that the evaluators should run with.
 	 * 
 	 * @return
 	 */
-	public int getMaxBatchSize();
+	int getMaxBatchSize();
 }

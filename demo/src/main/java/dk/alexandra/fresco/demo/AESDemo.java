@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -149,14 +149,13 @@ public class AESDemo implements Application {
 
     // Do the secure computation using config from property files.
     AESDemo aes = new AESDemo(sceConf.getMyId(), input);
-    SCEConfiguration sceConf1 = sceConf;
     dk.alexandra.fresco.framework.sce.configuration.ProtocolSuiteConfiguration psConf = util
         .getProtocolSuiteConfiguration();
-    SecureComputationEngine sce = new SecureComputationEngineImpl(sceConf1, psConf);
+    SecureComputationEngine sce = new SecureComputationEngineImpl(sceConf, psConf);
 
     try {
-      sce.runApplication(aes);
-    } catch (MPCException e) {
+      sce.runApplication(aes, SecureComputationEngineImpl.createResourcePool(sceConf));
+    } catch (Exception e) {
       System.out.println("Error while doing MPC: " + e.getMessage());
       System.exit(-1);
     }

@@ -29,7 +29,6 @@ package dk.alexandra.fresco.framework.sce.configuration;
 import dk.alexandra.fresco.framework.Party;
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
-import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.NetworkingStrategy;
 import dk.alexandra.fresco.framework.sce.resources.storage.Storage;
 import dk.alexandra.fresco.framework.sce.resources.storage.StreamedStorage;
@@ -68,7 +67,7 @@ public class TestSCEConfiguration implements SCEConfiguration {
     this.noOfThreads = noOfThreads;
     this.noOfVmThreads = noOfvmThreads;
     this.myId = conf.getMyId();
-    parties = new HashMap<Integer, Party>();
+    parties = new HashMap<>();
     for (int i = 1; i <= conf.noOfParties(); i++) {
       if (useSecureConn) {
         Party p = conf.getParty(i);
@@ -98,23 +97,8 @@ public class TestSCEConfiguration implements SCEConfiguration {
   }
 
   @Override
-  public int getNoOfThreads() {
-    return this.noOfThreads;
-  }
-
-  @Override
   public ProtocolEvaluator getEvaluator() {
     return this.evaluator;
-  }
-
-  @Override
-  public int getNoOfVMThreads() {
-    return this.noOfVmThreads;
-  }
-
-  @Override
-  public Storage getStorage() {
-    return this.storage;
   }
 
   @Override
@@ -140,8 +124,4 @@ public class TestSCEConfiguration implements SCEConfiguration {
     return this.network;
   }
 
-  @Override
-  public Network getNetwork(NetworkConfiguration configuration, int channelAmount) {
-    return null;
-  }
 }

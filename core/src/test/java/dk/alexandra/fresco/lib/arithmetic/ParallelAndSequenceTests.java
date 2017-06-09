@@ -6,6 +6,7 @@ import dk.alexandra.fresco.framework.TestApplication;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
+import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.helper.builder.OmniBuilder;
@@ -30,8 +31,10 @@ public class ParallelAndSequenceTests {
 					TestApplicationSum sumApp = new ParallelAndSequenceTests().new TestApplicationSum();
 					TestApplicationMult multApp = new ParallelAndSequenceTests().new TestApplicationMult();
 
-          secureComputationEngine.runApplication(sumApp);
-          secureComputationEngine.runApplication(multApp);
+					secureComputationEngine
+							.runApplication(sumApp, SecureComputationEngineImpl.createResourcePool(conf.sceConf));
+					secureComputationEngine.runApplication(multApp,
+							SecureComputationEngineImpl.createResourcePool(conf.sceConf));
 
 					OInt sum = sumApp.getOutputs()[0];
 					OInt mult = multApp.getOutputs()[0];
@@ -51,8 +54,10 @@ public class ParallelAndSequenceTests {
 					TestApplicationSum sumApp = new ParallelAndSequenceTests().new TestApplicationSum();
 					TestApplicationMult multApp = new ParallelAndSequenceTests().new TestApplicationMult();
 
-          secureComputationEngine.runApplication(sumApp);
-          secureComputationEngine.runApplication(multApp);
+					secureComputationEngine
+							.runApplication(sumApp, SecureComputationEngineImpl.createResourcePool(conf.sceConf));
+					secureComputationEngine.runApplication(multApp,
+							SecureComputationEngineImpl.createResourcePool(conf.sceConf));
 
           OInt sum = sumApp.getOutputs()[0];
           OInt mult = multApp.getOutputs()[0];

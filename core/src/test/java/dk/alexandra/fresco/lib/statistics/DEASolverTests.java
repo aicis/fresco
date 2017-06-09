@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -32,6 +32,7 @@ import dk.alexandra.fresco.framework.TestApplication;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
+import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
@@ -133,23 +134,21 @@ public class DEASolverTests {
               plainSolver.addBasis(rawBasisInputs, rawBasisOutputs);
 
               double[] plain = plainSolver.solve(rawTargetInputs, rawTargetOutputs, type);
-              for (int i = 0; i < plain.length; i++) {
-                plainResult[i] = plain[i];
-              }
+              System.arraycopy(plain, 0, plainResult, 0, plain.length);
 
               return sseq;
             }
           };
           long startTime = System.nanoTime();
-          secureComputationEngine.runApplication(app);
+          secureComputationEngine
+              .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf));
           long endTime = System.nanoTime();
           System.out.println("============ Seq Time: "
               + ((endTime - startTime) / 1000000));
           // Perform postprocessing and compare MPC result with plaintext result
           int lambdas = datasetRows;
-          int constraints = inputVariables + outputVariables + 1;
-          int slackvariables = constraints;
-          int variables = lambdas + slackvariables + 1;
+          int slackVariables = inputVariables + outputVariables + 1;
+          int variables = lambdas + slackVariables + 1;
           System.out.println("variables:" + variables);
           for (int i = 0; i < outs.length; i++) {
             Assert.assertEquals(plainResult[i],
@@ -204,7 +203,7 @@ public class DEASolverTests {
    * @param mod the modulus, i.e., <i>N</i>.
    * @return The fraction as represented as the rational number <i>r/s</i>.
    */
-  static BigInteger[] gauss(BigInteger product, BigInteger mod) {
+  private static BigInteger[] gauss(BigInteger product, BigInteger mod) {
     product = product.mod(mod);
     BigInteger[] u = {mod, BigInteger.ZERO};
     BigInteger[] v = {product, BigInteger.ONE};

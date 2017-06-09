@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -32,6 +32,7 @@ import dk.alexandra.fresco.framework.TestApplication;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
+import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.compare.ComparisonProtocolFactory;
@@ -145,16 +146,15 @@ public class StatisticsTests {
 							OInt[][] output5 = ioBuilder.outputMatrix(covarianceMatrix);
 							
 							sequentialProtocolProducer.append(ioBuilder.getProtocol());
-							
-							ProtocolProducer gp = sequentialProtocolProducer;
-							
+
 							outputs = new OInt[] {output1, output2, output3, output4, output5[0][0], output5[1][0]};
-							
-							return gp;
+
+							return sequentialProtocolProducer;
 						}
 					};
-          secureComputationEngine.runApplication(app);
-          BigInteger mean1 = app.getOutputs()[0].getValue();
+					secureComputationEngine
+							.runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf));
+					BigInteger mean1 = app.getOutputs()[0].getValue();
 					BigInteger mean2 = app.getOutputs()[1].getValue();
 					BigInteger variance = app.getOutputs()[2].getValue();
 					BigInteger covariance = app.getOutputs()[3].getValue();

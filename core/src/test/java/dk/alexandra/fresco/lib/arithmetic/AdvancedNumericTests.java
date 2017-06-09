@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2017 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -33,6 +33,7 @@ import dk.alexandra.fresco.framework.TestThreadRunner;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
+import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
@@ -79,7 +80,8 @@ public class AdvancedNumericTests {
             }
           };
 
-          secureComputationEngine.runApplication(app);
+          secureComputationEngine
+              .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf));
 
           Assert.assertEquals(BigInteger.valueOf(numerator / denominator),
               convertRepresentation(app.getOutputs()[0].getValue(), modulus));
@@ -125,7 +127,8 @@ public class AdvancedNumericTests {
             }
           };
 
-          secureComputationEngine.runApplication(app);
+          secureComputationEngine
+              .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf));
 
           Assert.assertEquals(BigInteger.valueOf(9 / 4),
               app.getOutputs()[0].getValue());
@@ -169,7 +172,8 @@ public class AdvancedNumericTests {
             }
           };
 
-          secureComputationEngine.runApplication(app);
+          secureComputationEngine
+              .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf));
 
           Assert.assertEquals(BigInteger.valueOf(numerator / denominator),
               convertRepresentation(app.getOutputs()[0].getValue(), modulus));
@@ -180,8 +184,8 @@ public class AdvancedNumericTests {
 
   public static class TestDivisionWithRemainder extends TestThreadRunner.TestThreadFactory {
 
-    public static int numerator = 9;
-    public static int denominator = 4;
+    static int numerator = 9;
+    static int denominator = 4;
 
     @Override
     public TestThreadRunner.TestThread next(TestThreadRunner.TestThreadConfiguration conf) {
@@ -206,7 +210,8 @@ public class AdvancedNumericTests {
             }
           };
 
-          secureComputationEngine.runApplication(app);
+          secureComputationEngine
+              .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf));
 
           Assert.assertEquals(BigInteger.valueOf(numerator / denominator),
               app.getOutputs()[0].getValue());
@@ -242,7 +247,8 @@ public class AdvancedNumericTests {
             }
           };
 
-          secureComputationEngine.runApplication(app);
+          secureComputationEngine
+              .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf));
 
           Assert.assertEquals(BigInteger.valueOf(9 % 4),
               app.getOutputs()[0].getValue());

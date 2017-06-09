@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -29,10 +29,10 @@ package dk.alexandra.fresco.framework;
 import dk.alexandra.fresco.framework.network.SCENetwork;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 
-public interface Protocol<OutputT> {
+public interface Protocol<OutputT, ResourcePoolT extends ResourcePool> {
 
   enum EvaluationStatus {
-    IS_DONE, HAS_MORE_ROUNDS;
+    IS_DONE, HAS_MORE_ROUNDS
   }
 
   OutputT getOutputValues();
@@ -50,6 +50,6 @@ public interface Protocol<OutputT> {
    * @return True if there are more rounds, i.e., if evaluate needs to be called again, false if
    * this is the last round.
    */
-  EvaluationStatus evaluate(int round, ResourcePool resourcePool, SCENetwork network);
+  EvaluationStatus evaluate(int round, ResourcePoolT resourcePool, SCENetwork network);
 
 }

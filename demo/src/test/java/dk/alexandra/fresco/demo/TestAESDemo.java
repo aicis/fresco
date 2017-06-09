@@ -36,6 +36,7 @@ import dk.alexandra.fresco.framework.configuration.TestConfiguration;
 import dk.alexandra.fresco.framework.network.NetworkingStrategy;
 import dk.alexandra.fresco.framework.sce.SCEFactory;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
+import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.configuration.TestSCEConfiguration;
 import dk.alexandra.fresco.framework.sce.evaluator.SequentialEvaluator;
 import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
@@ -101,7 +102,7 @@ public class TestAESDemo {
 
             SecureComputationEngine sce = SCEFactory.getSCEFromConfiguration(conf.sceConf,
                 conf.sceConf.getSuite());
-            sce.runApplication(app);
+            sce.runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf));
 
             // Verify output state.
             String expected = "69c4e0d86a7b0430d8cdb78070b4c55a"; // expected cipher

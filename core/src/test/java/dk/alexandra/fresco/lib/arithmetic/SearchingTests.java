@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -32,6 +32,7 @@ import dk.alexandra.fresco.framework.TestApplication;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
+import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.collections.LookUpProtocolFactory;
@@ -84,7 +85,8 @@ public class SearchingTests {
               return seq;
             }
           };
-          secureComputationEngine.runApplication(app);
+          secureComputationEngine
+              .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf));
           for (int i = 0; i < PAIRS; i++) {
             final int counter = i;
             TestApplication app1 = new TestApplication() {
@@ -113,7 +115,8 @@ public class SearchingTests {
               }
             };
 
-            secureComputationEngine.runApplication(app1);
+            secureComputationEngine
+                .runApplication(app1, SecureComputationEngineImpl.createResourcePool(conf.sceConf));
 
             Assert.assertEquals(values[i], app1.outputs[0].getValue()
                 .intValue());

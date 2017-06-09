@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -55,14 +55,14 @@ public class SpdzStorageImpl implements SpdzStorage {
 	 *            of the thread that will use this storage object
 	 */
 	public SpdzStorageImpl(ResourcePool rp, int storageId) {
-		int noOfThreadsUsed = rp.getVMThreadCount();
+		int noOfThreadsUsed = 1;
 		int noOfParties = rp.getNoOfParties();
 		int myId = rp.getMyId();
 
 		String storageName = SpdzStorageConstants.STORAGE_NAME_PREFIX + noOfThreadsUsed + "_" + myId + "_" + storageId+"_";
 
-		opened_values = new LinkedList<BigInteger>();
-		closed_values = new LinkedList<SpdzElement>();
+		opened_values = new LinkedList<>();
+		closed_values = new LinkedList<>();
 
 		this.supplier = new DataSupplierImpl(rp.getStreamedStorage(), storageName, noOfParties);
 	}
@@ -70,8 +70,8 @@ public class SpdzStorageImpl implements SpdzStorage {
 	public SpdzStorageImpl(ResourcePool rp, int storageId, boolean useFuelStation, String fuelStationBaseUrl) {
 		int myId = rp.getMyId();
 
-		opened_values = new LinkedList<BigInteger>();
-		closed_values = new LinkedList<SpdzElement>();
+		opened_values = new LinkedList<>();
+		closed_values = new LinkedList<>();
 
 		this.supplier = new DataRestSupplierImpl(myId, rp.getNoOfParties(), fuelStationBaseUrl, storageId);
 	}

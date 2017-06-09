@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -176,14 +176,13 @@ public class PrivateSetDemo implements Application {
 
     // Do the secure computation using config from property files.
     PrivateSetDemo privateSetDemo = new PrivateSetDemo(sceConf.getMyId(), key, inputs);
-    SCEConfiguration sceConf1 = sceConf;
     dk.alexandra.fresco.framework.sce.configuration.ProtocolSuiteConfiguration psConf = util
         .getProtocolSuiteConfiguration();
-    SecureComputationEngine sce = new SecureComputationEngineImpl(sceConf1, psConf);
+    SecureComputationEngine sce = new SecureComputationEngineImpl(sceConf, psConf);
 
     try {
-      sce.runApplication(privateSetDemo);
-    } catch (MPCException e) {
+      sce.runApplication(privateSetDemo, SecureComputationEngineImpl.createResourcePool(sceConf));
+    } catch (Exception e) {
       System.out.println("Error while doing MPC: " + e.getMessage());
       System.exit(-1);
     }
@@ -348,10 +347,9 @@ public class PrivateSetDemo implements Application {
     ProtocolProducer openCipher = new ParallelProtocolProducer(openInputs);
 
     // First we close key and plaintext, then we do the AES, then we open the resulting ciphertexts.
-    ProtocolProducer finalProtocol = new SequentialProtocolProducer(closeKeys, combineKeys,
-        closeInputs, compute, openCipher);
 
-    return finalProtocol;
+    return new SequentialProtocolProducer(closeKeys, combineKeys,
+        closeInputs, compute, openCipher);
 
   }
 

@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -32,6 +32,7 @@ import dk.alexandra.fresco.framework.TestBoolApplication;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
+import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.value.OBool;
 import dk.alexandra.fresco.framework.value.SBool;
 import dk.alexandra.fresco.lib.helper.SingleProtocolProducer;
@@ -70,7 +71,8 @@ public class BasicBooleanTests {
             }
           };
 
-          secureComputationEngine.runApplication(app);
+          secureComputationEngine.runApplication(app,
+              SecureComputationEngineImpl.createResourcePool(conf.sceConf));
 
           if (!assertAsExpected) {
             return;
@@ -129,7 +131,8 @@ public class BasicBooleanTests {
             }
           };
 
-          secureComputationEngine.runApplication(app);
+          secureComputationEngine
+              .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf));
 
           if (!assertAsExpected) {
             return;
@@ -189,7 +192,8 @@ public class BasicBooleanTests {
             }
           };
 
-          secureComputationEngine.runApplication(app);
+          secureComputationEngine
+              .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf));
 
           if (!assertAsExpected) {
             return;
@@ -233,7 +237,8 @@ public class BasicBooleanTests {
             }
           };
 
-          secureComputationEngine.runApplication(app);
+          secureComputationEngine
+              .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf));
 
           if (!assertAsExpected) {
             return;
@@ -306,7 +311,8 @@ public class BasicBooleanTests {
             }
           };
 
-          secureComputationEngine.runApplication(app);
+          secureComputationEngine
+              .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf));
 
           if (!assertAsExpected) {
             return;

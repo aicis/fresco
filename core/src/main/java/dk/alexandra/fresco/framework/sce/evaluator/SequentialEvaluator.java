@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -35,7 +35,8 @@ import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.Reporter;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.SCENetworkImpl;
-import dk.alexandra.fresco.framework.sce.resources.SCEResourcePool;
+import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
+import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -67,22 +68,10 @@ public class SequentialEvaluator implements ProtocolEvaluator {
 
   private int maxBatchSize;
 
-  private SCEResourcePool resourcePool;
   private ProtocolSuite protocolSuite;
-  private Network network;
 
   public SequentialEvaluator() {
     maxBatchSize = 4096;
-  }
-
-  @Override
-  public void setResourcePool(SCEResourcePool resourcePool) {
-    this.resourcePool = resourcePool;
-    this.network = resourcePool.getNetwork();
-  }
-
-  public ProtocolSuite getProtocolInvocation() {
-    return protocolSuite;
   }
 
   @Override
@@ -90,9 +79,6 @@ public class SequentialEvaluator implements ProtocolEvaluator {
     this.protocolSuite = pii;
   }
 
-  public int getMaxBatchSize() {
-    return maxBatchSize;
-  }
 
   /**
    * Sets the maximum amount of gates evaluated in each batch.
@@ -105,25 +91,28 @@ public class SequentialEvaluator implements ProtocolEvaluator {
   }
 
 
-  private int doOneRound(ProtocolProducer c) throws IOException {
-    ProtocolSuite.RoundSynchronization roundSynchronization = protocolSuite
-        .createRoundSynchronization();
+  private int doOneRound(ProtocolProducer c, ResourcePool resourcePool) throws IOException {
+    ProtocolSuite.RoundSynchronization roundSynchronization =
+        protocolSuite.createRoundSynchronization();
     ProtocolCollectionLinkedList protcols = new ProtocolCollectionLinkedList(maxBatchSize);
-//    System.out.println("Getting next protocols from " + c);
     c.getNextProtocols(protcols);
     List<Protocol> protocols = protcols.getProtocols();
-    processBatch(protocols);
-    roundSynchronization.finishedBatch(protocols.size(), resourcePool, createSceNetwork());
+    processBatch(protocols, resourcePool);
+    roundSynchronization.finishedBatch(
+        protocols.size(),
+        resourcePool,
+        createSceNetwork(resourcePool.getNoOfParties()));
     return protocols.size();
   }
 
-  public void eval(ProtocolProducer c) throws IOException {
+  public void eval(ProtocolProducer protocolProducer, ResourcePoolImpl resourcePool)
+      throws IOException {
     int batch = 0;
     int totalProtocols = 0;
     int totalBatches = 0;
     int zeroBatches = 0;
     do {
-      int numOfProtocolsInBatch = doOneRound(c);
+      int numOfProtocolsInBatch = doOneRound(protocolProducer, resourcePool);
       Reporter.finest("Done evaluating batch: " + batch++ + " with " + numOfProtocolsInBatch
           + " native protocols");
       if (numOfProtocolsInBatch == 0) {
@@ -141,8 +130,9 @@ public class SequentialEvaluator implements ProtocolEvaluator {
             "Number of empty batches in a row reached " + MAX_EMPTY_BATCHES_IN_A_ROW
                 + "; probably there is a bug in your protocol producer.");
       }
-    } while (c.hasNextProtocols());
-    this.protocolSuite.finishedEval(resourcePool, createSceNetwork());
+    } while (protocolProducer.hasNextProtocols());
+    this.protocolSuite.finishedEval(resourcePool, createSceNetwork(
+        resourcePool.getNoOfParties()));
     Reporter.fine("Sequential evaluator done. Evaluated a total of " + totalProtocols
         + " native protocols in " + totalBatches + " batches.");
   }
@@ -152,44 +142,36 @@ public class SequentialEvaluator implements ProtocolEvaluator {
    * -- ie to process more than one batch at a time, simply return before the
    * first one is finished
    */
-  private void processBatch(List<Protocol> protocols) throws IOException {
-    SCENetworkImpl sceNetwork = createSceNetwork();
+  private void processBatch(List<Protocol> protocols, ResourcePool resourcePool)
+      throws IOException {
+    Network network = resourcePool.getNetwork();
+    SCENetworkImpl sceNetwork = createSceNetwork(resourcePool.getNoOfParties());
     for (Protocol protocol : protocols) {
       int round = 0;
       EvaluationStatus status;
       do {
-        status = protocol.evaluate(round, this.resourcePool, sceNetwork);
+        status = protocol.evaluate(round, resourcePool, sceNetwork);
         //send phase
         Map<Integer, byte[]> output = sceNetwork.getOutputFromThisRound();
         for (int pId : output.keySet()) {
           //send array since queue is not serializable
-          this.network.send(DEFAULT_CHANNEL, pId, output.get(pId));
+          network.send(DEFAULT_CHANNEL, pId, output.get(pId));
         }
 
         //receive phase
-        Map<Integer, ByteBuffer> inputForThisRound = new HashMap<Integer, ByteBuffer>();
+        Map<Integer, ByteBuffer> inputForThisRound = new HashMap<>();
         for (int pId : sceNetwork.getExpectedInputForNextRound()) {
-          byte[] messages = this.network.receive(DEFAULT_CHANNEL, pId);
+          byte[] messages = network.receive(DEFAULT_CHANNEL, pId);
           inputForThisRound.put(pId, ByteBuffer.wrap(messages));
         }
         sceNetwork.setInput(inputForThisRound);
         sceNetwork.nextRound();
         round++;
       } while (status.equals(EvaluationStatus.HAS_MORE_ROUNDS));
-
-      // Just a sanity check:
-      // System.out.println("Sequential evaluator completely done with protocol: " + protocols[i]);
-      //for (Value v : protocols[i].getOutputValues()) {
-      //	//System.out.println("" + i + ": ---> Value is ready: " + v + "; hash " + v.hashCode());
-      //	if (!v.isReady())
-      //		throw new MPCException(
-      //				"For some reason the protocol: " + protocols[i] + " says its not ready, though it returned EvaluationStatus.IS_DONE");
-      //}
-
     }
   }
 
-  private SCENetworkImpl createSceNetwork() {
-    return new SCENetworkImpl(this.resourcePool.getNoOfParties(), DEFAULT_THREAD_ID);
+  private SCENetworkImpl createSceNetwork(int noOfParties) {
+    return new SCENetworkImpl(noOfParties, DEFAULT_THREAD_ID);
   }
 }

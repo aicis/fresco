@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -26,6 +26,7 @@
  *******************************************************************************/
 package dk.alexandra.fresco.framework.network;
 
+import dk.alexandra.fresco.framework.MPCException;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -35,8 +36,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import dk.alexandra.fresco.framework.MPCException;
 
 public class SCENetworkImpl implements SCENetwork, SCENetworkSupplier {
 
@@ -51,8 +50,8 @@ public class SCENetworkImpl implements SCENetwork, SCENetworkSupplier {
 	public SCENetworkImpl(int noOfParties, int threadId) {
 		this.noOfParties = noOfParties;
 		this.threadId = threadId;
-		this.output = new HashMap<Integer, ByteArrayOutputStream>();
-		this.expectedInputForNextRound = new HashSet<Integer>();
+		this.output = new HashMap<>();
+		this.expectedInputForNextRound = new HashSet<>();
 	}
 
 	//ProtocolNetwork
@@ -60,10 +59,10 @@ public class SCENetworkImpl implements SCENetwork, SCENetworkSupplier {
 	public ByteBuffer receive(int id) {
 		return this.input.get(id);
 	}
-	
+
 	@Override
 	public List<ByteBuffer> receiveFromAll() {
-		List<ByteBuffer> res = new ArrayList<ByteBuffer>();
+		List<ByteBuffer> res = new ArrayList<>();
 		for(int i = 1; i <= noOfParties; i++) {
 			res.add(this.input.get(i));
 		}
@@ -93,14 +92,7 @@ public class SCENetworkImpl implements SCENetwork, SCENetworkSupplier {
 			send(i, data);
 		}
 	}
-	
-	@Override
-	public void sendSharesToAll(byte[][] data) {
-		for(int i = 1; i <= noOfParties; i++) {
-			send(i, data[i-1]);
-		}
-	}
-	
+
 	@Override
 	public void expectInputFromPlayer(int id) {
 		if(id < 1) {

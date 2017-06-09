@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -26,10 +26,9 @@
  *******************************************************************************/
 package dk.alexandra.fresco.framework.configuration;
 
-import java.util.logging.Level;
-
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.Party;
+import java.util.logging.Level;
 
 public class TwoPlayerConfiguration implements NetworkConfiguration {
 	
@@ -75,10 +74,6 @@ public class TwoPlayerConfiguration implements NetworkConfiguration {
 	@Override
 	public int noOfParties() {
 		return 2;
-	}	
-
-	@Override
-	public Level getLogLevel() {
-		return logLevel;
 	}
+
 }

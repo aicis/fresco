@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -32,6 +32,7 @@ import dk.alexandra.fresco.framework.TestBoolApplication;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
+import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.value.OBool;
 import dk.alexandra.fresco.framework.value.SBool;
 import dk.alexandra.fresco.lib.helper.builder.BasicLogicBuilder;
@@ -69,14 +70,14 @@ public class ComparisonBooleanTests {
 							
 							SBool compRes1 = builder.greaterThan(in1, in2);
 							SBool compRes2 = builder.greaterThan(in2, in1);
-							
-							OBool[] output = new OBool[]{builder.output(compRes1), builder.output(compRes2)};
-							this.outputs = output;
+
+							this.outputs = new OBool[]{builder.output(compRes1), builder.output(compRes2)};
 							return builder.getProtocol();
 						}
 					};
 
-          secureComputationEngine.runApplication(app);
+					secureComputationEngine
+							.runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf));
 
 						Assert.assertEquals(false,
 								app.getOutputs()[0].getValue());
