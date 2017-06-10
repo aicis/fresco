@@ -59,7 +59,6 @@ public abstract class AbstractSpdzTest {
 		// ports
 		// here instead of relying on ephemeral ports which are often > 9999.
 		int noOfVMThreads = 3;
-		int noOfThreads = 3;
 		List<Integer> ports = new ArrayList<>(noOfParties);
 		for (int i = 1; i <= noOfParties; i++) {
 			ports.add(9000 + i * noOfVMThreads*(noOfParties-1));

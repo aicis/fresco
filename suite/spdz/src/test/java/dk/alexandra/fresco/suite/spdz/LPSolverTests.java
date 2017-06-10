@@ -34,6 +34,7 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
+import dk.alexandra.fresco.framework.sce.configuration.SCEConfiguration;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
@@ -59,10 +60,11 @@ import org.junit.Assert;
 
 class LPSolverTests {
 
-  public static class TestLPSolver<ResourcePoolT extends ResourcePool> extends TestThreadFactory {
+  public static class TestLPSolver<ResourcePoolT extends ResourcePool> extends
+      TestThreadFactory<ResourcePoolT> {
 
     @Override
-    public TestThread next(TestThreadConfiguration conf) {
+    public TestThread next(TestThreadConfiguration<ResourcePoolT> conf) {
       return new TestThread<ResourcePoolT>() {
         @Override
         public void test() throws Exception {
@@ -129,7 +131,7 @@ class LPSolverTests {
           };
           long startTime = System.nanoTime();
           ResourcePoolT resourcePool = SecureComputationEngineImpl.createResourcePool(
-              conf.sceConf, conf.sceConf.getSuite());
+              (SCEConfiguration<ResourcePoolT>) conf.sceConf, conf.sceConf.getSuite());
           secureComputationEngine.runApplication(app, resourcePool);
           long endTime = System.nanoTime();
           System.out.println("============ Seq Time: "

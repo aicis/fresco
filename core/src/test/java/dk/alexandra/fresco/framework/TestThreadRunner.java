@@ -157,9 +157,9 @@ public class TestThreadRunner {
   }
 
 
-  public abstract static class TestThreadFactory {
+  public abstract static class TestThreadFactory<ResourcePoolT extends ResourcePool> {
 
-    public abstract TestThread next(TestThreadConfiguration conf);
+    public abstract TestThread next(TestThreadConfiguration<ResourcePoolT> conf);
   }
 
   public static void run(TestThreadFactory f, int noOfPlayers) {
@@ -194,7 +194,7 @@ public class TestThreadRunner {
 
     Random r = new Random(randSeed);
     for (int i = 0; i < n; i++) {
-      TestThreadConfiguration c = confs.get(i + 1);
+      TestThreadConfiguration<?> c = confs.get(i + 1);
       TestThread t = f.next(c);
       t.setConfiguration(c);
       t.setRandom(r.nextLong());
