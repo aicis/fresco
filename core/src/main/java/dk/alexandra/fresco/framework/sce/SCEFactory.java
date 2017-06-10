@@ -42,6 +42,7 @@ public class SCEFactory {
   public static <ResourcePoolT extends ResourcePool> SecureComputationEngine<ResourcePoolT>
   getSCEFromConfiguration(
       SCEConfiguration conf, ProtocolSuiteConfiguration<ResourcePoolT> protocolSuite) {
-    return new SecureComputationEngineImpl<>(conf, protocolSuite);
+    return new SecureComputationEngineImpl<>(protocolSuite, conf.getEvaluator(),
+        conf.getLogLevel(), conf.getMyId());
   }
 }

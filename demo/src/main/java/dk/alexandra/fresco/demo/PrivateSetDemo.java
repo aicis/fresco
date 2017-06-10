@@ -178,7 +178,8 @@ public class PrivateSetDemo implements Application {
     PrivateSetDemo privateSetDemo = new PrivateSetDemo(sceConf.getMyId(), key, inputs);
     dk.alexandra.fresco.framework.sce.configuration.ProtocolSuiteConfiguration psConf = util
         .getProtocolSuiteConfiguration();
-    SecureComputationEngine sce = new SecureComputationEngineImpl(sceConf, psConf);
+    SecureComputationEngine sce = new SecureComputationEngineImpl(psConf,
+        sceConf.getEvaluator(), sceConf.getLogLevel(), sceConf.getMyId());
 
     try {
       sce.runApplication(privateSetDemo, SecureComputationEngineImpl.createResourcePool(sceConf,

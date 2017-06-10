@@ -67,10 +67,4 @@ public interface SCEConfiguration {
 	 */
 	StreamedStorage getStreamedStorage();
 
-	/**
-	 * Returns the maximum batch size that the evaluators should run with.
-	 * 
-	 * @return
-	 */
-	int getMaxBatchSize();
 }

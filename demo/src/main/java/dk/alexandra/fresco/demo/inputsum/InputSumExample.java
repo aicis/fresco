@@ -71,7 +71,8 @@ public class InputSumExample {
 
     dk.alexandra.fresco.framework.sce.configuration.ProtocolSuiteConfiguration psConf =
         util.getProtocolSuiteConfiguration();
-    SecureComputationEngine sce = new SecureComputationEngineImpl(sceConf, psConf);
+    SecureComputationEngine sce = new SecureComputationEngineImpl(psConf,
+        sceConf.getEvaluator(), sceConf.getLogLevel(), sceConf.getMyId());
 
     runApplication(myId, sce, sceConf, psConf);
   }

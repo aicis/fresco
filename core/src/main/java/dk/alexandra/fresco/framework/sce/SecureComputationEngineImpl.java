@@ -53,6 +53,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.logging.Level;
 
 /**
  * Secure Computation Engine - responsible for having the overview of things and
@@ -63,31 +64,26 @@ import java.util.concurrent.TimeoutException;
 public class SecureComputationEngineImpl<ResourcePoolT extends ResourcePool> implements
     SecureComputationEngine<ResourcePoolT> {
 
+  private final int myId;
   private ProtocolEvaluator<ResourcePoolT> evaluator;
-  private SCEConfiguration sceConf;
   private ProtocolSuiteConfiguration<ResourcePoolT> protocolSuiteConfiguration;
   private ExecutorService executorService = Executors.newCachedThreadPool();
-
   private boolean setup;
   private ProtocolSuite<ResourcePoolT> protocolSuite;
 
-  public SecureComputationEngineImpl(SCEConfiguration sceConf,
-      ProtocolSuiteConfiguration<ResourcePoolT> protocolSuite) {
-    this.sceConf = sceConf;
+  public SecureComputationEngineImpl(
+      ProtocolSuiteConfiguration<ResourcePoolT> protocolSuite,
+      ProtocolEvaluator<ResourcePoolT> evaluator,
+      Level logLevel,
+      int myId) {
     this.protocolSuiteConfiguration = protocolSuite;
 
     this.setup = false;
 
     //setup the basic stuff, but do not initialize anything yet
-    Reporter.init(sceConf.getLogLevel());
-    if (sceConf.getParties().isEmpty()) {
-      throw new IllegalArgumentException(
-          "Properties file should contain at least one party of the form 'party1=192.168.0.1,8000'");
-    }
-
-    this.evaluator = this.sceConf.getEvaluator();
-    this.evaluator.setMaxBatchSize(sceConf.getMaxBatchSize());
-
+    Reporter.init(logLevel);
+    this.evaluator = evaluator;
+    this.myId = myId;
   }
 
   private static Network getNetworkFromConfiguration(SCEConfiguration sceConf,
@@ -134,7 +130,6 @@ public class SecureComputationEngineImpl<ResourcePoolT extends ResourcePool> imp
     return protocolSuiteConfiguration.createResourcePool(
         myId, parties.size(),
         network, rand, secRand);
-
   }
 
   @Override
@@ -142,7 +137,7 @@ public class SecureComputationEngineImpl<ResourcePoolT extends ResourcePool> imp
     if (this.setup) {
       return;
     }
-    this.protocolSuite = this.protocolSuiteConfiguration.createProtocolSuite(sceConf.getMyId());
+    this.protocolSuite = this.protocolSuiteConfiguration.createProtocolSuite(myId);
     this.setup = true;
   }
 
@@ -168,7 +163,6 @@ public class SecureComputationEngineImpl<ResourcePoolT extends ResourcePool> imp
 
   private void prepareEvaluator() {
     try {
-      Reporter.init(this.sceConf.getLogLevel());
       setup();
       this.evaluator.setProtocolInvocation(this.protocolSuite);
     } catch (IOException e) {
@@ -181,7 +175,7 @@ public class SecureComputationEngineImpl<ResourcePoolT extends ResourcePool> imp
       ResourcePoolT resourcePool) {
     try {
       if (prod != null) {
-        Reporter.info("Using the configuration: " + this.sceConf);
+        Reporter.info("Using the protocol suite: " + this.protocolSuite);
         long then = System.currentTimeMillis();
         this.evaluator.eval(prod, resourcePool);
         long now = System.currentTimeMillis();

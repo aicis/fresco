@@ -333,6 +333,7 @@ public class CmdLineUtil {
     Reporter.config("Storage strategy   : " + storage);
     Reporter.config("Maximum batch size : " + maxBatchSize);
 
+    evaluator.setMaxBatchSize(maxBatchSize);
     this.sceConf = new SCEConfiguration() {
 
       @Override
@@ -353,11 +354,6 @@ public class CmdLineUtil {
       @Override
       public ProtocolEvaluator getEvaluator() {
         return evaluator;
-      }
-
-      @Override
-      public int getMaxBatchSize() {
-        return maxBatchSize;
       }
 
       @Override

@@ -128,7 +128,8 @@ public class DistanceDemo implements Application {
     DistanceDemo distDemo = new DistanceDemo(sceConf.getMyId(), x, y);
     dk.alexandra.fresco.framework.sce.configuration.ProtocolSuiteConfiguration psConf = cmdUtil
         .getProtocolSuiteConfiguration();
-    SecureComputationEngine sce = new SecureComputationEngineImpl(sceConf, psConf);
+    SecureComputationEngine sce = new SecureComputationEngineImpl(psConf,
+        sceConf.getEvaluator(), sceConf.getLogLevel(), sceConf.getMyId());
     try {
       sce.runApplication(distDemo, SecureComputationEngineImpl.createResourcePool(sceConf,
           psConf));

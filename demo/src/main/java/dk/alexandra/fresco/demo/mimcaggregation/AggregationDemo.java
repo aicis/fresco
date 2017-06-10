@@ -194,12 +194,9 @@ public class AggregationDemo {
       @Override
       public ProtocolEvaluator getEvaluator() {
         // We will use a sequential evaluation strategy
-        return new SequentialEvaluator();
-      }
-
-      @Override
-      public int getMaxBatchSize() {
-        return 4096;
+        SequentialEvaluator sequentialEvaluator = new SequentialEvaluator();
+        sequentialEvaluator.setMaxBatchSize(4096);
+        return sequentialEvaluator;
       }
 
       @Override
@@ -215,9 +212,9 @@ public class AggregationDemo {
 
     };
 
-    ProtocolSuiteConfiguration protocolSuiteConfig = new SpdzConfiguration() {
+    ProtocolSuiteConfiguration<SpdzResourcePool> protocolSuiteConfig = new SpdzConfiguration() {
       @Override
-      public ProtocolSuite createProtocolSuite(int myPlayerId) {
+      public ProtocolSuite<SpdzResourcePool> createProtocolSuite(int myPlayerId) {
         return new SpdzProtocolSuite(this);
       }
 
@@ -245,7 +242,9 @@ public class AggregationDemo {
     };
 
     // Instantiate environment
-    SecureComputationEngine sce = new SecureComputationEngineImpl(sceConfig, protocolSuiteConfig);
+    SecureComputationEngine<SpdzResourcePool> sce = new SecureComputationEngineImpl<>(
+        protocolSuiteConfig,
+        sceConfig.getEvaluator(), sceConfig.getLogLevel(), sceConfig.getMyId());
 
     // Create application we are going run
     AggregationDemo app = new AggregationDemo(protocolSuiteConfig);

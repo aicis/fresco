@@ -39,10 +39,10 @@ public class SpdzResourcePool extends ResourcePoolImpl {
         store = new SpdzStorageDummyImpl(myId, noOfPlayers);
         break;
       case STATIC:
-        store = new SpdzStorageImpl(this, 0);
+        store = new SpdzStorageImpl(0, noOfPlayers, myId, streamedStorage);
         break;
       case FUELSTATION:
-        store = new SpdzStorageImpl(this, 0, true, spdzConf.fuelStationBaseUrl());
+        store = new SpdzStorageImpl(0, noOfPlayers, myId, spdzConf.fuelStationBaseUrl());
     }
 
     try {

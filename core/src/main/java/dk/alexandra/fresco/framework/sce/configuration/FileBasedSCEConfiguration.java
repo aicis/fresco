@@ -178,6 +178,7 @@ public class FileBasedSCEConfiguration implements SCEConfiguration {
 			}
 			
 			this.maxBatchSize = Integer.parseInt(prop.getProperty("maxBatchSize", "4096"));
+			this.evaluator.setMaxBatchSize(maxBatchSize);
 			
 			String networkString = prop.getProperty("network", "kryoNet");
 			switch(networkString.toLowerCase()) {
@@ -239,14 +240,6 @@ public class FileBasedSCEConfiguration implements SCEConfiguration {
 			loadProperties();
 		}		
 		return this.evaluator;
-	}
-
-	@Override
-	public int getMaxBatchSize() {
-		if(!loaded) {
-			loadProperties();
-		}
-		return this.maxBatchSize;
 	}
 
 	@Override

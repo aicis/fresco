@@ -64,6 +64,7 @@ public class TestSCEConfiguration<ResourcePoolT extends ResourcePool> implements
     this.network = network;
     this.storage = storage;
     this.evaluator = evaluator;
+    evaluator.setMaxBatchSize(maxBatchSize);
     this.myId = conf.getMyId();
     parties = new HashMap<>();
     for (int i = 1; i <= conf.noOfParties(); i++) {
@@ -97,11 +98,6 @@ public class TestSCEConfiguration<ResourcePoolT extends ResourcePool> implements
   @Override
   public ProtocolEvaluator getEvaluator() {
     return this.evaluator;
-  }
-
-  @Override
-  public int getMaxBatchSize() {
-    return this.maxBatchSize;
   }
 
   @Override
