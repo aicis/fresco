@@ -45,80 +45,55 @@ import org.junit.Test;
 
 public class TestStorage {
 
-	@Before
-	public void init() {
-		Reporter.init(Level.INFO);
-		Util.setModulus(new BigInteger("6703903964971298549787012499123814115273848577471136527425966013026501536706464354255445443244279389455058889493431223951165286470575994074291745908195329"));
-	}
-	
-	@Test
-	public void testInMemoryStorage() {
-		Storage storage = new InMemoryStorage();
-		testStorage(storage);
-		testStoreBigInteger(storage);
-	}
+  @Before
+  public void init() {
+    Reporter.init(Level.INFO);
+    Util.setModulus(new BigInteger(
+        "6703903964971298549787012499123814115273848577471136527425966013026501536706464354255445443244279389455058889493431223951165286470575994074291745908195329"));
+  }
+
+  @Test
+  public void testInMemoryStorage() {
+    Storage storage = new InMemoryStorage();
+    testStorage(storage);
+    testStoreBigInteger(storage);
+  }
 
 
-	@Test
-	public void testFilebasedStorage() throws NoMoreElementsException {
-		StreamedStorage storage = new FilebasedStreamedStorageImpl(new InMemoryStorage());
-		testStorage(storage);
-		testStoreBigInteger(storage);
-		testStreamedStorage(storage);
-		File f = new File("testName");
-		if(f.exists()) {
-			f.delete();
-		}
-	}
-	
-	private void testStreamedStorage(StreamedStorage storage) throws NoMoreElementsException {
-		storage.putNext("testName", BigInteger.TEN);
-		Serializable o = storage.getNext("testName");
-		Assert.assertEquals(BigInteger.TEN, o);
-	}
+  @Test
+  public void testFilebasedStorage() throws NoMoreElementsException {
+    StreamedStorage storage = new FilebasedStreamedStorageImpl(new InMemoryStorage());
+    testStorage(storage);
+    testStoreBigInteger(storage);
+    testStreamedStorage(storage);
+    File f = new File("testName");
+    if (f.exists()) {
+      f.delete();
+    }
+  }
 
-	public void testStorage(Storage storage) {	
-		SpdzElement a = new SpdzElement(BigInteger.ONE, BigInteger.ZERO);
-		SpdzTriple o1 = new SpdzTriple(a, a, a);		
-		
-		storage.putObject("test", "key", o1);
-		
-		SpdzTriple o2 = storage.getObject("test", "key");
-		Assert.assertEquals(o1,  o2);
-		
-		boolean removed = storage.removeFromStorage("test", "key");
-		Assert.assertTrue(removed);
-		
-		SpdzTriple o3 = storage.getObject("test", "key");
-		Assert.assertNull(o3);
-		
-		
-		storage.putObject("test", "key", o1);
-		storage.removeNameFromStorage("test");
-		
-		SpdzTriple o4 = storage.getObject("test", "key");
-		Assert.assertNull(o4);		
-	}
-	
-	public void testStoreBigInteger(Storage storage) {		
-		BigInteger o1 = BigInteger.ONE;		
-		
-		storage.putObject("test", "key", o1);
-		
-		BigInteger o2 = storage.getObject("test", "key");
-		Assert.assertEquals(o1,  o2);
-		
-		boolean removed = storage.removeFromStorage("test", "key");
-		Assert.assertTrue(removed);
-		
-		BigInteger o3 = storage.getObject("test", "key");
-		Assert.assertNull(o3);
-		
-		
-		storage.putObject("test", "key", o1);
-		storage.removeNameFromStorage("test");
-		
-		BigInteger o4 = storage.getObject("test", "key");
-		Assert.assertNull(o4);
-	}
+  private void testStreamedStorage(StreamedStorage storage) throws NoMoreElementsException {
+    storage.putNext("testName", BigInteger.TEN);
+    Serializable o = storage.getNext("testName");
+    Assert.assertEquals(BigInteger.TEN, o);
+  }
+
+  public void testStorage(Storage storage) {
+    SpdzElement a = new SpdzElement(BigInteger.ONE, BigInteger.ZERO);
+    SpdzTriple o1 = new SpdzTriple(a, a, a);
+
+    storage.putObject("test", "key", o1);
+
+    SpdzTriple o2 = storage.getObject("test", "key");
+    Assert.assertEquals(o1, o2);
+  }
+
+  public void testStoreBigInteger(Storage storage) {
+    BigInteger o1 = BigInteger.ONE;
+
+    storage.putObject("test", "key", o1);
+
+    BigInteger o2 = storage.getObject("test", "key");
+    Assert.assertEquals(o1, o2);
+  }
 }

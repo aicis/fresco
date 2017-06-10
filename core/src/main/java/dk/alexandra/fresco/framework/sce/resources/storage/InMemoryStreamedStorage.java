@@ -26,13 +26,12 @@
  *******************************************************************************/
 package dk.alexandra.fresco.framework.sce.resources.storage;
 
+import dk.alexandra.fresco.framework.MPCException;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
-
-import dk.alexandra.fresco.framework.MPCException;
 
 public class InMemoryStreamedStorage implements StreamedStorage {
 
@@ -52,16 +51,6 @@ public class InMemoryStreamedStorage implements StreamedStorage {
 	@Override
 	public <T extends Serializable> T getObject(String name, String key) {
 		return this.storage.getObject(name, key);
-	}
-
-	@Override
-	public boolean removeFromStorage(String name, String key) {
-		return this.storage.removeFromStorage(name, key);
-	}
-
-	@Override
-	public boolean removeNameFromStorage(String name) {
-		return this.storage.removeNameFromStorage(name);
 	}
 
 	@Override
