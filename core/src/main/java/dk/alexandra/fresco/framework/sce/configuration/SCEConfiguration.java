@@ -29,42 +29,38 @@ package dk.alexandra.fresco.framework.sce.configuration;
 import dk.alexandra.fresco.framework.Party;
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.network.NetworkingStrategy;
+import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.sce.resources.storage.StreamedStorage;
 import java.util.Map;
 import java.util.logging.Level;
 
-public interface SCEConfiguration {
+public interface SCEConfiguration<ResourcePoolT extends ResourcePool> {
 
-	int getMyId();
+  int getMyId();
 
-	Map<Integer, Party> getParties();
+  Map<Integer, Party> getParties();
 
-	/**
-	 * Defaults to info if logLevel is not found in the properties file.
-	 * 
-	 * @return
-	 */
-	Level getLogLevel();
+  /**
+   * Defaults to info if logLevel is not found in the properties file.
+   */
+  Level getLogLevel();
 
-	/**
-	 * Get the network strategy to use, is only used when getNetwork returns null.
-	 * @return The network strategy wanted.
-	 */
-	NetworkingStrategy getNetworkStrategy();
+  /**
+   * Get the network strategy to use, is only used when getNetwork returns null.
+   *
+   * @return The network strategy wanted.
+   */
+  NetworkingStrategy getNetworkStrategy();
 
-	/**
-	 * Reads the config for an indication on which kind of GateEvaluator should
-	 * be used.
-	 * 
-	 * @return
-	 */
-	ProtocolEvaluator getEvaluator();
+  /**
+   * Reads the config for an indication on which kind of GateEvaluator should
+   * be used.
+   */
+  ProtocolEvaluator<ResourcePoolT> getEvaluator();
 
-	/**
-	 * Returns the streamed storage requested.
-	 * 
-	 * @return
-	 */
-	StreamedStorage getStreamedStorage();
+  /**
+   * Returns the streamed storage requested.
+   */
+  StreamedStorage getStreamedStorage();
 
 }
