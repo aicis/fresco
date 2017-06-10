@@ -45,7 +45,6 @@ public class TestSCEConfiguration<ResourcePoolT extends ResourcePool> implements
   private Map<Integer, Party> parties;
   private int myId;
   private ProtocolEvaluator evaluator;
-  private int maxBatchSize;
 
   public TestSCEConfiguration(ProtocolSuiteConfiguration<ResourcePoolT> suite,
       NetworkingStrategy network,
@@ -77,7 +76,6 @@ public class TestSCEConfiguration<ResourcePoolT extends ResourcePool> implements
         parties.put(i, conf.getParty(i));
       }
     }
-    this.maxBatchSize = maxBatchSize;
   }
 
   @Override
