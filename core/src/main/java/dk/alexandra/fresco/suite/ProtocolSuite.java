@@ -50,12 +50,6 @@ public interface ProtocolSuite<ResourcePoolT extends ResourcePool> {
    */
   RoundSynchronization<ResourcePoolT> createRoundSynchronization();
 
-  /**
-   * Sends a signal to the protocol suite to shut down any running threads and
-   * close open streams and similar.
-   */
-  void destroy();
-
   interface RoundSynchronization<ResourcePoolT> {
 
     /**

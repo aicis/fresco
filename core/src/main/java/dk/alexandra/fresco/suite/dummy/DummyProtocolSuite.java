@@ -49,10 +49,5 @@ public class DummyProtocolSuite implements ProtocolSuite {
     return new DummyRoundSynchronization();
   }
 
-  @Override
-  public void destroy() {
-    // No destroy needed.
-  }
-
 
 }

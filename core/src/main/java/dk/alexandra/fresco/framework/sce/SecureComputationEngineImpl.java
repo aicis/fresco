@@ -114,7 +114,7 @@ public class SecureComputationEngineImpl<ResourcePoolT extends ResourcePool> imp
   }
 
   public static <ResourcePoolT extends ResourcePool> ResourcePoolT createResourcePool(
-      SCEConfiguration sceConf,
+      SCEConfiguration<ResourcePoolT> sceConf,
       ProtocolSuiteConfiguration<ResourcePoolT> protocolSuiteConfiguration) throws IOException {
 
     int myId = sceConf.getMyId();
@@ -190,9 +190,6 @@ public class SecureComputationEngineImpl<ResourcePoolT extends ResourcePool> imp
   @Override
   public void shutdownSCE() {
     this.executorService.shutdown();
-    if (this.protocolSuite != null) {
-      this.protocolSuite.destroy();
-    }
     this.setup = false;
   }
 

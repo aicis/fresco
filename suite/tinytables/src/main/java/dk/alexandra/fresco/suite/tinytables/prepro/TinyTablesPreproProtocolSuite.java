@@ -249,8 +249,4 @@ public class TinyTablesPreproProtocolSuite implements ProtocolSuite {
     oos.close();
   }
 
-  @Override
-  public void destroy() {
-  }
-
 }

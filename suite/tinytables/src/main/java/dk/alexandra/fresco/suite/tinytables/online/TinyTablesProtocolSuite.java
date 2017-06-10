@@ -112,10 +112,4 @@ public class TinyTablesProtocolSuite implements ProtocolSuite {
     return new DummyRoundSynchronization();
   }
 
-  @Override
-  public void destroy() {
-    // TODO Auto-generated method stub
-
-  }
-
 }
