@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -77,7 +77,7 @@ import java.util.Map;
  * calculate a so-called <i>TinyTable</i> which is used in the online phase (see
  * {@link TinyTablesProtocolSuite}). This is done using oblivious transfer. To
  * enhance performance, all oblivious transfers are done at the end of the
- * preprocessing (see {@link TinyTablesPreproProtocolSuite#finishedEval(ResourcePool, SCENetwork)}).
+ * preprocessing (see {@link #createRoundSynchronization()).
  * </p>
  *
  * <p>
@@ -142,10 +142,6 @@ public class TinyTablesPreproProtocolSuite implements ProtocolSuite {
     this.unprocessedAndGates.add(gate);
   }
 
-  public TinyTablesTripleProvider getTinyTablesTripleProvider() {
-    return this.tinyTablesTripleProvider;
-  }
-
   @Override
   public RoundSynchronization createRoundSynchronization() {
     return new DummyRoundSynchronization() {
@@ -159,6 +155,23 @@ public class TinyTablesPreproProtocolSuite implements ProtocolSuite {
           calculateTinyTablesForUnprocessedANDGates();
         }
       }
+
+      @Override
+      public void finishedEval(ResourcePool resourcePool, SCENetwork sceNetwork) {
+        calculateTinyTablesForUnprocessedANDGates();
+        tinyTablesTripleProvider.close();
+    /*
+     * Store the TinyTables to a file.
+		 */
+        try {
+          storeTinyTables(storage, tinyTablesFile);
+          Reporter.info("TinyTables stored to " + tinyTablesFile);
+        } catch (IOException e) {
+          Reporter.severe("Failed to save TinyTables: " + e.getMessage());
+        }
+
+      }
+
     };
   }
 
@@ -226,22 +239,6 @@ public class TinyTablesPreproProtocolSuite implements ProtocolSuite {
       // TODO Auto-generated catch block
       e.printStackTrace();
     }
-  }
-
-  @Override
-  public void finishedEval(ResourcePool resourcePool, SCENetwork sceNetwork) {
-    calculateTinyTablesForUnprocessedANDGates();
-    tinyTablesTripleProvider.close();
-    /*
-     * Store the TinyTables to a file.
-		 */
-    try {
-      storeTinyTables(storage, this.tinyTablesFile);
-      Reporter.info("TinyTables stored to " + this.tinyTablesFile);
-    } catch (IOException e) {
-      Reporter.severe("Failed to save TinyTables: " + e.getMessage());
-    }
-
   }
 
   private void storeTinyTables(TinyTablesStorage tinyTablesStorage, File file) throws IOException {

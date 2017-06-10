@@ -30,7 +30,6 @@ import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.ProtocolCollectionList;
 import dk.alexandra.fresco.framework.ProtocolFactory;
-import dk.alexandra.fresco.framework.Reporter;
 import dk.alexandra.fresco.framework.network.SCENetwork;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchedStrategy;
 import dk.alexandra.fresco.suite.ProtocolSuite;
@@ -50,14 +49,8 @@ import java.util.Random;
 
 public class SpdzProtocolSuite implements ProtocolSuite<SpdzResourcePool> {
 
-  private int gatesEvaluated = 0;
   private static final int macCheckThreshold = 100000;
   private SpdzConfiguration spdzConf;
-
-  private long totalMacTime;
-  private long lastMacEnd;
-  private long totalNoneMacTime;
-  private int totalSizeOfValues;
 
   public SpdzProtocolSuite(SpdzConfiguration spdzConf) {
     this.spdzConf = spdzConf;
@@ -70,96 +63,69 @@ public class SpdzProtocolSuite implements ProtocolSuite<SpdzResourcePool> {
   }
 
   @Override
-  public void finishedEval(SpdzResourcePool resourcePool, SCENetwork sceNetwork) {
-    try {
-      MACCheck(null, resourcePool, sceNetwork);
-      this.gatesEvaluated = 0;
-    } catch (IOException e) {
-      throw new MPCException("Could not complete MACCheck.", e);
-    }
-  }
-
-  @Override
   public void destroy() {
 
   }
 
   @Override
-  public RoundSynchronization createRoundSynchronization() {
+  public RoundSynchronization<SpdzResourcePool> createRoundSynchronization() {
     return new SpdzRoundSynchronization();
   }
 
-  private int logCount = 0;
-  private int synchronizeCalls;
-  private long sumOfGates = 0;
-
-  private void MACCheck(Map<Integer, BigInteger> commitments, SpdzResourcePool resourcePool,
-      SCENetwork sceNetworks) throws IOException {
-
-    long start = System.currentTimeMillis();
-    if (lastMacEnd > 0) {
-      totalNoneMacTime += start - lastMacEnd;
-    }
-
-    SpdzStorage storage = resourcePool.getStore();
-    sumOfGates += SpdzProtocolSuite.this.gatesEvaluated;
-    totalSizeOfValues += storage.getOpenedValues().size();
-
-    if (logCount++ > 1500) {
-      Reporter.info("MacChecking(" + logCount + ")"
-          + ", AverageGateSize=" + (logCount > 0 ? sumOfGates / logCount : "?")
-          + ", OpenedValuesSize=" + totalSizeOfValues
-          + ", SynchronizeCalls=" + synchronizeCalls
-          + ", MacTime=" + totalMacTime
-          + ", noneMacTime=" + totalNoneMacTime);
-      logCount = 0;
-      synchronizeCalls = 0;
-      sumOfGates = 0;
-      totalSizeOfValues = 0;
-    }
-    SpdzMacCheckProtocol macCheck = new SpdzMacCheckProtocol(
-        resourcePool.getSecureRandom(),
-        resourcePool.getMessageDigest(),
-        storage,
-        commitments, resourcePool.getModulus());
-
-    int batchSize = 128;
-
-    do {
-      ProtocolCollectionList protocolCollectionList =
-          new ProtocolCollectionList(batchSize);
-      macCheck.getNextProtocols(protocolCollectionList);
-
-      BatchedStrategy.processBatch(protocolCollectionList, sceNetworks, 0, resourcePool);
-    } while (macCheck.hasNextProtocols());
-
-    //reset boolean value
-    resourcePool.setOutputProtocolInBatch(false);
-    this.gatesEvaluated = 0;
-    totalMacTime += System.currentTimeMillis() - start;
-    lastMacEnd = System.currentTimeMillis();
-  }
 
   private class SpdzRoundSynchronization implements RoundSynchronization<SpdzResourcePool> {
 
-    private Map<Integer, BigInteger> commitments;
     boolean commitDone = false;
     boolean openDone = false;
     int roundNumber = 0;
     private SpdzCommitProtocol commitProtocol;
     private SpdzOpenCommitProtocol openProtocol;
 
+    private void MACCheck(SpdzResourcePool resourcePool,
+        SCENetwork sceNetworks) throws IOException {
+
+      SpdzStorage storage = resourcePool.getStore();
+
+      SpdzMacCheckProtocol macCheck = new SpdzMacCheckProtocol(
+          resourcePool.getSecureRandom(),
+          resourcePool.getMessageDigest(),
+          storage,
+          null, resourcePool.getModulus());
+
+      int batchSize = 128;
+
+      do {
+        ProtocolCollectionList protocolCollectionList =
+            new ProtocolCollectionList(batchSize);
+        macCheck.getNextProtocols(protocolCollectionList);
+
+        BatchedStrategy.processBatch(protocolCollectionList, sceNetworks, 0, resourcePool);
+      } while (macCheck.hasNextProtocols());
+
+      //reset boolean value
+      resourcePool.setOutputProtocolInBatch(false);
+      commitDone = false;
+      openDone = false;
+      roundNumber = 0;
+    }
+
+    @Override
+    public void finishedEval(SpdzResourcePool resourcePool, SCENetwork sceNetwork) {
+      try {
+        MACCheck(resourcePool, sceNetwork);
+      } catch (IOException e) {
+        throw new MPCException("Could not complete MACCheck.", e);
+      }
+    }
+
     @Override
     public void finishedBatch(int gatesEvaluated, SpdzResourcePool resourcePool,
         SCENetwork sceNetwork)
         throws MPCException {
-      SpdzProtocolSuite.this.gatesEvaluated += gatesEvaluated;
-      SpdzProtocolSuite.this.synchronizeCalls++;
-      if (SpdzProtocolSuite.this.gatesEvaluated > macCheckThreshold || resourcePool
-          .isOutputProtocolInBatch()) {
+      gatesEvaluated += gatesEvaluated;
+      if (gatesEvaluated > macCheckThreshold || resourcePool.isOutputProtocolInBatch()) {
         try {
-          MACCheck(openDone ? this.commitments : null, resourcePool, sceNetwork);
-          this.commitments = null;
+          MACCheck(resourcePool, sceNetwork);
         } catch (IOException e) {
           throw new MPCException("Could not complete MACCheck.", e);
         }

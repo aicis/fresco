@@ -51,12 +51,6 @@ public interface ProtocolSuite<ResourcePoolT extends ResourcePool> {
   RoundSynchronization<ResourcePoolT> createRoundSynchronization();
 
   /**
-   * Let the protocol suite know that the evaluation has reached it's end. Runtime
-   * can then do cleanup or resume background activities if needed.
-   */
-  void finishedEval(ResourcePoolT resourcePool, SCENetwork sceNetwork);
-
-  /**
    * Sends a signal to the protocol suite to shut down any running threads and
    * close open streams and similar.
    */
@@ -87,6 +81,12 @@ public interface ProtocolSuite<ResourcePoolT extends ResourcePool> {
      */
     boolean roundFinished(
         int round, ResourcePoolT resourcePool, SCENetwork network) throws MPCException;
+
+    /**
+     * Let the protocol suite know that the evaluation has reached it's end. Runtime
+     * can then do cleanup or resume background activities if needed.
+     */
+    void finishedEval(ResourcePoolT resourcePool, SCENetwork sceNetwork);
   }
 
   /**
@@ -95,7 +95,8 @@ public interface ProtocolSuite<ResourcePoolT extends ResourcePool> {
   class DummyRoundSynchronization implements RoundSynchronization<ResourcePool> {
 
     @Override
-    public void finishedBatch(int gatesEvaluated, ResourcePool resourcePool, SCENetwork sceNetwork)
+    public void finishedBatch(int gatesEvaluated, ResourcePool resourcePool,
+        SCENetwork sceNetwork)
         throws MPCException {
 
     }
@@ -104,6 +105,11 @@ public interface ProtocolSuite<ResourcePoolT extends ResourcePool> {
     public boolean roundFinished(int round, ResourcePool resourcePool, SCENetwork network)
         throws MPCException {
       return true;
+    }
+
+    @Override
+    public void finishedEval(ResourcePool resourcePool, SCENetwork sceNetwork) {
+
     }
   }
 }

@@ -50,7 +50,7 @@ public class BatchedSequentialEvaluator<ResourcePoolT extends ResourcePool> impl
   }
 
   @Override
-  public void setProtocolInvocation(ProtocolSuite pii) {
+  public void setProtocolInvocation(ProtocolSuite<ResourcePoolT> pii) {
     this.protocolSuite = pii;
   }
 
@@ -67,9 +67,9 @@ public class BatchedSequentialEvaluator<ResourcePoolT extends ResourcePool> impl
   public void eval(ProtocolProducer protocolProducer,
       ResourcePoolT resourcePool) throws IOException {
     SCENetworkImpl sceNetwork = createSceNetwork(resourcePool);
+    ProtocolSuite.RoundSynchronization<ResourcePoolT> roundSynchronization =
+        protocolSuite.createRoundSynchronization();
     do {
-      ProtocolSuite.RoundSynchronization<ResourcePoolT> roundSynchronization =
-          protocolSuite.createRoundSynchronization();
       ProtocolCollectionList protocols = new ProtocolCollectionList(maxBatchSize);
       protocolProducer.getNextProtocols(protocols);
       int size = protocols.size();
@@ -78,7 +78,7 @@ public class BatchedSequentialEvaluator<ResourcePoolT extends ResourcePool> impl
       roundSynchronization.finishedBatch(size, resourcePool, sceNetwork);
     } while (protocolProducer.hasNextProtocols());
 
-    this.protocolSuite.finishedEval(resourcePool, sceNetwork);
+    roundSynchronization.finishedEval(resourcePool, sceNetwork);
   }
 
   private SCENetworkImpl createSceNetwork(ResourcePool resourcePool) {

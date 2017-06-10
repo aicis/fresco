@@ -38,6 +38,7 @@ import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.SCENetworkImpl;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.suite.ProtocolSuite;
+import dk.alexandra.fresco.suite.ProtocolSuite.RoundSynchronization;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
@@ -75,7 +76,7 @@ public class SequentialEvaluator<ResourcePoolT extends ResourcePool> implements
   }
 
   @Override
-  public void setProtocolInvocation(ProtocolSuite pii) {
+  public void setProtocolInvocation(ProtocolSuite<ResourcePoolT> pii) {
     this.protocolSuite = pii;
   }
 
@@ -91,11 +92,12 @@ public class SequentialEvaluator<ResourcePoolT extends ResourcePool> implements
   }
 
 
-  private int doOneRound(ProtocolProducer c, ResourcePoolT resourcePool) throws IOException {
-    ProtocolSuite.RoundSynchronization<ResourcePoolT> roundSynchronization =
-        protocolSuite.createRoundSynchronization();
+  private int doOneRound(
+      ProtocolProducer protocolProducer,
+      ResourcePoolT resourcePool,
+      RoundSynchronization<ResourcePoolT> roundSynchronization) throws IOException {
     ProtocolCollectionList protocols = new ProtocolCollectionList(maxBatchSize);
-    c.getNextProtocols(protocols);
+    protocolProducer.getNextProtocols(protocols);
     int size = protocols.size();
 
     processBatch(protocols, resourcePool);
@@ -112,10 +114,12 @@ public class SequentialEvaluator<ResourcePoolT extends ResourcePool> implements
     int totalProtocols = 0;
     int totalBatches = 0;
     int zeroBatches = 0;
+    RoundSynchronization<ResourcePoolT> roundSynchronization =
+        protocolSuite.createRoundSynchronization();
     do {
-      int numOfProtocolsInBatch = doOneRound(protocolProducer, resourcePool);
-      Reporter.finest("Done evaluating batch: " + batch++ + " with " + numOfProtocolsInBatch
-          + " native protocols");
+      int numOfProtocolsInBatch = doOneRound(protocolProducer, resourcePool, roundSynchronization);
+      Reporter.finest("Done evaluating batch: " + batch++
+          + " with " + numOfProtocolsInBatch + " native protocols");
       if (numOfProtocolsInBatch == 0) {
         Reporter.finest("Batch " + batch + " is empty");
       }
@@ -132,7 +136,7 @@ public class SequentialEvaluator<ResourcePoolT extends ResourcePool> implements
                 + "; probably there is a bug in your protocol producer.");
       }
     } while (protocolProducer.hasNextProtocols());
-    this.protocolSuite.finishedEval(resourcePool, createSceNetwork(
+    roundSynchronization.finishedEval(resourcePool, createSceNetwork(
         resourcePool.getNoOfParties()));
     Reporter.fine("Sequential evaluator done. Evaluated a total of " + totalProtocols
         + " native protocols in " + totalBatches + " batches.");

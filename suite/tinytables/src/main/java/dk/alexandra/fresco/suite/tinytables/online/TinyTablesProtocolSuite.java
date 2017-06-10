@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -28,7 +28,6 @@ package dk.alexandra.fresco.suite.tinytables.online;
 
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.Reporter;
-import dk.alexandra.fresco.framework.network.SCENetwork;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.tinytables.online.protocols.TinyTablesANDProtocol;
@@ -77,7 +76,7 @@ public class TinyTablesProtocolSuite implements ProtocolSuite {
     return instances.get(id);
   }
 
-  public TinyTablesProtocolSuite(int id, TinyTablesConfiguration conf) {
+  TinyTablesProtocolSuite(int id, TinyTablesConfiguration conf) {
     this.conf = conf;
     instances.put(id, this);
   }
@@ -87,7 +86,7 @@ public class TinyTablesProtocolSuite implements ProtocolSuite {
     try {
       File tinyTablesFile = this.conf.getTinyTablesFile();
       this.storage = loadTinyTables(tinyTablesFile);
-    } catch (ClassNotFoundException e) {
+    } catch (ClassNotFoundException ignored) {
     } catch (IOException e) {
       Reporter.severe("Failed to load TinyTables: " + e.getMessage());
     }
@@ -111,12 +110,6 @@ public class TinyTablesProtocolSuite implements ProtocolSuite {
   @Override
   public RoundSynchronization createRoundSynchronization() {
     return new DummyRoundSynchronization();
-  }
-
-  @Override
-  public void finishedEval(ResourcePool resourcePool, SCENetwork sceNetwork) {
-    // TODO Auto-generated method stub
-
   }
 
   @Override
