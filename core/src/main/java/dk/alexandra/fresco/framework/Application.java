@@ -37,4 +37,12 @@ public interface Application {
    * @return the resulting protocol producer
    */
   ProtocolProducer prepareApplication(ProtocolFactory factory);
+
+  /**
+   * Closes the application and allows the output to be produced and allocated resources to be
+   * release.
+   */
+  default void closeApplication() {
+    // Do nothing
+  }
 }

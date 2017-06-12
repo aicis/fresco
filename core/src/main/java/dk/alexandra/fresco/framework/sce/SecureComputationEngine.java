@@ -53,10 +53,9 @@ public interface SecureComputationEngine<ResourcePoolT extends ResourcePool> {
 
 
   /**
-   * Initializes the SecureComputationEngine by setting up the resource pool including network.
-   * This also calls \code{init} on the configured protocol suite. Calling
-   * this multiple times does nothing as an SecureComputationEngine can only be setup once. This
-   * method is called from \code{runApplication} as well to ensure that the
+   * Initializes the SecureComputationEngine.
+   * Calling this multiple times does nothing as an SecureComputationEngine can only be setup once.
+   * This method is called from \code{runApplication} as well to ensure that the
    * SecureComputationEngine is setup before evaluating the application. The reason this method is
    * public is to force initialization of resources before running an
    * application. This might be needed in some cases. If you have no need for

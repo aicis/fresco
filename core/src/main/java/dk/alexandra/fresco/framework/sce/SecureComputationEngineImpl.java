@@ -86,11 +86,6 @@ public class SecureComputationEngineImpl<ResourcePoolT extends ResourcePool> imp
     Reporter.init(logLevel);
     this.evaluator = evaluator;
     this.myId = myId;
-    this.executorService = Executors.newCachedThreadPool(r -> {
-      Thread thread = new Thread(r, "SCE-" + threadCounter.getAndIncrement());
-      thread.setDaemon(true);
-      return thread;
-    });
   }
 
   private static Network getNetworkFromConfiguration(SCEConfiguration sceConf,
@@ -140,15 +135,6 @@ public class SecureComputationEngineImpl<ResourcePoolT extends ResourcePool> imp
   }
 
   @Override
-  public synchronized void setup() throws IOException {
-    if (this.setup) {
-      return;
-    }
-    this.protocolSuite = this.protocolSuiteConfiguration.createProtocolSuite(myId);
-    this.setup = true;
-  }
-
-  @Override
   public void runApplication(Application application, ResourcePoolT sceNetwork) {
     try {
       startApplication(application, sceNetwork).get(10, TimeUnit.MINUTES);
@@ -159,13 +145,7 @@ public class SecureComputationEngineImpl<ResourcePoolT extends ResourcePool> imp
 
   public Future<?> startApplication(Application application, ResourcePoolT resourcePool) {
     prepareEvaluator();
-    ProtocolFactory protocolFactory = this.protocolSuite.init(resourcePool);
-    ProtocolProducer prod = application.prepareApplication(protocolFactory);
-    String appName = application.getClass().getName();
-    Reporter.info("Running application: " + appName + " using protocol suite: "
-        + this.protocolSuite);
-
-    return executorService.submit(() -> evalApplication(prod, appName, resourcePool));
+    return executorService.submit(() -> evalApplication(application, resourcePool));
   }
 
   private void prepareEvaluator() {
@@ -178,20 +158,38 @@ public class SecureComputationEngineImpl<ResourcePoolT extends ResourcePool> imp
     }
   }
 
-  private void evalApplication(ProtocolProducer prod, String appName,
+  private void evalApplication(Application application,
       ResourcePoolT resourcePool) {
+    Reporter.info("Running application: " + application + " using protocol suite: "
+        + this.protocolSuite);
     try {
-      if (prod != null) {
-        Reporter.info("Using the protocol suite: " + this.protocolSuite);
-        long then = System.currentTimeMillis();
-        this.evaluator.eval(prod, resourcePool);
-        long now = System.currentTimeMillis();
-        long timeSpend = now - then;
-        Reporter.info("Running the application " + appName + " took " + timeSpend + " ms.");
-      }
+      ProtocolFactory protocolFactory = this.protocolSuite.init(resourcePool);
+      ProtocolProducer prod = application.prepareApplication(protocolFactory);
+      long then = System.currentTimeMillis();
+      this.evaluator.eval(prod, resourcePool);
+      long now = System.currentTimeMillis();
+      long timeSpend = now - then;
+      Reporter.info("Running the application " + application + " took " + timeSpend + " ms.");
     } catch (IOException e) {
-      e.printStackTrace();
+      throw new MPCException(
+          "Could not run application " + application + " due to errors", e);
+    } finally {
+      application.closeApplication();
     }
+  }
+
+  @Override
+  public synchronized void setup() throws IOException {
+    if (this.setup) {
+      return;
+    }
+    this.executorService = Executors.newCachedThreadPool(r -> {
+      Thread thread = new Thread(r, "SCE-" + threadCounter.getAndIncrement());
+      thread.setDaemon(true);
+      return thread;
+    });
+    this.protocolSuite = this.protocolSuiteConfiguration.createProtocolSuite(myId);
+    this.setup = true;
   }
 
   @Override
