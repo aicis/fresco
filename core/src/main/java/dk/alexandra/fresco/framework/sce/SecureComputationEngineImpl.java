@@ -53,6 +53,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 
 /**
@@ -67,9 +68,10 @@ public class SecureComputationEngineImpl<ResourcePoolT extends ResourcePool> imp
   private final int myId;
   private ProtocolEvaluator<ResourcePoolT> evaluator;
   private ProtocolSuiteConfiguration<ResourcePoolT> protocolSuiteConfiguration;
-  private ExecutorService executorService = Executors.newCachedThreadPool();
+  private ExecutorService executorService;
   private boolean setup;
   private ProtocolSuite<ResourcePoolT> protocolSuite;
+  private static final AtomicInteger threadCounter = new AtomicInteger(1);
 
   public SecureComputationEngineImpl(
       ProtocolSuiteConfiguration<ResourcePoolT> protocolSuite,
@@ -84,6 +86,11 @@ public class SecureComputationEngineImpl<ResourcePoolT extends ResourcePool> imp
     Reporter.init(logLevel);
     this.evaluator = evaluator;
     this.myId = myId;
+    this.executorService = Executors.newCachedThreadPool(r -> {
+      Thread thread = new Thread(r, "SCE-" + threadCounter.getAndIncrement());
+      thread.setDaemon(true);
+      return thread;
+    });
   }
 
   private static Network getNetworkFromConfiguration(SCEConfiguration sceConf,

@@ -26,13 +26,13 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.field.integer;
 
-import dk.alexandra.fresco.framework.NativeProtocol;
+import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.value.SInt;
 
 public interface MultProtocolFactory extends ProtocolFactory, MultByConstantFactory {
 
-  NativeProtocol<? extends SInt, ?> getMultProtocol(SInt a, SInt b, SInt out);
+  Computation<? extends SInt> getMultProtocol(SInt a, SInt b, SInt out);
 
-  NativeProtocol<? extends SInt, ?> getMultProtocol(SInt a, SInt b);
+  Computation<? extends SInt> mult(SInt a, SInt b);
 }

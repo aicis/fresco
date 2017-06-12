@@ -60,7 +60,7 @@ public class SpdzKnownSIntProtocol extends SpdzNativeProtocol<SInt> {
   }
 
   @Override
-  public SInt getOutput() {
+  public SInt out() {
     return sValue;
   }
 

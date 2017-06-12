@@ -28,7 +28,7 @@ package dk.alexandra.fresco.suite.spdz.gates;
 
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.network.SCENetwork;
-import dk.alexandra.fresco.framework.network.serializers.BigIntegerWithFixedLengthSerializer;
+import dk.alexandra.fresco.framework.network.serializers.BigIntegerSerializer;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
@@ -76,6 +76,7 @@ public class SpdzMultProtocol extends SpdzNativeProtocol<SpdzSInt> {
       SCENetwork network) {
     SpdzStorage store = spdzResourcePool.getStore();
     int noOfPlayers = spdzResourcePool.getNoOfParties();
+    BigIntegerSerializer serializer = spdzResourcePool.getSerializer();
     switch (round) {
       case 0:
         try {
@@ -91,9 +92,8 @@ public class SpdzMultProtocol extends SpdzNativeProtocol<SpdzSInt> {
           SpdzElement epsilon = in1.value.subtract(triple.getA());
           SpdzElement delta = in2.value.subtract(triple.getB());
 
-          network.sendToAll(
-              BigIntegerWithFixedLengthSerializer.toBytes(new BigInteger[]{epsilon.getShare(),
-                  delta.getShare()}, spdzResourcePool.getModulusSize()));
+          network.sendToAll(serializer.toBytes(epsilon.getShare()));
+          network.sendToAll(serializer.toBytes(delta.getShare()));
           network.expectInputFromAll();
           this.epsilon = epsilon;
           this.delta = delta;
@@ -121,10 +121,8 @@ public class SpdzMultProtocol extends SpdzNativeProtocol<SpdzSInt> {
         BigInteger[] epsilonShares = new BigInteger[noOfPlayers];
         BigInteger[] deltaShares = new BigInteger[noOfPlayers];
         for (int i = 0; i < noOfPlayers; i++) {
-          BigInteger[] shares = BigIntegerWithFixedLengthSerializer
-              .toBigIntegers(network.receive(i + 1), 2, spdzResourcePool.getModulusSize());
-          epsilonShares[i] = shares[0];
-          deltaShares[i] = shares[1];
+          epsilonShares[i] = serializer.toBigInteger(network.receive(i + 1));
+          deltaShares[i] = serializer.toBigInteger(network.receive(i + 1));
         }
         SpdzElement res = triple.getC();
         BigInteger e = epsilonShares[0];
@@ -160,7 +158,7 @@ public class SpdzMultProtocol extends SpdzNativeProtocol<SpdzSInt> {
   }
 
   @Override
-  public SpdzSInt getOutput() {
+  public SpdzSInt out() {
     return out;
   }
 

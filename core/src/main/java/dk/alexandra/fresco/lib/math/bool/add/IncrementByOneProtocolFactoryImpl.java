@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -26,7 +26,7 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.math.bool.add;
 
-import dk.alexandra.fresco.framework.NativeProtocol;
+import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
@@ -41,7 +41,7 @@ public class IncrementByOneProtocolFactoryImpl implements IncrementByOneProtocol
 	}
 	
 	@Override
-	public NativeProtocol getIncrementByOneProtocol(SInt in, SInt out) {
+	public Computation<? extends SInt> getIncrementByOneProtocol(SInt in, SInt out) {
 		OInt one = bnf.getOInt(BigInteger.ONE);
 		return bnf.getAddProtocol(in, one, out);
 	}

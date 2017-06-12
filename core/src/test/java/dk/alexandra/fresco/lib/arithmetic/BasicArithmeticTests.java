@@ -26,7 +26,7 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.arithmetic;
 
-import dk.alexandra.fresco.framework.NativeProtocol;
+import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.TestApplication;
@@ -34,6 +34,7 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
+import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.compare.ComparisonProtocolFactory;
@@ -63,11 +64,12 @@ import org.junit.Assert;
  */
 public class BasicArithmeticTests {
 
-  public static class TestInput extends TestThreadFactory {
+  public static class TestInput<ResourcePoolT extends ResourcePool> extends
+      TestThreadFactory<ResourcePoolT> {
 
     @Override
-    public TestThread next(TestThreadConfiguration conf) {
-      return new TestThread() {
+    public TestThread<ResourcePoolT> next(TestThreadConfiguration<ResourcePoolT> conf) {
+      return new TestThread<ResourcePoolT>() {
         @Override
         public void test() throws Exception {
           TestApplication app = new TestApplication() {
@@ -100,11 +102,12 @@ public class BasicArithmeticTests {
     }
   }
 
-  public static class TestOutputToSingleParty extends TestThreadFactory {
+  public static class TestOutputToSingleParty<ResourcePoolT extends ResourcePool> extends
+      TestThreadFactory<ResourcePoolT> {
 
     @Override
-    public TestThread next(TestThreadConfiguration conf) {
-      return new TestThread() {
+    public TestThread<ResourcePoolT> next(TestThreadConfiguration<ResourcePoolT> conf) {
+      return new TestThread<ResourcePoolT>() {
         @Override
         public void test() throws Exception {
           TestApplication app = new TestApplication() {
@@ -141,11 +144,12 @@ public class BasicArithmeticTests {
     }
   }
 
-  public static class TestAddPublicValue extends TestThreadFactory {
+  public static class TestAddPublicValue<ResourcePoolT extends ResourcePool> extends
+      TestThreadFactory<ResourcePoolT> {
 
     @Override
-    public TestThread next(TestThreadConfiguration conf) {
-      return new TestThread() {
+    public TestThread<ResourcePoolT> next(TestThreadConfiguration<ResourcePoolT> conf) {
+      return new TestThread<ResourcePoolT>() {
         @Override
         public void test() throws Exception {
           TestApplication app = new TestApplication() {
@@ -168,7 +172,7 @@ public class BasicArithmeticTests {
               BigInteger publicVal = BigInteger.valueOf(4);
               OInt openInput = fac.getOInt(publicVal);
               SInt out = fac.getSInt();
-              NativeProtocol addProtocol = fac.getAddProtocol(input1, openInput, out);
+              Computation addProtocol = fac.getAddProtocol(input1, openInput, out);
               gp.append(addProtocol);
 
               OInt output = ioBuilder.output(out);
@@ -190,11 +194,12 @@ public class BasicArithmeticTests {
     }
   }
 
-  public static class TestCopyProtocol extends TestThreadFactory {
+  public static class TestCopyProtocol<ResourcePoolT extends ResourcePool> extends
+      TestThreadFactory<ResourcePoolT> {
 
     @Override
-    public TestThread next(TestThreadConfiguration conf) {
-      return new TestThread() {
+    public TestThread<ResourcePoolT> next(TestThreadConfiguration<ResourcePoolT> conf) {
+      return new TestThread<ResourcePoolT>() {
         @Override
         public void test() throws Exception {
           TestApplication app = new TestApplication() {
@@ -234,11 +239,12 @@ public class BasicArithmeticTests {
   }
 
 
-  public static class TestLotsOfInputs extends TestThreadFactory {
+  public static class TestLotsOfInputs<ResourcePoolT extends ResourcePool> extends
+      TestThreadFactory<ResourcePoolT> {
 
     @Override
-    public TestThread next(TestThreadConfiguration conf) {
-      return new TestThread() {
+    public TestThread<ResourcePoolT> next(TestThreadConfiguration<ResourcePoolT> conf) {
+      return new TestThread<ResourcePoolT>() {
         @Override
         public void test() throws Exception {
           final int[] openInputs = new int[]{11, 2, 3, 4, 5, 6, 7,
@@ -254,7 +260,7 @@ public class BasicArithmeticTests {
               NumericIOBuilder ioBuilder = new NumericIOBuilder(
                   fac);
               SInt knownInput = fac.getSInt(BigInteger.valueOf(200));
-              SInt[] inputs = createInputs(ioBuilder, openInputs, 1);
+              SInt[] inputs = createInputs(ioBuilder, openInputs);
               inputs[0] = knownInput;
 
               OInt[] outputs = ioBuilder.outputArray(inputs);
@@ -275,11 +281,12 @@ public class BasicArithmeticTests {
     }
   }
 
-  public static class TestKnownSInt extends TestThreadFactory {
+  public static class TestKnownSInt<ResourcePoolT extends ResourcePool> extends
+      TestThreadFactory<ResourcePoolT> {
 
     @Override
-    public TestThread next(TestThreadConfiguration conf) {
-      return new TestThread() {
+    public TestThread<ResourcePoolT> next(TestThreadConfiguration<ResourcePoolT> conf) {
+      return new TestThread<ResourcePoolT>() {
         @Override
         public void test() throws Exception {
           final int[] openInputs = new int[]{200, 300, 1, 2};
@@ -316,11 +323,12 @@ public class BasicArithmeticTests {
   }
 
 
-  public static class TestSumAndMult extends TestThreadFactory {
+  public static class TestSumAndMult<ResourcePoolT extends ResourcePool> extends
+      TestThreadFactory<ResourcePoolT> {
 
     @Override
-    public TestThread next(TestThreadConfiguration conf) {
-      return new TestThread() {
+    public TestThread<ResourcePoolT> next(TestThreadConfiguration<ResourcePoolT> conf) {
+      return new TestThread<ResourcePoolT>() {
         @Override
         public void test() throws Exception {
           final int[] openInputs = new int[]{1, 2, 3, 4, 5, 6, 7,
@@ -336,8 +344,8 @@ public class BasicArithmeticTests {
               NumericIOBuilder ioBuilder = new NumericIOBuilder(
                   fac);
 
-              SInt[] inputs = createInputs(ioBuilder, openInputs,
-                  1);
+              SInt[] inputs = createInputs(ioBuilder, openInputs
+              );
 
               ProtocolProducer inp = ioBuilder.getProtocol();
               ioBuilder.reset();
@@ -393,22 +401,22 @@ public class BasicArithmeticTests {
     }
   }
 
-  private static SInt[] createInputs(NumericIOBuilder ioBuilder, int[] input,
-      int targetID) {
+  private static SInt[] createInputs(NumericIOBuilder ioBuilder, int[] input) {
     BigInteger[] bs = new BigInteger[input.length];
     int inx = 0;
     for (int i : input) {
       bs[inx] = BigInteger.valueOf(i);
       inx++;
     }
-    return ioBuilder.inputArray(bs, targetID);
+    return ioBuilder.inputArray(bs, 1);
   }
 
-  public static class TestSimpleMultAndAdd extends TestThreadFactory {
+  public static class TestSimpleMultAndAdd<ResourcePoolT extends ResourcePool> extends
+      TestThreadFactory<ResourcePoolT> {
 
     @Override
-    public TestThread next(TestThreadConfiguration conf) {
-      return new TestThread() {
+    public TestThread<ResourcePoolT> next(TestThreadConfiguration<ResourcePoolT> conf) {
+      return new TestThread<ResourcePoolT>() {
         @Override
         public void test() throws Exception {
           TestApplication app = new TestApplication() {
@@ -457,12 +465,13 @@ public class BasicArithmeticTests {
    * Test a large amount (defined by the REPS constant) multiplication protocols in order to
    * stress-test the protocol suite.
    */
-  public static class TestLotsMult extends TestThreadFactory {
+  public static class TestLotsMult<ResourcePoolT extends ResourcePool> extends
+      TestThreadFactory<ResourcePoolT> {
 
     @Override
-    public TestThread next(TestThreadConfiguration conf) {
+    public TestThread<ResourcePoolT> next(TestThreadConfiguration<ResourcePoolT> conf) {
 
-      return new TestThread() {
+      return new TestThread<ResourcePoolT>() {
         @Override
         public void test() throws Exception {
           TestApplication app = new TestApplication() {
@@ -500,12 +509,13 @@ public class BasicArithmeticTests {
     }
   }
 
-  public static class TestMinInfFrac extends TestThreadFactory {
+  public static class TestMinInfFrac<ResourcePoolT extends ResourcePool> extends
+      TestThreadFactory<ResourcePoolT> {
 
     @Override
-    public TestThread next(TestThreadConfiguration conf) {
+    public TestThread<ResourcePoolT> next(TestThreadConfiguration<ResourcePoolT> conf) {
 
-      return new TestThread() {
+      return new TestThread<ResourcePoolT>() {
         public void test() throws Exception {
           TestApplication app = new TestApplication() {
             private static final long serialVersionUID = 701623441111137585L;
@@ -570,9 +580,7 @@ public class BasicArithmeticTests {
               closedOutputs[0] = nm;
               closedOutputs[1] = dm;
               closedOutputs[2] = infm;
-              for (int i = 3; i < cs.length + 3; i++) {
-                closedOutputs[i] = cs[i - 3];
-              }
+              System.arraycopy(cs, 0, closedOutputs, 3, cs.length + 3 - 3);
               //outputs = ioBuilder.outputArray(new SInt[] {nm, dm, infm});
               outputs = ioBuilder.outputArray(closedOutputs);
               return ioBuilder.getProtocol();
@@ -610,12 +618,13 @@ public class BasicArithmeticTests {
    * alternating between the two. This should ensure batches with both
    * types of protocols.
    */
-  public static class TestAlternatingMultAdd extends TestThreadFactory {
+  public static class TestAlternatingMultAdd<ResourcePoolT extends ResourcePool> extends
+      TestThreadFactory<ResourcePoolT> {
 
     @Override
-    public TestThread next(TestThreadConfiguration conf) {
+    public TestThread<ResourcePoolT> next(TestThreadConfiguration<ResourcePoolT> conf) {
 
-      return new TestThread() {
+      return new TestThread<ResourcePoolT>() {
         @Override
         public void test() throws Exception {
           TestApplication app = new TestApplication() {

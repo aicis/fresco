@@ -28,7 +28,7 @@ package dk.alexandra.fresco.suite.spdz.gates;
 
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.network.SCENetwork;
-import dk.alexandra.fresco.framework.network.serializers.BigIntegerWithFixedLengthSerializer;
+import dk.alexandra.fresco.framework.network.serializers.BigIntegerSerializer;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
@@ -59,7 +59,7 @@ public class SpdzOutputProtocol extends SpdzNativeProtocol<SpdzOInt> {
   }
 
   @Override
-  public SpdzOInt getOutput() {
+  public SpdzOInt out() {
     return out;
   }
 
@@ -70,22 +70,20 @@ public class SpdzOutputProtocol extends SpdzNativeProtocol<SpdzOInt> {
 
     int myId = spdzResourcePool.getMyId();
     SpdzStorage storage = spdzResourcePool.getStore();
+    BigIntegerSerializer serializer = spdzResourcePool.getSerializer();
     switch (round) {
       case 0:
         this.mask = storage.getSupplier().getNextInputMask(target_player);
         SpdzElement inMinusMask = this.in.value.subtract(this.mask.getMask());
         storage.addClosedValue(inMinusMask);
-        network.sendToAll(BigIntegerWithFixedLengthSerializer
-            .toBytes(inMinusMask.getShare(), spdzResourcePool.getModulusSize()));
+        network.sendToAll(serializer.toBytes(inMinusMask.getShare()));
         network.expectInputFromAll();
         return EvaluationStatus.HAS_MORE_ROUNDS;
       case 1:
         List<ByteBuffer> shares = network.receiveFromAll();
         BigInteger openedVal = BigInteger.valueOf(0);
         for (ByteBuffer buffer : shares) {
-          openedVal = openedVal
-              .add(BigIntegerWithFixedLengthSerializer
-                  .toBigInteger(buffer, spdzResourcePool.getModulusSize()));
+          openedVal = openedVal.add(serializer.toBigInteger(buffer));
         }
         openedVal = openedVal.mod(spdzResourcePool.getModulus());
         storage.addOpenedValue(openedVal);

@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -41,7 +41,8 @@ public class SCEFactory {
    */
   public static <ResourcePoolT extends ResourcePool> SecureComputationEngine<ResourcePoolT>
   getSCEFromConfiguration(
-      SCEConfiguration conf, ProtocolSuiteConfiguration<ResourcePoolT> protocolSuite) {
+      SCEConfiguration<ResourcePoolT> conf,
+      ProtocolSuiteConfiguration<ResourcePoolT> protocolSuite) {
     return new SecureComputationEngineImpl<>(protocolSuite, conf.getEvaluator(),
         conf.getLogLevel(), conf.getMyId());
   }

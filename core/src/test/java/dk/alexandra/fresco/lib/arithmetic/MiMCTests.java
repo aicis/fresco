@@ -26,7 +26,7 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.arithmetic;
 
-import dk.alexandra.fresco.framework.NativeProtocol;
+import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.TestApplication;
@@ -34,6 +34,7 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
+import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
@@ -56,14 +57,14 @@ public class MiMCTests {
    * concrete implementations for this test will do its own set up and if the
    * modulus is not set correctly this test will fail (rather mysteriously).
    */
-  public static class TestMiMCEncryptsDeterministically extends TestThreadFactory {
+  public static class TestMiMCEncryptsDeterministically<ResourcePoolT extends ResourcePool> extends
+      TestThreadFactory<ResourcePoolT> {
 
     @Override
-    public TestThread next(TestThreadConfiguration conf) {
+    public TestThread<ResourcePoolT> next(TestThreadConfiguration<ResourcePoolT> conf) {
 
       abstract class MyTestApplication extends TestApplication {
 
-        private static final long serialVersionUID = 1L;
         private BigInteger modulus;
 
         BigInteger getModulus() {
@@ -76,12 +77,11 @@ public class MiMCTests {
 
       }
 
-      return new TestThread() {
+      return new TestThread<ResourcePoolT>() {
         @Override
         public void test() throws Exception {
           MyTestApplication app = new MyTestApplication() {
 
-            private static final long serialVersionUID = 4338818809103728010L;
 
             @Override
             public ProtocolProducer prepareApplication(
@@ -120,16 +120,16 @@ public class MiMCTests {
     }
   }
 
-  public static class TestMiMCEncSameEnc extends TestThreadFactory {
+  public static class TestMiMCEncSameEnc<ResourcePoolT extends ResourcePool> extends
+      TestThreadFactory<ResourcePoolT> {
 
     @Override
-    public TestThread next(TestThreadConfiguration conf) {
-      return new TestThread() {
+    public TestThread<ResourcePoolT> next(TestThreadConfiguration<ResourcePoolT> conf) {
+      return new TestThread<ResourcePoolT>() {
         @Override
         public void test() throws Exception {
           TestApplication app = new TestApplication() {
 
-            private static final long serialVersionUID = 4338818809103728010L;
 
             @Override
             public ProtocolProducer prepareApplication(
@@ -160,16 +160,15 @@ public class MiMCTests {
     }
   }
 
-  public static class TestMiMCDifferentPlainTexts extends TestThreadFactory {
+  public static class TestMiMCDifferentPlainTexts<ResourcePoolT extends ResourcePool> extends
+      TestThreadFactory<ResourcePoolT> {
 
     @Override
-    public TestThread next(TestThreadConfiguration conf) {
-      return new TestThread() {
+    public TestThread<ResourcePoolT> next(TestThreadConfiguration<ResourcePoolT> conf) {
+      return new TestThread<ResourcePoolT>() {
         @Override
         public void test() throws Exception {
           TestApplication app = new TestApplication() {
-
-            private static final long serialVersionUID = 4338818809103728010L;
 
             @Override
             public ProtocolProducer prepareApplication(
@@ -205,17 +204,17 @@ public class MiMCTests {
     }
   }
 
-  public static class TestMiMCEncDec extends TestThreadFactory {
+  public static class TestMiMCEncDec<ResourcePoolT extends ResourcePool> extends
+      TestThreadFactory<ResourcePoolT> {
 
     @Override
-    public TestThread next(TestThreadConfiguration conf) {
-      return new TestThread() {
+    public TestThread<ResourcePoolT> next(TestThreadConfiguration<ResourcePoolT> conf) {
+      return new TestThread<ResourcePoolT>() {
         @Override
         public void test() throws Exception {
           BigInteger x_big = BigInteger.valueOf(10);
           TestApplication app = new TestApplication() {
 
-            private static final long serialVersionUID = 4338818809103728010L;
 
             @Override
             public ProtocolProducer prepareApplication(
@@ -223,10 +222,10 @@ public class MiMCTests {
               BasicNumericFactory fac = (BasicNumericFactory) factory;
               SymmetricEncryptionBuilder symBuilder = new SymmetricEncryptionBuilder(fac);
               SInt k = fac.getSInt();
-              NativeProtocol<SInt, ?> knownKProtocol = fac.getSInt(20, k);
+              Computation<SInt> knownKProtocol = fac.getSInt(20, k);
 
               SInt x = fac.getSInt();
-              NativeProtocol<SInt, ?> knownXProtocol = fac.getSInt(x_big, x);
+              Computation<SInt> knownXProtocol = fac.getSInt(x_big, x);
               symBuilder.addProtocolProducer(SingleProtocolProducer.wrap(knownKProtocol));
               symBuilder.addProtocolProducer(SingleProtocolProducer.wrap(knownXProtocol));
               SInt encX = symBuilder.mimcEncrypt(x, k);

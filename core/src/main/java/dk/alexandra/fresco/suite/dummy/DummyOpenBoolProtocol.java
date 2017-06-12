@@ -76,9 +76,9 @@ public class DummyOpenBoolProtocol extends DummyProtocol implements OpenBoolProt
 	}
 
 	@Override
-	public Value[] getOutput() {
-		return new Value[]{this.output};
-	}
+  public Value[] out() {
+    return new Value[]{this.output};
+  }
 
 	
 }

@@ -26,7 +26,7 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.field.integer.generic;
 
-import dk.alexandra.fresco.framework.NativeProtocol;
+import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
@@ -34,9 +34,9 @@ import dk.alexandra.fresco.lib.field.integer.AddByConstantProtocolFactory;
 
 public interface AddProtocolFactory extends ProtocolFactory, AddByConstantProtocolFactory {
 
-  NativeProtocol<? extends SInt, ?> getAddProtocol(SInt a, SInt b, SInt out);
+  Computation<? extends SInt> getAddProtocol(SInt a, SInt b, SInt out);
 
-  NativeProtocol<? extends SInt, ?> getAddProtocol(SInt a, SInt b);
+  Computation<? extends SInt> add(SInt a, SInt b);
 
-  NativeProtocol<? extends SInt, ?> getAddProtocol(SInt input, OInt openInput, SInt out);
+  Computation<? extends SInt> getAddProtocol(SInt input, OInt openInput, SInt out);
 }

@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -26,7 +26,7 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.math.integer.exp;
 
-import dk.alexandra.fresco.framework.NativeProtocol;
+import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.SInt;
@@ -62,13 +62,13 @@ public class ExponentiationPipeProtocolImpl implements ExponentiationPipeProtoco
   public void getNextProtocols(ProtocolCollection protocolCollection) {
     if (state == 0) {
       ProtocolProducer invC = invFactory.getInversionProtocol(R, outputs[0]);
-      NativeProtocol copyR = copyFactory.getCopyProtocol(R, outputs[1]);
-      NativeProtocol mult = factory.getMultProtocol(R, R, outputs[2]);
+      Computation copyR = copyFactory.getCopyProtocol(R, outputs[1]);
+      Computation mult = factory.getMultProtocol(R, R, outputs[2]);
       pp = new ParallelProtocolProducer(invC, copyR, mult);
       state = 2;
     } else if (!running) {
       //Should initially multiply R with R^2 => R^3
-      NativeProtocol mult = factory.getMultProtocol(R, outputs[state++], outputs[state]);
+      Computation mult = factory.getMultProtocol(R, outputs[state++], outputs[state]);
       pp = new ParallelProtocolProducer(mult);
     }
     if (pp.hasNextProtocols()) {

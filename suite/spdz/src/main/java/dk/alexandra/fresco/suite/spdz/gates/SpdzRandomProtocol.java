@@ -40,7 +40,7 @@ public class SpdzRandomProtocol extends SpdzNativeProtocol<SpdzSInt> {
   }
 
   @Override
-  public SpdzSInt getOutput() {
+  public SpdzSInt out() {
     return randomElement;
   }
 

@@ -42,7 +42,7 @@ public class CopyProtocolImpl<T extends Value, S extends ResourcePool> implement
   }
 
   @Override
-  public T getOutput() {
+  public T out() {
     return into;
   }
 

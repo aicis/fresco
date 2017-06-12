@@ -26,7 +26,7 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.helper.sequential;
 
-import dk.alexandra.fresco.framework.NativeProtocol;
+import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.lib.helper.ProtocolProducerCollection;
@@ -47,18 +47,18 @@ public class SequentialProtocolProducer implements ProtocolProducer, ProtocolPro
     }
   }
 
-  public SequentialProtocolProducer(NativeProtocol... protocols) {
+  public SequentialProtocolProducer(Computation... protocols) {
     this();
-    for (NativeProtocol protocol : protocols) {
+    for (Computation protocol : protocols) {
       append(protocol);
     }
   }
 
   public SequentialProtocolProducer(ProtocolProducer firstProtocolProducer,
-      NativeProtocol... protocols) {
+      Computation... protocols) {
     this();
     append(firstProtocolProducer);
-    for (NativeProtocol protocol : protocols) {
+    for (Computation protocol : protocols) {
       append(protocol);
     }
   }
@@ -71,8 +71,8 @@ public class SequentialProtocolProducer implements ProtocolProducer, ProtocolPro
     this.cs.add(protocolProducer);
   }
 
-  public void append(NativeProtocol protocol) {
-    this.cs.add(SingleProtocolProducer.wrap(protocol));
+  public void append(Computation computation) {
+    this.cs.add(SingleProtocolProducer.wrap(computation));
   }
 
   @Override

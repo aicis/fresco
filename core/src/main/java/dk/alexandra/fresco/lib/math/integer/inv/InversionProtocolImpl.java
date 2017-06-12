@@ -26,7 +26,7 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.math.integer.inv;
 
-import dk.alexandra.fresco.framework.NativeProtocol;
+import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.OInt;
@@ -62,12 +62,12 @@ public class InversionProtocolImpl implements InversionProtocol {
       SInt sProduct = factory.getSInt();
       OInt oProduct = factory.getOInt();
       SInt random = factory.getSInt();
-      NativeProtocol<? extends SInt, ?> randomProt = randFactory.getRandomFieldElement(random);
-      NativeProtocol<? extends SInt, ?> blinding = factory.getMultProtocol(x, random, sProduct);
-      NativeProtocol<? extends OInt, ?> open = factory.getOpenProtocol(sProduct, oProduct);
-      NativeProtocol<? extends SInt, ?> invert = invFactory
+      Computation<? extends SInt> randomProt = randFactory.getRandomFieldElement(random);
+      Computation<? extends SInt> blinding = factory.getMultProtocol(x, random, sProduct);
+      Computation<? extends OInt> open = factory.getOpenProtocol(sProduct, oProduct);
+      Computation<? extends SInt> invert = invFactory
           .getLocalInversionProtocol(oProduct, inverse);
-      NativeProtocol<? extends SInt, ?> unblinding = factory
+      Computation<? extends SInt> unblinding = factory
           .getMultProtocol(inverse, random, result);
 
       pp = new SequentialProtocolProducer(randomProt, blinding, open, invert, unblinding);

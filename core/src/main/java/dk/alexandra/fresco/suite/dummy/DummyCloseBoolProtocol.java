@@ -72,9 +72,9 @@ public class DummyCloseBoolProtocol extends DummyProtocol implements CloseBoolPr
 	}
 
 	@Override
-	public Value[] getOutput() {
-		return new Value[]{this.output};
-	}
+  public Value[] out() {
+    return new Value[]{this.output};
+  }
 
 	
 }

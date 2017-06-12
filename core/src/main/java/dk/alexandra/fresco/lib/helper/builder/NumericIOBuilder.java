@@ -26,7 +26,7 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.helper.builder;
 
-import dk.alexandra.fresco.framework.NativeProtocol;
+import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.OIntFactory;
@@ -168,7 +168,7 @@ public class NumericIOBuilder extends AbstractProtocolBuilder {
    * @param targetID the id of the party to input
    * @return SInt's to be loaded with the input
    */
-  public SInt[] inputArray(int length, int targetID) {
+  private SInt[] inputArray(int length, int targetID) {
     SInt[] sis = new SInt[length];
     for (int i = 0; i < length; i++) {
       sis[i] = sif.getSInt();
@@ -190,14 +190,14 @@ public class NumericIOBuilder extends AbstractProtocolBuilder {
     int targetID;
     int i = 0;
 
-    public InputArray(SInt[] sis, int targetID) {
+    InputArray(SInt[] sis, int targetID) {
       this.length = sis.length;
       this.is = null;
       this.sis = sis;
       this.targetID = targetID;
     }
 
-    public InputArray(BigInteger[] is, SInt[] sis, int targetID) {
+    InputArray(BigInteger[] is, SInt[] sis, int targetID) {
       if (is.length != sis.length) {
         throw new IllegalArgumentException("Array dimensions do not match.");
       }
@@ -209,7 +209,7 @@ public class NumericIOBuilder extends AbstractProtocolBuilder {
 
     @Override
     protected ProtocolProducer getNextProtocolProducer() {
-      NativeProtocol input = null;
+      Computation input = null;
       if (i < length) {
         OInt oi = oif.getOInt();
         if (is != null) {
@@ -309,14 +309,14 @@ public class NumericIOBuilder extends AbstractProtocolBuilder {
     SInt[] sis;
     int i = 0;
 
-    public OutputArray(SInt[] sis, OInt[] ois) {
+    OutputArray(SInt[] sis, OInt[] ois) {
       this.ois = ois;
       this.sis = sis;
     }
 
     @Override
     protected ProtocolProducer getNextProtocolProducer() {
-      NativeProtocol output = null;
+      Computation output = null;
       if (i < ois.length) {
         output = iof.getOpenProtocol(sis[i], ois[i]);
         i++;

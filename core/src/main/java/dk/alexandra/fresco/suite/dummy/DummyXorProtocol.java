@@ -51,9 +51,9 @@ public class DummyXorProtocol extends DummyProtocol implements XorProtocol {
 	}
 
 	@Override
-	public Value[] getOutput() {
-		return new Value[]{outC};
-	}
+  public Value[] out() {
+    return new Value[]{outC};
+  }
 
 	@Override
 	public EvaluationStatus evaluate(int round, ResourcePool resourcePool,

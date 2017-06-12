@@ -26,6 +26,7 @@
  *******************************************************************************/
 package dk.alexandra.fresco.suite.spdz.utils;
 
+import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.OInt;
@@ -82,7 +83,7 @@ public class SpdzFactory implements BasicNumericFactory<SpdzSInt>,
    */
 
   @Override
-  public NativeProtocol<SInt, ?> getSInt(int i, SInt si) {
+  public Computation<SInt> getSInt(int i, SInt si) {
     return new SpdzKnownSIntProtocol(i, si);
   }
 
@@ -90,7 +91,7 @@ public class SpdzFactory implements BasicNumericFactory<SpdzSInt>,
    * Careful - This creates a publicly known integer which is secret shared.
    */
   @Override
-  public NativeProtocol<SInt, ?> getSInt(BigInteger value, SInt sValue) {
+  public Computation<SInt> getSInt(BigInteger value, SInt sValue) {
     return new SpdzKnownSIntProtocol(value, sValue);
   }
 
@@ -177,7 +178,7 @@ public class SpdzFactory implements BasicNumericFactory<SpdzSInt>,
   }
 
   @Override
-  public NativeProtocol<? extends SInt, ?> getAddProtocol(SInt a, SInt b) {
+  public NativeProtocol<? extends SInt, ?> add(SInt a, SInt b) {
     SInt out = getSInt();
     return new SpdzAddProtocol(a, b, out);
   }
@@ -193,7 +194,7 @@ public class SpdzFactory implements BasicNumericFactory<SpdzSInt>,
   }
 
   @Override
-  public NativeProtocol<? extends SInt, ?> getSubtractProtocol(SInt a, SInt b) {
+  public NativeProtocol<? extends SInt, ?> sub(SInt a, SInt b) {
     SInt out = getSInt();
     return new SpdzSubtractProtocol(a, b, out, this);
   }
@@ -209,18 +210,18 @@ public class SpdzFactory implements BasicNumericFactory<SpdzSInt>,
   }
 
   @Override
-  public NativeProtocol<? extends SInt, ?> getMultProtocol(SInt a, SInt b, SInt out) {
+  public Computation<? extends SInt> getMultProtocol(SInt a, SInt b, SInt out) {
     return new SpdzMultProtocol(a, b, out);
   }
 
   @Override
-  public NativeProtocol<? extends SInt, ?> getMultProtocol(SInt a, SInt b) {
+  public Computation<? extends SInt> mult(SInt a, SInt b) {
     SInt out = getSInt();
     return new SpdzMultProtocol(a, b, out);
   }
 
   @Override
-  public NativeProtocol<? extends SInt, ?> getMultProtocol(OInt a, SInt b, SInt out) {
+  public Computation<? extends SInt> getMultProtocol(OInt a, SInt b, SInt out) {
     return new SpdzMultProtocol(a, b, out);
   }
 
@@ -272,29 +273,29 @@ public class SpdzFactory implements BasicNumericFactory<SpdzSInt>,
    ****************************************/
 
   @Override
-  public NativeProtocol<? extends SInt, ?> getCloseProtocol(BigInteger open,
+  public Computation<? extends SInt> getCloseProtocol(BigInteger open,
       SInt closed, int targetID) {
     return new SpdzInputProtocol(open, closed, targetID);
   }
 
 
   @Override
-  public NativeProtocol<? extends SInt, ?> getCloseProtocol(int source, OInt open, SInt closed) {
+  public Computation<? extends SInt> getCloseProtocol(int source, OInt open, SInt closed) {
     return new SpdzInputProtocol(open, closed, source);
   }
 
   @Override
-  public NativeProtocol<? extends OInt, ?> getOpenProtocol(int target, SInt closed, OInt open) {
+  public Computation<? extends OInt> getOpenProtocol(int target, SInt closed, OInt open) {
     return new SpdzOutputProtocol(closed, open, target);
   }
 
   @Override
-  public NativeProtocol<? extends OInt, ?> getOpenProtocol(SInt closed, OInt open) {
+  public Computation<? extends OInt> getOpenProtocol(SInt closed, OInt open) {
     return new SpdzOutputToAllProtocol(closed, open);
   }
 
   @Override
-  public NativeProtocol<SpdzSInt, ?> getRandomFieldElement(SpdzSInt randomElement) {
+  public Computation<SpdzSInt> getRandomFieldElement(SpdzSInt randomElement) {
     return new SpdzRandomProtocol(randomElement);
   }
 

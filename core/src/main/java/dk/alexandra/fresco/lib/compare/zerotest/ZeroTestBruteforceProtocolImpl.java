@@ -26,8 +26,8 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.compare.zerotest;
 
+import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.MPCException;
-import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.OInt;
@@ -103,10 +103,10 @@ public class ZeroTestBruteforceProtocolImpl implements ZeroTestBruteforceProtoco
           SInt masked_S = factory.getSInt();
 
           masked_O = factory.getOInt();
-          NativeProtocol incr = incrFactory.getIncrementByOneProtocol(input, increased);
-          NativeProtocol<? extends SInt, ?> mult = factory
+          Computation incr = incrFactory.getIncrementByOneProtocol(input, increased);
+          Computation<? extends SInt> mult = factory
               .getMultProtocol(increased, R[0], masked_S);
-          NativeProtocol<? extends OInt, ?> open = factory.getOpenProtocol(masked_S, masked_O);
+          Computation<? extends OInt> open = factory.getOpenProtocol(masked_S, masked_O);
 
           pp = new SequentialProtocolProducer(incr, mult, open);
 
@@ -115,7 +115,7 @@ public class ZeroTestBruteforceProtocolImpl implements ZeroTestBruteforceProtoco
           // compute powers and evaluate polynomial
           OInt[] maskedPowers = expFromOIntFactory.getExpFromOInt(masked_O, maxInput);
 
-          NativeProtocol[] unmaskGPs = new NativeProtocol[maxInput];
+          Computation[] unmaskGPs = new Computation[maxInput];
           SInt[] powers = new SInt[maxInput];
           for (int i = 0; i < maxInput; i++) {
             powers[i] = factory.getSInt();
@@ -129,7 +129,7 @@ public class ZeroTestBruteforceProtocolImpl implements ZeroTestBruteforceProtoco
           SInt tmp = factory.getSInt();
           ProtocolProducer polynomialGP = innerProdFactory.getInnerProductProtocol(powers,
               mostSignificantPolynomialCoefficients, tmp);
-          NativeProtocol add = abcFactory.getAddProtocol(tmp,
+          Computation add = abcFactory.getAddProtocol(tmp,
               polynomialCoefficients[0], output);
           pp = new SequentialProtocolProducer(new ParallelProtocolProducer(unmaskGPs),
               polynomialGP, SingleProtocolProducer.wrap(add));

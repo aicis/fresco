@@ -45,6 +45,7 @@ import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.dummy.DummyConfiguration;
 import dk.alexandra.fresco.suite.spdz.SpdzProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
+import dk.alexandra.fresco.suite.spdz.SpdzResourcePoolImpl;
 import dk.alexandra.fresco.suite.spdz.configuration.SpdzConfiguration;
 import dk.alexandra.fresco.suite.tinytables.online.TinyTablesConfiguration;
 import dk.alexandra.fresco.suite.tinytables.prepro.TinyTablesPreproConfiguration;
@@ -457,7 +458,7 @@ public class CmdLineUtil {
       @Override
       public SpdzResourcePool createResourcePool(int myId, int size, Network network, Random rand,
           SecureRandom secRand) {
-        return new SpdzResourcePool(myId, size, network, sceConf.getStreamedStorage(), rand,
+        return new SpdzResourcePoolImpl(myId, size, network, sceConf.getStreamedStorage(), rand,
             secRand, this);
       }
 

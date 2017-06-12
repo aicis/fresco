@@ -26,7 +26,7 @@
  *******************************************************************************/
 package dk.alexandra.fresco.suite.spdz.gates;
 
-import dk.alexandra.fresco.framework.NativeProtocol;
+import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.network.SCENetwork;
@@ -62,8 +62,8 @@ public class DummyComparisonProtocol implements ComparisonProtocol {
     if (currPP == null) {
       OInt a_open = factory.getOInt();
       OInt b_open = factory.getOInt();
-      NativeProtocol<? extends OInt, ?> openA = factory.getOpenProtocol(a, a_open);
-      NativeProtocol<? extends OInt, ?> openB = factory.getOpenProtocol(b, b_open);
+      Computation<? extends OInt> openA = factory.getOpenProtocol(a, a_open);
+      Computation<? extends OInt> openB = factory.getOpenProtocol(b, b_open);
       SpdzOInt a_open_ = (SpdzOInt) a_open;
       SpdzOInt b_open_ = (SpdzOInt) b_open;
 
@@ -139,7 +139,7 @@ public class DummyComparisonProtocol implements ComparisonProtocol {
     }
 
     @Override
-    public SpdzSInt getOutput() {
+    public SpdzSInt out() {
       return result;
     }
 

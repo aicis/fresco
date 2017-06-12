@@ -76,7 +76,7 @@ public class TinyTablesANDProtocol extends TinyTablesProtocol {
   }
 
   @Override
-  public Value[] getOutput() {
+  public Value[] out() {
     return new Value[]{out};
   }
 

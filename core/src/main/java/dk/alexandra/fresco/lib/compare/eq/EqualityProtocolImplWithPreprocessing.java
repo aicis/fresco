@@ -26,6 +26,7 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.compare.eq;
 
+import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.ProtocolProducer;
@@ -56,7 +57,7 @@ public class EqualityProtocolImplWithPreprocessing implements EqualityProtocol {
   private final SInt x, y, result;
 
   // Factories
-  private final BasicNumericFactory factory;
+  private final BasicNumericFactory<SInt> factory;
   private final MultByConstantFactory mbcFactory;
   //	private final NumericBitProvider bitProvider;
   private final PreprocessedExpPipeFactory expFactory;
@@ -82,7 +83,8 @@ public class EqualityProtocolImplWithPreprocessing implements EqualityProtocol {
 //RandomAdditiveMaskProvider randomAddMaskProvider) {
   public EqualityProtocolImplWithPreprocessing(int bitLength, int securityParam,
       SInt x, SInt y, SInt result,
-      BasicNumericFactory factory, MultByConstantFactory mbcFactory, NumericBitFactory bitProvider,
+      BasicNumericFactory<SInt> factory, MultByConstantFactory mbcFactory,
+      NumericBitFactory bitProvider,
       PreprocessedExpPipeFactory expFactory, AddProtocolFactory addFactory,
       InnerProductFactory innerProdFactory, MiscOIntGenerators miscOIntGenerator,
       ExpFromOIntFactory expFromOIntFactory) {
@@ -150,22 +152,23 @@ public class EqualityProtocolImplWithPreprocessing implements EqualityProtocol {
       bits[i] = factory.getSInt();
     }
     SInt r = factory.getSInt();
+    SequentialProtocolProducer sequentialProtocolProducer =
+        new SequentialProtocolProducer();
+
     ProtocolProducer randLoader = randomAddMaskFactory
         .getRandomAdditiveMaskProtocol(securityParam, bits, r);
+    sequentialProtocolProducer.append(randLoader);
 
     // mask and reveal difference
-    SInt subResult = factory.getSInt();
-    SInt masked_S = factory.getSInt();
     OInt masked_O = factory.getOInt();
 
-    NativeProtocol<? extends SInt, ?> sub = factory.getSubtractProtocol(x, y,
-        subResult);
-    NativeProtocol<? extends SInt, ?> add = factory.getAddProtocol(subResult, r,
-        masked_S);
-    NativeProtocol<? extends OInt, ?> openAddMask = factory
-        .getOpenProtocol(masked_S, masked_O);
-    SequentialProtocolProducer sequentialProtocolProducer = new SequentialProtocolProducer(
-        randLoader, sub, add, openAddMask);
+    BasicNumericFactory<SInt> factory =
+        new AppendingBasicNumericFactory<>(
+            this.factory,
+            sequentialProtocolProducer);
+    SInt resultSub = factory.sub(x, y).out();
+    SInt resultAdd = factory.add(resultSub, r).out();
+    factory.getOpenProtocol(resultAdd, masked_O);
 
     // Compute Hamming distance
     sequentialProtocolProducer.append(hammingFactory
@@ -184,17 +187,15 @@ public class EqualityProtocolImplWithPreprocessing implements EqualityProtocol {
     SInt[] R = loadRandomMultiplicativeMask();
 
     // mask (multiplicatively) and reveal
-    SInt masked_S = factory.getSInt();
     OInt masked_O = factory.getOInt();
 
-    NativeProtocol<? extends SInt, ?> mult = factory
-        .getMultProtocol(reducedProblem, R[0], masked_S);
-    NativeProtocol<? extends OInt, ?> open = factory.getOpenProtocol(masked_S, masked_O);
+    Computation<? extends SInt> mult = factory.mult(reducedProblem, R[0]);
+    Computation<? extends OInt> open = factory.getOpenProtocol(mult.out(), masked_O);
 
     // compute powers and evaluate polynomial
     OInt[] maskedPowers = expFromOIntFactory.getExpFromOInt(masked_O, bitLength);
 
-    NativeProtocol[] unmaskGPs = new NativeProtocol[bitLength];
+    Computation[] unmaskGPs = new NativeProtocol[bitLength];
     SInt[] powers = new SInt[bitLength];
     for (int i = 0; i < bitLength; i++) {
       powers[i] = factory.getSInt();

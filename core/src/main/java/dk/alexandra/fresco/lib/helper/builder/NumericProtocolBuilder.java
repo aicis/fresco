@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -26,7 +26,7 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.helper.builder;
 
-import dk.alexandra.fresco.framework.NativeProtocol;
+import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
@@ -66,7 +66,7 @@ public class NumericProtocolBuilder extends AbstractProtocolBuilder {
    *
    * @return a new array of initialized SInts.
    */
-  public SInt[] getSIntArray(int[] values) {
+  private SInt[] getSIntArray(int[] values) {
     SInt[] array = new SInt[values.length];
     for (int i = 0; i < values.length; i++) {
       array[i] = getSInt(values[i]);
@@ -91,7 +91,7 @@ public class NumericProtocolBuilder extends AbstractProtocolBuilder {
    * @param w width
    * @return a new matrix of initialized SInts.
    */
-  public SInt[][] getSIntMatrix(int h, int w) {
+  SInt[][] getSIntMatrix(int h, int w) {
     SInt[][] matrix = new SInt[h][w];
     for (int i = 0; i < h; i++) {
       matrix[i] = getSIntArray(w);
@@ -127,8 +127,7 @@ public class NumericProtocolBuilder extends AbstractProtocolBuilder {
   }
 
   public OInt knownOInt(BigInteger value) {
-    OInt oValue = bnf.getOInt(value);
-    return oValue;
+    return bnf.getOInt(value);
   }
 
   public OInt[] knownOInts(BigInteger[] values) {
@@ -141,7 +140,7 @@ public class NumericProtocolBuilder extends AbstractProtocolBuilder {
 
   public SInt known(BigInteger value) {
     SInt sValue = bnf.getSInt();
-    NativeProtocol loader = bnf.getSInt(value, sValue);
+    Computation loader = bnf.getSInt(value, sValue);
     append(loader);
     return sValue;
   }
@@ -158,7 +157,7 @@ public class NumericProtocolBuilder extends AbstractProtocolBuilder {
 
   public SInt known(int value) {
     SInt sValue = bnf.getSInt();
-    NativeProtocol loader = bnf.getSInt(value, sValue);
+    Computation loader = bnf.getSInt(value, sValue);
     append(loader);
     return sValue;
   }
@@ -246,7 +245,7 @@ public class NumericProtocolBuilder extends AbstractProtocolBuilder {
     SInt[] right;
     SInt[] out;
 
-    public ParAdditions(SInt[] left, SInt[] right, SInt[] out) {
+    ParAdditions(SInt[] left, SInt[] right, SInt[] out) {
       this.left = left;
       this.right = right;
     }
@@ -254,7 +253,7 @@ public class NumericProtocolBuilder extends AbstractProtocolBuilder {
     @Override
     protected ProtocolProducer getNextProtocolProducer() {
       if (i < left.length) {
-        NativeProtocol addition = bnf.getAddProtocol(left[i], right[i], out[i]);
+        Computation addition = bnf.getAddProtocol(left[i], right[i], out[i]);
         i++;
         return SingleProtocolProducer.wrap(addition);
       } else {
@@ -283,7 +282,7 @@ public class NumericProtocolBuilder extends AbstractProtocolBuilder {
     private SInt[] intermediate;
     private SInt result;
 
-    public SumNodeGenerator(SInt[] terms, SInt result) {
+    SumNodeGenerator(SInt[] terms, SInt result) {
       this.terms = terms;
       this.intermediate = new SInt[terms.length];
       this.result = result;
@@ -308,7 +307,7 @@ public class NumericProtocolBuilder extends AbstractProtocolBuilder {
         right = intermediate[j];
       }
       out = intermediate[i];
-      NativeProtocol addition = bnf.getAddProtocol(left, right, out);
+      Computation addition = bnf.getAddProtocol(left, right, out);
       return SingleProtocolProducer.wrap(addition);
     }
 
@@ -334,7 +333,7 @@ public class NumericProtocolBuilder extends AbstractProtocolBuilder {
     private SInt[] intermediate;
     private SInt result;
 
-    public MultNodeGenerator(SInt[] terms, SInt result) {
+    MultNodeGenerator(SInt[] terms, SInt result) {
       this.terms = terms;
       this.intermediate = new SInt[terms.length];
       this.result = result;
@@ -359,7 +358,7 @@ public class NumericProtocolBuilder extends AbstractProtocolBuilder {
         right = intermediate[j];
       }
       out = intermediate[i];
-      NativeProtocol mult = bnf.getMultProtocol(left, right, out);
+      Computation mult = bnf.getMultProtocol(left, right, out);
       return SingleProtocolProducer.wrap(mult);
     }
 
@@ -443,7 +442,7 @@ public class NumericProtocolBuilder extends AbstractProtocolBuilder {
    * @param a the SInt to square
    * @return an SInt representing the result
    */
-  public SInt square(SInt a) {
+  private SInt square(SInt a) {
     SInt res = mult(a, a);
     return res;
   }
@@ -481,7 +480,7 @@ public class NumericProtocolBuilder extends AbstractProtocolBuilder {
     SInt result;
     boolean init = false;
 
-    public ExponentiationProtocol(SInt value, BigInteger exponent, SInt result) {
+    ExponentiationProtocol(SInt value, BigInteger exponent, SInt result) {
       super();
       this.exponent = exponent;
       this.value = value;
@@ -614,7 +613,7 @@ public class NumericProtocolBuilder extends AbstractProtocolBuilder {
    * @param result a SInt in which to put the result. I.e, the value of <code> selector*(left -
    * right) + right </code>
    */
-  public void conditionalSelect(SInt selector, SInt left, SInt right, SInt result) {
+  private void conditionalSelect(SInt selector, SInt left, SInt right, SInt result) {
     beginSeqScope();
     SInt diff = sub(left, right);
     SInt prod = mult(diff, selector);

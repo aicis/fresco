@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -26,7 +26,7 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.math.integer;
 
-import dk.alexandra.fresco.framework.NativeProtocol;
+import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.OInt;
@@ -55,7 +55,7 @@ public class NumericNegateBitProtocol implements ProtocolProducer {
   public void getNextProtocols(ProtocolCollection protocolCollection) {
     if (pp == null) {
       OInt one = factory.getOInt(BigInteger.ONE);
-      NativeProtocol sub = factory.getSubtractProtocol(one, bit, out);
+      Computation<? extends SInt> sub = factory.getSubtractProtocol(one, bit, out);
       pp = new SequentialProtocolProducer(sub);
     }
     if (pp.hasNextProtocols()) {

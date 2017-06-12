@@ -16,9 +16,9 @@ public class TestSerializers {
 	@Test
 	public void testBigIntegerSerializer() {
 		BigInteger b = new BigInteger("12983762173218321342");
-		byte[] bytes = BigIntegerSerializer.toBytes(b);
+		byte[] bytes = BigIntegerSerializerStream.toBytes(b);
 		ByteBuffer buf = ByteBuffer.wrap(bytes);
-		BigInteger bb = BigIntegerSerializer.toBigInteger(buf);
+		BigInteger bb = BigIntegerSerializerStream.toBigInteger(buf);
 		Assert.assertEquals(b, bb);
 	}
 

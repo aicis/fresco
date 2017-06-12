@@ -26,8 +26,8 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.helper.builder;
 
+import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.MPCException;
-import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.Reporter;
 import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
@@ -130,7 +130,7 @@ public abstract class AbstractProtocolBuilder implements ProtocolBuilder {
    *
    * @param pp the ProtocolProducer to append
    */
-  protected void append(NativeProtocol pp) {
+  protected void append(Computation pp) {
     append(SingleProtocolProducer.wrap(pp));
   }
 

@@ -25,7 +25,7 @@ class TestSpdzConfiguration implements SpdzConfiguration {
   @Override
   public SpdzResourcePool createResourcePool(int myId, int size, Network network, Random rand,
       SecureRandom secRand) {
-    return new SpdzResourcePool(myId, noOfParties, network, null, rand, secRand, this);
+    return new SpdzResourcePoolImpl(myId, noOfParties, network, null, rand, secRand, this);
   }
 
   @Override

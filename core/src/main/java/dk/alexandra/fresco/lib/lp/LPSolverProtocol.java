@@ -23,6 +23,7 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.lp;
 
+import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.ProtocolCollection;
@@ -266,7 +267,7 @@ public class LPSolverProtocol implements ProtocolProducer {
     SInt positive = bnFactory.getSInt();
     ProtocolProducer comp = lpFactory.getComparisonProtocol(zero, minimum, positive, true);
     SequentialProtocolProducer phaseOne = new SequentialProtocolProducer(enteringProducer, comp);
-    NativeProtocol output = bnFactory.getOpenProtocol(positive, terminationOut);
+    Computation output = bnFactory.getOpenProtocol(positive, terminationOut);
     phaseOne.append(output);
     return phaseOne;
   }
@@ -297,7 +298,7 @@ public class LPSolverProtocol implements ProtocolProducer {
     ProtocolProducer blandEnter = new BlandEnteringVariableProtocol(tableau, updateMatrix,
         enteringIndex, first, lpFactory, bnFactory);
 
-    NativeProtocol output = bnFactory.getOpenProtocol(first, terminationOut);
+    Computation output = bnFactory.getOpenProtocol(first, terminationOut);
     return new SequentialProtocolProducer(blandEnter, output);
   }
 

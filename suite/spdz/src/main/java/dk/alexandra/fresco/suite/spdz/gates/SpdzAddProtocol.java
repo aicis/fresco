@@ -67,7 +67,7 @@ public class SpdzAddProtocol extends SpdzNativeProtocol<SpdzSInt> {
   }
 
   @Override
-  public SpdzSInt getOutput() {
+  public SpdzSInt out() {
     return out;
   }
 

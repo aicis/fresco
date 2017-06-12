@@ -26,8 +26,8 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.lp;
 
+import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.MPCException;
-import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
@@ -91,8 +91,8 @@ public class ExitingVariableProtocol extends AbstractRoundBasedProtocol {
     if (round == 0) {
       one = bnf.getSInt();
       zero = bnf.getSInt();
-      NativeProtocol<SInt, ?> load0 = bnf.getSInt(0, zero);
-      NativeProtocol<SInt, ?> load1 = bnf.getSInt(1, one);
+      Computation<SInt> load0 = bnf.getSInt(0, zero);
+      Computation<SInt> load1 = bnf.getSInt(1, one);
 
       // Extract entering column
       enteringColumn = new SInt[tableauHeight];

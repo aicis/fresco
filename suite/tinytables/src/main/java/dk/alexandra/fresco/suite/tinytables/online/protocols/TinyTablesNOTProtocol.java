@@ -63,9 +63,9 @@ public class TinyTablesNOTProtocol extends TinyTablesProtocol implements NotProt
 	}
 
 	@Override
-	public Value[] getOutput() {
-		return new Value[]{out};
-	}
+  public Value[] out() {
+    return new Value[]{out};
+  }
 
 	@Override
 	public EvaluationStatus evaluate(int round, ResourcePool resourcePool, SCENetwork network) {

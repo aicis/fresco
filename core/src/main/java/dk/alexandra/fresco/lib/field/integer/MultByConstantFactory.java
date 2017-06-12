@@ -26,18 +26,17 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.field.integer;
 
-import dk.alexandra.fresco.framework.NativeProtocol;
+import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 
 public interface MultByConstantFactory {
 
-	/**
-	 * 
-	 * @param a input - constant which is known
-	 * @param b input - secret shared element
-	 * @param c output - [c]=a*[b]
-	 * @return the protocol that computes the multiplication
-	 */
-	NativeProtocol<? extends SInt, ?> getMultProtocol(OInt a, SInt b, SInt c);
+  /**
+   * @param a input - constant which is known
+   * @param b input - secret shared element
+   * @param c output - [c]=a*[b]
+   * @return the protocol that computes the multiplication
+   */
+  Computation<? extends SInt> getMultProtocol(OInt a, SInt b, SInt c);
 }

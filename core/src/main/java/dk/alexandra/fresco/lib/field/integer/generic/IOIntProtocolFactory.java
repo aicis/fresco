@@ -26,7 +26,7 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.field.integer.generic;
 
-import dk.alexandra.fresco.framework.NativeProtocol;
+import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
@@ -44,7 +44,7 @@ public interface IOIntProtocolFactory {
    * @param targetID the id of the specific player that provides the input.
    * @return the protocol to do the transformation
    */
-  NativeProtocol<? extends SInt, ?> getCloseProtocol(BigInteger open, SInt closed, int targetID);
+  Computation<? extends SInt> getCloseProtocol(BigInteger open, SInt closed, int targetID);
 
   /**
    * Gets a new open protocol.
@@ -54,7 +54,7 @@ public interface IOIntProtocolFactory {
    * @param closed a closed value
    * @return the protocol to do the transformation
    */
-  NativeProtocol<? extends SInt, ?> getCloseProtocol(int source, OInt open, SInt closed);
+  Computation<? extends SInt> getCloseProtocol(int source, OInt open, SInt closed);
 
 
   /**
@@ -64,7 +64,7 @@ public interface IOIntProtocolFactory {
    * @param open a opened value
    * @return the protocol to do the transformation
    */
-  NativeProtocol<? extends OInt, ?> getOpenProtocol(SInt closed, OInt open);
+  Computation<? extends OInt> getOpenProtocol(SInt closed, OInt open);
 
 
   /**
@@ -74,6 +74,6 @@ public interface IOIntProtocolFactory {
    * @param open a opened value
    * @return the protocol to do the transformation
    */
-  NativeProtocol<? extends OInt, ?> getOpenProtocol(int target, SInt closed, OInt open);
+  Computation<? extends OInt> getOpenProtocol(int target, SInt closed, OInt open);
 
 }

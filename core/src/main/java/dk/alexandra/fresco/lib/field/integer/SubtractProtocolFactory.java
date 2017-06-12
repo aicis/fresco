@@ -26,19 +26,19 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.field.integer;
 
-import dk.alexandra.fresco.framework.NativeProtocol;
+import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 
 public interface SubtractProtocolFactory extends ProtocolFactory {
 
-  NativeProtocol<? extends SInt, ?> getSubtractProtocol(SInt a, SInt b, SInt out);
+  Computation<? extends SInt> sub(SInt a, SInt b);
 
-  NativeProtocol<? extends SInt, ?> getSubtractProtocol(SInt a, SInt b);
+  Computation<? extends SInt> getSubtractProtocol(SInt a, SInt b, SInt out);
 
-  NativeProtocol<? extends SInt, ?> getSubtractProtocol(OInt a, SInt b, SInt out);
+  Computation<? extends SInt> getSubtractProtocol(OInt a, SInt b, SInt out);
 
-  NativeProtocol<? extends SInt, ?> getSubtractProtocol(SInt a, OInt b, SInt out);
+  Computation<? extends SInt> getSubtractProtocol(SInt a, OInt b, SInt out);
 
 }

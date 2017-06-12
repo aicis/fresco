@@ -26,9 +26,10 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.compare;
 
-import dk.alexandra.fresco.framework.NativeProtocol;
+import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.SInt;
+import dk.alexandra.fresco.lib.compare.eq.AppendingBasicNumericFactory;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.helper.SimpleProtocolProducer;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
@@ -37,10 +38,10 @@ public class ConditionalSelectProtocolImpl extends SimpleProtocolProducer implem
     ConditionalSelectProtocol {
 
   private final SInt a, b, selector, result;
-  private final BasicNumericFactory factory;
+  private final BasicNumericFactory<SInt> factory;
 
   public ConditionalSelectProtocolImpl(SInt selector, SInt a, SInt b, SInt result,
-      BasicNumericFactory factory) {
+      BasicNumericFactory<SInt> factory) {
     this.a = a;
     this.b = b;
     this.selector = selector;
@@ -50,10 +51,14 @@ public class ConditionalSelectProtocolImpl extends SimpleProtocolProducer implem
 
   @Override
   protected ProtocolProducer initializeProtocolProducer() {
-      NativeProtocol<? extends SInt, ?> sub = factory.getSubtractProtocol(a, b);
-      NativeProtocol<? extends SInt, ?> mult = factory.getMultProtocol(selector, sub.getOutput());
-      NativeProtocol<? extends SInt, ?> add = factory.getAddProtocol(mult.getOutput(), b, result);
-
-    return new SequentialProtocolProducer(sub, mult, add);
+    SequentialProtocolProducer sequentialProtocolProducer = new SequentialProtocolProducer();
+    BasicNumericFactory factory =
+        new AppendingBasicNumericFactory<>(
+            this.factory,
+            sequentialProtocolProducer);
+    Computation<? extends SInt> sub = factory.sub(a, b);
+    Computation<? extends SInt> mult = factory.mult(selector, sub.out());
+    Computation<? extends SInt> add = factory.getAddProtocol(mult.out(), b, result);
+    return sequentialProtocolProducer;
   }
 }

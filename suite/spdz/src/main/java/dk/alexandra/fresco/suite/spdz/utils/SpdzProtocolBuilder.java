@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -26,7 +26,7 @@
  *******************************************************************************/
 package dk.alexandra.fresco.suite.spdz.utils;
 
-import dk.alexandra.fresco.framework.NativeProtocol;
+import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
@@ -54,9 +54,9 @@ public class SpdzProtocolBuilder extends AbstractProtocolBuilder {
 	
 	public SInt input(BigInteger o, int inputterId) {
 		SInt s = factory.getSInt();
-		NativeProtocol gp = factory.getCloseProtocol(o, s, inputterId);
-		append(gp);
-		return s;
+    Computation gp = factory.getCloseProtocol(o, s, inputterId);
+    append(gp);
+    return s;
 	}
 	
 	public SInt input(int inputterId) {
@@ -65,15 +65,15 @@ public class SpdzProtocolBuilder extends AbstractProtocolBuilder {
 	
 	public OInt outputAll(SInt s) {
 		OInt o = factory.getOInt();
-		NativeProtocol gp = factory.getOpenProtocol(s, o);
-		append(gp);
-		return o;
+    Computation gp = factory.getOpenProtocol(s, o);
+    append(gp);
+    return o;
 	}
 	
 	public OInt output(SInt s, int outputterId) {
 		OInt o = factory.getOInt();
-		NativeProtocol gp = factory.getOpenProtocol(outputterId, s, o);
-		append(gp);
-		return o;
+    Computation gp = factory.getOpenProtocol(outputterId, s, o);
+    append(gp);
+    return o;
 	}
 }

@@ -26,8 +26,8 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.math.integer.min;
 
+import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.MPCException;
-import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.SInt;
@@ -108,13 +108,13 @@ public class MinimumProtocolImpl implements MinimumProtocol {
         seqGP.append(
             numericFactory.getMultProtocol(c1_prime,
                 c2_prime, this.cs[0]));
-        NativeProtocol<? extends SInt, ?> sub1 = numericFactory.getSubtractProtocol(
+        Computation<? extends SInt> sub1 = numericFactory.getSubtractProtocol(
             c2_prime, this.cs[0], this.cs[1]);
         SInt one = numericFactory.getSInt(1);
         SInt tmp = numericFactory.getSInt();
-        NativeProtocol<? extends SInt, ?> sub2 = numericFactory.getSubtractProtocol(one,
+        Computation<? extends SInt> sub2 = numericFactory.getSubtractProtocol(one,
             this.cs[0], tmp);
-        NativeProtocol<? extends SInt, ?> sub3 = numericFactory.getSubtractProtocol(tmp,
+        Computation<? extends SInt> sub3 = numericFactory.getSubtractProtocol(tmp,
             this.cs[1], this.cs[2]);
 
         ParallelProtocolProducer parGP = new ParallelProtocolProducer(sub1,
@@ -172,7 +172,7 @@ public class MinimumProtocolImpl implements MinimumProtocol {
             .getConditionalSelectProtocol(c, m1, m2, m);
         SInt one = numericFactory.getSInt(1);
         SInt oneMinusC = numericFactory.getSInt();
-        NativeProtocol<? extends SInt, ?> subtract = numericFactory.getSubtractProtocol(
+        Computation<? extends SInt> subtract = numericFactory.getSubtractProtocol(
             one, c, oneMinusC);
         VectorScale scale1 = new VectorScale(c, cs1_prime, cs, 0);
         VectorScale scale2 = new VectorScale(oneMinusC, cs2_prime, cs, k / 2);
@@ -209,7 +209,7 @@ public class MinimumProtocolImpl implements MinimumProtocol {
     protected ProtocolProducer initializeProtocolProducer() {
       ParallelProtocolProducer par = new ParallelProtocolProducer();
       for (int i = 0; i < vector.length; i++) {
-        NativeProtocol mult = numericFactory.getMultProtocol(scale, vector[i],
+        Computation mult = numericFactory.getMultProtocol(scale, vector[i],
             output[from + i]);
         par.append(mult);
       }

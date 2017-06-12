@@ -40,7 +40,7 @@ public class SpdzLocalInversionProtocol extends SpdzNativeProtocol<SpdzOInt> {
   }
 
   @Override
-  public SpdzOInt getOutput() {
+  public SpdzOInt out() {
     return out;
   }
 

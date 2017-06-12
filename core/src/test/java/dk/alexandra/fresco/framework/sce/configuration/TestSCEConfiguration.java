@@ -37,7 +37,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 
-public class TestSCEConfiguration<ResourcePoolT extends ResourcePool> implements SCEConfiguration {
+public class TestSCEConfiguration<ResourcePoolT extends ResourcePool> implements
+    SCEConfiguration<ResourcePoolT> {
 
   private final ProtocolSuiteConfiguration<ResourcePoolT> suite;
   private NetworkingStrategy network;

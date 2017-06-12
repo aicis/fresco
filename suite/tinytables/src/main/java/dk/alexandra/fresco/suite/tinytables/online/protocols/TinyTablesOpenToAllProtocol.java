@@ -68,9 +68,9 @@ public class TinyTablesOpenToAllProtocol extends TinyTablesProtocol implements O
 	}
 
 	@Override
-	public Value[] getOutput() {
-		return new Value[]{opened};
-	}
+  public Value[] out() {
+    return new Value[]{opened};
+  }
 
 	@Override
 	public EvaluationStatus evaluate(int round, ResourcePool resourcePool, SCENetwork network) {

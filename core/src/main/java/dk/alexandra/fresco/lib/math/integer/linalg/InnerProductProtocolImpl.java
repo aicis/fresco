@@ -26,8 +26,8 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.math.integer.linalg;
 
+import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.MPCException;
-import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
@@ -108,8 +108,8 @@ public class InnerProductProtocolImpl extends AbstractRoundBasedProtocol
       NumericProtocolBuilder build = new NumericProtocolBuilder(bnFactory);
       SInt sumresult = build.sum(results);
       results = null;
-      NativeProtocol copy = new CopyProtocolImpl<>(sumresult, result);
-      pp = new SequentialProtocolProducer(build.getProtocol(), copy);
+      Computation copy = new CopyProtocolImpl<>(sumresult, result);
+      pp = new SequentialProtocolProducer(build.getProtocol(), SingleProtocolProducer.wrap(copy));
       round++;
     } else {
       pp = null;

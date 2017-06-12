@@ -1,4 +1,4 @@
-/******************************************************************************* * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
+/*
  *
  * This file is part of the FRESCO project.
  *
@@ -25,6 +25,7 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.math.integer;
 
+import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.OInt;
@@ -91,7 +92,7 @@ public class HammingDistanceProtocolImpl extends SimpleProtocolProducer implemen
 					XOR[i] = aBits[i];
 				}
 			}
-			NativeProtocol[] sumpps = new NativeProtocol[length - 1];
+			Computation[] sumpps = new NativeProtocol[length - 1];
 
 			SInt currentSum;
 			if (length == 2) {

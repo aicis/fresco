@@ -26,7 +26,7 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.field.integer;
 
-import dk.alexandra.fresco.framework.NativeProtocol;
+import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.value.SInt;
 
@@ -49,5 +49,5 @@ public interface RandomFieldElementFactory<SIntT extends SInt> extends ProtocolF
 	 * @return A protocol that fills in the given SInt with a secret shared
 	 *         random value.
 	 */
-	NativeProtocol<SIntT, ?> getRandomFieldElement(SIntT randomElement);
+  Computation<SIntT> getRandomFieldElement(SIntT randomElement);
 }

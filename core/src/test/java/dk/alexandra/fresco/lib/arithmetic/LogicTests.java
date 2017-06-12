@@ -9,6 +9,7 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.sce.SCEFactory;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
+import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
@@ -24,9 +25,10 @@ import org.junit.Assert;
  */
 public class LogicTests {
 
-  private abstract static class ThreadWithFixture extends TestThread {
+  private abstract static class ThreadWithFixture<ResourcePoolT extends ResourcePool>
+      extends TestThread<ResourcePoolT> {
 
-    protected SecureComputationEngine secureComputationEngine;
+    protected SecureComputationEngine<ResourcePoolT> secureComputationEngine;
 
     @Override
     public void setUp() throws IOException {
@@ -36,16 +38,15 @@ public class LogicTests {
 
   }
 
-  public static class TestLogic extends TestThreadFactory {
+  public static class TestLogic<ResourcePoolT extends ResourcePool> extends
+      TestThreadFactory<ResourcePoolT> {
 
     @Override
-    public TestThread next(TestThreadConfiguration conf) {
-      return new ThreadWithFixture() {
+    public TestThread<ResourcePoolT> next(TestThreadConfiguration conf) {
+      return new ThreadWithFixture<ResourcePoolT>() {
         @Override
         public void test() throws Exception {
           TestApplication app = new TestApplication() {
-
-            private static final long serialVersionUID = 1297709949887927667L;
 
             @Override
             public ProtocolProducer prepareApplication(
@@ -119,9 +120,11 @@ public class LogicTests {
               return seq;
             }
           };
-          secureComputationEngine
-              .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf,
-                  conf.sceConf.getSuite()));
+          ResourcePoolT resourcePool =
+              SecureComputationEngineImpl.createResourcePool(
+                  conf.sceConf,
+                  conf.sceConf.getSuite());
+          secureComputationEngine.runApplication(app, resourcePool);
           secureComputationEngine.shutdownSCE();
           Assert.assertEquals(BigInteger.ONE, app.getOutputs()[0].getValue());
           Assert.assertEquals(BigInteger.ZERO, app.getOutputs()[1].getValue());
@@ -140,8 +143,8 @@ public class LogicTests {
           Assert.assertEquals(BigInteger.ZERO, app.getOutputs()[14].getValue());
           Assert.assertEquals(BigInteger.ONE, app.getOutputs()[15].getValue());
     /*			 */
-					/*
-					
+          /*
+
 					*/
         }
       };

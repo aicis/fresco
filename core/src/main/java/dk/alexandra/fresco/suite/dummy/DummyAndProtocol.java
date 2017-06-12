@@ -49,7 +49,7 @@ public class DummyAndProtocol extends DummyProtocol {
   }
 
   @Override
-  public SBool getOutput() {
+  public SBool out() {
     return out;
   }
 

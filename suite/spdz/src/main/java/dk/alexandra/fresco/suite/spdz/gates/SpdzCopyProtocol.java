@@ -48,7 +48,7 @@ public class SpdzCopyProtocol extends SpdzNativeProtocol<SpdzSInt> implements Co
   }
 
   @Override
-  public SpdzSInt getOutput() {
+  public SpdzSInt out() {
     return out;
   }
 

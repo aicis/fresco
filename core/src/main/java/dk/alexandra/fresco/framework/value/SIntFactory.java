@@ -26,7 +26,7 @@
  *******************************************************************************/
 package dk.alexandra.fresco.framework.value;
 
-import dk.alexandra.fresco.framework.NativeProtocol;
+import dk.alexandra.fresco.framework.Computation;
 import java.math.BigInteger;
 
 
@@ -48,7 +48,7 @@ public interface SIntFactory {
    * A protocol to load a publicly known value into a SInt
    * TODO: This should not be how values are loaded
    */
-  NativeProtocol<SInt, ?> getSInt(int i, SInt si);
+  Computation<SInt> getSInt(int i, SInt si);
 
   /**
    * Gets a protocol to load a publicly known value into a SInt.
@@ -56,6 +56,6 @@ public interface SIntFactory {
    * while we are building the protocol.
    * TODO: This should not be how values are loaded
    */
-  NativeProtocol<SInt, ?> getSInt(BigInteger i, SInt si);
+  Computation<SInt> getSInt(BigInteger i, SInt si);
 
 }

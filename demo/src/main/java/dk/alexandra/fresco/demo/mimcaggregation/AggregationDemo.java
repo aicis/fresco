@@ -17,6 +17,7 @@ import dk.alexandra.fresco.framework.value.Value;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.SpdzProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
+import dk.alexandra.fresco.suite.spdz.SpdzResourcePoolImpl;
 import dk.alexandra.fresco.suite.spdz.configuration.SpdzConfiguration;
 import java.io.IOException;
 import java.security.SecureRandom;
@@ -221,7 +222,7 @@ public class AggregationDemo {
       @Override
       public SpdzResourcePool createResourcePool(int myId, int size, Network network, Random rand,
           SecureRandom secRand) {
-        return new SpdzResourcePool(myId, size, network, sceConfig.getStreamedStorage(), rand,
+        return new SpdzResourcePoolImpl(myId, size, network, sceConfig.getStreamedStorage(), rand,
             secRand, this);
       }
 
