@@ -48,7 +48,7 @@ import dk.alexandra.fresco.lib.math.integer.inv.LocalInversionFactory;
 import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductFactory;
 import java.math.BigInteger;
 
-public class GreaterThanReducerProtocolImpl implements GreaterThanProtocol {
+public class GreaterThanReducerProtocolImpl implements GreaterThanProtocol, Computation<SInt> {
 
 
   public GreaterThanReducerProtocolImpl(int bitLength, int securityParameter,
@@ -310,9 +310,8 @@ public class GreaterThanReducerProtocolImpl implements GreaterThanProtocol {
               mbcCirc4, addCirc4, subCirc4_2);
           ProtocolProducer computeTwoToNeg = new ParallelProtocolProducer(computeUnshifted,
               localInvCirc4);
-          SequentialProtocolProducer sequentialProtocolProducer1 = new SequentialProtocolProducer(
+          pp = new SequentialProtocolProducer(
               computeTwoToNeg, shiftCirc4);
-          pp = sequentialProtocolProducer1;
           //gp = new SequentialGateProducer(negCirc4, subCirc4_1, mbcCirc4, addCirc4, subCirc4_2, localInvCirc4, shiftCirc4);
           break;
         default:
@@ -339,5 +338,10 @@ public class GreaterThanReducerProtocolImpl implements GreaterThanProtocol {
   @Override
   public boolean hasNextProtocols() {
     return round < numRounds;
+  }
+
+  @Override
+  public SInt out() {
+    return output;
   }
 }

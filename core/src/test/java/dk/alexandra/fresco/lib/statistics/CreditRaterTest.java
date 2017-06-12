@@ -33,6 +33,7 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
+import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
@@ -54,7 +55,8 @@ import org.junit.Assert;
  */
 public class CreditRaterTest {
 
-	public static class TestCreditRater extends TestThreadFactory {
+	public static class TestCreditRater<ResourcePoolT extends ResourcePool> extends
+			TestThreadFactory<ResourcePoolT> {
 
 	  final int[] values;
 	  final int[][] intervals;
@@ -67,8 +69,8 @@ public class CreditRaterTest {
 		}
 
 		@Override
-		public TestThread next(TestThreadConfiguration conf) {
-			return new TestThread() {
+		public TestThread<ResourcePoolT> next(TestThreadConfiguration<ResourcePoolT> conf) {
+			return new TestThread<ResourcePoolT>() {
 				@Override
 				public void test() throws Exception {
 					
@@ -102,7 +104,7 @@ public class CreditRaterTest {
 							    AlgebraUtil.arrayToList(secretScores));
 							
 							sseq.append(rater.prepareApplication(factory));
-							result[0] = ioBuilder.output(rater.getResult());
+							result[0] = ioBuilder.output(rater.out());
 							sseq.append(ioBuilder.getProtocol());
 							
 							return sseq;

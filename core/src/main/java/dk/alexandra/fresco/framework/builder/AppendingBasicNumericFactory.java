@@ -1,18 +1,14 @@
-package dk.alexandra.fresco.lib.compare.eq;
+package dk.alexandra.fresco.framework.builder;
 
-import dk.alexandra.fresco.framework.AppendingFactory;
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
-import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
-import dk.alexandra.fresco.lib.helper.ProtocolProducerCollection;
-import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
 import java.math.BigInteger;
 
-public class AppendingBasicNumericFactory<SIntT extends SInt>
-    implements BasicNumericFactory<SIntT>, AppendingFactory<AppendingBasicNumericFactory> {
+class AppendingBasicNumericFactory<SIntT extends SInt>
+    implements BasicNumericFactory<SIntT> {
 
   @Override
   public SInt getSInt() {
@@ -196,26 +192,12 @@ public class AppendingBasicNumericFactory<SIntT extends SInt>
   }
 
   private final BasicNumericFactory<SIntT> factory;
-  private final ProtocolProducerCollection protocolProducer;
+  private final ProtocolBuilder protocolProducer;
 
-  public AppendingBasicNumericFactory(
+  AppendingBasicNumericFactory(
       BasicNumericFactory<SIntT> factory,
-      ProtocolProducerCollection protocolProducer) {
+      ProtocolBuilder protocolProducer) {
     this.factory = factory;
     this.protocolProducer = protocolProducer;
-  }
-
-  @Override
-  public AppendingBasicNumericFactory createParallelSubFactory() {
-    ParallelProtocolProducer protocolProducer = new ParallelProtocolProducer();
-    this.protocolProducer.append(protocolProducer);
-    return new AppendingBasicNumericFactory<>(factory, protocolProducer);
-  }
-
-  @Override
-  public AppendingBasicNumericFactory createSequentialSubFactory() {
-    SequentialProtocolProducer protocolProducer = new SequentialProtocolProducer();
-    this.protocolProducer.append(protocolProducer);
-    return new AppendingBasicNumericFactory<>(factory, protocolProducer);
   }
 }

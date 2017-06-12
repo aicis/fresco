@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -27,137 +27,143 @@
 package dk.alexandra.fresco.lib.statistics;
 
 import dk.alexandra.fresco.framework.Application;
+import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.ProtocolProducer;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.helper.builder.ComparisonProtocolBuilder;
-import dk.alexandra.fresco.lib.helper.builder.NumericProtocolBuilder;
-import dk.alexandra.fresco.lib.helper.builder.OmniBuilder;
-import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
+import dk.alexandra.fresco.lib.compare.ComparisonProtocolFactory;
+import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
+import dk.alexandra.fresco.lib.math.integer.AddSIntList;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * NativeProtocol for performing credit rating.
- * 
+ *
  * Given a dataset (a vector of values)
  * and a credit rating function (a set of intervals for each value)
  * will calculate the combined score.
- *
  */
-public class CreditRater implements Application{
+public class CreditRater implements Application, Computation<SInt> {
 
-	private static final long serialVersionUID = 7679664125131997196L;
-	private List<SInt> values;
-	private List<List<SInt>> intervals;
-	private List<List<SInt>> intervalScores;  
+  private static final long serialVersionUID = 7679664125131997196L;
+  private List<SInt> values;
+  private List<List<SInt>> intervals;
+  private List<List<SInt>> intervalScores;
 
-	private SInt score;
-	
-	/**
-	 * @throws MPCException
-	 */
-	public CreditRater(
-			List<SInt> values, List<List<SInt>> intervals, List<List<SInt>> intervalScores) throws MPCException {
-		this.values = values;
-		this.intervals = intervals;
-		this.intervalScores = intervalScores;
-		if(!consistencyCheck()){
-			throw new MPCException("Inconsistent data");
-		}
-	}
-	
-	/**
-	 * Verify that the input values are consistent, i.e.
-	 * the there is an interval for each value
-	 * @return If the input is consistent.
-	 */
-	private boolean consistencyCheck() {
-	  if (this.values.size() != this.intervals.size()) {
-	    return false;
-	  }
-	  if (this.intervals.size() != (this.intervalScores.size())) {
-	    return false;
-	  }
-		return true;
-	}
+  private SInt score;
 
-	@Override
-	public ProtocolProducer prepareApplication(ProtocolFactory provider) {
-    OmniBuilder omniBuilder = new OmniBuilder(provider);
-
-
-    SInt[] individualScores = new SInt[this.values.size()]; 
-    
-    for (int i = 0; i< this.values.size(); i++) {
-      individualScores[i] = computeIntervalScore(this.values.get(i), 
-          this.intervals.get(i), 
-          this.intervalScores.get(i), 
-          omniBuilder);
+  /**
+   * @throws MPCException
+   */
+  public CreditRater(
+      List<SInt> values, List<List<SInt>> intervals, List<List<SInt>> intervalScores)
+      throws MPCException {
+    this.values = values;
+    this.intervals = intervals;
+    this.intervalScores = intervalScores;
+    if (!consistencyCheck()) {
+      throw new MPCException("Inconsistent data");
     }
-    if(individualScores.length == 1) {
-      this.score = individualScores[0];
-    } else {
-      this.score = omniBuilder.getNumericProtocolBuilder().sum(individualScores);
-    }
-    SequentialProtocolProducer seq = new SequentialProtocolProducer();
-
-    seq.append(omniBuilder.getProtocol());
-    
-    return seq;
-	}
-	
-	/**
-	 * Given a value and scores for an interval, will lookup the score for
-	 * the value.   
-	 * @param value The value to lookup
-	 * @param interval The interval definition
-	 * @param scores The scores for each interval
-	 * @param builder The builder used to construct operators
-	 * @return The score for the lookup
-	 */
-	private SInt computeIntervalScore(SInt value, List<SInt> interval, List<SInt> scores, OmniBuilder builder) {
-	  List<SInt> intermediateScores = new ArrayList<SInt>(scores.size()); 
-
-	  ComparisonProtocolBuilder comparisonBuilder = builder.getComparisonProtocolBuilder();    
-    NumericProtocolBuilder numericBuilder = builder.getNumericProtocolBuilder();
-    
-    builder.beginSeqScope();
-	  builder.beginParScope();
-	  
-	  // Compare if "x <= the n interval definitions"
-	  List<SInt> comparisons = new ArrayList<SInt>();
-	  for(int i = 0; i< interval.size(); i++) {
-	    comparisons.add(comparisonBuilder.compare(value, interval.get(i)));
-	  }
-	  SInt one = numericBuilder.getSInt(1);
-    builder.endCurScope();
-    
-	  // Add "x > last interval definition" to comparisons
-	  comparisons.add(numericBuilder.sub(one, comparisons.get(comparisons.size()-1)));
-	  
-	  //Comparisons now contain if x <= each definition and if x>= last definition
-    builder.beginParScope();	   //need to verify if this is "legal"
-	  intermediateScores.add(numericBuilder.mult(comparisons.get(0), scores.get(0)));
-	  for(int i = 1; i < scores.size()-1; i++) {
-	    SInt hit = numericBuilder.sub(comparisons.get(i), comparisons.get(i-1));
-	    intermediateScores.add(numericBuilder.mult(hit, scores.get(i)));
-	  }
-	  intermediateScores.add(numericBuilder.mult(comparisons.get(scores.size()-1), scores.get(scores.size()-1))); 
-	  builder.endCurScope();	  
-	  
-	  SInt sum = builder.getNumericProtocolBuilder().sum((SInt[]) intermediateScores.toArray(new SInt[intermediateScores.size()]));
-    builder.endCurScope();
-    return sum;
   }
 
-	/**
-	 * 
-	 * @return
-	 */
-  public SInt getResult(){
-		return this.score;
-	}
-	
+  /**
+   * Verify that the input values are consistent, i.e.
+   * the there is an interval for each value
+   *
+   * @return If the input is consistent.
+   */
+  private boolean consistencyCheck() {
+    if (this.values.size() != this.intervals.size()) {
+      return false;
+    }
+    if (this.intervals.size() != (this.intervalScores.size())) {
+      return false;
+    } else {
+      return true;
+    }
+  }
+
+  @Override
+  @SuppressWarnings("unchecked")
+  public ProtocolProducer prepareApplication(ProtocolFactory provider) {
+    SInt[] individualScores = new SInt[this.values.size()];
+    ProtocolBuilder<SInt> sequential = ProtocolBuilder.createSequential(provider);
+
+    for (int i = 0; i < this.values.size(); i++) {
+      individualScores[i] = computeIntervalScore(this.values.get(i),
+          this.intervals.get(i),
+          this.intervalScores.get(i),
+          (BasicNumericFactory<SInt>) provider,
+          sequential.createSequentialSubFactory());
+    }
+    if (individualScores.length == 1) {
+      this.score = individualScores[0];
+    } else {
+      BasicNumericFactory<SInt> basicNumericFactory = (BasicNumericFactory<SInt>) provider;
+      AddSIntList addList = new AddSIntList<>(basicNumericFactory, individualScores);
+      sequential.append((ProtocolProducer) addList);
+      this.score = addList.out();
+    }
+    return sequential.build();
+  }
+
+  /**
+   * Given a value and scores for an interval, will lookup the score for
+   * the value.
+   *
+   * @param value The value to lookup
+   * @param interval The interval definition
+   * @param scores The scores for each interval
+   * @return The score for the lookup
+   */
+  private SInt computeIntervalScore(SInt value, List<SInt> interval, List<SInt> scores,
+      BasicNumericFactory<SInt> provider, ProtocolBuilder<SInt> rootProducer) {
+
+    BasicNumericFactory<SInt> rootFactory = rootProducer.getBasicNumericFactory();
+
+    List<SInt> comparisons = new ArrayList<>();
+    SInt one;
+    {
+      ProtocolBuilder<SInt> parallelSubFactory = rootProducer.createParallelSubFactory();
+      ComparisonProtocolFactory initialComparisons =
+          parallelSubFactory.getComparisonProtocolFactory();
+
+      // Compare if "x <= the n interval definitions"
+      for (SInt anInterval : interval) {
+        comparisons.add(initialComparisons.compare(value, anInterval).out());
+      }
+      BasicNumericFactory<SInt> sintProducer = parallelSubFactory.getBasicNumericFactory();
+      one = sintProducer.getSInt(1);
+    }
+    // Add "x > last interval definition" to comparisons
+    comparisons.add(rootFactory.sub(one, comparisons.get(comparisons.size() - 1)).out());
+    //Comparisons now contain if x <= each definition and if x>= last definition
+
+    List<SInt> intermediateScores = new ArrayList<>(scores.size());
+    {
+      ProtocolBuilder<SInt> parallelSubFactory = rootProducer.createParallelSubFactory();
+      BasicNumericFactory<SInt> isThisLegal = parallelSubFactory.getBasicNumericFactory();
+      intermediateScores.add(isThisLegal.mult(comparisons.get(0), scores.get(0)).out());
+      for (int i = 1; i < scores.size() - 1; i++) {
+        SInt hit = isThisLegal.sub(comparisons.get(i), comparisons.get(i - 1)).out();
+        intermediateScores.add(isThisLegal.mult(hit, scores.get(i)).out());
+      }
+      SInt a = comparisons.get(scores.size() - 1);
+      SInt b = scores.get(scores.size() - 1);
+      intermediateScores.add(isThisLegal.mult(a, b).out());
+    }
+
+    SInt[] terms = intermediateScores.toArray(new SInt[intermediateScores.size()]);
+    AddSIntList<SInt> protocolProducer = new AddSIntList<>(provider, terms);
+    rootProducer.append((ProtocolProducer) protocolProducer);
+    return protocolProducer.out();
+  }
+
+  @Override
+  public SInt out() {
+    return this.score;
+  }
 }

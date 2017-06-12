@@ -31,7 +31,6 @@ import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.compare.ComparisonProtocol;
 import dk.alexandra.fresco.lib.compare.ConditionalSelectProtocol;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.helper.AbstractRoundBasedProtocol;
@@ -166,7 +165,7 @@ public class MinimumProtocolImpl implements MinimumProtocol {
         round++;
       } else if (round == 1) {
         SInt c = numericFactory.getSInt();
-        ComparisonProtocol comp = lpFactory.getComparisonProtocol(m1,
+        ProtocolProducer comp = lpFactory.getComparisonProtocol(m1,
             m2, c, false);
         ConditionalSelectProtocol cond = lpFactory
             .getConditionalSelectProtocol(c, m1, m2, m);

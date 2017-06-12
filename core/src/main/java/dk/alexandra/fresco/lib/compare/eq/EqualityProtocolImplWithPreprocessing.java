@@ -30,6 +30,7 @@ import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.ProtocolProducer;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.compare.MiscOIntGenerators;
@@ -72,7 +73,7 @@ public class EqualityProtocolImplWithPreprocessing implements EqualityProtocol {
 //	private final OInt[] twoPows;
 
   private ProtocolProducer pp;
-  boolean done;
+  private boolean done;
 
   //	public EqualityImplWithPreprocessing(int bitLength, int securityParam,
 //			SInt x, SInt y, SInt result,
@@ -152,29 +153,25 @@ public class EqualityProtocolImplWithPreprocessing implements EqualityProtocol {
       bits[i] = factory.getSInt();
     }
     SInt r = factory.getSInt();
-    SequentialProtocolProducer sequentialProtocolProducer =
-        new SequentialProtocolProducer();
+    ProtocolBuilder<SInt> protocolBuilder = ProtocolBuilder.createSequential(factory);
 
     ProtocolProducer randLoader = randomAddMaskFactory
         .getRandomAdditiveMaskProtocol(securityParam, bits, r);
-    sequentialProtocolProducer.append(randLoader);
+    protocolBuilder.append(randLoader);
 
     // mask and reveal difference
     OInt masked_O = factory.getOInt();
 
-    BasicNumericFactory<SInt> factory =
-        new AppendingBasicNumericFactory<>(
-            this.factory,
-            sequentialProtocolProducer);
+    BasicNumericFactory<SInt> factory = protocolBuilder.getBasicNumericFactory();
     SInt resultSub = factory.sub(x, y).out();
     SInt resultAdd = factory.add(resultSub, r).out();
     factory.getOpenProtocol(resultAdd, masked_O);
 
     // Compute Hamming distance
-    sequentialProtocolProducer.append(hammingFactory
+    protocolBuilder.append(hammingFactory
         .getHammingdistanceProtocol(bits, masked_O, reducedProblem));
 
-    return sequentialProtocolProducer;
+    return protocolBuilder.build();
   }
 
 

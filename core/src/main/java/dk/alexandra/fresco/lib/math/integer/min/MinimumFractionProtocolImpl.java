@@ -31,7 +31,6 @@ import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.compare.ComparisonProtocol;
 import dk.alexandra.fresco.lib.compare.ConditionalSelectProtocol;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.helper.AbstractRoundBasedProtocol;
@@ -224,7 +223,7 @@ public class MinimumFractionProtocolImpl implements MinimumFractionProtocol {
     Computation<? extends SInt> mult1 = numericFactory.getMultProtocol(n0, d1, prod1);
     Computation<? extends SInt> mult2 = numericFactory.getMultProtocol(n1, d0, prod2);
     ProtocolProducer multiplications = new ParallelProtocolProducer(mult1, mult2);
-    ComparisonProtocol comp = lpFactory.getComparisonProtocol(prod1, prod2, c, true);
+    ProtocolProducer comp = lpFactory.getComparisonProtocol(prod1, prod2, c, true);
     ConditionalSelectProtocol cond1 = lpFactory.getConditionalSelectProtocol(c, n0, n1, nm);
     ConditionalSelectProtocol cond2 = lpFactory.getConditionalSelectProtocol(c, d0, d1, dm);
     ProtocolProducer conditionalSelects = new ParallelProtocolProducer(cond1, cond2);

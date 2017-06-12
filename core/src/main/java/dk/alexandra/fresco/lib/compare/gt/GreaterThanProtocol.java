@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -26,14 +26,13 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.compare.gt;
 
-import dk.alexandra.fresco.lib.compare.ComparisonProtocol;
-
+import dk.alexandra.fresco.framework.ProtocolProducer;
 
 
 /**
  * @author ttoft
  *
  */
-public interface GreaterThanProtocol extends ComparisonProtocol {
+public interface GreaterThanProtocol extends ProtocolProducer {
 
 }

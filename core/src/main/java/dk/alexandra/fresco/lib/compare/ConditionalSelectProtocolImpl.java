@@ -28,11 +28,10 @@ package dk.alexandra.fresco.lib.compare;
 
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.ProtocolProducer;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.compare.eq.AppendingBasicNumericFactory;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.helper.SimpleProtocolProducer;
-import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
 
 public class ConditionalSelectProtocolImpl extends SimpleProtocolProducer implements
     ConditionalSelectProtocol {
@@ -51,14 +50,11 @@ public class ConditionalSelectProtocolImpl extends SimpleProtocolProducer implem
 
   @Override
   protected ProtocolProducer initializeProtocolProducer() {
-    SequentialProtocolProducer sequentialProtocolProducer = new SequentialProtocolProducer();
-    BasicNumericFactory factory =
-        new AppendingBasicNumericFactory<>(
-            this.factory,
-            sequentialProtocolProducer);
+    ProtocolBuilder<SInt> protocolBuilder = ProtocolBuilder.createSequential(factory);
+    BasicNumericFactory factory = protocolBuilder.getBasicNumericFactory();
     Computation<? extends SInt> sub = factory.sub(a, b);
     Computation<? extends SInt> mult = factory.mult(selector, sub.out());
-    Computation<? extends SInt> add = factory.getAddProtocol(mult.out(), b, result);
-    return sequentialProtocolProducer;
+    factory.getAddProtocol(mult.out(), b, result);
+    return protocolBuilder.build();
   }
 }

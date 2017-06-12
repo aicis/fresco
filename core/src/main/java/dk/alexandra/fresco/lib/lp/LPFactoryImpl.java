@@ -29,7 +29,6 @@ package dk.alexandra.fresco.lib.lp;
 import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.compare.ComparisonProtocol;
 import dk.alexandra.fresco.lib.compare.ComparisonProtocolFactory;
 import dk.alexandra.fresco.lib.compare.ComparisonProtocolFactoryImpl;
 import dk.alexandra.fresco.lib.compare.ConditionalSelectProtocol;
@@ -151,7 +150,7 @@ public class LPFactoryImpl implements LPFactory {
   }
 
   @Override
-  public ComparisonProtocol getComparisonProtocol(SInt x1, SInt x2,
+  public GreaterThanReducerProtocolImpl getComparisonProtocol(SInt x1, SInt x2,
       SInt result, boolean longCompare) {
     int bitLength = bnf.getMaxBitLength();
     if (longCompare) {

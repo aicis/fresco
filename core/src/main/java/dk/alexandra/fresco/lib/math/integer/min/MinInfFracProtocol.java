@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -29,7 +29,6 @@ package dk.alexandra.fresco.lib.math.integer.min;
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.compare.ComparisonProtocol;
 import dk.alexandra.fresco.lib.compare.ComparisonProtocolFactory;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.helper.AbstractRoundBasedProtocol;
@@ -66,7 +65,7 @@ public class MinInfFracProtocol extends AbstractRoundBasedProtocol implements Mi
 
 	private enum State {
 		FIND_MIN, UPDATE_CS
-	};
+	}
 
 	/**
 	 * Constructs a protocol finding the minimum of a list of fractions. For
@@ -205,7 +204,7 @@ public class MinInfFracProtocol extends AbstractRoundBasedProtocol implements Mi
 		npb.endCurScope();
 		npb.beginSeqScope();
 		SInt tmpC = npb.getSInt();
-		ComparisonProtocol comp = cFac.getGreaterThanProtocol(p1, p2, tmpC, true);
+		ProtocolProducer comp = cFac.getGreaterThanProtocol(p1, p2, tmpC, true);
 		npb.addProtocolProducer(comp);
 		SInt notInf0 = npb.sub(one, f0.inf);
 		tmpC = npb.mult(notInf0, tmpC);
@@ -230,9 +229,10 @@ public class MinInfFracProtocol extends AbstractRoundBasedProtocol implements Mi
 	 * and an infinity indicator.
 	 */
 	private class Frac {
-		public SInt n, d, inf;
 
-		public Frac(SInt n, SInt d, SInt inf) {
+		SInt n, d, inf;
+
+		Frac(SInt n, SInt d, SInt inf) {
 			super();
 			this.n = n;
 			this.d = d;

@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -26,6 +26,7 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.compare;
 
+import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.compare.eq.EqualityProtocol;
 import dk.alexandra.fresco.lib.compare.eq.EqualityProtocolImpl;
@@ -44,50 +45,56 @@ import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductFactoryImpl;
 
 public class ComparisonProtocolFactoryImpl implements ComparisonProtocolFactory {
 
-	private final BasicNumericFactory bnf;
-	private final int secParam;
-	private final LocalInversionFactory localInvFactory;
-	private final NumericNegateBitFactory numericNegateBitFactory;
-	private final RandomAdditiveMaskFactory randomAdditiveMaskFactory;
-	private final InnerProductFactory innerProductFactory;
-	private final ZeroTestProtocolFactory zeroTestProtocolFactory;
-	private final MiscOIntGenerators misc;
+  private final BasicNumericFactory bnf;
+  private final int secParam;
+  private final LocalInversionFactory localInvFactory;
+  private final NumericNegateBitFactory numericNegateBitFactory;
+  private final RandomAdditiveMaskFactory randomAdditiveMaskFactory;
+  private final InnerProductFactory innerProductFactory;
+  private final ZeroTestProtocolFactory zeroTestProtocolFactory;
+  private final MiscOIntGenerators misc;
 
-	public ComparisonProtocolFactoryImpl(int statisticalSecurityParameter,
-			BasicNumericFactory bnf, LocalInversionFactory localInvFactory,
-			NumericBitFactory numericBitFactory,
-			ExpFromOIntFactory expFromOIntFactory,
-			PreprocessedExpPipeFactory expFactory) {
-		this.secParam = statisticalSecurityParameter;
-		this.bnf = bnf;
-		this.localInvFactory = localInvFactory;
-		this.numericNegateBitFactory = new NumericNegateBitFactoryImpl(bnf);
-		this.innerProductFactory = new InnerProductFactoryImpl(bnf);
-		this.randomAdditiveMaskFactory = new RandomAdditiveMaskFactoryImpl(bnf,
-				numericBitFactory);
-		this.misc = new MiscOIntGenerators(bnf);
-		this.zeroTestProtocolFactory = new ZeroTestProtocolFactoryImpl(bnf,
-				expFromOIntFactory, numericBitFactory, numericNegateBitFactory, expFactory);
-	}
+  public ComparisonProtocolFactoryImpl(int statisticalSecurityParameter,
+      BasicNumericFactory bnf, LocalInversionFactory localInvFactory,
+      NumericBitFactory numericBitFactory,
+      ExpFromOIntFactory expFromOIntFactory,
+      PreprocessedExpPipeFactory expFactory) {
+    this.secParam = statisticalSecurityParameter;
+    this.bnf = bnf;
+    this.localInvFactory = localInvFactory;
+    this.numericNegateBitFactory = new NumericNegateBitFactoryImpl(bnf);
+    this.innerProductFactory = new InnerProductFactoryImpl(bnf);
+    this.randomAdditiveMaskFactory = new RandomAdditiveMaskFactoryImpl(bnf,
+        numericBitFactory);
+    this.misc = new MiscOIntGenerators(bnf);
+    this.zeroTestProtocolFactory = new ZeroTestProtocolFactoryImpl(bnf,
+        expFromOIntFactory, numericBitFactory, numericNegateBitFactory, expFactory);
+  }
 
-	@Override
-	public ComparisonProtocol getGreaterThanProtocol(SInt x1, SInt x2,
-			SInt result, boolean longCompare) {
-		int bitLength = bnf.getMaxBitLength();
-		if (longCompare) {
-			bitLength *= 2;
-		}
-		return new GreaterThanReducerProtocolImpl(bitLength, secParam, x1, x2,
-				result, bnf, numericNegateBitFactory, randomAdditiveMaskFactory,
-				zeroTestProtocolFactory, misc, innerProductFactory,
-				localInvFactory);
-	}
+  @Override
+  public GreaterThanReducerProtocolImpl getGreaterThanProtocol(SInt x, SInt y,
+      SInt result, boolean longCompare) {
+    int bitLength = bnf.getMaxBitLength();
+    if (longCompare) {
+      bitLength *= 2;
+    }
+    return new GreaterThanReducerProtocolImpl(bitLength, secParam, x, y,
+        result, bnf, numericNegateBitFactory, randomAdditiveMaskFactory,
+        zeroTestProtocolFactory, misc, innerProductFactory,
+        localInvFactory);
+  }
 
-	@Override
-	public EqualityProtocol getEqualityProtocol(int bitLength,
-			SInt x, SInt y, SInt result) {
-		return new EqualityProtocolImpl(bitLength, this.secParam, x, y, result,
-				bnf, zeroTestProtocolFactory);
-	}
+  @Override
+  public Computation<? extends SInt> compare(SInt left, SInt right) {
+    SInt result = bnf.getSInt();
+    return getGreaterThanProtocol(left, right, result, false);
+  }
+
+  @Override
+  public EqualityProtocol getEqualityProtocol(int bitLength,
+      SInt x, SInt y, SInt result) {
+    return new EqualityProtocolImpl(bitLength, this.secParam, x, y, result,
+        bnf, zeroTestProtocolFactory);
+  }
 
 }
