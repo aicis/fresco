@@ -193,8 +193,10 @@ public class SecureComputationEngineImpl<ResourcePoolT extends ResourcePool> imp
   }
 
   @Override
-  public void shutdownSCE() {
-    this.executorService.shutdown();
+  public synchronized void shutdownSCE() {
+    if (this.setup) {
+      this.executorService.shutdown();
+    }
     this.setup = false;
   }
 
