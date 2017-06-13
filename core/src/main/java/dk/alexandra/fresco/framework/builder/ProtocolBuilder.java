@@ -139,11 +139,11 @@ public class ProtocolBuilder<SIntT extends SInt> {
     }
   }
 
-  public BasicNumericFactory<SIntT> getBasicNumericFactory() {
+  public BasicNumericFactory<SIntT> createAppendingBasicNumericFactory() {
     return new AppendingBasicNumericFactory<>(this.basicNumericFactory, this);
   }
 
-  public ComparisonProtocolFactory getComparisonProtocolFactory() {
+  public ComparisonProtocolFactory createAppendingComparisonProtocolFactory() {
     return new AppendingComparisonProtocolFactory(this.comparisonProtocolFactory, this);
   }
 

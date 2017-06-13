@@ -51,7 +51,7 @@ public class ConditionalSelectProtocolImpl extends SimpleProtocolProducer implem
   @Override
   protected ProtocolProducer initializeProtocolProducer() {
     ProtocolBuilder<SInt> protocolBuilder = ProtocolBuilder.createSequential(factory);
-    BasicNumericFactory factory = protocolBuilder.getBasicNumericFactory();
+    BasicNumericFactory factory = protocolBuilder.createAppendingBasicNumericFactory();
     Computation<? extends SInt> sub = factory.sub(a, b);
     Computation<? extends SInt> mult = factory.mult(selector, sub.out());
     factory.getAddProtocol(mult.out(), b, result);

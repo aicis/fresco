@@ -162,7 +162,7 @@ public class EqualityProtocolImplWithPreprocessing implements EqualityProtocol {
     // mask and reveal difference
     OInt masked_O = factory.getOInt();
 
-    BasicNumericFactory<SInt> factory = protocolBuilder.getBasicNumericFactory();
+    BasicNumericFactory<SInt> factory = protocolBuilder.createAppendingBasicNumericFactory();
     SInt resultSub = factory.sub(x, y).out();
     SInt resultAdd = factory.add(resultSub, r).out();
     factory.getOpenProtocol(resultAdd, masked_O);

@@ -45,7 +45,7 @@ public class AddSIntList<SIntT extends SInt> extends AbstractRoundBasedProtocol
     }
     List<SInt> outputs = new LinkedList<>();
     ProtocolBuilder<SIntT> parallel = ProtocolBuilder.createParallel(factory);
-    BasicNumericFactory<SIntT> appendingFactory = parallel.getBasicNumericFactory();
+    BasicNumericFactory<SIntT> appendingFactory = parallel.createAppendingBasicNumericFactory();
     SInt left = null;
     for (SInt input : currentInputList) {
       if (left == null) {

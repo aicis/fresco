@@ -122,20 +122,21 @@ public class CreditRater implements Application, Computation<SInt> {
   private SInt computeIntervalScore(SInt value, List<SInt> interval, List<SInt> scores,
       BasicNumericFactory<SInt> provider, ProtocolBuilder<SInt> rootProducer) {
 
-    BasicNumericFactory<SInt> rootFactory = rootProducer.getBasicNumericFactory();
+    BasicNumericFactory<SInt> rootFactory = rootProducer.createAppendingBasicNumericFactory();
 
     List<SInt> comparisons = new ArrayList<>();
     SInt one;
     {
       ProtocolBuilder<SInt> parallelSubFactory = rootProducer.createParallelSubFactory();
       ComparisonProtocolFactory initialComparisons =
-          parallelSubFactory.getComparisonProtocolFactory();
+          parallelSubFactory.createAppendingComparisonProtocolFactory();
 
       // Compare if "x <= the n interval definitions"
       for (SInt anInterval : interval) {
         comparisons.add(initialComparisons.compare(value, anInterval).out());
       }
-      BasicNumericFactory<SInt> sintProducer = parallelSubFactory.getBasicNumericFactory();
+      BasicNumericFactory<SInt> sintProducer = parallelSubFactory
+          .createAppendingBasicNumericFactory();
       one = sintProducer.getSInt(1);
     }
     // Add "x > last interval definition" to comparisons
@@ -145,7 +146,8 @@ public class CreditRater implements Application, Computation<SInt> {
     List<SInt> intermediateScores = new ArrayList<>(scores.size());
     {
       ProtocolBuilder<SInt> parallelSubFactory = rootProducer.createParallelSubFactory();
-      BasicNumericFactory<SInt> isThisLegal = parallelSubFactory.getBasicNumericFactory();
+      BasicNumericFactory<SInt> isThisLegal = parallelSubFactory
+          .createAppendingBasicNumericFactory();
       intermediateScores.add(isThisLegal.mult(comparisons.get(0), scores.get(0)).out());
       for (int i = 1; i < scores.size() - 1; i++) {
         SInt hit = isThisLegal.sub(comparisons.get(i), comparisons.get(i - 1)).out();
