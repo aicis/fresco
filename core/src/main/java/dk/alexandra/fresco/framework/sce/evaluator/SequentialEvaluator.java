@@ -177,6 +177,6 @@ public class SequentialEvaluator<ResourcePoolT extends ResourcePool> implements
   }
 
   private SCENetworkImpl createSceNetwork(int noOfParties) {
-    return new SCENetworkImpl(noOfParties, DEFAULT_THREAD_ID);
+    return new SCENetworkImpl(noOfParties);
   }
 }

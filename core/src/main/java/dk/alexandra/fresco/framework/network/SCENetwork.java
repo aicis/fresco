@@ -96,13 +96,4 @@ public interface SCENetwork {
 	 */
 	void expectInputFromAll();
 
-	// TODO: Remove from here when possible. Requires solution to preprocessed
-	// data.
-	/**
-	 * Returns the threadId that this protocol network is part of.
-	 * 
-	 * @return
-	 */
-	int getThreadId();
-
 }

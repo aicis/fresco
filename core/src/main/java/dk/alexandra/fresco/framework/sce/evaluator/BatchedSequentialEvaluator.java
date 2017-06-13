@@ -82,6 +82,6 @@ public class BatchedSequentialEvaluator<ResourcePoolT extends ResourcePool> impl
   }
 
   private SCENetworkImpl createSceNetwork(ResourcePool resourcePool) {
-    return new SCENetworkImpl(resourcePool.getNoOfParties(), DEFAULT_THREAD_ID);
+    return new SCENetworkImpl(resourcePool.getNoOfParties());
   }
 }
