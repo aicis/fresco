@@ -54,8 +54,6 @@ import java.util.Map;
 public class SequentialEvaluator<ResourcePoolT extends ResourcePool> implements
     ProtocolEvaluator<ResourcePoolT> {
 
-  private static final int DEFAULT_THREAD_ID = 0;
-
   private static final int DEFAULT_CHANNEL = 0;
 
   /**
