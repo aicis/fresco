@@ -1,69 +1,76 @@
 package dk.alexandra.fresco.lib.math.integer;
 
 import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
-import dk.alexandra.fresco.lib.helper.AbstractRoundBasedProtocol;
-import java.util.Arrays;
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * Protocol producer for summing a list of SInts
  *
  * @param <SIntT> the type of SInts to add - and later output
  */
-public class AddSIntList<SIntT extends SInt> extends AbstractRoundBasedProtocol
-    implements Computation<SInt> {
+public class AddSIntList<SIntT extends SInt>
+    implements Consumer<ProtocolBuilder<SIntT>>, Computation<SIntT> {
 
-  private final BasicNumericFactory<SIntT> factory;
-  private SInt result;
-
-  private List<SInt> currentInputList;
-  private SInt current;
+  private List<Computation<SIntT>> currentInputList;
+  private ResultSInt<SIntT> resultSInt;
 
   /**
    * Creates a new AddSIntList.
    *
-   * @param factory the construction of
    * @param input the input to sum
    */
-  public AddSIntList(BasicNumericFactory<SIntT> factory, SIntT... input) {
-    this.currentInputList = Arrays.asList(input);
-    this.factory = factory;
-    this.current = factory.getSInt(0);
-    this.result = factory.getSInt();
+  public AddSIntList(List<Computation<SIntT>> input) {
+    this(input, new ResultSInt<>());
+  }
+
+  private AddSIntList(List<Computation<SIntT>> input, ResultSInt<SIntT> resultSInt) {
+    this.currentInputList = input;
+    this.resultSInt = resultSInt;
   }
 
   @Override
-  public ProtocolProducer nextProtocolProducer() {
-    if (currentInputList.isEmpty()) {
-      result.setSerializableContent(current.getSerializableContent());
-      return null;
+  public void accept(ProtocolBuilder<SIntT> protocolBuilder) {
+    if (currentInputList.size() > 1) {
+      protocolBuilder.createSequentialSubFactory((iterationBuilder) -> {
+        List<Computation<SIntT>> out = new ArrayList<>();
+        iterationBuilder.createParallelSubFactory(parallel -> doIterationInParallel(parallel, out));
+        iterationBuilder.createSequentialSubFactory(new AddSIntList<>(out, resultSInt));
+      });
+    } else {
+      resultSInt.sint = currentInputList.get(0).out();
     }
-    List<SInt> outputs = new LinkedList<>();
-    ProtocolBuilder<SIntT> parallel = ProtocolBuilder.createParallel(factory);
+  }
+
+  private void doIterationInParallel(ProtocolBuilder<SIntT> parallel,
+      List<Computation<SIntT>> out) {
     BasicNumericFactory<SIntT> appendingFactory = parallel.createAppendingBasicNumericFactory();
-    SInt left = null;
-    for (SInt input : currentInputList) {
+    Computation<SIntT> left = null;
+    for (Computation<SIntT> input : currentInputList) {
       if (left == null) {
         left = input;
       } else {
-        outputs.add(appendingFactory.add(left, input).out());
+        out.add((Computation) appendingFactory.add(left.out(), input.out()));
         left = null;
       }
     }
     if (left != null) {
-      current = appendingFactory.add(left, current).out();
+      out.add(left);
     }
-    currentInputList = outputs;
-    return parallel.build();
+    currentInputList = out;
   }
 
   @Override
-  public SInt out() {
-    return result;
+  public SIntT out() {
+    return resultSInt.sint;
+  }
+
+  private static class ResultSInt<SIntT extends SInt> {
+
+    private SIntT sint;
   }
 }

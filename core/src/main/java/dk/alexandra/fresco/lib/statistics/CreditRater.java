@@ -89,25 +89,27 @@ public class CreditRater implements Application, Computation<SInt> {
   @Override
   @SuppressWarnings("unchecked")
   public ProtocolProducer prepareApplication(ProtocolFactory provider) {
-    SInt[] individualScores = new SInt[this.values.size()];
-    ProtocolBuilder<SInt> sequential = ProtocolBuilder.createSequential(provider);
+    this.score = ((BasicNumericFactory<SInt>) provider).getSInt();
+    return ProtocolBuilder.createSequential(provider, (sequential) -> {
+      List<Computation<? extends SInt>> individualScores = new ArrayList<>(this.values.size());
 
-    for (int i = 0; i < this.values.size(); i++) {
-      individualScores[i] = computeIntervalScore(this.values.get(i),
-          this.intervals.get(i),
-          this.intervalScores.get(i),
-          (BasicNumericFactory<SInt>) provider,
-          sequential.createSequentialSubFactory());
-    }
-    if (individualScores.length == 1) {
-      this.score = individualScores[0];
-    } else {
-      BasicNumericFactory<SInt> basicNumericFactory = (BasicNumericFactory<SInt>) provider;
-      AddSIntList addList = new AddSIntList<>(basicNumericFactory, individualScores);
-      sequential.append((ProtocolProducer) addList);
-      this.score = addList.out();
-    }
-    return sequential.build();
+      for (int i = 0; i < this.values.size(); i++) {
+        SInt value = values.get(i);
+        List<SInt> interval = intervals.get(i);
+        List<SInt> intervalScore = intervalScores.get(i);
+
+        individualScores.add(computeIntervalScore(value,
+            interval,
+            intervalScore,
+            sequential));
+      }
+
+      AddSIntList addList = new AddSIntList(individualScores);
+      sequential.createSequentialSubFactory(addList);
+      sequential.createSequentialSubFactory((protocolBuilder) -> {
+        this.score.setSerializableContent(addList.out().getSerializableContent());
+      });
+    }).build();
   }
 
   /**
@@ -119,15 +121,11 @@ public class CreditRater implements Application, Computation<SInt> {
    * @param scores The scores for each interval
    * @return The score for the lookup
    */
-  private SInt computeIntervalScore(SInt value, List<SInt> interval, List<SInt> scores,
-      BasicNumericFactory<SInt> provider, ProtocolBuilder<SInt> rootProducer) {
-
-    BasicNumericFactory<SInt> rootFactory = rootProducer.createAppendingBasicNumericFactory();
+  private Computation<SInt> computeIntervalScore(SInt value, List<SInt> interval, List<SInt> scores,
+      ProtocolBuilder<SInt> rootBuilder) {
 
     List<SInt> comparisons = new ArrayList<>();
-    SInt one;
-    {
-      ProtocolBuilder<SInt> parallelSubFactory = rootProducer.createParallelSubFactory();
+    rootBuilder.createParallelSubFactory((parallelSubFactory) -> {
       ComparisonProtocolFactory initialComparisons =
           parallelSubFactory.createAppendingComparisonProtocolFactory();
 
@@ -135,33 +133,34 @@ public class CreditRater implements Application, Computation<SInt> {
       for (SInt anInterval : interval) {
         comparisons.add(initialComparisons.compare(value, anInterval).out());
       }
-      BasicNumericFactory<SInt> sintProducer = parallelSubFactory
-          .createAppendingBasicNumericFactory();
-      one = sintProducer.getSInt(1);
-    }
-    // Add "x > last interval definition" to comparisons
-    comparisons.add(rootFactory.sub(one, comparisons.get(comparisons.size() - 1)).out());
-    //Comparisons now contain if x <= each definition and if x>= last definition
+    });
 
-    List<SInt> intermediateScores = new ArrayList<>(scores.size());
-    {
-      ProtocolBuilder<SInt> parallelSubFactory = rootProducer.createParallelSubFactory();
-      BasicNumericFactory<SInt> isThisLegal = parallelSubFactory
-          .createAppendingBasicNumericFactory();
-      intermediateScores.add(isThisLegal.mult(comparisons.get(0), scores.get(0)).out());
+    List<Computation<? extends SInt>> intermediateScores = new ArrayList<>();
+    rootBuilder.createSequentialSubFactory((protocolBuilder) -> {
+      // Add "x > last interval definition" to comparisons
+      BasicNumericFactory<SInt> appendingBasicNumericFactory =
+          protocolBuilder.createAppendingBasicNumericFactory();
+      SInt one = appendingBasicNumericFactory.getSInt(1);
+      comparisons.add(
+          appendingBasicNumericFactory.sub(one, comparisons.get(comparisons.size() - 1)).out());
+      //Comparisons now contain if x <= each definition and if x>= last definition
+    });
+
+    rootBuilder.createParallelSubFactory((parallelSubFactory) -> {
+      BasicNumericFactory<SInt> factory =
+          parallelSubFactory.createAppendingBasicNumericFactory();
+      intermediateScores.add(factory.mult(comparisons.get(0), scores.get(0)));
       for (int i = 1; i < scores.size() - 1; i++) {
-        SInt hit = isThisLegal.sub(comparisons.get(i), comparisons.get(i - 1)).out();
-        intermediateScores.add(isThisLegal.mult(hit, scores.get(i)).out());
+        SInt hit = factory.sub(comparisons.get(i), comparisons.get(i - 1)).out();
+        intermediateScores.add(factory.mult(hit, scores.get(i)));
       }
       SInt a = comparisons.get(scores.size() - 1);
       SInt b = scores.get(scores.size() - 1);
-      intermediateScores.add(isThisLegal.mult(a, b).out());
-    }
-
-    SInt[] terms = intermediateScores.toArray(new SInt[intermediateScores.size()]);
-    AddSIntList<SInt> protocolProducer = new AddSIntList<>(provider, terms);
-    rootProducer.append((ProtocolProducer) protocolProducer);
-    return protocolProducer.out();
+      intermediateScores.add(factory.mult(a, b));
+    });
+    AddSIntList consumer = new AddSIntList(intermediateScores);
+    rootBuilder.createSequentialSubFactory(consumer);
+    return consumer;
   }
 
   @Override

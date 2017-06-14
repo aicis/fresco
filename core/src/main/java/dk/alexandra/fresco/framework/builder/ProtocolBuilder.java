@@ -1,6 +1,7 @@
 package dk.alexandra.fresco.framework.builder;
 
 import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.SInt;
@@ -16,6 +17,8 @@ import dk.alexandra.fresco.lib.math.integer.exp.PreprocessedExpPipeFactory;
 import dk.alexandra.fresco.lib.math.integer.inv.LocalInversionFactory;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 /**
  * Central class that allowes building complex trees of protocol producers based on
@@ -34,8 +37,7 @@ public class ProtocolBuilder<SIntT extends SInt> {
   private ExpFromOIntFactory expFromOIntFactory;
   private PreprocessedExpPipeFactory expFactory;
 
-  private ProtocolBuilder(boolean parallel,
-      ProtocolFactory factory) {
+  private ProtocolBuilder(boolean parallel, ProtocolFactory factory) {
     this.parallel = parallel;
     if (factory instanceof BasicNumericFactory) {
       this.basicNumericFactory = (BasicNumericFactory<SIntT>) factory;
@@ -65,42 +67,44 @@ public class ProtocolBuilder<SIntT extends SInt> {
     this.protocols = new LinkedList<>();
   }
 
-  public static <SIntT extends SInt> ProtocolBuilder<SIntT> createParallel(
-      BasicNumericFactory<SIntT> factory) {
-    return new ProtocolBuilder<>(true, factory);
-  }
-
   public static <SIntT extends SInt> ProtocolBuilder<SIntT> createSequential(
-      ProtocolFactory factory) {
-    return new ProtocolBuilder<>(false, factory);
+      ProtocolFactory factory, Consumer<ProtocolBuilder<SIntT>> consumer) {
+    ProtocolBuilder<SIntT> builder = new ProtocolBuilder<>(false, factory);
+    builder.addConsumer(consumer, false);
+    return builder;
   }
 
   /**
    * Re-creates this basicNumericFactory based on a parallel protocol producer inserted into the
    * original protocol producer.
    *
-   * @return the newly created basicNumericFactory
+   * @param consumer lazy creation of the protocol producer
    */
-  public ProtocolBuilder<SIntT> createParallelSubFactory() {
-    ProtocolEntity<SIntT> protocolEntity = createAndAppend();
-    protocolEntity.child = new ProtocolBuilder<>(true, basicNumericFactory);
-    return protocolEntity.child;
+  public void createParallelSubFactory(Consumer<ProtocolBuilder<SIntT>> consumer) {
+    addConsumer(consumer, true);
   }
 
   /**
    * Re-creates this basicNumericFactory based on a sequential protocol producer inserted into the
    * original protocol producer.
    *
-   * @return the newly created basicNumericFactory
+   * @param consumer lazy creation of the protocol producer
    */
-  public ProtocolBuilder<SIntT> createSequentialSubFactory() {
-    ProtocolEntity<SIntT> protocolEntity = createAndAppend();
-    protocolEntity.child = new ProtocolBuilder<>(false, basicNumericFactory);
-    return protocolEntity.child;
+  public void createSequentialSubFactory(Consumer<ProtocolBuilder<SIntT>> consumer) {
+    addConsumer(consumer, false);
   }
 
-  private ProtocolEntity<SIntT> createAndAppend() {
-    ProtocolEntity<SIntT> protocolEntity = new ProtocolEntity<>();
+  private void addConsumer(Consumer<ProtocolBuilder<SIntT>> consumer, boolean parallel) {
+    ProtocolEntity protocolEntity = createAndAppend();
+    protocolEntity.child = new LazyProtocolProducer(() -> {
+      ProtocolBuilder<SIntT> builder = new ProtocolBuilder<>(parallel, basicNumericFactory);
+      consumer.accept(builder);
+      return builder.build();
+    });
+  }
+
+  private ProtocolEntity createAndAppend() {
+    ProtocolEntity protocolEntity = new ProtocolEntity();
     protocols.add(protocolEntity);
     return protocolEntity;
   }
@@ -127,14 +131,14 @@ public class ProtocolBuilder<SIntT extends SInt> {
     }
   }
 
-  private void addEntities(ProtocolProducerCollection sequentialProtocolProducer) {
-    for (ProtocolEntity protocol : protocols) {
-      if (protocol.computation != null) {
-        sequentialProtocolProducer.append(protocol.computation);
-      } else if (protocol.protocolProducer != null) {
-        sequentialProtocolProducer.append(protocol.protocolProducer);
+  private void addEntities(ProtocolProducerCollection producerCollection) {
+    for (ProtocolEntity protocolEntity : protocols) {
+      if (protocolEntity.computation != null) {
+        producerCollection.append(protocolEntity.computation);
+      } else if (protocolEntity.protocolProducer != null) {
+        producerCollection.append(protocolEntity.protocolProducer);
       } else {
-        sequentialProtocolProducer.append(protocol.child.build());
+        producerCollection.append(protocolEntity.child);
       }
     }
   }
@@ -147,10 +151,39 @@ public class ProtocolBuilder<SIntT extends SInt> {
     return new AppendingComparisonProtocolFactory(this.comparisonProtocolFactory, this);
   }
 
-  private static class ProtocolEntity<SIntT extends SInt> {
+  private static class ProtocolEntity {
 
     Computation<?> computation;
     ProtocolProducer protocolProducer;
-    ProtocolBuilder<SIntT> child;
+    LazyProtocolProducer child;
+  }
+
+  private static class LazyProtocolProducer<SIntT extends SInt> implements ProtocolProducer {
+
+    private ProtocolProducer protocolProducer;
+    private Supplier<ProtocolProducer> child;
+
+    LazyProtocolProducer(Supplier<ProtocolProducer> supplier) {
+      this.child = supplier;
+    }
+
+    @Override
+    public void getNextProtocols(ProtocolCollection protocolCollection) {
+      checkReady();
+      protocolProducer.getNextProtocols(protocolCollection);
+    }
+
+    @Override
+    public boolean hasNextProtocols() {
+      checkReady();
+      return protocolProducer.hasNextProtocols();
+    }
+
+    private void checkReady() {
+      if (protocolProducer == null) {
+        protocolProducer = child.get();
+        child = null;
+      }
+    }
   }
 }

@@ -153,25 +153,23 @@ public class EqualityProtocolImplWithPreprocessing implements EqualityProtocol {
       bits[i] = factory.getSInt();
     }
     SInt r = factory.getSInt();
-    ProtocolBuilder<SInt> protocolBuilder = ProtocolBuilder.createSequential(factory);
+    return ProtocolBuilder.createSequential(factory, (protocolBuilder) -> {
+      ProtocolProducer randLoader = randomAddMaskFactory
+          .getRandomAdditiveMaskProtocol(securityParam, bits, r);
+      protocolBuilder.append(randLoader);
 
-    ProtocolProducer randLoader = randomAddMaskFactory
-        .getRandomAdditiveMaskProtocol(securityParam, bits, r);
-    protocolBuilder.append(randLoader);
+      // mask and reveal difference
+      OInt masked_O = factory.getOInt();
 
-    // mask and reveal difference
-    OInt masked_O = factory.getOInt();
+      BasicNumericFactory<SInt> factory = protocolBuilder.createAppendingBasicNumericFactory();
+      SInt resultSub = factory.sub(x, y).out();
+      SInt resultAdd = factory.add(resultSub, r).out();
+      factory.getOpenProtocol(resultAdd, masked_O);
 
-    BasicNumericFactory<SInt> factory = protocolBuilder.createAppendingBasicNumericFactory();
-    SInt resultSub = factory.sub(x, y).out();
-    SInt resultAdd = factory.add(resultSub, r).out();
-    factory.getOpenProtocol(resultAdd, masked_O);
-
-    // Compute Hamming distance
-    protocolBuilder.append(hammingFactory
-        .getHammingdistanceProtocol(bits, masked_O, reducedProblem));
-
-    return protocolBuilder.build();
+      // Compute Hamming distance
+      protocolBuilder.append(hammingFactory
+          .getHammingdistanceProtocol(bits, masked_O, reducedProblem));
+    }).build();
   }
 
 
