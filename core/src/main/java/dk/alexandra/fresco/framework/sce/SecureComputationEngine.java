@@ -40,7 +40,7 @@ public interface SecureComputationEngine<ResourcePoolT extends ResourcePool> {
    *
    * @param application The application to evaluate.
    */
-  void runApplication(Application application, ResourcePoolT resources);
+  <OutputT> OutputT runApplication(Application<OutputT> application, ResourcePoolT resources);
 
   /**
    * Executes an application based on the current SCEConfiguration. If the SecureComputationEngine
@@ -49,7 +49,9 @@ public interface SecureComputationEngine<ResourcePoolT extends ResourcePool> {
    *
    * @param application The application to evaluate.
    */
-  Future<?> startApplication(Application application, ResourcePoolT resources);
+  <OutputT> Future<OutputT> startApplication(
+      Application<OutputT> application,
+      ResourcePoolT resources);
 
 
   /**

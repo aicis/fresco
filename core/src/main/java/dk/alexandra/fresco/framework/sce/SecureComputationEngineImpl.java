@@ -135,15 +135,17 @@ public class SecureComputationEngineImpl<ResourcePoolT extends ResourcePool> imp
   }
 
   @Override
-  public void runApplication(Application application, ResourcePoolT sceNetwork) {
+  public <OutputT> OutputT runApplication(Application<OutputT> application,
+      ResourcePoolT sceNetwork) {
     try {
-      startApplication(application, sceNetwork).get(10, TimeUnit.MINUTES);
+      return startApplication(application, sceNetwork).get(10, TimeUnit.MINUTES);
     } catch (InterruptedException | ExecutionException | TimeoutException e) {
       throw new RuntimeException("Internal error in waiting", e);
     }
   }
 
-  public Future<?> startApplication(Application application, ResourcePoolT resourcePool) {
+  public <OutputT> Future<OutputT> startApplication(Application<OutputT> application,
+      ResourcePoolT resourcePool) {
     prepareEvaluator();
     return executorService.submit(() -> evalApplication(application, resourcePool));
   }
@@ -158,10 +160,11 @@ public class SecureComputationEngineImpl<ResourcePoolT extends ResourcePool> imp
     }
   }
 
-  private void evalApplication(Application application,
+  private <OutputT> OutputT evalApplication(Application<OutputT> application,
       ResourcePoolT resourcePool) {
     Reporter.info("Running application: " + application + " using protocol suite: "
         + this.protocolSuite);
+    OutputT result;
     try {
       ProtocolFactory protocolFactory = this.protocolSuite.init(resourcePool);
       ProtocolProducer prod = application.prepareApplication(protocolFactory);
@@ -174,8 +177,9 @@ public class SecureComputationEngineImpl<ResourcePoolT extends ResourcePool> imp
       throw new MPCException(
           "Could not run application " + application + " due to errors", e);
     } finally {
-      application.closeApplication();
+      result = application.closeApplication();
     }
+    return result;
   }
 
   @Override

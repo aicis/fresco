@@ -49,7 +49,7 @@ import java.util.stream.Collectors;
  * and a credit rating function (a set of intervals for each value)
  * will calculate the combined score.
  */
-public class CreditRater implements Application, Computation<SInt> {
+public class CreditRater implements Application<SInt> {
 
   private List<SInt> values;
   private List<List<SInt>> intervals;
@@ -117,8 +117,12 @@ public class CreditRater implements Application, Computation<SInt> {
   }
 
   @Override
-  public SInt out() {
-    return this.delegateResult.out();
+  public SInt closeApplication() {
+    if (delegateResult != null) {
+      return this.delegateResult.out();
+    } else {
+      return null;
+    }
   }
 
   private static class ComputeIntervalScore implements Consumer<SequentialProtocolBuilder<SInt>>,

@@ -109,7 +109,7 @@ public class CreditRaterTest {
           CreditRater rater = new CreditRater(AlgebraUtil.arrayToList(secretValues),
               AlgebraUtil.arrayToList(secretIntervals),
               AlgebraUtil.arrayToList(secretScores));
-          secureComputationEngine.runApplication(rater, resourcePool);
+          SInt creditRatingOutput = secureComputationEngine.runApplication(rater, resourcePool);
 
           TestApplication output = new TestApplication() {
             @Override
@@ -119,7 +119,7 @@ public class CreditRaterTest {
               NumericIOBuilder ioBuilder = new NumericIOBuilder(bnFactory);
 
               sseq.append(rater.prepareApplication(factory));
-              result[0] = ioBuilder.output(rater.out());
+              result[0] = ioBuilder.output(creditRatingOutput);
               sseq.append(ioBuilder.getProtocol());
 
               return sseq;

@@ -26,7 +26,7 @@
  *******************************************************************************/
 package dk.alexandra.fresco.framework;
 
-public interface Application {
+public interface Application<OutputT> {
 
   /**
    * Take a factory which is assumed to implement all needed interfaces for
@@ -42,7 +42,7 @@ public interface Application {
    * Closes the application and allows the output to be produced and allocated resources to be
    * release.
    */
-  default void closeApplication() {
-    // Do nothing
+  default OutputT closeApplication() {
+    return null;
   }
 }
