@@ -50,74 +50,87 @@ import org.junit.Assert;
  * Analysis on it. The TestDEADSolver takes the size of the problem
  * as inputs (i.e. the number of input and output variables, the number
  * of rows in the basis and the number of queries to perform.
- * The MPC result is compared with the result of a plaintext DEA solver.    
- *
+ * The MPC result is compared with the result of a plaintext DEA solver.
  */
 public class CreditRaterTest {
 
-	public static class TestCreditRater<ResourcePoolT extends ResourcePool> extends
-			TestThreadFactory<ResourcePoolT> {
 
-	  final int[] values;
-	  final int[][] intervals;
-	  final int[][] scores;
-		
-		public TestCreditRater(int[] values, int[][] intervals, int[][] scores) {
-		  this.values = values;
-		  this.intervals = intervals;
-		  this.scores = scores;
-		}
+  public static class TestCreditRater<ResourcePoolT extends ResourcePool> extends
+      TestThreadFactory<ResourcePoolT> {
 
-		@Override
-		public TestThread<ResourcePoolT> next(TestThreadConfiguration<ResourcePoolT> conf) {
-			return new TestThread<ResourcePoolT>() {
-				@Override
-				public void test() throws Exception {
-					
-					OInt[] result = new OInt[1];
-					
-					TestApplication app = new TestApplication() {
+    final int[] values;
+    final int[][] intervals;
+    final int[][] scores;
 
-						private static final long serialVersionUID = 4338818809103728010L;
+    public TestCreditRater(int[] values, int[][] intervals, int[][] scores) {
+      this.values = values;
+      this.intervals = intervals;
+      this.scores = scores;
+    }
 
-						@Override
-						public ProtocolProducer prepareApplication(
-								ProtocolFactory factory) {
-							BasicNumericFactory bnFactory = (BasicNumericFactory) factory;
-							NumericIOBuilder ioBuilder = new NumericIOBuilder(bnFactory);
-							
-							SequentialProtocolProducer sseq = new SequentialProtocolProducer();
-							
-							SInt[] secretValues = ioBuilder.inputArray(values, 1);
-							SInt[][] secretIntervals = new SInt[intervals.length][];
-							SInt[][] secretScores = new SInt[scores.length][];
-							for(int i =0; i< intervals.length; i++){
-							  secretIntervals[i] = ioBuilder.inputArray(intervals[i], 1);
-							}
-              for(int i = 0; i< scores.length; i++){
+    @Override
+    public TestThread<ResourcePoolT> next(TestThreadConfiguration<ResourcePoolT> conf) {
+      return new TestThread<ResourcePoolT>() {
+        SInt[] secretValues;
+
+        @Override
+        public void test() throws Exception {
+          ResourcePoolT resourcePool = SecureComputationEngineImpl.createResourcePool(conf.sceConf,
+              conf.sceConf.getSuite());
+
+          OInt[] result = new OInt[1];
+
+          SInt[][] secretIntervals = new SInt[intervals.length][];
+          SInt[][] secretScores = new SInt[scores.length][];
+
+          TestApplication input = new TestApplication() {
+
+            @Override
+            public ProtocolProducer prepareApplication(
+                ProtocolFactory factory) {
+              BasicNumericFactory bnFactory = (BasicNumericFactory) factory;
+              NumericIOBuilder ioBuilder = new NumericIOBuilder(bnFactory);
+
+              SequentialProtocolProducer sseq = new SequentialProtocolProducer();
+
+              secretValues = ioBuilder.inputArray(values, 1);
+              for (int i = 0; i < intervals.length; i++) {
+                secretIntervals[i] = ioBuilder.inputArray(intervals[i], 1);
+              }
+              for (int i = 0; i < scores.length; i++) {
                 secretScores[i] = ioBuilder.inputArray(scores[i], 1);
               }
-							sseq.append(ioBuilder.getProtocol());
-		
-							CreditRater rater = new CreditRater(AlgebraUtil.arrayToList(secretValues), 
-							    AlgebraUtil.arrayToList(secretIntervals),
-							    AlgebraUtil.arrayToList(secretScores));
-							
-							sseq.append(rater.prepareApplication(factory));
-							result[0] = ioBuilder.output(rater.out());
-							sseq.append(ioBuilder.getProtocol());
-							
-							return sseq;
-						}
-					};
-					secureComputationEngine
-              .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf,
-                  conf.sceConf.getSuite()));
+              sseq.append(ioBuilder.getProtocol());
+              return sseq;
+            }
+          };
+          secureComputationEngine.runApplication(input, resourcePool);
+
+          CreditRater rater = new CreditRater(AlgebraUtil.arrayToList(secretValues),
+              AlgebraUtil.arrayToList(secretIntervals),
+              AlgebraUtil.arrayToList(secretScores));
+          secureComputationEngine.runApplication(rater, resourcePool);
+
+          TestApplication output = new TestApplication() {
+            @Override
+            public ProtocolProducer prepareApplication(ProtocolFactory factory) {
+              SequentialProtocolProducer sseq = new SequentialProtocolProducer();
+              BasicNumericFactory bnFactory = (BasicNumericFactory) factory;
+              NumericIOBuilder ioBuilder = new NumericIOBuilder(bnFactory);
+
+              sseq.append(rater.prepareApplication(factory));
+              result[0] = ioBuilder.output(rater.out());
+              sseq.append(ioBuilder.getProtocol());
+
+              return sseq;
+            }
+          };
+          secureComputationEngine.runApplication(output, resourcePool);
           Assert.assertThat(result[0].getValue(), Is.is(
               BigInteger.valueOf(PlaintextCreditRater.calculateScore(values, intervals, scores))));
         }
       };
     }
-	}
+  }
 
 }
