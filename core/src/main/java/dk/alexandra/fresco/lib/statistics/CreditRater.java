@@ -104,10 +104,10 @@ public class CreditRater implements Application, Computation<SInt> {
             sequential));
       }
 
-      AddSIntList addList = new AddSIntList(individualScores);
-      sequential.createSequentialSubFactory(addList);
+      Computation<SInt> computation = sequential
+          .createSequentialSubFactory(new AddSIntList(individualScores));
       sequential.createSequentialSubFactory((protocolBuilder) -> {
-        this.score.setSerializableContent(addList.out().getSerializableContent());
+        this.score.setSerializableContent(computation.out().getSerializableContent());
       });
     }).build();
   }
@@ -134,18 +134,16 @@ public class CreditRater implements Application, Computation<SInt> {
         comparisons.add(initialComparisons.compare(value, anInterval).out());
       }
     });
+    // Add "x > last interval definition" to comparisons
+    rootBuilder.createSequentialSubFactory((protocolBuilder) -> {
+      BasicNumericFactory<SInt> appendingFactory =
+          protocolBuilder.createAppendingBasicNumericFactory();
+      SInt one = appendingFactory.getSInt(1);
+      comparisons.add(appendingFactory.sub(one, comparisons.get(comparisons.size() - 1)).out());
+    });
+    //Comparisons now contain if x <= each definition and if x>= last definition
 
     List<Computation<? extends SInt>> intermediateScores = new ArrayList<>();
-    rootBuilder.createSequentialSubFactory((protocolBuilder) -> {
-      // Add "x > last interval definition" to comparisons
-      BasicNumericFactory<SInt> appendingBasicNumericFactory =
-          protocolBuilder.createAppendingBasicNumericFactory();
-      SInt one = appendingBasicNumericFactory.getSInt(1);
-      comparisons.add(
-          appendingBasicNumericFactory.sub(one, comparisons.get(comparisons.size() - 1)).out());
-      //Comparisons now contain if x <= each definition and if x>= last definition
-    });
-
     rootBuilder.createParallelSubFactory((parallelSubFactory) -> {
       BasicNumericFactory<SInt> factory =
           parallelSubFactory.createAppendingBasicNumericFactory();
@@ -158,9 +156,7 @@ public class CreditRater implements Application, Computation<SInt> {
       SInt b = scores.get(scores.size() - 1);
       intermediateScores.add(factory.mult(a, b));
     });
-    AddSIntList consumer = new AddSIntList(intermediateScores);
-    rootBuilder.createSequentialSubFactory(consumer);
-    return consumer;
+    return rootBuilder.createSequentialSubFactory(new AddSIntList(intermediateScores));
   }
 
   @Override

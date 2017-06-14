@@ -77,8 +77,10 @@ public abstract class ProtocolBuilder<SIntT extends SInt> {
    *
    * @param consumer lazy creation of the protocol producer
    */
-  public void createParallelSubFactory(Consumer<ParallelProtocolBuilder<SIntT>> consumer) {
+  public <T extends Consumer<ParallelProtocolBuilder<SIntT>>>
+  T createParallelSubFactory(T consumer) {
     addConsumer(consumer, () -> new ParallelProtocolBuilder<>(basicNumericFactory));
+    return consumer;
   }
 
   /**
@@ -87,8 +89,10 @@ public abstract class ProtocolBuilder<SIntT extends SInt> {
    *
    * @param consumer lazy creation of the protocol producer
    */
-  public void createSequentialSubFactory(Consumer<SequentialProtocolBuilder<SIntT>> consumer) {
+  public <T extends Consumer<SequentialProtocolBuilder<SIntT>>>
+  T createSequentialSubFactory(T consumer) {
     addConsumer(consumer, () -> new SequentialProtocolBuilder<>(basicNumericFactory));
+    return consumer;
   }
 
   private <T extends ProtocolBuilder<SIntT>> void addConsumer(Consumer<T> consumer,
