@@ -1,6 +1,7 @@
 package dk.alexandra.fresco.lib.math.integer;
 
 import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.RecursiveComputation;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder.SequentialProtocolBuilder;
 import dk.alexandra.fresco.framework.value.SInt;
@@ -14,11 +15,10 @@ import java.util.function.Consumer;
  *
  * @param <SIntT> the type of SInts to add - and later output
  */
-public class AddSIntList<SIntT extends SInt>
-    implements Consumer<SequentialProtocolBuilder<SIntT>>, Computation<SIntT> {
+public class AddSIntList<SIntT extends SInt> extends RecursiveComputation<SIntT>
+    implements Consumer<SequentialProtocolBuilder<SIntT>> {
 
   private List<Computation<SIntT>> currentInputList;
-  private ResultSInt<SIntT> resultSInt;
 
   /**
    * Creates a new AddSIntList.
@@ -26,12 +26,13 @@ public class AddSIntList<SIntT extends SInt>
    * @param input the input to sum
    */
   public AddSIntList(List<Computation<SIntT>> input) {
-    this(input, new ResultSInt<>());
+    super();
+    this.currentInputList = input;
   }
 
-  private AddSIntList(List<Computation<SIntT>> input, ResultSInt<SIntT> resultSInt) {
+  private AddSIntList(List<Computation<SIntT>> input, AddSIntList<SIntT> previousComputation) {
+    super(previousComputation);
     this.currentInputList = input;
-    this.resultSInt = resultSInt;
   }
 
   @Override
@@ -39,13 +40,14 @@ public class AddSIntList<SIntT extends SInt>
     if (currentInputList.size() > 1) {
       List<Computation<SIntT>> out = new ArrayList<>();
       iterationBuilder.createParallelSubFactory(parallel -> doIterationInParallel(parallel, out));
-      iterationBuilder.createSequentialSubFactory(new AddSIntList<>(out, resultSInt));
+      iterationBuilder.createSequentialSubFactory(new AddSIntList<>(out, this));
     } else {
-      resultSInt.sint = currentInputList.get(0).out();
+      setResult(currentInputList.get(0).out());
     }
   }
 
-  private void doIterationInParallel(ProtocolBuilder<SIntT> parallel,
+  private void doIterationInParallel(
+      ProtocolBuilder<SIntT> parallel,
       List<Computation<SIntT>> out) {
     BasicNumericFactory<SIntT> appendingFactory = parallel.createAppendingBasicNumericFactory();
     Computation<SIntT> left = null;
@@ -63,13 +65,4 @@ public class AddSIntList<SIntT extends SInt>
     currentInputList = out;
   }
 
-  @Override
-  public SIntT out() {
-    return resultSInt.sint;
-  }
-
-  private static class ResultSInt<SIntT extends SInt> {
-
-    private SIntT sint;
-  }
 }
