@@ -2,6 +2,7 @@ package dk.alexandra.fresco.lib.math.integer;
 
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilder.SequentialProtocolBuilder;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import java.util.ArrayList;
@@ -14,7 +15,7 @@ import java.util.function.Consumer;
  * @param <SIntT> the type of SInts to add - and later output
  */
 public class AddSIntList<SIntT extends SInt>
-    implements Consumer<ProtocolBuilder<SIntT>>, Computation<SIntT> {
+    implements Consumer<SequentialProtocolBuilder<SIntT>>, Computation<SIntT> {
 
   private List<Computation<SIntT>> currentInputList;
   private ResultSInt<SIntT> resultSInt;
@@ -34,13 +35,11 @@ public class AddSIntList<SIntT extends SInt>
   }
 
   @Override
-  public void accept(ProtocolBuilder<SIntT> protocolBuilder) {
+  public void accept(SequentialProtocolBuilder<SIntT> iterationBuilder) {
     if (currentInputList.size() > 1) {
-      protocolBuilder.createSequentialSubFactory((iterationBuilder) -> {
-        List<Computation<SIntT>> out = new ArrayList<>();
-        iterationBuilder.createParallelSubFactory(parallel -> doIterationInParallel(parallel, out));
-        iterationBuilder.createSequentialSubFactory(new AddSIntList<>(out, resultSInt));
-      });
+      List<Computation<SIntT>> out = new ArrayList<>();
+      iterationBuilder.createParallelSubFactory(parallel -> doIterationInParallel(parallel, out));
+      iterationBuilder.createSequentialSubFactory(new AddSIntList<>(out, resultSInt));
     } else {
       resultSInt.sint = currentInputList.get(0).out();
     }

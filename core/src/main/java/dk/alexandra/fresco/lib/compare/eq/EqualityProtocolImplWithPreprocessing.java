@@ -153,7 +153,7 @@ public class EqualityProtocolImplWithPreprocessing implements EqualityProtocol {
       bits[i] = factory.getSInt();
     }
     SInt r = factory.getSInt();
-    return ProtocolBuilder.createSequential(factory, (protocolBuilder) -> {
+    return ProtocolBuilder.createRoot(factory, (protocolBuilder) -> {
       ProtocolProducer randLoader = randomAddMaskFactory
           .getRandomAdditiveMaskProtocol(securityParam, bits, r);
       protocolBuilder.append(randLoader);

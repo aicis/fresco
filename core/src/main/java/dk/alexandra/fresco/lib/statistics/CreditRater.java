@@ -90,7 +90,7 @@ public class CreditRater implements Application, Computation<SInt> {
   @SuppressWarnings("unchecked")
   public ProtocolProducer prepareApplication(ProtocolFactory provider) {
     this.score = ((BasicNumericFactory<SInt>) provider).getSInt();
-    return ProtocolBuilder.createSequential(provider, (sequential) -> {
+    return ProtocolBuilder.createRoot(provider, (sequential) -> {
       List<Computation<? extends SInt>> individualScores = new ArrayList<>(this.values.size());
 
       for (int i = 0; i < this.values.size(); i++) {
