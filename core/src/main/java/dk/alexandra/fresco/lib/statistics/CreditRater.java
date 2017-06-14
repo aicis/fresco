@@ -38,6 +38,7 @@ import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.math.integer.AddSIntList;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * NativeProtocol for performing credit rating.
@@ -105,7 +106,9 @@ public class CreditRater implements Application, Computation<SInt> {
       }
 
       Computation<SInt> computation = sequential
-          .createSequentialSubFactory(new AddSIntList(individualScores));
+          .createSequentialSubFactory(new AddSIntList(() -> resolveComputations(individualScores)));
+      // Hack to send score into the original object
+      // should be replaced by a computation based result
       sequential.createSequentialSubFactory((protocolBuilder) -> {
         this.score.setSerializableContent(computation.out().getSerializableContent());
       });
@@ -156,7 +159,14 @@ public class CreditRater implements Application, Computation<SInt> {
       SInt b = scores.get(scores.size() - 1);
       intermediateScores.add(factory.mult(a, b));
     });
-    return rootBuilder.createSequentialSubFactory(new AddSIntList(intermediateScores));
+    return rootBuilder.createSequentialSubFactory(
+        new AddSIntList(() -> resolveComputations(intermediateScores)));
+  }
+
+  private <T> List<T> resolveComputations(List<Computation<? extends T>> list) {
+    return list.stream()
+        .map(Computation::out)
+        .collect(Collectors.toList());
   }
 
   @Override
