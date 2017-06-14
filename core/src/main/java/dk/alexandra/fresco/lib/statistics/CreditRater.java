@@ -43,7 +43,7 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 /**
- * NativeProtocol for performing credit rating.
+ * Application for performing credit rating.
  *
  * Given a dataset (a vector of values)
  * and a credit rating function (a set of intervals for each value)
@@ -58,7 +58,7 @@ public class CreditRater implements Application, Computation<SInt> {
   private Computation<SInt> delegateResult;
 
   /**
-   * @throws MPCException
+   * @throws MPCException if the intervals, values and intervalScores does not have the same length
    */
   public CreditRater(
       List<SInt> values, List<List<SInt>> intervals, List<List<SInt>> intervalScores)
