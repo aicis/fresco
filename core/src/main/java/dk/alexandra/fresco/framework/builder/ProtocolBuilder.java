@@ -1,6 +1,7 @@
 package dk.alexandra.fresco.framework.builder;
 
 import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.ProtocolProducer;
@@ -9,6 +10,7 @@ import dk.alexandra.fresco.lib.compare.ComparisonProtocolFactory;
 import dk.alexandra.fresco.lib.compare.ComparisonProtocolFactoryImpl;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.helper.ProtocolProducerCollection;
+import dk.alexandra.fresco.lib.helper.SingleProtocolProducer;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
 import dk.alexandra.fresco.lib.math.integer.NumericBitFactory;
 import dk.alexandra.fresco.lib.math.integer.exp.ExpFromOIntFactory;
@@ -113,7 +115,14 @@ public abstract class ProtocolBuilder<SIntT extends SInt> {
 
   public void append(Computation<? extends SInt> computation) {
     ProtocolEntity protocolEntity = createAndAppend();
-    protocolEntity.computation = computation;
+    if (computation instanceof NativeProtocol) {
+      protocolEntity.protocolProducer = SingleProtocolProducer.wrap(computation);
+    } else if (computation instanceof ProtocolProducer) {
+      protocolEntity.protocolProducer = (ProtocolProducer) computation;
+    } else {
+      throw new IllegalArgumentException("Cannot append " + computation
+          + " - must either be a protocol producer or a native protocol");
+    }
   }
 
   public void append(ProtocolProducer protocolProducer) {
@@ -150,7 +159,7 @@ public abstract class ProtocolBuilder<SIntT extends SInt> {
     LazyProtocolProducer child;
   }
 
-  private static class LazyProtocolProducer<SIntT extends SInt> implements ProtocolProducer {
+  private static class LazyProtocolProducer implements ProtocolProducer {
 
     private ProtocolProducer protocolProducer;
     private Supplier<ProtocolProducer> child;
