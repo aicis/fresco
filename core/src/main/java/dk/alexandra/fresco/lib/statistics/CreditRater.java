@@ -51,7 +51,6 @@ import java.util.stream.Collectors;
  */
 public class CreditRater implements Application, Computation<SInt> {
 
-  private static final long serialVersionUID = 7679664125131997196L;
   private List<SInt> values;
   private List<List<SInt>> intervals;
   private List<List<SInt>> intervalScores;
@@ -111,7 +110,7 @@ public class CreditRater implements Application, Computation<SInt> {
     }).build();
   }
 
-  private <T> List<T> resolveComputations(List<Computation<? extends T>> list) {
+  private static <T> List<T> resolveComputations(List<Computation<? extends T>> list) {
     return list.stream()
         .map(Computation::out)
         .collect(Collectors.toList());
@@ -122,7 +121,7 @@ public class CreditRater implements Application, Computation<SInt> {
     return this.delegateResult.out();
   }
 
-  private class ComputeIntervalScore implements Consumer<SequentialProtocolBuilder<SInt>>,
+  private static class ComputeIntervalScore implements Consumer<SequentialProtocolBuilder<SInt>>,
       Computation<SInt> {
 
     private final List<SInt> interval;
@@ -178,9 +177,7 @@ public class CreditRater implements Application, Computation<SInt> {
         SInt b = scores.get(scores.size() - 1);
         intermediateScores.add(factory.mult(a, b));
       });
-      AddSIntList<SInt> consumer = new AddSIntList<>(
-          () -> CreditRater.this.resolveComputations(intermediateScores)
-      );
+      AddSIntList<SInt> consumer = new AddSIntList<>(() -> resolveComputations(intermediateScores));
       this.delegageComputation = rootBuilder.createSequentialSubFactory(consumer);
     }
 
