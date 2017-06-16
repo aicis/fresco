@@ -37,11 +37,9 @@ import dk.alexandra.fresco.lib.compare.MiscOIntGenerators;
 import dk.alexandra.fresco.lib.compare.RandomAdditiveMaskFactory;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.field.integer.MultByConstantFactory;
-import dk.alexandra.fresco.lib.field.integer.generic.AddProtocolFactory;
 import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
 import dk.alexandra.fresco.lib.math.integer.HammingDistanceFactory;
-import dk.alexandra.fresco.lib.math.integer.NumericBitFactory;
 import dk.alexandra.fresco.lib.math.integer.exp.ExpFromOIntFactory;
 import dk.alexandra.fresco.lib.math.integer.exp.PreprocessedExpPipeFactory;
 import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductFactory;
@@ -85,8 +83,7 @@ public class EqualityProtocolImplWithPreprocessing implements EqualityProtocol {
   public EqualityProtocolImplWithPreprocessing(int bitLength, int securityParam,
       SInt x, SInt y, SInt result,
       BasicNumericFactory<SInt> factory, MultByConstantFactory mbcFactory,
-      NumericBitFactory bitProvider,
-      PreprocessedExpPipeFactory expFactory, AddProtocolFactory addFactory,
+      PreprocessedExpPipeFactory expFactory,
       InnerProductFactory innerProdFactory, MiscOIntGenerators miscOIntGenerator,
       ExpFromOIntFactory expFromOIntFactory) {
     this.bitLength = bitLength;
