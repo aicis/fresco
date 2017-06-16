@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -24,50 +24,42 @@
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
  *******************************************************************************/
-package dk.alexandra.fresco.lib.statistics;
+package dk.alexandra.fresco.suite.spdz.gates;
 
-import dk.alexandra.fresco.framework.MPCException;
-import dk.alexandra.fresco.framework.value.SInt;
-import java.util.ArrayList;
-import java.util.List;
-import org.hamcrest.core.Is;
-import org.junit.Assert;
-import org.junit.Test;
+import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.network.SCENetwork;
+import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
+import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 
-public class TestCreditRater {
+public class SpdzSubtractProtocol4 extends SpdzNativeProtocol<SpdzSInt> {
 
-  @Test
-  public void testConsistency() {
-    List<SInt> values = new ArrayList<SInt>();
-    List<List<SInt>> intervals = new ArrayList<List<SInt>>();
-    List<List<SInt>> scores = new ArrayList<List<SInt>>();
+  private Computation<SpdzSInt> left;
+  private Computation<SpdzSInt> right;
+  private SpdzSInt out;
 
-    values.add(new DummySInt());
-    intervals.add(new ArrayList<SInt>());
-    scores.add(new ArrayList<SInt>());
+  public SpdzSubtractProtocol4(Computation<SpdzSInt> left, Computation<SpdzSInt> right,
+      SpdzSInt out) {
+    this.left = left;
+    this.right = right;
+    this.out = out;
+  }
 
-    try {
-      new CreditRater(values, intervals, scores);
-    } catch (MPCException e) {
-      Assert.fail("Consistent data should be accepted");
-    }
+  @Override
+  public String toString() {
+    return "SpdzSubtractGate(" + left + ", " + right + ", "
+        + out.value + ")";
+  }
 
-    intervals.add(new ArrayList<SInt>());
+  @Override
+  public SpdzSInt out() {
+    return out;
+  }
 
-    try {
-      new CreditRater(values, intervals, scores);
-      Assert.fail("Inconsistent data should not be accepted");
-    } catch (MPCException e) {
-      Assert.assertThat(e.getMessage(), Is.is("Inconsistent data"));
-    }
-
-    values.add(new DummySInt());
-    try {
-      new CreditRater(values, intervals, scores);
-      Assert.fail("Inconsistent data should not be accepted");
-    } catch (MPCException e) {
-      Assert.assertThat(e.getMessage(), Is.is("Inconsistent data"));
-    }
+  @Override
+  public EvaluationStatus evaluate(int round, SpdzResourcePool SpdzResourcePool,
+      SCENetwork network) {
+    out.value = left.out().value.subtract(right.out().value);
+    return EvaluationStatus.IS_DONE;
   }
 
 }

@@ -62,11 +62,13 @@ public interface BasicNumericFactory<SIntT extends SInt> extends SIntFactory, OI
 
   Computation<? extends SInt> getAddProtocol(SInt a, SInt b, SInt out);
 
-  Computation<? extends SInt> add(SInt a, SInt b);
+  Computation<SIntT> add(Computation<SIntT> a, Computation<SIntT> b);
+
+  Computation<SIntT> sub(Computation<SIntT> a, Computation<SIntT> b);
+
+  Computation<SIntT> mult(Computation<SIntT> a, Computation<SIntT> b);
 
   Computation<? extends SInt> getAddProtocol(SInt input, OInt openInput, SInt out);
-
-  Computation<? extends SInt> sub(SInt a, SInt b);
 
   Computation<? extends SInt> getSubtractProtocol(SInt a, SInt b, SInt out);
 
@@ -76,7 +78,6 @@ public interface BasicNumericFactory<SIntT extends SInt> extends SIntFactory, OI
 
   Computation<? extends SInt> getMultProtocol(SInt a, SInt b, SInt out);
 
-  Computation<? extends SInt> mult(SInt a, SInt b);
 
   /**
    * @param a input - constant which is known

@@ -47,17 +47,17 @@ class AppendingBasicNumericFactory<SIntT extends SInt>
   }
 
   @Override
-  public Computation<? extends SInt> sub(
-      SInt a, SInt b) {
-    Computation<? extends SInt> sub = factory.sub(a, b);
+  public Computation<SIntT> sub(
+      Computation<SIntT> a, Computation<SIntT> b) {
+    Computation<SIntT> sub = factory.sub(a, b);
     protocolProducer.append(sub);
     return sub;
   }
 
   @Override
-  public Computation<? extends SInt> mult(
-      SInt a, SInt b) {
-    Computation<? extends SInt> mult = factory.mult(a, b);
+  public Computation<SIntT> mult(
+      Computation<SIntT> a, Computation<SIntT> b) {
+    Computation<SIntT> mult = factory.mult(a, b);
     protocolProducer.append(mult);
     return mult;
   }
@@ -120,8 +120,7 @@ class AppendingBasicNumericFactory<SIntT extends SInt>
   }
 
   @Override
-  public Computation<? extends SInt> add(
-      SInt a, SInt b) {
+  public Computation<SIntT> add(Computation<SIntT> a, Computation<SIntT> b) {
     return append(factory.add(a, b));
   }
 

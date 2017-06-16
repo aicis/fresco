@@ -85,7 +85,7 @@ public class ComparisonProtocolFactoryImpl implements ComparisonProtocolFactory 
   }
 
   @Override
-  public Computation<? extends SInt> compare(SInt left, SInt right) {
+  public Computation<SInt> compare(SInt left, SInt right) {
     SInt result = bnf.getSInt();
     return getGreaterThanProtocol(left, right, result, false);
   }

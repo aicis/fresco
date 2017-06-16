@@ -31,8 +31,8 @@ class AppendingComparisonProtocolFactory implements ComparisonProtocolFactory {
   }
 
   @Override
-  public Computation<? extends SInt> compare(SInt x1, SInt x2) {
-    Computation<? extends SInt> cómpare = this.comparisonProtocolFactory.compare(x1, x2);
+  public Computation<SInt> compare(SInt x1, SInt x2) {
+    Computation<SInt> cómpare = this.comparisonProtocolFactory.compare(x1, x2);
     protocolBuilder.append(cómpare);
     return cómpare;
   }

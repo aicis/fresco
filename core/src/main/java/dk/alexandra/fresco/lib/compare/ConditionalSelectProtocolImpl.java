@@ -51,10 +51,10 @@ public class ConditionalSelectProtocolImpl extends SimpleProtocolProducer implem
   @Override
   protected ProtocolProducer initializeProtocolProducer() {
     return ProtocolBuilder.createRoot(factory, (protocolBuilder) -> {
-      BasicNumericFactory factory = protocolBuilder.createAppendingBasicNumericFactory();
-    Computation<? extends SInt> sub = factory.sub(a, b);
-    Computation<? extends SInt> mult = factory.mult(selector, sub.out());
-    factory.getAddProtocol(mult.out(), b, result);
+      BasicNumericFactory<SInt> factory = protocolBuilder.createAppendingBasicNumericFactory();
+      Computation<SInt> sub = factory.sub(a, b);
+      Computation<SInt> mult = factory.mult(selector, sub);
+      factory.getAddProtocol(mult.out(), b, result);
     }).build();
   }
 }

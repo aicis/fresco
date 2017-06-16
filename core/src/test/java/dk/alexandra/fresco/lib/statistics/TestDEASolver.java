@@ -26,6 +26,9 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.statistics;
 
+import dk.alexandra.fresco.framework.MPCException;
+import dk.alexandra.fresco.framework.value.SInt;
+import dk.alexandra.fresco.lib.statistics.DEASolver.AnalysisType;
 import java.util.ArrayList;
 import java.util.List;
 import org.hamcrest.core.Is;
@@ -33,58 +36,57 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import dk.alexandra.fresco.framework.MPCException;
-import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.statistics.DEASolver.AnalysisType;
-
 public class TestDEASolver {
 
-  private List<List<SInt>> inputValues = new ArrayList<List<SInt>>(); 
-  private List<List<SInt>> outputValues = new ArrayList<List<SInt>>();
-  private List<List<SInt>> inputBasis = new ArrayList<List<SInt>>(); 
-  private List<List<SInt>> outputBasis = new ArrayList<List<SInt>>();
-  
+  private List<List<SInt>> inputValues = new ArrayList<>();
+  private List<List<SInt>> outputValues = new ArrayList<>();
+  private List<List<SInt>> inputBasis = new ArrayList<>();
+  private List<List<SInt>> outputBasis = new ArrayList<>();
+
   @Before
-  public void setup(){
-    inputValues = new ArrayList<List<SInt>>(); 
-    outputValues = new ArrayList<List<SInt>>();
-    inputBasis = new ArrayList<List<SInt>>(); 
-    outputBasis = new ArrayList<List<SInt>>();
-    inputValues.add(new ArrayList<SInt>());
-    outputValues.add(new ArrayList<SInt>());
-    inputBasis.add(new ArrayList<SInt>());
-    outputBasis.add(new ArrayList<SInt>());
+  public void setup() {
+    inputValues = new ArrayList<>();
+    outputValues = new ArrayList<>();
+    inputBasis = new ArrayList<>();
+    outputBasis = new ArrayList<>();
+    inputValues.add(new ArrayList<>());
+    outputValues.add(new ArrayList<>());
+    inputBasis.add(new ArrayList<>());
+    outputBasis.add(new ArrayList<>());
   }
-  
+
   @Test
   public void testConsistentData() {
-    try{
-      new DEASolver(DEASolver.AnalysisType.INPUT_EFFICIENCY, inputValues, outputValues, inputBasis, outputBasis);
-    } catch(MPCException e) {
+    try {
+      new DEASolver(DEASolver.AnalysisType.INPUT_EFFICIENCY, inputValues, outputValues, inputBasis,
+          outputBasis);
+    } catch (MPCException e) {
       Assert.fail("Consistent data should be accepted");
     }
   }
 
   @Test
   public void testBasisMismatch() {
-    inputBasis.add(new ArrayList<SInt>());
-    
-    try{
-      new DEASolver(DEASolver.AnalysisType.INPUT_EFFICIENCY, inputValues, outputValues, inputBasis, outputBasis);
+    inputBasis.add(new ArrayList<>());
+
+    try {
+      new DEASolver(DEASolver.AnalysisType.INPUT_EFFICIENCY, inputValues, outputValues, inputBasis,
+          outputBasis);
       Assert.fail("Inconsistent data should not be accepted");
-    } catch(MPCException e) {
+    } catch (MPCException e) {
       Assert.assertThat(e.getMessage(), Is.is("Inconsistent dataset / query data"));
     }
   }
 
   @Test
   public void testQueryMismatch() {
-    inputValues.add(new ArrayList<SInt>());
-    
-    try{
-      new DEASolver(DEASolver.AnalysisType.INPUT_EFFICIENCY, inputValues, outputValues, inputBasis, outputBasis);
+    inputValues.add(new ArrayList<>());
+
+    try {
+      new DEASolver(DEASolver.AnalysisType.INPUT_EFFICIENCY, inputValues, outputValues, inputBasis,
+          outputBasis);
       Assert.fail("Inconsistent data should not be accepted");
-    } catch(MPCException e) {
+    } catch (MPCException e) {
       Assert.assertThat(e.getMessage(), Is.is("Inconsistent dataset / query data"));
     }
   }
@@ -94,11 +96,12 @@ public class TestDEASolver {
     inputValues.get(0).add(new DummySInt());
     inputBasis.get(0).add(new DummySInt());
     inputBasis.get(0).add(new DummySInt());
-    
-    try{
-      new DEASolver(DEASolver.AnalysisType.INPUT_EFFICIENCY, inputValues, outputValues, inputBasis, outputBasis);
+
+    try {
+      new DEASolver(DEASolver.AnalysisType.INPUT_EFFICIENCY, inputValues, outputValues, inputBasis,
+          outputBasis);
       Assert.fail("Inconsistent data should not be accepted");
-    } catch(MPCException e) {
+    } catch (MPCException e) {
       Assert.assertThat(e.getMessage(), Is.is("Inconsistent dataset / query data"));
     }
   }
@@ -108,55 +111,58 @@ public class TestDEASolver {
     outputValues.get(0).add(new DummySInt());
     outputBasis.get(0).add(new DummySInt());
     outputBasis.get(0).add(new DummySInt());
-    
-    try{
-      new DEASolver(DEASolver.AnalysisType.INPUT_EFFICIENCY, inputValues, outputValues, inputBasis, outputBasis);
+
+    try {
+      new DEASolver(DEASolver.AnalysisType.INPUT_EFFICIENCY, inputValues, outputValues, inputBasis,
+          outputBasis);
       Assert.fail("Inconsistent data should not be accepted");
-    } catch(MPCException e) {
+    } catch (MPCException e) {
       Assert.assertThat(e.getMessage(), Is.is("Inconsistent dataset / query data"));
     }
   }
 
   @Test
   public void testInconsistentInputBasis() {
-    outputBasis.add(new ArrayList<SInt>());
+    outputBasis.add(new ArrayList<>());
     inputValues.get(0).add(new DummySInt());
     inputValues.get(0).add(new DummySInt());
-    inputBasis.add(new ArrayList<SInt>());
+    inputBasis.add(new ArrayList<>());
     inputBasis.get(0).add(new DummySInt());
     inputBasis.get(0).add(new DummySInt());
     inputBasis.get(1).add(new DummySInt());
     inputBasis.get(1).add(new DummySInt());
     inputBasis.get(1).add(new DummySInt());
-    
-    try{
-      new DEASolver(DEASolver.AnalysisType.INPUT_EFFICIENCY, inputValues, outputValues, inputBasis, outputBasis);
+
+    try {
+      new DEASolver(DEASolver.AnalysisType.INPUT_EFFICIENCY, inputValues, outputValues, inputBasis,
+          outputBasis);
       Assert.fail("Inconsistent data should not be accepted");
-    } catch(MPCException e) {
+    } catch (MPCException e) {
       Assert.assertThat(e.getMessage(), Is.is("Inconsistent dataset / query data"));
     }
   }
-  
+
   @Test
   public void testInconsistentOutputBasis() {
-    inputBasis.add(new ArrayList<SInt>());
+    inputBasis.add(new ArrayList<>());
     outputValues.get(0).add(new DummySInt());
     outputValues.get(0).add(new DummySInt());
-    outputBasis.add(new ArrayList<SInt>());
+    outputBasis.add(new ArrayList<>());
     outputBasis.get(0).add(new DummySInt());
     outputBasis.get(0).add(new DummySInt());
     outputBasis.get(1).add(new DummySInt());
     outputBasis.get(1).add(new DummySInt());
     outputBasis.get(1).add(new DummySInt());
-    
-    try{
-      new DEASolver(DEASolver.AnalysisType.INPUT_EFFICIENCY, inputValues, outputValues, inputBasis, outputBasis);
+
+    try {
+      new DEASolver(DEASolver.AnalysisType.INPUT_EFFICIENCY, inputValues, outputValues, inputBasis,
+          outputBasis);
       Assert.fail("Inconsistent data should not be accepted");
-    } catch(MPCException e) {
+    } catch (MPCException e) {
       Assert.assertThat(e.getMessage(), Is.is("Inconsistent dataset / query data"));
     }
   }
-  
+
   @Test
   public void testIncosistentOutputValues() {
     outputBasis.get(0).add(new DummySInt());
@@ -164,41 +170,22 @@ public class TestDEASolver {
     outputValues.get(0).add(new DummySInt());
     outputValues.get(0).add(new DummySInt());
     outputValues.get(0).add(new DummySInt());
-    
-    try{
-      new DEASolver(DEASolver.AnalysisType.INPUT_EFFICIENCY, inputValues, outputValues, inputBasis, outputBasis);
+
+    try {
+      new DEASolver(DEASolver.AnalysisType.INPUT_EFFICIENCY, inputValues, outputValues, inputBasis,
+          outputBasis);
       Assert.fail("Inconsistent data should not be accepted");
-    } catch(MPCException e) {
+    } catch (MPCException e) {
       Assert.assertThat(e.getMessage(), Is.is("Inconsistent dataset / query data"));
     }
   }
-  
-  
+
+
   @Test
   public void testAnalysisType() {
-    Assert.assertThat(DEASolver.AnalysisType.INPUT_EFFICIENCY.toString(), Is.is("INPUT_EFFICIENCY"));
-    Assert.assertThat(DEASolver.AnalysisType.valueOf("INPUT_EFFICIENCY"), Is.is(AnalysisType.INPUT_EFFICIENCY));
+    Assert
+        .assertThat(DEASolver.AnalysisType.INPUT_EFFICIENCY.toString(), Is.is("INPUT_EFFICIENCY"));
+    Assert.assertThat(DEASolver.AnalysisType.valueOf("INPUT_EFFICIENCY"),
+        Is.is(AnalysisType.INPUT_EFFICIENCY));
   }
-  
-  @SuppressWarnings("serial")
-  private class DummySInt implements SInt{
-    public DummySInt() {
-      
-    }
-
-    @Override
-    public byte[] getSerializableContent() {
-      return null;
-    }
-
-    @Override
-    public void setSerializableContent(byte[] val) {
-    }
-
-    @Override
-    public boolean isReady() {
-      return false;
-    }
-  }
-  
 }

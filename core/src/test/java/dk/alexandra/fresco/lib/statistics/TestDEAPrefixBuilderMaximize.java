@@ -38,23 +38,22 @@ import org.junit.Test;
 public class TestDEAPrefixBuilderMaximize {
 
   private DEAPrefixBuilderMaximize builder;
-  
+
   @Before
-  public void setup(){
+  public void setup() {
     builder = new DEAPrefixBuilderMaximize();
   }
-  
+
   @Test //This will test the abstract PrefixBuilder class
   public void testBuildWithInconsistencies() {
-    try{
+    try {
       builder.basisInputs(null);
       builder.build();
       Assert.fail("Can not build when not ready.");
     } catch (IllegalStateException ignored) {
     }
 
-    
-    try{
+    try {
       builder.basisInputs(new ArrayList<>());
       builder.getBasisInputs().add(new SInt[2]);
       builder.build();
@@ -62,7 +61,7 @@ public class TestDEAPrefixBuilderMaximize {
     } catch (IllegalStateException ignored) {
     }
     System.out.println("check 1 passed");
-    try{
+    try {
       builder.getTargetInputs().add(new DummySInt());
       builder.getBasisOutputs().add(new SInt[2]);
       builder.build();
@@ -70,7 +69,7 @@ public class TestDEAPrefixBuilderMaximize {
     } catch (IllegalStateException ignored) {
     }
     System.out.println("check 2 passed");
-    try{
+    try {
       builder.getTargetOutputs().add(new DummySInt());
       builder.getBasisInputs().add(new SInt[4]);
       builder.getTargetInputs().add(new DummySInt());
@@ -79,7 +78,7 @@ public class TestDEAPrefixBuilderMaximize {
     } catch (IllegalStateException ignored) {
     }
     System.out.println("check 3 passed");
-    try{
+    try {
       builder.basisInputs(new ArrayList<>());
       builder.getBasisInputs().add(new SInt[2]);
       builder.getTargetInputs().remove(1);
@@ -91,18 +90,18 @@ public class TestDEAPrefixBuilderMaximize {
     }
     System.out.println("check 5 passed");
   }
-  
+
   @Test
   public void testPrefixHandling() {
     ProtocolProducer producer = new DummyProducer("first");
     builder.prefix(producer);
-    Assert.assertThat(((DummyProducer)builder.getCircuit()).getName(), Is.is("first"));
-    
+    Assert.assertThat(((DummyProducer) builder.getCircuit()).getName(), Is.is("first"));
+
     builder = new DEAPrefixBuilderMaximize();
     builder.addPrefix(producer);
-    Assert.assertThat(((DummyProducer)builder.getCircuit()).getName(), Is.is("first"));
+    Assert.assertThat(((DummyProducer) builder.getCircuit()).getName(), Is.is("first"));
     ProtocolProducer second = new DummyProducer("second");
-    
+
     builder.addPrefix(second);
     ProtocolProducer circuit = builder.getCircuit();
     Assert.assertNotNull(circuit);
@@ -148,7 +147,7 @@ public class TestDEAPrefixBuilderMaximize {
     builder.addTargetOutput(new DummySInt());
     Assert.assertThat(builder.getTargetOutputs().size(), Is.is(1));
   }
-  
+
   private class DummyProducer implements ProtocolProducer {
 
     private final String name;
@@ -160,7 +159,7 @@ public class TestDEAPrefixBuilderMaximize {
     String getName() {
       return name;
     }
-    
+
     @Override
     public void getNextProtocols(ProtocolCollection protocolCollection) {
     }
@@ -170,30 +169,6 @@ public class TestDEAPrefixBuilderMaximize {
       // TODO Auto-generated method stub
       return false;
     }
-    
+
   }
-  
-    
-  @SuppressWarnings("serial")
-  private class DummySInt implements SInt{
-
-    DummySInt() {
-      
-    }
-
-    @Override
-    public byte[] getSerializableContent() {
-      return null;
-    }
-
-    @Override
-    public void setSerializableContent(byte[] val) {
-    }
-
-    @Override
-    public boolean isReady() {
-      return false;
-    }
-  }
-  
 }
