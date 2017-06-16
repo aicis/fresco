@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -28,26 +28,26 @@ package dk.alexandra.fresco.lib.math.integer.linalg;
 
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.field.integer.MultProtocolFactory;
+import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 
-public class EntrywiseProductFactoryImpl implements EntrywiseProductFactory{
+public class EntrywiseProductFactoryImpl implements EntrywiseProductFactory {
 
-	private final MultProtocolFactory mcf;
-	
-	public EntrywiseProductFactoryImpl(MultProtocolFactory mcf) {
-	this.mcf = mcf;
-	}
-	
-	@Override
-	public EntrywiseProductProtocol getEntrywiseProductProtocol(SInt[] as, SInt[] bs,
-			SInt[] results) {
-		return new EntrywiseProductProtocolImpl(as, bs, results, mcf);
-	}
+  private final BasicNumericFactory mcf;
 
-	@Override
-	public EntrywiseProductProtocol getEntrywiseProductProtocol(SInt[] as, OInt[] bs,
-			SInt[] results) {
-		return new EntrywiseProductProtocolImpl(as, bs, results, mcf);
-	}
+  public EntrywiseProductFactoryImpl(BasicNumericFactory mcf) {
+    this.mcf = mcf;
+  }
+
+  @Override
+  public EntrywiseProductProtocol getEntrywiseProductProtocol(SInt[] as, SInt[] bs,
+      SInt[] results) {
+    return new EntrywiseProductProtocolImpl(as, bs, results, mcf);
+  }
+
+  @Override
+  public EntrywiseProductProtocol getEntrywiseProductProtocol(SInt[] as, OInt[] bs,
+      SInt[] results) {
+    return new EntrywiseProductProtocolImpl(as, bs, results, mcf);
+  }
 
 }

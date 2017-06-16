@@ -36,7 +36,6 @@ import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.compare.MiscOIntGenerators;
 import dk.alexandra.fresco.lib.compare.RandomAdditiveMaskFactory;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
-import dk.alexandra.fresco.lib.field.integer.MultByConstantFactory;
 import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
 import dk.alexandra.fresco.lib.math.integer.HammingDistanceFactory;
@@ -57,10 +56,7 @@ public class EqualityProtocolImplWithPreprocessing implements EqualityProtocol {
 
   // Factories
   private final BasicNumericFactory<SInt> factory;
-  private final MultByConstantFactory mbcFactory;
-  //	private final NumericBitProvider bitProvider;
   private final PreprocessedExpPipeFactory expFactory;
-  //	private final AddProvider addProvider;
   private final InnerProductFactory innerProdFactory;
   private final ExpFromOIntFactory expFromOIntFactory;
   private final HammingDistanceFactory hammingFactory;
@@ -82,7 +78,7 @@ public class EqualityProtocolImplWithPreprocessing implements EqualityProtocol {
 //RandomAdditiveMaskProvider randomAddMaskProvider) {
   public EqualityProtocolImplWithPreprocessing(int bitLength, int securityParam,
       SInt x, SInt y, SInt result,
-      BasicNumericFactory<SInt> factory, MultByConstantFactory mbcFactory,
+      BasicNumericFactory<SInt> factory,
       PreprocessedExpPipeFactory expFactory,
       InnerProductFactory innerProdFactory, MiscOIntGenerators miscOIntGenerator,
       ExpFromOIntFactory expFromOIntFactory) {
@@ -92,10 +88,7 @@ public class EqualityProtocolImplWithPreprocessing implements EqualityProtocol {
     this.y = y;
     this.result = result;
     this.factory = factory;
-    this.mbcFactory = mbcFactory;
-//		this.bitProvider = bitProvider;
     this.expFactory = expFactory;
-//		this.addProvider = addProvider;
     this.innerProdFactory = innerProdFactory;
     this.expFromOIntFactory = expFromOIntFactory;
     this.hammingFactory = null; // hammingProvider;
@@ -191,7 +184,7 @@ public class EqualityProtocolImplWithPreprocessing implements EqualityProtocol {
     SInt[] powers = new SInt[bitLength];
     for (int i = 0; i < bitLength; i++) {
       powers[i] = factory.getSInt();
-      unmaskGPs[i] = mbcFactory.getMultProtocol(maskedPowers[i], R[i], powers[i]);
+      unmaskGPs[i] = factory.getMultProtocol(maskedPowers[i], R[i], powers[i]);
     }
 
     OInt[] polynomialCoefficients = miscOIntGenerator.getPoly(bitLength, factory.getModulus());

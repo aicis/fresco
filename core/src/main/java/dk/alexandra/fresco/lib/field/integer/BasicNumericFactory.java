@@ -40,9 +40,7 @@ import java.math.BigInteger;
  * A factory that produces protocols that operate on elements in a finite field.
  */
 public interface BasicNumericFactory<SIntT extends SInt> extends SIntFactory, OIntFactory,
-    MultProtocolFactory,
-    ProtocolFactory, IOIntProtocolFactory, NumericBitFactory, RandomFieldElementFactory<SIntT>,
-    AddByConstantProtocolFactory {
+    ProtocolFactory, IOIntProtocolFactory, NumericBitFactory, RandomFieldElementFactory<SIntT> {
 
   /**
    * Returns the maximum number of bits a number in the field can contain.
@@ -75,4 +73,16 @@ public interface BasicNumericFactory<SIntT extends SInt> extends SIntFactory, OI
   Computation<? extends SInt> getSubtractProtocol(OInt a, SInt b, SInt out);
 
   Computation<? extends SInt> getSubtractProtocol(SInt a, OInt b, SInt out);
+
+  Computation<? extends SInt> getMultProtocol(SInt a, SInt b, SInt out);
+
+  Computation<? extends SInt> mult(SInt a, SInt b);
+
+  /**
+   * @param a input - constant which is known
+   * @param b input - secret shared element
+   * @param c output - [c]=a*[b]
+   * @return the protocol that computes the multiplication
+   */
+  Computation<? extends SInt> getMultProtocol(OInt a, SInt b, SInt c);
 }
