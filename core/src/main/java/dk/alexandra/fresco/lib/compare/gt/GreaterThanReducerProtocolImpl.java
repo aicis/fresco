@@ -39,7 +39,6 @@ import dk.alexandra.fresco.lib.compare.zerotest.ZeroTestProtocolFactory;
 import dk.alexandra.fresco.lib.field.integer.AddByConstantProtocolFactory;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.field.integer.MultByConstantFactory;
-import dk.alexandra.fresco.lib.field.integer.SubtractProtocolFactory;
 import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
 import dk.alexandra.fresco.lib.helper.SingleProtocolProducer;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
@@ -72,7 +71,6 @@ public class GreaterThanReducerProtocolImpl implements GreaterThanProtocol, Comp
     this.bitFactory = bitFactory;
     this.abcFactory = factory;
     this.mbcFactory = factory;
-    this.subFactory = factory;
     this.maskFactory = maskFactory;
     this.ztFactory = ztFactory;
     this.miscOIntGenerator = miscOIntGenerator;
@@ -102,7 +100,6 @@ public class GreaterThanReducerProtocolImpl implements GreaterThanProtocol, Comp
   private final AddByConstantProtocolFactory abcFactory;
   private final MultByConstantFactory mbcFactory;
 
-  private final SubtractProtocolFactory subFactory;
 
   private final RandomAdditiveMaskFactory maskFactory;
   private final ZeroTestProtocolFactory ztFactory;
@@ -291,7 +288,7 @@ public class GreaterThanReducerProtocolImpl implements GreaterThanProtocol, Comp
           SInt additiveError = factory.getSInt();
           SInt resUnshifted = factory.getSInt();
 
-          Computation subCirc4_1 = subFactory.getSubtractProtocol(mBar, rBar, reducedWithError);
+          Computation subCirc4_1 = factory.getSubtractProtocol(mBar, rBar, reducedWithError);
           Computation mbcCirc4 = mbcFactory.getMultProtocol(twoToBitLength, u, additiveError);
           Computation addCirc4 = factory
               .getAddProtocol(additiveError, reducedWithError, reducedNoError);
