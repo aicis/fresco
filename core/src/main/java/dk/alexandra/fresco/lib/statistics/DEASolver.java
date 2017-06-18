@@ -31,7 +31,7 @@ import dk.alexandra.fresco.framework.FactoryProducer;
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.ProtocolProducer;
-import dk.alexandra.fresco.framework.builder.LegacyProducer;
+import dk.alexandra.fresco.framework.builder.LegacyNumericProducer;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.field.integer.RandomFieldElementFactory;
@@ -152,7 +152,7 @@ public class DEASolver implements Application {
     // TODO get security parameter from somewhere
     LPFactory lpFactory = new LPFactoryImpl(64, bnFactory, localInvFactory, numericBitFactory,
         expFromOIntFactory,
-        expFactory, randFactory, new LegacyProducer<>(bnFactory));
+        expFactory, randFactory, new LegacyNumericProducer<>(bnFactory));
 
     for (LPPrefix prefix : prefixes) {
       seq.append(prefix.getPrefix());

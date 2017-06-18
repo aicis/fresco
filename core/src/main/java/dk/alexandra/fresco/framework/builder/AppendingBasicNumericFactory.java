@@ -47,22 +47,6 @@ class AppendingBasicNumericFactory<SIntT extends SInt>
   }
 
   @Override
-  public Computation<SIntT> sub(
-      Computation<SIntT> a, Computation<SIntT> b) {
-    Computation<SIntT> sub = factory.sub(a, b);
-    protocolProducer.append(sub);
-    return sub;
-  }
-
-  @Override
-  public Computation<SIntT> mult(
-      Computation<SIntT> a, Computation<SIntT> b) {
-    Computation<SIntT> mult = factory.mult(a, b);
-    protocolProducer.append(mult);
-    return mult;
-  }
-
-  @Override
   public ProtocolProducer createRandomSecretSharedBitProtocol(
       SInt bit) {
     ProtocolProducer randomSecretSharedBitProtocol = factory
@@ -117,11 +101,6 @@ class AppendingBasicNumericFactory<SIntT extends SInt>
   @Override
   public OInt getRandomOInt() {
     return factory.getRandomOInt();
-  }
-
-  @Override
-  public Computation<SIntT> add(Computation<SIntT> a, Computation<SIntT> b) {
-    return append(factory.add(a, b));
   }
 
   @Override

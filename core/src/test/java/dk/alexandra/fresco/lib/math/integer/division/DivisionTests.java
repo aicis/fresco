@@ -26,6 +26,7 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.math.integer.division;
 
+import dk.alexandra.fresco.framework.FactoryNumericProducer;
 import dk.alexandra.fresco.framework.FactoryProducer;
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.ProtocolProducer;
@@ -109,7 +110,7 @@ public class DivisionTests {
               ComparisonProtocolFactory comparisonFactory = new ComparisonProtocolFactoryImpl(80,
                   basicNumericFactory, localInversionFactory, preprocessedNumericBitFactory,
                   expFromOIntFactory, preprocessedExpPipeFactory,
-                  factoryProducer);
+                  (FactoryNumericProducer<SInt>) factoryProducer);
               DivisionFactory divisionFactory = new DivisionFactoryImpl(basicNumericFactory,
                   rightShiftFactory, bitLengthFactory, exponentiationFactory, comparisonFactory);
 
@@ -189,7 +190,7 @@ public class DivisionTests {
               ComparisonProtocolFactory comparisonFactory = new ComparisonProtocolFactoryImpl(80,
                   basicNumericFactory, localInversionFactory, preprocessedNumericBitFactory,
                   expFromOIntFactory, preprocessedExpPipeFactory,
-                  factoryProducer);
+                  (FactoryNumericProducer<SInt>) factoryProducer);
               DivisionFactory divisionFactory = new DivisionFactoryImpl(basicNumericFactory,
                   rightShiftFactory, bitLengthFactory, exponentiationFactory, comparisonFactory);
 

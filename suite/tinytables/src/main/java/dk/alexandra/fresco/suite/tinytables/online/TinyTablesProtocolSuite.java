@@ -28,7 +28,7 @@ package dk.alexandra.fresco.suite.tinytables.online;
 
 import dk.alexandra.fresco.framework.FactoryProducer;
 import dk.alexandra.fresco.framework.Reporter;
-import dk.alexandra.fresco.framework.builder.LegacyProducer;
+import dk.alexandra.fresco.framework.builder.LegacyBinaryProducer;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.tinytables.online.protocols.TinyTablesANDProtocol;
@@ -91,7 +91,7 @@ public class TinyTablesProtocolSuite implements ProtocolSuite {
     } catch (IOException e) {
       Reporter.severe("Failed to load TinyTables: " + e.getMessage());
     }
-    return new LegacyProducer(new TinyTablesFactory());
+    return new LegacyBinaryProducer(new TinyTablesFactory());
   }
 
   private TinyTablesStorage loadTinyTables(File file) throws IOException,

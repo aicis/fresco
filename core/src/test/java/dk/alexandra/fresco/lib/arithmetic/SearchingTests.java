@@ -26,6 +26,7 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.arithmetic;
 
+import dk.alexandra.fresco.framework.FactoryNumericProducer;
 import dk.alexandra.fresco.framework.FactoryProducer;
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.ProtocolProducer;
@@ -105,7 +106,8 @@ public class SearchingTests {
                 PreprocessedExpPipeFactory expFactory = (PreprocessedExpPipeFactory) producer;
                 RandomFieldElementFactory randFactory = (RandomFieldElementFactory) producer;
                 LPFactory lpFactory = new LPFactoryImpl(80, bnf, localInvFactory, numericBitFactory,
-                    expFromOIntFactory, expFactory, randFactory, factoryProducer);
+                    expFromOIntFactory, expFactory, randFactory,
+                    (FactoryNumericProducer) factoryProducer);
                 LookUpProtocolFactory<SInt> lpf = new LookupProtocolFactoryImpl(80, lpFactory, bnf);
                 SInt sOut = bnf.getSInt(NOTFOUND);
                 SequentialProtocolProducer sequentialProtocolProducer = new SequentialProtocolProducer();

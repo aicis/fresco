@@ -26,6 +26,7 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.math.integer.stat;
 
+import dk.alexandra.fresco.framework.FactoryNumericProducer;
 import dk.alexandra.fresco.framework.FactoryProducer;
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.ProtocolProducer;
@@ -110,7 +111,7 @@ public class StatisticsTests {
                   basicNumericFactory, integerToBitsFactory);
               ComparisonProtocolFactory comparisonFactory = new ComparisonProtocolFactoryImpl(80,
                   basicNumericFactory, localInversionFactory, preprocessedNumericBitFactory,
-                  expFromOIntFactory, preprocessedExpPipeFactory, factory);
+                  expFromOIntFactory, preprocessedExpPipeFactory, (FactoryNumericProducer) factory);
               DivisionFactory euclidianDivisionFactory = new DivisionFactoryImpl(
                   basicNumericFactory, rightShiftFactory, bitLengthFactory, exponentiationFactory,
                   comparisonFactory);

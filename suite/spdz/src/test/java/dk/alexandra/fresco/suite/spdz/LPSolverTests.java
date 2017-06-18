@@ -26,6 +26,7 @@
  *******************************************************************************/
 package dk.alexandra.fresco.suite.spdz;
 
+import dk.alexandra.fresco.framework.FactoryNumericProducer;
 import dk.alexandra.fresco.framework.FactoryProducer;
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.ProtocolFactory;
@@ -82,7 +83,8 @@ class LPSolverTests {
               PreprocessedExpPipeFactory expFactory = (PreprocessedExpPipeFactory) producer;
               RandomFieldElementFactory randFactory = (RandomFieldElementFactory) producer;
               LPFactory lpFactory = new LPFactoryImpl(80, bnFactory, localInvFactory,
-                  numericBitFactory, expFromOIntFactory, expFactory, randFactory, factoryProducer);
+                  numericBitFactory, expFromOIntFactory, expFactory, randFactory,
+                  (FactoryNumericProducer<SInt>) factoryProducer);
               File pattern = new File("src/test/resources/lp/pattern7.csv");
               File program = new File("src/test/resources/lp/program7.csv");
               LPInputReader inputreader;

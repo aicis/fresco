@@ -1,7 +1,7 @@
 package dk.alexandra.fresco.framework.builder;
 
 import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.FactoryProducer;
+import dk.alexandra.fresco.framework.FactoryNumericProducer;
 import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.ProtocolProducer;
@@ -34,9 +34,9 @@ public abstract class ProtocolBuilder<SIntT extends SInt> {
   private LocalInversionFactory localInvFactory;
   private ExpFromOIntFactory expFromOIntFactory;
   private PreprocessedExpPipeFactory expFactory;
-  private FactoryProducer factory;
+  private FactoryNumericProducer<SIntT> factory;
 
-  private ProtocolBuilder(FactoryProducer<SIntT> factory) {
+  private ProtocolBuilder(FactoryNumericProducer<SIntT> factory) {
     this.factory = factory;
     this.basicNumericFactory = factory.getBasicNumericFactory();
     if (factory.getProtocolFactory() instanceof LocalInversionFactory) {
@@ -56,13 +56,13 @@ public abstract class ProtocolBuilder<SIntT extends SInt> {
       this.comparisonProtocolFactory =
           new ComparisonProtocolFactoryImpl(MAGIC_SECURE_NUMBER, basicNumericFactory,
               localInvFactory, basicNumericFactory, expFromOIntFactory, expFactory,
-              new LegacyProducer<>(basicNumericFactory));
+              new LegacyNumericProducer<>(basicNumericFactory));
     }
     this.protocols = new LinkedList<>();
   }
 
   public static <SIntT extends SInt> ProtocolBuilder<SIntT> createRoot(
-      FactoryProducer factory, Consumer<SequentialProtocolBuilder<SIntT>> consumer) {
+      FactoryNumericProducer<SIntT> factory, Consumer<SequentialProtocolBuilder<SIntT>> consumer) {
     ProtocolBuilder<SIntT> builder = new SequentialProtocolBuilder<>(factory);
     builder.addConsumer(consumer, () -> new SequentialProtocolBuilder<>(factory));
     return builder;
@@ -139,6 +139,10 @@ public abstract class ProtocolBuilder<SIntT extends SInt> {
     }
   }
 
+  public NumericBuilder<SIntT> createNumericBuilder() {
+    return factory.createNumericBuilder(this);
+  }
+
   public BasicNumericFactory<SIntT> createAppendingBasicNumericFactory() {
     return new AppendingBasicNumericFactory<>(this.basicNumericFactory, this);
   }
@@ -185,7 +189,7 @@ public abstract class ProtocolBuilder<SIntT extends SInt> {
 
   public static class SequentialProtocolBuilder<SIntT extends SInt> extends ProtocolBuilder<SIntT> {
 
-    private SequentialProtocolBuilder(FactoryProducer factory) {
+    private SequentialProtocolBuilder(FactoryNumericProducer<SIntT> factory) {
       super(factory);
     }
 
@@ -199,7 +203,7 @@ public abstract class ProtocolBuilder<SIntT extends SInt> {
 
   public static class ParallelProtocolBuilder<SIntT extends SInt> extends ProtocolBuilder<SIntT> {
 
-    private ParallelProtocolBuilder(FactoryProducer factory) {
+    private ParallelProtocolBuilder(FactoryNumericProducer<SIntT> factory) {
       super(factory);
     }
 

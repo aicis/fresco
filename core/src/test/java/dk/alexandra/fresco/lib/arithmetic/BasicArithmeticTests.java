@@ -27,6 +27,7 @@
 package dk.alexandra.fresco.lib.arithmetic;
 
 import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.FactoryNumericProducer;
 import dk.alexandra.fresco.framework.FactoryProducer;
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.ProtocolProducer;
@@ -539,7 +540,7 @@ public class BasicArithmeticTests {
               ComparisonProtocolFactory comp = new ComparisonProtocolFactoryImpl(80, fac,
                   (LocalInversionFactory) producer, (NumericBitFactory) producer,
                   (ExpFromOIntFactory) producer, (PreprocessedExpPipeFactory) producer,
-                  factoryProducer);
+                  (FactoryNumericProducer) factoryProducer);
               NumericIOBuilder ioBuilder = new NumericIOBuilder(fac);
               NumericProtocolBuilder builder = new NumericProtocolBuilder(fac);
               BigInteger[] bns = new BigInteger[]{

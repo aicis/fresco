@@ -2,10 +2,10 @@ package dk.alexandra.fresco.lib.math.integer;
 
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.RecursiveComputation;
+import dk.alexandra.fresco.framework.builder.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder.ParallelProtocolBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder.SequentialProtocolBuilder;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
@@ -63,13 +63,13 @@ public class AddSIntList<SIntT extends SInt> extends RecursiveComputation<SIntT>
     @Override
     public void accept(ParallelProtocolBuilder<SIntT> parallel) {
       out = new ArrayList<>();
-      BasicNumericFactory<SIntT> appendingFactory = parallel.createAppendingBasicNumericFactory();
+      NumericBuilder<SIntT> numericBuilder = parallel.createNumericBuilder();
       Computation<SIntT> left = null;
       for (Computation<SIntT> input : input) {
         if (left == null) {
           left = input;
         } else {
-          out.add(appendingFactory.add(left, input));
+          out.add(numericBuilder.add(left, input));
           left = null;
         }
       }

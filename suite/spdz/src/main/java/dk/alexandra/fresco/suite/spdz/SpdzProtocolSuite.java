@@ -27,7 +27,6 @@
 package dk.alexandra.fresco.suite.spdz;
 
 import dk.alexandra.fresco.framework.FactoryProducer;
-import dk.alexandra.fresco.framework.builder.LegacyProducer;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.configuration.SpdzConfiguration;
 import dk.alexandra.fresco.suite.spdz.utils.SpdzFactory;
@@ -43,7 +42,7 @@ public class SpdzProtocolSuite implements ProtocolSuite<SpdzResourcePool> {
   @Override
   public FactoryProducer init(SpdzResourcePool resourcePool) {
     int maxBitLength = spdzConf.getMaxBitLength();
-    return new LegacyProducer<>(
+    return new SpdzProducer(
         new SpdzFactory(resourcePool.getStore(), resourcePool.getMyId(), maxBitLength));
   }
 

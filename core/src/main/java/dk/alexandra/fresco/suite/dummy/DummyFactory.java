@@ -36,7 +36,6 @@ import dk.alexandra.fresco.lib.field.bool.BasicLogicFactory;
 import dk.alexandra.fresco.lib.field.bool.CloseBoolProtocol;
 import dk.alexandra.fresco.lib.field.bool.OpenBoolProtocol;
 import dk.alexandra.fresco.lib.field.bool.XorProtocol;
-import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.helper.SingleProtocolProducer;
 import dk.alexandra.fresco.lib.logic.AbstractBinaryFactory;
 import org.apache.commons.lang.NotImplementedException;
@@ -137,8 +136,5 @@ public class DummyFactory extends AbstractBinaryFactory implements FactoryProduc
     return this;
   }
 
-  @Override
-  public BasicNumericFactory getBasicNumericFactory() {
-    throw new RuntimeException("Not implemented");
-  }
+
 }

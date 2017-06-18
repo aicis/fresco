@@ -28,14 +28,15 @@ package dk.alexandra.fresco.lib.statistics;
 
 import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.FactoryNumericProducer;
 import dk.alexandra.fresco.framework.FactoryProducer;
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.ProtocolProducer;
+import dk.alexandra.fresco.framework.builder.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder.SequentialProtocolBuilder;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.compare.ComparisonProtocolFactory;
-import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.math.integer.AddSIntList;
 import java.util.ArrayList;
 import java.util.List;
@@ -89,7 +90,7 @@ public class CreditRater implements Application<SInt> {
   @Override
   @SuppressWarnings("unchecked")
   public ProtocolProducer prepareApplication(FactoryProducer provider) {
-    return ProtocolBuilder.createRoot(provider, (sequential) -> {
+    return ProtocolBuilder.createRoot((FactoryNumericProducer<SInt>) provider, (sequential) -> {
       List<Computation<SInt>> individualScores = new ArrayList<>(this.values.size());
 
       sequential.createParallelSubFactory((parallel) -> {
@@ -153,24 +154,24 @@ public class CreditRater implements Application<SInt> {
       });
       // Add "x > last interval definition" to comparisons
       rootBuilder.createSequentialSubFactory((builder) -> {
-        BasicNumericFactory<SInt> factory = builder.createAppendingBasicNumericFactory();
-        SInt one = factory.getSInt(1);
-        comparisons.add(factory.sub(one, comparisons.get(comparisons.size() - 1)).out());
+        NumericBuilder<SInt> numericBuilder = builder.createNumericBuilder();
+        SInt one = builder.createAppendingBasicNumericFactory().getSInt(1);
+        comparisons.add(numericBuilder.sub(one, comparisons.get(comparisons.size() - 1)).out());
       });
       //Comparisons now contain if x <= each definition and if x>= last definition
 
       List<Computation<SInt>> intermediateScores = new ArrayList<>();
       rootBuilder.createParallelSubFactory((parallelBuilder) -> {
-        BasicNumericFactory<SInt> factory =
-            parallelBuilder.createAppendingBasicNumericFactory();
-        intermediateScores.add(factory.mult(comparisons.get(0), scores.get(0)));
+        NumericBuilder<SInt> numericBuilder =
+            parallelBuilder.createNumericBuilder();
+        intermediateScores.add(numericBuilder.mult(comparisons.get(0), scores.get(0)));
         for (int i = 1; i < scores.size() - 1; i++) {
-          Computation<SInt> hit = factory.sub(comparisons.get(i), comparisons.get(i - 1));
-          intermediateScores.add(factory.mult(hit, scores.get(i)));
+          Computation<SInt> hit = numericBuilder.sub(comparisons.get(i), comparisons.get(i - 1));
+          intermediateScores.add(numericBuilder.mult(hit, scores.get(i)));
         }
         Computation<SInt> a = comparisons.get(scores.size() - 1);
         Computation<SInt> b = scores.get(scores.size() - 1);
-        intermediateScores.add(factory.mult(a, b));
+        intermediateScores.add(numericBuilder.mult(a, b));
       });
       AddSIntList<SInt> consumer = new AddSIntList<>(intermediateScores);
       this.delegageComputation = rootBuilder.createSequentialSubFactory(consumer);

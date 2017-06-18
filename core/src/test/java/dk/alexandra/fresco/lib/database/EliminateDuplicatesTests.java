@@ -1,5 +1,6 @@
 package dk.alexandra.fresco.lib.database;
 
+import dk.alexandra.fresco.framework.FactoryNumericProducer;
 import dk.alexandra.fresco.framework.FactoryProducer;
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.ProtocolProducer;
@@ -72,7 +73,7 @@ class EliminateDuplicatesTests {
               ComparisonProtocolFactoryImpl compFactory = new ComparisonProtocolFactoryImpl(
                   80, bnFactory, localInvFactory,
                   numericBitFactory, expFromOIntFactory,
-                  expFactory, factoryProducer);
+                  expFactory, (FactoryNumericProducer<SInt>) factoryProducer);
 
               NumericIOBuilder ioBuilder = new NumericIOBuilder(bnFactory);
               FindDuplicatesProtocolBuilder findDuplicatesBuilder = new FindDuplicatesProtocolBuilder(
@@ -153,7 +154,7 @@ class EliminateDuplicatesTests {
               ComparisonProtocolFactoryImpl compFactory = new ComparisonProtocolFactoryImpl(
                   80, bnFactory, localInvFactory,
                   numericBitFactory, expFromOIntFactory,
-                  expFactory, factoryProducer);
+                  expFactory, (FactoryNumericProducer<SInt>) factoryProducer);
 
               NumericIOBuilder ioBuilder = new NumericIOBuilder(bnFactory);
               FindDuplicatesProtocolBuilder findDuplicatesBuilder = new FindDuplicatesProtocolBuilder(
@@ -236,7 +237,7 @@ class EliminateDuplicatesTests {
               ComparisonProtocolFactoryImpl compFactory = new ComparisonProtocolFactoryImpl(
                   80, bnFactory, localInvFactory,
                   numericBitFactory, expFromOIntFactory,
-                  expFactory, factoryProducer);
+                  expFactory, (FactoryNumericProducer<SInt>) factoryProducer);
 
               NumericIOBuilder ioBuilder = new NumericIOBuilder(bnFactory);
               FindDuplicatesProtocolBuilder findDuplicatesBuilder = new FindDuplicatesProtocolBuilder(

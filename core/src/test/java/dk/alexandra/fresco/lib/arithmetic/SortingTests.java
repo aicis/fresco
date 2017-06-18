@@ -26,6 +26,7 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.arithmetic;
 
+import dk.alexandra.fresco.framework.FactoryNumericProducer;
 import dk.alexandra.fresco.framework.FactoryProducer;
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.ProtocolProducer;
@@ -87,7 +88,7 @@ public class SortingTests {
               ComparisonProtocolFactoryImpl compFactory = new ComparisonProtocolFactoryImpl(
                   80, bnFactory, localInvFactory,
                   numericBitFactory, expFromOIntFactory,
-                  expFactory, factoryProducer);
+                  expFactory, (FactoryNumericProducer) factoryProducer);
 
               NumericIOBuilder ioBuilder = new NumericIOBuilder(bnFactory);
               SortingProtocolBuilder isSortedBuilder = new SortingProtocolBuilder(compFactory,
@@ -153,7 +154,7 @@ public class SortingTests {
               ComparisonProtocolFactoryImpl compFactory = new ComparisonProtocolFactoryImpl(
                   80, bnFactory, localInvFactory,
                   numericBitFactory, expFromOIntFactory,
-                  expFactory, factoryProducer);
+                  expFactory, (FactoryNumericProducer) factoryProducer);
 
               NumericIOBuilder ioBuilder = new NumericIOBuilder(bnFactory);
               SortingProtocolBuilder isSortedBuilder = new SortingProtocolBuilder(compFactory,
@@ -217,7 +218,7 @@ public class SortingTests {
               ComparisonProtocolFactoryImpl compFactory = new ComparisonProtocolFactoryImpl(
                   80, bnFactory, localInvFactory,
                   numericBitFactory, expFromOIntFactory,
-                  expFactory, factoryProducer);
+                  expFactory, (FactoryNumericProducer) factoryProducer);
 
               NumericIOBuilder ioBuilder = new NumericIOBuilder(bnFactory);
               SortingProtocolBuilder isSortedBuilder = new SortingProtocolBuilder(compFactory,
@@ -297,7 +298,7 @@ public class SortingTests {
               ComparisonProtocolFactoryImpl compFactory = new ComparisonProtocolFactoryImpl(
                   80, bnFactory, localInvFactory,
                   numericBitFactory, expFromOIntFactory,
-                  expFactory, factoryProducer);
+                  expFactory, (FactoryNumericProducer) factoryProducer);
 
               NumericIOBuilder ioBuilder = new NumericIOBuilder(bnFactory);
               SortingProtocolBuilder isSortedBuilder = new SortingProtocolBuilder(compFactory,

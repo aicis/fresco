@@ -62,11 +62,6 @@ public interface BasicNumericFactory<SIntT extends SInt> extends SIntFactory, OI
 
   Computation<? extends SInt> getAddProtocol(SInt a, SInt b, SInt out);
 
-  Computation<SIntT> add(Computation<SIntT> a, Computation<SIntT> b);
-
-  Computation<SIntT> sub(Computation<SIntT> a, Computation<SIntT> b);
-
-  Computation<SIntT> mult(Computation<SIntT> a, Computation<SIntT> b);
 
   Computation<? extends SInt> getAddProtocol(SInt input, OInt openInput, SInt out);
 

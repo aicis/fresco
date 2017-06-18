@@ -41,17 +41,14 @@ import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzOInt;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzAddProtocol;
-import dk.alexandra.fresco.suite.spdz.gates.SpdzAddProtocol4;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzInputProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzKnownSIntProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzLocalInversionProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzMultProtocol;
-import dk.alexandra.fresco.suite.spdz.gates.SpdzMultProtocol4;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzOutputProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzOutputToAllProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzRandomProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzSubtractProtocol;
-import dk.alexandra.fresco.suite.spdz.gates.SpdzSubtractProtocol4;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
 import java.math.BigInteger;
 import java.security.SecureRandom;
@@ -180,11 +177,6 @@ public class SpdzFactory implements BasicNumericFactory<SpdzSInt>,
     return new SpdzAddProtocol(a, b, out);
   }
 
-  @Override
-  public Computation<SpdzSInt> add(Computation<SpdzSInt> a, Computation<SpdzSInt> b) {
-    SpdzSInt out = getSInt();
-    return new SpdzAddProtocol4(a, b, out);
-  }
 
   @Override
   public NativeProtocol<? extends SInt, ?> getAddProtocol(SInt a, OInt b, SInt out) {
@@ -196,16 +188,6 @@ public class SpdzFactory implements BasicNumericFactory<SpdzSInt>,
     return new SpdzSubtractProtocol(a, b, out, this);
   }
 
-  @Override
-  public Computation<SpdzSInt> sub(Computation<SpdzSInt> a, Computation<SpdzSInt> b) {
-    SpdzSInt out = getSInt();
-    return new SpdzSubtractProtocol4(a, b, out);
-  }
-
-  //  @Override
-  public Computation<SpdzSInt> sub(OInt a, Computation<SpdzSInt> b) {
-    return sub(() -> getSInt(a.getValue()), b);
-  }
 
   @Override
   public NativeProtocol<? extends SInt, ?> getSubtractProtocol(OInt a, SInt b, SInt out) {
@@ -220,12 +202,6 @@ public class SpdzFactory implements BasicNumericFactory<SpdzSInt>,
   @Override
   public Computation<? extends SInt> getMultProtocol(SInt a, SInt b, SInt out) {
     return new SpdzMultProtocol(a, b, out);
-  }
-
-  @Override
-  public Computation<SpdzSInt> mult(Computation<SpdzSInt> a, Computation<SpdzSInt> b) {
-    SpdzSInt out = getSInt();
-    return new SpdzMultProtocol4(a, b, out);
   }
 
   @Override

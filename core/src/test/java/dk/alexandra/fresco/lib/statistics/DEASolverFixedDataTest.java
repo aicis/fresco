@@ -24,6 +24,7 @@
 package dk.alexandra.fresco.lib.statistics;
 
 import dk.alexandra.fresco.framework.Application;
+import dk.alexandra.fresco.framework.FactoryNumericProducer;
 import dk.alexandra.fresco.framework.FactoryProducer;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
@@ -121,7 +122,8 @@ public class DEASolverFixedDataTest {
     public ProtocolProducer prepareApplication(FactoryProducer producer) {
       plainResult = new double[dataSet.length];
       solverResult = new OInt[dataSet.length];
-      BasicNumericFactory bnFactory = producer.getBasicNumericFactory();
+      BasicNumericFactory bnFactory = ((FactoryNumericProducer<SInt>) producer)
+          .getBasicNumericFactory();
       NumericIOBuilder ioBuilder = new NumericIOBuilder(bnFactory);
       modulus = bnFactory.getModulus();
 

@@ -27,7 +27,7 @@
 package dk.alexandra.fresco.lib.compare.gt;
 
 import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.FactoryProducer;
+import dk.alexandra.fresco.framework.FactoryNumericProducer;
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.ProtocolProducer;
@@ -56,7 +56,7 @@ public class GreaterThanReducerProtocolImpl implements GreaterThanProtocol, Comp
       ZeroTestProtocolFactory ztFactory,
       MiscOIntGenerators miscOIntGenerator,
       InnerProductFactory innerProdFactory,
-      LocalInversionFactory invFactory, FactoryProducer factoryProducer) {
+      LocalInversionFactory invFactory, FactoryNumericProducer<SInt> factoryProducer) {
     super();
     this.bitLength = bitLength;
     this.bitLengthBottom = bitLength / 2;
@@ -91,7 +91,7 @@ public class GreaterThanReducerProtocolImpl implements GreaterThanProtocol, Comp
   private final SInt x, y;
   private final SInt output;
 
-  private final FactoryProducer factoryProducer;
+  private final FactoryNumericProducer<SInt> factoryProducer;
   private final BasicNumericFactory factory;
   private final NumericNegateBitFactory bitFactory;
 

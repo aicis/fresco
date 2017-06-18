@@ -29,7 +29,7 @@ package dk.alexandra.fresco.suite.tinytables.prepro;
 import dk.alexandra.fresco.framework.FactoryProducer;
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.Reporter;
-import dk.alexandra.fresco.framework.builder.LegacyProducer;
+import dk.alexandra.fresco.framework.builder.LegacyBinaryProducer;
 import dk.alexandra.fresco.framework.network.SCENetwork;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.util.BitVector;
@@ -132,7 +132,7 @@ public class TinyTablesPreproProtocolSuite implements ProtocolSuite {
         .synchronizedList(new ArrayList<TinyTablesPreproANDProtocol>());
 
     this.resourcePool = resourcePool;
-    return new LegacyProducer(new TinyTablesPreproFactory());
+    return new LegacyBinaryProducer(new TinyTablesPreproFactory());
   }
 
   public TinyTablesStorage getStorage() {

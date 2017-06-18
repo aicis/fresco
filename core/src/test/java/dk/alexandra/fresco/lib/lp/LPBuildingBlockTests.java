@@ -27,6 +27,7 @@
 package dk.alexandra.fresco.lib.lp;
 
 import dk.alexandra.fresco.framework.Application;
+import dk.alexandra.fresco.framework.FactoryNumericProducer;
 import dk.alexandra.fresco.framework.FactoryProducer;
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.ProtocolProducer;
@@ -223,7 +224,8 @@ public class LPBuildingBlockTests {
               RandomFieldElementFactory randFactory = (RandomFieldElementFactory) producer;
               LPFactory lpFactory = new LPFactoryImpl(80, bnFactory, localInvFactory,
                   numericBitFactory,
-                  expFromOIntFactory, expFactory, randFactory, factoryProducer);
+                  expFromOIntFactory, expFactory, randFactory,
+                  (FactoryNumericProducer<SInt>) factoryProducer);
               mod = bnFactory.getModulus();
               return setupRandom(10, 10, bnFactory, lpFactory);
             }
