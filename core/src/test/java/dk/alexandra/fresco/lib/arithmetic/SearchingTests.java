@@ -26,6 +26,7 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.arithmetic;
 
+import dk.alexandra.fresco.framework.FactoryProducer;
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.TestApplication;
@@ -70,8 +71,9 @@ public class SearchingTests {
 
             @Override
             public ProtocolProducer prepareApplication(
-                ProtocolFactory factory) {
-              BasicNumericFactory bnf = (BasicNumericFactory) factory;
+                FactoryProducer factoryProducer) {
+              ProtocolFactory producer = factoryProducer.getProtocolFactory();
+              BasicNumericFactory bnf = (BasicNumericFactory) producer;
               SequentialProtocolProducer seq = new SequentialProtocolProducer();
               Random rand = new Random(0);
               for (int i = 0; i < PAIRS; i++) {
@@ -93,15 +95,17 @@ public class SearchingTests {
             TestApplication app1 = new TestApplication() {
 
               @Override
-              public ProtocolProducer prepareApplication(ProtocolFactory factory) {
-                BasicNumericFactory bnf = (BasicNumericFactory) factory;
-                LocalInversionFactory localInvFactory = (LocalInversionFactory) factory;
-                NumericBitFactory numericBitFactory = (NumericBitFactory) factory;
-                ExpFromOIntFactory expFromOIntFactory = (ExpFromOIntFactory) factory;
-                PreprocessedExpPipeFactory expFactory = (PreprocessedExpPipeFactory) factory;
-                RandomFieldElementFactory randFactory = (RandomFieldElementFactory) factory;
+              public ProtocolProducer prepareApplication(FactoryProducer factoryProducer) {
+                ProtocolFactory producer = factoryProducer.getProtocolFactory();
+
+                BasicNumericFactory bnf = (BasicNumericFactory) producer;
+                LocalInversionFactory localInvFactory = (LocalInversionFactory) producer;
+                NumericBitFactory numericBitFactory = (NumericBitFactory) producer;
+                ExpFromOIntFactory expFromOIntFactory = (ExpFromOIntFactory) producer;
+                PreprocessedExpPipeFactory expFactory = (PreprocessedExpPipeFactory) producer;
+                RandomFieldElementFactory randFactory = (RandomFieldElementFactory) producer;
                 LPFactory lpFactory = new LPFactoryImpl(80, bnf, localInvFactory, numericBitFactory,
-                    expFromOIntFactory, expFactory, randFactory);
+                    expFromOIntFactory, expFactory, randFactory, factoryProducer);
                 LookUpProtocolFactory<SInt> lpf = new LookupProtocolFactoryImpl(80, lpFactory, bnf);
                 SInt sOut = bnf.getSInt(NOTFOUND);
                 SequentialProtocolProducer sequentialProtocolProducer = new SequentialProtocolProducer();

@@ -26,7 +26,7 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.math.integer.exp;
 
-import dk.alexandra.fresco.framework.ProtocolFactory;
+import dk.alexandra.fresco.framework.FactoryProducer;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.TestApplication;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
@@ -51,67 +51,75 @@ import org.junit.Assert;
 
 public class ExponentiationTests {
 
-	/**
-	 * Test binary right shift of a shared secret.
-	 */
-	public static class TestExponentiation extends TestThreadFactory {
+  /**
+   * Test binary right shift of a shared secret.
+   */
+  public static class TestExponentiation extends TestThreadFactory {
 
-		@Override
-		public TestThread next(TestThreadConfiguration conf) {
-			
-			return new TestThread() {
-				private final BigInteger input = BigInteger.valueOf(12332157);
-				private final int exp = 12;
+    @Override
+    public TestThread next(TestThreadConfiguration conf) {
 
-				@Override
-				public void test() throws Exception {
-					TestApplication app = new TestApplication() {
+      return new TestThread() {
+        private final BigInteger input = BigInteger.valueOf(12332157);
+        private final int exp = 12;
 
-						private static final long serialVersionUID = 701623441111137585L;
-						
-						@Override
-						public ProtocolProducer prepareApplication(
-								ProtocolFactory provider) {
-							
-							BasicNumericFactory basicNumericFactory = (BasicNumericFactory) provider;
-							NumericBitFactory preprocessedNumericBitFactory = (NumericBitFactory) provider;
-							RandomAdditiveMaskFactory randomAdditiveMaskFactory = new RandomAdditiveMaskFactoryImpl(basicNumericFactory, preprocessedNumericBitFactory);
-							LocalInversionFactory localInversionFactory = (LocalInversionFactory) provider;
-							RightShiftFactory rightShiftFactory = new RightShiftFactoryImpl(basicNumericFactory, randomAdditiveMaskFactory, localInversionFactory);
-							IntegerToBitsFactory integerToBitsFactory = new IntegerToBitsFactoryImpl(basicNumericFactory, rightShiftFactory);
-							ExponentiationFactory exponentiationFactory = new ExponentiationFactoryImpl(basicNumericFactory, integerToBitsFactory);
+        @Override
+        public void test() throws Exception {
+          TestApplication app = new TestApplication() {
 
-							SInt result = basicNumericFactory.getSInt();
+            private static final long serialVersionUID = 701623441111137585L;
 
-							NumericIOBuilder ioBuilder = new NumericIOBuilder(basicNumericFactory);
-							SequentialProtocolProducer sequentialProtocolProducer = new SequentialProtocolProducer();
-							
-							SInt input1 = ioBuilder.input(input, 1);
-							SInt input2 = ioBuilder.input(exp, 2);
-							sequentialProtocolProducer.append(ioBuilder.getProtocol());
+            @Override
+            public ProtocolProducer prepareApplication(
+                FactoryProducer provider) {
 
-							ExponentiationProtocol exponentiationProtocol = exponentiationFactory.getExponentiationCircuit(input1, input2, 5, result);
-							sequentialProtocolProducer.append(exponentiationProtocol);
-							
-							OInt output1 = ioBuilder.output(result);
-							
-							sequentialProtocolProducer.append(ioBuilder.getProtocol());
+              BasicNumericFactory basicNumericFactory = (BasicNumericFactory) provider
+                  .getProtocolFactory();
+              NumericBitFactory preprocessedNumericBitFactory = (NumericBitFactory) provider
+                  .getProtocolFactory();
+              RandomAdditiveMaskFactory randomAdditiveMaskFactory = new RandomAdditiveMaskFactoryImpl(
+                  basicNumericFactory, preprocessedNumericBitFactory);
+              LocalInversionFactory localInversionFactory = (LocalInversionFactory) provider
+                  .getProtocolFactory();
+              RightShiftFactory rightShiftFactory = new RightShiftFactoryImpl(basicNumericFactory,
+                  randomAdditiveMaskFactory, localInversionFactory);
+              IntegerToBitsFactory integerToBitsFactory = new IntegerToBitsFactoryImpl(
+                  basicNumericFactory, rightShiftFactory);
+              ExponentiationFactory exponentiationFactory = new ExponentiationFactoryImpl(
+                  basicNumericFactory, integerToBitsFactory);
 
-							outputs = new OInt[] {output1};
+              SInt result = basicNumericFactory.getSInt();
 
-							return sequentialProtocolProducer;
-						}
-					};
-					secureComputationEngine
-							.runApplication(app, SecureComputationEngineImpl.createResourcePool(
-									conf.sceConf,
-									conf.sceConf.getSuite()));
-					BigInteger result = app.getOutputs()[0].getValue();
-					
-					Assert.assertEquals(input.pow(exp), result);
-				}
-			};
-		}
-	}
-	
+              NumericIOBuilder ioBuilder = new NumericIOBuilder(basicNumericFactory);
+              SequentialProtocolProducer sequentialProtocolProducer = new SequentialProtocolProducer();
+
+              SInt input1 = ioBuilder.input(input, 1);
+              SInt input2 = ioBuilder.input(exp, 2);
+              sequentialProtocolProducer.append(ioBuilder.getProtocol());
+
+              ExponentiationProtocol exponentiationProtocol = exponentiationFactory
+                  .getExponentiationCircuit(input1, input2, 5, result);
+              sequentialProtocolProducer.append(exponentiationProtocol);
+
+              OInt output1 = ioBuilder.output(result);
+
+              sequentialProtocolProducer.append(ioBuilder.getProtocol());
+
+              outputs = new OInt[]{output1};
+
+              return sequentialProtocolProducer;
+            }
+          };
+          secureComputationEngine
+              .runApplication(app, SecureComputationEngineImpl.createResourcePool(
+                  conf.sceConf,
+                  conf.sceConf.getSuite()));
+          BigInteger result = app.getOutputs()[0].getValue();
+
+          Assert.assertEquals(input.pow(exp), result);
+        }
+      };
+    }
+  }
+
 }

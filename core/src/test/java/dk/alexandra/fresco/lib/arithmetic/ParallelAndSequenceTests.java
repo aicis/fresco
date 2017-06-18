@@ -1,6 +1,6 @@
 package dk.alexandra.fresco.lib.arithmetic;
 
-import dk.alexandra.fresco.framework.ProtocolFactory;
+import dk.alexandra.fresco.framework.FactoryProducer;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.TestApplication;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
@@ -76,10 +76,11 @@ public class ParallelAndSequenceTests {
 		private static final long serialVersionUID = 1L;
 
 		@Override
-		public ProtocolProducer prepareApplication(ProtocolFactory factory) {
-			OmniBuilder builder = new OmniBuilder(factory);
-			SInt[] terms = builder.getNumericIOBuilder().inputArray(new int[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 }, 1);
-			SInt sum = builder.getNumericProtocolBuilder().sum(terms);
+    public ProtocolProducer prepareApplication(FactoryProducer producer) {
+      OmniBuilder builder = new OmniBuilder(producer.getProtocolFactory());
+      SInt[] terms = builder.getNumericIOBuilder()
+          .inputArray(new int[]{1, 2, 3, 4, 5, 6, 7, 8, 9}, 1);
+      SInt sum = builder.getNumericProtocolBuilder().sum(terms);
 			this.outputs = new OInt[] { builder.getNumericIOBuilder().output(sum) };
 			return builder.getProtocol();
 		}
@@ -90,10 +91,11 @@ public class ParallelAndSequenceTests {
 		private static final long serialVersionUID = 1L;
 
 		@Override
-		public ProtocolProducer prepareApplication(ProtocolFactory factory) {
-			OmniBuilder builder = new OmniBuilder(factory);
-			SInt[] terms = builder.getNumericIOBuilder().inputArray(new int[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 }, 1);
-			SInt mult = builder.getNumericProtocolBuilder().mult(terms);
+    public ProtocolProducer prepareApplication(FactoryProducer producer) {
+      OmniBuilder builder = new OmniBuilder(producer.getProtocolFactory());
+      SInt[] terms = builder.getNumericIOBuilder()
+          .inputArray(new int[]{1, 2, 3, 4, 5, 6, 7, 8, 9}, 1);
+      SInt mult = builder.getNumericProtocolBuilder().mult(terms);
 			this.outputs = new OInt[] { builder.getNumericIOBuilder().output(mult) };
 			return builder.getProtocol();
 		}

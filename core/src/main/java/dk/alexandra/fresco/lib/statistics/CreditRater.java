@@ -28,8 +28,8 @@ package dk.alexandra.fresco.lib.statistics;
 
 import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.FactoryProducer;
 import dk.alexandra.fresco.framework.MPCException;
-import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder.SequentialProtocolBuilder;
@@ -88,9 +88,9 @@ public class CreditRater implements Application<SInt> {
 
   @Override
   @SuppressWarnings("unchecked")
-  public ProtocolProducer prepareApplication(ProtocolFactory provider) {
+  public ProtocolProducer prepareApplication(FactoryProducer provider) {
     return ProtocolBuilder.createRoot(provider, (sequential) -> {
-      List<Computation<? extends SInt>> individualScores = new ArrayList<>(this.values.size());
+      List<Computation<SInt>> individualScores = new ArrayList<>(this.values.size());
 
       sequential.createParallelSubFactory((parallel) -> {
         for (int i = 0; i < this.values.size(); i++) {
@@ -122,7 +122,7 @@ public class CreditRater implements Application<SInt> {
     private final List<Computation<SInt>> interval;
     private final Computation<SInt> value;
     private final List<Computation<SInt>> scores;
-    private Computation<? extends SInt> delegageComputation;
+    private Computation<SInt> delegageComputation;
 
 
     /**
@@ -133,8 +133,7 @@ public class CreditRater implements Application<SInt> {
      * @param interval The interval definition
      * @param scores The scores for each interval
      */
-    ComputeIntervalScore(List<SInt> interval, SInt value,
-        List<SInt> scores) {
+    ComputeIntervalScore(List<SInt> interval, SInt value, List<SInt> scores) {
       this.interval = new ArrayList<>(interval);
       this.value = value;
       this.scores = new ArrayList<>(scores);

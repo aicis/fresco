@@ -1,6 +1,6 @@
 package dk.alexandra.fresco.lib.arithmetic;
 
-import dk.alexandra.fresco.framework.ProtocolFactory;
+import dk.alexandra.fresco.framework.FactoryProducer;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.TestApplication;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
@@ -50,8 +50,8 @@ public class LogicTests {
 
             @Override
             public ProtocolProducer prepareApplication(
-                ProtocolFactory provider) {
-              BasicNumericFactory bnFactory = (BasicNumericFactory) provider;
+                FactoryProducer provider) {
+              BasicNumericFactory bnFactory = (BasicNumericFactory) provider.getProtocolFactory();
               SequentialProtocolProducer seq = new SequentialProtocolProducer();
 
               NumericIOBuilder ioBuilder = new NumericIOBuilder(bnFactory);

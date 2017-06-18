@@ -27,6 +27,7 @@
 package dk.alexandra.fresco.lib.arithmetic;
 
 import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.FactoryProducer;
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.TestApplication;
@@ -85,10 +86,11 @@ public class MiMCTests {
 
             @Override
             public ProtocolProducer prepareApplication(
-                ProtocolFactory factory) {
-              BasicNumericFactory bnf = (BasicNumericFactory) factory;
+                FactoryProducer factoryProducer) {
+              ProtocolFactory producer = factoryProducer.getProtocolFactory();
+              BasicNumericFactory bnf = (BasicNumericFactory) producer;
               this.setModulus(bnf.getModulus());
-              OmniBuilder builder = new OmniBuilder(factory);
+              OmniBuilder builder = new OmniBuilder(producer);
               SymmetricEncryptionBuilder seb = builder.getSymmetricEncryptionBuilder();
               NumericIOBuilder niob = builder.getNumericIOBuilder();
 
@@ -133,8 +135,9 @@ public class MiMCTests {
 
             @Override
             public ProtocolProducer prepareApplication(
-                ProtocolFactory factory) {
-              OmniBuilder builder = new OmniBuilder(factory);
+                FactoryProducer factoryProducer) {
+              ProtocolFactory producer = factoryProducer.getProtocolFactory();
+              OmniBuilder builder = new OmniBuilder(producer);
               SInt k = builder.getNumericIOBuilder().input(BigInteger.valueOf(527618), 2);
               SInt x = builder.getNumericIOBuilder().input(BigInteger.valueOf(10), 1);
 
@@ -172,8 +175,9 @@ public class MiMCTests {
 
             @Override
             public ProtocolProducer prepareApplication(
-                ProtocolFactory factory) {
-              OmniBuilder builder = new OmniBuilder(factory);
+                FactoryProducer factoryProducer) {
+              ProtocolFactory producer = factoryProducer.getProtocolFactory();
+              OmniBuilder builder = new OmniBuilder(producer);
               SymmetricEncryptionBuilder seb = builder.getSymmetricEncryptionBuilder();
               NumericIOBuilder niob = builder.getNumericIOBuilder();
 
@@ -218,8 +222,9 @@ public class MiMCTests {
 
             @Override
             public ProtocolProducer prepareApplication(
-                ProtocolFactory factory) {
-              BasicNumericFactory fac = (BasicNumericFactory) factory;
+                FactoryProducer factoryProducer) {
+              ProtocolFactory producer = factoryProducer.getProtocolFactory();
+              BasicNumericFactory fac = (BasicNumericFactory) producer;
               SymmetricEncryptionBuilder symBuilder = new SymmetricEncryptionBuilder(fac);
               SInt k = fac.getSInt();
               Computation<SInt> knownKProtocol = fac.getSInt(20, k);

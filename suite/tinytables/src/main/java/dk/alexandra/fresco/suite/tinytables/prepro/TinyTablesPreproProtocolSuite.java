@@ -26,9 +26,10 @@
  *******************************************************************************/
 package dk.alexandra.fresco.suite.tinytables.prepro;
 
+import dk.alexandra.fresco.framework.FactoryProducer;
 import dk.alexandra.fresco.framework.MPCException;
-import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.Reporter;
+import dk.alexandra.fresco.framework.builder.LegacyProducer;
 import dk.alexandra.fresco.framework.network.SCENetwork;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.util.BitVector;
@@ -115,7 +116,7 @@ public class TinyTablesPreproProtocolSuite implements ProtocolSuite {
   }
 
   @Override
-  public ProtocolFactory init(ResourcePool resourcePool) {
+  public FactoryProducer init(ResourcePool resourcePool) {
     this.tinyTablesFile = this.configuration.getTinyTablesFile();
 
     OTFactory otFactory = new SemiHonestOTExtensionFactory(resourcePool.getNetwork(),
@@ -131,7 +132,7 @@ public class TinyTablesPreproProtocolSuite implements ProtocolSuite {
         .synchronizedList(new ArrayList<TinyTablesPreproANDProtocol>());
 
     this.resourcePool = resourcePool;
-    return new TinyTablesPreproFactory();
+    return new LegacyProducer(new TinyTablesPreproFactory());
   }
 
   public TinyTablesStorage getStorage() {

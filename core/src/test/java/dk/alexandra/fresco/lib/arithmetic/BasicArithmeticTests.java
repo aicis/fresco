@@ -27,6 +27,7 @@
 package dk.alexandra.fresco.lib.arithmetic;
 
 import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.FactoryProducer;
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.TestApplication;
@@ -78,8 +79,9 @@ public class BasicArithmeticTests {
 
             @Override
             public ProtocolProducer prepareApplication(
-                ProtocolFactory factory) {
-              BasicNumericFactory fac = (BasicNumericFactory) factory;
+                FactoryProducer factoryProducer) {
+              ProtocolFactory producer = factoryProducer.getProtocolFactory();
+              BasicNumericFactory fac = (BasicNumericFactory) producer;
               NumericIOBuilder ioBuilder = new NumericIOBuilder(
                   fac);
               SInt input1 = ioBuilder.input(BigInteger.valueOf(10), 1);
@@ -116,8 +118,10 @@ public class BasicArithmeticTests {
 
             @Override
             public ProtocolProducer prepareApplication(
-                ProtocolFactory factory) {
-              BasicNumericFactory fac = (BasicNumericFactory) factory;
+                FactoryProducer factoryProducer) {
+              ProtocolFactory producer = factoryProducer.getProtocolFactory();
+
+              BasicNumericFactory fac = (BasicNumericFactory) producer;
               NumericIOBuilder ioBuilder = new NumericIOBuilder(
                   fac);
               SInt input1 = ioBuilder.input(
@@ -158,8 +162,9 @@ public class BasicArithmeticTests {
 
             @Override
             public ProtocolProducer prepareApplication(
-                ProtocolFactory factory) {
-              BasicNumericFactory fac = (BasicNumericFactory) factory;
+                FactoryProducer factoryProducer) {
+              ProtocolFactory producer = factoryProducer.getProtocolFactory();
+              BasicNumericFactory fac = (BasicNumericFactory) producer;
               SequentialProtocolProducer gp = new SequentialProtocolProducer();
               NumericIOBuilder ioBuilder = new NumericIOBuilder(
                   fac);
@@ -208,8 +213,9 @@ public class BasicArithmeticTests {
 
             @Override
             public ProtocolProducer prepareApplication(
-                ProtocolFactory factory) {
-              BasicNumericFactory fac = (BasicNumericFactory) factory;
+                FactoryProducer factoryProducer) {
+              ProtocolFactory producer = factoryProducer.getProtocolFactory();
+              BasicNumericFactory fac = (BasicNumericFactory) producer;
               NumericIOBuilder ioBuilder = new NumericIOBuilder(
                   fac);
 
@@ -255,8 +261,9 @@ public class BasicArithmeticTests {
 
             @Override
             public ProtocolProducer prepareApplication(
-                ProtocolFactory factory) {
-              BasicNumericFactory fac = (BasicNumericFactory) factory;
+                FactoryProducer factoryProducer) {
+              ProtocolFactory producer = factoryProducer.getProtocolFactory();
+              BasicNumericFactory fac = (BasicNumericFactory) producer;
               NumericIOBuilder ioBuilder = new NumericIOBuilder(
                   fac);
               SInt knownInput = fac.getSInt(BigInteger.valueOf(200));
@@ -296,8 +303,9 @@ public class BasicArithmeticTests {
 
             @Override
             public ProtocolProducer prepareApplication(
-                ProtocolFactory factory) {
-              BasicNumericFactory fac = (BasicNumericFactory) factory;
+                FactoryProducer factoryProducer) {
+              ProtocolFactory producer = factoryProducer.getProtocolFactory();
+              BasicNumericFactory fac = (BasicNumericFactory) producer;
               NumericIOBuilder ioBuilder = new NumericIOBuilder(
                   fac);
               SInt knownInput1 = fac.getSInt(BigInteger.valueOf(200));
@@ -339,8 +347,9 @@ public class BasicArithmeticTests {
 
             @Override
             public ProtocolProducer prepareApplication(
-                ProtocolFactory factory) {
-              BasicNumericFactory fac = (BasicNumericFactory) factory;
+                FactoryProducer factoryProducer) {
+              ProtocolFactory producer = factoryProducer.getProtocolFactory();
+              BasicNumericFactory fac = (BasicNumericFactory) producer;
               NumericIOBuilder ioBuilder = new NumericIOBuilder(
                   fac);
 
@@ -425,8 +434,9 @@ public class BasicArithmeticTests {
 
             @Override
             public ProtocolProducer prepareApplication(
-                ProtocolFactory factory) {
-              BasicNumericFactory fac = (BasicNumericFactory) factory;
+                FactoryProducer factoryProducer) {
+              ProtocolFactory producer = factoryProducer.getProtocolFactory();
+              BasicNumericFactory fac = (BasicNumericFactory) producer;
               NumericIOBuilder ioBuilder = new NumericIOBuilder(
                   fac);
               SInt input1 = ioBuilder.input(
@@ -480,8 +490,9 @@ public class BasicArithmeticTests {
 
             @Override
             public ProtocolProducer prepareApplication(
-                ProtocolFactory factory) {
-              BasicNumericFactory fac = (BasicNumericFactory) factory;
+                FactoryProducer factoryProducer) {
+              ProtocolFactory producer = factoryProducer.getProtocolFactory();
+              BasicNumericFactory fac = (BasicNumericFactory) producer;
               NumericIOBuilder ioBuilder = new NumericIOBuilder(fac);
               NumericProtocolBuilder builder = new NumericProtocolBuilder(fac);
               SInt input1 = builder.getSInt(10);
@@ -522,11 +533,13 @@ public class BasicArithmeticTests {
 
             @Override
             public ProtocolProducer prepareApplication(
-                ProtocolFactory factory) {
-              BasicNumericFactory fac = (BasicNumericFactory) factory;
+                FactoryProducer factoryProducer) {
+              ProtocolFactory producer = factoryProducer.getProtocolFactory();
+              BasicNumericFactory fac = (BasicNumericFactory) producer;
               ComparisonProtocolFactory comp = new ComparisonProtocolFactoryImpl(80, fac,
-                  (LocalInversionFactory) factory, (NumericBitFactory) factory,
-                  (ExpFromOIntFactory) factory, (PreprocessedExpPipeFactory) factory);
+                  (LocalInversionFactory) producer, (NumericBitFactory) producer,
+                  (ExpFromOIntFactory) producer, (PreprocessedExpPipeFactory) producer,
+                  factoryProducer);
               NumericIOBuilder ioBuilder = new NumericIOBuilder(fac);
               NumericProtocolBuilder builder = new NumericProtocolBuilder(fac);
               BigInteger[] bns = new BigInteger[]{
@@ -633,8 +646,9 @@ public class BasicArithmeticTests {
 
             @Override
             public ProtocolProducer prepareApplication(
-                ProtocolFactory factory) {
-              BasicNumericFactory fac = (BasicNumericFactory) factory;
+                FactoryProducer factoryProducer) {
+              ProtocolFactory producer = factoryProducer.getProtocolFactory();
+              BasicNumericFactory fac = (BasicNumericFactory) producer;
               NumericIOBuilder ioBuilder = new NumericIOBuilder(fac);
               NumericProtocolBuilder builder = new NumericProtocolBuilder(fac);
               ioBuilder.beginSeqScope();

@@ -26,7 +26,7 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.math.polynomial;
 
-import dk.alexandra.fresco.framework.ProtocolFactory;
+import dk.alexandra.fresco.framework.FactoryProducer;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.TestApplication;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
@@ -62,10 +62,11 @@ public class PolynomialTests {
 						private static final long serialVersionUID = 701623441111137585L;
 
 						@Override
-						public ProtocolProducer prepareApplication(ProtocolFactory provider) {
+            public ProtocolProducer prepareApplication(FactoryProducer provider) {
 
-							BasicNumericFactory basicNumericFactory = (BasicNumericFactory) provider;
-							NumericIOBuilder ioBuilder = new NumericIOBuilder(basicNumericFactory);
+              BasicNumericFactory basicNumericFactory = (BasicNumericFactory) provider
+                  .getProtocolFactory();
+              NumericIOBuilder ioBuilder = new NumericIOBuilder(basicNumericFactory);
 
 							PolynomialFactory polynomialFactory = new PolynomialFactoryImpl();
 							Polynomial p = polynomialFactory.createPolynomial(ioBuilder.inputArray(

@@ -26,6 +26,7 @@
  *******************************************************************************/
 package dk.alexandra.fresco.suite.spdz;
 
+import dk.alexandra.fresco.framework.FactoryProducer;
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.ProtocolProducer;
@@ -72,15 +73,16 @@ class LPSolverTests {
 
             @Override
             public ProtocolProducer prepareApplication(
-                ProtocolFactory factory) {
-              BasicNumericFactory bnFactory = (BasicNumericFactory) factory;
-              LocalInversionFactory localInvFactory = (LocalInversionFactory) factory;
-              NumericBitFactory numericBitFactory = (NumericBitFactory) factory;
-              ExpFromOIntFactory expFromOIntFactory = (ExpFromOIntFactory) factory;
-              PreprocessedExpPipeFactory expFactory = (PreprocessedExpPipeFactory) factory;
-              RandomFieldElementFactory randFactory = (RandomFieldElementFactory) factory;
+                FactoryProducer factoryProducer) {
+              ProtocolFactory producer = factoryProducer.getProtocolFactory();
+              BasicNumericFactory bnFactory = (BasicNumericFactory) producer;
+              LocalInversionFactory localInvFactory = (LocalInversionFactory) producer;
+              NumericBitFactory numericBitFactory = (NumericBitFactory) producer;
+              ExpFromOIntFactory expFromOIntFactory = (ExpFromOIntFactory) producer;
+              PreprocessedExpPipeFactory expFactory = (PreprocessedExpPipeFactory) producer;
+              RandomFieldElementFactory randFactory = (RandomFieldElementFactory) producer;
               LPFactory lpFactory = new LPFactoryImpl(80, bnFactory, localInvFactory,
-                  numericBitFactory, expFromOIntFactory, expFactory, randFactory);
+                  numericBitFactory, expFromOIntFactory, expFactory, randFactory, factoryProducer);
               File pattern = new File("src/test/resources/lp/pattern7.csv");
               File program = new File("src/test/resources/lp/program7.csv");
               LPInputReader inputreader;

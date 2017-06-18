@@ -27,6 +27,7 @@
 package dk.alexandra.fresco.lib.compare;
 
 import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.FactoryProducer;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.compare.eq.EqualityProtocol;
 import dk.alexandra.fresco.lib.compare.eq.EqualityProtocolImpl;
@@ -53,17 +54,20 @@ public class ComparisonProtocolFactoryImpl implements ComparisonProtocolFactory 
   private final InnerProductFactory innerProductFactory;
   private final ZeroTestProtocolFactory zeroTestProtocolFactory;
   private final MiscOIntGenerators misc;
+  private FactoryProducer factoryProducer;
 
   public ComparisonProtocolFactoryImpl(int statisticalSecurityParameter,
       BasicNumericFactory bnf, LocalInversionFactory localInvFactory,
       NumericBitFactory numericBitFactory,
       ExpFromOIntFactory expFromOIntFactory,
-      PreprocessedExpPipeFactory expFactory) {
+      PreprocessedExpPipeFactory expFactory,
+      FactoryProducer factoryProducer) {
     this.secParam = statisticalSecurityParameter;
     this.bnf = bnf;
     this.localInvFactory = localInvFactory;
     this.numericNegateBitFactory = new NumericNegateBitFactoryImpl(bnf);
     this.innerProductFactory = new InnerProductFactoryImpl(bnf);
+    this.factoryProducer = factoryProducer;
     this.randomAdditiveMaskFactory = new RandomAdditiveMaskFactoryImpl(bnf,
         numericBitFactory);
     this.misc = new MiscOIntGenerators(bnf);
@@ -81,7 +85,7 @@ public class ComparisonProtocolFactoryImpl implements ComparisonProtocolFactory 
     return new GreaterThanReducerProtocolImpl(bitLength, secParam, x, y,
         result, bnf, numericNegateBitFactory, randomAdditiveMaskFactory,
         zeroTestProtocolFactory, misc, innerProductFactory,
-        localInvFactory);
+        localInvFactory, factoryProducer);
   }
 
   @Override

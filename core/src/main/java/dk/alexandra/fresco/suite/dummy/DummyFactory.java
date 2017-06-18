@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -26,6 +26,8 @@
  *******************************************************************************/
 package dk.alexandra.fresco.suite.dummy;
 
+import dk.alexandra.fresco.framework.FactoryProducer;
+import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.OBool;
 import dk.alexandra.fresco.framework.value.SBool;
@@ -34,11 +36,13 @@ import dk.alexandra.fresco.lib.field.bool.BasicLogicFactory;
 import dk.alexandra.fresco.lib.field.bool.CloseBoolProtocol;
 import dk.alexandra.fresco.lib.field.bool.OpenBoolProtocol;
 import dk.alexandra.fresco.lib.field.bool.XorProtocol;
+import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.helper.SingleProtocolProducer;
 import dk.alexandra.fresco.lib.logic.AbstractBinaryFactory;
 import org.apache.commons.lang.NotImplementedException;
 
-public class DummyFactory extends AbstractBinaryFactory implements BasicLogicFactory {
+public class DummyFactory extends AbstractBinaryFactory implements FactoryProducer,
+    BasicLogicFactory {
 
   /**
    * For unique names to values. For debugging.
@@ -128,4 +132,13 @@ public class DummyFactory extends AbstractBinaryFactory implements BasicLogicFac
     throw new NotImplementedException();
   }
 
+  @Override
+  public ProtocolFactory getProtocolFactory() {
+    return this;
+  }
+
+  @Override
+  public BasicNumericFactory getBasicNumericFactory() {
+    throw new RuntimeException("Not implemented");
+  }
 }

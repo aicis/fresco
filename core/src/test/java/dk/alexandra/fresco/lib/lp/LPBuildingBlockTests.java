@@ -27,6 +27,7 @@
 package dk.alexandra.fresco.lib.lp;
 
 import dk.alexandra.fresco.framework.Application;
+import dk.alexandra.fresco.framework.FactoryProducer;
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.TestApplication;
@@ -182,7 +183,7 @@ public class LPBuildingBlockTests {
             private static final long serialVersionUID = 1L;
 
             @Override
-            public ProtocolProducer prepareApplication(ProtocolFactory factory) {
+            public ProtocolProducer prepareApplication(FactoryProducer producer) {
               return new MarkerProtocolImpl("Running Dummy Test");
             }
 
@@ -212,16 +213,17 @@ public class LPBuildingBlockTests {
             private static final long serialVersionUID = 4338818809103728010L;
 
             @Override
-            public ProtocolProducer prepareApplication(ProtocolFactory factory) {
-              BasicNumericFactory bnFactory = (BasicNumericFactory) factory;
-              LocalInversionFactory localInvFactory = (LocalInversionFactory) factory;
-              NumericBitFactory numericBitFactory = (NumericBitFactory) factory;
-              ExpFromOIntFactory expFromOIntFactory = (ExpFromOIntFactory) factory;
-              PreprocessedExpPipeFactory expFactory = (PreprocessedExpPipeFactory) factory;
-              RandomFieldElementFactory randFactory = (RandomFieldElementFactory) factory;
+            public ProtocolProducer prepareApplication(FactoryProducer factoryProducer) {
+              ProtocolFactory producer = factoryProducer.getProtocolFactory();
+              BasicNumericFactory bnFactory = (BasicNumericFactory) producer;
+              LocalInversionFactory localInvFactory = (LocalInversionFactory) producer;
+              NumericBitFactory numericBitFactory = (NumericBitFactory) producer;
+              ExpFromOIntFactory expFromOIntFactory = (ExpFromOIntFactory) producer;
+              PreprocessedExpPipeFactory expFactory = (PreprocessedExpPipeFactory) producer;
+              RandomFieldElementFactory randFactory = (RandomFieldElementFactory) producer;
               LPFactory lpFactory = new LPFactoryImpl(80, bnFactory, localInvFactory,
                   numericBitFactory,
-                  expFromOIntFactory, expFactory, randFactory);
+                  expFromOIntFactory, expFactory, randFactory, factoryProducer);
               mod = bnFactory.getModulus();
               return setupRandom(10, 10, bnFactory, lpFactory);
             }
@@ -260,7 +262,7 @@ public class LPBuildingBlockTests {
             private static final long serialVersionUID = 4338818809103728010L;
 
             @Override
-            public ProtocolProducer prepareApplication(ProtocolFactory factory) {
+            public ProtocolProducer prepareApplication(FactoryProducer producer) {
               // BasicNumericFactory fac = (BasicNumericFactory)
               // factory;
               return null;
@@ -287,7 +289,7 @@ public class LPBuildingBlockTests {
             private static final long serialVersionUID = 4338818809103728010L;
 
             @Override
-            public ProtocolProducer prepareApplication(ProtocolFactory factory) {
+            public ProtocolProducer prepareApplication(FactoryProducer producer) {
               // BasicNumericFactory fac = (BasicNumericFactory)
               // factory;
               return null;

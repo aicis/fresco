@@ -26,6 +26,7 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.statistics;
 
+import dk.alexandra.fresco.framework.FactoryProducer;
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.TestApplication;
@@ -87,8 +88,9 @@ public class CreditRaterTest {
 
             @Override
             public ProtocolProducer prepareApplication(
-                ProtocolFactory factory) {
-              BasicNumericFactory bnFactory = (BasicNumericFactory) factory;
+                FactoryProducer factoryProducer) {
+              ProtocolFactory provider = factoryProducer.getProtocolFactory();
+              BasicNumericFactory bnFactory = (BasicNumericFactory) provider;
               NumericIOBuilder ioBuilder = new NumericIOBuilder(bnFactory);
 
               SequentialProtocolProducer sseq = new SequentialProtocolProducer();
@@ -113,12 +115,14 @@ public class CreditRaterTest {
 
           TestApplication output = new TestApplication() {
             @Override
-            public ProtocolProducer prepareApplication(ProtocolFactory factory) {
+            public ProtocolProducer prepareApplication(
+                FactoryProducer factoryProducer) {
+              ProtocolFactory provider = factoryProducer.getProtocolFactory();
               SequentialProtocolProducer sseq = new SequentialProtocolProducer();
-              BasicNumericFactory bnFactory = (BasicNumericFactory) factory;
+              BasicNumericFactory bnFactory = (BasicNumericFactory) provider;
               NumericIOBuilder ioBuilder = new NumericIOBuilder(bnFactory);
 
-              sseq.append(rater.prepareApplication(factory));
+              sseq.append(rater.prepareApplication(factoryProducer));
               result[0] = ioBuilder.output(creditRatingOutput);
               sseq.append(ioBuilder.getProtocol());
 

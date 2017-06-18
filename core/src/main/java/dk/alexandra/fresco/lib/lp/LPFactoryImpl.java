@@ -26,6 +26,7 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.lp;
 
+import dk.alexandra.fresco.framework.FactoryProducer;
 import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
@@ -77,26 +78,29 @@ public class LPFactoryImpl implements LPFactory {
   private final ZeroTestProtocolFactory zeroTestProtocolFactory;
   private final MiscOIntGenerators misc;
   private ComparisonProtocolFactory compFactory;
+  private FactoryProducer<SInt> factoryProducer;
 
   public LPFactoryImpl(int securityParameter, BasicNumericFactory bnf,
       LocalInversionFactory localInvFactory,
       NumericBitFactory numericBitFactory,
       ExpFromOIntFactory expFromOIntFactory,
       PreprocessedExpPipeFactory expFactory,
-      RandomFieldElementFactory randFactory) {
+      RandomFieldElementFactory randFactory,
+      FactoryProducer<SInt> factoryProducer) {
     this.securityParameter = securityParameter;
     this.bnf = bnf;
     this.localInvFactory = localInvFactory;
     this.randFactory = randFactory;
     this.numericNegateBitFactory = new NumericNegateBitFactoryImpl(bnf);
     this.innerProductFactory = new InnerProductFactoryImpl(bnf);
+    this.factoryProducer = factoryProducer;
     randomAdditiveMaskFactory = new RandomAdditiveMaskFactoryImpl(bnf,
         numericBitFactory);
     misc = new MiscOIntGenerators(bnf);
     this.zeroTestProtocolFactory = new ZeroTestProtocolFactoryImpl(bnf,
         expFromOIntFactory, numericBitFactory, numericNegateBitFactory, expFactory);
     this.compFactory = new ComparisonProtocolFactoryImpl(securityParameter, bnf, localInvFactory,
-        numericBitFactory, expFromOIntFactory, expFactory);
+        numericBitFactory, expFromOIntFactory, expFactory, this.factoryProducer);
   }
 
   @Override
@@ -129,7 +133,7 @@ public class LPFactoryImpl implements LPFactory {
   @Override
   public ConditionalSelectProtocol getConditionalSelectProtocol(SInt selector,
       SInt a, SInt b, SInt result) {
-    return new ConditionalSelectProtocolImpl(selector, a, b, result, bnf);
+    return new ConditionalSelectProtocolImpl(selector, a, b, result, factoryProducer);
   }
 
   @Override
@@ -159,7 +163,7 @@ public class LPFactoryImpl implements LPFactory {
     return new GreaterThanReducerProtocolImpl(bitLength,
         this.securityParameter, x1, x2, result, bnf, numericNegateBitFactory,
         randomAdditiveMaskFactory, zeroTestProtocolFactory, misc,
-        innerProductFactory, localInvFactory);
+        innerProductFactory, localInvFactory, factoryProducer);
   }
 
   @Override

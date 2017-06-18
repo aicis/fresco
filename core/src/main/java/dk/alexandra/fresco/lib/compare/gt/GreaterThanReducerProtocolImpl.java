@@ -27,6 +27,7 @@
 package dk.alexandra.fresco.lib.compare.gt;
 
 import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.FactoryProducer;
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.ProtocolProducer;
@@ -55,7 +56,7 @@ public class GreaterThanReducerProtocolImpl implements GreaterThanProtocol, Comp
       ZeroTestProtocolFactory ztFactory,
       MiscOIntGenerators miscOIntGenerator,
       InnerProductFactory innerProdFactory,
-      LocalInversionFactory invFactory) {
+      LocalInversionFactory invFactory, FactoryProducer factoryProducer) {
     super();
     this.bitLength = bitLength;
     this.bitLengthBottom = bitLength / 2;
@@ -66,6 +67,7 @@ public class GreaterThanReducerProtocolImpl implements GreaterThanProtocol, Comp
     this.y = y;
     this.output = output;
     this.factory = factory;
+    this.factoryProducer = factoryProducer;
     this.bitFactory = bitFactory;
     this.maskFactory = maskFactory;
     this.ztFactory = ztFactory;
@@ -89,6 +91,7 @@ public class GreaterThanReducerProtocolImpl implements GreaterThanProtocol, Comp
   private final SInt x, y;
   private final SInt output;
 
+  private final FactoryProducer factoryProducer;
   private final BasicNumericFactory factory;
   private final NumericNegateBitFactory bitFactory;
 
@@ -216,7 +219,7 @@ public class GreaterThanReducerProtocolImpl implements GreaterThanProtocol, Comp
 
           // TODO: get a provider to handle this.....
           ProtocolProducer selectrPrime =
-              new ConditionalSelectProtocolImpl(eqResult, rBottom, rTop, rPrime, factory);
+              new ConditionalSelectProtocolImpl(eqResult, rBottom, rTop, rPrime, factoryProducer);
           // TODO: get a conditional selector for public values...
           SInt negEqResult = factory.getSInt();
           ProtocolProducer negCirc = bitFactory.getNegatedBitProtocol(eqResult, negEqResult);
@@ -264,7 +267,7 @@ public class GreaterThanReducerProtocolImpl implements GreaterThanProtocol, Comp
                 ztFactory,
                 miscOIntGenerator,
                 innerProdFactory,
-                invFactory);
+                invFactory, factoryProducer);
             pp = new SequentialProtocolProducer(selectSubProblemGP, compCirc);
           }
 
