@@ -228,7 +228,7 @@ public class PrivateSetDemo implements Application {
    * ParallelProtocolProducer and SequentialProtocolProducer. The open and
    * closed values (OBool and SBool) are used to 'glue' the subprotocols
    * together.
-   * @param producer
+   * @param factoryProducer
    */
   //May cause problems if more than 2 parties and if both insets are not of
   //Equal length
