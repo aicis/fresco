@@ -121,8 +121,12 @@ public class SpdzFactory implements BasicNumericFactory<SpdzSInt>,
 
   @Override
   public ProtocolProducer createRandomSecretSharedBitProtocol(SInt from) {
-    SInt local = this.storage.getSupplier().getNextBit();
+    SInt local = getRandomBitFromStorage();
     return SingleProtocolProducer.wrap(new CopyProtocolImpl<>(local, from));
+  }
+
+  public SpdzSInt getRandomBitFromStorage() {
+    return this.storage.getSupplier().getNextBit();
   }
 
   @Override

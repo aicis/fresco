@@ -126,6 +126,18 @@ public abstract class ProtocolBuilder<SIntT extends SInt> {
     return factory.createComparisonBuilder(this);
   }
 
+  public InnerProductBuilder<SIntT> createInnerProductBuilder() {
+    return factory.createInnerProductBuilder(this);
+  }
+
+  public RandomAdditiveMaskBuilder<SIntT> createAdditiveMaskBuilder() {
+    return factory.createAdditiveMaskBuilder(this);
+  }
+
+  public OpenBuilder<SIntT> createOpenBuilder() {
+    return factory.createOpenBuilder(this);
+  }
+
 
   private static class ProtocolEntity {
 

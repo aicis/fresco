@@ -7,8 +7,10 @@ import dk.alexandra.fresco.framework.builder.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
+import dk.alexandra.fresco.suite.spdz.datatypes.SpdzOInt;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzAddProtocol4;
+import dk.alexandra.fresco.suite.spdz.gates.SpdzLocalInversionProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzMultProtocol4;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzSubtractProtocol4;
 import dk.alexandra.fresco.suite.spdz.utils.SpdzFactory;
@@ -78,6 +80,20 @@ class SpdzBuilder implements BuilderFactoryNumeric<SpdzSInt> {
       @Override
       public Computation<SpdzSInt> mult(OInt a, Computation<SpdzSInt> b) {
         return () -> new SpdzSInt(b.out().value.multiply(a.getValue()));
+      }
+
+      @Override
+      public Computation<SpdzSInt> createRandomSecretSharedBitProtocol() {
+        return () -> spdzFactory.getRandomBitFromStorage();
+      }
+
+      @Override
+      public Computation<SpdzOInt> invert(OInt anInt) {
+        OInt out = spdzFactory.getOInt();
+        SpdzLocalInversionProtocol spdzLocalInversionProtocol =
+            new SpdzLocalInversionProtocol((SpdzOInt) anInt, (SpdzOInt) out);
+        protocolBuilder.append(spdzLocalInversionProtocol);
+        return spdzLocalInversionProtocol;
       }
     };
   }

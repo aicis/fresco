@@ -3,11 +3,14 @@ package dk.alexandra.fresco.framework;
 import dk.alexandra.fresco.framework.builder.ComparisonBuilder;
 import dk.alexandra.fresco.framework.builder.InnerProductBuilder;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
+import dk.alexandra.fresco.framework.builder.OpenBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
+import dk.alexandra.fresco.framework.builder.RandomAdditiveMaskBuilder;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.compare.ComparisonProtocolFactory;
 import dk.alexandra.fresco.lib.compare.ComparisonProtocolFactoryImpl;
 import dk.alexandra.fresco.lib.compare.DefaultComparisonBuilder;
+import dk.alexandra.fresco.lib.compare.DefaultRandomAdditiveMaskBuilder;
 import dk.alexandra.fresco.lib.compare.RandomAdditiveMaskFactory;
 import dk.alexandra.fresco.lib.compare.RandomAdditiveMaskFactoryImpl;
 import dk.alexandra.fresco.lib.conversion.IntegerToBitsFactory;
@@ -51,8 +54,22 @@ public interface BuilderFactoryNumeric<SIntT extends SInt> extends BuilderFactor
     return new DefaultComparisonBuilder<>(this, builder);
   }
 
-  default InnerProductBuilder<SIntT> getInnerProductBuilder(ProtocolBuilder<SIntT> builder) {
+  default InnerProductBuilder<SIntT> createInnerProductBuilder(ProtocolBuilder<SIntT> builder) {
     return new DefaultInnerProductBuilder<>(this, builder);
+  }
+
+  default OpenBuilder<SIntT> createOpenBuilder(ProtocolBuilder<SIntT> sIntTProtocolBuilder) {
+    throw new RuntimeException("Not implemented");
+  }
+
+  default RandomAdditiveMaskBuilder<SIntT> createAdditiveMaskBuilder(
+      ProtocolBuilder<SIntT> builder) {
+    return new DefaultRandomAdditiveMaskBuilder<>(this, builder, MAGIC_SECURE_NUMBER);
+  }
+
+  default RightShiftBuilder<SIntT> createRightShiftBuilder(
+      ProtocolBuilder<SIntT> builder) {
+    return new DefaultRightShiftBuilder<>(this, builder);
   }
 
   default EntrywiseProductFactoryImpl getDotProductFactory() {
@@ -102,4 +119,5 @@ public interface BuilderFactoryNumeric<SIntT extends SInt> extends BuilderFactor
             this);
 
   }
+
 }

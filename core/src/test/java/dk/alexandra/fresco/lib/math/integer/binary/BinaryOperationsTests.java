@@ -51,7 +51,7 @@ import org.junit.Assert;
 
 /**
  * Generic test cases for basic finite field operations.
- * 
+ *
  * Can be reused by a test case for any protocol suite that implements the basic
  * field protocol factory.
  *
@@ -68,7 +68,7 @@ public class BinaryOperationsTests {
 
 		@Override
 		public TestThread next(TestThreadConfiguration conf) {
-			
+
 			return new TestThread() {
 				private final BigInteger input = BigInteger.valueOf(12332157);
 
@@ -77,7 +77,7 @@ public class BinaryOperationsTests {
 					TestApplication app = new TestApplication() {
 
 						private static final long serialVersionUID = 701623441111137585L;
-						
+
 						@Override
 						public ProtocolProducer prepareApplication(
                 BuilderFactory producer) {
@@ -96,21 +96,24 @@ public class BinaryOperationsTests {
                   randomAdditiveMaskFactory, localInversionFactory);
 
 							SInt result = basicNumericFactory.getSInt();
-							SInt remainder = basicNumericFactory.getSInt();
+              SInt[] remainderParam = new SInt[1];
+              SInt remainder = basicNumericFactory.getSInt();
+              remainderParam[0] = remainder;
 
 							NumericIOBuilder ioBuilder = new NumericIOBuilder(basicNumericFactory);
 							SequentialProtocolProducer sequentialProtocolProducer = new SequentialProtocolProducer();
-							
-							SInt input1 = ioBuilder.input(input, 1);
+
+              SInt input1 = ioBuilder.input(input, 1);
 							sequentialProtocolProducer.append(ioBuilder.getProtocol());
-							
-							RightShiftProtocol rightShiftProtocol = rightShiftFactory.getRightShiftProtocol(input1, result, remainder);
-							sequentialProtocolProducer.append(rightShiftProtocol);
-							
-							OInt output1 = ioBuilder.output(result);
+
+              RepeatedRightShiftProtocol rightShiftProtocol = rightShiftFactory
+                  .getRepeatedRightShiftProtocol(input1, 1, result, remainderParam);
+              sequentialProtocolProducer.append(rightShiftProtocol);
+
+              OInt output1 = ioBuilder.output(result);
 							OInt output2 = ioBuilder.output(remainder);
-							
-							sequentialProtocolProducer.append(ioBuilder.getProtocol());
+
+              sequentialProtocolProducer.append(ioBuilder.getProtocol());
 
 							outputs = new OInt[] {output1, output2};
 
@@ -129,24 +132,24 @@ public class BinaryOperationsTests {
 			};
 		}
 	}
-	
 
-	public static class TestRepeatedRightShift extends TestThreadFactory {
+
+  public static class TestRepeatedRightShift extends TestThreadFactory {
 
 		@Override
 		public TestThread next(TestThreadConfiguration conf) {
-			
-			return new TestThread() {
+
+      return new TestThread() {
 				private final BigInteger input = BigInteger.valueOf(12332153);
 				private final int n = 7;
-				
-				@Override
+
+        @Override
 				public void test() throws Exception {
 					TestApplication app = new TestApplication() {
 
 						private static final long serialVersionUID = 701623441111137585L;
-						
-						@Override
+
+            @Override
 						public ProtocolProducer prepareApplication(
                 BuilderFactory producer) {
 
@@ -161,22 +164,22 @@ public class BinaryOperationsTests {
                   randomAdditiveMaskFactory, localInversionFactory);
 
 							SInt result = basicNumericFactory.getSInt();
-							
-							SInt[] remainders = new SInt[n];
+
+              SInt[] remainders = new SInt[n];
 							for (int i = 0; i < n; i++) {
 								remainders[i] = basicNumericFactory.getSInt();
 							}
-							
-							NumericIOBuilder ioBuilder = new NumericIOBuilder(basicNumericFactory);
+
+              NumericIOBuilder ioBuilder = new NumericIOBuilder(basicNumericFactory);
 							SequentialProtocolProducer sequentialProtocolProducer = new SequentialProtocolProducer();
-							
-							SInt input1 = ioBuilder.input(input, 1);
+
+              SInt input1 = ioBuilder.input(input, 1);
 							sequentialProtocolProducer.append(ioBuilder.getProtocol());
-							
-							RepeatedRightShiftProtocol rightShiftProtocol = rightShiftFactory.getRepeatedRightShiftProtocol(input1, n, result, remainders);
+
+              RepeatedRightShiftProtocol rightShiftProtocol = rightShiftFactory.getRepeatedRightShiftProtocol(input1, n, result, remainders);
 							sequentialProtocolProducer.append(rightShiftProtocol);
-							
-							OInt shiftOutput = ioBuilder.output(result);
+
+              OInt shiftOutput = ioBuilder.output(result);
 							OInt[] remainderOutput = ioBuilder.outputArray(remainders);
 							sequentialProtocolProducer.append(ioBuilder.getProtocol());
 
@@ -202,16 +205,16 @@ public class BinaryOperationsTests {
 			};
 		}
 	}
-	
-	/**
+
+  /**
 	 * Test binary right shift of a shared secret.
 	 */
 	public static class TestMostSignificantBit extends TestThreadFactory {
 
 		@Override
 		public TestThread next(TestThreadConfiguration conf) {
-			
-			return new TestThread() {
+
+      return new TestThread() {
 				private final BigInteger input = BigInteger.valueOf(5);
 
 				@Override
@@ -219,8 +222,8 @@ public class BinaryOperationsTests {
 					TestApplication app = new TestApplication() {
 
 						private static final long serialVersionUID = 701623441111137585L;
-						
-						@Override
+
+            @Override
 						public ProtocolProducer prepareApplication(
                 BuilderFactory producer) {
 
@@ -235,21 +238,21 @@ public class BinaryOperationsTests {
                   randomAdditiveMaskFactory, localInversionFactory);
               IntegerToBitsFactory integerToBitsFactory = new IntegerToBitsFactoryImpl(basicNumericFactory, rightShiftFactory);
 							BitLengthFactory bitLengthFactory = new BitLengthFactoryImpl(basicNumericFactory, integerToBitsFactory);
-							
-							SInt result = basicNumericFactory.getSInt();
+
+              SInt result = basicNumericFactory.getSInt();
 
 							NumericIOBuilder ioBuilder = new NumericIOBuilder(basicNumericFactory);
 							SequentialProtocolProducer sequentialProtocolProducer = new SequentialProtocolProducer();
-							
-							SInt input1 = ioBuilder.input(input, 1);
+
+              SInt input1 = ioBuilder.input(input, 1);
 							sequentialProtocolProducer.append(ioBuilder.getProtocol());
-							
-							BitLengthProtocol bitLengthProtocol = bitLengthFactory.getBitLengthProtocol(input1, result, input.bitLength() * 2);
+
+              BitLengthProtocol bitLengthProtocol = bitLengthFactory.getBitLengthProtocol(input1, result, input.bitLength() * 2);
 							sequentialProtocolProducer.append(bitLengthProtocol);
-							
-							OInt output1 = ioBuilder.output(result);
-							
-							sequentialProtocolProducer.append(ioBuilder.getProtocol());
+
+              OInt output1 = ioBuilder.output(result);
+
+              sequentialProtocolProducer.append(ioBuilder.getProtocol());
 
 							outputs = new OInt[] {output1};
 
