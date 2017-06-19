@@ -32,11 +32,11 @@ import dk.alexandra.fresco.framework.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.ProtocolProducer;
+import dk.alexandra.fresco.framework.builder.ComparisonBuilder;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder.SequentialProtocolBuilder;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.compare.ComparisonProtocolFactory;
 import dk.alexandra.fresco.lib.math.integer.AddSIntList;
 import java.util.ArrayList;
 import java.util.List;
@@ -144,12 +144,11 @@ public class CreditRater implements Application<SInt> {
     public void accept(SequentialProtocolBuilder<SInt> rootBuilder) {
       List<Computation<SInt>> comparisons = new ArrayList<>();
       rootBuilder.createParallelSubFactory((parallelBuilder) -> {
-        ComparisonProtocolFactory factory =
-            parallelBuilder.createAppendingComparisonProtocolFactory();
+        ComparisonBuilder<SInt> builder = parallelBuilder.createComparisonBuilder();
 
         // Compare if "x <= the n interval definitions"
         for (Computation<SInt> anInterval : interval) {
-          comparisons.add(factory.compare(value.out(), anInterval.out()));
+          comparisons.add(builder.compare(value.out(), anInterval.out()));
         }
       });
       // Add "x > last interval definition" to comparisons

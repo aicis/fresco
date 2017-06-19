@@ -26,7 +26,6 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.compare;
 
-import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.compare.eq.EqualityProtocol;
@@ -42,13 +41,6 @@ public interface ComparisonProtocolFactory {
    */
   ProtocolProducer getGreaterThanProtocol(SInt x1, SInt x2,
       SInt result, boolean longCompare);
-
-  /**
-   * @param x1 input
-   * @param x2 input
-   * @return output - [1] (true) or [0] (false) (result of x1 >= x2)
-   */
-  Computation<SInt> compare(SInt x1, SInt x2);
 
   /**
    * Returns a protocol for equality

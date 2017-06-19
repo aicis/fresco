@@ -1,6 +1,5 @@
 package dk.alexandra.fresco.framework.builder;
 
-import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.compare.ComparisonProtocolFactory;
@@ -28,13 +27,6 @@ class AppendingComparisonProtocolFactory implements ComparisonProtocolFactory {
         .getGreaterThanProtocol(x1, x2, result, longCompare);
     protocolBuilder.append(greaterThanProtocol);
     return greaterThanProtocol;
-  }
-
-  @Override
-  public Computation<SInt> compare(SInt x1, SInt x2) {
-    Computation<SInt> cómpare = this.comparisonProtocolFactory.compare(x1, x2);
-    protocolBuilder.append(cómpare);
-    return cómpare;
   }
 
   @Override

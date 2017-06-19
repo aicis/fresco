@@ -5,16 +5,13 @@ import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.ProtocolProducer;
+import dk.alexandra.fresco.framework.value.OInt;
+import dk.alexandra.fresco.framework.value.OIntFactory;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.compare.ComparisonProtocolFactory;
-import dk.alexandra.fresco.lib.compare.ComparisonProtocolFactoryImpl;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.helper.ProtocolProducerCollection;
 import dk.alexandra.fresco.lib.helper.SingleProtocolProducer;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
-import dk.alexandra.fresco.lib.math.integer.exp.ExpFromOIntFactory;
-import dk.alexandra.fresco.lib.math.integer.exp.PreprocessedExpPipeFactory;
-import dk.alexandra.fresco.lib.math.integer.inv.LocalInversionFactory;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Consumer;
@@ -28,37 +25,17 @@ public abstract class ProtocolBuilder<SIntT extends SInt> {
 
   private static final int MAGIC_SECURE_NUMBER = 60;
   private BasicNumericFactory<SIntT> basicNumericFactory;
-  private ComparisonProtocolFactory comparisonProtocolFactory;
   private List<ProtocolEntity> protocols;
-
-  private LocalInversionFactory localInvFactory;
-  private ExpFromOIntFactory expFromOIntFactory;
-  private PreprocessedExpPipeFactory expFactory;
   private BuilderFactoryNumeric<SIntT> factory;
 
   private ProtocolBuilder(BuilderFactoryNumeric<SIntT> factory) {
     this.factory = factory;
     this.basicNumericFactory = factory.getBasicNumericFactory();
-    if (factory.getProtocolFactory() instanceof LocalInversionFactory) {
-      localInvFactory = (LocalInversionFactory) factory.getProtocolFactory();
-    }
-    if (factory.getProtocolFactory() instanceof ExpFromOIntFactory) {
-      expFromOIntFactory = (ExpFromOIntFactory) factory.getProtocolFactory();
-    }
-    if (factory.getProtocolFactory() instanceof PreprocessedExpPipeFactory) {
-      expFactory = (PreprocessedExpPipeFactory) factory.getProtocolFactory();
-    }
-
-    if (basicNumericFactory != null
-        && localInvFactory != null
-        && expFromOIntFactory != null
-        && expFactory != null) {
-      this.comparisonProtocolFactory =
-          new ComparisonProtocolFactoryImpl(MAGIC_SECURE_NUMBER, basicNumericFactory,
-              localInvFactory, basicNumericFactory, expFromOIntFactory, expFactory,
-              factory);
-    }
     this.protocols = new LinkedList<>();
+  }
+
+  public OIntFactory getOIntFactory() {
+    return basicNumericFactory;
   }
 
   public static <SIntT extends SInt> SequentialProtocolBuilder<SIntT> createRoot(
@@ -143,12 +120,16 @@ public abstract class ProtocolBuilder<SIntT extends SInt> {
     return factory.createNumericBuilder(this);
   }
 
-  public ComparisonProtocolFactory createAppendingComparisonProtocolFactory() {
-    return new AppendingComparisonProtocolFactory(this.comparisonProtocolFactory, this);
+  public ComparisonBuilder<SIntT> createComparisonBuilder() {
+    return factory.createComparisonBuilder(this);
   }
 
   public SIntT createConstant(int value) {
     return (SIntT) basicNumericFactory.getSInt(value);
+  }
+
+  public Computation<SIntT> convert(OInt oInt) {
+    return () -> (SIntT) basicNumericFactory.getSInt(oInt.getValue());
   }
 
   private static class ProtocolEntity {

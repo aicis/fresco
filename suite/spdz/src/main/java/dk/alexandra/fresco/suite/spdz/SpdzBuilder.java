@@ -35,6 +35,21 @@ class SpdzBuilder implements BuilderFactoryNumeric<SpdzSInt> {
   public NumericBuilder<SpdzSInt> createNumericBuilder(ProtocolBuilder protocolBuilder) {
     return new NumericBuilder<SpdzSInt>() {
       @Override
+      public Computation<SpdzSInt> add(Computation<SpdzSInt> a, Computation<SpdzSInt> b) {
+        SpdzSInt out = spdzFactory.getSInt();
+        SpdzAddProtocol4 spdzAddProtocol4 = new SpdzAddProtocol4(a, b, out);
+        protocolBuilder.append(spdzAddProtocol4);
+        return spdzAddProtocol4;
+      }
+
+
+      @Override
+      public Computation<SpdzSInt> add(OInt a, Computation<SpdzSInt> b) {
+        return add(() -> spdzFactory.getSInt(a.getValue()), b);
+      }
+
+
+      @Override
       public Computation<SpdzSInt> sub(Computation<SpdzSInt> a, Computation<SpdzSInt> b) {
         SpdzSInt out = spdzFactory.getSInt();
         SpdzSubtractProtocol4 spdzSubtractProtocol4 = new SpdzSubtractProtocol4(a, b, out);
@@ -42,18 +57,14 @@ class SpdzBuilder implements BuilderFactoryNumeric<SpdzSInt> {
         return spdzSubtractProtocol4;
       }
 
-
-      //  @Override
+      @Override
       public Computation<SpdzSInt> sub(OInt a, Computation<SpdzSInt> b) {
         return sub(() -> spdzFactory.getSInt(a.getValue()), b);
       }
 
       @Override
-      public Computation<SpdzSInt> add(Computation<SpdzSInt> a, Computation<SpdzSInt> b) {
-        SpdzSInt out = spdzFactory.getSInt();
-        SpdzAddProtocol4 spdzAddProtocol4 = new SpdzAddProtocol4(a, b, out);
-        protocolBuilder.append(spdzAddProtocol4);
-        return spdzAddProtocol4;
+      public Computation<SpdzSInt> sub(Computation<SpdzSInt> a, OInt b) {
+        return sub(a, () -> spdzFactory.getSInt(b.getValue()));
       }
 
       @Override
@@ -62,6 +73,11 @@ class SpdzBuilder implements BuilderFactoryNumeric<SpdzSInt> {
         SpdzMultProtocol4 spdzMultProtocol4 = new SpdzMultProtocol4(a, b, out);
         protocolBuilder.append(spdzMultProtocol4);
         return spdzMultProtocol4;
+      }
+
+      @Override
+      public Computation<SpdzSInt> mult(OInt a, Computation<SpdzSInt> b) {
+        return () -> new SpdzSInt(b.out().value.multiply(a.getValue()));
       }
     };
   }

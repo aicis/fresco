@@ -1,5 +1,6 @@
 package dk.alexandra.fresco.framework;
 
+import dk.alexandra.fresco.framework.builder.ComparisonBuilder;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
 import dk.alexandra.fresco.framework.value.SInt;
@@ -26,10 +27,18 @@ public interface BuilderFactoryNumeric<SIntT extends SInt> extends BuilderFactor
 
   BasicNumericFactory<SIntT> getBasicNumericFactory();
 
+  NumericBuilder<SIntT> createNumericBuilder(ProtocolBuilder builder);
+
+  default ComparisonBuilder<SIntT> createComparisonBuilder(ProtocolBuilder<SIntT> builder) {
+    return new DefaultComparisonBuilder<>(this, builder);
+  }
+
   default RightShiftFactory getRightShiftFactory() {
-    LocalInversionFactory localInversionFactory = (LocalInversionFactory) getBasicNumericFactory();
+    LocalInversionFactory localInversionFactory = getInversionFactory();
     RandomAdditiveMaskFactory randomAdditiveMaskFactory = getRandomAdditiveMaskFactory();
-    return new RightShiftFactoryImpl(getBasicNumericFactory(), randomAdditiveMaskFactory,
+    return new RightShiftFactoryImpl(
+        getBasicNumericFactory(),
+        randomAdditiveMaskFactory,
         localInversionFactory);
   }
 
@@ -39,34 +48,40 @@ public interface BuilderFactoryNumeric<SIntT extends SInt> extends BuilderFactor
   }
 
   default ComparisonProtocolFactory getComparisonFactory() {
-    BasicNumericFactory factory = getBasicNumericFactory();
+    BasicNumericFactory<SIntT> factory = getBasicNumericFactory();
     return
         new ComparisonProtocolFactoryImpl(MAGIC_SECURE_NUMBER,
             factory,
-            (LocalInversionFactory) factory,
+            getInversionFactory(),
             factory,
-            (ExpFromOIntFactory) factory,
-            (PreprocessedExpPipeFactory) factory,
+            getExpFromOInt(),
+            getPreprocessedExpPipe(
+            ),
             this);
 
   }
 
+  default PreprocessedExpPipeFactory getPreprocessedExpPipe() {
+    return (PreprocessedExpPipeFactory) getBasicNumericFactory();
+  }
+
+  default LocalInversionFactory getInversionFactory() {
+    return (LocalInversionFactory) getBasicNumericFactory();
+  }
+
+  default ExpFromOIntFactory getExpFromOInt() {
+    return (ExpFromOIntFactory) getBasicNumericFactory();
+  }
+
   default IntegerToBitsFactory getIntegerToBitsFactory() {
-    return
-        new IntegerToBitsFactoryImpl(getBasicNumericFactory(),
-            getRightShiftFactory());
+    return new IntegerToBitsFactoryImpl(getBasicNumericFactory(), getRightShiftFactory());
   }
 
   default BitLengthFactory getBitLengthFactory() {
-    return
-        new BitLengthFactoryImpl(getBasicNumericFactory(),
-            getIntegerToBitsFactory());
+    return new BitLengthFactoryImpl(getBasicNumericFactory(), getIntegerToBitsFactory());
   }
 
   default ExponentiationFactory getExponentiationFactory() {
-    return new ExponentiationFactoryImpl(getBasicNumericFactory(),
-        getIntegerToBitsFactory());
+    return new ExponentiationFactoryImpl(getBasicNumericFactory(), getIntegerToBitsFactory());
   }
-
-  NumericBuilder<SIntT> createNumericBuilder(ProtocolBuilder sIntTProtocolBuilder);
 }

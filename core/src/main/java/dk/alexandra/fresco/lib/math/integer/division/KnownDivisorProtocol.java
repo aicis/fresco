@@ -2,13 +2,15 @@ package dk.alexandra.fresco.lib.math.integer.division;
 
 import dk.alexandra.fresco.framework.BuilderFactory;
 import dk.alexandra.fresco.framework.BuilderFactoryNumeric;
+import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.LegacyTransfer;
 import dk.alexandra.fresco.framework.ProtocolProducer;
+import dk.alexandra.fresco.framework.builder.NumericBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.helper.SimpleProtocolProducer;
-import dk.alexandra.fresco.lib.helper.builder.NumericProtocolBuilder;
-import dk.alexandra.fresco.lib.helper.builder.OmniBuilder;
 import java.math.BigInteger;
 
 /**
@@ -29,7 +31,7 @@ public class KnownDivisorProtocol extends SimpleProtocolProducer implements Divi
   private OInt divisor;
   private SInt result;
   private SInt remainder;
-  private BuilderFactoryNumeric builderFactory;
+  private BuilderFactoryNumeric<SInt> builderFactory;
 
   // Factories
   private final BasicNumericFactory basicNumericFactory;
@@ -37,7 +39,7 @@ public class KnownDivisorProtocol extends SimpleProtocolProducer implements Divi
 
   KnownDivisorProtocol(SInt dividend, OInt divisor, SInt result,
       BuilderFactory builderFactory) {
-    this.builderFactory = ((BuilderFactoryNumeric) builderFactory);
+    this.builderFactory = ((BuilderFactoryNumeric<SInt>) builderFactory);
     BasicNumericFactory basicNumericFactory = this.builderFactory.getBasicNumericFactory();
     this.dividend = dividend;
     this.divisor = divisor;
@@ -65,8 +67,8 @@ public class KnownDivisorProtocol extends SimpleProtocolProducer implements Divi
 
   @Override
   protected ProtocolProducer initializeProtocolProducer() {
-
-		/*
+    return ProtocolBuilder.createRoot(builderFactory, builder -> {
+    /*
      * We use the fact that if 2^{N+l} \leq m * d \leq 2^{N+l} + 2^l, then
 		 * floor(x/d) = floor(x * m >> N+l) for all x of length <= N (see Thm
 		 * 4.2 of "Division by Invariant Integers using Multiplication" by
@@ -76,71 +78,65 @@ public class KnownDivisorProtocol extends SimpleProtocolProducer implements Divi
 		 * considerations can be omitted, giving a significant speed-up.
 		 */
 
-    OmniBuilder builder = new OmniBuilder(builderFactory);
-    NumericProtocolBuilder numeric = builder.getNumericProtocolBuilder();
-
-    builder.beginSeqScope();
-
-		/*
+      NumericBuilder<SInt> numeric = builder.createNumericBuilder();
+    /*
      * Numbers larger than half the field size is considered to be negative.
 		 * 
 		 * TODO: This should be handled differently because it will not
 		 * necessarily work with another arithmetic protocol suite.
 		 */
-    BigInteger signedDivisor = convertRepresentation(divisor.getValue());
-    int divisorSign = signedDivisor.signum();
-    BigInteger divisorAbs = signedDivisor.abs();
+      BigInteger signedDivisor = convertRepresentation(divisor.getValue());
+      int divisorSign = signedDivisor.signum();
+      BigInteger divisorAbs = signedDivisor.abs();
 
 		/*
      * The quotient will have bit length < 2 * maxBitLength, and this has to
 		 * be shifted maxBitLength + divisorBitLength. So in total we need 3 *
 		 * maxBitLength + divisorBitLength to be representable.
 		 */
-    int maxBitLength = (basicNumericFactory.getMaxBitLength() - divisorAbs.bitLength()) / 3;
-    int shifts = maxBitLength + divisorAbs.bitLength();
+      int maxBitLength = (basicNumericFactory.getMaxBitLength() - divisorAbs.bitLength()) / 3;
+      int shifts = maxBitLength + divisorAbs.bitLength();
 
 		/*
      * Compute the sign of the dividend
 		 */
-    SInt dividendSign = builder.getComparisonProtocolBuilder().sign(dividend);
-    SInt dividendAbs = numeric.mult(dividend, dividendSign);
+      Computation<SInt> dividendSign = builder.createComparisonBuilder().sign(dividend);
+      Computation<SInt> dividendAbs = numeric.mult(dividend, dividendSign);
 
 		/*
      * We need m * d \geq 2^{N+l}, so we add one to the result of the
 		 * division to ensure that this is indeed the case.
 		 */
-    OInt m = numeric
-        .knownOInt(BigInteger.ONE.shiftLeft(shifts).divide(divisorAbs).add(BigInteger.ONE));
-    SInt quotientAbs = numeric.mult(m, dividendAbs);
+      OInt m = builder.getOIntFactory()
+          .getOInt(BigInteger.ONE.shiftLeft(shifts).divide(divisorAbs).add(BigInteger.ONE));
+      Computation<SInt> quotientAbs = numeric.mult(builder.convert(m), dividendAbs);
 
 		/*
      * Now quotientAbs is the result shifted SHIFTS bits to the left, so we
 		 * shift it back to get the result in absolute value, q.
 		 */
-    SInt q = numeric.getSInt();
-    builder.addProtocolProducer(
-        builderFactory.getRightShiftFactory()
-            .getRepeatedRightShiftProtocol(quotientAbs, shifts, q));
+      SInt q = builderFactory.getBasicNumericFactory().getSInt();
+      builder.append(
+          builderFactory.getRightShiftFactory()
+              .getRepeatedRightShiftProtocol(quotientAbs.out(), shifts, q));
 
 		/*
      * Adjust the sign of the result.
 		 */
-    SInt sign = builder.getNumericProtocolBuilder()
-        .mult(numeric.knownOInt(divisorSign), dividendSign);
-    numeric.copy(result, numeric.mult(q, sign));
+      OInt oInt = builder.getOIntFactory().getOInt(BigInteger.valueOf(divisorSign));
+      Computation<SInt> sign = numeric.mult(oInt, dividendSign);
+      Computation<SInt> mult = numeric.mult(q, sign);
+      builder.append(new LegacyTransfer(mult, result));
 
 		/*
      * If the remainder is requested, we calculate it here. Note that this
 		 * only makes sense if both divisor and dividend are nonnegative -
 		 * otherwise the remainder could be negative.
 		 */
-    if (remainder != null) {
-      numeric.copy(remainder, numeric.sub(dividend, numeric.mult(divisor, result)));
-    }
-
-    builder.endCurScope();
-
-    return builder.getProtocol();
+      if (remainder != null) {
+        Computation<SInt> sub = numeric.sub(dividend, numeric.mult(divisor, result));
+        builder.append(new LegacyTransfer(sub, remainder));
+      }
+    }).build();
   }
-
 }

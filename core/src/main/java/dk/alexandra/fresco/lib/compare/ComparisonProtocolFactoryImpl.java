@@ -27,7 +27,6 @@
 package dk.alexandra.fresco.lib.compare;
 
 import dk.alexandra.fresco.framework.BuilderFactoryNumeric;
-import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.compare.eq.EqualityProtocol;
 import dk.alexandra.fresco.lib.compare.eq.EqualityProtocolImpl;
@@ -86,12 +85,6 @@ public class ComparisonProtocolFactoryImpl implements ComparisonProtocolFactory 
         result, bnf, numericNegateBitFactory, randomAdditiveMaskFactory,
         zeroTestProtocolFactory, misc, innerProductFactory,
         localInvFactory, factoryProducer);
-  }
-
-  @Override
-  public Computation<SInt> compare(SInt left, SInt right) {
-    SInt result = bnf.getSInt();
-    return getGreaterThanProtocol(left, right, result, false);
   }
 
   @Override
