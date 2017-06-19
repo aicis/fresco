@@ -46,7 +46,6 @@ import dk.alexandra.fresco.lib.conversion.IntegerToBitsFactoryImpl;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.helper.builder.NumericIOBuilder;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
-import dk.alexandra.fresco.lib.math.integer.NumericBitFactory;
 import dk.alexandra.fresco.lib.math.integer.binary.BitLengthFactory;
 import dk.alexandra.fresco.lib.math.integer.binary.BitLengthFactoryImpl;
 import dk.alexandra.fresco.lib.math.integer.binary.RightShiftFactory;
@@ -97,11 +96,11 @@ public class StatisticsTests {
               ProtocolFactory producer = factory.getProtocolFactory();
 
               BasicNumericFactory basicNumericFactory = (BasicNumericFactory) producer;
-              NumericBitFactory preprocessedNumericBitFactory = (NumericBitFactory) producer;
+              BasicNumericFactory<SInt> preprocessedNumericBitFactory = (BasicNumericFactory<SInt>) producer;
               ExpFromOIntFactory expFromOIntFactory = (ExpFromOIntFactory) producer;
               PreprocessedExpPipeFactory preprocessedExpPipeFactory = (PreprocessedExpPipeFactory) producer;
               RandomAdditiveMaskFactory randomAdditiveMaskFactory = new RandomAdditiveMaskFactoryImpl(
-                  basicNumericFactory, preprocessedNumericBitFactory,
+                  basicNumericFactory,
                   new InnerProductFactoryImpl(basicNumericFactory,
                       new EntrywiseProductFactoryImpl(basicNumericFactory)));
               LocalInversionFactory localInversionFactory = (LocalInversionFactory) producer;
@@ -114,7 +113,7 @@ public class StatisticsTests {
               ExponentiationFactory exponentiationFactory = new ExponentiationFactoryImpl(
                   basicNumericFactory, integerToBitsFactory);
               ComparisonProtocolFactory comparisonFactory = new ComparisonProtocolFactoryImpl(80,
-                  basicNumericFactory, localInversionFactory, preprocessedNumericBitFactory,
+                  basicNumericFactory, localInversionFactory,
                   expFromOIntFactory, preprocessedExpPipeFactory, (BuilderFactoryNumeric) factory);
               DivisionFactory euclidianDivisionFactory = new DivisionFactoryImpl(
                   basicNumericFactory, rightShiftFactory, bitLengthFactory, exponentiationFactory,

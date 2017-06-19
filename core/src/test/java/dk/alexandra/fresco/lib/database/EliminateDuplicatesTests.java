@@ -19,7 +19,6 @@ import dk.alexandra.fresco.lib.helper.builder.NumericIOBuilder;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
 import dk.alexandra.fresco.lib.list.FindDuplicatesProtocolBuilder;
 import dk.alexandra.fresco.lib.list.SIntListofTuples;
-import dk.alexandra.fresco.lib.math.integer.NumericBitFactory;
 import dk.alexandra.fresco.lib.math.integer.exp.ExpFromOIntFactory;
 import dk.alexandra.fresco.lib.math.integer.exp.PreprocessedExpPipeFactory;
 import dk.alexandra.fresco.lib.math.integer.inv.LocalInversionFactory;
@@ -65,14 +64,14 @@ class EliminateDuplicatesTests {
               ProtocolFactory provider = factoryProducer.getProtocolFactory();
               BasicNumericFactory bnFactory = (BasicNumericFactory) provider;
               LocalInversionFactory localInvFactory = (LocalInversionFactory) provider;
-              NumericBitFactory numericBitFactory = (NumericBitFactory) provider;
+              BasicNumericFactory<SInt> numericBitFactory = (BasicNumericFactory<SInt>) provider;
               ExpFromOIntFactory expFromOIntFactory = (ExpFromOIntFactory) provider;
               PreprocessedExpPipeFactory expFactory = (PreprocessedExpPipeFactory) provider;
               SequentialProtocolProducer seq = new SequentialProtocolProducer();
 
               ComparisonProtocolFactoryImpl compFactory = new ComparisonProtocolFactoryImpl(
                   80, bnFactory, localInvFactory,
-                  numericBitFactory, expFromOIntFactory,
+                  expFromOIntFactory,
                   expFactory, (BuilderFactoryNumeric<SInt>) factoryProducer);
 
               NumericIOBuilder ioBuilder = new NumericIOBuilder(bnFactory);
@@ -146,14 +145,14 @@ class EliminateDuplicatesTests {
               ProtocolFactory provider = factoryProducer.getProtocolFactory();
               BasicNumericFactory bnFactory = (BasicNumericFactory) provider;
               LocalInversionFactory localInvFactory = (LocalInversionFactory) provider;
-              NumericBitFactory numericBitFactory = (NumericBitFactory) provider;
+              BasicNumericFactory<SInt> numericBitFactory = (BasicNumericFactory<SInt>) provider;
               ExpFromOIntFactory expFromOIntFactory = (ExpFromOIntFactory) provider;
               PreprocessedExpPipeFactory expFactory = (PreprocessedExpPipeFactory) provider;
               SequentialProtocolProducer seq = new SequentialProtocolProducer();
 
               ComparisonProtocolFactoryImpl compFactory = new ComparisonProtocolFactoryImpl(
                   80, bnFactory, localInvFactory,
-                  numericBitFactory, expFromOIntFactory,
+                  expFromOIntFactory,
                   expFactory, (BuilderFactoryNumeric<SInt>) factoryProducer);
 
               NumericIOBuilder ioBuilder = new NumericIOBuilder(bnFactory);
@@ -229,14 +228,14 @@ class EliminateDuplicatesTests {
               ProtocolFactory provider = factoryProducer.getProtocolFactory();
               BasicNumericFactory bnFactory = (BasicNumericFactory) provider;
               LocalInversionFactory localInvFactory = (LocalInversionFactory) provider;
-              NumericBitFactory numericBitFactory = (NumericBitFactory) provider;
+              BasicNumericFactory<SInt> numericBitFactory = (BasicNumericFactory<SInt>) provider;
               ExpFromOIntFactory expFromOIntFactory = (ExpFromOIntFactory) provider;
               PreprocessedExpPipeFactory expFactory = (PreprocessedExpPipeFactory) provider;
               SequentialProtocolProducer seq = new SequentialProtocolProducer();
 
               ComparisonProtocolFactoryImpl compFactory = new ComparisonProtocolFactoryImpl(
                   80, bnFactory, localInvFactory,
-                  numericBitFactory, expFromOIntFactory,
+                  expFromOIntFactory,
                   expFactory, (BuilderFactoryNumeric<SInt>) factoryProducer);
 
               NumericIOBuilder ioBuilder = new NumericIOBuilder(bnFactory);

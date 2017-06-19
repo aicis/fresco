@@ -34,7 +34,6 @@ import dk.alexandra.fresco.lib.compare.gt.GreaterThanReducerProtocolImpl;
 import dk.alexandra.fresco.lib.compare.zerotest.ZeroTestProtocolFactory;
 import dk.alexandra.fresco.lib.compare.zerotest.ZeroTestProtocolFactoryImpl;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
-import dk.alexandra.fresco.lib.math.integer.NumericBitFactory;
 import dk.alexandra.fresco.lib.math.integer.NumericNegateBitFactory;
 import dk.alexandra.fresco.lib.math.integer.NumericNegateBitFactoryImpl;
 import dk.alexandra.fresco.lib.math.integer.exp.ExpFromOIntFactory;
@@ -58,7 +57,6 @@ public class ComparisonProtocolFactoryImpl implements ComparisonProtocolFactory 
 
   public ComparisonProtocolFactoryImpl(int statisticalSecurityParameter,
       BasicNumericFactory bnf, LocalInversionFactory localInvFactory,
-      NumericBitFactory numericBitFactory,
       ExpFromOIntFactory expFromOIntFactory,
       PreprocessedExpPipeFactory expFactory,
       BuilderFactoryNumeric factoryProducer) {
@@ -70,10 +68,10 @@ public class ComparisonProtocolFactoryImpl implements ComparisonProtocolFactory 
         new EntrywiseProductFactoryImpl(bnf));
     this.factoryProducer = factoryProducer;
     this.randomAdditiveMaskFactory = new RandomAdditiveMaskFactoryImpl(bnf,
-        numericBitFactory, new InnerProductFactoryImpl(bnf, new EntrywiseProductFactoryImpl(bnf)));
+        new InnerProductFactoryImpl(bnf, new EntrywiseProductFactoryImpl(bnf)));
     this.misc = new MiscOIntGenerators(bnf);
     this.zeroTestProtocolFactory = new ZeroTestProtocolFactoryImpl(bnf,
-        expFromOIntFactory, numericBitFactory, numericNegateBitFactory, expFactory);
+        expFromOIntFactory, numericNegateBitFactory, expFactory);
   }
 
   @Override

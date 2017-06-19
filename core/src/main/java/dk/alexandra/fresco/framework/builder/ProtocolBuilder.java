@@ -92,21 +92,16 @@ public abstract class ProtocolBuilder<SIntT extends SInt> {
     return protocolEntity;
   }
 
-  public void append(Computation<? extends SInt> computation) {
+  public <T extends NativeProtocol> T append(T computation) {
     ProtocolEntity protocolEntity = createAndAppend();
-    if (computation instanceof NativeProtocol) {
-      protocolEntity.protocolProducer = SingleProtocolProducer.wrap(computation);
-    } else if (computation instanceof ProtocolProducer) {
-      protocolEntity.protocolProducer = (ProtocolProducer) computation;
-    } else {
-      throw new IllegalArgumentException("Cannot append " + computation
-          + " - must either be a protocol producer or a native protocol");
-    }
+    protocolEntity.protocolProducer = SingleProtocolProducer.wrap(computation);
+    return computation;
   }
 
-  public void append(ProtocolProducer protocolProducer) {
+  public <T extends ProtocolProducer> T append(T protocolProducer) {
     ProtocolEntity protocolEntity = createAndAppend();
     protocolEntity.protocolProducer = protocolProducer;
+    return protocolProducer;
   }
 
   public abstract ProtocolProducer build();

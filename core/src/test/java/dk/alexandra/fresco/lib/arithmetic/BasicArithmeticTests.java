@@ -46,7 +46,6 @@ import dk.alexandra.fresco.lib.helper.CopyProtocolImpl;
 import dk.alexandra.fresco.lib.helper.builder.NumericIOBuilder;
 import dk.alexandra.fresco.lib.helper.builder.NumericProtocolBuilder;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
-import dk.alexandra.fresco.lib.math.integer.NumericBitFactory;
 import dk.alexandra.fresco.lib.math.integer.exp.ExpFromOIntFactory;
 import dk.alexandra.fresco.lib.math.integer.exp.PreprocessedExpPipeFactory;
 import dk.alexandra.fresco.lib.math.integer.inv.LocalInversionFactory;
@@ -538,7 +537,7 @@ public class BasicArithmeticTests {
               ProtocolFactory producer = factoryProducer.getProtocolFactory();
               BasicNumericFactory fac = (BasicNumericFactory) producer;
               ComparisonProtocolFactory comp = new ComparisonProtocolFactoryImpl(80, fac,
-                  (LocalInversionFactory) producer, (NumericBitFactory) producer,
+                  (LocalInversionFactory) producer,
                   (ExpFromOIntFactory) producer, (PreprocessedExpPipeFactory) producer,
                   (BuilderFactoryNumeric) factoryProducer);
               NumericIOBuilder ioBuilder = new NumericIOBuilder(fac);

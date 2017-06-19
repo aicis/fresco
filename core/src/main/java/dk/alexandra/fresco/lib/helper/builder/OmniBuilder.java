@@ -30,6 +30,7 @@ import dk.alexandra.fresco.framework.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.OIntFactory;
+import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.framework.value.SIntFactory;
 import dk.alexandra.fresco.lib.compare.ComparisonProtocolFactory;
 import dk.alexandra.fresco.lib.compare.ComparisonProtocolFactoryImpl;
@@ -39,7 +40,6 @@ import dk.alexandra.fresco.lib.conversion.IntegerToBitsFactory;
 import dk.alexandra.fresco.lib.conversion.IntegerToBitsFactoryImpl;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.field.integer.generic.IOIntProtocolFactory;
-import dk.alexandra.fresco.lib.math.integer.NumericBitFactory;
 import dk.alexandra.fresco.lib.math.integer.binary.BitLengthFactory;
 import dk.alexandra.fresco.lib.math.integer.binary.BitLengthFactoryImpl;
 import dk.alexandra.fresco.lib.math.integer.binary.RightShiftFactory;
@@ -141,9 +141,9 @@ public class OmniBuilder extends AbstractProtocolBuilder {
   private DivisionFactory getDivisionFactory() {
     BasicNumericFactory basicNumericFactory = (BasicNumericFactory) factory;
     LocalInversionFactory localInversionFactory = (LocalInversionFactory) factory;
-    NumericBitFactory preprocessedNumericBitFactory = (NumericBitFactory) factory;
+    BasicNumericFactory<SInt> preprocessedNumericBitFactory = (BasicNumericFactory<SInt>) factory;
     RandomAdditiveMaskFactory randomAdditiveMaskFactory = new RandomAdditiveMaskFactoryImpl(
-        basicNumericFactory, preprocessedNumericBitFactory,
+        basicNumericFactory,
         new InnerProductFactoryImpl(basicNumericFactory,
             new EntrywiseProductFactoryImpl(basicNumericFactory)));
     RightShiftFactory rightShiftFactory = new RightShiftFactoryImpl(basicNumericFactory,
@@ -177,11 +177,11 @@ public class OmniBuilder extends AbstractProtocolBuilder {
   private ComparisonProtocolFactory getComparisonProtocolFactory() {
     BasicNumericFactory bnf = (BasicNumericFactory) factory;
     LocalInversionFactory localInvFactory = (LocalInversionFactory) factory;
-    NumericBitFactory numericBitFactory = (NumericBitFactory) factory;
+    BasicNumericFactory<SInt> numericBitFactory = (BasicNumericFactory<SInt>) factory;
     ExpFromOIntFactory expFromOIntFactory = (ExpFromOIntFactory) factory;
     PreprocessedExpPipeFactory expFactory = (PreprocessedExpPipeFactory) factory;
     return new ComparisonProtocolFactoryImpl(statisticalSecurityParameter, bnf, localInvFactory,
-        numericBitFactory, expFromOIntFactory, expFactory,
+        expFromOIntFactory, expFactory,
         builderFactory);
   }
 

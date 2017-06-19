@@ -28,19 +28,19 @@ package dk.alexandra.fresco.lib.field.integer;
 
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.ProtocolFactory;
+import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.OIntFactory;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.framework.value.SIntFactory;
 import dk.alexandra.fresco.lib.field.integer.generic.IOIntProtocolFactory;
-import dk.alexandra.fresco.lib.math.integer.NumericBitFactory;
 import java.math.BigInteger;
 
 /**
  * A factory that produces protocols that operate on elements in a finite field.
  */
 public interface BasicNumericFactory<SIntT extends SInt> extends SIntFactory, OIntFactory,
-    ProtocolFactory, IOIntProtocolFactory, NumericBitFactory, RandomFieldElementFactory<SIntT> {
+    ProtocolFactory, IOIntProtocolFactory, RandomFieldElementFactory<SIntT> {
 
   /**
    * Returns the maximum number of bits a number in the field can contain.
@@ -81,4 +81,10 @@ public interface BasicNumericFactory<SIntT extends SInt> extends SIntFactory, OI
    * @return the protocol that computes the multiplication
    */
   Computation<? extends SInt> getMultProtocol(OInt a, SInt b, SInt c);
+
+  /**
+   * Returns a protocol which creates a secret shared random bit. (This should be computed
+   * beforehand)
+   */
+  ProtocolProducer createRandomSecretSharedBitProtocol(SInt rBit);
 }

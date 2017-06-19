@@ -42,7 +42,6 @@ import dk.alexandra.fresco.lib.conversion.IntegerToBitsFactoryImpl;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.helper.builder.NumericIOBuilder;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
-import dk.alexandra.fresco.lib.math.integer.NumericBitFactory;
 import dk.alexandra.fresco.lib.math.integer.inv.LocalInversionFactory;
 import dk.alexandra.fresco.lib.math.integer.linalg.EntrywiseProductFactoryImpl;
 import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductFactoryImpl;
@@ -85,13 +84,13 @@ public class BinaryOperationsTests {
 
               BasicNumericFactory basicNumericFactory = (BasicNumericFactory) producer
                   .getProtocolFactory();
-              NumericBitFactory preprocessedNumericBitFactory = (NumericBitFactory) producer
-                  .getProtocolFactory();
-              RandomAdditiveMaskFactory randomAdditiveMaskFactory = new RandomAdditiveMaskFactoryImpl(
-                  basicNumericFactory, preprocessedNumericBitFactory,
-                  new InnerProductFactoryImpl(basicNumericFactory,
-                      new EntrywiseProductFactoryImpl(basicNumericFactory)));
-              LocalInversionFactory localInversionFactory = (LocalInversionFactory) producer
+							BasicNumericFactory<SInt> preprocessedNumericBitFactory = (BasicNumericFactory<SInt>) producer
+									.getProtocolFactory();
+							RandomAdditiveMaskFactory randomAdditiveMaskFactory = new RandomAdditiveMaskFactoryImpl(
+									basicNumericFactory,
+									new InnerProductFactoryImpl(basicNumericFactory,
+											new EntrywiseProductFactoryImpl(basicNumericFactory)));
+							LocalInversionFactory localInversionFactory = (LocalInversionFactory) producer
                   .getProtocolFactory();
               RightShiftFactory rightShiftFactory = new RightShiftFactoryImpl(basicNumericFactory,
                   randomAdditiveMaskFactory, localInversionFactory);
@@ -152,12 +151,12 @@ public class BinaryOperationsTests {
                 BuilderFactory producer) {
 
               BasicNumericFactory basicNumericFactory = (BasicNumericFactory) producer;
-              NumericBitFactory preprocessedNumericBitFactory = (NumericBitFactory) producer;
-              RandomAdditiveMaskFactory randomAdditiveMaskFactory = new RandomAdditiveMaskFactoryImpl(
-                  basicNumericFactory, preprocessedNumericBitFactory,
-                  new InnerProductFactoryImpl(basicNumericFactory,
-                      new EntrywiseProductFactoryImpl(basicNumericFactory)));
-              LocalInversionFactory localInversionFactory = (LocalInversionFactory) producer;
+							BasicNumericFactory<SInt> preprocessedNumericBitFactory = (BasicNumericFactory<SInt>) producer;
+							RandomAdditiveMaskFactory randomAdditiveMaskFactory = new RandomAdditiveMaskFactoryImpl(
+									basicNumericFactory,
+									new InnerProductFactoryImpl(basicNumericFactory,
+											new EntrywiseProductFactoryImpl(basicNumericFactory)));
+							LocalInversionFactory localInversionFactory = (LocalInversionFactory) producer;
               RightShiftFactory rightShiftFactory = new RightShiftFactoryImpl(basicNumericFactory,
                   randomAdditiveMaskFactory, localInversionFactory);
 
@@ -226,12 +225,12 @@ public class BinaryOperationsTests {
                 BuilderFactory producer) {
 
               BasicNumericFactory basicNumericFactory = (BasicNumericFactory) producer;
-              NumericBitFactory preprocessedNumericBitFactory = (NumericBitFactory) producer;
-              RandomAdditiveMaskFactory randomAdditiveMaskFactory = new RandomAdditiveMaskFactoryImpl(
-                  basicNumericFactory, preprocessedNumericBitFactory,
-                  new InnerProductFactoryImpl(basicNumericFactory,
-                      new EntrywiseProductFactoryImpl(basicNumericFactory)));
-              LocalInversionFactory localInversionFactory = (LocalInversionFactory) producer;
+							BasicNumericFactory<SInt> preprocessedNumericBitFactory = (BasicNumericFactory<SInt>) producer;
+							RandomAdditiveMaskFactory randomAdditiveMaskFactory = new RandomAdditiveMaskFactoryImpl(
+									basicNumericFactory,
+									new InnerProductFactoryImpl(basicNumericFactory,
+											new EntrywiseProductFactoryImpl(basicNumericFactory)));
+							LocalInversionFactory localInversionFactory = (LocalInversionFactory) producer;
               RightShiftFactory rightShiftFactory = new RightShiftFactoryImpl(basicNumericFactory,
                   randomAdditiveMaskFactory, localInversionFactory);
               IntegerToBitsFactory integerToBitsFactory = new IntegerToBitsFactoryImpl(basicNumericFactory, rightShiftFactory);

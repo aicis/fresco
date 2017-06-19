@@ -28,29 +28,25 @@ package dk.alexandra.fresco.lib.compare;
 
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
-import dk.alexandra.fresco.lib.math.integer.NumericBitFactory;
 import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductFactory;
-import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductFactoryImpl;
 
 public class RandomAdditiveMaskFactoryImpl implements RandomAdditiveMaskFactory {
 
-	private final NumericBitFactory numericBitFactory;
 	private final InnerProductFactory innerProductFactory;
 	private final MiscOIntGenerators misc;
 	private final BasicNumericFactory bnf;
 
 	public RandomAdditiveMaskFactoryImpl(BasicNumericFactory bnf,
-      NumericBitFactory numericBitFactory, InnerProductFactoryImpl innerProductFactory) {
-    this.bnf = bnf;
+			InnerProductFactory innerProductFactory) {
+		this.bnf = bnf;
 		this.misc = new MiscOIntGenerators(bnf);
-		this.numericBitFactory = numericBitFactory;
     this.innerProductFactory = innerProductFactory;
   }
 
 	@Override
 	public RandomAdditiveMaskProtocol getRandomAdditiveMaskProtocol(int securityParameter,
 			SInt[] bits, SInt r) {
-		return new RandomAdditiveMaskProtocolImpl(securityParameter, bits, r, bnf, numericBitFactory,
+		return new RandomAdditiveMaskProtocolImpl(securityParameter, bits, r, bnf,
 				misc, innerProductFactory);
 	}
 

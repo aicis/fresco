@@ -21,6 +21,7 @@ import dk.alexandra.fresco.lib.math.integer.exp.ExponentiationFactoryImpl;
 import dk.alexandra.fresco.lib.math.integer.exp.PreprocessedExpPipeFactory;
 import dk.alexandra.fresco.lib.math.integer.inv.LocalInversionFactory;
 import dk.alexandra.fresco.lib.math.integer.linalg.EntrywiseProductFactoryImpl;
+import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductFactory;
 import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductFactoryImpl;
 
 public interface BuilderFactoryNumeric<SIntT extends SInt> extends BuilderFactory {
@@ -47,18 +48,21 @@ public interface BuilderFactoryNumeric<SIntT extends SInt> extends BuilderFactor
     return new DefaultComparisonBuilder<>(this, builder);
   }
 
+  default InnerProductBuilder<SIntT> getInnerProductBuilder(ProtocolBuilder<SIntT> builder) {
+    return new DefaultInnerProductBuilder<>(this, builder);
+  }
 
   default EntrywiseProductFactoryImpl getDotProductFactory() {
     return new EntrywiseProductFactoryImpl(getBasicNumericFactory());
   }
 
-  default InnerProductFactoryImpl getInnerProductFactory() {
+  default InnerProductFactory getInnerProductFactory() {
     return new InnerProductFactoryImpl(getBasicNumericFactory(), getDotProductFactory());
   }
 
   default RandomAdditiveMaskFactory getRandomAdditiveMaskFactory() {
     return new RandomAdditiveMaskFactoryImpl(
-        getBasicNumericFactory(), getBasicNumericFactory(),
+        getBasicNumericFactory(),
         getInnerProductFactory());
   }
 
@@ -89,7 +93,6 @@ public interface BuilderFactoryNumeric<SIntT extends SInt> extends BuilderFactor
         new ComparisonProtocolFactoryImpl(MAGIC_SECURE_NUMBER,
             factory,
             getInversionFactory(),
-            factory,
             getExpFromOInt(),
             getPreprocessedExpPipe(
             ),

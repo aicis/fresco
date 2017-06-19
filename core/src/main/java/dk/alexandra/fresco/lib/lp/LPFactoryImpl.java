@@ -47,7 +47,6 @@ import dk.alexandra.fresco.lib.debug.MarkerProtocolImpl;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.field.integer.RandomFieldElementFactory;
 import dk.alexandra.fresco.lib.helper.CopyProtocolImpl;
-import dk.alexandra.fresco.lib.math.integer.NumericBitFactory;
 import dk.alexandra.fresco.lib.math.integer.NumericNegateBitFactory;
 import dk.alexandra.fresco.lib.math.integer.NumericNegateBitFactoryImpl;
 import dk.alexandra.fresco.lib.math.integer.exp.ExpFromOIntFactory;
@@ -83,7 +82,7 @@ public class LPFactoryImpl implements LPFactory {
 
   public LPFactoryImpl(int securityParameter, BasicNumericFactory bnf,
       LocalInversionFactory localInvFactory,
-      NumericBitFactory numericBitFactory,
+      BasicNumericFactory<SInt> numericBitFactory,
       ExpFromOIntFactory expFromOIntFactory,
       PreprocessedExpPipeFactory expFactory,
       RandomFieldElementFactory randFactory,
@@ -97,12 +96,12 @@ public class LPFactoryImpl implements LPFactory {
         new EntrywiseProductFactoryImpl(bnf));
     this.factoryProducer = factoryProducer;
     randomAdditiveMaskFactory = new RandomAdditiveMaskFactoryImpl(bnf,
-        numericBitFactory, new InnerProductFactoryImpl(bnf, new EntrywiseProductFactoryImpl(bnf)));
+        new InnerProductFactoryImpl(bnf, new EntrywiseProductFactoryImpl(bnf)));
     misc = new MiscOIntGenerators(bnf);
     this.zeroTestProtocolFactory = new ZeroTestProtocolFactoryImpl(bnf,
-        expFromOIntFactory, numericBitFactory, numericNegateBitFactory, expFactory);
+        expFromOIntFactory, numericNegateBitFactory, expFactory);
     this.compFactory = new ComparisonProtocolFactoryImpl(securityParameter, bnf, localInvFactory,
-        numericBitFactory, expFromOIntFactory, expFactory, this.factoryProducer);
+        expFromOIntFactory, expFactory, this.factoryProducer);
   }
 
   @Override

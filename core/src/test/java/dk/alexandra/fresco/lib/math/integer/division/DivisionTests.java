@@ -46,7 +46,6 @@ import dk.alexandra.fresco.lib.conversion.IntegerToBitsFactoryImpl;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.helper.builder.NumericIOBuilder;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
-import dk.alexandra.fresco.lib.math.integer.NumericBitFactory;
 import dk.alexandra.fresco.lib.math.integer.binary.BitLengthFactory;
 import dk.alexandra.fresco.lib.math.integer.binary.BitLengthFactoryImpl;
 import dk.alexandra.fresco.lib.math.integer.binary.RightShiftFactory;
@@ -98,11 +97,11 @@ public class DivisionTests {
 							ProtocolFactory producer = factoryProducer.getProtocolFactory();
 
               BasicNumericFactory basicNumericFactory = (BasicNumericFactory) producer;
-              NumericBitFactory preprocessedNumericBitFactory = (NumericBitFactory) producer;
-              ExpFromOIntFactory expFromOIntFactory = (ExpFromOIntFactory) producer;
-              PreprocessedExpPipeFactory preprocessedExpPipeFactory = (PreprocessedExpPipeFactory) producer;
+							BasicNumericFactory<SInt> preprocessedNumericBitFactory = (BasicNumericFactory<SInt>) producer;
+							ExpFromOIntFactory expFromOIntFactory = (ExpFromOIntFactory) producer;
+							PreprocessedExpPipeFactory preprocessedExpPipeFactory = (PreprocessedExpPipeFactory) producer;
               RandomAdditiveMaskFactory randomAdditiveMaskFactory = new RandomAdditiveMaskFactoryImpl(
-									basicNumericFactory, preprocessedNumericBitFactory,
+									basicNumericFactory,
 									new InnerProductFactoryImpl(basicNumericFactory,
 											new EntrywiseProductFactoryImpl(basicNumericFactory)));
 							LocalInversionFactory localInversionFactory = (LocalInversionFactory) producer;
@@ -112,8 +111,8 @@ public class DivisionTests {
 							BitLengthFactory bitLengthFactory = new BitLengthFactoryImpl(basicNumericFactory, integerToBitsFactory);
 							ExponentiationFactory exponentiationFactory = new ExponentiationFactoryImpl(basicNumericFactory, integerToBitsFactory);
               ComparisonProtocolFactory comparisonFactory = new ComparisonProtocolFactoryImpl(80,
-                  basicNumericFactory, localInversionFactory, preprocessedNumericBitFactory,
-                  expFromOIntFactory, preprocessedExpPipeFactory,
+									basicNumericFactory, localInversionFactory,
+									expFromOIntFactory, preprocessedExpPipeFactory,
 									(BuilderFactoryNumeric<SInt>) factoryProducer);
 							DivisionFactory divisionFactory = new DivisionFactoryImpl(basicNumericFactory,
 									rightShiftFactory, bitLengthFactory, exponentiationFactory, comparisonFactory,
@@ -181,11 +180,11 @@ public class DivisionTests {
 							ProtocolFactory producer = factoryProducer.getProtocolFactory();
 
               BasicNumericFactory basicNumericFactory = (BasicNumericFactory) producer;
-              NumericBitFactory preprocessedNumericBitFactory = (NumericBitFactory) producer;
-              ExpFromOIntFactory expFromOIntFactory = (ExpFromOIntFactory) producer;
-              PreprocessedExpPipeFactory preprocessedExpPipeFactory = (PreprocessedExpPipeFactory) producer;
+							BasicNumericFactory<SInt> preprocessedNumericBitFactory = (BasicNumericFactory<SInt>) producer;
+							ExpFromOIntFactory expFromOIntFactory = (ExpFromOIntFactory) producer;
+							PreprocessedExpPipeFactory preprocessedExpPipeFactory = (PreprocessedExpPipeFactory) producer;
               RandomAdditiveMaskFactory randomAdditiveMaskFactory = new RandomAdditiveMaskFactoryImpl(
-									basicNumericFactory, preprocessedNumericBitFactory,
+									basicNumericFactory,
 									new InnerProductFactoryImpl(basicNumericFactory,
 											new EntrywiseProductFactoryImpl(basicNumericFactory)));
 							LocalInversionFactory localInversionFactory = (LocalInversionFactory) producer;
@@ -195,8 +194,8 @@ public class DivisionTests {
 							BitLengthFactory bitLengthFactory = new BitLengthFactoryImpl(basicNumericFactory, integerToBitsFactory);
 							ExponentiationFactory exponentiationFactory = new ExponentiationFactoryImpl(basicNumericFactory, integerToBitsFactory);
               ComparisonProtocolFactory comparisonFactory = new ComparisonProtocolFactoryImpl(80,
-                  basicNumericFactory, localInversionFactory, preprocessedNumericBitFactory,
-                  expFromOIntFactory, preprocessedExpPipeFactory,
+									basicNumericFactory, localInversionFactory,
+									expFromOIntFactory, preprocessedExpPipeFactory,
 									(BuilderFactoryNumeric<SInt>) factoryProducer);
 							DivisionFactory divisionFactory = new DivisionFactoryImpl(basicNumericFactory,
 									rightShiftFactory, bitLengthFactory, exponentiationFactory, comparisonFactory,

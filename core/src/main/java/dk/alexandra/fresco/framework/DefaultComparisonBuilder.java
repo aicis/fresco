@@ -39,7 +39,7 @@ public class DefaultComparisonBuilder<SIntT extends SInt> implements ComparisonB
         new EntrywiseProductFactoryImpl(bnf));
     MiscOIntGenerators misc = new MiscOIntGenerators(bnf);
     ZeroTestProtocolFactoryImpl zeroTestProtocolFactory = new ZeroTestProtocolFactoryImpl(bnf,
-        factoryNumeric.getExpFromOInt(), bnf, numericNegateBitFactory,
+        factoryNumeric.getExpFromOInt(), numericNegateBitFactory,
         factoryNumeric.getPreprocessedExpPipe());
     return new GreaterThanReducerProtocol4(
         bitLength, BuilderFactoryNumeric.MAGIC_SECURE_NUMBER,
