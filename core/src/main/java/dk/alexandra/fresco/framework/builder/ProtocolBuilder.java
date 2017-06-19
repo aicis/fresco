@@ -5,9 +5,9 @@ import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.ProtocolProducer;
-import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.OIntFactory;
 import dk.alexandra.fresco.framework.value.SInt;
+import dk.alexandra.fresco.framework.value.SIntFactory;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.helper.ProtocolProducerCollection;
 import dk.alexandra.fresco.lib.helper.SingleProtocolProducer;
@@ -35,6 +35,14 @@ public abstract class ProtocolBuilder<SIntT extends SInt> {
 
   public OIntFactory getOIntFactory() {
     return basicNumericFactory;
+  }
+
+  public SIntFactory getSIntFactory() {
+    return basicNumericFactory;
+  }
+
+  public SIntT createConstant(int value) {
+    return (SIntT) getSIntFactory().getSInt(value);
   }
 
   public static <SIntT extends SInt> SequentialProtocolBuilder<SIntT> createRoot(
@@ -123,13 +131,6 @@ public abstract class ProtocolBuilder<SIntT extends SInt> {
     return factory.createComparisonBuilder(this);
   }
 
-  public SIntT createConstant(int value) {
-    return (SIntT) basicNumericFactory.getSInt(value);
-  }
-
-  public Computation<SIntT> convert(OInt oInt) {
-    return () -> (SIntT) basicNumericFactory.getSInt(oInt.getValue());
-  }
 
   private static class ProtocolEntity {
 

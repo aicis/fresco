@@ -34,7 +34,6 @@ public class KnownDivisorProtocol extends SimpleProtocolProducer implements Divi
   private BuilderFactoryNumeric<SInt> builderFactory;
 
   // Factories
-  private final BasicNumericFactory basicNumericFactory;
   private final BigInteger modulus;
 
   KnownDivisorProtocol(SInt dividend, OInt divisor, SInt result,
@@ -45,8 +44,7 @@ public class KnownDivisorProtocol extends SimpleProtocolProducer implements Divi
     this.divisor = divisor;
     this.result = result;
 
-    this.basicNumericFactory = basicNumericFactory;
-    modulus = this.basicNumericFactory.getModulus();
+    modulus = basicNumericFactory.getModulus();
     modulusHalf = modulus.divide(BigInteger.valueOf(2));
   }
 
@@ -94,7 +92,8 @@ public class KnownDivisorProtocol extends SimpleProtocolProducer implements Divi
 		 * be shifted maxBitLength + divisorBitLength. So in total we need 3 *
 		 * maxBitLength + divisorBitLength to be representable.
 		 */
-      int maxBitLength = (basicNumericFactory.getMaxBitLength() - divisorAbs.bitLength()) / 3;
+      int maxBitLength =
+          (builderFactory.getBasicNumericFactory().getMaxBitLength() - divisorAbs.bitLength()) / 3;
       int shifts = maxBitLength + divisorAbs.bitLength();
 
 		/*
@@ -109,7 +108,8 @@ public class KnownDivisorProtocol extends SimpleProtocolProducer implements Divi
 		 */
       OInt m = builder.getOIntFactory()
           .getOInt(BigInteger.ONE.shiftLeft(shifts).divide(divisorAbs).add(BigInteger.ONE));
-      Computation<SInt> quotientAbs = numeric.mult(builder.convert(m), dividendAbs);
+      Computation<SInt> mConverted = () -> (SInt) builder.getSIntFactory().getSInt(m.getValue());
+      Computation<SInt> quotientAbs = numeric.mult(mConverted, dividendAbs);
 
 		/*
      * Now quotientAbs is the result shifted SHIFTS bits to the left, so we
