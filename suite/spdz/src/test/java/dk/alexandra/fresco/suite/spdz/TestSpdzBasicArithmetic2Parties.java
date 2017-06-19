@@ -30,6 +30,8 @@ import dk.alexandra.fresco.framework.configuration.PreprocessingStrategy;
 import dk.alexandra.fresco.framework.network.NetworkingStrategy;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.lib.arithmetic.BasicArithmeticTests;
+import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductNewApiTest;
+
 import org.junit.Test;
 
 /**
@@ -40,11 +42,17 @@ import org.junit.Test;
  */
 public class TestSpdzBasicArithmetic2Parties extends AbstractSpdzTest {
 
-	@Test
-	public void test_Copy_Sequential() throws Exception {
-		runTest(new BasicArithmeticTests.TestCopyProtocol(), EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET,
-				PreprocessingStrategy.DUMMY, 2);
-	}
+  @Test
+  public void test_IP_Sequential_Batched() throws Exception {
+      runTest(new InnerProductNewApiTest.InnerProductTest(), EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET,
+              PreprocessingStrategy.DUMMY, 2);
+  }
+  
+  @Test
+  public void test_Copy_Sequential() throws Exception {
+      runTest(new BasicArithmeticTests.TestCopyProtocol(), EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET,
+              PreprocessingStrategy.DUMMY, 2);
+  }
 
 	@Test
 	public void test_Input_Sequential() throws Exception {
