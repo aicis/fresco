@@ -21,7 +21,7 @@ public class DefaultComparisonBuilder<SIntT extends SInt> implements ComparisonB
   private final BuilderFactoryNumeric<SIntT> factoryNumeric;
   private final ProtocolBuilder<SIntT> builder;
 
-  DefaultComparisonBuilder(BuilderFactoryNumeric<SIntT> factoryNumeric,
+  public DefaultComparisonBuilder(BuilderFactoryNumeric<SIntT> factoryNumeric,
       ProtocolBuilder<SIntT> builder) {
     this.factoryNumeric = factoryNumeric;
     this.builder = builder;
