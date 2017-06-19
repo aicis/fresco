@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
+ * Copyright (c) 2015 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
  *
@@ -24,21 +24,11 @@
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
  *******************************************************************************/
-package dk.alexandra.fresco.suite.dummy;
+package dk.alexandra.fresco.suite.dummy.bool;
 
-import dk.alexandra.fresco.framework.sce.configuration.ProtocolSuiteConfiguration;
-import dk.alexandra.fresco.framework.sce.configuration.SCEConfiguration;
-import dk.alexandra.fresco.suite.ProtocolSuite;
-import org.apache.commons.cli.CommandLine;
+import dk.alexandra.fresco.framework.NativeProtocol;
 
-public class DummyConfiguration implements ProtocolSuiteConfiguration {
+public abstract class DummyProtocol implements NativeProtocol {
 
-	public static ProtocolSuiteConfiguration fromCmdLine(SCEConfiguration sceConf, CommandLine cmd) {
-		return new DummyConfiguration();
-	}
 
-  @Override
-  public ProtocolSuite createProtocolSuite(int myPlayerId) {
-    return new DummyProtocolSuite();
-  }
 }

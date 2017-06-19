@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 FRESCO (http://github.com/aicis/fresco).
+ * Copyright (c) 2017 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
  *
@@ -24,41 +24,66 @@
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
  *******************************************************************************/
-package dk.alexandra.fresco.suite.dummy;
+package dk.alexandra.fresco.suite.dummy.arithmetic;
 
+import java.math.BigInteger;
+
+import dk.alexandra.fresco.framework.MPCException;
+import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.network.SCENetwork;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.suite.ProtocolSuite;
+import dk.alexandra.fresco.suite.dummy.arithmetic.config.DummyArithmeticConfiguration;
 
+public class DummyArithmeticProtocolSuite implements ProtocolSuite {
 
-/**
- * Dummy protocol suite that does no secret computation. Only for testing purposes.
- *
- * Do NOT use in production! :-)
- *
- * Currently it only implements basic logic operations "natively".
- */
-public class DummyProtocolSuite implements ProtocolSuite {
-
+  private static BigInteger modulus;
+  private static int maxBitLength;
+  
+  public DummyArithmeticProtocolSuite(DummyArithmeticConfiguration conf) {
+    DummyArithmeticProtocolSuite.modulus = conf.getModulus();
+    DummyArithmeticProtocolSuite.maxBitLength = conf.getMaxBitLength();
+  }
+  
+  public static BigInteger getModulus() {
+    return modulus;
+  }
+  
+  public static int getMaxBitLength() {
+    return maxBitLength;
+  }
+  
   @Override
-  public DummyFactory init(ResourcePool resourcePool) {
-    return new DummyFactory();
+  public ProtocolFactory init(ResourcePool resourcePool) {
+    return new DummyArithmeticFactory(modulus, maxBitLength);
   }
 
   @Override
   public RoundSynchronization createRoundSynchronization() {
-    return new DummyRoundSynchronization();
+    return new RoundSynchronization() {
+      
+      @Override
+      public boolean roundFinished(int round, ResourcePool resourcePool, SCENetwork network)
+          throws MPCException {
+        // TODO Auto-generated method stub
+        return false;
+      }
+      
+      @Override
+      public void finishedBatch(int gatesEvaluated, ResourcePool resourcePool, SCENetwork sceNetwork)
+          throws MPCException {
+        // TODO Auto-generated method stub
+        
+      }
+    };
   }
 
   @Override
   public void finishedEval(ResourcePool resourcePool, SCENetwork sceNetwork) {
-    // No finish needed.
   }
 
   @Override
-  public void destroy() {
-    // No destroy needed.
+  public void destroy() {    
   }
-
 
 }

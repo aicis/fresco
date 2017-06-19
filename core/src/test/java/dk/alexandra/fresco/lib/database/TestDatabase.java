@@ -14,7 +14,8 @@ import dk.alexandra.fresco.framework.sce.configuration.TestSCEConfiguration;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
 import dk.alexandra.fresco.framework.sce.resources.storage.StorageStrategy;
-import dk.alexandra.fresco.suite.dummy.DummyConfiguration;
+import dk.alexandra.fresco.suite.dummy.bool.DummyConfiguration;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;

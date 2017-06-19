@@ -49,6 +49,8 @@ import dk.alexandra.fresco.lib.math.integer.exp.PreprocessedExpPipeFactory;
 import dk.alexandra.fresco.lib.math.integer.inv.LocalInversionFactory;
 import dk.alexandra.fresco.lib.math.integer.min.MinInfFracProtocol;
 import java.math.BigInteger;
+import java.util.Arrays;
+
 import org.junit.Assert;
 
 
@@ -572,6 +574,7 @@ public class BasicArithmeticTests {
           secureComputationEngine
               .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf));
           OInt[] outputs = app.getOutputs();
+          System.out.println(Arrays.toString(outputs));
           Assert.assertEquals(BigInteger.valueOf(2), outputs[0].getValue());
           Assert.assertEquals(BigInteger.valueOf(10), outputs[1].getValue());
           Assert.assertEquals(BigInteger.ZERO, outputs[2].getValue());

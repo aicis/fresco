@@ -36,6 +36,7 @@ import dk.alexandra.fresco.framework.Reporter;
 import dk.alexandra.fresco.framework.configuration.ConfigurationException;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.NetworkConfigurationImpl;
+import dk.alexandra.fresco.framework.network.KryoNetNetwork;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.NetworkingStrategy;
 import dk.alexandra.fresco.framework.network.ScapiNetworkImpl;
@@ -104,8 +105,8 @@ public class SecureComputationEngineImpl implements SecureComputationEngine {
       case KRYONET:
         // TODO[PSN]
         // This might work on mac?
-//          network = new KryoNetNetwork();
-        network = new ScapiNetworkImpl();
+        network = new KryoNetNetwork();
+        //network = new ScapiNetworkImpl();
         break;
       case SCAPI:
         network = new ScapiNetworkImpl();

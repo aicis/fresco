@@ -24,39 +24,67 @@
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
  *******************************************************************************/
-package dk.alexandra.fresco.suite.dummy;
+package dk.alexandra.fresco.suite.dummy.bool;
 
-import dk.alexandra.fresco.framework.network.SCENetwork;
-import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SBool;
 
 
-public class DummyAndProtocol extends DummyProtocol {
+public class DummySBool implements SBool {
 
-  private DummySBool inLeft;
-  private DummySBool inRight;
-  private DummySBool out;
+	private static final long serialVersionUID = -4614951451129474002L;
+	
+	private final String id;
+	
+	private Boolean value;
+	
+	public DummySBool(String id) {
+		this.value = null;
+		this.id = id;
+	}
+	
+	public DummySBool(String id, boolean b) {
+		this.value = b;
+		this.id = id;
+	}
 
-  public DummyAndProtocol(SBool inLeft, SBool inRight, SBool out) {
-    this.inLeft = (DummySBool) inLeft;
-    this.inRight = (DummySBool) inRight;
-    this.out = (DummySBool) out;
-  }
+	@Override
+	public byte[] getSerializableContent() {
+		byte s;
+		if (this.value) { 
+			s = 1;
+		} else {
+			s = 0;
+		}
+		return new byte[] {s};
+	}
 
-  @Override
-  public String toString() {
-    return "DummyAndGate(" + inLeft + "," + inRight + "," + out + ")";
-  }
+	@Override
+	public void setSerializableContent(byte[] val) {
+		this.value = val[0] == 1;
+	}
 
-  @Override
-  public SBool getOutputValues() {
-    return out;
-  }
+	@Override
+	public boolean isReady() {
+		return this.value != null;
+	}
 
-  @Override
-  public EvaluationStatus evaluate(int round, ResourcePool resourcePool,
-      SCENetwork network) {
-    this.out.setValue(this.inLeft.getValue() & this.inRight.getValue());
-    return EvaluationStatus.IS_DONE;
-  }
+	public boolean getValue() {
+		return this.value;
+	}
+
+	public void setValue(boolean val) {
+		this.value = val;
+	}
+	
+
+	@Override
+	public String toString() {
+		if (this.value != null) {
+			return "DummySBool(" + this.id + "; " + this.value + ")";
+		} else {
+			return "DummySBool(" + this.id + "; null)";
+		}
+	}
+	
+	
 }

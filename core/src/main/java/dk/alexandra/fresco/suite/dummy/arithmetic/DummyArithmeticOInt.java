@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 FRESCO (http://github.com/aicis/fresco).
+ * Copyright (c) 2017 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
  *
@@ -24,67 +24,30 @@
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
  *******************************************************************************/
-package dk.alexandra.fresco.suite.dummy;
+package dk.alexandra.fresco.suite.dummy.arithmetic;
 
-import dk.alexandra.fresco.framework.value.SBool;
+import java.math.BigInteger;
 
+import dk.alexandra.fresco.framework.value.GenericOInt;
 
-public class DummySBool implements SBool {
+public class DummyArithmeticOInt extends GenericOInt {
 
-	private static final long serialVersionUID = -4614951451129474002L;
-	
-	private final String id;
-	
-	private Boolean value;
-	
-	public DummySBool(String id) {
-		this.value = null;
-		this.id = id;
-	}
-	
-	public DummySBool(String id, boolean b) {
-		this.value = b;
-		this.id = id;
-	}
+  public DummyArithmeticOInt() {
+    super();
+  }
+  
+  public DummyArithmeticOInt(BigInteger value) {
+    super(value);
+  }
+  
+  @Override
+  public String toString() {
+    return "DummyArithmeticOInt ["+getValue()+"]";
+  }
 
-	@Override
-	public byte[] getSerializableContent() {
-		byte s;
-		if (this.value) { 
-			s = 1;
-		} else {
-			s = 0;
-		}
-		return new byte[] {s};
-	}
+  /**
+   * 
+   */
+  private static final long serialVersionUID = 816964176655769428L;
 
-	@Override
-	public void setSerializableContent(byte[] val) {
-		this.value = val[0] == 1;
-	}
-
-	@Override
-	public boolean isReady() {
-		return this.value != null;
-	}
-
-	public boolean getValue() {
-		return this.value;
-	}
-
-	public void setValue(boolean val) {
-		this.value = val;
-	}
-	
-
-	@Override
-	public String toString() {
-		if (this.value != null) {
-			return "DummySBool(" + this.id + "; " + this.value + ")";
-		} else {
-			return "DummySBool(" + this.id + "; null)";
-		}
-	}
-	
-	
 }

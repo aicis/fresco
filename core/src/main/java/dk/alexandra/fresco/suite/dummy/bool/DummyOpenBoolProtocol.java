@@ -24,34 +24,55 @@
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
  *******************************************************************************/
-package dk.alexandra.fresco.suite.dummy;
+package dk.alexandra.fresco.suite.dummy.bool;
 
 import dk.alexandra.fresco.framework.network.SCENetwork;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
+import dk.alexandra.fresco.framework.value.OBool;
 import dk.alexandra.fresco.framework.value.SBool;
 import dk.alexandra.fresco.framework.value.Value;
-import dk.alexandra.fresco.lib.field.bool.NotProtocol;
+import dk.alexandra.fresco.lib.field.bool.OpenBoolProtocol;
 
-public class DummyNotProtocol extends DummyProtocol implements NotProtocol {
+public class DummyOpenBoolProtocol extends DummyProtocol implements OpenBoolProtocol {
 
 	public DummySBool input;
-	public DummySBool output;
+	public DummyOBool output;
 	
-	public DummyNotProtocol(SBool in, SBool out) {
+	private int target;
+	
+	/**
+	 * Opens to all.
+	 * 
+	 */
+	public DummyOpenBoolProtocol(SBool in, OBool out) {
 		input = (DummySBool)in;
-		output = (DummySBool)out;
+		output = (DummyOBool)out;
+		target = -1; // open to all
+	}
+	
+	/**
+	 * Opens to player with targetId.
+	 * 
+	 */
+	public DummyOpenBoolProtocol(SBool in, OBool out, int targetId) {
+		input = (DummySBool)in;
+		output = (DummyOBool)out;
+		target = targetId;
 	}
 	
 	@Override
 	public EvaluationStatus evaluate(int round, ResourcePool resourcePool,
 			SCENetwork network) {
-		this.output.setValue(!this.input.getValue());
+		boolean openToAll = target == -1;
+		if (resourcePool.getMyId() == target || openToAll) {
+			this.output.setValue(this.input.getValue());
+		}
 		return EvaluationStatus.IS_DONE;
 	}	
 	
 	@Override
 	public String toString() {
-		return "DummyNotGate(" + input + "," + output + ")";
+		return "DummyOpenBoolGate(" + input + "," + output + ")";
 	}
 
 	@Override

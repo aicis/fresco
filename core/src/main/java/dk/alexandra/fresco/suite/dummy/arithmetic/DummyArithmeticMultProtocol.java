@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 FRESCO (http://github.com/aicis/fresco).
+ * Copyright (c) 2017 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
  *
@@ -24,61 +24,51 @@
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
  *******************************************************************************/
-package dk.alexandra.fresco.suite.dummy;
+package dk.alexandra.fresco.suite.dummy.arithmetic;
+
+import java.math.BigInteger;
 
 import dk.alexandra.fresco.framework.network.SCENetwork;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
-import dk.alexandra.fresco.framework.value.OBool;
-import dk.alexandra.fresco.framework.value.SBool;
-import dk.alexandra.fresco.framework.value.Value;
-import dk.alexandra.fresco.lib.field.bool.OpenBoolProtocol;
+import dk.alexandra.fresco.framework.value.OInt;
+import dk.alexandra.fresco.framework.value.SInt;
+import dk.alexandra.fresco.lib.field.integer.MultProtocol;
 
-public class DummyOpenBoolProtocol extends DummyProtocol implements OpenBoolProtocol {
+public class DummyArithmeticMultProtocol extends DummyArithmeticProtocol implements MultProtocol{
 
-	public DummySBool input;
-	public DummyOBool output;
-	
-	private int target;
-	
-	/**
-	 * Opens to all.
-	 * 
-	 */
-	public DummyOpenBoolProtocol(SBool in, OBool out) {
-		input = (DummySBool)in;
-		output = (DummyOBool)out;
-		target = -1; // open to all
-	}
-	
-	/**
-	 * Opens to player with targetId.
-	 * 
-	 */
-	public DummyOpenBoolProtocol(SBool in, OBool out, int targetId) {
-		input = (DummySBool)in;
-		output = (DummyOBool)out;
-		target = targetId;
-	}
-	
-	@Override
-	public EvaluationStatus evaluate(int round, ResourcePool resourcePool,
-			SCENetwork network) {
-		boolean openToAll = target == -1;
-		if (resourcePool.getMyId() == target || openToAll) {
-			this.output.setValue(this.input.getValue());
-		}
-		return EvaluationStatus.IS_DONE;
-	}	
-	
-	@Override
-	public String toString() {
-		return "DummyOpenBoolGate(" + input + "," + output + ")";
-	}
+  private DummyArithmeticSInt left, right, out;
+  private DummyArithmeticOInt open;
+  
+  public DummyArithmeticMultProtocol(SInt left, SInt right,
+      SInt out) {
+    super();
+    this.left = (DummyArithmeticSInt)left;
+    this.right = (DummyArithmeticSInt)right;
+    this.out = (DummyArithmeticSInt)out;
+  }
+  
+  public DummyArithmeticMultProtocol(SInt left, OInt right,
+      SInt out) {
+    super();
+    this.left = (DummyArithmeticSInt)left;
+    this.open = (DummyArithmeticOInt)right;
+    this.out = (DummyArithmeticSInt)out;
+  }
 
-	@Override
-	public Value[] getOutputValues() {
-		return new Value[] {this.output};
-	}
+  @Override
+  public Object getOutputValues() {
+    return out;
+  }
 
-	
+  @Override
+  public EvaluationStatus evaluate(int round, ResourcePool resourcePool, SCENetwork network) {    
+    BigInteger mod = DummyArithmeticProtocolSuite.getModulus();
+    if(right != null) {
+      this.out.setValue(left.getValue().multiply(right.getValue()).mod(mod));
+    } else {
+      this.out.setValue(left.getValue().multiply(open.getValue()).mod(mod));
+    }
+    return EvaluationStatus.IS_DONE;
+  }
+
 }

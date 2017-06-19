@@ -53,7 +53,7 @@ public class TestSpdzLPSolver2Parties extends AbstractSpdzTest {
 	@Category(IntegrationTest.class)
 	@Test
 	public void test_LPSolver_2_Sequential_Batched_streamed() throws Exception {
-		int noOfThreads = 3;
+		int noOfThreads = 1;
 		InitializeStorage.cleanup();
 		try {
 			InitializeStorage.initStreamedStorage(new FilebasedStreamedStorageImpl(new InMemoryStorage()), 2,
