@@ -4,6 +4,7 @@ import dk.alexandra.fresco.framework.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
+import dk.alexandra.fresco.framework.builder.OpenBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
@@ -12,6 +13,7 @@ import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzAddProtocol4;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzLocalInversionProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzMultProtocol4;
+import dk.alexandra.fresco.suite.spdz.gates.SpdzOutputToAllProtocol4;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzSubtractProtocol4;
 import dk.alexandra.fresco.suite.spdz.utils.SpdzFactory;
 
@@ -96,5 +98,20 @@ class SpdzBuilder implements BuilderFactoryNumeric<SpdzSInt> {
         return spdzLocalInversionProtocol;
       }
     };
+  }
+
+  @Override
+  public OpenBuilder<SpdzSInt> createOpenBuilder(ProtocolBuilder protocolBuilder) {
+    return new OpenBuilder<SpdzSInt>() {
+      @Override
+      public Computation<OInt> open(Computation<SpdzSInt> secretShare) {
+        OInt out = spdzFactory.getOInt();
+        SpdzOutputToAllProtocol4 openProtocol = new SpdzOutputToAllProtocol4(secretShare, out);
+        protocolBuilder.append(openProtocol);
+        Computation<OInt> openProtocol1 = (Computation) openProtocol;
+        return openProtocol1;
+      }
+    };
+
   }
 }

@@ -4,9 +4,7 @@ import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 
-public class OpenBuilder<SIntT extends SInt> {
+public interface OpenBuilder<SIntT extends SInt> {
 
-  public Computation<OInt> open(Computation<SIntT> result) {
-    throw new RuntimeException("Error");
-  }
+  Computation<OInt> open(Computation<SIntT> secretShare);
 }

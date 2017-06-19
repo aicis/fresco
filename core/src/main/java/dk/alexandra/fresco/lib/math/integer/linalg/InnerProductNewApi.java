@@ -1,20 +1,23 @@
 package dk.alexandra.fresco.lib.math.integer.linalg;
 
+import dk.alexandra.fresco.framework.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.ProtocolProducer;
+import dk.alexandra.fresco.framework.builder.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.helper.SimpleProtocolProducer;
+import java.util.ArrayList;
+import java.util.List;
 
 public class InnerProductNewApi extends SimpleProtocolProducer implements Computation<SInt> {
 
-  BasicNumericFactory<SInt> bnf;
-  SInt[] a;
-  SInt[] b;
-  SInt c;
+  private BuilderFactoryNumeric<SInt> bnf;
+  private SInt[] a;
+  private SInt[] b;
+  private Computation<SInt> c;
 
-  public InnerProductNewApi(BasicNumericFactory<SInt> bnf, SInt[] a, SInt[] b) {
+  InnerProductNewApi(BuilderFactoryNumeric bnf, SInt[] a, SInt[] b) {
     super();
     this.a = a;
     this.b = b;
@@ -24,35 +27,39 @@ public class InnerProductNewApi extends SimpleProtocolProducer implements Comput
   @Override
   protected ProtocolProducer initializeProtocolProducer() {
     // Root sequential scope ... makes sense   
-    ProtocolBuilder<SInt> pb = ProtocolBuilder.createRoot(bnf, seq -> { 
-      // Do I really need a new subfactory is that not what "seq" is supposed to be?
-      BasicNumericFactory<SInt> bnf1 = seq.createAppendingBasicNumericFactory();
-      // Not sure how to do this correctly using the bnf1.get(0, bnf1.getSInt()) Computation?
-      c = bnf1.getSInt(0); 
-      // How to not get a warning here?
-      Computation<? extends SInt>[] temp = new Computation[a.length];
+    ProtocolBuilder<SInt> pb = ProtocolBuilder.createRoot(bnf, seq -> {
+      List<Computation<SInt>> temp = new ArrayList<>();
       // Parallel scope for multiplication ... makes sense
-      seq.createParallelSubFactory(par -> { 
-        // Do I need to make a new subfactory here? Seems redundant. 
-        BasicNumericFactory<SInt> bnf2 = par.createAppendingBasicNumericFactory();
+      seq.createParallelSubFactory(par -> {
+        NumericBuilder<SInt> parNumericBuilder = par.createNumericBuilder();
         for (int i = 0; i < a.length; i++) {
-          temp[i] = bnf2.mult(a[i], b[i]);
+          temp.add(parNumericBuilder.mult(closure(a[i]), closure(b[i])));
         }
       });
-      // An other sequential scope. Without this I get a nullpointer not sure why?
-      seq.createSequentialSubFactory(seq2 -> { 
-        BasicNumericFactory<SInt> bnf2 = seq2.createAppendingBasicNumericFactory();
-        for (int i = 0; i < temp.length; i++) {
+      // A sub scope is neededm otherwise we will build the add protocol without
+      // having populated the list of values to be added - AddSIntList would have done the trick
+      // neatly
+      seq.createSequentialSubFactory(subSeq -> {
+        NumericBuilder<SInt> numericBuilder = subSeq.createNumericBuilder();
+        // Not sure how to do this correctly using the bnf1.get(0, bnf1.getSInt()) Computation?
+        // PFF - neither am I - hence the old API
+        c = seq.getSIntFactory().getSInt(0);
+        for (Computation<SInt> aTemp : temp) {
           // Not sure how I would do this using Computations? The AddList seems overkill.
-          bnf2.getAddProtocol(c, temp[i].out(), c);
+          // PFF - no it is not...
+          c = numericBuilder.add(c, aTemp);
         }
       });
     });
     return pb.build();
   }
 
+  private Computation<SInt> closure(SInt sInt) {
+    return () -> sInt;
+  }
+
   @Override
   public SInt out() {
-    return c;
+    return c.out();
   }
 }

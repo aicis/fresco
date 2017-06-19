@@ -38,6 +38,9 @@ public interface BuilderFactoryNumeric<SIntT extends SInt> extends BuilderFactor
 
   NumericBuilder<SIntT> createNumericBuilder(ProtocolBuilder builder);
 
+  OpenBuilder<SIntT> createOpenBuilder(ProtocolBuilder<SIntT> builder);
+
+
   default PreprocessedExpPipeFactory getPreprocessedExpPipe() {
     return (PreprocessedExpPipeFactory) getBasicNumericFactory();
   }
@@ -56,10 +59,6 @@ public interface BuilderFactoryNumeric<SIntT extends SInt> extends BuilderFactor
 
   default InnerProductBuilder<SIntT> createInnerProductBuilder(ProtocolBuilder<SIntT> builder) {
     return new DefaultInnerProductBuilder<>(this, builder);
-  }
-
-  default OpenBuilder<SIntT> createOpenBuilder(ProtocolBuilder<SIntT> sIntTProtocolBuilder) {
-    throw new RuntimeException("Not implemented");
   }
 
   default RandomAdditiveMaskBuilder<SIntT> createAdditiveMaskBuilder(
