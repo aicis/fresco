@@ -49,6 +49,8 @@ import dk.alexandra.fresco.lib.math.integer.binary.BitLengthFactoryImpl;
 import dk.alexandra.fresco.lib.math.integer.binary.RightShiftFactory;
 import dk.alexandra.fresco.lib.math.integer.binary.RightShiftFactoryImpl;
 import dk.alexandra.fresco.lib.math.integer.inv.LocalInversionFactory;
+import dk.alexandra.fresco.lib.math.integer.linalg.EntrywiseProductFactoryImpl;
+import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductFactoryImpl;
 import java.math.BigInteger;
 import org.junit.Assert;
 
@@ -87,7 +89,9 @@ public class LogTests {
               BasicNumericFactory basicNumericFactory = (BasicNumericFactory) producer;
               NumericBitFactory preprocessedNumericBitFactory = (NumericBitFactory) producer;
               RandomAdditiveMaskFactory randomAdditiveMaskFactory = new RandomAdditiveMaskFactoryImpl(
-                  basicNumericFactory, preprocessedNumericBitFactory);
+                  basicNumericFactory, preprocessedNumericBitFactory,
+                  new InnerProductFactoryImpl(basicNumericFactory,
+                      new EntrywiseProductFactoryImpl(basicNumericFactory)));
               LocalInversionFactory localInversionFactory = (LocalInversionFactory) producer;
               RightShiftFactory rightShiftFactory = new RightShiftFactoryImpl(basicNumericFactory,
                   randomAdditiveMaskFactory, localInversionFactory);

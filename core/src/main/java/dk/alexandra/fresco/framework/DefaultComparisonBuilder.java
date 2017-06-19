@@ -10,6 +10,7 @@ import dk.alexandra.fresco.lib.compare.gt.GreaterThanReducerProtocol4;
 import dk.alexandra.fresco.lib.compare.zerotest.ZeroTestProtocolFactoryImpl;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.math.integer.NumericNegateBitFactoryImpl;
+import dk.alexandra.fresco.lib.math.integer.linalg.EntrywiseProductFactoryImpl;
 import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductFactoryImpl;
 import java.math.BigInteger;
 
@@ -34,7 +35,8 @@ public class DefaultComparisonBuilder<SIntT extends SInt> implements ComparisonB
     }
     BasicNumericFactory bnf = factoryNumeric.getBasicNumericFactory();
     NumericNegateBitFactoryImpl numericNegateBitFactory = new NumericNegateBitFactoryImpl(bnf);
-    InnerProductFactoryImpl innerProductFactory = new InnerProductFactoryImpl(bnf);
+    InnerProductFactoryImpl innerProductFactory = new InnerProductFactoryImpl(bnf,
+        new EntrywiseProductFactoryImpl(bnf));
     MiscOIntGenerators misc = new MiscOIntGenerators(bnf);
     ZeroTestProtocolFactoryImpl zeroTestProtocolFactory = new ZeroTestProtocolFactoryImpl(bnf,
         factoryNumeric.getExpFromOInt(), bnf, numericNegateBitFactory,

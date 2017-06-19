@@ -34,10 +34,11 @@ public class InnerProductFactoryImpl implements InnerProductFactory{
 
 	private final BasicNumericFactory bnf;
 	private final EntrywiseProductFactory dotProductFactory;
-	
-	public InnerProductFactoryImpl(BasicNumericFactory bnf) {
+
+	public InnerProductFactoryImpl(BasicNumericFactory bnf,
+			EntrywiseProductFactoryImpl dotProductFactory) {
 		this.bnf = bnf;
-		dotProductFactory = new EntrywiseProductFactoryImpl(bnf);
+		this.dotProductFactory = dotProductFactory;
 	}
 	
 	@Override

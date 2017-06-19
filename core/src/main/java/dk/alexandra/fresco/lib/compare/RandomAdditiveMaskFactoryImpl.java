@@ -40,12 +40,12 @@ public class RandomAdditiveMaskFactoryImpl implements RandomAdditiveMaskFactory 
 	private final BasicNumericFactory bnf;
 
 	public RandomAdditiveMaskFactoryImpl(BasicNumericFactory bnf,
-			NumericBitFactory numericBitFactory) {
-		this.bnf = bnf;
+      NumericBitFactory numericBitFactory, InnerProductFactoryImpl innerProductFactory) {
+    this.bnf = bnf;
 		this.misc = new MiscOIntGenerators(bnf);
 		this.numericBitFactory = numericBitFactory;
-		this.innerProductFactory = new InnerProductFactoryImpl(bnf);
-	}
+    this.innerProductFactory = innerProductFactory;
+  }
 
 	@Override
 	public RandomAdditiveMaskProtocol getRandomAdditiveMaskProtocol(int securityParameter,

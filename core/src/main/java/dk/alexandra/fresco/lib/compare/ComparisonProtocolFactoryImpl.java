@@ -40,6 +40,7 @@ import dk.alexandra.fresco.lib.math.integer.NumericNegateBitFactoryImpl;
 import dk.alexandra.fresco.lib.math.integer.exp.ExpFromOIntFactory;
 import dk.alexandra.fresco.lib.math.integer.exp.PreprocessedExpPipeFactory;
 import dk.alexandra.fresco.lib.math.integer.inv.LocalInversionFactory;
+import dk.alexandra.fresco.lib.math.integer.linalg.EntrywiseProductFactoryImpl;
 import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductFactory;
 import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductFactoryImpl;
 
@@ -65,10 +66,11 @@ public class ComparisonProtocolFactoryImpl implements ComparisonProtocolFactory 
     this.bnf = bnf;
     this.localInvFactory = localInvFactory;
     this.numericNegateBitFactory = new NumericNegateBitFactoryImpl(bnf);
-    this.innerProductFactory = new InnerProductFactoryImpl(bnf);
+    this.innerProductFactory = new InnerProductFactoryImpl(bnf,
+        new EntrywiseProductFactoryImpl(bnf));
     this.factoryProducer = factoryProducer;
     this.randomAdditiveMaskFactory = new RandomAdditiveMaskFactoryImpl(bnf,
-        numericBitFactory);
+        numericBitFactory, new InnerProductFactoryImpl(bnf, new EntrywiseProductFactoryImpl(bnf)));
     this.misc = new MiscOIntGenerators(bnf);
     this.zeroTestProtocolFactory = new ZeroTestProtocolFactoryImpl(bnf,
         expFromOIntFactory, numericBitFactory, numericNegateBitFactory, expFactory);

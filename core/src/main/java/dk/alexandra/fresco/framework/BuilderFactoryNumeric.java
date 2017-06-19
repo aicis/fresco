@@ -20,6 +20,8 @@ import dk.alexandra.fresco.lib.math.integer.exp.ExponentiationFactory;
 import dk.alexandra.fresco.lib.math.integer.exp.ExponentiationFactoryImpl;
 import dk.alexandra.fresco.lib.math.integer.exp.PreprocessedExpPipeFactory;
 import dk.alexandra.fresco.lib.math.integer.inv.LocalInversionFactory;
+import dk.alexandra.fresco.lib.math.integer.linalg.EntrywiseProductFactoryImpl;
+import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductFactoryImpl;
 
 public interface BuilderFactoryNumeric<SIntT extends SInt> extends BuilderFactory {
 
@@ -29,8 +31,35 @@ public interface BuilderFactoryNumeric<SIntT extends SInt> extends BuilderFactor
 
   NumericBuilder<SIntT> createNumericBuilder(ProtocolBuilder builder);
 
+  default PreprocessedExpPipeFactory getPreprocessedExpPipe() {
+    return (PreprocessedExpPipeFactory) getBasicNumericFactory();
+  }
+
+  default LocalInversionFactory getInversionFactory() {
+    return (LocalInversionFactory) getBasicNumericFactory();
+  }
+
+  default ExpFromOIntFactory getExpFromOInt() {
+    return (ExpFromOIntFactory) getBasicNumericFactory();
+  }
+
   default ComparisonBuilder<SIntT> createComparisonBuilder(ProtocolBuilder<SIntT> builder) {
     return new DefaultComparisonBuilder<>(this, builder);
+  }
+
+
+  default EntrywiseProductFactoryImpl getDotProductFactory() {
+    return new EntrywiseProductFactoryImpl(getBasicNumericFactory());
+  }
+
+  default InnerProductFactoryImpl getInnerProductFactory() {
+    return new InnerProductFactoryImpl(getBasicNumericFactory(), getDotProductFactory());
+  }
+
+  default RandomAdditiveMaskFactory getRandomAdditiveMaskFactory() {
+    return new RandomAdditiveMaskFactoryImpl(
+        getBasicNumericFactory(), getBasicNumericFactory(),
+        getInnerProductFactory());
   }
 
   default RightShiftFactory getRightShiftFactory() {
@@ -42,9 +71,16 @@ public interface BuilderFactoryNumeric<SIntT extends SInt> extends BuilderFactor
         localInversionFactory);
   }
 
-  default RandomAdditiveMaskFactory getRandomAdditiveMaskFactory() {
-    return new RandomAdditiveMaskFactoryImpl(
-        getBasicNumericFactory(), getBasicNumericFactory());
+  default IntegerToBitsFactory getIntegerToBitsFactory() {
+    return new IntegerToBitsFactoryImpl(getBasicNumericFactory(), getRightShiftFactory());
+  }
+
+  default BitLengthFactory getBitLengthFactory() {
+    return new BitLengthFactoryImpl(getBasicNumericFactory(), getIntegerToBitsFactory());
+  }
+
+  default ExponentiationFactory getExponentiationFactory() {
+    return new ExponentiationFactoryImpl(getBasicNumericFactory(), getIntegerToBitsFactory());
   }
 
   default ComparisonProtocolFactory getComparisonFactory() {
@@ -59,29 +95,5 @@ public interface BuilderFactoryNumeric<SIntT extends SInt> extends BuilderFactor
             ),
             this);
 
-  }
-
-  default PreprocessedExpPipeFactory getPreprocessedExpPipe() {
-    return (PreprocessedExpPipeFactory) getBasicNumericFactory();
-  }
-
-  default LocalInversionFactory getInversionFactory() {
-    return (LocalInversionFactory) getBasicNumericFactory();
-  }
-
-  default ExpFromOIntFactory getExpFromOInt() {
-    return (ExpFromOIntFactory) getBasicNumericFactory();
-  }
-
-  default IntegerToBitsFactory getIntegerToBitsFactory() {
-    return new IntegerToBitsFactoryImpl(getBasicNumericFactory(), getRightShiftFactory());
-  }
-
-  default BitLengthFactory getBitLengthFactory() {
-    return new BitLengthFactoryImpl(getBasicNumericFactory(), getIntegerToBitsFactory());
-  }
-
-  default ExponentiationFactory getExponentiationFactory() {
-    return new ExponentiationFactoryImpl(getBasicNumericFactory(), getIntegerToBitsFactory());
   }
 }
