@@ -36,7 +36,7 @@ public class InnerProductNewApi extends SimpleProtocolProducer implements Comput
           temp.add(parNumericBuilder.mult(closure(a[i]), closure(b[i])));
         }
       });
-      // A sub scope is neededm otherwise we will build the add protocol without
+      // A sub scope is needed - otherwise we will build the add protocol without
       // having populated the list of values to be added - AddSIntList would have done the trick
       // neatly
       seq.createSequentialSubFactory(subSeq -> {
