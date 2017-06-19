@@ -24,19 +24,42 @@
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
  *******************************************************************************/
-package dk.alexandra.fresco.lib.field.integer.generic;
+package dk.alexandra.fresco.suite.spdz.gates;
 
 import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.ProtocolFactory;
-import dk.alexandra.fresco.framework.value.OInt;
-import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.field.integer.AddByConstantProtocolFactory;
+import dk.alexandra.fresco.framework.network.SCENetwork;
+import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
+import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 
-public interface AddProtocolFactory extends ProtocolFactory, AddByConstantProtocolFactory {
+public class SpdzSubtractProtocol4 extends SpdzNativeProtocol<SpdzSInt> {
 
-  Computation<? extends SInt> getAddProtocol(SInt a, SInt b, SInt out);
+  private Computation<SpdzSInt> left;
+  private Computation<SpdzSInt> right;
+  private SpdzSInt out;
 
-  Computation<? extends SInt> add(SInt a, SInt b);
+  public SpdzSubtractProtocol4(Computation<SpdzSInt> left, Computation<SpdzSInt> right,
+      SpdzSInt out) {
+    this.left = left;
+    this.right = right;
+    this.out = out;
+  }
 
-  Computation<? extends SInt> getAddProtocol(SInt input, OInt openInput, SInt out);
+  @Override
+  public String toString() {
+    return "SpdzSubtractGate(" + left + ", " + right + ", "
+        + out.value + ")";
+  }
+
+  @Override
+  public SpdzSInt out() {
+    return out;
+  }
+
+  @Override
+  public EvaluationStatus evaluate(int round, SpdzResourcePool SpdzResourcePool,
+      SCENetwork network) {
+    out.value = left.out().value.subtract(right.out().value);
+    return EvaluationStatus.IS_DONE;
+  }
+
 }

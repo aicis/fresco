@@ -33,9 +33,7 @@ import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.compare.MiscOIntGenerators;
-import dk.alexandra.fresco.lib.field.integer.AddByConstantProtocolFactory;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
-import dk.alexandra.fresco.lib.field.integer.MultByConstantFactory;
 import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
 import dk.alexandra.fresco.lib.helper.SingleProtocolProducer;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
@@ -54,11 +52,9 @@ public class ZeroTestBruteforceProtocolImpl implements ZeroTestBruteforceProtoco
 
   // Factories
   private final BasicNumericFactory factory;
-  private final MultByConstantFactory mbcFactory;
   private final ExpFromOIntFactory expFromOIntFactory;
   private final MiscOIntGenerators miscOIntGenerator;
   private final InnerProductFactory innerProdFactory;
-  private final AddByConstantProtocolFactory abcFactory;
   private final PreprocessedExpPipeFactory expFactory;
   private final IncrementByOneProtocolFactory incrFactory;
 
@@ -80,13 +76,11 @@ public class ZeroTestBruteforceProtocolImpl implements ZeroTestBruteforceProtoco
     this.input = input;
     this.output = output;
     this.factory = factory;
-    this.mbcFactory = factory;
     this.expFromOIntFactory = expFromOIntFactory;
     this.miscOIntGenerator = miscOIntGenerator;
     this.innerProdFactory = innerProdFactory;
     this.expFactory = expFactory;
 
-    this.abcFactory = factory;
     this.incrFactory = incrFactory;
 
   }
@@ -119,7 +113,7 @@ public class ZeroTestBruteforceProtocolImpl implements ZeroTestBruteforceProtoco
           SInt[] powers = new SInt[maxInput];
           for (int i = 0; i < maxInput; i++) {
             powers[i] = factory.getSInt();
-            unmaskGPs[i] = mbcFactory.getMultProtocol(maskedPowers[i], R[i + 1], powers[i]);
+            unmaskGPs[i] = factory.getMultProtocol(maskedPowers[i], R[i + 1], powers[i]);
           }
           OInt[] polynomialCoefficients = miscOIntGenerator.getPoly(maxInput, factory.getModulus());
 
@@ -129,7 +123,7 @@ public class ZeroTestBruteforceProtocolImpl implements ZeroTestBruteforceProtoco
           SInt tmp = factory.getSInt();
           ProtocolProducer polynomialGP = innerProdFactory.getInnerProductProtocol(powers,
               mostSignificantPolynomialCoefficients, tmp);
-          Computation add = abcFactory.getAddProtocol(tmp,
+          Computation add = factory.getAddProtocol(tmp,
               polynomialCoefficients[0], output);
           pp = new SequentialProtocolProducer(new ParallelProtocolProducer(unmaskGPs),
               polynomialGP, SingleProtocolProducer.wrap(add));

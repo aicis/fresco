@@ -26,6 +26,7 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.lp;
 
+import dk.alexandra.fresco.framework.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
@@ -46,7 +47,6 @@ import dk.alexandra.fresco.lib.debug.MarkerProtocolImpl;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.field.integer.RandomFieldElementFactory;
 import dk.alexandra.fresco.lib.helper.CopyProtocolImpl;
-import dk.alexandra.fresco.lib.math.integer.NumericBitFactory;
 import dk.alexandra.fresco.lib.math.integer.NumericNegateBitFactory;
 import dk.alexandra.fresco.lib.math.integer.NumericNegateBitFactoryImpl;
 import dk.alexandra.fresco.lib.math.integer.exp.ExpFromOIntFactory;
@@ -54,6 +54,7 @@ import dk.alexandra.fresco.lib.math.integer.exp.PreprocessedExpPipeFactory;
 import dk.alexandra.fresco.lib.math.integer.inv.InversionProtocol;
 import dk.alexandra.fresco.lib.math.integer.inv.InversionProtocolImpl;
 import dk.alexandra.fresco.lib.math.integer.inv.LocalInversionFactory;
+import dk.alexandra.fresco.lib.math.integer.linalg.EntrywiseProductFactoryImpl;
 import dk.alexandra.fresco.lib.math.integer.linalg.EntrywiseProductProtocol;
 import dk.alexandra.fresco.lib.math.integer.linalg.EntrywiseProductProtocolImpl;
 import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductFactory;
@@ -77,26 +78,30 @@ public class LPFactoryImpl implements LPFactory {
   private final ZeroTestProtocolFactory zeroTestProtocolFactory;
   private final MiscOIntGenerators misc;
   private ComparisonProtocolFactory compFactory;
+  private BuilderFactoryNumeric<SInt> factoryProducer;
 
   public LPFactoryImpl(int securityParameter, BasicNumericFactory bnf,
       LocalInversionFactory localInvFactory,
-      NumericBitFactory numericBitFactory,
+      BasicNumericFactory<SInt> numericBitFactory,
       ExpFromOIntFactory expFromOIntFactory,
       PreprocessedExpPipeFactory expFactory,
-      RandomFieldElementFactory randFactory) {
+      RandomFieldElementFactory randFactory,
+      BuilderFactoryNumeric<SInt> factoryProducer) {
     this.securityParameter = securityParameter;
     this.bnf = bnf;
     this.localInvFactory = localInvFactory;
     this.randFactory = randFactory;
     this.numericNegateBitFactory = new NumericNegateBitFactoryImpl(bnf);
-    this.innerProductFactory = new InnerProductFactoryImpl(bnf);
+    this.innerProductFactory = new InnerProductFactoryImpl(bnf,
+        new EntrywiseProductFactoryImpl(bnf));
+    this.factoryProducer = factoryProducer;
     randomAdditiveMaskFactory = new RandomAdditiveMaskFactoryImpl(bnf,
-        numericBitFactory);
+        new InnerProductFactoryImpl(bnf, new EntrywiseProductFactoryImpl(bnf)));
     misc = new MiscOIntGenerators(bnf);
     this.zeroTestProtocolFactory = new ZeroTestProtocolFactoryImpl(bnf,
-        expFromOIntFactory, numericBitFactory, numericNegateBitFactory, expFactory);
+        expFromOIntFactory, numericNegateBitFactory, expFactory);
     this.compFactory = new ComparisonProtocolFactoryImpl(securityParameter, bnf, localInvFactory,
-        numericBitFactory, expFromOIntFactory, expFactory);
+        expFromOIntFactory, expFactory, this.factoryProducer);
   }
 
   @Override
@@ -129,7 +134,7 @@ public class LPFactoryImpl implements LPFactory {
   @Override
   public ConditionalSelectProtocol getConditionalSelectProtocol(SInt selector,
       SInt a, SInt b, SInt result) {
-    return new ConditionalSelectProtocolImpl(selector, a, b, result, bnf);
+    return new ConditionalSelectProtocolImpl(selector, a, b, result, factoryProducer);
   }
 
   @Override
@@ -159,7 +164,7 @@ public class LPFactoryImpl implements LPFactory {
     return new GreaterThanReducerProtocolImpl(bitLength,
         this.securityParameter, x1, x2, result, bnf, numericNegateBitFactory,
         randomAdditiveMaskFactory, zeroTestProtocolFactory, misc,
-        innerProductFactory, localInvFactory);
+        innerProductFactory, localInvFactory, factoryProducer);
   }
 
   @Override
@@ -219,25 +224,6 @@ public class LPFactoryImpl implements LPFactory {
       SInt pivot, SInt optimalValue) {
     return new OptimalValueProtocol(updateMatrix, tableau, pivot, optimalValue,
         this, bnf);
-  }
-
-  @Override
-  public OptimalNumeratorProtocol getOptimalNumeratorProtocol(
-      Matrix<SInt> updateMatrix, SInt[] B, SInt optimalNumerator) {
-    return new OptimalNumeratorProtocol(updateMatrix, B, optimalNumerator,
-        this);
-  }
-
-  @Override
-  public RankProtocol getRankProtocol(SInt[] numerators, SInt[] denominators,
-      SInt numerator, SInt denominator, SInt rank) {
-    return new RankProtocol(numerators, denominators, numerator,
-        denominator, rank, bnf, this);
-  }
-
-  @Override
-  public RankProtocol getRankProtocol(SInt[] values, SInt rankValue, SInt rank) {
-    return new RankProtocol(values, rankValue, rank, bnf, this);
   }
 
   @Override

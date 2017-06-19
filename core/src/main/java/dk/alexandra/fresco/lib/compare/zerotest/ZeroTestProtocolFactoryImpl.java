@@ -35,10 +35,10 @@ import dk.alexandra.fresco.lib.math.bool.add.IncrementByOneProtocolFactory;
 import dk.alexandra.fresco.lib.math.bool.add.IncrementByOneProtocolFactoryImpl;
 import dk.alexandra.fresco.lib.math.integer.HammingDistanceFactory;
 import dk.alexandra.fresco.lib.math.integer.HammingDistanceFactoryImpl;
-import dk.alexandra.fresco.lib.math.integer.NumericBitFactory;
 import dk.alexandra.fresco.lib.math.integer.NumericNegateBitFactory;
 import dk.alexandra.fresco.lib.math.integer.exp.ExpFromOIntFactory;
 import dk.alexandra.fresco.lib.math.integer.exp.PreprocessedExpPipeFactory;
+import dk.alexandra.fresco.lib.math.integer.linalg.EntrywiseProductFactoryImpl;
 import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductFactory;
 import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductFactoryImpl;
 
@@ -55,17 +55,16 @@ public class ZeroTestProtocolFactoryImpl implements ZeroTestProtocolFactory {
 
 	public ZeroTestProtocolFactoryImpl(BasicNumericFactory bnf,
 			ExpFromOIntFactory expFromOIntFactory,
-			NumericBitFactory numericBitFactory,
 			NumericNegateBitFactory numericNegateBitFactory,
 			PreprocessedExpPipeFactory expFactory) {
 		this.bnf = bnf;
 		this.miscOIntGenerator = new MiscOIntGenerators(bnf);
-		this.ipf = new InnerProductFactoryImpl(bnf);
+		this.ipf = new InnerProductFactoryImpl(bnf, new EntrywiseProductFactoryImpl(bnf));
 		this.incFactory = new IncrementByOneProtocolFactoryImpl(bnf);
 		this.expFromOIntFactory = expFromOIntFactory;
 		this.expFactory = expFactory;
 		this.maskFactory = new RandomAdditiveMaskFactoryImpl(bnf,
-				numericBitFactory);
+				new InnerProductFactoryImpl(bnf, new EntrywiseProductFactoryImpl(bnf)));
 		this.hammingFactory = new HammingDistanceFactoryImpl(bnf,
 				numericNegateBitFactory);
 	}

@@ -1,19 +1,19 @@
 package dk.alexandra.fresco.demo.mimcaggregation;
 
-import java.util.List;
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.HashMap;
-
 import dk.alexandra.fresco.framework.Application;
-import dk.alexandra.fresco.framework.ProtocolFactory;
+import dk.alexandra.fresco.framework.BuilderFactory;
+import dk.alexandra.fresco.framework.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.framework.value.Value;
-import dk.alexandra.fresco.lib.helper.builder.OmniBuilder;
 import dk.alexandra.fresco.lib.helper.builder.NumericProtocolBuilder;
+import dk.alexandra.fresco.lib.helper.builder.OmniBuilder;
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class AggregateStep implements Application {
 
@@ -46,9 +46,10 @@ public class AggregateStep implements Application {
     }
     
 	@Override
-    public ProtocolProducer prepareApplication(ProtocolFactory factory) {
-        OmniBuilder builder = new OmniBuilder(factory);
-        NumericProtocolBuilder npb = builder.getNumericProtocolBuilder();
+	public ProtocolProducer prepareApplication(BuilderFactory producer) {
+		BuilderFactoryNumeric factoryNumeric = (BuilderFactoryNumeric) producer;
+		OmniBuilder builder = new OmniBuilder(factoryNumeric);
+		NumericProtocolBuilder npb = builder.getNumericProtocolBuilder();
         
         Map<BigInteger, SInt> groupedByCipher = new HashMap<>();
         Map<BigInteger, SInt> cipherToShare = new HashMap<>();

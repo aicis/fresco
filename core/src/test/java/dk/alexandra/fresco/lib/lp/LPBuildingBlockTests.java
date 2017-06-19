@@ -27,6 +27,8 @@
 package dk.alexandra.fresco.lib.lp;
 
 import dk.alexandra.fresco.framework.Application;
+import dk.alexandra.fresco.framework.BuilderFactory;
+import dk.alexandra.fresco.framework.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.TestApplication;
@@ -41,7 +43,6 @@ import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.field.integer.RandomFieldElementFactory;
 import dk.alexandra.fresco.lib.helper.builder.NumericIOBuilder;
 import dk.alexandra.fresco.lib.helper.builder.NumericProtocolBuilder;
-import dk.alexandra.fresco.lib.math.integer.NumericBitFactory;
 import dk.alexandra.fresco.lib.math.integer.exp.ExpFromOIntFactory;
 import dk.alexandra.fresco.lib.math.integer.exp.PreprocessedExpPipeFactory;
 import dk.alexandra.fresco.lib.math.integer.inv.LocalInversionFactory;
@@ -182,7 +183,7 @@ public class LPBuildingBlockTests {
             private static final long serialVersionUID = 1L;
 
             @Override
-            public ProtocolProducer prepareApplication(ProtocolFactory factory) {
+            public ProtocolProducer prepareApplication(BuilderFactory producer) {
               return new MarkerProtocolImpl("Running Dummy Test");
             }
 
@@ -212,16 +213,18 @@ public class LPBuildingBlockTests {
             private static final long serialVersionUID = 4338818809103728010L;
 
             @Override
-            public ProtocolProducer prepareApplication(ProtocolFactory factory) {
-              BasicNumericFactory bnFactory = (BasicNumericFactory) factory;
-              LocalInversionFactory localInvFactory = (LocalInversionFactory) factory;
-              NumericBitFactory numericBitFactory = (NumericBitFactory) factory;
-              ExpFromOIntFactory expFromOIntFactory = (ExpFromOIntFactory) factory;
-              PreprocessedExpPipeFactory expFactory = (PreprocessedExpPipeFactory) factory;
-              RandomFieldElementFactory randFactory = (RandomFieldElementFactory) factory;
+            public ProtocolProducer prepareApplication(BuilderFactory factoryProducer) {
+              ProtocolFactory producer = factoryProducer.getProtocolFactory();
+              BasicNumericFactory bnFactory = (BasicNumericFactory) producer;
+              LocalInversionFactory localInvFactory = (LocalInversionFactory) producer;
+              BasicNumericFactory<SInt> numericBitFactory = (BasicNumericFactory<SInt>) producer;
+              ExpFromOIntFactory expFromOIntFactory = (ExpFromOIntFactory) producer;
+              PreprocessedExpPipeFactory expFactory = (PreprocessedExpPipeFactory) producer;
+              RandomFieldElementFactory randFactory = (RandomFieldElementFactory) producer;
               LPFactory lpFactory = new LPFactoryImpl(80, bnFactory, localInvFactory,
                   numericBitFactory,
-                  expFromOIntFactory, expFactory, randFactory);
+                  expFromOIntFactory, expFactory, randFactory,
+                  (BuilderFactoryNumeric<SInt>) factoryProducer);
               mod = bnFactory.getModulus();
               return setupRandom(10, 10, bnFactory, lpFactory);
             }
@@ -260,7 +263,7 @@ public class LPBuildingBlockTests {
             private static final long serialVersionUID = 4338818809103728010L;
 
             @Override
-            public ProtocolProducer prepareApplication(ProtocolFactory factory) {
+            public ProtocolProducer prepareApplication(BuilderFactory producer) {
               // BasicNumericFactory fac = (BasicNumericFactory)
               // factory;
               return null;
@@ -287,7 +290,7 @@ public class LPBuildingBlockTests {
             private static final long serialVersionUID = 4338818809103728010L;
 
             @Override
-            public ProtocolProducer prepareApplication(ProtocolFactory factory) {
+            public ProtocolProducer prepareApplication(BuilderFactory producer) {
               // BasicNumericFactory fac = (BasicNumericFactory)
               // factory;
               return null;

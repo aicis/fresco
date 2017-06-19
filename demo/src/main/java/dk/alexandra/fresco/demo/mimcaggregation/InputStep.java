@@ -1,7 +1,8 @@
 package dk.alexandra.fresco.demo.mimcaggregation;
 
 import dk.alexandra.fresco.framework.Application;
-import dk.alexandra.fresco.framework.ProtocolFactory;
+import dk.alexandra.fresco.framework.BuilderFactory;
+import dk.alexandra.fresco.framework.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.helper.builder.NumericIOBuilder;
@@ -24,9 +25,10 @@ public class InputStep implements Application {
 	}
 
 	@Override
-	public ProtocolProducer prepareApplication(ProtocolFactory factory) {
+	public ProtocolProducer prepareApplication(BuilderFactory producer) {
 		// Create the necessary builders
-		OmniBuilder builder = new OmniBuilder(factory);
+		BuilderFactoryNumeric factoryNumeric = (BuilderFactoryNumeric) producer;
+		OmniBuilder builder = new OmniBuilder(factoryNumeric);
 		NumericIOBuilder niob = builder.getNumericIOBuilder();
 		
 		// Secret-share input		

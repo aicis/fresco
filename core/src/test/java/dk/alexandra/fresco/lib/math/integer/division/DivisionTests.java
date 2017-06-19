@@ -26,6 +26,8 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.math.integer.division;
 
+import dk.alexandra.fresco.framework.BuilderFactory;
+import dk.alexandra.fresco.framework.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.TestApplication;
@@ -44,7 +46,6 @@ import dk.alexandra.fresco.lib.conversion.IntegerToBitsFactoryImpl;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.helper.builder.NumericIOBuilder;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
-import dk.alexandra.fresco.lib.math.integer.NumericBitFactory;
 import dk.alexandra.fresco.lib.math.integer.binary.BitLengthFactory;
 import dk.alexandra.fresco.lib.math.integer.binary.BitLengthFactoryImpl;
 import dk.alexandra.fresco.lib.math.integer.binary.RightShiftFactory;
@@ -54,6 +55,8 @@ import dk.alexandra.fresco.lib.math.integer.exp.ExponentiationFactory;
 import dk.alexandra.fresco.lib.math.integer.exp.ExponentiationFactoryImpl;
 import dk.alexandra.fresco.lib.math.integer.exp.PreprocessedExpPipeFactory;
 import dk.alexandra.fresco.lib.math.integer.inv.LocalInversionFactory;
+import dk.alexandra.fresco.lib.math.integer.linalg.EntrywiseProductFactoryImpl;
+import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductFactoryImpl;
 import java.math.BigInteger;
 import org.junit.Assert;
 
@@ -90,22 +93,32 @@ public class DivisionTests {
 						
 						@Override
 						public ProtocolProducer prepareApplication(
-								ProtocolFactory factory) {
-							
-							BasicNumericFactory basicNumericFactory = (BasicNumericFactory) factory;
-							NumericBitFactory preprocessedNumericBitFactory = (NumericBitFactory) factory;
-							ExpFromOIntFactory expFromOIntFactory = (ExpFromOIntFactory)factory;
-							PreprocessedExpPipeFactory preprocessedExpPipeFactory = (PreprocessedExpPipeFactory)factory;
-							RandomAdditiveMaskFactory randomAdditiveMaskFactory = new RandomAdditiveMaskFactoryImpl(basicNumericFactory, preprocessedNumericBitFactory);
-							LocalInversionFactory localInversionFactory = (LocalInversionFactory) factory;
-							RightShiftFactory rightShiftFactory = new RightShiftFactoryImpl(basicNumericFactory, randomAdditiveMaskFactory, localInversionFactory);
-							IntegerToBitsFactory integerToBitsFactory = new IntegerToBitsFactoryImpl(basicNumericFactory, rightShiftFactory);
+								BuilderFactory factoryProducer) {
+							ProtocolFactory producer = factoryProducer.getProtocolFactory();
+
+              BasicNumericFactory basicNumericFactory = (BasicNumericFactory) producer;
+							BasicNumericFactory<SInt> preprocessedNumericBitFactory = (BasicNumericFactory<SInt>) producer;
+							ExpFromOIntFactory expFromOIntFactory = (ExpFromOIntFactory) producer;
+							PreprocessedExpPipeFactory preprocessedExpPipeFactory = (PreprocessedExpPipeFactory) producer;
+              RandomAdditiveMaskFactory randomAdditiveMaskFactory = new RandomAdditiveMaskFactoryImpl(
+									basicNumericFactory,
+									new InnerProductFactoryImpl(basicNumericFactory,
+											new EntrywiseProductFactoryImpl(basicNumericFactory)));
+							LocalInversionFactory localInversionFactory = (LocalInversionFactory) producer;
+              RightShiftFactory rightShiftFactory = new RightShiftFactoryImpl(basicNumericFactory,
+                  randomAdditiveMaskFactory, localInversionFactory);
+              IntegerToBitsFactory integerToBitsFactory = new IntegerToBitsFactoryImpl(basicNumericFactory, rightShiftFactory);
 							BitLengthFactory bitLengthFactory = new BitLengthFactoryImpl(basicNumericFactory, integerToBitsFactory);
 							ExponentiationFactory exponentiationFactory = new ExponentiationFactoryImpl(basicNumericFactory, integerToBitsFactory);
-							ComparisonProtocolFactory comparisonFactory = new ComparisonProtocolFactoryImpl(80, basicNumericFactory, localInversionFactory, preprocessedNumericBitFactory, expFromOIntFactory, preprocessedExpPipeFactory);
-							DivisionFactory divisionFactory = new DivisionFactoryImpl(basicNumericFactory, rightShiftFactory, bitLengthFactory, exponentiationFactory, comparisonFactory);
-							
-							SInt quotient = basicNumericFactory.getSInt();
+              ComparisonProtocolFactory comparisonFactory = new ComparisonProtocolFactoryImpl(80,
+									basicNumericFactory, localInversionFactory,
+									expFromOIntFactory, preprocessedExpPipeFactory,
+									(BuilderFactoryNumeric<SInt>) factoryProducer);
+							DivisionFactory divisionFactory = new DivisionFactoryImpl(basicNumericFactory,
+									rightShiftFactory, bitLengthFactory, exponentiationFactory, comparisonFactory,
+									(BuilderFactoryNumeric<SInt>) factoryProducer);
+
+              SInt quotient = basicNumericFactory.getSInt();
 							SInt remainder = basicNumericFactory.getSInt();
 
 							NumericIOBuilder ioBuilder = new NumericIOBuilder(basicNumericFactory);
@@ -163,22 +176,32 @@ public class DivisionTests {
 						
 						@Override
 						public ProtocolProducer prepareApplication(
-								ProtocolFactory factory) {
+								BuilderFactory factoryProducer) {
+							ProtocolFactory producer = factoryProducer.getProtocolFactory();
 
-							BasicNumericFactory basicNumericFactory = (BasicNumericFactory) factory;
-							NumericBitFactory preprocessedNumericBitFactory = (NumericBitFactory) factory;
-							ExpFromOIntFactory expFromOIntFactory = (ExpFromOIntFactory)factory;
-							PreprocessedExpPipeFactory preprocessedExpPipeFactory = (PreprocessedExpPipeFactory)factory;
-							RandomAdditiveMaskFactory randomAdditiveMaskFactory = new RandomAdditiveMaskFactoryImpl(basicNumericFactory, preprocessedNumericBitFactory);
-							LocalInversionFactory localInversionFactory = (LocalInversionFactory) factory;
-							RightShiftFactory rightShiftFactory = new RightShiftFactoryImpl(basicNumericFactory, randomAdditiveMaskFactory, localInversionFactory);
-							IntegerToBitsFactory integerToBitsFactory = new IntegerToBitsFactoryImpl(basicNumericFactory, rightShiftFactory);
+              BasicNumericFactory basicNumericFactory = (BasicNumericFactory) producer;
+							BasicNumericFactory<SInt> preprocessedNumericBitFactory = (BasicNumericFactory<SInt>) producer;
+							ExpFromOIntFactory expFromOIntFactory = (ExpFromOIntFactory) producer;
+							PreprocessedExpPipeFactory preprocessedExpPipeFactory = (PreprocessedExpPipeFactory) producer;
+              RandomAdditiveMaskFactory randomAdditiveMaskFactory = new RandomAdditiveMaskFactoryImpl(
+									basicNumericFactory,
+									new InnerProductFactoryImpl(basicNumericFactory,
+											new EntrywiseProductFactoryImpl(basicNumericFactory)));
+							LocalInversionFactory localInversionFactory = (LocalInversionFactory) producer;
+              RightShiftFactory rightShiftFactory = new RightShiftFactoryImpl(basicNumericFactory,
+                  randomAdditiveMaskFactory, localInversionFactory);
+              IntegerToBitsFactory integerToBitsFactory = new IntegerToBitsFactoryImpl(basicNumericFactory, rightShiftFactory);
 							BitLengthFactory bitLengthFactory = new BitLengthFactoryImpl(basicNumericFactory, integerToBitsFactory);
 							ExponentiationFactory exponentiationFactory = new ExponentiationFactoryImpl(basicNumericFactory, integerToBitsFactory);
-							ComparisonProtocolFactory comparisonFactory = new ComparisonProtocolFactoryImpl(80, basicNumericFactory, localInversionFactory, preprocessedNumericBitFactory, expFromOIntFactory, preprocessedExpPipeFactory);
-							DivisionFactory divisionFactory = new DivisionFactoryImpl(basicNumericFactory, rightShiftFactory, bitLengthFactory, exponentiationFactory, comparisonFactory);
-							
-							SInt[] quotient = new SInt[n];
+              ComparisonProtocolFactory comparisonFactory = new ComparisonProtocolFactoryImpl(80,
+									basicNumericFactory, localInversionFactory,
+									expFromOIntFactory, preprocessedExpPipeFactory,
+									(BuilderFactoryNumeric<SInt>) factoryProducer);
+							DivisionFactory divisionFactory = new DivisionFactoryImpl(basicNumericFactory,
+									rightShiftFactory, bitLengthFactory, exponentiationFactory, comparisonFactory,
+									(BuilderFactoryNumeric<SInt>) factoryProducer);
+
+              SInt[] quotient = new SInt[n];
 							
 							NumericIOBuilder ioBuilder = new NumericIOBuilder(basicNumericFactory);
 							SequentialProtocolProducer sequentialProtocolProducer = new SequentialProtocolProducer();

@@ -39,6 +39,9 @@ import dk.alexandra.fresco.lib.lp.LPFactory;
  * lookup protocol is essentially a combination of a search and a conditional
  * select protocol. This does the search by simply comparing the lookup key to
  * all the keys in the list.
+ * <p>
+ *   Guaranteed return value is the last value where the corresponding key matches
+ * </p>
  * 
  * 
  */
@@ -133,9 +136,9 @@ public class LinearLookUpProtocol extends AbstractRoundBasedProtocol implements
 			round = ROUND.SELECT;
 		} else if (round == ROUND.SELECT) {
 			if (singleValue) {
-				ParallelProtocolProducer par = new ParallelProtocolProducer();
-				for (int i = 0; i < size; i++) {
-					ProtocolProducer select = lpp.getConditionalSelectProtocol(
+        SequentialProtocolProducer par = new SequentialProtocolProducer();
+        for (int i = 0; i < size; i++) {
+          ProtocolProducer select = lpp.getConditionalSelectProtocol(
 							index[i], values[i], outputValue, outputValue);
 					par.append(select);
 				}
@@ -143,8 +146,8 @@ public class LinearLookUpProtocol extends AbstractRoundBasedProtocol implements
 			} else {
 				SequentialProtocolProducer seq = new SequentialProtocolProducer();
 				for (int i = 0; i < size; i++) {
-					ParallelProtocolProducer par = new ParallelProtocolProducer();
-					for (int j = 0; j < valueArrays[i].length; j++) {
+          SequentialProtocolProducer par = new SequentialProtocolProducer();
+          for (int j = 0; j < valueArrays[i].length; j++) {
 						ProtocolProducer select = lpp.getConditionalSelectProtocol(
 								index[i], valueArrays[i][j], outputArray[j],
 								outputArray[j]);

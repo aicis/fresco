@@ -26,7 +26,7 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.compare;
 
-import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.compare.eq.EqualityProtocol;
 import dk.alexandra.fresco.lib.compare.eq.EqualityProtocolImpl;
@@ -34,12 +34,12 @@ import dk.alexandra.fresco.lib.compare.gt.GreaterThanReducerProtocolImpl;
 import dk.alexandra.fresco.lib.compare.zerotest.ZeroTestProtocolFactory;
 import dk.alexandra.fresco.lib.compare.zerotest.ZeroTestProtocolFactoryImpl;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
-import dk.alexandra.fresco.lib.math.integer.NumericBitFactory;
 import dk.alexandra.fresco.lib.math.integer.NumericNegateBitFactory;
 import dk.alexandra.fresco.lib.math.integer.NumericNegateBitFactoryImpl;
 import dk.alexandra.fresco.lib.math.integer.exp.ExpFromOIntFactory;
 import dk.alexandra.fresco.lib.math.integer.exp.PreprocessedExpPipeFactory;
 import dk.alexandra.fresco.lib.math.integer.inv.LocalInversionFactory;
+import dk.alexandra.fresco.lib.math.integer.linalg.EntrywiseProductFactoryImpl;
 import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductFactory;
 import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductFactoryImpl;
 
@@ -53,22 +53,25 @@ public class ComparisonProtocolFactoryImpl implements ComparisonProtocolFactory 
   private final InnerProductFactory innerProductFactory;
   private final ZeroTestProtocolFactory zeroTestProtocolFactory;
   private final MiscOIntGenerators misc;
+  private BuilderFactoryNumeric factoryProducer;
 
   public ComparisonProtocolFactoryImpl(int statisticalSecurityParameter,
       BasicNumericFactory bnf, LocalInversionFactory localInvFactory,
-      NumericBitFactory numericBitFactory,
       ExpFromOIntFactory expFromOIntFactory,
-      PreprocessedExpPipeFactory expFactory) {
+      PreprocessedExpPipeFactory expFactory,
+      BuilderFactoryNumeric factoryProducer) {
     this.secParam = statisticalSecurityParameter;
     this.bnf = bnf;
     this.localInvFactory = localInvFactory;
     this.numericNegateBitFactory = new NumericNegateBitFactoryImpl(bnf);
-    this.innerProductFactory = new InnerProductFactoryImpl(bnf);
+    this.innerProductFactory = new InnerProductFactoryImpl(bnf,
+        new EntrywiseProductFactoryImpl(bnf));
+    this.factoryProducer = factoryProducer;
     this.randomAdditiveMaskFactory = new RandomAdditiveMaskFactoryImpl(bnf,
-        numericBitFactory);
+        new InnerProductFactoryImpl(bnf, new EntrywiseProductFactoryImpl(bnf)));
     this.misc = new MiscOIntGenerators(bnf);
     this.zeroTestProtocolFactory = new ZeroTestProtocolFactoryImpl(bnf,
-        expFromOIntFactory, numericBitFactory, numericNegateBitFactory, expFactory);
+        expFromOIntFactory, numericNegateBitFactory, expFactory);
   }
 
   @Override
@@ -81,13 +84,7 @@ public class ComparisonProtocolFactoryImpl implements ComparisonProtocolFactory 
     return new GreaterThanReducerProtocolImpl(bitLength, secParam, x, y,
         result, bnf, numericNegateBitFactory, randomAdditiveMaskFactory,
         zeroTestProtocolFactory, misc, innerProductFactory,
-        localInvFactory);
-  }
-
-  @Override
-  public Computation<? extends SInt> compare(SInt left, SInt right) {
-    SInt result = bnf.getSInt();
-    return getGreaterThanProtocol(left, right, result, false);
+        localInvFactory, factoryProducer);
   }
 
   @Override

@@ -142,28 +142,4 @@ public class TestDEAInputEfficiencyPrefixBuilder {
     }
 
   }
-
-
-  @SuppressWarnings("serial")
-  private class DummySInt implements SInt {
-
-    DummySInt() {
-
-    }
-
-    @Override
-    public byte[] getSerializableContent() {
-      return null;
-    }
-
-    @Override
-    public void setSerializableContent(byte[] val) {
-    }
-
-    @Override
-    public boolean isReady() {
-      return false;
-    }
-  }
-
 }

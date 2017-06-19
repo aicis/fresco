@@ -24,19 +24,40 @@
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
  *******************************************************************************/
-package dk.alexandra.fresco.lib.field.integer;
+package dk.alexandra.fresco.suite.spdz.gates;
 
 import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.value.OInt;
-import dk.alexandra.fresco.framework.value.SInt;
+import dk.alexandra.fresco.framework.network.SCENetwork;
+import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
+import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 
-public interface MultByConstantFactory {
+public class SpdzAddProtocol4 extends SpdzNativeProtocol<SpdzSInt> {
 
-  /**
-   * @param a input - constant which is known
-   * @param b input - secret shared element
-   * @param c output - [c]=a*[b]
-   * @return the protocol that computes the multiplication
-   */
-  Computation<? extends SInt> getMultProtocol(OInt a, SInt b, SInt c);
+  private Computation<SpdzSInt> left, right;
+  private SpdzSInt out;
+
+  public SpdzAddProtocol4(Computation<SpdzSInt> left, Computation<SpdzSInt> right,
+      SpdzSInt out) {
+    this.left = left;
+    this.right = right;
+    this.out = out;
+  }
+
+  @Override
+  public String toString() {
+    return "SpdzAddGate(" + left + ", "
+        + right + ")";
+  }
+
+  @Override
+  public SpdzSInt out() {
+    return out;
+  }
+
+  @Override
+  public EvaluationStatus evaluate(int round, SpdzResourcePool spdzResourcePool,
+      SCENetwork network) {
+    out.value = left.out().value.add(right.out().value);
+    return EvaluationStatus.IS_DONE;
+  }
 }

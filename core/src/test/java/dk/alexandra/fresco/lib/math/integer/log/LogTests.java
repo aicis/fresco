@@ -26,6 +26,7 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.math.integer.log;
 
+import dk.alexandra.fresco.framework.BuilderFactory;
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.TestApplication;
@@ -42,12 +43,13 @@ import dk.alexandra.fresco.lib.conversion.IntegerToBitsFactoryImpl;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.helper.builder.NumericIOBuilder;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
-import dk.alexandra.fresco.lib.math.integer.NumericBitFactory;
 import dk.alexandra.fresco.lib.math.integer.binary.BitLengthFactory;
 import dk.alexandra.fresco.lib.math.integer.binary.BitLengthFactoryImpl;
 import dk.alexandra.fresco.lib.math.integer.binary.RightShiftFactory;
 import dk.alexandra.fresco.lib.math.integer.binary.RightShiftFactoryImpl;
 import dk.alexandra.fresco.lib.math.integer.inv.LocalInversionFactory;
+import dk.alexandra.fresco.lib.math.integer.linalg.EntrywiseProductFactoryImpl;
+import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductFactoryImpl;
 import java.math.BigInteger;
 import org.junit.Assert;
 
@@ -80,14 +82,19 @@ public class LogTests {
 						
 						@Override
 						public ProtocolProducer prepareApplication(
-								ProtocolFactory factory) {
-							
-							BasicNumericFactory basicNumericFactory = (BasicNumericFactory) factory;
-							NumericBitFactory preprocessedNumericBitFactory = (NumericBitFactory) factory;
-							RandomAdditiveMaskFactory randomAdditiveMaskFactory = new RandomAdditiveMaskFactoryImpl(basicNumericFactory, preprocessedNumericBitFactory);
-							LocalInversionFactory localInversionFactory = (LocalInversionFactory) factory;
-							RightShiftFactory rightShiftFactory = new RightShiftFactoryImpl(basicNumericFactory, randomAdditiveMaskFactory, localInversionFactory);
-							IntegerToBitsFactory integerToBitsFactory = new IntegerToBitsFactoryImpl(basicNumericFactory, rightShiftFactory);
+                BuilderFactory factoryProducer) {
+              ProtocolFactory producer = factoryProducer.getProtocolFactory();
+
+              BasicNumericFactory basicNumericFactory = (BasicNumericFactory) producer;
+							BasicNumericFactory<SInt> preprocessedNumericBitFactory = (BasicNumericFactory<SInt>) producer;
+							RandomAdditiveMaskFactory randomAdditiveMaskFactory = new RandomAdditiveMaskFactoryImpl(
+									basicNumericFactory,
+									new InnerProductFactoryImpl(basicNumericFactory,
+											new EntrywiseProductFactoryImpl(basicNumericFactory)));
+							LocalInversionFactory localInversionFactory = (LocalInversionFactory) producer;
+              RightShiftFactory rightShiftFactory = new RightShiftFactoryImpl(basicNumericFactory,
+                  randomAdditiveMaskFactory, localInversionFactory);
+              IntegerToBitsFactory integerToBitsFactory = new IntegerToBitsFactoryImpl(basicNumericFactory, rightShiftFactory);
 							BitLengthFactory bitLengthFactory = new BitLengthFactoryImpl(basicNumericFactory, integerToBitsFactory);
 							LogarithmFactory logarithmFactory = new LogarithmFactoryImpl(basicNumericFactory, rightShiftFactory, bitLengthFactory);
 							

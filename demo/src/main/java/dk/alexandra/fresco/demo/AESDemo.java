@@ -27,9 +27,9 @@
 package dk.alexandra.fresco.demo;
 
 import dk.alexandra.fresco.framework.Application;
+import dk.alexandra.fresco.framework.BuilderFactory;
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.NativeProtocol;
-import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
@@ -184,15 +184,16 @@ public class AESDemo implements Application {
    * ParallelProtocolProducer and SequentialProtocolProducer. The open and
    * closed values (OBool and SBool) are used to 'glue' the subprotocols
    * together.
+   * @param producer
    */
   @Override
-  public ProtocolProducer prepareApplication(ProtocolFactory factory) {
+  public ProtocolProducer prepareApplication(BuilderFactory producer) {
 
-    if (!(factory instanceof BasicLogicFactory)) {
-      throw new MPCException(factory.getClass().getSimpleName()
+    if (!(producer.getProtocolFactory() instanceof BasicLogicFactory)) {
+      throw new MPCException(producer.getClass().getSimpleName()
           + " is not a BasicLogicFactory. This AES demo requires a protocol suite that implements the BasicLogicFactory.");
     }
-    BasicLogicFactory boolFactory = (BasicLogicFactory) factory;
+    BasicLogicFactory boolFactory = (BasicLogicFactory) producer.getProtocolFactory();
 
     OBool[] plainOpen = new OBool[BLOCK_SIZE];
     OBool[] keyOpen = new OBool[BLOCK_SIZE];

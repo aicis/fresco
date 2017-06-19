@@ -24,7 +24,8 @@
 package dk.alexandra.fresco.lib.statistics;
 
 import dk.alexandra.fresco.framework.Application;
-import dk.alexandra.fresco.framework.ProtocolFactory;
+import dk.alexandra.fresco.framework.BuilderFactory;
+import dk.alexandra.fresco.framework.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
@@ -118,10 +119,11 @@ public class DEASolverFixedDataTest {
     }
 
     @Override
-    public ProtocolProducer prepareApplication(ProtocolFactory factory) {
+    public ProtocolProducer prepareApplication(BuilderFactory producer) {
       plainResult = new double[dataSet.length];
       solverResult = new OInt[dataSet.length];
-      BasicNumericFactory bnFactory = (BasicNumericFactory) factory;
+      BasicNumericFactory bnFactory = ((BuilderFactoryNumeric<SInt>) producer)
+          .getBasicNumericFactory();
       NumericIOBuilder ioBuilder = new NumericIOBuilder(bnFactory);
       modulus = bnFactory.getModulus();
 
@@ -143,7 +145,7 @@ public class DEASolverFixedDataTest {
           AlgebraUtil.arrayToList(targetOutputs), AlgebraUtil.arrayToList(basisInputs),
           AlgebraUtil.arrayToList(basisOutputs));
 
-      ioBuilder.addProtocolProducer(solver.prepareApplication(factory));
+      ioBuilder.addProtocolProducer(solver.prepareApplication(producer));
       solverResult = ioBuilder.outputArray(solver.getResult());
 
       // Solve the problem using a plaintext solver

@@ -26,6 +26,8 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.arithmetic;
 
+import dk.alexandra.fresco.framework.BuilderFactory;
+import dk.alexandra.fresco.framework.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.TestApplication;
@@ -40,7 +42,6 @@ import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.helper.builder.ComparisonProtocolBuilder;
 import dk.alexandra.fresco.lib.helper.builder.NumericIOBuilder;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
-import dk.alexandra.fresco.lib.math.integer.NumericBitFactory;
 import dk.alexandra.fresco.lib.math.integer.exp.ExpFromOIntFactory;
 import dk.alexandra.fresco.lib.math.integer.exp.PreprocessedExpPipeFactory;
 import dk.alexandra.fresco.lib.math.integer.inv.LocalInversionFactory;
@@ -69,21 +70,23 @@ public class ComparisonTests {
 						
 						@Override
 						public ProtocolProducer prepareApplication(
-								ProtocolFactory factory) {
-							BasicNumericFactory bnFactory = (BasicNumericFactory) factory;
-							LocalInversionFactory localInvFactory = (LocalInversionFactory) factory;
-							NumericBitFactory numericBitFactory = (NumericBitFactory) factory;
-							ExpFromOIntFactory expFromOIntFactory = (ExpFromOIntFactory) factory;
-							PreprocessedExpPipeFactory expFactory = (PreprocessedExpPipeFactory) factory;
-							SequentialProtocolProducer seq = new SequentialProtocolProducer();
+								BuilderFactory factoryProducer) {
+							ProtocolFactory producer = factoryProducer.getProtocolFactory();
+
+              BasicNumericFactory bnFactory = (BasicNumericFactory) producer;
+              LocalInversionFactory localInvFactory = (LocalInversionFactory) producer;
+							BasicNumericFactory<SInt> numericBitFactory = (BasicNumericFactory<SInt>) producer;
+							ExpFromOIntFactory expFromOIntFactory = (ExpFromOIntFactory) producer;
+							PreprocessedExpPipeFactory expFactory = (PreprocessedExpPipeFactory) producer;
+              SequentialProtocolProducer seq = new SequentialProtocolProducer();
 
 							ComparisonProtocolFactoryImpl compFactory = new ComparisonProtocolFactoryImpl(
 									80, bnFactory, localInvFactory,
-									numericBitFactory, expFromOIntFactory,
-									expFactory);
-							
-							NumericIOBuilder ioBuilder = new NumericIOBuilder(bnFactory);
-							ComparisonProtocolBuilder compBuilder = new ComparisonProtocolBuilder(compFactory, bnFactory);
+									expFromOIntFactory,
+									expFactory, (BuilderFactoryNumeric) factoryProducer);
+
+              NumericIOBuilder ioBuilder = new NumericIOBuilder(bnFactory);
+              ComparisonProtocolBuilder compBuilder = new ComparisonProtocolBuilder(compFactory, bnFactory);
 							
 							SInt x = ioBuilder.input(three, 1);
 							SInt y = ioBuilder.input(five, 1);
@@ -131,21 +134,22 @@ public class ComparisonTests {
 						
 						@Override
 						public ProtocolProducer prepareApplication(
-								ProtocolFactory factory) {
-							BasicNumericFactory bnFactory = (BasicNumericFactory) factory;
-							LocalInversionFactory localInvFactory = (LocalInversionFactory) factory;
-							NumericBitFactory numericBitFactory = (NumericBitFactory) factory;
-							ExpFromOIntFactory expFromOIntFactory = (ExpFromOIntFactory) factory;
-							PreprocessedExpPipeFactory expFactory = (PreprocessedExpPipeFactory) factory;
-							SequentialProtocolProducer seq = new SequentialProtocolProducer();
+								BuilderFactory factoryProducer) {
+							ProtocolFactory producer = factoryProducer.getProtocolFactory();
+							BasicNumericFactory bnFactory = (BasicNumericFactory) producer;
+              LocalInversionFactory localInvFactory = (LocalInversionFactory) producer;
+							BasicNumericFactory<SInt> numericBitFactory = (BasicNumericFactory<SInt>) producer;
+							ExpFromOIntFactory expFromOIntFactory = (ExpFromOIntFactory) producer;
+							PreprocessedExpPipeFactory expFactory = (PreprocessedExpPipeFactory) producer;
+              SequentialProtocolProducer seq = new SequentialProtocolProducer();
 
 							ComparisonProtocolFactoryImpl compFactory = new ComparisonProtocolFactoryImpl(
 									80, bnFactory, localInvFactory,
-									numericBitFactory, expFromOIntFactory,
-									expFactory);
-							
-							NumericIOBuilder ioBuilder = new NumericIOBuilder(bnFactory);
-							ComparisonProtocolBuilder compBuilder = new ComparisonProtocolBuilder(compFactory, bnFactory);
+									expFromOIntFactory,
+									expFactory, (BuilderFactoryNumeric) factoryProducer);
+
+              NumericIOBuilder ioBuilder = new NumericIOBuilder(bnFactory);
+              ComparisonProtocolBuilder compBuilder = new ComparisonProtocolBuilder(compFactory, bnFactory);
 							
 							SInt x = ioBuilder.input(three, 1);
 							SInt y = ioBuilder.input(five, 1);

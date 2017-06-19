@@ -26,6 +26,7 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.statistics;
 
+import dk.alexandra.fresco.framework.BuilderFactory;
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.TestApplication;
@@ -88,8 +89,9 @@ public class DEASolverTests {
 
             @Override
             public ProtocolProducer prepareApplication(
-                ProtocolFactory factory) {
-              bnFactory = (BasicNumericFactory) factory;
+                BuilderFactory factoryProducer) {
+              ProtocolFactory provider = factoryProducer.getProtocolFactory();
+              bnFactory = (BasicNumericFactory) provider;
               NumericIOBuilder ioBuilder = new NumericIOBuilder(bnFactory);
               Random rand = new Random(2);
 
@@ -118,7 +120,7 @@ public class DEASolverTests {
                   AlgebraUtil.arrayToList(basisInputs),
                   AlgebraUtil.arrayToList(basisOutputs));
 
-              sseq.append(solver.prepareApplication(factory));
+              sseq.append(solver.prepareApplication(factoryProducer));
               for (int i = 0; i < outs.length; i++) {
                 outs[i] = ioBuilder.output(solver.getResult()[i]);
               }

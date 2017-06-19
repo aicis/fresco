@@ -26,17 +26,13 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.math.integer.division;
 
+import dk.alexandra.fresco.framework.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.compare.ComparisonProtocolFactory;
-import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.helper.SimpleProtocolProducer;
 import dk.alexandra.fresco.lib.helper.builder.NumericProtocolBuilder;
 import dk.alexandra.fresco.lib.helper.builder.ProtocolBuilder;
-import dk.alexandra.fresco.lib.math.integer.binary.BitLengthFactory;
-import dk.alexandra.fresco.lib.math.integer.binary.RightShiftFactory;
-import dk.alexandra.fresco.lib.math.integer.exp.ExponentiationFactory;
 import java.math.BigInteger;
 
 /**
@@ -48,7 +44,7 @@ import java.math.BigInteger;
  * >Goldschmidt Division</a> (aka. the 'IBM Method'). </p>
  *
  * Its results approximate regular integer division with n bits, where n is equal to {@link
- * BasicNumericFactory#getMaxBitLength()} / 4. Just like regular integer division, this division
+ * dk.alexandra.fresco.lib.field.integer.BasicNumericFactory#getMaxBitLength()} / 4. Just like regular integer division, this division
  * will always truncate the result instead of rounding.
  */
 public class SecretSharedDivisorProtocol extends SimpleProtocolProducer implements
@@ -59,51 +55,36 @@ public class SecretSharedDivisorProtocol extends SimpleProtocolProducer implemen
   private SInt result;
   private OInt precision;
 
-  private final BasicNumericFactory basicNumericFactory;
-  private final RightShiftFactory rightShiftFactory;
-  private final BitLengthFactory bitLengthFactory;
-  private final ExponentiationFactory exponentiationFactory;
-  private final ComparisonProtocolFactory comparisonFactory;
+  private BuilderFactoryNumeric builderFactory;
 
   SecretSharedDivisorProtocol(SInt numerator, SInt denominator,
-      SInt result, BasicNumericFactory basicNumericFactory,
-      RightShiftFactory rightShiftFactory,
-      BitLengthFactory bitLengthFactory,
-      ExponentiationFactory exponentiationFactory,
-      ComparisonProtocolFactory comparisonFactory) {
+      SInt result, BuilderFactoryNumeric builderFactory) {
     this.numerator = numerator;
     this.denominator = denominator;
     this.result = result;
-
-    this.basicNumericFactory = basicNumericFactory;
-    this.rightShiftFactory = rightShiftFactory;
-    this.bitLengthFactory = bitLengthFactory;
-    this.exponentiationFactory = exponentiationFactory;
-    this.comparisonFactory = comparisonFactory;
+    this.builderFactory = builderFactory;
   }
 
   SecretSharedDivisorProtocol(SInt numerator, SInt denominator,
       SInt result, OInt precision,
-      BasicNumericFactory basicNumericFactory, RightShiftFactory rightShiftFactory,
-      BitLengthFactory bitLengthFactory,
-      ExponentiationFactory exponentiationFactory,
-      ComparisonProtocolFactory comparisonFactory) {
+      BuilderFactoryNumeric builderFactory) {
 
-    this(numerator, denominator, result, basicNumericFactory,
-        rightShiftFactory, bitLengthFactory, exponentiationFactory, comparisonFactory);
+    this(numerator, denominator, result,
+        builderFactory);
     this.precision = precision;
   }
 
   @Override
   protected ProtocolProducer initializeProtocolProducer() {
 
-    NumericProtocolBuilder builder = new NumericProtocolBuilder(basicNumericFactory);
+    NumericProtocolBuilder builder = new NumericProtocolBuilder(
+        builderFactory.getBasicNumericFactory());
 
     // Calculate maximum number of bits we can represent without overflows.
     // We lose half of the precision because we need to multiply two numbers without overflow.
     // And we lose half again because we need to be able to shift the numerator left,
     // depending on the bit length of the denominator
-    int maximumBitLength = basicNumericFactory.getMaxBitLength() / 4;
+    int maximumBitLength = builderFactory.getBasicNumericFactory().getMaxBitLength() / 4;
 
     // Calculate amount of iterations that are needed to get a precise answer in all decimal bits
     int amountOfIterations = log2(maximumBitLength);
@@ -170,8 +151,8 @@ public class SecretSharedDivisorProtocol extends SimpleProtocolProducer implemen
   }
 
   private SInt getBitLength(ProtocolBuilder builder, SInt input, int maximumBitLength) {
-    SInt result = basicNumericFactory.getSInt();
-    ProtocolProducer protocol = bitLengthFactory
+    SInt result = builderFactory.getBasicNumericFactory().getSInt();
+    ProtocolProducer protocol = builderFactory.getBitLengthFactory()
         .getBitLengthProtocol(input, result, maximumBitLength);
     builder.addProtocolProducer(protocol);
     return result;
@@ -190,25 +171,25 @@ public class SecretSharedDivisorProtocol extends SimpleProtocolProducer implemen
     SInt actualLeft = right;
     SInt actualRight = left;
 
-    SInt result = basicNumericFactory.getSInt();
-    ProtocolProducer protocol = comparisonFactory
+    SInt result = builderFactory.getBasicNumericFactory().getSInt();
+    ProtocolProducer protocol = builderFactory.getComparisonFactory()
         .getGreaterThanProtocol(actualLeft, actualRight, result, false);
     builder.addProtocolProducer(protocol);
     return result;
   }
 
   private SInt exp2(ProtocolBuilder builder, SInt exponent, int maxExponentLength) {
-    SInt result = basicNumericFactory.getSInt();
-    OInt base = basicNumericFactory.getOInt(BigInteger.valueOf(2));
-    ProtocolProducer protocol = exponentiationFactory
+    SInt result = builderFactory.getBasicNumericFactory().getSInt();
+    OInt base = builderFactory.getBasicNumericFactory().getOInt(BigInteger.valueOf(2));
+    ProtocolProducer protocol = builderFactory.getExponentiationFactory()
         .getExponentiationCircuit(base, exponent, maxExponentLength, result);
     builder.addProtocolProducer(protocol);
     return result;
   }
 
   private SInt shiftRight(ProtocolBuilder builder, SInt input, int numberOfPositions) {
-    SInt result = basicNumericFactory.getSInt();
-    ProtocolProducer protocol = rightShiftFactory
+    SInt result = builderFactory.getBasicNumericFactory().getSInt();
+    ProtocolProducer protocol = builderFactory.getRightShiftFactory()
         .getRepeatedRightShiftProtocol(input, numberOfPositions, result);
     builder.addProtocolProducer(protocol);
     return result;

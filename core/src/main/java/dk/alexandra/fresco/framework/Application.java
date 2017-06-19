@@ -33,10 +33,10 @@ public interface Application<OutputT> {
    * the application to run. If this is not the case, a runtime exception
    * should be cast. It returns the resulting protocolProducer.
    *
-   * @param factory the factory
+   * @param producer the factory
    * @return the resulting protocol producer
    */
-  ProtocolProducer prepareApplication(ProtocolFactory factory);
+  ProtocolProducer prepareApplication(BuilderFactory producer);
 
   /**
    * Closes the application and allows the output to be produced and allocated resources to be

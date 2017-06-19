@@ -26,6 +26,8 @@
  *******************************************************************************/
 package dk.alexandra.fresco.suite.spdz;
 
+import dk.alexandra.fresco.framework.BuilderFactory;
+import dk.alexandra.fresco.framework.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.ProtocolProducer;
@@ -45,7 +47,6 @@ import dk.alexandra.fresco.lib.lp.LPFactory;
 import dk.alexandra.fresco.lib.lp.LPFactoryImpl;
 import dk.alexandra.fresco.lib.lp.LPPrefix;
 import dk.alexandra.fresco.lib.lp.LPSolverProtocol;
-import dk.alexandra.fresco.lib.math.integer.NumericBitFactory;
 import dk.alexandra.fresco.lib.math.integer.exp.ExpFromOIntFactory;
 import dk.alexandra.fresco.lib.math.integer.exp.PreprocessedExpPipeFactory;
 import dk.alexandra.fresco.lib.math.integer.inv.LocalInversionFactory;
@@ -72,15 +73,17 @@ class LPSolverTests {
 
             @Override
             public ProtocolProducer prepareApplication(
-                ProtocolFactory factory) {
-              BasicNumericFactory bnFactory = (BasicNumericFactory) factory;
-              LocalInversionFactory localInvFactory = (LocalInversionFactory) factory;
-              NumericBitFactory numericBitFactory = (NumericBitFactory) factory;
-              ExpFromOIntFactory expFromOIntFactory = (ExpFromOIntFactory) factory;
-              PreprocessedExpPipeFactory expFactory = (PreprocessedExpPipeFactory) factory;
-              RandomFieldElementFactory randFactory = (RandomFieldElementFactory) factory;
+                BuilderFactory factoryProducer) {
+              ProtocolFactory producer = factoryProducer.getProtocolFactory();
+              BasicNumericFactory bnFactory = (BasicNumericFactory) producer;
+              LocalInversionFactory localInvFactory = (LocalInversionFactory) producer;
+              BasicNumericFactory<SInt> numericBitFactory = (BasicNumericFactory<SInt>) producer;
+              ExpFromOIntFactory expFromOIntFactory = (ExpFromOIntFactory) producer;
+              PreprocessedExpPipeFactory expFactory = (PreprocessedExpPipeFactory) producer;
+              RandomFieldElementFactory randFactory = (RandomFieldElementFactory) producer;
               LPFactory lpFactory = new LPFactoryImpl(80, bnFactory, localInvFactory,
-                  numericBitFactory, expFromOIntFactory, expFactory, randFactory);
+                  numericBitFactory, expFromOIntFactory, expFactory, randFactory,
+                  (BuilderFactoryNumeric<SInt>) factoryProducer);
               File pattern = new File("src/test/resources/lp/pattern7.csv");
               File program = new File("src/test/resources/lp/program7.csv");
               LPInputReader inputreader;

@@ -31,8 +31,7 @@ import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.field.integer.MultByConstantFactory;
-import dk.alexandra.fresco.lib.field.integer.MultProtocolFactory;
+import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.helper.AbstractRepeatProtocol;
 import dk.alexandra.fresco.lib.helper.SingleProtocolProducer;
 
@@ -40,14 +39,13 @@ public class EntrywiseProductProtocolImpl extends
     AbstractRepeatProtocol implements
     EntrywiseProductProtocol {
 
-  private final MultProtocolFactory factory;
-  private final MultByConstantFactory openMultFactory;
+  private final BasicNumericFactory factory;
   private final SInt[] as, bs, results;
   private final OInt[] publicBs;
   private int limit, i = 0;
 
   public EntrywiseProductProtocolImpl(SInt[] as, SInt[] bs, SInt[] results,
-      MultProtocolFactory factory) {
+      BasicNumericFactory factory) {
     if (as.length != bs.length && as.length != results.length) {
       throw new MPCException(
           "Can only compute dot-product with equal length input arrays");
@@ -57,12 +55,11 @@ public class EntrywiseProductProtocolImpl extends
     this.publicBs = null;
     this.results = results;
     this.factory = factory;
-    this.openMultFactory = null;
     this.limit = as.length;
   }
 
   public EntrywiseProductProtocolImpl(SInt[] as, OInt[] bs, SInt[] results,
-      MultByConstantFactory openMultFactory) {
+      BasicNumericFactory factory) {
     if (as.length != bs.length && as.length != results.length) {
       throw new MPCException(
           "Can only compute dot-product with equal length input arrays");
@@ -71,8 +68,7 @@ public class EntrywiseProductProtocolImpl extends
     this.bs = null;
     this.publicBs = bs;
     this.results = results;
-    this.factory = null;
-    this.openMultFactory = openMultFactory;
+    this.factory = factory;
     this.limit = as.length;
   }
 
@@ -80,7 +76,7 @@ public class EntrywiseProductProtocolImpl extends
     if (i < limit) {
       Computation mult;
       if (publicBs != null) {
-        mult = openMultFactory.getMultProtocol(publicBs[i], as[i], results[i]);
+        mult = factory.getMultProtocol(publicBs[i], as[i], results[i]);
       } else {
         mult = factory.getMultProtocol(as[i], bs[i], results[i]);
       }

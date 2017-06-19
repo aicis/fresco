@@ -26,45 +26,31 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.compare;
 
-import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.compare.eq.EqualityProtocol;
 
 public interface ComparisonProtocolFactory {
 
-	/**
-	 *
-	 * @param x1
-	 *            input
-	 * @param x2
-	 *            input
-	 * @param result
-	 *            output - [1] (true) or [0] (false) (result of x1 >= x2)
-	 * @param longCompare
-	 *            - true indicates that we are comparing long numbers and should
-	 *            use twice the bit length
-	 * @return
-	 */
-	ProtocolProducer getGreaterThanProtocol(SInt x1, SInt x2,
-			SInt result, boolean longCompare);
+  /**
+   * @param x1 input
+   * @param x2 input
+   * @param result output - [1] (true) or [0] (false) (result of x1 >= x2)
+   * @param longCompare - true indicates that we are comparing long numbers and should use twice the
+   * bit length
+   */
+  ProtocolProducer getGreaterThanProtocol(SInt x1, SInt x2,
+      SInt result, boolean longCompare);
 
-	/**
-	 * @param x1 input
-	 * @param x2 input
-	 * @return output - [1] (true) or [0] (false) (result of x1 >= x2)
-	 */
-	Computation<? extends SInt> compare(SInt x1, SInt x2);
-
-	/**
-	 * Returns a protocol for equality
-	 *
-	 * @param bitLength the maximum bitlength of the two arguments
-	 * @param x input - a number
-	 * @param y input - a number
-	 * @param result output - [1] (true) or [0] (false) (result of x1 = x2)
-	 * @return a protocol for equality
-	 */
-	EqualityProtocol getEqualityProtocol(int bitLength, SInt x, SInt y,
-			SInt result);
+  /**
+   * Returns a protocol for equality
+   *
+   * @param bitLength the maximum bitlength of the two arguments
+   * @param x input - a number
+   * @param y input - a number
+   * @param result output - [1] (true) or [0] (false) (result of x1 = x2)
+   * @return a protocol for equality
+   */
+  EqualityProtocol getEqualityProtocol(int bitLength, SInt x, SInt y,
+      SInt result);
 }

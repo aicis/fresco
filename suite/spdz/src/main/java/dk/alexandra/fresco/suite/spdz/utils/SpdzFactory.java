@@ -74,7 +74,7 @@ public class SpdzFactory implements BasicNumericFactory<SpdzSInt>,
   }
 
   @Override
-  public SInt getSInt() {
+  public SpdzSInt getSInt() {
     return new SpdzSInt();
   }
 
@@ -177,11 +177,6 @@ public class SpdzFactory implements BasicNumericFactory<SpdzSInt>,
     return new SpdzAddProtocol(a, b, out);
   }
 
-  @Override
-  public NativeProtocol<? extends SInt, ?> add(SInt a, SInt b) {
-    SInt out = getSInt();
-    return new SpdzAddProtocol(a, b, out);
-  }
 
   @Override
   public NativeProtocol<? extends SInt, ?> getAddProtocol(SInt a, OInt b, SInt out) {
@@ -193,11 +188,6 @@ public class SpdzFactory implements BasicNumericFactory<SpdzSInt>,
     return new SpdzSubtractProtocol(a, b, out, this);
   }
 
-  @Override
-  public NativeProtocol<? extends SInt, ?> sub(SInt a, SInt b) {
-    SInt out = getSInt();
-    return new SpdzSubtractProtocol(a, b, out, this);
-  }
 
   @Override
   public NativeProtocol<? extends SInt, ?> getSubtractProtocol(OInt a, SInt b, SInt out) {
@@ -211,12 +201,6 @@ public class SpdzFactory implements BasicNumericFactory<SpdzSInt>,
 
   @Override
   public Computation<? extends SInt> getMultProtocol(SInt a, SInt b, SInt out) {
-    return new SpdzMultProtocol(a, b, out);
-  }
-
-  @Override
-  public Computation<? extends SInt> mult(SInt a, SInt b) {
-    SInt out = getSInt();
     return new SpdzMultProtocol(a, b, out);
   }
 
@@ -256,7 +240,7 @@ public class SpdzFactory implements BasicNumericFactory<SpdzSInt>,
 
   @Override
   @Deprecated
-  public SInt getSInt(BigInteger b) {
+  public SpdzSInt getSInt(BigInteger b) {
     b = b.mod(getModulus());
     SpdzElement elm;
     if (pID == 1) {

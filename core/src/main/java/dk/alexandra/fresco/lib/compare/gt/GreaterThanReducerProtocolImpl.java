@@ -26,6 +26,7 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.compare.gt;
 
+import dk.alexandra.fresco.framework.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.ProtocolCollection;
@@ -36,10 +37,7 @@ import dk.alexandra.fresco.lib.compare.ConditionalSelectProtocolImpl;
 import dk.alexandra.fresco.lib.compare.MiscOIntGenerators;
 import dk.alexandra.fresco.lib.compare.RandomAdditiveMaskFactory;
 import dk.alexandra.fresco.lib.compare.zerotest.ZeroTestProtocolFactory;
-import dk.alexandra.fresco.lib.field.integer.AddByConstantProtocolFactory;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
-import dk.alexandra.fresco.lib.field.integer.MultByConstantFactory;
-import dk.alexandra.fresco.lib.field.integer.SubtractProtocolFactory;
 import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
 import dk.alexandra.fresco.lib.helper.SingleProtocolProducer;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
@@ -58,7 +56,7 @@ public class GreaterThanReducerProtocolImpl implements GreaterThanProtocol, Comp
       ZeroTestProtocolFactory ztFactory,
       MiscOIntGenerators miscOIntGenerator,
       InnerProductFactory innerProdFactory,
-      LocalInversionFactory invFactory) {
+      LocalInversionFactory invFactory, BuilderFactoryNumeric<SInt> factoryProducer) {
     super();
     this.bitLength = bitLength;
     this.bitLengthBottom = bitLength / 2;
@@ -69,10 +67,8 @@ public class GreaterThanReducerProtocolImpl implements GreaterThanProtocol, Comp
     this.y = y;
     this.output = output;
     this.factory = factory;
+    this.factoryProducer = factoryProducer;
     this.bitFactory = bitFactory;
-    this.abcFactory = factory;
-    this.mbcFactory = factory;
-    this.subFactory = factory;
     this.maskFactory = maskFactory;
     this.ztFactory = ztFactory;
     this.miscOIntGenerator = miscOIntGenerator;
@@ -95,14 +91,10 @@ public class GreaterThanReducerProtocolImpl implements GreaterThanProtocol, Comp
   private final SInt x, y;
   private final SInt output;
 
+  private final BuilderFactoryNumeric<SInt> factoryProducer;
   private final BasicNumericFactory factory;
   private final NumericNegateBitFactory bitFactory;
 
-
-  private final AddByConstantProtocolFactory abcFactory;
-  private final MultByConstantFactory mbcFactory;
-
-  private final SubtractProtocolFactory subFactory;
 
   private final RandomAdditiveMaskFactory maskFactory;
   private final ZeroTestProtocolFactory ztFactory;
@@ -171,7 +163,7 @@ public class GreaterThanReducerProtocolImpl implements GreaterThanProtocol, Comp
           ProtocolProducer sumTop = innerProdFactory
               .getInnerProductProtocol(rTopBits, twoPowsTop, rTop);
 
-          Computation shiftCirc0 = mbcFactory.getMultProtocol(twoToBitLengthBottom, rTop, tmp1);
+          Computation shiftCirc0 = factory.getMultProtocol(twoToBitLengthBottom, rTop, tmp1);
           Computation addCirc0 = factory.getAddProtocol(tmp1, rBottom, rBar);
 
           // forget bits of rValue
@@ -183,7 +175,7 @@ public class GreaterThanReducerProtocolImpl implements GreaterThanProtocol, Comp
           z = factory.getSInt();
 
           Computation subprotocol = factory.getSubtractProtocol(y, x, diff);
-          Computation addprotocol1 = abcFactory.getAddProtocol(diff, twoToBitLength, z);
+          Computation addprotocol1 = factory.getAddProtocol(diff, twoToBitLength, z);
 
           // mO = open(z + r)
 
@@ -227,14 +219,14 @@ public class GreaterThanReducerProtocolImpl implements GreaterThanProtocol, Comp
 
           // TODO: get a provider to handle this.....
           ProtocolProducer selectrPrime =
-              new ConditionalSelectProtocolImpl(eqResult, rBottom, rTop, rPrime, factory);
+              new ConditionalSelectProtocolImpl(eqResult, rBottom, rTop, rPrime, factoryProducer);
           // TODO: get a conditional selector for public values...
           SInt negEqResult = factory.getSInt();
           ProtocolProducer negCirc = bitFactory.getNegatedBitProtocol(eqResult, negEqResult);
           SInt prod1 = factory.getSInt();
           SInt prod2 = factory.getSInt();
-          Computation mult1 = mbcFactory.getMultProtocol(mBot, eqResult, prod1);
-          Computation mult2 = mbcFactory.getMultProtocol(mTop, negEqResult, prod2);
+          Computation mult1 = factory.getMultProtocol(mBot, eqResult, prod1);
+          Computation mult2 = factory.getMultProtocol(mTop, negEqResult, prod2);
           Computation sumCirc = factory.getAddProtocol(prod1, prod2, mPrime);
           ProtocolProducer selectmPrime = new SequentialProtocolProducer(negCirc, mult1, mult2,
               sumCirc);
@@ -275,7 +267,7 @@ public class GreaterThanReducerProtocolImpl implements GreaterThanProtocol, Comp
                 ztFactory,
                 miscOIntGenerator,
                 innerProdFactory,
-                invFactory);
+                invFactory, factoryProducer);
             pp = new SequentialProtocolProducer(selectSubProblemGP, compCirc);
           }
 
@@ -291,8 +283,8 @@ public class GreaterThanReducerProtocolImpl implements GreaterThanProtocol, Comp
           SInt additiveError = factory.getSInt();
           SInt resUnshifted = factory.getSInt();
 
-          Computation subCirc4_1 = subFactory.getSubtractProtocol(mBar, rBar, reducedWithError);
-          Computation mbcCirc4 = mbcFactory.getMultProtocol(twoToBitLength, u, additiveError);
+          Computation subCirc4_1 = factory.getSubtractProtocol(mBar, rBar, reducedWithError);
+          Computation mbcCirc4 = factory.getMultProtocol(twoToBitLength, u, additiveError);
           Computation addCirc4 = factory
               .getAddProtocol(additiveError, reducedWithError, reducedNoError);
 
@@ -302,7 +294,7 @@ public class GreaterThanReducerProtocolImpl implements GreaterThanProtocol, Comp
           ProtocolProducer localInvCirc4 =
               SingleProtocolProducer.wrap(
                   invFactory.getLocalInversionProtocol(twoToBitLength, twoToNegBitLength));
-          Computation shiftCirc4 = mbcFactory
+          Computation shiftCirc4 = factory
               .getMultProtocol(twoToNegBitLength, resUnshifted, output);
 
           ProtocolProducer computeUnshifted = new SequentialProtocolProducer(

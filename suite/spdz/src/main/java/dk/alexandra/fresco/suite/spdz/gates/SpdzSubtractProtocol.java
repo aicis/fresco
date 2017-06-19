@@ -85,11 +85,11 @@ public class SpdzSubtractProtocol extends SpdzNativeProtocol<SpdzSInt> {
   public EvaluationStatus evaluate(int round, SpdzResourcePool SpdzResourcePool,
       SCENetwork network) {
     if (openLeft != null) {
-      SpdzSInt converted = (SpdzSInt) factory.getSInt(openLeft
+      SpdzSInt converted = factory.getSInt(openLeft
           .getValue());
       out.value = converted.value.subtract(right.value);
     } else if (openRight != null) {
-      SpdzSInt converted = (SpdzSInt) factory.getSInt(openRight
+      SpdzSInt converted = factory.getSInt(openRight
           .getValue());
       out.value = left.value.subtract(converted.value);
     } else {

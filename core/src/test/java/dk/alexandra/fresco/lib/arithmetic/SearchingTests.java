@@ -26,6 +26,8 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.arithmetic;
 
+import dk.alexandra.fresco.framework.BuilderFactory;
+import dk.alexandra.fresco.framework.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.TestApplication;
@@ -33,6 +35,7 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
+import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.collections.LookUpProtocolFactory;
@@ -42,7 +45,6 @@ import dk.alexandra.fresco.lib.field.integer.RandomFieldElementFactory;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
 import dk.alexandra.fresco.lib.lp.LPFactory;
 import dk.alexandra.fresco.lib.lp.LPFactoryImpl;
-import dk.alexandra.fresco.lib.math.integer.NumericBitFactory;
 import dk.alexandra.fresco.lib.math.integer.exp.ExpFromOIntFactory;
 import dk.alexandra.fresco.lib.math.integer.exp.PreprocessedExpPipeFactory;
 import dk.alexandra.fresco.lib.math.integer.inv.LocalInversionFactory;
@@ -51,13 +53,16 @@ import org.junit.Assert;
 
 public class SearchingTests {
 
-  public static class TestIsSorted extends TestThreadFactory {
+  public static class TestIsSorted<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT> {
 
     @Override
-    public TestThread next(TestThreadConfiguration conf) {
-      return new TestThread() {
+    public TestThread<ResourcePoolT> next(TestThreadConfiguration<ResourcePoolT> conf) {
+      return new TestThread<ResourcePoolT>() {
         @Override
         public void test() throws Exception {
+          ResourcePoolT resourcePool = SecureComputationEngineImpl.createResourcePool(conf.sceConf,
+              conf.sceConf.getSuite());
           final int PAIRS = 10;
           final int MAXVALUE = 20000;
           final int NOTFOUND = -1;
@@ -66,12 +71,11 @@ public class SearchingTests {
           SInt[] sKeys = new SInt[PAIRS];
           SInt[] sValues = new SInt[PAIRS];
           TestApplication app = new TestApplication() {
-            private static final long serialVersionUID = 7960372460887688296L;
-
             @Override
             public ProtocolProducer prepareApplication(
-                ProtocolFactory factory) {
-              BasicNumericFactory bnf = (BasicNumericFactory) factory;
+                BuilderFactory factoryProducer) {
+              ProtocolFactory producer = factoryProducer.getProtocolFactory();
+              BasicNumericFactory bnf = (BasicNumericFactory) producer;
               SequentialProtocolProducer seq = new SequentialProtocolProducer();
               Random rand = new Random(0);
               for (int i = 0; i < PAIRS; i++) {
@@ -85,23 +89,23 @@ public class SearchingTests {
               return seq;
             }
           };
-          secureComputationEngine
-              .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf,
-                  conf.sceConf.getSuite()));
+          secureComputationEngine.runApplication(app, resourcePool);
           for (int i = 0; i < PAIRS; i++) {
             final int counter = i;
             TestApplication app1 = new TestApplication() {
-
               @Override
-              public ProtocolProducer prepareApplication(ProtocolFactory factory) {
-                BasicNumericFactory bnf = (BasicNumericFactory) factory;
-                LocalInversionFactory localInvFactory = (LocalInversionFactory) factory;
-                NumericBitFactory numericBitFactory = (NumericBitFactory) factory;
-                ExpFromOIntFactory expFromOIntFactory = (ExpFromOIntFactory) factory;
-                PreprocessedExpPipeFactory expFactory = (PreprocessedExpPipeFactory) factory;
-                RandomFieldElementFactory randFactory = (RandomFieldElementFactory) factory;
+              public ProtocolProducer prepareApplication(BuilderFactory factoryProducer) {
+                ProtocolFactory producer = factoryProducer.getProtocolFactory();
+
+                BasicNumericFactory bnf = (BasicNumericFactory) producer;
+                LocalInversionFactory localInvFactory = (LocalInversionFactory) producer;
+                BasicNumericFactory<SInt> numericBitFactory = (BasicNumericFactory<SInt>) producer;
+                ExpFromOIntFactory expFromOIntFactory = (ExpFromOIntFactory) producer;
+                PreprocessedExpPipeFactory expFactory = (PreprocessedExpPipeFactory) producer;
+                RandomFieldElementFactory randFactory = (RandomFieldElementFactory) producer;
                 LPFactory lpFactory = new LPFactoryImpl(80, bnf, localInvFactory, numericBitFactory,
-                    expFromOIntFactory, expFactory, randFactory);
+                    expFromOIntFactory, expFactory, randFactory,
+                    (BuilderFactoryNumeric) factoryProducer);
                 LookUpProtocolFactory<SInt> lpf = new LookupProtocolFactoryImpl(80, lpFactory, bnf);
                 SInt sOut = bnf.getSInt(NOTFOUND);
                 SequentialProtocolProducer sequentialProtocolProducer = new SequentialProtocolProducer();
@@ -116,12 +120,10 @@ public class SearchingTests {
               }
             };
 
-            secureComputationEngine
-                .runApplication(app1, SecureComputationEngineImpl.createResourcePool(conf.sceConf,
-                    conf.sceConf.getSuite()));
+            secureComputationEngine.runApplication(app1, resourcePool);
 
-            Assert.assertEquals(values[i], app1.outputs[0].getValue()
-                .intValue());
+            Assert.assertEquals("Checking value index " + i,
+                values[i], app1.outputs[0].getValue().intValue());
           }
         }
       };

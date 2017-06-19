@@ -27,7 +27,7 @@
 package dk.alexandra.fresco.demo;
 
 import dk.alexandra.fresco.framework.Application;
-import dk.alexandra.fresco.framework.ProtocolFactory;
+import dk.alexandra.fresco.framework.BuilderFactory;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
@@ -58,8 +58,8 @@ public class DistanceDemo implements Application {
   }
 
   @Override
-  public ProtocolProducer prepareApplication(ProtocolFactory factory) {
-    BasicNumericFactory bnFac = (BasicNumericFactory) factory;
+  public ProtocolProducer prepareApplication(BuilderFactory producer) {
+    BasicNumericFactory bnFac = (BasicNumericFactory) producer.getProtocolFactory();
     NumericProtocolBuilder npb = new NumericProtocolBuilder(bnFac);
     NumericIOBuilder iob = new NumericIOBuilder(bnFac);
     // Input points

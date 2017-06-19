@@ -40,8 +40,8 @@ import dk.alexandra.fresco.suite.ProtocolSuite;
 public class DummyProtocolSuite implements ProtocolSuite {
 
   @Override
-  public DummyFactory init(ResourcePool resourcePool) {
-    return new DummyFactory();
+  public DummyBuilderFactory init(ResourcePool resourcePool) {
+    return new DummyBuilderFactory();
   }
 
   @Override
