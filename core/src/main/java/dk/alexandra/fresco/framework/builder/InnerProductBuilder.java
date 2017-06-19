@@ -1,5 +1,6 @@
-package dk.alexandra.fresco.framework;
+package dk.alexandra.fresco.framework.builder;
 
+import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.util.List;

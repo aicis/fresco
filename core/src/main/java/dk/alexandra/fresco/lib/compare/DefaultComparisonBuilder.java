@@ -1,11 +1,13 @@
-package dk.alexandra.fresco.framework;
+package dk.alexandra.fresco.lib.compare;
 
+import dk.alexandra.fresco.framework.BuilderFactoryNumeric;
+import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.builder.ComparisonBuilder;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.compare.MiscOIntGenerators;
 import dk.alexandra.fresco.lib.compare.gt.GreaterThanReducerProtocol4;
 import dk.alexandra.fresco.lib.compare.zerotest.ZeroTestProtocolFactoryImpl;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;

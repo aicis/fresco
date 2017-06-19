@@ -1,5 +1,8 @@
-package dk.alexandra.fresco.framework;
+package dk.alexandra.fresco.lib.math.integer.linalg;
 
+import dk.alexandra.fresco.framework.BuilderFactoryNumeric;
+import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.builder.InnerProductBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
@@ -10,7 +13,7 @@ public class DefaultInnerProductBuilder<SIntT extends SInt> implements InnerProd
   private final BuilderFactoryNumeric<SIntT> factoryNumeric;
   private final ProtocolBuilder<SIntT> builder;
 
-  DefaultInnerProductBuilder(BuilderFactoryNumeric<SIntT> factoryNumeric,
+  public DefaultInnerProductBuilder(BuilderFactoryNumeric<SIntT> factoryNumeric,
       ProtocolBuilder<SIntT> builder) {
     this.factoryNumeric = factoryNumeric;
     this.builder = builder;
