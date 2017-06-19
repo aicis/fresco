@@ -23,7 +23,6 @@ import java.util.function.Supplier;
  */
 public abstract class ProtocolBuilder<SIntT extends SInt> {
 
-  private static final int MAGIC_SECURE_NUMBER = 60;
   private BasicNumericFactory<SIntT> basicNumericFactory;
   private List<ProtocolEntity> protocols;
   private BuilderFactoryNumeric<SIntT> factory;
