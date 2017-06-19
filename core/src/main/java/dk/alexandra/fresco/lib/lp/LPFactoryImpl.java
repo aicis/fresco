@@ -227,25 +227,6 @@ public class LPFactoryImpl implements LPFactory {
   }
 
   @Override
-  public OptimalNumeratorProtocol getOptimalNumeratorProtocol(
-      Matrix<SInt> updateMatrix, SInt[] B, SInt optimalNumerator) {
-    return new OptimalNumeratorProtocol(updateMatrix, B, optimalNumerator,
-        this);
-  }
-
-  @Override
-  public RankProtocol getRankProtocol(SInt[] numerators, SInt[] denominators,
-      SInt numerator, SInt denominator, SInt rank) {
-    return new RankProtocol(numerators, denominators, numerator,
-        denominator, rank, bnf, this);
-  }
-
-  @Override
-  public RankProtocol getRankProtocol(SInt[] values, SInt rankValue, SInt rank) {
-    return new RankProtocol(values, rankValue, rank, bnf, this);
-  }
-
-  @Override
   public LPSolverProtocol getLPSolverProtocol(LPTableau tableau,
       Matrix<SInt> updateMatrix, SInt pivot, SInt[] basis) {
     return new LPSolverProtocol(tableau, updateMatrix, pivot, basis, this, bnf);

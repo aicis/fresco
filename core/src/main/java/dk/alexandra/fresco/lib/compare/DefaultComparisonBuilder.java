@@ -54,6 +54,15 @@ public class DefaultComparisonBuilder<SIntT extends SInt> implements ComparisonB
   }
 
   @Override
+  public Computation<SIntT> compareLong(Computation<SIntT> left, Computation<SIntT> right) {
+    SIntT result = (SIntT) factoryNumeric.getBasicNumericFactory().getSInt();
+    GreaterThanReducerProtocol4 greaterThanProtocol = getGreaterThanProtocol(left, right,
+            result, true);
+    builder.append((ProtocolProducer) greaterThanProtocol);
+    return greaterThanProtocol;
+  }
+
+  @Override
   public Computation<SIntT> compare(Computation<SIntT> left, Computation<SIntT> right) {
     SIntT result = (SIntT) factoryNumeric.getBasicNumericFactory().getSInt();
     GreaterThanReducerProtocol4 greaterThanProtocol = getGreaterThanProtocol(left, right,
