@@ -163,41 +163,6 @@ public interface LPFactory
       SInt optimalValue);
 
   /**
-   * Computes the numerator of the optimal value after the last simplex
-   * iteration (the pivot element being the denominator)
-   *
-   * @param updateMatrix input - the current update matrix
-   * @param B input - the B vector of the tableau
-   * @param optimalNumerator output - optimal numerator
-   */
-  OptimalNumeratorProtocol getOptimalNumeratorProtocol(Matrix<SInt> updateMatrix, SInt[] B,
-      SInt optimalNumerator);
-
-  /**
-   * Ranks a rational value against a list of rational values. I.e. for a
-   * value x/y finds the number of of values u/v in a list so that u/v <= x/y.
-   *
-   * @param numerators input - a list of numerators
-   * @param denominators input - a list of denominators
-   * @param numerator input - the numerator of the rational to rank
-   * @param denominator input - the denominator of the rational to rank
-   * @param rank output - the rank
-   */
-  RankProtocol getRankProtocol(SInt[] numerators, SInt[] denominators, SInt numerator,
-      SInt denominator,
-      SInt rank);
-
-  /**
-   * Ranks a value against a list of values. I.e. for a value x finds the
-   * number of of values u in a list so that u <= x.
-   *
-   * @param values input - a list of values
-   * @param rankValue input - a value to rank against the list
-   * @param rank output - will contain the rank of the value to be ranked
-   */
-  RankProtocol getRankProtocol(SInt[] values, SInt rankValue, SInt rank);
-
-  /**
    * Returns a protocol solving an LP-problem from an initial tableau, update
    * matrix and value for the previous pivot. (Usually the update matrix and
    * pivot will be initialized to the identity matrix and the value one
