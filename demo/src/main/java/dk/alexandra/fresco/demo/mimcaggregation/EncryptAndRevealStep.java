@@ -1,7 +1,8 @@
 package dk.alexandra.fresco.demo.mimcaggregation;
 
 import dk.alexandra.fresco.framework.Application;
-import dk.alexandra.fresco.framework.FactoryProducer;
+import dk.alexandra.fresco.framework.BuilderFactory;
+import dk.alexandra.fresco.framework.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
@@ -36,9 +37,10 @@ public class EncryptAndRevealStep implements Application {
 	}
 
 	@Override
-	public ProtocolProducer prepareApplication(FactoryProducer producer) {
+	public ProtocolProducer prepareApplication(BuilderFactory producer) {
 
-		OmniBuilder builder = new OmniBuilder(producer.getProtocolFactory());
+		BuilderFactoryNumeric factoryNumeric = (BuilderFactoryNumeric) producer;
+		OmniBuilder builder = new OmniBuilder(factoryNumeric);
 
         NumericProtocolBuilder npb = builder.getNumericProtocolBuilder();
         NumericIOBuilder niob = builder.getNumericIOBuilder();                

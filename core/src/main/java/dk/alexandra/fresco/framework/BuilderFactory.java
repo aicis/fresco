@@ -1,6 +1,6 @@
 package dk.alexandra.fresco.framework;
 
-public interface FactoryProducer {
+public interface BuilderFactory {
 
   ProtocolFactory getProtocolFactory();
 

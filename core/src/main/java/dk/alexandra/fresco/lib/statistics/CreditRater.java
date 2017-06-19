@@ -27,9 +27,9 @@
 package dk.alexandra.fresco.lib.statistics;
 
 import dk.alexandra.fresco.framework.Application;
+import dk.alexandra.fresco.framework.BuilderFactory;
+import dk.alexandra.fresco.framework.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.FactoryNumericProducer;
-import dk.alexandra.fresco.framework.FactoryProducer;
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
@@ -89,8 +89,8 @@ public class CreditRater implements Application<SInt> {
 
   @Override
   @SuppressWarnings("unchecked")
-  public ProtocolProducer prepareApplication(FactoryProducer provider) {
-    return ProtocolBuilder.createRoot((FactoryNumericProducer<SInt>) provider, (sequential) -> {
+  public ProtocolProducer prepareApplication(BuilderFactory provider) {
+    return ProtocolBuilder.createRoot((BuilderFactoryNumeric<SInt>) provider, (sequential) -> {
       List<Computation<SInt>> individualScores = new ArrayList<>(this.values.size());
 
       sequential.createParallelSubFactory((parallel) -> {
@@ -155,7 +155,7 @@ public class CreditRater implements Application<SInt> {
       // Add "x > last interval definition" to comparisons
       rootBuilder.createSequentialSubFactory((builder) -> {
         NumericBuilder<SInt> numericBuilder = builder.createNumericBuilder();
-        SInt one = builder.createAppendingBasicNumericFactory().getSInt(1);
+        SInt one = builder.createConstant(1);
         comparisons.add(numericBuilder.sub(one, comparisons.get(comparisons.size() - 1)).out());
       });
       //Comparisons now contain if x <= each definition and if x>= last definition

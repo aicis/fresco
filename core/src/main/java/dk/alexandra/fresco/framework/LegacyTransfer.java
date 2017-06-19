@@ -6,6 +6,7 @@ public class LegacyTransfer implements ProtocolProducer {
 
   private final Computation<SInt> computation;
   private final SInt result;
+  boolean done = false;
 
   public LegacyTransfer(Computation<SInt> computation, SInt result) {
     this.computation = computation;
@@ -15,10 +16,11 @@ public class LegacyTransfer implements ProtocolProducer {
   @Override
   public void getNextProtocols(ProtocolCollection protocolCollection) {
     result.setSerializableContent(computation.out().getSerializableContent());
+    done = true;
   }
 
   @Override
   public boolean hasNextProtocols() {
-    return false;
+    return !done;
   }
 }

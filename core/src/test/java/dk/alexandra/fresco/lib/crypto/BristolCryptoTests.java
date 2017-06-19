@@ -29,7 +29,7 @@ package dk.alexandra.fresco.lib.crypto;
 import static org.junit.Assert.assertTrue;
 
 import dk.alexandra.fresco.framework.Application;
-import dk.alexandra.fresco.framework.FactoryProducer;
+import dk.alexandra.fresco.framework.BuilderFactory;
 import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
@@ -122,7 +122,7 @@ public class BristolCryptoTests {
             private static final long serialVersionUID = 1923498347L;
 
             @Override
-            public ProtocolProducer prepareApplication(FactoryProducer fac) {
+            public ProtocolProducer prepareApplication(BuilderFactory fac) {
               AbstractBinaryFactory prov = (AbstractBinaryFactory) fac.getProtocolFactory();
               BasicLogicBuilder builder = new BasicLogicBuilder(prov);
 
@@ -209,7 +209,7 @@ public class BristolCryptoTests {
             private static final long serialVersionUID = 984759485L;
 
             @Override
-            public ProtocolProducer prepareApplication(FactoryProducer fac) {
+            public ProtocolProducer prepareApplication(BuilderFactory fac) {
               BasicLogicFactory bool = (BasicLogicFactory) fac.getProtocolFactory();
 
               boolean[] in_val = toBoolean(in1);
@@ -297,7 +297,7 @@ public class BristolCryptoTests {
             private static final long serialVersionUID = 984759485L;
 
             @Override
-            public ProtocolProducer prepareApplication(FactoryProducer fac) {
+            public ProtocolProducer prepareApplication(BuilderFactory fac) {
               BasicLogicFactory bool = (BasicLogicFactory) fac.getProtocolFactory();
 
               boolean[] in_val = toBoolean(in1);
@@ -386,7 +386,7 @@ public class BristolCryptoTests {
             private static final long serialVersionUID = 984759485L;
 
             @Override
-            public ProtocolProducer prepareApplication(FactoryProducer fac) {
+            public ProtocolProducer prepareApplication(BuilderFactory fac) {
               BasicLogicFactory bool = (BasicLogicFactory) fac.getProtocolFactory();
 
               boolean[] in_val = toBoolean(in1);
@@ -464,7 +464,7 @@ public class BristolCryptoTests {
             private static final long serialVersionUID = 36363636L;
 
             @Override
-            public ProtocolProducer prepareApplication(FactoryProducer fac) {
+            public ProtocolProducer prepareApplication(BuilderFactory fac) {
               BasicLogicFactory bool = (BasicLogicFactory) fac.getProtocolFactory();
 
               boolean[] in1_val = toBoolean(inv1);
@@ -546,7 +546,7 @@ public class BristolCryptoTests {
             private static final long serialVersionUID = 36625566;
 
             @Override
-            public ProtocolProducer prepareApplication(FactoryProducer fac) {
+            public ProtocolProducer prepareApplication(BuilderFactory fac) {
               BasicLogicFactory bool = (BasicLogicFactory) fac.getProtocolFactory();
 
               boolean[] in1_val = toBoolean(plainV);

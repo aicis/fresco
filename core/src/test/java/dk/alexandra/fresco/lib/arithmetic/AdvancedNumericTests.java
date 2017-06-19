@@ -26,7 +26,8 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.arithmetic;
 
-import dk.alexandra.fresco.framework.FactoryProducer;
+import dk.alexandra.fresco.framework.BuilderFactory;
+import dk.alexandra.fresco.framework.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.TestApplication;
@@ -65,9 +66,9 @@ public class AdvancedNumericTests {
         public void test() throws Exception {
           TestApplication app = new TestApplication() {
             @Override
-            public ProtocolProducer prepareApplication(FactoryProducer factoryProducer) {
+            public ProtocolProducer prepareApplication(BuilderFactory factoryProducer) {
               ProtocolFactory producer = factoryProducer.getProtocolFactory();
-              OmniBuilder builder = new OmniBuilder(producer);
+              OmniBuilder builder = new OmniBuilder((BuilderFactoryNumeric) factoryProducer);
               modulus = ((BasicNumericFactory) producer).getModulus();
               NumericIOBuilder io = builder.getNumericIOBuilder();
               AdvancedNumericBuilder advanced = builder.getAdvancedNumericBuilder();
@@ -114,9 +115,8 @@ public class AdvancedNumericTests {
         public void test() throws Exception {
           TestApplication app = new TestApplication() {
             @Override
-            public ProtocolProducer prepareApplication(FactoryProducer factoryProducer) {
-              ProtocolFactory producer = factoryProducer.getProtocolFactory();
-              OmniBuilder builder = new OmniBuilder(producer);
+            public ProtocolProducer prepareApplication(BuilderFactory factoryProducer) {
+              OmniBuilder builder = new OmniBuilder((BuilderFactoryNumeric) factoryProducer);
               NumericIOBuilder io = builder.getNumericIOBuilder();
               NumericProtocolBuilder numeric = builder.getNumericProtocolBuilder();
               AdvancedNumericBuilder advanced = builder.getAdvancedNumericBuilder();
@@ -161,10 +161,10 @@ public class AdvancedNumericTests {
         public void test() throws Exception {
           TestApplication app = new TestApplication() {
             @Override
-            public ProtocolProducer prepareApplication(FactoryProducer factoryProducer) {
+            public ProtocolProducer prepareApplication(BuilderFactory factoryProducer) {
               ProtocolFactory producer = factoryProducer.getProtocolFactory();
+              OmniBuilder builder = new OmniBuilder((BuilderFactoryNumeric) factoryProducer);
 
-              OmniBuilder builder = new OmniBuilder(producer);
               NumericIOBuilder io = builder.getNumericIOBuilder();
               modulus = ((BasicNumericFactory) producer).getModulus();
               NumericProtocolBuilder numeric = builder.getNumericProtocolBuilder();
@@ -203,10 +203,9 @@ public class AdvancedNumericTests {
         public void test() throws Exception {
           TestApplication app = new TestApplication() {
             @Override
-            public ProtocolProducer prepareApplication(FactoryProducer factoryProducer) {
-              ProtocolFactory producer = factoryProducer.getProtocolFactory();
+            public ProtocolProducer prepareApplication(BuilderFactory factoryProducer) {
+              OmniBuilder builder = new OmniBuilder((BuilderFactoryNumeric) factoryProducer);
 
-              OmniBuilder builder = new OmniBuilder(producer);
               NumericIOBuilder io = builder.getNumericIOBuilder();
               NumericProtocolBuilder numeric = builder.getNumericProtocolBuilder();
               AdvancedNumericBuilder advanced = builder.getAdvancedNumericBuilder();
@@ -243,9 +242,9 @@ public class AdvancedNumericTests {
         public void test() throws Exception {
           TestApplication app = new TestApplication() {
             @Override
-            public ProtocolProducer prepareApplication(FactoryProducer factoryProducer) {
-              ProtocolFactory producer = factoryProducer.getProtocolFactory();
-              OmniBuilder builder = new OmniBuilder(producer);
+            public ProtocolProducer prepareApplication(BuilderFactory factoryProducer) {
+              OmniBuilder builder = new OmniBuilder((BuilderFactoryNumeric) factoryProducer);
+
               NumericIOBuilder io = builder.getNumericIOBuilder();
               NumericProtocolBuilder numeric = builder.getNumericProtocolBuilder();
               AdvancedNumericBuilder advanced = builder.getAdvancedNumericBuilder();

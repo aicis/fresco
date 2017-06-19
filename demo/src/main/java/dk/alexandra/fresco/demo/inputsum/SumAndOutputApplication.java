@@ -27,8 +27,8 @@
 package dk.alexandra.fresco.demo.inputsum;
 
 import dk.alexandra.fresco.framework.Application;
+import dk.alexandra.fresco.framework.BuilderFactory;
 import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.FactoryProducer;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
@@ -53,7 +53,7 @@ public class SumAndOutputApplication implements Application {
   }
 
   @Override
-  public ProtocolProducer prepareApplication(FactoryProducer producer) {
+  public ProtocolProducer prepareApplication(BuilderFactory producer) {
     ProtocolProducer inputProtocol = inputApp.prepareApplication(producer);
 
     SInt[] ssInputs = inputApp.getSecretSharedInput();

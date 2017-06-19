@@ -26,8 +26,8 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.compare;
 
+import dk.alexandra.fresco.framework.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.FactoryNumericProducer;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.compare.eq.EqualityProtocol;
 import dk.alexandra.fresco.lib.compare.eq.EqualityProtocolImpl;
@@ -54,14 +54,14 @@ public class ComparisonProtocolFactoryImpl implements ComparisonProtocolFactory 
   private final InnerProductFactory innerProductFactory;
   private final ZeroTestProtocolFactory zeroTestProtocolFactory;
   private final MiscOIntGenerators misc;
-  private FactoryNumericProducer factoryProducer;
+  private BuilderFactoryNumeric factoryProducer;
 
   public ComparisonProtocolFactoryImpl(int statisticalSecurityParameter,
       BasicNumericFactory bnf, LocalInversionFactory localInvFactory,
       NumericBitFactory numericBitFactory,
       ExpFromOIntFactory expFromOIntFactory,
       PreprocessedExpPipeFactory expFactory,
-      FactoryNumericProducer factoryProducer) {
+      BuilderFactoryNumeric factoryProducer) {
     this.secParam = statisticalSecurityParameter;
     this.bnf = bnf;
     this.localInvFactory = localInvFactory;

@@ -26,8 +26,8 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.math.integer.division;
 
-import dk.alexandra.fresco.framework.FactoryNumericProducer;
-import dk.alexandra.fresco.framework.FactoryProducer;
+import dk.alexandra.fresco.framework.BuilderFactory;
+import dk.alexandra.fresco.framework.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.TestApplication;
@@ -92,8 +92,8 @@ public class DivisionTests {
 						
 						@Override
 						public ProtocolProducer prepareApplication(
-                FactoryProducer factoryProducer) {
-              ProtocolFactory producer = factoryProducer.getProtocolFactory();
+								BuilderFactory factoryProducer) {
+							ProtocolFactory producer = factoryProducer.getProtocolFactory();
 
               BasicNumericFactory basicNumericFactory = (BasicNumericFactory) producer;
               NumericBitFactory preprocessedNumericBitFactory = (NumericBitFactory) producer;
@@ -110,9 +110,10 @@ public class DivisionTests {
               ComparisonProtocolFactory comparisonFactory = new ComparisonProtocolFactoryImpl(80,
                   basicNumericFactory, localInversionFactory, preprocessedNumericBitFactory,
                   expFromOIntFactory, preprocessedExpPipeFactory,
-                  (FactoryNumericProducer<SInt>) factoryProducer);
-              DivisionFactory divisionFactory = new DivisionFactoryImpl(basicNumericFactory,
-                  rightShiftFactory, bitLengthFactory, exponentiationFactory, comparisonFactory);
+									(BuilderFactoryNumeric<SInt>) factoryProducer);
+							DivisionFactory divisionFactory = new DivisionFactoryImpl(basicNumericFactory,
+									rightShiftFactory, bitLengthFactory, exponentiationFactory, comparisonFactory,
+									(BuilderFactoryNumeric<SInt>) factoryProducer);
 
               SInt quotient = basicNumericFactory.getSInt();
 							SInt remainder = basicNumericFactory.getSInt();
@@ -172,8 +173,8 @@ public class DivisionTests {
 						
 						@Override
 						public ProtocolProducer prepareApplication(
-                FactoryProducer factoryProducer) {
-              ProtocolFactory producer = factoryProducer.getProtocolFactory();
+								BuilderFactory factoryProducer) {
+							ProtocolFactory producer = factoryProducer.getProtocolFactory();
 
               BasicNumericFactory basicNumericFactory = (BasicNumericFactory) producer;
               NumericBitFactory preprocessedNumericBitFactory = (NumericBitFactory) producer;
@@ -190,9 +191,10 @@ public class DivisionTests {
               ComparisonProtocolFactory comparisonFactory = new ComparisonProtocolFactoryImpl(80,
                   basicNumericFactory, localInversionFactory, preprocessedNumericBitFactory,
                   expFromOIntFactory, preprocessedExpPipeFactory,
-                  (FactoryNumericProducer<SInt>) factoryProducer);
-              DivisionFactory divisionFactory = new DivisionFactoryImpl(basicNumericFactory,
-                  rightShiftFactory, bitLengthFactory, exponentiationFactory, comparisonFactory);
+									(BuilderFactoryNumeric<SInt>) factoryProducer);
+							DivisionFactory divisionFactory = new DivisionFactoryImpl(basicNumericFactory,
+									rightShiftFactory, bitLengthFactory, exponentiationFactory, comparisonFactory,
+									(BuilderFactoryNumeric<SInt>) factoryProducer);
 
               SInt[] quotient = new SInt[n];
 							

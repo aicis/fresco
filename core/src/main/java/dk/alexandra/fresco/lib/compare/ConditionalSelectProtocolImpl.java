@@ -26,8 +26,8 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.compare;
 
+import dk.alexandra.fresco.framework.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.FactoryNumericProducer;
 import dk.alexandra.fresco.framework.LegacyTransfer;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
@@ -39,10 +39,10 @@ public class ConditionalSelectProtocolImpl extends SimpleProtocolProducer implem
     ConditionalSelectProtocol {
 
   private final SInt a, b, selector, result;
-  private final FactoryNumericProducer<SInt> factory;
+  private final BuilderFactoryNumeric<SInt> factory;
 
   public ConditionalSelectProtocolImpl(SInt selector, SInt a, SInt b, SInt result,
-      FactoryNumericProducer<SInt> factory) {
+      BuilderFactoryNumeric<SInt> factory) {
     this.a = a;
     this.b = b;
     this.selector = selector;

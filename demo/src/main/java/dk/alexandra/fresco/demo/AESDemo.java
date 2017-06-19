@@ -27,7 +27,7 @@
 package dk.alexandra.fresco.demo;
 
 import dk.alexandra.fresco.framework.Application;
-import dk.alexandra.fresco.framework.FactoryProducer;
+import dk.alexandra.fresco.framework.BuilderFactory;
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.ProtocolProducer;
@@ -187,7 +187,7 @@ public class AESDemo implements Application {
    * @param producer
    */
   @Override
-  public ProtocolProducer prepareApplication(FactoryProducer producer) {
+  public ProtocolProducer prepareApplication(BuilderFactory producer) {
 
     if (!(producer.getProtocolFactory() instanceof BasicLogicFactory)) {
       throw new MPCException(producer.getClass().getSimpleName()

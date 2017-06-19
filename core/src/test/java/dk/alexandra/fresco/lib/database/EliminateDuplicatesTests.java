@@ -1,7 +1,7 @@
 package dk.alexandra.fresco.lib.database;
 
-import dk.alexandra.fresco.framework.FactoryNumericProducer;
-import dk.alexandra.fresco.framework.FactoryProducer;
+import dk.alexandra.fresco.framework.BuilderFactory;
+import dk.alexandra.fresco.framework.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.TestApplication;
@@ -61,7 +61,7 @@ class EliminateDuplicatesTests {
 
             @Override
             public ProtocolProducer prepareApplication(
-                FactoryProducer factoryProducer) {
+                BuilderFactory factoryProducer) {
               ProtocolFactory provider = factoryProducer.getProtocolFactory();
               BasicNumericFactory bnFactory = (BasicNumericFactory) provider;
               LocalInversionFactory localInvFactory = (LocalInversionFactory) provider;
@@ -73,7 +73,7 @@ class EliminateDuplicatesTests {
               ComparisonProtocolFactoryImpl compFactory = new ComparisonProtocolFactoryImpl(
                   80, bnFactory, localInvFactory,
                   numericBitFactory, expFromOIntFactory,
-                  expFactory, (FactoryNumericProducer<SInt>) factoryProducer);
+                  expFactory, (BuilderFactoryNumeric<SInt>) factoryProducer);
 
               NumericIOBuilder ioBuilder = new NumericIOBuilder(bnFactory);
               FindDuplicatesProtocolBuilder findDuplicatesBuilder = new FindDuplicatesProtocolBuilder(
@@ -142,7 +142,7 @@ class EliminateDuplicatesTests {
 
             @Override
             public ProtocolProducer prepareApplication(
-                FactoryProducer factoryProducer) {
+                BuilderFactory factoryProducer) {
               ProtocolFactory provider = factoryProducer.getProtocolFactory();
               BasicNumericFactory bnFactory = (BasicNumericFactory) provider;
               LocalInversionFactory localInvFactory = (LocalInversionFactory) provider;
@@ -154,7 +154,7 @@ class EliminateDuplicatesTests {
               ComparisonProtocolFactoryImpl compFactory = new ComparisonProtocolFactoryImpl(
                   80, bnFactory, localInvFactory,
                   numericBitFactory, expFromOIntFactory,
-                  expFactory, (FactoryNumericProducer<SInt>) factoryProducer);
+                  expFactory, (BuilderFactoryNumeric<SInt>) factoryProducer);
 
               NumericIOBuilder ioBuilder = new NumericIOBuilder(bnFactory);
               FindDuplicatesProtocolBuilder findDuplicatesBuilder = new FindDuplicatesProtocolBuilder(
@@ -225,7 +225,7 @@ class EliminateDuplicatesTests {
 
             @Override
             public ProtocolProducer prepareApplication(
-                FactoryProducer factoryProducer) {
+                BuilderFactory factoryProducer) {
               ProtocolFactory provider = factoryProducer.getProtocolFactory();
               BasicNumericFactory bnFactory = (BasicNumericFactory) provider;
               LocalInversionFactory localInvFactory = (LocalInversionFactory) provider;
@@ -237,7 +237,7 @@ class EliminateDuplicatesTests {
               ComparisonProtocolFactoryImpl compFactory = new ComparisonProtocolFactoryImpl(
                   80, bnFactory, localInvFactory,
                   numericBitFactory, expFromOIntFactory,
-                  expFactory, (FactoryNumericProducer<SInt>) factoryProducer);
+                  expFactory, (BuilderFactoryNumeric<SInt>) factoryProducer);
 
               NumericIOBuilder ioBuilder = new NumericIOBuilder(bnFactory);
               FindDuplicatesProtocolBuilder findDuplicatesBuilder = new FindDuplicatesProtocolBuilder(

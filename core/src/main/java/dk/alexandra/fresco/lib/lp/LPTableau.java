@@ -28,7 +28,6 @@ package dk.alexandra.fresco.lib.lp;
 
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.helper.builder.OmniBuilder;
 
 public class LPTableau {
@@ -66,11 +65,10 @@ public class LPTableau {
 	public SInt getZ(){
 		return z;
 	}
-		
-	public ProtocolProducer toString(BasicNumericFactory bnf) {		
-		OmniBuilder b = new OmniBuilder(bnf);
-		b.getUtilityBuilder().openAndPrint("C", C.toArray());
-		b.getUtilityBuilder().openAndPrint("B", B);
+
+  public ProtocolProducer toString(OmniBuilder b) {
+    b.getUtilityBuilder().openAndPrint("C", C.toArray());
+    b.getUtilityBuilder().openAndPrint("B", B);
 		b.getUtilityBuilder().openAndPrint("F", F);
 		b.getUtilityBuilder().openAndPrint("z", z);
 		return b.getProtocol();

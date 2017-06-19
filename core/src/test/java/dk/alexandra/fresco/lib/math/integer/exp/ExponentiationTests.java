@@ -26,7 +26,7 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.math.integer.exp;
 
-import dk.alexandra.fresco.framework.FactoryProducer;
+import dk.alexandra.fresco.framework.BuilderFactory;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.TestApplication;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
@@ -71,7 +71,7 @@ public class ExponentiationTests {
 
             @Override
             public ProtocolProducer prepareApplication(
-                FactoryProducer provider) {
+                BuilderFactory provider) {
 
               BasicNumericFactory basicNumericFactory = (BasicNumericFactory) provider
                   .getProtocolFactory();

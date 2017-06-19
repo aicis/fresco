@@ -27,7 +27,7 @@
 package dk.alexandra.fresco.demo;
 
 import dk.alexandra.fresco.framework.Application;
-import dk.alexandra.fresco.framework.FactoryProducer;
+import dk.alexandra.fresco.framework.BuilderFactory;
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.ProtocolFactory;
@@ -228,13 +228,13 @@ public class PrivateSetDemo implements Application {
    * ParallelProtocolProducer and SequentialProtocolProducer. The open and
    * closed values (OBool and SBool) are used to 'glue' the subprotocols
    * together.
-   * @param factoryProducer
+   * @param builderFactory
    */
   //May cause problems if more than 2 parties and if both insets are not of
   //Equal length
   @Override
-  public ProtocolProducer prepareApplication(FactoryProducer factoryProducer) {
-    ProtocolFactory producer = factoryProducer.getProtocolFactory();
+  public ProtocolProducer prepareApplication(BuilderFactory builderFactory) {
+    ProtocolFactory producer = builderFactory.getProtocolFactory();
     if (!(producer instanceof BasicLogicFactory)) {
       throw new MPCException(producer.getClass().getSimpleName()
           + " is not a BasicLogicFactory. This Private Set demo requires a protocol suite that implements the BasicLogicFactory.");

@@ -26,6 +26,7 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.math.integer.division;
 
+import dk.alexandra.fresco.framework.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.compare.ComparisonProtocolFactory;
@@ -36,52 +37,45 @@ import dk.alexandra.fresco.lib.math.integer.exp.ExponentiationFactory;
 
 public class DivisionFactoryImpl implements DivisionFactory {
 
-	private final BasicNumericFactory basicNumericFactory;
-	private final RightShiftFactory rightShiftFactory;
-	private final BitLengthFactory bitLengthFactory;
-	private final ExponentiationFactory exponentiationFactory;
-	private final ComparisonProtocolFactory comparisonFactory;
+  private final BuilderFactoryNumeric builderFactory;
 
 	public DivisionFactoryImpl(BasicNumericFactory basicNumericFactory,
-							   RightShiftFactory rightShiftFactory,
-							   BitLengthFactory bitLengthFactory,
-							   ExponentiationFactory exponentiationFactory,
-							   ComparisonProtocolFactory comparisonFactory) {
-		this.basicNumericFactory = basicNumericFactory;
-		this.rightShiftFactory = rightShiftFactory;
-		this.bitLengthFactory = bitLengthFactory;
-		this.exponentiationFactory = exponentiationFactory;
-		this.comparisonFactory = comparisonFactory;
-	}
+      RightShiftFactory rightShiftFactory,
+      BitLengthFactory bitLengthFactory,
+      ExponentiationFactory exponentiationFactory,
+      ComparisonProtocolFactory comparisonFactory,
+      BuilderFactoryNumeric builderFactory) {
+    this.builderFactory = builderFactory;
+  }
 
 	@Override
 	public DivisionProtocol getDivisionProtocol(SInt dividend, OInt divisor,
 			SInt result) {
 		return new KnownDivisorProtocol(dividend, divisor, result,
-				basicNumericFactory, rightShiftFactory);
-	}
+        builderFactory);
+  }
 
 	@Override
 	public DivisionProtocol getDivisionProtocol(SInt x, OInt divisor,
 			SInt result, SInt remainder) {
 		return new KnownDivisorProtocol(x, divisor, result, remainder,
-				basicNumericFactory, rightShiftFactory);
-	}
+        builderFactory);
+  }
 
 	@Override
 	public DivisionProtocol getDivisionProtocol(SInt x, SInt divisor,
 												SInt result) {
 		return new SecretSharedDivisorProtocol(x, divisor,
-				result, basicNumericFactory, rightShiftFactory, bitLengthFactory,
-				exponentiationFactory, comparisonFactory);
-	}
+        result,
+        builderFactory);
+  }
 
 	@Override
 	public DivisionProtocol getDivisionProtocol(SInt dividend, SInt divisor,
 												SInt result, OInt precision) {
 		return new SecretSharedDivisorProtocol(dividend, divisor,
-				result, precision, basicNumericFactory, rightShiftFactory, bitLengthFactory,
-				exponentiationFactory, comparisonFactory);
-	}
+        result,
+        builderFactory);
+  }
 
 }

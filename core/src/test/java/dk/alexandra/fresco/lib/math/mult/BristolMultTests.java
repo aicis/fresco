@@ -29,7 +29,7 @@ package dk.alexandra.fresco.lib.math.mult;
 import static org.junit.Assert.assertTrue;
 
 import dk.alexandra.fresco.framework.Application;
-import dk.alexandra.fresco.framework.FactoryProducer;
+import dk.alexandra.fresco.framework.BuilderFactory;
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
@@ -117,7 +117,7 @@ public class BristolMultTests {
             private static final long serialVersionUID = 36363636L;
 
             public ProtocolProducer prepareApplication(
-                FactoryProducer factoryProducer) {
+                BuilderFactory factoryProducer) {
               ProtocolFactory provider = factoryProducer.getProtocolFactory();
               AbstractBinaryFactory bool = (AbstractBinaryFactory) provider;
               BasicLogicBuilder builder = new BasicLogicBuilder(bool);

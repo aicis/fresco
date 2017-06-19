@@ -27,7 +27,7 @@
 package dk.alexandra.fresco.demo.inputsum;
 
 import dk.alexandra.fresco.framework.Application;
-import dk.alexandra.fresco.framework.FactoryProducer;
+import dk.alexandra.fresco.framework.BuilderFactory;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
@@ -58,7 +58,7 @@ public class InputApplication implements Application {
 	}
 
 	@Override
-	public ProtocolProducer prepareApplication(FactoryProducer producer) {
+	public ProtocolProducer prepareApplication(BuilderFactory producer) {
 		BasicNumericFactory fac = (BasicNumericFactory) producer.getProtocolFactory();
 		this.ssInputs = new SInt[this.length];
 		

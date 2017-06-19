@@ -27,7 +27,7 @@
 package dk.alexandra.fresco.framework.sce;
 
 import dk.alexandra.fresco.framework.Application;
-import dk.alexandra.fresco.framework.FactoryProducer;
+import dk.alexandra.fresco.framework.BuilderFactory;
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.Party;
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
@@ -166,7 +166,7 @@ public class SecureComputationEngineImpl<ResourcePoolT extends ResourcePool> imp
         + this.protocolSuite);
     OutputT result;
     try {
-      FactoryProducer protocolFactory = this.protocolSuite.init(resourcePool);
+      BuilderFactory protocolFactory = this.protocolSuite.init(resourcePool);
       ProtocolProducer prod = application.prepareApplication(protocolFactory);
       long then = System.currentTimeMillis();
       this.evaluator.eval(prod, resourcePool);

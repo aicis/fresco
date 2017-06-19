@@ -26,7 +26,7 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.statistics;
 
-import dk.alexandra.fresco.framework.FactoryProducer;
+import dk.alexandra.fresco.framework.BuilderFactory;
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.TestApplication;
@@ -88,7 +88,7 @@ public class CreditRaterTest {
 
             @Override
             public ProtocolProducer prepareApplication(
-                FactoryProducer factoryProducer) {
+                BuilderFactory factoryProducer) {
               ProtocolFactory provider = factoryProducer.getProtocolFactory();
               BasicNumericFactory bnFactory = (BasicNumericFactory) provider;
               NumericIOBuilder ioBuilder = new NumericIOBuilder(bnFactory);
@@ -116,7 +116,7 @@ public class CreditRaterTest {
           TestApplication output = new TestApplication() {
             @Override
             public ProtocolProducer prepareApplication(
-                FactoryProducer factoryProducer) {
+                BuilderFactory factoryProducer) {
               ProtocolFactory provider = factoryProducer.getProtocolFactory();
               SequentialProtocolProducer sseq = new SequentialProtocolProducer();
               BasicNumericFactory bnFactory = (BasicNumericFactory) provider;

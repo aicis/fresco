@@ -26,9 +26,9 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.helper.builder;
 
+import dk.alexandra.fresco.framework.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.ProtocolProducer;
-import dk.alexandra.fresco.framework.builder.LegacyNumericProducer;
 import dk.alexandra.fresco.framework.value.OIntFactory;
 import dk.alexandra.fresco.framework.value.SIntFactory;
 import dk.alexandra.fresco.lib.compare.ComparisonProtocolFactory;
@@ -39,7 +39,6 @@ import dk.alexandra.fresco.lib.conversion.IntegerToBitsFactory;
 import dk.alexandra.fresco.lib.conversion.IntegerToBitsFactoryImpl;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.field.integer.generic.IOIntProtocolFactory;
-import dk.alexandra.fresco.lib.logic.AbstractBinaryFactory;
 import dk.alexandra.fresco.lib.math.integer.NumericBitFactory;
 import dk.alexandra.fresco.lib.math.integer.binary.BitLengthFactory;
 import dk.alexandra.fresco.lib.math.integer.binary.BitLengthFactoryImpl;
@@ -52,8 +51,6 @@ import dk.alexandra.fresco.lib.math.integer.exp.ExponentiationFactory;
 import dk.alexandra.fresco.lib.math.integer.exp.ExponentiationFactoryImpl;
 import dk.alexandra.fresco.lib.math.integer.exp.PreprocessedExpPipeFactory;
 import dk.alexandra.fresco.lib.math.integer.inv.LocalInversionFactory;
-import dk.alexandra.fresco.lib.math.integer.stat.StatisticsFactory;
-import dk.alexandra.fresco.lib.math.integer.stat.StatisticsFactoryImpl;
 
 /**
  * This builder can be used for all possible functionality in FRESCO. It encapsulates all other
@@ -74,7 +71,6 @@ import dk.alexandra.fresco.lib.math.integer.stat.StatisticsFactoryImpl;
 public class OmniBuilder extends AbstractProtocolBuilder {
 
   private ProtocolFactory factory;
-  private BasicLogicBuilder basicLogicBuilder;
   private NumericIOBuilder numericIOBuilder;
   private NumericProtocolBuilder numericProtocolBuilder;
   private AdvancedNumericBuilder advancedNumericBuilder;
@@ -82,47 +78,22 @@ public class OmniBuilder extends AbstractProtocolBuilder {
   private StatisticsProtocolBuilder statisticsProtocolBuilder;
   private SymmetricEncryptionBuilder symmetricEncryptionBuilder;
   private UtilityBuilder utilityBuilder;
+  private BuilderFactoryNumeric builderFactory;
 
   //Used in various protocols - typically for comparisons.
   //TODO: Better explanation as to what this is, and what it means for performance/security.
   private final int statisticalSecurityParameter;
 
-  /**
-   * Creates a builder that can create all currently known functions used in FRESCO.
-   * This constructor has a default statistical security parameter of 80.
-   * If it should be different, use the other constructor.
-   *
-   * @param factory A factory that supports all the functions that you want to call using this
-   * builder.
-   */
-  public OmniBuilder(ProtocolFactory factory) {
-    this(factory, 80);
-  }
-
-  /**
-   * Creates a builder that can create all currently known functions used in FRESCO.
-   */
-  public OmniBuilder(ProtocolFactory factory, int statisticalSecurityParameter) {
-    this.factory = factory;
-    this.statisticalSecurityParameter = statisticalSecurityParameter;
+  public OmniBuilder(BuilderFactoryNumeric factory) {
+    builderFactory = factory;
+    this.factory = factory.getProtocolFactory();
+    this.statisticalSecurityParameter = 60;
   }
 
   public int getStatisticalSecurityParameter() {
     return statisticalSecurityParameter;
   }
 
-  /**
-   * Builder for creating boolean circuits. It contains all boolean functionality that FRESCO
-   * provides. Currently expects that the constructor given factory implements all interfaces listed
-   * below: -  BasicLogicFactory
-   */
-  public BasicLogicBuilder getBasicLogicBuilder() {
-    if (basicLogicBuilder == null) {
-      basicLogicBuilder = new BasicLogicBuilder((AbstractBinaryFactory) factory);
-      basicLogicBuilder.setParentBuilder(this);
-    }
-    return basicLogicBuilder;
-  }
 
   /**
    * Builder used for inputting and outputting values. Note that inputting values using this builder
@@ -181,7 +152,7 @@ public class OmniBuilder extends AbstractProtocolBuilder {
         integerToBitsFactory);
     ComparisonProtocolFactory comparisonFactory = getComparisonProtocolFactory();
     return new DivisionFactoryImpl(basicNumericFactory, rightShiftFactory, bitLengthFactory,
-        exponentiationFactory, comparisonFactory);
+        exponentiationFactory, comparisonFactory, builderFactory);
   }
 
   /**
@@ -207,29 +178,8 @@ public class OmniBuilder extends AbstractProtocolBuilder {
     PreprocessedExpPipeFactory expFactory = (PreprocessedExpPipeFactory) factory;
     return new ComparisonProtocolFactoryImpl(statisticalSecurityParameter, bnf, localInvFactory,
         numericBitFactory, expFromOIntFactory, expFactory,
-        new LegacyNumericProducer<>(bnf));
+        builderFactory);
   }
-
-
-  /**
-   * Builder used for statistical functionalities such as mean, variance, covariance.
-   * Currently expects that the constructor given factory implements all interfaces listed below:
-   * - BasicNumericFactory
-   * - LocalInversionFactory
-   * - PreprocessedNumericBitFactory
-   */
-  public StatisticsProtocolBuilder getStatisticsProtocolBuilder() {
-    if (statisticsProtocolBuilder == null) {
-      BasicNumericFactory basicNumericFactory = (BasicNumericFactory) factory;
-      DivisionFactory euclidianDivisionFactory = getDivisionFactory();
-      StatisticsFactory statFac = new StatisticsFactoryImpl(basicNumericFactory,
-          euclidianDivisionFactory);
-      statisticsProtocolBuilder = new StatisticsProtocolBuilder(statFac, basicNumericFactory);
-      statisticsProtocolBuilder.setParentBuilder(this);
-    }
-    return statisticsProtocolBuilder;
-  }
-
 
   /**
    * Builder used for doing symmetric encryption within arithmetic fields.

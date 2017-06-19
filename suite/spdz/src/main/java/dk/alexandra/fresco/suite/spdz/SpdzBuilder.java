@@ -1,7 +1,7 @@
 package dk.alexandra.fresco.suite.spdz;
 
+import dk.alexandra.fresco.framework.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.FactoryNumericProducer;
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
@@ -13,11 +13,11 @@ import dk.alexandra.fresco.suite.spdz.gates.SpdzMultProtocol4;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzSubtractProtocol4;
 import dk.alexandra.fresco.suite.spdz.utils.SpdzFactory;
 
-class SpdzProducer implements FactoryNumericProducer<SpdzSInt> {
+class SpdzBuilder implements BuilderFactoryNumeric<SpdzSInt> {
 
   private SpdzFactory spdzFactory;
 
-  SpdzProducer(SpdzFactory spdzFactory) {
+  SpdzBuilder(SpdzFactory spdzFactory) {
     this.spdzFactory = spdzFactory;
   }
 
@@ -32,12 +32,14 @@ class SpdzProducer implements FactoryNumericProducer<SpdzSInt> {
   }
 
   @Override
-  public NumericBuilder<SpdzSInt> createNumericBuilder(ProtocolBuilder sIntTProtocolBuilder) {
+  public NumericBuilder<SpdzSInt> createNumericBuilder(ProtocolBuilder protocolBuilder) {
     return new NumericBuilder<SpdzSInt>() {
       @Override
       public Computation<SpdzSInt> sub(Computation<SpdzSInt> a, Computation<SpdzSInt> b) {
         SpdzSInt out = spdzFactory.getSInt();
-        return new SpdzSubtractProtocol4(a, b, out);
+        SpdzSubtractProtocol4 spdzSubtractProtocol4 = new SpdzSubtractProtocol4(a, b, out);
+        protocolBuilder.append(spdzSubtractProtocol4);
+        return spdzSubtractProtocol4;
       }
 
 
@@ -49,15 +51,18 @@ class SpdzProducer implements FactoryNumericProducer<SpdzSInt> {
       @Override
       public Computation<SpdzSInt> add(Computation<SpdzSInt> a, Computation<SpdzSInt> b) {
         SpdzSInt out = spdzFactory.getSInt();
-        return new SpdzAddProtocol4(a, b, out);
+        SpdzAddProtocol4 spdzAddProtocol4 = new SpdzAddProtocol4(a, b, out);
+        protocolBuilder.append(spdzAddProtocol4);
+        return spdzAddProtocol4;
       }
 
       @Override
       public Computation<SpdzSInt> mult(Computation<SpdzSInt> a, Computation<SpdzSInt> b) {
         SpdzSInt out = spdzFactory.getSInt();
-        return new SpdzMultProtocol4(a, b, out);
+        SpdzMultProtocol4 spdzMultProtocol4 = new SpdzMultProtocol4(a, b, out);
+        protocolBuilder.append(spdzMultProtocol4);
+        return spdzMultProtocol4;
       }
-
     };
   }
 }

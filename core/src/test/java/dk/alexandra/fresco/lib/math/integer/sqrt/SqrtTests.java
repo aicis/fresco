@@ -26,8 +26,8 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.math.integer.sqrt;
 
-import dk.alexandra.fresco.framework.FactoryNumericProducer;
-import dk.alexandra.fresco.framework.FactoryProducer;
+import dk.alexandra.fresco.framework.BuilderFactory;
+import dk.alexandra.fresco.framework.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.TestApplication;
@@ -90,10 +90,9 @@ public class SqrtTests {
             private static final long serialVersionUID = 701623441111137585L;
 
             @Override
-            public ProtocolProducer prepareApplication(
-                FactoryProducer factoryProducer) {
-              ProtocolFactory producer = factoryProducer
-                  .getProtocolFactory();
+            public ProtocolProducer prepareApplication(BuilderFactory factoryProducer) {
+              ProtocolFactory producer = factoryProducer.getProtocolFactory();
+              BuilderFactoryNumeric numericProducer = (BuilderFactoryNumeric) factoryProducer;
 
               BasicNumericFactory basicNumericFactory = (BasicNumericFactory) producer;
               NumericBitFactory preprocessedNumericBitFactory = (NumericBitFactory) producer;
@@ -113,9 +112,10 @@ public class SqrtTests {
               ComparisonProtocolFactory comparisonFactory = new ComparisonProtocolFactoryImpl(80,
                   basicNumericFactory, localInversionFactory, preprocessedNumericBitFactory,
                   expFromOIntFactory, preprocessedExpPipeFactory,
-                  (FactoryNumericProducer) factoryProducer);
+                  numericProducer);
               DivisionFactory divisionFactory = new DivisionFactoryImpl(basicNumericFactory,
-                  rightShiftFactory, bitLengthFactory, exponentiationFactory, comparisonFactory);
+                  rightShiftFactory, bitLengthFactory, exponentiationFactory, comparisonFactory,
+                  numericProducer);
               SquareRootFactory squareRootFactory = new SquareRootFactoryImpl(basicNumericFactory,
                   divisionFactory, rightShiftFactory);
 

@@ -36,7 +36,7 @@ public interface Application<OutputT> {
    * @param producer the factory
    * @return the resulting protocol producer
    */
-  ProtocolProducer prepareApplication(FactoryProducer producer);
+  ProtocolProducer prepareApplication(BuilderFactory producer);
 
   /**
    * Closes the application and allows the output to be produced and allocated resources to be

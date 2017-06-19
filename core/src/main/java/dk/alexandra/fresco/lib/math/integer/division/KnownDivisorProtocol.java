@@ -1,5 +1,7 @@
 package dk.alexandra.fresco.lib.math.integer.division;
 
+import dk.alexandra.fresco.framework.BuilderFactory;
+import dk.alexandra.fresco.framework.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
@@ -7,7 +9,6 @@ import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.helper.SimpleProtocolProducer;
 import dk.alexandra.fresco.lib.helper.builder.NumericProtocolBuilder;
 import dk.alexandra.fresco.lib.helper.builder.OmniBuilder;
-import dk.alexandra.fresco.lib.math.integer.binary.RightShiftFactory;
 import java.math.BigInteger;
 
 /**
@@ -26,24 +27,25 @@ public class KnownDivisorProtocol extends SimpleProtocolProducer implements Divi
   // Input
   private SInt dividend;
   private OInt divisor;
-  private SInt result, remainder;
+  private SInt result;
+  private SInt remainder;
+  private BuilderFactoryNumeric builderFactory;
 
   // Factories
   private final BasicNumericFactory basicNumericFactory;
-  private final RightShiftFactory rightShiftFactory;
-  private BigInteger modulus;
+  private final BigInteger modulus;
 
   KnownDivisorProtocol(SInt dividend, OInt divisor, SInt result,
-      BasicNumericFactory basicNumericFactory,
-      RightShiftFactory rightShiftFactory) {
+      BuilderFactory builderFactory) {
+    this.builderFactory = ((BuilderFactoryNumeric) builderFactory);
+    BasicNumericFactory basicNumericFactory = this.builderFactory.getBasicNumericFactory();
     this.dividend = dividend;
     this.divisor = divisor;
     this.result = result;
 
     this.basicNumericFactory = basicNumericFactory;
-    modulus = basicNumericFactory.getModulus();
+    modulus = this.basicNumericFactory.getModulus();
     modulusHalf = modulus.divide(BigInteger.valueOf(2));
-    this.rightShiftFactory = rightShiftFactory;
   }
 
   private BigInteger convertRepresentation(BigInteger b) {
@@ -56,8 +58,8 @@ public class KnownDivisorProtocol extends SimpleProtocolProducer implements Divi
   }
 
   KnownDivisorProtocol(SInt x, OInt divisor, SInt result, SInt remainder,
-      BasicNumericFactory basicNumericFactory, RightShiftFactory rightShiftFactory) {
-    this(x, divisor, result, basicNumericFactory, rightShiftFactory);
+      BuilderFactory builderFactory) {
+    this(x, divisor, result, builderFactory);
     this.remainder = remainder;
   }
 
@@ -74,7 +76,7 @@ public class KnownDivisorProtocol extends SimpleProtocolProducer implements Divi
 		 * considerations can be omitted, giving a significant speed-up.
 		 */
 
-    OmniBuilder builder = new OmniBuilder(basicNumericFactory);
+    OmniBuilder builder = new OmniBuilder(builderFactory);
     NumericProtocolBuilder numeric = builder.getNumericProtocolBuilder();
 
     builder.beginSeqScope();
@@ -112,22 +114,23 @@ public class KnownDivisorProtocol extends SimpleProtocolProducer implements Divi
     SInt quotientAbs = numeric.mult(m, dividendAbs);
 
 		/*
-		 * Now quotientAbs is the result shifted SHIFTS bits to the left, so we
+     * Now quotientAbs is the result shifted SHIFTS bits to the left, so we
 		 * shift it back to get the result in absolute value, q.
 		 */
     SInt q = numeric.getSInt();
     builder.addProtocolProducer(
-        rightShiftFactory.getRepeatedRightShiftProtocol(quotientAbs, shifts, q));
+        builderFactory.getRightShiftFactory()
+            .getRepeatedRightShiftProtocol(quotientAbs, shifts, q));
 
 		/*
-		 * Adjust the sign of the result.
+     * Adjust the sign of the result.
 		 */
     SInt sign = builder.getNumericProtocolBuilder()
         .mult(numeric.knownOInt(divisorSign), dividendSign);
     numeric.copy(result, numeric.mult(q, sign));
 
 		/*
-		 * If the remainder is requested, we calculate it here. Note that this
+     * If the remainder is requested, we calculate it here. Note that this
 		 * only makes sense if both divisor and dividend are nonnegative -
 		 * otherwise the remainder could be negative.
 		 */

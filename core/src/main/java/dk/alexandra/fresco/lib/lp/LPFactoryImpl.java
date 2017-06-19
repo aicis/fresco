@@ -26,7 +26,7 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.lp;
 
-import dk.alexandra.fresco.framework.FactoryNumericProducer;
+import dk.alexandra.fresco.framework.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
@@ -78,7 +78,7 @@ public class LPFactoryImpl implements LPFactory {
   private final ZeroTestProtocolFactory zeroTestProtocolFactory;
   private final MiscOIntGenerators misc;
   private ComparisonProtocolFactory compFactory;
-  private FactoryNumericProducer<SInt> factoryProducer;
+  private BuilderFactoryNumeric<SInt> factoryProducer;
 
   public LPFactoryImpl(int securityParameter, BasicNumericFactory bnf,
       LocalInversionFactory localInvFactory,
@@ -86,7 +86,7 @@ public class LPFactoryImpl implements LPFactory {
       ExpFromOIntFactory expFromOIntFactory,
       PreprocessedExpPipeFactory expFactory,
       RandomFieldElementFactory randFactory,
-      FactoryNumericProducer<SInt> factoryProducer) {
+      BuilderFactoryNumeric<SInt> factoryProducer) {
     this.securityParameter = securityParameter;
     this.bnf = bnf;
     this.localInvFactory = localInvFactory;

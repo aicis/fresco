@@ -26,7 +26,7 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.math.integer.binary;
 
-import dk.alexandra.fresco.framework.FactoryProducer;
+import dk.alexandra.fresco.framework.BuilderFactory;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.TestApplication;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
@@ -79,7 +79,7 @@ public class BinaryOperationsTests {
 						
 						@Override
 						public ProtocolProducer prepareApplication(
-                FactoryProducer producer) {
+                BuilderFactory producer) {
 
               BasicNumericFactory basicNumericFactory = (BasicNumericFactory) producer
                   .getProtocolFactory();
@@ -145,7 +145,7 @@ public class BinaryOperationsTests {
 						
 						@Override
 						public ProtocolProducer prepareApplication(
-                FactoryProducer producer) {
+                BuilderFactory producer) {
 
               BasicNumericFactory basicNumericFactory = (BasicNumericFactory) producer;
               NumericBitFactory preprocessedNumericBitFactory = (NumericBitFactory) producer;
@@ -217,7 +217,7 @@ public class BinaryOperationsTests {
 						
 						@Override
 						public ProtocolProducer prepareApplication(
-                FactoryProducer producer) {
+                BuilderFactory producer) {
 
               BasicNumericFactory basicNumericFactory = (BasicNumericFactory) producer;
               NumericBitFactory preprocessedNumericBitFactory = (NumericBitFactory) producer;

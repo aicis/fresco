@@ -1,6 +1,7 @@
 package dk.alexandra.fresco.lib.arithmetic;
 
-import dk.alexandra.fresco.framework.FactoryProducer;
+import dk.alexandra.fresco.framework.BuilderFactory;
+import dk.alexandra.fresco.framework.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.TestApplication;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
@@ -18,87 +19,93 @@ import org.junit.Assert;
  * application works.
  *
  * @author Kasper Damgaard
- *
  */
 public class ParallelAndSequenceTests {
 
-	public static class TestSequentialEvaluation extends TestThreadFactory {
-		@Override
-		public TestThread next(TestThreadConfiguration conf) {
-			return new TestThread() {
-				@Override
-				public void test() throws Exception {
-					TestApplicationSum sumApp = new ParallelAndSequenceTests().new TestApplicationSum();
-					TestApplicationMult multApp = new ParallelAndSequenceTests().new TestApplicationMult();
+  public static class TestSequentialEvaluation extends TestThreadFactory {
 
-					secureComputationEngine
-							.runApplication(sumApp, SecureComputationEngineImpl.createResourcePool(conf.sceConf,
-									conf.sceConf.getSuite()));
-					secureComputationEngine.runApplication(multApp,
-							SecureComputationEngineImpl.createResourcePool(conf.sceConf,
-									conf.sceConf.getSuite()));
+    @Override
+    public TestThread next(TestThreadConfiguration conf) {
+      return new TestThread() {
+        @Override
+        public void test() throws Exception {
+          TestApplicationSum sumApp = new ParallelAndSequenceTests().new TestApplicationSum();
+          TestApplicationMult multApp = new ParallelAndSequenceTests().new TestApplicationMult();
 
-					OInt sum = sumApp.getOutputs()[0];
-					OInt mult = multApp.getOutputs()[0];
-					Assert.assertEquals(BigInteger.valueOf(1 + 2 + 3 + 4 + 5 + 6 + 7 + 8 + 9), sum.getValue());
-					Assert.assertEquals(BigInteger.valueOf(1 * 2 * 3 * 4 * 5 * 6 * 7 * 8 * 9), mult.getValue());
-				}
-			};
-		}
-	}
-
-	public static class TestParallelEvaluation extends TestThreadFactory {
-		@Override
-		public TestThread next(TestThreadConfiguration conf) {
-			return new TestThread() {
-				@Override
-				public void test() throws Exception {
-					TestApplicationSum sumApp = new ParallelAndSequenceTests().new TestApplicationSum();
-					TestApplicationMult multApp = new ParallelAndSequenceTests().new TestApplicationMult();
-
-					secureComputationEngine
-							.runApplication(sumApp, SecureComputationEngineImpl.createResourcePool(conf.sceConf,
-									conf.sceConf.getSuite()));
-					secureComputationEngine.runApplication(multApp,
-							SecureComputationEngineImpl.createResourcePool(conf.sceConf,
-									conf.sceConf.getSuite()));
+          secureComputationEngine
+              .runApplication(sumApp, SecureComputationEngineImpl.createResourcePool(conf.sceConf,
+                  conf.sceConf.getSuite()));
+          secureComputationEngine.runApplication(multApp,
+              SecureComputationEngineImpl.createResourcePool(conf.sceConf,
+                  conf.sceConf.getSuite()));
 
           OInt sum = sumApp.getOutputs()[0];
           OInt mult = multApp.getOutputs()[0];
-					Assert.assertEquals(BigInteger.valueOf(1 + 2 + 3 + 4 + 5 + 6 + 7 + 8 + 9), sum.getValue());
-					Assert.assertEquals(BigInteger.valueOf(1 * 2 * 3 * 4 * 5 * 6 * 7 * 8 * 9), mult.getValue());
-				}
-			};
-		}
-	}
+          Assert
+              .assertEquals(BigInteger.valueOf(1 + 2 + 3 + 4 + 5 + 6 + 7 + 8 + 9), sum.getValue());
+          Assert
+              .assertEquals(BigInteger.valueOf(1 * 2 * 3 * 4 * 5 * 6 * 7 * 8 * 9), mult.getValue());
+        }
+      };
+    }
+  }
 
-	private class TestApplicationSum extends TestApplication {
-		private static final long serialVersionUID = 1L;
+  public static class TestParallelEvaluation extends TestThreadFactory {
 
-		@Override
-    public ProtocolProducer prepareApplication(FactoryProducer producer) {
-      OmniBuilder builder = new OmniBuilder(producer.getProtocolFactory());
+    @Override
+    public TestThread next(TestThreadConfiguration conf) {
+      return new TestThread() {
+        @Override
+        public void test() throws Exception {
+          TestApplicationSum sumApp = new ParallelAndSequenceTests().new TestApplicationSum();
+          TestApplicationMult multApp = new ParallelAndSequenceTests().new TestApplicationMult();
+
+          secureComputationEngine
+              .runApplication(sumApp, SecureComputationEngineImpl.createResourcePool(conf.sceConf,
+                  conf.sceConf.getSuite()));
+          secureComputationEngine.runApplication(multApp,
+              SecureComputationEngineImpl.createResourcePool(conf.sceConf,
+                  conf.sceConf.getSuite()));
+
+          OInt sum = sumApp.getOutputs()[0];
+          OInt mult = multApp.getOutputs()[0];
+          Assert
+              .assertEquals(BigInteger.valueOf(1 + 2 + 3 + 4 + 5 + 6 + 7 + 8 + 9), sum.getValue());
+          Assert
+              .assertEquals(BigInteger.valueOf(1 * 2 * 3 * 4 * 5 * 6 * 7 * 8 * 9), mult.getValue());
+        }
+      };
+    }
+  }
+
+  private class TestApplicationSum extends TestApplication {
+
+
+    @Override
+    public ProtocolProducer prepareApplication(BuilderFactory producer) {
+      BuilderFactoryNumeric factoryNumeric = (BuilderFactoryNumeric) producer;
+      OmniBuilder builder = new OmniBuilder(factoryNumeric);
       SInt[] terms = builder.getNumericIOBuilder()
           .inputArray(new int[]{1, 2, 3, 4, 5, 6, 7, 8, 9}, 1);
       SInt sum = builder.getNumericProtocolBuilder().sum(terms);
-			this.outputs = new OInt[] { builder.getNumericIOBuilder().output(sum) };
-			return builder.getProtocol();
-		}
+      this.outputs = new OInt[]{builder.getNumericIOBuilder().output(sum)};
+      return builder.getProtocol();
+    }
 
-	}
+  }
 
-	private class TestApplicationMult extends TestApplication {
-		private static final long serialVersionUID = 1L;
+  private class TestApplicationMult extends TestApplication {
 
-		@Override
-    public ProtocolProducer prepareApplication(FactoryProducer producer) {
-      OmniBuilder builder = new OmniBuilder(producer.getProtocolFactory());
+    @Override
+    public ProtocolProducer prepareApplication(BuilderFactory producer) {
+      BuilderFactoryNumeric factoryNumeric = (BuilderFactoryNumeric) producer;
+      OmniBuilder builder = new OmniBuilder(factoryNumeric);
       SInt[] terms = builder.getNumericIOBuilder()
           .inputArray(new int[]{1, 2, 3, 4, 5, 6, 7, 8, 9}, 1);
       SInt mult = builder.getNumericProtocolBuilder().mult(terms);
-			this.outputs = new OInt[] { builder.getNumericIOBuilder().output(mult) };
-			return builder.getProtocol();
-		}
+      this.outputs = new OInt[]{builder.getNumericIOBuilder().output(mult)};
+      return builder.getProtocol();
+    }
 
-	}
+  }
 }
