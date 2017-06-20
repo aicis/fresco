@@ -19,11 +19,20 @@ public class DefaultRightShiftBuilder<SIntT extends SInt> implements RightShiftB
 
   @Override
   public Computation<SIntT> rightShift(Computation<SIntT> input) {
-    return builder.append(
+    Computation<RightShiftResult<SIntT>> rightShiftResult = builder
+        .createSequentialSubFactoryReturning(
         new RightShiftProtocol4<>(
-            factoryNumeric,
             factoryNumeric.getBasicNumericFactory().getMaxBitLength(),
-            input));
+            input, false));
+    return () -> rightShiftResult.out().getResult().out();
+  }
+
+  @Override
+  public Computation<RightShiftResult<SIntT>> rightShiftWithRemainder(Computation<SIntT> input) {
+    return builder.createSequentialSubFactoryReturning(
+        new RightShiftProtocol4<>(
+            factoryNumeric.getBasicNumericFactory().getMaxBitLength(),
+            input, true));
   }
 
   @Override

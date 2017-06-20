@@ -5,6 +5,7 @@ import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.ProtocolProducer;
+import dk.alexandra.fresco.framework.RightShiftBuilder;
 import dk.alexandra.fresco.framework.value.OIntFactory;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.framework.value.SIntFactory;
@@ -153,6 +154,10 @@ public abstract class ProtocolBuilder<SIntT extends SInt> {
 
   public OpenBuilder<SIntT> createOpenBuilder() {
     return factory.createOpenBuilder(this);
+  }
+
+  public RightShiftBuilder<SIntT> createRightShiftBuilder() {
+    return factory.createRightShiftBuilder(this);
   }
 
 
