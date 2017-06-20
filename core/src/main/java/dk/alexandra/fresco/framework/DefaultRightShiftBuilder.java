@@ -2,6 +2,7 @@ package dk.alexandra.fresco.framework;
 
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
 import dk.alexandra.fresco.framework.value.SInt;
+import dk.alexandra.fresco.lib.math.integer.binary.RepeatedRightShiftProtocol4;
 import dk.alexandra.fresco.lib.math.integer.binary.RightShiftProtocol4;
 
 public class DefaultRightShiftBuilder<SIntT extends SInt> implements RightShiftBuilder<SIntT> {
@@ -21,9 +22,9 @@ public class DefaultRightShiftBuilder<SIntT extends SInt> implements RightShiftB
   public Computation<SIntT> rightShift(Computation<SIntT> input) {
     Computation<RightShiftResult<SIntT>> rightShiftResult = builder
         .createSequentialSubFactoryReturning(
-        new RightShiftProtocol4<>(
-            factoryNumeric.getBasicNumericFactory().getMaxBitLength(),
-            input, false));
+            new RightShiftProtocol4<>(
+                factoryNumeric.getBasicNumericFactory().getMaxBitLength(),
+                input, false));
     return () -> rightShiftResult.out().getResult().out();
   }
 
@@ -37,13 +38,19 @@ public class DefaultRightShiftBuilder<SIntT extends SInt> implements RightShiftB
 
   @Override
   public Computation<SIntT> rightShift(Computation<SIntT> input, int shifts) {
-    return () -> TODO;
+    Computation<RightShiftResult<SIntT>> rightShiftResult = builder
+        .createSequentialSubFactoryReturning(
+            new RepeatedRightShiftProtocol4<>(
+                input, shifts, false));
+    return () -> rightShiftResult.out().getResult().out();
   }
 
   @Override
   public Computation<RightShiftResult<SIntT>> rightShiftWithRemainder(
       Computation<SIntT> input,
       int shifts) {
-    return () -> null;
+    return builder.createSequentialSubFactoryReturning(
+        new RepeatedRightShiftProtocol4<>(
+            input, shifts, true));
   }
 }
