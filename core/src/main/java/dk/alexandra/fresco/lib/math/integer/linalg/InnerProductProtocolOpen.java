@@ -45,7 +45,7 @@ class InnerProductProtocolOpen<SIntT extends SInt> extends SimpleProtocolProduce
           products.add(numericBuilder.mult(nextA, nextB));
         }
       });
-      result = builder.createSequentialSubFactory(new AddSIntList<>(products));
+      result = builder.createSequentialSubFactoryReturning(new AddSIntList<>(products));
     }).build();
   }
 }
