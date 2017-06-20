@@ -5,7 +5,7 @@ import dk.alexandra.fresco.framework.builder.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder.SequentialProtocolBuilder;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.math.integer.AddSIntList;
+import dk.alexandra.fresco.lib.math.integer.SumSIntList;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
@@ -35,6 +35,6 @@ class InnerProductProtocolOpen<SIntT extends SInt> implements
           }
           return () -> result;
         });
-    return builder.createSequentialSubFactoryReturning(new AddSIntList<>(products));
+    return builder.createSequentialSubFactoryReturning(new SumSIntList<>(products));
   }
 }
