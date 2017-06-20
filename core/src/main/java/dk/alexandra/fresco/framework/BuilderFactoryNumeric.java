@@ -58,7 +58,7 @@ public interface BuilderFactoryNumeric<SIntT extends SInt> extends BuilderFactor
   }
 
   default InnerProductBuilder<SIntT> createInnerProductBuilder(ProtocolBuilder<SIntT> builder) {
-    return new DefaultInnerProductBuilder<>(this, builder);
+    return new DefaultInnerProductBuilder<>(builder);
   }
 
   default RandomAdditiveMaskBuilder<SIntT> createAdditiveMaskBuilder(
