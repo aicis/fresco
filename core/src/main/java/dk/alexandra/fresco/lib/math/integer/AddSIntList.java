@@ -1,23 +1,24 @@
 package dk.alexandra.fresco.lib.math.integer;
 
 import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.RecursiveComputation;
+import dk.alexandra.fresco.framework.builder.DelayedComputation;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder.ParallelProtocolBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder.SequentialProtocolBuilder;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
+import java.util.function.Function;
 
 /**
  * Protocol producer for summing a list of SInts
  *
  * @param <SIntT> the type of SInts to add - and later output
  */
-public class AddSIntList<SIntT extends SInt> extends RecursiveComputation<SIntT>
-    implements Consumer<SequentialProtocolBuilder<SIntT>> {
+public class AddSIntList<SIntT extends SInt>
+    implements Function<SequentialProtocolBuilder<SIntT>, Computation<SIntT>> {
 
+  private final DelayedComputation<SIntT> result = new DelayedComputation<>();
   private Computation<List<Computation<SIntT>>> inputList;
 
   /**
@@ -26,34 +27,34 @@ public class AddSIntList<SIntT extends SInt> extends RecursiveComputation<SIntT>
    * @param input the input to sum
    */
   public AddSIntList(List<Computation<SIntT>> input) {
-    super();
-    this.inputList = () -> input;
+    this(() -> input);
   }
 
-  private AddSIntList(Computation<List<Computation<SIntT>>> input,
-      AddSIntList<SIntT> previousComputation) {
-    super(previousComputation);
+  public AddSIntList(Computation<List<Computation<SIntT>>> input) {
     this.inputList = input;
   }
 
   @Override
-  public void accept(SequentialProtocolBuilder<SIntT> iterationBuilder) {
+  public Computation<SIntT> apply(SequentialProtocolBuilder<SIntT> iterationBuilder) {
+    doIteration(iterationBuilder, inputList);
+    return result;
+  }
+
+  private void doIteration(SequentialProtocolBuilder<SIntT> iterationBuilder,
+      Computation<List<Computation<SIntT>>> inputList) {
     List<Computation<SIntT>> currentInput = inputList.out();
     if (currentInput.size() > 1) {
-      Iteration<SIntT> iteration = iterationBuilder
-          .createParallelSubFactory(new Iteration<>(currentInput));
-      iterationBuilder.createSequentialSubFactory(new AddSIntList<>(iteration, this));
+      Computation<List<Computation<SIntT>>> iteration
+          = iterationBuilder.createParallelSubFactoryReturning(new Iteration<>(currentInput));
+      iterationBuilder.createSequentialSubFactory((builder) -> doIteration(builder, iteration));
     } else {
-      setResult(currentInput.get(0).out());
+      result.setComputation(currentInput.get(0));
     }
   }
 
-
   private static class Iteration<SIntT extends SInt> implements
-      Consumer<ParallelProtocolBuilder<SIntT>>,
-      Computation<List<Computation<SIntT>>> {
+      Function<ParallelProtocolBuilder<SIntT>, Computation<List<Computation<SIntT>>>> {
 
-    private List<Computation<SIntT>> out;
     private final List<Computation<SIntT>> input;
 
     Iteration(List<Computation<SIntT>> input) {
@@ -61,8 +62,8 @@ public class AddSIntList<SIntT extends SInt> extends RecursiveComputation<SIntT>
     }
 
     @Override
-    public void accept(ParallelProtocolBuilder<SIntT> parallel) {
-      out = new ArrayList<>();
+    public Computation<List<Computation<SIntT>>> apply(ParallelProtocolBuilder<SIntT> parallel) {
+      List<Computation<SIntT>> out = new ArrayList<>();
       NumericBuilder<SIntT> numericBuilder = parallel.createNumericBuilder();
       Computation<SIntT> left = null;
       for (Computation<SIntT> input : input) {
@@ -76,11 +77,7 @@ public class AddSIntList<SIntT extends SInt> extends RecursiveComputation<SIntT>
       if (left != null) {
         out.add(left);
       }
-    }
-
-    @Override
-    public List<Computation<SIntT>> out() {
-      return out;
+      return () -> out;
     }
   }
 }

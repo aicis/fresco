@@ -40,7 +40,7 @@ import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.math.integer.AddSIntList;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
+import java.util.function.Function;
 
 /**
  * Application for performing credit rating.
@@ -91,21 +91,25 @@ public class CreditRater implements Application<SInt> {
   @SuppressWarnings("unchecked")
   public ProtocolProducer prepareApplication(BuilderFactory provider) {
     return ProtocolBuilder.createRoot((BuilderFactoryNumeric<SInt>) provider, (sequential) -> {
-      List<Computation<SInt>> individualScores = new ArrayList<>(this.values.size());
 
-      sequential.createParallelSubFactory((parallel) -> {
-        for (int i = 0; i < this.values.size(); i++) {
-          SInt value = values.get(i);
-          List<SInt> interval = intervals.get(i);
-          List<SInt> intervalScore = intervalScores.get(i);
+      Computation<List<Computation<SInt>>> individualScores = sequential
+          .createParallelSubFactoryReturning(
+              parallel -> {
+                List<Computation<SInt>> scores = new ArrayList<>(values.size());
+                for (int i = 0; i < values.size(); i++) {
+                  SInt value = values.get(i);
+                  List<SInt> interval = intervals.get(i);
+                  List<SInt> intervalScore = intervalScores.get(i);
 
-          individualScores.add(
-              parallel.createSequentialSubFactory(
-                  new ComputeIntervalScore(interval, value, intervalScore)));
-        }
-      });
+                  scores.add(
+                      parallel.createSequentialSubFactoryReturning(
+                          new ComputeIntervalScore(interval, value, intervalScore)));
+                }
+                return () -> scores;
+              });
 
-      delegateResult = sequential.createSequentialSubFactory(new AddSIntList(individualScores));
+      delegateResult = sequential
+          .createSequentialSubFactoryReturning(new AddSIntList(individualScores));
     }).build();
   }
 
@@ -117,13 +121,12 @@ public class CreditRater implements Application<SInt> {
     }
   }
 
-  private static class ComputeIntervalScore implements Consumer<SequentialProtocolBuilder<SInt>>,
-      Computation<SInt> {
+  private static class ComputeIntervalScore implements
+      Function<SequentialProtocolBuilder<SInt>, Computation<SInt>> {
 
     private final List<Computation<SInt>> interval;
     private final Computation<SInt> value;
     private final List<Computation<SInt>> scores;
-    private Computation<SInt> delegageComputation;
 
 
     /**
@@ -141,44 +144,46 @@ public class CreditRater implements Application<SInt> {
     }
 
     @Override
-    public void accept(SequentialProtocolBuilder<SInt> rootBuilder) {
-      List<Computation<SInt>> comparisons = new ArrayList<>();
-      rootBuilder.createParallelSubFactory((parallelBuilder) -> {
-        ComparisonBuilder<SInt> builder = parallelBuilder.createComparisonBuilder();
+    public Computation<SInt> apply(SequentialProtocolBuilder<SInt> rootBuilder) {
+      Computation<List<Computation<SInt>>> comparisonsComputation =
+          rootBuilder.createParallelSubFactoryReturning((parallelBuilder) -> {
+            List<Computation<SInt>> result = new ArrayList<>();
+            ComparisonBuilder<SInt> builder = parallelBuilder.createComparisonBuilder();
 
-        // Compare if "x <= the n interval definitions"
-        for (Computation<SInt> anInterval : interval) {
-          comparisons.add(builder.compare(value.out(), anInterval.out()));
-        }
-      });
+            // Compare if "x <= the n interval definitions"
+            for (Computation<SInt> anInterval : interval) {
+              result.add(builder.compare(value.out(), anInterval.out()));
+            }
+            return () -> result;
+          });
       // Add "x > last interval definition" to comparisons
-      rootBuilder.createSequentialSubFactory((builder) -> {
-        NumericBuilder<SInt> numericBuilder = builder.createNumericBuilder();
-        SInt one = builder.createConstant(1);
-        comparisons.add(numericBuilder.sub(one, comparisons.get(comparisons.size() - 1)).out());
-      });
+      Computation<List<Computation<SInt>>> comparisonComputationsWithLast =
+          rootBuilder.createSequentialSubFactoryReturning((builder) -> {
+            List<Computation<SInt>> computations = comparisonsComputation.out();
+            NumericBuilder<SInt> numericBuilder = builder.createNumericBuilder();
+            SInt one = builder.createConstant(1);
+            computations
+                .add(numericBuilder.sub(one, computations.get(computations.size() - 1)).out());
+            return () -> computations;
+          });
       //Comparisons now contain if x <= each definition and if x>= last definition
-
-      List<Computation<SInt>> intermediateScores = new ArrayList<>();
-      rootBuilder.createParallelSubFactory((parallelBuilder) -> {
-        NumericBuilder<SInt> numericBuilder =
-            parallelBuilder.createNumericBuilder();
-        intermediateScores.add(numericBuilder.mult(comparisons.get(0), scores.get(0)));
-        for (int i = 1; i < scores.size() - 1; i++) {
-          Computation<SInt> hit = numericBuilder.sub(comparisons.get(i), comparisons.get(i - 1));
-          intermediateScores.add(numericBuilder.mult(hit, scores.get(i)));
-        }
-        Computation<SInt> a = comparisons.get(scores.size() - 1);
-        Computation<SInt> b = scores.get(scores.size() - 1);
-        intermediateScores.add(numericBuilder.mult(a, b));
-      });
-      AddSIntList<SInt> consumer = new AddSIntList<>(intermediateScores);
-      this.delegageComputation = rootBuilder.createSequentialSubFactory(consumer);
-    }
-
-    @Override
-    public SInt out() {
-      return delegageComputation.out();
+      Computation<List<Computation<SInt>>> intermediateScores =
+          rootBuilder.createParallelSubFactoryReturning((parallelBuilder) -> {
+            List<Computation<SInt>> comparisons = comparisonComputationsWithLast.out();
+            NumericBuilder<SInt> numericBuilder = parallelBuilder.createNumericBuilder();
+            List<Computation<SInt>> innerScores = new ArrayList<>();
+            innerScores.add(numericBuilder.mult(comparisons.get(0), scores.get(0)));
+            for (int i = 1; i < scores.size() - 1; i++) {
+              Computation<SInt> hit = numericBuilder
+                  .sub(comparisons.get(i), comparisons.get(i - 1));
+              innerScores.add(numericBuilder.mult(hit, scores.get(i)));
+            }
+            Computation<SInt> a = comparisons.get(scores.size() - 1);
+            Computation<SInt> b = scores.get(scores.size() - 1);
+            innerScores.add(numericBuilder.mult(a, b));
+            return () -> innerScores;
+          });
+      return rootBuilder.createSequentialSubFactoryReturning(new AddSIntList<>(intermediateScores));
     }
   }
 }

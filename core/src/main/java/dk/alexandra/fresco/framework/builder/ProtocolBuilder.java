@@ -15,6 +15,7 @@ import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 /**
@@ -62,6 +63,22 @@ public abstract class ProtocolBuilder<SIntT extends SInt> {
   T createParallelSubFactory(T consumer) {
     addConsumer(consumer, () -> new ParallelProtocolBuilder<>(factory));
     return consumer;
+  }
+
+  public <R, T extends Function<ParallelProtocolBuilder<SIntT>, Computation<R>>>
+  Computation<R> createParallelSubFactoryReturning(T function) {
+    DelayedComputation<R> result = new DelayedComputation<>();
+    addConsumer((builder) -> result.setComputation(function.apply(builder)),
+        () -> new ParallelProtocolBuilder<>(factory));
+    return result;
+  }
+
+  public <R, T extends Function<SequentialProtocolBuilder<SIntT>, Computation<R>>>
+  Computation<R> createSequentialSubFactoryReturning(T function) {
+    DelayedComputation<R> result = new DelayedComputation<>();
+    addConsumer((builder) -> result.setComputation(function.apply(builder)),
+        () -> new SequentialProtocolBuilder<>(factory));
+    return result;
   }
 
   /**
