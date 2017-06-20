@@ -22,8 +22,8 @@ public class DefaultInnerProductBuilder<SIntT extends SInt> implements InnerProd
   @Override
   public Computation<SIntT> dot(List<Computation<SIntT>> aVector,
       List<Computation<SIntT>> bVector) {
-    return builder.append(new InnerProductProtocol44<>(aVector, bVector,
-        factoryNumeric));
+    return builder
+        .createSequentialSubFactoryReturning(new InnerProductProtocol44<>(aVector, bVector));
   }
 
   @Override
