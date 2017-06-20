@@ -15,22 +15,22 @@ import java.util.function.Function;
  *
  * @param <SIntT> the type of SInts to add - and later output
  */
-public class AddSIntList<SIntT extends SInt>
+public class SumSIntList<SIntT extends SInt>
     implements Function<SequentialProtocolBuilder<SIntT>, Computation<SIntT>> {
 
   private final DelayedComputation<SIntT> result = new DelayedComputation<>();
   private Computation<List<Computation<SIntT>>> inputList;
 
   /**
-   * Creates a new AddSIntList.
+   * Creates a new SumSIntList.
    *
    * @param input the input to sum
    */
-  public AddSIntList(List<Computation<SIntT>> input) {
+  public SumSIntList(List<Computation<SIntT>> input) {
     this(() -> input);
   }
 
-  public AddSIntList(Computation<List<Computation<SIntT>>> input) {
+  public SumSIntList(Computation<List<Computation<SIntT>>> input) {
     this.inputList = input;
   }
 
