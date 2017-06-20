@@ -8,7 +8,7 @@ import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.helper.SimpleProtocolProducer;
-import dk.alexandra.fresco.lib.math.integer.AddSIntList;
+import dk.alexandra.fresco.lib.math.integer.SumSIntList;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -45,7 +45,7 @@ class InnerProductProtocolOpen<SIntT extends SInt> extends SimpleProtocolProduce
           products.add(numericBuilder.mult(nextA, nextB));
         }
       });
-      result = builder.createSequentialSubFactoryReturning(new AddSIntList<>(products));
+      result = builder.createSequentialSubFactoryReturning(new SumSIntList<>(products));
     }).build();
   }
 }

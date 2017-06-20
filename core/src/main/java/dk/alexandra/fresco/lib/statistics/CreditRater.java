@@ -37,7 +37,7 @@ import dk.alexandra.fresco.framework.builder.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder.SequentialProtocolBuilder;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.math.integer.AddSIntList;
+import dk.alexandra.fresco.lib.math.integer.SumSIntList;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
@@ -109,7 +109,7 @@ public class CreditRater implements Application<SInt> {
               });
 
       delegateResult = sequential
-          .createSequentialSubFactoryReturning(new AddSIntList(individualScores));
+          .createSequentialSubFactoryReturning(new SumSIntList(individualScores));
     }).build();
   }
 
@@ -183,7 +183,7 @@ public class CreditRater implements Application<SInt> {
             innerScores.add(numericBuilder.mult(a, b));
             return () -> innerScores;
           });
-      return rootBuilder.createSequentialSubFactoryReturning(new AddSIntList<>(intermediateScores));
+      return rootBuilder.createSequentialSubFactoryReturning(new SumSIntList<>(intermediateScores));
     }
   }
 }

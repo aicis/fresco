@@ -39,7 +39,7 @@ public class InnerProductNewApi extends SimpleProtocolProducer implements Comput
             return () -> temp;
           });
       // A sub scope is needed - otherwise we will build the add protocol without
-      // having populated the list of values to be added - AddSIntList would have done the trick
+      // having populated the list of values to be added - SumSIntList would have done the trick
       // neatly
       c = seq.createSequentialSubFactoryReturning(subSeq -> {
         NumericBuilder<SInt> numericBuilder = subSeq.createNumericBuilder();

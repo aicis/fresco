@@ -4,7 +4,7 @@ import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder.SequentialProtocolBuilder;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.math.integer.AddSIntList;
+import dk.alexandra.fresco.lib.math.integer.SumSIntList;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
@@ -24,15 +24,17 @@ public class InnerProductProtocol44<SIntT extends SInt> implements
 
   @Override
   public Computation<SIntT> apply(SequentialProtocolBuilder<SIntT> builder) {
-    List<Computation<SIntT>> products = new ArrayList<>(aVector.size());
-    builder.createParallelSubFactory(parallel -> {
-      NumericBuilder<SIntT> numericBuilder = parallel.createNumericBuilder();
-      for (int i = 0; i < aVector.size(); i++) {
-        Computation<SIntT> nextA = aVector.get(i);
-        Computation<SIntT> nextB = bVector.get(i);
-        products.add(numericBuilder.mult(nextA, nextB));
-      }
-    });
-    return builder.createSequentialSubFactoryReturning(new AddSIntList<>(products));
+    Computation<List<Computation<SIntT>>> result =
+        builder.createParallelSubFactoryReturning(parallel -> {
+          List<Computation<SIntT>> products = new ArrayList<>(aVector.size());
+          NumericBuilder<SIntT> numericBuilder = parallel.createNumericBuilder();
+          for (int i = 0; i < aVector.size(); i++) {
+            Computation<SIntT> nextA = aVector.get(i);
+            Computation<SIntT> nextB = bVector.get(i);
+            products.add(numericBuilder.mult(nextA, nextB));
+          }
+          return () -> products;
+        });
+    return builder.createSequentialSubFactoryReturning(new SumSIntList<>(result));
   }
 }
