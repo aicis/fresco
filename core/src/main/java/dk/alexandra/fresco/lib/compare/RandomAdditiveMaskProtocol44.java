@@ -2,21 +2,20 @@ package dk.alexandra.fresco.lib.compare;
 
 import dk.alexandra.fresco.framework.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.builder.InnerProductBuilder;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilder.SequentialProtocolBuilder;
 import dk.alexandra.fresco.framework.builder.RandomAdditiveMaskBuilder.RandomAdditiveMask;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.helper.SimpleProtocolProducer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
-public class RandomAdditiveMaskProtocol44<SIntT extends SInt> extends SimpleProtocolProducer
-    implements Computation<RandomAdditiveMask<SIntT>> {
+public class RandomAdditiveMaskProtocol44<SIntT extends SInt>
+    implements Function<SequentialProtocolBuilder<SIntT>, Computation<RandomAdditiveMask<SIntT>>> {
 
   private final BuilderFactoryNumeric<SIntT> factoryNumeric;
   private final int securityParameter;
@@ -33,30 +32,23 @@ public class RandomAdditiveMaskProtocol44<SIntT extends SInt> extends SimpleProt
   }
 
   @Override
-  public RandomAdditiveMask<SIntT> out() {
-    return new RandomAdditiveMask<>(
+  public Computation<RandomAdditiveMask<SIntT>> apply(SequentialProtocolBuilder<SIntT> builder) {
+    NumericBuilder<SIntT> numericBuilder = builder.createNumericBuilder();
+    List<Computation<SIntT>> allBits = new ArrayList<>();
+    for (int i = 0; i < noOfBits + securityParameter; i++) {
+      Computation<SIntT> randomBit = numericBuilder.createRandomSecretSharedBitProtocol();
+      allBits.add(randomBit);
+    }
+
+    MiscOIntGenerators oIntGenerators = new MiscOIntGenerators(
+        factoryNumeric.getBasicNumericFactory());
+
+    OInt[] twoPows = oIntGenerators.getTwoPowers(securityParameter + noOfBits);
+    InnerProductBuilder<SIntT> innerProductBuilder = builder.createInnerProductBuilder();
+    value = innerProductBuilder.openDot(Arrays.asList(twoPows), allBits);
+    bits = allBits.subList(0, noOfBits);
+    return () -> new RandomAdditiveMask<>(
         bits.stream().map(Computation::out).collect(Collectors.toList()),
-        value.out()
-    );
-  }
-
-  @Override
-  protected ProtocolProducer initializeProtocolProducer() {
-    return ProtocolBuilder.createRoot(factoryNumeric, (builder) -> {
-      NumericBuilder<SIntT> numericBuilder = builder.createNumericBuilder();
-      List<Computation<SIntT>> allBits = new ArrayList<>();
-      for (int i = 0; i < noOfBits + securityParameter; i++) {
-        Computation<SIntT> randomBit = numericBuilder.createRandomSecretSharedBitProtocol();
-        allBits.add(randomBit);
-      }
-
-      MiscOIntGenerators oIntGenerators = new MiscOIntGenerators(
-          factoryNumeric.getBasicNumericFactory());
-
-      OInt[] twoPows = oIntGenerators.getTwoPowers(securityParameter + noOfBits);
-      InnerProductBuilder<SIntT> innerProductBuilder = builder.createInnerProductBuilder();
-      value = innerProductBuilder.openDot(Arrays.asList(twoPows), allBits);
-      bits = allBits.subList(0, noOfBits);
-    }).build();
+        value.out());
   }
 }

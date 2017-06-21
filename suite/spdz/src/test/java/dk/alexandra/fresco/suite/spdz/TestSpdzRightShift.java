@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
+ * Copyright (c) 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
  *
@@ -24,19 +24,19 @@
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
  *******************************************************************************/
-package dk.alexandra.fresco.framework;
+package dk.alexandra.fresco.suite.spdz;
 
-import dk.alexandra.fresco.framework.value.OInt;
+import dk.alexandra.fresco.framework.configuration.PreprocessingStrategy;
+import dk.alexandra.fresco.framework.network.NetworkingStrategy;
+import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
+import dk.alexandra.fresco.lib.math.integer.binary.BinaryOperationsTests.TestRightShift;
+import org.junit.Test;
 
-public abstract class TestApplication<OutputT> implements Application<OutputT> {
-	
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -3392896741851185657L;
-	public OInt[] outputs;
-	
-	public OInt[] getOutputs() {
-		return this.outputs;
-	}
+public class TestSpdzRightShift extends AbstractSpdzTest {
+
+  @Test
+  public void testRightShiftTwoParties() throws Exception {
+    runTest(new TestRightShift(), EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET,
+        PreprocessingStrategy.DUMMY, 2);
+  }
 }
