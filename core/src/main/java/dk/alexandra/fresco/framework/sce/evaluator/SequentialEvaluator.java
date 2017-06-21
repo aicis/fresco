@@ -30,7 +30,6 @@ import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.NativeProtocol.EvaluationStatus;
 import dk.alexandra.fresco.framework.ProtocolCollection;
-import dk.alexandra.fresco.framework.ProtocolCollectionList;
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.Reporter;

@@ -26,25 +26,15 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.math.integer.division;
 
-import dk.alexandra.fresco.framework.BuilderFactoryNumeric;
+import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.compare.ComparisonProtocolFactory;
-import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
-import dk.alexandra.fresco.lib.math.integer.binary.BitLengthFactory;
-import dk.alexandra.fresco.lib.math.integer.binary.RightShiftFactory;
-import dk.alexandra.fresco.lib.math.integer.exp.ExponentiationFactory;
 
 public class DivisionFactoryImpl implements DivisionFactory {
 
   private final BuilderFactoryNumeric builderFactory;
 
-	public DivisionFactoryImpl(BasicNumericFactory basicNumericFactory,
-      RightShiftFactory rightShiftFactory,
-      BitLengthFactory bitLengthFactory,
-      ExponentiationFactory exponentiationFactory,
-      ComparisonProtocolFactory comparisonFactory,
-      BuilderFactoryNumeric builderFactory) {
+  public DivisionFactoryImpl(BuilderFactoryNumeric builderFactory) {
     this.builderFactory = builderFactory;
   }
 

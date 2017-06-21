@@ -26,33 +26,21 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.helper.builder;
 
-import dk.alexandra.fresco.framework.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.ProtocolProducer;
+import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.value.OIntFactory;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.framework.value.SIntFactory;
 import dk.alexandra.fresco.lib.compare.ComparisonProtocolFactory;
 import dk.alexandra.fresco.lib.compare.ComparisonProtocolFactoryImpl;
-import dk.alexandra.fresco.lib.compare.RandomAdditiveMaskFactory;
-import dk.alexandra.fresco.lib.compare.RandomAdditiveMaskFactoryImpl;
-import dk.alexandra.fresco.lib.conversion.IntegerToBitsFactory;
-import dk.alexandra.fresco.lib.conversion.IntegerToBitsFactoryImpl;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.field.integer.generic.IOIntProtocolFactory;
-import dk.alexandra.fresco.lib.math.integer.binary.BitLengthFactory;
-import dk.alexandra.fresco.lib.math.integer.binary.BitLengthFactoryImpl;
-import dk.alexandra.fresco.lib.math.integer.binary.RightShiftFactory;
-import dk.alexandra.fresco.lib.math.integer.binary.RightShiftFactoryImpl;
 import dk.alexandra.fresco.lib.math.integer.division.DivisionFactory;
 import dk.alexandra.fresco.lib.math.integer.division.DivisionFactoryImpl;
 import dk.alexandra.fresco.lib.math.integer.exp.ExpFromOIntFactory;
-import dk.alexandra.fresco.lib.math.integer.exp.ExponentiationFactory;
-import dk.alexandra.fresco.lib.math.integer.exp.ExponentiationFactoryImpl;
 import dk.alexandra.fresco.lib.math.integer.exp.PreprocessedExpPipeFactory;
 import dk.alexandra.fresco.lib.math.integer.inv.LocalInversionFactory;
-import dk.alexandra.fresco.lib.math.integer.linalg.EntrywiseProductFactoryImpl;
-import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductFactoryImpl;
 
 /**
  * This builder can be used for all possible functionality in FRESCO. It encapsulates all other
@@ -139,24 +127,7 @@ public class OmniBuilder extends AbstractProtocolBuilder {
   }
 
   private DivisionFactory getDivisionFactory() {
-    BasicNumericFactory basicNumericFactory = (BasicNumericFactory) factory;
-    LocalInversionFactory localInversionFactory = (LocalInversionFactory) factory;
-    BasicNumericFactory<SInt> preprocessedNumericBitFactory = (BasicNumericFactory<SInt>) factory;
-    RandomAdditiveMaskFactory randomAdditiveMaskFactory = new RandomAdditiveMaskFactoryImpl(
-        basicNumericFactory,
-        new InnerProductFactoryImpl(basicNumericFactory,
-            new EntrywiseProductFactoryImpl(basicNumericFactory)));
-    RightShiftFactory rightShiftFactory = new RightShiftFactoryImpl(basicNumericFactory,
-        randomAdditiveMaskFactory, localInversionFactory);
-    IntegerToBitsFactory integerToBitsFactory = new IntegerToBitsFactoryImpl(basicNumericFactory,
-        rightShiftFactory);
-    BitLengthFactory bitLengthFactory = new BitLengthFactoryImpl(basicNumericFactory,
-        integerToBitsFactory);
-    ExponentiationFactory exponentiationFactory = new ExponentiationFactoryImpl(basicNumericFactory,
-        integerToBitsFactory);
-    ComparisonProtocolFactory comparisonFactory = getComparisonProtocolFactory();
-    return new DivisionFactoryImpl(basicNumericFactory, rightShiftFactory, bitLengthFactory,
-        exponentiationFactory, comparisonFactory, builderFactory);
+    return new DivisionFactoryImpl(builderFactory);
   }
 
   /**

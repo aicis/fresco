@@ -1,10 +1,10 @@
 package dk.alexandra.fresco.lib.math.integer.division;
 
 import dk.alexandra.fresco.framework.BuilderFactory;
-import dk.alexandra.fresco.framework.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.LegacyTransfer;
 import dk.alexandra.fresco.framework.ProtocolProducer;
+import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
 import dk.alexandra.fresco.framework.value.OInt;
@@ -99,7 +99,7 @@ public class KnownDivisorProtocol extends SimpleProtocolProducer implements Divi
 		/*
      * Compute the sign of the dividend
 		 */
-      Computation<SInt> dividendSign = builder.createComparisonBuilder().sign(dividend);
+      Computation<SInt> dividendSign = builder.comparison().sign(dividend);
       Computation<SInt> dividendAbs = numeric.mult(dividend, dividendSign);
 
 		/*

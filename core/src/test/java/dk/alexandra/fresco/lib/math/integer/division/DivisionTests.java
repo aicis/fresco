@@ -27,13 +27,13 @@
 package dk.alexandra.fresco.lib.math.integer.division;
 
 import dk.alexandra.fresco.framework.BuilderFactory;
-import dk.alexandra.fresco.framework.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.TestApplication;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
+import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
@@ -114,9 +114,8 @@ public class DivisionTests {
 									basicNumericFactory, localInversionFactory,
 									expFromOIntFactory, preprocessedExpPipeFactory,
 									(BuilderFactoryNumeric<SInt>) factoryProducer);
-							DivisionFactory divisionFactory = new DivisionFactoryImpl(basicNumericFactory,
-									rightShiftFactory, bitLengthFactory, exponentiationFactory, comparisonFactory,
-									(BuilderFactoryNumeric<SInt>) factoryProducer);
+              DivisionFactory divisionFactory = new DivisionFactoryImpl(
+                  (BuilderFactoryNumeric<SInt>) factoryProducer);
 
               SInt quotient = basicNumericFactory.getSInt();
 							SInt remainder = basicNumericFactory.getSInt();
@@ -197,9 +196,8 @@ public class DivisionTests {
 									basicNumericFactory, localInversionFactory,
 									expFromOIntFactory, preprocessedExpPipeFactory,
 									(BuilderFactoryNumeric<SInt>) factoryProducer);
-							DivisionFactory divisionFactory = new DivisionFactoryImpl(basicNumericFactory,
-									rightShiftFactory, bitLengthFactory, exponentiationFactory, comparisonFactory,
-									(BuilderFactoryNumeric<SInt>) factoryProducer);
+              DivisionFactory divisionFactory = new DivisionFactoryImpl(
+                  (BuilderFactoryNumeric<SInt>) factoryProducer);
 
               SInt[] quotient = new SInt[n];
 							

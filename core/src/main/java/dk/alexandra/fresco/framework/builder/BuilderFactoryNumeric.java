@@ -1,11 +1,8 @@
-package dk.alexandra.fresco.framework;
+package dk.alexandra.fresco.framework.builder;
 
-import dk.alexandra.fresco.framework.builder.ComparisonBuilder;
-import dk.alexandra.fresco.framework.builder.InnerProductBuilder;
-import dk.alexandra.fresco.framework.builder.NumericBuilder;
-import dk.alexandra.fresco.framework.builder.OpenBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
-import dk.alexandra.fresco.framework.builder.RandomAdditiveMaskBuilder;
+import dk.alexandra.fresco.framework.BitLengthBuilder;
+import dk.alexandra.fresco.framework.BuilderFactory;
+import dk.alexandra.fresco.framework.RightShiftBuilder;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.compare.ComparisonProtocolFactory;
 import dk.alexandra.fresco.lib.compare.ComparisonProtocolFactoryImpl;
@@ -18,6 +15,8 @@ import dk.alexandra.fresco.lib.conversion.IntegerToBitsFactoryImpl;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.math.integer.binary.BitLengthFactory;
 import dk.alexandra.fresco.lib.math.integer.binary.BitLengthFactoryImpl;
+import dk.alexandra.fresco.lib.math.integer.binary.DefaultBitLengthBuilder;
+import dk.alexandra.fresco.lib.math.integer.binary.DefaultRightShiftBuilder;
 import dk.alexandra.fresco.lib.math.integer.binary.RightShiftFactory;
 import dk.alexandra.fresco.lib.math.integer.binary.RightShiftFactoryImpl;
 import dk.alexandra.fresco.lib.math.integer.exp.ExpFromOIntFactory;

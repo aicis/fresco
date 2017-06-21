@@ -1,6 +1,5 @@
 package dk.alexandra.fresco.framework.builder;
 
-import dk.alexandra.fresco.framework.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.ProtocolCollection;
@@ -146,7 +145,7 @@ public abstract class ProtocolBuilder<SIntT extends SInt> {
     return numericBuilder;
   }
 
-  public ComparisonBuilder<SIntT> createComparisonBuilder() {
+  public ComparisonBuilder<SIntT> comparison() {
     return factory.createComparisonBuilder(this);
   }
 

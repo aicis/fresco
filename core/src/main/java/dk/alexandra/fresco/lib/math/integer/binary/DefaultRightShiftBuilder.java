@@ -1,16 +1,17 @@
-package dk.alexandra.fresco.framework;
+package dk.alexandra.fresco.lib.math.integer.binary;
 
+import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.RightShiftBuilder;
+import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.math.integer.binary.RepeatedRightShiftProtocol4;
-import dk.alexandra.fresco.lib.math.integer.binary.RightShiftProtocol4;
 
 public class DefaultRightShiftBuilder<SIntT extends SInt> implements RightShiftBuilder<SIntT> {
 
   private final BuilderFactoryNumeric<SIntT> factoryNumeric;
   private final ProtocolBuilder<SIntT> builder;
 
-  DefaultRightShiftBuilder(
+  public DefaultRightShiftBuilder(
       BuilderFactoryNumeric<SIntT> factoryNumeric,
       ProtocolBuilder<SIntT> builder) {
     this.factoryNumeric = factoryNumeric;

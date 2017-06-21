@@ -1,8 +1,8 @@
 package dk.alexandra.fresco.suite.spdz;
 
-import dk.alexandra.fresco.framework.ProtocolCollectionList;
 import dk.alexandra.fresco.framework.network.SCENetwork;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchedStrategy;
+import dk.alexandra.fresco.framework.sce.evaluator.ProtocolCollectionList;
 import dk.alexandra.fresco.suite.ProtocolSuite.RoundSynchronization;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzMacCheckProtocol;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;

@@ -1,14 +1,15 @@
-package dk.alexandra.fresco.framework;
+package dk.alexandra.fresco.lib.math.integer.binary;
 
+import dk.alexandra.fresco.framework.BitLengthBuilder;
+import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.math.integer.binary.BitLengthProtocol4;
 
 public class DefaultBitLengthBuilder implements BitLengthBuilder {
 
   private final ProtocolBuilder<SInt> builder;
 
-  DefaultBitLengthBuilder(ProtocolBuilder<SInt> builder) {
+  public DefaultBitLengthBuilder(ProtocolBuilder<SInt> builder) {
     this.builder = builder;
   }
 

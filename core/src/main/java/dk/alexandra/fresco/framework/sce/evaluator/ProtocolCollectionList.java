@@ -1,5 +1,7 @@
-package dk.alexandra.fresco.framework;
+package dk.alexandra.fresco.framework.sce.evaluator;
 
+import dk.alexandra.fresco.framework.NativeProtocol;
+import dk.alexandra.fresco.framework.ProtocolCollection;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;

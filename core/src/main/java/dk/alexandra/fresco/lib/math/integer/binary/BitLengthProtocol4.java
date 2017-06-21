@@ -32,8 +32,7 @@ import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
 import java.util.function.Function;
 
-public class BitLengthProtocol4 implements
-    Function<SequentialProtocolBuilder<SInt>, Computation<SInt>> {
+class BitLengthProtocol4 implements Function<SequentialProtocolBuilder<SInt>, Computation<SInt>> {
 
   private Computation<SInt> input;
   private int maxBitLength;
@@ -46,7 +45,7 @@ public class BitLengthProtocol4 implements
    * @param input An integer.
    * @param maxBitLength An upper bound for the bit length.
    */
-  public BitLengthProtocol4(Computation<SInt> input, int maxBitLength) {
+  BitLengthProtocol4(Computation<SInt> input, int maxBitLength) {
     this.input = input;
     this.maxBitLength = maxBitLength;
 

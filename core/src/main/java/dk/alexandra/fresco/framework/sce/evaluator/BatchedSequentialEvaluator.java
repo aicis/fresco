@@ -26,7 +26,6 @@
  *******************************************************************************/
 package dk.alexandra.fresco.framework.sce.evaluator;
 
-import dk.alexandra.fresco.framework.ProtocolCollectionList;
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.network.SCENetworkImpl;

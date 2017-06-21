@@ -28,10 +28,10 @@ package dk.alexandra.fresco.lib.statistics;
 
 import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.BuilderFactory;
-import dk.alexandra.fresco.framework.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.ProtocolProducer;
+import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.ComparisonBuilder;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
@@ -144,7 +144,7 @@ public class CreditRater implements Application<SInt> {
       return rootBuilder.par(
           (parallelBuilder) -> {
             List<Computation<SInt>> result = new ArrayList<>();
-            ComparisonBuilder<SInt> builder = parallelBuilder.createComparisonBuilder();
+            ComparisonBuilder<SInt> builder = parallelBuilder.comparison();
 
             // Compare if "x <= the n interval definitions"
             for (Computation<SInt> anInterval : interval) {
