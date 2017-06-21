@@ -95,12 +95,12 @@ public class RightShiftProtocol4<SIntT extends SInt>
           return () -> new Pair<>(topAndBottom, maskOpen);
         });
     return sequential.createSequentialSubFactoryReturning((round1) -> {
-      Pair<Computation<Pair<Computation<SIntT>, Computation<SIntT>>>, Computation<OInt>> asd =
+      Pair<Computation<Pair<Computation<SIntT>, Computation<SIntT>>>, Computation<OInt>> preprocessOutput =
           preprocess.out();
 
-      Computation<OInt> mOpen = asd.getSecond();
-      Computation<SIntT> rBottom = asd.getFirst().out().getFirst();
-      Computation<SIntT> rTop = asd.getFirst().out().getSecond();
+      Computation<OInt> mOpen = preprocessOutput.getSecond();
+      Computation<SIntT> rBottom = preprocessOutput.getFirst().out().getFirst();
+      Computation<SIntT> rTop = preprocessOutput.getFirst().out().getSecond();
           /*
            * 'carry' is either 0 or 1. It is 1 if and only if the
 					 * addition m = x + r gave a carry from the first (least
