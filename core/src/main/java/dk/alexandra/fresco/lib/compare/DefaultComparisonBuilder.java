@@ -73,13 +73,14 @@ public class DefaultComparisonBuilder<SIntT extends SInt> implements ComparisonB
 
   public Computation<SIntT> sign(Computation<SIntT> x) {
     BasicNumericFactory bnf = factoryNumeric.getBasicNumericFactory();
-    Computation<SIntT> compare = (Computation<SIntT>) compare(
-        () -> builder.createConstant(0), x);
+    Computation<SIntT> compare = compare(
+        () -> (SIntT) builder.getSIntFactory().getSInt(0), x);
     OInt oInt = bnf.getOInt(BigInteger.valueOf(2));
     NumericBuilder<SIntT> numericBuilder = builder.numeric();
     Computation<SIntT> twice = numericBuilder.mult(
         () -> (SIntT) builder.getSIntFactory().getSInt(oInt.getValue()), compare);
-    Computation<SIntT> result = numericBuilder.sub(twice, () -> builder.createConstant(1));
+    Computation<SIntT> result = numericBuilder.sub(twice,
+        () -> (SIntT) builder.getSIntFactory().getSInt(1));
     return result;
   }
 

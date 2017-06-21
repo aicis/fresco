@@ -161,7 +161,7 @@ public class CreditRater implements Application<SInt> {
           rootBuilder.createSequentialSubFactoryReturning((builder) -> {
             List<Computation<SInt>> computations = comparisonsComputation.out();
             NumericBuilder<SInt> numericBuilder = builder.numeric();
-            SInt one = builder.createConstant(1);
+            SInt one = (SInt) builder.getSIntFactory().getSInt(1);
             computations
                 .add(numericBuilder.sub(one, computations.get(computations.size() - 1)).out());
             return () -> computations;

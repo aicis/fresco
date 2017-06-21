@@ -30,6 +30,7 @@ public abstract class ProtocolBuilder<SIntT extends SInt> {
   private BasicNumericFactory<SIntT> basicNumericFactory;
   private List<ProtocolEntity> protocols;
   private BuilderFactoryNumeric<SIntT> factory;
+  private NumericBuilder<SIntT> numericBuilder;
 
   private ProtocolBuilder(BuilderFactoryNumeric<SIntT> factory) {
     this.factory = factory;
@@ -43,10 +44,6 @@ public abstract class ProtocolBuilder<SIntT extends SInt> {
 
   public SIntFactory getSIntFactory() {
     return basicNumericFactory;
-  }
-
-  public SIntT createConstant(int value) {
-    return (SIntT) getSIntFactory().getSInt(value);
   }
 
   public static <SIntT extends SInt> SequentialProtocolBuilder<SIntT> createRoot(
@@ -139,7 +136,10 @@ public abstract class ProtocolBuilder<SIntT extends SInt> {
   }
 
   public NumericBuilder<SIntT> numeric() {
-    return factory.createNumericBuilder(this);
+    if (numericBuilder == null) {
+      numericBuilder = factory.createNumericBuilder(this);
+    }
+    return numericBuilder;
   }
 
   public ComparisonBuilder<SIntT> createComparisonBuilder() {
