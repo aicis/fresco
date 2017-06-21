@@ -21,7 +21,9 @@ import java.util.function.Supplier;
 
 /**
  * Central class that allowes building complex trees of protocol producers based on
- * the sequence in which they are created.
+ * the sequence in which they are created. This class stores the intention of building
+ * a protocol producer rather than the actual protocol producer and only when requested
+ * actually evaluates the closure and returns the actual protocol producer.
  */
 public abstract class ProtocolBuilder<SIntT extends SInt> {
 
