@@ -9,7 +9,6 @@ public class DefaultRightShiftBuilder<SIntT extends SInt> implements RightShiftB
 
   private final BuilderFactoryNumeric<SIntT> factoryNumeric;
   private final ProtocolBuilder<SIntT> builder;
-  private SIntT TODO = null;
 
   DefaultRightShiftBuilder(
       BuilderFactoryNumeric<SIntT> factoryNumeric,
