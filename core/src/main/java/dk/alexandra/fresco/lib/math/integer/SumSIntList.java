@@ -8,6 +8,7 @@ import dk.alexandra.fresco.framework.builder.ProtocolBuilder.SequentialProtocolB
 import dk.alexandra.fresco.framework.value.SInt;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
 /**
@@ -16,28 +17,17 @@ import java.util.function.Function;
  * @param <SIntT> the type of SInts to add - and later output
  */
 public class SumSIntList<SIntT extends SInt>
-    implements Function<SequentialProtocolBuilder<SIntT>, Computation<SIntT>> {
+    implements
+    BiFunction<List<Computation<SIntT>>, SequentialProtocolBuilder<SIntT>, Computation<SIntT>> {
 
   private final DelayedComputation<SIntT> result = new DelayedComputation<>();
-  private Computation<List<Computation<SIntT>>> inputList;
 
   /**
    * Creates a new SumSIntList.
    *
    * @param input the input to sum
    */
-  public SumSIntList(List<Computation<SIntT>> input) {
-    this(() -> input);
-  }
-
-  public SumSIntList(Computation<List<Computation<SIntT>>> input) {
-    this.inputList = input;
-  }
-
-  @Override
-  public Computation<SIntT> apply(SequentialProtocolBuilder<SIntT> iterationBuilder) {
-    doIteration(iterationBuilder, inputList);
-    return result;
+  public SumSIntList() {
   }
 
   private void doIteration(SequentialProtocolBuilder<SIntT> iterationBuilder,
@@ -50,6 +40,14 @@ public class SumSIntList<SIntT extends SInt>
     } else {
       result.setComputation(currentInput.get(0));
     }
+  }
+
+  @Override
+  public Computation<SIntT> apply(
+      List<Computation<SIntT>> input,
+      SequentialProtocolBuilder<SIntT> iterationBuilder) {
+    doIteration(iterationBuilder, () -> input);
+    return result;
   }
 
   private static class Iteration<SIntT extends SInt> implements

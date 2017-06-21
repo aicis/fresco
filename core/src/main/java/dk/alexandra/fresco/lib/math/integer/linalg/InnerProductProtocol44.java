@@ -24,8 +24,8 @@ public class InnerProductProtocol44<SIntT extends SInt> implements
 
   @Override
   public Computation<SIntT> apply(SequentialProtocolBuilder<SIntT> builder) {
-    Computation<List<Computation<SIntT>>> result =
-        builder.createParallelSubFactoryReturning(parallel -> {
+    return builder
+        .par(parallel -> {
           List<Computation<SIntT>> products = new ArrayList<>(aVector.size());
           NumericBuilder<SIntT> numericBuilder = parallel.createNumericBuilder();
           for (int i = 0; i < aVector.size(); i++) {
@@ -34,7 +34,7 @@ public class InnerProductProtocol44<SIntT extends SInt> implements
             products.add(numericBuilder.mult(nextA, nextB));
           }
           return () -> products;
-        });
-    return builder.createSequentialSubFactoryReturning(new SumSIntList<>(result));
+        })
+        .seq(new SumSIntList<>());
   }
 }

@@ -35,6 +35,7 @@ class InnerProductProtocolOpen<SIntT extends SInt> implements
           }
           return () -> result;
         });
-    return builder.createSequentialSubFactoryReturning(new SumSIntList<>(products));
+    return builder.createSequentialSubFactoryReturning(nextBuilder ->
+        new SumSIntList<SIntT>().apply(products.out(), nextBuilder));
   }
 }

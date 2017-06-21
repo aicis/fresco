@@ -109,7 +109,8 @@ public class CreditRater implements Application<SInt> {
               });
 
       delegateResult = sequential
-          .createSequentialSubFactoryReturning(new SumSIntList(individualScores));
+          .createSequentialSubFactoryReturning(nextBuilder ->
+              new SumSIntList<>().apply(individualScores.out(), nextBuilder));
     }).build();
   }
 
@@ -183,7 +184,8 @@ public class CreditRater implements Application<SInt> {
             innerScores.add(numericBuilder.mult(a, b));
             return () -> innerScores;
           });
-      return rootBuilder.createSequentialSubFactoryReturning(new SumSIntList<>(intermediateScores));
+      return rootBuilder.createSequentialSubFactoryReturning(nextBuilder ->
+          new SumSIntList<>().apply(intermediateScores.out(), nextBuilder));
     }
   }
 }
