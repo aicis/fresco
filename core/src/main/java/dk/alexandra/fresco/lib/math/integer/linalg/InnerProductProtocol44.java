@@ -27,7 +27,7 @@ public class InnerProductProtocol44<SIntT extends SInt> implements
     return builder
         .par(parallel -> {
           List<Computation<SIntT>> products = new ArrayList<>(aVector.size());
-          NumericBuilder<SIntT> numericBuilder = parallel.createNumericBuilder();
+          NumericBuilder<SIntT> numericBuilder = parallel.numeric();
           for (int i = 0; i < aVector.size(); i++) {
             Computation<SIntT> nextA = aVector.get(i);
             Computation<SIntT> nextB = bVector.get(i);

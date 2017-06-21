@@ -62,7 +62,7 @@ public class SumSIntList<SIntT extends SInt>
     @Override
     public Computation<List<Computation<SIntT>>> apply(ParallelProtocolBuilder<SIntT> parallel) {
       List<Computation<SIntT>> out = new ArrayList<>();
-      NumericBuilder<SIntT> numericBuilder = parallel.createNumericBuilder();
+      NumericBuilder<SIntT> numericBuilder = parallel.numeric();
       Computation<SIntT> left = null;
       for (Computation<SIntT> input : input) {
         if (left == null) {

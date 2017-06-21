@@ -33,21 +33,19 @@ public class InnerProductNewApi extends SimpleProtocolProducer implements Comput
           seq.par(
               par -> {
                 List<Computation<SInt>> temp = new ArrayList<>();
-                NumericBuilder<SInt> parNumericBuilder = par.createNumericBuilder();
                 for (int i = 0; i < a.length; i++) {
-                  temp.add(parNumericBuilder.mult(a[i], b[i]));
+                  temp.add(par.numeric().mult(a[i], b[i]));
                 }
                 return () -> temp;
               }).seq(
               (addents, subSeq) -> {
-                NumericBuilder<SInt> numericBuilder = subSeq.createNumericBuilder();
                 // Not sure how to do this correctly using the bnf1.get(0, bnf1.getSInt()) Computation?
                 // PFF - neither am I - hence the old API
                 Computation<SInt> c = seq.getSIntFactory().getSInt(0);
                 for (Computation<SInt> aTemp : addents) {
                   // Not sure how I would do this using Computations? The AddList seems overkill.
                   // PFF - no it is not...
-                  c = numericBuilder.add(c, aTemp);
+                  c = subSeq.numeric().add(c, aTemp);
                 }
                 return c;
               }

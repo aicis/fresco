@@ -27,7 +27,7 @@ class InnerProductProtocolOpen<SIntT extends SInt> implements
     Computation<List<Computation<SIntT>>> products =
         builder.createParallelSubFactoryReturning(parallel -> {
           List<Computation<SIntT>> result = new ArrayList<>(aVector.size());
-          NumericBuilder<SIntT> numericBuilder = parallel.createNumericBuilder();
+          NumericBuilder<SIntT> numericBuilder = parallel.numeric();
           for (int i = 0; i < aVector.size(); i++) {
             OInt nextA = aVector.get(i);
             Computation<SIntT> nextB = bVector.get(i);

@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -78,7 +78,7 @@ public class RightShiftProtocol4<SIntT extends SInt>
           Computation<Pair<Computation<SIntT>, Computation<SIntT>>> topAndBottom =
               parallel.createSequentialSubFactoryReturning((parSubSequential) -> {
                 OInt two = parSubSequential.getOIntFactory().getOInt(BigInteger.valueOf(2));
-                NumericBuilder<SIntT> numericBuilder = parSubSequential.createNumericBuilder();
+                NumericBuilder<SIntT> numericBuilder = parSubSequential.numeric();
                 Computation<? extends OInt> inverseOfTwo = numericBuilder.invert(two);
                 RandomAdditiveMask<SIntT> randomAdditiveMask = mask.out();
                 Computation<SIntT> rBottom = () -> randomAdditiveMask.bits.get(0);
@@ -88,7 +88,7 @@ public class RightShiftProtocol4<SIntT extends SInt>
               });
           Computation<OInt> maskOpen =
               parallel.createSequentialSubFactoryReturning((parSubSequential) -> {
-                NumericBuilder<SIntT> numericBuilder = parSubSequential.createNumericBuilder();
+                NumericBuilder<SIntT> numericBuilder = parSubSequential.numeric();
                 Computation<SIntT> result = numericBuilder.add(input, () -> mask.out().r);
                 return parSubSequential.createOpenBuilder().open(result);
               });
@@ -109,7 +109,7 @@ public class RightShiftProtocol4<SIntT extends SInt>
 					 * bit of r is 1 and the first bit of m is 0 which in turn
 					 * is equal to r_0 * (m + 1 (mod 2)).
 					 */
-      NumericBuilder<SIntT> numericBuilder = round1.createNumericBuilder();
+      NumericBuilder<SIntT> numericBuilder = round1.numeric();
       OInt mBottomNegated = round1.getOIntFactory().getOInt(mOpen.out().getValue()
           .add(BigInteger.ONE).mod(BigInteger.valueOf(2)));
       Computation<SIntT> carry = numericBuilder.mult(mBottomNegated, rBottom);
@@ -120,7 +120,7 @@ public class RightShiftProtocol4<SIntT extends SInt>
         Computation<SIntT> shifted = parallel
             .createSequentialSubFactoryReturning((parSubSequential) -> {
               NumericBuilder<SIntT> parSubSeqNumericBuilder = parSubSequential
-                  .createNumericBuilder();
+                  .numeric();
               BigInteger openShiftOnce = mOpen.out().getValue().shiftRight(1);
               OInt mTop = parSubSequential.getOIntFactory().getOInt(openShiftOnce);
               // Now we calculate the shift, x >> 1 = mTop - rTop - carry
@@ -150,7 +150,7 @@ public class RightShiftProtocol4<SIntT extends SInt>
                         parSubSequential.createParallelSubFactoryReturning(
                             (productAndSumBuilder) -> {
                               NumericBuilder<SIntT> productAndSumNumeric =
-                                  productAndSumBuilder.createNumericBuilder();
+                                  productAndSumBuilder.numeric();
                               Computation<SIntT> product = productAndSumNumeric
                                   .mult(twoMBottom, rBottom);
                               Computation<SIntT> sum = productAndSumNumeric.add(mBottom, rBottom);
@@ -160,7 +160,7 @@ public class RightShiftProtocol4<SIntT extends SInt>
 
                     return parSubSequential.createSequentialSubFactoryReturning((finalBuilder) -> {
                       NumericBuilder<SIntT> finalNumeric =
-                          finalBuilder.createNumericBuilder();
+                          finalBuilder.numeric();
                       return finalNumeric.sub(
                           productAndSum.out().getSecond(),
                           productAndSum.out().getFirst());

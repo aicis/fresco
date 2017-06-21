@@ -154,7 +154,7 @@ public class CreditRater implements Application<SInt> {
           })
           // Add "x > last interval definition" to comparisons
           .seq((comparisons, builder) -> {
-            NumericBuilder<SInt> numericBuilder = builder.createNumericBuilder();
+            NumericBuilder<SInt> numericBuilder = builder.numeric();
             SInt one = builder.createConstant(1);
             Computation<SInt> lastComparison = comparisons.get(comparisons.size() - 1);
             comparisons.add(numericBuilder.sub(one, lastComparison));
@@ -162,7 +162,7 @@ public class CreditRater implements Application<SInt> {
           })
           //Comparisons now contain if x <= each definition and if x>= last definition
           .par((comparisons, parallelBuilder) -> {
-            NumericBuilder<SInt> numericBuilder = parallelBuilder.createNumericBuilder();
+            NumericBuilder<SInt> numericBuilder = parallelBuilder.numeric();
             List<Computation<SInt>> innerScores = new ArrayList<>();
             innerScores.add(numericBuilder.mult(comparisons.get(0), scores.get(0)));
             for (int i = 1; i < scores.size() - 1; i++) {
