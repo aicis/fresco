@@ -23,7 +23,7 @@ public class DefaultRandomAdditiveMaskBuilder implements
   @Override
   public Computation<RandomAdditiveMask> additiveMask(int noOfBits) {
     return builder
-        .createSequentialSubFactoryReturning(
+        .createSequentialSub(
             new RandomAdditiveMaskProtocol44(factoryNumeric, securityParameter, noOfBits));
   }
 

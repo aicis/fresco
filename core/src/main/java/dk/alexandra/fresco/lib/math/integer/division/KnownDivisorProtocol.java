@@ -65,7 +65,7 @@ public class KnownDivisorProtocol extends SimpleProtocolProducer implements Divi
 
   @Override
   protected ProtocolProducer initializeProtocolProducer() {
-    return ProtocolBuilder.createRoot(builderFactory, builder -> {
+    return ProtocolBuilder.createApplicationRoot(builderFactory, builder -> {
     /*
      * We use the fact that if 2^{N+l} \leq m * d \leq 2^{N+l} + 2^l, then
 		 * floor(x/d) = floor(x * m >> N+l) for all x of length <= N (see Thm

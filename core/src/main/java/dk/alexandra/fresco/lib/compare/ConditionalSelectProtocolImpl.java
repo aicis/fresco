@@ -52,7 +52,7 @@ public class ConditionalSelectProtocolImpl extends SimpleProtocolProducer implem
 
   @Override
   protected ProtocolProducer initializeProtocolProducer() {
-    return ProtocolBuilder.createRoot(factory, (protocolBuilder) -> {
+    return ProtocolBuilder.createApplicationRoot(factory, (protocolBuilder) -> {
       NumericBuilder numericBuilder = protocolBuilder.numeric();
       Computation<SInt> sub = numericBuilder.sub(a, b);
       Computation<SInt> mult = numericBuilder.mult(selector, sub);

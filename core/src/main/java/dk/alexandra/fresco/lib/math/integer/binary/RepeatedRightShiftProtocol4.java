@@ -76,11 +76,10 @@ public class RepeatedRightShiftProtocol4
       Computation<SInt> input, int shifts) {
     if (shifts > 0) {
       Computation<SInt> iteration =
-          iterationBuilder.createSequentialSubFactoryReturning(
+          iterationBuilder.createSequentialSub(
               (builder) -> builder.createRightShiftBuilder().rightShift(input)
           );
-      iterationBuilder
-          .createSequentialSubFactory((builder) -> doIteration(builder, iteration, shifts - 1));
+      iterationBuilder.createIteration((builder) -> doIteration(builder, iteration, shifts - 1));
     } else {
       result.setComputation(() -> new RightShiftResult(input.out(), null));
     }
@@ -90,15 +89,14 @@ public class RepeatedRightShiftProtocol4
       Computation<SInt> input, int shifts, List<SInt> remainders) {
     if (shifts > 0) {
       Computation<RightShiftResult> iteration =
-          iterationBuilder.createSequentialSubFactoryReturning(
+          iterationBuilder.createSequentialSub(
               (builder) -> builder.createRightShiftBuilder().rightShiftWithRemainder(input)
           );
-      iterationBuilder
-          .createSequentialSubFactory((builder) -> {
-            RightShiftResult out = iteration.out();
-            remainders.add(out.getRemainder().get(0));
-            doIterationWithRemainder(builder, out::getResult, shifts - 1, remainders);
-          });
+      iterationBuilder.createIteration((builder) -> {
+        RightShiftResult out = iteration.out();
+        remainders.add(out.getRemainder().get(0));
+        doIterationWithRemainder(builder, out::getResult, shifts - 1, remainders);
+      });
     } else {
       result.setComputation(() -> new RightShiftResult(input.out(), remainders));
     }

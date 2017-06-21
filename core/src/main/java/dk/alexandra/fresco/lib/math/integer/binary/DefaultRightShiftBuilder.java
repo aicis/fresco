@@ -21,7 +21,7 @@ public class DefaultRightShiftBuilder implements RightShiftBuilder {
   @Override
   public Computation<SInt> rightShift(Computation<SInt> input) {
     Computation<RightShiftResult> rightShiftResult = builder
-        .createSequentialSubFactoryReturning(
+        .createSequentialSub(
             new RightShiftProtocol4(
                 factoryNumeric.getBasicNumericFactory().getMaxBitLength(),
                 input, false));
@@ -30,7 +30,7 @@ public class DefaultRightShiftBuilder implements RightShiftBuilder {
 
   @Override
   public Computation<RightShiftResult> rightShiftWithRemainder(Computation<SInt> input) {
-    return builder.createSequentialSubFactoryReturning(
+    return builder.createSequentialSub(
         new RightShiftProtocol4(
             factoryNumeric.getBasicNumericFactory().getMaxBitLength(),
             input, true));
@@ -39,7 +39,7 @@ public class DefaultRightShiftBuilder implements RightShiftBuilder {
   @Override
   public Computation<SInt> rightShift(Computation<SInt> input, int shifts) {
     Computation<RightShiftResult> rightShiftResult = builder
-        .createSequentialSubFactoryReturning(
+        .createSequentialSub(
             new RepeatedRightShiftProtocol4(
                 input, shifts, false));
     return () -> rightShiftResult.out().getResult();
@@ -49,7 +49,7 @@ public class DefaultRightShiftBuilder implements RightShiftBuilder {
   public Computation<RightShiftResult> rightShiftWithRemainder(
       Computation<SInt> input,
       int shifts) {
-    return builder.createSequentialSubFactoryReturning(
+    return builder.createSequentialSub(
         new RepeatedRightShiftProtocol4(
             input, shifts, true));
   }

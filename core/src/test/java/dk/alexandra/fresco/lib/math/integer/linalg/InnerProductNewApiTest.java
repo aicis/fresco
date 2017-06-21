@@ -37,7 +37,7 @@ public class InnerProductNewApiTest {
             @Override
             public ProtocolProducer prepareApplication(BuilderFactory producer) {
               BuilderFactoryNumeric factoryNumeric = (BuilderFactoryNumeric) producer;
-              ProtocolBuilder pb = ProtocolBuilder.createRoot(factoryNumeric, seq -> {
+              ProtocolBuilder pb = ProtocolBuilder.createApplicationRoot(factoryNumeric, seq -> {
                 SInt[] sA = new SInt[a.length];
                 SInt[] sB = new SInt[b.length];
                 for (int i = 0; i < sB.length; i++) {
@@ -46,7 +46,7 @@ public class InnerProductNewApiTest {
                 }
                 Computation<SInt> innerProduct = seq
                     .append(new InnerProductNewApi(factoryNumeric, sA, sB));
-                seq.createSequentialSubFactory(seq2 -> {
+                seq.createIteration(seq2 -> {
                   OpenBuilder af2 = seq2.createOpenBuilder();
                   output.add(af2.open(innerProduct));
                 });

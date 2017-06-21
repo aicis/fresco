@@ -26,7 +26,7 @@ public class InnerProductNewApi extends SimpleProtocolProducer implements Comput
   @Override
   protected ProtocolProducer initializeProtocolProducer() {
     // Root sequential scope ... makes sense   
-    ProtocolBuilder pb = ProtocolBuilder.createRoot(bnf, seq ->
+    ProtocolBuilder pb = ProtocolBuilder.createApplicationRoot(bnf, seq ->
         // Parallel scope for multiplication ... makes sense
         c = seq.par(
             par -> {

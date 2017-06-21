@@ -30,8 +30,8 @@ public class SumSIntList implements
     List<Computation<SInt>> currentInput = inputList.out();
     if (currentInput.size() > 1) {
       Computation<List<Computation<SInt>>> iteration
-          = iterationBuilder.createParallelSubFactoryReturning(new Iteration(currentInput));
-      iterationBuilder.createSequentialSubFactory((builder) -> doIteration(builder, iteration));
+          = iterationBuilder.createParallelSub(new Iteration(currentInput));
+      iterationBuilder.createIteration((builder) -> doIteration(builder, iteration));
     } else {
       result.setComputation(currentInput.get(0));
     }

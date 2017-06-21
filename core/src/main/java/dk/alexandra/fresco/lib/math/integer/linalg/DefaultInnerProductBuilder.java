@@ -19,12 +19,12 @@ public class DefaultInnerProductBuilder implements InnerProductBuilder {
   public Computation<SInt> dot(List<Computation<SInt>> aVector,
       List<Computation<SInt>> bVector) {
     return builder
-        .createSequentialSubFactoryReturning(new InnerProductProtocol44(aVector, bVector));
+        .createSequentialSub(new InnerProductProtocol44(aVector, bVector));
   }
 
   @Override
   public Computation<SInt> openDot(List<OInt> aVector, List<Computation<SInt>> bVector) {
     return builder
-        .createSequentialSubFactoryReturning(new InnerProductProtocolOpen(aVector, bVector));
+        .createSequentialSub(new InnerProductProtocolOpen(aVector, bVector));
   }
 }

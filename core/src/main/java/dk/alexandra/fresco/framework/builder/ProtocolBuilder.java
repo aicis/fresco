@@ -1,5 +1,6 @@
 package dk.alexandra.fresco.framework.builder;
 
+import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.ProtocolCollection;
@@ -51,7 +52,15 @@ public abstract class ProtocolBuilder {
     return basicNumericFactory;
   }
 
-  public static SequentialProtocolBuilder createRoot(
+  /**
+   * Creates a root for this builder - should be applied when construcing
+   * protocol producers from an {@link Application}.
+   *
+   * @param factory the protocol factory to get native protocols and composite builders from
+   * @param consumer the root of the protocol producer
+   * @return a sequential protocol builder that can create the protocol producer
+   */
+  public static SequentialProtocolBuilder createApplicationRoot(
       BuilderFactoryNumeric factory, Consumer<SequentialProtocolBuilder> consumer) {
     SequentialProtocolBuilder builder = new SequentialProtocolBuilder(factory);
     builder.addConsumer(consumer, () -> new SequentialProtocolBuilder(factory));
@@ -64,7 +73,7 @@ public abstract class ProtocolBuilder {
    *
    * @param function of the protocol producer - will be lazy evaluated
    */
-  public <R> Computation<R> createParallelSubFactoryReturning(
+  public <R> Computation<R> createParallelSub(
       Function<ParallelProtocolBuilder, Computation<R>> function) {
     DelayedComputation<R> result = new DelayedComputation<>();
     addConsumer((builder) -> result.setComputation(function.apply(builder)),
@@ -78,7 +87,7 @@ public abstract class ProtocolBuilder {
    *
    * @param function creation of the protocol producer - will be lazy evaluated
    */
-  public <R> Computation<R> createSequentialSubFactoryReturning(
+  public <R> Computation<R> createSequentialSub(
       Function<SequentialProtocolBuilder, Computation<R>> function) {
     DelayedComputation<R> result = new DelayedComputation<>();
     addConsumer((builder) -> result.setComputation(function.apply(builder)),
@@ -87,13 +96,13 @@ public abstract class ProtocolBuilder {
   }
 
   /**
-   * Re-creates this basicNumericFactory based on a sequential protocol producer inserted into the
-   * original protocol producer.
+   * Creates another protocol builder based on th supplied consumer.
+   * This method re-creates the builder based on a sequential protocol producer inserted into this
+   * original protocol producer as a child.
    *
    * @param consumer lazy creation of the protocol producer
    */
-  public <T extends Consumer<SequentialProtocolBuilder>>
-  void createSequentialSubFactory(T consumer) {
+  public <T extends Consumer<SequentialProtocolBuilder>> void createIteration(T consumer) {
     addConsumer(consumer, () -> new SequentialProtocolBuilder(factory));
   }
 
@@ -113,18 +122,35 @@ public abstract class ProtocolBuilder {
     return protocolEntity;
   }
 
-  public <T extends NativeProtocol> T append(T computation) {
+
+  /**
+   * Appends a concrete, native protocol to the list of producers - udeful for the native protocol
+   * factroies that needs to be builders.
+   *
+   * @param nativeProtocol the native protocol to add
+   * @param <T> the type of the native protocol - passthrough buildable object
+   * @return the original native protocol.
+   */
+  public <T extends NativeProtocol> T append(T nativeProtocol) {
     ProtocolEntity protocolEntity = createAndAppend();
-    protocolEntity.protocolProducer = SingleProtocolProducer.wrap(computation);
-    return computation;
+    protocolEntity.protocolProducer = SingleProtocolProducer.wrap(nativeProtocol);
+    return nativeProtocol;
   }
 
+  // This will go away and should not be used - users should recode their applications to
+  // use closures
+  @Deprecated
   public <T extends ProtocolProducer> T append(T protocolProducer) {
     ProtocolEntity protocolEntity = createAndAppend();
     protocolEntity.protocolProducer = protocolProducer;
     return protocolProducer;
   }
 
+  /**
+   * Building the actual protocol producer. Implementors decide which producer to create.
+   *
+   * @return the protocol producer that has been build
+   */
   public abstract ProtocolProducer build();
 
   void addEntities(ProtocolProducerCollection producerCollection) {
@@ -139,6 +165,11 @@ public abstract class ProtocolBuilder {
     }
   }
 
+  /**
+   * Creates a numeric builder for this instance - i.e. this intended producer.
+   *
+   * @return the numeric builder.
+   */
   public NumericBuilder numeric() {
     if (numericBuilder == null) {
       numericBuilder = factory.createNumericBuilder(this);
@@ -146,6 +177,11 @@ public abstract class ProtocolBuilder {
     return numericBuilder;
   }
 
+  /**
+   * Creates a comparison builder for this instance - i.e. this intended producer.
+   *
+   * @return the comparison builder.
+   */
   public ComparisonBuilder<SInt> comparison() {
     return factory.createComparisonBuilder(this);
   }
@@ -203,6 +239,9 @@ public abstract class ProtocolBuilder {
     }
   }
 
+  /**
+   * A specific instance of the protocol builder that produces a sequential producer.
+   */
   public static class SequentialProtocolBuilder extends ProtocolBuilder {
 
     private SequentialProtocolBuilder(BuilderFactoryNumeric factory) {
@@ -217,8 +256,7 @@ public abstract class ProtocolBuilder {
     }
 
 
-    public <R>
-    BuildStep<SequentialProtocolBuilder, R, Void> seq(
+    public <R> BuildStep<SequentialProtocolBuilder, R, Void> seq(
         Function<SequentialProtocolBuilder, Computation<R>> function) {
       BuildStep<SequentialProtocolBuilder, R, Void> builder =
           new BuildStepSequential<>((ignored, inner) -> function.apply(inner));
@@ -229,8 +267,7 @@ public abstract class ProtocolBuilder {
       return builder;
     }
 
-    public <R>
-    BuildStep<ParallelProtocolBuilder, R, Void> par(
+    public <R> BuildStep<ParallelProtocolBuilder, R, Void> par(
         Function<ParallelProtocolBuilder, Computation<R>> function) {
       BuildStep<ParallelProtocolBuilder, R, Void> builder =
           new BuildStepParallel<>((ignored, inner) -> function.apply(inner));
@@ -242,8 +279,25 @@ public abstract class ProtocolBuilder {
     }
   }
 
-  public static abstract class BuildStep<BuilderT extends ProtocolBuilder, OutputT, InputT> implements
-      Computation<OutputT> {
+  /**
+   * A specific instance of the protocol builder that produces a parallel producer.
+   */
+  public static class ParallelProtocolBuilder extends ProtocolBuilder {
+
+    private ParallelProtocolBuilder(BuilderFactoryNumeric factory) {
+      super(factory);
+    }
+
+    @Override
+    public ProtocolProducer build() {
+      SequentialProtocolProducer parallelProtocolProducer = new SequentialProtocolProducer();
+      addEntities(parallelProtocolProducer);
+      return parallelProtocolProducer;
+    }
+  }
+
+  public static abstract class BuildStep<BuilderT extends ProtocolBuilder, OutputT, InputT>
+      implements Computation<OutputT> {
 
     private final BiFunction<InputT, BuilderT, Computation<OutputT>> function;
 
@@ -271,17 +325,18 @@ public abstract class ProtocolBuilder {
       return localChild;
     }
 
-    public <FirstOutputT, SecondOutputT> BuildStep<ParallelProtocolBuilder, Pair<FirstOutputT, SecondOutputT>, OutputT> par(
+    public <FirstOutputT, SecondOutputT>
+    BuildStep<ParallelProtocolBuilder, Pair<FirstOutputT, SecondOutputT>, OutputT> par(
         BiFunction<OutputT, SequentialProtocolBuilder, Computation<FirstOutputT>> firstFunction,
         BiFunction<OutputT, SequentialProtocolBuilder, Computation<SecondOutputT>> secondFunction) {
       BuildStep<ParallelProtocolBuilder, Pair<FirstOutputT, SecondOutputT>, OutputT> localChild =
           new BuildStepParallel<>(
               (OutputT output1, ParallelProtocolBuilder builder) -> {
                 Computation<FirstOutputT> firstOutput =
-                    builder.createSequentialSubFactoryReturning(
+                    builder.createSequentialSub(
                         seq -> firstFunction.apply(output1, seq));
                 Computation<SecondOutputT> secondOutput =
-                    builder.createSequentialSubFactoryReturning(
+                    builder.createSequentialSub(
                         seq -> secondFunction.apply(output1, seq));
                 return () -> new Pair<>(firstOutput.out(), secondOutput.out());
               }
@@ -329,9 +384,7 @@ public abstract class ProtocolBuilder {
     protected ParallelProtocolBuilder createBuilder(BuilderFactoryNumeric factory) {
       return new ParallelProtocolBuilder(factory);
     }
-
   }
-
 
   private static class BuildStepSequential<OutputT, InputT>
       extends BuildStep<SequentialProtocolBuilder, OutputT, InputT> {
@@ -346,19 +399,5 @@ public abstract class ProtocolBuilder {
       return new SequentialProtocolBuilder(factory);
     }
 
-  }
-
-  public static class ParallelProtocolBuilder extends ProtocolBuilder {
-
-    private ParallelProtocolBuilder(BuilderFactoryNumeric factory) {
-      super(factory);
-    }
-
-    @Override
-    public ProtocolProducer build() {
-      SequentialProtocolProducer parallelProtocolProducer = new SequentialProtocolProducer();
-      addEntities(parallelProtocolProducer);
-      return parallelProtocolProducer;
-    }
   }
 }

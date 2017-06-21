@@ -15,7 +15,7 @@ public class DefaultBitLengthBuilder implements BitLengthBuilder {
 
   @Override
   public Computation<SInt> bitLength(Computation<SInt> input, int maxBitLength) {
-    return builder.createSequentialSubFactoryReturning(
+    return builder.createSequentialSub(
         new BitLengthProtocol4(input, maxBitLength));
 
   }

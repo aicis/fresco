@@ -92,7 +92,7 @@ public class BinaryOperationsTests {
                 public ProtocolProducer prepareApplication(BuilderFactory producer) {
                   BuilderFactoryNumeric factoryNumeric = (BuilderFactoryNumeric) producer;
                   return dk.alexandra.fresco.framework.builder.ProtocolBuilder
-                      .createRoot(factoryNumeric,
+                      .createApplicationRoot(factoryNumeric,
                           (builder) -> {
                             RightShiftBuilder rightShift = builder.createRightShiftBuilder();
                             SInt encryptedInput = builder.getSIntFactory().getSInt(input);
@@ -102,7 +102,7 @@ public class BinaryOperationsTests {
                             openResult = openBuilder
                                 .open(() -> shiftedRight.out().getResult().out());
                             openRemainders = builder
-                                .createSequentialSubFactoryReturning((innerBuilder) -> {
+                                .createSequentialSub((innerBuilder) -> {
                                   OpenBuilder innerOpenBuilder = innerBuilder.createOpenBuilder();
                                   List<Computation<OInt>> opened = shiftedRight.out()
                                       .getRemainder()

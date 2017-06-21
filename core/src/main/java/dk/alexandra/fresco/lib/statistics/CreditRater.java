@@ -90,7 +90,7 @@ public class CreditRater implements Application<SInt> {
   @Override
   @SuppressWarnings("unchecked")
   public ProtocolProducer prepareApplication(BuilderFactory provider) {
-    return ProtocolBuilder.createRoot((BuilderFactoryNumeric) provider, (sequential) ->
+    return ProtocolBuilder.createApplicationRoot((BuilderFactoryNumeric) provider, (sequential) ->
         delegateResult = sequential.par(
             parallel -> {
               List<Computation<SInt>> scores = new ArrayList<>(values.size());
@@ -100,7 +100,7 @@ public class CreditRater implements Application<SInt> {
                 List<SInt> intervalScore = intervalScores.get(i);
 
                 scores.add(
-                    parallel.createSequentialSubFactoryReturning(
+                    parallel.createSequentialSub(
                         new ComputeIntervalScore(interval, value, intervalScore)));
               }
               return () -> scores;
