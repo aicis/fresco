@@ -132,7 +132,6 @@ public class BinaryOperationsTests {
                   app,
                   SecureComputationEngineImpl
                       .createResourcePool(conf.sceConf, conf.sceConf.getSuite()));
-          //TODO Use output from application instead
           BigInteger result = output.getFirst();
           List<BigInteger> remainders = output.getSecond();
 
