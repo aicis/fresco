@@ -136,7 +136,7 @@ public abstract class ProtocolBuilder<SIntT extends SInt> {
     }
   }
 
-  public NumericBuilder<SIntT> createNumericBuilder() {
+  public NumericBuilder<SIntT> numeric() {
     return factory.createNumericBuilder(this);
   }
 

@@ -76,7 +76,7 @@ public class KnownDivisorProtocol extends SimpleProtocolProducer implements Divi
 		 * considerations can be omitted, giving a significant speed-up.
 		 */
 
-      NumericBuilder<SInt> numeric = builder.createNumericBuilder();
+      NumericBuilder<SInt> numeric = builder.numeric();
     /*
      * Numbers larger than half the field size is considered to be negative.
 		 * 

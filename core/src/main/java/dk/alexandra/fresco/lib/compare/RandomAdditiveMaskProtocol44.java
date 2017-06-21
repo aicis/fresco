@@ -24,7 +24,7 @@ public class RandomAdditiveMaskProtocol44<SIntT extends SInt>
   private List<Computation<SIntT>> bits;
   private Computation<SIntT> value;
 
-  public RandomAdditiveMaskProtocol44(BuilderFactoryNumeric<SIntT> factoryNumeric,
+  RandomAdditiveMaskProtocol44(BuilderFactoryNumeric<SIntT> factoryNumeric,
       int securityParameter, int noOfBits) {
     this.factoryNumeric = factoryNumeric;
     this.securityParameter = securityParameter;
@@ -33,7 +33,7 @@ public class RandomAdditiveMaskProtocol44<SIntT extends SInt>
 
   @Override
   public Computation<RandomAdditiveMask<SIntT>> apply(SequentialProtocolBuilder<SIntT> builder) {
-    NumericBuilder<SIntT> numericBuilder = builder.createNumericBuilder();
+    NumericBuilder<SIntT> numericBuilder = builder.numeric();
     List<Computation<SIntT>> allBits = new ArrayList<>();
     for (int i = 0; i < noOfBits + securityParameter; i++) {
       Computation<SIntT> randomBit = numericBuilder.createRandomSecretSharedBitProtocol();

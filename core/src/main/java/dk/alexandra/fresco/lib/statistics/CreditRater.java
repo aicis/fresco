@@ -160,7 +160,7 @@ public class CreditRater implements Application<SInt> {
       Computation<List<Computation<SInt>>> comparisonComputationsWithLast =
           rootBuilder.createSequentialSubFactoryReturning((builder) -> {
             List<Computation<SInt>> computations = comparisonsComputation.out();
-            NumericBuilder<SInt> numericBuilder = builder.createNumericBuilder();
+            NumericBuilder<SInt> numericBuilder = builder.numeric();
             SInt one = builder.createConstant(1);
             computations
                 .add(numericBuilder.sub(one, computations.get(computations.size() - 1)).out());
@@ -170,7 +170,7 @@ public class CreditRater implements Application<SInt> {
       Computation<List<Computation<SInt>>> intermediateScores =
           rootBuilder.createParallelSubFactoryReturning((parallelBuilder) -> {
             List<Computation<SInt>> comparisons = comparisonComputationsWithLast.out();
-            NumericBuilder<SInt> numericBuilder = parallelBuilder.createNumericBuilder();
+            NumericBuilder<SInt> numericBuilder = parallelBuilder.numeric();
             List<Computation<SInt>> innerScores = new ArrayList<>();
             innerScores.add(numericBuilder.mult(comparisons.get(0), scores.get(0)));
             for (int i = 1; i < scores.size() - 1; i++) {
