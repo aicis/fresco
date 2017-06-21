@@ -34,7 +34,7 @@ import dk.alexandra.fresco.lib.helper.SimpleProtocolProducer;
 import dk.alexandra.fresco.lib.helper.builder.NumericProtocolBuilder;
 import java.math.BigInteger;
 
-public class BitLengthProtocolImpl extends SimpleProtocolProducer implements BitLengthProtocol {
+public class BitLengthProtocolImpl extends SimpleProtocolProducer implements ProtocolProducer {
 
 	private SInt input;
 	private SInt result;

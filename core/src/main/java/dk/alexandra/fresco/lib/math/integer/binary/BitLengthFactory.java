@@ -26,6 +26,7 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.math.integer.binary;
 
+import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.SInt;
 
 public interface BitLengthFactory {
@@ -44,6 +45,6 @@ public interface BitLengthFactory {
 	 * 
 	 * @return
 	 */
-	public BitLengthProtocol getBitLengthProtocol(SInt input, SInt output, int maxInputLength);
+	public ProtocolProducer getBitLengthProtocol(SInt input, SInt output, int maxInputLength);
 
 }

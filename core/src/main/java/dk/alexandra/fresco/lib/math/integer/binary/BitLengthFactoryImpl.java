@@ -26,6 +26,7 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.math.integer.binary;
 
+import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.conversion.IntegerToBitsFactory;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
@@ -41,7 +42,7 @@ public class BitLengthFactoryImpl implements BitLengthFactory {
 	}
 
 	@Override
-	public BitLengthProtocol getBitLengthProtocol(SInt input, SInt output,
+	public ProtocolProducer getBitLengthProtocol(SInt input, SInt output,
 			int maxInputLength) {
 		return new BitLengthProtocolImpl(input, output, maxInputLength,
 				basicNumericFactory, integerToBitsFactory);

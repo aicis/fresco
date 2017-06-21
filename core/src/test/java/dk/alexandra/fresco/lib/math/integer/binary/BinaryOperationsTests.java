@@ -190,7 +190,7 @@ public class BinaryOperationsTests {
               SInt input1 = ioBuilder.input(input, 1);
               sequentialProtocolProducer.append(ioBuilder.getProtocol());
 
-              BitLengthProtocol bitLengthProtocol = bitLengthFactory
+              ProtocolProducer bitLengthProtocol = bitLengthFactory
                   .getBitLengthProtocol(input1, result, input.bitLength() * 2);
               sequentialProtocolProducer.append(bitLengthProtocol);
 

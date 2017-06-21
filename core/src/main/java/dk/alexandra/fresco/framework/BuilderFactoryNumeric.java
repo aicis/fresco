@@ -101,6 +101,10 @@ public interface BuilderFactoryNumeric<SIntT extends SInt> extends BuilderFactor
     return new IntegerToBitsFactoryImpl(getBasicNumericFactory(), getRightShiftFactory());
   }
 
+  default BitLengthBuilder getBitLengthBuilder(ProtocolBuilder<SIntT> builder) {
+    return new DefaultBitLengthBuilder((ProtocolBuilder<SInt>) builder);
+  }
+
   default BitLengthFactory getBitLengthFactory() {
     return new BitLengthFactoryImpl(getBasicNumericFactory(), getIntegerToBitsFactory());
   }
