@@ -57,7 +57,9 @@ public class ConditionalSelectProtocolImpl extends SimpleProtocolProducer implem
       Computation<SInt> sub = numericBuilder.sub(a, b);
       Computation<SInt> mult = numericBuilder.mult(selector, sub);
       Computation<SInt> result = numericBuilder.add(mult, b);
-      protocolBuilder.append(new LegacyTransfer(result, this.result));
+      if (this.result != null) {
+        protocolBuilder.append(new LegacyTransfer(result, this.result));
+      }
     }).build();
   }
 }

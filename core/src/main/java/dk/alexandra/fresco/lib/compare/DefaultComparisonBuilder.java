@@ -16,21 +16,21 @@ import dk.alexandra.fresco.lib.math.integer.linalg.EntrywiseProductFactoryImpl;
 import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductFactoryImpl;
 import java.math.BigInteger;
 
-public class DefaultComparisonBuilder<SIntT extends SInt> implements ComparisonBuilder<SIntT> {
+public class DefaultComparisonBuilder implements ComparisonBuilder<SInt> {
 
-  private final BuilderFactoryNumeric<SIntT> factoryNumeric;
-  private final ProtocolBuilder<SIntT> builder;
+  private final BuilderFactoryNumeric<SInt> factoryNumeric;
+  private final ProtocolBuilder<SInt> builder;
 
-  public DefaultComparisonBuilder(BuilderFactoryNumeric<SIntT> factoryNumeric,
-      ProtocolBuilder<SIntT> builder) {
+  public DefaultComparisonBuilder(BuilderFactoryNumeric<SInt> factoryNumeric,
+      ProtocolBuilder<SInt> builder) {
     this.factoryNumeric = factoryNumeric;
     this.builder = builder;
   }
 
   private GreaterThanReducerProtocol4 getGreaterThanProtocol(
-      Computation<SIntT> left,
-      Computation<SIntT> right,
-      SIntT result, boolean longCompare) {
+      Computation<SInt> left,
+      Computation<SInt> right,
+      SInt result, boolean longCompare) {
     int bitLength = factoryNumeric.getBasicNumericFactory().getMaxBitLength();
     if (longCompare) {
       bitLength *= 2;
@@ -50,12 +50,12 @@ public class DefaultComparisonBuilder<SIntT extends SInt> implements ComparisonB
         numericNegateBitFactory,
         factoryNumeric.getRandomAdditiveMaskFactory(),
         zeroTestProtocolFactory, misc, innerProductFactory,
-        factoryNumeric.getInversionFactory(), (BuilderFactoryNumeric) factoryNumeric);
+        factoryNumeric.getInversionFactory(), factoryNumeric);
   }
 
   @Override
-  public Computation<SIntT> compareLong(Computation<SIntT> left, Computation<SIntT> right) {
-    SIntT result = (SIntT) factoryNumeric.getBasicNumericFactory().getSInt();
+  public Computation<SInt> compareLong(Computation<SInt> left, Computation<SInt> right) {
+    SInt result = factoryNumeric.getBasicNumericFactory().getSInt();
     GreaterThanReducerProtocol4 greaterThanProtocol = getGreaterThanProtocol(left, right,
             result, true);
     builder.append((ProtocolProducer) greaterThanProtocol);
@@ -63,24 +63,24 @@ public class DefaultComparisonBuilder<SIntT extends SInt> implements ComparisonB
   }
 
   @Override
-  public Computation<SIntT> compare(Computation<SIntT> left, Computation<SIntT> right) {
-    SIntT result = (SIntT) factoryNumeric.getBasicNumericFactory().getSInt();
+  public Computation<SInt> compare(Computation<SInt> left, Computation<SInt> right) {
+    SInt result = factoryNumeric.getBasicNumericFactory().getSInt();
     GreaterThanReducerProtocol4 greaterThanProtocol = getGreaterThanProtocol(left, right,
         result, false);
     builder.append((ProtocolProducer) greaterThanProtocol);
     return greaterThanProtocol;
   }
 
-  public Computation<SIntT> sign(Computation<SIntT> x) {
+  public Computation<SInt> sign(Computation<SInt> x) {
     BasicNumericFactory bnf = factoryNumeric.getBasicNumericFactory();
-    Computation<SIntT> compare = compare(
-        () -> (SIntT) builder.getSIntFactory().getSInt(0), x);
+    Computation<SInt> compare = compare(
+        () -> builder.getSIntFactory().getSInt(0), x);
     OInt oInt = bnf.getOInt(BigInteger.valueOf(2));
-    NumericBuilder<SIntT> numericBuilder = builder.numeric();
-    Computation<SIntT> twice = numericBuilder.mult(
-        () -> (SIntT) builder.getSIntFactory().getSInt(oInt.getValue()), compare);
-    Computation<SIntT> result = numericBuilder.sub(twice,
-        () -> (SIntT) builder.getSIntFactory().getSInt(1));
+    NumericBuilder<SInt> numericBuilder = builder.numeric();
+    Computation<SInt> twice = numericBuilder.mult(
+        () -> builder.getSIntFactory().getSInt(oInt.getValue()), compare);
+    Computation<SInt> result = numericBuilder.sub(twice,
+        () -> builder.getSIntFactory().getSInt(1));
     return result;
   }
 

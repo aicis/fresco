@@ -54,7 +54,10 @@ public interface BuilderFactoryNumeric<SIntT extends SInt> extends BuilderFactor
   }
 
   default ComparisonBuilder<SIntT> createComparisonBuilder(ProtocolBuilder<SIntT> builder) {
-    return new DefaultComparisonBuilder<>(this, builder);
+    return (ComparisonBuilder<SIntT>)
+        new DefaultComparisonBuilder(
+            (BuilderFactoryNumeric<SInt>) this,
+            (ProtocolBuilder<SInt>) builder);
   }
 
   default InnerProductBuilder<SIntT> createInnerProductBuilder(ProtocolBuilder<SIntT> builder) {

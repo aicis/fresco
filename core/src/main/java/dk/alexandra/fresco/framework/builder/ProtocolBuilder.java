@@ -93,9 +93,8 @@ public abstract class ProtocolBuilder<SIntT extends SInt> {
    * @param consumer lazy creation of the protocol producer
    */
   public <T extends Consumer<SequentialProtocolBuilder<SIntT>>>
-  T createSequentialSubFactory(T consumer) {
+  void createSequentialSubFactory(T consumer) {
     addConsumer(consumer, () -> new SequentialProtocolBuilder<>(factory));
-    return consumer;
   }
 
   <T extends ProtocolBuilder<SIntT>> void addConsumer(Consumer<T> consumer,

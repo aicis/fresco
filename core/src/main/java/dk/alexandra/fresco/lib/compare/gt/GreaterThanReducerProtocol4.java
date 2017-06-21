@@ -46,19 +46,19 @@ import dk.alexandra.fresco.lib.math.integer.inv.LocalInversionFactory;
 import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductFactory;
 import java.math.BigInteger;
 
-public class GreaterThanReducerProtocol4<SIntT extends SInt> implements GreaterThanProtocol,
-    Computation<SIntT> {
+public class GreaterThanReducerProtocol4 implements GreaterThanProtocol,
+    Computation<SInt> {
 
 
   public GreaterThanReducerProtocol4(int bitLength, int securityParameter,
-      Computation<SIntT> x, Computation<SIntT> y, SIntT output, BasicNumericFactory factory,
+      Computation<SInt> x, Computation<SInt> y, SInt output, BasicNumericFactory factory,
       NumericNegateBitFactory bitFactory,
       RandomAdditiveMaskFactory maskFactory,
       ZeroTestProtocolFactory ztFactory,
       MiscOIntGenerators miscOIntGenerator,
       InnerProductFactory innerProdFactory,
       LocalInversionFactory invFactory,
-      BuilderFactoryNumeric<SIntT> factoryProducer) {
+      BuilderFactoryNumeric<SInt> factoryProducer) {
     super();
     this.bitLength = bitLength;
     this.bitLengthBottom = bitLength / 2;
@@ -90,10 +90,10 @@ public class GreaterThanReducerProtocol4<SIntT extends SInt> implements GreaterT
   private final int bitLengthTop; // == bitlength/2
   private final int bitLengthBottom;
   private final int securityParameter;
-  private final Computation<SIntT> x, y;
-  private final SIntT output;
+  private final Computation<SInt> x, y;
+  private final SInt output;
 
-  private final BuilderFactoryNumeric<SIntT> factoryProducer;
+  private final BuilderFactoryNumeric<SInt> factoryProducer;
   private final BasicNumericFactory factory;
   private final NumericNegateBitFactory bitFactory;
 
@@ -336,7 +336,7 @@ public class GreaterThanReducerProtocol4<SIntT extends SInt> implements GreaterT
   }
 
   @Override
-  public SIntT out() {
+  public SInt out() {
     return output;
   }
 }
