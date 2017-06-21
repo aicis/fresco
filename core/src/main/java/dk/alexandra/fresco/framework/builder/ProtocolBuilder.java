@@ -215,10 +215,10 @@ public abstract class ProtocolBuilder<SIntT extends SInt> {
 
 
     public <R>
-    SomeBuilder<SequentialProtocolBuilder<SIntT>, SIntT, R, Void> seq(
+    BuildStep<SequentialProtocolBuilder<SIntT>, SIntT, R, Void> seq(
         Function<SequentialProtocolBuilder<SIntT>, Computation<R>> function) {
-      SomeBuilder<SequentialProtocolBuilder<SIntT>, SIntT, R, Void> builder =
-          new SomeBuilderSequential<>((ignored, inner) -> function.apply(inner));
+      BuildStep<SequentialProtocolBuilder<SIntT>, SIntT, R, Void> builder =
+          new BuildStepSequential<>((ignored, inner) -> function.apply(inner));
       ProtocolEntity protocolEntity = createAndAppend();
       protocolEntity.child = new LazyProtocolProducer(
           () -> builder.createProducer(null, factory)
@@ -227,10 +227,10 @@ public abstract class ProtocolBuilder<SIntT extends SInt> {
     }
 
     public <R>
-    SomeBuilder<ParallelProtocolBuilder<SIntT>, SIntT, R, Void> par(
+    BuildStep<ParallelProtocolBuilder<SIntT>, SIntT, R, Void> par(
         Function<ParallelProtocolBuilder<SIntT>, Computation<R>> function) {
-      SomeBuilder<ParallelProtocolBuilder<SIntT>, SIntT, R, Void> builder =
-          new SomeBuilderParallel<>((ignored, inner) -> function.apply(inner));
+      BuildStep<ParallelProtocolBuilder<SIntT>, SIntT, R, Void> builder =
+          new BuildStepParallel<>((ignored, inner) -> function.apply(inner));
       ProtocolEntity protocolEntity = createAndAppend();
       protocolEntity.child = new LazyProtocolProducer(
           () -> builder.createProducer(null, factory)
@@ -239,31 +239,31 @@ public abstract class ProtocolBuilder<SIntT extends SInt> {
     }
   }
 
-  public static abstract class SomeBuilder<BuilderT extends ProtocolBuilder<SIntT>, SIntT extends SInt, OutputT, InputT> implements
+  public static abstract class BuildStep<BuilderT extends ProtocolBuilder<SIntT>, SIntT extends SInt, OutputT, InputT> implements
       Computation<OutputT> {
 
     private final BiFunction<InputT, BuilderT, Computation<OutputT>> function;
 
-    private SomeBuilder<?, SIntT, ?, OutputT> child;
+    private BuildStep<?, SIntT, ?, OutputT> child;
     private Computation<OutputT> output;
 
-    private SomeBuilder(
+    private BuildStep(
         BiFunction<InputT, BuilderT, Computation<OutputT>> function) {
       this.function = function;
     }
 
-    public <NextOutputT> SomeBuilder<SequentialProtocolBuilder<SIntT>, SIntT, NextOutputT, OutputT> seq(
+    public <NextOutputT> BuildStep<SequentialProtocolBuilder<SIntT>, SIntT, NextOutputT, OutputT> seq(
         BiFunction<OutputT, SequentialProtocolBuilder<SIntT>, Computation<NextOutputT>> function) {
-      SomeBuilder<SequentialProtocolBuilder<SIntT>, SIntT, NextOutputT, OutputT> localChild =
-          new SomeBuilderSequential<>(function);
+      BuildStep<SequentialProtocolBuilder<SIntT>, SIntT, NextOutputT, OutputT> localChild =
+          new BuildStepSequential<>(function);
       this.child = localChild;
       return localChild;
     }
 
-    public <NextOutputT> SomeBuilder<ParallelProtocolBuilder<SIntT>, SIntT, NextOutputT, OutputT> par(
+    public <NextOutputT> BuildStep<ParallelProtocolBuilder<SIntT>, SIntT, NextOutputT, OutputT> par(
         BiFunction<OutputT, ParallelProtocolBuilder<SIntT>, Computation<NextOutputT>> function) {
-      SomeBuilder<ParallelProtocolBuilder<SIntT>, SIntT, NextOutputT, OutputT> localChild =
-          new SomeBuilderParallel<>(function);
+      BuildStep<ParallelProtocolBuilder<SIntT>, SIntT, NextOutputT, OutputT> localChild =
+          new BuildStepParallel<>(function);
       this.child = localChild;
       return localChild;
     }
@@ -295,10 +295,10 @@ public abstract class ProtocolBuilder<SIntT extends SInt> {
     protected abstract BuilderT createBuilder(BuilderFactoryNumeric<SIntT> factory);
   }
 
-  private static class SomeBuilderParallel<SIntT extends SInt, OutputT, InputT>
-      extends SomeBuilder<ParallelProtocolBuilder<SIntT>, SIntT, OutputT, InputT> {
+  private static class BuildStepParallel<SIntT extends SInt, OutputT, InputT>
+      extends BuildStep<ParallelProtocolBuilder<SIntT>, SIntT, OutputT, InputT> {
 
-    private SomeBuilderParallel(
+    private BuildStepParallel(
         BiFunction<InputT, ParallelProtocolBuilder<SIntT>, Computation<OutputT>> function) {
       super(function);
     }
@@ -311,10 +311,10 @@ public abstract class ProtocolBuilder<SIntT extends SInt> {
   }
 
 
-  private static class SomeBuilderSequential<SIntT extends SInt, OutputT, InputT>
-      extends SomeBuilder<SequentialProtocolBuilder<SIntT>, SIntT, OutputT, InputT> {
+  private static class BuildStepSequential<SIntT extends SInt, OutputT, InputT>
+      extends BuildStep<SequentialProtocolBuilder<SIntT>, SIntT, OutputT, InputT> {
 
-    private SomeBuilderSequential(
+    private BuildStepSequential(
         BiFunction<InputT, SequentialProtocolBuilder<SIntT>, Computation<OutputT>> function) {
       super(function);
     }
