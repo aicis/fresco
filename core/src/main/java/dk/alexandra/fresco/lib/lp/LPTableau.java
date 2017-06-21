@@ -26,19 +26,17 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.lp;
 
-import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.helper.builder.OmniBuilder;
 
 public class LPTableau {
-	
+
 	// The constraint matrix
 	private final Matrix<SInt> C;
 	// The rightmost column and bottom row  of the tableau, except for the last entry of both
 	private final SInt[] B, F;
 	// The the bottom right hand corner entry of the tableau
 	private final SInt z;
-	
+
 	public LPTableau(Matrix<SInt> C, SInt[] B, SInt[] F, SInt z){
 		if (C.getWidth() == F.length && C.getHeight() == B.length) {
 			this.C = C;
@@ -49,23 +47,23 @@ public class LPTableau {
 			throw new RuntimeException("Dimenssions of tableau does not match");
 		}
 	}
-	
+
 	public Matrix<SInt> getC(){
 		return C;
 	}
-	
-	public SInt[] getB(){
-		return B;	
-	}
-	
-	public SInt[] getF(){
+
+  public SInt[] getB(){
+    return B;
+  }
+
+  public SInt[] getF(){
 		return F;
 	}
-	
-	public SInt getZ(){
+
+  public SInt getZ(){
 		return z;
 	}
-
+/**
   public ProtocolProducer toString(OmniBuilder b) {
     b.getUtilityBuilder().openAndPrint("C", C.toArray());
     b.getUtilityBuilder().openAndPrint("B", B);
@@ -73,4 +71,5 @@ public class LPTableau {
 		b.getUtilityBuilder().openAndPrint("z", z);
 		return b.getProtocol();
 	}
+ */
 }

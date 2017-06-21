@@ -29,6 +29,7 @@ public class InnerProductNewApi extends SimpleProtocolProducer implements Comput
     // Root sequential scope ... makes sense   
     ProtocolBuilder<SInt> pb = ProtocolBuilder.createRoot(bnf, seq -> {
       c =
+          // Parallel scope for multiplication ... makes sense
           seq.par(
               par -> {
                 List<Computation<SInt>> temp = new ArrayList<>();
