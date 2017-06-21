@@ -21,10 +21,14 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 /**
- * Central class that allowes building complex trees of protocol producers based on
- * the sequence in which they are created. This class stores the intention of building
+ * Central class that builds complex trees of protocol producers based on
+ * the sequence in which they are created.
+ * <p>This class stores the intention of building
  * a protocol producer rather than the actual protocol producer and only when requested
- * actually evaluates the closure and returns the actual protocol producer.
+ * actually evaluates the closure and returns the actual protocol producer.</p>
+ * <p>This class also exposes builders with an intuitive and readable api but
+ * automatic creates native protocols and adds these to this protocol builder as
+ * intentions to be resolved later</p>
  */
 public abstract class ProtocolBuilder<SIntT extends SInt> {
 
@@ -60,8 +64,7 @@ public abstract class ProtocolBuilder<SIntT extends SInt> {
    *
    * @param function of the protocol producer - will be lazy evaluated
    */
-  public <R>
-  Computation<R> createParallelSubFactoryReturning(
+  public <R> Computation<R> createParallelSubFactoryReturning(
       Function<ParallelProtocolBuilder<SIntT>, Computation<R>> function) {
     DelayedComputation<R> result = new DelayedComputation<>();
     addConsumer((builder) -> result.setComputation(function.apply(builder)),
@@ -75,8 +78,7 @@ public abstract class ProtocolBuilder<SIntT extends SInt> {
    *
    * @param function creation of the protocol producer - will be lazy evaluated
    */
-  public <R>
-  Computation<R> createSequentialSubFactoryReturning(
+  public <R> Computation<R> createSequentialSubFactoryReturning(
       Function<SequentialProtocolBuilder<SIntT>, Computation<R>> function) {
     DelayedComputation<R> result = new DelayedComputation<>();
     addConsumer((builder) -> result.setComputation(function.apply(builder)),
