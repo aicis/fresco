@@ -26,8 +26,6 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.helper.builder;
 
-import java.math.BigInteger;
-
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.compare.ComparisonProtocolFactory;
@@ -46,10 +44,6 @@ public class ComparisonProtocolBuilder extends AbstractProtocolBuilder {
 
 	private final ComparisonProtocolFactory comFactory;
 	private final BasicNumericFactory bnf;
-
-	protected ComparisonProtocolFactory getComFactory() {
-		return comFactory;
-	}
 
 	protected BasicNumericFactory getBnf() {
 		return bnf;
@@ -82,23 +76,6 @@ public class ComparisonProtocolBuilder extends AbstractProtocolBuilder {
 	}
 
 	/**
-	 * Compares if left < right, but with twice the possible bit-length.
-	 * Requires that the maximum bit length is set to something that can handle
-	 * this scenario.
-	 * 
-	 * @param left
-	 * @param right
-	 * @return 1 if left<=right and 0 otherwise
-	 */
-	public SInt longCompare(SInt left, SInt right) {
-		SInt result = bnf.getSInt();
-		ProtocolProducer pp = comFactory.getGreaterThanProtocol(left, right,
-				result, true);
-		append(pp);
-		return result;
-	}
-
-	/**
 	 * Compares x == y
 	 * @param x
 	 * @param y
@@ -109,15 +86,6 @@ public class ComparisonProtocolBuilder extends AbstractProtocolBuilder {
 		ProtocolProducer pp = comFactory.getEqualityProtocol(
 				bnf.getMaxBitLength(), x, y, result);
 		append(pp);
-		return result;
-	}
-	
-	public SInt sign(SInt x) {
-		SInt compare = compare(bnf.getSInt(0), x);
-		SInt twice = bnf.getSInt();
-		append(bnf.getMultProtocol(bnf.getOInt(BigInteger.valueOf(2)), compare, twice));
-		SInt result = bnf.getSInt();
-		append(bnf.getSubtractProtocol(twice, bnf.getOInt(BigInteger.ONE), result));
 		return result;
 	}
 }

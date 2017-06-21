@@ -130,14 +130,6 @@ public class NumericProtocolBuilder extends AbstractProtocolBuilder {
     return bnf.getOInt(value);
   }
 
-  public OInt[] knownOInts(BigInteger[] values) {
-    OInt[] res = new OInt[values.length];
-    for (int i = 0; i < values.length; i++) {
-      res[i] = knownOInt(values[i]);
-    }
-    return res;
-  }
-
   public SInt known(BigInteger value) {
     SInt sValue = bnf.getSInt();
     Computation loader = bnf.getSInt(value, sValue);
