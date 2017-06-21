@@ -90,21 +90,20 @@ public class BinaryOperationsTests {
 
                 @Override
                 public ProtocolProducer prepareApplication(BuilderFactory producer) {
-                  BuilderFactoryNumeric<SInt> factoryNumeric = (BuilderFactoryNumeric) producer;
+                  BuilderFactoryNumeric factoryNumeric = (BuilderFactoryNumeric) producer;
                   return dk.alexandra.fresco.framework.builder.ProtocolBuilder
                       .createRoot(factoryNumeric,
                           (builder) -> {
-                            RightShiftBuilder<SInt> rightShift = builder.createRightShiftBuilder();
+                            RightShiftBuilder rightShift = builder.createRightShiftBuilder();
                             SInt encryptedInput = builder.getSIntFactory().getSInt(input);
-                            Computation<RightShiftResult<SInt>> shiftedRight = rightShift
+                            Computation<RightShiftResult> shiftedRight = rightShift
                                 .rightShiftWithRemainder(encryptedInput, shifts);
-                            OpenBuilder<SInt> openBuilder = builder.createOpenBuilder();
+                            OpenBuilder openBuilder = builder.createOpenBuilder();
                             openResult = openBuilder
                                 .open(() -> shiftedRight.out().getResult().out());
                             openRemainders = builder
                                 .createSequentialSubFactoryReturning((innerBuilder) -> {
-                                  OpenBuilder<SInt> innerOpenBuilder =
-                                      innerBuilder.createOpenBuilder();
+                                  OpenBuilder innerOpenBuilder = innerBuilder.createOpenBuilder();
                                   List<Computation<OInt>> opened = shiftedRight.out()
                                       .getRemainder()
                                       .stream()
@@ -169,7 +168,6 @@ public class BinaryOperationsTests {
                 BuilderFactory producer) {
 
               BasicNumericFactory basicNumericFactory = (BasicNumericFactory) producer;
-              BasicNumericFactory<SInt> preprocessedNumericBitFactory = (BasicNumericFactory<SInt>) producer;
               RandomAdditiveMaskFactory randomAdditiveMaskFactory = new RandomAdditiveMaskFactoryImpl(
                   basicNumericFactory,
                   new InnerProductFactoryImpl(basicNumericFactory,

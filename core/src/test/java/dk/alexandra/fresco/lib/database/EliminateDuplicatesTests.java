@@ -64,7 +64,6 @@ class EliminateDuplicatesTests {
               ProtocolFactory provider = factoryProducer.getProtocolFactory();
               BasicNumericFactory bnFactory = (BasicNumericFactory) provider;
               LocalInversionFactory localInvFactory = (LocalInversionFactory) provider;
-              BasicNumericFactory<SInt> numericBitFactory = (BasicNumericFactory<SInt>) provider;
               ExpFromOIntFactory expFromOIntFactory = (ExpFromOIntFactory) provider;
               PreprocessedExpPipeFactory expFactory = (PreprocessedExpPipeFactory) provider;
               SequentialProtocolProducer seq = new SequentialProtocolProducer();
@@ -72,7 +71,7 @@ class EliminateDuplicatesTests {
               ComparisonProtocolFactoryImpl compFactory = new ComparisonProtocolFactoryImpl(
                   80, bnFactory, localInvFactory,
                   expFromOIntFactory,
-                  expFactory, (BuilderFactoryNumeric<SInt>) factoryProducer);
+                  expFactory, (BuilderFactoryNumeric) factoryProducer);
 
               NumericIOBuilder ioBuilder = new NumericIOBuilder(bnFactory);
               FindDuplicatesProtocolBuilder findDuplicatesBuilder = new FindDuplicatesProtocolBuilder(
@@ -145,7 +144,6 @@ class EliminateDuplicatesTests {
               ProtocolFactory provider = factoryProducer.getProtocolFactory();
               BasicNumericFactory bnFactory = (BasicNumericFactory) provider;
               LocalInversionFactory localInvFactory = (LocalInversionFactory) provider;
-              BasicNumericFactory<SInt> numericBitFactory = (BasicNumericFactory<SInt>) provider;
               ExpFromOIntFactory expFromOIntFactory = (ExpFromOIntFactory) provider;
               PreprocessedExpPipeFactory expFactory = (PreprocessedExpPipeFactory) provider;
               SequentialProtocolProducer seq = new SequentialProtocolProducer();
@@ -153,7 +151,7 @@ class EliminateDuplicatesTests {
               ComparisonProtocolFactoryImpl compFactory = new ComparisonProtocolFactoryImpl(
                   80, bnFactory, localInvFactory,
                   expFromOIntFactory,
-                  expFactory, (BuilderFactoryNumeric<SInt>) factoryProducer);
+                  expFactory, (BuilderFactoryNumeric) factoryProducer);
 
               NumericIOBuilder ioBuilder = new NumericIOBuilder(bnFactory);
               FindDuplicatesProtocolBuilder findDuplicatesBuilder = new FindDuplicatesProtocolBuilder(
@@ -228,7 +226,6 @@ class EliminateDuplicatesTests {
               ProtocolFactory provider = factoryProducer.getProtocolFactory();
               BasicNumericFactory bnFactory = (BasicNumericFactory) provider;
               LocalInversionFactory localInvFactory = (LocalInversionFactory) provider;
-              BasicNumericFactory<SInt> numericBitFactory = (BasicNumericFactory<SInt>) provider;
               ExpFromOIntFactory expFromOIntFactory = (ExpFromOIntFactory) provider;
               PreprocessedExpPipeFactory expFactory = (PreprocessedExpPipeFactory) provider;
               SequentialProtocolProducer seq = new SequentialProtocolProducer();
@@ -236,7 +233,7 @@ class EliminateDuplicatesTests {
               ComparisonProtocolFactoryImpl compFactory = new ComparisonProtocolFactoryImpl(
                   80, bnFactory, localInvFactory,
                   expFromOIntFactory,
-                  expFactory, (BuilderFactoryNumeric<SInt>) factoryProducer);
+                  expFactory, (BuilderFactoryNumeric) factoryProducer);
 
               NumericIOBuilder ioBuilder = new NumericIOBuilder(bnFactory);
               FindDuplicatesProtocolBuilder findDuplicatesBuilder = new FindDuplicatesProtocolBuilder(

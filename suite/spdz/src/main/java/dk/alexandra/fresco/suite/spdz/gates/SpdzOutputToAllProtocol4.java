@@ -31,6 +31,7 @@ import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.network.SCENetwork;
 import dk.alexandra.fresco.framework.network.serializers.BigIntegerSerializer;
 import dk.alexandra.fresco.framework.value.OInt;
+import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzOInt;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
@@ -39,12 +40,12 @@ import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.util.List;
 
-public class SpdzOutputToAllProtocol4 extends SpdzNativeProtocol<SpdzOInt> {
+public class SpdzOutputToAllProtocol4 extends SpdzNativeProtocol<OInt> {
 
-  private Computation<SpdzSInt> in;
+  private Computation<SInt> in;
   private SpdzOInt out;
 
-  public SpdzOutputToAllProtocol4(Computation<SpdzSInt> in, OInt out) {
+  public SpdzOutputToAllProtocol4(Computation<SInt> in, OInt out) {
     this.in = in;
     this.out = (SpdzOInt) out;
   }
@@ -58,7 +59,7 @@ public class SpdzOutputToAllProtocol4 extends SpdzNativeProtocol<SpdzOInt> {
     BigIntegerSerializer serializer = spdzResourcePool.getSerializer();
     switch (round) {
       case 0:
-        SpdzSInt out = in.out();
+        SpdzSInt out = (SpdzSInt) in.out();
         network.sendToAll(serializer.toBytes(out.value.getShare()));
         network.expectInputFromAll();
         return EvaluationStatus.HAS_MORE_ROUNDS;
@@ -70,7 +71,7 @@ public class SpdzOutputToAllProtocol4 extends SpdzNativeProtocol<SpdzOInt> {
         }
         openedVal = openedVal.mod(spdzResourcePool.getModulus());
         storage.addOpenedValue(openedVal);
-        storage.addClosedValue(in.out().value);
+        storage.addClosedValue(((SpdzSInt) in.out()).value);
         BigInteger tmpOut = openedVal;
         tmpOut = spdzResourcePool.convertRepresentation(tmpOut);
         this.out.setValue(tmpOut);

@@ -36,7 +36,7 @@ public class InnerProductNewApiTest {
 
             @Override
             public ProtocolProducer prepareApplication(BuilderFactory producer) {
-              BuilderFactoryNumeric<SInt> factoryNumeric = (BuilderFactoryNumeric<SInt>) producer;
+              BuilderFactoryNumeric factoryNumeric = (BuilderFactoryNumeric) producer;
               ProtocolBuilder pb = ProtocolBuilder.createRoot(factoryNumeric, seq -> {
                 SInt[] sA = new SInt[a.length];
                 SInt[] sB = new SInt[b.length];

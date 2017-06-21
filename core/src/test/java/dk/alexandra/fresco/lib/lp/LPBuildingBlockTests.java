@@ -217,14 +217,12 @@ public class LPBuildingBlockTests {
               ProtocolFactory producer = factoryProducer.getProtocolFactory();
               BasicNumericFactory bnFactory = (BasicNumericFactory) producer;
               LocalInversionFactory localInvFactory = (LocalInversionFactory) producer;
-              BasicNumericFactory<SInt> numericBitFactory = (BasicNumericFactory<SInt>) producer;
               ExpFromOIntFactory expFromOIntFactory = (ExpFromOIntFactory) producer;
               PreprocessedExpPipeFactory expFactory = (PreprocessedExpPipeFactory) producer;
               RandomFieldElementFactory randFactory = (RandomFieldElementFactory) producer;
               LPFactory lpFactory = new LPFactoryImpl(80, bnFactory, localInvFactory,
-                  numericBitFactory,
                   expFromOIntFactory, expFactory, randFactory,
-                  (BuilderFactoryNumeric<SInt>) factoryProducer);
+                  (BuilderFactoryNumeric) factoryProducer);
               mod = bnFactory.getModulus();
               return setupRandom(10, 10, bnFactory, lpFactory);
             }

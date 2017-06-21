@@ -6,51 +6,51 @@ import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
 import dk.alexandra.fresco.framework.value.SInt;
 
-public class DefaultRightShiftBuilder<SIntT extends SInt> implements RightShiftBuilder<SIntT> {
+public class DefaultRightShiftBuilder implements RightShiftBuilder {
 
-  private final BuilderFactoryNumeric<SIntT> factoryNumeric;
-  private final ProtocolBuilder<SIntT> builder;
+  private final BuilderFactoryNumeric factoryNumeric;
+  private final ProtocolBuilder builder;
 
   public DefaultRightShiftBuilder(
-      BuilderFactoryNumeric<SIntT> factoryNumeric,
-      ProtocolBuilder<SIntT> builder) {
+      BuilderFactoryNumeric factoryNumeric,
+      ProtocolBuilder builder) {
     this.factoryNumeric = factoryNumeric;
     this.builder = builder;
   }
 
   @Override
-  public Computation<SIntT> rightShift(Computation<SIntT> input) {
-    Computation<RightShiftResult<SIntT>> rightShiftResult = builder
+  public Computation<SInt> rightShift(Computation<SInt> input) {
+    Computation<RightShiftResult> rightShiftResult = builder
         .createSequentialSubFactoryReturning(
-            new RightShiftProtocol4<>(
+            new RightShiftProtocol4(
                 factoryNumeric.getBasicNumericFactory().getMaxBitLength(),
                 input, false));
     return () -> rightShiftResult.out().getResult();
   }
 
   @Override
-  public Computation<RightShiftResult<SIntT>> rightShiftWithRemainder(Computation<SIntT> input) {
+  public Computation<RightShiftResult> rightShiftWithRemainder(Computation<SInt> input) {
     return builder.createSequentialSubFactoryReturning(
-        new RightShiftProtocol4<>(
+        new RightShiftProtocol4(
             factoryNumeric.getBasicNumericFactory().getMaxBitLength(),
             input, true));
   }
 
   @Override
-  public Computation<SIntT> rightShift(Computation<SIntT> input, int shifts) {
-    Computation<RightShiftResult<SIntT>> rightShiftResult = builder
+  public Computation<SInt> rightShift(Computation<SInt> input, int shifts) {
+    Computation<RightShiftResult> rightShiftResult = builder
         .createSequentialSubFactoryReturning(
-            new RepeatedRightShiftProtocol4<>(
+            new RepeatedRightShiftProtocol4(
                 input, shifts, false));
     return () -> rightShiftResult.out().getResult();
   }
 
   @Override
-  public Computation<RightShiftResult<SIntT>> rightShiftWithRemainder(
-      Computation<SIntT> input,
+  public Computation<RightShiftResult> rightShiftWithRemainder(
+      Computation<SInt> input,
       int shifts) {
     return builder.createSequentialSubFactoryReturning(
-        new RepeatedRightShiftProtocol4<>(
+        new RepeatedRightShiftProtocol4(
             input, shifts, true));
   }
 }

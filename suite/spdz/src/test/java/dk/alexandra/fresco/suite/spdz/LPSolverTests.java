@@ -36,7 +36,6 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
-import dk.alexandra.fresco.framework.sce.configuration.SCEConfiguration;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
@@ -77,13 +76,12 @@ class LPSolverTests {
               ProtocolFactory producer = factoryProducer.getProtocolFactory();
               BasicNumericFactory bnFactory = (BasicNumericFactory) producer;
               LocalInversionFactory localInvFactory = (LocalInversionFactory) producer;
-              BasicNumericFactory<SInt> numericBitFactory = (BasicNumericFactory<SInt>) producer;
               ExpFromOIntFactory expFromOIntFactory = (ExpFromOIntFactory) producer;
               PreprocessedExpPipeFactory expFactory = (PreprocessedExpPipeFactory) producer;
               RandomFieldElementFactory randFactory = (RandomFieldElementFactory) producer;
               LPFactory lpFactory = new LPFactoryImpl(80, bnFactory, localInvFactory,
-                  numericBitFactory, expFromOIntFactory, expFactory, randFactory,
-                  (BuilderFactoryNumeric<SInt>) factoryProducer);
+                  expFromOIntFactory, expFactory, randFactory,
+                  (BuilderFactoryNumeric) factoryProducer);
               File pattern = new File("src/test/resources/lp/pattern7.csv");
               File program = new File("src/test/resources/lp/program7.csv");
               LPInputReader inputreader;
@@ -134,7 +132,7 @@ class LPSolverTests {
           };
           long startTime = System.nanoTime();
           ResourcePoolT resourcePool = SecureComputationEngineImpl.createResourcePool(
-              (SCEConfiguration<ResourcePoolT>) conf.sceConf, conf.sceConf.getSuite());
+              conf.sceConf, conf.sceConf.getSuite());
           secureComputationEngine.runApplication(app, resourcePool);
           long endTime = System.nanoTime();
           System.out.println("============ Seq Time: "

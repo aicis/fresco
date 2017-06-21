@@ -9,32 +9,32 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 
-public class InnerProductProtocol44<SIntT extends SInt> implements
-    Function<SequentialProtocolBuilder<SIntT>, Computation<SIntT>> {
+public class InnerProductProtocol44 implements
+    Function<SequentialProtocolBuilder, Computation<SInt>> {
 
-  private final List<Computation<SIntT>> aVector;
-  private final List<Computation<SIntT>> bVector;
+  private final List<Computation<SInt>> aVector;
+  private final List<Computation<SInt>> bVector;
 
   InnerProductProtocol44(
-      List<Computation<SIntT>> aVector,
-      List<Computation<SIntT>> bVector) {
+      List<Computation<SInt>> aVector,
+      List<Computation<SInt>> bVector) {
     this.aVector = aVector;
     this.bVector = bVector;
   }
 
   @Override
-  public Computation<SIntT> apply(SequentialProtocolBuilder<SIntT> builder) {
+  public Computation<SInt> apply(SequentialProtocolBuilder builder) {
     return builder
         .par(parallel -> {
-          List<Computation<SIntT>> products = new ArrayList<>(aVector.size());
-          NumericBuilder<SIntT> numericBuilder = parallel.numeric();
+          List<Computation<SInt>> products = new ArrayList<>(aVector.size());
+          NumericBuilder numericBuilder = parallel.numeric();
           for (int i = 0; i < aVector.size(); i++) {
-            Computation<SIntT> nextA = aVector.get(i);
-            Computation<SIntT> nextB = bVector.get(i);
+            Computation<SInt> nextA = aVector.get(i);
+            Computation<SInt> nextB = bVector.get(i);
             products.add(numericBuilder.mult(nextA, nextB));
           }
           return () -> products;
         })
-        .seq(new SumSIntList<>());
+        .seq(new SumSIntList());
   }
 }

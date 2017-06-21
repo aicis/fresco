@@ -99,11 +99,10 @@ public class SearchingTests {
 
                 BasicNumericFactory bnf = (BasicNumericFactory) producer;
                 LocalInversionFactory localInvFactory = (LocalInversionFactory) producer;
-                BasicNumericFactory<SInt> numericBitFactory = (BasicNumericFactory<SInt>) producer;
                 ExpFromOIntFactory expFromOIntFactory = (ExpFromOIntFactory) producer;
                 PreprocessedExpPipeFactory expFactory = (PreprocessedExpPipeFactory) producer;
                 RandomFieldElementFactory randFactory = (RandomFieldElementFactory) producer;
-                LPFactory lpFactory = new LPFactoryImpl(80, bnf, localInvFactory, numericBitFactory,
+                LPFactory lpFactory = new LPFactoryImpl(80, bnf, localInvFactory,
                     expFromOIntFactory, expFactory, randFactory,
                     (BuilderFactoryNumeric) factoryProducer);
                 LookUpProtocolFactory<SInt> lpf = new LookupProtocolFactoryImpl(80, lpFactory, bnf);

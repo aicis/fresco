@@ -90,23 +90,22 @@ public class CreditRater implements Application<SInt> {
   @Override
   @SuppressWarnings("unchecked")
   public ProtocolProducer prepareApplication(BuilderFactory provider) {
-    return ProtocolBuilder.createRoot((BuilderFactoryNumeric<SInt>) provider, (sequential) -> {
-      delegateResult = sequential.par(
-          parallel -> {
-            List<Computation<SInt>> scores = new ArrayList<>(values.size());
-            for (int i = 0; i < values.size(); i++) {
-              SInt value = values.get(i);
-              List<SInt> interval = intervals.get(i);
-              List<SInt> intervalScore = intervalScores.get(i);
+    return ProtocolBuilder.createRoot((BuilderFactoryNumeric) provider, (sequential) ->
+        delegateResult = sequential.par(
+            parallel -> {
+              List<Computation<SInt>> scores = new ArrayList<>(values.size());
+              for (int i = 0; i < values.size(); i++) {
+                SInt value = values.get(i);
+                List<SInt> interval = intervals.get(i);
+                List<SInt> intervalScore = intervalScores.get(i);
 
-              scores.add(
-                  parallel.createSequentialSubFactoryReturning(
-                      new ComputeIntervalScore(interval, value, intervalScore)));
+                scores.add(
+                    parallel.createSequentialSubFactoryReturning(
+                        new ComputeIntervalScore(interval, value, intervalScore)));
+              }
+              return () -> scores;
             }
-            return () -> scores;
-          }
-      ).seq(new SumSIntList<>());
-    }).build();
+        ).seq(new SumSIntList())).build();
   }
 
   public SInt closeApplication() {
@@ -118,7 +117,7 @@ public class CreditRater implements Application<SInt> {
   }
 
   private static class ComputeIntervalScore implements
-      Function<SequentialProtocolBuilder<SInt>, Computation<SInt>> {
+      Function<SequentialProtocolBuilder, Computation<SInt>> {
 
     private final List<Computation<SInt>> interval;
     private final Computation<SInt> value;
@@ -140,7 +139,7 @@ public class CreditRater implements Application<SInt> {
     }
 
     @Override
-    public Computation<SInt> apply(SequentialProtocolBuilder<SInt> rootBuilder) {
+    public Computation<SInt> apply(SequentialProtocolBuilder rootBuilder) {
       return rootBuilder.par(
           (parallelBuilder) -> {
             List<Computation<SInt>> result = new ArrayList<>();
@@ -154,7 +153,7 @@ public class CreditRater implements Application<SInt> {
           })
           // Add "x > last interval definition" to comparisons
           .seq((comparisons, builder) -> {
-            NumericBuilder<SInt> numericBuilder = builder.numeric();
+            NumericBuilder numericBuilder = builder.numeric();
             SInt one = builder.getSIntFactory().getSInt(1);
             Computation<SInt> lastComparison = comparisons.get(comparisons.size() - 1);
             comparisons.add(numericBuilder.sub(one, lastComparison));
@@ -162,7 +161,7 @@ public class CreditRater implements Application<SInt> {
           })
           //Comparisons now contain if x <= each definition and if x>= last definition
           .par((comparisons, parallelBuilder) -> {
-            NumericBuilder<SInt> numericBuilder = parallelBuilder.numeric();
+            NumericBuilder numericBuilder = parallelBuilder.numeric();
             List<Computation<SInt>> innerScores = new ArrayList<>();
             innerScores.add(numericBuilder.mult(comparisons.get(0), scores.get(0)));
             for (int i = 1; i < scores.size() - 1; i++) {
@@ -175,7 +174,7 @@ public class CreditRater implements Application<SInt> {
             innerScores.add(numericBuilder.mult(a, b));
             return () -> innerScores;
           })
-          .seq(new SumSIntList<>());
+          .seq(new SumSIntList());
     }
   }
 }

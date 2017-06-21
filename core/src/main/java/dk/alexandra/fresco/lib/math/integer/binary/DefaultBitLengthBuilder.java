@@ -7,9 +7,9 @@ import dk.alexandra.fresco.framework.value.SInt;
 
 public class DefaultBitLengthBuilder implements BitLengthBuilder {
 
-  private final ProtocolBuilder<SInt> builder;
+  private final ProtocolBuilder builder;
 
-  public DefaultBitLengthBuilder(ProtocolBuilder<SInt> builder) {
+  public DefaultBitLengthBuilder(ProtocolBuilder builder) {
     this.builder = builder;
   }
 

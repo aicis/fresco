@@ -18,11 +18,11 @@ import java.math.BigInteger;
 
 public class DefaultComparisonBuilder implements ComparisonBuilder<SInt> {
 
-  private final BuilderFactoryNumeric<SInt> factoryNumeric;
-  private final ProtocolBuilder<SInt> builder;
+  private final BuilderFactoryNumeric factoryNumeric;
+  private final ProtocolBuilder builder;
 
-  public DefaultComparisonBuilder(BuilderFactoryNumeric<SInt> factoryNumeric,
-      ProtocolBuilder<SInt> builder) {
+  public DefaultComparisonBuilder(BuilderFactoryNumeric factoryNumeric,
+      ProtocolBuilder builder) {
     this.factoryNumeric = factoryNumeric;
     this.builder = builder;
   }
@@ -76,12 +76,10 @@ public class DefaultComparisonBuilder implements ComparisonBuilder<SInt> {
     Computation<SInt> compare = compare(
         () -> builder.getSIntFactory().getSInt(0), x);
     OInt oInt = bnf.getOInt(BigInteger.valueOf(2));
-    NumericBuilder<SInt> numericBuilder = builder.numeric();
+    NumericBuilder numericBuilder = builder.numeric();
     Computation<SInt> twice = numericBuilder.mult(
         () -> builder.getSIntFactory().getSInt(oInt.getValue()), compare);
-    Computation<SInt> result = numericBuilder.sub(twice,
-        () -> builder.getSIntFactory().getSInt(1));
-    return result;
+    return numericBuilder.sub(twice, () -> builder.getSIntFactory().getSInt(1));
   }
 
 }

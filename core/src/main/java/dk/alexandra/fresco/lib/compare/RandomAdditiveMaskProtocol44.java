@@ -14,17 +14,17 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-public class RandomAdditiveMaskProtocol44<SIntT extends SInt>
-    implements Function<SequentialProtocolBuilder<SIntT>, Computation<RandomAdditiveMask<SIntT>>> {
+public class RandomAdditiveMaskProtocol44
+    implements Function<SequentialProtocolBuilder, Computation<RandomAdditiveMask>> {
 
-  private final BuilderFactoryNumeric<SIntT> factoryNumeric;
+  private final BuilderFactoryNumeric factoryNumeric;
   private final int securityParameter;
   private final int noOfBits;
 
-  private List<Computation<SIntT>> bits;
-  private Computation<SIntT> value;
+  private List<Computation<SInt>> bits;
+  private Computation<SInt> value;
 
-  RandomAdditiveMaskProtocol44(BuilderFactoryNumeric<SIntT> factoryNumeric,
+  RandomAdditiveMaskProtocol44(BuilderFactoryNumeric factoryNumeric,
       int securityParameter, int noOfBits) {
     this.factoryNumeric = factoryNumeric;
     this.securityParameter = securityParameter;
@@ -32,11 +32,11 @@ public class RandomAdditiveMaskProtocol44<SIntT extends SInt>
   }
 
   @Override
-  public Computation<RandomAdditiveMask<SIntT>> apply(SequentialProtocolBuilder<SIntT> builder) {
-    NumericBuilder<SIntT> numericBuilder = builder.numeric();
-    List<Computation<SIntT>> allBits = new ArrayList<>();
+  public Computation<RandomAdditiveMask> apply(SequentialProtocolBuilder builder) {
+    NumericBuilder numericBuilder = builder.numeric();
+    List<Computation<SInt>> allBits = new ArrayList<>();
     for (int i = 0; i < noOfBits + securityParameter; i++) {
-      Computation<SIntT> randomBit = numericBuilder.createRandomSecretSharedBitProtocol();
+      Computation<SInt> randomBit = numericBuilder.createRandomSecretSharedBitProtocol();
       allBits.add(randomBit);
     }
 
@@ -44,10 +44,10 @@ public class RandomAdditiveMaskProtocol44<SIntT extends SInt>
         factoryNumeric.getBasicNumericFactory());
 
     OInt[] twoPows = oIntGenerators.getTwoPowers(securityParameter + noOfBits);
-    InnerProductBuilder<SIntT> innerProductBuilder = builder.createInnerProductBuilder();
+    InnerProductBuilder innerProductBuilder = builder.createInnerProductBuilder();
     value = innerProductBuilder.openDot(Arrays.asList(twoPows), allBits);
     bits = allBits.subList(0, noOfBits);
-    return () -> new RandomAdditiveMask<>(
+    return () -> new RandomAdditiveMask(
         bits.stream().map(Computation::out).collect(Collectors.toList()),
         value.out());
   }

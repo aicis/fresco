@@ -39,10 +39,10 @@ public class ConditionalSelectProtocolImpl extends SimpleProtocolProducer implem
     ConditionalSelectProtocol {
 
   private final SInt a, b, selector, result;
-  private final BuilderFactoryNumeric<SInt> factory;
+  private final BuilderFactoryNumeric factory;
 
   public ConditionalSelectProtocolImpl(SInt selector, SInt a, SInt b, SInt result,
-      BuilderFactoryNumeric<SInt> factory) {
+      BuilderFactoryNumeric factory) {
     this.a = a;
     this.b = b;
     this.selector = selector;
@@ -53,7 +53,7 @@ public class ConditionalSelectProtocolImpl extends SimpleProtocolProducer implem
   @Override
   protected ProtocolProducer initializeProtocolProducer() {
     return ProtocolBuilder.createRoot(factory, (protocolBuilder) -> {
-      NumericBuilder<SInt> numericBuilder = protocolBuilder.numeric();
+      NumericBuilder numericBuilder = protocolBuilder.numeric();
       Computation<SInt> sub = numericBuilder.sub(a, b);
       Computation<SInt> mult = numericBuilder.mult(selector, sub);
       Computation<SInt> result = numericBuilder.add(mult, b);

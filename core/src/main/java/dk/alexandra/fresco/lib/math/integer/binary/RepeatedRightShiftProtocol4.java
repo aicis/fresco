@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -35,14 +35,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 
-public class RepeatedRightShiftProtocol4<SIntT extends SInt>
-    implements Function<SequentialProtocolBuilder<SIntT>, Computation<RightShiftResult<SIntT>>> {
+public class RepeatedRightShiftProtocol4
+    implements Function<SequentialProtocolBuilder, Computation<RightShiftResult>> {
 
   private final int shifts;
   private final boolean calculateRemainders;
   // Input
-  private final Computation<SIntT> input;
-  private final DelayedComputation<RightShiftResult<SIntT>> result = new DelayedComputation<>();
+  private final Computation<SInt> input;
+  private final DelayedComputation<RightShiftResult> result = new DelayedComputation<>();
 
 
   /**
@@ -51,7 +51,7 @@ public class RepeatedRightShiftProtocol4<SIntT extends SInt>
    * be null.
    */
   public RepeatedRightShiftProtocol4(
-      Computation<SIntT> input,
+      Computation<SInt> input,
       int shifts,
       boolean calculateRemainders) {
     if (shifts < 0) {
@@ -63,7 +63,7 @@ public class RepeatedRightShiftProtocol4<SIntT extends SInt>
   }
 
   @Override
-  public Computation<RightShiftResult<SIntT>> apply(SequentialProtocolBuilder<SIntT> sequential) {
+  public Computation<RightShiftResult> apply(SequentialProtocolBuilder sequential) {
     if (calculateRemainders) {
       doIterationWithRemainder(sequential, input, shifts, new ArrayList<>(shifts));
     } else {
@@ -72,35 +72,35 @@ public class RepeatedRightShiftProtocol4<SIntT extends SInt>
     return result;
   }
 
-  private void doIteration(SequentialProtocolBuilder<SIntT> iterationBuilder,
-      Computation<SIntT> input, int shifts) {
+  private void doIteration(SequentialProtocolBuilder iterationBuilder,
+      Computation<SInt> input, int shifts) {
     if (shifts > 0) {
-      Computation<SIntT> iteration =
+      Computation<SInt> iteration =
           iterationBuilder.createSequentialSubFactoryReturning(
               (builder) -> builder.createRightShiftBuilder().rightShift(input)
           );
       iterationBuilder
           .createSequentialSubFactory((builder) -> doIteration(builder, iteration, shifts - 1));
     } else {
-      result.setComputation(() -> new RightShiftResult<>(input.out(), null));
+      result.setComputation(() -> new RightShiftResult(input.out(), null));
     }
   }
 
-  private void doIterationWithRemainder(SequentialProtocolBuilder<SIntT> iterationBuilder,
-      Computation<SIntT> input, int shifts, List<SIntT> remainders) {
+  private void doIterationWithRemainder(SequentialProtocolBuilder iterationBuilder,
+      Computation<SInt> input, int shifts, List<SInt> remainders) {
     if (shifts > 0) {
-      Computation<RightShiftResult<SIntT>> iteration =
+      Computation<RightShiftResult> iteration =
           iterationBuilder.createSequentialSubFactoryReturning(
               (builder) -> builder.createRightShiftBuilder().rightShiftWithRemainder(input)
           );
       iterationBuilder
           .createSequentialSubFactory((builder) -> {
-            RightShiftResult<SIntT> out = iteration.out();
+            RightShiftResult out = iteration.out();
             remainders.add(out.getRemainder().get(0));
             doIterationWithRemainder(builder, out::getResult, shifts - 1, remainders);
           });
     } else {
-      result.setComputation(() -> new RightShiftResult<>(input.out(), remainders));
+      result.setComputation(() -> new RightShiftResult(input.out(), remainders));
     }
   }
 

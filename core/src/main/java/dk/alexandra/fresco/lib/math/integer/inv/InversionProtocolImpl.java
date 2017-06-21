@@ -65,7 +65,7 @@ public class InversionProtocolImpl implements InversionProtocol {
       Computation<? extends SInt> randomProt = randFactory.getRandomFieldElement(random);
       Computation<? extends SInt> blinding = factory.getMultProtocol(x, random, sProduct);
       Computation<? extends OInt> open = factory.getOpenProtocol(sProduct, oProduct);
-      Computation<? extends SInt> invert = invFactory
+      Computation<OInt> invert = invFactory
           .getLocalInversionProtocol(oProduct, inverse);
       Computation<? extends SInt> unblinding = factory
           .getMultProtocol(inverse, random, result);

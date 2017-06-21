@@ -7,24 +7,24 @@ import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.util.List;
 
-public class DefaultInnerProductBuilder<SIntT extends SInt> implements InnerProductBuilder<SIntT> {
+public class DefaultInnerProductBuilder implements InnerProductBuilder {
 
-  private final ProtocolBuilder<SIntT> builder;
+  private final ProtocolBuilder builder;
 
-  public DefaultInnerProductBuilder(ProtocolBuilder<SIntT> builder) {
+  public DefaultInnerProductBuilder(ProtocolBuilder builder) {
     this.builder = builder;
   }
 
   @Override
-  public Computation<SIntT> dot(List<Computation<SIntT>> aVector,
-      List<Computation<SIntT>> bVector) {
+  public Computation<SInt> dot(List<Computation<SInt>> aVector,
+      List<Computation<SInt>> bVector) {
     return builder
-        .createSequentialSubFactoryReturning(new InnerProductProtocol44<>(aVector, bVector));
+        .createSequentialSubFactoryReturning(new InnerProductProtocol44(aVector, bVector));
   }
 
   @Override
-  public Computation<SIntT> openDot(List<OInt> aVector, List<Computation<SIntT>> bVector) {
+  public Computation<SInt> openDot(List<OInt> aVector, List<Computation<SInt>> bVector) {
     return builder
-        .createSequentialSubFactoryReturning(new InnerProductProtocolOpen<>(aVector, bVector));
+        .createSequentialSubFactoryReturning(new InnerProductProtocolOpen(aVector, bVector));
   }
 }

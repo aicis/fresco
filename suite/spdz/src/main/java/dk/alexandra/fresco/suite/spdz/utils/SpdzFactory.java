@@ -53,8 +53,8 @@ import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 
-public class SpdzFactory implements BasicNumericFactory<SpdzSInt>,
-    PreprocessedExpPipeFactory, ExpFromOIntFactory, LocalInversionFactory<SpdzOInt> {
+public class SpdzFactory implements BasicNumericFactory,
+    PreprocessedExpPipeFactory, ExpFromOIntFactory, LocalInversionFactory {
 
   private int maxBitLength;
   private SpdzStorage storage;
@@ -223,7 +223,7 @@ public class SpdzFactory implements BasicNumericFactory<SpdzSInt>,
    ****************************************/
 
   @Override
-  public NativeProtocol<SpdzOInt, ?> getLocalInversionProtocol(SpdzOInt in, SpdzOInt out) {
+  public Computation<OInt> getLocalInversionProtocol(OInt in, OInt out) {
     return new SpdzLocalInversionProtocol(in, out);
   }
 
@@ -283,7 +283,7 @@ public class SpdzFactory implements BasicNumericFactory<SpdzSInt>,
   }
 
   @Override
-  public Computation<SpdzSInt> getRandomFieldElement(SpdzSInt randomElement) {
+  public Computation<SInt> getRandomFieldElement(SInt randomElement) {
     return new SpdzRandomProtocol(randomElement);
   }
 

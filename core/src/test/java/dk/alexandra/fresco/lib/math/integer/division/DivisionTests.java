@@ -97,7 +97,6 @@ public class DivisionTests {
 							ProtocolFactory producer = factoryProducer.getProtocolFactory();
 
               BasicNumericFactory basicNumericFactory = (BasicNumericFactory) producer;
-							BasicNumericFactory<SInt> preprocessedNumericBitFactory = (BasicNumericFactory<SInt>) producer;
 							ExpFromOIntFactory expFromOIntFactory = (ExpFromOIntFactory) producer;
 							PreprocessedExpPipeFactory preprocessedExpPipeFactory = (PreprocessedExpPipeFactory) producer;
               RandomAdditiveMaskFactory randomAdditiveMaskFactory = new RandomAdditiveMaskFactoryImpl(
@@ -113,9 +112,9 @@ public class DivisionTests {
               ComparisonProtocolFactory comparisonFactory = new ComparisonProtocolFactoryImpl(80,
 									basicNumericFactory, localInversionFactory,
 									expFromOIntFactory, preprocessedExpPipeFactory,
-									(BuilderFactoryNumeric<SInt>) factoryProducer);
-              DivisionFactory divisionFactory = new DivisionFactoryImpl(
-                  (BuilderFactoryNumeric<SInt>) factoryProducer);
+									(BuilderFactoryNumeric) factoryProducer);
+							DivisionFactory divisionFactory = new DivisionFactoryImpl(
+									(BuilderFactoryNumeric) factoryProducer);
 
               SInt quotient = basicNumericFactory.getSInt();
 							SInt remainder = basicNumericFactory.getSInt();
@@ -179,7 +178,6 @@ public class DivisionTests {
 							ProtocolFactory producer = factoryProducer.getProtocolFactory();
 
               BasicNumericFactory basicNumericFactory = (BasicNumericFactory) producer;
-							BasicNumericFactory<SInt> preprocessedNumericBitFactory = (BasicNumericFactory<SInt>) producer;
 							ExpFromOIntFactory expFromOIntFactory = (ExpFromOIntFactory) producer;
 							PreprocessedExpPipeFactory preprocessedExpPipeFactory = (PreprocessedExpPipeFactory) producer;
               RandomAdditiveMaskFactory randomAdditiveMaskFactory = new RandomAdditiveMaskFactoryImpl(
@@ -195,9 +193,9 @@ public class DivisionTests {
               ComparisonProtocolFactory comparisonFactory = new ComparisonProtocolFactoryImpl(80,
 									basicNumericFactory, localInversionFactory,
 									expFromOIntFactory, preprocessedExpPipeFactory,
-									(BuilderFactoryNumeric<SInt>) factoryProducer);
-              DivisionFactory divisionFactory = new DivisionFactoryImpl(
-                  (BuilderFactoryNumeric<SInt>) factoryProducer);
+									(BuilderFactoryNumeric) factoryProducer);
+							DivisionFactory divisionFactory = new DivisionFactoryImpl(
+									(BuilderFactoryNumeric) factoryProducer);
 
               SInt[] quotient = new SInt[n];
 							

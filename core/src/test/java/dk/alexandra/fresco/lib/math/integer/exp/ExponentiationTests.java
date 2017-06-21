@@ -76,8 +76,6 @@ public class ExponentiationTests {
 
               BasicNumericFactory basicNumericFactory = (BasicNumericFactory) provider
                   .getProtocolFactory();
-              BasicNumericFactory<SInt> preprocessedNumericBitFactory = (BasicNumericFactory<SInt>) provider
-                  .getProtocolFactory();
               RandomAdditiveMaskFactory randomAdditiveMaskFactory = new RandomAdditiveMaskFactoryImpl(
                   basicNumericFactory,
                   new InnerProductFactoryImpl(basicNumericFactory,

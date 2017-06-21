@@ -27,16 +27,17 @@
 package dk.alexandra.fresco.suite.spdz.gates;
 
 import dk.alexandra.fresco.framework.network.SCENetwork;
+import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
 
-public class SpdzRandomProtocol extends SpdzNativeProtocol<SpdzSInt> {
+public class SpdzRandomProtocol extends SpdzNativeProtocol<SInt> {
 
   private final SpdzSInt randomElement;
 
-  public SpdzRandomProtocol(SpdzSInt randomElement) {
-    this.randomElement = randomElement;
+  public SpdzRandomProtocol(SInt randomElement) {
+    this.randomElement = (SpdzSInt) randomElement;
   }
 
   @Override

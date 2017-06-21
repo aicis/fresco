@@ -29,15 +29,15 @@ import dk.alexandra.fresco.lib.math.integer.linalg.EntrywiseProductFactoryImpl;
 import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductFactory;
 import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductFactoryImpl;
 
-public interface BuilderFactoryNumeric<SIntT extends SInt> extends BuilderFactory {
+public interface BuilderFactoryNumeric extends BuilderFactory {
 
   int MAGIC_SECURE_NUMBER = 60;
 
-  BasicNumericFactory<SIntT> getBasicNumericFactory();
+  BasicNumericFactory getBasicNumericFactory();
 
-  NumericBuilder<SIntT> createNumericBuilder(ProtocolBuilder builder);
+  NumericBuilder createNumericBuilder(ProtocolBuilder builder);
 
-  OpenBuilder<SIntT> createOpenBuilder(ProtocolBuilder<SIntT> builder);
+  OpenBuilder createOpenBuilder(ProtocolBuilder builder);
 
 
   default PreprocessedExpPipeFactory getPreprocessedExpPipe() {
@@ -52,25 +52,22 @@ public interface BuilderFactoryNumeric<SIntT extends SInt> extends BuilderFactor
     return (ExpFromOIntFactory) getBasicNumericFactory();
   }
 
-  default ComparisonBuilder<SIntT> createComparisonBuilder(ProtocolBuilder<SIntT> builder) {
-    return (ComparisonBuilder<SIntT>)
-        new DefaultComparisonBuilder(
-            (BuilderFactoryNumeric<SInt>) this,
-            (ProtocolBuilder<SInt>) builder);
+  default ComparisonBuilder<SInt> createComparisonBuilder(ProtocolBuilder builder) {
+    return new DefaultComparisonBuilder(this, builder);
   }
 
-  default InnerProductBuilder<SIntT> createInnerProductBuilder(ProtocolBuilder<SIntT> builder) {
-    return new DefaultInnerProductBuilder<>(builder);
+  default InnerProductBuilder createInnerProductBuilder(ProtocolBuilder builder) {
+    return new DefaultInnerProductBuilder(builder);
   }
 
-  default RandomAdditiveMaskBuilder<SIntT> createAdditiveMaskBuilder(
-      ProtocolBuilder<SIntT> builder) {
-    return new DefaultRandomAdditiveMaskBuilder<>(this, builder, MAGIC_SECURE_NUMBER);
+  default RandomAdditiveMaskBuilder createAdditiveMaskBuilder(
+      ProtocolBuilder builder) {
+    return new DefaultRandomAdditiveMaskBuilder(this, builder, MAGIC_SECURE_NUMBER);
   }
 
-  default RightShiftBuilder<SIntT> createRightShiftBuilder(
-      ProtocolBuilder<SIntT> builder) {
-    return new DefaultRightShiftBuilder<>(this, builder);
+  default RightShiftBuilder createRightShiftBuilder(
+      ProtocolBuilder builder) {
+    return new DefaultRightShiftBuilder(this, builder);
   }
 
   default EntrywiseProductFactoryImpl getDotProductFactory() {
@@ -100,8 +97,8 @@ public interface BuilderFactoryNumeric<SIntT extends SInt> extends BuilderFactor
     return new IntegerToBitsFactoryImpl(getBasicNumericFactory(), getRightShiftFactory());
   }
 
-  default BitLengthBuilder getBitLengthBuilder(ProtocolBuilder<SIntT> builder) {
-    return new DefaultBitLengthBuilder((ProtocolBuilder<SInt>) builder);
+  default BitLengthBuilder getBitLengthBuilder(ProtocolBuilder builder) {
+    return new DefaultBitLengthBuilder(builder);
   }
 
   default BitLengthFactory getBitLengthFactory() {
@@ -113,7 +110,7 @@ public interface BuilderFactoryNumeric<SIntT extends SInt> extends BuilderFactor
   }
 
   default ComparisonProtocolFactory getComparisonFactory() {
-    BasicNumericFactory<SIntT> factory = getBasicNumericFactory();
+    BasicNumericFactory factory = getBasicNumericFactory();
     return
         new ComparisonProtocolFactoryImpl(MAGIC_SECURE_NUMBER,
             factory,

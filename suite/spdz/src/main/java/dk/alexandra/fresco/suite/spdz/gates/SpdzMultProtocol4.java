@@ -30,6 +30,7 @@ import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.network.SCENetwork;
 import dk.alexandra.fresco.framework.network.serializers.BigIntegerSerializer;
+import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
@@ -37,16 +38,16 @@ import dk.alexandra.fresco.suite.spdz.datatypes.SpdzTriple;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
 import java.math.BigInteger;
 
-public class SpdzMultProtocol4 extends SpdzNativeProtocol<SpdzSInt> {
+public class SpdzMultProtocol4 extends SpdzNativeProtocol<SInt> {
 
-  private Computation<SpdzSInt> left;
-  private Computation<SpdzSInt> right;
+  private Computation<SInt> left;
+  private Computation<SInt> right;
   private SpdzSInt out;
   private SpdzTriple triple;
   private SpdzElement epsilon, delta; // my share of the differences [x]-[a]
   // and [y]-[b].
 
-  public SpdzMultProtocol4(Computation<SpdzSInt> left, Computation<SpdzSInt> right, SpdzSInt out) {
+  public SpdzMultProtocol4(Computation<SInt> left, Computation<SInt> right, SpdzSInt out) {
     this.left = left;
     this.right = right;
     this.out = out;
@@ -62,8 +63,8 @@ public class SpdzMultProtocol4 extends SpdzNativeProtocol<SpdzSInt> {
       case 0:
         this.triple = store.getSupplier().getNextTriple();
 
-        epsilon = left.out().value.subtract(triple.getA());
-        delta = right.out().value.subtract(triple.getB());
+        epsilon = ((SpdzSInt) left.out()).value.subtract(triple.getA());
+        delta = ((SpdzSInt) right.out()).value.subtract(triple.getB());
 
         network.sendToAll(serializer.toBytes(epsilon.getShare()));
         network.sendToAll(serializer.toBytes(delta.getShare()));

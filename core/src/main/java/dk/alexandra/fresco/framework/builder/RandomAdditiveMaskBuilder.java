@@ -4,16 +4,16 @@ import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.util.List;
 
-public interface RandomAdditiveMaskBuilder<SIntT extends SInt> {
+public interface RandomAdditiveMaskBuilder {
 
-  Computation<RandomAdditiveMask<SIntT>> additiveMask(int noOfBits);
+  Computation<RandomAdditiveMask> additiveMask(int noOfBits);
 
-  class RandomAdditiveMask<SIntT extends SInt> {
+  class RandomAdditiveMask {
 
-    public final List<SIntT> bits;
-    public final SIntT r;
+    public final List<SInt> bits;
+    public final SInt r;
 
-    public RandomAdditiveMask(List<SIntT> bits, SIntT r) {
+    public RandomAdditiveMask(List<SInt> bits, SInt r) {
       this.bits = bits;
       this.r = r;
     }

@@ -264,8 +264,7 @@ public class BasicArithmeticTests {
                 BuilderFactory factoryProducer) {
               ProtocolFactory producer = factoryProducer.getProtocolFactory();
               BasicNumericFactory fac = (BasicNumericFactory) producer;
-              NumericIOBuilder ioBuilder = new NumericIOBuilder(
-                  fac);
+              NumericIOBuilder ioBuilder = new NumericIOBuilder(fac);
               SInt knownInput = fac.getSInt(BigInteger.valueOf(200));
               SInt[] inputs = createInputs(ioBuilder, openInputs);
               inputs[0] = knownInput;

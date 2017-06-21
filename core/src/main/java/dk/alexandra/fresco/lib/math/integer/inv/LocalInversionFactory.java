@@ -26,10 +26,10 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.math.integer.inv;
 
-import dk.alexandra.fresco.framework.NativeProtocol;
+import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.value.OInt;
 
-public interface LocalInversionFactory<OIntT extends OInt> {
+public interface LocalInversionFactory {
 
 	/**
    *
@@ -37,5 +37,5 @@ public interface LocalInversionFactory<OIntT extends OInt> {
    * @param result output -  x^-1
    * @return the native protocol that computes this.
    */
-  NativeProtocol<OIntT, ?> getLocalInversionProtocol(OIntT x, OIntT result);
+  Computation<OInt> getLocalInversionProtocol(OInt x, OInt result);
 }

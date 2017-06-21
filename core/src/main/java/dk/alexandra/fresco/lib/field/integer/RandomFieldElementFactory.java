@@ -34,20 +34,17 @@ import dk.alexandra.fresco.framework.value.SInt;
  * Factory for creating a random field element. Each protocol suite that wishes
  * to support this functionality should have their factory implementing this
  * interface.
- * 
- * @author Kasper Damgaard
  *
+ * @author Kasper Damgaard
  */
-public interface RandomFieldElementFactory<SIntT extends SInt> extends ProtocolFactory {
+public interface RandomFieldElementFactory extends ProtocolFactory {
 
-	/**
-	 * Creates a protocol that upon evaluation will fill in the given SInt with
-	 * a secret shared random value.
-	 * 
-	 * @param randomElement
-	 *            A pointer to the random element.
-	 * @return A protocol that fills in the given SInt with a secret shared
-	 *         random value.
-	 */
-  Computation<SIntT> getRandomFieldElement(SIntT randomElement);
+  /**
+   * Creates a protocol that upon evaluation will fill in the given SInt with
+   * a secret shared random value.
+   *
+   * @param randomElement A pointer to the random element.
+   * @return A protocol that fills in the given SInt with a secret shared random value.
+   */
+  Computation<SInt> getRandomFieldElement(SInt randomElement);
 }

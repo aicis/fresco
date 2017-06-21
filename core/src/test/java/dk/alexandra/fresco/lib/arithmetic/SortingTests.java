@@ -79,7 +79,6 @@ public class SortingTests {
               ProtocolFactory producer = factoryProducer.getProtocolFactory();
               BasicNumericFactory bnFactory = (BasicNumericFactory) producer;
               LocalInversionFactory localInvFactory = (LocalInversionFactory) producer;
-              BasicNumericFactory<SInt> numericBitFactory = (BasicNumericFactory<SInt>) producer;
               ExpFromOIntFactory expFromOIntFactory = (ExpFromOIntFactory) producer;
               PreprocessedExpPipeFactory expFactory = (PreprocessedExpPipeFactory) producer;
               SequentialProtocolProducer seq = new SequentialProtocolProducer();
@@ -145,7 +144,6 @@ public class SortingTests {
               ProtocolFactory producer = factoryProducer.getProtocolFactory();
               BasicNumericFactory bnFactory = (BasicNumericFactory) producer;
               LocalInversionFactory localInvFactory = (LocalInversionFactory) producer;
-              BasicNumericFactory<SInt> numericBitFactory = (BasicNumericFactory<SInt>) producer;
               ExpFromOIntFactory expFromOIntFactory = (ExpFromOIntFactory) producer;
               PreprocessedExpPipeFactory expFactory = (PreprocessedExpPipeFactory) producer;
               SequentialProtocolProducer seq = new SequentialProtocolProducer();
@@ -209,7 +207,6 @@ public class SortingTests {
 
               BasicNumericFactory bnFactory = (BasicNumericFactory) producer;
               LocalInversionFactory localInvFactory = (LocalInversionFactory) producer;
-              BasicNumericFactory<SInt> numericBitFactory = (BasicNumericFactory<SInt>) producer;
               ExpFromOIntFactory expFromOIntFactory = (ExpFromOIntFactory) producer;
               PreprocessedExpPipeFactory expFactory = (PreprocessedExpPipeFactory) producer;
               SequentialProtocolProducer seq = new SequentialProtocolProducer();
@@ -288,7 +285,6 @@ public class SortingTests {
 
               BasicNumericFactory bnFactory = (BasicNumericFactory) producer;
               LocalInversionFactory localInvFactory = (LocalInversionFactory) producer;
-              BasicNumericFactory<SInt> numericBitFactory = (BasicNumericFactory<SInt>) producer;
               ExpFromOIntFactory expFromOIntFactory = (ExpFromOIntFactory) producer;
               PreprocessedExpPipeFactory expFactory = (PreprocessedExpPipeFactory) producer;
               SequentialProtocolProducer seq = new SequentialProtocolProducer();

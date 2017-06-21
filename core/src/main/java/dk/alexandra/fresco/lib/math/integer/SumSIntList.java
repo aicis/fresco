@@ -13,29 +13,24 @@ import java.util.function.Function;
 
 /**
  * Protocol producer for summing a list of SInts
- *
- * @param <SIntT> the type of SInts to add - and later output
  */
-public class SumSIntList<SIntT extends SInt>
-    implements
-    BiFunction<List<Computation<SIntT>>, SequentialProtocolBuilder<SIntT>, Computation<SIntT>> {
+public class SumSIntList implements
+    BiFunction<List<Computation<SInt>>, SequentialProtocolBuilder, Computation<SInt>> {
 
-  private final DelayedComputation<SIntT> result = new DelayedComputation<>();
+  private final DelayedComputation<SInt> result = new DelayedComputation<>();
 
   /**
    * Creates a new SumSIntList.
-   *
-   * @param input the input to sum
    */
   public SumSIntList() {
   }
 
-  private void doIteration(SequentialProtocolBuilder<SIntT> iterationBuilder,
-      Computation<List<Computation<SIntT>>> inputList) {
-    List<Computation<SIntT>> currentInput = inputList.out();
+  private void doIteration(SequentialProtocolBuilder iterationBuilder,
+      Computation<List<Computation<SInt>>> inputList) {
+    List<Computation<SInt>> currentInput = inputList.out();
     if (currentInput.size() > 1) {
-      Computation<List<Computation<SIntT>>> iteration
-          = iterationBuilder.createParallelSubFactoryReturning(new Iteration<>(currentInput));
+      Computation<List<Computation<SInt>>> iteration
+          = iterationBuilder.createParallelSubFactoryReturning(new Iteration(currentInput));
       iterationBuilder.createSequentialSubFactory((builder) -> doIteration(builder, iteration));
     } else {
       result.setComputation(currentInput.get(0));
@@ -43,28 +38,28 @@ public class SumSIntList<SIntT extends SInt>
   }
 
   @Override
-  public Computation<SIntT> apply(
-      List<Computation<SIntT>> input,
-      SequentialProtocolBuilder<SIntT> iterationBuilder) {
+  public Computation<SInt> apply(
+      List<Computation<SInt>> input,
+      SequentialProtocolBuilder iterationBuilder) {
     doIteration(iterationBuilder, () -> input);
     return result;
   }
 
-  private static class Iteration<SIntT extends SInt> implements
-      Function<ParallelProtocolBuilder<SIntT>, Computation<List<Computation<SIntT>>>> {
+  private static class Iteration implements
+      Function<ParallelProtocolBuilder, Computation<List<Computation<SInt>>>> {
 
-    private final List<Computation<SIntT>> input;
+    private final List<Computation<SInt>> input;
 
-    Iteration(List<Computation<SIntT>> input) {
+    Iteration(List<Computation<SInt>> input) {
       this.input = input;
     }
 
     @Override
-    public Computation<List<Computation<SIntT>>> apply(ParallelProtocolBuilder<SIntT> parallel) {
-      List<Computation<SIntT>> out = new ArrayList<>();
-      NumericBuilder<SIntT> numericBuilder = parallel.numeric();
-      Computation<SIntT> left = null;
-      for (Computation<SIntT> input : input) {
+    public Computation<List<Computation<SInt>>> apply(ParallelProtocolBuilder parallel) {
+      List<Computation<SInt>> out = new ArrayList<>();
+      NumericBuilder numericBuilder = parallel.numeric();
+      Computation<SInt> left = null;
+      for (Computation<SInt> input : input) {
         if (left == null) {
           left = input;
         } else {

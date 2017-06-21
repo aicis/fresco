@@ -143,15 +143,14 @@ public class DEASolver implements Application {
 
     BasicNumericFactory bnFactory = (BasicNumericFactory) provider;
     LocalInversionFactory localInvFactory = (LocalInversionFactory) provider;
-    BasicNumericFactory<SInt> numericBitFactory = (BasicNumericFactory<SInt>) provider;
     ExpFromOIntFactory expFromOIntFactory = (ExpFromOIntFactory) provider;
     PreprocessedExpPipeFactory expFactory = (PreprocessedExpPipeFactory) provider;
     RandomFieldElementFactory randFactory = (RandomFieldElementFactory) provider;
 
     // TODO get security parameter from somewhere
-    LPFactory lpFactory = new LPFactoryImpl(64, bnFactory, localInvFactory, numericBitFactory,
+    LPFactory lpFactory = new LPFactoryImpl(64, bnFactory, localInvFactory,
         expFromOIntFactory,
-        expFactory, randFactory, (BuilderFactoryNumeric<SInt>) builderFactory);
+        expFactory, randFactory, (BuilderFactoryNumeric) builderFactory);
 
     for (LPPrefix prefix : prefixes) {
       seq.append(prefix.getPrefix());

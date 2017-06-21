@@ -39,12 +39,12 @@ import java.math.BigInteger;
 import java.util.Collections;
 import java.util.function.Function;
 
-public class RightShiftProtocol4<SIntT extends SInt>
-    implements Function<SequentialProtocolBuilder<SIntT>, Computation<RightShiftResult<SIntT>>> {
+public class RightShiftProtocol4
+    implements Function<SequentialProtocolBuilder, Computation<RightShiftResult>> {
 
   private final boolean calculateRemainders;
   // Input
-  private final Computation<SIntT> input;
+  private final Computation<SInt> input;
   private final int bitLength;
 
 
@@ -56,7 +56,7 @@ public class RightShiftProtocol4<SIntT extends SInt>
    */
   public RightShiftProtocol4(
       int bitLength,
-      Computation<SIntT> input,
+      Computation<SInt> input,
       boolean calculateRemainders) {
     this.bitLength = bitLength;
     this.input = input;
@@ -64,29 +64,27 @@ public class RightShiftProtocol4<SIntT extends SInt>
   }
 
   @Override
-  public Computation<RightShiftResult<SIntT>> apply(SequentialProtocolBuilder<SIntT> sequential) {
+  public Computation<RightShiftResult> apply(SequentialProtocolBuilder sequential) {
     return sequential.seq((builder) -> {
-      RandomAdditiveMaskBuilder<SIntT> additiveMaskBuilder = builder
-          .createAdditiveMaskBuilder();
+      RandomAdditiveMaskBuilder additiveMaskBuilder = builder.createAdditiveMaskBuilder();
       return additiveMaskBuilder.additiveMask(bitLength);
     }).par((randomAdditiveMask, parSubSequential) -> {
       OInt two = parSubSequential.getOIntFactory().getOInt(BigInteger.valueOf(2));
-      NumericBuilder<SIntT> numericBuilder = parSubSequential.numeric();
+      NumericBuilder numericBuilder = parSubSequential.numeric();
       Computation<? extends OInt> inverseOfTwo = numericBuilder.invert(two);
-      Computation<SIntT> rBottom = () -> randomAdditiveMask.bits.get(0);
-      Computation<SIntT> sub = numericBuilder
+      Computation<SInt> rBottom = () -> randomAdditiveMask.bits.get(0);
+      Computation<SInt> sub = numericBuilder
           .sub(() -> randomAdditiveMask.r, rBottom);
-      Computation<SIntT> rTop = numericBuilder.mult(inverseOfTwo.out(), sub);
+      Computation<SInt> rTop = numericBuilder.mult(inverseOfTwo.out(), sub);
       return () -> new Pair<>(rBottom, rTop);
     }, (randomAdditiveMask, parSubSequential) -> {
-      NumericBuilder<SIntT> numericBuilder = parSubSequential.numeric();
-      Computation<SIntT> result = numericBuilder
+      Computation<SInt> result = parSubSequential.numeric()
           .add(input, () -> randomAdditiveMask.r);
       return parSubSequential.createOpenBuilder().open(result);
     }).seq((preprocessOutput, round1) -> {
       OInt mOpen = preprocessOutput.getSecond();
-      Computation<SIntT> rBottom = preprocessOutput.getFirst().getFirst();
-      Computation<SIntT> rTop = preprocessOutput.getFirst().getSecond();
+      Computation<SInt> rBottom = preprocessOutput.getFirst().getFirst();
+      Computation<SInt> rTop = preprocessOutput.getFirst().getSecond();
           /*
            * 'carry' is either 0 or 1. It is 1 if and only if the
 					 * addition m = x + r gave a carry from the first (least
@@ -95,17 +93,16 @@ public class RightShiftProtocol4<SIntT extends SInt>
 					 * bit of r is 1 and the first bit of m is 0 which in turn
 					 * is equal to r_0 * (m + 1 (mod 2)).
 					 */
-      NumericBuilder<SIntT> numericBuilder = round1.numeric();
       OInt mBottomNegated = round1.getOIntFactory().getOInt(mOpen.getValue()
           .add(BigInteger.ONE).mod(BigInteger.valueOf(2)));
-      Computation<SIntT> carry = numericBuilder.mult(mBottomNegated, rBottom);
+      Computation<SInt> carry = round1.numeric().mult(mBottomNegated, rBottom);
       return () -> new Pair<>(new Pair<>(rBottom, rTop), new Pair<>(carry, mOpen));
     }).par(
         (inputs, parSubSequential) -> {
           BigInteger openShiftOnce = inputs.getSecond().getSecond().getValue().shiftRight(1);
           OInt mTop = parSubSequential.getOIntFactory().getOInt(openShiftOnce);
           // Now we calculate the shift, x >> 1 = mTop - rTop - carry
-          Computation<SIntT> sub = parSubSequential.numeric()
+          Computation<SInt> sub = parSubSequential.numeric()
               .sub(mTop, inputs.getFirst().getSecond());
           return parSubSequential.numeric().sub(sub, inputs.getSecond().getFirst());
         },
@@ -126,23 +123,23 @@ public class RightShiftProtocol4<SIntT extends SInt>
             OInt twoMBottom = oIntFactory.getOInt(mBottom.getValue().shiftLeft(1));
 
             return parSubSequential.par((productAndSumBuilder) -> {
-                  NumericBuilder<SIntT> productAndSumNumeric =
+              NumericBuilder productAndSumNumeric =
                       productAndSumBuilder.numeric();
-                  Computation<SIntT> rBottom = inputs.getFirst().getFirst();
-                  Computation<SIntT> product = productAndSumNumeric
+              Computation<SInt> rBottom = inputs.getFirst().getFirst();
+              Computation<SInt> product = productAndSumNumeric
                       .mult(twoMBottom, rBottom);
-                  Computation<SIntT> sum = productAndSumNumeric
+              Computation<SInt> sum = productAndSumNumeric
                       .add(mBottom, rBottom);
                   return () -> new Pair<>(product, sum);
                 }
             ).seq((productAndSum, finalBuilder) -> {
-              Computation<SIntT> result = finalBuilder.numeric().sub(
+              Computation<SInt> result = finalBuilder.numeric().sub(
                   productAndSum.getSecond(),
                   productAndSum.getFirst());
               return () -> Collections.singletonList(result.out());
             });
           }
         }).seq(
-        (output, builder) -> () -> new RightShiftResult<>(output.getFirst(), output.getSecond()));
+        (output, builder) -> () -> new RightShiftResult(output.getFirst(), output.getSecond()));
   }
 }

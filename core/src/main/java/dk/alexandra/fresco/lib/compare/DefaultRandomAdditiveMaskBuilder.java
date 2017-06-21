@@ -4,17 +4,16 @@ import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
 import dk.alexandra.fresco.framework.builder.RandomAdditiveMaskBuilder;
-import dk.alexandra.fresco.framework.value.SInt;
 
-public class DefaultRandomAdditiveMaskBuilder<SIntT extends SInt> implements
-    RandomAdditiveMaskBuilder<SIntT> {
+public class DefaultRandomAdditiveMaskBuilder implements
+    RandomAdditiveMaskBuilder {
 
-  private final BuilderFactoryNumeric<SIntT> factoryNumeric;
-  private final ProtocolBuilder<SIntT> builder;
+  private final BuilderFactoryNumeric factoryNumeric;
+  private final ProtocolBuilder builder;
   private final int securityParameter;
 
-  public DefaultRandomAdditiveMaskBuilder(BuilderFactoryNumeric<SIntT> factoryNumeric,
-      ProtocolBuilder<SIntT> builder,
+  public DefaultRandomAdditiveMaskBuilder(BuilderFactoryNumeric factoryNumeric,
+      ProtocolBuilder builder,
       int securityParameter) {
     this.factoryNumeric = factoryNumeric;
     this.builder = builder;
@@ -22,10 +21,10 @@ public class DefaultRandomAdditiveMaskBuilder<SIntT extends SInt> implements
   }
 
   @Override
-  public Computation<RandomAdditiveMask<SIntT>> additiveMask(int noOfBits) {
+  public Computation<RandomAdditiveMask> additiveMask(int noOfBits) {
     return builder
         .createSequentialSubFactoryReturning(
-            new RandomAdditiveMaskProtocol44<>(factoryNumeric, securityParameter, noOfBits));
+            new RandomAdditiveMaskProtocol44(factoryNumeric, securityParameter, noOfBits));
   }
 
 }

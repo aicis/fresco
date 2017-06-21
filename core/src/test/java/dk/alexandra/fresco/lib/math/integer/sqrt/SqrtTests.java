@@ -96,7 +96,6 @@ public class SqrtTests {
               BuilderFactoryNumeric numericProducer = (BuilderFactoryNumeric) factoryProducer;
 
               BasicNumericFactory basicNumericFactory = (BasicNumericFactory) producer;
-              BasicNumericFactory<SInt> preprocessedNumericBitFactory = (BasicNumericFactory<SInt>) producer;
               ExpFromOIntFactory expFromOIntFactory = (ExpFromOIntFactory) producer;
               PreprocessedExpPipeFactory preprocessedExpPipeFactory = (PreprocessedExpPipeFactory) producer;
               RandomAdditiveMaskFactory randomAdditiveMaskFactory = new RandomAdditiveMaskFactoryImpl(
@@ -160,7 +159,6 @@ public class SqrtTests {
             int precision = expected.bitLength() - difference.bitLength();
 
             boolean shouldBeCorrect = precision >= expected.bitLength();
-            expected.equals(actual);
             boolean isCorrect = expected.equals(actual);
 
             Assert.assertFalse(shouldBeCorrect && !isCorrect);

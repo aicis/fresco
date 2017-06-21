@@ -5,9 +5,9 @@ import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.util.List;
 
-public interface InnerProductBuilder<SIntT extends SInt> {
+public interface InnerProductBuilder {
 
-  Computation<SIntT> dot(List<Computation<SIntT>> aVector, List<Computation<SIntT>> bVector);
+  Computation<SInt> dot(List<Computation<SInt>> aVector, List<Computation<SInt>> bVector);
 
-  Computation<SIntT> openDot(List<OInt> aVector, List<Computation<SIntT>> bVector);
+  Computation<SInt> openDot(List<OInt> aVector, List<Computation<SInt>> bVector);
 }

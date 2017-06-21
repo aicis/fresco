@@ -31,14 +31,14 @@ public class KnownDivisorProtocol extends SimpleProtocolProducer implements Divi
   private OInt divisor;
   private SInt result;
   private SInt remainder;
-  private BuilderFactoryNumeric<SInt> builderFactory;
+  private BuilderFactoryNumeric builderFactory;
 
   // Factories
   private final BigInteger modulus;
 
   KnownDivisorProtocol(SInt dividend, OInt divisor, SInt result,
       BuilderFactory builderFactory) {
-    this.builderFactory = ((BuilderFactoryNumeric<SInt>) builderFactory);
+    this.builderFactory = ((BuilderFactoryNumeric) builderFactory);
     BasicNumericFactory basicNumericFactory = this.builderFactory.getBasicNumericFactory();
     this.dividend = dividend;
     this.divisor = divisor;
@@ -76,7 +76,7 @@ public class KnownDivisorProtocol extends SimpleProtocolProducer implements Divi
 		 * considerations can be omitted, giving a significant speed-up.
 		 */
 
-      NumericBuilder<SInt> numeric = builder.numeric();
+      NumericBuilder numeric = builder.numeric();
     /*
      * Numbers larger than half the field size is considered to be negative.
 		 * 

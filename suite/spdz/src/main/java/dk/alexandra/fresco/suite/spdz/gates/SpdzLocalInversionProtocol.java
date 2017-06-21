@@ -27,16 +27,17 @@
 package dk.alexandra.fresco.suite.spdz.gates;
 
 import dk.alexandra.fresco.framework.network.SCENetwork;
+import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzOInt;
 
-public class SpdzLocalInversionProtocol extends SpdzNativeProtocol<SpdzOInt> {
+public class SpdzLocalInversionProtocol extends SpdzNativeProtocol<OInt> {
 
   private SpdzOInt in, out;
 
-  public SpdzLocalInversionProtocol(SpdzOInt in, SpdzOInt out) {
-    this.in = in;
-    this.out = out;
+  public SpdzLocalInversionProtocol(OInt in, OInt out) {
+    this.in = (SpdzOInt) in;
+    this.out = (SpdzOInt) out;
   }
 
   @Override

@@ -30,7 +30,6 @@ import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.value.OIntFactory;
-import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.framework.value.SIntFactory;
 import dk.alexandra.fresco.lib.compare.ComparisonProtocolFactory;
 import dk.alexandra.fresco.lib.compare.ComparisonProtocolFactoryImpl;
@@ -148,7 +147,6 @@ public class OmniBuilder extends AbstractProtocolBuilder {
   private ComparisonProtocolFactory getComparisonProtocolFactory() {
     BasicNumericFactory bnf = (BasicNumericFactory) factory;
     LocalInversionFactory localInvFactory = (LocalInversionFactory) factory;
-    BasicNumericFactory<SInt> numericBitFactory = (BasicNumericFactory<SInt>) factory;
     ExpFromOIntFactory expFromOIntFactory = (ExpFromOIntFactory) factory;
     PreprocessedExpPipeFactory expFactory = (PreprocessedExpPipeFactory) factory;
     return new ComparisonProtocolFactoryImpl(statisticalSecurityParameter, bnf, localInvFactory,

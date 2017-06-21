@@ -56,7 +56,7 @@ public class GreaterThanReducerProtocolImpl implements GreaterThanProtocol, Comp
       ZeroTestProtocolFactory ztFactory,
       MiscOIntGenerators miscOIntGenerator,
       InnerProductFactory innerProdFactory,
-      LocalInversionFactory invFactory, BuilderFactoryNumeric<SInt> factoryProducer) {
+      LocalInversionFactory invFactory, BuilderFactoryNumeric factoryProducer) {
     super();
     this.bitLength = bitLength;
     this.bitLengthBottom = bitLength / 2;
@@ -91,7 +91,7 @@ public class GreaterThanReducerProtocolImpl implements GreaterThanProtocol, Comp
   private final SInt x, y;
   private final SInt output;
 
-  private final BuilderFactoryNumeric<SInt> factoryProducer;
+  private final BuilderFactoryNumeric factoryProducer;
   private final BasicNumericFactory factory;
   private final NumericNegateBitFactory bitFactory;
 

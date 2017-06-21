@@ -78,15 +78,14 @@ public class LPFactoryImpl implements LPFactory {
   private final ZeroTestProtocolFactory zeroTestProtocolFactory;
   private final MiscOIntGenerators misc;
   private ComparisonProtocolFactory compFactory;
-  private BuilderFactoryNumeric<SInt> factoryProducer;
+  private BuilderFactoryNumeric factoryProducer;
 
   public LPFactoryImpl(int securityParameter, BasicNumericFactory bnf,
       LocalInversionFactory localInvFactory,
-      BasicNumericFactory<SInt> numericBitFactory,
       ExpFromOIntFactory expFromOIntFactory,
       PreprocessedExpPipeFactory expFactory,
       RandomFieldElementFactory randFactory,
-      BuilderFactoryNumeric<SInt> factoryProducer) {
+      BuilderFactoryNumeric factoryProducer) {
     this.securityParameter = securityParameter;
     this.bnf = bnf;
     this.localInvFactory = localInvFactory;

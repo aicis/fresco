@@ -122,7 +122,7 @@ public class DEASolverFixedDataTest {
     public ProtocolProducer prepareApplication(BuilderFactory producer) {
       plainResult = new double[dataSet.length];
       solverResult = new OInt[dataSet.length];
-      BasicNumericFactory bnFactory = ((BuilderFactoryNumeric<SInt>) producer)
+      BasicNumericFactory bnFactory = ((BuilderFactoryNumeric) producer)
           .getBasicNumericFactory();
       NumericIOBuilder ioBuilder = new NumericIOBuilder(bnFactory);
       modulus = bnFactory.getModulus();

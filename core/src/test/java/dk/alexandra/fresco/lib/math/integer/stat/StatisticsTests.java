@@ -96,7 +96,6 @@ public class StatisticsTests {
               ProtocolFactory producer = factory.getProtocolFactory();
 
               BasicNumericFactory basicNumericFactory = (BasicNumericFactory) producer;
-              BasicNumericFactory<SInt> preprocessedNumericBitFactory = (BasicNumericFactory<SInt>) producer;
               ExpFromOIntFactory expFromOIntFactory = (ExpFromOIntFactory) producer;
               PreprocessedExpPipeFactory preprocessedExpPipeFactory = (PreprocessedExpPipeFactory) producer;
               RandomAdditiveMaskFactory randomAdditiveMaskFactory = new RandomAdditiveMaskFactoryImpl(

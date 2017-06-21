@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -32,7 +32,7 @@ import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
 import java.util.function.Function;
 
-class BitLengthProtocol4 implements Function<SequentialProtocolBuilder<SInt>, Computation<SInt>> {
+class BitLengthProtocol4 implements Function<SequentialProtocolBuilder, Computation<SInt>> {
 
   private Computation<SInt> input;
   private int maxBitLength;
@@ -52,7 +52,7 @@ class BitLengthProtocol4 implements Function<SequentialProtocolBuilder<SInt>, Co
   }
 
   @Override
-  public Computation<SInt> apply(SequentialProtocolBuilder<SInt> seq) {
+  public Computation<SInt> apply(SequentialProtocolBuilder seq) {
     return seq.seq((builder) -> {
     /*
      * Find the bit representation of the input.

@@ -28,15 +28,16 @@ package dk.alexandra.fresco.suite.spdz.gates;
 
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.network.SCENetwork;
+import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 
-public class SpdzAddProtocol4 extends SpdzNativeProtocol<SpdzSInt> {
+public class SpdzAddProtocol4 extends SpdzNativeProtocol<SInt> {
 
-  private Computation<SpdzSInt> left, right;
+  private Computation<SInt> left, right;
   private SpdzSInt out;
 
-  public SpdzAddProtocol4(Computation<SpdzSInt> left, Computation<SpdzSInt> right,
+  public SpdzAddProtocol4(Computation<SInt> left, Computation<SInt> right,
       SpdzSInt out) {
     this.left = left;
     this.right = right;
@@ -57,7 +58,7 @@ public class SpdzAddProtocol4 extends SpdzNativeProtocol<SpdzSInt> {
   @Override
   public EvaluationStatus evaluate(int round, SpdzResourcePool spdzResourcePool,
       SCENetwork network) {
-    out.value = left.out().value.add(right.out().value);
+    out.value = ((SpdzSInt) left.out()).value.add(((SpdzSInt) right.out()).value);
     return EvaluationStatus.IS_DONE;
   }
 }

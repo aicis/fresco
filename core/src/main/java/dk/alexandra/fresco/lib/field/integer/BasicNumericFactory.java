@@ -39,8 +39,8 @@ import java.math.BigInteger;
 /**
  * A factory that produces protocols that operate on elements in a finite field.
  */
-public interface BasicNumericFactory<SIntT extends SInt> extends SIntFactory, OIntFactory,
-    ProtocolFactory, IOIntProtocolFactory, RandomFieldElementFactory<SIntT> {
+public interface BasicNumericFactory extends SIntFactory, OIntFactory,
+    ProtocolFactory, IOIntProtocolFactory, RandomFieldElementFactory {
 
   /**
    * Returns the maximum number of bits a number in the field can contain.
