@@ -29,12 +29,12 @@ public class InnerProductNewApi extends SimpleProtocolProducer implements Comput
     // Root sequential scope ... makes sense   
     ProtocolBuilder<SInt> pb = ProtocolBuilder.createRoot(bnf, seq -> {
       // Parallel scope for multiplication ... makes sense
-      Computation<List<Computation<SInt>>> products = seq
-          .createParallelSubFactoryReturning(par -> {
+      Computation<List<Computation<SInt>>> products =
+          seq.createParallelSubFactoryReturning(par -> {
             List<Computation<SInt>> temp = new ArrayList<>();
-            NumericBuilder<SInt> parNumericBuilder = par.createNumericBuilder();
+            NumericBuilder<SInt> numericBuilder = par.createNumericBuilder();
             for (int i = 0; i < a.length; i++) {
-              temp.add(parNumericBuilder.mult(a[i], b[i]));
+              temp.add(numericBuilder.mult(a[i], b[i]));
             }
             return () -> temp;
           });
@@ -45,7 +45,7 @@ public class InnerProductNewApi extends SimpleProtocolProducer implements Comput
         NumericBuilder<SInt> numericBuilder = subSeq.createNumericBuilder();
         // Not sure how to do this correctly using the bnf1.get(0, bnf1.getSInt()) Computation?
         // PFF - neither am I - hence the old API
-        Computation<SInt> c = seq.getSIntFactory().getSInt(0);
+        Computation<SInt> c = subSeq.getSIntFactory().getSInt(0);
         List<Computation<SInt>> addents = products.out();
         for (Computation<SInt> aTemp : addents) {
           // Not sure how I would do this using Computations? The AddList seems overkill.
