@@ -116,7 +116,7 @@ public abstract class ProtocolBuilder {
     });
   }
 
-  protected ProtocolEntity createAndAppend() {
+  ProtocolEntity createAndAppend() {
     ProtocolEntity protocolEntity = new ProtocolEntity();
     protocols.add(protocolEntity);
     return protocolEntity;
