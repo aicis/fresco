@@ -40,20 +40,20 @@ public interface RightShiftBuilder<SIntT extends SInt> {
    */
   class RightShiftResult<SIntT extends SInt> {
 
-    final Computation<SIntT> result;
-    final List<Computation<SIntT>> remainder;
+    final SIntT result;
+    final List<SIntT> remainder;
 
-    public RightShiftResult(Computation<SIntT> result,
-        List<Computation<SIntT>> remainder) {
+    public RightShiftResult(SIntT result,
+        List<SIntT> remainder) {
       this.result = result;
       this.remainder = remainder;
     }
 
-    public Computation<SIntT> getResult() {
+    public SIntT getResult() {
       return result;
     }
 
-    public List<Computation<SIntT>> getRemainder() {
+    public List<SIntT> getRemainder() {
       return remainder;
     }
   }

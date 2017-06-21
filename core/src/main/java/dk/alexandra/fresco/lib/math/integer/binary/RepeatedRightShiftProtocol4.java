@@ -82,12 +82,12 @@ public class RepeatedRightShiftProtocol4<SIntT extends SInt>
       iterationBuilder
           .createSequentialSubFactory((builder) -> doIteration(builder, iteration, shifts - 1));
     } else {
-      result.setComputation(() -> new RightShiftResult<>(input, null));
+      result.setComputation(() -> new RightShiftResult<>(input.out(), null));
     }
   }
 
   private void doIterationWithRemainder(SequentialProtocolBuilder<SIntT> iterationBuilder,
-      Computation<SIntT> input, int shifts, List<Computation<SIntT>> remainders) {
+      Computation<SIntT> input, int shifts, List<SIntT> remainders) {
     if (shifts > 0) {
       Computation<RightShiftResult<SIntT>> iteration =
           iterationBuilder.createSequentialSubFactoryReturning(
@@ -97,10 +97,10 @@ public class RepeatedRightShiftProtocol4<SIntT extends SInt>
           .createSequentialSubFactory((builder) -> {
             RightShiftResult<SIntT> out = iteration.out();
             remainders.add(out.getRemainder().get(0));
-            doIterationWithRemainder(builder, out.getResult(), shifts - 1, remainders);
+            doIterationWithRemainder(builder, out::getResult, shifts - 1, remainders);
           });
     } else {
-      result.setComputation(() -> new RightShiftResult<>(input, remainders));
+      result.setComputation(() -> new RightShiftResult<>(input.out(), remainders));
     }
   }
 

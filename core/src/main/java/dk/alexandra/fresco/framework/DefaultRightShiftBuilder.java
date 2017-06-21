@@ -24,7 +24,7 @@ public class DefaultRightShiftBuilder<SIntT extends SInt> implements RightShiftB
             new RightShiftProtocol4<>(
                 factoryNumeric.getBasicNumericFactory().getMaxBitLength(),
                 input, false));
-    return () -> rightShiftResult.out().getResult().out();
+    return () -> rightShiftResult.out().getResult();
   }
 
   @Override
@@ -41,7 +41,7 @@ public class DefaultRightShiftBuilder<SIntT extends SInt> implements RightShiftB
         .createSequentialSubFactoryReturning(
             new RepeatedRightShiftProtocol4<>(
                 input, shifts, false));
-    return () -> rightShiftResult.out().getResult().out();
+    return () -> rightShiftResult.out().getResult();
   }
 
   @Override
