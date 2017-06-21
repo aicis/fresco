@@ -24,7 +24,8 @@ public class DefaultRandomAdditiveMaskBuilder<SIntT extends SInt> implements
   @Override
   public Computation<RandomAdditiveMask<SIntT>> additiveMask(int noOfBits) {
     return builder
-        .append(new RandomAdditiveMaskProtocol44<>(factoryNumeric, securityParameter, noOfBits));
+        .createSequentialSubFactoryReturning(
+            new RandomAdditiveMaskProtocol44<>(factoryNumeric, securityParameter, noOfBits));
   }
 
 }

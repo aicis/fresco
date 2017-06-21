@@ -13,6 +13,13 @@ public interface RightShiftBuilder<SIntT extends SInt> {
 
   /**
    * @param input input
+   * @return result: input >> 1<br> remainder: The <code>shifts</code> least significant bits of the
+   * input with the least significant having index 0.
+   */
+  Computation<RightShiftResult<SIntT>> rightShiftWithRemainder(Computation<SIntT> input);
+
+  /**
+   * @param input input
    * @param shifts Number of shifts
    * @return result input >> shifts
    */
@@ -33,8 +40,21 @@ public interface RightShiftBuilder<SIntT extends SInt> {
    */
   class RightShiftResult<SIntT extends SInt> {
 
-    SIntT result;
-    List<SIntT> remainder;
+    final Computation<SIntT> result;
+    final List<Computation<SIntT>> remainder;
 
+    public RightShiftResult(Computation<SIntT> result,
+        List<Computation<SIntT>> remainder) {
+      this.result = result;
+      this.remainder = remainder;
+    }
+
+    public Computation<SIntT> getResult() {
+      return result;
+    }
+
+    public List<Computation<SIntT>> getRemainder() {
+      return remainder;
+    }
   }
 }
