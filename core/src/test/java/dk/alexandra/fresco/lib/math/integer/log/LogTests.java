@@ -60,9 +60,6 @@ import org.junit.Assert;
  * Can be reused by a test case for any protocol suite that implements the basic
  * field protocol factory.
  *
- * TODO: Generic tests should not reside in the runtime package. Rather in
- * mpc.lib or something.
- *
  */
 public class LogTests {
 
@@ -78,15 +75,12 @@ public class LogTests {
 				public void test() throws Exception {
 					TestApplication app = new TestApplication() {
 
-						private static final long serialVersionUID = 701623441111137585L;
-						
 						@Override
 						public ProtocolProducer prepareApplication(
                 BuilderFactory factoryProducer) {
               ProtocolFactory producer = factoryProducer.getProtocolFactory();
 
               BasicNumericFactory basicNumericFactory = (BasicNumericFactory) producer;
-							BasicNumericFactory<SInt> preprocessedNumericBitFactory = (BasicNumericFactory<SInt>) producer;
 							RandomAdditiveMaskFactory randomAdditiveMaskFactory = new RandomAdditiveMaskFactoryImpl(
 									basicNumericFactory,
 									new InnerProductFactoryImpl(basicNumericFactory,
