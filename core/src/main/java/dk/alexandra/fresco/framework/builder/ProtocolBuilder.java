@@ -5,6 +5,7 @@ import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.RightShiftBuilder;
+import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.OIntFactory;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.framework.value.SIntFactory;
@@ -266,6 +267,25 @@ public abstract class ProtocolBuilder<SIntT extends SInt> {
         BiFunction<OutputT, ParallelProtocolBuilder<SIntT>, Computation<NextOutputT>> function) {
       BuildStep<ParallelProtocolBuilder<SIntT>, SIntT, NextOutputT, OutputT> localChild =
           new BuildStepParallel<>(function);
+      this.child = localChild;
+      return localChild;
+    }
+
+    public <FirstOutputT, SecondOutputT> BuildStep<ParallelProtocolBuilder<SIntT>, SIntT, Pair<FirstOutputT, SecondOutputT>, OutputT> par(
+        BiFunction<OutputT, SequentialProtocolBuilder<SIntT>, Computation<FirstOutputT>> firstFunction,
+        BiFunction<OutputT, SequentialProtocolBuilder<SIntT>, Computation<SecondOutputT>> secondFunction) {
+      BuildStep<ParallelProtocolBuilder<SIntT>, SIntT, Pair<FirstOutputT, SecondOutputT>, OutputT> localChild =
+          new BuildStepParallel<>(
+              (OutputT output1, ParallelProtocolBuilder<SIntT> builder) -> {
+                Computation<FirstOutputT> firstOutput =
+                    builder.createSequentialSubFactoryReturning(
+                        seq -> firstFunction.apply(output1, seq));
+                Computation<SecondOutputT> secondOutput =
+                    builder.createSequentialSubFactoryReturning(
+                        seq -> secondFunction.apply(output1, seq));
+                return () -> new Pair<>(firstOutput.out(), secondOutput.out());
+              }
+          );
       this.child = localChild;
       return localChild;
     }
