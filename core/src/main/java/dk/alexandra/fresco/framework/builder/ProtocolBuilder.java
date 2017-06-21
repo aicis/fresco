@@ -57,17 +57,11 @@ public abstract class ProtocolBuilder<SIntT extends SInt> {
   }
 
   /**
-   * Re-creates this basicNumericFactory based on a parallel protocol producer inserted into the
-   * original protocol producer.
+   * Re-creates this builder based on this basicNumericFactory but with a nested parallel protocol
+   * producer inserted into the original protocol producer.
    *
-   * @param consumer lazy creation of the protocol producer
+   * @param function creation of the protocol producer - will be lazy evaluated
    */
-  public <T extends Consumer<ParallelProtocolBuilder<SIntT>>>
-  T createParallelSubFactory(T consumer) {
-    addConsumer(consumer, () -> new ParallelProtocolBuilder<>(factory));
-    return consumer;
-  }
-
   public <R, T extends Function<ParallelProtocolBuilder<SIntT>, Computation<R>>>
   Computation<R> createParallelSubFactoryReturning(T function) {
     DelayedComputation<R> result = new DelayedComputation<>();
@@ -76,6 +70,12 @@ public abstract class ProtocolBuilder<SIntT extends SInt> {
     return result;
   }
 
+  /**
+   * Re-creates this builder based on this basicNumericFactory but with a nested sequential protocol
+   * producer inserted into the original protocol producer.
+   *
+   * @param function creation of the protocol producer - will be lazy evaluated
+   */
   public <R, T extends Function<SequentialProtocolBuilder<SIntT>, Computation<R>>>
   Computation<R> createSequentialSubFactoryReturning(T function) {
     DelayedComputation<R> result = new DelayedComputation<>();
