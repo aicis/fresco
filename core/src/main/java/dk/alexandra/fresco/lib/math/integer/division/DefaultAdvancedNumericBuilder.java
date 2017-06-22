@@ -9,6 +9,7 @@ import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.conversion.IntegerToBitsByShiftProtocolImpl4;
 import dk.alexandra.fresco.lib.math.integer.exp.ExponentiationProtocol4;
 import dk.alexandra.fresco.lib.math.integer.exp.ExponentiationProtocolOpenBase;
+import dk.alexandra.fresco.lib.math.integer.exp.ExponentiationProtocolOpenExponent;
 import java.util.List;
 
 public class DefaultAdvancedNumericBuilder implements
@@ -59,6 +60,6 @@ public class DefaultAdvancedNumericBuilder implements
 
   @Override
   public Computation<SInt> exp(Computation<SInt> x, OInt e) {
-    return null;
+    return builder.createSequentialSub(new ExponentiationProtocolOpenExponent(x, e));
   }
 }
