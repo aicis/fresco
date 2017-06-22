@@ -65,15 +65,6 @@ public class SecretSharedDivisorProtocol extends SimpleProtocolProducer implemen
     this.builderFactory = builderFactory;
   }
 
-  SecretSharedDivisorProtocol(SInt numerator, SInt denominator,
-      SInt result, OInt precision,
-      BuilderFactoryNumeric builderFactory) {
-
-    this(numerator, denominator, result,
-        builderFactory);
-    this.precision = precision;
-  }
-
   @Override
   protected ProtocolProducer initializeProtocolProducer() {
 
