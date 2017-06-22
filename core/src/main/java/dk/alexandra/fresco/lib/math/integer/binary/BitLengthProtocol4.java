@@ -52,14 +52,14 @@ class BitLengthProtocol4 implements Function<SequentialProtocolBuilder, Computat
   }
 
   @Override
-  public Computation<SInt> apply(SequentialProtocolBuilder seq) {
-    return seq.seq((builder) -> {
+  public Computation<SInt> apply(SequentialProtocolBuilder builder) {
+    return builder.seq((seq) -> {
     /*
      * Find the bit representation of the input.
 		 */
       return seq.createRightShiftBuilder()
           .rightShiftWithRemainder(input, maxBitLength);
-    }).seq((rightShiftResult, builder) -> {
+    }).seq((rightShiftResult, seq) -> {
       Computation<SInt> mostSignificantBitIndex = seq.getSIntFactory().getSInt(0);
       for (int n = 0; n < maxBitLength; n++) {
         SInt currentIndex = seq.getSIntFactory().getSInt(n);
@@ -80,7 +80,7 @@ class BitLengthProtocol4 implements Function<SequentialProtocolBuilder, Computat
 		 * the index of the most significant bit since the indices are counted
 		 * from 0.
 		 */
-      return builder.numeric()
+      return seq.numeric()
           .add(seq.getOIntFactory().getOInt(BigInteger.ONE), mostSignificantBitIndex);
     });
   }

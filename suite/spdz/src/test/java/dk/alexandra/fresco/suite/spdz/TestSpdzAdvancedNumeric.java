@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2017 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -23,7 +23,7 @@
  *
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
- *******************************************************************************/
+ */
 package dk.alexandra.fresco.suite.spdz;
 
 import dk.alexandra.fresco.framework.configuration.PreprocessingStrategy;
@@ -57,12 +57,6 @@ public class TestSpdzAdvancedNumeric extends AbstractSpdzTest {
     }
 
     @Test
-    public void test_DivisionWithPrecision() throws Exception {
-        runTest(new AdvancedNumericTests.TestDivisionWithPrecision(),
-                EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
-    }
-
-    @Test
     public void test_Division_Known_Denominator() throws Exception {
         int[][] examples = new int[][]{
             new int[]{9, 4},
@@ -81,12 +75,6 @@ public class TestSpdzAdvancedNumeric extends AbstractSpdzTest {
     
     private void test_DivisionWithKnownDenominator(int numerator, int denominator) throws Exception {
         runTest(new AdvancedNumericTests.TestDivisionWithKnownDenominator(numerator, denominator),
-                EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
-    }
-
-    @Test
-    public void test_DivisionWithRemainder() throws Exception {
-        runTest(new AdvancedNumericTests.TestDivisionWithRemainder(),
                 EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
     }
 
