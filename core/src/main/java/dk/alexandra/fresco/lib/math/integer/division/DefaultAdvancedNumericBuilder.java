@@ -6,6 +6,8 @@ import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
+import dk.alexandra.fresco.lib.conversion.IntegerToBitsByShiftProtocolImpl4;
+import java.util.List;
 
 public class DefaultAdvancedNumericBuilder implements
     AdvancedNumericBuilder {
@@ -41,5 +43,10 @@ public class DefaultAdvancedNumericBuilder implements
   public Computation<SInt> div(Computation<SInt> dividend, Computation<SInt> divisor,
       OInt precision) {
     return null;
+  }
+
+  @Override
+  public Computation<List<SInt>> toBits(SInt in, int maxInputLength) {
+    return builder.createSequentialSub(new IntegerToBitsByShiftProtocolImpl4(in, maxInputLength));
   }
 }

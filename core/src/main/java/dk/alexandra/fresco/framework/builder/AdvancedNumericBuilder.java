@@ -3,6 +3,7 @@ package dk.alexandra.fresco.framework.builder;
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
+import java.util.List;
 
 public interface AdvancedNumericBuilder {
 
@@ -53,5 +54,14 @@ public interface AdvancedNumericBuilder {
    */
   public Computation<SInt> div(Computation<SInt> dividend, Computation<SInt> divisor,
       OInt precision);
+
+  /**
+   * Convert an integer to an list of bits, with index 0 being the least
+   * significant bit
+   *
+   * @param in SInt
+   * @return the list of bits
+   */
+  public Computation<List<SInt>> toBits(SInt in, int maxInputLength);
 
 }
