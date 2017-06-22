@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 /**
@@ -332,6 +333,34 @@ public abstract class ProtocolBuilder {
           new BuildStepParallel<>(function);
       this.child = localChild;
       return localChild;
+    }
+
+    public BuildStep<SequentialProtocolBuilder, OutputT, OutputT> whileLoop(
+        Predicate<OutputT> test,
+        BiFunction<OutputT, SequentialProtocolBuilder, Computation<OutputT>> function) {
+      BuildStep<SequentialProtocolBuilder, OutputT, OutputT> localChild =
+          new BuildStepSequential<>(
+              (OutputT output1, SequentialProtocolBuilder builder) -> {
+                DelayedComputation<OutputT> result = new DelayedComputation<>();
+                whileStep(test, function, output1, builder, result);
+                return result;
+              });
+      this.child = localChild;
+      return localChild;
+    }
+
+    private void whileStep(Predicate<OutputT> test,
+        BiFunction<OutputT, SequentialProtocolBuilder, Computation<OutputT>> function,
+        OutputT lastOutput, SequentialProtocolBuilder builder,
+        DelayedComputation<OutputT> result) {
+      if (test.test(lastOutput)) {
+        Computation<OutputT> nextOutput = function.apply(lastOutput, builder);
+        builder.createIteration((nextBuilder) ->
+            whileStep(test, function, nextOutput.out(), nextBuilder, result)
+        );
+      } else {
+        result.setComputation(() -> lastOutput);
+      }
     }
 
     public <FirstOutputT, SecondOutputT>

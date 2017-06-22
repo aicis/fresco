@@ -27,7 +27,6 @@
 package dk.alexandra.fresco.lib.math.integer.exp;
 
 import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.builder.DelayedComputation;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder.SequentialProtocolBuilder;
 import dk.alexandra.fresco.framework.value.OInt;
@@ -48,42 +47,52 @@ public class ExponentiationProtocolOpenExponent
 
   @Override
   public Computation<SInt> apply(SequentialProtocolBuilder builder) {
-    Computation<SInt> accOdd = builder.getSIntFactory().getSInt(1);
     if (exponent.equals(BigInteger.ZERO)) {
-      return accOdd;
+      return builder.getSIntFactory().getSInt(1);
     }
-    Computation<SInt> accEven = base;
-    return builder.seq(seq -> {
-      DelayedComputation<SInt> result = new DelayedComputation<>();
-      doIteration(result, seq, exponent.getValue(), accEven, accOdd);
-      return result;
-    });
+    return builder.seq((seq) -> {
+      Computation<SInt> accOdd = builder.getSIntFactory().getSInt(1);
+      Computation<SInt> accEven = base;
+      return new IterationState(exponent.getValue(), accEven, accOdd);
+    }).whileLoop(
+        iterationState -> !iterationState.exponent.equals(BigInteger.ONE),
+        (iterationState, seq) -> {
+          BigInteger exponent = iterationState.exponent;
+          Computation<SInt> accEven = iterationState.accEven;
+          Computation<SInt> accOdd = iterationState.accOdd;
+          NumericBuilder numeric = seq.numeric();
+          if (exponent.getLowestSetBit() == 0) {
+            accOdd = numeric.mult(accOdd, accEven);
+            accEven = numeric.mult(accEven, accEven);
+            exponent = exponent.subtract(BigInteger.ONE).shiftRight(1);
+          } else {
+            exponent = exponent.shiftRight(1);
+            accEven = numeric.mult(accEven, accEven);
+          }
+          return new IterationState(exponent, accEven, accOdd);
+        }
+    ).seq((iterationState, seq) ->
+        seq.numeric().mult(iterationState.accEven, iterationState.accOdd)
+    );
   }
 
-  private void doIteration(
-      DelayedComputation<SInt> result,
-      SequentialProtocolBuilder builder,
-      BigInteger exponent,
-      Computation<SInt> accEven,
-      Computation<SInt> accOdd) {
-    NumericBuilder numeric = builder.numeric();
-    if (exponent.equals(BigInteger.ONE)) {
-      result.setComputation(numeric.mult(accEven, accOdd));
-    } else {
-      if (exponent.getLowestSetBit() == 0) {
-        accOdd = numeric.mult(accOdd, accEven);
-        accEven = numeric.mult(accEven, accEven);
-        exponent = exponent.subtract(BigInteger.ONE).shiftRight(1);
-      } else {
-        exponent = exponent.shiftRight(1);
-        accEven = numeric.mult(accEven, accEven);
-      }
-      BigInteger finalExponent = exponent;
-      Computation<SInt> finalAccEven = accEven;
-      Computation<SInt> finalAccOdd = accOdd;
-      builder.createIteration(builder1 ->
-          doIteration(result, builder1,
-              finalExponent, finalAccEven, finalAccOdd));
+  private static class IterationState implements Computation<IterationState> {
+
+    final BigInteger exponent;
+    final Computation<SInt> accEven;
+    final Computation<SInt> accOdd;
+
+    private IterationState(BigInteger exponent,
+        Computation<SInt> accEven,
+        Computation<SInt> accOdd) {
+      this.exponent = exponent;
+      this.accEven = accEven;
+      this.accOdd = accOdd;
+    }
+
+    @Override
+    public IterationState out() {
+      return this;
     }
   }
 
