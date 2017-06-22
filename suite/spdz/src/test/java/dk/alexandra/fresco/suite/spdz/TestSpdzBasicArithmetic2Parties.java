@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -23,16 +23,18 @@
  *
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
- *******************************************************************************/
+ */
 package dk.alexandra.fresco.suite.spdz;
 
 import dk.alexandra.fresco.framework.configuration.PreprocessingStrategy;
 import dk.alexandra.fresco.framework.network.NetworkingStrategy;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.lib.arithmetic.BasicArithmeticTests;
+import dk.alexandra.fresco.lib.math.integer.division.DivisionTests.TestEuclidianDivision;
 import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductNewApiTest;
 import dk.alexandra.fresco.lib.math.integer.log.LogTests.TestLogarithm;
 import dk.alexandra.fresco.lib.math.integer.sqrt.SqrtTests.TestSquareRoot;
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -46,6 +48,15 @@ public class TestSpdzBasicArithmetic2Parties extends AbstractSpdzTest {
   public void test_IP_Sequential_Batched() throws Exception {
     runTest(new InnerProductNewApiTest.InnerProductTest(), EvaluationStrategy.SEQUENTIAL,
         NetworkingStrategy.KRYONET,
+        PreprocessingStrategy.DUMMY, 2);
+  }
+
+  // Fix error before activating
+  //TODO EBO?
+  @Ignore
+  @Test
+  public void test_Division_Sequential_Batched() throws Exception {
+    runTest(new TestEuclidianDivision(), EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET,
         PreprocessingStrategy.DUMMY, 2);
   }
 

@@ -30,7 +30,6 @@ public class KnownDivisorProtocol extends SimpleProtocolProducer implements Divi
   private SInt dividend;
   private OInt divisor;
   private SInt result;
-  private SInt remainder;
   private BuilderFactoryNumeric builderFactory;
 
   // Factories
@@ -55,12 +54,6 @@ public class KnownDivisorProtocol extends SimpleProtocolProducer implements Divi
       actual = actual.subtract(modulus);
     }
     return actual;
-  }
-
-  KnownDivisorProtocol(SInt x, OInt divisor, SInt result, SInt remainder,
-      BuilderFactory builderFactory) {
-    this(x, divisor, result, builderFactory);
-    this.remainder = remainder;
   }
 
   @Override
@@ -133,10 +126,6 @@ public class KnownDivisorProtocol extends SimpleProtocolProducer implements Divi
 		 * only makes sense if both divisor and dividend are nonnegative -
 		 * otherwise the remainder could be negative.
 		 */
-      if (remainder != null) {
-        Computation<SInt> sub = numeric.sub(dividend, numeric.mult(divisor, result));
-        builder.append(new LegacyTransfer(sub, remainder));
-      }
     }).build();
   }
 }

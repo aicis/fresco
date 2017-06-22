@@ -31,15 +31,8 @@ import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.value.OIntFactory;
 import dk.alexandra.fresco.framework.value.SIntFactory;
-import dk.alexandra.fresco.lib.compare.ComparisonProtocolFactory;
-import dk.alexandra.fresco.lib.compare.ComparisonProtocolFactoryImpl;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.field.integer.generic.IOIntProtocolFactory;
-import dk.alexandra.fresco.lib.math.integer.division.DivisionFactory;
-import dk.alexandra.fresco.lib.math.integer.division.DivisionFactoryImpl;
-import dk.alexandra.fresco.lib.math.integer.exp.ExpFromOIntFactory;
-import dk.alexandra.fresco.lib.math.integer.exp.PreprocessedExpPipeFactory;
-import dk.alexandra.fresco.lib.math.integer.inv.LocalInversionFactory;
 
 /**
  * This builder can be used for all possible functionality in FRESCO. It encapsulates all other
@@ -62,27 +55,14 @@ public class OmniBuilder extends AbstractProtocolBuilder {
   private ProtocolFactory factory;
   private NumericIOBuilder numericIOBuilder;
   private NumericProtocolBuilder numericProtocolBuilder;
-  private AdvancedNumericBuilder advancedNumericBuilder;
-  private ComparisonProtocolBuilder comparisonProtocolBuilder;
-  private StatisticsProtocolBuilder statisticsProtocolBuilder;
   private SymmetricEncryptionBuilder symmetricEncryptionBuilder;
-  private UtilityBuilder utilityBuilder;
-  private BuilderFactoryNumeric builderFactory;
 
   //Used in various protocols - typically for comparisons.
   //TODO: Better explanation as to what this is, and what it means for performance/security.
-  private final int statisticalSecurityParameter;
 
   public OmniBuilder(BuilderFactoryNumeric factory) {
-    builderFactory = factory;
     this.factory = factory.getProtocolFactory();
-    this.statisticalSecurityParameter = 60;
   }
-
-  public int getStatisticalSecurityParameter() {
-    return statisticalSecurityParameter;
-  }
-
 
   /**
    * Builder used for inputting and outputting values. Note that inputting values using this builder
@@ -115,45 +95,6 @@ public class OmniBuilder extends AbstractProtocolBuilder {
     return numericProtocolBuilder;
   }
 
-  public AdvancedNumericBuilder getAdvancedNumericBuilder() {
-    if (advancedNumericBuilder == null) {
-      SIntFactory intFactory = (SIntFactory) factory;
-      DivisionFactory divisionFactory = getDivisionFactory();
-      advancedNumericBuilder = new AdvancedNumericBuilder(divisionFactory, intFactory);
-      advancedNumericBuilder.setParentBuilder(this);
-    }
-    return advancedNumericBuilder;
-  }
-
-  private DivisionFactory getDivisionFactory() {
-    return new DivisionFactoryImpl(builderFactory);
-  }
-
-  /**
-   * Builder used to do comparisons. Currently expects that the constructor given factory implements
-   * all interfaces listed below: - BasicNumericFactory - LocalInversionFactory -
-   * PreprocessedNumericBitFactory - ExpFromOIntFactory - PreprocessedExpPipeFactory
-   */
-  public ComparisonProtocolBuilder getComparisonProtocolBuilder() {
-    if (comparisonProtocolBuilder == null) {
-      BasicNumericFactory bnf = (BasicNumericFactory) factory;
-      ComparisonProtocolFactory comFactory = getComparisonProtocolFactory();
-      comparisonProtocolBuilder = new ComparisonProtocolBuilder(comFactory, bnf);
-      comparisonProtocolBuilder.setParentBuilder(this);
-    }
-    return comparisonProtocolBuilder;
-  }
-
-  private ComparisonProtocolFactory getComparisonProtocolFactory() {
-    BasicNumericFactory bnf = (BasicNumericFactory) factory;
-    LocalInversionFactory localInvFactory = (LocalInversionFactory) factory;
-    ExpFromOIntFactory expFromOIntFactory = (ExpFromOIntFactory) factory;
-    PreprocessedExpPipeFactory expFactory = (PreprocessedExpPipeFactory) factory;
-    return new ComparisonProtocolFactoryImpl(statisticalSecurityParameter, bnf, localInvFactory,
-        expFromOIntFactory, expFactory,
-        builderFactory);
-  }
-
   /**
    * Builder used for doing symmetric encryption within arithmetic fields.
    * Currently expects that the constructor given factory implements all interfaces listed below:
@@ -168,21 +109,6 @@ public class OmniBuilder extends AbstractProtocolBuilder {
       symmetricEncryptionBuilder.setParentBuilder(this);
     }
     return symmetricEncryptionBuilder;
-  }
-
-  /**
-   * Builder used primarily for debug purposes, so be careful including this in production code.
-   * Currently expects that the constructor given factory implements one of the interfaces listed
-   * below: - BasicNumericFactory - BasicLogicFactory
-   *
-   * @return A builder that constructs primarily debug protocols.
-   */
-  public UtilityBuilder getUtilityBuilder() {
-    if (utilityBuilder == null) {
-      utilityBuilder = new UtilityBuilder(factory);
-      utilityBuilder.setParentBuilder(this);
-    }
-    return utilityBuilder;
   }
 
   @Override

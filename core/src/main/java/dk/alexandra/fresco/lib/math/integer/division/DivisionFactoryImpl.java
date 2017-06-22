@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -23,7 +23,7 @@
  *
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
- *******************************************************************************/
+ */
 package dk.alexandra.fresco.lib.math.integer.division;
 
 import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
@@ -42,21 +42,6 @@ public class DivisionFactoryImpl implements DivisionFactory {
 	public DivisionProtocol getDivisionProtocol(SInt dividend, OInt divisor,
 			SInt result) {
 		return new KnownDivisorProtocol(dividend, divisor, result,
-        builderFactory);
-  }
-
-	@Override
-	public DivisionProtocol getDivisionProtocol(SInt x, OInt divisor,
-			SInt result, SInt remainder) {
-		return new KnownDivisorProtocol(x, divisor, result, remainder,
-        builderFactory);
-  }
-
-	@Override
-	public DivisionProtocol getDivisionProtocol(SInt x, SInt divisor,
-												SInt result) {
-		return new SecretSharedDivisorProtocol(x, divisor,
-        result,
         builderFactory);
   }
 

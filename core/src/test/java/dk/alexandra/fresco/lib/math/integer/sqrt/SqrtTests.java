@@ -37,25 +37,15 @@ import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.compare.ComparisonProtocolFactory;
-import dk.alexandra.fresco.lib.compare.ComparisonProtocolFactoryImpl;
 import dk.alexandra.fresco.lib.compare.RandomAdditiveMaskFactory;
 import dk.alexandra.fresco.lib.compare.RandomAdditiveMaskFactoryImpl;
-import dk.alexandra.fresco.lib.conversion.IntegerToBitsFactory;
-import dk.alexandra.fresco.lib.conversion.IntegerToBitsFactoryImpl;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.helper.builder.NumericIOBuilder;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
-import dk.alexandra.fresco.lib.math.integer.binary.BitLengthFactory;
-import dk.alexandra.fresco.lib.math.integer.binary.BitLengthFactoryImpl;
 import dk.alexandra.fresco.lib.math.integer.binary.RightShiftFactory;
 import dk.alexandra.fresco.lib.math.integer.binary.RightShiftFactoryImpl;
 import dk.alexandra.fresco.lib.math.integer.division.DivisionFactory;
 import dk.alexandra.fresco.lib.math.integer.division.DivisionFactoryImpl;
-import dk.alexandra.fresco.lib.math.integer.exp.ExpFromOIntFactory;
-import dk.alexandra.fresco.lib.math.integer.exp.ExponentiationFactory;
-import dk.alexandra.fresco.lib.math.integer.exp.ExponentiationFactoryImpl;
-import dk.alexandra.fresco.lib.math.integer.exp.PreprocessedExpPipeFactory;
 import dk.alexandra.fresco.lib.math.integer.inv.LocalInversionFactory;
 import dk.alexandra.fresco.lib.math.integer.linalg.EntrywiseProductFactoryImpl;
 import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductFactoryImpl;
@@ -96,8 +86,6 @@ public class SqrtTests {
               BuilderFactoryNumeric numericProducer = (BuilderFactoryNumeric) factoryProducer;
 
               BasicNumericFactory basicNumericFactory = (BasicNumericFactory) producer;
-              ExpFromOIntFactory expFromOIntFactory = (ExpFromOIntFactory) producer;
-              PreprocessedExpPipeFactory preprocessedExpPipeFactory = (PreprocessedExpPipeFactory) producer;
               RandomAdditiveMaskFactory randomAdditiveMaskFactory = new RandomAdditiveMaskFactoryImpl(
                   basicNumericFactory,
                   new InnerProductFactoryImpl(basicNumericFactory,
@@ -105,16 +93,6 @@ public class SqrtTests {
               LocalInversionFactory localInversionFactory = (LocalInversionFactory) producer;
               RightShiftFactory rightShiftFactory = new RightShiftFactoryImpl(basicNumericFactory,
                   randomAdditiveMaskFactory, localInversionFactory);
-              IntegerToBitsFactory integerToBitsFactory = new IntegerToBitsFactoryImpl(
-                  basicNumericFactory, rightShiftFactory);
-              BitLengthFactory bitLengthFactory = new BitLengthFactoryImpl(basicNumericFactory,
-                  integerToBitsFactory);
-              ExponentiationFactory exponentiationFactory = new ExponentiationFactoryImpl(
-                  basicNumericFactory, integerToBitsFactory);
-              ComparisonProtocolFactory comparisonFactory = new ComparisonProtocolFactoryImpl(80,
-                  basicNumericFactory, localInversionFactory,
-                  expFromOIntFactory, preprocessedExpPipeFactory,
-                  numericProducer);
               DivisionFactory divisionFactory = new DivisionFactoryImpl(
                   numericProducer);
               SquareRootFactory squareRootFactory = new SquareRootFactoryImpl(basicNumericFactory,

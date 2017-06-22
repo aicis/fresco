@@ -136,8 +136,4 @@ public class SquareRootProtocolImpl extends SimpleProtocolProducer implements Sq
 		return (int) (Math.log(x) / Math.log(2));
 	}
 
-	private static int ceil(double x) {
-		return (int) Math.ceil(x);
-	}
-	
 }
