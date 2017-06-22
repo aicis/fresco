@@ -26,6 +26,8 @@
  */
 package dk.alexandra.fresco.framework.util;
 
+import dk.alexandra.fresco.framework.Computation;
+
 public class Pair<S, T> {
 
   private final S first;
@@ -34,6 +36,10 @@ public class Pair<S, T> {
   public Pair(S first, T second) {
     this.first = first;
     this.second = second;
+  }
+
+  public static <S, T> Computation<Pair<S, T>> lazy(S first, T second) {
+    return () -> new Pair<>(first, second);
   }
 
   public S getFirst() {

@@ -110,7 +110,7 @@ public interface BuilderFactoryNumeric extends BuilderFactory {
     return new IntegerToBitsFactoryImpl(getBasicNumericFactory(), getRightShiftFactory());
   }
 
-  default BitLengthBuilder getBitLengthBuilder(ProtocolBuilder builder) {
+  default BitLengthBuilder createBitLengthBuilder(ProtocolBuilder builder) {
     return new DefaultBitLengthBuilder(builder);
   }
 

@@ -7,6 +7,8 @@ import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.conversion.IntegerToBitsByShiftProtocolImpl4;
+import dk.alexandra.fresco.lib.math.integer.exp.ExponentiationProtocol4;
+import dk.alexandra.fresco.lib.math.integer.exp.ExponentiationProtocolOpenBase;
 import java.util.List;
 
 public class DefaultAdvancedNumericBuilder implements
@@ -29,24 +31,34 @@ public class DefaultAdvancedNumericBuilder implements
   }
 
   @Override
-  public Computation<SInt> remainder(Computation<SInt> dividend, OInt divisor) {
+  public Computation<SInt> mod(Computation<SInt> dividend, OInt divisor) {
     return builder.createSequentialSub(new KnownDivisorRemainderProtocol4(dividend, divisor));
   }
 
   @Override
   public Computation<SInt> div(Computation<SInt> dividend, Computation<SInt> divisor) {
-
-    return null;
+    return builder.createSequentialSub(
+        new SecretSharedDivisorProtocol4(dividend, divisor, factoryNumeric)
+    );
   }
 
   @Override
-  public Computation<SInt> div(Computation<SInt> dividend, Computation<SInt> divisor,
-      OInt precision) {
-    return null;
-  }
-
-  @Override
-  public Computation<List<SInt>> toBits(SInt in, int maxInputLength) {
+  public Computation<List<SInt>> toBits(Computation<SInt> in, int maxInputLength) {
     return builder.createSequentialSub(new IntegerToBitsByShiftProtocolImpl4(in, maxInputLength));
+  }
+
+  @Override
+  public Computation<SInt> exp(Computation<SInt> x, Computation<SInt> e, int maxExponentLength) {
+    return builder.createSequentialSub(new ExponentiationProtocol4(x, e, maxExponentLength));
+  }
+
+  @Override
+  public Computation<SInt> exp(OInt x, Computation<SInt> e, int maxExponentLength) {
+    return builder.createSequentialSub(new ExponentiationProtocolOpenBase(x, e, maxExponentLength));
+  }
+
+  @Override
+  public Computation<SInt> exp(Computation<SInt> x, OInt e) {
+    return null;
   }
 }

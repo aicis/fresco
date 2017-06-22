@@ -1,6 +1,7 @@
 package dk.alexandra.fresco.framework.builder;
 
 import dk.alexandra.fresco.framework.Application;
+import dk.alexandra.fresco.framework.BitLengthBuilder;
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.ProtocolCollection;
@@ -204,6 +205,10 @@ public abstract class ProtocolBuilder {
 
   public AdvancedNumericBuilder createAdvancedNumericBuilder() {
     return factory.createAdvancedNumericBuilder(this);
+  }
+
+  public BitLengthBuilder createBitLengthBuilder() {
+    return factory.createBitLengthBuilder(this);
   }
 
 
