@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -23,56 +23,46 @@
  *
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
- *******************************************************************************/
+ */
 package dk.alexandra.fresco.framework.util;
 
 public class Pair<S, T> {
 
-	private S first;
-	private T second;
+  private final S first;
+  private final T second;
 
-	public Pair() {}
-	
-	public Pair(S first, T second) {
-		this.first = first;
-		this.second = second;
-	}
-	
-	public S getFirst() {
-		return first;
-	}
-	
-	public T getSecond() {
-		return second;
-	}
+  public Pair(S first, T second) {
+    this.first = first;
+    this.second = second;
+  }
 
-	public void setFirst(S first) {
-		this.first = first;
-	}
+  public S getFirst() {
+    return first;
+  }
 
-	public void setSecond(T second) {
-		this.second = second;
-	}
+  public T getSecond() {
+    return second;
+  }
 
-	@Override
-	public boolean equals(Object obj) {
-		if(obj instanceof Pair<?, ?>){
-			Pair<?, ?> other = (Pair<?, ?>) obj;
-			if(other.getFirst().equals(first) && other.getSecond().equals(second)){
-				return true;
-			}
-		}
-		return false;
-	}
-	
-	@Override
-	public String toString(){
-		return "<"+first.toString() + ", "+second.toString()+">"; 
-	}
+  @Override
+  public boolean equals(Object obj) {
+    if (obj instanceof Pair<?, ?>) {
+      Pair<?, ?> other = (Pair<?, ?>) obj;
+      if (other.getFirst().equals(first) && other.getSecond().equals(second)) {
+        return true;
+      }
+    }
+    return false;
+  }
 
-	@Override
-	public int hashCode() {
-		return (first.hashCode()+second.hashCode())%Integer.MAX_VALUE;
-	}
-	
+  @Override
+  public String toString() {
+    return "<" + first.toString() + ", " + second.toString() + ">";
+  }
+
+  @Override
+  public int hashCode() {
+    return (first.hashCode() + second.hashCode()) % Integer.MAX_VALUE;
+  }
+
 }

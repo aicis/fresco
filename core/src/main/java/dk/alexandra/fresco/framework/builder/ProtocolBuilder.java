@@ -202,6 +202,10 @@ public abstract class ProtocolBuilder {
     return factory.createRightShiftBuilder(this);
   }
 
+  public AdvancedNumericBuilder createAdvancedNumericBuilder() {
+    return factory.createAdvancedNumericBuilder(this);
+  }
+
 
   private static class ProtocolEntity {
 
