@@ -19,6 +19,7 @@ import dk.alexandra.fresco.lib.math.integer.binary.DefaultBitLengthBuilder;
 import dk.alexandra.fresco.lib.math.integer.binary.DefaultRightShiftBuilder;
 import dk.alexandra.fresco.lib.math.integer.binary.RightShiftFactory;
 import dk.alexandra.fresco.lib.math.integer.binary.RightShiftFactoryImpl;
+import dk.alexandra.fresco.lib.math.integer.division.DefaultAdvancedNumericBuilder;
 import dk.alexandra.fresco.lib.math.integer.exp.ExpFromOIntFactory;
 import dk.alexandra.fresco.lib.math.integer.exp.ExponentiationFactory;
 import dk.alexandra.fresco.lib.math.integer.exp.ExponentiationFactoryImpl;
@@ -78,6 +79,10 @@ public interface BuilderFactoryNumeric extends BuilderFactory {
     return new DefaultRightShiftBuilder(this, builder);
   }
 
+  default AdvancedNumericBuilder createAdvancedNumericBuilder(ProtocolBuilder builder) {
+    return new DefaultAdvancedNumericBuilder(this, builder);
+  }
+
   default EntrywiseProductFactoryImpl getDotProductFactory() {
     return new EntrywiseProductFactoryImpl(getBasicNumericFactory());
   }
@@ -105,7 +110,7 @@ public interface BuilderFactoryNumeric extends BuilderFactory {
     return new IntegerToBitsFactoryImpl(getBasicNumericFactory(), getRightShiftFactory());
   }
 
-  default BitLengthBuilder getBitLengthBuilder(ProtocolBuilder builder) {
+  default BitLengthBuilder createBitLengthBuilder(ProtocolBuilder builder) {
     return new DefaultBitLengthBuilder(builder);
   }
 

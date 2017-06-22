@@ -481,6 +481,7 @@ public class NumericProtocolBuilder extends AbstractProtocolBuilder {
       this.accOdd = bnf.getSInt();
     }
 
+    @SuppressWarnings("Duplicates")
     @Override
     public ProtocolProducer nextProtocolProducer() {
       NumericProtocolBuilder b = new NumericProtocolBuilder(bnf);

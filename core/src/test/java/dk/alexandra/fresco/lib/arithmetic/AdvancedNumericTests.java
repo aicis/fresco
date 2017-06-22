@@ -23,11 +23,11 @@
  *
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
- *******************************************************************************/
+ */
 package dk.alexandra.fresco.lib.arithmetic;
 
 import dk.alexandra.fresco.framework.BuilderFactory;
-import dk.alexandra.fresco.framework.ProtocolFactory;
+import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.TestApplication;
 import dk.alexandra.fresco.framework.TestThreadRunner;
@@ -35,14 +35,10 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
-import dk.alexandra.fresco.lib.helper.builder.AdvancedNumericBuilder;
-import dk.alexandra.fresco.lib.helper.builder.NumericIOBuilder;
-import dk.alexandra.fresco.lib.helper.builder.NumericProtocolBuilder;
-import dk.alexandra.fresco.lib.helper.builder.OmniBuilder;
 import java.math.BigInteger;
 import org.junit.Assert;
 
@@ -64,32 +60,42 @@ public class AdvancedNumericTests {
       return new TestThread() {
         @Override
         public void test() throws Exception {
-          TestApplication app = new TestApplication() {
+          TestApplication<BigInteger> app = new TestApplication<BigInteger>() {
+
+            private Computation<OInt> openResult;
+
             @Override
             public ProtocolProducer prepareApplication(BuilderFactory factoryProducer) {
-              ProtocolFactory producer = factoryProducer.getProtocolFactory();
-              OmniBuilder builder = new OmniBuilder((BuilderFactoryNumeric) factoryProducer);
-              modulus = ((BasicNumericFactory) producer).getModulus();
-              NumericIOBuilder io = builder.getNumericIOBuilder();
-              AdvancedNumericBuilder advanced = builder.getAdvancedNumericBuilder();
+              return ProtocolBuilder
+                  .createApplicationRoot((BuilderFactoryNumeric) factoryProducer, (builder) -> {
+                    modulus = ((BuilderFactoryNumeric) factoryProducer)
+                        .getBasicNumericFactory().getModulus();
 
-              SInt p = io.input(numerator, 1);
-              SInt q = io.input(denominator, 1);
-              SInt result = advanced.div(p, q);
+                    SInt p = builder.getSIntFactory().getSInt(numerator);
+                    SInt q = builder.getSIntFactory().getSInt(denominator);
 
-              outputs = new OInt[]{io.output(result)};
+                    Computation<SInt> result = builder.createAdvancedNumericBuilder().div(p, q);
 
-              return builder.getProtocol();
+                    openResult = builder.createOpenBuilder().open(result);
+                  }).build();
+            }
+
+            @Override
+            public BigInteger closeApplication() {
+              if (openResult != null) {
+                OInt out = openResult.out();
+                return out.getValue();
+              }
+              return null;
             }
           };
 
-          secureComputationEngine
-              .runApplication(app,
-                  SecureComputationEngineImpl.createResourcePool(conf.sceConf,
-                      conf.sceConf.getSuite()));
+          BigInteger result = (BigInteger) secureComputationEngine
+              .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf,
+                  conf.sceConf.getSuite()));
 
           Assert.assertEquals(BigInteger.valueOf(numerator / denominator),
-              convertRepresentation(app.getOutputs()[0].getValue(), modulus));
+              convertRepresentation(result, modulus));
         }
       };
     }
@@ -104,43 +110,6 @@ public class AdvancedNumericTests {
       actual = actual.subtract(modulus);
     }
     return actual;
-  }
-
-  public static class TestDivisionWithPrecision extends TestThreadRunner.TestThreadFactory {
-
-    @Override
-    public TestThreadRunner.TestThread next(TestThreadRunner.TestThreadConfiguration conf) {
-      return new TestThread() {
-        @Override
-        public void test() throws Exception {
-          TestApplication app = new TestApplication() {
-            @Override
-            public ProtocolProducer prepareApplication(BuilderFactory factoryProducer) {
-              OmniBuilder builder = new OmniBuilder((BuilderFactoryNumeric) factoryProducer);
-              NumericIOBuilder io = builder.getNumericIOBuilder();
-              NumericProtocolBuilder numeric = builder.getNumericProtocolBuilder();
-              AdvancedNumericBuilder advanced = builder.getAdvancedNumericBuilder();
-
-              SInt p = io.input(9, 1);
-              SInt q = io.input(4, 1);
-              OInt precision = numeric.knownOInt(4);
-              SInt result = advanced.div(p, q, precision);
-
-              outputs = new OInt[]{io.output(result)};
-
-              return builder.getProtocol();
-            }
-          };
-
-          secureComputationEngine
-              .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf,
-                  conf.sceConf.getSuite()));
-
-          Assert.assertEquals(BigInteger.valueOf(9 / 4),
-              app.getOutputs()[0].getValue());
-        }
-      };
-    }
   }
 
   public static class TestDivisionWithKnownDenominator extends TestThreadRunner.TestThreadFactory {
@@ -159,39 +128,48 @@ public class AdvancedNumericTests {
       return new TestThread() {
         @Override
         public void test() throws Exception {
-          TestApplication app = new TestApplication() {
+          TestApplication<BigInteger> app = new TestApplication<BigInteger>() {
+
+            private Computation<OInt> openResult;
+
             @Override
             public ProtocolProducer prepareApplication(BuilderFactory factoryProducer) {
-              ProtocolFactory producer = factoryProducer.getProtocolFactory();
-              OmniBuilder builder = new OmniBuilder((BuilderFactoryNumeric) factoryProducer);
+              return ProtocolBuilder
+                  .createApplicationRoot((BuilderFactoryNumeric) factoryProducer, (builder) -> {
+                    modulus = ((BuilderFactoryNumeric) factoryProducer)
+                        .getBasicNumericFactory().getModulus();
 
-              NumericIOBuilder io = builder.getNumericIOBuilder();
-              modulus = ((BasicNumericFactory) producer).getModulus();
-              NumericProtocolBuilder numeric = builder.getNumericProtocolBuilder();
-              AdvancedNumericBuilder advanced = builder.getAdvancedNumericBuilder();
+                    SInt p = builder.getSIntFactory().getSInt(numerator);
+                    OInt q = builder.getOIntFactory().getOInt(BigInteger.valueOf(denominator));
 
-              SInt p = io.input(numerator, 1);
-              OInt q = numeric.knownOInt(denominator);
-              SInt result = advanced.div(p, q);
+                    Computation<SInt> result = builder.createAdvancedNumericBuilder().div(p, q);
 
-              outputs = new OInt[]{io.output(result)};
+                    openResult = builder.createOpenBuilder().open(result);
+                  }).build();
+            }
 
-              return builder.getProtocol();
+            @Override
+            public BigInteger closeApplication() {
+              if (openResult != null) {
+                OInt out = openResult.out();
+                return out.getValue();
+              }
+              return null;
             }
           };
 
-          secureComputationEngine
+          BigInteger result = (BigInteger) secureComputationEngine
               .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf,
                   conf.sceConf.getSuite()));
 
           Assert.assertEquals(BigInteger.valueOf(numerator / denominator),
-              convertRepresentation(app.getOutputs()[0].getValue(), modulus));
+              convertRepresentation(result, modulus));
         }
       };
     }
   }
 
-  public static class TestDivisionWithRemainder extends TestThreadRunner.TestThreadFactory {
+  public static class TestModulus extends TestThreadRunner.TestThreadFactory {
 
     static int numerator = 9;
     static int denominator = 4;
@@ -201,72 +179,43 @@ public class AdvancedNumericTests {
       return new TestThread() {
         @Override
         public void test() throws Exception {
-          TestApplication app = new TestApplication() {
+          TestApplication<BigInteger> app = new TestApplication<BigInteger>() {
+
+            private Computation<OInt> openResult;
+
             @Override
             public ProtocolProducer prepareApplication(BuilderFactory factoryProducer) {
-              OmniBuilder builder = new OmniBuilder((BuilderFactoryNumeric) factoryProducer);
+              return ProtocolBuilder
+                  .createApplicationRoot((BuilderFactoryNumeric) factoryProducer, (builder) -> {
+                    SInt p = builder.getSIntFactory().getSInt(numerator);
+                    OInt q = builder.getOIntFactory().getOInt(BigInteger.valueOf(denominator));
 
-              NumericIOBuilder io = builder.getNumericIOBuilder();
-              NumericProtocolBuilder numeric = builder.getNumericProtocolBuilder();
-              AdvancedNumericBuilder advanced = builder.getAdvancedNumericBuilder();
+                    Computation<SInt> result = builder.createAdvancedNumericBuilder()
+                        .mod(p, q);
 
-              SInt p = io.input(numerator, 1);
-              OInt q = numeric.knownOInt(denominator);
-              SInt[] results = advanced.divWithRemainder(p, q);
+                    openResult = builder.createOpenBuilder().open(result);
+                  }).build();
+            }
 
-              outputs = io.outputArray(results);
-
-              return builder.getProtocol();
+            @Override
+            public BigInteger closeApplication() {
+              if (openResult != null) {
+                OInt out = openResult.out();
+                return out.getValue();
+              }
+              return null;
             }
           };
 
-          secureComputationEngine
+          BigInteger result = (BigInteger) secureComputationEngine
               .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf,
                   conf.sceConf.getSuite()));
 
-          Assert.assertEquals(BigInteger.valueOf(numerator / denominator),
-              app.getOutputs()[0].getValue());
           Assert.assertEquals(BigInteger.valueOf(numerator % denominator),
-              app.getOutputs()[1].getValue());
+              result);
         }
       };
     }
   }
 
-  public static class TestModulus extends TestThreadRunner.TestThreadFactory {
-
-    @Override
-    public TestThreadRunner.TestThread next(TestThreadRunner.TestThreadConfiguration conf) {
-      return new TestThread() {
-        @Override
-        public void test() throws Exception {
-          TestApplication app = new TestApplication() {
-            @Override
-            public ProtocolProducer prepareApplication(BuilderFactory factoryProducer) {
-              OmniBuilder builder = new OmniBuilder((BuilderFactoryNumeric) factoryProducer);
-
-              NumericIOBuilder io = builder.getNumericIOBuilder();
-              NumericProtocolBuilder numeric = builder.getNumericProtocolBuilder();
-              AdvancedNumericBuilder advanced = builder.getAdvancedNumericBuilder();
-
-              SInt p = io.input(9, 1);
-              OInt q = numeric.knownOInt(4);
-              SInt result = advanced.mod(p, q);
-
-              outputs = new OInt[]{io.output(result)};
-
-              return builder.getProtocol();
-            }
-          };
-
-          secureComputationEngine
-              .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf,
-                  conf.sceConf.getSuite()));
-
-          Assert.assertEquals(BigInteger.valueOf(9 % 4),
-              app.getOutputs()[0].getValue());
-        }
-      };
-    }
-  }
 }

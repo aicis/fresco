@@ -1,4 +1,4 @@
-/*
+/*******************************************************************************
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -24,64 +24,51 @@
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
  *******************************************************************************/
-package dk.alexandra.fresco.lib.math.integer.binary;
+package dk.alexandra.fresco.lib.math.integer.exp;
 
 import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.builder.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder.SequentialProtocolBuilder;
 import dk.alexandra.fresco.framework.value.SInt;
-import java.math.BigInteger;
 import java.util.function.Function;
 
-class BitLengthProtocol4 implements Function<SequentialProtocolBuilder, Computation<SInt>> {
+public class ExponentiationProtocol4
+    implements Function<SequentialProtocolBuilder, Computation<SInt>> {
 
-  private Computation<SInt> input;
-  private int maxBitLength;
+  private final Computation<SInt> input;
+  private final Computation<SInt> exponent;
+  private final int maxExponentBitLength;
 
-  /**
-   * Create a protocol for finding the bit length of an integer. This is done
-   * by finding the bit representation of the integer and then returning the
-   * index of the highest set bit.
-   *
-   * @param input An integer.
-   * @param maxBitLength An upper bound for the bit length.
-   */
-  BitLengthProtocol4(Computation<SInt> input, int maxBitLength) {
+  public ExponentiationProtocol4(Computation<SInt> input, Computation<SInt> exponent,
+      int maxExponentBitLength) {
     this.input = input;
-    this.maxBitLength = maxBitLength;
-
+    this.exponent = exponent;
+    this.maxExponentBitLength = maxExponentBitLength;
   }
 
   @Override
   public Computation<SInt> apply(SequentialProtocolBuilder builder) {
-    return builder.seq((seq) -> {
-    /*
-     * Find the bit representation of the input.
-		 */
-      return seq.createRightShiftBuilder()
-          .rightShiftWithRemainder(input, maxBitLength);
-    }).seq((rightShiftResult, seq) -> {
-      Computation<SInt> mostSignificantBitIndex = seq.getSIntFactory().getSInt(0);
-      for (int n = 0; n < maxBitLength; n++) {
-        SInt currentIndex = seq.getSIntFactory().getSInt(n);
-      /*
-       * If bits[n] == 1 we let mostSignificantIndex be current index.
-			 * Otherwise we leave it be.
-			 */
-        mostSignificantBitIndex =
-            seq.numeric().add(
-                seq.numeric().mult(
-                    rightShiftResult.getRemainder().get(n),
-                    seq.numeric().sub(currentIndex, mostSignificantBitIndex)
-                ),
-                mostSignificantBitIndex);
+    return builder.seq((seq) ->
+        seq.createAdvancedNumericBuilder().toBits(exponent, maxExponentBitLength)
+    ).seq((bits, seq) -> {
+      Computation<SInt> e = input;
+      Computation<SInt> result = seq.getSIntFactory().getSInt(1);
+      NumericBuilder numeric = seq.numeric();
+      for (SInt bit : bits) {
+        /*
+         * result += bits[i] * (result * r - r) + r
+				 *
+				 *  aka.
+				 *
+				 *            result       if bits[i] = 0
+				 * result = {
+				 *            result * e   if bits[i] = 1
+				 */
+        result = numeric
+            .add(numeric.mult(bit, numeric.sub(numeric.mult(result, e), result)), result);
+        e = numeric.mult(e, e);
       }
-    /*
-     * We are interested in the bit length of the input, so we add one to
-		 * the index of the most significant bit since the indices are counted
-		 * from 0.
-		 */
-      return seq.numeric()
-          .add(seq.getOIntFactory().getOInt(BigInteger.ONE), mostSignificantBitIndex);
+      return result;
     });
   }
 }
