@@ -45,12 +45,4 @@ public class DivisionFactoryImpl implements DivisionFactory {
         builderFactory);
   }
 
-	@Override
-	public DivisionProtocol getDivisionProtocol(SInt dividend, SInt divisor,
-												SInt result, OInt precision) {
-		return new SecretSharedDivisorProtocol(dividend, divisor,
-        result,
-        builderFactory);
-  }
-
 }

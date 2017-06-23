@@ -52,24 +52,5 @@ public interface DivisionFactory {
   DivisionProtocol getDivisionProtocol(SInt dividend, OInt divisor,
       SInt quotient);
 
-	/**
-	 * This protocol calculates an approximation of
-	 * <code>floor(dividend / divisor)</code>, which will be either correct or
-	 * slightly smaller than the correct result.
-	 * 
-	 * @param dividend
-	 *            The dividend.
-	 * @param divisor
-	 *            The divisor.
-	 * @param quotient
-	 *            An approximation of <i>dividend / divisor</i>.
-	 * @param precision
-	 *            If this parameter is supplied, the protocol gives a guaranteed
-	 *            lower bound for the number of correct bits of the approximation.
-	 * @return
-	 */
-  DivisionProtocol getDivisionProtocol(SInt dividend, SInt divisor,
-      SInt quotient, OInt precision);
-
 
 }

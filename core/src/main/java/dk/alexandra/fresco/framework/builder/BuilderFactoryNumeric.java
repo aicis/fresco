@@ -4,25 +4,17 @@ import dk.alexandra.fresco.framework.BitLengthBuilder;
 import dk.alexandra.fresco.framework.BuilderFactory;
 import dk.alexandra.fresco.framework.RightShiftBuilder;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.compare.ComparisonProtocolFactory;
-import dk.alexandra.fresco.lib.compare.ComparisonProtocolFactoryImpl;
 import dk.alexandra.fresco.lib.compare.DefaultComparisonBuilder;
 import dk.alexandra.fresco.lib.compare.DefaultRandomAdditiveMaskBuilder;
 import dk.alexandra.fresco.lib.compare.RandomAdditiveMaskFactory;
 import dk.alexandra.fresco.lib.compare.RandomAdditiveMaskFactoryImpl;
-import dk.alexandra.fresco.lib.conversion.IntegerToBitsFactory;
-import dk.alexandra.fresco.lib.conversion.IntegerToBitsFactoryImpl;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
-import dk.alexandra.fresco.lib.math.integer.binary.BitLengthFactory;
-import dk.alexandra.fresco.lib.math.integer.binary.BitLengthFactoryImpl;
 import dk.alexandra.fresco.lib.math.integer.binary.DefaultBitLengthBuilder;
 import dk.alexandra.fresco.lib.math.integer.binary.DefaultRightShiftBuilder;
 import dk.alexandra.fresco.lib.math.integer.binary.RightShiftFactory;
 import dk.alexandra.fresco.lib.math.integer.binary.RightShiftFactoryImpl;
 import dk.alexandra.fresco.lib.math.integer.division.DefaultAdvancedNumericBuilder;
 import dk.alexandra.fresco.lib.math.integer.exp.ExpFromOIntFactory;
-import dk.alexandra.fresco.lib.math.integer.exp.ExponentiationFactory;
-import dk.alexandra.fresco.lib.math.integer.exp.ExponentiationFactoryImpl;
 import dk.alexandra.fresco.lib.math.integer.exp.PreprocessedExpPipeFactory;
 import dk.alexandra.fresco.lib.math.integer.inv.LocalInversionFactory;
 import dk.alexandra.fresco.lib.math.integer.linalg.DefaultInnerProductBuilder;
@@ -106,33 +98,8 @@ public interface BuilderFactoryNumeric extends BuilderFactory {
         localInversionFactory);
   }
 
-  default IntegerToBitsFactory getIntegerToBitsFactory() {
-    return new IntegerToBitsFactoryImpl(getBasicNumericFactory(), getRightShiftFactory());
-  }
-
   default BitLengthBuilder createBitLengthBuilder(ProtocolBuilder builder) {
     return new DefaultBitLengthBuilder(builder);
-  }
-
-  default BitLengthFactory getBitLengthFactory() {
-    return new BitLengthFactoryImpl(getBasicNumericFactory(), getIntegerToBitsFactory());
-  }
-
-  default ExponentiationFactory getExponentiationFactory() {
-    return new ExponentiationFactoryImpl(getBasicNumericFactory(), getIntegerToBitsFactory());
-  }
-
-  default ComparisonProtocolFactory getComparisonFactory() {
-    BasicNumericFactory factory = getBasicNumericFactory();
-    return
-        new ComparisonProtocolFactoryImpl(MAGIC_SECURE_NUMBER,
-            factory,
-            getInversionFactory(),
-            getExpFromOInt(),
-            getPreprocessedExpPipe(
-            ),
-            this);
-
   }
 
 }
