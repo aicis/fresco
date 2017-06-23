@@ -54,6 +54,10 @@ public abstract class ProtocolBuilder {
     return basicNumericFactory;
   }
 
+  public BasicNumericFactory getBasicNumericFactory() {
+    return basicNumericFactory;
+  }
+
   /**
    * Creates a root for this builder - should be applied when construcing
    * protocol producers from an {@link Application}.
