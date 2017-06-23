@@ -55,7 +55,6 @@ public class OmniBuilder extends AbstractProtocolBuilder {
   private ProtocolFactory factory;
   private NumericIOBuilder numericIOBuilder;
   private NumericProtocolBuilder numericProtocolBuilder;
-  private SymmetricEncryptionBuilder symmetricEncryptionBuilder;
 
   //Used in various protocols - typically for comparisons.
   //TODO: Better explanation as to what this is, and what it means for performance/security.
@@ -93,22 +92,6 @@ public class OmniBuilder extends AbstractProtocolBuilder {
       numericProtocolBuilder.setParentBuilder(this);
     }
     return numericProtocolBuilder;
-  }
-
-  /**
-   * Builder used for doing symmetric encryption within arithmetic fields.
-   * Currently expects that the constructor given factory implements all interfaces listed below:
-   * - BasicNumericFactory
-   *
-   * @return A builder that constructs symmetric encryption protocols
-   */
-  public SymmetricEncryptionBuilder getSymmetricEncryptionBuilder() {
-    if (symmetricEncryptionBuilder == null) {
-      BasicNumericFactory basicNumericFactory = (BasicNumericFactory) factory;
-      symmetricEncryptionBuilder = new SymmetricEncryptionBuilder(basicNumericFactory);
-      symmetricEncryptionBuilder.setParentBuilder(this);
-    }
-    return symmetricEncryptionBuilder;
   }
 
   @Override
