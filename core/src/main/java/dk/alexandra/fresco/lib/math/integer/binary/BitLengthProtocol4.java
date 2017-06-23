@@ -23,7 +23,7 @@
  *
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
- *******************************************************************************/
+ */
 package dk.alexandra.fresco.lib.math.integer.binary;
 
 import dk.alexandra.fresco.framework.Computation;
@@ -60,9 +60,10 @@ class BitLengthProtocol4 implements Function<SequentialProtocolBuilder, Computat
       return seq.createRightShiftBuilder()
           .rightShiftWithRemainder(input, maxBitLength);
     }).seq((rightShiftResult, seq) -> {
-      Computation<SInt> mostSignificantBitIndex = seq.getSIntFactory().getSInt(0);
+      Computation<SInt> mostSignificantBitIndex = seq.createInputBuilder()
+          .known(BigInteger.valueOf(0));
       for (int n = 0; n < maxBitLength; n++) {
-        SInt currentIndex = seq.getSIntFactory().getSInt(n);
+        Computation<SInt> currentIndex = seq.createInputBuilder().known(BigInteger.valueOf(n));
       /*
        * If bits[n] == 1 we let mostSignificantIndex be current index.
 			 * Otherwise we leave it be.

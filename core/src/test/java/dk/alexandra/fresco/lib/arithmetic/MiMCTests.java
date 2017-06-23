@@ -23,7 +23,7 @@
  *
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
- *******************************************************************************/
+ */
 package dk.alexandra.fresco.lib.arithmetic;
 
 import dk.alexandra.fresco.framework.BuilderFactory;
@@ -34,12 +34,12 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
+import dk.alexandra.fresco.framework.builder.InputBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.framework.value.SIntFactory;
 import dk.alexandra.fresco.lib.crypto.mimc.MiMCDecryptionProtocolNaiveImpl4;
 import dk.alexandra.fresco.lib.crypto.mimc.MiMCEncryptionProtocolNaiveImpl4;
 import java.math.BigInteger;
@@ -92,9 +92,9 @@ public class MiMCTests {
                   .createApplicationRoot((BuilderFactoryNumeric) factoryProducer, (builder) -> {
                     setModulus(builder.getBasicNumericFactory().getModulus());
 
-                    SIntFactory intFactory = builder.getSIntFactory();
-                    SInt encryptionKey = intFactory.getSInt(BigInteger.valueOf(527618));
-                    SInt plainText = intFactory.getSInt(BigInteger.valueOf(10));
+                    InputBuilder intFactory = builder.createInputBuilder();
+                    Computation<SInt> encryptionKey = intFactory.known(BigInteger.valueOf(527618));
+                    Computation<SInt> plainText = intFactory.known(BigInteger.valueOf(10));
                     Computation<SInt> cipherText = builder.createSequentialSub(
                         new MiMCEncryptionProtocolNaiveImpl4(plainText, encryptionKey)
                     );
@@ -135,9 +135,9 @@ public class MiMCTests {
             public ProtocolProducer prepareApplication(BuilderFactory factoryProducer) {
               return ProtocolBuilder
                   .createApplicationRoot((BuilderFactoryNumeric) factoryProducer, (builder) -> {
-                    SIntFactory intFactory = builder.getSIntFactory();
-                    SInt encryptionKey = intFactory.getSInt(BigInteger.valueOf(527618));
-                    SInt plainText = intFactory.getSInt(BigInteger.valueOf(10));
+                    InputBuilder intFactory = builder.createInputBuilder();
+                    Computation<SInt> encryptionKey = intFactory.known(BigInteger.valueOf(527618));
+                    Computation<SInt> plainText = intFactory.known(BigInteger.valueOf(10));
                     Computation<SInt> cipherText = builder.createSequentialSub(
                         new MiMCEncryptionProtocolNaiveImpl4(plainText, encryptionKey)
                     );
@@ -177,10 +177,10 @@ public class MiMCTests {
             public ProtocolProducer prepareApplication(BuilderFactory factoryProducer) {
               return ProtocolBuilder
                   .createApplicationRoot((BuilderFactoryNumeric) factoryProducer, (builder) -> {
-                    SIntFactory intFactory = builder.getSIntFactory();
-                    SInt encryptionKey = intFactory.getSInt(BigInteger.valueOf(527618));
-                    SInt plainTextA = intFactory.getSInt(BigInteger.valueOf(10));
-                    SInt plainTextB = intFactory.getSInt(BigInteger.valueOf(11));
+                    InputBuilder intFactory = builder.createInputBuilder();
+                    Computation<SInt> encryptionKey = intFactory.known(BigInteger.valueOf(527618));
+                    Computation<SInt> plainTextA = intFactory.known(BigInteger.valueOf(10));
+                    Computation<SInt> plainTextB = intFactory.known(BigInteger.valueOf(11));
                     Computation<SInt> cipherTextA = builder.createSequentialSub(
                         new MiMCEncryptionProtocolNaiveImpl4(plainTextA, encryptionKey)
                     );
@@ -222,9 +222,9 @@ public class MiMCTests {
                 BuilderFactory factoryProducer) {
               return ProtocolBuilder
                   .createApplicationRoot((BuilderFactoryNumeric) factoryProducer, (builder) -> {
-                    SIntFactory intFactory = builder.getSIntFactory();
-                    SInt encryptionKey = intFactory.getSInt(BigInteger.valueOf(10));
-                    SInt plainText = intFactory.getSInt(x_big);
+                    InputBuilder intFactory = builder.createInputBuilder();
+                    Computation<SInt> encryptionKey = intFactory.known(BigInteger.valueOf(10));
+                    Computation<SInt> plainText = intFactory.known(x_big);
                     Computation<SInt> cipherText = builder.createSequentialSub(
                         new MiMCEncryptionProtocolNaiveImpl4(plainText, encryptionKey)
                     );

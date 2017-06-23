@@ -23,7 +23,7 @@
  *
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
- *******************************************************************************/
+ */
 package dk.alexandra.fresco.lib.math.integer.sqrt;
 
 import dk.alexandra.fresco.framework.BuilderFactory;
@@ -34,11 +34,11 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
+import dk.alexandra.fresco.framework.builder.InputBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.framework.value.SIntFactory;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
@@ -73,12 +73,12 @@ public class SqrtTests {
             public ProtocolProducer prepareApplication(BuilderFactory factoryProducer) {
               return ProtocolBuilder
                   .createApplicationRoot((BuilderFactoryNumeric) factoryProducer, (builder) -> {
-                    SIntFactory sIntFactory = builder.getSIntFactory();
+                    InputBuilder sIntFactory = builder.createInputBuilder();
 
                     results = new ArrayList<>(n);
 
                     for (BigInteger input : x) {
-                      SInt actualInput = sIntFactory.getSInt(input);
+                      Computation<SInt> actualInput = sIntFactory.known(input);
                       Computation<SInt> result = builder.createAdvancedNumericBuilder()
                           .sqrt(actualInput, input.bitLength());
                       Computation<OInt> openResult = builder.createOpenBuilder().open(result);

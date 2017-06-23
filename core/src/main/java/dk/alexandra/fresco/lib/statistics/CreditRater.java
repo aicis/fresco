@@ -23,7 +23,7 @@
  *
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
- *******************************************************************************/
+ */
 package dk.alexandra.fresco.lib.statistics;
 
 import dk.alexandra.fresco.framework.Application;
@@ -38,6 +38,7 @@ import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder.SequentialProtocolBuilder;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.math.integer.SumSIntList;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
@@ -154,7 +155,7 @@ public class CreditRater implements Application<SInt> {
           // Add "x > last interval definition" to comparisons
           .seq((comparisons, builder) -> {
             NumericBuilder numericBuilder = builder.numeric();
-            SInt one = builder.getSIntFactory().getSInt(1);
+            Computation<SInt> one = builder.createInputBuilder().known(BigInteger.valueOf(1));
             Computation<SInt> lastComparison = comparisons.get(comparisons.size() - 1);
             comparisons.add(numericBuilder.sub(one, lastComparison));
             return () -> comparisons;

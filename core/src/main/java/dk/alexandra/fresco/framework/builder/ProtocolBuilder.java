@@ -10,7 +10,6 @@ import dk.alexandra.fresco.framework.RightShiftBuilder;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.OIntFactory;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.framework.value.SIntFactory;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.helper.ProtocolProducerCollection;
 import dk.alexandra.fresco.lib.helper.SingleProtocolProducer;
@@ -47,10 +46,6 @@ public abstract class ProtocolBuilder {
   }
 
   public OIntFactory getOIntFactory() {
-    return basicNumericFactory;
-  }
-
-  public SIntFactory getSIntFactory() {
     return basicNumericFactory;
   }
 
@@ -210,6 +205,10 @@ public abstract class ProtocolBuilder {
 
   public AdvancedNumericBuilder createAdvancedNumericBuilder() {
     return factory.createAdvancedNumericBuilder(this);
+  }
+
+  public InputBuilder createInputBuilder() {
+    return factory.createInputBuilder(this);
   }
 
   public BitLengthBuilder createBitLengthBuilder() {

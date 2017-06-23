@@ -23,7 +23,7 @@
  *
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
- *******************************************************************************/
+ */
 package dk.alexandra.fresco.lib.math.integer.binary;
 
 import dk.alexandra.fresco.framework.BuilderFactory;
@@ -95,7 +95,8 @@ public class BinaryOperationsTests {
                       .createApplicationRoot(factoryNumeric,
                           (builder) -> {
                             RightShiftBuilder rightShift = builder.createRightShiftBuilder();
-                            SInt encryptedInput = builder.getSIntFactory().getSInt(input);
+                            Computation<SInt> encryptedInput = builder.createInputBuilder()
+                                .known(input);
                             Computation<RightShiftResult> shiftedRight = rightShift
                                 .rightShiftWithRemainder(encryptedInput, shifts);
                             OpenBuilder openBuilder = builder.createOpenBuilder();

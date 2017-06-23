@@ -38,14 +38,22 @@ public class InnerProductNewApiTest {
             public ProtocolProducer prepareApplication(BuilderFactory producer) {
               BuilderFactoryNumeric factoryNumeric = (BuilderFactoryNumeric) producer;
               ProtocolBuilder pb = ProtocolBuilder.createApplicationRoot(factoryNumeric, seq -> {
-                SInt[] sA = new SInt[a.length];
-                SInt[] sB = new SInt[b.length];
-                for (int i = 0; i < sB.length; i++) {
-                  sA[i] = seq.getSIntFactory().getSInt(a[i]);
-                  sB[i] = seq.getSIntFactory().getSInt(b[i]);
+                List<Computation<SInt>> sA = new ArrayList<>(a.length);
+                List<Computation<SInt>> sB = new ArrayList<>(b.length);
+                for (int i = 0; i < b.length; i++) {
+                  sA.add(seq.createInputBuilder().known(BigInteger.valueOf(a[i])));
+                  sB.add(seq.createInputBuilder().known(BigInteger.valueOf(b[i])));
                 }
-                Computation<SInt> innerProduct = seq
-                    .append(new InnerProductNewApi(factoryNumeric, sA, sB));
+                //Sub scope needed since the InnerProductNewApi needs the actual SInt
+                Computation<SInt> innerProduct = seq.createSequentialSub(
+                    innerSeq ->
+                        innerSeq.append(
+                            new InnerProductNewApi(
+                                factoryNumeric,
+                                sA.stream().map(Computation::out).toArray(SInt[]::new),
+                                sB.stream().map(Computation::out).toArray(SInt[]::new))
+                        )
+                );
                 seq.createIteration(seq2 -> {
                   OpenBuilder af2 = seq2.createOpenBuilder();
                   output.add(af2.open(innerProduct));

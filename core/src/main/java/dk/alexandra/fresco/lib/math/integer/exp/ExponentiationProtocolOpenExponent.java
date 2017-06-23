@@ -48,10 +48,10 @@ public class ExponentiationProtocolOpenExponent
   @Override
   public Computation<SInt> apply(SequentialProtocolBuilder builder) {
     if (exponent.equals(BigInteger.ZERO)) {
-      return builder.getSIntFactory().getSInt(1);
+      return builder.createInputBuilder().known(BigInteger.valueOf(1));
     }
     return builder.seq((seq) -> {
-      Computation<SInt> accOdd = builder.getSIntFactory().getSInt(1);
+      Computation<SInt> accOdd = seq.createInputBuilder().known(BigInteger.valueOf(1));
       Computation<SInt> accEven = base;
       return new IterationState(exponent.getValue(), accEven, accOdd);
     }).whileLoop(

@@ -11,6 +11,7 @@ import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.framework.value.Value;
 import dk.alexandra.fresco.lib.crypto.mimc.MiMCEncryptionProtocolNaiveImpl4;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,10 +38,12 @@ public class EncryptAndRevealStep implements Application {
   public ProtocolProducer prepareApplication(BuilderFactory producer) {
     return ProtocolBuilder.createApplicationRoot((BuilderFactoryNumeric) producer, (builder) -> {
       BasicNumericFactory numericFactory = builder.getBasicNumericFactory();
-      builder.seq((seq) -> {
+      builder.seq((seq) ->
+          builder.createInputBuilder().known(BigInteger.ZERO)
+      ).seq((key, seq) -> {
         // Generate random value to use as encryption key
-        SInt mimcKey = builder.getSIntFactory().getSInt();
-        return numericFactory.getRandomFieldElement(mimcKey);
+        //TODO It should be possible to get a random element in new API
+        return numericFactory.getRandomFieldElement(key);
       }).par((key, par) -> {
         //Store key
         mimcKey = key;

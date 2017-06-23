@@ -40,6 +40,8 @@ public interface BuilderFactoryNumeric extends BuilderFactory {
 
   OpenBuilder createOpenBuilder(ProtocolBuilder builder);
 
+  InputBuilder createInputBuilder(ProtocolBuilder builder);
+
 
   default PreprocessedExpPipeFactory getPreprocessedExpPipe() {
     return (PreprocessedExpPipeFactory) getBasicNumericFactory();

@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -23,7 +23,7 @@
  *
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
- *******************************************************************************/
+ */
 package dk.alexandra.fresco.lib.math.integer.exp;
 
 import dk.alexandra.fresco.framework.Computation;
@@ -31,6 +31,7 @@ import dk.alexandra.fresco.framework.builder.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder.SequentialProtocolBuilder;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
+import java.math.BigInteger;
 import java.util.function.Function;
 
 public class ExponentiationProtocolOpenBase
@@ -53,7 +54,7 @@ public class ExponentiationProtocolOpenBase
         seq.createAdvancedNumericBuilder().toBits(exponent, maxExponentBitLength)
     ).seq((bits, seq) -> {
       OInt e = base;
-      Computation<SInt> result = seq.getSIntFactory().getSInt(1);
+      Computation<SInt> result = builder.createInputBuilder().known(BigInteger.valueOf(1));
       NumericBuilder numeric = seq.numeric();
       for (SInt bit : bits) {
         /*

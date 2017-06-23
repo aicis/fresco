@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -23,7 +23,7 @@
  *
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
- *******************************************************************************/
+ */
 package dk.alexandra.fresco.lib.math.integer.division;
 
 import dk.alexandra.fresco.framework.Computation;
@@ -173,7 +173,8 @@ public class SecretSharedDivisorProtocol4
   }
 
   private Computation<SInt> sign(SequentialProtocolBuilder builder, Computation<SInt> input) {
-    Computation<SInt> result = gte(builder, input, builder.getSIntFactory().getSInt(0));
+    Computation<SInt> result = gte(builder, input,
+        builder.createInputBuilder().known(BigInteger.valueOf(0)));
     OInt two = builder.getOIntFactory().getOInt(BigInteger.valueOf(2));
     OInt one = builder.getOIntFactory().getOInt(BigInteger.valueOf(1));
     result = builder.numeric().mult(two, result);

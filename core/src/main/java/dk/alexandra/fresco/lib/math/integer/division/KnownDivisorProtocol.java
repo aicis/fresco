@@ -101,7 +101,7 @@ public class KnownDivisorProtocol extends SimpleProtocolProducer implements Divi
 		 */
       OInt m = builder.getOIntFactory()
           .getOInt(BigInteger.ONE.shiftLeft(shifts).divide(divisorAbs).add(BigInteger.ONE));
-      Computation<SInt> mConverted = () -> (SInt) builder.getSIntFactory().getSInt(m.getValue());
+      Computation<SInt> mConverted = builder.createInputBuilder().known(m.getValue());
       Computation<SInt> quotientAbs = numeric.mult(mConverted, dividendAbs);
 
 		/*

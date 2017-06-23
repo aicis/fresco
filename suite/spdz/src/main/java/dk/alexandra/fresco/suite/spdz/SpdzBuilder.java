@@ -3,6 +3,7 @@ package dk.alexandra.fresco.suite.spdz;
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
+import dk.alexandra.fresco.framework.builder.InputBuilder;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.OpenBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
@@ -11,11 +12,13 @@ import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzAddProtocol4;
+import dk.alexandra.fresco.suite.spdz.gates.SpdzInputProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzLocalInversionProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzMultProtocol4;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzOutputToAllProtocol4;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzSubtractProtocol4;
 import dk.alexandra.fresco.suite.spdz.utils.SpdzFactory;
+import java.math.BigInteger;
 
 class SpdzBuilder implements BuilderFactoryNumeric {
 
@@ -109,5 +112,24 @@ class SpdzBuilder implements BuilderFactoryNumeric {
       return openProtocol;
     };
 
+  }
+
+  @Override
+  public InputBuilder createInputBuilder(ProtocolBuilder protocolBuilder) {
+    return new InputBuilder() {
+      @Override
+      public Computation<SInt> known(BigInteger value) {
+        //TODO Should probably be handled here instead of delegating to the spdz factory
+        return spdzFactory.getSInt(value);
+      }
+
+      @Override
+      public Computation<SInt> input(BigInteger value, int inputParty) {
+        SpdzSInt out = spdzFactory.getSInt();
+        SpdzInputProtocol protocol = new SpdzInputProtocol(value, out, inputParty);
+        protocolBuilder.append(protocol);
+        return protocol::out;
+      }
+    };
   }
 }
