@@ -32,7 +32,7 @@ import dk.alexandra.fresco.framework.TestApplication;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
-import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
+import dk.alexandra.fresco.framework.network.NetworkCreator;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.compare.ComparisonProtocolFactoryImpl;
@@ -102,7 +102,7 @@ public class ComparisonTests {
 						}
 					};
 					secureComputationEngine
-							.runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf));
+							.runApplication(app, NetworkCreator.createResourcePool(conf.sceConf));
 					Assert.assertEquals(BigInteger.ONE, app.getOutputs()[0].getValue());
 					Assert.assertEquals(BigInteger.ZERO, app.getOutputs()[1].getValue());
 				}
@@ -111,7 +111,7 @@ public class ComparisonTests {
 	}
 	
 	/**
-	 * Compares the two numbers 3 and 5 and checks that 3 < 5. Also checks that 5 is not < 3
+	 * Compares the two numbers 3 and 5 and checks that 3 == 3. Also checks that 5 != 3
 	 * @author Kasper Damgaard
 	 *
 	 */
@@ -163,7 +163,7 @@ public class ComparisonTests {
 						}
 					};
 					secureComputationEngine
-							.runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf));
+							.runApplication(app, NetworkCreator.createResourcePool(conf.sceConf));
 					Assert.assertEquals(BigInteger.ONE, app.getOutputs()[0].getValue());
 					Assert.assertEquals(BigInteger.ZERO, app.getOutputs()[1].getValue());
 				}

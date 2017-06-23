@@ -30,10 +30,14 @@ import com.esotericsoftware.minlog.Log;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.TestConfiguration;
 import dk.alexandra.fresco.framework.network.KryoNetNetwork;
+import dk.alexandra.fresco.framework.network.Network;
+import dk.alexandra.fresco.framework.network.NetworkCreator;
 import dk.alexandra.fresco.framework.sce.SCEFactory;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
 import dk.alexandra.fresco.framework.sce.configuration.ProtocolSuiteConfiguration;
 import dk.alexandra.fresco.framework.sce.configuration.TestSCEConfiguration;
+import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
+
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -108,7 +112,15 @@ public class TestThreadRunner {
     private void runTearDown() {
       try {
         if (secureComputationEngine != null) {
-          secureComputationEngine.shutdownSCE();
+          //Shut down SCE resources - does not include the resource pool.
+          secureComputationEngine.shutdownSCE();    
+          //Shut down network in particular. All tests should use the NetworkCreator 
+          //in order for this to work, or manage the network themselves.
+          Map<Integer, ResourcePoolImpl> rps = NetworkCreator.getCurrentResourcePools();
+          for(int id: rps.keySet()) {
+            Network network = rps.get(id).getNetwork();
+            network.close();
+          }           
         }
         tearDown();
         finished = true;

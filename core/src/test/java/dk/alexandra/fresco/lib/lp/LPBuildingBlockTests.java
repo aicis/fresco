@@ -33,7 +33,7 @@ import dk.alexandra.fresco.framework.TestApplication;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
-import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
+import dk.alexandra.fresco.framework.network.NetworkCreator;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.debug.MarkerProtocolImpl;
@@ -190,7 +190,7 @@ public class LPBuildingBlockTests {
 
 					};
 					secureComputationEngine
-							.runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf));
+							.runApplication(app, NetworkCreator.createResourcePool(conf.sceConf));
 				}
 			};
 		}
@@ -229,7 +229,7 @@ public class LPBuildingBlockTests {
 					};
 					app.mod = mod;
 					secureComputationEngine
-							.runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf));
+							.runApplication(app, NetworkCreator.createResourcePool(conf.sceConf));
 					int actualIndex = 0;
 					int sum = 0;
 					BigInteger zero = BigInteger.ZERO;
@@ -268,7 +268,7 @@ public class LPBuildingBlockTests {
 					};
 
 					secureComputationEngine
-							.runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf));
+							.runApplication(app, NetworkCreator.createResourcePool(conf.sceConf));
 				}
 			};
 		}
@@ -293,7 +293,7 @@ public class LPBuildingBlockTests {
 					};
 
 					secureComputationEngine
-							.runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf));
+							.runApplication(app, NetworkCreator.createResourcePool(conf.sceConf));
 				}
 			};
 		}

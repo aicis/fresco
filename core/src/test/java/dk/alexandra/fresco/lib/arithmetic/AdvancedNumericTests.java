@@ -33,7 +33,7 @@ import dk.alexandra.fresco.framework.TestThreadRunner;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
-import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
+import dk.alexandra.fresco.framework.network.NetworkCreator;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
@@ -81,7 +81,7 @@ public class AdvancedNumericTests {
           };
 
           secureComputationEngine
-              .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf));
+              .runApplication(app, NetworkCreator.createResourcePool(conf.sceConf));
 
           Assert.assertEquals(BigInteger.valueOf(numerator / denominator),
               convertRepresentation(app.getOutputs()[0].getValue(), modulus));
@@ -128,7 +128,7 @@ public class AdvancedNumericTests {
           };
 
           secureComputationEngine
-              .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf));
+              .runApplication(app, NetworkCreator.createResourcePool(conf.sceConf));
 
           Assert.assertEquals(BigInteger.valueOf(9 / 4),
               app.getOutputs()[0].getValue());
@@ -173,7 +173,7 @@ public class AdvancedNumericTests {
           };
 
           secureComputationEngine
-              .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf));
+              .runApplication(app, NetworkCreator.createResourcePool(conf.sceConf));
 
           Assert.assertEquals(BigInteger.valueOf(numerator / denominator),
               convertRepresentation(app.getOutputs()[0].getValue(), modulus));
@@ -211,7 +211,7 @@ public class AdvancedNumericTests {
           };
 
           secureComputationEngine
-              .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf));
+              .runApplication(app, NetworkCreator.createResourcePool(conf.sceConf));
 
           Assert.assertEquals(BigInteger.valueOf(numerator / denominator),
               app.getOutputs()[0].getValue());
@@ -248,7 +248,7 @@ public class AdvancedNumericTests {
           };
 
           secureComputationEngine
-              .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf));
+              .runApplication(app, NetworkCreator.createResourcePool(conf.sceConf));
 
           Assert.assertEquals(BigInteger.valueOf(9 % 4),
               app.getOutputs()[0].getValue());

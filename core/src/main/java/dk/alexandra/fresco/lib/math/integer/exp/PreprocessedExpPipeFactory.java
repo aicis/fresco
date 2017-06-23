@@ -30,5 +30,10 @@ import dk.alexandra.fresco.framework.value.SInt;
 
 public interface PreprocessedExpPipeFactory {
 
-	public SInt[] getExponentiationPipe();
+  /**
+   * Creates an array containing the list of r^-1, r, r^2, ... r^{max bit size}
+   * The maximum bit size is defined by the implementing factory. 
+   * @return An array of r^-1, r, r^2, ... r^{max bit size}
+   */
+  public SInt[] getExponentiationPipe();
 }

@@ -265,7 +265,7 @@ public class KryoNetNetwork implements Network {
 					this.clients.get(i).get(j).stop();
 				}
 			}
-		}
+		}	
 	}
 	
 	private static class Registrator {

@@ -29,7 +29,7 @@ import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
-import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
+import dk.alexandra.fresco.framework.network.NetworkCreator;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
@@ -77,14 +77,14 @@ public class DEASolverFixedDataTest {
 
           DEATestApp app1 = new DEATestApp(dataSet1, type);
           secureComputationEngine
-              .runApplication(app1, SecureComputationEngineImpl.createResourcePool(conf.sceConf));
+              .runApplication(app1, NetworkCreator.createResourcePool(conf.sceConf));
           for (int i = 0; i < app1.solverResult.length; i++) {
             Assert.assertEquals(app1.plainResult[i], postProcess(app1.solverResult[i], type,
                 app1.modulus), 0.0000001);
           }
           DEATestApp app2 = new DEATestApp(dataSet2, type);
           secureComputationEngine
-              .runApplication(app2, SecureComputationEngineImpl.createResourcePool(conf.sceConf));
+              .runApplication(app2, NetworkCreator.createResourcePool(conf.sceConf));
           for (int i = 0; i < app2.solverResult.length; i++) {
             Assert.assertEquals(app2.plainResult[i], postProcess(app2.solverResult[i], type,
                 app1.modulus), 0.0000001);

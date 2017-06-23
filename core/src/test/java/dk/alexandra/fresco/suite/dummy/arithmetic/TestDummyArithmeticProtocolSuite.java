@@ -8,6 +8,8 @@ import dk.alexandra.fresco.lib.arithmetic.BasicArithmeticTests;
 import dk.alexandra.fresco.lib.arithmetic.ComparisonTests;
 import dk.alexandra.fresco.lib.arithmetic.LogicTests;
 import dk.alexandra.fresco.lib.arithmetic.SortingTests;
+import dk.alexandra.fresco.lib.math.integer.division.DivisionTests;
+import dk.alexandra.fresco.lib.math.integer.sqrt.SqrtTests;
 import dk.alexandra.fresco.lib.math.integer.stat.StatisticsTests;
 
 public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTest {
@@ -59,7 +61,7 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
   }
 
   //Comparisons
-
+/*
   @Test
   public void test_MinInfFrac_Sequential() throws Exception {
     runTest(new BasicArithmeticTests.TestMinInfFrac(), EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET,
@@ -71,7 +73,7 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
     runTest(new BasicArithmeticTests.TestMinInfFrac(), EvaluationStrategy.SEQUENTIAL_BATCHED,
         NetworkingStrategy.KRYONET, 2);
   }
-
+*/
   @Test
   public void test_compareLT_Sequential() throws Exception {
     runTest(new ComparisonTests.TestCompareLT(),
@@ -111,6 +113,23 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
         EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET, 2);
   }
   
+  //Math tests
+  
+  @Test
+  public void test_euclidian_division() throws Exception {
+    runTest(new DivisionTests.TestEuclidianDivision(), EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET, 2);
+  }
+  
+  @Test
+  public void test_ss_division() throws Exception {
+    runTest(new DivisionTests.TestSecretSharedDivision(), EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET, 2);
+  }
+   
+  @Test
+  public void test_sqrt() throws Exception {
+    runTest(new SqrtTests.TestSquareRoot(), EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET, 2);
+  }
+  
   //Statistics
   
   @Test
@@ -122,4 +141,6 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
   public void test_Exiting_Variable_3_parties() throws Exception {
       runTest(new StatisticsTests.TestStatistics(), EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET, 3);
   }
+  
+  
 }

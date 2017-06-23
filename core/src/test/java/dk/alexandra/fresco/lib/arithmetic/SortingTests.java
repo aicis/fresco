@@ -32,7 +32,7 @@ import dk.alexandra.fresco.framework.TestApplication;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
-import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
+import dk.alexandra.fresco.framework.network.NetworkCreator;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.compare.ComparisonProtocolFactoryImpl;
@@ -108,7 +108,7 @@ public class SortingTests {
 						}
 					};
 					secureComputationEngine
-							.runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf));
+							.runApplication(app, NetworkCreator.createResourcePool(conf.sceConf));
 					secureComputationEngine.shutdownSCE();
           Assert.assertEquals(BigInteger.ZERO, app.getOutputs()[0].getValue());
 					Assert.assertEquals(BigInteger.ONE, app.getOutputs()[1].getValue());
@@ -165,7 +165,7 @@ public class SortingTests {
 						}
 					};
 					secureComputationEngine
-							.runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf));
+							.runApplication(app, NetworkCreator.createResourcePool(conf.sceConf));
 					secureComputationEngine.shutdownSCE();
           Assert.assertEquals(BigInteger.ONE, app.getOutputs()[0].getValue());
 					Assert.assertEquals(BigInteger.valueOf(2), app.getOutputs()[1].getValue());
@@ -235,7 +235,7 @@ public class SortingTests {
 						}
 					};
 					secureComputationEngine
-							.runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf));
+							.runApplication(app, NetworkCreator.createResourcePool(conf.sceConf));
 					secureComputationEngine.shutdownSCE();
           Assert.assertEquals(BigInteger.ZERO, app.getOutputs()[0].getValue()); //unsorted is unsorted
 					Assert.assertEquals(BigInteger.valueOf(0),app.getOutputs()[2].getValue());
@@ -308,7 +308,7 @@ public class SortingTests {
 						}
 					};
 					secureComputationEngine
-							.runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf));
+							.runApplication(app, NetworkCreator.createResourcePool(conf.sceConf));
 					secureComputationEngine.shutdownSCE();
           Assert.assertEquals(BigInteger.ZERO, app.getOutputs()[0].getValue()); //unsorted is unsorted to start
 					Assert.assertEquals(BigInteger.ONE, app.getOutputs()[1].getValue()); //tobesorted is sorted at the end
