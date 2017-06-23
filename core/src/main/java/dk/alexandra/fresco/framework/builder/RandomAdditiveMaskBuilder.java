@@ -10,10 +10,10 @@ public interface RandomAdditiveMaskBuilder {
 
   class RandomAdditiveMask {
 
-    public final List<SInt> bits;
+    public final List<Computation<SInt>> bits;
     public final SInt r;
 
-    public RandomAdditiveMask(List<SInt> bits, SInt r) {
+    public RandomAdditiveMask(List<Computation<SInt>> bits, SInt r) {
       this.bits = bits;
       this.r = r;
     }

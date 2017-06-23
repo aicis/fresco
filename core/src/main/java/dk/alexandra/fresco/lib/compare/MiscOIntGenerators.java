@@ -27,9 +27,12 @@
 package dk.alexandra.fresco.lib.compare;
 
 import dk.alexandra.fresco.framework.value.OInt;
+import dk.alexandra.fresco.framework.value.OIntFactory;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import java.math.BigInteger;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 
@@ -44,6 +47,7 @@ public class MiscOIntGenerators {
 
   Map<Integer, OInt[]> coefficientsOfPolynomiums;
   OInt[] twoPowers;
+  LinkedList<OInt> twoPowersList;
   // should twoPowers be a List?
 
 
@@ -54,6 +58,8 @@ public class MiscOIntGenerators {
     twoPowers = new OInt[1];
     twoPowers[0] = factory.getOInt();
     twoPowers[0].setValue(BigInteger.ONE);
+    twoPowersList = new LinkedList<>();
+    twoPowersList.add(twoPowers[0]);
   }
 
 
@@ -148,12 +154,12 @@ public class MiscOIntGenerators {
   /**
    * Generate all two-powers 2^i for i<l
    *
-   * @param l array length
+   * @param length array length
    * @return Array of length l with result[i] == 2^i
    */
-  public OInt[] getTwoPowers(int l) {
-    if (l > twoPowers.length) {
-      OInt[] newArray = new OInt[l];
+  public OInt[] getTwoPowers(int length) {
+    if (length > twoPowers.length) {
+      OInt[] newArray = new OInt[length];
       System.arraycopy(twoPowers, 0, newArray, 0, twoPowers.length);
       BigInteger currentValue = twoPowers[twoPowers.length - 1].getValue();
       for (int i = twoPowers.length; i < newArray.length; i++) {
@@ -164,8 +170,19 @@ public class MiscOIntGenerators {
       twoPowers = newArray;
     }
     // TODO: avoid copying.... also; since OInts are mutable, perhaps we should clone.
-    OInt[] result = new OInt[l];
-    System.arraycopy(twoPowers, 0, result, 0, l);
+    OInt[] result = new OInt[length];
+    System.arraycopy(twoPowers, 0, result, 0, length);
     return result;
+  }
+
+  public List<OInt> getTwoPowersList(OIntFactory factory, int length) {
+    if (length > twoPowersList.size()) {
+      BigInteger currentValue = twoPowersList.getLast().getValue();
+      while (length > twoPowersList.size()) {
+        currentValue = currentValue.shiftLeft(1);
+        twoPowersList.add(factory.getOInt(currentValue));
+      }
+    }
+    return twoPowersList.subList(0, length);
   }
 }

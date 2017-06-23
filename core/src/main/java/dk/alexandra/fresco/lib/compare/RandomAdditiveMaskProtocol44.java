@@ -12,7 +12,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 public class RandomAdditiveMaskProtocol44
     implements Function<SequentialProtocolBuilder, Computation<RandomAdditiveMask>> {
@@ -48,7 +47,7 @@ public class RandomAdditiveMaskProtocol44
     value = innerProductBuilder.openDot(Arrays.asList(twoPows), allBits);
     bits = allBits.subList(0, noOfBits);
     return () -> new RandomAdditiveMask(
-        bits.stream().map(Computation::out).collect(Collectors.toList()),
+        bits,
         value.out());
   }
 }

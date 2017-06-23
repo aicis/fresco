@@ -72,7 +72,7 @@ public class RightShiftProtocol4
       OInt two = parSubSequential.getOIntFactory().getOInt(BigInteger.valueOf(2));
       NumericBuilder numericBuilder = parSubSequential.numeric();
       Computation<? extends OInt> inverseOfTwo = numericBuilder.invert(two);
-      Computation<SInt> rBottom = () -> randomAdditiveMask.bits.get(0);
+      Computation<SInt> rBottom = randomAdditiveMask.bits.get(0);
       Computation<SInt> sub = numericBuilder
           .sub(() -> randomAdditiveMask.r, rBottom);
       Computation<SInt> rTop = numericBuilder.mult(inverseOfTwo.out(), sub);

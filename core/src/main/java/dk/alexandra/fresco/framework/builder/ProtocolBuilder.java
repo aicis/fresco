@@ -387,7 +387,10 @@ public abstract class ProtocolBuilder {
     }
 
     public OutputT out() {
-      return output.out();
+      if (output != null) {
+        return output.out();
+      }
+      return null;
     }
 
     private ProtocolProducer createProducer(
