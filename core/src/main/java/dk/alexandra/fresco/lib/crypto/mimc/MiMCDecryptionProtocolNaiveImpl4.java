@@ -27,34 +27,36 @@
 package dk.alexandra.fresco.lib.crypto.mimc;
 
 import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.builder.AdvancedNumericBuilder;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder.SequentialProtocolBuilder;
 import dk.alexandra.fresco.framework.value.OInt;
+import dk.alexandra.fresco.framework.value.OIntFactory;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import java.math.BigInteger;
 import java.util.function.Function;
 
-public class MiMCEncryptionProtocolNaiveImpl4
+public class MiMCDecryptionProtocolNaiveImpl4
     implements Function<SequentialProtocolBuilder, Computation<SInt>> {
 
   // TODO: require that our modulus - 1 and 3 are co-prime
 
   private final Computation<SInt> encryptionKey;
-  private final Computation<SInt> plainText;
+  private final Computation<SInt> cipherText;
   private final Integer requestedRounds;
 
   /**
    * Implementation of the MiMC decryption protocol.
    *
-   * @param plainText The secret-shared plain text to encrypt.
-   * @param encryptionKey The symmetric (secret-shared) key we will use to encrypt.
+   * @param cipherText The secret-shared cipher text to decrypt.
+   * @param encryptionKey The symmetric (secret-shared) key we will use to decrypt.
    * @param requiredRounds The number of rounds to use.
    */
-  public MiMCEncryptionProtocolNaiveImpl4(
-      Computation<SInt> plainText, Computation<SInt> encryptionKey, Integer requiredRounds) {
+  public MiMCDecryptionProtocolNaiveImpl4(
+      Computation<SInt> cipherText, Computation<SInt> encryptionKey, Integer requiredRounds) {
+    this.cipherText = cipherText;
     this.encryptionKey = encryptionKey;
-    this.plainText = plainText;
     this.requestedRounds = requiredRounds;
   }
 
@@ -62,69 +64,82 @@ public class MiMCEncryptionProtocolNaiveImpl4
    * Implementation of the MiMC decryption protocol.
    * Using default amount of rounds, log_3(modulus) rounded up.
    *
-   * @param plainText The secret-shared plain text to encrypt.
-   * @param encryptionKey The symmetric (secret-shared) key we will use to encrypt.
+   * @param cipherText The secret-shared cipher text to decrypt.
+   * @param encryptionKey The symmetric (secret-shared) key we will use to decrypt.
    */
-  public MiMCEncryptionProtocolNaiveImpl4(
-      Computation<SInt> plainText, Computation<SInt> encryptionKey) {
-    this(plainText, encryptionKey, null);
+  public MiMCDecryptionProtocolNaiveImpl4(
+      Computation<SInt> cipherText, Computation<SInt> encryptionKey) {
+    this(cipherText, encryptionKey, null);
   }
-
 
   @Override
   public Computation<SInt> apply(SequentialProtocolBuilder builder) {
-    final int requiredRounds = getRequiredRounds(builder.getBasicNumericFactory(), requestedRounds);
-    OInt three = builder.getOIntFactory().getOInt(BigInteger.valueOf(3));
-    /*
-     * In the first round we compute c = (p + K)^{3}
-		 * where p is the plain text.
-		 */
+    BasicNumericFactory basicNumericFactory = builder.getBasicNumericFactory();
+    int requiredRounds = MiMCEncryptionProtocolNaiveImpl4
+        .getRequiredRounds(basicNumericFactory, requestedRounds);
+    final OInt threeInverse = builder.getOIntFactory().getOInt(
+        calculateThreeInverse(basicNumericFactory)
+    );
+
     return builder.seq(seq -> {
-      Computation<SInt> add = seq.numeric().add(plainText, encryptionKey);
-      return new IterationState(1, seq.createAdvancedNumericBuilder().exp(add, three));
+
+			/*
+       * We're in the first round so we need to initialize
+			 * by subtracting the key from the input cipher text
+			 */
+      Computation<SInt> sub = seq.numeric().sub(cipherText, encryptionKey);
+      return new IterationState(1, sub);
     }).whileLoop(
         (state) -> state.round < requiredRounds,
         (state, seq) -> {
           /*
            * We're in an intermediate round where we compute
-           * c_{i} = (c_{i - 1} + K + r_{i})^{3}
+           * c_{i} = c_{i - 1}^(3^(-1)) - K - r_{i}
            * where K is the symmetric key
            * i is the reverse of the current round count
            * r_{i} is the round constant
            * c_{i - 1} is the cipher text we have computed
            * in the previous round
            */
-          BigInteger roundConstantInteger = MiMCConstants
-              .getConstant(state.round, seq.getBasicNumericFactory().getModulus());
-          NumericBuilder numeric = seq.numeric();
-          OInt roundConstant = seq.getOIntFactory().getOInt(roundConstantInteger);
-          Computation<SInt> masked = numeric.add(
-              roundConstant,
-              numeric.add(state.value, encryptionKey)
+          Computation<SInt> inverted = seq.createAdvancedNumericBuilder()
+              .exp(state.value, threeInverse);
+
+          /*
+           * In order to obtain the correct round constants we will
+           * use the reverse round count
+           * (since for decryption we are going in the reverse order)
+           */
+          int reverseRoundCount = requiredRounds - state.round;
+
+          // Get round constant
+          OIntFactory oIntFactory = seq.getOIntFactory();
+          OInt roundConstant = oIntFactory.getOInt(
+              MiMCConstants.getConstant(reverseRoundCount, basicNumericFactory.getModulus())
           );
-          Computation<SInt> updatedValue = seq.createAdvancedNumericBuilder().exp(masked, three);
+
+          // subtract key and round constant
+          NumericBuilder numeric = seq.numeric();
+          Computation<SInt> updatedValue = numeric
+              .sub(numeric.sub(inverted, encryptionKey), roundConstant);
           return new IterationState(state.round + 1, updatedValue);
         }
-    ).seq((state, seq) ->
-        /*
-         * We're in the last round so we just mask the current
-         * cipher text with the encryption key
-         */
-        seq.numeric().add(state.value, encryptionKey)
-    );
+    ).seq((state, seq) -> {
+      /*
+       * We're in the last round so we just need to compute
+			 * c^{-3} - K
+			 */
+      AdvancedNumericBuilder advancedNumericBuilder = seq.createAdvancedNumericBuilder();
+      Computation<SInt> inverted = advancedNumericBuilder.exp(state.value, threeInverse);
+
+      return seq.numeric().sub(inverted, encryptionKey);
+    });
   }
 
-  static int getRequiredRounds(BasicNumericFactory basicNumericFactory, Integer requestedRounds) {
-    final int requiredRounds;
-    if (requestedRounds == null) {
-      BigInteger modulus = basicNumericFactory.getModulus();
-      requiredRounds = (int) Math.ceil(Math.log(modulus.doubleValue()) / Math.log(3));
-    } else {
-      requiredRounds = requestedRounds;
-    }
-    return requiredRounds;
+  private BigInteger calculateThreeInverse(BasicNumericFactory basicNumericFactory) {
+    BigInteger modulus = basicNumericFactory.getModulus();
+    BigInteger expP = modulus.subtract(BigInteger.ONE);
+    return BigInteger.valueOf(3).modInverse(expP);
   }
-
 
   private static final class IterationState implements Computation<IterationState> {
 

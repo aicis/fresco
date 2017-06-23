@@ -40,8 +40,8 @@ import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.framework.value.SIntFactory;
+import dk.alexandra.fresco.lib.crypto.mimc.MiMCDecryptionProtocolNaiveImpl4;
 import dk.alexandra.fresco.lib.crypto.mimc.MiMCEncryptionProtocolNaiveImpl4;
-import dk.alexandra.fresco.lib.helper.builder.SymmetricEncryptionBuilder;
 import java.math.BigInteger;
 import org.junit.Assert;
 
@@ -228,13 +228,9 @@ public class MiMCTests {
                     Computation<SInt> cipherText = builder.createSequentialSub(
                         new MiMCEncryptionProtocolNaiveImpl4(plainText, encryptionKey)
                     );
-                    Computation<SInt> decrypted = builder.createSequentialSub((seq) -> {
-                      SymmetricEncryptionBuilder builder1 = new SymmetricEncryptionBuilder(
-                          seq.getBasicNumericFactory());
-                      SInt output = builder1.mimcDecrypt(cipherText.out(), encryptionKey);
-                      seq.append(builder1.getProtocol());
-                      return () -> output;
-                    });
+                    Computation<SInt> decrypted = builder.createSequentialSub(
+                        new MiMCDecryptionProtocolNaiveImpl4(cipherText, encryptionKey)
+                    );
                     result = builder.createOpenBuilder().open(decrypted);
                   }).build();
             }
