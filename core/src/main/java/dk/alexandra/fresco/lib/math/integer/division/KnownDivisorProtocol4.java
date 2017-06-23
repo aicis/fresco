@@ -96,8 +96,8 @@ public class KnownDivisorProtocol4 implements
 		 * division to ensure that this is indeed the case.
 		 */
     BigInteger m = BigInteger.ONE.shiftLeft(shifts).divide(divisorAbs).add(BigInteger.ONE);
-    SInt mConverted = builder.getSIntFactory().getSInt(m);
-    Computation<SInt> quotientAbs = numeric.mult(mConverted, dividendAbs);
+    OInt mAsOInt = builder.getOIntFactory().getOInt(m);
+    Computation<SInt> quotientAbs = numeric.mult(mAsOInt, dividendAbs);
 
 		/*
      * Now quotientAbs is the result shifted SHIFTS bits to the left, so we
