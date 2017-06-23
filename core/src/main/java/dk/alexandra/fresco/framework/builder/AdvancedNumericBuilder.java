@@ -63,4 +63,13 @@ public interface AdvancedNumericBuilder {
    * @return An approximation of the square root of the input.
    */
   Computation<SInt> sqrt(Computation<SInt> input, int maxInputLength);
+
+  /**
+   * Calculating the natural logarithm of a given input.
+   *
+   * @param input The input.
+   * @param maxInputLength An upper bound for the bit length of the input.
+   * @return The natural logarithm of the input.
+   */
+  Computation<SInt> log(Computation<SInt> input, int maxInputLength);
 }
