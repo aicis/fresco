@@ -140,41 +140,37 @@ public class CreditRater implements Application<SInt> {
 
     @Override
     public Computation<SInt> apply(SequentialProtocolBuilder rootBuilder) {
-      return rootBuilder.par(
-          (parallelBuilder) -> {
-            List<Computation<SInt>> result = new ArrayList<>();
-            ComparisonBuilder<SInt> builder = parallelBuilder.comparison();
+      return rootBuilder.par((parallelBuilder) -> {
+        List<Computation<SInt>> result = new ArrayList<>();
+        ComparisonBuilder<SInt> builder = parallelBuilder.comparison();
 
-            // Compare if "x <= the n interval definitions"
-            for (Computation<SInt> anInterval : interval) {
-              result.add(builder.compare(value, anInterval));
-            }
-            return () -> result;
-          })
-          // Add "x > last interval definition" to comparisons
-          .seq((comparisons, builder) -> {
-            NumericBuilder numericBuilder = builder.numeric();
-            SInt one = builder.getSIntFactory().getSInt(1);
-            Computation<SInt> lastComparison = comparisons.get(comparisons.size() - 1);
-            comparisons.add(numericBuilder.sub(one, lastComparison));
-            return () -> comparisons;
-          })
-          //Comparisons now contain if x <= each definition and if x>= last definition
-          .par((comparisons, parallelBuilder) -> {
-            NumericBuilder numericBuilder = parallelBuilder.numeric();
-            List<Computation<SInt>> innerScores = new ArrayList<>();
-            innerScores.add(numericBuilder.mult(comparisons.get(0), scores.get(0)));
-            for (int i = 1; i < scores.size() - 1; i++) {
-              Computation<SInt> hit = numericBuilder
-                  .sub(comparisons.get(i), comparisons.get(i - 1));
-              innerScores.add(numericBuilder.mult(hit, scores.get(i)));
-            }
-            Computation<SInt> a = comparisons.get(scores.size() - 1);
-            Computation<SInt> b = scores.get(scores.size() - 1);
-            innerScores.add(numericBuilder.mult(a, b));
-            return () -> innerScores;
-          })
-          .seq(new SumSIntList());
+        // Compare if "x <= the n interval definitions"
+        for (Computation<SInt> anInterval : interval) {
+          result.add(builder.compare(value, anInterval));
+        }
+        return () -> result;
+      }).seq((comparisons, builder) -> {
+        // Add "x > last interval definition" to comparisons
+        NumericBuilder numericBuilder = builder.numeric();
+        SInt one = builder.getSIntFactory().getSInt(1);
+        Computation<SInt> lastComparison = comparisons.get(comparisons.size() - 1);
+        comparisons.add(numericBuilder.sub(one, lastComparison));
+        return () -> comparisons;
+      }).par((comparisons, parallelBuilder) -> {
+        //Comparisons now contain if x <= each definition and if x>= last definition
+        NumericBuilder numericBuilder = parallelBuilder.numeric();
+        List<Computation<SInt>> innerScores = new ArrayList<>();
+        innerScores.add(numericBuilder.mult(comparisons.get(0), scores.get(0)));
+        for (int i = 1; i < scores.size() - 1; i++) {
+          Computation<SInt> hit = numericBuilder
+              .sub(comparisons.get(i), comparisons.get(i - 1));
+          innerScores.add(numericBuilder.mult(hit, scores.get(i)));
+        }
+        Computation<SInt> a = comparisons.get(scores.size() - 1);
+        Computation<SInt> b = scores.get(scores.size() - 1);
+        innerScores.add(numericBuilder.mult(a, b));
+        return () -> innerScores;
+      }).seq(new SumSIntList());
     }
   }
 }
