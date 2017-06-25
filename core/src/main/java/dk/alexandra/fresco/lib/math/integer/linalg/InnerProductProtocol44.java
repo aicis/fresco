@@ -7,6 +7,7 @@ import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.math.integer.SumSIntList;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.RandomAccess;
 import java.util.function.Function;
 
 public class InnerProductProtocol44 implements
@@ -18,8 +19,16 @@ public class InnerProductProtocol44 implements
   InnerProductProtocol44(
       List<Computation<SInt>> aVector,
       List<Computation<SInt>> bVector) {
-    this.aVector = aVector;
-    this.bVector = bVector;
+    this.aVector = getRandomAccessList(aVector);
+    this.bVector = getRandomAccessList(bVector);
+  }
+
+  private List<Computation<SInt>> getRandomAccessList(List<Computation<SInt>> aVector) {
+    if (aVector instanceof RandomAccess) {
+      return aVector;
+    } else {
+      return new ArrayList<>(aVector);
+    }
   }
 
   @Override
