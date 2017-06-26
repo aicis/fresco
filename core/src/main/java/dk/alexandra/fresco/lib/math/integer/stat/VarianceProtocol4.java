@@ -38,9 +38,9 @@ public class VarianceProtocol4
     implements Function<SequentialProtocolBuilder, Computation<SInt>> {
 
   private final List<Computation<SInt>> data;
-  private final SInt mean;
+  private final Computation<SInt> mean;
 
-  VarianceProtocol4(List<Computation<SInt>> data, SInt mean) {
+  VarianceProtocol4(List<Computation<SInt>> data, Computation<SInt> mean) {
     this.data = data;
     this.mean = mean;
   }
