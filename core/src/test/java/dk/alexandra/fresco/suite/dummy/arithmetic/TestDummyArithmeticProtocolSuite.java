@@ -61,7 +61,7 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
   }
 
   //Comparisons
-/*
+
   @Test
   public void test_MinInfFrac_Sequential() throws Exception {
     runTest(new BasicArithmeticTests.TestMinInfFrac(), EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET,
@@ -73,7 +73,7 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
     runTest(new BasicArithmeticTests.TestMinInfFrac(), EvaluationStrategy.SEQUENTIAL_BATCHED,
         NetworkingStrategy.KRYONET, 2);
   }
-*/
+
   @Test
   public void test_compareLT_Sequential() throws Exception {
     runTest(new ComparisonTests.TestCompareLT(),

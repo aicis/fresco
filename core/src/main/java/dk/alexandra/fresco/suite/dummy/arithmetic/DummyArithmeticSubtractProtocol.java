@@ -68,6 +68,7 @@ public class DummyArithmeticSubtractProtocol extends DummyArithmeticProtocol imp
   @Override
   public EvaluationStatus evaluate(int round, ResourcePool resourcePool, SCENetwork network) {
     BigInteger mod = DummyArithmeticProtocolSuite.getModulus();
+    
     if(left != null && right != null) {
       this.out.setValue(left.getValue().subtract(right.getValue()).mod(mod));
     } else if(left != null && openRight != null){
@@ -75,6 +76,7 @@ public class DummyArithmeticSubtractProtocol extends DummyArithmeticProtocol imp
     } else {
       this.out.setValue(openLeft.getValue().subtract(right.getValue()).mod(mod));
     }
+    //System.out.println("left: " + left+", right: "+ right+", out: " + out +", openLeft: " + openLeft+", openRight: "+ openRight+", out: " + out);
     return EvaluationStatus.IS_DONE;
   }
 

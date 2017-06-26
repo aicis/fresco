@@ -254,7 +254,8 @@ public class KryoNetNetwork implements Network {
 
 	@Override
 	public void close() throws IOException {		
-		Reporter.fine("Shutting down KryoNet network");
+		Reporter.fine("Shutting down KryoNet network");		
+		
 		for(int j = 0; j < channelAmount; j++) {
 			this.servers.get(j).stop();			
 		}
@@ -266,6 +267,7 @@ public class KryoNetNetwork implements Network {
 				}
 			}
 		}	
+		
 	}
 	
 	private static class Registrator {

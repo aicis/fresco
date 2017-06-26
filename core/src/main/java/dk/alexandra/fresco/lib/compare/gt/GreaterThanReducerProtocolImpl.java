@@ -132,7 +132,7 @@ public class GreaterThanReducerProtocolImpl implements GreaterThanProtocol {
   private SInt mPrime, rPrime;
 
   @Override
-  public void getNextProtocols(ProtocolCollection protocolCollection) {
+  public void getNextProtocols(ProtocolCollection protocolCollection) {    
     if (pp == null) {
       switch (round) {
         case 0:
