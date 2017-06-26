@@ -39,9 +39,8 @@ import java.util.function.Function;
 
 /**
  * Calculates the Covariance matrix for the supplied data.
- * Note that only lower triangle of matrix (i,j for i \geq j) has to be
- * initialized SInt's - the symmetric entry will be a copy of the
- * one from the upper triangle, M[i][j] := M[j][i].
+ * Note that only lower triangle of matrix (i,j for i \geq j) will be computed.
+ * The symmetric entry will be a copy of the one from the lower triangle, M[i][j] := M[j][i].
  */
 public class CovarianceMatrixProtocol4
     implements Function<SequentialProtocolBuilder, Computation<List<List<Computation<SInt>>>>> {
