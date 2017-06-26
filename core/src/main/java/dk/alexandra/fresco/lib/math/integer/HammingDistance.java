@@ -10,6 +10,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiFunction;
 
+/**
+ * Computes the Hamming distance between an array of shared bits and a public value
+ *
+ * @author ttoft
+ */
 public class HammingDistance implements
     BiFunction<Pair<List<Computation<SInt>>, OInt>, SequentialProtocolBuilder, Computation<SInt>> {
 
