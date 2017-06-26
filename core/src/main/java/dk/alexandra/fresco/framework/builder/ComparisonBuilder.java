@@ -8,7 +8,7 @@ public interface ComparisonBuilder {
   /**
    * @param x1 input
    * @param x2 input
-   * @return output - [1] (true) or [0] (false) (result of x1 >= x2)
+   * @return output - [1] (true) or [0] (false) (result of x1 <= x2)
    */
   Computation<SInt> compare(Computation<SInt> x1, Computation<SInt> x2);
 
@@ -20,7 +20,7 @@ public interface ComparisonBuilder {
    * Comparing long numbers and should use twice the bit length
    * @param x1 input
    * @param x2 input
-   * @return output - [1] (true) or [0] (false) (result of x1 >= x2)
+   * @return output - [1] (true) or [0] (false) (result of x1 <= x2)
    */
   Computation<SInt> compareLong(Computation<SInt> x1, Computation<SInt> x2);
 
