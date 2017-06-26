@@ -39,7 +39,7 @@ import java.util.function.Function;
 
 /**
  * <p> This protocol implements integer division where both numerator and denominator are secret
- * shared. If the denominator is a known number {@link KnownDivisorProtocol} should be used instead.
+ * shared. If the denominator is a known number {@link KnownDivisorProtocol4} should be used instead.
  * </p>
  *
  * <p> The protocol uses <a href= "https://en.wikipedia.org/wiki/Division_algorithm#Goldschmidt_division"
