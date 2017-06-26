@@ -35,7 +35,7 @@ import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.OIntFactory;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.compare.ConditionalSelectProtocolImpl;
+import dk.alexandra.fresco.lib.compare.ConditionalSelect;
 import dk.alexandra.fresco.lib.compare.MiscOIntGenerators;
 import java.math.BigInteger;
 import java.util.List;
@@ -44,7 +44,6 @@ import java.util.function.Function;
 public class GreaterThanReducerProtocol4
     implements Function<SequentialProtocolBuilder, Computation<SInt>> {
 
-  //TODO Remove last factories
   private GreaterThanReducerProtocol4(int bitLength, int securityParameter,
       Computation<SInt> x, Computation<SInt> y,
       MiscOIntGenerators miscOIntGenerator,
@@ -175,18 +174,8 @@ public class GreaterThanReducerProtocol4
       // [eqResult]? BOT : TOP (for m and r) (store as mPrime,rPrime)
 
       //TODO rPrime and mPrime can be computed in parallel
-      Computation<SInt> rPrime =
-          seq.createSequentialSub((innerSeq) -> {
-            //TODO Remove this output hack
-            SInt result = innerSeq.createInputBuilder().known(BigInteger.ZERO).out();
-            innerSeq.append(
-                new ConditionalSelectProtocolImpl(
-                    eqResult.out(), rBottom.out(), rTop.out(), result, factoryProducer)
-            );
-            return () -> result;
-          });
-
-      // TODO: get a conditional selector for public values...
+      Computation<SInt> rPrime = seq
+          .createSequentialSub(new ConditionalSelect(eqResult, rBottom, rTop));
 
       NumericBuilder numeric = seq.numeric();
       Computation<SInt> negEqResult = numeric.sub(one, eqResult);
@@ -236,8 +225,7 @@ public class GreaterThanReducerProtocol4
       Computation<SInt> resUnshifted = numeric.sub(z, reducedNoError);
 
       // res >> 2^bitLength
-      Computation<SInt> output = numeric.mult(twoToNegBitLength, resUnshifted);
-      return output;
+      return numeric.mult(twoToNegBitLength, resUnshifted);
     });
   }
 
