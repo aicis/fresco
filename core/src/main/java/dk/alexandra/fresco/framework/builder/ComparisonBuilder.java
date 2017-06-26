@@ -24,6 +24,15 @@ public interface ComparisonBuilder {
    */
   Computation<SInt> compareLong(Computation<SInt> x1, Computation<SInt> x2);
 
+  /**
+   * Compares if x == y.
+   *
+   * @param x input
+   * @param y input
+   * @return output - [1] (true) or [0] (false) (result of x == y)
+   */
+  Computation<SInt> equals(Computation<SInt> x, Computation<SInt> y);
+
   Computation<SInt> sign(Computation<SInt> x);
 
   /**
