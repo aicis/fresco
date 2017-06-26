@@ -9,12 +9,13 @@ import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.compare.gt.GreaterThanReducerProtocol4;
+import dk.alexandra.fresco.lib.compare.zerotest.ZeroTestProtocol4;
 import dk.alexandra.fresco.lib.compare.zerotest.ZeroTestProtocolFactoryImpl;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.math.integer.NumericNegateBitFactoryImpl;
 import java.math.BigInteger;
 
-public class DefaultComparisonBuilder implements ComparisonBuilder<SInt> {
+public class DefaultComparisonBuilder implements ComparisonBuilder {
 
   private final BuilderFactoryNumeric factoryNumeric;
   private final ProtocolBuilder builder;
@@ -41,7 +42,6 @@ public class DefaultComparisonBuilder implements ComparisonBuilder<SInt> {
     return new GreaterThanReducerProtocol4(
         bitLength, BuilderFactoryNumeric.MAGIC_SECURE_NUMBER,
         left, right,
-        zeroTestProtocolFactory,
         factoryNumeric);
   }
 
@@ -70,6 +70,13 @@ public class DefaultComparisonBuilder implements ComparisonBuilder<SInt> {
     Computation<SInt> twice = numericBuilder.mult(
         input.known(oInt.getValue()), compare);
     return numericBuilder.sub(twice, input.known(BigInteger.valueOf(1)));
+  }
+
+  @Override
+  public Computation<SInt> compareZero(Computation<SInt> x, int bitLength) {
+    return builder.createSequentialSub(
+        new ZeroTestProtocol4(factoryNumeric, bitLength,
+            x));
   }
 
 }

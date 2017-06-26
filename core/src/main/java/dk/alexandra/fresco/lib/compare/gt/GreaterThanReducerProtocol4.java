@@ -37,7 +37,6 @@ import dk.alexandra.fresco.framework.value.OIntFactory;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.compare.ConditionalSelectProtocolImpl;
 import dk.alexandra.fresco.lib.compare.MiscOIntGenerators;
-import dk.alexandra.fresco.lib.compare.zerotest.ZeroTestProtocolFactory;
 import java.math.BigInteger;
 import java.util.List;
 import java.util.function.Function;
@@ -48,7 +47,6 @@ public class GreaterThanReducerProtocol4
   //TODO Remove last factories
   private GreaterThanReducerProtocol4(int bitLength, int securityParameter,
       Computation<SInt> x, Computation<SInt> y,
-      ZeroTestProtocolFactory ztFactory,
       MiscOIntGenerators miscOIntGenerator,
       BuilderFactoryNumeric factoryProducer) {
     this.bitLength = bitLength;
@@ -56,15 +54,13 @@ public class GreaterThanReducerProtocol4
     this.x = x;
     this.y = y;
     this.factoryProducer = factoryProducer;
-    this.ztFactory = ztFactory;
     this.miscOIntGenerator = miscOIntGenerator;
   }
 
   public GreaterThanReducerProtocol4(int bitLength, int securityParameter,
       Computation<SInt> x, Computation<SInt> y,
-      ZeroTestProtocolFactory ztFactory,
       BuilderFactoryNumeric factoryProducer) {
-    this(bitLength, securityParameter, x, y, ztFactory, null, factoryProducer);
+    this(bitLength, securityParameter, x, y, null, factoryProducer);
   }
 
   // params etc
@@ -75,8 +71,6 @@ public class GreaterThanReducerProtocol4
 
   private final BuilderFactoryNumeric factoryProducer;
 
-
-  private final ZeroTestProtocolFactory ztFactory;
   private MiscOIntGenerators miscOIntGenerator;
 
 
@@ -167,14 +161,7 @@ public class GreaterThanReducerProtocol4
 
       // eqResult <- execute eq.test
       Computation<SInt> eqResult =
-          seq.createSequentialSub((innerSeq) -> {
-            //TODO Remove this output hack
-            SInt result = innerSeq.createInputBuilder().known(BigInteger.ZERO).out();
-            innerSeq.append(
-                ztFactory.getZeroProtocol(
-                    bitLengthTop, securityParameter, dif.out(), result));
-            return () -> result;
-          });
+          seq.comparison().compareZero(dif, bitLengthTop);
       return () -> new Object[]{eqResult, rBottom, rTop, mBot, mTop, mBar, rBar, z};
     }).seq((Object[] input, SequentialProtocolBuilder seq) -> {
       Computation<SInt> eqResult = (Computation<SInt>) input[0];
@@ -219,7 +206,6 @@ public class GreaterThanReducerProtocol4
         subComparisonResult = numeric.sub(one, rPrimeStrictlyGTmPrime);
       } else {
         // compare the half-length inputs
-        //TODO Handle this internally by looping
         int nextBitLength = (bitLength + 1) / 2;
         subComparisonResult =
             seq.createSequentialSub(
@@ -228,7 +214,6 @@ public class GreaterThanReducerProtocol4
                     securityParameter,
                     rPrime,
                     mPrime,
-                    ztFactory,
                     miscOIntGenerator,
                     factoryProducer));
       }

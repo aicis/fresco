@@ -9,7 +9,6 @@ import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.RightShiftBuilder;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.OIntFactory;
-import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.helper.ProtocolProducerCollection;
 import dk.alexandra.fresco.lib.helper.SingleProtocolProducer;
@@ -183,7 +182,7 @@ public abstract class ProtocolBuilder {
    *
    * @return the comparison builder.
    */
-  public ComparisonBuilder<SInt> comparison() {
+  public ComparisonBuilder comparison() {
     return factory.createComparisonBuilder(this);
   }
 

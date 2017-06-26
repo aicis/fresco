@@ -3,7 +3,6 @@ package dk.alexandra.fresco.framework.builder;
 import dk.alexandra.fresco.framework.BitLengthBuilder;
 import dk.alexandra.fresco.framework.BuilderFactory;
 import dk.alexandra.fresco.framework.RightShiftBuilder;
-import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.compare.DefaultComparisonBuilder;
 import dk.alexandra.fresco.lib.compare.DefaultRandomAdditiveMaskBuilder;
 import dk.alexandra.fresco.lib.compare.RandomAdditiveMaskFactory;
@@ -55,7 +54,7 @@ public interface BuilderFactoryNumeric extends BuilderFactory {
     return (ExpFromOIntFactory) getBasicNumericFactory();
   }
 
-  default ComparisonBuilder<SInt> createComparisonBuilder(ProtocolBuilder builder) {
+  default ComparisonBuilder createComparisonBuilder(ProtocolBuilder builder) {
     return new DefaultComparisonBuilder(this, builder);
   }
 

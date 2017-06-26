@@ -26,4 +26,12 @@ public interface ComparisonBuilder {
 
   Computation<SInt> sign(Computation<SInt> x);
 
+  /**
+   * Test for equality with zero for a bitLength-bit number (positive or negative)
+   *
+   * @param x the value to test against zero
+   * @param bitLength bitlength
+   * @return output - [1] (true) or [0] (false) (result of x == 0)
+   */
+  Computation<SInt> compareZero(Computation<SInt> x, int bitLength);
 }

@@ -144,7 +144,7 @@ public class CreditRater implements Application<SInt> {
       return rootBuilder.par(
           (parallelBuilder) -> {
             List<Computation<SInt>> result = new ArrayList<>();
-            ComparisonBuilder<SInt> builder = parallelBuilder.comparison();
+            ComparisonBuilder builder = parallelBuilder.comparison();
 
             // Compare if "x <= the n interval definitions"
             for (Computation<SInt> anInterval : interval) {
