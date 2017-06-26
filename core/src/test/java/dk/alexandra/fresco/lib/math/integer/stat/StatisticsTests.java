@@ -27,39 +27,24 @@
 package dk.alexandra.fresco.lib.math.integer.stat;
 
 import dk.alexandra.fresco.framework.BuilderFactory;
-import dk.alexandra.fresco.framework.ProtocolFactory;
+import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.TestApplication;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
+import dk.alexandra.fresco.framework.builder.InputBuilder;
+import dk.alexandra.fresco.framework.builder.OpenBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.compare.ComparisonProtocolFactory;
-import dk.alexandra.fresco.lib.compare.ComparisonProtocolFactoryImpl;
-import dk.alexandra.fresco.lib.compare.RandomAdditiveMaskFactory;
-import dk.alexandra.fresco.lib.compare.RandomAdditiveMaskFactoryImpl;
-import dk.alexandra.fresco.lib.conversion.IntegerToBitsFactory;
-import dk.alexandra.fresco.lib.conversion.IntegerToBitsFactoryImpl;
-import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
-import dk.alexandra.fresco.lib.helper.builder.NumericIOBuilder;
-import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
-import dk.alexandra.fresco.lib.math.integer.binary.BitLengthFactory;
-import dk.alexandra.fresco.lib.math.integer.binary.BitLengthFactoryImpl;
-import dk.alexandra.fresco.lib.math.integer.binary.RightShiftFactory;
-import dk.alexandra.fresco.lib.math.integer.binary.RightShiftFactoryImpl;
-import dk.alexandra.fresco.lib.math.integer.division.DivisionFactory;
-import dk.alexandra.fresco.lib.math.integer.division.DivisionFactoryImpl;
-import dk.alexandra.fresco.lib.math.integer.exp.ExpFromOIntFactory;
-import dk.alexandra.fresco.lib.math.integer.exp.ExponentiationFactory;
-import dk.alexandra.fresco.lib.math.integer.exp.ExponentiationFactoryImpl;
-import dk.alexandra.fresco.lib.math.integer.exp.PreprocessedExpPipeFactory;
-import dk.alexandra.fresco.lib.math.integer.inv.LocalInversionFactory;
-import dk.alexandra.fresco.lib.math.integer.linalg.EntrywiseProductFactoryImpl;
-import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductFactoryImpl;
 import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.junit.Assert;
 
 
@@ -80,137 +65,118 @@ public class StatisticsTests {
     public TestThread next(TestThreadConfiguration conf) {
 
       return new TestThread() {
-        private final int[] data1 = {543, 520, 532, 497, 450, 432};
-        private final int[] data2 = {432, 620, 232, 337, 250, 433};
-        private final int[] data3 = {80, 90, 123, 432, 145, 606};
+        private final List<Integer> data1 = Arrays.asList(543, 520, 532, 497, 450, 432);
+        private final List<Integer> data2 = Arrays.asList(432, 620, 232, 337, 250, 433);
+        private final List<Integer> data3 = Arrays.asList(80, 90, 123, 432, 145, 606);
+
+        private Computation<OInt> outputMean1;
+        private Computation<OInt> outputMean2;
+        private Computation<OInt> outputVariance;
+        private Computation<OInt> outputCovariance;
+        private List<List<Computation<OInt>>> outputCovarianceMatix;
 
         @Override
         public void test() throws Exception {
           TestApplication app = new TestApplication() {
 
-            private static final long serialVersionUID = 701623441111137585L;
-
             @Override
             public ProtocolProducer prepareApplication(
                 BuilderFactory factory) {
-              ProtocolFactory producer = factory.getProtocolFactory();
+              return ProtocolBuilder
+                  .createApplicationRoot((BuilderFactoryNumeric) factory, (builder) -> {
+                    InputBuilder inputBuilder = builder.createInputBuilder();
+                    List<Computation<SInt>> input1 = data1.stream()
+                        .map(BigInteger::valueOf)
+                        .map(inputBuilder::known)
+                        .collect(Collectors.toList());
+                    List<Computation<SInt>> input2 = data2.stream()
+                        .map(BigInteger::valueOf)
+                        .map(inputBuilder::known)
+                        .collect(Collectors.toList());
+                    List<Computation<SInt>> input3 = data3.stream()
+                        .map(BigInteger::valueOf)
+                        .map(inputBuilder::known)
+                        .collect(Collectors.toList());
 
-              BasicNumericFactory basicNumericFactory = (BasicNumericFactory) producer;
-              ExpFromOIntFactory expFromOIntFactory = (ExpFromOIntFactory) producer;
-              PreprocessedExpPipeFactory preprocessedExpPipeFactory = (PreprocessedExpPipeFactory) producer;
-              RandomAdditiveMaskFactory randomAdditiveMaskFactory = new RandomAdditiveMaskFactoryImpl(
-                  basicNumericFactory,
-                  new InnerProductFactoryImpl(basicNumericFactory,
-                      new EntrywiseProductFactoryImpl(basicNumericFactory)));
-              LocalInversionFactory localInversionFactory = (LocalInversionFactory) producer;
-              RightShiftFactory rightShiftFactory = new RightShiftFactoryImpl(basicNumericFactory,
-                  randomAdditiveMaskFactory, localInversionFactory);
-              IntegerToBitsFactory integerToBitsFactory = new IntegerToBitsFactoryImpl(
-                  basicNumericFactory, rightShiftFactory);
-              BitLengthFactory bitLengthFactory = new BitLengthFactoryImpl(basicNumericFactory,
-                  integerToBitsFactory);
-              ExponentiationFactory exponentiationFactory = new ExponentiationFactoryImpl(
-                  basicNumericFactory, integerToBitsFactory);
-              ComparisonProtocolFactory comparisonFactory = new ComparisonProtocolFactoryImpl(80,
-                  basicNumericFactory, localInversionFactory,
-                  expFromOIntFactory, preprocessedExpPipeFactory, (BuilderFactoryNumeric) factory);
-              DivisionFactory euclidianDivisionFactory = new DivisionFactoryImpl(
-                  (BuilderFactoryNumeric) factory);
-              StatisticsFactory statisticsFactory = new StatisticsFactoryImpl(basicNumericFactory,
-                  euclidianDivisionFactory);
+                    Computation<SInt> mean1 = builder
+                        .createSequentialSub(new MeanProtocol4(input1));
+                    Computation<SInt> mean2 = builder
+                        .createSequentialSub(new MeanProtocol4(input2));
+                    Computation<SInt> variance = builder
+                        .createSequentialSub(new VarianceProtocol4(input1, mean1));
+                    Computation<SInt> covariance = builder
+                        .createSequentialSub(new CovarianceProtocol4(input1, input2, mean1, mean2));
+                    Computation<List<List<Computation<SInt>>>> covarianceMatrix = builder
+                        .createSequentialSub(
+                            new CovarianceMatrixProtocol4(Arrays.asList(input1, input2, input3)));
 
-              NumericIOBuilder ioBuilder = new NumericIOBuilder(basicNumericFactory);
-              SequentialProtocolProducer sequentialProtocolProducer = new SequentialProtocolProducer();
+                    builder.createParallelSub((par) -> {
+                      OpenBuilder open = par.createOpenBuilder();
+                      outputMean1 = open.open(mean1);
+                      outputMean2 = open.open(mean2);
+                      outputVariance = open.open(variance);
+                      outputCovariance = open.open(covariance);
+                      List<List<Computation<SInt>>> covarianceMatrixOut = covarianceMatrix.out();
+                      List<List<Computation<OInt>>> openCovarianceMatrix = new ArrayList<>(
+                          covarianceMatrixOut.size());
+                      for (List<Computation<SInt>> computations : covarianceMatrixOut) {
+                        List<Computation<OInt>> computationList = new ArrayList<>(
+                            computations.size());
+                        openCovarianceMatrix.add(computationList);
+                        for (Computation<SInt> computation : computations) {
+                          computationList.add(open.open(computation));
+                        }
+                      }
+                      outputCovarianceMatix = openCovarianceMatrix;
+                      return null;
+                    });
 
-              SInt mean1 = basicNumericFactory.getSInt();
-              SInt mean2 = basicNumericFactory.getSInt();
-              SInt variance = basicNumericFactory.getSInt();
-              SInt covariance = basicNumericFactory.getSInt();
-
-              SInt[][] covarianceMatrix = new SInt[3][3];
-              for (int i = 0; i < 3; i++) {
-                for (int j = 0; j < 3; j++) {
-                  covarianceMatrix[i][j] = basicNumericFactory.getSInt();
-                }
-              }
-
-              SInt[][] input = ioBuilder.inputMatrix(new int[][]{data1, data2, data3}, 1);
-              sequentialProtocolProducer.append(ioBuilder.getProtocol());
-
-              MeanProtocol arithmeticMeanProtocol = statisticsFactory
-                  .getMeanProtocol(input[0], mean1);
-              sequentialProtocolProducer.append(arithmeticMeanProtocol);
-
-              MeanProtocol arithmeticMeanProtocol2 = statisticsFactory
-                  .getMeanProtocol(input[1], mean2);
-              sequentialProtocolProducer.append(arithmeticMeanProtocol2);
-
-              VarianceProtocol varianceProtocol = statisticsFactory
-                  .getVarianceProtocol(input[0], mean1, variance);
-              sequentialProtocolProducer.append(varianceProtocol);
-
-              CovarianceProtocol covarianceProtocol = statisticsFactory
-                  .getCovarianceProtocol(input[0], input[1], mean1, mean2, covariance);
-              sequentialProtocolProducer.append(covarianceProtocol);
-
-              CovarianceMatrixProtocol covarianceMatrixProtocol = statisticsFactory
-                  .getCovarianceMatrixProtocol(input, covarianceMatrix);
-              sequentialProtocolProducer.append(covarianceMatrixProtocol);
-
-              OInt output1 = ioBuilder.output(mean1);
-              OInt output2 = ioBuilder.output(mean2);
-              OInt output3 = ioBuilder.output(variance);
-              OInt output4 = ioBuilder.output(covariance);
-              OInt[][] output5 = ioBuilder.outputMatrix(covarianceMatrix);
-
-              sequentialProtocolProducer.append(ioBuilder.getProtocol());
-
-              outputs = new OInt[]{output1, output2, output3, output4, output5[0][0],
-                  output5[1][0]};
-
-              return sequentialProtocolProducer;
+                  }).build();
             }
           };
           secureComputationEngine
               .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf,
                   conf.sceConf.getSuite()));
-          BigInteger mean1 = app.getOutputs()[0].getValue();
-          BigInteger mean2 = app.getOutputs()[1].getValue();
-          BigInteger variance = app.getOutputs()[2].getValue();
-          BigInteger covariance = app.getOutputs()[3].getValue();
+          BigInteger mean1 = outputMean1.out().getValue();
+          BigInteger mean2 = outputMean2.out().getValue();
+          BigInteger variance = outputVariance.out().getValue();
+          BigInteger covariance = outputCovariance.out().getValue();
 
           double sum = 0.0;
           for (int entry : data1) {
             sum += entry;
           }
-          double mean1Exact = sum / data1.length;
+          double mean1Exact = sum / data1.size();
 
           sum = 0.0;
           for (int entry : data2) {
             sum += entry;
           }
-          double mean2Exact = sum / data2.length;
+          double mean2Exact = sum / data2.size();
 
           double ssd = 0.0;
           for (int entry : data1) {
             ssd += (entry - mean1Exact) * (entry - mean1Exact);
           }
-          double varianceExact = ssd / (data1.length - 1);
+          double varianceExact = ssd / (data1.size() - 1);
 
           double covarianceExact = 0.0;
-          for (int i = 0; i < data1.length; i++) {
-            covarianceExact += (data1[i] - mean1Exact) * (data2[i] - mean2Exact);
+          for (int i = 0; i < data1.size(); i++) {
+            covarianceExact += (data1.get(i) - mean1Exact) * (data2.get(i) - mean2Exact);
           }
-          covarianceExact /= (data1.length - 1);
+          covarianceExact /= (data1.size() - 1);
 
           double tolerance = 1.0;
           Assert.assertTrue(isInInterval(mean1, mean1Exact, tolerance));
           Assert.assertTrue(isInInterval(mean2, mean2Exact, tolerance));
           Assert.assertTrue(isInInterval(variance, varianceExact, tolerance));
           Assert.assertTrue(isInInterval(covariance, covarianceExact, tolerance));
-          Assert.assertTrue(isInInterval(app.getOutputs()[4].getValue(), varianceExact, tolerance));
+          Assert.assertTrue(
+              isInInterval(outputCovarianceMatix.get(0).get(0).out().getValue(), varianceExact,
+                  tolerance));
           Assert
-              .assertTrue(isInInterval(app.getOutputs()[5].getValue(), covarianceExact, tolerance));
+              .assertTrue(isInInterval(outputCovarianceMatix.get(1).get(0).out().getValue(),
+                  covarianceExact, tolerance));
 
         }
       };

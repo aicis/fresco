@@ -63,7 +63,7 @@ public class CovarianceProtocol4
 
   @Override
   public Computation<SInt> apply(SequentialProtocolBuilder builder) {
-    return builder.seq((seq) -> null
+    return builder.seq((seq) -> () -> null
     ).par(
         (ignored, seq) -> {
           if (mean1 == null) {
