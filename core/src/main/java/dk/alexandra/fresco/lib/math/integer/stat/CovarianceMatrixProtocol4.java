@@ -33,6 +33,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Objects;
 import java.util.function.Function;
 
@@ -93,18 +94,22 @@ public class CovarianceMatrixProtocol4
       }
       return () -> allMeans;
     }).par((means, par) -> {
+      //Iterate using ListIterator instead of indexed loop to avoid RandomAccess in lists
       List<List<Computation<SInt>>> result = new ArrayList<>(data.size());
-      int numOfDataSets = data.size();
-      //TODO Consider doing this using list iterators as the current implementation depends on RandomAccess for the data lists
-      for (int i = 0; i < numOfDataSets; i++) {
-        List<Computation<SInt>> row = new ArrayList<>(i + 1);
+      ListIterator<List<Computation<SInt>>> dataIterator = data.listIterator();
+      while (dataIterator.hasNext()) {
+        int currentIndex = dataIterator.nextIndex();
+        List<Computation<SInt>> dataRow = dataIterator.next();
+        List<Computation<SInt>> row = new ArrayList<>(currentIndex + 1);
         result.add(row);
-
-        for (int j = 0; j < i; j++) {
+        ListIterator<List<Computation<SInt>>> innerIterator = data.listIterator();
+        while (innerIterator.nextIndex() < currentIndex) {
+          int innerIndex = innerIterator.nextIndex();
+          List<Computation<SInt>> dataRow2 = innerIterator.next();
           row.add(par.createSequentialSub(
               new CovarianceProtocol4(
-                  data.get(i), data.get(j),
-                  means.get(i), means.get(j)
+                  dataRow, dataRow2,
+                  means.get(currentIndex), means.get(innerIndex)
               )
           ));
         }
@@ -112,7 +117,7 @@ public class CovarianceMatrixProtocol4
         // which saves us one subtraction per data entry compared to
         // calculating the covariance
         row.add(par.createSequentialSub(
-            new VarianceProtocol4(data.get(i), means.get(i))));
+            new VarianceProtocol4(dataRow, means.get(currentIndex))));
       }
       return () -> result;
     });
