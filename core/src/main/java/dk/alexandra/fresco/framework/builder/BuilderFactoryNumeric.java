@@ -5,21 +5,13 @@ import dk.alexandra.fresco.framework.BuilderFactory;
 import dk.alexandra.fresco.framework.RightShiftBuilder;
 import dk.alexandra.fresco.lib.compare.DefaultComparisonBuilder;
 import dk.alexandra.fresco.lib.compare.DefaultRandomAdditiveMaskBuilder;
-import dk.alexandra.fresco.lib.compare.RandomAdditiveMaskFactory;
-import dk.alexandra.fresco.lib.compare.RandomAdditiveMaskFactoryImpl;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.math.integer.binary.DefaultBitLengthBuilder;
 import dk.alexandra.fresco.lib.math.integer.binary.DefaultRightShiftBuilder;
-import dk.alexandra.fresco.lib.math.integer.binary.RightShiftFactory;
-import dk.alexandra.fresco.lib.math.integer.binary.RightShiftFactoryImpl;
 import dk.alexandra.fresco.lib.math.integer.division.DefaultAdvancedNumericBuilder;
 import dk.alexandra.fresco.lib.math.integer.exp.ExpFromOIntFactory;
 import dk.alexandra.fresco.lib.math.integer.exp.PreprocessedExpPipeFactory;
-import dk.alexandra.fresco.lib.math.integer.inv.LocalInversionFactory;
 import dk.alexandra.fresco.lib.math.integer.linalg.DefaultInnerProductBuilder;
-import dk.alexandra.fresco.lib.math.integer.linalg.EntrywiseProductFactoryImpl;
-import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductFactory;
-import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductFactoryImpl;
 
 /**
  * The core factory to implement when creating a numeric protocol. Every subbuilder from this
@@ -46,10 +38,6 @@ public interface BuilderFactoryNumeric extends BuilderFactory {
     return (PreprocessedExpPipeFactory) getBasicNumericFactory();
   }
 
-  default LocalInversionFactory getInversionFactory() {
-    return (LocalInversionFactory) getBasicNumericFactory();
-  }
-
   default ExpFromOIntFactory getExpFromOInt() {
     return (ExpFromOIntFactory) getBasicNumericFactory();
   }
@@ -74,29 +62,6 @@ public interface BuilderFactoryNumeric extends BuilderFactory {
 
   default AdvancedNumericBuilder createAdvancedNumericBuilder(ProtocolBuilder builder) {
     return new DefaultAdvancedNumericBuilder(this, builder);
-  }
-
-  default EntrywiseProductFactoryImpl getDotProductFactory() {
-    return new EntrywiseProductFactoryImpl(getBasicNumericFactory());
-  }
-
-  default InnerProductFactory getInnerProductFactory() {
-    return new InnerProductFactoryImpl(getBasicNumericFactory(), getDotProductFactory());
-  }
-
-  default RandomAdditiveMaskFactory getRandomAdditiveMaskFactory() {
-    return new RandomAdditiveMaskFactoryImpl(
-        getBasicNumericFactory(),
-        getInnerProductFactory());
-  }
-
-  default RightShiftFactory getRightShiftFactory() {
-    LocalInversionFactory localInversionFactory = getInversionFactory();
-    RandomAdditiveMaskFactory randomAdditiveMaskFactory = getRandomAdditiveMaskFactory();
-    return new RightShiftFactoryImpl(
-        getBasicNumericFactory(),
-        randomAdditiveMaskFactory,
-        localInversionFactory);
   }
 
   default BitLengthBuilder createBitLengthBuilder(ProtocolBuilder builder) {
