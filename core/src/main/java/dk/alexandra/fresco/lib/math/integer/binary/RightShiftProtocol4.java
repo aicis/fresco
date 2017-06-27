@@ -28,7 +28,7 @@ package dk.alexandra.fresco.lib.math.integer.binary;
 
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.RightShiftBuilder.RightShiftResult;
-import dk.alexandra.fresco.framework.builder.FrescoFunction;
+import dk.alexandra.fresco.framework.builder.ComputationBuilder;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder.SequentialProtocolBuilder;
 import dk.alexandra.fresco.framework.builder.RandomAdditiveMaskBuilder;
@@ -39,7 +39,7 @@ import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
 import java.util.Collections;
 
-public class RightShiftProtocol4    implements FrescoFunction<RightShiftResult> {
+public class RightShiftProtocol4    implements ComputationBuilder<RightShiftResult> {
 
   private final boolean calculateRemainders;
   // Input
@@ -63,7 +63,7 @@ public class RightShiftProtocol4    implements FrescoFunction<RightShiftResult> 
   }
 
   @Override
-  public Computation<RightShiftResult> apply(SequentialProtocolBuilder sequential) {
+  public Computation<RightShiftResult> build(SequentialProtocolBuilder sequential) {
     return sequential.seq((builder) -> {
       RandomAdditiveMaskBuilder additiveMaskBuilder = builder.createAdditiveMaskBuilder();
       return additiveMaskBuilder.additiveMask(bitLength);

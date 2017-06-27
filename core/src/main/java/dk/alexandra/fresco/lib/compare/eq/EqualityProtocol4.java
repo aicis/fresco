@@ -27,7 +27,7 @@
 package dk.alexandra.fresco.lib.compare.eq;
 
 import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.builder.FrescoFunction;
+import dk.alexandra.fresco.framework.builder.ComputationBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder.SequentialProtocolBuilder;
 import dk.alexandra.fresco.framework.value.SInt;
 
@@ -36,7 +36,7 @@ import dk.alexandra.fresco.framework.value.SInt;
  *
  * @author ttoft
  */
-public class EqualityProtocol4    implements FrescoFunction<SInt> {
+public class EqualityProtocol4    implements ComputationBuilder<SInt> {
 
   // params
   private final int bitLength;
@@ -53,7 +53,7 @@ public class EqualityProtocol4    implements FrescoFunction<SInt> {
   }
 
   @Override
-  public Computation<SInt> apply(SequentialProtocolBuilder builder) {
+  public Computation<SInt> build(SequentialProtocolBuilder builder) {
     Computation<SInt> diff = builder.numeric().sub(x, y);
     return builder.comparison().compareZero(diff, bitLength);
   }

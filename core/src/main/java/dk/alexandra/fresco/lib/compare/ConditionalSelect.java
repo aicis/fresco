@@ -27,12 +27,12 @@
 package dk.alexandra.fresco.lib.compare;
 
 import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.builder.FrescoFunction;
+import dk.alexandra.fresco.framework.builder.ComputationBuilder;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder.SequentialProtocolBuilder;
 import dk.alexandra.fresco.framework.value.SInt;
 
-public class ConditionalSelect    implements FrescoFunction<SInt> {
+public class ConditionalSelect    implements ComputationBuilder<SInt> {
 
   private final Computation<SInt> a, b, selector;
 
@@ -43,7 +43,7 @@ public class ConditionalSelect    implements FrescoFunction<SInt> {
   }
 
   @Override
-  public Computation<SInt> apply(SequentialProtocolBuilder builder) {
+  public Computation<SInt> build(SequentialProtocolBuilder builder) {
     NumericBuilder numeric = builder.numeric();
     Computation<SInt> sub = numeric.sub(a, b);
     Computation<SInt> mult = numeric.mult(selector, sub);

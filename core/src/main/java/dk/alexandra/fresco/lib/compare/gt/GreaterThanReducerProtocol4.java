@@ -28,7 +28,7 @@ package dk.alexandra.fresco.lib.compare.gt;
 
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
-import dk.alexandra.fresco.framework.builder.FrescoFunction;
+import dk.alexandra.fresco.framework.builder.ComputationBuilder;
 import dk.alexandra.fresco.framework.builder.InnerProductBuilder;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder.SequentialProtocolBuilder;
@@ -41,7 +41,7 @@ import dk.alexandra.fresco.lib.compare.MiscOIntGenerators;
 import java.math.BigInteger;
 import java.util.List;
 
-public class GreaterThanReducerProtocol4    implements FrescoFunction<SInt> {
+public class GreaterThanReducerProtocol4    implements ComputationBuilder<SInt> {
 
   private GreaterThanReducerProtocol4(int bitLength, int securityParameter,
       Computation<SInt> x, Computation<SInt> y,
@@ -73,7 +73,7 @@ public class GreaterThanReducerProtocol4    implements FrescoFunction<SInt> {
 
 
   @Override
-  public Computation<SInt> apply(SequentialProtocolBuilder builder) {
+  public Computation<SInt> build(SequentialProtocolBuilder builder) {
     if (miscOIntGenerator == null) {
       //Allows reuse in sub protocols
       this.miscOIntGenerator = new MiscOIntGenerators(builder.getBasicNumericFactory());

@@ -28,7 +28,7 @@ package dk.alexandra.fresco.lib.math.integer.division;
 
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
-import dk.alexandra.fresco.framework.builder.FrescoFunction;
+import dk.alexandra.fresco.framework.builder.ComputationBuilder;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder.SequentialProtocolBuilder;
 import dk.alexandra.fresco.framework.util.Pair;
@@ -50,7 +50,7 @@ import java.math.BigInteger;
  * regular integer division, this division will always truncate the result instead of rounding.
  */
 public class SecretSharedDivisorProtocol4
-    implements FrescoFunction<SInt> {
+    implements ComputationBuilder<SInt> {
 
   private Computation<SInt> numerator;
   private Computation<SInt> denominator;
@@ -67,7 +67,7 @@ public class SecretSharedDivisorProtocol4
   }
 
   @Override
-  public Computation<SInt> apply(SequentialProtocolBuilder builder) {
+  public Computation<SInt> build(SequentialProtocolBuilder builder) {
 
     BasicNumericFactory basicNumericFactory = builderFactory.getBasicNumericFactory();
 

@@ -27,7 +27,7 @@
 package dk.alexandra.fresco.lib.math.integer.stat;
 
 import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.builder.FrescoFunction;
+import dk.alexandra.fresco.framework.builder.ComputationBuilder;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder.SequentialProtocolBuilder;
 import dk.alexandra.fresco.framework.value.SInt;
@@ -35,7 +35,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-public class CovarianceProtocol4    implements FrescoFunction<SInt> {
+public class CovarianceProtocol4    implements ComputationBuilder<SInt> {
 
   private final List<Computation<SInt>> data1;
   private final List<Computation<SInt>> data2;
@@ -61,7 +61,7 @@ public class CovarianceProtocol4    implements FrescoFunction<SInt> {
   }
 
   @Override
-  public Computation<SInt> apply(SequentialProtocolBuilder builder) {
+  public Computation<SInt> build(SequentialProtocolBuilder builder) {
     return builder.seq((seq) -> () -> null
     ).par(
         (ignored, seq) -> {

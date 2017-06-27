@@ -28,14 +28,14 @@ package dk.alexandra.fresco.lib.math.integer.binary;
 
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.RightShiftBuilder.RightShiftResult;
+import dk.alexandra.fresco.framework.builder.ComputationBuilder;
 import dk.alexandra.fresco.framework.builder.DelayedComputation;
-import dk.alexandra.fresco.framework.builder.FrescoFunction;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder.SequentialProtocolBuilder;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.util.ArrayList;
 import java.util.List;
 
-public class RepeatedRightShiftProtocol4    implements FrescoFunction<RightShiftResult> {
+public class RepeatedRightShiftProtocol4    implements ComputationBuilder<RightShiftResult> {
 
   private final int shifts;
   private final boolean calculateRemainders;
@@ -62,7 +62,7 @@ public class RepeatedRightShiftProtocol4    implements FrescoFunction<RightShift
   }
 
   @Override
-  public Computation<RightShiftResult> apply(SequentialProtocolBuilder sequential) {
+  public Computation<RightShiftResult> build(SequentialProtocolBuilder sequential) {
     if (calculateRemainders) {
       doIterationWithRemainder(sequential, input, shifts, new ArrayList<>(shifts));
     } else {

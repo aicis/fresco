@@ -27,14 +27,14 @@
 package dk.alexandra.fresco.lib.math.integer.exp;
 
 import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.builder.FrescoFunction;
+import dk.alexandra.fresco.framework.builder.ComputationBuilder;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder.SequentialProtocolBuilder;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
 
-public class ExponentiationProtocolOpenExponent    implements FrescoFunction<SInt> {
+public class ExponentiationProtocolOpenExponent    implements ComputationBuilder<SInt> {
 
   private Computation<SInt> base;
   private OInt exponent;
@@ -45,7 +45,7 @@ public class ExponentiationProtocolOpenExponent    implements FrescoFunction<SIn
   }
 
   @Override
-  public Computation<SInt> apply(SequentialProtocolBuilder builder) {
+  public Computation<SInt> build(SequentialProtocolBuilder builder) {
     if (exponent.equals(BigInteger.ZERO)) {
       return builder.createInputBuilder().known(BigInteger.valueOf(1));
     }

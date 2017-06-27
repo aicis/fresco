@@ -2,7 +2,7 @@ package dk.alexandra.fresco.lib.math.integer.division;
 
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.builder.AdvancedNumericBuilder;
-import dk.alexandra.fresco.framework.builder.FrescoFunction;
+import dk.alexandra.fresco.framework.builder.ComputationBuilder;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder.SequentialProtocolBuilder;
 import dk.alexandra.fresco.framework.value.OInt;
@@ -18,7 +18,7 @@ import dk.alexandra.fresco.framework.value.SInt;
  *
  * @author Jonas Lindstrøm (jonas.lindstrom@alexandra.dk)
  */
-public class KnownDivisorRemainderProtocol4 implements    FrescoFunction<SInt> {
+public class KnownDivisorRemainderProtocol4 implements ComputationBuilder<SInt> {
 
   private final Computation<SInt> dividend;
   private final OInt divisor;
@@ -31,7 +31,7 @@ public class KnownDivisorRemainderProtocol4 implements    FrescoFunction<SInt> {
   }
 
   @Override
-  public Computation<SInt> apply(SequentialProtocolBuilder builder) {
+  public Computation<SInt> build(SequentialProtocolBuilder builder) {
     AdvancedNumericBuilder advancedNumericBuilder = builder.createAdvancedNumericBuilder();
     Computation<SInt> divisionResult = advancedNumericBuilder.div(dividend, divisor);
 

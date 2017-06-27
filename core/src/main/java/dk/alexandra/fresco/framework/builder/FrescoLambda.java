@@ -2,8 +2,9 @@ package dk.alexandra.fresco.framework.builder;
 
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder.SequentialProtocolBuilder;
-import java.util.function.Function;
+import java.util.function.BiFunction;
 
-public interface FrescoFunction<OutputT> extends
-    Function<SequentialProtocolBuilder, Computation<OutputT>> {
+public interface FrescoLambda<InputT, OutputT> extends
+    BiFunction<InputT, SequentialProtocolBuilder, Computation<OutputT>> {
+
 }

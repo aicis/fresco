@@ -33,7 +33,7 @@ import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.ComparisonBuilder;
-import dk.alexandra.fresco.framework.builder.FrescoFunction;
+import dk.alexandra.fresco.framework.builder.ComputationBuilder;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder.SequentialProtocolBuilder;
@@ -107,7 +107,7 @@ public class CreditRater implements Application<SInt> {
               return () -> scores;
             }
         ).seq((list, seq) ->
-            new SumSIntList(list).apply(seq)
+            new SumSIntList(list).build(seq)
         )).build();
   }
 
@@ -120,7 +120,7 @@ public class CreditRater implements Application<SInt> {
   }
 
   private static class ComputeIntervalScore implements
-      FrescoFunction<SInt> {
+      ComputationBuilder<SInt> {
 
     private final List<Computation<SInt>> interval;
     private final Computation<SInt> value;
@@ -142,7 +142,7 @@ public class CreditRater implements Application<SInt> {
     }
 
     @Override
-    public Computation<SInt> apply(SequentialProtocolBuilder rootBuilder) {
+    public Computation<SInt> build(SequentialProtocolBuilder rootBuilder) {
       return rootBuilder.par(
           (parallelBuilder) -> {
             List<Computation<SInt>> result = new ArrayList<>();
@@ -178,7 +178,7 @@ public class CreditRater implements Application<SInt> {
             return () -> innerScores;
           })
           .seq((list, seq) ->
-              new SumSIntList(list).apply(seq)
+              new SumSIntList(list).build(seq)
           );
     }
   }

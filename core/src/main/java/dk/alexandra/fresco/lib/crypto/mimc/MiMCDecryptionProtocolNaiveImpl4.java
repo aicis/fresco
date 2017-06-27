@@ -28,7 +28,7 @@ package dk.alexandra.fresco.lib.crypto.mimc;
 
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.builder.AdvancedNumericBuilder;
-import dk.alexandra.fresco.framework.builder.FrescoFunction;
+import dk.alexandra.fresco.framework.builder.ComputationBuilder;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder.SequentialProtocolBuilder;
 import dk.alexandra.fresco.framework.value.OInt;
@@ -37,7 +37,7 @@ import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import java.math.BigInteger;
 
-public class MiMCDecryptionProtocolNaiveImpl4 implements FrescoFunction<SInt> {
+public class MiMCDecryptionProtocolNaiveImpl4 implements ComputationBuilder<SInt> {
 
   // TODO: require that our modulus - 1 and 3 are co-prime
 
@@ -72,7 +72,7 @@ public class MiMCDecryptionProtocolNaiveImpl4 implements FrescoFunction<SInt> {
   }
 
   @Override
-  public Computation<SInt> apply(SequentialProtocolBuilder builder) {
+  public Computation<SInt> build(SequentialProtocolBuilder builder) {
     BasicNumericFactory basicNumericFactory = builder.getBasicNumericFactory();
     int requiredRounds = MiMCEncryptionProtocolNaiveImpl4
         .getRequiredRounds(basicNumericFactory, requestedRounds);

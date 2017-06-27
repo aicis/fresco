@@ -27,14 +27,14 @@
 package dk.alexandra.fresco.lib.math.integer.stat;
 
 import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.builder.FrescoFunction;
+import dk.alexandra.fresco.framework.builder.ComputationBuilder;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder.SequentialProtocolBuilder;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.util.ArrayList;
 import java.util.List;
 
-public class VarianceProtocol4    implements FrescoFunction<SInt> {
+public class VarianceProtocol4    implements ComputationBuilder<SInt> {
 
   private final List<Computation<SInt>> data;
   private final Computation<SInt> mean;
@@ -49,7 +49,7 @@ public class VarianceProtocol4    implements FrescoFunction<SInt> {
   }
 
   @Override
-  public Computation<SInt> apply(SequentialProtocolBuilder builder) {
+  public Computation<SInt> build(SequentialProtocolBuilder builder) {
     return builder.seq((seq) -> {
       /*
        * If a mean was not provided, we first calculate it
