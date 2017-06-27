@@ -14,6 +14,7 @@ import dk.alexandra.fresco.suite.spdz.gates.SpdzInputProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzLocalInversionProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzMultProtocol4;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzOutputToAllProtocol4;
+import dk.alexandra.fresco.suite.spdz.gates.SpdzRandomProtocol4;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzSubtractProtocol4;
 import dk.alexandra.fresco.suite.spdz.utils.SpdzFactory;
 import java.math.BigInteger;
@@ -85,6 +86,11 @@ class SpdzBuilder implements BuilderFactoryNumeric {
       @Override
       public Computation<SInt> randomBit() {
         return () -> spdzFactory.getRandomBitFromStorage();
+      }
+
+      @Override
+      public Computation<SInt> randomElement() {
+        return protocolBuilder.append(new SpdzRandomProtocol4());
       }
 
       @Override

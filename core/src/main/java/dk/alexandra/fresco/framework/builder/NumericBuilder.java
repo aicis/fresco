@@ -28,6 +28,8 @@ public interface NumericBuilder {
    */
   Computation<SInt> randomBit();
 
+  Computation<SInt> randomElement();
+
   Computation<OInt> invert(OInt oInt);
 
   Computation<SInt> known(BigInteger value);

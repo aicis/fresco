@@ -27,6 +27,7 @@
 package dk.alexandra.fresco.suite.spdz;
 
 import dk.alexandra.fresco.framework.BuilderFactory;
+import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.ProtocolProducer;
@@ -35,6 +36,7 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.OInt;
@@ -45,7 +47,8 @@ import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
 import dk.alexandra.fresco.lib.lp.LPFactory;
 import dk.alexandra.fresco.lib.lp.LPFactoryImpl;
 import dk.alexandra.fresco.lib.lp.LPPrefix;
-import dk.alexandra.fresco.lib.lp.LPSolverProtocol;
+import dk.alexandra.fresco.lib.lp.LPSolverProtocol4;
+import dk.alexandra.fresco.lib.lp.LPSolverProtocol4.LPOutput;
 import dk.alexandra.fresco.lib.math.integer.exp.ExpFromOIntFactory;
 import dk.alexandra.fresco.lib.math.integer.exp.PreprocessedExpPipeFactory;
 import dk.alexandra.fresco.lib.math.integer.inv.LocalInversionFactory;
@@ -95,39 +98,42 @@ class LPSolverTests {
                     "Could not read needed files: "
                         + e.getMessage(), e);
               }
-              SequentialProtocolProducer sseq = new SequentialProtocolProducer();
-              for (int i = 0; i < 1; i++) {
-                LPPrefix prefix;
-                try {
-                  prefix = new PlainSpdzLPPrefix(inputreader,
-                      bnFactory);
-                } catch (IOException e) {
-                  e.printStackTrace();
-                  throw new MPCException("IOException: "
-                      + e.getMessage(), e);
-                }
-                ProtocolProducer lpsolver = new LPSolverProtocol(
-                    prefix.getTableau(),
-                    prefix.getUpdateMatrix(),
-                    prefix.getPivot(),
-                    prefix.getBasis(), lpFactory, bnFactory);
-                SInt sout = bnFactory.getSInt();
-                OInt out = bnFactory.getOInt();
-                ProtocolProducer outputter = lpFactory
-                    .getOptimalValueProtocol(
-                        prefix.getUpdateMatrix(),
-                        prefix.getTableau().getB(),
-                        prefix.getPivot(), sout);
-                SequentialProtocolProducer seq = new SequentialProtocolProducer(
-                    prefix.getPrefix(),
-                    lpsolver,
-                    outputter);
-                seq.append(bnFactory
-                    .getOpenProtocol(sout, out));
-                sseq.append(seq);
-                this.outputs = new OInt[]{out};
-              }
-              return sseq;
+              return ProtocolBuilder
+                  .createApplicationRoot((BuilderFactoryNumeric) factoryProducer, (builder) -> {
+                    LPPrefix prefix;
+                    try {
+                      prefix = new PlainSpdzLPPrefix(inputreader,
+                          bnFactory);
+                    } catch (IOException e) {
+                      e.printStackTrace();
+                      throw new MPCException("IOException: "
+                          + e.getMessage(), e);
+                    }
+                    builder.append(prefix.getPrefix());
+                    Computation<LPOutput> lpOutput = builder.createSequentialSub(
+                        new LPSolverProtocol4(
+                            prefix.getTableau(),
+                            prefix.getUpdateMatrix(),
+                            prefix.getPivot(),
+                            bnFactory));
+
+                    builder.createIteration((seq) -> {
+                      SInt sout = bnFactory.getSInt();
+                      OInt out = bnFactory.getOInt();
+                      LPOutput lpOut = lpOutput.out();
+                      ProtocolProducer outputter = lpFactory
+                          .getOptimalValueProtocol(
+                              lpOut.updateMatrix,
+                              lpOut.tableau.getB(),
+                              lpOut.pivot,
+                              sout);
+                      seq.append(new SequentialProtocolProducer(
+                          outputter,
+                          bnFactory.getOpenProtocol(sout, out)
+                      ));
+                      this.outputs = new OInt[]{out};
+                    });
+                  }).build();
             }
           };
           long startTime = System.nanoTime();
