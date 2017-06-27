@@ -2,6 +2,7 @@ package dk.alexandra.fresco.lib.compare.zerotest;
 
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
+import dk.alexandra.fresco.framework.builder.FrescoFunction;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder.SequentialProtocolBuilder;
 import dk.alexandra.fresco.framework.util.Pair;
@@ -13,10 +14,8 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.function.BiFunction;
 
-public class ZeroTestBruteforce
-    implements BiFunction<SInt, SequentialProtocolBuilder, Computation<SInt>> {
+public class ZeroTestBruteforce implements FrescoFunction<SInt, SInt> {
 
   private final BuilderFactoryNumeric factoryNumeric;
   private final int maxLength;

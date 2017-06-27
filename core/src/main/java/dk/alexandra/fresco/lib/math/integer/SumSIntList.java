@@ -1,18 +1,17 @@
 package dk.alexandra.fresco.lib.math.integer;
 
 import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.builder.FrescoFunction;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder.SequentialProtocolBuilder;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.BiFunction;
 
 /**
  * Protocol producer for summing a list of SInts
  */
-public class SumSIntList implements
-    BiFunction<List<Computation<SInt>>, SequentialProtocolBuilder, Computation<SInt>> {
+public class SumSIntList implements FrescoFunction<List<Computation<SInt>>, SInt> {
 
   /**
    * Creates a new SumSIntList.

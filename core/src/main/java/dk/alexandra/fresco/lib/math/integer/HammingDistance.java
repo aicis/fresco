@@ -1,6 +1,7 @@
 package dk.alexandra.fresco.lib.math.integer;
 
 import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.builder.FrescoFunction;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder.SequentialProtocolBuilder;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.OInt;
@@ -8,15 +9,13 @@ import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.BiFunction;
 
 /**
  * Computes the Hamming distance between an array of shared bits and a public value
  *
  * @author ttoft
  */
-public class HammingDistance implements
-    BiFunction<Pair<List<Computation<SInt>>, OInt>, SequentialProtocolBuilder, Computation<SInt>> {
+public class HammingDistance implements FrescoFunction<Pair<List<Computation<SInt>>, OInt>, SInt> {
 
   @Override
   public Computation<SInt> apply(Pair<List<Computation<SInt>>, OInt> inputPair,

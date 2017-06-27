@@ -1,15 +1,14 @@
 package dk.alexandra.fresco.lib.compare.zerotest;
 
 import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.builder.FrescoFunction;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder.SequentialProtocolBuilder;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.math.integer.HammingDistance;
-import java.util.function.BiFunction;
 
-public class ZeroTestReducer implements
-    BiFunction<SInt, SequentialProtocolBuilder, Computation<SInt>> {
+public class ZeroTestReducer implements FrescoFunction<SInt, SInt> {
 
   private final int bitLength;
 
