@@ -10,12 +10,12 @@ import dk.alexandra.fresco.lib.math.integer.SumSIntList;
 import java.util.ArrayList;
 import java.util.List;
 
-class InnerProductProtocolOpen implements ComputationBuilder<SInt> {
+public class InnerProductProtocolOpen implements ComputationBuilder<SInt> {
 
   private final List<OInt> aVector;
   private final List<Computation<SInt>> bVector;
 
-  InnerProductProtocolOpen(List<OInt> aVector,
+  public InnerProductProtocolOpen(List<OInt> aVector,
       List<Computation<SInt>> bVector) {
     this.aVector = aVector;
     this.bVector = bVector;

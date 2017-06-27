@@ -39,8 +39,8 @@ import java.math.BigInteger;
 
 /**
  * <p> This protocol implements integer division where both numerator and denominator are secret
- * shared. If the denominator is a known number {@link KnownDivisorProtocol4} should be used instead.
- * </p>
+ * shared. If the denominator is a known number {@link KnownDivisorProtocol4} should be used
+ * instead. </p>
  *
  * <p> The protocol uses <a href= "https://en.wikipedia.org/wiki/Division_algorithm#Goldschmidt_division"
  * >Goldschmidt Division</a> (aka. the 'IBM Method'). </p>
@@ -168,7 +168,7 @@ public class SecretSharedDivisorProtocol4
 
   private Computation<SInt> getBitLength(SequentialProtocolBuilder builder, Computation<SInt> input,
       int maximumBitLength) {
-    return builder.createBitLengthBuilder()
+    return builder.createAdvancedNumericBuilder()
         .bitLength(input, maximumBitLength);
   }
 
@@ -203,7 +203,7 @@ public class SecretSharedDivisorProtocol4
 
   private Computation<SInt> shiftRight(SequentialProtocolBuilder builder, Computation<SInt> input,
       int numberOfPositions) {
-    return builder.createRightShiftBuilder()
+    return builder.createAdvancedNumericBuilder()
         .rightShift(input, numberOfPositions);
   }
 }

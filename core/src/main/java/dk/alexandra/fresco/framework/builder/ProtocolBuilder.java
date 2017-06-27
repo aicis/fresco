@@ -1,12 +1,10 @@
 package dk.alexandra.fresco.framework.builder;
 
 import dk.alexandra.fresco.framework.Application;
-import dk.alexandra.fresco.framework.BitLengthBuilder;
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.ProtocolProducer;
-import dk.alexandra.fresco.framework.RightShiftBuilder;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.OIntFactory;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
@@ -183,20 +181,8 @@ public abstract class ProtocolBuilder {
     return factory.createComparisonBuilder(this);
   }
 
-  public InnerProductBuilder createInnerProductBuilder() {
-    return factory.createInnerProductBuilder(this);
-  }
-
-  public RandomAdditiveMaskBuilder createAdditiveMaskBuilder() {
-    return factory.createAdditiveMaskBuilder(this);
-  }
-
   public OpenBuilder createOpenBuilder() {
     return factory.createOpenBuilder(this);
-  }
-
-  public RightShiftBuilder createRightShiftBuilder() {
-    return factory.createRightShiftBuilder(this);
   }
 
   public AdvancedNumericBuilder createAdvancedNumericBuilder() {
@@ -205,10 +191,6 @@ public abstract class ProtocolBuilder {
 
   public InputBuilder createInputBuilder() {
     return factory.createInputBuilder(this);
-  }
-
-  public BitLengthBuilder createBitLengthBuilder() {
-    return factory.createBitLengthBuilder(this);
   }
 
 

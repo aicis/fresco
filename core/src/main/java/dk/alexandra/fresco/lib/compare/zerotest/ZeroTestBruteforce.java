@@ -66,7 +66,7 @@ public class ZeroTestBruteforce implements ComputationBuilder<SInt> {
       OInt[] mostSignificantPolynomialCoefficients = new OInt[maxLength];
       System.arraycopy(polynomialCoefficients, 1,
           mostSignificantPolynomialCoefficients, 0, maxLength);
-      Computation<SInt> tmp = seq.createInnerProductBuilder()
+      Computation<SInt> tmp = seq.createAdvancedNumericBuilder()
           .openDot(Arrays.asList(mostSignificantPolynomialCoefficients), powers);
       return seq.numeric().add(polynomialCoefficients[0], tmp);
     });
