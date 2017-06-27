@@ -143,27 +143,26 @@ public class CreditRater implements Application<SInt> {
 
     @Override
     public Computation<SInt> build(SequentialProtocolBuilder rootBuilder) {
-      return rootBuilder.par(
-          (parallelBuilder) -> {
-            List<Computation<SInt>> result = new ArrayList<>();
-            ComparisonBuilder builder = parallelBuilder.comparison();
+      return rootBuilder.par((parallelBuilder) -> {
+        List<Computation<SInt>> result = new ArrayList<>();
+        ComparisonBuilder builder = parallelBuilder.comparison();
 
             // Compare if "x <= the n interval definitions"
             for (Computation<SInt> anInterval : interval) {
               result.add(builder.compare(value, anInterval));
             }
             return () -> result;
-          })
+          }).seq((comparisons, builder) -> {
           // Add "x > last interval definition" to comparisons
-          .seq((comparisons, builder) -> {
+
             NumericBuilder numericBuilder = builder.numeric();
             Computation<SInt> one = builder.createInputBuilder().known(BigInteger.valueOf(1));
             Computation<SInt> lastComparison = comparisons.get(comparisons.size() - 1);
             comparisons.add(numericBuilder.sub(one, lastComparison));
             return () -> comparisons;
-          })
+          }).par((comparisons, parallelBuilder) -> {
           //Comparisons now contain if x <= each definition and if x>= last definition
-          .par((comparisons, parallelBuilder) -> {
+
             NumericBuilder numericBuilder = parallelBuilder.numeric();
             List<Computation<SInt>> innerScores = new ArrayList<>();
             innerScores.add(numericBuilder.mult(comparisons.get(0), scores.get(0)));
@@ -176,10 +175,8 @@ public class CreditRater implements Application<SInt> {
             Computation<SInt> b = scores.get(scores.size() - 1);
             innerScores.add(numericBuilder.mult(a, b));
             return () -> innerScores;
-          })
-          .seq((list, seq) ->
-              new SumSIntList(list).build(seq)
-          );
+
+          }).seq((list, seq) ->new SumSIntList(list).build(seq));
     }
   }
 }
