@@ -62,6 +62,7 @@ public class AdvancedNumericTests {
         public void test() throws Exception {
           TestApplication<BigInteger> app = new TestApplication<BigInteger>() {
 
+            private BigInteger out;
             private Computation<OInt> openResult;
 
             @Override
@@ -83,12 +84,13 @@ public class AdvancedNumericTests {
             }
 
             @Override
-            public BigInteger closeApplication() {
-              if (openResult != null) {
-                OInt out = openResult.out();
-                return out.getValue();
-              }
-              return null;
+            public void close() {
+              this.out = openResult.out().getValue();
+            }
+
+            @Override
+            public BigInteger getResult() {
+              return this.out;
             }
           };
 
@@ -132,6 +134,7 @@ public class AdvancedNumericTests {
         public void test() throws Exception {
           TestApplication<BigInteger> app = new TestApplication<BigInteger>() {
 
+            private BigInteger out;
             private Computation<OInt> openResult;
 
             @Override
@@ -152,12 +155,13 @@ public class AdvancedNumericTests {
             }
 
             @Override
-            public BigInteger closeApplication() {
-              if (openResult != null) {
-                OInt out = openResult.out();
-                return out.getValue();
-              }
-              return null;
+            public void close() {
+              this.out = openResult.out().getValue();
+            }
+
+            @Override
+            public BigInteger getResult() {
+              return this.out;
             }
           };
 
@@ -184,6 +188,7 @@ public class AdvancedNumericTests {
         public void test() throws Exception {
           TestApplication<BigInteger> app = new TestApplication<BigInteger>() {
 
+            private BigInteger out;
             private Computation<OInt> openResult;
 
             @Override
@@ -202,12 +207,13 @@ public class AdvancedNumericTests {
             }
 
             @Override
-            public BigInteger closeApplication() {
-              if (openResult != null) {
-                OInt out = openResult.out();
-                return out.getValue();
-              }
-              return null;
+            public void close() {
+              this.out = openResult.out().getValue();
+            }
+
+            @Override
+            public BigInteger getResult() {
+              return this.out;
             }
           };
 

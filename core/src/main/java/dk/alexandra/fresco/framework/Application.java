@@ -40,9 +40,18 @@ public interface Application<OutputT> {
 
   /**
    * Closes the application and allows the output to be produced and allocated resources to be
-   * release.
+   * released.
    */
-  default OutputT closeApplication() {
+  default void close() {
+
+  }
+
+  /**
+   * Retrieves the actual result, only called if close completed successful
+   *
+   * @return the result
+   */
+  default OutputT getResult() {
     return null;
   }
 }

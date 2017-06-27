@@ -76,6 +76,7 @@ public class BinaryOperationsTests {
           TestApplication<Pair<BigInteger, List<BigInteger>>> app =
               new TestApplication<Pair<BigInteger, List<BigInteger>>>() {
 
+                private Pair<BigInteger, List<BigInteger>> listPair;
                 private Computation<List<Computation<OInt>>> openRemainders;
                 private Computation<OInt> openResult;
 
@@ -109,14 +110,19 @@ public class BinaryOperationsTests {
                 }
 
                 @Override
-                public Pair<BigInteger, List<BigInteger>> closeApplication() {
-                  return new Pair<>(
+                public void close() {
+                  listPair = new Pair<>(
                       openResult.out().getValue(),
                       openRemainders.out().stream()
                           .map(Computation::out)
                           .map(OInt::getValue)
                           .collect(Collectors.toList())
                   );
+                }
+
+                @Override
+                public Pair<BigInteger, List<BigInteger>> getResult() {
+                  return listPair;
                 }
               };
           Pair<BigInteger, List<BigInteger>> output =
