@@ -38,10 +38,9 @@ public class SpdzSubtractProtocol4 extends SpdzNativeProtocol<SInt> {
   private Computation<SInt> right;
   private SpdzSInt out;
 
-  public SpdzSubtractProtocol4(Computation<SInt> left, Computation<SInt> right, SpdzSInt out) {
+  public SpdzSubtractProtocol4(Computation<SInt> left, Computation<SInt> right) {
     this.left = left;
     this.right = right;
-    this.out = out;
   }
 
   @Override
@@ -58,7 +57,7 @@ public class SpdzSubtractProtocol4 extends SpdzNativeProtocol<SInt> {
   @Override
   public EvaluationStatus evaluate(int round, SpdzResourcePool SpdzResourcePool,
       SCENetwork network) {
-    out.value = ((SpdzSInt) left.out()).value.subtract(((SpdzSInt) right.out()).value);
+    out = new SpdzSInt(((SpdzSInt) left.out()).value.subtract(((SpdzSInt) right.out()).value));
     return EvaluationStatus.IS_DONE;
   }
 

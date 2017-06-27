@@ -37,11 +37,9 @@ public class SpdzAddProtocol4 extends SpdzNativeProtocol<SInt> {
   private Computation<SInt> left, right;
   private SpdzSInt out;
 
-  public SpdzAddProtocol4(Computation<SInt> left, Computation<SInt> right,
-      SpdzSInt out) {
+  public SpdzAddProtocol4(Computation<SInt> left, Computation<SInt> right) {
     this.left = left;
     this.right = right;
-    this.out = out;
   }
 
   @Override
@@ -58,7 +56,7 @@ public class SpdzAddProtocol4 extends SpdzNativeProtocol<SInt> {
   @Override
   public EvaluationStatus evaluate(int round, SpdzResourcePool spdzResourcePool,
       SCENetwork network) {
-    out.value = ((SpdzSInt) left.out()).value.add(((SpdzSInt) right.out()).value);
+    out = new SpdzSInt(((SpdzSInt) left.out()).value.add(((SpdzSInt) right.out()).value));
     return EvaluationStatus.IS_DONE;
   }
 }

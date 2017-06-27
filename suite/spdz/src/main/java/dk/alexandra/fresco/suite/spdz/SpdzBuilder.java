@@ -43,8 +43,7 @@ class SpdzBuilder implements BuilderFactoryNumeric {
     return new NumericBuilder() {
       @Override
       public Computation<SInt> add(Computation<SInt> a, Computation<SInt> b) {
-        SpdzSInt out = spdzFactory.getSInt();
-        SpdzAddProtocol4 spdzAddProtocol4 = new SpdzAddProtocol4(a, b, out);
+        SpdzAddProtocol4 spdzAddProtocol4 = new SpdzAddProtocol4(a, b);
         protocolBuilder.append(spdzAddProtocol4);
         return spdzAddProtocol4;
       }
@@ -58,8 +57,7 @@ class SpdzBuilder implements BuilderFactoryNumeric {
 
       @Override
       public Computation<SInt> sub(Computation<SInt> a, Computation<SInt> b) {
-        SpdzSInt out = spdzFactory.getSInt();
-        SpdzSubtractProtocol4 spdzSubtractProtocol4 = new SpdzSubtractProtocol4(a, b, out);
+        SpdzSubtractProtocol4 spdzSubtractProtocol4 = new SpdzSubtractProtocol4(a, b);
         protocolBuilder.append(spdzSubtractProtocol4);
         return spdzSubtractProtocol4;
       }
@@ -76,8 +74,7 @@ class SpdzBuilder implements BuilderFactoryNumeric {
 
       @Override
       public Computation<SInt> mult(Computation<SInt> a, Computation<SInt> b) {
-        SpdzSInt out = spdzFactory.getSInt();
-        SpdzMultProtocol4 spdzMultProtocol4 = new SpdzMultProtocol4(a, b, out);
+        SpdzMultProtocol4 spdzMultProtocol4 = new SpdzMultProtocol4(a, b);
         protocolBuilder.append(spdzMultProtocol4);
         return spdzMultProtocol4;
       }
