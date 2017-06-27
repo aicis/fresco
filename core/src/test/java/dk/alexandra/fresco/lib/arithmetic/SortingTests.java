@@ -64,7 +64,7 @@ public class SortingTests {
             /**
              *
              */
-            private static final long serialVersionUID = 7960372460887688296L;
+
 
             private BigInteger zero = BigInteger.valueOf(0);
             private BigInteger one = BigInteger.valueOf(1);

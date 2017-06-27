@@ -83,7 +83,7 @@ public class AESDemo implements Application {
    * Serializable's. This means that each application must have a unique
    * serialVersionUID.
    */
-  private static final long serialVersionUID = 1081355810959328531L;
+
 
   private boolean[] in;
   private int id;

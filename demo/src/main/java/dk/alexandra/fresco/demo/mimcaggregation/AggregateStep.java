@@ -17,8 +17,7 @@ import java.util.Map;
 
 public class AggregateStep implements Application {
 
-	private static final long serialVersionUID = -420207687882983242L;
-	
+
 	private List<Triple<SInt,SInt,BigInteger>> triples;
 	private int cipherColumn;
     private int keyColumn;

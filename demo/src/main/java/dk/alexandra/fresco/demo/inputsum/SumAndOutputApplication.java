@@ -44,7 +44,7 @@ import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
  */
 public class SumAndOutputApplication implements Application {
 
-  private static final long serialVersionUID = 4556762525827528147L;
+
   private InputApplication inputApp;
   private OInt output;
 

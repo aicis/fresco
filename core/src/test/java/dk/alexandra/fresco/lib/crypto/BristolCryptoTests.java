@@ -119,7 +119,6 @@ public class BristolCryptoTests {
         public void test() throws Exception {
           Application aesApp = new Application() {
 
-            private static final long serialVersionUID = 1923498347L;
 
             @Override
             public ProtocolProducer prepareApplication(BuilderFactory fac) {
@@ -206,7 +205,6 @@ public class BristolCryptoTests {
         public void test() throws Exception {
           Application aesApp = new Application() {
 
-            private static final long serialVersionUID = 984759485L;
 
             @Override
             public ProtocolProducer prepareApplication(BuilderFactory fac) {
@@ -294,7 +292,6 @@ public class BristolCryptoTests {
         public void test() throws Exception {
           Application sha256App = new Application() {
 
-            private static final long serialVersionUID = 984759485L;
 
             @Override
             public ProtocolProducer prepareApplication(BuilderFactory fac) {
@@ -383,7 +380,6 @@ public class BristolCryptoTests {
         public void test() throws Exception {
           Application md5App = new Application() {
 
-            private static final long serialVersionUID = 984759485L;
 
             @Override
             public ProtocolProducer prepareApplication(BuilderFactory fac) {
@@ -461,7 +457,6 @@ public class BristolCryptoTests {
         public void test() throws Exception {
           Application multApp = new Application() {
 
-            private static final long serialVersionUID = 36363636L;
 
             @Override
             public ProtocolProducer prepareApplication(BuilderFactory fac) {

@@ -75,7 +75,6 @@ public class BasicArithmeticTests {
         public void test() throws Exception {
           TestApplication app = new TestApplication() {
 
-            private static final long serialVersionUID = 4338818809103728010L;
 
             @Override
             public ProtocolProducer prepareApplication(
@@ -114,7 +113,6 @@ public class BasicArithmeticTests {
         public void test() throws Exception {
           TestApplication app = new TestApplication() {
 
-            private static final long serialVersionUID = 4338818809103728010L;
 
             @Override
             public ProtocolProducer prepareApplication(
@@ -158,7 +156,6 @@ public class BasicArithmeticTests {
         public void test() throws Exception {
           TestApplication app = new TestApplication() {
 
-            private static final long serialVersionUID = 4338818809103728010L;
 
             @Override
             public ProtocolProducer prepareApplication(
@@ -429,7 +426,6 @@ public class BasicArithmeticTests {
         public void test() throws Exception {
           TestApplication app = new TestApplication() {
 
-            private static final long serialVersionUID = 701623461111107585L;
 
             @Override
             public ProtocolProducer prepareApplication(
@@ -485,7 +481,7 @@ public class BasicArithmeticTests {
         public void test() throws Exception {
           TestApplication app = new TestApplication() {
             private static final int REPS = 20000;
-            private static final long serialVersionUID = 701623441111137585L;
+
 
             @Override
             public ProtocolProducer prepareApplication(
@@ -528,7 +524,7 @@ public class BasicArithmeticTests {
       return new TestThread<ResourcePoolT>() {
         public void test() throws Exception {
           TestApplication app = new TestApplication() {
-            private static final long serialVersionUID = 701623441111137585L;
+
 
             @Override
             public ProtocolProducer prepareApplication(
@@ -641,7 +637,6 @@ public class BasicArithmeticTests {
         public void test() throws Exception {
           TestApplication app = new TestApplication() {
 
-            private static final long serialVersionUID = 701623441111137585L;
 
             @Override
             public ProtocolProducer prepareApplication(

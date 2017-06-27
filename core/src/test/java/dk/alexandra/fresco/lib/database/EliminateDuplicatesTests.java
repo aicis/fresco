@@ -49,8 +49,6 @@ class EliminateDuplicatesTests {
           TestApplication app = new TestApplication() {
 
 
-            private static final long serialVersionUID = 161228667004418796L;
-
             private BigInteger zero = BigInteger.valueOf(0);
             private BigInteger one = BigInteger.valueOf(1);
             private BigInteger two = BigInteger.valueOf(2);
@@ -128,8 +126,6 @@ class EliminateDuplicatesTests {
         public void test() throws Exception {
           TestApplication app = new TestApplication() {
 
-
-            private static final long serialVersionUID = 161228667004418796L;
 
             private BigInteger zero = BigInteger.valueOf(0);
             private BigInteger one = BigInteger.valueOf(1);
@@ -210,8 +206,6 @@ class EliminateDuplicatesTests {
         public void test() throws Exception {
           TestApplication app = new TestApplication() {
 
-
-            private static final long serialVersionUID = 161228667004418796L;
 
             private BigInteger zero = BigInteger.valueOf(0);
             private BigInteger one = BigInteger.valueOf(1);

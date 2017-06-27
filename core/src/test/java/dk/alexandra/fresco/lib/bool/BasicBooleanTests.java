@@ -58,7 +58,6 @@ public class BasicBooleanTests {
         public void test() throws Exception {
           TestBoolApplication app = new TestBoolApplication() {
 
-            private static final long serialVersionUID = 4338818809103728010L;
 
             @Override
             public ProtocolProducer prepareApplication(
@@ -102,7 +101,6 @@ public class BasicBooleanTests {
         public void test() throws Exception {
           TestBoolApplication app = new TestBoolApplication() {
 
-            private static final long serialVersionUID = 4338818809103728010L;
 
             @Override
             public ProtocolProducer prepareApplication(
@@ -170,7 +168,6 @@ public class BasicBooleanTests {
         public void test() throws Exception {
           TestBoolApplication app = new TestBoolApplication() {
 
-            private static final long serialVersionUID = 4338818809103728010L;
 
             @Override
             public ProtocolProducer prepareApplication(
@@ -227,7 +224,6 @@ public class BasicBooleanTests {
         public void test() throws Exception {
           TestBoolApplication app = new TestBoolApplication() {
 
-            private static final long serialVersionUID = 4338818809103728010L;
 
             @Override
             public ProtocolProducer prepareApplication(
@@ -278,7 +274,6 @@ public class BasicBooleanTests {
         public void test() throws Exception {
           TestBoolApplication app = new TestBoolApplication() {
 
-            private static final long serialVersionUID = 4338818809103728010L;
 
             @Override
             public ProtocolProducer prepareApplication(

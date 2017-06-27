@@ -85,7 +85,6 @@ public class DEASolverTests {
           double[] plainResult = new double[targetQueries];
           TestApplication app = new TestApplication() {
 
-            private static final long serialVersionUID = 4338818809103728010L;
 
             @Override
             public ProtocolProducer prepareApplication(

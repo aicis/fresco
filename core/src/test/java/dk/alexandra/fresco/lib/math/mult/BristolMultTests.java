@@ -114,7 +114,6 @@ public class BristolMultTests {
         public void test() throws Exception {
           Application md5App = new Application() {
 
-            private static final long serialVersionUID = 36363636L;
 
             public ProtocolProducer prepareApplication(
                 BuilderFactory factoryProducer) {

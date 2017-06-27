@@ -32,7 +32,7 @@ import java.math.BigInteger;
 
 public class SpdzElement implements Serializable{
 
-	private static final long serialVersionUID = 6794633112697012286L;
+
   private final BigInteger share;
   private final BigInteger mac;
   private final BigInteger mod = Util.getModulus();

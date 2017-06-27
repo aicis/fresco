@@ -59,9 +59,8 @@ public class PolynomialTests {
 				public void test() throws Exception {
 					TestApplication app = new TestApplication() {
 
-						private static final long serialVersionUID = 701623441111137585L;
 
-						@Override
+            @Override
             public ProtocolProducer prepareApplication(BuilderFactory provider) {
 
               BasicNumericFactory basicNumericFactory = (BasicNumericFactory) provider
