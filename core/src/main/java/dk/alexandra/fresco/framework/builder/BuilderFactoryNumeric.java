@@ -1,17 +1,9 @@
 package dk.alexandra.fresco.framework.builder;
 
-import dk.alexandra.fresco.framework.BitLengthBuilder;
 import dk.alexandra.fresco.framework.BuilderFactory;
-import dk.alexandra.fresco.framework.RightShiftBuilder;
 import dk.alexandra.fresco.lib.compare.DefaultComparisonBuilder;
-import dk.alexandra.fresco.lib.compare.DefaultRandomAdditiveMaskBuilder;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
-import dk.alexandra.fresco.lib.math.integer.binary.DefaultBitLengthBuilder;
-import dk.alexandra.fresco.lib.math.integer.binary.DefaultRightShiftBuilder;
 import dk.alexandra.fresco.lib.math.integer.division.DefaultAdvancedNumericBuilder;
-import dk.alexandra.fresco.lib.math.integer.exp.ExpFromOIntFactory;
-import dk.alexandra.fresco.lib.math.integer.exp.PreprocessedExpPipeFactory;
-import dk.alexandra.fresco.lib.math.integer.linalg.DefaultInnerProductBuilder;
 
 /**
  * The core factory to implement when creating a numeric protocol. Every subbuilder from this
@@ -29,42 +21,12 @@ public interface BuilderFactoryNumeric extends BuilderFactory {
 
   NumericBuilder createNumericBuilder(ProtocolBuilder builder);
 
-  OpenBuilder createOpenBuilder(ProtocolBuilder builder);
-
-  InputBuilder createInputBuilder(ProtocolBuilder builder);
-
-
-  default PreprocessedExpPipeFactory getPreprocessedExpPipe() {
-    return (PreprocessedExpPipeFactory) getBasicNumericFactory();
-  }
-
-  default ExpFromOIntFactory getExpFromOInt() {
-    return (ExpFromOIntFactory) getBasicNumericFactory();
-  }
-
   default ComparisonBuilder createComparisonBuilder(ProtocolBuilder builder) {
     return new DefaultComparisonBuilder(this, builder);
   }
 
-  default InnerProductBuilder createInnerProductBuilder(ProtocolBuilder builder) {
-    return new DefaultInnerProductBuilder(builder);
-  }
-
-  default RandomAdditiveMaskBuilder createAdditiveMaskBuilder(ProtocolBuilder builder) {
-    return new DefaultRandomAdditiveMaskBuilder(this, builder, MAGIC_SECURE_NUMBER);
-  }
-
-  default RightShiftBuilder createRightShiftBuilder(
-      ProtocolBuilder builder) {
-    return new DefaultRightShiftBuilder(this, builder);
-  }
-
   default AdvancedNumericBuilder createAdvancedNumericBuilder(ProtocolBuilder builder) {
     return new DefaultAdvancedNumericBuilder(this, builder);
-  }
-
-  default BitLengthBuilder createBitLengthBuilder(ProtocolBuilder builder) {
-    return new DefaultBitLengthBuilder(builder);
   }
 
 }

@@ -3,7 +3,6 @@ package dk.alexandra.fresco.lib.compare;
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.ComparisonBuilder;
-import dk.alexandra.fresco.framework.builder.InputBuilder;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
 import dk.alexandra.fresco.framework.value.OInt;
@@ -53,7 +52,7 @@ public class DefaultComparisonBuilder implements ComparisonBuilder {
 
   public Computation<SInt> sign(Computation<SInt> x) {
     BasicNumericFactory bnf = factoryNumeric.getBasicNumericFactory();
-    InputBuilder input = builder.createInputBuilder();
+    NumericBuilder input = builder.numeric();
     Computation<SInt> compare =
         compare(input.known(BigInteger.valueOf(0)), x);
     OInt oInt = bnf.getOInt(BigInteger.valueOf(2));

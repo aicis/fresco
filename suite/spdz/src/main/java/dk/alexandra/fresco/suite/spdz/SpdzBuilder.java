@@ -3,9 +3,7 @@ package dk.alexandra.fresco.suite.spdz;
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
-import dk.alexandra.fresco.framework.builder.InputBuilder;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
-import dk.alexandra.fresco.framework.builder.OpenBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
@@ -85,7 +83,7 @@ class SpdzBuilder implements BuilderFactoryNumeric {
       }
 
       @Override
-      public Computation<SInt> createRandomSecretSharedBitProtocol() {
+      public Computation<SInt> randomBit() {
         return () -> spdzFactory.getRandomBitFromStorage();
       }
 
@@ -97,23 +95,7 @@ class SpdzBuilder implements BuilderFactoryNumeric {
         protocolBuilder.append(spdzLocalInversionProtocol);
         return spdzLocalInversionProtocol;
       }
-    };
-  }
 
-  @Override
-  public OpenBuilder createOpenBuilder(ProtocolBuilder protocolBuilder) {
-    return secretShare -> {
-      OInt out = spdzFactory.getOInt();
-      SpdzOutputToAllProtocol4 openProtocol = new SpdzOutputToAllProtocol4(secretShare, out);
-      protocolBuilder.append(openProtocol);
-      return openProtocol;
-    };
-
-  }
-
-  @Override
-  public InputBuilder createInputBuilder(ProtocolBuilder protocolBuilder) {
-    return new InputBuilder() {
       @Override
       public Computation<SInt> known(BigInteger value) {
         //TODO Should probably be handled here instead of delegating to the spdz factory
@@ -126,6 +108,25 @@ class SpdzBuilder implements BuilderFactoryNumeric {
         SpdzInputProtocol protocol = new SpdzInputProtocol(value, out, inputParty);
         protocolBuilder.append(protocol);
         return protocol::out;
+      }
+
+      @Override
+      public Computation<OInt> open(Computation<SInt> secretShare) {
+        OInt out = spdzFactory.getOInt();
+        SpdzOutputToAllProtocol4 openProtocol = new SpdzOutputToAllProtocol4(secretShare, out);
+        protocolBuilder.append(openProtocol);
+        return openProtocol;
+      }
+
+      @Override
+      public Computation<SInt[]> getExponentiationPipe() {
+        //TODO Should be a protocol
+        return () -> spdzFactory.getExponentiationPipe();
+      }
+
+      @Override
+      public Computation<OInt[]> getExpFromOInt(OInt value, int maxExp) {
+        return () -> spdzFactory.getExpFromOInt(value, maxExp);
       }
     };
   }

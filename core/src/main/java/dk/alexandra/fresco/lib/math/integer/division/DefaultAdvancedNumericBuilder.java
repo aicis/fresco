@@ -6,10 +6,16 @@ import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
+import dk.alexandra.fresco.lib.compare.RandomAdditiveMaskProtocol44;
 import dk.alexandra.fresco.lib.conversion.IntegerToBitsByShiftProtocolImpl4;
+import dk.alexandra.fresco.lib.math.integer.binary.BitLengthProtocol4;
+import dk.alexandra.fresco.lib.math.integer.binary.RepeatedRightShiftProtocol4;
+import dk.alexandra.fresco.lib.math.integer.binary.RightShiftProtocol4;
 import dk.alexandra.fresco.lib.math.integer.exp.ExponentiationProtocol4;
 import dk.alexandra.fresco.lib.math.integer.exp.ExponentiationProtocolOpenBase;
 import dk.alexandra.fresco.lib.math.integer.exp.ExponentiationProtocolOpenExponent;
+import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductProtocol44;
+import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductProtocolOpen;
 import dk.alexandra.fresco.lib.math.integer.log.LogarithmProtocol;
 import dk.alexandra.fresco.lib.math.integer.sqrt.SquareRootProtocol;
 import java.util.List;
@@ -73,5 +79,70 @@ public class DefaultAdvancedNumericBuilder implements
   @Override
   public Computation<SInt> log(Computation<SInt> input, int maxInputLength) {
     return builder.createSequentialSub(new LogarithmProtocol(input, maxInputLength));
+  }
+
+
+  @Override
+  public Computation<SInt> dot(List<Computation<SInt>> aVector,
+      List<Computation<SInt>> bVector) {
+    return builder
+        .createSequentialSub(new InnerProductProtocol44(aVector, bVector));
+  }
+
+  @Override
+  public Computation<SInt> openDot(List<OInt> aVector, List<Computation<SInt>> bVector) {
+    return builder
+        .createSequentialSub(new InnerProductProtocolOpen(aVector, bVector));
+  }
+
+  @Override
+  public Computation<RandomAdditiveMask> additiveMask(int noOfBits) {
+    return builder
+        .createSequentialSub(
+            new RandomAdditiveMaskProtocol44(factoryNumeric,
+                BuilderFactoryNumeric.MAGIC_SECURE_NUMBER, noOfBits));
+  }
+
+  @Override
+  public Computation<SInt> rightShift(Computation<SInt> input) {
+    Computation<RightShiftResult> rightShiftResult = builder
+        .createSequentialSub(
+            new RightShiftProtocol4(
+                factoryNumeric.getBasicNumericFactory().getMaxBitLength(),
+                input, false));
+    return () -> rightShiftResult.out().getResult();
+  }
+
+  @Override
+  public Computation<RightShiftResult> rightShiftWithRemainder(Computation<SInt> input) {
+    return builder.createSequentialSub(
+        new RightShiftProtocol4(
+            factoryNumeric.getBasicNumericFactory().getMaxBitLength(),
+            input, true));
+  }
+
+  @Override
+  public Computation<SInt> rightShift(Computation<SInt> input, int shifts) {
+    Computation<RightShiftResult> rightShiftResult = builder
+        .createSequentialSub(
+            new RepeatedRightShiftProtocol4(
+                input, shifts, false));
+    return () -> rightShiftResult.out().getResult();
+  }
+
+  @Override
+  public Computation<RightShiftResult> rightShiftWithRemainder(
+      Computation<SInt> input,
+      int shifts) {
+    return builder.createSequentialSub(
+        new RepeatedRightShiftProtocol4(
+            input, shifts, true));
+  }
+
+  @Override
+  public Computation<SInt> bitLength(Computation<SInt> input, int maxBitLength) {
+    return builder.createSequentialSub(
+        new BitLengthProtocol4(input, maxBitLength));
+
   }
 }

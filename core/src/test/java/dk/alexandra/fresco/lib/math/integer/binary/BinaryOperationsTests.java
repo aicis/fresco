@@ -26,18 +26,17 @@
  */
 package dk.alexandra.fresco.lib.math.integer.binary;
 
-import dk.alexandra.fresco.framework.BitLengthBuilder;
 import dk.alexandra.fresco.framework.BuilderFactory;
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.ProtocolProducer;
-import dk.alexandra.fresco.framework.RightShiftBuilder;
-import dk.alexandra.fresco.framework.RightShiftBuilder.RightShiftResult;
 import dk.alexandra.fresco.framework.TestApplication;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
+import dk.alexandra.fresco.framework.builder.AdvancedNumericBuilder;
+import dk.alexandra.fresco.framework.builder.AdvancedNumericBuilder.RightShiftResult;
 import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
-import dk.alexandra.fresco.framework.builder.OpenBuilder;
+import dk.alexandra.fresco.framework.builder.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.util.Pair;
@@ -86,17 +85,18 @@ public class BinaryOperationsTests {
                   return dk.alexandra.fresco.framework.builder.ProtocolBuilder
                       .createApplicationRoot(factoryNumeric,
                           (builder) -> {
-                            RightShiftBuilder rightShift = builder.createRightShiftBuilder();
-                            Computation<SInt> encryptedInput = builder.createInputBuilder()
+                            AdvancedNumericBuilder rightShift = builder
+                                .createAdvancedNumericBuilder();
+                            Computation<SInt> encryptedInput = builder.numeric()
                                 .known(input);
                             Computation<RightShiftResult> shiftedRight = rightShift
                                 .rightShiftWithRemainder(encryptedInput, shifts);
-                            OpenBuilder openBuilder = builder.createOpenBuilder();
-                            openResult = openBuilder
+                            NumericBuilder NumericBuilder = builder.numeric();
+                            openResult = NumericBuilder
                                 .open(() -> shiftedRight.out().getResult().out());
                             openRemainders = builder
                                 .createSequentialSub((innerBuilder) -> {
-                                  OpenBuilder innerOpenBuilder = innerBuilder.createOpenBuilder();
+                                  NumericBuilder innerOpenBuilder = innerBuilder.numeric();
                                   List<Computation<OInt>> opened = shiftedRight.out()
                                       .getRemainder()
                                       .stream()
@@ -160,11 +160,12 @@ public class BinaryOperationsTests {
                 BuilderFactory producer) {
               return ProtocolBuilder
                   .createApplicationRoot((BuilderFactoryNumeric) producer, (builder) -> {
-                    Computation<SInt> sharedInput = builder.createInputBuilder().known(input);
-                    BitLengthBuilder bitLengthBuilder = builder.createBitLengthBuilder();
+                    Computation<SInt> sharedInput = builder.numeric().known(input);
+                    AdvancedNumericBuilder bitLengthBuilder = builder
+                        .createAdvancedNumericBuilder();
                     Computation<SInt> bitLength = bitLengthBuilder
                         .bitLength(sharedInput, input.bitLength() * 2);
-                    openResult = builder.createOpenBuilder().open(bitLength);
+                    openResult = builder.numeric().open(bitLength);
                   }).build();
             }
           };

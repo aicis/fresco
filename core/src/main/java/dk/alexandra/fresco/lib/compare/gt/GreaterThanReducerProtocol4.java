@@ -27,9 +27,9 @@
 package dk.alexandra.fresco.lib.compare.gt;
 
 import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.builder.AdvancedNumericBuilder;
 import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.ComputationBuilder;
-import dk.alexandra.fresco.framework.builder.InnerProductBuilder;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder.SequentialProtocolBuilder;
 import dk.alexandra.fresco.framework.util.Pair;
@@ -41,7 +41,7 @@ import dk.alexandra.fresco.lib.compare.MiscOIntGenerators;
 import java.math.BigInteger;
 import java.util.List;
 
-public class GreaterThanReducerProtocol4    implements ComputationBuilder<SInt> {
+public class GreaterThanReducerProtocol4 implements ComputationBuilder<SInt> {
 
   private GreaterThanReducerProtocol4(int bitLength, int securityParameter,
       Computation<SInt> x, Computation<SInt> y,
@@ -91,9 +91,7 @@ public class GreaterThanReducerProtocol4    implements ComputationBuilder<SInt> 
 
     final OInt one = intFactory.getOInt(BigInteger.ONE);
 
-    return builder.seq((seq) ->
-        // LOAD r + bits
-        seq.createAdditiveMaskBuilder().additiveMask(bitLength)
+    return builder.seq((seq) -> seq.createAdvancedNumericBuilder().additiveMask(bitLength)
     ).par(
         (mask, seq) -> {
           List<Computation<SInt>> bits = mask.bits;
@@ -103,7 +101,7 @@ public class GreaterThanReducerProtocol4    implements ComputationBuilder<SInt> 
           return
               Pair.lazy(
                   mask.r,
-                  seq.createInnerProductBuilder().openDot(twoPowsBottom, rBottomBits)
+                  seq.createAdvancedNumericBuilder().openDot(twoPowsBottom, rBottomBits)
               );
         },
         (mask, seq) -> {
@@ -111,7 +109,7 @@ public class GreaterThanReducerProtocol4    implements ComputationBuilder<SInt> 
               .subList(bitLengthBottom, bitLengthBottom + bitLengthTop);
           List<OInt> twoPowsTop =
               miscOIntGenerator.getTwoPowersList(seq.getOIntFactory(), bitLengthTop);
-          InnerProductBuilder innerProduct = seq.createInnerProductBuilder();
+          AdvancedNumericBuilder innerProduct = seq.createAdvancedNumericBuilder();
 
           return innerProduct.openDot(twoPowsTop, rTopBits);
         }
@@ -135,7 +133,7 @@ public class GreaterThanReducerProtocol4    implements ComputationBuilder<SInt> 
 
       // mO = open(z + r)
       Computation<SInt> mS = numeric.add(z, r);
-      Computation<OInt> mO = seq.createOpenBuilder().open(mS);
+      Computation<OInt> mO = seq.numeric().open(mS);
 
       return () -> new Object[]{mO, rBottom, rTop, rBar, z};
     }).seq((Object[] input, SequentialProtocolBuilder seq) -> {
