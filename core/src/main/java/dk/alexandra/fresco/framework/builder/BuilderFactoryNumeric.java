@@ -50,8 +50,7 @@ public interface BuilderFactoryNumeric extends BuilderFactory {
     return new DefaultInnerProductBuilder(builder);
   }
 
-  default RandomAdditiveMaskBuilder createAdditiveMaskBuilder(
-      ProtocolBuilder builder) {
+  default RandomAdditiveMaskBuilder createAdditiveMaskBuilder(ProtocolBuilder builder) {
     return new DefaultRandomAdditiveMaskBuilder(this, builder, MAGIC_SECURE_NUMBER);
   }
 
