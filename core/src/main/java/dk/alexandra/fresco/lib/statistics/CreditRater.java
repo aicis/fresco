@@ -152,7 +152,7 @@ public class CreditRater implements Application<SInt> {
               result.add(builder.compare(value, anInterval));
             }
             return () -> result;
-          }).seq((comparisons, builder) -> {
+      }).seq((comparisons, builder) -> {
           // Add "x > last interval definition" to comparisons
 
             NumericBuilder numericBuilder = builder.numeric();
@@ -160,10 +160,10 @@ public class CreditRater implements Application<SInt> {
             Computation<SInt> lastComparison = comparisons.get(comparisons.size() - 1);
             comparisons.add(numericBuilder.sub(one, lastComparison));
             return () -> comparisons;
-          }).par((comparisons, parallelBuilder) -> {
+      }).par((comparisons, parallelBuilder) -> {
           //Comparisons now contain if x <= each definition and if x>= last definition
 
-            NumericBuilder numericBuilder = parallelBuilder.numeric();
+        NumericBuilder numericBuilder = parallelBuilder.numeric();
             List<Computation<SInt>> innerScores = new ArrayList<>();
             innerScores.add(numericBuilder.mult(comparisons.get(0), scores.get(0)));
             for (int i = 1; i < scores.size() - 1; i++) {
@@ -176,7 +176,7 @@ public class CreditRater implements Application<SInt> {
             innerScores.add(numericBuilder.mult(a, b));
             return () -> innerScores;
 
-          }).seq((list, seq) ->new SumSIntList(list).build(seq));
+      }).seq((list, seq) -> new SumSIntList(list).build(seq));
     }
   }
 }
