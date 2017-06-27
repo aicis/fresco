@@ -60,10 +60,10 @@ public class BitLengthProtocol4 implements ComputationBuilder<SInt> {
       return seq.createAdvancedNumericBuilder()
           .rightShiftWithRemainder(input, maxBitLength);
     }).seq((rightShiftResult, seq) -> {
-      Computation<SInt> mostSignificantBitIndex = seq.createInputBuilder()
+      Computation<SInt> mostSignificantBitIndex = seq.numeric()
           .known(BigInteger.valueOf(0));
       for (int n = 0; n < maxBitLength; n++) {
-        Computation<SInt> currentIndex = seq.createInputBuilder().known(BigInteger.valueOf(n));
+        Computation<SInt> currentIndex = seq.numeric().known(BigInteger.valueOf(n));
       /*
        * If bits[n] == 1 we let mostSignificantIndex be current index.
 			 * Otherwise we leave it be.

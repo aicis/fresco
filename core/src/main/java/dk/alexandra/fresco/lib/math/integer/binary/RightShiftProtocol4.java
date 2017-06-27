@@ -79,7 +79,7 @@ public class RightShiftProtocol4 implements ComputationBuilder<RightShiftResult>
     }, (randomAdditiveMask, parSubSequential) -> {
       Computation<SInt> result = parSubSequential.numeric()
           .add(input, () -> randomAdditiveMask.r);
-      return parSubSequential.createOpenBuilder().open(result);
+      return parSubSequential.numeric().open(result);
     }).seq((preprocessOutput, round1) -> {
       OInt mOpen = preprocessOutput.getSecond();
       Computation<SInt> rBottom = preprocessOutput.getFirst().getFirst();

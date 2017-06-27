@@ -174,7 +174,7 @@ public class SecretSharedDivisorProtocol4
 
   private Computation<SInt> sign(SequentialProtocolBuilder builder, Computation<SInt> input) {
     Computation<SInt> result = gte(builder, input,
-        builder.createInputBuilder().known(BigInteger.valueOf(0)));
+        builder.numeric().known(BigInteger.valueOf(0)));
     OInt two = builder.getOIntFactory().getOInt(BigInteger.valueOf(2));
     OInt one = builder.getOIntFactory().getOInt(BigInteger.valueOf(1));
     result = builder.numeric().mult(two, result);

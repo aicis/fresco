@@ -34,7 +34,7 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
-import dk.alexandra.fresco.framework.builder.InputBuilder;
+import dk.alexandra.fresco.framework.builder.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.value.OInt;
@@ -70,15 +70,15 @@ public class LogTests {
 						public ProtocolProducer prepareApplication(BuilderFactory factoryProducer) {
 							return ProtocolBuilder
 									.createApplicationRoot((BuilderFactoryNumeric) factoryProducer, (builder) -> {
-										InputBuilder sIntFactory = builder.createInputBuilder();
+                    NumericBuilder sIntFactory = builder.numeric();
 
 										for (BigInteger input : x) {
 											Computation<SInt> actualInput = sIntFactory.known(input);
 											Computation<SInt> result = builder.createAdvancedNumericBuilder()
 													.log(actualInput, input.bitLength());
-											Computation<OInt> openResult = builder.createOpenBuilder().open(result);
-											results.add(openResult);
-										}
+                      Computation<OInt> openResult = builder.numeric().open(result);
+                      results.add(openResult);
+                    }
 									}).build();
 						}
 					};

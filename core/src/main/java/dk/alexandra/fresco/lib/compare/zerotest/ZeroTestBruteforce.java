@@ -9,7 +9,6 @@ import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.compare.MiscOIntGenerators;
-import dk.alexandra.fresco.lib.math.integer.exp.PreprocessedExpPipeFactory;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -31,24 +30,21 @@ public class ZeroTestBruteforce implements ComputationBuilder<SInt> {
   @Override
   public Computation<SInt> build(SequentialProtocolBuilder builder) {
     OInt one = builder.getOIntFactory().getOInt(BigInteger.ONE);
-    return builder.seq((seq) -> {
-      //Load rand
-      PreprocessedExpPipeFactory expPipe = factoryNumeric.getPreprocessedExpPipe();
-      SInt[] R = expPipe.getExponentiationPipe();
-      return () -> R;
-    }).seq((expPipe, seq) -> {
+    return builder.seq((seq) ->
+        seq.numeric().getExponentiationPipe()
+    ).seq((expPipe, seq) -> {
       //Add one, mult and unmask
       NumericBuilder numeric = seq.numeric();
       Computation<SInt> increased = numeric.add(one, input);
       Computation<SInt> maskedS = numeric.mult(increased, expPipe[0]);
-      Computation<OInt> open = seq.createOpenBuilder().open(maskedS);
+      Computation<OInt> open = seq.numeric().open(maskedS);
       return () -> new Pair<>(expPipe, open.out());
     }).seq((pair, seq) -> {
       // compute powers and evaluate polynomial
       SInt[] R = pair.getFirst();
       OInt maskedO = pair.getSecond();
-      OInt[] maskedPowers = factoryNumeric.getExpFromOInt().getExpFromOInt(maskedO, maxLength);
-      return Pair.lazy(R, maskedPowers);
+      Computation<OInt[]> maskedPowers = seq.numeric().getExpFromOInt(maskedO, maxLength);
+      return () -> new Pair<>(R, maskedPowers.out());
     }).par((pair, par) -> {
       SInt[] R = pair.getFirst();
       OInt[] maskedPowers = pair.getSecond();

@@ -35,8 +35,7 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.ComparisonBuilder;
-import dk.alexandra.fresco.framework.builder.InputBuilder;
-import dk.alexandra.fresco.framework.builder.OpenBuilder;
+import dk.alexandra.fresco.framework.builder.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.value.OInt;
@@ -72,13 +71,13 @@ public class ComparisonTests {
                 BuilderFactory factoryProducer) {
               return ProtocolBuilder
                   .createApplicationRoot((BuilderFactoryNumeric) factoryProducer, (builder) -> {
-                    InputBuilder input = builder.createInputBuilder();
+                    NumericBuilder input = builder.numeric();
                     Computation<SInt> x = input.known(three);
                     Computation<SInt> y = input.known(five);
                     ComparisonBuilder comparison = builder.comparison();
                     Computation<SInt> compResult1 = comparison.compare(x, y);
                     Computation<SInt> compResult2 = comparison.compare(y, x);
-                    OpenBuilder open = builder.createOpenBuilder();
+                    NumericBuilder open = builder.numeric();
                     res1 = open.open(compResult1);
                     res2 = open.open(compResult2);
                   }).build();
@@ -120,13 +119,13 @@ public class ComparisonTests {
                 BuilderFactory factoryProducer) {
               return ProtocolBuilder
                   .createApplicationRoot((BuilderFactoryNumeric) factoryProducer, (builder) -> {
-                    InputBuilder input = builder.createInputBuilder();
+                    NumericBuilder input = builder.numeric();
                     Computation<SInt> x = input.known(three);
                     Computation<SInt> y = input.known(five);
                     ComparisonBuilder comparison = builder.comparison();
                     Computation<SInt> compResult1 = comparison.equals(x, x);
                     Computation<SInt> compResult2 = comparison.equals(x, y);
-                    OpenBuilder open = builder.createOpenBuilder();
+                    NumericBuilder open = builder.numeric();
                     res1 = open.open(compResult1);
                     res2 = open.open(compResult2);
                   }).build();

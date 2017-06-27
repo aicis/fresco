@@ -23,7 +23,7 @@ public class ZeroTestReducer implements ComputationBuilder<SInt> {
     return builder.seq((seq) -> seq.createAdvancedNumericBuilder().additiveMask(bitLength)
     ).seq((mask, seq) -> {
       Computation<SInt> mS = seq.numeric().add(input, mask.r);
-      Computation<OInt> mO = seq.createOpenBuilder().open(mS);
+      Computation<OInt> mO = seq.numeric().open(mS);
       return () -> new Pair<>(mask.bits, mO.out());
     }).seq((pair, seq) ->
         new HammingDistance(pair.getFirst(), pair.getSecond()).build(seq)

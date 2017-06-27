@@ -34,7 +34,7 @@ public class RandomAdditiveMaskProtocol44 implements ComputationBuilder<RandomAd
     NumericBuilder numericBuilder = builder.numeric();
     List<Computation<SInt>> allBits = new ArrayList<>();
     for (int i = 0; i < noOfBits + securityParameter; i++) {
-      Computation<SInt> randomBit = numericBuilder.createRandomSecretSharedBitProtocol();
+      Computation<SInt> randomBit = numericBuilder.randomBit();
       allBits.add(randomBit);
     }
 

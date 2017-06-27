@@ -4,8 +4,6 @@ import dk.alexandra.fresco.framework.BuilderFactory;
 import dk.alexandra.fresco.lib.compare.DefaultComparisonBuilder;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.math.integer.division.DefaultAdvancedNumericBuilder;
-import dk.alexandra.fresco.lib.math.integer.exp.ExpFromOIntFactory;
-import dk.alexandra.fresco.lib.math.integer.exp.PreprocessedExpPipeFactory;
 
 /**
  * The core factory to implement when creating a numeric protocol. Every subbuilder from this
@@ -22,19 +20,6 @@ public interface BuilderFactoryNumeric extends BuilderFactory {
   BasicNumericFactory getBasicNumericFactory();
 
   NumericBuilder createNumericBuilder(ProtocolBuilder builder);
-
-  OpenBuilder createOpenBuilder(ProtocolBuilder builder);
-
-  InputBuilder createInputBuilder(ProtocolBuilder builder);
-
-
-  default PreprocessedExpPipeFactory getPreprocessedExpPipe() {
-    return (PreprocessedExpPipeFactory) getBasicNumericFactory();
-  }
-
-  default ExpFromOIntFactory getExpFromOInt() {
-    return (ExpFromOIntFactory) getBasicNumericFactory();
-  }
 
   default ComparisonBuilder createComparisonBuilder(ProtocolBuilder builder) {
     return new DefaultComparisonBuilder(this, builder);

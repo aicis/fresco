@@ -133,7 +133,7 @@ public class GreaterThanReducerProtocol4 implements ComputationBuilder<SInt> {
 
       // mO = open(z + r)
       Computation<SInt> mS = numeric.add(z, r);
-      Computation<OInt> mO = seq.createOpenBuilder().open(mS);
+      Computation<OInt> mO = seq.numeric().open(mS);
 
       return () -> new Object[]{mO, rBottom, rTop, rBar, z};
     }).seq((Object[] input, SequentialProtocolBuilder seq) -> {

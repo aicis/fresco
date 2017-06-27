@@ -181,18 +181,9 @@ public abstract class ProtocolBuilder {
     return factory.createComparisonBuilder(this);
   }
 
-  public OpenBuilder createOpenBuilder() {
-    return factory.createOpenBuilder(this);
-  }
-
   public AdvancedNumericBuilder createAdvancedNumericBuilder() {
     return factory.createAdvancedNumericBuilder(this);
   }
-
-  public InputBuilder createInputBuilder() {
-    return factory.createInputBuilder(this);
-  }
-
 
   private static class ProtocolEntity {
 

@@ -34,8 +34,7 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
-import dk.alexandra.fresco.framework.builder.InputBuilder;
-import dk.alexandra.fresco.framework.builder.OpenBuilder;
+import dk.alexandra.fresco.framework.builder.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.value.OInt;
@@ -84,18 +83,18 @@ public class StatisticsTests {
                 BuilderFactory factory) {
               return ProtocolBuilder
                   .createApplicationRoot((BuilderFactoryNumeric) factory, (builder) -> {
-                    InputBuilder inputBuilder = builder.createInputBuilder();
+                    NumericBuilder NumericBuilder = builder.numeric();
                     List<Computation<SInt>> input1 = data1.stream()
                         .map(BigInteger::valueOf)
-                        .map(inputBuilder::known)
+                        .map(NumericBuilder::known)
                         .collect(Collectors.toList());
                     List<Computation<SInt>> input2 = data2.stream()
                         .map(BigInteger::valueOf)
-                        .map(inputBuilder::known)
+                        .map(NumericBuilder::known)
                         .collect(Collectors.toList());
                     List<Computation<SInt>> input3 = data3.stream()
                         .map(BigInteger::valueOf)
-                        .map(inputBuilder::known)
+                        .map(NumericBuilder::known)
                         .collect(Collectors.toList());
 
                     Computation<SInt> mean1 = builder
@@ -111,7 +110,7 @@ public class StatisticsTests {
                             new CovarianceMatrixProtocol4(Arrays.asList(input1, input2, input3)));
 
                     builder.createParallelSub((par) -> {
-                      OpenBuilder open = par.createOpenBuilder();
+                      NumericBuilder open = par.numeric();
                       outputMean1 = open.open(mean1);
                       outputMean2 = open.open(mean2);
                       outputVariance = open.open(variance);
