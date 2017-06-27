@@ -98,16 +98,16 @@ public class StatisticsTests {
                         .collect(Collectors.toList());
 
                     Computation<SInt> mean1 = builder
-                        .createSequentialSub(new MeanProtocol4(input1));
+                        .createSequentialSub(new Mean(input1));
                     Computation<SInt> mean2 = builder
-                        .createSequentialSub(new MeanProtocol4(input2));
+                        .createSequentialSub(new Mean(input2));
                     Computation<SInt> variance = builder
-                        .createSequentialSub(new VarianceProtocol4(input1, mean1));
+                        .createSequentialSub(new Variance(input1, mean1));
                     Computation<SInt> covariance = builder
-                        .createSequentialSub(new CovarianceProtocol4(input1, input2, mean1, mean2));
+                        .createSequentialSub(new Covariance(input1, input2, mean1, mean2));
                     Computation<List<List<Computation<SInt>>>> covarianceMatrix = builder
                         .createSequentialSub(
-                            new CovarianceMatrixProtocol4(Arrays.asList(input1, input2, input3)));
+                            new CovarianceMatrix(Arrays.asList(input1, input2, input3)));
 
                     builder.createParallelSub((par) -> {
                       NumericBuilder open = par.numeric();

@@ -35,7 +35,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-public class CovarianceProtocol4    implements ComputationBuilder<SInt> {
+public class Covariance implements ComputationBuilder<SInt> {
 
   private final List<Computation<SInt>> data1;
   private final List<Computation<SInt>> data2;
@@ -43,7 +43,7 @@ public class CovarianceProtocol4    implements ComputationBuilder<SInt> {
   private final Computation<SInt> mean2;
 
 
-  public CovarianceProtocol4(List<Computation<SInt>> data1, List<Computation<SInt>> data2,
+  public Covariance(List<Computation<SInt>> data1, List<Computation<SInt>> data2,
       Computation<SInt> mean1, Computation<SInt> mean2) {
     this.data1 = data1;
     this.data2 = data2;
@@ -56,7 +56,7 @@ public class CovarianceProtocol4    implements ComputationBuilder<SInt> {
     this.mean2 = mean2;
   }
 
-  public CovarianceProtocol4(List<Computation<SInt>> data1, List<Computation<SInt>> data2) {
+  public Covariance(List<Computation<SInt>> data1, List<Computation<SInt>> data2) {
     this(data1, data2, null, null);
   }
 
@@ -66,14 +66,14 @@ public class CovarianceProtocol4    implements ComputationBuilder<SInt> {
     ).par(
         (ignored, seq) -> {
           if (mean1 == null) {
-            return seq.createSequentialSub(new MeanProtocol4(data1));
+            return seq.createSequentialSub(new Mean(data1));
           } else {
             return mean1;
           }
         },
         (ignored, seq) -> {
           if (mean2 == null) {
-            return seq.createSequentialSub(new MeanProtocol4(data1));
+            return seq.createSequentialSub(new Mean(data1));
           } else {
             return mean2;
           }
@@ -98,7 +98,7 @@ public class CovarianceProtocol4    implements ComputationBuilder<SInt> {
       }
       return () -> terms;
     }).seq((terms, seq) ->
-        seq.createSequentialSub(new MeanProtocol4(terms, data1.size() - 1))
+        seq.createSequentialSub(new Mean(terms, data1.size() - 1))
     );
   }
 

@@ -42,8 +42,7 @@ import java.util.Objects;
  * Note that only lower triangle of matrix (i,j for i \geq j) will be computed.
  * The symmetric entry will be a copy of the one from the lower triangle, M[i][j] := M[j][i].
  */
-public class CovarianceMatrixProtocol4
-    implements ComputationBuilder<List<List<Computation<SInt>>>> {
+public class CovarianceMatrix implements ComputationBuilder<List<List<Computation<SInt>>>> {
 
   private final List<List<Computation<SInt>>> data;
   private final List<Computation<SInt>> mean;
@@ -58,7 +57,7 @@ public class CovarianceMatrixProtocol4
    * @param data The data, one sample set for each column
    * @param mean The means
    */
-  CovarianceMatrixProtocol4(List<List<Computation<SInt>>> data, List<Computation<SInt>> mean) {
+  CovarianceMatrix(List<List<Computation<SInt>>> data, List<Computation<SInt>> mean) {
     this.data = data;
     this.mean = Objects.requireNonNull(mean);
 
@@ -71,7 +70,7 @@ public class CovarianceMatrixProtocol4
     }
   }
 
-  CovarianceMatrixProtocol4(List<List<Computation<SInt>>> data) {
+  CovarianceMatrix(List<List<Computation<SInt>>> data) {
     this(data, Collections.emptyList());
   }
 
@@ -87,7 +86,7 @@ public class CovarianceMatrixProtocol4
       for (List<Computation<SInt>> datum : data) {
         Computation<SInt> currentMean;
         if (!means.hasNext() || (currentMean = means.next()) == null) {
-          currentMean = par.createSequentialSub(new MeanProtocol4(datum));
+          currentMean = par.createSequentialSub(new Mean(datum));
         }
         allMeans.add(currentMean);
       }
@@ -106,7 +105,7 @@ public class CovarianceMatrixProtocol4
           int innerIndex = innerIterator.nextIndex();
           List<Computation<SInt>> dataRow2 = innerIterator.next();
           row.add(par.createSequentialSub(
-              new CovarianceProtocol4(
+              new Covariance(
                   dataRow, dataRow2,
                   means.get(currentIndex), means.get(innerIndex)
               )
@@ -116,7 +115,7 @@ public class CovarianceMatrixProtocol4
         // which saves us one subtraction per data entry compared to
         // calculating the covariance
         row.add(par.createSequentialSub(
-            new VarianceProtocol4(dataRow, means.get(currentIndex))));
+            new Variance(dataRow, means.get(currentIndex))));
       }
       return () -> result;
     });
