@@ -35,7 +35,7 @@ import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import java.math.BigInteger;
 
-public class MiMCEncryptionProtocolNaiveImpl4    implements ComputationBuilder<SInt> {
+public class MiMCEncryption implements ComputationBuilder<SInt> {
 
   // TODO: require that our modulus - 1 and 3 are co-prime
 
@@ -50,7 +50,7 @@ public class MiMCEncryptionProtocolNaiveImpl4    implements ComputationBuilder<S
    * @param encryptionKey The symmetric (secret-shared) key we will use to encrypt.
    * @param requiredRounds The number of rounds to use.
    */
-  public MiMCEncryptionProtocolNaiveImpl4(
+  public MiMCEncryption(
       Computation<SInt> plainText, Computation<SInt> encryptionKey, Integer requiredRounds) {
     this.encryptionKey = encryptionKey;
     this.plainText = plainText;
@@ -64,7 +64,7 @@ public class MiMCEncryptionProtocolNaiveImpl4    implements ComputationBuilder<S
    * @param plainText The secret-shared plain text to encrypt.
    * @param encryptionKey The symmetric (secret-shared) key we will use to encrypt.
    */
-  public MiMCEncryptionProtocolNaiveImpl4(
+  public MiMCEncryption(
       Computation<SInt> plainText, Computation<SInt> encryptionKey) {
     this(plainText, encryptionKey, null);
   }

@@ -40,8 +40,8 @@ import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.crypto.mimc.MiMCDecryptionProtocolNaiveImpl4;
-import dk.alexandra.fresco.lib.crypto.mimc.MiMCEncryptionProtocolNaiveImpl4;
+import dk.alexandra.fresco.lib.crypto.mimc.MiMCDecryption;
+import dk.alexandra.fresco.lib.crypto.mimc.MiMCEncryption;
 import java.math.BigInteger;
 import org.junit.Assert;
 
@@ -96,7 +96,7 @@ public class MiMCTests {
                     Computation<SInt> encryptionKey = intFactory.known(BigInteger.valueOf(527618));
                     Computation<SInt> plainText = intFactory.known(BigInteger.valueOf(10));
                     Computation<SInt> cipherText = builder.createSequentialSub(
-                        new MiMCEncryptionProtocolNaiveImpl4(plainText, encryptionKey)
+                        new MiMCEncryption(plainText, encryptionKey)
                     );
                     result = builder.createOpenBuilder().open(cipherText);
                   }).build();
@@ -139,10 +139,10 @@ public class MiMCTests {
                     Computation<SInt> encryptionKey = intFactory.known(BigInteger.valueOf(527618));
                     Computation<SInt> plainText = intFactory.known(BigInteger.valueOf(10));
                     Computation<SInt> cipherText = builder.createSequentialSub(
-                        new MiMCEncryptionProtocolNaiveImpl4(plainText, encryptionKey)
+                        new MiMCEncryption(plainText, encryptionKey)
                     );
                     Computation<SInt> cipherText2 = builder.createSequentialSub(
-                        new MiMCEncryptionProtocolNaiveImpl4(plainText, encryptionKey)
+                        new MiMCEncryption(plainText, encryptionKey)
                     );
                     result1 = builder.createOpenBuilder().open(cipherText);
                     result2 = builder.createOpenBuilder().open(cipherText2);
@@ -182,10 +182,10 @@ public class MiMCTests {
                     Computation<SInt> plainTextA = intFactory.known(BigInteger.valueOf(10));
                     Computation<SInt> plainTextB = intFactory.known(BigInteger.valueOf(11));
                     Computation<SInt> cipherTextA = builder.createSequentialSub(
-                        new MiMCEncryptionProtocolNaiveImpl4(plainTextA, encryptionKey)
+                        new MiMCEncryption(plainTextA, encryptionKey)
                     );
                     Computation<SInt> cipherTextB = builder.createSequentialSub(
-                        new MiMCEncryptionProtocolNaiveImpl4(plainTextB, encryptionKey)
+                        new MiMCEncryption(plainTextB, encryptionKey)
                     );
                     resultA = builder.createOpenBuilder().open(cipherTextA);
                     resultB = builder.createOpenBuilder().open(cipherTextB);
@@ -226,10 +226,10 @@ public class MiMCTests {
                     Computation<SInt> encryptionKey = intFactory.known(BigInteger.valueOf(10));
                     Computation<SInt> plainText = intFactory.known(x_big);
                     Computation<SInt> cipherText = builder.createSequentialSub(
-                        new MiMCEncryptionProtocolNaiveImpl4(plainText, encryptionKey)
+                        new MiMCEncryption(plainText, encryptionKey)
                     );
                     Computation<SInt> decrypted = builder.createSequentialSub(
-                        new MiMCDecryptionProtocolNaiveImpl4(cipherText, encryptionKey)
+                        new MiMCDecryption(cipherText, encryptionKey)
                     );
                     result = builder.createOpenBuilder().open(decrypted);
                   }).build();

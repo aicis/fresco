@@ -37,7 +37,7 @@ import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import java.math.BigInteger;
 
-public class MiMCDecryptionProtocolNaiveImpl4 implements ComputationBuilder<SInt> {
+public class MiMCDecryption implements ComputationBuilder<SInt> {
 
   // TODO: require that our modulus - 1 and 3 are co-prime
 
@@ -52,7 +52,7 @@ public class MiMCDecryptionProtocolNaiveImpl4 implements ComputationBuilder<SInt
    * @param encryptionKey The symmetric (secret-shared) key we will use to decrypt.
    * @param requiredRounds The number of rounds to use.
    */
-  public MiMCDecryptionProtocolNaiveImpl4(
+  public MiMCDecryption(
       Computation<SInt> cipherText, Computation<SInt> encryptionKey, Integer requiredRounds) {
     this.cipherText = cipherText;
     this.encryptionKey = encryptionKey;
@@ -66,7 +66,7 @@ public class MiMCDecryptionProtocolNaiveImpl4 implements ComputationBuilder<SInt
    * @param cipherText The secret-shared cipher text to decrypt.
    * @param encryptionKey The symmetric (secret-shared) key we will use to decrypt.
    */
-  public MiMCDecryptionProtocolNaiveImpl4(
+  public MiMCDecryption(
       Computation<SInt> cipherText, Computation<SInt> encryptionKey) {
     this(cipherText, encryptionKey, null);
   }
@@ -74,7 +74,7 @@ public class MiMCDecryptionProtocolNaiveImpl4 implements ComputationBuilder<SInt
   @Override
   public Computation<SInt> build(SequentialProtocolBuilder builder) {
     BasicNumericFactory basicNumericFactory = builder.getBasicNumericFactory();
-    int requiredRounds = MiMCEncryptionProtocolNaiveImpl4
+    int requiredRounds = MiMCEncryption
         .getRequiredRounds(basicNumericFactory, requestedRounds);
     final OInt threeInverse = builder.getOIntFactory().getOInt(
         calculateThreeInverse(basicNumericFactory)
