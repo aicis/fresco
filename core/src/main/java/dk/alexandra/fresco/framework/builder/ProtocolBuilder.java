@@ -9,8 +9,6 @@ import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.RightShiftBuilder;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.OIntFactory;
-import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.framework.value.SIntFactory;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.helper.ProtocolProducerCollection;
 import dk.alexandra.fresco.lib.helper.SingleProtocolProducer;
@@ -19,7 +17,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
@@ -50,7 +47,7 @@ public abstract class ProtocolBuilder {
     return basicNumericFactory;
   }
 
-  public SIntFactory getSIntFactory() {
+  public BasicNumericFactory getBasicNumericFactory() {
     return basicNumericFactory;
   }
 
@@ -75,10 +72,9 @@ public abstract class ProtocolBuilder {
    *
    * @param function of the protocol producer - will be lazy evaluated
    */
-  public <R> Computation<R> createParallelSub(
-      Function<ParallelProtocolBuilder, Computation<R>> function) {
+  public <R> Computation<R> createParallelSub(ParallelComputationBuilder<R> function) {
     DelayedComputation<R> result = new DelayedComputation<>();
-    addConsumer((builder) -> result.setComputation(function.apply(builder)),
+    addConsumer((builder) -> result.setComputation(function.build(builder)),
         () -> new ParallelProtocolBuilder(factory));
     return result;
   }
@@ -89,10 +85,9 @@ public abstract class ProtocolBuilder {
    *
    * @param function creation of the protocol producer - will be lazy evaluated
    */
-  public <R> Computation<R> createSequentialSub(
-      Function<SequentialProtocolBuilder, Computation<R>> function) {
+  public <R> Computation<R> createSequentialSub(ComputationBuilder<R> function) {
     DelayedComputation<R> result = new DelayedComputation<>();
-    addConsumer((builder) -> result.setComputation(function.apply(builder)),
+    addConsumer((builder) -> result.setComputation(function.build(builder)),
         () -> new SequentialProtocolBuilder(factory));
     return result;
   }
@@ -184,7 +179,7 @@ public abstract class ProtocolBuilder {
    *
    * @return the comparison builder.
    */
-  public ComparisonBuilder<SInt> comparison() {
+  public ComparisonBuilder comparison() {
     return factory.createComparisonBuilder(this);
   }
 
@@ -206,6 +201,10 @@ public abstract class ProtocolBuilder {
 
   public AdvancedNumericBuilder createAdvancedNumericBuilder() {
     return factory.createAdvancedNumericBuilder(this);
+  }
+
+  public InputBuilder createInputBuilder() {
+    return factory.createInputBuilder(this);
   }
 
   public BitLengthBuilder createBitLengthBuilder() {
@@ -266,10 +265,9 @@ public abstract class ProtocolBuilder {
     }
 
 
-    public <R> BuildStep<SequentialProtocolBuilder, R, Void> seq(
-        Function<SequentialProtocolBuilder, Computation<R>> function) {
+    public <R> BuildStep<SequentialProtocolBuilder, R, Void> seq(ComputationBuilder<R> function) {
       BuildStep<SequentialProtocolBuilder, R, Void> builder =
-          new BuildStepSequential<>((ignored, inner) -> function.apply(inner));
+          new BuildStepSequential<>((ignored, inner) -> function.build(inner));
       ProtocolEntity protocolEntity = createAndAppend();
       protocolEntity.child = new LazyProtocolProducer(
           () -> builder.createProducer(null, factory)
@@ -277,10 +275,9 @@ public abstract class ProtocolBuilder {
       return builder;
     }
 
-    public <R> BuildStep<ParallelProtocolBuilder, R, Void> par(
-        Function<ParallelProtocolBuilder, Computation<R>> function) {
+    public <R> BuildStep<ParallelProtocolBuilder, R, Void> par(ParallelComputationBuilder<R> f) {
       BuildStep<ParallelProtocolBuilder, R, Void> builder =
-          new BuildStepParallel<>((ignored, inner) -> function.apply(inner));
+          new BuildStepParallel<>((ignored, inner) -> f.build(inner));
       ProtocolEntity protocolEntity = createAndAppend();
       protocolEntity.child = new LazyProtocolProducer(
           () -> builder.createProducer(null, factory)
@@ -320,7 +317,7 @@ public abstract class ProtocolBuilder {
     }
 
     public <NextOutputT> BuildStep<SequentialProtocolBuilder, NextOutputT, OutputT> seq(
-        BiFunction<OutputT, SequentialProtocolBuilder, Computation<NextOutputT>> function) {
+        FrescoLambda<OutputT, NextOutputT> function) {
       BuildStep<SequentialProtocolBuilder, NextOutputT, OutputT> localChild =
           new BuildStepSequential<>(function);
       this.child = localChild;
@@ -328,7 +325,7 @@ public abstract class ProtocolBuilder {
     }
 
     public <NextOutputT> BuildStep<ParallelProtocolBuilder, NextOutputT, OutputT> par(
-        BiFunction<OutputT, ParallelProtocolBuilder, Computation<NextOutputT>> function) {
+        FrescoLambdaParallel<OutputT, NextOutputT> function) {
       BuildStep<ParallelProtocolBuilder, NextOutputT, OutputT> localChild =
           new BuildStepParallel<>(function);
       this.child = localChild;
@@ -365,8 +362,8 @@ public abstract class ProtocolBuilder {
 
     public <FirstOutputT, SecondOutputT>
     BuildStep<ParallelProtocolBuilder, Pair<FirstOutputT, SecondOutputT>, OutputT> par(
-        BiFunction<OutputT, SequentialProtocolBuilder, Computation<FirstOutputT>> firstFunction,
-        BiFunction<OutputT, SequentialProtocolBuilder, Computation<SecondOutputT>> secondFunction) {
+        FrescoLambda<OutputT, FirstOutputT> firstFunction,
+        FrescoLambda<OutputT, SecondOutputT> secondFunction) {
       BuildStep<ParallelProtocolBuilder, Pair<FirstOutputT, SecondOutputT>, OutputT> localChild =
           new BuildStepParallel<>(
               (OutputT output1, ParallelProtocolBuilder builder) -> {
@@ -384,7 +381,10 @@ public abstract class ProtocolBuilder {
     }
 
     public OutputT out() {
-      return output.out();
+      if (output != null) {
+        return output.out();
+      }
+      return null;
     }
 
     private ProtocolProducer createProducer(
@@ -413,8 +413,7 @@ public abstract class ProtocolBuilder {
   private static class BuildStepParallel<OutputT, InputT>
       extends BuildStep<ParallelProtocolBuilder, OutputT, InputT> {
 
-    private BuildStepParallel(
-        BiFunction<InputT, ParallelProtocolBuilder, Computation<OutputT>> function) {
+    private BuildStepParallel(FrescoLambdaParallel<InputT, OutputT> function) {
       super(function);
     }
 
@@ -427,8 +426,7 @@ public abstract class ProtocolBuilder {
   private static class BuildStepSequential<OutputT, InputT>
       extends BuildStep<SequentialProtocolBuilder, OutputT, InputT> {
 
-    private BuildStepSequential(
-        BiFunction<InputT, SequentialProtocolBuilder, Computation<OutputT>> function) {
+    private BuildStepSequential(FrescoLambda<InputT, OutputT> function) {
       super(function);
     }
 

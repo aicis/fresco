@@ -6,6 +6,7 @@ import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.helper.SimpleProtocolProducer;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,7 +40,7 @@ public class InnerProductNewApi extends SimpleProtocolProducer implements Comput
             (addents, subSeq) -> {
               // Not sure how to do this correctly using the bnf1.get(0, bnf1.getSInt()) Computation?
               // PFF - neither am I - hence the old API
-              Computation<SInt> c = seq.getSIntFactory().getSInt(0);
+              Computation<SInt> c = subSeq.createInputBuilder().known(BigInteger.valueOf(0));
               for (Computation<SInt> aTemp : addents) {
                 // Not sure how I would do this using Computations? The AddList seems overkill.
                 // PFF - no it is not...

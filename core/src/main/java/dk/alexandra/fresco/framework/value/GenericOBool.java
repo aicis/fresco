@@ -33,10 +33,10 @@ public class GenericOBool implements OBool {
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 901034067486901690L;
-	protected Boolean value = null;
-	
-	public GenericOBool() {}
+
+  protected Boolean value = null;
+
+  public GenericOBool() {}
 	
 	public GenericOBool(boolean value) {
 		this.value = value;

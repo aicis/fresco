@@ -2,6 +2,7 @@ package dk.alexandra.fresco.lib.compare;
 
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
+import dk.alexandra.fresco.framework.builder.ComputationBuilder;
 import dk.alexandra.fresco.framework.builder.InnerProductBuilder;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder.SequentialProtocolBuilder;
@@ -11,11 +12,8 @@ import dk.alexandra.fresco.framework.value.SInt;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
-public class RandomAdditiveMaskProtocol44
-    implements Function<SequentialProtocolBuilder, Computation<RandomAdditiveMask>> {
+public class RandomAdditiveMaskProtocol44    implements ComputationBuilder<RandomAdditiveMask> {
 
   private final BuilderFactoryNumeric factoryNumeric;
   private final int securityParameter;
@@ -32,7 +30,7 @@ public class RandomAdditiveMaskProtocol44
   }
 
   @Override
-  public Computation<RandomAdditiveMask> apply(SequentialProtocolBuilder builder) {
+  public Computation<RandomAdditiveMask> build(SequentialProtocolBuilder builder) {
     NumericBuilder numericBuilder = builder.numeric();
     List<Computation<SInt>> allBits = new ArrayList<>();
     for (int i = 0; i < noOfBits + securityParameter; i++) {
@@ -48,7 +46,7 @@ public class RandomAdditiveMaskProtocol44
     value = innerProductBuilder.openDot(Arrays.asList(twoPows), allBits);
     bits = allBits.subList(0, noOfBits);
     return () -> new RandomAdditiveMask(
-        bits.stream().map(Computation::out).collect(Collectors.toList()),
+        bits,
         value.out());
   }
 }

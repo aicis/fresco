@@ -23,9 +23,10 @@
  *
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
- *******************************************************************************/
+ */
 package dk.alexandra.fresco.lib.math.integer.binary;
 
+import dk.alexandra.fresco.framework.BitLengthBuilder;
 import dk.alexandra.fresco.framework.BuilderFactory;
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.ProtocolProducer;
@@ -37,20 +38,11 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.OpenBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.compare.RandomAdditiveMaskFactory;
-import dk.alexandra.fresco.lib.compare.RandomAdditiveMaskFactoryImpl;
-import dk.alexandra.fresco.lib.conversion.IntegerToBitsFactory;
-import dk.alexandra.fresco.lib.conversion.IntegerToBitsFactoryImpl;
-import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
-import dk.alexandra.fresco.lib.helper.builder.NumericIOBuilder;
-import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
-import dk.alexandra.fresco.lib.math.integer.inv.LocalInversionFactory;
-import dk.alexandra.fresco.lib.math.integer.linalg.EntrywiseProductFactoryImpl;
-import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductFactoryImpl;
 import java.math.BigInteger;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -95,7 +87,8 @@ public class BinaryOperationsTests {
                       .createApplicationRoot(factoryNumeric,
                           (builder) -> {
                             RightShiftBuilder rightShift = builder.createRightShiftBuilder();
-                            SInt encryptedInput = builder.getSIntFactory().getSInt(input);
+                            Computation<SInt> encryptedInput = builder.createInputBuilder()
+                                .known(input);
                             Computation<RightShiftResult> shiftedRight = rightShift
                                 .rightShiftWithRemainder(encryptedInput, shifts);
                             OpenBuilder openBuilder = builder.createOpenBuilder();
@@ -149,62 +142,36 @@ public class BinaryOperationsTests {
   /**
    * Test binary right shift of a shared secret.
    */
-  public static class TestMostSignificantBit extends TestThreadFactory {
+  public static class TestBitLength extends TestThreadFactory {
 
     @Override
     public TestThread next(TestThreadConfiguration conf) {
 
       return new TestThread() {
         private final BigInteger input = BigInteger.valueOf(5);
+        private Computation<OInt> openResult;
 
         @Override
         public void test() throws Exception {
           TestApplication app = new TestApplication() {
 
-            private static final long serialVersionUID = 701623441111137585L;
-
             @Override
             public ProtocolProducer prepareApplication(
                 BuilderFactory producer) {
-
-              BasicNumericFactory basicNumericFactory = (BasicNumericFactory) producer;
-              RandomAdditiveMaskFactory randomAdditiveMaskFactory = new RandomAdditiveMaskFactoryImpl(
-                  basicNumericFactory,
-                  new InnerProductFactoryImpl(basicNumericFactory,
-                      new EntrywiseProductFactoryImpl(basicNumericFactory)));
-              LocalInversionFactory localInversionFactory = (LocalInversionFactory) producer;
-              RightShiftFactory rightShiftFactory = new RightShiftFactoryImpl(basicNumericFactory,
-                  randomAdditiveMaskFactory, localInversionFactory);
-              IntegerToBitsFactory integerToBitsFactory = new IntegerToBitsFactoryImpl(
-                  basicNumericFactory, rightShiftFactory);
-              BitLengthFactory bitLengthFactory = new BitLengthFactoryImpl(basicNumericFactory,
-                  integerToBitsFactory);
-
-              SInt result = basicNumericFactory.getSInt();
-
-              NumericIOBuilder ioBuilder = new NumericIOBuilder(basicNumericFactory);
-              SequentialProtocolProducer sequentialProtocolProducer = new SequentialProtocolProducer();
-
-              SInt input1 = ioBuilder.input(input, 1);
-              sequentialProtocolProducer.append(ioBuilder.getProtocol());
-
-              ProtocolProducer bitLengthProtocol = bitLengthFactory
-                  .getBitLengthProtocol(input1, result, input.bitLength() * 2);
-              sequentialProtocolProducer.append(bitLengthProtocol);
-
-              OInt output1 = ioBuilder.output(result);
-
-              sequentialProtocolProducer.append(ioBuilder.getProtocol());
-
-              outputs = new OInt[]{output1};
-
-              return sequentialProtocolProducer;
+              return ProtocolBuilder
+                  .createApplicationRoot((BuilderFactoryNumeric) producer, (builder) -> {
+                    Computation<SInt> sharedInput = builder.createInputBuilder().known(input);
+                    BitLengthBuilder bitLengthBuilder = builder.createBitLengthBuilder();
+                    Computation<SInt> bitLength = bitLengthBuilder
+                        .bitLength(sharedInput, input.bitLength() * 2);
+                    openResult = builder.createOpenBuilder().open(bitLength);
+                  }).build();
             }
           };
           secureComputationEngine
               .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf,
                   conf.sceConf.getSuite()));
-          BigInteger result = app.getOutputs()[0].getValue();
+          BigInteger result = openResult.out().getValue();
 
           System.out.println(result);
 

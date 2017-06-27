@@ -2,13 +2,13 @@ package dk.alexandra.fresco.lib.math.integer.division;
 
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
+import dk.alexandra.fresco.framework.builder.ComputationBuilder;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder.SequentialProtocolBuilder;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import java.math.BigInteger;
-import java.util.function.Function;
 
 
 /**
@@ -21,8 +21,7 @@ import java.util.function.Function;
  *
  * @author Jonas Lindstrøm (jonas.lindstrom@alexandra.dk)
  */
-public class KnownDivisorProtocol4 implements
-    Function<SequentialProtocolBuilder, Computation<SInt>> {
+public class KnownDivisorProtocol4 implements ComputationBuilder<SInt> {
 
   private final BuilderFactoryNumeric builderFactory;
   private final Computation<SInt> dividend;
@@ -51,7 +50,7 @@ public class KnownDivisorProtocol4 implements
   }
 
   @Override
-  public Computation<SInt> apply(SequentialProtocolBuilder builder) {
+  public Computation<SInt> build(SequentialProtocolBuilder builder) {
     BasicNumericFactory basicNumericFactory = this.builderFactory.getBasicNumericFactory();
     BigInteger modulus = basicNumericFactory.getModulus();
     BigInteger modulusHalf = modulus.divide(BigInteger.valueOf(2));
@@ -96,8 +95,8 @@ public class KnownDivisorProtocol4 implements
 		 * division to ensure that this is indeed the case.
 		 */
     BigInteger m = BigInteger.ONE.shiftLeft(shifts).divide(divisorAbs).add(BigInteger.ONE);
-    SInt mConverted = builder.getSIntFactory().getSInt(m);
-    Computation<SInt> quotientAbs = numeric.mult(mConverted, dividendAbs);
+    OInt mAsOInt = builder.getOIntFactory().getOInt(m);
+    Computation<SInt> quotientAbs = numeric.mult(mAsOInt, dividendAbs);
 
 		/*
      * Now quotientAbs is the result shifted SHIFTS bits to the left, so we

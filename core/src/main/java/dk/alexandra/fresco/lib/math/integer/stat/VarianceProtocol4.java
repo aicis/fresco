@@ -24,51 +24,57 @@
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
  */
-package dk.alexandra.fresco.lib.math.integer.exp;
+package dk.alexandra.fresco.lib.math.integer.stat;
 
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.builder.ComputationBuilder;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder.SequentialProtocolBuilder;
 import dk.alexandra.fresco.framework.value.SInt;
-import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
 
-public class ExponentiationProtocol4    implements ComputationBuilder<SInt> {
+public class VarianceProtocol4    implements ComputationBuilder<SInt> {
 
-  private final Computation<SInt> input;
-  private final Computation<SInt> exponent;
-  private final int maxExponentBitLength;
+  private final List<Computation<SInt>> data;
+  private final Computation<SInt> mean;
 
-  public ExponentiationProtocol4(Computation<SInt> input, Computation<SInt> exponent,
-      int maxExponentBitLength) {
-    this.input = input;
-    this.exponent = exponent;
-    this.maxExponentBitLength = maxExponentBitLength;
+  VarianceProtocol4(List<Computation<SInt>> data, Computation<SInt> mean) {
+    this.data = data;
+    this.mean = mean;
+  }
+
+  VarianceProtocol4(List<Computation<SInt>> data) {
+    this(data, null);
   }
 
   @Override
   public Computation<SInt> build(SequentialProtocolBuilder builder) {
-    return builder.seq((seq) ->
-        seq.createAdvancedNumericBuilder().toBits(exponent, maxExponentBitLength)
-    ).seq((bits, seq) -> {
-      Computation<SInt> e = input;
-      Computation<SInt> result = seq.createInputBuilder().known(BigInteger.valueOf(1));
-      NumericBuilder numeric = seq.numeric();
-      for (SInt bit : bits) {
-        /*
-         * result += bits[i] * (result * r - r) + r
-				 *
-				 *  aka.
-				 *
-				 *            result       if bits[i] = 0
-				 * result = {
-				 *            result * e   if bits[i] = 1
-				 */
-        result = numeric
-            .add(numeric.mult(bit, numeric.sub(numeric.mult(result, e), result)), result);
-        e = numeric.mult(e, e);
+    return builder.seq((seq) -> {
+      /*
+       * If a mean was not provided, we first calculate it
+		   */
+      Computation<SInt> mean;
+      if (this.mean == null) {
+        mean = seq.createSequentialSub(new MeanProtocol4(data));
+      } else {
+        mean = this.mean;
       }
-      return result;
-    });
+      return mean;
+    }).par((mean, par) -> {
+      List<Computation<SInt>> terms = new ArrayList<>(data.size());
+      for (Computation<SInt> value : data) {
+        Computation<SInt> term = par.createSequentialSub((seq) -> {
+          NumericBuilder numeric = seq.numeric();
+          Computation<SInt> tmp = numeric.sub(value, mean);
+          return numeric.mult(tmp, tmp);
+        });
+        terms.add(term);
+      }
+      return () -> terms;
+    }).seq((terms, seq) ->
+        seq.createSequentialSub(new MeanProtocol4(terms, data.size() - 1))
+    );
   }
+
 }

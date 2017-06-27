@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -23,14 +23,38 @@
  *
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
- *******************************************************************************/
-package dk.alexandra.fresco.lib.math.integer.stat;
+ */
+package dk.alexandra.fresco.lib.compare.eq;
 
-import dk.alexandra.fresco.framework.ProtocolProducer;
+import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.builder.ComputationBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilder.SequentialProtocolBuilder;
+import dk.alexandra.fresco.framework.value.SInt;
 
 /**
- * This protocol calculates an approximation of the variance of a given data set.
+ * Implements an equality protocol -- given inputs x, y set output to x==y
+ *
+ * @author ttoft
  */
-public interface CovarianceProtocol extends ProtocolProducer {
+public class EqualityProtocol4    implements ComputationBuilder<SInt> {
 
+  // params
+  private final int bitLength;
+  private final Computation<SInt> x;
+  private final Computation<SInt> y;
+
+
+  public EqualityProtocol4(
+      int bitLength, Computation<SInt> x, Computation<SInt> y) {
+    super();
+    this.bitLength = bitLength;
+    this.x = x;
+    this.y = y;
+  }
+
+  @Override
+  public Computation<SInt> build(SequentialProtocolBuilder builder) {
+    Computation<SInt> diff = builder.numeric().sub(x, y);
+    return builder.comparison().compareZero(diff, bitLength);
+  }
 }

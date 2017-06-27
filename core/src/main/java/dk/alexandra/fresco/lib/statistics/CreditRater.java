@@ -23,7 +23,7 @@
  *
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
- *******************************************************************************/
+ */
 package dk.alexandra.fresco.lib.statistics;
 
 import dk.alexandra.fresco.framework.Application;
@@ -33,14 +33,15 @@ import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.ComparisonBuilder;
+import dk.alexandra.fresco.framework.builder.ComputationBuilder;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder.SequentialProtocolBuilder;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.math.integer.SumSIntList;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Function;
 
 /**
  * Application for performing credit rating.
@@ -105,7 +106,9 @@ public class CreditRater implements Application<SInt> {
               }
               return () -> scores;
             }
-        ).seq(new SumSIntList())).build();
+        ).seq((list, seq) ->
+            new SumSIntList(list).build(seq)
+        )).build();
   }
 
   public SInt closeApplication() {
@@ -117,7 +120,7 @@ public class CreditRater implements Application<SInt> {
   }
 
   private static class ComputeIntervalScore implements
-      Function<SequentialProtocolBuilder, Computation<SInt>> {
+      ComputationBuilder<SInt> {
 
     private final List<Computation<SInt>> interval;
     private final Computation<SInt> value;
@@ -139,38 +142,41 @@ public class CreditRater implements Application<SInt> {
     }
 
     @Override
-    public Computation<SInt> apply(SequentialProtocolBuilder rootBuilder) {
+    public Computation<SInt> build(SequentialProtocolBuilder rootBuilder) {
       return rootBuilder.par((parallelBuilder) -> {
         List<Computation<SInt>> result = new ArrayList<>();
-        ComparisonBuilder<SInt> builder = parallelBuilder.comparison();
+        ComparisonBuilder builder = parallelBuilder.comparison();
 
-        // Compare if "x <= the n interval definitions"
-        for (Computation<SInt> anInterval : interval) {
-          result.add(builder.compare(value, anInterval));
-        }
-        return () -> result;
+            // Compare if "x <= the n interval definitions"
+            for (Computation<SInt> anInterval : interval) {
+              result.add(builder.compare(value, anInterval));
+            }
+            return () -> result;
       }).seq((comparisons, builder) -> {
-        // Add "x > last interval definition" to comparisons
-        NumericBuilder numericBuilder = builder.numeric();
-        SInt one = builder.getSIntFactory().getSInt(1);
-        Computation<SInt> lastComparison = comparisons.get(comparisons.size() - 1);
-        comparisons.add(numericBuilder.sub(one, lastComparison));
-        return () -> comparisons;
+          // Add "x > last interval definition" to comparisons
+
+            NumericBuilder numericBuilder = builder.numeric();
+            Computation<SInt> one = builder.createInputBuilder().known(BigInteger.valueOf(1));
+            Computation<SInt> lastComparison = comparisons.get(comparisons.size() - 1);
+            comparisons.add(numericBuilder.sub(one, lastComparison));
+            return () -> comparisons;
       }).par((comparisons, parallelBuilder) -> {
-        //Comparisons now contain if x <= each definition and if x>= last definition
+          //Comparisons now contain if x <= each definition and if x>= last definition
+
         NumericBuilder numericBuilder = parallelBuilder.numeric();
-        List<Computation<SInt>> innerScores = new ArrayList<>();
-        innerScores.add(numericBuilder.mult(comparisons.get(0), scores.get(0)));
-        for (int i = 1; i < scores.size() - 1; i++) {
-          Computation<SInt> hit = numericBuilder
-              .sub(comparisons.get(i), comparisons.get(i - 1));
-          innerScores.add(numericBuilder.mult(hit, scores.get(i)));
-        }
-        Computation<SInt> a = comparisons.get(scores.size() - 1);
-        Computation<SInt> b = scores.get(scores.size() - 1);
-        innerScores.add(numericBuilder.mult(a, b));
-        return () -> innerScores;
-      }).seq(new SumSIntList());
+            List<Computation<SInt>> innerScores = new ArrayList<>();
+            innerScores.add(numericBuilder.mult(comparisons.get(0), scores.get(0)));
+            for (int i = 1; i < scores.size() - 1; i++) {
+              Computation<SInt> hit = numericBuilder
+                  .sub(comparisons.get(i), comparisons.get(i - 1));
+              innerScores.add(numericBuilder.mult(hit, scores.get(i)));
+            }
+            Computation<SInt> a = comparisons.get(scores.size() - 1);
+            Computation<SInt> b = scores.get(scores.size() - 1);
+            innerScores.add(numericBuilder.mult(a, b));
+            return () -> innerScores;
+
+      }).seq((list, seq) -> new SumSIntList(list).build(seq));
     }
   }
 }

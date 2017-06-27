@@ -28,6 +28,7 @@ package dk.alexandra.fresco.lib.math.integer.binary;
 
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.RightShiftBuilder.RightShiftResult;
+import dk.alexandra.fresco.framework.builder.ComputationBuilder;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder.SequentialProtocolBuilder;
 import dk.alexandra.fresco.framework.builder.RandomAdditiveMaskBuilder;
@@ -37,10 +38,8 @@ import dk.alexandra.fresco.framework.value.OIntFactory;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
 import java.util.Collections;
-import java.util.function.Function;
 
-public class RightShiftProtocol4
-    implements Function<SequentialProtocolBuilder, Computation<RightShiftResult>> {
+public class RightShiftProtocol4    implements ComputationBuilder<RightShiftResult> {
 
   private final boolean calculateRemainders;
   // Input
@@ -64,7 +63,7 @@ public class RightShiftProtocol4
   }
 
   @Override
-  public Computation<RightShiftResult> apply(SequentialProtocolBuilder sequential) {
+  public Computation<RightShiftResult> build(SequentialProtocolBuilder sequential) {
     return sequential.seq((builder) -> {
       RandomAdditiveMaskBuilder additiveMaskBuilder = builder.createAdditiveMaskBuilder();
       return additiveMaskBuilder.additiveMask(bitLength);
@@ -72,7 +71,7 @@ public class RightShiftProtocol4
       OInt two = parSubSequential.getOIntFactory().getOInt(BigInteger.valueOf(2));
       NumericBuilder numericBuilder = parSubSequential.numeric();
       Computation<? extends OInt> inverseOfTwo = numericBuilder.invert(two);
-      Computation<SInt> rBottom = () -> randomAdditiveMask.bits.get(0);
+      Computation<SInt> rBottom = randomAdditiveMask.bits.get(0);
       Computation<SInt> sub = numericBuilder
           .sub(() -> randomAdditiveMask.r, rBottom);
       Computation<SInt> rTop = numericBuilder.mult(inverseOfTwo.out(), sub);

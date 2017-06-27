@@ -2,79 +2,80 @@ package dk.alexandra.fresco.demo.mimcaggregation;
 
 import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.BuilderFactory;
+import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.framework.value.Value;
-import dk.alexandra.fresco.lib.helper.builder.NumericIOBuilder;
-import dk.alexandra.fresco.lib.helper.builder.NumericProtocolBuilder;
-import dk.alexandra.fresco.lib.helper.builder.OmniBuilder;
-import dk.alexandra.fresco.lib.helper.builder.SymmetricEncryptionBuilder;
+import dk.alexandra.fresco.lib.crypto.mimc.MiMCEncryptionProtocolNaiveImpl4;
+import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
 
 public class EncryptAndRevealStep implements Application {
 
-    /**
-	 * 
-	 */
-	private static final long serialVersionUID = -1960555561200524318L;
-	
-	private SInt[][] inputRows;
-	private SInt mimcKey;
-	private int toEncryptIndex;
-    private Value[][] rowsWithOpenedCiphers;
-	
-    public EncryptAndRevealStep(SInt[][] inputRows, int toEncryptIndex) {
-		super();
-		this.inputRows = inputRows;
-		this.toEncryptIndex = toEncryptIndex;
-		int numElementsPerRow = inputRows[0].length;
-		this.rowsWithOpenedCiphers = new Value[inputRows.length][numElementsPerRow + 1];
-	}
+  private SInt[][] inputRows;
+  private SInt mimcKey;
+  private int toEncryptIndex;
+  private Value[][] rowsWithOpenedCiphers;
 
-	public SInt getMimcKey() {
-		return mimcKey;
-	}
+  public EncryptAndRevealStep(SInt[][] inputRows, int toEncryptIndex) {
+    super();
+    this.inputRows = inputRows;
+    this.toEncryptIndex = toEncryptIndex;
+    int numElementsPerRow = inputRows[0].length;
+    this.rowsWithOpenedCiphers = new Value[inputRows.length][numElementsPerRow + 1];
+  }
 
-	@Override
-	public ProtocolProducer prepareApplication(BuilderFactory producer) {
+  public SInt getMimcKey() {
+    return mimcKey;
+  }
 
-		BuilderFactoryNumeric factoryNumeric = (BuilderFactoryNumeric) producer;
-		OmniBuilder builder = new OmniBuilder(factoryNumeric);
+  @Override
+  public ProtocolProducer prepareApplication(BuilderFactory producer) {
+    return ProtocolBuilder.createApplicationRoot((BuilderFactoryNumeric) producer, (builder) -> {
+      BasicNumericFactory numericFactory = builder.getBasicNumericFactory();
+      builder.seq((seq) ->
+          builder.createInputBuilder().known(BigInteger.ZERO)
+      ).seq((key, seq) -> {
+        // Generate random value to use as encryption key
+        //TODO It should be possible to get a random element in new API
+        return numericFactory.getRandomFieldElement(key);
+      }).par((key, par) -> {
+        //Store key
+        mimcKey = key;
+        List<Computation<OInt>> ciphers = new ArrayList<>(inputRows.length);
+        // Encrypt desired column and open resulting cipher text
+        for (final SInt[] row : inputRows) {
+          ciphers.add(par.createSequentialSub((seq) -> {
+            SInt toEncrypt = row[toEncryptIndex];
+            Computation<SInt> cipherText = seq.createSequentialSub(
+                new MiMCEncryptionProtocolNaiveImpl4(toEncrypt, key)
+            );
+            return seq.createOpenBuilder().open(cipherText);
+          }));
 
-        NumericProtocolBuilder npb = builder.getNumericProtocolBuilder();
-        NumericIOBuilder niob = builder.getNumericIOBuilder();                
-        SymmetricEncryptionBuilder seb = builder.getSymmetricEncryptionBuilder();
-        
-        builder.beginSeqScope();
+        }
+        return () -> ciphers;
+      }).seq((ciphers, seq) -> {
+        for (int rowIndex = 0; rowIndex < inputRows.length; rowIndex++) {
+          final SInt[] row = inputRows[rowIndex];
+          // Since our result array has rows that are one element
+          // longer than our input, this is correct
+          int cipherIndex = row.length;
+          rowsWithOpenedCiphers[rowIndex][cipherIndex] = ciphers.get(rowIndex).out();
+          System.arraycopy(row, 0, rowsWithOpenedCiphers[rowIndex], 0, row.length);
+        }
+        return null;
+      });
+    }).build();
+  }
 
-        	// Generate random value to use as encryption key        	
-        	mimcKey = npb.rand();
-
-        	// Encrypt desired column and open resulting cipher text
-        	for (int r = 0; r < inputRows.length; r++) {
-        		SInt[] row = inputRows[r];
-        		
-        		SInt toEncrypt = row[toEncryptIndex];
-        		SInt _cipherText = seb.mimcEncrypt(toEncrypt, mimcKey);
-        		OInt cipherText = niob.output(_cipherText);
-        		
-        		// Since our result array has rows that are one element
-        		// longer than our input, this is correct        		
-        		int lastElementIndex = row.length;
-        		rowsWithOpenedCiphers[r][lastElementIndex] = cipherText;
-        		for (int c = 0; c < row.length; c++) {
-        			rowsWithOpenedCiphers[r][c] = row[c];
-        		}
-        	}
-        	
-        builder.endCurScope();
-            
-        return builder.getProtocol();
-    }
-
-	public Value[][] getRowsWithOpenedCiphers() {
-		return rowsWithOpenedCiphers;
-	}
+  public Value[][] getRowsWithOpenedCiphers() {
+    return rowsWithOpenedCiphers;
+  }
 
 }

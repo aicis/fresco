@@ -23,33 +23,25 @@
  *
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
- *******************************************************************************/
+ */
 package dk.alexandra.fresco.lib.math.integer.sqrt;
 
 import dk.alexandra.fresco.framework.BuilderFactory;
-import dk.alexandra.fresco.framework.ProtocolFactory;
+import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.TestApplication;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
+import dk.alexandra.fresco.framework.builder.InputBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.compare.RandomAdditiveMaskFactory;
-import dk.alexandra.fresco.lib.compare.RandomAdditiveMaskFactoryImpl;
-import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
-import dk.alexandra.fresco.lib.helper.builder.NumericIOBuilder;
-import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
-import dk.alexandra.fresco.lib.math.integer.binary.RightShiftFactory;
-import dk.alexandra.fresco.lib.math.integer.binary.RightShiftFactoryImpl;
-import dk.alexandra.fresco.lib.math.integer.division.DivisionFactory;
-import dk.alexandra.fresco.lib.math.integer.division.DivisionFactoryImpl;
-import dk.alexandra.fresco.lib.math.integer.inv.LocalInversionFactory;
-import dk.alexandra.fresco.lib.math.integer.linalg.EntrywiseProductFactoryImpl;
-import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductFactoryImpl;
 import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
 import org.junit.Assert;
 
 public class SqrtTests {
@@ -71,56 +63,28 @@ public class SqrtTests {
         };
         private final int n = x.length;
 
-        private OInt[] precision = new OInt[n];
+        List<Computation<OInt>> results = new ArrayList<>(n);
 
         @Override
         public void test() throws Exception {
           TestApplication app = new TestApplication() {
 
-
-            private static final long serialVersionUID = 701623441111137585L;
-
             @Override
             public ProtocolProducer prepareApplication(BuilderFactory factoryProducer) {
-              ProtocolFactory producer = factoryProducer.getProtocolFactory();
-              BuilderFactoryNumeric numericProducer = (BuilderFactoryNumeric) factoryProducer;
+              return ProtocolBuilder
+                  .createApplicationRoot((BuilderFactoryNumeric) factoryProducer, (builder) -> {
+                    InputBuilder sIntFactory = builder.createInputBuilder();
 
-              BasicNumericFactory basicNumericFactory = (BasicNumericFactory) producer;
-              RandomAdditiveMaskFactory randomAdditiveMaskFactory = new RandomAdditiveMaskFactoryImpl(
-                  basicNumericFactory,
-                  new InnerProductFactoryImpl(basicNumericFactory,
-                      new EntrywiseProductFactoryImpl(basicNumericFactory)));
-              LocalInversionFactory localInversionFactory = (LocalInversionFactory) producer;
-              RightShiftFactory rightShiftFactory = new RightShiftFactoryImpl(basicNumericFactory,
-                  randomAdditiveMaskFactory, localInversionFactory);
-              DivisionFactory divisionFactory = new DivisionFactoryImpl(
-                  numericProducer);
-              SquareRootFactory squareRootFactory = new SquareRootFactoryImpl(basicNumericFactory,
-                  divisionFactory, rightShiftFactory);
+                    results = new ArrayList<>(n);
 
-              SInt[] sqrt = new SInt[n];
-
-              NumericIOBuilder ioBuilder = new NumericIOBuilder(basicNumericFactory);
-              SequentialProtocolProducer sequentialProtocolProducer = new SequentialProtocolProducer();
-
-              SInt[] inputs = ioBuilder.inputArray(x, 1);
-              sequentialProtocolProducer.append(ioBuilder.getProtocol());
-
-              for (int i = 0; i < n; i++) {
-                sqrt[i] = basicNumericFactory.getSInt();
-                precision[i] = basicNumericFactory.getOInt();
-                SquareRootProtocol squareRootProtocol = squareRootFactory
-                    .getSquareRootProtocol(inputs[i], x[i].bitLength(), sqrt[i], precision[i]);
-                sequentialProtocolProducer.append(squareRootProtocol);
-              }
-
-              OInt[] outputs = ioBuilder.outputArray(sqrt);
-
-              sequentialProtocolProducer.append(ioBuilder.getProtocol());
-
-              this.outputs = outputs;
-
-              return sequentialProtocolProducer;
+                    for (BigInteger input : x) {
+                      Computation<SInt> actualInput = sIntFactory.known(input);
+                      Computation<SInt> result = builder.createAdvancedNumericBuilder()
+                          .sqrt(actualInput, input.bitLength());
+                      Computation<OInt> openResult = builder.createOpenBuilder().open(result);
+                      results.add(openResult);
+                    }
+                  }).build();
             }
           };
 
@@ -128,8 +92,11 @@ public class SqrtTests {
               .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf,
                   conf.sceConf.getSuite()));
 
-          for (int i = 0; i < n; i++) {
-            BigInteger actual = app.getOutputs()[i].getValue();
+          Assert.assertEquals(n, results.size());
+
+          for (int i = 0; i < results.size(); i++) {
+            Computation<OInt> result = results.get(i);
+            BigInteger actual = result.out().getValue();
             BigInteger expected = BigInteger.valueOf((long) Math.sqrt(x[i].intValue()));
 
             BigInteger difference = expected.subtract(actual).abs();
@@ -142,12 +109,8 @@ public class SqrtTests {
             Assert.assertFalse(shouldBeCorrect && !isCorrect);
 
             System.out.println(
-                "sqrt(" + x[i] + ") = " + actual + ", expected " + expected + ". " + (!isCorrect ?
-                    "Got precision " + precision + "/" + expected.bitLength()
-                        + ", expected at least " + this.precision[i].getValue().intValue() : ""));
-            if (!isCorrect) {
-              Assert.assertTrue(precision >= this.precision[i].getValue().intValue());
-            }
+                "sqrt(" + x[i] + ") = " + actual + ", expected " + expected + ".");
+            Assert.assertTrue(isCorrect);
           }
         }
       };

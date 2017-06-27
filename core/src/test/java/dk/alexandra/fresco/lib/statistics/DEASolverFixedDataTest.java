@@ -106,7 +106,7 @@ public class DEASolverFixedDataTest {
    */
   private static class DEATestApp implements Application {
 
-    private static final long serialVersionUID = 1L;
+
     double[] plainResult;
     OInt[] solverResult;
     private DEASolver.AnalysisType type;

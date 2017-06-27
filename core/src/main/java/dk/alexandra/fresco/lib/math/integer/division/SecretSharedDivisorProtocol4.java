@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -23,11 +23,12 @@
  *
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
- *******************************************************************************/
+ */
 package dk.alexandra.fresco.lib.math.integer.division;
 
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
+import dk.alexandra.fresco.framework.builder.ComputationBuilder;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder.SequentialProtocolBuilder;
 import dk.alexandra.fresco.framework.util.Pair;
@@ -35,11 +36,10 @@ import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import java.math.BigInteger;
-import java.util.function.Function;
 
 /**
  * <p> This protocol implements integer division where both numerator and denominator are secret
- * shared. If the denominator is a known number {@link KnownDivisorProtocol} should be used instead.
+ * shared. If the denominator is a known number {@link KnownDivisorProtocol4} should be used instead.
  * </p>
  *
  * <p> The protocol uses <a href= "https://en.wikipedia.org/wiki/Division_algorithm#Goldschmidt_division"
@@ -50,7 +50,7 @@ import java.util.function.Function;
  * regular integer division, this division will always truncate the result instead of rounding.
  */
 public class SecretSharedDivisorProtocol4
-    implements Function<SequentialProtocolBuilder, Computation<SInt>> {
+    implements ComputationBuilder<SInt> {
 
   private Computation<SInt> numerator;
   private Computation<SInt> denominator;
@@ -67,7 +67,7 @@ public class SecretSharedDivisorProtocol4
   }
 
   @Override
-  public Computation<SInt> apply(SequentialProtocolBuilder builder) {
+  public Computation<SInt> build(SequentialProtocolBuilder builder) {
 
     BasicNumericFactory basicNumericFactory = builderFactory.getBasicNumericFactory();
 
@@ -173,7 +173,8 @@ public class SecretSharedDivisorProtocol4
   }
 
   private Computation<SInt> sign(SequentialProtocolBuilder builder, Computation<SInt> input) {
-    Computation<SInt> result = gte(builder, input, builder.getSIntFactory().getSInt(0));
+    Computation<SInt> result = gte(builder, input,
+        builder.createInputBuilder().known(BigInteger.valueOf(0)));
     OInt two = builder.getOIntFactory().getOInt(BigInteger.valueOf(2));
     OInt one = builder.getOIntFactory().getOInt(BigInteger.valueOf(1));
     result = builder.numeric().mult(two, result);

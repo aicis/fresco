@@ -10,6 +10,8 @@ import dk.alexandra.fresco.lib.conversion.IntegerToBitsByShiftProtocolImpl4;
 import dk.alexandra.fresco.lib.math.integer.exp.ExponentiationProtocol4;
 import dk.alexandra.fresco.lib.math.integer.exp.ExponentiationProtocolOpenBase;
 import dk.alexandra.fresco.lib.math.integer.exp.ExponentiationProtocolOpenExponent;
+import dk.alexandra.fresco.lib.math.integer.log.LogarithmProtocol;
+import dk.alexandra.fresco.lib.math.integer.sqrt.SquareRootProtocol;
 import java.util.List;
 
 public class DefaultAdvancedNumericBuilder implements
@@ -61,5 +63,15 @@ public class DefaultAdvancedNumericBuilder implements
   @Override
   public Computation<SInt> exp(Computation<SInt> x, OInt e) {
     return builder.createSequentialSub(new ExponentiationProtocolOpenExponent(x, e));
+  }
+
+  @Override
+  public Computation<SInt> sqrt(Computation<SInt> input, int maxInputLength) {
+    return builder.createSequentialSub(new SquareRootProtocol(input, maxInputLength));
+  }
+
+  @Override
+  public Computation<SInt> log(Computation<SInt> input, int maxInputLength) {
+    return builder.createSequentialSub(new LogarithmProtocol(input, maxInputLength));
   }
 }

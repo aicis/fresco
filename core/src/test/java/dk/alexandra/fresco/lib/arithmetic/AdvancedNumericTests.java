@@ -71,8 +71,10 @@ public class AdvancedNumericTests {
                     modulus = ((BuilderFactoryNumeric) factoryProducer)
                         .getBasicNumericFactory().getModulus();
 
-                    SInt p = builder.getSIntFactory().getSInt(numerator);
-                    SInt q = builder.getSIntFactory().getSInt(denominator);
+                    Computation<SInt> p = builder.createInputBuilder()
+                        .known(BigInteger.valueOf(numerator));
+                    Computation<SInt> q = builder.createInputBuilder()
+                        .known(BigInteger.valueOf(denominator));
 
                     Computation<SInt> result = builder.createAdvancedNumericBuilder().div(p, q);
 
@@ -139,7 +141,8 @@ public class AdvancedNumericTests {
                     modulus = ((BuilderFactoryNumeric) factoryProducer)
                         .getBasicNumericFactory().getModulus();
 
-                    SInt p = builder.getSIntFactory().getSInt(numerator);
+                    Computation<SInt> p = builder.createInputBuilder()
+                        .known(BigInteger.valueOf(numerator));
                     OInt q = builder.getOIntFactory().getOInt(BigInteger.valueOf(denominator));
 
                     Computation<SInt> result = builder.createAdvancedNumericBuilder().div(p, q);
@@ -187,7 +190,8 @@ public class AdvancedNumericTests {
             public ProtocolProducer prepareApplication(BuilderFactory factoryProducer) {
               return ProtocolBuilder
                   .createApplicationRoot((BuilderFactoryNumeric) factoryProducer, (builder) -> {
-                    SInt p = builder.getSIntFactory().getSInt(numerator);
+                    Computation<SInt> p = builder.createInputBuilder()
+                        .known(BigInteger.valueOf(numerator));
                     OInt q = builder.getOIntFactory().getOInt(BigInteger.valueOf(denominator));
 
                     Computation<SInt> result = builder.createAdvancedNumericBuilder()

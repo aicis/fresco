@@ -31,6 +31,7 @@ import dk.alexandra.fresco.framework.network.NetworkingStrategy;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.lib.arithmetic.BasicArithmeticTests;
 import dk.alexandra.fresco.lib.math.integer.division.DivisionTests.TestEuclidianDivision;
+import dk.alexandra.fresco.lib.math.integer.division.DivisionTests.TestSecretSharedDivision;
 import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductNewApiTest;
 import dk.alexandra.fresco.lib.math.integer.log.LogTests.TestLogarithm;
 import dk.alexandra.fresco.lib.math.integer.sqrt.SqrtTests.TestSquareRoot;
@@ -52,7 +53,7 @@ public class TestSpdzBasicArithmetic2Parties extends AbstractSpdzTest {
   }
 
   // Fix error before activating
-  //TODO EBO?
+  //TODO PFF Consider deleting or changing test data to avoid the failure?
   @Ignore
   @Test
   public void test_Division_Sequential_Batched() throws Exception {
@@ -61,14 +62,21 @@ public class TestSpdzBasicArithmetic2Parties extends AbstractSpdzTest {
   }
 
   @Test
+  public void test_Secret_Shared_Division_Sequential_Batched() throws Exception {
+    runTest(new TestSecretSharedDivision(), EvaluationStrategy.SEQUENTIAL_BATCHED,
+        NetworkingStrategy.KRYONET,
+        PreprocessingStrategy.DUMMY, 2);
+  }
+
+  @Test
   public void test_Log_Sequential_Batched() throws Exception {
-    runTest(new TestLogarithm(), EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET,
+    runTest(new TestLogarithm(), EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET,
         PreprocessingStrategy.DUMMY, 2);
   }
 
   @Test
   public void test_Sqrt_Sequential_Batched() throws Exception {
-    runTest(new TestSquareRoot(), EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET,
+    runTest(new TestSquareRoot(), EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET,
         PreprocessingStrategy.DUMMY, 2);
   }
 

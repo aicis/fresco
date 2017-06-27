@@ -23,7 +23,7 @@
  *
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
- *******************************************************************************/
+ */
 package dk.alexandra.fresco.lib.math.integer.division;
 
 import dk.alexandra.fresco.framework.BuilderFactory;
@@ -35,36 +35,19 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
+import dk.alexandra.fresco.framework.builder.InputBuilder;
 import dk.alexandra.fresco.framework.builder.OpenBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder.SequentialProtocolBuilder;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.compare.ComparisonProtocolFactory;
-import dk.alexandra.fresco.lib.compare.ComparisonProtocolFactoryImpl;
-import dk.alexandra.fresco.lib.compare.RandomAdditiveMaskFactory;
-import dk.alexandra.fresco.lib.compare.RandomAdditiveMaskFactoryImpl;
-import dk.alexandra.fresco.lib.conversion.IntegerToBitsFactory;
-import dk.alexandra.fresco.lib.conversion.IntegerToBitsFactoryImpl;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.helper.builder.NumericIOBuilder;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
-import dk.alexandra.fresco.lib.math.integer.binary.BitLengthFactory;
-import dk.alexandra.fresco.lib.math.integer.binary.BitLengthFactoryImpl;
-import dk.alexandra.fresco.lib.math.integer.binary.RightShiftFactory;
-import dk.alexandra.fresco.lib.math.integer.binary.RightShiftFactoryImpl;
-import dk.alexandra.fresco.lib.math.integer.exp.ExpFromOIntFactory;
-import dk.alexandra.fresco.lib.math.integer.exp.ExponentiationFactory;
-import dk.alexandra.fresco.lib.math.integer.exp.ExponentiationFactoryImpl;
-import dk.alexandra.fresco.lib.math.integer.exp.PreprocessedExpPipeFactory;
-import dk.alexandra.fresco.lib.math.integer.inv.LocalInversionFactory;
-import dk.alexandra.fresco.lib.math.integer.linalg.EntrywiseProductFactoryImpl;
-import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductFactoryImpl;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Function;
 import org.junit.Assert;
 
 
@@ -113,13 +96,12 @@ public class DivisionTests {
               SequentialProtocolBuilder applicationRoot = ProtocolBuilder
                   .createApplicationRoot((BuilderFactoryNumeric) factoryProducer,
                       (seq) -> {
-                        Function<SequentialProtocolBuilder, Computation<SInt>> divisorProtocol4 = new KnownDivisorProtocol4(
-                            (BuilderFactoryNumeric) factoryProducer, input1, input2);
-                        Computation<SInt> division = seq.createSequentialSub(divisorProtocol4);
+                        Computation<SInt> division = seq.createSequentialSub(
+                            new KnownDivisorProtocol4(
+                                (BuilderFactoryNumeric) factoryProducer, input1, input2));
 
-                        Function<SequentialProtocolBuilder, Computation<SInt>> remainderProtocol4 =
-                            new KnownDivisorRemainderProtocol4(input1, input2);
-                        Computation<SInt> remainder = seq.createSequentialSub(remainderProtocol4);
+                        Computation<SInt> remainder = seq.createSequentialSub(
+                            new KnownDivisorRemainderProtocol4(input1, input2));
                         OpenBuilder openBuilder = seq.createOpenBuilder();
                         Computation<OInt> output1 = openBuilder.open(division);
                         Computation<OInt> output2 = openBuilder.open(remainder);
@@ -157,86 +139,42 @@ public class DivisionTests {
         private final BigInteger d = BigInteger.valueOf(1110);
         private final int n = x.length;
 
-        OInt[] precision = new OInt[n];
+        private List<Computation<OInt>> results = new ArrayList<>(n);
 
         @Override
         public void test() throws Exception {
           TestApplication app = new TestApplication() {
 
-            private static final long serialVersionUID = 701623441111137585L;
-
             @Override
             public ProtocolProducer prepareApplication(
                 BuilderFactory factoryProducer) {
-              ProtocolFactory producer = factoryProducer.getProtocolFactory();
-
-              BasicNumericFactory basicNumericFactory = (BasicNumericFactory) producer;
-              ExpFromOIntFactory expFromOIntFactory = (ExpFromOIntFactory) producer;
-              PreprocessedExpPipeFactory preprocessedExpPipeFactory = (PreprocessedExpPipeFactory) producer;
-              RandomAdditiveMaskFactory randomAdditiveMaskFactory = new RandomAdditiveMaskFactoryImpl(
-                  basicNumericFactory,
-                  new InnerProductFactoryImpl(basicNumericFactory,
-                      new EntrywiseProductFactoryImpl(basicNumericFactory)));
-              LocalInversionFactory localInversionFactory = (LocalInversionFactory) producer;
-              RightShiftFactory rightShiftFactory = new RightShiftFactoryImpl(basicNumericFactory,
-                  randomAdditiveMaskFactory, localInversionFactory);
-              IntegerToBitsFactory integerToBitsFactory = new IntegerToBitsFactoryImpl(
-                  basicNumericFactory, rightShiftFactory);
-              BitLengthFactory bitLengthFactory = new BitLengthFactoryImpl(basicNumericFactory,
-                  integerToBitsFactory);
-              ExponentiationFactory exponentiationFactory = new ExponentiationFactoryImpl(
-                  basicNumericFactory, integerToBitsFactory);
-              ComparisonProtocolFactory comparisonFactory = new ComparisonProtocolFactoryImpl(80,
-                  basicNumericFactory, localInversionFactory,
-                  expFromOIntFactory, preprocessedExpPipeFactory,
-                  (BuilderFactoryNumeric) factoryProducer);
-              DivisionFactory divisionFactory = new DivisionFactoryImpl(
-                  (BuilderFactoryNumeric) factoryProducer);
-
-              SInt[] quotient = new SInt[n];
-
-              NumericIOBuilder ioBuilder = new NumericIOBuilder(basicNumericFactory);
-              SequentialProtocolProducer sequentialProtocolProducer = new SequentialProtocolProducer();
-
-              SInt[] inputs = ioBuilder.inputArray(x, 1);
-              SInt input2 = ioBuilder.input(d, 2);
-              sequentialProtocolProducer.append(ioBuilder.getProtocol());
-
-              for (int i = 0; i < n; i++) {
-                precision[i] = basicNumericFactory.getOInt();
-                quotient[i] = basicNumericFactory.getSInt();
-                DivisionProtocol divisionProtocol = divisionFactory
-                    .getDivisionProtocol(inputs[i], input2, quotient[i], precision[i]);
-                sequentialProtocolProducer.append(divisionProtocol);
-              }
-
-              this.outputs = ioBuilder.outputArray(quotient);
-
-              sequentialProtocolProducer.append(ioBuilder.getProtocol());
-
-              return sequentialProtocolProducer;
+              return ProtocolBuilder
+                  .createApplicationRoot((BuilderFactoryNumeric) factoryProducer, (builder) -> {
+                    InputBuilder input = builder.createInputBuilder();
+                    Computation<SInt> divisor = input.known(d);
+                    for (BigInteger value : x) {
+                      Computation<SInt> dividend = input.known(value);
+                      Computation<SInt> division = builder.createAdvancedNumericBuilder()
+                          .div(dividend, divisor);
+                      results.add(builder.createOpenBuilder().open(division));
+                    }
+                  }).build();
             }
           };
           secureComputationEngine
               .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf,
                   conf.sceConf.getSuite()));
           for (int i = 0; i < n; i++) {
-            BigInteger actual = app.getOutputs()[i].getValue();
+            BigInteger actual = results.get(i).out().getValue();
 
             BigInteger expected = x[i].divide(d);
-            BigInteger difference = expected.subtract(actual).abs();
-
-            int precision = expected.bitLength() - difference.bitLength();
 
             boolean isCorrect = expected.equals(actual);
 
             System.out.println(
-                x[i] + "/" + d + " = " + actual + ", expected " + expected + ". " + (!isCorrect ?
-                    "Got precision " + precision + "/" + expected.bitLength()
-                        + ", expected at least " + this.precision[i].getValue().intValue() : ""));
-            if (!isCorrect) {
-              Assert.assertTrue(precision >= this.precision[i].getValue().intValue());
-            }
+                x[i] + "/" + d + " = " + actual + ", expected " + expected + ". ");
+            Assert.assertTrue(isCorrect);
+
           }
         }
       };

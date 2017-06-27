@@ -24,13 +24,38 @@
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
  *******************************************************************************/
-package dk.alexandra.fresco.lib.math.integer.stat;
+package dk.alexandra.fresco.lib.compare.zerotest;
 
-import dk.alexandra.fresco.framework.ProtocolProducer;
+import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
+import dk.alexandra.fresco.framework.builder.ComputationBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilder.SequentialProtocolBuilder;
+import dk.alexandra.fresco.framework.value.SInt;
 
 /**
- * This protocol calculates the arithmetic mean of a data set.
+ * testing for equality with zero for a bitLength-bit number (positive or negative)
+ *
+ * @author ttoft
  */
-public interface MeanProtocol extends ProtocolProducer {
+public class ZeroTestProtocol4 implements ComputationBuilder<SInt> {
 
+  private final BuilderFactoryNumeric factoryNumeric;
+  private final int bitLength;
+  private final Computation<SInt> input;
+
+  public ZeroTestProtocol4(
+      BuilderFactoryNumeric factoryNumeric,
+      int bitLength, Computation<SInt> input) {
+    this.factoryNumeric = factoryNumeric;
+    this.bitLength = bitLength;
+    this.input = input;
+  }
+
+  @Override
+  public Computation<SInt> build(SequentialProtocolBuilder builder) {
+    Computation<SInt> reduced = builder.createSequentialSub(
+        new ZeroTestReducer(bitLength, input));
+    return builder.createSequentialSub(
+        new ZeroTestBruteforce(factoryNumeric, bitLength, reduced));
+  }
 }

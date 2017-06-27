@@ -59,7 +59,6 @@ public class ComparisonBooleanTests {
 
           TestBoolApplication app = new TestBoolApplication() {
 
-            private static final long serialVersionUID = 4338818809103728010L;
 
             @Override
             public ProtocolProducer prepareApplication(

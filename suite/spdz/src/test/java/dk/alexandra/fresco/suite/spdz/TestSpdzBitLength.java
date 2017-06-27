@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
+ * Copyright (c) 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
  *
@@ -24,24 +24,19 @@
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
  *******************************************************************************/
-package dk.alexandra.fresco.lib.math.integer.log;
+package dk.alexandra.fresco.suite.spdz;
 
-import dk.alexandra.fresco.framework.value.SInt;
+import dk.alexandra.fresco.framework.configuration.PreprocessingStrategy;
+import dk.alexandra.fresco.framework.network.NetworkingStrategy;
+import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
+import dk.alexandra.fresco.lib.math.integer.binary.BinaryOperationsTests.TestBitLength;
+import org.junit.Test;
 
-public interface LogarithmFactory {
+public class TestSpdzBitLength extends AbstractSpdzTest {
 
-	/**
-	 * Returns a protocol for calculating the natural logarithm of a given
-	 * input.
-	 * 
-	 * @param input
-	 *            The input.
-	 * @param maxInputLength
-	 *            An upper bound for the bit length of the input.
-	 * @param log
-	 *            The natural logarithm of the input.
-	 * @return
-	 */
-	public LogarithmProtocol getLogarithmProtocol(SInt input, int maxInputLength, SInt log);
-
+  @Test
+  public void testBitLengthTwoParties() throws Exception {
+    runTest(new TestBitLength(), EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET,
+        PreprocessingStrategy.DUMMY, 2);
+  }
 }

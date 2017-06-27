@@ -34,10 +34,10 @@ public class SpdzOInt extends GenericOInt {
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 8566554318735475486L;
 
-	public SpdzOInt(BigInteger value) {
-		this.value = value;
+
+  public SpdzOInt(BigInteger value) {
+    this.value = value;
 	}
 
 	public SpdzOInt() {

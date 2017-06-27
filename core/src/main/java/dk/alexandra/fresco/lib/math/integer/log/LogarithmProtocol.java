@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -23,11 +23,64 @@
  *
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
- *******************************************************************************/
+ */
 package dk.alexandra.fresco.lib.math.integer.log;
 
-import dk.alexandra.fresco.framework.ProtocolProducer;
+import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.builder.ComputationBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilder.SequentialProtocolBuilder;
+import dk.alexandra.fresco.framework.value.OInt;
+import dk.alexandra.fresco.framework.value.OIntFactory;
+import dk.alexandra.fresco.framework.value.SInt;
+import java.math.BigInteger;
 
-public interface LogarithmProtocol extends ProtocolProducer {
+/**
+ * This class implements a protocol for finding the natural logarithm of a
+ * secret shared integer. It is based on approximating the logarithm of base 2
+ * using the bitlength of a number and then scaling it to the natural logarithm.
+ *
+ * Since the bitlength of a number is only an approximation of the logarithm of
+ * base 2, this protocol is not nessecarily correct on the least significant
+ * bit.
+ *
+ * @author Jonas Lindstrøm (jonas.lindstrom@alexandra.dk)
+ */
+public class LogarithmProtocol     implements ComputationBuilder<SInt> {
 
+  // Input
+  private Computation<SInt> input;
+  private int maxInputLength;
+
+
+  public LogarithmProtocol(Computation<SInt> input, int maxInputLength) {
+    this.input = input;
+    this.maxInputLength = maxInputLength;
+  }
+
+
+  @Override
+  public Computation<SInt> build(SequentialProtocolBuilder builder) {
+    /*
+     * ln(2) = 45426 >> 16;
+		 */
+    OIntFactory intFactory = builder.getOIntFactory();
+    OInt ln2 = intFactory.getOInt(BigInteger.valueOf(45426));
+    int shifts = 16;
+
+		/*
+     * Find the bit length of the input. Note that bit length - 1 is the
+		 * floor of the the logartihm with base 2 of the input.
+		 */
+    Computation<SInt> bitLength =
+        builder.createBitLengthBuilder().bitLength(input, maxInputLength);
+    Computation<SInt> log2 =
+        builder.numeric().sub(bitLength, intFactory.getOInt(BigInteger.ONE));
+
+		/*
+		 * ln(x) = log_2(x) * ln(2), and we use 45426 >> 16 as an approximation of ln(2).
+		 */
+    Computation<SInt> scaledLog = builder.numeric().mult(ln2, log2);
+    return builder.createRightShiftBuilder()
+        .rightShift(scaledLog, shifts);
+  }
 }

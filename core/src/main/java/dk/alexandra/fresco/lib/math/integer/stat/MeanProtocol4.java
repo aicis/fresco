@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -23,11 +23,45 @@
  *
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
- *******************************************************************************/
-package dk.alexandra.fresco.lib.math.integer.division;
+ */
+package dk.alexandra.fresco.lib.math.integer.stat;
 
-import dk.alexandra.fresco.framework.ProtocolProducer;
+import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.builder.ComputationBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilder.SequentialProtocolBuilder;
+import dk.alexandra.fresco.framework.value.OInt;
+import dk.alexandra.fresco.framework.value.SInt;
+import dk.alexandra.fresco.lib.math.integer.SumSIntList;
+import java.math.BigInteger;
+import java.util.List;
 
-public interface DivisionProtocol extends ProtocolProducer {
+/**
+ * This protocol calculates the arithmetic mean of a data set.
+ */
+public class MeanProtocol4    implements ComputationBuilder<SInt> {
+
+  private final List<Computation<SInt>> data;
+  private final int degreesOfFreedom;
+
+  public MeanProtocol4(List<Computation<SInt>> data) {
+    this(data, data.size());
+  }
+
+  public MeanProtocol4(List<Computation<SInt>> data, int degreesOfFreedom) {
+    this.data = data;
+    this.degreesOfFreedom = degreesOfFreedom;
+  }
+
+  @Override
+  public Computation<SInt> build(SequentialProtocolBuilder builder) {
+    return builder.seq((seq) ->
+        () -> this.data
+    ).seq((list, seq) ->
+        new SumSIntList(list).build(seq)
+    ).seq((sum, seq) -> {
+      OInt n = seq.getOIntFactory().getOInt(BigInteger.valueOf(this.degreesOfFreedom));
+      return seq.createAdvancedNumericBuilder().div(sum, n);
+    });
+  }
 
 }

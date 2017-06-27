@@ -31,7 +31,6 @@ import java.io.Serializable;
 
 public class SpdzSInt implements SInt, Serializable {
 
-  private static final long serialVersionUID = 5554953533217451366L;
 
   public SpdzElement value;
 

@@ -46,7 +46,6 @@ import org.apache.commons.cli.ParseException;
  */
 public class DistanceDemo implements Application {
 
-  private static final long serialVersionUID = 6415583508947017554L;
 
   private int myId, myX, myY;
   private OInt distance;

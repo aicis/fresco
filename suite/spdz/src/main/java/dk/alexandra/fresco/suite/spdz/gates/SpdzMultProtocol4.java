@@ -47,10 +47,9 @@ public class SpdzMultProtocol4 extends SpdzNativeProtocol<SInt> {
   private SpdzElement epsilon, delta; // my share of the differences [x]-[a]
   // and [y]-[b].
 
-  public SpdzMultProtocol4(Computation<SInt> left, Computation<SInt> right, SpdzSInt out) {
+  public SpdzMultProtocol4(Computation<SInt> left, Computation<SInt> right) {
     this.left = left;
     this.right = right;
-    this.out = out;
   }
 
   @Override
@@ -93,7 +92,7 @@ public class SpdzMultProtocol4 extends SpdzNativeProtocol<SInt> {
         res = res.add(triple.getB().multiply(e))
             .add(triple.getA().multiply(d))
             .add(ed, spdzResourcePool.getMyId());
-        out.value = res;
+        out = new SpdzSInt(res);
         // Set the opened and closed value.
         store.addOpenedValue(e);
         store.addOpenedValue(d);

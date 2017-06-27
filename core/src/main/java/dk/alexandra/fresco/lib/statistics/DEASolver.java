@@ -60,7 +60,7 @@ import java.util.List;
  */
 public class DEASolver implements Application {
 
-  private static final long serialVersionUID = 7679664125131997196L;
+
   private List<List<SInt>> targetInputs, targetOutputs;
   private List<List<SInt>> inputDataSet, outputDataSet;
 

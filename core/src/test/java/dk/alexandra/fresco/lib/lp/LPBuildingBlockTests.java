@@ -180,7 +180,6 @@ public class LPBuildingBlockTests {
         public void test() throws Exception {
           Application app = new Application() {
 
-            private static final long serialVersionUID = 1L;
 
             @Override
             public ProtocolProducer prepareApplication(BuilderFactory producer) {
@@ -210,7 +209,6 @@ public class LPBuildingBlockTests {
         public void test() throws Exception {
           EnteringVariableTester app = new EnteringVariableTester() {
 
-            private static final long serialVersionUID = 4338818809103728010L;
 
             @Override
             public ProtocolProducer prepareApplication(BuilderFactory factoryProducer) {
@@ -258,7 +256,6 @@ public class LPBuildingBlockTests {
         public void test() throws Exception {
           TestApplication app = new TestApplication() {
 
-            private static final long serialVersionUID = 4338818809103728010L;
 
             @Override
             public ProtocolProducer prepareApplication(BuilderFactory producer) {
@@ -285,7 +282,6 @@ public class LPBuildingBlockTests {
         public void test() throws Exception {
           TestApplication app = new TestApplication() {
 
-            private static final long serialVersionUID = 4338818809103728010L;
 
             @Override
             public ProtocolProducer prepareApplication(BuilderFactory producer) {

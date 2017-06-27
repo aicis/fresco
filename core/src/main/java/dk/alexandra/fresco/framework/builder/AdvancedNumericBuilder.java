@@ -56,4 +56,20 @@ public interface AdvancedNumericBuilder {
   Computation<SInt> exp(OInt x, Computation<SInt> e, int maxExponentLength);
 
   Computation<SInt> exp(Computation<SInt> x, OInt e);
+
+  /**
+   * @param input The input.
+   * @param maxInputLength An upper bound for <i>log<sub>2</sub>(input)</i>.
+   * @return An approximation of the square root of the input.
+   */
+  Computation<SInt> sqrt(Computation<SInt> input, int maxInputLength);
+
+  /**
+   * Calculating the natural logarithm of a given input.
+   *
+   * @param input The input.
+   * @param maxInputLength An upper bound for the bit length of the input.
+   * @return The natural logarithm of the input.
+   */
+  Computation<SInt> log(Computation<SInt> input, int maxInputLength);
 }

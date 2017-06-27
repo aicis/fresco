@@ -23,34 +23,24 @@
  *
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
- *******************************************************************************/
+ */
 package dk.alexandra.fresco.lib.math.integer.log;
 
 import dk.alexandra.fresco.framework.BuilderFactory;
-import dk.alexandra.fresco.framework.ProtocolFactory;
+import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.TestApplication;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
+import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
+import dk.alexandra.fresco.framework.builder.InputBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.compare.RandomAdditiveMaskFactory;
-import dk.alexandra.fresco.lib.compare.RandomAdditiveMaskFactoryImpl;
-import dk.alexandra.fresco.lib.conversion.IntegerToBitsFactory;
-import dk.alexandra.fresco.lib.conversion.IntegerToBitsFactoryImpl;
-import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
-import dk.alexandra.fresco.lib.helper.builder.NumericIOBuilder;
-import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
-import dk.alexandra.fresco.lib.math.integer.binary.BitLengthFactory;
-import dk.alexandra.fresco.lib.math.integer.binary.BitLengthFactoryImpl;
-import dk.alexandra.fresco.lib.math.integer.binary.RightShiftFactory;
-import dk.alexandra.fresco.lib.math.integer.binary.RightShiftFactoryImpl;
-import dk.alexandra.fresco.lib.math.integer.inv.LocalInversionFactory;
-import dk.alexandra.fresco.lib.math.integer.linalg.EntrywiseProductFactoryImpl;
-import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductFactoryImpl;
 import java.math.BigInteger;
+import java.util.ArrayList;
 import org.junit.Assert;
 
 
@@ -70,48 +60,26 @@ public class LogTests {
 			
 			return new TestThread() {
 				private final BigInteger[] x = { BigInteger.valueOf(201235), BigInteger.valueOf(1234), BigInteger.valueOf(405068), BigInteger.valueOf(123456), BigInteger.valueOf(110) };
+				private final ArrayList<Computation<OInt>> results = new ArrayList<>(x.length);
 
 				@Override
 				public void test() throws Exception {
 					TestApplication app = new TestApplication() {
 
 						@Override
-						public ProtocolProducer prepareApplication(
-                BuilderFactory factoryProducer) {
-              ProtocolFactory producer = factoryProducer.getProtocolFactory();
+						public ProtocolProducer prepareApplication(BuilderFactory factoryProducer) {
+							return ProtocolBuilder
+									.createApplicationRoot((BuilderFactoryNumeric) factoryProducer, (builder) -> {
+										InputBuilder sIntFactory = builder.createInputBuilder();
 
-              BasicNumericFactory basicNumericFactory = (BasicNumericFactory) producer;
-							RandomAdditiveMaskFactory randomAdditiveMaskFactory = new RandomAdditiveMaskFactoryImpl(
-									basicNumericFactory,
-									new InnerProductFactoryImpl(basicNumericFactory,
-											new EntrywiseProductFactoryImpl(basicNumericFactory)));
-							LocalInversionFactory localInversionFactory = (LocalInversionFactory) producer;
-              RightShiftFactory rightShiftFactory = new RightShiftFactoryImpl(basicNumericFactory,
-                  randomAdditiveMaskFactory, localInversionFactory);
-              IntegerToBitsFactory integerToBitsFactory = new IntegerToBitsFactoryImpl(basicNumericFactory, rightShiftFactory);
-							BitLengthFactory bitLengthFactory = new BitLengthFactoryImpl(basicNumericFactory, integerToBitsFactory);
-							LogarithmFactory logarithmFactory = new LogarithmFactoryImpl(basicNumericFactory, rightShiftFactory, bitLengthFactory);
-							
-							NumericIOBuilder ioBuilder = new NumericIOBuilder(basicNumericFactory);
-							SequentialProtocolProducer sequentialProtocolProducer = new SequentialProtocolProducer();
-							
-							SInt[] inputs = ioBuilder.inputArray(x, 1);
-							sequentialProtocolProducer.append(ioBuilder.getProtocol());
-							SInt[] logs = new SInt[x.length];
-							
-							for (int i = 0; i < inputs.length; i++) {
-								logs[i] = basicNumericFactory.getSInt();
-								LogarithmProtocol logarithmProtocol = logarithmFactory.getLogarithmProtocol(inputs[i], x[i].bitLength(), logs[i]);
-								sequentialProtocolProducer.append(logarithmProtocol);
-							}
-							
-							OInt[] outputs = ioBuilder.outputArray(logs);
-							
-							sequentialProtocolProducer.append(ioBuilder.getProtocol());
-
-							this.outputs = outputs;
-
-							return sequentialProtocolProducer;
+										for (BigInteger input : x) {
+											Computation<SInt> actualInput = sIntFactory.known(input);
+											Computation<SInt> result = builder.createAdvancedNumericBuilder()
+													.log(actualInput, input.bitLength());
+											Computation<OInt> openResult = builder.createOpenBuilder().open(result);
+											results.add(openResult);
+										}
+									}).build();
 						}
 					};
 					secureComputationEngine
@@ -119,7 +87,7 @@ public class LogTests {
                   conf.sceConf.getSuite()));
 
           for (int i = 0; i < x.length; i++) {
-						int actual = app.getOutputs()[i].getValue().intValue();
+						int actual = results.get(i).out().getValue().intValue();
 						int expected = (int) Math.log(x[i].doubleValue());
 						int difference = Math.abs(actual - expected);						
 						Assert.assertTrue(difference <= 1); // Difference should be less than a bit
