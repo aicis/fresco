@@ -45,7 +45,7 @@ import java.util.function.Function;
  *
  * @author Jonas Lindstrøm (jonas.lindstrom@alexandra.dk)
  */
-public class LogarithmProtocolImpl4
+public class LogarithmProtocol
     implements Function<SequentialProtocolBuilder, Computation<SInt>> {
 
   // Input
@@ -53,7 +53,7 @@ public class LogarithmProtocolImpl4
   private int maxInputLength;
 
 
-  public LogarithmProtocolImpl4(Computation<SInt> input, int maxInputLength) {
+  public LogarithmProtocol(Computation<SInt> input, int maxInputLength) {
     this.input = input;
     this.maxInputLength = maxInputLength;
   }

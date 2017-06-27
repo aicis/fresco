@@ -41,14 +41,14 @@ import java.util.function.Function;
  *
  * @author Jonas Lindstrøm (jonas.lindstrom@alexandra.dk)
  */
-public class SquareRootProtocolImpl4
+public class SquareRootProtocol
     implements Function<SequentialProtocolBuilder, Computation<SInt>> {
 
   // Input
   private final Computation<SInt> input;
   private final int maxInputLength;
 
-  public SquareRootProtocolImpl4(Computation<SInt> input, int maxInputLength) {
+  public SquareRootProtocol(Computation<SInt> input, int maxInputLength) {
     this.input = input;
     this.maxInputLength = maxInputLength;
   }
