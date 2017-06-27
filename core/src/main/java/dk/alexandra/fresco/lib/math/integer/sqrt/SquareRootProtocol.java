@@ -68,7 +68,7 @@ public class SquareRootProtocol implements ComputationBuilder<SInt> {
 		 * this to be equal to zero since we divide by it later.
 		 */
     return builder.seq((seq) -> {
-      Computation<SInt> shifted = seq.createRightShiftBuilder()
+      Computation<SInt> shifted = seq.createAdvancedNumericBuilder()
           .rightShift(input, maxInputLength / 2);
       Computation<SInt> addedOne = seq.numeric()
           .add(seq.getOIntFactory().getOInt(BigInteger.ONE), shifted);
@@ -87,7 +87,7 @@ public class SquareRootProtocol implements ComputationBuilder<SInt> {
               input, value
           );
           Computation<SInt> sum = seq.numeric().add(value, quotient);
-          Computation<SInt> updatedValue = seq.createRightShiftBuilder().rightShift(sum);
+          Computation<SInt> updatedValue = seq.createAdvancedNumericBuilder().rightShift(sum);
           return new IterationState(iterationState.iteration + 1, updatedValue);
         }
     ).seq((iterationState, seq) ->

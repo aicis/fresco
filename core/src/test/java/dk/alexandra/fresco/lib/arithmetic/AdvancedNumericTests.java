@@ -71,14 +71,14 @@ public class AdvancedNumericTests {
                     modulus = ((BuilderFactoryNumeric) factoryProducer)
                         .getBasicNumericFactory().getModulus();
 
-                    Computation<SInt> p = builder.createInputBuilder()
+                    Computation<SInt> p = builder.numeric()
                         .known(BigInteger.valueOf(numerator));
-                    Computation<SInt> q = builder.createInputBuilder()
+                    Computation<SInt> q = builder.numeric()
                         .known(BigInteger.valueOf(denominator));
 
                     Computation<SInt> result = builder.createAdvancedNumericBuilder().div(p, q);
 
-                    openResult = builder.createOpenBuilder().open(result);
+                    openResult = builder.numeric().open(result);
                   }).build();
             }
 
@@ -141,13 +141,13 @@ public class AdvancedNumericTests {
                     modulus = ((BuilderFactoryNumeric) factoryProducer)
                         .getBasicNumericFactory().getModulus();
 
-                    Computation<SInt> p = builder.createInputBuilder()
+                    Computation<SInt> p = builder.numeric()
                         .known(BigInteger.valueOf(numerator));
                     OInt q = builder.getOIntFactory().getOInt(BigInteger.valueOf(denominator));
 
                     Computation<SInt> result = builder.createAdvancedNumericBuilder().div(p, q);
 
-                    openResult = builder.createOpenBuilder().open(result);
+                    openResult = builder.numeric().open(result);
                   }).build();
             }
 
@@ -190,14 +190,14 @@ public class AdvancedNumericTests {
             public ProtocolProducer prepareApplication(BuilderFactory factoryProducer) {
               return ProtocolBuilder
                   .createApplicationRoot((BuilderFactoryNumeric) factoryProducer, (builder) -> {
-                    Computation<SInt> p = builder.createInputBuilder()
+                    Computation<SInt> p = builder.numeric()
                         .known(BigInteger.valueOf(numerator));
                     OInt q = builder.getOIntFactory().getOInt(BigInteger.valueOf(denominator));
 
                     Computation<SInt> result = builder.createAdvancedNumericBuilder()
                         .mod(p, q);
 
-                    openResult = builder.createOpenBuilder().open(result);
+                    openResult = builder.numeric().open(result);
                   }).build();
             }
 

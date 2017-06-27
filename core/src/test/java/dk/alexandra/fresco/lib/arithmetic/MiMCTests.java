@@ -34,7 +34,7 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
-import dk.alexandra.fresco.framework.builder.InputBuilder;
+import dk.alexandra.fresco.framework.builder.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
@@ -92,13 +92,13 @@ public class MiMCTests {
                   .createApplicationRoot((BuilderFactoryNumeric) factoryProducer, (builder) -> {
                     setModulus(builder.getBasicNumericFactory().getModulus());
 
-                    InputBuilder intFactory = builder.createInputBuilder();
+                    NumericBuilder intFactory = builder.numeric();
                     Computation<SInt> encryptionKey = intFactory.known(BigInteger.valueOf(527618));
                     Computation<SInt> plainText = intFactory.known(BigInteger.valueOf(10));
                     Computation<SInt> cipherText = builder.createSequentialSub(
                         new MiMCEncryption(plainText, encryptionKey)
                     );
-                    result = builder.createOpenBuilder().open(cipherText);
+                    result = builder.numeric().open(cipherText);
                   }).build();
             }
           };
@@ -135,7 +135,7 @@ public class MiMCTests {
             public ProtocolProducer prepareApplication(BuilderFactory factoryProducer) {
               return ProtocolBuilder
                   .createApplicationRoot((BuilderFactoryNumeric) factoryProducer, (builder) -> {
-                    InputBuilder intFactory = builder.createInputBuilder();
+                    NumericBuilder intFactory = builder.numeric();
                     Computation<SInt> encryptionKey = intFactory.known(BigInteger.valueOf(527618));
                     Computation<SInt> plainText = intFactory.known(BigInteger.valueOf(10));
                     Computation<SInt> cipherText = builder.createSequentialSub(
@@ -144,8 +144,8 @@ public class MiMCTests {
                     Computation<SInt> cipherText2 = builder.createSequentialSub(
                         new MiMCEncryption(plainText, encryptionKey)
                     );
-                    result1 = builder.createOpenBuilder().open(cipherText);
-                    result2 = builder.createOpenBuilder().open(cipherText2);
+                    result1 = builder.numeric().open(cipherText);
+                    result2 = builder.numeric().open(cipherText2);
                   }).build();
             }
           };
@@ -177,7 +177,7 @@ public class MiMCTests {
             public ProtocolProducer prepareApplication(BuilderFactory factoryProducer) {
               return ProtocolBuilder
                   .createApplicationRoot((BuilderFactoryNumeric) factoryProducer, (builder) -> {
-                    InputBuilder intFactory = builder.createInputBuilder();
+                    NumericBuilder intFactory = builder.numeric();
                     Computation<SInt> encryptionKey = intFactory.known(BigInteger.valueOf(527618));
                     Computation<SInt> plainTextA = intFactory.known(BigInteger.valueOf(10));
                     Computation<SInt> plainTextB = intFactory.known(BigInteger.valueOf(11));
@@ -187,8 +187,8 @@ public class MiMCTests {
                     Computation<SInt> cipherTextB = builder.createSequentialSub(
                         new MiMCEncryption(plainTextB, encryptionKey)
                     );
-                    resultA = builder.createOpenBuilder().open(cipherTextA);
-                    resultB = builder.createOpenBuilder().open(cipherTextB);
+                    resultA = builder.numeric().open(cipherTextA);
+                    resultB = builder.numeric().open(cipherTextB);
                   }).build();
             }
           };
@@ -222,7 +222,7 @@ public class MiMCTests {
                 BuilderFactory factoryProducer) {
               return ProtocolBuilder
                   .createApplicationRoot((BuilderFactoryNumeric) factoryProducer, (builder) -> {
-                    InputBuilder intFactory = builder.createInputBuilder();
+                    NumericBuilder intFactory = builder.numeric();
                     Computation<SInt> encryptionKey = intFactory.known(BigInteger.valueOf(10));
                     Computation<SInt> plainText = intFactory.known(x_big);
                     Computation<SInt> cipherText = builder.createSequentialSub(
@@ -231,7 +231,7 @@ public class MiMCTests {
                     Computation<SInt> decrypted = builder.createSequentialSub(
                         new MiMCDecryption(cipherText, encryptionKey)
                     );
-                    result = builder.createOpenBuilder().open(decrypted);
+                    result = builder.numeric().open(decrypted);
                   }).build();
             }
           };

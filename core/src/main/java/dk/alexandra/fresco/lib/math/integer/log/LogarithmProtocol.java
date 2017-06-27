@@ -45,7 +45,7 @@ import java.math.BigInteger;
  *
  * @author Jonas Lindstrøm (jonas.lindstrom@alexandra.dk)
  */
-public class LogarithmProtocol     implements ComputationBuilder<SInt> {
+public class LogarithmProtocol implements ComputationBuilder<SInt> {
 
   // Input
   private Computation<SInt> input;
@@ -72,15 +72,15 @@ public class LogarithmProtocol     implements ComputationBuilder<SInt> {
 		 * floor of the the logartihm with base 2 of the input.
 		 */
     Computation<SInt> bitLength =
-        builder.createBitLengthBuilder().bitLength(input, maxInputLength);
+        builder.createAdvancedNumericBuilder().bitLength(input, maxInputLength);
     Computation<SInt> log2 =
         builder.numeric().sub(bitLength, intFactory.getOInt(BigInteger.ONE));
 
 		/*
-		 * ln(x) = log_2(x) * ln(2), and we use 45426 >> 16 as an approximation of ln(2).
+     * ln(x) = log_2(x) * ln(2), and we use 45426 >> 16 as an approximation of ln(2).
 		 */
     Computation<SInt> scaledLog = builder.numeric().mult(ln2, log2);
-    return builder.createRightShiftBuilder()
+    return builder.createAdvancedNumericBuilder()
         .rightShift(scaledLog, shifts);
   }
 }

@@ -32,7 +32,7 @@ import dk.alexandra.fresco.framework.builder.ProtocolBuilder.SequentialProtocolB
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
 
-class BitLengthProtocol4 implements ComputationBuilder<SInt> {
+public class BitLengthProtocol4 implements ComputationBuilder<SInt> {
 
   private Computation<SInt> input;
   private int maxBitLength;
@@ -45,7 +45,7 @@ class BitLengthProtocol4 implements ComputationBuilder<SInt> {
    * @param input An integer.
    * @param maxBitLength An upper bound for the bit length.
    */
-  BitLengthProtocol4(Computation<SInt> input, int maxBitLength) {
+  public BitLengthProtocol4(Computation<SInt> input, int maxBitLength) {
     this.input = input;
     this.maxBitLength = maxBitLength;
 
@@ -57,13 +57,13 @@ class BitLengthProtocol4 implements ComputationBuilder<SInt> {
     /*
      * Find the bit representation of the input.
 		 */
-      return seq.createRightShiftBuilder()
+      return seq.createAdvancedNumericBuilder()
           .rightShiftWithRemainder(input, maxBitLength);
     }).seq((rightShiftResult, seq) -> {
-      Computation<SInt> mostSignificantBitIndex = seq.createInputBuilder()
+      Computation<SInt> mostSignificantBitIndex = seq.numeric()
           .known(BigInteger.valueOf(0));
       for (int n = 0; n < maxBitLength; n++) {
-        Computation<SInt> currentIndex = seq.createInputBuilder().known(BigInteger.valueOf(n));
+        Computation<SInt> currentIndex = seq.numeric().known(BigInteger.valueOf(n));
       /*
        * If bits[n] == 1 we let mostSignificantIndex be current index.
 			 * Otherwise we leave it be.

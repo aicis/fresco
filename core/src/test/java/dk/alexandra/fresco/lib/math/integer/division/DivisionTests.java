@@ -35,8 +35,7 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
-import dk.alexandra.fresco.framework.builder.InputBuilder;
-import dk.alexandra.fresco.framework.builder.OpenBuilder;
+import dk.alexandra.fresco.framework.builder.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder.SequentialProtocolBuilder;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
@@ -102,9 +101,9 @@ public class DivisionTests {
 
                         Computation<SInt> remainder = seq.createSequentialSub(
                             new KnownDivisorRemainderProtocol4(input1, input2));
-                        OpenBuilder openBuilder = seq.createOpenBuilder();
-                        Computation<OInt> output1 = openBuilder.open(division);
-                        Computation<OInt> output2 = openBuilder.open(remainder);
+                        NumericBuilder NumericBuilder = seq.numeric();
+                        Computation<OInt> output1 = NumericBuilder.open(division);
+                        Computation<OInt> output2 = NumericBuilder.open(remainder);
                         cOutputs.add(output1);
                         cOutputs.add(output2);
                       });
@@ -150,13 +149,13 @@ public class DivisionTests {
                 BuilderFactory factoryProducer) {
               return ProtocolBuilder
                   .createApplicationRoot((BuilderFactoryNumeric) factoryProducer, (builder) -> {
-                    InputBuilder input = builder.createInputBuilder();
+                    NumericBuilder input = builder.numeric();
                     Computation<SInt> divisor = input.known(d);
                     for (BigInteger value : x) {
                       Computation<SInt> dividend = input.known(value);
                       Computation<SInt> division = builder.createAdvancedNumericBuilder()
                           .div(dividend, divisor);
-                      results.add(builder.createOpenBuilder().open(division));
+                      results.add(builder.numeric().open(division));
                     }
                   }).build();
             }

@@ -52,7 +52,7 @@ public class ExponentiationProtocol4    implements ComputationBuilder<SInt> {
         seq.createAdvancedNumericBuilder().toBits(exponent, maxExponentBitLength)
     ).seq((bits, seq) -> {
       Computation<SInt> e = input;
-      Computation<SInt> result = seq.createInputBuilder().known(BigInteger.valueOf(1));
+      Computation<SInt> result = seq.numeric().known(BigInteger.valueOf(1));
       NumericBuilder numeric = seq.numeric();
       for (SInt bit : bits) {
         /*

@@ -3,6 +3,7 @@ package dk.alexandra.fresco.framework.builder;
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
+import java.math.BigInteger;
 
 public interface NumericBuilder {
 
@@ -25,7 +26,20 @@ public interface NumericBuilder {
    * Returns a protocol which creates a secret shared random bit. (This should be computed
    * beforehand)
    */
-  Computation<SInt> createRandomSecretSharedBitProtocol();
+  Computation<SInt> randomBit();
 
   Computation<OInt> invert(OInt oInt);
+
+  Computation<SInt> known(BigInteger value);
+
+  Computation<SInt> input(BigInteger value, int inputParty);
+
+  Computation<OInt> open(Computation<SInt> secretShare);
+
+  Computation<SInt[]> getExponentiationPipe();
+
+  /**
+   * Returns a clearText representation of value^1, value^2, ..., value^maxExp
+   */
+  Computation<OInt[]> getExpFromOInt(OInt value, int maxExp);
 }

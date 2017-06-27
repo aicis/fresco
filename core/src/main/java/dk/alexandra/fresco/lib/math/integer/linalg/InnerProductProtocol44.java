@@ -15,7 +15,7 @@ public class InnerProductProtocol44 implements ComputationBuilder<SInt> {
   private final List<Computation<SInt>> aVector;
   private final List<Computation<SInt>> bVector;
 
-  InnerProductProtocol44(
+  public InnerProductProtocol44(
       List<Computation<SInt>> aVector,
       List<Computation<SInt>> bVector) {
     this.aVector = getRandomAccessList(aVector);

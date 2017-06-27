@@ -156,7 +156,7 @@ public class CreditRater implements Application<SInt> {
           // Add "x > last interval definition" to comparisons
 
             NumericBuilder numericBuilder = builder.numeric();
-            Computation<SInt> one = builder.createInputBuilder().known(BigInteger.valueOf(1));
+        Computation<SInt> one = builder.numeric().known(BigInteger.valueOf(1));
             Computation<SInt> lastComparison = comparisons.get(comparisons.size() - 1);
             comparisons.add(numericBuilder.sub(one, lastComparison));
             return () -> comparisons;

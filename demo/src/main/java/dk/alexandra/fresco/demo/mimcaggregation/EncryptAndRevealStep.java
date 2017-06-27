@@ -38,8 +38,7 @@ public class EncryptAndRevealStep implements Application {
   public ProtocolProducer prepareApplication(BuilderFactory producer) {
     return ProtocolBuilder.createApplicationRoot((BuilderFactoryNumeric) producer, (builder) -> {
       BasicNumericFactory numericFactory = builder.getBasicNumericFactory();
-      builder.seq((seq) ->
-          builder.createInputBuilder().known(BigInteger.ZERO)
+      builder.seq((seq) -> builder.numeric().known(BigInteger.ZERO)
       ).seq((key, seq) -> {
         // Generate random value to use as encryption key
         //TODO It should be possible to get a random element in new API
@@ -55,7 +54,7 @@ public class EncryptAndRevealStep implements Application {
             Computation<SInt> cipherText = seq.createSequentialSub(
                 new MiMCEncryption(toEncrypt, key)
             );
-            return seq.createOpenBuilder().open(cipherText);
+            return seq.numeric().open(cipherText);
           }));
 
         }

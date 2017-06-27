@@ -53,7 +53,7 @@ public class ExponentiationProtocolOpenBase    implements ComputationBuilder<SIn
         seq.createAdvancedNumericBuilder().toBits(exponent, maxExponentBitLength)
     ).seq((bits, seq) -> {
       OInt e = base;
-      Computation<SInt> result = builder.createInputBuilder().known(BigInteger.valueOf(1));
+      Computation<SInt> result = builder.numeric().known(BigInteger.valueOf(1));
       NumericBuilder numeric = seq.numeric();
       for (SInt bit : bits) {
         /*

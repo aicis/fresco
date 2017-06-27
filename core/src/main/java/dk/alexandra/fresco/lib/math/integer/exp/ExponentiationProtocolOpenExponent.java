@@ -47,10 +47,10 @@ public class ExponentiationProtocolOpenExponent    implements ComputationBuilder
   @Override
   public Computation<SInt> build(SequentialProtocolBuilder builder) {
     if (exponent.equals(BigInteger.ZERO)) {
-      return builder.createInputBuilder().known(BigInteger.valueOf(1));
+      return builder.numeric().known(BigInteger.valueOf(1));
     }
     return builder.seq((seq) -> {
-      Computation<SInt> accOdd = seq.createInputBuilder().known(BigInteger.valueOf(1));
+      Computation<SInt> accOdd = seq.numeric().known(BigInteger.valueOf(1));
       Computation<SInt> accEven = base;
       return new IterationState(exponent.getValue(), accEven, accOdd);
     }).whileLoop(
