@@ -28,10 +28,10 @@ package dk.alexandra.fresco.lib.math.integer.sqrt;
 
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.builder.AdvancedNumericBuilder;
+import dk.alexandra.fresco.framework.builder.FrescoFunction;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder.SequentialProtocolBuilder;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
-import java.util.function.Function;
 
 /**
  * This class implements a protocol for approximating the square root of a
@@ -41,8 +41,7 @@ import java.util.function.Function;
  *
  * @author Jonas Lindstrøm (jonas.lindstrom@alexandra.dk)
  */
-public class SquareRootProtocol
-    implements Function<SequentialProtocolBuilder, Computation<SInt>> {
+public class SquareRootProtocol implements FrescoFunction<SInt> {
 
   // Input
   private final Computation<SInt> input;

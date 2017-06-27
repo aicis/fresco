@@ -11,17 +11,22 @@ import java.util.List;
 /**
  * Protocol producer for summing a list of SInts
  */
-public class SumSIntList implements FrescoFunction<List<Computation<SInt>>, SInt> {
+public class SumSIntList implements FrescoFunction<SInt> {
+
+  private final List<Computation<SInt>> input;
 
   /**
    * Creates a new SumSIntList.
+   *
+   * @param list the list to sum
    */
-  public SumSIntList() {
+  public SumSIntList(
+      List<Computation<SInt>> list) {
+    input = list;
   }
 
   @Override
   public Computation<SInt> apply(
-      List<Computation<SInt>> input,
       SequentialProtocolBuilder iterationBuilder) {
     return iterationBuilder.seq(seq ->
         () -> input

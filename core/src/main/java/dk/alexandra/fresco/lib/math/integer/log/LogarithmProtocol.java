@@ -27,12 +27,12 @@
 package dk.alexandra.fresco.lib.math.integer.log;
 
 import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.builder.FrescoFunction;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder.SequentialProtocolBuilder;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.OIntFactory;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
-import java.util.function.Function;
 
 /**
  * This class implements a protocol for finding the natural logarithm of a
@@ -45,8 +45,7 @@ import java.util.function.Function;
  *
  * @author Jonas Lindstrøm (jonas.lindstrom@alexandra.dk)
  */
-public class LogarithmProtocol
-    implements Function<SequentialProtocolBuilder, Computation<SInt>> {
+public class LogarithmProtocol     implements FrescoFunction<SInt> {
 
   // Input
   private Computation<SInt> input;

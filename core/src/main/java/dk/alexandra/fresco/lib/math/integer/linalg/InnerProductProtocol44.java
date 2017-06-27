@@ -1,16 +1,15 @@
 package dk.alexandra.fresco.lib.math.integer.linalg;
 
 import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.builder.FrescoFunction;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder.SequentialProtocolBuilder;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.math.integer.SumSIntList;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Function;
 
-public class InnerProductProtocol44 implements
-    Function<SequentialProtocolBuilder, Computation<SInt>> {
+public class InnerProductProtocol44 implements    FrescoFunction<SInt> {
 
   private final List<Computation<SInt>> aVector;
   private final List<Computation<SInt>> bVector;
@@ -35,6 +34,8 @@ public class InnerProductProtocol44 implements
           }
           return () -> products;
         })
-        .seq(new SumSIntList());
+        .seq((list, seq) ->
+            new SumSIntList(list).apply(seq)
+        );
   }
 }

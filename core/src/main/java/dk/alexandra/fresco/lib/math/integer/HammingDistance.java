@@ -3,7 +3,6 @@ package dk.alexandra.fresco.lib.math.integer;
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.builder.FrescoFunction;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder.SequentialProtocolBuilder;
-import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
@@ -15,15 +14,22 @@ import java.util.List;
  *
  * @author ttoft
  */
-public class HammingDistance implements FrescoFunction<Pair<List<Computation<SInt>>, OInt>, SInt> {
+public class HammingDistance implements FrescoFunction<SInt> {
+
+  private final List<Computation<SInt>> aBits;
+  private final OInt b;
+
+  public HammingDistance(
+      List<Computation<SInt>> aBits, OInt b) {
+    this.aBits = aBits;
+    this.b = b;
+  }
 
   @Override
-  public Computation<SInt> apply(Pair<List<Computation<SInt>>, OInt> inputPair,
-      SequentialProtocolBuilder builder) {
+  public Computation<SInt> apply(SequentialProtocolBuilder builder) {
     OInt one = builder.getOIntFactory().getOInt(BigInteger.ONE);
-    List<Computation<SInt>> aBits = inputPair.getFirst();
     int length = aBits.size();
-    BigInteger m = inputPair.getSecond().getValue();
+    BigInteger m = b.getValue();
     if (length == 1) {
       if (m.testBit(0)) {
         return builder.numeric().sub(one, aBits.get(0));
@@ -42,7 +48,9 @@ public class HammingDistance implements FrescoFunction<Pair<List<Computation<SIn
           }
         }
         return () -> xor;
-      }).seq(new SumSIntList());
+      }).seq((list, seq) ->
+          new SumSIntList(list).apply(seq)
+      );
     }
   }
 }

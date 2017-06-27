@@ -27,17 +27,16 @@
 package dk.alexandra.fresco.lib.compare.eq;
 
 import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.builder.FrescoFunction;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder.SequentialProtocolBuilder;
 import dk.alexandra.fresco.framework.value.SInt;
-import java.util.function.Function;
 
 /**
  * Implements an equality protocol -- given inputs x, y set output to x==y
  *
  * @author ttoft
  */
-public class EqualityProtocol4
-    implements Function<SequentialProtocolBuilder, Computation<SInt>> {
+public class EqualityProtocol4    implements FrescoFunction<SInt> {
 
   // params
   private final int bitLength;

@@ -88,7 +88,7 @@ public abstract class ProtocolBuilder {
    * @param function creation of the protocol producer - will be lazy evaluated
    */
   public <R> Computation<R> createSequentialSub(
-      Function<SequentialProtocolBuilder, Computation<R>> function) {
+      FrescoFunction<R> function) {
     DelayedComputation<R> result = new DelayedComputation<>();
     addConsumer((builder) -> result.setComputation(function.apply(builder)),
         () -> new SequentialProtocolBuilder(factory));
@@ -269,7 +269,7 @@ public abstract class ProtocolBuilder {
 
 
     public <R> BuildStep<SequentialProtocolBuilder, R, Void> seq(
-        Function<SequentialProtocolBuilder, Computation<R>> function) {
+        FrescoFunction<R> function) {
       BuildStep<SequentialProtocolBuilder, R, Void> builder =
           new BuildStepSequential<>((ignored, inner) -> function.apply(inner));
       ProtocolEntity protocolEntity = createAndAppend();

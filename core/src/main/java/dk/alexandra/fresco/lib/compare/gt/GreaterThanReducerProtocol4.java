@@ -28,6 +28,7 @@ package dk.alexandra.fresco.lib.compare.gt;
 
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
+import dk.alexandra.fresco.framework.builder.FrescoFunction;
 import dk.alexandra.fresco.framework.builder.InnerProductBuilder;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder.SequentialProtocolBuilder;
@@ -39,10 +40,8 @@ import dk.alexandra.fresco.lib.compare.ConditionalSelect;
 import dk.alexandra.fresco.lib.compare.MiscOIntGenerators;
 import java.math.BigInteger;
 import java.util.List;
-import java.util.function.Function;
 
-public class GreaterThanReducerProtocol4
-    implements Function<SequentialProtocolBuilder, Computation<SInt>> {
+public class GreaterThanReducerProtocol4    implements FrescoFunction<SInt> {
 
   private GreaterThanReducerProtocol4(int bitLength, int securityParameter,
       Computation<SInt> x, Computation<SInt> y,

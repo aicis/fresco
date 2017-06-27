@@ -2,13 +2,13 @@ package dk.alexandra.fresco.lib.math.integer.division;
 
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
+import dk.alexandra.fresco.framework.builder.FrescoFunction;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder.SequentialProtocolBuilder;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import java.math.BigInteger;
-import java.util.function.Function;
 
 
 /**
@@ -21,8 +21,7 @@ import java.util.function.Function;
  *
  * @author Jonas Lindstrøm (jonas.lindstrom@alexandra.dk)
  */
-public class KnownDivisorProtocol4 implements
-    Function<SequentialProtocolBuilder, Computation<SInt>> {
+public class KnownDivisorProtocol4 implements    FrescoFunction<SInt> {
 
   private final BuilderFactoryNumeric builderFactory;
   private final Computation<SInt> dividend;

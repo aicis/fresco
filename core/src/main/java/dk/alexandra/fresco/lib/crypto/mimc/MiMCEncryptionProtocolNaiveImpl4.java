@@ -27,16 +27,15 @@
 package dk.alexandra.fresco.lib.crypto.mimc;
 
 import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.builder.FrescoFunction;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder.SequentialProtocolBuilder;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import java.math.BigInteger;
-import java.util.function.Function;
 
-public class MiMCEncryptionProtocolNaiveImpl4
-    implements Function<SequentialProtocolBuilder, Computation<SInt>> {
+public class MiMCEncryptionProtocolNaiveImpl4    implements FrescoFunction<SInt> {
 
   // TODO: require that our modulus - 1 and 3 are co-prime
 

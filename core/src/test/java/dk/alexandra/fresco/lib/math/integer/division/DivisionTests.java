@@ -48,7 +48,6 @@ import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Function;
 import org.junit.Assert;
 
 
@@ -97,13 +96,12 @@ public class DivisionTests {
               SequentialProtocolBuilder applicationRoot = ProtocolBuilder
                   .createApplicationRoot((BuilderFactoryNumeric) factoryProducer,
                       (seq) -> {
-                        Function<SequentialProtocolBuilder, Computation<SInt>> divisorProtocol4 = new KnownDivisorProtocol4(
-                            (BuilderFactoryNumeric) factoryProducer, input1, input2);
-                        Computation<SInt> division = seq.createSequentialSub(divisorProtocol4);
+                        Computation<SInt> division = seq.createSequentialSub(
+                            new KnownDivisorProtocol4(
+                                (BuilderFactoryNumeric) factoryProducer, input1, input2));
 
-                        Function<SequentialProtocolBuilder, Computation<SInt>> remainderProtocol4 =
-                            new KnownDivisorRemainderProtocol4(input1, input2);
-                        Computation<SInt> remainder = seq.createSequentialSub(remainderProtocol4);
+                        Computation<SInt> remainder = seq.createSequentialSub(
+                            new KnownDivisorRemainderProtocol4(input1, input2));
                         OpenBuilder openBuilder = seq.createOpenBuilder();
                         Computation<OInt> output1 = openBuilder.open(division);
                         Computation<OInt> output2 = openBuilder.open(remainder);

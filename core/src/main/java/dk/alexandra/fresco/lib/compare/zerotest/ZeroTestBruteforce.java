@@ -15,19 +15,21 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class ZeroTestBruteforce implements FrescoFunction<SInt, SInt> {
+public class ZeroTestBruteforce implements FrescoFunction<SInt> {
 
   private final BuilderFactoryNumeric factoryNumeric;
   private final int maxLength;
+  private final Computation<SInt> input;
 
-  public ZeroTestBruteforce(BuilderFactoryNumeric factoryNumeric, int maxLength) {
+  public ZeroTestBruteforce(BuilderFactoryNumeric factoryNumeric, int maxLength,
+      Computation<SInt> input) {
     this.factoryNumeric = factoryNumeric;
     this.maxLength = maxLength;
+    this.input = input;
   }
 
   @Override
-  public Computation<SInt> apply(SInt input,
-      SequentialProtocolBuilder builder) {
+  public Computation<SInt> apply(SequentialProtocolBuilder builder) {
     OInt one = builder.getOIntFactory().getOInt(BigInteger.ONE);
     return builder.seq((seq) -> {
       //Load rand

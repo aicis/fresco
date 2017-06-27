@@ -27,15 +27,14 @@
 package dk.alexandra.fresco.lib.math.integer.exp;
 
 import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.builder.FrescoFunction;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder.SequentialProtocolBuilder;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
-import java.util.function.Function;
 
-public class ExponentiationProtocolOpenBase
-    implements Function<SequentialProtocolBuilder, Computation<SInt>> {
+public class ExponentiationProtocolOpenBase    implements FrescoFunction<SInt> {
 
   private final OInt base;
   private final Computation<SInt> exponent;

@@ -27,13 +27,12 @@
 package dk.alexandra.fresco.lib.compare;
 
 import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.builder.FrescoFunction;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder.SequentialProtocolBuilder;
 import dk.alexandra.fresco.framework.value.SInt;
-import java.util.function.Function;
 
-public class ConditionalSelect
-    implements Function<SequentialProtocolBuilder, Computation<SInt>> {
+public class ConditionalSelect    implements FrescoFunction<SInt> {
 
   private final Computation<SInt> a, b, selector;
 

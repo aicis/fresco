@@ -28,17 +28,16 @@ package dk.alexandra.fresco.lib.compare.zerotest;
 
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
+import dk.alexandra.fresco.framework.builder.FrescoFunction;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder.SequentialProtocolBuilder;
 import dk.alexandra.fresco.framework.value.SInt;
-import java.util.function.Function;
 
 /**
  * testing for equality with zero for a bitLength-bit number (positive or negative)
  *
  * @author ttoft
  */
-public class ZeroTestProtocol4
-    implements Function<SequentialProtocolBuilder, Computation<SInt>> {
+public class ZeroTestProtocol4    implements FrescoFunction<SInt> {
 
   private final BuilderFactoryNumeric factoryNumeric;
   private final int bitLength;
@@ -54,12 +53,9 @@ public class ZeroTestProtocol4
 
   @Override
   public Computation<SInt> apply(SequentialProtocolBuilder builder) {
-    return builder.seq((seq) ->
-        input
-    ).seq(
-        new ZeroTestReducer(bitLength)
-    ).seq(
-        new ZeroTestBruteforce(factoryNumeric, bitLength)
-    );
+    Computation<SInt> reduced = builder.createSequentialSub(
+        new ZeroTestReducer(bitLength, input));
+    return builder.createSequentialSub(
+        new ZeroTestBruteforce(factoryNumeric, bitLength, reduced));
   }
 }

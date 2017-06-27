@@ -27,6 +27,7 @@
 package dk.alexandra.fresco.lib.math.integer.stat;
 
 import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.builder.FrescoFunction;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder.SequentialProtocolBuilder;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.util.ArrayList;
@@ -35,7 +36,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Objects;
-import java.util.function.Function;
 
 /**
  * Calculates the Covariance matrix for the supplied data.
@@ -43,7 +43,7 @@ import java.util.function.Function;
  * The symmetric entry will be a copy of the one from the lower triangle, M[i][j] := M[j][i].
  */
 public class CovarianceMatrixProtocol4
-    implements Function<SequentialProtocolBuilder, Computation<List<List<Computation<SInt>>>>> {
+    implements FrescoFunction<List<List<Computation<SInt>>>> {
 
   private final List<List<Computation<SInt>>> data;
   private final List<Computation<SInt>> mean;

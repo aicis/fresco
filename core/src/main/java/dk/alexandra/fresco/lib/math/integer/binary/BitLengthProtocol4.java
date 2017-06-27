@@ -27,12 +27,12 @@
 package dk.alexandra.fresco.lib.math.integer.binary;
 
 import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.builder.FrescoFunction;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder.SequentialProtocolBuilder;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
-import java.util.function.Function;
 
-class BitLengthProtocol4 implements Function<SequentialProtocolBuilder, Computation<SInt>> {
+class BitLengthProtocol4 implements FrescoFunction<SInt> {
 
   private Computation<SInt> input;
   private int maxBitLength;
