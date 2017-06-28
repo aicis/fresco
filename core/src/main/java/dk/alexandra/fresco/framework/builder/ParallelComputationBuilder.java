@@ -1,7 +1,7 @@
 package dk.alexandra.fresco.framework.builder;
 
 import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilder.ParallelProtocolBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.ParallelProtocolBuilder;
 
 public interface ParallelComputationBuilder<OutputT> {
 

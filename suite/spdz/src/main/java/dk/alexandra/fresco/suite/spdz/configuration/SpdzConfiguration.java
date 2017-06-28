@@ -26,11 +26,13 @@
  *******************************************************************************/
 package dk.alexandra.fresco.suite.spdz.configuration;
 
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.configuration.PreprocessingStrategy;
 import dk.alexandra.fresco.framework.sce.configuration.ProtocolSuiteConfiguration;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
 
-public interface SpdzConfiguration extends ProtocolSuiteConfiguration<SpdzResourcePool> {
+public interface SpdzConfiguration extends
+    ProtocolSuiteConfiguration<SpdzResourcePool, ProtocolBuilderNumeric> {
 
   /**
    * Gets an approximation of the maximum bit length of any number appearing

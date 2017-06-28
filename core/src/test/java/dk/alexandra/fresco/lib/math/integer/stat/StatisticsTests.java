@@ -35,7 +35,7 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
@@ -80,7 +80,7 @@ public class StatisticsTests {
             @Override
             public ProtocolProducer prepareApplication(
                 BuilderFactory factory) {
-              return ProtocolBuilder
+              return ProtocolBuilderNumeric
                   .createApplicationRoot((BuilderFactoryNumeric) factory, (builder) -> {
                     NumericBuilder NumericBuilder = builder.numeric();
                     List<Computation<SInt>> input1 = data1.stream()

@@ -35,7 +35,7 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
@@ -63,7 +63,7 @@ public class AdvancedNumericTests {
 
             @Override
             public ProtocolProducer prepareApplication(BuilderFactory factoryProducer) {
-              return ProtocolBuilder
+              return ProtocolBuilderNumeric
                   .createApplicationRoot((BuilderFactoryNumeric) factoryProducer, (builder) -> {
                     modulus = ((BuilderFactoryNumeric) factoryProducer)
                         .getBasicNumericFactory().getModulus();
@@ -122,7 +122,7 @@ public class AdvancedNumericTests {
 
             @Override
             public ProtocolProducer prepareApplication(BuilderFactory factoryProducer) {
-              return ProtocolBuilder
+              return ProtocolBuilderNumeric
                   .createApplicationRoot((BuilderFactoryNumeric) factoryProducer, (builder) -> {
                     modulus = ((BuilderFactoryNumeric) factoryProducer)
                         .getBasicNumericFactory().getModulus();
@@ -162,7 +162,7 @@ public class AdvancedNumericTests {
           TestApplicationBigInteger app = new TestApplicationBigInteger() {
             @Override
             public ProtocolProducer prepareApplication(BuilderFactory factoryProducer) {
-              return ProtocolBuilder
+              return ProtocolBuilderNumeric
                   .createApplicationRoot((BuilderFactoryNumeric) factoryProducer, (builder) -> {
                     Computation<SInt> p = builder.numeric()
                         .known(BigInteger.valueOf(numerator));

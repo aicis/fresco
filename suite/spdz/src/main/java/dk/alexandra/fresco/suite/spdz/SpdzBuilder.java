@@ -4,7 +4,7 @@ import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
@@ -37,7 +37,7 @@ class SpdzBuilder implements BuilderFactoryNumeric {
   }
 
   @Override
-  public NumericBuilder createNumericBuilder(ProtocolBuilder protocolBuilder) {
+  public NumericBuilder createNumericBuilder(ProtocolBuilderNumeric protocolBuilder) {
     return new NumericBuilder() {
       @Override
       public Computation<SInt> add(Computation<SInt> a, Computation<SInt> b) {

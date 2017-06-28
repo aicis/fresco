@@ -27,11 +27,21 @@
 package dk.alexandra.fresco.framework.sce;
 
 import dk.alexandra.fresco.framework.Application;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import java.io.IOException;
 import java.util.concurrent.Future;
 
-public interface SecureComputationEngine<ResourcePoolT extends ResourcePool> {
+/**
+ * Core class of the fresco system, this must be initialized with a concrete ResourcePool
+ * from the corresponding protocol suite and the types version of the ProtocolBuilder - hereafter
+ * the SecureComputationEngine takes the protocol and runs the matching Application with the
+ * corresponding types (i.e. numeric or binary).
+ *
+ * @param <ResourcePoolT> the resource pool
+ * @param <Builder> the typed version of the builder
+ */
+public interface SecureComputationEngine<ResourcePoolT extends ResourcePool, Builder extends ProtocolBuilder> {
 
   /**
    * Executes an application based on the current SCEConfiguration. If the SecureComputationEngine
@@ -40,7 +50,9 @@ public interface SecureComputationEngine<ResourcePoolT extends ResourcePool> {
    *
    * @param application The application to evaluate.
    */
-  <OutputT> OutputT runApplication(Application<OutputT> application, ResourcePoolT resources);
+  <OutputT> OutputT runApplication(
+      Application<OutputT, Builder> application,
+      ResourcePoolT resources);
 
   /**
    * Executes an application based on the current SCEConfiguration. If the SecureComputationEngine
@@ -50,7 +62,7 @@ public interface SecureComputationEngine<ResourcePoolT extends ResourcePool> {
    * @param application The application to evaluate.
    */
   <OutputT> Future<OutputT> startApplication(
-      Application<OutputT> application,
+      Application<OutputT, Builder> application,
       ResourcePoolT resources);
 
 

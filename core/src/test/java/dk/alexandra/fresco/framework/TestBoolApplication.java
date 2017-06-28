@@ -26,18 +26,29 @@
  *******************************************************************************/
 package dk.alexandra.fresco.framework;
 
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderBinary.SequentialProtocolBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderHelper;
 import dk.alexandra.fresco.framework.value.OBool;
 
-public abstract class TestBoolApplication implements Application {
+public abstract class TestBoolApplication implements
+    Application<OBool[], SequentialProtocolBuilder> {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -8103586116011881841L;
-	public OBool[] outputs;
-	
-	public OBool[] getOutputs() {
-		return this.outputs;
-	}
+  public abstract ProtocolProducer prepareApplication(BuilderFactory factoryProducer);
+
+  @Override
+  public Computation<OBool[]> prepareApplication(SequentialProtocolBuilder producer) {
+    producer.append(prepareApplication(ProtocolBuilderHelper.getFactoryBinary(producer)));
+    return () -> this.outputs;
+  }
+
+
+  /**
+   *
+   */
+  public OBool[] outputs;
+
+  public OBool[] getOutputs() {
+    return this.outputs;
+  }
 
 }

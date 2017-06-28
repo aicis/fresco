@@ -35,7 +35,7 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
@@ -70,7 +70,7 @@ public class SqrtTests {
 
             @Override
             public ProtocolProducer prepareApplication(BuilderFactory factoryProducer) {
-              return ProtocolBuilder
+              return ProtocolBuilderNumeric
                   .createApplicationRoot((BuilderFactoryNumeric) factoryProducer, (builder) -> {
                     NumericBuilder sIntFactory = builder.numeric();
 

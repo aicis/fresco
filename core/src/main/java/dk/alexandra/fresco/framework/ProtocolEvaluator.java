@@ -46,7 +46,7 @@ public interface ProtocolEvaluator<ResourcePoolT extends ResourcePool> {
 	 *
 	 * @param pii
 	 */
-	void setProtocolInvocation(ProtocolSuite<ResourcePoolT> pii);
+	void setProtocolInvocation(ProtocolSuite<ResourcePoolT, ?> pii);
 
 	/**
 	 * Sets the maximum batch size. If not called, the default will be 4096.

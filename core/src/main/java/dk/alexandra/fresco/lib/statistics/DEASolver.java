@@ -28,10 +28,12 @@ package dk.alexandra.fresco.lib.statistics;
 
 import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.BuilderFactory;
+import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialProtocolBuilder;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.field.integer.RandomFieldElementFactory;
@@ -57,7 +59,7 @@ import java.util.List;
  * The result/score of the computation must be converted to a double using Gauss
  * reduction to be meaningful. See the DEASolverTests for an example.
  */
-public class DEASolver implements Application<SInt[]> {
+public class DEASolver implements Application<SInt[], SequentialProtocolBuilder> {
 
 
   private List<List<SInt>> targetInputs, targetOutputs;
@@ -134,6 +136,11 @@ public class DEASolver implements Application<SInt[]> {
   }
 
   @Override
+  public Computation<SInt[]> prepareApplication(SequentialProtocolBuilder producer) {
+    // TODO EBO
+    throw new RuntimeException("This needs to be tested!");
+  }
+
   public ProtocolProducer prepareApplication(BuilderFactory builderFactory) {
     ProtocolFactory provider = builderFactory.getProtocolFactory();
     SequentialProtocolProducer seq = new SequentialProtocolProducer();

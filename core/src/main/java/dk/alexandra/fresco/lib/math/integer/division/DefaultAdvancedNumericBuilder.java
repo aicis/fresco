@@ -3,7 +3,7 @@ package dk.alexandra.fresco.lib.math.integer.division;
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.builder.AdvancedNumericBuilder;
 import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.compare.RandomAdditiveMaskProtocol44;
 import dk.alexandra.fresco.lib.conversion.IntegerToBitsByShiftProtocolImpl4;
@@ -25,10 +25,10 @@ public class DefaultAdvancedNumericBuilder implements
     AdvancedNumericBuilder {
 
   private final BuilderFactoryNumeric factoryNumeric;
-  private final ProtocolBuilder builder;
+  private final ProtocolBuilderNumeric builder;
 
   public DefaultAdvancedNumericBuilder(BuilderFactoryNumeric factoryNumeric,
-      ProtocolBuilder builder) {
+      ProtocolBuilderNumeric builder) {
     this.factoryNumeric = factoryNumeric;
     this.builder = builder;
   }

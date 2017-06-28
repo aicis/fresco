@@ -28,10 +28,10 @@ package dk.alexandra.fresco.lib.math.mult;
 
 import static org.junit.Assert.assertTrue;
 
-import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.BuilderFactory;
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.ProtocolProducer;
+import dk.alexandra.fresco.framework.TestBoolApplication;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
@@ -112,7 +112,7 @@ public class BristolMultTests {
 
         @Override
         public void test() throws Exception {
-          Application md5App = new Application() {
+          TestBoolApplication md5App = new TestBoolApplication() {
 
 
             public ProtocolProducer prepareApplication(

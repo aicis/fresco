@@ -34,10 +34,12 @@ import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.field.integer.RandomFieldElementFactory;
 import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
+import dk.alexandra.fresco.lib.helper.builder.NumericProtocolBuilder;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
 import dk.alexandra.fresco.lib.lp.LPFactory;
 import dk.alexandra.fresco.lib.lp.LPFactoryImpl;
@@ -64,7 +66,7 @@ import java.util.List;
  * The result/score of the computation must be converted to a double using Gauss
  * reduction to be meaningful. See the DEASolverTests for an example.
  */
-public class DEASolver4 implements Application<SInt[]> {
+public class DEASolver4 implements Application<SInt[], ProtocolBuilderNumeric> {
 
 
   private List<List<SInt>> targetInputs, targetOutputs;
@@ -141,6 +143,11 @@ public class DEASolver4 implements Application<SInt[]> {
   }
 
   @Override
+  public Computation<SInt[]> prepareApplication(ProtocolBuilderNumeric producer) {
+    //TODO
+    return null;
+  }
+
   public ProtocolProducer prepareApplication(BuilderFactory builderFactory) {
     ProtocolFactory provider = builderFactory.getProtocolFactory();
     SequentialProtocolProducer seq = new SequentialProtocolProducer();
@@ -179,7 +186,7 @@ public class DEASolver4 implements Application<SInt[]> {
       this.basis[i] = new SInt[tableau.getC().getHeight()];
 
       parallelProtocolProducer.append(
-          ProtocolBuilder
+          ProtocolBuilderNumeric
               .createApplicationRoot((BuilderFactoryNumeric) builderFactory, (builder) -> {
                 builder.seq((solverSec) -> {
                   LPSolverProtocol4 lpSolverProtocol4 = new LPSolverProtocol4(

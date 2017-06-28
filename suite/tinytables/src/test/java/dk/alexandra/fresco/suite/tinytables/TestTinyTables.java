@@ -89,7 +89,7 @@ public class TestTinyTables {
 
       ProtocolEvaluator<?> evaluator;
 
-      ProtocolSuiteConfiguration<?> config;
+      ProtocolSuiteConfiguration<?, ?> config;
       if (preprocessing) {
         config = new TinyTablesPreproConfiguration();
 

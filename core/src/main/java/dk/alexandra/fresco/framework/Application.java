@@ -26,7 +26,9 @@
  *******************************************************************************/
 package dk.alexandra.fresco.framework;
 
-public interface Application<OutputT> {
+import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
+
+public interface Application<OutputT, Builder extends ProtocolBuilder> {
 
   /**
    * Take a factory which is assumed to implement all needed interfaces for
@@ -36,7 +38,7 @@ public interface Application<OutputT> {
    * @param producer the factory
    * @return the resulting protocol producer
    */
-  ProtocolProducer prepareApplication(BuilderFactory producer);
+  Computation<OutputT> prepareApplication(Builder producer);
 
   /**
    * Closes the application and allows the output to be produced and allocated resources to be
@@ -44,14 +46,5 @@ public interface Application<OutputT> {
    */
   default void close() {
 
-  }
-
-  /**
-   * Retrieves the actual result, only called if close completed successful
-   *
-   * @return the result
-   */
-  default OutputT getResult() {
-    return null;
   }
 }

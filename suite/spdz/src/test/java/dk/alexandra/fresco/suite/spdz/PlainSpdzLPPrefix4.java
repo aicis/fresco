@@ -28,7 +28,7 @@ package dk.alexandra.fresco.suite.spdz;
 
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilder.ParallelProtocolBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.ParallelProtocolBuilder;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.lp.LPTableau4;
 import dk.alexandra.fresco.lib.lp.Matrix4;

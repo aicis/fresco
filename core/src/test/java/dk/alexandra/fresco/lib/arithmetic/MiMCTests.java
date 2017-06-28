@@ -36,7 +36,7 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SInt;
@@ -60,10 +60,11 @@ public class MiMCTests {
    * modulus is not set correctly this test will fail (rather mysteriously).
    */
   public static class TestMiMCEncryptsDeterministically<ResourcePoolT extends ResourcePool> extends
-      TestThreadFactory<ResourcePoolT> {
+      TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     @Override
-    public TestThread<ResourcePoolT> next(TestThreadConfiguration<ResourcePoolT> conf) {
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next(
+        TestThreadConfiguration<ResourcePoolT, ProtocolBuilderNumeric> conf) {
 
       abstract class MyTestApplication extends TestApplication {
 
@@ -79,7 +80,7 @@ public class MiMCTests {
 
       }
 
-      return new TestThread<ResourcePoolT>() {
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
 
         private Computation<BigInteger> result;
 
@@ -90,7 +91,7 @@ public class MiMCTests {
             @Override
             public ProtocolProducer prepareApplication(
                 BuilderFactory factoryProducer) {
-              return ProtocolBuilder
+              return ProtocolBuilderNumeric
                   .createApplicationRoot((BuilderFactoryNumeric) factoryProducer, (builder) -> {
                     setModulus(builder.getBasicNumericFactory().getModulus());
 
@@ -121,11 +122,12 @@ public class MiMCTests {
   }
 
   public static class TestMiMCEncSameEnc<ResourcePoolT extends ResourcePool> extends
-      TestThreadFactory<ResourcePoolT> {
+      TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     @Override
-    public TestThread<ResourcePoolT> next(TestThreadConfiguration<ResourcePoolT> conf) {
-      return new TestThread<ResourcePoolT>() {
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next(
+        TestThreadConfiguration<ResourcePoolT, ProtocolBuilderNumeric> conf) {
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         private Computation<BigInteger> result2;
         private Computation<BigInteger> result1;
 
@@ -135,7 +137,7 @@ public class MiMCTests {
           TestApplication app = new TestApplication() {
             @Override
             public ProtocolProducer prepareApplication(BuilderFactory factoryProducer) {
-              return ProtocolBuilder
+              return ProtocolBuilderNumeric
                   .createApplicationRoot((BuilderFactoryNumeric) factoryProducer, (builder) -> {
                     NumericBuilder intFactory = builder.numeric();
                     Computation<SInt> encryptionKey = intFactory.known(BigInteger.valueOf(527618));
@@ -163,11 +165,12 @@ public class MiMCTests {
   }
 
   public static class TestMiMCDifferentPlainTexts<ResourcePoolT extends ResourcePool> extends
-      TestThreadFactory<ResourcePoolT> {
+      TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     @Override
-    public TestThread<ResourcePoolT> next(TestThreadConfiguration<ResourcePoolT> conf) {
-      return new TestThread<ResourcePoolT>() {
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next(
+        TestThreadConfiguration<ResourcePoolT, ProtocolBuilderNumeric> conf) {
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         private Computation<BigInteger> resultB;
         private Computation<BigInteger> resultA;
 
@@ -177,7 +180,7 @@ public class MiMCTests {
           TestApplication app = new TestApplication() {
             @Override
             public ProtocolProducer prepareApplication(BuilderFactory factoryProducer) {
-              return ProtocolBuilder
+              return ProtocolBuilderNumeric
                   .createApplicationRoot((BuilderFactoryNumeric) factoryProducer, (builder) -> {
                     NumericBuilder intFactory = builder.numeric();
                     Computation<SInt> encryptionKey = intFactory.known(BigInteger.valueOf(527618));
@@ -206,11 +209,12 @@ public class MiMCTests {
   }
 
   public static class TestMiMCEncDec<ResourcePoolT extends ResourcePool> extends
-      TestThreadFactory<ResourcePoolT> {
+      TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     @Override
-    public TestThread<ResourcePoolT> next(TestThreadConfiguration<ResourcePoolT> conf) {
-      return new TestThread<ResourcePoolT>() {
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next(
+        TestThreadConfiguration<ResourcePoolT, ProtocolBuilderNumeric> conf) {
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
 
         @Override
         public void test() throws Exception {
@@ -221,7 +225,7 @@ public class MiMCTests {
             @Override
             public ProtocolProducer prepareApplication(
                 BuilderFactory factoryProducer) {
-              return ProtocolBuilder
+              return ProtocolBuilderNumeric
                   .createApplicationRoot((BuilderFactoryNumeric) factoryProducer, (builder) -> {
                     NumericBuilder intFactory = builder.numeric();
                     Computation<SInt> encryptionKey = intFactory.known(BigInteger.valueOf(10));
@@ -237,9 +241,10 @@ public class MiMCTests {
             }
           };
 
+          ResourcePoolT resourcePool =
+              SecureComputationEngineImpl.createResourcePool(conf.sceConf, conf.sceConf.getSuite());
           Future<BigInteger> listFuture = secureComputationEngine
-              .startApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf,
-                  conf.sceConf.getSuite()));
+              .startApplication(app, resourcePool);
           BigInteger result = listFuture.get(20, TimeUnit.MINUTES);
           Assert.assertEquals(x_big, result);
         }

@@ -3,6 +3,7 @@ package dk.alexandra.fresco.demo.mimcaggregation;
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.Party;
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.configuration.PreprocessingStrategy;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.NetworkingStrategy;
@@ -102,7 +103,7 @@ public class AggregationDemo {
         rowsWithOpenenedCiphers, 2, keyColumn, aggColumn);
     sce.runApplication(aggStep, SecureComputationEngineImpl.createResourcePool(sceConf,
         protocolSuiteConfig));
-    return aggStep.getResult();
+    return aggStep.getOutput().out();
   }
 
   /**
@@ -215,9 +216,10 @@ public class AggregationDemo {
 
     };
 
-    ProtocolSuiteConfiguration<SpdzResourcePool> protocolSuiteConfig = new SpdzConfiguration() {
+    ProtocolSuiteConfiguration<SpdzResourcePool, ProtocolBuilderNumeric> protocolSuiteConfig = new SpdzConfiguration() {
       @Override
-      public ProtocolSuite<SpdzResourcePool> createProtocolSuite(int myPlayerId) {
+      public ProtocolSuite<SpdzResourcePool, ProtocolBuilderNumeric> createProtocolSuite(
+          int myPlayerId) {
         return new SpdzProtocolSuite(this);
       }
 
@@ -245,7 +247,7 @@ public class AggregationDemo {
     };
 
     // Instantiate environment
-    SecureComputationEngine<SpdzResourcePool> sce = new SecureComputationEngineImpl<>(
+    SecureComputationEngine<SpdzResourcePool, ProtocolBuilderNumeric> sce = new SecureComputationEngineImpl<>(
         protocolSuiteConfig,
         sceConfig.getEvaluator(), sceConfig.getLogLevel(), sceConfig.getMyId());
 

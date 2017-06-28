@@ -27,11 +27,12 @@
 package dk.alexandra.fresco.suite;
 
 import dk.alexandra.fresco.framework.BuilderFactory;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
 import dk.alexandra.fresco.framework.network.SCENetwork;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import java.io.IOException;
 
-public interface ProtocolSuite<ResourcePoolT extends ResourcePool> {
+public interface ProtocolSuite<ResourcePoolT extends ResourcePool, Builder extends ProtocolBuilder> {
 
   /**
    * Initializes the protocol suite by supplying any needed
@@ -39,7 +40,7 @@ public interface ProtocolSuite<ResourcePoolT extends ResourcePool> {
    * in charge of supplying the needed resources to it's internal protocols
    * when needed.
    */
-  BuilderFactory init(ResourcePoolT resourcePool);
+  BuilderFactory<Builder> init(ResourcePoolT resourcePool);
 
   /**
    * Get a RoundSynchronization used by evaluators to signal progress and

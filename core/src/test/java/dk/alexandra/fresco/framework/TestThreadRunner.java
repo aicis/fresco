@@ -27,6 +27,7 @@
 package dk.alexandra.fresco.framework;
 
 import com.esotericsoftware.minlog.Log;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.TestConfiguration;
 import dk.alexandra.fresco.framework.network.KryoNetNetwork;
@@ -46,11 +47,12 @@ public class TestThreadRunner {
 
   private static final long MAX_WAIT_FOR_THREAD = 6000000;
 
-  public abstract static class TestThread<ResourcePoolT extends ResourcePool> extends Thread {
+  public abstract static class TestThread<ResourcePoolT extends ResourcePool, Builder extends ProtocolBuilder> extends
+      Thread {
 
     private boolean finished = false;
 
-    protected TestThreadConfiguration<ResourcePoolT> conf;
+    protected TestThreadConfiguration<ResourcePoolT, Builder> conf;
 
     // Randomness to use in test.
     Random rand;
@@ -61,9 +63,9 @@ public class TestThreadRunner {
 
     Throwable teardownException;
 
-    protected SecureComputationEngine<ResourcePoolT> secureComputationEngine;
+    protected SecureComputationEngine<ResourcePoolT, Builder> secureComputationEngine;
 
-    void setConfiguration(TestThreadConfiguration<ResourcePoolT> conf) {
+    void setConfiguration(TestThreadConfiguration<ResourcePoolT, Builder> conf) {
       this.conf = conf;
     }
 
@@ -76,7 +78,7 @@ public class TestThreadRunner {
     public void run() {
       try {
         if (conf.sceConf != null) {
-          ProtocolSuiteConfiguration<ResourcePoolT> suite = conf.sceConf.getSuite();
+          ProtocolSuiteConfiguration<ResourcePoolT, Builder> suite = conf.sceConf.getSuite();
           secureComputationEngine =
               SCEFactory.getSCEFromConfiguration(conf.sceConf, suite);
         }
@@ -141,10 +143,11 @@ public class TestThreadRunner {
   /**
    * Container for all the configuration that one thread should have.
    */
-  public static class TestThreadConfiguration<ResourcePoolT extends ResourcePool> {
+  public static class TestThreadConfiguration<ResourcePoolT extends ResourcePool,
+      Builder extends ProtocolBuilder> {
 
     public NetworkConfiguration netConf;
-    public TestSCEConfiguration<ResourcePoolT> sceConf;
+    public TestSCEConfiguration<ResourcePoolT, Builder> sceConf;
 
     public int getMyId() {
       return this.netConf.getMyId();
@@ -157,9 +160,9 @@ public class TestThreadRunner {
   }
 
 
-  public abstract static class TestThreadFactory<ResourcePoolT extends ResourcePool> {
+  public abstract static class TestThreadFactory<ResourcePoolT extends ResourcePool, Builder extends ProtocolBuilder> {
 
-    public abstract TestThread next(TestThreadConfiguration<ResourcePoolT> conf);
+    public abstract TestThread next(TestThreadConfiguration<ResourcePoolT, Builder> conf);
   }
 
   public static void run(TestThreadFactory f, int noOfPlayers) {
@@ -194,7 +197,7 @@ public class TestThreadRunner {
 
     Random r = new Random(randSeed);
     for (int i = 0; i < n; i++) {
-      TestThreadConfiguration<?> c = confs.get(i + 1);
+      TestThreadConfiguration<?, ?> c = confs.get(i + 1);
       TestThread t = f.next(c);
       t.setConfiguration(c);
       t.setRandom(r.nextLong());

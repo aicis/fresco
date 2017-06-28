@@ -66,14 +66,14 @@ public class SequentialEvaluator<ResourcePoolT extends ResourcePool> implements
 
   private int maxBatchSize;
 
-  private ProtocolSuite<ResourcePoolT> protocolSuite;
+  private ProtocolSuite<ResourcePoolT, ?> protocolSuite;
 
   public SequentialEvaluator() {
     maxBatchSize = 4096;
   }
 
   @Override
-  public void setProtocolInvocation(ProtocolSuite<ResourcePoolT> pii) {
+  public void setProtocolInvocation(ProtocolSuite<ResourcePoolT, ?> pii) {
     this.protocolSuite = pii;
   }
 

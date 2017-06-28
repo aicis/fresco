@@ -26,7 +26,6 @@
  *******************************************************************************/
 package dk.alexandra.fresco.suite.dummy;
 
-import dk.alexandra.fresco.framework.BuilderFactory;
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.OBool;
@@ -40,8 +39,7 @@ import dk.alexandra.fresco.lib.helper.SingleProtocolProducer;
 import dk.alexandra.fresco.lib.logic.AbstractBinaryFactory;
 import org.apache.commons.lang.NotImplementedException;
 
-public class DummyBuilderFactory extends AbstractBinaryFactory implements BuilderFactory,
-    BasicLogicFactory {
+public class DummyBuilderFactory extends AbstractBinaryFactory implements BasicLogicFactory {
 
   /**
    * For unique names to values. For debugging.

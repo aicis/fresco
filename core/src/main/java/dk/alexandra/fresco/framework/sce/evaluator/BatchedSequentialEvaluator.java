@@ -36,20 +36,18 @@ import java.io.IOException;
 public class BatchedSequentialEvaluator<ResourcePoolT extends ResourcePool> implements
     ProtocolEvaluator<ResourcePoolT> {
 
-  private static final int DEFAULT_THREAD_ID = 0;
-
   private static final int DEFAULT_CHANNEL = 0;
 
   private int maxBatchSize;
 
-  private ProtocolSuite<ResourcePoolT> protocolSuite;
+  private ProtocolSuite<ResourcePoolT, ?> protocolSuite;
 
   BatchedSequentialEvaluator() {
     this.maxBatchSize = 4096;
   }
 
   @Override
-  public void setProtocolInvocation(ProtocolSuite<ResourcePoolT> pii) {
+  public void setProtocolInvocation(ProtocolSuite<ResourcePoolT, ?> pii) {
     this.protocolSuite = pii;
   }
 

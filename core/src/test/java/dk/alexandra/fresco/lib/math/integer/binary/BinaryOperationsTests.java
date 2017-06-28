@@ -38,7 +38,8 @@ import dk.alexandra.fresco.framework.builder.AdvancedNumericBuilder;
 import dk.alexandra.fresco.framework.builder.AdvancedNumericBuilder.RightShiftResult;
 import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialProtocolBuilder;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
@@ -73,53 +74,30 @@ public class BinaryOperationsTests {
 
         @Override
         public void test() throws Exception {
-          Application<Pair<BigInteger, List<BigInteger>>> app =
-              new Application<Pair<BigInteger, List<BigInteger>>>() {
-
-                private Pair<BigInteger, List<BigInteger>> listPair;
-                private Computation<List<Computation<BigInteger>>> openRemainders;
-                private Computation<BigInteger> openResult;
-
-                @Override
-                public ProtocolProducer prepareApplication(BuilderFactory producer) {
-                  BuilderFactoryNumeric factoryNumeric = (BuilderFactoryNumeric) producer;
-                  return ProtocolBuilder.createApplicationRoot(factoryNumeric,
-                      (builder) -> {
-                        AdvancedNumericBuilder rightShift = builder.createAdvancedNumericBuilder();
-                        Computation<SInt> encryptedInput = builder.numeric().known(input);
-                        Computation<RightShiftResult> shiftedRight = rightShift
-                            .rightShiftWithRemainder(encryptedInput, shifts);
-                        NumericBuilder NumericBuilder = builder.numeric();
-                        openResult = NumericBuilder
-                            .open(() -> shiftedRight.out().getResult().out());
-                        openRemainders = builder
-                            .createSequentialSub((innerBuilder) -> {
-                              NumericBuilder innerOpenBuilder = innerBuilder.numeric();
-                              List<Computation<BigInteger>> opened = shiftedRight.out()
-                                  .getRemainder()
-                                  .stream()
-                                  .map(innerOpenBuilder::open)
-                                  .collect(Collectors.toList());
-                              return () -> opened;
-                            });
-                      }
-                  ).build();
-                }
-
-                @Override
-                public void close() {
-                  listPair = new Pair<>(
-                      openResult.out(),
-                      openRemainders.out().stream()
-                          .map(Computation::out)
-                          .collect(Collectors.toList())
-                  );
-                }
-
-                @Override
-                public Pair<BigInteger, List<BigInteger>> getResult() {
-                  return listPair;
-                }
+          Application<Pair<BigInteger, List<BigInteger>>, SequentialProtocolBuilder> app =
+              builder -> {
+                AdvancedNumericBuilder rightShift = builder.createAdvancedNumericBuilder();
+                Computation<SInt> encryptedInput = builder.numeric().known(input);
+                Computation<RightShiftResult> shiftedRight = rightShift
+                    .rightShiftWithRemainder(encryptedInput, shifts);
+                NumericBuilder NumericBuilder = builder.numeric();
+                Computation<BigInteger> openResult = NumericBuilder
+                    .open(() -> shiftedRight.out().getResult().out());
+                Computation<List<Computation<BigInteger>>> openRemainders = builder
+                    .createSequentialSub((innerBuilder) -> {
+                      NumericBuilder innerOpenBuilder = innerBuilder.numeric();
+                      List<Computation<BigInteger>> opened = shiftedRight.out()
+                          .getRemainder()
+                          .stream()
+                          .map(innerOpenBuilder::open)
+                          .collect(Collectors.toList());
+                      return () -> opened;
+                    });
+                return () -> new Pair<>(
+                    openResult.out(),
+                    openRemainders.out().stream()
+                        .map(Computation::out)
+                        .collect(Collectors.toList()));
               };
           Pair<BigInteger, List<BigInteger>> output =
               (Pair<BigInteger, List<BigInteger>>) secureComputationEngine.runApplication(
@@ -160,7 +138,7 @@ public class BinaryOperationsTests {
             @Override
             public ProtocolProducer prepareApplication(
                 BuilderFactory producer) {
-              return ProtocolBuilder
+              return ProtocolBuilderNumeric
                   .createApplicationRoot((BuilderFactoryNumeric) producer, (builder) -> {
                     Computation<SInt> sharedInput = builder.numeric().known(input);
                     AdvancedNumericBuilder bitLengthBuilder = builder

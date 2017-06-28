@@ -36,6 +36,7 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialProtocolBuilder;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.debug.MarkerProtocolImpl;
@@ -178,14 +179,9 @@ public class LPBuildingBlockTests {
       return new TestThread() {
         @Override
         public void test() throws Exception {
-          Application app = new Application() {
-
-
-            @Override
-            public ProtocolProducer prepareApplication(BuilderFactory producer) {
-              return new MarkerProtocolImpl("Running Dummy Test");
-            }
-
+          Application app = (Application<Void, SequentialProtocolBuilder>) producer -> {
+            producer.append(new MarkerProtocolImpl("Running Dummy Test"));
+            return () -> null;
           };
           secureComputationEngine
               .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf,

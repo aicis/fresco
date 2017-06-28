@@ -10,6 +10,7 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SInt;
@@ -20,10 +21,11 @@ import org.junit.Assert;
 
 public class InnerProductNewApiTest {
 
-  public static class InnerProductTest extends TestThreadFactory<ResourcePool> {
+  public static class InnerProductTest extends
+      TestThreadFactory<ResourcePool, ProtocolBuilderNumeric> {
 
     @Override
-    public TestThread next(TestThreadConfiguration<ResourcePool> conf) {
+    public TestThread next(TestThreadConfiguration<ResourcePool, ProtocolBuilderNumeric> conf) {
       return new TestThread() {
         int[] a = new int[]{1, 3, 5, 7, 11};
         int[] b = new int[]{2, 4, 6, 8, 10};
@@ -36,7 +38,8 @@ public class InnerProductNewApiTest {
             @Override
             public ProtocolProducer prepareApplication(BuilderFactory producer) {
               BuilderFactoryNumeric factoryNumeric = (BuilderFactoryNumeric) producer;
-              ProtocolBuilder pb = ProtocolBuilder.createApplicationRoot(factoryNumeric, seq -> {
+              ProtocolBuilder pb = ProtocolBuilderNumeric
+                  .createApplicationRoot(factoryNumeric, seq -> {
                 List<Computation<SInt>> sA = new ArrayList<>(a.length);
                 List<Computation<SInt>> sB = new ArrayList<>(b.length);
                 for (int i = 0; i < b.length; i++) {
