@@ -48,6 +48,7 @@ import java.io.IOException;
 import java.security.SecureRandom;
 import java.util.Map;
 import java.util.Random;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -139,18 +140,21 @@ public class SecureComputationEngineImpl<ResourcePoolT extends ResourcePool, Bui
   @Override
   public <OutputT> OutputT runApplication(
       Application<OutputT, Builder> application, ResourcePoolT sceNetwork) {
+    Future<OutputT> future = startApplication(application, sceNetwork);
     try {
-      Future<OutputT> future = startApplication(application, sceNetwork);
       return future.get(10, TimeUnit.MINUTES);
-    } catch (InterruptedException | ExecutionException | TimeoutException e) {
+    } catch (InterruptedException | TimeoutException e) {
       throw new RuntimeException("Internal error in waiting", e);
+    } catch (ExecutionException e) {
+      throw new RuntimeException("Execution exception when running the application", e.getCause());
     }
   }
 
   public <OutputT> Future<OutputT> startApplication(
       Application<OutputT, Builder> application, ResourcePoolT resourcePool) {
     prepareEvaluator();
-    return executorService.submit(() -> evalApplication(application, resourcePool).out());
+    Callable<OutputT> callable = () -> evalApplication(application, resourcePool).out();
+    return executorService.submit(callable);
   }
 
   private void prepareEvaluator() {
@@ -165,7 +169,7 @@ public class SecureComputationEngineImpl<ResourcePoolT extends ResourcePool, Bui
 
   private <OutputT> Computation<OutputT> evalApplication(
       Application<OutputT, Builder> application,
-      ResourcePoolT resourcePool) {
+      ResourcePoolT resourcePool) throws Exception {
     Reporter.info("Running application: " + application + " using protocol suite: "
         + this.protocolSuite);
     try {
