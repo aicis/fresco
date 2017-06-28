@@ -42,14 +42,14 @@ public class EnteringVariableProtocol4
     implements ComputationBuilder<Pair<List<Computation<SInt>>, SInt>> {
 
   private final LPTableau tableau;
-  private final Matrix<SInt> updateMatrix;
+  private final Matrix4<Computation<SInt>> updateMatrix;
 
   /**
    * @param tableau an (m + 1)x(n + m + 1) tableau
    * @param updateMatrix an (m + 1)x(m + 1) update matrix, multiplying the tableau on the left with
    * the update matrix gives the new tableau
    */
-  public EnteringVariableProtocol4(LPTableau tableau, Matrix<SInt> updateMatrix) {
+  public EnteringVariableProtocol4(LPTableau tableau, Matrix4<Computation<SInt>> updateMatrix) {
     if (checkDimensions(tableau, updateMatrix)) {
       this.updateMatrix = updateMatrix;
       this.tableau = tableau;
@@ -59,7 +59,7 @@ public class EnteringVariableProtocol4
   }
 
   private boolean checkDimensions(LPTableau tableau,
-      Matrix<SInt> updateMatrix) {
+      Matrix4<Computation<SInt>> updateMatrix) {
     int updateHeight = updateMatrix.getHeight();
     int updateWidth = updateMatrix.getWidth();
     int tableauHeight = tableau.getC().getHeight() + 1;
@@ -73,7 +73,7 @@ public class EnteringVariableProtocol4
       int updateVectorDimension = updateMatrix.getHeight();
       int numOfFs = tableau.getF().length;
       List<Computation<SInt>> updatedF = new ArrayList<>(numOfFs);
-      SInt[] updateVector = updateMatrix.getIthRow(updateVectorDimension - 1);
+      ArrayList<Computation<SInt>> updateVector = updateMatrix.getRow(updateVectorDimension - 1);
       for (int i = 0; i < numOfFs; i++) {
         SInt[] constraintColumn = new SInt[updateVectorDimension];
         SInt[] temp = new SInt[updateVectorDimension - 1];
@@ -86,7 +86,7 @@ public class EnteringVariableProtocol4
         updatedF.add(
             advancedNumericBuilder.dot(
                 Arrays.asList(constraintColumn),
-                Arrays.asList(updateVector))
+                updateVector)
         );
       }
       return () -> updatedF;

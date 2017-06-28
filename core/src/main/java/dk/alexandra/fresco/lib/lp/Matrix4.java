@@ -27,69 +27,28 @@
 package dk.alexandra.fresco.lib.lp;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.function.IntFunction;
+import java.util.stream.Collectors;
 
-/**
- * @author psn
- */
 public class Matrix4<T> {
 
-  private final ArrayList<ArrayList<T>> matrix;
   private final int width;
   private final int height;
+  private final ArrayList<ArrayList<T>> matrix;
 
-  /**
-   * Internal matrix representation:
-   * [*, *, *]
-   * [*, *, *]
-   * [*, *, *]
-   * [*, *, *]
-   *
-   * here you would give as length of input to get this matrix:
-   * [4][3]
-   */
-  public Matrix4(int width, int height) {
+  public Matrix4(int width, int height, IntFunction<ArrayList<T>> rowBuilder) {
     this.width = width;
-    this.height = height;
     this.matrix = new ArrayList<>(height);
-  }
-
-
-  public T getElement(int row, int column) {
-    boundsCheck(row, column);
-    return getElement(getRow(row), column);
-  }
-
-  private T getElement(ArrayList<T> row, int column) {
-    if (column >= row.size()) {
-      return null;
-    } else {
-      return row.get(column);
+    this.height = height;
+    for (int i = 0; i < height; i++) {
+      this.matrix.add(rowBuilder.apply(i));
     }
   }
 
-  private void boundsCheck(int row, int column) {
-    boundsCheckRow(row);
-    boundsCheckColumn(column);
-  }
 
-  private void boundsCheckColumn(int column) {
-    if (column >= width) {
-      throw new IndexOutOfBoundsException();
-    }
-  }
-
-  private void boundsCheckRow(int row) {
-    if (row >= height) {
-      throw new IndexOutOfBoundsException();
-    }
-  }
-
-  private ArrayList<T> getRow(int row) {
-    while (row >= this.matrix.size()) {
-      this.matrix.add(new ArrayList<>(width));
-    }
-
-    return this.matrix.get(row);
+  public ArrayList<T> getRow(int i) {
+    return matrix.get(i);
   }
 
   /**
@@ -105,5 +64,9 @@ public class Matrix4<T> {
    */
   public int getHeight() {
     return height;
+  }
+
+  public List<T> getColumn(int i) {
+    return this.matrix.stream().map(row -> row.get(i)).collect(Collectors.toList());
   }
 }

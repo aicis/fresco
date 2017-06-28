@@ -47,11 +47,12 @@ import java.util.List;
 public class ExitingVariableProtocol4 implements ComputationBuilder<ExitingVariableOutput> {
 
   private final LPTableau tableau;
-  private final Matrix<SInt> updateMatrix;
+  private final Matrix4<Computation<SInt>> updateMatrix;
   private final List<Computation<SInt>> enteringIndex;
 
   ExitingVariableProtocol4(
-      LPTableau tableau, Matrix<SInt> updateMatrix, List<Computation<SInt>> enteringIndex) {
+      LPTableau tableau, Matrix4<Computation<SInt>> updateMatrix,
+      List<Computation<SInt>> enteringIndex) {
     if (checkDimensions(tableau, updateMatrix, enteringIndex)) {
       this.tableau = tableau;
       this.updateMatrix = updateMatrix;
@@ -62,7 +63,7 @@ public class ExitingVariableProtocol4 implements ComputationBuilder<ExitingVaria
     }
   }
 
-  private boolean checkDimensions(LPTableau tableau, Matrix<SInt> updateMatrix,
+  private boolean checkDimensions(LPTableau tableau, Matrix4<Computation<SInt>> updateMatrix,
       List<Computation<SInt>> enteringIndex) {
     int updateHeight = updateMatrix.getHeight();
     int updateWidth = updateMatrix.getWidth();
@@ -99,19 +100,18 @@ public class ExitingVariableProtocol4 implements ComputationBuilder<ExitingVaria
       List<Computation<SInt>> updatedEnteringColumn = new ArrayList<>(tableauHeight);
       AdvancedNumericBuilder advanced = par.createAdvancedNumericBuilder();
       for (int i = 0; i < tableauHeight; i++) {
-        SInt[] updateRow = updateMatrix.getIthRow(i);
+        ArrayList<Computation<SInt>> updateRow = updateMatrix.getRow(i);
         updatedEnteringColumn.add(
-            advanced.dot(Arrays.asList(updateRow), enteringColumn)
+            advanced.dot(updateRow, enteringColumn)
         );
       }
 
       // Apply update matrix to the B vector
       List<Computation<SInt>> updatedB = new ArrayList<>(tableauHeight - 1);
       for (int i = 0; i < tableauHeight - 1; i++) {
-        SInt[] updateRow = new SInt[tableauHeight - 1];
-        System.arraycopy(updateMatrix.getIthRow(i), 0, updateRow, 0, tableauHeight - 1);
+        List<Computation<SInt>> updateRow = updateMatrix.getRow(i).subList(0, tableauHeight - 1);
         updatedB.add(
-            advanced.dot(Arrays.asList(updateRow), Arrays.asList(tableau.getB()))
+            advanced.dot(updateRow, Arrays.asList(tableau.getB()))
         );
       }
       return Pair.lazy(updatedEnteringColumn, updatedB);

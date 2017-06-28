@@ -48,6 +48,8 @@ import dk.alexandra.fresco.lib.lp.LPFactoryImpl;
 import dk.alexandra.fresco.lib.lp.LPPrefix;
 import dk.alexandra.fresco.lib.lp.LPSolverProtocol4;
 import dk.alexandra.fresco.lib.lp.LPSolverProtocol4.LPOutput;
+import dk.alexandra.fresco.lib.lp.Matrix;
+import dk.alexandra.fresco.lib.lp.Matrix4;
 import dk.alexandra.fresco.lib.math.integer.exp.ExpFromOIntFactory;
 import dk.alexandra.fresco.lib.math.integer.exp.PreprocessedExpPipeFactory;
 import dk.alexandra.fresco.suite.spdz.utils.LPInputReader;
@@ -57,6 +59,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Arrays;
 import org.junit.Assert;
 
 class LPSolverTests {
@@ -107,19 +111,28 @@ class LPSolverTests {
                           + e.getMessage(), e);
                     }
                     builder.append(prefix.getPrefix());
+                    Matrix<SInt> updateMatrix = prefix.getUpdateMatrix();
                     Computation<LPOutput> lpOutput = builder.createSequentialSub(
                         new LPSolverProtocol4(
                             prefix.getTableau(),
-                            prefix.getUpdateMatrix(),
+                            new Matrix4<>(updateMatrix.getWidth(), updateMatrix.getHeight(),
+                                i -> new ArrayList<>(Arrays.asList(updateMatrix.getIthRow(i)))),
                             prefix.getPivot(),
                             bnFactory));
 
                     builder.createIteration((seq) -> {
                       SInt sout = bnFactory.getSInt();
                       LPOutput lpOut = lpOutput.out();
+                      Matrix4<Computation<SInt>> finalUpdateMatrix = lpOut.updateMatrix;
+                      SInt[][] matrix = new SInt[finalUpdateMatrix.getHeight()][finalUpdateMatrix
+                          .getWidth()];
+                      for (int i = 0; i < finalUpdateMatrix.getHeight(); i++) {
+                        matrix[i] = finalUpdateMatrix.getRow(i).stream().map(Computation::out)
+                            .toArray(SInt[]::new);
+                      }
                       ProtocolProducer outputter = lpFactory
                           .getOptimalValueProtocol(
-                              lpOut.updateMatrix,
+                              new Matrix<>(matrix),
                               lpOut.tableau.getB(),
                               lpOut.pivot,
                               sout);
