@@ -33,9 +33,6 @@ import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialPr
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
-import dk.alexandra.fresco.lib.field.integer.RandomFieldElementFactory;
-import dk.alexandra.fresco.lib.lp.LPFactory;
-import dk.alexandra.fresco.lib.lp.LPFactoryImpl;
 import dk.alexandra.fresco.lib.lp.LPPrefix;
 import dk.alexandra.fresco.lib.lp.LPSolverProtocol4;
 import dk.alexandra.fresco.lib.lp.LPTableau;
@@ -43,8 +40,6 @@ import dk.alexandra.fresco.lib.lp.LPTableau4;
 import dk.alexandra.fresco.lib.lp.Matrix;
 import dk.alexandra.fresco.lib.lp.Matrix4;
 import dk.alexandra.fresco.lib.lp.OptimalValue4;
-import dk.alexandra.fresco.lib.math.integer.exp.ExpFromOIntFactory;
-import dk.alexandra.fresco.lib.math.integer.exp.PreprocessedExpPipeFactory;
 import dk.alexandra.fresco.lib.statistics.DEASolver4.DEAResult;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -142,16 +137,6 @@ public class DEASolver4 implements Application<List<DEAResult>, SequentialProtoc
     for (LPPrefix prefix : prefixes) {
       builder.append(prefix.getPrefix());
     }
-    BasicNumericFactory provider = builder.getBasicNumericFactory();
-    BasicNumericFactory bnFactory = (BasicNumericFactory) provider;
-    ExpFromOIntFactory expFromOIntFactory = (ExpFromOIntFactory) provider;
-    PreprocessedExpPipeFactory expFactory = (PreprocessedExpPipeFactory) provider;
-    RandomFieldElementFactory randFactory = (RandomFieldElementFactory) provider;
-
-    // TODO get security parameter from somewhere
-    LPFactory lpFactory = new LPFactoryImpl(64, bnFactory,
-        expFromOIntFactory,
-        expFactory, randFactory, builder.factory);
 
     return builder.par((par) -> {
 
