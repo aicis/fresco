@@ -46,6 +46,7 @@ import dk.alexandra.fresco.lib.lp.LPTableau;
 import dk.alexandra.fresco.lib.lp.Matrix;
 import dk.alexandra.fresco.lib.math.integer.exp.ExpFromOIntFactory;
 import dk.alexandra.fresco.lib.math.integer.exp.PreprocessedExpPipeFactory;
+import dk.alexandra.fresco.lib.statistics.DEASolver4.AnalysisType;
 import java.util.Arrays;
 import java.util.List;
 
@@ -68,8 +69,6 @@ public class DEASolver implements Application<SInt[], SequentialProtocolBuilder>
   private SInt[] optimal;
   private SInt[][] basis;
   private AnalysisType type;
-
-  public enum AnalysisType {INPUT_EFFICIENCY, OUTPUT_EFFICIENCY}
 
   /**
    * Construct a DEA problem for the solver to solve. The problem consists of
@@ -231,7 +230,7 @@ public class DEASolver implements Application<SInt[], SequentialProtocolBuilder>
 
     DEAPrefixBuilder basisBuilder;
 
-    if (type == AnalysisType.INPUT_EFFICIENCY) {
+    if (type == DEASolver4.AnalysisType.INPUT_EFFICIENCY) {
       basisBuilder = new DEAInputEfficiencyPrefixBuilder();
     } else {
       basisBuilder = new DEAPrefixBuilderMaximize();
@@ -252,7 +251,7 @@ public class DEASolver implements Application<SInt[], SequentialProtocolBuilder>
 
     for (int i = 0; i < this.targetInputs.size(); i++) {
       DEAPrefixBuilder targetBuilder;
-      if (type == AnalysisType.INPUT_EFFICIENCY) {
+      if (type == DEASolver4.AnalysisType.INPUT_EFFICIENCY) {
         targetBuilder = new DEAInputEfficiencyPrefixBuilder();
       } else {
         targetBuilder = new DEAPrefixBuilderMaximize();

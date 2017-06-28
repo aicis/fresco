@@ -43,6 +43,7 @@ import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.helper.AlgebraUtil;
 import dk.alexandra.fresco.lib.helper.builder.NumericIOBuilder;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
+import dk.alexandra.fresco.lib.statistics.DEASolver4.AnalysisType;
 import dk.alexandra.fresco.lib.statistics.DEASolver4.DEAResult;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -69,11 +70,11 @@ public class DEASolverTests {
     private int outputVariables;
     private int datasetRows;
     private int targetQueries;
-    private DEASolver.AnalysisType type;
+    private AnalysisType type;
     private BasicNumericFactory bnFactory;
 
     public TestDEASolver(int inputVariables, int outputVariables, int rows, int queries,
-        DEASolver.AnalysisType type) {
+        AnalysisType type) {
       this.inputVariables = inputVariables;
       this.outputVariables = outputVariables;
       this.datasetRows = rows;
@@ -221,11 +222,11 @@ public class DEASolverTests {
   /**
    * Reduces a field-element to a double using Gauss reduction.
    */
-  private static double postProcess(BigInteger input, DEASolver.AnalysisType type,
+  private static double postProcess(BigInteger input, AnalysisType type,
       BigInteger modulus) {
     BigInteger[] gauss = gauss(input, modulus);
     double res = (gauss[0].doubleValue() / gauss[1].doubleValue());
-    if (type == DEASolver.AnalysisType.OUTPUT_EFFICIENCY) {
+    if (type == DEASolver4.AnalysisType.OUTPUT_EFFICIENCY) {
       res -= BENCHMARKING_BIG_M;
     } else {
       res *= -1;

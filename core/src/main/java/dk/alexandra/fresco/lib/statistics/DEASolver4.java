@@ -62,7 +62,7 @@ public class DEASolver4 implements Application<List<DEAResult>, SequentialProtoc
   private List<List<SInt>> targetInputs, targetOutputs;
   private List<List<SInt>> inputDataSet, outputDataSet;
 
-  private DEASolver.AnalysisType type;
+  private AnalysisType type;
 
 
   /**
@@ -78,7 +78,7 @@ public class DEASolver4 implements Application<List<DEAResult>, SequentialProtoc
    * @param setInput Matrix containing the basis input
    * @param setOutput Matrix containing the basis output
    */
-  public DEASolver4(DEASolver.AnalysisType type, List<List<SInt>> inputValues,
+  public DEASolver4(AnalysisType type, List<List<SInt>> inputValues,
       List<List<SInt>> outputValues,
       List<List<SInt>> setInput,
       List<List<SInt>> setOutput) throws MPCException {
@@ -208,7 +208,7 @@ public class DEASolver4 implements Application<List<DEAResult>, SequentialProtoc
 
     DEAPrefixBuilder basisBuilder;
 
-    if (type == DEASolver.AnalysisType.INPUT_EFFICIENCY) {
+    if (type == AnalysisType.INPUT_EFFICIENCY) {
       basisBuilder = new DEAInputEfficiencyPrefixBuilder();
     } else {
       basisBuilder = new DEAPrefixBuilderMaximize();
@@ -229,7 +229,7 @@ public class DEASolver4 implements Application<List<DEAResult>, SequentialProtoc
 
     for (int i = 0; i < this.targetInputs.size(); i++) {
       DEAPrefixBuilder targetBuilder;
-      if (type == DEASolver.AnalysisType.INPUT_EFFICIENCY) {
+      if (type == AnalysisType.INPUT_EFFICIENCY) {
         targetBuilder = new DEAInputEfficiencyPrefixBuilder();
       } else {
         targetBuilder = new DEAPrefixBuilderMaximize();
@@ -248,6 +248,8 @@ public class DEASolver4 implements Application<List<DEAResult>, SequentialProtoc
     }
     return prefixes;
   }
+
+  public enum AnalysisType {INPUT_EFFICIENCY, OUTPUT_EFFICIENCY}
 
   public static class DEAResult {
 

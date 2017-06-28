@@ -35,7 +35,7 @@ import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.helper.AlgebraUtil;
 import dk.alexandra.fresco.lib.helper.builder.NumericIOBuilder;
-import dk.alexandra.fresco.lib.statistics.DEASolver.AnalysisType;
+import dk.alexandra.fresco.lib.statistics.DEASolver4.AnalysisType;
 import java.math.BigInteger;
 import org.junit.Assert;
 
@@ -62,10 +62,10 @@ public class DEASolverFixedDataTest {
 
   public static class TestDEASolverScores extends TestThreadFactory {
 
-    private DEASolver.AnalysisType type;
+    private AnalysisType type;
     // MAde null to find where this test is activated from
 
-    public TestDEASolverScores(DEASolver.AnalysisType type) {
+    public TestDEASolverScores(AnalysisType type) {
       this.type = type;
     }
 
@@ -106,11 +106,11 @@ public class DEASolverFixedDataTest {
   private static class DEATestApp extends TestApplication {
 
     double[] plainResult;
-    private DEASolver.AnalysisType type;
+    private AnalysisType type;
     private int[][] dataSet;
     private BigInteger modulus;
 
-    DEATestApp(int[][] dataSet, DEASolver.AnalysisType type) {
+    DEATestApp(int[][] dataSet, AnalysisType type) {
       this.type = type;
       this.dataSet = dataSet;
     }
@@ -160,7 +160,7 @@ public class DEASolverFixedDataTest {
   private static double postProcess(BigInteger input, AnalysisType type, BigInteger modulus) {
     BigInteger[] gauss = gauss(input, modulus);
     double res = (gauss[0].doubleValue() / gauss[1].doubleValue());
-    if (type == AnalysisType.OUTPUT_EFFICIENCY) {
+    if (type == DEASolver4.AnalysisType.OUTPUT_EFFICIENCY) {
       res -= BENCHMARKING_BIG_M;
     } else {
       res *= -1;
