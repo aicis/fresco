@@ -33,13 +33,12 @@ import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialProtocolBuilder;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.field.integer.RandomFieldElementFactory;
 import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
-import dk.alexandra.fresco.lib.helper.builder.NumericProtocolBuilder;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
 import dk.alexandra.fresco.lib.lp.LPFactory;
 import dk.alexandra.fresco.lib.lp.LPFactoryImpl;
@@ -66,7 +65,7 @@ import java.util.List;
  * The result/score of the computation must be converted to a double using Gauss
  * reduction to be meaningful. See the DEASolverTests for an example.
  */
-public class DEASolver4 implements Application<SInt[], ProtocolBuilderNumeric> {
+public class DEASolver4 implements Application<SInt[], SequentialProtocolBuilder> {
 
 
   private List<List<SInt>> targetInputs, targetOutputs;
@@ -143,8 +142,43 @@ public class DEASolver4 implements Application<SInt[], ProtocolBuilderNumeric> {
   }
 
   @Override
-  public Computation<SInt[]> prepareApplication(ProtocolBuilderNumeric producer) {
-    //TODO
+  public Computation<SInt[]> prepareApplication(SequentialProtocolBuilder builder) {
+//    LPPrefix[] prefixes = getPrefixWithSecretSharedValues(
+//        builder.getBasicNumericFactory());
+//    for (LPPrefix prefix : prefixes) {
+//      builder.append(prefix.getPrefix());
+//    }
+//    for (int i = 0; i < targetInputs.size(); i++) {
+//
+//      SInt pivot = prefixes[i].getPivot();
+//      LPTableau tableau = prefixes[i].getTableau();
+//      Matrix<SInt> update = prefixes[i].getUpdateMatrix();
+//      int finalI = i;
+//      this.basis[i] = new SInt[tableau.getC().getHeight()];
+//
+//      builder.seq((solverSec) -> {
+//        LPSolverProtocol4 lpSolverProtocol4 = new LPSolverProtocol4(
+//            new LPTableau4(
+//                toMatrix4(tableau.getC()),
+//                new ArrayList<>(Arrays.asList(tableau.getB())),
+//                new ArrayList<>(Arrays.asList(tableau.getF())),
+//                tableau.getZ()),
+//            toMatrix4(update),
+//            pivot,
+//            bnFactory);
+//        return lpSolverProtocol4.build(solverSec);
+//      }).seq((lpOutput, optSec) -> {
+//            basis[finalI] = lpOutput.basis.stream().map(Computation::out)
+//                .toArray(SInt[]::new);
+//            return new OptimalValue4(lpOutput.updateMatrix, lpOutput.tableau, lpOutput.pivot)
+//                .build(optSec);
+//          }
+//      ).seq((optValue, ignored) -> {
+//        optimal[finalI] = optValue;
+//        return null;
+//      });
+//    }
+//    //TODO
     return null;
   }
 

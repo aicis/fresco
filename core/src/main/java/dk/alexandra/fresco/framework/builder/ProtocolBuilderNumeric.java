@@ -56,7 +56,7 @@ public abstract class ProtocolBuilderNumeric implements ProtocolBuilder {
     return builder;
   }
 
-  public static ProtocolBuilderNumeric createApplicationRoot(
+  public static SequentialProtocolBuilder createApplicationRoot(
       BuilderFactoryNumeric builderFactoryNumeric) {
     return new ProtocolBuilderNumeric.SequentialProtocolBuilder(builderFactoryNumeric);
   }
