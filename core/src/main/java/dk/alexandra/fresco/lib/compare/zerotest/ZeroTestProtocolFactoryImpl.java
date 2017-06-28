@@ -61,8 +61,8 @@ public class ZeroTestProtocolFactoryImpl implements ZeroTestProtocolFactory {
     this.miscOIntGenerator = new MiscOIntGenerators();
     this.ipf = new InnerProductFactoryImpl(bnf, new EntrywiseProductFactoryImpl(bnf));
     this.incFactory = new IncrementByOneProtocolFactoryImpl(bnf);
-		this.expFromOIntFactory = expFromOIntFactory;
-		this.expFactory = expFactory;
+    this.expFromOIntFactory = expFromOIntFactory;
+    this.expFactory = expFactory;
 		this.maskFactory = new RandomAdditiveMaskFactoryImpl(bnf,
 				new InnerProductFactoryImpl(bnf, new EntrywiseProductFactoryImpl(bnf)));
 		this.hammingFactory = new HammingDistanceFactoryImpl(bnf,

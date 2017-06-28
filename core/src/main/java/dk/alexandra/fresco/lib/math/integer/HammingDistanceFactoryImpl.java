@@ -44,8 +44,8 @@ public class HammingDistanceFactoryImpl implements HammingDistanceFactory{
 	
 	@Override
 	public HammingDistanceProtocol getHammingdistanceProtocol(SInt[] vector,
-			Computation<BigInteger> publicValue, SInt result) {
-		return new HammingDistanceProtocolImpl(vector, publicValue, result, bnf, numericBitFactory);
-	}
+      Computation<BigInteger> publicValue, SInt result) {
+    return new HammingDistanceProtocolImpl(vector, publicValue, result, bnf, numericBitFactory);
+  }
 
 }

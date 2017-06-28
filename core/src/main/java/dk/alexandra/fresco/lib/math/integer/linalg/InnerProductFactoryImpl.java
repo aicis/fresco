@@ -52,6 +52,6 @@ public class InnerProductFactoryImpl implements InnerProductFactory{
 	public InnerProductProtocol getInnerProductProtocol(SInt[] aVector,
       BigInteger[] bVector, SInt result) {
     return new InnerProductProtocolImpl(aVector, bVector, result, bnf, dotProductFactory);
-	}
+  }
 
 }

@@ -52,5 +52,5 @@ public class OutputStep implements Application {
   public void setOpenedRows(List<List<Computation<BigInteger>>> openedRows) {
     this.openedRows = openedRows;
   }
-	
+
 }

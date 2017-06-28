@@ -40,8 +40,8 @@ public class AggregateStep implements Application {
             (BigInteger) row[this.cipherColumn]
         );
         this.triples.add(triple);
-    	}
-    }
+			}
+		}
     
 	@Override
 	public ProtocolProducer prepareApplication(BuilderFactory producer) {
