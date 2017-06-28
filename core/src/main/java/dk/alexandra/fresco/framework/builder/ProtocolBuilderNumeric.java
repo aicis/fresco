@@ -25,7 +25,7 @@ public abstract class ProtocolBuilderNumeric implements ProtocolBuilder {
 
   private BasicNumericFactory basicNumericFactory;
   private List<ProtocolBuilderNumeric.ProtocolEntity> protocols;
-  protected BuilderFactoryNumeric factory;
+  public BuilderFactoryNumeric factory;
   private NumericBuilder numericBuilder;
 
   private ProtocolBuilderNumeric(BuilderFactoryNumeric factory) {
