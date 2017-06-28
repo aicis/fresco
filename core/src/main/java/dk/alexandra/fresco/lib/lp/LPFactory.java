@@ -126,55 +126,6 @@ public interface LPFactory
   ExitingVariableProtocol getExitingVariableProtocol(LPTableau tableau, Matrix<SInt> updateMatrix,
       SInt[] enteringIndex, SInt[] exitingIndex, SInt[] updateColumn, SInt pivot);
 
-  /**
-   * @param oldUpdateMatrix input - the current update matrix
-   * @param L input - the index vector of the exiting variable
-   * @param C input - the column to be inserted into the update matrix of this iteration
-   * @param p input - the pivot element
-   * @param p_prime input - the previous pivot element
-   * @param newUpdateMatrix output - the new update matrix
-   */
-  UpdateMatrixProtocol getUpdateMatrixProtocol(Matrix<SInt> oldUpdateMatrix, SInt[] L, SInt[] C,
-      SInt p,
-      SInt p_prime, Matrix<SInt> newUpdateMatrix);
-
-
-  /**
-   * Computes the optimal value after the last simplex iteration
-   *
-   * @param updateMatrix input - the current update matrix
-   * @param B input - the B vector of the tableau
-   * @param pivot input - the previous pivot element
-   * @param optimalValue output - optimal value
-   */
-  OptimalValueProtocol getOptimalValueProtocol(Matrix<SInt> updateMatrix, SInt[] B, SInt pivot,
-      SInt optimalValue);
-
-  /**
-   * Computes the optimal value after the last simplex iteration
-   *
-   * @param updateMatrix input - the current update matrix
-   * @param tableau input - the tableau
-   * @param pivot input - the previous pivot element
-   * @param optimalValue output - optimal value
-   */
-  OptimalValueProtocol getOptimalValueProtocol(Matrix<SInt> updateMatrix, LPTableau tableau,
-      SInt pivot,
-      SInt optimalValue);
-
-  /**
-   * Returns a protocol solving an LP-problem from an initial tableau, update
-   * matrix and value for the previous pivot. (Usually the update matrix and
-   * pivot will be initialized to the identity matrix and the value one
-   * respectively). The update matrix and pivot will be update through the
-   * computation, and used to compute the optimal value of the LP-problem
-   * after the protocol has been evaluated.
-   *
-   * @param basis Array containing the variables that defines the final basis.
-   * @return an LPSolverprotocol
-   */
-  LPSolverProtocol getLPSolverProtocol(LPTableau tableau, Matrix<SInt> updateMatrix, SInt pivot,
-      SInt[] basis);
 
   /**
    * Finds the minimum in an list of fractions. Note fractions are given as

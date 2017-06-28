@@ -186,14 +186,6 @@ public class LPFactoryImpl implements LPFactory {
   }
 
   @Override
-  public UpdateMatrixProtocol getUpdateMatrixProtocol(
-      Matrix<SInt> oldUpdateMatrix, SInt[] L, SInt[] C, SInt p,
-      SInt p_prime, Matrix<SInt> newUpdateMatrix) {
-    return new UpdateMatrixProtocol(oldUpdateMatrix, L, C, p, p_prime,
-        newUpdateMatrix, this, bnf);
-  }
-
-  @Override
   public InnerProductProtocol getInnerProductProtocol(SInt[] aVector,
       SInt[] bVector, SInt result) {
     return this.innerProductFactory.getInnerProductProtocol(aVector,
@@ -207,24 +199,5 @@ public class LPFactoryImpl implements LPFactory {
         bVector, result);
   }
 
-  @Override
-  public OptimalValueProtocol getOptimalValueProtocol(
-      Matrix<SInt> updateMatrix, SInt[] B, SInt pivot, SInt optimalValue) {
-    return new OptimalValueProtocol(updateMatrix, B, pivot, optimalValue,
-        this, bnf);
-  }
 
-
-  @Override
-  public OptimalValueProtocol getOptimalValueProtocol(Matrix<SInt> updateMatrix, LPTableau tableau,
-      SInt pivot, SInt optimalValue) {
-    return new OptimalValueProtocol(updateMatrix, tableau, pivot, optimalValue,
-        this, bnf);
-  }
-
-  @Override
-  public LPSolverProtocol getLPSolverProtocol(LPTableau tableau,
-      Matrix<SInt> updateMatrix, SInt pivot, SInt[] basis) {
-    return new LPSolverProtocol(tableau, updateMatrix, pivot, basis, this, bnf);
-  }
 }
