@@ -116,7 +116,7 @@ public class DEASolverTests {
 
               sseq.append(ioBuilder.getProtocol());
 
-              DEASolver solver = new DEASolver(type, AlgebraUtil.arrayToList(targetInputs),
+              DEASolver4 solver = new DEASolver4(type, AlgebraUtil.arrayToList(targetInputs),
                   AlgebraUtil.arrayToList(targetOutputs),
                   AlgebraUtil.arrayToList(basisInputs),
                   AlgebraUtil.arrayToList(basisOutputs));

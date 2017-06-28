@@ -7,6 +7,7 @@ import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
+import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
 import dk.alexandra.fresco.lib.helper.ProtocolProducerCollection;
 import dk.alexandra.fresco.lib.helper.SingleProtocolProducer;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
@@ -227,9 +228,9 @@ public abstract class ProtocolBuilder {
 
     @Override
     public ProtocolProducer build() {
-      SequentialProtocolProducer parallelProtocolProducer = new SequentialProtocolProducer();
-      addEntities(parallelProtocolProducer);
-      return parallelProtocolProducer;
+      SequentialProtocolProducer sequentialProtocolProducer = new SequentialProtocolProducer();
+      addEntities(sequentialProtocolProducer);
+      return sequentialProtocolProducer;
     }
 
 
@@ -265,7 +266,7 @@ public abstract class ProtocolBuilder {
 
     @Override
     public ProtocolProducer build() {
-      SequentialProtocolProducer parallelProtocolProducer = new SequentialProtocolProducer();
+      ParallelProtocolProducer parallelProtocolProducer = new ParallelProtocolProducer();
       addEntities(parallelProtocolProducer);
       return parallelProtocolProducer;
     }
@@ -274,10 +275,10 @@ public abstract class ProtocolBuilder {
   public static abstract class BuildStep<BuilderT extends ProtocolBuilder, OutputT, InputT>
       implements Computation<OutputT> {
 
-    private final BiFunction<InputT, BuilderT, Computation<OutputT>> function;
+    protected final BiFunction<InputT, BuilderT, Computation<OutputT>> function;
 
-    private BuildStep<?, ?, OutputT> child;
-    private Computation<OutputT> output;
+    protected BuildStep<?, ?, OutputT> child;
+    protected Computation<OutputT> output;
 
     private BuildStep(
         BiFunction<InputT, BuilderT, Computation<OutputT>> function) {
@@ -302,26 +303,28 @@ public abstract class ProtocolBuilder {
 
     public BuildStep<SequentialProtocolBuilder, OutputT, OutputT> whileLoop(
         Predicate<OutputT> test,
-        BiFunction<OutputT, SequentialProtocolBuilder, Computation<OutputT>> function) {
-      BuildStep<SequentialProtocolBuilder, OutputT, OutputT> localChild =
-          new BuildStepSequential<>(
-              (OutputT output1, SequentialProtocolBuilder builder) -> {
-                DelayedComputation<OutputT> result = new DelayedComputation<>();
-                whileStep(test, function, output1, builder, result);
-                return result;
-              });
+        FrescoLambda<OutputT, OutputT> function) {
+      BuildStepLooping<OutputT> localChild = new BuildStepLooping<>(test, function);
+//      BuildStep<SequentialProtocolBuilder, OutputT, OutputT> localChild =
+//          new BuildStepSequential<>(
+//              (OutputT output1, SequentialProtocolBuilder builder) -> {
+//                DelayedComputation<OutputT> result = new DelayedComputation<>();
+//                System.out.println("Comming in: " + function);
+//                whileStep(test, function, output1, builder, result);
+//                return result;
+//              });
       this.child = localChild;
       return localChild;
     }
 
-    private void whileStep(Predicate<OutputT> test,
+    private void whileStep(Predicate<OutputT> predicate,
         BiFunction<OutputT, SequentialProtocolBuilder, Computation<OutputT>> function,
         OutputT lastOutput, SequentialProtocolBuilder builder,
         DelayedComputation<OutputT> result) {
-      if (test.test(lastOutput)) {
+      if (predicate.test(lastOutput)) {
         Computation<OutputT> nextOutput = function.apply(lastOutput, builder);
         builder.createIteration((nextBuilder) ->
-            whileStep(test, function, nextOutput.out(), nextBuilder, result)
+            whileStep(predicate, function, nextOutput.out(), nextBuilder, result)
         );
       } else {
         result.setComputation(() -> lastOutput);
@@ -355,7 +358,7 @@ public abstract class ProtocolBuilder {
       return null;
     }
 
-    private ProtocolProducer createProducer(
+    protected ProtocolProducer createProducer(
         InputT input,
         BuilderFactoryNumeric factory) {
 
@@ -388,6 +391,77 @@ public abstract class ProtocolBuilder {
     @Override
     protected ParallelProtocolBuilder createBuilder(BuilderFactoryNumeric factory) {
       return new ParallelProtocolBuilder(factory);
+    }
+  }
+
+
+  private static class BuildStepLooping<InputT>
+      extends BuildStep<SequentialProtocolBuilder, InputT, InputT> {
+
+    private final Predicate<InputT> predicate;
+
+    private BuildStepLooping(
+        Predicate<InputT> predicate,
+        FrescoLambda<InputT, InputT> function) {
+      super(function);
+      this.predicate = predicate;
+    }
+
+    @Override
+    protected ProtocolProducer createProducer(InputT input, BuilderFactoryNumeric factory) {
+      return new ProtocolProducer() {
+        private boolean isDone = false;
+        private boolean doneWithOwn = false;
+        Computation<InputT> currentResult;
+        ProtocolProducer currentProducer = null;
+
+        {
+          updateToNextProducer(input);
+          currentResult = () -> input;
+        }
+
+        @Override
+        public void getNextProtocols(ProtocolCollection protocolCollection) {
+          currentProducer.getNextProtocols(protocolCollection);
+        }
+
+        private void next() {
+          while (!isDone && !currentProducer.hasNextProtocols()) {
+            updateToNextProducer(currentResult.out());
+          }
+        }
+
+        private void updateToNextProducer(InputT input) {
+          if (doneWithOwn) {
+            isDone = true;
+          } else {
+            if (predicate.test(input)) {
+              SequentialProtocolBuilder builder = new SequentialProtocolBuilder(factory);
+              currentResult = function.apply(input, builder);
+              currentProducer = builder.build();
+            } else {
+              doneWithOwn = true;
+              if (child != null) {
+                currentProducer = child.createProducer(input, factory);
+                child = null;
+              } else {
+                output = currentResult;
+              }
+            }
+          }
+        }
+
+        @Override
+        public boolean hasNextProtocols() {
+          next();
+          return !isDone;
+        }
+      };
+    }
+
+    @Override
+    protected SequentialProtocolBuilder createBuilder(BuilderFactoryNumeric factory) {
+      throw new IllegalStateException("Should not be called");
     }
   }
 

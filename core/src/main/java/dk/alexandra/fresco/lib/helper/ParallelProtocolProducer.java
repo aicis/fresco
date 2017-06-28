@@ -115,9 +115,10 @@ public class ParallelProtocolProducer implements ProtocolProducer,
     ListIterator<ProtocolProducer> x = cs.listIterator();
     while (x.hasNext()) {
       ProtocolProducer c = x.next();
-      c.getNextProtocols(protocolCollection);
       if (!c.hasNextProtocols()) {
         x.remove();
+      } else {
+        c.getNextProtocols(protocolCollection);
       }
       if (!protocolCollection.hasFreeCapacity()) {
         return; // We've filled the array.
