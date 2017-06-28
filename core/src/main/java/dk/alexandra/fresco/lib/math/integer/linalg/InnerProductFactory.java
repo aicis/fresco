@@ -26,8 +26,9 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.math.integer.linalg;
 
-import dk.alexandra.fresco.framework.value.OInt;
+
 import dk.alexandra.fresco.framework.value.SInt;
+import java.math.BigInteger;
 
 public interface InnerProductFactory {
 
@@ -55,5 +56,5 @@ public interface InnerProductFactory {
 	 *            vector2
 	 * @return
 	 */
-	InnerProductProtocol getInnerProductProtocol(SInt[] vector1, OInt[] vector2, SInt result);
+  InnerProductProtocol getInnerProductProtocol(SInt[] vector1, BigInteger[] vector2, SInt result);
 }

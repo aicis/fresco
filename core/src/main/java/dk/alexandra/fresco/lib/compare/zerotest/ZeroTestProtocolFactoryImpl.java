@@ -58,9 +58,9 @@ public class ZeroTestProtocolFactoryImpl implements ZeroTestProtocolFactory {
 			NumericNegateBitFactory numericNegateBitFactory,
 			PreprocessedExpPipeFactory expFactory) {
 		this.bnf = bnf;
-		this.miscOIntGenerator = new MiscOIntGenerators(bnf);
-		this.ipf = new InnerProductFactoryImpl(bnf, new EntrywiseProductFactoryImpl(bnf));
-		this.incFactory = new IncrementByOneProtocolFactoryImpl(bnf);
+    this.miscOIntGenerator = new MiscOIntGenerators();
+    this.ipf = new InnerProductFactoryImpl(bnf, new EntrywiseProductFactoryImpl(bnf));
+    this.incFactory = new IncrementByOneProtocolFactoryImpl(bnf);
 		this.expFromOIntFactory = expFromOIntFactory;
 		this.expFactory = expFactory;
 		this.maskFactory = new RandomAdditiveMaskFactoryImpl(bnf,

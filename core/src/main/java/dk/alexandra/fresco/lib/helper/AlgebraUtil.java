@@ -26,7 +26,7 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.helper;
 
-import dk.alexandra.fresco.framework.value.OInt;
+
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import java.math.BigInteger;
@@ -66,34 +66,6 @@ public class AlgebraUtil {
     List<T> output = new ArrayList<>(array.length);
     Collections.addAll(output, array);
     return output;
-  }
-
-  /**
-   * Construct a matrix of OInts, using the provided factory.
-   *
-   * @param matrix The output OInt matrix
-   * @param provider The factory for creating the OInts.
-   * @return The output OInt matrix
-   */
-  public static OInt[][] oIntFill(OInt[][] matrix, BasicNumericFactory provider) {
-    for (OInt[] vector : matrix) {
-      oIntFill(vector, provider);
-    }
-    return matrix;
-  }
-
-  /**
-   * Construct an array of OInts, using the provided factory.
-   *
-   * @param vector The output OInt array
-   * @param provider The factory for creating the OInts.
-   * @return The output OInt vector
-   */
-  public static OInt[] oIntFill(OInt[] vector, BasicNumericFactory provider) {
-    for (int i = 0; i < vector.length; i++) {
-      vector[i] = provider.getOInt();
-    }
-    return vector;
   }
 
   /**

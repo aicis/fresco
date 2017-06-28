@@ -30,17 +30,16 @@ import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.builder.ComputationBuilder;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder.SequentialProtocolBuilder;
-import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
 
-public class ExponentiationProtocolOpenBase    implements ComputationBuilder<SInt> {
+public class ExponentiationProtocolOpenBase implements ComputationBuilder<SInt> {
 
-  private final OInt base;
+  private final BigInteger base;
   private final Computation<SInt> exponent;
   private final int maxExponentBitLength;
 
-  public ExponentiationProtocolOpenBase(OInt base, Computation<SInt> exponent,
+  public ExponentiationProtocolOpenBase(BigInteger base, Computation<SInt> exponent,
       int maxExponentBitLength) {
     this.base = base;
     this.exponent = exponent;
@@ -52,7 +51,7 @@ public class ExponentiationProtocolOpenBase    implements ComputationBuilder<SIn
     return builder.seq((seq) ->
         seq.createAdvancedNumericBuilder().toBits(exponent, maxExponentBitLength)
     ).seq((bits, seq) -> {
-      OInt e = base;
+      BigInteger e = base;
       Computation<SInt> result = builder.numeric().known(BigInteger.valueOf(1));
       NumericBuilder numeric = seq.numeric();
       for (SInt bit : bits) {
@@ -67,7 +66,7 @@ public class ExponentiationProtocolOpenBase    implements ComputationBuilder<SIn
 				 */
         result = numeric
             .add(numeric.mult(bit, numeric.sub(numeric.mult(e, result), result)), result);
-        e = seq.getOIntFactory().getOInt(e.getValue().multiply(e.getValue()));
+        e = e.multiply(e);
       }
       return result;
     });

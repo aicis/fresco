@@ -82,7 +82,7 @@ public class BitLengthProtocol4 implements ComputationBuilder<SInt> {
 		 * from 0.
 		 */
       return seq.numeric()
-          .add(seq.getOIntFactory().getOInt(BigInteger.ONE), mostSignificantBitIndex);
+          .add(BigInteger.ONE, mostSignificantBitIndex);
     });
   }
 }

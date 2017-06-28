@@ -28,7 +28,6 @@ package dk.alexandra.fresco.lib.math.integer;
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.ProtocolProducer;
-import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
@@ -46,14 +45,14 @@ public class HammingDistanceProtocolImpl extends SimpleProtocolProducer implemen
     HammingDistanceProtocol {
 
   private final SInt[] aBits;
-  private final OInt b;
+  private final Computation<BigInteger> b;
   private final SInt result;
   private final BasicNumericFactory factory;
   private final NumericNegateBitFactory bitFactory;
   private BasicNumericFactory addFactory;
   private final int length;
 
-  public HammingDistanceProtocolImpl(SInt[] aBits, OInt b, SInt result,
+  public HammingDistanceProtocolImpl(SInt[] aBits, Computation<BigInteger> b, SInt result,
       BasicNumericFactory factory, NumericNegateBitFactory bitFactory) {
     this.aBits = aBits;
     this.b = b;
@@ -67,7 +66,7 @@ public class HammingDistanceProtocolImpl extends SimpleProtocolProducer implemen
 
   @Override
   protected ProtocolProducer initializeProtocolProducer() {
-    BigInteger m = b.getValue();
+    BigInteger m = b.out();
     SInt[] XOR = new SInt[length];
     ParallelProtocolProducer XOR_PPs = new ParallelProtocolProducer();
     ProtocolProducer pp;
@@ -76,7 +75,7 @@ public class HammingDistanceProtocolImpl extends SimpleProtocolProducer implemen
         pp = bitFactory.getNegatedBitProtocol(aBits[0], result);
       } else {
         SInt tmp = factory.getSInt();
-        // TODO: undo this ugly hack -- output should be equal to input, hence we need a NOP-gate A better solution would be to add zero, however, adding OInt's is not provided
+        // TODO: undo this ugly hack -- output should be equal to input, hence we need a NOP-gate A better solution would be to add zero, however, adding BigInteger's is not provided - now it is
         // Someone should incorporate all arithmetic into the BasicNumericProvider. /Tomas
         pp = new SequentialProtocolProducer(bitFactory.getNegatedBitProtocol(aBits[0], tmp),
             bitFactory.getNegatedBitProtocol(tmp, result));

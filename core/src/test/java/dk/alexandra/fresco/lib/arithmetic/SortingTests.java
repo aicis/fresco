@@ -27,6 +27,7 @@
 package dk.alexandra.fresco.lib.arithmetic;
 
 import dk.alexandra.fresco.framework.BuilderFactory;
+import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.TestApplication;
@@ -35,7 +36,6 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
-import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.compare.ComparisonProtocolFactoryImpl;
 import dk.alexandra.fresco.lib.compare.SortingProtocolBuilder;
@@ -44,7 +44,6 @@ import dk.alexandra.fresco.lib.helper.builder.NumericIOBuilder;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
 import dk.alexandra.fresco.lib.math.integer.exp.ExpFromOIntFactory;
 import dk.alexandra.fresco.lib.math.integer.exp.PreprocessedExpPipeFactory;
-import dk.alexandra.fresco.lib.math.integer.inv.LocalInversionFactory;
 import java.math.BigInteger;
 import java.util.Random;
 import org.junit.Assert;
@@ -78,13 +77,12 @@ public class SortingTests {
                 BuilderFactory factoryProducer) {
               ProtocolFactory producer = factoryProducer.getProtocolFactory();
               BasicNumericFactory bnFactory = (BasicNumericFactory) producer;
-              LocalInversionFactory localInvFactory = (LocalInversionFactory) producer;
               ExpFromOIntFactory expFromOIntFactory = (ExpFromOIntFactory) producer;
               PreprocessedExpPipeFactory expFactory = (PreprocessedExpPipeFactory) producer;
               SequentialProtocolProducer seq = new SequentialProtocolProducer();
 
               ComparisonProtocolFactoryImpl compFactory = new ComparisonProtocolFactoryImpl(
-                  80, bnFactory, localInvFactory,
+                  80, bnFactory,
                   expFromOIntFactory,
                   expFactory, (BuilderFactoryNumeric) factoryProducer);
 
@@ -101,10 +99,11 @@ public class SortingTests {
 
               SInt isSortedResult1 = isSortedBuilder.isSorted(unsorted);
               SInt isSortedResult2 = isSortedBuilder.isSorted(sorted);
-              OInt res1 = ioBuilder.output(isSortedResult1);
-              OInt res2 = ioBuilder.output(isSortedResult2);
+              Computation<BigInteger> res1 = ioBuilder.output(isSortedResult1);
+              Computation<BigInteger> res2 = ioBuilder.output(isSortedResult2);
 
-              outputs = new OInt[]{res1, res2};
+              outputs.add(res1);
+              outputs.add(res2);
 
               seq.append(isSortedBuilder.getProtocol());
               seq.append(ioBuilder.getProtocol());
@@ -116,8 +115,8 @@ public class SortingTests {
               .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf,
                   conf.sceConf.getSuite()));
           secureComputationEngine.shutdownSCE();
-          Assert.assertEquals(BigInteger.ZERO, app.getOutputs()[0].getValue());
-          Assert.assertEquals(BigInteger.ONE, app.getOutputs()[1].getValue());
+          Assert.assertEquals(BigInteger.ZERO, app.getOutputs()[0]);
+          Assert.assertEquals(BigInteger.ONE, app.getOutputs()[1]);
         }
       };
     }
@@ -143,13 +142,12 @@ public class SortingTests {
                 BuilderFactory factoryProducer) {
               ProtocolFactory producer = factoryProducer.getProtocolFactory();
               BasicNumericFactory bnFactory = (BasicNumericFactory) producer;
-              LocalInversionFactory localInvFactory = (LocalInversionFactory) producer;
               ExpFromOIntFactory expFromOIntFactory = (ExpFromOIntFactory) producer;
               PreprocessedExpPipeFactory expFactory = (PreprocessedExpPipeFactory) producer;
               SequentialProtocolProducer seq = new SequentialProtocolProducer();
 
               ComparisonProtocolFactoryImpl compFactory = new ComparisonProtocolFactoryImpl(
-                  80, bnFactory, localInvFactory,
+                  80, bnFactory,
                   expFromOIntFactory,
                   expFactory, (BuilderFactoryNumeric) factoryProducer);
 
@@ -161,10 +159,11 @@ public class SortingTests {
               seq.append(ioBuilder.getProtocol());
 
               isSortedBuilder.compareAndSwap(0, 1, vals);
-              OInt res1 = ioBuilder.output(vals[0]);
-              OInt res2 = ioBuilder.output(vals[1]);
+              Computation<BigInteger> res1 = ioBuilder.output(vals[0]);
+              Computation<BigInteger> res2 = ioBuilder.output(vals[1]);
 
-              outputs = new OInt[]{res1, res2};
+              outputs.add(res1);
+              outputs.add(res2);
 
               seq.append(isSortedBuilder.getProtocol());
               seq.append(ioBuilder.getProtocol());
@@ -176,8 +175,8 @@ public class SortingTests {
               .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf,
                   conf.sceConf.getSuite()));
           secureComputationEngine.shutdownSCE();
-          Assert.assertEquals(BigInteger.ONE, app.getOutputs()[0].getValue());
-          Assert.assertEquals(BigInteger.valueOf(2), app.getOutputs()[1].getValue());
+          Assert.assertEquals(BigInteger.ONE, app.getOutputs()[0]);
+          Assert.assertEquals(BigInteger.valueOf(2), app.getOutputs()[1]);
         }
       };
     }
@@ -206,13 +205,12 @@ public class SortingTests {
               ProtocolFactory producer = factoryProducer.getProtocolFactory();
 
               BasicNumericFactory bnFactory = (BasicNumericFactory) producer;
-              LocalInversionFactory localInvFactory = (LocalInversionFactory) producer;
               ExpFromOIntFactory expFromOIntFactory = (ExpFromOIntFactory) producer;
               PreprocessedExpPipeFactory expFactory = (PreprocessedExpPipeFactory) producer;
               SequentialProtocolProducer seq = new SequentialProtocolProducer();
 
               ComparisonProtocolFactoryImpl compFactory = new ComparisonProtocolFactoryImpl(
-                  80, bnFactory, localInvFactory,
+                  80, bnFactory,
                   expFromOIntFactory,
                   expFactory, (BuilderFactoryNumeric) factoryProducer);
 
@@ -232,15 +230,21 @@ public class SortingTests {
               //sorted version of same data.
               isSortedBuilder.sort(toBeSorted);
               SInt isSortedResult2 = isSortedBuilder.isSorted(toBeSorted);
-              OInt res1 = ioBuilder.output(isSortedResult1);
-              OInt res2 = ioBuilder.output(isSortedResult2);
-              OInt res3 = ioBuilder.output(toBeSorted[0]);
-              OInt res4 = ioBuilder.output(toBeSorted[1]);
-              OInt res5 = ioBuilder.output(toBeSorted[2]);
-              OInt res6 = ioBuilder.output(toBeSorted[3]);
-              OInt res7 = ioBuilder.output(toBeSorted[4]);
+              Computation<BigInteger> res1 = ioBuilder.output(isSortedResult1);
+              Computation<BigInteger> res2 = ioBuilder.output(isSortedResult2);
+              Computation<BigInteger> res3 = ioBuilder.output(toBeSorted[0]);
+              Computation<BigInteger> res4 = ioBuilder.output(toBeSorted[1]);
+              Computation<BigInteger> res5 = ioBuilder.output(toBeSorted[2]);
+              Computation<BigInteger> res6 = ioBuilder.output(toBeSorted[3]);
+              Computation<BigInteger> res7 = ioBuilder.output(toBeSorted[4]);
 
-              outputs = new OInt[]{res1, res2, res3, res4, res5, res6, res7};
+              outputs.add(res1);
+              outputs.add(res2);
+              outputs.add(res3);
+              outputs.add(res4);
+              outputs.add(res5);
+              outputs.add(res6);
+              outputs.add(res7);
 
               seq.append(isSortedBuilder.getProtocol());
               seq.append(ioBuilder.getProtocol());
@@ -253,14 +257,14 @@ public class SortingTests {
                   conf.sceConf.getSuite()));
           secureComputationEngine.shutdownSCE();
           Assert
-              .assertEquals(BigInteger.ZERO, app.getOutputs()[0].getValue()); //unsorted is unsorted
-          Assert.assertEquals(BigInteger.valueOf(0), app.getOutputs()[2].getValue());
-          Assert.assertEquals(BigInteger.valueOf(1), app.getOutputs()[3].getValue());
-          Assert.assertEquals(BigInteger.valueOf(3), app.getOutputs()[4].getValue());
-          Assert.assertEquals(BigInteger.valueOf(3), app.getOutputs()[5].getValue());
-          Assert.assertEquals(BigInteger.valueOf(5), app.getOutputs()[6].getValue());
+              .assertEquals(BigInteger.ZERO, app.getOutputs()[0]); //unsorted is unsorted
+          Assert.assertEquals(BigInteger.valueOf(0), app.getOutputs()[2]);
+          Assert.assertEquals(BigInteger.valueOf(1), app.getOutputs()[3]);
+          Assert.assertEquals(BigInteger.valueOf(3), app.getOutputs()[4]);
+          Assert.assertEquals(BigInteger.valueOf(3), app.getOutputs()[5]);
+          Assert.assertEquals(BigInteger.valueOf(5), app.getOutputs()[6]);
           Assert
-              .assertEquals(BigInteger.ONE, app.getOutputs()[1].getValue()); //tobesorted is sorted
+              .assertEquals(BigInteger.ONE, app.getOutputs()[1]); //tobesorted is sorted
         }
       };
     }
@@ -284,14 +288,13 @@ public class SortingTests {
               ProtocolFactory producer = factoryProducer.getProtocolFactory();
 
               BasicNumericFactory bnFactory = (BasicNumericFactory) producer;
-              LocalInversionFactory localInvFactory = (LocalInversionFactory) producer;
               ExpFromOIntFactory expFromOIntFactory = (ExpFromOIntFactory) producer;
               PreprocessedExpPipeFactory expFactory = (PreprocessedExpPipeFactory) producer;
               SequentialProtocolProducer seq = new SequentialProtocolProducer();
               Random random = new Random();
 
               ComparisonProtocolFactoryImpl compFactory = new ComparisonProtocolFactoryImpl(
-                  80, bnFactory, localInvFactory,
+                  80, bnFactory,
                   expFromOIntFactory,
                   expFactory, (BuilderFactoryNumeric) factoryProducer);
 
@@ -319,10 +322,11 @@ public class SortingTests {
               //sorted version of same data.
               isSortedBuilder.sort(toBeSorted);
               SInt isSortedResult2 = isSortedBuilder.isSorted(toBeSorted);
-              OInt res1 = ioBuilder.output(isSortedResult1);
-              OInt res2 = ioBuilder.output(isSortedResult2);
+              Computation<BigInteger> res1 = ioBuilder.output(isSortedResult1);
+              Computation<BigInteger> res2 = ioBuilder.output(isSortedResult2);
 
-              outputs = new OInt[]{res1, res2};
+              outputs.add(res1);
+              outputs.add(res2);
 
               seq.append(isSortedBuilder.getProtocol());
               seq.append(ioBuilder.getProtocol());
@@ -335,9 +339,9 @@ public class SortingTests {
                   conf.sceConf.getSuite()));
           secureComputationEngine.shutdownSCE();
           Assert.assertEquals(BigInteger.ZERO,
-              app.getOutputs()[0].getValue()); //unsorted is unsorted to start
+              app.getOutputs()[0]); //unsorted is unsorted to start
           Assert.assertEquals(BigInteger.ONE,
-              app.getOutputs()[1].getValue()); //tobesorted is sorted at the end
+              app.getOutputs()[1]); //tobesorted is sorted at the end
         }
       };
     }

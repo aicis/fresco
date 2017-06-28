@@ -28,7 +28,6 @@ package dk.alexandra.fresco.lib.helper.builder;
 
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.ProtocolProducer;
-import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.helper.AbstractRepeatProtocol;
@@ -122,14 +121,6 @@ public class NumericProtocolBuilder extends AbstractProtocolBuilder {
     return bnf.getSInt();
   }
 
-  public OInt knownOInt(int value) {
-    return knownOInt(BigInteger.valueOf(value));
-  }
-
-  public OInt knownOInt(BigInteger value) {
-    return bnf.getOInt(value);
-  }
-
   public SInt known(BigInteger value) {
     SInt sValue = bnf.getSInt();
     Computation loader = bnf.getSInt(value, sValue);
@@ -192,13 +183,13 @@ public class NumericProtocolBuilder extends AbstractProtocolBuilder {
   }
 
   /**
-   * Adds an SInt and an OInt
+   * Adds an SInt and an BigInteger
    *
    * @param left the lefthand input
    * @param right the righthand input
    * @return an SInt representing the result of the addition
    */
-  public SInt add(SInt left, OInt right) {
+  public SInt add(SInt left, BigInteger right) {
     SInt out = bnf.getSInt();
     append(bnf.getAddProtocol(left, right, out));
     return out;
@@ -374,13 +365,13 @@ public class NumericProtocolBuilder extends AbstractProtocolBuilder {
   }
 
   /**
-   * Multiplies an OInt and an SInt
+   * Multiplies an BigInteger and an SInt
    *
    * @param left the lefthand input
    * @param right the righthand input
    * @return an SInt representing the result of the multiplication
    */
-  public SInt mult(OInt left, SInt right) {
+  public SInt mult(BigInteger left, SInt right) {
     SInt out = bnf.getSInt();
     append(bnf.getMultProtocol(left, right, out));
     return out;
@@ -529,26 +520,26 @@ public class NumericProtocolBuilder extends AbstractProtocolBuilder {
   }
 
   /**
-   * Subtracts the righthand SInt from the lefthand OInt.
+   * Subtracts the righthand SInt from the lefthand BigInteger.
    *
    * @param left the lefthand input
    * @param right the righthand input
    * @return an SInt representing the result of the subtraction.
    */
-  public SInt sub(OInt left, SInt right) {
+  public SInt sub(BigInteger left, SInt right) {
     SInt out = bnf.getSInt();
     append(bnf.getSubtractProtocol(left, right, out));
     return out;
   }
 
   /**
-   * Subtracts the righthand OInt from the lefthand SInt.
+   * Subtracts the righthand BigInteger from the lefthand SInt.
    *
    * @param left the lefthand input
    * @param right the righthand input
    * @return an SInt representing the result of the subtraction.
    */
-  public SInt sub(SInt left, OInt right) {
+  public SInt sub(SInt left, BigInteger right) {
     SInt out = bnf.getSInt();
     append(bnf.getSubtractProtocol(left, right, out));
     return out;

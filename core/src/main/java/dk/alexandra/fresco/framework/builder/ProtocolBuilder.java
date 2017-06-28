@@ -6,7 +6,6 @@ import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.util.Pair;
-import dk.alexandra.fresco.framework.value.OIntFactory;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.helper.ProtocolProducerCollection;
 import dk.alexandra.fresco.lib.helper.SingleProtocolProducer;
@@ -39,10 +38,6 @@ public abstract class ProtocolBuilder {
     this.factory = factory;
     this.basicNumericFactory = factory.getBasicNumericFactory();
     this.protocols = new LinkedList<>();
-  }
-
-  public OIntFactory getOIntFactory() {
-    return basicNumericFactory;
   }
 
   public BasicNumericFactory getBasicNumericFactory() {
@@ -91,7 +86,7 @@ public abstract class ProtocolBuilder {
   }
 
   /**
-   * Creates another protocol builder based on th supplied consumer.
+   * Creates another protocol builder based on the supplied consumer.
    * This method re-creates the builder based on a sequential protocol producer inserted into this
    * original protocol producer as a child.
    *

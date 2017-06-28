@@ -29,7 +29,6 @@ package dk.alexandra.fresco.suite.spdz.gates;
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.network.SCENetwork;
 import dk.alexandra.fresco.framework.network.serializers.BigIntegerSerializer;
-import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
@@ -46,12 +45,6 @@ public class SpdzInputProtocol extends SpdzNativeProtocol<SpdzSInt> {
   protected SpdzSInt out;
   private int inputter;
   private byte[] digest;
-
-  public SpdzInputProtocol(OInt input, SInt out, int inputter) {
-    this.input = (input == null) ? null : input.getValue();
-    this.out = (SpdzSInt) out;
-    this.inputter = inputter;
-  }
 
   public SpdzInputProtocol(BigInteger input, SInt out, int inputter) {
     this.input = input;

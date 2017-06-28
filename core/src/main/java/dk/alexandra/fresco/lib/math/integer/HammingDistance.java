@@ -3,7 +3,6 @@ package dk.alexandra.fresco.lib.math.integer;
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.builder.ComputationBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder.SequentialProtocolBuilder;
-import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -17,19 +16,19 @@ import java.util.List;
 public class HammingDistance implements ComputationBuilder<SInt> {
 
   private final List<Computation<SInt>> aBits;
-  private final OInt b;
+  private final BigInteger b;
 
   public HammingDistance(
-      List<Computation<SInt>> aBits, OInt b) {
+      List<Computation<SInt>> aBits, BigInteger b) {
     this.aBits = aBits;
     this.b = b;
   }
 
   @Override
   public Computation<SInt> build(SequentialProtocolBuilder builder) {
-    OInt one = builder.getOIntFactory().getOInt(BigInteger.ONE);
+    BigInteger one = BigInteger.ONE;
     int length = aBits.size();
-    BigInteger m = b.getValue();
+    BigInteger m = b;
     if (length == 1) {
       if (m.testBit(0)) {
         return builder.numeric().sub(one, aBits.get(0));

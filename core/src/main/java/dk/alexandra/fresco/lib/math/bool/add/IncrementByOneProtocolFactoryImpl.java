@@ -27,7 +27,6 @@
 package dk.alexandra.fresco.lib.math.bool.add;
 
 import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import java.math.BigInteger;
@@ -42,8 +41,7 @@ public class IncrementByOneProtocolFactoryImpl implements IncrementByOneProtocol
 	
 	@Override
 	public Computation<? extends SInt> getIncrementByOneProtocol(SInt in, SInt out) {
-		OInt one = bnf.getOInt(BigInteger.ONE);
-		return bnf.getAddProtocol(in, one, out);
-	}
+    return bnf.getAddProtocol(in, BigInteger.ONE, out);
+  }
 
 }

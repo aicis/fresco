@@ -33,7 +33,6 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
-import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.compare.RandomAdditiveMaskFactory;
 import dk.alexandra.fresco.lib.compare.RandomAdditiveMaskFactoryImpl;
@@ -44,7 +43,6 @@ import dk.alexandra.fresco.lib.helper.builder.NumericIOBuilder;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
 import dk.alexandra.fresco.lib.math.integer.binary.RightShiftFactory;
 import dk.alexandra.fresco.lib.math.integer.binary.RightShiftFactoryImpl;
-import dk.alexandra.fresco.lib.math.integer.inv.LocalInversionFactory;
 import dk.alexandra.fresco.lib.math.integer.linalg.EntrywiseProductFactoryImpl;
 import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductFactoryImpl;
 import java.math.BigInteger;
@@ -79,10 +77,8 @@ public class ExponentiationTests {
                   basicNumericFactory,
                   new InnerProductFactoryImpl(basicNumericFactory,
                       new EntrywiseProductFactoryImpl(basicNumericFactory)));
-              LocalInversionFactory localInversionFactory = (LocalInversionFactory) provider
-                  .getProtocolFactory();
               RightShiftFactory rightShiftFactory = new RightShiftFactoryImpl(basicNumericFactory,
-                  randomAdditiveMaskFactory, localInversionFactory);
+                  randomAdditiveMaskFactory);
               IntegerToBitsFactory integerToBitsFactory = new IntegerToBitsFactoryImpl(
                   basicNumericFactory, rightShiftFactory);
               ExponentiationFactory exponentiationFactory = new ExponentiationFactoryImpl(
@@ -101,11 +97,9 @@ public class ExponentiationTests {
                   .getExponentiationCircuit(input1, input2, 5, result);
               sequentialProtocolProducer.append(exponentiationProtocol);
 
-              OInt output1 = ioBuilder.output(result);
+              outputs.add(ioBuilder.output(result));
 
               sequentialProtocolProducer.append(ioBuilder.getProtocol());
-
-              outputs = new OInt[]{output1};
 
               return sequentialProtocolProducer;
             }
@@ -114,7 +108,7 @@ public class ExponentiationTests {
               .runApplication(app, SecureComputationEngineImpl.createResourcePool(
                   conf.sceConf,
                   conf.sceConf.getSuite()));
-          BigInteger result = app.getOutputs()[0].getValue();
+          BigInteger result = app.getOutputs()[0];
 
           Assert.assertEquals(input.pow(exp), result);
         }

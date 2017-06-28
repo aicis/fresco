@@ -26,11 +26,14 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.math.integer;
 
-import dk.alexandra.fresco.framework.value.OInt;
+
+import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.value.SInt;
+import java.math.BigInteger;
 
 public interface HammingDistanceFactory {
 
-	public HammingDistanceProtocol getHammingdistanceProtocol(SInt[] vector, OInt publicValue, SInt result);
+  public HammingDistanceProtocol getHammingdistanceProtocol(SInt[] vector,
+      Computation<BigInteger> publicValue, SInt result);
 
 }

@@ -28,6 +28,7 @@ package dk.alexandra.fresco.lib.lp;
 
 import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.BuilderFactory;
+import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.TestApplication;
@@ -36,7 +37,6 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
-import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.debug.MarkerProtocolImpl;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
@@ -45,8 +45,8 @@ import dk.alexandra.fresco.lib.helper.builder.NumericIOBuilder;
 import dk.alexandra.fresco.lib.helper.builder.NumericProtocolBuilder;
 import dk.alexandra.fresco.lib.math.integer.exp.ExpFromOIntFactory;
 import dk.alexandra.fresco.lib.math.integer.exp.PreprocessedExpPipeFactory;
-import dk.alexandra.fresco.lib.math.integer.inv.LocalInversionFactory;
 import java.math.BigInteger;
+import java.util.List;
 import java.util.Random;
 import org.junit.Assert;
 
@@ -214,11 +214,10 @@ public class LPBuildingBlockTests {
             public ProtocolProducer prepareApplication(BuilderFactory factoryProducer) {
               ProtocolFactory producer = factoryProducer.getProtocolFactory();
               BasicNumericFactory bnFactory = (BasicNumericFactory) producer;
-              LocalInversionFactory localInvFactory = (LocalInversionFactory) producer;
               ExpFromOIntFactory expFromOIntFactory = (ExpFromOIntFactory) producer;
               PreprocessedExpPipeFactory expFactory = (PreprocessedExpPipeFactory) producer;
               RandomFieldElementFactory randFactory = (RandomFieldElementFactory) producer;
-              LPFactory lpFactory = new LPFactoryImpl(80, bnFactory, localInvFactory,
+              LPFactory lpFactory = new LPFactoryImpl(80, bnFactory,
                   expFromOIntFactory, expFactory, randFactory,
                   (BuilderFactoryNumeric) factoryProducer);
               mod = bnFactory.getModulus();
@@ -232,11 +231,12 @@ public class LPBuildingBlockTests {
           int sum = 0;
           BigInteger zero = BigInteger.ZERO;
           BigInteger one = BigInteger.ONE;
-          for (OInt b : app.outputs) {
-            if (b.getValue().compareTo(zero) == 0) {
+          List<Computation<BigInteger>> outputs = app.outputs;
+          for (Computation<BigInteger> b : outputs) {
+            if (b.out().compareTo(zero) == 0) {
               actualIndex = (sum < 1) ? actualIndex + 1 : actualIndex;
             } else {
-              Assert.assertEquals(one, b.getValue());
+              Assert.assertEquals(one, b.out());
               sum++;
             }
           }
@@ -324,13 +324,12 @@ public class LPBuildingBlockTests {
           .getExitingVariableProtocol(sTableau, sUpdateMatrix, sEnteringIdx, sExitingIndex,
               sUpdateCol, pivot);
       iob.addProtocolProducer(evc);
-      OInt[] oExitingIndex = iob.outputArray(sExitingIndex);
-      OInt[] oUpdateCol = iob.outputArray(sUpdateCol);
-      OInt oPivot = iob.output(pivot);
-      outputs = new OInt[oExitingIndex.length + oUpdateCol.length + 1];
-      System.arraycopy(oExitingIndex, 0, outputs, 0, oExitingIndex.length);
-      System.arraycopy(oUpdateCol, 0, outputs, oExitingIndex.length, oUpdateCol.length);
-      outputs[outputs.length - 1] = oPivot;
+      List<Computation<BigInteger>> oExitingIndex = iob.outputArray(sExitingIndex);
+      List<Computation<BigInteger>> oUpdateCol = iob.outputArray(sUpdateCol);
+      Computation<BigInteger> oPivot = iob.output(pivot);
+      outputs.addAll(oExitingIndex);
+      outputs.addAll(oUpdateCol);
+      outputs.add(oPivot);
       return iob.getProtocol();
     }
 

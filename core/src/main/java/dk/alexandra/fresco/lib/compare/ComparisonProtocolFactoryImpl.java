@@ -38,7 +38,6 @@ import dk.alexandra.fresco.lib.math.integer.NumericNegateBitFactory;
 import dk.alexandra.fresco.lib.math.integer.NumericNegateBitFactoryImpl;
 import dk.alexandra.fresco.lib.math.integer.exp.ExpFromOIntFactory;
 import dk.alexandra.fresco.lib.math.integer.exp.PreprocessedExpPipeFactory;
-import dk.alexandra.fresco.lib.math.integer.inv.LocalInversionFactory;
 import dk.alexandra.fresco.lib.math.integer.linalg.EntrywiseProductFactoryImpl;
 import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductFactory;
 import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductFactoryImpl;
@@ -47,7 +46,6 @@ public class ComparisonProtocolFactoryImpl implements ComparisonProtocolFactory 
 
   private final BasicNumericFactory bnf;
   private final int secParam;
-  private final LocalInversionFactory localInvFactory;
   private final NumericNegateBitFactory numericNegateBitFactory;
   private final RandomAdditiveMaskFactory randomAdditiveMaskFactory;
   private final InnerProductFactory innerProductFactory;
@@ -56,20 +54,19 @@ public class ComparisonProtocolFactoryImpl implements ComparisonProtocolFactory 
   private BuilderFactoryNumeric factoryProducer;
 
   public ComparisonProtocolFactoryImpl(int statisticalSecurityParameter,
-      BasicNumericFactory bnf, LocalInversionFactory localInvFactory,
+      BasicNumericFactory bnf,
       ExpFromOIntFactory expFromOIntFactory,
       PreprocessedExpPipeFactory expFactory,
       BuilderFactoryNumeric factoryProducer) {
     this.secParam = statisticalSecurityParameter;
     this.bnf = bnf;
-    this.localInvFactory = localInvFactory;
     this.numericNegateBitFactory = new NumericNegateBitFactoryImpl(bnf);
     this.innerProductFactory = new InnerProductFactoryImpl(bnf,
         new EntrywiseProductFactoryImpl(bnf));
     this.factoryProducer = factoryProducer;
     this.randomAdditiveMaskFactory = new RandomAdditiveMaskFactoryImpl(bnf,
         new InnerProductFactoryImpl(bnf, new EntrywiseProductFactoryImpl(bnf)));
-    this.misc = new MiscOIntGenerators(bnf);
+    this.misc = new MiscOIntGenerators();
     this.zeroTestProtocolFactory = new ZeroTestProtocolFactoryImpl(bnf,
         expFromOIntFactory, numericNegateBitFactory, expFactory);
   }
@@ -84,7 +81,7 @@ public class ComparisonProtocolFactoryImpl implements ComparisonProtocolFactory 
     return new GreaterThanReducerProtocolImpl(bitLength, secParam, x, y,
         result, bnf, numericNegateBitFactory, randomAdditiveMaskFactory,
         zeroTestProtocolFactory, misc, innerProductFactory,
-        localInvFactory, factoryProducer);
+        factoryProducer);
   }
 
   @Override

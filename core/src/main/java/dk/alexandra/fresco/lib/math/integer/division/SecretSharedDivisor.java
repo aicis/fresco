@@ -32,15 +32,13 @@ import dk.alexandra.fresco.framework.builder.ComputationBuilder;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder.SequentialProtocolBuilder;
 import dk.alexandra.fresco.framework.util.Pair;
-import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import java.math.BigInteger;
 
 /**
  * <p> This protocol implements integer division where both numerator and denominator are secret
- * shared. If the denominator is a known number {@link KnownDivisorProtocol4} should be used
- * instead. </p>
+ * shared. If the denominator is a known number {@link KnownDivisor} should be used instead. </p>
  *
  * <p> The protocol uses <a href= "https://en.wikipedia.org/wiki/Division_algorithm#Goldschmidt_division"
  * >Goldschmidt Division</a> (aka. the 'IBM Method'). </p>
@@ -49,7 +47,7 @@ import java.math.BigInteger;
  * dk.alexandra.fresco.lib.field.integer.BasicNumericFactory#getMaxBitLength()} / 4. Just like
  * regular integer division, this division will always truncate the result instead of rounding.
  */
-public class SecretSharedDivisorProtocol4
+public class SecretSharedDivisor
     implements ComputationBuilder<SInt> {
 
   private Computation<SInt> numerator;
@@ -57,7 +55,7 @@ public class SecretSharedDivisorProtocol4
 
   private BuilderFactoryNumeric builderFactory;
 
-  SecretSharedDivisorProtocol4(
+  SecretSharedDivisor(
       Computation<SInt> numerator,
       Computation<SInt> denominator,
       BuilderFactoryNumeric builderFactory) {
@@ -81,7 +79,7 @@ public class SecretSharedDivisorProtocol4
     int amountOfIterations = log2(maximumBitLength);
 
     // Convert 2 to fixed point notation with 'maximumBitLength' decimals.
-    OInt two = builder.getOIntFactory().getOInt(BigInteger.valueOf(2).shiftLeft(maximumBitLength));
+    BigInteger two = BigInteger.valueOf(2).shiftLeft(maximumBitLength);
 
     return builder.seq(seq -> Pair.lazy(numerator, denominator)
     ).par((pair, seq) -> {
@@ -101,7 +99,7 @@ public class SecretSharedDivisorProtocol4
       // Determine the actual number of bits in the denominator.
       Computation<SInt> denominatorBitLength = getBitLength(seq, denominator, maximumBitLength);
       // Determine the maximum number of bits we can shift the denominator left in order to gain more precision.
-      OInt maxBitLength = seq.getOIntFactory().getOInt(BigInteger.valueOf(maximumBitLength));
+      BigInteger maxBitLength = BigInteger.valueOf(maximumBitLength);
       Computation<SInt> leftShift = seq.numeric().sub(maxBitLength, denominatorBitLength);
       Computation<SInt> leftShiftFactor = exp2(seq, leftShift, log2(maximumBitLength));
       return Pair.lazy(leftShiftFactor, pair);
@@ -153,7 +151,7 @@ public class SecretSharedDivisorProtocol4
       Pair<Computation<SInt>, Computation<SInt>> signs = pair.getSecond();
       NumericBuilder numeric = seq.numeric();
       // Right shift to remove decimals, rounding last decimal up.
-      n = numeric.add(seq.getOIntFactory().getOInt(BigInteger.ONE), n);
+      n = numeric.add(BigInteger.ONE, n);
       n = shiftRight(seq, n, maximumBitLength);
       // Ensure that result has the correct sign
       n = numeric.mult(n, signs.getFirst());
@@ -175,8 +173,8 @@ public class SecretSharedDivisorProtocol4
   private Computation<SInt> sign(SequentialProtocolBuilder builder, Computation<SInt> input) {
     Computation<SInt> result = gte(builder, input,
         builder.numeric().known(BigInteger.valueOf(0)));
-    OInt two = builder.getOIntFactory().getOInt(BigInteger.valueOf(2));
-    OInt one = builder.getOIntFactory().getOInt(BigInteger.valueOf(1));
+    BigInteger two = BigInteger.valueOf(2);
+    BigInteger one = BigInteger.valueOf(1);
     result = builder.numeric().mult(two, result);
     result = builder.numeric().sub(result, one);
     return result;
@@ -195,7 +193,7 @@ public class SecretSharedDivisorProtocol4
   private Computation<SInt> exp2(SequentialProtocolBuilder builder, Computation<SInt> exponent,
       int maxExponentLength) {
     return builder.createAdvancedNumericBuilder().exp(
-        builder.getOIntFactory().getOInt(BigInteger.valueOf(2)),
+        BigInteger.valueOf(2),
         exponent,
         maxExponentLength
     );

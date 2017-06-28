@@ -11,7 +11,6 @@ import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.sce.SCEFactory;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
-import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.compare.ComparisonProtocolFactoryImpl;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
@@ -21,9 +20,9 @@ import dk.alexandra.fresco.lib.list.FindDuplicatesProtocolBuilder;
 import dk.alexandra.fresco.lib.list.SIntListofTuples;
 import dk.alexandra.fresco.lib.math.integer.exp.ExpFromOIntFactory;
 import dk.alexandra.fresco.lib.math.integer.exp.PreprocessedExpPipeFactory;
-import dk.alexandra.fresco.lib.math.integer.inv.LocalInversionFactory;
 import java.io.IOException;
 import java.math.BigInteger;
+import java.util.Arrays;
 import org.junit.Assert;
 
 class EliminateDuplicatesTests {
@@ -61,13 +60,12 @@ class EliminateDuplicatesTests {
                 BuilderFactory factoryProducer) {
               ProtocolFactory provider = factoryProducer.getProtocolFactory();
               BasicNumericFactory bnFactory = (BasicNumericFactory) provider;
-              LocalInversionFactory localInvFactory = (LocalInversionFactory) provider;
               ExpFromOIntFactory expFromOIntFactory = (ExpFromOIntFactory) provider;
               PreprocessedExpPipeFactory expFactory = (PreprocessedExpPipeFactory) provider;
               SequentialProtocolProducer seq = new SequentialProtocolProducer();
 
               ComparisonProtocolFactoryImpl compFactory = new ComparisonProtocolFactoryImpl(
-                  80, bnFactory, localInvFactory,
+                  80, bnFactory,
                   expFromOIntFactory,
                   expFactory, (BuilderFactoryNumeric) factoryProducer);
 
@@ -95,8 +93,9 @@ class EliminateDuplicatesTests {
 
               findDuplicatesBuilder.findDuplicates(list1, list2);
 
-              outputs = new OInt[]{ioBuilder.output(list1.getDuplicate(0)),
-                  ioBuilder.output(list1.getDuplicate(1)), ioBuilder.output(list1.getDuplicate(2))};
+              outputs.addAll(Arrays.asList(ioBuilder.output(list1.getDuplicate(0)),
+                  ioBuilder.output(list1.getDuplicate(1)),
+                  ioBuilder.output(list1.getDuplicate(2))));
 
               seq.append(findDuplicatesBuilder.getProtocol());
               seq.append(ioBuilder.getProtocol());
@@ -108,9 +107,9 @@ class EliminateDuplicatesTests {
               .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf,
                   conf.sceConf.getSuite()));
           secureComputationEngine.shutdownSCE();
-          Assert.assertEquals(BigInteger.ZERO, app.getOutputs()[0].getValue());
-          Assert.assertEquals(BigInteger.ZERO, app.getOutputs()[1].getValue());
-          Assert.assertEquals(BigInteger.ONE, app.getOutputs()[2].getValue());
+          Assert.assertEquals(BigInteger.ZERO, app.getOutputs()[0]);
+          Assert.assertEquals(BigInteger.ZERO, app.getOutputs()[1]);
+          Assert.assertEquals(BigInteger.ONE, app.getOutputs()[2]);
         }
       };
     }
@@ -139,13 +138,12 @@ class EliminateDuplicatesTests {
                 BuilderFactory factoryProducer) {
               ProtocolFactory provider = factoryProducer.getProtocolFactory();
               BasicNumericFactory bnFactory = (BasicNumericFactory) provider;
-              LocalInversionFactory localInvFactory = (LocalInversionFactory) provider;
               ExpFromOIntFactory expFromOIntFactory = (ExpFromOIntFactory) provider;
               PreprocessedExpPipeFactory expFactory = (PreprocessedExpPipeFactory) provider;
               SequentialProtocolProducer seq = new SequentialProtocolProducer();
 
               ComparisonProtocolFactoryImpl compFactory = new ComparisonProtocolFactoryImpl(
-                  80, bnFactory, localInvFactory,
+                  80, bnFactory,
                   expFromOIntFactory,
                   expFactory, (BuilderFactoryNumeric) factoryProducer);
 
@@ -173,8 +171,9 @@ class EliminateDuplicatesTests {
 
               findDuplicatesBuilder.findDuplicates(list2, list1);
 
-              outputs = new OInt[]{ioBuilder.output(list2.getDuplicate(0)),
-                  ioBuilder.output(list2.getDuplicate(1)), ioBuilder.output(list2.getDuplicate(2))};
+              outputs.addAll(Arrays.asList(ioBuilder.output(list2.getDuplicate(0)),
+                  ioBuilder.output(list2.getDuplicate(1)),
+                  ioBuilder.output(list2.getDuplicate(2))));
 
               seq.append(findDuplicatesBuilder.getProtocol());
               seq.append(ioBuilder.getProtocol());
@@ -186,9 +185,9 @@ class EliminateDuplicatesTests {
               .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf,
                   conf.sceConf.getSuite()));
           secureComputationEngine.shutdownSCE();
-          Assert.assertEquals(BigInteger.ONE, app.getOutputs()[0].getValue());
-          Assert.assertEquals(BigInteger.ZERO, app.getOutputs()[1].getValue());
-          Assert.assertEquals(BigInteger.ZERO, app.getOutputs()[2].getValue());
+          Assert.assertEquals(BigInteger.ONE, app.getOutputs()[0]);
+          Assert.assertEquals(BigInteger.ZERO, app.getOutputs()[1]);
+          Assert.assertEquals(BigInteger.ZERO, app.getOutputs()[2]);
         }
       };
     }
@@ -219,13 +218,12 @@ class EliminateDuplicatesTests {
                 BuilderFactory factoryProducer) {
               ProtocolFactory provider = factoryProducer.getProtocolFactory();
               BasicNumericFactory bnFactory = (BasicNumericFactory) provider;
-              LocalInversionFactory localInvFactory = (LocalInversionFactory) provider;
               ExpFromOIntFactory expFromOIntFactory = (ExpFromOIntFactory) provider;
               PreprocessedExpPipeFactory expFactory = (PreprocessedExpPipeFactory) provider;
               SequentialProtocolProducer seq = new SequentialProtocolProducer();
 
               ComparisonProtocolFactoryImpl compFactory = new ComparisonProtocolFactoryImpl(
-                  80, bnFactory, localInvFactory,
+                  80, bnFactory,
                   expFromOIntFactory,
                   expFactory, (BuilderFactoryNumeric) factoryProducer);
 
@@ -253,8 +251,9 @@ class EliminateDuplicatesTests {
 
               findDuplicatesBuilder.findDuplicates(list2, list1);
 
-              outputs = new OInt[]{ioBuilder.output(list2.getDuplicate(0)),
-                  ioBuilder.output(list2.getDuplicate(1)), ioBuilder.output(list2.getDuplicate(2))};
+              outputs.addAll(Arrays.asList(ioBuilder.output(list2.getDuplicate(0)),
+                  ioBuilder.output(list2.getDuplicate(1)),
+                  ioBuilder.output(list2.getDuplicate(2))));
 
               seq.append(findDuplicatesBuilder.getProtocol());
               seq.append(ioBuilder.getProtocol());
@@ -266,9 +265,9 @@ class EliminateDuplicatesTests {
               .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf,
                   conf.sceConf.getSuite()));
           secureComputationEngine.shutdownSCE();
-          Assert.assertEquals(BigInteger.ONE, app.getOutputs()[0].getValue());
-          Assert.assertEquals(BigInteger.ZERO, app.getOutputs()[1].getValue());
-          Assert.assertEquals(BigInteger.ZERO, app.getOutputs()[2].getValue());
+          Assert.assertEquals(BigInteger.ONE, app.getOutputs()[0]);
+          Assert.assertEquals(BigInteger.ZERO, app.getOutputs()[1]);
+          Assert.assertEquals(BigInteger.ZERO, app.getOutputs()[2]);
         }
       };
     }

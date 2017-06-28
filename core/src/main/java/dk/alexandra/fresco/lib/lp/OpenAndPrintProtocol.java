@@ -26,16 +26,18 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.lp;
 
+import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.ProtocolProducer;
-import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.debug.MarkerProtocolImpl;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.field.integer.generic.IOIntProtocolFactory;
-import dk.alexandra.fresco.lib.helper.AlgebraUtil;
 import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
 import dk.alexandra.fresco.lib.helper.SingleProtocolProducer;
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
 
 public class OpenAndPrintProtocol implements ProtocolProducer {
 
@@ -43,9 +45,9 @@ public class OpenAndPrintProtocol implements ProtocolProducer {
   private SInt[] vector = null;
   private SInt[][] matrix = null;
 
-  private OInt oNumber = null;
-  private OInt[] oVector = null;
-  private OInt[][] oMatrix = null;
+  private List<Computation<BigInteger>> oVector = new ArrayList<>();
+  private List<List<Computation<BigInteger>>> oMatrix = null;
+  private Computation<BigInteger> oNumber;
 
   private enum STATE {OUTPUT, WRITE, DONE}
 
@@ -81,30 +83,28 @@ public class OpenAndPrintProtocol implements ProtocolProducer {
     if (pp == null) {
       if (state == STATE.OUTPUT) {
         if (number != null) {
-          oNumber = factory.getOInt();
-          pp = SingleProtocolProducer.wrap(factory.getOpenProtocol(number, oNumber));
+          oNumber = factory.getOpenProtocol(number);
+          pp = SingleProtocolProducer.wrap(oNumber);
         } else if (vector != null) {
-          oVector = AlgebraUtil.oIntFill(new OInt[vector.length], factory);
           pp = makeOpenProtocol(vector, oVector, factory);
         } else {
-          oMatrix = AlgebraUtil.oIntFill(new OInt[matrix.length][matrix[0].length], factory);
           pp = makeOpenProtocol(matrix, oMatrix, factory);
         }
       } else if (state == STATE.WRITE) {
         StringBuilder sb = new StringBuilder();
         sb.append(label);
         if (oNumber != null) {
-          sb.append(oNumber.getValue().toString());
+          sb.append(oNumber.toString());
         } else if (oVector != null) {
           sb.append('\n');
-          for (OInt entry : oVector) {
-            sb.append(entry.getValue().toString() + ",\t");
+          for (Computation<BigInteger> entry : oVector) {
+            sb.append(entry.out().toString() + ",\t");
           }
         } else if (oMatrix != null) {
           sb.append('\n');
-          for (OInt[] row : oMatrix) {
-            for (OInt entry : row) {
-              sb.append(entry.getValue().toString() + "," + "\t");
+          for (List<Computation<BigInteger>> row : oMatrix) {
+            for (Computation<BigInteger> entry : row) {
+              sb.append(entry.out().toString() + "," + "\t");
             }
             sb.append('\n');
           }
@@ -130,34 +130,31 @@ public class OpenAndPrintProtocol implements ProtocolProducer {
     }
   }
 
-  ProtocolProducer makeOpenProtocol(SInt[][] closed, OInt[][] open, IOIntProtocolFactory factory) {
-    if (open.length != closed.length) {
-      throw new IllegalArgumentException("Amount of closed and open integers does not match. " +
-          "Open: " + open.length + " Closed: " + closed.length);
-    }
-    ProtocolProducer[] openings = new ProtocolProducer[open.length];
-    for (int i = 0; i < open.length; i++) {
-      openings[i] = makeOpenProtocol(closed[i], open[i], factory);
+  ProtocolProducer makeOpenProtocol(SInt[][] closed, List<List<Computation<BigInteger>>> open,
+      IOIntProtocolFactory factory) {
+    ProtocolProducer[] openings = new ProtocolProducer[closed.length];
+    for (int i = 0; i < closed.length; i++) {
+      ArrayList<Computation<BigInteger>> columnResult = new ArrayList<>();
+      open.add(columnResult);
+      openings[i] = makeOpenProtocol(closed[i], columnResult, factory);
     }
     return new ParallelProtocolProducer(openings);
   }
 
 
-  ProtocolProducer makeOpenProtocol(SInt[] closed, OInt[] open, IOIntProtocolFactory factory) {
-    if (open.length != closed.length) {
-      throw new IllegalArgumentException("Amount of closed and open integers does not match. " +
-          "Open: " + open.length + " Closed: " + closed.length);
-    }
+  ProtocolProducer makeOpenProtocol(SInt[] closed, List<Computation<BigInteger>> result,
+      IOIntProtocolFactory factory) {
     ParallelProtocolProducer parallelProtocolProducer = new ParallelProtocolProducer();
-    for (int i = 0; i < open.length; i++) {
-      parallelProtocolProducer.append(factory.getOpenProtocol(closed[i], open[i]));
+    for (int i = 0; i < closed.length; i++) {
+      Computation<BigInteger> openProtocol = factory.getOpenProtocol(closed[i]);
+      result.add(openProtocol);
+      parallelProtocolProducer.append(openProtocol);
     }
     return parallelProtocolProducer;
   }
 
   @Override
   public boolean hasNextProtocols() {
-    // TODO Auto-generated method stub
     return state != STATE.DONE;
   }
 

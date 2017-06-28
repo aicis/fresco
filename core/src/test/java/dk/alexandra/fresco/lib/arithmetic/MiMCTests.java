@@ -30,6 +30,7 @@ import dk.alexandra.fresco.framework.BuilderFactory;
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.TestApplication;
+import dk.alexandra.fresco.framework.TestApplicationBigInteger;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
@@ -38,11 +39,12 @@ import dk.alexandra.fresco.framework.builder.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
-import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.crypto.mimc.MiMCDecryption;
 import dk.alexandra.fresco.lib.crypto.mimc.MiMCEncryption;
 import java.math.BigInteger;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import org.junit.Assert;
 
 public class MiMCTests {
@@ -79,7 +81,7 @@ public class MiMCTests {
 
       return new TestThread<ResourcePoolT>() {
 
-        private Computation<OInt> result;
+        private Computation<BigInteger> result;
 
         @Override
         public void test() throws Exception {
@@ -112,7 +114,7 @@ public class MiMCTests {
           Assert.assertEquals(expectedModulus, app.getModulus());
           BigInteger expectedCipherText = new BigInteger(
               "10388336824440235723309131431891968131690383663436711590309818298349333623568340591094832870178074855376232596303647115");
-          Assert.assertEquals(expectedCipherText, result.out().getValue());
+          Assert.assertEquals(expectedCipherText, result.out());
         }
       };
     }
@@ -124,8 +126,8 @@ public class MiMCTests {
     @Override
     public TestThread<ResourcePoolT> next(TestThreadConfiguration<ResourcePoolT> conf) {
       return new TestThread<ResourcePoolT>() {
-        private Computation<OInt> result2;
-        private Computation<OInt> result1;
+        private Computation<BigInteger> result2;
+        private Computation<BigInteger> result1;
 
         @Override
         public void test() throws Exception {
@@ -154,7 +156,7 @@ public class MiMCTests {
               .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf,
                   conf.sceConf.getSuite()));
 
-          Assert.assertEquals(result1.out().getValue(), result2.out().getValue());
+          Assert.assertEquals(result1.out(), result2.out());
         }
       };
     }
@@ -166,8 +168,8 @@ public class MiMCTests {
     @Override
     public TestThread<ResourcePoolT> next(TestThreadConfiguration<ResourcePoolT> conf) {
       return new TestThread<ResourcePoolT>() {
-        private Computation<OInt> resultB;
-        private Computation<OInt> resultA;
+        private Computation<BigInteger> resultB;
+        private Computation<BigInteger> resultA;
 
         @Override
         public void test() throws Exception {
@@ -197,7 +199,7 @@ public class MiMCTests {
               .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf,
                   conf.sceConf.getSuite()));
 
-          Assert.assertNotEquals(resultA.out().getValue(), resultB.out().getValue());
+          Assert.assertNotEquals(resultA.out(), resultB.out());
         }
       };
     }
@@ -209,12 +211,11 @@ public class MiMCTests {
     @Override
     public TestThread<ResourcePoolT> next(TestThreadConfiguration<ResourcePoolT> conf) {
       return new TestThread<ResourcePoolT>() {
-        private Computation<OInt> result;
 
         @Override
         public void test() throws Exception {
           BigInteger x_big = BigInteger.valueOf(10);
-          TestApplication app = new TestApplication() {
+          TestApplicationBigInteger app = new TestApplicationBigInteger() {
 
 
             @Override
@@ -231,15 +232,16 @@ public class MiMCTests {
                     Computation<SInt> decrypted = builder.createSequentialSub(
                         new MiMCDecryption(cipherText, encryptionKey)
                     );
-                    result = builder.numeric().open(decrypted);
+                    output = builder.numeric().open(decrypted);
                   }).build();
             }
           };
 
-          secureComputationEngine
-              .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf,
+          Future<BigInteger> listFuture = secureComputationEngine
+              .startApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf,
                   conf.sceConf.getSuite()));
-          Assert.assertEquals(x_big, result.out().getValue());
+          BigInteger result = listFuture.get(20, TimeUnit.MINUTES);
+          Assert.assertEquals(x_big, result);
         }
       };
     }

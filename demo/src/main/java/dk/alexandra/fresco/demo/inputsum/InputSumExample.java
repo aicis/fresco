@@ -58,7 +58,7 @@ public class InputSumExample {
     for (int i : inputs) {
       sum += i;
     }
-    System.out.println("Expected result: " + sum + ", Result was: " + app.getOutput().getValue());
+    System.out.println("Expected result: " + sum + ", Result was: " + app.getResult());
   }
 
   public static void main(String[] args) throws IOException {

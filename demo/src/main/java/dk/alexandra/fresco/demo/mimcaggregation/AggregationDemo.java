@@ -1,5 +1,6 @@
 package dk.alexandra.fresco.demo.mimcaggregation;
 
+import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.Party;
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.configuration.PreprocessingStrategy;
@@ -11,7 +12,6 @@ import dk.alexandra.fresco.framework.sce.configuration.ProtocolSuiteConfiguratio
 import dk.alexandra.fresco.framework.sce.configuration.SCEConfiguration;
 import dk.alexandra.fresco.framework.sce.evaluator.SequentialEvaluator;
 import dk.alexandra.fresco.framework.sce.resources.storage.StreamedStorage;
-import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.framework.value.Value;
 import dk.alexandra.fresco.suite.ProtocolSuite;
@@ -20,8 +20,10 @@ import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePoolImpl;
 import dk.alexandra.fresco.suite.spdz.configuration.SpdzConfiguration;
 import java.io.IOException;
+import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.logging.Level;
@@ -124,13 +126,13 @@ public class AggregationDemo {
     OutputStep outputStep = new OutputStep(secretShares);
     sce.runApplication(outputStep, SecureComputationEngineImpl.createResourcePool(sceConf,
         protocolSuiteConfig));
-    OInt[][] _opened = outputStep.getOpenedRows();
-    int[][] opened = new int[_opened.length][_opened[0].length];
+    List<List<Computation<BigInteger>>> _opened = outputStep.getOpenedRows();
+    int[][] opened = new int[_opened.size()][_opened.get(0).size()];
     int rowIndex = 0,
         colIndex = 0;
-    for (OInt[] row : _opened) {
-      for (OInt value : row) {
-        opened[rowIndex][colIndex] = value.getValue().intValue();
+    for (List<Computation<BigInteger>> row : _opened) {
+      for (Computation<BigInteger> value : row) {
+        opened[rowIndex][colIndex] = value.out().intValue();
         colIndex++;
       }
       rowIndex++;

@@ -27,12 +27,11 @@
 package dk.alexandra.fresco.lib.crypto.mimc;
 
 import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.Reporter;
 import dk.alexandra.fresco.framework.builder.AdvancedNumericBuilder;
 import dk.alexandra.fresco.framework.builder.ComputationBuilder;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder.SequentialProtocolBuilder;
-import dk.alexandra.fresco.framework.value.OInt;
-import dk.alexandra.fresco.framework.value.OIntFactory;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import java.math.BigInteger;
@@ -71,14 +70,14 @@ public class MiMCDecryption implements ComputationBuilder<SInt> {
     this(cipherText, encryptionKey, null);
   }
 
+  int i = 0;
+
   @Override
   public Computation<SInt> build(SequentialProtocolBuilder builder) {
     BasicNumericFactory basicNumericFactory = builder.getBasicNumericFactory();
     int requiredRounds = MiMCEncryption
         .getRequiredRounds(basicNumericFactory, requestedRounds);
-    final OInt threeInverse = builder.getOIntFactory().getOInt(
-        calculateThreeInverse(basicNumericFactory)
-    );
+    final BigInteger threeInverse = calculateThreeInverse(basicNumericFactory);
 
     return builder.seq(seq -> {
 
@@ -91,6 +90,9 @@ public class MiMCDecryption implements ComputationBuilder<SInt> {
     }).whileLoop(
         (state) -> state.round < requiredRounds,
         (state, seq) -> {
+          if (state.round % 10 == 0) {
+            Reporter.info("Decryption " + state.round + " of " + requiredRounds);
+          }
           /*
            * We're in an intermediate round where we compute
            * c_{i} = c_{i - 1}^(3^(-1)) - K - r_{i}
@@ -111,10 +113,8 @@ public class MiMCDecryption implements ComputationBuilder<SInt> {
           int reverseRoundCount = requiredRounds - state.round;
 
           // Get round constant
-          OIntFactory oIntFactory = seq.getOIntFactory();
-          OInt roundConstant = oIntFactory.getOInt(
-              MiMCConstants.getConstant(reverseRoundCount, basicNumericFactory.getModulus())
-          );
+          BigInteger roundConstant =
+              MiMCConstants.getConstant(reverseRoundCount, basicNumericFactory.getModulus());
 
           // subtract key and round constant
           NumericBuilder numeric = seq.numeric();

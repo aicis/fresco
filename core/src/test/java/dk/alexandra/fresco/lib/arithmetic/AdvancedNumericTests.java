@@ -29,7 +29,7 @@ package dk.alexandra.fresco.lib.arithmetic;
 import dk.alexandra.fresco.framework.BuilderFactory;
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.ProtocolProducer;
-import dk.alexandra.fresco.framework.TestApplication;
+import dk.alexandra.fresco.framework.TestApplicationBigInteger;
 import dk.alexandra.fresco.framework.TestThreadRunner;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
@@ -37,7 +37,6 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
-import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
 import org.junit.Assert;
@@ -60,10 +59,7 @@ public class AdvancedNumericTests {
       return new TestThread() {
         @Override
         public void test() throws Exception {
-          TestApplication<BigInteger> app = new TestApplication<BigInteger>() {
-
-            private BigInteger out;
-            private Computation<OInt> openResult;
+          TestApplicationBigInteger app = new TestApplicationBigInteger() {
 
             @Override
             public ProtocolProducer prepareApplication(BuilderFactory factoryProducer) {
@@ -79,18 +75,8 @@ public class AdvancedNumericTests {
 
                     Computation<SInt> result = builder.createAdvancedNumericBuilder().div(p, q);
 
-                    openResult = builder.numeric().open(result);
+                    output = builder.numeric().open(result);
                   }).build();
-            }
-
-            @Override
-            public void close() {
-              this.out = openResult.out().getValue();
-            }
-
-            @Override
-            public BigInteger getResult() {
-              return this.out;
             }
           };
 
@@ -132,10 +118,7 @@ public class AdvancedNumericTests {
       return new TestThread() {
         @Override
         public void test() throws Exception {
-          TestApplication<BigInteger> app = new TestApplication<BigInteger>() {
-
-            private BigInteger out;
-            private Computation<OInt> openResult;
+          TestApplicationBigInteger app = new TestApplicationBigInteger() {
 
             @Override
             public ProtocolProducer prepareApplication(BuilderFactory factoryProducer) {
@@ -146,22 +129,12 @@ public class AdvancedNumericTests {
 
                     Computation<SInt> p = builder.numeric()
                         .known(BigInteger.valueOf(numerator));
-                    OInt q = builder.getOIntFactory().getOInt(BigInteger.valueOf(denominator));
+                    BigInteger q = BigInteger.valueOf(denominator);
 
                     Computation<SInt> result = builder.createAdvancedNumericBuilder().div(p, q);
 
-                    openResult = builder.numeric().open(result);
+                    output = builder.numeric().open(result);
                   }).build();
-            }
-
-            @Override
-            public void close() {
-              this.out = openResult.out().getValue();
-            }
-
-            @Override
-            public BigInteger getResult() {
-              return this.out;
             }
           };
 
@@ -186,34 +159,20 @@ public class AdvancedNumericTests {
       return new TestThread() {
         @Override
         public void test() throws Exception {
-          TestApplication<BigInteger> app = new TestApplication<BigInteger>() {
-
-            private BigInteger out;
-            private Computation<OInt> openResult;
-
+          TestApplicationBigInteger app = new TestApplicationBigInteger() {
             @Override
             public ProtocolProducer prepareApplication(BuilderFactory factoryProducer) {
               return ProtocolBuilder
                   .createApplicationRoot((BuilderFactoryNumeric) factoryProducer, (builder) -> {
                     Computation<SInt> p = builder.numeric()
                         .known(BigInteger.valueOf(numerator));
-                    OInt q = builder.getOIntFactory().getOInt(BigInteger.valueOf(denominator));
+                    BigInteger q = BigInteger.valueOf(denominator);
 
                     Computation<SInt> result = builder.createAdvancedNumericBuilder()
                         .mod(p, q);
 
-                    openResult = builder.numeric().open(result);
+                    output = builder.numeric().open(result);
                   }).build();
-            }
-
-            @Override
-            public void close() {
-              this.out = openResult.out().getValue();
-            }
-
-            @Override
-            public BigInteger getResult() {
-              return this.out;
             }
           };
 

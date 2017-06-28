@@ -27,68 +27,57 @@
 package dk.alexandra.fresco.lib.math.integer.exp;
 
 import dk.alexandra.fresco.framework.ProtocolProducer;
-import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.conversion.IntegerToBitsFactory;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.helper.SimpleProtocolProducer;
 import dk.alexandra.fresco.lib.helper.builder.NumericProtocolBuilder;
+import java.math.BigInteger;
 
 public class ExponentiationProtocolImpl extends SimpleProtocolProducer implements
-		ExponentiationProtocol {
+    ExponentiationProtocol {
 
-	private SInt input;
-	private OInt openInput;
-	private final SInt exponent;
-	private final int maxExponentBitLength;
-	private final SInt output;
-	
-	private final BasicNumericFactory basicNumericFactory;
-	private final IntegerToBitsFactory integerToBitsFactory;
+  private SInt input;
+  private BigInteger openInput;
+  private final SInt exponent;
+  private final int maxExponentBitLength;
+  private final SInt output;
 
-	public ExponentiationProtocolImpl(SInt input, SInt exponent, int maxExponentBitLength, SInt output,
-			BasicNumericFactory basicNumericFactory, IntegerToBitsFactory integerToBitsFactory) {
-		
-		this.input = input;
-		this.exponent = exponent;
-		this.maxExponentBitLength = maxExponentBitLength;
-		this.output = output;
-		
-		this.basicNumericFactory = basicNumericFactory;
-		this.integerToBitsFactory = integerToBitsFactory;
-		
-	}
+  private final BasicNumericFactory basicNumericFactory;
+  private final IntegerToBitsFactory integerToBitsFactory;
 
-	public ExponentiationProtocolImpl(OInt input, SInt exponent, int maxExponentBitLength, SInt output,
-			BasicNumericFactory basicNumericFactory, IntegerToBitsFactory integerToBitsFactory) {
-		
-		this.openInput = input;
-		this.exponent = exponent;
-		this.maxExponentBitLength = maxExponentBitLength;
-		this.output = output;
-		
-		this.basicNumericFactory = basicNumericFactory;
-		this.integerToBitsFactory = integerToBitsFactory;
-		
-	}
-	
-	@Override
-	protected ProtocolProducer initializeProtocolProducer() {
-		
-		NumericProtocolBuilder builder = new NumericProtocolBuilder(basicNumericFactory);
-		
-		SInt[] bits = builder.getSIntArray(maxExponentBitLength);
-		builder.addProtocolProducer(integerToBitsFactory.getIntegerToBitsCircuit(exponent, maxExponentBitLength, bits));
-		
-		SInt result = builder.getSInt(1);
-		
-		if (input != null) {
-			SInt e = builder.getSInt();
-			builder.copy(e, input);
-			
-			for (int i = 0; i < maxExponentBitLength; i++) {
-				/*
-				 * result += bits[i] * (result * r - r) + r
+  public ExponentiationProtocolImpl(SInt input, SInt exponent, int maxExponentBitLength,
+      SInt output,
+      BasicNumericFactory basicNumericFactory, IntegerToBitsFactory integerToBitsFactory) {
+
+    this.input = input;
+    this.exponent = exponent;
+    this.maxExponentBitLength = maxExponentBitLength;
+    this.output = output;
+
+    this.basicNumericFactory = basicNumericFactory;
+    this.integerToBitsFactory = integerToBitsFactory;
+
+  }
+
+  @Override
+  protected ProtocolProducer initializeProtocolProducer() {
+
+    NumericProtocolBuilder builder = new NumericProtocolBuilder(basicNumericFactory);
+
+    SInt[] bits = builder.getSIntArray(maxExponentBitLength);
+    builder.addProtocolProducer(
+        integerToBitsFactory.getIntegerToBitsCircuit(exponent, maxExponentBitLength, bits));
+
+    SInt result = builder.getSInt(1);
+
+    if (input != null) {
+      SInt e = builder.getSInt();
+      builder.copy(e, input);
+
+      for (int i = 0; i < maxExponentBitLength; i++) {
+        /*
+         * result += bits[i] * (result * r - r) + r
 				 * 
 				 *  aka.
 				 * 
@@ -96,16 +85,17 @@ public class ExponentiationProtocolImpl extends SimpleProtocolProducer implement
 				 * result = {
 				 *            result * e   if bits[i] = 1
 				 */
-				result = builder.add(builder.mult(bits[i], builder.sub(builder.mult(result, e), result)), result);
-				e = builder.mult(e, e);
-			}
-			
-		} else if (openInput != null) {
-			OInt e = basicNumericFactory.getOInt(openInput.getValue());
-			
-			for (int i = 0; i < maxExponentBitLength; i++) {
-				/*
-				 * result += bits[i] * (result * r - r) + r
+        result = builder
+            .add(builder.mult(bits[i], builder.sub(builder.mult(result, e), result)), result);
+        e = builder.mult(e, e);
+      }
+
+    } else if (openInput != null) {
+      BigInteger e = openInput;
+
+      for (int i = 0; i < maxExponentBitLength; i++) {
+        /*
+         * result += bits[i] * (result * r - r) + r
 				 * 
 				 *  aka.
 				 * 
@@ -113,14 +103,16 @@ public class ExponentiationProtocolImpl extends SimpleProtocolProducer implement
 				 * result = {
 				 *            result * e   if bits[i] = 1
 				 */
-				result = builder.add(builder.mult(bits[i], builder.sub(builder.mult(e, result), result)), result);
-				e = basicNumericFactory.getOInt(e.getValue().multiply(e.getValue()));
-			}
-		} else {
-			throw new IllegalArgumentException("Either input or openInput must not be null");
-		}
+        BigInteger finalE = e;
+        result = builder
+            .add(builder.mult(bits[i], builder.sub(builder.mult(finalE, result), result)), result);
+        e = e.multiply(e);
+      }
+    } else {
+      throw new IllegalArgumentException("Either input or openInput must not be null");
+    }
 
-		builder.copy(output, result);
-		return builder.getProtocol();
-	}
+    builder.copy(output, result);
+    return builder.getProtocol();
+  }
 }

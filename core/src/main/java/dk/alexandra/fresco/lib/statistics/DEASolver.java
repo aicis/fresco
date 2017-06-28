@@ -44,7 +44,6 @@ import dk.alexandra.fresco.lib.lp.LPTableau;
 import dk.alexandra.fresco.lib.lp.Matrix;
 import dk.alexandra.fresco.lib.math.integer.exp.ExpFromOIntFactory;
 import dk.alexandra.fresco.lib.math.integer.exp.PreprocessedExpPipeFactory;
-import dk.alexandra.fresco.lib.math.integer.inv.LocalInversionFactory;
 import java.util.Arrays;
 import java.util.List;
 
@@ -58,7 +57,7 @@ import java.util.List;
  * The result/score of the computation must be converted to a double using Gauss
  * reduction to be meaningful. See the DEASolverTests for an example.
  */
-public class DEASolver implements Application {
+public class DEASolver implements Application<SInt[]> {
 
 
   private List<List<SInt>> targetInputs, targetOutputs;
@@ -142,13 +141,12 @@ public class DEASolver implements Application {
     LPPrefix[] prefixes = getPrefixWithSecretSharedValues((BasicNumericFactory) provider);
 
     BasicNumericFactory bnFactory = (BasicNumericFactory) provider;
-    LocalInversionFactory localInvFactory = (LocalInversionFactory) provider;
     ExpFromOIntFactory expFromOIntFactory = (ExpFromOIntFactory) provider;
     PreprocessedExpPipeFactory expFactory = (PreprocessedExpPipeFactory) provider;
     RandomFieldElementFactory randFactory = (RandomFieldElementFactory) provider;
 
     // TODO get security parameter from somewhere
-    LPFactory lpFactory = new LPFactoryImpl(64, bnFactory, localInvFactory,
+    LPFactory lpFactory = new LPFactoryImpl(64, bnFactory,
         expFromOIntFactory,
         expFactory, randFactory, (BuilderFactoryNumeric) builderFactory);
 

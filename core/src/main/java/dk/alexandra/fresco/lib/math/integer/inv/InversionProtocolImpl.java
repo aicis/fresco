@@ -29,27 +29,28 @@ package dk.alexandra.fresco.lib.math.integer.inv;
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.ProtocolProducer;
-import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.field.integer.RandomFieldElementFactory;
+import dk.alexandra.fresco.lib.helper.SimpleProtocolProducer;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
+import java.math.BigInteger;
 
 public class InversionProtocolImpl implements InversionProtocol {
 
   private final SInt x, result;
   private final BasicNumericFactory factory;
-  private final LocalInversionFactory invFactory;
+  private final BasicNumericFactory invFactory;
   private final RandomFieldElementFactory randFactory;
   private ProtocolProducer pp;
   private boolean done;
 
   public InversionProtocolImpl(SInt x, SInt result, BasicNumericFactory factory,
-      LocalInversionFactory invFactory, RandomFieldElementFactory randFactory) {
+      RandomFieldElementFactory randFactory) {
     this.x = x;
     this.result = result;
     this.factory = factory;
-    this.invFactory = invFactory;
+    this.invFactory = factory;
     this.randFactory = randFactory;
     this.pp = null;
     this.done = false;
@@ -58,19 +59,16 @@ public class InversionProtocolImpl implements InversionProtocol {
   @Override
   public void getNextProtocols(ProtocolCollection protocolCollection) {
     if (pp == null) {
-      OInt inverse = factory.getOInt();
       SInt sProduct = factory.getSInt();
-      OInt oProduct = factory.getOInt();
       SInt random = factory.getSInt();
       Computation<? extends SInt> randomProt = randFactory.getRandomFieldElement(random);
       Computation<? extends SInt> blinding = factory.getMultProtocol(x, random, sProduct);
-      Computation<? extends OInt> open = factory.getOpenProtocol(sProduct, oProduct);
-      Computation<OInt> invert = invFactory
-          .getLocalInversionProtocol(oProduct, inverse);
-      Computation<? extends SInt> unblinding = factory
-          .getMultProtocol(inverse, random, result);
+      Computation<BigInteger> open = factory.getOpenProtocol(sProduct);
 
-      pp = new SequentialProtocolProducer(randomProt, blinding, open, invert, unblinding);
+      SequentialProtocolProducer sequentialProtocolProducer = new SequentialProtocolProducer(
+          randomProt, blinding, open);
+      sequentialProtocolProducer.append(new Doller(open, random));
+      pp = sequentialProtocolProducer;
     }
     if (pp.hasNextProtocols()) {
       pp.getNextProtocols(protocolCollection);
@@ -83,5 +81,24 @@ public class InversionProtocolImpl implements InversionProtocol {
   @Override
   public boolean hasNextProtocols() {
     return !done;
+  }
+
+  private class Doller extends SimpleProtocolProducer {
+
+    private final Computation<BigInteger> open;
+    private SInt random;
+
+    private Doller(Computation<BigInteger> open, SInt random) {
+      this.open = open;
+      this.random = random;
+    }
+
+    @Override
+    protected ProtocolProducer initializeProtocolProducer() {
+      BigInteger invert = open.out().modInverse(invFactory.getModulus());
+      Computation<? extends SInt> unblinding = factory
+          .getMultProtocol(invert, random, result);
+      return new SequentialProtocolProducer(unblinding);
+    }
   }
 }

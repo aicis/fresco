@@ -29,21 +29,17 @@ package dk.alexandra.fresco.suite.spdz.utils;
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.ProtocolProducer;
-import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.helper.CopyProtocolImpl;
 import dk.alexandra.fresco.lib.helper.SingleProtocolProducer;
 import dk.alexandra.fresco.lib.math.integer.exp.ExpFromOIntFactory;
 import dk.alexandra.fresco.lib.math.integer.exp.PreprocessedExpPipeFactory;
-import dk.alexandra.fresco.lib.math.integer.inv.LocalInversionFactory;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
-import dk.alexandra.fresco.suite.spdz.datatypes.SpdzOInt;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzAddProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzInputProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzKnownSIntProtocol;
-import dk.alexandra.fresco.suite.spdz.gates.SpdzLocalInversionProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzMultProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzOutputProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzOutputToAllProtocol;
@@ -54,7 +50,7 @@ import java.math.BigInteger;
 import java.security.SecureRandom;
 
 public class SpdzFactory implements BasicNumericFactory,
-    PreprocessedExpPipeFactory, ExpFromOIntFactory, LocalInversionFactory {
+    PreprocessedExpPipeFactory, ExpFromOIntFactory {
 
   private int maxBitLength;
   private SpdzStorage storage;
@@ -135,11 +131,11 @@ public class SpdzFactory implements BasicNumericFactory,
   }
 
   @Override
-  public OInt[] getExpFromOInt(OInt value, int maxBitSize) {
-    BigInteger[] res = getClearExpPipe(value.getValue(), maxBitSize);
-    OInt[] expPipe = new OInt[res.length];
+  public BigInteger[] getExpFromOInt(BigInteger value, int maxBitSize) {
+    BigInteger[] res = getClearExpPipe(value, maxBitSize);
+    BigInteger[] expPipe = new BigInteger[res.length];
     for (int i = 0; i < res.length; i++) {
-      expPipe[i] = new SpdzOInt(res[i]);
+      expPipe[i] = res[i];
     }
     return expPipe;
   }
@@ -161,29 +157,13 @@ public class SpdzFactory implements BasicNumericFactory,
   }
 
   @Override
-  public OInt getOInt() {
-    return new SpdzOInt();
-  }
-
-  @Override
-  public OInt getOInt(BigInteger i) {
-    return new SpdzOInt(i.mod(getModulus()));
-  }
-
-  @Override
-  public OInt getRandomOInt() {
-    return new SpdzOInt(new BigInteger(
-        getModulus().toByteArray().length, rand));
-  }
-
-  @Override
   public NativeProtocol<? extends SInt, ?> getAddProtocol(SInt a, SInt b, SInt out) {
     return new SpdzAddProtocol(a, b, out);
   }
 
 
   @Override
-  public NativeProtocol<? extends SInt, ?> getAddProtocol(SInt a, OInt b, SInt out) {
+  public NativeProtocol<? extends SInt, ?> getAddProtocol(SInt a, BigInteger b, SInt out) {
     return new SpdzAddProtocol(a, b, out, this);
   }
 
@@ -194,12 +174,14 @@ public class SpdzFactory implements BasicNumericFactory,
 
 
   @Override
-  public NativeProtocol<? extends SInt, ?> getSubtractProtocol(OInt a, SInt b, SInt out) {
+  public NativeProtocol<? extends SInt, ?> getSubtractProtocol(BigInteger a, SInt b,
+      SInt out) {
     return new SpdzSubtractProtocol(a, b, out, this);
   }
 
   @Override
-  public NativeProtocol<? extends SInt, ?> getSubtractProtocol(SInt a, OInt b, SInt out) {
+  public NativeProtocol<? extends SInt, ?> getSubtractProtocol(SInt a, BigInteger b,
+      SInt out) {
     return new SpdzSubtractProtocol(a, b, out, this);
   }
 
@@ -209,22 +191,13 @@ public class SpdzFactory implements BasicNumericFactory,
   }
 
   @Override
-  public Computation<? extends SInt> getMultProtocol(OInt a, SInt b, SInt out) {
-    return new SpdzMultProtocol(a, b, out);
+  public Computation<? extends SInt> getMultProtocol(BigInteger a, SInt b, SInt out) {
+    return new SpdzMultProtocol(a, (SpdzSInt) b, (SpdzSInt) out);
   }
 
   @Override
   public int getMaxBitLength() {
     return this.maxBitLength;
-  }
-
-  /****************************************
-   * Native protocols to Spdz *
-   ****************************************/
-
-  @Override
-  public Computation<OInt> getLocalInversionProtocol(OInt in, OInt out) {
-    return new SpdzLocalInversionProtocol(in, out);
   }
 
   @Override
@@ -268,18 +241,18 @@ public class SpdzFactory implements BasicNumericFactory,
 
 
   @Override
-  public Computation<? extends SInt> getCloseProtocol(int source, OInt open, SInt closed) {
+  public Computation<? extends SInt> getCloseProtocol(int source, BigInteger open, SInt closed) {
     return new SpdzInputProtocol(open, closed, source);
   }
 
   @Override
-  public Computation<? extends OInt> getOpenProtocol(int target, SInt closed, OInt open) {
-    return new SpdzOutputProtocol(closed, open, target);
+  public Computation<BigInteger> getOpenProtocol(int target, SInt closed) {
+    return new SpdzOutputProtocol(closed, target);
   }
 
   @Override
-  public Computation<? extends OInt> getOpenProtocol(SInt closed, OInt open) {
-    return new SpdzOutputToAllProtocol(closed, open);
+  public Computation<BigInteger> getOpenProtocol(SInt closed) {
+    return new SpdzOutputToAllProtocol(closed);
   }
 
   @Override

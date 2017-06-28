@@ -29,7 +29,6 @@ package dk.alexandra.fresco.lib.helper.builder;
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
-import dk.alexandra.fresco.framework.value.OIntFactory;
 import dk.alexandra.fresco.framework.value.SIntFactory;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.field.integer.generic.IOIntProtocolFactory;
@@ -74,7 +73,7 @@ public class OmniBuilder extends AbstractProtocolBuilder {
   public NumericIOBuilder getNumericIOBuilder() {
     if (numericIOBuilder == null) {
       numericIOBuilder = new NumericIOBuilder(
-          (IOIntProtocolFactory & SIntFactory & OIntFactory) factory);
+          (IOIntProtocolFactory & SIntFactory) factory);
       numericIOBuilder.setParentBuilder(this);
     }
     return numericIOBuilder;

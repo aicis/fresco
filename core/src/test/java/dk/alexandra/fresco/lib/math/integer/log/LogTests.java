@@ -37,7 +37,6 @@ import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
-import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -60,7 +59,7 @@ public class LogTests {
 			
 			return new TestThread() {
 				private final BigInteger[] x = { BigInteger.valueOf(201235), BigInteger.valueOf(1234), BigInteger.valueOf(405068), BigInteger.valueOf(123456), BigInteger.valueOf(110) };
-				private final ArrayList<Computation<OInt>> results = new ArrayList<>(x.length);
+        private final ArrayList<Computation<BigInteger>> results = new ArrayList<>(x.length);
 
 				@Override
 				public void test() throws Exception {
@@ -76,7 +75,7 @@ public class LogTests {
 											Computation<SInt> actualInput = sIntFactory.known(input);
 											Computation<SInt> result = builder.createAdvancedNumericBuilder()
 													.log(actualInput, input.bitLength());
-                      Computation<OInt> openResult = builder.numeric().open(result);
+                      Computation<BigInteger> openResult = builder.numeric().open(result);
                       results.add(openResult);
                     }
 									}).build();
@@ -87,9 +86,9 @@ public class LogTests {
                   conf.sceConf.getSuite()));
 
           for (int i = 0; i < x.length; i++) {
-						int actual = results.get(i).out().getValue().intValue();
-						int expected = (int) Math.log(x[i].doubleValue());
-						int difference = Math.abs(actual - expected);						
+            int actual = results.get(i).out().intValue();
+            int expected = (int) Math.log(x[i].doubleValue());
+            int difference = Math.abs(actual - expected);
 						Assert.assertTrue(difference <= 1); // Difference should be less than a bit
 					}					
 				}

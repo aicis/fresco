@@ -29,7 +29,6 @@ package dk.alexandra.fresco.lib.math.integer;
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.ProtocolProducer;
-import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
@@ -54,8 +53,7 @@ public class NumericNegateBitProtocol implements ProtocolProducer {
   @Override
   public void getNextProtocols(ProtocolCollection protocolCollection) {
     if (pp == null) {
-      OInt one = factory.getOInt(BigInteger.ONE);
-      Computation<? extends SInt> sub = factory.getSubtractProtocol(one, bit, out);
+      Computation<? extends SInt> sub = factory.getSubtractProtocol(BigInteger.ONE, bit, out);
       pp = new SequentialProtocolProducer(sub);
     }
     if (pp.hasNextProtocols()) {

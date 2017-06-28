@@ -37,7 +37,6 @@ import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
-import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -68,11 +67,11 @@ public class StatisticsTests {
         private final List<Integer> data2 = Arrays.asList(432, 620, 232, 337, 250, 433);
         private final List<Integer> data3 = Arrays.asList(80, 90, 123, 432, 145, 606);
 
-        private Computation<OInt> outputMean1;
-        private Computation<OInt> outputMean2;
-        private Computation<OInt> outputVariance;
-        private Computation<OInt> outputCovariance;
-        private List<List<Computation<OInt>>> outputCovarianceMatix;
+        private Computation<BigInteger> outputMean1;
+        private Computation<BigInteger> outputMean2;
+        private Computation<BigInteger> outputVariance;
+        private Computation<BigInteger> outputCovariance;
+        private List<List<Computation<BigInteger>>> outputCovarianceMatix;
 
         @Override
         public void test() throws Exception {
@@ -116,10 +115,10 @@ public class StatisticsTests {
                       outputVariance = open.open(variance);
                       outputCovariance = open.open(covariance);
                       List<List<Computation<SInt>>> covarianceMatrixOut = covarianceMatrix.out();
-                      List<List<Computation<OInt>>> openCovarianceMatrix = new ArrayList<>(
+                      List<List<Computation<BigInteger>>> openCovarianceMatrix = new ArrayList<>(
                           covarianceMatrixOut.size());
                       for (List<Computation<SInt>> computations : covarianceMatrixOut) {
-                        List<Computation<OInt>> computationList = new ArrayList<>(
+                        List<Computation<BigInteger>> computationList = new ArrayList<>(
                             computations.size());
                         openCovarianceMatrix.add(computationList);
                         for (Computation<SInt> computation : computations) {
@@ -136,10 +135,10 @@ public class StatisticsTests {
           secureComputationEngine
               .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf,
                   conf.sceConf.getSuite()));
-          BigInteger mean1 = outputMean1.out().getValue();
-          BigInteger mean2 = outputMean2.out().getValue();
-          BigInteger variance = outputVariance.out().getValue();
-          BigInteger covariance = outputCovariance.out().getValue();
+          BigInteger mean1 = outputMean1.out();
+          BigInteger mean2 = outputMean2.out();
+          BigInteger variance = outputVariance.out();
+          BigInteger covariance = outputCovariance.out();
 
           double sum = 0.0;
           for (int entry : data1) {
@@ -171,10 +170,10 @@ public class StatisticsTests {
           Assert.assertTrue(isInInterval(variance, varianceExact, tolerance));
           Assert.assertTrue(isInInterval(covariance, covarianceExact, tolerance));
           Assert.assertTrue(
-              isInInterval(outputCovarianceMatix.get(0).get(0).out().getValue(), varianceExact,
+              isInInterval(outputCovarianceMatix.get(0).get(0).out(), varianceExact,
                   tolerance));
           Assert
-              .assertTrue(isInInterval(outputCovarianceMatix.get(1).get(0).out().getValue(),
+              .assertTrue(isInInterval(outputCovarianceMatix.get(1).get(0).out(),
                   covarianceExact, tolerance));
 
         }

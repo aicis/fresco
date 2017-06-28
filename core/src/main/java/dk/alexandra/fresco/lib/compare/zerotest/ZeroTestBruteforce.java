@@ -6,7 +6,6 @@ import dk.alexandra.fresco.framework.builder.ComputationBuilder;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder.SequentialProtocolBuilder;
 import dk.alexandra.fresco.framework.util.Pair;
-import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.compare.MiscOIntGenerators;
 import java.math.BigInteger;
@@ -29,7 +28,7 @@ public class ZeroTestBruteforce implements ComputationBuilder<SInt> {
 
   @Override
   public Computation<SInt> build(SequentialProtocolBuilder builder) {
-    OInt one = builder.getOIntFactory().getOInt(BigInteger.ONE);
+    BigInteger one = BigInteger.ONE;
     return builder.seq((seq) ->
         seq.numeric().getExponentiationPipe()
     ).seq((expPipe, seq) -> {
@@ -37,17 +36,17 @@ public class ZeroTestBruteforce implements ComputationBuilder<SInt> {
       NumericBuilder numeric = seq.numeric();
       Computation<SInt> increased = numeric.add(one, input);
       Computation<SInt> maskedS = numeric.mult(increased, expPipe[0]);
-      Computation<OInt> open = seq.numeric().open(maskedS);
+      Computation<BigInteger> open = seq.numeric().open(maskedS);
       return () -> new Pair<>(expPipe, open.out());
     }).seq((pair, seq) -> {
       // compute powers and evaluate polynomial
       SInt[] R = pair.getFirst();
-      OInt maskedO = pair.getSecond();
-      Computation<OInt[]> maskedPowers = seq.numeric().getExpFromOInt(maskedO, maxLength);
+      BigInteger maskedO = pair.getSecond();
+      Computation<BigInteger[]> maskedPowers = seq.numeric().getExpFromOInt(maskedO, maxLength);
       return () -> new Pair<>(R, maskedPowers.out());
     }).par((pair, par) -> {
       SInt[] R = pair.getFirst();
-      OInt[] maskedPowers = pair.getSecond();
+      BigInteger[] maskedPowers = pair.getSecond();
       List<Computation<SInt>> powers = new ArrayList<>(maxLength);
       NumericBuilder numeric = par.numeric();
       for (int i = 0; i < maxLength; i++) {
@@ -57,9 +56,9 @@ public class ZeroTestBruteforce implements ComputationBuilder<SInt> {
     }).seq((powers, seq) -> {
       BigInteger modulus = seq.getBasicNumericFactory().getModulus();
       //TODO Get MichOIntGenerators through the factory to allow caching it for the entire application
-      OInt[] polynomialCoefficients = new MiscOIntGenerators(seq.getBasicNumericFactory())
+      BigInteger[] polynomialCoefficients = new MiscOIntGenerators()
           .getPoly(maxLength, modulus);
-      OInt[] mostSignificantPolynomialCoefficients = new OInt[maxLength];
+      BigInteger[] mostSignificantPolynomialCoefficients = new BigInteger[maxLength];
       System.arraycopy(polynomialCoefficients, 1,
           mostSignificantPolynomialCoefficients, 0, maxLength);
       Computation<SInt> tmp = seq.createAdvancedNumericBuilder()

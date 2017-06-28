@@ -26,17 +26,32 @@
  *******************************************************************************/
 package dk.alexandra.fresco.framework;
 
-import dk.alexandra.fresco.framework.value.OInt;
 
-public abstract class TestApplication<OutputT> implements Application<OutputT> {
-	
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -3392896741851185657L;
-	public OInt[] outputs;
-	
-	public OInt[] getOutputs() {
-		return this.outputs;
-	}
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
+public abstract class TestApplication implements Application<List<BigInteger>> {
+
+  /**
+   *
+   */
+  public List<Computation<BigInteger>> outputs = new ArrayList<>();
+
+  public BigInteger[] getOutputs() {
+    return this.outputs
+        .stream()
+        .map(Computation::out)
+        .collect(Collectors.toList())
+        .toArray(new BigInteger[]{});
+  }
+
+  @Override
+  public List<BigInteger> getResult() {
+    return this.outputs
+        .stream()
+        .map(Computation::out)
+        .collect(Collectors.toList());
+  }
 }

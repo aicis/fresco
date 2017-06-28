@@ -5,7 +5,6 @@ import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.ComparisonBuilder;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
-import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.compare.eq.EqualityProtocol4;
 import dk.alexandra.fresco.lib.compare.gt.GreaterThanReducerProtocol4;
@@ -55,7 +54,7 @@ public class DefaultComparisonBuilder implements ComparisonBuilder {
     NumericBuilder input = builder.numeric();
     Computation<SInt> compare =
         compare(input.known(BigInteger.valueOf(0)), x);
-    OInt oInt = bnf.getOInt(BigInteger.valueOf(2));
+    BigInteger oInt = BigInteger.valueOf(2);
     NumericBuilder numericBuilder = builder.numeric();
     Computation<SInt> twice = numericBuilder.mult(oInt, compare);
     return numericBuilder.sub(twice, input.known(BigInteger.valueOf(1)));

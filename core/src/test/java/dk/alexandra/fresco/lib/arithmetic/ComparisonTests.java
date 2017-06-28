@@ -38,7 +38,6 @@ import dk.alexandra.fresco.framework.builder.ComparisonBuilder;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
-import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
 import org.junit.Assert;
@@ -56,8 +55,8 @@ public class ComparisonTests {
     public TestThread next(TestThreadConfiguration conf) {
       return new TestThread() {
 
-        private Computation<OInt> res1;
-        private Computation<OInt> res2;
+        private Computation<BigInteger> res1;
+        private Computation<BigInteger> res2;
 
         @Override
         public void test() throws Exception {
@@ -86,8 +85,8 @@ public class ComparisonTests {
           secureComputationEngine
               .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf,
                   conf.sceConf.getSuite()));
-          Assert.assertEquals(BigInteger.ONE, res1.out().getValue());
-          Assert.assertEquals(BigInteger.ZERO, res2.out().getValue());
+          Assert.assertEquals(BigInteger.ONE, res1.out());
+          Assert.assertEquals(BigInteger.ZERO, res2.out());
         }
       };
     }
@@ -104,8 +103,8 @@ public class ComparisonTests {
     public TestThread next(TestThreadConfiguration conf) {
       return new TestThread() {
 
-        private Computation<OInt> res1;
-        private Computation<OInt> res2;
+        private Computation<BigInteger> res1;
+        private Computation<BigInteger> res2;
 
         @Override
         public void test() throws Exception {
@@ -134,8 +133,8 @@ public class ComparisonTests {
           secureComputationEngine
               .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf,
                   conf.sceConf.getSuite()));
-          Assert.assertEquals(BigInteger.ONE, res1.out().getValue());
-          Assert.assertEquals(BigInteger.ZERO, res2.out().getValue());
+          Assert.assertEquals(BigInteger.ONE, res1.out());
+          Assert.assertEquals(BigInteger.ZERO, res2.out());
         }
       };
     }

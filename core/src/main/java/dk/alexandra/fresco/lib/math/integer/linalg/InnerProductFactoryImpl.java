@@ -26,9 +26,10 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.math.integer.linalg;
 
-import dk.alexandra.fresco.framework.value.OInt;
+
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
+import java.math.BigInteger;
 
 public class InnerProductFactoryImpl implements InnerProductFactory{
 
@@ -49,8 +50,8 @@ public class InnerProductFactoryImpl implements InnerProductFactory{
 
 	@Override
 	public InnerProductProtocol getInnerProductProtocol(SInt[] aVector,
-			OInt[] bVector, SInt result) {
-		return new InnerProductProtocolImpl(aVector, bVector, result, bnf, dotProductFactory);
+      BigInteger[] bVector, SInt result) {
+    return new InnerProductProtocolImpl(aVector, bVector, result, bnf, dotProductFactory);
 	}
 
 }

@@ -30,7 +30,6 @@ import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.builder.ComputationBuilder;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder.SequentialProtocolBuilder;
-import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import java.math.BigInteger;
@@ -73,7 +72,7 @@ public class MiMCEncryption implements ComputationBuilder<SInt> {
   @Override
   public Computation<SInt> build(SequentialProtocolBuilder builder) {
     final int requiredRounds = getRequiredRounds(builder.getBasicNumericFactory(), requestedRounds);
-    OInt three = builder.getOIntFactory().getOInt(BigInteger.valueOf(3));
+    BigInteger three = BigInteger.valueOf(3);
     /*
      * In the first round we compute c = (p + K)^{3}
 		 * where p is the plain text.
@@ -96,7 +95,7 @@ public class MiMCEncryption implements ComputationBuilder<SInt> {
           BigInteger roundConstantInteger = MiMCConstants
               .getConstant(state.round, seq.getBasicNumericFactory().getModulus());
           NumericBuilder numeric = seq.numeric();
-          OInt roundConstant = seq.getOIntFactory().getOInt(roundConstantInteger);
+          BigInteger roundConstant = roundConstantInteger;
           Computation<SInt> masked = numeric.add(
               roundConstant,
               numeric.add(state.value, encryptionKey)

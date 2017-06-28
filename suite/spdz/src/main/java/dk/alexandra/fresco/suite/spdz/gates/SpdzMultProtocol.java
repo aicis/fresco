@@ -29,11 +29,9 @@ package dk.alexandra.fresco.suite.spdz.gates;
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.network.SCENetwork;
 import dk.alexandra.fresco.framework.network.serializers.BigIntegerSerializer;
-import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
-import dk.alexandra.fresco.suite.spdz.datatypes.SpdzOInt;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzTriple;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
@@ -42,7 +40,7 @@ import java.math.BigInteger;
 public class SpdzMultProtocol extends SpdzNativeProtocol<SpdzSInt> {
 
   private SpdzSInt in1, in2, out;
-  private SpdzOInt oIn1;
+  private BigInteger oIn1;
   private SpdzTriple triple;
   private SpdzElement epsilon, delta; // my share of the differences [x]-[a]
   // and [y]-[b].
@@ -53,23 +51,12 @@ public class SpdzMultProtocol extends SpdzNativeProtocol<SpdzSInt> {
     this.out = (SpdzSInt) out;
   }
 
-  public SpdzMultProtocol(SpdzSInt in1, SpdzSInt in2, SpdzSInt out) {
-    this.in1 = in1;
-    this.in2 = in2;
-    this.out = out;
-  }
-
-  public SpdzMultProtocol(SpdzOInt oIn1, SpdzSInt in2, SpdzSInt out) {
+  public SpdzMultProtocol(BigInteger oIn1, SpdzSInt in2, SpdzSInt out) {
     this.oIn1 = oIn1;
     this.in2 = in2;
     this.out = out;
   }
 
-  public SpdzMultProtocol(OInt oIn1, SInt in2, SInt out) {
-    this.oIn1 = (SpdzOInt) oIn1;
-    this.in2 = (SpdzSInt) in2;
-    this.out = (SpdzSInt) out;
-  }
 
   @Override
   public EvaluationStatus evaluate(int round, SpdzResourcePool spdzResourcePool,
@@ -82,7 +69,7 @@ public class SpdzMultProtocol extends SpdzNativeProtocol<SpdzSInt> {
         try {
           if (oIn1 != null) {
             SpdzElement res = in2.value;
-            res = res.multiply(oIn1.getValue());
+            res = res.multiply(oIn1);
             out.value = res;
             return EvaluationStatus.IS_DONE;
           }

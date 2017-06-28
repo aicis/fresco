@@ -4,18 +4,18 @@ import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.builder.ComputationBuilder;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder.SequentialProtocolBuilder;
-import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.math.integer.SumSIntList;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
 public class InnerProductProtocolOpen implements ComputationBuilder<SInt> {
 
-  private final List<OInt> aVector;
+  private final List<BigInteger> aVector;
   private final List<Computation<SInt>> bVector;
 
-  public InnerProductProtocolOpen(List<OInt> aVector,
+  public InnerProductProtocolOpen(List<BigInteger> aVector,
       List<Computation<SInt>> bVector) {
     this.aVector = aVector;
     this.bVector = bVector;
@@ -28,7 +28,7 @@ public class InnerProductProtocolOpen implements ComputationBuilder<SInt> {
           List<Computation<SInt>> result = new ArrayList<>(aVector.size());
           NumericBuilder numericBuilder = parallel.numeric();
           for (int i = 0; i < aVector.size(); i++) {
-            OInt nextA = aVector.get(i);
+            BigInteger nextA = aVector.get(i);
             Computation<SInt> nextB = bVector.get(i);
             result.add(numericBuilder.mult(nextA, nextB));
           }

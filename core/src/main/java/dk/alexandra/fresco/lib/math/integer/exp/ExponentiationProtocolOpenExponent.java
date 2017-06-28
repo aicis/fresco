@@ -30,16 +30,15 @@ import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.builder.ComputationBuilder;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder.SequentialProtocolBuilder;
-import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
 
 public class ExponentiationProtocolOpenExponent    implements ComputationBuilder<SInt> {
 
   private Computation<SInt> base;
-  private OInt exponent;
+  private BigInteger exponent;
 
-  public ExponentiationProtocolOpenExponent(Computation<SInt> x, OInt e) {
+  public ExponentiationProtocolOpenExponent(Computation<SInt> x, BigInteger e) {
     this.base = x;
     this.exponent = e;
   }
@@ -52,7 +51,7 @@ public class ExponentiationProtocolOpenExponent    implements ComputationBuilder
     return builder.seq((seq) -> {
       Computation<SInt> accOdd = seq.numeric().known(BigInteger.valueOf(1));
       Computation<SInt> accEven = base;
-      return new IterationState(exponent.getValue(), accEven, accOdd);
+      return new IterationState(exponent, accEven, accOdd);
     }).whileLoop(
         iterationState -> !iterationState.exponent.equals(BigInteger.ONE),
         (iterationState, seq) -> {

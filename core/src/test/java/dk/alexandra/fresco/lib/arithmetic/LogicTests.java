@@ -1,6 +1,7 @@
 package dk.alexandra.fresco.lib.arithmetic;
 
 import dk.alexandra.fresco.framework.BuilderFactory;
+import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.TestApplication;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
@@ -10,7 +11,6 @@ import dk.alexandra.fresco.framework.sce.SCEFactory;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
-import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.helper.builder.NumericIOBuilder;
@@ -18,6 +18,7 @@ import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
 import dk.alexandra.fresco.lib.math.logic.LogicProtocolBuilder;
 import java.io.IOException;
 import java.math.BigInteger;
+import java.util.Arrays;
 import org.junit.Assert;
 
 /**
@@ -90,29 +91,29 @@ public class LogicTests {
               SInt xorFT = logicBuilder.xor(S_FALSE, S_TRUE);
               SInt xorFF = logicBuilder.xor(S_FALSE, S_FALSE);
 
-              OInt res1 = ioBuilder.output(S_TRUE);
-              OInt res2 = ioBuilder.output(S_FALSE);
+              Computation<BigInteger> res1 = ioBuilder.output(S_TRUE);
+              Computation<BigInteger> res2 = ioBuilder.output(S_FALSE);
 
-              OInt res3 = ioBuilder.output(andTT);
-              OInt res4 = ioBuilder.output(andTF);
-              OInt res5 = ioBuilder.output(andFT);
-              OInt res6 = ioBuilder.output(andFF);
+              Computation<BigInteger> res3 = ioBuilder.output(andTT);
+              Computation<BigInteger> res4 = ioBuilder.output(andTF);
+              Computation<BigInteger> res5 = ioBuilder.output(andFT);
+              Computation<BigInteger> res6 = ioBuilder.output(andFF);
 
-              OInt res7 = ioBuilder.output(orTT);
-              OInt res8 = ioBuilder.output(orTF);
-              OInt res9 = ioBuilder.output(orFT);
-              OInt res10 = ioBuilder.output(orFF);
+              Computation<BigInteger> res7 = ioBuilder.output(orTT);
+              Computation<BigInteger> res8 = ioBuilder.output(orTF);
+              Computation<BigInteger> res9 = ioBuilder.output(orFT);
+              Computation<BigInteger> res10 = ioBuilder.output(orFF);
 
-              OInt res11 = ioBuilder.output(xorTT);
-              OInt res12 = ioBuilder.output(xorTF);
-              OInt res13 = ioBuilder.output(xorFT);
-              OInt res14 = ioBuilder.output(xorFF);
+              Computation<BigInteger> res11 = ioBuilder.output(xorTT);
+              Computation<BigInteger> res12 = ioBuilder.output(xorTF);
+              Computation<BigInteger> res13 = ioBuilder.output(xorFT);
+              Computation<BigInteger> res14 = ioBuilder.output(xorFF);
 
-              OInt res15 = ioBuilder.output(notT);
-              OInt res16 = ioBuilder.output(notF);
+              Computation<BigInteger> res15 = ioBuilder.output(notT);
+              Computation<BigInteger> res16 = ioBuilder.output(notF);
 
-              outputs = new OInt[]{res1, res2, res3, res4, res5, res6, res7, res8, res9, res10,
-                  res11, res12, res13, res14, res15, res16};
+              outputs = Arrays.asList(res1, res2, res3, res4, res5, res6, res7, res8, res9, res10,
+                  res11, res12, res13, res14, res15, res16);
 
               seq.append(logicBuilder.getProtocol());
               seq.append(ioBuilder.getProtocol());
@@ -126,22 +127,22 @@ public class LogicTests {
                   conf.sceConf.getSuite());
           secureComputationEngine.runApplication(app, resourcePool);
           secureComputationEngine.shutdownSCE();
-          Assert.assertEquals(BigInteger.ONE, app.getOutputs()[0].getValue());
-          Assert.assertEquals(BigInteger.ZERO, app.getOutputs()[1].getValue());
-          Assert.assertEquals(BigInteger.ONE, app.getOutputs()[2].getValue());
-          Assert.assertEquals(BigInteger.ZERO, app.getOutputs()[3].getValue());
-          Assert.assertEquals(BigInteger.ZERO, app.getOutputs()[4].getValue());
-          Assert.assertEquals(BigInteger.ZERO, app.getOutputs()[5].getValue());
-          Assert.assertEquals(BigInteger.ONE, app.getOutputs()[6].getValue());
-          Assert.assertEquals(BigInteger.ONE, app.getOutputs()[7].getValue());
-          Assert.assertEquals(BigInteger.ONE, app.getOutputs()[8].getValue());
-          Assert.assertEquals(BigInteger.ZERO, app.getOutputs()[9].getValue());
-          Assert.assertEquals(BigInteger.ZERO, app.getOutputs()[10].getValue());
-          Assert.assertEquals(BigInteger.ONE, app.getOutputs()[11].getValue());
-          Assert.assertEquals(BigInteger.ONE, app.getOutputs()[12].getValue());
-          Assert.assertEquals(BigInteger.ZERO, app.getOutputs()[13].getValue());
-          Assert.assertEquals(BigInteger.ZERO, app.getOutputs()[14].getValue());
-          Assert.assertEquals(BigInteger.ONE, app.getOutputs()[15].getValue());
+          Assert.assertEquals(BigInteger.ONE, app.getOutputs()[0]);
+          Assert.assertEquals(BigInteger.ZERO, app.getOutputs()[1]);
+          Assert.assertEquals(BigInteger.ONE, app.getOutputs()[2]);
+          Assert.assertEquals(BigInteger.ZERO, app.getOutputs()[3]);
+          Assert.assertEquals(BigInteger.ZERO, app.getOutputs()[4]);
+          Assert.assertEquals(BigInteger.ZERO, app.getOutputs()[5]);
+          Assert.assertEquals(BigInteger.ONE, app.getOutputs()[6]);
+          Assert.assertEquals(BigInteger.ONE, app.getOutputs()[7]);
+          Assert.assertEquals(BigInteger.ONE, app.getOutputs()[8]);
+          Assert.assertEquals(BigInteger.ZERO, app.getOutputs()[9]);
+          Assert.assertEquals(BigInteger.ZERO, app.getOutputs()[10]);
+          Assert.assertEquals(BigInteger.ONE, app.getOutputs()[11]);
+          Assert.assertEquals(BigInteger.ONE, app.getOutputs()[12]);
+          Assert.assertEquals(BigInteger.ZERO, app.getOutputs()[13]);
+          Assert.assertEquals(BigInteger.ZERO, app.getOutputs()[14]);
+          Assert.assertEquals(BigInteger.ONE, app.getOutputs()[15]);
     /*			 */
           /*
 

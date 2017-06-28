@@ -33,8 +33,6 @@ import dk.alexandra.fresco.framework.builder.ComputationBuilder;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder.SequentialProtocolBuilder;
 import dk.alexandra.fresco.framework.util.Pair;
-import dk.alexandra.fresco.framework.value.OInt;
-import dk.alexandra.fresco.framework.value.OIntFactory;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
 import java.util.Collections;
@@ -68,20 +66,21 @@ public class RightShiftProtocol4 implements ComputationBuilder<RightShiftResult>
       AdvancedNumericBuilder additiveMaskBuilder = builder.createAdvancedNumericBuilder();
       return additiveMaskBuilder.additiveMask(bitLength);
     }).par((randomAdditiveMask, parSubSequential) -> {
-      OInt two = parSubSequential.getOIntFactory().getOInt(BigInteger.valueOf(2));
+      BigInteger two = BigInteger.valueOf(2);
       NumericBuilder numericBuilder = parSubSequential.numeric();
-      Computation<? extends OInt> inverseOfTwo = numericBuilder.invert(two);
+      BigInteger inverseOfTwo =
+          two.modInverse(parSubSequential.getBasicNumericFactory().getModulus());
       Computation<SInt> rBottom = randomAdditiveMask.bits.get(0);
       Computation<SInt> sub = numericBuilder
           .sub(() -> randomAdditiveMask.r, rBottom);
-      Computation<SInt> rTop = numericBuilder.mult(inverseOfTwo.out(), sub);
+      Computation<SInt> rTop = numericBuilder.mult(inverseOfTwo, sub);
       return () -> new Pair<>(rBottom, rTop);
     }, (randomAdditiveMask, parSubSequential) -> {
       Computation<SInt> result = parSubSequential.numeric()
           .add(input, () -> randomAdditiveMask.r);
       return parSubSequential.numeric().open(result);
     }).seq((preprocessOutput, round1) -> {
-      OInt mOpen = preprocessOutput.getSecond();
+      BigInteger mOpen = preprocessOutput.getSecond();
       Computation<SInt> rBottom = preprocessOutput.getFirst().getFirst();
       Computation<SInt> rTop = preprocessOutput.getFirst().getSecond();
           /*
@@ -92,17 +91,16 @@ public class RightShiftProtocol4 implements ComputationBuilder<RightShiftResult>
 					 * bit of r is 1 and the first bit of m is 0 which in turn
 					 * is equal to r_0 * (m + 1 (mod 2)).
 					 */
-      OInt mBottomNegated = round1.getOIntFactory().getOInt(mOpen.getValue()
-          .add(BigInteger.ONE).mod(BigInteger.valueOf(2)));
+      BigInteger mBottomNegated = mOpen
+          .add(BigInteger.ONE).mod(BigInteger.valueOf(2));
       Computation<SInt> carry = round1.numeric().mult(mBottomNegated, rBottom);
       return () -> new Pair<>(new Pair<>(rBottom, rTop), new Pair<>(carry, mOpen));
     }).par(
         (inputs, parSubSequential) -> {
-          BigInteger openShiftOnce = inputs.getSecond().getSecond().getValue().shiftRight(1);
-          OInt mTop = parSubSequential.getOIntFactory().getOInt(openShiftOnce);
+          BigInteger openShiftOnce = inputs.getSecond().getSecond().shiftRight(1);
           // Now we calculate the shift, x >> 1 = mTop - rTop - carry
           Computation<SInt> sub = parSubSequential.numeric()
-              .sub(mTop, inputs.getFirst().getSecond());
+              .sub(openShiftOnce, inputs.getFirst().getSecond());
           return parSubSequential.numeric().sub(sub, inputs.getSecond().getFirst());
         },
         (inputs, parSubSequential) -> {
@@ -114,21 +112,14 @@ public class RightShiftProtocol4 implements ComputationBuilder<RightShiftResult>
             //   x (mod 2) =
             //     xor(r_0, m mod 2) =
             //     r_0 + (m mod 2) - 2 (r_0 * (m mod 2)).
-            OIntFactory oIntFactory = parSubSequential.getOIntFactory();
-
-            OInt mBottom = oIntFactory.getOInt(
-                inputs.getSecond().getSecond().getValue().mod(BigInteger.valueOf(2))
-            );
-            OInt twoMBottom = oIntFactory.getOInt(mBottom.getValue().shiftLeft(1));
+            BigInteger mBottom = inputs.getSecond().getSecond().mod(BigInteger.valueOf(2));
+            BigInteger twoMBottom = mBottom.shiftLeft(1);
 
             return parSubSequential.par((productAndSumBuilder) -> {
-              NumericBuilder productAndSumNumeric =
-                      productAndSumBuilder.numeric();
+              NumericBuilder productAndSumNumeric = productAndSumBuilder.numeric();
               Computation<SInt> rBottom = inputs.getFirst().getFirst();
-              Computation<SInt> product = productAndSumNumeric
-                      .mult(twoMBottom, rBottom);
-              Computation<SInt> sum = productAndSumNumeric
-                      .add(mBottom, rBottom);
+              Computation<SInt> product = productAndSumNumeric.mult(twoMBottom, rBottom);
+              Computation<SInt> sum = productAndSumNumeric.add(mBottom, rBottom);
                   return () -> new Pair<>(product, sum);
                 }
             ).seq((productAndSum, finalBuilder) -> {

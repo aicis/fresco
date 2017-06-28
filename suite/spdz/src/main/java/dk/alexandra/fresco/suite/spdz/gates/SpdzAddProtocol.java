@@ -27,17 +27,16 @@
 package dk.alexandra.fresco.suite.spdz.gates;
 
 import dk.alexandra.fresco.framework.network.SCENetwork;
-import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
-import dk.alexandra.fresco.suite.spdz.datatypes.SpdzOInt;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.utils.SpdzFactory;
+import java.math.BigInteger;
 
 public class SpdzAddProtocol extends SpdzNativeProtocol<SpdzSInt> {
 
   private SpdzSInt left, right, out;
-  private SpdzOInt oInt;
+  private BigInteger oInt;
   private SpdzFactory factory;
 
   public SpdzAddProtocol(SInt left, SInt right, SInt out) {
@@ -46,15 +45,9 @@ public class SpdzAddProtocol extends SpdzNativeProtocol<SpdzSInt> {
     this.out = (SpdzSInt) out;
   }
 
-  public SpdzAddProtocol(SpdzSInt left, SpdzSInt right, SpdzSInt out) {
-    this.left = left;
-    this.right = right;
-    this.out = out;
-  }
-
-  public SpdzAddProtocol(SInt left, OInt right, SInt out, SpdzFactory factory) {
+  public SpdzAddProtocol(SInt left, BigInteger right, SInt out, SpdzFactory factory) {
     this.left = (SpdzSInt) left;
-    this.oInt = (SpdzOInt) right;
+    this.oInt = right;
     this.out = (SpdzSInt) out;
     this.factory = factory;
   }
@@ -75,7 +68,7 @@ public class SpdzAddProtocol extends SpdzNativeProtocol<SpdzSInt> {
   public EvaluationStatus evaluate(int round, SpdzResourcePool spdzResourcePool,
       SCENetwork network) {
     if (oInt != null) {
-      SpdzSInt myShare = (SpdzSInt) factory.getSInt(oInt.getValue());
+      SpdzSInt myShare = factory.getSInt(oInt);
       out.value = left.value.add(myShare.value);
     } else {
       out.value = left.value.add(right.value);

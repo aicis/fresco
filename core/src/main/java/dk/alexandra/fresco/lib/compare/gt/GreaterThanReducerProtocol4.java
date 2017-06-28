@@ -33,8 +33,6 @@ import dk.alexandra.fresco.framework.builder.ComputationBuilder;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder.SequentialProtocolBuilder;
 import dk.alexandra.fresco.framework.util.Pair;
-import dk.alexandra.fresco.framework.value.OInt;
-import dk.alexandra.fresco.framework.value.OIntFactory;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.compare.ConditionalSelect;
 import dk.alexandra.fresco.lib.compare.MiscOIntGenerators;
@@ -76,28 +74,26 @@ public class GreaterThanReducerProtocol4 implements ComputationBuilder<SInt> {
   public Computation<SInt> build(SequentialProtocolBuilder builder) {
     if (miscOIntGenerator == null) {
       //Allows reuse in sub protocols
-      this.miscOIntGenerator = new MiscOIntGenerators(builder.getBasicNumericFactory());
+      this.miscOIntGenerator = new MiscOIntGenerators();
     }
     final BigInteger modulus = builder.getBasicNumericFactory().getModulus();
 
     final int bitLengthBottom = bitLength / 2;
     final int bitLengthTop = bitLength - bitLengthBottom;
 
-    OIntFactory intFactory = builder.getOIntFactory();
-    final OInt twoToBitLength = intFactory.getOInt(BigInteger.ONE.shiftLeft(this.bitLength));
-    final OInt twoToBitLengthBottom = intFactory.getOInt(BigInteger.ONE.shiftLeft(bitLengthBottom));
-    final OInt twoToNegBitLength = intFactory
-        .getOInt(twoToBitLength.getValue().modInverse(modulus));
+    final BigInteger twoToBitLength = BigInteger.ONE.shiftLeft(this.bitLength);
+    final BigInteger twoToBitLengthBottom = BigInteger.ONE.shiftLeft(bitLengthBottom);
+    final BigInteger twoToNegBitLength = twoToBitLength.modInverse(modulus);
 
-    final OInt one = intFactory.getOInt(BigInteger.ONE);
+    final BigInteger one = BigInteger.ONE;
 
     return builder.seq((seq) -> seq.createAdvancedNumericBuilder().additiveMask(bitLength)
     ).par(
         (mask, seq) -> {
           List<Computation<SInt>> bits = mask.bits;
           List<Computation<SInt>> rBottomBits = bits.subList(0, bitLengthBottom);
-          List<OInt> twoPowsBottom =
-              miscOIntGenerator.getTwoPowersList(seq.getOIntFactory(), bitLengthBottom);
+          List<BigInteger> twoPowsBottom =
+              miscOIntGenerator.getTwoPowersList(bitLengthBottom);
           return
               Pair.lazy(
                   mask.r,
@@ -107,8 +103,8 @@ public class GreaterThanReducerProtocol4 implements ComputationBuilder<SInt> {
         (mask, seq) -> {
           List<Computation<SInt>> rTopBits = mask.bits
               .subList(bitLengthBottom, bitLengthBottom + bitLengthTop);
-          List<OInt> twoPowsTop =
-              miscOIntGenerator.getTwoPowersList(seq.getOIntFactory(), bitLengthTop);
+          List<BigInteger> twoPowsTop =
+              miscOIntGenerator.getTwoPowersList(bitLengthTop);
           AdvancedNumericBuilder innerProduct = seq.createAdvancedNumericBuilder();
 
           return innerProduct.openDot(twoPowsTop, rTopBits);
@@ -133,23 +129,21 @@ public class GreaterThanReducerProtocol4 implements ComputationBuilder<SInt> {
 
       // mO = open(z + r)
       Computation<SInt> mS = numeric.add(z, r);
-      Computation<OInt> mO = seq.numeric().open(mS);
+      Computation<BigInteger> mO = seq.numeric().open(mS);
 
       return () -> new Object[]{mO, rBottom, rTop, rBar, z};
     }).seq((Object[] input, SequentialProtocolBuilder seq) -> {
-      OInt mO = ((Computation<OInt>) input[0]).out();
+      BigInteger mO = ((Computation<BigInteger>) input[0]).out();
       Computation<SInt> rBottom = (Computation<SInt>) input[1];
       Computation<SInt> rTop = (Computation<SInt>) input[2];
       Computation<SInt> rBar = (Computation<SInt>) input[3];
       Computation<SInt> z = (Computation<SInt>) input[4];
 
       // extract mTop and mBot
-      // TODO: put const generators into miscOIntGenerators and use them
-      OIntFactory oIntFactory = seq.getOIntFactory();
-      BigInteger mMod = mO.getValue().mod(BigInteger.ONE.shiftLeft(bitLength));
-      OInt mBar = oIntFactory.getOInt(mMod);
-      OInt mBot = oIntFactory.getOInt(mMod.mod(BigInteger.ONE.shiftLeft(bitLengthBottom)));
-      OInt mTop = oIntFactory.getOInt(mMod.shiftRight(bitLengthBottom));
+      BigInteger mMod = mO.mod(BigInteger.ONE.shiftLeft(bitLength));
+      BigInteger mBar = mMod;
+      BigInteger mBot = mMod.mod(BigInteger.ONE.shiftLeft(bitLengthBottom));
+      BigInteger mTop = mMod.shiftRight(bitLengthBottom);
 
       NumericBuilder numeric = seq.numeric();
       // dif = mTop - rTop
@@ -163,9 +157,9 @@ public class GreaterThanReducerProtocol4 implements ComputationBuilder<SInt> {
       Computation<SInt> eqResult = (Computation<SInt>) input[0];
       Computation<SInt> rBottom = (Computation<SInt>) input[1];
       Computation<SInt> rTop = (Computation<SInt>) input[2];
-      OInt mBot = (OInt) input[3];
-      OInt mTop = (OInt) input[4];
-      OInt mBar = (OInt) input[5];
+      BigInteger mBot = (BigInteger) input[3];
+      BigInteger mTop = (BigInteger) input[4];
+      BigInteger mBar = (BigInteger) input[5];
       Computation<SInt> rBar = (Computation<SInt>) input[6];
       Computation<SInt> z = (Computation<SInt>) input[7];
       // [eqResult]? BOT : TOP (for m and r) (store as mPrime,rPrime)
@@ -206,7 +200,7 @@ public class GreaterThanReducerProtocol4 implements ComputationBuilder<SInt> {
       return () -> new Object[]{subComparisonResult, mBar, rBar, z};
     }).seq((Object[] input, SequentialProtocolBuilder seq) -> {
       Computation<SInt> subComparisonResult = (Computation<SInt>) input[0];
-      OInt mBar = (OInt) input[1];
+      BigInteger mBar = (BigInteger) input[1];
       Computation<SInt> rBar = (Computation<SInt>) input[2];
       Computation<SInt> z = (Computation<SInt>) input[3];
 

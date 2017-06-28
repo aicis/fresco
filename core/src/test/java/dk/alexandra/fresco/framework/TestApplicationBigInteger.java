@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 FRESCO (http://github.com/aicis/fresco).
+ * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
  *
@@ -24,13 +24,25 @@
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
  *******************************************************************************/
-package dk.alexandra.fresco.framework.value;
+package dk.alexandra.fresco.framework;
+
 
 import java.math.BigInteger;
 
-public interface OInt extends Value {
+public abstract class TestApplicationBigInteger implements Application<BigInteger> {
 
-	BigInteger getValue();
-	
-	void setValue(BigInteger val);
+  public Computation<BigInteger> output;
+  private BigInteger out;
+
+  @Override
+  public final BigInteger getResult() {
+    return out;
+  }
+
+  @Override
+  public final void close() {
+    this.out = this.output.out();
+  }
+
+
 }

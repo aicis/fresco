@@ -30,11 +30,11 @@ import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.BuilderFactory;
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.ProtocolProducer;
-import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.helper.SingleProtocolProducer;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
+import java.math.BigInteger;
 
 /**
  * Tiny application for a two party case which computes the sum of the inputs,
@@ -42,11 +42,11 @@ import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
  *
  * @author kasperdamgard
  */
-public class SumAndOutputApplication implements Application {
+public class SumAndOutputApplication implements Application<BigInteger> {
 
 
   private InputApplication inputApp;
-  private OInt output;
+  private Computation<BigInteger> output;
 
   public SumAndOutputApplication(InputApplication inputApp) {
     this.inputApp = inputApp;
@@ -75,16 +75,15 @@ public class SumAndOutputApplication implements Application {
     }
 
     // create output wire
-    this.output = fac.getOInt();
-    Computation outputProtocol = fac.getOpenProtocol(sum, this.output);
+    output = fac.getOpenProtocol(sum);
 
     // Connect all protocols into a single protocol
     ProtocolProducer gp = new SequentialProtocolProducer(inputProtocol,
-        sumProtocol, SingleProtocolProducer.wrap(outputProtocol));
+        sumProtocol, SingleProtocolProducer.wrap(output));
     return gp;
   }
 
-  public OInt getOutput() {
-    return this.output;
+  public BigInteger getResult() {
+    return this.output.out();
   }
 }
