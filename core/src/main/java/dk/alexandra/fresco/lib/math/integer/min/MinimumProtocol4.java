@@ -83,7 +83,7 @@ public class MinimumProtocol4 implements ComputationBuilder<Pair<List<Computatio
       Computation<SInt> c2_prime = comparison.compare(m1, thirdValue);
 
       Computation<SInt> m2 = builder
-          .createSequentialSub(new ConditionalSelect(c1_prime, m1, thirdValue));
+          .createSequentialSub(new ConditionalSelect(c2_prime, m1, thirdValue));
 
       Computation<SInt> firstComparison = numeric.mult(c1_prime, c2_prime);
       Computation<SInt> secondComparison = numeric.sub(c2_prime, firstComparison);
