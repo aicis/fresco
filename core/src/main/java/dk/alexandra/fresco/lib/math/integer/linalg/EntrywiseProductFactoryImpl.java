@@ -26,9 +26,10 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.math.integer.linalg;
 
-import dk.alexandra.fresco.framework.value.OInt;
+
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
+import java.math.BigInteger;
 
 public class EntrywiseProductFactoryImpl implements EntrywiseProductFactory {
 
@@ -45,7 +46,7 @@ public class EntrywiseProductFactoryImpl implements EntrywiseProductFactory {
   }
 
   @Override
-  public EntrywiseProductProtocol getEntrywiseProductProtocol(SInt[] as, OInt[] bs,
+  public EntrywiseProductProtocol getEntrywiseProductProtocol(SInt[] as, BigInteger[] bs,
       SInt[] results) {
     return new EntrywiseProductProtocolImpl(as, bs, results, mcf);
   }

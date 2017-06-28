@@ -30,7 +30,6 @@ import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.builder.ComputationBuilder;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder.SequentialProtocolBuilder;
-import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
 
@@ -47,11 +46,10 @@ public class InversionProtocol4 implements ComputationBuilder<SInt> {
     NumericBuilder numeric = builder.numeric();
     Computation<SInt> random = numeric.randomElement();
     Computation<SInt> sProduct = numeric.mult(x, random);
-    Computation<OInt> open = numeric.open(sProduct);
+    Computation<BigInteger> open = numeric.open(sProduct);
     return builder.createSequentialSub((seq) -> {
-      BigInteger value = open.out().getValue();
-      OInt inverse = seq.getOIntFactory().getOInt(
-          value.modInverse(seq.getBasicNumericFactory().getModulus()));
+      BigInteger value = open.out();
+      BigInteger inverse = value.modInverse(seq.getBasicNumericFactory().getModulus());
       return seq.numeric().mult(inverse, random);
     });
   }

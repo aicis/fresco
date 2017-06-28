@@ -1,8 +1,8 @@
 package dk.alexandra.fresco.framework.builder;
 
 import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
+import java.math.BigInteger;
 import java.util.List;
 
 public interface AdvancedNumericBuilder {
@@ -17,7 +17,7 @@ public interface AdvancedNumericBuilder {
    * @param divisor The divisor.
    * @return An approximation of <i>dividend / divisor</i>.
    */
-  Computation<SInt> div(Computation<SInt> dividend, OInt divisor);
+  Computation<SInt> div(Computation<SInt> dividend, BigInteger divisor);
 
   /**
    * This protocol calculates an approximation of
@@ -28,7 +28,7 @@ public interface AdvancedNumericBuilder {
    * @param divisor The divisor.
    * @return quotient and remainder.
    */
-  Computation<SInt> mod(Computation<SInt> dividend, OInt divisor);
+  Computation<SInt> mod(Computation<SInt> dividend, BigInteger divisor);
 
   /**
    * This protocol calculates an approximation of
@@ -53,9 +53,9 @@ public interface AdvancedNumericBuilder {
 
   Computation<SInt> exp(Computation<SInt> x, Computation<SInt> e, int maxExponentLength);
 
-  Computation<SInt> exp(OInt x, Computation<SInt> e, int maxExponentLength);
+  Computation<SInt> exp(BigInteger x, Computation<SInt> e, int maxExponentLength);
 
-  Computation<SInt> exp(Computation<SInt> x, OInt e);
+  Computation<SInt> exp(Computation<SInt> x, BigInteger e);
 
   /**
    * @param input The input.
@@ -75,7 +75,7 @@ public interface AdvancedNumericBuilder {
 
   Computation<SInt> dot(List<Computation<SInt>> aVector, List<Computation<SInt>> bVector);
 
-  Computation<SInt> openDot(List<OInt> aVector, List<Computation<SInt>> bVector);
+  Computation<SInt> openDot(List<BigInteger> aVector, List<Computation<SInt>> bVector);
 
   Computation<RandomAdditiveMask> additiveMask(int noOfBits);
 

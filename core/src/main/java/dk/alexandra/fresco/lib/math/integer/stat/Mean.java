@@ -23,42 +23,44 @@
  *
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
- *******************************************************************************/
-package dk.alexandra.fresco.suite.spdz.gates;
+ */
+package dk.alexandra.fresco.lib.math.integer.stat;
 
-import dk.alexandra.fresco.framework.network.SCENetwork;
-import dk.alexandra.fresco.framework.value.OInt;
-import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
-import dk.alexandra.fresco.suite.spdz.datatypes.SpdzOInt;
+import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.builder.ComputationBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilder.SequentialProtocolBuilder;
+import dk.alexandra.fresco.framework.value.SInt;
+import dk.alexandra.fresco.lib.math.integer.SumSIntList;
+import java.math.BigInteger;
+import java.util.List;
 
-public class SpdzLocalInversionProtocol extends SpdzNativeProtocol<OInt> {
+/**
+ * This protocol calculates the arithmetic mean of a data set.
+ */
+public class Mean implements ComputationBuilder<SInt> {
 
-  private SpdzOInt in, out;
+  private final List<Computation<SInt>> data;
+  private final int degreesOfFreedom;
 
-  public SpdzLocalInversionProtocol(OInt in, OInt out) {
-    this.in = (SpdzOInt) in;
-    this.out = (SpdzOInt) out;
+  public Mean(List<Computation<SInt>> data) {
+    this(data, data.size());
+  }
+
+  public Mean(List<Computation<SInt>> data, int degreesOfFreedom) {
+    this.data = data;
+    this.degreesOfFreedom = degreesOfFreedom;
   }
 
   @Override
-  public SpdzOInt out() {
-    return out;
+  public Computation<SInt> build(SequentialProtocolBuilder builder) {
+    return builder.seq((seq) ->
+        () -> this.data
+    ).seq((list, seq) ->
+        new SumSIntList(list).build(seq)
+    ).seq((sum, seq) -> {
+      BigInteger n = BigInteger.valueOf(this.degreesOfFreedom);
+      return seq.createAdvancedNumericBuilder().div(sum, n);
+    });
   }
 
-  @Override
-  public EvaluationStatus evaluate(int round, SpdzResourcePool spdzResourcePool,
-      SCENetwork network) {
-    try {
-      out.setValue(in.getValue().modInverse(spdzResourcePool.getModulus()));
-    } catch (ArithmeticException e) {
-      System.out.println("Non invertable value: " + in.getValue());
-      throw e;
-    }
-    return EvaluationStatus.IS_DONE;
-  }
-
-  public String toString() {
-    return "SpdzLocalInversionGate(" + in.getValue() + ", "
-        + out.getValue() + ")";
-  }
 }

@@ -29,36 +29,32 @@ package dk.alexandra.fresco.lib.math.integer.binary;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.compare.RandomAdditiveMaskFactory;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
-import dk.alexandra.fresco.lib.math.integer.inv.LocalInversionFactory;
 
 public class RightShiftFactoryImpl implements RightShiftFactory {
 
 	private final BasicNumericFactory basicNumericFactory;
 	private final RandomAdditiveMaskFactory randomAdditiveMaskFactory;
-	private final LocalInversionFactory localInversionFactory;
 
 	private final int SECURITY_PARAMETER = 80;
 
 	public RightShiftFactoryImpl(BasicNumericFactory basicNumericFactory,
-			RandomAdditiveMaskFactory randomAdditiveMaskFactory,
-			LocalInversionFactory localInversionFactory) {
+			RandomAdditiveMaskFactory randomAdditiveMaskFactory) {
 		this.basicNumericFactory = basicNumericFactory;
 		this.randomAdditiveMaskFactory = randomAdditiveMaskFactory;
-		this.localInversionFactory = localInversionFactory;
 	}
 
 	@Override
 	public RightShiftProtocol getRightShiftProtocol(SInt x, SInt result) {
 		return new RightShiftProtocolImpl(x, result, basicNumericFactory.getMaxBitLength(),
-				SECURITY_PARAMETER, basicNumericFactory, randomAdditiveMaskFactory,
-				localInversionFactory);
+				SECURITY_PARAMETER, basicNumericFactory, randomAdditiveMaskFactory
+		);
 	}
 
 	@Override
 	public RightShiftProtocol getRightShiftProtocol(SInt x, SInt result, SInt remainder) {
 		return new RightShiftProtocolImpl(x, result, remainder,
 				basicNumericFactory.getMaxBitLength(), SECURITY_PARAMETER, basicNumericFactory,
-				randomAdditiveMaskFactory, localInversionFactory);
+				randomAdditiveMaskFactory);
 	}
 
 	@Override

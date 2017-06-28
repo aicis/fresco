@@ -28,7 +28,6 @@ package dk.alexandra.fresco.suite.spdz.utils;
 
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.ProtocolProducer;
-import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.helper.builder.AbstractProtocolBuilder;
 import java.math.BigInteger;
@@ -62,17 +61,17 @@ public class SpdzProtocolBuilder extends AbstractProtocolBuilder {
 	public SInt input(int inputterId) {
 		return input(null, inputterId);
 	}
-	
-	public OInt outputAll(SInt s) {
-		OInt o = factory.getOInt();
-    Computation gp = factory.getOpenProtocol(s, o);
+
+  public BigInteger outputAll(SInt s) {
+    BigInteger o = null;
+    Computation gp = factory.getOpenProtocol(s);
     append(gp);
     return o;
 	}
-	
-	public OInt output(SInt s, int outputterId) {
-		OInt o = factory.getOInt();
-    Computation gp = factory.getOpenProtocol(outputterId, s, o);
+
+  public BigInteger output(SInt s, int outputterId) {
+    BigInteger o = null;
+    Computation gp = factory.getOpenProtocol(outputterId, s);
     append(gp);
     return o;
 	}

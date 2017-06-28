@@ -29,37 +29,30 @@ package dk.alexandra.fresco.suite.spdz.gates;
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.network.SCENetwork;
 import dk.alexandra.fresco.framework.network.serializers.BigIntegerSerializer;
-import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
-import dk.alexandra.fresco.suite.spdz.datatypes.SpdzOInt;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.util.List;
 
-public class SpdzOutputProtocol extends SpdzNativeProtocol<SpdzOInt> {
+public class SpdzOutputProtocol extends SpdzNativeProtocol<BigInteger> {
 
   private SpdzSInt in;
-  private SpdzOInt out;
+  private BigInteger out;
   private int target_player;
   private SpdzInputMask mask;
 
-  public SpdzOutputProtocol(SInt in, OInt out, int target_player) {
+  public SpdzOutputProtocol(SInt in, int target_player) {
     this.in = (SpdzSInt) in;
-    this.out = (SpdzOInt) out;
     this.target_player = target_player;
   }
 
-  public int getTarget() {
-    return target_player;
-  }
-
   @Override
-  public SpdzOInt out() {
+  public BigInteger out() {
     return out;
   }
 
@@ -89,9 +82,8 @@ public class SpdzOutputProtocol extends SpdzNativeProtocol<SpdzOInt> {
         storage.addOpenedValue(openedVal);
         if (target_player == myId) {
           openedVal = openedVal.add(this.mask.getRealValue()).mod(spdzResourcePool.getModulus());
-          BigInteger tmpOut = openedVal;
-//          tmpOut = Util.convertRepresentation(tmpOut);
-          out.setValue(tmpOut);
+          //          tmpOut = Util.convertRepresentation(tmpOut);
+          out = openedVal;
         }
         return EvaluationStatus.IS_DONE;
       default:

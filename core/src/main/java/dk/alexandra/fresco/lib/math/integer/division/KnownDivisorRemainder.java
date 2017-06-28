@@ -5,8 +5,8 @@ import dk.alexandra.fresco.framework.builder.AdvancedNumericBuilder;
 import dk.alexandra.fresco.framework.builder.ComputationBuilder;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder.SequentialProtocolBuilder;
-import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
+import java.math.BigInteger;
 
 /**
  * This protocol is an implementation Euclidean division (finding quotient and
@@ -18,14 +18,14 @@ import dk.alexandra.fresco.framework.value.SInt;
  *
  * @author Jonas Lindstrøm (jonas.lindstrom@alexandra.dk)
  */
-public class KnownDivisorRemainderProtocol4 implements ComputationBuilder<SInt> {
+public class KnownDivisorRemainder implements ComputationBuilder<SInt> {
 
   private final Computation<SInt> dividend;
-  private final OInt divisor;
+  private final BigInteger divisor;
 
-  KnownDivisorRemainderProtocol4(
+  KnownDivisorRemainder(
       Computation<SInt> dividend,
-      OInt divisor) {
+      BigInteger divisor) {
     this.dividend = dividend;
     this.divisor = divisor;
   }

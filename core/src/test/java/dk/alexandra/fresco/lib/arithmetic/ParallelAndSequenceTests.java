@@ -2,13 +2,12 @@ package dk.alexandra.fresco.lib.arithmetic;
 
 import dk.alexandra.fresco.framework.BuilderFactory;
 import dk.alexandra.fresco.framework.ProtocolProducer;
-import dk.alexandra.fresco.framework.TestApplication;
+import dk.alexandra.fresco.framework.TestApplicationBigInteger;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
-import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.helper.builder.OmniBuilder;
 import java.math.BigInteger;
@@ -39,12 +38,12 @@ public class ParallelAndSequenceTests {
               SecureComputationEngineImpl.createResourcePool(conf.sceConf,
                   conf.sceConf.getSuite()));
 
-          OInt sum = sumApp.getOutputs()[0];
-          OInt mult = multApp.getOutputs()[0];
+          BigInteger sum = sumApp.getResult();
+          BigInteger mult = multApp.getResult();
           Assert
-              .assertEquals(BigInteger.valueOf(1 + 2 + 3 + 4 + 5 + 6 + 7 + 8 + 9), sum.getValue());
+              .assertEquals(BigInteger.valueOf(1 + 2 + 3 + 4 + 5 + 6 + 7 + 8 + 9), sum);
           Assert
-              .assertEquals(BigInteger.valueOf(1 * 2 * 3 * 4 * 5 * 6 * 7 * 8 * 9), mult.getValue());
+              .assertEquals(BigInteger.valueOf(1 * 2 * 3 * 4 * 5 * 6 * 7 * 8 * 9), mult);
         }
       };
     }
@@ -67,19 +66,18 @@ public class ParallelAndSequenceTests {
               SecureComputationEngineImpl.createResourcePool(conf.sceConf,
                   conf.sceConf.getSuite()));
 
-          OInt sum = sumApp.getOutputs()[0];
-          OInt mult = multApp.getOutputs()[0];
+          BigInteger sum = sumApp.getResult();
+          BigInteger mult = multApp.getResult();
           Assert
-              .assertEquals(BigInteger.valueOf(1 + 2 + 3 + 4 + 5 + 6 + 7 + 8 + 9), sum.getValue());
+              .assertEquals(BigInteger.valueOf(1 + 2 + 3 + 4 + 5 + 6 + 7 + 8 + 9), sum);
           Assert
-              .assertEquals(BigInteger.valueOf(1 * 2 * 3 * 4 * 5 * 6 * 7 * 8 * 9), mult.getValue());
+              .assertEquals(BigInteger.valueOf(1 * 2 * 3 * 4 * 5 * 6 * 7 * 8 * 9), mult);
         }
       };
     }
   }
 
-  private class TestApplicationSum extends TestApplication {
-
+  private class TestApplicationSum extends TestApplicationBigInteger {
 
     @Override
     public ProtocolProducer prepareApplication(BuilderFactory producer) {
@@ -88,13 +86,13 @@ public class ParallelAndSequenceTests {
       SInt[] terms = builder.getNumericIOBuilder()
           .inputArray(new int[]{1, 2, 3, 4, 5, 6, 7, 8, 9}, 1);
       SInt sum = builder.getNumericProtocolBuilder().sum(terms);
-      this.outputs = new OInt[]{builder.getNumericIOBuilder().output(sum)};
+      output = builder.getNumericIOBuilder().output(sum);
       return builder.getProtocol();
     }
 
   }
 
-  private class TestApplicationMult extends TestApplication {
+  private class TestApplicationMult extends TestApplicationBigInteger {
 
     @Override
     public ProtocolProducer prepareApplication(BuilderFactory producer) {
@@ -103,7 +101,7 @@ public class ParallelAndSequenceTests {
       SInt[] terms = builder.getNumericIOBuilder()
           .inputArray(new int[]{1, 2, 3, 4, 5, 6, 7, 8, 9}, 1);
       SInt mult = builder.getNumericProtocolBuilder().mult(terms);
-      this.outputs = new OInt[]{builder.getNumericIOBuilder().output(mult)};
+      output = builder.getNumericIOBuilder().output(mult);
       return builder.getProtocol();
     }
 

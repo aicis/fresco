@@ -28,15 +28,16 @@ package dk.alexandra.fresco.demo;
 
 import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.BuilderFactory;
+import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.configuration.SCEConfiguration;
-import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.helper.builder.NumericIOBuilder;
 import dk.alexandra.fresco.lib.helper.builder.NumericProtocolBuilder;
+import java.math.BigInteger;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.ParseException;
@@ -48,7 +49,7 @@ public class DistanceDemo implements Application {
 
 
   private int myId, myX, myY;
-  private OInt distance;
+  private Computation<BigInteger> distance;
 
   private DistanceDemo(int id, int x, int y) {
     this.myId = id;
@@ -137,7 +138,7 @@ public class DistanceDemo implements Application {
       e.printStackTrace();
       System.exit(-1);
     }
-    double dist = distDemo.distance.getValue().doubleValue();
+    double dist = distDemo.distance.out().doubleValue();
     dist = Math.sqrt(dist);
     System.out.println("Distance between party 1 and 2 is " + dist);
   }

@@ -32,7 +32,6 @@ import dk.alexandra.fresco.framework.builder.ComputationBuilder;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder.SequentialProtocolBuilder;
 import dk.alexandra.fresco.framework.util.Pair;
-import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.compare.ConditionalSelect;
 import java.math.BigInteger;
@@ -56,7 +55,7 @@ public class MinimumProtocol4 implements ComputationBuilder<Pair<List<Computatio
 
   @Override
   public Computation<Pair<List<Computation<SInt>>, SInt>> build(SequentialProtocolBuilder builder) {
-    OInt one = builder.getOIntFactory().getOInt(BigInteger.ONE);
+    BigInteger one = BigInteger.ONE;
     if (this.k == 2) {
       ComparisonBuilder comparison = builder.comparison();
       NumericBuilder numeric = builder.numeric();

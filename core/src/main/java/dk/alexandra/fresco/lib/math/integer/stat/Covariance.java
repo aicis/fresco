@@ -32,48 +32,73 @@ import dk.alexandra.fresco.framework.builder.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder.SequentialProtocolBuilder;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
-public class VarianceProtocol4    implements ComputationBuilder<SInt> {
+public class Covariance implements ComputationBuilder<SInt> {
 
-  private final List<Computation<SInt>> data;
-  private final Computation<SInt> mean;
+  private final List<Computation<SInt>> data1;
+  private final List<Computation<SInt>> data2;
+  private final Computation<SInt> mean1;
+  private final Computation<SInt> mean2;
 
-  VarianceProtocol4(List<Computation<SInt>> data, Computation<SInt> mean) {
-    this.data = data;
-    this.mean = mean;
+
+  public Covariance(List<Computation<SInt>> data1, List<Computation<SInt>> data2,
+      Computation<SInt> mean1, Computation<SInt> mean2) {
+    this.data1 = data1;
+    this.data2 = data2;
+
+    if (data1.size() != data2.size()) {
+      throw new IllegalArgumentException("Must have same sample size.");
+    }
+
+    this.mean1 = mean1;
+    this.mean2 = mean2;
   }
 
-  VarianceProtocol4(List<Computation<SInt>> data) {
-    this(data, null);
+  public Covariance(List<Computation<SInt>> data1, List<Computation<SInt>> data2) {
+    this(data1, data2, null, null);
   }
 
   @Override
   public Computation<SInt> build(SequentialProtocolBuilder builder) {
-    return builder.seq((seq) -> {
-      /*
-       * If a mean was not provided, we first calculate it
-		   */
-      Computation<SInt> mean;
-      if (this.mean == null) {
-        mean = seq.createSequentialSub(new MeanProtocol4(data));
-      } else {
-        mean = this.mean;
-      }
-      return mean;
-    }).par((mean, par) -> {
-      List<Computation<SInt>> terms = new ArrayList<>(data.size());
-      for (Computation<SInt> value : data) {
+    return builder.seq((seq) -> () -> null
+    ).par(
+        (ignored, seq) -> {
+          if (mean1 == null) {
+            return seq.createSequentialSub(new Mean(data1));
+          } else {
+            return mean1;
+          }
+        },
+        (ignored, seq) -> {
+          if (mean2 == null) {
+            return seq.createSequentialSub(new Mean(data1));
+          } else {
+            return mean2;
+          }
+        }
+    ).par((means, par) -> {
+      SInt mean1 = means.getFirst();
+      SInt mean2 = means.getSecond();
+      //Implemented using two iterators instead of indexed loop to avoid enforcing RandomAccess lists
+      Iterator<Computation<SInt>> iterator1 = data1.iterator();
+      Iterator<Computation<SInt>> iterator2 = data2.iterator();
+      List<Computation<SInt>> terms = new ArrayList<>(data1.size());
+      while (iterator1.hasNext()) {
+        Computation<SInt> value1 = iterator1.next();
+        Computation<SInt> value2 = iterator2.next();
         Computation<SInt> term = par.createSequentialSub((seq) -> {
           NumericBuilder numeric = seq.numeric();
-          Computation<SInt> tmp = numeric.sub(value, mean);
-          return numeric.mult(tmp, tmp);
+          Computation<SInt> tmp1 = numeric.sub(value1, mean1);
+          Computation<SInt> tmp2 = numeric.sub(value2, mean2);
+          return numeric.mult(tmp1, tmp2);
         });
         terms.add(term);
       }
       return () -> terms;
     }).seq((terms, seq) ->
-        seq.createSequentialSub(new MeanProtocol4(terms, data.size() - 1))
+        seq.createSequentialSub(new Mean(terms, data1.size() - 1))
     );
   }
 

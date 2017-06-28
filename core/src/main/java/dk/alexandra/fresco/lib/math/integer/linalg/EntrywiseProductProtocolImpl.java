@@ -29,11 +29,11 @@ package dk.alexandra.fresco.lib.math.integer.linalg;
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.ProtocolProducer;
-import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.helper.AbstractRepeatProtocol;
 import dk.alexandra.fresco.lib.helper.SingleProtocolProducer;
+import java.math.BigInteger;
 
 public class EntrywiseProductProtocolImpl extends
     AbstractRepeatProtocol implements
@@ -41,7 +41,7 @@ public class EntrywiseProductProtocolImpl extends
 
   private final BasicNumericFactory factory;
   private final SInt[] as, bs, results;
-  private final OInt[] publicBs;
+  private final BigInteger[] publicBs;
   private int limit, i = 0;
 
   public EntrywiseProductProtocolImpl(SInt[] as, SInt[] bs, SInt[] results,
@@ -58,7 +58,7 @@ public class EntrywiseProductProtocolImpl extends
     this.limit = as.length;
   }
 
-  public EntrywiseProductProtocolImpl(SInt[] as, OInt[] bs, SInt[] results,
+  public EntrywiseProductProtocolImpl(SInt[] as, BigInteger[] bs, SInt[] results,
       BasicNumericFactory factory) {
     if (as.length != bs.length && as.length != results.length) {
       throw new MPCException(

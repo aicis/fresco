@@ -29,7 +29,6 @@ package dk.alexandra.fresco.lib.math.integer.linalg;
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.ProtocolProducer;
-import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.helper.AbstractRoundBasedProtocol;
@@ -37,6 +36,7 @@ import dk.alexandra.fresco.lib.helper.CopyProtocolImpl;
 import dk.alexandra.fresco.lib.helper.SingleProtocolProducer;
 import dk.alexandra.fresco.lib.helper.builder.NumericProtocolBuilder;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
+import java.math.BigInteger;
 
 public class InnerProductProtocolImpl extends AbstractRoundBasedProtocol
     implements InnerProductProtocol {
@@ -45,7 +45,7 @@ public class InnerProductProtocolImpl extends AbstractRoundBasedProtocol
   private final EntrywiseProductFactory entrywiseFactory;
   private final SInt[] aVector, bVector;
   private final SInt result;
-  private final OInt[] publicBVector;
+  private final BigInteger[] publicBVector;
   private int round = 0;
   private SInt[] results;
 
@@ -62,7 +62,7 @@ public class InnerProductProtocolImpl extends AbstractRoundBasedProtocol
     this.entrywiseFactory = entrywiseFactory;
   }
 
-  InnerProductProtocolImpl(SInt[] aVector, OInt[] bVector, SInt result,
+  InnerProductProtocolImpl(SInt[] aVector, BigInteger[] bVector, SInt result,
       BasicNumericFactory bnFactory, EntrywiseProductFactory entrywiseFactory) {
     if (aVector.length != bVector.length) {
       throw new MPCException("Lengths of input arrays do not match");

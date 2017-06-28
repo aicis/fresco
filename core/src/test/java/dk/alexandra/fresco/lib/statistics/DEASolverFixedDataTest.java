@@ -25,19 +25,21 @@ package dk.alexandra.fresco.lib.statistics;
 
 import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.BuilderFactory;
+import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
-import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.helper.AlgebraUtil;
 import dk.alexandra.fresco.lib.helper.builder.NumericIOBuilder;
 import dk.alexandra.fresco.lib.statistics.DEASolver.AnalysisType;
 import java.math.BigInteger;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.junit.Assert;
 
 /**
@@ -80,16 +82,16 @@ public class DEASolverFixedDataTest {
           secureComputationEngine
               .runApplication(app1, SecureComputationEngineImpl.createResourcePool(conf.sceConf,
                   conf.sceConf.getSuite()));
-          for (int i = 0; i < app1.solverResult.length; i++) {
-            Assert.assertEquals(app1.plainResult[i], postProcess(app1.solverResult[i], type,
+          for (int i = 0; i < app1.getResult().size(); i++) {
+            Assert.assertEquals(app1.plainResult[i], postProcess(app1.getResult().get(i), type,
                 app1.modulus), 0.0000001);
           }
           DEATestApp app2 = new DEATestApp(dataSet2, type);
           secureComputationEngine
               .runApplication(app2, SecureComputationEngineImpl.createResourcePool(conf.sceConf,
                   conf.sceConf.getSuite()));
-          for (int i = 0; i < app2.solverResult.length; i++) {
-            Assert.assertEquals(app2.plainResult[i], postProcess(app2.solverResult[i], type,
+          for (int i = 0; i < app2.getResult().size(); i++) {
+            Assert.assertEquals(app2.plainResult[i], postProcess(app2.getResult().get(i), type,
                 app1.modulus), 0.0000001);
           }
         }
@@ -104,11 +106,17 @@ public class DEASolverFixedDataTest {
    * Output is conveniently extracted from public fields.
    * </p>
    */
-  private static class DEATestApp implements Application {
+  private static class DEATestApp implements Application<List<BigInteger>> {
 
+    @Override
+    public List<BigInteger> getResult() {
+      return solverResult.stream()
+          .map(Computation::out)
+          .collect(Collectors.toList());
+    }
 
     double[] plainResult;
-    OInt[] solverResult;
+    private List<Computation<BigInteger>> solverResult;
     private DEASolver.AnalysisType type;
     private int[][] dataSet;
     private BigInteger modulus;
@@ -121,7 +129,6 @@ public class DEASolverFixedDataTest {
     @Override
     public ProtocolProducer prepareApplication(BuilderFactory producer) {
       plainResult = new double[dataSet.length];
-      solverResult = new OInt[dataSet.length];
       BasicNumericFactory bnFactory = ((BuilderFactoryNumeric) producer)
           .getBasicNumericFactory();
       NumericIOBuilder ioBuilder = new NumericIOBuilder(bnFactory);
@@ -161,8 +168,8 @@ public class DEASolverFixedDataTest {
   /**
    * Reduces a field-element to a double using Gauss reduction.
    */
-  private static double postProcess(OInt input, AnalysisType type, BigInteger modulus) {
-    BigInteger[] gauss = gauss(input.getValue(), modulus);
+  private static double postProcess(BigInteger input, AnalysisType type, BigInteger modulus) {
+    BigInteger[] gauss = gauss(input, modulus);
     double res = (gauss[0].doubleValue() / gauss[1].doubleValue());
     if (type == AnalysisType.OUTPUT_EFFICIENCY) {
       res -= BENCHMARKING_BIG_M;

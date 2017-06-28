@@ -27,6 +27,7 @@
 package dk.alexandra.fresco.lib.statistics;
 
 import dk.alexandra.fresco.framework.BuilderFactory;
+import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.TestApplication;
@@ -34,13 +35,14 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
-import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.helper.AlgebraUtil;
 import dk.alexandra.fresco.lib.helper.builder.NumericIOBuilder;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
 import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 import org.junit.Assert;
 
@@ -80,8 +82,8 @@ public class DEASolverTests {
         @Override
         public void test() throws Exception {
 
-          OInt[] outs = new OInt[targetQueries];
-          OInt[][] basis = new OInt[targetQueries][];
+          List<Computation<BigInteger>> outs = new ArrayList<>(targetQueries);
+          List<List<Computation<BigInteger>>> basis = new ArrayList<>(targetQueries);
           double[] plainResult = new double[targetQueries];
           TestApplication app = new TestApplication() {
 
@@ -120,13 +122,13 @@ public class DEASolverTests {
                   AlgebraUtil.arrayToList(basisOutputs));
 
               sseq.append(solver.prepareApplication(factoryProducer));
-              for (int i = 0; i < outs.length; i++) {
-                outs[i] = ioBuilder.output(solver.getResult()[i]);
+              for (int i = 0; i < targetQueries; i++) {
+                outs.add(ioBuilder.output(solver.getResult()[i]));
               }
 
-              for (int i = 0; i < basis.length; i++) {
+              for (int i = 0; i < targetQueries; i++) {
                 SInt[] bs = solver.getBasis()[i];
-                basis[i] = ioBuilder.outputArray(bs);
+                basis.add(ioBuilder.outputArray(bs));
               }
 
               sseq.append(ioBuilder.getProtocol());
@@ -152,17 +154,18 @@ public class DEASolverTests {
           int slackVariables = inputVariables + outputVariables + 1;
           int variables = lambdas + slackVariables + 1;
           System.out.println("variables:" + variables);
-          for (int i = 0; i < outs.length; i++) {
+          for (int i = 0; i < targetQueries; i++) {
             Assert.assertEquals(plainResult[i],
-                postProcess(outs[i], type, bnFactory.getModulus()), 0.0000001);
+                postProcess(outs.get(i).out(), type, bnFactory.getModulus()), 0.0000001);
             System.out.println("DEA Score (plain result): " + plainResult[i]);
-            System.out.println("DEA Score (solver result): " + postProcess(outs[i], type,
+            System.out.println("DEA Score (solver result): " + postProcess(outs.get(i).out(), type,
                 bnFactory.getModulus()));
 //						System.out.println("Final Basis for request no. "+i+" is: "+Arrays.toString(basis[i]));						
-            for (int j = 0; j < basis[i].length; j++) {
+            for (int j = 0; j < basis.get(i).size(); j++) {
+              int value = basis.get(i).get(j).out().intValue();
               Assert.assertTrue(
-                  "Basis value " + basis[i][j].getValue().intValue() + ", was larger than " + (
-                      variables - 1), basis[i][j].getValue().intValue() < variables);
+                  "Basis value " + value + ", was larger than " + (
+                      variables - 1), value < variables);
             }
           }
           //Determine which lambda's should be included
@@ -175,8 +178,9 @@ public class DEASolverTests {
   /**
    * Reduces a field-element to a double using Gauss reduction.
    */
-  private static double postProcess(OInt input, DEASolver.AnalysisType type, BigInteger modulus) {
-    BigInteger[] gauss = gauss(input.getValue(), modulus);
+  private static double postProcess(BigInteger input, DEASolver.AnalysisType type,
+      BigInteger modulus) {
+    BigInteger[] gauss = gauss(input, modulus);
     double res = (gauss[0].doubleValue() / gauss[1].doubleValue());
     if (type == DEASolver.AnalysisType.OUTPUT_EFFICIENCY) {
       res -= BENCHMARKING_BIG_M;

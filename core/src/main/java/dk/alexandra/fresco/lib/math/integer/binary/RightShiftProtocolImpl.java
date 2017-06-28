@@ -26,17 +26,15 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.math.integer.binary;
 
+import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.ProtocolProducer;
-import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.framework.value.Value;
 import dk.alexandra.fresco.lib.compare.RandomAdditiveMaskFactory;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.helper.SingleProtocolProducer;
 import dk.alexandra.fresco.lib.helper.builder.NumericProtocolBuilder;
-import dk.alexandra.fresco.lib.math.integer.inv.LocalInversionFactory;
 import java.math.BigInteger;
 
 public class RightShiftProtocolImpl implements RightShiftProtocol {
@@ -51,12 +49,12 @@ public class RightShiftProtocolImpl implements RightShiftProtocol {
   // Factories
   private final BasicNumericFactory basicNumericFactory;
   private final RandomAdditiveMaskFactory randomAdditiveMaskFactory;
-  private final LocalInversionFactory localInversionFactory;
+  private final BasicNumericFactory localInversionFactory;
 
   // Variables used for calculation
   private int round = 0;
   private SInt rTop, rBottom;
-  private OInt mOpen;
+  private Computation<BigInteger> mOpen;
 
   private NumericProtocolBuilder builder;
   private ProtocolProducer pp;
@@ -65,13 +63,12 @@ public class RightShiftProtocolImpl implements RightShiftProtocol {
    * @param input The input.
    * @param result The input shifted one bit to the right, input >> 1.
    * @param bitLength An upper bound for the bitLength of the input.
-   * @param securityParameter The security parameter .
-   * Leakage of a bit with propability at most 2<sup>-<code>securityParameter</code> </sup>.
+   * @param securityParameter The security parameter . Leakage of a bit with propability at most
+   * 2<sup>-<code>securityParameter</code> </sup>.
    */
   public RightShiftProtocolImpl(SInt input, SInt result, int bitLength, int securityParameter,
       BasicNumericFactory basicNumericFactory,
-      RandomAdditiveMaskFactory randomAdditiveMaskFactory,
-      LocalInversionFactory localInversionFactory) {
+      RandomAdditiveMaskFactory randomAdditiveMaskFactory) {
 
     this.input = input;
     this.result = result;
@@ -81,7 +78,7 @@ public class RightShiftProtocolImpl implements RightShiftProtocol {
 
     this.basicNumericFactory = basicNumericFactory;
     this.randomAdditiveMaskFactory = randomAdditiveMaskFactory;
-    this.localInversionFactory = localInversionFactory;
+    this.localInversionFactory = basicNumericFactory;
 
     this.builder = new NumericProtocolBuilder(basicNumericFactory);
   }
@@ -92,16 +89,15 @@ public class RightShiftProtocolImpl implements RightShiftProtocol {
    * @param remainder The least significant bit of the input (aka the bit that is thrown away in the
    * shift).
    * @param bitLength An upper bound for the bitLength of the input.
-   * @param securityParameter The security parameter used in {@link RandomAdditiveMaskCircuit}.
-   * Leakage of a bit with propability at most 2<sup>-<code>securityParameter</code> </sup>.
+   * @param securityParameter The security parameter used . Leakage of a bit with propability at
+   * most 2<sup>-<code>securityParameter</code> </sup>.
    */
   public RightShiftProtocolImpl(SInt input, SInt result, SInt remainder, int bitLength,
       int securityParameter, BasicNumericFactory basicNumericFactory,
-      RandomAdditiveMaskFactory randomAdditiveMaskFactory,
-      LocalInversionFactory localInversionFactory) {
+      RandomAdditiveMaskFactory randomAdditiveMaskFactory) {
 
     this(input, result, bitLength, securityParameter, basicNumericFactory,
-        randomAdditiveMaskFactory, localInversionFactory);
+        randomAdditiveMaskFactory);
     this.remainder = remainder;
   }
 
@@ -135,21 +131,16 @@ public class RightShiftProtocolImpl implements RightShiftProtocol {
           builder.beginParScope();
 
           builder.beginSeqScope();
-          OInt inverseOfTwo = basicNumericFactory.getOInt();
-          builder.addProtocolProducer(
-              SingleProtocolProducer.wrap(
-                  localInversionFactory.getLocalInversionProtocol(
-                      basicNumericFactory.getOInt(BigInteger.valueOf(2)), inverseOfTwo)));
-          rTop = builder.mult(inverseOfTwo, builder.sub(r, rBottom));
+          BigInteger localInversionProtocol = BigInteger.valueOf(2)
+              .modInverse(localInversionFactory.getModulus());
+          rTop = builder.mult(localInversionProtocol, builder.sub(r, rBottom));
           builder.endCurScope();
 
           // mOpen = open(x + r)
           builder.beginSeqScope();
-          mOpen = basicNumericFactory.getOInt();
           SInt mClosed = builder.add(input, r);
-          builder.addProtocolProducer(
-              SingleProtocolProducer.wrap(
-                  basicNumericFactory.getOpenProtocol(mClosed, mOpen)));
+          mOpen = basicNumericFactory.getOpenProtocol(mClosed);
+          builder.addProtocolProducer(SingleProtocolProducer.wrap(mOpen));
           builder.endCurScope();
 
           builder.endCurScope();
@@ -171,8 +162,7 @@ public class RightShiftProtocolImpl implements RightShiftProtocol {
 					 * bit of r is 1 and the first bit of m is 0 which in turn
 					 * is equal to r_0 * (m + 1 (mod 2)).
 					 */
-          OInt mBottomNegated = basicNumericFactory.getOInt(mOpen.getValue()
-              .add(BigInteger.ONE).mod(BigInteger.valueOf(2)));
+          BigInteger mBottomNegated = mOpen.out().add(BigInteger.ONE).mod(BigInteger.valueOf(2));
           SInt carry = builder.mult(mBottomNegated, rBottom);
 
           // The carry is needed by both the calculation of the shift
@@ -182,7 +172,7 @@ public class RightShiftProtocolImpl implements RightShiftProtocol {
 
           builder.beginSeqScope();
           // Now we calculate the shift, x >> 1 = mTop - rTop - carry
-          OInt mTop = basicNumericFactory.getOInt(mOpen.getValue().shiftRight(1));
+          BigInteger mTop = mOpen.out().shiftRight(1);
           builder.copy(result, builder.sub(builder.sub(mTop, rTop), carry));
 
           builder.endCurScope();
@@ -194,10 +184,8 @@ public class RightShiftProtocolImpl implements RightShiftProtocol {
 						 * we throw away in the shift: x (mod 2) = xor(r_0, m
 						 * mod 2) = r_0 + (m mod 2) - 2 (r_0 * (m mod 2)).
 						 */
-            OInt mBottom = basicNumericFactory.getOInt(mOpen.getValue().mod(
-                BigInteger.valueOf(2)));
-            OInt twoMBottom = basicNumericFactory.getOInt(mBottom.getValue().shiftLeft(
-                1));
+            BigInteger mBottom = mOpen.out().mod(BigInteger.valueOf(2));
+            BigInteger twoMBottom = mBottom.shiftLeft(1);
 
             builder.beginParScope();
             SInt product = builder.mult(twoMBottom, rBottom);
@@ -223,14 +211,6 @@ public class RightShiftProtocolImpl implements RightShiftProtocol {
     } else {
       round++;
       pp = null;
-    }
-  }
-
-  public Value[] getOutputValues() {
-    if (remainder != null) {
-      return new Value[]{result, remainder};
-    } else {
-      return new Value[]{result};
     }
   }
 

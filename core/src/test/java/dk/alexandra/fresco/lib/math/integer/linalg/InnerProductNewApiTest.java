@@ -12,7 +12,6 @@ import dk.alexandra.fresco.framework.builder.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
-import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -28,7 +27,7 @@ public class InnerProductNewApiTest {
       return new TestThread() {
         int[] a = new int[]{1, 3, 5, 7, 11};
         int[] b = new int[]{2, 4, 6, 8, 10};
-        List<Computation<OInt>> output = new ArrayList<>();
+        List<Computation<BigInteger>> output = new ArrayList<>();
 
         @Override
         public void test() throws Exception {
@@ -64,7 +63,7 @@ public class InnerProductNewApiTest {
           };
           secureComputationEngine.runApplication(test, SecureComputationEngineImpl
               .createResourcePool(conf.sceConf, conf.sceConf.getSuite()));
-          BigInteger b = output.get(0).out().getValue();
+          BigInteger b = output.get(0).out();
           Assert.assertEquals(210, b.intValue());
         }
 

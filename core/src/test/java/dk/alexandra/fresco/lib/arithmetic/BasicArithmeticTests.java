@@ -37,7 +37,6 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
-import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.compare.ComparisonProtocolFactory;
 import dk.alexandra.fresco.lib.compare.ComparisonProtocolFactoryImpl;
@@ -48,9 +47,10 @@ import dk.alexandra.fresco.lib.helper.builder.NumericProtocolBuilder;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
 import dk.alexandra.fresco.lib.math.integer.exp.ExpFromOIntFactory;
 import dk.alexandra.fresco.lib.math.integer.exp.PreprocessedExpPipeFactory;
-import dk.alexandra.fresco.lib.math.integer.inv.LocalInversionFactory;
 import dk.alexandra.fresco.lib.math.integer.min.MinInfFracProtocol;
 import java.math.BigInteger;
+import java.util.Arrays;
+import java.util.List;
 import org.junit.Assert;
 
 
@@ -85,9 +85,9 @@ public class BasicArithmeticTests {
                   fac);
               SInt input1 = ioBuilder.input(BigInteger.valueOf(10), 1);
 
-              OInt output = ioBuilder.output(input1);
+              Computation<BigInteger> output = ioBuilder.output(input1);
 
-              this.outputs = new OInt[]{output};
+              this.outputs.add(output);
               return ioBuilder.getProtocol();
             }
           };
@@ -97,7 +97,7 @@ public class BasicArithmeticTests {
                   conf.sceConf.getSuite()));
 
           Assert.assertEquals(BigInteger.valueOf(10),
-              app.getOutputs()[0].getValue());
+              app.getOutputs()[0]);
         }
       };
     }
@@ -125,9 +125,9 @@ public class BasicArithmeticTests {
               SInt input1 = ioBuilder.input(
                   BigInteger.valueOf(10), 1);
 
-              OInt output = ioBuilder.outputToParty(1, input1);
+              Computation<BigInteger> output = ioBuilder.outputToParty(1, input1);
 
-              this.outputs = new OInt[]{output};
+              this.outputs.add(output);
               return ioBuilder.getProtocol();
             }
           };
@@ -137,9 +137,9 @@ public class BasicArithmeticTests {
                   conf.sceConf.getSuite()));
           if (conf.netConf.getMyId() == 1) {
             Assert.assertEquals(BigInteger.valueOf(10),
-                app.getOutputs()[0].getValue());
+                app.getOutputs()[0]);
           } else {
-            Assert.assertNull(app.getOutputs()[0].getValue());
+            Assert.assertNull(app.getOutputs()[0]);
           }
         }
       };
@@ -172,16 +172,15 @@ public class BasicArithmeticTests {
               ioBuilder.reset();
 
               BigInteger publicVal = BigInteger.valueOf(4);
-              OInt openInput = fac.getOInt(publicVal);
               SInt out = fac.getSInt();
-              Computation addProtocol = fac.getAddProtocol(input1, openInput, out);
+              Computation addProtocol = fac.getAddProtocol(input1, publicVal, out);
               gp.append(addProtocol);
 
-              OInt output = ioBuilder.output(out);
+              Computation<BigInteger> output = ioBuilder.output(out);
               ProtocolProducer io = ioBuilder.getProtocol();
               gp.append(io);
 
-              this.outputs = new OInt[]{output};
+              this.outputs.add(output);
               return gp;
             }
           };
@@ -190,7 +189,7 @@ public class BasicArithmeticTests {
               .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf,
                   conf.sceConf.getSuite()));
           Assert.assertEquals(BigInteger.valueOf(14),
-              app.getOutputs()[0].getValue());
+              app.getOutputs()[0]);
         }
       };
     }
@@ -205,8 +204,6 @@ public class BasicArithmeticTests {
         @Override
         public void test() throws Exception {
           TestApplication app = new TestApplication() {
-
-            private static final long serialVersionUID = -8310958118835789509L;
 
             @Override
             public ProtocolProducer prepareApplication(
@@ -224,9 +221,9 @@ public class BasicArithmeticTests {
 
               SInt into = fac.getSInt();
               seq.append(new CopyProtocolImpl<>(closed, into));
-              OInt open = ioBuilder.output(into);
+              Computation<BigInteger> open = ioBuilder.output(into);
               seq.append(ioBuilder.getProtocol());
-              this.outputs = new OInt[]{open};
+              this.outputs.add(open);
 
               return seq;
             }
@@ -235,9 +232,11 @@ public class BasicArithmeticTests {
               .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf,
                   conf.sceConf.getSuite()));
 
-          Assert.assertEquals(app.getOutputs()[0].getValue(), BigInteger.ONE);
+          Assert.assertEquals(app.getOutputs()[0], BigInteger.ONE);
         }
-      };
+      }
+
+          ;
     }
   }
 
@@ -254,8 +253,6 @@ public class BasicArithmeticTests {
               8, 9, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
           TestApplication app = new TestApplication() {
 
-            private static final long serialVersionUID = -8310958118835789509L;
-
             @Override
             public ProtocolProducer prepareApplication(
                 BuilderFactory factoryProducer) {
@@ -266,9 +263,7 @@ public class BasicArithmeticTests {
               SInt[] inputs = createInputs(ioBuilder, openInputs);
               inputs[0] = knownInput;
 
-              OInt[] outputs = ioBuilder.outputArray(inputs);
-              OInt knownOutput = ioBuilder.output(knownInput);
-              outputs[0] = knownOutput;
+              List<Computation<BigInteger>> outputs = ioBuilder.outputArray(inputs);
               this.outputs = outputs;
 
               return ioBuilder.getProtocol();
@@ -308,11 +303,13 @@ public class BasicArithmeticTests {
               SInt knownInput2 = fac.getSInt(BigInteger.valueOf(300));
               SInt knownInput3 = fac.getSInt(BigInteger.valueOf(1));
               SInt knownInput4 = fac.getSInt(BigInteger.valueOf(2));
-              OInt knownOutput1 = ioBuilder.output(knownInput1);
-              OInt knownOutput2 = ioBuilder.output(knownInput2);
-              OInt knownOutput3 = ioBuilder.output(knownInput3);
-              OInt knownOutput4 = ioBuilder.output(knownInput4);
-              this.outputs = new OInt[]{knownOutput1, knownOutput2, knownOutput3, knownOutput4};
+              Computation<BigInteger> knownOutput1 = ioBuilder.output(knownInput1);
+              Computation<BigInteger> knownOutput2 = ioBuilder.output(knownInput2);
+              Computation<BigInteger> knownOutput3 = ioBuilder.output(knownInput3);
+              Computation<BigInteger> knownOutput4 = ioBuilder.output(knownInput4);
+              this.outputs.addAll(Arrays.asList(knownOutput1, knownOutput2, knownOutput3,
+                  knownOutput4));
+              ;
               return ioBuilder.getProtocol();
             }
           };
@@ -322,7 +319,9 @@ public class BasicArithmeticTests {
 
           checkOutputs(openInputs, app.getOutputs());
         }
-      };
+      }
+
+          ;
     }
   }
 
@@ -338,8 +337,6 @@ public class BasicArithmeticTests {
           final int[] openInputs = new int[]{1, 2, 3, 4, 5, 6, 7,
               8, 9, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
           TestApplication app = new TestApplication() {
-
-            private static final long serialVersionUID = -8310958118835789509L;
 
             @Override
             public ProtocolProducer prepareApplication(
@@ -376,7 +373,7 @@ public class BasicArithmeticTests {
               sumProtocol.append(fac.getMultProtocol(sum, sum,
                   sum));
 
-              this.outputs = new OInt[]{ioBuilder.output(sum)};
+              this.outputs.add(ioBuilder.output(sum));
 
               ProtocolProducer io = ioBuilder.getProtocol();
 
@@ -393,16 +390,16 @@ public class BasicArithmeticTests {
           }
           sum = sum * sum;
           Assert.assertEquals(BigInteger.valueOf(sum),
-              app.getOutputs()[0].getValue());
+              app.getOutputs()[0]);
         }
       };
     }
   }
 
-  private static void checkOutputs(int[] openInputs, OInt[] outputs) {
+  private static void checkOutputs(int[] openInputs, BigInteger[] outputs) {
     for (int i = 0; i < openInputs.length; i++) {
       Assert.assertEquals(BigInteger.valueOf(openInputs[i]),
-          outputs[i].getValue());
+          outputs[i]);
     }
   }
 
@@ -447,8 +444,8 @@ public class BasicArithmeticTests {
                   builder.add(input1, input2));
               ProtocolProducer circ = builder.getProtocol();
 
-              OInt output = ioBuilder.output(addAndMult);
-              this.outputs = new OInt[]{output};
+              Computation<BigInteger> output = ioBuilder.output(addAndMult);
+              this.outputs.add(output);
               ProtocolProducer outputs = ioBuilder.getProtocol();
 
               return new SequentialProtocolProducer(
@@ -460,7 +457,7 @@ public class BasicArithmeticTests {
                   conf.sceConf.getSuite()));
 
           Assert.assertEquals(BigInteger.valueOf(10 * (10 + 5)),
-              app.getOutputs()[0].getValue());
+              app.getOutputs()[0]);
         }
       };
     }
@@ -506,9 +503,9 @@ public class BasicArithmeticTests {
           secureComputationEngine
               .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf,
                   conf.sceConf.getSuite()));
-          OInt[] outputs = app.getOutputs();
-          for (OInt o : outputs) {
-            Assert.assertEquals(o.getValue(), BigInteger.valueOf(50));
+          BigInteger[] outputs = app.getOutputs();
+          for (BigInteger o : outputs) {
+            Assert.assertEquals(o, BigInteger.valueOf(50));
           }
         }
       };
@@ -532,7 +529,6 @@ public class BasicArithmeticTests {
               ProtocolFactory producer = factoryProducer.getProtocolFactory();
               BasicNumericFactory fac = (BasicNumericFactory) producer;
               ComparisonProtocolFactory comp = new ComparisonProtocolFactoryImpl(80, fac,
-                  (LocalInversionFactory) producer,
                   (ExpFromOIntFactory) producer, (PreprocessedExpPipeFactory) producer,
                   (BuilderFactoryNumeric) factoryProducer);
               NumericIOBuilder ioBuilder = new NumericIOBuilder(fac);
@@ -597,17 +593,17 @@ public class BasicArithmeticTests {
           secureComputationEngine
               .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf,
                   conf.sceConf.getSuite()));
-          OInt[] outputs = app.getOutputs();
-          Assert.assertEquals(BigInteger.valueOf(2), outputs[0].getValue());
-          Assert.assertEquals(BigInteger.valueOf(10), outputs[1].getValue());
-          Assert.assertEquals(BigInteger.ZERO, outputs[2].getValue());
+          BigInteger[] outputs = app.getOutputs();
+          Assert.assertEquals(BigInteger.valueOf(2), outputs[0]);
+          Assert.assertEquals(BigInteger.valueOf(10), outputs[1]);
+          Assert.assertEquals(BigInteger.ZERO, outputs[2]);
           int sum = 0;
           for (int i = 3; i < outputs.length; i++) {
-            sum += outputs[i].getValue().intValue();
+            sum += outputs[i].intValue();
             if (i == 4) {
-              Assert.assertEquals(BigInteger.ONE, outputs[i].getValue());
+              Assert.assertEquals(BigInteger.ONE, outputs[i]);
             } else {
-              Assert.assertEquals(BigInteger.ZERO, outputs[i].getValue());
+              Assert.assertEquals(BigInteger.ZERO, outputs[i]);
             }
           }
           Assert.assertEquals(1, sum);

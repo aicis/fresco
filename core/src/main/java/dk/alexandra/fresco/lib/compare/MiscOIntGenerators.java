@@ -26,9 +26,6 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.compare;
 
-import dk.alexandra.fresco.framework.value.OInt;
-import dk.alexandra.fresco.framework.value.OIntFactory;
-import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -43,21 +40,17 @@ import java.util.Map;
  */
 public class MiscOIntGenerators {
 
-  private BasicNumericFactory factory;
-
-  Map<Integer, OInt[]> coefficientsOfPolynomiums;
-  OInt[] twoPowers;
-  LinkedList<OInt> twoPowersList;
+  Map<Integer, BigInteger[]> coefficientsOfPolynomiums;
+  BigInteger[] twoPowers;
+  LinkedList<BigInteger> twoPowersList;
   // should twoPowers be a List?
 
 
-  public MiscOIntGenerators(BasicNumericFactory factory) {
-    this.factory = factory;
-    coefficientsOfPolynomiums = new HashMap<Integer, OInt[]>();
+  public MiscOIntGenerators() {
+    coefficientsOfPolynomiums = new HashMap<>();
 
-    twoPowers = new OInt[1];
-    twoPowers[0] = factory.getOInt();
-    twoPowers[0].setValue(BigInteger.ONE);
+    twoPowers = new BigInteger[1];
+    twoPowers[0] = BigInteger.ONE;
     twoPowersList = new LinkedList<>();
     twoPowersList.add(twoPowers[0]);
   }
@@ -66,22 +59,20 @@ public class MiscOIntGenerators {
   /**
    * Generate a degree l polynomium P such that P(1) = 1 and P(i) = 0 for i in {2,3,...,l+1}
    *
-   * @param factory source of OInt's
    * @param l degree of polynomium
    * @return coefficients of P
    */
-  public OInt[] getPoly(int l, BigInteger modulus) {
+  public BigInteger[] getPoly(int l, BigInteger modulus) {
     // check that l is positive
-    Integer lInt = new Integer(l);
-    OInt[] result = coefficientsOfPolynomiums.get(lInt);
+    Integer lInt = Integer.valueOf(l);
+    BigInteger[] result = coefficientsOfPolynomiums.get(lInt);
     if (result == null) {
       // Generate a new set of OInts and store them...
-      result = new OInt[l + 1];
+      result = new BigInteger[l + 1];
 
       BigInteger[] coefficients = constructPolynomial(l, 1, modulus);
       for (int i = 0; i <= l; i++) {
-        result[i] = factory.getOInt();
-        result[i].setValue(coefficients[coefficients.length - 1 - i]);
+        result[i] = coefficients[coefficients.length - 1 - i];
       }
 
       coefficientsOfPolynomiums.put(lInt, result);
@@ -122,7 +113,7 @@ public class MiscOIntGenerators {
     f[0] = BigInteger.valueOf(1);
 
 		/*
-		 * We also calculate f_i(m) in order to be able to normalize f such that
+     * We also calculate f_i(m) in order to be able to normalize f such that
 		 * f(m) = 1. Note that f_i(m) = f_{i-1}(m)(m - k) with the above notation.
 		 */
     BigInteger fm = BigInteger.ONE;
@@ -157,30 +148,29 @@ public class MiscOIntGenerators {
    * @param length array length
    * @return Array of length l with result[i] == 2^i
    */
-  public OInt[] getTwoPowers(int length) {
+  public BigInteger[] getTwoPowers(int length) {
     if (length > twoPowers.length) {
-      OInt[] newArray = new OInt[length];
+      BigInteger[] newArray = new BigInteger[length];
       System.arraycopy(twoPowers, 0, newArray, 0, twoPowers.length);
-      BigInteger currentValue = twoPowers[twoPowers.length - 1].getValue();
+      BigInteger currentValue = twoPowers[twoPowers.length - 1];
       for (int i = twoPowers.length; i < newArray.length; i++) {
-        newArray[i] = factory.getOInt();
         currentValue = currentValue.shiftLeft(1); // multiply previous value by two
-        newArray[i].setValue(currentValue);
+        newArray[i] = currentValue;
       }
       twoPowers = newArray;
     }
     // TODO: avoid copying.... also; since OInts are mutable, perhaps we should clone.
-    OInt[] result = new OInt[length];
+    BigInteger[] result = new BigInteger[length];
     System.arraycopy(twoPowers, 0, result, 0, length);
     return result;
   }
 
-  public List<OInt> getTwoPowersList(OIntFactory factory, int length) {
+  public List<BigInteger> getTwoPowersList(int length) {
     if (length > twoPowersList.size()) {
-      BigInteger currentValue = twoPowersList.getLast().getValue();
+      BigInteger currentValue = twoPowersList.getLast();
       while (length > twoPowersList.size()) {
         currentValue = currentValue.shiftLeft(1);
-        twoPowersList.add(factory.getOInt(currentValue));
+        twoPowersList.add(currentValue);
       }
     }
     return twoPowersList.subList(0, length);

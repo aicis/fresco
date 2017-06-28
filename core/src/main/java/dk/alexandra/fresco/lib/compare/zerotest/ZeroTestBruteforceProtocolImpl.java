@@ -30,7 +30,6 @@ import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.ProtocolProducer;
-import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.compare.MiscOIntGenerators;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
@@ -41,6 +40,7 @@ import dk.alexandra.fresco.lib.math.bool.add.IncrementByOneProtocolFactory;
 import dk.alexandra.fresco.lib.math.integer.exp.ExpFromOIntFactory;
 import dk.alexandra.fresco.lib.math.integer.exp.PreprocessedExpPipeFactory;
 import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductFactory;
+import java.math.BigInteger;
 
 public class ZeroTestBruteforceProtocolImpl implements ZeroTestBruteforceProtocol {
 
@@ -62,8 +62,8 @@ public class ZeroTestBruteforceProtocolImpl implements ZeroTestBruteforceProtoco
   private static final int numRounds = 2;
   private int round = 0;
   private ProtocolProducer pp = null;
-  private OInt masked_O;
   private SInt[] R;
+  private Computation<? extends BigInteger> masked_o;
 
   ZeroTestBruteforceProtocolImpl(int maxInput, SInt input, SInt output,
       BasicNumericFactory factory,
@@ -96,28 +96,29 @@ public class ZeroTestBruteforceProtocolImpl implements ZeroTestBruteforceProtoco
           SInt increased = factory.getSInt();
           SInt masked_S = factory.getSInt();
 
-          masked_O = factory.getOInt();
           Computation incr = incrFactory.getIncrementByOneProtocol(input, increased);
           Computation<? extends SInt> mult = factory
               .getMultProtocol(increased, R[0], masked_S);
-          Computation<? extends OInt> open = factory.getOpenProtocol(masked_S, masked_O);
+          masked_o = factory.getOpenProtocol(masked_S);
 
-          pp = new SequentialProtocolProducer(incr, mult, open);
+          pp = new SequentialProtocolProducer(incr, mult, masked_o);
 
           break;
         case 1:
           // compute powers and evaluate polynomial
-          OInt[] maskedPowers = expFromOIntFactory.getExpFromOInt(masked_O, maxInput);
+          BigInteger[] maskedPowers = expFromOIntFactory.getExpFromOInt(masked_o.out(), maxInput);
 
           Computation[] unmaskGPs = new Computation[maxInput];
           SInt[] powers = new SInt[maxInput];
           for (int i = 0; i < maxInput; i++) {
             powers[i] = factory.getSInt();
-            unmaskGPs[i] = factory.getMultProtocol(maskedPowers[i], R[i + 1], powers[i]);
+            int finalI = i;
+            unmaskGPs[i] = factory.getMultProtocol(maskedPowers[finalI], R[i + 1], powers[i]);
           }
-          OInt[] polynomialCoefficients = miscOIntGenerator.getPoly(maxInput, factory.getModulus());
+          BigInteger[] polynomialCoefficients = miscOIntGenerator
+              .getPoly(maxInput, factory.getModulus());
 
-          OInt[] mostSignificantPolynomialCoefficients = new OInt[maxInput];
+          BigInteger[] mostSignificantPolynomialCoefficients = new BigInteger[maxInput];
           System.arraycopy(polynomialCoefficients, 1,
               mostSignificantPolynomialCoefficients, 0, maxInput);
           SInt tmp = factory.getSInt();

@@ -29,7 +29,6 @@ import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.Reporter;
-import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.helper.AbstractRoundBasedProtocol;
@@ -66,7 +65,7 @@ public class LPSolverProtocol implements ProtocolProducer {
   private LPFactory lpFactory;
   private BasicNumericFactory bnFactory;
   private ProtocolProducer pp;
-  private OInt terminationOut;
+  private Computation<BigInteger> terminationOut;
   private Matrix<SInt> newUpdateMatrix;
   private final SInt prevPivot;
   private SInt pivot;
@@ -74,7 +73,7 @@ public class LPSolverProtocol implements ProtocolProducer {
 
   private final SInt[] basis;
   private static final int DEFAULT_BASIS_VALUE = 0;
-  private final OInt[] enumeratedVariables; // [1,2,3,...]
+  private final BigInteger[] enumeratedVariables; // [1,2,3,...]
 
   private int iterations = 0;
   private final int noVariables;
@@ -98,9 +97,9 @@ public class LPSolverProtocol implements ProtocolProducer {
       }
       this.noVariables = tableau.getC().getWidth();
       this.noConstraints = tableau.getC().getHeight();
-      this.enumeratedVariables = new OInt[noVariables];
+      this.enumeratedVariables = new BigInteger[noVariables];
       for (int i = 1; i <= enumeratedVariables.length; i++) {
-        this.enumeratedVariables[i - 1] = this.bnFactory.getOInt(BigInteger.valueOf(i));
+        this.enumeratedVariables[i - 1] = BigInteger.valueOf(i);
       }
     } else {
       throw new MPCException("Dimensions of inputs does not match");
@@ -125,7 +124,7 @@ public class LPSolverProtocol implements ProtocolProducer {
             identityHashCode);
         pp = phaseOneProtocol();
       } else { // if (state == STATE.PHASE2)
-        boolean terminated = terminationOut.getValue().equals(BigInteger.ONE);
+        boolean terminated = terminationOut.out().equals(BigInteger.ONE);
         if (!terminated) {
           pp = phaseTwoProtocol();
         } else {
@@ -253,7 +252,6 @@ public class LPSolverProtocol implements ProtocolProducer {
    * @return a protocol producer for the first half of a simplex iteration
    */
   private ProtocolProducer phaseOneProtocol() {
-    terminationOut = bnFactory.getOInt();
     enteringIndex = new SInt[noVariables];
     for (int i = 0; i < noVariables; i++) {
       enteringIndex[i] = bnFactory.getSInt();
@@ -267,8 +265,8 @@ public class LPSolverProtocol implements ProtocolProducer {
     SInt positive = bnFactory.getSInt();
     ProtocolProducer comp = lpFactory.getComparisonProtocol(zero, minimum, positive, true);
     SequentialProtocolProducer phaseOne = new SequentialProtocolProducer(enteringProducer, comp);
-    Computation output = bnFactory.getOpenProtocol(positive, terminationOut);
-    phaseOne.append(output);
+    terminationOut = bnFactory.getOpenProtocol(positive);
+    phaseOne.append(terminationOut);
     return phaseOne;
   }
 
@@ -285,7 +283,6 @@ public class LPSolverProtocol implements ProtocolProducer {
    */
   @SuppressWarnings("unused")
   private ProtocolProducer blandPhaseOneProtocol() {
-    terminationOut = bnFactory.getOInt();
     // Phase 1 - Finding the entering variable and outputting
     // whether or not the corresponding F value is positive (a positive
     // value indicating termination)
@@ -298,8 +295,8 @@ public class LPSolverProtocol implements ProtocolProducer {
     ProtocolProducer blandEnter = new BlandEnteringVariableProtocol(tableau, updateMatrix,
         enteringIndex, first, lpFactory, bnFactory);
 
-    Computation output = bnFactory.getOpenProtocol(first, terminationOut);
-    return new SequentialProtocolProducer(blandEnter, output);
+    terminationOut = bnFactory.getOpenProtocol(first);
+    return new SequentialProtocolProducer(blandEnter, terminationOut);
   }
 
 

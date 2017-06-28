@@ -26,14 +26,15 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.compare.zerotest;
 
+import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.ProtocolProducer;
-import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.compare.RandomAdditiveMaskFactory;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.helper.SimpleProtocolProducer;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
 import dk.alexandra.fresco.lib.math.integer.HammingDistanceFactory;
+import java.math.BigInteger;
 
 public class ZeroTestReducerProtocolImpl extends SimpleProtocolProducer implements
     ZeroTestReducerProtocol {
@@ -78,12 +79,12 @@ public class ZeroTestReducerProtocolImpl extends SimpleProtocolProducer implemen
         maskFactory.getRandomAdditiveMaskProtocol(securityParameter, bits, r));
 
     SInt mS = factory.getSInt();
-    OInt mO = factory.getOInt();
     sequentialProtocolProducer.append(factory.getAddProtocol(input, r, mS));
     // open m
-    sequentialProtocolProducer.append(factory.getOpenProtocol(mS, mO));
+    Computation<BigInteger> m0 = factory.getOpenProtocol(mS);
+    sequentialProtocolProducer.append(m0);
     // result = Hamming-dist_l(z,r);
-    sequentialProtocolProducer.append(hammingFactory.getHammingdistanceProtocol(bits, mO, output));
+    sequentialProtocolProducer.append(hammingFactory.getHammingdistanceProtocol(bits, m0, output));
 
     return sequentialProtocolProducer;
   }

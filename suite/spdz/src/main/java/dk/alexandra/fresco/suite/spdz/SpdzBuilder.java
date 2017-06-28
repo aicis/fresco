@@ -5,19 +5,18 @@ import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
-import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzAddProtocol4;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzInputProtocol;
-import dk.alexandra.fresco.suite.spdz.gates.SpdzLocalInversionProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzMultProtocol4;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzOutputToAllProtocol4;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzRandomProtocol4;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzSubtractProtocol4;
 import dk.alexandra.fresco.suite.spdz.utils.SpdzFactory;
 import java.math.BigInteger;
+import java.util.Objects;
 
 class SpdzBuilder implements BuilderFactoryNumeric {
 
@@ -49,8 +48,8 @@ class SpdzBuilder implements BuilderFactoryNumeric {
 
 
       @Override
-      public Computation<SInt> add(OInt a, Computation<SInt> b) {
-        return add(() -> spdzFactory.getSInt(a.getValue()), b);
+      public Computation<SInt> add(BigInteger a, Computation<SInt> b) {
+        return add(wrapBigInteger(a), b);
       }
 
 
@@ -62,13 +61,17 @@ class SpdzBuilder implements BuilderFactoryNumeric {
       }
 
       @Override
-      public Computation<SInt> sub(OInt a, Computation<SInt> b) {
-        return sub(() -> spdzFactory.getSInt(a.getValue()), b);
+      public Computation<SInt> sub(BigInteger a, Computation<SInt> b) {
+        return sub(wrapBigInteger(a), b);
       }
 
       @Override
-      public Computation<SInt> sub(Computation<SInt> a, OInt b) {
-        return sub(a, () -> spdzFactory.getSInt(b.getValue()));
+      public Computation<SInt> sub(Computation<SInt> a, BigInteger b) {
+        return sub(a, wrapBigInteger(b));
+      }
+
+      private Computation<SInt> wrapBigInteger(BigInteger knownInteger) {
+        return known(Objects.requireNonNull(knownInteger));
       }
 
       @Override
@@ -79,8 +82,9 @@ class SpdzBuilder implements BuilderFactoryNumeric {
       }
 
       @Override
-      public Computation<SInt> mult(OInt a, Computation<SInt> b) {
-        return () -> new SpdzSInt(((SpdzSInt) b.out()).value.multiply(a.getValue()));
+      public Computation<SInt> mult(BigInteger a, Computation<SInt> b) {
+        BigInteger notNullA = Objects.requireNonNull(a);
+        return () -> new SpdzSInt(((SpdzSInt) b.out()).value.multiply(notNullA));
       }
 
       @Override
@@ -91,15 +95,6 @@ class SpdzBuilder implements BuilderFactoryNumeric {
       @Override
       public Computation<SInt> randomElement() {
         return protocolBuilder.append(new SpdzRandomProtocol4());
-      }
-
-      @Override
-      public Computation<OInt> invert(OInt oInt) {
-        OInt out = spdzFactory.getOInt();
-        SpdzLocalInversionProtocol spdzLocalInversionProtocol =
-            new SpdzLocalInversionProtocol(oInt, out);
-        protocolBuilder.append(spdzLocalInversionProtocol);
-        return spdzLocalInversionProtocol;
       }
 
       @Override
@@ -117,9 +112,8 @@ class SpdzBuilder implements BuilderFactoryNumeric {
       }
 
       @Override
-      public Computation<OInt> open(Computation<SInt> secretShare) {
-        OInt out = spdzFactory.getOInt();
-        SpdzOutputToAllProtocol4 openProtocol = new SpdzOutputToAllProtocol4(secretShare, out);
+      public Computation<BigInteger> open(Computation<SInt> secretShare) {
+        SpdzOutputToAllProtocol4 openProtocol = new SpdzOutputToAllProtocol4(secretShare);
         protocolBuilder.append(openProtocol);
         return openProtocol;
       }
@@ -131,9 +125,10 @@ class SpdzBuilder implements BuilderFactoryNumeric {
       }
 
       @Override
-      public Computation<OInt[]> getExpFromOInt(OInt value, int maxExp) {
+      public Computation<BigInteger[]> getExpFromOInt(BigInteger value, int maxExp) {
         return () -> spdzFactory.getExpFromOInt(value, maxExp);
       }
     };
   }
+
 }

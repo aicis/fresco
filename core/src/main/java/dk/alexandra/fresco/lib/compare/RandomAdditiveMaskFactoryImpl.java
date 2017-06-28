@@ -39,7 +39,7 @@ public class RandomAdditiveMaskFactoryImpl implements RandomAdditiveMaskFactory 
 	public RandomAdditiveMaskFactoryImpl(BasicNumericFactory bnf,
 			InnerProductFactory innerProductFactory) {
 		this.bnf = bnf;
-		this.misc = new MiscOIntGenerators(bnf);
+    this.misc = new MiscOIntGenerators();
     this.innerProductFactory = innerProductFactory;
   }
 

@@ -138,7 +138,8 @@ public class SecureComputationEngineImpl<ResourcePoolT extends ResourcePool> imp
   public <OutputT> OutputT runApplication(Application<OutputT> application,
       ResourcePoolT sceNetwork) {
     try {
-      return startApplication(application, sceNetwork).get(10, TimeUnit.MINUTES);
+      Future<OutputT> future = startApplication(application, sceNetwork);
+      return future.get(10, TimeUnit.MINUTES);
     } catch (InterruptedException | ExecutionException | TimeoutException e) {
       throw new RuntimeException("Internal error in waiting", e);
     }
@@ -147,7 +148,10 @@ public class SecureComputationEngineImpl<ResourcePoolT extends ResourcePool> imp
   public <OutputT> Future<OutputT> startApplication(Application<OutputT> application,
       ResourcePoolT resourcePool) {
     prepareEvaluator();
-    return executorService.submit(() -> evalApplication(application, resourcePool));
+    return executorService.submit(() -> {
+      evalApplication(application, resourcePool);
+      return application.getResult();
+    });
   }
 
   private void prepareEvaluator() {
@@ -160,7 +164,7 @@ public class SecureComputationEngineImpl<ResourcePoolT extends ResourcePool> imp
     }
   }
 
-  private <OutputT> OutputT evalApplication(Application<OutputT> application,
+  private <OutputT> void evalApplication(Application<OutputT> application,
       ResourcePoolT resourcePool) {
     Reporter.info("Running application: " + application + " using protocol suite: "
         + this.protocolSuite);
@@ -173,13 +177,11 @@ public class SecureComputationEngineImpl<ResourcePoolT extends ResourcePool> imp
       long now = System.currentTimeMillis();
       long timeSpend = now - then;
       Reporter.info("Running the application " + application + " took " + timeSpend + " ms.");
+      application.close();
     } catch (IOException e) {
       throw new MPCException(
           "Could not run application " + application + " due to errors", e);
-    } finally {
-      result = application.closeApplication();
     }
-    return result;
   }
 
   @Override

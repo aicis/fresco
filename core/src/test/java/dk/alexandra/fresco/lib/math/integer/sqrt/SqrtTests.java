@@ -37,7 +37,6 @@ import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
-import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -63,7 +62,7 @@ public class SqrtTests {
         };
         private final int n = x.length;
 
-        List<Computation<OInt>> results = new ArrayList<>(n);
+        List<Computation<BigInteger>> results = new ArrayList<>(n);
 
         @Override
         public void test() throws Exception {
@@ -81,7 +80,7 @@ public class SqrtTests {
                       Computation<SInt> actualInput = sIntFactory.known(input);
                       Computation<SInt> result = builder.createAdvancedNumericBuilder()
                           .sqrt(actualInput, input.bitLength());
-                      Computation<OInt> openResult = builder.numeric().open(result);
+                      Computation<BigInteger> openResult = builder.numeric().open(result);
                       results.add(openResult);
                     }
                   }).build();
@@ -95,8 +94,8 @@ public class SqrtTests {
           Assert.assertEquals(n, results.size());
 
           for (int i = 0; i < results.size(); i++) {
-            Computation<OInt> result = results.get(i);
-            BigInteger actual = result.out().getValue();
+            Computation<BigInteger> result = results.get(i);
+            BigInteger actual = result.out();
             BigInteger expected = BigInteger.valueOf((long) Math.sqrt(x[i].intValue()));
 
             BigInteger difference = expected.subtract(actual).abs();

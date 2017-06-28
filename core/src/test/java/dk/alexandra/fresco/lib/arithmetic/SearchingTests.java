@@ -27,6 +27,7 @@
 package dk.alexandra.fresco.lib.arithmetic;
 
 import dk.alexandra.fresco.framework.BuilderFactory;
+import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.TestApplication;
@@ -36,7 +37,6 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
-import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.collections.LookUpProtocolFactory;
 import dk.alexandra.fresco.lib.collections.LookupProtocolFactoryImpl;
@@ -47,7 +47,7 @@ import dk.alexandra.fresco.lib.lp.LPFactory;
 import dk.alexandra.fresco.lib.lp.LPFactoryImpl;
 import dk.alexandra.fresco.lib.math.integer.exp.ExpFromOIntFactory;
 import dk.alexandra.fresco.lib.math.integer.exp.PreprocessedExpPipeFactory;
-import dk.alexandra.fresco.lib.math.integer.inv.LocalInversionFactory;
+import java.math.BigInteger;
 import java.util.Random;
 import org.junit.Assert;
 
@@ -98,11 +98,10 @@ public class SearchingTests {
                 ProtocolFactory producer = factoryProducer.getProtocolFactory();
 
                 BasicNumericFactory bnf = (BasicNumericFactory) producer;
-                LocalInversionFactory localInvFactory = (LocalInversionFactory) producer;
                 ExpFromOIntFactory expFromOIntFactory = (ExpFromOIntFactory) producer;
                 PreprocessedExpPipeFactory expFactory = (PreprocessedExpPipeFactory) producer;
                 RandomFieldElementFactory randFactory = (RandomFieldElementFactory) producer;
-                LPFactory lpFactory = new LPFactoryImpl(80, bnf, localInvFactory,
+                LPFactory lpFactory = new LPFactoryImpl(80, bnf,
                     expFromOIntFactory, expFactory, randFactory,
                     (BuilderFactoryNumeric) factoryProducer);
                 LookUpProtocolFactory<SInt> lpf = new LookupProtocolFactoryImpl(80, lpFactory, bnf);
@@ -112,9 +111,9 @@ public class SearchingTests {
                 sequentialProtocolProducer.append(lpf
                     .getLookUpProtocol(sKeys[counter], sKeys, sValues,
                         sOut));
-                OInt out = bnf.getOInt();
-                sequentialProtocolProducer.append(bnf.getOpenProtocol(sOut, out));
-                this.outputs = new OInt[]{out};
+                Computation<BigInteger> openProtocol = bnf.getOpenProtocol(sOut);
+                sequentialProtocolProducer.append(openProtocol);
+                this.outputs.add(openProtocol);
                 return sequentialProtocolProducer;
               }
             };
@@ -122,7 +121,7 @@ public class SearchingTests {
             secureComputationEngine.runApplication(app1, resourcePool);
 
             Assert.assertEquals("Checking value index " + i,
-                values[i], app1.outputs[0].getValue().intValue());
+                values[i], app1.outputs.get(0).out().intValue());
           }
         }
       };
@@ -174,7 +173,7 @@ public class SearchingTests {
 											sOut);
 							niob.beginSeqScope();
 							niob.addGateProducer(luc);
-							OInt[] outs = niob.outputArray(sOut);
+							BigInteger[] outs = niob.outputArray(sOut);
 							niob.endCurScope();
 							secureComputationEngine.runApplication(niob.getCircuit());
 							for (int j = 0; j < outs.length; j++) {
@@ -235,7 +234,7 @@ public class SearchingTests {
 											sValues, sOut);
 							niob.beginSeqScope();
 							niob.addGateProducer(luc);
-							OInt[] outs = niob.outputArray(sOut);
+							BigInteger[] outs = niob.outputArray(sOut);
 							niob.endCurScope();
 							secureComputationEngine.runApplication(niob.getCircuit());
 							for (int j = 0; j < outs.length; j++) {
@@ -280,7 +279,7 @@ public class SearchingTests {
 						SInt lookUpKey = provider.getSInt(PAIRS + 1);
 						for (int i = 0; i < 1; i++) {
 							SInt sOut = provider.getSInt(NOTFOUND);
-							OInt out = provider.getOInt();
+							BigInteger out = provider.getOInt();
 
 							AppendableGateProducer agp = new SequentialProtocolProducer();
 							LookUpCircuit<SInt> luc = provider

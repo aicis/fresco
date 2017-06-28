@@ -6,10 +6,9 @@ import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
-import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.framework.value.Value;
-import dk.alexandra.fresco.lib.crypto.mimc.MiMCEncryptionProtocolNaiveImpl4;
+import dk.alexandra.fresco.lib.crypto.mimc.MiMCEncryption;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -46,13 +45,13 @@ public class EncryptAndRevealStep implements Application {
       }).par((key, par) -> {
         //Store key
         mimcKey = key;
-        List<Computation<OInt>> ciphers = new ArrayList<>(inputRows.length);
+        List<Computation<BigInteger>> ciphers = new ArrayList<>(inputRows.length);
         // Encrypt desired column and open resulting cipher text
         for (final SInt[] row : inputRows) {
           ciphers.add(par.createSequentialSub((seq) -> {
             SInt toEncrypt = row[toEncryptIndex];
             Computation<SInt> cipherText = seq.createSequentialSub(
-                new MiMCEncryptionProtocolNaiveImpl4(toEncrypt, key)
+                new MiMCEncryption(toEncrypt, key)
             );
             return seq.numeric().open(cipherText);
           }));
@@ -65,7 +64,8 @@ public class EncryptAndRevealStep implements Application {
           // Since our result array has rows that are one element
           // longer than our input, this is correct
           int cipherIndex = row.length;
-          rowsWithOpenedCiphers[rowIndex][cipherIndex] = ciphers.get(rowIndex).out();
+          // TODO Fix this demo - what is the point of tihs application?
+//          rowsWithOpenedCiphers[rowIndex][cipherIndex] = ciphers.get(rowIndex).out();
           System.arraycopy(row, 0, rowsWithOpenedCiphers[rowIndex], 0, row.length);
         }
         return null;

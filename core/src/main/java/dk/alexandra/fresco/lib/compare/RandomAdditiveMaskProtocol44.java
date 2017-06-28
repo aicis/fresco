@@ -7,8 +7,8 @@ import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.ComputationBuilder;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder.SequentialProtocolBuilder;
-import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -38,10 +38,9 @@ public class RandomAdditiveMaskProtocol44 implements ComputationBuilder<RandomAd
       allBits.add(randomBit);
     }
 
-    MiscOIntGenerators oIntGenerators = new MiscOIntGenerators(
-        factoryNumeric.getBasicNumericFactory());
+    MiscOIntGenerators oIntGenerators = new MiscOIntGenerators();
 
-    OInt[] twoPows = oIntGenerators.getTwoPowers(securityParameter + noOfBits);
+    BigInteger[] twoPows = oIntGenerators.getTwoPowers(securityParameter + noOfBits);
     AdvancedNumericBuilder innerProductBuilder = builder.createAdvancedNumericBuilder();
     value = innerProductBuilder.openDot(Arrays.asList(twoPows), allBits);
     bits = allBits.subList(0, noOfBits);

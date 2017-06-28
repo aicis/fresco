@@ -39,7 +39,6 @@ import dk.alexandra.fresco.framework.builder.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder.SequentialProtocolBuilder;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
-import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.helper.builder.NumericIOBuilder;
@@ -75,7 +74,7 @@ public class DivisionTests {
 
         @Override
         public void test() throws Exception {
-          List<Computation<OInt>> cOutputs = new ArrayList<>();
+          List<Computation<BigInteger>> cOutputs = new ArrayList<>();
           TestApplication app = new TestApplication() {
 
             @Override
@@ -89,21 +88,21 @@ public class DivisionTests {
               SequentialProtocolProducer sequentialProtocolProducer = new SequentialProtocolProducer();
 
               SInt input1 = ioBuilder.input(x, 1);
-              OInt input2 = basicNumericFactory.getOInt(d);
+              BigInteger input2 = d;
               sequentialProtocolProducer.append(ioBuilder.getProtocol());
 
               SequentialProtocolBuilder applicationRoot = ProtocolBuilder
                   .createApplicationRoot((BuilderFactoryNumeric) factoryProducer,
                       (seq) -> {
                         Computation<SInt> division = seq.createSequentialSub(
-                            new KnownDivisorProtocol4(
+                            new KnownDivisor(
                                 (BuilderFactoryNumeric) factoryProducer, input1, input2));
 
                         Computation<SInt> remainder = seq.createSequentialSub(
-                            new KnownDivisorRemainderProtocol4(input1, input2));
+                            new KnownDivisorRemainder(input1, input2));
                         NumericBuilder NumericBuilder = seq.numeric();
-                        Computation<OInt> output1 = NumericBuilder.open(division);
-                        Computation<OInt> output2 = NumericBuilder.open(remainder);
+                        Computation<BigInteger> output1 = NumericBuilder.open(division);
+                        Computation<BigInteger> output2 = NumericBuilder.open(remainder);
                         cOutputs.add(output1);
                         cOutputs.add(output2);
                       });
@@ -114,8 +113,8 @@ public class DivisionTests {
           secureComputationEngine
               .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf,
                   conf.sceConf.getSuite()));
-          BigInteger quotient = cOutputs.get(0).out().getValue();
-          BigInteger remainder = cOutputs.get(1).out().getValue();
+          BigInteger quotient = cOutputs.get(0).out();
+          BigInteger remainder = cOutputs.get(1).out();
           Assert.assertEquals(x.mod(d), remainder);
           Assert.assertEquals(x.divide(d), quotient);
         }
@@ -138,7 +137,7 @@ public class DivisionTests {
         private final BigInteger d = BigInteger.valueOf(1110);
         private final int n = x.length;
 
-        private List<Computation<OInt>> results = new ArrayList<>(n);
+        private List<Computation<BigInteger>> results = new ArrayList<>(n);
 
         @Override
         public void test() throws Exception {
@@ -164,7 +163,7 @@ public class DivisionTests {
               .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf,
                   conf.sceConf.getSuite()));
           for (int i = 0; i < n; i++) {
-            BigInteger actual = results.get(i).out().getValue();
+            BigInteger actual = results.get(i).out();
 
             BigInteger expected = x[i].divide(d);
 

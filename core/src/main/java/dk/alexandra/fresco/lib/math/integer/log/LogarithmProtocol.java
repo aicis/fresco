@@ -29,8 +29,6 @@ package dk.alexandra.fresco.lib.math.integer.log;
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.builder.ComputationBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder.SequentialProtocolBuilder;
-import dk.alexandra.fresco.framework.value.OInt;
-import dk.alexandra.fresco.framework.value.OIntFactory;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
 
@@ -63,8 +61,7 @@ public class LogarithmProtocol implements ComputationBuilder<SInt> {
     /*
      * ln(2) = 45426 >> 16;
 		 */
-    OIntFactory intFactory = builder.getOIntFactory();
-    OInt ln2 = intFactory.getOInt(BigInteger.valueOf(45426));
+    BigInteger ln2 = BigInteger.valueOf(45426);
     int shifts = 16;
 
 		/*
@@ -74,7 +71,7 @@ public class LogarithmProtocol implements ComputationBuilder<SInt> {
     Computation<SInt> bitLength =
         builder.createAdvancedNumericBuilder().bitLength(input, maxInputLength);
     Computation<SInt> log2 =
-        builder.numeric().sub(bitLength, intFactory.getOInt(BigInteger.ONE));
+        builder.numeric().sub(bitLength, BigInteger.ONE);
 
 		/*
      * ln(x) = log_2(x) * ln(2), and we use 45426 >> 16 as an approximation of ln(2).

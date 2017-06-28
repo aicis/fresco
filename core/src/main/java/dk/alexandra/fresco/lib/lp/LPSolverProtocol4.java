@@ -29,7 +29,6 @@ import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.Reporter;
 import dk.alexandra.fresco.framework.builder.ComputationBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder.SequentialProtocolBuilder;
-import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.compare.ConditionalSelect;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
@@ -80,13 +79,13 @@ public class LPSolverProtocol4 implements ComputationBuilder<LPOutput> {
       for (int i = 0; i < noConstraints; i++) {
         basis.add(bnFactory.getSInt(DEFAULT_BASIS_VALUE));
       }
-      List<OInt> enumeratedVariables = new ArrayList<>(noVariables);
+      List<BigInteger> enumeratedVariables = new ArrayList<>(noVariables);
       for (int i = 1; i <= noVariables; i++) {
-        enumeratedVariables.add(this.bnFactory.getOInt(BigInteger.valueOf(i)));
+        enumeratedVariables.add(BigInteger.valueOf(i));
       }
 
       this.initialState = new LPState(
-          this.bnFactory.getOInt(BigInteger.ZERO), tableau, updateMatrix, null, pivot,
+          BigInteger.ZERO, tableau, updateMatrix, null, pivot,
           enumeratedVariables, basis, pivot);
 
     } else {
@@ -275,18 +274,18 @@ public class LPSolverProtocol4 implements ComputationBuilder<LPOutput> {
 
   private class LPState implements Computation<LPState> {
 
-    public Computation<OInt> terminationOut;
+    public Computation<BigInteger> terminationOut;
     private LPTableau tableau;
     private Matrix<SInt> updateMatrix;
     public List<Computation<SInt>> enteringIndex;
     public SInt pivot;
-    public List<OInt> enumeratedVariables;
+    public List<BigInteger> enumeratedVariables;
     public List<Computation<SInt>> basis;
     public SInt prevPivot;
 
-    public LPState(OInt terminationOut, LPTableau tableau,
+    public LPState(BigInteger terminationOut, LPTableau tableau,
         Matrix<SInt> updateMatrix, List<Computation<SInt>> enteringIndex, SInt pivot,
-        List<OInt> enumeratedVariables, List<Computation<SInt>> basis, SInt prevPivot) {
+        List<BigInteger> enumeratedVariables, List<Computation<SInt>> basis, SInt prevPivot) {
       this.terminationOut = () -> terminationOut;
       this.tableau = tableau;
       this.updateMatrix = updateMatrix;
@@ -303,7 +302,7 @@ public class LPSolverProtocol4 implements ComputationBuilder<LPOutput> {
     }
 
     public boolean terminated() {
-      return terminationOut.out().getValue().equals(BigInteger.ONE);
+      return terminationOut.out().equals(BigInteger.ONE);
     }
   }
 }

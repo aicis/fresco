@@ -31,7 +31,6 @@ import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
-import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.compare.ConditionalSelectProtocolImpl;
 import dk.alexandra.fresco.lib.compare.MiscOIntGenerators;
@@ -39,10 +38,8 @@ import dk.alexandra.fresco.lib.compare.RandomAdditiveMaskFactory;
 import dk.alexandra.fresco.lib.compare.zerotest.ZeroTestProtocolFactory;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
-import dk.alexandra.fresco.lib.helper.SingleProtocolProducer;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
 import dk.alexandra.fresco.lib.math.integer.NumericNegateBitFactory;
-import dk.alexandra.fresco.lib.math.integer.inv.LocalInversionFactory;
 import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductFactory;
 import java.math.BigInteger;
 
@@ -56,7 +53,7 @@ public class GreaterThanReducerProtocolImpl implements GreaterThanProtocol, Comp
       ZeroTestProtocolFactory ztFactory,
       MiscOIntGenerators miscOIntGenerator,
       InnerProductFactory innerProdFactory,
-      LocalInversionFactory invFactory, BuilderFactoryNumeric factoryProducer) {
+      BuilderFactoryNumeric factoryProducer) {
     super();
     this.bitLength = bitLength;
     this.bitLengthBottom = bitLength / 2;
@@ -73,14 +70,10 @@ public class GreaterThanReducerProtocolImpl implements GreaterThanProtocol, Comp
     this.ztFactory = ztFactory;
     this.miscOIntGenerator = miscOIntGenerator;
     this.innerProdFactory = innerProdFactory;
-    this.invFactory = invFactory;
+    this.invFactory = factory;
 
-    this.twoToBitLength = factory.getOInt();
-    this.twoToBitLength.setValue(BigInteger.ONE.shiftLeft(this.bitLength));
-    this.twoToBitLengthBottom = factory.getOInt();
-    this.twoToBitLengthBottom.setValue(BigInteger.ONE.shiftLeft(this.bitLengthBottom));
-
-    this.twoToNegBitLength = factory.getOInt();
+    this.twoToBitLength = BigInteger.ONE.shiftLeft(this.bitLength);
+    this.twoToBitLengthBottom = BigInteger.ONE.shiftLeft(this.bitLengthBottom);
   }
 
   // params etc
@@ -100,7 +93,7 @@ public class GreaterThanReducerProtocolImpl implements GreaterThanProtocol, Comp
   private final ZeroTestProtocolFactory ztFactory;
   private final MiscOIntGenerators miscOIntGenerator;
   private final InnerProductFactory innerProdFactory;
-  private final LocalInversionFactory invFactory;
+  private final BasicNumericFactory invFactory;
 
 
   // local stuff
@@ -112,13 +105,14 @@ public class GreaterThanReducerProtocolImpl implements GreaterThanProtocol, Comp
   private SInt rTop, rBottom, rBar;
   private SInt[] bits;
   private SInt r;
-  private final OInt twoToBitLength;
-  private final OInt twoToNegBitLength;
-  private final OInt twoToBitLengthBottom;
+  private final BigInteger twoToBitLength;
+  private final BigInteger twoToBitLengthBottom;
+  private BigInteger twoToNegBitLength;
 
   private SInt z;
 
-  private OInt mO, mBot, mTop, mBar;
+  private Computation<BigInteger> mO;
+  private BigInteger mBot, mTop, mBar;
 
   private SInt eqResult, subComparisonResult;
 
@@ -149,7 +143,7 @@ public class GreaterThanReducerProtocolImpl implements GreaterThanProtocol, Comp
           System.arraycopy(bits, 0, rBottomBits, 0, bitLengthBottom);
           System.arraycopy(bits, bitLengthBottom, rTopBits, 0, bitLengthTop);
 
-          OInt[] twoPowsTop, twoPowsBottom;
+          BigInteger[] twoPowsTop, twoPowsBottom;
 
           twoPowsTop = twoPowsBottom = miscOIntGenerator.getTwoPowers(bitLengthBottom);
           // TODO: why should we have two of these; it'd be much more effective if inner-products could take different-length vectors (ignoring subsequent inputs/implicitly padding with 0)
@@ -180,9 +174,8 @@ public class GreaterThanReducerProtocolImpl implements GreaterThanProtocol, Comp
           // mO = open(z + r)
 
           SInt mS = factory.getSInt();
-          mO = factory.getOInt();
           Computation addprotocol2 = factory.getAddProtocol(z, r, mS);
-          Computation openprotocolAddMask = factory.getOpenProtocol(mS, mO);
+          mO = factory.getOpenProtocol(mS);
 
           pp = new SequentialProtocolProducer(
               new ParallelProtocolProducer(sumBottom, sumTop),
@@ -191,14 +184,16 @@ public class GreaterThanReducerProtocolImpl implements GreaterThanProtocol, Comp
               subprotocol,
               addprotocol1,
               addprotocol2,
-              openprotocolAddMask);
+              mO);
           break;
         case 2: //
           // extract mTop and mBot
-          mBot = factory.getOInt();
-          mTop = factory.getOInt();
-          mBar = factory.getOInt();
-          compute_mTopmBot(mO, mTop, mBot, mBar);
+          // TODO: put const generators into miscOIntGenerators and use them
+          BigInteger mMod = mO.out().mod(BigInteger.ONE.shiftLeft(bitLength));
+
+          mBar = mMod;
+          mBot = mMod.mod(BigInteger.ONE.shiftLeft(bitLengthBottom));
+          mTop = mMod.shiftRight(bitLengthBottom);
           // mO = null;
 
           // dif = mTop - rTop
@@ -267,7 +262,7 @@ public class GreaterThanReducerProtocolImpl implements GreaterThanProtocol, Comp
                 ztFactory,
                 miscOIntGenerator,
                 innerProdFactory,
-                invFactory, factoryProducer);
+                factoryProducer);
             pp = new SequentialProtocolProducer(selectSubProblemGP, compCirc);
           }
 
@@ -291,19 +286,15 @@ public class GreaterThanReducerProtocolImpl implements GreaterThanProtocol, Comp
           Computation subCirc4_2 = factory.getSubtractProtocol(z, reducedNoError, resUnshifted);
           // res >> 2^bitLength
 
-          ProtocolProducer localInvCirc4 =
-              SingleProtocolProducer.wrap(
-                  invFactory.getLocalInversionProtocol(twoToBitLength, twoToNegBitLength));
+          twoToNegBitLength = twoToBitLength.modInverse(invFactory.getModulus());
           Computation shiftCirc4 = factory
               .getMultProtocol(twoToNegBitLength, resUnshifted, output);
 
           ProtocolProducer computeUnshifted = new SequentialProtocolProducer(
               new ParallelProtocolProducer(negCirc4, subCirc4_1),
               mbcCirc4, addCirc4, subCirc4_2);
-          ProtocolProducer computeTwoToNeg = new ParallelProtocolProducer(computeUnshifted,
-              localInvCirc4);
           pp = new SequentialProtocolProducer(
-              computeTwoToNeg, shiftCirc4);
+              computeUnshifted, shiftCirc4);
           //gp = new SequentialGateProducer(negCirc4, subCirc4_1, mbcCirc4, addCirc4, subCirc4_2, localInvCirc4, shiftCirc4);
           break;
         default:
@@ -316,15 +307,6 @@ public class GreaterThanReducerProtocolImpl implements GreaterThanProtocol, Comp
       round++;
       pp = null;
     }
-  }
-
-  private void compute_mTopmBot(OInt m, OInt mTop, OInt mBot, OInt mBar) {
-    // TODO: put const generators into miscOIntGenerators and use them
-    BigInteger mMod = m.getValue().mod(BigInteger.ONE.shiftLeft(bitLength));
-
-    mBar.setValue(mMod);
-    mBot.setValue(mMod.mod(BigInteger.ONE.shiftLeft(bitLengthBottom)));
-    mTop.setValue(mMod.shiftRight(bitLengthBottom));
   }
 
   @Override

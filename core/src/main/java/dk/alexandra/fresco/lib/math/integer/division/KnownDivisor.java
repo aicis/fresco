@@ -5,7 +5,6 @@ import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.ComputationBuilder;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder.SequentialProtocolBuilder;
-import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import java.math.BigInteger;
@@ -21,16 +20,16 @@ import java.math.BigInteger;
  *
  * @author Jonas Lindstrøm (jonas.lindstrom@alexandra.dk)
  */
-public class KnownDivisorProtocol4 implements ComputationBuilder<SInt> {
+public class KnownDivisor implements ComputationBuilder<SInt> {
 
   private final BuilderFactoryNumeric builderFactory;
   private final Computation<SInt> dividend;
-  private final OInt divisor;
+  private final BigInteger divisor;
 
-  KnownDivisorProtocol4(
+  KnownDivisor(
       BuilderFactoryNumeric builderFactory,
       Computation<SInt> dividend,
-      OInt divisor) {
+      BigInteger divisor) {
 
     this.builderFactory = builderFactory;
     this.dividend = dividend;
@@ -71,7 +70,7 @@ public class KnownDivisorProtocol4 implements ComputationBuilder<SInt> {
 		 * TODO: This should be handled differently because it will not
 		 * necessarily work with another arithmetic protocol suite.
 		 */
-    BigInteger signedDivisor = convertRepresentation(modulus, modulusHalf, divisor.getValue());
+    BigInteger signedDivisor = convertRepresentation(modulus, modulusHalf, divisor);
     int divisorSign = signedDivisor.signum();
     BigInteger divisorAbs = signedDivisor.abs();
 
@@ -95,8 +94,7 @@ public class KnownDivisorProtocol4 implements ComputationBuilder<SInt> {
 		 * division to ensure that this is indeed the case.
 		 */
     BigInteger m = BigInteger.ONE.shiftLeft(shifts).divide(divisorAbs).add(BigInteger.ONE);
-    OInt mAsOInt = builder.getOIntFactory().getOInt(m);
-    Computation<SInt> quotientAbs = numeric.mult(mAsOInt, dividendAbs);
+    Computation<SInt> quotientAbs = numeric.mult(m, dividendAbs);
 
 		/*
      * Now quotientAbs is the result shifted SHIFTS bits to the left, so we
@@ -107,7 +105,7 @@ public class KnownDivisorProtocol4 implements ComputationBuilder<SInt> {
 		/*
      * Adjust the sign of the result.
 		 */
-    OInt oInt = builder.getOIntFactory().getOInt(BigInteger.valueOf(divisorSign));
+    BigInteger oInt = BigInteger.valueOf(divisorSign);
     Computation<SInt> sign = numeric.mult(oInt, dividendSign);
     return numeric.mult(q, sign);
   }

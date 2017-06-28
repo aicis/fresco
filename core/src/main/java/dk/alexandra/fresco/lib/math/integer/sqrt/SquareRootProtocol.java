@@ -70,8 +70,7 @@ public class SquareRootProtocol implements ComputationBuilder<SInt> {
     return builder.seq((seq) -> {
       Computation<SInt> shifted = seq.createAdvancedNumericBuilder()
           .rightShift(input, maxInputLength / 2);
-      Computation<SInt> addedOne = seq.numeric()
-          .add(seq.getOIntFactory().getOInt(BigInteger.ONE), shifted);
+      Computation<SInt> addedOne = seq.numeric().add(BigInteger.ONE, shifted);
       return new IterationState(1, addedOne);
       /*
       * We iterate y[n+1] = (y[n] + x / y[n]) / 2.

@@ -26,7 +26,8 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.math.integer.exp;
 
-import dk.alexandra.fresco.framework.value.OInt;
+
+import java.math.BigInteger;
 
 public interface ExpFromOIntFactory {
 
@@ -37,5 +38,5 @@ public interface ExpFromOIntFactory {
 	 * @param maxExp
 	 * @return
 	 */
-	public OInt[] getExpFromOInt(OInt value, int maxExp);
+  public BigInteger[] getExpFromOInt(BigInteger value, int maxExp);
 }

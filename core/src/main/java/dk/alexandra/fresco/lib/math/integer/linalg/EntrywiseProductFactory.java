@@ -26,8 +26,9 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.math.integer.linalg;
 
-import dk.alexandra.fresco.framework.value.OInt;
+
 import dk.alexandra.fresco.framework.value.SInt;
+import java.math.BigInteger;
 
 public interface EntrywiseProductFactory {
 
@@ -53,5 +54,6 @@ public interface EntrywiseProductFactory {
 	 *            output - result of as \cdot bs
 	 * @return
 	 */
-	public EntrywiseProductProtocol getEntrywiseProductProtocol(SInt[] as, OInt[] bs, SInt[] results);
+  public EntrywiseProductProtocol getEntrywiseProductProtocol(SInt[] as, BigInteger[] bs,
+      SInt[] results);
 }

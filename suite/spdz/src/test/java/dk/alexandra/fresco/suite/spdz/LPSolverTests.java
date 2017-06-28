@@ -39,7 +39,6 @@ import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
-import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.field.integer.RandomFieldElementFactory;
@@ -51,7 +50,6 @@ import dk.alexandra.fresco.lib.lp.LPSolverProtocol4;
 import dk.alexandra.fresco.lib.lp.LPSolverProtocol4.LPOutput;
 import dk.alexandra.fresco.lib.math.integer.exp.ExpFromOIntFactory;
 import dk.alexandra.fresco.lib.math.integer.exp.PreprocessedExpPipeFactory;
-import dk.alexandra.fresco.lib.math.integer.inv.LocalInversionFactory;
 import dk.alexandra.fresco.suite.spdz.utils.LPInputReader;
 import dk.alexandra.fresco.suite.spdz.utils.PlainLPInputReader;
 import dk.alexandra.fresco.suite.spdz.utils.PlainSpdzLPPrefix;
@@ -78,11 +76,10 @@ class LPSolverTests {
                 BuilderFactory factoryProducer) {
               ProtocolFactory producer = factoryProducer.getProtocolFactory();
               BasicNumericFactory bnFactory = (BasicNumericFactory) producer;
-              LocalInversionFactory localInvFactory = (LocalInversionFactory) producer;
               ExpFromOIntFactory expFromOIntFactory = (ExpFromOIntFactory) producer;
               PreprocessedExpPipeFactory expFactory = (PreprocessedExpPipeFactory) producer;
               RandomFieldElementFactory randFactory = (RandomFieldElementFactory) producer;
-              LPFactory lpFactory = new LPFactoryImpl(80, bnFactory, localInvFactory,
+              LPFactory lpFactory = new LPFactoryImpl(80, bnFactory,
                   expFromOIntFactory, expFactory, randFactory,
                   (BuilderFactoryNumeric) factoryProducer);
               File pattern = new File("src/test/resources/lp/pattern7.csv");
@@ -119,7 +116,6 @@ class LPSolverTests {
 
                     builder.createIteration((seq) -> {
                       SInt sout = bnFactory.getSInt();
-                      OInt out = bnFactory.getOInt();
                       LPOutput lpOut = lpOutput.out();
                       ProtocolProducer outputter = lpFactory
                           .getOptimalValueProtocol(
@@ -127,11 +123,13 @@ class LPSolverTests {
                               lpOut.tableau.getB(),
                               lpOut.pivot,
                               sout);
+                      Computation<BigInteger> openProtocol = bnFactory
+                          .getOpenProtocol(sout);
                       seq.append(new SequentialProtocolProducer(
                           outputter,
-                          bnFactory.getOpenProtocol(sout, out)
+                          openProtocol
                       ));
-                      this.outputs = new OInt[]{out};
+                      this.outputs.add(openProtocol);
                     });
                   }).build();
             }
@@ -143,79 +141,9 @@ class LPSolverTests {
           long endTime = System.nanoTime();
           System.out.println("============ Seq Time: "
               + ((endTime - startTime) / 1000000));
-          Assert.assertTrue(BigInteger.valueOf(161).equals(app.getOutputs()[0].getValue()));
+          Assert.assertTrue(BigInteger.valueOf(161).equals(app.getOutputs()[0]));
         }
       };
     }
   }
-/*
-  private String printMatrix(Matrix<SInt> matrix, String label, SecureComputationEngine secureComputationEngine,
-			SpdzProvider provider) {
-		SInt[][] C = matrix.getDoubleArray();
-		OInt[][] COut = Util
-				.oIntFill(new OInt[C.length][C[0].length], provider);
-		ProtocolProducer output = Util.makeOpenCircuit(C, COut, provider);
-		secureComputationEngine.runApplication(output);
-		return printBigIntegers(COut, label);
-	}
-
-	private String printBigIntegers(OInt[][] matrix, String label) {
-		int maxlength = 0;
-		String[][] strings = new String[matrix.length][matrix[0].length];
-		for (int i = 0; i < matrix.length; i++) {
-			for (int j = 0; j < matrix[0].length; j++) {
-				strings[i][j] = matrix[i][j].getValue().toString();
-				int length = strings[i][j].length();
-				if (length > maxlength) {
-					maxlength = length;
-				}
-			}
-		}
-		StringBuilder sb = new StringBuilder();
-		sb.append(label + "\n");
-		for (int i = 0; i < matrix.length; i++) {
-			for (int j = 0; j < matrix[0].length; j++) {
-				int length = strings[i][j].length();
-				for (int k = 0; k < maxlength + 3 - length; k++) {
-					sb.append(' ');
-				}
-				sb.append(strings[i][j]);
-			}
-			sb.append('\n');
-		}
-		return sb.toString();
-	}
-
-	private BigInteger[] gauss(BigInteger product) {
-		BigInteger[] u = { mpc.runtime.spdz.utils.Util.getModulus(),
-				BigInteger.ZERO };
-		BigInteger[] v = { product, BigInteger.ONE };
-		BigInteger two = BigInteger.valueOf(2);
-		BigInteger lenU = innerproduct(u, u);
-		BigInteger lenV = innerproduct(v, v);
-		if (lenU.compareTo(lenV) < 0) {
-			BigInteger[] temp = u;
-			u = v;
-			v = temp;
-		}
-		do {
-			BigInteger uv = innerproduct(u, v);
-			BigInteger[] q = uv.divideAndRemainder(innerproduct(v, v));
-			if (uv.compareTo(q[1].divide(two)) < 0) {
-				q[0] = q[0].add(BigInteger.ONE);
-			}
-			BigInteger r0 = u[0].subtract(v[0].multiply(q[0]));
-			BigInteger r1 = u[1].subtract(v[1].multiply(q[0]));
-			u = v;
-			v = new BigInteger[] { r0, r1 };
-			lenU = innerproduct(u, u);
-			lenV = innerproduct(v, v);
-		} while (lenU.compareTo(lenV) > 0);
-		return u;
-	}
-
-	private BigInteger innerproduct(BigInteger[] u, BigInteger[] v) {
-		return u[0].multiply(v[0]).add(u[1].multiply(v[1]));
-	}
-	*/
 }

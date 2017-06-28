@@ -23,37 +23,36 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.statistics;
 
-import java.math.BigInteger;
-import java.util.Iterator;
-import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.helper.builder.NumericProtocolBuilder;
 import dk.alexandra.fresco.lib.lp.LPPrefix;
 import dk.alexandra.fresco.lib.lp.LPTableau;
 import dk.alexandra.fresco.lib.lp.Matrix;
 import dk.alexandra.fresco.lib.lp.SimpleLPPrefix;
+import java.math.BigInteger;
+import java.util.Iterator;
 
 /**
- * A builder to set up the {@link LPPrefix} for a DEA input efficiency analysis. 
- * 
+ * A builder to set up the {@link LPPrefix} for a DEA input efficiency analysis.
+ *
  * <p>
  * The initial LP tableau is set up using the Big-M method to handle the
- * equality and greater-than constraints. To handle the fact that this is 
- * minimization problem and our Simplex solver only maximizes we simply negate 
+ * equality and greater-than constraints. To handle the fact that this is
+ * minimization problem and our Simplex solver only maximizes we simply negate
  * the objective function. This, however, means that we must negate the
  * result of the Simplex solver in order to get the correct result.
  * </p>
- *
  */
 public class DEAInputEfficiencyPrefixBuilder extends DEAPrefixBuilder {
 
   /**
    * Builds the LPPrefix for the specified input efficiency DEA problem.
    * <p>
-   * Attempts to check if the values given are consistent before building the 
-   * prefix. If this is not the case a {@link IllegalStateException}  will be 
+   * Attempts to check if the values given are consistent before building the
+   * prefix. If this is not the case a {@link IllegalStateException}  will be
    * thrown.
    * </p>
+   *
    * @return an LPPrefix
    */
   public LPPrefix build() {
@@ -83,14 +82,14 @@ public class DEAInputEfficiencyPrefixBuilder extends DEAPrefixBuilder {
     SInt one = builder.known(1);
     SInt negOne = builder.known(-1);
     SInt zero = builder.known(0);
-    OInt oBigM = provider.getOInt(BigInteger.valueOf(-bigM));
+    BigInteger oBigM = BigInteger.valueOf(-bigM);
     SInt sBigM = builder.known(-bigM);
     SInt z = builder.known(-bigM);
     SInt[][] c = new SInt[constraints][variables];
     SInt[] b = new SInt[constraints];
     SInt[] f = new SInt[variables];
     SInt pivot = one;
-    
+
     SInt[][] u = new SInt[constraints + 1][constraints + 1];
     Iterator<SInt[]> basisIt = basisInputs.iterator();
     Iterator<SInt> targetIt = targetInputs.iterator();
@@ -123,10 +122,10 @@ public class DEAInputEfficiencyPrefixBuilder extends DEAPrefixBuilder {
         c[i][j] = bValues[j - 1];
       }
       for (; j < dbSize + 1 + constraints; j++) {
-        c[i][j] = (j - (dbSize + 1) == i) ? one : zero;        
+        c[i][j] = (j - (dbSize + 1) == i) ? one : zero;
       }
       for (; j < variables; j++) {
-        c[i][j] = (j - (dbSize + 1 + constraints) == i - inputs) ? negOne : zero;        
+        c[i][j] = (j - (dbSize + 1 + constraints) == i - inputs) ? negOne : zero;
       }
     }
     // Set up constraints related to the lambda values
@@ -137,11 +136,11 @@ public class DEAInputEfficiencyPrefixBuilder extends DEAPrefixBuilder {
       c[i][j] = one;
     }
     for (; j < variables; j++) {
-      c[i][j] = (j - (dbSize+1) == i) ? one : zero;
+      c[i][j] = (j - (dbSize + 1) == i) ? one : zero;
     }
     // Set up the f vector, i.e., tableau row related to the objective function
     // The theta variable
-    f[0] = one; 
+    f[0] = one;
     // -bigM for the lambda variables from the equality constraint 
     for (int k = 1; k < variables; k++) {
       f[k] = (k < dbSize + 1) ? sBigM : zero;
@@ -154,14 +153,14 @@ public class DEAInputEfficiencyPrefixBuilder extends DEAPrefixBuilder {
     // In other words subtract bigM times each of the tableau rows associated 
     // with an output constraint.
     builder.beginSeqScope();
-    for (int l = inputs; l < inputs+outputs; l++) {
+    for (int l = inputs; l < inputs + outputs; l++) {
       builder.beginParScope();
       for (int k = 1; k < dbSize + 1; k++) {
         builder.beginSeqScope();
         SInt scaled = builder.mult(sBigM, c[l][k]);
         f[k] = builder.add(scaled, f[k]);
         builder.endCurScope();
-      }     
+      }
       builder.beginSeqScope();
       SInt scaled = builder.mult(oBigM, b[l]);
       z = builder.add(scaled, z);
@@ -201,7 +200,7 @@ public class DEAInputEfficiencyPrefixBuilder extends DEAPrefixBuilder {
     return new SimpleLPPrefix(new Matrix<SInt>(u), new LPTableau(new Matrix<SInt>(c), b, f, z),
         pivot, new SInt[constraints], builder.getProtocol());
   }
-  
+
   @Override
   public DEAPrefixBuilder createNewInstance() {
     return new DEAInputEfficiencyPrefixBuilder();

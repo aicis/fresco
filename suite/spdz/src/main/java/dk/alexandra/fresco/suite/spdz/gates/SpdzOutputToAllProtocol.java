@@ -29,24 +29,21 @@ package dk.alexandra.fresco.suite.spdz.gates;
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.network.SCENetwork;
 import dk.alexandra.fresco.framework.network.serializers.BigIntegerSerializer;
-import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
-import dk.alexandra.fresco.suite.spdz.datatypes.SpdzOInt;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.util.List;
 
-public class SpdzOutputToAllProtocol extends SpdzNativeProtocol<SpdzOInt> {
+public class SpdzOutputToAllProtocol extends SpdzNativeProtocol<BigInteger> {
 
   private SpdzSInt in;
-  private SpdzOInt out;
+  private BigInteger out;
 
-  public SpdzOutputToAllProtocol(SInt in, OInt out) {
+  public SpdzOutputToAllProtocol(SInt in) {
     this.in = (SpdzSInt) in;
-    this.out = (SpdzOInt) out;
   }
 
   @Override
@@ -71,8 +68,7 @@ public class SpdzOutputToAllProtocol extends SpdzNativeProtocol<SpdzOInt> {
         storage.addOpenedValue(openedVal);
         storage.addClosedValue(in.value);
         BigInteger tmpOut = openedVal;
-        tmpOut = spdzResourcePool.convertRepresentation(tmpOut);
-        out.setValue(tmpOut);
+        out = spdzResourcePool.convertRepresentation(tmpOut);
         return EvaluationStatus.IS_DONE;
       default:
         throw new MPCException("No more rounds to evaluate.");
@@ -80,7 +76,7 @@ public class SpdzOutputToAllProtocol extends SpdzNativeProtocol<SpdzOInt> {
   }
 
   @Override
-  public SpdzOInt out() {
+  public BigInteger out() {
     return out;
   }
 }

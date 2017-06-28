@@ -4,7 +4,6 @@ import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.BuilderFactory;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
-import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.framework.value.Value;
 import dk.alexandra.fresco.lib.helper.builder.NumericProtocolBuilder;
@@ -35,12 +34,12 @@ public class AggregateStep implements Application {
     
     private void convertToTriples(Value[][] inputRows) {
     	for (Value[] row : inputRows) {
-    		Triple<SInt,SInt,BigInteger> triple = new Triple<SInt,SInt,BigInteger>(
-    				(SInt)row[this.keyColumn], 
-    				(SInt)row[this.aggColumn], 
-    				((OInt)row[this.cipherColumn]).getValue()
-    		);
-    		this.triples.add(triple);
+        Triple<SInt, SInt, BigInteger> triple = new Triple<SInt, SInt, BigInteger>(
+            (SInt) row[this.keyColumn],
+            (SInt) row[this.aggColumn],
+            (BigInteger) row[this.cipherColumn]
+        );
+        this.triples.add(triple);
     	}
     }
     

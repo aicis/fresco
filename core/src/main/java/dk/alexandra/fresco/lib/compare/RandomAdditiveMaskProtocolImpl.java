@@ -27,13 +27,13 @@
 package dk.alexandra.fresco.lib.compare;
 
 import dk.alexandra.fresco.framework.ProtocolProducer;
-import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
 import dk.alexandra.fresco.lib.helper.SimpleProtocolProducer;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
 import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductFactory;
+import java.math.BigInteger;
 
 /**
  * Load random value used as additive mask + bits
@@ -93,7 +93,7 @@ public class RandomAdditiveMaskProtocolImpl extends SimpleProtocolProducer imple
 
     }
 
-    OInt[] twoPows = miscOIntGenerator.getTwoPowers(securityParameter + bitLength);
+    BigInteger[] twoPows = miscOIntGenerator.getTwoPowers(securityParameter + bitLength);
     return new SequentialProtocolProducer(randomBits, innerProdProvider.getInnerProductProtocol(
         allbits, twoPows, r));
   }

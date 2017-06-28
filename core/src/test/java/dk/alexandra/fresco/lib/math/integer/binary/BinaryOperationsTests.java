@@ -26,6 +26,7 @@
  */
 package dk.alexandra.fresco.lib.math.integer.binary;
 
+import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.BuilderFactory;
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.ProtocolProducer;
@@ -40,7 +41,6 @@ import dk.alexandra.fresco.framework.builder.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.util.Pair;
-import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
 import java.util.List;
@@ -73,50 +73,52 @@ public class BinaryOperationsTests {
 
         @Override
         public void test() throws Exception {
-          TestApplication<Pair<BigInteger, List<BigInteger>>> app =
-              new TestApplication<Pair<BigInteger, List<BigInteger>>>() {
+          Application<Pair<BigInteger, List<BigInteger>>> app =
+              new Application<Pair<BigInteger, List<BigInteger>>>() {
 
-                private Computation<List<Computation<OInt>>> openRemainders;
-                private Computation<OInt> openResult;
+                private Pair<BigInteger, List<BigInteger>> listPair;
+                private Computation<List<Computation<BigInteger>>> openRemainders;
+                private Computation<BigInteger> openResult;
 
                 @Override
                 public ProtocolProducer prepareApplication(BuilderFactory producer) {
                   BuilderFactoryNumeric factoryNumeric = (BuilderFactoryNumeric) producer;
-                  return dk.alexandra.fresco.framework.builder.ProtocolBuilder
-                      .createApplicationRoot(factoryNumeric,
-                          (builder) -> {
-                            AdvancedNumericBuilder rightShift = builder
-                                .createAdvancedNumericBuilder();
-                            Computation<SInt> encryptedInput = builder.numeric()
-                                .known(input);
-                            Computation<RightShiftResult> shiftedRight = rightShift
-                                .rightShiftWithRemainder(encryptedInput, shifts);
-                            NumericBuilder NumericBuilder = builder.numeric();
-                            openResult = NumericBuilder
-                                .open(() -> shiftedRight.out().getResult().out());
-                            openRemainders = builder
-                                .createSequentialSub((innerBuilder) -> {
-                                  NumericBuilder innerOpenBuilder = innerBuilder.numeric();
-                                  List<Computation<OInt>> opened = shiftedRight.out()
-                                      .getRemainder()
-                                      .stream()
-                                      .map(innerOpenBuilder::open)
-                                      .collect(Collectors.toList());
-                                  return () -> opened;
-                                });
-                          }
-                      ).build();
+                  return ProtocolBuilder.createApplicationRoot(factoryNumeric,
+                      (builder) -> {
+                        AdvancedNumericBuilder rightShift = builder.createAdvancedNumericBuilder();
+                        Computation<SInt> encryptedInput = builder.numeric().known(input);
+                        Computation<RightShiftResult> shiftedRight = rightShift
+                            .rightShiftWithRemainder(encryptedInput, shifts);
+                        NumericBuilder NumericBuilder = builder.numeric();
+                        openResult = NumericBuilder
+                            .open(() -> shiftedRight.out().getResult().out());
+                        openRemainders = builder
+                            .createSequentialSub((innerBuilder) -> {
+                              NumericBuilder innerOpenBuilder = innerBuilder.numeric();
+                              List<Computation<BigInteger>> opened = shiftedRight.out()
+                                  .getRemainder()
+                                  .stream()
+                                  .map(innerOpenBuilder::open)
+                                  .collect(Collectors.toList());
+                              return () -> opened;
+                            });
+                      }
+                  ).build();
                 }
 
                 @Override
-                public Pair<BigInteger, List<BigInteger>> closeApplication() {
-                  return new Pair<>(
-                      openResult.out().getValue(),
+                public void close() {
+                  listPair = new Pair<>(
+                      openResult.out(),
                       openRemainders.out().stream()
                           .map(Computation::out)
-                          .map(OInt::getValue)
                           .collect(Collectors.toList())
                   );
+                }
+
+                @Override
+                public Pair<BigInteger, List<BigInteger>> getResult() {
+                  return listPair;
                 }
               };
           Pair<BigInteger, List<BigInteger>> output =
@@ -149,7 +151,7 @@ public class BinaryOperationsTests {
 
       return new TestThread() {
         private final BigInteger input = BigInteger.valueOf(5);
-        private Computation<OInt> openResult;
+        private Computation<BigInteger> openResult;
 
         @Override
         public void test() throws Exception {
@@ -172,7 +174,7 @@ public class BinaryOperationsTests {
           secureComputationEngine
               .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf,
                   conf.sceConf.getSuite()));
-          BigInteger result = openResult.out().getValue();
+          BigInteger result = openResult.out();
 
           System.out.println(result);
 

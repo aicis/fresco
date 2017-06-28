@@ -26,16 +26,19 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.statistics;
 
+import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.BuilderFactory;
+import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.TestApplication;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
+import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
-import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.helper.AlgebraUtil;
@@ -79,7 +82,7 @@ public class CreditRaterTest {
           ResourcePoolT resourcePool = SecureComputationEngineImpl.createResourcePool(conf.sceConf,
               conf.sceConf.getSuite());
 
-          OInt[] result = new OInt[1];
+          BigInteger result = null;
 
           SInt[][] secretIntervals = new SInt[intervals.length][];
           SInt[][] secretScores = new SInt[scores.length][];
@@ -113,24 +116,29 @@ public class CreditRaterTest {
               AlgebraUtil.arrayToList(secretScores));
           SInt creditRatingOutput = secureComputationEngine.runApplication(rater, resourcePool);
 
-          TestApplication output = new TestApplication() {
+          Application<BigInteger> outputApp = new Application<BigInteger>() {
+
+            private Computation<BigInteger> output;
+
             @Override
             public ProtocolProducer prepareApplication(
                 BuilderFactory factoryProducer) {
-              ProtocolFactory provider = factoryProducer.getProtocolFactory();
-              SequentialProtocolProducer sseq = new SequentialProtocolProducer();
-              BasicNumericFactory bnFactory = (BasicNumericFactory) provider;
-              NumericIOBuilder ioBuilder = new NumericIOBuilder(bnFactory);
+              return ProtocolBuilder.createApplicationRoot(
+                  (BuilderFactoryNumeric) factoryProducer,
+                  (seq) -> {
+                    output = seq.numeric().open(creditRatingOutput);
+                  }
+              ).build();
+            }
 
-              sseq.append(rater.prepareApplication(factoryProducer));
-              result[0] = ioBuilder.output(creditRatingOutput);
-              sseq.append(ioBuilder.getProtocol());
-
-              return sseq;
+            @Override
+            public BigInteger getResult() {
+              return output.out();
             }
           };
-          secureComputationEngine.runApplication(output, resourcePool);
-          Assert.assertThat(result[0].getValue(), Is.is(
+          BigInteger resultCreditOut = secureComputationEngine
+              .runApplication(outputApp, resourcePool);
+          Assert.assertThat(resultCreditOut, Is.is(
               BigInteger.valueOf(PlaintextCreditRater.calculateScore(values, intervals, scores))));
         }
       };
