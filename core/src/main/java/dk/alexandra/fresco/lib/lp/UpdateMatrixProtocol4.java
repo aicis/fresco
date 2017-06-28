@@ -43,11 +43,11 @@ public class UpdateMatrixProtocol4 implements ComputationBuilder<Matrix4<Computa
   private Matrix4<Computation<SInt>> oldUpdateMatrix;
   private List<Computation<SInt>> L;
   private List<Computation<SInt>> C;
-  private SInt p, p_prime;
+  private Computation<SInt> p, p_prime;
 
   UpdateMatrixProtocol4(Matrix4<Computation<SInt>> oldUpdateMatrix, List<Computation<SInt>> L,
-      List<Computation<SInt>> C, SInt p,
-      SInt p_prime) {
+      List<Computation<SInt>> C, Computation<SInt> p,
+      Computation<SInt> p_prime) {
     this.oldUpdateMatrix = oldUpdateMatrix;
     this.L = L;
     this.C = C;

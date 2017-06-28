@@ -65,7 +65,8 @@ public class LPSolverProtocol4 implements ComputationBuilder<LPOutput> {
   private final int noVariables;
   private final int noConstraints;
 
-  public LPSolverProtocol4(LPTableau4 tableau, Matrix4<Computation<SInt>> updateMatrix, SInt pivot,
+  public LPSolverProtocol4(LPTableau4 tableau, Matrix4<Computation<SInt>> updateMatrix,
+      Computation<SInt> pivot,
       BasicNumericFactory bnFactory) {
     if (checkDimensions(tableau, updateMatrix)) {
 
@@ -250,11 +251,11 @@ public class LPSolverProtocol4 implements ComputationBuilder<LPOutput> {
     public final LPTableau4 tableau;
     public final Matrix4<Computation<SInt>> updateMatrix;
     public final List<Computation<SInt>> basis;
-    public final SInt pivot;
+    public final Computation<SInt> pivot;
 
     public LPOutput(LPTableau4 tableau,
         Matrix4<Computation<SInt>> updateMatrix,
-        List<Computation<SInt>> basis, SInt pivot) {
+        List<Computation<SInt>> basis, Computation<SInt> pivot) {
       this.tableau = tableau;
       this.updateMatrix = updateMatrix;
       this.basis = basis;
@@ -268,14 +269,16 @@ public class LPSolverProtocol4 implements ComputationBuilder<LPOutput> {
     private LPTableau4 tableau;
     private Matrix4<Computation<SInt>> updateMatrix;
     public List<Computation<SInt>> enteringIndex;
-    public SInt pivot;
+    public Computation<SInt> pivot;
     public List<BigInteger> enumeratedVariables;
     public List<Computation<SInt>> basis;
-    public SInt prevPivot;
+    public Computation<SInt> prevPivot;
 
     public LPState(BigInteger terminationOut, LPTableau4 tableau,
-        Matrix4<Computation<SInt>> updateMatrix, List<Computation<SInt>> enteringIndex, SInt pivot,
-        List<BigInteger> enumeratedVariables, List<Computation<SInt>> basis, SInt prevPivot) {
+        Matrix4<Computation<SInt>> updateMatrix, List<Computation<SInt>> enteringIndex,
+        Computation<SInt> pivot,
+        List<BigInteger> enumeratedVariables, List<Computation<SInt>> basis,
+        Computation<SInt> prevPivot) {
       this.terminationOut = () -> terminationOut;
       this.tableau = tableau;
       this.updateMatrix = updateMatrix;
