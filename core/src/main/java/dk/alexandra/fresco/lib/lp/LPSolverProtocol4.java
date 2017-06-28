@@ -227,6 +227,8 @@ public class LPSolverProtocol4 implements ComputationBuilder<LPOutput> {
   @SuppressWarnings("unused")
   private ProtocolProducer blandPhaseOneProtocol(LPState state) {
     //TODO Fix this for new API
+    // Variable only here to ensure that the protocol is not flagged as unused.
+    BlandEnteringVariableProtocol protocol = null;
 /*    state.terminationOut = () -> bnFactory.getOInt();
     // Phase 1 - Finding the entering variable and outputting
     // whether or not the corresponding F value is positive (a positive
