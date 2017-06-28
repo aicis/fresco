@@ -119,8 +119,8 @@ class LPSolverTests {
                         new LPSolverProtocol4(
                             new LPTableau4(
                                 toMatrix4(tableau.getC()),
-                                Arrays.asList(tableau.getB()),
-                                Arrays.asList(tableau.getF()),
+                                new ArrayList<>(Arrays.asList(tableau.getB())),
+                                new ArrayList<>(Arrays.asList(tableau.getF())),
                                 tableau.getZ()),
                             toMatrix4(updateMatrix),
                             prefix.getPivot(),

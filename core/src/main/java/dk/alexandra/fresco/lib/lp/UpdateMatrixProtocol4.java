@@ -41,10 +41,12 @@ import java.util.List;
 public class UpdateMatrixProtocol4 implements ComputationBuilder<Matrix4<Computation<SInt>>> {
 
   private Matrix4<Computation<SInt>> oldUpdateMatrix;
-  private SInt[] L, C;
+  private List<Computation<SInt>> L;
+  private List<Computation<SInt>> C;
   private SInt p, p_prime;
 
-  UpdateMatrixProtocol4(Matrix4<Computation<SInt>> oldUpdateMatrix, SInt[] L, SInt[] C, SInt p,
+  UpdateMatrixProtocol4(Matrix4<Computation<SInt>> oldUpdateMatrix, List<Computation<SInt>> L,
+      List<Computation<SInt>> C, SInt p,
       SInt p_prime) {
     this.oldUpdateMatrix = oldUpdateMatrix;
     this.L = L;
@@ -71,7 +73,7 @@ public class UpdateMatrixProtocol4 implements ComputationBuilder<Matrix4<Computa
               for (int i = 0; i < width; i++) {
                 if (j < width - 1) {
                   newRow.add(
-                      numeric.mult(L[j], oldRow.get(i))
+                      numeric.mult(L.get(j), oldRow.get(i))
                   );
                 } else {
                   newRow.add(numeric.known(BigInteger.ZERO));
@@ -85,20 +87,20 @@ public class UpdateMatrixProtocol4 implements ComputationBuilder<Matrix4<Computa
               Computation<SInt> pp_inv = seq_pp.createAdvancedNumericBuilder().invert(p_prime);
               Computation<SInt> pp = seq_pp.numeric().mult(p, pp_inv);
               return seq_pp.par((par) -> {
-                List<Computation<SInt>> scaledC = new ArrayList<>(C.length);
-                for (int j = 0; j < C.length - 1; j++) {
+                List<Computation<SInt>> scaledC = new ArrayList<>(C.size());
+                for (int j = 0; j < C.size() - 1; j++) {
                   int finalJ = j;
                   scaledC.add(par.createSequentialSub((scaleSeq) -> {
                         Computation<SInt> scaling;
                         scaling = scaleSeq.createSequentialSub(
-                            new ConditionalSelect(L[finalJ], one, pp_inv)
+                            new ConditionalSelect(L.get(finalJ), one, pp_inv)
                         );
-                        return scaleSeq.numeric().mult(C[finalJ], scaling);
+                    return scaleSeq.numeric().mult(C.get(finalJ), scaling);
                       })
                   );
                 }
                 scaledC.add(
-                    par.numeric().mult(C[C.length - 1], pp_inv)
+                    par.numeric().mult(C.get(C.size() - 1), pp_inv)
                 );
                 return Pair.lazy(scaledC, pp);
               });

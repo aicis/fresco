@@ -150,12 +150,12 @@ public class LPSolverProtocol4 implements ComputationBuilder<LPOutput> {
             ))
     ).par((exitingVariable, seq) -> {
       state.pivot = exitingVariable.pivot.out();
-      List<Computation<SInt>> exitingIndex = exitingVariable.exitingIndex;
+      ArrayList<Computation<SInt>> exitingIndex = exitingVariable.exitingIndex;
       // Update Basis
       Computation<SInt> ent = seq.createAdvancedNumericBuilder()
           .openDot(state.enumeratedVariables, state.enteringIndex);
       return seq.createParallelSub((par) -> {
-        List<Computation<SInt>> nextBasis = new ArrayList<>(noConstraints);
+        ArrayList<Computation<SInt>> nextBasis = new ArrayList<>(noConstraints);
         for (int i = 0; i < noConstraints; i++) {
           nextBasis.add(
               par.createSequentialSub(
@@ -165,20 +165,10 @@ public class LPSolverProtocol4 implements ComputationBuilder<LPOutput> {
         return () -> nextBasis;
       });
     }, (exitingVariable, seq) -> {
-      SInt[] exitingIndex = exitingVariable.exitingIndex.stream().map(Computation::out)
-          .toArray(SInt[]::new);
-      SInt[] updateColumn = exitingVariable.updateColumn.stream().map(Computation::out)
-          .toArray(SInt[]::new);
-      // Update the update matrix
-      SInt[][] newUpdate = new SInt[noConstraints + 1][noConstraints + 1];
-      for (int i = 0; i < newUpdate.length; i++) {
-        for (int j = 0; j < newUpdate[i].length; j++) {
-          newUpdate[i][j] = bnFactory.getSInt();
-        }
-      }
       return seq
           .createSequentialSub(new UpdateMatrixProtocol4(state.updateMatrix,
-              exitingIndex, updateColumn, state.pivot, state.prevPivot
+              exitingVariable.exitingIndex, exitingVariable.updateColumn, state.pivot,
+              state.prevPivot
           ));
     }).seq((pair, seq) -> {
       List<Computation<SInt>> basis = pair.getFirst();

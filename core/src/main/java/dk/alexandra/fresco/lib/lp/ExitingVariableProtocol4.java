@@ -80,7 +80,7 @@ public class ExitingVariableProtocol4 implements ComputationBuilder<ExitingVaria
     Computation<SInt> zero = builder.numeric().known(BigInteger.ZERO);
     Computation<SInt> one = builder.numeric().known(BigInteger.ONE);
     return builder.par((par) -> {
-      List<Computation<SInt>> enteringColumn = new ArrayList<>(tableauHeight);
+      ArrayList<Computation<SInt>> enteringColumn = new ArrayList<>(tableauHeight);
       // Extract entering column
       AdvancedNumericBuilder advanced = par.createAdvancedNumericBuilder();
       for (int i = 0; i < tableauHeight - 1; i++) {
@@ -89,14 +89,14 @@ public class ExitingVariableProtocol4 implements ComputationBuilder<ExitingVaria
             advanced.dot(enteringIndex, tableauRow)
         );
       }
-      List<Computation<SInt>> tableauRow = tableau.getF();
+      ArrayList<Computation<SInt>> tableauRow = tableau.getF();
       enteringColumn.add(
           advanced.dot(enteringIndex, tableauRow)
       );
       return () -> enteringColumn;
     }).par((enteringColumn, par) -> {
       // Apply update matrix to entering column
-      List<Computation<SInt>> updatedEnteringColumn = new ArrayList<>(tableauHeight);
+      ArrayList<Computation<SInt>> updatedEnteringColumn = new ArrayList<>(tableauHeight);
       AdvancedNumericBuilder advanced = par.createAdvancedNumericBuilder();
       for (int i = 0; i < tableauHeight; i++) {
         ArrayList<Computation<SInt>> updateRow = updateMatrix.getRow(i);
@@ -106,7 +106,7 @@ public class ExitingVariableProtocol4 implements ComputationBuilder<ExitingVaria
       }
 
       // Apply update matrix to the B vector
-      List<Computation<SInt>> updatedB = new ArrayList<>(tableauHeight - 1);
+      ArrayList<Computation<SInt>> updatedB = new ArrayList<>(tableauHeight - 1);
       for (int i = 0; i < tableauHeight - 1; i++) {
         List<Computation<SInt>> updateRow = updateMatrix.getRow(i).subList(0, tableauHeight - 1);
         updatedB.add(
@@ -115,9 +115,9 @@ public class ExitingVariableProtocol4 implements ComputationBuilder<ExitingVaria
       }
       return Pair.lazy(updatedEnteringColumn, updatedB);
     }).par((pair, par) -> {
-      List<Computation<SInt>> updatedEnteringColumn = pair.getFirst();
-      List<Computation<SInt>> updatedB = pair.getSecond();
-      List<Computation<SInt>> nonApps = new ArrayList<>(updatedB.size());
+      ArrayList<Computation<SInt>> updatedEnteringColumn = pair.getFirst();
+      ArrayList<Computation<SInt>> updatedB = pair.getSecond();
+      ArrayList<Computation<SInt>> nonApps = new ArrayList<>(updatedB.size());
 
       ComparisonBuilder comparison = par.comparison();
       for (int i = 0; i < updatedB.size(); i++) {
@@ -127,19 +127,19 @@ public class ExitingVariableProtocol4 implements ComputationBuilder<ExitingVaria
       }
       return Pair.lazy(updatedEnteringColumn, new Pair<>(updatedB, nonApps));
     }).seq((pair, seq) -> {
-      List<Computation<SInt>> updatedEnteringColumn = pair.getFirst();
-      List<Computation<SInt>> updatedB = pair.getSecond().getFirst();
-      List<Computation<SInt>> nonApps = pair.getSecond().getSecond();
+      ArrayList<Computation<SInt>> updatedEnteringColumn = pair.getFirst();
+      ArrayList<Computation<SInt>> updatedB = pair.getSecond().getFirst();
+      ArrayList<Computation<SInt>> nonApps = pair.getSecond().getSecond();
       List<Computation<SInt>> shortColumn = updatedEnteringColumn.subList(0, updatedB.size());
-      Computation<List<Computation<SInt>>> exitingIndexComputation = seq.createSequentialSub(
+      Computation<ArrayList<Computation<SInt>>> exitingIndexComputation = seq.createSequentialSub(
           new MinInfFracProtocol4(updatedB, shortColumn, nonApps));
       return () -> new Pair<>(exitingIndexComputation.out(), updatedEnteringColumn);
     }).par((pair, par) -> {
-      List<Computation<SInt>> exitingIndex = pair.getFirst();
-      List<Computation<SInt>> updatedEnteringColumn = pair.getSecond();
+      ArrayList<Computation<SInt>> exitingIndex = pair.getFirst();
+      ArrayList<Computation<SInt>> updatedEnteringColumn = pair.getSecond();
       // Compute column for the new update matrix
 
-      List<Computation<SInt>> updateColumn = new ArrayList<>(tableauHeight);
+      ArrayList<Computation<SInt>> updateColumn = new ArrayList<>(tableauHeight);
       for (int i = 0; i < tableauHeight - 1; i++) {
         int finalI = i;
         updateColumn.add(
@@ -162,7 +162,7 @@ public class ExitingVariableProtocol4 implements ComputationBuilder<ExitingVaria
           return Pair.lazy(pair.getFirst(), sum);
         },
         (pair, seq) -> {
-          List<Computation<SInt>> updateColumn = pair.getSecond().getSecond();
+          ArrayList<Computation<SInt>> updateColumn = pair.getSecond().getSecond();
           Computation<SInt> sum = new SumSIntList(updateColumn.subList(0, tableauHeight - 1))
               .build(seq);
           return Pair.lazy(updateColumn, sum);
@@ -174,21 +174,21 @@ public class ExitingVariableProtocol4 implements ComputationBuilder<ExitingVaria
       NumericBuilder numeric = seq.numeric();
       Computation<SInt> finalSum = numeric.add(sumEnteringColumn, sumUpdateColumn);
       Computation<SInt> pivot = numeric.sub(finalSum, one);
-      List<Computation<SInt>> exitingIndex = pair.getFirst().getFirst();
-      List<Computation<SInt>> updateColumn = pair.getSecond().getFirst();
+      ArrayList<Computation<SInt>> exitingIndex = pair.getFirst().getFirst();
+      ArrayList<Computation<SInt>> updateColumn = pair.getSecond().getFirst();
       return () -> new ExitingVariableOutput(exitingIndex, updateColumn, pivot);
     });
   }
 
   public static class ExitingVariableOutput {
 
-    final List<Computation<SInt>> exitingIndex;
-    final List<Computation<SInt>> updateColumn;
+    final ArrayList<Computation<SInt>> exitingIndex;
+    final ArrayList<Computation<SInt>> updateColumn;
     final Computation<SInt> pivot;
 
     public ExitingVariableOutput(
-        List<Computation<SInt>> exitingIndex,
-        List<Computation<SInt>> updateColumn,
+        ArrayList<Computation<SInt>> exitingIndex,
+        ArrayList<Computation<SInt>> updateColumn,
         Computation<SInt> pivot) {
       this.exitingIndex = exitingIndex;
       this.updateColumn = updateColumn;

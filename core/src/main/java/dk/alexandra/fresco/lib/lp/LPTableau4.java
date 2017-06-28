@@ -28,20 +28,20 @@ package dk.alexandra.fresco.lib.lp;
 
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.value.SInt;
-import java.util.List;
+import java.util.ArrayList;
 
 public class LPTableau4 {
 
   // The constraint matrix
   private final Matrix4<Computation<SInt>> C;
   // The rightmost column and bottom row  of the tableau, except for the last entry of both
-  private final List<Computation<SInt>> B;
-  private final List<Computation<SInt>> F;
+  private final ArrayList<Computation<SInt>> B;
+  private final ArrayList<Computation<SInt>> F;
   // The the bottom right hand corner entry of the tableau
   private final Computation<SInt> z;
 
-  public LPTableau4(Matrix4<Computation<SInt>> C, List<Computation<SInt>> B,
-      List<Computation<SInt>> F, Computation<SInt> z) {
+  public LPTableau4(Matrix4<Computation<SInt>> C, ArrayList<Computation<SInt>> B,
+      ArrayList<Computation<SInt>> F, Computation<SInt> z) {
     if (C.getWidth() == F.size() && C.getHeight() == B.size()) {
       this.C = C;
       this.B = B;
@@ -56,11 +56,11 @@ public class LPTableau4 {
     return C;
   }
 
-  public List<Computation<SInt>> getB() {
+  public ArrayList<Computation<SInt>> getB() {
     return B;
   }
 
-  public List<Computation<SInt>> getF() {
+  public ArrayList<Computation<SInt>> getF() {
     return F;
   }
 

@@ -35,7 +35,6 @@ import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.compare.ConditionalSelect;
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -55,7 +54,7 @@ import java.util.stream.Collectors;
  * turns out to be prone to overflow problems, and picking the very larger
  * value, is also non-trivial.
  */
-public class MinInfFracProtocol4 implements ComputationBuilder<List<Computation<SInt>>> {
+public class MinInfFracProtocol4 implements ComputationBuilder<ArrayList<Computation<SInt>>> {
 
   private final ArrayList<Frac> fs;
 
@@ -89,12 +88,16 @@ public class MinInfFracProtocol4 implements ComputationBuilder<List<Computation<
   }
 
   @Override
-  public Computation<List<Computation<SInt>>> build(SequentialProtocolBuilder builder) {
+  public Computation<ArrayList<Computation<SInt>>> build(SequentialProtocolBuilder builder) {
     Computation<SInt> one = builder.numeric().known(BigInteger.ONE);
     if (fs.size() == 1) { // The trivial case
-      return () -> Collections.singletonList(one);
+      return () -> {
+        ArrayList<Computation<SInt>> result = new ArrayList<>();
+        result.add(one);
+        return result;
+      };
     }
-    List<Computation<SInt>> cs = new ArrayList<>(fs.size());
+    ArrayList<Computation<SInt>> cs = new ArrayList<>(fs.size());
     for (Frac f : fs) {
       cs.add(null);
     }
