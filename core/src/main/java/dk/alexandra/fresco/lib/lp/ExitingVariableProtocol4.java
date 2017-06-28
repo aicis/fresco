@@ -41,17 +41,16 @@ import dk.alexandra.fresco.lib.math.integer.SumSIntList;
 import dk.alexandra.fresco.lib.math.integer.min.MinInfFracProtocol4;
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class ExitingVariableProtocol4 implements ComputationBuilder<ExitingVariableOutput> {
 
-  private final LPTableau tableau;
+  private final LPTableau4 tableau;
   private final Matrix4<Computation<SInt>> updateMatrix;
   private final List<Computation<SInt>> enteringIndex;
 
   ExitingVariableProtocol4(
-      LPTableau tableau, Matrix4<Computation<SInt>> updateMatrix,
+      LPTableau4 tableau, Matrix4<Computation<SInt>> updateMatrix,
       List<Computation<SInt>> enteringIndex) {
     if (checkDimensions(tableau, updateMatrix, enteringIndex)) {
       this.tableau = tableau;
@@ -63,7 +62,7 @@ public class ExitingVariableProtocol4 implements ComputationBuilder<ExitingVaria
     }
   }
 
-  private boolean checkDimensions(LPTableau tableau, Matrix4<Computation<SInt>> updateMatrix,
+  private boolean checkDimensions(LPTableau4 tableau, Matrix4<Computation<SInt>> updateMatrix,
       List<Computation<SInt>> enteringIndex) {
     int updateHeight = updateMatrix.getHeight();
     int updateWidth = updateMatrix.getWidth();
@@ -85,14 +84,14 @@ public class ExitingVariableProtocol4 implements ComputationBuilder<ExitingVaria
       // Extract entering column
       AdvancedNumericBuilder advanced = par.createAdvancedNumericBuilder();
       for (int i = 0; i < tableauHeight - 1; i++) {
-        SInt[] tableauRow = tableau.getC().getIthRow(i);
+        ArrayList<Computation<SInt>> tableauRow = tableau.getC().getRow(i);
         enteringColumn.add(
-            advanced.dot(enteringIndex, Arrays.asList(tableauRow))
+            advanced.dot(enteringIndex, tableauRow)
         );
       }
-      SInt[] tableauRow = tableau.getF();
+      List<Computation<SInt>> tableauRow = tableau.getF();
       enteringColumn.add(
-          advanced.dot(enteringIndex, Arrays.asList(tableauRow))
+          advanced.dot(enteringIndex, tableauRow)
       );
       return () -> enteringColumn;
     }).par((enteringColumn, par) -> {
@@ -111,7 +110,7 @@ public class ExitingVariableProtocol4 implements ComputationBuilder<ExitingVaria
       for (int i = 0; i < tableauHeight - 1; i++) {
         List<Computation<SInt>> updateRow = updateMatrix.getRow(i).subList(0, tableauHeight - 1);
         updatedB.add(
-            advanced.dot(updateRow, Arrays.asList(tableau.getB()))
+            advanced.dot(updateRow, tableau.getB())
         );
       }
       return Pair.lazy(updatedEnteringColumn, updatedB);

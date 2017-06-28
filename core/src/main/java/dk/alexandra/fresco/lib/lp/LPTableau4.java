@@ -26,19 +26,23 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.lp;
 
+import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.value.SInt;
+import java.util.List;
 
 public class LPTableau4 {
 
   // The constraint matrix
-  private final Matrix4<SInt> C;
+  private final Matrix4<Computation<SInt>> C;
   // The rightmost column and bottom row  of the tableau, except for the last entry of both
-  private final SInt[] B, F;
+  private final List<Computation<SInt>> B;
+  private final List<Computation<SInt>> F;
   // The the bottom right hand corner entry of the tableau
-  private final SInt z;
+  private final Computation<SInt> z;
 
-  public LPTableau4(Matrix4<SInt> C, SInt[] B, SInt[] F, SInt z) {
-    if (C.getWidth() == F.length && C.getHeight() == B.length) {
+  public LPTableau4(Matrix4<Computation<SInt>> C, List<Computation<SInt>> B,
+      List<Computation<SInt>> F, Computation<SInt> z) {
+    if (C.getWidth() == F.size() && C.getHeight() == B.size()) {
       this.C = C;
       this.B = B;
       this.F = F;
@@ -48,19 +52,19 @@ public class LPTableau4 {
     }
   }
 
-  public Matrix4<SInt> getC() {
+  public Matrix4<Computation<SInt>> getC() {
     return C;
   }
 
-  public SInt[] getB() {
+  public List<Computation<SInt>> getB() {
     return B;
   }
 
-  public SInt[] getF() {
+  public List<Computation<SInt>> getF() {
     return F;
   }
 
-  public SInt getZ() {
+  public Computation<SInt> getZ() {
     return z;
   }
 }

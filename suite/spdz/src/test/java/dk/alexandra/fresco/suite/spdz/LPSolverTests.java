@@ -48,6 +48,8 @@ import dk.alexandra.fresco.lib.lp.LPFactoryImpl;
 import dk.alexandra.fresco.lib.lp.LPPrefix;
 import dk.alexandra.fresco.lib.lp.LPSolverProtocol4;
 import dk.alexandra.fresco.lib.lp.LPSolverProtocol4.LPOutput;
+import dk.alexandra.fresco.lib.lp.LPTableau;
+import dk.alexandra.fresco.lib.lp.LPTableau4;
 import dk.alexandra.fresco.lib.lp.Matrix;
 import dk.alexandra.fresco.lib.lp.Matrix4;
 import dk.alexandra.fresco.lib.math.integer.exp.ExpFromOIntFactory;
@@ -112,28 +114,26 @@ class LPSolverTests {
                     }
                     builder.append(prefix.getPrefix());
                     Matrix<SInt> updateMatrix = prefix.getUpdateMatrix();
+                    LPTableau tableau = prefix.getTableau();
                     Computation<LPOutput> lpOutput = builder.createSequentialSub(
                         new LPSolverProtocol4(
-                            prefix.getTableau(),
-                            new Matrix4<>(updateMatrix.getWidth(), updateMatrix.getHeight(),
-                                i -> new ArrayList<>(Arrays.asList(updateMatrix.getIthRow(i)))),
+                            new LPTableau4(
+                                toMatrix4(tableau.getC()),
+                                Arrays.asList(tableau.getB()),
+                                Arrays.asList(tableau.getF()),
+                                tableau.getZ()),
+                            toMatrix4(updateMatrix),
                             prefix.getPivot(),
                             bnFactory));
 
                     builder.createIteration((seq) -> {
                       SInt sout = bnFactory.getSInt();
                       LPOutput lpOut = lpOutput.out();
-                      Matrix4<Computation<SInt>> finalUpdateMatrix = lpOut.updateMatrix;
-                      SInt[][] matrix = new SInt[finalUpdateMatrix.getHeight()][finalUpdateMatrix
-                          .getWidth()];
-                      for (int i = 0; i < finalUpdateMatrix.getHeight(); i++) {
-                        matrix[i] = finalUpdateMatrix.getRow(i).stream().map(Computation::out)
-                            .toArray(SInt[]::new);
-                      }
                       ProtocolProducer outputter = lpFactory
                           .getOptimalValueProtocol(
-                              new Matrix<>(matrix),
-                              lpOut.tableau.getB(),
+                              toMatrix(lpOut.updateMatrix),
+                              lpOut.tableau.getB().stream().map(Computation::out)
+                                  .toArray(SInt[]::new),
                               lpOut.pivot,
                               sout);
                       Computation<BigInteger> openProtocol = bnFactory
@@ -145,6 +145,21 @@ class LPSolverTests {
                       this.outputs.add(openProtocol);
                     });
                   }).build();
+            }
+
+            Matrix<SInt> toMatrix(Matrix4<Computation<SInt>> finalUpdateMatrix) {
+              SInt[][] matrix = new SInt[finalUpdateMatrix.getHeight()][finalUpdateMatrix
+                  .getWidth()];
+              for (int i = 0; i < finalUpdateMatrix.getHeight(); i++) {
+                matrix[i] = finalUpdateMatrix.getRow(i).stream().map(Computation::out)
+                    .toArray(SInt[]::new);
+              }
+              return new Matrix<>(matrix);
+            }
+
+            Matrix4<Computation<SInt>> toMatrix4(Matrix<SInt> updateMatrix) {
+              return new Matrix4<>(updateMatrix.getWidth(), updateMatrix.getHeight(),
+                  i -> new ArrayList<>(Arrays.asList(updateMatrix.getIthRow(i))));
             }
           };
           long startTime = System.nanoTime();

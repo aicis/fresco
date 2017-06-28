@@ -65,7 +65,7 @@ public class LPSolverProtocol4 implements ComputationBuilder<LPOutput> {
   private final int noVariables;
   private final int noConstraints;
 
-  public LPSolverProtocol4(LPTableau tableau, Matrix4<Computation<SInt>> updateMatrix, SInt pivot,
+  public LPSolverProtocol4(LPTableau4 tableau, Matrix4<Computation<SInt>> updateMatrix, SInt pivot,
       BasicNumericFactory bnFactory) {
     if (checkDimensions(tableau, updateMatrix)) {
 
@@ -94,7 +94,7 @@ public class LPSolverProtocol4 implements ComputationBuilder<LPOutput> {
     identityHashCode = System.identityHashCode(this);
   }
 
-  private boolean checkDimensions(LPTableau tableau, Matrix4<Computation<SInt>> updateMatrix) {
+  private boolean checkDimensions(LPTableau4 tableau, Matrix4<Computation<SInt>> updateMatrix) {
     int updateHeight = updateMatrix.getHeight();
     int updateWidth = updateMatrix.getWidth();
     int tableauHeight = tableau.getC().getHeight() + 1;
@@ -257,12 +257,12 @@ public class LPSolverProtocol4 implements ComputationBuilder<LPOutput> {
 
   public static class LPOutput {
 
-    public final LPTableau tableau;
+    public final LPTableau4 tableau;
     public final Matrix4<Computation<SInt>> updateMatrix;
     public final List<Computation<SInt>> basis;
     public final SInt pivot;
 
-    public LPOutput(LPTableau tableau,
+    public LPOutput(LPTableau4 tableau,
         Matrix4<Computation<SInt>> updateMatrix,
         List<Computation<SInt>> basis, SInt pivot) {
       this.tableau = tableau;
@@ -275,7 +275,7 @@ public class LPSolverProtocol4 implements ComputationBuilder<LPOutput> {
   private class LPState implements Computation<LPState> {
 
     public Computation<BigInteger> terminationOut;
-    private LPTableau tableau;
+    private LPTableau4 tableau;
     private Matrix4<Computation<SInt>> updateMatrix;
     public List<Computation<SInt>> enteringIndex;
     public SInt pivot;
@@ -283,7 +283,7 @@ public class LPSolverProtocol4 implements ComputationBuilder<LPOutput> {
     public List<Computation<SInt>> basis;
     public SInt prevPivot;
 
-    public LPState(BigInteger terminationOut, LPTableau tableau,
+    public LPState(BigInteger terminationOut, LPTableau4 tableau,
         Matrix4<Computation<SInt>> updateMatrix, List<Computation<SInt>> enteringIndex, SInt pivot,
         List<BigInteger> enumeratedVariables, List<Computation<SInt>> basis, SInt prevPivot) {
       this.terminationOut = () -> terminationOut;

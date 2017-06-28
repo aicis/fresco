@@ -35,21 +35,19 @@ import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.math.integer.min.MinimumProtocol4;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class EnteringVariableProtocol4
     implements ComputationBuilder<Pair<List<Computation<SInt>>, SInt>> {
 
-  private final LPTableau tableau;
+  private final LPTableau4 tableau;
   private final Matrix4<Computation<SInt>> updateMatrix;
 
   /**
    * @param tableau an (m + 1)x(n + m + 1) tableau
    * @param updateMatrix an (m + 1)x(m + 1) update matrix, multiplying the tableau on the left with
-   * the update matrix gives the new tableau
    */
-  public EnteringVariableProtocol4(LPTableau tableau, Matrix4<Computation<SInt>> updateMatrix) {
+  public EnteringVariableProtocol4(LPTableau4 tableau, Matrix4<Computation<SInt>> updateMatrix) {
     if (checkDimensions(tableau, updateMatrix)) {
       this.updateMatrix = updateMatrix;
       this.tableau = tableau;
@@ -58,7 +56,7 @@ public class EnteringVariableProtocol4
     }
   }
 
-  private boolean checkDimensions(LPTableau tableau,
+  private boolean checkDimensions(LPTableau4 tableau,
       Matrix4<Computation<SInt>> updateMatrix) {
     int updateHeight = updateMatrix.getHeight();
     int updateWidth = updateMatrix.getWidth();
@@ -71,21 +69,18 @@ public class EnteringVariableProtocol4
   public Computation<Pair<List<Computation<SInt>>, SInt>> build(SequentialProtocolBuilder builder) {
     return builder.par(par -> {
       int updateVectorDimension = updateMatrix.getHeight();
-      int numOfFs = tableau.getF().length;
+      int numOfFs = tableau.getF().size();
       List<Computation<SInt>> updatedF = new ArrayList<>(numOfFs);
       ArrayList<Computation<SInt>> updateVector = updateMatrix.getRow(updateVectorDimension - 1);
       for (int i = 0; i < numOfFs; i++) {
-        SInt[] constraintColumn = new SInt[updateVectorDimension];
-        SInt[] temp = new SInt[updateVectorDimension - 1];
-        temp = tableau.getC().getIthColumn(i, temp);
-
-        System.arraycopy(temp, 0, constraintColumn, 0, updateVectorDimension - 1);
-        constraintColumn[updateVectorDimension - 1] = tableau.getF()[i];
+        List<Computation<SInt>> constraintColumn = new ArrayList<>(updateVectorDimension);
+        constraintColumn.addAll(tableau.getC().getColumn(i));
+        constraintColumn.add(tableau.getF().get(i));
 
         AdvancedNumericBuilder advancedNumericBuilder = par.createAdvancedNumericBuilder();
         updatedF.add(
             advancedNumericBuilder.dot(
-                Arrays.asList(constraintColumn),
+                constraintColumn,
                 updateVector)
         );
       }
