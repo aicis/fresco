@@ -37,8 +37,7 @@ import dk.alexandra.fresco.lib.field.integer.RandomFieldElementFactory;
 import dk.alexandra.fresco.lib.lp.LPFactory;
 import dk.alexandra.fresco.lib.lp.LPFactoryImpl;
 import dk.alexandra.fresco.lib.lp.LPPrefix;
-import dk.alexandra.fresco.lib.lp.LPSolverProtocol;
-import dk.alexandra.fresco.lib.lp.LPSolverProtocol4.LPOutput;
+import dk.alexandra.fresco.lib.lp.LPSolverProtocol4;
 import dk.alexandra.fresco.lib.lp.LPTableau;
 import dk.alexandra.fresco.lib.lp.LPTableau4;
 import dk.alexandra.fresco.lib.lp.Matrix;
@@ -167,32 +166,16 @@ public class DEASolver4 implements Application<List<DEAResult>, SequentialProtoc
         result.add(
             par.createSequentialSub((subSeq) -> {
               return subSeq.seq((solverSec) -> {
-                SInt[] basis = new SInt[tableau.getC().getHeight()];
-                LPSolverProtocol lpSolverProtocol = new LPSolverProtocol(tableau, update, pivot,
-                    basis,
-                    lpFactory, builder.getBasicNumericFactory());
-
-                solverSec.append(lpSolverProtocol);
-                return () -> new LPOutput(
+                LPSolverProtocol4 lpSolverProtocol4 = new LPSolverProtocol4(
                     new LPTableau4(
                         toMatrix4(tableau.getC()),
                         new ArrayList<>(Arrays.asList(tableau.getB())),
                         new ArrayList<>(Arrays.asList(tableau.getF())),
                         tableau.getZ()),
                     toMatrix4(update),
-                    Arrays.asList(basis),
-                    pivot
-                );
-//                LPSolverProtocol4 lpSolverProtocol4 = new LPSolverProtocol4(
-//                    new LPTableau4(
-//                        toMatrix4(tableau.getC()),
-//                        new ArrayList<>(Arrays.asList(tableau.getB())),
-//                        new ArrayList<>(Arrays.asList(tableau.getF())),
-//                        tableau.getZ()),
-//                    toMatrix4(update),
-//                    pivot,
-//                    solverSec.getBasicNumericFactory());
-//                return lpSolverProtocol4.build(solverSec);
+                    pivot,
+                    solverSec.getBasicNumericFactory());
+                return lpSolverProtocol4.build(solverSec);
 
               }).seq((lpOutput, optSec) ->
                   Pair.lazy(
