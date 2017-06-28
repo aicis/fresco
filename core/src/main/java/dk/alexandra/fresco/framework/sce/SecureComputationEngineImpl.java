@@ -28,11 +28,12 @@ package dk.alexandra.fresco.framework.sce;
 
 import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.BuilderFactory;
+import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.Party;
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
-import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.Reporter;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
 import dk.alexandra.fresco.framework.configuration.ConfigurationException;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.NetworkConfigurationImpl;
@@ -62,19 +63,19 @@ import java.util.logging.Level;
  *
  * @author Kasper Damgaard (.. and others)
  */
-public class SecureComputationEngineImpl<ResourcePoolT extends ResourcePool> implements
-    SecureComputationEngine<ResourcePoolT> {
+public class SecureComputationEngineImpl<ResourcePoolT extends ResourcePool, Builder extends ProtocolBuilder> implements
+    SecureComputationEngine<ResourcePoolT, Builder> {
 
   private final int myId;
   private ProtocolEvaluator<ResourcePoolT> evaluator;
-  private ProtocolSuiteConfiguration<ResourcePoolT> protocolSuiteConfiguration;
+  private ProtocolSuiteConfiguration<ResourcePoolT, Builder> protocolSuiteConfiguration;
   private ExecutorService executorService;
   private boolean setup;
-  private ProtocolSuite<ResourcePoolT> protocolSuite;
+  private ProtocolSuite<ResourcePoolT, Builder> protocolSuite;
   private static final AtomicInteger threadCounter = new AtomicInteger(1);
 
   public SecureComputationEngineImpl(
-      ProtocolSuiteConfiguration<ResourcePoolT> protocolSuite,
+      ProtocolSuiteConfiguration<ResourcePoolT, Builder> protocolSuite,
       ProtocolEvaluator<ResourcePoolT> evaluator,
       Level logLevel,
       int myId) {
@@ -117,7 +118,8 @@ public class SecureComputationEngineImpl<ResourcePoolT extends ResourcePool> imp
 
   public static <ResourcePoolT extends ResourcePool> ResourcePoolT createResourcePool(
       SCEConfiguration<ResourcePoolT> sceConf,
-      ProtocolSuiteConfiguration<ResourcePoolT> protocolSuiteConfiguration) throws IOException {
+      ProtocolSuiteConfiguration<ResourcePoolT, ? extends ProtocolBuilder> protocolSuiteConfiguration)
+      throws IOException {
 
     int myId = sceConf.getMyId();
     Map<Integer, Party> parties = sceConf.getParties();
@@ -135,8 +137,8 @@ public class SecureComputationEngineImpl<ResourcePoolT extends ResourcePool> imp
   }
 
   @Override
-  public <OutputT> OutputT runApplication(Application<OutputT> application,
-      ResourcePoolT sceNetwork) {
+  public <OutputT> OutputT runApplication(
+      Application<OutputT, Builder> application, ResourcePoolT sceNetwork) {
     try {
       Future<OutputT> future = startApplication(application, sceNetwork);
       return future.get(10, TimeUnit.MINUTES);
@@ -145,13 +147,10 @@ public class SecureComputationEngineImpl<ResourcePoolT extends ResourcePool> imp
     }
   }
 
-  public <OutputT> Future<OutputT> startApplication(Application<OutputT> application,
-      ResourcePoolT resourcePool) {
+  public <OutputT> Future<OutputT> startApplication(
+      Application<OutputT, Builder> application, ResourcePoolT resourcePool) {
     prepareEvaluator();
-    return executorService.submit(() -> {
-      evalApplication(application, resourcePool);
-      return application.getResult();
-    });
+    return executorService.submit(() -> evalApplication(application, resourcePool).out());
   }
 
   private void prepareEvaluator() {
@@ -164,20 +163,21 @@ public class SecureComputationEngineImpl<ResourcePoolT extends ResourcePool> imp
     }
   }
 
-  private <OutputT> void evalApplication(Application<OutputT> application,
+  private <OutputT> Computation<OutputT> evalApplication(
+      Application<OutputT, Builder> application,
       ResourcePoolT resourcePool) {
     Reporter.info("Running application: " + application + " using protocol suite: "
         + this.protocolSuite);
-    OutputT result;
     try {
-      BuilderFactory protocolFactory = this.protocolSuite.init(resourcePool);
-      ProtocolProducer prod = application.prepareApplication(protocolFactory);
+      BuilderFactory<Builder> protocolFactory = this.protocolSuite.init(resourcePool);
+      Builder builder = protocolFactory.createProtocolBuilder();
+      Computation<OutputT> output = application.prepareApplication(builder);
       long then = System.currentTimeMillis();
-      this.evaluator.eval(prod, resourcePool);
+      this.evaluator.eval(builder.build(), resourcePool);
       long now = System.currentTimeMillis();
       long timeSpend = now - then;
       Reporter.info("Running the application " + application + " took " + timeSpend + " ms.");
-      application.close();
+      return output;
     } catch (IOException e) {
       throw new MPCException(
           "Could not run application " + application + " due to errors", e);

@@ -1,10 +1,11 @@
-package dk.alexandra.fresco.framework.builder;
+package dk.alexandra.fresco.suite.tinytables;
 
 import dk.alexandra.fresco.framework.BuilderFactory;
 import dk.alexandra.fresco.framework.ProtocolFactory;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderBinary;
 import dk.alexandra.fresco.lib.logic.AbstractBinaryFactory;
 
-public class LegacyBinaryBuilder implements BuilderFactory {
+public class LegacyBinaryBuilder implements BuilderFactory<ProtocolBuilderBinary> {
 
   private final ProtocolFactory protocolFactory;
   private AbstractBinaryFactory basicBinaryFactory;
@@ -17,6 +18,11 @@ public class LegacyBinaryBuilder implements BuilderFactory {
   @Override
   public ProtocolFactory getProtocolFactory() {
     return protocolFactory;
+  }
+
+  @Override
+  public ProtocolBuilderBinary createProtocolBuilder() {
+    return ProtocolBuilderBinary.createApplicationRoot(basicBinaryFactory);
   }
 
 }

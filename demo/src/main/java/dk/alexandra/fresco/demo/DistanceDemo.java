@@ -26,7 +26,7 @@
  *******************************************************************************/
 package dk.alexandra.fresco.demo;
 
-import dk.alexandra.fresco.framework.Application;
+import dk.alexandra.fresco.demo.inputsum.DemoApplication;
 import dk.alexandra.fresco.framework.BuilderFactory;
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.ProtocolProducer;
@@ -45,7 +45,7 @@ import org.apache.commons.cli.ParseException;
 /**
  * A simple demo computing the distance between two secret points
  */
-public class DistanceDemo implements Application {
+public class DistanceDemo extends DemoApplication<BigInteger> {
 
 
   private int myId, myX, myY;

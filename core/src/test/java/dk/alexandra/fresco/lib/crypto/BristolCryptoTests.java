@@ -32,6 +32,7 @@ import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.BuilderFactory;
 import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.ProtocolProducer;
+import dk.alexandra.fresco.framework.TestBoolApplication;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
@@ -117,7 +118,7 @@ public class BristolCryptoTests {
 
         @Override
         public void test() throws Exception {
-          Application aesApp = new Application() {
+          Application aesApp = new TestBoolApplication() {
 
 
             @Override
@@ -203,7 +204,7 @@ public class BristolCryptoTests {
 
         @Override
         public void test() throws Exception {
-          Application aesApp = new Application() {
+          TestBoolApplication aesApp = new TestBoolApplication() {
 
 
             @Override
@@ -290,7 +291,7 @@ public class BristolCryptoTests {
 
         @Override
         public void test() throws Exception {
-          Application sha256App = new Application() {
+          Application sha256App = new TestBoolApplication() {
 
 
             @Override
@@ -378,7 +379,7 @@ public class BristolCryptoTests {
 
         @Override
         public void test() throws Exception {
-          Application md5App = new Application() {
+          Application md5App = new TestBoolApplication() {
 
 
             @Override
@@ -455,7 +456,7 @@ public class BristolCryptoTests {
 
         @Override
         public void test() throws Exception {
-          Application multApp = new Application() {
+          Application multApp = new TestBoolApplication() {
 
 
             @Override
@@ -536,9 +537,7 @@ public class BristolCryptoTests {
 
         @Override
         public void test() throws Exception {
-          Application md5App = new Application() {
-
-            private static final long serialVersionUID = 36625566;
+          Application md5App = new TestBoolApplication() {
 
             @Override
             public ProtocolProducer prepareApplication(BuilderFactory fac) {

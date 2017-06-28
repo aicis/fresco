@@ -28,15 +28,13 @@ package dk.alexandra.fresco.lib.statistics;
 
 import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.BuilderFactory;
-import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.ProtocolFactory;
-import dk.alexandra.fresco.framework.ProtocolProducer;
-import dk.alexandra.fresco.framework.TestApplication;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
-import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderHelper;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialProtocolBuilder;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SInt;
@@ -45,6 +43,7 @@ import dk.alexandra.fresco.lib.helper.AlgebraUtil;
 import dk.alexandra.fresco.lib.helper.builder.NumericIOBuilder;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
 import java.math.BigInteger;
+import java.util.List;
 import org.hamcrest.core.Is;
 import org.junit.Assert;
 
@@ -60,7 +59,7 @@ public class CreditRaterTest {
 
 
   public static class TestCreditRater<ResourcePoolT extends ResourcePool> extends
-      TestThreadFactory<ResourcePoolT> {
+      TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric.SequentialProtocolBuilder> {
 
     final int[] values;
     final int[][] intervals;
@@ -73,8 +72,9 @@ public class CreditRaterTest {
     }
 
     @Override
-    public TestThread<ResourcePoolT> next(TestThreadConfiguration<ResourcePoolT> conf) {
-      return new TestThread<ResourcePoolT>() {
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric.SequentialProtocolBuilder> next(
+        TestThreadConfiguration<ResourcePoolT, ProtocolBuilderNumeric.SequentialProtocolBuilder> conf) {
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric.SequentialProtocolBuilder>() {
         SInt[] secretValues;
 
         @Override
@@ -87,28 +87,27 @@ public class CreditRaterTest {
           SInt[][] secretIntervals = new SInt[intervals.length][];
           SInt[][] secretScores = new SInt[scores.length][];
 
-          TestApplication input = new TestApplication() {
+          Application<List<BigInteger>, ProtocolBuilderNumeric.SequentialProtocolBuilder> input =
+              producer -> {
+                BuilderFactory factoryNumeric = ProtocolBuilderHelper.getFactoryNumeric(producer);
 
-            @Override
-            public ProtocolProducer prepareApplication(
-                BuilderFactory factoryProducer) {
-              ProtocolFactory provider = factoryProducer.getProtocolFactory();
-              BasicNumericFactory bnFactory = (BasicNumericFactory) provider;
-              NumericIOBuilder ioBuilder = new NumericIOBuilder(bnFactory);
+                ProtocolFactory provider = factoryNumeric.getProtocolFactory();
+                BasicNumericFactory bnFactory = (BasicNumericFactory) provider;
+                NumericIOBuilder ioBuilder = new NumericIOBuilder(bnFactory);
 
-              SequentialProtocolProducer sseq = new SequentialProtocolProducer();
+                SequentialProtocolProducer sseq = new SequentialProtocolProducer();
 
-              secretValues = ioBuilder.inputArray(values, 1);
-              for (int i = 0; i < intervals.length; i++) {
-                secretIntervals[i] = ioBuilder.inputArray(intervals[i], 1);
-              }
-              for (int i = 0; i < scores.length; i++) {
-                secretScores[i] = ioBuilder.inputArray(scores[i], 1);
-              }
-              sseq.append(ioBuilder.getProtocol());
-              return sseq;
-            }
-          };
+                secretValues = ioBuilder.inputArray(values, 1);
+                for (int i = 0; i < intervals.length; i++) {
+                  secretIntervals[i] = ioBuilder.inputArray(intervals[i], 1);
+                }
+                for (int i = 0; i < scores.length; i++) {
+                  secretScores[i] = ioBuilder.inputArray(scores[i], 1);
+                }
+                sseq.append(ioBuilder.getProtocol());
+                producer.append(sseq);
+                return () -> null;
+              };
           secureComputationEngine.runApplication(input, resourcePool);
 
           CreditRater rater = new CreditRater(AlgebraUtil.arrayToList(secretValues),
@@ -116,26 +115,9 @@ public class CreditRaterTest {
               AlgebraUtil.arrayToList(secretScores));
           SInt creditRatingOutput = secureComputationEngine.runApplication(rater, resourcePool);
 
-          Application<BigInteger> outputApp = new Application<BigInteger>() {
-
-            private Computation<BigInteger> output;
-
-            @Override
-            public ProtocolProducer prepareApplication(
-                BuilderFactory factoryProducer) {
-              return ProtocolBuilder.createApplicationRoot(
-                  (BuilderFactoryNumeric) factoryProducer,
-                  (seq) -> {
-                    output = seq.numeric().open(creditRatingOutput);
-                  }
-              ).build();
-            }
-
-            @Override
-            public BigInteger getResult() {
-              return output.out();
-            }
-          };
+          Application<BigInteger, SequentialProtocolBuilder> outputApp =
+              seq -> seq.numeric()
+                  .open(creditRatingOutput);
           BigInteger resultCreditOut = secureComputationEngine
               .runApplication(outputApp, resourcePool);
           Assert.assertThat(resultCreditOut, Is.is(

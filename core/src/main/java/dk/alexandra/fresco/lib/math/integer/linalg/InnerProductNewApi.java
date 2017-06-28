@@ -4,6 +4,7 @@ import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.helper.SimpleProtocolProducer;
 import java.math.BigInteger;
@@ -27,7 +28,7 @@ public class InnerProductNewApi extends SimpleProtocolProducer implements Comput
   @Override
   protected ProtocolProducer initializeProtocolProducer() {
     // Root sequential scope ... makes sense   
-    ProtocolBuilder pb = ProtocolBuilder.createApplicationRoot(bnf, seq ->
+    ProtocolBuilder pb = ProtocolBuilderNumeric.createApplicationRoot(bnf, seq ->
         // Parallel scope for multiplication ... makes sense
         c = seq.par(
             par -> {

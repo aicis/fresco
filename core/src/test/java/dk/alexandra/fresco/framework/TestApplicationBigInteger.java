@@ -27,22 +27,20 @@
 package dk.alexandra.fresco.framework;
 
 
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderHelper;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
 import java.math.BigInteger;
 
-public abstract class TestApplicationBigInteger implements Application<BigInteger> {
+public abstract class TestApplicationBigInteger implements
+    Application<BigInteger, ProtocolBuilderNumeric> {
 
   public Computation<BigInteger> output;
-  private BigInteger out;
+
+  public abstract ProtocolProducer prepareApplication(BuilderFactory factoryProducer);
 
   @Override
-  public final BigInteger getResult() {
-    return out;
+  public Computation<BigInteger> prepareApplication(ProtocolBuilderNumeric producer) {
+    producer.append(prepareApplication(ProtocolBuilderHelper.getFactoryNumeric(producer)));
+    return () -> this.output.out();
   }
-
-  @Override
-  public final void close() {
-    this.out = this.output.out();
-  }
-
-
 }

@@ -29,6 +29,7 @@ package dk.alexandra.fresco.demo;
 import dk.alexandra.fresco.framework.Party;
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.Reporter;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.configuration.ConfigurationException;
 import dk.alexandra.fresco.framework.configuration.PreprocessingStrategy;
 import dk.alexandra.fresco.framework.network.Network;
@@ -451,7 +452,8 @@ public class CmdLineUtil {
     return new SpdzConfiguration() {
 
       @Override
-      public ProtocolSuite<SpdzResourcePool> createProtocolSuite(int myPlayerId) {
+      public ProtocolSuite<SpdzResourcePool, ProtocolBuilderNumeric> createProtocolSuite(
+          int myPlayerId) {
         return new SpdzProtocolSuite(this);
       }
 

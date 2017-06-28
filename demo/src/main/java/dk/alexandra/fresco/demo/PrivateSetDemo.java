@@ -26,7 +26,7 @@
  *******************************************************************************/
 package dk.alexandra.fresco.demo;
 
-import dk.alexandra.fresco.framework.Application;
+import dk.alexandra.fresco.demo.inputsum.DemoApplication;
 import dk.alexandra.fresco.framework.BuilderFactory;
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.NativeProtocol;
@@ -87,7 +87,7 @@ import org.apache.commons.cli.ParseException;
  *
  * OBS: Using the dummy protocol suite is not secure!
  */
-public class PrivateSetDemo implements Application {
+public class PrivateSetDemo extends DemoApplication<OBool[][]> {
 
 
   /**

@@ -26,8 +26,11 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.logic;
 
+import dk.alexandra.fresco.framework.BuilderFactory;
 import dk.alexandra.fresco.framework.NativeProtocol;
+import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.ProtocolProducer;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.OBool;
 import dk.alexandra.fresco.framework.value.SBool;
@@ -77,10 +80,21 @@ import dk.alexandra.fresco.lib.math.bool.mult.BinaryMultProtocolImpl;
 import java.util.List;
 
 public abstract class AbstractBinaryFactory
-    implements BasicLogicFactory, AdderProtocolFactory, BinaryMultProtocolFactory,
+    implements BuilderFactory<ProtocolBuilderBinary>, BasicLogicFactory, AdderProtocolFactory,
+    BinaryMultProtocolFactory,
     LogProtocolFactory,
     CopyProtocolFactory<SBool>, BinaryGreaterThanProtocolFactory, BinaryEqualityProtocolFactory,
     CompareAndSwapProtocolFactory, OddEvenMergeSortFactory, BitIncrementerProtocolFactory {
+
+  @Override
+  public ProtocolFactory getProtocolFactory() {
+    return this;
+  }
+
+  @Override
+  public ProtocolBuilderBinary createProtocolBuilder() {
+    return ProtocolBuilderBinary.createApplicationRoot(this);
+  }
 
   /**
    * Advanced protocols - compare and swap functionality

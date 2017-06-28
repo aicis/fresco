@@ -27,16 +27,13 @@
 package dk.alexandra.fresco.lib.statistics;
 
 import dk.alexandra.fresco.framework.Application;
-import dk.alexandra.fresco.framework.BuilderFactory;
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.MPCException;
-import dk.alexandra.fresco.framework.ProtocolProducer;
-import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.ComparisonBuilder;
 import dk.alexandra.fresco.framework.builder.ComputationBuilder;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilder.SequentialProtocolBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialProtocolBuilder;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.math.integer.SumSIntList;
 import java.math.BigInteger;
@@ -50,13 +47,12 @@ import java.util.List;
  * and a credit rating function (a set of intervals for each value)
  * will calculate the combined score.
  */
-public class CreditRater implements Application<SInt> {
+public class CreditRater implements
+    Application<SInt, ProtocolBuilderNumeric.SequentialProtocolBuilder> {
 
   private List<SInt> values;
   private List<List<SInt>> intervals;
   private List<List<SInt>> intervalScores;
-  private Computation<SInt> delegateResult;
-  private SInt result;
 
   /**
    * @throws MPCException if the intervals, values and intervalScores does not have the same length
@@ -91,34 +87,25 @@ public class CreditRater implements Application<SInt> {
 
   @Override
   @SuppressWarnings("unchecked")
-  public ProtocolProducer prepareApplication(BuilderFactory provider) {
-    return ProtocolBuilder.createApplicationRoot((BuilderFactoryNumeric) provider, (sequential) ->
-        delegateResult = sequential.par(
-            parallel -> {
-              List<Computation<SInt>> scores = new ArrayList<>(values.size());
-              for (int i = 0; i < values.size(); i++) {
-                SInt value = values.get(i);
-                List<SInt> interval = intervals.get(i);
-                List<SInt> intervalScore = intervalScores.get(i);
+  public Computation<SInt> prepareApplication(
+      ProtocolBuilderNumeric.SequentialProtocolBuilder sequential) {
+    return sequential.par(
+        parallel -> {
+          List<Computation<SInt>> scores = new ArrayList<>(values.size());
+          for (int i = 0; i < values.size(); i++) {
+            SInt value = values.get(i);
+            List<SInt> interval = intervals.get(i);
+            List<SInt> intervalScore = intervalScores.get(i);
 
-                scores.add(
-                    parallel.createSequentialSub(
-                        new ComputeIntervalScore(interval, value, intervalScore)));
-              }
-              return () -> scores;
-            }
-        ).seq((list, seq) ->
-            new SumSIntList(list).build(seq)
-        )).build();
-  }
-
-  public void close() {
-    result = this.delegateResult.out();
-  }
-
-  @Override
-  public SInt getResult() {
-    return result;
+            scores.add(
+                parallel.createSequentialSub(
+                    new ComputeIntervalScore(interval, value, intervalScore)));
+          }
+          return () -> scores;
+        }
+    ).seq((list, seq) ->
+        new SumSIntList(list).build(seq)
+    );
   }
 
   private static class ComputeIntervalScore implements

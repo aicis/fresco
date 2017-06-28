@@ -13,20 +13,24 @@ import dk.alexandra.fresco.lib.math.integer.division.DefaultAdvancedNumericBuild
  * shared values</li> </ul> Other builders have defaults, based on the raw methods, but can be
  * overridden.
  */
-public interface BuilderFactoryNumeric extends BuilderFactory {
+public interface BuilderFactoryNumeric extends BuilderFactory<ProtocolBuilderNumeric> {
 
   int MAGIC_SECURE_NUMBER = 60;
 
   BasicNumericFactory getBasicNumericFactory();
 
-  NumericBuilder createNumericBuilder(ProtocolBuilder builder);
+  NumericBuilder createNumericBuilder(ProtocolBuilderNumeric builder);
 
-  default ComparisonBuilder createComparisonBuilder(ProtocolBuilder builder) {
+  default ComparisonBuilder createComparisonBuilder(ProtocolBuilderNumeric builder) {
     return new DefaultComparisonBuilder(this, builder);
   }
 
-  default AdvancedNumericBuilder createAdvancedNumericBuilder(ProtocolBuilder builder) {
+  default AdvancedNumericBuilder createAdvancedNumericBuilder(ProtocolBuilderNumeric builder) {
     return new DefaultAdvancedNumericBuilder(this, builder);
   }
 
+  @Override
+  default ProtocolBuilderNumeric createProtocolBuilder() {
+    return ProtocolBuilderNumeric.createApplicationRoot(this);
+  }
 }

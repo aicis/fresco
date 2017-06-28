@@ -1,5 +1,6 @@
 package dk.alexandra.fresco.suite.spdz;
 
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.configuration.PreprocessingStrategy;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.suite.ProtocolSuite;
@@ -18,7 +19,8 @@ class TestSpdzConfiguration implements SpdzConfiguration {
   }
 
   @Override
-  public ProtocolSuite<SpdzResourcePool> createProtocolSuite(int myPlayerId) {
+  public ProtocolSuite<SpdzResourcePool, ProtocolBuilderNumeric> createProtocolSuite(
+      int myPlayerId) {
     return new SpdzProtocolSuite(this);
   }
 

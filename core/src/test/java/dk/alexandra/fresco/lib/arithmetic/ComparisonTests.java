@@ -36,7 +36,7 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.ComparisonBuilder;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
@@ -68,7 +68,7 @@ public class ComparisonTests {
             @Override
             public ProtocolProducer prepareApplication(
                 BuilderFactory factoryProducer) {
-              return ProtocolBuilder
+              return ProtocolBuilderNumeric
                   .createApplicationRoot((BuilderFactoryNumeric) factoryProducer, (builder) -> {
                     NumericBuilder input = builder.numeric();
                     Computation<SInt> x = input.known(three);
@@ -116,7 +116,7 @@ public class ComparisonTests {
             @Override
             public ProtocolProducer prepareApplication(
                 BuilderFactory factoryProducer) {
-              return ProtocolBuilder
+              return ProtocolBuilderNumeric
                   .createApplicationRoot((BuilderFactoryNumeric) factoryProducer, (builder) -> {
                     NumericBuilder input = builder.numeric();
                     Computation<SInt> x = input.known(three);

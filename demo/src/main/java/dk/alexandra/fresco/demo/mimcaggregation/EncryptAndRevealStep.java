@@ -1,11 +1,11 @@
 package dk.alexandra.fresco.demo.mimcaggregation;
 
-import dk.alexandra.fresco.framework.Application;
+import dk.alexandra.fresco.demo.inputsum.DemoApplication;
 import dk.alexandra.fresco.framework.BuilderFactory;
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.framework.value.Value;
 import dk.alexandra.fresco.lib.crypto.mimc.MiMCEncryption;
@@ -14,7 +14,7 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
-public class EncryptAndRevealStep implements Application {
+public class EncryptAndRevealStep extends DemoApplication<Value[][]> {
 
   private SInt[][] inputRows;
   private SInt mimcKey;
@@ -35,7 +35,8 @@ public class EncryptAndRevealStep implements Application {
 
   @Override
   public ProtocolProducer prepareApplication(BuilderFactory producer) {
-    return ProtocolBuilder.createApplicationRoot((BuilderFactoryNumeric) producer, (builder) -> {
+    return ProtocolBuilderNumeric
+        .createApplicationRoot((BuilderFactoryNumeric) producer, (builder) -> {
       BasicNumericFactory numericFactory = builder.getBasicNumericFactory();
       builder.seq((seq) -> builder.numeric().known(BigInteger.ZERO)
       ).seq((key, seq) -> {

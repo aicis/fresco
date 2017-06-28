@@ -31,7 +31,7 @@ import dk.alexandra.fresco.framework.LegacyTransfer;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.helper.SimpleProtocolProducer;
 
@@ -52,7 +52,7 @@ public class ConditionalSelectProtocolImpl extends SimpleProtocolProducer implem
 
   @Override
   protected ProtocolProducer initializeProtocolProducer() {
-    return ProtocolBuilder.createApplicationRoot(factory, (protocolBuilder) -> {
+    return ProtocolBuilderNumeric.createApplicationRoot(factory, (protocolBuilder) -> {
       NumericBuilder numericBuilder = protocolBuilder.numeric();
       Computation<SInt> sub = numericBuilder.sub(a, b);
       Computation<SInt> mult = numericBuilder.mult(selector, sub);

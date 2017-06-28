@@ -28,6 +28,7 @@ package dk.alexandra.fresco.framework.sce.configuration;
 
 import dk.alexandra.fresco.framework.Party;
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.network.NetworkingStrategy;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
@@ -37,17 +38,17 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 
-public class TestSCEConfiguration<ResourcePoolT extends ResourcePool> implements
+public class TestSCEConfiguration<ResourcePoolT extends ResourcePool, Builder extends ProtocolBuilder> implements
     SCEConfiguration<ResourcePoolT> {
 
-  private final ProtocolSuiteConfiguration<ResourcePoolT> suite;
+  private final ProtocolSuiteConfiguration<ResourcePoolT, Builder> suite;
   private NetworkingStrategy network;
   private Storage storage;
   private Map<Integer, Party> parties;
   private int myId;
   private ProtocolEvaluator evaluator;
 
-  public TestSCEConfiguration(ProtocolSuiteConfiguration<ResourcePoolT> suite,
+  public TestSCEConfiguration(ProtocolSuiteConfiguration<ResourcePoolT, Builder> suite,
       NetworkingStrategy network,
       ProtocolEvaluator evaluator,
       NetworkConfiguration conf, Storage storage,
@@ -56,7 +57,7 @@ public class TestSCEConfiguration<ResourcePoolT extends ResourcePool> implements
 
   }
 
-  public TestSCEConfiguration(ProtocolSuiteConfiguration<ResourcePoolT> suite,
+  public TestSCEConfiguration(ProtocolSuiteConfiguration<ResourcePoolT, Builder> suite,
       NetworkingStrategy network,
       ProtocolEvaluator evaluator,
       NetworkConfiguration conf, Storage storage, boolean useSecureConn, int maxBatchSize) {
@@ -108,7 +109,7 @@ public class TestSCEConfiguration<ResourcePoolT extends ResourcePool> implements
     }
   }
 
-  public ProtocolSuiteConfiguration<ResourcePoolT> getSuite() {
+  public ProtocolSuiteConfiguration<ResourcePoolT, Builder> getSuite() {
     return suite;
   }
 

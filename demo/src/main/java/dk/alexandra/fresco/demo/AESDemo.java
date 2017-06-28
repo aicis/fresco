@@ -26,7 +26,7 @@
  *******************************************************************************/
 package dk.alexandra.fresco.demo;
 
-import dk.alexandra.fresco.framework.Application;
+import dk.alexandra.fresco.demo.inputsum.DemoApplication;
 import dk.alexandra.fresco.framework.BuilderFactory;
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.NativeProtocol;
@@ -76,7 +76,7 @@ import org.apache.commons.cli.ParseException;
  *
  * OBS: Using the dummy protocol suite is not secure!
  */
-public class AESDemo implements Application {
+public class AESDemo extends DemoApplication<OBool[]> {
 
   /**
    * Applications can be uploaded to fresco dynamically and are therefore

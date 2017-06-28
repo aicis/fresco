@@ -1,6 +1,6 @@
 package dk.alexandra.fresco.demo.mimcaggregation;
 
-import dk.alexandra.fresco.framework.Application;
+import dk.alexandra.fresco.demo.inputsum.DemoApplication;
 import dk.alexandra.fresco.framework.BuilderFactory;
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.ProtocolProducer;
@@ -12,7 +12,7 @@ import dk.alexandra.fresco.lib.helper.builder.OmniBuilder;
 import java.math.BigInteger;
 import java.util.List;
 
-public class OutputStep implements Application {
+public class OutputStep extends DemoApplication<List<List<Computation<BigInteger>>>> {
 
 	private SInt[][] secretSharedRows;
   private List<List<Computation<BigInteger>>> openedRows;

@@ -7,6 +7,7 @@ import dk.alexandra.fresco.framework.TestApplication;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.sce.SCEFactory;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
@@ -21,15 +22,15 @@ import java.math.BigInteger;
 import java.util.Arrays;
 import org.junit.Assert;
 
-/**
+/**]
  * @author mortenvchristiansen
  */
 public class LogicTests {
 
   private abstract static class ThreadWithFixture<ResourcePoolT extends ResourcePool>
-      extends TestThread<ResourcePoolT> {
+      extends TestThread<ResourcePoolT, ProtocolBuilderNumeric> {
 
-    protected SecureComputationEngine<ResourcePoolT> secureComputationEngine;
+    protected SecureComputationEngine<ResourcePoolT, ProtocolBuilderNumeric> secureComputationEngine;
 
     @Override
     public void setUp() throws IOException {
@@ -40,10 +41,11 @@ public class LogicTests {
   }
 
   public static class TestLogic<ResourcePoolT extends ResourcePool> extends
-      TestThreadFactory<ResourcePoolT> {
+      TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric.SequentialProtocolBuilder> {
 
     @Override
-    public TestThread<ResourcePoolT> next(TestThreadConfiguration conf) {
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next(
+        TestThreadConfiguration conf) {
       return new ThreadWithFixture<ResourcePoolT>() {
         @Override
         public void test() throws Exception {

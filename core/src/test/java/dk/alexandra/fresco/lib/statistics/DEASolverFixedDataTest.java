@@ -23,10 +23,9 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.statistics;
 
-import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.BuilderFactory;
-import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.ProtocolProducer;
+import dk.alexandra.fresco.framework.TestApplication;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
@@ -38,8 +37,6 @@ import dk.alexandra.fresco.lib.helper.AlgebraUtil;
 import dk.alexandra.fresco.lib.helper.builder.NumericIOBuilder;
 import dk.alexandra.fresco.lib.statistics.DEASolver.AnalysisType;
 import java.math.BigInteger;
-import java.util.List;
-import java.util.stream.Collectors;
 import org.junit.Assert;
 
 /**
@@ -82,16 +79,16 @@ public class DEASolverFixedDataTest {
           secureComputationEngine
               .runApplication(app1, SecureComputationEngineImpl.createResourcePool(conf.sceConf,
                   conf.sceConf.getSuite()));
-          for (int i = 0; i < app1.getResult().size(); i++) {
-            Assert.assertEquals(app1.plainResult[i], postProcess(app1.getResult().get(i), type,
+          for (int i = 0; i < app1.outputs.size(); i++) {
+            Assert.assertEquals(app1.plainResult[i], postProcess(app1.outputs.get(i).out(), type,
                 app1.modulus), 0.0000001);
           }
           DEATestApp app2 = new DEATestApp(dataSet2, type);
           secureComputationEngine
               .runApplication(app2, SecureComputationEngineImpl.createResourcePool(conf.sceConf,
                   conf.sceConf.getSuite()));
-          for (int i = 0; i < app2.getResult().size(); i++) {
-            Assert.assertEquals(app2.plainResult[i], postProcess(app2.getResult().get(i), type,
+          for (int i = 0; i < app2.outputs.size(); i++) {
+            Assert.assertEquals(app2.plainResult[i], postProcess(app2.outputs.get(i).out(), type,
                 app1.modulus), 0.0000001);
           }
         }
@@ -106,17 +103,9 @@ public class DEASolverFixedDataTest {
    * Output is conveniently extracted from public fields.
    * </p>
    */
-  private static class DEATestApp implements Application<List<BigInteger>> {
-
-    @Override
-    public List<BigInteger> getResult() {
-      return solverResult.stream()
-          .map(Computation::out)
-          .collect(Collectors.toList());
-    }
+  private static class DEATestApp extends TestApplication {
 
     double[] plainResult;
-    private List<Computation<BigInteger>> solverResult;
     private DEASolver.AnalysisType type;
     private int[][] dataSet;
     private BigInteger modulus;
@@ -153,7 +142,7 @@ public class DEASolverFixedDataTest {
           AlgebraUtil.arrayToList(basisOutputs));
 
       ioBuilder.addProtocolProducer(solver.prepareApplication(producer));
-      solverResult = ioBuilder.outputArray(solver.getResult());
+      outputs = ioBuilder.outputArray(solver.getResult());
 
       // Solve the problem using a plaintext solver
       PlaintextDEASolver plainSolver = new PlaintextDEASolver();

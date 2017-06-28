@@ -26,9 +26,7 @@
  *******************************************************************************/
 package dk.alexandra.fresco.demo.inputsum;
 
-import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.BuilderFactory;
-import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
@@ -42,11 +40,10 @@ import java.math.BigInteger;
  *
  * @author kasperdamgard
  */
-public class SumAndOutputApplication implements Application<BigInteger> {
+public class SumAndOutputApplication extends DemoApplication<BigInteger> {
 
 
   private InputApplication inputApp;
-  private Computation<BigInteger> output;
 
   public SumAndOutputApplication(InputApplication inputApp) {
     this.inputApp = inputApp;

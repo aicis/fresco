@@ -4,7 +4,7 @@ import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.ComparisonBuilder;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.compare.eq.EqualityProtocol4;
 import dk.alexandra.fresco.lib.compare.gt.GreaterThanReducerProtocol4;
@@ -15,10 +15,10 @@ import java.math.BigInteger;
 public class DefaultComparisonBuilder implements ComparisonBuilder {
 
   private final BuilderFactoryNumeric factoryNumeric;
-  private final ProtocolBuilder builder;
+  private final ProtocolBuilderNumeric builder;
 
   public DefaultComparisonBuilder(BuilderFactoryNumeric factoryNumeric,
-      ProtocolBuilder builder) {
+      ProtocolBuilderNumeric builder) {
     this.factoryNumeric = factoryNumeric;
     this.builder = builder;
   }

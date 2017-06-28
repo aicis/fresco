@@ -7,7 +7,9 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
+import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.helper.builder.OmniBuilder;
 import java.math.BigInteger;
@@ -21,25 +23,23 @@ import org.junit.Assert;
  */
 public class ParallelAndSequenceTests {
 
-  public static class TestSequentialEvaluation extends TestThreadFactory {
+  public static class TestSequentialEvaluation<ResourcePoolT extends ResourcePool> extends
+      TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     @Override
-    public TestThread next(TestThreadConfiguration conf) {
-      return new TestThread() {
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next(
+        TestThreadConfiguration<ResourcePoolT, ProtocolBuilderNumeric> conf) {
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         @Override
         public void test() throws Exception {
           TestApplicationSum sumApp = new ParallelAndSequenceTests().new TestApplicationSum();
           TestApplicationMult multApp = new ParallelAndSequenceTests().new TestApplicationMult();
 
-          secureComputationEngine
-              .runApplication(sumApp, SecureComputationEngineImpl.createResourcePool(conf.sceConf,
-                  conf.sceConf.getSuite()));
-          secureComputationEngine.runApplication(multApp,
-              SecureComputationEngineImpl.createResourcePool(conf.sceConf,
-                  conf.sceConf.getSuite()));
+          ResourcePoolT resourcePool = SecureComputationEngineImpl.createResourcePool(conf.sceConf,
+              conf.sceConf.getSuite());
+          BigInteger sum = secureComputationEngine.runApplication(sumApp, resourcePool);
+          BigInteger mult = secureComputationEngine.runApplication(multApp, resourcePool);
 
-          BigInteger sum = sumApp.getResult();
-          BigInteger mult = multApp.getResult();
           Assert
               .assertEquals(BigInteger.valueOf(1 + 2 + 3 + 4 + 5 + 6 + 7 + 8 + 9), sum);
           Assert
@@ -49,25 +49,25 @@ public class ParallelAndSequenceTests {
     }
   }
 
-  public static class TestParallelEvaluation extends TestThreadFactory {
+  public static class TestParallelEvaluation<ResourcePoolT extends ResourcePool> extends
+      TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     @Override
-    public TestThread next(TestThreadConfiguration conf) {
-      return new TestThread() {
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next(
+        TestThreadConfiguration<ResourcePoolT, ProtocolBuilderNumeric> conf) {
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         @Override
         public void test() throws Exception {
           TestApplicationSum sumApp = new ParallelAndSequenceTests().new TestApplicationSum();
           TestApplicationMult multApp = new ParallelAndSequenceTests().new TestApplicationMult();
 
-          secureComputationEngine
+          BigInteger sum = secureComputationEngine
               .runApplication(sumApp, SecureComputationEngineImpl.createResourcePool(conf.sceConf,
                   conf.sceConf.getSuite()));
-          secureComputationEngine.runApplication(multApp,
+          BigInteger mult = secureComputationEngine.runApplication(multApp,
               SecureComputationEngineImpl.createResourcePool(conf.sceConf,
                   conf.sceConf.getSuite()));
 
-          BigInteger sum = sumApp.getResult();
-          BigInteger mult = multApp.getResult();
           Assert
               .assertEquals(BigInteger.valueOf(1 + 2 + 3 + 4 + 5 + 6 + 7 + 8 + 9), sum);
           Assert
