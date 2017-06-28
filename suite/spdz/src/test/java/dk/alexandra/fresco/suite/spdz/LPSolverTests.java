@@ -42,7 +42,6 @@ import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.field.integer.RandomFieldElementFactory;
-import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
 import dk.alexandra.fresco.lib.lp.LPFactory;
 import dk.alexandra.fresco.lib.lp.LPFactoryImpl;
 import dk.alexandra.fresco.lib.lp.LPPrefix;
@@ -52,6 +51,7 @@ import dk.alexandra.fresco.lib.lp.LPTableau;
 import dk.alexandra.fresco.lib.lp.LPTableau4;
 import dk.alexandra.fresco.lib.lp.Matrix;
 import dk.alexandra.fresco.lib.lp.Matrix4;
+import dk.alexandra.fresco.lib.lp.OptimalValue4;
 import dk.alexandra.fresco.lib.math.integer.exp.ExpFromOIntFactory;
 import dk.alexandra.fresco.lib.math.integer.exp.PreprocessedExpPipeFactory;
 import dk.alexandra.fresco.suite.spdz.utils.LPInputReader;
@@ -126,24 +126,13 @@ class LPSolverTests {
                             prefix.getPivot(),
                             bnFactory));
 
-                    builder.createIteration((seq) -> {
-                      SInt sout = bnFactory.getSInt();
-                      LPOutput lpOut = lpOutput.out();
-                      ProtocolProducer outputter = lpFactory
-                          .getOptimalValueProtocol(
-                              toMatrix(lpOut.updateMatrix),
-                              lpOut.tableau.getB().stream().map(Computation::out)
-                                  .toArray(SInt[]::new),
-                              lpOut.pivot,
-                              sout);
-                      Computation<BigInteger> openProtocol = bnFactory
-                          .getOpenProtocol(sout);
-                      seq.append(new SequentialProtocolProducer(
-                          outputter,
-                          openProtocol
-                      ));
-                      this.outputs.add(openProtocol);
-                    });
+                    Computation<SInt> optimalValue = builder.createSequentialSub((seq) -> {
+                          LPOutput out = lpOutput.out();
+                          return new OptimalValue4(out.updateMatrix, out.tableau, out.pivot).build(seq);
+                        }
+                    );
+                    Computation<BigInteger> open = builder.numeric().open(optimalValue);
+                    this.outputs.add(open);
                   }).build();
             }
 
