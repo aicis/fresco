@@ -30,6 +30,7 @@ import dk.alexandra.fresco.framework.configuration.PreprocessingStrategy;
 import dk.alexandra.fresco.framework.network.NetworkingStrategy;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.lib.arithmetic.AdvancedNumericTests;
+import dk.alexandra.fresco.lib.math.integer.exp.ExponentiationTests.TestExponentiation;
 import org.junit.Test;
 
 public class TestSpdzAdvancedNumeric extends AbstractSpdzTest {
@@ -82,5 +83,12 @@ public class TestSpdzAdvancedNumeric extends AbstractSpdzTest {
     public void test_Modulus() throws Exception {
         runTest(new AdvancedNumericTests.TestModulus(),
             EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
+    }
+
+    @Test
+    public void test_exponentiation() throws Exception {
+        runTest(new TestExponentiation(),
+            EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET,
+            PreprocessingStrategy.DUMMY, 2);
     }
 }
