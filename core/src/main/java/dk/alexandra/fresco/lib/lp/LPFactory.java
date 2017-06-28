@@ -35,8 +35,6 @@ import dk.alexandra.fresco.lib.helper.CopyProtocolFactory;
 import dk.alexandra.fresco.lib.math.integer.inv.InversionProtocolFactory;
 import dk.alexandra.fresco.lib.math.integer.linalg.EntrywiseProductFactory;
 import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductFactory;
-import dk.alexandra.fresco.lib.math.integer.min.MinInfFracProtocol;
-import dk.alexandra.fresco.lib.math.integer.min.MinimumFractionProtocol;
 import dk.alexandra.fresco.lib.math.integer.min.MinimumProtocol;
 
 public interface LPFactory
@@ -61,19 +59,6 @@ public interface LPFactory
    * @param cs outputs
    */
   MinimumProtocol getMinimumProtocol(SInt[] as, SInt m, SInt[] cs);
-
-  /**
-   * Finds the minimum in an list of fractions. Note fractions are given as
-   * separate arrays of numerators and denominators.
-   *
-   * @param ns input - the numerators
-   * @param ds input - the denominators
-   * @param nm output - the numerator of the minimum fraction
-   * @param dm output - the denominator of the minimum fraction
-   * @param cs output - the index vector for indicating the minimum fraction
-   */
-  MinimumFractionProtocol getMinimumFractionProtocol(SInt[] ns, SInt[] ds, SInt nm, SInt dm,
-      SInt[] cs);
 
   /**
    * @param x1 input
@@ -110,39 +95,5 @@ public interface LPFactory
   EnteringVariableProtocol getEnteringVariableProtocol(LPTableau tableau, Matrix<SInt> updateMatrix,
       SInt[] enteringIndex, SInt minimum);
 
-  /**
-   * Computes the index of the exiting variable along with values needed to
-   * compute the update matrix for this iteration
-   *
-   * @param tableau input - a tableau of dimension (m + 1) x (n + m + 1) i.e. the C matrix is of
-   * dimension m x (n+m)
-   * @param updateMatrix input - an updateMatrix of dimension (m + 1) x (m + 1)
-   * @param enteringIndex input - an index vector indexing the variable to leave the basis
-   * @param exitingIndex output - an index vector indexing the most constraining constraint,
-   * corresponding to the exiting variable
-   * @param updateColumn output - the column used to generate the update matrix of this iteration
-   * @param pivot output - the pivot element used to generate the update matrix of this iteration
-   */
-  ExitingVariableProtocol getExitingVariableProtocol(LPTableau tableau, Matrix<SInt> updateMatrix,
-      SInt[] enteringIndex, SInt[] exitingIndex, SInt[] updateColumn, SInt pivot);
 
-
-  /**
-   * Finds the minimum in an list of fractions. Note fractions are given as
-   * separate arrays of numerators and denominators. Also allows to indicate
-   * certain fractions that should take a value of infinity in comparisons.
-   * I.e., indicate fractions that should never be chosen as the minimum.
-   *
-   * @param ns input - the numerators
-   * @param ds input - the denominators
-   * @param infs input - should hold 0/1 values. If the i'th value is 1 the i'th fraction should be
-   * regarded as having an infinity value in the comparisons
-   * @param nm output - the numerator of the minimum fraction
-   * @param dm output - the denominator of the minimum fraction
-   * @param infm output - the infinity indicator of the minimum fraction. I.e., should only be 1 if
-   * all fractions are regarded as infinity and 0 otherwise.
-   * @param cs output - the index vector for indicating the minimum fraction
-   */
-  MinInfFracProtocol getMinInfFracProtocol(SInt[] ns, SInt[] ds, SInt[] infs, SInt nm, SInt dm,
-      SInt infm, SInt[] cs);
 }

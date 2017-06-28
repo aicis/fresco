@@ -51,7 +51,7 @@ import dk.alexandra.fresco.lib.helper.builder.NumericProtocolBuilder;
  * 
  *
  */
-public class MinInfFracProtocol extends AbstractRoundBasedProtocol implements MinimumFractionProtocol {
+public class MinInfFracProtocol extends AbstractRoundBasedProtocol {
 
 	private SInt[] cs;
 	private ComparisonProtocolFactory cFac;

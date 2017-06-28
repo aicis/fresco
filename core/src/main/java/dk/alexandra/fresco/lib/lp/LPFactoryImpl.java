@@ -58,9 +58,6 @@ import dk.alexandra.fresco.lib.math.integer.linalg.EntrywiseProductProtocolImpl;
 import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductFactory;
 import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductFactoryImpl;
 import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductProtocol;
-import dk.alexandra.fresco.lib.math.integer.min.MinInfFracProtocol;
-import dk.alexandra.fresco.lib.math.integer.min.MinimumFractionProtocol;
-import dk.alexandra.fresco.lib.math.integer.min.MinimumFractionProtocolImpl;
 import dk.alexandra.fresco.lib.math.integer.min.MinimumProtocol;
 import dk.alexandra.fresco.lib.math.integer.min.MinimumProtocolImpl;
 import java.math.BigInteger;
@@ -138,18 +135,6 @@ public class LPFactoryImpl implements LPFactory {
   }
 
   @Override
-  public MinimumFractionProtocol getMinimumFractionProtocol(SInt[] ns,
-      SInt[] ds, SInt nm, SInt dm, SInt[] cs) {
-    return new MinimumFractionProtocolImpl(ns, ds, nm, dm, cs, bnf, this);
-  }
-
-  @Override
-  public MinInfFracProtocol getMinInfFracProtocol(SInt[] ns,
-      SInt[] ds, SInt[] infs, SInt nm, SInt dm, SInt infm, SInt[] cs) {
-    return new MinInfFracProtocol(ns, ds, infs, nm, dm, infm, cs, bnf, compFactory);
-  }
-
-  @Override
   public GreaterThanReducerProtocolImpl getComparisonProtocol(SInt x1, SInt x2,
       SInt result, boolean longCompare) {
     int bitLength = bnf.getMaxBitLength();
@@ -175,14 +160,6 @@ public class LPFactoryImpl implements LPFactory {
       SInt minimum) {
     return new EnteringVariableProtocol(tableau, updateMatrix,
         enteringIndex, minimum, this, bnf);
-  }
-
-  @Override
-  public ExitingVariableProtocol getExitingVariableProtocol(LPTableau tableau,
-      Matrix<SInt> updateMatrix, SInt[] enteringIndex,
-      SInt[] exitingIndex, SInt[] updateColumn, SInt pivot) {
-    return new ExitingVariableProtocol(tableau, updateMatrix, enteringIndex,
-        exitingIndex, updateColumn, pivot, this, bnf);
   }
 
   @Override

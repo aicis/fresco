@@ -316,10 +316,10 @@ public class LPBuildingBlockTests {
       SInt[] sExitingIndex = npb.getSIntArray(m);
       SInt[] sUpdateCol = npb.getSIntArray(m + 1);
       SInt pivot = npb.getSInt();
-      ProtocolProducer evc = lpf
-          .getExitingVariableProtocol(sTableau, sUpdateMatrix, sEnteringIdx, sExitingIndex,
-              sUpdateCol, pivot);
-      iob.addProtocolProducer(evc);
+//      ProtocolProducer evc = lpf
+//         .getExitingVariableProtocol(sTableau, sUpdateMatrix, sEnteringIdx, sExitingIndex,
+//              sUpdateCol, pivot);
+//      iob.addProtocolProducer(evc);
       List<Computation<BigInteger>> oExitingIndex = iob.outputArray(sExitingIndex);
       List<Computation<BigInteger>> oUpdateCol = iob.outputArray(sUpdateCol);
       Computation<BigInteger> oPivot = iob.output(pivot);
