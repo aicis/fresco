@@ -10,6 +10,7 @@ import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzAddProtocol4;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzInputProtocol;
+import dk.alexandra.fresco.suite.spdz.gates.SpdzKnownSIntProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzMultProtocol4;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzOutputToAllProtocol4;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzRandomProtocol4;
@@ -99,8 +100,7 @@ class SpdzBuilder implements BuilderFactoryNumeric {
 
       @Override
       public Computation<SInt> known(BigInteger value) {
-        //TODO Should probably be handled here instead of delegating to the spdz factory
-        return spdzFactory.getSInt(value);
+        return protocolBuilder.append(new SpdzKnownSIntProtocol(value, spdzFactory.getSInt()));
       }
 
       @Override

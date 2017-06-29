@@ -121,38 +121,11 @@ public class NumericProtocolBuilder extends AbstractProtocolBuilder {
     return bnf.getSInt();
   }
 
-  public SInt known(BigInteger value) {
-    SInt sValue = bnf.getSInt();
-    Computation loader = bnf.getSInt(value, sValue);
-    append(loader);
-    return sValue;
-  }
-
-  public SInt[] known(BigInteger[] values) {
-    SInt[] sValues = new SInt[values.length];
-    beginParScope();
-    for (int i = 0; i < sValues.length; i++) {
-      sValues[i] = known(values[i]);
-    }
-    endCurScope();
-    return sValues;
-  }
-
   public SInt known(int value) {
     SInt sValue = bnf.getSInt();
     Computation loader = bnf.getSInt(value, sValue);
     append(loader);
     return sValue;
-  }
-
-  public SInt[] known(int[] values) {
-    SInt[] sValues = new SInt[values.length];
-    beginParScope();
-    for (int v : values) {
-      known(v);
-    }
-    endCurScope();
-    return sValues;
   }
 
   /**
