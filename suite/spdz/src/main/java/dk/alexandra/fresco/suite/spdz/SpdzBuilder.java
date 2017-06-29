@@ -9,12 +9,15 @@ import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzAddProtocol4;
+import dk.alexandra.fresco.suite.spdz.gates.SpdzAddProtocolKnownLeft;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzInputProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzKnownSIntProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzMultProtocol4;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzOutputToAllProtocol4;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzRandomProtocol4;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzSubtractProtocol4;
+import dk.alexandra.fresco.suite.spdz.gates.SpdzSubtractProtocolKnownLeft;
+import dk.alexandra.fresco.suite.spdz.gates.SpdzSubtractProtocolKnownRight;
 import dk.alexandra.fresco.suite.spdz.utils.SpdzFactory;
 import java.math.BigInteger;
 import java.util.Objects;
@@ -50,7 +53,9 @@ class SpdzBuilder implements BuilderFactoryNumeric {
 
       @Override
       public Computation<SInt> add(BigInteger a, Computation<SInt> b) {
-        return add(wrapBigInteger(a), b);
+        SpdzAddProtocolKnownLeft spdzAddProtocolKnownLeft = new SpdzAddProtocolKnownLeft(a, b);
+        protocolBuilder.append(spdzAddProtocolKnownLeft);
+        return spdzAddProtocolKnownLeft;
       }
 
 
@@ -63,16 +68,18 @@ class SpdzBuilder implements BuilderFactoryNumeric {
 
       @Override
       public Computation<SInt> sub(BigInteger a, Computation<SInt> b) {
-        return sub(wrapBigInteger(a), b);
+        SpdzSubtractProtocolKnownLeft spdzSubtractProtocolKnownLeft =
+            new SpdzSubtractProtocolKnownLeft(a, b);
+        protocolBuilder.append(spdzSubtractProtocolKnownLeft);
+        return spdzSubtractProtocolKnownLeft;
       }
 
       @Override
       public Computation<SInt> sub(Computation<SInt> a, BigInteger b) {
-        return sub(a, wrapBigInteger(b));
-      }
-
-      private Computation<SInt> wrapBigInteger(BigInteger knownInteger) {
-        return known(Objects.requireNonNull(knownInteger));
+        SpdzSubtractProtocolKnownRight spdzSubtractProtocolKnownRight =
+            new SpdzSubtractProtocolKnownRight(a, b);
+        protocolBuilder.append(spdzSubtractProtocolKnownRight);
+        return spdzSubtractProtocolKnownRight;
       }
 
       @Override
@@ -85,7 +92,10 @@ class SpdzBuilder implements BuilderFactoryNumeric {
       @Override
       public Computation<SInt> mult(BigInteger a, Computation<SInt> b) {
         BigInteger notNullA = Objects.requireNonNull(a);
-        return () -> new SpdzSInt(((SpdzSInt) b.out()).value.multiply(notNullA));
+        return () -> {
+          SpdzSInt left = (SpdzSInt) b.out();
+          return new SpdzSInt(left.value.multiply(notNullA));
+        };
       }
 
       @Override
@@ -100,6 +110,7 @@ class SpdzBuilder implements BuilderFactoryNumeric {
 
       @Override
       public Computation<SInt> known(BigInteger value) {
+//        return spdzFactory.getSInt(value);
         return protocolBuilder.append(new SpdzKnownSIntProtocol(value, spdzFactory.getSInt()));
       }
 

@@ -70,15 +70,23 @@ public class SpdzKnownSIntProtocol extends SpdzNativeProtocol<SInt> {
       SpdzResourcePool spdzResourcePool,
       SCENetwork network) {
     BigInteger modulus = spdzResourcePool.getModulus();
-    value = value.mod(modulus);
+    sValue.value = createKnownSpdzElement(spdzResourcePool, value);
+    return EvaluationStatus.IS_DONE;
+  }
+
+  public static SpdzElement createKnownSpdzElement(
+      SpdzResourcePool spdzResourcePool,
+      BigInteger input) {
+    BigInteger value = input.mod(spdzResourcePool.getModulus());
     SpdzElement elm;
     BigInteger globalKeyShare = spdzResourcePool.getStore().getSSK();
     if (spdzResourcePool.getMyId() == 1) {
-      elm = new SpdzElement(value, value.multiply(globalKeyShare).mod(modulus));
+      elm = new SpdzElement(value,
+          value.multiply(globalKeyShare).mod(spdzResourcePool.getModulus()));
     } else {
-      elm = new SpdzElement(BigInteger.ZERO, value.multiply(globalKeyShare).mod(modulus));
+      elm = new SpdzElement(BigInteger.ZERO,
+          value.multiply(globalKeyShare).mod(spdzResourcePool.getModulus()));
     }
-    sValue.value = elm;
-    return EvaluationStatus.IS_DONE;
+    return elm;
   }
 }

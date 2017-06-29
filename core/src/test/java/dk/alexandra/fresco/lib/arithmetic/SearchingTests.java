@@ -78,8 +78,8 @@ public class SearchingTests {
               for (int i = 0; i < PAIRS; i++) {
                 keys[i] = i;
                 values[i] = rand.nextInt(MAXVALUE);
-                sKeys.set(i, bnf.getSInt(i));
-                sValues.set(i, bnf.getSInt(values[i]));
+                sKeys.add(bnf.getSInt(i));
+                sValues.add(bnf.getSInt(values[i]));
               }
               return seq;
             }

@@ -135,15 +135,15 @@ public class SpdzElement implements Serializable{
     return new SpdzElement(rShare, rMac);
 	}
 
-  public SpdzElement multiply(BigInteger c){
-		BigInteger rShare = this.share.multiply(c).mod(mod);
+  public SpdzElement multiply(BigInteger c) {
+    BigInteger rShare = this.share.multiply(c).mod(mod);
     BigInteger rMac = this.mac.multiply(c).mod(mod);
     return new SpdzElement(rShare, rMac);
   }
 
 
   //Utility methods
-	@Override
+  @Override
 	public String toString(){
 		return "spdz("+share+", "+mac+")";
 	}
