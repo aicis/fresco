@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
+ * Copyright (c) 2015 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
  *
@@ -24,64 +24,47 @@
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
  *******************************************************************************/
-package dk.alexandra.fresco.lib.math.integer.binary;
+package dk.alexandra.fresco.lib.lp;
 
+import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.value.SInt;
+import java.util.ArrayList;
 
-/**
- * This factory creates protocols for performing binary right shifts on a secret
- * shared integer.
- * 
- * @author Jonas Lindstrøm (jonas.lindstrom@alexandra.dk)
- *
- */
-public interface RightShiftFactory {
+public class LPTableau4 {
 
-	/**
-	 * @param input
-	 *            input
-	 * @param result
-	 *            input >> 1
-	 * @return
-	 */
-	public RightShiftProtocol getRightShiftProtocol(SInt input, SInt result);
+  // The constraint matrix
+  private final Matrix4<Computation<SInt>> C;
+  // The rightmost column and bottom row  of the tableau, except for the last entry of both
+  private final ArrayList<Computation<SInt>> B;
+  private final ArrayList<Computation<SInt>> F;
+  // The the bottom right hand corner entry of the tableau
+  private final Computation<SInt> z;
 
-	/**
-	 * @param input
-	 *            input
-	 * @param result
-	 *            input >> 1
-	 * @param remainder
-	 *            the least significant bit of input
-	 * @return
-	 */
-	public RightShiftProtocol getRightShiftProtocol(SInt input, SInt result, SInt remainder);
+  public LPTableau4(Matrix4<Computation<SInt>> C, ArrayList<Computation<SInt>> B,
+      ArrayList<Computation<SInt>> F, Computation<SInt> z) {
+    if (C.getWidth() == F.size() && C.getHeight() == B.size()) {
+      this.C = C;
+      this.B = B;
+      this.F = F;
+      this.z = z;
+    } else {
+      throw new RuntimeException("Dimenssions of tableau does not match");
+    }
+  }
 
-	/**
-	 * @param input
-	 *            input
-	 * @param shifts
-	 *            Number of shifts
-	 * @param result
-	 *            input >> shifts
-	 * @return
-	 */
-	public RepeatedRightShiftProtocol getRepeatedRightShiftProtocol(SInt input, int shifts,
-			SInt result);
+  public Matrix4<Computation<SInt>> getC() {
+    return C;
+  }
 
-	/**
-	 * @param input
-	 *            input
-	 * @param shifts
-	 *            Number of shifts
-	 * @param result
-	 *            input >> shifts
-	 * @param remainder
-	 *            The <code>shifts</code> least significant bits of the input
-	 *            with the least significant having index 0.
-	 * @return
-	 */
-	public RepeatedRightShiftProtocol getRepeatedRightShiftProtocol(SInt input, int shifts,
-			SInt result, SInt[] remainders);
+  public ArrayList<Computation<SInt>> getB() {
+    return B;
+  }
 
+  public ArrayList<Computation<SInt>> getF() {
+    return F;
+  }
+
+  public Computation<SInt> getZ() {
+    return z;
+  }
 }

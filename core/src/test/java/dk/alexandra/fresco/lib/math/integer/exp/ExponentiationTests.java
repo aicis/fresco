@@ -27,25 +27,18 @@
 package dk.alexandra.fresco.lib.math.integer.exp;
 
 import dk.alexandra.fresco.framework.BuilderFactory;
+import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.TestApplication;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
+import dk.alexandra.fresco.framework.builder.NumericBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.compare.RandomAdditiveMaskFactory;
-import dk.alexandra.fresco.lib.compare.RandomAdditiveMaskFactoryImpl;
-import dk.alexandra.fresco.lib.conversion.IntegerToBitsFactory;
-import dk.alexandra.fresco.lib.conversion.IntegerToBitsFactoryImpl;
-import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
-import dk.alexandra.fresco.lib.helper.builder.NumericIOBuilder;
-import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
-import dk.alexandra.fresco.lib.math.integer.binary.RightShiftFactory;
-import dk.alexandra.fresco.lib.math.integer.binary.RightShiftFactoryImpl;
-import dk.alexandra.fresco.lib.math.integer.linalg.EntrywiseProductFactoryImpl;
-import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductFactoryImpl;
 import java.math.BigInteger;
+import java.util.List;
 import org.junit.Assert;
 
 public class ExponentiationTests {
@@ -66,42 +59,25 @@ public class ExponentiationTests {
         public void test() throws Exception {
           TestApplication app = new TestApplication() {
 
+            @Override
+            public ProtocolProducer prepareApplication(BuilderFactory factoryProducer) {
+              return null;
+            }
 
             @Override
-            public ProtocolProducer prepareApplication(
-                BuilderFactory provider) {
+            public Computation<List<BigInteger>> prepareApplication(
+                ProtocolBuilderNumeric producer) {
+              NumericBuilder numeric = producer.numeric();
+              Computation<SInt> base = numeric.known(input);
+              Computation<SInt> exponent = numeric.known(BigInteger.valueOf(exp));
 
-              BasicNumericFactory basicNumericFactory = (BasicNumericFactory) provider
-                  .getProtocolFactory();
-              RandomAdditiveMaskFactory randomAdditiveMaskFactory = new RandomAdditiveMaskFactoryImpl(
-                  basicNumericFactory,
-                  new InnerProductFactoryImpl(basicNumericFactory,
-                      new EntrywiseProductFactoryImpl(basicNumericFactory)));
-              RightShiftFactory rightShiftFactory = new RightShiftFactoryImpl(basicNumericFactory,
-                  randomAdditiveMaskFactory);
-              IntegerToBitsFactory integerToBitsFactory = new IntegerToBitsFactoryImpl(
-                  basicNumericFactory, rightShiftFactory);
-              ExponentiationFactory exponentiationFactory = new ExponentiationFactoryImpl(
-                  basicNumericFactory, integerToBitsFactory);
+              Computation<SInt> result = producer.createAdvancedNumericBuilder().exp(
+                  base, exponent, 5
+              );
 
-              SInt result = basicNumericFactory.getSInt();
+              outputs.add(numeric.open(result));
 
-              NumericIOBuilder ioBuilder = new NumericIOBuilder(basicNumericFactory);
-              SequentialProtocolProducer sequentialProtocolProducer = new SequentialProtocolProducer();
-
-              SInt input1 = ioBuilder.input(input, 1);
-              SInt input2 = ioBuilder.input(exp, 2);
-              sequentialProtocolProducer.append(ioBuilder.getProtocol());
-
-              ExponentiationProtocol exponentiationProtocol = exponentiationFactory
-                  .getExponentiationCircuit(input1, input2, 5, result);
-              sequentialProtocolProducer.append(exponentiationProtocol);
-
-              outputs.add(ioBuilder.output(result));
-
-              sequentialProtocolProducer.append(ioBuilder.getProtocol());
-
-              return sequentialProtocolProducer;
+              return outputToBigInteger();
             }
           };
           secureComputationEngine

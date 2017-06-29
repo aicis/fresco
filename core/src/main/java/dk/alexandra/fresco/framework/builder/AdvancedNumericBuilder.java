@@ -110,6 +110,8 @@ public interface AdvancedNumericBuilder {
 
   Computation<SInt> bitLength(Computation<SInt> input, int maxBitLength);
 
+  Computation<SInt> invert(Computation<SInt> x);
+
   /**
    * result input >> 1
    * remainder the least significant bit of input

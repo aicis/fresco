@@ -49,8 +49,14 @@ public class SumSIntList implements ComputationBuilder<SInt> {
           }
           return () -> out;
         })
-    ).seq((currentInput, builder) ->
-        currentInput.get(0)
-    );
+    ).seq((currentInput, builder) -> {
+      SumSIntList sumSIntList = this;
+      Computation<SInt> sIntComputation = currentInput.get(0);
+      return () -> {
+        SInt out = sIntComputation.out();
+//        System.out.println(out);
+        return out;
+      };
+    });
   }
 }

@@ -89,8 +89,8 @@ public class LogTests {
             int actual = results.get(i).out().intValue();
             int expected = (int) Math.log(x[i].doubleValue());
             int difference = Math.abs(actual - expected);
-						Assert.assertTrue(difference <= 1); // Difference should be less than a bit
-					}					
+            Assert.assertTrue(difference <= 1); // Difference should be less than a bit
+          }
 				}
 			};
 		}

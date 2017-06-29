@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -24,27 +24,34 @@
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
  *******************************************************************************/
-package dk.alexandra.fresco.lib.math.integer.binary;
+package dk.alexandra.fresco.lib.math.integer.inv;
 
-import dk.alexandra.fresco.framework.ProtocolProducer;
+import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.builder.ComputationBuilder;
+import dk.alexandra.fresco.framework.builder.NumericBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialProtocolBuilder;
 import dk.alexandra.fresco.framework.value.SInt;
+import java.math.BigInteger;
 
-public interface BitLengthFactory {
+public class InversionProtocol4 implements ComputationBuilder<SInt> {
 
-	/**
-	 * Find the bit length of a given integer, ie. the number of bits needed to
-	 * represent the number.
-	 * 
-	 * @param input
-	 *            An integer.
-	 * @param output
-	 *            The number of bits needed to represent the input.
-	 * @param maxInputLength
-	 *            An upper bound for the output. The protocol will only consider
-	 *            the bits below this bound.
-	 * 
-	 * @return
-	 */
-	public ProtocolProducer getBitLengthProtocol(SInt input, SInt output, int maxInputLength);
+  private final Computation<SInt> x;
+
+  public InversionProtocol4(Computation<SInt> x) {
+    this.x = x;
+  }
+
+  @Override
+  public Computation<SInt> build(SequentialProtocolBuilder builder) {
+    NumericBuilder numeric = builder.numeric();
+    Computation<SInt> random = numeric.randomElement();
+    Computation<SInt> sProduct = numeric.mult(x, random);
+    Computation<BigInteger> open = numeric.open(sProduct);
+    return builder.createSequentialSub((seq) -> {
+      BigInteger value = open.out();
+      BigInteger inverse = value.modInverse(seq.getBasicNumericFactory().getModulus());
+      return seq.numeric().mult(inverse, random);
+    });
+  }
 
 }

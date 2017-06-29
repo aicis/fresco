@@ -27,6 +27,8 @@ public interface NumericBuilder {
    */
   Computation<SInt> randomBit();
 
+  Computation<SInt> randomElement();
+
   Computation<SInt> known(BigInteger value);
 
   Computation<SInt> input(BigInteger value, int inputParty);
