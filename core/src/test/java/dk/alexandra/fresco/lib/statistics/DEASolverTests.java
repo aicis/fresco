@@ -26,20 +26,25 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.statistics;
 
+import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.BuilderFactory;
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.ProtocolProducer;
-import dk.alexandra.fresco.framework.TestApplication;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderHelper;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialProtocolBuilder;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
+import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.helper.AlgebraUtil;
 import dk.alexandra.fresco.lib.helper.builder.NumericIOBuilder;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
+import dk.alexandra.fresco.lib.statistics.DEASolver4.AnalysisType;
+import dk.alexandra.fresco.lib.statistics.DEASolver4.DEAResult;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
@@ -58,17 +63,18 @@ public class DEASolverTests {
 
   private static final int BENCHMARKING_BIG_M = 1000000;
 
-  public static class TestDEASolver extends TestThreadFactory {
+  public static class TestDEASolver<ResourcePoolT extends ResourcePool> extends
+      TestThreadFactory<ResourcePoolT, SequentialProtocolBuilder> {
 
     private int inputVariables;
     private int outputVariables;
     private int datasetRows;
     private int targetQueries;
-    private DEASolver.AnalysisType type;
+    private AnalysisType type;
     private BasicNumericFactory bnFactory;
 
     public TestDEASolver(int inputVariables, int outputVariables, int rows, int queries,
-        DEASolver.AnalysisType type) {
+        AnalysisType type) {
       this.inputVariables = inputVariables;
       this.outputVariables = outputVariables;
       this.datasetRows = rows;
@@ -77,18 +83,34 @@ public class DEASolverTests {
     }
 
     @Override
-    public TestThread next(TestThreadConfiguration conf) {
-      return new TestThread() {
+    public TestThread next(TestThreadConfiguration<ResourcePoolT, SequentialProtocolBuilder> conf) {
+      return new TestThread<ResourcePoolT, SequentialProtocolBuilder>() {
+
+        private BigInteger[][] rawTargetOutputs;
+        private BigInteger[][] rawTargetInputs;
+        private BigInteger[][] rawBasisOutputs;
+        private BigInteger[][] rawBasisInputs;
+        private List<List<SInt>> setOutput;
+        private List<List<SInt>> setInput;
+        private List<List<SInt>> outputValues;
+        private List<List<SInt>> inputValues;
+
         @Override
         public void test() throws Exception {
+          long startTime = System.nanoTime();
 
           List<Computation<BigInteger>> outs = new ArrayList<>(targetQueries);
           List<List<Computation<BigInteger>>> basis = new ArrayList<>(targetQueries);
           double[] plainResult = new double[targetQueries];
-          TestApplication app = new TestApplication() {
-
+          Application<Void, SequentialProtocolBuilder> app = new Application<Void, SequentialProtocolBuilder>() {
 
             @Override
+            public Computation<Void> prepareApplication(SequentialProtocolBuilder producer) {
+              producer
+                  .append(prepareApplication(ProtocolBuilderHelper.getFactoryNumeric(producer)));
+              return () -> null;
+            }
+
             public ProtocolProducer prepareApplication(
                 BuilderFactory factoryProducer) {
               ProtocolFactory provider = factoryProducer.getProtocolFactory();
@@ -98,17 +120,17 @@ public class DEASolverTests {
 
               SequentialProtocolProducer sseq = new SequentialProtocolProducer();
 
-              BigInteger[][] rawBasisInputs = new BigInteger[datasetRows][inputVariables];
+              rawBasisInputs = new BigInteger[datasetRows][inputVariables];
               AlgebraUtil.randomFill(rawBasisInputs, 9, rand);
-              BigInteger[][] rawBasisOutputs = new BigInteger[datasetRows][outputVariables];
+              rawBasisOutputs = new BigInteger[datasetRows][outputVariables];
               AlgebraUtil.randomFill(rawBasisOutputs, 9, rand);
 
               SInt[][] basisInputs = ioBuilder.inputMatrix(rawBasisInputs, 1);
               SInt[][] basisOutputs = ioBuilder.inputMatrix(rawBasisOutputs, 1);
 
-              BigInteger[][] rawTargetInputs = new BigInteger[targetQueries][inputVariables];
+              rawTargetInputs = new BigInteger[targetQueries][inputVariables];
               AlgebraUtil.randomFill(rawTargetInputs, 9, rand);
-              BigInteger[][] rawTargetOutputs = new BigInteger[targetQueries][outputVariables];
+              rawTargetOutputs = new BigInteger[targetQueries][outputVariables];
               AlgebraUtil.randomFill(rawTargetOutputs, 9, rand);
 
               SInt[][] targetInputs = ioBuilder.inputMatrix(rawTargetInputs, 2);
@@ -116,19 +138,43 @@ public class DEASolverTests {
 
               sseq.append(ioBuilder.getProtocol());
 
-              DEASolver solver = new DEASolver(type, AlgebraUtil.arrayToList(targetInputs),
-                  AlgebraUtil.arrayToList(targetOutputs),
-                  AlgebraUtil.arrayToList(basisInputs),
-                  AlgebraUtil.arrayToList(basisOutputs));
+              inputValues = AlgebraUtil.arrayToList(targetInputs);
+              outputValues = AlgebraUtil.arrayToList(targetOutputs);
+              setInput = AlgebraUtil.arrayToList(basisInputs);
+              setOutput = AlgebraUtil.arrayToList(basisOutputs);
+              return sseq;
+            }
+          };
+          ResourcePoolT resourcePool = SecureComputationEngineImpl.createResourcePool(conf.sceConf,
+              conf.sceConf.getSuite());
+          secureComputationEngine.runApplication(app, resourcePool);
 
-              sseq.append(solver.prepareApplication(factoryProducer));
-              for (int i = 0; i < targetQueries; i++) {
-                outs.add(ioBuilder.output(solver.getResult()[i]));
-              }
+          DEASolver4 solver = new DEASolver4(type, inputValues,
+              outputValues,
+              setInput,
+              setOutput);
 
-              for (int i = 0; i < targetQueries; i++) {
-                SInt[] bs = solver.getBasis()[i];
-                basis.add(ioBuilder.outputArray(bs));
+          List<DEAResult> deaResults = secureComputationEngine.runApplication(solver, resourcePool);
+
+          Application<Void, SequentialProtocolBuilder> app2 = new Application<Void, SequentialProtocolBuilder>() {
+
+            @Override
+            public Computation<Void> prepareApplication(SequentialProtocolBuilder producer) {
+              producer
+                  .append(prepareApplication(ProtocolBuilderHelper.getFactoryNumeric(producer)));
+              return () -> null;
+            }
+
+            public ProtocolProducer prepareApplication(
+                BuilderFactory factoryProducer) {
+              ProtocolFactory provider = factoryProducer.getProtocolFactory();
+              bnFactory = (BasicNumericFactory) provider;
+              NumericIOBuilder ioBuilder = new NumericIOBuilder(bnFactory);
+              SequentialProtocolProducer sseq = new SequentialProtocolProducer();
+
+              for (DEAResult deaResult : deaResults) {
+                outs.add(ioBuilder.output(deaResult.optimal));
+                basis.add(ioBuilder.outputArray(deaResult.basis.toArray(new SInt[0])));
               }
 
               sseq.append(ioBuilder.getProtocol());
@@ -142,10 +188,8 @@ public class DEASolverTests {
               return sseq;
             }
           };
-          long startTime = System.nanoTime();
-          secureComputationEngine
-              .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf,
-                  conf.sceConf.getSuite()));
+          secureComputationEngine.runApplication(app2, resourcePool);
+
           long endTime = System.nanoTime();
           System.out.println("============ Seq Time: "
               + ((endTime - startTime) / 1000000));
@@ -178,11 +222,11 @@ public class DEASolverTests {
   /**
    * Reduces a field-element to a double using Gauss reduction.
    */
-  private static double postProcess(BigInteger input, DEASolver.AnalysisType type,
+  private static double postProcess(BigInteger input, AnalysisType type,
       BigInteger modulus) {
     BigInteger[] gauss = gauss(input, modulus);
     double res = (gauss[0].doubleValue() / gauss[1].doubleValue());
-    if (type == DEASolver.AnalysisType.OUTPUT_EFFICIENCY) {
+    if (type == DEASolver4.AnalysisType.OUTPUT_EFFICIENCY) {
       res -= BENCHMARKING_BIG_M;
     } else {
       res *= -1;

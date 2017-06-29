@@ -35,22 +35,22 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
+import dk.alexandra.fresco.framework.builder.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialProtocolBuilder;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.compare.ComparisonProtocolFactory;
-import dk.alexandra.fresco.lib.compare.ComparisonProtocolFactoryImpl;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.helper.CopyProtocolImpl;
 import dk.alexandra.fresco.lib.helper.builder.NumericIOBuilder;
 import dk.alexandra.fresco.lib.helper.builder.NumericProtocolBuilder;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
-import dk.alexandra.fresco.lib.math.integer.exp.ExpFromOIntFactory;
-import dk.alexandra.fresco.lib.math.integer.exp.PreprocessedExpPipeFactory;
-import dk.alexandra.fresco.lib.math.integer.min.MinInfFracProtocol;
+import dk.alexandra.fresco.lib.math.integer.min.MinInfFracProtocol4;
 import java.math.BigInteger;
 import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.junit.Assert;
 
 
@@ -533,14 +533,7 @@ public class BasicArithmeticTests {
             @Override
             public ProtocolProducer prepareApplication(
                 BuilderFactory factoryProducer) {
-              ProtocolFactory producer = factoryProducer.getProtocolFactory();
-              BasicNumericFactory fac = (BasicNumericFactory) producer;
-              ComparisonProtocolFactory comp = new ComparisonProtocolFactoryImpl(80, fac,
-                  (ExpFromOIntFactory) producer, (PreprocessedExpPipeFactory) producer,
-                  (BuilderFactoryNumeric) factoryProducer);
-              NumericIOBuilder ioBuilder = new NumericIOBuilder(fac);
-              NumericProtocolBuilder builder = new NumericProtocolBuilder(fac);
-              BigInteger[] bns = new BigInteger[]{
+              List<BigInteger> bns = Arrays.asList(
                   BigInteger.valueOf(10),
                   BigInteger.valueOf(2),
                   BigInteger.valueOf(30),
@@ -550,9 +543,9 @@ public class BasicArithmeticTests {
                   BigInteger.valueOf(20),
                   BigInteger.valueOf(30),
                   BigInteger.valueOf(5),
-                  BigInteger.valueOf(1),
-              };
-              BigInteger[] bds = new BigInteger[]{
+                  BigInteger.valueOf(1)
+              );
+              List<BigInteger> bds = Arrays.asList(
                   BigInteger.valueOf(10),
                   BigInteger.valueOf(10),
                   BigInteger.valueOf(10),
@@ -562,9 +555,9 @@ public class BasicArithmeticTests {
                   BigInteger.valueOf(20),
                   BigInteger.valueOf(30),
                   BigInteger.valueOf(500),
-                  BigInteger.valueOf(50),
-              };
-              BigInteger[] binfs = new BigInteger[]{
+                  BigInteger.valueOf(50)
+              );
+              List<BigInteger> binfs = Arrays.asList(
                   BigInteger.valueOf(0),
                   BigInteger.valueOf(0),
                   BigInteger.valueOf(0),
@@ -574,40 +567,42 @@ public class BasicArithmeticTests {
                   BigInteger.valueOf(0),
                   BigInteger.valueOf(0),
                   BigInteger.valueOf(1),
-                  BigInteger.valueOf(1),
-              };
-              SInt[] ns = ioBuilder.inputArray(bns, 1);
-              SInt[] ds = ioBuilder.inputArray(bds, 1);
-              SInt[] infs = ioBuilder.inputArray(binfs, 1);
-              SInt[] cs = builder.getSIntArray(ns.length);
-              SInt nm = builder.getSInt();
-              SInt dm = builder.getSInt();
-              SInt infm = builder.getSInt();
-              ioBuilder.addProtocolProducer(builder.getProtocol());
-              ProtocolProducer pp = new MinInfFracProtocol(ns, ds, infs, nm, dm, infm, cs, fac,
-                  comp);
-              ioBuilder.addProtocolProducer(pp);
-              SInt[] closedOutputs = new SInt[cs.length + 3];
-              closedOutputs[0] = nm;
-              closedOutputs[1] = dm;
-              closedOutputs[2] = infm;
-              System.arraycopy(cs, 0, closedOutputs, 3, cs.length + 3 - 3);
-              //outputs = ioBuilder.outputArray(new SInt[] {nm, dm, infm});
-              outputs = ioBuilder.outputArray(closedOutputs);
-              return ioBuilder.getProtocol();
+                  BigInteger.valueOf(1)
+              );
+              SequentialProtocolBuilder seq = ProtocolBuilderNumeric
+                  .createApplicationRoot((BuilderFactoryNumeric) factoryProducer);
+              NumericBuilder numeric = seq.numeric();
+              List<Computation<SInt>> ns = bns.stream().map(numeric::known)
+                  .collect(Collectors.toList());
+              List<Computation<SInt>> ds = bds.stream().map(numeric::known)
+                  .collect(Collectors.toList());
+              List<Computation<SInt>> infs = binfs.stream().map(numeric::known)
+                  .collect(Collectors.toList());
+
+              seq.seq(
+                  new MinInfFracProtocol4(
+                      ns, ds, infs
+                  )
+              ).seq((cs, seq2) -> {
+                NumericBuilder innerNumeric = seq2.numeric();
+                List<Computation<BigInteger>> collect = cs.stream().map(innerNumeric::open)
+                    .collect(Collectors.toList());
+                return () -> collect;
+              }).seq((outputList, ignored) -> {
+                outputs = outputList;
+                return () -> null;
+              });
+              return seq.build();
             }
           };
           secureComputationEngine
               .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf,
                   conf.sceConf.getSuite()));
           BigInteger[] outputs = app.getOutputs();
-          Assert.assertEquals(BigInteger.valueOf(2), outputs[0]);
-          Assert.assertEquals(BigInteger.valueOf(10), outputs[1]);
-          Assert.assertEquals(BigInteger.ZERO, outputs[2]);
           int sum = 0;
-          for (int i = 3; i < outputs.length; i++) {
+          for (int i = 0; i < outputs.length; i++) {
             sum += outputs[i].intValue();
-            if (i == 4) {
+            if (i == 1) {
               Assert.assertEquals(BigInteger.ONE, outputs[i]);
             } else {
               Assert.assertEquals(BigInteger.ZERO, outputs[i]);

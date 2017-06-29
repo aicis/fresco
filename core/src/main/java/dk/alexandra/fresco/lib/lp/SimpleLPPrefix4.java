@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -23,11 +23,36 @@
  *
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
- *******************************************************************************/
-package dk.alexandra.fresco.lib.math.integer.min;
+ */
+package dk.alexandra.fresco.lib.lp;
 
-import dk.alexandra.fresco.framework.ProtocolProducer;
+import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.value.SInt;
 
-public interface MinimumFractionProtocol extends ProtocolProducer {
+public class SimpleLPPrefix4 {
+
+  private final Matrix4<Computation<SInt>> updateMatrix;
+  private final LPTableau4 tableau;
+  private final Computation<SInt> pivot;
+
+  public SimpleLPPrefix4(Matrix4<Computation<SInt>> updateMatrix, LPTableau4 tableau,
+      Computation<SInt> pivot) {
+    this.updateMatrix = updateMatrix;
+    this.tableau = tableau;
+    this.pivot = pivot;
+  }
+
+
+  public LPTableau4 getTableau() {
+    return tableau;
+  }
+
+  public Matrix4<Computation<SInt>> getUpdateMatrix() {
+    return updateMatrix;
+  }
+
+  public Computation<SInt> getPivot() {
+    return pivot;
+  }
 
 }

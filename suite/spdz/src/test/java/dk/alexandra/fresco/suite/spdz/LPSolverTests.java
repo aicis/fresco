@@ -41,21 +41,17 @@ import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
-import dk.alexandra.fresco.lib.field.integer.RandomFieldElementFactory;
-import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
-import dk.alexandra.fresco.lib.lp.LPFactory;
-import dk.alexandra.fresco.lib.lp.LPFactoryImpl;
-import dk.alexandra.fresco.lib.lp.LPPrefix;
-import dk.alexandra.fresco.lib.lp.LPSolverProtocol;
-import dk.alexandra.fresco.lib.math.integer.exp.ExpFromOIntFactory;
-import dk.alexandra.fresco.lib.math.integer.exp.PreprocessedExpPipeFactory;
-import dk.alexandra.fresco.suite.spdz.utils.LPInputReader;
-import dk.alexandra.fresco.suite.spdz.utils.PlainLPInputReader;
-import dk.alexandra.fresco.suite.spdz.utils.PlainSpdzLPPrefix;
+import dk.alexandra.fresco.lib.lp.LPSolverProtocol4;
+import dk.alexandra.fresco.lib.lp.LPSolverProtocol4.LPOutput;
+import dk.alexandra.fresco.lib.lp.Matrix;
+import dk.alexandra.fresco.lib.lp.Matrix4;
+import dk.alexandra.fresco.lib.lp.OptimalValue4;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Arrays;
 import org.junit.Assert;
 
 class LPSolverTests {
@@ -75,17 +71,11 @@ class LPSolverTests {
                 BuilderFactory factoryProducer) {
               ProtocolFactory producer = factoryProducer.getProtocolFactory();
               BasicNumericFactory bnFactory = (BasicNumericFactory) producer;
-              ExpFromOIntFactory expFromOIntFactory = (ExpFromOIntFactory) producer;
-              PreprocessedExpPipeFactory expFactory = (PreprocessedExpPipeFactory) producer;
-              RandomFieldElementFactory randFactory = (RandomFieldElementFactory) producer;
-              LPFactory lpFactory = new LPFactoryImpl(80, bnFactory,
-                  expFromOIntFactory, expFactory, randFactory,
-                  (BuilderFactoryNumeric) factoryProducer);
               File pattern = new File("src/test/resources/lp/pattern7.csv");
               File program = new File("src/test/resources/lp/program7.csv");
-              LPInputReader inputreader;
+              PlainLPInputReader4 inputreader;
               try {
-                inputreader = PlainLPInputReader
+                inputreader = PlainLPInputReader4
                     .getFileInputReader(program, pattern,
                         conf.getMyId());
               } catch (FileNotFoundException e) {
@@ -94,39 +84,44 @@ class LPSolverTests {
                     "Could not read needed files: "
                         + e.getMessage(), e);
               }
-              SequentialProtocolProducer sseq = new SequentialProtocolProducer();
-              for (int i = 0; i < 1; i++) {
-                LPPrefix prefix;
-                try {
-                  prefix = new PlainSpdzLPPrefix(inputreader,
-                      bnFactory);
-                } catch (IOException e) {
-                  e.printStackTrace();
-                  throw new MPCException("IOException: "
-                      + e.getMessage(), e);
-                }
-                ProtocolProducer lpsolver = new LPSolverProtocol(
-                    prefix.getTableau(),
-                    prefix.getUpdateMatrix(),
-                    prefix.getPivot(),
-                    prefix.getBasis(), lpFactory, bnFactory);
-                SInt sout = bnFactory.getSInt();
-                ProtocolProducer outputter = lpFactory
-                    .getOptimalValueProtocol(
-                        prefix.getUpdateMatrix(),
-                        prefix.getTableau().getB(),
-                        prefix.getPivot(), sout);
-                SequentialProtocolProducer seq = new SequentialProtocolProducer(
-                    prefix.getPrefix(),
-                    lpsolver,
-                    outputter);
-                Computation<BigInteger> openProtocol = bnFactory
-                    .getOpenProtocol(sout);
-                seq.append(openProtocol);
-                sseq.append(seq);
-                this.outputs.add(openProtocol);
-              }
-              return sseq;
+              return ProtocolBuilderNumeric
+                  .createApplicationRoot((BuilderFactoryNumeric) factoryProducer, (builder) -> {
+                    Computation<PlainSpdzLPPrefix4> prefixComp = builder.par(par -> {
+                      PlainSpdzLPPrefix4 prefix;
+                      try {
+                        prefix = new PlainSpdzLPPrefix4(inputreader, par);
+                      } catch (IOException e) {
+                        e.printStackTrace();
+                        throw new MPCException("IOException: "
+                            + e.getMessage(), e);
+                      }
+                      return () -> prefix;
+                    });
+                    builder.createSequentialSub((seq) -> {
+                      PlainSpdzLPPrefix4 prefix = prefixComp.out();
+                      Computation<LPOutput> lpOutput = seq.createSequentialSub(
+                          new LPSolverProtocol4(
+                              prefix.getTableau(),
+                              prefix.getUpdateMatrix(),
+                              prefix.getPivot()
+                          ));
+
+                      Computation<SInt> optimalValue = seq.createSequentialSub((inner) -> {
+                            LPOutput out = lpOutput.out();
+                            return new OptimalValue4(out.updateMatrix, out.tableau, out.pivot)
+                                .build(inner);
+                          }
+                      );
+                      Computation<BigInteger> open = seq.numeric().open(optimalValue);
+                      this.outputs.add(open);
+                      return () -> null;
+                    });
+                  }).build();
+            }
+
+            Matrix4<Computation<SInt>> toMatrix4(Matrix<SInt> updateMatrix) {
+              return new Matrix4<>(updateMatrix.getHeight(), updateMatrix.getWidth(),
+                  i -> new ArrayList<>(Arrays.asList(updateMatrix.getIthRow(i))));
             }
           };
           long startTime = System.nanoTime();

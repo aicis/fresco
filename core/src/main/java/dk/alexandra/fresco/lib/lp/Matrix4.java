@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -23,23 +23,56 @@
  *
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
- *******************************************************************************/
-package dk.alexandra.fresco.lib.math.integer.exp;
+ */
+package dk.alexandra.fresco.lib.lp;
 
-import dk.alexandra.fresco.framework.value.SInt;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.IntFunction;
+import java.util.stream.Collectors;
 
-public interface ExponentiationPipeFactory {
+public class Matrix4<T> {
 
-	/**
-	 * Creates a pipe containing R^-1, R, R^2, ..., R^l, where
-	 * l=outputs.length-1. This is used primarily as part of the comparison
-	 * protocols.
-	 * 
-	 * @param R
-	 *            the base of the exponentiation
-	 * @param outputs
-	 * @return
-	 */
-	public ExponentiationPipeProtocol getExponentiationProtocol(SInt R,
-			SInt[] outputs);
+  private final int width;
+  private final int height;
+  private final ArrayList<ArrayList<T>> matrix;
+
+  public Matrix4(int height, int width, IntFunction<ArrayList<T>> rowBuilder) {
+    this.width = width;
+    this.matrix = new ArrayList<>(height);
+    this.height = height;
+    for (int i = 0; i < height; i++) {
+      this.matrix.add(rowBuilder.apply(i));
+    }
+  }
+
+  public Matrix4(int height, int width, ArrayList<ArrayList<T>> matrix) {
+    this.width = width;
+    this.height = height;
+    this.matrix = matrix;
+  }
+
+
+  public ArrayList<T> getRow(int i) {
+    return matrix.get(i);
+  }
+
+  /**
+   * @return the width of the matrix
+   */
+  public int getWidth() {
+    return width;
+  }
+
+
+  /**
+   * @return the height of the matrix
+   */
+  public int getHeight() {
+    return height;
+  }
+
+  public List<T> getColumn(int i) {
+    return this.matrix.stream().map(row -> row.get(i)).collect(Collectors.toList());
+  }
 }

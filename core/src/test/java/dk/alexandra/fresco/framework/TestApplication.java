@@ -49,6 +49,10 @@ public abstract class TestApplication implements
   public Computation<List<BigInteger>> prepareApplication(ProtocolBuilderNumeric producer) {
     SequentialProtocolBuilder producer1 = (SequentialProtocolBuilder) producer;
     producer1.append(prepareApplication(ProtocolBuilderHelper.getFactoryNumeric(producer)));
+    return outputToBigInteger();
+  }
+
+  protected Computation<List<BigInteger>> outputToBigInteger() {
     return () -> this.outputs
         .stream()
         .map(Computation::out)

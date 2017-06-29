@@ -23,6 +23,7 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.statistics;
 
+import dk.alexandra.fresco.lib.statistics.DEASolver4.AnalysisType;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -30,7 +31,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-
 import org.apache.commons.math3.optim.PointValuePair;
 import org.apache.commons.math3.optim.linear.LinearConstraint;
 import org.apache.commons.math3.optim.linear.LinearConstraintSet;
@@ -39,8 +39,6 @@ import org.apache.commons.math3.optim.linear.NonNegativeConstraint;
 import org.apache.commons.math3.optim.linear.Relationship;
 import org.apache.commons.math3.optim.linear.SimplexSolver;
 import org.apache.commons.math3.optim.nonlinear.scalar.GoalType;
-
-import dk.alexandra.fresco.lib.statistics.DEASolver.AnalysisType;
 
 /**
  * Solves the DEA problem on a given plaintext dataset.
@@ -69,7 +67,7 @@ public class PlaintextDEASolver {
    * @return the DEA score of the given target.
    */
   public double solve(Map<String, Double> targetInputs, Map<String, Double> targetOutputs,
-      DEASolver.AnalysisType type) {
+      AnalysisType type) {
     int sizePlusTheta = size + 2;
     /*
      * We number the variables as follows:
@@ -97,7 +95,7 @@ public class PlaintextDEASolver {
     LinearObjectiveFunction objectiveFuntion = new LinearObjectiveFunction(objectiveCoeffs, 0);
 
     LinkedList<LinearConstraint> constraints = null;
-    if (type == AnalysisType.OUTPUT_EFFICIENCY) { 
+    if (type == DEASolver4.AnalysisType.OUTPUT_EFFICIENCY) {
       constraints = buildOutputEfficienceConstraints(targetInputs, targetOutputs, sizePlusTheta);
     } else {
       constraints = buildInputEfficienceConstraints(targetInputs, targetOutputs, sizePlusTheta - 1);
@@ -106,7 +104,8 @@ public class PlaintextDEASolver {
     // Solve
     SimplexSolver solver = new SimplexSolver();
     LinearConstraintSet set = new LinearConstraintSet(constraints);
-    GoalType goal = (type == AnalysisType.OUTPUT_EFFICIENCY) ? GoalType.MAXIMIZE : GoalType.MINIMIZE;
+    GoalType goal =
+        (type == DEASolver4.AnalysisType.OUTPUT_EFFICIENCY) ? GoalType.MAXIMIZE : GoalType.MINIMIZE;
     PointValuePair pvp =
         solver.optimize(objectiveFuntion, set, goal, new NonNegativeConstraint(true));
     return pvp.getValue();
