@@ -69,12 +69,11 @@ public class SpdzKnownSIntProtocol extends SpdzNativeProtocol<SInt> {
       int round,
       SpdzResourcePool spdzResourcePool,
       SCENetwork network) {
-    BigInteger modulus = spdzResourcePool.getModulus();
     sValue.value = createKnownSpdzElement(spdzResourcePool, value);
     return EvaluationStatus.IS_DONE;
   }
 
-  public static SpdzElement createKnownSpdzElement(
+  static SpdzElement createKnownSpdzElement(
       SpdzResourcePool spdzResourcePool,
       BigInteger input) {
     BigInteger value = input.mod(spdzResourcePool.getModulus());

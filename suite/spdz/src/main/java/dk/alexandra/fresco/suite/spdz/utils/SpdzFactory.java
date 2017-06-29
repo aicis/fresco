@@ -46,14 +46,12 @@ import dk.alexandra.fresco.suite.spdz.gates.SpdzOutputToAllProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzSubtractProtocol;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
 import java.math.BigInteger;
-import java.security.SecureRandom;
 
 public class SpdzFactory implements BasicNumericFactory,
     PreprocessedExpPipeFactory, ExpFromOIntFactory {
 
   private int maxBitLength;
   private SpdzStorage storage;
-  private SecureRandom rand;
   private int pID;
 
   /**
@@ -63,7 +61,6 @@ public class SpdzFactory implements BasicNumericFactory,
    */
   public SpdzFactory(SpdzStorage storage, int pID, int maxBitLength) {
     this.maxBitLength = maxBitLength;
-    this.rand = new SecureRandom();
     this.storage = storage;
     this.pID = pID;
   }

@@ -110,7 +110,6 @@ class SpdzBuilder implements BuilderFactoryNumeric {
 
       @Override
       public Computation<SInt> known(BigInteger value) {
-//        return spdzFactory.getSInt(value);
         return protocolBuilder.append(new SpdzKnownSIntProtocol(value, spdzFactory.getSInt()));
       }
 
