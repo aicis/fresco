@@ -67,8 +67,6 @@ public interface BasicNumericFactory extends SIntFactory,
 
   Computation<? extends SInt> getSubtractProtocol(BigInteger a, SInt b, SInt out);
 
-  Computation<? extends SInt> getSubtractProtocol(SInt a, BigInteger b, SInt out);
-
   Computation<? extends SInt> getMultProtocol(SInt a, SInt b, SInt out);
 
 

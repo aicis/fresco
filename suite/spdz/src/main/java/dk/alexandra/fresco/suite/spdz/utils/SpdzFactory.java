@@ -180,12 +180,6 @@ public class SpdzFactory implements BasicNumericFactory,
   }
 
   @Override
-  public NativeProtocol<? extends SInt, ?> getSubtractProtocol(SInt a, BigInteger b,
-      SInt out) {
-    return new SpdzSubtractProtocol(a, b, out, this);
-  }
-
-  @Override
   public Computation<? extends SInt> getMultProtocol(SInt a, SInt b, SInt out) {
     return new SpdzMultProtocol(a, b, out);
   }

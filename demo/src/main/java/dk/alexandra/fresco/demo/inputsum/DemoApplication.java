@@ -7,9 +7,6 @@ import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilderHelper;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialProtocolBuilder;
 
-/**
- * Created by pff on 28-06-2017.
- */
 public abstract class DemoApplication<Output> implements
     Application<Output, SequentialProtocolBuilder> {
 
