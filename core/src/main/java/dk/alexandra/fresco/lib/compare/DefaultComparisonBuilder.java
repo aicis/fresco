@@ -9,7 +9,6 @@ import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.compare.eq.EqualityProtocol4;
 import dk.alexandra.fresco.lib.compare.gt.GreaterThanReducerProtocol4;
 import dk.alexandra.fresco.lib.compare.zerotest.ZeroTestProtocol4;
-import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import java.math.BigInteger;
 
 public class DefaultComparisonBuilder implements ComparisonBuilder {
@@ -50,7 +49,6 @@ public class DefaultComparisonBuilder implements ComparisonBuilder {
   }
 
   public Computation<SInt> sign(Computation<SInt> x) {
-    BasicNumericFactory bnf = factoryNumeric.getBasicNumericFactory();
     NumericBuilder input = builder.numeric();
     Computation<SInt> compare =
         compare(input.known(BigInteger.valueOf(0)), x);
