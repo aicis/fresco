@@ -13,7 +13,7 @@ import dk.alexandra.fresco.lib.math.integer.binary.RightShiftProtocol4;
 import dk.alexandra.fresco.lib.math.integer.exp.ExponentiationProtocol4;
 import dk.alexandra.fresco.lib.math.integer.exp.ExponentiationProtocolOpenBase;
 import dk.alexandra.fresco.lib.math.integer.exp.ExponentiationProtocolOpenExponent;
-import dk.alexandra.fresco.lib.math.integer.inv.InversionProtocol4;
+import dk.alexandra.fresco.lib.math.integer.inv.Inversion;
 import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductProtocol44;
 import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductProtocolOpen;
 import dk.alexandra.fresco.lib.math.integer.log.LogarithmProtocol;
@@ -149,6 +149,6 @@ public class DefaultAdvancedNumericBuilder implements
 
   @Override
   public Computation<SInt> invert(Computation<SInt> x) {
-    return builder.createSequentialSub(new InversionProtocol4(x));
+    return builder.createSequentialSub(new Inversion(x));
   }
 }
