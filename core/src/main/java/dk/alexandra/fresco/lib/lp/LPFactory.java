@@ -82,18 +82,5 @@ public interface LPFactory
   EqualityProtocol getEqualityProtocol(int bitLength, int securityParam, SInt x, SInt y,
       SInt result);
 
-  /**
-   * Computes the index of the entering variable.
-   *
-   * @param tableau input - a tableau of dimension (m + 1) x (n + m + 1) i.e. the C matrix is of
-   * dimension m x (n+m)
-   * @param updateMatrix input - an updateMatrix of dimension (m + 1) x (m + 1)
-   * @param enteringIndex output - an index vector indexing the minimum entry in the updated F
-   * vector, corresponding the entering variable
-   * @param minimum output - the minimum entry in the F vector
-   */
-  EnteringVariableProtocol getEnteringVariableProtocol(LPTableau tableau, Matrix<SInt> updateMatrix,
-      SInt[] enteringIndex, SInt minimum);
-
 
 }

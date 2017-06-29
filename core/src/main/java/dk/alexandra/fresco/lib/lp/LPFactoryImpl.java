@@ -155,14 +155,6 @@ public class LPFactoryImpl implements LPFactory {
   }
 
   @Override
-  public EnteringVariableProtocol getEnteringVariableProtocol(
-      LPTableau tableau, Matrix<SInt> updateMatrix, SInt[] enteringIndex,
-      SInt minimum) {
-    return new EnteringVariableProtocol(tableau, updateMatrix,
-        enteringIndex, minimum, this, bnf);
-  }
-
-  @Override
   public InnerProductProtocol getInnerProductProtocol(SInt[] aVector,
       SInt[] bVector, SInt result) {
     return this.innerProductFactory.getInnerProductProtocol(aVector,
