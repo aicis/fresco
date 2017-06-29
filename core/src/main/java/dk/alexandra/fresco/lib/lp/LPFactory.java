@@ -35,7 +35,6 @@ import dk.alexandra.fresco.lib.helper.CopyProtocolFactory;
 import dk.alexandra.fresco.lib.math.integer.inv.InversionProtocolFactory;
 import dk.alexandra.fresco.lib.math.integer.linalg.EntrywiseProductFactory;
 import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductFactory;
-import dk.alexandra.fresco.lib.math.integer.min.MinimumProtocol;
 
 public interface LPFactory
     extends InversionProtocolFactory, MarkerFactory, CopyProtocolFactory<SInt>,
@@ -49,16 +48,6 @@ public interface LPFactory
    */
   ConditionalSelectProtocol getConditionalSelectProtocol(SInt selector, SInt a, SInt b,
       SInt result);
-
-  /**
-   * inputs are the as, m is the base recursion result, and cs are the outputs
-   * of the intermediate recursions.
-   *
-   * @param as input
-   * @param m output
-   * @param cs outputs
-   */
-  MinimumProtocol getMinimumProtocol(SInt[] as, SInt m, SInt[] cs);
 
   /**
    * @param x1 input

@@ -296,7 +296,7 @@ public class LPBuildingBlockTests {
 
     int exitingIdx;
 
-    ProtocolProducer setupRandom(int n, int m, BasicNumericFactory bnf, LPFactory lpf) {
+    ProtocolProducer setupRandom(int n, int m, BasicNumericFactory bnf) {
 //      randomTableau(n, m);
 //      ProtocolProducer input = inputTableau(bnf);
       NumericIOBuilder iob = new NumericIOBuilder(bnf);

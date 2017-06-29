@@ -36,19 +36,14 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialProtocolBuilder;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.collections.LookUpProtocolFactory;
-import dk.alexandra.fresco.lib.collections.LookupProtocolFactoryImpl;
+import dk.alexandra.fresco.lib.collections.LinearLookUp;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
-import dk.alexandra.fresco.lib.field.integer.RandomFieldElementFactory;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
-import dk.alexandra.fresco.lib.lp.LPFactory;
-import dk.alexandra.fresco.lib.lp.LPFactoryImpl;
-import dk.alexandra.fresco.lib.math.integer.exp.ExpFromOIntFactory;
-import dk.alexandra.fresco.lib.math.integer.exp.PreprocessedExpPipeFactory;
-import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.Random;
 import org.junit.Assert;
 
@@ -70,8 +65,8 @@ public class SearchingTests {
           final int NOTFOUND = -1;
           int[] keys = new int[PAIRS];
           int[] values = new int[PAIRS];
-          SInt[] sKeys = new SInt[PAIRS];
-          SInt[] sValues = new SInt[PAIRS];
+          ArrayList<Computation<SInt>> sKeys = new ArrayList<>(PAIRS);
+          ArrayList<Computation<SInt>> sValues = new ArrayList<>(PAIRS);
           TestApplication app = new TestApplication() {
             @Override
             public ProtocolProducer prepareApplication(
@@ -82,11 +77,9 @@ public class SearchingTests {
               Random rand = new Random(0);
               for (int i = 0; i < PAIRS; i++) {
                 keys[i] = i;
-                sKeys[i] = bnf.getSInt();
-                sValues[i] = bnf.getSInt();
-                seq.append(bnf.getSInt(i, sKeys[i]));
                 values[i] = rand.nextInt(MAXVALUE);
-                seq.append(bnf.getSInt(values[i], sValues[i]));
+                sKeys.set(i, bnf.getSInt(i));
+                sValues.set(i, bnf.getSInt(values[i]));
               }
               return seq;
             }
@@ -97,26 +90,16 @@ public class SearchingTests {
             TestApplication app1 = new TestApplication() {
               @Override
               public ProtocolProducer prepareApplication(BuilderFactory factoryProducer) {
-                ProtocolFactory producer = factoryProducer.getProtocolFactory();
-
-                BasicNumericFactory bnf = (BasicNumericFactory) producer;
-                ExpFromOIntFactory expFromOIntFactory = (ExpFromOIntFactory) producer;
-                PreprocessedExpPipeFactory expFactory = (PreprocessedExpPipeFactory) producer;
-                RandomFieldElementFactory randFactory = (RandomFieldElementFactory) producer;
-                LPFactory lpFactory = new LPFactoryImpl(80, bnf,
-                    expFromOIntFactory, expFactory, randFactory,
-                    (BuilderFactoryNumeric) factoryProducer);
-                LookUpProtocolFactory<SInt> lpf = new LookupProtocolFactoryImpl(80, lpFactory, bnf);
-                SInt sOut = bnf.getSInt(NOTFOUND);
-                SequentialProtocolProducer sequentialProtocolProducer = new SequentialProtocolProducer();
-
-                sequentialProtocolProducer.append(lpf
-                    .getLookUpProtocol(sKeys[counter], sKeys, sValues,
-                        sOut));
-                Computation<BigInteger> openProtocol = bnf.getOpenProtocol(sOut);
-                sequentialProtocolProducer.append(openProtocol);
-                this.outputs.add(openProtocol);
-                return sequentialProtocolProducer;
+                LinearLookUp linearLookUp = new LinearLookUp(
+                    sKeys.get(counter), sKeys, sValues, NOTFOUND);
+                SequentialProtocolBuilder applicationRoot = ProtocolBuilderNumeric
+                    .createApplicationRoot((BuilderFactoryNumeric) factoryProducer);
+                applicationRoot.seq(linearLookUp)
+                    .seq((out, seq) -> {
+                      this.outputs.add(seq.numeric().open(out));
+                      return () -> out;
+                    });
+                return applicationRoot.build();
               }
             };
 

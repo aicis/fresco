@@ -58,8 +58,6 @@ import dk.alexandra.fresco.lib.math.integer.linalg.EntrywiseProductProtocolImpl;
 import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductFactory;
 import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductFactoryImpl;
 import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductProtocol;
-import dk.alexandra.fresco.lib.math.integer.min.MinimumProtocol;
-import dk.alexandra.fresco.lib.math.integer.min.MinimumProtocolImpl;
 import java.math.BigInteger;
 
 public class LPFactoryImpl implements LPFactory {
@@ -127,11 +125,6 @@ public class LPFactoryImpl implements LPFactory {
   public ConditionalSelectProtocol getConditionalSelectProtocol(SInt selector,
       SInt a, SInt b, SInt result) {
     return new ConditionalSelectProtocolImpl(selector, a, b, result, factoryProducer);
-  }
-
-  @Override
-  public MinimumProtocol getMinimumProtocol(SInt[] as, SInt m, SInt[] cs) {
-    return new MinimumProtocolImpl(as, m, cs, this, bnf);
   }
 
   @Override
