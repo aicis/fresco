@@ -9,18 +9,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * ComputationBuilder for summing a list of SInts
+ * ComputationBuilder for multiplying a list of SInts
  */
-public class SumSIntList implements ComputationBuilder<SInt> {
+public class ProductSIntList implements ComputationBuilder<SInt> {
 
   private final List<Computation<SInt>> input;
 
   /**
-   * Creates a new SumSIntList.
+   * Creates a new ProductSIntList.
    *
    * @param list the list to sum
    */
-  public SumSIntList(List<Computation<SInt>> list) {
+  public ProductSIntList(List<Computation<SInt>> list) {
     input = list;
   }
 
@@ -38,7 +38,7 @@ public class SumSIntList implements ComputationBuilder<SInt> {
             if (left == null) {
               left = input1;
             } else {
-              out.add(numericBuilder.add(left, input1));
+              out.add(numericBuilder.mult(left, input1));
               left = null;
             }
           }
@@ -47,8 +47,6 @@ public class SumSIntList implements ComputationBuilder<SInt> {
           }
           return () -> out;
         })
-    ).seq((currentInput, builder) -> {
-      return currentInput.get(0);
-    });
+    ).seq((currentInput, builder) -> currentInput.get(0));
   }
 }

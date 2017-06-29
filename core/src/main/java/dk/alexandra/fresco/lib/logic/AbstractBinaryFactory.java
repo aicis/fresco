@@ -38,9 +38,7 @@ import dk.alexandra.fresco.lib.collections.sort.KeyedCompareAndSwapProtocolGetNe
 import dk.alexandra.fresco.lib.collections.sort.OddEvenMergeProtocol;
 import dk.alexandra.fresco.lib.collections.sort.OddEvenMergeProtocolRec;
 import dk.alexandra.fresco.lib.collections.sort.OddEvenMergeSortFactory;
-import dk.alexandra.fresco.lib.compare.CompareAndSwapProtocol;
 import dk.alexandra.fresco.lib.compare.CompareAndSwapProtocolFactory;
-import dk.alexandra.fresco.lib.compare.CompareAndSwapProtocolImpl;
 import dk.alexandra.fresco.lib.compare.KeyedCompareAndSwapProtocol;
 import dk.alexandra.fresco.lib.compare.bool.BinaryGreaterThanProtocol;
 import dk.alexandra.fresco.lib.compare.bool.BinaryGreaterThanProtocolFactory;
@@ -94,15 +92,6 @@ public abstract class AbstractBinaryFactory
   @Override
   public ProtocolBuilderBinary createProtocolBuilder() {
     return ProtocolBuilderBinary.createApplicationRoot(this);
-  }
-
-  /**
-   * Advanced protocols - compare and swap functionality
-   */
-
-  @Override
-  public CompareAndSwapProtocol getCompareAndSwapProtocol(SBool[] left, SBool[] right) {
-    return new CompareAndSwapProtocolImpl(left, right, this);
   }
 
   @Override

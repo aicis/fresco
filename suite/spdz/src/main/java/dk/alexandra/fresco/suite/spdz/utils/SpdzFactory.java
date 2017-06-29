@@ -43,18 +43,15 @@ import dk.alexandra.fresco.suite.spdz.gates.SpdzKnownSIntProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzMultProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzOutputProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzOutputToAllProtocol;
-import dk.alexandra.fresco.suite.spdz.gates.SpdzRandomProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzSubtractProtocol;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
 import java.math.BigInteger;
-import java.security.SecureRandom;
 
 public class SpdzFactory implements BasicNumericFactory,
     PreprocessedExpPipeFactory, ExpFromOIntFactory {
 
   private int maxBitLength;
   private SpdzStorage storage;
-  private SecureRandom rand;
   private int pID;
 
   /**
@@ -64,7 +61,6 @@ public class SpdzFactory implements BasicNumericFactory,
    */
   public SpdzFactory(SpdzStorage storage, int pID, int maxBitLength) {
     this.maxBitLength = maxBitLength;
-    this.rand = new SecureRandom();
     this.storage = storage;
     this.pID = pID;
   }
@@ -180,12 +176,6 @@ public class SpdzFactory implements BasicNumericFactory,
   }
 
   @Override
-  public NativeProtocol<? extends SInt, ?> getSubtractProtocol(SInt a, BigInteger b,
-      SInt out) {
-    return new SpdzSubtractProtocol(a, b, out, this);
-  }
-
-  @Override
   public Computation<? extends SInt> getMultProtocol(SInt a, SInt b, SInt out) {
     return new SpdzMultProtocol(a, b, out);
   }
@@ -253,11 +243,6 @@ public class SpdzFactory implements BasicNumericFactory,
   @Override
   public Computation<BigInteger> getOpenProtocol(SInt closed) {
     return new SpdzOutputToAllProtocol(closed);
-  }
-
-  @Override
-  public Computation<SInt> getRandomFieldElement(SInt randomElement) {
-    return new SpdzRandomProtocol(randomElement);
   }
 
   @Override

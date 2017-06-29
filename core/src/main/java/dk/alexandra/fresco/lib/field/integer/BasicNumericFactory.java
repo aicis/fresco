@@ -38,7 +38,7 @@ import java.math.BigInteger;
  * A factory that produces protocols that operate on elements in a finite field.
  */
 public interface BasicNumericFactory extends SIntFactory,
-    ProtocolFactory, IOIntProtocolFactory, RandomFieldElementFactory {
+    ProtocolFactory, IOIntProtocolFactory {
 
   /**
    * Returns the maximum number of bits a number in the field can contain.
@@ -66,8 +66,6 @@ public interface BasicNumericFactory extends SIntFactory,
   Computation<? extends SInt> getSubtractProtocol(SInt a, SInt b, SInt out);
 
   Computation<? extends SInt> getSubtractProtocol(BigInteger a, SInt b, SInt out);
-
-  Computation<? extends SInt> getSubtractProtocol(SInt a, BigInteger b, SInt out);
 
   Computation<? extends SInt> getMultProtocol(SInt a, SInt b, SInt out);
 

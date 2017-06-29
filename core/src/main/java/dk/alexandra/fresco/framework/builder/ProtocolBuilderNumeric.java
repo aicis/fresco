@@ -117,11 +117,11 @@ public abstract class ProtocolBuilderNumeric implements ProtocolBuilder {
 
 
   /**
-   * Appends a concrete, native protocol to the list of producers - udeful for the native protocol
-   * factroies that needs to be builders.
+   * Appends a concrete, native protocol to the list of producers - useful for the native protocol
+   * factories that needs to be builders.
    *
    * @param nativeProtocol the native protocol to add
-   * @param <T> the type of the native protocol - passthrough buildable object
+   * @param <T> the type of the native protocol - pass-through buildable object
    * @return the original native protocol.
    */
   public <T extends NativeProtocol> T append(T nativeProtocol) {

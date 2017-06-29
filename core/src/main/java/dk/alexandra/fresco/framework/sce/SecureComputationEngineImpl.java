@@ -152,19 +152,9 @@ public class SecureComputationEngineImpl<ResourcePoolT extends ResourcePool, Bui
 
   public <OutputT> Future<OutputT> startApplication(
       Application<OutputT, Builder> application, ResourcePoolT resourcePool) {
-    prepareEvaluator();
+    setup();
     Callable<OutputT> callable = () -> evalApplication(application, resourcePool).out();
     return executorService.submit(callable);
-  }
-
-  private void prepareEvaluator() {
-    try {
-      setup();
-      this.evaluator.setProtocolInvocation(this.protocolSuite);
-    } catch (IOException e) {
-      throw new MPCException(
-          "Could not run application due to errors during setup: " + e.getMessage(), e);
-    }
   }
 
   private <OutputT> Computation<OutputT> evalApplication(
@@ -189,7 +179,7 @@ public class SecureComputationEngineImpl<ResourcePoolT extends ResourcePool, Bui
   }
 
   @Override
-  public synchronized void setup() throws IOException {
+  public synchronized void setup() {
     if (this.setup) {
       return;
     }
@@ -199,6 +189,7 @@ public class SecureComputationEngineImpl<ResourcePoolT extends ResourcePool, Bui
       return thread;
     });
     this.protocolSuite = this.protocolSuiteConfiguration.createProtocolSuite(myId);
+    this.evaluator.setProtocolInvocation(this.protocolSuite);
     this.setup = true;
   }
 

@@ -30,13 +30,10 @@ import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
-import dk.alexandra.fresco.lib.helper.AbstractRepeatProtocol;
-import dk.alexandra.fresco.lib.helper.AbstractRoundBasedProtocol;
 import dk.alexandra.fresco.lib.helper.CopyProtocolImpl;
 import dk.alexandra.fresco.lib.helper.SingleProtocolProducer;
 import dk.alexandra.fresco.lib.helper.builder.tree.TreeProtocol;
 import dk.alexandra.fresco.lib.helper.builder.tree.TreeProtocolNodeGenerator;
-import java.math.BigInteger;
 
 public class NumericProtocolBuilder extends AbstractProtocolBuilder {
 
@@ -44,33 +41,6 @@ public class NumericProtocolBuilder extends AbstractProtocolBuilder {
 
   public NumericProtocolBuilder(BasicNumericFactory bnp) {
     this.bnf = bnp;
-  }
-
-  /**
-   * Gets a (h x w) size matrix of new SInts.
-   *
-   * @param values values to fill the SInts with
-   * @return a new matrix of initialized SInts.
-   */
-  public SInt[][] getSIntMatrix(int[][] values) {
-    SInt[][] matrix = new SInt[values.length][values[0].length];
-    for (int i = 0; i < values.length; i++) {
-      matrix[i] = getSIntArray(values[i]);
-    }
-    return matrix;
-  }
-
-  /**
-   * Gets an array of newly initialized SInts
-   *
-   * @return a new array of initialized SInts.
-   */
-  private SInt[] getSIntArray(int[] values) {
-    SInt[] array = new SInt[values.length];
-    for (int i = 0; i < values.length; i++) {
-      array[i] = getSInt(values[i]);
-    }
-    return array;
   }
 
   /**
@@ -84,35 +54,6 @@ public class NumericProtocolBuilder extends AbstractProtocolBuilder {
   }
 
   /**
-   * Gets a (h x w) size matrix of new SInts.
-   *
-   * @param h height
-   * @param w width
-   * @return a new matrix of initialized SInts.
-   */
-  SInt[][] getSIntMatrix(int h, int w) {
-    SInt[][] matrix = new SInt[h][w];
-    for (int i = 0; i < h; i++) {
-      matrix[i] = getSIntArray(w);
-    }
-    return matrix;
-  }
-
-  /**
-   * Gets an array of newly initialized SInts
-   *
-   * @param length length of array
-   * @return a new array of initialized SInts.
-   */
-  public SInt[] getSIntArray(int length) {
-    SInt[] array = new SInt[length];
-    for (int i = 0; i < length; i++) {
-      array[i] = getSInt();
-    }
-    return array;
-  }
-
-  /**
    * Get a new SInt.
    *
    * @return a SInt.
@@ -121,52 +62,11 @@ public class NumericProtocolBuilder extends AbstractProtocolBuilder {
     return bnf.getSInt();
   }
 
-  public SInt known(BigInteger value) {
-    SInt sValue = bnf.getSInt();
-    Computation loader = bnf.getSInt(value, sValue);
-    append(loader);
-    return sValue;
-  }
-
-  public SInt[] known(BigInteger[] values) {
-    SInt[] sValues = new SInt[values.length];
-    beginParScope();
-    for (int i = 0; i < sValues.length; i++) {
-      sValues[i] = known(values[i]);
-    }
-    endCurScope();
-    return sValues;
-  }
-
   public SInt known(int value) {
     SInt sValue = bnf.getSInt();
     Computation loader = bnf.getSInt(value, sValue);
     append(loader);
     return sValue;
-  }
-
-  public SInt[] known(int[] values) {
-    SInt[] sValues = new SInt[values.length];
-    beginParScope();
-    for (int v : values) {
-      known(v);
-    }
-    endCurScope();
-    return sValues;
-  }
-
-  /**
-   * Appends a protocol that creates a random SInt to be used after
-   * evaluation. Has to be called in sequence to where it's used. It might be
-   * drawn from a pool of already existing random elements, in which case only
-   * local work is done.
-   *
-   * @return An SInt that, upon evaluation, will contain a random field element.
-   */
-  public SInt rand() {
-    SInt randomElement = bnf.getSInt();
-    append(bnf.getRandomFieldElement(randomElement));
-    return randomElement;
   }
 
   /**
@@ -180,69 +80,6 @@ public class NumericProtocolBuilder extends AbstractProtocolBuilder {
     SInt out = bnf.getSInt();
     append(bnf.getAddProtocol(left, right, out));
     return out;
-  }
-
-  /**
-   * Adds an SInt and an BigInteger
-   *
-   * @param left the lefthand input
-   * @param right the righthand input
-   * @return an SInt representing the result of the addition
-   */
-  public SInt add(SInt left, BigInteger right) {
-    SInt out = bnf.getSInt();
-    append(bnf.getAddProtocol(left, right, out));
-    return out;
-  }
-
-  /**
-   * Adds the lefthand array of SInts element-wise to the righthand array.
-   * Note this means the righthand array must be at least as long as the
-   * lefthand array.
-   *
-   * @param left the lefthand input array
-   * @param right the righthand input array
-   * @return an array of SInts representing the result of the addition. Note this array has the same
-   * length as lefthand input array
-   */
-  public SInt[] add(SInt[] left, SInt[] right) {
-    SInt[] out = getSIntArray(left.length);
-    beginParScope();
-    try {
-      append(new ParAdditions(left, right, out));
-      for (int i = 0; i < left.length; i++) {
-        out[i] = add(left[i], right[i]);
-      }
-    } catch (IndexOutOfBoundsException e) {
-      throw new IllegalArgumentException(
-          "The righthand input array " + "most be at least as long as the left hand input arry", e);
-    }
-    endCurScope();
-    return out;
-  }
-
-  private class ParAdditions extends AbstractRepeatProtocol {
-
-    int i = 0;
-    SInt[] left;
-    SInt[] right;
-    SInt[] out;
-
-    ParAdditions(SInt[] left, SInt[] right, SInt[] out) {
-      this.left = left;
-      this.right = right;
-    }
-
-    @Override
-    protected ProtocolProducer getNextProtocolProducer() {
-      if (i < left.length) {
-        Computation addition = bnf.getAddProtocol(left[i], right[i], out[i]);
-        i++;
-        return SingleProtocolProducer.wrap(addition);
-      } else {
-        return null;
-      }
-    }
   }
 
   /**
@@ -301,57 +138,6 @@ public class NumericProtocolBuilder extends AbstractProtocolBuilder {
   }
 
   /**
-   * Takes a number of values and multiplies them all.
-   */
-  public SInt mult(SInt[] factors) {
-    SInt sum = getSInt();
-    ProtocolProducer multTree = new TreeProtocol(new MultNodeGenerator(factors, sum));
-    append(multTree);
-    return sum;
-  }
-
-  private class MultNodeGenerator implements TreeProtocolNodeGenerator {
-
-    private SInt[] terms;
-    private SInt[] intermediate;
-    private SInt result;
-
-    MultNodeGenerator(SInt[] terms, SInt result) {
-      this.terms = terms;
-      this.intermediate = new SInt[terms.length];
-      this.result = result;
-    }
-
-    @Override
-    public ProtocolProducer getNode(int i, int j) {
-      SInt left, right, out;
-      if (intermediate[i] == null) {
-        if (i == 0) {
-          intermediate[i] = result;
-        } else {
-          intermediate[i] = getSInt();
-        }
-        left = terms[i];
-      } else {
-        left = intermediate[i];
-      }
-      if (intermediate[j] == null) {
-        right = terms[j];
-      } else {
-        right = intermediate[j];
-      }
-      out = intermediate[i];
-      Computation mult = bnf.getMultProtocol(left, right, out);
-      return SingleProtocolProducer.wrap(mult);
-    }
-
-    @Override
-    public int getLength() {
-      return terms.length;
-    }
-  }
-
-  /**
    * Multiplies two SInts
    *
    * @param left the lefthand input
@@ -362,147 +148,6 @@ public class NumericProtocolBuilder extends AbstractProtocolBuilder {
     SInt out = bnf.getSInt();
     append(bnf.getMultProtocol(left, right, out));
     return out;
-  }
-
-  /**
-   * Multiplies an BigInteger and an SInt
-   *
-   * @param left the lefthand input
-   * @param right the righthand input
-   * @return an SInt representing the result of the multiplication
-   */
-  public SInt mult(BigInteger left, SInt right) {
-    SInt out = bnf.getSInt();
-    append(bnf.getMultProtocol(left, right, out));
-    return out;
-  }
-
-  /**
-   * Scales the right side array of SInts.
-   *
-   * @param scale the scale
-   * @param right the righthand input array
-   * @return an array of SInts representing the result of the multiplication.
-   */
-  public SInt[] scale(SInt scale, SInt[] right) {
-    SInt[] out = new SInt[right.length];
-    beginParScope();
-    for (int i = 0; i < right.length; i++) {
-      out[i] = mult(scale, right[i]);
-    }
-    endCurScope();
-    return out;
-  }
-
-  /**
-   * Multiplies the lefthand array of SInts element-wise on the righthand
-   * array. Note this means the righthand array must be at least as long as
-   * the lefthand array.
-   *
-   * @param left the lefthand input array
-   * @param right the righthand input array
-   * @return an array of SInts representing the result of the multiplication. Note this array has
-   * the same length as lefthand input array.
-   */
-  public SInt[] mult(SInt[] left, SInt[] right) {
-    SInt[] out = new SInt[left.length];
-    beginParScope();
-    try {
-      for (int i = 0; i < left.length; i++) {
-        out[i] = mult(left[i], right[i]);
-      }
-    } catch (IndexOutOfBoundsException e) {
-      throw new IllegalArgumentException(
-          "The righthand input array " + "most be at least as long as the left hand input arry", e);
-    }
-    endCurScope();
-    return out;
-  }
-
-  /**
-   * Computes the square of an SInt
-   *
-   * @param a the SInt to square
-   * @return an SInt representing the result
-   */
-  private SInt square(SInt a) {
-    SInt res = mult(a, a);
-    return res;
-  }
-
-  /**
-   * Computes the exponentiation of a SInt with a public exponent
-   *
-   * @param value the SInt to exponentiate
-   * @param exponent the exponent
-   * @return an SInt representing the result
-   */
-  public SInt exp(SInt value, BigInteger exponent) {
-    SInt res = bnf.getSInt();
-    append(new ExponentiationProtocol(value, exponent, res));
-    return res;
-  }
-
-  /**
-   * Wrapper for exp(SInt value, BigInteger exponent)
-   */
-  public SInt exp(SInt value, int exponent) {
-    return exp(value, BigInteger.valueOf(exponent));
-  }
-
-  /**
-   * A helper class to compute the exponentiation. Uses a standard squaring
-   * method.
-   */
-  private class ExponentiationProtocol extends AbstractRoundBasedProtocol {
-
-    BigInteger exponent;
-    SInt value;
-    SInt accEven;
-    SInt accOdd;
-    SInt result;
-    boolean init = false;
-
-    ExponentiationProtocol(SInt value, BigInteger exponent, SInt result) {
-      super();
-      this.exponent = exponent;
-      this.value = value;
-      this.result = result;
-      this.accEven = result;
-      this.accOdd = bnf.getSInt();
-    }
-
-    @SuppressWarnings("Duplicates")
-    @Override
-    public ProtocolProducer nextProtocolProducer() {
-      NumericProtocolBuilder b = new NumericProtocolBuilder(bnf);
-      if (!init) {
-        accOdd = b.known(1);
-        if (exponent.equals(BigInteger.ZERO)) {
-          b.copy(accEven, accOdd);
-        } else {
-          b.copy(accEven, value);
-        }
-        init = true;
-        return b.getProtocol();
-      }
-      if (exponent.equals(BigInteger.ONE)) {
-        exponent = exponent.subtract(BigInteger.ONE);
-        accEven = b.mult(accEven, accOdd);
-        b.copy(result, accEven);
-        return b.getProtocol();
-      } else if (exponent.getLowestSetBit() > 0) {
-        exponent = exponent.shiftRight(1);
-        accEven = b.square(accEven);
-        return b.getProtocol();
-      } else if (exponent.getLowestSetBit() == 0) {
-        accOdd = b.mult(accOdd, accEven);
-        accEven = b.square(accEven);
-        exponent = exponent.subtract(BigInteger.ONE).shiftRight(1);
-        return b.getProtocol();
-      }
-      return null;
-    }
   }
 
 
@@ -517,101 +162,6 @@ public class NumericProtocolBuilder extends AbstractProtocolBuilder {
     SInt out = bnf.getSInt();
     append(bnf.getSubtractProtocol(left, right, out));
     return out;
-  }
-
-  /**
-   * Subtracts the righthand SInt from the lefthand BigInteger.
-   *
-   * @param left the lefthand input
-   * @param right the righthand input
-   * @return an SInt representing the result of the subtraction.
-   */
-  public SInt sub(BigInteger left, SInt right) {
-    SInt out = bnf.getSInt();
-    append(bnf.getSubtractProtocol(left, right, out));
-    return out;
-  }
-
-  /**
-   * Subtracts the righthand BigInteger from the lefthand SInt.
-   *
-   * @param left the lefthand input
-   * @param right the righthand input
-   * @return an SInt representing the result of the subtraction.
-   */
-  public SInt sub(SInt left, BigInteger right) {
-    SInt out = bnf.getSInt();
-    append(bnf.getSubtractProtocol(left, right, out));
-    return out;
-  }
-
-  /**
-   * Subtracts the righthand array of SInts element-wise from the lefthand
-   * array. The righthand array must be at least as long as the lefthand
-   * array.
-   *
-   * @param left the lefthand input array
-   * @param right the righthand input array
-   * @return an array of SInts representing the result of the subtraction. Note this array has the
-   * same length as lefthand input array.
-   */
-  public SInt[] sub(SInt[] left, SInt[] right) {
-    SInt[] out = new SInt[left.length];
-    beginParScope();
-    try {
-      for (int i = 0; i < left.length; i++) {
-        append(bnf.getSubtractProtocol(left[i], right[i], out[i]));
-      }
-    } catch (IndexOutOfBoundsException e) {
-      throw new IllegalArgumentException(
-          "The righthand input array " + "most be at least as long as the left hand input arry", e);
-    }
-    endCurScope();
-    return out;
-  }
-
-  /**
-   * Computes the conditional selection operation. I.e., concretely computes
-   * the value <code>r</code> as
-   * <code> selector*(left - right) + right </code> For
-   * <code>selector == 0</code> this gives a value equal to <code>right</code>
-   * , for <code>selector == 1</code> a value equal to <code>left</code>.
-   *
-   * @param selector should be either 0 or 1.
-   * @param left the left hand value
-   * @param right the right hand value
-   * @return a SInt holding the value of <code> selector*(left - right) + right </code>
-   */
-  public SInt conditionalSelect(SInt selector, SInt left, SInt right) {
-    SInt r = getSInt();
-    conditionalSelect(selector, left, right, r);
-    return r;
-  }
-
-  /**
-   * In place version of {@link #conditionalSelect(SInt, SInt, SInt)}
-   *
-   * @param selector should be either 0 or 1.
-   * @param left the left hand value
-   * @param right the right hand value
-   * @param result a SInt in which to put the result. I.e, the value of <code> selector*(left -
-   * right) + right </code>
-   */
-  private void conditionalSelect(SInt selector, SInt left, SInt right, SInt result) {
-    beginSeqScope();
-    SInt diff = sub(left, right);
-    SInt prod = mult(diff, selector);
-    append(bnf.getAddProtocol(prod, right, result));
-    endCurScope();
-    return;
-  }
-
-  public SInt innerProduct(SInt[] left, SInt[] right) {
-    beginSeqScope();
-    SInt[] directProduct = this.mult(left, right);
-    SInt innerProduct = this.sum(directProduct);
-    endCurScope();
-    return innerProduct;
   }
 
   /**

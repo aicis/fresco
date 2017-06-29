@@ -7,12 +7,12 @@ import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialPr
 import dk.alexandra.fresco.framework.value.SInt;
 import java.util.List;
 
-public class IntegerToBitsByShiftProtocolImpl4 implements ComputationBuilder<List<SInt>> {
+public class IntegerToBitsByShift implements ComputationBuilder<List<SInt>> {
 
   private final Computation<SInt> input;
   private final int maxInputLength;
 
-  public IntegerToBitsByShiftProtocolImpl4(Computation<SInt> input, int maxInputLength) {
+  public IntegerToBitsByShift(Computation<SInt> input, int maxInputLength) {
     this.input = input;
     this.maxInputLength = maxInputLength;
   }

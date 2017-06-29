@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -24,11 +24,34 @@
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
  *******************************************************************************/
-package dk.alexandra.fresco.lib.conversion;
+package dk.alexandra.fresco.lib.math.integer.inv;
 
-import dk.alexandra.fresco.framework.NativeProtocol;
+import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.builder.ComputationBuilder;
+import dk.alexandra.fresco.framework.builder.NumericBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialProtocolBuilder;
+import dk.alexandra.fresco.framework.value.SInt;
+import java.math.BigInteger;
 
+public class Inversion implements ComputationBuilder<SInt> {
 
-public interface BitsToIntegerProtocol extends NativeProtocol {
+  private final Computation<SInt> x;
+
+  public Inversion(Computation<SInt> x) {
+    this.x = x;
+  }
+
+  @Override
+  public Computation<SInt> build(SequentialProtocolBuilder builder) {
+    NumericBuilder numeric = builder.numeric();
+    Computation<SInt> random = numeric.randomElement();
+    Computation<SInt> sProduct = numeric.mult(x, random);
+    Computation<BigInteger> open = numeric.open(sProduct);
+    return builder.createSequentialSub((seq) -> {
+      BigInteger value = open.out();
+      BigInteger inverse = value.modInverse(seq.getBasicNumericFactory().getModulus());
+      return seq.numeric().mult(inverse, random);
+    });
+  }
 
 }

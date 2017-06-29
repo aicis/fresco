@@ -24,34 +24,44 @@
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
  *******************************************************************************/
-package dk.alexandra.fresco.lib.math.integer.inv;
+package dk.alexandra.fresco.suite.spdz.gates;
 
 import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.builder.ComputationBuilder;
-import dk.alexandra.fresco.framework.builder.NumericBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialProtocolBuilder;
+import dk.alexandra.fresco.framework.network.SCENetwork;
 import dk.alexandra.fresco.framework.value.SInt;
+import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
+import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
+import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import java.math.BigInteger;
 
-public class InversionProtocol4 implements ComputationBuilder<SInt> {
+public class SpdzAddProtocolKnownLeft extends SpdzNativeProtocol<SInt> {
 
-  private final Computation<SInt> x;
+  private BigInteger left;
+  private Computation<SInt> right;
+  private SpdzSInt out;
 
-  public InversionProtocol4(Computation<SInt> x) {
-    this.x = x;
+  public SpdzAddProtocolKnownLeft(BigInteger left, Computation<SInt> right) {
+    this.left = left;
+    this.right = right;
   }
 
   @Override
-  public Computation<SInt> build(SequentialProtocolBuilder builder) {
-    NumericBuilder numeric = builder.numeric();
-    Computation<SInt> random = numeric.randomElement();
-    Computation<SInt> sProduct = numeric.mult(x, random);
-    Computation<BigInteger> open = numeric.open(sProduct);
-    return builder.createSequentialSub((seq) -> {
-      BigInteger value = open.out();
-      BigInteger inverse = value.modInverse(seq.getBasicNumericFactory().getModulus());
-      return seq.numeric().mult(inverse, random);
-    });
+  public String toString() {
+    return "SpdzAddGate(" + left + ", "
+        + right + ")";
   }
 
+  @Override
+  public SpdzSInt out() {
+    return out;
+  }
+
+  @Override
+  public EvaluationStatus evaluate(int round, SpdzResourcePool spdzResourcePool,
+      SCENetwork network) {
+    SpdzElement left = SpdzKnownSIntProtocol.createKnownSpdzElement(spdzResourcePool, this.left);
+    SpdzSInt right = (SpdzSInt) this.right.out();
+    this.out = new SpdzSInt(left.add(right.value));
+    return EvaluationStatus.IS_DONE;
+  }
 }
