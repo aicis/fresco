@@ -34,7 +34,6 @@ import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.lp.LPSolverProtocol4;
 import dk.alexandra.fresco.lib.lp.LPTableau4;
-import dk.alexandra.fresco.lib.lp.Matrix;
 import dk.alexandra.fresco.lib.lp.Matrix4;
 import dk.alexandra.fresco.lib.lp.OptimalValue4;
 import dk.alexandra.fresco.lib.lp.SimpleLPPrefix4;
@@ -147,7 +146,7 @@ public class DEASolver4 implements Application<List<DEAResult>, SequentialProtoc
             par.createSequentialSub((subSeq) -> {
               return subSeq.seq((solverSec) -> {
                 LPSolverProtocol4 lpSolverProtocol4 = new LPSolverProtocol4(
-                    tableau, update, pivot, solverSec.getBasicNumericFactory()
+                    tableau, update, pivot
                 );
                 return lpSolverProtocol4.build(solverSec);
 
@@ -167,11 +166,6 @@ public class DEASolver4 implements Application<List<DEAResult>, SequentialProtoc
           .collect(Collectors.toList());
       return () -> convertedResult;
     });
-  }
-
-  Matrix4<Computation<SInt>> toMatrix4(Matrix<SInt> updateMatrix) {
-    return new Matrix4<>(updateMatrix.getHeight(), updateMatrix.getWidth(),
-        i -> new ArrayList<>(Arrays.asList(updateMatrix.getIthRow(i))));
   }
 
   private List<Computation<SimpleLPPrefix4>> getPrefixWithSecretSharedValues(

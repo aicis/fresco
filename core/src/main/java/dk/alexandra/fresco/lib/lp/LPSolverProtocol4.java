@@ -28,10 +28,10 @@ import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.Reporter;
 import dk.alexandra.fresco.framework.builder.ComputationBuilder;
+import dk.alexandra.fresco.framework.builder.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialProtocolBuilder;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.compare.ConditionalSelect;
-import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.lp.LPSolverProtocol4.LPOutput;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -53,46 +53,32 @@ import java.util.List;
  */
 public class LPSolverProtocol4 implements ComputationBuilder<LPOutput> {
 
-  private final SInt zero;
-  private final LPState initialState;
+  private final LPTableau4 tableau;
+  private final Matrix4<Computation<SInt>> updateMatrix;
+  private final Computation<SInt> pivot;
   private int identityHashCode;
 
-  private BasicNumericFactory bnFactory;
 
-  private static final int DEFAULT_BASIS_VALUE = 0;
+  private static final BigInteger DEFAULT_BASIS_VALUE = BigInteger.ZERO;
 
   private int iterations = 0;
   private final int noVariables;
   private final int noConstraints;
 
-  public LPSolverProtocol4(LPTableau4 tableau, Matrix4<Computation<SInt>> updateMatrix,
-      Computation<SInt> pivot,
-      BasicNumericFactory bnFactory) {
+  public LPSolverProtocol4(
+      LPTableau4 tableau,
+      Matrix4<Computation<SInt>> updateMatrix,
+      Computation<SInt> pivot) {
+    this.tableau = tableau;
+    this.updateMatrix = updateMatrix;
+    this.pivot = pivot;
     if (checkDimensions(tableau, updateMatrix)) {
-
-      this.bnFactory = bnFactory;
-      this.zero = bnFactory.getSInt(0);
-      this.iterations = 0;
-
       this.noVariables = tableau.getC().getWidth();
       this.noConstraints = tableau.getC().getHeight();
-      List<Computation<SInt>> basis = new ArrayList<>(noConstraints);
-      for (int i = 0; i < noConstraints; i++) {
-        basis.add(bnFactory.getSInt(DEFAULT_BASIS_VALUE));
-      }
-      List<BigInteger> enumeratedVariables = new ArrayList<>(noVariables);
-      for (int i = 1; i <= noVariables; i++) {
-        enumeratedVariables.add(BigInteger.valueOf(i));
-      }
-
-      this.initialState = new LPState(
-          BigInteger.ZERO, tableau, updateMatrix, null, pivot,
-          enumeratedVariables, basis, pivot);
-
+      identityHashCode = System.identityHashCode(this);
     } else {
       throw new MPCException("Dimensions of inputs does not match");
     }
-    identityHashCode = System.identityHashCode(this);
   }
 
   private boolean checkDimensions(LPTableau4 tableau, Matrix4<Computation<SInt>> updateMatrix) {
@@ -106,13 +92,28 @@ public class LPSolverProtocol4 implements ComputationBuilder<LPOutput> {
 
   @Override
   public Computation<LPOutput> build(SequentialProtocolBuilder builder) {
-    return builder.seq(seq ->
-        initialState
-    ).whileLoop(
+    Computation<SInt> zero = builder.numeric().known(BigInteger.ZERO);
+    return builder.seq(seq -> {
+      this.iterations = 0;
+      NumericBuilder numeric = seq.numeric();
+      List<Computation<SInt>> basis = new ArrayList<>(noConstraints);
+      for (int i = 0; i < noConstraints; i++) {
+        basis.add(numeric.known(DEFAULT_BASIS_VALUE));
+      }
+      List<BigInteger> enumeratedVariables = new ArrayList<>(noVariables);
+      for (int i = 1; i <= noVariables; i++) {
+        enumeratedVariables.add(BigInteger.valueOf(i));
+      }
+
+      LPState initialState = new LPState(
+          BigInteger.ZERO, tableau, updateMatrix, null, pivot,
+          enumeratedVariables, basis, pivot);
+      return () -> initialState;
+    }).whileLoop(
         state -> !state.terminated(),
         (state, seq) ->
             seq.seq((inner) -> {
-              phaseOneProtocol(inner, state);
+              phaseOneProtocol(inner, state, zero);
               return state;
             }).seq((phaseOneOutput, inner) -> {
               if (!phaseOneOutput.terminated()) {
@@ -194,7 +195,8 @@ public class LPSolverProtocol4 implements ComputationBuilder<LPOutput> {
    */
   private void phaseOneProtocol(
       SequentialProtocolBuilder builder,
-      LPState state) {
+      LPState state,
+      Computation<SInt> zero) {
     iterations++;
     Reporter.info("LP Iterations=" + iterations + " solving " +
         identityHashCode);

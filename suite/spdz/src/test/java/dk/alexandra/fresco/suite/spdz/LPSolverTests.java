@@ -103,8 +103,8 @@ class LPSolverTests {
                           new LPSolverProtocol4(
                               prefix.getTableau(),
                               prefix.getUpdateMatrix(),
-                              prefix.getPivot(),
-                              bnFactory));
+                              prefix.getPivot()
+                          ));
 
                       Computation<SInt> optimalValue = seq.createSequentialSub((inner) -> {
                             LPOutput out = lpOutput.out();
