@@ -31,8 +31,6 @@ import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.compare.ComparisonProtocolFactory;
 import dk.alexandra.fresco.lib.compare.ComparisonProtocolFactoryImpl;
-import dk.alexandra.fresco.lib.compare.ConditionalSelectProtocol;
-import dk.alexandra.fresco.lib.compare.ConditionalSelectProtocolImpl;
 import dk.alexandra.fresco.lib.compare.MiscOIntGenerators;
 import dk.alexandra.fresco.lib.compare.RandomAdditiveMaskFactory;
 import dk.alexandra.fresco.lib.compare.RandomAdditiveMaskFactoryImpl;
@@ -119,12 +117,6 @@ public class LPFactoryImpl implements LPFactory {
   public EntrywiseProductProtocol getEntrywiseProductProtocol(SInt[] as, BigInteger[] bs,
       SInt[] results) {
     return new EntrywiseProductProtocolImpl(as, bs, results, bnf);
-  }
-
-  @Override
-  public ConditionalSelectProtocol getConditionalSelectProtocol(SInt selector,
-      SInt a, SInt b, SInt result) {
-    return new ConditionalSelectProtocolImpl(selector, a, b, result, factoryProducer);
   }
 
   @Override
