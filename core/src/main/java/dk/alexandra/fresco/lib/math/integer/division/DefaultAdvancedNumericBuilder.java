@@ -6,7 +6,7 @@ import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.compare.RandomAdditiveMaskProtocol44;
-import dk.alexandra.fresco.lib.conversion.IntegerToBitsByShiftProtocolImpl4;
+import dk.alexandra.fresco.lib.conversion.IntegerToBitsByShift;
 import dk.alexandra.fresco.lib.math.integer.binary.BitLengthProtocol4;
 import dk.alexandra.fresco.lib.math.integer.binary.RepeatedRightShiftProtocol4;
 import dk.alexandra.fresco.lib.math.integer.binary.RightShiftProtocol4;
@@ -54,7 +54,7 @@ public class DefaultAdvancedNumericBuilder implements
 
   @Override
   public Computation<List<SInt>> toBits(Computation<SInt> in, int maxInputLength) {
-    return builder.createSequentialSub(new IntegerToBitsByShiftProtocolImpl4(in, maxInputLength));
+    return builder.createSequentialSub(new IntegerToBitsByShift(in, maxInputLength));
   }
 
   @Override

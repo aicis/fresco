@@ -29,10 +29,6 @@ public class EncryptAndRevealStep extends DemoApplication<Value[][]> {
     this.rowsWithOpenedCiphers = new Value[inputRows.length][numElementsPerRow + 1];
   }
 
-  public SInt getMimcKey() {
-    return mimcKey;
-  }
-
   @Override
   public ProtocolProducer prepareApplication(BuilderFactory producer) {
     return ProtocolBuilderNumeric
@@ -42,7 +38,7 @@ public class EncryptAndRevealStep extends DemoApplication<Value[][]> {
       ).seq((key, seq) -> {
         // Generate random value to use as encryption key
         //TODO It should be possible to get a random element in new API
-        return numericFactory.getRandomFieldElement(key);
+        return seq.numeric().randomElement();
       }).par((key, par) -> {
         //Store key
         mimcKey = key;

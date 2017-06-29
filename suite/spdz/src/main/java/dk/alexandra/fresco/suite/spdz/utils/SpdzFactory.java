@@ -43,7 +43,6 @@ import dk.alexandra.fresco.suite.spdz.gates.SpdzKnownSIntProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzMultProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzOutputProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzOutputToAllProtocol;
-import dk.alexandra.fresco.suite.spdz.gates.SpdzRandomProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzSubtractProtocol;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
 import java.math.BigInteger;
@@ -247,11 +246,6 @@ public class SpdzFactory implements BasicNumericFactory,
   @Override
   public Computation<BigInteger> getOpenProtocol(SInt closed) {
     return new SpdzOutputToAllProtocol(closed);
-  }
-
-  @Override
-  public Computation<SInt> getRandomFieldElement(SInt randomElement) {
-    return new SpdzRandomProtocol(randomElement);
   }
 
   @Override
