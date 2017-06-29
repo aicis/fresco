@@ -66,7 +66,7 @@ public class UpdateMatrixProtocol4 implements ComputationBuilder<Matrix4<Computa
       return seq2.par(par1 -> {
         NumericBuilder numeric = par1.numeric();
         Matrix4<Computation<SInt>> lampdas = new Matrix4<>(
-            width, height,
+            height, width,
             (j) -> {
               ArrayList<Computation<SInt>> newRow = new ArrayList<>(width);
               List<Computation<SInt>> oldRow = oldUpdateMatrix.getRow(j);
@@ -113,7 +113,7 @@ public class UpdateMatrixProtocol4 implements ComputationBuilder<Matrix4<Computa
         NumericBuilder numeric = gpAddAndSub.numeric();
 
         List<Computation<SInt>> lambdas_i = new ArrayList<>(height);
-        Matrix4<Computation<SInt>> subOuts = new Matrix4<>(width, height,
+        Matrix4<Computation<SInt>> subOuts = new Matrix4<>(height, width,
             (j) -> {
               ArrayList<Computation<SInt>> newRow = new ArrayList<>(width);
               List<Computation<SInt>> oldRow = oldUpdateMatrix.getRow(j);
@@ -145,7 +145,7 @@ public class UpdateMatrixProtocol4 implements ComputationBuilder<Matrix4<Computa
           List<Computation<SInt>> lambdas_i = input.getSecond().getSecond();
           NumericBuilder numeric = gpMults.numeric();
           Matrix4<Computation<SInt>> mults_cAndLambda_iOuts =
-              new Matrix4<>(width, height,
+              new Matrix4<>(height, width,
                   (j) -> {
                     ArrayList<Computation<SInt>> mults_cAndLambda_iOuts_row = new ArrayList<>(
                         width);
@@ -155,8 +155,7 @@ public class UpdateMatrixProtocol4 implements ComputationBuilder<Matrix4<Computa
                     }
                     return mults_cAndLambda_iOuts_row;
                   });
-          Matrix4<Computation<SInt>> mults_sub_and_ppOuts = new Matrix4<>(width,
-              height,
+          Matrix4<Computation<SInt>> mults_sub_and_ppOuts = new Matrix4<>(height, width,
               (j) -> {
                 ArrayList<Computation<SInt>> mults_sub_and_ppOuts_row = new ArrayList<>(width);
                 ArrayList<Computation<SInt>> subRow = subOuts.getRow(j);
@@ -172,7 +171,7 @@ public class UpdateMatrixProtocol4 implements ComputationBuilder<Matrix4<Computa
       Matrix4<Computation<SInt>> mults_cAndLambda_iOuts = pair.getFirst();
       Matrix4<Computation<SInt>> mults_sub_and_ppOuts = pair.getSecond();
       NumericBuilder numeric = adds.numeric();
-      Matrix4<Computation<SInt>> resultMatrix = new Matrix4<>(width, height,
+      Matrix4<Computation<SInt>> resultMatrix = new Matrix4<>(height, width,
           (j) -> {
             ArrayList<Computation<SInt>> row = new ArrayList<>(width);
             ArrayList<Computation<SInt>> mults_cAndLambdaRow = mults_cAndLambda_iOuts.getRow(j);

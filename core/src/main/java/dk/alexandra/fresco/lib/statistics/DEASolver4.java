@@ -32,14 +32,12 @@ import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialProtocolBuilder;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
-import dk.alexandra.fresco.lib.lp.LPPrefix;
 import dk.alexandra.fresco.lib.lp.LPSolverProtocol4;
-import dk.alexandra.fresco.lib.lp.LPTableau;
 import dk.alexandra.fresco.lib.lp.LPTableau4;
 import dk.alexandra.fresco.lib.lp.Matrix;
 import dk.alexandra.fresco.lib.lp.Matrix4;
 import dk.alexandra.fresco.lib.lp.OptimalValue4;
+import dk.alexandra.fresco.lib.lp.SimpleLPPrefix4;
 import dk.alexandra.fresco.lib.statistics.DEASolver4.DEAResult;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -132,34 +130,25 @@ public class DEASolver4 implements Application<List<DEAResult>, SequentialProtoc
 
   @Override
   public Computation<List<DEAResult>> prepareApplication(SequentialProtocolBuilder builder) {
-    LPPrefix[] prefixes = getPrefixWithSecretSharedValues(
-        builder.getBasicNumericFactory());
-    for (LPPrefix prefix : prefixes) {
-      builder.append(prefix.getPrefix());
-    }
-
+    List<Computation<SimpleLPPrefix4>> prefixes = getPrefixWithSecretSharedValues(
+        builder);
     return builder.par((par) -> {
 
       List<Computation<Pair<List<Computation<SInt>>, Computation<SInt>>>> result =
           new ArrayList<>(targetInputs.size());
       for (int i = 0; i < targetInputs.size(); i++) {
 
-        SInt pivot = prefixes[i].getPivot();
-        LPTableau tableau = prefixes[i].getTableau();
-        Matrix<SInt> update = prefixes[i].getUpdateMatrix();
+        SimpleLPPrefix4 prefix = prefixes.get(i).out();
+        Computation<SInt> pivot = prefix.getPivot();
+        LPTableau4 tableau = prefix.getTableau();
+        Matrix4<Computation<SInt>> update = prefix.getUpdateMatrix();
 
         result.add(
             par.createSequentialSub((subSeq) -> {
               return subSeq.seq((solverSec) -> {
                 LPSolverProtocol4 lpSolverProtocol4 = new LPSolverProtocol4(
-                    new LPTableau4(
-                        toMatrix4(tableau.getC()),
-                        new ArrayList<>(Arrays.asList(tableau.getB())),
-                        new ArrayList<>(Arrays.asList(tableau.getF())),
-                        tableau.getZ()),
-                    toMatrix4(update),
-                    pivot,
-                    solverSec.getBasicNumericFactory());
+                    tableau, update, pivot, solverSec.getBasicNumericFactory()
+                );
                 return lpSolverProtocol4.build(solverSec);
 
               }).seq((lpOutput, optSec) ->
@@ -181,14 +170,16 @@ public class DEASolver4 implements Application<List<DEAResult>, SequentialProtoc
   }
 
   Matrix4<Computation<SInt>> toMatrix4(Matrix<SInt> updateMatrix) {
-    return new Matrix4<>(updateMatrix.getWidth(), updateMatrix.getHeight(),
+    return new Matrix4<>(updateMatrix.getHeight(), updateMatrix.getWidth(),
         i -> new ArrayList<>(Arrays.asList(updateMatrix.getIthRow(i))));
   }
 
-  private LPPrefix[] getPrefixWithSecretSharedValues(BasicNumericFactory provider) {
+  private List<Computation<SimpleLPPrefix4>> getPrefixWithSecretSharedValues(
+      SequentialProtocolBuilder builder) {
     int dataSetSize = this.inputDataSet.size();
 
-    LPPrefix[] prefixes = new LPPrefix[this.targetInputs.size()];
+    int noOfSolvers = this.targetInputs.size();
+    List<Computation<SimpleLPPrefix4>> prefixes = new ArrayList<>(noOfSolvers);
 
     int lpInputs = this.inputDataSet.get(0).size();
     int lpOutputs = this.outputDataSet.get(0).size();
@@ -205,46 +196,20 @@ public class DEASolver4 implements Application<List<DEAResult>, SequentialProtoc
         basisOutputs[j][i] = current.get(j);
       }
     }
-
-    DEAPrefixBuilder basisBuilder;
-
-    if (type == AnalysisType.INPUT_EFFICIENCY) {
-      basisBuilder = new DEAInputEfficiencyPrefixBuilder();
-    } else {
-      basisBuilder = new DEAPrefixBuilderMaximize();
-    }
-    basisBuilder.provider(provider);
-    basisBuilder.basisInputs(Arrays.asList(basisInputs));
-    basisBuilder.basisOutputs(Arrays.asList(basisOutputs));
-
-    DEAPrefixBuilder[] basisBuilderCopies = new DEAPrefixBuilder[this.targetInputs.size()];
-
-    for (int i = 0; i < this.targetInputs.size(); i++) {
-      if (i == 0) {
-        basisBuilderCopies[i] = basisBuilder;
-      } else {
-        basisBuilderCopies[i] = basisBuilder.copy();
-      }
-    }
-
-    for (int i = 0; i < this.targetInputs.size(); i++) {
-      DEAPrefixBuilder targetBuilder;
+    for (int i = 0; i < noOfSolvers; i++) {
       if (type == AnalysisType.INPUT_EFFICIENCY) {
-        targetBuilder = new DEAInputEfficiencyPrefixBuilder();
+        prefixes.add(DEAInputEfficiencyPrefixBuilder4.build(
+            Arrays.asList(basisInputs), Arrays.asList(basisOutputs),
+            targetInputs.get(i), targetOutputs.get(i),
+            builder
+        ));
       } else {
-        targetBuilder = new DEAPrefixBuilderMaximize();
+        prefixes.add(DEAPrefixBuilderMaximize4.build(
+            Arrays.asList(basisInputs), Arrays.asList(basisOutputs),
+            targetInputs.get(i), targetOutputs.get(i),
+            builder
+        ));
       }
-      targetBuilder.provider(provider);
-      List<SInt> current = targetInputs.get(i);
-      for (SInt aCurrent : current) {
-        targetBuilder.addTargetInput(aCurrent);
-      }
-      current = targetOutputs.get(i);
-      for (SInt aCurrent : current) {
-        targetBuilder.addTargetOutput(aCurrent);
-      }
-      basisBuilderCopies[i].append(targetBuilder);
-      prefixes[i] = basisBuilderCopies[i].build();
     }
     return prefixes;
   }

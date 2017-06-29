@@ -26,53 +26,33 @@
  */
 package dk.alexandra.fresco.lib.lp;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.IntFunction;
-import java.util.stream.Collectors;
+import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.value.SInt;
 
-public class Matrix4<T> {
+public class SimpleLPPrefix4 {
 
-  private final int width;
-  private final int height;
-  private final ArrayList<ArrayList<T>> matrix;
+  private final Matrix4<Computation<SInt>> updateMatrix;
+  private final LPTableau4 tableau;
+  private final Computation<SInt> pivot;
 
-  public Matrix4(int height, int width, IntFunction<ArrayList<T>> rowBuilder) {
-    this.width = width;
-    this.matrix = new ArrayList<>(height);
-    this.height = height;
-    for (int i = 0; i < height; i++) {
-      this.matrix.add(rowBuilder.apply(i));
-    }
-  }
-
-  public Matrix4(int height, int width, ArrayList<ArrayList<T>> matrix) {
-    this.width = width;
-    this.height = height;
-    this.matrix = matrix;
+  public SimpleLPPrefix4(Matrix4<Computation<SInt>> updateMatrix, LPTableau4 tableau,
+      Computation<SInt> pivot) {
+    this.updateMatrix = updateMatrix;
+    this.tableau = tableau;
+    this.pivot = pivot;
   }
 
 
-  public ArrayList<T> getRow(int i) {
-    return matrix.get(i);
+  public LPTableau4 getTableau() {
+    return tableau;
   }
 
-  /**
-   * @return the width of the matrix
-   */
-  public int getWidth() {
-    return width;
+  public Matrix4<Computation<SInt>> getUpdateMatrix() {
+    return updateMatrix;
   }
 
-
-  /**
-   * @return the height of the matrix
-   */
-  public int getHeight() {
-    return height;
+  public Computation<SInt> getPivot() {
+    return pivot;
   }
 
-  public List<T> getColumn(int i) {
-    return this.matrix.stream().map(row -> row.get(i)).collect(Collectors.toList());
-  }
 }

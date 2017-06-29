@@ -97,7 +97,7 @@ public class DEASolverFixedDataTest {
 
           for (int i = 0; i < app2.outputs.size(); i++) {
             Assert.assertEquals(app2.plainResult[i], postProcess(app2.outputs.get(i).out(), type,
-                app1.modulus), 0.0000001);
+                app2.modulus), 0.0000001);
           }
         }
       };

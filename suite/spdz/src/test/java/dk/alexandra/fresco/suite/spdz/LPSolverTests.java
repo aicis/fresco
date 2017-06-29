@@ -120,7 +120,7 @@ class LPSolverTests {
             }
 
             Matrix4<Computation<SInt>> toMatrix4(Matrix<SInt> updateMatrix) {
-              return new Matrix4<>(updateMatrix.getWidth(), updateMatrix.getHeight(),
+              return new Matrix4<>(updateMatrix.getHeight(), updateMatrix.getWidth(),
                   i -> new ArrayList<>(Arrays.asList(updateMatrix.getIthRow(i))));
             }
           };

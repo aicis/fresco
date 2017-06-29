@@ -53,7 +53,7 @@ public class PlainSpdzLPPrefix4 {
     int noConstraints = inputReader.getConstraintValues().length;
     Matrix4<Computation<SInt>> C;
     NumericBuilder numeric = par.numeric();
-    C = new Matrix4<>(noVariables, noConstraints,
+    C = new Matrix4<>(noConstraints, noVariables,
         (i) -> {
           ArrayList<Computation<SInt>> row = new ArrayList<>(noVariables);
           for (int j = 0; j < noVariables; j++) {
