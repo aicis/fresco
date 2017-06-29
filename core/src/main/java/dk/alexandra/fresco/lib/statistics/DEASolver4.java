@@ -33,6 +33,7 @@ import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialPr
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.lp.LPSolverProtocol4;
+import dk.alexandra.fresco.lib.lp.LPSolverProtocol4.PivotRule;
 import dk.alexandra.fresco.lib.lp.LPTableau4;
 import dk.alexandra.fresco.lib.lp.Matrix4;
 import dk.alexandra.fresco.lib.lp.OptimalValue4;
@@ -56,10 +57,11 @@ import java.util.stream.Collectors;
 public class DEASolver4 implements Application<List<DEAResult>, SequentialProtocolBuilder> {
 
 
-  private List<List<SInt>> targetInputs, targetOutputs;
-  private List<List<SInt>> inputDataSet, outputDataSet;
+  private final List<List<SInt>> targetInputs, targetOutputs;
+  private final List<List<SInt>> inputDataSet, outputDataSet;
 
-  private AnalysisType type;
+  private final AnalysisType type;
+  private final PivotRule pivotRule;
 
 
   /**
@@ -79,6 +81,31 @@ public class DEASolver4 implements Application<List<DEAResult>, SequentialProtoc
       List<List<SInt>> outputValues,
       List<List<SInt>> setInput,
       List<List<SInt>> setOutput) throws MPCException {
+    this(PivotRule.DANZIG, type, inputValues, outputValues, setInput, setOutput);
+  }
+
+  /**
+   * Construct a DEA problem for the solver to solve. The problem consists of
+   * 4 matrixes: 2 basis input/output matrices containing the dataset which
+   * the queries will be measured against
+   *
+   * 2 query input/output matrices containing the data to be evaluated.
+   *
+   * @param pivotRule the pivot rule to use in LP solver
+   * @param type The type of analysis to do
+   * @param inputValues Matrix of query input values
+   * @param outputValues Matrix of query output values
+   * @param setInput Matrix containing the basis input
+   * @param setOutput Matrix containing the basis output
+   */
+  public DEASolver4(
+      PivotRule pivotRule,
+      AnalysisType type,
+      List<List<SInt>> inputValues,
+      List<List<SInt>> outputValues,
+      List<List<SInt>> setInput,
+      List<List<SInt>> setOutput) throws MPCException {
+    this.pivotRule = pivotRule;
     this.type = type;
     this.targetInputs = inputValues;
     this.targetOutputs = outputValues;
@@ -141,13 +168,13 @@ public class DEASolver4 implements Application<List<DEAResult>, SequentialProtoc
         Computation<SInt> pivot = prefix.getPivot();
         LPTableau4 tableau = prefix.getTableau();
         Matrix4<Computation<SInt>> update = prefix.getUpdateMatrix();
+        List<Computation<SInt>> initialBasis = prefix.getBasis();
 
         result.add(
             par.createSequentialSub((subSeq) -> {
               return subSeq.seq((solverSec) -> {
                 LPSolverProtocol4 lpSolverProtocol4 = new LPSolverProtocol4(
-                    tableau, update, pivot
-                );
+                    pivotRule, tableau, update, pivot, initialBasis);
                 return lpSolverProtocol4.build(solverSec);
 
               }).seq((lpOutput, optSec) ->

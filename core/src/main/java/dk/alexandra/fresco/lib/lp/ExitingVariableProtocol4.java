@@ -36,22 +36,29 @@ import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialPr
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.compare.ConditionalSelect;
+import dk.alexandra.fresco.lib.compare.eq.FracEq;
 import dk.alexandra.fresco.lib.lp.ExitingVariableProtocol4.ExitingVariableOutput;
 import dk.alexandra.fresco.lib.math.integer.SumSIntList;
 import dk.alexandra.fresco.lib.math.integer.min.MinInfFracProtocol4;
+import dk.alexandra.fresco.lib.math.integer.min.MinimumProtocol4;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class ExitingVariableProtocol4 implements ComputationBuilder<ExitingVariableOutput> {
 
   private final LPTableau4 tableau;
   private final Matrix4<Computation<SInt>> updateMatrix;
   private final List<Computation<SInt>> enteringIndex;
+  private final List<Computation<SInt>> basis;
 
   ExitingVariableProtocol4(
       LPTableau4 tableau, Matrix4<Computation<SInt>> updateMatrix,
-      List<Computation<SInt>> enteringIndex) {
+      List<Computation<SInt>> enteringIndex,
+      List<Computation<SInt>> basis) {
+    this.basis = basis;
     if (checkDimensions(tableau, updateMatrix, enteringIndex)) {
       this.tableau = tableau;
       this.updateMatrix = updateMatrix;
@@ -131,11 +138,68 @@ public class ExitingVariableProtocol4 implements ComputationBuilder<ExitingVaria
       ArrayList<Computation<SInt>> updatedB = pair.getSecond().getFirst();
       ArrayList<Computation<SInt>> nonApps = pair.getSecond().getSecond();
       List<Computation<SInt>> shortColumn = updatedEnteringColumn.subList(0, updatedB.size());
-      Computation<ArrayList<Computation<SInt>>> exitingIndexComputation = seq.createSequentialSub(
-          new MinInfFracProtocol4(updatedB, shortColumn, nonApps));
-      return () -> new Pair<>(exitingIndexComputation.out(), updatedEnteringColumn);
+      return seq.seq(
+          new MinInfFracProtocol4(updatedB, shortColumn, nonApps)
+      ).par((minInfOutput, par) -> {
+        List<Computation<SInt>> ties = new ArrayList<>(updatedB.size());
+        // Find index of each entry with the minimal ratio found in previous round
+        for (int i = 0; i < updatedB.size(); i++) {
+          ties.add(
+              par.createSequentialSub(
+                  new FracEq(minInfOutput.nm, minInfOutput.dm, updatedB.get(i), shortColumn.get(i)))
+          );
+        }
+        return () -> ties;
+      }).seq((ties, seq2) -> {
+        // Construct vector of basis variable indices that are both applicable and
+        // which associated row is tie for minimal B to entering column ratio
+        // all other entries are set to a value larger than any variable index
+        BigInteger upperBound = BigInteger.valueOf(tableau.getC().getWidth() + 2);
+
+        return seq2.par(par2 -> {
+          NumericBuilder numeric = par2.numeric();
+          List<Computation<SInt>> negTies = ties.stream()
+              .map(tie -> numeric.sub(one, tie))
+              .collect(Collectors.toList());
+          return () -> negTies;
+        }).par((negTies, par2) -> {
+          NumericBuilder numeric = par2.numeric();
+          List<Computation<SInt>> multNonApps = nonApps.stream()
+              .map(nonApp -> numeric.mult(upperBound, nonApp))
+              .collect(Collectors.toList());
+          List<Computation<SInt>> multNegTies = negTies.stream()
+              .map(negTie -> numeric.mult(upperBound, negTie))
+              .collect(Collectors.toList());
+          List<Computation<SInt>> multTies = IntStream.range(0, ties.size())
+              .boxed()
+              .map(i -> numeric.mult(basis.get(i), ties.get(i)))
+              .collect(Collectors.toList());
+          return () -> new Pair<>(multNonApps, new Pair<>(multNegTies, multTies));
+        }).par((pairs, par2) -> {
+          List<Computation<SInt>> multNonApps = pairs.getFirst();
+          List<Computation<SInt>> multNegTies = pairs.getSecond().getFirst();
+          List<Computation<SInt>> multTies = pairs.getSecond().getSecond();
+
+          List<Computation<SInt>> updatedTies = IntStream.range(0, ties.size())
+              .boxed()
+              .map(i -> {
+                    return par2.createSequentialSub(seq3 -> {
+                      NumericBuilder numeric = seq3.numeric();
+                      Computation<SInt> mult = numeric.add(multNegTies.get(i), multTies.get(i));
+                      return numeric.add(multNonApps.get(i), mult);
+                    });
+                  }
+              ).collect(Collectors.toList());
+          return () -> updatedTies;
+        }).seq((finalTies, seq3) -> {
+          // Break ties for exiting index by taking the minimal variable index
+          Computation<Pair<List<Computation<SInt>>, SInt>> minOut = new MinimumProtocol4(finalTies)
+              .build(seq3);
+          return () -> new Pair<>(minOut.out().getFirst(), updatedEnteringColumn);
+        });
+      });
     }).par((pair, par) -> {
-      ArrayList<Computation<SInt>> exitingIndex = pair.getFirst();
+      List<Computation<SInt>> exitingIndex = pair.getFirst();
       ArrayList<Computation<SInt>> updatedEnteringColumn = pair.getSecond();
       // Compute column for the new update matrix
 
@@ -174,8 +238,8 @@ public class ExitingVariableProtocol4 implements ComputationBuilder<ExitingVaria
       NumericBuilder numeric = seq.numeric();
       Computation<SInt> finalSum = numeric.add(sumEnteringColumn, sumUpdateColumn);
       Computation<SInt> pivot = numeric.sub(finalSum, one);
-      ArrayList<Computation<SInt>> exitingIndex = pair.getFirst().getFirst();
-      ArrayList<Computation<SInt>> updateColumn = pair.getSecond().getFirst();
+      ArrayList<Computation<SInt>> exitingIndex = new ArrayList<>(pair.getFirst().getFirst());
+      ArrayList<Computation<SInt>> updateColumn = new ArrayList<>(pair.getSecond().getFirst());
       return () -> new ExitingVariableOutput(exitingIndex, updateColumn, pivot);
     });
   }

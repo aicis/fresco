@@ -43,6 +43,7 @@ import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.lp.LPSolverProtocol4;
 import dk.alexandra.fresco.lib.lp.LPSolverProtocol4.LPOutput;
+import dk.alexandra.fresco.lib.lp.LPSolverProtocol4.PivotRule;
 import dk.alexandra.fresco.lib.lp.Matrix;
 import dk.alexandra.fresco.lib.lp.Matrix4;
 import dk.alexandra.fresco.lib.lp.OptimalValue4;
@@ -58,6 +59,12 @@ class LPSolverTests {
 
   public static class TestLPSolver<ResourcePoolT extends ResourcePool> extends
       TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+
+    private final PivotRule pivotRule;
+
+    public TestLPSolver(PivotRule pivotRule) {
+      this.pivotRule = pivotRule;
+    }
 
     @Override
     public TestThread next(TestThreadConfiguration<ResourcePoolT, ProtocolBuilderNumeric> conf) {
@@ -101,10 +108,11 @@ class LPSolverTests {
                       PlainSpdzLPPrefix4 prefix = prefixComp.out();
                       Computation<LPOutput> lpOutput = seq.createSequentialSub(
                           new LPSolverProtocol4(
+                              pivotRule,
                               prefix.getTableau(),
                               prefix.getUpdateMatrix(),
-                              prefix.getPivot()
-                          ));
+                              prefix.getPivot(),
+                              prefix.getBasis()));
 
                       Computation<SInt> optimalValue = seq.createSequentialSub((inner) -> {
                             LPOutput out = lpOutput.out();

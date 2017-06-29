@@ -25,13 +25,13 @@ package dk.alexandra.fresco.lib.lp;
 
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.MPCException;
-import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.Reporter;
 import dk.alexandra.fresco.framework.builder.ComputationBuilder;
-import dk.alexandra.fresco.framework.builder.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialProtocolBuilder;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.compare.ConditionalSelect;
+import dk.alexandra.fresco.lib.debug.MarkerProtocolImpl;
+import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.lp.LPSolverProtocol4.LPOutput;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -53,25 +53,37 @@ import java.util.List;
  */
 public class LPSolverProtocol4 implements ComputationBuilder<LPOutput> {
 
+  public enum PivotRule {
+    BLAND, DANZIG
+  }
+
+  ;
+
+  private static final boolean debugLog = false;
+
+  private final PivotRule pivotRule;
   private final LPTableau4 tableau;
   private final Matrix4<Computation<SInt>> updateMatrix;
   private final Computation<SInt> pivot;
+  private final List<Computation<SInt>> initialBasis;
   private int identityHashCode;
 
-
-  private static final BigInteger DEFAULT_BASIS_VALUE = BigInteger.ZERO;
 
   private int iterations = 0;
   private final int noVariables;
   private final int noConstraints;
 
   public LPSolverProtocol4(
+      PivotRule pivotRule,
       LPTableau4 tableau,
       Matrix4<Computation<SInt>> updateMatrix,
-      Computation<SInt> pivot) {
+      Computation<SInt> pivot,
+      List<Computation<SInt>> initialBasis) {
+    this.pivotRule = pivotRule;
     this.tableau = tableau;
     this.updateMatrix = updateMatrix;
     this.pivot = pivot;
+    this.initialBasis = initialBasis;
     if (checkDimensions(tableau, updateMatrix)) {
       this.noVariables = tableau.getC().getWidth();
       this.noConstraints = tableau.getC().getHeight();
@@ -79,6 +91,14 @@ public class LPSolverProtocol4 implements ComputationBuilder<LPOutput> {
     } else {
       throw new MPCException("Dimensions of inputs does not match");
     }
+  }
+
+  public LPSolverProtocol4(
+      LPTableau4 tableau,
+      Matrix4<Computation<SInt>> updateMatrix,
+      Computation<SInt> pivot,
+      List<Computation<SInt>> initialBasis) {
+    this(PivotRule.DANZIG, tableau, updateMatrix, pivot, initialBasis);
   }
 
   private boolean checkDimensions(LPTableau4 tableau, Matrix4<Computation<SInt>> updateMatrix) {
@@ -95,11 +115,6 @@ public class LPSolverProtocol4 implements ComputationBuilder<LPOutput> {
     Computation<SInt> zero = builder.numeric().known(BigInteger.ZERO);
     return builder.seq(seq -> {
       this.iterations = 0;
-      NumericBuilder numeric = seq.numeric();
-      List<Computation<SInt>> basis = new ArrayList<>(noConstraints);
-      for (int i = 0; i < noConstraints; i++) {
-        basis.add(numeric.known(DEFAULT_BASIS_VALUE));
-      }
       List<BigInteger> enumeratedVariables = new ArrayList<>(noVariables);
       for (int i = 1; i <= noVariables; i++) {
         enumeratedVariables.add(BigInteger.valueOf(i));
@@ -107,21 +122,29 @@ public class LPSolverProtocol4 implements ComputationBuilder<LPOutput> {
 
       LPState initialState = new LPState(
           BigInteger.ZERO, tableau, updateMatrix, null, pivot,
-          enumeratedVariables, basis, pivot);
+          enumeratedVariables, initialBasis, pivot);
       return () -> initialState;
     }).whileLoop(
         state -> !state.terminated(),
-        (state, seq) ->
-            seq.seq((inner) -> {
-              phaseOneProtocol(inner, state, zero);
-              return state;
-            }).seq((phaseOneOutput, inner) -> {
-              if (!phaseOneOutput.terminated()) {
-                phaseTwoProtocol(inner, phaseOneOutput);
-              }
-              return phaseOneOutput;
-            })
-    ).seq((whileState, seq) ->
+        (state, seq) -> {
+          iterations++;
+          if (debugLog) {
+            debugInfo(seq, state);
+          }
+          return seq.seq((inner) -> {
+            Reporter.info("LP Iterations=" + iterations + " solving " + identityHashCode);
+            if (pivotRule == PivotRule.BLAND) {
+              return blandPhaseOneProtocol(inner, state);
+            } else {
+              return phaseOneProtocol(inner, state, zero);
+            }
+          }).seq((phaseOneOutput, inner) -> {
+            if (!phaseOneOutput.terminated()) {
+              phaseTwoProtocol(inner, phaseOneOutput);
+            }
+            return phaseOneOutput;
+          });
+        }).seq((whileState, seq) ->
         () -> new LPOutput(whileState.tableau, whileState.updateMatrix, whileState.basis,
             whileState.pivot)
     );
@@ -148,8 +171,8 @@ public class LPSolverProtocol4 implements ComputationBuilder<LPOutput> {
             new ExitingVariableProtocol4(
                 state.tableau,
                 state.updateMatrix,
-                state.enteringIndex
-            ))
+                state.enteringIndex,
+                state.basis))
     ).par((exitingVariable, seq) -> {
       state.pivot = exitingVariable.pivot.out();
       ArrayList<Computation<SInt>> exitingIndex = exitingVariable.exitingIndex;
@@ -193,14 +216,11 @@ public class LPSolverProtocol4 implements ComputationBuilder<LPOutput> {
    *
    * @return a protocol producer for the first half of a simplex iteration
    */
-  private void phaseOneProtocol(
+  private Computation<LPState> phaseOneProtocol(
       SequentialProtocolBuilder builder,
       LPState state,
       Computation<SInt> zero) {
-    iterations++;
-    Reporter.info("LP Iterations=" + iterations + " solving " +
-        identityHashCode);
-    builder.seq(
+    return builder.seq(
         // Compute potential entering variable index and corresponding value of
         // entry in F
         new EnteringVariableProtocol4(state.tableau, state.updateMatrix)
@@ -211,7 +231,7 @@ public class LPSolverProtocol4 implements ComputationBuilder<LPOutput> {
       Computation<SInt> positive = seq.comparison().compareLong(zero, minimum);
       state.terminationOut = seq.numeric().open(positive);
       state.enteringIndex = entering;
-      return null;
+      return () -> state;
     });
   }
 
@@ -226,28 +246,71 @@ public class LPSolverProtocol4 implements ComputationBuilder<LPOutput> {
    *
    * @return a protocol producer for the first half of a simplex iteration
    */
-  @SuppressWarnings("unused")
-  private ProtocolProducer blandPhaseOneProtocol(LPState state) {
-    //TODO Fix this for new API
-    // Variable only here to ensure that the protocol is not flagged as unused.
-    BlandEnteringVariableProtocol protocol = null;
-/*    state.terminationOut = () -> bnFactory.getOInt();
-    // Phase 1 - Finding the entering variable and outputting
-    // whether or not the corresponding F value is positive (a positive
-    // value indicating termination)
-    state.enteringIndex = new SInt[noVariables];
-    for (int i = 0; i < noVariables; i++) {
-      state.enteringIndex[i] = bnFactory.getSInt();
+  private Computation<LPState> blandPhaseOneProtocol(
+      SequentialProtocolBuilder builder, LPState state) {
+    return builder.seq(
+        // Compute potential entering variable index and corresponding value of
+        // entry in F
+        new BlandEnteringVariableProtocol4(state.tableau, state.updateMatrix)
+    ).seq((enteringAndMinimum, seq) -> {
+      List<Computation<SInt>> entering = enteringAndMinimum.getFirst();
+      SInt termination = enteringAndMinimum.getSecond();
+      state.terminationOut = seq.numeric().open(termination);
+      state.enteringIndex = entering;
+      return () -> state;
+    });
+  }
+
+  /**
+   * Creates a protocolproducer that will print useful debugging information about the internal
+   * state of the LPSolver. Designed to be called at the beginning of each iteration (after the
+   * iteration count is incremented).
+   *
+   * @return a protocolproducer printing information.
+   */
+  private void debugInfo(SequentialProtocolBuilder builder, LPState state) {
+    if (iterations == 1) {
+      printInitialState(builder, state);
+    } else {
+      printState(builder, state);
     }
+  }
 
-    SInt first = bnFactory.getSInt();
-    ProtocolProducer blandEnter = new BlandEnteringVariableProtocol(state.tableau,
-        state.updateMatrix,
-        state.enteringIndex, first, lpFactory, bnFactory);
+  /**
+   * Constructs a protocolproducer to print out the initial state of the LPSolver. NOTE: This
+   * information is useful for debugging, but should not be reveal in regular usage.
+   *
+   * @return a protocolproducer printing information.
+   */
+  private void printInitialState(SequentialProtocolBuilder builder, LPState state) {
+    BasicNumericFactory bnFactory = builder.getBasicNumericFactory();
+    builder.append(new MarkerProtocolImpl("Initial Tableau [" + iterations + "]: "));
+    tableau.toString(builder);
+    builder
+        .append(new OpenAndPrintProtocol("Basis [" + iterations + "]: ", state.basis, bnFactory));
+    builder.append(new OpenAndPrintProtocol("Update Matrix [" + iterations + "]: ",
+        updateMatrix.toArray(Computation::out, SInt[]::new, SInt[][]::new), bnFactory));
+    builder.append(
+        new OpenAndPrintProtocol("Pivot [" + iterations + "]: ", state.prevPivot.out(), bnFactory));
+  }
 
-    Computation output = bnFactory.getOpenProtocol(first, state.terminationOut.out());
-    return new SequentialProtocolProducer(blandEnter, output);*/
-    return null;
+  /**
+   * Prints the current state of the LPSolver. NOTE: This information
+   */
+  private void printState(SequentialProtocolBuilder builder, LPState state) {
+    BasicNumericFactory bnFactory = builder.getBasicNumericFactory();
+    if (state.enteringIndex != null) {
+      builder.append(
+          new OpenAndPrintProtocol("Entering Variable [" + iterations + "]: ", state.enteringIndex,
+              bnFactory));
+    }
+    builder
+        .append(new OpenAndPrintProtocol("Basis [" + iterations + "]: ", state.basis, bnFactory));
+    SInt[][] matrix = updateMatrix.toArray(Computation::out, SInt[]::new, SInt[][]::new);
+    builder.append(new OpenAndPrintProtocol("Update Matrix [" + iterations + "]: ",
+        matrix, bnFactory));
+    builder.append(
+        new OpenAndPrintProtocol("Pivot [" + iterations + "]: ", state.prevPivot.out(), bnFactory));
   }
 
   public static class LPOutput {

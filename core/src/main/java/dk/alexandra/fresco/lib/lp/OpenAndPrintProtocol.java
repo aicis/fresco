@@ -38,6 +38,7 @@ import dk.alexandra.fresco.lib.helper.SingleProtocolProducer;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class OpenAndPrintProtocol implements ProtocolProducer {
 
@@ -45,9 +46,14 @@ public class OpenAndPrintProtocol implements ProtocolProducer {
   private SInt[] vector = null;
   private SInt[][] matrix = null;
 
-  private List<Computation<BigInteger>> oVector = new ArrayList<>();
+  private List<Computation<BigInteger>> oVector = null;
   private List<List<Computation<BigInteger>>> oMatrix = null;
   private Computation<BigInteger> oNumber;
+
+  public OpenAndPrintProtocol(String s,
+      List<Computation<SInt>> comps, BasicNumericFactory bnFactory) {
+    this(s, comps.stream().map(Computation::out).toArray(SInt[]::new), bnFactory);
+  }
 
   private enum STATE {OUTPUT, WRITE, DONE}
 
@@ -61,18 +67,21 @@ public class OpenAndPrintProtocol implements ProtocolProducer {
 
 
   public OpenAndPrintProtocol(String label, SInt number, BasicNumericFactory factory) {
+    Objects.requireNonNull(number);
     this.number = number;
     this.factory = factory;
     this.label = label;
   }
 
   public OpenAndPrintProtocol(String label, SInt[] vector, BasicNumericFactory factory) {
+    Objects.requireNonNull(vector);
     this.vector = vector;
     this.factory = factory;
     this.label = label;
   }
 
   public OpenAndPrintProtocol(String label, SInt[][] matrix, BasicNumericFactory factory) {
+    Objects.requireNonNull(matrix);
     this.matrix = matrix;
     this.factory = factory;
     this.label = label;
@@ -86,8 +95,10 @@ public class OpenAndPrintProtocol implements ProtocolProducer {
           oNumber = factory.getOpenProtocol(number);
           pp = SingleProtocolProducer.wrap(oNumber);
         } else if (vector != null) {
+          oVector = new ArrayList<>();
           pp = makeOpenProtocol(vector, oVector, factory);
         } else {
+          oMatrix = new ArrayList<>();
           pp = makeOpenProtocol(matrix, oMatrix, factory);
         }
       } else if (state == STATE.WRITE) {

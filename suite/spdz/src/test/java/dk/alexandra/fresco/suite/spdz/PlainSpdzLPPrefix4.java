@@ -43,6 +43,7 @@ public class PlainSpdzLPPrefix4 {
   private final Matrix4<Computation<SInt>> updateMatrix;
   private final LPTableau4 tableau;
   private final Computation<SInt> pivot;
+  private final ArrayList<Computation<SInt>> basis;
 
   public PlainSpdzLPPrefix4(PlainLPInputReader4 inputReader, ParallelProtocolBuilder par)
       throws IOException {
@@ -85,6 +86,15 @@ public class PlainSpdzLPPrefix4 {
 
     this.pivot = numeric.known(BigInteger.ONE);
     this.tableau = new LPTableau4(C, b, f, z);
+    ArrayList<Computation<SInt>> basis = new ArrayList<>(noConstraints);
+    for (int i = 0; i < noConstraints; i++) {
+      basis.add(numeric.known(BigInteger.valueOf(noVariables - noConstraints + 1 + i)));
+    }
+    this.basis = basis;
+  }
+
+  public ArrayList<Computation<SInt>> getBasis() {
+    return basis;
   }
 
   public LPTableau4 getTableau() {

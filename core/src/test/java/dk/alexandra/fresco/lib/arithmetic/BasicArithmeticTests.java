@@ -583,9 +583,10 @@ public class BasicArithmeticTests {
                   new MinInfFracProtocol4(
                       ns, ds, infs
                   )
-              ).seq((cs, seq2) -> {
+              ).seq((infOutput, seq2) -> {
                 NumericBuilder innerNumeric = seq2.numeric();
-                List<Computation<BigInteger>> collect = cs.stream().map(innerNumeric::open)
+                List<Computation<BigInteger>> collect = infOutput.cs.stream()
+                    .map(innerNumeric::open)
                     .collect(Collectors.toList());
                 return () -> collect;
               }).seq((outputList, ignored) -> {

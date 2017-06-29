@@ -52,7 +52,7 @@ public class DEAPrefixBuilderMaximize4 {
 
   // A value no benchmarking result should be larger than. Note the benchmarking results are of the form
   // \theta = "the factor a farmer can do better than he currently does" and thus is not necessarily upper bounded.
-  private static final int BENCHMARKING_BIG_M = 1000000;
+  private static final int BENCHMARKING_BIG_M = 1000;
 
   /**
    * Constructs an empty builder
@@ -114,13 +114,18 @@ public class DEAPrefixBuilderMaximize4 {
 
       ArrayList<Computation<SInt>> F = fVector(variables, lambdas, seq, zero);
       ArrayList<Computation<SInt>> B = bVector(constraints, targetInputs, zero, one);
-      Computation<SInt> z = zero;
+      Computation<SInt> z = seq.numeric().known(BigInteger.valueOf(-BENCHMARKING_BIG_M));
       Computation<SInt> pivot = one;
+
+      ArrayList<Computation<SInt>> basis = new ArrayList<>(constraints);
+      for (int i = 0; i < constraints; i++) {
+        basis.add(seq.numeric().known(BigInteger.valueOf(lambdas + 1 + 1 + i)));
+      }
 
       LPTableau4 tab = new LPTableau4(new Matrix4<>(constraints, variables, C), B, F, z);
       Matrix4<Computation<SInt>> updateMatrix = new Matrix4<>(
           constraints + 1, constraints + 1, getIdentity(constraints + 1, one, zero));
-      return () -> new SimpleLPPrefix4(updateMatrix, tab, pivot);
+      return () -> new SimpleLPPrefix4(updateMatrix, tab, pivot, basis);
     });
   }
 
