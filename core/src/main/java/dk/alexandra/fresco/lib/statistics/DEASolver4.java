@@ -141,13 +141,13 @@ public class DEASolver4 implements Application<List<DEAResult>, SequentialProtoc
         Computation<SInt> pivot = prefix.getPivot();
         LPTableau4 tableau = prefix.getTableau();
         Matrix4<Computation<SInt>> update = prefix.getUpdateMatrix();
+        List<Computation<SInt>> initialBasis = prefix.getBasis();
 
         result.add(
             par.createSequentialSub((subSeq) -> {
               return subSeq.seq((solverSec) -> {
                 LPSolverProtocol4 lpSolverProtocol4 = new LPSolverProtocol4(
-                    tableau, update, pivot
-                );
+                    tableau, update, pivot, initialBasis);
                 return lpSolverProtocol4.build(solverSec);
 
               }).seq((lpOutput, optSec) ->

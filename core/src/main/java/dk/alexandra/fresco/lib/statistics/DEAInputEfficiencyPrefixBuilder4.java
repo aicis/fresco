@@ -167,10 +167,14 @@ public class DEAInputEfficiencyPrefixBuilder4 {
           return () -> null;
         });
       }
+      ArrayList<Computation<SInt>> basis = new ArrayList<>(constraints);
+      for (int i = 0; i < constraints; i++) {
+        basis.add(par.numeric().known(BigInteger.valueOf(1 + dbSize + i + 1)));
+      }
       LPTableau4 tab = new LPTableau4(new Matrix4<>(constraints, variables, c), b, f, z);
       Matrix4<Computation<SInt>> updateMatrix = new Matrix4<>(
           constraints + 1, constraints + 1, getIdentity(constraints + 1, one, zero));
-      return () -> new SimpleLPPrefix4(updateMatrix, tab, pivot);
+      return () -> new SimpleLPPrefix4(updateMatrix, tab, pivot, basis);
     });
   }
 

@@ -61,8 +61,6 @@ import org.junit.Assert;
  */
 public class DEASolverTests {
 
-  private static final int BENCHMARKING_BIG_M = 1000000;
-
   public static class TestDEASolver<ResourcePoolT extends ResourcePool> extends
       TestThreadFactory<ResourcePoolT, SequentialProtocolBuilder> {
 
@@ -195,8 +193,9 @@ public class DEASolverTests {
               + ((endTime - startTime) / 1000000));
           // Perform postprocessing and compare MPC result with plaintext result
           int lambdas = datasetRows;
-          int slackVariables = inputVariables + outputVariables + 1;
-          int variables = lambdas + slackVariables + 1;
+          int constraints = inputVariables + outputVariables + 1;
+          int slackvariables = constraints;
+          int variables = lambdas + slackvariables + 1 + 2;
           System.out.println("variables:" + variables);
           for (int i = 0; i < targetQueries; i++) {
             Assert.assertEquals(plainResult[i],
@@ -226,9 +225,7 @@ public class DEASolverTests {
       BigInteger modulus) {
     BigInteger[] gauss = gauss(input, modulus);
     double res = (gauss[0].doubleValue() / gauss[1].doubleValue());
-    if (type == DEASolver4.AnalysisType.OUTPUT_EFFICIENCY) {
-      res -= BENCHMARKING_BIG_M;
-    } else {
+    if (type == DEASolver4.AnalysisType.INPUT_EFFICIENCY) {
       res *= -1;
     }
     return res;

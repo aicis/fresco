@@ -33,6 +33,7 @@ import dk.alexandra.fresco.framework.builder.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialProtocolBuilder;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.compare.ConditionalSelect;
+import dk.alexandra.fresco.lib.math.integer.min.MinInfFracProtocol4.MinInfOutput;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -54,7 +55,7 @@ import java.util.stream.Collectors;
  * turns out to be prone to overflow problems, and picking the very larger
  * value, is also non-trivial.
  */
-public class MinInfFracProtocol4 implements ComputationBuilder<ArrayList<Computation<SInt>>> {
+public class MinInfFracProtocol4 implements ComputationBuilder<MinInfOutput> {
 
   private final ArrayList<Frac> fs;
 
@@ -88,20 +89,21 @@ public class MinInfFracProtocol4 implements ComputationBuilder<ArrayList<Computa
   }
 
   @Override
-  public Computation<ArrayList<Computation<SInt>>> build(SequentialProtocolBuilder builder) {
+  public Computation<MinInfOutput> build(SequentialProtocolBuilder builder) {
     Computation<SInt> one = builder.numeric().known(BigInteger.ONE);
     if (fs.size() == 1) { // The trivial case
       return () -> {
         ArrayList<Computation<SInt>> result = new ArrayList<>();
         result.add(one);
-        return result;
+        Frac frac = fs.get(0);
+        return new MinInfOutput(frac.n, frac.d, frac.inf, result);
       };
     }
     ArrayList<Computation<SInt>> cs = new ArrayList<>(fs.size());
     for (Frac f : fs) {
       cs.add(null);
     }
-    builder.seq(seq -> () -> new IterationState(fs, 0))
+    return builder.seq(seq -> () -> new IterationState(fs, 0))
         .whileLoop(
             state -> (state.fs.size() > 1),
             (state, seq) -> {
@@ -213,8 +215,11 @@ public class MinInfFracProtocol4 implements ComputationBuilder<ArrayList<Computa
               return () -> new IterationState(
                   tmpFs.stream().map(Computation::out).collect(Collectors.toList()),
                   layer + 1);
-            });
-    return () -> cs;
+            }).seq((iterationState, sequentialProtocolBuilder) -> {
+          Frac frac = iterationState.fs.get(0);
+          return () -> new MinInfOutput(frac.n, frac.d, frac.inf, cs);
+        });
+
   }
 
   /**
@@ -235,6 +240,23 @@ public class MinInfFracProtocol4 implements ComputationBuilder<ArrayList<Computa
     @Override
     public Frac out() {
       return this;
+    }
+  }
+
+  public static class MinInfOutput {
+
+    public final Computation<SInt> nm, dm, infm;
+    public final ArrayList<Computation<SInt>> cs;
+
+    public MinInfOutput(
+        Computation<SInt> nm,
+        Computation<SInt> dm,
+        Computation<SInt> infm,
+        ArrayList<Computation<SInt>> cs) {
+      this.nm = nm;
+      this.dm = dm;
+      this.infm = infm;
+      this.cs = cs;
     }
   }
 

@@ -213,9 +213,7 @@ public class DEASolverFixedDataTest {
   private static double postProcess(BigInteger input, AnalysisType type, BigInteger modulus) {
     BigInteger[] gauss = gauss(input, modulus);
     double res = (gauss[0].doubleValue() / gauss[1].doubleValue());
-    if (type == DEASolver4.AnalysisType.OUTPUT_EFFICIENCY) {
-      res -= BENCHMARKING_BIG_M;
-    } else {
+    if (type == AnalysisType.INPUT_EFFICIENCY) {
       res *= -1;
     }
     return res;

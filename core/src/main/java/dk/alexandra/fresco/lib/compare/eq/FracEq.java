@@ -16,7 +16,7 @@ import dk.alexandra.fresco.framework.value.SInt;
  */
 public class FracEq implements ComputationBuilder<SInt> {
 
-  private final SInt n0, d0, n1, d1;
+  private final Computation<SInt> n0, d0, n1, d1;
 
   /**
    * @param n0 numerator of first fraction
@@ -24,7 +24,8 @@ public class FracEq implements ComputationBuilder<SInt> {
    * @param n1 numerator of first fraction
    * @param d1 denominator of first fraction
    */
-  public FracEq(SInt n0, SInt d0, SInt n1, SInt d1) {
+  public FracEq(Computation<SInt> n0, Computation<SInt> d0, Computation<SInt> n1,
+      Computation<SInt> d1) {
     super();
     this.n0 = n0;
     this.d0 = d0;

@@ -28,6 +28,7 @@ package dk.alexandra.fresco.lib.lp;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 import java.util.function.IntFunction;
 import java.util.stream.Collectors;
 
@@ -74,5 +75,21 @@ public class Matrix4<T> {
 
   public List<T> getColumn(int i) {
     return this.matrix.stream().map(row -> row.get(i)).collect(Collectors.toList());
+  }
+
+  @Override
+  public String toString() {
+    return "Matrix4{"
+        + "width=" + width
+        + ", height=" + height
+        + ", matrix=" + matrix
+        + '}';
+  }
+
+  public <R> R[][] toArray(Function<T, R> mapper, IntFunction<R[]> arrayCreator,
+      IntFunction<R[][]> doubleCreator) {
+    return matrix.stream().map(
+        row -> row.stream().map(mapper).toArray(arrayCreator)
+    ).toArray(doubleCreator);
   }
 }

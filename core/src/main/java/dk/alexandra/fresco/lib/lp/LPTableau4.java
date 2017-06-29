@@ -27,6 +27,7 @@
 package dk.alexandra.fresco.lib.lp;
 
 import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialProtocolBuilder;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.util.ArrayList;
 
@@ -66,5 +67,18 @@ public class LPTableau4 {
 
   public Computation<SInt> getZ() {
     return z;
+  }
+
+  public void toString(SequentialProtocolBuilder builder) {
+    builder.append(
+        new OpenAndPrintProtocol("C: ", C.toArray(Computation::out, SInt[]::new, SInt[][]::new),
+            builder.getBasicNumericFactory()));
+    builder.append(
+        new OpenAndPrintProtocol("B: ", B.stream().map(Computation::out).toArray(SInt[]::new),
+            builder.getBasicNumericFactory()));
+    builder.append(
+        new OpenAndPrintProtocol("F: ", F.stream().map(Computation::out).toArray(SInt[]::new),
+            builder.getBasicNumericFactory()));
+    builder.append(new OpenAndPrintProtocol("z: ", z.out(), builder.getBasicNumericFactory()));
   }
 }
