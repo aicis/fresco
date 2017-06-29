@@ -25,7 +25,6 @@ package dk.alexandra.fresco.lib.lp;
 
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.MPCException;
-import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.Reporter;
 import dk.alexandra.fresco.framework.builder.ComputationBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialProtocolBuilder;
@@ -54,8 +53,15 @@ import java.util.List;
  */
 public class LPSolverProtocol4 implements ComputationBuilder<LPOutput> {
 
+  public enum PivotRule {
+    BLAND, DANZIG
+  }
+
+  ;
+
   private static final boolean debugLog = false;
 
+  private final PivotRule pivotRule;
   private final LPTableau4 tableau;
   private final Matrix4<Computation<SInt>> updateMatrix;
   private final Computation<SInt> pivot;
@@ -68,10 +74,12 @@ public class LPSolverProtocol4 implements ComputationBuilder<LPOutput> {
   private final int noConstraints;
 
   public LPSolverProtocol4(
+      PivotRule pivotRule,
       LPTableau4 tableau,
       Matrix4<Computation<SInt>> updateMatrix,
       Computation<SInt> pivot,
       List<Computation<SInt>> initialBasis) {
+    this.pivotRule = pivotRule;
     this.tableau = tableau;
     this.updateMatrix = updateMatrix;
     this.pivot = pivot;
@@ -83,6 +91,14 @@ public class LPSolverProtocol4 implements ComputationBuilder<LPOutput> {
     } else {
       throw new MPCException("Dimensions of inputs does not match");
     }
+  }
+
+  public LPSolverProtocol4(
+      LPTableau4 tableau,
+      Matrix4<Computation<SInt>> updateMatrix,
+      Computation<SInt> pivot,
+      List<Computation<SInt>> initialBasis) {
+    this(PivotRule.DANZIG, tableau, updateMatrix, pivot, initialBasis);
   }
 
   private boolean checkDimensions(LPTableau4 tableau, Matrix4<Computation<SInt>> updateMatrix) {
@@ -116,8 +132,12 @@ public class LPSolverProtocol4 implements ComputationBuilder<LPOutput> {
             debugInfo(seq, state);
           }
           return seq.seq((inner) -> {
-            phaseOneProtocol(inner, state, zero);
-            return state;
+            Reporter.info("LP Iterations=" + iterations + " solving " + identityHashCode);
+            if (pivotRule == PivotRule.BLAND) {
+              return blandPhaseOneProtocol(inner, state);
+            } else {
+              return phaseOneProtocol(inner, state, zero);
+            }
           }).seq((phaseOneOutput, inner) -> {
             if (!phaseOneOutput.terminated()) {
               phaseTwoProtocol(inner, phaseOneOutput);
@@ -196,13 +216,11 @@ public class LPSolverProtocol4 implements ComputationBuilder<LPOutput> {
    *
    * @return a protocol producer for the first half of a simplex iteration
    */
-  private void phaseOneProtocol(
+  private Computation<LPState> phaseOneProtocol(
       SequentialProtocolBuilder builder,
       LPState state,
       Computation<SInt> zero) {
-    Reporter.info("LP Iterations=" + iterations + " solving " +
-        identityHashCode);
-    builder.seq(
+    return builder.seq(
         // Compute potential entering variable index and corresponding value of
         // entry in F
         new EnteringVariableProtocol4(state.tableau, state.updateMatrix)
@@ -213,7 +231,7 @@ public class LPSolverProtocol4 implements ComputationBuilder<LPOutput> {
       Computation<SInt> positive = seq.comparison().compareLong(zero, minimum);
       state.terminationOut = seq.numeric().open(positive);
       state.enteringIndex = entering;
-      return null;
+      return () -> state;
     });
   }
 
@@ -228,28 +246,19 @@ public class LPSolverProtocol4 implements ComputationBuilder<LPOutput> {
    *
    * @return a protocol producer for the first half of a simplex iteration
    */
-  @SuppressWarnings("unused")
-  private ProtocolProducer blandPhaseOneProtocol(LPState state) {
-    //TODO Fix this for new API
-    // Variable only here to ensure that the protocol is not flagged as unused.
-    BlandEnteringVariableProtocol protocol = null;
-/*    state.terminationOut = () -> bnFactory.getOInt();
-    // Phase 1 - Finding the entering variable and outputting
-    // whether or not the corresponding F value is positive (a positive
-    // value indicating termination)
-    state.enteringIndex = new SInt[noVariables];
-    for (int i = 0; i < noVariables; i++) {
-      state.enteringIndex[i] = bnFactory.getSInt();
-    }
-
-    SInt first = bnFactory.getSInt();
-    ProtocolProducer blandEnter = new BlandEnteringVariableProtocol(state.tableau,
-        state.updateMatrix,
-        state.enteringIndex, first, lpFactory, bnFactory);
-
-    Computation output = bnFactory.getOpenProtocol(first, state.terminationOut.out());
-    return new SequentialProtocolProducer(blandEnter, output);*/
-    return null;
+  private Computation<LPState> blandPhaseOneProtocol(
+      SequentialProtocolBuilder builder, LPState state) {
+    return builder.seq(
+        // Compute potential entering variable index and corresponding value of
+        // entry in F
+        new BlandEnteringVariableProtocol4(state.tableau, state.updateMatrix)
+    ).seq((enteringAndMinimum, seq) -> {
+      List<Computation<SInt>> entering = enteringAndMinimum.getFirst();
+      SInt termination = enteringAndMinimum.getSecond();
+      state.terminationOut = seq.numeric().open(termination);
+      state.enteringIndex = entering;
+      return () -> state;
+    });
   }
 
   /**

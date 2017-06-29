@@ -29,13 +29,14 @@ package dk.alexandra.fresco.suite.spdz;
 import dk.alexandra.fresco.framework.configuration.PreprocessingStrategy;
 import dk.alexandra.fresco.framework.network.NetworkingStrategy;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
+import dk.alexandra.fresco.lib.lp.LPSolverProtocol4.PivotRule;
 import org.junit.Test;
 
 public class TestSpdzLPSolver3Parties extends AbstractSpdzTest {
 
 	@Test
 	public void test_LPSolver_3_Sequential() throws Exception {
-		runTest(new LPSolverTests.TestLPSolver(), EvaluationStrategy.SEQUENTIAL_BATCHED,
+		runTest(new LPSolverTests.TestLPSolver(PivotRule.DANZIG), EvaluationStrategy.SEQUENTIAL_BATCHED,
 				NetworkingStrategy.KRYONET,
 				PreprocessingStrategy.DUMMY, 3);
 	}

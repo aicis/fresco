@@ -5,6 +5,8 @@ import dk.alexandra.fresco.framework.value.SInt;
 
 public interface ComparisonBuilder {
 
+  Computation<SInt> equals(int bitLength, Computation<SInt> x, Computation<SInt> y);
+
   /**
    * @param x1 input
    * @param x2 input

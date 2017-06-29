@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -23,7 +23,7 @@
  *
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
- *******************************************************************************/
+ */
 package dk.alexandra.fresco.suite.spdz;
 
 import dk.alexandra.fresco.IntegrationTest;
@@ -32,37 +32,49 @@ import dk.alexandra.fresco.framework.network.NetworkingStrategy;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.resources.storage.FilebasedStreamedStorageImpl;
 import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
+import dk.alexandra.fresco.lib.lp.LPSolverProtocol4.PivotRule;
 import dk.alexandra.fresco.suite.spdz.storage.InitializeStorage;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 public class TestSpdzLPSolver2Parties extends AbstractSpdzTest {
 
-	@Test
-	public void test_LPSolver_2_Sequential_dummy() throws Exception {
-		runTest(new LPSolverTests.TestLPSolver(), EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET,
-				PreprocessingStrategy.DUMMY, 2);
-	}
+  @Test
+  public void test_LPSolver_2_Sequential_dummy() throws Exception {
+    runTest(new LPSolverTests.TestLPSolver(PivotRule.DANZIG), EvaluationStrategy.SEQUENTIAL,
+        NetworkingStrategy.KRYONET,
+        PreprocessingStrategy.DUMMY, 2);
+  }
 
-	@Test
-	public void test_LPSolver_2_Sequential_batched_dummy() throws Exception {
-		runTest(new LPSolverTests.TestLPSolver(), EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET,
-				PreprocessingStrategy.DUMMY, 2);
-	}
+  @Test
+  public void test_LPSolver_2_Sequential_dummy_bland() throws Exception {
+    runTest(new LPSolverTests.TestLPSolver(PivotRule.BLAND), EvaluationStrategy.SEQUENTIAL,
+        NetworkingStrategy.KRYONET,
+        PreprocessingStrategy.DUMMY, 2);
+  }
 
-	@Category(IntegrationTest.class)
-	@Test
-	public void test_LPSolver_2_Sequential_Batched_streamed() throws Exception {
-		int noOfThreads = 3;
-		InitializeStorage.cleanup();
-		try {
-			InitializeStorage.initStreamedStorage(new FilebasedStreamedStorageImpl(new InMemoryStorage()), 2,
-					noOfThreads, 10000, 1000, 500000, 2000);
+  @Test
+  public void test_LPSolver_2_Sequential_batched_dummy() throws Exception {
+    runTest(new LPSolverTests.TestLPSolver(PivotRule.DANZIG), EvaluationStrategy.SEQUENTIAL_BATCHED,
+        NetworkingStrategy.KRYONET,
+        PreprocessingStrategy.DUMMY, 2);
+  }
 
-			runTest(new LPSolverTests.TestLPSolver(), EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET,
-					PreprocessingStrategy.STATIC, 2);
-		} finally {
-			InitializeStorage.cleanup();
-		}
-	}
+  @Category(IntegrationTest.class)
+  @Test
+  public void test_LPSolver_2_Sequential_Batched_streamed() throws Exception {
+    int noOfThreads = 3;
+    InitializeStorage.cleanup();
+    try {
+      InitializeStorage
+          .initStreamedStorage(new FilebasedStreamedStorageImpl(new InMemoryStorage()), 2,
+              noOfThreads, 10000, 1000, 500000, 2000);
+
+      runTest(new LPSolverTests.TestLPSolver(PivotRule.DANZIG),
+          EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET,
+          PreprocessingStrategy.STATIC, 2);
+    } finally {
+      InitializeStorage.cleanup();
+    }
+  }
 }

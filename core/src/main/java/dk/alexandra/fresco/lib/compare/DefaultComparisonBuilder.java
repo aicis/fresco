@@ -36,7 +36,12 @@ public class DefaultComparisonBuilder implements ComparisonBuilder {
   @Override
   public Computation<SInt> equals(Computation<SInt> x, Computation<SInt> y) {
     int maxBitLength = builder.getBasicNumericFactory().getMaxBitLength();
-    return builder.createSequentialSub(new EqualityProtocol4(maxBitLength, x, y));
+    return equals(maxBitLength, x, y);
+  }
+
+  @Override
+  public Computation<SInt> equals(int bitLength, Computation<SInt> x, Computation<SInt> y) {
+    return builder.createSequentialSub(new EqualityProtocol4(bitLength, x, y));
   }
 
   @Override
