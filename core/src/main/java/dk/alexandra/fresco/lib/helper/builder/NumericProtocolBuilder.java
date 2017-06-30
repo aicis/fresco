@@ -30,7 +30,6 @@ import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
-import dk.alexandra.fresco.lib.helper.CopyProtocol;
 
 public class NumericProtocolBuilder extends AbstractProtocolBuilder {
 
@@ -104,19 +103,6 @@ public class NumericProtocolBuilder extends AbstractProtocolBuilder {
     SInt out = bnf.getSInt();
     append(bnf.getSubtractProtocol(left, right, out));
     return out;
-  }
-
-  /**
-   * Copies the value of one SInt into an other SInt.
-   *
-   * Note: this uses the generic CopyProtocol implementation, it is not clear
-   * if this is safe for all protocol suites.
-   *
-   * @param to the SInt to copy to
-   * @param from the SInt to copy from
-   */
-  public void copy(SInt to, SInt from) {
-    append(new CopyProtocol<>(from, to));
   }
 
   @Override
