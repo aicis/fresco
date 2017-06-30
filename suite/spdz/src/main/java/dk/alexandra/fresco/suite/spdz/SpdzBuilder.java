@@ -9,15 +9,15 @@ import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.compare.MiscOIntGenerators;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
-import dk.alexandra.fresco.suite.spdz.gates.SpdzAddProtocol4;
+import dk.alexandra.fresco.suite.spdz.gates.SpdzAddProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzAddProtocolKnownLeft;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzInputProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzKnownSIntProtocol;
-import dk.alexandra.fresco.suite.spdz.gates.SpdzMultProtocol4;
+import dk.alexandra.fresco.suite.spdz.gates.SpdzMultProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzMultProtocolKnownLeft;
-import dk.alexandra.fresco.suite.spdz.gates.SpdzOutputToAllProtocol4;
-import dk.alexandra.fresco.suite.spdz.gates.SpdzRandomProtocol4;
-import dk.alexandra.fresco.suite.spdz.gates.SpdzSubtractProtocol4;
+import dk.alexandra.fresco.suite.spdz.gates.SpdzOutputToAllProtocol;
+import dk.alexandra.fresco.suite.spdz.gates.SpdzRandomProtocol;
+import dk.alexandra.fresco.suite.spdz.gates.SpdzSubtractProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzSubtractProtocolKnownLeft;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzSubtractProtocolKnownRight;
 import dk.alexandra.fresco.suite.spdz.utils.SpdzFactory;
@@ -48,9 +48,9 @@ class SpdzBuilder implements BuilderFactoryNumeric {
     return new NumericBuilder() {
       @Override
       public Computation<SInt> add(Computation<SInt> a, Computation<SInt> b) {
-        SpdzAddProtocol4 spdzAddProtocol4 = new SpdzAddProtocol4(a, b);
-        protocolBuilder.append(spdzAddProtocol4);
-        return spdzAddProtocol4;
+        SpdzAddProtocol spdzAddProtocol = new SpdzAddProtocol(a, b);
+        protocolBuilder.append(spdzAddProtocol);
+        return spdzAddProtocol;
       }
 
 
@@ -64,9 +64,9 @@ class SpdzBuilder implements BuilderFactoryNumeric {
 
       @Override
       public Computation<SInt> sub(Computation<SInt> a, Computation<SInt> b) {
-        SpdzSubtractProtocol4 spdzSubtractProtocol4 = new SpdzSubtractProtocol4(a, b);
-        protocolBuilder.append(spdzSubtractProtocol4);
-        return spdzSubtractProtocol4;
+        SpdzSubtractProtocol spdzSubtractProtocol = new SpdzSubtractProtocol(a, b);
+        protocolBuilder.append(spdzSubtractProtocol);
+        return spdzSubtractProtocol;
       }
 
       @Override
@@ -87,9 +87,9 @@ class SpdzBuilder implements BuilderFactoryNumeric {
 
       @Override
       public Computation<SInt> mult(Computation<SInt> a, Computation<SInt> b) {
-        SpdzMultProtocol4 spdzMultProtocol4 = new SpdzMultProtocol4(a, b);
-        protocolBuilder.append(spdzMultProtocol4);
-        return spdzMultProtocol4;
+        SpdzMultProtocol spdzMultProtocol = new SpdzMultProtocol(a, b);
+        protocolBuilder.append(spdzMultProtocol);
+        return spdzMultProtocol;
       }
 
       @Override
@@ -107,7 +107,7 @@ class SpdzBuilder implements BuilderFactoryNumeric {
 
       @Override
       public Computation<SInt> randomElement() {
-        return protocolBuilder.append(new SpdzRandomProtocol4());
+        return protocolBuilder.append(new SpdzRandomProtocol());
       }
 
       @Override
@@ -125,7 +125,7 @@ class SpdzBuilder implements BuilderFactoryNumeric {
 
       @Override
       public Computation<BigInteger> open(Computation<SInt> secretShare) {
-        SpdzOutputToAllProtocol4 openProtocol = new SpdzOutputToAllProtocol4(secretShare);
+        SpdzOutputToAllProtocol openProtocol = new SpdzOutputToAllProtocol(secretShare);
         protocolBuilder.append(openProtocol);
         return openProtocol;
       }

@@ -26,26 +26,37 @@
  *******************************************************************************/
 package dk.alexandra.fresco.suite.spdz.gates;
 
-import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.network.SCENetwork;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
+import dk.alexandra.fresco.suite.spdz.utils.SpdzFactory;
+import java.math.BigInteger;
 
-public class SpdzSubtractProtocol4 extends SpdzNativeProtocol<SInt> {
+public class SpdzAddProtocolOld extends SpdzNativeProtocol<SpdzSInt> {
 
-  private Computation<SInt> left;
-  private Computation<SInt> right;
-  private SpdzSInt out;
+  private SpdzSInt left, right, out;
+  private BigInteger oInt;
+  private SpdzFactory factory;
 
-  public SpdzSubtractProtocol4(Computation<SInt> left, Computation<SInt> right) {
-    this.left = left;
-    this.right = right;
+  public SpdzAddProtocolOld(SInt left, SInt right, SInt out) {
+    this.left = (SpdzSInt) left;
+    this.right = (SpdzSInt) right;
+    this.out = (SpdzSInt) out;
+  }
+
+  public SpdzAddProtocolOld(SInt left, BigInteger right, SInt out, SpdzFactory factory) {
+    this.left = (SpdzSInt) left;
+    this.oInt = right;
+    this.out = (SpdzSInt) out;
+    this.factory = factory;
   }
 
   @Override
   public String toString() {
-    return "SpdzSubtractGate(" + left + ", " + right + ", " + out + ")";
+    return "SpdzAddGate(" + left.value + ", "
+        + (right != null ? right.value : "N/A") + ", "
+        + (out != null ? out.value : "N/A") + ")";
   }
 
   @Override
@@ -54,12 +65,14 @@ public class SpdzSubtractProtocol4 extends SpdzNativeProtocol<SInt> {
   }
 
   @Override
-  public EvaluationStatus evaluate(int round, SpdzResourcePool SpdzResourcePool,
+  public EvaluationStatus evaluate(int round, SpdzResourcePool spdzResourcePool,
       SCENetwork network) {
-    SpdzSInt left = (SpdzSInt) this.left.out();
-    SpdzSInt right = (SpdzSInt) this.right.out();
-    this.out = new SpdzSInt(left.value.subtract(right.value));
+    if (oInt != null) {
+      SpdzSInt myShare = factory.getSInt(oInt);
+      out.value = left.value.add(myShare.value);
+    } else {
+      out.value = left.value.add(right.value);
+    }
     return EvaluationStatus.IS_DONE;
   }
-
 }

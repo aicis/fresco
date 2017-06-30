@@ -40,6 +40,7 @@ public class Util {
   public static int EXP_PIPE_SIZE = 200 + 1; //R^-1, R, R^2, ..., R^200
 
 
+  // TODO Remove this, it should be done via the resource pool
   public static BigInteger getModulus() {
     if (p == null) {
       throw new IllegalStateException("You need to set the modulus before you can retrieve it.");
@@ -47,6 +48,7 @@ public class Util {
     return p;
   }
 
+  // TODO Remove this, it should be done via the resource pool
   public static void setModulus(BigInteger p) {
     Util.p = p;
     Util.size = p.toByteArray().length;
