@@ -36,17 +36,15 @@ import java.util.LinkedList;
 public class SequentialProtocolProducer implements ProtocolProducer, ProtocolProducerList,
     ProtocolProducerCollection {
 
-  protected LinkedList<ProtocolProducer> protocolProducers = new LinkedList<>();
+  private LinkedList<ProtocolProducer> protocolProducers = new LinkedList<>();
 
-  public SequentialProtocolProducer(ProtocolProducer... cs) {
-    this();
-    for (ProtocolProducer c : cs) {
+  public SequentialProtocolProducer(ProtocolProducer... protocolProducers) {
+    for (ProtocolProducer c : protocolProducers) {
       append(c);
     }
   }
 
   public SequentialProtocolProducer(Computation... protocols) {
-    this();
     for (Computation protocol : protocols) {
       append(protocol);
     }
@@ -54,7 +52,6 @@ public class SequentialProtocolProducer implements ProtocolProducer, ProtocolPro
 
   public SequentialProtocolProducer(ProtocolProducer firstProtocolProducer,
       Computation... protocols) {
-    this();
     append(firstProtocolProducer);
     for (Computation protocol : protocols) {
       append(protocol);
