@@ -30,32 +30,19 @@ import dk.alexandra.fresco.framework.network.SCENetwork;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
-import dk.alexandra.fresco.suite.spdz.utils.SpdzFactory;
-import java.math.BigInteger;
 
 public class SpdzSubtractProtocolOld extends SpdzNativeProtocol<SpdzSInt> {
 
   private SpdzSInt left, right, out;
-  private BigInteger openLeft, openRight;
-  private SpdzFactory factory;
 
-  public SpdzSubtractProtocolOld(SInt left, SInt right, SInt out,
-      SpdzFactory factory) {
+  public SpdzSubtractProtocolOld(SInt left, SInt right, SInt out) {
     this.left = (SpdzSInt) left;
     this.right = (SpdzSInt) right;
     this.out = (SpdzSInt) out;
-    this.factory = factory;
   }
 
   @Override
   public String toString() {
-    if (openLeft != null) {
-      return "SpdzSubtractGate(" + openLeft + ", "
-          + right.value + ", " + out.value + ")";
-    } else if (openRight != null) {
-      return "SpdzSubtractGate(" + left.value + ", "
-          + openRight + ", " + out.value + ")";
-    }
     return "SpdzSubtractGate(" + left.value + ", " + right.value + ", "
         + out.value + ")";
   }
@@ -68,15 +55,7 @@ public class SpdzSubtractProtocolOld extends SpdzNativeProtocol<SpdzSInt> {
   @Override
   public EvaluationStatus evaluate(int round, SpdzResourcePool SpdzResourcePool,
       SCENetwork network) {
-    if (openLeft != null) {
-      SpdzSInt converted = factory.getSInt(openLeft);
-      out.value = converted.value.subtract(right.value);
-    } else if (openRight != null) {
-      SpdzSInt converted = factory.getSInt(openRight);
-      out.value = left.value.subtract(converted.value);
-    } else {
-      out.value = left.value.subtract(right.value);
-    }
+    out.value = left.value.subtract(right.value);
     return EvaluationStatus.IS_DONE;
   }
 

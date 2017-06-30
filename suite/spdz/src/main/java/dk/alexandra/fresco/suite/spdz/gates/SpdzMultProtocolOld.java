@@ -40,7 +40,6 @@ import java.math.BigInteger;
 public class SpdzMultProtocolOld extends SpdzNativeProtocol<SpdzSInt> {
 
   private SpdzSInt in1, in2, out;
-  private BigInteger oIn1;
   private SpdzTriple triple;
   private SpdzElement epsilon, delta; // my share of the differences [x]-[a]
   // and [y]-[b].
@@ -60,13 +59,6 @@ public class SpdzMultProtocolOld extends SpdzNativeProtocol<SpdzSInt> {
     switch (round) {
       case 0:
         try {
-          if (oIn1 != null) {
-            SpdzElement res = in2.value;
-            res = res.multiply(oIn1);
-            out.value = res;
-            return EvaluationStatus.IS_DONE;
-          }
-
           this.triple = store.getSupplier().getNextTriple();
 
           SpdzElement epsilon = in1.value.subtract(triple.getA());
