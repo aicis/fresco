@@ -33,20 +33,18 @@ import dk.alexandra.fresco.framework.value.OBool;
 import dk.alexandra.fresco.framework.value.SBool;
 import dk.alexandra.fresco.framework.value.SBoolFactory;
 import dk.alexandra.fresco.lib.field.bool.AndProtocol;
-import dk.alexandra.fresco.lib.helper.CopyProtocolFactory;
+import dk.alexandra.fresco.lib.helper.CopyProtocol;
 
 public class AndFromCopyConstProtocol implements AndProtocol, ProtocolProducer {
 
   private NativeProtocol copyCir;
-  private CopyProtocolFactory<SBool> copyFactory;
   private SBoolFactory sboolFactory;
   private SBool inLeft;
   private OBool inRight;
   private SBool out;
 
-  public AndFromCopyConstProtocol(CopyProtocolFactory<SBool> copyFactory, SBoolFactory sboolFactory,
+  public AndFromCopyConstProtocol(SBoolFactory sboolFactory,
       SBool inLeft, OBool inRight, SBool out) {
-    this.copyFactory = copyFactory;
     this.sboolFactory = sboolFactory;
     this.inLeft = inLeft;
     this.inRight = inRight;
@@ -57,9 +55,9 @@ public class AndFromCopyConstProtocol implements AndProtocol, ProtocolProducer {
   public void getNextProtocols(ProtocolCollection protocolCollection) {
     if (copyCir == null) {
       if (inRight.getValue()) {
-        copyCir = copyFactory.getCopyProtocol(inLeft, out);
+        copyCir = new CopyProtocol<>(inLeft, out);
       } else {
-        copyCir = copyFactory.getCopyProtocol(sboolFactory.getKnownConstantSBool(false), out);
+        copyCir = new CopyProtocol<>(sboolFactory.getKnownConstantSBool(false), out);
       }
     }
     protocolCollection.addProtocol(copyCir);

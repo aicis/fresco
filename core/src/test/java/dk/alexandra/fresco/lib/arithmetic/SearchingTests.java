@@ -42,7 +42,7 @@ import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.collections.LinearLookUp;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
-import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
+import dk.alexandra.fresco.lib.helper.SequentialProtocolProducer;
 import java.util.ArrayList;
 import java.util.Random;
 import org.junit.Assert;

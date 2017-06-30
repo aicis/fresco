@@ -41,8 +41,8 @@ import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialPr
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
+import dk.alexandra.fresco.lib.helper.SequentialProtocolProducer;
 import dk.alexandra.fresco.lib.helper.builder.NumericIOBuilder;
-import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;

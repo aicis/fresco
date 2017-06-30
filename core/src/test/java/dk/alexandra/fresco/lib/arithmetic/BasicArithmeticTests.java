@@ -42,10 +42,10 @@ import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
-import dk.alexandra.fresco.lib.helper.CopyProtocolImpl;
+import dk.alexandra.fresco.lib.helper.CopyProtocol;
+import dk.alexandra.fresco.lib.helper.SequentialProtocolProducer;
 import dk.alexandra.fresco.lib.helper.builder.NumericIOBuilder;
 import dk.alexandra.fresco.lib.helper.builder.NumericProtocolBuilder;
-import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
 import dk.alexandra.fresco.lib.math.integer.min.MinInfFrac;
 import java.math.BigInteger;
 import java.util.Arrays;
@@ -224,7 +224,7 @@ public class BasicArithmeticTests {
               ioBuilder.reset();
 
               SInt into = fac.getSInt();
-              seq.append(new CopyProtocolImpl<>(closed, into));
+              seq.append(new CopyProtocol<>(closed, into));
               Computation<BigInteger> open = ioBuilder.output(into);
               seq.append(ioBuilder.getProtocol());
               this.outputs.add(open);
@@ -312,7 +312,6 @@ public class BasicArithmeticTests {
               Computation<BigInteger> knownOutput4 = ioBuilder.output(knownInput4);
               this.outputs.addAll(Arrays.asList(knownOutput1, knownOutput2, knownOutput3,
                   knownOutput4));
-              ;
               return ioBuilder.getProtocol();
             }
           };

@@ -41,7 +41,7 @@ import dk.alexandra.fresco.framework.value.SBool;
 import dk.alexandra.fresco.lib.crypto.BristolCryptoFactory;
 import dk.alexandra.fresco.lib.field.bool.BasicLogicFactory;
 import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
-import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
+import dk.alexandra.fresco.lib.helper.SequentialProtocolProducer;
 import java.util.BitSet;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;

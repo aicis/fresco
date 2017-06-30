@@ -31,8 +31,8 @@ import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.OBool;
 import dk.alexandra.fresco.framework.value.SBool;
 import dk.alexandra.fresco.lib.field.bool.BasicLogicFactory;
+import dk.alexandra.fresco.lib.helper.SequentialProtocolProducer;
 import dk.alexandra.fresco.lib.helper.SingleProtocolProducer;
-import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
 
 
 public class BinaryOpenAndPrint implements ProtocolProducer {

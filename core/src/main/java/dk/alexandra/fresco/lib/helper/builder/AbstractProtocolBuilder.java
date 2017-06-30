@@ -32,8 +32,8 @@ import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.Reporter;
 import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
 import dk.alexandra.fresco.lib.helper.ProtocolProducerCollection;
+import dk.alexandra.fresco.lib.helper.SequentialProtocolProducer;
 import dk.alexandra.fresco.lib.helper.SingleProtocolProducer;
-import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
 import java.util.Stack;
 
 /**

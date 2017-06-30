@@ -32,7 +32,7 @@ import dk.alexandra.fresco.framework.value.OBool;
 import dk.alexandra.fresco.framework.value.SBool;
 import dk.alexandra.fresco.framework.value.SBoolFactory;
 import dk.alexandra.fresco.lib.field.bool.OrProtocol;
-import dk.alexandra.fresco.lib.helper.CopyProtocolFactory;
+import dk.alexandra.fresco.lib.helper.CopyProtocol;
 
 /**
  * An efficient way of OR'ing an SBool with an OBool if we can construct SBools
@@ -41,15 +41,13 @@ import dk.alexandra.fresco.lib.helper.CopyProtocolFactory;
 public class OrFromCopyConstProtocol implements OrProtocol {
 
   private NativeProtocol copyCir;
-  private CopyProtocolFactory<SBool> copyFactory;
   private SBoolFactory sboolFactory;
   private SBool inLeft;
   private OBool inRight;
   private SBool out;
 
-  public OrFromCopyConstProtocol(CopyProtocolFactory<SBool> copyFactory, SBoolFactory sboolFactory,
+  public OrFromCopyConstProtocol(SBoolFactory sboolFactory,
       SBool inLeft, OBool inRight, SBool out) {
-    this.copyFactory = copyFactory;
     this.sboolFactory = sboolFactory;
     this.inLeft = inLeft;
     this.inRight = inRight;
@@ -61,9 +59,9 @@ public class OrFromCopyConstProtocol implements OrProtocol {
 
     if (copyCir == null) {
       if (inRight.getValue()) {
-        copyCir = copyFactory.getCopyProtocol(sboolFactory.getKnownConstantSBool(true), out);
+        copyCir = new CopyProtocol<>(sboolFactory.getKnownConstantSBool(true), out);
       } else {
-        copyCir = copyFactory.getCopyProtocol(inLeft, out);
+        copyCir = new CopyProtocol<>(inLeft, out);
       }
     }
 

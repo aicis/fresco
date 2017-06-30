@@ -31,7 +31,7 @@ import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.SBool;
 import dk.alexandra.fresco.lib.field.bool.BasicLogicFactory;
 import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
-import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
+import dk.alexandra.fresco.lib.helper.SequentialProtocolProducer;
 
 /**
  * Does a simple compare like this: out = (a1 XNOR b1) AND (a2 XNOR b2) AND (a3

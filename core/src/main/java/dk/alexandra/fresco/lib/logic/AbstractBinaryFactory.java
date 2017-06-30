@@ -27,7 +27,6 @@
 package dk.alexandra.fresco.lib.logic;
 
 import dk.alexandra.fresco.framework.BuilderFactory;
-import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilderBinary;
@@ -57,8 +56,6 @@ import dk.alexandra.fresco.lib.field.bool.generic.NotFromXorProtocol;
 import dk.alexandra.fresco.lib.field.bool.generic.OrFromCopyConstProtocol;
 import dk.alexandra.fresco.lib.field.bool.generic.OrFromXorAndProtocol;
 import dk.alexandra.fresco.lib.field.bool.generic.XnorFromXorAndNotProtocolImpl;
-import dk.alexandra.fresco.lib.helper.CopyProtocolFactory;
-import dk.alexandra.fresco.lib.helper.CopyProtocolImpl;
 import dk.alexandra.fresco.lib.math.bool.add.AdderProtocolFactory;
 import dk.alexandra.fresco.lib.math.bool.add.BitIncrementerProtocol;
 import dk.alexandra.fresco.lib.math.bool.add.BitIncrementerProtocolFactory;
@@ -81,8 +78,9 @@ public abstract class AbstractBinaryFactory
     implements BuilderFactory<ProtocolBuilderBinary>, BasicLogicFactory, AdderProtocolFactory,
     BinaryMultProtocolFactory,
     LogProtocolFactory,
-    CopyProtocolFactory<SBool>, BinaryGreaterThanProtocolFactory, BinaryEqualityProtocolFactory,
-    CompareAndSwapProtocolFactory, OddEvenMergeSortFactory, BitIncrementerProtocolFactory {
+    BinaryGreaterThanProtocolFactory, BinaryEqualityProtocolFactory,
+    CompareAndSwapProtocolFactory, OddEvenMergeSortFactory, BitIncrementerProtocolFactory,
+    ProtocolFactory {
 
   @Override
   public ProtocolFactory getProtocolFactory() {
@@ -115,11 +113,6 @@ public abstract class AbstractBinaryFactory
   }
 
   @Override
-  public NativeProtocol<SBool, ?> getCopyProtocol(SBool in, SBool out) {
-    return new CopyProtocolImpl<>(in, out);
-  }
-
-  @Override
   public SBool[] getKnownConstantSBools(boolean[] bools) {
     int amount = bools.length;
     SBool[] res = new SBool[amount];
@@ -142,12 +135,12 @@ public abstract class AbstractBinaryFactory
   }
 
   public OrProtocol getOrProtocol(SBool inLeft, OBool inRight, SBool out) {
-    return new OrFromCopyConstProtocol(this, this, inLeft, inRight, out);
+    return new OrFromCopyConstProtocol(this, inLeft, inRight, out);
   }
 
   @Override
   public AndProtocol getAndProtocol(SBool inLeft, OBool inRight, SBool out) {
-    return new AndFromCopyConstProtocol(this, this, inLeft, inRight, out);
+    return new AndFromCopyConstProtocol(this, inLeft, inRight, out);
   }
 
   @Override

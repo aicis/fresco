@@ -30,8 +30,8 @@ import dk.alexandra.fresco.framework.BuilderFactory;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
+import dk.alexandra.fresco.lib.helper.SequentialProtocolProducer;
 import dk.alexandra.fresco.lib.helper.SingleProtocolProducer;
-import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
 import java.math.BigInteger;
 
 /**

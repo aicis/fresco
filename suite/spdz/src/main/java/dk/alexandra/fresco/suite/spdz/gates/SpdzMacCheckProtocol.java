@@ -3,7 +3,7 @@ package dk.alexandra.fresco.suite.spdz.gates;
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.ProtocolProducer;
-import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
+import dk.alexandra.fresco.lib.helper.SequentialProtocolProducer;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzCommitment;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;

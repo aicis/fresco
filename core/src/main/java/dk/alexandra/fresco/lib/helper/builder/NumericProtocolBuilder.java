@@ -30,10 +30,7 @@ import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
-import dk.alexandra.fresco.lib.helper.CopyProtocolImpl;
-import dk.alexandra.fresco.lib.helper.SingleProtocolProducer;
-import dk.alexandra.fresco.lib.helper.builder.tree.TreeProtocol;
-import dk.alexandra.fresco.lib.helper.builder.tree.TreeProtocolNodeGenerator;
+import dk.alexandra.fresco.lib.helper.CopyProtocol;
 
 public class NumericProtocolBuilder extends AbstractProtocolBuilder {
 
@@ -83,61 +80,6 @@ public class NumericProtocolBuilder extends AbstractProtocolBuilder {
   }
 
   /**
-   * Appends a protocol that sums an array of terms. The method uses a
-   * recursive tree algorithm to parallelize the computation.
-   *
-   * @param terms the terms to be summed up.
-   * @return an SInt that will be loaded with the sum.
-   */
-  public SInt sum(SInt[] terms) {
-    SInt sum = getSInt();
-    ProtocolProducer sumTree = new TreeProtocol(new SumNodeGenerator(terms, sum));
-    append(sumTree);
-    return sum;
-  }
-
-  private class SumNodeGenerator implements TreeProtocolNodeGenerator {
-
-    private SInt[] terms;
-    private SInt[] intermediate;
-    private SInt result;
-
-    SumNodeGenerator(SInt[] terms, SInt result) {
-      this.terms = terms;
-      this.intermediate = new SInt[terms.length];
-      this.result = result;
-    }
-
-    @Override
-    public ProtocolProducer getNode(int i, int j) {
-      SInt left, right, out;
-      if (intermediate[i] == null) {
-        if (i == 0) {
-          intermediate[i] = result;
-        } else {
-          intermediate[i] = getSInt();
-        }
-        left = terms[i];
-      } else {
-        left = intermediate[i];
-      }
-      if (intermediate[j] == null) {
-        right = terms[j];
-      } else {
-        right = intermediate[j];
-      }
-      out = intermediate[i];
-      Computation addition = bnf.getAddProtocol(left, right, out);
-      return SingleProtocolProducer.wrap(addition);
-    }
-
-    @Override
-    public int getLength() {
-      return terms.length;
-    }
-  }
-
-  /**
    * Multiplies two SInts
    *
    * @param left the lefthand input
@@ -174,7 +116,7 @@ public class NumericProtocolBuilder extends AbstractProtocolBuilder {
    * @param from the SInt to copy from
    */
   public void copy(SInt to, SInt from) {
-    append(new CopyProtocolImpl<>(from, to));
+    append(new CopyProtocol<>(from, to));
   }
 
   @Override
