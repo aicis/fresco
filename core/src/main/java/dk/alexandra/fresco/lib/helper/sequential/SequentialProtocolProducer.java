@@ -78,9 +78,13 @@ public class SequentialProtocolProducer implements ProtocolProducer, ProtocolPro
         LazyProtocolProducer currentProducer = (LazyProtocolProducer) this.currentProducer;
         currentProducer.checkReady();
         this.currentProducer = currentProducer.protocolProducer;
+      } else if (currentProducer instanceof SequentialProtocolProducer) {
+        SequentialProtocolProducer seq = (SequentialProtocolProducer) this.currentProducer;
+        protocolProducers.addAll(seq.protocolProducers);
+        currentProducer = protocolProducers.getFirst();
       }
     }
-    protocolProducers.getFirst().getNextProtocols(protocolCollection);
+    currentProducer.getNextProtocols(protocolCollection);
   }
 
   @Override
