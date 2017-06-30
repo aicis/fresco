@@ -3,6 +3,7 @@ package dk.alexandra.fresco.framework.builder;
 import dk.alexandra.fresco.framework.BuilderFactory;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialProtocolBuilder;
 import dk.alexandra.fresco.lib.compare.DefaultComparisonBuilder;
+import dk.alexandra.fresco.lib.compare.MiscOIntGenerators;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.math.integer.division.DefaultAdvancedNumericBuilder;
 
@@ -21,6 +22,8 @@ public interface BuilderFactoryNumeric extends BuilderFactory<SequentialProtocol
   BasicNumericFactory getBasicNumericFactory();
 
   NumericBuilder createNumericBuilder(ProtocolBuilderNumeric builder);
+
+  MiscOIntGenerators getBigIntegerHelper();
 
   default ComparisonBuilder createComparisonBuilder(ProtocolBuilderNumeric builder) {
     return new DefaultComparisonBuilder(this, builder);

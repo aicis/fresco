@@ -7,7 +7,6 @@ import dk.alexandra.fresco.framework.builder.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialProtocolBuilder;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.compare.MiscOIntGenerators;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -55,8 +54,7 @@ public class ZeroTestBruteforce implements ComputationBuilder<SInt> {
       return () -> powers;
     }).seq((powers, seq) -> {
       BigInteger modulus = seq.getBasicNumericFactory().getModulus();
-      //TODO Get MichOIntGenerators through the factory to allow caching it for the entire application
-      BigInteger[] polynomialCoefficients = new MiscOIntGenerators()
+      BigInteger[] polynomialCoefficients = seq.getBigIntegerHelper()
           .getPoly(maxLength, modulus);
       BigInteger[] mostSignificantPolynomialCoefficients = new BigInteger[maxLength];
       System.arraycopy(polynomialCoefficients, 1,

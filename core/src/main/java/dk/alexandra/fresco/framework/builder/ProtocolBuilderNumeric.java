@@ -6,6 +6,7 @@ import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.util.Pair;
+import dk.alexandra.fresco.lib.compare.MiscOIntGenerators;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
 import dk.alexandra.fresco.lib.helper.ProtocolProducerCollection;
@@ -181,6 +182,10 @@ public abstract class ProtocolBuilderNumeric implements ProtocolBuilder {
 
   public AdvancedNumericBuilder createAdvancedNumericBuilder() {
     return factory.createAdvancedNumericBuilder(this);
+  }
+
+  public MiscOIntGenerators getBigIntegerHelper() {
+    return factory.getBigIntegerHelper();
   }
 
   private static class ProtocolEntity {

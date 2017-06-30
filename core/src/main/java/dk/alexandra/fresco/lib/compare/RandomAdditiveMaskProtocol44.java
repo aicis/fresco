@@ -10,7 +10,6 @@ import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialPr
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class RandomAdditiveMaskProtocol44 implements ComputationBuilder<RandomAdditiveMask> {
@@ -38,11 +37,11 @@ public class RandomAdditiveMaskProtocol44 implements ComputationBuilder<RandomAd
       allBits.add(randomBit);
     }
 
-    MiscOIntGenerators oIntGenerators = new MiscOIntGenerators();
+    MiscOIntGenerators oIntGenerators = builder.getBigIntegerHelper();
 
-    BigInteger[] twoPows = oIntGenerators.getTwoPowers(securityParameter + noOfBits);
+    List<BigInteger> twoPows = oIntGenerators.getTwoPowersList(securityParameter + noOfBits);
     AdvancedNumericBuilder innerProductBuilder = builder.createAdvancedNumericBuilder();
-    value = innerProductBuilder.openDot(Arrays.asList(twoPows), allBits);
+    value = innerProductBuilder.openDot(twoPows, allBits);
     bits = allBits.subList(0, noOfBits);
     return () -> new RandomAdditiveMask(
         bits,

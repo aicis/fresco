@@ -6,6 +6,7 @@ import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
+import dk.alexandra.fresco.lib.compare.MiscOIntGenerators;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzAddProtocol4;
@@ -25,6 +26,7 @@ import java.util.Objects;
 class SpdzBuilder implements BuilderFactoryNumeric {
 
   private SpdzFactory spdzFactory;
+  private MiscOIntGenerators miscOIntGenerators;
 
   SpdzBuilder(SpdzFactory spdzFactory) {
     this.spdzFactory = spdzFactory;
@@ -141,4 +143,11 @@ class SpdzBuilder implements BuilderFactoryNumeric {
     };
   }
 
+  @Override
+  public MiscOIntGenerators getBigIntegerHelper() {
+    if (miscOIntGenerators == null) {
+      miscOIntGenerators = new MiscOIntGenerators();
+    }
+    return miscOIntGenerators;
+  }
 }
