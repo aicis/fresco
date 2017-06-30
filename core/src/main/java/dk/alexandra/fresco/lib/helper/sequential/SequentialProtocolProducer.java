@@ -31,6 +31,7 @@ import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.lib.helper.ProtocolProducerCollection;
 import dk.alexandra.fresco.lib.helper.SingleProtocolProducer;
+import java.util.Arrays;
 import java.util.LinkedList;
 
 public class SequentialProtocolProducer implements ProtocolProducer, ProtocolProducerCollection {
@@ -38,9 +39,7 @@ public class SequentialProtocolProducer implements ProtocolProducer, ProtocolPro
   private LinkedList<ProtocolProducer> protocolProducers = new LinkedList<>();
 
   public SequentialProtocolProducer(ProtocolProducer... protocolProducers) {
-    for (ProtocolProducer c : protocolProducers) {
-      append(c);
-    }
+    this.protocolProducers.addAll(Arrays.asList(protocolProducers));
   }
 
   public SequentialProtocolProducer(Computation... protocols) {
