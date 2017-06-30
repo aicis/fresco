@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -23,7 +23,7 @@
  *
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
- *******************************************************************************/
+ */
 package dk.alexandra.fresco.lib.math.polynomial;
 
 import dk.alexandra.fresco.framework.Computation;
