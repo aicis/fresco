@@ -316,50 +316,18 @@ public abstract class ProtocolBuilderNumeric implements ProtocolBuilder {
       return null;
     }
 
-    protected ProtocolProducer createProducerInternal(
-        InputT input,
-        BuilderFactoryNumeric factory) {
+    protected ProtocolProducer createProducerInternal(InputT input, BuilderFactoryNumeric factory) {
       BuilderT builder = createBuilder(factory);
       this.output = function.apply(input, builder);
       return builder.build();
     }
 
-    protected ProtocolProducer createProducer(
-        InputT input,
-        BuilderFactoryNumeric factory) {
-      return new ProtocolProducer() {
-        Computation lastOutput;
-        BuildStep nextStep;
-        ProtocolProducer currentProducer;
-
-        {
-          updateProducer(() -> input, BuildStep.this);
-        }
-
-        @Override
-        public void getNextProtocols(ProtocolCollection protocolCollection) {
-          currentProducer.getNextProtocols(protocolCollection);
-        }
-
-        @Override
-        public boolean hasNextProtocols() {
-          while (!currentProducer.hasNextProtocols() && nextStep != null) {
-            updateProducer(lastOutput, nextStep);
-          }
-          return currentProducer.hasNextProtocols();
-        }
-
-        private void updateProducer(
-            Computation lastOutput,
-            BuildStep step) {
-          currentProducer = step.createProducerInternal(lastOutput.out(), factory);
-          this.lastOutput = step.output;
-          this.nextStep = step.next;
-        }
-      };
+    ProtocolProducer createProducer(InputT input, BuilderFactoryNumeric factory) {
+      return new ChainedProtocolProducer(this, factory, () -> input);
     }
 
     protected abstract BuilderT createBuilder(BuilderFactoryNumeric factory);
+
   }
 
   private static class BuildStepParallel<OutputT, InputT>
@@ -466,5 +434,39 @@ public abstract class ProtocolBuilderNumeric implements ProtocolBuilder {
       return new ProtocolBuilderNumeric.SequentialProtocolBuilder(factory);
     }
 
+  }
+
+  private static class ChainedProtocolProducer implements ProtocolProducer {
+
+    private final BuilderFactoryNumeric factory;
+    private Computation lastOutput;
+    private BuildStep nextStep;
+    private ProtocolProducer currentProducer;
+
+    ChainedProtocolProducer(BuildStep buildStep,
+        BuilderFactoryNumeric factory, Computation inputLambda) {
+      this.factory = factory;
+      updateProducer(inputLambda, buildStep);
+    }
+
+    @Override
+    public void getNextProtocols(ProtocolCollection protocolCollection) {
+      currentProducer.getNextProtocols(protocolCollection);
+    }
+
+    @Override
+    public boolean hasNextProtocols() {
+      while (!currentProducer.hasNextProtocols() && nextStep != null) {
+        updateProducer(lastOutput, nextStep);
+      }
+      return currentProducer.hasNextProtocols();
+    }
+
+    @SuppressWarnings("unchecked")
+    private void updateProducer(Computation lastOutput, BuildStep step) {
+      currentProducer = step.createProducerInternal(lastOutput.out(), factory);
+      this.lastOutput = step.output;
+      this.nextStep = step.next;
+    }
   }
 }
