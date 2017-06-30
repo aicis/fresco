@@ -256,7 +256,7 @@ public abstract class ProtocolBuilderNumeric implements ProtocolBuilder {
 
     protected final BiFunction<InputT, BuilderT, Computation<OutputT>> function;
 
-    protected ProtocolBuilderNumeric.BuildStep<?, ?, OutputT> child;
+    protected ProtocolBuilderNumeric.BuildStep<?, ?, OutputT> next;
     protected Computation<OutputT> output;
 
     private BuildStep(
@@ -268,7 +268,7 @@ public abstract class ProtocolBuilderNumeric implements ProtocolBuilder {
         FrescoLambda<OutputT, NextOutputT> function) {
       ProtocolBuilderNumeric.BuildStep<ProtocolBuilderNumeric.SequentialProtocolBuilder, NextOutputT, OutputT> localChild =
           new ProtocolBuilderNumeric.BuildStepSequential<>(function);
-      this.child = localChild;
+      this.next = localChild;
       return localChild;
     }
 
@@ -276,7 +276,7 @@ public abstract class ProtocolBuilderNumeric implements ProtocolBuilder {
         FrescoLambdaParallel<OutputT, NextOutputT> function) {
       ProtocolBuilderNumeric.BuildStep<ProtocolBuilderNumeric.ParallelProtocolBuilder, NextOutputT, OutputT> localChild =
           new ProtocolBuilderNumeric.BuildStepParallel<>(function);
-      this.child = localChild;
+      this.next = localChild;
       return localChild;
     }
 
@@ -285,7 +285,7 @@ public abstract class ProtocolBuilderNumeric implements ProtocolBuilder {
         FrescoLambda<OutputT, OutputT> function) {
       ProtocolBuilderNumeric.BuildStepLooping<OutputT> localChild = new ProtocolBuilderNumeric.BuildStepLooping<>(
           test, function);
-      this.child = localChild;
+      this.next = localChild;
       return localChild;
     }
 
@@ -305,7 +305,7 @@ public abstract class ProtocolBuilderNumeric implements ProtocolBuilder {
                 return () -> new Pair<>(firstOutput.out(), secondOutput.out());
               }
           );
-      this.child = localChild;
+      this.next = localChild;
       return localChild;
     }
 
@@ -316,24 +316,47 @@ public abstract class ProtocolBuilderNumeric implements ProtocolBuilder {
       return null;
     }
 
+    protected ProtocolProducer createProducerInternal(
+        InputT input,
+        BuilderFactoryNumeric factory) {
+      BuilderT builder = createBuilder(factory);
+      this.output = function.apply(input, builder);
+      return builder.build();
+    }
+
     protected ProtocolProducer createProducer(
         InputT input,
         BuilderFactoryNumeric factory) {
+      return new ProtocolProducer() {
+        Computation lastOutput;
+        BuildStep nextStep;
+        ProtocolProducer currentProducer;
 
-      BuilderT builder = createBuilder(factory);
-      Computation<OutputT> output = function.apply(input, builder);
-      if (child != null) {
-        return
-            new SequentialProtocolProducer(
-                builder.build(),
-                new LazyProtocolProducer(() ->
-                    child.createProducer(output.out(), factory)
-                )
-            );
-      } else {
-        this.output = output;
-        return builder.build();
-      }
+        {
+          updateProducer(() -> input, BuildStep.this);
+        }
+
+        @Override
+        public void getNextProtocols(ProtocolCollection protocolCollection) {
+          currentProducer.getNextProtocols(protocolCollection);
+        }
+
+        @Override
+        public boolean hasNextProtocols() {
+          while (!currentProducer.hasNextProtocols() && nextStep != null) {
+            updateProducer(lastOutput, nextStep);
+          }
+          return currentProducer.hasNextProtocols();
+        }
+
+        private void updateProducer(
+            Computation lastOutput,
+            BuildStep step) {
+          currentProducer = step.createProducerInternal(lastOutput.out(), factory);
+          this.lastOutput = step.output;
+          this.nextStep = step.next;
+        }
+      };
     }
 
     protected abstract BuilderT createBuilder(BuilderFactoryNumeric factory);
@@ -369,7 +392,9 @@ public abstract class ProtocolBuilderNumeric implements ProtocolBuilder {
     }
 
     @Override
-    protected ProtocolProducer createProducer(InputT input, BuilderFactoryNumeric factory) {
+    protected ProtocolProducer createProducerInternal(InputT input, BuilderFactoryNumeric factory) {
+      final DelayedComputation<InputT> delayedComputation = new DelayedComputation<>();
+      this.output = delayedComputation;
       return new ProtocolProducer() {
         private boolean isDone = false;
         private boolean doneWithOwn = false;
@@ -403,11 +428,10 @@ public abstract class ProtocolBuilderNumeric implements ProtocolBuilder {
               currentProducer = builder.build();
             } else {
               doneWithOwn = true;
-              if (child != null) {
-                currentProducer = child.createProducer(input, factory);
-                child = null;
-              } else {
-                output = currentResult;
+              delayedComputation.setComputation(currentResult);
+              if (next != null) {
+                currentProducer = next.createProducer(input, factory);
+                next = null;
               }
             }
           }
