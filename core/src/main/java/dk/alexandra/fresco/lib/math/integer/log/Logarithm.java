@@ -43,14 +43,14 @@ import java.math.BigInteger;
  *
  * @author Jonas Lindstrøm (jonas.lindstrom@alexandra.dk)
  */
-public class LogarithmProtocol implements ComputationBuilder<SInt> {
+public class Logarithm implements ComputationBuilder<SInt> {
 
   // Input
   private Computation<SInt> input;
   private int maxInputLength;
 
 
-  public LogarithmProtocol(Computation<SInt> input, int maxInputLength) {
+  public Logarithm(Computation<SInt> input, int maxInputLength) {
     this.input = input;
     this.maxInputLength = maxInputLength;
   }

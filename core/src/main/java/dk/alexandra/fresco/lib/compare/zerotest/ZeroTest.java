@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -23,15 +23,39 @@
  *
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
- *******************************************************************************/
-package dk.alexandra.fresco.lib.math.integer.linalg;
+ */
+package dk.alexandra.fresco.lib.compare.zerotest;
 
-import dk.alexandra.fresco.framework.ProtocolProducer;
+import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
+import dk.alexandra.fresco.framework.builder.ComputationBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialProtocolBuilder;
+import dk.alexandra.fresco.framework.value.SInt;
 
 /**
- * Will multiply each entry of the same position and return an array with the result. i.e.
- * if a = [a1, a2, ..., an], b = [b1, b2, ..., bn], then the result c = [a1*b1, a2*b2, ...,an*bn]
+ * testing for equality with zero for a bitLength-bit number (positive or negative)
+ *
+ * @author ttoft
  */
-public interface EntrywiseProductProtocol extends ProtocolProducer {
+public class ZeroTest implements ComputationBuilder<SInt> {
 
+  private final BuilderFactoryNumeric factoryNumeric;
+  private final int bitLength;
+  private final Computation<SInt> input;
+
+  public ZeroTest(
+      BuilderFactoryNumeric factoryNumeric,
+      int bitLength, Computation<SInt> input) {
+    this.factoryNumeric = factoryNumeric;
+    this.bitLength = bitLength;
+    this.input = input;
+  }
+
+  @Override
+  public Computation<SInt> build(SequentialProtocolBuilder builder) {
+    Computation<SInt> reduced = builder.createSequentialSub(
+        new ZeroTestReducer(bitLength, input));
+    return builder.createSequentialSub(
+        new ZeroTestBruteforce(factoryNumeric, bitLength, reduced));
+  }
 }

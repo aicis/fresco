@@ -39,12 +39,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class MinimumProtocol4 implements ComputationBuilder<Pair<List<Computation<SInt>>, SInt>> {
+public class Minimum implements ComputationBuilder<Pair<List<Computation<SInt>>, SInt>> {
 
   private final List<Computation<SInt>> xs;
   private final int k;
 
-  public MinimumProtocol4(List<Computation<SInt>> xs) {
+  public Minimum(List<Computation<SInt>> xs) {
     this.k = xs.size();
     if (this.k < 2) {
       throw new IllegalArgumentException("Minimum protocol. k should never be less than 2.");
@@ -101,10 +101,10 @@ public class MinimumProtocol4 implements ComputationBuilder<Pair<List<Computatio
       }).par(
           (pair, seq) ->
               seq.createSequentialSub(
-                  new MinimumProtocol4(pair.getFirst())),
+                  new Minimum(pair.getFirst())),
           (pair, seq) ->
               seq.createSequentialSub(
-                  new MinimumProtocol4(pair.getSecond()))
+                  new Minimum(pair.getSecond()))
       ).seq((pair, seq) -> {
         ComparisonBuilder comparison = seq.comparison();
         NumericBuilder numeric = seq.numeric();

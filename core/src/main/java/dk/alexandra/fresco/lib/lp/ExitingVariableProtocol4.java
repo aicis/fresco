@@ -39,8 +39,8 @@ import dk.alexandra.fresco.lib.compare.ConditionalSelect;
 import dk.alexandra.fresco.lib.compare.eq.FracEq;
 import dk.alexandra.fresco.lib.lp.ExitingVariableProtocol4.ExitingVariableOutput;
 import dk.alexandra.fresco.lib.math.integer.SumSIntList;
-import dk.alexandra.fresco.lib.math.integer.min.MinInfFracProtocol4;
-import dk.alexandra.fresco.lib.math.integer.min.MinimumProtocol4;
+import dk.alexandra.fresco.lib.math.integer.min.MinInfFrac;
+import dk.alexandra.fresco.lib.math.integer.min.Minimum;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
@@ -139,7 +139,7 @@ public class ExitingVariableProtocol4 implements ComputationBuilder<ExitingVaria
       ArrayList<Computation<SInt>> nonApps = pair.getSecond().getSecond();
       List<Computation<SInt>> shortColumn = updatedEnteringColumn.subList(0, updatedB.size());
       return seq.seq(
-          new MinInfFracProtocol4(updatedB, shortColumn, nonApps)
+          new MinInfFrac(updatedB, shortColumn, nonApps)
       ).par((minInfOutput, par) -> {
         List<Computation<SInt>> ties = new ArrayList<>(updatedB.size());
         // Find index of each entry with the minimal ratio found in previous round
@@ -193,7 +193,7 @@ public class ExitingVariableProtocol4 implements ComputationBuilder<ExitingVaria
           return () -> updatedTies;
         }).seq((finalTies, seq3) -> {
           // Break ties for exiting index by taking the minimal variable index
-          Computation<Pair<List<Computation<SInt>>, SInt>> minOut = new MinimumProtocol4(finalTies)
+          Computation<Pair<List<Computation<SInt>>, SInt>> minOut = new Minimum(finalTies)
               .build(seq3);
           return () -> new Pair<>(minOut.out().getFirst(), updatedEnteringColumn);
         });

@@ -10,12 +10,12 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
-public class InnerProductProtocolOpen implements ComputationBuilder<SInt> {
+public class InnerProductOpen implements ComputationBuilder<SInt> {
 
   private final List<BigInteger> aVector;
   private final List<Computation<SInt>> bVector;
 
-  public InnerProductProtocolOpen(List<BigInteger> aVector,
+  public InnerProductOpen(List<BigInteger> aVector,
       List<Computation<SInt>> bVector) {
     this.aVector = aVector;
     this.bVector = bVector;

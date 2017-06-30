@@ -33,7 +33,7 @@ import dk.alexandra.fresco.framework.builder.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialProtocolBuilder;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.compare.ConditionalSelect;
-import dk.alexandra.fresco.lib.math.integer.min.MinInfFracProtocol4.MinInfOutput;
+import dk.alexandra.fresco.lib.math.integer.min.MinInfFrac.MinInfOutput;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -55,7 +55,7 @@ import java.util.stream.Collectors;
  * turns out to be prone to overflow problems, and picking the very larger
  * value, is also non-trivial.
  */
-public class MinInfFracProtocol4 implements ComputationBuilder<MinInfOutput> {
+public class MinInfFrac implements ComputationBuilder<MinInfOutput> {
 
   private final ArrayList<Frac> fs;
 
@@ -71,7 +71,7 @@ public class MinInfFracProtocol4 implements ComputationBuilder<MinInfOutput> {
    * @param infs input - a list of infinity indicators (should be a 0/1 value, 1 indicating
    * infinity)
    */
-  public MinInfFracProtocol4(
+  public MinInfFrac(
       List<Computation<SInt>> ns,
       List<Computation<SInt>> ds,
       List<Computation<SInt>> infs) {

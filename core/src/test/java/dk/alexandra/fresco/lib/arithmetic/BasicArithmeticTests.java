@@ -46,7 +46,7 @@ import dk.alexandra.fresco.lib.helper.CopyProtocolImpl;
 import dk.alexandra.fresco.lib.helper.builder.NumericIOBuilder;
 import dk.alexandra.fresco.lib.helper.builder.NumericProtocolBuilder;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
-import dk.alexandra.fresco.lib.math.integer.min.MinInfFracProtocol4;
+import dk.alexandra.fresco.lib.math.integer.min.MinInfFrac;
 import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.List;
@@ -580,7 +580,7 @@ public class BasicArithmeticTests {
                   .collect(Collectors.toList());
 
               seq.seq(
-                  new MinInfFracProtocol4(
+                  new MinInfFrac(
                       ns, ds, infs
                   )
               ).seq((infOutput, seq2) -> {

@@ -38,9 +38,9 @@ import dk.alexandra.fresco.lib.compare.ConditionalSelect;
 import java.math.BigInteger;
 import java.util.List;
 
-public class GreaterThanReducerProtocol4 implements ComputationBuilder<SInt> {
+public class GreaterThan implements ComputationBuilder<SInt> {
 
-  public GreaterThanReducerProtocol4(int bitLength, int securityParameter,
+  public GreaterThan(int bitLength, int securityParameter,
       Computation<SInt> x, Computation<SInt> y,
       BuilderFactoryNumeric factoryProducer) {
     this.bitLength = bitLength;
@@ -174,7 +174,7 @@ public class GreaterThanReducerProtocol4 implements ComputationBuilder<SInt> {
         int nextBitLength = (bitLength + 1) / 2;
         subComparisonResult =
             seq.createSequentialSub(
-                new GreaterThanReducerProtocol4(
+                new GreaterThan(
                     nextBitLength,
                     securityParameter,
                     rPrime,

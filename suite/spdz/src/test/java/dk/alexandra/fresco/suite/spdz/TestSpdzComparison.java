@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -23,55 +23,65 @@
  *
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
- *******************************************************************************/
+ */
 package dk.alexandra.fresco.suite.spdz;
 
 import dk.alexandra.fresco.framework.configuration.PreprocessingStrategy;
 import dk.alexandra.fresco.framework.network.NetworkingStrategy;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.lib.arithmetic.ComparisonTests;
+import dk.alexandra.fresco.lib.arithmetic.EliminateDuplicatesTests.TestFindDuplicatesOne;
 import dk.alexandra.fresco.lib.arithmetic.LogicTests;
 import dk.alexandra.fresco.lib.arithmetic.SortingTests;
 import org.junit.Test;
 
-public class TestSpdzComparison extends AbstractSpdzTest{	
+public class TestSpdzComparison extends AbstractSpdzTest {
 
-	@Test
-	public void test_compareLT_Sequential() throws Exception {
-		runTest(new ComparisonTests.TestCompareLT(),
-				EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
-	}
-	
-	@Test
-	public void test_compareEQ_Sequential() throws Exception {
-		runTest(new ComparisonTests.TestCompareEQ(),
-		    EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
-	}
-	
-	@Test
-	public void test_isSorted() throws Exception {
-		runTest(new SortingTests.TestIsSorted(),
-		    EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
-	}
-	
-	@Test
-	public void test_compareAndSwap() throws Exception {
-		runTest(new SortingTests.TestCompareAndSwap(),
-		    EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
-	}
-	@Test
-	public void test_Sort() throws Exception {
-		runTest(new SortingTests.TestSort(),
-		    EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
-	}
-	@Test
-	public void test_Big_Sort() throws Exception {
-		runTest(new SortingTests.TestBigSort(),
-		    EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
-	}
-	@Test
-	public void test_logic() throws Exception {
-		runTest(new LogicTests.TestLogic(),
-		    EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
-	}
+  @Test
+  public void test_compareLT_Sequential() throws Exception {
+    runTest(new ComparisonTests.TestCompareLT(),
+        EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
+  }
+
+  @Test
+  public void test_compareEQ_Sequential() throws Exception {
+    runTest(new ComparisonTests.TestCompareEQ(),
+        EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
+  }
+
+  @Test
+  public void test_isSorted() throws Exception {
+    runTest(new SortingTests.TestIsSorted(),
+        EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
+  }
+
+  @Test
+  public void test_compareAndSwap() throws Exception {
+    runTest(new SortingTests.TestCompareAndSwap(),
+        EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
+  }
+
+  @Test
+  public void test_Sort() throws Exception {
+    runTest(new SortingTests.TestSort(),
+        EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
+  }
+
+  @Test
+  public void test_Big_Sort() throws Exception {
+    runTest(new SortingTests.TestBigSort(),
+        EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
+  }
+
+  @Test
+  public void test_logic() throws Exception {
+    runTest(new LogicTests.TestLogic(),
+        EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
+  }
+
+  @Test
+  public void test_find_duplicates() throws Exception {
+    runTest(new TestFindDuplicatesOne(),
+        EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
+  }
 }
