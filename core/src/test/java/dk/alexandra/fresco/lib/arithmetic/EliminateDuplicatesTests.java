@@ -6,7 +6,7 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialProtocolBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SInt;
@@ -21,7 +21,7 @@ import org.junit.Assert;
 public class EliminateDuplicatesTests {
 
   public static class TestFindDuplicatesOne<ResourcePoolT extends ResourcePool> extends
-      TestThreadFactory<ResourcePoolT, SequentialProtocolBuilder> {
+      TestThreadFactory<ResourcePoolT, SequentialNumericBuilder> {
 
     private BigInteger zero = BigInteger.valueOf(0);
     private BigInteger one = BigInteger.valueOf(1);
@@ -40,12 +40,12 @@ public class EliminateDuplicatesTests {
         );
 
     @Override
-    public TestThread<ResourcePoolT, SequentialProtocolBuilder> next(
-        TestThreadConfiguration<ResourcePoolT, SequentialProtocolBuilder> conf) {
-      return new TestThread<ResourcePoolT, SequentialProtocolBuilder>() {
+    public TestThread<ResourcePoolT, SequentialNumericBuilder> next(
+        TestThreadConfiguration<ResourcePoolT, SequentialNumericBuilder> conf) {
+      return new TestThread<ResourcePoolT, SequentialNumericBuilder>() {
         @Override
         public void test() throws Exception {
-          Application<List<BigInteger>, SequentialProtocolBuilder> app =
+          Application<List<BigInteger>, SequentialNumericBuilder> app =
               builder -> {
                 NumericBuilder input = builder.numeric();
                 Computation<SInt> zero = input.known(BigInteger.ZERO);

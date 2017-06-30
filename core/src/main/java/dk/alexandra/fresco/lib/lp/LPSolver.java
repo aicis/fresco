@@ -27,7 +27,7 @@ import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.Reporter;
 import dk.alexandra.fresco.framework.builder.ComputationBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialProtocolBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.compare.ConditionalSelect;
 import dk.alexandra.fresco.lib.debug.MarkerProtocolImpl;
@@ -109,7 +109,7 @@ public class LPSolver implements ComputationBuilder<LPOutput> {
 
 
   @Override
-  public Computation<LPOutput> build(SequentialProtocolBuilder builder) {
+  public Computation<LPOutput> build(SequentialNumericBuilder builder) {
     Computation<SInt> zero = builder.numeric().known(BigInteger.ZERO);
     return builder.seq(seq -> {
       this.iterations = 0;
@@ -162,7 +162,7 @@ public class LPSolver implements ComputationBuilder<LPOutput> {
    * </p>
    */
   private Computation<LPState> phaseTwoProtocol(
-      SequentialProtocolBuilder builder,
+      SequentialNumericBuilder builder,
       LPState state) {
     return builder.seq((seq) ->
         seq.createSequentialSub(
@@ -172,7 +172,7 @@ public class LPSolver implements ComputationBuilder<LPOutput> {
                 state.enteringIndex,
                 state.basis))
     ).par((exitingVariable, seq) -> {
-      state.pivot = exitingVariable.pivot.out();
+      state.pivot = exitingVariable.pivot;
       ArrayList<Computation<SInt>> exitingIndex = exitingVariable.exitingIndex;
       // Update Basis
       Computation<SInt> ent = seq.createAdvancedNumericBuilder()
@@ -215,7 +215,7 @@ public class LPSolver implements ComputationBuilder<LPOutput> {
    * @return a protocol producer for the first half of a simplex iteration
    */
   private Computation<LPState> phaseOneProtocol(
-      SequentialProtocolBuilder builder,
+      SequentialNumericBuilder builder,
       LPState state,
       Computation<SInt> zero) {
     return builder.seq(
@@ -226,7 +226,7 @@ public class LPSolver implements ComputationBuilder<LPOutput> {
       List<Computation<SInt>> entering = enteringAndMinimum.getFirst();
       SInt minimum = enteringAndMinimum.getSecond();
       // Check if the entry in F is non-negative
-      Computation<SInt> positive = seq.comparison().compareLong(zero, minimum);
+      Computation<SInt> positive = seq.comparison().compareLong(zero, () -> minimum);
       state.terminationOut = seq.numeric().open(positive);
       state.enteringIndex = entering;
       return () -> state;
@@ -245,7 +245,7 @@ public class LPSolver implements ComputationBuilder<LPOutput> {
    * @return a protocol producer for the first half of a simplex iteration
    */
   private Computation<LPState> blandPhaseOneProtocol(
-      SequentialProtocolBuilder builder, LPState state) {
+      SequentialNumericBuilder builder, LPState state) {
     return builder.seq(
         // Compute potential entering variable index and corresponding value of
         // entry in F
@@ -266,7 +266,7 @@ public class LPSolver implements ComputationBuilder<LPOutput> {
    *
    * @return a protocolproducer printing information.
    */
-  private void debugInfo(SequentialProtocolBuilder builder, LPState state) {
+  private void debugInfo(SequentialNumericBuilder builder, LPState state) {
     if (iterations == 1) {
       printInitialState(builder, state);
     } else {
@@ -280,7 +280,7 @@ public class LPSolver implements ComputationBuilder<LPOutput> {
    *
    * @return a protocolproducer printing information.
    */
-  private void printInitialState(SequentialProtocolBuilder builder, LPState state) {
+  private void printInitialState(SequentialNumericBuilder builder, LPState state) {
     BasicNumericFactory bnFactory = builder.getBasicNumericFactory();
     builder.append(new MarkerProtocolImpl("Initial Tableau [" + iterations + "]: "));
     tableau.toString(builder);
@@ -295,7 +295,7 @@ public class LPSolver implements ComputationBuilder<LPOutput> {
   /**
    * Prints the current state of the LPSolver. NOTE: This information
    */
-  private void printState(SequentialProtocolBuilder builder, LPState state) {
+  private void printState(SequentialNumericBuilder builder, LPState state) {
     BasicNumericFactory bnFactory = builder.getBasicNumericFactory();
     if (state.enteringIndex != null) {
       builder.append(

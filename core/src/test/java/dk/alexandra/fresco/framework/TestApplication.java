@@ -29,7 +29,7 @@ package dk.alexandra.fresco.framework;
 
 import dk.alexandra.fresco.framework.builder.ProtocolBuilderHelper;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialProtocolBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
@@ -47,7 +47,7 @@ public abstract class TestApplication implements
 
   @Override
   public Computation<List<BigInteger>> prepareApplication(ProtocolBuilderNumeric producer) {
-    SequentialProtocolBuilder producer1 = (SequentialProtocolBuilder) producer;
+    SequentialNumericBuilder producer1 = (SequentialNumericBuilder) producer;
     producer1.append(prepareApplication(ProtocolBuilderHelper.getFactoryNumeric(producer)));
     return outputToBigInteger();
   }

@@ -30,7 +30,7 @@ import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.builder.AdvancedNumericBuilder;
 import dk.alexandra.fresco.framework.builder.ComputationBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialProtocolBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.math.integer.min.Minimum;
@@ -66,7 +66,7 @@ public class EnteringVariable
 
 
   @Override
-  public Computation<Pair<List<Computation<SInt>>, SInt>> build(SequentialProtocolBuilder builder) {
+  public Computation<Pair<List<Computation<SInt>>, SInt>> build(SequentialNumericBuilder builder) {
     return builder.par(par -> {
       int updateVectorDimension = updateMatrix.getHeight();
       int numOfFs = tableau.getF().size();

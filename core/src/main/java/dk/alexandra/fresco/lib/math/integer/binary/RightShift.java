@@ -31,7 +31,7 @@ import dk.alexandra.fresco.framework.builder.AdvancedNumericBuilder;
 import dk.alexandra.fresco.framework.builder.AdvancedNumericBuilder.RightShiftResult;
 import dk.alexandra.fresco.framework.builder.ComputationBuilder;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialProtocolBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
@@ -61,7 +61,7 @@ public class RightShift implements ComputationBuilder<RightShiftResult> {
   }
 
   @Override
-  public Computation<RightShiftResult> build(SequentialProtocolBuilder sequential) {
+  public Computation<RightShiftResult> build(SequentialNumericBuilder sequential) {
     return sequential.seq((builder) -> {
       AdvancedNumericBuilder additiveMaskBuilder = builder.createAdvancedNumericBuilder();
       return additiveMaskBuilder.additiveMask(bitLength);

@@ -1,7 +1,7 @@
 package dk.alexandra.fresco.framework.builder;
 
 import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.ParallelProtocolBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.ParallelNumericBuilder;
 
 public interface ParallelComputationBuilder<OutputT> {
 
@@ -11,6 +11,6 @@ public interface ParallelComputationBuilder<OutputT> {
    * @param builder the function argument
    * @return the function result
    */
-  Computation<OutputT> build(ParallelProtocolBuilder builder);
+  Computation<OutputT> build(ParallelNumericBuilder builder);
 
 }

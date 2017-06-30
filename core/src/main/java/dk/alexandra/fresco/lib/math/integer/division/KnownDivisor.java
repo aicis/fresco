@@ -4,7 +4,7 @@ import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.ComputationBuilder;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialProtocolBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import java.math.BigInteger;
@@ -49,7 +49,7 @@ public class KnownDivisor implements ComputationBuilder<SInt> {
   }
 
   @Override
-  public Computation<SInt> build(SequentialProtocolBuilder builder) {
+  public Computation<SInt> build(SequentialNumericBuilder builder) {
     BasicNumericFactory basicNumericFactory = this.builderFactory.getBasicNumericFactory();
     BigInteger modulus = basicNumericFactory.getModulus();
     BigInteger modulusHalf = modulus.divide(BigInteger.valueOf(2));

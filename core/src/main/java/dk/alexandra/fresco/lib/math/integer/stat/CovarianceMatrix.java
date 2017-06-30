@@ -28,7 +28,7 @@ package dk.alexandra.fresco.lib.math.integer.stat;
 
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.builder.ComputationBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialProtocolBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -75,7 +75,7 @@ public class CovarianceMatrix implements ComputationBuilder<List<List<Computatio
   }
 
   @Override
-  public Computation<List<List<Computation<SInt>>>> build(SequentialProtocolBuilder builder) {
+  public Computation<List<List<Computation<SInt>>>> build(SequentialNumericBuilder builder) {
     return builder.par((par) -> {
       /*
        * If (some of) the sample means has not been provided, we calculate

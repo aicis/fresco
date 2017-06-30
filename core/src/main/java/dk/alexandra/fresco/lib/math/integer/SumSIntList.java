@@ -3,7 +3,7 @@ package dk.alexandra.fresco.lib.math.integer;
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.builder.ComputationBuilder;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialProtocolBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,7 +25,7 @@ public class SumSIntList implements ComputationBuilder<SInt> {
   }
 
   @Override
-  public Computation<SInt> build(SequentialProtocolBuilder iterationBuilder) {
+  public Computation<SInt> build(SequentialNumericBuilder iterationBuilder) {
     return iterationBuilder.seq(seq ->
         () -> input
     ).whileLoop(

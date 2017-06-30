@@ -4,7 +4,7 @@ import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.ComputationBuilder;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialProtocolBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
@@ -26,7 +26,7 @@ public class ZeroTestBruteforce implements ComputationBuilder<SInt> {
   }
 
   @Override
-  public Computation<SInt> build(SequentialProtocolBuilder builder) {
+  public Computation<SInt> build(SequentialNumericBuilder builder) {
     BigInteger one = BigInteger.ONE;
     return builder.seq((seq) ->
         seq.numeric().getExponentiationPipe()
@@ -34,7 +34,7 @@ public class ZeroTestBruteforce implements ComputationBuilder<SInt> {
       //Add one, mult and unmask
       NumericBuilder numeric = seq.numeric();
       Computation<SInt> increased = numeric.add(one, input);
-      Computation<SInt> maskedS = numeric.mult(increased, expPipe[0]);
+      Computation<SInt> maskedS = numeric.mult(increased, () -> expPipe[0]);
       Computation<BigInteger> open = seq.numeric().open(maskedS);
       return () -> new Pair<>(expPipe, open.out());
     }).seq((pair, seq) -> {
@@ -49,7 +49,8 @@ public class ZeroTestBruteforce implements ComputationBuilder<SInt> {
       List<Computation<SInt>> powers = new ArrayList<>(maxLength);
       NumericBuilder numeric = par.numeric();
       for (int i = 0; i < maxLength; i++) {
-        powers.add(numeric.mult(maskedPowers[i], R[i + 1]));
+        SInt rpartPair = R[i + 1];
+        powers.add(numeric.mult(maskedPowers[i], () -> rpartPair));
       }
       return () -> powers;
     }).seq((powers, seq) -> {

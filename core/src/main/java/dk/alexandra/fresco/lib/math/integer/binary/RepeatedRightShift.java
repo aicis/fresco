@@ -30,7 +30,7 @@ import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.builder.AdvancedNumericBuilder.RightShiftResult;
 import dk.alexandra.fresco.framework.builder.ComputationBuilder;
 import dk.alexandra.fresco.framework.builder.DelayedComputation;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialProtocolBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.util.ArrayList;
 import java.util.List;
@@ -62,7 +62,7 @@ public class RepeatedRightShift implements ComputationBuilder<RightShiftResult> 
   }
 
   @Override
-  public Computation<RightShiftResult> build(SequentialProtocolBuilder sequential) {
+  public Computation<RightShiftResult> build(SequentialNumericBuilder sequential) {
     if (calculateRemainders) {
       doIterationWithRemainder(sequential, input, shifts, new ArrayList<>(shifts));
     } else {
@@ -71,7 +71,7 @@ public class RepeatedRightShift implements ComputationBuilder<RightShiftResult> 
     return result;
   }
 
-  private void doIteration(SequentialProtocolBuilder iterationBuilder,
+  private void doIteration(SequentialNumericBuilder iterationBuilder,
       Computation<SInt> input, int shifts) {
     if (shifts > 0) {
       Computation<SInt> iteration =
@@ -84,7 +84,7 @@ public class RepeatedRightShift implements ComputationBuilder<RightShiftResult> 
     }
   }
 
-  private void doIterationWithRemainder(SequentialProtocolBuilder iterationBuilder,
+  private void doIterationWithRemainder(SequentialNumericBuilder iterationBuilder,
       Computation<SInt> input, int shifts, List<SInt> remainders) {
     if (shifts > 0) {
       Computation<RightShiftResult> iteration =

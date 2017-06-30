@@ -30,7 +30,7 @@ import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.builder.ComparisonBuilder;
 import dk.alexandra.fresco.framework.builder.ComputationBuilder;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialProtocolBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.compare.ConditionalSelect;
@@ -54,7 +54,7 @@ public class Minimum implements ComputationBuilder<Pair<List<Computation<SInt>>,
 
 
   @Override
-  public Computation<Pair<List<Computation<SInt>>, SInt>> build(SequentialProtocolBuilder builder) {
+  public Computation<Pair<List<Computation<SInt>>, SInt>> build(SequentialNumericBuilder builder) {
     BigInteger one = BigInteger.ONE;
     if (this.k == 2) {
       ComparisonBuilder comparison = builder.comparison();

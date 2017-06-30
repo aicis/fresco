@@ -29,7 +29,7 @@ package dk.alexandra.fresco.lib.math.integer.exp;
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.builder.ComputationBuilder;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialProtocolBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
 
@@ -44,7 +44,7 @@ public class ExponentiationOpenExponent implements ComputationBuilder<SInt> {
   }
 
   @Override
-  public Computation<SInt> build(SequentialProtocolBuilder builder) {
+  public Computation<SInt> build(SequentialNumericBuilder builder) {
     if (exponent.equals(BigInteger.ZERO)) {
       return builder.numeric().known(BigInteger.valueOf(1));
     }

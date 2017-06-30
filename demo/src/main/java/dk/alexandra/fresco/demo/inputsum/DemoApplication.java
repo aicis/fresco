@@ -5,17 +5,17 @@ import dk.alexandra.fresco.framework.BuilderFactory;
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilderHelper;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialProtocolBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
 
 public abstract class DemoApplication<Output> implements
-    Application<Output, SequentialProtocolBuilder> {
+    Application<Output, SequentialNumericBuilder> {
 
   protected Computation<Output> output;
 
   public abstract ProtocolProducer prepareApplication(BuilderFactory factoryProducer);
 
   @Override
-  public Computation<Output> prepareApplication(SequentialProtocolBuilder producer) {
+  public Computation<Output> prepareApplication(SequentialNumericBuilder producer) {
     producer.append(prepareApplication(ProtocolBuilderHelper.getFactory(producer)));
     return this.output;
   }

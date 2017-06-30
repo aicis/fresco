@@ -1,7 +1,7 @@
 package dk.alexandra.fresco.framework.builder;
 
 import dk.alexandra.fresco.framework.BuilderFactory;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialProtocolBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
 import dk.alexandra.fresco.lib.compare.DefaultComparisonBuilder;
 import dk.alexandra.fresco.lib.compare.MiscOIntGenerators;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
@@ -15,7 +15,7 @@ import dk.alexandra.fresco.lib.math.integer.division.DefaultAdvancedNumericBuild
  * shared values</li> </ul> Other builders have defaults, based on the raw methods, but can be
  * overridden.
  */
-public interface BuilderFactoryNumeric extends BuilderFactory<SequentialProtocolBuilder> {
+public interface BuilderFactoryNumeric extends BuilderFactory<SequentialNumericBuilder> {
 
   int MAGIC_SECURE_NUMBER = 60;
 
@@ -34,7 +34,7 @@ public interface BuilderFactoryNumeric extends BuilderFactory<SequentialProtocol
   }
 
   @Override
-  default SequentialProtocolBuilder createProtocolBuilder() {
+  default SequentialNumericBuilder createProtocolBuilder() {
     return ProtocolBuilderNumeric.createApplicationRoot(this);
   }
 }

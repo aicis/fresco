@@ -29,7 +29,7 @@ package dk.alexandra.fresco.lib.lp;
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.builder.AdvancedNumericBuilder;
 import dk.alexandra.fresco.framework.builder.ComputationBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialProtocolBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.util.ArrayList;
 
@@ -61,7 +61,7 @@ public class OptimalValue implements ComputationBuilder<SInt> {
 
 
   @Override
-  public Computation<SInt> build(SequentialProtocolBuilder builder) {
+  public Computation<SInt> build(SequentialNumericBuilder builder) {
     ArrayList<Computation<SInt>> row = updateMatrix.getRow(updateMatrix.getHeight() - 1);
     ArrayList<Computation<SInt>> column = new ArrayList<>(row.size());
     column.addAll(tableau.getB());

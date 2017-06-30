@@ -32,8 +32,7 @@ import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.builder.ComparisonBuilder;
 import dk.alexandra.fresco.framework.builder.ComputationBuilder;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialProtocolBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.math.integer.SumSIntList;
 import java.math.BigInteger;
@@ -48,7 +47,7 @@ import java.util.List;
  * will calculate the combined score.
  */
 public class CreditRater implements
-    Application<SInt, ProtocolBuilderNumeric.SequentialProtocolBuilder> {
+    Application<SInt, SequentialNumericBuilder> {
 
   private List<SInt> values;
   private List<List<SInt>> intervals;
@@ -88,7 +87,7 @@ public class CreditRater implements
   @Override
   @SuppressWarnings("unchecked")
   public Computation<SInt> prepareApplication(
-      ProtocolBuilderNumeric.SequentialProtocolBuilder sequential) {
+      SequentialNumericBuilder sequential) {
     return sequential.par(
         parallel -> {
           List<Computation<SInt>> scores = new ArrayList<>(values.size());
@@ -126,12 +125,12 @@ public class CreditRater implements
      */
     ComputeIntervalScore(List<SInt> interval, SInt value, List<SInt> scores) {
       this.interval = new ArrayList<>(interval);
-      this.value = value;
+      this.value = () -> value;
       this.scores = new ArrayList<>(scores);
     }
 
     @Override
-    public Computation<SInt> build(SequentialProtocolBuilder rootBuilder) {
+    public Computation<SInt> build(SequentialNumericBuilder rootBuilder) {
       return rootBuilder.par((parallelBuilder) -> {
         List<Computation<SInt>> result = new ArrayList<>();
         ComparisonBuilder builder = parallelBuilder.comparison();

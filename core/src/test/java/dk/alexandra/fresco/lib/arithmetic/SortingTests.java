@@ -32,7 +32,7 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialProtocolBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.util.Pair;
@@ -50,15 +50,15 @@ import org.junit.Assert;
 public class SortingTests {
 
   public static class TestIsSorted<ResourcePoolT extends ResourcePool> extends
-      TestThreadFactory<ResourcePoolT, SequentialProtocolBuilder> {
+      TestThreadFactory<ResourcePoolT, SequentialNumericBuilder> {
 
     @Override
-    public TestThread<ResourcePoolT, SequentialProtocolBuilder> next(
-        TestThreadConfiguration<ResourcePoolT, SequentialProtocolBuilder> conf) {
-      return new TestThread<ResourcePoolT, SequentialProtocolBuilder>() {
+    public TestThread<ResourcePoolT, SequentialNumericBuilder> next(
+        TestThreadConfiguration<ResourcePoolT, SequentialNumericBuilder> conf) {
+      return new TestThread<ResourcePoolT, SequentialNumericBuilder>() {
         @Override
         public void test() throws Exception {
-          Application<Pair<BigInteger, BigInteger>, SequentialProtocolBuilder> app = new Application<Pair<BigInteger, BigInteger>, SequentialProtocolBuilder>() {
+          Application<Pair<BigInteger, BigInteger>, SequentialNumericBuilder> app = new Application<Pair<BigInteger, BigInteger>, SequentialNumericBuilder>() {
 
             private BigInteger zero = BigInteger.valueOf(0);
             private BigInteger one = BigInteger.valueOf(1);
@@ -69,7 +69,7 @@ public class SortingTests {
 
             @Override
             public Computation<Pair<BigInteger, BigInteger>> prepareApplication(
-                SequentialProtocolBuilder builder) {
+                SequentialNumericBuilder builder) {
               Computation<SInt> zero = builder.numeric().known(this.zero);
               Computation<SInt> one = builder.numeric().known(this.one);
               Computation<SInt> two = builder.numeric().known(this.two);
@@ -103,15 +103,15 @@ public class SortingTests {
   }
 
   public static class TestCompareAndSwap<ResourcePoolT extends ResourcePool> extends
-      TestThreadFactory<ResourcePoolT, SequentialProtocolBuilder> {
+      TestThreadFactory<ResourcePoolT, SequentialNumericBuilder> {
 
     @Override
-    public TestThread<ResourcePoolT, SequentialProtocolBuilder> next(
-        TestThreadConfiguration<ResourcePoolT, SequentialProtocolBuilder> conf) {
-      return new TestThread<ResourcePoolT, SequentialProtocolBuilder>() {
+    public TestThread<ResourcePoolT, SequentialNumericBuilder> next(
+        TestThreadConfiguration<ResourcePoolT, SequentialNumericBuilder> conf) {
+      return new TestThread<ResourcePoolT, SequentialNumericBuilder>() {
         @Override
         public void test() throws Exception {
-          Application<Pair<BigInteger, BigInteger>, SequentialProtocolBuilder> app = new Application<Pair<BigInteger, BigInteger>, SequentialProtocolBuilder>() {
+          Application<Pair<BigInteger, BigInteger>, SequentialNumericBuilder> app = new Application<Pair<BigInteger, BigInteger>, SequentialNumericBuilder>() {
 
 
             private BigInteger one = BigInteger.valueOf(1);
@@ -119,7 +119,7 @@ public class SortingTests {
 
             @Override
             public Computation<Pair<BigInteger, BigInteger>> prepareApplication(
-                SequentialProtocolBuilder builder) {
+                SequentialNumericBuilder builder) {
               Computation<SInt> one = builder.numeric().known(this.one);
               Computation<SInt> two = builder.numeric().known(this.two);
 
@@ -151,7 +151,7 @@ public class SortingTests {
   }
 
   public static class TestSort<ResourcePoolT extends ResourcePool> extends
-      TestThreadFactory<ResourcePoolT, SequentialProtocolBuilder> {
+      TestThreadFactory<ResourcePoolT, SequentialNumericBuilder> {
 
     private final List<BigInteger> values;
     private final List<BigInteger> sorted;
@@ -172,12 +172,12 @@ public class SortingTests {
     }
 
     @Override
-    public TestThread<ResourcePoolT, SequentialProtocolBuilder> next(
-        TestThreadConfiguration<ResourcePoolT, SequentialProtocolBuilder> conf) {
-      return new TestThread<ResourcePoolT, SequentialProtocolBuilder>() {
+    public TestThread<ResourcePoolT, SequentialNumericBuilder> next(
+        TestThreadConfiguration<ResourcePoolT, SequentialNumericBuilder> conf) {
+      return new TestThread<ResourcePoolT, SequentialNumericBuilder>() {
         @Override
         public void test() throws Exception {
-          Application<List<BigInteger>, SequentialProtocolBuilder> app =
+          Application<List<BigInteger>, SequentialNumericBuilder> app =
               builder -> {
                 NumericBuilder input = builder.numeric();
                 List<Computation<SInt>> unsorted = values.stream().map(input::known)

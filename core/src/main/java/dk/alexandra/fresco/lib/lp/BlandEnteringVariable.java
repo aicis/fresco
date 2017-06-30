@@ -28,7 +28,7 @@ import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.builder.AdvancedNumericBuilder;
 import dk.alexandra.fresco.framework.builder.ComparisonBuilder;
 import dk.alexandra.fresco.framework.builder.ComputationBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialProtocolBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.math.integer.SumSIntList;
@@ -62,7 +62,7 @@ public class BlandEnteringVariable
   }
 
   @Override
-  public Computation<Pair<List<Computation<SInt>>, SInt>> build(SequentialProtocolBuilder builder) {
+  public Computation<Pair<List<Computation<SInt>>, SInt>> build(SequentialNumericBuilder builder) {
     Computation<SInt> negativeOne = builder.numeric().known(BigInteger.valueOf(-1));
     Computation<SInt> one = builder.numeric().known(BigInteger.ONE);
     return builder.par(par -> {

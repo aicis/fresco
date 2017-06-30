@@ -32,7 +32,7 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilderHelper;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialProtocolBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
@@ -68,7 +68,7 @@ public class DEASolverFixedDataTest {
 
 
   public static class TestDEASolverScores<ResourcePoolT extends ResourcePool> extends
-      TestThreadFactory<ResourcePoolT, SequentialProtocolBuilder> {
+      TestThreadFactory<ResourcePoolT, SequentialNumericBuilder> {
 
     private AnalysisType type;
     // MAde null to find where this test is activated from
@@ -78,8 +78,8 @@ public class DEASolverFixedDataTest {
     }
 
     @Override
-    public TestThread next(TestThreadConfiguration<ResourcePoolT, SequentialProtocolBuilder> conf) {
-      return new TestThread<ResourcePoolT, SequentialProtocolBuilder>() {
+    public TestThread next(TestThreadConfiguration<ResourcePoolT, SequentialNumericBuilder> conf) {
+      return new TestThread<ResourcePoolT, SequentialNumericBuilder>() {
         @Override
         public void test() throws Exception {
 
@@ -131,12 +131,12 @@ public class DEASolverFixedDataTest {
     }
 
     public void run(
-        SecureComputationEngine<ResourcePoolT, SequentialProtocolBuilder> secureComputationEngine,
+        SecureComputationEngine<ResourcePoolT, SequentialNumericBuilder> secureComputationEngine,
         ResourcePoolT resourcePool) {
-      Application<Void, SequentialProtocolBuilder> app = new Application<Void, SequentialProtocolBuilder>() {
+      Application<Void, SequentialNumericBuilder> app = new Application<Void, SequentialNumericBuilder>() {
 
         @Override
-        public Computation<Void> prepareApplication(SequentialProtocolBuilder producer) {
+        public Computation<Void> prepareApplication(SequentialNumericBuilder producer) {
           producer
               .append(prepareApplication(ProtocolBuilderHelper.getFactoryNumeric(producer)));
           return () -> null;
@@ -175,10 +175,10 @@ public class DEASolverFixedDataTest {
 
       List<DEAResult> deaResults = secureComputationEngine.runApplication(solver, resourcePool);
 
-      Application<Void, SequentialProtocolBuilder> app2 = new Application<Void, SequentialProtocolBuilder>() {
+      Application<Void, SequentialNumericBuilder> app2 = new Application<Void, SequentialNumericBuilder>() {
 
         @Override
-        public Computation<Void> prepareApplication(SequentialProtocolBuilder producer) {
+        public Computation<Void> prepareApplication(SequentialNumericBuilder producer) {
           producer
               .append(prepareApplication(ProtocolBuilderHelper.getFactoryNumeric(producer)));
           return () -> null;

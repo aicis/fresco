@@ -27,13 +27,13 @@
 package dk.alexandra.fresco.suite.spdz;
 
 import dk.alexandra.fresco.framework.BuilderFactory;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.configuration.SpdzConfiguration;
 import dk.alexandra.fresco.suite.spdz.utils.SpdzFactory;
 
 public class SpdzProtocolSuite implements
-    ProtocolSuite<SpdzResourcePool, ProtocolBuilderNumeric.SequentialProtocolBuilder> {
+    ProtocolSuite<SpdzResourcePool, SequentialNumericBuilder> {
 
   private SpdzConfiguration spdzConf;
 
@@ -42,7 +42,7 @@ public class SpdzProtocolSuite implements
   }
 
   @Override
-  public BuilderFactory<ProtocolBuilderNumeric.SequentialProtocolBuilder> init(
+  public BuilderFactory<SequentialNumericBuilder> init(
       SpdzResourcePool resourcePool) {
     int maxBitLength = spdzConf.getMaxBitLength();
     return new SpdzBuilder(

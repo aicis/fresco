@@ -22,9 +22,9 @@ public abstract class ProtocolBuilderBinary implements ProtocolBuilder {
     this.protocols = new LinkedList<>();
   }
 
-  public static SequentialProtocolBuilder createApplicationRoot(
+  public static SequentialBinaryBuilder createApplicationRoot(
       AbstractBinaryFactory factory) {
-    SequentialProtocolBuilder builder = new SequentialProtocolBuilder(factory);
+    SequentialBinaryBuilder builder = new SequentialBinaryBuilder(factory);
     return builder;
 
   }
@@ -93,9 +93,9 @@ public abstract class ProtocolBuilderBinary implements ProtocolBuilder {
   /**
    * A specific instance of the protocol builder that produces a sequential producer.
    */
-  public static class SequentialProtocolBuilder extends ProtocolBuilderBinary {
+  public static class SequentialBinaryBuilder extends ProtocolBuilderBinary {
 
-    private SequentialProtocolBuilder(AbstractBinaryFactory factory) {
+    private SequentialBinaryBuilder(AbstractBinaryFactory factory) {
       super(factory);
     }
 

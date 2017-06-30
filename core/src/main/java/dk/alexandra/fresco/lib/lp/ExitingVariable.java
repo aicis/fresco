@@ -32,7 +32,7 @@ import dk.alexandra.fresco.framework.builder.AdvancedNumericBuilder;
 import dk.alexandra.fresco.framework.builder.ComparisonBuilder;
 import dk.alexandra.fresco.framework.builder.ComputationBuilder;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialProtocolBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.compare.ConditionalSelect;
@@ -82,7 +82,7 @@ public class ExitingVariable implements ComputationBuilder<ExitingVariableOutput
 
 
   @Override
-  public Computation<ExitingVariableOutput> build(SequentialProtocolBuilder builder) {
+  public Computation<ExitingVariableOutput> build(SequentialNumericBuilder builder) {
     int tableauHeight = tableau.getC().getHeight() + 1;
     Computation<SInt> zero = builder.numeric().known(BigInteger.ZERO);
     Computation<SInt> one = builder.numeric().known(BigInteger.ONE);

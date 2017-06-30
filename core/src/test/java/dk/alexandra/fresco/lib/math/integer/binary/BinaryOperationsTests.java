@@ -39,7 +39,7 @@ import dk.alexandra.fresco.framework.builder.AdvancedNumericBuilder.RightShiftRe
 import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialProtocolBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
@@ -74,7 +74,7 @@ public class BinaryOperationsTests {
 
         @Override
         public void test() throws Exception {
-          Application<Pair<BigInteger, List<BigInteger>>, SequentialProtocolBuilder> app =
+          Application<Pair<BigInteger, List<BigInteger>>, SequentialNumericBuilder> app =
               builder -> {
                 AdvancedNumericBuilder rightShift = builder.createAdvancedNumericBuilder();
                 Computation<SInt> encryptedInput = builder.numeric().known(input);

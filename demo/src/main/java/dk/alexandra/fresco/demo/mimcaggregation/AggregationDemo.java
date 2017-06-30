@@ -4,7 +4,7 @@ import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.Party;
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialProtocolBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
 import dk.alexandra.fresco.framework.configuration.PreprocessingStrategy;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.NetworkingStrategy;
@@ -217,9 +217,9 @@ public class AggregationDemo {
 
     };
 
-    ProtocolSuiteConfiguration<SpdzResourcePool, SequentialProtocolBuilder> protocolSuiteConfig = new SpdzConfiguration() {
+    ProtocolSuiteConfiguration<SpdzResourcePool, SequentialNumericBuilder> protocolSuiteConfig = new SpdzConfiguration() {
       @Override
-      public ProtocolSuite<SpdzResourcePool, SequentialProtocolBuilder> createProtocolSuite(
+      public ProtocolSuite<SpdzResourcePool, SequentialNumericBuilder> createProtocolSuite(
           int myPlayerId) {
         return new SpdzProtocolSuite(this);
       }

@@ -37,7 +37,7 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialProtocolBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SInt;
@@ -566,7 +566,7 @@ public class BasicArithmeticTests {
                   BigInteger.valueOf(1),
                   BigInteger.valueOf(1)
               );
-              SequentialProtocolBuilder seq = ProtocolBuilderNumeric
+              SequentialNumericBuilder seq = ProtocolBuilderNumeric
                   .createApplicationRoot((BuilderFactoryNumeric) factoryProducer);
               NumericBuilder numeric = seq.numeric();
               List<Computation<SInt>> ns = bns.stream().map(numeric::known)

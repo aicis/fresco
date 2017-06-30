@@ -31,7 +31,7 @@ import dk.alexandra.fresco.framework.builder.AdvancedNumericBuilder;
 import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.ComputationBuilder;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialProtocolBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.compare.ConditionalSelect;
@@ -60,7 +60,7 @@ public class GreaterThan implements ComputationBuilder<SInt> {
 
 
   @Override
-  public Computation<SInt> build(SequentialProtocolBuilder builder) {
+  public Computation<SInt> build(SequentialNumericBuilder builder) {
     final BigInteger modulus = builder.getBasicNumericFactory().getModulus();
 
     final int bitLengthBottom = bitLength / 2;
@@ -117,7 +117,7 @@ public class GreaterThan implements ComputationBuilder<SInt> {
       Computation<BigInteger> mO = seq.numeric().open(mS);
 
       return () -> new Object[]{mO, rBottom, rTop, rBar, z};
-    }).seq((Object[] input, SequentialProtocolBuilder seq) -> {
+    }).seq((Object[] input, SequentialNumericBuilder seq) -> {
       BigInteger mO = ((Computation<BigInteger>) input[0]).out();
       Computation<SInt> rBottom = (Computation<SInt>) input[1];
       Computation<SInt> rTop = (Computation<SInt>) input[2];
@@ -138,7 +138,7 @@ public class GreaterThan implements ComputationBuilder<SInt> {
       Computation<SInt> eqResult =
           seq.comparison().compareZero(dif, bitLengthTop);
       return () -> new Object[]{eqResult, rBottom, rTop, mBot, mTop, mBar, rBar, z};
-    }).seq((Object[] input, SequentialProtocolBuilder seq) -> {
+    }).seq((Object[] input, SequentialNumericBuilder seq) -> {
       Computation<SInt> eqResult = (Computation<SInt>) input[0];
       Computation<SInt> rBottom = (Computation<SInt>) input[1];
       Computation<SInt> rTop = (Computation<SInt>) input[2];
@@ -182,7 +182,7 @@ public class GreaterThan implements ComputationBuilder<SInt> {
                     factoryProducer));
       }
       return () -> new Object[]{subComparisonResult, mBar, rBar, z};
-    }).seq((Object[] input, SequentialProtocolBuilder seq) -> {
+    }).seq((Object[] input, SequentialNumericBuilder seq) -> {
       Computation<SInt> subComparisonResult = (Computation<SInt>) input[0];
       BigInteger mBar = (BigInteger) input[1];
       Computation<SInt> rBar = (Computation<SInt>) input[2];

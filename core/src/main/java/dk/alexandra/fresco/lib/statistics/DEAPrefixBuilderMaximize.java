@@ -29,7 +29,7 @@ package dk.alexandra.fresco.lib.statistics;
 
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialProtocolBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.lp.LPTableau;
 import dk.alexandra.fresco.lib.lp.Matrix;
@@ -64,7 +64,7 @@ public class DEAPrefixBuilderMaximize {
   public static Computation<SimpleLPPrefix> build(
       List<SInt[]> basisInputs, List<SInt[]> basisOutputs,
       List<SInt> targetInputs, List<SInt> targetOutputs,
-      SequentialProtocolBuilder builder
+      SequentialNumericBuilder builder
   ) {
     Computation<SInt> zero = builder.numeric().known(BigInteger.ZERO);
     Computation<SInt> one = builder.numeric().known(BigInteger.ONE);
@@ -162,7 +162,7 @@ public class DEAPrefixBuilderMaximize {
   }
 
   private static ArrayList<Computation<SInt>> fVector(int size, int lambdas,
-      SequentialProtocolBuilder builder,
+      SequentialNumericBuilder builder,
       Computation<SInt> zero) {
     NumericBuilder numeric = builder.numeric();
     Computation<SInt> minusOne = numeric.known(BigInteger.valueOf(-1));

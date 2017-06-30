@@ -29,7 +29,7 @@ package dk.alexandra.fresco.lib.math.integer.exp;
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.builder.ComputationBuilder;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialProtocolBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
 
@@ -47,7 +47,7 @@ public class ExponentiationOpenBase implements ComputationBuilder<SInt> {
   }
 
   @Override
-  public Computation<SInt> build(SequentialProtocolBuilder builder) {
+  public Computation<SInt> build(SequentialNumericBuilder builder) {
     return builder.seq((seq) ->
         seq.createAdvancedNumericBuilder().toBits(exponent, maxExponentBitLength)
     ).seq((bits, seq) -> {
@@ -65,7 +65,7 @@ public class ExponentiationOpenBase implements ComputationBuilder<SInt> {
 				 *            result * e   if bits[i] = 1
 				 */
         result = numeric
-            .add(numeric.mult(bit, numeric.sub(numeric.mult(e, result), result)), result);
+            .add(numeric.mult(() -> bit, numeric.sub(numeric.mult(e, result), result)), result);
         e = e.multiply(e);
       }
       return result;

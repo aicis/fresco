@@ -29,7 +29,7 @@ package dk.alexandra.fresco.lib.crypto.mimc;
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.builder.ComputationBuilder;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialProtocolBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import java.math.BigInteger;
@@ -70,7 +70,7 @@ public class MiMCEncryption implements ComputationBuilder<SInt> {
 
 
   @Override
-  public Computation<SInt> build(SequentialProtocolBuilder builder) {
+  public Computation<SInt> build(SequentialNumericBuilder builder) {
     final int requiredRounds = getRequiredRounds(builder.getBasicNumericFactory(), requestedRounds);
     BigInteger three = BigInteger.valueOf(3);
     /*

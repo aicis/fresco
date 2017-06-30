@@ -37,7 +37,7 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialProtocolBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.debug.MarkerProtocolImpl;
@@ -70,7 +70,7 @@ public class LPBuildingBlockTests {
       this.f = randomList(n + m);
     }
 
-    void inputTableau(SequentialProtocolBuilder builder) {
+    void inputTableau(SequentialNumericBuilder builder) {
       builder.createParallelSub(par -> {
         NumericBuilder numeric = par.numeric();
         sTableau = new LPTableau(
@@ -115,7 +115,7 @@ public class LPBuildingBlockTests {
       return expectedIndex;
     }
 
-    void setupRandom(int n, int m, SequentialProtocolBuilder builder) {
+    void setupRandom(int n, int m, SequentialNumericBuilder builder) {
       randomTableau(n, m);
       inputTableau(builder);
 
@@ -181,7 +181,7 @@ public class LPBuildingBlockTests {
       return new TestThread() {
         @Override
         public void test() throws Exception {
-          Application app = (Application<Void, SequentialProtocolBuilder>) producer -> {
+          Application app = (Application<Void, SequentialNumericBuilder>) producer -> {
             producer.append(new MarkerProtocolImpl("Running Dummy Test"));
             return () -> null;
           };
@@ -210,7 +210,7 @@ public class LPBuildingBlockTests {
 
             @Override
             public ProtocolProducer prepareApplication(BuilderFactory factoryProducer) {
-              SequentialProtocolBuilder builder = ProtocolBuilderNumeric
+              SequentialNumericBuilder builder = ProtocolBuilderNumeric
                   .createApplicationRoot((BuilderFactoryNumeric) factoryProducer);
               mod = builder.getBasicNumericFactory().getModulus();
               setupRandom(10, 10, builder);

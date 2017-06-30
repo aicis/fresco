@@ -25,7 +25,7 @@ package dk.alexandra.fresco.lib.statistics;
 
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialProtocolBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.lp.LPTableau;
 import dk.alexandra.fresco.lib.lp.Matrix;
@@ -51,7 +51,7 @@ public class DEAInputEfficiencyPrefixBuilder {
   public static Computation<SimpleLPPrefix> build(
       List<SInt[]> basisInputs, List<SInt[]> basisOutputs,
       List<SInt> targetInputs, List<SInt> targetOutputs,
-      SequentialProtocolBuilder builder
+      SequentialNumericBuilder builder
   ) {
     NumericBuilder numeric = builder.numeric();
     int inputs = targetInputs.size();

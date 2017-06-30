@@ -37,7 +37,7 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialProtocolBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
@@ -91,7 +91,7 @@ public class DivisionTests {
               BigInteger input2 = d;
               sequentialProtocolProducer.append(ioBuilder.getProtocol());
 
-              SequentialProtocolBuilder applicationRoot = ProtocolBuilderNumeric
+              SequentialNumericBuilder applicationRoot = ProtocolBuilderNumeric
                   .createApplicationRoot((BuilderFactoryNumeric) factoryProducer,
                       (seq) -> {
                         Computation<SInt> division = seq.createSequentialSub(
