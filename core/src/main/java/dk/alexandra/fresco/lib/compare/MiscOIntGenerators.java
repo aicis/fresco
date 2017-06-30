@@ -42,10 +42,12 @@ public class MiscOIntGenerators {
 
   private Map<Integer, BigInteger[]> coefficientsOfPolynomiums;
   private LinkedList<BigInteger> twoPowersList;
+  private BigInteger modulus;
 
-  public MiscOIntGenerators() {
+  public MiscOIntGenerators(BigInteger modulus) {
     coefficientsOfPolynomiums = new HashMap<>();
 
+    this.modulus = modulus;
     twoPowersList = new LinkedList<>();
     twoPowersList.add(BigInteger.ONE);
   }
@@ -57,7 +59,7 @@ public class MiscOIntGenerators {
    * @param l degree of polynomium
    * @return coefficients of P
    */
-  public BigInteger[] getPoly(int l, BigInteger modulus) {
+  public BigInteger[] getPoly(int l) {
     // check that l is positive
     Integer lInt = l;
     BigInteger[] result = coefficientsOfPolynomiums.get(lInt);
@@ -65,7 +67,7 @@ public class MiscOIntGenerators {
       // Generate a new set of OInts and store them...
       result = new BigInteger[l + 1];
 
-      BigInteger[] coefficients = constructPolynomial(l, 1, modulus);
+      BigInteger[] coefficients = constructPolynomial(l, 1);
       for (int i = 0; i <= l; i++) {
         result[i] = coefficients[coefficients.length - 1 - i];
       }
@@ -84,7 +86,7 @@ public class MiscOIntGenerators {
    * @param l The desired degree of <i>f</i>
    * @param m The only non-zero integer point for <i>f</i> in the range <i>1,2,...,l+1</i>.
    */
-  private static BigInteger[] constructPolynomial(int l, int m, BigInteger modulus) {
+  private BigInteger[] constructPolynomial(int l, int m) {
 
 		/*
      * Let f_i be the polynoimial which is the product of the first i of
@@ -136,15 +138,6 @@ public class MiscOIntGenerators {
     return f;
   }
 
-  /**
-   * Generate all two-powers 2^i for i<l
-   *
-   * @param length array length
-   * @return Array of length l with result[i] == 2^i
-   */
-  public BigInteger[] getTwoPowers(int length) {
-    return getTwoPowersList(length).toArray(new BigInteger[length]);
-  }
 
   public List<BigInteger> getTwoPowersList(int length) {
     if (length > twoPowersList.size()) {
@@ -156,4 +149,14 @@ public class MiscOIntGenerators {
     }
     return twoPowersList.subList(0, length);
   }
+
+  public BigInteger[] getExpFromOInt(BigInteger value, int maxBitSize) {
+    BigInteger[] Ms = new BigInteger[maxBitSize];
+    Ms[0] = value;
+    for (int i1 = 1; i1 < Ms.length; i1++) {
+      Ms[i1] = Ms[i1 - 1].multiply(value).mod(modulus);
+    }
+    return Ms;
+  }
+
 }

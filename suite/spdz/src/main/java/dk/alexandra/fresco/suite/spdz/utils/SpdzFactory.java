@@ -113,31 +113,6 @@ public class SpdzFactory implements BasicNumericFactory {
     return this.storage.getSupplier().getNextExpPipe();
   }
 
-  public BigInteger[] getExpFromOInt(BigInteger value, int maxBitSize) {
-    BigInteger[] res = getClearExpPipe(value, maxBitSize);
-    BigInteger[] expPipe = new BigInteger[res.length];
-    for (int i = 0; i < res.length; i++) {
-      expPipe[i] = res[i];
-    }
-    return expPipe;
-  }
-
-  /**
-   * Returns the numbers: M, M^2, M^3, ..., M^maxBitSize
-   *
-   * @param M the number for exponentiation
-   * @param maxBitSize number of exp to get
-   * @return M, M^2, M^3, ..., M^maxBitSize
-   */
-  private BigInteger[] getClearExpPipe(BigInteger M, int maxBitSize) {
-    BigInteger[] Ms = new BigInteger[maxBitSize];
-    Ms[0] = M;
-    for (int i = 1; i < Ms.length; i++) {
-      Ms[i] = Ms[i - 1].multiply(M).mod(getModulus());
-    }
-    return Ms;
-  }
-
   @Override
   public NativeProtocol<? extends SInt, ?> getAddProtocol(SInt a, SInt b, SInt out) {
     return new SpdzAddProtocolOld(a, b, out);
@@ -194,16 +169,6 @@ public class SpdzFactory implements BasicNumericFactory {
           .getSSK()).mod(getModulus()), getModulus());
     }
     return new SpdzSInt(elm);
-  }
-
-  /****************************************
-   * IO factory Stuff *
-   ****************************************/
-
-  @Override
-  public Computation<? extends SInt> getCloseProtocol(BigInteger open,
-      SInt closed, int targetID) {
-    return new SpdzInputProtocol(open, closed, targetID);
   }
 
 

@@ -37,8 +37,4 @@ public interface NumericBuilder {
 
   Computation<SInt[]> getExponentiationPipe();
 
-  /**
-   * Returns a clearText representation of value^1, value^2, ..., value^maxExp
-   */
-  Computation<BigInteger[]> getExpFromOInt(BigInteger value, int maxExp);
 }

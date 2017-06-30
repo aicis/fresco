@@ -41,8 +41,8 @@ public class ZeroTestBruteforce implements ComputationBuilder<SInt> {
       // compute powers and evaluate polynomial
       SInt[] R = pair.getFirst();
       BigInteger maskedO = pair.getSecond();
-      Computation<BigInteger[]> maskedPowers = seq.numeric().getExpFromOInt(maskedO, maxLength);
-      return () -> new Pair<>(R, maskedPowers.out());
+      BigInteger[] maskedPowers = seq.getBigIntegerHelper().getExpFromOInt(maskedO, maxLength);
+      return () -> new Pair<>(R, maskedPowers);
     }).par((pair, par) -> {
       SInt[] R = pair.getFirst();
       BigInteger[] maskedPowers = pair.getSecond();
@@ -54,9 +54,8 @@ public class ZeroTestBruteforce implements ComputationBuilder<SInt> {
       }
       return () -> powers;
     }).seq((powers, seq) -> {
-      BigInteger modulus = seq.getBasicNumericFactory().getModulus();
       BigInteger[] polynomialCoefficients = seq.getBigIntegerHelper()
-          .getPoly(maxLength, modulus);
+          .getPoly(maxLength);
       BigInteger[] mostSignificantPolynomialCoefficients = new BigInteger[maxLength];
       System.arraycopy(polynomialCoefficients, 1,
           mostSignificantPolynomialCoefficients, 0, maxLength);

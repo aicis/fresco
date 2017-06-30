@@ -22,7 +22,6 @@ import dk.alexandra.fresco.suite.spdz.gates.SpdzSubtractProtocolKnownLeft;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzSubtractProtocolKnownRight;
 import dk.alexandra.fresco.suite.spdz.utils.SpdzFactory;
 import java.math.BigInteger;
-import java.util.Objects;
 
 class SpdzBuilder implements BuilderFactoryNumeric {
 
@@ -135,18 +134,13 @@ class SpdzBuilder implements BuilderFactoryNumeric {
         //TODO Should be a protocol
         return () -> spdzFactory.getExponentiationPipe();
       }
-
-      @Override
-      public Computation<BigInteger[]> getExpFromOInt(BigInteger value, int maxExp) {
-        return () -> spdzFactory.getExpFromOInt(value, maxExp);
-      }
     };
   }
 
   @Override
   public MiscOIntGenerators getBigIntegerHelper() {
     if (miscOIntGenerators == null) {
-      miscOIntGenerators = new MiscOIntGenerators();
+      miscOIntGenerators = new MiscOIntGenerators(spdzFactory.getModulus());
     }
     return miscOIntGenerators;
   }

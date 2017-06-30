@@ -32,18 +32,9 @@ import java.math.BigInteger;
 
 /**
  * Factory for protocols that converts between open and closed integers.
+ * Use the new builder based pattern instead of the old factories.
  */
 public interface IOIntProtocolFactory {
-
-  /**
-   * Gets a new open protocol.
-   *
-   * @param open a known value
-   * @param closed a closed value
-   * @param targetID the id of the specific player that provides the input.
-   * @return the protocol to do the transformation
-   */
-  Computation<? extends SInt> getCloseProtocol(BigInteger open, SInt closed, int targetID);
 
   /**
    * Gets a new open protocol.
@@ -53,6 +44,7 @@ public interface IOIntProtocolFactory {
    * @param closed a closed value
    * @return the protocol to do the transformation
    */
+  @Deprecated
   Computation<? extends SInt> getCloseProtocol(int source, BigInteger open, SInt closed);
 
 
@@ -62,6 +54,7 @@ public interface IOIntProtocolFactory {
    * @param closed a closed value
    * @return the protocol to do the transformation
    */
+  @Deprecated
   Computation<BigInteger> getOpenProtocol(SInt closed);
 
 
@@ -71,6 +64,7 @@ public interface IOIntProtocolFactory {
    * @param closed a closed value
    * @return the protocol to do the transformation
    */
+  @Deprecated
   Computation<BigInteger> getOpenProtocol(int target, SInt closed);
 
 }
