@@ -33,7 +33,7 @@ import dk.alexandra.fresco.framework.builder.ComputationBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialProtocolBuilder;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.math.integer.min.MinimumProtocol4;
+import dk.alexandra.fresco.lib.math.integer.min.Minimum;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -86,7 +86,7 @@ public class EnteringVariableProtocol4
       }
       return () -> updatedF;
     }).seq((updatedF, seq) ->
-        new MinimumProtocol4(updatedF).build(seq)
+        new Minimum(updatedF).build(seq)
     );
   }
 }

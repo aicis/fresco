@@ -41,13 +41,13 @@ import java.math.BigInteger;
  *
  * @author Jonas Lindstrøm (jonas.lindstrom@alexandra.dk)
  */
-public class SquareRootProtocol implements ComputationBuilder<SInt> {
+public class SquareRoot implements ComputationBuilder<SInt> {
 
   // Input
   private final Computation<SInt> input;
   private final int maxInputLength;
 
-  public SquareRootProtocol(Computation<SInt> input, int maxInputLength) {
+  public SquareRoot(Computation<SInt> input, int maxInputLength) {
     this.input = input;
     this.maxInputLength = maxInputLength;
   }

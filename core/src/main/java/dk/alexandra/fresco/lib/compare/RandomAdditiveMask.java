@@ -2,7 +2,6 @@ package dk.alexandra.fresco.lib.compare;
 
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.builder.AdvancedNumericBuilder;
-import dk.alexandra.fresco.framework.builder.AdvancedNumericBuilder.RandomAdditiveMask;
 import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.ComputationBuilder;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
@@ -12,7 +11,8 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
-public class RandomAdditiveMaskProtocol44 implements ComputationBuilder<RandomAdditiveMask> {
+public class RandomAdditiveMask implements
+    ComputationBuilder<AdvancedNumericBuilder.RandomAdditiveMask> {
 
   private final BuilderFactoryNumeric factoryNumeric;
   private final int securityParameter;
@@ -21,7 +21,7 @@ public class RandomAdditiveMaskProtocol44 implements ComputationBuilder<RandomAd
   private List<Computation<SInt>> bits;
   private Computation<SInt> value;
 
-  public RandomAdditiveMaskProtocol44(BuilderFactoryNumeric factoryNumeric,
+  public RandomAdditiveMask(BuilderFactoryNumeric factoryNumeric,
       int securityParameter, int noOfBits) {
     this.factoryNumeric = factoryNumeric;
     this.securityParameter = securityParameter;
@@ -29,7 +29,8 @@ public class RandomAdditiveMaskProtocol44 implements ComputationBuilder<RandomAd
   }
 
   @Override
-  public Computation<RandomAdditiveMask> build(SequentialProtocolBuilder builder) {
+  public Computation<AdvancedNumericBuilder.RandomAdditiveMask> build(
+      SequentialProtocolBuilder builder) {
     NumericBuilder numericBuilder = builder.numeric();
     List<Computation<SInt>> allBits = new ArrayList<>();
     for (int i = 0; i < noOfBits + securityParameter; i++) {
@@ -43,7 +44,7 @@ public class RandomAdditiveMaskProtocol44 implements ComputationBuilder<RandomAd
     AdvancedNumericBuilder innerProductBuilder = builder.createAdvancedNumericBuilder();
     value = innerProductBuilder.openDot(twoPows, allBits);
     bits = allBits.subList(0, noOfBits);
-    return () -> new RandomAdditiveMask(
+    return () -> new AdvancedNumericBuilder.RandomAdditiveMask(
         bits,
         value.out());
   }

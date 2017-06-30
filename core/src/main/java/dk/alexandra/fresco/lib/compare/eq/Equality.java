@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -23,35 +23,38 @@
  *
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
- *******************************************************************************/
-package dk.alexandra.fresco.lib.math.integer.linalg;
+ */
+package dk.alexandra.fresco.lib.compare.eq;
 
-
+import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.builder.ComputationBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialProtocolBuilder;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
-import java.math.BigInteger;
 
-public class InnerProductFactoryImpl implements InnerProductFactory{
+/**
+ * Implements an equality protocol -- given inputs x, y set output to x==y
+ *
+ * @author ttoft
+ */
+public class Equality implements ComputationBuilder<SInt> {
 
-	private final BasicNumericFactory bnf;
-	private final EntrywiseProductFactory dotProductFactory;
+  // params
+  private final int bitLength;
+  private final Computation<SInt> x;
+  private final Computation<SInt> y;
 
-	public InnerProductFactoryImpl(BasicNumericFactory bnf,
-			EntrywiseProductFactoryImpl dotProductFactory) {
-		this.bnf = bnf;
-		this.dotProductFactory = dotProductFactory;
-	}
-	
-	@Override
-	public InnerProductProtocol getInnerProductProtocol(SInt[] aVector,
-			SInt[] bVector, SInt result) {
-		return new InnerProductProtocolImpl(aVector, bVector, result, bnf, dotProductFactory);
-	}
 
-	@Override
-	public InnerProductProtocol getInnerProductProtocol(SInt[] aVector,
-      BigInteger[] bVector, SInt result) {
-    return new InnerProductProtocolImpl(aVector, bVector, result, bnf, dotProductFactory);
+  public Equality(
+      int bitLength, Computation<SInt> x, Computation<SInt> y) {
+    super();
+    this.bitLength = bitLength;
+    this.x = x;
+    this.y = y;
   }
 
+  @Override
+  public Computation<SInt> build(SequentialProtocolBuilder builder) {
+    Computation<SInt> diff = builder.numeric().sub(x, y);
+    return builder.comparison().compareZero(diff, bitLength);
+  }
 }

@@ -6,9 +6,9 @@ import dk.alexandra.fresco.framework.builder.ComparisonBuilder;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.compare.eq.EqualityProtocol4;
-import dk.alexandra.fresco.lib.compare.gt.GreaterThanReducerProtocol4;
-import dk.alexandra.fresco.lib.compare.zerotest.ZeroTestProtocol4;
+import dk.alexandra.fresco.lib.compare.eq.Equality;
+import dk.alexandra.fresco.lib.compare.gt.GreaterThan;
+import dk.alexandra.fresco.lib.compare.zerotest.ZeroTest;
 import java.math.BigInteger;
 
 public class DefaultComparisonBuilder implements ComparisonBuilder {
@@ -25,7 +25,7 @@ public class DefaultComparisonBuilder implements ComparisonBuilder {
   @Override
   public Computation<SInt> compareLong(Computation<SInt> x, Computation<SInt> y) {
     int bitLength = factoryNumeric.getBasicNumericFactory().getMaxBitLength() * 2;
-    GreaterThanReducerProtocol4 greaterThanProtocol = new GreaterThanReducerProtocol4(
+    GreaterThan greaterThanProtocol = new GreaterThan(
         bitLength, BuilderFactoryNumeric.MAGIC_SECURE_NUMBER,
         x, y, factoryNumeric);
     return builder.createSequentialSub(greaterThanProtocol);
@@ -40,14 +40,14 @@ public class DefaultComparisonBuilder implements ComparisonBuilder {
 
   @Override
   public Computation<SInt> equals(int bitLength, Computation<SInt> x, Computation<SInt> y) {
-    return builder.createSequentialSub(new EqualityProtocol4(bitLength, x, y));
+    return builder.createSequentialSub(new Equality(bitLength, x, y));
   }
 
   @Override
   public Computation<SInt> compare(Computation<SInt> x, Computation<SInt> y) {
     int bitLength = factoryNumeric.getBasicNumericFactory().getMaxBitLength();
     return builder.createSequentialSub(
-        new GreaterThanReducerProtocol4(
+        new GreaterThan(
             bitLength, BuilderFactoryNumeric.MAGIC_SECURE_NUMBER,
             x, y, factoryNumeric)
     );
@@ -66,7 +66,7 @@ public class DefaultComparisonBuilder implements ComparisonBuilder {
   @Override
   public Computation<SInt> compareZero(Computation<SInt> x, int bitLength) {
     return builder.createSequentialSub(
-        new ZeroTestProtocol4(factoryNumeric, bitLength,
+        new ZeroTest(factoryNumeric, bitLength,
             x));
   }
 

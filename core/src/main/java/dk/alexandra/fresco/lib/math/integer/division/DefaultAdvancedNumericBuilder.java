@@ -5,7 +5,6 @@ import dk.alexandra.fresco.framework.builder.AdvancedNumericBuilder;
 import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.compare.RandomAdditiveMaskProtocol44;
 import dk.alexandra.fresco.lib.conversion.IntegerToBitsByShift;
 import dk.alexandra.fresco.lib.math.integer.binary.BitLengthProtocol4;
 import dk.alexandra.fresco.lib.math.integer.binary.RepeatedRightShiftProtocol4;
@@ -14,10 +13,10 @@ import dk.alexandra.fresco.lib.math.integer.exp.ExponentiationProtocol4;
 import dk.alexandra.fresco.lib.math.integer.exp.ExponentiationProtocolOpenBase;
 import dk.alexandra.fresco.lib.math.integer.exp.ExponentiationProtocolOpenExponent;
 import dk.alexandra.fresco.lib.math.integer.inv.Inversion;
-import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductProtocol44;
-import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductProtocolOpen;
-import dk.alexandra.fresco.lib.math.integer.log.LogarithmProtocol;
-import dk.alexandra.fresco.lib.math.integer.sqrt.SquareRootProtocol;
+import dk.alexandra.fresco.lib.math.integer.linalg.InnerProduct;
+import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductOpen;
+import dk.alexandra.fresco.lib.math.integer.log.Logarithm;
+import dk.alexandra.fresco.lib.math.integer.sqrt.SquareRoot;
 import java.math.BigInteger;
 import java.util.List;
 
@@ -74,12 +73,12 @@ public class DefaultAdvancedNumericBuilder implements
 
   @Override
   public Computation<SInt> sqrt(Computation<SInt> input, int maxInputLength) {
-    return builder.createSequentialSub(new SquareRootProtocol(input, maxInputLength));
+    return builder.createSequentialSub(new SquareRoot(input, maxInputLength));
   }
 
   @Override
   public Computation<SInt> log(Computation<SInt> input, int maxInputLength) {
-    return builder.createSequentialSub(new LogarithmProtocol(input, maxInputLength));
+    return builder.createSequentialSub(new Logarithm(input, maxInputLength));
   }
 
 
@@ -87,20 +86,20 @@ public class DefaultAdvancedNumericBuilder implements
   public Computation<SInt> dot(List<Computation<SInt>> aVector,
       List<Computation<SInt>> bVector) {
     return builder
-        .createSequentialSub(new InnerProductProtocol44(aVector, bVector));
+        .createSequentialSub(new InnerProduct(aVector, bVector));
   }
 
   @Override
   public Computation<SInt> openDot(List<BigInteger> aVector, List<Computation<SInt>> bVector) {
     return builder
-        .createSequentialSub(new InnerProductProtocolOpen(aVector, bVector));
+        .createSequentialSub(new InnerProductOpen(aVector, bVector));
   }
 
   @Override
   public Computation<RandomAdditiveMask> additiveMask(int noOfBits) {
     return builder
         .createSequentialSub(
-            new RandomAdditiveMaskProtocol44(factoryNumeric,
+            new dk.alexandra.fresco.lib.compare.RandomAdditiveMask(factoryNumeric,
                 BuilderFactoryNumeric.MAGIC_SECURE_NUMBER, noOfBits));
   }
 

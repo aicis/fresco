@@ -10,12 +10,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.RandomAccess;
 
-public class InnerProductProtocol44 implements ComputationBuilder<SInt> {
+public class InnerProduct implements ComputationBuilder<SInt> {
 
   private final List<Computation<SInt>> aVector;
   private final List<Computation<SInt>> bVector;
 
-  public InnerProductProtocol44(
+  public InnerProduct(
       List<Computation<SInt>> aVector,
       List<Computation<SInt>> bVector) {
     this.aVector = getRandomAccessList(aVector);
