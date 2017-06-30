@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -37,7 +37,7 @@ import java.io.StringReader;
 import java.math.BigInteger;
 import java.util.LinkedList;
 
-public class PlainLPInputReader4 implements LPInputReader {
+public class PlainLPInputReader implements LPInputReader {
 
   private BigInteger[][] constraintValues;
   private BigInteger[] costValues;
@@ -53,7 +53,7 @@ public class PlainLPInputReader4 implements LPInputReader {
   private BufferedReader patternReader;
 
 
-  public PlainLPInputReader4(BufferedReader valuesReader, BufferedReader patternReader, int myId) {
+  public PlainLPInputReader(BufferedReader valuesReader, BufferedReader patternReader, int myId) {
     this.valuesReader = valuesReader;
     this.patternReader = patternReader;
     this.myId = myId;
@@ -70,14 +70,14 @@ public class PlainLPInputReader4 implements LPInputReader {
   public static LPInputReader getStringInputReader(String values, String pattern, int myId) {
     BufferedReader valuesReader = new BufferedReader(new StringReader(values));
     BufferedReader patternReader = new BufferedReader(new StringReader(pattern));
-    return new PlainLPInputReader4(valuesReader, patternReader, myId);
+    return new PlainLPInputReader(valuesReader, patternReader, myId);
   }
 
-  public static PlainLPInputReader4 getFileInputReader(File values, File pattern, int myId)
+  public static PlainLPInputReader getFileInputReader(File values, File pattern, int myId)
       throws FileNotFoundException {
     BufferedReader valuesReader = new BufferedReader(new FileReader(values));
     BufferedReader patternReader = new BufferedReader(new FileReader(pattern));
-    return new PlainLPInputReader4(valuesReader, patternReader, myId);
+    return new PlainLPInputReader(valuesReader, patternReader, myId);
   }
 
   @Override
@@ -197,7 +197,7 @@ public class PlainLPInputReader4 implements LPInputReader {
 
   private void readPattern(BufferedReader patternReader) throws IOException, MPCException {
     if (!readInputPattern) {
-      LinkedList<int[]> constraintList = new LinkedList<int[]>();
+      LinkedList<int[]> constraintList = new LinkedList<>();
       String line = patternReader.readLine();
       if (line != null) {
         costPattern = parsePatternLine(line);
@@ -249,7 +249,7 @@ public class PlainLPInputReader4 implements LPInputReader {
 
   private void readValues(BufferedReader valueReader) throws IOException, MPCException {
     if (!readInputValues) {
-      LinkedList<BigInteger[]> constraintList = new LinkedList<BigInteger[]>();
+      LinkedList<BigInteger[]> constraintList = new LinkedList<>();
       String line = valueReader.readLine();
       if (line != null) {
         costValues = parseValueLine(line);

@@ -31,9 +31,9 @@ import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialProtocolBuilder;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.lp.LPTableau4;
-import dk.alexandra.fresco.lib.lp.Matrix4;
-import dk.alexandra.fresco.lib.lp.SimpleLPPrefix4;
+import dk.alexandra.fresco.lib.lp.LPTableau;
+import dk.alexandra.fresco.lib.lp.Matrix;
+import dk.alexandra.fresco.lib.lp.SimpleLPPrefix;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -48,7 +48,7 @@ import java.util.stream.Collectors;
  * these SInts. Note that we use the words "output" and "input" in terms of the
  * DEA instance. I.e. in the way the economists use these words.
  */
-public class DEAPrefixBuilderMaximize4 {
+public class DEAPrefixBuilderMaximize {
 
   // A value no benchmarking result should be larger than. Note the benchmarking results are of the form
   // \theta = "the factor a farmer can do better than he currently does" and thus is not necessarily upper bounded.
@@ -57,11 +57,11 @@ public class DEAPrefixBuilderMaximize4 {
   /**
    * Constructs an empty builder
    */
-  DEAPrefixBuilderMaximize4() {
+  DEAPrefixBuilderMaximize() {
     super();
   }
 
-  public static Computation<SimpleLPPrefix4> build(
+  public static Computation<SimpleLPPrefix> build(
       List<SInt[]> basisInputs, List<SInt[]> basisOutputs,
       List<SInt> targetInputs, List<SInt> targetOutputs,
       SequentialProtocolBuilder builder
@@ -94,9 +94,8 @@ public class DEAPrefixBuilderMaximize4 {
         });
 
     int constraints = newBasisInputs.size() + newBasisOutputs.size() + 1;
-    int slackvariables = constraints;
-    int variables = lambdas + slackvariables + 1;
-    ArrayList<ArrayList<Computation<SInt>>> slack = getIdentity(slackvariables, one, zero);
+    int variables = lambdas + constraints + 1;
+    ArrayList<ArrayList<Computation<SInt>>> slack = getIdentity(constraints, one, zero);
     ArrayList<ArrayList<Computation<SInt>>> C = new ArrayList<>(constraints);
     for (int i = 0; i < newBasisInputs.size(); i++) {
       C.add(inputRow(newBasisInputs.get(i), slack.get(i), zero));
@@ -122,10 +121,10 @@ public class DEAPrefixBuilderMaximize4 {
         basis.add(seq.numeric().known(BigInteger.valueOf(lambdas + 1 + 1 + i)));
       }
 
-      LPTableau4 tab = new LPTableau4(new Matrix4<>(constraints, variables, C), B, F, z);
-      Matrix4<Computation<SInt>> updateMatrix = new Matrix4<>(
+      LPTableau tab = new LPTableau(new Matrix<>(constraints, variables, C), B, F, z);
+      Matrix<Computation<SInt>> updateMatrix = new Matrix<>(
           constraints + 1, constraints + 1, getIdentity(constraints + 1, one, zero));
-      return () -> new SimpleLPPrefix4(updateMatrix, tab, pivot, basis);
+      return () -> new SimpleLPPrefix(updateMatrix, tab, pivot, basis);
     });
   }
 

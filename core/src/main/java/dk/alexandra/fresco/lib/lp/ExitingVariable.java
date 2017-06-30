@@ -37,7 +37,7 @@ import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.compare.ConditionalSelect;
 import dk.alexandra.fresco.lib.compare.eq.FracEq;
-import dk.alexandra.fresco.lib.lp.ExitingVariableProtocol4.ExitingVariableOutput;
+import dk.alexandra.fresco.lib.lp.ExitingVariable.ExitingVariableOutput;
 import dk.alexandra.fresco.lib.math.integer.SumSIntList;
 import dk.alexandra.fresco.lib.math.integer.min.MinInfFrac;
 import dk.alexandra.fresco.lib.math.integer.min.Minimum;
@@ -47,15 +47,15 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public class ExitingVariableProtocol4 implements ComputationBuilder<ExitingVariableOutput> {
+public class ExitingVariable implements ComputationBuilder<ExitingVariableOutput> {
 
-  private final LPTableau4 tableau;
-  private final Matrix4<Computation<SInt>> updateMatrix;
+  private final LPTableau tableau;
+  private final Matrix<Computation<SInt>> updateMatrix;
   private final List<Computation<SInt>> enteringIndex;
   private final List<Computation<SInt>> basis;
 
-  ExitingVariableProtocol4(
-      LPTableau4 tableau, Matrix4<Computation<SInt>> updateMatrix,
+  ExitingVariable(
+      LPTableau tableau, Matrix<Computation<SInt>> updateMatrix,
       List<Computation<SInt>> enteringIndex,
       List<Computation<SInt>> basis) {
     this.basis = basis;
@@ -69,7 +69,7 @@ public class ExitingVariableProtocol4 implements ComputationBuilder<ExitingVaria
     }
   }
 
-  private boolean checkDimensions(LPTableau4 tableau, Matrix4<Computation<SInt>> updateMatrix,
+  private boolean checkDimensions(LPTableau tableau, Matrix<Computation<SInt>> updateMatrix,
       List<Computation<SInt>> enteringIndex) {
     int updateHeight = updateMatrix.getHeight();
     int updateWidth = updateMatrix.getWidth();

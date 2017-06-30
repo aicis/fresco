@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -23,92 +23,73 @@
  *
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
- *******************************************************************************/
+ */
 package dk.alexandra.fresco.lib.lp;
 
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Function;
+import java.util.function.IntFunction;
+import java.util.stream.Collectors;
 
-/**
- * @author psn
- *
- * @param <T>
- */
 public class Matrix<T> {
-	
-	private final T[][] matrix;
-	
-	/**
-	 * Internal matrix representation:
-	 * [*, *, *]
-	 * [*, *, *]
-	 * [*, *, *]
-	 * [*, *, *]
-	 * 
-	 * here you would give as length of input to get this matrix:
-	 * [4][3]
-	 * @param matrix
-	 */
-	public Matrix(T[][] matrix){
-		this.matrix = matrix;
-	}
-	
-	public T[][] toArray() {
-		return matrix;
-	}
-	
-	public T getElement(int row, int column){
-		return this.matrix[row][column];
-	}
-	
-	/**
-	 * 
-	 * @param i index of the row you wish to extract.
-	 * @return
-	 */
-	public T[] getIthRow(int i){
-		return this.matrix[i];
-	}
-	
-	/**
-	 * Placeholder needed since we cannot create new instances of generic array, 
-	 * and Java arrays are not flexible.
-	 * @param i index of the column you want
-	 * @param placeholder an array of correct generic type of length=#rows in this matrix.
-	 * @return
-	 */
-	public T[] getIthColumn(int i, T[] placeholder){
-		if(placeholder.length != this.matrix.length){
-			throw new RuntimeException("placeholder length differs from column length of internal matrix.");
-		}
-		for(int j = 0; j < placeholder.length; j++){
-			placeholder[j] = this.matrix[j][i]; 
-		}
-		return placeholder;
-	}
-	
-	
-	/**
-	 * @return the width of the matrix
-	 */
-	public int getWidth() {
-		return this.matrix[0].length;
-	}
-	
-	
-	/**
-	 * @return the height of the matrix
-	 */
-	public int getHeight() {
-		return this.matrix.length;
-	}
-	
-	@Override
-	public String toString(){
-		String s = "";
-		for(int i = 0; i < this.matrix.length; i++){
-			s+=Arrays.toString(this.matrix[i])+"\n";
-		}
-		return s;
-	}
-	
+
+  private final int width;
+  private final int height;
+  private final ArrayList<ArrayList<T>> matrix;
+
+  public Matrix(int height, int width, IntFunction<ArrayList<T>> rowBuilder) {
+    this.width = width;
+    this.matrix = new ArrayList<>(height);
+    this.height = height;
+    for (int i = 0; i < height; i++) {
+      this.matrix.add(rowBuilder.apply(i));
+    }
+  }
+
+  public Matrix(int height, int width, ArrayList<ArrayList<T>> matrix) {
+    this.width = width;
+    this.height = height;
+    this.matrix = matrix;
+  }
+
+
+  public ArrayList<T> getRow(int i) {
+    return matrix.get(i);
+  }
+
+  /**
+   * @return the width of the matrix
+   */
+  public int getWidth() {
+    return width;
+  }
+
+
+  /**
+   * @return the height of the matrix
+   */
+  public int getHeight() {
+    return height;
+  }
+
+  public List<T> getColumn(int i) {
+    return this.matrix.stream().map(row -> row.get(i)).collect(Collectors.toList());
+  }
+
+  @Override
+  public String toString() {
+    return "Matrix{"
+        + "width=" + width
+        + ", height=" + height
+        + ", matrix=" + matrix
+        + '}';
+  }
+
+  public <R> R[][] toArray(Function<T, R> mapper, IntFunction<R[]> arrayCreator,
+      IntFunction<R[][]> doubleCreator) {
+    return matrix.stream().map(
+        row -> row.stream().map(mapper).toArray(arrayCreator)
+    ).toArray(doubleCreator);
+  }
 }

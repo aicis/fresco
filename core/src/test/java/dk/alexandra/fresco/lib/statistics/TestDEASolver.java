@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -57,7 +57,7 @@ public class TestDEASolver {
   @Test
   public void testConsistentData() {
     try {
-      new DEASolver4(DEASolver4.AnalysisType.INPUT_EFFICIENCY, inputValues, outputValues,
+      new DEASolver(DEASolver.AnalysisType.INPUT_EFFICIENCY, inputValues, outputValues,
           inputBasis,
           outputBasis);
     } catch (MPCException e) {
@@ -70,7 +70,7 @@ public class TestDEASolver {
     inputBasis.add(new ArrayList<>());
 
     try {
-      new DEASolver4(DEASolver4.AnalysisType.INPUT_EFFICIENCY, inputValues, outputValues,
+      new DEASolver(DEASolver.AnalysisType.INPUT_EFFICIENCY, inputValues, outputValues,
           inputBasis,
           outputBasis);
       Assert.fail("Inconsistent data should not be accepted");
@@ -84,7 +84,7 @@ public class TestDEASolver {
     inputValues.add(new ArrayList<>());
 
     try {
-      new DEASolver4(DEASolver4.AnalysisType.INPUT_EFFICIENCY, inputValues, outputValues,
+      new DEASolver(DEASolver.AnalysisType.INPUT_EFFICIENCY, inputValues, outputValues,
           inputBasis,
           outputBasis);
       Assert.fail("Inconsistent data should not be accepted");
@@ -100,7 +100,7 @@ public class TestDEASolver {
     inputBasis.get(0).add(new DummySInt());
 
     try {
-      new DEASolver4(DEASolver4.AnalysisType.INPUT_EFFICIENCY, inputValues, outputValues,
+      new DEASolver(DEASolver.AnalysisType.INPUT_EFFICIENCY, inputValues, outputValues,
           inputBasis,
           outputBasis);
       Assert.fail("Inconsistent data should not be accepted");
@@ -116,7 +116,7 @@ public class TestDEASolver {
     outputBasis.get(0).add(new DummySInt());
 
     try {
-      new DEASolver4(DEASolver4.AnalysisType.INPUT_EFFICIENCY, inputValues, outputValues,
+      new DEASolver(DEASolver.AnalysisType.INPUT_EFFICIENCY, inputValues, outputValues,
           inputBasis,
           outputBasis);
       Assert.fail("Inconsistent data should not be accepted");
@@ -138,7 +138,7 @@ public class TestDEASolver {
     inputBasis.get(1).add(new DummySInt());
 
     try {
-      new DEASolver4(DEASolver4.AnalysisType.INPUT_EFFICIENCY, inputValues, outputValues,
+      new DEASolver(DEASolver.AnalysisType.INPUT_EFFICIENCY, inputValues, outputValues,
           inputBasis,
           outputBasis);
       Assert.fail("Inconsistent data should not be accepted");
@@ -160,7 +160,7 @@ public class TestDEASolver {
     outputBasis.get(1).add(new DummySInt());
 
     try {
-      new DEASolver4(DEASolver4.AnalysisType.INPUT_EFFICIENCY, inputValues, outputValues,
+      new DEASolver(DEASolver.AnalysisType.INPUT_EFFICIENCY, inputValues, outputValues,
           inputBasis,
           outputBasis);
       Assert.fail("Inconsistent data should not be accepted");
@@ -178,7 +178,7 @@ public class TestDEASolver {
     outputValues.get(0).add(new DummySInt());
 
     try {
-      new DEASolver4(DEASolver4.AnalysisType.INPUT_EFFICIENCY, inputValues, outputValues,
+      new DEASolver(DEASolver.AnalysisType.INPUT_EFFICIENCY, inputValues, outputValues,
           inputBasis,
           outputBasis);
       Assert.fail("Inconsistent data should not be accepted");
@@ -191,8 +191,8 @@ public class TestDEASolver {
   @Test
   public void testAnalysisType() {
     Assert
-        .assertThat(DEASolver4.AnalysisType.INPUT_EFFICIENCY.toString(), Is.is("INPUT_EFFICIENCY"));
-    Assert.assertThat(DEASolver4.AnalysisType.valueOf("INPUT_EFFICIENCY"),
-        Is.is(DEASolver4.AnalysisType.INPUT_EFFICIENCY));
+        .assertThat(DEASolver.AnalysisType.INPUT_EFFICIENCY.toString(), Is.is("INPUT_EFFICIENCY"));
+    Assert.assertThat(DEASolver.AnalysisType.valueOf("INPUT_EFFICIENCY"),
+        Is.is(DEASolver.AnalysisType.INPUT_EFFICIENCY));
   }
 }

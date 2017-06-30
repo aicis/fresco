@@ -37,17 +37,17 @@ import dk.alexandra.fresco.lib.math.integer.min.Minimum;
 import java.util.ArrayList;
 import java.util.List;
 
-public class EnteringVariableProtocol4
+public class EnteringVariable
     implements ComputationBuilder<Pair<List<Computation<SInt>>, SInt>> {
 
-  private final LPTableau4 tableau;
-  private final Matrix4<Computation<SInt>> updateMatrix;
+  private final LPTableau tableau;
+  private final Matrix<Computation<SInt>> updateMatrix;
 
   /**
    * @param tableau an (m + 1)x(n + m + 1) tableau
    * @param updateMatrix an (m + 1)x(m + 1) update matrix, multiplying the tableau on the left with
    */
-  public EnteringVariableProtocol4(LPTableau4 tableau, Matrix4<Computation<SInt>> updateMatrix) {
+  public EnteringVariable(LPTableau tableau, Matrix<Computation<SInt>> updateMatrix) {
     if (checkDimensions(tableau, updateMatrix)) {
       this.updateMatrix = updateMatrix;
       this.tableau = tableau;
@@ -56,8 +56,8 @@ public class EnteringVariableProtocol4
     }
   }
 
-  private boolean checkDimensions(LPTableau4 tableau,
-      Matrix4<Computation<SInt>> updateMatrix) {
+  private boolean checkDimensions(LPTableau tableau,
+      Matrix<Computation<SInt>> updateMatrix) {
     int updateHeight = updateMatrix.getHeight();
     int updateWidth = updateMatrix.getWidth();
     int tableauHeight = tableau.getC().getHeight() + 1;

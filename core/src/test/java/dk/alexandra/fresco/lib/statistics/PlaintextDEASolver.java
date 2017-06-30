@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -23,7 +23,7 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.statistics;
 
-import dk.alexandra.fresco.lib.statistics.DEASolver4.AnalysisType;
+import dk.alexandra.fresco.lib.statistics.DEASolver.AnalysisType;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -54,8 +54,8 @@ public class PlaintextDEASolver {
    * Constructs a new DEA solver with an empty dataset.
    */
   public PlaintextDEASolver() {
-    inputs = new HashMap<String, List<Double>>();
-    outputs = new HashMap<String, List<Double>>();
+    inputs = new HashMap<>();
+    outputs = new HashMap<>();
     size = -1;
   }
 
@@ -95,7 +95,7 @@ public class PlaintextDEASolver {
     LinearObjectiveFunction objectiveFuntion = new LinearObjectiveFunction(objectiveCoeffs, 0);
 
     LinkedList<LinearConstraint> constraints = null;
-    if (type == DEASolver4.AnalysisType.OUTPUT_EFFICIENCY) {
+    if (type == DEASolver.AnalysisType.OUTPUT_EFFICIENCY) {
       constraints = buildOutputEfficienceConstraints(targetInputs, targetOutputs, sizePlusTheta);
     } else {
       constraints = buildInputEfficienceConstraints(targetInputs, targetOutputs, sizePlusTheta - 1);
@@ -105,7 +105,7 @@ public class PlaintextDEASolver {
     SimplexSolver solver = new SimplexSolver();
     LinearConstraintSet set = new LinearConstraintSet(constraints);
     GoalType goal =
-        (type == DEASolver4.AnalysisType.OUTPUT_EFFICIENCY) ? GoalType.MAXIMIZE : GoalType.MINIMIZE;
+        (type == DEASolver.AnalysisType.OUTPUT_EFFICIENCY) ? GoalType.MAXIMIZE : GoalType.MINIMIZE;
     PointValuePair pvp =
         solver.optimize(objectiveFuntion, set, goal, new NonNegativeConstraint(true));
     return pvp.getValue();
@@ -114,7 +114,7 @@ public class PlaintextDEASolver {
   private LinkedList<LinearConstraint> buildOutputEfficienceConstraints(
       Map<String, Double> targetInputs, Map<String, Double> targetOutputs, int sizePlusTarget) {
     // Make input constraints
-    LinkedList<LinearConstraint> constraints = new LinkedList<LinearConstraint>();
+    LinkedList<LinearConstraint> constraints = new LinkedList<>();
     for (String inputLabel : targetInputs.keySet()) {
       double[] lcoeffs = new double[sizePlusTarget];
       lcoeffs[0] = 0;
@@ -159,10 +159,10 @@ public class PlaintextDEASolver {
   private LinkedList<LinearConstraint> buildInputEfficienceConstraints(
       Map<String, Double> targetInputs, Map<String, Double> targetOutputs, int sizePlusTarget) {
     // Make input constraints
-    LinkedList<LinearConstraint> constraints = new LinkedList<LinearConstraint>();
+    LinkedList<LinearConstraint> constraints = new LinkedList<>();
     for (String inputLabel : targetInputs.keySet()) {
       double[] lcoeffs = new double[sizePlusTarget];
-      lcoeffs[0] = -targetInputs.get(inputLabel);;
+      lcoeffs[0] = -targetInputs.get(inputLabel);
       int i = 1;
       for (double d : inputs.get(inputLabel)) {
         lcoeffs[i] = d;
@@ -225,16 +225,16 @@ public class PlaintextDEASolver {
    */
   public void addBasis(BigInteger[][] rawBasisInputs, BigInteger[][] rawBasisOutputs) {
     for (int i = 0; i < rawBasisInputs[0].length; i++) {
-      List<Double> inputList = new ArrayList<Double>(rawBasisInputs.length);
-      for (int j = 0; j < rawBasisInputs.length; j++) {
-        inputList.add(rawBasisInputs[j][i].doubleValue());
+      List<Double> inputList = new ArrayList<>(rawBasisInputs.length);
+      for (BigInteger[] rawBasisInput : rawBasisInputs) {
+        inputList.add(rawBasisInput[i].doubleValue());
       }
       addInputType("input_" + i, inputList);
     }
     for (int i = 0; i < rawBasisOutputs[0].length; i++) {
-      List<Double> outputList = new ArrayList<Double>(rawBasisOutputs.length);
-      for (int j = 0; j < rawBasisOutputs.length; j++) {
-        outputList.add(rawBasisOutputs[j][i].doubleValue());
+      List<Double> outputList = new ArrayList<>(rawBasisOutputs.length);
+      for (BigInteger[] rawBasisOutput : rawBasisOutputs) {
+        outputList.add(rawBasisOutput[i].doubleValue());
       }
       addOutputType("output_" + i, outputList);
     }
@@ -254,8 +254,8 @@ public class PlaintextDEASolver {
       AnalysisType type) {
     double[] results = new double[rawTargetInputs.length];
     for (int i = 0; i < rawTargetInputs.length; i++) {
-      Map<String, Double> targetRowInput = new HashMap<String, Double>();
-      Map<String, Double> targetRowOutput = new HashMap<String, Double>();
+      Map<String, Double> targetRowInput = new HashMap<>();
+      Map<String, Double> targetRowOutput = new HashMap<>();
 
       for (int j = 0; j < rawTargetInputs[i].length; j++) {
         targetRowInput.put("input_" + j, rawTargetInputs[i][j].doubleValue());
@@ -274,7 +274,7 @@ public class PlaintextDEASolver {
    * size of the dataset.
    * 
    * @param label label of the new datatype
-   * @param inputList a list of values for the datatype, must be of the same size as the list of any
+   * @param outputList a list of values for the datatype, must be of the same size as the list of any
    *        prior added datatypes.
    */
   public void addOutputType(String label, List<Double> outputList) {

@@ -41,18 +41,14 @@ import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
-import dk.alexandra.fresco.lib.lp.LPSolverProtocol4;
-import dk.alexandra.fresco.lib.lp.LPSolverProtocol4.LPOutput;
-import dk.alexandra.fresco.lib.lp.LPSolverProtocol4.PivotRule;
-import dk.alexandra.fresco.lib.lp.Matrix;
-import dk.alexandra.fresco.lib.lp.Matrix4;
-import dk.alexandra.fresco.lib.lp.OptimalValue4;
+import dk.alexandra.fresco.lib.lp.LPSolver;
+import dk.alexandra.fresco.lib.lp.LPSolver.LPOutput;
+import dk.alexandra.fresco.lib.lp.LPSolver.PivotRule;
+import dk.alexandra.fresco.lib.lp.OptimalValue;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Arrays;
 import org.junit.Assert;
 
 class LPSolverTests {
@@ -80,9 +76,9 @@ class LPSolverTests {
               BasicNumericFactory bnFactory = (BasicNumericFactory) producer;
               File pattern = new File("src/test/resources/lp/pattern7.csv");
               File program = new File("src/test/resources/lp/program7.csv");
-              PlainLPInputReader4 inputreader;
+              PlainLPInputReader inputreader;
               try {
-                inputreader = PlainLPInputReader4
+                inputreader = PlainLPInputReader
                     .getFileInputReader(program, pattern,
                         conf.getMyId());
               } catch (FileNotFoundException e) {
@@ -93,10 +89,10 @@ class LPSolverTests {
               }
               return ProtocolBuilderNumeric
                   .createApplicationRoot((BuilderFactoryNumeric) factoryProducer, (builder) -> {
-                    Computation<PlainSpdzLPPrefix4> prefixComp = builder.par(par -> {
-                      PlainSpdzLPPrefix4 prefix;
+                    Computation<PlainSpdzLPPrefix> prefixComp = builder.par(par -> {
+                      PlainSpdzLPPrefix prefix;
                       try {
-                        prefix = new PlainSpdzLPPrefix4(inputreader, par);
+                        prefix = new PlainSpdzLPPrefix(inputreader, par);
                       } catch (IOException e) {
                         e.printStackTrace();
                         throw new MPCException("IOException: "
@@ -105,9 +101,9 @@ class LPSolverTests {
                       return () -> prefix;
                     });
                     builder.createSequentialSub((seq) -> {
-                      PlainSpdzLPPrefix4 prefix = prefixComp.out();
+                      PlainSpdzLPPrefix prefix = prefixComp.out();
                       Computation<LPOutput> lpOutput = seq.createSequentialSub(
-                          new LPSolverProtocol4(
+                          new LPSolver(
                               pivotRule,
                               prefix.getTableau(),
                               prefix.getUpdateMatrix(),
@@ -116,7 +112,7 @@ class LPSolverTests {
 
                       Computation<SInt> optimalValue = seq.createSequentialSub((inner) -> {
                             LPOutput out = lpOutput.out();
-                            return new OptimalValue4(out.updateMatrix, out.tableau, out.pivot)
+                        return new OptimalValue(out.updateMatrix, out.tableau, out.pivot)
                                 .build(inner);
                           }
                       );
@@ -125,11 +121,6 @@ class LPSolverTests {
                       return () -> null;
                     });
                   }).build();
-            }
-
-            Matrix4<Computation<SInt>> toMatrix4(Matrix<SInt> updateMatrix) {
-              return new Matrix4<>(updateMatrix.getHeight(), updateMatrix.getWidth(),
-                  i -> new ArrayList<>(Arrays.asList(updateMatrix.getIthRow(i))));
             }
           };
           long startTime = System.nanoTime();

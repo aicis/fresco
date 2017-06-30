@@ -32,7 +32,7 @@ import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.compare.ConditionalSelect;
 import dk.alexandra.fresco.lib.debug.MarkerProtocolImpl;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
-import dk.alexandra.fresco.lib.lp.LPSolverProtocol4.LPOutput;
+import dk.alexandra.fresco.lib.lp.LPSolver.LPOutput;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
@@ -51,19 +51,17 @@ import java.util.List;
  * than general matrix multiplication.
  * </p>
  */
-public class LPSolverProtocol4 implements ComputationBuilder<LPOutput> {
+public class LPSolver implements ComputationBuilder<LPOutput> {
 
   public enum PivotRule {
     BLAND, DANZIG
   }
 
-  ;
-
   private static final boolean debugLog = false;
 
   private final PivotRule pivotRule;
-  private final LPTableau4 tableau;
-  private final Matrix4<Computation<SInt>> updateMatrix;
+  private final LPTableau tableau;
+  private final Matrix<Computation<SInt>> updateMatrix;
   private final Computation<SInt> pivot;
   private final List<Computation<SInt>> initialBasis;
   private int identityHashCode;
@@ -73,10 +71,10 @@ public class LPSolverProtocol4 implements ComputationBuilder<LPOutput> {
   private final int noVariables;
   private final int noConstraints;
 
-  public LPSolverProtocol4(
+  public LPSolver(
       PivotRule pivotRule,
-      LPTableau4 tableau,
-      Matrix4<Computation<SInt>> updateMatrix,
+      LPTableau tableau,
+      Matrix<Computation<SInt>> updateMatrix,
       Computation<SInt> pivot,
       List<Computation<SInt>> initialBasis) {
     this.pivotRule = pivotRule;
@@ -93,15 +91,15 @@ public class LPSolverProtocol4 implements ComputationBuilder<LPOutput> {
     }
   }
 
-  public LPSolverProtocol4(
-      LPTableau4 tableau,
-      Matrix4<Computation<SInt>> updateMatrix,
+  public LPSolver(
+      LPTableau tableau,
+      Matrix<Computation<SInt>> updateMatrix,
       Computation<SInt> pivot,
       List<Computation<SInt>> initialBasis) {
     this(PivotRule.DANZIG, tableau, updateMatrix, pivot, initialBasis);
   }
 
-  private boolean checkDimensions(LPTableau4 tableau, Matrix4<Computation<SInt>> updateMatrix) {
+  private boolean checkDimensions(LPTableau tableau, Matrix<Computation<SInt>> updateMatrix) {
     int updateHeight = updateMatrix.getHeight();
     int updateWidth = updateMatrix.getWidth();
     int tableauHeight = tableau.getC().getHeight() + 1;
@@ -168,7 +166,7 @@ public class LPSolverProtocol4 implements ComputationBuilder<LPOutput> {
       LPState state) {
     return builder.seq((seq) ->
         seq.createSequentialSub(
-            new ExitingVariableProtocol4(
+            new ExitingVariable(
                 state.tableau,
                 state.updateMatrix,
                 state.enteringIndex,
@@ -191,7 +189,7 @@ public class LPSolverProtocol4 implements ComputationBuilder<LPOutput> {
       });
     }, (exitingVariable, seq) -> {
       return seq
-          .createSequentialSub(new UpdateMatrixProtocol4(state.updateMatrix,
+          .createSequentialSub(new UpdateMatrix(state.updateMatrix,
               exitingVariable.exitingIndex, exitingVariable.updateColumn, state.pivot,
               state.prevPivot
           ));
@@ -223,7 +221,7 @@ public class LPSolverProtocol4 implements ComputationBuilder<LPOutput> {
     return builder.seq(
         // Compute potential entering variable index and corresponding value of
         // entry in F
-        new EnteringVariableProtocol4(state.tableau, state.updateMatrix)
+        new EnteringVariable(state.tableau, state.updateMatrix)
     ).seq((enteringAndMinimum, seq) -> {
       List<Computation<SInt>> entering = enteringAndMinimum.getFirst();
       SInt minimum = enteringAndMinimum.getSecond();
@@ -251,7 +249,7 @@ public class LPSolverProtocol4 implements ComputationBuilder<LPOutput> {
     return builder.seq(
         // Compute potential entering variable index and corresponding value of
         // entry in F
-        new BlandEnteringVariableProtocol4(state.tableau, state.updateMatrix)
+        new BlandEnteringVariable(state.tableau, state.updateMatrix)
     ).seq((enteringAndMinimum, seq) -> {
       List<Computation<SInt>> entering = enteringAndMinimum.getFirst();
       SInt termination = enteringAndMinimum.getSecond();
@@ -315,13 +313,13 @@ public class LPSolverProtocol4 implements ComputationBuilder<LPOutput> {
 
   public static class LPOutput {
 
-    public final LPTableau4 tableau;
-    public final Matrix4<Computation<SInt>> updateMatrix;
+    public final LPTableau tableau;
+    public final Matrix<Computation<SInt>> updateMatrix;
     public final List<Computation<SInt>> basis;
     public final Computation<SInt> pivot;
 
-    public LPOutput(LPTableau4 tableau,
-        Matrix4<Computation<SInt>> updateMatrix,
+    public LPOutput(LPTableau tableau,
+        Matrix<Computation<SInt>> updateMatrix,
         List<Computation<SInt>> basis, Computation<SInt> pivot) {
       this.tableau = tableau;
       this.updateMatrix = updateMatrix;
@@ -333,16 +331,16 @@ public class LPSolverProtocol4 implements ComputationBuilder<LPOutput> {
   private class LPState implements Computation<LPState> {
 
     public Computation<BigInteger> terminationOut;
-    private LPTableau4 tableau;
-    private Matrix4<Computation<SInt>> updateMatrix;
+    private LPTableau tableau;
+    private Matrix<Computation<SInt>> updateMatrix;
     public List<Computation<SInt>> enteringIndex;
     public Computation<SInt> pivot;
     public List<BigInteger> enumeratedVariables;
     public List<Computation<SInt>> basis;
     public Computation<SInt> prevPivot;
 
-    public LPState(BigInteger terminationOut, LPTableau4 tableau,
-        Matrix4<Computation<SInt>> updateMatrix, List<Computation<SInt>> enteringIndex,
+    public LPState(BigInteger terminationOut, LPTableau tableau,
+        Matrix<Computation<SInt>> updateMatrix, List<Computation<SInt>> enteringIndex,
         Computation<SInt> pivot,
         List<BigInteger> enumeratedVariables, List<Computation<SInt>> basis,
         Computation<SInt> prevPivot) {

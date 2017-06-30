@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -27,17 +27,16 @@ import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialProtocolBuilder;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.lp.LPPrefix;
-import dk.alexandra.fresco.lib.lp.LPTableau4;
-import dk.alexandra.fresco.lib.lp.Matrix4;
-import dk.alexandra.fresco.lib.lp.SimpleLPPrefix4;
+import dk.alexandra.fresco.lib.lp.LPTableau;
+import dk.alexandra.fresco.lib.lp.Matrix;
+import dk.alexandra.fresco.lib.lp.SimpleLPPrefix;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
 /**
- * A builder to set up the {@link LPPrefix} for a DEA input efficiency analysis.
+ * A builder to set up the LP-Prefix for a DEA input efficiency analysis.
  *
  * <p>
  * The initial LP tableau is set up using the Big-M method to handle the
@@ -47,9 +46,9 @@ import java.util.List;
  * result of the Simplex solver in order to get the correct result.
  * </p>
  */
-public class DEAInputEfficiencyPrefixBuilder4 {
+public class DEAInputEfficiencyPrefixBuilder {
 
-  public static Computation<SimpleLPPrefix4> build(
+  public static Computation<SimpleLPPrefix> build(
       List<SInt[]> basisInputs, List<SInt[]> basisOutputs,
       List<SInt> targetInputs, List<SInt> targetOutputs,
       SequentialProtocolBuilder builder
@@ -73,7 +72,6 @@ public class DEAInputEfficiencyPrefixBuilder4 {
     Computation<SInt> sBigM = numeric.known(BigInteger.valueOf(-bigM));
     ArrayList<Computation<SInt>> b = new ArrayList<>(constraints);
     ArrayList<Computation<SInt>> f = new ArrayList<>(variables);
-    Computation<SInt> pivot = one;
     ArrayList<ArrayList<Computation<SInt>>> c = new ArrayList<>(constraints);
 
     Computation<SInt> z = builder.par(par -> {
@@ -171,14 +169,15 @@ public class DEAInputEfficiencyPrefixBuilder4 {
       for (int i = 0; i < constraints; i++) {
         basis.add(par.numeric().known(BigInteger.valueOf(1 + dbSize + i + 1)));
       }
-      LPTableau4 tab = new LPTableau4(new Matrix4<>(constraints, variables, c), b, f, z);
-      Matrix4<Computation<SInt>> updateMatrix = new Matrix4<>(
+      LPTableau tab = new LPTableau(new Matrix<>(constraints, variables, c), b, f, z);
+      Matrix<Computation<SInt>> updateMatrix = new Matrix<>(
           constraints + 1, constraints + 1, getIdentity(constraints + 1, one, zero));
-      return () -> new SimpleLPPrefix4(updateMatrix, tab, pivot, basis);
+      return () -> new SimpleLPPrefix(updateMatrix, tab, one, basis);
     });
   }
 
-  static ArrayList<ArrayList<Computation<SInt>>> getIdentity(int dimension, Computation<SInt> one,
+  private static ArrayList<ArrayList<Computation<SInt>>> getIdentity(int dimension,
+      Computation<SInt> one,
       Computation<SInt> zero) {
     ArrayList<ArrayList<Computation<SInt>>> identity = new ArrayList<>(dimension);
     for (int i = 0; i < dimension; i++) {

@@ -56,12 +56,12 @@ public class LPBuildingBlockTests {
 
     Random rand = new Random(42);
     BigInteger mod;
-    Matrix4<BigInteger> updateMatrix;
-    Matrix4<BigInteger> constraints;
+    Matrix<BigInteger> updateMatrix;
+    Matrix<BigInteger> constraints;
     ArrayList<BigInteger> b;
     protected ArrayList<BigInteger> f;
-    LPTableau4 sTableau;
-    Matrix4<Computation<SInt>> sUpdateMatrix;
+    LPTableau sTableau;
+    Matrix<Computation<SInt>> sUpdateMatrix;
 
     void randomTableau(int n, int m) {
       updateMatrix = randomMatrix(m + 1, m + 1);
@@ -73,14 +73,14 @@ public class LPBuildingBlockTests {
     void inputTableau(SequentialProtocolBuilder builder) {
       builder.createParallelSub(par -> {
         NumericBuilder numeric = par.numeric();
-        sTableau = new LPTableau4(
-            new Matrix4<>(constraints.getHeight(), constraints.getWidth(),
+        sTableau = new LPTableau(
+            new Matrix<>(constraints.getHeight(), constraints.getWidth(),
                 (i) -> toArrayList(numeric, constraints.getRow(i))),
             toArrayList(numeric, b),
             toArrayList(numeric, f),
             numeric.known(BigInteger.ZERO)
         );
-        sUpdateMatrix = new Matrix4<>(
+        sUpdateMatrix = new Matrix<>(
             updateMatrix.getHeight(), updateMatrix.getWidth(),
             (i) -> toArrayList(numeric, updateMatrix.getRow(i)));
         return () -> null;
@@ -93,8 +93,8 @@ public class LPBuildingBlockTests {
           .collect(Collectors.toList()));
     }
 
-    Matrix4<BigInteger> randomMatrix(int n, int m) {
-      return new Matrix4<>(n, m,
+    Matrix<BigInteger> randomMatrix(int n, int m) {
+      return new Matrix<>(n, m,
           (i) -> randomList(m));
     }
 
@@ -122,7 +122,7 @@ public class LPBuildingBlockTests {
       expectedIndex = enteringDanzigVariableIndex(constraints, updateMatrix, b, f);
 
       builder.seq((seq) ->
-          new EnteringVariableProtocol4(sTableau, sUpdateMatrix).build(seq)
+          new EnteringVariable(sTableau, sUpdateMatrix).build(seq)
       ).seq((enteringOutput, seq) -> {
         List<Computation<SInt>> enteringIndex = enteringOutput.getFirst();
         NumericBuilder numeric = seq.numeric();
@@ -143,7 +143,7 @@ public class LPBuildingBlockTests {
      * @param F the F vector
      * @return the entering index
      */
-    private int enteringDanzigVariableIndex(Matrix4<BigInteger> C, Matrix4<BigInteger> updateMatrix,
+    private int enteringDanzigVariableIndex(Matrix<BigInteger> C, Matrix<BigInteger> updateMatrix,
         ArrayList<BigInteger> B,
         ArrayList<BigInteger> F) {
       BigInteger[] updatedF = new BigInteger[F.size()];

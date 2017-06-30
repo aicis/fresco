@@ -36,14 +36,14 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
-public class BlandEnteringVariableProtocol4
+public class BlandEnteringVariable
     implements ComputationBuilder<Pair<List<Computation<SInt>>, SInt>> {
 
-  private final LPTableau4 tableau;
-  private final Matrix4<Computation<SInt>> updateMatrix;
+  private final LPTableau tableau;
+  private final Matrix<Computation<SInt>> updateMatrix;
 
-  public BlandEnteringVariableProtocol4(LPTableau4 tableau,
-      Matrix4<Computation<SInt>> updateMatrix) {
+  public BlandEnteringVariable(LPTableau tableau,
+      Matrix<Computation<SInt>> updateMatrix) {
     if (checkDimensions(tableau, updateMatrix)) {
       this.updateMatrix = updateMatrix;
       this.tableau = tableau;
@@ -52,7 +52,7 @@ public class BlandEnteringVariableProtocol4
     }
   }
 
-  private boolean checkDimensions(LPTableau4 tableau, Matrix4<Computation<SInt>> updateMatrix) {
+  private boolean checkDimensions(LPTableau tableau, Matrix<Computation<SInt>> updateMatrix) {
     int updateHeight = updateMatrix.getHeight();
     int updateWidth = updateMatrix.getWidth();
     int tableauHeight = tableau.getC().getHeight() + 1;
@@ -83,42 +83,41 @@ public class BlandEnteringVariableProtocol4
         );
       }
       return () -> updatedF;
-    }).seq((updatedF, seq) -> {
-      return seq.par(par -> {
-        ArrayList<Computation<SInt>> signs = new ArrayList<>(updatedF.size());
-        for (Computation<SInt> f : updatedF) {
-          signs.add(par.comparison().compare(f, negativeOne));
-        }
-        return () -> signs;
-      }).seq((signs, seq2) -> {
-        //Prefix sum
-        ArrayList<Computation<SInt>> updatedSigns = new ArrayList<>();
-        updatedSigns.add(signs.get(0));
-        Computation<SInt> previous = signs.get(0);
-        for (int i = 1; i < signs.size(); i++) {
-          Computation<SInt> current = signs.get(i);
-          previous = seq2.numeric().add(previous, current);
-          updatedSigns.add(previous);
-        }
-        return () -> updatedSigns;
-      }).par((signs, par) -> {
-        //Pairwise sums
-        ArrayList<Computation<SInt>> pairwiseSums = new ArrayList<>();
-        pairwiseSums.add(signs.get(0));
-        for (int i = 1; i < signs.size(); i++) {
-          pairwiseSums.add(par.numeric().add(signs.get(i - 1), signs.get(i)));
-        }
-        return () -> pairwiseSums;
-      }).par((pairwiseSums, par) -> {
-        ArrayList<Computation<SInt>> enteringIndex = new ArrayList<>();
-        int bitlength = (int) Math.log(pairwiseSums.size()) * 2 + 1;
-        ComparisonBuilder comparison = par.comparison();
-        for (int i = 0; i < updatedF.size(); i++) {
-          enteringIndex.add(comparison.equals(bitlength, pairwiseSums.get(i), one));
-        }
-        return () -> enteringIndex;
-      });
-    }).seq((enteringIndex, seq) -> {
+    }).seq((updatedF, seq) ->
+        seq.par(par -> {
+          ArrayList<Computation<SInt>> signs = new ArrayList<>(updatedF.size());
+          for (Computation<SInt> f : updatedF) {
+            signs.add(par.comparison().compare(f, negativeOne));
+          }
+          return () -> signs;
+        }).seq((signs, seq2) -> {
+          //Prefix sum
+          ArrayList<Computation<SInt>> updatedSigns = new ArrayList<>();
+          updatedSigns.add(signs.get(0));
+          Computation<SInt> previous = signs.get(0);
+          for (int i = 1; i < signs.size(); i++) {
+            Computation<SInt> current = signs.get(i);
+            previous = seq2.numeric().add(previous, current);
+            updatedSigns.add(previous);
+          }
+          return () -> updatedSigns;
+        }).par((signs, par) -> {
+          //Pairwise sums
+          ArrayList<Computation<SInt>> pairwiseSums = new ArrayList<>();
+          pairwiseSums.add(signs.get(0));
+          for (int i = 1; i < signs.size(); i++) {
+            pairwiseSums.add(par.numeric().add(signs.get(i - 1), signs.get(i)));
+          }
+          return () -> pairwiseSums;
+        }).par((pairwiseSums, par) -> {
+          ArrayList<Computation<SInt>> enteringIndex = new ArrayList<>();
+          int bitlength = (int) Math.log(pairwiseSums.size()) * 2 + 1;
+          ComparisonBuilder comparison = par.comparison();
+          for (int i = 0; i < updatedF.size(); i++) {
+            enteringIndex.add(comparison.equals(bitlength, pairwiseSums.get(i), one));
+          }
+          return () -> enteringIndex;
+        })).seq((enteringIndex, seq) -> {
       Computation<SInt> terminationSum = seq.createSequentialSub(new SumSIntList(enteringIndex));
       Computation<SInt> termination = seq.numeric().sub(one, terminationSum);
       return () -> new Pair<>(enteringIndex, termination.out());

@@ -40,8 +40,8 @@ import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.helper.AlgebraUtil;
 import dk.alexandra.fresco.lib.helper.builder.NumericIOBuilder;
-import dk.alexandra.fresco.lib.statistics.DEASolver4.AnalysisType;
-import dk.alexandra.fresco.lib.statistics.DEASolver4.DEAResult;
+import dk.alexandra.fresco.lib.statistics.DEASolver.AnalysisType;
+import dk.alexandra.fresco.lib.statistics.DEASolver.DEAResult;
 import java.math.BigInteger;
 import java.util.List;
 import org.junit.Assert;
@@ -169,7 +169,7 @@ public class DEASolverFixedDataTest {
       };
       secureComputationEngine.runApplication(app, resourcePool);
 
-      DEASolver4 solver = new DEASolver4(type, AlgebraUtil.arrayToList(targetInputs),
+      DEASolver solver = new DEASolver(type, AlgebraUtil.arrayToList(targetInputs),
           AlgebraUtil.arrayToList(targetOutputs), AlgebraUtil.arrayToList(basisInputs),
           AlgebraUtil.arrayToList(basisOutputs));
 

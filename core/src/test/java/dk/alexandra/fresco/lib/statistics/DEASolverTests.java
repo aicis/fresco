@@ -43,8 +43,8 @@ import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.helper.AlgebraUtil;
 import dk.alexandra.fresco.lib.helper.builder.NumericIOBuilder;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
-import dk.alexandra.fresco.lib.statistics.DEASolver4.AnalysisType;
-import dk.alexandra.fresco.lib.statistics.DEASolver4.DEAResult;
+import dk.alexandra.fresco.lib.statistics.DEASolver.AnalysisType;
+import dk.alexandra.fresco.lib.statistics.DEASolver.DEAResult;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
@@ -147,7 +147,7 @@ public class DEASolverTests {
               conf.sceConf.getSuite());
           secureComputationEngine.runApplication(app, resourcePool);
 
-          DEASolver4 solver = new DEASolver4(type, inputValues,
+          DEASolver solver = new DEASolver(type, inputValues,
               outputValues,
               setInput,
               setOutput);
@@ -225,7 +225,7 @@ public class DEASolverTests {
       BigInteger modulus) {
     BigInteger[] gauss = gauss(input, modulus);
     double res = (gauss[0].doubleValue() / gauss[1].doubleValue());
-    if (type == DEASolver4.AnalysisType.INPUT_EFFICIENCY) {
+    if (type == DEASolver.AnalysisType.INPUT_EFFICIENCY) {
       res *= -1;
     }
     return res;

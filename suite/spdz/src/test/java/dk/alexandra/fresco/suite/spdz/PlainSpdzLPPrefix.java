@@ -30,31 +30,31 @@ import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.ParallelProtocolBuilder;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.lp.LPTableau4;
-import dk.alexandra.fresco.lib.lp.Matrix4;
+import dk.alexandra.fresco.lib.lp.LPTableau;
+import dk.alexandra.fresco.lib.lp.Matrix;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
-public class PlainSpdzLPPrefix4 {
+public class PlainSpdzLPPrefix {
 
-  private final Matrix4<Computation<SInt>> updateMatrix;
-  private final LPTableau4 tableau;
+  private final Matrix<Computation<SInt>> updateMatrix;
+  private final LPTableau tableau;
   private final Computation<SInt> pivot;
   private final ArrayList<Computation<SInt>> basis;
 
-  public PlainSpdzLPPrefix4(PlainLPInputReader4 inputReader, ParallelProtocolBuilder par)
+  public PlainSpdzLPPrefix(PlainLPInputReader inputReader, ParallelProtocolBuilder par)
       throws IOException {
     if (!inputReader.isRead()) {
       inputReader.readInput();
     }
     int noVariables = inputReader.getCostValues().length;
     int noConstraints = inputReader.getConstraintValues().length;
-    Matrix4<Computation<SInt>> C;
+    Matrix<Computation<SInt>> C;
     NumericBuilder numeric = par.numeric();
-    C = new Matrix4<>(noConstraints, noVariables,
+    C = new Matrix<>(noConstraints, noVariables,
         (i) -> {
           ArrayList<Computation<SInt>> row = new ArrayList<>(noVariables);
           for (int j = 0; j < noVariables; j++) {
@@ -69,7 +69,7 @@ public class PlainSpdzLPPrefix4 {
         Arrays.stream(inputReader.getBValues()).map(numeric::known)
             .collect(Collectors.toList()));
 
-    this.updateMatrix = new Matrix4<>(noConstraints + 1, noConstraints + 1,
+    this.updateMatrix = new Matrix<>(noConstraints + 1, noConstraints + 1,
         (i) -> {
           ArrayList<Computation<SInt>> row = new ArrayList<>();
           for (int j = 0; j < noConstraints + 1; j++) {
@@ -85,7 +85,7 @@ public class PlainSpdzLPPrefix4 {
     Computation<SInt> z = numeric.known(BigInteger.ZERO);
 
     this.pivot = numeric.known(BigInteger.ONE);
-    this.tableau = new LPTableau4(C, b, f, z);
+    this.tableau = new LPTableau(C, b, f, z);
     ArrayList<Computation<SInt>> basis = new ArrayList<>(noConstraints);
     for (int i = 0; i < noConstraints; i++) {
       basis.add(numeric.known(BigInteger.valueOf(noVariables - noConstraints + 1 + i)));
@@ -97,11 +97,11 @@ public class PlainSpdzLPPrefix4 {
     return basis;
   }
 
-  public LPTableau4 getTableau() {
+  public LPTableau getTableau() {
     return this.tableau;
   }
 
-  public Matrix4<Computation<SInt>> getUpdateMatrix() {
+  public Matrix<Computation<SInt>> getUpdateMatrix() {
     return this.updateMatrix;
   }
 

@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -29,7 +29,7 @@ package dk.alexandra.fresco.suite.spdz;
 import dk.alexandra.fresco.framework.configuration.PreprocessingStrategy;
 import dk.alexandra.fresco.framework.network.NetworkingStrategy;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
-import dk.alexandra.fresco.lib.lp.LPSolverProtocol4.PivotRule;
+import dk.alexandra.fresco.lib.lp.LPSolver.PivotRule;
 import org.junit.Test;
 
 public class TestSpdzLPSolver3Parties extends AbstractSpdzTest {

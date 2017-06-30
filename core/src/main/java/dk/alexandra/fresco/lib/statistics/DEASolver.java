@@ -32,13 +32,13 @@ import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialProtocolBuilder;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.lp.LPSolverProtocol4;
-import dk.alexandra.fresco.lib.lp.LPSolverProtocol4.PivotRule;
-import dk.alexandra.fresco.lib.lp.LPTableau4;
-import dk.alexandra.fresco.lib.lp.Matrix4;
-import dk.alexandra.fresco.lib.lp.OptimalValue4;
-import dk.alexandra.fresco.lib.lp.SimpleLPPrefix4;
-import dk.alexandra.fresco.lib.statistics.DEASolver4.DEAResult;
+import dk.alexandra.fresco.lib.lp.LPSolver;
+import dk.alexandra.fresco.lib.lp.LPSolver.PivotRule;
+import dk.alexandra.fresco.lib.lp.LPTableau;
+import dk.alexandra.fresco.lib.lp.Matrix;
+import dk.alexandra.fresco.lib.lp.OptimalValue;
+import dk.alexandra.fresco.lib.lp.SimpleLPPrefix;
+import dk.alexandra.fresco.lib.statistics.DEASolver.DEAResult;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -54,7 +54,7 @@ import java.util.stream.Collectors;
  * The result/score of the computation must be converted to a double using Gauss
  * reduction to be meaningful. See the DEASolverTests for an example.
  */
-public class DEASolver4 implements Application<List<DEAResult>, SequentialProtocolBuilder> {
+public class DEASolver implements Application<List<DEAResult>, SequentialProtocolBuilder> {
 
 
   private final List<List<SInt>> targetInputs, targetOutputs;
@@ -77,7 +77,7 @@ public class DEASolver4 implements Application<List<DEAResult>, SequentialProtoc
    * @param setInput Matrix containing the basis input
    * @param setOutput Matrix containing the basis output
    */
-  public DEASolver4(AnalysisType type, List<List<SInt>> inputValues,
+  public DEASolver(AnalysisType type, List<List<SInt>> inputValues,
       List<List<SInt>> outputValues,
       List<List<SInt>> setInput,
       List<List<SInt>> setOutput) throws MPCException {
@@ -98,7 +98,7 @@ public class DEASolver4 implements Application<List<DEAResult>, SequentialProtoc
    * @param setInput Matrix containing the basis input
    * @param setOutput Matrix containing the basis output
    */
-  public DEASolver4(
+  public DEASolver(
       PivotRule pivotRule,
       AnalysisType type,
       List<List<SInt>> inputValues,
@@ -156,7 +156,7 @@ public class DEASolver4 implements Application<List<DEAResult>, SequentialProtoc
 
   @Override
   public Computation<List<DEAResult>> prepareApplication(SequentialProtocolBuilder builder) {
-    List<Computation<SimpleLPPrefix4>> prefixes = getPrefixWithSecretSharedValues(
+    List<Computation<SimpleLPPrefix>> prefixes = getPrefixWithSecretSharedValues(
         builder);
     return builder.par((par) -> {
 
@@ -164,27 +164,26 @@ public class DEASolver4 implements Application<List<DEAResult>, SequentialProtoc
           new ArrayList<>(targetInputs.size());
       for (int i = 0; i < targetInputs.size(); i++) {
 
-        SimpleLPPrefix4 prefix = prefixes.get(i).out();
+        SimpleLPPrefix prefix = prefixes.get(i).out();
         Computation<SInt> pivot = prefix.getPivot();
-        LPTableau4 tableau = prefix.getTableau();
-        Matrix4<Computation<SInt>> update = prefix.getUpdateMatrix();
+        LPTableau tableau = prefix.getTableau();
+        Matrix<Computation<SInt>> update = prefix.getUpdateMatrix();
         List<Computation<SInt>> initialBasis = prefix.getBasis();
 
         result.add(
-            par.createSequentialSub((subSeq) -> {
-              return subSeq.seq((solverSec) -> {
-                LPSolverProtocol4 lpSolverProtocol4 = new LPSolverProtocol4(
-                    pivotRule, tableau, update, pivot, initialBasis);
-                return lpSolverProtocol4.build(solverSec);
+            par.createSequentialSub((subSeq) ->
+                subSeq.seq((solverSec) -> {
+                  LPSolver lpSolver = new LPSolver(
+                      pivotRule, tableau, update, pivot, initialBasis);
+                  return lpSolver.build(solverSec);
 
-              }).seq((lpOutput, optSec) ->
-                  Pair.lazy(
-                      lpOutput.basis,
-                      new OptimalValue4(lpOutput.updateMatrix, lpOutput.tableau, lpOutput.pivot)
-                          .build(optSec)
-                  )
-              );
-            })
+                }).seq((lpOutput, optSec) ->
+                    Pair.lazy(
+                        lpOutput.basis,
+                        new OptimalValue(lpOutput.updateMatrix, lpOutput.tableau, lpOutput.pivot)
+                            .build(optSec)
+                    )
+                ))
         );
       }
       return () -> result;
@@ -195,12 +194,12 @@ public class DEASolver4 implements Application<List<DEAResult>, SequentialProtoc
     });
   }
 
-  private List<Computation<SimpleLPPrefix4>> getPrefixWithSecretSharedValues(
+  private List<Computation<SimpleLPPrefix>> getPrefixWithSecretSharedValues(
       SequentialProtocolBuilder builder) {
     int dataSetSize = this.inputDataSet.size();
 
     int noOfSolvers = this.targetInputs.size();
-    List<Computation<SimpleLPPrefix4>> prefixes = new ArrayList<>(noOfSolvers);
+    List<Computation<SimpleLPPrefix>> prefixes = new ArrayList<>(noOfSolvers);
 
     int lpInputs = this.inputDataSet.get(0).size();
     int lpOutputs = this.outputDataSet.get(0).size();
@@ -219,13 +218,13 @@ public class DEASolver4 implements Application<List<DEAResult>, SequentialProtoc
     }
     for (int i = 0; i < noOfSolvers; i++) {
       if (type == AnalysisType.INPUT_EFFICIENCY) {
-        prefixes.add(DEAInputEfficiencyPrefixBuilder4.build(
+        prefixes.add(DEAInputEfficiencyPrefixBuilder.build(
             Arrays.asList(basisInputs), Arrays.asList(basisOutputs),
             targetInputs.get(i), targetOutputs.get(i),
             builder
         ));
       } else {
-        prefixes.add(DEAPrefixBuilderMaximize4.build(
+        prefixes.add(DEAPrefixBuilderMaximize.build(
             Arrays.asList(basisInputs), Arrays.asList(basisOutputs),
             targetInputs.get(i), targetOutputs.get(i),
             builder
