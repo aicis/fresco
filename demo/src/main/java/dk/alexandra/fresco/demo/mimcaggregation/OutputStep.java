@@ -1,56 +1,42 @@
 package dk.alexandra.fresco.demo.mimcaggregation;
 
-import dk.alexandra.fresco.demo.inputsum.DemoApplication;
-import dk.alexandra.fresco.framework.BuilderFactory;
+import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.ProtocolProducer;
-import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
+import dk.alexandra.fresco.framework.builder.NumericBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialProtocolBuilder;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.framework.value.Value;
-import dk.alexandra.fresco.lib.helper.builder.NumericIOBuilder;
-import dk.alexandra.fresco.lib.helper.builder.OmniBuilder;
 import java.math.BigInteger;
 import java.util.List;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
-public class OutputStep extends DemoApplication<List<List<Computation<BigInteger>>>> {
+public class OutputStep implements
+    Application<List<List<BigInteger>>, SequentialProtocolBuilder> {
 
-	private SInt[][] secretSharedRows;
-  private List<List<Computation<BigInteger>>> openedRows;
+  private List<List<SInt>> secretSharedRows;
 
-  public OutputStep(SInt[][] secretSharedRows) {
-    super();
-		this.secretSharedRows = secretSharedRows;
-	}
-
-	@Override
-	public ProtocolProducer prepareApplication(BuilderFactory producer) {
-		// Create the necessary builders
-		BuilderFactoryNumeric factoryNumeric = (BuilderFactoryNumeric) producer;
-		OmniBuilder builder = new OmniBuilder(factoryNumeric);
-		NumericIOBuilder niob = builder.getNumericIOBuilder();
-		
-		// Open secret-shared rows		
-		builder.beginSeqScope();
-			setOpenedRows(niob.outputMatrix(secretSharedRows));
-		builder.endCurScope();
-    	
-		return builder.getProtocol();
-	}
-
-	public Value[][] getSecretSharedRows() {
-		return secretSharedRows;
-	}
-
-	public void setSecretSharedRows(SInt[][] secretSharedRows) {
-		this.secretSharedRows = secretSharedRows;
-	}
-
-  public List<List<Computation<BigInteger>>> getOpenedRows() {
-    return openedRows;
+  public OutputStep(List<List<SInt>> secretSharedRows) {
+    this.secretSharedRows = secretSharedRows;
   }
 
-  public void setOpenedRows(List<List<Computation<BigInteger>>> openedRows) {
-    this.openedRows = openedRows;
+  @Override
+  public Computation<List<List<BigInteger>>> prepareApplication(
+      SequentialProtocolBuilder producer) {
+    return producer.par(par -> {
+      NumericBuilder numeric = par.numeric();
+      List<List<Computation<BigInteger>>> computations =
+          mapMatrixLists(numeric::open, secretSharedRows);
+      return () -> computations;
+    }).seq((computations, seq) ->
+        () -> mapMatrixLists(Computation::out, computations)
+    );
   }
 
+  private <R, T> List<List<R>> mapMatrixLists(
+      Function<T, R> mapper,
+      List<List<T>> inputRows) {
+    return inputRows.stream().map(
+        row -> row.stream().map(mapper).collect(Collectors.toList())
+    ).collect(Collectors.toList());
+  }
 }

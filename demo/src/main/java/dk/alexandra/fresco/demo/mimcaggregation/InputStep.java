@@ -1,48 +1,45 @@
 package dk.alexandra.fresco.demo.mimcaggregation;
 
-import dk.alexandra.fresco.demo.inputsum.DemoApplication;
-import dk.alexandra.fresco.framework.BuilderFactory;
-import dk.alexandra.fresco.framework.ProtocolProducer;
-import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
+import dk.alexandra.fresco.framework.Application;
+import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.builder.NumericBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialProtocolBuilder;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.helper.builder.NumericIOBuilder;
-import dk.alexandra.fresco.lib.helper.builder.OmniBuilder;
+import java.math.BigInteger;
+import java.util.List;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
-public class InputStep extends DemoApplication<SInt[][]> {
+public class InputStep implements
+    Application<List<List<SInt>>, ProtocolBuilderNumeric.SequentialProtocolBuilder> {
 
-	/**
-	 * 
-	 */
-	private int[][] inputRows;
-	private SInt[][] secretSharedRows;
-	
-	public InputStep(int[][] inputRows, int pid) {
-		super();
-		this.inputRows = inputRows;
-	}
+  private final List<List<BigInteger>> inputRows;
+  private final int pid;
 
-	@Override
-	public ProtocolProducer prepareApplication(BuilderFactory producer) {
-		// Create the necessary builders
-		BuilderFactoryNumeric factoryNumeric = (BuilderFactoryNumeric) producer;
-		OmniBuilder builder = new OmniBuilder(factoryNumeric);
-		NumericIOBuilder niob = builder.getNumericIOBuilder();
-		
-		// Secret-share input		
-		builder.beginSeqScope();
-			// Hard-coded input from player 1 for now			
-			setSecretSharedRows(niob.inputMatrix(inputRows, 1));
-		builder.endCurScope();
-    	
-		return builder.getProtocol();
-	}
+  public InputStep(List<List<BigInteger>> inputRows, int pid) {
+    super();
+    this.inputRows = inputRows;
+    this.pid = pid;
+  }
 
-	public SInt[][] getSecretSharedRows() {
-		return secretSharedRows;
-	}
+  @Override
+  public Computation<List<List<SInt>>> prepareApplication(SequentialProtocolBuilder producer) {
+    return producer.par(par -> {
+      NumericBuilder numeric = par.numeric();
+      Function<BigInteger, Computation<SInt>> known = value -> numeric.input(value, pid);
+      List<List<Computation<SInt>>> collect = mapMatrixLists(known, inputRows);
+      return () -> collect;
+    }).seq((computations, seq) ->
+        () -> mapMatrixLists(Computation::out, computations)
+    );
+  }
 
-	public void setSecretSharedRows(SInt[][] secretSharedRows) {
-		this.secretSharedRows = secretSharedRows;
-	}
-	
+  private <R, T> List<List<R>> mapMatrixLists(
+      Function<T, R> mapper,
+      List<List<T>> inputRows) {
+    return inputRows.stream().map(
+        row -> row.stream().map(mapper).collect(Collectors.toList())
+    ).collect(Collectors.toList());
+  }
 }
