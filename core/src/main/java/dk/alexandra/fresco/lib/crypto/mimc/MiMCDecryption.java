@@ -102,7 +102,7 @@ public class MiMCDecryption implements ComputationBuilder<SInt> {
            * c_{i - 1} is the cipher text we have computed
            * in the previous round
            */
-          Computation<SInt> inverted = seq.createAdvancedNumericBuilder()
+          Computation<SInt> inverted = seq.advancedNumeric()
               .exp(state.value, threeInverse);
 
           /*
@@ -127,7 +127,7 @@ public class MiMCDecryption implements ComputationBuilder<SInt> {
        * We're in the last round so we just need to compute
 			 * c^{-3} - K
 			 */
-      AdvancedNumericBuilder advancedNumericBuilder = seq.createAdvancedNumericBuilder();
+      AdvancedNumericBuilder advancedNumericBuilder = seq.advancedNumeric();
       Computation<SInt> inverted = advancedNumericBuilder.exp(state.value, threeInverse);
 
       return seq.numeric().sub(inverted, encryptionKey);

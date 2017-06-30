@@ -73,7 +73,7 @@ public class LogTests {
 
 										for (BigInteger input : x) {
 											Computation<SInt> actualInput = sIntFactory.known(input);
-											Computation<SInt> result = builder.createAdvancedNumericBuilder()
+											Computation<SInt> result = builder.advancedNumeric()
 													.log(actualInput, input.bitLength());
                       Computation<BigInteger> openResult = builder.numeric().open(result);
                       results.add(openResult);

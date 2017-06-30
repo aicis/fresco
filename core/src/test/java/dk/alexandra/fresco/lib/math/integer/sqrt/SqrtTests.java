@@ -78,7 +78,7 @@ public class SqrtTests {
 
                     for (BigInteger input : x) {
                       Computation<SInt> actualInput = sIntFactory.known(input);
-                      Computation<SInt> result = builder.createAdvancedNumericBuilder()
+                      Computation<SInt> result = builder.advancedNumeric()
                           .sqrt(actualInput, input.bitLength());
                       Computation<BigInteger> openResult = builder.numeric().open(result);
                       results.add(openResult);

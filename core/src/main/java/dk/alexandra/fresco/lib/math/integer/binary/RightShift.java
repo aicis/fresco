@@ -63,7 +63,7 @@ public class RightShift implements ComputationBuilder<RightShiftResult> {
   @Override
   public Computation<RightShiftResult> build(SequentialNumericBuilder sequential) {
     return sequential.seq((builder) -> {
-      AdvancedNumericBuilder additiveMaskBuilder = builder.createAdvancedNumericBuilder();
+      AdvancedNumericBuilder additiveMaskBuilder = builder.advancedNumeric();
       return additiveMaskBuilder.additiveMask(bitLength);
     }).par((randomAdditiveMask, parSubSequential) -> {
       BigInteger two = BigInteger.valueOf(2);

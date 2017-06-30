@@ -73,7 +73,7 @@ public class AdvancedNumericTests {
                     Computation<SInt> q = builder.numeric()
                         .known(BigInteger.valueOf(denominator));
 
-                    Computation<SInt> result = builder.createAdvancedNumericBuilder().div(p, q);
+                    Computation<SInt> result = builder.advancedNumeric().div(p, q);
 
                     output = builder.numeric().open(result);
                   }).build();
@@ -131,7 +131,7 @@ public class AdvancedNumericTests {
                         .known(BigInteger.valueOf(numerator));
                     BigInteger q = BigInteger.valueOf(denominator);
 
-                    Computation<SInt> result = builder.createAdvancedNumericBuilder().div(p, q);
+                    Computation<SInt> result = builder.advancedNumeric().div(p, q);
 
                     output = builder.numeric().open(result);
                   }).build();
@@ -168,7 +168,7 @@ public class AdvancedNumericTests {
                         .known(BigInteger.valueOf(numerator));
                     BigInteger q = BigInteger.valueOf(denominator);
 
-                    Computation<SInt> result = builder.createAdvancedNumericBuilder()
+                    Computation<SInt> result = builder.advancedNumeric()
                         .mod(p, q);
 
                     output = builder.numeric().open(result);

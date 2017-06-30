@@ -49,7 +49,7 @@ public class ExponentiationOpenBase implements ComputationBuilder<SInt> {
   @Override
   public Computation<SInt> build(SequentialNumericBuilder builder) {
     return builder.seq((seq) ->
-        seq.createAdvancedNumericBuilder().toBits(exponent, maxExponentBitLength)
+        seq.advancedNumeric().toBits(exponent, maxExponentBitLength)
     ).seq((bits, seq) -> {
       BigInteger e = base;
       NumericBuilder numeric = seq.numeric();

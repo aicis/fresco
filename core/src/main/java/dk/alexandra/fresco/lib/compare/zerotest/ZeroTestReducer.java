@@ -20,7 +20,7 @@ public class ZeroTestReducer implements ComputationBuilder<SInt> {
 
   @Override
   public Computation<SInt> build(SequentialNumericBuilder builder) {
-    return builder.seq((seq) -> seq.createAdvancedNumericBuilder().additiveMask(bitLength)
+    return builder.seq((seq) -> seq.advancedNumeric().additiveMask(bitLength)
     ).seq((mask, seq) -> {
       Computation<SInt> mS = seq.numeric().add(input, () -> mask.r);
       Computation<BigInteger> mO = seq.numeric().open(mS);

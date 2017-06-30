@@ -41,7 +41,7 @@ public class RandomAdditiveMask implements
     MiscOIntGenerators oIntGenerators = builder.getBigIntegerHelper();
 
     List<BigInteger> twoPows = oIntGenerators.getTwoPowersList(securityParameter + noOfBits);
-    AdvancedNumericBuilder innerProductBuilder = builder.createAdvancedNumericBuilder();
+    AdvancedNumericBuilder innerProductBuilder = builder.advancedNumeric();
     value = innerProductBuilder.openDot(twoPows, allBits);
     bits = allBits.subList(0, noOfBits);
     return () -> new AdvancedNumericBuilder.RandomAdditiveMask(

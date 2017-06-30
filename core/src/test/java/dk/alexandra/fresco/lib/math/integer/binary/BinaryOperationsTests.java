@@ -76,7 +76,7 @@ public class BinaryOperationsTests {
         public void test() throws Exception {
           Application<Pair<BigInteger, List<BigInteger>>, SequentialNumericBuilder> app =
               (SequentialNumericBuilder builder) -> {
-                AdvancedNumericBuilder rightShift = builder.createAdvancedNumericBuilder();
+                AdvancedNumericBuilder rightShift = builder.advancedNumeric();
                 Computation<SInt> encryptedInput = builder.numeric().known(input);
                 Computation<RightShiftResult> shiftedRight = rightShift
                     .rightShiftWithRemainder(encryptedInput, shifts);
@@ -142,7 +142,7 @@ public class BinaryOperationsTests {
                   .createApplicationRoot((BuilderFactoryNumeric) producer, (builder) -> {
                     Computation<SInt> sharedInput = builder.numeric().known(input);
                     AdvancedNumericBuilder bitLengthBuilder = builder
-                        .createAdvancedNumericBuilder();
+                        .advancedNumeric();
                     Computation<SInt> bitLength = bitLengthBuilder
                         .bitLength(sharedInput, input.bitLength() * 2);
                     openResult = builder.numeric().open(bitLength);

@@ -72,7 +72,7 @@ public class GreaterThan implements ComputationBuilder<SInt> {
 
     final BigInteger one = BigInteger.ONE;
 
-    return builder.seq((seq) -> seq.createAdvancedNumericBuilder().additiveMask(bitLength)
+    return builder.seq((seq) -> seq.advancedNumeric().additiveMask(bitLength)
     ).par(
         (mask, seq) -> {
           List<Computation<SInt>> bits = mask.bits;
@@ -82,7 +82,7 @@ public class GreaterThan implements ComputationBuilder<SInt> {
           return
               Pair.lazy(
                   mask.r,
-                  seq.createAdvancedNumericBuilder().openDot(twoPowsBottom, rBottomBits)
+                  seq.advancedNumeric().openDot(twoPowsBottom, rBottomBits)
               );
         },
         (mask, seq) -> {
@@ -90,7 +90,7 @@ public class GreaterThan implements ComputationBuilder<SInt> {
               .subList(bitLengthBottom, bitLengthBottom + bitLengthTop);
           List<BigInteger> twoPowsTop =
               seq.getBigIntegerHelper().getTwoPowersList(bitLengthTop);
-          AdvancedNumericBuilder innerProduct = seq.createAdvancedNumericBuilder();
+          AdvancedNumericBuilder innerProduct = seq.advancedNumeric();
 
           return innerProduct.openDot(twoPowsTop, rTopBits);
         }

@@ -89,7 +89,7 @@ public class ExitingVariable implements ComputationBuilder<ExitingVariableOutput
     return builder.par((par) -> {
       ArrayList<Computation<SInt>> enteringColumn = new ArrayList<>(tableauHeight);
       // Extract entering column
-      AdvancedNumericBuilder advanced = par.createAdvancedNumericBuilder();
+      AdvancedNumericBuilder advanced = par.advancedNumeric();
       for (int i = 0; i < tableauHeight - 1; i++) {
         ArrayList<Computation<SInt>> tableauRow = tableau.getC().getRow(i);
         enteringColumn.add(
@@ -104,7 +104,7 @@ public class ExitingVariable implements ComputationBuilder<ExitingVariableOutput
     }).par((enteringColumn, par) -> {
       // Apply update matrix to entering column
       ArrayList<Computation<SInt>> updatedEnteringColumn = new ArrayList<>(tableauHeight);
-      AdvancedNumericBuilder advanced = par.createAdvancedNumericBuilder();
+      AdvancedNumericBuilder advanced = par.advancedNumeric();
       for (int i = 0; i < tableauHeight; i++) {
         ArrayList<Computation<SInt>> updateRow = updateMatrix.getRow(i);
         updatedEnteringColumn.add(

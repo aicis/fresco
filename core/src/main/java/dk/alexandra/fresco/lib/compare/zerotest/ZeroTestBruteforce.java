@@ -59,7 +59,7 @@ public class ZeroTestBruteforce implements ComputationBuilder<SInt> {
       BigInteger[] mostSignificantPolynomialCoefficients = new BigInteger[maxLength];
       System.arraycopy(polynomialCoefficients, 1,
           mostSignificantPolynomialCoefficients, 0, maxLength);
-      Computation<SInt> tmp = seq.createAdvancedNumericBuilder()
+      Computation<SInt> tmp = seq.advancedNumeric()
           .openDot(Arrays.asList(mostSignificantPolynomialCoefficients), powers);
       return seq.numeric().add(polynomialCoefficients[0], tmp);
     });

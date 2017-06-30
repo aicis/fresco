@@ -175,7 +175,7 @@ public class LPSolver implements ComputationBuilder<LPOutput> {
       state.pivot = exitingVariable.pivot;
       ArrayList<Computation<SInt>> exitingIndex = exitingVariable.exitingIndex;
       // Update Basis
-      Computation<SInt> ent = seq.createAdvancedNumericBuilder()
+      Computation<SInt> ent = seq.advancedNumeric()
           .openDot(state.enumeratedVariables, state.enteringIndex);
       return seq.createParallelSub((par) -> {
         ArrayList<Computation<SInt>> nextBasis = new ArrayList<>(noConstraints);
@@ -264,7 +264,6 @@ public class LPSolver implements ComputationBuilder<LPOutput> {
    * state of the LPSolver. Designed to be called at the beginning of each iteration (after the
    * iteration count is incremented).
    *
-   * @return a protocolproducer printing information.
    */
   private void debugInfo(SequentialNumericBuilder builder, LPState state) {
     if (iterations == 1) {
@@ -278,7 +277,6 @@ public class LPSolver implements ComputationBuilder<LPOutput> {
    * Constructs a protocolproducer to print out the initial state of the LPSolver. NOTE: This
    * information is useful for debugging, but should not be reveal in regular usage.
    *
-   * @return a protocolproducer printing information.
    */
   private void printInitialState(SequentialNumericBuilder builder, LPState state) {
     BasicNumericFactory bnFactory = builder.getBasicNumericFactory();

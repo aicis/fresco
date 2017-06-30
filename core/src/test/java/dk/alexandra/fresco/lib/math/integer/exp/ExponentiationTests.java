@@ -71,7 +71,7 @@ public class ExponentiationTests {
               Computation<SInt> base = numeric.known(input);
               Computation<SInt> exponent = numeric.known(BigInteger.valueOf(exp));
 
-              Computation<SInt> result = producer.createAdvancedNumericBuilder().exp(
+              Computation<SInt> result = producer.advancedNumeric().exp(
                   base, exponent, 5
               );
 

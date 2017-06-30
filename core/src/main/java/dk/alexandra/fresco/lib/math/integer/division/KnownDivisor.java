@@ -100,7 +100,7 @@ public class KnownDivisor implements ComputationBuilder<SInt> {
      * Now quotientAbs is the result shifted SHIFTS bits to the left, so we
 		 * shift it back to get the result in absolute value, q.
 		 */
-    Computation<SInt> q = builder.createAdvancedNumericBuilder().rightShift(quotientAbs, shifts);
+    Computation<SInt> q = builder.advancedNumeric().rightShift(quotientAbs, shifts);
 
 		/*
      * Adjust the sign of the result.

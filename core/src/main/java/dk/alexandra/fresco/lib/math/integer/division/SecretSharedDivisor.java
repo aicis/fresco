@@ -166,7 +166,7 @@ public class SecretSharedDivisor
 
   private Computation<SInt> getBitLength(SequentialNumericBuilder builder, Computation<SInt> input,
       int maximumBitLength) {
-    return builder.createAdvancedNumericBuilder()
+    return builder.advancedNumeric()
         .bitLength(input, maximumBitLength);
   }
 
@@ -192,7 +192,7 @@ public class SecretSharedDivisor
 
   private Computation<SInt> exp2(SequentialNumericBuilder builder, Computation<SInt> exponent,
       int maxExponentLength) {
-    return builder.createAdvancedNumericBuilder().exp(
+    return builder.advancedNumeric().exp(
         BigInteger.valueOf(2),
         exponent,
         maxExponentLength
@@ -201,7 +201,7 @@ public class SecretSharedDivisor
 
   private Computation<SInt> shiftRight(SequentialNumericBuilder builder, Computation<SInt> input,
       int numberOfPositions) {
-    return builder.createAdvancedNumericBuilder()
+    return builder.advancedNumeric()
         .rightShift(input, numberOfPositions);
   }
 }

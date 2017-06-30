@@ -32,7 +32,7 @@ public class KnownDivisorRemainder implements ComputationBuilder<SInt> {
 
   @Override
   public Computation<SInt> build(SequentialNumericBuilder builder) {
-    AdvancedNumericBuilder advancedNumericBuilder = builder.createAdvancedNumericBuilder();
+    AdvancedNumericBuilder advancedNumericBuilder = builder.advancedNumeric();
     Computation<SInt> divisionResult = advancedNumericBuilder.div(dividend, divisor);
 
     NumericBuilder numeric = builder.numeric();

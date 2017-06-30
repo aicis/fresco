@@ -57,7 +57,7 @@ public class BitLength implements ComputationBuilder<SInt> {
     /*
      * Find the bit representation of the input.
 		 */
-      return seq.createAdvancedNumericBuilder()
+      return seq.advancedNumeric()
           .rightShiftWithRemainder(input, maxBitLength);
     }).seq((rightShiftResult, seq) -> {
       Computation<SInt> mostSignificantBitIndex = seq.numeric()

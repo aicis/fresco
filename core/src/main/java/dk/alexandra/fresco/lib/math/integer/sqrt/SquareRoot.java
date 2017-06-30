@@ -68,7 +68,7 @@ public class SquareRoot implements ComputationBuilder<SInt> {
 		 * this to be equal to zero since we divide by it later.
 		 */
     return builder.seq((seq) -> {
-      Computation<SInt> shifted = seq.createAdvancedNumericBuilder()
+      Computation<SInt> shifted = seq.advancedNumeric()
           .rightShift(input, maxInputLength / 2);
       Computation<SInt> addedOne = seq.numeric().add(BigInteger.ONE, shifted);
       return new IterationState(1, addedOne);
@@ -80,13 +80,13 @@ public class SquareRoot implements ComputationBuilder<SInt> {
             iterationState.iteration < iterations,
         (iterationState, seq) -> {
           Computation<SInt> value = iterationState.value;
-          AdvancedNumericBuilder advancedNumeric = seq.createAdvancedNumericBuilder();
+          AdvancedNumericBuilder advancedNumeric = seq.advancedNumeric();
 
           Computation<SInt> quotient = advancedNumeric.div(
               input, value
           );
           Computation<SInt> sum = seq.numeric().add(value, quotient);
-          Computation<SInt> updatedValue = seq.createAdvancedNumericBuilder().rightShift(sum);
+          Computation<SInt> updatedValue = seq.advancedNumeric().rightShift(sum);
           return new IterationState(iterationState.iteration + 1, updatedValue);
         }
     ).seq((iterationState, seq) ->

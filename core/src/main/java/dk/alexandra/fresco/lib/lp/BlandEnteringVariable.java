@@ -75,7 +75,7 @@ public class BlandEnteringVariable
         constraintColumn.addAll(tableau.getC().getColumn(i));
         constraintColumn.add(tableau.getF().get(i));
 
-        AdvancedNumericBuilder advancedNumericBuilder = par.createAdvancedNumericBuilder();
+        AdvancedNumericBuilder advancedNumericBuilder = par.advancedNumeric();
         updatedF.add(
             advancedNumericBuilder.dot(
                 constraintColumn,

@@ -79,7 +79,7 @@ public class MiMCEncryption implements ComputationBuilder<SInt> {
 		 */
     return builder.seq(seq -> {
       Computation<SInt> add = seq.numeric().add(plainText, encryptionKey);
-      return new IterationState(1, seq.createAdvancedNumericBuilder().exp(add, three));
+      return new IterationState(1, seq.advancedNumeric().exp(add, three));
     }).whileLoop(
         (state) -> state.round < requiredRounds,
         (state, seq) -> {
@@ -95,12 +95,11 @@ public class MiMCEncryption implements ComputationBuilder<SInt> {
           BigInteger roundConstantInteger = MiMCConstants
               .getConstant(state.round, seq.getBasicNumericFactory().getModulus());
           NumericBuilder numeric = seq.numeric();
-          BigInteger roundConstant = roundConstantInteger;
           Computation<SInt> masked = numeric.add(
-              roundConstant,
+              roundConstantInteger,
               numeric.add(state.value, encryptionKey)
           );
-          Computation<SInt> updatedValue = seq.createAdvancedNumericBuilder().exp(masked, three);
+          Computation<SInt> updatedValue = seq.advancedNumeric().exp(masked, three);
           return new IterationState(state.round + 1, updatedValue);
         }
     ).seq((state, seq) ->

@@ -62,82 +62,80 @@ public class UpdateMatrix implements ComputationBuilder<Matrix<Computation<SInt>
     int width = oldUpdateMatrix.getWidth();
     Computation<SInt> one = builder.numeric().known(BigInteger.ONE);
 
-    return builder.seq((seq2) -> {
-      return seq2.par(par1 -> {
-        NumericBuilder numeric = par1.numeric();
-        Matrix<Computation<SInt>> lampdas = new Matrix<>(
-            height, width,
-            (j) -> {
-              ArrayList<Computation<SInt>> newRow = new ArrayList<>(width);
-              List<Computation<SInt>> oldRow = oldUpdateMatrix.getRow(j);
-              for (int i = 0; i < width; i++) {
-                if (j < width - 1) {
-                  newRow.add(
-                      numeric.mult(L.get(j), oldRow.get(i))
-                  );
-                } else {
-                  newRow.add(numeric.known(BigInteger.ZERO));
-                }
-              }
-              return newRow;
-            }
-        );
-        Computation<Pair<List<Computation<SInt>>, Computation<SInt>>> scaledCAndPP = par1
-            .createSequentialSub(seq_pp -> {
-              Computation<SInt> pp_inv = seq_pp.createAdvancedNumericBuilder().invert(p_prime);
-              Computation<SInt> pp = seq_pp.numeric().mult(p, pp_inv);
-              return seq_pp.par((par) -> {
-                List<Computation<SInt>> scaledC = new ArrayList<>(C.size());
-                for (int j = 0; j < C.size() - 1; j++) {
-                  int finalJ = j;
-                  scaledC.add(par.createSequentialSub((scaleSeq) -> {
-                        Computation<SInt> scaling;
-                        scaling = scaleSeq.createSequentialSub(
-                            new ConditionalSelect(L.get(finalJ), one, pp_inv)
-                        );
-                    return scaleSeq.numeric().mult(C.get(finalJ), scaling);
-                      })
-                  );
-                }
-                scaledC.add(
-                    par.numeric().mult(C.get(C.size() - 1), pp_inv)
+    return builder.seq((seq2) -> seq2.par(par1 -> {
+      NumericBuilder numeric = par1.numeric();
+      Matrix<Computation<SInt>> lampdas = new Matrix<>(
+          height, width,
+          (j) -> {
+            ArrayList<Computation<SInt>> newRow = new ArrayList<>(width);
+            List<Computation<SInt>> oldRow = oldUpdateMatrix.getRow(j);
+            for (int i = 0; i < width; i++) {
+              if (j < width - 1) {
+                newRow.add(
+                    numeric.mult(L.get(j), oldRow.get(i))
                 );
-                return Pair.lazy(scaledC, pp);
-              });
-            });
-        return () -> new Pair<>(lampdas, scaledCAndPP.out());
-      }).par((input, gpAddAndSub) -> {
-        Matrix<Computation<SInt>> lambdas_i_jOuts = input.getFirst();
-        List<Computation<SInt>> scaledC = input.getSecond().getFirst();
-        Computation<SInt> pp = input.getSecond().getSecond();
-        NumericBuilder numeric = gpAddAndSub.numeric();
-
-        List<Computation<SInt>> lambdas_i = new ArrayList<>(height);
-        Matrix<Computation<SInt>> subOuts = new Matrix<>(height, width,
-            (j) -> {
-              ArrayList<Computation<SInt>> newRow = new ArrayList<>(width);
-              List<Computation<SInt>> oldRow = oldUpdateMatrix.getRow(j);
-              List<Computation<SInt>> lambdaRow = lambdas_i_jOuts.getRow(j);
-              for (int i = 0; i < width; i++) {
-                newRow.add(numeric.sub(
-                    oldRow.get(i),
-                    lambdaRow.get(i)
-                ));
+              } else {
+                newRow.add(numeric.known(BigInteger.ZERO));
               }
-              return newRow;
+            }
+            return newRow;
+          }
+      );
+      Computation<Pair<List<Computation<SInt>>, Computation<SInt>>> scaledCAndPP = par1
+          .createSequentialSub(seq_pp -> {
+            Computation<SInt> pp_inv = seq_pp.advancedNumeric().invert(p_prime);
+            Computation<SInt> pp = seq_pp.numeric().mult(p, pp_inv);
+            return seq_pp.par((par) -> {
+              List<Computation<SInt>> scaledC = new ArrayList<>(C.size());
+              for (int j = 0; j < C.size() - 1; j++) {
+                int finalJ = j;
+                scaledC.add(par.createSequentialSub((scaleSeq) -> {
+                      Computation<SInt> scaling;
+                      scaling = scaleSeq.createSequentialSub(
+                          new ConditionalSelect(L.get(finalJ), one, pp_inv)
+                      );
+                      return scaleSeq.numeric().mult(C.get(finalJ), scaling);
+                    })
+                );
+              }
+              scaledC.add(
+                  par.numeric().mult(C.get(C.size() - 1), pp_inv)
+              );
+              return Pair.lazy(scaledC, pp);
             });
-        for (int i = 0; i < width; i++) {
-          lambdas_i.add(
-              gpAddAndSub
-                  .createSequentialSub(new SumSIntList(
-                      lambdas_i_jOuts.getColumn(i)
-                  ))
-          );
-        }
-        return () -> new Pair<>(
-            new Pair<>(scaledC, pp), new Pair<>(subOuts, lambdas_i));
-      });
-    }).par(
+          });
+      return () -> new Pair<>(lampdas, scaledCAndPP.out());
+    }).par((input, gpAddAndSub) -> {
+      Matrix<Computation<SInt>> lambdas_i_jOuts = input.getFirst();
+      List<Computation<SInt>> scaledC = input.getSecond().getFirst();
+      Computation<SInt> pp = input.getSecond().getSecond();
+      NumericBuilder numeric = gpAddAndSub.numeric();
+
+      List<Computation<SInt>> lambdas_i = new ArrayList<>(height);
+      Matrix<Computation<SInt>> subOuts = new Matrix<>(height, width,
+          (j) -> {
+            ArrayList<Computation<SInt>> newRow = new ArrayList<>(width);
+            List<Computation<SInt>> oldRow = oldUpdateMatrix.getRow(j);
+            List<Computation<SInt>> lambdaRow = lambdas_i_jOuts.getRow(j);
+            for (int i = 0; i < width; i++) {
+              newRow.add(numeric.sub(
+                  oldRow.get(i),
+                  lambdaRow.get(i)
+              ));
+            }
+            return newRow;
+          });
+      for (int i = 0; i < width; i++) {
+        lambdas_i.add(
+            gpAddAndSub
+                .createSequentialSub(new SumSIntList(
+                    lambdas_i_jOuts.getColumn(i)
+                ))
+        );
+      }
+      return () -> new Pair<>(
+          new Pair<>(scaledC, pp), new Pair<>(subOuts, lambdas_i));
+    })).par(
         (input, gpMults) -> {
           List<Computation<SInt>> scaledC = input.getFirst().getFirst();
           Computation<SInt> pp = input.getFirst().getSecond();

@@ -25,6 +25,8 @@ public abstract class ProtocolBuilderNumeric implements ProtocolBuilder {
   private List<ProtocolBuilderNumeric.ProtocolEntity> protocols;
   public BuilderFactoryNumeric factory;
   private NumericBuilder numericBuilder;
+  private ComparisonBuilder comparison;
+  private AdvancedNumericBuilder advancedNumeric;
 
   private ProtocolBuilderNumeric(BuilderFactoryNumeric factory) {
     this.factory = factory;
@@ -178,11 +180,17 @@ public abstract class ProtocolBuilderNumeric implements ProtocolBuilder {
    * @return the comparison builder.
    */
   public ComparisonBuilder comparison() {
-    return factory.createComparison(this);
+    if (comparison == null) {
+      comparison = factory.createComparison(this);
+    }
+    return comparison;
   }
 
-  public AdvancedNumericBuilder createAdvancedNumericBuilder() {
-    return factory.createAdvancedNumeric(this);
+  public AdvancedNumericBuilder advancedNumeric() {
+    if (advancedNumeric != null) {
+      advancedNumeric = factory.createAdvancedNumeric(this);
+    }
+    return advancedNumeric;
   }
 
   public MiscOIntGenerators getBigIntegerHelper() {

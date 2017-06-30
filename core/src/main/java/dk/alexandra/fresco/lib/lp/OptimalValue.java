@@ -66,7 +66,7 @@ public class OptimalValue implements ComputationBuilder<SInt> {
     ArrayList<Computation<SInt>> column = new ArrayList<>(row.size());
     column.addAll(tableau.getB());
     column.add(tableau.getZ());
-    AdvancedNumericBuilder advanced = builder.createAdvancedNumericBuilder();
+    AdvancedNumericBuilder advanced = builder.advancedNumeric();
     Computation<SInt> numerator = advanced.dot(row, column);
     Computation<SInt> invDenominator = advanced.invert(pivot);
     return builder.numeric().mult(numerator, invDenominator);

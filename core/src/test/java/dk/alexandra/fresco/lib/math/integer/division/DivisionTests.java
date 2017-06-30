@@ -152,7 +152,7 @@ public class DivisionTests {
                     Computation<SInt> divisor = input.known(d);
                     for (BigInteger value : x) {
                       Computation<SInt> dividend = input.known(value);
-                      Computation<SInt> division = builder.createAdvancedNumericBuilder()
+                      Computation<SInt> division = builder.advancedNumeric()
                           .div(dividend, divisor);
                       results.add(builder.numeric().open(division));
                     }

@@ -69,7 +69,7 @@ public class Logarithm implements ComputationBuilder<SInt> {
 		 * floor of the the logartihm with base 2 of the input.
 		 */
     Computation<SInt> bitLength =
-        builder.createAdvancedNumericBuilder().bitLength(input, maxInputLength);
+        builder.advancedNumeric().bitLength(input, maxInputLength);
     Computation<SInt> log2 =
         builder.numeric().sub(bitLength, BigInteger.ONE);
 
@@ -77,7 +77,7 @@ public class Logarithm implements ComputationBuilder<SInt> {
      * ln(x) = log_2(x) * ln(2), and we use 45426 >> 16 as an approximation of ln(2).
 		 */
     Computation<SInt> scaledLog = builder.numeric().mult(ln2, log2);
-    return builder.createAdvancedNumericBuilder()
+    return builder.advancedNumeric()
         .rightShift(scaledLog, shifts);
   }
 }
