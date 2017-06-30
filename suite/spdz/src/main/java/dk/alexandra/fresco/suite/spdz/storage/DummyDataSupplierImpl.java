@@ -162,7 +162,6 @@ public class DummyDataSupplierImpl implements DataSupplier {
             "1773006772147369498312047927024863191600912606833548547253843465427186448129591382955013273429865655003231379457147671155882461760431493165910277385895306");
       }
     }
-    throw new RuntimeException("Not implemented yet");
   }
 
   private BigInteger b(String num) {
