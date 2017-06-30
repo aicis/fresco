@@ -321,9 +321,7 @@ public class BasicArithmeticTests {
 
           checkOutputs(openInputs, app.getOutputs());
         }
-      }
-
-          ;
+      };
     }
   }
 
