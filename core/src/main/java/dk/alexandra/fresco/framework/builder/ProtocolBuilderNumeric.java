@@ -187,7 +187,7 @@ public abstract class ProtocolBuilderNumeric implements ProtocolBuilder {
   }
 
   public AdvancedNumericBuilder advancedNumeric() {
-    if (advancedNumeric != null) {
+    if (advancedNumeric == null) {
       advancedNumeric = factory.createAdvancedNumeric(this);
     }
     return advancedNumeric;
