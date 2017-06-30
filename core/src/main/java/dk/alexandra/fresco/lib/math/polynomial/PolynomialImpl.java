@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -23,26 +23,16 @@
  *
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
- *******************************************************************************/
+ */
 package dk.alexandra.fresco.lib.math.polynomial;
 
-import java.util.Arrays;
-
+import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.value.SInt;
+import java.util.List;
 
 public class PolynomialImpl implements Polynomial {
 
-	private SInt[] coefficients;
-
-	/**
-	 * Create a new Polynomial with <code>maxDegree</code> coefficients, all
-	 * which are initialized as <code>null</code>.
-	 * 
-	 * @param maxDegree
-	 */
-	public PolynomialImpl(int maxDegree) {
-		coefficients = new SInt[maxDegree];
-	}
+	private final List<Computation<SInt>> coefficients;
 
 	/**
 	 * Create a new polynomial with the given coefficients.
@@ -52,34 +42,18 @@ public class PolynomialImpl implements Polynomial {
 	 *            <code>coefficients[n]</code> being the coefficient for the
 	 *            term of degree <code>n</code>.
 	 */
-	public PolynomialImpl(SInt[] coefficients) {
+	public PolynomialImpl(List<Computation<SInt>> coefficients) {
 		this.coefficients = coefficients;
 	}
 
 	@Override
-	public void setCoefficient(int n, SInt a) {
-		coefficients[n] = a;
-	}
-
-	@Override
-	public SInt getCoefficient(int n) {
-		return coefficients[n];
+	public Computation<SInt> getCoefficient(int n) {
+		return coefficients.get(n);
 	}
 
 	@Override
 	public int getMaxDegree() {
-		return coefficients.length;
-	}
-
-	@Override
-	public void setMaxDegree(int maxDegree) {
-		if (coefficients.length >= maxDegree) {
-			this.coefficients = Arrays.copyOfRange(this.coefficients, 0, maxDegree);
-		} else {
-			SInt[] tmp = new SInt[maxDegree];
-			System.arraycopy(this.coefficients, 0, tmp, 0, this.coefficients.length);
-			this.coefficients = tmp;
-		}
+		return coefficients.size();
 	}
 
 }

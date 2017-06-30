@@ -33,15 +33,17 @@ import dk.alexandra.fresco.framework.TestApplication;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
+import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
+import dk.alexandra.fresco.framework.builder.NumericBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialProtocolBuilder;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
-import dk.alexandra.fresco.lib.helper.SequentialProtocolProducer;
-import dk.alexandra.fresco.lib.helper.builder.NumericIOBuilder;
-import dk.alexandra.fresco.lib.math.polynomial.evaluator.PolynomialEvaluatorFactory;
-import dk.alexandra.fresco.lib.math.polynomial.evaluator.PolynomialEvaluatorFactoryImpl;
-import dk.alexandra.fresco.lib.math.polynomial.evaluator.PolynomialEvaluatorProtocol;
+import dk.alexandra.fresco.lib.math.polynomial.evaluator.PolynomialEvaluator;
 import java.math.BigInteger;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.junit.Assert;
 
 public class PolynomialTests {
@@ -62,32 +64,25 @@ public class PolynomialTests {
 
             @Override
             public ProtocolProducer prepareApplication(BuilderFactory provider) {
+              SequentialProtocolBuilder root = ProtocolBuilderNumeric
+                  .createApplicationRoot((BuilderFactoryNumeric) provider);
 
-              BasicNumericFactory basicNumericFactory = (BasicNumericFactory) provider
-                  .getProtocolFactory();
-              NumericIOBuilder ioBuilder = new NumericIOBuilder(basicNumericFactory);
+              NumericBuilder numeric = root.numeric();
+              List<Computation<SInt>> secretCoefficients =
+                  Arrays.stream(coefficients)
+                      .mapToObj(BigInteger::valueOf)
+                      .map(numeric::known)
+                      .collect(Collectors.toList());
 
-              PolynomialFactory polynomialFactory = new PolynomialFactoryImpl();
-              Polynomial p = polynomialFactory.createPolynomial(ioBuilder.inputArray(
-                  coefficients, 1));
+              PolynomialImpl polynomial = new PolynomialImpl(secretCoefficients);
+              Computation<SInt> secretX = numeric.known(BigInteger.valueOf(x));
 
-              SInt input = ioBuilder.input(x, 2);
-              SequentialProtocolProducer sequentialProtocolProducer = new SequentialProtocolProducer();
-              sequentialProtocolProducer.append(ioBuilder.getProtocol());
+              Computation<SInt> result = root
+                  .createSequentialSub(new PolynomialEvaluator(secretX, polynomial));
 
-              SInt result = basicNumericFactory.getSInt();
-              PolynomialEvaluatorFactory polynomialEvaluatorFactory = new PolynomialEvaluatorFactoryImpl(
-                  basicNumericFactory);
-              PolynomialEvaluatorProtocol polynomialEvaluatorProtocol = polynomialEvaluatorFactory
-                  .createPolynomialEvaluator(input, p, result);
-              sequentialProtocolProducer.append(polynomialEvaluatorProtocol);
+              outputs.add(numeric.open(result));
 
-              Computation<BigInteger> output = ioBuilder.output(result);
-              sequentialProtocolProducer.append(ioBuilder.getProtocol());
-
-              ProtocolProducer gp = sequentialProtocolProducer;
-              outputs.add(output);
-              return gp;
+              return root.build();
             }
           };
           secureComputationEngine
