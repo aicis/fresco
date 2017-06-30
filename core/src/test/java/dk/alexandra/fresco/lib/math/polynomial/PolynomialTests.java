@@ -36,7 +36,7 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialProtocolBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.math.polynomial.evaluator.PolynomialEvaluator;
@@ -64,7 +64,7 @@ public class PolynomialTests {
 
             @Override
             public ProtocolProducer prepareApplication(BuilderFactory provider) {
-              SequentialProtocolBuilder root = ProtocolBuilderNumeric
+              SequentialNumericBuilder root = ProtocolBuilderNumeric
                   .createApplicationRoot((BuilderFactoryNumeric) provider);
 
               NumericBuilder numeric = root.numeric();
