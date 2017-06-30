@@ -178,11 +178,11 @@ public abstract class ProtocolBuilderNumeric implements ProtocolBuilder {
    * @return the comparison builder.
    */
   public ComparisonBuilder comparison() {
-    return factory.createComparisonBuilder(this);
+    return factory.createComparison(this);
   }
 
   public AdvancedNumericBuilder createAdvancedNumericBuilder() {
-    return factory.createAdvancedNumericBuilder(this);
+    return factory.createAdvancedNumeric(this);
   }
 
   public MiscOIntGenerators getBigIntegerHelper() {

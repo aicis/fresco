@@ -25,11 +25,11 @@ public interface BuilderFactoryNumeric extends BuilderFactory<SequentialNumericB
 
   MiscOIntGenerators getBigIntegerHelper();
 
-  default ComparisonBuilder createComparisonBuilder(ProtocolBuilderNumeric builder) {
+  default ComparisonBuilder createComparison(ProtocolBuilderNumeric builder) {
     return new DefaultComparisonBuilder(this, builder);
   }
 
-  default AdvancedNumericBuilder createAdvancedNumericBuilder(ProtocolBuilderNumeric builder) {
+  default AdvancedNumericBuilder createAdvancedNumeric(ProtocolBuilderNumeric builder) {
     return new DefaultAdvancedNumericBuilder(this, builder);
   }
 
