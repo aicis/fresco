@@ -35,6 +35,7 @@ import java.math.BigInteger;
 
 /**
  * A factory that produces protocols that operate on elements in a finite field.
+ * Use builder based protocols instead of the deprecated methods in this factory.
  */
 public interface BasicNumericFactory extends SIntFactory,
     ProtocolFactory, IOIntProtocolFactory {
@@ -57,13 +58,16 @@ public interface BasicNumericFactory extends SIntFactory,
    */
   BigInteger getModulus();
 
+  @Deprecated
   Computation<? extends SInt> getAddProtocol(SInt a, SInt b, SInt out);
 
-
+  @Deprecated
   Computation<? extends SInt> getAddProtocol(SInt input, BigInteger openInput, SInt out);
 
+  @Deprecated
   Computation<? extends SInt> getSubtractProtocol(SInt a, SInt b, SInt out);
 
+  @Deprecated
   Computation<? extends SInt> getMultProtocol(SInt a, SInt b, SInt out);
 
 }

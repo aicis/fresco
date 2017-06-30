@@ -34,11 +34,7 @@ import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
 
 public class SpdzRandomProtocol extends SpdzNativeProtocol<SInt> {
 
-  private final SpdzSInt randomElement;
-
-  public SpdzRandomProtocol(SInt randomElement) {
-    this.randomElement = (SpdzSInt) randomElement;
-  }
+  private SpdzSInt randomElement;
 
   @Override
   public SpdzSInt out() {
@@ -49,8 +45,7 @@ public class SpdzRandomProtocol extends SpdzNativeProtocol<SInt> {
   public EvaluationStatus evaluate(int round, SpdzResourcePool spdzResourcePool,
       SCENetwork network) {
     SpdzStorage store = spdzResourcePool.getStore();
-    SpdzSInt r = store.getSupplier().getNextRandomFieldElement();
-    this.randomElement.value = r.value;
+    this.randomElement = store.getSupplier().getNextRandomFieldElement();
     return EvaluationStatus.IS_DONE;
   }
 

@@ -26,7 +26,6 @@
  *******************************************************************************/
 package dk.alexandra.fresco.suite.spdz.gates;
 
-import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.network.SCENetwork;
 import dk.alexandra.fresco.framework.network.serializers.BigIntegerSerializer;
@@ -38,18 +37,18 @@ import dk.alexandra.fresco.suite.spdz.datatypes.SpdzTriple;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
 import java.math.BigInteger;
 
-public class SpdzMultProtocol4 extends SpdzNativeProtocol<SInt> {
+public class SpdzMultProtocolOld extends SpdzNativeProtocol<SpdzSInt> {
 
-  private Computation<SInt> left;
-  private Computation<SInt> right;
-  private SpdzSInt out;
+  private SpdzSInt in1, in2, out;
+  private BigInteger oIn1;
   private SpdzTriple triple;
   private SpdzElement epsilon, delta; // my share of the differences [x]-[a]
   // and [y]-[b].
 
-  public SpdzMultProtocol4(Computation<SInt> left, Computation<SInt> right) {
-    this.left = left;
-    this.right = right;
+  public SpdzMultProtocolOld(SInt in1, SInt in2, SInt out) {
+    this.in1 = (SpdzSInt) in1;
+    this.in2 = (SpdzSInt) in2;
+    this.out = (SpdzSInt) out;
   }
 
   @Override
@@ -60,15 +59,44 @@ public class SpdzMultProtocol4 extends SpdzNativeProtocol<SInt> {
     BigIntegerSerializer serializer = spdzResourcePool.getSerializer();
     switch (round) {
       case 0:
-        this.triple = store.getSupplier().getNextTriple();
+        try {
+          if (oIn1 != null) {
+            SpdzElement res = in2.value;
+            res = res.multiply(oIn1);
+            out.value = res;
+            return EvaluationStatus.IS_DONE;
+          }
 
-        epsilon = ((SpdzSInt) left.out()).value.subtract(triple.getA());
-        delta = ((SpdzSInt) right.out()).value.subtract(triple.getB());
+          this.triple = store.getSupplier().getNextTriple();
 
-        network.sendToAll(serializer.toBytes(epsilon.getShare()));
-        network.sendToAll(serializer.toBytes(delta.getShare()));
-        network.expectInputFromAll();
-        return EvaluationStatus.HAS_MORE_ROUNDS;
+          SpdzElement epsilon = in1.value.subtract(triple.getA());
+          SpdzElement delta = in2.value.subtract(triple.getB());
+
+          network.sendToAll(serializer.toBytes(epsilon.getShare()));
+          network.sendToAll(serializer.toBytes(delta.getShare()));
+          network.expectInputFromAll();
+          this.epsilon = epsilon;
+          this.delta = delta;
+          return EvaluationStatus.HAS_MORE_ROUNDS;
+        } catch (NullPointerException e) {
+          String nullElements = "";
+          if (in1 == null) {
+            nullElements += " input1";
+          } else if (in1.value == null) {
+            nullElements += " inputvalue1";
+          }
+          if (in2 == null) {
+            nullElements += " input2";
+          } else if (in2.value == null) {
+            nullElements += " inputvalue2";
+          }
+          if (triple == null) {
+            nullElements += " triple";
+          }
+          throw new MPCException(
+              "Mult nullpointer caused by one of the following elements: "
+                  + nullElements, e);
+        }
       case 1:
         BigInteger[] epsilonShares = new BigInteger[noOfPlayers];
         BigInteger[] deltaShares = new BigInteger[noOfPlayers];
@@ -92,15 +120,15 @@ public class SpdzMultProtocol4 extends SpdzNativeProtocol<SInt> {
         res = res.add(triple.getB().multiply(e))
             .add(triple.getA().multiply(d))
             .add(ed, spdzResourcePool.getMyId());
-        out = new SpdzSInt(res);
+        out.value = res;
         // Set the opened and closed value.
         store.addOpenedValue(e);
         store.addOpenedValue(d);
         store.addClosedValue(epsilon);
         store.addClosedValue(delta);
         // help the garbage collector.
-        left = null;
-        right = null;
+        in1 = null;
+        in2 = null;
         triple = null;
         epsilon = null;
         delta = null;

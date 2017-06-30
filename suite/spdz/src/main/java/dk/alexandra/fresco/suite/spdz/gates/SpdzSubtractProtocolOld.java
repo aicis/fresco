@@ -26,26 +26,38 @@
  *******************************************************************************/
 package dk.alexandra.fresco.suite.spdz.gates;
 
-import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.network.SCENetwork;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
+import dk.alexandra.fresco.suite.spdz.utils.SpdzFactory;
+import java.math.BigInteger;
 
-public class SpdzSubtractProtocol4 extends SpdzNativeProtocol<SInt> {
+public class SpdzSubtractProtocolOld extends SpdzNativeProtocol<SpdzSInt> {
 
-  private Computation<SInt> left;
-  private Computation<SInt> right;
-  private SpdzSInt out;
+  private SpdzSInt left, right, out;
+  private BigInteger openLeft, openRight;
+  private SpdzFactory factory;
 
-  public SpdzSubtractProtocol4(Computation<SInt> left, Computation<SInt> right) {
-    this.left = left;
-    this.right = right;
+  public SpdzSubtractProtocolOld(SInt left, SInt right, SInt out,
+      SpdzFactory factory) {
+    this.left = (SpdzSInt) left;
+    this.right = (SpdzSInt) right;
+    this.out = (SpdzSInt) out;
+    this.factory = factory;
   }
 
   @Override
   public String toString() {
-    return "SpdzSubtractGate(" + left + ", " + right + ", " + out + ")";
+    if (openLeft != null) {
+      return "SpdzSubtractGate(" + openLeft + ", "
+          + right.value + ", " + out.value + ")";
+    } else if (openRight != null) {
+      return "SpdzSubtractGate(" + left.value + ", "
+          + openRight + ", " + out.value + ")";
+    }
+    return "SpdzSubtractGate(" + left.value + ", " + right.value + ", "
+        + out.value + ")";
   }
 
   @Override
@@ -56,9 +68,15 @@ public class SpdzSubtractProtocol4 extends SpdzNativeProtocol<SInt> {
   @Override
   public EvaluationStatus evaluate(int round, SpdzResourcePool SpdzResourcePool,
       SCENetwork network) {
-    SpdzSInt left = (SpdzSInt) this.left.out();
-    SpdzSInt right = (SpdzSInt) this.right.out();
-    this.out = new SpdzSInt(left.value.subtract(right.value));
+    if (openLeft != null) {
+      SpdzSInt converted = factory.getSInt(openLeft);
+      out.value = converted.value.subtract(right.value);
+    } else if (openRight != null) {
+      SpdzSInt converted = factory.getSInt(openRight);
+      out.value = left.value.subtract(converted.value);
+    } else {
+      out.value = left.value.subtract(right.value);
+    }
     return EvaluationStatus.IS_DONE;
   }
 

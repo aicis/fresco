@@ -34,13 +34,13 @@ import dk.alexandra.fresco.lib.math.integer.exp.ExpFromOIntFactory;
 import dk.alexandra.fresco.lib.math.integer.exp.PreprocessedExpPipeFactory;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
-import dk.alexandra.fresco.suite.spdz.gates.SpdzAddProtocol;
+import dk.alexandra.fresco.suite.spdz.gates.SpdzAddProtocolOld;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzInputProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzKnownSIntProtocol;
-import dk.alexandra.fresco.suite.spdz.gates.SpdzMultProtocol;
+import dk.alexandra.fresco.suite.spdz.gates.SpdzMultProtocolOld;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzOutputProtocol;
-import dk.alexandra.fresco.suite.spdz.gates.SpdzOutputToAllProtocol;
-import dk.alexandra.fresco.suite.spdz.gates.SpdzSubtractProtocol;
+import dk.alexandra.fresco.suite.spdz.gates.SpdzOutputToAllProtocolOld;
+import dk.alexandra.fresco.suite.spdz.gates.SpdzSubtractProtocolOld;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
 import java.math.BigInteger;
 
@@ -145,24 +145,24 @@ public class SpdzFactory implements BasicNumericFactory,
 
   @Override
   public NativeProtocol<? extends SInt, ?> getAddProtocol(SInt a, SInt b, SInt out) {
-    return new SpdzAddProtocol(a, b, out);
+    return new SpdzAddProtocolOld(a, b, out);
   }
 
 
   @Override
   public NativeProtocol<? extends SInt, ?> getAddProtocol(SInt a, BigInteger b, SInt out) {
-    return new SpdzAddProtocol(a, b, out, this);
+    return new SpdzAddProtocolOld(a, b, out, this);
   }
 
   @Override
   public NativeProtocol<? extends SInt, ?> getSubtractProtocol(SInt a, SInt b, SInt out) {
-    return new SpdzSubtractProtocol(a, b, out, this);
+    return new SpdzSubtractProtocolOld(a, b, out, this);
   }
 
 
   @Override
   public Computation<? extends SInt> getMultProtocol(SInt a, SInt b, SInt out) {
-    return new SpdzMultProtocol(a, b, out);
+    return new SpdzMultProtocolOld(a, b, out);
   }
 
   @Override
@@ -222,7 +222,7 @@ public class SpdzFactory implements BasicNumericFactory,
 
   @Override
   public Computation<BigInteger> getOpenProtocol(SInt closed) {
-    return new SpdzOutputToAllProtocol(closed);
+    return new SpdzOutputToAllProtocolOld(closed);
   }
 
   @Override

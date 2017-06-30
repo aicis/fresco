@@ -26,54 +26,26 @@
  *******************************************************************************/
 package dk.alexandra.fresco.suite.spdz.gates;
 
+import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.network.SCENetwork;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
-import dk.alexandra.fresco.suite.spdz.utils.SpdzFactory;
-import java.math.BigInteger;
 
-public class SpdzSubtractProtocol extends SpdzNativeProtocol<SpdzSInt> {
+public class SpdzSubtractProtocol extends SpdzNativeProtocol<SInt> {
 
-  private SpdzSInt left, right, out;
-  private BigInteger openLeft, openRight;
-  private SpdzFactory factory;
+  private Computation<SInt> left;
+  private Computation<SInt> right;
+  private SpdzSInt out;
 
-  public SpdzSubtractProtocol(SInt left, SInt right, SInt out,
-      SpdzFactory factory) {
-    this.left = (SpdzSInt) left;
-    this.right = (SpdzSInt) right;
-    this.out = (SpdzSInt) out;
-    this.factory = factory;
-  }
-
-  public SpdzSubtractProtocol(BigInteger left, SInt right, SInt out,
-      SpdzFactory factory) {
-    this.openLeft = left;
-    this.right = (SpdzSInt) right;
-    this.out = (SpdzSInt) out;
-    this.factory = factory;
-  }
-
-  public SpdzSubtractProtocol(SInt left, BigInteger right, SInt out,
-      SpdzFactory factory) {
-    this.left = (SpdzSInt) left;
-    this.openRight = right;
-    this.out = (SpdzSInt) out;
-    this.factory = factory;
+  public SpdzSubtractProtocol(Computation<SInt> left, Computation<SInt> right) {
+    this.left = left;
+    this.right = right;
   }
 
   @Override
   public String toString() {
-    if (openLeft != null) {
-      return "SpdzSubtractGate(" + openLeft + ", "
-          + right.value + ", " + out.value + ")";
-    } else if (openRight != null) {
-      return "SpdzSubtractGate(" + left.value + ", "
-          + openRight + ", " + out.value + ")";
-    }
-    return "SpdzSubtractGate(" + left.value + ", " + right.value + ", "
-        + out.value + ")";
+    return "SpdzSubtractGate(" + left + ", " + right + ", " + out + ")";
   }
 
   @Override
@@ -84,15 +56,9 @@ public class SpdzSubtractProtocol extends SpdzNativeProtocol<SpdzSInt> {
   @Override
   public EvaluationStatus evaluate(int round, SpdzResourcePool SpdzResourcePool,
       SCENetwork network) {
-    if (openLeft != null) {
-      SpdzSInt converted = factory.getSInt(openLeft);
-      out.value = converted.value.subtract(right.value);
-    } else if (openRight != null) {
-      SpdzSInt converted = factory.getSInt(openRight);
-      out.value = left.value.subtract(converted.value);
-    } else {
-      out.value = left.value.subtract(right.value);
-    }
+    SpdzSInt left = (SpdzSInt) this.left.out();
+    SpdzSInt right = (SpdzSInt) this.right.out();
+    this.out = new SpdzSInt(left.value.subtract(right.value));
     return EvaluationStatus.IS_DONE;
   }
 

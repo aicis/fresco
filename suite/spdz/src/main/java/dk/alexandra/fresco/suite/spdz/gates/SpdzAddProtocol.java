@@ -26,37 +26,26 @@
  *******************************************************************************/
 package dk.alexandra.fresco.suite.spdz.gates;
 
+import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.network.SCENetwork;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
-import dk.alexandra.fresco.suite.spdz.utils.SpdzFactory;
-import java.math.BigInteger;
 
-public class SpdzAddProtocol extends SpdzNativeProtocol<SpdzSInt> {
+public class SpdzAddProtocol extends SpdzNativeProtocol<SInt> {
 
-  private SpdzSInt left, right, out;
-  private BigInteger oInt;
-  private SpdzFactory factory;
+  private Computation<SInt> left, right;
+  private SpdzSInt out;
 
-  public SpdzAddProtocol(SInt left, SInt right, SInt out) {
-    this.left = (SpdzSInt) left;
-    this.right = (SpdzSInt) right;
-    this.out = (SpdzSInt) out;
-  }
-
-  public SpdzAddProtocol(SInt left, BigInteger right, SInt out, SpdzFactory factory) {
-    this.left = (SpdzSInt) left;
-    this.oInt = right;
-    this.out = (SpdzSInt) out;
-    this.factory = factory;
+  public SpdzAddProtocol(Computation<SInt> left, Computation<SInt> right) {
+    this.left = left;
+    this.right = right;
   }
 
   @Override
   public String toString() {
-    return "SpdzAddGate(" + left.value + ", "
-        + (right != null ? right.value : "N/A") + ", "
-        + (out != null ? out.value : "N/A") + ")";
+    return "SpdzAddGate(" + left + ", "
+        + right + ")";
   }
 
   @Override
@@ -67,12 +56,9 @@ public class SpdzAddProtocol extends SpdzNativeProtocol<SpdzSInt> {
   @Override
   public EvaluationStatus evaluate(int round, SpdzResourcePool spdzResourcePool,
       SCENetwork network) {
-    if (oInt != null) {
-      SpdzSInt myShare = factory.getSInt(oInt);
-      out.value = left.value.add(myShare.value);
-    } else {
-      out.value = left.value.add(right.value);
-    }
+    SpdzSInt left = (SpdzSInt) this.left.out();
+    SpdzSInt right = (SpdzSInt) this.right.out();
+    this.out = new SpdzSInt(left.value.add(right.value));
     return EvaluationStatus.IS_DONE;
   }
 }
