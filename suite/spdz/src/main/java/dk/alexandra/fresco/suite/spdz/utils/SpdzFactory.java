@@ -30,8 +30,6 @@ import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
-import dk.alexandra.fresco.lib.math.integer.exp.ExpFromOIntFactory;
-import dk.alexandra.fresco.lib.math.integer.exp.PreprocessedExpPipeFactory;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzAddProtocolOld;
@@ -44,8 +42,7 @@ import dk.alexandra.fresco.suite.spdz.gates.SpdzSubtractProtocolOld;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
 import java.math.BigInteger;
 
-public class SpdzFactory implements BasicNumericFactory,
-    PreprocessedExpPipeFactory, ExpFromOIntFactory {
+public class SpdzFactory implements BasicNumericFactory {
 
   private int maxBitLength;
   private SpdzStorage storage;
@@ -112,12 +109,10 @@ public class SpdzFactory implements BasicNumericFactory,
     return this.storage.getSupplier().getNextBit();
   }
 
-  @Override
   public SInt[] getExponentiationPipe() {
     return this.storage.getSupplier().getNextExpPipe();
   }
 
-  @Override
   public BigInteger[] getExpFromOInt(BigInteger value, int maxBitSize) {
     BigInteger[] res = getClearExpPipe(value, maxBitSize);
     BigInteger[] expPipe = new BigInteger[res.length];
