@@ -40,7 +40,7 @@ import java.util.List;
 
 public class GreaterThanReducerProtocol4 implements ComputationBuilder<SInt> {
 
-  private GreaterThanReducerProtocol4(int bitLength, int securityParameter,
+  public GreaterThanReducerProtocol4(int bitLength, int securityParameter,
       Computation<SInt> x, Computation<SInt> y,
       BuilderFactoryNumeric factoryProducer) {
     this.bitLength = bitLength;
