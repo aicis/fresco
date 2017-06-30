@@ -97,10 +97,10 @@ public class SpdzFactory implements BasicNumericFactory {
 
     if (pID == 1) {
       elm = new SpdzElement(approxMaxSqrt,
-          approxMaxSqrt.multiply(this.storage.getSSK()));
+          approxMaxSqrt.multiply(this.storage.getSSK()), getModulus());
     } else {
       elm = new SpdzElement(BigInteger.ZERO,
-          approxMaxSqrt.multiply(this.storage.getSSK()));
+          approxMaxSqrt.multiply(this.storage.getSSK()), getModulus());
     }
     return new SpdzSInt(elm);
   }
@@ -172,10 +172,11 @@ public class SpdzFactory implements BasicNumericFactory {
     BigInteger b = BigInteger.valueOf(i).mod(getModulus());
     SpdzElement elm;
     if (pID == 1) {
-      elm = new SpdzElement(b, b.multiply(this.storage.getSSK()).mod(getModulus()));
+      elm = new SpdzElement(b, b.multiply(this.storage.getSSK()).mod(getModulus()),
+          getModulus());
     } else {
       elm = new SpdzElement(BigInteger.ZERO, b.multiply(this.storage
-          .getSSK()).mod(getModulus()));
+          .getSSK()).mod(getModulus()), getModulus());
     }
     return new SpdzSInt(elm);
   }
@@ -186,10 +187,11 @@ public class SpdzFactory implements BasicNumericFactory {
     b = b.mod(getModulus());
     SpdzElement elm;
     if (pID == 1) {
-      elm = new SpdzElement(b, b.multiply(this.storage.getSSK()).mod(getModulus()));
+      elm = new SpdzElement(b, b.multiply(this.storage.getSSK()).mod(getModulus()),
+          getModulus());
     } else {
       elm = new SpdzElement(BigInteger.ZERO, b.multiply(this.storage
-          .getSSK()).mod(getModulus()));
+          .getSSK()).mod(getModulus()), getModulus());
     }
     return new SpdzSInt(elm);
   }

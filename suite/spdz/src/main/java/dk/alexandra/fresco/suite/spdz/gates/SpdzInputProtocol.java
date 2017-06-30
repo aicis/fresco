@@ -81,9 +81,11 @@ public class SpdzInputProtocol extends SpdzNativeProtocol<SpdzSInt> {
         if (!validated) {
           throw new MPCException("Broadcast digests did not match");
         }
-        SpdzElement value_masked_elm = new SpdzElement(value_masked,
-            storage.getSSK().multiply(value_masked)
-                .mod(spdzResourcePool.getModulus()));
+        SpdzElement value_masked_elm =
+            new SpdzElement(
+                value_masked,
+                storage.getSSK().multiply(value_masked).mod(modulus),
+                modulus);
         this.out.value = this.inputMask.getMask().add(value_masked_elm,
             myId);
         return EvaluationStatus.IS_DONE;

@@ -83,12 +83,15 @@ public class SpdzMultProtocol extends SpdzNativeProtocol<SInt> {
           e = e.add(epsilonShares[i]);
           d = d.add(deltaShares[i]);
         }
-        e = e.mod(spdzResourcePool.getModulus());
-        d = d.mod(spdzResourcePool.getModulus());
+        BigInteger modulus = spdzResourcePool.getModulus();
+        e = e.mod(modulus);
+        d = d.mod(modulus);
 
-        BigInteger eTimesd = e.multiply(d).mod(spdzResourcePool.getModulus());
-        SpdzElement ed = new SpdzElement(eTimesd, store.getSSK()
-            .multiply(eTimesd).mod(spdzResourcePool.getModulus()));
+        BigInteger eTimesd = e.multiply(d).mod(modulus);
+        SpdzElement ed = new SpdzElement(
+            eTimesd,
+            store.getSSK().multiply(eTimesd).mod(modulus),
+            modulus);
         res = res.add(triple.getB().multiply(e))
             .add(triple.getA().multiply(d))
             .add(ed, spdzResourcePool.getMyId());

@@ -46,6 +46,7 @@ import org.apache.http.util.ByteArrayBuffer;
 
 public class RetrieverThread extends Thread {
 
+	private final int modulusSize;
 	private String restEndPoint;
 	private final int myId;
 	private DataRestSupplierImpl supplier;
@@ -57,17 +58,20 @@ public class RetrieverThread extends Thread {
 
 	private static final int waitTimeInMs = 1000;
 	private boolean running = true;
+	private final BigInteger modulus;
 
-  RetrieverThread(String restEndPoint, int myId, DataRestSupplierImpl supplier, Type type,
-      int amount, int threadId) {
+	RetrieverThread(String restEndPoint, int myId, DataRestSupplierImpl supplier, Type type,
+			int amount, int threadId) {
     this(restEndPoint, myId, supplier, type, amount, threadId, -1);
 	}
 
   RetrieverThread(String restEndPoint, int myId, DataRestSupplierImpl supplier, Type type,
       int amount, int threadId, int towardsId) {
     super();
-    this.restEndPoint = restEndPoint;
-    this.myId = myId;
+		this.modulus = supplier.getModulus();
+		this.modulusSize = modulus.toByteArray().length;
+		this.restEndPoint = restEndPoint;
+		this.myId = myId;
     this.supplier = supplier;
 		this.type = type;
 		this.amount = amount;
@@ -137,8 +141,8 @@ public class RetrieverThread extends Thread {
                 //Shut down thread. Resources are dead.
                 return null;
               }
-							int elmSize = Util.getModulusSize()*2;
-              byte[] elm;
+							int elmSize = modulusSize * 2;
+							byte[] elm;
               try {
                 switch(type) {
 								case TRIPLE:
@@ -147,8 +151,10 @@ public class RetrieverThread extends Thread {
                     byte[] a = readData(instream, elmSize);
 										byte[] b = readData(instream, elmSize);
                     byte[] c = readData(instream, elmSize);
-                    t = new SpdzTriple(new SpdzElement(a), new SpdzElement(b), new SpdzElement(c));
-                    supplier.addTriple(t);
+										t = new SpdzTriple(new SpdzElement(a, modulus, modulusSize), new SpdzElement(b,
+												modulus, modulusSize), new SpdzElement(c, modulus,
+												modulusSize));
+										supplier.addTriple(t);
                   }
                   break;
                   case EXP:
@@ -156,7 +162,7 @@ public class RetrieverThread extends Thread {
                       SpdzElement[] exp = new SpdzElement[Util.EXP_PIPE_SIZE];
                       for (int inx = 0; inx < exp.length; inx++) {
                         elm = readData(instream, elmSize);
-                        exp[inx] = new SpdzElement(elm);
+												exp[inx] = new SpdzElement(elm, modulus, modulusSize);
 										}
 										supplier.addExp(exp);
 									}
@@ -164,7 +170,7 @@ public class RetrieverThread extends Thread {
 								case BIT:
 									for(int i = 0; i < amount; i++) {
 										elm = readData(instream, elmSize);
-										supplier.addBit(new SpdzElement(elm));
+										supplier.addBit(new SpdzElement(elm, modulus, modulusSize));
 									}
 									break;
                   case INPUT:
@@ -172,12 +178,14 @@ public class RetrieverThread extends Thread {
                       int length = instream.read();
                       if(length == 0) {
 											elm = readData(instream, elmSize);
-											supplier.addInput(new SpdzInputMask(new SpdzElement(elm)), towardsId);
-                    } else {
+												supplier.addInput(new SpdzInputMask(new SpdzElement(elm, modulus,
+														modulusSize)), towardsId);
+											} else {
                       byte[] real = readData(instream, length);
                         elm = readData(instream, elmSize);
 
-											supplier.addInput(new SpdzInputMask(new SpdzElement(elm), new BigInteger(real)), towardsId);
+												supplier.addInput(new SpdzInputMask(new SpdzElement(elm, modulus,
+														modulusSize), new BigInteger(real)), towardsId);
 										}
                     }
                     break;

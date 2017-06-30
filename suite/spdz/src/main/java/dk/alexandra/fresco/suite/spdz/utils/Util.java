@@ -26,50 +26,11 @@
  *******************************************************************************/
 package dk.alexandra.fresco.suite.spdz.utils;
 
-import java.math.BigInteger;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-
 /**
  * @author kasper Class containing all global variables and helper methods
  */
 public class Util {
 
-  private static BigInteger p = null; //Should be set by an initiation call
-  private static int size = 0; //should be set by an initiation call
   public static int EXP_PIPE_SIZE = 200 + 1; //R^-1, R, R^2, ..., R^200
-
-
-  // TODO Remove this, it should be done via the resource pool
-  public static BigInteger getModulus() {
-    if (p == null) {
-      throw new IllegalStateException("You need to set the modulus before you can retrieve it.");
-    }
-    return p;
-  }
-
-  // TODO Remove this, it should be done via the resource pool
-  public static void setModulus(BigInteger p) {
-    Util.p = p;
-    Util.size = p.toByteArray().length;
-  }
-
-  public static int getModulusSize() {
-    return size;
-  }
-
-  private MessageDigest H;
-
-  public MessageDigest getHashFunction() {
-    if (H != null) {
-      return H;
-    }
-    try {
-      H = MessageDigest.getInstance("SHA-256");
-    } catch (NoSuchAlgorithmException e) {
-      e.printStackTrace();
-    }
-    return H;
-  }
 
 }

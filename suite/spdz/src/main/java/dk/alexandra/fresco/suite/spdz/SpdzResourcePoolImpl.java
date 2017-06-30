@@ -11,7 +11,6 @@ import dk.alexandra.fresco.suite.spdz.configuration.SpdzConfiguration;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageDummyImpl;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageImpl;
-import dk.alexandra.fresco.suite.spdz.utils.Util;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -64,7 +63,6 @@ public class SpdzResourcePoolImpl extends ResourcePoolImpl implements SpdzResour
     this.modulusSize = this.modulus.toByteArray().length;
 
 // TODO
-    Util.setModulus(this.getModulus());
   }
 
   @Override

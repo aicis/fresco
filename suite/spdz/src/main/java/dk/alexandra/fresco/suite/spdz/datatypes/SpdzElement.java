@@ -26,7 +26,6 @@
  *******************************************************************************/
 package dk.alexandra.fresco.suite.spdz.datatypes;
 
-import dk.alexandra.fresco.suite.spdz.utils.Util;
 import java.io.Serializable;
 import java.math.BigInteger;
 
@@ -35,22 +34,25 @@ public class SpdzElement implements Serializable{
 
   private final BigInteger share;
   private final BigInteger mac;
-  private final BigInteger mod = Util.getModulus();
+  private final BigInteger mod;
 
-	public SpdzElement(){
-		this.share = null;
-		this.mac = null;
-	}
+  // For serialization
+  public SpdzElement(){
+    this.share = null;
+    this.mac = null;
+    this.mod = null;
+  }
 
-	public SpdzElement(BigInteger share, BigInteger mac){
-		this.share = share;
+  public SpdzElement(BigInteger share, BigInteger mac, BigInteger modulus) {
+    this.share = share;
     this.mac = mac;
+    this.mod = modulus;
   }
 
   //Communication methods
-  public SpdzElement(byte[] data){
-		int size = getSize();
-		byte[] shareBytes = new byte[size];
+  public SpdzElement(byte[] data, BigInteger modulus, int modulusSize) {
+    int size = modulusSize;
+    byte[] shareBytes = new byte[size];
 		byte[] macBytes = new byte[size];
 		for(int i = 0; i < data.length/2; i++){
 			shareBytes[i] = data[i];
@@ -58,11 +60,8 @@ public class SpdzElement implements Serializable{
 		}
 		this.share = new BigInteger(shareBytes);
 		this.mac = new BigInteger(macBytes);
-	}
-
-  private int getSize() {
-    return Util.getModulusSize(); //cause we only do partial openings meaning sending a share
-	}
+    mod = modulus;
+  }
 
 	//get operations
 	public BigInteger getShare(){
@@ -77,8 +76,8 @@ public class SpdzElement implements Serializable{
 	public SpdzElement add(SpdzElement e){
 		BigInteger rShare = this.share.add(e.getShare()).mod(mod);
     BigInteger rMac = this.mac.add(e.getMac()).mod(mod);
-    return new SpdzElement(rShare, rMac);
-	}
+    return new SpdzElement(rShare, rMac, this.mod);
+  }
 
 	/**
 	 * Public value added
@@ -93,16 +92,16 @@ public class SpdzElement implements Serializable{
 		if(pID == 1){
       rShare = rShare.add(e.getShare()).mod(mod);
     }
-		return new SpdzElement(rShare, rMac);
-	}
+    return new SpdzElement(rShare, rMac, this.mod);
+  }
 
   public SpdzElement subtract(SpdzElement e){
 		BigInteger eShare = e.getShare();
 		BigInteger rShare = this.share.subtract(eShare).mod(mod);
 		BigInteger eMac = e.getMac();
     BigInteger rMac = this.mac.subtract(eMac).mod(mod);
-    return new SpdzElement(rShare, rMac);
-	}
+    return new SpdzElement(rShare, rMac, this.mod);
+  }
 
   /**
 	 * Public value subtracted
@@ -117,13 +116,13 @@ public class SpdzElement implements Serializable{
 		}
 		BigInteger eMac = e.getMac();
     BigInteger rMac = this.mac.subtract(eMac).mod(mod);
-    return new SpdzElement(rShare, rMac);
-	}
+    return new SpdzElement(rShare, rMac, this.mod);
+  }
 
   public SpdzElement multiply(BigInteger c) {
     BigInteger rShare = this.share.multiply(c).mod(mod);
     BigInteger rMac = this.mac.multiply(c).mod(mod);
-    return new SpdzElement(rShare, rMac);
+    return new SpdzElement(rShare, rMac, this.mod);
   }
 
 
