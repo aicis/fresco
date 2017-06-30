@@ -346,77 +346,102 @@ public abstract class ProtocolBuilderNumeric implements ProtocolBuilder {
   }
 
 
-  private static class BuildStepLooping<InputT>
-      extends
+  private static class BuildStepLooping<InputT> extends
       ProtocolBuilderNumeric.BuildStep<ProtocolBuilderNumeric.SequentialProtocolBuilder, InputT, InputT> {
 
     private final Predicate<InputT> predicate;
+    private final FrescoLambda<InputT, InputT> function;
 
     private BuildStepLooping(
         Predicate<InputT> predicate,
         FrescoLambda<InputT, InputT> function) {
       super(function);
       this.predicate = predicate;
+      this.function = function;
     }
 
     @Override
     protected ProtocolProducer createProducerInternal(InputT input, BuilderFactoryNumeric factory) {
-      final DelayedComputation<InputT> delayedComputation = new DelayedComputation<>();
-      this.output = delayedComputation;
-      return new ProtocolProducer() {
-        private boolean isDone = false;
-        private boolean doneWithOwn = false;
-        Computation<InputT> currentResult;
-        ProtocolProducer currentProducer = null;
-
-        {
-          updateToNextProducer(input);
-          currentResult = () -> input;
-        }
-
-        @Override
-        public void getNextProtocols(ProtocolCollection protocolCollection) {
-          currentProducer.getNextProtocols(protocolCollection);
-        }
-
-        private void next() {
-          while (!isDone && !currentProducer.hasNextProtocols()) {
-            updateToNextProducer(currentResult.out());
-          }
-        }
-
-        private void updateToNextProducer(InputT input) {
-          if (doneWithOwn) {
-            isDone = true;
-          } else {
-            if (predicate.test(input)) {
-              ProtocolBuilderNumeric.SequentialProtocolBuilder builder = new ProtocolBuilderNumeric.SequentialProtocolBuilder(
-                  factory);
-              currentResult = function.apply(input, builder);
-              currentProducer = builder.build();
-            } else {
-              doneWithOwn = true;
-              delayedComputation.setComputation(currentResult);
-              if (next != null) {
-                currentProducer = next.createProducer(input, factory);
-                next = null;
-              }
-            }
-          }
-        }
-
-        @Override
-        public boolean hasNextProtocols() {
-          next();
-          return !isDone;
-        }
-      };
+      LoopProtocolProducer loopProtocolProducer = new LoopProtocolProducer<>(factory, input,
+          predicate, function, next);
+      output = loopProtocolProducer;
+      return loopProtocolProducer;
     }
 
     @Override
     protected ProtocolBuilderNumeric.SequentialProtocolBuilder createBuilder(
         BuilderFactoryNumeric factory) {
       throw new IllegalStateException("Should not be called");
+    }
+
+    private static class LoopProtocolProducer<InputT> implements ProtocolProducer,
+        Computation<InputT> {
+
+      private final BuilderFactoryNumeric factory;
+      private boolean isDone;
+      private boolean doneWithOwn;
+      private Computation<InputT> currentResult;
+      private ProtocolProducer currentProducer;
+      private Predicate<InputT> predicate;
+      private FrescoLambda<InputT, InputT> function;
+      private BuildStep<?, ?, InputT> next;
+
+      LoopProtocolProducer(BuilderFactoryNumeric factory,
+          InputT input,
+          Predicate<InputT> predicate,
+          FrescoLambda<InputT, InputT> function,
+          BuildStep<?, ?, InputT> next) {
+        this.factory = factory;
+        this.predicate = predicate;
+        this.function = function;
+        this.next = next;
+        isDone = false;
+        doneWithOwn = false;
+        currentProducer = null;
+        updateToNextProducer(input);
+        currentResult = () -> input;
+      }
+
+      @Override
+      public void getNextProtocols(ProtocolCollection protocolCollection) {
+        currentProducer.getNextProtocols(protocolCollection);
+      }
+
+      private void next() {
+        while (!isDone && !currentProducer.hasNextProtocols()) {
+          updateToNextProducer(currentResult.out());
+        }
+      }
+
+      private void updateToNextProducer(InputT input) {
+        if (doneWithOwn) {
+          isDone = true;
+        } else {
+          if (predicate.test(input)) {
+            SequentialProtocolBuilder builder = new SequentialProtocolBuilder(
+                factory);
+            currentResult = function.apply(input, builder);
+            currentProducer = builder.build();
+          } else {
+            doneWithOwn = true;
+            if (next != null) {
+              currentProducer = next.createProducer(input, factory);
+              next = null;
+            }
+          }
+        }
+      }
+
+      @Override
+      public boolean hasNextProtocols() {
+        next();
+        return !isDone;
+      }
+
+      @Override
+      public InputT out() {
+        return currentResult.out();
+      }
     }
   }
 
