@@ -26,7 +26,6 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.helper.builder;
 
-import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
@@ -42,27 +41,10 @@ public class NumericProtocolBuilder extends AbstractProtocolBuilder {
   /**
    * Get a new SInt.
    *
-   * @param value the value to fill the SInt with
-   * @return a SInt.
-   */
-  public SInt getSInt(int value) {
-    return bnf.getSInt(value);
-  }
-
-  /**
-   * Get a new SInt.
-   *
    * @return a SInt.
    */
   public SInt getSInt() {
     return bnf.getSInt();
-  }
-
-  public SInt known(int value) {
-    SInt sValue = bnf.getSInt();
-    Computation loader = bnf.getSInt(value, sValue);
-    append(loader);
-    return sValue;
   }
 
   /**

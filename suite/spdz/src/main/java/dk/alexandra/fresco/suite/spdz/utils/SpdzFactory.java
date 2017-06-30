@@ -67,15 +67,6 @@ public class SpdzFactory implements BasicNumericFactory {
   /**
    * Careful - This creates a publicly known integer which is secret shared.
    */
-
-  @Override
-  public Computation<SInt> getSInt(int i, SInt si) {
-    return new SpdzKnownSIntProtocol(i, si);
-  }
-
-  /**
-   * Careful - This creates a publicly known integer which is secret shared.
-   */
   @Override
   public Computation<SInt> getSInt(BigInteger value, SInt sValue) {
     return new SpdzKnownSIntProtocol(value, sValue);

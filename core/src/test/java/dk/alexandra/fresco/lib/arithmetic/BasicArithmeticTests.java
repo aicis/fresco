@@ -443,8 +443,8 @@ public class BasicArithmeticTests {
               BasicNumericFactory fac = (BasicNumericFactory) producer;
               NumericIOBuilder ioBuilder = new NumericIOBuilder(fac);
               NumericProtocolBuilder builder = new NumericProtocolBuilder(fac);
-              SInt input1 = builder.getSInt(10);
-              SInt input2 = builder.getSInt(5);
+              SInt input1 = fac.getSInt(10);
+              SInt input2 = fac.getSInt(5);
               SInt[] results = new SInt[REPS];
               builder.beginParScope();
               for (int i = 0; i < REPS; i++) {
