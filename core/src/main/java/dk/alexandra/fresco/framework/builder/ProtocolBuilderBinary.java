@@ -3,6 +3,7 @@ package dk.alexandra.fresco.framework.builder;
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.ProtocolProducer;
+import dk.alexandra.fresco.lib.helper.LazyProtocolProducerDecorator;
 import dk.alexandra.fresco.lib.helper.ProtocolProducerCollection;
 import dk.alexandra.fresco.lib.helper.SequentialProtocolProducer;
 import dk.alexandra.fresco.lib.helper.SingleProtocolProducer;
@@ -24,16 +25,14 @@ public abstract class ProtocolBuilderBinary implements ProtocolBuilder {
 
   public static SequentialBinaryBuilder createApplicationRoot(
       AbstractBinaryFactory factory) {
-    SequentialBinaryBuilder builder = new SequentialBinaryBuilder(factory);
-    return builder;
-
+    return new SequentialBinaryBuilder(factory);
   }
 
 
   <T extends ProtocolBuilderBinary> void addConsumer(Consumer<T> consumer,
       Supplier<T> supplier) {
     ProtocolEntity protocolEntity = createAndAppend();
-    protocolEntity.child = new LazyProtocolProducer(() -> {
+    protocolEntity.child = new LazyProtocolProducerDecorator(() -> {
       T builder = supplier.get();
       consumer.accept(builder);
       return builder.build();
@@ -87,7 +86,7 @@ public abstract class ProtocolBuilderBinary implements ProtocolBuilder {
 
     Computation<?> computation;
     ProtocolProducer protocolProducer;
-    LazyProtocolProducer child;
+    LazyProtocolProducerDecorator child;
   }
 
   /**

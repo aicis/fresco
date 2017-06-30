@@ -29,7 +29,6 @@ package dk.alexandra.fresco.lib.helper;
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.ProtocolProducer;
-import dk.alexandra.fresco.framework.builder.LazyProtocolProducer;
 import java.util.Arrays;
 import java.util.LinkedList;
 
@@ -84,11 +83,10 @@ public class SequentialProtocolProducer implements ProtocolProducer, ProtocolPro
       return null;
     }
     ProtocolProducer current = protocolProducers.getFirst();
-    if (current instanceof LazyProtocolProducer) {
+    if (current instanceof LazyProtocolProducerDecorator) {
       protocolProducers.removeFirst();
-      LazyProtocolProducer currentProducer = (LazyProtocolProducer) current;
-      currentProducer.checkReady();
-      protocolProducers.add(0, currentProducer.protocolProducer);
+      LazyProtocolProducerDecorator currentProducer = (LazyProtocolProducerDecorator) current;
+      protocolProducers.add(0, currentProducer.getInnerProtocolProducer());
       return inline();
     } else if (current instanceof SequentialProtocolProducer) {
       protocolProducers.removeFirst();

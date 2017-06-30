@@ -3,20 +3,17 @@ package dk.alexandra.fresco.framework.builder;
 import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.NativeProtocol;
-import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.ProtocolProducer;
-import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.lib.compare.MiscOIntGenerators;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
+import dk.alexandra.fresco.lib.helper.LazyProtocolProducerDecorator;
 import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
 import dk.alexandra.fresco.lib.helper.ProtocolProducerCollection;
 import dk.alexandra.fresco.lib.helper.SequentialProtocolProducer;
 import dk.alexandra.fresco.lib.helper.SingleProtocolProducer;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.function.BiFunction;
 import java.util.function.Consumer;
-import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 /**
@@ -103,7 +100,7 @@ public abstract class ProtocolBuilderNumeric implements ProtocolBuilder {
   <T extends ProtocolBuilderNumeric> void addConsumer(Consumer<T> consumer,
       Supplier<T> supplier) {
     ProtocolBuilderNumeric.ProtocolEntity protocolEntity = createAndAppend();
-    protocolEntity.child = new LazyProtocolProducer(() -> {
+    protocolEntity.child = new LazyProtocolProducerDecorator(() -> {
       T builder = supplier.get();
       consumer.accept(builder);
       return builder.build();
@@ -196,7 +193,7 @@ public abstract class ProtocolBuilderNumeric implements ProtocolBuilder {
 
     Computation<?> computation;
     ProtocolProducer protocolProducer;
-    LazyProtocolProducer child;
+    LazyProtocolProducerDecorator child;
   }
 
   /**
@@ -204,7 +201,7 @@ public abstract class ProtocolBuilderNumeric implements ProtocolBuilder {
    */
   public static class SequentialNumericBuilder extends ProtocolBuilderNumeric {
 
-    private SequentialNumericBuilder(BuilderFactoryNumeric factory) {
+    SequentialNumericBuilder(BuilderFactoryNumeric factory) {
       super(factory);
     }
 
@@ -218,10 +215,10 @@ public abstract class ProtocolBuilderNumeric implements ProtocolBuilder {
 
     public <R> BuildStep<SequentialNumericBuilder, R, Void> seq(ComputationBuilder<R> function) {
       BuildStep<SequentialNumericBuilder, R, Void> builder =
-          new ProtocolBuilderNumeric.BuildStepSequential<>(
+          new BuildStepSequential<>(
               (ignored, inner) -> function.build(inner));
       ProtocolBuilderNumeric.ProtocolEntity protocolEntity = createAndAppend();
-      protocolEntity.child = new LazyProtocolProducer(
+      protocolEntity.child = new LazyProtocolProducerDecorator(
           () -> builder.createProducer(null, factory)
       );
       return builder;
@@ -229,9 +226,9 @@ public abstract class ProtocolBuilderNumeric implements ProtocolBuilder {
 
     public <R> BuildStep<ParallelNumericBuilder, R, Void> par(ParallelComputationBuilder<R> f) {
       BuildStep<ParallelNumericBuilder, R, Void> builder =
-          new ProtocolBuilderNumeric.BuildStepParallel<>((ignored, inner) -> f.build(inner));
+          new BuildStepParallel<>((ignored, inner) -> f.build(inner));
       ProtocolBuilderNumeric.ProtocolEntity protocolEntity = createAndAppend();
-      protocolEntity.child = new LazyProtocolProducer(
+      protocolEntity.child = new LazyProtocolProducerDecorator(
           () -> builder.createProducer(null, factory)
       );
       return builder;
@@ -243,7 +240,7 @@ public abstract class ProtocolBuilderNumeric implements ProtocolBuilder {
    */
   public static class ParallelNumericBuilder extends ProtocolBuilderNumeric {
 
-    private ParallelNumericBuilder(BuilderFactoryNumeric factory) {
+    ParallelNumericBuilder(BuilderFactoryNumeric factory) {
       super(factory);
     }
 
@@ -253,224 +250,5 @@ public abstract class ProtocolBuilderNumeric implements ProtocolBuilder {
       addEntities(parallelProtocolProducer);
       return parallelProtocolProducer;
     }
-  }
-
-  public static abstract class BuildStep<BuilderT extends ProtocolBuilderNumeric, OutputT, InputT>
-      implements Computation<OutputT> {
-
-    protected final BiFunction<InputT, BuilderT, Computation<OutputT>> function;
-
-    protected ProtocolBuilderNumeric.BuildStep<?, ?, OutputT> next;
-    protected Computation<OutputT> output;
-
-    private BuildStep(
-        BiFunction<InputT, BuilderT, Computation<OutputT>> function) {
-      this.function = function;
-    }
-
-    public <NextOutputT> ProtocolBuilderNumeric.BuildStep<SequentialNumericBuilder, NextOutputT, OutputT> seq(
-        FrescoLambda<OutputT, NextOutputT> function) {
-      ProtocolBuilderNumeric.BuildStep<SequentialNumericBuilder, NextOutputT, OutputT> localChild =
-          new ProtocolBuilderNumeric.BuildStepSequential<>(function);
-      this.next = localChild;
-      return localChild;
-    }
-
-    public <NextOutputT> ProtocolBuilderNumeric.BuildStep<ParallelNumericBuilder, NextOutputT, OutputT> par(
-        FrescoLambdaParallel<OutputT, NextOutputT> function) {
-      ProtocolBuilderNumeric.BuildStep<ParallelNumericBuilder, NextOutputT, OutputT> localChild =
-          new ProtocolBuilderNumeric.BuildStepParallel<>(function);
-      this.next = localChild;
-      return localChild;
-    }
-
-    public ProtocolBuilderNumeric.BuildStep<SequentialNumericBuilder, OutputT, OutputT> whileLoop(
-        Predicate<OutputT> test,
-        FrescoLambda<OutputT, OutputT> function) {
-      ProtocolBuilderNumeric.BuildStepLooping<OutputT> localChild = new ProtocolBuilderNumeric.BuildStepLooping<>(
-          test, function);
-      this.next = localChild;
-      return localChild;
-    }
-
-    public <FirstOutputT, SecondOutputT>
-    ProtocolBuilderNumeric.BuildStep<ParallelNumericBuilder, Pair<FirstOutputT, SecondOutputT>, OutputT> par(
-        FrescoLambda<OutputT, FirstOutputT> firstFunction,
-        FrescoLambda<OutputT, SecondOutputT> secondFunction) {
-      ProtocolBuilderNumeric.BuildStep<ParallelNumericBuilder, Pair<FirstOutputT, SecondOutputT>, OutputT> localChild =
-          new ProtocolBuilderNumeric.BuildStepParallel<>(
-              (OutputT output1, ParallelNumericBuilder builder) -> {
-                Computation<FirstOutputT> firstOutput =
-                    builder.createSequentialSub(
-                        seq -> firstFunction.apply(output1, seq));
-                Computation<SecondOutputT> secondOutput =
-                    builder.createSequentialSub(
-                        seq -> secondFunction.apply(output1, seq));
-                return () -> new Pair<>(firstOutput.out(), secondOutput.out());
-              }
-          );
-      this.next = localChild;
-      return localChild;
-    }
-
-    public OutputT out() {
-      if (output != null) {
-        return output.out();
-      }
-      return null;
-    }
-
-    protected ProtocolProducer createProducer(
-        InputT input,
-        BuilderFactoryNumeric factory) {
-
-      BuilderT builder = createBuilder(factory);
-      Computation<OutputT> output = function.apply(input, builder);
-      if (next != null) {
-        return
-            new SequentialProtocolProducer(
-                builder.build(),
-                new LazyProtocolProducer(() ->
-                    next.createProducer(output.out(), factory)
-                )
-            );
-      } else {
-        this.output = output;
-        return builder.build();
-      }
-    }
-
-    protected abstract BuilderT createBuilder(BuilderFactoryNumeric factory);
-  }
-
-  private static class BuildStepParallel<OutputT, InputT>
-      extends
-      ProtocolBuilderNumeric.BuildStep<ParallelNumericBuilder, OutputT, InputT> {
-
-    private BuildStepParallel(FrescoLambdaParallel<InputT, OutputT> function) {
-      super(function);
-    }
-
-    @Override
-    protected ParallelNumericBuilder createBuilder(
-        BuilderFactoryNumeric factory) {
-      return new ParallelNumericBuilder(factory);
-    }
-  }
-
-
-  private static class BuildStepLooping<InputT> extends
-      ProtocolBuilderNumeric.BuildStep<SequentialNumericBuilder, InputT, InputT> {
-
-    private final Predicate<InputT> predicate;
-    private final FrescoLambda<InputT, InputT> function;
-
-    private BuildStepLooping(
-        Predicate<InputT> predicate,
-        FrescoLambda<InputT, InputT> function) {
-      super(function);
-      this.predicate = predicate;
-      this.function = function;
-    }
-
-    @Override
-    protected ProtocolProducer createProducer(InputT input, BuilderFactoryNumeric factory) {
-      LoopProtocolProducer loopProtocolProducer = new LoopProtocolProducer<>(factory, input,
-          predicate, function, next);
-      output = loopProtocolProducer;
-      return loopProtocolProducer;
-    }
-
-    @Override
-    protected SequentialNumericBuilder createBuilder(
-        BuilderFactoryNumeric factory) {
-      throw new IllegalStateException("Should not be called");
-    }
-
-    private static class LoopProtocolProducer<InputT> implements ProtocolProducer,
-        Computation<InputT> {
-
-      private final BuilderFactoryNumeric factory;
-      private boolean isDone;
-      private boolean doneWithOwn;
-      private Computation<InputT> currentResult;
-      private ProtocolProducer currentProducer;
-      private Predicate<InputT> predicate;
-      private FrescoLambda<InputT, InputT> function;
-      private BuildStep<?, ?, InputT> next;
-
-      LoopProtocolProducer(BuilderFactoryNumeric factory,
-          InputT input,
-          Predicate<InputT> predicate,
-          FrescoLambda<InputT, InputT> function,
-          BuildStep<?, ?, InputT> next) {
-        this.factory = factory;
-        this.predicate = predicate;
-        this.function = function;
-        this.next = next;
-        isDone = false;
-        doneWithOwn = false;
-        currentProducer = null;
-        updateToNextProducer(input);
-        currentResult = () -> input;
-      }
-
-      @Override
-      public void getNextProtocols(ProtocolCollection protocolCollection) {
-        currentProducer.getNextProtocols(protocolCollection);
-      }
-
-      private void next() {
-        while (!isDone && !currentProducer.hasNextProtocols()) {
-          updateToNextProducer(currentResult.out());
-        }
-      }
-
-      private void updateToNextProducer(InputT input) {
-        if (doneWithOwn) {
-          isDone = true;
-        } else {
-          if (predicate.test(input)) {
-            SequentialNumericBuilder builder = new SequentialNumericBuilder(
-                factory);
-            currentResult = function.apply(input, builder);
-            currentProducer = builder.build();
-          } else {
-            doneWithOwn = true;
-            if (next != null) {
-              currentProducer = next.createProducer(input, factory);
-              next = null;
-            }
-          }
-        }
-      }
-
-      @Override
-      public boolean hasNextProtocols() {
-        next();
-        return !isDone;
-      }
-
-      @Override
-      public InputT out() {
-        return currentResult.out();
-      }
-    }
-  }
-
-  private static class BuildStepSequential<OutputT, InputT>
-      extends
-      ProtocolBuilderNumeric.BuildStep<SequentialNumericBuilder, OutputT, InputT> {
-
-    private BuildStepSequential(FrescoLambda<InputT, OutputT> function) {
-      super(function);
-    }
-
-    @Override
-    protected SequentialNumericBuilder createBuilder(
-        BuilderFactoryNumeric factory) {
-      return new SequentialNumericBuilder(factory);
-    }
-
   }
 }
