@@ -29,6 +29,7 @@ package dk.alexandra.fresco.lib.helper.sequential;
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.ProtocolProducer;
+import dk.alexandra.fresco.framework.builder.LazyProtocolProducer;
 import dk.alexandra.fresco.lib.helper.ProtocolProducerCollection;
 import dk.alexandra.fresco.lib.helper.SingleProtocolProducer;
 import java.util.Arrays;
@@ -37,6 +38,7 @@ import java.util.LinkedList;
 public class SequentialProtocolProducer implements ProtocolProducer, ProtocolProducerCollection {
 
   private LinkedList<ProtocolProducer> protocolProducers = new LinkedList<>();
+  private ProtocolProducer currentProducer;
 
   public SequentialProtocolProducer(ProtocolProducer... protocolProducers) {
     this.protocolProducers.addAll(Arrays.asList(protocolProducers));
@@ -70,6 +72,14 @@ public class SequentialProtocolProducer implements ProtocolProducer, ProtocolPro
 
   @Override
   public void getNextProtocols(ProtocolCollection protocolCollection) {
+    if (currentProducer == null) {
+      currentProducer = protocolProducers.getFirst();
+      if (currentProducer instanceof LazyProtocolProducer) {
+        LazyProtocolProducer currentProducer = (LazyProtocolProducer) this.currentProducer;
+        currentProducer.checkReady();
+        this.currentProducer = currentProducer.protocolProducer;
+      }
+    }
     protocolProducers.getFirst().getNextProtocols(protocolCollection);
   }
 
@@ -77,6 +87,7 @@ public class SequentialProtocolProducer implements ProtocolProducer, ProtocolPro
   public boolean hasNextProtocols() {
     while (!protocolProducers.isEmpty() && !protocolProducers.getFirst().hasNextProtocols()) {
       protocolProducers.removeFirst();
+      currentProducer = null;
     }
     return !protocolProducers.isEmpty();
   }

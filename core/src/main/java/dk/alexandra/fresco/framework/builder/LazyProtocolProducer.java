@@ -4,9 +4,9 @@ import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import java.util.function.Supplier;
 
-class LazyProtocolProducer implements ProtocolProducer {
+public class LazyProtocolProducer implements ProtocolProducer {
 
-  private ProtocolProducer protocolProducer;
+  public ProtocolProducer protocolProducer;
   private Supplier<ProtocolProducer> child;
 
   LazyProtocolProducer(Supplier<ProtocolProducer> supplier) {
@@ -25,7 +25,7 @@ class LazyProtocolProducer implements ProtocolProducer {
     return protocolProducer.hasNextProtocols();
   }
 
-  private void checkReady() {
+  public void checkReady() {
     if (protocolProducer == null) {
       protocolProducer = child.get();
       child = null;
