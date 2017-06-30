@@ -23,47 +23,42 @@
  *
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
- *******************************************************************************/
+ */
 package dk.alexandra.fresco.lib.arithmetic;
 
-import dk.alexandra.fresco.framework.BuilderFactory;
+import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.ProtocolFactory;
-import dk.alexandra.fresco.framework.ProtocolProducer;
-import dk.alexandra.fresco.framework.TestApplication;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
-import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
+import dk.alexandra.fresco.framework.builder.NumericBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialProtocolBuilder;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
+import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
+import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.compare.ComparisonProtocolFactoryImpl;
-import dk.alexandra.fresco.lib.compare.SortingProtocolBuilder;
-import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
-import dk.alexandra.fresco.lib.helper.builder.NumericIOBuilder;
-import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
-import dk.alexandra.fresco.lib.math.integer.exp.ExpFromOIntFactory;
-import dk.alexandra.fresco.lib.math.integer.exp.PreprocessedExpPipeFactory;
+import dk.alexandra.fresco.lib.compare.SortingHelperUtility;
 import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Random;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import org.junit.Assert;
 
 public class SortingTests {
 
-  public static class TestIsSorted extends TestThreadFactory {
+  public static class TestIsSorted<ResourcePoolT extends ResourcePool> extends
+      TestThreadFactory<ResourcePoolT, SequentialProtocolBuilder> {
 
     @Override
-    public TestThread next(TestThreadConfiguration conf) {
-      return new TestThread() {
+    public TestThread<ResourcePoolT, SequentialProtocolBuilder> next(
+        TestThreadConfiguration<ResourcePoolT, SequentialProtocolBuilder> conf) {
+      return new TestThread<ResourcePoolT, SequentialProtocolBuilder>() {
         @Override
         public void test() throws Exception {
-          TestApplication app = new TestApplication() {
-
-
-            /**
-             *
-             */
-
+          Application<Pair<BigInteger, BigInteger>, SequentialProtocolBuilder> app = new Application<Pair<BigInteger, BigInteger>, SequentialProtocolBuilder>() {
 
             private BigInteger zero = BigInteger.valueOf(0);
             private BigInteger one = BigInteger.valueOf(1);
@@ -73,277 +68,151 @@ public class SortingTests {
             private BigInteger five = BigInteger.valueOf(5);
 
             @Override
-            public ProtocolProducer prepareApplication(
-                BuilderFactory factoryProducer) {
-              ProtocolFactory producer = factoryProducer.getProtocolFactory();
-              BasicNumericFactory bnFactory = (BasicNumericFactory) producer;
-              ExpFromOIntFactory expFromOIntFactory = (ExpFromOIntFactory) producer;
-              PreprocessedExpPipeFactory expFactory = (PreprocessedExpPipeFactory) producer;
-              SequentialProtocolProducer seq = new SequentialProtocolProducer();
+            public Computation<Pair<BigInteger, BigInteger>> prepareApplication(
+                SequentialProtocolBuilder builder) {
+              Computation<SInt> zero = builder.numeric().known(this.zero);
+              Computation<SInt> one = builder.numeric().known(this.one);
+              Computation<SInt> two = builder.numeric().known(this.two);
+              Computation<SInt> three = builder.numeric().known(this.three);
+              Computation<SInt> four = builder.numeric().known(this.four);
+              Computation<SInt> five = builder.numeric().known(this.five);
 
-              ComparisonProtocolFactoryImpl compFactory = new ComparisonProtocolFactoryImpl(
-                  80, bnFactory,
-                  expFromOIntFactory,
-                  expFactory, (BuilderFactoryNumeric) factoryProducer);
+              List<Computation<SInt>> unsorted = Arrays.asList(one, two, three, five, zero);
+              List<Computation<SInt>> sorted = Arrays.asList(three, four, four);
 
-              NumericIOBuilder ioBuilder = new NumericIOBuilder(bnFactory);
-              SortingProtocolBuilder isSortedBuilder = new SortingProtocolBuilder(compFactory,
-                  bnFactory);
+              Computation<SInt> firstResult = new SortingHelperUtility()
+                  .isSorted(builder, unsorted);
+              Computation<SInt> secondResult = new SortingHelperUtility().isSorted(builder, sorted);
 
-              SInt[] unsorted = {ioBuilder.input(one, 1), ioBuilder.input(two, 1),
-                  ioBuilder.input(three, 1), ioBuilder.input(five, 2), ioBuilder.input(zero, 1)};
-              SInt[] sorted = {ioBuilder.input(three, 1), ioBuilder.input(four, 1),
-                  ioBuilder.input(four, 2)};
+              Computation<BigInteger> firstOpen = builder.numeric().open(firstResult);
+              Computation<BigInteger> secondOpen = builder.numeric().open(secondResult);
 
-              seq.append(ioBuilder.getProtocol());
-
-              SInt isSortedResult1 = isSortedBuilder.isSorted(unsorted);
-              SInt isSortedResult2 = isSortedBuilder.isSorted(sorted);
-              Computation<BigInteger> res1 = ioBuilder.output(isSortedResult1);
-              Computation<BigInteger> res2 = ioBuilder.output(isSortedResult2);
-
-              outputs.add(res1);
-              outputs.add(res2);
-
-              seq.append(isSortedBuilder.getProtocol());
-              seq.append(ioBuilder.getProtocol());
-
-              return seq;
+              return () -> new Pair<>(firstOpen.out(), secondOpen.out());
             }
           };
-          secureComputationEngine
+
+          Pair<BigInteger, BigInteger> outputs = secureComputationEngine
               .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf,
                   conf.sceConf.getSuite()));
           secureComputationEngine.shutdownSCE();
-          Assert.assertEquals(BigInteger.ZERO, app.getOutputs()[0]);
-          Assert.assertEquals(BigInteger.ONE, app.getOutputs()[1]);
+          Assert.assertEquals(BigInteger.ZERO, outputs.getFirst());
+          Assert.assertEquals(BigInteger.ONE, outputs.getSecond());
         }
       };
     }
   }
 
-  public static class TestCompareAndSwap extends TestThreadFactory {
+  public static class TestCompareAndSwap<ResourcePoolT extends ResourcePool> extends
+      TestThreadFactory<ResourcePoolT, SequentialProtocolBuilder> {
 
     @Override
-    public TestThread next(TestThreadConfiguration conf) {
-      return new TestThread() {
+    public TestThread<ResourcePoolT, SequentialProtocolBuilder> next(
+        TestThreadConfiguration<ResourcePoolT, SequentialProtocolBuilder> conf) {
+      return new TestThread<ResourcePoolT, SequentialProtocolBuilder>() {
         @Override
         public void test() throws Exception {
-          TestApplication app = new TestApplication() {
-
-            private static final long serialVersionUID = -4348646550124325541L;
+          Application<Pair<BigInteger, BigInteger>, SequentialProtocolBuilder> app = new Application<Pair<BigInteger, BigInteger>, SequentialProtocolBuilder>() {
 
 
             private BigInteger one = BigInteger.valueOf(1);
             private BigInteger two = BigInteger.valueOf(2);
 
             @Override
-            public ProtocolProducer prepareApplication(
-                BuilderFactory factoryProducer) {
-              ProtocolFactory producer = factoryProducer.getProtocolFactory();
-              BasicNumericFactory bnFactory = (BasicNumericFactory) producer;
-              ExpFromOIntFactory expFromOIntFactory = (ExpFromOIntFactory) producer;
-              PreprocessedExpPipeFactory expFactory = (PreprocessedExpPipeFactory) producer;
-              SequentialProtocolProducer seq = new SequentialProtocolProducer();
+            public Computation<Pair<BigInteger, BigInteger>> prepareApplication(
+                SequentialProtocolBuilder builder) {
+              Computation<SInt> one = builder.numeric().known(this.one);
+              Computation<SInt> two = builder.numeric().known(this.two);
 
-              ComparisonProtocolFactoryImpl compFactory = new ComparisonProtocolFactoryImpl(
-                  80, bnFactory,
-                  expFromOIntFactory,
-                  expFactory, (BuilderFactoryNumeric) factoryProducer);
+              List<Computation<SInt>> initialList = Arrays.asList(two, one);
 
-              NumericIOBuilder ioBuilder = new NumericIOBuilder(bnFactory);
-              SortingProtocolBuilder isSortedBuilder = new SortingProtocolBuilder(compFactory,
-                  bnFactory);
+              return builder.seq(seq -> {
+                    new SortingHelperUtility().compareAndSwap(seq, 0, 1, initialList);
+                    return () -> initialList;
+                  }
+              ).seq((list, seq) -> {
+                    Computation<BigInteger> firstOpen = seq.numeric().open(list.get(0));
+                    Computation<BigInteger> secondOpen = seq.numeric().open(list.get(1));
 
-              SInt[] vals = {ioBuilder.input(two, 1), ioBuilder.input(one, 2)};
-              seq.append(ioBuilder.getProtocol());
-
-              isSortedBuilder.compareAndSwap(0, 1, vals);
-              Computation<BigInteger> res1 = ioBuilder.output(vals[0]);
-              Computation<BigInteger> res2 = ioBuilder.output(vals[1]);
-
-              outputs.add(res1);
-              outputs.add(res2);
-
-              seq.append(isSortedBuilder.getProtocol());
-              seq.append(ioBuilder.getProtocol());
-
-              return seq;
+                    return () -> new Pair<>(firstOpen.out(), secondOpen.out());
+                  }
+              );
             }
           };
-          secureComputationEngine
+
+          Pair<BigInteger, BigInteger> outputs = secureComputationEngine
               .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf,
                   conf.sceConf.getSuite()));
           secureComputationEngine.shutdownSCE();
-          Assert.assertEquals(BigInteger.ONE, app.getOutputs()[0]);
-          Assert.assertEquals(BigInteger.valueOf(2), app.getOutputs()[1]);
+          Assert.assertEquals(BigInteger.ONE, outputs.getFirst());
+          Assert.assertEquals(BigInteger.valueOf(2), outputs.getSecond());
         }
       };
     }
   }
 
+  public static class TestSort<ResourcePoolT extends ResourcePool> extends
+      TestThreadFactory<ResourcePoolT, SequentialProtocolBuilder> {
 
-  public static class TestSort extends TestThreadFactory {
+    private final List<BigInteger> values;
+    private final List<BigInteger> sorted;
+
+    public TestSort(List<BigInteger> values) {
+      this.values = values;
+      this.sorted = new ArrayList<>(values);
+      this.sorted.sort(BigInteger::compareTo);
+    }
+
+    public TestSort() {
+      this(Arrays.asList(
+          BigInteger.valueOf(1),
+          BigInteger.valueOf(3),
+          BigInteger.valueOf(3),
+          BigInteger.valueOf(5),
+          BigInteger.ZERO));
+    }
 
     @Override
-    public TestThread next(TestThreadConfiguration conf) {
-      return new TestThread() {
+    public TestThread<ResourcePoolT, SequentialProtocolBuilder> next(
+        TestThreadConfiguration<ResourcePoolT, SequentialProtocolBuilder> conf) {
+      return new TestThread<ResourcePoolT, SequentialProtocolBuilder>() {
         @Override
         public void test() throws Exception {
-          TestApplication app = new TestApplication() {
+          Application<List<BigInteger>, SequentialProtocolBuilder> app =
+              builder -> {
+                NumericBuilder input = builder.numeric();
+                List<Computation<SInt>> unsorted = values.stream().map(input::known)
+                    .collect(Collectors.toList());
 
-            private static final long serialVersionUID = -8902341205146087123L;
+                return builder.seq(seq -> {
+                  new SortingHelperUtility().sort(seq, unsorted);
+                  return () -> unsorted;
+                }).par((list, par) -> {
+                  NumericBuilder numeric = par.numeric();
+                  List<Computation<BigInteger>> openList = list.stream().map(numeric::open)
+                      .collect(Collectors.toList());
+                  return () -> openList.stream().map(Computation::out).collect(Collectors.toList());
+                });
+              };
 
-            private BigInteger zero = BigInteger.valueOf(0);
-            private BigInteger one = BigInteger.valueOf(1);
-            private BigInteger three = BigInteger.valueOf(3);
-            private BigInteger five = BigInteger.valueOf(5);
-
-            @Override
-            public ProtocolProducer prepareApplication(
-                BuilderFactory factoryProducer) {
-              ProtocolFactory producer = factoryProducer.getProtocolFactory();
-
-              BasicNumericFactory bnFactory = (BasicNumericFactory) producer;
-              ExpFromOIntFactory expFromOIntFactory = (ExpFromOIntFactory) producer;
-              PreprocessedExpPipeFactory expFactory = (PreprocessedExpPipeFactory) producer;
-              SequentialProtocolProducer seq = new SequentialProtocolProducer();
-
-              ComparisonProtocolFactoryImpl compFactory = new ComparisonProtocolFactoryImpl(
-                  80, bnFactory,
-                  expFromOIntFactory,
-                  expFactory, (BuilderFactoryNumeric) factoryProducer);
-
-              NumericIOBuilder ioBuilder = new NumericIOBuilder(bnFactory);
-              SortingProtocolBuilder isSortedBuilder = new SortingProtocolBuilder(compFactory,
-                  bnFactory);
-
-              //two arrays w. identical data
-              SInt[] unsorted = {ioBuilder.input(one, 1), ioBuilder.input(three, 2),
-                  ioBuilder.input(three, 1), ioBuilder.input(five, 2), ioBuilder.input(zero, 1)};
-              SInt[] toBeSorted = {ioBuilder.input(one, 1), ioBuilder.input(three, 2),
-                  ioBuilder.input(three, 1), ioBuilder.input(five, 2), ioBuilder.input(zero, 1)};
-
-              seq.append(ioBuilder.getProtocol());
-
-              SInt isSortedResult1 = isSortedBuilder.isSorted(unsorted);
-              //sorted version of same data.
-              isSortedBuilder.sort(toBeSorted);
-              SInt isSortedResult2 = isSortedBuilder.isSorted(toBeSorted);
-              Computation<BigInteger> res1 = ioBuilder.output(isSortedResult1);
-              Computation<BigInteger> res2 = ioBuilder.output(isSortedResult2);
-              Computation<BigInteger> res3 = ioBuilder.output(toBeSorted[0]);
-              Computation<BigInteger> res4 = ioBuilder.output(toBeSorted[1]);
-              Computation<BigInteger> res5 = ioBuilder.output(toBeSorted[2]);
-              Computation<BigInteger> res6 = ioBuilder.output(toBeSorted[3]);
-              Computation<BigInteger> res7 = ioBuilder.output(toBeSorted[4]);
-
-              outputs.add(res1);
-              outputs.add(res2);
-              outputs.add(res3);
-              outputs.add(res4);
-              outputs.add(res5);
-              outputs.add(res6);
-              outputs.add(res7);
-
-              seq.append(isSortedBuilder.getProtocol());
-              seq.append(ioBuilder.getProtocol());
-
-              return seq;
-            }
-          };
-          secureComputationEngine
+          List<BigInteger> outputs = secureComputationEngine
               .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf,
                   conf.sceConf.getSuite()));
           secureComputationEngine.shutdownSCE();
-          Assert
-              .assertEquals(BigInteger.ZERO, app.getOutputs()[0]); //unsorted is unsorted
-          Assert.assertEquals(BigInteger.valueOf(0), app.getOutputs()[2]);
-          Assert.assertEquals(BigInteger.valueOf(1), app.getOutputs()[3]);
-          Assert.assertEquals(BigInteger.valueOf(3), app.getOutputs()[4]);
-          Assert.assertEquals(BigInteger.valueOf(3), app.getOutputs()[5]);
-          Assert.assertEquals(BigInteger.valueOf(5), app.getOutputs()[6]);
-          Assert
-              .assertEquals(BigInteger.ONE, app.getOutputs()[1]); //tobesorted is sorted
+          Assert.assertEquals(sorted, outputs);
         }
       };
     }
   }
 
-  public static class TestBigSort extends TestThreadFactory {
+  public static class TestBigSort<ResourcePoolT extends ResourcePool> extends
+      TestSort<ResourcePoolT> {
 
-    @Override
-    public TestThread next(TestThreadConfiguration conf) {
-      return new TestThread() {
-        @Override
-        public void test() throws Exception {
-          TestApplication app = new TestApplication() {
+    private static final Random random = new Random();
 
-            private static final long serialVersionUID = -8146995829636557516L;
-            final int SIZE = 100;
-
-            @Override
-            public ProtocolProducer prepareApplication(
-                BuilderFactory factoryProducer) {
-              ProtocolFactory producer = factoryProducer.getProtocolFactory();
-
-              BasicNumericFactory bnFactory = (BasicNumericFactory) producer;
-              ExpFromOIntFactory expFromOIntFactory = (ExpFromOIntFactory) producer;
-              PreprocessedExpPipeFactory expFactory = (PreprocessedExpPipeFactory) producer;
-              SequentialProtocolProducer seq = new SequentialProtocolProducer();
-              Random random = new Random();
-
-              ComparisonProtocolFactoryImpl compFactory = new ComparisonProtocolFactoryImpl(
-                  80, bnFactory,
-                  expFromOIntFactory,
-                  expFactory, (BuilderFactoryNumeric) factoryProducer);
-
-              NumericIOBuilder ioBuilder = new NumericIOBuilder(bnFactory);
-              SortingProtocolBuilder isSortedBuilder = new SortingProtocolBuilder(compFactory,
-                  bnFactory);
-
-              //large, random array
-
-              SInt[] toBeSorted = new SInt[SIZE];
-//							int[] users=new int[SIZE];
-              BigInteger[] vals = new BigInteger[SIZE];
-//							for (int i=0;i<SIZE;i++) users[i]=random.nextInt(2)+1;
-              for (int i = 0; i < SIZE; i++) {
-                vals[i] = BigInteger.valueOf(random.nextInt(SIZE));
-              }
-
-              for (int i = 0; i < toBeSorted.length; i++) {
-                toBeSorted[i] = ioBuilder.input(vals[i], 1);
-              }
-              seq.append(ioBuilder.getProtocol());
-
-              SInt isSortedResult1 = isSortedBuilder.isSorted(toBeSorted);
-
-              //sorted version of same data.
-              isSortedBuilder.sort(toBeSorted);
-              SInt isSortedResult2 = isSortedBuilder.isSorted(toBeSorted);
-              Computation<BigInteger> res1 = ioBuilder.output(isSortedResult1);
-              Computation<BigInteger> res2 = ioBuilder.output(isSortedResult2);
-
-              outputs.add(res1);
-              outputs.add(res2);
-
-              seq.append(isSortedBuilder.getProtocol());
-              seq.append(ioBuilder.getProtocol());
-
-              return seq;
-            }
-          };
-          secureComputationEngine
-              .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf,
-                  conf.sceConf.getSuite()));
-          secureComputationEngine.shutdownSCE();
-          Assert.assertEquals(BigInteger.ZERO,
-              app.getOutputs()[0]); //unsorted is unsorted to start
-          Assert.assertEquals(BigInteger.ONE,
-              app.getOutputs()[1]); //tobesorted is sorted at the end
-        }
-      };
+    public TestBigSort() {
+      super(IntStream.range(0, 100)
+          .mapToObj((i) -> new BigInteger(10, random))
+          .collect(Collectors.toList()));
     }
   }
 

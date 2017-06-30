@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -23,7 +23,7 @@
  *
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
- *******************************************************************************/
+ */
 package dk.alexandra.fresco.suite.spdz;
 
 import dk.alexandra.fresco.framework.configuration.PreprocessingStrategy;
@@ -53,7 +53,7 @@ public class TestSpdzComparison extends AbstractSpdzTest{
 		runTest(new SortingTests.TestIsSorted(),
 		    EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
 	}
-	
+
 	@Test
 	public void test_compareAndSwap() throws Exception {
 		runTest(new SortingTests.TestCompareAndSwap(),
