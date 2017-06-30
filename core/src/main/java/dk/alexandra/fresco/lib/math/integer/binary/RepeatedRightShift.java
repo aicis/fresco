@@ -35,7 +35,7 @@ import dk.alexandra.fresco.framework.value.SInt;
 import java.util.ArrayList;
 import java.util.List;
 
-public class RepeatedRightShiftProtocol4 implements ComputationBuilder<RightShiftResult> {
+public class RepeatedRightShift implements ComputationBuilder<RightShiftResult> {
 
   private final int shifts;
   private final boolean calculateRemainders;
@@ -49,7 +49,7 @@ public class RepeatedRightShiftProtocol4 implements ComputationBuilder<RightShif
    * @param calculateRemainders true to also calculate remainder. If false remainders in result will
    * be null.
    */
-  public RepeatedRightShiftProtocol4(
+  public RepeatedRightShift(
       Computation<SInt> input,
       int shifts,
       boolean calculateRemainders) {

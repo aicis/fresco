@@ -28,7 +28,6 @@ package dk.alexandra.fresco.lib.field.integer;
 
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.ProtocolFactory;
-import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.framework.value.SIntFactory;
 import dk.alexandra.fresco.lib.field.integer.generic.IOIntProtocolFactory;
@@ -65,22 +64,6 @@ public interface BasicNumericFactory extends SIntFactory,
 
   Computation<? extends SInt> getSubtractProtocol(SInt a, SInt b, SInt out);
 
-  Computation<? extends SInt> getSubtractProtocol(BigInteger a, SInt b, SInt out);
-
   Computation<? extends SInt> getMultProtocol(SInt a, SInt b, SInt out);
 
-
-  /**
-   * @param a input - constant which is known
-   * @param b input - secret shared element
-   * @param c output - [c]=a*[b]
-   * @return the protocol that computes the multiplication
-   */
-  Computation<? extends SInt> getMultProtocol(BigInteger a, SInt b, SInt c);
-
-  /**
-   * Returns a protocol which creates a secret shared random bit. (This should be computed
-   * beforehand)
-   */
-  ProtocolProducer createRandomSecretSharedBitProtocol(SInt rBit);
 }

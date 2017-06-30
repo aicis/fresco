@@ -37,7 +37,7 @@ import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
 import java.util.Collections;
 
-public class RightShiftProtocol4 implements ComputationBuilder<RightShiftResult> {
+public class RightShift implements ComputationBuilder<RightShiftResult> {
 
   private final boolean calculateRemainders;
   // Input
@@ -51,7 +51,7 @@ public class RightShiftProtocol4 implements ComputationBuilder<RightShiftResult>
    * @param calculateRemainders true to also calculate remainder. If false remainders in result will
    * be null.
    */
-  public RightShiftProtocol4(
+  public RightShift(
       int bitLength,
       Computation<SInt> input,
       boolean calculateRemainders) {

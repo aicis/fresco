@@ -28,11 +28,8 @@ package dk.alexandra.fresco.suite.spdz.utils;
 
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.NativeProtocol;
-import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
-import dk.alexandra.fresco.lib.helper.CopyProtocolImpl;
-import dk.alexandra.fresco.lib.helper.SingleProtocolProducer;
 import dk.alexandra.fresco.lib.math.integer.exp.ExpFromOIntFactory;
 import dk.alexandra.fresco.lib.math.integer.exp.PreprocessedExpPipeFactory;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
@@ -111,12 +108,6 @@ public class SpdzFactory implements BasicNumericFactory,
     return new SpdzSInt(elm);
   }
 
-  @Override
-  public ProtocolProducer createRandomSecretSharedBitProtocol(SInt from) {
-    SInt local = getRandomBitFromStorage();
-    return SingleProtocolProducer.wrap(new CopyProtocolImpl<>(local, from));
-  }
-
   public SpdzSInt getRandomBitFromStorage() {
     return this.storage.getSupplier().getNextBit();
   }
@@ -170,19 +161,8 @@ public class SpdzFactory implements BasicNumericFactory,
 
 
   @Override
-  public NativeProtocol<? extends SInt, ?> getSubtractProtocol(BigInteger a, SInt b,
-      SInt out) {
-    return new SpdzSubtractProtocol(a, b, out, this);
-  }
-
-  @Override
   public Computation<? extends SInt> getMultProtocol(SInt a, SInt b, SInt out) {
     return new SpdzMultProtocol(a, b, out);
-  }
-
-  @Override
-  public Computation<? extends SInt> getMultProtocol(BigInteger a, SInt b, SInt out) {
-    return new SpdzMultProtocol(a, (SpdzSInt) b, (SpdzSInt) out);
   }
 
   @Override

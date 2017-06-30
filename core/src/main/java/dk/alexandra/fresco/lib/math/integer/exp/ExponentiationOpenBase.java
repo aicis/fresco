@@ -33,13 +33,13 @@ import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialPr
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
 
-public class ExponentiationProtocolOpenBase implements ComputationBuilder<SInt> {
+public class ExponentiationOpenBase implements ComputationBuilder<SInt> {
 
   private final BigInteger base;
   private final Computation<SInt> exponent;
   private final int maxExponentBitLength;
 
-  public ExponentiationProtocolOpenBase(BigInteger base, Computation<SInt> exponent,
+  public ExponentiationOpenBase(BigInteger base, Computation<SInt> exponent,
       int maxExponentBitLength) {
     this.base = base;
     this.exponent = exponent;

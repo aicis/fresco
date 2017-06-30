@@ -6,12 +6,12 @@ import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.conversion.IntegerToBitsByShift;
-import dk.alexandra.fresco.lib.math.integer.binary.BitLengthProtocol4;
-import dk.alexandra.fresco.lib.math.integer.binary.RepeatedRightShiftProtocol4;
-import dk.alexandra.fresco.lib.math.integer.binary.RightShiftProtocol4;
-import dk.alexandra.fresco.lib.math.integer.exp.ExponentiationProtocol4;
-import dk.alexandra.fresco.lib.math.integer.exp.ExponentiationProtocolOpenBase;
-import dk.alexandra.fresco.lib.math.integer.exp.ExponentiationProtocolOpenExponent;
+import dk.alexandra.fresco.lib.math.integer.binary.BitLength;
+import dk.alexandra.fresco.lib.math.integer.binary.RepeatedRightShift;
+import dk.alexandra.fresco.lib.math.integer.binary.RightShift;
+import dk.alexandra.fresco.lib.math.integer.exp.Exponentiation;
+import dk.alexandra.fresco.lib.math.integer.exp.ExponentiationOpenBase;
+import dk.alexandra.fresco.lib.math.integer.exp.ExponentiationOpenExponent;
 import dk.alexandra.fresco.lib.math.integer.inv.Inversion;
 import dk.alexandra.fresco.lib.math.integer.linalg.InnerProduct;
 import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductOpen;
@@ -58,17 +58,17 @@ public class DefaultAdvancedNumericBuilder implements
 
   @Override
   public Computation<SInt> exp(Computation<SInt> x, Computation<SInt> e, int maxExponentLength) {
-    return builder.createSequentialSub(new ExponentiationProtocol4(x, e, maxExponentLength));
+    return builder.createSequentialSub(new Exponentiation(x, e, maxExponentLength));
   }
 
   @Override
   public Computation<SInt> exp(BigInteger x, Computation<SInt> e, int maxExponentLength) {
-    return builder.createSequentialSub(new ExponentiationProtocolOpenBase(x, e, maxExponentLength));
+    return builder.createSequentialSub(new ExponentiationOpenBase(x, e, maxExponentLength));
   }
 
   @Override
   public Computation<SInt> exp(Computation<SInt> x, BigInteger e) {
-    return builder.createSequentialSub(new ExponentiationProtocolOpenExponent(x, e));
+    return builder.createSequentialSub(new ExponentiationOpenExponent(x, e));
   }
 
   @Override
@@ -107,7 +107,7 @@ public class DefaultAdvancedNumericBuilder implements
   public Computation<SInt> rightShift(Computation<SInt> input) {
     Computation<RightShiftResult> rightShiftResult = builder
         .createSequentialSub(
-            new RightShiftProtocol4(
+            new RightShift(
                 factoryNumeric.getBasicNumericFactory().getMaxBitLength(),
                 input, false));
     return () -> rightShiftResult.out().getResult();
@@ -116,7 +116,7 @@ public class DefaultAdvancedNumericBuilder implements
   @Override
   public Computation<RightShiftResult> rightShiftWithRemainder(Computation<SInt> input) {
     return builder.createSequentialSub(
-        new RightShiftProtocol4(
+        new RightShift(
             factoryNumeric.getBasicNumericFactory().getMaxBitLength(),
             input, true));
   }
@@ -125,7 +125,7 @@ public class DefaultAdvancedNumericBuilder implements
   public Computation<SInt> rightShift(Computation<SInt> input, int shifts) {
     Computation<RightShiftResult> rightShiftResult = builder
         .createSequentialSub(
-            new RepeatedRightShiftProtocol4(
+            new RepeatedRightShift(
                 input, shifts, false));
     return () -> rightShiftResult.out().getResult();
   }
@@ -135,14 +135,14 @@ public class DefaultAdvancedNumericBuilder implements
       Computation<SInt> input,
       int shifts) {
     return builder.createSequentialSub(
-        new RepeatedRightShiftProtocol4(
+        new RepeatedRightShift(
             input, shifts, true));
   }
 
   @Override
   public Computation<SInt> bitLength(Computation<SInt> input, int maxBitLength) {
     return builder.createSequentialSub(
-        new BitLengthProtocol4(input, maxBitLength));
+        new BitLength(input, maxBitLength));
 
   }
 
