@@ -34,7 +34,6 @@ import dk.alexandra.fresco.framework.sce.resources.storage.StreamedStorage;
 import dk.alexandra.fresco.framework.sce.resources.storage.exceptions.NoMoreElementsException;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzTriple;
-import dk.alexandra.fresco.suite.spdz.utils.Util;
 import java.io.File;
 import java.io.Serializable;
 import java.math.BigInteger;
@@ -45,11 +44,13 @@ import org.junit.Test;
 
 public class TestStorage {
 
+  private BigInteger modulus;
+
   @Before
   public void init() {
     Reporter.init(Level.INFO);
-    Util.setModulus(new BigInteger(
-        "6703903964971298549787012499123814115273848577471136527425966013026501536706464354255445443244279389455058889493431223951165286470575994074291745908195329"));
+    modulus = new BigInteger(
+        "6703903964971298549787012499123814115273848577471136527425966013026501536706464354255445443244279389455058889493431223951165286470575994074291745908195329");
   }
 
   @Test
@@ -79,7 +80,7 @@ public class TestStorage {
   }
 
   public void testStorage(Storage storage) {
-    SpdzElement a = new SpdzElement(BigInteger.ONE, BigInteger.ZERO);
+    SpdzElement a = new SpdzElement(BigInteger.ONE, BigInteger.ZERO, modulus);
     SpdzTriple o1 = new SpdzTriple(a, a, a);
 
     storage.putObject("test", "key", o1);

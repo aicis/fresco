@@ -42,7 +42,6 @@ import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
-import dk.alexandra.fresco.lib.helper.CopyProtocol;
 import dk.alexandra.fresco.lib.helper.SequentialProtocolProducer;
 import dk.alexandra.fresco.lib.helper.builder.NumericIOBuilder;
 import dk.alexandra.fresco.lib.helper.builder.NumericProtocolBuilder;
@@ -195,52 +194,6 @@ public class BasicArithmeticTests {
               app.getOutputs()[0]);
         }
       };
-    }
-  }
-
-  public static class TestCopyProtocol<ResourcePoolT extends ResourcePool> extends
-      TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
-
-    @Override
-    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next(
-        TestThreadConfiguration<ResourcePoolT, ProtocolBuilderNumeric> conf) {
-      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
-        @Override
-        public void test() throws Exception {
-          TestApplication app = new TestApplication() {
-
-            @Override
-            public ProtocolProducer prepareApplication(
-                BuilderFactory factoryProducer) {
-              ProtocolFactory producer = factoryProducer.getProtocolFactory();
-              BasicNumericFactory fac = (BasicNumericFactory) producer;
-              NumericIOBuilder ioBuilder = new NumericIOBuilder(
-                  fac);
-
-              SequentialProtocolProducer seq = new SequentialProtocolProducer();
-
-              SInt closed = ioBuilder.input(BigInteger.ONE, 1);
-              seq.append(ioBuilder.getProtocol());
-              ioBuilder.reset();
-
-              SInt into = fac.getSInt();
-              seq.append(new CopyProtocol<>(closed, into));
-              Computation<BigInteger> open = ioBuilder.output(into);
-              seq.append(ioBuilder.getProtocol());
-              this.outputs.add(open);
-
-              return seq;
-            }
-          };
-          secureComputationEngine
-              .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf,
-                  conf.sceConf.getSuite()));
-
-          Assert.assertEquals(app.getOutputs()[0], BigInteger.ONE);
-        }
-      }
-
-          ;
     }
   }
 

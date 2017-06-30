@@ -7,7 +7,6 @@ import dk.alexandra.fresco.lib.helper.SequentialProtocolProducer;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzCommitment;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
-import dk.alexandra.fresco.suite.spdz.utils.Util;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.SecureRandom;
@@ -65,10 +64,9 @@ public class SpdzMacCheckProtocol implements ProtocolProducer {
         int t = as.size();
 
         BigInteger[] rs = new BigInteger[t];
-        MessageDigest H = new Util().getHashFunction();
         BigInteger r_temp = s;
         for (int i = 0; i < t; i++) {
-          r_temp = new BigInteger(H.digest(r_temp.toByteArray())).mod(modulus);
+          r_temp = new BigInteger(digest.digest(r_temp.toByteArray())).mod(modulus);
           rs[i] = r_temp;
         }
         BigInteger a = BigInteger.ZERO;

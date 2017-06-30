@@ -10,20 +10,6 @@ class DummySInt implements SInt {
   }
 
   @Override
-  public byte[] getSerializableContent() {
-    return null;
-  }
-
-  @Override
-  public void setSerializableContent(byte[] val) {
-  }
-
-  @Override
-  public boolean isReady() {
-    return false;
-  }
-
-  @Override
   public SInt out() {
     return this;
   }

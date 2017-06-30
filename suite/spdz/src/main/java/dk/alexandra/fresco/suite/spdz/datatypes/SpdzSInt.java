@@ -48,11 +48,6 @@ public class SpdzSInt implements SInt, Serializable {
   }
 
   @Override
-  public boolean isReady() {
-    return !(value == null);
-  }
-
-  @Override
   public boolean equals(Object obj) {
     if (this == obj) {
       return true;
@@ -73,17 +68,6 @@ public class SpdzSInt implements SInt, Serializable {
     }
     return true;
   }
-
-  @Override
-  public byte[] getSerializableContent() {
-    return this.value.toByteArray();
-  }
-
-  @Override
-  public void setSerializableContent(byte[] val) {
-    this.value = new SpdzElement(val);
-  }
-
 
   @Override
   public SInt out() {

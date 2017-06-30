@@ -32,7 +32,6 @@ import dk.alexandra.fresco.framework.sce.resources.storage.StreamedStorage;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzTriple;
-import dk.alexandra.fresco.suite.spdz.utils.Util;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -218,8 +217,6 @@ public class InitializeStorage {
 			//Likely we could not find the file, so we generate new ones
 		}
 
-		Util.setModulus(p);
-		
 		System.out.println("Generating preprocessed data!");
 		File f = new File("spdz");
 		if (!f.exists()) {

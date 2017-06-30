@@ -82,13 +82,6 @@ public class TestSpdzBasicArithmetic2Parties extends AbstractSpdzTest {
 
 
   @Test
-  public void test_Copy_Sequential() throws Exception {
-    runTest(new BasicArithmeticTests.TestCopyProtocol(), EvaluationStrategy.SEQUENTIAL,
-        NetworkingStrategy.KRYONET,
-        PreprocessingStrategy.DUMMY, 2);
-  }
-
-  @Test
   public void test_Input_Sequential() throws Exception {
     runTest(new BasicArithmeticTests.TestInput(), EvaluationStrategy.SEQUENTIAL,
         NetworkingStrategy.KRYONET,

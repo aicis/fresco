@@ -76,15 +76,16 @@ public class SpdzKnownSIntProtocol extends SpdzNativeProtocol<SInt> {
   static SpdzElement createKnownSpdzElement(
       SpdzResourcePool spdzResourcePool,
       BigInteger input) {
-    BigInteger value = input.mod(spdzResourcePool.getModulus());
+    BigInteger modulus = spdzResourcePool.getModulus();
+    BigInteger value = input.mod(modulus);
     SpdzElement elm;
     BigInteger globalKeyShare = spdzResourcePool.getStore().getSSK();
     if (spdzResourcePool.getMyId() == 1) {
       elm = new SpdzElement(value,
-          value.multiply(globalKeyShare).mod(spdzResourcePool.getModulus()));
+          value.multiply(globalKeyShare).mod(modulus), modulus);
     } else {
       elm = new SpdzElement(BigInteger.ZERO,
-          value.multiply(globalKeyShare).mod(spdzResourcePool.getModulus()));
+          value.multiply(globalKeyShare).mod(modulus), modulus);
     }
     return elm;
   }

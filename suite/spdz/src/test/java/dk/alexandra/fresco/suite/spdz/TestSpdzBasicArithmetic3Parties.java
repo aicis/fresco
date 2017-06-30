@@ -38,13 +38,7 @@ import org.junit.Test;
  * to handle a fixed number of parties.
  * 
  */
-public class TestSpdzBasicArithmetic3Parties extends AbstractSpdzTest{	
-
-	@Test
-	public void test_Copy_Sequential() throws Exception {
-		runTest(new BasicArithmeticTests.TestCopyProtocol(),
-				EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 3);
-	}
+public class TestSpdzBasicArithmetic3Parties extends AbstractSpdzTest {
 
 	@Test
 	public void test_Input_Sequential() throws Exception {
