@@ -171,6 +171,7 @@ public class SecureComputationEngineImpl<ResourcePoolT extends ResourcePool, Bui
       long now = System.currentTimeMillis();
       long timeSpend = now - then;
       Reporter.info("Running the application " + application + " took " + timeSpend + " ms.");
+      application.close();
       return output;
     } catch (IOException e) {
       throw new MPCException(

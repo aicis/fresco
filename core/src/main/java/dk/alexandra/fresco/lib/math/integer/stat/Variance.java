@@ -34,34 +34,23 @@ import dk.alexandra.fresco.framework.value.SInt;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Computes the varians from a list of SInt values and the previously
+ * computed {@link Mean mean}.
+ */
 public class Variance implements ComputationBuilder<SInt> {
 
   private final List<Computation<SInt>> data;
   private final Computation<SInt> mean;
 
-  Variance(List<Computation<SInt>> data, Computation<SInt> mean) {
+  public Variance(List<Computation<SInt>> data, Computation<SInt> mean) {
     this.data = data;
     this.mean = mean;
   }
 
-  Variance(List<Computation<SInt>> data) {
-    this(data, null);
-  }
-
   @Override
   public Computation<SInt> build(SequentialProtocolBuilder builder) {
-    return builder.seq((seq) -> {
-      /*
-       * If a mean was not provided, we first calculate it
-		   */
-      Computation<SInt> mean;
-      if (this.mean == null) {
-        mean = seq.createSequentialSub(new Mean(data));
-      } else {
-        mean = this.mean;
-      }
-      return mean;
-    }).par((mean, par) -> {
+    return builder.par((par) -> {
       List<Computation<SInt>> terms = new ArrayList<>(data.size());
       for (Computation<SInt> value : data) {
         Computation<SInt> term = par.createSequentialSub((seq) -> {

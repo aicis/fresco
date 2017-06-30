@@ -40,19 +40,14 @@ import java.util.Map;
  */
 public class MiscOIntGenerators {
 
-  Map<Integer, BigInteger[]> coefficientsOfPolynomiums;
-  BigInteger[] twoPowers;
-  LinkedList<BigInteger> twoPowersList;
-  // should twoPowers be a List?
-
+  private Map<Integer, BigInteger[]> coefficientsOfPolynomiums;
+  private LinkedList<BigInteger> twoPowersList;
 
   public MiscOIntGenerators() {
     coefficientsOfPolynomiums = new HashMap<>();
 
-    twoPowers = new BigInteger[1];
-    twoPowers[0] = BigInteger.ONE;
     twoPowersList = new LinkedList<>();
-    twoPowersList.add(twoPowers[0]);
+    twoPowersList.add(BigInteger.ONE);
   }
 
 
@@ -64,7 +59,7 @@ public class MiscOIntGenerators {
    */
   public BigInteger[] getPoly(int l, BigInteger modulus) {
     // check that l is positive
-    Integer lInt = Integer.valueOf(l);
+    Integer lInt = l;
     BigInteger[] result = coefficientsOfPolynomiums.get(lInt);
     if (result == null) {
       // Generate a new set of OInts and store them...
@@ -83,14 +78,13 @@ public class MiscOIntGenerators {
   /**
    * Returns the coefficients of a polynomial of degree <i>l</i> such that
    * <i>f(m) = 1</i> and <i>f(n) = 0</i> for <i>1 &le; n &le; l+1</i> and <i>n
-   * &ne; m</i> in <i>Z<sub>p</sub></i> (<i>p</i> should be set in
-   * {@link #setModulus(BigInteger)}). The first element in the array is the
+   * &ne; m</i> in <i>Z<sub>p</sub></i>. The first element in the array is the
    * coefficient of the term with the highest degree, eg. degree <i>l</i>.
    *
    * @param l The desired degree of <i>f</i>
    * @param m The only non-zero integer point for <i>f</i> in the range <i>1,2,...,l+1</i>.
    */
-  public static BigInteger[] constructPolynomial(int l, int m, BigInteger modulus) {
+  private static BigInteger[] constructPolynomial(int l, int m, BigInteger modulus) {
 
 		/*
      * Let f_i be the polynoimial which is the product of the first i of
@@ -149,20 +143,7 @@ public class MiscOIntGenerators {
    * @return Array of length l with result[i] == 2^i
    */
   public BigInteger[] getTwoPowers(int length) {
-    if (length > twoPowers.length) {
-      BigInteger[] newArray = new BigInteger[length];
-      System.arraycopy(twoPowers, 0, newArray, 0, twoPowers.length);
-      BigInteger currentValue = twoPowers[twoPowers.length - 1];
-      for (int i = twoPowers.length; i < newArray.length; i++) {
-        currentValue = currentValue.shiftLeft(1); // multiply previous value by two
-        newArray[i] = currentValue;
-      }
-      twoPowers = newArray;
-    }
-    // TODO: avoid copying.... also; since OInts are mutable, perhaps we should clone.
-    BigInteger[] result = new BigInteger[length];
-    System.arraycopy(twoPowers, 0, result, 0, length);
-    return result;
+    return getTwoPowersList(length).toArray(new BigInteger[length]);
   }
 
   public List<BigInteger> getTwoPowersList(int length) {
