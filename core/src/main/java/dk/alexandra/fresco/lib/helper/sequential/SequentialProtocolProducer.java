@@ -33,8 +33,7 @@ import dk.alexandra.fresco.lib.helper.ProtocolProducerCollection;
 import dk.alexandra.fresco.lib.helper.SingleProtocolProducer;
 import java.util.LinkedList;
 
-public class SequentialProtocolProducer implements ProtocolProducer, ProtocolProducerList,
-    ProtocolProducerCollection {
+public class SequentialProtocolProducer implements ProtocolProducer, ProtocolProducerCollection {
 
   private LinkedList<ProtocolProducer> protocolProducers = new LinkedList<>();
 
@@ -81,16 +80,6 @@ public class SequentialProtocolProducer implements ProtocolProducer, ProtocolPro
       protocolProducers.removeFirst();
     }
     return !protocolProducers.isEmpty();
-  }
-
-  @Override
-  public ProtocolProducer getNextInLine() {
-    return protocolProducers.pop();
-  }
-
-  @Override
-  public boolean hasNextInLine() {
-    return !(protocolProducers.isEmpty());
   }
 
   @Override
