@@ -73,18 +73,33 @@ public class SequentialProtocolProducer implements ProtocolProducer, ProtocolPro
   @Override
   public void getNextProtocols(ProtocolCollection protocolCollection) {
     if (currentProducer == null) {
-      currentProducer = protocolProducers.getFirst();
-      if (currentProducer instanceof LazyProtocolProducer) {
-        LazyProtocolProducer currentProducer = (LazyProtocolProducer) this.currentProducer;
-        currentProducer.checkReady();
-        this.currentProducer = currentProducer.protocolProducer;
-      } else if (currentProducer instanceof SequentialProtocolProducer) {
-        SequentialProtocolProducer seq = (SequentialProtocolProducer) this.currentProducer;
-        protocolProducers.addAll(seq.protocolProducers);
-        currentProducer = protocolProducers.getFirst();
+      currentProducer = inline();
+      if (currentProducer == null) {
+        return;
       }
     }
     currentProducer.getNextProtocols(protocolCollection);
+  }
+
+  private ProtocolProducer inline() {
+    if (protocolProducers.isEmpty()) {
+      return null;
+    }
+    ProtocolProducer current = protocolProducers.getFirst();
+    if (current instanceof LazyProtocolProducer) {
+      protocolProducers.removeFirst();
+      LazyProtocolProducer currentProducer = (LazyProtocolProducer) current;
+      currentProducer.checkReady();
+      protocolProducers.add(0, currentProducer.protocolProducer);
+      return inline();
+    } else if (current instanceof SequentialProtocolProducer) {
+      protocolProducers.removeFirst();
+      SequentialProtocolProducer seq = (SequentialProtocolProducer) current;
+      protocolProducers.addAll(0, seq.protocolProducers);
+      return inline();
+    } else {
+      return current;
+    }
   }
 
   @Override
