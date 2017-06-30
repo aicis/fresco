@@ -36,9 +36,7 @@ import java.util.LinkedList;
 public class SequentialProtocolProducer implements ProtocolProducer, ProtocolProducerList,
     ProtocolProducerCollection {
 
-  private SequentialHelper seqh;
-
-  protected LinkedList<ProtocolProducer> cs = new LinkedList<>();
+  protected LinkedList<ProtocolProducer> protocolProducers = new LinkedList<>();
 
   public SequentialProtocolProducer(ProtocolProducer... cs) {
     this();
@@ -64,47 +62,44 @@ public class SequentialProtocolProducer implements ProtocolProducer, ProtocolPro
   }
 
   public SequentialProtocolProducer() {
-    seqh = new SequentialHelper(this);
+
   }
 
   public void append(ProtocolProducer protocolProducer) {
-    this.cs.add(protocolProducer);
+    this.protocolProducers.add(protocolProducer);
   }
 
   public void append(Computation computation) {
-    this.cs.add(SingleProtocolProducer.wrap(computation));
+    this.protocolProducers.add(SingleProtocolProducer.wrap(computation));
   }
 
   @Override
   public void getNextProtocols(ProtocolCollection protocolCollection) {
-    seqh.getNextProtocols(protocolCollection);
+    protocolProducers.getFirst().getNextProtocols(protocolCollection);
   }
 
   @Override
   public boolean hasNextProtocols() {
-    return seqh.hasNextProtocols();
+    while (!protocolProducers.isEmpty() && !protocolProducers.getFirst().hasNextProtocols()) {
+      protocolProducers.removeFirst();
+    }
+    return !protocolProducers.isEmpty();
   }
 
   @Override
   public ProtocolProducer getNextInLine() {
-    return cs.pop();
+    return protocolProducers.pop();
   }
 
   @Override
   public boolean hasNextInLine() {
-    return !(cs.isEmpty());
+    return !(protocolProducers.isEmpty());
   }
 
   @Override
   public String toString() {
     return "SequentialProtocolProducer{"
-        + "seqh=" + seqh
-        + ", cs=" + cs
+        + ", protocolProducers=" + protocolProducers
         + '}';
-  }
-
-  public void logProgress(
-      Class<?> aClass) {
-    seqh.logProgess(aClass);
   }
 }
