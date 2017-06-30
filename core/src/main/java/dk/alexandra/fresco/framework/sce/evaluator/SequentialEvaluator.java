@@ -113,7 +113,7 @@ public class SequentialEvaluator<ResourcePoolT extends ResourcePool> implements
     int zeroBatches = 0;
     RoundSynchronization<ResourcePoolT> roundSynchronization =
         protocolSuite.createRoundSynchronization();
-    do {
+    while (protocolProducer.hasNextProtocols()) {
       int numOfProtocolsInBatch = doOneRound(protocolProducer, resourcePool, roundSynchronization);
       Reporter.finest("Done evaluating batch: " + batch++
           + " with " + numOfProtocolsInBatch + " native protocols");
@@ -132,7 +132,7 @@ public class SequentialEvaluator<ResourcePoolT extends ResourcePool> implements
             "Number of empty batches in a row reached " + MAX_EMPTY_BATCHES_IN_A_ROW
                 + "; probably there is a bug in your protocol producer.");
       }
-    } while (protocolProducer.hasNextProtocols());
+    }
     roundSynchronization.finishedEval(resourcePool, createSceNetwork(
         resourcePool.getNoOfParties()));
     Reporter.fine("Sequential evaluator done. Evaluated a total of " + totalProtocols
