@@ -1,58 +1,49 @@
 package dk.alexandra.fresco.demo.mimcaggregation;
 
-import dk.alexandra.fresco.demo.inputsum.DemoApplication;
-import dk.alexandra.fresco.framework.BuilderFactory;
-import dk.alexandra.fresco.framework.ProtocolProducer;
-import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
+import dk.alexandra.fresco.demo.mimcaggregation.EncryptAndRevealStep.RowWithCipher;
+import dk.alexandra.fresco.framework.Application;
+import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialProtocolBuilder;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.framework.value.Value;
-import dk.alexandra.fresco.lib.helper.builder.NumericProtocolBuilder;
-import dk.alexandra.fresco.lib.helper.builder.OmniBuilder;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
-public class AggregateStep extends DemoApplication<SInt[][]> {
+public class AggregateStep implements Application<List<List<SInt>>, SequentialProtocolBuilder> {
 
 
   private List<Triple<SInt, SInt, BigInteger>> triples;
-  private int cipherColumn;
   private int keyColumn;
   private int aggColumn;
 
-  public AggregateStep(Value[][] inputRows, int cipherColumn, int keyColumn, int aggColumn) {
+  public AggregateStep(List<RowWithCipher> inputRows, int keyColumn, int aggColumn) {
     super();
-    this.cipherColumn = cipherColumn;
     this.keyColumn = keyColumn;
     this.aggColumn = aggColumn;
-    this.triples = new ArrayList<>(inputRows.length);
+    this.triples = new ArrayList<>(inputRows.size());
     convertToTriples(inputRows);
   }
 
-  private void convertToTriples(Value[][] inputRows) {
-    for (Value[] row : inputRows) {
+  private void convertToTriples(List<RowWithCipher> inputRows) {
+    for (RowWithCipher row : inputRows) {
       Triple<SInt, SInt, BigInteger> triple = new Triple<SInt, SInt, BigInteger>(
-          (SInt) row[this.keyColumn],
-          (SInt) row[this.aggColumn],
-          (BigInteger) row[this.cipherColumn]
+          row.row.get(this.keyColumn),
+          row.row.get(this.aggColumn),
+          row.cipher
       );
       this.triples.add(triple);
     }
   }
 
   @Override
-  public ProtocolProducer prepareApplication(BuilderFactory producer) {
-    BuilderFactoryNumeric factoryNumeric = (BuilderFactoryNumeric) producer;
-    OmniBuilder builder = new OmniBuilder(factoryNumeric);
-    NumericProtocolBuilder npb = builder.getNumericProtocolBuilder();
-
-    Map<BigInteger, SInt> groupedByCipher = new HashMap<>();
+  public Computation<List<List<SInt>>> prepareApplication(SequentialProtocolBuilder builder) {
+    Map<BigInteger, Computation<SInt>> groupedByCipher = new HashMap<>();
     Map<BigInteger, SInt> cipherToShare = new HashMap<>();
 
-    // Note: this is not optimized as it constructs the entire circuit in place
-    builder.beginSeqScope();
+    Computation<SInt> zero = builder.numeric().known(BigInteger.ZERO);
 
     for (Triple<SInt, SInt, BigInteger> triple : this.triples) {
       BigInteger cipher = triple.cipher;
@@ -60,28 +51,24 @@ public class AggregateStep extends DemoApplication<SInt[][]> {
       SInt value = triple.value;
 
       if (!groupedByCipher.containsKey(cipher)) {
-        groupedByCipher.put(cipher, npb.known(0));
+        groupedByCipher.put(cipher, zero);
         cipherToShare.put(cipher, key);
       }
 
-      SInt subTotal = npb.add(groupedByCipher.get(cipher), value);
+      Computation<SInt> subTotal = builder.numeric().add(groupedByCipher.get(cipher), value);
       groupedByCipher.put(cipher, subTotal);
     }
 
-    output = () -> {
-      SInt[][] result = new SInt[groupedByCipher.size()][2];
-      int index = 0;
-      for (Map.Entry<BigInteger, SInt> keyAndValues : groupedByCipher.entrySet()) {
-        result[index][keyColumn] = cipherToShare.get(keyAndValues.getKey());
-        result[index][aggColumn] = keyAndValues.getValue();
-        index++;
+    return builder.createSequentialSub(seq -> {
+      List<List<SInt>> result = new ArrayList<>(groupedByCipher.size());
+      for (Entry<BigInteger, Computation<SInt>> keyAndValues : groupedByCipher.entrySet()) {
+        ArrayList<SInt> row = new ArrayList<>(2);
+        row.add(cipherToShare.get(keyAndValues.getKey()));
+        row.add(keyAndValues.getValue().out());
+        result.add(row);
       }
-      return result;
-    };
-
-    builder.endCurScope();
-
-    return builder.getProtocol();
+      return () -> result;
+    });
   }
 
   private class Triple<K, V, C> {

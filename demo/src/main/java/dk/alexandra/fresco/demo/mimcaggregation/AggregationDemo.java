@@ -1,9 +1,8 @@
 package dk.alexandra.fresco.demo.mimcaggregation;
 
-import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.demo.mimcaggregation.EncryptAndRevealStep.RowWithCipher;
 import dk.alexandra.fresco.framework.Party;
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialProtocolBuilder;
 import dk.alexandra.fresco.framework.configuration.PreprocessingStrategy;
 import dk.alexandra.fresco.framework.network.Network;
@@ -13,9 +12,9 @@ import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.configuration.ProtocolSuiteConfiguration;
 import dk.alexandra.fresco.framework.sce.configuration.SCEConfiguration;
 import dk.alexandra.fresco.framework.sce.evaluator.SequentialEvaluator;
+import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.sce.resources.storage.StreamedStorage;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.framework.value.Value;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.SpdzProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
@@ -24,41 +23,42 @@ import dk.alexandra.fresco.suite.spdz.configuration.SpdzConfiguration;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.SecureRandom;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.logging.Level;
 
-public class AggregationDemo {
+public class AggregationDemo<ResourcePoolT extends ResourcePool> {
 
-  private ProtocolSuiteConfiguration protocolSuiteConfig;
+  private ProtocolSuiteConfiguration<ResourcePoolT, SequentialProtocolBuilder> protocolSuiteConfig;
 
-  public AggregationDemo(ProtocolSuiteConfiguration protocolSuiteConfig) {
+  public AggregationDemo(
+      ProtocolSuiteConfiguration<ResourcePoolT, SequentialProtocolBuilder> protocolSuiteConfig) {
     this.protocolSuiteConfig = protocolSuiteConfig;
   }
 
   /**
    * @return Generates mock input data.
    */
-  public int[][] readInputs() {
-    return new int[][]{
-        {1, 10},
-        {1, 7},
-        {2, 100},
-        {1, 50},
-        {3, 15},
-        {3, 15},
-        {2, 70}
-    };
+  public List<List<BigInteger>> readInputs() {
+    return Arrays.asList(
+        Arrays.asList(BigInteger.valueOf(1), BigInteger.valueOf(10)),
+        Arrays.asList(BigInteger.valueOf(1), BigInteger.valueOf(7)),
+        Arrays.asList(BigInteger.valueOf(2), BigInteger.valueOf(100)),
+        Arrays.asList(BigInteger.valueOf(1), BigInteger.valueOf(50)),
+        Arrays.asList(BigInteger.valueOf(3), BigInteger.valueOf(15)),
+        Arrays.asList(BigInteger.valueOf(3), BigInteger.valueOf(15)),
+        Arrays.asList(BigInteger.valueOf(2), BigInteger.valueOf(70)));
   }
 
   /**
    * @param result Prints result values to console.
    */
-  public void writeOutputs(int[][] result) {
-    for (int[] row : result) {
-      for (int value : row) {
+  public void writeOutputs(List<List<BigInteger>> result) {
+    for (List<BigInteger> row : result) {
+      for (BigInteger value : row) {
         System.out.print(value + " ");
       }
       System.out.println();
@@ -74,14 +74,15 @@ public class AggregationDemo {
    *
    * Example: ([k], [v]) -> ([k], [v], enc(k)) for columnIndex = 0
    */
-  public Value[][] encryptAndReveal(
-      SCEConfiguration sceConf,
-      SecureComputationEngine sce, SInt[][] inputRows,
+  public List<RowWithCipher> encryptAndReveal(
+      SCEConfiguration<ResourcePoolT> sceConf,
+      SecureComputationEngine<ResourcePoolT, SequentialProtocolBuilder> sce,
+      List<List<SInt>> inputRows,
       int columnIndex) throws IOException {
     EncryptAndRevealStep ear = new EncryptAndRevealStep(inputRows, columnIndex);
-    sce.runApplication(ear, SecureComputationEngineImpl.createResourcePool(sceConf,
-        protocolSuiteConfig));
-    return ear.getRowsWithOpenedCiphers();
+    ResourcePoolT resourcePool = SecureComputationEngineImpl.createResourcePool(
+        sceConf, protocolSuiteConfig);
+    return sce.runApplication(ear, resourcePool);
   }
 
   /**
@@ -94,74 +95,67 @@ public class AggregationDemo {
    * Example: ([1], [2]), ([1], [3]), ([2], [4]) -> ([1], [5]), ([2], [4]) for keyColumn = 0 and
    * aggColumn = 1
    */
-  public SInt[][] aggregate(
-      SCEConfiguration sceConf,
-      SecureComputationEngine sce, SInt[][] inputRows, int keyColumn,
+  public List<List<SInt>> aggregate(
+      SCEConfiguration<ResourcePoolT> sceConf,
+      SecureComputationEngine<ResourcePoolT, SequentialProtocolBuilder> sce,
+      List<List<SInt>> inputRows, int keyColumn,
       int aggColumn) throws IOException {
     // TODO: need to shuffle input rows and result
-    Value[][] rowsWithOpenenedCiphers = encryptAndReveal(sceConf, sce, inputRows, keyColumn);
+    List<RowWithCipher> rowsWithOpenenedCiphers = encryptAndReveal(sceConf, sce, inputRows,
+        keyColumn);
     AggregateStep aggStep = new AggregateStep(
-        rowsWithOpenenedCiphers, 2, keyColumn, aggColumn);
-    sce.runApplication(aggStep, SecureComputationEngineImpl.createResourcePool(sceConf,
-        protocolSuiteConfig));
-    return aggStep.getOutput().out();
+        rowsWithOpenenedCiphers, keyColumn, aggColumn);
+    return sce.runApplication(aggStep,
+        SecureComputationEngineImpl.createResourcePool(sceConf,
+            protocolSuiteConfig));
   }
 
   /**
    * @return Runs the input step which secret shares all int values in inputRows. Returns and SInt
    * array containing the resulting shares.
    */
-  public SInt[][] secretShare(
-      SCEConfiguration sceConf,
-      SecureComputationEngine sce, int[][] inputRows, int pid) throws IOException {
+  public List<List<SInt>> secretShare(
+      SCEConfiguration<ResourcePoolT> sceConf,
+      SecureComputationEngine<ResourcePoolT, SequentialProtocolBuilder> sce,
+      List<List<BigInteger>> inputRows,
+      int pid) throws IOException {
     InputStep inputStep = new InputStep(inputRows, pid);
-    sce.runApplication(inputStep, SecureComputationEngineImpl.createResourcePool(sceConf,
+    return sce.runApplication(inputStep, SecureComputationEngineImpl.createResourcePool(sceConf,
         protocolSuiteConfig));
-    return inputStep.getSecretSharedRows();
   }
 
   /**
-   * @return Runs the output step which opens all secret shares. It converts the result to ints.
+   * @return Runs the output step which opens all secret shares.
    */
-  public int[][] open(SCEConfiguration sceConf,
-      SecureComputationEngine sce, SInt[][] secretShares) throws IOException {
+  public List<List<BigInteger>> open(
+      SCEConfiguration<ResourcePoolT> sceConf,
+      SecureComputationEngine<ResourcePoolT, SequentialProtocolBuilder> sce,
+      List<List<SInt>> secretShares) throws IOException {
     OutputStep outputStep = new OutputStep(secretShares);
-    sce.runApplication(outputStep, SecureComputationEngineImpl.createResourcePool(sceConf,
-        protocolSuiteConfig));
-    List<List<Computation<BigInteger>>> _opened = outputStep.getOpenedRows();
-    int[][] opened = new int[_opened.size()][_opened.get(0).size()];
-    int rowIndex = 0,
-        colIndex = 0;
-    for (List<Computation<BigInteger>> row : _opened) {
-      for (Computation<BigInteger> value : row) {
-        opened[rowIndex][colIndex] = value.out().intValue();
-        colIndex++;
-      }
-      rowIndex++;
-      colIndex = 0;
-    }
-    return opened;
+    return sce
+        .runApplication(outputStep, SecureComputationEngineImpl.createResourcePool(sceConf,
+            protocolSuiteConfig));
   }
 
   public void runApplication(
-      SCEConfiguration sceConf,
-      SecureComputationEngine sce) throws IOException {
+      SCEConfiguration<ResourcePoolT> sceConf,
+      SecureComputationEngine<ResourcePoolT, SequentialProtocolBuilder> sce) throws IOException {
     int pid = sceConf.getMyId();
     int keyColumnIndex = 0;
     int aggColumnIndex = 1;
 
     // Read inputs. For now this just returns a hard-coded array of values.
-    int[][] inputRows = readInputs();
+    List<List<BigInteger>> inputRows = readInputs();
 
     // Secret-share the inputs.
-    SInt[][] secretSharedRows = secretShare(sceConf, sce, inputRows, pid);
+    List<List<SInt>> secretSharedRows = secretShare(sceConf, sce, inputRows, pid);
 
     // Aggregate
-    SInt[][] aggregated = aggregate(sceConf,
+    List<List<SInt>> aggregated = aggregate(sceConf,
         sce, secretSharedRows, keyColumnIndex, aggColumnIndex);
 
     // Recombine the secret shares of the result
-    int[][] openedResult = open(sceConf, sce, aggregated);
+    List<List<BigInteger>> openedResult = open(sceConf, sce, aggregated);
 
     // Write outputs. For now this just prints the results to the console.
     writeOutputs(openedResult);
@@ -175,7 +169,7 @@ public class AggregationDemo {
     int myPID = Integer.parseInt(args[0]);
 
     // Set up our SecureComputationEngine configuration
-    SCEConfiguration sceConfig = new SCEConfiguration() {
+    SCEConfiguration<SpdzResourcePool> sceConfig = new SCEConfiguration<SpdzResourcePool>() {
 
       @Override
       public int getMyId() {
@@ -197,9 +191,9 @@ public class AggregationDemo {
       }
 
       @Override
-      public ProtocolEvaluator getEvaluator() {
+      public ProtocolEvaluator<SpdzResourcePool> getEvaluator() {
         // We will use a sequential evaluation strategy
-        SequentialEvaluator sequentialEvaluator = new SequentialEvaluator();
+        SequentialEvaluator<SpdzResourcePool> sequentialEvaluator = new SequentialEvaluator<>();
         sequentialEvaluator.setMaxBatchSize(4096);
         return sequentialEvaluator;
       }
@@ -248,12 +242,13 @@ public class AggregationDemo {
     };
 
     // Instantiate environment
-    SecureComputationEngine<SpdzResourcePool, ProtocolBuilderNumeric> sce = new SecureComputationEngineImpl<>(
-        protocolSuiteConfig,
-        sceConfig.getEvaluator(), sceConfig.getLogLevel(), sceConfig.getMyId());
+    SecureComputationEngine<SpdzResourcePool, SequentialProtocolBuilder> sce =
+        new SecureComputationEngineImpl<>(protocolSuiteConfig,
+            sceConfig.getEvaluator(), sceConfig.getLogLevel(), sceConfig.getMyId());
 
     // Create application we are going run
-    AggregationDemo app = new AggregationDemo(protocolSuiteConfig);
+    AggregationDemo<SpdzResourcePool> app = new AggregationDemo<>(
+        protocolSuiteConfig);
 
     app.runApplication(sceConfig, sce);
   }
