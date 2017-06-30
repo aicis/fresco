@@ -85,6 +85,9 @@ public class SequentialProtocolProducer implements ProtocolProducer, ProtocolPro
 
   @Override
   public boolean hasNextProtocols() {
+    if (currentProducer != null && currentProducer.hasNextProtocols()) {
+      return true;
+    }
     while (!protocolProducers.isEmpty() && !protocolProducers.getFirst().hasNextProtocols()) {
       protocolProducers.removeFirst();
       currentProducer = null;
