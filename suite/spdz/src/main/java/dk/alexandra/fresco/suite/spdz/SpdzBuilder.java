@@ -14,6 +14,7 @@ import dk.alexandra.fresco.suite.spdz.gates.SpdzAddProtocolKnownLeft;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzInputProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzKnownSIntProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzMultProtocol;
+import dk.alexandra.fresco.suite.spdz.gates.SpdzMultProtocolKnownLeft;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzOutputToAllProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzRandomProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzSubtractProtocol;
@@ -93,11 +94,10 @@ class SpdzBuilder implements BuilderFactoryNumeric {
 
       @Override
       public Computation<SInt> mult(BigInteger a, Computation<SInt> b) {
-        BigInteger notNullA = Objects.requireNonNull(a);
-        return () -> {
-          SpdzSInt left = (SpdzSInt) b.out();
-          return new SpdzSInt(left.value.multiply(notNullA));
-        };
+        SpdzMultProtocolKnownLeft spdzMultProtocol4 = new SpdzMultProtocolKnownLeft(a, b);
+        protocolBuilder.append(spdzMultProtocol4);
+        return spdzMultProtocol4;
+
       }
 
       @Override
