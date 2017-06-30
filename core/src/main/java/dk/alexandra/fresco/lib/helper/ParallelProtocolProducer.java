@@ -30,17 +30,17 @@ import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.ListIterator;
 
 /**
  * If a Parallel protocol has n sub-protocols and is asked to deliver m protocols, it
- * requests m/n protocols from each of the sub-protocols.
+ * requests the protocols from each of the sub-protocols in a round robin maner.
  */
 public class ParallelProtocolProducer implements ProtocolProducer,
     ProtocolProducerCollection {
 
   private LinkedList<ProtocolProducer> cs;
+  private ListIterator<ProtocolProducer> currentIterator;
 
   public ParallelProtocolProducer() {
     cs = new LinkedList<>();
@@ -68,11 +68,6 @@ public class ParallelProtocolProducer implements ProtocolProducer,
     }
   }
 
-  public List<ProtocolProducer> getProducers() {
-    // this.merge();
-    return cs;
-  }
-
   public void append(ProtocolProducer protocolProducer) {
     cs.offer(protocolProducer);
   }
@@ -83,47 +78,45 @@ public class ParallelProtocolProducer implements ProtocolProducer,
 
   @Override
   public boolean hasNextProtocols() {
-    prune();
-    return !cs.isEmpty();
+    return cs.stream().anyMatch(ProtocolProducer::hasNextProtocols);
   }
 
-  /**
-   * Removes any empty protocols.
-   */
-  private void prune() {
-    while (!cs.isEmpty()) {
-      if (cs.getFirst().hasNextProtocols()) {
-        return;
-      } else {
-        cs.remove();
-      }
-    }
-  }
 
   @Override
   public void getNextProtocols(ProtocolCollection protocolCollection) {
-    // TODO: This is a simple, but very rough implementation.
-    // It requests an equal amount from each subprotocol and only asks once.
-    // A better implementation should try to fill up the protocol array by
-    // requesting further protocols from large protocols if the smaller protocols
-    // run dry.
-    // E.g. this implementation is inferior in that it may return less protocols
-    // than it could.
-    if (cs.size() == 0) {
+    if (cs.isEmpty()) {
       return;
     }
-    ListIterator<ProtocolProducer> x = cs.listIterator();
-    while (x.hasNext()) {
-      ProtocolProducer c = x.next();
-      if (!c.hasNextProtocols()) {
-        x.remove();
-      } else {
-        c.getNextProtocols(protocolCollection);
-      }
-      if (!protocolCollection.hasFreeCapacity()) {
-        return; // We've filled the array.
+    ProtocolProducer startElement = null;
+    if (currentIterator == null) {
+      currentIterator = cs.listIterator();
+    }
+    if (currentIterator.hasNext()) {
+      startElement = currentIterator.next();
+      startElement.getNextProtocols(protocolCollection);
+    }
+    addProtocolsFromIterator(protocolCollection, null);
+    if (protocolCollection.hasFreeCapacity()) {
+      currentIterator = cs.listIterator();
+      addProtocolsFromIterator(protocolCollection, startElement);
+      if (!currentIterator.hasNext()) {
+        currentIterator = null;
       }
     }
   }
 
+  private void addProtocolsFromIterator(ProtocolCollection protocolCollection,
+      ProtocolProducer stopElement) {
+    while (currentIterator.hasNext() && protocolCollection.hasFreeCapacity()) {
+      ProtocolProducer producer = currentIterator.next();
+      if (producer == stopElement) {
+        return;
+      }
+      if (producer.hasNextProtocols()) {
+        producer.getNextProtocols(protocolCollection);
+      } else {
+        currentIterator.remove();
+      }
+    }
+  }
 }
