@@ -112,6 +112,9 @@ public abstract class ProtocolBuilderNumeric implements ProtocolBuilder {
 
   ProtocolBuilderNumeric.ProtocolEntity createAndAppend() {
     ProtocolBuilderNumeric.ProtocolEntity protocolEntity = new ProtocolBuilderNumeric.ProtocolEntity();
+    if (protocols == null) {
+      throw new IllegalStateException("Cannot build this twice, it has all ready been constructed");
+    }
     protocols.add(protocolEntity);
     return protocolEntity;
   }
@@ -157,6 +160,7 @@ public abstract class ProtocolBuilderNumeric implements ProtocolBuilder {
         producerCollection.append(protocolEntity.child);
       }
     }
+    protocols = null;
   }
 
   /**
