@@ -64,21 +64,6 @@ public class SpdzElement implements Serializable{
     return Util.getModulusSize(); //cause we only do partial openings meaning sending a share
 	}
 
-  public byte[] toByteArray() {
-    byte[] share_invert = new byte[getSize()];
-		byte[] mac_invert = new byte[getSize()];
-		copyAndInvertArray(share_invert, this.share.toByteArray());
-		copyAndInvertArray(mac_invert, this.mac.toByteArray());
-		byte[] res = new byte[getSize()*2];
-		System.arraycopy(share_invert, 0, res, 0, getSize());
-		System.arraycopy(mac_invert, 0, res, getSize(), getSize());
-    return res;
-  }
-
-	private void copyAndInvertArray(byte[] bytes, byte[] byteArray) {
-    System.arraycopy(byteArray, 0, bytes, bytes.length - byteArray.length, byteArray.length);
-    }
-
 	//get operations
 	public BigInteger getShare(){
 		return share;
