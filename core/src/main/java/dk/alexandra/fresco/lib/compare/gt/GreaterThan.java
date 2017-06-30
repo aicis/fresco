@@ -95,7 +95,7 @@ public class GreaterThan implements ComputationBuilder<SInt> {
           return innerProduct.openDot(twoPowsTop, rTopBits);
         }
     ).seq((pair, seq) -> {
-      Computation<SInt> rTop = pair.getSecond();
+      Computation<SInt> rTop = pair::getSecond;
       Computation<SInt> rBottom = pair.getFirst().getSecond();
       SInt r = pair.getFirst().getFirst();
 
@@ -113,7 +113,7 @@ public class GreaterThan implements ComputationBuilder<SInt> {
       Computation<SInt> z = numeric.add(twoToBitLength, diff);
 
       // mO = open(z + r)
-      Computation<SInt> mS = numeric.add(z, r);
+      Computation<SInt> mS = numeric.add(z, () -> r);
       Computation<BigInteger> mO = seq.numeric().open(mS);
 
       return () -> new Object[]{mO, rBottom, rTop, rBar, z};

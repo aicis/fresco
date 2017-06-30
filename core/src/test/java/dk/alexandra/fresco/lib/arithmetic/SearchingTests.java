@@ -78,8 +78,10 @@ public class SearchingTests {
               for (int i = 0; i < PAIRS; i++) {
                 keys[i] = i;
                 values[i] = rand.nextInt(MAXVALUE);
-                sKeys.add(bnf.getSInt(i));
-                sValues.add(bnf.getSInt(values[i]));
+                SInt sInt = bnf.getSInt(i);
+                sKeys.add(() -> sInt);
+                SInt valueSInt = bnf.getSInt(values[i]);
+                sValues.add(() -> valueSInt);
               }
               return seq;
             }
@@ -96,7 +98,7 @@ public class SearchingTests {
                     .createApplicationRoot((BuilderFactoryNumeric) factoryProducer);
                 applicationRoot.seq(linearLookUp)
                     .seq((out, seq) -> {
-                      this.outputs.add(seq.numeric().open(out));
+                      this.outputs.add(seq.numeric().open(() -> out));
                       return () -> out;
                     });
                 return applicationRoot.build();

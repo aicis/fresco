@@ -186,11 +186,20 @@ public class DEAPrefixBuilderMaximize {
   }
 
 
+  private static List<Computation<SInt>> convertList(List<SInt> interval) {
+    return interval.stream()
+        .map(intervalValue -> {
+          Computation<SInt> computation = () -> intervalValue;
+          return computation;
+        })
+        .collect(Collectors.toList());
+  }
+
   private static ArrayList<Computation<SInt>> bVector(int size, List<SInt> targetInputs,
       Computation<SInt> zero,
       Computation<SInt> one) {
     ArrayList<Computation<SInt>> B = new ArrayList<>(size);
-    B.addAll(targetInputs);
+    B.addAll(convertList(targetInputs));
     // For each bank output constraint B is zero
     while (B.size() < size - 1) {
       B.add(zero);
@@ -206,7 +215,7 @@ public class DEAPrefixBuilderMaximize {
     ArrayList<Computation<SInt>> row = new ArrayList<>(
         vflInputs.size() + slackVariables.size() + 1);
     row.add(zero);
-    row.addAll(vflInputs);
+    row.addAll(convertList(vflInputs));
     row.addAll(slackVariables);
     return row;
   }
@@ -216,7 +225,7 @@ public class DEAPrefixBuilderMaximize {
       ArrayList<Computation<SInt>> slackVariables) {
     ArrayList<Computation<SInt>> row = new ArrayList<>(
         vflOutputs.size() + slackVariables.size() + 1);
-    row.add(bankOutput);
+    row.add(() -> bankOutput);
     row.addAll(vflOutputs);
     row.addAll(slackVariables);
     return row;

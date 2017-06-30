@@ -96,10 +96,10 @@ public class DivisionTests {
                       (seq) -> {
                         Computation<SInt> division = seq.createSequentialSub(
                             new KnownDivisor(
-                                (BuilderFactoryNumeric) factoryProducer, input1, input2));
+                                (BuilderFactoryNumeric) factoryProducer, () -> input1, input2));
 
                         Computation<SInt> remainder = seq.createSequentialSub(
-                            new KnownDivisorRemainder(input1, input2));
+                            new KnownDivisorRemainder(() -> input1, input2));
                         NumericBuilder NumericBuilder = seq.numeric();
                         Computation<BigInteger> output1 = NumericBuilder.open(division);
                         Computation<BigInteger> output2 = NumericBuilder.open(remainder);

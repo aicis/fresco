@@ -116,7 +116,7 @@ public class CreditRaterTest {
 
           Application<BigInteger, SequentialNumericBuilder> outputApp =
               seq -> seq.numeric()
-                  .open(creditRatingOutput);
+                  .open(() -> creditRatingOutput);
           BigInteger resultCreditOut = secureComputationEngine
               .runApplication(outputApp, resourcePool);
           Assert.assertThat(resultCreditOut, Is.is(

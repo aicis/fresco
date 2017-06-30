@@ -75,14 +75,14 @@ public class BinaryOperationsTests {
         @Override
         public void test() throws Exception {
           Application<Pair<BigInteger, List<BigInteger>>, SequentialNumericBuilder> app =
-              builder -> {
+              (SequentialNumericBuilder builder) -> {
                 AdvancedNumericBuilder rightShift = builder.createAdvancedNumericBuilder();
                 Computation<SInt> encryptedInput = builder.numeric().known(input);
                 Computation<RightShiftResult> shiftedRight = rightShift
                     .rightShiftWithRemainder(encryptedInput, shifts);
                 NumericBuilder NumericBuilder = builder.numeric();
                 Computation<BigInteger> openResult = NumericBuilder
-                    .open(() -> shiftedRight.out().getResult().out());
+                    .open(() -> shiftedRight.out().getResult());
                 Computation<List<Computation<BigInteger>>> openRemainders = builder
                     .createSequentialSub((innerBuilder) -> {
                       NumericBuilder innerOpenBuilder = innerBuilder.numeric();
