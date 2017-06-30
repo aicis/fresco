@@ -65,7 +65,7 @@ public class Exponentiation implements ComputationBuilder<SInt> {
 				 *            result * e   if bits[i] = 1
 				 */
         result = numeric
-            .add(numeric.mult(bit, numeric.sub(numeric.mult(result, e), result)), result);
+            .add(numeric.mult(() -> bit, numeric.sub(numeric.mult(result, e), result)), result);
         e = numeric.mult(e, e);
       }
       return result;

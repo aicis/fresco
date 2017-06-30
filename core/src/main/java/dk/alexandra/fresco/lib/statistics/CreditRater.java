@@ -38,6 +38,7 @@ import dk.alexandra.fresco.lib.math.integer.SumSIntList;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Application for performing credit rating.
@@ -124,9 +125,18 @@ public class CreditRater implements
      * @param scores The scores for each interval
      */
     ComputeIntervalScore(List<SInt> interval, SInt value, List<SInt> scores) {
-      this.interval = new ArrayList<>(interval);
+      this.interval = convertList(interval);
       this.value = () -> value;
-      this.scores = new ArrayList<>(scores);
+      this.scores = convertList(scores);
+    }
+
+    private List<Computation<SInt>> convertList(List<SInt> interval) {
+      return interval.stream()
+          .map(intervalValue -> {
+            Computation<SInt> computation = () -> intervalValue;
+            return computation;
+          })
+          .collect(Collectors.toList());
     }
 
     @Override

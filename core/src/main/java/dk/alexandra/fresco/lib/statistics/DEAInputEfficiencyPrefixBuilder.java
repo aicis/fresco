@@ -85,11 +85,12 @@ public class DEAInputEfficiencyPrefixBuilder {
         c.add(row);
         SInt tValue = targetIt.next();
         SInt[] bValues = basisIt.next();
-        row.add(par.numeric().sub(zero, tValue));
+        row.add(par.numeric().sub(zero, () -> tValue));
         b.add(zero);
         int j = 1;
         for (; j < dbSize + 1; j++) {
-          row.add(bValues[j - 1]);
+          SInt bValue = bValues[j - 1];
+          row.add(() -> bValue);
         }
         for (; j < variables; j++) {
           row.add((j - (dbSize + 1) == i) ? one : zero);
@@ -104,10 +105,11 @@ public class DEAInputEfficiencyPrefixBuilder {
         SInt tValue = targetIt.next();
         SInt[] bValues = basisIt.next();
         row.add(zero);
-        b.add(tValue);
+        b.add(() -> tValue);
         int j = 1;
         for (; j < dbSize + 1; j++) {
-          row.add(bValues[j - 1]);
+          SInt bValue = bValues[j - 1];
+          row.add(() -> bValue);
         }
         for (; j < dbSize + 1 + constraints; j++) {
           row.add((j - (dbSize + 1) == i) ? one : zero);

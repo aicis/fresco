@@ -59,7 +59,7 @@ public class Mean implements ComputationBuilder<SInt> {
         new SumSIntList(list).build(seq)
     ).seq((sum, seq) -> {
       BigInteger n = BigInteger.valueOf(this.degreesOfFreedom);
-      return seq.createAdvancedNumericBuilder().div(sum, n);
+      return seq.createAdvancedNumericBuilder().div(() -> sum, n);
     });
   }
 

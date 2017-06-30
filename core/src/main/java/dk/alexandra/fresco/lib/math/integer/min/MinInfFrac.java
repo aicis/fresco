@@ -136,7 +136,7 @@ public class MinInfFrac implements ComputationBuilder<MinInfOutput> {
                             SInt p1 = pair.getFirst();
                             SInt p2 = pair.getSecond();
                             NumericBuilder numeric = seq13.numeric();
-                            Computation<SInt> tmpC = seq13.comparison().compareLong(p1, p2);
+                        Computation<SInt> tmpC = seq13.comparison().compareLong(() -> p1, () -> p2);
                             Computation<SInt> notInf0 = numeric.sub(one, fs.get(finalI * 2).inf);
                             tmpC = numeric.mult(notInf0, tmpC);
                             tmpC = seq13

@@ -253,7 +253,7 @@ public class LPSolver implements ComputationBuilder<LPOutput> {
     ).seq((enteringAndMinimum, seq) -> {
       List<Computation<SInt>> entering = enteringAndMinimum.getFirst();
       SInt termination = enteringAndMinimum.getSecond();
-      state.terminationOut = seq.numeric().open(termination);
+      state.terminationOut = seq.numeric().open(() -> termination);
       state.enteringIndex = entering;
       return () -> state;
     });

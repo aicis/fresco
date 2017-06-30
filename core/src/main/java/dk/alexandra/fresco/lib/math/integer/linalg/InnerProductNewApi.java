@@ -33,7 +33,9 @@ public class InnerProductNewApi extends SimpleProtocolProducer implements Comput
         c = seq.par(par -> {
           List<Computation<SInt>> temp = new ArrayList<>();
           for (int i = 0; i < a.length; i++) {
-            temp.add(par.numeric().mult(a[i], b[i]));
+            SInt left = a[i];
+            SInt right = b[i];
+            temp.add(par.numeric().mult(() -> left, () -> right));
           }
           return () -> temp;
         }).seq((addents, subSeq) -> {

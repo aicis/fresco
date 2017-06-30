@@ -87,7 +87,7 @@ public class DEAPrefixBuilderMaximize {
           NumericBuilder numeric = par.numeric();
           List<List<Computation<SInt>>> negatedBasisResult = newBasisOutputs.stream().map(
               outputs -> outputs.stream()
-                  .map(output -> numeric.mult(negativeOne, output))
+                  .map(output -> numeric.mult(negativeOne, () -> output))
                   .collect(Collectors.toList())
           ).collect(Collectors.toList());
           return () -> negatedBasisResult;

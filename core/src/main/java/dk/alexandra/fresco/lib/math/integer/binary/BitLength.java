@@ -68,10 +68,11 @@ public class BitLength implements ComputationBuilder<SInt> {
        * If bits[n] == 1 we let mostSignificantIndex be current index.
 			 * Otherwise we leave it be.
 			 */
+        SInt remainderResult = rightShiftResult.getRemainder().get(n);
         mostSignificantBitIndex =
             seq.numeric().add(
                 seq.numeric().mult(
-                    rightShiftResult.getRemainder().get(n),
+                    () -> remainderResult,
                     seq.numeric().sub(currentIndex, mostSignificantBitIndex)
                 ),
                 mostSignificantBitIndex);

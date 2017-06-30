@@ -90,8 +90,8 @@ public class Covariance implements ComputationBuilder<SInt> {
         Computation<SInt> value2 = iterator2.next();
         Computation<SInt> term = par.createSequentialSub((seq) -> {
           NumericBuilder numeric = seq.numeric();
-          Computation<SInt> tmp1 = numeric.sub(value1, mean1);
-          Computation<SInt> tmp2 = numeric.sub(value2, mean2);
+          Computation<SInt> tmp1 = numeric.sub(value1, () -> mean1);
+          Computation<SInt> tmp2 = numeric.sub(value2, () -> mean2);
           return numeric.mult(tmp1, tmp2);
         });
         terms.add(term);

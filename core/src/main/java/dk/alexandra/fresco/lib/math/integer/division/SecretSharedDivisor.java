@@ -126,18 +126,18 @@ public class SecretSharedDivisor
         Computation<Pair<SInt, SInt>> finalPair = iterationPair;
         iterationPair = seq.seq((innerSeq) -> {
           Pair<SInt, SInt> iteration = finalPair.out();
-          Computation<SInt> n = iteration.getFirst();
-          Computation<SInt> d = iteration.getSecond();
+          Computation<SInt> n = iteration::getFirst;
+          Computation<SInt> d = iteration::getSecond;
           Computation<SInt> f = innerSeq.numeric().sub(two, d);
           return Pair.lazy(f, iteration);
         }).par((innerPair, innerSeq) -> {
           NumericBuilder innerNumeric = innerSeq.numeric();
-          Computation<SInt> n = innerPair.getSecond().getFirst();
+          Computation<SInt> n = () -> innerPair.getSecond().getFirst();
           Computation<SInt> f = innerPair.getFirst();
           return shiftRight(innerSeq, innerNumeric.mult(f, n), maximumBitLength);
         }, (innerPair, innerSeq) -> {
           NumericBuilder innerNumeric = innerSeq.numeric();
-          Computation<SInt> d = innerPair.getSecond().getSecond();
+          Computation<SInt> d = () -> innerPair.getSecond().getSecond();
           Computation<SInt> f = innerPair.getFirst();
           return shiftRight(innerSeq, innerNumeric.mult(f, d), maximumBitLength);
         });
@@ -147,7 +147,7 @@ public class SecretSharedDivisor
           iterationResult.out().getFirst(),
           new Pair<>(pair.getFirst().getFirst(), pair.getSecond().getFirst()));
     }).seq((pair, seq) -> {
-      Computation<SInt> n = pair.getFirst();
+      Computation<SInt> n = pair::getFirst;
       Pair<Computation<SInt>, Computation<SInt>> signs = pair.getSecond();
       NumericBuilder numeric = seq.numeric();
       // Right shift to remove decimals, rounding last decimal up.

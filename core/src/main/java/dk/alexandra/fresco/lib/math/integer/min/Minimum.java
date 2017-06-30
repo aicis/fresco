@@ -113,10 +113,10 @@ public class Minimum implements ComputationBuilder<Pair<List<Computation<SInt>>,
         SInt m1 = minimum1.getSecond();
         SInt m2 = minimum2.getSecond();
 
-        Computation<SInt> compare = comparison.compare(m1, m2);
+        Computation<SInt> compare = comparison.compare(() -> m1, () -> m2);
         Computation<SInt> oneMinusCompare = numeric.sub(one, compare);
         Computation<SInt> m = seq
-            .createSequentialSub(new ConditionalSelect(compare, m1, m2));
+            .createSequentialSub(new ConditionalSelect(compare, () -> m1, () -> m2));
         Computation<List<Computation<SInt>>> enteringIndexes = seq.par((par) -> {
           NumericBuilder parNumeric = par.numeric();
           List<Computation<SInt>> cs = new ArrayList<>(k);
