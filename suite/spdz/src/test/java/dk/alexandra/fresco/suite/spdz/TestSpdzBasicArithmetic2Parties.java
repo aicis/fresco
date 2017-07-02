@@ -26,7 +26,6 @@
  */
 package dk.alexandra.fresco.suite.spdz;
 
-import dk.alexandra.fresco.framework.configuration.PreprocessingStrategy;
 import dk.alexandra.fresco.framework.network.NetworkingStrategy;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.lib.arithmetic.BasicArithmeticTests;
@@ -35,6 +34,7 @@ import dk.alexandra.fresco.lib.math.integer.division.DivisionTests.TestSecretSha
 import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductNewApiTest;
 import dk.alexandra.fresco.lib.math.integer.log.LogTests.TestLogarithm;
 import dk.alexandra.fresco.lib.math.integer.sqrt.SqrtTests.TestSquareRoot;
+import dk.alexandra.fresco.suite.spdz.configuration.PreprocessingStrategy;
 import org.junit.Ignore;
 import org.junit.Test;
 

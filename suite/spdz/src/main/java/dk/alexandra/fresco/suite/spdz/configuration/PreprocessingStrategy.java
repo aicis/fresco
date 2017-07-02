@@ -1,5 +1,5 @@
-/*
- * Copyright (c) 2015 FRESCO (http://github.com/aicis/fresco).
+/*******************************************************************************
+ * Copyright (c) 2017 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
  *
@@ -24,56 +24,30 @@
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
  *******************************************************************************/
-package dk.alexandra.fresco.framework.configuration;
+package dk.alexandra.fresco.suite.spdz.configuration;
 
-import dk.alexandra.fresco.framework.MPCException;
-import dk.alexandra.fresco.framework.Party;
-import java.util.logging.Level;
+/**
+ * Used by protocol suites which deals with preprocessed material.
+ * @author Kasper Damgaard
+ *
+ */
+public enum PreprocessingStrategy {
 
-public class TwoPlayerConfiguration implements NetworkConfiguration {
+	DUMMY, // Use a dummy approach (e.g. always the same data)
+	STATIC, // Use data already present on the machine it's running on. 
+	FUELSTATION; // Use the fuel station tool to obtain data.
 	
-	private Party me;
-	private Party opposite;
-	private Level logLevel;
-	
-	public TwoPlayerConfiguration(Party me, Party opposite, Level logLevel) {
-		if (me == null || opposite == null || logLevel == null) {
-			throw new NullPointerException();
+	public static PreprocessingStrategy fromString(String s) {
+		switch(s.toUpperCase()) {
+		case "DUMMY":
+			return PreprocessingStrategy.DUMMY;
+		case "STATIC":
+			return PreprocessingStrategy.STATIC;
+		case "FUEL":
+		case "FUELSTATION":
+		case "FUEL_STATION":
+			return FUELSTATION;
 		}
-		this.me = me;
-		this.opposite = opposite;
-		this.logLevel = logLevel;
-	}	
-	
-	@Override
-	public Party getParty(int i) {
-		if (i == me.getPartyId()) {
-			return me;
-		} else if (i == opposite.getPartyId()) {
-			return opposite;
-		} else {
-			throw new MPCException("There is no party: " + i);
-		}
+		throw new IllegalArgumentException("Unkown strategy "+s+". Should be one of the following: DUMMY, STATIC, FUELSTATION");
 	}
-
-	@Override
-	public Party getMe() {
-		return me;
-	}
-	
-	
-	public Party getOpposite() {
-		return opposite;
-	}
-
-	@Override
-	public int getMyId() {
-		return me.getPartyId();
-	}
-
-	@Override
-	public int noOfParties() {
-		return 2;
-	}
-
 }

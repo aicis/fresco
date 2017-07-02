@@ -26,12 +26,12 @@
  */
 package dk.alexandra.fresco.suite.spdz;
 
-import dk.alexandra.fresco.framework.configuration.PreprocessingStrategy;
 import dk.alexandra.fresco.framework.network.NetworkingStrategy;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.lib.arithmetic.AdvancedNumericTests;
 import dk.alexandra.fresco.lib.math.integer.exp.ExponentiationTests.TestExponentiation;
 import dk.alexandra.fresco.lib.math.polynomial.PolynomialTests.TestPolynomialEvaluator;
+import dk.alexandra.fresco.suite.spdz.configuration.PreprocessingStrategy;
 import org.junit.Test;
 
 public class TestSpdzAdvancedNumeric extends AbstractSpdzTest {

@@ -27,7 +27,6 @@
 package dk.alexandra.fresco.suite.spdz.configuration;
 
 import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
-import dk.alexandra.fresco.framework.configuration.PreprocessingStrategy;
 import dk.alexandra.fresco.framework.sce.configuration.ProtocolSuiteConfiguration;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
 

@@ -67,7 +67,7 @@ public abstract class ProtocolBuilderNumeric implements ProtocolBuilder {
    *
    * @param function of the protocol producer - will be lazy evaluated
    */
-  public <R> Computation<R> createParallelSub(ParallelComputationBuilder<R> function) {
+  public <R> Computation<R> createParallelSub(ComputationBuilderParallel<R> function) {
     DelayedComputation<R> result = new DelayedComputation<>();
     addConsumer((builder) -> result.setComputation(function.build(builder)),
         () -> new ParallelNumericBuilder(factory));
@@ -232,7 +232,7 @@ public abstract class ProtocolBuilderNumeric implements ProtocolBuilder {
       return builder;
     }
 
-    public <R> BuildStep<ParallelNumericBuilder, R, Void> par(ParallelComputationBuilder<R> f) {
+    public <R> BuildStep<ParallelNumericBuilder, R, Void> par(ComputationBuilderParallel<R> f) {
       BuildStep<ParallelNumericBuilder, R, Void> builder =
           new BuildStepParallel<>((ignored, inner) -> f.build(inner));
       ProtocolBuilderNumeric.ProtocolEntity protocolEntity = createAndAppend();

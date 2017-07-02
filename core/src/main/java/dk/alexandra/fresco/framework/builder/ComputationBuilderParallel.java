@@ -3,7 +3,7 @@ package dk.alexandra.fresco.framework.builder;
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.ParallelNumericBuilder;
 
-public interface ParallelComputationBuilder<OutputT> {
+public interface ComputationBuilderParallel<OutputT> {
 
   /**
    * Applies this function to the given argument.
