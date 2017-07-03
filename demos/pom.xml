@@ -1,0 +1,68 @@
+<project>
+  <parent>
+    <groupId>dk.alexandra.fresco</groupId>
+    <artifactId>master-pom</artifactId>
+    <version>0.2-SNAPSHOT</version>
+  </parent>
+  
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>dk.alexandra.fresco</groupId>
+  <artifactId>demos</artifactId>
+  <version>0.2-SNAPSHOT</version>
+  <packaging>pom</packaging>
+
+  <dependencies>
+    <dependency>
+      <groupId>dk.alexandra.fresco</groupId>
+      <artifactId>core</artifactId>
+      <version>0.2-SNAPSHOT</version>
+    </dependency>
+
+    <dependency>
+      <groupId>dk.alexandra.fresco</groupId>
+      <artifactId>spdz</artifactId>
+      <version>0.2-SNAPSHOT</version>
+    </dependency>
+
+    <dependency>
+      <groupId>dk.alexandra.fresco</groupId>
+      <artifactId>tinytables</artifactId>
+      <version>0.2-SNAPSHOT</version>
+    </dependency>
+
+    <!-- Test dependencies -->
+    <dependency>
+      <groupId>dk.alexandra.fresco</groupId>
+      <artifactId>core</artifactId>
+      <version>0.2-SNAPSHOT</version>
+      <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>dk.alexandra.fresco</groupId>
+      <artifactId>spdz</artifactId>
+      <version>0.2-SNAPSHOT</version>
+      <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>dk.alexandra.fresco</groupId>
+      <artifactId>tinytables</artifactId>
+      <version>0.2-SNAPSHOT</version>
+      <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
+
+
+  </dependencies>
+
+  <modules>
+    <module>common</module>
+    <module>psi</module>
+    <module>aes</module>
+    <module>distance</module>
+    <module>sum</module>
+  </modules>
+</project>
