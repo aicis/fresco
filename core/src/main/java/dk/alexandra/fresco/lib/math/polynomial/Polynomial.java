@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -23,9 +23,10 @@
  *
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
- *******************************************************************************/
+ */
 package dk.alexandra.fresco.lib.math.polynomial;
 
+import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.value.SInt;
 
 public interface Polynomial {
@@ -38,28 +39,13 @@ public interface Polynomial {
 	public int getMaxDegree();
 
 	/**
-	 * Set a new upper bound for the degree of this polynomial.
-	 * 
-	 * @param maxDegree
-	 */
-	public void setMaxDegree(int maxDegree);
-
-	/**
 	 * Get the coefficient of the term of degree <code>n</code> of this
 	 * polynomial.
 	 * 
 	 * @param n
 	 * @return
 	 */
-	public SInt getCoefficient(int n);
+	public Computation<SInt> getCoefficient(int n);
 
-	/**
-	 * Set the coefficient for the term of degree <code>n</code> of this
-	 * polynomial.
-	 * 
-	 * @param n
-	 * @param coefficient
-	 */
-	public void setCoefficient(int n, SInt coefficient);
 
 }

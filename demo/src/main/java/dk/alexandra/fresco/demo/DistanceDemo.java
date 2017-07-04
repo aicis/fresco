@@ -26,17 +26,18 @@
  *******************************************************************************/
 package dk.alexandra.fresco.demo;
 
-import dk.alexandra.fresco.framework.Application;
-import dk.alexandra.fresco.framework.ProtocolFactory;
+import dk.alexandra.fresco.demo.inputsum.DemoApplication;
+import dk.alexandra.fresco.framework.BuilderFactory;
+import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.configuration.SCEConfiguration;
-import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.helper.builder.NumericIOBuilder;
 import dk.alexandra.fresco.lib.helper.builder.NumericProtocolBuilder;
+import java.math.BigInteger;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.ParseException;
@@ -44,12 +45,11 @@ import org.apache.commons.cli.ParseException;
 /**
  * A simple demo computing the distance between two secret points
  */
-public class DistanceDemo implements Application {
+public class DistanceDemo extends DemoApplication<BigInteger> {
 
-  private static final long serialVersionUID = 6415583508947017554L;
 
   private int myId, myX, myY;
-  private OInt distance;
+  private Computation<BigInteger> distance;
 
   private DistanceDemo(int id, int x, int y) {
     this.myId = id;
@@ -58,8 +58,8 @@ public class DistanceDemo implements Application {
   }
 
   @Override
-  public ProtocolProducer prepareApplication(ProtocolFactory factory) {
-    BasicNumericFactory bnFac = (BasicNumericFactory) factory;
+  public ProtocolProducer prepareApplication(BuilderFactory producer) {
+    BasicNumericFactory bnFac = (BasicNumericFactory) producer.getProtocolFactory();
     NumericProtocolBuilder npb = new NumericProtocolBuilder(bnFac);
     NumericIOBuilder iob = new NumericIOBuilder(bnFac);
     // Input points
@@ -128,15 +128,17 @@ public class DistanceDemo implements Application {
     DistanceDemo distDemo = new DistanceDemo(sceConf.getMyId(), x, y);
     dk.alexandra.fresco.framework.sce.configuration.ProtocolSuiteConfiguration psConf = cmdUtil
         .getProtocolSuiteConfiguration();
-    SecureComputationEngine sce = new SecureComputationEngineImpl(sceConf, psConf);
+    SecureComputationEngine sce = new SecureComputationEngineImpl(psConf,
+        sceConf.getEvaluator(), sceConf.getLogLevel(), sceConf.getMyId());
     try {
-      sce.runApplication(distDemo, SecureComputationEngineImpl.createResourcePool(sceConf));
+      sce.runApplication(distDemo, SecureComputationEngineImpl.createResourcePool(sceConf,
+          psConf));
     } catch (Exception e) {
       System.out.println("Error while doing MPC: " + e.getMessage());
       e.printStackTrace();
       System.exit(-1);
     }
-    double dist = distDemo.distance.getValue().doubleValue();
+    double dist = distDemo.distance.out().doubleValue();
     dist = Math.sqrt(dist);
     System.out.println("Distance between party 1 and 2 is " + dist);
   }

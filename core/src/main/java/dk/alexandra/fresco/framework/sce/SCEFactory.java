@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -26,8 +26,10 @@
  *******************************************************************************/
 package dk.alexandra.fresco.framework.sce;
 
+import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
 import dk.alexandra.fresco.framework.sce.configuration.ProtocolSuiteConfiguration;
 import dk.alexandra.fresco.framework.sce.configuration.SCEConfiguration;
+import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 
 public class SCEFactory {
 
@@ -38,10 +40,14 @@ public class SCEFactory {
    * {@code SCEFactory.getSCEFromConfiguration(SCEConfiguration conf,
    * ProtocolSuiteConfiguration psConf} instead.
    */
-  public static SecureComputationEngine getSCEFromConfiguration(SCEConfiguration conf,
-      ProtocolSuiteConfiguration protocolSuite) {
-    SecureComputationEngine secureComputationEngine = new SecureComputationEngineImpl(conf,
-        protocolSuite);
-    return secureComputationEngine;
+  public static <
+      ResourcePoolT extends ResourcePool,
+      Builder extends ProtocolBuilder
+      >
+  SecureComputationEngine<ResourcePoolT, Builder> getSCEFromConfiguration(
+      SCEConfiguration<ResourcePoolT> conf,
+      ProtocolSuiteConfiguration<ResourcePoolT, Builder> protocolSuite) {
+    return new SecureComputationEngineImpl<>(protocolSuite, conf.getEvaluator(),
+        conf.getLogLevel(), conf.getMyId());
   }
 }

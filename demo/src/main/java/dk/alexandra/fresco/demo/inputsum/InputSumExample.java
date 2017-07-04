@@ -29,13 +29,15 @@ package dk.alexandra.fresco.demo.inputsum;
 import dk.alexandra.fresco.demo.CmdLineUtil;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
+import dk.alexandra.fresco.framework.sce.configuration.ProtocolSuiteConfiguration;
 import dk.alexandra.fresco.framework.sce.configuration.SCEConfiguration;
 import java.io.IOException;
 
 public class InputSumExample {
 
   public static void runApplication(int myId, SecureComputationEngine sce,
-      SCEConfiguration sceConf) throws IOException {
+      SCEConfiguration sceConf,
+      ProtocolSuiteConfiguration protocolSuiteConfig) throws IOException {
     InputApplication inputApp;
 
     int[] inputs = new int[]{1, 2, 3, 7, 8, 12, 15, 17};
@@ -49,13 +51,14 @@ public class InputSumExample {
 
     SumAndOutputApplication app = new SumAndOutputApplication(inputApp);
 
-    sce.runApplication(app, SecureComputationEngineImpl.createResourcePool(sceConf));
+    sce.runApplication(app, SecureComputationEngineImpl.createResourcePool(sceConf,
+        protocolSuiteConfig));
 
     int sum = 0;
     for (int i : inputs) {
       sum += i;
     }
-    System.out.println("Expected result: " + sum + ", Result was: " + app.getOutput().getValue());
+    System.out.println("Expected result: " + sum + ", Result was: " + app.getResult());
   }
 
   public static void main(String[] args) throws IOException {
@@ -66,11 +69,12 @@ public class InputSumExample {
     util.parse(args);
     sceConf = util.getSCEConfiguration();
 
-    dk.alexandra.fresco.framework.sce.configuration.ProtocolSuiteConfiguration psConf = util
-        .getProtocolSuiteConfiguration();
-    SecureComputationEngine sce = new SecureComputationEngineImpl(sceConf, psConf);
+    dk.alexandra.fresco.framework.sce.configuration.ProtocolSuiteConfiguration psConf =
+        util.getProtocolSuiteConfiguration();
+    SecureComputationEngine sce = new SecureComputationEngineImpl(psConf,
+        sceConf.getEvaluator(), sceConf.getLogLevel(), sceConf.getMyId());
 
-    runApplication(myId, sce, sceConf);
+    runApplication(myId, sce, sceConf, psConf);
   }
 
 }

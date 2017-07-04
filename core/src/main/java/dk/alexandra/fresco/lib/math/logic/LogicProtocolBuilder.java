@@ -3,12 +3,11 @@
  */
 package dk.alexandra.fresco.lib.math.logic;
 
-import java.math.BigInteger;
-
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.helper.builder.AbstractProtocolBuilder;
+import java.math.BigInteger;
 
 /**
  * @author mortenvchristiansen

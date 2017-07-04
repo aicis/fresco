@@ -26,7 +26,7 @@
  *******************************************************************************/
 package dk.alexandra.fresco.suite.spdz.storage;
 
-import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
+import dk.alexandra.fresco.framework.sce.resources.storage.StreamedStorage;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
 import dk.alexandra.fresco.suite.spdz.storage.rest.DataRestSupplierImpl;
 import java.math.BigInteger;
@@ -35,86 +35,85 @@ import java.util.List;
 
 /**
  * Uses the D14.2 storage concept as backend
- * 
- * @author Kasper Damgaard
  *
+ * @author Kasper Damgaard
  */
 public class SpdzStorageImpl implements SpdzStorage {
 
-	private List<BigInteger> opened_values;
-	private List<SpdzElement> closed_values;
+  private List<BigInteger> opened_values;
+  private List<SpdzElement> closed_values;
 
-	private DataSupplier supplier;
+  private DataSupplier supplier;
 
-	/**
-	 * 
-	 * @param rp
-	 *            the resourcePool given to the protocol suite.
-	 * @param storageId
-	 *            The unique id of the storage. This could e.g. be the threadId
-	 *            of the thread that will use this storage object
-	 */
-	public SpdzStorageImpl(ResourcePool rp, int storageId) {
-		int noOfThreadsUsed = 1;
-		int noOfParties = rp.getNoOfParties();
-		int myId = rp.getMyId();
+  /**
+   * @param storageId The unique id of the storage. This could e.g. be the threadId of the thread
+   * that will use this storage object
+   * @param noOfParties party number
+   * @param myId my party id
+   * @param streamedStorage spdz store
+   */
+  public SpdzStorageImpl(int storageId, int noOfParties, int myId,
+      StreamedStorage streamedStorage) {
+    int noOfThreadsUsed = 1;
 
-		String storageName = SpdzStorageConstants.STORAGE_NAME_PREFIX + noOfThreadsUsed + "_" + myId + "_" + storageId+"_";
+    String storageName =
+        SpdzStorageConstants.STORAGE_NAME_PREFIX + noOfThreadsUsed + "_" + myId + "_" + storageId
+            + "_";
 
-		opened_values = new LinkedList<>();
-		closed_values = new LinkedList<>();
+    opened_values = new LinkedList<>();
+    closed_values = new LinkedList<>();
 
-		this.supplier = new DataSupplierImpl(rp.getStreamedStorage(), storageName, noOfParties);
-	}
-	
-	public SpdzStorageImpl(ResourcePool rp, int storageId, boolean useFuelStation, String fuelStationBaseUrl) {
-		int myId = rp.getMyId();
+    this.supplier = new DataSupplierImpl(streamedStorage, storageName, noOfParties);
+  }
 
-		opened_values = new LinkedList<>();
-		closed_values = new LinkedList<>();
+  public SpdzStorageImpl(int storageId, int noOfParties, int myId,
+      String fuelStationBaseUrl) {
 
-		this.supplier = new DataRestSupplierImpl(myId, rp.getNoOfParties(), fuelStationBaseUrl, storageId);
-	}
+    opened_values = new LinkedList<>();
+    closed_values = new LinkedList<>();
 
-	@Override
-	public void shutdown() {
-		this.supplier.shutdown();
-	}
+    this.supplier = new DataRestSupplierImpl(myId, noOfParties, fuelStationBaseUrl, storageId);
+  }
 
-	@Override
-	public void reset() {
-		opened_values.clear();
-		closed_values.clear();
-	}
+  @Override
+  public void shutdown() {
+    this.supplier.shutdown();
+  }
 
-	@Override
-	public DataSupplier getSupplier() {
-		return this.supplier;
-	}
+  @Override
+  public void reset() {
+    opened_values.clear();
+    closed_values.clear();
+  }
 
-	@Override
-	public void addOpenedValue(BigInteger val) {
-		opened_values.add(val);
-	}
+  @Override
+  public DataSupplier getSupplier() {
+    return this.supplier;
+  }
 
-	@Override
-	public void addClosedValue(SpdzElement elem) {
-		closed_values.add(elem);
-	}
+  @Override
+  public void addOpenedValue(BigInteger val) {
+    opened_values.add(val);
+  }
 
-	@Override
-	public List<BigInteger> getOpenedValues() {
-		return opened_values;
-	}
+  @Override
+  public void addClosedValue(SpdzElement elem) {
+    closed_values.add(elem);
+  }
 
-	@Override
-	public List<SpdzElement> getClosedValues() {
-		return closed_values;
-	}
+  @Override
+  public List<BigInteger> getOpenedValues() {
+    return opened_values;
+  }
 
-	@Override
-	public BigInteger getSSK() {
-		return this.supplier.getSSK();
-	}
+  @Override
+  public List<SpdzElement> getClosedValues() {
+    return closed_values;
+  }
+
+  @Override
+  public BigInteger getSSK() {
+    return this.supplier.getSSK();
+  }
 
 }

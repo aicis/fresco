@@ -26,148 +26,117 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.arithmetic;
 
-import dk.alexandra.fresco.framework.ProtocolFactory;
+import dk.alexandra.fresco.framework.BuilderFactory;
+import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.TestApplication;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
+import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
+import dk.alexandra.fresco.framework.builder.ComparisonBuilder;
+import dk.alexandra.fresco.framework.builder.NumericBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
-import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.compare.ComparisonProtocolFactoryImpl;
-import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
-import dk.alexandra.fresco.lib.helper.builder.ComparisonProtocolBuilder;
-import dk.alexandra.fresco.lib.helper.builder.NumericIOBuilder;
-import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
-import dk.alexandra.fresco.lib.math.integer.NumericBitFactory;
-import dk.alexandra.fresco.lib.math.integer.exp.ExpFromOIntFactory;
-import dk.alexandra.fresco.lib.math.integer.exp.PreprocessedExpPipeFactory;
-import dk.alexandra.fresco.lib.math.integer.inv.LocalInversionFactory;
 import java.math.BigInteger;
 import org.junit.Assert;
 
 public class ComparisonTests {
 
-	/**
-	 * Compares the two numbers 3 and 5 and checks that 3 < 5. Also checks that 5 is not < 3
-	 * @author Kasper Damgaard
-	 *
-	 */
-	public static class TestCompareLT extends TestThreadFactory {
-		@Override
-		public TestThread next(TestThreadConfiguration conf) {
-			return new TestThread() {
-				@Override
-				public void test() throws Exception {
-					TestApplication app = new TestApplication() {
+  /**
+   * Compares the two numbers 3 and 5 and checks that 3 < 5. Also checks that 5 is not < 3
+   *
+   * @author Kasper Damgaard
+   */
+  public static class TestCompareLT extends TestThreadFactory {
 
-						private static final long serialVersionUID = 4338818809103728010L;
-						
-						private BigInteger three = BigInteger.valueOf(3);
-						private BigInteger five = BigInteger.valueOf(5);
-						
-						@Override
-						public ProtocolProducer prepareApplication(
-								ProtocolFactory factory) {
-							BasicNumericFactory bnFactory = (BasicNumericFactory) factory;
-							LocalInversionFactory localInvFactory = (LocalInversionFactory) factory;
-							NumericBitFactory numericBitFactory = (NumericBitFactory) factory;
-							ExpFromOIntFactory expFromOIntFactory = (ExpFromOIntFactory) factory;
-							PreprocessedExpPipeFactory expFactory = (PreprocessedExpPipeFactory) factory;
-							SequentialProtocolProducer seq = new SequentialProtocolProducer();
+    @Override
+    public TestThread next(TestThreadConfiguration conf) {
+      return new TestThread() {
 
-							ComparisonProtocolFactoryImpl compFactory = new ComparisonProtocolFactoryImpl(
-									80, bnFactory, localInvFactory,
-									numericBitFactory, expFromOIntFactory,
-									expFactory);
-							
-							NumericIOBuilder ioBuilder = new NumericIOBuilder(bnFactory);
-							ComparisonProtocolBuilder compBuilder = new ComparisonProtocolBuilder(compFactory, bnFactory);
-							
-							SInt x = ioBuilder.input(three, 1);
-							SInt y = ioBuilder.input(five, 1);
-							seq.append(ioBuilder.getProtocol());
-							
-							SInt compResult1 = compBuilder.compare(x, y);
-							SInt compResult2 = compBuilder.compare(y, x);
-							OInt res1 = ioBuilder.output(compResult1);
-							OInt res2 = ioBuilder.output(compResult2);
-							outputs = new OInt[] {res1, res2};
-							
-							seq.append(compBuilder.getProtocol());
-							seq.append(ioBuilder.getProtocol());
-							
-							return seq;
-						}
-					};
-					secureComputationEngine
-							.runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf));
-					Assert.assertEquals(BigInteger.ONE, app.getOutputs()[0].getValue());
-					Assert.assertEquals(BigInteger.ZERO, app.getOutputs()[1].getValue());
-				}
-			};
-		}
-	}
-	
-	/**
-	 * Compares the two numbers 3 and 5 and checks that 3 < 5. Also checks that 5 is not < 3
-	 * @author Kasper Damgaard
-	 *
-	 */
-	public static class TestCompareEQ extends TestThreadFactory {
-		@Override
-		public TestThread next(TestThreadConfiguration conf) {
-			return new TestThread() {
-				@Override
-				public void test() throws Exception {
-					TestApplication app = new TestApplication() {
+        private Computation<BigInteger> res1;
+        private Computation<BigInteger> res2;
 
-						private static final long serialVersionUID = 4338818809103728010L;
-						
-						private BigInteger three = BigInteger.valueOf(3);
-						private BigInteger five = BigInteger.valueOf(5);
-						
-						@Override
-						public ProtocolProducer prepareApplication(
-								ProtocolFactory factory) {
-							BasicNumericFactory bnFactory = (BasicNumericFactory) factory;
-							LocalInversionFactory localInvFactory = (LocalInversionFactory) factory;
-							NumericBitFactory numericBitFactory = (NumericBitFactory) factory;
-							ExpFromOIntFactory expFromOIntFactory = (ExpFromOIntFactory) factory;
-							PreprocessedExpPipeFactory expFactory = (PreprocessedExpPipeFactory) factory;
-							SequentialProtocolProducer seq = new SequentialProtocolProducer();
+        @Override
+        public void test() throws Exception {
+          TestApplication app = new TestApplication() {
 
-							ComparisonProtocolFactoryImpl compFactory = new ComparisonProtocolFactoryImpl(
-									80, bnFactory, localInvFactory,
-									numericBitFactory, expFromOIntFactory,
-									expFactory);
-							
-							NumericIOBuilder ioBuilder = new NumericIOBuilder(bnFactory);
-							ComparisonProtocolBuilder compBuilder = new ComparisonProtocolBuilder(compFactory, bnFactory);
-							
-							SInt x = ioBuilder.input(three, 1);
-							SInt y = ioBuilder.input(five, 1);
-							seq.append(ioBuilder.getProtocol());
-							
-							SInt compResult1 = compBuilder.compareEqual(x, x);
-							SInt compResult2 = compBuilder.compareEqual(x, y);
-							OInt res1 = ioBuilder.output(compResult1);
-							OInt res2 = ioBuilder.output(compResult2);
-							outputs = new OInt[] {res1, res2};
-							
-							seq.append(compBuilder.getProtocol());
-							seq.append(ioBuilder.getProtocol());
-							
-							return seq;
-						}
-					};
-					secureComputationEngine
-							.runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf));
-					Assert.assertEquals(BigInteger.ONE, app.getOutputs()[0].getValue());
-					Assert.assertEquals(BigInteger.ZERO, app.getOutputs()[1].getValue());
-				}
-			};
-		}
-	}
+            private BigInteger three = BigInteger.valueOf(3);
+            private BigInteger five = BigInteger.valueOf(5);
+
+            @Override
+            public ProtocolProducer prepareApplication(
+                BuilderFactory factoryProducer) {
+              return ProtocolBuilderNumeric
+                  .createApplicationRoot((BuilderFactoryNumeric) factoryProducer, (builder) -> {
+                    NumericBuilder input = builder.numeric();
+                    Computation<SInt> x = input.known(three);
+                    Computation<SInt> y = input.known(five);
+                    ComparisonBuilder comparison = builder.comparison();
+                    Computation<SInt> compResult1 = comparison.compare(x, y);
+                    Computation<SInt> compResult2 = comparison.compare(y, x);
+                    NumericBuilder open = builder.numeric();
+                    res1 = open.open(compResult1);
+                    res2 = open.open(compResult2);
+                  }).build();
+            }
+          };
+          secureComputationEngine
+              .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf,
+                  conf.sceConf.getSuite()));
+          Assert.assertEquals(BigInteger.ONE, res1.out());
+          Assert.assertEquals(BigInteger.ZERO, res2.out());
+        }
+      };
+    }
+  }
+
+  /**
+   * Compares the two numbers 3 and 5 and checks that 3 == 3. Also checks that 3 != 5
+   *
+   * @author Kasper Damgaard
+   */
+  public static class TestCompareEQ extends TestThreadFactory {
+
+    @Override
+    public TestThread next(TestThreadConfiguration conf) {
+      return new TestThread() {
+
+        private Computation<BigInteger> res1;
+        private Computation<BigInteger> res2;
+
+        @Override
+        public void test() throws Exception {
+          TestApplication app = new TestApplication() {
+
+            private BigInteger three = BigInteger.valueOf(3);
+            private BigInteger five = BigInteger.valueOf(5);
+
+            @Override
+            public ProtocolProducer prepareApplication(
+                BuilderFactory factoryProducer) {
+              return ProtocolBuilderNumeric
+                  .createApplicationRoot((BuilderFactoryNumeric) factoryProducer, (builder) -> {
+                    NumericBuilder input = builder.numeric();
+                    Computation<SInt> x = input.known(three);
+                    Computation<SInt> y = input.known(five);
+                    ComparisonBuilder comparison = builder.comparison();
+                    Computation<SInt> compResult1 = comparison.equals(x, x);
+                    Computation<SInt> compResult2 = comparison.equals(x, y);
+                    NumericBuilder open = builder.numeric();
+                    res1 = open.open(compResult1);
+                    res2 = open.open(compResult2);
+                  }).build();
+            }
+          };
+          secureComputationEngine
+              .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf,
+                  conf.sceConf.getSuite()));
+          Assert.assertEquals(BigInteger.ONE, res1.out());
+          Assert.assertEquals(BigInteger.ZERO, res2.out());
+        }
+      };
+    }
+  }
 }

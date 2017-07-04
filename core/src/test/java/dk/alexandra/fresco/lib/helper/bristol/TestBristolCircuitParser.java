@@ -31,7 +31,7 @@ import static org.junit.Assert.assertEquals;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.SBool;
 import dk.alexandra.fresco.lib.field.bool.BasicLogicFactory;
-import dk.alexandra.fresco.suite.dummy.DummyFactory;
+import dk.alexandra.fresco.suite.dummy.DummyBuilderFactory;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -46,7 +46,7 @@ public class TestBristolCircuitParser {
     InputStream circuit = getClass().getClassLoader().getResourceAsStream(path);
     Stream<String> lines = new BufferedReader(new InputStreamReader(circuit)).lines();
 
-    BasicLogicFactory boolFac = new DummyFactory();
+    BasicLogicFactory boolFac = new DummyBuilderFactory();
 
     // Some plaintext input.
     boolean[] in1_vals = new boolean[128];

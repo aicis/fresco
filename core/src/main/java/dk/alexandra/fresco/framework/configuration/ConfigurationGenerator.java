@@ -26,15 +26,13 @@
  *******************************************************************************/
 package dk.alexandra.fresco.framework.configuration;
 
+import dk.alexandra.fresco.framework.util.Pair;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
-
 import org.apache.commons.configuration.XMLConfiguration;
-
-import dk.alexandra.fresco.framework.util.Pair;
 
 
 public class ConfigurationGenerator {

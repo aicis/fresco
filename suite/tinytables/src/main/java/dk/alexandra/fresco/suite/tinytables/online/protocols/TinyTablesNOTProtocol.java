@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -63,9 +63,9 @@ public class TinyTablesNOTProtocol extends TinyTablesProtocol implements NotProt
 	}
 
 	@Override
-	public Value[] getOutputValues() {
-		return new Value[] { out };
-	}
+  public Value[] out() {
+    return new Value[]{out};
+  }
 
 	@Override
 	public EvaluationStatus evaluate(int round, ResourcePool resourcePool, SCENetwork network) {

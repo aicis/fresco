@@ -39,7 +39,7 @@ code:
 
     import dk.alexandra.fresco.lib.field.bool.BasicLogicFactory;
     import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
-    import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
+    import dk.alexandra.fresco.lib.helper.SequentialProtocolProducer;
     import dk.alexandra.fresco.lib.crypto.BristolCryptoFactory;
 
     import org.apache.commons.cli.CommandLine;

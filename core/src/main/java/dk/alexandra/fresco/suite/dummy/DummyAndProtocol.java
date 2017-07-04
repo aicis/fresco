@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -37,7 +37,7 @@ public class DummyAndProtocol extends DummyProtocol {
   private DummySBool inRight;
   private DummySBool out;
 
-  public DummyAndProtocol(SBool inLeft, SBool inRight, SBool out) {
+  DummyAndProtocol(SBool inLeft, SBool inRight, SBool out) {
     this.inLeft = (DummySBool) inLeft;
     this.inRight = (DummySBool) inRight;
     this.out = (DummySBool) out;
@@ -49,7 +49,7 @@ public class DummyAndProtocol extends DummyProtocol {
   }
 
   @Override
-  public SBool getOutputValues() {
+  public SBool out() {
     return out;
   }
 

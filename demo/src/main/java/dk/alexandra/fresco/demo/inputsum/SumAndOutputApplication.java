@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -26,15 +26,13 @@
  *******************************************************************************/
 package dk.alexandra.fresco.demo.inputsum;
 
-import dk.alexandra.fresco.framework.Application;
-import dk.alexandra.fresco.framework.NativeProtocol;
-import dk.alexandra.fresco.framework.ProtocolFactory;
+import dk.alexandra.fresco.framework.BuilderFactory;
 import dk.alexandra.fresco.framework.ProtocolProducer;
-import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
+import dk.alexandra.fresco.lib.helper.SequentialProtocolProducer;
 import dk.alexandra.fresco.lib.helper.SingleProtocolProducer;
-import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
+import java.math.BigInteger;
 
 /**
  * Tiny application for a two party case which computes the sum of the inputs,
@@ -42,23 +40,22 @@ import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
  *
  * @author kasperdamgard
  */
-public class SumAndOutputApplication implements Application {
+public class SumAndOutputApplication extends DemoApplication<BigInteger> {
 
-  private static final long serialVersionUID = 4556762525827528147L;
+
   private InputApplication inputApp;
-  private OInt output;
 
   public SumAndOutputApplication(InputApplication inputApp) {
     this.inputApp = inputApp;
   }
 
   @Override
-  public ProtocolProducer prepareApplication(ProtocolFactory factory) {
-    ProtocolProducer inputProtocol = inputApp.prepareApplication(factory);
+  public ProtocolProducer prepareApplication(BuilderFactory producer) {
+    ProtocolProducer inputProtocol = inputApp.prepareApplication(producer);
 
     SInt[] ssInputs = inputApp.getSecretSharedInput();
 
-    BasicNumericFactory fac = (BasicNumericFactory) factory;
+    BasicNumericFactory fac = (BasicNumericFactory) producer.getProtocolFactory();
 
     // create wire
     SInt sum = fac.getSInt();
@@ -75,17 +72,15 @@ public class SumAndOutputApplication implements Application {
     }
 
     // create output wire
-    this.output = fac.getOInt();
-    NativeProtocol outputProtocol = fac.getOpenProtocol(sum,
-        this.output);
+    output = fac.getOpenProtocol(sum);
 
     // Connect all protocols into a single protocol
     ProtocolProducer gp = new SequentialProtocolProducer(inputProtocol,
-        sumProtocol, SingleProtocolProducer.wrap(outputProtocol));
+        sumProtocol, SingleProtocolProducer.wrap(output));
     return gp;
   }
 
-  public OInt getOutput() {
-    return this.output;
+  public BigInteger getResult() {
+    return this.output.out();
   }
 }

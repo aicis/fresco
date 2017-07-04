@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -31,54 +31,46 @@ import java.io.Serializable;
 
 public class SpdzSInt implements SInt, Serializable {
 
-	private static final long serialVersionUID = 5554953533217451366L;
-	
-	public SpdzElement value;	
 
-	public SpdzSInt() {
-		this.value = null;
-	}
-	
-	public SpdzSInt(SpdzElement e) {
-		this.value = e;
-	}
-	
-	@Override
-	public String toString(){
-		return "SpdzSInt("+this.value+")";
-	}
-	
-	@Override
-	public boolean isReady() {
-		return !(value == null);
-	}
+  public SpdzElement value;
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		SpdzSInt other = (SpdzSInt) obj;
-		if (value == null) {
-			if (other.value != null)
-				return false;
-		} else if (!value.equals(other.value))
-			return false;
-		return true;
-	}
+  public SpdzSInt() {
+    this.value = null;
+  }
 
-	@Override
-	public byte[] getSerializableContent() {
-		return this.value.toByteArray();
-	}
+  public SpdzSInt(SpdzElement e) {
+    this.value = e;
+  }
 
-	@Override
-	public void setSerializableContent(byte[] val) {
-		this.value = new SpdzElement(val);
-	}
-	
-	
+  @Override
+  public String toString() {
+    return "SpdzSInt(" + this.value + ")";
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    SpdzSInt other = (SpdzSInt) obj;
+    if (value == null) {
+      if (other.value != null) {
+        return false;
+      }
+    } else if (!value.equals(other.value)) {
+      return false;
+    }
+    return true;
+  }
+
+  @Override
+  public SInt out() {
+    return this;
+  }
 }

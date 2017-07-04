@@ -59,27 +59,4 @@ public class InMemoryStorage implements Storage{
 		return (T) table.get(key);
 	}
 
-	@Override
-	public boolean removeFromStorage(String name, String key) {
-		Map<String, Serializable> table = this.objects.get(name);
-		if(table == null) {
-			return false;
-		}
-		Serializable o = table.remove(key);
-		if(o == null) {
-			return false;
-		}
-		return true;
-	}
-
-	@Override
-	public boolean removeNameFromStorage(String name) {
-		Map<String, Serializable> table = this.objects.get(name);
-		if(table == null) {
-			return false;
-		}
-		this.objects.remove(name);
-		return true;
-	}
-
 }

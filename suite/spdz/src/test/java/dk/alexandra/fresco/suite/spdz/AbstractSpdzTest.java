@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2017 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -29,7 +29,6 @@ package dk.alexandra.fresco.suite.spdz;
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.TestThreadRunner;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
-import dk.alexandra.fresco.framework.configuration.PreprocessingStrategy;
 import dk.alexandra.fresco.framework.configuration.TestConfiguration;
 import dk.alexandra.fresco.framework.network.NetworkingStrategy;
 import dk.alexandra.fresco.framework.sce.configuration.TestSCEConfiguration;
@@ -37,9 +36,8 @@ import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.resources.storage.FilebasedStreamedStorageImpl;
 import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
 import dk.alexandra.fresco.framework.sce.resources.storage.Storage;
-import dk.alexandra.fresco.suite.ProtocolSuite;
+import dk.alexandra.fresco.suite.spdz.configuration.PreprocessingStrategy;
 import dk.alexandra.fresco.suite.spdz.configuration.SpdzConfiguration;
-import dk.alexandra.fresco.suite.spdz.evaluation.strategy.SpdzProtocolSuite;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -61,55 +59,31 @@ public abstract class AbstractSpdzTest {
 		// ports
 		// here instead of relying on ephemeral ports which are often > 9999.
 		int noOfVMThreads = 3;
-		int noOfThreads = 3;
-		List<Integer> ports = new ArrayList<Integer>(noOfParties);
+		List<Integer> ports = new ArrayList<>(noOfParties);
 		for (int i = 1; i <= noOfParties; i++) {
 			ports.add(9000 + i * noOfVMThreads*(noOfParties-1));
 		}
 
 		Map<Integer, NetworkConfiguration> netConf = TestConfiguration.getNetworkConfigurations(noOfParties, ports,
 				logLevel);
-		Map<Integer, TestThreadRunner.TestThreadConfiguration> conf = new HashMap<Integer, TestThreadRunner.TestThreadConfiguration>();
+		Map<Integer, TestThreadRunner.TestThreadConfiguration> conf = new HashMap<>();
 		for (int playerId : netConf.keySet()) {
 			TestThreadRunner.TestThreadConfiguration ttc = new TestThreadRunner.TestThreadConfiguration();
 			ttc.netConf = netConf.get(playerId);
 
-			SpdzConfiguration spdzConf = new SpdzConfiguration() {
-
-        @Override
-        public ProtocolSuite createProtocolSuite(int myPlayerId) {
-          return new SpdzProtocolSuite(myPlayerId, this);
-        }
-
-				@Override
-				public PreprocessingStrategy getPreprocessingStrategy() {
-					return preProStrat;
-				}
-
-				@Override
-				public String fuelStationBaseUrl() {
-					return null;
-				}
-
-				@Override
-				public int getMaxBitLength() {
-					return 150;
-				}
-			};
-			boolean useSecureConnection = false; // No tests of secure
-													// connection
-													// here.
+			SpdzConfiguration spdzConf = new TestSpdzConfiguration(noOfParties, preProStrat);
 
 			ProtocolEvaluator evaluator = EvaluationStrategy.fromEnum(evalStrategy);
 			Storage storage = new InMemoryStorage();
 			if (preProStrat == PreprocessingStrategy.STATIC) {
 				storage = new FilebasedStreamedStorageImpl(new InMemoryStorage());
 			}
-      ttc.sceConf = new TestSCEConfiguration(spdzConf, network, evaluator, noOfThreads,
-          noOfVMThreads, ttc.netConf,
-          storage, useSecureConnection);
+			ttc.sceConf = new TestSCEConfiguration<>(spdzConf, network, evaluator,
+					ttc.netConf,
+					storage, false);
 			conf.put(playerId, ttc);
 		}
 		TestThreadRunner.run(f, conf);
 	}
+
 }

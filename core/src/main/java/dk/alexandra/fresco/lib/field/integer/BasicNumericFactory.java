@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -26,42 +26,48 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.field.integer;
 
+import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.ProtocolFactory;
-import dk.alexandra.fresco.framework.value.OIntFactory;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.framework.value.SIntFactory;
-import dk.alexandra.fresco.lib.field.integer.generic.AddProtocolFactory;
 import dk.alexandra.fresco.lib.field.integer.generic.IOIntProtocolFactory;
-import dk.alexandra.fresco.lib.math.integer.NumericBitFactory;
 import java.math.BigInteger;
 
 /**
  * A factory that produces protocols that operate on elements in a finite field.
- *
+ * Use builder based protocols instead of the deprecated methods in this factory.
  */
-public interface BasicNumericFactory extends SIntFactory, OIntFactory,
-		AddProtocolFactory, SubtractProtocolFactory, MultProtocolFactory,
-		ProtocolFactory, IOIntProtocolFactory, NumericBitFactory, RandomFieldElementFactory {
+public interface BasicNumericFactory extends SIntFactory,
+    ProtocolFactory, IOIntProtocolFactory {
 
-	/**
-	 * Returns the maximum number of bits a number in the field can contain.
-	 * 
-	 * @return
-	 */
+  /**
+   * Returns the maximum number of bits a number in the field can contain.
+   */
   int getMaxBitLength();
 
-	/**
-	 * Returns the largest possible value containable in the field that we can
-	 * still multiply with and get no overflow.
-	 * 
-	 * @return
-	 */
+  /**
+   * Returns the largest possible value containable in the field that we can
+   * still multiply with and get no overflow.
+   */
   SInt getSqrtOfMaxValue();
 
-	/**
-	 * Returns the modulus used in the underlying arithmetic protocol suite.
-	 * 
-	 * @return The modulus used.
-	 */
+  /**
+   * Returns the modulus used in the underlying arithmetic protocol suite.
+   *
+   * @return The modulus used.
+   */
   BigInteger getModulus();
+
+  @Deprecated
+  Computation<? extends SInt> getAddProtocol(SInt a, SInt b, SInt out);
+
+  @Deprecated
+  Computation<? extends SInt> getAddProtocol(SInt input, BigInteger openInput, SInt out);
+
+  @Deprecated
+  Computation<? extends SInt> getSubtractProtocol(SInt a, SInt b, SInt out);
+
+  @Deprecated
+  Computation<? extends SInt> getMultProtocol(SInt a, SInt b, SInt out);
+
 }

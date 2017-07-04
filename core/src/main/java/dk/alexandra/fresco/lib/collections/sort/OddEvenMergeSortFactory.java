@@ -26,10 +26,9 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.collections.sort;
 
-import java.util.List;
-
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SBool;
+import java.util.List;
 
 public interface OddEvenMergeSortFactory {
 

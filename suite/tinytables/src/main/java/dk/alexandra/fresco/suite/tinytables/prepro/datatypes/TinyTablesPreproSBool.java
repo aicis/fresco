@@ -40,7 +40,7 @@ import dk.alexandra.fresco.suite.tinytables.ot.Encoding;
  */
 public class TinyTablesPreproSBool implements SBool {
 
-  private static final long serialVersionUID = 8582913017231020209L;
+
   private TinyTablesElement value; // Additive share of mask of this SBool
   private boolean ready;
 

@@ -36,7 +36,6 @@ import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
@@ -69,14 +68,11 @@ public class BatchedStrategy {
    * @param channel string indicating the channel to communicate over.
    * @param rp the resource pool.
    */
-  public static void processBatch(ProtocolCollection protocols,
-      SCENetwork sceNetwork, int channel, ResourcePool rp) throws IOException {
+  public static <ResourcePoolT extends ResourcePool> void processBatch(
+      ProtocolCollection protocols,
+      SCENetwork sceNetwork, int channel, ResourcePoolT rp) throws IOException {
     Network network = rp.getNetwork();
     int round = 0;
-    Set<Integer> partyIds = new HashSet<>();
-    for (int i = 1; i <= rp.getNoOfParties(); i++) {
-      partyIds.add(i);
-    }
 
     while (protocols.size() > 0) {
       evaluateCurrentRound(protocols, sceNetwork, channel, rp, network, round);
@@ -85,11 +81,12 @@ public class BatchedStrategy {
     }
   }
 
-  private static void evaluateCurrentRound(ProtocolCollection protocols, SCENetwork sceNetwork,
-      int channel, ResourcePool rp, Network network, int round) throws IOException {
+  private static <ResourcePoolT extends ResourcePool> void evaluateCurrentRound(
+      ProtocolCollection protocols, SCENetwork sceNetwork,
+      int channel, ResourcePoolT rp, Network network, int round) throws IOException {
     Iterator<NativeProtocol> iterator = protocols.iterator();
     while (iterator.hasNext()) {
-      NativeProtocol protocol = iterator.next();
+      NativeProtocol<?, ResourcePoolT> protocol = iterator.next();
       EvaluationStatus status = protocol.evaluate(round, rp, sceNetwork);
       if (status.equals(EvaluationStatus.IS_DONE)) {
         iterator.remove();

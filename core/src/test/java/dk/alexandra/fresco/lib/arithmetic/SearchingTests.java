@@ -26,274 +26,92 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.arithmetic;
 
+import dk.alexandra.fresco.framework.BuilderFactory;
+import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.TestApplication;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
+import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
-import dk.alexandra.fresco.framework.value.OInt;
+import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.collections.LookUpProtocolFactory;
-import dk.alexandra.fresco.lib.collections.LookupProtocolFactoryImpl;
+import dk.alexandra.fresco.lib.collections.LinearLookUp;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
-import dk.alexandra.fresco.lib.field.integer.RandomFieldElementFactory;
-import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
-import dk.alexandra.fresco.lib.lp.LPFactory;
-import dk.alexandra.fresco.lib.lp.LPFactoryImpl;
-import dk.alexandra.fresco.lib.math.integer.NumericBitFactory;
-import dk.alexandra.fresco.lib.math.integer.exp.ExpFromOIntFactory;
-import dk.alexandra.fresco.lib.math.integer.exp.PreprocessedExpPipeFactory;
-import dk.alexandra.fresco.lib.math.integer.inv.LocalInversionFactory;
+import dk.alexandra.fresco.lib.helper.SequentialProtocolProducer;
+import java.util.ArrayList;
 import java.util.Random;
 import org.junit.Assert;
 
 public class SearchingTests {
 
-  public static class TestIsSorted extends TestThreadFactory {
+  public static class TestIsSorted<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     @Override
-    public TestThread next(TestThreadConfiguration conf) {
-      return new TestThread() {
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next(
+        TestThreadConfiguration<ResourcePoolT, ProtocolBuilderNumeric> conf) {
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         @Override
         public void test() throws Exception {
+          ResourcePoolT resourcePool = SecureComputationEngineImpl.createResourcePool(conf.sceConf,
+              conf.sceConf.getSuite());
           final int PAIRS = 10;
           final int MAXVALUE = 20000;
           final int NOTFOUND = -1;
           int[] keys = new int[PAIRS];
           int[] values = new int[PAIRS];
-          SInt[] sKeys = new SInt[PAIRS];
-          SInt[] sValues = new SInt[PAIRS];
+          ArrayList<Computation<SInt>> sKeys = new ArrayList<>(PAIRS);
+          ArrayList<Computation<SInt>> sValues = new ArrayList<>(PAIRS);
           TestApplication app = new TestApplication() {
-            private static final long serialVersionUID = 7960372460887688296L;
-
             @Override
             public ProtocolProducer prepareApplication(
-                ProtocolFactory factory) {
-              BasicNumericFactory bnf = (BasicNumericFactory) factory;
+                BuilderFactory factoryProducer) {
+              ProtocolFactory producer = factoryProducer.getProtocolFactory();
+              BasicNumericFactory bnf = (BasicNumericFactory) producer;
               SequentialProtocolProducer seq = new SequentialProtocolProducer();
               Random rand = new Random(0);
               for (int i = 0; i < PAIRS; i++) {
                 keys[i] = i;
-                sKeys[i] = bnf.getSInt();
-                sValues[i] = bnf.getSInt();
-                seq.append(bnf.getSInt(i, sKeys[i]));
                 values[i] = rand.nextInt(MAXVALUE);
-                seq.append(bnf.getSInt(values[i], sValues[i]));
+                SInt sInt = bnf.getSInt(i);
+                sKeys.add(() -> sInt);
+                SInt valueSInt = bnf.getSInt(values[i]);
+                sValues.add(() -> valueSInt);
               }
               return seq;
             }
           };
-          secureComputationEngine
-              .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf));
+          secureComputationEngine.runApplication(app, resourcePool);
           for (int i = 0; i < PAIRS; i++) {
             final int counter = i;
             TestApplication app1 = new TestApplication() {
-
               @Override
-              public ProtocolProducer prepareApplication(ProtocolFactory factory) {
-                BasicNumericFactory bnf = (BasicNumericFactory) factory;
-                LocalInversionFactory localInvFactory = (LocalInversionFactory) factory;
-                NumericBitFactory numericBitFactory = (NumericBitFactory) factory;
-                ExpFromOIntFactory expFromOIntFactory = (ExpFromOIntFactory) factory;
-                PreprocessedExpPipeFactory expFactory = (PreprocessedExpPipeFactory) factory;
-                RandomFieldElementFactory randFactory = (RandomFieldElementFactory) factory;
-                LPFactory lpFactory = new LPFactoryImpl(80, bnf, localInvFactory, numericBitFactory,
-                    expFromOIntFactory, expFactory, randFactory);
-                LookUpProtocolFactory<SInt> lpf = new LookupProtocolFactoryImpl(80, lpFactory, bnf);
-                SInt sOut = bnf.getSInt(NOTFOUND);
-                SequentialProtocolProducer sequentialProtocolProducer = new SequentialProtocolProducer();
-
-                sequentialProtocolProducer.append(lpf
-                    .getLookUpProtocol(sKeys[counter], sKeys, sValues,
-                        sOut));
-                OInt out = bnf.getOInt();
-                sequentialProtocolProducer.append(bnf.getOpenProtocol(sOut, out));
-                this.outputs = new OInt[]{out};
-                return sequentialProtocolProducer;
+              public ProtocolProducer prepareApplication(BuilderFactory factoryProducer) {
+                LinearLookUp linearLookUp = new LinearLookUp(
+                    sKeys.get(counter), sKeys, sValues, NOTFOUND);
+                SequentialNumericBuilder applicationRoot = ProtocolBuilderNumeric
+                    .createApplicationRoot((BuilderFactoryNumeric) factoryProducer);
+                applicationRoot.seq(linearLookUp)
+                    .seq((out, seq) -> {
+                      this.outputs.add(seq.numeric().open(() -> out));
+                      return () -> out;
+                    });
+                return applicationRoot.build();
               }
             };
 
-            secureComputationEngine
-                .runApplication(app1, SecureComputationEngineImpl.createResourcePool(conf.sceConf));
+            secureComputationEngine.runApplication(app1, resourcePool);
 
-            Assert.assertEquals(values[i], app1.outputs[0].getValue()
-                .intValue());
+            Assert.assertEquals("Checking value index " + i,
+                values[i], app1.outputs.get(0).out().intValue());
           }
         }
       };
     }
   }
-
-  /**
-   * Tests that looking up keys that are present in the key/value pairs works
-   * also when the value is a list of values.
-   *
-   * @throws Exception
-   */
-  /*
-  @Test
-	public void testCorrectLookUpArray() throws Exception {
-		TestThreadRunner.run(new TestThreadFactory() {
-			@Override
-			public TestThread next(TestThreadConfiguration conf) {
-				return new TestThread() {
-					@Override
-					public void test() throws Exception {
-						NumericCircuitFactory ncb = new NumericCircuitFactory(
-								provider);
-						NumericIOFactory niob = new NumericIOFactory(provider);
-						final int PAIRS = 50;
-						final int MAXVALUE = 20000;
-						final int NOTFOUND = -1;
-						final int LISTLENGTH = 10;
-						int[] notfound = new int[LISTLENGTH];
-						Arrays.fill(notfound, NOTFOUND);
-						int[] keys = new int[PAIRS];
-						int[][] values = new int[PAIRS][LISTLENGTH];
-						SInt[] sKeys = new SInt[PAIRS];
-						SInt[][] sValues = new SInt[PAIRS][LISTLENGTH];
-						for (int i = 0; i < PAIRS; i++) {
-							keys[i] = i;
-							sKeys[i] = provider.getSInt(i);
-							for (int j = 0; j < LISTLENGTH; j++) {
-								values[i][j] = rand.nextInt(MAXVALUE);
-								sValues[i][j] = provider.getSInt(values[i][j]);
-							}
-						}
-						sKeys = ncb.getSIntArray(keys);
-						sValues = ncb.getSIntMatrix(values);
-						for (int i = 0; i < PAIRS; i++) {
-							SInt[] sOut = ncb.getSIntArray(notfound);
-							LookUpCircuit<SInt> luc = provider
-									.getLookUpCircuit(sKeys[i], sKeys, sValues,
-											sOut);
-							niob.beginSeqScope();
-							niob.addGateProducer(luc);
-							OInt[] outs = niob.outputArray(sOut);
-							niob.endCurScope();
-							secureComputationEngine.runApplication(niob.getCircuit());
-							for (int j = 0; j < outs.length; j++) {
-								Assert.assertEquals(values[i][j], outs[j]
-										.getValue().intValue());
-							}
-						}
-					}
-				};
-			}
-		}, 2);
-	}
-*/
-  /**
-   * Tests that looking up keys that are not present in the key/value pairs
-   * works also when the value is a list of values.
-   *
-   * @throws Exception
-   */
-  /*
-  @Test
-	public void testIncorrectLookUpArray() throws Exception {
-		TestThreadRunner.run(new TestThreadFactory() {
-			@Override
-			public TestThread next(TestThreadConfiguration conf) {
-				return new TestThread() {
-					@Override
-					public void test() throws Exception {
-						NumericCircuitFactory ncb = new NumericCircuitFactory(
-								provider);
-						NumericIOFactory niob = new NumericIOFactory(provider);
-						final int PAIRS = 50;
-						final int BADKEY = PAIRS + 1;
-						final int MAXVALUE = 20000;
-						final int NOTFOUND = -1;
-						final int LISTLENGTH = 10;
-						int[] notfound = new int[LISTLENGTH];
-						Arrays.fill(notfound, NOTFOUND);
-						int[] keys = new int[PAIRS];
-						int[][] values = new int[PAIRS][LISTLENGTH];
-						SInt[] sKeys = new SInt[PAIRS];
-						SInt[][] sValues = new SInt[PAIRS][LISTLENGTH];
-						for (int i = 0; i < PAIRS; i++) {
-							keys[i] = i;
-							sKeys[i] = provider.getSInt(i);
-							for (int j = 0; j < LISTLENGTH; j++) {
-								values[i][j] = rand.nextInt(MAXVALUE);
-								sValues[i][j] = provider.getSInt(values[i][j]);
-							}
-						}
-						sKeys = ncb.getSIntArray(keys);
-						sValues = ncb.getSIntMatrix(values);
-						SInt lookUpKey = provider.getSInt(PAIRS + 1);
-						for (int i = 0; i < PAIRS; i++) {
-							SInt[] sOut = ncb.getSIntArray(notfound);
-							LookUpCircuit<SInt> luc = provider
-									.getLookUpCircuit(lookUpKey, sKeys,
-											sValues, sOut);
-							niob.beginSeqScope();
-							niob.addGateProducer(luc);
-							OInt[] outs = niob.outputArray(sOut);
-							niob.endCurScope();
-							secureComputationEngine.runApplication(niob.getCircuit());
-							for (int j = 0; j < outs.length; j++) {
-								Assert.assertEquals(NOTFOUND, outs[j]
-										.getValue().intValue());
-							}
-						}
-					}
-				};
-			}
-		}, 2);
-	}
-*/
-  /**
-   * Tests that looking up keys that are not present in the key/value pairs
-   * works
-   *
-   * @throws Exception
-   */
-  /*
-  @Test
-	public void testIncorrectLookUp() throws Exception {
-		TestThreadRunner.run(new TestThreadFactory() {
-			@Override
-			public TestThread next(TestThreadConfiguration conf) {
-				return new TestThread() {
-					@Override
-					public void test() throws Exception {
-						final int PAIRS = 50;
-						final int MAXVALUE = 20000;
-						final int NOTFOUND = -1;
-						int[] keys = new int[PAIRS];
-						int[] values = new int[PAIRS];
-						SInt[] sKeys = new SInt[PAIRS];
-						SInt[] sValues = new SInt[PAIRS];
-						for (int i = 0; i < PAIRS; i++) {
-							keys[i] = i;
-							sKeys[i] = provider.getSInt(i);
-							values[i] = rand.nextInt(MAXVALUE);
-							sValues[i] = provider.getSInt(values[i]);
-						}
-						SInt lookUpKey = provider.getSInt(PAIRS + 1);
-						for (int i = 0; i < 1; i++) {
-							SInt sOut = provider.getSInt(NOTFOUND);
-							OInt out = provider.getOInt();
-
-							AppendableGateProducer agp = new SequentialProtocolProducer();
-							LookUpCircuit<SInt> luc = provider
-									.getLookUpCircuit(lookUpKey, sKeys,
-											sValues, sOut);
-							agp.append(luc);
-							agp.append(provider.getOpenIntCircuit(sOut, out));
-							secureComputationEngine.runApplication(agp);
-
-							Assert.assertEquals(NOTFOUND, out.getValue()
-									.intValue());
-						}
-					}
-				};
-			}
-		}, 2);
-	}
-*/
 }

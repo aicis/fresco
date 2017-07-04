@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -26,11 +26,11 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.math.bool.add;
 
-import dk.alexandra.fresco.framework.NativeProtocol;
+import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.value.SInt;
 
 public interface IncrementByOneProtocolFactory extends ProtocolFactory {
 
-  NativeProtocol getIncrementByOneProtocol(SInt in, SInt out);
+  Computation<? extends SInt> getIncrementByOneProtocol(SInt in, SInt out);
 }

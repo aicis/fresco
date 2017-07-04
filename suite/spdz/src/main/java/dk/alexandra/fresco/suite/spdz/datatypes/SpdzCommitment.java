@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -26,57 +26,43 @@
  *******************************************************************************/
 package dk.alexandra.fresco.suite.spdz.datatypes;
 
-import dk.alexandra.fresco.suite.spdz.utils.Util;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.util.Random;
 
 public class SpdzCommitment {
-	
+
 	private BigInteger value;
 	private BigInteger randomness;
 	private Random rand;
 	private BigInteger commitment;
 	private MessageDigest H;
-	
+
 	public SpdzCommitment(MessageDigest H, BigInteger value, Random rand){
 		this.value = value;
 		this.rand = rand;
 		this.H = H;
 	}
-	public BigInteger getCommitment(){
+
+	public BigInteger getCommitment(BigInteger modulus) {
 		if (this.commitment != null){
 			return this.commitment;
-		}		
+		}
 		H.update(value.toByteArray());
-		this.randomness = new BigInteger(Util.getModulus().bitLength(), rand); 
+		this.randomness = new BigInteger(modulus.bitLength(), rand);
 		H.update(this.randomness.toByteArray());
-		this.commitment = new BigInteger(H.digest()).mod(Util.getModulus());
+		this.commitment = new BigInteger(H.digest()).mod(modulus);
 		return this.commitment;
 	}
-	
+
 	public BigInteger getValue(){
-		return this.value;		
+		return this.value;
 	}
 
 	public BigInteger getRandomness(){
 		return this.randomness;
 	}
-	
-	/**
-	 * Returns true if the given values match the commitment given. 
-	 * @param commitment
-	 * @param value
-	 * @param randomness
-	 * @return
-	 */
-	public static boolean checkCommitment(MessageDigest H, BigInteger commitment, BigInteger value, BigInteger randomness){
-		H.update(value.toByteArray());
-		H.update(randomness.toByteArray());
-		BigInteger testSubject = new BigInteger(H.digest()).mod(Util.getModulus());
-		return commitment.equals(testSubject);
-	}
-	
+
 	@Override
 	public String toString(){
 		return "SpdzCommitment[v:"+this.value+", r:"+this.randomness+", comm:"+this.commitment+"]";

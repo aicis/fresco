@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -27,35 +27,26 @@
 package dk.alexandra.fresco.suite.spdz.gates;
 
 import dk.alexandra.fresco.framework.network.SCENetwork;
-import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.framework.value.Value;
-import dk.alexandra.fresco.lib.field.integer.RandomFieldElementProtocol;
+import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
-import dk.alexandra.fresco.suite.spdz.evaluation.strategy.SpdzProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
 
-public class SpdzRandomProtocol extends SpdzNativeProtocol implements RandomFieldElementProtocol {
+public class SpdzRandomProtocol extends SpdzNativeProtocol<SInt> {
 
-	private final SpdzSInt randomElement;
-	
-	public SpdzRandomProtocol(SInt randomElement) {
-		this.randomElement = (SpdzSInt)randomElement;
-	}
+  private SpdzSInt randomElement;
 
-	@Override
-	public Value[] getOutputValues() {
-		return new Value[] {randomElement};
-	}
+  @Override
+  public SpdzSInt out() {
+    return randomElement;
+  }
 
-	@Override
-	public EvaluationStatus evaluate(int round, ResourcePool resourcePool, SCENetwork network) {
-		SpdzProtocolSuite spdzPii = SpdzProtocolSuite
-				.getInstance(resourcePool.getMyId());
-		SpdzStorage store = spdzPii.getStore(network.getThreadId());
-		SpdzSInt r = store.getSupplier().getNextRandomFieldElement();
-		this.randomElement.value = r.value;
-		return EvaluationStatus.IS_DONE;
-	}
+  @Override
+  public EvaluationStatus evaluate(int round, SpdzResourcePool spdzResourcePool,
+      SCENetwork network) {
+    SpdzStorage store = spdzResourcePool.getStore();
+    this.randomElement = store.getSupplier().getNextRandomFieldElement();
+    return EvaluationStatus.IS_DONE;
+  }
 
 }

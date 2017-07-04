@@ -24,19 +24,26 @@
 package dk.alexandra.fresco.lib.statistics;
 
 import dk.alexandra.fresco.framework.Application;
-import dk.alexandra.fresco.framework.ProtocolFactory;
+import dk.alexandra.fresco.framework.BuilderFactory;
+import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
+import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderHelper;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
+import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
-import dk.alexandra.fresco.framework.value.OInt;
+import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.helper.AlgebraUtil;
 import dk.alexandra.fresco.lib.helper.builder.NumericIOBuilder;
 import dk.alexandra.fresco.lib.statistics.DEASolver.AnalysisType;
+import dk.alexandra.fresco.lib.statistics.DEASolver.DEAResult;
 import java.math.BigInteger;
+import java.util.List;
 import org.junit.Assert;
 
 /**
@@ -60,34 +67,37 @@ public class DEASolverFixedDataTest {
   };
 
 
-  public static class TestDEASolverScores extends TestThreadFactory {
+  public static class TestDEASolverScores<ResourcePoolT extends ResourcePool> extends
+      TestThreadFactory<ResourcePoolT, SequentialNumericBuilder> {
 
-    private DEASolver.AnalysisType type;
+    private AnalysisType type;
     // MAde null to find where this test is activated from
 
-    public TestDEASolverScores(DEASolver.AnalysisType type) {
+    public TestDEASolverScores(AnalysisType type) {
       this.type = type;
     }
 
     @Override
-    public TestThread next(TestThreadConfiguration conf) {
-      return new TestThread() {
+    public TestThread next(TestThreadConfiguration<ResourcePoolT, SequentialNumericBuilder> conf) {
+      return new TestThread<ResourcePoolT, SequentialNumericBuilder>() {
         @Override
         public void test() throws Exception {
 
-          DEATestApp app1 = new DEATestApp(dataSet1, type);
-          secureComputationEngine
-              .runApplication(app1, SecureComputationEngineImpl.createResourcePool(conf.sceConf));
-          for (int i = 0; i < app1.solverResult.length; i++) {
-            Assert.assertEquals(app1.plainResult[i], postProcess(app1.solverResult[i], type,
+          DEATestApp<ResourcePoolT> app1 = new DEATestApp<>(dataSet1, type);
+
+          ResourcePoolT resourcePool = SecureComputationEngineImpl.createResourcePool(conf.sceConf,
+              conf.sceConf.getSuite());
+          app1.run(secureComputationEngine, resourcePool);
+          for (int i = 0; i < app1.outputs.size(); i++) {
+            Assert.assertEquals(app1.plainResult[i], postProcess(app1.outputs.get(i).out(), type,
                 app1.modulus), 0.0000001);
           }
-          DEATestApp app2 = new DEATestApp(dataSet2, type);
-          secureComputationEngine
-              .runApplication(app2, SecureComputationEngineImpl.createResourcePool(conf.sceConf));
-          for (int i = 0; i < app2.solverResult.length; i++) {
-            Assert.assertEquals(app2.plainResult[i], postProcess(app2.solverResult[i], type,
-                app1.modulus), 0.0000001);
+          DEATestApp<ResourcePoolT> app2 = new DEATestApp<>(dataSet2, type);
+          app2.run(secureComputationEngine, resourcePool);
+
+          for (int i = 0; i < app2.outputs.size(); i++) {
+            Assert.assertEquals(app2.plainResult[i], postProcess(app2.outputs.get(i).out(), type,
+                app2.modulus), 0.0000001);
           }
         }
       };
@@ -101,68 +111,109 @@ public class DEASolverFixedDataTest {
    * Output is conveniently extracted from public fields.
    * </p>
    */
-  private static class DEATestApp implements Application {
+  private static class DEATestApp<ResourcePoolT extends ResourcePool> {
 
-    private static final long serialVersionUID = 1L;
     double[] plainResult;
-    OInt[] solverResult;
-    private DEASolver.AnalysisType type;
+    private AnalysisType type;
     private int[][] dataSet;
     private BigInteger modulus;
+    private SInt[][] basisInputs;
+    private SInt[][] basisOutputs;
+    private SInt[][] targetInputs;
+    private SInt[][] targetOutputs;
+    private BigInteger[][] rawBasisInputs;
+    private BigInteger[][] rawBasisOutputs;
+    public List<Computation<BigInteger>> outputs;
 
-    DEATestApp(int[][] dataSet, DEASolver.AnalysisType type) {
+    DEATestApp(int[][] dataSet, AnalysisType type) {
       this.type = type;
       this.dataSet = dataSet;
     }
 
-    @Override
-    public ProtocolProducer prepareApplication(ProtocolFactory factory) {
-      plainResult = new double[dataSet.length];
-      solverResult = new OInt[dataSet.length];
-      BasicNumericFactory bnFactory = (BasicNumericFactory) factory;
-      NumericIOBuilder ioBuilder = new NumericIOBuilder(bnFactory);
-      modulus = bnFactory.getModulus();
+    public void run(
+        SecureComputationEngine<ResourcePoolT, SequentialNumericBuilder> secureComputationEngine,
+        ResourcePoolT resourcePool) {
+      Application<Void, SequentialNumericBuilder> app = new Application<Void, SequentialNumericBuilder>() {
 
-      BigInteger[][] rawBasisInputs = new BigInteger[dataSet.length][dataSet1[0].length - 1];
-      BigInteger[][] rawBasisOutputs = new BigInteger[dataSet.length][1];
-      for (int i = 0; i < dataSet.length; i++) {
-        for (int j = 0; j < dataSet[0].length - 1; j++) {
-          rawBasisInputs[i][j] = BigInteger.valueOf(dataSet[i][j]);
+        @Override
+        public Computation<Void> prepareApplication(SequentialNumericBuilder producer) {
+          producer
+              .append(prepareApplication(ProtocolBuilderHelper.getFactoryNumeric(producer)));
+          return () -> null;
         }
-        rawBasisOutputs[i][0] = BigInteger.valueOf(dataSet[i][dataSet[i].length - 1]);
-      }
 
-      SInt[][] basisInputs = ioBuilder.inputMatrix(rawBasisInputs, 1);
-      SInt[][] basisOutputs = ioBuilder.inputMatrix(rawBasisOutputs, 1);
-      SInt[][] targetInputs = ioBuilder.inputMatrix(rawBasisInputs, 2);
-      SInt[][] targetOutputs = ioBuilder.inputMatrix(rawBasisOutputs, 2);
+        public ProtocolProducer prepareApplication(
+            BuilderFactory factoryProducer) {
+          plainResult = new double[dataSet.length];
+          BasicNumericFactory bnFactory = ((BuilderFactoryNumeric) factoryProducer)
+              .getBasicNumericFactory();
+          NumericIOBuilder ioBuilder = new NumericIOBuilder(bnFactory);
+          modulus = bnFactory.getModulus();
+
+          rawBasisInputs = new BigInteger[dataSet.length][dataSet1[0].length - 1];
+          rawBasisOutputs = new BigInteger[dataSet.length][1];
+          for (int i = 0; i < dataSet.length; i++) {
+            for (int j = 0; j < dataSet[0].length - 1; j++) {
+              rawBasisInputs[i][j] = BigInteger.valueOf(dataSet[i][j]);
+            }
+            rawBasisOutputs[i][0] = BigInteger.valueOf(dataSet[i][dataSet[i].length - 1]);
+          }
+
+          basisInputs = ioBuilder.inputMatrix(rawBasisInputs, 1);
+          basisOutputs = ioBuilder.inputMatrix(rawBasisOutputs, 1);
+          targetInputs = ioBuilder.inputMatrix(rawBasisInputs, 2);
+          targetOutputs = ioBuilder.inputMatrix(rawBasisOutputs, 2);
+
+          return ioBuilder.getProtocol();
+        }
+      };
+      secureComputationEngine.runApplication(app, resourcePool);
 
       DEASolver solver = new DEASolver(type, AlgebraUtil.arrayToList(targetInputs),
           AlgebraUtil.arrayToList(targetOutputs), AlgebraUtil.arrayToList(basisInputs),
           AlgebraUtil.arrayToList(basisOutputs));
 
-      ioBuilder.addProtocolProducer(solver.prepareApplication(factory));
-      solverResult = ioBuilder.outputArray(solver.getResult());
+      List<DEAResult> deaResults = secureComputationEngine.runApplication(solver, resourcePool);
 
-      // Solve the problem using a plaintext solver
-      PlaintextDEASolver plainSolver = new PlaintextDEASolver();
-      plainSolver.addBasis(rawBasisInputs, rawBasisOutputs);
+      Application<Void, SequentialNumericBuilder> app2 = new Application<Void, SequentialNumericBuilder>() {
 
-      double[] plain = plainSolver.solve(rawBasisInputs, rawBasisOutputs, type);
-      System.arraycopy(plain, 0, plainResult, 0, plain.length);
-      return ioBuilder.getProtocol();
+        @Override
+        public Computation<Void> prepareApplication(SequentialNumericBuilder producer) {
+          producer
+              .append(prepareApplication(ProtocolBuilderHelper.getFactoryNumeric(producer)));
+          return () -> null;
+        }
+
+        public ProtocolProducer prepareApplication(
+            BuilderFactory factoryProducer) {
+          BasicNumericFactory bnFactory = ((BuilderFactoryNumeric) factoryProducer)
+              .getBasicNumericFactory();
+          NumericIOBuilder ioBuilder = new NumericIOBuilder(bnFactory);
+
+          outputs = ioBuilder.outputArray(
+              deaResults.stream().map(result -> result.optimal).toArray(SInt[]::new)
+          );
+
+          // Solve the problem using a plaintext solver
+          PlaintextDEASolver plainSolver = new PlaintextDEASolver();
+          plainSolver.addBasis(rawBasisInputs, rawBasisOutputs);
+
+          double[] plain = plainSolver.solve(rawBasisInputs, rawBasisOutputs, type);
+          System.arraycopy(plain, 0, plainResult, 0, plain.length);
+          return ioBuilder.getProtocol();
+        }
+      };
+      secureComputationEngine.runApplication(app2, resourcePool);
     }
   }
 
   /**
    * Reduces a field-element to a double using Gauss reduction.
    */
-  private static double postProcess(OInt input, AnalysisType type, BigInteger modulus) {
-    BigInteger[] gauss = gauss(input.getValue(), modulus);
+  private static double postProcess(BigInteger input, AnalysisType type, BigInteger modulus) {
+    BigInteger[] gauss = gauss(input, modulus);
     double res = (gauss[0].doubleValue() / gauss[1].doubleValue());
-    if (type == AnalysisType.OUTPUT_EFFICIENCY) {
-      res -= BENCHMARKING_BIG_M;
-    } else {
+    if (type == AnalysisType.INPUT_EFFICIENCY) {
       res *= -1;
     }
     return res;

@@ -26,9 +26,7 @@
  *******************************************************************************/
 package dk.alexandra.fresco.framework.network;
 
-import dk.alexandra.fresco.framework.MPCException;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -39,103 +37,89 @@ import java.util.Set;
 
 public class SCENetworkImpl implements SCENetwork, SCENetworkSupplier {
 
-	private int noOfParties;
-	//TODO: Remove when possible - also from interface.
-	private int threadId;
-	
-	private Map<Integer, ByteBuffer> input;
-	private Map<Integer, ByteArrayOutputStream> output;
-	private Set<Integer> expectedInputForNextRound;
+  private int noOfParties;
 
-	public SCENetworkImpl(int noOfParties, int threadId) {
-		this.noOfParties = noOfParties;
-		this.threadId = threadId;
-		this.output = new HashMap<>();
-		this.expectedInputForNextRound = new HashSet<>();
-	}
+  private Map<Integer, ByteBuffer> input;
+  private Map<Integer, ByteArrayOutputStream> output;
+  private Set<Integer> expectedInputForNextRound;
 
-	//ProtocolNetwork
-	@Override
-	public ByteBuffer receive(int id) {
-		return this.input.get(id);
-	}
+  public SCENetworkImpl(int noOfParties) {
+    this.noOfParties = noOfParties;
+    this.output = new HashMap<>();
+    this.expectedInputForNextRound = new HashSet<>();
+  }
 
-	@Override
-	public List<ByteBuffer> receiveFromAll() {
-		List<ByteBuffer> res = new ArrayList<>();
-		for(int i = 1; i <= noOfParties; i++) {
-			res.add(this.input.get(i));
-		}
-		return res;
-	}
-	
-	@Override
-	public void send(int id, byte[] data) {
-		if(id < 1) {
-			throw new IllegalArgumentException("Cannot send to an Id smaller than 1");
-		}
-		ByteArrayOutputStream buffer = this.output.get(id);
-		if(buffer == null) {
-			buffer = new ByteArrayOutputStream();
-			this.output.put(id, buffer);
-		}
-		try {
-			buffer.write(data);
-		} catch (IOException e) {
-			throw new MPCException("Should never happen, but an IOException occured trying to write bytes to a byte array output stream. ", e);
-		}
-	}
+  //ProtocolNetwork
+  @Override
+  public ByteBuffer receive(int id) {
+    return this.input.get(id);
+  }
 
-	@Override
-	public void sendToAll(byte[] data) {
-		for(int i = 1; i <= noOfParties; i++) {
-			send(i, data);
-		}
-	}
+  @Override
+  public List<ByteBuffer> receiveFromAll() {
+    List<ByteBuffer> res = new ArrayList<>();
+    for (int i = 1; i <= noOfParties; i++) {
+      res.add(this.input.get(i));
+    }
+    return res;
+  }
 
-	@Override
-	public void expectInputFromPlayer(int id) {
-		if(id < 1) {
-			throw new IllegalArgumentException("Cannot send to an Id smaller than 1");
-		}
-		this.expectedInputForNextRound.add(id);
-	}
-	@Override
-	public void expectInputFromAll() {
-		for(int i = 1; i <= noOfParties; i++) {
-			this.expectedInputForNextRound.add(i);
-		}
-	}
+  @Override
+  public void send(int id, byte[] data) {
+    if (id < 1) {
+      throw new IllegalArgumentException("Cannot send to an Id smaller than 1");
+    }
+    ByteArrayOutputStream buffer =
+        this.output.computeIfAbsent(id, k -> new ByteArrayOutputStream());
+    buffer.write(data, 0, data.length);
+  }
 
-	@Override
-	public int getThreadId() {
-		return threadId;
-	}
-	
-	//ProtocolNetworkSupplier
-	
-	@Override
-	public void setInput(Map<Integer, ByteBuffer> inputForThisRound) {
-		this.input = inputForThisRound;
-	}
+  @Override
+  public void sendToAll(byte[] data) {
+    for (int i = 1; i <= noOfParties; i++) {
+      send(i, data);
+    }
+  }
 
-	@Override
-	public Map<Integer, byte[]> getOutputFromThisRound() {
-		Map<Integer, byte[]> res = new HashMap<>();
-		for(int pid : this.output.keySet()) {
-			res.put(pid, this.output.get(pid).toByteArray());
-		}
-		return res;
-	}
+  @Override
+  public void expectInputFromPlayer(int id) {
+    if (id < 1) {
+      throw new IllegalArgumentException("Cannot send to an Id smaller than 1");
+    }
+    this.expectedInputForNextRound.add(id);
+  }
 
-	@Override
-	public Set<Integer> getExpectedInputForNextRound() {
-		return this.expectedInputForNextRound;
-	}
+  @Override
+  public void expectInputFromAll() {
+    for (int i = 1; i <= noOfParties; i++) {
+      this.expectedInputForNextRound.add(i);
+    }
+  }
 
-	@Override
-	public void nextRound() {
-		this.output.clear();
-		this.expectedInputForNextRound.clear();
-	}
+  //ProtocolNetworkSupplier
+
+  @Override
+  public void setInput(Map<Integer, ByteBuffer> inputForThisRound) {
+    this.input = inputForThisRound;
+  }
+
+  @Override
+  public Map<Integer, byte[]> getOutputFromThisRound() {
+    Map<Integer, byte[]> res = new HashMap<>();
+    for (int pid : this.output.keySet()) {
+      res.put(pid, this.output.get(pid).toByteArray());
+    }
+    return res;
+  }
+
+  @Override
+  public Set<Integer> getExpectedInputForNextRound() {
+    return this.expectedInputForNextRound;
+  }
+
+  @Override
+  public void nextRound() {
+    this.output.clear();
+    this.expectedInputForNextRound.clear();
+  }
 }

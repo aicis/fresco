@@ -90,7 +90,7 @@ public class PreprocessedDataValidator {
 		throw new RuntimeException("Not implemented yet");
 	}
 /*
-	private static void singleWay() {
+  private static void singleWay() {
 		TestThreadRunner.run(new TestThreadFactory() {
 			@Override
 			public TestThread next(NetworkConfiguration conf) {
@@ -98,9 +98,9 @@ public class PreprocessedDataValidator {
 					@Override
 					public void test() throws Exception {
 
-						OInt[] outputs1 = new OInt[numberOfTriples];
-						OInt[] outputs2 = new OInt[numberOfTriples];
-						OInt[] outputs3 = new OInt[numberOfTriples];
+						BigInteger[] outputs1 = new BigInteger[numberOfTriples];
+						BigInteger[] outputs2 = new BigInteger[numberOfTriples];
+						BigInteger[] outputs3 = new BigInteger[numberOfTriples];
 
 						ParallelGateProducer par = new ParallelGateProducer();
 						// Check triples
@@ -137,7 +137,7 @@ public class PreprocessedDataValidator {
 						// Check input masks
 						for (int towardsPlayerId = 1; towardsPlayerId <= numberOfPlayers; towardsPlayerId++) {
 							BigInteger[] values = new BigInteger[numberOfInputMasks];
-							OInt[] outputs = new OInt[numberOfInputMasks];
+							BigInteger[] outputs = new BigInteger[numberOfInputMasks];
 							par = new ParallelGateProducer();
 							for (int i = 0; i < numberOfInputMasks; i++) {
 								SpdzInputMask mask = supplier

@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -26,88 +26,40 @@
  *******************************************************************************/
 package dk.alexandra.fresco.suite.spdz.gates;
 
+import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.network.SCENetwork;
-import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
-import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.framework.value.Value;
-import dk.alexandra.fresco.lib.field.integer.SubtractProtocol;
-import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
-import dk.alexandra.fresco.suite.spdz.datatypes.SpdzOInt;
+import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
-import dk.alexandra.fresco.suite.spdz.utils.SpdzFactory;
 
-public class SpdzSubtractProtocol extends SpdzNativeProtocol implements SubtractProtocol {
+public class SpdzSubtractProtocol extends SpdzNativeProtocol<SInt> {
 
-	private SpdzSInt left, right, out;
-	private SpdzOInt openLeft, openRight;
-	private SpdzFactory factory;
+  private Computation<SInt> left;
+  private Computation<SInt> right;
+  private SpdzSInt out;
 
-	public SpdzSubtractProtocol(SInt left, SInt right, SInt out,
-			SpdzFactory factory) {
-		this.left = (SpdzSInt) left;
-		this.right = (SpdzSInt) right;
-		this.out = (SpdzSInt) out;
-		this.factory = factory;
-	}
+  public SpdzSubtractProtocol(Computation<SInt> left, Computation<SInt> right) {
+    this.left = left;
+    this.right = right;
+  }
 
-	public SpdzSubtractProtocol(SpdzSInt left, SpdzSInt right, SpdzSInt out,
-			SpdzFactory factory) {
-		this.left = left;
-		this.right = right;
-		this.out = out;
-		this.factory = factory;
-	}
+  @Override
+  public String toString() {
+    return "SpdzSubtractGate(" + left + ", " + right + ", " + out + ")";
+  }
 
-	public SpdzSubtractProtocol(OInt left, SInt right, SInt out,
-			SpdzFactory factory) {
-		this.openLeft = (SpdzOInt) left;
-		this.right = (SpdzSInt) right;
-		this.out = (SpdzSInt) out;
-		this.factory = factory;
-	}
+  @Override
+  public SpdzSInt out() {
+    return out;
+  }
 
-	public SpdzSubtractProtocol(SInt left, OInt right, SInt out, SpdzFactory factory) {
-		this.left = (SpdzSInt) left;
-		this.openRight = (SpdzOInt) right;
-		this.out = (SpdzSInt) out;
-		this.factory = factory;
-	}
-
-	@Override
-	public String toString() {
-		if (openLeft != null) {
-			return "SpdzSubtractGate(" + openLeft.getValue() + ", "
-					+ right.value + ", " + out.value + ")";
-		} else if (openRight != null) {
-			return "SpdzSubtractGate(" + left.value + ", "
-					+ openRight.getValue() + ", " + out.value + ")";
-		}
-		return "SpdzSubtractGate(" + left.value + ", " + right.value + ", "
-				+ out.value + ")";
-	}
-
-	@Override
-	public Value[] getOutputValues() {
-		return new Value[] { out };
-	}
-
-	@Override
-	public EvaluationStatus evaluate(int round, ResourcePool resourcePool,
-			SCENetwork network) {
-		if (openLeft != null) {
-			SpdzSInt converted = (SpdzSInt) factory.getSInt(openLeft
-					.getValue());
-			out.value = converted.value.subtract(right.value);
-		} else if (openRight != null) {
-			SpdzSInt converted = (SpdzSInt) factory.getSInt(openRight
-					.getValue());
-			out.value = left.value.subtract(converted.value);
-		} else {
-			SpdzElement elm = left.value.subtract(right.value);
-			out.value = elm;
-		}
-		return EvaluationStatus.IS_DONE;
-	}
+  @Override
+  public EvaluationStatus evaluate(int round, SpdzResourcePool SpdzResourcePool,
+      SCENetwork network) {
+    SpdzSInt left = (SpdzSInt) this.left.out();
+    SpdzSInt right = (SpdzSInt) this.right.out();
+    this.out = new SpdzSInt(left.value.subtract(right.value));
+    return EvaluationStatus.IS_DONE;
+  }
 
 }
