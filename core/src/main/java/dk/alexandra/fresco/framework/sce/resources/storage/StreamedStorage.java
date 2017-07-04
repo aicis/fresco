@@ -26,9 +26,8 @@
  *******************************************************************************/
 package dk.alexandra.fresco.framework.sce.resources.storage;
 
-import java.io.Serializable;
-
 import dk.alexandra.fresco.framework.sce.resources.storage.exceptions.NoMoreElementsException;
+import java.io.Serializable;
 
 public interface StreamedStorage extends Storage {
 

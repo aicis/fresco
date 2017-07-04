@@ -26,7 +26,6 @@
  */
 package dk.alexandra.fresco.suite.spdz;
 
-import dk.alexandra.fresco.IntegrationTest;
 import dk.alexandra.fresco.framework.network.NetworkingStrategy;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.resources.storage.FilebasedStreamedStorageImpl;
@@ -34,8 +33,8 @@ import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
 import dk.alexandra.fresco.lib.lp.LPSolver.PivotRule;
 import dk.alexandra.fresco.suite.spdz.configuration.PreprocessingStrategy;
 import dk.alexandra.fresco.suite.spdz.storage.InitializeStorage;
+import org.junit.Ignore;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 
 public class TestSpdzLPSolver2Parties extends AbstractSpdzTest {
 
@@ -60,7 +59,7 @@ public class TestSpdzLPSolver2Parties extends AbstractSpdzTest {
         PreprocessingStrategy.DUMMY, 2);
   }
 
-  @Category(IntegrationTest.class)
+  @Ignore
   @Test
   public void test_LPSolver_2_Sequential_Batched_streamed() throws Exception {
     int noOfThreads = 3;
