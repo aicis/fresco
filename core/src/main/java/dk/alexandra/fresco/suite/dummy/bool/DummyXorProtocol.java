@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -39,7 +39,7 @@ public class DummyXorProtocol extends DummyProtocol implements XorProtocol {
 	private DummySBool inB;
 	private DummySBool outC;
 
-	public DummyXorProtocol(SBool inA, SBool inB, SBool outC) {
+	DummyXorProtocol(SBool inA, SBool inB, SBool outC) {
 		this.inA = (DummySBool)inA;
 		this.inB = (DummySBool)inB;
 		this.outC = (DummySBool)outC;
@@ -51,9 +51,9 @@ public class DummyXorProtocol extends DummyProtocol implements XorProtocol {
 	}
 
 	@Override
-	public Value[] getOutputValues() {
-		return new Value[]{outC};
-	}
+  public Value[] out() {
+    return new Value[]{outC};
+  }
 
 	@Override
 	public EvaluationStatus evaluate(int round, ResourcePool resourcePool,

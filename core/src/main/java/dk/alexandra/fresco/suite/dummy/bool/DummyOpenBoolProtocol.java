@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -44,7 +44,7 @@ public class DummyOpenBoolProtocol extends DummyProtocol implements OpenBoolProt
 	 * Opens to all.
 	 * 
 	 */
-	public DummyOpenBoolProtocol(SBool in, OBool out) {
+	DummyOpenBoolProtocol(SBool in, OBool out) {
 		input = (DummySBool)in;
 		output = (DummyOBool)out;
 		target = -1; // open to all
@@ -54,7 +54,7 @@ public class DummyOpenBoolProtocol extends DummyProtocol implements OpenBoolProt
 	 * Opens to player with targetId.
 	 * 
 	 */
-	public DummyOpenBoolProtocol(SBool in, OBool out, int targetId) {
+	DummyOpenBoolProtocol(SBool in, OBool out, int targetId) {
 		input = (DummySBool)in;
 		output = (DummyOBool)out;
 		target = targetId;
@@ -76,9 +76,9 @@ public class DummyOpenBoolProtocol extends DummyProtocol implements OpenBoolProt
 	}
 
 	@Override
-	public Value[] getOutputValues() {
-		return new Value[] {this.output};
-	}
+  public Value[] out() {
+    return new Value[]{this.output};
+  }
 
 	
 }

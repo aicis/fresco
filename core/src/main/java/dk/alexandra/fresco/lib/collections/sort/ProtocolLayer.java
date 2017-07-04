@@ -26,9 +26,8 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.collections.sort;
 
-import java.util.ArrayList;
-
 import dk.alexandra.fresco.framework.ProtocolProducer;
+import java.util.ArrayList;
 
 public class ProtocolLayer extends ArrayList<ProtocolProducer> {
 	

@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -27,16 +27,37 @@
 package dk.alexandra.fresco.framework.sce.configuration;
 
 
+import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
+import dk.alexandra.fresco.framework.network.Network;
+import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.suite.ProtocolSuite;
+import java.security.SecureRandom;
+import java.util.Random;
 
 /**
  * A type used to hold configuration that is specific to a given protocol suite.
- * 
- * Example: The threshold t for the BGW protocol suite.
- *
  */
-public interface ProtocolSuiteConfiguration {
+public interface ProtocolSuiteConfiguration<
+    ResourcePoolT extends ResourcePool,
+    Builder extends ProtocolBuilder> {
 
-  ProtocolSuite createProtocolSuite(int myPlayerId);
 
+  /**
+   * Creates the specific protocol suite for a given player.
+   *
+   * @param myPlayerId the current player id
+   * @return the active protocol suite
+   */
+  ProtocolSuite<ResourcePoolT, Builder> createProtocolSuite(int myPlayerId);
+
+  /**
+   * Legacy method for creating resource pool from an oblivious context - normally users of the
+   * SecureComputationEngine would control resources themselves.
+   * <br/>
+   * Once this methods is no longer needed, this interface will be removed
+   */
+
+  ResourcePoolT createResourcePool(
+      int myId, int size, Network network,
+      Random rand, SecureRandom secRand);
 }

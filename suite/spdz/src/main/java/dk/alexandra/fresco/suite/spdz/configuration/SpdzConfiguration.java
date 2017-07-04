@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -26,16 +26,12 @@
  *******************************************************************************/
 package dk.alexandra.fresco.suite.spdz.configuration;
 
-import dk.alexandra.fresco.framework.configuration.PreprocessingStrategy;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
 import dk.alexandra.fresco.framework.sce.configuration.ProtocolSuiteConfiguration;
-import dk.alexandra.fresco.framework.sce.configuration.SCEConfiguration;
-import dk.alexandra.fresco.suite.ProtocolSuite;
-import dk.alexandra.fresco.suite.spdz.evaluation.strategy.SpdzProtocolSuite;
-import java.util.Properties;
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.ParseException;
+import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
 
-public interface SpdzConfiguration extends ProtocolSuiteConfiguration {
+public interface SpdzConfiguration extends
+    ProtocolSuiteConfiguration<SpdzResourcePool, SequentialNumericBuilder> {
 
   /**
    * Gets an approximation of the maximum bit length of any number appearing
@@ -54,51 +50,12 @@ public interface SpdzConfiguration extends ProtocolSuiteConfiguration {
    *
    * @return The preprocessing strategy to use.
    */
-  public PreprocessingStrategy getPreprocessingStrategy();
+  PreprocessingStrategy getPreprocessingStrategy();
 
   /**
    * Should return the base url (e.g. 154.92.132.12:80) where the fuel station is deployed.
    *
    * @return The base URL for the fuel station.
    */
-  public String fuelStationBaseUrl();
-
-  static SpdzConfiguration fromCmdLine(SCEConfiguration sceConf,
-      CommandLine cmd) throws ParseException {
-    Properties p = cmd.getOptionProperties("D");
-    //TODO: Figure out a meaningful default for the below
-    final int maxBitLength = Integer.parseInt(p.getProperty("spdz.maxBitLength", "64"));
-    if (maxBitLength < 2) {
-      throw new ParseException("spdz.maxBitLength must be > 1");
-    }
-
-    final String fuelStationBaseUrl = p.getProperty("spdz.fuelStationBaseUrl", null);
-    String strat = p.getProperty("spdz.preprocessingStrategy");
-    final PreprocessingStrategy strategy = PreprocessingStrategy.fromString(strat);
-
-    return new SpdzConfiguration() {
-
-      @Override
-      public ProtocolSuite createProtocolSuite(int myPlayerId) {
-        return new SpdzProtocolSuite(myPlayerId, this);
-      }
-
-      @Override
-      public int getMaxBitLength() {
-        return maxBitLength;
-      }
-
-      @Override
-      public PreprocessingStrategy getPreprocessingStrategy() {
-        return strategy;
-      }
-
-      @Override
-      public String fuelStationBaseUrl() {
-        return fuelStationBaseUrl;
-      }
-
-    };
-  }
-
+  String fuelStationBaseUrl();
 }

@@ -1,5 +1,16 @@
 package dk.alexandra.fresco.framework.network;
 
+import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryonet.Client;
+import com.esotericsoftware.kryonet.Connection;
+import com.esotericsoftware.kryonet.EndPoint;
+import com.esotericsoftware.kryonet.Listener;
+import com.esotericsoftware.kryonet.Server;
+import com.esotericsoftware.minlog.Log;
+import dk.alexandra.fresco.framework.MPCException;
+import dk.alexandra.fresco.framework.Reporter;
+import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
+import dk.alexandra.fresco.framework.crypto.AES;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.security.SecureRandom;
@@ -10,19 +21,6 @@ import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Semaphore;
-
-import com.esotericsoftware.kryo.Kryo;
-import com.esotericsoftware.kryonet.Client;
-import com.esotericsoftware.kryonet.Connection;
-import com.esotericsoftware.kryonet.EndPoint;
-import com.esotericsoftware.kryonet.Listener;
-import com.esotericsoftware.kryonet.Server;
-import com.esotericsoftware.minlog.Log;
-
-import dk.alexandra.fresco.framework.MPCException;
-import dk.alexandra.fresco.framework.Reporter;
-import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
-import dk.alexandra.fresco.framework.crypto.AES;
 
 public class KryoNetNetwork implements Network {
 

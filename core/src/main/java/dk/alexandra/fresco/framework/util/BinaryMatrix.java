@@ -21,7 +21,7 @@ public class BinaryMatrix implements Serializable {
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 4936656911598727916L;
+
 	private BitSet bits;
 	private int m, n;
 
@@ -79,7 +79,7 @@ public class BinaryMatrix implements Serializable {
 	 * 
 	 * @param i
 	 * @param j
-	 * @param value
+	 * @param b
 	 */
 	public void set(int i, int j, boolean b) {
 		this.bits.set(getIndex(i, j), b);

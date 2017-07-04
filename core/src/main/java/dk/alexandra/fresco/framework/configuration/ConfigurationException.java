@@ -33,8 +33,4 @@ public class ConfigurationException extends RuntimeException{
 	public ConfigurationException(String msg) {
 		super(msg);
 	}
-	
-	public ConfigurationException(String msg, Exception e) {
-		super(msg, e);
-	}
 }

@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -26,115 +26,55 @@
  *******************************************************************************/
 package dk.alexandra.fresco.suite.spdz.gates;
 
+import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.network.SCENetwork;
-import dk.alexandra.fresco.framework.network.serializers.BigIntegerWithFixedLengthSerializer;
-import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
-import dk.alexandra.fresco.framework.value.OInt;
+import dk.alexandra.fresco.framework.network.serializers.BigIntegerSerializer;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.framework.value.Value;
-import dk.alexandra.fresco.lib.field.integer.MultProtocol;
+import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
-import dk.alexandra.fresco.suite.spdz.datatypes.SpdzOInt;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzTriple;
-import dk.alexandra.fresco.suite.spdz.evaluation.strategy.SpdzProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
-import dk.alexandra.fresco.suite.spdz.utils.Util;
 import java.math.BigInteger;
 
-public class SpdzMultProtocol extends SpdzNativeProtocol implements MultProtocol {
+public class SpdzMultProtocol extends SpdzNativeProtocol<SInt> {
 
-  private SpdzSInt in1, in2, out;
-  private SpdzOInt oIn1;
+  private Computation<SInt> left;
+  private Computation<SInt> right;
+  private SpdzSInt out;
   private SpdzTriple triple;
   private SpdzElement epsilon, delta; // my share of the differences [x]-[a]
   // and [y]-[b].
 
-  public boolean isInteractive() {
-    return (oIn1 == null);
-  }
-
-  public SpdzMultProtocol(SInt in1, SInt in2, SInt out) {
-    this.in1 = (SpdzSInt) in1;
-    this.in2 = (SpdzSInt) in2;
-    this.out = (SpdzSInt) out;
-  }
-
-  public SpdzMultProtocol(SpdzSInt in1, SpdzSInt in2, SpdzSInt out) {
-    this.in1 = in1;
-    this.in2 = in2;
-    this.out = out;
-  }
-
-  public SpdzMultProtocol(SpdzOInt oIn1, SpdzSInt in2, SpdzSInt out) {
-    this.oIn1 = oIn1;
-    this.in2 = in2;
-    this.out = out;
-  }
-
-  public SpdzMultProtocol(OInt oIn1, SInt in2, SInt out) {
-    this.oIn1 = (SpdzOInt) oIn1;
-    this.in2 = (SpdzSInt) in2;
-    this.out = (SpdzSInt) out;
+  public SpdzMultProtocol(Computation<SInt> left, Computation<SInt> right) {
+    this.left = left;
+    this.right = right;
   }
 
   @Override
-  public EvaluationStatus evaluate(int round, ResourcePool resourcePool,
+  public EvaluationStatus evaluate(int round, SpdzResourcePool spdzResourcePool,
       SCENetwork network) {
-    SpdzProtocolSuite spdzPii = SpdzProtocolSuite
-        .getInstance(resourcePool.getMyId());
-    SpdzStorage store = spdzPii.getStore(network.getThreadId());
-    int noOfPlayers = resourcePool.getNoOfParties();
+    SpdzStorage store = spdzResourcePool.getStore();
+    int noOfPlayers = spdzResourcePool.getNoOfParties();
+    BigIntegerSerializer serializer = spdzResourcePool.getSerializer();
     switch (round) {
       case 0:
-        try {
-          if (oIn1 != null) {
-            SpdzElement res = in2.value;
-            res = res.multiply(oIn1.getValue());
-            out.value = res;
-            return EvaluationStatus.IS_DONE;
-          }
+        this.triple = store.getSupplier().getNextTriple();
 
-          this.triple = store.getSupplier().getNextTriple();
+        epsilon = ((SpdzSInt) left.out()).value.subtract(triple.getA());
+        delta = ((SpdzSInt) right.out()).value.subtract(triple.getB());
 
-          SpdzElement epsilon = in1.value.subtract(triple.getA());
-          SpdzElement delta = in2.value.subtract(triple.getB());
-
-          network.sendToAll(
-              BigIntegerWithFixedLengthSerializer.toBytes(new BigInteger[]{epsilon.getShare(),
-                  delta.getShare()}, Util.getModulusSize()));
-          network.expectInputFromAll();
-          this.epsilon = epsilon;
-          this.delta = delta;
-          return EvaluationStatus.HAS_MORE_ROUNDS;
-        } catch (NullPointerException e) {
-          String nullElements = "";
-          if (in1 == null) {
-            nullElements += " input1";
-          } else if (in1.value == null) {
-            nullElements += " inputvalue1";
-          }
-          if (in2 == null) {
-            nullElements += " input2";
-          } else if (in2.value == null) {
-            nullElements += " inputvalue2";
-          }
-          if (triple == null) {
-            nullElements += " triple";
-          }
-          throw new MPCException(
-              "Mult nullpointer caused by one of the following elements: "
-                  + nullElements, e);
-        }
+        network.sendToAll(serializer.toBytes(epsilon.getShare()));
+        network.sendToAll(serializer.toBytes(delta.getShare()));
+        network.expectInputFromAll();
+        return EvaluationStatus.HAS_MORE_ROUNDS;
       case 1:
         BigInteger[] epsilonShares = new BigInteger[noOfPlayers];
         BigInteger[] deltaShares = new BigInteger[noOfPlayers];
         for (int i = 0; i < noOfPlayers; i++) {
-          BigInteger[] shares = BigIntegerWithFixedLengthSerializer
-              .toBigIntegers(network.receive(i + 1), 2, Util.getModulusSize());
-          epsilonShares[i] = shares[0];
-          deltaShares[i] = shares[1];
+          epsilonShares[i] = serializer.toBigInteger(network.receive(i + 1));
+          deltaShares[i] = serializer.toBigInteger(network.receive(i + 1));
         }
         SpdzElement res = triple.getC();
         BigInteger e = epsilonShares[0];
@@ -143,24 +83,27 @@ public class SpdzMultProtocol extends SpdzNativeProtocol implements MultProtocol
           e = e.add(epsilonShares[i]);
           d = d.add(deltaShares[i]);
         }
-        e = e.mod(Util.getModulus());
-        d = d.mod(Util.getModulus());
+        BigInteger modulus = spdzResourcePool.getModulus();
+        e = e.mod(modulus);
+        d = d.mod(modulus);
 
-        BigInteger eTimesd = e.multiply(d).mod(Util.getModulus());
-        SpdzElement ed = new SpdzElement(eTimesd, store.getSSK()
-            .multiply(eTimesd).mod(Util.getModulus()));
+        BigInteger eTimesd = e.multiply(d).mod(modulus);
+        SpdzElement ed = new SpdzElement(
+            eTimesd,
+            store.getSSK().multiply(eTimesd).mod(modulus),
+            modulus);
         res = res.add(triple.getB().multiply(e))
             .add(triple.getA().multiply(d))
-            .add(ed, resourcePool.getMyId());
-        out.value = res;
+            .add(ed, spdzResourcePool.getMyId());
+        out = new SpdzSInt(res);
         // Set the opened and closed value.
         store.addOpenedValue(e);
         store.addOpenedValue(d);
         store.addClosedValue(epsilon);
         store.addClosedValue(delta);
         // help the garbage collector.
-        in1 = null;
-        in2 = null;
+        left = null;
+        right = null;
         triple = null;
         epsilon = null;
         delta = null;
@@ -170,8 +113,8 @@ public class SpdzMultProtocol extends SpdzNativeProtocol implements MultProtocol
   }
 
   @Override
-  public Value[] getOutputValues() {
-    return new Value[]{out};
+  public SpdzSInt out() {
+    return out;
   }
 
 }

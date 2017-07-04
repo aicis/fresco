@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -28,44 +28,44 @@ package dk.alexandra.fresco.framework.sce.configuration;
 
 import dk.alexandra.fresco.framework.Party;
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.network.NetworkingStrategy;
+import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.sce.resources.storage.Storage;
 import dk.alexandra.fresco.framework.sce.resources.storage.StreamedStorage;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 
-public class TestSCEConfiguration implements SCEConfiguration {
+public class TestSCEConfiguration<ResourcePoolT extends ResourcePool, Builder extends ProtocolBuilder> implements
+    SCEConfiguration<ResourcePoolT> {
 
-  private final ProtocolSuiteConfiguration suite;
+  private final ProtocolSuiteConfiguration<ResourcePoolT, Builder> suite;
   private NetworkingStrategy network;
   private Storage storage;
   private Map<Integer, Party> parties;
   private int myId;
-  private int noOfThreads;
-  private int noOfVmThreads;
   private ProtocolEvaluator evaluator;
-  private int maxBatchSize;
 
-  public TestSCEConfiguration(ProtocolSuiteConfiguration suite, NetworkingStrategy network,
+  public TestSCEConfiguration(ProtocolSuiteConfiguration<ResourcePoolT, Builder> suite,
+      NetworkingStrategy network,
       ProtocolEvaluator evaluator,
-      int noOfThreads, int noOfvmThreads, NetworkConfiguration conf, Storage storage,
+      NetworkConfiguration conf, Storage storage,
       boolean useSecureConn) {
-    this(suite, network, evaluator, noOfThreads, noOfvmThreads, conf, storage, useSecureConn, 4096);
+    this(suite, network, evaluator, conf, storage, useSecureConn, 4096);
 
   }
 
-  public TestSCEConfiguration(ProtocolSuiteConfiguration suite, NetworkingStrategy network,
+  public TestSCEConfiguration(ProtocolSuiteConfiguration<ResourcePoolT, Builder> suite,
+      NetworkingStrategy network,
       ProtocolEvaluator evaluator,
-      int noOfThreads, int noOfvmThreads, NetworkConfiguration conf, Storage storage,
-      boolean useSecureConn, int maxBatchSize) {
+      NetworkConfiguration conf, Storage storage, boolean useSecureConn, int maxBatchSize) {
     this.suite = suite;
     this.network = network;
     this.storage = storage;
     this.evaluator = evaluator;
-    this.noOfThreads = noOfThreads;
-    this.noOfVmThreads = noOfvmThreads;
+    evaluator.setMaxBatchSize(maxBatchSize);
     this.myId = conf.getMyId();
     parties = new HashMap<>();
     for (int i = 1; i <= conf.noOfParties(); i++) {
@@ -78,7 +78,6 @@ public class TestSCEConfiguration implements SCEConfiguration {
         parties.put(i, conf.getParty(i));
       }
     }
-    this.maxBatchSize = maxBatchSize;
   }
 
   @Override
@@ -102,11 +101,6 @@ public class TestSCEConfiguration implements SCEConfiguration {
   }
 
   @Override
-  public int getMaxBatchSize() {
-    return this.maxBatchSize;
-  }
-
-  @Override
   public StreamedStorage getStreamedStorage() {
     if (this.storage instanceof StreamedStorage) {
       return (StreamedStorage) this.storage;
@@ -115,7 +109,7 @@ public class TestSCEConfiguration implements SCEConfiguration {
     }
   }
 
-  public ProtocolSuiteConfiguration getSuite() {
+  public ProtocolSuiteConfiguration<ResourcePoolT, Builder> getSuite() {
     return suite;
   }
 

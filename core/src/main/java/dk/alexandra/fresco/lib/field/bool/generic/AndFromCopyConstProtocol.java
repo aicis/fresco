@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -26,6 +26,7 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.field.bool.generic;
 
+import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.OBool;
@@ -33,20 +34,17 @@ import dk.alexandra.fresco.framework.value.SBool;
 import dk.alexandra.fresco.framework.value.SBoolFactory;
 import dk.alexandra.fresco.lib.field.bool.AndProtocol;
 import dk.alexandra.fresco.lib.helper.CopyProtocol;
-import dk.alexandra.fresco.lib.helper.CopyProtocolFactory;
 
 public class AndFromCopyConstProtocol implements AndProtocol, ProtocolProducer {
 
-  private CopyProtocol<SBool> copyCir;
-  private CopyProtocolFactory<SBool> copyFactory;
+  private NativeProtocol copyCir;
   private SBoolFactory sboolFactory;
   private SBool inLeft;
   private OBool inRight;
   private SBool out;
 
-  public AndFromCopyConstProtocol(CopyProtocolFactory<SBool> copyFactory, SBoolFactory sboolFactory,
+  public AndFromCopyConstProtocol(SBoolFactory sboolFactory,
       SBool inLeft, OBool inRight, SBool out) {
-    this.copyFactory = copyFactory;
     this.sboolFactory = sboolFactory;
     this.inLeft = inLeft;
     this.inRight = inRight;
@@ -57,9 +55,9 @@ public class AndFromCopyConstProtocol implements AndProtocol, ProtocolProducer {
   public void getNextProtocols(ProtocolCollection protocolCollection) {
     if (copyCir == null) {
       if (inRight.getValue()) {
-        copyCir = copyFactory.getCopyProtocol(inLeft, out);
+        copyCir = new CopyProtocol<>(inLeft, out);
       } else {
-        copyCir = copyFactory.getCopyProtocol(sboolFactory.getKnownConstantSBool(false), out);
+        copyCir = new CopyProtocol<>(sboolFactory.getKnownConstantSBool(false), out);
       }
     }
     protocolCollection.addProtocol(copyCir);

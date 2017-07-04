@@ -26,17 +26,45 @@
  *******************************************************************************/
 package dk.alexandra.fresco.framework;
 
-import dk.alexandra.fresco.framework.value.OInt;
 
-public abstract class TestApplication implements Application {
-	
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -3392896741851185657L;
-	public OInt[] outputs;
-	
-	public OInt[] getOutputs() {
-		return this.outputs;
-	}
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderHelper;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
+public abstract class TestApplication implements
+    Application<List<BigInteger>, ProtocolBuilderNumeric> {
+
+  /**
+   *
+   */
+  public List<Computation<BigInteger>> outputs = new ArrayList<>();
+
+  public abstract ProtocolProducer prepareApplication(BuilderFactory factoryProducer);
+
+  @Override
+  public Computation<List<BigInteger>> prepareApplication(ProtocolBuilderNumeric producer) {
+    SequentialNumericBuilder producer1 = (SequentialNumericBuilder) producer;
+    producer1.append(prepareApplication(ProtocolBuilderHelper.getFactoryNumeric(producer)));
+    return outputToBigInteger();
+  }
+
+  protected Computation<List<BigInteger>> outputToBigInteger() {
+    return () -> this.outputs
+        .stream()
+        .map(Computation::out)
+        .collect(Collectors.toList());
+  }
+
+
+  public BigInteger[] getOutputs() {
+    return this.outputs
+        .stream()
+        .map(Computation::out)
+        .collect(Collectors.toList())
+        .toArray(new BigInteger[]{});
+  }
 }

@@ -79,7 +79,7 @@ public class TestDummyProtocolSuite {
       ProtocolEvaluator evaluator = EvaluationStrategy.fromEnum(evalStrategy);
       Storage storage = new InMemoryStorage();
       ttc.sceConf = new TestSCEConfiguration(new DummyConfiguration(), NetworkingStrategy.KRYONET,
-          evaluator, noOfThreads, noOfVMThreads, ttc.netConf, storage, false);
+          evaluator, ttc.netConf, storage, false);
       conf.put(playerId, ttc);
     }
     TestThreadRunner.run(f, conf);

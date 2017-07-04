@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -26,14 +26,15 @@
  *******************************************************************************/
 package dk.alexandra.fresco.suite.tinytables.prepro;
 
+import dk.alexandra.fresco.framework.BuilderFactory;
 import dk.alexandra.fresco.framework.MPCException;
-import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.Reporter;
 import dk.alexandra.fresco.framework.network.SCENetwork;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.util.BitVector;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.suite.ProtocolSuite;
+import dk.alexandra.fresco.suite.tinytables.LegacyBinaryBuilder;
 import dk.alexandra.fresco.suite.tinytables.datatypes.TinyTable;
 import dk.alexandra.fresco.suite.tinytables.datatypes.TinyTablesElement;
 import dk.alexandra.fresco.suite.tinytables.datatypes.TinyTablesElementVector;
@@ -77,7 +78,7 @@ import java.util.Map;
  * calculate a so-called <i>TinyTable</i> which is used in the online phase (see
  * {@link TinyTablesProtocolSuite}). This is done using oblivious transfer. To
  * enhance performance, all oblivious transfers are done at the end of the
- * preprocessing (see {@link TinyTablesPreproProtocolSuite#finishedEval(ResourcePool, SCENetwork)}).
+ * preprocessing (see {@link #createRoundSynchronization()).
  * </p>
  *
  * <p>
@@ -115,7 +116,7 @@ public class TinyTablesPreproProtocolSuite implements ProtocolSuite {
   }
 
   @Override
-  public ProtocolFactory init(ResourcePool resourcePool) {
+  public BuilderFactory init(ResourcePool resourcePool) {
     this.tinyTablesFile = this.configuration.getTinyTablesFile();
 
     OTFactory otFactory = new SemiHonestOTExtensionFactory(resourcePool.getNetwork(),
@@ -131,7 +132,7 @@ public class TinyTablesPreproProtocolSuite implements ProtocolSuite {
         .synchronizedList(new ArrayList<TinyTablesPreproANDProtocol>());
 
     this.resourcePool = resourcePool;
-    return new TinyTablesPreproFactory();
+    return new LegacyBinaryBuilder(new TinyTablesPreproFactory());
   }
 
   public TinyTablesStorage getStorage() {
@@ -140,10 +141,6 @@ public class TinyTablesPreproProtocolSuite implements ProtocolSuite {
 
   public void addANDGate(TinyTablesPreproANDProtocol gate) {
     this.unprocessedAndGates.add(gate);
-  }
-
-  public TinyTablesTripleProvider getTinyTablesTripleProvider() {
-    return this.tinyTablesTripleProvider;
   }
 
   @Override
@@ -159,6 +156,23 @@ public class TinyTablesPreproProtocolSuite implements ProtocolSuite {
           calculateTinyTablesForUnprocessedANDGates();
         }
       }
+
+      @Override
+      public void finishedEval(ResourcePool resourcePool, SCENetwork sceNetwork) {
+        calculateTinyTablesForUnprocessedANDGates();
+        tinyTablesTripleProvider.close();
+    /*
+     * Store the TinyTables to a file.
+		 */
+        try {
+          storeTinyTables(storage, tinyTablesFile);
+          Reporter.info("TinyTables stored to " + tinyTablesFile);
+        } catch (IOException e) {
+          Reporter.severe("Failed to save TinyTables: " + e.getMessage());
+        }
+
+      }
+
     };
   }
 
@@ -228,32 +242,12 @@ public class TinyTablesPreproProtocolSuite implements ProtocolSuite {
     }
   }
 
-  @Override
-  public void finishedEval(ResourcePool resourcePool, SCENetwork sceNetwork) {
-    calculateTinyTablesForUnprocessedANDGates();
-    tinyTablesTripleProvider.close();
-    /*
-     * Store the TinyTables to a file.
-		 */
-    try {
-      storeTinyTables(storage, this.tinyTablesFile);
-      Reporter.info("TinyTables stored to " + this.tinyTablesFile);
-    } catch (IOException e) {
-      Reporter.severe("Failed to save TinyTables: " + e.getMessage());
-    }
-
-  }
-
   private void storeTinyTables(TinyTablesStorage tinyTablesStorage, File file) throws IOException {
     file.createNewFile();
     FileOutputStream fout = new FileOutputStream(file);
     ObjectOutputStream oos = new ObjectOutputStream(fout);
     oos.writeObject(tinyTablesStorage);
     oos.close();
-  }
-
-  @Override
-  public void destroy() {
   }
 
 }

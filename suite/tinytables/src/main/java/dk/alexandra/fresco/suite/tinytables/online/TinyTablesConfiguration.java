@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -27,11 +27,16 @@
 package dk.alexandra.fresco.suite.tinytables.online;
 
 import dk.alexandra.fresco.framework.ProtocolFactory;
+import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.configuration.ProtocolSuiteConfiguration;
 import dk.alexandra.fresco.framework.sce.configuration.SCEConfiguration;
+import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
+import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import java.io.File;
+import java.security.SecureRandom;
 import java.util.Properties;
+import java.util.Random;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
@@ -74,21 +79,19 @@ public class TinyTablesConfiguration implements ProtocolSuiteConfiguration{
 	public void setTinyTablesFile(File file) {
 		this.tinytablesfile = file;
 	}
-	
-	public File getTinyTablesFile() {
+
+	File getTinyTablesFile() {
 		return this.tinytablesfile;
 	}
-	
-	public void setTinyTablesFactory(ProtocolFactory ninjaFactory) {
-		this.tinyTablesFactory = ninjaFactory;
-	}
-	
-	public ProtocolFactory getProtocolFactory() {
-		return this.tinyTablesFactory;
-  }
 
   @Override
   public ProtocolSuite createProtocolSuite(int myPlayerId) {
     return new TinyTablesProtocolSuite(myPlayerId, this);
   }
+
+	@Override
+	public ResourcePool createResourcePool(int myId, int size, Network network,
+			Random rand, SecureRandom secRand) {
+		return new ResourcePoolImpl(myId, size, network, rand, secRand);
+	}
 }

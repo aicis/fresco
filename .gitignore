@@ -1,4 +1,3 @@
-
 target/
 
 # Ignore all temporary backup files.
@@ -19,4 +18,5 @@ target/
 !.idea/codeStyleSettings.xml
 !.idea/fileTemplates
 !.idea/fileTemplates/*
-fresco.iml
+*.iml
+

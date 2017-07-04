@@ -1,16 +1,21 @@
 package dk.alexandra.fresco.lib.arithmetic;
 
-import dk.alexandra.fresco.framework.ProtocolFactory;
-import dk.alexandra.fresco.framework.ProtocolProducer;
-import dk.alexandra.fresco.framework.TestApplication;
+import dk.alexandra.fresco.framework.Application;
+import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
-import dk.alexandra.fresco.framework.network.NetworkCreator;
-import dk.alexandra.fresco.framework.value.OInt;
+import dk.alexandra.fresco.framework.builder.NumericBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
+import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
+import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.helper.builder.OmniBuilder;
+import dk.alexandra.fresco.lib.math.integer.ProductSIntList;
+import dk.alexandra.fresco.lib.math.integer.SumSIntList;
 import java.math.BigInteger;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.junit.Assert;
 
 /**
@@ -18,81 +23,96 @@ import org.junit.Assert;
  * application works.
  *
  * @author Kasper Damgaard
- *
  */
 public class ParallelAndSequenceTests {
 
-	public static class TestSequentialEvaluation extends TestThreadFactory {
-		@Override
-		public TestThread next(TestThreadConfiguration conf) {
-			return new TestThread() {
-				@Override
-				public void test() throws Exception {
-					TestApplicationSum sumApp = new ParallelAndSequenceTests().new TestApplicationSum();
-					TestApplicationMult multApp = new ParallelAndSequenceTests().new TestApplicationMult();
+  private static final Integer[] inputAsArray = {1, 2, 3, 4, 5, 6, 7, 8, 9};
 
-					secureComputationEngine
-							.runApplication(sumApp, NetworkCreator.createResourcePool(conf.sceConf));
-					secureComputationEngine.runApplication(multApp,
-							NetworkCreator.createResourcePool(conf.sceConf));
+  public static class TestSequentialEvaluation<ResourcePoolT extends ResourcePool> extends
+      TestThreadFactory<ResourcePoolT, SequentialNumericBuilder> {
 
-					OInt sum = sumApp.getOutputs()[0];
-					OInt mult = multApp.getOutputs()[0];
-					Assert.assertEquals(BigInteger.valueOf(1 + 2 + 3 + 4 + 5 + 6 + 7 + 8 + 9), sum.getValue());
-					Assert.assertEquals(BigInteger.valueOf(1 * 2 * 3 * 4 * 5 * 6 * 7 * 8 * 9), mult.getValue());
-				}
-			};
-		}
-	}
+    @Override
+    public TestThread<ResourcePoolT, SequentialNumericBuilder> next(
+        TestThreadConfiguration<ResourcePoolT, SequentialNumericBuilder> conf) {
+      return new TestThread<ResourcePoolT, SequentialNumericBuilder>() {
+        @Override
+        public void test() throws Exception {
+          TestApplicationSum sumApp = new ParallelAndSequenceTests().new TestApplicationSum();
+          TestApplicationMult multApp = new ParallelAndSequenceTests().new TestApplicationMult();
 
-	public static class TestParallelEvaluation extends TestThreadFactory {
-		@Override
-		public TestThread next(TestThreadConfiguration conf) {
-			return new TestThread() {
-				@Override
-				public void test() throws Exception {
-					TestApplicationSum sumApp = new ParallelAndSequenceTests().new TestApplicationSum();
-					TestApplicationMult multApp = new ParallelAndSequenceTests().new TestApplicationMult();
+          ResourcePoolT resourcePool = SecureComputationEngineImpl.createResourcePool(conf.sceConf,
+              conf.sceConf.getSuite());
+          BigInteger sum = secureComputationEngine.runApplication(sumApp, resourcePool);
+          BigInteger mult = secureComputationEngine.runApplication(multApp, resourcePool);
 
-					secureComputationEngine
-							.runApplication(sumApp, NetworkCreator.createResourcePool(conf.sceConf));
-					secureComputationEngine.runApplication(multApp,
-							NetworkCreator.createResourcePool(conf.sceConf));
+          Assert
+              .assertEquals(BigInteger.valueOf(1 + 2 + 3 + 4 + 5 + 6 + 7 + 8 + 9), sum);
+          Assert
+              .assertEquals(BigInteger.valueOf(1 * 2 * 3 * 4 * 5 * 6 * 7 * 8 * 9), mult);
+        }
+      };
+    }
+  }
 
-          OInt sum = sumApp.getOutputs()[0];
-          OInt mult = multApp.getOutputs()[0];
-					Assert.assertEquals(BigInteger.valueOf(1 + 2 + 3 + 4 + 5 + 6 + 7 + 8 + 9), sum.getValue());
-					Assert.assertEquals(BigInteger.valueOf(1 * 2 * 3 * 4 * 5 * 6 * 7 * 8 * 9), mult.getValue());
-				}
-			};
-		}
-	}
+  public static class TestParallelEvaluation<ResourcePoolT extends ResourcePool> extends
+      TestThreadFactory<ResourcePoolT, SequentialNumericBuilder> {
 
-	private class TestApplicationSum extends TestApplication {
-		private static final long serialVersionUID = 1L;
+    @Override
+    public TestThread<ResourcePoolT, SequentialNumericBuilder> next(
+        TestThreadConfiguration<ResourcePoolT, SequentialNumericBuilder> conf) {
+      return new TestThread<ResourcePoolT, SequentialNumericBuilder>() {
+        @Override
+        public void test() throws Exception {
+          TestApplicationSum sumApp = new ParallelAndSequenceTests().new TestApplicationSum();
+          TestApplicationMult multApp = new ParallelAndSequenceTests().new TestApplicationMult();
 
-		@Override
-		public ProtocolProducer prepareApplication(ProtocolFactory factory) {
-			OmniBuilder builder = new OmniBuilder(factory);
-			SInt[] terms = builder.getNumericIOBuilder().inputArray(new int[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 }, 1);
-			SInt sum = builder.getNumericProtocolBuilder().sum(terms);
-			this.outputs = new OInt[] { builder.getNumericIOBuilder().output(sum) };
-			return builder.getProtocol();
-		}
+          BigInteger sum = secureComputationEngine
+              .runApplication(sumApp, SecureComputationEngineImpl.createResourcePool(conf.sceConf,
+                  conf.sceConf.getSuite()));
+          BigInteger mult = secureComputationEngine.runApplication(multApp,
+              SecureComputationEngineImpl.createResourcePool(conf.sceConf,
+                  conf.sceConf.getSuite()));
 
-	}
+          Assert
+              .assertEquals(BigInteger.valueOf(1 + 2 + 3 + 4 + 5 + 6 + 7 + 8 + 9), sum);
+          Assert
+              .assertEquals(BigInteger.valueOf(1 * 2 * 3 * 4 * 5 * 6 * 7 * 8 * 9), mult);
+        }
+      };
+    }
+  }
 
-	private class TestApplicationMult extends TestApplication {
-		private static final long serialVersionUID = 1L;
+  private class TestApplicationSum implements Application<BigInteger, SequentialNumericBuilder> {
 
-		@Override
-		public ProtocolProducer prepareApplication(ProtocolFactory factory) {
-			OmniBuilder builder = new OmniBuilder(factory);
-			SInt[] terms = builder.getNumericIOBuilder().inputArray(new int[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 }, 1);
-			SInt mult = builder.getNumericProtocolBuilder().mult(terms);
-			this.outputs = new OInt[] { builder.getNumericIOBuilder().output(mult) };
-			return builder.getProtocol();
-		}
+    @Override
+    public Computation<BigInteger> prepareApplication(
+        SequentialNumericBuilder producer) {
+      List<Computation<SInt>> input =
+          Arrays.stream(inputAsArray)
+              .map((integer) -> convertToSInt(integer, producer))
+              .collect(Collectors.toList());
+      Computation<SInt> result = producer.seq(new SumSIntList(input));
+      return producer.numeric().open(result);
+    }
 
-	}
+  }
+
+  private class TestApplicationMult implements Application<BigInteger, SequentialNumericBuilder> {
+
+    @Override
+    public Computation<BigInteger> prepareApplication(
+        SequentialNumericBuilder producer) {
+      Computation<SInt> result = producer.seq(new ProductSIntList(
+          Arrays.stream(inputAsArray)
+              .map((integer) -> convertToSInt(integer, producer))
+              .collect(Collectors.toList())));
+      return producer.numeric().open(result);
+    }
+  }
+
+  private Computation<SInt> convertToSInt(int integer, SequentialNumericBuilder producer) {
+    NumericBuilder numeric = producer.numeric();
+    BigInteger value = BigInteger.valueOf(integer);
+    return numeric.input(value, 1);
+  }
 }

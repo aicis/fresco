@@ -26,6 +26,7 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.bool;
 
+import dk.alexandra.fresco.framework.BuilderFactory;
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.TestBoolApplication;
@@ -57,12 +58,12 @@ public class BasicBooleanTests {
         public void test() throws Exception {
           TestBoolApplication app = new TestBoolApplication() {
 
-            private static final long serialVersionUID = 4338818809103728010L;
 
             @Override
             public ProtocolProducer prepareApplication(
-                ProtocolFactory provider) {
-              AbstractBinaryFactory prov = (AbstractBinaryFactory) provider;
+                BuilderFactory factoryProducer) {
+              ProtocolFactory producer = factoryProducer.getProtocolFactory();
+              AbstractBinaryFactory prov = (AbstractBinaryFactory) producer;
               BasicLogicBuilder builder = new BasicLogicBuilder(prov);
               SBool inp = builder.knownSBool(true);
               OBool output = builder.output(inp);
@@ -72,7 +73,8 @@ public class BasicBooleanTests {
           };
 
           secureComputationEngine.runApplication(app,
-              NetworkCreator.createResourcePool(conf.sceConf));
+              SecureComputationEngineImpl.createResourcePool(conf.sceConf,
+                  conf.sceConf.getSuite()));
 
           if (!assertAsExpected) {
             return;
@@ -99,11 +101,11 @@ public class BasicBooleanTests {
         public void test() throws Exception {
           TestBoolApplication app = new TestBoolApplication() {
 
-            private static final long serialVersionUID = 4338818809103728010L;
 
             @Override
             public ProtocolProducer prepareApplication(
-                ProtocolFactory provider) {
+                BuilderFactory factoryProducer) {
+              ProtocolFactory provider = factoryProducer.getProtocolFactory();
               AbstractBinaryFactory prov = (AbstractBinaryFactory) provider;
               BasicLogicBuilder builder = new BasicLogicBuilder(prov);
               SBool inp100 = builder.knownSBool(false);
@@ -132,7 +134,8 @@ public class BasicBooleanTests {
           };
 
           secureComputationEngine
-              .runApplication(app, NetworkCreator.createResourcePool(conf.sceConf));
+              .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf,
+                  conf.sceConf.getSuite()));
 
           if (!assertAsExpected) {
             return;
@@ -165,11 +168,11 @@ public class BasicBooleanTests {
         public void test() throws Exception {
           TestBoolApplication app = new TestBoolApplication() {
 
-            private static final long serialVersionUID = 4338818809103728010L;
 
             @Override
             public ProtocolProducer prepareApplication(
-                ProtocolFactory provider) {
+                BuilderFactory factoryProducer) {
+              ProtocolFactory provider = factoryProducer.getProtocolFactory();
               AbstractBinaryFactory prov = (AbstractBinaryFactory) provider;
               BasicLogicBuilder builder = new BasicLogicBuilder(prov);
 
@@ -193,7 +196,8 @@ public class BasicBooleanTests {
           };
 
           secureComputationEngine
-              .runApplication(app, NetworkCreator.createResourcePool(conf.sceConf));
+              .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf,
+                  conf.sceConf.getSuite()));
 
           if (!assertAsExpected) {
             return;
@@ -220,11 +224,11 @@ public class BasicBooleanTests {
         public void test() throws Exception {
           TestBoolApplication app = new TestBoolApplication() {
 
-            private static final long serialVersionUID = 4338818809103728010L;
 
             @Override
             public ProtocolProducer prepareApplication(
-                ProtocolFactory provider) {
+                BuilderFactory factoryProducer) {
+              ProtocolFactory provider = factoryProducer.getProtocolFactory();
               AbstractBinaryFactory prov = (AbstractBinaryFactory) provider;
               BasicLogicBuilder builder = new BasicLogicBuilder(prov);
               SBool inp1 = builder.knownSBool(true);
@@ -238,7 +242,8 @@ public class BasicBooleanTests {
           };
 
           secureComputationEngine
-              .runApplication(app, NetworkCreator.createResourcePool(conf.sceConf));
+              .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf,
+                  conf.sceConf.getSuite()));
 
           if (!assertAsExpected) {
             return;
@@ -269,11 +274,11 @@ public class BasicBooleanTests {
         public void test() throws Exception {
           TestBoolApplication app = new TestBoolApplication() {
 
-            private static final long serialVersionUID = 4338818809103728010L;
 
             @Override
             public ProtocolProducer prepareApplication(
-                ProtocolFactory provider) {
+                BuilderFactory factoryProducer) {
+              ProtocolFactory provider = factoryProducer.getProtocolFactory();
               AbstractBinaryFactory prov = (AbstractBinaryFactory) provider;
               BasicLogicBuilder builder = new BasicLogicBuilder(prov);
               SBool inp100 = builder.knownSBool(false);
@@ -312,7 +317,8 @@ public class BasicBooleanTests {
           };
 
           secureComputationEngine
-              .runApplication(app, NetworkCreator.createResourcePool(conf.sceConf));
+              .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf,
+                  conf.sceConf.getSuite()));
 
           if (!assertAsExpected) {
             return;

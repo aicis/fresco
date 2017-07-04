@@ -87,9 +87,9 @@ public class TestTinyTables {
       TestThreadConfiguration ttc = new TestThreadConfiguration();
       ttc.netConf = netConf.get(playerId);
 
-      ProtocolEvaluator evaluator;
+      ProtocolEvaluator<?> evaluator;
 
-      ProtocolSuiteConfiguration config;
+      ProtocolSuiteConfiguration<?, ?> config;
       if (preprocessing) {
         config = new TinyTablesPreproConfiguration();
 
@@ -120,11 +120,9 @@ public class TestTinyTables {
 
       evaluator = EvaluationStrategy.fromEnum(evalStrategy);
 
-      int noOfThreads = 3;
       Storage storage = new InMemoryStorage();
-      ttc.sceConf = new TestSCEConfiguration(config, NetworkingStrategy.KRYONET, evaluator,
-          noOfThreads,
-          noOfVMThreads, ttc.netConf, storage, false);
+      ttc.sceConf = new TestSCEConfiguration<>(config, NetworkingStrategy.KRYONET, evaluator,
+          ttc.netConf, storage, false);
       conf.put(playerId, ttc);
     }
     TestThreadRunner.run(f, conf);
@@ -132,7 +130,7 @@ public class TestTinyTables {
   }
 
 	/*
-	 * Helper methods
+   * Helper methods
 	 */
 
   private String getFilenameForTest(int playerId, String name) {

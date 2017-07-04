@@ -28,9 +28,10 @@ package dk.alexandra.fresco.lib.math.mult;
 
 import static org.junit.Assert.assertTrue;
 
-import dk.alexandra.fresco.framework.Application;
+import dk.alexandra.fresco.framework.BuilderFactory;
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.ProtocolProducer;
+import dk.alexandra.fresco.framework.TestBoolApplication;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
@@ -111,13 +112,13 @@ public class BristolMultTests {
 
         @Override
         public void test() throws Exception {
-          Application md5App = new Application() {
+          TestBoolApplication md5App = new TestBoolApplication() {
 
-            private static final long serialVersionUID = 36363636L;
 
-            @Override
-            public ProtocolProducer prepareApplication(ProtocolFactory fac) {
-              AbstractBinaryFactory bool = (AbstractBinaryFactory) fac;
+            public ProtocolProducer prepareApplication(
+                BuilderFactory factoryProducer) {
+              ProtocolFactory provider = factoryProducer.getProtocolFactory();
+              AbstractBinaryFactory bool = (AbstractBinaryFactory) provider;
               BasicLogicBuilder builder = new BasicLogicBuilder(bool);
 
               boolean[] in1_val = toBoolean(inv1);
@@ -148,7 +149,8 @@ public class BristolMultTests {
           };
 
           secureComputationEngine
-              .runApplication(md5App, NetworkCreator.createResourcePool(conf.sceConf));
+              .runApplication(md5App, SecureComputationEngineImpl.createResourcePool(conf.sceConf,
+                  conf.sceConf.getSuite()));
 
           if (!assertAsExpected) {
             return;

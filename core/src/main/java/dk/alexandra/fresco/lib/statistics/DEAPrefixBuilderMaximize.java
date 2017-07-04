@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -26,242 +26,227 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.statistics;
 
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.ListIterator;
 
-import dk.alexandra.fresco.framework.value.OInt;
+import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.builder.NumericBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
-import dk.alexandra.fresco.lib.helper.CopyProtocolImpl;
-import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
-import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
-import dk.alexandra.fresco.lib.lp.LPPrefix;
 import dk.alexandra.fresco.lib.lp.LPTableau;
 import dk.alexandra.fresco.lib.lp.Matrix;
 import dk.alexandra.fresco.lib.lp.SimpleLPPrefix;
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.stream.Collectors;
 
 /**
  * A helper class used to build the LPPrefix from the SInts representing the
  * input and outputs of DEA instance and the prefix GateProducer that populates
  * these SInts. Note that we use the words "output" and "input" in terms of the
  * DEA instance. I.e. in the way the economists use these words.
- * 
- * 
  */
-public class DEAPrefixBuilderMaximize extends DEAPrefixBuilder {
+public class DEAPrefixBuilderMaximize {
 
-	// A value no benchmarking result should be larger than. Note the benchmarking results are of the form
-		// \theta = "the factor a farmer can do better than he currently does" and thus is not necessarily upper bounded.
-	private static final int BENCHMARKING_BIG_M = 1000000;
+  // A value no benchmarking result should be larger than. Note the benchmarking results are of the form
+  // \theta = "the factor a farmer can do better than he currently does" and thus is not necessarily upper bounded.
+  private static final int BENCHMARKING_BIG_M = 1000;
 
-	/**
-	 * Constructs an empty builder
-	 */
-	public DEAPrefixBuilderMaximize() {
-		super();
-	}
+  /**
+   * Constructs an empty builder
+   */
+  DEAPrefixBuilderMaximize() {
+    super();
+  }
 
-	/**
-	 * Builds an LPPrefix from the given SInts, provider and prefix. Attempts to
-	 * check if the values given are consistent before building the prefix. If
-	 * this is not the case a IllegalStateException will be thrown.
-	 * 
-	 * @return an LPPrefix
-	 */
-	public LPPrefix build() {
-		// TODO: this should only be done once
-		if (!ready()) {
-			throw new IllegalStateException(
-					"Builder not ready to build LPPrefix not enough data supplied!");
-		}
-		if (!consistent()) {
-			throw new IllegalStateException(
-					"Trying to build LPPrefix from inconsistent data!");
-		}
-		/*
-		 * First copy the target values to the basis. This ensures that the
+  public static Computation<SimpleLPPrefix> build(
+      List<SInt[]> basisInputs, List<SInt[]> basisOutputs,
+      List<SInt> targetInputs, List<SInt> targetOutputs,
+      SequentialNumericBuilder builder
+  ) {
+    Computation<SInt> zero = builder.numeric().known(BigInteger.ZERO);
+    Computation<SInt> one = builder.numeric().known(BigInteger.ONE);
+    /*
+     * First copy the target values to the basis. This ensures that the
 		 * target values are in the basis thus the score must at least be 1.
 		 */
-		ParallelProtocolProducer copyTargetToBasis = new ParallelProtocolProducer();
-		List<SInt[]> newBasisInputs = new LinkedList<SInt[]>();
-		List<SInt[]> newBasisOutputs = new LinkedList<SInt[]>();
+    List<List<SInt>> newBasisInputs = addTargetToList(basisInputs, targetInputs);
+    List<List<SInt>> newBasisOutputs = addTargetToList(basisOutputs, targetOutputs);
 
-		ListIterator<SInt[]> basisIt = basisInputs.listIterator();
-		ListIterator<SInt> targetIt = targetInputs.listIterator();
-		while (basisIt.hasNext()) {
-			SInt[] basisInput = basisIt.next();
-			SInt targetInput = targetIt.next();
-			SInt[] newInputs = new SInt[basisInput.length + 1];
-			SInt copy = provider.getSInt();
-			copyTargetToBasis
-					.append(new CopyProtocolImpl<SInt>(targetInput, copy));
-			System.arraycopy(basisInput, 0, newInputs, 0, basisInput.length);
-			newInputs[newInputs.length - 1] = copy;
-			newBasisInputs.add(newInputs);
-		}
-		this.basisInputs = newBasisInputs;
-		basisIt = basisOutputs.listIterator();
-		targetIt = targetOutputs.listIterator();
-		while (basisIt.hasNext()) {
-			SInt[] basisOutput = basisIt.next();
-			SInt targetOutput = targetIt.next();
-			SInt[] newOutputs = new SInt[basisOutput.length + 1];
-			SInt copy = provider.getSInt();
-			copyTargetToBasis.append(new CopyProtocolImpl<SInt>(targetOutput, copy));
-			System.arraycopy(basisOutput, 0, newOutputs, 0, basisOutput.length);
-			newOutputs[newOutputs.length - 1] = copy;
-			newBasisOutputs.add(newOutputs);
-		}
-		this.basisOutputs = newBasisOutputs;
-		
 		/*
-		 * NeProtocol the basis output 
+     * NeProtocol the basis output
 		 */
-		int lambdas = basisInputs.get(0).length;
+    int lambdas = newBasisInputs.get(0).size();
 
-		ParallelProtocolProducer negateBasisOutput = new ParallelProtocolProducer();
-		List<SInt[]> negatedBasisOutputs = new ArrayList<SInt[]>(basisOutputs.size());
-		OInt negativeOne = provider.getOInt(BigInteger.valueOf(-1));
-		for (SInt[] outputs : basisOutputs) {
-			SInt[] negOutputs = new SInt[outputs.length];
-			int idx = 0;
-			for (SInt output : outputs) {
-				negOutputs[idx] = provider.getSInt();
-				negateBasisOutput.append(provider.getMultProtocol(negativeOne,
-						output, negOutputs[idx]));
-				idx++;
-			}
-			negatedBasisOutputs.add(negOutputs);	
-		}
+    BigInteger negativeOne = BigInteger.valueOf(-1);
 
-		int constraints = basisInputs.size() + basisOutputs.size() + 1;
-		int slackvariables = constraints;
-		int variables = lambdas + slackvariables + 1;
-		SInt[][] slack = getIdentity(slackvariables, provider);
-		SInt[][] C = new SInt[constraints][variables];
-		for (int i = 0; i < basisInputs.size(); i++) {
-			C[i] = inputRow(basisInputs.get(i), slack[i], provider);
-		}
+    Computation<List<List<Computation<SInt>>>> negatedBasisOutputsComputation =
+        builder.par((par) -> {
+          NumericBuilder numeric = par.numeric();
+          List<List<Computation<SInt>>> negatedBasisResult = newBasisOutputs.stream().map(
+              outputs -> outputs.stream()
+                  .map(output -> numeric.mult(negativeOne, () -> output))
+                  .collect(Collectors.toList())
+          ).collect(Collectors.toList());
+          return () -> negatedBasisResult;
+        });
 
-		for (int i = basisInputs.size(); i < constraints - 1; i++) {
-			C[i] = outputRow(negatedBasisOutputs.get(i - basisInputs.size()),
-					targetOutputs.get(i - basisInputs.size()), slack[i]);
-		}
-		C[C.length - 1] = lambdaRow(lambdas, slack[C.length - 1], provider);
+    int constraints = newBasisInputs.size() + newBasisOutputs.size() + 1;
+    int variables = lambdas + constraints + 1;
+    ArrayList<ArrayList<Computation<SInt>>> slack = getIdentity(constraints, one, zero);
+    ArrayList<ArrayList<Computation<SInt>>> C = new ArrayList<>(constraints);
+    for (int i = 0; i < newBasisInputs.size(); i++) {
+      C.add(inputRow(newBasisInputs.get(i), slack.get(i), zero));
+    }
 
-		SInt F[] = fVector(variables, lambdas, provider);
-		SInt B[] = bVector(constraints, targetInputs.toArray(new SInt[1]),
-				provider);
-		SInt z = provider.getSInt(0);
-		SInt pivot = provider.getSInt(1);
-		SInt[] basis = new SInt[constraints];		
-		
-		LPTableau tab = new LPTableau(new Matrix<SInt>(C), B, F, z);
-		Matrix<SInt> updateMatrix = new Matrix<SInt>(getIdentity(
-				constraints + 1, provider));
-		SequentialProtocolProducer seqGP = new SequentialProtocolProducer();
-		if (this.prefix != null) {
-			seqGP.append(this.prefix);
-		}
-		seqGP.append(copyTargetToBasis);
-		seqGP.append(negateBasisOutput);
-		return new SimpleLPPrefix(updateMatrix, tab, pivot, basis, seqGP);
-	}
+    return builder.seq(seq -> {
 
-	private static SInt[] fVector(int size, int lambdas, BasicNumericFactory provider) {
-		SInt[] F = new SInt[size];
-		int index = 0;
-		// Delta has coefficient 1
-		F[0] = provider.getSInt(-1);
-		index++;
-		// Make sure there are lambdas > 0
-		while (index < lambdas + 1) {
-			F[index] = provider.getSInt(0 - BENCHMARKING_BIG_M);
-			index++;
-		}
-		// Slack variables do not contribute to cost
-		while (index < size) {
-			F[index] = provider.getSInt(0);
-			index++;
-		}
-		return F;
-	}
+      List<List<Computation<SInt>>> negatedBasisOutputs = negatedBasisOutputsComputation.out();
 
-	private static SInt[] bVector(int size, SInt[] bankInputs,
-			BasicNumericFactory provider) {
-		SInt[] B = new SInt[size];
-		int index = 0;
-		for (SInt input : bankInputs) {
-			B[index] = input;
-			index++;
-		}
-		// For each bank output constraint B is zero
-		while (index < size - 1) {
-			B[index] = provider.getSInt(0);
-			index++;
-		}
-		// For the lambda constraint B is one
-		B[index] = provider.getSInt(1);
-		return B;
-	}
+      for (int i = newBasisInputs.size(); i < constraints - 1; i++) {
+        C.add(outputRow(negatedBasisOutputs.get(i - newBasisInputs.size()),
+            targetOutputs.get(i - newBasisInputs.size()), slack.get(i)));
+      }
+      C.add(lambdaRow(lambdas, slack.get(constraints - 1), zero, one));
 
-	private static SInt[] inputRow(SInt[] vflInputs, SInt[] slackVariables,
-			BasicNumericFactory provider) {
-		SInt[] row = new SInt[vflInputs.length + slackVariables.length + 1];
-		int index = 0;
-		row[0] = provider.getSInt(0);
-		index++;
-		for (SInt vflInput : vflInputs) {
-			row[index] = vflInput;
-			index++;
-		}
-		for (SInt slack : slackVariables) {
-			row[index] = slack;
-			index++;
-		}
-		return row;
-	}
+      ArrayList<Computation<SInt>> F = fVector(variables, lambdas, seq, zero);
+      ArrayList<Computation<SInt>> B = bVector(constraints, targetInputs, zero, one);
+      Computation<SInt> z = seq.numeric().known(BigInteger.valueOf(-BENCHMARKING_BIG_M));
+      Computation<SInt> pivot = one;
 
-	private static SInt[] outputRow(SInt[] vflOutputs, SInt bankOutput,
-			SInt[] slackVariables) {
-		SInt[] row = new SInt[vflOutputs.length + slackVariables.length + 1];
-		int index = 0;
-		row[0] = bankOutput;
-		index++;
-		for (SInt vflOutput : vflOutputs) {
-			row[index] = vflOutput;
-			index++;
-		}
-		for (SInt slack : slackVariables) {
-			row[index] = slack;
-			index++;
-		}
-		return row;
-	}
+      ArrayList<Computation<SInt>> basis = new ArrayList<>(constraints);
+      for (int i = 0; i < constraints; i++) {
+        basis.add(seq.numeric().known(BigInteger.valueOf(lambdas + 1 + 1 + i)));
+      }
 
-	private static SInt[] lambdaRow(int lambdas, SInt[] slackVariables,
-			BasicNumericFactory provider) {
-		SInt[] row = new SInt[lambdas + slackVariables.length + 1];
-		int index = 0;
-		row[0] = provider.getSInt(0);
-		index++;
-		while (index < lambdas + 1) {
-			row[index] = provider.getSInt(BigInteger.ONE);
-			index++;
-		}
-		for (SInt slack : slackVariables) {
-			row[index] = slack;
-			index++;
-		}
-		return row;
-	}
+      LPTableau tab = new LPTableau(new Matrix<>(constraints, variables, C), B, F, z);
+      Matrix<Computation<SInt>> updateMatrix = new Matrix<>(
+          constraints + 1, constraints + 1, getIdentity(constraints + 1, one, zero));
+      return () -> new SimpleLPPrefix(updateMatrix, tab, pivot, basis);
+    });
+  }
 
-	@Override
-	public DEAPrefixBuilder createNewInstance() {
-		return new DEAPrefixBuilderMaximize();
-	}
+
+  static ArrayList<ArrayList<Computation<SInt>>> getIdentity(int dimension, Computation<SInt> one,
+      Computation<SInt> zero) {
+    ArrayList<ArrayList<Computation<SInt>>> identity = new ArrayList<>(dimension);
+    for (int i = 0; i < dimension; i++) {
+      ArrayList<Computation<SInt>> row = new ArrayList<>();
+      for (int j = 0; j < dimension; j++) {
+        if (i == j) {
+          row.add(one);
+        } else {
+          row.add(zero);
+        }
+      }
+      identity.add(row);
+    }
+    return identity;
+  }
+
+  static List<List<SInt>> addTargetToList(List<SInt[]> basisOutputs, List<SInt> targetOutputs) {
+    ListIterator<SInt[]> basisIt = basisOutputs.listIterator();
+    ListIterator<SInt> targetIt = targetOutputs.listIterator();
+    List<List<SInt>> newBasis = new LinkedList<>();
+    while (basisIt.hasNext()) {
+      SInt[] basisOutput = basisIt.next();
+      SInt targetOutput = targetIt.next();
+      List<SInt> newInputs = new ArrayList<>(basisOutput.length + 1);
+      newInputs.addAll(Arrays.asList(basisOutput));
+      newInputs.add(targetOutput);
+      newBasis.add(newInputs);
+    }
+    return newBasis;
+  }
+
+  private static ArrayList<Computation<SInt>> fVector(int size, int lambdas,
+      SequentialNumericBuilder builder,
+      Computation<SInt> zero) {
+    NumericBuilder numeric = builder.numeric();
+    Computation<SInt> minusOne = numeric.known(BigInteger.valueOf(-1));
+    Computation<SInt> minusBigM = numeric.known(BigInteger.valueOf(0 - BENCHMARKING_BIG_M));
+    ArrayList<Computation<SInt>> F = new ArrayList<>(size);
+    int index = 0;
+    // Delta has coefficient 1
+    F.add(minusOne);
+    index++;
+    // Make sure there are lambdas > 0
+    while (index < lambdas + 1) {
+      F.add(minusBigM);
+      index++;
+    }
+    // Slack variables do not contribute to cost
+    while (index < size) {
+      F.add(zero);
+      index++;
+    }
+    return F;
+  }
+
+
+  private static List<Computation<SInt>> convertList(List<SInt> interval) {
+    return interval.stream()
+        .map(intervalValue -> {
+          Computation<SInt> computation = () -> intervalValue;
+          return computation;
+        })
+        .collect(Collectors.toList());
+  }
+
+  private static ArrayList<Computation<SInt>> bVector(int size, List<SInt> targetInputs,
+      Computation<SInt> zero,
+      Computation<SInt> one) {
+    ArrayList<Computation<SInt>> B = new ArrayList<>(size);
+    B.addAll(convertList(targetInputs));
+    // For each bank output constraint B is zero
+    while (B.size() < size - 1) {
+      B.add(zero);
+    }
+    // For the lambda constraint B is one
+    B.add(one);
+    return B;
+  }
+
+  private static ArrayList<Computation<SInt>> inputRow(List<SInt> vflInputs,
+      ArrayList<Computation<SInt>> slackVariables,
+      Computation<SInt> zero) {
+    ArrayList<Computation<SInt>> row = new ArrayList<>(
+        vflInputs.size() + slackVariables.size() + 1);
+    row.add(zero);
+    row.addAll(convertList(vflInputs));
+    row.addAll(slackVariables);
+    return row;
+  }
+
+  private static ArrayList<Computation<SInt>> outputRow(List<Computation<SInt>> vflOutputs,
+      SInt bankOutput,
+      ArrayList<Computation<SInt>> slackVariables) {
+    ArrayList<Computation<SInt>> row = new ArrayList<>(
+        vflOutputs.size() + slackVariables.size() + 1);
+    row.add(() -> bankOutput);
+    row.addAll(vflOutputs);
+    row.addAll(slackVariables);
+    return row;
+  }
+
+  private static ArrayList<Computation<SInt>> lambdaRow(int lambdas,
+      ArrayList<Computation<SInt>> slackVariables,
+      Computation<SInt> zero,
+      Computation<SInt> one) {
+    ArrayList<Computation<SInt>> row = new ArrayList<>(lambdas + slackVariables.size() + 1);
+
+    row.add(zero);
+
+    int index = 0;
+    index++;
+    while (index < lambdas + 1) {
+      row.add(one);
+      index++;
+    }
+    row.addAll(slackVariables);
+    return row;
+  }
 
 }

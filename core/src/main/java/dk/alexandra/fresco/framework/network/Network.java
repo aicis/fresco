@@ -23,9 +23,8 @@
  *******************************************************************************/
 package dk.alexandra.fresco.framework.network;
 
-import java.io.IOException;
-
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
+import java.io.IOException;
 
 /**
  * A player's view of a network.

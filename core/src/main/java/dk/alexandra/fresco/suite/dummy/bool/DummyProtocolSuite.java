@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -26,7 +26,6 @@
  *******************************************************************************/
 package dk.alexandra.fresco.suite.dummy.bool;
 
-import dk.alexandra.fresco.framework.network.SCENetwork;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 
@@ -41,23 +40,13 @@ import dk.alexandra.fresco.suite.ProtocolSuite;
 public class DummyProtocolSuite implements ProtocolSuite {
 
   @Override
-  public DummyFactory init(ResourcePool resourcePool) {
-    return new DummyFactory();
+  public DummyBuilderFactory init(ResourcePool resourcePool) {
+    return new DummyBuilderFactory();
   }
 
   @Override
   public RoundSynchronization createRoundSynchronization() {
     return new DummyRoundSynchronization();
-  }
-
-  @Override
-  public void finishedEval(ResourcePool resourcePool, SCENetwork sceNetwork) {
-    // No finish needed.
-  }
-
-  @Override
-  public void destroy() {
-    // No destroy needed.
   }
 
 

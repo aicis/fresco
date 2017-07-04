@@ -23,231 +23,142 @@
  *
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
- *******************************************************************************/
+ */
 package dk.alexandra.fresco.lib.math.integer.binary;
 
-import dk.alexandra.fresco.framework.ProtocolFactory;
+import dk.alexandra.fresco.framework.Application;
+import dk.alexandra.fresco.framework.BuilderFactory;
+import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.TestApplication;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
-import dk.alexandra.fresco.framework.network.NetworkCreator;
-import dk.alexandra.fresco.framework.value.OInt;
+import dk.alexandra.fresco.framework.builder.AdvancedNumericBuilder;
+import dk.alexandra.fresco.framework.builder.AdvancedNumericBuilder.RightShiftResult;
+import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
+import dk.alexandra.fresco.framework.builder.NumericBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
+import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
+import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.compare.RandomAdditiveMaskFactory;
-import dk.alexandra.fresco.lib.compare.RandomAdditiveMaskFactoryImpl;
-import dk.alexandra.fresco.lib.conversion.IntegerToBitsFactory;
-import dk.alexandra.fresco.lib.conversion.IntegerToBitsFactoryImpl;
-import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
-import dk.alexandra.fresco.lib.helper.builder.NumericIOBuilder;
-import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
-import dk.alexandra.fresco.lib.math.integer.NumericBitFactory;
-import dk.alexandra.fresco.lib.math.integer.inv.LocalInversionFactory;
 import java.math.BigInteger;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.junit.Assert;
 
 
 /**
  * Generic test cases for basic finite field operations.
- * 
+ *
  * Can be reused by a test case for any protocol suite that implements the basic
  * field protocol factory.
  *
  * TODO: Generic tests should not reside in the runtime package. Rather in
  * mpc.lib or something.
- *
  */
 public class BinaryOperationsTests {
 
-	/**
-	 * Test binary right shift of a shared secret.
-	 */
-	public static class TestRightShift extends TestThreadFactory {
+  /**
+   * Test binary right shift of a shared secret.
+   */
+  public static class TestRightShift extends TestThreadFactory {
 
-		@Override
-		public TestThread next(TestThreadConfiguration conf) {
-			
-			return new TestThread() {
-				private final BigInteger input = BigInteger.valueOf(12332157);
+    @Override
+    public TestThread next(TestThreadConfiguration conf) {
 
-				@Override
-				public void test() throws Exception {
-					TestApplication app = new TestApplication() {
+      return new TestThread() {
+        private final BigInteger input = BigInteger.valueOf(12332157);
+        private final int shifts = 3;
 
-						private static final long serialVersionUID = 701623441111137585L;
-						
-						@Override
-						public ProtocolProducer prepareApplication(
-								ProtocolFactory factory) {
-							
-							BasicNumericFactory basicNumericFactory = (BasicNumericFactory) factory;
-							NumericBitFactory preprocessedNumericBitFactory = (NumericBitFactory) factory;
-							RandomAdditiveMaskFactory randomAdditiveMaskFactory = new RandomAdditiveMaskFactoryImpl(basicNumericFactory, preprocessedNumericBitFactory);
-							LocalInversionFactory localInversionFactory = (LocalInversionFactory) factory;
-							RightShiftFactory rightShiftFactory = new RightShiftFactoryImpl(basicNumericFactory, randomAdditiveMaskFactory, localInversionFactory);
+        @Override
+        public void test() throws Exception {
+          Application<Pair<BigInteger, List<BigInteger>>, SequentialNumericBuilder> app =
+              (SequentialNumericBuilder builder) -> {
+                AdvancedNumericBuilder rightShift = builder.advancedNumeric();
+                Computation<SInt> encryptedInput = builder.numeric().known(input);
+                Computation<RightShiftResult> shiftedRight = rightShift
+                    .rightShiftWithRemainder(encryptedInput, shifts);
+                NumericBuilder NumericBuilder = builder.numeric();
+                Computation<BigInteger> openResult = NumericBuilder
+                    .open(() -> shiftedRight.out().getResult());
+                Computation<List<Computation<BigInteger>>> openRemainders = builder
+                    .createSequentialSub((innerBuilder) -> {
+                      NumericBuilder innerOpenBuilder = innerBuilder.numeric();
+                      List<Computation<BigInteger>> opened = shiftedRight.out()
+                          .getRemainder()
+                          .stream()
+                          .map(innerOpenBuilder::open)
+                          .collect(Collectors.toList());
+                      return () -> opened;
+                    });
+                return () -> new Pair<>(
+                    openResult.out(),
+                    openRemainders.out().stream()
+                        .map(Computation::out)
+                        .collect(Collectors.toList()));
+              };
+          Pair<BigInteger, List<BigInteger>> output =
+              (Pair<BigInteger, List<BigInteger>>) secureComputationEngine.runApplication(
+                  app,
+                  SecureComputationEngineImpl
+                      .createResourcePool(conf.sceConf, conf.sceConf.getSuite()));
+          BigInteger result = output.getFirst();
+          List<BigInteger> remainders = output.getSecond();
 
-							SInt result = basicNumericFactory.getSInt();
-							SInt remainder = basicNumericFactory.getSInt();
+          Assert.assertEquals(result, input.shiftRight(3));
+          BigInteger lastRound = input;
+          for (BigInteger remainder : remainders) {
+            Assert.assertEquals(lastRound.mod(BigInteger.valueOf(2)), remainder);
+            lastRound = lastRound.shiftRight(1);
+          }
+        }
+      };
+    }
+  }
 
-							NumericIOBuilder ioBuilder = new NumericIOBuilder(basicNumericFactory);
-							SequentialProtocolProducer sequentialProtocolProducer = new SequentialProtocolProducer();
-							
-							SInt input1 = ioBuilder.input(input, 1);
-							sequentialProtocolProducer.append(ioBuilder.getProtocol());
-							
-							RightShiftProtocol rightShiftProtocol = rightShiftFactory.getRightShiftProtocol(input1, result, remainder);
-							sequentialProtocolProducer.append(rightShiftProtocol);
-							
-							OInt output1 = ioBuilder.output(result);
-							OInt output2 = ioBuilder.output(remainder);
-							
-							sequentialProtocolProducer.append(ioBuilder.getProtocol());
 
-							outputs = new OInt[] {output1, output2};
+  /**
+   * Test binary right shift of a shared secret.
+   */
+  public static class TestBitLength extends TestThreadFactory {
 
-							return sequentialProtocolProducer;
-						}
-					};
-					secureComputationEngine
-							.runApplication(app, NetworkCreator.createResourcePool(conf.sceConf));
-					BigInteger result = app.getOutputs()[0].getValue();
-					BigInteger remainder = app.getOutputs()[1].getValue();
-					
-					Assert.assertEquals(result, input.shiftRight(1));
-					Assert.assertEquals(remainder, input.mod(BigInteger.valueOf(2)));
-				}
-			};
-		}
-	}
-	
+    @Override
+    public TestThread next(TestThreadConfiguration conf) {
 
-	public static class TestRepeatedRightShift extends TestThreadFactory {
+      return new TestThread() {
+        private final BigInteger input = BigInteger.valueOf(5);
+        private Computation<BigInteger> openResult;
 
-		@Override
-		public TestThread next(TestThreadConfiguration conf) {
-			
-			return new TestThread() {
-				private final BigInteger input = BigInteger.valueOf(12332153);
-				private final int n = 7;
-				
-				@Override
-				public void test() throws Exception {
-					TestApplication app = new TestApplication() {
+        @Override
+        public void test() throws Exception {
+          TestApplication app = new TestApplication() {
 
-						private static final long serialVersionUID = 701623441111137585L;
-						
-						@Override
-						public ProtocolProducer prepareApplication(
-								ProtocolFactory factory) {
-							
-							BasicNumericFactory basicNumericFactory = (BasicNumericFactory) factory;
-							NumericBitFactory preprocessedNumericBitFactory = (NumericBitFactory) factory;
-							RandomAdditiveMaskFactory randomAdditiveMaskFactory = new RandomAdditiveMaskFactoryImpl(basicNumericFactory, preprocessedNumericBitFactory);
-							LocalInversionFactory localInversionFactory = (LocalInversionFactory) factory;
-							RightShiftFactory rightShiftFactory = new RightShiftFactoryImpl(basicNumericFactory, randomAdditiveMaskFactory, localInversionFactory);
+            @Override
+            public ProtocolProducer prepareApplication(
+                BuilderFactory producer) {
+              return ProtocolBuilderNumeric
+                  .createApplicationRoot((BuilderFactoryNumeric) producer, (builder) -> {
+                    Computation<SInt> sharedInput = builder.numeric().known(input);
+                    AdvancedNumericBuilder bitLengthBuilder = builder
+                        .advancedNumeric();
+                    Computation<SInt> bitLength = bitLengthBuilder
+                        .bitLength(sharedInput, input.bitLength() * 2);
+                    openResult = builder.numeric().open(bitLength);
+                  }).build();
+            }
+          };
+          secureComputationEngine
+              .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf,
+                  conf.sceConf.getSuite()));
+          BigInteger result = openResult.out();
 
-							SInt result = basicNumericFactory.getSInt();
-							
-							SInt[] remainders = new SInt[n];
-							for (int i = 0; i < n; i++) {
-								remainders[i] = basicNumericFactory.getSInt();
-							}
-							
-							NumericIOBuilder ioBuilder = new NumericIOBuilder(basicNumericFactory);
-							SequentialProtocolProducer sequentialProtocolProducer = new SequentialProtocolProducer();
-							
-							SInt input1 = ioBuilder.input(input, 1);
-							sequentialProtocolProducer.append(ioBuilder.getProtocol());
-							
-							RepeatedRightShiftProtocol rightShiftProtocol = rightShiftFactory.getRepeatedRightShiftProtocol(input1, n, result, remainders);
-							sequentialProtocolProducer.append(rightShiftProtocol);
-							
-							OInt shiftOutput = ioBuilder.output(result);
-							OInt[] remainderOutput = ioBuilder.outputArray(remainders);
-							sequentialProtocolProducer.append(ioBuilder.getProtocol());
+          System.out.println(result);
 
-							outputs = new OInt[n+1];
-							outputs[0] = shiftOutput;
-							System.arraycopy(remainderOutput, 0, outputs, 1, n);
-							return sequentialProtocolProducer;
-						}
-					};
-					secureComputationEngine
-							.runApplication(app, NetworkCreator.createResourcePool(conf.sceConf));
-
-          BigInteger output = app.getOutputs()[0].getValue();
-					Assert.assertEquals(input.shiftRight(n), output);
-
-					BigInteger[] remainders = new BigInteger[n];
-					for (int i = 0; i < n; i++) {
-						remainders[i] = app.getOutputs()[i+1].getValue();
-						Assert.assertEquals(input.testBit(i) ? BigInteger.ONE : BigInteger.ZERO, remainders[i]);
-					}
-				}
-			};
-		}
-	}
-	
-	/**
-	 * Test binary right shift of a shared secret.
-	 */
-	public static class TestMostSignificantBit extends TestThreadFactory {
-
-		@Override
-		public TestThread next(TestThreadConfiguration conf) {
-			
-			return new TestThread() {
-				private final BigInteger input = BigInteger.valueOf(5);
-
-				@Override
-				public void test() throws Exception {
-					TestApplication app = new TestApplication() {
-
-						private static final long serialVersionUID = 701623441111137585L;
-						
-						@Override
-						public ProtocolProducer prepareApplication(
-								ProtocolFactory factory) {
-							
-							BasicNumericFactory basicNumericFactory = (BasicNumericFactory) factory;
-							NumericBitFactory preprocessedNumericBitFactory = (NumericBitFactory) factory;
-							RandomAdditiveMaskFactory randomAdditiveMaskFactory = new RandomAdditiveMaskFactoryImpl(basicNumericFactory, preprocessedNumericBitFactory);
-							LocalInversionFactory localInversionFactory = (LocalInversionFactory) factory;
-							RightShiftFactory rightShiftFactory = new RightShiftFactoryImpl(basicNumericFactory, randomAdditiveMaskFactory, localInversionFactory);
-							IntegerToBitsFactory integerToBitsFactory = new IntegerToBitsFactoryImpl(basicNumericFactory, rightShiftFactory);
-							BitLengthFactory bitLengthFactory = new BitLengthFactoryImpl(basicNumericFactory, integerToBitsFactory);
-							
-							SInt result = basicNumericFactory.getSInt();
-
-							NumericIOBuilder ioBuilder = new NumericIOBuilder(basicNumericFactory);
-							SequentialProtocolProducer sequentialProtocolProducer = new SequentialProtocolProducer();
-							
-							SInt input1 = ioBuilder.input(input, 1);
-							sequentialProtocolProducer.append(ioBuilder.getProtocol());
-							
-							BitLengthProtocol bitLengthProtocol = bitLengthFactory.getBitLengthProtocol(input1, result, input.bitLength() * 2);
-							sequentialProtocolProducer.append(bitLengthProtocol);
-							
-							OInt output1 = ioBuilder.output(result);
-							
-							sequentialProtocolProducer.append(ioBuilder.getProtocol());
-
-							outputs = new OInt[] {output1};
-
-							return sequentialProtocolProducer;
-						}
-					};
-					secureComputationEngine
-							.runApplication(app, NetworkCreator.createResourcePool(conf.sceConf));
-					BigInteger result = app.getOutputs()[0].getValue();
-					
-					System.out.println(result);
-					
-					Assert.assertEquals(BigInteger.valueOf(input.bitLength()), result);
-				}
-			};
-		}
-	}
-
+          Assert.assertEquals(BigInteger.valueOf(input.bitLength()), result);
+        }
+      };
+    }
+  }
 }

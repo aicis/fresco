@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -26,13 +26,13 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.field.bool.generic;
 
+import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.value.OBool;
 import dk.alexandra.fresco.framework.value.SBool;
 import dk.alexandra.fresco.framework.value.SBoolFactory;
 import dk.alexandra.fresco.lib.field.bool.OrProtocol;
 import dk.alexandra.fresco.lib.helper.CopyProtocol;
-import dk.alexandra.fresco.lib.helper.CopyProtocolFactory;
 
 /**
  * An efficient way of OR'ing an SBool with an OBool if we can construct SBools
@@ -40,16 +40,15 @@ import dk.alexandra.fresco.lib.helper.CopyProtocolFactory;
  */
 public class OrFromCopyConstProtocol implements OrProtocol {
 
-  private CopyProtocol<SBool> copyCir;
-  private CopyProtocolFactory<SBool> copyFactory;
+  private NativeProtocol copyCir;
   private SBoolFactory sboolFactory;
   private SBool inLeft;
   private OBool inRight;
   private SBool out;
 
-  public OrFromCopyConstProtocol(CopyProtocolFactory<SBool> copyFactory, SBoolFactory sboolFactory,
+  public OrFromCopyConstProtocol(SBoolFactory sboolFactory,
       SBool inLeft, OBool inRight, SBool out) {
-    this.copyFactory = copyFactory;
+    this.sboolFactory = sboolFactory;
     this.inLeft = inLeft;
     this.inRight = inRight;
     this.out = out;
@@ -60,9 +59,9 @@ public class OrFromCopyConstProtocol implements OrProtocol {
 
     if (copyCir == null) {
       if (inRight.getValue()) {
-        copyCir = copyFactory.getCopyProtocol(sboolFactory.getKnownConstantSBool(true), out);
+        copyCir = new CopyProtocol<>(sboolFactory.getKnownConstantSBool(true), out);
       } else {
-        copyCir = copyFactory.getCopyProtocol(inLeft, out);
+        copyCir = new CopyProtocol<>(inLeft, out);
       }
     }
 

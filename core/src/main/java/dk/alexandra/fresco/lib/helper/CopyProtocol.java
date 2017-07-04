@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -27,16 +27,28 @@
 package dk.alexandra.fresco.lib.helper;
 
 import dk.alexandra.fresco.framework.NativeProtocol;
+import dk.alexandra.fresco.framework.network.SCENetwork;
+import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.Value;
 
-/**
- * Copy any value to any value of the same type T where the only requirement is
- * that it should extend/implement the Value interface.
- * 
- * @author Kasper Damgaard
- *
- * @param <T>
- */
-public interface CopyProtocol<T extends Value> extends NativeProtocol {
+public class CopyProtocol<T extends Value, S extends ResourcePool> implements
+    NativeProtocol<T, S> {
 
+  private T toCopy, into;
+
+  public CopyProtocol(T toCopy, T into) {
+    this.toCopy = toCopy;
+    this.into = into;
+  }
+
+  @Override
+  public T out() {
+    return into;
+  }
+
+  @Override
+  public EvaluationStatus evaluate(int round, ResourcePool resourcePool, SCENetwork network) {
+    into.setSerializableContent(this.toCopy.getSerializableContent());
+    return EvaluationStatus.IS_DONE;
+  }
 }

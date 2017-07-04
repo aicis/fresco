@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -29,6 +29,7 @@ package dk.alexandra.fresco.suite.spdz.gates;
 import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.network.SCENetwork;
 import dk.alexandra.fresco.framework.network.serializers.ByteArrayHelper;
+import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.security.MessageDigest;
@@ -36,10 +37,10 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
-public abstract class SpdzNativeProtocol implements NativeProtocol {
+public abstract class SpdzNativeProtocol<OutputT> implements
+    NativeProtocol<OutputT, SpdzResourcePool> {
 
-  byte[] sendBroadcastValidation(MessageDigest dig, SCENetwork network, BigInteger b,
-      int players) {
+  byte[] sendBroadcastValidation(MessageDigest dig, SCENetwork network, BigInteger b) {
     dig.update(b.toByteArray());
     byte[] digest = dig.digest();
     dig.reset();
@@ -48,7 +49,7 @@ public abstract class SpdzNativeProtocol implements NativeProtocol {
   }
 
   byte[] sendBroadcastValidation(MessageDigest dig, SCENetwork network,
-      Collection<BigInteger> bs, int players) {
+      Collection<BigInteger> bs) {
     for (BigInteger b : bs) {
       dig.update(b.toByteArray());
     }
