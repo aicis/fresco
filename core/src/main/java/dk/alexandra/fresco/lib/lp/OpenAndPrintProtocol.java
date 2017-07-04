@@ -3,27 +3,25 @@
  *
  * This file is part of the FRESCO project.
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
  *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *
- * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
- * and Bouncy Castle. Please see these projects for any further licensing issues.
+ * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL, and Bouncy Castle.
+ * Please see these projects for any further licensing issues.
  *******************************************************************************/
+
 package dk.alexandra.fresco.lib.lp;
 
 import dk.alexandra.fresco.framework.Computation;
@@ -46,26 +44,30 @@ public class OpenAndPrintProtocol implements ProtocolProducer {
   private SInt[] vector = null;
   private SInt[][] matrix = null;
 
-  private List<Computation<BigInteger>> oVector = null;
-  private List<List<Computation<BigInteger>>> oMatrix = null;
-  private Computation<BigInteger> oNumber;
+  private List<Computation<BigInteger>> openVector = null;
+  private List<List<Computation<BigInteger>>> openMatrix = null;
+  private Computation<BigInteger> openNumber;
 
-  public OpenAndPrintProtocol(String s,
-      List<Computation<SInt>> comps, BasicNumericFactory bnFactory) {
+  public OpenAndPrintProtocol(String s, List<Computation<SInt>> comps,
+      BasicNumericFactory bnFactory) {
     this(s, comps.stream().map(Computation::out).toArray(SInt[]::new), bnFactory);
   }
 
-  private enum STATE {OUTPUT, WRITE, DONE}
-
-  ;
-  private STATE state = STATE.OUTPUT;
+  private enum State { OUTPUT, WRITE, DONE }
+  
+  private State state = State.OUTPUT;
   private String label;
 
   ProtocolProducer pp = null;
 
   private BasicNumericFactory factory;
 
-
+  /**
+   * Prints a single number.
+   * @param label label identify the print out 
+   * @param number the number to print
+   * @param factory a basic numeric factory
+   */
   public OpenAndPrintProtocol(String label, SInt number, BasicNumericFactory factory) {
     Objects.requireNonNull(number);
     this.number = number;
@@ -73,6 +75,12 @@ public class OpenAndPrintProtocol implements ProtocolProducer {
     this.label = label;
   }
 
+  /**
+   * Prints a vector.
+   * @param label label identify the print out 
+   * @param vector the vector to print
+   * @param factory a basic numeric factory
+   */
   public OpenAndPrintProtocol(String label, SInt[] vector, BasicNumericFactory factory) {
     Objects.requireNonNull(vector);
     this.vector = vector;
@@ -80,6 +88,12 @@ public class OpenAndPrintProtocol implements ProtocolProducer {
     this.label = label;
   }
 
+  /**
+   * Prints a matrix number.
+   * @param label label identify the print out 
+   * @param matrix the matrix to print
+   * @param factory a basic numeric factory
+   */
   public OpenAndPrintProtocol(String label, SInt[][] matrix, BasicNumericFactory factory) {
     Objects.requireNonNull(matrix);
     this.matrix = matrix;
@@ -90,37 +104,41 @@ public class OpenAndPrintProtocol implements ProtocolProducer {
   @Override
   public void getNextProtocols(ProtocolCollection protocolCollection) {
     if (pp == null) {
-      if (state == STATE.OUTPUT) {
+      if (state == State.OUTPUT) {
         if (number != null) {
-          oNumber = factory.getOpenProtocol(number);
-          pp = SingleProtocolProducer.wrap(oNumber);
+          openNumber = factory.getOpenProtocol(number);
+          pp = SingleProtocolProducer.wrap(openNumber);
         } else if (vector != null) {
-          oVector = new ArrayList<>();
-          pp = makeOpenProtocol(vector, oVector, factory);
+          openVector = new ArrayList<>();
+          pp = makeOpenProtocol(vector, openVector, factory);
         } else {
-          oMatrix = new ArrayList<>();
-          pp = makeOpenProtocol(matrix, oMatrix, factory);
+          openMatrix = new ArrayList<>();
+          pp = makeOpenProtocol(matrix, openMatrix, factory);
         }
-      } else if (state == STATE.WRITE) {
+      } else if (state == State.WRITE) {
         StringBuilder sb = new StringBuilder();
         sb.append(label);
-        if (oNumber != null) {
-          sb.append(oNumber.toString());
-        } else if (oVector != null) {
+        if (openNumber != null) {
+          sb.append(openNumber.out().toString());
+        } else if (openVector != null) {
           sb.append('\n');
-          for (Computation<BigInteger> entry : oVector) {
-            sb.append(entry.out().toString() + ",\t");
+          for (Computation<BigInteger> entry : openVector) {
+            sb.append(entry.out().toString() + ", ");
           }
-        } else if (oMatrix != null) {
+        } else if (openMatrix != null) {
           sb.append('\n');
-          for (List<Computation<BigInteger>> row : oMatrix) {
+          for (List<Computation<BigInteger>> row : openMatrix) {
             for (Computation<BigInteger> entry : row) {
-              sb.append(entry.out().toString() + "," + "\t");
+              sb.append(entry.out().toString() + ",  ");
             }
             sb.append('\n');
           }
         }
         pp = new MarkerProtocolImpl(sb.toString());
+      } else if (state == State.DONE) {
+        // TODO: This should really never occur as a state of DONE should give false in
+        // hasNextProtocols, but it does, find out why.
+        return;
       }
     }
     if (pp.hasNextProtocols()) {
@@ -128,11 +146,11 @@ public class OpenAndPrintProtocol implements ProtocolProducer {
     } else if (!pp.hasNextProtocols()) {
       switch (state) {
         case OUTPUT:
-          state = STATE.WRITE;
+          state = State.WRITE;
           pp = null;
           break;
         case WRITE:
-          state = STATE.DONE;
+          state = State.DONE;
           pp = null;
           break;
         default:
@@ -166,7 +184,7 @@ public class OpenAndPrintProtocol implements ProtocolProducer {
 
   @Override
   public boolean hasNextProtocols() {
-    return state != STATE.DONE;
+    return state != State.DONE;
   }
 
 }

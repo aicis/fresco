@@ -24,6 +24,7 @@
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
  */
+
 package dk.alexandra.fresco.lib.lp;
 
 import java.util.ArrayList;
@@ -38,6 +39,12 @@ public class Matrix<T> {
   private final int height;
   private final ArrayList<ArrayList<T>> matrix;
 
+  /**
+   * Creates an matrix from a row building function.
+   * @param height height of the matrix
+   * @param width width of the matrix
+   * @param rowBuilder the function for building rows
+   */
   public Matrix(int height, int width, IntFunction<ArrayList<T>> rowBuilder) {
     this.width = width;
     this.matrix = new ArrayList<>(height);
@@ -47,6 +54,12 @@ public class Matrix<T> {
     }
   }
 
+  /**
+   * Creates a matrix directly from an ArrayList of ArrayLists.
+   * @param height height of the matrix
+   * @param width width of the matrix
+   * @param matrix the array data
+   */
   public Matrix(int height, int width, ArrayList<ArrayList<T>> matrix) {
     this.width = width;
     this.height = height;
@@ -59,6 +72,7 @@ public class Matrix<T> {
   }
 
   /**
+   * Gets the width of the matrix.
    * @return the width of the matrix
    */
   public int getWidth() {
@@ -67,6 +81,7 @@ public class Matrix<T> {
 
 
   /**
+   * Gets the height of the matrix.
    * @return the height of the matrix
    */
   public int getHeight() {
@@ -86,10 +101,23 @@ public class Matrix<T> {
         + '}';
   }
 
+  /**
+   * Returns the matrix as a two-dimensional array.
+   * @param mapper a mapper from type T to R
+   * @param arrayCreator an array creating function 
+   * @param doubleCreator a two-dimensional array creating function
+   * @return the two-dimensional array
+   */
   public <R> R[][] toArray(Function<T, R> mapper, IntFunction<R[]> arrayCreator,
       IntFunction<R[][]> doubleCreator) {
-    return matrix.stream().map(
-        row -> row.stream().map(mapper).toArray(arrayCreator)
-    ).toArray(doubleCreator);
+    List<R[]> rows = matrix.stream().map(row -> row.stream().map(mapper).toArray(arrayCreator)
+    ).collect(Collectors.toList());
+    R[][] array = doubleCreator.apply(rows.size());
+    int i = 0;
+    for (R[] row: rows) {
+      array[i++] = row;
+    }
+    return array;
   }
 }
+ 
