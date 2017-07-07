@@ -15,7 +15,7 @@ import java.util.function.Supplier;
 
 public abstract class ProtocolBuilderBinary implements ProtocolBuilder {
 
-  AbstractBinaryFactory factory;
+  public AbstractBinaryFactory factory;
   private List<ProtocolEntity> protocols;
 
   private ProtocolBuilderBinary(AbstractBinaryFactory factory) {
