@@ -11,7 +11,7 @@ To run the demonstrator, use the Makefile and write
 * make run
 
 The build target runs the compilation process and generates a runnable jar with
-the set intersection demo as the main target.
+the distance demo as the main target.
 
 The run target runs the actual MPC computation and releases a result which is
 the distance between the two inputted points. For this demonstrator, it should

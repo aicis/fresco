@@ -26,57 +26,55 @@
  *******************************************************************************/
 package dk.alexandra.fresco.demo;
 
-import dk.alexandra.fresco.framework.Application;
-import dk.alexandra.fresco.framework.ProtocolFactory;
+import dk.alexandra.fresco.framework.BuilderFactory;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.SInt;
+import dk.alexandra.fresco.helpers.DemoNumericApplication;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.helper.builder.NumericIOBuilder;
 
 /**
  * Demo application. Takes a number of inputs and converts them to secret shared
  * inputs by having party 1 input them all.
- * 
- * @author Kasper Damgaard
  *
+ * @author Kasper Damgaard
  */
-public class InputApplication implements Application {
+public class InputApplication extends DemoNumericApplication<SInt[]> {
 
-	private int[] inputs;
-	private int length;
-	private SInt[] ssInputs;
+  private int[] inputs;
+  private int length;
 
-	public InputApplication(int[] inputs) {
-		this.inputs = inputs;
-		this.length = inputs.length;
-	}
+  public InputApplication(int[] inputs) {
+    this.inputs = inputs;
+    this.length = inputs.length;
+  }
 
-	public InputApplication(int length) {
-		this.length = length;
-	}
+  public InputApplication(int length) {
+    this.length = length;
+  }
 
-	@Override
-	public ProtocolProducer prepareApplication(ProtocolFactory factory) {
-		BasicNumericFactory fac = (BasicNumericFactory) factory;
-		this.ssInputs = new SInt[this.length];
-		
-		NumericIOBuilder ioBuilder = new NumericIOBuilder(fac);
-		ioBuilder.beginParScope();
-		for(int i = 0; i < this.length; i++) {
-			//create wires
-			this.ssInputs[i] = fac.getSInt();
-			if(this.inputs != null) {				
-				this.ssInputs[i] = ioBuilder.input(this.inputs[i], 1);
-			} else {
-				this.ssInputs[i] = ioBuilder.input(1);
-			}
-		}
-		ioBuilder.endCurScope();
+  @Override
+  public ProtocolProducer prepareApplication(BuilderFactory producer) {
+    BasicNumericFactory fac = (BasicNumericFactory) producer.getProtocolFactory();
+    SInt[] ssInputs = new SInt[this.length];
 
-		return ioBuilder.getProtocol();
-	}
+    NumericIOBuilder ioBuilder = new NumericIOBuilder(fac);
+    ioBuilder.beginParScope();
+    for (int i = 0; i < this.length; i++) {
+      //create wires
+      ssInputs[i] = fac.getSInt();
+      if (this.inputs != null) {
+        ssInputs[i] = ioBuilder.input(this.inputs[i], 1);
+      } else {
+        ssInputs[i] = ioBuilder.input(1);
+      }
+    }
+    ioBuilder.endCurScope();
+    output = () -> ssInputs;
+    return ioBuilder.getProtocol();
+  }
 
-	public SInt[] getSecretSharedInput() {
-		return this.ssInputs;
-	}
+  public SInt[] getSecretSharedInput() {
+    return this.output.out();
+  }
 }

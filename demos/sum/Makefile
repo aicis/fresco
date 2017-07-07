@@ -18,7 +18,7 @@ runSPDZ:
 	cd server2 && java -jar fresco-demo-sum.jar -e SEQUENTIAL_BATCHED -i 2 -l INFO -p 1:localhost:8081 -p 2:localhost:8082 -p 3:localhost:8083 -s spdz -Dspdz.preprocessingStrategy=DUMMY > log.txt 2>&1 &
 	cd server3 && java -jar fresco-demo-sum.jar -e SEQUENTIAL_BATCHED -i 3 -l INFO -p 1:localhost:8081 -p 2:localhost:8082 -p 3:localhost:8083 -s spdz -Dspdz.preprocessingStrategy=DUMMY > log.txt 2>&1 &
 
-runBGW:
-	cd server1 && java -jar fresco-demo-sum.jar -e SEQUENTIAL_BATCHED -i 1 -l INFO -p 1:localhost:8081 -p 2:localhost:8082 -p 3:localhost:8083 -s bgw -Dbgw.threshold=1 > log.txt 2>&1 &
-	cd server2 && java -jar fresco-demo-sum.jar -e SEQUENTIAL_BATCHED -i 2 -l INFO -p 1:localhost:8081 -p 2:localhost:8082 -p 3:localhost:8083 -s bgw -Dbgw.threshold=1 > log.txt 2>&1 &
-	cd server3 && java -jar fresco-demo-sum.jar -e SEQUENTIAL_BATCHED -i 3 -l INFO -p 1:localhost:8081 -p 2:localhost:8082 -p 3:localhost:8083 -s bgw -Dbgw.threshold=1 > log.txt 2>&1 &
+runDummy:
+	cd server1 && java -jar fresco-demo-sum.jar -e SEQUENTIAL_BATCHED -i 1 -l INFO -p 1:localhost:8081 -p 2:localhost:8082 -p 3:localhost:8083 -s dummy > log.txt 2>&1 &
+	cd server2 && java -jar fresco-demo-sum.jar -e SEQUENTIAL_BATCHED -i 2 -l INFO -p 1:localhost:8081 -p 2:localhost:8082 -p 3:localhost:8083 -s dummy > log.txt 2>&1 &
+	cd server3 && java -jar fresco-demo-sum.jar -e SEQUENTIAL_BATCHED -i 3 -l INFO -p 1:localhost:8081 -p 2:localhost:8082 -p 3:localhost:8083 -s dummy > log.txt 2>&1 &

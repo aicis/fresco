@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -29,75 +29,53 @@ package dk.alexandra.fresco.demo;
 import java.io.IOException;
 
 import dk.alexandra.fresco.cli.CmdLineUtil;
-import dk.alexandra.fresco.framework.sce.SCEFactory;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.configuration.ProtocolSuiteConfiguration;
 import dk.alexandra.fresco.framework.sce.configuration.SCEConfiguration;
-import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
 
 public class InputSumExample {
 
-  static void runApplication(int myId, SecureComputationEngine sce, ResourcePoolImpl rp) {
-    InputApplication inputApp = null;
+  public static void runApplication(int myId, SecureComputationEngine sce,
+      SCEConfiguration sceConf,
+      ProtocolSuiteConfiguration protocolSuiteConfig) throws IOException {
+    InputApplication inputApp;
 
     int[] inputs = new int[]{1, 2, 3, 7, 8, 12, 15, 17};
-    if(myId == 1){
-      //I input			
+    if (myId == 1) {
+      //I input
       inputApp = new InputApplication(inputs);
-    } else{
+    } else {
       //I do not input
       inputApp = new InputApplication(inputs.length);
     }
 
     SumAndOutputApplication app = new SumAndOutputApplication(inputApp);
 
-    sce.runApplication(app, rp);
+    sce.runApplication(app, SecureComputationEngineImpl.createResourcePool(sceConf,
+        protocolSuiteConfig));
 
     int sum = 0;
-    for(int i : inputs){
-      sum+=i;
+    for (int i : inputs) {
+      sum += i;
     }
-    System.out.println("Expected result: "+ sum +", Result was: "+ app.getOutput().getValue());
+    System.out.println("Expected result: " + sum + ", Result was: " + app.getResult());
   }
 
-  public static void main(String[] args) {
+  public static void main(String[] args) throws IOException {
+    int myId = Integer.parseInt(args[0]);
     CmdLineUtil util = new CmdLineUtil();
+    SCEConfiguration sceConf;
 
-    SecureComputationEngine sce = null;
-    try {										
-      util.parse(args);
-      SCEConfiguration sceConf = null;
-      ProtocolSuiteConfiguration psConf = null;
+    util.parse(args);
+    sceConf = util.getSCEConfiguration();
 
-      sceConf = util.getSCEConfiguration();
-      psConf = util.getProtocolSuiteConfiguration();
+    dk.alexandra.fresco.framework.sce.configuration.ProtocolSuiteConfiguration psConf =
+        util.getProtocolSuiteConfiguration();
+    SecureComputationEngine sce = new SecureComputationEngineImpl(psConf,
+        sceConf.getEvaluator(), sceConf.getLogLevel(), sceConf.getMyId());
 
-      sce = SCEFactory.getSCEFromConfiguration(sceConf, psConf);
-
-      ResourcePoolImpl rp = SecureComputationEngineImpl.createResourcePool(sceConf);
-
-      runApplication(sceConf.getMyId(), sce, rp);			
-
-    } catch (IllegalArgumentException e) {
-      System.err.println("Error: ");
-      e.printStackTrace();
-      System.err.println();
-      util.displayHelp();
-      System.exit(-1);	
-    } catch (IOException e) {
-      System.err.println("Error: ");
-      e.printStackTrace();
-      System.err.println();
-      util.displayHelp();
-      System.exit(-1);
-    } finally {
-      if(sce != null) {
-        sce.shutdownSCE();
-      }
-    }
-
-
+    runApplication(myId, sce, sceConf, psConf);
   }
 
 }

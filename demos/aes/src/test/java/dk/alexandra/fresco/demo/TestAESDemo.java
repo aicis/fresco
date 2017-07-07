@@ -70,13 +70,11 @@ public class TestAESDemo {
 		for (int playerId : netConf.keySet()) {
 			TestThreadConfiguration ttc = new TestThreadConfiguration();
 			ttc.netConf = netConf.get(playerId);
-			int noOfVMThreads = 3;
-			int noOfThreads = 3;
 			ProtocolSuiteConfiguration suite = new DummyConfiguration();
 			ProtocolEvaluator evaluator = new SequentialEvaluator();
 			Storage storage = new InMemoryStorage();
 			boolean useSecureConnection = true;
-			ttc.sceConf = new TestSCEConfiguration(suite, NetworkingStrategy.KRYONET, evaluator, noOfThreads, noOfVMThreads,
+			ttc.sceConf = new TestSCEConfiguration(suite, NetworkingStrategy.KRYONET, evaluator,
 					ttc.netConf, storage, useSecureConnection);
 			conf.put(playerId, ttc);
 		}
@@ -98,7 +96,7 @@ public class TestAESDemo {
 						
 						AESDemo app = new AESDemo(conf.netConf.getMyId(), input);
 
-						secureComputationEngine.runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf));
+						secureComputationEngine.runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf, conf.sceConf.getSuite()));
 
 						// Verify output state.
 						String expected = "69c4e0d86a7b0430d8cdb78070b4c55a"; // expected cipher

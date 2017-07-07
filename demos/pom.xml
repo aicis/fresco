@@ -64,5 +64,6 @@
     <module>aes</module>
     <module>distance</module>
     <module>sum</module>
+    <module>aggregation</module>
   </modules>
 </project>

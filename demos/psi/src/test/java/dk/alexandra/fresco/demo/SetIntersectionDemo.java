@@ -81,15 +81,11 @@ public class SetIntersectionDemo {
 			// Protocol specific configuration
 			ProtocolSuiteConfiguration suite = new DummyConfiguration();			
 			
-			// The rest is generic configuration as well
-			int noOfVMThreads = 3;
-			int noOfThreads = 3;
-			
+			// The rest is generic configuration as well			
 			ProtocolEvaluator evaluator = new SequentialEvaluator();
 			Storage storage = new InMemoryStorage();
 			boolean useSecureConnection = true;
-			ttc.sceConf = new TestSCEConfiguration(suite, NetworkingStrategy.KRYONET, evaluator, noOfThreads, noOfVMThreads,
-					ttc.netConf, storage, useSecureConnection);
+			ttc.sceConf = new TestSCEConfiguration(suite, NetworkingStrategy.KRYONET, evaluator, ttc.netConf, storage, useSecureConnection);
 			conf.put(playerId, ttc);
 		}
 		String[] result = this.setIntersectionDemo(conf);
@@ -119,14 +115,11 @@ public class SetIntersectionDemo {
 			// Protocol specific configuration + suite
 			ProtocolSuiteConfiguration suite = getTinyTablesPreproConfiguration(9000+ttc.netConf.getMyId(), playerId);
 			
-			// More generic configuration
-			int noOfVMThreads = 3;
-			int noOfThreads = 3;
-			
+			// More generic configuration			
 			ProtocolEvaluator evaluator = new SequentialEvaluator();
 			Storage storage = new InMemoryStorage();
 			boolean useSecureConnection = true;
-			ttc.sceConf = new TestSCEConfiguration(suite, NetworkingStrategy.KRYONET, evaluator, noOfThreads, noOfVMThreads,
+			ttc.sceConf = new TestSCEConfiguration(suite, NetworkingStrategy.KRYONET, evaluator,
 					ttc.netConf, storage, useSecureConnection);
 			conf.put(playerId, ttc);
 		}
@@ -145,13 +138,10 @@ public class SetIntersectionDemo {
 			// These 2 lines are protocol specific, the rest is generic configuration 
 			ProtocolSuiteConfiguration suite = getTinyTablesConfiguration(ttc.netConf.getMyId());
 			
-			int noOfVMThreads = 3;
-			int noOfThreads = 3;
-			
 			ProtocolEvaluator evaluator = new SequentialEvaluator();
 			Storage storage = new InMemoryStorage();
 			boolean useSecureConnection = true;
-			ttc.sceConf = new TestSCEConfiguration(suite, NetworkingStrategy.KRYONET, evaluator, noOfThreads, noOfVMThreads,
+			ttc.sceConf = new TestSCEConfiguration(suite, NetworkingStrategy.KRYONET, evaluator,
 					ttc.netConf, storage, useSecureConnection);
 			conf.put(playerId, ttc);
 		}
@@ -214,7 +204,7 @@ public class SetIntersectionDemo {
 						
 						PrivateSetDemo app = new PrivateSetDemo(conf.netConf.getMyId(), key, inputList);
 
-						secureComputationEngine.runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf));
+						secureComputationEngine.runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf, conf.sceConf.getSuite()));
 
 						boolean[][] actualBoolean = new boolean[app.result.length][app.result[0].length];
 						
