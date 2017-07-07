@@ -26,7 +26,8 @@
  *******************************************************************************/
 package dk.alexandra.fresco.demo;
 
-import dk.alexandra.fresco.framework.Application;
+import dk.alexandra.fresco.demo.inputsum.DemoApplication;
+import dk.alexandra.fresco.framework.BuilderFactory;
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.ProtocolFactory;
@@ -40,7 +41,7 @@ import dk.alexandra.fresco.framework.value.SBool;
 import dk.alexandra.fresco.lib.crypto.BristolCryptoFactory;
 import dk.alexandra.fresco.lib.field.bool.BasicLogicFactory;
 import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
-import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
+import dk.alexandra.fresco.lib.helper.SequentialProtocolProducer;
 import java.util.BitSet;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
@@ -86,7 +87,7 @@ import org.apache.commons.cli.ParseException;
  *
  * OBS: Using the dummy protocol suite is not secure!
  */
-public class PrivateSetDemo implements Application {
+public class PrivateSetDemo extends DemoApplication<OBool[][]> {
 
 
   /**
@@ -178,10 +179,12 @@ public class PrivateSetDemo implements Application {
     PrivateSetDemo privateSetDemo = new PrivateSetDemo(sceConf.getMyId(), key, inputs);
     dk.alexandra.fresco.framework.sce.configuration.ProtocolSuiteConfiguration psConf = util
         .getProtocolSuiteConfiguration();
-    SecureComputationEngine sce = new SecureComputationEngineImpl(sceConf, psConf);
+    SecureComputationEngine sce = new SecureComputationEngineImpl(psConf,
+        sceConf.getEvaluator(), sceConf.getLogLevel(), sceConf.getMyId());
 
     try {
-      sce.runApplication(privateSetDemo, SecureComputationEngineImpl.createResourcePool(sceConf));
+      sce.runApplication(privateSetDemo, SecureComputationEngineImpl.createResourcePool(sceConf,
+          psConf));
     } catch (Exception e) {
       System.out.println("Error while doing MPC: " + e.getMessage());
       System.exit(-1);
@@ -225,17 +228,18 @@ public class PrivateSetDemo implements Application {
    * ParallelProtocolProducer and SequentialProtocolProducer. The open and
    * closed values (OBool and SBool) are used to 'glue' the subprotocols
    * together.
+   * @param builderFactory
    */
   //May cause problems if more than 2 parties and if both insets are not of
   //Equal length
   @Override
-  public ProtocolProducer prepareApplication(ProtocolFactory factory) {
-
-    if (!(factory instanceof BasicLogicFactory)) {
-      throw new MPCException(factory.getClass().getSimpleName()
+  public ProtocolProducer prepareApplication(BuilderFactory builderFactory) {
+    ProtocolFactory producer = builderFactory.getProtocolFactory();
+    if (!(producer instanceof BasicLogicFactory)) {
+      throw new MPCException(producer.getClass().getSimpleName()
           + " is not a BasicLogicFactory. This Private Set demo requires a protocol suite that implements the BasicLogicFactory.");
     }
-    BasicLogicFactory boolFactory = (BasicLogicFactory) factory;
+    BasicLogicFactory boolFactory = (BasicLogicFactory) producer;
 
     OBool[] key2Open = new OBool[BLOCK_SIZE];
     OBool[] key1Open = new OBool[BLOCK_SIZE];

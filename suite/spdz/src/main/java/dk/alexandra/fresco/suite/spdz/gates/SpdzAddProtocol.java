@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -26,62 +26,39 @@
  *******************************************************************************/
 package dk.alexandra.fresco.suite.spdz.gates;
 
+import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.network.SCENetwork;
-import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
-import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.framework.value.Value;
-import dk.alexandra.fresco.lib.field.integer.AddProtocol;
-import dk.alexandra.fresco.suite.spdz.datatypes.SpdzOInt;
+import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
-import dk.alexandra.fresco.suite.spdz.utils.SpdzFactory;
 
-public class SpdzAddProtocol extends SpdzNativeProtocol implements AddProtocol {
+public class SpdzAddProtocol extends SpdzNativeProtocol<SInt> {
 
-  private SpdzSInt left, right, out;
-  private SpdzOInt oInt;
-  private SpdzFactory factory;
+  private Computation<SInt> left, right;
+  private SpdzSInt out;
 
-  public SpdzAddProtocol(SInt left, SInt right, SInt out) {
-    this.left = (SpdzSInt) left;
-    this.right = (SpdzSInt) right;
-    this.out = (SpdzSInt) out;
-  }
-
-  public SpdzAddProtocol(SpdzSInt left, SpdzSInt right, SpdzSInt out) {
+  public SpdzAddProtocol(Computation<SInt> left, Computation<SInt> right) {
     this.left = left;
     this.right = right;
-    this.out = out;
-  }
-
-  public SpdzAddProtocol(SInt left, OInt right, SInt out, SpdzFactory factory) {
-    this.left = (SpdzSInt) left;
-    this.oInt = (SpdzOInt) right;
-    this.out = (SpdzSInt) out;
-    this.factory = factory;
   }
 
   @Override
   public String toString() {
-    return "SpdzAddGate(" + left.value + ", "
-        + (right != null ? right.value : "N/A") + ", "
-        + (out != null ? out.value : "N/A") + ")";
+    return "SpdzAddGate(" + left + ", "
+        + right + ")";
   }
 
   @Override
-  public Value[] getOutputValues() {
-    return new Value[]{out};
+  public SpdzSInt out() {
+    return out;
   }
 
   @Override
-  public EvaluationStatus evaluate(int round, ResourcePool resourcePool,
+  public EvaluationStatus evaluate(int round, SpdzResourcePool spdzResourcePool,
       SCENetwork network) {
-    if (oInt != null) {
-      SpdzSInt myShare = (SpdzSInt) factory.getSInt(oInt.getValue());
-      out.value = left.value.add(myShare.value);
-    } else {
-      out.value = left.value.add(right.value);
-    }
+    SpdzSInt left = (SpdzSInt) this.left.out();
+    SpdzSInt right = (SpdzSInt) this.right.out();
+    this.out = new SpdzSInt(left.value.add(right.value));
     return EvaluationStatus.IS_DONE;
   }
 }

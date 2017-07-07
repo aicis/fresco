@@ -26,6 +26,9 @@
  *******************************************************************************/
 package dk.alexandra.fresco.framework.sce.resources.storage;
 
+import dk.alexandra.fresco.framework.MPCException;
+import dk.alexandra.fresco.framework.Reporter;
+import dk.alexandra.fresco.framework.sce.resources.storage.exceptions.NoMoreElementsException;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -34,10 +37,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.concurrent.ConcurrentHashMap;
-
-import dk.alexandra.fresco.framework.MPCException;
-import dk.alexandra.fresco.framework.Reporter;
-import dk.alexandra.fresco.framework.sce.resources.storage.exceptions.NoMoreElementsException;
 
 /**
  * Streamed Storage based on files.
@@ -155,15 +154,4 @@ public class FilebasedStreamedStorageImpl implements StreamedStorage {
 		return this.storage.getObject(name, key);
 	}
 
-	@Override
-	public boolean removeFromStorage(String name, String key) {
-		return this.storage.removeFromStorage(name, key);
-	}
-
-	@Override
-	public boolean removeNameFromStorage(String name) {
-		return this.storage.removeNameFromStorage(name);
-	}
-
-	
 }

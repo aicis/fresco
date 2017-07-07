@@ -35,7 +35,7 @@ import dk.alexandra.fresco.lib.field.bool.AndProtocolFactory;
 import dk.alexandra.fresco.lib.field.bool.OrProtocol;
 import dk.alexandra.fresco.lib.field.bool.XorProtocolFactory;
 import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
-import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
+import dk.alexandra.fresco.lib.helper.SequentialProtocolProducer;
 
 /**
  * This protocol implements

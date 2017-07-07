@@ -27,7 +27,6 @@
 package dk.alexandra.fresco.framework.sce.resources;
 
 import dk.alexandra.fresco.framework.network.Network;
-import dk.alexandra.fresco.framework.sce.resources.storage.StreamedStorage;
 import java.security.SecureRandom;
 import java.util.Random;
 
@@ -49,12 +48,6 @@ public interface ResourcePool {
    * doing some work before or after an application evaluation.
    */
   Network getNetwork();
-
-  /**
-   * Returns the streamed storage native to the system. Use this for
-   * persistent data where random access is not preferred.
-   */
-  StreamedStorage getStreamedStorage();
 
   /**
    * Returns the randomness generator of the system. Use this for getting

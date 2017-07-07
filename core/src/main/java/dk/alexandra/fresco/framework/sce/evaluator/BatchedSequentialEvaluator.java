@@ -26,31 +26,28 @@
  *******************************************************************************/
 package dk.alexandra.fresco.framework.sce.evaluator;
 
-import dk.alexandra.fresco.framework.ProtocolCollectionList;
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.network.SCENetworkImpl;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
-import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import java.io.IOException;
 
-public class BatchedSequentialEvaluator implements ProtocolEvaluator {
-
-  private static final int DEFAULT_THREAD_ID = 0;
+public class BatchedSequentialEvaluator<ResourcePoolT extends ResourcePool> implements
+    ProtocolEvaluator<ResourcePoolT> {
 
   private static final int DEFAULT_CHANNEL = 0;
 
   private int maxBatchSize;
 
-  private ProtocolSuite protocolSuite;
+  private ProtocolSuite<ResourcePoolT, ?> protocolSuite;
 
   BatchedSequentialEvaluator() {
     this.maxBatchSize = 4096;
   }
 
   @Override
-  public void setProtocolInvocation(ProtocolSuite pii) {
+  public void setProtocolInvocation(ProtocolSuite<ResourcePoolT, ?> pii) {
     this.protocolSuite = pii;
   }
 
@@ -65,11 +62,11 @@ public class BatchedSequentialEvaluator implements ProtocolEvaluator {
   }
 
   public void eval(ProtocolProducer protocolProducer,
-      ResourcePoolImpl resourcePool) throws IOException {
+      ResourcePoolT resourcePool) throws IOException {
     SCENetworkImpl sceNetwork = createSceNetwork(resourcePool);
+    ProtocolSuite.RoundSynchronization<ResourcePoolT> roundSynchronization =
+        protocolSuite.createRoundSynchronization();
     do {
-      ProtocolSuite.RoundSynchronization roundSynchronization =
-          protocolSuite.createRoundSynchronization();
       ProtocolCollectionList protocols = new ProtocolCollectionList(maxBatchSize);
       protocolProducer.getNextProtocols(protocols);
       int size = protocols.size();
@@ -78,10 +75,10 @@ public class BatchedSequentialEvaluator implements ProtocolEvaluator {
       roundSynchronization.finishedBatch(size, resourcePool, sceNetwork);
     } while (protocolProducer.hasNextProtocols());
 
-    this.protocolSuite.finishedEval(resourcePool, sceNetwork);
+    roundSynchronization.finishedEval(resourcePool, sceNetwork);
   }
 
   private SCENetworkImpl createSceNetwork(ResourcePool resourcePool) {
-    return new SCENetworkImpl(resourcePool.getNoOfParties(), DEFAULT_THREAD_ID);
+    return new SCENetworkImpl(resourcePool.getNoOfParties());
   }
 }

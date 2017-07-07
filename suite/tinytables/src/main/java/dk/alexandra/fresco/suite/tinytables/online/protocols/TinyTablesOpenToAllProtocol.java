@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -68,9 +68,9 @@ public class TinyTablesOpenToAllProtocol extends TinyTablesProtocol implements O
 	}
 
 	@Override
-	public Value[] getOutputValues() {
-		return new Value[] { opened };
-	}
+  public Value[] out() {
+    return new Value[]{opened};
+  }
 
 	@Override
 	public EvaluationStatus evaluate(int round, ResourcePool resourcePool, SCENetwork network) {
@@ -91,8 +91,8 @@ public class TinyTablesOpenToAllProtocol extends TinyTablesProtocol implements O
 			case 1:
 				List<ByteBuffer> buffers = network.receiveFromAll();
 				List<TinyTablesElement> maskShares = new ArrayList<>();
-				for(int i = 0; i < buffers.size(); i++) {
-					maskShares.add(new TinyTablesElement(BooleanSerializer.fromBytes(buffers.get(i))));
+				for (ByteBuffer buffer : buffers) {
+					maskShares.add(new TinyTablesElement(BooleanSerializer.fromBytes(buffer)));
 				}
 				boolean mask = TinyTablesElement.open(maskShares);
 				boolean result = toOpen.getValue().getShare() ^ mask;

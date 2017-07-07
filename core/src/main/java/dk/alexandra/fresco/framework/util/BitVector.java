@@ -8,9 +8,9 @@ public class BitVector implements Serializable {
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 1732919952148180819L;
-	private BitSet bits;
-	private int size;
+
+  private BitSet bits;
+  private int size;
 	
 	public BitVector(boolean[] vector) {
 		BitSetUtils.fromArray(vector);

@@ -30,7 +30,7 @@ import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.value.SBool;
 import dk.alexandra.fresco.lib.field.bool.BasicLogicFactory;
 import dk.alexandra.fresco.lib.field.bool.NandProtocol;
-import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
+import dk.alexandra.fresco.lib.helper.SequentialProtocolProducer;
 
 public class NandFromAndAndNotProtocolImpl implements NandProtocol {
 

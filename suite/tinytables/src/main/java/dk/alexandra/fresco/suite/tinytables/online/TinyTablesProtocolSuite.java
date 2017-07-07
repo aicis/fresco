@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -26,11 +26,11 @@
  *******************************************************************************/
 package dk.alexandra.fresco.suite.tinytables.online;
 
-import dk.alexandra.fresco.framework.ProtocolFactory;
+import dk.alexandra.fresco.framework.BuilderFactory;
 import dk.alexandra.fresco.framework.Reporter;
-import dk.alexandra.fresco.framework.network.SCENetwork;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.suite.ProtocolSuite;
+import dk.alexandra.fresco.suite.tinytables.LegacyBinaryBuilder;
 import dk.alexandra.fresco.suite.tinytables.online.protocols.TinyTablesANDProtocol;
 import dk.alexandra.fresco.suite.tinytables.online.protocols.TinyTablesCloseProtocol;
 import dk.alexandra.fresco.suite.tinytables.online.protocols.TinyTablesNOTProtocol;
@@ -77,21 +77,21 @@ public class TinyTablesProtocolSuite implements ProtocolSuite {
     return instances.get(id);
   }
 
-  public TinyTablesProtocolSuite(int id, TinyTablesConfiguration conf) {
+  TinyTablesProtocolSuite(int id, TinyTablesConfiguration conf) {
     this.conf = conf;
     instances.put(id, this);
   }
 
   @Override
-  public ProtocolFactory init(ResourcePool resourcePool) {
+  public BuilderFactory init(ResourcePool resourcePool) {
     try {
       File tinyTablesFile = this.conf.getTinyTablesFile();
       this.storage = loadTinyTables(tinyTablesFile);
-    } catch (ClassNotFoundException e) {
+    } catch (ClassNotFoundException ignored) {
     } catch (IOException e) {
       Reporter.severe("Failed to load TinyTables: " + e.getMessage());
     }
-    return new TinyTablesFactory();
+    return new LegacyBinaryBuilder(new TinyTablesFactory());
   }
 
   private TinyTablesStorage loadTinyTables(File file) throws IOException,
@@ -111,18 +111,6 @@ public class TinyTablesProtocolSuite implements ProtocolSuite {
   @Override
   public RoundSynchronization createRoundSynchronization() {
     return new DummyRoundSynchronization();
-  }
-
-  @Override
-  public void finishedEval(ResourcePool resourcePool, SCENetwork sceNetwork) {
-    // TODO Auto-generated method stub
-
-  }
-
-  @Override
-  public void destroy() {
-    // TODO Auto-generated method stub
-
   }
 
 }

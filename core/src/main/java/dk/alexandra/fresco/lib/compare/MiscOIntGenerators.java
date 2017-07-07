@@ -26,10 +26,10 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.compare;
 
-import dk.alexandra.fresco.framework.value.OInt;
-import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import java.math.BigInteger;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 
@@ -40,42 +40,36 @@ import java.util.Map;
  */
 public class MiscOIntGenerators {
 
-  private BasicNumericFactory factory;
+  private Map<Integer, BigInteger[]> coefficientsOfPolynomiums;
+  private LinkedList<BigInteger> twoPowersList;
+  private BigInteger modulus;
 
-  Map<Integer, OInt[]> coefficientsOfPolynomiums;
-  OInt[] twoPowers;
-  // should twoPowers be a List?
+  public MiscOIntGenerators(BigInteger modulus) {
+    coefficientsOfPolynomiums = new HashMap<>();
 
-
-  public MiscOIntGenerators(BasicNumericFactory factory) {
-    this.factory = factory;
-    coefficientsOfPolynomiums = new HashMap<Integer, OInt[]>();
-
-    twoPowers = new OInt[1];
-    twoPowers[0] = factory.getOInt();
-    twoPowers[0].setValue(BigInteger.ONE);
+    this.modulus = modulus;
+    twoPowersList = new LinkedList<>();
+    twoPowersList.add(BigInteger.ONE);
   }
 
 
   /**
    * Generate a degree l polynomium P such that P(1) = 1 and P(i) = 0 for i in {2,3,...,l+1}
    *
-   * @param factory source of OInt's
    * @param l degree of polynomium
    * @return coefficients of P
    */
-  public OInt[] getPoly(int l, BigInteger modulus) {
+  public BigInteger[] getPoly(int l) {
     // check that l is positive
-    Integer lInt = new Integer(l);
-    OInt[] result = coefficientsOfPolynomiums.get(lInt);
+    Integer lInt = l;
+    BigInteger[] result = coefficientsOfPolynomiums.get(lInt);
     if (result == null) {
       // Generate a new set of OInts and store them...
-      result = new OInt[l + 1];
+      result = new BigInteger[l + 1];
 
-      BigInteger[] coefficients = constructPolynomial(l, 1, modulus);
+      BigInteger[] coefficients = constructPolynomial(l, 1);
       for (int i = 0; i <= l; i++) {
-        result[i] = factory.getOInt();
-        result[i].setValue(coefficients[coefficients.length - 1 - i]);
+        result[i] = coefficients[coefficients.length - 1 - i];
       }
 
       coefficientsOfPolynomiums.put(lInt, result);
@@ -86,14 +80,13 @@ public class MiscOIntGenerators {
   /**
    * Returns the coefficients of a polynomial of degree <i>l</i> such that
    * <i>f(m) = 1</i> and <i>f(n) = 0</i> for <i>1 &le; n &le; l+1</i> and <i>n
-   * &ne; m</i> in <i>Z<sub>p</sub></i> (<i>p</i> should be set in
-   * {@link #setModulus(BigInteger)}). The first element in the array is the
+   * &ne; m</i> in <i>Z<sub>p</sub></i>. The first element in the array is the
    * coefficient of the term with the highest degree, eg. degree <i>l</i>.
    *
    * @param l The desired degree of <i>f</i>
    * @param m The only non-zero integer point for <i>f</i> in the range <i>1,2,...,l+1</i>.
    */
-  public static BigInteger[] constructPolynomial(int l, int m, BigInteger modulus) {
+  private BigInteger[] constructPolynomial(int l, int m) {
 
 		/*
      * Let f_i be the polynoimial which is the product of the first i of
@@ -116,7 +109,7 @@ public class MiscOIntGenerators {
     f[0] = BigInteger.valueOf(1);
 
 		/*
-		 * We also calculate f_i(m) in order to be able to normalize f such that
+     * We also calculate f_i(m) in order to be able to normalize f such that
 		 * f(m) = 1. Note that f_i(m) = f_{i-1}(m)(m - k) with the above notation.
 		 */
     BigInteger fm = BigInteger.ONE;
@@ -145,27 +138,25 @@ public class MiscOIntGenerators {
     return f;
   }
 
-  /**
-   * Generate all two-powers 2^i for i<l
-   *
-   * @param l array length
-   * @return Array of length l with result[i] == 2^i
-   */
-  public OInt[] getTwoPowers(int l) {
-    if (l > twoPowers.length) {
-      OInt[] newArray = new OInt[l];
-      System.arraycopy(twoPowers, 0, newArray, 0, twoPowers.length);
-      BigInteger currentValue = twoPowers[twoPowers.length - 1].getValue();
-      for (int i = twoPowers.length; i < newArray.length; i++) {
-        newArray[i] = factory.getOInt();
-        currentValue = currentValue.shiftLeft(1); // multiply previous value by two
-        newArray[i].setValue(currentValue);
+
+  public List<BigInteger> getTwoPowersList(int length) {
+    if (length > twoPowersList.size()) {
+      BigInteger currentValue = twoPowersList.getLast();
+      while (length > twoPowersList.size()) {
+        currentValue = currentValue.shiftLeft(1);
+        twoPowersList.add(currentValue);
       }
-      twoPowers = newArray;
     }
-    // TODO: avoid copying.... also; since OInts are mutable, perhaps we should clone.
-    OInt[] result = new OInt[l];
-    System.arraycopy(twoPowers, 0, result, 0, l);
-    return result;
+    return twoPowersList.subList(0, length);
   }
+
+  public BigInteger[] getExpFromOInt(BigInteger value, int maxBitSize) {
+    BigInteger[] Ms = new BigInteger[maxBitSize];
+    Ms[0] = value;
+    for (int i1 = 1; i1 < Ms.length; i1++) {
+      Ms[i1] = Ms[i1 - 1].multiply(value).mod(modulus);
+    }
+    return Ms;
+  }
+
 }

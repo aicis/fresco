@@ -66,28 +66,4 @@ public interface Storage {
 	 */
 	public <T extends Serializable> T getObject(String name, String key);
 
-	/**
-	 * Removes any stored object under the given key. Returns true if correctly
-	 * removed, false if this was not done due to e.g. the name or key not being
-	 * present in the storage.
-	 * 
-	 * @param name
-	 *            The name of the databaseId/filename that you want to use
-	 * @param key
-	 *            The id to remove.
-	 * @return true if successfully removed, false otherwise.
-	 */
-	public boolean removeFromStorage(String name, String key);
-
-	/**
-	 * Removes the 'name'. Returns true if correctly removed, false if this was
-	 * not done due to e.g. the name not being present in the storage. WARNING:
-	 * This will remove an entire table/filename or equivalent - this includes
-	 * all keys stored under the given name.
-	 * 
-	 * @param name
-	 *            The name of the databaseId/filename to remove
-	 * @return true if successfully removed, false otherwise.
-	 */
-	public boolean removeNameFromStorage(String name);
 }

@@ -27,12 +27,13 @@
 package dk.alexandra.fresco.framework.sce;
 
 import dk.alexandra.fresco.framework.Application;
+import dk.alexandra.fresco.framework.BuilderFactory;
+import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.Party;
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
-import dk.alexandra.fresco.framework.ProtocolFactory;
-import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.Reporter;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
 import dk.alexandra.fresco.framework.configuration.ConfigurationException;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.NetworkConfigurationImpl;
@@ -41,19 +42,21 @@ import dk.alexandra.fresco.framework.network.NetworkingStrategy;
 import dk.alexandra.fresco.framework.network.ScapiNetworkImpl;
 import dk.alexandra.fresco.framework.sce.configuration.ProtocolSuiteConfiguration;
 import dk.alexandra.fresco.framework.sce.configuration.SCEConfiguration;
-import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
-import dk.alexandra.fresco.framework.sce.resources.storage.StreamedStorage;
+import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import java.io.IOException;
 import java.security.SecureRandom;
 import java.util.Map;
 import java.util.Random;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.logging.Level;
 
 /**
  * Secure Computation Engine - responsible for having the overview of things and
@@ -61,33 +64,30 @@ import java.util.concurrent.TimeoutException;
  *
  * @author Kasper Damgaard (.. and others)
  */
-public class SecureComputationEngineImpl implements SecureComputationEngine {
+public class SecureComputationEngineImpl<ResourcePoolT extends ResourcePool, Builder extends ProtocolBuilder> implements
+    SecureComputationEngine<ResourcePoolT, Builder> {
 
-  private ProtocolEvaluator evaluator;
-  private SCEConfiguration sceConf;
-  private ProtocolSuiteConfiguration protocolSuiteConfiguration;
-  private ExecutorService executorService = Executors.newCachedThreadPool();
-
+  private final int myId;
+  private ProtocolEvaluator<ResourcePoolT> evaluator;
+  private ProtocolSuiteConfiguration<ResourcePoolT, Builder> protocolSuiteConfiguration;
+  private ExecutorService executorService;
   private boolean setup;
-  private ProtocolSuite protocolSuite;
+  private ProtocolSuite<ResourcePoolT, Builder> protocolSuite;
+  private static final AtomicInteger threadCounter = new AtomicInteger(1);
 
-  public SecureComputationEngineImpl(SCEConfiguration sceConf,
-      ProtocolSuiteConfiguration protocolSuite) {
-    this.sceConf = sceConf;
+  public SecureComputationEngineImpl(
+      ProtocolSuiteConfiguration<ResourcePoolT, Builder> protocolSuite,
+      ProtocolEvaluator<ResourcePoolT> evaluator,
+      Level logLevel,
+      int myId) {
     this.protocolSuiteConfiguration = protocolSuite;
 
     this.setup = false;
 
     //setup the basic stuff, but do not initialize anything yet
-    Reporter.init(sceConf.getLogLevel());
-    if (sceConf.getParties().isEmpty()) {
-      throw new IllegalArgumentException(
-          "Properties file should contain at least one party of the form 'party1=192.168.0.1,8000'");
-    }
-
-    this.evaluator = this.sceConf.getEvaluator();
-    this.evaluator.setMaxBatchSize(sceConf.getMaxBatchSize());
-
+    Reporter.init(logLevel);
+    this.evaluator = evaluator;
+    this.myId = myId;
   }
 
   private static Network getNetworkFromConfiguration(SCEConfiguration sceConf,
@@ -117,11 +117,14 @@ public class SecureComputationEngineImpl implements SecureComputationEngine {
     return network;
   }
 
-  public static ResourcePoolImpl createResourcePool(SCEConfiguration sceConf) throws IOException {
+  public static <ResourcePoolT extends ResourcePool> ResourcePoolT createResourcePool(
+      SCEConfiguration<ResourcePoolT> sceConf,
+      ProtocolSuiteConfiguration<ResourcePoolT, ? extends ProtocolBuilder> protocolSuiteConfiguration)
+      throws IOException {
+
     int myId = sceConf.getMyId();
     Map<Integer, Party> parties = sceConf.getParties();
 
-    StreamedStorage streamedStorage = sceConf.getStreamedStorage();
     // Secure random by default.
     Random rand = new Random(0);
     SecureRandom secRand = new SecureRandom();
@@ -129,83 +132,72 @@ public class SecureComputationEngineImpl implements SecureComputationEngine {
     Network network = getNetworkFromConfiguration(sceConf, myId, parties);
     network.connect(10000);
 
-    ResourcePoolImpl resourcePool =
-        new ResourcePoolImpl(myId, parties.size(),
-            network, streamedStorage, rand, secRand);
-
-    return resourcePool;
-
+    return protocolSuiteConfiguration.createResourcePool(
+        myId, parties.size(),
+        network, rand, secRand);
   }
 
   @Override
-  public synchronized void setup() throws IOException {
+  public <OutputT> OutputT runApplication(
+      Application<OutputT, Builder> application, ResourcePoolT sceNetwork) {
+    Future<OutputT> future = startApplication(application, sceNetwork);
+    try {
+      return future.get(10, TimeUnit.MINUTES);
+    } catch (InterruptedException | TimeoutException e) {
+      throw new RuntimeException("Internal error in waiting", e);
+    } catch (ExecutionException e) {
+      throw new RuntimeException("Execution exception when running the application", e.getCause());
+    }
+  }
+
+  public <OutputT> Future<OutputT> startApplication(
+      Application<OutputT, Builder> application, ResourcePoolT resourcePool) {
+    setup();
+    Callable<OutputT> callable = () -> evalApplication(application, resourcePool).out();
+    return executorService.submit(callable);
+  }
+
+  private <OutputT> Computation<OutputT> evalApplication(
+      Application<OutputT, Builder> application,
+      ResourcePoolT resourcePool) throws Exception {
+    Reporter.info("Running application: " + application + " using protocol suite: "
+        + this.protocolSuite);
+    try {
+      BuilderFactory<Builder> protocolFactory = this.protocolSuite.init(resourcePool);
+      Builder builder = protocolFactory.createProtocolBuilder();
+      Computation<OutputT> output = application.prepareApplication(builder);
+      long then = System.currentTimeMillis();
+      this.evaluator.eval(builder.build(), resourcePool);
+      long now = System.currentTimeMillis();
+      long timeSpend = now - then;
+      Reporter.info("Running the application " + application + " took " + timeSpend + " ms.");
+      application.close();
+      return output;
+    } catch (IOException e) {
+      throw new MPCException(
+          "Could not run application " + application + " due to errors", e);
+    }
+  }
+
+  @Override
+  public synchronized void setup() {
     if (this.setup) {
       return;
     }
-    this.protocolSuite = this.protocolSuiteConfiguration.createProtocolSuite(sceConf.getMyId());
+    this.executorService = Executors.newCachedThreadPool(r -> {
+      Thread thread = new Thread(r, "SCE-" + threadCounter.getAndIncrement());
+      thread.setDaemon(true);
+      return thread;
+    });
+    this.protocolSuite = this.protocolSuiteConfiguration.createProtocolSuite(myId);
+    this.evaluator.setProtocolInvocation(this.protocolSuite);
     this.setup = true;
   }
 
-  /*
-   * (non-Javadoc)
-   *
-   * @see
-   * dk.alexandra.fresco.framework.sce.SecureComputationEngine#runApplication(dk.alexandra.fresco
-   * .framework.Application)
-   */
   @Override
-  public void runApplication(Application application, ResourcePoolImpl sceNetwork) {
-    try {
-      startApplication(application, sceNetwork).get(10, TimeUnit.MINUTES);
-    } catch (InterruptedException | ExecutionException | TimeoutException e) {
-      throw new RuntimeException("Internal error in waiting", e);
-    }
-  }
-
-  public Future<?> startApplication(Application application, ResourcePoolImpl resourcePool) {
-    prepareEvaluator();
-    ProtocolFactory protocolFactory = this.protocolSuite.init(resourcePool);
-    ProtocolProducer prod = application.prepareApplication(protocolFactory);
-    String appName = application.getClass().getName();
-    Reporter.info("Running application: " + appName + " using protocol suite: "
-        + this.protocolSuite);
-
-    return executorService.submit(() -> evalApplication(prod, appName, resourcePool));
-  }
-
-  private void prepareEvaluator() {
-    try {
-      Reporter.init(this.sceConf.getLogLevel());
-      setup();
-      this.evaluator.setProtocolInvocation(this.protocolSuite);
-    } catch (IOException e) {
-      throw new MPCException(
-          "Could not run application due to errors during setup: " + e.getMessage(), e);
-    }
-  }
-
-  private void evalApplication(ProtocolProducer prod, String appName,
-      ResourcePoolImpl resourcePool) {
-    try {
-      if (prod != null) {
-        Reporter.info("Using the configuration: " + this.sceConf);
-        long then = System.currentTimeMillis();
-        this.evaluator.eval(prod,
-            resourcePool);
-        long now = System.currentTimeMillis();
-        long timeSpend = now - then;
-        Reporter.info("Running the application " + appName + " took " + timeSpend + " ms.");
-      }
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-  }
-
-  @Override
-  public void shutdownSCE() {
-    this.executorService.shutdown();
-    if (this.protocolSuite != null) {
-      this.protocolSuite.destroy();
+  public synchronized void shutdownSCE() {
+    if (this.setup) {
+      this.executorService.shutdown();
     }
     this.setup = false;
   }

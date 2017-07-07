@@ -27,6 +27,7 @@
 package dk.alexandra.fresco.framework;
 
 import com.esotericsoftware.minlog.Log;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.TestConfiguration;
 import dk.alexandra.fresco.framework.network.KryoNetNetwork;
@@ -34,6 +35,7 @@ import dk.alexandra.fresco.framework.sce.SCEFactory;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
 import dk.alexandra.fresco.framework.sce.configuration.ProtocolSuiteConfiguration;
 import dk.alexandra.fresco.framework.sce.configuration.TestSCEConfiguration;
+import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -45,11 +47,12 @@ public class TestThreadRunner {
 
   private static final long MAX_WAIT_FOR_THREAD = 6000000;
 
-  public abstract static class TestThread extends Thread {
+  public abstract static class TestThread<ResourcePoolT extends ResourcePool, Builder extends ProtocolBuilder> extends
+      Thread {
 
     private boolean finished = false;
 
-    protected TestThreadConfiguration conf;
+    protected TestThreadConfiguration<ResourcePoolT, Builder> conf;
 
     // Randomness to use in test.
     Random rand;
@@ -60,9 +63,9 @@ public class TestThreadRunner {
 
     Throwable teardownException;
 
-    protected SecureComputationEngine secureComputationEngine;
+    protected SecureComputationEngine<ResourcePoolT, Builder> secureComputationEngine;
 
-    void setConfiguration(TestThreadConfiguration conf) {
+    void setConfiguration(TestThreadConfiguration<ResourcePoolT, Builder> conf) {
       this.conf = conf;
     }
 
@@ -75,7 +78,7 @@ public class TestThreadRunner {
     public void run() {
       try {
         if (conf.sceConf != null) {
-          ProtocolSuiteConfiguration suite = conf.sceConf.getSuite();
+          ProtocolSuiteConfiguration<ResourcePoolT, Builder> suite = conf.sceConf.getSuite();
           secureComputationEngine =
               SCEFactory.getSCEFromConfiguration(conf.sceConf, suite);
         }
@@ -129,7 +132,7 @@ public class TestThreadRunner {
 
     public abstract void test() throws Exception;
 
-    public void setRandom(long nextLong) {
+    void setRandom(long nextLong) {
       this.rand = new Random(nextLong);
 
     }
@@ -140,10 +143,11 @@ public class TestThreadRunner {
   /**
    * Container for all the configuration that one thread should have.
    */
-  public static class TestThreadConfiguration {
+  public static class TestThreadConfiguration<ResourcePoolT extends ResourcePool,
+      Builder extends ProtocolBuilder> {
 
     public NetworkConfiguration netConf;
-    public TestSCEConfiguration sceConf;
+    public TestSCEConfiguration<ResourcePoolT, Builder> sceConf;
 
     public int getMyId() {
       return this.netConf.getMyId();
@@ -156,9 +160,9 @@ public class TestThreadRunner {
   }
 
 
-  public abstract static class TestThreadFactory {
+  public abstract static class TestThreadFactory<ResourcePoolT extends ResourcePool, Builder extends ProtocolBuilder> {
 
-    public abstract TestThread next(TestThreadConfiguration conf);
+    public abstract TestThread next(TestThreadConfiguration<ResourcePoolT, Builder> conf);
   }
 
   public static void run(TestThreadFactory f, int noOfPlayers) {
@@ -193,7 +197,7 @@ public class TestThreadRunner {
 
     Random r = new Random(randSeed);
     for (int i = 0; i < n; i++) {
-      TestThreadConfiguration c = confs.get(i + 1);
+      TestThreadConfiguration<?, ?> c = confs.get(i + 1);
       TestThread t = f.next(c);
       t.setConfiguration(c);
       t.setRandom(r.nextLong());

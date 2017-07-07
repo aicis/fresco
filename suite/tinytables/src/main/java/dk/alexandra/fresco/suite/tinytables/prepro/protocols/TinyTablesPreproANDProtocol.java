@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -77,7 +77,7 @@ public class TinyTablesPreproANDProtocol extends TinyTablesPreproProtocol {
   }
 
   @Override
-  public Value[] getOutputValues() {
+  public Value[] out() {
     return new Value[]{out};
   }
 
