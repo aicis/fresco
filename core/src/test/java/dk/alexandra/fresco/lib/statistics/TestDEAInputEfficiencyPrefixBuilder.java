@@ -29,6 +29,8 @@ package dk.alexandra.fresco.lib.statistics;
 import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.SInt;
+import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticSInt;
+
 import java.util.ArrayList;
 import org.hamcrest.core.Is;
 import org.junit.Assert;
@@ -102,20 +104,20 @@ public class TestDEAInputEfficiencyPrefixBuilder {
   @Test
   public void testTargetInputHandling() {
     Assert.assertThat(builder.getTargetInputs().size(), Is.is(0));
-    builder.addTargetInput(new DummySInt());
+    builder.addTargetInput(new DummyArithmeticSInt());
     Assert.assertThat(builder.getTargetInputs().size(), Is.is(1));
     builder.targetInputs(null);
-    builder.addTargetInput(new DummySInt());
+    builder.addTargetInput(new DummyArithmeticSInt());
     Assert.assertThat(builder.getTargetInputs().size(), Is.is(1));
   }
 
   @Test
   public void testTargetOutputHandling() {
     Assert.assertThat(builder.getTargetOutputs().size(), Is.is(0));
-    builder.addTargetOutput(new DummySInt());
+    builder.addTargetOutput(new DummyArithmeticSInt());
     Assert.assertThat(builder.getTargetOutputs().size(), Is.is(1));
     builder.targetOutputs(null);
-    builder.addTargetOutput(new DummySInt());
+    builder.addTargetOutput(new DummyArithmeticSInt());
     Assert.assertThat(builder.getTargetOutputs().size(), Is.is(1));
   }
 
@@ -143,27 +145,5 @@ public class TestDEAInputEfficiencyPrefixBuilder {
 
   }
 
-
-  @SuppressWarnings("serial")
-  private class DummySInt implements SInt {
-
-    DummySInt() {
-
-    }
-
-    @Override
-    public byte[] getSerializableContent() {
-      return null;
-    }
-
-    @Override
-    public void setSerializableContent(byte[] val) {
-    }
-
-    @Override
-    public boolean isReady() {
-      return false;
-    }
-  }
 
 }

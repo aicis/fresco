@@ -96,9 +96,13 @@ public class DEASolver implements Application {
 		this.targetOutputs = outputValues;
 		this.inputDataSet = setInput;
 		this.outputDataSet = setOutput;
+    if (this.targetInputs.size() == 0 || this.inputDataSet.size() == 0) {
+      throw new MPCException("Empty dataset / query data");
+    }
 		if (!consistencyCheck()) {
 			throw new MPCException("Inconsistent dataset / query data");
 		}
+
 	}
 
 	/**
@@ -240,12 +244,9 @@ public class DEASolver implements Application {
 
 		DEAPrefixBuilder[] basisBuilderCopies = new DEAPrefixBuilder[this.targetInputs.size()];
 
-		for (int i = 0; i < this.targetInputs.size(); i++) {
-			if (i == 0) {
-				basisBuilderCopies[i] = basisBuilder;
-			} else {
+    basisBuilderCopies[0] = basisBuilder;
+		for (int i = 1; i < this.targetInputs.size(); i++) {
 				basisBuilderCopies[i] = basisBuilder.copy();
-			}
 		}
 
 		for (int i = 0; i < this.targetInputs.size(); i++) {

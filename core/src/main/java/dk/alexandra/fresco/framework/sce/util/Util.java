@@ -33,6 +33,10 @@ import java.io.InputStream;
 
 public class Util {
 	
+  public Util() throws InstantiationException{
+    throw new InstantiationException("Util is static and should not be instantiated.");
+  }
+  
 	public static InputStream getInputStream(String resource) throws FileNotFoundException{
 		InputStream is = Util.class.getResourceAsStream(resource);
 		if(is == null) {

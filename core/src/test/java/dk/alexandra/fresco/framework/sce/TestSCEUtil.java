@@ -24,52 +24,53 @@
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
  *******************************************************************************/
-package dk.alexandra.fresco.lib.statistics;
+package dk.alexandra.fresco.framework.sce;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+
 import org.hamcrest.core.Is;
 import org.junit.Assert;
 import org.junit.Test;
 
-import dk.alexandra.fresco.framework.MPCException;
-import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticSInt;
+import dk.alexandra.fresco.framework.sce.util.Util;
 
-public class TestCreditRater {
+public class TestSCEUtil{
+
+  @Test(expected = InstantiationException.class) 
+  public void testConstructor() throws InstantiationException{
+    Util util = new Util();
+  }
+  
+  @Test
+  public void testGetInputStreamUtilClass() throws IOException {
+    InputStream is = Util.getInputStream("");
+    Assert.assertThat(is.available(), Is.is("Util.class".length()+1));
+  }
 
   @Test
-  public void testConsistency() {
-    List<SInt> values = new ArrayList<SInt>();
-    List<List<SInt>> intervals = new ArrayList<List<SInt>>(); 
-    List<List<SInt>> scores = new ArrayList<List<SInt>>();
-    
-    values.add(new DummyArithmeticSInt());
-    intervals.add(new ArrayList<SInt>());
-    scores.add(new ArrayList<SInt>());
-
+  public void testGetInputStreamNonExistingResource() throws IOException {
     try{
-      new CreditRater(values, intervals, scores);
-    } catch(MPCException e) {
-      Assert.fail("Consistent data should be accepted");
-    }
-
-    intervals.add(new ArrayList<SInt>());
-    
-    try{
-      new CreditRater(values, intervals, scores);
-      Assert.fail("Inconsistent data should not be accepted");
-    } catch(MPCException e) {
-      Assert.assertThat(e.getMessage(), Is.is("Inconsistent data"));
-    }
-    
-    values.add(new DummyArithmeticSInt());
-    try{
-      new CreditRater(values, intervals, scores);
-      Assert.fail("Inconsistent data should not be accepted");
-    } catch(MPCException e) {
-      Assert.assertThat(e.getMessage(), Is.is("Inconsistent data"));
+      InputStream is = Util.getInputStream("resources/circuits/md5.txt");
+    }catch(FileNotFoundException e) {
+      Assert.assertThat(e.getMessage(), Is.is("Could not locate the resource resources/circuits/md5.txt"));  
     }
   }
+  
+  @Test
+  public void testGetInputStreamExistingResource(){
+    try{
+      InputStream is = Util.getInputStream("src/test/resources/circuits/md5.txt");
+      try {
+        Assert.assertThat(is.available(), Is.is(1781599)); // Magicnumber relates to the file above
+      } catch (IOException e) {
+        Assert.fail();
+      }
+    }catch(FileNotFoundException e) {
+      Assert.fail();
+    }
+  }
+  
   
 }

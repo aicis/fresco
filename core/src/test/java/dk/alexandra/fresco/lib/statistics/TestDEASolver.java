@@ -36,6 +36,7 @@ import org.junit.Test;
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.statistics.DEASolver.AnalysisType;
+import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticSInt;
 
 public class TestDEASolver {
 
@@ -91,9 +92,9 @@ public class TestDEASolver {
 
   @Test
   public void testInputMismatchWithBasis() {
-    inputValues.get(0).add(new DummySInt());
-    inputBasis.get(0).add(new DummySInt());
-    inputBasis.get(0).add(new DummySInt());
+    inputValues.get(0).add(new DummyArithmeticSInt());
+    inputBasis.get(0).add(new DummyArithmeticSInt());
+    inputBasis.get(0).add(new DummyArithmeticSInt());
     
     try{
       new DEASolver(DEASolver.AnalysisType.INPUT_EFFICIENCY, inputValues, outputValues, inputBasis, outputBasis);
@@ -105,9 +106,9 @@ public class TestDEASolver {
 
   @Test
   public void testOutputMismatchWithBasis() {
-    outputValues.get(0).add(new DummySInt());
-    outputBasis.get(0).add(new DummySInt());
-    outputBasis.get(0).add(new DummySInt());
+    outputValues.get(0).add(new DummyArithmeticSInt());
+    outputBasis.get(0).add(new DummyArithmeticSInt());
+    outputBasis.get(0).add(new DummyArithmeticSInt());
     
     try{
       new DEASolver(DEASolver.AnalysisType.INPUT_EFFICIENCY, inputValues, outputValues, inputBasis, outputBasis);
@@ -120,14 +121,14 @@ public class TestDEASolver {
   @Test
   public void testInconsistentInputBasis() {
     outputBasis.add(new ArrayList<SInt>());
-    inputValues.get(0).add(new DummySInt());
-    inputValues.get(0).add(new DummySInt());
+    inputValues.get(0).add(new DummyArithmeticSInt());
+    inputValues.get(0).add(new DummyArithmeticSInt());
     inputBasis.add(new ArrayList<SInt>());
-    inputBasis.get(0).add(new DummySInt());
-    inputBasis.get(0).add(new DummySInt());
-    inputBasis.get(1).add(new DummySInt());
-    inputBasis.get(1).add(new DummySInt());
-    inputBasis.get(1).add(new DummySInt());
+    inputBasis.get(0).add(new DummyArithmeticSInt());
+    inputBasis.get(0).add(new DummyArithmeticSInt());
+    inputBasis.get(1).add(new DummyArithmeticSInt());
+    inputBasis.get(1).add(new DummyArithmeticSInt());
+    inputBasis.get(1).add(new DummyArithmeticSInt());
     
     try{
       new DEASolver(DEASolver.AnalysisType.INPUT_EFFICIENCY, inputValues, outputValues, inputBasis, outputBasis);
@@ -140,14 +141,14 @@ public class TestDEASolver {
   @Test
   public void testInconsistentOutputBasis() {
     inputBasis.add(new ArrayList<SInt>());
-    outputValues.get(0).add(new DummySInt());
-    outputValues.get(0).add(new DummySInt());
+    outputValues.get(0).add(new DummyArithmeticSInt());
+    outputValues.get(0).add(new DummyArithmeticSInt());
     outputBasis.add(new ArrayList<SInt>());
-    outputBasis.get(0).add(new DummySInt());
-    outputBasis.get(0).add(new DummySInt());
-    outputBasis.get(1).add(new DummySInt());
-    outputBasis.get(1).add(new DummySInt());
-    outputBasis.get(1).add(new DummySInt());
+    outputBasis.get(0).add(new DummyArithmeticSInt());
+    outputBasis.get(0).add(new DummyArithmeticSInt());
+    outputBasis.get(1).add(new DummyArithmeticSInt());
+    outputBasis.get(1).add(new DummyArithmeticSInt());
+    outputBasis.get(1).add(new DummyArithmeticSInt());
     
     try{
       new DEASolver(DEASolver.AnalysisType.INPUT_EFFICIENCY, inputValues, outputValues, inputBasis, outputBasis);
@@ -159,11 +160,11 @@ public class TestDEASolver {
   
   @Test
   public void testIncosistentOutputValues() {
-    outputBasis.get(0).add(new DummySInt());
-    outputBasis.get(0).add(new DummySInt());
-    outputValues.get(0).add(new DummySInt());
-    outputValues.get(0).add(new DummySInt());
-    outputValues.get(0).add(new DummySInt());
+    outputBasis.get(0).add(new DummyArithmeticSInt());
+    outputBasis.get(0).add(new DummyArithmeticSInt());
+    outputValues.get(0).add(new DummyArithmeticSInt());
+    outputValues.get(0).add(new DummyArithmeticSInt());
+    outputValues.get(0).add(new DummyArithmeticSInt());
     
     try{
       new DEASolver(DEASolver.AnalysisType.INPUT_EFFICIENCY, inputValues, outputValues, inputBasis, outputBasis);
@@ -173,32 +174,46 @@ public class TestDEASolver {
     }
   }
   
+  @Test
+  public void testEmptyDataset() {
+    inputValues = new ArrayList<List<SInt>>(); 
+    outputValues = new ArrayList<List<SInt>>();
+    inputBasis = new ArrayList<List<SInt>>(); 
+    outputBasis = new ArrayList<List<SInt>>();
+    inputValues.add(new ArrayList<SInt>());
+    outputValues.add(new ArrayList<SInt>());
+    outputValues.get(0).add(new DummyArithmeticSInt());
+    inputValues.get(0).add(new DummyArithmeticSInt());
+    try{
+      new DEASolver(DEASolver.AnalysisType.INPUT_EFFICIENCY, inputValues, outputValues, inputBasis, outputBasis);
+      Assert.fail("Empty data should not be accepted");
+    } catch(MPCException e) {
+      Assert.assertThat(e.getMessage(), Is.is("Empty dataset / query data"));
+    }
+  }
+
+  @Test
+  public void testEmptyQuery() {
+    inputValues = new ArrayList<List<SInt>>(); 
+    outputValues = new ArrayList<List<SInt>>();
+    inputBasis = new ArrayList<List<SInt>>(); 
+    outputBasis = new ArrayList<List<SInt>>();
+    inputBasis.add(new ArrayList<SInt>());
+    outputBasis.add(new ArrayList<SInt>());
+    outputBasis.get(0).add(new DummyArithmeticSInt());
+    inputBasis.get(0).add(new DummyArithmeticSInt());
+    try{
+      new DEASolver(DEASolver.AnalysisType.INPUT_EFFICIENCY, inputValues, outputValues, inputBasis, outputBasis);
+      Assert.fail("Empty data should not be accepted");
+    } catch(MPCException e) {
+      Assert.assertThat(e.getMessage(), Is.is("Empty dataset / query data"));
+    }
+  }
   
   @Test
   public void testAnalysisType() {
     Assert.assertThat(DEASolver.AnalysisType.INPUT_EFFICIENCY.toString(), Is.is("INPUT_EFFICIENCY"));
     Assert.assertThat(DEASolver.AnalysisType.valueOf("INPUT_EFFICIENCY"), Is.is(AnalysisType.INPUT_EFFICIENCY));
-  }
-  
-  @SuppressWarnings("serial")
-  private class DummySInt implements SInt{
-    public DummySInt() {
-      
-    }
-
-    @Override
-    public byte[] getSerializableContent() {
-      return null;
-    }
-
-    @Override
-    public void setSerializableContent(byte[] val) {
-    }
-
-    @Override
-    public boolean isReady() {
-      return false;
-    }
   }
   
 }

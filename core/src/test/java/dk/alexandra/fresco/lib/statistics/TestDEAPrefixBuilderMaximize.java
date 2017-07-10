@@ -27,9 +27,21 @@
 package dk.alexandra.fresco.lib.statistics;
 
 import dk.alexandra.fresco.framework.ProtocolCollection;
+import dk.alexandra.fresco.framework.ProtocolCollectionList;
 import dk.alexandra.fresco.framework.ProtocolProducer;
+import dk.alexandra.fresco.framework.network.SCENetwork;
+import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SInt;
+import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
+import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticFactory;
+import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticProtocol;
+import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticSInt;
+
+import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+
 import org.hamcrest.core.Is;
 import org.junit.Assert;
 import org.junit.Before;
@@ -43,6 +55,156 @@ public class TestDEAPrefixBuilderMaximize {
   public void setup(){
     builder = new DEAPrefixBuilderMaximize();
   }
+
+  @Test //This will test the abstract PrefixBuilder class
+  public void testAppend() {
+    try{
+      BasicNumericFactory factory1 = new DummyArithmeticFactory(BigInteger.ONE, 1);
+      BasicNumericFactory factory2 = new DummyArithmeticFactory(BigInteger.ONE, 2);
+      builder.provider(factory1);
+      DEAPrefixBuilder secondBuilder = new DEAPrefixBuilderMaximize();
+      secondBuilder.provider(factory2);
+      builder.append(secondBuilder);
+      Assert.fail("Can not append builder with different provider.");
+    } catch (IllegalArgumentException ignored) {
+    }
+  }
+  
+  @Test //This will test the abstract PrefixBuilder class
+  public void testAppendBasisInputs() {
+     BasicNumericFactory factory = new DummyArithmeticFactory(BigInteger.ONE, 1);
+     builder.provider(factory);
+     DEAPrefixBuilder secondBuilder = new DEAPrefixBuilderMaximize();
+     secondBuilder.provider(factory);
+     builder.basisInputs(null);
+     secondBuilder.basisInputs(null);
+     builder.append(secondBuilder);
+     Assert.assertNull(builder.getBasisInputs());
+     
+     builder.basisInputs(new LinkedList<SInt[]>());
+     builder.basisInputs.add(new SInt[]{new DummyArithmeticSInt(2)});
+     builder.append(secondBuilder);
+     Assert.assertEquals(1, builder.basisInputs.size());
+     
+     secondBuilder.basisInputs(new LinkedList<SInt[]>());
+     secondBuilder.basisInputs.add(new SInt[]{new DummyArithmeticSInt(4)});
+     builder.append(secondBuilder);
+     Assert.assertEquals(2, builder.basisInputs.size());
+  }
+
+  @Test //This will test the abstract PrefixBuilder class
+  public void testAppendBasisOutputs() {
+     BasicNumericFactory factory = new DummyArithmeticFactory(BigInteger.ONE, 1);
+     builder.provider(factory);
+     DEAPrefixBuilder secondBuilder = new DEAPrefixBuilderMaximize();
+     secondBuilder.provider(factory);
+     builder.basisOutputs(null);
+     secondBuilder.basisOutputs(null);
+     builder.append(secondBuilder);
+     Assert.assertNull(builder.getBasisOutputs());
+     
+     builder.basisOutputs(new LinkedList<SInt[]>());
+     builder.basisOutputs.add(new SInt[]{new DummyArithmeticSInt(2)});
+     builder.append(secondBuilder);
+     Assert.assertEquals(1, builder.basisOutputs.size());
+     
+     secondBuilder.basisOutputs(new LinkedList<SInt[]>());
+     secondBuilder.basisOutputs.add(new SInt[]{new DummyArithmeticSInt(4)});
+     builder.append(secondBuilder);
+     Assert.assertEquals(2, builder.basisOutputs.size());
+  }
+
+  @Test //This will test the abstract PrefixBuilder class
+  public void testAppendTargetInputs() {
+     BasicNumericFactory factory = new DummyArithmeticFactory(BigInteger.ONE, 1);
+     builder.provider(factory);
+     DEAPrefixBuilder secondBuilder = new DEAPrefixBuilderMaximize();
+     secondBuilder.provider(factory);
+     builder.targetInputs(null);
+     secondBuilder.targetInputs(null);
+     builder.append(secondBuilder);
+     Assert.assertNull(builder.getTargetInputs());
+     
+     builder.targetInputs(new LinkedList<SInt>());
+     builder.targetInputs.add(new DummyArithmeticSInt(2));
+     builder.append(secondBuilder);
+     Assert.assertEquals(1, builder.targetInputs.size());
+     
+     secondBuilder.targetInputs(new LinkedList<SInt>());
+     secondBuilder.targetInputs.add(new DummyArithmeticSInt(4));
+     builder.append(secondBuilder);
+     Assert.assertEquals(2, builder.targetInputs.size());
+  }
+
+  @Test //This will test the abstract PrefixBuilder class
+  public void testAppendTargetOutputs() {
+     BasicNumericFactory factory = new DummyArithmeticFactory(BigInteger.ONE, 1);
+     builder.provider(factory);
+     DEAPrefixBuilder secondBuilder = new DEAPrefixBuilderMaximize();
+     secondBuilder.provider(factory);
+     builder.targetOutputs(null);
+     secondBuilder.targetOutputs(null);
+     builder.append(secondBuilder);
+     Assert.assertNull(builder.getTargetOutputs());
+     
+     builder.targetOutputs(new LinkedList<SInt>());
+     builder.targetOutputs.add(new DummyArithmeticSInt(2));
+     builder.append(secondBuilder);
+     Assert.assertEquals(1, builder.targetOutputs.size());
+     
+     secondBuilder.targetOutputs(new LinkedList<SInt>());
+     secondBuilder.targetOutputs.add(new DummyArithmeticSInt(4));
+     builder.append(secondBuilder);
+     Assert.assertEquals(2, builder.targetOutputs.size());
+  }
+  
+  @Test //This will test the abstract PrefixBuilder class
+  public void testAppendPrefix() {
+     BasicNumericFactory factory = new DummyArithmeticFactory(BigInteger.ONE, 1);
+     builder.provider(factory);
+     DEAPrefixBuilder secondBuilder = new DEAPrefixBuilderMaximize();
+     secondBuilder.provider(factory);
+     
+     secondBuilder.prefix(new DummyProducer("second"));
+     
+     builder.append(secondBuilder);
+     Assert.assertThat(((DummyProducer)builder.prefix).getName(), Is.is("second"));
+
+     builder.prefix(new DummyProducer("first"));
+     builder.append(secondBuilder);
+     
+     ProtocolCollectionList protocolCollection = new ProtocolCollectionList(10);
+     builder.prefix.getNextProtocols(protocolCollection);
+     Assert.assertEquals(2, protocolCollection.size());
+  }
+  
+  @Test // This will test the abstract PrefixBuilder class
+  // This test only covers cases not covered by the standard DEASolver case.
+  public void testCopy() {
+     BasicNumericFactory factory = new DummyArithmeticFactory(BigInteger.ONE, 1);
+     builder.provider(factory);
+     
+     
+     List<SInt> targetInputs = new ArrayList<SInt>();
+     targetInputs.add(new DummyArithmeticSInt(1));
+     builder.targetInputs(targetInputs);
+     
+     List<SInt> targetOutputs = new ArrayList<SInt>();
+     targetOutputs.add(new DummyArithmeticSInt(2));
+     builder.targetOutputs(targetOutputs);
+     
+     builder.prefix(new DummyProducer("original"));
+     
+     DEAPrefixBuilder copy = builder.copy();
+     
+     Assert.assertThat(copy.targetInputs.size(), Is.is(1));
+     
+     Assert.assertThat(copy.targetOutputs.size(), Is.is(1));
+     
+     ProtocolCollectionList protocolCollection = new ProtocolCollectionList(10);
+     builder.prefix.getNextProtocols(protocolCollection);
+     Assert.assertEquals(2, protocolCollection.size());
+  }  
   
   @Test //This will test the abstract PrefixBuilder class
   public void testBuildWithInconsistencies() {
@@ -61,35 +223,34 @@ public class TestDEAPrefixBuilderMaximize {
       Assert.fail("Can not build on inconsistent data.");
     } catch (IllegalStateException ignored) {
     }
-    System.out.println("check 1 passed");
+    
     try{
-      builder.getTargetInputs().add(new DummySInt());
+      builder.getTargetInputs().add(new DummyArithmeticSInt());
       builder.getBasisOutputs().add(new SInt[2]);
       builder.build();
       Assert.fail("Can not build on inconsistent data.");
     } catch (IllegalStateException ignored) {
     }
-    System.out.println("check 2 passed");
+
     try{
-      builder.getTargetOutputs().add(new DummySInt());
+      builder.getTargetOutputs().add(new DummyArithmeticSInt());
       builder.getBasisInputs().add(new SInt[4]);
-      builder.getTargetInputs().add(new DummySInt());
+      builder.getTargetInputs().add(new DummyArithmeticSInt());
       builder.build();
       Assert.fail("Can not build on inconsistent data.");
     } catch (IllegalStateException ignored) {
     }
-    System.out.println("check 3 passed");
+    
     try{
       builder.basisInputs(new ArrayList<>());
       builder.getBasisInputs().add(new SInt[2]);
       builder.getTargetInputs().remove(1);
-      builder.getTargetOutputs().add(new DummySInt());
+      builder.getTargetOutputs().add(new DummyArithmeticSInt());
       builder.getBasisOutputs().add(new SInt[4]);
       builder.build();
       Assert.fail("Can not build on inconsistent data.");
     } catch (IllegalStateException ignored) {
     }
-    System.out.println("check 5 passed");
   }
   
   @Test
@@ -132,20 +293,20 @@ public class TestDEAPrefixBuilderMaximize {
   @Test
   public void testTargetInputHandling() {
     Assert.assertThat(builder.getTargetInputs().size(), Is.is(0));
-    builder.addTargetInput(new DummySInt());
+    builder.addTargetInput(new DummyArithmeticSInt());
     Assert.assertThat(builder.getTargetInputs().size(), Is.is(1));
     builder.targetInputs(null);
-    builder.addTargetInput(new DummySInt());
+    builder.addTargetInput(new DummyArithmeticSInt());
     Assert.assertThat(builder.getTargetInputs().size(), Is.is(1));
   }
 
   @Test
   public void testTargetOutputHandling() {
     Assert.assertThat(builder.getTargetOutputs().size(), Is.is(0));
-    builder.addTargetOutput(new DummySInt());
+    builder.addTargetOutput(new DummyArithmeticSInt());
     Assert.assertThat(builder.getTargetOutputs().size(), Is.is(1));
     builder.targetOutputs(null);
-    builder.addTargetOutput(new DummySInt());
+    builder.addTargetOutput(new DummyArithmeticSInt());
     Assert.assertThat(builder.getTargetOutputs().size(), Is.is(1));
   }
   
@@ -163,6 +324,20 @@ public class TestDEAPrefixBuilderMaximize {
     
     @Override
     public void getNextProtocols(ProtocolCollection protocolCollection) {
+      protocolCollection.addProtocol(new DummyArithmeticProtocol() {
+        
+        @Override
+        public Object getOutputValues() {
+          // TODO Auto-generated method stub
+          return null;
+        }
+        
+        @Override
+        public EvaluationStatus evaluate(int round, ResourcePool resourcePool, SCENetwork network) {
+          // TODO Auto-generated method stub
+          return null;
+        }
+      });
     }
 
     @Override
@@ -172,28 +347,6 @@ public class TestDEAPrefixBuilderMaximize {
     }
     
   }
-  
-    
-  @SuppressWarnings("serial")
-  private class DummySInt implements SInt{
 
-    DummySInt() {
-      
-    }
-
-    @Override
-    public byte[] getSerializableContent() {
-      return null;
-    }
-
-    @Override
-    public void setSerializableContent(byte[] val) {
-    }
-
-    @Override
-    public boolean isReady() {
-      return false;
-    }
-  }
   
 }

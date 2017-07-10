@@ -1,5 +1,6 @@
 package dk.alexandra.fresco.suite.dummy.arithmetic;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import dk.alexandra.fresco.framework.network.NetworkingStrategy;
@@ -11,6 +12,9 @@ import dk.alexandra.fresco.lib.arithmetic.SortingTests;
 import dk.alexandra.fresco.lib.math.integer.division.DivisionTests;
 import dk.alexandra.fresco.lib.math.integer.sqrt.SqrtTests;
 import dk.alexandra.fresco.lib.math.integer.stat.StatisticsTests;
+import dk.alexandra.fresco.lib.statistics.CreditRaterTest;
+import dk.alexandra.fresco.lib.statistics.DEASolver.AnalysisType;
+import dk.alexandra.fresco.lib.statistics.DEASolverTests;
 
 public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTest {
 
@@ -142,5 +146,66 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
       runTest(new StatisticsTests.TestStatistics(), EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET, 3);
   }
   
+  //Creditrater
+  @Test
+  public void test_CreditRater_Single_Value_2_parties() throws Exception {
+    int[] values = {2};
+    int[][] intervals = {{1,3}};
+    int[][] scores = {{10,100,1000}};
+    runTest(new CreditRaterTest.TestCreditRater(values, intervals, scores), EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET, 2);
+  }
+
+  @Test
+  public void test_CreditRater_Single_Value_3_parties() throws Exception {
+    int[] values = {2};
+    int[][] intervals = {{1,3}};
+    int[][] scores = {{10,100,1000}};
+    runTest(new CreditRaterTest.TestCreditRater(values, intervals, scores), EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET, 3);
+  }
   
+  @Test
+  public void test_CreditRater_multi_Value_2_parties() throws Exception {
+    int[] values = {2, 2, 2};
+    int[][] intervals = {{1,3}, {0, 5}, {0, 1}};
+    int[][] scores = {{10, 100, 1000}, {10,100, 1000}, {10, 100, 1000}};
+    runTest(new CreditRaterTest.TestCreditRater(values, intervals, scores), EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET, 2);
+  }
+  
+  //DEASolver TODO Is the DEASolver working as it should?
+  @Test
+  public void test_DEASolver_2_parties() throws Exception {
+    runTest(new DEASolverTests.TestDEASolver(5, 2, 10, 1, AnalysisType.INPUT_EFFICIENCY), EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET, 2);
+  }
+
+  
+  @Test
+  public void test_DEASolver_3_parties() throws Exception {
+    runTest(new DEASolverTests.TestDEASolver(2, 2, 10, 1, AnalysisType.INPUT_EFFICIENCY), EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET, 3);
+  }
+  
+  @Test
+  public void test_DEASolver_multiple_queries_2_parties() throws Exception {
+    runTest(new DEASolverTests.TestDEASolver(5, 2, 10, 2, AnalysisType.INPUT_EFFICIENCY), EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET, 2);
+  }
+  
+  
+  @Test
+  public void test_DEASolver_single_input_2_parties() throws Exception {
+    runTest(new DEASolverTests.TestDEASolver(1, 2, 10, 1, AnalysisType.INPUT_EFFICIENCY), EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET, 2);
+  }
+  
+  @Test
+  public void test_DEASolver_single_input_and_output_2_parties() throws Exception {
+    runTest(new DEASolverTests.TestDEASolver(1, 1, 10, 1, AnalysisType.INPUT_EFFICIENCY), EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET, 2);
+  }
+  
+  @Test
+  public void test_DEASolver_output_efficiency_2_parties() throws Exception {
+    runTest(new DEASolverTests.TestDEASolver(5, 1, 10, 1, AnalysisType.OUTPUT_EFFICIENCY), EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET, 2);
+  }
+  
+  @Test
+  public void test_DEASolver_multiple_queries__output_2_parties() throws Exception {
+    runTest(new DEASolverTests.TestDEASolver(5, 2, 10, 2, AnalysisType.OUTPUT_EFFICIENCY), EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET, 2);
+  }
 }
