@@ -24,72 +24,13 @@
 
 package dk.alexandra.fresco.suite.dummy.arithmetic;
 
-import dk.alexandra.fresco.framework.value.SInt;
-import java.math.BigInteger;
+import dk.alexandra.fresco.framework.NativeProtocol;
 
 /**
- * Implements {@link SInt} for the Dummy Arithmetic suite.
- * 
- * <p>
- * As the Dummy Arithmetic suite does not do actual MPC, but does all work locally, this is just a
- * wrapper around the {@link BigInteger} class.
- * </p>
+ * The {@link NativeProtocol} for the Dummy Arithmetic suite.
  *
+ * @param <OutputT> The output type of the protocol
  */
-public class DummyArithmeticSInt implements SInt {
-
-  private BigInteger value;
-
-  /**
-   * Constructs an SInt with value <code>null</code>.
-   */
-  public DummyArithmeticSInt() {
-    this.value = null;
-  }
-
-  /**
-   * Constructs an SInt with a given value.
-   * 
-   * @param value the given value
-   */
-  public DummyArithmeticSInt(BigInteger value) {
-    this.value = value;
-  }
-
-  /**
-   * Constructs an SInt with a given value.
-   * 
-   * @param value the given value
-   */
-  public DummyArithmeticSInt(int value) {
-    this.value = BigInteger.valueOf(value);
-  }
-
-  /**
-   * Gets the value of this SInt.
-   * 
-   * @return the value
-   */
-  public BigInteger getValue() {
-    return value;
-  }
-
-  /**
-   * Sets the value of this SInt.
-   * 
-   * @param value the value to set.
-   */
-  public void setValue(BigInteger value) {
-    this.value = value;
-  }
-
-  @Override
-  public String toString() {
-    return "DummyArithmeticSInt [value=" + value + "]";
-  }
-
-  @Override
-  public SInt out() {
-    return this;
-  }
+public abstract class DummyArithmeticNativeProtocol<OutputT>
+    implements NativeProtocol<OutputT, DummyArithmeticResourcePool> {
 }

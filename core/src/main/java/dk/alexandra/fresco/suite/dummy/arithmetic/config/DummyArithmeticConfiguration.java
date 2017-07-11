@@ -27,10 +27,11 @@
 package dk.alexandra.fresco.suite.dummy.arithmetic.config;
 
 import java.math.BigInteger;
-
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
 import dk.alexandra.fresco.framework.sce.configuration.ProtocolSuiteConfiguration;
+import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticResourcePool;
 
-public interface DummyArithmeticConfiguration extends ProtocolSuiteConfiguration {
+public interface DummyArithmeticConfiguration extends ProtocolSuiteConfiguration<DummyArithmeticResourcePool, SequentialNumericBuilder> {
   
   /**
    * Gets an approximation of the maximum bit length of any number appearing

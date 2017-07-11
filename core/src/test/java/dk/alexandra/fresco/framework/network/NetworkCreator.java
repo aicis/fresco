@@ -64,7 +64,7 @@ public class NetworkCreator {
   
     ResourcePoolImpl resourcePool =
         new ResourcePoolImpl(myId, parties.size(),
-            network, streamedStorage, rand, secRand);
+            network, rand, secRand);
       
     NetworkCreator.rps.put(myId, resourcePool);
     
