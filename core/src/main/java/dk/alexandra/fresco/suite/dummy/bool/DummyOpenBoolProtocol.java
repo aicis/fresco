@@ -24,51 +24,55 @@
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
  *******************************************************************************/
-package dk.alexandra.fresco.suite.dummy;
+package dk.alexandra.fresco.suite.dummy.bool;
 
-import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.network.SCENetwork;
-import dk.alexandra.fresco.framework.network.serializers.BooleanSerializer;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.OBool;
 import dk.alexandra.fresco.framework.value.SBool;
 import dk.alexandra.fresco.framework.value.Value;
-import dk.alexandra.fresco.lib.field.bool.CloseBoolProtocol;
+import dk.alexandra.fresco.lib.field.bool.OpenBoolProtocol;
 
-public class DummyCloseBoolProtocol extends DummyProtocol implements CloseBoolProtocol {
+public class DummyOpenBoolProtocol extends DummyProtocol implements OpenBoolProtocol {
 
-	public DummyOBool input;
-	public DummySBool output;
+	public DummySBool input;
+	public DummyOBool output;
 	
-	private int sender;
-
-	DummyCloseBoolProtocol(OBool in, SBool out, int sender) {
-		input = (DummyOBool)in;
-		output = (DummySBool)out;
-		this.sender = sender;
+	private int target;
+	
+	/**
+	 * Opens to all.
+	 * 
+	 */
+	DummyOpenBoolProtocol(SBool in, OBool out) {
+		input = (DummySBool)in;
+		output = (DummyOBool)out;
+		target = -1; // open to all
+	}
+	
+	/**
+	 * Opens to player with targetId.
+	 * 
+	 */
+	DummyOpenBoolProtocol(SBool in, OBool out, int targetId) {
+		input = (DummySBool)in;
+		output = (DummyOBool)out;
+		target = targetId;
 	}
 	
 	@Override
-	public EvaluationStatus evaluate(int round, ResourcePool resourcePool, SCENetwork network) {
-		switch (round) {
-		case 0:
-			if (resourcePool.getMyId() == sender) {
-				network.sendToAll(BooleanSerializer.toBytes(input.getValue()));
-			}
-			network.expectInputFromPlayer(sender);
-			return EvaluationStatus.HAS_MORE_ROUNDS;
-		case 1:
-			boolean r = BooleanSerializer.fromBytes(network.receive(sender));
-			this.output.setValue(r);
-			return EvaluationStatus.IS_DONE;
-		default:
-			throw new MPCException("Bad round: " + round);
+	public EvaluationStatus evaluate(int round, ResourcePool resourcePool,
+			SCENetwork network) {
+		boolean openToAll = target == -1;
+		if (resourcePool.getMyId() == target || openToAll) {
+			this.output.setValue(this.input.getValue());
 		}
-	}
+		return EvaluationStatus.IS_DONE;
+	}	
 	
 	@Override
 	public String toString() {
-		return "DummyCloseBoolGate(" + input + "," + output + ")";
+		return "DummyOpenBoolGate(" + input + "," + output + ")";
 	}
 
 	@Override

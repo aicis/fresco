@@ -102,6 +102,50 @@ public class AdvancedNumericTests {
     return actual;
   }
 
+  public static class TestDivisionWithPrecision extends TestThreadRunner.TestThreadFactory {
+
+    @Override
+    public TestThread next(TestThreadConfiguration conf) {
+      // TODO Rewrite this test to fit new framework
+      return null;
+    }
+
+    /*
+    @Override
+    public TestThreadRunner.TestThread next(TestThreadRunner.TestThreadConfiguration conf) {
+      return new TestThread() {
+        @Override
+        public void test() throws Exception {
+          TestApplication app = new TestApplication() {
+            @Override
+            public ProtocolProducer prepareApplication(ProtocolFactory factory) {
+              OmniBuilder builder = new OmniBuilder(factory);
+              NumericIOBuilder io = builder.getNumericIOBuilder();
+              NumericProtocolBuilder numeric = builder.getNumericProtocolBuilder();
+              AdvancedNumericBuilder advanced = builder.getAdvancedNumericBuilder();
+
+              SInt p = io.input(9, 1);
+              SInt q = io.input(4, 1);
+              OInt precision = numeric.knownOInt(4);
+              SInt result = advanced.div(p, q, precision);
+
+              outputs = new OInt[]{io.output(result)};
+
+              return builder.getProtocol();
+            }
+          };
+
+          secureComputationEngine
+              .runApplication(app, NetworkCreator.createResourcePool(conf.sceConf));
+
+          Assert.assertEquals(BigInteger.valueOf(9 / 4),
+              app.getOutputs()[0].getValue());
+        }
+      };
+    }
+    */
+  }
+
   public static class TestDivisionWithKnownDenominator extends TestThreadRunner.TestThreadFactory {
 
     private int numerator;
@@ -186,5 +230,4 @@ public class AdvancedNumericTests {
       };
     }
   }
-
 }

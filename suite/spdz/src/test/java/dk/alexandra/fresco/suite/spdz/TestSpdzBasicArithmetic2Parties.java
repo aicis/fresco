@@ -101,13 +101,6 @@ public class TestSpdzBasicArithmetic2Parties extends AbstractSpdzTest {
   }
 
   @Test
-  public void test_Lots_Of_Inputs_Sequential() throws Exception {
-    runTest(new BasicArithmeticTests.TestLotsOfInputs(), EvaluationStrategy.SEQUENTIAL,
-        NetworkingStrategy.KRYONET,
-        PreprocessingStrategy.DUMMY, 2);
-  }
-
-  @Test
   public void test_MultAndAdd_Sequential() throws Exception {
     runTest(new BasicArithmeticTests.TestSimpleMultAndAdd(), EvaluationStrategy.SEQUENTIAL,
         NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
@@ -118,12 +111,6 @@ public class TestSpdzBasicArithmetic2Parties extends AbstractSpdzTest {
     runTest(new BasicArithmeticTests.TestSumAndMult(), EvaluationStrategy.SEQUENTIAL,
         NetworkingStrategy.KRYONET,
         PreprocessingStrategy.DUMMY, 2);
-  }
-
-  @Test
-  public void test_Lots_Of_Inputs_SequentialBatched() throws Exception {
-    runTest(new BasicArithmeticTests.TestLotsOfInputs(), EvaluationStrategy.SEQUENTIAL_BATCHED,
-        NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
   }
 
   @Test

@@ -24,61 +24,30 @@
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
  *******************************************************************************/
-package dk.alexandra.fresco.suite.dummy;
+package dk.alexandra.fresco.suite.dummy.bool;
 
-import dk.alexandra.fresco.framework.network.SCENetwork;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
-import dk.alexandra.fresco.framework.value.OBool;
-import dk.alexandra.fresco.framework.value.SBool;
-import dk.alexandra.fresco.framework.value.Value;
-import dk.alexandra.fresco.lib.field.bool.OpenBoolProtocol;
+import dk.alexandra.fresco.suite.ProtocolSuite;
 
-public class DummyOpenBoolProtocol extends DummyProtocol implements OpenBoolProtocol {
 
-	public DummySBool input;
-	public DummyOBool output;
-	
-	private int target;
-	
-	/**
-	 * Opens to all.
-	 * 
-	 */
-	DummyOpenBoolProtocol(SBool in, OBool out) {
-		input = (DummySBool)in;
-		output = (DummyOBool)out;
-		target = -1; // open to all
-	}
-	
-	/**
-	 * Opens to player with targetId.
-	 * 
-	 */
-	DummyOpenBoolProtocol(SBool in, OBool out, int targetId) {
-		input = (DummySBool)in;
-		output = (DummyOBool)out;
-		target = targetId;
-	}
-	
-	@Override
-	public EvaluationStatus evaluate(int round, ResourcePool resourcePool,
-			SCENetwork network) {
-		boolean openToAll = target == -1;
-		if (resourcePool.getMyId() == target || openToAll) {
-			this.output.setValue(this.input.getValue());
-		}
-		return EvaluationStatus.IS_DONE;
-	}	
-	
-	@Override
-	public String toString() {
-		return "DummyOpenBoolGate(" + input + "," + output + ")";
-	}
+/**
+ * Dummy protocol suite that does no secret computation. Only for testing purposes.
+ *
+ * Do NOT use in production! :-)
+ *
+ * Currently it only implements basic logic operations "natively".
+ */
+public class DummyProtocolSuite implements ProtocolSuite {
 
-	@Override
-  public Value[] out() {
-    return new Value[]{this.output};
+  @Override
+  public DummyBuilderFactory init(ResourcePool resourcePool) {
+    return new DummyBuilderFactory();
   }
 
-	
+  @Override
+  public RoundSynchronization createRoundSynchronization() {
+    return new DummyRoundSynchronization();
+  }
+
+
 }

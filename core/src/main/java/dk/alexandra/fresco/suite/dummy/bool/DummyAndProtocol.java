@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
+ * Copyright (c) 2015 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
  *
@@ -24,32 +24,39 @@
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
  *******************************************************************************/
-package dk.alexandra.fresco.suite.dummy;
+package dk.alexandra.fresco.suite.dummy.bool;
 
-import dk.alexandra.fresco.framework.network.Network;
-import dk.alexandra.fresco.framework.sce.configuration.ProtocolSuiteConfiguration;
-import dk.alexandra.fresco.framework.sce.configuration.SCEConfiguration;
+import dk.alexandra.fresco.framework.network.SCENetwork;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
-import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
-import dk.alexandra.fresco.suite.ProtocolSuite;
-import java.security.SecureRandom;
-import java.util.Random;
-import org.apache.commons.cli.CommandLine;
+import dk.alexandra.fresco.framework.value.SBool;
 
-public class DummyConfiguration implements ProtocolSuiteConfiguration {
 
-  public static ProtocolSuiteConfiguration fromCmdLine(SCEConfiguration sceConf, CommandLine cmd) {
-    return new DummyConfiguration();
+public class DummyAndProtocol extends DummyProtocol {
+
+  private DummySBool inLeft;
+  private DummySBool inRight;
+  private DummySBool out;
+
+  DummyAndProtocol(SBool inLeft, SBool inRight, SBool out) {
+    this.inLeft = (DummySBool) inLeft;
+    this.inRight = (DummySBool) inRight;
+    this.out = (DummySBool) out;
   }
 
   @Override
-  public ProtocolSuite createProtocolSuite(int myPlayerId) {
-    return new DummyProtocolSuite();
+  public String toString() {
+    return "DummyAndGate(" + inLeft + "," + inRight + "," + out + ")";
   }
 
   @Override
-  public ResourcePool createResourcePool(int myId, int size, Network network,
-      Random rand, SecureRandom secRand) {
-    return new ResourcePoolImpl(myId, size, network, rand, secRand);
+  public SBool out() {
+    return out;
+  }
+
+  @Override
+  public EvaluationStatus evaluate(int round, ResourcePool resourcePool,
+      SCENetwork network) {
+    this.out.setValue(this.inLeft.getValue() & this.inRight.getValue());
+    return EvaluationStatus.IS_DONE;
   }
 }

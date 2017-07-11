@@ -31,7 +31,7 @@ import static org.junit.Assert.assertEquals;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.SBool;
 import dk.alexandra.fresco.lib.field.bool.BasicLogicFactory;
-import dk.alexandra.fresco.suite.dummy.DummyBuilderFactory;
+import dk.alexandra.fresco.suite.dummy.bool.DummyBuilderFactory;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;

@@ -53,12 +53,6 @@ public class TestSpdzBasicArithmetic3Parties extends AbstractSpdzTest {
 	}
 
 	@Test
-	public void test_Lots_Of_Inputs_Sequential() throws Exception {
-		runTest(new BasicArithmeticTests.TestLotsOfInputs(),
-				EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 3);
-	}
-
-	@Test
 	public void test_Sum_And_Output_Sequential() throws Exception {
 		runTest(new BasicArithmeticTests.TestSumAndMult(),
 				EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 3);

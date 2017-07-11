@@ -1,6 +1,5 @@
 /*
- *
- * Copyright (c) 2015 FRESCO (http://github.com/aicis/fresco).
+ * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
  *
@@ -25,40 +24,32 @@
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
  *******************************************************************************/
-package dk.alexandra.fresco.suite.dummy;
+package dk.alexandra.fresco.suite.dummy.bool;
 
-import dk.alexandra.fresco.framework.network.SCENetwork;
+import dk.alexandra.fresco.framework.network.Network;
+import dk.alexandra.fresco.framework.sce.configuration.ProtocolSuiteConfiguration;
+import dk.alexandra.fresco.framework.sce.configuration.SCEConfiguration;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
-import dk.alexandra.fresco.framework.value.SBool;
-import dk.alexandra.fresco.framework.value.Value;
-import dk.alexandra.fresco.lib.field.bool.NotProtocol;
+import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
+import dk.alexandra.fresco.suite.ProtocolSuite;
+import java.security.SecureRandom;
+import java.util.Random;
+import org.apache.commons.cli.CommandLine;
 
-public class DummyNotProtocol extends DummyProtocol implements NotProtocol {
+public class DummyConfiguration implements ProtocolSuiteConfiguration {
 
-	public DummySBool input;
-	public DummySBool output;
-
-	DummyNotProtocol(SBool in, SBool out) {
-		input = (DummySBool)in;
-		output = (DummySBool)out;
-	}
-	
-	@Override
-	public EvaluationStatus evaluate(int round, ResourcePool resourcePool,
-			SCENetwork network) {
-		this.output.setValue(!this.input.getValue());
-		return EvaluationStatus.IS_DONE;
-	}	
-	
-	@Override
-	public String toString() {
-		return "DummyNotGate(" + input + "," + output + ")";
-	}
-
-	@Override
-  public Value[] out() {
-    return new Value[]{this.output};
+  public static ProtocolSuiteConfiguration fromCmdLine(SCEConfiguration sceConf, CommandLine cmd) {
+    return new DummyConfiguration();
   }
 
-	
+  @Override
+  public ProtocolSuite createProtocolSuite(int myPlayerId) {
+    return new DummyProtocolSuite();
+  }
+
+  @Override
+  public ResourcePool createResourcePool(int myId, int size, Network network,
+      Random rand, SecureRandom secRand) {
+    return new ResourcePoolImpl(myId, size, network, rand, secRand);
+  }
 }
