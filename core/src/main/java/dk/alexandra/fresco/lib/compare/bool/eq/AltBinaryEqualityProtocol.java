@@ -59,10 +59,6 @@ public class AltBinaryEqualityProtocol extends AbstractRoundBasedProtocol
 		this.inLeft = inLeft;
 		this.inRight = inRight;
 		this.out = out;
-		if (inLeft.length != inRight.length) {
-			throw new IllegalArgumentException(
-					"Binary strings must be of equal length");
-		}
 		this.length = inLeft.length;
 	}
 	
@@ -80,7 +76,7 @@ public class AltBinaryEqualityProtocol extends AbstractRoundBasedProtocol
 			xnorOuts[0] = out;
 			blb.addProtocolProducer(new TreeProtocol(this));
 			round++;
-		} else if (round == 3){
+		} else {
 			return null;
 		}
 		return blb.getProtocol();

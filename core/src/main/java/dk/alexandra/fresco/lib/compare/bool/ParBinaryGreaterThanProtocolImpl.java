@@ -73,15 +73,15 @@ public class ParBinaryGreaterThanProtocolImpl extends AbstractRoundBasedProtocol
 	 */
 	public ParBinaryGreaterThanProtocolImpl(SBool[] inA, SBool[] inB, SBool outC,
 			AbstractBinaryFactory factory) {
-		if (inA.length == inB.length) {
+		//if (inA.length == inB.length) { //This check is performed in the BasicLogicBuilder
 			this.factory = factory;
 			this.outC = outC;
 			this.inA = inA;
 			this.inB = inB;
 			this.length = inA.length;
-		} else {
-			throw new RuntimeException("Comparison failed: bitsize differs");
-		}
+	//	} else {
+	//		throw new RuntimeException("Comparison failed: bitsize differs");
+	//	}
 	}
 
 	@Override

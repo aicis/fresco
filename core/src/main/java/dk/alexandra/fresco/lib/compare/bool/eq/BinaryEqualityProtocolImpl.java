@@ -63,10 +63,6 @@ public class BinaryEqualityProtocolImpl implements BinaryEqualityProtocol {
     this.inLeft = inLeft;
     this.inRight = inRight;
     this.out = out;
-    if (inLeft.length != inRight.length) {
-      throw new IllegalArgumentException(
-          "Binary strings must be of equal length");
-    }
     this.length = inLeft.length;
   }
 

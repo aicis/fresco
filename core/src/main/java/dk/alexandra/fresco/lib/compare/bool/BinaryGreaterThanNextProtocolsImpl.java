@@ -73,15 +73,16 @@ public class BinaryGreaterThanNextProtocolsImpl implements BinaryGreaterThanProt
    */
   public BinaryGreaterThanNextProtocolsImpl(SBool[] inA, SBool[] inB, SBool outC,
       AbstractBinaryFactory factory) {
-    if (inA.length == inB.length) {
+    //if (inA.length == inB.length) { //Check should be performed in 
+    // calling class (eg. BasicLogicBuilder)
       this.factory = factory;
       this.outC = outC;
       this.inA = inA;
       this.inB = inB;
       this.length = inA.length;
-    } else {
-      throw new RuntimeException("Comparison failed: bitsize differs");
-    }
+    //} else {
+    //  throw new RuntimeException("Comparison failed: bitsize differs");
+    //}
     round = 0;
     postfixResult = new SBool[this.length];
   }
@@ -107,7 +108,7 @@ public class BinaryGreaterThanNextProtocolsImpl implements BinaryGreaterThanProt
         curPP = factory.getAndProtocol(inA[length - 1], xor[length - 1], postfixResult[length - 1]);
       }
       getNextFromCurrent(protocolCollection, false, curPP);
-    } else if (round >= 2 && round <= length) {
+    } else if (round <= length) {
       if (curPP == null) {
         curPP = new SequentialProtocolProducer();
         //BasicLogicBuilder blb = new BasicLogicBuilder(provider);
@@ -128,7 +129,7 @@ public class BinaryGreaterThanNextProtocolsImpl implements BinaryGreaterThanProt
         //curGP = blb.getCircuit();
       }
       getNextFromCurrent(protocolCollection, false, curPP);
-    } else if (round > length) {
+    } else {
       if (curPP == null) {
         curPP = SingleProtocolProducer.wrap(factory.getCopyProtocol(postfixResult[0], outC));
       }

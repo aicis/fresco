@@ -120,7 +120,34 @@ public class TestDummyProtocolSuite {
   public void test_comparison() throws Exception {
     runTest(new ComparisonBooleanTests.TestGreaterThan(), EvaluationStrategy.SEQUENTIAL);
   }
+  
+  //TODO Perhaps this test should be moved to a dedicated BasicLogicBuilder
+  // test class, as the exception is thrown there 
+  @Test (expected=RuntimeException.class)
+  public void test_comparisonBadLength() throws Exception {
+    runTest(new ComparisonBooleanTests.TestGreaterThanUnequalLength(), EvaluationStrategy.SEQUENTIAL);
+  }
 
+  @Test
+  public void test_comparisonPar() throws Exception {
+    runTest(new ComparisonBooleanTests.TestGreaterThanPar(), EvaluationStrategy.SEQUENTIAL);
+  }
+
+  @Test
+  public void test_comparisonNextProtocols() throws Exception {
+    runTest(new ComparisonBooleanTests.TestGreaterThanNextProtocols(), EvaluationStrategy.SEQUENTIAL);
+  }
+
+  @Test
+  public void test_equality() throws Exception {
+    runTest(new ComparisonBooleanTests.TestBinaryEqual(), EvaluationStrategy.SEQUENTIAL);
+  }
+
+  @Test //Tested protocol is not referenced and is likely replaced by
+  // the one tested above
+  public void test_equalityBasicProtocol() throws Exception {
+    runTest(new ComparisonBooleanTests.TestBinaryEqualBasicProtocol(), EvaluationStrategy.SEQUENTIAL);
+  }
   //collections.sort
   @Test
   public void test_Uneven_Odd_Even_Merge_2_parties() throws Exception {

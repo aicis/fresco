@@ -35,8 +35,14 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.network.NetworkCreator;
 import dk.alexandra.fresco.framework.value.OBool;
 import dk.alexandra.fresco.framework.value.SBool;
+import dk.alexandra.fresco.lib.compare.bool.BinaryGreaterThanNextProtocolsImpl;
+import dk.alexandra.fresco.lib.compare.bool.ParBinaryGreaterThanProtocolImpl;
+import dk.alexandra.fresco.lib.compare.bool.eq.BinaryEqualityProtocolImpl;
 import dk.alexandra.fresco.lib.helper.builder.BasicLogicBuilder;
+import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
 import dk.alexandra.fresco.lib.logic.AbstractBinaryFactory;
+
+import org.apache.commons.math3.genetics.BinaryChromosome;
 import org.junit.Assert;
 
 public class ComparisonBooleanTests {
@@ -87,4 +93,255 @@ public class ComparisonBooleanTests {
 			};
 		}
 	}
+	
+	 public static class TestGreaterThanUnequalLength extends TestThreadFactory {
+	    @Override
+	    public TestThread next(TestThreadConfiguration conf) {
+	      return new TestThread() {
+	        @Override
+	        public void test() throws Exception {
+	          boolean[] comp1 = new boolean[] {false, true, false, true, false};
+	          boolean[] comp2 = new boolean[] {false, true, true};
+	          
+	          TestBoolApplication app = new TestBoolApplication() {
+
+	            private static final long serialVersionUID = 4338818809103728010L;
+
+	            @Override
+	            public ProtocolProducer prepareApplication(
+	                ProtocolFactory provider) {
+	              AbstractBinaryFactory prov = (AbstractBinaryFactory) provider;
+	              BasicLogicBuilder builder = new BasicLogicBuilder(prov);
+	              
+	              SBool[] in1 = builder.knownSBool(comp1);
+	              SBool[] in2 = builder.knownSBool(comp2);
+	              
+	              SBool compRes1 = builder.greaterThan(in1, in2);
+	              SBool compRes2 = builder.greaterThan(in2, in1);
+
+	              this.outputs = new OBool[]{builder.output(compRes1), builder.output(compRes2)};
+	              return builder.getProtocol();
+	            }
+	          };
+
+	          secureComputationEngine
+	              .runApplication(app, NetworkCreator.createResourcePool(conf.sceConf));
+
+	        }
+	      };
+	    }
+	  }
+
+   //TODO The tested class is not referenced in any builders and is perhaps never used?
+    public static class TestGreaterThanNextProtocols extends TestThreadFactory {
+      @Override
+      public TestThread next(TestThreadConfiguration conf) {
+        return new TestThread() {
+          @Override
+          public void test() throws Exception {
+            boolean[] comp1 = new boolean[] {false, true, false, true, false};
+            boolean[] comp2 = new boolean[] {false, true, true, true, false};
+            
+            TestBoolApplication app = new TestBoolApplication() {
+
+              private static final long serialVersionUID = 4338818809103728010L;
+
+              @Override
+              public ProtocolProducer prepareApplication(
+                  ProtocolFactory provider) {
+                AbstractBinaryFactory prov = (AbstractBinaryFactory) provider;
+                BasicLogicBuilder builder = new BasicLogicBuilder(prov);
+                
+                SBool[] in1 = builder.knownSBool(comp1);
+                SBool[] in2 = builder.knownSBool(comp2);
+                
+                SBool compRes1 = prov.getSBool();
+                SBool compRes2 = prov.getSBool();
+                
+                BinaryGreaterThanNextProtocolsImpl binaryGreaterThanProtocol = new
+                    BinaryGreaterThanNextProtocolsImpl(in1, in2, compRes1, prov);
+                
+                BinaryGreaterThanNextProtocolsImpl binaryGreaterThanProtocol2 = new
+                    BinaryGreaterThanNextProtocolsImpl(in2, in1, compRes2, prov);
+                SequentialProtocolProducer sseq = new SequentialProtocolProducer();
+                sseq.append(binaryGreaterThanProtocol);
+                sseq.append(binaryGreaterThanProtocol2);
+                
+                
+                this.outputs = new OBool[]{builder.output(compRes1), builder.output(compRes2)};
+                sseq.append(builder.getProtocol());
+                return sseq;
+              }
+            };
+
+            secureComputationEngine
+                .runApplication(app, NetworkCreator.createResourcePool(conf.sceConf));
+
+              Assert.assertEquals(false,
+                  app.getOutputs()[0].getValue());
+              Assert.assertEquals(true,
+                  app.getOutputs()[1].getValue());
+          }
+        };
+      }
+    }
+	 
+	 //TODO The tested class is commented as experimental and is not referenced in 
+	 // any builders
+	  public static class TestGreaterThanPar extends TestThreadFactory {
+	    @Override
+	    public TestThread next(TestThreadConfiguration conf) {
+	      return new TestThread() {
+	        @Override
+	        public void test() throws Exception {
+	          boolean[] comp1 = new boolean[] {false, true, false, true, false};
+	          boolean[] comp2 = new boolean[] {false, true, true, true, false};
+	          
+	          TestBoolApplication app = new TestBoolApplication() {
+
+	            private static final long serialVersionUID = 4338818809103728010L;
+
+	            @Override
+	            public ProtocolProducer prepareApplication(
+	                ProtocolFactory provider) {
+	              AbstractBinaryFactory prov = (AbstractBinaryFactory) provider;
+	              BasicLogicBuilder builder = new BasicLogicBuilder(prov);
+	              
+	              SBool[] in1 = builder.knownSBool(comp1);
+	              SBool[] in2 = builder.knownSBool(comp2);
+	              
+	              SBool compRes1 = prov.getSBool();
+	              SBool compRes2 = prov.getSBool();
+                
+	              ParBinaryGreaterThanProtocolImpl parBinaryGreaterThanProtocolImpl = new
+	                  ParBinaryGreaterThanProtocolImpl(in1, in2, compRes1, prov);
+	              
+	              ParBinaryGreaterThanProtocolImpl parBinaryGreaterThanProtocolImpl2 = new
+                    ParBinaryGreaterThanProtocolImpl(in2, in1, compRes2, prov);
+                SequentialProtocolProducer sseq = new SequentialProtocolProducer();
+                sseq.append(parBinaryGreaterThanProtocolImpl);
+                sseq.append(parBinaryGreaterThanProtocolImpl2);
+                
+                
+                this.outputs = new OBool[]{builder.output(compRes1), builder.output(compRes2)};
+                sseq.append(builder.getProtocol());
+	              return sseq;
+	            }
+	          };
+
+	          secureComputationEngine
+	              .runApplication(app, NetworkCreator.createResourcePool(conf.sceConf));
+
+	            Assert.assertEquals(false,
+	                app.getOutputs()[0].getValue());
+	            Assert.assertEquals(true,
+	                app.getOutputs()[1].getValue());
+	        }
+	      };
+	    }
+	  }
+
+	  
+	  public static class TestBinaryEqual extends TestThreadFactory {
+	    @Override
+	    public TestThread next(TestThreadConfiguration conf) {
+	      return new TestThread() {
+	        @Override
+	        public void test() throws Exception {
+	          boolean[] comp1 = new boolean[] {false, true, false, true, false};
+	          boolean[] comp2 = new boolean[] {false, true, true, true, false};
+	          boolean[] comp3 = new boolean[] {false, true, true, true, false};
+            
+	          
+	          TestBoolApplication app = new TestBoolApplication() {
+
+	            private static final long serialVersionUID = 4338818809103728010L;
+
+	            @Override
+	            public ProtocolProducer prepareApplication(
+	                ProtocolFactory provider) {
+	              AbstractBinaryFactory prov = (AbstractBinaryFactory) provider;
+	              BasicLogicBuilder builder = new BasicLogicBuilder(prov);
+	              
+	              SBool[] in1 = builder.knownSBool(comp1);
+	              SBool[] in2 = builder.knownSBool(comp2);
+	              SBool[] in3 = builder.knownSBool(comp3);
+                
+	              SBool compRes1 = builder.equality(in1, in2);
+	              SBool compRes2 = builder.equality(in2, in3);
+
+	              this.outputs = new OBool[]{builder.output(compRes1), builder.output(compRes2)};
+	              return builder.getProtocol();
+	            }
+	          };
+
+	          secureComputationEngine
+	              .runApplication(app, NetworkCreator.createResourcePool(conf.sceConf));
+
+	            Assert.assertEquals(false,
+	                app.getOutputs()[0].getValue());
+	            Assert.assertEquals(true,
+	                app.getOutputs()[1].getValue());
+	        }
+	      };
+	    }
+	  }
+
+    public static class TestBinaryEqualBasicProtocol extends TestThreadFactory {
+      @Override
+      public TestThread next(TestThreadConfiguration conf) {
+        return new TestThread() {
+          @Override
+          public void test() throws Exception {
+            boolean[] comp1 = new boolean[] {false, true, false, true, false};
+            boolean[] comp2 = new boolean[] {false, true, true, true, false};
+            boolean[] comp3 = new boolean[] {false, true, true, true, false};
+            
+            
+            TestBoolApplication app = new TestBoolApplication() {
+
+              private static final long serialVersionUID = 4338818809103728010L;
+
+              @Override
+              public ProtocolProducer prepareApplication(
+                  ProtocolFactory provider) {
+                AbstractBinaryFactory prov = (AbstractBinaryFactory) provider;
+                BasicLogicBuilder builder = new BasicLogicBuilder(prov);
+                
+                SBool[] in1 = builder.knownSBool(comp1);
+                SBool[] in2 = builder.knownSBool(comp2);
+                SBool[] in3 = builder.knownSBool(comp3);
+                
+                SBool compRes1 = builder.equality(in1, in2);
+                SBool compRes2 = builder.equality(in2, in3);
+
+                
+                BinaryEqualityProtocolImpl eq1 = new
+                    BinaryEqualityProtocolImpl(in1, in2, compRes1, prov);
+                
+                BinaryEqualityProtocolImpl eq2 = new
+                    BinaryEqualityProtocolImpl(in2, in3, compRes1, prov);
+                
+                SequentialProtocolProducer sseq = new SequentialProtocolProducer();
+                sseq.append(eq1);
+                sseq.append(eq2);
+                
+                this.outputs = new OBool[]{builder.output(compRes1), builder.output(compRes2)};
+                sseq.append(builder.getProtocol());
+                return sseq;
+              }
+            };
+
+            secureComputationEngine
+                .runApplication(app, NetworkCreator.createResourcePool(conf.sceConf));
+
+              Assert.assertEquals(false,
+                  app.getOutputs()[0].getValue());
+              Assert.assertEquals(true,
+                  app.getOutputs()[1].getValue());
+          }
+        };
+      }
+    }
+	  
 }
