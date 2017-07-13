@@ -73,15 +73,11 @@ public class BinaryGreaterThanProtocolImpl extends AbstractRoundBasedProtocol
 	 */
 	public BinaryGreaterThanProtocolImpl(SBool[] inA, SBool[] inB, SBool outC,
 			AbstractBinaryFactory factory) {
-		if (inA.length == inB.length) {
-			this.factory = factory;
-			this.outC = outC;
-			this.inA = inA;
-			this.inB = inB;
-			this.length = inA.length;
-		} else {
-			throw new RuntimeException("Comparison failed: bitsize differs");
-		}
+		this.factory = factory;
+		this.outC = outC;
+		this.inA = inA;
+		this.inB = inB;
+		this.length = inA.length;
 		/*
 		SBool[] inputs = new SBool[inA.length + inB.length];
 		System.arraycopy(inA, 0, inputs, 0, inA.length);
@@ -102,7 +98,7 @@ public class BinaryGreaterThanProtocolImpl extends AbstractRoundBasedProtocol
 		} else if (round == 1) {
 			blb.andInPlace(outC, inA[length - 1], xor);
 			round++;
-		} else if (round > 1 && round <= length) {
+		} else if (round <= length) {
 			int i = length - round;
 			blb.xorInPlace(xor, inA[i], inB[i]);
 			blb.xorInPlace(tmp, inA[i], outC);
