@@ -132,10 +132,9 @@ public class GreaterThanReducerProtocolImpl implements GreaterThanProtocol {
   private SInt mPrime, rPrime;
 
   @Override
-  public void getNextProtocols(ProtocolCollection protocolCollection) {    
+  public void getNextProtocols(ProtocolCollection protocolCollection) {
     if (pp == null) {
-      switch (round) {
-        case 0:
+      if(round == 0 ){
           // LOAD r + bits
           bits = new SInt[bitLength];
           for (int i = 0; i < bitLength; i++) {
@@ -145,8 +144,7 @@ public class GreaterThanReducerProtocolImpl implements GreaterThanProtocol {
           ProtocolProducer maskCircuit = maskFactory
               .getRandomAdditiveMaskProtocol(securityParameter, bits, r);
           pp = maskCircuit;
-          break;
-        case 1:
+      } else if (round == 1) {
           // construct r-values (rBar, rBottom, rTop)
           rTop = factory.getSInt();
           rBottom = factory.getSInt();
@@ -202,8 +200,7 @@ public class GreaterThanReducerProtocolImpl implements GreaterThanProtocol {
               addprotocol1,
               addprotocol2,
               openprotocolAddMask);
-          break;
-        case 2: //
+      } else if (round == 2) {
           // extract mTop and mBot
           mBot = factory.getOInt();
           mTop = factory.getOInt();
@@ -221,8 +218,7 @@ public class GreaterThanReducerProtocolImpl implements GreaterThanProtocol {
           sequentialProtocolProducer.append(ztFactory
               .getZeroProtocol(bitLengthTop, securityParameter, dif, eqResult));
           pp = sequentialProtocolProducer;
-          break;
-        case 3:
+      } else if (round == 3) {
           // [eqResult]? BOT : TOP (for m and r) (store as mPrime,rPrime)
           rPrime = factory.getSInt();
           mPrime = factory.getSInt();
@@ -281,8 +277,7 @@ public class GreaterThanReducerProtocolImpl implements GreaterThanProtocol {
             pp = new SequentialProtocolProducer(selectSubProblemGP, compCirc);
           }
 
-          break;
-        case 4:
+      } else {
           // u = 1 - subComparisonResult
           SInt u = factory.getSInt();
           ProtocolProducer negCirc4 = bitFactory.getNegatedBitProtocol(subComparisonResult, u);
@@ -316,9 +311,6 @@ public class GreaterThanReducerProtocolImpl implements GreaterThanProtocol {
               computeTwoToNeg, shiftCirc4);
           pp = sequentialProtocolProducer1;
           //gp = new SequentialGateProducer(negCirc4, subCirc4_1, mbcCirc4, addCirc4, subCirc4_2, localInvCirc4, shiftCirc4);
-          break;
-        default:
-          throw new MPCException("Internal error when building next pp");
       }
     }
     if (pp.hasNextProtocols()) {
