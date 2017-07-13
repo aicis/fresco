@@ -107,7 +107,7 @@ public class KeyedCompareAndSwapProtocolGetNextProtocolImpl extends SimpleProtoc
         curPP = blb.getProtocol();
       }
       getNextFromCurPp(protocolCollection, false);
-    } else if (round == 2) {
+    } else { //round == 2
       if (curPP == null) {
         curPP = new ParallelProtocolProducer();
         for (int i = 0; i < rightKey.length; i++) {

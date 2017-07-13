@@ -38,6 +38,7 @@ import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
 import dk.alexandra.fresco.framework.sce.resources.storage.Storage;
 import dk.alexandra.fresco.lib.bool.ComparisonBooleanTests;
+import dk.alexandra.fresco.lib.collections.sort.CollectionsSortingTests;
 import dk.alexandra.fresco.lib.crypto.BristolCryptoTests;
 import dk.alexandra.fresco.suite.dummy.bool.DummyConfiguration;
 
@@ -120,4 +121,26 @@ public class TestDummyProtocolSuite {
     runTest(new ComparisonBooleanTests.TestGreaterThan(), EvaluationStrategy.SEQUENTIAL);
   }
 
+  //collections.sort
+  @Test
+  public void test_Uneven_Odd_Even_Merge_2_parties() throws Exception {
+    runTest(new CollectionsSortingTests.TestOddEvenMerge(), EvaluationStrategy.SEQUENTIAL);
+  }
+
+  @Test
+  public void test_Uneven_Odd_Even_Merge_Rec_2_parties() throws Exception {
+    runTest(new CollectionsSortingTests.TestOddEvenMergeRec(), EvaluationStrategy.SEQUENTIAL);
+  }
+
+  @Test
+  public void test_Uneven_Odd_Even_Merge_Rec_Large_2_parties() throws Exception {
+    runTest(new CollectionsSortingTests.TestOddEvenMergeRecLarge(), EvaluationStrategy.SEQUENTIAL);
+  }
+  
+  @Test
+  public void test_Keyed_Compare_And_Swap_2_parties() throws Exception {
+    runTest(new CollectionsSortingTests.TestKeyedCompareAndSwap(), EvaluationStrategy.SEQUENTIAL);
+  }
+
+  
 }

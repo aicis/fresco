@@ -231,18 +231,23 @@ public class OddEvenMergeProtocolRec extends SimpleProtocolProducer implements
     }
 
     private ProtocolProducer compareAndSwapAtIndices(int i, int j) {
-      boolean inBounds = (i >= firstIndex && i < lastIndex);
-      inBounds = inBounds && (j >= firstIndex && j <= lastIndex);
-      if (!inBounds) {
-        return null;
-      } else {
-        i = i - firstIndex;
-        j = j - firstIndex;
-        Pair<SBool[], SBool[]> left = sorted.get(i);
-        Pair<SBool[], SBool[]> right = sorted.get(j);
-        return factory.getKeyedCompareAndSwapProtocol(left.getFirst(),
-            left.getSecond(), right.getFirst(), right.getSecond());
+      boolean outOfBounds = false;
+      if(i < firstIndex || i >= lastIndex) {
+        outOfBounds = true;
       }
+      if(j < firstIndex || j > lastIndex){
+        outOfBounds = true;
+      }
+      if(outOfBounds) {
+        return null;
+      }
+      i = i - firstIndex;
+      j = j - firstIndex;
+      Pair<SBool[], SBool[]> left = sorted.get(i);
+      Pair<SBool[], SBool[]> right = sorted.get(j);
+      return factory.getKeyedCompareAndSwapProtocol(left.getFirst(),
+          left.getSecond(), right.getFirst(), right.getSecond());
+      
     }
   }
 
@@ -254,7 +259,7 @@ public class OddEvenMergeProtocolRec extends SimpleProtocolProducer implements
    *
    * @author psn
    */
-  private class Layer extends SimpleProtocolProducer {
+  private class Layer {//extends SimpleProtocolProducer {
 
     int length;
     int step;
@@ -271,7 +276,7 @@ public class OddEvenMergeProtocolRec extends SimpleProtocolProducer implements
     protected void addIndex(int i) {
       indices.add(i);
     }
-
+/*
     @Override
     protected ProtocolProducer initializeProtocolProducer() {
       builder.beginParScope();
@@ -282,7 +287,7 @@ public class OddEvenMergeProtocolRec extends SimpleProtocolProducer implements
       builder.endCurScope();
       return builder.getProtocol();
     }
-
+*/
     public ProtocolLayer getProtocolLayer() {
       int threads = 16; // TODO: Find a smarter way to set this!!
       ProtocolLayer cl = new ProtocolLayer(threads);

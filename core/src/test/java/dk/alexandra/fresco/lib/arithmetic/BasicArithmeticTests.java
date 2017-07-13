@@ -231,6 +231,38 @@ public class BasicArithmeticTests {
     }
   }
 
+  public static class TestRandomOint extends TestThreadFactory {
+
+    @Override
+    public TestThread next(TestThreadConfiguration conf) {
+      return new TestThread() {
+        @Override
+        public void test() throws Exception {
+          TestApplication app = new TestApplication() {
+
+            private static final long serialVersionUID = -8310958118835789509L;
+
+            @Override
+            public ProtocolProducer prepareApplication(
+                ProtocolFactory factory) {
+              BasicNumericFactory fac = (BasicNumericFactory) factory;
+
+              SequentialProtocolProducer seq = new SequentialProtocolProducer();
+
+              this.outputs = new OInt[] {fac.getRandomOInt()};
+
+              return seq;
+            }
+          };
+          secureComputationEngine
+              .runApplication(app, NetworkCreator.createResourcePool(conf.sceConf));
+
+          Assert.assertEquals(app.getOutputs()[0].getValue(), BigInteger.valueOf(3513665));
+        }
+      };
+    }
+  }
+
 
   public static class TestLotsOfInputs extends TestThreadFactory {
 

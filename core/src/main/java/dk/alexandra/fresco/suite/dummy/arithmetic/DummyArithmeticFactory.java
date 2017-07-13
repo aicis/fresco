@@ -149,11 +149,6 @@ public class DummyArithmeticFactory implements BasicNumericFactory, LocalInversi
   }
 
   @Override
-  public CloseIntProtocol getCloseProtocol(BigInteger open, SInt closed, int targetID) {
-    return new DummyArithmeticCloseProtocol(targetID, getOInt(open), closed);
-  }
-
-  @Override
   public CloseIntProtocol getCloseProtocol(int source, OInt open, SInt closed) {
     return new DummyArithmeticCloseProtocol(source, open, closed);
   }

@@ -39,18 +39,7 @@ import dk.alexandra.fresco.lib.field.integer.OpenIntProtocol;
  */
 public interface IOIntProtocolFactory {
 	
-	/**
-	 * Gets a new open protocol.
-	 * 
-	 * @param closed a closed value
-	 * @param open a known value
-	 * @param targetID the id of the specific player that provides the input.
-	 * @return the protocol to do the transformation
-	 * 
-	 */
-	public CloseIntProtocol getCloseProtocol(BigInteger open, SInt closed,
-			int targetID);
-	
+
 	/**
 	 * Gets a new open protocol.
 	 * 

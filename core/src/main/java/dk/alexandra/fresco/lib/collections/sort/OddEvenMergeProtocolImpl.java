@@ -42,116 +42,124 @@ import java.util.List;
  *
  */
 public class OddEvenMergeProtocolImpl extends SimpleProtocolProducer implements
-    OddEvenMergeProtocol {
+OddEvenMergeProtocol {
 
-	private BasicLogicBuilder blb;
-	private List<Pair<SBool[], SBool[]>> sorted;
-	private List<Pair<SBool[], SBool[]>> left;
-	private List<Pair<SBool[], SBool[]>> right;
-	private int firstIndex;
-	private int lastIndex;
-	private int realSize;
-	private int simulatedSize;
+  private BasicLogicBuilder blb;
+  private List<Pair<SBool[], SBool[]>> sorted;
+  private List<Pair<SBool[], SBool[]>> left;
+  private List<Pair<SBool[], SBool[]>> right;
+  private int firstIndex;
+  private int lastIndex;
+  private int realSize;
+  private int simulatedSize;
 
-	public OddEvenMergeProtocolImpl(List<Pair<SBool[], SBool[]>> left,
-			List<Pair<SBool[], SBool[]>> right,
-			List<Pair<SBool[], SBool[]>> sorted, AbstractBinaryFactory factory) {
-		super();
-		this.blb = new BasicLogicBuilder(factory);
-		this.sorted = sorted;
-		this.left = left;
-		this.right = right;
-	}
+  public OddEvenMergeProtocolImpl(List<Pair<SBool[], SBool[]>> left,
+      List<Pair<SBool[], SBool[]>> right,
+      List<Pair<SBool[], SBool[]>> sorted, AbstractBinaryFactory factory) {
+    super();
+    this.blb = new BasicLogicBuilder(factory);
+    this.sorted = sorted;
+    this.left = left;
+    this.right = right;
+  }
 
-	@Override
-	protected ProtocolProducer initializeProtocolProducer() {
-		
-		blb.beginParScope();
-		for (int i = 0; i < left.size(); i++) {
-			Pair<SBool[], SBool[]> leftPair = left.get(i);
-			Pair<SBool[], SBool[]> upperPair = sorted.get(i);
-			blb.copy(leftPair.getFirst(), upperPair.getFirst());
-			blb.copy(leftPair.getSecond(), upperPair.getSecond());
-		}
-		for (int i = 0; i < right.size(); i++) {
-			Pair<SBool[], SBool[]> rightPair = right.get(i);
-			Pair<SBool[], SBool[]> lowerPair = sorted.get(i + left.size());
-			blb.copy(rightPair.getFirst(), lowerPair.getFirst());
-			blb.copy(rightPair.getSecond(), lowerPair.getSecond());
-		}
-		blb.endCurScope();
-		initializeIndices();
-		newMerge(0, simulatedSize, 1);
-		return blb.getProtocol();
-	}
+  @Override
+  protected ProtocolProducer initializeProtocolProducer() {
 
-	private void merge(int first, int length, int step) {
-		int doubleStep = step * 2;
-		if (length > 2) {
-			blb.beginSeqScope();
-			blb.beginParScope();
-			int newLength = length / 2;
-			merge(first, newLength, doubleStep);
-			newMerge(first + step, length - newLength, doubleStep);
-			//merge(first + step, length - newLength, doubleStep);
-			blb.endCurScope();
-			blb.beginParScope();
-			for (int i = 1; i < length - 2; i += 2) {
-				int low = first + i * step;
-				int high = low + step;
-				compareAndSwapAtIndices(low, high);
-			}
-			blb.endCurScope();
-			blb.endCurScope();
-		} else if (length == 2) {
-			compareAndSwapAtIndices(first, first + step);
-		}		
-	}
-	
-	private void newMerge(int first, int length, int step) {
-		blb.beginSeqScope();
-		merge(first, length, step);
-		blb.endCurScope();
-	}
+    blb.beginParScope();
+    for (int i = 0; i < left.size(); i++) {
+      Pair<SBool[], SBool[]> leftPair = left.get(i);
+      Pair<SBool[], SBool[]> upperPair = sorted.get(i);
+      blb.copy(leftPair.getFirst(), upperPair.getFirst());
+      blb.copy(leftPair.getSecond(), upperPair.getSecond());
+    }
+    for (int i = 0; i < right.size(); i++) {
+      Pair<SBool[], SBool[]> rightPair = right.get(i);
+      Pair<SBool[], SBool[]> lowerPair = sorted.get(i + left.size());
+      blb.copy(rightPair.getFirst(), lowerPair.getFirst());
+      blb.copy(rightPair.getSecond(), lowerPair.getSecond());
+    }
+    blb.endCurScope();
+    initializeIndices();
+    newMerge(0, simulatedSize, 1);
+    return blb.getProtocol();
+  }
 
-	private void initializeIndices() {
-		int leftPad = 0;
-		int rightPad = 0;
-		int leftSize = left.size();
-		int rightSize = right.size();
-		int difference = leftSize - rightSize;
-		if (difference > 0) {
-			rightPad += difference;
-		} else {
-			leftPad -= difference;
-		}
-		realSize = left.size() + right.size();
-		simulatedSize = 1;
-		while (simulatedSize < (realSize + leftPad + rightPad)) {
-			simulatedSize = simulatedSize << 1;
-		}
-		int halfSize = simulatedSize >>> 1;
-		leftPad += halfSize - (leftPad + leftSize);
-		rightPad += halfSize - (rightPad + rightSize);
-		firstIndex = leftPad;
-		lastIndex = simulatedSize - rightPad - 1;
-	}
+  private void merge(int first, int length, int step) {
+    int doubleStep = step * 2;
+    if (length > 2) {
+      blb.beginSeqScope();
+      blb.beginParScope();
+      int newLength = length / 2;
+      merge(first, newLength, doubleStep);
+      newMerge(first + step, length - newLength, doubleStep);
+      //merge(first + step, length - newLength, doubleStep);
+      blb.endCurScope();
+      blb.beginParScope();
+      for (int i = 1; i < length - 2; i += 2) {
+        int low = first + i * step;
+        int high = low + step;
+        compareAndSwapAtIndices(low, high);
+      }
+      blb.endCurScope();
+      blb.endCurScope();
+    } else {
+      compareAndSwapAtIndices(first, first + step);
+    }		
+  }
 
-	private void compareAndSwapAtIndices(int i, int j) {
-		boolean inBounds = (i >= firstIndex && i < lastIndex);
-		inBounds = inBounds && (j >= firstIndex && j <= lastIndex);
-		if (!inBounds) {
-			return;
-		} else {			
-			i = i - firstIndex;
-			j = j - firstIndex;
-			Pair<SBool[], SBool[]> left = sorted.get(i);
-			Pair<SBool[], SBool[]> right = sorted.get(j);
-			blb.keyedCompareAndSwap(left.getFirst(), left.getSecond(),
-					right.getFirst(), right.getSecond());
-		}
-	}
+  private void newMerge(int first, int length, int step) {
+    blb.beginSeqScope();
+    merge(first, length, step);
+    blb.endCurScope();
+  }
 
+  private void initializeIndices() {
+    int leftPad = 0;
+    int rightPad = 0;
+    int leftSize = left.size();
+    int rightSize = right.size();
+    int difference = leftSize - rightSize;
+    if (difference > 0) {
+      rightPad += difference;
+    } else {
+      leftPad -= difference;
+    }
+    realSize = left.size() + right.size();
+    simulatedSize = 1;
+    while (simulatedSize < (realSize + leftPad + rightPad)) {
+      simulatedSize = simulatedSize << 1;
+    }
+    int halfSize = simulatedSize >>> 1;
+      leftPad += halfSize - (leftPad + leftSize);
+      rightPad += halfSize - (rightPad + rightSize);
+      firstIndex = leftPad;
+      lastIndex = simulatedSize - rightPad - 1;
+  }
+
+  private void compareAndSwapAtIndices(int i, int j) {
+    boolean outOfBounds = false;
+    if(i < firstIndex || i >= lastIndex) {
+      outOfBounds = true;
+    }
+    if(j < firstIndex || j > lastIndex){
+      outOfBounds = true;
+    }
+    if(outOfBounds) {
+      return;
+    }
+
+    i = i - firstIndex;
+    j = j - firstIndex;
+    Pair<SBool[], SBool[]> left = sorted.get(i);
+    Pair<SBool[], SBool[]> right = sorted.get(j);
+    blb.keyedCompareAndSwap(left.getFirst(), left.getSecond(),
+        right.getFirst(), right.getSecond());
+
+  }
+
+  //TODO move to util class or delete?
+  /*
 	public static int getTriplesUsedForLength(int totalSize, int indexSize, int seqSize) {
 		int k = (int) (Math.log(totalSize)/Math.log(2));	
 		if((int)Math.pow(2, k) < totalSize){
@@ -165,7 +173,7 @@ public class OddEvenMergeProtocolImpl extends SimpleProtocolProducer implements
 		}
 		return triplesUsed;
 	}
-	
+
 	private static int getTriplesForLayer(int i, int l, int k, int indexSize, int seqSize){
 		if(i == 1){
 			//return (l/2) * (indexSize+(indexSize+seqSize));
@@ -178,4 +186,5 @@ public class OddEvenMergeProtocolImpl extends SimpleProtocolProducer implements
 		return li* ki2 * (indexSize+2*(indexSize+seqSize));
 		//return li* ki2 * (indexSize+(indexSize+seqSize));
 	}
+   */
 }
