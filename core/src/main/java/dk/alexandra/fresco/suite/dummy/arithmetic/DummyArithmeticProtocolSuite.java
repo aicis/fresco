@@ -40,21 +40,10 @@ import java.math.BigInteger;
 public class DummyArithmeticProtocolSuite
     implements ProtocolSuite<DummyArithmeticResourcePool, SequentialNumericBuilder> {
 
-  private static BigInteger modulus;
   private static int maxBitLength;
 
   public DummyArithmeticProtocolSuite(DummyArithmeticConfiguration conf) {
-    DummyArithmeticProtocolSuite.modulus = conf.getModulus();
     DummyArithmeticProtocolSuite.maxBitLength = conf.getMaxBitLength();
-  }
-
-  /**
-   * The modulus defining the field the suite works in.
-   * 
-   * @return the modulus
-   */
-  public static BigInteger getModulus() {
-    return modulus;
   }
 
   /**
@@ -68,7 +57,7 @@ public class DummyArithmeticProtocolSuite
 
   @Override
   public BuilderFactory<SequentialNumericBuilder> init(DummyArithmeticResourcePool resourcePool) {
-    return new DummyArithmeticBuilderFactory(new DummyArithmeticFactory(modulus, maxBitLength));
+    return new DummyArithmeticBuilderFactory(new DummyArithmeticFactory(resourcePool.getModulus(), maxBitLength));
   }
 
   @Override

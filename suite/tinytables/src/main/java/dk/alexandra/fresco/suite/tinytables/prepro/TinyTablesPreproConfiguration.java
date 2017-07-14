@@ -26,73 +26,22 @@
  *******************************************************************************/
 package dk.alexandra.fresco.suite.tinytables.prepro;
 
-import dk.alexandra.fresco.framework.ProtocolFactory;
-import dk.alexandra.fresco.framework.network.Network;
-import dk.alexandra.fresco.framework.sce.configuration.ProtocolSuiteConfiguration;
-import dk.alexandra.fresco.framework.sce.configuration.SCEConfiguration;
-import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
-import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
-import dk.alexandra.fresco.suite.ProtocolSuite;
 import java.io.File;
 import java.security.SecureRandom;
-import java.util.Properties;
 import java.util.Random;
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.Option;
-import org.apache.commons.cli.Options;
-import org.apache.commons.cli.ParseException;
 
-public class TinyTablesPreproConfiguration implements ProtocolSuiteConfiguration {
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderBinary;
+import dk.alexandra.fresco.framework.network.Network;
+import dk.alexandra.fresco.framework.sce.configuration.ProtocolSuiteConfiguration;
+import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
+import dk.alexandra.fresco.suite.ProtocolSuite;
 
-  private ProtocolFactory tinyTablesFactory;
+public class TinyTablesPreproConfiguration implements ProtocolSuiteConfiguration<ResourcePoolImpl, ProtocolBuilderBinary> {
+  
   private File tinytablesfile;
-  private File triplesFile;
   private int triplesBatchSize;
 
-  public static ProtocolSuiteConfiguration fromCmdLine(SCEConfiguration sceConf, CommandLine cmd)
-      throws ParseException, IllegalArgumentException {
-
-    Options options = new Options();
-
-    TinyTablesPreproConfiguration configuration = new TinyTablesPreproConfiguration();
-
-		/*
-     * Parse TinyTables specific options
-		 */
-
-    String tinytablesFileOption = "tinytables.file";
-    options.addOption(Option.builder("D")
-        .desc("The file where the generated TinyTables should be stored.")
-        .longOpt(tinytablesFileOption).required(false).hasArgs().build());
-
-    String triplesFileOption = "triples.file";
-    options.addOption(Option.builder("D")
-        .desc("A file for storing generated multiplication triples")
-        .longOpt(triplesFileOption).required(false).hasArgs().build());
-
-    String batchSizeOption = "triples.batchSize";
-    options.addOption(Option.builder("D")
-        .desc("The amount of triples to keep in memory at a time").longOpt(batchSizeOption)
-        .required(false).hasArgs().build());
-
-    Properties p = cmd.getOptionProperties("D");
-
-    String tinyTablesFilePath = p.getProperty(tinytablesFileOption, "tinytables");
-    File tinyTablesFile = new File(tinyTablesFilePath);
-    configuration.setTinyTablesFile(tinyTablesFile);
-
-    String triplesFilePath = p.getProperty(triplesFileOption, "triples");
-    File triplesFile = new File(triplesFilePath);
-    configuration.setTriplesFile(triplesFile);
-
-    int batchSize = Integer.parseInt(p.getProperty(batchSizeOption, "1024"));
-    configuration.setTriplesBatchSize(batchSize);
-
-    return configuration;
-  }
-
   public TinyTablesPreproConfiguration() {
-    tinyTablesFactory = new TinyTablesPreproFactory();
   }
 
   /**
@@ -112,15 +61,6 @@ public class TinyTablesPreproConfiguration implements ProtocolSuiteConfiguration
   }
 
   /**
-   * Set file where multipliaction (Beaver) triples can be stored and
-   * loaded from. If a file with triples alread exists, we use these
-   * triples. Otherwise we generate new ones and store them to this file.
-   */
-  public void setTriplesFile(File triplesFile) {
-    this.triplesFile = triplesFile;
-  }
-
-  /**
    * Set the number of triples that we want to load at a time. Decreasing this
    * will use less memory but increasing it will decrease the number of times
    * we need to generate and load triples.
@@ -137,12 +77,12 @@ public class TinyTablesPreproConfiguration implements ProtocolSuiteConfiguration
   }
 
   @Override
-  public ProtocolSuite createProtocolSuite(int myPlayerId) {
+  public ProtocolSuite<ResourcePoolImpl, ProtocolBuilderBinary> createProtocolSuite(int myPlayerId) {
     return new TinyTablesPreproProtocolSuite(myPlayerId, this);
   }
 
   @Override
-  public ResourcePool createResourcePool(int myId, int size, Network network, Random rand,
+  public ResourcePoolImpl createResourcePool(int myId, int size, Network network, Random rand,
       SecureRandom secRand) {
     return new ResourcePoolImpl(myId, size, network, rand, secRand);
   }

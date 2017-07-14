@@ -80,11 +80,6 @@ public abstract class AbstractDummyArithmeticTest {
         }
 
         @Override
-        public BigInteger getModulus() {
-          return mod;
-        }
-
-        @Override
         public int getMaxBitLength() {
           // Should work for up to 255 bits, but for an unknown reason, long-compare fails when
           // allowing that many bits.

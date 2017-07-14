@@ -36,11 +36,12 @@ import dk.alexandra.fresco.framework.sce.configuration.SCEConfiguration;
 
 public class InputSumExample {
 
-  public static void runApplication(int myId, SecureComputationEngine sce,
+  public static void runApplication(SecureComputationEngine sce,
       SCEConfiguration sceConf,
       ProtocolSuiteConfiguration protocolSuiteConfig) throws IOException {
     InputApplication inputApp;
-
+    
+    int myId = sceConf.getMyId();
     int[] inputs = new int[]{1, 2, 3, 7, 8, 12, 15, 17};
     if (myId == 1) {
       //I input
@@ -62,8 +63,7 @@ public class InputSumExample {
     System.out.println("Expected result: " + sum + ", Result was: " + app.getResult());
   }
 
-  public static void main(String[] args) throws IOException {
-    int myId = Integer.parseInt(args[0]);
+  public static void main(String[] args) throws IOException {    
     CmdLineUtil util = new CmdLineUtil();
     SCEConfiguration sceConf;
 
@@ -75,7 +75,7 @@ public class InputSumExample {
     SecureComputationEngine sce = new SecureComputationEngineImpl(psConf,
         sceConf.getEvaluator(), sceConf.getLogLevel(), sceConf.getMyId());
 
-    runApplication(myId, sce, sceConf, psConf);
+    runApplication(sce, sceConf, psConf);
   }
 
 }

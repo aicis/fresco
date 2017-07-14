@@ -26,6 +26,7 @@
  *******************************************************************************/
 package dk.alexandra.fresco.demo;
 
+import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -40,6 +41,7 @@ import dk.alexandra.fresco.framework.TestThreadRunner;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.TestConfiguration;
 import dk.alexandra.fresco.framework.network.Network;
@@ -52,6 +54,10 @@ import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
 import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
 import dk.alexandra.fresco.suite.ProtocolSuite;
+import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticProtocolSuite;
+import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticResourcePool;
+import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticResourcePoolImpl;
+import dk.alexandra.fresco.suite.dummy.arithmetic.config.DummyArithmeticConfiguration;
 import dk.alexandra.fresco.suite.spdz.SpdzProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePoolImpl;
@@ -59,7 +65,7 @@ import dk.alexandra.fresco.suite.spdz.configuration.PreprocessingStrategy;
 import dk.alexandra.fresco.suite.spdz.configuration.SpdzConfiguration;
 
 public class TestInputSumExample {
-  private static void runTest(TestThreadFactory test, int n) {
+  private static void runTest(TestThreadFactory test, boolean dummy, int n) {
     // Since SCAPI currently does not work with ports > 9999 we use fixed ports
     // here instead of relying on ephemeral ports which are often > 9999.
     List<Integer> ports = new ArrayList<Integer>(n);
@@ -71,35 +77,60 @@ public class TestInputSumExample {
     for (int i : netConf.keySet()) {
       TestThreadConfiguration ttc = new TestThreadConfiguration();
       ttc.netConf = netConf.get(i);			
-      ProtocolSuiteConfiguration suite = new SpdzConfiguration() {
+      ProtocolSuiteConfiguration suite = null; 
+      if(dummy) {
+        suite = new DummyArithmeticConfiguration() {
+          
+          @Override
+          public DummyArithmeticResourcePool createResourcePool(int myId, int size, Network network,
+              Random rand, SecureRandom secRand) {
+            BigInteger mod = new BigInteger(
+                "6703903964971298549787012499123814115273848577471136527425966013026501536706464354255445443244279389455058889493431223951165286470575994074291745908195329");
+            return new DummyArithmeticResourcePoolImpl(myId, n, network, rand, secRand, mod);
+          }
+          
+          @Override
+          public ProtocolSuite<DummyArithmeticResourcePool, SequentialNumericBuilder> createProtocolSuite(
+              int myPlayerId) {
+            return new DummyArithmeticProtocolSuite(this);
+          }          
+          
+          @Override
+          public int getMaxBitLength() {
+            return 150;
+          }
+        };
+      } else {
+        suite = new SpdzConfiguration() {
 
-        @Override
-        public ProtocolSuite createProtocolSuite(int myPlayerId) {
-          return new SpdzProtocolSuite(this);
-        }
+          @Override
+          public ProtocolSuite createProtocolSuite(int myPlayerId) {
+            return new SpdzProtocolSuite(this);
+          }
 
-        @Override
-        public PreprocessingStrategy getPreprocessingStrategy() {
-          return PreprocessingStrategy.DUMMY;
-        }
+          @Override
+          public PreprocessingStrategy getPreprocessingStrategy() {
+            return PreprocessingStrategy.DUMMY;
+          }
 
-        @Override
-        public String fuelStationBaseUrl() {
-          return null;
-        }
+          @Override
+          public String fuelStationBaseUrl() {
+            return null;
+          }
 
-        @Override
-        public int getMaxBitLength() {
-          return 150;
-        }
+          @Override
+          public int getMaxBitLength() {
+            return 150;
+          }
 
-        @Override
-        public SpdzResourcePool createResourcePool(int myId, int size, Network network, Random rand,
-            SecureRandom secRand) {
-          return new SpdzResourcePoolImpl(myId, size, network, null, rand,
-              secRand, this);
-        }
-      };			
+          @Override
+          public SpdzResourcePool createResourcePool(int myId, int size, Network network, Random rand,
+              SecureRandom secRand) {
+            return new SpdzResourcePoolImpl(myId, size, network, null, rand,
+                secRand, this);
+          }
+        };			
+      }
       ttc.sceConf = new TestSCEConfiguration(suite, NetworkingStrategy.KRYONET, new SequentialEvaluator(), netConf.get(i), new InMemoryStorage(), false);
       conf.put(i, ttc);
     }
@@ -115,11 +146,27 @@ public class TestInputSumExample {
         return new TestThread() {
           @Override
           public void test() throws Exception {		
-            InputSumExample.runApplication(conf.getMyId(), secureComputationEngine, conf.sceConf, conf.sceConf.getSuite());						
+            InputSumExample.runApplication(secureComputationEngine, conf.sceConf, conf.sceConf.getSuite());						
           }
         };
       };
     };		
-    runTest(f, 3);
+    runTest(f, false, 3);
+  }
+  
+  @Test
+  public void testInput_dummy() throws Exception {
+    final TestThreadFactory f = new TestThreadFactory() {
+      @Override
+      public TestThread next(TestThreadConfiguration conf) {
+        return new TestThread() {
+          @Override
+          public void test() throws Exception {     
+            InputSumExample.runApplication(secureComputationEngine, conf.sceConf, conf.sceConf.getSuite());                     
+          }
+        };
+      };
+    };      
+    runTest(f, true, 3);
   }
 }

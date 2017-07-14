@@ -26,12 +26,11 @@
  *******************************************************************************/
 package dk.alexandra.fresco.suite.dummy.arithmetic.config;
 
-import java.math.BigInteger;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
 import dk.alexandra.fresco.framework.sce.configuration.ProtocolSuiteConfiguration;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticResourcePool;
 
-public interface DummyArithmeticConfiguration extends ProtocolSuiteConfiguration<DummyArithmeticResourcePool, SequentialNumericBuilder> {
+public interface DummyArithmeticConfiguration extends ProtocolSuiteConfiguration<DummyArithmeticResourcePool, SequentialNumericBuilder> {  
   
   /**
    * Gets an approximation of the maximum bit length of any number appearing
@@ -43,10 +42,5 @@ public interface DummyArithmeticConfiguration extends ProtocolSuiteConfiguration
    * @return the expected maximum bit length of any number appearing in the application.
    */
   int getMaxBitLength();
-  
-  /**
-   * 
-   * @return The modulus of the group we are simulating
-   */
-  BigInteger getModulus();
+ 
 }

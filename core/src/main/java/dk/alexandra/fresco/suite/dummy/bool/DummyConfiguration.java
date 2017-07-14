@@ -26,21 +26,16 @@
  *******************************************************************************/
 package dk.alexandra.fresco.suite.dummy.bool;
 
+import java.security.SecureRandom;
+import java.util.Random;
+
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.configuration.ProtocolSuiteConfiguration;
-import dk.alexandra.fresco.framework.sce.configuration.SCEConfiguration;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
 import dk.alexandra.fresco.suite.ProtocolSuite;
-import java.security.SecureRandom;
-import java.util.Random;
-import org.apache.commons.cli.CommandLine;
 
 public class DummyConfiguration implements ProtocolSuiteConfiguration {
-
-  public static ProtocolSuiteConfiguration fromCmdLine(SCEConfiguration sceConf, CommandLine cmd) {
-    return new DummyConfiguration();
-  }
 
   @Override
   public ProtocolSuite createProtocolSuite(int myPlayerId) {

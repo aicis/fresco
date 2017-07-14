@@ -26,72 +26,42 @@
  *******************************************************************************/
 package dk.alexandra.fresco.suite.tinytables.online;
 
+import java.io.File;
+import java.security.SecureRandom;
+import java.util.Random;
+
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.configuration.ProtocolSuiteConfiguration;
-import dk.alexandra.fresco.framework.sce.configuration.SCEConfiguration;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
 import dk.alexandra.fresco.suite.ProtocolSuite;
-import java.io.File;
-import java.security.SecureRandom;
-import java.util.Properties;
-import java.util.Random;
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.Option;
-import org.apache.commons.cli.Options;
-import org.apache.commons.cli.ParseException;
 
 public class TinyTablesConfiguration implements ProtocolSuiteConfiguration{
 
-	private ProtocolFactory tinyTablesFactory;
-	private File tinytablesfile;
-	
-	public TinyTablesConfiguration() {
-		tinyTablesFactory = new TinyTablesFactory();
-	}
-	
-	public static ProtocolSuiteConfiguration fromCmdLine(SCEConfiguration sceConf,
-			CommandLine cmd) throws ParseException, IllegalArgumentException {
-		
-		Options options = new Options();
-		
-		TinyTablesConfiguration configuration = new TinyTablesConfiguration();
-		
-		String tinyTablesFileOption = "tinytables.file";
-		
-		options.addOption(Option
-				.builder("D")
-				.desc("The file where the generated TinyTables is leaded from.")
-				.longOpt(tinyTablesFileOption).required(false).hasArgs().build());
-		
-		Properties p = cmd.getOptionProperties("D");
-		
-		String tinyTablesFilePath = p.getProperty(tinyTablesFileOption, "tinytables");
-		File tinyTablesFile = new File(tinyTablesFilePath);
-		configuration.setTinyTablesFile(tinyTablesFile);
-		
-		System.out.println("FromCmdArgs: " + configuration.getTinyTablesFile());
-		
-		return configuration;
-	}
-	
-	public void setTinyTablesFile(File file) {
-		this.tinytablesfile = file;
-	}
+  private ProtocolFactory tinyTablesFactory;
+  private File tinytablesfile;
 
-	File getTinyTablesFile() {
-		return this.tinytablesfile;
-	}
+  public TinyTablesConfiguration() {
+    tinyTablesFactory = new TinyTablesFactory();
+  }
+
+  public void setTinyTablesFile(File file) {
+    this.tinytablesfile = file;
+  }
+
+  public File getTinyTablesFile() {
+    return this.tinytablesfile;
+  }
 
   @Override
   public ProtocolSuite createProtocolSuite(int myPlayerId) {
     return new TinyTablesProtocolSuite(myPlayerId, this);
   }
 
-	@Override
-	public ResourcePool createResourcePool(int myId, int size, Network network,
-			Random rand, SecureRandom secRand) {
-		return new ResourcePoolImpl(myId, size, network, rand, secRand);
-	}
+  @Override
+  public ResourcePool createResourcePool(int myId, int size, Network network,
+      Random rand, SecureRandom secRand) {
+    return new ResourcePoolImpl(myId, size, network, rand, secRand);
+  }
 }

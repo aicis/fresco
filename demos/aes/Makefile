@@ -20,3 +20,6 @@ run:
 	cd server1 && java -jar fresco-demo-aes.jar -e SEQUENTIAL_BATCHED -i 1 -l INFO -p 1:localhost:8081 -p 2:localhost:8082 -s tinytables -in 000102030405060708090a0b0c0d0e0f > log.txt 2>&1 &
 	cd server2 && java -jar fresco-demo-aes.jar -e SEQUENTIAL_BATCHED -i 2 -l INFO -p 1:localhost:8081 -p 2:localhost:8082 -s tinytables -in 00112233445566778899aabbccddeeff > log.txt 2>&1 &
 
+runDummy:
+	cd server1 && java -jar fresco-demo-aes.jar -e SEQUENTIAL_BATCHED -i 1 -l INFO -p 1:localhost:8081 -p 2:localhost:8082 -s dummyBool -in 000102030405060708090a0b0c0d0e0f > log.txt 2>&1 &
+	cd server2 && java -jar fresco-demo-aes.jar -e SEQUENTIAL_BATCHED -i 2 -l INFO -p 1:localhost:8081 -p 2:localhost:8082 -s dummyBool -in 00112233445566778899aabbccddeeff > log.txt 2>&1 &

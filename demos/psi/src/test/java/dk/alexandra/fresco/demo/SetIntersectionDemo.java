@@ -55,7 +55,7 @@ import dk.alexandra.fresco.framework.sce.evaluator.SequentialEvaluator;
 import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
 import dk.alexandra.fresco.framework.sce.resources.storage.Storage;
 import dk.alexandra.fresco.framework.util.ByteArithmetic;
-import dk.alexandra.fresco.suite.dummy.DummyConfiguration;
+import dk.alexandra.fresco.suite.dummy.bool.DummyConfiguration;
 import dk.alexandra.fresco.suite.tinytables.online.TinyTablesConfiguration;
 import dk.alexandra.fresco.suite.tinytables.prepro.TinyTablesPreproConfiguration;
 

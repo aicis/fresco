@@ -104,9 +104,6 @@ public class TestTinyTables {
 				 */
         ((TinyTablesPreproConfiguration) config).setTriplesBatchSize(TRIPLES_BATCH_SIZE);
 
-        ((TinyTablesPreproConfiguration) config).setTriplesFile(new File(
-            "triples_" + playerId));
-
       } else {
         config = new TinyTablesConfiguration();
 
