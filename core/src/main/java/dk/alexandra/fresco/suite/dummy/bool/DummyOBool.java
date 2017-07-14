@@ -1,4 +1,4 @@
-/*
+/*******************************************************************************
  * Copyright (c) 2015 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -24,39 +24,70 @@
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
  *******************************************************************************/
-package dk.alexandra.fresco.suite.dummy;
+package dk.alexandra.fresco.suite.dummy.bool;
 
-import dk.alexandra.fresco.framework.network.SCENetwork;
-import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
-import dk.alexandra.fresco.framework.value.SBool;
+import dk.alexandra.fresco.framework.value.OBool;
+
+/**
+ * A public boolean value.
+ * 
+ * TODO: The O-types should rather be common to all protocol suites,
+ * i.e., not DummyOBool, ShamirOBool, etc.
+ *
+ */
+public class DummyOBool implements OBool {
+
+	private static final long serialVersionUID = -4762843635114299987L;
+	
+	private final String id;
+	
+	private Boolean value;
+
+	public DummyOBool(String id, boolean b) {
+		this.id = id;
+		this.value = b;
+	}
+
+	public DummyOBool(String id) {
+		this.id = id;
+		this.value = null;
+	}
+
+	@Override
+	public byte[] getSerializableContent() {
+		byte s;
+		if (this.value) { 
+			s = 1;
+		} else {
+			s = 0;
+		}
+		return new byte[] {s};
+	}
+
+	@Override
+	public void setSerializableContent(byte[] val) {
+		this.value = val[0] == 1;
+	}
+
+	@Override
+	public boolean isReady() {
+		return this.value != null;
+	}
 
 
-public class DummyAndProtocol extends DummyProtocol {
+	@Override
+	public boolean getValue() {
+		return this.value;
+	}
 
-  private DummySBool inLeft;
-  private DummySBool inRight;
-  private DummySBool out;
-
-  DummyAndProtocol(SBool inLeft, SBool inRight, SBool out) {
-    this.inLeft = (DummySBool) inLeft;
-    this.inRight = (DummySBool) inRight;
-    this.out = (DummySBool) out;
-  }
-
-  @Override
-  public String toString() {
-    return "DummyAndGate(" + inLeft + "," + inRight + "," + out + ")";
-  }
-
-  @Override
-  public SBool out() {
-    return out;
-  }
-
-  @Override
-  public EvaluationStatus evaluate(int round, ResourcePool resourcePool,
-      SCENetwork network) {
-    this.out.setValue(this.inLeft.getValue() & this.inRight.getValue());
-    return EvaluationStatus.IS_DONE;
-  }
+	@Override
+	public void setValue(boolean b) {
+		this.value = b;
+	}
+	
+	@Override
+	public String toString() {
+		return "DummyOBool(" + this.id + "; " + this.value + ")";
+	}
+	
 }

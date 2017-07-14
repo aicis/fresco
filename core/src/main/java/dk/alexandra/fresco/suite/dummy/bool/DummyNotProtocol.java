@@ -1,4 +1,5 @@
-/*******************************************************************************
+/*
+ *
  * Copyright (c) 2015 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -24,67 +25,40 @@
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
  *******************************************************************************/
-package dk.alexandra.fresco.suite.dummy;
+package dk.alexandra.fresco.suite.dummy.bool;
 
+import dk.alexandra.fresco.framework.network.SCENetwork;
+import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SBool;
+import dk.alexandra.fresco.framework.value.Value;
+import dk.alexandra.fresco.lib.field.bool.NotProtocol;
 
+public class DummyNotProtocol extends DummyProtocol implements NotProtocol {
 
-public class DummySBool implements SBool {
+	public DummySBool input;
+	public DummySBool output;
 
-	private static final long serialVersionUID = -4614951451129474002L;
-	
-	private final String id;
-	
-	private Boolean value;
-	
-	public DummySBool(String id) {
-		this.value = null;
-		this.id = id;
+	DummyNotProtocol(SBool in, SBool out) {
+		input = (DummySBool)in;
+		output = (DummySBool)out;
 	}
 	
-	public DummySBool(String id, boolean b) {
-		this.value = b;
-		this.id = id;
-	}
-
 	@Override
-	public byte[] getSerializableContent() {
-		byte s;
-		if (this.value) { 
-			s = 1;
-		} else {
-			s = 0;
-		}
-		return new byte[] {s};
-	}
-
-	@Override
-	public void setSerializableContent(byte[] val) {
-		this.value = val[0] == 1;
-	}
-
-	@Override
-	public boolean isReady() {
-		return this.value != null;
-	}
-
-	public boolean getValue() {
-		return this.value;
-	}
-
-	public void setValue(boolean val) {
-		this.value = val;
-	}
+	public EvaluationStatus evaluate(int round, ResourcePool resourcePool,
+			SCENetwork network) {
+		this.output.setValue(!this.input.getValue());
+		return EvaluationStatus.IS_DONE;
+	}	
 	
-
 	@Override
 	public String toString() {
-		if (this.value != null) {
-			return "DummySBool(" + this.id + "; " + this.value + ")";
-		} else {
-			return "DummySBool(" + this.id + "; null)";
-		}
+		return "DummyNotGate(" + input + "," + output + ")";
 	}
-	
+
+	@Override
+  public Value[] out() {
+    return new Value[]{this.output};
+  }
+
 	
 }

@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -24,11 +24,41 @@
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
  *******************************************************************************/
-package dk.alexandra.fresco.suite.dummy;
+package dk.alexandra.fresco.suite.dummy.bool;
 
-import dk.alexandra.fresco.framework.NativeProtocol;
+import dk.alexandra.fresco.framework.network.SCENetwork;
+import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
+import dk.alexandra.fresco.framework.value.SBool;
+import dk.alexandra.fresco.framework.value.Value;
+import dk.alexandra.fresco.lib.field.bool.XorProtocol;
 
-public abstract class DummyProtocol implements NativeProtocol {
 
+public class DummyXorProtocol extends DummyProtocol implements XorProtocol {
 
+	private DummySBool inA;
+	private DummySBool inB;
+	private DummySBool outC;
+
+	DummyXorProtocol(SBool inA, SBool inB, SBool outC) {
+		this.inA = (DummySBool)inA;
+		this.inB = (DummySBool)inB;
+		this.outC = (DummySBool)outC;
+	}
+
+	@Override
+	public String toString() {
+		return "DummyXorGate(" + inA + "," + inB + "," + outC + ")";
+	}
+
+	@Override
+  public Value[] out() {
+    return new Value[]{outC};
+  }
+
+	@Override
+	public EvaluationStatus evaluate(int round, ResourcePool resourcePool,
+			SCENetwork network) {
+		this.outC.setValue(this.inA.getValue() ^ this.inB.getValue());
+		return EvaluationStatus.IS_DONE;
+	}
 }

@@ -31,11 +31,15 @@ import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.TestConfiguration;
 import dk.alexandra.fresco.framework.network.KryoNetNetwork;
+import dk.alexandra.fresco.framework.network.Network;
+import dk.alexandra.fresco.framework.network.NetworkCreator;
 import dk.alexandra.fresco.framework.sce.SCEFactory;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
 import dk.alexandra.fresco.framework.sce.configuration.ProtocolSuiteConfiguration;
 import dk.alexandra.fresco.framework.sce.configuration.TestSCEConfiguration;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
+import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -111,7 +115,8 @@ public class TestThreadRunner {
     private void runTearDown() {
       try {
         if (secureComputationEngine != null) {
-          secureComputationEngine.shutdownSCE();
+          //Shut down SCE resources - does not include the resource pool.
+          secureComputationEngine.shutdownSCE();              
         }
         tearDown();
         finished = true;
@@ -213,7 +218,7 @@ public class TestThreadRunner {
         t.join(MAX_WAIT_FOR_THREAD);
       } catch (InterruptedException e) {
         throw new TestFrameworkException("Test was interrupted");
-      }
+      } 
       if (!t.finished) {
         Reporter.severe("" + t + " timed out");
         throw new TestFrameworkException(t + " timed out");
@@ -226,6 +231,26 @@ public class TestThreadRunner {
       } else if (t.teardownException != null) {
         throw new TestFrameworkException(t + " threw exception in teardown (see stderr)");
       }
+    }
+
+    //Cleanup - shut down network in manually. All tests should use the NetworkCreator 
+    //in order for this to work, or manage the network themselves.
+    Map<Integer, ResourcePoolImpl> rps = NetworkCreator.getCurrentResourcePools();
+    for(int id: rps.keySet()) {
+      Network network = rps.get(id).getNetwork();
+      try {
+        network.close();
+      } catch (IOException e) {
+        //Cannot do anything about this.
+      }
+    }           
+    rps.clear();
+    //allow the sockets to become available again. 
+    try {
+      Thread.sleep(10);
+    } catch (InterruptedException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
     }
   }
 

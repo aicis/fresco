@@ -3,26 +3,23 @@
  *
  * This file is part of the FRESCO project.
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
  *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
  *
- * THE SOFTWARE IS facIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
+ * THE SOFTWARE IS facIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *
- * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
- * and Bouncy Castle. Please see these projects for any further licensing issues.
+ * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL, and Bouncy Castle.
+ * Please see these projects for any further licensing issues.
  *******************************************************************************/
 package dk.alexandra.fresco.lib.arithmetic;
 
@@ -34,6 +31,7 @@ import dk.alexandra.fresco.framework.TestApplication;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
+import dk.alexandra.fresco.framework.network.NetworkCreator;
 import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
@@ -56,16 +54,15 @@ import org.junit.Assert;
 /**
  * Generic test cases for basic finite field operations.
  *
- * Can be reused by a test case for any protocol suite that implements the basic
- * field protocol factory.
+ * Can be reused by a test case for any protocol suite that implements the basic field protocol
+ * factory.
  *
- * TODO: Generic tests should not reside in the runtime package. Rather in
- * mpc.lib or something.
+ * TODO: Generic tests should not reside in the runtime package. Rather in mpc.lib or something.
  */
 public class BasicArithmeticTests {
 
-  public static class TestInput<ResourcePoolT extends ResourcePool> extends
-      TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+  public static class TestInput<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next(
@@ -77,12 +74,10 @@ public class BasicArithmeticTests {
 
 
             @Override
-            public ProtocolProducer prepareApplication(
-                BuilderFactory factoryProducer) {
+            public ProtocolProducer prepareApplication(BuilderFactory factoryProducer) {
               ProtocolFactory producer = factoryProducer.getProtocolFactory();
               BasicNumericFactory fac = (BasicNumericFactory) producer;
-              NumericIOBuilder ioBuilder = new NumericIOBuilder(
-                  fac);
+              NumericIOBuilder ioBuilder = new NumericIOBuilder(fac);
               SInt input1 = ioBuilder.input(BigInteger.valueOf(10), 1);
 
               Computation<BigInteger> output = ioBuilder.output(input1);
@@ -92,19 +87,17 @@ public class BasicArithmeticTests {
             }
           };
 
-          secureComputationEngine
-              .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf,
-                  conf.sceConf.getSuite()));
+          secureComputationEngine.runApplication(app, SecureComputationEngineImpl
+              .createResourcePool(conf.sceConf, conf.sceConf.getSuite()));
 
-          Assert.assertEquals(BigInteger.valueOf(10),
-              app.getOutputs()[0]);
+          Assert.assertEquals(BigInteger.valueOf(10), app.getOutputs()[0]);
         }
       };
     }
   }
 
-  public static class TestOutputToSingleParty<ResourcePoolT extends ResourcePool> extends
-      TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+  public static class TestOutputToSingleParty<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next(
@@ -116,15 +109,12 @@ public class BasicArithmeticTests {
 
 
             @Override
-            public ProtocolProducer prepareApplication(
-                BuilderFactory factoryProducer) {
+            public ProtocolProducer prepareApplication(BuilderFactory factoryProducer) {
               ProtocolFactory producer = factoryProducer.getProtocolFactory();
 
               BasicNumericFactory fac = (BasicNumericFactory) producer;
-              NumericIOBuilder ioBuilder = new NumericIOBuilder(
-                  fac);
-              SInt input1 = ioBuilder.input(
-                  BigInteger.valueOf(10), 1);
+              NumericIOBuilder ioBuilder = new NumericIOBuilder(fac);
+              SInt input1 = ioBuilder.input(BigInteger.valueOf(10), 1);
 
               Computation<BigInteger> output = ioBuilder.outputToParty(1, input1);
 
@@ -133,12 +123,10 @@ public class BasicArithmeticTests {
             }
           };
 
-          secureComputationEngine
-              .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf,
-                  conf.sceConf.getSuite()));
+          secureComputationEngine.runApplication(app, SecureComputationEngineImpl
+              .createResourcePool(conf.sceConf, conf.sceConf.getSuite()));
           if (conf.netConf.getMyId() == 1) {
-            Assert.assertEquals(BigInteger.valueOf(10),
-                app.getOutputs()[0]);
+            Assert.assertEquals(BigInteger.valueOf(10), app.getOutputs()[0]);
           } else {
             Assert.assertNull(app.getOutputs()[0]);
           }
@@ -147,8 +135,8 @@ public class BasicArithmeticTests {
     }
   }
 
-  public static class TestAddPublicValue<ResourcePoolT extends ResourcePool> extends
-      TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+  public static class TestAddPublicValue<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next(
@@ -160,15 +148,12 @@ public class BasicArithmeticTests {
 
 
             @Override
-            public ProtocolProducer prepareApplication(
-                BuilderFactory factoryProducer) {
+            public ProtocolProducer prepareApplication(BuilderFactory factoryProducer) {
               ProtocolFactory producer = factoryProducer.getProtocolFactory();
               BasicNumericFactory fac = (BasicNumericFactory) producer;
               SequentialProtocolProducer gp = new SequentialProtocolProducer();
-              NumericIOBuilder ioBuilder = new NumericIOBuilder(
-                  fac);
-              SInt input1 = ioBuilder.input(
-                  BigInteger.valueOf(10), 1);
+              NumericIOBuilder ioBuilder = new NumericIOBuilder(fac);
+              SInt input1 = ioBuilder.input(BigInteger.valueOf(10), 1);
 
               gp.append(ioBuilder.getProtocol());
               ioBuilder.reset();
@@ -187,19 +172,16 @@ public class BasicArithmeticTests {
             }
           };
 
-          secureComputationEngine
-              .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf,
-                  conf.sceConf.getSuite()));
-          Assert.assertEquals(BigInteger.valueOf(14),
-              app.getOutputs()[0]);
+          secureComputationEngine.runApplication(app, SecureComputationEngineImpl
+              .createResourcePool(conf.sceConf, conf.sceConf.getSuite()));
+          Assert.assertEquals(BigInteger.valueOf(14), app.getOutputs()[0]);
         }
       };
     }
   }
 
-
-  public static class TestLotsOfInputs<ResourcePoolT extends ResourcePool> extends
-      TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+  public static class TestKnownSInt<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next(
@@ -207,54 +189,14 @@ public class BasicArithmeticTests {
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         @Override
         public void test() throws Exception {
-          final int[] openInputs = new int[]{11, 2, 3, 4, 5, 6, 7,
-              8, 9, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
+          final int[] openInputs = new int[] {200, 300, 1, 2};
           TestApplication app = new TestApplication() {
 
             @Override
-            public ProtocolProducer prepareApplication(
-                BuilderFactory factoryProducer) {
+            public ProtocolProducer prepareApplication(BuilderFactory factoryProducer) {
               ProtocolFactory producer = factoryProducer.getProtocolFactory();
               BasicNumericFactory fac = (BasicNumericFactory) producer;
               NumericIOBuilder ioBuilder = new NumericIOBuilder(fac);
-              SInt knownInput = fac.getSInt(BigInteger.valueOf(200));
-              SInt[] inputs = createInputs(ioBuilder, openInputs);
-              inputs[0] = knownInput;
-
-              this.outputs = ioBuilder.outputArray(inputs);
-
-              return ioBuilder.getProtocol();
-            }
-          };
-          secureComputationEngine
-              .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf,
-                  conf.sceConf.getSuite()));
-
-          checkOutputs(openInputs, app.getOutputs());
-        }
-      };
-    }
-  }
-
-  public static class TestKnownSInt<ResourcePoolT extends ResourcePool> extends
-      TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
-
-    @Override
-    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next(
-        TestThreadConfiguration<ResourcePoolT, ProtocolBuilderNumeric> conf) {
-      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
-        @Override
-        public void test() throws Exception {
-          final int[] openInputs = new int[]{200, 300, 1, 2};
-          TestApplication app = new TestApplication() {
-
-            @Override
-            public ProtocolProducer prepareApplication(
-                BuilderFactory factoryProducer) {
-              ProtocolFactory producer = factoryProducer.getProtocolFactory();
-              BasicNumericFactory fac = (BasicNumericFactory) producer;
-              NumericIOBuilder ioBuilder = new NumericIOBuilder(
-                  fac);
               SInt knownInput1 = fac.getSInt(BigInteger.valueOf(200));
               SInt knownInput2 = fac.getSInt(BigInteger.valueOf(300));
               SInt knownInput3 = fac.getSInt(BigInteger.valueOf(1));
@@ -263,14 +205,13 @@ public class BasicArithmeticTests {
               Computation<BigInteger> knownOutput2 = ioBuilder.output(knownInput2);
               Computation<BigInteger> knownOutput3 = ioBuilder.output(knownInput3);
               Computation<BigInteger> knownOutput4 = ioBuilder.output(knownInput4);
-              this.outputs.addAll(Arrays.asList(knownOutput1, knownOutput2, knownOutput3,
-                  knownOutput4));
+              this.outputs
+                  .addAll(Arrays.asList(knownOutput1, knownOutput2, knownOutput3, knownOutput4));
               return ioBuilder.getProtocol();
             }
           };
-          secureComputationEngine
-              .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf,
-                  conf.sceConf.getSuite()));
+          secureComputationEngine.runApplication(app, SecureComputationEngineImpl
+              .createResourcePool(conf.sceConf, conf.sceConf.getSuite()));
 
           checkOutputs(openInputs, app.getOutputs());
         }
@@ -279,8 +220,8 @@ public class BasicArithmeticTests {
   }
 
 
-  public static class TestSumAndMult<ResourcePoolT extends ResourcePool> extends
-      TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+  public static class TestSumAndMult<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next(
@@ -288,20 +229,17 @@ public class BasicArithmeticTests {
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         @Override
         public void test() throws Exception {
-          final int[] openInputs = new int[]{1, 2, 3, 4, 5, 6, 7,
-              8, 9, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
+          final int[] openInputs =
+              new int[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
           TestApplication app = new TestApplication() {
 
             @Override
-            public ProtocolProducer prepareApplication(
-                BuilderFactory factoryProducer) {
+            public ProtocolProducer prepareApplication(BuilderFactory factoryProducer) {
               ProtocolFactory producer = factoryProducer.getProtocolFactory();
               BasicNumericFactory fac = (BasicNumericFactory) producer;
-              NumericIOBuilder ioBuilder = new NumericIOBuilder(
-                  fac);
+              NumericIOBuilder ioBuilder = new NumericIOBuilder(fac);
 
-              SInt[] inputs = createInputs(ioBuilder, openInputs
-              );
+              SInt[] inputs = createInputs(ioBuilder, openInputs);
 
               ProtocolProducer inp = ioBuilder.getProtocol();
               ioBuilder.reset();
@@ -313,38 +251,32 @@ public class BasicArithmeticTests {
               // will compute the sum
               SequentialProtocolProducer sumProtocol = new SequentialProtocolProducer();
 
-              sumProtocol.append(fac.getAddProtocol(inputs[0],
-                  inputs[1], sum));
+              sumProtocol.append(fac.getAddProtocol(inputs[0], inputs[1], sum));
               if (inputs.length > 2) {
                 for (int i = 2; i < inputs.length; i++) {
                   // Add sum and next secret shared input and
                   // store in sum.
-                  sumProtocol.append(fac.getAddProtocol(sum,
-                      inputs[i], sum));
+                  sumProtocol.append(fac.getAddProtocol(sum, inputs[i], sum));
                 }
               }
 
-              sumProtocol.append(fac.getMultProtocol(sum, sum,
-                  sum));
+              sumProtocol.append(fac.getMultProtocol(sum, sum, sum));
 
               this.outputs.add(ioBuilder.output(sum));
 
               ProtocolProducer io = ioBuilder.getProtocol();
 
-              return new SequentialProtocolProducer(
-                  inp, sumProtocol, io);
+              return new SequentialProtocolProducer(inp, sumProtocol, io);
             }
           };
-          secureComputationEngine
-              .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf,
-                  conf.sceConf.getSuite()));
+          secureComputationEngine.runApplication(app, SecureComputationEngineImpl
+              .createResourcePool(conf.sceConf, conf.sceConf.getSuite()));
           int sum = 0;
           for (int i : openInputs) {
             sum += i;
           }
           sum = sum * sum;
-          Assert.assertEquals(BigInteger.valueOf(sum),
-              app.getOutputs()[0]);
+          Assert.assertEquals(BigInteger.valueOf(sum), app.getOutputs()[0]);
         }
       };
     }
@@ -352,8 +284,7 @@ public class BasicArithmeticTests {
 
   private static void checkOutputs(int[] openInputs, BigInteger[] outputs) {
     for (int i = 0; i < openInputs.length; i++) {
-      Assert.assertEquals(BigInteger.valueOf(openInputs[i]),
-          outputs[i]);
+      Assert.assertEquals(BigInteger.valueOf(openInputs[i]), outputs[i]);
     }
   }
 
@@ -367,8 +298,8 @@ public class BasicArithmeticTests {
     return ioBuilder.inputArray(bs, 1);
   }
 
-  public static class TestSimpleMultAndAdd<ResourcePoolT extends ResourcePool> extends
-      TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+  public static class TestSimpleMultAndAdd<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next(
@@ -380,39 +311,30 @@ public class BasicArithmeticTests {
 
 
             @Override
-            public ProtocolProducer prepareApplication(
-                BuilderFactory factoryProducer) {
+            public ProtocolProducer prepareApplication(BuilderFactory factoryProducer) {
               ProtocolFactory producer = factoryProducer.getProtocolFactory();
               BasicNumericFactory fac = (BasicNumericFactory) producer;
-              NumericIOBuilder ioBuilder = new NumericIOBuilder(
-                  fac);
-              SInt input1 = ioBuilder.input(
-                  BigInteger.valueOf(10), 1);
-              SInt input2 = ioBuilder.input(
-                  BigInteger.valueOf(5), 1);
+              NumericIOBuilder ioBuilder = new NumericIOBuilder(fac);
+              SInt input1 = ioBuilder.input(BigInteger.valueOf(10), 1);
+              SInt input2 = ioBuilder.input(BigInteger.valueOf(5), 1);
 
               ProtocolProducer inputs = ioBuilder.getProtocol();
               ioBuilder.reset();
-              NumericProtocolBuilder builder = new NumericProtocolBuilder(
-                  fac);
-              SInt addAndMult = builder.mult(input1,
-                  builder.add(input1, input2));
+              NumericProtocolBuilder builder = new NumericProtocolBuilder(fac);
+              SInt addAndMult = builder.mult(input1, builder.add(input1, input2));
               ProtocolProducer circ = builder.getProtocol();
 
               Computation<BigInteger> output = ioBuilder.output(addAndMult);
               this.outputs.add(output);
               ProtocolProducer outputs = ioBuilder.getProtocol();
 
-              return new SequentialProtocolProducer(
-                  inputs, circ, outputs);
+              return new SequentialProtocolProducer(inputs, circ, outputs);
             }
           };
-          secureComputationEngine
-              .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf,
-                  conf.sceConf.getSuite()));
+          secureComputationEngine.runApplication(app, SecureComputationEngineImpl
+              .createResourcePool(conf.sceConf, conf.sceConf.getSuite()));
 
-          Assert.assertEquals(BigInteger.valueOf(10 * (10 + 5)),
-              app.getOutputs()[0]);
+          Assert.assertEquals(BigInteger.valueOf(10 * (10 + 5)), app.getOutputs()[0]);
         }
       };
     }
@@ -422,8 +344,8 @@ public class BasicArithmeticTests {
    * Test a large amount (defined by the REPS constant) multiplication protocols in order to
    * stress-test the protocol suite.
    */
-  public static class TestLotsMult<ResourcePoolT extends ResourcePool> extends
-      TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+  public static class TestLotsMult<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next(
@@ -437,8 +359,7 @@ public class BasicArithmeticTests {
 
 
             @Override
-            public ProtocolProducer prepareApplication(
-                BuilderFactory factoryProducer) {
+            public ProtocolProducer prepareApplication(BuilderFactory factoryProducer) {
               ProtocolFactory producer = factoryProducer.getProtocolFactory();
               BasicNumericFactory fac = (BasicNumericFactory) producer;
               NumericIOBuilder ioBuilder = new NumericIOBuilder(fac);
@@ -456,9 +377,8 @@ public class BasicArithmeticTests {
               return ioBuilder.getProtocol();
             }
           };
-          secureComputationEngine
-              .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf,
-                  conf.sceConf.getSuite()));
+          secureComputationEngine.runApplication(app, SecureComputationEngineImpl
+              .createResourcePool(conf.sceConf, conf.sceConf.getSuite()));
           BigInteger[] outputs = app.getOutputs();
           for (BigInteger o : outputs) {
             Assert.assertEquals(o, BigInteger.valueOf(50));
@@ -468,8 +388,8 @@ public class BasicArithmeticTests {
     }
   }
 
-  public static class TestMinInfFrac<ResourcePoolT extends ResourcePool> extends
-      TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+  public static class TestMinInfFrac<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next(
@@ -481,63 +401,33 @@ public class BasicArithmeticTests {
 
 
             @Override
-            public ProtocolProducer prepareApplication(
-                BuilderFactory factoryProducer) {
-              List<BigInteger> bns = Arrays.asList(
-                  BigInteger.valueOf(10),
-                  BigInteger.valueOf(2),
-                  BigInteger.valueOf(30),
-                  BigInteger.valueOf(1),
-                  BigInteger.valueOf(50),
-                  BigInteger.valueOf(10),
-                  BigInteger.valueOf(20),
-                  BigInteger.valueOf(30),
-                  BigInteger.valueOf(5),
-                  BigInteger.valueOf(1)
-              );
-              List<BigInteger> bds = Arrays.asList(
-                  BigInteger.valueOf(10),
-                  BigInteger.valueOf(10),
-                  BigInteger.valueOf(10),
-                  BigInteger.valueOf(10),
-                  BigInteger.valueOf(10),
-                  BigInteger.valueOf(10),
-                  BigInteger.valueOf(20),
-                  BigInteger.valueOf(30),
-                  BigInteger.valueOf(500),
-                  BigInteger.valueOf(50)
-              );
-              List<BigInteger> binfs = Arrays.asList(
-                  BigInteger.valueOf(0),
-                  BigInteger.valueOf(0),
-                  BigInteger.valueOf(0),
-                  BigInteger.valueOf(1),
-                  BigInteger.valueOf(0),
-                  BigInteger.valueOf(0),
-                  BigInteger.valueOf(0),
-                  BigInteger.valueOf(0),
-                  BigInteger.valueOf(1),
-                  BigInteger.valueOf(1)
-              );
+            public ProtocolProducer prepareApplication(BuilderFactory factoryProducer) {
+              List<BigInteger> bns = Arrays.asList(BigInteger.valueOf(10), BigInteger.valueOf(2),
+                  BigInteger.valueOf(30), BigInteger.valueOf(1), BigInteger.valueOf(50),
+                  BigInteger.valueOf(10), BigInteger.valueOf(20), BigInteger.valueOf(30),
+                  BigInteger.valueOf(5), BigInteger.valueOf(1));
+              List<BigInteger> bds = Arrays.asList(BigInteger.valueOf(10), BigInteger.valueOf(10),
+                  BigInteger.valueOf(10), BigInteger.valueOf(10), BigInteger.valueOf(10),
+                  BigInteger.valueOf(10), BigInteger.valueOf(20), BigInteger.valueOf(30),
+                  BigInteger.valueOf(500), BigInteger.valueOf(50));
+              List<BigInteger> binfs = Arrays.asList(BigInteger.valueOf(0), BigInteger.valueOf(0),
+                  BigInteger.valueOf(0), BigInteger.valueOf(1), BigInteger.valueOf(0),
+                  BigInteger.valueOf(0), BigInteger.valueOf(0), BigInteger.valueOf(0),
+                  BigInteger.valueOf(1), BigInteger.valueOf(1));
               SequentialNumericBuilder seq = ProtocolBuilderNumeric
                   .createApplicationRoot((BuilderFactoryNumeric) factoryProducer);
               NumericBuilder numeric = seq.numeric();
-              List<Computation<SInt>> ns = bns.stream().map(numeric::known)
-                  .collect(Collectors.toList());
-              List<Computation<SInt>> ds = bds.stream().map(numeric::known)
-                  .collect(Collectors.toList());
-              List<Computation<SInt>> infs = binfs.stream().map(numeric::known)
-                  .collect(Collectors.toList());
+              List<Computation<SInt>> ns =
+                  bns.stream().map(numeric::known).collect(Collectors.toList());
+              List<Computation<SInt>> ds =
+                  bds.stream().map(numeric::known).collect(Collectors.toList());
+              List<Computation<SInt>> infs =
+                  binfs.stream().map(numeric::known).collect(Collectors.toList());
 
-              seq.seq(
-                  new MinInfFrac(
-                      ns, ds, infs
-                  )
-              ).seq((infOutput, seq2) -> {
+              seq.seq(new MinInfFrac(ns, ds, infs)).seq((infOutput, seq2) -> {
                 NumericBuilder innerNumeric = seq2.numeric();
-                List<Computation<BigInteger>> collect = infOutput.cs.stream()
-                    .map(innerNumeric::open)
-                    .collect(Collectors.toList());
+                List<Computation<BigInteger>> collect =
+                    infOutput.cs.stream().map(innerNumeric::open).collect(Collectors.toList());
                 return () -> collect;
               }).seq((outputList, ignored) -> {
                 outputs = outputList;
@@ -546,9 +436,8 @@ public class BasicArithmeticTests {
               return seq.build();
             }
           };
-          secureComputationEngine
-              .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf,
-                  conf.sceConf.getSuite()));
+          secureComputationEngine.runApplication(app, SecureComputationEngineImpl
+              .createResourcePool(conf.sceConf, conf.sceConf.getSuite()));
           BigInteger[] outputs = app.getOutputs();
           int sum = 0;
           for (int i = 0; i < outputs.length; i++) {
@@ -560,10 +449,11 @@ public class BasicArithmeticTests {
             }
           }
           Assert.assertEquals(1, sum);
-          //System.out.println(outputs[0].getValue() +  " / " + outputs[1].getValue() + " " + outputs[2].getValue());
-          //Assert.assertEquals(BigInteger.valueOf(1), outputs[0].getValue());
-          //Assert.assertEquals(BigInteger.valueOf(10), outputs[1].getValue());
-          //Assert.assertEquals(BigInteger.valueOf(0), outputs[2].getValue());
+          // System.out.println(outputs[0].getValue() + " / " + outputs[1].getValue() + " " +
+          // outputs[2].getValue());
+          // Assert.assertEquals(BigInteger.valueOf(1), outputs[0].getValue());
+          // Assert.assertEquals(BigInteger.valueOf(10), outputs[1].getValue());
+          // Assert.assertEquals(BigInteger.valueOf(0), outputs[2].getValue());
 
         }
       };
@@ -571,12 +461,11 @@ public class BasicArithmeticTests {
   }
 
   /**
-   * Test a computation of doing a many multiplications and additions
-   * alternating between the two. This should ensure batches with both
-   * types of protocols.
+   * Test a computation of doing a many multiplications and additions alternating between the two.
+   * This should ensure batches with both types of protocols.
    */
-  public static class TestAlternatingMultAdd<ResourcePoolT extends ResourcePool> extends
-      TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+  public static class TestAlternatingMultAdd<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next(
@@ -589,8 +478,7 @@ public class BasicArithmeticTests {
 
 
             @Override
-            public ProtocolProducer prepareApplication(
-                BuilderFactory factoryProducer) {
+            public ProtocolProducer prepareApplication(BuilderFactory factoryProducer) {
               ProtocolFactory producer = factoryProducer.getProtocolFactory();
               BasicNumericFactory fac = (BasicNumericFactory) producer;
               NumericIOBuilder ioBuilder = new NumericIOBuilder(fac);
@@ -615,9 +503,8 @@ public class BasicArithmeticTests {
               return ioBuilder.getProtocol();
             }
           };
-          secureComputationEngine
-              .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf,
-                  conf.sceConf.getSuite()));
+          secureComputationEngine.runApplication(app, SecureComputationEngineImpl
+              .createResourcePool(conf.sceConf, conf.sceConf.getSuite()));
         }
       };
     }
