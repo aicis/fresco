@@ -226,7 +226,7 @@ public class LPSolver implements ComputationBuilder<LPOutput> {
       List<Computation<SInt>> entering = enteringAndMinimum.getFirst();
       SInt minimum = enteringAndMinimum.getSecond();
       // Check if the entry in F is non-negative
-      Computation<SInt> positive = seq.comparison().compareLong(zero, () -> minimum);
+      Computation<SInt> positive = seq.comparison().compareLEQLong(zero, () -> minimum);
       state.terminationOut = seq.numeric().open(positive);
       state.enteringIndex = entering;
       return () -> state;

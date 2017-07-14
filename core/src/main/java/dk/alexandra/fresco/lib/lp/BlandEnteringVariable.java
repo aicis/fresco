@@ -87,7 +87,7 @@ public class BlandEnteringVariable
         seq.par(par -> {
           ArrayList<Computation<SInt>> signs = new ArrayList<>(updatedF.size());
           for (Computation<SInt> f : updatedF) {
-            signs.add(par.comparison().compare(f, negativeOne));
+            signs.add(par.comparison().compareLEQ(f, negativeOne));
           }
           return () -> signs;
         }).seq((signs, seq2) -> {

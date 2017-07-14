@@ -49,7 +49,7 @@ public class SortingHelperUtility {
       Computation<SInt> previous = null;
       for (Computation<SInt> value : values) {
         if (!first) {
-          comparisons.add(comparison.compare(previous, value));
+          comparisons.add(comparison.compareLEQ(previous, value));
         } else {
           first = false;
         }
@@ -80,7 +80,7 @@ public class SortingHelperUtility {
 
     Computation<SInt> valueA = values.get(a);
     Computation<SInt> valueB = values.get(b);
-    Computation<SInt> comparison = builder.comparison().compare(valueA, valueB);
+    Computation<SInt> comparison = builder.comparison().compareLEQ(valueA, valueB);
     Computation<SInt> sub = numeric.sub(valueA, valueB);
     Computation<SInt> c = numeric.mult(comparison, sub);
     Computation<SInt> d = numeric.mult(minusOne, c);

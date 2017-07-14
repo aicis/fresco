@@ -74,8 +74,8 @@ public class ComparisonTests {
                     Computation<SInt> x = input.known(three);
                     Computation<SInt> y = input.known(five);
                     ComparisonBuilder comparison = builder.comparison();
-                    Computation<SInt> compResult1 = comparison.compare(x, y);
-                    Computation<SInt> compResult2 = comparison.compare(y, x);
+                    Computation<SInt> compResult1 = comparison.compareLEQ(x, y);
+                    Computation<SInt> compResult2 = comparison.compareLEQ(y, x);
                     NumericBuilder open = builder.numeric();
                     res1 = open.open(compResult1);
                     res2 = open.open(compResult2);

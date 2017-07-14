@@ -147,7 +147,7 @@ public class CreditRater implements
 
         // Compare if "x <= the n interval definitions"
         for (Computation<SInt> anInterval : interval) {
-          result.add(builder.compare(value, anInterval));
+          result.add(builder.compareLEQ(value, anInterval));
         }
         return () -> result;
       }).seq((comparisons, builder) -> {
