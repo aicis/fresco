@@ -96,8 +96,7 @@ public class ZeroTestBruteforceProtocolImpl implements ZeroTestBruteforceProtoco
   @Override
   public void getNextProtocols(ProtocolCollection protocolCollection) {
     if (pp == null) {
-      switch (round) {
-        case 0:
+      if(round == 0) {
           // load rand, addOne, mult and unmask
           R = expFactory.getExponentiationPipe();
 
@@ -110,9 +109,7 @@ public class ZeroTestBruteforceProtocolImpl implements ZeroTestBruteforceProtoco
           OpenIntProtocol open = factory.getOpenProtocol(masked_S, masked_O);
 
           pp = new SequentialProtocolProducer(incr, mult, open);
-
-          break;
-        case 1:
+      } else {
           // compute powers and evaluate polynomial
           OInt[] maskedPowers = expFromOIntFactory.getExpFromOInt(masked_O, maxInput);
 
@@ -134,9 +131,6 @@ public class ZeroTestBruteforceProtocolImpl implements ZeroTestBruteforceProtoco
               polynomialCoefficients[0], output);
           pp = new SequentialProtocolProducer(new ParallelProtocolProducer(unmaskGPs),
               polynomialGP, SingleProtocolProducer.wrap(add));
-          break;
-        default:
-          throw new MPCException("Internal count error when finding pp");
       }
     }
     if (pp.hasNextProtocols()) {
