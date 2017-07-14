@@ -63,15 +63,17 @@ public class SquareRoot implements ComputationBuilder<SInt> {
 		 */
     int iterations = log2(maxInputLength) + 1;
 
-		/*
-     * First guess is x << maxInputLength / 2 + 1. We add 1 to avoid the
-		 * this to be equal to zero since we divide by it later.
-		 */
+	/*
+     * First guess is 2 ^ (bitlength / 2)
+	 */
     return builder.seq((seq) -> {
-      Computation<SInt> shifted = seq.advancedNumeric()
-          .rightShift(input, maxInputLength / 2);
-      Computation<SInt> addedOne = seq.numeric().add(BigInteger.ONE, shifted);
-      return new IterationState(1, addedOne);
+      Computation<SInt> bitlength = seq.advancedNumeric()
+              .bitLength(input, maxInputLength);
+      Computation<SInt> halfBitlength = seq.advancedNumeric()
+              .rightShift(bitlength);
+      Computation<SInt> estimate = seq.advancedNumeric()
+              .exp(BigInteger.valueOf(2), halfBitlength, BigInteger.valueOf(maxInputLength).bitLength());
+      return new IterationState(1, estimate);
       /*
       * We iterate y[n+1] = (y[n] + x / y[n]) / 2.
 		  */
