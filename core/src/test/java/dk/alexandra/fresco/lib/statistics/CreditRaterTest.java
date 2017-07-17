@@ -34,6 +34,7 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilderHelper;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
+import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SInt;
@@ -78,8 +79,7 @@ public class CreditRaterTest {
 
         @Override
         public void test() throws Exception {
-          ResourcePoolT resourcePool = SecureComputationEngineImpl.createResourcePool(conf.sceConf,
-              conf.sceConf.getSuite());
+          ResourcePoolT resourcePool = ResourcePoolCreator.createResourcePool(conf.sceConf);
 
           BigInteger result = null;
 

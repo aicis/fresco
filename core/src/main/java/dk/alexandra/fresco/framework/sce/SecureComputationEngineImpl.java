@@ -30,25 +30,12 @@ import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.BuilderFactory;
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.MPCException;
-import dk.alexandra.fresco.framework.Party;
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.Reporter;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
-import dk.alexandra.fresco.framework.configuration.ConfigurationException;
-import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
-import dk.alexandra.fresco.framework.configuration.NetworkConfigurationImpl;
-import dk.alexandra.fresco.framework.network.KryoNetNetwork;
-import dk.alexandra.fresco.framework.network.Network;
-import dk.alexandra.fresco.framework.network.NetworkingStrategy;
-import dk.alexandra.fresco.framework.network.ScapiNetworkImpl;
-import dk.alexandra.fresco.framework.sce.configuration.ProtocolSuiteConfiguration;
-import dk.alexandra.fresco.framework.sce.configuration.SCEConfiguration;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import java.io.IOException;
-import java.security.SecureRandom;
-import java.util.Map;
-import java.util.Random;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -68,74 +55,23 @@ import java.util.logging.Level;
 public class SecureComputationEngineImpl<ResourcePoolT extends ResourcePool, Builder extends ProtocolBuilder> implements
     SecureComputationEngine<ResourcePoolT, Builder> {
 
-  private final int myId;
   private ProtocolEvaluator<ResourcePoolT> evaluator;
-  private ProtocolSuiteConfiguration<ResourcePoolT, Builder> protocolSuiteConfiguration;
   private ExecutorService executorService;
   private boolean setup;
   private ProtocolSuite<ResourcePoolT, Builder> protocolSuite;
   private static final AtomicInteger threadCounter = new AtomicInteger(1);
 
   public SecureComputationEngineImpl(
-      ProtocolSuiteConfiguration<ResourcePoolT, Builder> protocolSuite,
+      ProtocolSuite<ResourcePoolT, Builder> protocolSuite,
       ProtocolEvaluator<ResourcePoolT> evaluator,
-      Level logLevel,
-      int myId) {
-    this.protocolSuiteConfiguration = protocolSuite;
+      Level logLevel) {
+    this.protocolSuite = protocolSuite;
 
     this.setup = false;
 
     //setup the basic stuff, but do not initialize anything yet
     Reporter.init(logLevel);
     this.evaluator = evaluator;
-    this.myId = myId;
-  }
-
-  private static Network getNetworkFromConfiguration(SCEConfiguration sceConf,
-      int myId, Map<Integer, Party> parties) {
-    int channelAmount = 1;
-    NetworkConfiguration conf = new NetworkConfigurationImpl(myId, parties);
-    return buildNetwork(conf, channelAmount, sceConf.getNetworkStrategy());
-  }
-
-  private static Network buildNetwork(NetworkConfiguration conf,
-      int channelAmount, NetworkingStrategy networkStrat) {
-    Network network;
-    switch (networkStrat) {
-      case KRYONET:
-        // TODO[PSN]
-        // This might work on mac?
-//          network = new KryoNetNetwork();
-        network = new ScapiNetworkImpl();
-        break;
-      case SCAPI:
-        network = new ScapiNetworkImpl();
-        break;
-      default:
-        throw new ConfigurationException("Unknown networking strategy " + networkStrat);
-    }
-    network.init(conf, channelAmount);
-    return network;
-  }
-
-  public static <ResourcePoolT extends ResourcePool> ResourcePoolT createResourcePool(
-      SCEConfiguration<ResourcePoolT> sceConf,
-      ProtocolSuiteConfiguration<ResourcePoolT, ? extends ProtocolBuilder> protocolSuiteConfiguration)
-      throws IOException {
-
-    int myId = sceConf.getMyId();
-    Map<Integer, Party> parties = sceConf.getParties();
-
-    // Secure random by default.
-    Random rand = new Random(0);
-    SecureRandom secRand = new SecureRandom();
-
-    Network network = getNetworkFromConfiguration(sceConf, myId, parties);
-    network.connect(10000);
-
-    return protocolSuiteConfiguration.createResourcePool(
-        myId, parties.size(),
-        network, rand, secRand);
   }
 
   @Override
@@ -189,8 +125,7 @@ public class SecureComputationEngineImpl<ResourcePoolT extends ResourcePool, Bui
       Thread thread = new Thread(r, "SCE-" + threadCounter.getAndIncrement());
       thread.setDaemon(true);
       return thread;
-    });
-    this.protocolSuite = this.protocolSuiteConfiguration.createProtocolSuite(myId);
+    });    
     this.evaluator.setProtocolInvocation(this.protocolSuite);
     this.setup = true;
   }

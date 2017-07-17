@@ -40,6 +40,7 @@ import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
+import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
@@ -102,8 +103,7 @@ public class BinaryOperationsTests {
           Pair<BigInteger, List<BigInteger>> output =
               (Pair<BigInteger, List<BigInteger>>) secureComputationEngine.runApplication(
                   app,
-                  SecureComputationEngineImpl
-                      .createResourcePool(conf.sceConf, conf.sceConf.getSuite()));
+                  ResourcePoolCreator.createResourcePool(conf.sceConf));
           BigInteger result = output.getFirst();
           List<BigInteger> remainders = output.getSecond();
 
@@ -150,8 +150,7 @@ public class BinaryOperationsTests {
             }
           };
           secureComputationEngine
-              .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf,
-                  conf.sceConf.getSuite()));
+              .runApplication(app, ResourcePoolCreator.createResourcePool(conf.sceConf));
           BigInteger result = openResult.out();
 
           System.out.println(result);

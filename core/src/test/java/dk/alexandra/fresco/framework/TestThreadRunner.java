@@ -32,13 +32,12 @@ import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.TestConfiguration;
 import dk.alexandra.fresco.framework.network.KryoNetNetwork;
 import dk.alexandra.fresco.framework.network.Network;
-import dk.alexandra.fresco.framework.network.NetworkCreator;
+import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.SCEFactory;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
-import dk.alexandra.fresco.framework.sce.configuration.ProtocolSuiteConfiguration;
 import dk.alexandra.fresco.framework.sce.configuration.TestSCEConfiguration;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
-import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
+import dk.alexandra.fresco.suite.ProtocolSuite;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -82,7 +81,7 @@ public class TestThreadRunner {
     public void run() {
       try {
         if (conf.sceConf != null) {
-          ProtocolSuiteConfiguration<ResourcePoolT, Builder> suite = conf.sceConf.getSuite();
+          ProtocolSuite<ResourcePoolT, Builder> suite = conf.sceConf.getSuite();
           secureComputationEngine =
               SCEFactory.getSCEFromConfiguration(conf.sceConf, suite);
         }
@@ -235,7 +234,7 @@ public class TestThreadRunner {
 
     //Cleanup - shut down network in manually. All tests should use the NetworkCreator 
     //in order for this to work, or manage the network themselves.
-    Map<Integer, ResourcePool> rps = NetworkCreator.getCurrentResourcePools();
+    Map<Integer, ResourcePool> rps = ResourcePoolCreator.getCurrentResourcePools();
     for(int id: rps.keySet()) {
       Network network = rps.get(id).getNetwork();
       try {

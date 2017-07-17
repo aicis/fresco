@@ -31,7 +31,7 @@ import dk.alexandra.fresco.framework.TestApplication;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
-import dk.alexandra.fresco.framework.network.NetworkCreator;
+import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
@@ -87,8 +87,8 @@ public class BasicArithmeticTests {
             }
           };
 
-          secureComputationEngine.runApplication(app, SecureComputationEngineImpl
-              .createResourcePool(conf.sceConf, conf.sceConf.getSuite()));
+          secureComputationEngine.runApplication(app, ResourcePoolCreator
+              .createResourcePool(conf.sceConf));
 
           Assert.assertEquals(BigInteger.valueOf(10), app.getOutputs()[0]);
         }
@@ -123,8 +123,8 @@ public class BasicArithmeticTests {
             }
           };
 
-          secureComputationEngine.runApplication(app, SecureComputationEngineImpl
-              .createResourcePool(conf.sceConf, conf.sceConf.getSuite()));
+          secureComputationEngine.runApplication(app, ResourcePoolCreator
+              .createResourcePool(conf.sceConf));
           if (conf.netConf.getMyId() == 1) {
             Assert.assertEquals(BigInteger.valueOf(10), app.getOutputs()[0]);
           } else {
@@ -172,8 +172,8 @@ public class BasicArithmeticTests {
             }
           };
 
-          secureComputationEngine.runApplication(app, SecureComputationEngineImpl
-              .createResourcePool(conf.sceConf, conf.sceConf.getSuite()));
+          secureComputationEngine.runApplication(app, ResourcePoolCreator
+              .createResourcePool(conf.sceConf));
           Assert.assertEquals(BigInteger.valueOf(14), app.getOutputs()[0]);
         }
       };
@@ -210,8 +210,8 @@ public class BasicArithmeticTests {
               return ioBuilder.getProtocol();
             }
           };
-          secureComputationEngine.runApplication(app, SecureComputationEngineImpl
-              .createResourcePool(conf.sceConf, conf.sceConf.getSuite()));
+          secureComputationEngine.runApplication(app, ResourcePoolCreator
+              .createResourcePool(conf.sceConf));
 
           checkOutputs(openInputs, app.getOutputs());
         }
@@ -269,8 +269,8 @@ public class BasicArithmeticTests {
               return new SequentialProtocolProducer(inp, sumProtocol, io);
             }
           };
-          secureComputationEngine.runApplication(app, SecureComputationEngineImpl
-              .createResourcePool(conf.sceConf, conf.sceConf.getSuite()));
+          secureComputationEngine.runApplication(app, ResourcePoolCreator
+              .createResourcePool(conf.sceConf));
           int sum = 0;
           for (int i : openInputs) {
             sum += i;
@@ -331,8 +331,8 @@ public class BasicArithmeticTests {
               return new SequentialProtocolProducer(inputs, circ, outputs);
             }
           };
-          secureComputationEngine.runApplication(app, SecureComputationEngineImpl
-              .createResourcePool(conf.sceConf, conf.sceConf.getSuite()));
+          secureComputationEngine.runApplication(app, ResourcePoolCreator
+              .createResourcePool(conf.sceConf));
 
           Assert.assertEquals(BigInteger.valueOf(10 * (10 + 5)), app.getOutputs()[0]);
         }
@@ -377,8 +377,8 @@ public class BasicArithmeticTests {
               return ioBuilder.getProtocol();
             }
           };
-          secureComputationEngine.runApplication(app, SecureComputationEngineImpl
-              .createResourcePool(conf.sceConf, conf.sceConf.getSuite()));
+          secureComputationEngine.runApplication(app, ResourcePoolCreator
+              .createResourcePool(conf.sceConf));
           BigInteger[] outputs = app.getOutputs();
           for (BigInteger o : outputs) {
             Assert.assertEquals(o, BigInteger.valueOf(50));
@@ -436,8 +436,8 @@ public class BasicArithmeticTests {
               return seq.build();
             }
           };
-          secureComputationEngine.runApplication(app, SecureComputationEngineImpl
-              .createResourcePool(conf.sceConf, conf.sceConf.getSuite()));
+          secureComputationEngine.runApplication(app, ResourcePoolCreator
+              .createResourcePool(conf.sceConf));
           BigInteger[] outputs = app.getOutputs();
           int sum = 0;
           for (int i = 0; i < outputs.length; i++) {
@@ -503,8 +503,8 @@ public class BasicArithmeticTests {
               return ioBuilder.getProtocol();
             }
           };
-          secureComputationEngine.runApplication(app, SecureComputationEngineImpl
-              .createResourcePool(conf.sceConf, conf.sceConf.getSuite()));
+          secureComputationEngine.runApplication(app, ResourcePoolCreator
+              .createResourcePool(conf.sceConf));
         }
       };
     }

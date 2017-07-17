@@ -36,7 +36,7 @@ import dk.alexandra.fresco.framework.TestBoolApplication;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
-import dk.alexandra.fresco.framework.network.NetworkCreator;
+import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.value.OBool;
 import dk.alexandra.fresco.framework.value.SBool;
@@ -147,8 +147,7 @@ public class BristolCryptoTests {
           };
 
           secureComputationEngine
-              .runApplication(aesApp, SecureComputationEngineImpl.createResourcePool(conf.sceConf,
-                  conf.sceConf.getSuite()));
+              .runApplication(aesApp, ResourcePoolCreator.createResourcePool(conf.sceConf));
 
           if (!assertAsExpected) {
             return;
@@ -234,8 +233,7 @@ public class BristolCryptoTests {
           };
 
           secureComputationEngine
-              .runApplication(aesApp, SecureComputationEngineImpl.createResourcePool(conf.sceConf,
-                  conf.sceConf.getSuite()));
+              .runApplication(aesApp, ResourcePoolCreator.createResourcePool(conf.sceConf));
           if (!assertAsExpected) {
             return;
           }
@@ -321,8 +319,7 @@ public class BristolCryptoTests {
           };
 
           secureComputationEngine.runApplication(sha256App,
-              SecureComputationEngineImpl.createResourcePool(conf.sceConf,
-                  conf.sceConf.getSuite()));
+              ResourcePoolCreator.createResourcePool(conf.sceConf));
 
           if (!assertAsExpected) {
             return;
@@ -409,8 +406,7 @@ public class BristolCryptoTests {
           };
 
           secureComputationEngine
-              .runApplication(md5App, SecureComputationEngineImpl.createResourcePool(conf.sceConf,
-                  conf.sceConf.getSuite()));
+              .runApplication(md5App, ResourcePoolCreator.createResourcePool(conf.sceConf));
 
           if (!assertAsExpected) {
             return;
@@ -488,8 +484,7 @@ public class BristolCryptoTests {
           };
 
           secureComputationEngine.runApplication(multApp,
-              SecureComputationEngineImpl.createResourcePool(conf.sceConf,
-                  conf.sceConf.getSuite()));
+              ResourcePoolCreator.createResourcePool(conf.sceConf));
 
           if (!assertAsExpected) {
             return;
@@ -568,8 +563,7 @@ public class BristolCryptoTests {
           };
 
           secureComputationEngine
-              .runApplication(md5App, SecureComputationEngineImpl.createResourcePool(conf.sceConf,
-                  conf.sceConf.getSuite()));
+              .runApplication(md5App, ResourcePoolCreator.createResourcePool(conf.sceConf));
 
           if (!assertAsExpected) {
             return;
