@@ -26,12 +26,6 @@
  *******************************************************************************/
 package dk.alexandra.fresco.demo;
 
-import java.math.BigInteger;
-
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.Option;
-import org.apache.commons.cli.ParseException;
-
 import dk.alexandra.fresco.demo.cli.CmdLineUtil;
 import dk.alexandra.fresco.demo.helpers.DemoNumericApplication;
 import dk.alexandra.fresco.framework.BuilderFactory;
@@ -46,6 +40,10 @@ import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.helper.builder.NumericIOBuilder;
 import dk.alexandra.fresco.lib.helper.builder.NumericProtocolBuilder;
+import java.math.BigInteger;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.ParseException;
 
 /**
  * A simple demo computing the distance between two secret points

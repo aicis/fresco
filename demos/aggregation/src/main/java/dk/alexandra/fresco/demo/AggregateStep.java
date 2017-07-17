@@ -1,17 +1,16 @@
 package dk.alexandra.fresco.demo;
 
+import dk.alexandra.fresco.demo.EncryptAndRevealStep.RowWithCipher;
+import dk.alexandra.fresco.framework.Application;
+import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
+import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-
-import dk.alexandra.fresco.demo.EncryptAndRevealStep.RowWithCipher;
-import dk.alexandra.fresco.framework.Application;
-import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
-import dk.alexandra.fresco.framework.value.SInt;
 
 public class AggregateStep implements Application<List<List<SInt>>, SequentialNumericBuilder> {
 

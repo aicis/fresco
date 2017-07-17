@@ -1,10 +1,5 @@
 package dk.alexandra.fresco.demo;
 
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
-
 import dk.alexandra.fresco.demo.EncryptAndRevealStep.RowWithCipher;
 import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.Computation;
@@ -12,6 +7,10 @@ import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNu
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.crypto.mimc.MiMCEncryption;
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class EncryptAndRevealStep implements
     Application<List<RowWithCipher>, SequentialNumericBuilder> {

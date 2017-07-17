@@ -26,12 +26,6 @@
  *******************************************************************************/
 package dk.alexandra.fresco.demo;
 
-import java.util.BitSet;
-
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.Option;
-import org.apache.commons.cli.ParseException;
-
 import dk.alexandra.fresco.demo.cli.CmdLineUtil;
 import dk.alexandra.fresco.demo.helpers.DemoBinaryApplication;
 import dk.alexandra.fresco.framework.BuilderFactory;
@@ -49,6 +43,10 @@ import dk.alexandra.fresco.lib.crypto.BristolCryptoFactory;
 import dk.alexandra.fresco.lib.field.bool.BasicLogicFactory;
 import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
 import dk.alexandra.fresco.lib.helper.SequentialProtocolProducer;
+import java.util.BitSet;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.ParseException;
 
 
 /**
