@@ -1,4 +1,4 @@
-package dk.alexandra.fresco.helpers;
+package dk.alexandra.fresco.demo.helpers;
 
 import dk.alexandra.fresco.framework.BuilderFactory;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder;

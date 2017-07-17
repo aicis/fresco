@@ -32,7 +32,8 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.ParseException;
 
-import dk.alexandra.fresco.cli.CmdLineUtil;
+import dk.alexandra.fresco.demo.cli.CmdLineUtil;
+import dk.alexandra.fresco.demo.helpers.DemoBinaryApplication;
 import dk.alexandra.fresco.framework.BuilderFactory;
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.NativeProtocol;
@@ -44,7 +45,6 @@ import dk.alexandra.fresco.framework.sce.configuration.SCEConfiguration;
 import dk.alexandra.fresco.framework.util.ByteArithmetic;
 import dk.alexandra.fresco.framework.value.OBool;
 import dk.alexandra.fresco.framework.value.SBool;
-import dk.alexandra.fresco.helpers.DemoBinaryApplication;
 import dk.alexandra.fresco.lib.crypto.BristolCryptoFactory;
 import dk.alexandra.fresco.lib.field.bool.BasicLogicFactory;
 import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;

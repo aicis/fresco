@@ -24,7 +24,7 @@
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
  *******************************************************************************/
-package dk.alexandra.fresco.cli;
+package dk.alexandra.fresco.demo.cli;
 
 import java.io.File;
 import java.math.BigInteger;

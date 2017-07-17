@@ -28,7 +28,7 @@ package dk.alexandra.fresco.demo;
 
 import java.io.IOException;
 
-import dk.alexandra.fresco.cli.CmdLineUtil;
+import dk.alexandra.fresco.demo.cli.CmdLineUtil;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.configuration.ProtocolSuiteConfiguration;
