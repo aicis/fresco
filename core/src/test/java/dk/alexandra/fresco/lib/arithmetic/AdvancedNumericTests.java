@@ -36,6 +36,7 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
+import dk.alexandra.fresco.framework.network.NetworkCreator;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
@@ -81,8 +82,7 @@ public class AdvancedNumericTests {
           };
 
           BigInteger result = (BigInteger) secureComputationEngine
-              .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf,
-                  conf.sceConf.getSuite()));
+              .runApplication(app, NetworkCreator.createResourcePool(conf.sceConf, conf.sceConf.getSuite()));
 
           Assert.assertEquals(BigInteger.valueOf(numerator / denominator),
               convertRepresentation(result, modulus));

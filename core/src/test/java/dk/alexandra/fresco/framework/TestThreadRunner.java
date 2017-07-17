@@ -235,7 +235,7 @@ public class TestThreadRunner {
 
     //Cleanup - shut down network in manually. All tests should use the NetworkCreator 
     //in order for this to work, or manage the network themselves.
-    Map<Integer, ResourcePoolImpl> rps = NetworkCreator.getCurrentResourcePools();
+    Map<Integer, ResourcePool> rps = NetworkCreator.getCurrentResourcePools();
     for(int id: rps.keySet()) {
       Network network = rps.get(id).getNetwork();
       try {

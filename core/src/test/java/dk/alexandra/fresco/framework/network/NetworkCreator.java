@@ -8,18 +8,21 @@ import java.util.Map;
 import java.util.Random;
 
 import dk.alexandra.fresco.framework.Party;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
 import dk.alexandra.fresco.framework.configuration.ConfigurationException;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.NetworkConfigurationImpl;
+import dk.alexandra.fresco.framework.sce.configuration.ProtocolSuiteConfiguration;
 import dk.alexandra.fresco.framework.sce.configuration.SCEConfiguration;
+import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
 import dk.alexandra.fresco.framework.sce.resources.storage.StreamedStorage;
 
 public class NetworkCreator {
 
-  private static Map<Integer, ResourcePoolImpl> rps = new HashMap<>();
+  private static Map<Integer, ResourcePool> rps = new HashMap<>();
   
-  public static Map<Integer, ResourcePoolImpl> getCurrentResourcePools() {
+  public static Map<Integer, ResourcePool> getCurrentResourcePools() {
     return rps;
   }
   
@@ -50,7 +53,7 @@ public class NetworkCreator {
     return network;
   }
   
-  public static ResourcePoolImpl createResourcePool(SCEConfiguration sceConf) throws IOException {
+  public static ResourcePoolImpl createResourcePool(SCEConfiguration sceConf, ProtocolSuiteConfiguration<ResourcePool, ProtocolBuilder> suite) throws IOException {
     int myId = sceConf.getMyId();
     Map<Integer, Party> parties = sceConf.getParties();
   
