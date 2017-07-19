@@ -63,7 +63,7 @@ public class DummyArithmeticProtocolSuite
 
   @Override
   public BuilderFactory<SequentialNumericBuilder> init(DummyArithmeticResourcePool resourcePool) {
-    return new DummyArithmeticBuilderFactory(new DummyArithmeticFactory(modulus, maxBitLength));
+    return new DummyArithmeticBuilderFactory(new DummyArithmeticFactory(resourcePool.getModulus(), maxBitLength));
   }
 
   @Override

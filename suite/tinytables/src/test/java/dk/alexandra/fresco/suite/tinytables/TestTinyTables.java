@@ -65,8 +65,6 @@ import org.junit.experimental.categories.Category;
 
 public class TestTinyTables {
 
-  private static final int TRIPLES_BATCH_SIZE = 4096;
-
   private void runTest(TestThreadFactory f, EvaluationStrategy evalStrategy,
       boolean preprocessing, String name) throws Exception {
     int noPlayers = 2;
