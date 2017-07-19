@@ -33,6 +33,7 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilderHelper;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
+import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
@@ -85,8 +86,7 @@ public class DEASolverFixedDataTest {
 
           DEATestApp<ResourcePoolT> app1 = new DEATestApp<>(dataSet1, type);
 
-          ResourcePoolT resourcePool = SecureComputationEngineImpl.createResourcePool(conf.sceConf,
-              conf.sceConf.getSuite());
+          ResourcePoolT resourcePool = ResourcePoolCreator.createResourcePool(conf.sceConf);
           app1.run(secureComputationEngine, resourcePool);
           for (int i = 0; i < app1.outputs.size(); i++) {
             Assert.assertEquals(app1.plainResult[i], postProcess(app1.outputs.get(i).out(), type,

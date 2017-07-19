@@ -7,7 +7,7 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
-import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
+import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.math.integer.ProductSIntList;
@@ -40,8 +40,7 @@ public class ParallelAndSequenceTests {
           TestApplicationSum sumApp = new ParallelAndSequenceTests().new TestApplicationSum();
           TestApplicationMult multApp = new ParallelAndSequenceTests().new TestApplicationMult();
 
-          ResourcePoolT resourcePool = SecureComputationEngineImpl.createResourcePool(conf.sceConf,
-              conf.sceConf.getSuite());
+          ResourcePoolT resourcePool = ResourcePoolCreator.createResourcePool(conf.sceConf);
           BigInteger sum = secureComputationEngine.runApplication(sumApp, resourcePool);
           BigInteger mult = secureComputationEngine.runApplication(multApp, resourcePool);
 
@@ -66,12 +65,10 @@ public class ParallelAndSequenceTests {
           TestApplicationSum sumApp = new ParallelAndSequenceTests().new TestApplicationSum();
           TestApplicationMult multApp = new ParallelAndSequenceTests().new TestApplicationMult();
 
+          ResourcePoolT rp = ResourcePoolCreator.createResourcePool(conf.sceConf);
           BigInteger sum = secureComputationEngine
-              .runApplication(sumApp, SecureComputationEngineImpl.createResourcePool(conf.sceConf,
-                  conf.sceConf.getSuite()));
-          BigInteger mult = secureComputationEngine.runApplication(multApp,
-              SecureComputationEngineImpl.createResourcePool(conf.sceConf,
-                  conf.sceConf.getSuite()));
+              .runApplication(sumApp, rp);
+          BigInteger mult = secureComputationEngine.runApplication(multApp, rp);
 
           Assert
               .assertEquals(BigInteger.valueOf(1 + 2 + 3 + 4 + 5 + 6 + 7 + 8 + 9), sum);

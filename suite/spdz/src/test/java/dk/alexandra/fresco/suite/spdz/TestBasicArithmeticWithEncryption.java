@@ -12,7 +12,6 @@ import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
 import dk.alexandra.fresco.lib.arithmetic.BasicArithmeticTests;
 import dk.alexandra.fresco.suite.spdz.configuration.PreprocessingStrategy;
-import dk.alexandra.fresco.suite.spdz.configuration.SpdzConfiguration;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -41,8 +40,8 @@ public class TestBasicArithmeticWithEncryption {
       TestThreadConfiguration ttc = new TestThreadConfiguration();
       ttc.netConf = netConf.get(playerId);
 
-      SpdzConfiguration spdzConf = new TestSpdzConfiguration(noOfParties,
-          PreprocessingStrategy.DUMMY);
+      SpdzProtocolSuite spdzConf = new SpdzProtocolSuite(150,
+          PreprocessingStrategy.DUMMY, null);
       boolean useSecureConnection = true;
 
       int noOfThreads = 3;

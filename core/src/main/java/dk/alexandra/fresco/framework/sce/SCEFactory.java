@@ -27,9 +27,9 @@
 package dk.alexandra.fresco.framework.sce;
 
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
-import dk.alexandra.fresco.framework.sce.configuration.ProtocolSuiteConfiguration;
 import dk.alexandra.fresco.framework.sce.configuration.SCEConfiguration;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
+import dk.alexandra.fresco.suite.ProtocolSuite;
 
 public class SCEFactory {
 
@@ -46,8 +46,8 @@ public class SCEFactory {
       >
   SecureComputationEngine<ResourcePoolT, Builder> getSCEFromConfiguration(
       SCEConfiguration<ResourcePoolT> conf,
-      ProtocolSuiteConfiguration<ResourcePoolT, Builder> protocolSuite) {
+      ProtocolSuite<ResourcePoolT, Builder> protocolSuite) {
     return new SecureComputationEngineImpl<>(protocolSuite, conf.getEvaluator(),
-        conf.getLogLevel(), conf.getMyId());
+        conf.getLogLevel());
   }
 }

@@ -6,11 +6,7 @@ import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.serializers.BigIntegerSerializer;
 import dk.alexandra.fresco.framework.network.serializers.BigIntegerWithFixedLengthSerializer;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
-import dk.alexandra.fresco.framework.sce.resources.storage.StreamedStorage;
-import dk.alexandra.fresco.suite.spdz.configuration.SpdzConfiguration;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
-import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageDummyImpl;
-import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageImpl;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -28,21 +24,11 @@ public class SpdzResourcePoolImpl extends ResourcePoolImpl implements SpdzResour
 
   public SpdzResourcePoolImpl(int myId, int noOfPlayers,
       Network network,
-      StreamedStorage streamedStorage,
       Random random, SecureRandom secRand,
-      SpdzConfiguration spdzConf) {
+      SpdzStorage store) {
     super(myId, noOfPlayers, network, random, secRand);
 
-    switch (spdzConf.getPreprocessingStrategy()) {
-      case DUMMY:
-        store = new SpdzStorageDummyImpl(myId, noOfPlayers);
-        break;
-      case STATIC:
-        store = new SpdzStorageImpl(0, noOfPlayers, myId, streamedStorage);
-        break;
-      case FUELSTATION:
-        store = new SpdzStorageImpl(0, noOfPlayers, myId, spdzConf.fuelStationBaseUrl());
-    }
+    this.store = store;    
 
     try {
       messageDigest = MessageDigest.getInstance("SHA-256");
@@ -62,7 +48,6 @@ public class SpdzResourcePoolImpl extends ResourcePoolImpl implements SpdzResour
     this.modulusHalf = this.modulus.divide(BigInteger.valueOf(2));
     this.modulusSize = this.modulus.toByteArray().length;
 
-// TODO
   }
 
   @Override

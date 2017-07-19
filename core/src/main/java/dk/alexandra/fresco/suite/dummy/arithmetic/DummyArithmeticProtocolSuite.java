@@ -24,13 +24,16 @@
 
 package dk.alexandra.fresco.suite.dummy.arithmetic;
 
-import dk.alexandra.fresco.framework.BuilderFactory;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
-import dk.alexandra.fresco.framework.network.SCENetwork;
-import dk.alexandra.fresco.suite.ProtocolSuite;
-import dk.alexandra.fresco.suite.dummy.arithmetic.config.DummyArithmeticConfiguration;
 import java.io.IOException;
 import java.math.BigInteger;
+import java.security.SecureRandom;
+import java.util.Random;
+import dk.alexandra.fresco.framework.BuilderFactory;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
+import dk.alexandra.fresco.framework.network.Network;
+import dk.alexandra.fresco.framework.network.SCENetwork;
+import dk.alexandra.fresco.suite.NumericProtocolSuite;
+import dk.alexandra.fresco.suite.ProtocolSuite;
 
 
 /**
@@ -38,31 +41,23 @@ import java.math.BigInteger;
  * {@link DummyArithmeticResourcePool} and provides a {@link SequentialNumericBuilder}.
  */
 public class DummyArithmeticProtocolSuite
-    implements ProtocolSuite<DummyArithmeticResourcePool, SequentialNumericBuilder> {
+    implements NumericProtocolSuite<DummyArithmeticResourcePool, SequentialNumericBuilder> {
 
-  private static BigInteger modulus;
-  private static int maxBitLength;
+  private BigInteger modulus;
+  private int maxBitLength;
 
-  public DummyArithmeticProtocolSuite(DummyArithmeticConfiguration conf) {
-    DummyArithmeticProtocolSuite.modulus = conf.getModulus();
-    DummyArithmeticProtocolSuite.maxBitLength = conf.getMaxBitLength();
+  public DummyArithmeticProtocolSuite(BigInteger modulus, int maxBitLength) {
+    this.modulus = modulus;
+    this.maxBitLength = maxBitLength;
   }
 
-  /**
-   * The modulus defining the field the suite works in.
-   * 
-   * @return the modulus
-   */
-  public static BigInteger getModulus() {
+  @Override
+  public BigInteger getModulus() {
     return modulus;
   }
 
-  /**
-   * The expected maximum bit length of values to be computed.
-   * 
-   * @return the expected maximum bit length
-   */
-  public static int getMaxBitLength() {
+  @Override
+  public int getMaxBitLength() {
     return maxBitLength;
   }
 
@@ -83,6 +78,12 @@ public class DummyArithmeticProtocolSuite
       public void finishedEval(DummyArithmeticResourcePool resourcePool, SCENetwork sceNetwork)
           throws IOException {}
     };
+  }
+
+  @Override
+  public DummyArithmeticResourcePool createResourcePool(int myId, int size, Network network,
+      Random rand, SecureRandom secRand) {
+    return new DummyArithmeticResourcePoolImpl(myId, size, network, rand, secRand, modulus);
   }
 
 }

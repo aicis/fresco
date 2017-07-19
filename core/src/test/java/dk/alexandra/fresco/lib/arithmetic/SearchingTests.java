@@ -37,7 +37,7 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
-import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
+import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.collections.LinearLookUp;
@@ -58,8 +58,7 @@ public class SearchingTests {
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         @Override
         public void test() throws Exception {
-          ResourcePoolT resourcePool = SecureComputationEngineImpl.createResourcePool(conf.sceConf,
-              conf.sceConf.getSuite());
+          ResourcePoolT resourcePool = ResourcePoolCreator.createResourcePool(conf.sceConf);
           final int PAIRS = 10;
           final int MAXVALUE = 20000;
           final int NOTFOUND = -1;

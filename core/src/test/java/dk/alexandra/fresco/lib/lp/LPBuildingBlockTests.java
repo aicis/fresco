@@ -38,6 +38,7 @@ import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
+import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.debug.MarkerProtocolImpl;
@@ -186,8 +187,7 @@ public class LPBuildingBlockTests {
             return () -> null;
           };
           secureComputationEngine
-              .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf,
-                  conf.sceConf.getSuite()));
+              .runApplication(app, ResourcePoolCreator.createResourcePool(conf.sceConf));
         }
       };
     }
@@ -218,8 +218,7 @@ public class LPBuildingBlockTests {
             }
           };
           secureComputationEngine
-              .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf,
-                  conf.sceConf.getSuite()));
+              .runApplication(app, ResourcePoolCreator.createResourcePool(conf.sceConf));
           int actualIndex = 0;
           int sum = 0;
           BigInteger zero = BigInteger.ZERO;
@@ -259,8 +258,7 @@ public class LPBuildingBlockTests {
           };
 
           secureComputationEngine
-              .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf,
-                  conf.sceConf.getSuite()));
+              .runApplication(app, ResourcePoolCreator.createResourcePool(conf.sceConf));
         }
       };
     }
@@ -285,8 +283,7 @@ public class LPBuildingBlockTests {
           };
 
           secureComputationEngine
-              .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf,
-                  conf.sceConf.getSuite()));
+              .runApplication(app, ResourcePoolCreator.createResourcePool(conf.sceConf));
         }
       };
     }

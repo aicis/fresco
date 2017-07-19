@@ -30,17 +30,17 @@ import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.TestThreadRunner;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.TestConfiguration;
 import dk.alexandra.fresco.framework.network.NetworkingStrategy;
 import dk.alexandra.fresco.framework.sce.configuration.TestSCEConfiguration;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
+import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
 import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
 import dk.alexandra.fresco.framework.sce.resources.storage.Storage;
 import dk.alexandra.fresco.lib.bool.ComparisonBooleanTests;
 import dk.alexandra.fresco.lib.crypto.BristolCryptoTests;
-import dk.alexandra.fresco.suite.dummy.bool.DummyConfiguration;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -56,7 +56,7 @@ import org.junit.Test;
  */
 public class TestDummyProtocolSuite {
 
-  private void runTest(TestThreadFactory f, EvaluationStrategy evalStrategy) throws Exception {
+  private void runTest(TestThreadFactory<ResourcePoolImpl, ProtocolBuilderBinary> f, EvaluationStrategy evalStrategy) throws Exception {
     // The dummy protocol suite has the nice property that it can be run by just one player.
     int noPlayers = 1;
     Level logLevel = Level.INFO;
@@ -72,13 +72,11 @@ public class TestDummyProtocolSuite {
         .getNetworkConfigurations(noPlayers, ports, logLevel);
     Map<Integer, TestThreadConfiguration> conf = new HashMap<>();
     for (int playerId : netConf.keySet()) {
-      TestThreadConfiguration ttc = new TestThreadConfiguration();
+      TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary> ttc = new TestThreadConfiguration<>();
       ttc.netConf = netConf.get(playerId);
-      int noOfVMThreads = 3;
-      int noOfThreads = 3;
-      ProtocolEvaluator evaluator = EvaluationStrategy.fromEnum(evalStrategy);
+      ProtocolEvaluator<ResourcePoolImpl> evaluator = EvaluationStrategy.fromEnum(evalStrategy);
       Storage storage = new InMemoryStorage();
-      ttc.sceConf = new TestSCEConfiguration(new DummyConfiguration(), NetworkingStrategy.KRYONET,
+      ttc.sceConf = new TestSCEConfiguration(new DummyProtocolSuite(), NetworkingStrategy.KRYONET,
           evaluator, ttc.netConf, storage, false);
       conf.put(playerId, ttc);
     }
