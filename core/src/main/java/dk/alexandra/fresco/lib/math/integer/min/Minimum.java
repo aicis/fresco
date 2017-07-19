@@ -61,7 +61,7 @@ public class Minimum implements ComputationBuilder<Pair<List<Computation<SInt>>,
       NumericBuilder numeric = builder.numeric();
       Computation<SInt> firstValue = this.xs.get(0);
       Computation<SInt> secondValue = this.xs.get(1);
-      Computation<SInt> firstCompare = comparison.compare(firstValue, secondValue);
+      Computation<SInt> firstCompare = comparison.compareLEQ(firstValue, secondValue);
       Computation<SInt> minimum = builder
           .createSequentialSub(new ConditionalSelect(firstCompare, firstValue, secondValue));
       Computation<SInt> secondCompare = numeric
@@ -75,12 +75,12 @@ public class Minimum implements ComputationBuilder<Pair<List<Computation<SInt>>,
       Computation<SInt> firstValue = this.xs.get(0);
       Computation<SInt> secondValue = this.xs.get(1);
       Computation<SInt> thirdValue = this.xs.get(2);
-      Computation<SInt> c1_prime = comparison.compare(firstValue, secondValue);
+      Computation<SInt> c1_prime = comparison.compareLEQ(firstValue, secondValue);
 
       Computation<SInt> m1 = builder
           .createSequentialSub(new ConditionalSelect(c1_prime, firstValue, secondValue));
 
-      Computation<SInt> c2_prime = comparison.compare(m1, thirdValue);
+      Computation<SInt> c2_prime = comparison.compareLEQ(m1, thirdValue);
 
       Computation<SInt> m2 = builder
           .createSequentialSub(new ConditionalSelect(c2_prime, m1, thirdValue));
@@ -113,7 +113,7 @@ public class Minimum implements ComputationBuilder<Pair<List<Computation<SInt>>,
         SInt m1 = minimum1.getSecond();
         SInt m2 = minimum2.getSecond();
 
-        Computation<SInt> compare = comparison.compare(() -> m1, () -> m2);
+        Computation<SInt> compare = comparison.compareLEQ(() -> m1, () -> m2);
         Computation<SInt> oneMinusCompare = numeric.sub(one, compare);
         Computation<SInt> m = seq
             .createSequentialSub(new ConditionalSelect(compare, () -> m1, () -> m2));

@@ -12,19 +12,19 @@ public interface ComparisonBuilder {
    * @param x2 input
    * @return output - [1] (true) or [0] (false) (result of x1 <= x2)
    */
-  Computation<SInt> compare(Computation<SInt> x1, Computation<SInt> x2);
+  Computation<SInt> compareLEQ(Computation<SInt> x1, Computation<SInt> x2);
 
   /**
-   * Compares if x1 < x2, but with twice the possible bit-length.
+   * Compares if x1 <= x2, but with twice the possible bit-length.
    * Requires that the maximum bit length is set to something that can handle
-   * this scenario.
-
-   * Comparing long numbers and should use twice the bit length
+   * this scenario. It has to be at least less than half the modulus bit size. 
+   *
+   * Comparing long numbers and uses twice the maximum bit length.
    * @param x1 input
    * @param x2 input
    * @return output - [1] (true) or [0] (false) (result of x1 <= x2)
    */
-  Computation<SInt> compareLong(Computation<SInt> x1, Computation<SInt> x2);
+  Computation<SInt> compareLEQLong(Computation<SInt> x1, Computation<SInt> x2);
 
   /**
    * Compares if x == y.

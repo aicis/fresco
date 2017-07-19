@@ -129,7 +129,7 @@ public class ExitingVariable implements ComputationBuilder<ExitingVariableOutput
       ComparisonBuilder comparison = par.comparison();
       for (int i = 0; i < updatedB.size(); i++) {
         nonApps.add(
-            comparison.compareLong(updatedEnteringColumn.get(i), zero)
+            comparison.compareLEQLong(updatedEnteringColumn.get(i), zero)
         );
       }
       return Pair.lazy(updatedEnteringColumn, new Pair<>(updatedB, nonApps));

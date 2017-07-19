@@ -187,7 +187,7 @@ public class SecretSharedDivisor
     Computation<SInt> actualLeft = right;
     Computation<SInt> actualRight = left;
 
-    return builder.comparison().compare(actualLeft, actualRight);
+    return builder.comparison().compareLEQ(actualLeft, actualRight);
   }
 
   private Computation<SInt> exp2(SequentialNumericBuilder builder, Computation<SInt> exponent,
