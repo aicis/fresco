@@ -34,7 +34,6 @@ import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
 import dk.alexandra.fresco.framework.sce.resources.storage.Storage;
 import dk.alexandra.fresco.suite.ProtocolSuite;
-import dk.alexandra.fresco.suite.dummy.arithmetic.config.DummyArithmeticConfiguration;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.ArrayList;
@@ -72,31 +71,8 @@ public abstract class AbstractDummyArithmeticTest {
 
       BigInteger mod = new BigInteger(
           "6703903964971298549787012499123814115273848577471136527425966013026501536706464354255445443244279389455058889493431223951165286470575994074291745908195329");
-      DummyArithmeticConfiguration dummyConf = new DummyArithmeticConfiguration() {
 
-        @Override
-        public ProtocolSuite createProtocolSuite(int myPlayerId) {
-          return new DummyArithmeticProtocolSuite(this);
-        }
-
-        @Override
-        public int getMaxBitLength() {
-          // Should work for up to 255 bits, but for an unknown reason, long-compare fails when
-          // allowing that many bits.
-          // Not really a problem, since actual numbers would most often be a lot smaller than 200
-          // bits.
-          // return mod.bitLength()/2-1;
-          return 200;
-        }
-
-        @Override
-        public DummyArithmeticResourcePool createResourcePool(int myId, int size, Network network,
-            Random rand, SecureRandom secRand) {
-          return new DummyArithmeticResourcePoolImpl(myId, noOfParties, network, rand, secRand,
-              mod);
-        }
-      };
-
+      DummyArithmeticProtocolSuite ps = new DummyArithmeticProtocolSuite(mod, 200);      
 
       boolean useSecureConnection = false; // No tests of secure
                                            // connection
@@ -104,7 +80,7 @@ public abstract class AbstractDummyArithmeticTest {
 
       ProtocolEvaluator evaluator = EvaluationStrategy.fromEnum(evalStrategy);
       Storage storage = new InMemoryStorage();
-      ttc.sceConf = new TestSCEConfiguration(dummyConf, network, evaluator, ttc.netConf, storage,
+      ttc.sceConf = new TestSCEConfiguration(ps, network, evaluator, ttc.netConf, storage,
           useSecureConnection);
       conf.put(playerId, ttc);
     }

@@ -31,19 +31,21 @@ import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.TestThreadRunner;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.TestConfiguration;
 import dk.alexandra.fresco.framework.network.NetworkingStrategy;
-import dk.alexandra.fresco.framework.sce.configuration.ProtocolSuiteConfiguration;
 import dk.alexandra.fresco.framework.sce.configuration.TestSCEConfiguration;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
+import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
 import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
 import dk.alexandra.fresco.framework.sce.resources.storage.Storage;
 import dk.alexandra.fresco.lib.bool.BasicBooleanTests;
 import dk.alexandra.fresco.lib.crypto.BristolCryptoTests;
 import dk.alexandra.fresco.lib.math.mult.BristolMultTests;
-import dk.alexandra.fresco.suite.tinytables.online.TinyTablesConfiguration;
-import dk.alexandra.fresco.suite.tinytables.prepro.TinyTablesPreproConfiguration;
+import dk.alexandra.fresco.suite.ProtocolSuite;
+import dk.alexandra.fresco.suite.tinytables.online.TinyTablesProtocolSuite;
+import dk.alexandra.fresco.suite.tinytables.prepro.TinyTablesPreproProtocolSuite;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileVisitResult;
@@ -62,8 +64,6 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 public class TestTinyTables {
-
-  private static final int TRIPLES_BATCH_SIZE = 4096;
 
   private void runTest(TestThreadFactory f, EvaluationStrategy evalStrategy,
       boolean preprocessing, String name) throws Exception {
@@ -89,36 +89,18 @@ public class TestTinyTables {
 
       ProtocolEvaluator<?> evaluator;
 
-      ProtocolSuiteConfiguration<?, ?> config;
+      ProtocolSuite<ResourcePoolImpl, ProtocolBuilderBinary> suite;
+      File tinyTablesFile = new File(getFilenameForTest(playerId, name));
       if (preprocessing) {
-        config = new TinyTablesPreproConfiguration();
-
-				/*
-         * Set path where the generated TinyTables should be stored
-				 */
-        ((TinyTablesPreproConfiguration) config).setTinyTablesFile(new File(
-            getFilenameForTest(playerId, name)));
-
-				/*
-         *
-				 */
-        ((TinyTablesPreproConfiguration) config).setTriplesBatchSize(TRIPLES_BATCH_SIZE);
-
-      } else {
-        config = new TinyTablesConfiguration();
-
-				/*
-         * Set path where TinyTables generated during preprocessing can
-				 * be found
-				 */
-        File tinyTablesFile = new File(getFilenameForTest(playerId, name));
-        ((TinyTablesConfiguration) config).setTinyTablesFile(tinyTablesFile);
+        suite = new TinyTablesPreproProtocolSuite(playerId, tinyTablesFile);
+      } else {        
+        suite = new TinyTablesProtocolSuite(playerId, tinyTablesFile);
       }
 
       evaluator = EvaluationStrategy.fromEnum(evalStrategy);
 
       Storage storage = new InMemoryStorage();
-      ttc.sceConf = new TestSCEConfiguration<>(config, NetworkingStrategy.KRYONET, evaluator,
+      ttc.sceConf = new TestSCEConfiguration<>(suite, NetworkingStrategy.KRYONET, evaluator,
           ttc.netConf, storage, false);
       conf.put(playerId, ttc);
     }

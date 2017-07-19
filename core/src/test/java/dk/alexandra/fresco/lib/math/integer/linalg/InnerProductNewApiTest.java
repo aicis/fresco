@@ -11,6 +11,7 @@ import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
+import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SInt;
@@ -64,8 +65,7 @@ public class InnerProductNewApiTest {
               return pb.build();
             }
           };
-          secureComputationEngine.runApplication(test, SecureComputationEngineImpl
-              .createResourcePool(conf.sceConf, conf.sceConf.getSuite()));
+          secureComputationEngine.runApplication(test, ResourcePoolCreator.createResourcePool(conf.sceConf));
           BigInteger b = output.get(0).out();
           Assert.assertEquals(210, b.intValue());
         }

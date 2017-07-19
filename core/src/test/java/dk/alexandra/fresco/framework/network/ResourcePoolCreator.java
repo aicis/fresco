@@ -1,25 +1,25 @@
 package dk.alexandra.fresco.framework.network;
 
-import java.io.IOException;
-import java.security.SecureRandom;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-
 import dk.alexandra.fresco.framework.Party;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
 import dk.alexandra.fresco.framework.configuration.ConfigurationException;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.NetworkConfigurationImpl;
 import dk.alexandra.fresco.framework.sce.configuration.SCEConfiguration;
-import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
-import dk.alexandra.fresco.framework.sce.resources.storage.StreamedStorage;
+import dk.alexandra.fresco.framework.sce.configuration.TestSCEConfiguration;
+import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
+import dk.alexandra.fresco.suite.ProtocolSuite;
+import java.io.IOException;
+import java.security.SecureRandom;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Random;
 
-public class NetworkCreator {
-
-  private static Map<Integer, ResourcePoolImpl> rps = new HashMap<>();
+public class ResourcePoolCreator<ResourcePoolT extends ResourcePool> {
   
-  public static Map<Integer, ResourcePoolImpl> getCurrentResourcePools() {
+  private static Map<Integer, ResourcePool> rps = new HashMap<>();
+  
+  public static Map<Integer, ResourcePool> getCurrentResourcePools() {
     return rps;
   }
   
@@ -36,9 +36,9 @@ public class NetworkCreator {
     switch (networkStrat) {
       case KRYONET:
         // TODO[PSN]
-        // This might work on mac?
-        network = new KryoNetNetwork();
-        //network = new ScapiNetworkImpl();
+        // KryoNet currently works on mac, but Windows is still in the dark.
+        //network = new KryoNetNetwork();
+        network = new ScapiNetworkImpl();
         break;
       case SCAPI:
         network = new ScapiNetworkImpl();
@@ -50,11 +50,10 @@ public class NetworkCreator {
     return network;
   }
   
-  public static ResourcePoolImpl createResourcePool(SCEConfiguration sceConf) throws IOException {
+  public static <ResourcePoolT extends ResourcePool, Builder extends ProtocolBuilder> ResourcePoolT createResourcePool(TestSCEConfiguration<ResourcePoolT, Builder> sceConf) throws IOException {
     int myId = sceConf.getMyId();
     Map<Integer, Party> parties = sceConf.getParties();
   
-    StreamedStorage streamedStorage = sceConf.getStreamedStorage();
     // Secure random by default.
     Random rand = new Random(0);
     SecureRandom secRand = new SecureRandom();
@@ -62,11 +61,11 @@ public class NetworkCreator {
     Network network = getNetworkFromConfiguration(sceConf, myId, parties);
     network.connect(10000);
   
-    ResourcePoolImpl resourcePool =
-        new ResourcePoolImpl(myId, parties.size(),
-            network, rand, secRand);
+    ProtocolSuite suite = sceConf.getSuite();
+        
+    ResourcePoolT resourcePool = (ResourcePoolT) suite.createResourcePool(myId, parties.size(), network, rand, secRand);
       
-    NetworkCreator.rps.put(myId, resourcePool);
+    ResourcePoolCreator.rps.put(myId, resourcePool);
     
     return resourcePool;
   

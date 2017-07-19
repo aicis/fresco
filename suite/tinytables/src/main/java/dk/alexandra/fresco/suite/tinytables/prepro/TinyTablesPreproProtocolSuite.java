@@ -30,6 +30,7 @@ import dk.alexandra.fresco.framework.BuilderFactory;
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.Reporter;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilderBinary;
+import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.SCENetwork;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
@@ -58,12 +59,14 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.nio.ByteBuffer;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 /**
  * <p>
@@ -99,7 +102,6 @@ import java.util.Map;
 public class TinyTablesPreproProtocolSuite implements ProtocolSuite<ResourcePoolImpl, ProtocolBuilderBinary> {
 
   private TinyTablesStorage storage;
-  private TinyTablesPreproConfiguration configuration;
   private File tinyTablesFile;
   private TinyTablesTripleProvider tinyTablesTripleProvider;
   private List<TinyTablesPreproANDProtocol> unprocessedAndGates;
@@ -111,16 +113,14 @@ public class TinyTablesPreproProtocolSuite implements ProtocolSuite<ResourcePool
     return instances.get(id);
   }
 
-  TinyTablesPreproProtocolSuite(int id, TinyTablesPreproConfiguration configuration) {
+  public TinyTablesPreproProtocolSuite(int id, File tinyTablesFile) {
     this.storage = TinyTablesStorageImpl.getInstance(id);
-    this.configuration = configuration;
+    this.tinyTablesFile = tinyTablesFile;
     instances.put(id, this);
   }
 
   @Override
   public BuilderFactory<ProtocolBuilderBinary> init(ResourcePoolImpl resourcePool) {
-    this.tinyTablesFile = this.configuration.getTinyTablesFile();
-
     OTFactory otFactory = new SemiHonestOTExtensionFactory(resourcePool.getNetwork(),
         resourcePool.getMyId(), 128, new BaseOTFactory(resourcePool.getNetwork(),
         resourcePool.getMyId(), resourcePool.getSecureRandom()),
@@ -146,10 +146,10 @@ public class TinyTablesPreproProtocolSuite implements ProtocolSuite<ResourcePool
   }
 
   @Override
-  public RoundSynchronization createRoundSynchronization() {
-    return new DummyRoundSynchronization() {
+  public RoundSynchronization<ResourcePoolImpl> createRoundSynchronization() {
+    return new DummyRoundSynchronization<ResourcePoolImpl>() {
       @Override
-      public void finishedBatch(int gatesEvaluated, ResourcePool resourcePool,
+      public void finishedBatch(int gatesEvaluated, ResourcePoolImpl resourcePool,
           SCENetwork sceNetwork) throws MPCException {
         /*
          * When 1000 AND gates needs to be processed, we do it.
@@ -160,7 +160,7 @@ public class TinyTablesPreproProtocolSuite implements ProtocolSuite<ResourcePool
       }
 
       @Override
-      public void finishedEval(ResourcePool resourcePool, SCENetwork sceNetwork) {
+      public void finishedEval(ResourcePoolImpl resourcePool, SCENetwork sceNetwork) {
         calculateTinyTablesForUnprocessedANDGates();
         tinyTablesTripleProvider.close();
     /*
@@ -250,6 +250,12 @@ public class TinyTablesPreproProtocolSuite implements ProtocolSuite<ResourcePool
     ObjectOutputStream oos = new ObjectOutputStream(fout);
     oos.writeObject(tinyTablesStorage);
     oos.close();
+  }
+
+  @Override
+  public ResourcePoolImpl createResourcePool(int myId, int size, Network network, Random rand,
+      SecureRandom secRand) {
+    return new ResourcePoolImpl(myId, size, network, rand, secRand);
   }
 
 }
