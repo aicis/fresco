@@ -34,6 +34,7 @@ import dk.alexandra.fresco.framework.network.NetworkingStrategy;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.sce.resources.storage.Storage;
 import dk.alexandra.fresco.framework.sce.resources.storage.StreamedStorage;
+import dk.alexandra.fresco.suite.ProtocolSuite;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
@@ -41,23 +42,22 @@ import java.util.logging.Level;
 public class TestSCEConfiguration<ResourcePoolT extends ResourcePool, Builder extends ProtocolBuilder> implements
     SCEConfiguration<ResourcePoolT> {
 
-  private final ProtocolSuiteConfiguration<ResourcePoolT, Builder> suite;
   private NetworkingStrategy network;
   private Storage storage;
   private Map<Integer, Party> parties;
   private int myId;
   private ProtocolEvaluator evaluator;
-
-  public TestSCEConfiguration(ProtocolSuiteConfiguration<ResourcePoolT, Builder> suite,
+  private final ProtocolSuite<ResourcePoolT, Builder> suite;
+  
+  public TestSCEConfiguration(ProtocolSuite suite, 
       NetworkingStrategy network,
       ProtocolEvaluator evaluator,
       NetworkConfiguration conf, Storage storage,
       boolean useSecureConn) {
     this(suite, network, evaluator, conf, storage, useSecureConn, 4096);
-
   }
-
-  public TestSCEConfiguration(ProtocolSuiteConfiguration<ResourcePoolT, Builder> suite,
+  
+  public TestSCEConfiguration(ProtocolSuite suite, 
       NetworkingStrategy network,
       ProtocolEvaluator evaluator,
       NetworkConfiguration conf, Storage storage, boolean useSecureConn, int maxBatchSize) {
@@ -80,6 +80,11 @@ public class TestSCEConfiguration<ResourcePoolT extends ResourcePool, Builder ex
     }
   }
 
+  public ProtocolSuite<ResourcePoolT, Builder> getSuite() {
+    return suite;
+  }
+
+  
   @Override
   public int getMyId() {
     return myId;
@@ -107,10 +112,6 @@ public class TestSCEConfiguration<ResourcePoolT extends ResourcePool, Builder ex
     } else {
       return null;
     }
-  }
-
-  public ProtocolSuiteConfiguration<ResourcePoolT, Builder> getSuite() {
-    return suite;
   }
 
   @Override

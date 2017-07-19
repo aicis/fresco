@@ -37,7 +37,6 @@ import dk.alexandra.fresco.framework.sce.resources.storage.FilebasedStreamedStor
 import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
 import dk.alexandra.fresco.framework.sce.resources.storage.Storage;
 import dk.alexandra.fresco.suite.spdz.configuration.PreprocessingStrategy;
-import dk.alexandra.fresco.suite.spdz.configuration.SpdzConfiguration;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -71,7 +70,7 @@ public abstract class AbstractSpdzTest {
 			TestThreadRunner.TestThreadConfiguration ttc = new TestThreadRunner.TestThreadConfiguration();
 			ttc.netConf = netConf.get(playerId);
 
-			SpdzConfiguration spdzConf = new TestSpdzConfiguration(noOfParties, preProStrat);
+			SpdzProtocolSuite spdzConf = new SpdzProtocolSuite(150, preProStrat, null);
 
 			ProtocolEvaluator evaluator = EvaluationStrategy.fromEnum(evalStrategy);
 			Storage storage = new InMemoryStorage();

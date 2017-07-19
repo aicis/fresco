@@ -37,6 +37,7 @@ import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
+import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.math.polynomial.evaluator.PolynomialEvaluator;
@@ -86,8 +87,7 @@ public class PolynomialTests {
             }
           };
           secureComputationEngine
-              .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf,
-                  conf.sceConf.getSuite()));
+              .runApplication(app, ResourcePoolCreator.createResourcePool(conf.sceConf));
 
           int f = 0;
           int power = 1;

@@ -7,7 +7,7 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
-import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
+import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.list.FindDuplicatesHelper;
@@ -97,8 +97,7 @@ public class EliminateDuplicatesTests {
 
           List<BigInteger> outputs = secureComputationEngine
               .runApplication(app,
-                  SecureComputationEngineImpl.createResourcePool(conf.sceConf,
-                      conf.sceConf.getSuite()));
+                  ResourcePoolCreator.createResourcePool(conf.sceConf));
           secureComputationEngine.shutdownSCE();
           Assert.assertEquals(BigInteger.ZERO, outputs.get(0));
           Assert.assertEquals(BigInteger.ZERO, outputs.get(1));

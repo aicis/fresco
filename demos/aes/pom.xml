@@ -1,0 +1,58 @@
+<project>
+  <parent>
+    <groupId>dk.alexandra.fresco</groupId>
+    <artifactId>demos</artifactId>
+    <version>0.2-SNAPSHOT</version>
+  </parent>
+
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>dk.alexandra.fresco</groupId>
+  <artifactId>aes</artifactId>
+  <version>0.2-SNAPSHOT</version>
+
+  <dependencies>
+    <dependency>
+      <groupId>dk.alexandra.fresco</groupId>
+      <artifactId>demos-common</artifactId>
+      <version>0.2-SNAPSHOT</version>
+    </dependency>
+  </dependencies>
+  
+  <build>
+    <plugins>
+      <plugin>
+	<groupId>org.apache.maven.plugins</groupId>
+	<artifactId>maven-compiler-plugin</artifactId>
+	<version>2.0.2</version>
+	<configuration>
+	  <encoding>UTF-8</encoding>
+	  <source>1.8</source>
+	  <target>1.8</target>
+	</configuration>
+      </plugin>
+      <plugin>
+	<artifactId>maven-assembly-plugin</artifactId>
+	<executions>
+	  <execution>
+	    <configuration>
+	      <appendAssemblyId>false</appendAssemblyId>
+	      <archive>
+		<manifest>
+		  <mainClass>dk.alexandra.fresco.demo.AESDemo</mainClass>
+		</manifest>
+	      </archive>
+	      <descriptorRefs>
+		<descriptorRef>jar-with-dependencies</descriptorRef>
+	      </descriptorRefs>
+	      <finalName>fresco-demo-aes</finalName>
+	    </configuration>
+	    <phase>package</phase>
+	    <goals>
+	      <goal>single</goal>
+	    </goals>
+	  </execution>
+	</executions>
+      </plugin>
+    </plugins>
+  </build>
+</project>

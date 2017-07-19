@@ -28,7 +28,9 @@ package dk.alexandra.fresco.suite.tinytables.online;
 
 import dk.alexandra.fresco.framework.BuilderFactory;
 import dk.alexandra.fresco.framework.Reporter;
-import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderBinary;
+import dk.alexandra.fresco.framework.network.Network;
+import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.tinytables.LegacyBinaryBuilder;
 import dk.alexandra.fresco.suite.tinytables.online.protocols.TinyTablesANDProtocol;
@@ -42,8 +44,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.security.SecureRandom;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 
 /**
  * <p>
@@ -67,9 +71,9 @@ import java.util.Map;
  *
  * @author Jonas Lindstrøm (jonas.lindstrom@alexandra.dk)
  */
-public class TinyTablesProtocolSuite implements ProtocolSuite {
+public class TinyTablesProtocolSuite implements ProtocolSuite<ResourcePoolImpl, ProtocolBuilderBinary> {
 
-  private final TinyTablesConfiguration conf;
+  private final File tinyTablesFile;
   private TinyTablesStorage storage;
   private static volatile Map<Integer, TinyTablesProtocolSuite> instances = new HashMap<>();
 
@@ -77,15 +81,14 @@ public class TinyTablesProtocolSuite implements ProtocolSuite {
     return instances.get(id);
   }
 
-  TinyTablesProtocolSuite(int id, TinyTablesConfiguration conf) {
-    this.conf = conf;
+  public TinyTablesProtocolSuite(int id, File tinyTablesFile) {
+    this.tinyTablesFile = tinyTablesFile;
     instances.put(id, this);
   }
 
   @Override
-  public BuilderFactory init(ResourcePool resourcePool) {
+  public BuilderFactory<ProtocolBuilderBinary> init(ResourcePoolImpl resourcePool) {
     try {
-      File tinyTablesFile = this.conf.getTinyTablesFile();
       this.storage = loadTinyTables(tinyTablesFile);
     } catch (ClassNotFoundException ignored) {
     } catch (IOException e) {
@@ -109,8 +112,14 @@ public class TinyTablesProtocolSuite implements ProtocolSuite {
   }
 
   @Override
-  public RoundSynchronization createRoundSynchronization() {
-    return new DummyRoundSynchronization();
+  public RoundSynchronization<ResourcePoolImpl> createRoundSynchronization() {
+    return new DummyRoundSynchronization<ResourcePoolImpl>();
+  }
+
+  @Override
+  public ResourcePoolImpl createResourcePool(int myId, int size, Network network, Random rand,
+      SecureRandom secRand) {
+    return new ResourcePoolImpl(myId, size, network, rand, secRand);
   }
 
 }

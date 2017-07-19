@@ -79,6 +79,6 @@
   <modules>
     <module>core</module>
     <module>suite</module>
-    <module>demo</module>
+    <module>demos</module>
   </modules>
 </project>

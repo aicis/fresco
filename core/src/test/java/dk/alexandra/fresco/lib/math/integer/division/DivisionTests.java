@@ -38,6 +38,7 @@ import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
+import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
@@ -111,8 +112,7 @@ public class DivisionTests {
             }
           };
           secureComputationEngine
-              .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf,
-                  conf.sceConf.getSuite()));
+              .runApplication(app, ResourcePoolCreator.createResourcePool(conf.sceConf));
           BigInteger quotient = cOutputs.get(0).out();
           BigInteger remainder = cOutputs.get(1).out();
           Assert.assertEquals(x.mod(d), remainder);
@@ -160,8 +160,7 @@ public class DivisionTests {
             }
           };
           secureComputationEngine
-              .runApplication(app, SecureComputationEngineImpl.createResourcePool(conf.sceConf,
-                  conf.sceConf.getSuite()));
+              .runApplication(app, ResourcePoolCreator.createResourcePool(conf.sceConf));
           for (int i = 0; i < n; i++) {
             BigInteger actual = results.get(i).out();
 

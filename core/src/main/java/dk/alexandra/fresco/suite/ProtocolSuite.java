@@ -28,12 +28,15 @@ package dk.alexandra.fresco.suite;
 
 import dk.alexandra.fresco.framework.BuilderFactory;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
+import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.SCENetwork;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import java.io.IOException;
+import java.security.SecureRandom;
+import java.util.Random;
 
 public interface ProtocolSuite<ResourcePoolT extends ResourcePool, Builder extends ProtocolBuilder> {
-
+  
   /**
    * Initializes the protocol suite by supplying any needed
    * resources to the protocol suite. The protocol invocation implementation is then
@@ -42,6 +45,16 @@ public interface ProtocolSuite<ResourcePoolT extends ResourcePool, Builder exten
    */
   BuilderFactory<Builder> init(ResourcePoolT resourcePool);
 
+  /**
+   * Legacy method for creating resource pool from an oblivious context - normally users of the
+   * SecureComputationEngine would control resources themselves.
+   * <br/>
+   * Once this methods is no longer needed, this interface will be removed
+   */
+  ResourcePoolT createResourcePool(
+      int myId, int size, Network network,
+      Random rand, SecureRandom secRand);
+  
   /**
    * Get a RoundSynchronization used by evaluators to signal progress and
    * allow protocols to do additional work during evaluation.
@@ -76,16 +89,16 @@ public interface ProtocolSuite<ResourcePoolT extends ResourcePool, Builder exten
   /**
    * Dummy round synchronization that does nothing.
    */
-  class DummyRoundSynchronization implements RoundSynchronization<ResourcePool> {
+  class DummyRoundSynchronization<ResourcePoolT extends ResourcePool> implements RoundSynchronization<ResourcePoolT> {
 
     @Override
     public void finishedBatch(
-        int gatesEvaluated, ResourcePool resourcePool, SCENetwork sceNetwork) {
+        int gatesEvaluated, ResourcePoolT resourcePool, SCENetwork sceNetwork) {
 
     }
 
     @Override
-    public void finishedEval(ResourcePool resourcePool, SCENetwork sceNetwork) {
+    public void finishedEval(ResourcePoolT resourcePool, SCENetwork sceNetwork) {
 
     }
   }
