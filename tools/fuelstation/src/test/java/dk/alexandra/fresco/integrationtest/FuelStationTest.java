@@ -46,17 +46,27 @@ public class FuelStationTest {
 		this.mockMvc = MockMvcBuilders.standaloneSetup(fuelEndpoint).build();		
 	}
 
-	private SpdzTriple[] convertToTriples(InputStream is, int amount) throws IOException {
+	private SpdzElement[] convertToElements(InputStream is, BigInteger mod, int amount) {
+	  SpdzElement[] res = new SpdzElement[amount];
+	  for(int i = 0; i < amount; i++) {
+	    int elmSize = mod.toByteArray().length*2;
+	    byte[] a = new byte[elmSize];
+	    res[i] = new SpdzElement(a, mod, elmSize/2);	    
+	  }
+	  return res;
+	}
+	
+	private SpdzTriple[] convertToTriples(InputStream is, BigInteger mod, int amount) throws IOException {
 		SpdzTriple[] res = new SpdzTriple[amount];
 		for(int i = 0; i < amount; i++) {
-			int elmSize = Util.getModulusSize()*2;
+			int elmSize = mod.toByteArray().length*2;
 			byte[] a = new byte[elmSize];
 			byte[] b = new byte[elmSize];
 			byte[] c = new byte[elmSize];
 			is.read(a);
 			is.read(b);
 			is.read(c);
-			res[i] = new SpdzTriple(new SpdzElement(a), new SpdzElement(b), new SpdzElement(c));
+			res[i] = new SpdzTriple(new SpdzElement(a, mod, elmSize/2), new SpdzElement(b, mod, elmSize/2), new SpdzElement(c, mod, elmSize/2));
 		}
 		return res;
 	}
@@ -82,7 +92,7 @@ public class FuelStationTest {
 				.andExpect(status().isOk())
 				.andReturn().getResponse();
 		
-		SpdzTriple[] triple11 = convertToTriples(new ByteArrayInputStream(resp.getContentAsByteArray()), amount);
+		SpdzTriple[] triple11 = convertToTriples(new ByteArrayInputStream(resp.getContentAsByteArray()), mod, amount);
 		
 		resp = this.mockMvc
 				.perform(
@@ -91,7 +101,7 @@ public class FuelStationTest {
 				.andExpect(status().isOk())
 				.andReturn().getResponse();
 
-		SpdzTriple[] triple21 = convertToTriples(new ByteArrayInputStream(resp.getContentAsByteArray()), amount);
+		SpdzTriple[] triple21 = convertToTriples(new ByteArrayInputStream(resp.getContentAsByteArray()), mod, amount);
 		Assert.assertNotEquals(triple11, triple21);
 		
 		resp = this.mockMvc
@@ -101,7 +111,7 @@ public class FuelStationTest {
 				.andExpect(status().isOk())
 				.andReturn().getResponse();
 
-		SpdzTriple[] triple12 = convertToTriples(new ByteArrayInputStream(resp.getContentAsByteArray()), amount);
+		SpdzTriple[] triple12 = convertToTriples(new ByteArrayInputStream(resp.getContentAsByteArray()), mod, amount);
 		for(int i = 0; i < amount; i++) {
 			BigInteger a = triple11[i].getA().getShare().add(triple12[i].getA().getShare()).mod(mod);
 			BigInteger b = triple11[i].getB().getShare().add(triple12[i].getB().getShare()).mod(mod);
@@ -122,26 +132,30 @@ public class FuelStationTest {
 				.andReturn().getResponse().getContentAsString();
 		BigInteger mod = new BigInteger(modString);
 		
+		int amount = 5000;
+		
 		MockHttpServletResponse content = this.mockMvc
 				.perform(
-						get("/api/fuel/bits/1/party/1/thread/0").contentType("application/json")
+						get("/api/fuel/bits/"+amount+"/party/1/thread/0").contentType("application/json")
 						.accept(MediaType.APPLICATION_JSON))
 				.andExpect(status().isOk())
 				.andReturn().getResponse();		
 		
-		SpdzElement bit1 = new SpdzElement(content.getContentAsByteArray());
+		SpdzElement[] bits1 = convertToElements(new ByteArrayInputStream(content.getContentAsByteArray()), mod, amount);		
 		
 		content = this.mockMvc
 				.perform(
-						get("/api/fuel/bits/1/party/2/thread/0").contentType("application/json")
+						get("/api/fuel/bits/"+amount+"/party/2/thread/0").contentType("application/json")
 						.accept(MediaType.APPLICATION_JSON))
 				.andExpect(status().isOk())
 				.andReturn().getResponse();
 
-		SpdzElement bit2 = new SpdzElement(content.getContentAsByteArray());
+		SpdzElement[] bits2 = convertToElements(new ByteArrayInputStream(content.getContentAsByteArray()), mod, amount);
 		
-		BigInteger bit = bit1.getShare().add(bit2.getShare()).mod(mod);
-		Assert.assertTrue(bit.equals(BigInteger.ZERO) || bit.equals(BigInteger.ONE));
+		for(int i = 0; i < amount; i++) {		 
+		  BigInteger bit = bits1[i].getShare().add(bits2[i].getShare()).mod(mod);
+		  Assert.assertTrue(bit.equals(BigInteger.ZERO) || bit.equals(BigInteger.ONE));
+		}
 	}
 	
 	@Test
@@ -165,9 +179,9 @@ public class FuelStationTest {
 		ByteArrayInputStream bis = new ByteArrayInputStream(bs);
 		SpdzElement[] exp1 = new SpdzElement[Util.EXP_PIPE_SIZE];
 		for(int i = 0; i < exp1.length; i++) {
-			byte[] elm = new byte[Util.getModulusSize()*2];
+			byte[] elm = new byte[mod.toByteArray().length*2];
 			bis.read(elm);
-			exp1[i] = new SpdzElement(elm);
+			exp1[i] = new SpdzElement(elm, mod, mod.toByteArray().length);
 		}
 		
 		content = this.mockMvc
@@ -181,9 +195,9 @@ public class FuelStationTest {
 		bis = new ByteArrayInputStream(bs);
 		SpdzElement[] exp2 = new SpdzElement[Util.EXP_PIPE_SIZE];
 		for(int i = 0; i < exp2.length; i++) {
-			byte[] elm = new byte[Util.getModulusSize()*2];
+			byte[] elm = new byte[mod.toByteArray().length*2];
 			bis.read(elm);
-			exp2[i] = new SpdzElement(elm);
+			exp2[i] = new SpdzElement(elm, mod, mod.toByteArray().length);
 		}
 
 		BigInteger rInv = exp1[0].getShare().add(exp2[0].getShare()).mod(mod);
@@ -193,18 +207,18 @@ public class FuelStationTest {
 		Assert.assertEquals(r.multiply(r).mod(mod), rSquared);
 	}
 	
-	private SpdzInputMask convertToMask(byte[] arr) throws IOException {
+	private SpdzInputMask convertToMask(byte[] arr, BigInteger mod) throws IOException {
 		ByteArrayInputStream is = new ByteArrayInputStream(arr);
 		int length = is.read();
-		byte[] elm = new byte[Util.getModulusSize()*2];
+		byte[] elm = new byte[mod.toByteArray().length*2];
 		if(length == 0) {
 			is.read(elm);
-			return new SpdzInputMask(new SpdzElement(elm));
+			return new SpdzInputMask(new SpdzElement(elm, mod, mod.toByteArray().length));
 		} else {
 			byte[] real = new byte[length];
 			is.read(real);
 			is.read(elm);
-			return new SpdzInputMask(new SpdzElement(elm), new BigInteger(real));
+			return new SpdzInputMask(new SpdzElement(elm, mod, mod.toByteArray().length), new BigInteger(real));
 		}
 	}
 	
@@ -226,7 +240,7 @@ public class FuelStationTest {
 				.andExpect(status().isOk())
 				.andReturn().getResponse();
 		
-		SpdzInputMask mask1 = convertToMask(content.getContentAsByteArray());		
+		SpdzInputMask mask1 = convertToMask(content.getContentAsByteArray(), mod);		
 		content = this.mockMvc
 				.perform(
 						get("/api/fuel/inputs/1/party/2/towards/1/thread/0").contentType("application/json")
@@ -234,7 +248,7 @@ public class FuelStationTest {
 				.andExpect(status().isOk())
 				.andReturn().getResponse();
 
-		SpdzInputMask mask2 = convertToMask(content.getContentAsByteArray());
+		SpdzInputMask mask2 = convertToMask(content.getContentAsByteArray(), mod);
 		Assert.assertEquals(mask1.getRealValue(), mask1.getMask().getShare().add(mask2.getMask().getShare()).mod(mod));
 		
 		content = this.mockMvc
@@ -244,7 +258,7 @@ public class FuelStationTest {
 				.andExpect(status().isOk())
 				.andReturn().getResponse();
 		
-		mask1 = convertToMask(content.getContentAsByteArray());
+		mask1 = convertToMask(content.getContentAsByteArray(), mod);
 		
 		content = this.mockMvc
 				.perform(
@@ -253,7 +267,7 @@ public class FuelStationTest {
 				.andExpect(status().isOk())
 				.andReturn().getResponse();
 
-		mask2 = convertToMask(content.getContentAsByteArray());
+		mask2 = convertToMask(content.getContentAsByteArray(), mod);
 		
 		Assert.assertEquals(mask2.getRealValue(), mask1.getMask().getShare().add(mask2.getMask().getShare()).mod(mod));
 	}

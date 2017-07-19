@@ -71,10 +71,6 @@ public class TestSpdzDEASolver2Parties extends AbstractSpdzTest{
 				EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
 	}
 
-	// Using a non-batched evaulation strategy has extremely poor performance.
-	// Hence the problem size is reduced
-	// TODO figure out what the problem is
-	@Category(IntegrationTest.class)
 	@Test
 	public void test_DEASolver_2_Sequential_dummy() throws Exception {
 		runTest(new DEASolverTests.TestDEASolver(2, 1, 5, 1, DEASolver.AnalysisType.OUTPUT_EFFICIENCY),

@@ -69,7 +69,12 @@ public class RetrieverThread extends Thread {
       int amount, int threadId, int towardsId) {
     super();
 		this.modulus = supplier.getModulus();
-		this.modulusSize = modulus.toByteArray().length;
+		byte[] bytes = modulus.toByteArray();
+	    if (bytes[0] == 0) {
+	      this.modulusSize = bytes.length - 1;
+	    } else {
+	      this.modulusSize = bytes.length;
+	    }
 		this.restEndPoint = restEndPoint;
 		this.myId = myId;
     this.supplier = supplier;

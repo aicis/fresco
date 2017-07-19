@@ -80,5 +80,6 @@
     <module>core</module>
     <module>suite</module>
     <module>demos</module>
+    <module>tools</module>
   </modules>
 </project>

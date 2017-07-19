@@ -77,9 +77,6 @@ public class DataGeneratorImpl implements DataGenerator{
 	
 	@PostConstruct
 	public void clearAndInit() throws IOException {
-		//set mod in spdz
-		Util.setModulus(mod);
-		
 		Reporter.init(Level.INFO);
 		this.alphas = FakeTripGen.generateAlphaShares(noOfPlayers, mod);
 		init();
