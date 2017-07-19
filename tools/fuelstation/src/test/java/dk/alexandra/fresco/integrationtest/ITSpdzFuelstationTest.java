@@ -40,7 +40,6 @@ import dk.alexandra.fresco.lib.arithmetic.MiMCTests;
 import dk.alexandra.fresco.lib.math.integer.division.DivisionTests;
 import dk.alexandra.fresco.lib.statistics.DEASolver;
 import dk.alexandra.fresco.lib.statistics.DEASolverTests;
-import dk.alexandra.fresco.services.DataGeneratorImpl;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.SpdzProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.configuration.PreprocessingStrategy;
@@ -49,7 +48,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.context.embedded.LocalServerPort;
@@ -58,8 +56,7 @@ import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.test.context.junit4.SpringRunner;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT,
-    classes = {DataGeneratorImpl.class, Application.class})
+@SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT, classes = {Application.class})
 public class ITSpdzFuelstationTest {
 
   @LocalServerPort
@@ -102,15 +99,12 @@ public class ITSpdzFuelstationTest {
         StorageStrategy.IN_MEMORY, 2);
   }
 
-  // FIXME: These more advanced tests fails using the fuelstation approach.
-  @Ignore
   @Test
   public void test_division() throws Exception {
     runTest(new DivisionTests.TestSecretSharedDivision(), EvaluationStrategy.SEQUENTIAL_BATCHED,
         StorageStrategy.IN_MEMORY, 2);
   }
 
-  @Ignore
   @Test
   public void test_dea() throws Exception {
     runTest(new DEASolverTests.TestDEASolver(2, 1, 5, 1, DEASolver.AnalysisType.OUTPUT_EFFICIENCY),
