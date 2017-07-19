@@ -2,6 +2,8 @@
 Aggregation demonstrator
 ========================
 
+NB: THIS IS CURRENTLY UNDER DEVELOPMENT AND MAY NOT FUNCTION
+
 This demonstrator will compute the aggregation of a hardcoded list.  The list
 consists of pairs of (key,value). The demonstrator aggregates all values where
 the key's match.  This is done using a deterministic encryption scheme (within
