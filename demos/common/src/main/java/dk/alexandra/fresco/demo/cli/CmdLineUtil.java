@@ -29,11 +29,8 @@ package dk.alexandra.fresco.demo.cli;
 import dk.alexandra.fresco.framework.Party;
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.Reporter;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
 import dk.alexandra.fresco.framework.configuration.ConfigurationException;
-import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.NetworkingStrategy;
-import dk.alexandra.fresco.framework.sce.configuration.ProtocolSuiteConfiguration;
 import dk.alexandra.fresco.framework.sce.configuration.SCEConfiguration;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.evaluator.SequentialEvaluator;
@@ -43,27 +40,19 @@ import dk.alexandra.fresco.framework.sce.resources.storage.StorageStrategy;
 import dk.alexandra.fresco.framework.sce.resources.storage.StreamedStorage;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticProtocolSuite;
-import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticResourcePool;
-import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticResourcePoolImpl;
-import dk.alexandra.fresco.suite.dummy.arithmetic.config.DummyArithmeticConfiguration;
-import dk.alexandra.fresco.suite.dummy.bool.DummyConfiguration;
+import dk.alexandra.fresco.suite.dummy.bool.DummyProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.SpdzProtocolSuite;
-import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
-import dk.alexandra.fresco.suite.spdz.SpdzResourcePoolImpl;
 import dk.alexandra.fresco.suite.spdz.configuration.PreprocessingStrategy;
-import dk.alexandra.fresco.suite.spdz.configuration.SpdzConfiguration;
-import dk.alexandra.fresco.suite.tinytables.online.TinyTablesConfiguration;
-import dk.alexandra.fresco.suite.tinytables.prepro.TinyTablesPreproConfiguration;
+import dk.alexandra.fresco.suite.tinytables.online.TinyTablesProtocolSuite;
+import dk.alexandra.fresco.suite.tinytables.prepro.TinyTablesPreproProtocolSuite;
 import java.io.File;
 import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Random;
 import java.util.logging.Level;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -84,20 +73,20 @@ public class CmdLineUtil {
   private final Options options;
   private Options appOptions;
   private CommandLine cmd;
-  private SCEConfiguration sceConf;
-  private ProtocolSuiteConfiguration psConf;
+  private SCEConfiguration<?> sceConf;
+  private ProtocolSuite<?,?> ps;
 
   public CmdLineUtil() {
     this.appOptions = new Options();
     this.options = buildStandardOptions();
   }
 
-  public SCEConfiguration getSCEConfiguration() {
+  public SCEConfiguration<?> getSCEConfiguration() {
     return this.sceConf;
   }
 
-  public ProtocolSuiteConfiguration getProtocolSuiteConfiguration() {
-    return this.psConf;
+  public ProtocolSuite<?,?> getProtocolSuite() {
+    return this.ps;
   }
 
   /**
@@ -359,7 +348,7 @@ public class CmdLineUtil {
       }
 
       @Override
-      public ProtocolEvaluator getEvaluator() {
+      public ProtocolEvaluator<?> getEvaluator() {
         return evaluator;
       }
 
@@ -418,19 +407,19 @@ public class CmdLineUtil {
       switch (protocolSuiteName) {
         //TODO: When arithmetic dummy comes, add this here.
         case "dummybool":
-          this.psConf = new DummyConfiguration();
+          this.ps = new DummyProtocolSuite();
           break;
         case "dummyarithmetic":
-          this.psConf = dummyArithmeticFromCmdLine(this.sceConf, cmd);
+          this.ps = dummyArithmeticFromCmdLine(this.sceConf, cmd);
           break;
         case "spdz":
-          this.psConf = SpdzConfigurationFromCmdLine(sceConf, cmd);
+          this.ps = SpdzConfigurationFromCmdLine(sceConf, cmd);
           break;
         case "tinytablesprepro":
-          this.psConf = tinyTablesPreProFromCmdLine(this.sceConf, cmd);
+          this.ps = tinyTablesPreProFromCmdLine(this.sceConf, cmd);
           break;
         case "tinytables":
-          this.psConf = tinyTablesFromCmdLine(this.sceConf, cmd);
+          this.ps = tinyTablesFromCmdLine(this.sceConf, cmd);
           break;
         default:
           throw new ParseException(
@@ -445,33 +434,14 @@ public class CmdLineUtil {
     return this.cmd;
   }
   
-  public static ProtocolSuiteConfiguration dummyArithmeticFromCmdLine(SCEConfiguration sceConf, CommandLine cmd) {
+  public static ProtocolSuite<?,?> dummyArithmeticFromCmdLine(SCEConfiguration<?> sceConf, CommandLine cmd) {
     Properties p = cmd.getOptionProperties("D");
     BigInteger mod = new BigInteger(p.getProperty("modulus", "6703903964971298549787012499123814115273848577471136527425966013026501536706464354255445443244279389455058889493431223951165286470575994074291745908195329"));
     int maxBitLength = Integer.parseInt(p.getProperty("maxbitlength", "150"));
-    
-    return new DummyArithmeticConfiguration() {
-      
-      @Override
-      public DummyArithmeticResourcePool createResourcePool(int myId, int size, Network network,
-          Random rand, SecureRandom secRand) {
-        return new DummyArithmeticResourcePoolImpl(myId, sceConf.getParties().size(), network, rand, secRand, mod);
-      }
-      
-      @Override
-      public ProtocolSuite<DummyArithmeticResourcePool, SequentialNumericBuilder> createProtocolSuite(
-          int myPlayerId) {
-        return new DummyArithmeticProtocolSuite(this);
-      }
-      
-      @Override
-      public int getMaxBitLength() {
-        return maxBitLength;
-      }
-    };
+    return new DummyArithmeticProtocolSuite(mod, maxBitLength);    
   }
   
-  private static ProtocolSuiteConfiguration SpdzConfigurationFromCmdLine(SCEConfiguration sceConf,
+  private static ProtocolSuite<?,?> SpdzConfigurationFromCmdLine(SCEConfiguration<?> sceConf,
       CommandLine cmd) {
     Properties p = cmd.getOptionProperties("D");
     //TODO: Figure out a meaningful default for the below
@@ -483,99 +453,25 @@ public class CmdLineUtil {
     final String fuelStationBaseUrl = p.getProperty("spdz.fuelStationBaseUrl", null);
     String strat = p.getProperty("spdz.preprocessingStrategy");
     final PreprocessingStrategy strategy = PreprocessingStrategy.fromString(strat);
-
-    return new SpdzConfiguration() {
-
-      @Override
-      public ProtocolSuite<SpdzResourcePool, SequentialNumericBuilder> createProtocolSuite(
-          int myPlayerId) {
-        return new SpdzProtocolSuite(this);
-      }
-
-      @Override
-      public SpdzResourcePool createResourcePool(int myId, int size, Network network, Random rand,
-          SecureRandom secRand) {
-        return new SpdzResourcePoolImpl(myId, size, network, sceConf.getStreamedStorage(), rand,
-            secRand, this);
-      }
-
-      @Override
-      public int getMaxBitLength() {
-        return maxBitLength;
-      }
-
-      @Override
-      public PreprocessingStrategy getPreprocessingStrategy() {
-        return strategy;
-      }
-
-      @Override
-      public String fuelStationBaseUrl() {
-        return fuelStationBaseUrl;
-      }
-
-    };
+    return new SpdzProtocolSuite(maxBitLength, strategy, fuelStationBaseUrl);    
   }
   
-  public static ProtocolSuiteConfiguration tinyTablesPreProFromCmdLine(SCEConfiguration sceConf, CommandLine cmd)
+  public static ProtocolSuite<?,?> tinyTablesPreProFromCmdLine(SCEConfiguration<?> sceConf, CommandLine cmd)
       throws ParseException, IllegalArgumentException {
 
-    Options options = new Options();
-
-    TinyTablesPreproConfiguration configuration = new TinyTablesPreproConfiguration();
-
-        /*
-     * Parse TinyTables specific options
-         */
-
-    String tinytablesFileOption = "tinytables.file";
-    options.addOption(Option.builder("D")
-        .desc("The file where the generated TinyTables should be stored.")
-        .longOpt(tinytablesFileOption).required(false).hasArgs().build());
-
-    String triplesFileOption = "triples.file";
-    options.addOption(Option.builder("D")
-        .desc("A file for storing generated multiplication triples")
-        .longOpt(triplesFileOption).required(false).hasArgs().build());
-
-    String batchSizeOption = "triples.batchSize";
-    options.addOption(Option.builder("D")
-        .desc("The amount of triples to keep in memory at a time").longOpt(batchSizeOption)
-        .required(false).hasArgs().build());
-
     Properties p = cmd.getOptionProperties("D");
-
+    String tinytablesFileOption = "tinytables.file";
     String tinyTablesFilePath = p.getProperty(tinytablesFileOption, "tinytables");
-    File tinyTablesFile = new File(tinyTablesFilePath);
-    configuration.setTinyTablesFile(tinyTablesFile);
-
-    int batchSize = Integer.parseInt(p.getProperty(batchSizeOption, "1024"));
-    configuration.setTriplesBatchSize(batchSize);
-
-    return configuration;
+    return new TinyTablesPreproProtocolSuite(sceConf.getMyId(), new File(tinyTablesFilePath));    
   }
   
-  public static ProtocolSuiteConfiguration tinyTablesFromCmdLine(SCEConfiguration sceConf,
+  public static ProtocolSuite<?,?> tinyTablesFromCmdLine(SCEConfiguration<?> sceConf,
       CommandLine cmd) throws ParseException, IllegalArgumentException {
   
-  Options options = new Options();
-  
-  TinyTablesConfiguration configuration = new TinyTablesConfiguration();
-  
-  String tinyTablesFileOption = "tinytables.file";
-  
-  options.addOption(Option
-          .builder("D")
-          .desc("The file where the generated TinyTables is leaded from.")
-          .longOpt(tinyTablesFileOption).required(false).hasArgs().build());
-  
   Properties p = cmd.getOptionProperties("D");
-  
-  String tinyTablesFilePath = p.getProperty(tinyTablesFileOption, "tinytables");
-  File tinyTablesFile = new File(tinyTablesFilePath);
-  configuration.setTinyTablesFile(tinyTablesFile);
-  
-  return configuration;
+  String tinytablesFileOption = "tinytables.file";
+  String tinyTablesFilePath = p.getProperty(tinytablesFileOption, "tinytables");
+  return new TinyTablesProtocolSuite(sceConf.getMyId(), new File(tinyTablesFilePath));
 }
 
   public void displayHelp() {

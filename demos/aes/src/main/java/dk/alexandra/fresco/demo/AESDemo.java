@@ -28,6 +28,7 @@ package dk.alexandra.fresco.demo;
 
 import dk.alexandra.fresco.demo.cli.CmdLineUtil;
 import dk.alexandra.fresco.demo.helpers.DemoBinaryApplication;
+import dk.alexandra.fresco.demo.helpers.ResourcePoolHelper;
 import dk.alexandra.fresco.framework.BuilderFactory;
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.NativeProtocol;
@@ -42,6 +43,7 @@ import dk.alexandra.fresco.lib.crypto.BristolCryptoFactory;
 import dk.alexandra.fresco.lib.field.bool.BasicLogicFactory;
 import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
 import dk.alexandra.fresco.lib.helper.SequentialProtocolProducer;
+import dk.alexandra.fresco.suite.ProtocolSuite;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.ParseException;
@@ -150,17 +152,18 @@ public class AESDemo extends DemoBinaryApplication<OBool[]> {
 
     // Do the secure computation using config from property files.
     AESDemo aes = new AESDemo(sceConf.getMyId(), input);
-    dk.alexandra.fresco.framework.sce.configuration.ProtocolSuiteConfiguration psConf = util
-        .getProtocolSuiteConfiguration();
-    SecureComputationEngine sce = new SecureComputationEngineImpl(psConf,
-        sceConf.getEvaluator(), sceConf.getLogLevel(), sceConf.getMyId());
+    ProtocolSuite<?, ?> ps = util
+        .getProtocolSuite();
+    SecureComputationEngine sce = new SecureComputationEngineImpl(ps,
+        sceConf.getEvaluator(), sceConf.getLogLevel());
 
     try {
-      sce.runApplication(aes, SecureComputationEngineImpl.createResourcePool(sceConf,
-          psConf));
+      sce.runApplication(aes, ResourcePoolHelper.createResourcePool(sceConf, ps));
     } catch (Exception e) {
       System.out.println("Error while doing MPC: " + e.getMessage());
       System.exit(-1);
+    } finally {
+      ResourcePoolHelper.shutdown();
     }
 
     // Print result.
@@ -169,7 +172,7 @@ public class AESDemo extends DemoBinaryApplication<OBool[]> {
       res[i] = aes.result[i].getValue();
     }
     System.out.println("The resulting ciphertext is: " + ByteArithmetic.toHex(res));
-
+    
   }
 
 

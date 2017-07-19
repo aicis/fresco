@@ -3,31 +3,29 @@
  *
  * This file is part of the FRESCO project.
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
  *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *
- * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
- * and Bouncy Castle. Please see these projects for any further licensing issues.
+ * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL, and Bouncy Castle.
+ * Please see these projects for any further licensing issues.
  *******************************************************************************/
 package dk.alexandra.fresco.demo;
 
 import dk.alexandra.fresco.demo.cli.CmdLineUtil;
 import dk.alexandra.fresco.demo.helpers.DemoBinaryApplication;
+import dk.alexandra.fresco.demo.helpers.ResourcePoolHelper;
 import dk.alexandra.fresco.framework.BuilderFactory;
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.NativeProtocol;
@@ -43,6 +41,7 @@ import dk.alexandra.fresco.lib.crypto.BristolCryptoFactory;
 import dk.alexandra.fresco.lib.field.bool.BasicLogicFactory;
 import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
 import dk.alexandra.fresco.lib.helper.SequentialProtocolProducer;
+import dk.alexandra.fresco.suite.ProtocolSuite;
 import java.util.BitSet;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
@@ -107,10 +106,9 @@ public class PrivateSetDemo extends DemoBinaryApplication<OBool[][]> {
 
 
   /**
-   * The main method sets up application specific command line parameters,
-   * parses command line arguments. Based on the command line arguments it
-   * configures the SCE, instantiates the PrivateSetDemo and runs the PrivateSetDemo on the
-   * SCE.
+   * The main method sets up application specific command line parameters, parses command line
+   * arguments. Based on the command line arguments it configures the SCE, instantiates the
+   * PrivateSetDemo and runs the PrivateSetDemo on the SCE.
    */
   public static void main(String[] args) {
     CmdLineUtil util = new CmdLineUtil();
@@ -120,20 +118,16 @@ public class PrivateSetDemo extends DemoBinaryApplication<OBool[][]> {
     try {
 
       util.addOption(Option.builder("key")
-          .desc("The key to use for encryption. "
-              + "A " + INPUT_LENGTH + " char hex string. Required for player 1 and 2. "
+          .desc("The key to use for encryption. " + "A " + INPUT_LENGTH
+              + " char hex string. Required for player 1 and 2. "
               + "For both players this is interpreted as the AES key. ")
-          .longOpt("key")
-          .hasArg()
-          .build());
+          .longOpt("key").hasArg().build());
 
       util.addOption(Option.builder("in")
           .desc("The list of integers to use as input for the set intersection problem. "
               + "A comma separated list of integers. Required for player 1 and 2. "
               + "The lists must be of equal length for each player. ")
-          .longOpt("input")
-          .hasArg()
-          .build());
+          .longOpt("input").hasArg().build());
 
       CommandLine cmd = util.parse(args);
       sceConf = util.getSCEConfiguration();
@@ -170,14 +164,12 @@ public class PrivateSetDemo extends DemoBinaryApplication<OBool[][]> {
 
     // Do the secure computation using config from property files.
     PrivateSetDemo privateSetDemo = new PrivateSetDemo(sceConf.getMyId(), key, inputs);
-    dk.alexandra.fresco.framework.sce.configuration.ProtocolSuiteConfiguration psConf = util
-        .getProtocolSuiteConfiguration();
-    SecureComputationEngine sce = new SecureComputationEngineImpl(psConf,
-        sceConf.getEvaluator(), sceConf.getLogLevel(), sceConf.getMyId());
+    ProtocolSuite<?, ?> psConf = util.getProtocolSuite();
+    SecureComputationEngine sce =
+        new SecureComputationEngineImpl(psConf, sceConf.getEvaluator(), sceConf.getLogLevel());
 
     try {
-      sce.runApplication(privateSetDemo, SecureComputationEngineImpl.createResourcePool(sceConf,
-          psConf));
+      sce.runApplication(privateSetDemo, ResourcePoolHelper.createResourcePool(sceConf, psConf));
     } catch (Exception e) {
       System.out.println("Error while doing MPC: " + e.getMessage());
       System.exit(-1);
@@ -209,22 +201,20 @@ public class PrivateSetDemo extends DemoBinaryApplication<OBool[][]> {
 
 
   /**
-   * This is where the actual computation is defined. The method builds up a
-   * protocol that does one evaluation of an AES block encryption for each
-   * of the provided input integers. This
-   * involves protocols for 'closing' the plaintexts and keys, i.e., converting
-   * them from something that one of the players knows to secret values. It
-   * also involves a protocol for AES that works on secret values, and
-   * protocols for opening up the resulting ciphertext.
+   * This is where the actual computation is defined. The method builds up a protocol that does one
+   * evaluation of an AES block encryption for each of the provided input integers. This involves
+   * protocols for 'closing' the plaintexts and keys, i.e., converting them from something that one
+   * of the players knows to secret values. It also involves a protocol for AES that works on secret
+   * values, and protocols for opening up the resulting ciphertext.
    *
-   * The final protocol is build from smaller protocols using the
-   * ParallelProtocolProducer and SequentialProtocolProducer. The open and
-   * closed values (OBool and SBool) are used to 'glue' the subprotocols
-   * together.
+   * The final protocol is build from smaller protocols using the ParallelProtocolProducer and
+   * SequentialProtocolProducer. The open and closed values (OBool and SBool) are used to 'glue' the
+   * subprotocols together.
+   * 
    * @param builderFactory
    */
-  //May cause problems if more than 2 parties and if both insets are not of
-  //Equal length
+  // May cause problems if more than 2 parties and if both insets are not of
+  // Equal length
   @Override
   public ProtocolProducer prepareApplication(BuilderFactory builderFactory) {
     ProtocolFactory producer = builderFactory.getProtocolFactory();
@@ -278,15 +268,16 @@ public class PrivateSetDemo extends DemoBinaryApplication<OBool[][]> {
     ProtocolProducer combineKeys = new ParallelProtocolProducer(combineKeyBits);
 
     // Initialize various arrays
-    OBool[][] inputsOpen = new OBool[2 * this.inSet.length][BLOCK_SIZE]; //Arrays of open inputs
-    SBool[][] inputsClosed = new SBool[this.inSet.length * 2][BLOCK_SIZE]; //Arrays of closed inputs
-    SBool[][] outClosed = new SBool[this.inSet.length * 2][BLOCK_SIZE]; //Arrays of closed result
-    this.result = new OBool[this.inSet.length * 2][]; //Arrays of resulting ciphertexts
+    OBool[][] inputsOpen = new OBool[2 * this.inSet.length][BLOCK_SIZE]; // Arrays of open inputs
+    SBool[][] inputsClosed = new SBool[this.inSet.length * 2][BLOCK_SIZE]; // Arrays of closed
+                                                                           // inputs
+    SBool[][] outClosed = new SBool[this.inSet.length * 2][BLOCK_SIZE]; // Arrays of closed result
+    this.result = new OBool[this.inSet.length * 2][]; // Arrays of resulting ciphertexts
     for (int i = 0; i < this.inSet.length * 2; i++) {
       inputsOpen[i] = boolFactory.getOBools(BLOCK_SIZE);
       inputsClosed[i] = boolFactory.getSBools(BLOCK_SIZE);
       outClosed[i] = boolFactory.getSBools(BLOCK_SIZE);
-      this.result[i] = boolFactory.getOBools(BLOCK_SIZE);      
+      this.result[i] = boolFactory.getOBools(BLOCK_SIZE);
     }
     this.output = () -> this.result;
 
@@ -310,23 +301,23 @@ public class PrivateSetDemo extends DemoBinaryApplication<OBool[][]> {
     NativeProtocol[][] closeInputBits = new NativeProtocol[this.inSet.length * 2][BLOCK_SIZE];
     for (int j = 0; j < this.inSet.length; j++) {
       for (int i = 0; i < BLOCK_SIZE; i++) {
-        closeInputBits[j][i] = boolFactory
-            .getCloseProtocol(1, inputsOpen[j][i], inputsClosed[j][i]);
-        closeInputBits[j + this.inSet.length][i] = boolFactory
-            .getCloseProtocol(2, inputsOpen[j + this.inSet.length][i],
-                inputsClosed[j + this.inSet.length][i]);
+        closeInputBits[j][i] =
+            boolFactory.getCloseProtocol(1, inputsOpen[j][i], inputsClosed[j][i]);
+        closeInputBits[j + this.inSet.length][i] = boolFactory.getCloseProtocol(2,
+            inputsOpen[j + this.inSet.length][i], inputsClosed[j + this.inSet.length][i]);
       }
     }
 
-    //Build the 2*list AES protocols and put the closing protocols into a single producer
-    ProtocolProducer[] tmp = new ProtocolProducer[this.inSet.length
-        * 2]; //Each protocolproducer closes an input bit string
+    // Build the 2*list AES protocols and put the closing protocols into a single producer
+    ProtocolProducer[] tmp = new ProtocolProducer[this.inSet.length * 2]; // Each protocolproducer
+                                                                          // closes an input bit
+                                                                          // string
     ProtocolProducer[] aesProtocols = new ProtocolProducer[this.inSet.length * 2];
 
     for (int i = 0; i < this.inSet.length * 2; i++) {
       tmp[i] = new ParallelProtocolProducer(closeInputBits[i]);
-      aesProtocols[i] = new BristolCryptoFactory(boolFactory)
-          .getAesProtocol(inputsClosed[i], combinedKey, outClosed[i]);
+      aesProtocols[i] = new BristolCryptoFactory(boolFactory).getAesProtocol(inputsClosed[i],
+          combinedKey, outClosed[i]);
     }
 
     ProtocolProducer closeInputs = new ParallelProtocolProducer(tmp);
@@ -346,8 +337,7 @@ public class PrivateSetDemo extends DemoBinaryApplication<OBool[][]> {
 
     // First we close key and plaintext, then we do the AES, then we open the resulting ciphertexts.
 
-    return new SequentialProtocolProducer(closeKeys, combineKeys,
-        closeInputs, compute, openCipher);
+    return new SequentialProtocolProducer(closeKeys, combineKeys, closeInputs, compute, openCipher);
 
   }
 

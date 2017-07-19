@@ -3,43 +3,40 @@
  *
  * This file is part of the FRESCO project.
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
  *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *
- * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
- * and Bouncy Castle. Please see these projects for any further licensing issues.
+ * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL, and Bouncy Castle.
+ * Please see these projects for any further licensing issues.
  *******************************************************************************/
 package dk.alexandra.fresco.demo;
 
 import dk.alexandra.fresco.demo.cli.CmdLineUtil;
 import dk.alexandra.fresco.demo.helpers.DemoNumericApplication;
+import dk.alexandra.fresco.demo.helpers.ResourcePoolHelper;
 import dk.alexandra.fresco.framework.BuilderFactory;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.sce.SCEFactory;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
-import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
-import dk.alexandra.fresco.framework.sce.configuration.ProtocolSuiteConfiguration;
 import dk.alexandra.fresco.framework.sce.configuration.SCEConfiguration;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.helper.builder.NumericIOBuilder;
 import dk.alexandra.fresco.lib.helper.builder.NumericProtocolBuilder;
+import dk.alexandra.fresco.suite.ProtocolSuite;
 import java.math.BigInteger;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
@@ -48,7 +45,7 @@ import org.apache.commons.cli.ParseException;
 /**
  * A simple demo computing the distance between two secret points
  */
-public class DistanceDemo extends DemoNumericApplication<BigInteger>{	
+public class DistanceDemo extends DemoNumericApplication<BigInteger> {
 
   private int myId, myX, myY;
   private SInt x1, y1, x2, y2;
@@ -61,16 +58,16 @@ public class DistanceDemo extends DemoNumericApplication<BigInteger>{
 
   @Override
   public ProtocolProducer prepareApplication(BuilderFactory factory) {
-    BuilderFactoryNumeric numericBuilder = (BuilderFactoryNumeric) factory;    
+    BuilderFactoryNumeric numericBuilder = (BuilderFactoryNumeric) factory;
     BasicNumericFactory bnFac = (BasicNumericFactory) numericBuilder.getProtocolFactory();
     NumericProtocolBuilder npb = new NumericProtocolBuilder(bnFac);
     NumericIOBuilder iob = new NumericIOBuilder(bnFac);
     // Input points
     iob.beginParScope();
-    x1 = (myId == 1) ? iob.input(myX, 1) : iob.input(1); 
-    y1 = (myId == 1) ? iob.input(myY, 1) : iob.input(1); 
-    x2 = (myId == 2) ? iob.input(myX, 2) : iob.input(2); 
-    y2 = (myId == 2) ? iob.input(myY, 2) : iob.input(2); 
+    x1 = (myId == 1) ? iob.input(myX, 1) : iob.input(1);
+    y1 = (myId == 1) ? iob.input(myY, 1) : iob.input(1);
+    x2 = (myId == 2) ? iob.input(myX, 2) : iob.input(2);
+    y2 = (myId == 2) ? iob.input(myY, 2) : iob.input(2);
     iob.endCurScope();
     // Compute distance squared (note, square root computation can be done publicly)
     npb.beginParScope();
@@ -85,7 +82,7 @@ public class DistanceDemo extends DemoNumericApplication<BigInteger>{
     npb.endCurScope();
     SInt result = npb.add(sqDX, sqDY);
     iob.addProtocolProducer(npb.getProtocol());
-    // Output result    
+    // Output result
     this.output = iob.output(result);;
     return iob.getProtocol();
   }
@@ -93,23 +90,17 @@ public class DistanceDemo extends DemoNumericApplication<BigInteger>{
   public static void main(String[] args) {
     CmdLineUtil cmdUtil = new CmdLineUtil();
     SCEConfiguration sceConf = null;
-    ProtocolSuiteConfiguration psConf = null;
+    ProtocolSuite<?, ?> psConf = null;
     int x, y;
     x = y = 0;
-    try {	
-      cmdUtil.addOption(Option.builder("x")
-          .desc("The integer x coordinate of this party. "
-              + "Note only party 1 and 2 should supply this input.")
-          .hasArg()
-          .build());	
-      cmdUtil.addOption(Option.builder("y")
-          .desc("The integer y coordinate of this party. "
-              + "Note only party 1 and 2 should supply this input")
-          .hasArg()
-          .build());
+    try {
+      cmdUtil.addOption(Option.builder("x").desc("The integer x coordinate of this party. "
+          + "Note only party 1 and 2 should supply this input.").hasArg().build());
+      cmdUtil.addOption(Option.builder("y").desc("The integer y coordinate of this party. "
+          + "Note only party 1 and 2 should supply this input").hasArg().build());
       CommandLine cmd = cmdUtil.parse(args);
       sceConf = cmdUtil.getSCEConfiguration();
-      psConf = cmdUtil.getProtocolSuiteConfiguration();
+      psConf = cmdUtil.getProtocolSuite();
 
       if (sceConf.getMyId() == 1 || sceConf.getMyId() == 2) {
         if (!cmd.hasOption("x") || !cmd.hasOption("y")) {
@@ -119,7 +110,7 @@ public class DistanceDemo extends DemoNumericApplication<BigInteger>{
           y = Integer.parseInt(cmd.getOptionValue("y"));
         }
       } else {
-        if (cmd.hasOption("x") || cmd.hasOption("y")) 
+        if (cmd.hasOption("x") || cmd.hasOption("y"))
           throw new ParseException("Only party 1 and 2 should submit input");
       }
 
@@ -127,12 +118,12 @@ public class DistanceDemo extends DemoNumericApplication<BigInteger>{
       System.out.println("Error: " + e);
       System.out.println();
       cmdUtil.displayHelp();
-      System.exit(-1);	
-    } 
+      System.exit(-1);
+    }
     DistanceDemo distDemo = new DistanceDemo(sceConf.getMyId(), x, y);
     SecureComputationEngine sce = SCEFactory.getSCEFromConfiguration(sceConf, psConf);
     try {
-      sce.runApplication(distDemo, SecureComputationEngineImpl.createResourcePool(sceConf, psConf));
+      sce.runApplication(distDemo, ResourcePoolHelper.createResourcePool(sceConf, psConf));
     } catch (Exception e) {
       System.out.println("Error while doing MPC: " + e.getMessage());
       e.printStackTrace();
