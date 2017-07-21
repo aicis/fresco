@@ -39,6 +39,7 @@ import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
 import dk.alexandra.fresco.framework.sce.resources.storage.Storage;
 import dk.alexandra.fresco.lib.bool.ComparisonBooleanTests;
 import dk.alexandra.fresco.lib.collections.sort.CollectionsSortingTests;
+import dk.alexandra.fresco.lib.compare.CompareTests;
 import dk.alexandra.fresco.lib.crypto.BristolCryptoTests;
 import dk.alexandra.fresco.suite.dummy.bool.DummyConfiguration;
 
@@ -168,6 +169,10 @@ public class TestDummyProtocolSuite {
   public void test_Keyed_Compare_And_Swap_2_parties() throws Exception {
     runTest(new CollectionsSortingTests.TestKeyedCompareAndSwap(), EvaluationStrategy.SEQUENTIAL);
   }
-
+  
+  @Test
+  public void test_Compare_And_Swap() throws Exception {
+    runTest(new CompareTests.TestCompareAndSwap(), EvaluationStrategy.SEQUENTIAL);
+  }
   
 }

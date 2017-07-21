@@ -33,6 +33,7 @@ import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.compare.MiscOIntGenerators;
 import dk.alexandra.fresco.lib.compare.RandomAdditiveMaskFactory;
+import dk.alexandra.fresco.lib.compare.RandomAdditiveMaskFactoryImpl;
 import dk.alexandra.fresco.lib.field.integer.AddProtocol;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.field.integer.MultByConstantFactory;
@@ -43,7 +44,9 @@ import dk.alexandra.fresco.lib.field.integer.generic.AddProtocolFactory;
 import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
 import dk.alexandra.fresco.lib.math.integer.HammingDistanceFactory;
+import dk.alexandra.fresco.lib.math.integer.HammingDistanceFactoryImpl;
 import dk.alexandra.fresco.lib.math.integer.NumericBitFactory;
+import dk.alexandra.fresco.lib.math.integer.NumericNegateBitFactoryImpl;
 import dk.alexandra.fresco.lib.math.integer.exp.ExpFromOIntFactory;
 import dk.alexandra.fresco.lib.math.integer.exp.PreprocessedExpPipeFactory;
 import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductFactory;
@@ -102,8 +105,8 @@ public class EqualityProtocolImplWithPreprocessing implements EqualityProtocol {
 //		this.addProvider = addProvider;
     this.innerProdFactory = innerProdFactory;
     this.expFromOIntFactory = expFromOIntFactory;
-    this.hammingFactory = null; // hammingProvider;
-    this.randomAddMaskFactory = null; //randomAddMaskProvider;
+    this.hammingFactory = new HammingDistanceFactoryImpl(factory, new NumericNegateBitFactoryImpl(factory)); // hammingProvider;
+    this.randomAddMaskFactory = new RandomAdditiveMaskFactoryImpl(factory, bitProvider); //randomAddMaskProvider;
 
     // TODO: should we generate it here, or have a global one? Probably have a global one...
     this.miscOIntGenerator = miscOIntGenerator;

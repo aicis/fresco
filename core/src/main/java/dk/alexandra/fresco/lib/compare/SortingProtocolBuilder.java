@@ -178,7 +178,7 @@ public class SortingProtocolBuilder extends ComparisonProtocolBuilder {
 		while (p > 0);
 	}
 	
-	
+	//TODO att: PSN, this is unused outside of a dedicated test. Should we delete it?
 	public List<Map<Integer,Integer>> createsortSequence(int size){
 		//find sort sequence for 'size' elements (0..size-1). 
 		//The entries in each map can be compared and swapped in parallel.

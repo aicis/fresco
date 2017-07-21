@@ -8,6 +8,7 @@ import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.lib.arithmetic.BasicArithmeticTests;
 import dk.alexandra.fresco.lib.arithmetic.ComparisonTests;
 import dk.alexandra.fresco.lib.arithmetic.LogicTests;
+import dk.alexandra.fresco.lib.arithmetic.SearchingTests;
 import dk.alexandra.fresco.lib.arithmetic.SortingTests;
 import dk.alexandra.fresco.lib.collections.sort.CollectionsSortingTests;
 import dk.alexandra.fresco.lib.math.integer.division.DivisionTests;
@@ -96,6 +97,13 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
         EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET, 2);
   }
 
+  @Ignore //TODO the protocol does not seem to function
+  @Test
+  public void test_compareEQWithPreprocess_Sequential() throws Exception {
+    runTest(new ComparisonTests.TestCompareEQWithPreProcessing(),
+        EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET, 2);
+  }
+  
   @Test
   public void test_isSorted() throws Exception {
     runTest(new SortingTests.TestIsSorted(),
@@ -215,4 +223,14 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
     runTest(new DEASolverTests.TestDEASolver(5, 2, 10, 2, AnalysisType.OUTPUT_EFFICIENCY), EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET, 2);
   }
   
+  //lib.collections
+  @Test
+  public void test_Test_Is_Sorted() throws Exception {
+    runTest(new SearchingTests.TestIsSorted(),EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET, 2);
+  }
+
+  @Test
+  public void test_Test_Is_Sorted_Multi_Output() throws Exception {
+    runTest(new SearchingTests.TestIsSortedMultiOutput(),EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET, 2);
+  }
 }

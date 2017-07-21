@@ -36,7 +36,12 @@ import dk.alexandra.fresco.framework.network.NetworkCreator;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.compare.ComparisonProtocolFactoryImpl;
+import dk.alexandra.fresco.lib.compare.MiscOIntGenerators;
+import dk.alexandra.fresco.lib.compare.eq.EqualityProtocolImplWithPreprocessing;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
+import dk.alexandra.fresco.lib.field.integer.MultByConstantFactory;
+import dk.alexandra.fresco.lib.field.integer.MultProtocol;
+import dk.alexandra.fresco.lib.field.integer.generic.AddProtocolFactory;
 import dk.alexandra.fresco.lib.helper.builder.ComparisonProtocolBuilder;
 import dk.alexandra.fresco.lib.helper.builder.NumericIOBuilder;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
@@ -44,6 +49,9 @@ import dk.alexandra.fresco.lib.math.integer.NumericBitFactory;
 import dk.alexandra.fresco.lib.math.integer.exp.ExpFromOIntFactory;
 import dk.alexandra.fresco.lib.math.integer.exp.PreprocessedExpPipeFactory;
 import dk.alexandra.fresco.lib.math.integer.inv.LocalInversionFactory;
+import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductFactory;
+import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductFactoryImpl;
+
 import java.math.BigInteger;
 import org.junit.Assert;
 
@@ -170,4 +178,88 @@ public class ComparisonTests {
 			};
 		}
 	}
+
+	//TODO Tested protocol is not referenced and might not be in use
+	// The protocol also does not seem to function
+  public static class TestCompareEQWithPreProcessing extends TestThreadFactory {
+    @Override
+    public TestThread next(TestThreadConfiguration conf) {
+      return new TestThread() {
+        @Override
+        public void test() throws Exception {
+          TestApplication app = new TestApplication() {
+
+            private static final long serialVersionUID = 4338818809103728010L;
+            
+            private BigInteger three = BigInteger.valueOf(3);
+            private BigInteger five = BigInteger.valueOf(5);
+            
+            @Override
+            public ProtocolProducer prepareApplication(
+                ProtocolFactory factory) {
+              BasicNumericFactory bnFactory = (BasicNumericFactory) factory;
+              LocalInversionFactory localInvFactory = (LocalInversionFactory) factory;
+              NumericBitFactory numericBitFactory = (NumericBitFactory) factory;
+              ExpFromOIntFactory expFromOIntFactory = (ExpFromOIntFactory) factory;
+              PreprocessedExpPipeFactory expFactory = (PreprocessedExpPipeFactory) factory;
+              SequentialProtocolProducer seq = new SequentialProtocolProducer();
+
+              ComparisonProtocolFactoryImpl compFactory = new ComparisonProtocolFactoryImpl(
+                  80, bnFactory, localInvFactory,
+                  numericBitFactory, expFromOIntFactory,
+                  expFactory);
+              
+              NumericIOBuilder ioBuilder = new NumericIOBuilder(bnFactory);
+              
+              SInt x = ioBuilder.input(three, 1);
+              SInt y = ioBuilder.input(five, 1);
+              seq.append(ioBuilder.getProtocol());
+              
+              
+              
+              SInt compResult1 = bnFactory.getSInt();
+              SInt compResult2 = bnFactory.getSInt();
+              
+              
+              int bitLength = bnFactory.getMaxBitLength();
+              int securityParam = 80;
+              MultByConstantFactory mbcFactory = (MultByConstantFactory)factory;
+              
+              AddProtocolFactory addFactory = (AddProtocolFactory)factory;
+              InnerProductFactory innerProdFactory = new InnerProductFactoryImpl(bnFactory);
+              MiscOIntGenerators miscOIntGenerator = new MiscOIntGenerators(bnFactory);
+              
+              
+              EqualityProtocolImplWithPreprocessing eqPRotocol1 = 
+                  new EqualityProtocolImplWithPreprocessing(bitLength, securityParam, 
+                      x, x, compResult1, bnFactory, mbcFactory, numericBitFactory, expFactory,
+                      addFactory, innerProdFactory,
+                      miscOIntGenerator, expFromOIntFactory);
+
+              EqualityProtocolImplWithPreprocessing eqProtocol2 = 
+                  new EqualityProtocolImplWithPreprocessing(bitLength, securityParam, 
+                      x, y, compResult2, bnFactory, mbcFactory, numericBitFactory, expFactory,
+                      addFactory, innerProdFactory,
+                      miscOIntGenerator, expFromOIntFactory);
+
+              seq.append(eqPRotocol1);
+              seq.append(eqProtocol2);
+              
+              OInt res1 = ioBuilder.output(compResult1);
+              OInt res2 = ioBuilder.output(compResult2);
+              outputs = new OInt[] {res1, res2};
+              seq.append(ioBuilder.getProtocol());
+              
+              return seq;
+            }
+          };
+          secureComputationEngine
+              .runApplication(app, NetworkCreator.createResourcePool(conf.sceConf));
+          Assert.assertEquals(BigInteger.ONE, app.getOutputs()[0].getValue());
+          Assert.assertEquals(BigInteger.ZERO, app.getOutputs()[1].getValue());
+        }
+      };
+    }
+  }
+
 }

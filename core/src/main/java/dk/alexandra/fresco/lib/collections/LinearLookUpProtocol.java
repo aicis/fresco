@@ -57,11 +57,7 @@ public class LinearLookUpProtocol extends AbstractRoundBasedProtocol implements
 	private final boolean singleValue;
 	private final int size;
 
-	private enum ROUND {
-		COMPARE, SELECT, DONE
-	}
-
-	private ROUND round = ROUND.COMPARE;
+	private int round = 0;
 	private SInt[] index;
 
 	/**
@@ -120,7 +116,7 @@ public class LinearLookUpProtocol extends AbstractRoundBasedProtocol implements
 	@Override
 	public ProtocolProducer nextProtocolProducer() {
 		ProtocolProducer pp = null;
-		if (round == ROUND.COMPARE) {
+		if (round == 0) {
 			ParallelProtocolProducer par = new ParallelProtocolProducer();
 			index = new SInt[keys.length];
 			for (int i = 0; i < keys.length; i++) {
@@ -130,8 +126,8 @@ public class LinearLookUpProtocol extends AbstractRoundBasedProtocol implements
 				par.append(comp);
 			}
 			pp = par;
-			round = ROUND.SELECT;
-		} else if (round == ROUND.SELECT) {
+			round = 1;
+		} else if (round == 1) {
 			if (singleValue) {
 				ParallelProtocolProducer par = new ParallelProtocolProducer();
 				for (int i = 0; i < size; i++) {
@@ -154,7 +150,7 @@ public class LinearLookUpProtocol extends AbstractRoundBasedProtocol implements
 				}
 				pp = seq;
 			}
-			round = ROUND.DONE;
+			round = 2;
 		}
 		return pp;
 	}
