@@ -108,6 +108,11 @@ public class TestDummyProtocolSuite {
   }
 
   @Test
+  public void test_MD5_Sequential() throws Exception {
+    runTest(new BristolCryptoTests.MD5Test(true), EvaluationStrategy.SEQUENTIAL);
+  }
+  
+  @Test
   public void test_SHA1_Sequential() throws Exception {
     runTest(new BristolCryptoTests.Sha1Test(true), EvaluationStrategy.SEQUENTIAL);
   }
