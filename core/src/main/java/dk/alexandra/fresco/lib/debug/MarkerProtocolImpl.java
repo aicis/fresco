@@ -26,6 +26,8 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.debug;
 
+import java.io.PrintStream;
+
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.lib.helper.SimpleProtocolProducer;
 
@@ -36,14 +38,21 @@ import dk.alexandra.fresco.lib.helper.SimpleProtocolProducer;
 public class MarkerProtocolImpl extends SimpleProtocolProducer implements MarkerProtocol {
 
 	private final String message;
+	private final PrintStream output;
 	
-	public MarkerProtocolImpl(String message) {
+	
+	public MarkerProtocolImpl(String message, PrintStream output) {
 		this.message = message;
+		if (output != null) {
+		  this.output = output; 
+		} else { 
+		  this.output = System.out;
+		}
 	}
 	
 	@Override
 	protected ProtocolProducer initializeProtocolProducer() {
-		System.out.println(message);
+		output.println(message);
 		return null;
 	}
 }

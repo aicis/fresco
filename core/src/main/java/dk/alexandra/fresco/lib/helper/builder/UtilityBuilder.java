@@ -1,9 +1,12 @@
 package dk.alexandra.fresco.lib.helper.builder;
 
+import java.io.PrintStream;
+
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.SBool;
 import dk.alexandra.fresco.framework.value.SInt;
+import dk.alexandra.fresco.lib.debug.BinaryOpenAndPrint;
 import dk.alexandra.fresco.lib.debug.MarkerProtocolImpl;
 import dk.alexandra.fresco.lib.field.bool.BasicLogicFactory;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
@@ -42,7 +45,7 @@ public class UtilityBuilder extends AbstractProtocolBuilder {
 	 *            The message to print
 	 */
 	public void createMarker(String message) {
-		this.append(new MarkerProtocolImpl(message));
+		this.append(new MarkerProtocolImpl(message, null));
 	}
 
 	/**
@@ -87,6 +90,66 @@ public class UtilityBuilder extends AbstractProtocolBuilder {
 		OpenAndPrintProtocol oapp = new OpenAndPrintProtocol(message, value, bnf);
 		this.append(oapp);
 	}
+
+	 /**
+   * Creates an open to all protocol and prints the content of the value given
+   * after the given message is printed.
+   * 
+   * @param message
+   *            The message to mark this opening with.
+   * @param value
+   *            The value to open and print.
+   */
+  public void openAndPrint(String message, SBool value) {
+    openAndPrint(message, new SBool[]{value});
+  }
+
+  /**
+  * Creates an open to all protocol and prints the content of the value given
+  * after the given message is printed.
+  * 
+  * @param message
+  *            The message to mark this opening with.
+  * @param value
+  *            The value to open and print.
+  */
+ public void openAndPrint(String message, SBool[] value) {
+   BasicLogicFactory bnf = (BasicLogicFactory) factory;
+   BinaryOpenAndPrint oapp = new BinaryOpenAndPrint(message, value, bnf, null);
+   this.append(oapp);
+ }
+
+ /**
+ * Creates an open to all protocol and prints the content of the value given
+ * after the given message is printed.
+ * 
+ * @param message
+ *            The message to mark this opening with.
+ * @param value
+ *            The value to open and print.
+ * @param output           
+ *            The PrintStream to receive the print
+ */
+public void openAndPrint(String message, SBool[] value, PrintStream output) {
+  BasicLogicFactory bnf = (BasicLogicFactory) factory;
+  BinaryOpenAndPrint oapp = new BinaryOpenAndPrint(message, value, bnf, output);
+  this.append(oapp);
+}
+
+/**
+* Creates an open to all protocol and prints the content of the value given
+* after the given message is printed.
+* 
+* @param message
+*            The message to mark this opening with.
+* @param value
+*            The value to open and print.
+* @param output           
+*            The PrintStream to receive the print
+*/
+public void openAndPrint(String message, SBool value, PrintStream output) {
+ openAndPrint(message,  new SBool[] {value}, output);
+}
 
 	/**
 	 * Creates an open to all protocol and prints the contents of the values

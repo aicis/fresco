@@ -26,49 +26,41 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.debug;
 
+import java.io.PrintStream;
+
 import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.OBool;
 import dk.alexandra.fresco.framework.value.SBool;
 import dk.alexandra.fresco.lib.field.bool.BasicLogicFactory;
-import dk.alexandra.fresco.lib.helper.SingleProtocolProducer;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
 
 
 public class BinaryOpenAndPrint implements ProtocolProducer {
 
-  private SBool number = null;
-  private SBool[] string = null;
-
-  private OBool oNumber = null;
+  private final SBool[] string;
   private OBool[] oString = null;
+  private final PrintStream output;
 
-
-  private enum STATE {OUTPUT, WRITE, DONE}
-
-  ;
-  private STATE state = STATE.OUTPUT;
-  private String label;
+  private int round = 0;
+  private final String label;
 
   ProtocolProducer pp = null;
 
-  private BasicLogicFactory factory;
+  private final BasicLogicFactory factory;
 
 
-  public BinaryOpenAndPrint(String label, SBool[] string, BasicLogicFactory factory) {
+  public BinaryOpenAndPrint(String label, SBool[] string, BasicLogicFactory factory, PrintStream output) {
     this.string = string;
     this.factory = factory;
     this.label = label;
+    this.output = output;
   }
 
   @Override
   public void getNextProtocols(ProtocolCollection protocolCollection) {
     if (pp == null) {
-      if (state == STATE.OUTPUT) {
-        if (number != null) {
-          oNumber = factory.getOBool();
-          pp = SingleProtocolProducer.wrap(factory.getOpenProtocol(number, oNumber));
-        } else if (string != null) {
+      if (round == 0) {
           oString = new OBool[string.length];
           SequentialProtocolProducer seq = new SequentialProtocolProducer();
           for (int i = 0; i < string.length; i++) {
@@ -76,46 +68,36 @@ public class BinaryOpenAndPrint implements ProtocolProducer {
             seq.append(factory.getOpenProtocol(string[i], oString[i]));
           }
           pp = seq;
-        }
-      } else if (state == STATE.WRITE) {
+      } else {
         StringBuilder sb = new StringBuilder();
         sb.append(label);
-        if (oNumber != null) {
-          sb.append(oNumber.getValue());
-        } else if (oString != null) {
-          sb.append('\n');
-          for (OBool entry : oString) {
-            if (entry.getValue()) {
-              sb.append(1);
-            } else {
-              sb.append(0);
-            }
+        sb.append('\n');
+        for (OBool entry : oString) {
+          if (entry.getValue()) {
+            sb.append(1);
+          } else {
+            sb.append(0);
           }
         }
-        pp = new MarkerProtocolImpl(sb.toString());
+        pp = new MarkerProtocolImpl(sb.toString(), output);
       }
     }
+    
     if (pp.hasNextProtocols()) {
       pp.getNextProtocols(protocolCollection);
     } else {
-      switch (state) {
-        case OUTPUT:
-          state = STATE.WRITE;
+      if(round == 0){
+          round = 1;
           pp = null;
-          break;
-        case WRITE:
-          state = STATE.DONE;
+      }else {
+          round = 2;
           pp = null;
-          break;
-        default:
-          break;
       }
     }
   }
 
   @Override
   public boolean hasNextProtocols() {
-    // TODO Auto-generated method stub
-    return state != STATE.DONE;
+    return round != 2;
   }
 }

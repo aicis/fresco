@@ -41,6 +41,7 @@ import dk.alexandra.fresco.lib.bool.ComparisonBooleanTests;
 import dk.alexandra.fresco.lib.collections.sort.CollectionsSortingTests;
 import dk.alexandra.fresco.lib.compare.CompareTests;
 import dk.alexandra.fresco.lib.crypto.BristolCryptoTests;
+import dk.alexandra.fresco.lib.debug.DebugTests;
 import dk.alexandra.fresco.suite.dummy.bool.DummyConfiguration;
 
 import java.util.ArrayList;
@@ -178,6 +179,11 @@ public class TestDummyProtocolSuite {
   @Test
   public void test_Compare_And_Swap() throws Exception {
     runTest(new CompareTests.TestCompareAndSwap(), EvaluationStrategy.SEQUENTIAL);
+  }
+  
+  @Test
+  public void test_Debug_Marker() throws Exception {
+    runTest(new DebugTests.TestOpenAndPrint(), EvaluationStrategy.SEQUENTIAL_BATCHED);
   }
   
 }

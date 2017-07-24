@@ -8,6 +8,7 @@ import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.lib.arithmetic.BasicArithmeticTests;
 import dk.alexandra.fresco.lib.arithmetic.ComparisonTests;
 import dk.alexandra.fresco.lib.arithmetic.LogicTests;
+import dk.alexandra.fresco.lib.arithmetic.MiMCTests;
 import dk.alexandra.fresco.lib.arithmetic.SearchingTests;
 import dk.alexandra.fresco.lib.arithmetic.SortingTests;
 import dk.alexandra.fresco.lib.collections.sort.CollectionsSortingTests;
@@ -233,4 +234,30 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
   public void test_Test_Is_Sorted_Multi_Output() throws Exception {
     runTest(new SearchingTests.TestIsSortedMultiOutput(),EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET, 2);
   }
+
+  @Ignore
+  @Test //TODO @Kasper, Using the other modulus breaks the LP tests 
+  public void test_MiMC_DifferentPlainTexts() throws Exception {
+    runTest(new MiMCTests.TestMiMCDifferentPlainTexts(), EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET, 2);
+  }
+
+  @Ignore
+  @Test //TODO @Kasper, Using the other modulus breaks the LP tests 
+  public void test_MiMC_EncSameEnc() throws Exception {
+    runTest(new MiMCTests.TestMiMCEncSameEnc(), EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET, 2);
+  }
+  
+  @Ignore
+  @Test //TODO @Kasper, Using the other modulus breaks the LP tests 
+  public void test_MiMC_EncDec() throws Exception {
+    runTest(new MiMCTests.TestMiMCEncDec(), EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET, 2);
+  }
+  
+  @Ignore
+  @Test //TODO @Kasper, Using the other modulus breaks the LP tests 
+  public void test_MiMC_Deterministically() throws Exception {
+    runTest(new MiMCTests.TestMiMCEncryptsDeterministically(), EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET, 2);
+  }
+
+  
 }

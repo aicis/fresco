@@ -110,7 +110,7 @@ public class OpenAndPrintProtocol implements ProtocolProducer {
             sb.append('\n');
           }
         }
-        pp = new MarkerProtocolImpl(sb.toString());
+        pp = new MarkerProtocolImpl(sb.toString(), null);
       }
     }
     if (pp.hasNextProtocols()) {

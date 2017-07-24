@@ -185,7 +185,7 @@ public class LPBuildingBlockTests {
 
 						@Override
 						public ProtocolProducer prepareApplication(ProtocolFactory factory) {
-							return new MarkerProtocolImpl("Running Dummy Test");
+							return new MarkerProtocolImpl("Running Dummy Test", System.out);
 						}
 
 					};
