@@ -143,7 +143,7 @@ public abstract class AbstractBinaryFactory
   }
 
   @Override
-  public AndProtocol getAndProtocol(SBool inLeft, OBool inRight, SBool out) {
+  public ProtocolProducer getAndProtocol(SBool inLeft, OBool inRight, SBool out) {
     return new AndFromCopyConstProtocol(this, this, inLeft, inRight, out);
   }
 

@@ -50,20 +50,19 @@ public class OrFromCopyConstProtocol implements OrProtocol {
   public OrFromCopyConstProtocol(CopyProtocolFactory<SBool> copyFactory, SBoolFactory sboolFactory,
       SBool inLeft, OBool inRight, SBool out) {
     this.copyFactory = copyFactory;
+    this.sboolFactory = sboolFactory;
     this.inLeft = inLeft;
     this.inRight = inRight;
     this.out = out;
+    this.copyCir = null;
   }
 
   @Override
   public void getNextProtocols(ProtocolCollection protocolCollection) {
-
-    if (copyCir == null) {
-      if (inRight.getValue()) {
-        copyCir = copyFactory.getCopyProtocol(sboolFactory.getKnownConstantSBool(true), out);
-      } else {
-        copyCir = copyFactory.getCopyProtocol(inLeft, out);
-      }
+    if (inRight.getValue()) {
+      copyCir = copyFactory.getCopyProtocol(sboolFactory.getKnownConstantSBool(true), out);
+    } else {
+      copyCir = copyFactory.getCopyProtocol(inLeft, out);
     }
 
     protocolCollection.addProtocol(copyCir);

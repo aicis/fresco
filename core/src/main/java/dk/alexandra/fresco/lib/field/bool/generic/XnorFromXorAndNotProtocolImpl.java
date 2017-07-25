@@ -58,7 +58,7 @@ public class XnorFromXorAndNotProtocolImpl implements XnorProtocol {
       tmpOut = factory.getSBool();
       curPP = SingleProtocolProducer.wrap(factory.getXorProtocol(left, right, tmpOut));
       curPP.getNextProtocols(protocolCollection);
-    } else if (!curPP.hasNextProtocols()) {
+    } else {
       if (!xorDone) {
         curPP = factory.getNotProtocol(tmpOut, out);
         xorDone = true;
@@ -66,8 +66,6 @@ public class XnorFromXorAndNotProtocolImpl implements XnorProtocol {
       } else {
         done = true;
       }
-    } else {
-      curPP.getNextProtocols(protocolCollection);
     }
   }
 

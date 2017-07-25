@@ -61,10 +61,8 @@ public class NotFromXorProtocol implements NotProtocol, ProtocolProducer {
 
   @Override
   public void getNextProtocols(ProtocolCollection protocolCollection) {
-    if (xorc == null) {
-      SBool t = sbool.getKnownConstantSBool(true);
-      xorc = xorcp.getXorProtocol(t, in, out);
-    }
+    SBool t = sbool.getKnownConstantSBool(true);
+    xorc = xorcp.getXorProtocol(t, in, out);
     protocolCollection.addProtocol(xorc);
   }
 }

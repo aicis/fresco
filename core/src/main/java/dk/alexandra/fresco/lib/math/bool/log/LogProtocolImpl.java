@@ -126,7 +126,7 @@ public class LogProtocolImpl implements LogProtocol {
         curPP = new ParallelProtocolProducer(xors);
       }
       getNextFromCur(protocolCollection);
-    } else if (round == 2) {
+    } else {
       if (curPP == null) {
         curPP = new ParallelProtocolProducer();
         for (int j = 0; j < result.length; j++) {

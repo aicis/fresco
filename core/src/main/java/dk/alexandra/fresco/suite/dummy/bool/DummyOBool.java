@@ -53,6 +53,10 @@ public class DummyOBool implements OBool {
 		this.value = null;
 	}
 
+	public String getId() {
+	  return this.id;
+	}
+	
 	@Override
 	public byte[] getSerializableContent() {
 		byte s;

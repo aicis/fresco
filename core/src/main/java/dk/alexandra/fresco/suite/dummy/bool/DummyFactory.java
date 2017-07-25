@@ -119,13 +119,15 @@ public class DummyFactory extends AbstractBinaryFactory implements BasicLogicFac
   }
 
   @Override
-  public AndProtocol getAndProtocol(SBool inLeft, OBool inRight, SBool out) {
-    throw new NotImplementedException();
+  public ProtocolProducer getAndProtocol(SBool inLeft, OBool inRight, SBool out) {
+    SBool dummy = new DummySBool(((DummyOBool)inRight).getId(), inRight.getValue());
+    return SingleProtocolProducer.wrap(new DummyAndProtocol(inLeft, dummy, out));
   }
 
   @Override
   public XorProtocol getXorProtocol(SBool inLeft, OBool inRight, SBool out) {
-    throw new NotImplementedException();
+    SBool dummy = new DummySBool(((DummyOBool)inRight).getId(), inRight.getValue());
+    return new DummyXorProtocol(inLeft, dummy, out);
   }
 
 }

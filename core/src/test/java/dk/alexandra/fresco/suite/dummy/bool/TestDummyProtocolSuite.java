@@ -26,6 +26,7 @@
  *******************************************************************************/
 package dk.alexandra.fresco.suite.dummy.bool;
 
+import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.TestThreadRunner;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
@@ -42,6 +43,8 @@ import dk.alexandra.fresco.lib.collections.sort.CollectionsSortingTests;
 import dk.alexandra.fresco.lib.compare.CompareTests;
 import dk.alexandra.fresco.lib.crypto.BristolCryptoTests;
 import dk.alexandra.fresco.lib.debug.DebugTests;
+import dk.alexandra.fresco.lib.field.bool.generic.FieldBoolTests;
+import dk.alexandra.fresco.lib.math.bool.log.LogTests;
 import dk.alexandra.fresco.suite.dummy.bool.DummyConfiguration;
 
 import java.util.ArrayList;
@@ -184,6 +187,46 @@ public class TestDummyProtocolSuite {
   @Test
   public void test_Debug_Marker() throws Exception {
     runTest(new DebugTests.TestOpenAndPrint(), EvaluationStrategy.SEQUENTIAL_BATCHED);
+  }
+
+  @Test
+  public void test_Binary_Log_Nice() throws Exception {
+    runTest(new LogTests.TestLogNice(), EvaluationStrategy.SEQUENTIAL_BATCHED);
+  }
+
+  @Test
+  public void test_Binary_Log_Bad_length() throws Exception {
+    runTest(new LogTests.TestLogBadLength(), EvaluationStrategy.SEQUENTIAL_BATCHED);
+  }
+  
+  //lib.field.bool.generic
+  @Test
+  public void test_XNor() throws Exception {
+    runTest(new FieldBoolTests.TestXNorFromXorAndNotProtocol(), EvaluationStrategy.SEQUENTIAL_BATCHED);
+  }
+
+  @Test
+  public void test_OrFromXorAnd() throws Exception {
+    runTest(new FieldBoolTests.TestOrFromXorAndProtocol(), EvaluationStrategy.SEQUENTIAL_BATCHED);
+  }
+
+  @Test
+  public void test_OrFromCopy() throws Exception {
+    runTest(new FieldBoolTests.TestOrFromCopyConstProtocol(), EvaluationStrategy.SEQUENTIAL_BATCHED);
+  }
+
+  @Test
+  public void test_NandFromAndAndNot() throws Exception {
+    runTest(new FieldBoolTests.TestNandFromAndAndNotProtocol(), EvaluationStrategy.SEQUENTIAL_BATCHED);
+  }
+  
+  @Test
+  public void test_AndFromCopy() throws Exception {
+    runTest(new FieldBoolTests.TestAndFromCopyConstProtocol(), EvaluationStrategy.SEQUENTIAL_BATCHED);
+  }  
+  @Test
+  public void test_NotFromXor() throws Exception {
+    runTest(new FieldBoolTests.TestNotFromXorProtocol(), EvaluationStrategy.SEQUENTIAL_BATCHED);
   }
   
 }

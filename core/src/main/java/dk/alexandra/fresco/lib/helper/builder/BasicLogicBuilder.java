@@ -152,6 +152,19 @@ public class BasicLogicBuilder extends AbstractProtocolBuilder {
     return result;
   }
 
+  /**
+   * Appends a AND protocol to the current protocol.
+   *
+   * @param left the SBool holding the left argument.
+   * @param right the OBool holding the right argument.
+   * @return an SBool holding the output of the appended protocol.
+   */
+  public SBool and(SBool left, OBool right) {
+    SBool result = bf.getSBool();
+    append(bf.getAndProtocol(left, right, result));
+    return result;
+  }
+  
   public void andInPlace(SBool result, SBool left, SBool right) {
     append(bf.getAndProtocol(left, right, result));
   }
@@ -269,6 +282,19 @@ public class BasicLogicBuilder extends AbstractProtocolBuilder {
     return result;
   }
 
+  /**
+   * Appends a OR protocol to the current protocol.
+   *
+   * @param left the SBool holding the left argument.
+   * @param right the OBool holding the right argument.
+   * @return an SBool holding the output of the appended protocol.
+   */
+  public SBool or(SBool left, OBool right) {
+    SBool result = bf.getSBool();
+    append(bf.getOrProtocol(left, right, result));
+    return result;
+  }
+  
   public void orInPlace(SBool result, SBool left, SBool right) {
     append(bf.getOrProtocol(left, right, result));
   }

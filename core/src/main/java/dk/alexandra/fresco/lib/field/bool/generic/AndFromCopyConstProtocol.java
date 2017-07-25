@@ -51,16 +51,15 @@ public class AndFromCopyConstProtocol implements AndProtocol, ProtocolProducer {
     this.inLeft = inLeft;
     this.inRight = inRight;
     this.out = out;
+    this.copyCir = null;
   }
 
   @Override
   public void getNextProtocols(ProtocolCollection protocolCollection) {
-    if (copyCir == null) {
-      if (inRight.getValue()) {
-        copyCir = copyFactory.getCopyProtocol(inLeft, out);
-      } else {
-        copyCir = copyFactory.getCopyProtocol(sboolFactory.getKnownConstantSBool(false), out);
-      }
+    if (inRight.getValue()) {
+      copyCir = copyFactory.getCopyProtocol(inLeft, out);
+    } else {
+      copyCir = copyFactory.getCopyProtocol(sboolFactory.getKnownConstantSBool(false), out);
     }
     protocolCollection.addProtocol(copyCir);
   }
