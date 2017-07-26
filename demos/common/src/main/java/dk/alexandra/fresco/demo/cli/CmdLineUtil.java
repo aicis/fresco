@@ -73,7 +73,7 @@ public class CmdLineUtil {
   private Options appOptions;
   private CommandLine cmd;
   private NetworkConfiguration networkConfiguration;
-  private ProtocolSuite<?, ?> ps;
+  private ProtocolSuite<?, ?> protocolSuite;
   private ProtocolEvaluator evaluator;
 
   public CmdLineUtil() {
@@ -94,7 +94,7 @@ public class CmdLineUtil {
   }
 
   public ProtocolSuite<?, ?> getProtocolSuite() {
-    return this.ps;
+    return this.protocolSuite;
   }
 
   /**
@@ -300,19 +300,20 @@ public class CmdLineUtil {
       switch (protocolSuiteName) {
         //TODO: When arithmetic dummy comes, add this here.
         case "dummybool":
-          this.ps = new DummyProtocolSuite();
+          this.protocolSuite = new DummyProtocolSuite();
           break;
         case "dummyarithmetic":
-          this.ps = dummyArithmeticFromCmdLine(cmd);
+          this.protocolSuite = dummyArithmeticFromCmdLine(cmd);
           break;
         case "spdz":
-          this.ps = SpdzConfigurationFromCmdLine(cmd);
+          this.protocolSuite = SpdzConfigurationFromCmdLine(cmd);
           break;
         case "tinytablesprepro":
-          this.ps = tinyTablesPreProFromCmdLine(cmd, this.networkConfiguration.getMyId());
+          this.protocolSuite = tinyTablesPreProFromCmdLine(cmd,
+              this.networkConfiguration.getMyId());
           break;
         case "tinytables":
-          this.ps = tinyTablesFromCmdLine(cmd, this.networkConfiguration.getMyId());
+          this.protocolSuite = tinyTablesFromCmdLine(cmd, this.networkConfiguration.getMyId());
           break;
         default:
           throw new ParseException(
