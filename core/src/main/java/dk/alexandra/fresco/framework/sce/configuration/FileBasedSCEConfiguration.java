@@ -32,9 +32,7 @@ import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.configuration.ConfigurationException;
 import dk.alexandra.fresco.framework.network.NetworkingStrategy;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
-import dk.alexandra.fresco.framework.sce.resources.storage.Storage;
 import dk.alexandra.fresco.framework.sce.resources.storage.StorageStrategy;
-import dk.alexandra.fresco.framework.sce.resources.storage.StreamedStorage;
 import dk.alexandra.fresco.framework.sce.util.Util;
 import java.io.IOException;
 import java.io.InputStream;
@@ -42,204 +40,150 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
-import java.util.logging.Level;
 
 public class FileBasedSCEConfiguration implements SCEConfiguration {
 
-	private Properties prop;
-	private String propertiesLocation = "properties/sce.properties";
-	private boolean loaded = false;
+  private String propertiesLocation = "properties/sce.properties";
+  private boolean loaded = false;
 
-	private String protocolSuite;
-	private Map<Integer, Party> parties;
-	private int myId;
-	private Level level;
-	private int noOfThreads;
-	private int noOfVmThreads;
-	private int maxBatchSize;
-	private ProtocolEvaluator evaluator;
-	private Storage storage;
-	private StreamedStorage streamedStorage;
-	private NetworkingStrategy network;
+  private String protocolSuite;
+  private Map<Integer, Party> parties;
+  private int myId;
+  private ProtocolEvaluator evaluator;
+  private NetworkingStrategy network;
 
-	private FileBasedSCEConfiguration(String propertiesLocation) {
-		this.propertiesLocation = propertiesLocation;
-	}
+  private FileBasedSCEConfiguration(String propertiesLocation) {
+    this.propertiesLocation = propertiesLocation;
+  }
 
-	private synchronized void loadProperties() {
-		InputStream is;
-		try {
-			is = Util.getInputStream(propertiesLocation);
-			prop = new Properties();
-			prop.load(is);
-			
-			//load myId
-			this.myId = Integer.parseInt(prop.getProperty("myId", "-1"));
-			if(this.myId == -1) {
-				throw new ConfigurationException("The property 'myId' must be set and be within the range 1 to the total amount of parties");
-			}
-			
-			//load parties
-			Map<Integer, Party> parties = new HashMap<>();
-			int i = 1;
-			while (true) {
-				String party = prop.getProperty("party" + i);
-				if (party == null) {
-					// no more parties
-					break;
-				}
-				String[] ipAndPort = party.split(",");
-				if (ipAndPort.length != 2 && ipAndPort.length != 3) {
-					throw new IllegalArgumentException(
-							"a party configuration should contain something similar to 'party1=192.168.0.1,8000' or possibly 'party1=192.168.0.1,8000,w+1qn2ooNMCN7am9YmYQFQ==' if encrypted and authenticated channels are wanted");
-				}
-				String secretSharedKey = null;
-				if(ipAndPort.length == 3) {
-					secretSharedKey = ipAndPort[2];
-				}
-				Party p = new Party(i, ipAndPort[0], Integer.parseInt(ipAndPort[1]), secretSharedKey);			
-				parties.put(i, p);
-				i++;
-			}
-			this.parties = parties;
-			
-			//load loglevel
-			Level logLevel;
-			String levelString = prop.getProperty("logLevel", "info");
-			switch (levelString.toLowerCase()) {
-			case "finest":
-				logLevel = Level.FINEST;
-				break;
-			case "finer":
-				logLevel = Level.FINER;
-				break;
-			case "fine":
-				logLevel = Level.FINE;
-				break;
-			case "info":
-				logLevel = Level.INFO;
-				break;
-			case "warning":
-				logLevel = Level.WARNING;
-				break;
-			case "severe":
-				logLevel = Level.SEVERE;
-				break;
-			default:
-				System.err
-				.println("Could not understand the logLevel property. Using default INFO level.");
-				logLevel = Level.INFO;
-			}
-			this.level = logLevel;
-			
-			//load runtime
-			String protocolSuite = prop.getProperty("protocolSuite");
-			if(protocolSuite == null) {
-				throw new ConfigurationException("The property 'protocolSuite' must be set");
-			}
-			this.protocolSuite = protocolSuite;
-			
-			//load no of threads
-			String threads = prop.getProperty("noOfThreads");
-			if (threads == null) {
-				this.noOfThreads = 1;
-			} else {
-				this.noOfThreads = Integer.parseInt(threads); 			
-			}
-			
-			//load no of vm threads
-			String vmThreads = prop.getProperty("noOfVmThreads");
-			if (vmThreads == null) {
-				this.noOfVmThreads = 1;
-			} else {
-				this.noOfVmThreads = Integer.parseInt(vmThreads); 			
-			}
-			
-			// load evaluator
-			String evaluator = prop.getProperty("evaluator");
-			if (evaluator == null) {
-				throw new ConfigurationException(
-						"The property 'evaluator' must be set to one of these values: " + Arrays.toString(EvaluationStrategy.values()));
-			}
+  private synchronized void loadProperties() {
+    InputStream is;
+    try {
+      is = Util.getInputStream(propertiesLocation);
+      Properties prop = new Properties();
+      prop.load(is);
 
-			this.evaluator = EvaluationStrategy.fromString(evaluator);
-			
-			String storage = prop.getProperty("storage");
-			if(storage == null) {
-				throw new ConfigurationException("The property 'storage' must be set to one of these values: "+ Arrays.toString(StorageStrategy.values()));
-			}
-			this.storage = StorageStrategy.fromString(storage);
-			if(this.storage == null) {
-				throw new ConfigurationException("The property 'storage' must be set to one of these values: "+ Arrays.toString(StorageStrategy.values()));
-			}
-			//If the storage is in fact also a streamed storage, we also set that field.
-			if(this.storage instanceof StreamedStorage) {
-				this.streamedStorage = (StreamedStorage) this.storage;
-			}
-			
-			this.maxBatchSize = Integer.parseInt(prop.getProperty("maxBatchSize", "4096"));
-			this.evaluator.setMaxBatchSize(maxBatchSize);
-			
-			String networkString = prop.getProperty("network", "kryoNet");
-			switch(networkString.toLowerCase()) {
-			case "kryo":
-			case "kryonet":
-				this.network = NetworkingStrategy.KRYONET;
-				break;
-			case "scapi":
-				this.network = NetworkingStrategy.SCAPI;
-				break;
-			default:
-				throw new ConfigurationException("Unknown networking strategy " + networkString+". Should be one of: [kryonet,scapi]");
-			}
-			
-			loaded = true;
-		} catch (IOException e) {
-			throw new MPCException(
-					"Could not locate the SecureComputationEngine properties file. ", e);
-		}
-	}
+      //load myId
+      this.myId = Integer.parseInt(prop.getProperty("myId", "-1"));
+      if (this.myId == -1) {
+        throw new ConfigurationException(
+            "The property 'myId' must be set and be within the range 1 to the total amount of parties");
+      }
 
-	public static FileBasedSCEConfiguration getInstance(String propertiesDir) {		
-		String propertiesPath = propertiesDir+"/"+"sce.properties";
-		return new FileBasedSCEConfiguration(propertiesPath);
-	}
+      //load parties
+      Map<Integer, Party> parties = new HashMap<>();
+      int i = 1;
+      while (true) {
+        String party = prop.getProperty("party" + i);
+        if (party == null) {
+          // no more parties
+          break;
+        }
+        String[] ipAndPort = party.split(",");
+        if (ipAndPort.length != 2 && ipAndPort.length != 3) {
+          throw new IllegalArgumentException(
+              "a party configuration should contain something similar to 'party1=192.168.0.1,8000' or possibly 'party1=192.168.0.1,8000,w+1qn2ooNMCN7am9YmYQFQ==' if encrypted and authenticated channels are wanted");
+        }
+        String secretSharedKey = null;
+        if (ipAndPort.length == 3) {
+          secretSharedKey = ipAndPort[2];
+        }
+        Party p = new Party(i, ipAndPort[0], Integer.parseInt(ipAndPort[1]), secretSharedKey);
+        parties.put(i, p);
+        i++;
+      }
+      this.parties = parties;
 
-	@Override
-	public int getMyId() {
-		if (!loaded) {
-			loadProperties();
-		}				
-		return this.myId;
-	}
+      //load runtime
+      String protocolSuite = prop.getProperty("protocolSuite");
+      if (protocolSuite == null) {
+        throw new ConfigurationException("The property 'protocolSuite' must be set");
+      }
+      this.protocolSuite = protocolSuite;
 
-	@Override
-	public Map<Integer, Party> getParties() {
-		if (!loaded) {
-			loadProperties();
-		}		
-		return this.parties;
-	}
+      // load evaluator
+      String evaluator = prop.getProperty("evaluator");
+      if (evaluator == null) {
+        throw new ConfigurationException(
+            "The property 'evaluator' must be set to one of these values: " + Arrays
+                .toString(EvaluationStrategy.values()));
+      }
 
-	@Override
-	public ProtocolEvaluator getEvaluator() {
-		if(!loaded) {
-			loadProperties();
-		}		
-		return this.evaluator;
-	}
+      this.evaluator = EvaluationStrategy.fromString(evaluator);
 
-	@Override
-	public String toString() {
-		return "FileBasedSCEConfiguration [propertiesLocation=" + propertiesLocation + ", loaded=" + loaded
-				+ ", protocolSuite=" + protocolSuite + ", parties=" + parties + ", myId=" + myId + ", level=" + level
-				+ ", noOfThreads=" + noOfThreads + ", noOfVmThreads=" + noOfVmThreads + ", maxBatchSize=" + maxBatchSize
-				+ ", evaluator=" + evaluator + ", storage=" + storage + ", streamedStorage=" + streamedStorage + "]";
-	}
+      String storage = prop.getProperty("storage");
+      if (storage == null) {
+        throw new ConfigurationException(
+            "The property 'storage' must be set to one of these values: " + Arrays
+                .toString(StorageStrategy.values()));
+      }
+      int maxBatchSize = Integer.parseInt(prop.getProperty("maxBatchSize", "4096"));
+      this.evaluator.setMaxBatchSize(maxBatchSize);
 
-	@Override
-	public NetworkingStrategy getNetworkStrategy() {
-		return this.network;
-	}
+      String networkString = prop.getProperty("network", "kryoNet");
+      switch (networkString.toLowerCase()) {
+        case "kryo":
+        case "kryonet":
+          this.network = NetworkingStrategy.KRYONET;
+          break;
+        case "scapi":
+          this.network = NetworkingStrategy.SCAPI;
+          break;
+        default:
+          throw new ConfigurationException("Unknown networking strategy " + networkString
+              + ". Should be one of: [kryonet,scapi]");
+      }
+
+      loaded = true;
+    } catch (IOException e) {
+      throw new MPCException(
+          "Could not locate the SecureComputationEngine properties file. ", e);
+    }
+  }
+
+  public static FileBasedSCEConfiguration getInstance(String propertiesDir) {
+    String propertiesPath = propertiesDir + "/" + "sce.properties";
+    return new FileBasedSCEConfiguration(propertiesPath);
+  }
+
+  @Override
+  public int getMyId() {
+    if (!loaded) {
+      loadProperties();
+    }
+    return this.myId;
+  }
+
+  @Override
+  public Map<Integer, Party> getParties() {
+    if (!loaded) {
+      loadProperties();
+    }
+    return this.parties;
+  }
+
+  @Override
+  public ProtocolEvaluator getEvaluator() {
+    if (!loaded) {
+      loadProperties();
+    }
+    return this.evaluator;
+  }
+
+  @Override
+  public String toString() {
+    return "FileBasedSCEConfiguration ["
+        + "propertiesLocation=" + propertiesLocation
+        + ", loaded=" + loaded
+        + ", protocolSuite=" + protocolSuite
+        + ", parties=" + parties
+        + ", myId=" + myId
+        + ", evaluator=" + evaluator + "]";
+  }
+
+  @Override
+  public NetworkingStrategy getNetworkStrategy() {
+    return this.network;
+  }
 
 }
