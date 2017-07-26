@@ -34,9 +34,6 @@ import dk.alexandra.fresco.framework.configuration.NetworkConfigurationImpl;
 import dk.alexandra.fresco.framework.network.NetworkingStrategy;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.evaluator.SequentialEvaluator;
-import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
-import dk.alexandra.fresco.framework.sce.resources.storage.Storage;
-import dk.alexandra.fresco.framework.sce.resources.storage.StorageStrategy;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticProtocolSuite;
 import dk.alexandra.fresco.suite.dummy.bool.DummyProtocolSuite;
@@ -250,17 +247,6 @@ public class CmdLineUtil {
       this.evaluator = new SequentialEvaluator();
     }
 
-    final Storage storage;
-    if (this.cmd.hasOption("store")) {
-      try {
-        storage = StorageStrategy.fromString(this.cmd.getOptionValue("store"));
-      } catch (ConfigurationException e) {
-        throw new ParseException("Invalid storage strategy: " + this.cmd.getOptionValue("store"));
-      }
-    } else {
-      storage = new InMemoryStorage();
-    }
-
     if (this.cmd.hasOption("b")) {
       try {
         evaluator.setMaxBatchSize(Integer.parseInt(this.cmd.getOptionValue("b")));
@@ -273,7 +259,6 @@ public class CmdLineUtil {
     logger.info("NativeProtocol suite     : " + suite);
     logger.info("Players            : " + parties);
     logger.info("Evaluation strategy: " + evaluator);
-    logger.info("Storage strategy   : " + storage);
 
     this.networkConfiguration = new NetworkConfigurationImpl(myId, parties);
   }
