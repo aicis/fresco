@@ -1,11 +1,12 @@
 package dk.alexandra.fresco.suite.tinytables.storage;
 
-import dk.alexandra.fresco.framework.Reporter;
 import dk.alexandra.fresco.suite.tinytables.datatypes.TinyTablesTriple;
 import dk.alexandra.fresco.suite.tinytables.util.TinyTablesTripleGenerator;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This class implements a simple TinyTablesTripleProvider where triples are
@@ -17,8 +18,9 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  *
  */
 public class BatchTinyTablesTripleProvider implements TinyTablesTripleProvider {
-	
-	private Queue<TinyTablesTriple> triples = new ConcurrentLinkedQueue<>();
+
+  private final static Logger logger = LoggerFactory.getLogger(BatchTinyTablesTripleProvider.class);
+  private Queue<TinyTablesTriple> triples = new ConcurrentLinkedQueue<>();
 	private TinyTablesTripleGenerator generator;
 	private int batchSize;
 	
@@ -37,8 +39,8 @@ public class BatchTinyTablesTripleProvider implements TinyTablesTripleProvider {
 	}
 	
 	private void generateNewTriples() {
-		Reporter.info("Generating " + batchSize + " new TinyTableTriples...");
-		List<TinyTablesTriple> newTriples = generator.generate(batchSize);
+    logger.info("Generating " + batchSize + " new TinyTableTriples...");
+    List<TinyTablesTriple> newTriples = generator.generate(batchSize);
 		for (TinyTablesTriple triple : newTriples) {
 			triples.offer(triple);
 		}

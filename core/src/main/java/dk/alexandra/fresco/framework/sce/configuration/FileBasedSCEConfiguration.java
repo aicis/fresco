@@ -221,33 +221,12 @@ public class FileBasedSCEConfiguration implements SCEConfiguration {
 		return this.parties;
 	}
 
-	/**
-	 * Defaults to info if logLevel is not found in the properties file.
-	 * 
-	 * @return
-	 */
-	@Override
-	public Level getLogLevel() {
-		if (!loaded) {
-			loadProperties();
-		}		
-		return this.level;
-	}
-
 	@Override
 	public ProtocolEvaluator getEvaluator() {
 		if(!loaded) {
 			loadProperties();
 		}		
 		return this.evaluator;
-	}
-
-	@Override
-	public StreamedStorage getStreamedStorage() {
-		if(!loaded) {
-			loadProperties();
-		}
-		return this.streamedStorage;
 	}
 
 	@Override

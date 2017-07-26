@@ -26,7 +26,6 @@
  *******************************************************************************/
 package dk.alexandra.fresco.suite.spdz;
 
-import dk.alexandra.fresco.framework.Reporter;
 import dk.alexandra.fresco.framework.sce.resources.storage.FilebasedStreamedStorageImpl;
 import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
 import dk.alexandra.fresco.framework.sce.resources.storage.Storage;
@@ -37,7 +36,6 @@ import dk.alexandra.fresco.suite.spdz.datatypes.SpdzTriple;
 import java.io.File;
 import java.io.Serializable;
 import java.math.BigInteger;
-import java.util.logging.Level;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -48,7 +46,6 @@ public class TestStorage {
 
   @Before
   public void init() {
-    Reporter.init(Level.INFO);
     modulus = new BigInteger(
         "6703903964971298549787012499123814115273848577471136527425966013026501536706464354255445443244279389455058889493431223951165286470575994074291745908195329");
   }

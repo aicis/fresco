@@ -11,7 +11,6 @@ import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.configuration.SCEConfiguration;
 import dk.alexandra.fresco.framework.sce.evaluator.SequentialEvaluator;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
-import dk.alexandra.fresco.framework.sce.resources.storage.StreamedStorage;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.SpdzProtocolSuite;
@@ -23,7 +22,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
 
 public class AggregationDemo<ResourcePoolT extends ResourcePool> {
 
@@ -160,22 +158,11 @@ public class AggregationDemo<ResourcePoolT extends ResourcePool> {
       }
 
       @Override
-      public Level getLogLevel() {
-        return Level.INFO;
-      }
-
-      @Override
       public ProtocolEvaluator<SpdzResourcePool> getEvaluator() {
         // We will use a sequential evaluation strategy
         SequentialEvaluator<SpdzResourcePool> sequentialEvaluator = new SequentialEvaluator<>();
         sequentialEvaluator.setMaxBatchSize(4096);
         return sequentialEvaluator;
-      }
-
-      @Override
-      public StreamedStorage getStreamedStorage() {
-        // We will not use StreamedStorage
-        return null;
       }
 
       @Override
@@ -189,8 +176,8 @@ public class AggregationDemo<ResourcePoolT extends ResourcePool> {
         new SpdzProtocolSuite(150, PreprocessingStrategy.DUMMY, null);
     // Instantiate environment
     SecureComputationEngine<SpdzResourcePool, SequentialNumericBuilder> sce =
-        new SecureComputationEngineImpl<SpdzResourcePool, SequentialNumericBuilder>(suite,
-            sceConfig.getEvaluator(), sceConfig.getLogLevel());
+        new SecureComputationEngineImpl<>(suite,
+            sceConfig.getEvaluator());
 
     // Create application we are going run
     AggregationDemo<SpdzResourcePool> app = new AggregationDemo<>();

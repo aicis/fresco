@@ -33,11 +33,9 @@ import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.network.NetworkingStrategy;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.sce.resources.storage.Storage;
-import dk.alexandra.fresco.framework.sce.resources.storage.StreamedStorage;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Level;
 
 public class TestSCEConfiguration<ResourcePoolT extends ResourcePool, Builder extends ProtocolBuilder> implements
     SCEConfiguration<ResourcePoolT> {
@@ -96,22 +94,8 @@ public class TestSCEConfiguration<ResourcePoolT extends ResourcePool, Builder ex
   }
 
   @Override
-  public Level getLogLevel() {
-    return Level.INFO;
-  }
-
-  @Override
   public ProtocolEvaluator getEvaluator() {
     return this.evaluator;
-  }
-
-  @Override
-  public StreamedStorage getStreamedStorage() {
-    if (this.storage instanceof StreamedStorage) {
-      return (StreamedStorage) this.storage;
-    } else {
-      return null;
-    }
   }
 
   @Override

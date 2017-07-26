@@ -30,20 +30,13 @@ import dk.alexandra.fresco.framework.Party;
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.network.NetworkingStrategy;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
-import dk.alexandra.fresco.framework.sce.resources.storage.StreamedStorage;
 import java.util.Map;
-import java.util.logging.Level;
 
 public interface SCEConfiguration<ResourcePoolT extends ResourcePool> {
 
   int getMyId();
 
   Map<Integer, Party> getParties();
-
-  /**
-   * Defaults to info if logLevel is not found in the properties file.
-   */
-  Level getLogLevel();
 
   /**
    * Get the network strategy to use, is only used when getNetwork returns null.
@@ -57,10 +50,5 @@ public interface SCEConfiguration<ResourcePoolT extends ResourcePool> {
    * be used.
    */
   ProtocolEvaluator<ResourcePoolT> getEvaluator();
-
-  /**
-   * Returns the streamed storage requested.
-   */
-  StreamedStorage getStreamedStorage();
 
 }

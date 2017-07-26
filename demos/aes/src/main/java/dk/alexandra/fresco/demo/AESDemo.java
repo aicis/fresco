@@ -154,8 +154,7 @@ public class AESDemo extends DemoBinaryApplication<OBool[]> {
     AESDemo aes = new AESDemo(sceConf.getMyId(), input);
     ProtocolSuite<?, ?> ps = util
         .getProtocolSuite();
-    SecureComputationEngine sce = new SecureComputationEngineImpl(ps,
-        sceConf.getEvaluator(), sceConf.getLogLevel());
+    SecureComputationEngine sce = new SecureComputationEngineImpl(ps, sceConf.getEvaluator());
 
     try {
       sce.runApplication(aes, ResourcePoolHelper.createResourcePool(sceConf, ps));
@@ -172,7 +171,7 @@ public class AESDemo extends DemoBinaryApplication<OBool[]> {
       res[i] = aes.result[i].getValue();
     }
     System.out.println("The resulting ciphertext is: " + ByteArithmetic.toHex(res));
-    
+
   }
 
 
@@ -188,7 +187,6 @@ public class AESDemo extends DemoBinaryApplication<OBool[]> {
    * ParallelProtocolProducer and SequentialProtocolProducer. The open and
    * closed values (OBool and SBool) are used to 'glue' the subprotocols
    * together.
-   * @param producer
    */
   @Override
   public ProtocolProducer prepareApplication(BuilderFactory producer) {
@@ -242,7 +240,7 @@ public class AESDemo extends DemoBinaryApplication<OBool[]> {
     // Create wires that glue together the AES to the following open of the result.
     this.result = boolFactory.getOBools(BLOCK_SIZE);
     this.output = () -> this.result;
-    
+
     // Construct protocol for opening up the result.
     NativeProtocol[] opens = new NativeProtocol[BLOCK_SIZE];
     for (int i = 0; i < BLOCK_SIZE; i++) {

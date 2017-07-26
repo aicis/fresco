@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -28,7 +28,6 @@ package dk.alexandra.fresco.framework.network;
 
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.Party;
-import dk.alexandra.fresco.framework.Reporter;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.util.Base64;
 import edu.biu.scapi.comm.AuthenticatedChannel;
@@ -61,6 +60,8 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeoutException;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Network based on SCAPI network layer.
@@ -76,24 +77,22 @@ public class ScapiNetworkImpl implements Network {
 	// strings "0", "1", etc.
 	private int defaultChannel = 0;
 
-	// List of all parties, with this party as first entry.
-	private List<PartyData> parties;
-
 	private Map<PartyData, Map<String, Channel>> connections;
 	private Map<Integer, PartyData> idToPartyData;
 	private int channelAmount;
 
 	//Queue for self-sending
 	private Map<Integer, BlockingQueue<Serializable>> queues;
+	private static Logger logger = LoggerFactory.getLogger(ScapiNetworkImpl.class);
+
+	public ScapiNetworkImpl() {
+	}
 
 	/**
-	 * 
+	 *
 	 * @param conf - The configuration with info about whom to connect to.
 	 * @param channelAmount The amount of channels each player needs to each other.
 	 */
-	public ScapiNetworkImpl() {		 
-	}
-	
 	@Override
 	public void init(NetworkConfiguration conf, int channelAmount) {
 		this.channelAmount = channelAmount;
@@ -105,9 +104,9 @@ public class ScapiNetworkImpl implements Network {
 	//Implement this also for send to self queues.
 	public void connect(int timeoutMillis) throws IOException {
 		// Convert FRESCO configuration to SCAPI configuration.
-		parties = new LinkedList<PartyData>();
-		idToPartyData = new HashMap<Integer, PartyData>();
-		List<String> sharedSecretKeys = new LinkedList<String>();
+		List<PartyData> parties = new LinkedList<>();
+		idToPartyData = new HashMap<>();
+		List<String> sharedSecretKeys = new LinkedList<>();
 		System.out.println(conf);
 		for (int id = 1; id <= conf.noOfParties(); id++) {
 			Party frescoParty = conf.getParty(id);
@@ -122,23 +121,23 @@ public class ScapiNetworkImpl implements Network {
 		// SCAPI requires party itself to be first in list.
 		Collections.swap(parties, 0, conf.getMyId() - 1);
 		Collections.swap(sharedSecretKeys, 0, conf.getMyId() - 1);
-		
-		List<PartyData> others = new LinkedList<PartyData>(parties);
+
+		List<PartyData> others = new LinkedList<>(parties);
 		others.remove(0);
 		// Create the communication setup class.
 		MultipartyCommunicationSetup commSetup = new SocketMultipartyCommunicationSetup(parties);
 		// Request one channel between me and each other party.
-		HashMap<PartyData, Object> connectionsPerParty = new HashMap<PartyData, Object>(
+		HashMap<PartyData, Object> connectionsPerParty = new HashMap<>(
 				others.size());
 		//queue to self
-		this.queues = new HashMap<Integer, BlockingQueue<Serializable>>();
-		for (int i = 0; i < others.size(); i++) {
-			connectionsPerParty.put(others.get(i), this.channelAmount);
+		this.queues = new HashMap<>();
+		for (PartyData other : others) {
+			connectionsPerParty.put(other, this.channelAmount);
 		}
 
 		for(int i = 0; i < this.channelAmount; i++) {
 			//TODO: figure out correct number for capacity.
-			this.queues.put(i, new ArrayBlockingQueue<Serializable>(10000));
+			this.queues.put(i, new ArrayBlockingQueue<>(10000));
 		}
 
 		try {
@@ -151,7 +150,7 @@ public class ScapiNetworkImpl implements Network {
 		for (int id = 0; id < sharedSecretKeys.size(); id++) {
 			int partyId = id + 1;
 			if(this.conf.getMyId() != partyId && sharedSecretKeys.get(id) != null) {
-				Reporter.config("Using authentication and encryption for channel(s) to party " + partyId);
+				logger.info("Using authentication and encryption for channel(s) to party " + partyId);
 				for(int i = 0; i < this.channelAmount; i++) {
 					PartyData pd = idToPartyData.get(partyId);
 					Map<String, Channel> channels = connections.get(pd);
@@ -239,8 +238,7 @@ public class ScapiNetworkImpl implements Network {
 	 * Receive data using default channel (0).
 	 * 
 	 * @param id Non-negative id of player from which to receive data.
-	 * @throws ClassNotFoundException 
-	 * @throws IOException 
+	 * @throws IOException
 	 * 
 	 */
 	public byte[] receive(int id) throws IOException{
@@ -255,7 +253,7 @@ public class ScapiNetworkImpl implements Network {
 
 	public Map<Integer, Serializable> receive(int channel, Set<Integer> expectedInputForNextRound) throws IOException {
 		//TODO: Maybe use threading for each player
-		Map<Integer, Serializable> res = new HashMap<Integer, Serializable>();
+		Map<Integer, Serializable> res = new HashMap<>();
 		for(int i : expectedInputForNextRound){
 			byte[] r = this.receive(channel, i);
 			res.put(i, r);
@@ -265,10 +263,6 @@ public class ScapiNetworkImpl implements Network {
 
 	public int getMyId() {
 		return this.conf.getMyId();
-	}
-
-	public int getNoParties() {
-		return this.conf.noOfParties();
 	}
 
 	@Override

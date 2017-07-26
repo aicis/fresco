@@ -28,7 +28,6 @@ package dk.alexandra.fresco.suite.tinytables.prepro;
 
 import dk.alexandra.fresco.framework.BuilderFactory;
 import dk.alexandra.fresco.framework.MPCException;
-import dk.alexandra.fresco.framework.Reporter;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.SCENetwork;
@@ -67,6 +66,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>
@@ -100,6 +101,8 @@ import java.util.Random;
  * @author Jonas Lindstrøm (jonas.lindstrom@alexandra.dk)
  */
 public class TinyTablesPreproProtocolSuite implements ProtocolSuite<ResourcePoolImpl, ProtocolBuilderBinary> {
+
+  private final static Logger logger = LoggerFactory.getLogger(TinyTablesPreproProtocolSuite.class);
 
   private TinyTablesStorage storage;
   private File tinyTablesFile;
@@ -168,9 +171,9 @@ public class TinyTablesPreproProtocolSuite implements ProtocolSuite<ResourcePool
 		 */
         try {
           storeTinyTables(storage, tinyTablesFile);
-          Reporter.info("TinyTables stored to " + tinyTablesFile);
+          logger.info("TinyTables stored to " + tinyTablesFile);
         } catch (IOException e) {
-          Reporter.severe("Failed to save TinyTables: " + e.getMessage());
+          logger.error("Failed to save TinyTables: " + e.getMessage());
         }
 
       }

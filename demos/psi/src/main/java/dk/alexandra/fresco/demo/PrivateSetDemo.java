@@ -166,7 +166,7 @@ public class PrivateSetDemo extends DemoBinaryApplication<OBool[][]> {
     PrivateSetDemo privateSetDemo = new PrivateSetDemo(sceConf.getMyId(), key, inputs);
     ProtocolSuite<?, ?> psConf = util.getProtocolSuite();
     SecureComputationEngine sce =
-        new SecureComputationEngineImpl(psConf, sceConf.getEvaluator(), sceConf.getLogLevel());
+        new SecureComputationEngineImpl(psConf, sceConf.getEvaluator());
 
     try {
       sce.runApplication(privateSetDemo, ResourcePoolHelper.createResourcePool(sceConf, psConf));

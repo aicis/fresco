@@ -31,7 +31,6 @@ import dk.alexandra.fresco.framework.BuilderFactory;
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
-import dk.alexandra.fresco.framework.Reporter;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.suite.ProtocolSuite;
@@ -44,7 +43,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.logging.Level;
+import org.slf4j.LoggerFactory;
 
 /**
  * Secure Computation Engine - responsible for having the overview of things and
@@ -60,17 +59,16 @@ public class SecureComputationEngineImpl<ResourcePoolT extends ResourcePool, Bui
   private boolean setup;
   private ProtocolSuite<ResourcePoolT, Builder> protocolSuite;
   private static final AtomicInteger threadCounter = new AtomicInteger(1);
+  private final static org.slf4j.Logger logger =
+      LoggerFactory.getLogger(SecureComputationEngineImpl.class);
 
   public SecureComputationEngineImpl(
       ProtocolSuite<ResourcePoolT, Builder> protocolSuite,
-      ProtocolEvaluator<ResourcePoolT> evaluator,
-      Level logLevel) {
+      ProtocolEvaluator<ResourcePoolT> evaluator) {
     this.protocolSuite = protocolSuite;
 
     this.setup = false;
 
-    //setup the basic stuff, but do not initialize anything yet
-    Reporter.init(logLevel);
     this.evaluator = evaluator;
   }
 
@@ -97,8 +95,8 @@ public class SecureComputationEngineImpl<ResourcePoolT extends ResourcePool, Bui
   private <OutputT> Computation<OutputT> evalApplication(
       Application<OutputT, Builder> application,
       ResourcePoolT resourcePool) throws Exception {
-    Reporter.info("Running application: " + application + " using protocol suite: "
-        + this.protocolSuite);
+    logger.info("Running application: " + application
+        + " using protocol suite: " + this.protocolSuite);
     try {
       BuilderFactory<Builder> protocolFactory = this.protocolSuite.init(resourcePool);
       Builder builder = protocolFactory.createProtocolBuilder();
@@ -107,7 +105,7 @@ public class SecureComputationEngineImpl<ResourcePoolT extends ResourcePool, Bui
       this.evaluator.eval(builder.build(), resourcePool);
       long now = System.currentTimeMillis();
       long timeSpend = now - then;
-      Reporter.info("Running the application " + application + " took " + timeSpend + " ms.");
+      logger.info("Running the application " + application + " took " + timeSpend + " ms.");
       application.close();
       return output;
     } catch (IOException e) {
@@ -125,7 +123,7 @@ public class SecureComputationEngineImpl<ResourcePoolT extends ResourcePool, Bui
       Thread thread = new Thread(r, "SCE-" + threadCounter.getAndIncrement());
       thread.setDaemon(true);
       return thread;
-    });    
+    });
     this.evaluator.setProtocolInvocation(this.protocolSuite);
     this.setup = true;
   }

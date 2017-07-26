@@ -28,7 +28,6 @@ package dk.alexandra.fresco.demo.cli;
 
 import dk.alexandra.fresco.framework.Party;
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
-import dk.alexandra.fresco.framework.Reporter;
 import dk.alexandra.fresco.framework.configuration.ConfigurationException;
 import dk.alexandra.fresco.framework.network.NetworkingStrategy;
 import dk.alexandra.fresco.framework.sce.configuration.SCEConfiguration;
@@ -37,7 +36,6 @@ import dk.alexandra.fresco.framework.sce.evaluator.SequentialEvaluator;
 import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
 import dk.alexandra.fresco.framework.sce.resources.storage.Storage;
 import dk.alexandra.fresco.framework.sce.resources.storage.StorageStrategy;
-import dk.alexandra.fresco.framework.sce.resources.storage.StreamedStorage;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticProtocolSuite;
 import dk.alexandra.fresco.suite.dummy.bool.DummyProtocolSuite;
@@ -61,6 +59,8 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Utility for reading all configuration from command line.
@@ -69,6 +69,8 @@ import org.apache.commons.cli.ParseException;
  * </p>
  */
 public class CmdLineUtil {
+
+  private final static Logger logger = LoggerFactory.getLogger(CmdLineUtil.class);
 
   private final Options options;
   private Options appOptions;
@@ -270,18 +272,17 @@ public class CmdLineUtil {
     } else {
       logLevel = Level.WARNING;
     }
-    Reporter.init(logLevel);
 
     int noOfThreads = this.cmd.hasOption("t") ? parseNonzeroInt("t") : getDefaultNoOfThreads();
     if (noOfThreads > Runtime.getRuntime().availableProcessors()) {
-      Reporter.warn("You are using " + noOfThreads + " but system has only " + Runtime.getRuntime()
+      logger.warn("You are using " + noOfThreads + " but system has only " + Runtime.getRuntime()
           .availableProcessors()
           + " available processors. This is likely to result in less than optimal performance.");
     }
 
     int vmThreads = this.cmd.hasOption("vt") ? parseNonzeroInt("vt") : getDefaultNoOfThreads();
     if (vmThreads > Runtime.getRuntime().availableProcessors()) {
-      Reporter.warn("You are using " + vmThreads + " but system has only " + Runtime.getRuntime()
+      logger.warn("You are using " + vmThreads + " but system has only " + Runtime.getRuntime()
           .availableProcessors()
           + " available processors. This is likely to result in less than optimal performance.");
     }
@@ -320,15 +321,15 @@ public class CmdLineUtil {
     }
 
     // TODO: Rather: Just log sceConf.toString()
-    Reporter.config("Player id          : " + myId);
-    Reporter.config("NativeProtocol suite     : " + suite);
-    Reporter.config("Players            : " + parties);
-    Reporter.config("Log level          : " + logLevel);
-    Reporter.config("No of threads      : " + noOfThreads);
-    Reporter.config("No of vm threads   : " + vmThreads);
-    Reporter.config("Evaluation strategy: " + evaluator);
-    Reporter.config("Storage strategy   : " + storage);
-    Reporter.config("Maximum batch size : " + maxBatchSize);
+    logger.info("Player id          : " + myId);
+    logger.info("NativeProtocol suite     : " + suite);
+    logger.info("Players            : " + parties);
+    logger.info("Log level          : " + logLevel);
+    logger.info("No of threads      : " + noOfThreads);
+    logger.info("No of vm threads   : " + vmThreads);
+    logger.info("Evaluation strategy: " + evaluator);
+    logger.info("Storage strategy   : " + storage);
+    logger.info("Maximum batch size : " + maxBatchSize);
 
     this.sceConf = new SCEConfiguration() {
 
@@ -343,22 +344,8 @@ public class CmdLineUtil {
       }
 
       @Override
-      public Level getLogLevel() {
-        return logLevel;
-      }
-
-      @Override
       public ProtocolEvaluator<?> getEvaluator() {
         return evaluator;
-      }
-
-      @Override
-      public StreamedStorage getStreamedStorage() {
-        if (storage instanceof StreamedStorage) {
-          return (StreamedStorage) storage;
-        } else {
-          return null;
-        }
       }
 
       @Override

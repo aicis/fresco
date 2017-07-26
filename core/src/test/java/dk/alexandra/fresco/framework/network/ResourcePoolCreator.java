@@ -60,10 +60,11 @@ public class ResourcePoolCreator<ResourcePoolT extends ResourcePool> {
   
     Network network = getNetworkFromConfiguration(sceConf, myId, parties);
     network.connect(10000);
-  
-    ProtocolSuite suite = sceConf.getSuite();
-        
-    ResourcePoolT resourcePool = (ResourcePoolT) suite.createResourcePool(myId, parties.size(), network, rand, secRand);
+
+    ProtocolSuite<ResourcePoolT, Builder> suite = sceConf.getSuite();
+
+    ResourcePoolT resourcePool = suite
+        .createResourcePool(myId, parties.size(), network, rand, secRand);
       
     ResourcePoolCreator.rps.put(myId, resourcePool);
     
