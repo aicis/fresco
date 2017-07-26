@@ -42,7 +42,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
-import java.util.logging.Level;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -177,7 +176,7 @@ public class TestThreadRunner {
 
   private static void run(TestThreadFactory f, int noOfPlayers, int randSeed) {
     Map<Integer, NetworkConfiguration> netConfs = TestConfiguration
-        .getNetworkConfigurations(noOfPlayers, Level.FINE);
+        .getNetworkConfigurations(noOfPlayers);
 
     Map<Integer, TestThreadConfiguration> confs = new HashMap<Integer, TestThreadConfiguration>();
     for (int i : netConfs.keySet()) {

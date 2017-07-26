@@ -27,20 +27,14 @@ import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.TestThreadRunner;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.TestConfiguration;
-import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.NetworkingStrategy;
 import dk.alexandra.fresco.framework.sce.configuration.TestSCEConfiguration;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
-import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
-import dk.alexandra.fresco.framework.sce.resources.storage.Storage;
-import dk.alexandra.fresco.suite.ProtocolSuite;
 import java.math.BigInteger;
-import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.logging.Level;
 
 /**
@@ -62,7 +56,7 @@ public abstract class AbstractDummyArithmeticTest {
     }
 
     Map<Integer, NetworkConfiguration> netConf =
-        TestConfiguration.getNetworkConfigurations(noOfParties, ports, logLevel);
+        TestConfiguration.getNetworkConfigurations(noOfParties, ports);
     Map<Integer, TestThreadRunner.TestThreadConfiguration> conf =
         new HashMap<Integer, TestThreadRunner.TestThreadConfiguration>();
     for (int playerId : netConf.keySet()) {
@@ -79,8 +73,7 @@ public abstract class AbstractDummyArithmeticTest {
                                            // here.
 
       ProtocolEvaluator evaluator = EvaluationStrategy.fromEnum(evalStrategy);
-      Storage storage = new InMemoryStorage();
-      ttc.sceConf = new TestSCEConfiguration(ps, network, evaluator, ttc.netConf, storage,
+      ttc.sceConf = new TestSCEConfiguration(ps, network, evaluator, ttc.netConf,
           useSecureConnection);
       conf.put(playerId, ttc);
     }

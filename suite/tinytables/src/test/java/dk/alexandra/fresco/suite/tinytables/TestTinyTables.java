@@ -38,8 +38,6 @@ import dk.alexandra.fresco.framework.network.NetworkingStrategy;
 import dk.alexandra.fresco.framework.sce.configuration.TestSCEConfiguration;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
-import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
-import dk.alexandra.fresco.framework.sce.resources.storage.Storage;
 import dk.alexandra.fresco.lib.bool.BasicBooleanTests;
 import dk.alexandra.fresco.lib.crypto.BristolCryptoTests;
 import dk.alexandra.fresco.lib.math.mult.BristolMultTests;
@@ -80,28 +78,27 @@ public class TestTinyTables {
     }
 
     Map<Integer, NetworkConfiguration> netConf = TestConfiguration.getNetworkConfigurations(
-        noPlayers, ports, logLevel);
+        noPlayers, ports);
     Map<Integer, TestThreadConfiguration> conf = new HashMap<>();
 
     for (int playerId : netConf.keySet()) {
       TestThreadConfiguration ttc = new TestThreadConfiguration();
       ttc.netConf = netConf.get(playerId);
 
-      ProtocolEvaluator<?> evaluator;
+      ProtocolEvaluator<ResourcePoolImpl> evaluator;
 
       ProtocolSuite<ResourcePoolImpl, ProtocolBuilderBinary> suite;
       File tinyTablesFile = new File(getFilenameForTest(playerId, name));
       if (preprocessing) {
         suite = new TinyTablesPreproProtocolSuite(playerId, tinyTablesFile);
-      } else {        
+      } else {
         suite = new TinyTablesProtocolSuite(playerId, tinyTablesFile);
       }
 
       evaluator = EvaluationStrategy.fromEnum(evalStrategy);
 
-      Storage storage = new InMemoryStorage();
       ttc.sceConf = new TestSCEConfiguration<>(suite, NetworkingStrategy.KRYONET, evaluator,
-          ttc.netConf, storage, false);
+          ttc.netConf, false);
       conf.put(playerId, ttc);
     }
     TestThreadRunner.run(f, conf);

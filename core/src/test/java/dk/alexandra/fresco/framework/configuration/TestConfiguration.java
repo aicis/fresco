@@ -35,109 +35,96 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
 
 public class TestConfiguration implements NetworkConfiguration {
 
-	private int myId;
+  private int myId;
 
-	private Map<Integer, Party> parties = new HashMap<>();
+  private Map<Integer, Party> parties = new HashMap<>();
 
-	private Level logLevel;
+  public TestConfiguration() {
+  }
 
-	public TestConfiguration() {
-	}
+  public TestConfiguration(int myId, Map<Integer, Party> parties) {
+    this.myId = myId;
+    this.parties = parties;
+  }
 
-	public TestConfiguration(int myId, Map<Integer, Party> parties,
-			Level logLevel) {
-		super();
-		this.myId = myId;
-		this.parties = parties;
-		this.logLevel = logLevel;
-	}
+  public void add(int id, String host, int port) {
+    Party p = new Party(id, host, port);
+    parties.put(id, p);
+  }
 
-	public void add(int id, String host, int port) {
-		Party p = new Party(id, host, port);
-		parties.put(id, p);
-	}
-	
-	public void add(int id, String host, int port, String secretKey) {
-		Party p = new Party(id, host, port, secretKey);
-		parties.put(id, p);
-	}
+  public void add(int id, String host, int port, String secretKey) {
+    Party p = new Party(id, host, port, secretKey);
+    parties.put(id, p);
+  }
 
-	@Override
-	public Party getParty(int id) {
-		if (!parties.containsKey(id)) {
-			throw new TestFrameworkException("No party with id " + id);
-		}
-		return parties.get(id);
-	}
+  @Override
+  public Party getParty(int id) {
+    if (!parties.containsKey(id)) {
+      throw new TestFrameworkException("No party with id " + id);
+    }
+    return parties.get(id);
+  }
 
-	@Override
-	public int getMyId() {
-		return myId;
-	}
+  @Override
+  public int getMyId() {
+    return myId;
+  }
 
-	@Override
-	public Party getMe() {
-		return getParty(getMyId());
-	}
+  @Override
+  public Party getMe() {
+    return getParty(getMyId());
+  }
 
-	@Override
-	public int noOfParties() {
-		return parties.size();
-	}
+  @Override
+  public int noOfParties() {
+    return parties.size();
+  }
 
-	private void setMe(int id) {
-		this.myId = id;
-	}
+  private void setMe(int id) {
+    this.myId = id;
+  }
 
-	private void setLogLevel(Level logLevel) {
-		this.logLevel = logLevel;
-	}
+  public static Map<Integer, NetworkConfiguration> getNetworkConfigurations(int n,
+      List<Integer> ports) {
+    Map<Integer, NetworkConfiguration> confs = new HashMap<>(n);
+    for (int i = 0; i < n; i++) {
+      TestConfiguration conf = new TestConfiguration();
+      int id = 1;
+      for (int port : ports) {
+        conf.add(id++, "localhost", port);
+      }
+      conf.setMe(i + 1);
+      confs.put(i + 1, conf);
+    }
+    return confs;
+  }
 
+  /**
+   * As getConfigurations(n, ports, loglevel) but tries to find free ephemeral
+   * ports (but note that there is no guarantee that ports will remain
+   * unused).
+   */
+  public static Map<Integer, NetworkConfiguration> getNetworkConfigurations(int n) {
+    List<Integer> ports = getFreePorts(n);
+    return getNetworkConfigurations(n, ports);
+  }
 
-	public static Map<Integer, NetworkConfiguration> getNetworkConfigurations(int n,
-			List<Integer> ports, Level logLevel) {
-		Map<Integer, NetworkConfiguration> confs = new HashMap<>(n);
-		for (int i=0; i<n; i++) {
-			TestConfiguration conf = new TestConfiguration();
-			int id = 1;
-			for (int port : ports) {
-				conf.add(id++, "localhost", port);
-			}
-			conf.setMe(i + 1);
-			conf.setLogLevel(logLevel);
-			confs.put(i + 1, conf);
-		}
-		return confs;
-	}
+  private static List<Integer> getFreePorts(int n) {
+    try {
+      List<Integer> ports = new ArrayList<>(n);
+      for (int i = 0; i < n; i++) {
+        ServerSocket s = new ServerSocket(0);
+        ports.add(s.getLocalPort());
+        s.close();
+      }
+      return ports;
+    } catch (IOException e) {
+      throw new MPCException("Could not allocate free ports", e);
 
-	/**
-	 * As getConfigurations(n, ports, loglevel) but tries to find free ephemeral
-	 * ports (but note that there is no guarantee that ports will remain
-	 * unused).
-	 * 
-	 */
-	public static Map<Integer, NetworkConfiguration> getNetworkConfigurations(int n, Level logLevel) {
-		List<Integer> ports = getFreePorts(n);
-		return getNetworkConfigurations(n, ports, logLevel);
-	}
-	
-	private static List<Integer> getFreePorts(int n) {
-		try{
-			List<Integer> ports = new ArrayList<>(n);
-			for (int i=0; i<n; i++) {
-				ServerSocket s = new ServerSocket(0);
-				ports.add(s.getLocalPort());
-				s.close();
-			}
-			return ports;
-		} catch (IOException e) {
-			throw new MPCException("Could not allocate free ports", e);
-
-		}
-	}
+    }
+  }
 
 }

@@ -32,7 +32,6 @@ import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.network.NetworkingStrategy;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
-import dk.alexandra.fresco.framework.sce.resources.storage.Storage;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import java.util.HashMap;
 import java.util.Map;
@@ -41,29 +40,20 @@ public class TestSCEConfiguration<ResourcePoolT extends ResourcePool, Builder ex
     SCEConfiguration<ResourcePoolT> {
 
   private NetworkingStrategy network;
-  private Storage storage;
   private Map<Integer, Party> parties;
   private int myId;
-  private ProtocolEvaluator evaluator;
+  private ProtocolEvaluator<ResourcePoolT> evaluator;
   private final ProtocolSuite<ResourcePoolT, Builder> suite;
-  
-  public TestSCEConfiguration(ProtocolSuite suite, 
+
+  public TestSCEConfiguration(ProtocolSuite<ResourcePoolT, Builder> suite,
       NetworkingStrategy network,
-      ProtocolEvaluator evaluator,
-      NetworkConfiguration conf, Storage storage,
+      ProtocolEvaluator<ResourcePoolT> evaluator,
+      NetworkConfiguration conf,
       boolean useSecureConn) {
-    this(suite, network, evaluator, conf, storage, useSecureConn, 4096);
-  }
-  
-  public TestSCEConfiguration(ProtocolSuite suite, 
-      NetworkingStrategy network,
-      ProtocolEvaluator evaluator,
-      NetworkConfiguration conf, Storage storage, boolean useSecureConn, int maxBatchSize) {
     this.suite = suite;
     this.network = network;
-    this.storage = storage;
     this.evaluator = evaluator;
-    evaluator.setMaxBatchSize(maxBatchSize);
+    evaluator.setMaxBatchSize(4096);
     this.myId = conf.getMyId();
     parties = new HashMap<>();
     for (int i = 1; i <= conf.noOfParties(); i++) {
@@ -82,7 +72,7 @@ public class TestSCEConfiguration<ResourcePoolT extends ResourcePool, Builder ex
     return suite;
   }
 
-  
+
   @Override
   public int getMyId() {
     return myId;
@@ -94,7 +84,7 @@ public class TestSCEConfiguration<ResourcePoolT extends ResourcePool, Builder ex
   }
 
   @Override
-  public ProtocolEvaluator getEvaluator() {
+  public ProtocolEvaluator<ResourcePoolT> getEvaluator() {
     return this.evaluator;
   }
 

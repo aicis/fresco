@@ -34,8 +34,6 @@ import dk.alexandra.fresco.framework.configuration.TestConfiguration;
 import dk.alexandra.fresco.framework.network.NetworkingStrategy;
 import dk.alexandra.fresco.framework.sce.configuration.TestSCEConfiguration;
 import dk.alexandra.fresco.framework.sce.evaluator.SequentialEvaluator;
-import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
-import dk.alexandra.fresco.framework.sce.resources.storage.Storage;
 import dk.alexandra.fresco.framework.util.ByteArithmetic;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.dummy.bool.DummyProtocolSuite;
@@ -61,17 +59,16 @@ public class TestAESDemo {
       ports.add(9000 + i * 10);
     }
     Map<Integer, NetworkConfiguration> netConf =
-        TestConfiguration.getNetworkConfigurations(noPlayers, ports, logLevel);
+        TestConfiguration.getNetworkConfigurations(noPlayers, ports);
     Map<Integer, TestThreadConfiguration> conf = new HashMap<Integer, TestThreadConfiguration>();
     for (int playerId : netConf.keySet()) {
-      TestThreadConfiguration ttc = new TestThreadConfiguration();
+      TestThreadConfiguration<?, ?> ttc = new TestThreadConfiguration();
       ttc.netConf = netConf.get(playerId);
       ProtocolSuite<?, ?> suite = new DummyProtocolSuite();
-      ProtocolEvaluator evaluator = new SequentialEvaluator();
-      Storage storage = new InMemoryStorage();
+      ProtocolEvaluator<?> evaluator = new SequentialEvaluator();
       boolean useSecureConnection = true;
       ttc.sceConf = new TestSCEConfiguration(suite, NetworkingStrategy.KRYONET, evaluator,
-          ttc.netConf, storage, useSecureConnection);
+          ttc.netConf, useSecureConnection);
       conf.put(playerId, ttc);
     }
 
@@ -86,8 +83,8 @@ public class TestAESDemo {
             boolean[] input = null;
             if (conf.netConf.getMyId() == 2) {
               input = ByteArithmetic.toBoolean("00112233445566778899aabbccddeeff"); // 128-bit AES
-                                                                                    // plaintext
-                                                                                    // block
+              // plaintext
+              // block
             } else if (conf.netConf.getMyId() == 1) {
               input = ByteArithmetic.toBoolean("000102030405060708090a0b0c0d0e0f"); // 128-bit key
             }
