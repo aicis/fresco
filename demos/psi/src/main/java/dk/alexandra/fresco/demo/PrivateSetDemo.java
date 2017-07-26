@@ -31,9 +31,9 @@ import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.ProtocolProducer;
+import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
-import dk.alexandra.fresco.framework.sce.configuration.SCEConfiguration;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.util.ByteArithmetic;
 import dk.alexandra.fresco.framework.value.OBool;
@@ -113,7 +113,7 @@ public class PrivateSetDemo extends DemoBinaryApplication<OBool[][]> {
    */
   public static void main(String[] args) {
     CmdLineUtil util = new CmdLineUtil();
-    SCEConfiguration sceConf = null;
+    NetworkConfiguration networkConfiguration = null;
     boolean[] key = null;
     int[] inputs = null;
     try {
@@ -131,10 +131,10 @@ public class PrivateSetDemo extends DemoBinaryApplication<OBool[][]> {
           .longOpt("input").hasArg().build());
 
       CommandLine cmd = util.parse(args);
-      sceConf = util.getSCEConfiguration();
+      networkConfiguration = util.getNetworkConfiguration();
 
       // Get and validate the AES specific input.
-      if (sceConf.getMyId() == 1 || sceConf.getMyId() == 2) {
+      if (networkConfiguration.getMyId() == 1 || networkConfiguration.getMyId() == 2) {
         if (!cmd.hasOption("in") && !cmd.hasOption("key")) {
           throw new ParseException("Player 1 and 2 must submit inputs and keys");
         } else {
@@ -164,14 +164,14 @@ public class PrivateSetDemo extends DemoBinaryApplication<OBool[][]> {
     }
 
     // Do the secure computation using config from property files.
-    PrivateSetDemo privateSetDemo = new PrivateSetDemo(sceConf.getMyId(), key, inputs);
+    PrivateSetDemo privateSetDemo = new PrivateSetDemo(networkConfiguration.getMyId(), key, inputs);
     ProtocolSuite<?, ?> psConf = util.getProtocolSuite();
     SecureComputationEngine sce =
         new SecureComputationEngineImpl(psConf, util.getEvaluator());
 
     try {
-      ResourcePool resourcePool = ResourcePoolHelper.createResourcePool(sceConf, psConf,
-          util.getNetworkStrategy());
+      ResourcePool resourcePool = ResourcePoolHelper.createResourcePool(psConf,
+          util.getNetworkStrategy(), networkConfiguration);
       sce.runApplication(privateSetDemo, resourcePool);
     } catch (Exception e) {
       System.out.println("Error while doing MPC: " + e.getMessage());

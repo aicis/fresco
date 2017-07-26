@@ -32,6 +32,7 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.TestConfiguration;
 import dk.alexandra.fresco.framework.network.NetworkingStrategy;
+import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.configuration.TestSCEConfiguration;
 import dk.alexandra.fresco.framework.sce.evaluator.SequentialEvaluator;
 import dk.alexandra.fresco.framework.util.ByteArithmetic;
@@ -90,8 +91,7 @@ public class TestAESDemo {
             AESDemo app = new AESDemo(conf.netConf.getMyId(), input);
 
             secureComputationEngine.runApplication(app,
-                ResourcePoolHelper.createResourcePool(conf.sceConf, conf.sceConf.getSuite(),
-                    conf.sceConf.getNetworkStrategy()));
+                ResourcePoolCreator.createResourcePool(conf.sceConf));
 
             // Verify output state.
             String expected = "69c4e0d86a7b0430d8cdb78070b4c55a"; // expected cipher

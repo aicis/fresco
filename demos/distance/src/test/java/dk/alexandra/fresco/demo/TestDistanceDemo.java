@@ -8,6 +8,7 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.TestConfiguration;
 import dk.alexandra.fresco.framework.network.NetworkingStrategy;
+import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.configuration.TestSCEConfiguration;
 import dk.alexandra.fresco.framework.sce.evaluator.SequentialEvaluator;
 import dk.alexandra.fresco.suite.ProtocolSuite;
@@ -64,8 +65,7 @@ public class TestDistanceDemo {
             System.out.println("Running with x: " + x + ", y: " + y);
             DistanceDemo distDemo = new DistanceDemo(conf.getMyId(), x, y);
             secureComputationEngine.runApplication(distDemo,
-                ResourcePoolHelper.createResourcePool(conf.sceConf, conf.sceConf.getSuite(),
-                    conf.sceConf.getNetworkStrategy()));
+                ResourcePoolCreator.createResourcePool(conf.sceConf));
             double distance = distDemo.getOutput().out().doubleValue();
             distance = Math.sqrt(distance);
             Assert.assertEquals(11.1803, distance, 0.0001);

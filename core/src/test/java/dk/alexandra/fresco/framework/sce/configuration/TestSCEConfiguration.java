@@ -36,8 +36,7 @@ import dk.alexandra.fresco.suite.ProtocolSuite;
 import java.util.HashMap;
 import java.util.Map;
 
-public class TestSCEConfiguration<ResourcePoolT extends ResourcePool, Builder extends ProtocolBuilder> implements
-    SCEConfiguration {
+public class TestSCEConfiguration<ResourcePoolT extends ResourcePool, Builder extends ProtocolBuilder> {
 
   private NetworkingStrategy network;
   private Map<Integer, Party> parties;
@@ -73,12 +72,10 @@ public class TestSCEConfiguration<ResourcePoolT extends ResourcePool, Builder ex
   }
 
 
-  @Override
   public int getMyId() {
     return myId;
   }
 
-  @Override
   public Map<Integer, Party> getParties() {
     return parties;
   }

@@ -29,8 +29,9 @@ package dk.alexandra.fresco.demo.cli;
 import dk.alexandra.fresco.framework.Party;
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.configuration.ConfigurationException;
+import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
+import dk.alexandra.fresco.framework.configuration.NetworkConfigurationImpl;
 import dk.alexandra.fresco.framework.network.NetworkingStrategy;
-import dk.alexandra.fresco.framework.sce.configuration.SCEConfiguration;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.evaluator.SequentialEvaluator;
 import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
@@ -74,7 +75,7 @@ public class CmdLineUtil {
   private final Options options;
   private Options appOptions;
   private CommandLine cmd;
-  private SCEConfiguration sceConf;
+  private NetworkConfiguration networkConfiguration;
   private ProtocolSuite<?, ?> ps;
   private ProtocolEvaluator evaluator;
 
@@ -83,8 +84,8 @@ public class CmdLineUtil {
     this.options = buildStandardOptions();
   }
 
-  public SCEConfiguration getSCEConfiguration() {
-    return this.sceConf;
+  public NetworkConfiguration getNetworkConfiguration() {
+    return this.networkConfiguration;
   }
 
   public NetworkingStrategy getNetworkStrategy() {
@@ -268,25 +269,13 @@ public class CmdLineUtil {
       }
     }
 
-    // TODO: Rather: Just log sceConf.toString()
     logger.info("Player id          : " + myId);
     logger.info("NativeProtocol suite     : " + suite);
     logger.info("Players            : " + parties);
     logger.info("Evaluation strategy: " + evaluator);
     logger.info("Storage strategy   : " + storage);
 
-    this.sceConf = new SCEConfiguration() {
-
-      @Override
-      public int getMyId() {
-        return myId;
-      }
-
-      @Override
-      public Map<Integer, Party> getParties() {
-        return parties;
-      }
-    };
+    this.networkConfiguration = new NetworkConfigurationImpl(myId, parties);
   }
 
   /**
@@ -335,10 +324,10 @@ public class CmdLineUtil {
           this.ps = SpdzConfigurationFromCmdLine(cmd);
           break;
         case "tinytablesprepro":
-          this.ps = tinyTablesPreProFromCmdLine(cmd, this.sceConf.getMyId());
+          this.ps = tinyTablesPreProFromCmdLine(cmd, this.networkConfiguration.getMyId());
           break;
         case "tinytables":
-          this.ps = tinyTablesFromCmdLine(cmd, this.sceConf.getMyId());
+          this.ps = tinyTablesFromCmdLine(cmd, this.networkConfiguration.getMyId());
           break;
         default:
           throw new ParseException(

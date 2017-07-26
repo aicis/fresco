@@ -1,7 +1,6 @@
 package aggregation;
 
 import dk.alexandra.fresco.demo.AggregationDemo;
-import dk.alexandra.fresco.demo.helpers.ResourcePoolHelper;
 import dk.alexandra.fresco.framework.TestThreadRunner;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
@@ -9,6 +8,7 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.TestConfiguration;
 import dk.alexandra.fresco.framework.network.NetworkingStrategy;
+import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.configuration.TestSCEConfiguration;
 import dk.alexandra.fresco.framework.sce.evaluator.SequentialEvaluator;
 import dk.alexandra.fresco.suite.ProtocolSuite;
@@ -59,9 +59,9 @@ public class TestAggregation {
             // Create application we are going run
             AggregationDemo<SpdzResourcePool> app = new AggregationDemo<>();
 
-            app.runApplication(conf.sceConf, secureComputationEngine,
-                (SpdzResourcePool) ResourcePoolHelper.createResourcePool(conf.sceConf,
-                    conf.sceConf.getSuite(), conf.sceConf.getNetworkStrategy()));
+            app.runApplication(secureComputationEngine,
+                (SpdzResourcePool) ResourcePoolCreator.createResourcePool(conf.sceConf)
+            );
           }
         };
       }

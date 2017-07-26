@@ -33,6 +33,7 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.TestConfiguration;
 import dk.alexandra.fresco.framework.network.NetworkingStrategy;
+import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.configuration.TestSCEConfiguration;
 import dk.alexandra.fresco.framework.sce.evaluator.SequentialEvaluator;
 import dk.alexandra.fresco.framework.util.ByteArithmetic;
@@ -86,8 +87,6 @@ public class SetIntersectionDemo {
 
   /**
    * TinyTables requires a preprocessing phase as well as the actual computation phase.
-   * 
-   * @throws Exception
    */
   @Category(IntegrationTest.class)
   @Test
@@ -168,7 +167,6 @@ public class SetIntersectionDemo {
   }
 
 
-
   public String[] setIntersectionDemo(Map<Integer, TestThreadConfiguration> conf) throws Exception {
     String[] result = new String[8];
     TestThreadFactory f = new TestThreadFactory() {
@@ -181,17 +179,16 @@ public class SetIntersectionDemo {
             int[] inputList = null;
             if (conf.netConf.getMyId() == 2) {
               key = ByteArithmetic.toBoolean("00112233445566778899aabbccddeeff"); // 128-bit key
-              inputList = new int[] {2, 66, 112, 1123};
+              inputList = new int[]{2, 66, 112, 1123};
             } else if (conf.netConf.getMyId() == 1) {
               key = ByteArithmetic.toBoolean("000102030405060708090a0b0c0d0e0f"); // 128-bit key
-              inputList = new int[] {1, 3, 66, 1123};
+              inputList = new int[]{1, 3, 66, 1123};
             }
 
             PrivateSetDemo app = new PrivateSetDemo(conf.netConf.getMyId(), key, inputList);
 
             secureComputationEngine.runApplication(app,
-                ResourcePoolHelper.createResourcePool(conf.sceConf, conf.sceConf.getSuite(),
-                    conf.sceConf.getNetworkStrategy()));
+                ResourcePoolCreator.createResourcePool(conf.sceConf));
 
             boolean[][] actualBoolean = new boolean[app.result.length][app.result[0].length];
 

@@ -30,6 +30,7 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.TestConfiguration;
 import dk.alexandra.fresco.framework.network.NetworkingStrategy;
+import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.configuration.TestSCEConfiguration;
 import dk.alexandra.fresco.framework.sce.evaluator.SequentialEvaluator;
 import dk.alexandra.fresco.suite.ProtocolSuite;
@@ -82,8 +83,8 @@ public class TestInputSumExample {
         return new TestThread() {
           @Override
           public void test() throws Exception {
-            InputSumExample.runApplication(secureComputationEngine, conf.sceConf,
-                conf.sceConf.getSuite(), conf.sceConf.getNetworkStrategy());
+            InputSumExample.runApplication(secureComputationEngine,
+                ResourcePoolCreator.createResourcePool(conf.sceConf));
           }
         };
       }
@@ -101,8 +102,8 @@ public class TestInputSumExample {
         return new TestThread() {
           @Override
           public void test() throws Exception {
-            InputSumExample.runApplication(secureComputationEngine, conf.sceConf,
-                conf.sceConf.getSuite(), conf.sceConf.getNetworkStrategy());
+            InputSumExample.runApplication(secureComputationEngine,
+                ResourcePoolCreator.createResourcePool(conf.sceConf));
           }
         };
       }

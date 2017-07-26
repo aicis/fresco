@@ -35,7 +35,6 @@ import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
-import dk.alexandra.fresco.framework.sce.configuration.SCEConfiguration;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.util.ByteArithmetic;
 import dk.alexandra.fresco.framework.value.OBool;
@@ -111,7 +110,6 @@ public class AESDemo extends DemoBinaryApplication<OBool[]> {
    */
   public static void main(String[] args) {
     CmdLineUtil util = new CmdLineUtil();
-    SCEConfiguration sceConf = null;
     boolean[] input = null;
     try {
 
@@ -125,10 +123,10 @@ public class AESDemo extends DemoBinaryApplication<OBool[]> {
           .build());
 
       CommandLine cmd = util.parse(args);
-      sceConf = util.getSCEConfiguration();
 
       // Get and validate the AES specific input.
-      if (sceConf.getMyId() == 1 || sceConf.getMyId() == 2) {
+      int myId = util.getNetworkConfiguration().getMyId();
+      if (myId == 1 || myId == 2) {
         if (!cmd.hasOption("in")) {
           throw new ParseException("Player 1 and 2 must submit input");
         } else {
@@ -152,14 +150,14 @@ public class AESDemo extends DemoBinaryApplication<OBool[]> {
     }
 
     // Do the secure computation using config from property files.
-    AESDemo aes = new AESDemo(sceConf.getMyId(), input);
+    AESDemo aes = new AESDemo(util.getNetworkConfiguration().getMyId(), input);
     ProtocolSuite<?, ?> ps = util
         .getProtocolSuite();
     SecureComputationEngine sce = new SecureComputationEngineImpl(ps, util.getEvaluator());
 
     try {
       ResourcePool resourcePool = ResourcePoolHelper
-          .createResourcePool(sceConf, ps, util.getNetworkStrategy());
+          .createResourcePool(ps, util.getNetworkStrategy(), util.getNetworkConfiguration());
       sce.runApplication(aes, resourcePool);
     } catch (Exception e) {
       System.out.println("Error while doing MPC: " + e.getMessage());
