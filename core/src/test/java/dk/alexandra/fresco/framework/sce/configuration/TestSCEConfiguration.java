@@ -33,36 +33,29 @@ import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.network.NetworkingStrategy;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.suite.ProtocolSuite;
-import java.util.HashMap;
-import java.util.Map;
 
 public class TestSCEConfiguration<ResourcePoolT extends ResourcePool, Builder extends ProtocolBuilder> {
 
-  private NetworkingStrategy network;
-  private Map<Integer, Party> parties;
-  private int myId;
+  private NetworkingStrategy networkingStrategy;
   private ProtocolEvaluator<ResourcePoolT> evaluator;
   private final ProtocolSuite<ResourcePoolT, Builder> suite;
+  private NetworkConfiguration networkConfiguration;
 
   public TestSCEConfiguration(ProtocolSuite<ResourcePoolT, Builder> suite,
-      NetworkingStrategy network,
+      NetworkingStrategy networkingStrategy,
       ProtocolEvaluator<ResourcePoolT> evaluator,
       NetworkConfiguration conf,
       boolean useSecureConn) {
     this.suite = suite;
-    this.network = network;
+    this.networkingStrategy = networkingStrategy;
     this.evaluator = evaluator;
     evaluator.setMaxBatchSize(4096);
-    this.myId = conf.getMyId();
-    parties = new HashMap<>();
+    networkConfiguration = conf;
     for (int i = 1; i <= conf.noOfParties(); i++) {
       if (useSecureConn) {
         Party p = conf.getParty(i);
         //Use the same hardcoded test 128 bit AES key for all connections
         p.setSecretSharedKey("w+1qn2ooNMCN7am9YmYQFQ==");
-        parties.put(i, p);
-      } else {
-        parties.put(i, conf.getParty(i));
       }
     }
   }
@@ -71,13 +64,8 @@ public class TestSCEConfiguration<ResourcePoolT extends ResourcePool, Builder ex
     return suite;
   }
 
-
-  public int getMyId() {
-    return myId;
-  }
-
-  public Map<Integer, Party> getParties() {
-    return parties;
+  public NetworkConfiguration getNetworkConfiguration() {
+    return networkConfiguration;
   }
 
   public ProtocolEvaluator<ResourcePoolT> getEvaluator() {
@@ -85,7 +73,7 @@ public class TestSCEConfiguration<ResourcePoolT extends ResourcePool, Builder ex
   }
 
   public NetworkingStrategy getNetworkStrategy() {
-    return this.network;
+    return this.networkingStrategy;
   }
 
 }
