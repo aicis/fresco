@@ -56,9 +56,8 @@ public abstract class AbstractSpdzTest {
       ports.add(9000 + i * (noOfParties - 1));
     }
 
-    Map<Integer, NetworkConfiguration> netConf = TestConfiguration
-        .getNetworkConfigurations(noOfParties, ports
-        );
+    Map<Integer, NetworkConfiguration> netConf =
+        TestConfiguration.getNetworkConfigurations(noOfParties, ports);
     Map<Integer, TestThreadRunner.TestThreadConfiguration> conf = new HashMap<>();
     for (int playerId : netConf.keySet()) {
       TestThreadRunner.TestThreadConfiguration ttc = new TestThreadRunner.TestThreadConfiguration();

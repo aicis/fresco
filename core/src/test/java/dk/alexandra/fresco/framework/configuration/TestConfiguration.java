@@ -28,7 +28,6 @@ package dk.alexandra.fresco.framework.configuration;
 
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.Party;
-import dk.alexandra.fresco.framework.TestFrameworkException;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.util.ArrayList;
@@ -36,68 +35,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class TestConfiguration implements NetworkConfiguration {
-
-  private int myId;
-
-  private Map<Integer, Party> parties = new HashMap<>();
-
-  public TestConfiguration() {
-  }
-
-  public TestConfiguration(int myId, Map<Integer, Party> parties) {
-    this.myId = myId;
-    this.parties = parties;
-  }
-
-  public void add(int id, String host, int port) {
-    Party p = new Party(id, host, port);
-    parties.put(id, p);
-  }
-
-  public void add(int id, String host, int port, String secretKey) {
-    Party p = new Party(id, host, port, secretKey);
-    parties.put(id, p);
-  }
-
-  @Override
-  public Party getParty(int id) {
-    if (!parties.containsKey(id)) {
-      throw new TestFrameworkException("No party with id " + id);
-    }
-    return parties.get(id);
-  }
-
-  @Override
-  public int getMyId() {
-    return myId;
-  }
-
-  @Override
-  public Party getMe() {
-    return getParty(getMyId());
-  }
-
-  @Override
-  public int noOfParties() {
-    return parties.size();
-  }
-
-  private void setMe(int id) {
-    this.myId = id;
-  }
+public class TestConfiguration {
 
   public static Map<Integer, NetworkConfiguration> getNetworkConfigurations(int n,
       List<Integer> ports) {
     Map<Integer, NetworkConfiguration> confs = new HashMap<>(n);
     for (int i = 0; i < n; i++) {
-      TestConfiguration conf = new TestConfiguration();
+      Map<Integer, Party> partyMap = new HashMap<>();
       int id = 1;
       for (int port : ports) {
-        conf.add(id++, "localhost", port);
+        partyMap.put(id, new Party(id, "localhost", port));
+        id++;
       }
-      conf.setMe(i + 1);
-      confs.put(i + 1, conf);
+      confs.put(i + 1, new NetworkConfigurationImpl(i + 1, partyMap));
     }
     return confs;
   }
