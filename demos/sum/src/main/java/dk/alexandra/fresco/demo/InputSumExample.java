@@ -69,8 +69,7 @@ public class InputSumExample {
     sceConf = util.getSCEConfiguration();
 
     ProtocolSuite psConf = util.getProtocolSuite();
-    SecureComputationEngine sce =
-        new SecureComputationEngineImpl(psConf, sceConf.getEvaluator());
+    SecureComputationEngine sce = new SecureComputationEngineImpl(psConf, util.getEvaluator());
 
     runApplication(sce, sceConf, psConf, util.getNetworkStrategy());
   }

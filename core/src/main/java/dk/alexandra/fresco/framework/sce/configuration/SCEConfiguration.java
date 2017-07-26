@@ -27,20 +27,11 @@
 package dk.alexandra.fresco.framework.sce.configuration;
 
 import dk.alexandra.fresco.framework.Party;
-import dk.alexandra.fresco.framework.ProtocolEvaluator;
-import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import java.util.Map;
 
-public interface SCEConfiguration<ResourcePoolT extends ResourcePool> {
+public interface SCEConfiguration {
 
   int getMyId();
 
   Map<Integer, Party> getParties();
-
-  /**
-   * Reads the config for an indication on which kind of GateEvaluator should
-   * be used.
-   */
-  ProtocolEvaluator<ResourcePoolT> getEvaluator();
-
 }

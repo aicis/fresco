@@ -37,7 +37,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class TestSCEConfiguration<ResourcePoolT extends ResourcePool, Builder extends ProtocolBuilder> implements
-    SCEConfiguration<ResourcePoolT> {
+    SCEConfiguration {
 
   private NetworkingStrategy network;
   private Map<Integer, Party> parties;
@@ -83,7 +83,6 @@ public class TestSCEConfiguration<ResourcePoolT extends ResourcePool, Builder ex
     return parties;
   }
 
-  @Override
   public ProtocolEvaluator<ResourcePoolT> getEvaluator() {
     return this.evaluator;
   }

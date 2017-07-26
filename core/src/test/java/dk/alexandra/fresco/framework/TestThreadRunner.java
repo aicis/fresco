@@ -84,7 +84,7 @@ public class TestThreadRunner {
         if (conf.sceConf != null) {
           ProtocolSuite<ResourcePoolT, Builder> suite = conf.sceConf.getSuite();
           secureComputationEngine =
-              SCEFactory.getSCEFromConfiguration(conf.sceConf, suite);
+              SCEFactory.getSCEFromConfiguration(suite, conf.sceConf.getEvaluator());
         }
         setUp();
         runTest();

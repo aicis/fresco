@@ -74,20 +74,25 @@ public class CmdLineUtil {
   private final Options options;
   private Options appOptions;
   private CommandLine cmd;
-  private SCEConfiguration<?> sceConf;
+  private SCEConfiguration sceConf;
   private ProtocolSuite<?, ?> ps;
+  private ProtocolEvaluator evaluator;
 
   public CmdLineUtil() {
     this.appOptions = new Options();
     this.options = buildStandardOptions();
   }
 
-  public SCEConfiguration<?> getSCEConfiguration() {
+  public SCEConfiguration getSCEConfiguration() {
     return this.sceConf;
   }
 
   public NetworkingStrategy getNetworkStrategy() {
     return NetworkingStrategy.KRYONET;
+  }
+
+  public ProtocolEvaluator getEvaluator() {
+    return evaluator;
   }
 
   public ProtocolSuite<?, ?> getProtocolSuite() {
@@ -234,15 +239,14 @@ public class CmdLineUtil {
           " but this id is not present in the list of parties " + parties.keySet());
     }
 
-    final ProtocolEvaluator evaluator;
     if (this.cmd.hasOption("e")) {
       try {
-        evaluator = EvaluationStrategy.fromString(this.cmd.getOptionValue("e"));
+        this.evaluator = EvaluationStrategy.fromString(this.cmd.getOptionValue("e"));
       } catch (ConfigurationException e) {
         throw new ParseException("Invalid evaluation strategy: " + this.cmd.getOptionValue("e"));
       }
     } else {
-      evaluator = new SequentialEvaluator();
+      this.evaluator = new SequentialEvaluator();
     }
 
     final Storage storage;
@@ -282,13 +286,7 @@ public class CmdLineUtil {
       public Map<Integer, Party> getParties() {
         return parties;
       }
-
-      @Override
-      public ProtocolEvaluator<?> getEvaluator() {
-        return evaluator;
-      }
     };
-
   }
 
   /**

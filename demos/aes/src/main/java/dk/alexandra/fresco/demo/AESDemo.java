@@ -155,7 +155,7 @@ public class AESDemo extends DemoBinaryApplication<OBool[]> {
     AESDemo aes = new AESDemo(sceConf.getMyId(), input);
     ProtocolSuite<?, ?> ps = util
         .getProtocolSuite();
-    SecureComputationEngine sce = new SecureComputationEngineImpl(ps, sceConf.getEvaluator());
+    SecureComputationEngine sce = new SecureComputationEngineImpl(ps, util.getEvaluator());
 
     try {
       ResourcePool resourcePool = ResourcePoolHelper

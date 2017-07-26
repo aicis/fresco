@@ -28,9 +28,7 @@ package dk.alexandra.fresco.framework.sce.configuration;
 
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.Party;
-import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.configuration.ConfigurationException;
-import dk.alexandra.fresco.framework.network.NetworkingStrategy;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.resources.storage.StorageStrategy;
 import dk.alexandra.fresco.framework.sce.util.Util;
@@ -49,8 +47,6 @@ public class FileBasedSCEConfiguration implements SCEConfiguration {
   private String protocolSuite;
   private Map<Integer, Party> parties;
   private int myId;
-  private ProtocolEvaluator evaluator;
-  private NetworkingStrategy network;
 
   private FileBasedSCEConfiguration(String propertiesLocation) {
     this.propertiesLocation = propertiesLocation;
@@ -109,29 +105,12 @@ public class FileBasedSCEConfiguration implements SCEConfiguration {
                 .toString(EvaluationStrategy.values()));
       }
 
-      this.evaluator = EvaluationStrategy.fromString(evaluator);
 
       String storage = prop.getProperty("storage");
       if (storage == null) {
         throw new ConfigurationException(
             "The property 'storage' must be set to one of these values: " + Arrays
                 .toString(StorageStrategy.values()));
-      }
-      int maxBatchSize = Integer.parseInt(prop.getProperty("maxBatchSize", "4096"));
-      this.evaluator.setMaxBatchSize(maxBatchSize);
-
-      String networkString = prop.getProperty("network", "kryoNet");
-      switch (networkString.toLowerCase()) {
-        case "kryo":
-        case "kryonet":
-          this.network = NetworkingStrategy.KRYONET;
-          break;
-        case "scapi":
-          this.network = NetworkingStrategy.SCAPI;
-          break;
-        default:
-          throw new ConfigurationException("Unknown networking strategy " + networkString
-              + ". Should be one of: [kryonet,scapi]");
       }
 
       loaded = true;
@@ -163,21 +142,12 @@ public class FileBasedSCEConfiguration implements SCEConfiguration {
   }
 
   @Override
-  public ProtocolEvaluator getEvaluator() {
-    if (!loaded) {
-      loadProperties();
-    }
-    return this.evaluator;
-  }
-
-  @Override
   public String toString() {
     return "FileBasedSCEConfiguration ["
         + "propertiesLocation=" + propertiesLocation
         + ", loaded=" + loaded
         + ", protocolSuite=" + protocolSuite
         + ", parties=" + parties
-        + ", myId=" + myId
-        + ", evaluator=" + evaluator + "]";
+        + ", myId=" + myId + "]";
   }
 }

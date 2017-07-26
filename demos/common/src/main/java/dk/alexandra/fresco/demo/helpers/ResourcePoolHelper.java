@@ -51,7 +51,7 @@ public class ResourcePoolHelper {
   }
 
   public static <ResourcePoolT extends ResourcePool, Builder extends ProtocolBuilder> ResourcePoolT createResourcePool(
-      SCEConfiguration<ResourcePoolT> sceConf, ProtocolSuite<ResourcePoolT, Builder> suite,
+      SCEConfiguration sceConf, ProtocolSuite<ResourcePoolT, Builder> suite,
       NetworkingStrategy networkStrategy)
       throws IOException {
     int myId = sceConf.getMyId();

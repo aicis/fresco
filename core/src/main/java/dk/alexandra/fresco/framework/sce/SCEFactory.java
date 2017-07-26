@@ -26,8 +26,8 @@
  *******************************************************************************/
 package dk.alexandra.fresco.framework.sce;
 
+import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
-import dk.alexandra.fresco.framework.sce.configuration.SCEConfiguration;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 
@@ -45,8 +45,8 @@ public class SCEFactory {
       Builder extends ProtocolBuilder
       >
   SecureComputationEngine<ResourcePoolT, Builder> getSCEFromConfiguration(
-      SCEConfiguration<ResourcePoolT> conf,
-      ProtocolSuite<ResourcePoolT, Builder> protocolSuite) {
-    return new SecureComputationEngineImpl<>(protocolSuite, conf.getEvaluator());
+      ProtocolSuite<ResourcePoolT, Builder> protocolSuite,
+      ProtocolEvaluator<ResourcePoolT> evaluator) {
+    return new SecureComputationEngineImpl<>(protocolSuite, evaluator);
   }
 }

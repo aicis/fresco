@@ -121,7 +121,8 @@ public class DistanceDemo extends DemoNumericApplication<BigInteger> {
       System.exit(-1);
     }
     DistanceDemo distDemo = new DistanceDemo(sceConf.getMyId(), x, y);
-    SecureComputationEngine sce = SCEFactory.getSCEFromConfiguration(sceConf, psConf);
+    SecureComputationEngine sce = SCEFactory
+        .getSCEFromConfiguration(psConf, cmdUtil.getEvaluator());
     try {
       sce.runApplication(distDemo, ResourcePoolHelper.createResourcePool(sceConf, psConf,
           cmdUtil.getNetworkStrategy()));
