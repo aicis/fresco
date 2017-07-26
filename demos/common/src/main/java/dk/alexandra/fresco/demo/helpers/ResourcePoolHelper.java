@@ -41,7 +41,8 @@ public class ResourcePoolHelper {
   }
 
   public static <ResourcePoolT extends ResourcePool, Builder extends ProtocolBuilder> ResourcePoolT createResourcePool(
-      ProtocolSuite<ResourcePoolT, Builder> suite, NetworkingStrategy networkStrategy,
+      ProtocolSuite<ResourcePoolT, Builder> suite,
+      NetworkingStrategy networkStrategy,
       NetworkConfiguration networkConfiguration)
       throws IOException {
     int myId = networkConfiguration.getMyId();
