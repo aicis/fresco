@@ -81,11 +81,11 @@ public class TestAESDemo {
 
             boolean[] input = null;
             if (conf.netConf.getMyId() == 2) {
-              input = ByteArithmetic.toBoolean("00112233445566778899aabbccddeeff"); // 128-bit AES
-              // plaintext
-              // block
+              // 128-bit AES plaintext block
+              input = ByteArithmetic.toBoolean("00112233445566778899aabbccddeeff");
             } else if (conf.netConf.getMyId() == 1) {
-              input = ByteArithmetic.toBoolean("000102030405060708090a0b0c0d0e0f"); // 128-bit key
+              // 128-bit key
+              input = ByteArithmetic.toBoolean("000102030405060708090a0b0c0d0e0f");
             }
 
             AESDemo app = new AESDemo(conf.netConf.getMyId(), input);

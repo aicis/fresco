@@ -117,7 +117,7 @@ public class SequentialEvaluator<ResourcePoolT extends ResourcePool> implements
         protocolSuite.createRoundSynchronization();
     while (protocolProducer.hasNextProtocols()) {
       int numOfProtocolsInBatch = doOneRound(protocolProducer, resourcePool, roundSynchronization);
-      logger.debug("Done evaluating batch: " + batch++
+      logger.trace("Done evaluating batch: " + batch++
           + " with " + numOfProtocolsInBatch + " native protocols");
       if (numOfProtocolsInBatch == 0) {
         logger.debug("Batch " + batch + " is empty");
