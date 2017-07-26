@@ -51,7 +51,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
-import java.util.logging.Level;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
@@ -76,7 +75,7 @@ public class CmdLineUtil {
   private Options appOptions;
   private CommandLine cmd;
   private SCEConfiguration<?> sceConf;
-  private ProtocolSuite<?,?> ps;
+  private ProtocolSuite<?, ?> ps;
 
   public CmdLineUtil() {
     this.appOptions = new Options();
@@ -87,7 +86,7 @@ public class CmdLineUtil {
     return this.sceConf;
   }
 
-  public ProtocolSuite<?,?> getProtocolSuite() {
+  public ProtocolSuite<?, ?> getProtocolSuite() {
     return this.ps;
   }
 
@@ -128,29 +127,6 @@ public class CmdLineUtil {
         .longOpt("party")
         .required(true)
         .hasArgs()
-        .build());
-
-    options.addOption(Option.builder("l")
-        .desc(
-            "The log level. Can be either OFF, SEVERE, CONFIG, WARNING, INFO, FINE, FINER, FINEST. Default is 'WARNING'")
-        .longOpt("log-level")
-        .required(false)
-        .hasArg()
-        .build());
-
-    options.addOption(Option.builder("t")
-        .desc("The number of threads to use for the SCE. Defaults to " + getDefaultNoOfThreads())
-        .longOpt("no-threads")
-        .required(false)
-        .hasArg(true)
-        .build());
-
-    options.addOption(Option.builder("vt")
-        .desc("The number of threads to use in the VM (evaluator). Defaults to "
-            + getDefaultNoOfThreads())
-        .longOpt("no-vm-threads")
-        .required(false)
-        .hasArg(true)
         .build());
 
     options.addOption(Option.builder("e")
@@ -218,7 +194,6 @@ public class CmdLineUtil {
 
   private void validateStandardOptions() throws ParseException {
     int myId;
-    Level logLevel;
 
     Object suiteObj = this.cmd.getParsedOptionValue("s");
     if (suiteObj == null) {
@@ -266,27 +241,6 @@ public class CmdLineUtil {
           " but this id is not present in the list of parties " + parties.keySet());
     }
 
-    if (this.cmd.hasOption("l")) {
-      System.out.println(this.cmd.getOptionValue("l"));
-      logLevel = Level.parse(this.cmd.getOptionValue("l"));
-    } else {
-      logLevel = Level.WARNING;
-    }
-
-    int noOfThreads = this.cmd.hasOption("t") ? parseNonzeroInt("t") : getDefaultNoOfThreads();
-    if (noOfThreads > Runtime.getRuntime().availableProcessors()) {
-      logger.warn("You are using " + noOfThreads + " but system has only " + Runtime.getRuntime()
-          .availableProcessors()
-          + " available processors. This is likely to result in less than optimal performance.");
-    }
-
-    int vmThreads = this.cmd.hasOption("vt") ? parseNonzeroInt("vt") : getDefaultNoOfThreads();
-    if (vmThreads > Runtime.getRuntime().availableProcessors()) {
-      logger.warn("You are using " + vmThreads + " but system has only " + Runtime.getRuntime()
-          .availableProcessors()
-          + " available processors. This is likely to result in less than optimal performance.");
-    }
-
     final ProtocolEvaluator evaluator;
     if (this.cmd.hasOption("e")) {
       try {
@@ -309,27 +263,20 @@ public class CmdLineUtil {
       storage = new InMemoryStorage();
     }
 
-    final int maxBatchSize;
     if (this.cmd.hasOption("b")) {
       try {
-        maxBatchSize = Integer.parseInt(this.cmd.getOptionValue("b"));
+        evaluator.setMaxBatchSize(Integer.parseInt(this.cmd.getOptionValue("b")));
       } catch (Exception e) {
         throw new ParseException("");
       }
-    } else {
-      maxBatchSize = 4096;
     }
 
     // TODO: Rather: Just log sceConf.toString()
     logger.info("Player id          : " + myId);
     logger.info("NativeProtocol suite     : " + suite);
     logger.info("Players            : " + parties);
-    logger.info("Log level          : " + logLevel);
-    logger.info("No of threads      : " + noOfThreads);
-    logger.info("No of vm threads   : " + vmThreads);
     logger.info("Evaluation strategy: " + evaluator);
     logger.info("Storage strategy   : " + storage);
-    logger.info("Maximum batch size : " + maxBatchSize);
 
     this.sceConf = new SCEConfiguration() {
 
@@ -397,16 +344,16 @@ public class CmdLineUtil {
           this.ps = new DummyProtocolSuite();
           break;
         case "dummyarithmetic":
-          this.ps = dummyArithmeticFromCmdLine(this.sceConf, cmd);
+          this.ps = dummyArithmeticFromCmdLine(cmd);
           break;
         case "spdz":
-          this.ps = SpdzConfigurationFromCmdLine(sceConf, cmd);
+          this.ps = SpdzConfigurationFromCmdLine(cmd);
           break;
         case "tinytablesprepro":
-          this.ps = tinyTablesPreProFromCmdLine(this.sceConf, cmd);
+          this.ps = tinyTablesPreProFromCmdLine(cmd, this.sceConf.getMyId());
           break;
         case "tinytables":
-          this.ps = tinyTablesFromCmdLine(this.sceConf, cmd);
+          this.ps = tinyTablesFromCmdLine(cmd, this.sceConf.getMyId());
           break;
         default:
           throw new ParseException(
@@ -420,16 +367,16 @@ public class CmdLineUtil {
     }
     return this.cmd;
   }
-  
-  public static ProtocolSuite<?,?> dummyArithmeticFromCmdLine(SCEConfiguration<?> sceConf, CommandLine cmd) {
+
+  private static ProtocolSuite<?, ?> dummyArithmeticFromCmdLine(CommandLine cmd) {
     Properties p = cmd.getOptionProperties("D");
-    BigInteger mod = new BigInteger(p.getProperty("modulus", "6703903964971298549787012499123814115273848577471136527425966013026501536706464354255445443244279389455058889493431223951165286470575994074291745908195329"));
+    BigInteger mod = new BigInteger(p.getProperty("modulus",
+        "6703903964971298549787012499123814115273848577471136527425966013026501536706464354255445443244279389455058889493431223951165286470575994074291745908195329"));
     int maxBitLength = Integer.parseInt(p.getProperty("maxbitlength", "150"));
-    return new DummyArithmeticProtocolSuite(mod, maxBitLength);    
+    return new DummyArithmeticProtocolSuite(mod, maxBitLength);
   }
-  
-  private static ProtocolSuite<?,?> SpdzConfigurationFromCmdLine(SCEConfiguration<?> sceConf,
-      CommandLine cmd) {
+
+  private static ProtocolSuite<?, ?> SpdzConfigurationFromCmdLine(CommandLine cmd) {
     Properties p = cmd.getOptionProperties("D");
     //TODO: Figure out a meaningful default for the below
     final int maxBitLength = Integer.parseInt(p.getProperty("spdz.maxBitLength", "64"));
@@ -440,26 +387,26 @@ public class CmdLineUtil {
     final String fuelStationBaseUrl = p.getProperty("spdz.fuelStationBaseUrl", null);
     String strat = p.getProperty("spdz.preprocessingStrategy");
     final PreprocessingStrategy strategy = PreprocessingStrategy.fromString(strat);
-    return new SpdzProtocolSuite(maxBitLength, strategy, fuelStationBaseUrl);    
+    return new SpdzProtocolSuite(maxBitLength, strategy, fuelStationBaseUrl);
   }
-  
-  public static ProtocolSuite<?,?> tinyTablesPreProFromCmdLine(SCEConfiguration<?> sceConf, CommandLine cmd)
+
+  private static ProtocolSuite<?, ?> tinyTablesPreProFromCmdLine(CommandLine cmd, int myId)
       throws ParseException, IllegalArgumentException {
 
     Properties p = cmd.getOptionProperties("D");
     String tinytablesFileOption = "tinytables.file";
     String tinyTablesFilePath = p.getProperty(tinytablesFileOption, "tinytables");
-    return new TinyTablesPreproProtocolSuite(sceConf.getMyId(), new File(tinyTablesFilePath));    
+    return new TinyTablesPreproProtocolSuite(myId, new File(tinyTablesFilePath));
   }
-  
-  public static ProtocolSuite<?,?> tinyTablesFromCmdLine(SCEConfiguration<?> sceConf,
-      CommandLine cmd) throws ParseException, IllegalArgumentException {
-  
-  Properties p = cmd.getOptionProperties("D");
-  String tinytablesFileOption = "tinytables.file";
-  String tinyTablesFilePath = p.getProperty(tinytablesFileOption, "tinytables");
-  return new TinyTablesProtocolSuite(sceConf.getMyId(), new File(tinyTablesFilePath));
-}
+
+  private static ProtocolSuite<?, ?> tinyTablesFromCmdLine(CommandLine cmd, int myId)
+      throws ParseException, IllegalArgumentException {
+
+    Properties p = cmd.getOptionProperties("D");
+    String tinytablesFileOption = "tinytables.file";
+    String tinyTablesFilePath = p.getProperty(tinytablesFileOption, "tinytables");
+    return new TinyTablesProtocolSuite(myId, new File(tinyTablesFilePath));
+  }
 
   public void displayHelp() {
     HelpFormatter formatter = new HelpFormatter();
