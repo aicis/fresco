@@ -69,9 +69,8 @@ public class TestTinyTables {
     // ports
     // here instead of relying on ephemeral ports which are often > 9999.
     List<Integer> ports = new ArrayList<>(noPlayers);
-    int noOfVMThreads = 3;
     for (int i = 1; i <= noPlayers; i++) {
-      ports.add(9000 + i * noOfVMThreads);
+      ports.add(9000 + i);
     }
 
     Map<Integer, NetworkConfiguration> netConf = TestConfiguration.getNetworkConfigurations(

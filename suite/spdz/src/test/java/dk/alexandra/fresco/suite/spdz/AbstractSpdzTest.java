@@ -51,10 +51,9 @@ public abstract class AbstractSpdzTest {
     // Since SCAPI currently does not work with ports > 9999 we use fixed
     // ports
     // here instead of relying on ephemeral ports which are often > 9999.
-    int noOfVMThreads = 3;
     List<Integer> ports = new ArrayList<>(noOfParties);
     for (int i = 1; i <= noOfParties; i++) {
-      ports.add(9000 + i * noOfVMThreads * (noOfParties - 1));
+      ports.add(9000 + i * (noOfParties - 1));
     }
 
     Map<Integer, NetworkConfiguration> netConf = TestConfiguration
