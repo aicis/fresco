@@ -36,6 +36,7 @@ import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.configuration.SCEConfiguration;
+import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.util.ByteArithmetic;
 import dk.alexandra.fresco.framework.value.OBool;
 import dk.alexandra.fresco.framework.value.SBool;
@@ -157,7 +158,9 @@ public class AESDemo extends DemoBinaryApplication<OBool[]> {
     SecureComputationEngine sce = new SecureComputationEngineImpl(ps, sceConf.getEvaluator());
 
     try {
-      sce.runApplication(aes, ResourcePoolHelper.createResourcePool(sceConf, ps));
+      ResourcePool resourcePool = ResourcePoolHelper
+          .createResourcePool(sceConf, ps, util.getNetworkStrategy());
+      sce.runApplication(aes, resourcePool);
     } catch (Exception e) {
       System.out.println("Error while doing MPC: " + e.getMessage());
       System.exit(-1);

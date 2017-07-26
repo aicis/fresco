@@ -5,7 +5,6 @@ import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
 import dk.alexandra.fresco.framework.configuration.ConfigurationException;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.NetworkConfigurationImpl;
-import dk.alexandra.fresco.framework.sce.configuration.SCEConfiguration;
 import dk.alexandra.fresco.framework.sce.configuration.TestSCEConfiguration;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.suite.ProtocolSuite;
@@ -16,18 +15,18 @@ import java.util.Map;
 import java.util.Random;
 
 public class ResourcePoolCreator<ResourcePoolT extends ResourcePool> {
-  
+
   private static Map<Integer, ResourcePool> rps = new HashMap<>();
-  
+
   public static Map<Integer, ResourcePool> getCurrentResourcePools() {
     return rps;
   }
-  
-  private static Network getNetworkFromConfiguration(SCEConfiguration sceConf,
-      int myId, Map<Integer, Party> parties) {
+
+  private static Network getNetworkFromConfiguration(int myId, Map<Integer, Party> parties,
+      NetworkingStrategy networkStrategy) {
     int channelAmount = 1;
     NetworkConfiguration conf = new NetworkConfigurationImpl(myId, parties);
-    return buildNetwork(conf, channelAmount, sceConf.getNetworkStrategy());
+    return buildNetwork(conf, channelAmount, networkStrategy);
   }
 
   private static Network buildNetwork(NetworkConfiguration conf,
@@ -49,27 +48,28 @@ public class ResourcePoolCreator<ResourcePoolT extends ResourcePool> {
     network.init(conf, channelAmount);
     return network;
   }
-  
-  public static <ResourcePoolT extends ResourcePool, Builder extends ProtocolBuilder> ResourcePoolT createResourcePool(TestSCEConfiguration<ResourcePoolT, Builder> sceConf) throws IOException {
+
+  public static <ResourcePoolT extends ResourcePool, Builder extends ProtocolBuilder> ResourcePoolT createResourcePool(
+      TestSCEConfiguration<ResourcePoolT, Builder> sceConf) throws IOException {
     int myId = sceConf.getMyId();
     Map<Integer, Party> parties = sceConf.getParties();
-  
+
     // Secure random by default.
     Random rand = new Random(0);
     SecureRandom secRand = new SecureRandom();
-  
-    Network network = getNetworkFromConfiguration(sceConf, myId, parties);
+
+    Network network = getNetworkFromConfiguration(myId, parties, sceConf.getNetworkStrategy());
     network.connect(10000);
 
     ProtocolSuite<ResourcePoolT, Builder> suite = sceConf.getSuite();
 
     ResourcePoolT resourcePool = suite
         .createResourcePool(myId, parties.size(), network, rand, secRand);
-      
+
     ResourcePoolCreator.rps.put(myId, resourcePool);
-    
+
     return resourcePool;
-  
+
   }
 
 }

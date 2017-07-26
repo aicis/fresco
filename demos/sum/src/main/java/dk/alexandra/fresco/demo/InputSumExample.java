@@ -25,6 +25,7 @@ package dk.alexandra.fresco.demo;
 
 import dk.alexandra.fresco.demo.cli.CmdLineUtil;
 import dk.alexandra.fresco.demo.helpers.ResourcePoolHelper;
+import dk.alexandra.fresco.framework.network.NetworkingStrategy;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.configuration.SCEConfiguration;
@@ -34,11 +35,12 @@ import java.io.IOException;
 public class InputSumExample {
 
   public static void runApplication(SecureComputationEngine sce, SCEConfiguration sceConf,
-      ProtocolSuite<?, ?> protocolSuiteConfig) throws IOException {
+      ProtocolSuite<?, ?> protocolSuiteConfig,
+      NetworkingStrategy networkStrategy) throws IOException {
     InputApplication inputApp;
 
     int myId = sceConf.getMyId();
-    int[] inputs = new int[] {1, 2, 3, 7, 8, 12, 15, 17};
+    int[] inputs = new int[]{1, 2, 3, 7, 8, 12, 15, 17};
     if (myId == 1) {
       // I input
       inputApp = new InputApplication(inputs);
@@ -49,7 +51,8 @@ public class InputSumExample {
 
     SumAndOutputApplication app = new SumAndOutputApplication(inputApp);
 
-    sce.runApplication(app, ResourcePoolHelper.createResourcePool(sceConf, protocolSuiteConfig));
+    sce.runApplication(app, ResourcePoolHelper.createResourcePool(sceConf, protocolSuiteConfig,
+        networkStrategy));
 
     int sum = 0;
     for (int i : inputs) {
@@ -69,7 +72,7 @@ public class InputSumExample {
     SecureComputationEngine sce =
         new SecureComputationEngineImpl(psConf, sceConf.getEvaluator());
 
-    runApplication(sce, sceConf, psConf);
+    runApplication(sce, sceConf, psConf, util.getNetworkStrategy());
   }
 
 }

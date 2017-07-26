@@ -164,12 +164,6 @@ public class AggregationDemo<ResourcePoolT extends ResourcePool> {
         sequentialEvaluator.setMaxBatchSize(4096);
         return sequentialEvaluator;
       }
-
-      @Override
-      public NetworkingStrategy getNetworkStrategy() {
-        return NetworkingStrategy.KRYONET;
-      }
-
     };
 
     ProtocolSuite<SpdzResourcePool, SequentialNumericBuilder> suite =
@@ -182,7 +176,8 @@ public class AggregationDemo<ResourcePoolT extends ResourcePool> {
     // Create application we are going run
     AggregationDemo<SpdzResourcePool> app = new AggregationDemo<>();
 
-    SpdzResourcePool rp = ResourcePoolHelper.createResourcePool(sceConfig, suite);
+    SpdzResourcePool rp = ResourcePoolHelper.createResourcePool(sceConfig, suite,
+        NetworkingStrategy.KRYONET);
     app.runApplication(sceConfig, sce, rp);
   }
 }

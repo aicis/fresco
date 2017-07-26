@@ -46,7 +46,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
@@ -55,7 +54,6 @@ import org.junit.experimental.categories.Category;
 
 public class SetIntersectionDemo {
 
-  private Level logLevel = Level.FINE;
   private int noPlayers = 2;
 
   @Test
@@ -192,7 +190,8 @@ public class SetIntersectionDemo {
             PrivateSetDemo app = new PrivateSetDemo(conf.netConf.getMyId(), key, inputList);
 
             secureComputationEngine.runApplication(app,
-                ResourcePoolHelper.createResourcePool(conf.sceConf, conf.sceConf.getSuite()));
+                ResourcePoolHelper.createResourcePool(conf.sceConf, conf.sceConf.getSuite(),
+                    conf.sceConf.getNetworkStrategy()));
 
             boolean[][] actualBoolean = new boolean[app.result.length][app.result[0].length];
 

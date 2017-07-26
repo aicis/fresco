@@ -61,10 +61,12 @@ public class TestAggregation {
 
             app.runApplication(conf.sceConf, secureComputationEngine,
                 (SpdzResourcePool) ResourcePoolHelper.createResourcePool(conf.sceConf,
-                    conf.sceConf.getSuite()));
+                    conf.sceConf.getSuite(), conf.sceConf.getNetworkStrategy()));
           }
         };
-      };
+      }
+
+      ;
     };
     runTest(f, 2);
   }

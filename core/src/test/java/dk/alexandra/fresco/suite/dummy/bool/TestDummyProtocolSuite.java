@@ -43,7 +43,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
 import org.junit.Test;
 
 
@@ -57,7 +56,6 @@ public class TestDummyProtocolSuite {
   private void runTest(TestThreadFactory<ResourcePoolImpl, ProtocolBuilderBinary> f, EvaluationStrategy evalStrategy) throws Exception {
     // The dummy protocol suite has the nice property that it can be run by just one player.
     int noPlayers = 1;
-    Level logLevel = Level.INFO;
 
     // Since SCAPI currently does not work with ports > 9999 we use fixed ports
     // here instead of relying on ephemeral ports which are often > 9999.

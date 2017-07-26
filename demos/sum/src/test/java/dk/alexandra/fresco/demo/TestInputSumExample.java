@@ -83,7 +83,7 @@ public class TestInputSumExample {
           @Override
           public void test() throws Exception {
             InputSumExample.runApplication(secureComputationEngine, conf.sceConf,
-                conf.sceConf.getSuite());
+                conf.sceConf.getSuite(), conf.sceConf.getNetworkStrategy());
           }
         };
       }
@@ -102,7 +102,7 @@ public class TestInputSumExample {
           @Override
           public void test() throws Exception {
             InputSumExample.runApplication(secureComputationEngine, conf.sceConf,
-                conf.sceConf.getSuite());
+                conf.sceConf.getSuite(), conf.sceConf.getNetworkStrategy());
           }
         };
       }

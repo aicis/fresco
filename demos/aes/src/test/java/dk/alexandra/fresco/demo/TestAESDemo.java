@@ -41,7 +41,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -51,7 +50,6 @@ public class TestAESDemo {
   @Test
   public void testAESDemo() throws Exception {
     int noPlayers = 2;
-    Level logLevel = Level.INFO;
     // Since SCAPI currently does not work with ports > 9999 we use fixed ports
     // here instead of relying on ephemeral ports which are often > 9999.
     List<Integer> ports = new ArrayList<Integer>(noPlayers);
@@ -92,7 +90,8 @@ public class TestAESDemo {
             AESDemo app = new AESDemo(conf.netConf.getMyId(), input);
 
             secureComputationEngine.runApplication(app,
-                ResourcePoolHelper.createResourcePool(conf.sceConf, conf.sceConf.getSuite()));
+                ResourcePoolHelper.createResourcePool(conf.sceConf, conf.sceConf.getSuite(),
+                    conf.sceConf.getNetworkStrategy()));
 
             // Verify output state.
             String expected = "69c4e0d86a7b0430d8cdb78070b4c55a"; // expected cipher

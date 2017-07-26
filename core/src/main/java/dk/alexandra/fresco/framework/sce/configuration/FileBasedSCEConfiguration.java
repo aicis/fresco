@@ -180,10 +180,4 @@ public class FileBasedSCEConfiguration implements SCEConfiguration {
         + ", myId=" + myId
         + ", evaluator=" + evaluator + "]";
   }
-
-  @Override
-  public NetworkingStrategy getNetworkStrategy() {
-    return this.network;
-  }
-
 }

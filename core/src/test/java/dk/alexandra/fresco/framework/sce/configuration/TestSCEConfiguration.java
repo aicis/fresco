@@ -88,7 +88,6 @@ public class TestSCEConfiguration<ResourcePoolT extends ResourcePool, Builder ex
     return this.evaluator;
   }
 
-  @Override
   public NetworkingStrategy getNetworkStrategy() {
     return this.network;
   }

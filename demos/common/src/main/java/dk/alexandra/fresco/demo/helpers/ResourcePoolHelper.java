@@ -21,11 +21,12 @@ public class ResourcePoolHelper {
 
   private static Map<Integer, ResourcePool> networks = new HashMap<>();
 
-  private static Network getNetworkFromConfiguration(SCEConfiguration<?> sceConf, int myId,
-      Map<Integer, Party> parties) {
+  private static Network getNetworkFromConfiguration(
+      int myId, Map<Integer, Party> parties,
+      NetworkingStrategy networkStrategy) {
     int channelAmount = 1;
     NetworkConfiguration conf = new NetworkConfigurationImpl(myId, parties);
-    return buildNetwork(conf, channelAmount, sceConf.getNetworkStrategy());
+    return buildNetwork(conf, channelAmount, networkStrategy);
   }
 
   private static Network buildNetwork(NetworkConfiguration conf, int channelAmount,
@@ -50,8 +51,9 @@ public class ResourcePoolHelper {
   }
 
   public static <ResourcePoolT extends ResourcePool, Builder extends ProtocolBuilder> ResourcePoolT createResourcePool(
-      SCEConfiguration<ResourcePoolT> sceConf, ProtocolSuite<ResourcePoolT, Builder> suite)
-          throws IOException {
+      SCEConfiguration<ResourcePoolT> sceConf, ProtocolSuite<ResourcePoolT, Builder> suite,
+      NetworkingStrategy networkStrategy)
+      throws IOException {
     int myId = sceConf.getMyId();
     Map<Integer, Party> parties = sceConf.getParties();
 
@@ -59,7 +61,7 @@ public class ResourcePoolHelper {
     Random rand = new Random(0);
     SecureRandom secRand = new SecureRandom();
 
-    Network network = getNetworkFromConfiguration(sceConf, myId, parties);
+    Network network = getNetworkFromConfiguration(myId, parties, networkStrategy);
     network.connect(10000);
 
     ResourcePoolT resourcePool =

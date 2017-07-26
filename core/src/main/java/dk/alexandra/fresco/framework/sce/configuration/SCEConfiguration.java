@@ -28,7 +28,6 @@ package dk.alexandra.fresco.framework.sce.configuration;
 
 import dk.alexandra.fresco.framework.Party;
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
-import dk.alexandra.fresco.framework.network.NetworkingStrategy;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import java.util.Map;
 
@@ -37,13 +36,6 @@ public interface SCEConfiguration<ResourcePoolT extends ResourcePool> {
   int getMyId();
 
   Map<Integer, Party> getParties();
-
-  /**
-   * Get the network strategy to use, is only used when getNetwork returns null.
-   *
-   * @return The network strategy wanted.
-   */
-  NetworkingStrategy getNetworkStrategy();
 
   /**
    * Reads the config for an indication on which kind of GateEvaluator should

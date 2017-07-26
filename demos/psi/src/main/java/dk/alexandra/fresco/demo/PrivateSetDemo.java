@@ -169,7 +169,8 @@ public class PrivateSetDemo extends DemoBinaryApplication<OBool[][]> {
         new SecureComputationEngineImpl(psConf, sceConf.getEvaluator());
 
     try {
-      sce.runApplication(privateSetDemo, ResourcePoolHelper.createResourcePool(sceConf, psConf));
+      sce.runApplication(privateSetDemo, ResourcePoolHelper.createResourcePool(sceConf, psConf,
+          util.getNetworkStrategy()));
     } catch (Exception e) {
       System.out.println("Error while doing MPC: " + e.getMessage());
       System.exit(-1);

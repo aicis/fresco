@@ -123,7 +123,8 @@ public class DistanceDemo extends DemoNumericApplication<BigInteger> {
     DistanceDemo distDemo = new DistanceDemo(sceConf.getMyId(), x, y);
     SecureComputationEngine sce = SCEFactory.getSCEFromConfiguration(sceConf, psConf);
     try {
-      sce.runApplication(distDemo, ResourcePoolHelper.createResourcePool(sceConf, psConf));
+      sce.runApplication(distDemo, ResourcePoolHelper.createResourcePool(sceConf, psConf,
+          cmdUtil.getNetworkStrategy()));
     } catch (Exception e) {
       System.out.println("Error while doing MPC: " + e.getMessage());
       e.printStackTrace();

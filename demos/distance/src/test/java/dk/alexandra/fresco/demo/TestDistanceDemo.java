@@ -64,7 +64,8 @@ public class TestDistanceDemo {
             System.out.println("Running with x: " + x + ", y: " + y);
             DistanceDemo distDemo = new DistanceDemo(conf.getMyId(), x, y);
             secureComputationEngine.runApplication(distDemo,
-                ResourcePoolHelper.createResourcePool(conf.sceConf, conf.sceConf.getSuite()));
+                ResourcePoolHelper.createResourcePool(conf.sceConf, conf.sceConf.getSuite(),
+                    conf.sceConf.getNetworkStrategy()));
             double distance = distDemo.getOutput().out().doubleValue();
             distance = Math.sqrt(distance);
             Assert.assertEquals(11.1803, distance, 0.0001);

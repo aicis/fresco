@@ -103,7 +103,7 @@ public class TestConfiguration implements NetworkConfiguration {
   }
 
   /**
-   * As getConfigurations(n, ports, loglevel) but tries to find free ephemeral
+   * As getConfigurations(n, ports) but tries to find free ephemeral
    * ports (but note that there is no guarantee that ports will remain
    * unused).
    */

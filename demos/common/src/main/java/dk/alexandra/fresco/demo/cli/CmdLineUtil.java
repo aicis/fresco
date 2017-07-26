@@ -86,6 +86,10 @@ public class CmdLineUtil {
     return this.sceConf;
   }
 
+  public NetworkingStrategy getNetworkStrategy() {
+    return NetworkingStrategy.KRYONET;
+  }
+
   public ProtocolSuite<?, ?> getProtocolSuite() {
     return this.ps;
   }
@@ -161,17 +165,6 @@ public class CmdLineUtil {
   private static String getSupportedProtocolSuites() {
     String[] strings = {"dummybool", "dummyarithmetic", "spdz", "tinytables", "tinytablesprepro"};
     return Arrays.toString(strings);
-  }
-
-
-  private static int getDefaultNoOfThreads() {
-    int n = Runtime.getRuntime().availableProcessors();
-    if (n == 1) {
-      return 1;
-    }
-    // Heuristic that gives best performance: One thread for each worker
-    // and one for the 'system'.
-    return n - 1;
   }
 
   private int parseNonzeroInt(String optionId) throws ParseException {
@@ -294,12 +287,6 @@ public class CmdLineUtil {
       public ProtocolEvaluator<?> getEvaluator() {
         return evaluator;
       }
-
-      @Override
-      public NetworkingStrategy getNetworkStrategy() {
-        return NetworkingStrategy.KRYONET;
-      }
-
     };
 
   }

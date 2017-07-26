@@ -55,7 +55,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -66,8 +65,6 @@ public class TestTinyTables {
   private void runTest(TestThreadFactory f, EvaluationStrategy evalStrategy,
       boolean preprocessing, String name) throws Exception {
     int noPlayers = 2;
-    Level logLevel = Level.INFO;
-
     // Since SCAPI currently does not work with ports > 9999 we use fixed
     // ports
     // here instead of relying on ephemeral ports which are often > 9999.
