@@ -37,7 +37,7 @@ import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
 import java.math.BigInteger;
 
-public class SpdzInputProtocol extends SpdzNativeProtocol<SpdzSInt> {
+public class SpdzInputProtocol extends SpdzNativeProtocol<SInt> {
 
   private SpdzInputMask inputMask; // is opened by this gate.
   protected BigInteger input;

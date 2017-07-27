@@ -124,13 +124,14 @@ public abstract class ProtocolBuilderNumeric implements ProtocolBuilder {
    * factories that needs to be builders.
    *
    * @param nativeProtocol the native protocol to add
-   * @param <T> the type of the native protocol - pass-through buildable object
-   * @return the original native protocol.
+   * @param <T> the result type of the native protocol
+   * @return a computation that resolves to the result of the native protocol once evaluated
    */
-  public <T extends NativeProtocol> T append(T nativeProtocol) {
+  public <T> Computation<T> append(NativeProtocol<T, ?> nativeProtocol) {
+    SingleProtocolProducer<T> producer = new SingleProtocolProducer<>(nativeProtocol);
     ProtocolBuilderNumeric.ProtocolEntity protocolEntity = createAndAppend();
-    protocolEntity.protocolProducer = SingleProtocolProducer.wrap(nativeProtocol);
-    return nativeProtocol;
+    protocolEntity.protocolProducer = producer;
+    return producer;
   }
 
   // This will go away and should not be used - users should recode their applications to
