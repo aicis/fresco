@@ -27,42 +27,31 @@ import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.TestThreadRunner;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.TestConfiguration;
-import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.NetworkingStrategy;
 import dk.alexandra.fresco.framework.sce.configuration.TestSCEConfiguration;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
-import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
-import dk.alexandra.fresco.framework.sce.resources.storage.Storage;
-import dk.alexandra.fresco.suite.ProtocolSuite;
 import java.math.BigInteger;
-import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
-import java.util.logging.Level;
 
 /**
  * Abstract class which handles a lot of boiler plate testing code. This makes running a single test
  * using different parameters quite easy.
- *
  */
 public abstract class AbstractDummyArithmeticTest {
 
   protected void runTest(TestThreadRunner.TestThreadFactory f, EvaluationStrategy evalStrategy,
       NetworkingStrategy network, int noOfParties) throws Exception {
-    Level logLevel = Level.INFO;
 
-    int noOfVMThreads = 1;
-    int noOfThreads = 1;
     List<Integer> ports = new ArrayList<Integer>(noOfParties);
     for (int i = 1; i <= noOfParties; i++) {
-      ports.add(9000 + i * noOfVMThreads * (noOfParties - 1));
+      ports.add(9000 + i * (noOfParties - 1));
     }
 
     Map<Integer, NetworkConfiguration> netConf =
-        TestConfiguration.getNetworkConfigurations(noOfParties, ports, logLevel);
+        TestConfiguration.getNetworkConfigurations(noOfParties, ports);
     Map<Integer, TestThreadRunner.TestThreadConfiguration> conf =
         new HashMap<Integer, TestThreadRunner.TestThreadConfiguration>();
     for (int playerId : netConf.keySet()) {
@@ -72,15 +61,14 @@ public abstract class AbstractDummyArithmeticTest {
       BigInteger mod = new BigInteger(
           "6703903964971298549787012499123814115273848577471136527425966013026501536706464354255445443244279389455058889493431223951165286470575994074291745908195329");
 
-      DummyArithmeticProtocolSuite ps = new DummyArithmeticProtocolSuite(mod, 200);      
+      DummyArithmeticProtocolSuite ps = new DummyArithmeticProtocolSuite(mod, 200);
 
       boolean useSecureConnection = false; // No tests of secure
-                                           // connection
-                                           // here.
+      // connection
+      // here.
 
       ProtocolEvaluator evaluator = EvaluationStrategy.fromEnum(evalStrategy);
-      Storage storage = new InMemoryStorage();
-      ttc.sceConf = new TestSCEConfiguration(ps, network, evaluator, ttc.netConf, storage,
+      ttc.sceConf = new TestSCEConfiguration(ps, network, evaluator, ttc.netConf,
           useSecureConnection);
       conf.put(playerId, ttc);
     }

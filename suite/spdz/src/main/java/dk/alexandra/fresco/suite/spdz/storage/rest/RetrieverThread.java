@@ -25,7 +25,6 @@
 package dk.alexandra.fresco.suite.spdz.storage.rest;
 
 import dk.alexandra.fresco.framework.MPCException;
-import dk.alexandra.fresco.framework.Reporter;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzTriple;
@@ -41,8 +40,12 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.ByteArrayBuffer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class RetrieverThread extends Thread {
+
+  private final static Logger logger = LoggerFactory.getLogger(RetrieverThread.class);
 
   private final int modulusSize;
   private String restEndPoint;
@@ -123,7 +126,7 @@ public class RetrieverThread extends Thread {
               + this.myId + "/thread/" + threadId);
         }
 
-        Reporter.fine("Executing request " + httpget.getRequestLine());
+        logger.debug("Executing request " + httpget.getRequestLine());
 
         // Create a custom response handler
         ResponseHandler<Void> responseHandler = new ResponseHandler<Void>() {
@@ -216,7 +219,7 @@ public class RetrieverThread extends Thread {
         running = false;
         throw new MPCException("Retriever got interrupted", e1);
       } catch (ClientProtocolException e) {
-        Reporter.warn("Retriever could not reach client. Exception message: " + e.getMessage()
+        logger.warn("Retriever could not reach client. Exception message: " + e.getMessage()
             + ". Waiting for a " + waitTimeInMs + "ms before trying again.");
         try {
           Thread.sleep(waitTimeInMs);

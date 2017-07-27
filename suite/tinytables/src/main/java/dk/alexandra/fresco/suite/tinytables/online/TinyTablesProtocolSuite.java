@@ -27,7 +27,6 @@
 package dk.alexandra.fresco.suite.tinytables.online;
 
 import dk.alexandra.fresco.framework.BuilderFactory;
-import dk.alexandra.fresco.framework.Reporter;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
@@ -48,6 +47,8 @@ import java.security.SecureRandom;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>
@@ -71,11 +72,13 @@ import java.util.Random;
  *
  * @author Jonas Lindstrøm (jonas.lindstrom@alexandra.dk)
  */
-public class TinyTablesProtocolSuite implements ProtocolSuite<ResourcePoolImpl, ProtocolBuilderBinary> {
+public class TinyTablesProtocolSuite implements
+    ProtocolSuite<ResourcePoolImpl, ProtocolBuilderBinary> {
 
   private final File tinyTablesFile;
   private TinyTablesStorage storage;
   private static volatile Map<Integer, TinyTablesProtocolSuite> instances = new HashMap<>();
+  private final static Logger logger = LoggerFactory.getLogger(TinyTablesProtocolSuite.class);
 
   public static TinyTablesProtocolSuite getInstance(int id) {
     return instances.get(id);
@@ -92,7 +95,7 @@ public class TinyTablesProtocolSuite implements ProtocolSuite<ResourcePoolImpl, 
       this.storage = loadTinyTables(tinyTablesFile);
     } catch (ClassNotFoundException ignored) {
     } catch (IOException e) {
-      Reporter.severe("Failed to load TinyTables: " + e.getMessage());
+      logger.error("Failed to load TinyTables: " + e.getMessage());
     }
     return new LegacyBinaryBuilder(new TinyTablesFactory());
   }
@@ -101,7 +104,7 @@ public class TinyTablesProtocolSuite implements ProtocolSuite<ResourcePoolImpl, 
       ClassNotFoundException {
     FileInputStream fin = new FileInputStream(file);
     ObjectInputStream is = new ObjectInputStream(fin);
-    Reporter.info("Loading TinyTabels from " + file);
+    logger.info("Loading TinyTabels from " + file);
     TinyTablesStorage storage = (TinyTablesStorage) is.readObject();
     is.close();
     return storage;

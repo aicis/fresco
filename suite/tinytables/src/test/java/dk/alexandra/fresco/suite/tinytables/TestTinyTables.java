@@ -38,8 +38,6 @@ import dk.alexandra.fresco.framework.network.NetworkingStrategy;
 import dk.alexandra.fresco.framework.sce.configuration.TestSCEConfiguration;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
-import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
-import dk.alexandra.fresco.framework.sce.resources.storage.Storage;
 import dk.alexandra.fresco.lib.bool.BasicBooleanTests;
 import dk.alexandra.fresco.lib.crypto.BristolCryptoTests;
 import dk.alexandra.fresco.lib.math.mult.BristolMultTests;
@@ -57,7 +55,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -68,40 +65,36 @@ public class TestTinyTables {
   private void runTest(TestThreadFactory f, EvaluationStrategy evalStrategy,
       boolean preprocessing, String name) throws Exception {
     int noPlayers = 2;
-    Level logLevel = Level.INFO;
-
     // Since SCAPI currently does not work with ports > 9999 we use fixed
     // ports
     // here instead of relying on ephemeral ports which are often > 9999.
     List<Integer> ports = new ArrayList<>(noPlayers);
-    int noOfVMThreads = 3;
     for (int i = 1; i <= noPlayers; i++) {
-      ports.add(9000 + i * noOfVMThreads);
+      ports.add(9000 + i);
     }
 
     Map<Integer, NetworkConfiguration> netConf = TestConfiguration.getNetworkConfigurations(
-        noPlayers, ports, logLevel);
+        noPlayers, ports);
     Map<Integer, TestThreadConfiguration> conf = new HashMap<>();
 
     for (int playerId : netConf.keySet()) {
       TestThreadConfiguration ttc = new TestThreadConfiguration();
       ttc.netConf = netConf.get(playerId);
 
-      ProtocolEvaluator<?> evaluator;
+      ProtocolEvaluator<ResourcePoolImpl> evaluator;
 
       ProtocolSuite<ResourcePoolImpl, ProtocolBuilderBinary> suite;
       File tinyTablesFile = new File(getFilenameForTest(playerId, name));
       if (preprocessing) {
         suite = new TinyTablesPreproProtocolSuite(playerId, tinyTablesFile);
-      } else {        
+      } else {
         suite = new TinyTablesProtocolSuite(playerId, tinyTablesFile);
       }
 
       evaluator = EvaluationStrategy.fromEnum(evalStrategy);
 
-      Storage storage = new InMemoryStorage();
       ttc.sceConf = new TestSCEConfiguration<>(suite, NetworkingStrategy.KRYONET, evaluator,
-          ttc.netConf, storage, false);
+          ttc.netConf, false);
       conf.put(playerId, ttc);
     }
     TestThreadRunner.run(f, conf);

@@ -25,7 +25,6 @@ package dk.alexandra.fresco.lib.lp;
 
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.MPCException;
-import dk.alexandra.fresco.framework.Reporter;
 import dk.alexandra.fresco.framework.builder.ComputationBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
 import dk.alexandra.fresco.framework.value.SInt;
@@ -36,6 +35,8 @@ import dk.alexandra.fresco.lib.lp.LPSolver.LPOutput;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A protocol for solving LP problems using the Simplex method.
@@ -70,6 +71,8 @@ public class LPSolver implements ComputationBuilder<LPOutput> {
   private int iterations = 0;
   private final int noVariables;
   private final int noConstraints;
+
+  private static Logger logger = LoggerFactory.getLogger(LPSolver.class);
 
   public LPSolver(
       PivotRule pivotRule,
@@ -130,7 +133,7 @@ public class LPSolver implements ComputationBuilder<LPOutput> {
             debugInfo(seq, state);
           }
           return seq.seq((inner) -> {
-            Reporter.info("LP Iterations=" + iterations + " solving " + identityHashCode);
+            logger.info("LP Iterations=" + iterations + " solving " + identityHashCode);
             if (pivotRule == PivotRule.BLAND) {
               return blandPhaseOneProtocol(inner, state);
             } else {

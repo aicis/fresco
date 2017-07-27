@@ -27,13 +27,14 @@
 package dk.alexandra.fresco.suite.spdz.storage;
 
 import dk.alexandra.fresco.framework.MPCException;
-import dk.alexandra.fresco.framework.Reporter;
 import dk.alexandra.fresco.framework.sce.resources.storage.StreamedStorage;
 import dk.alexandra.fresco.framework.sce.resources.storage.exceptions.NoMoreElementsException;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzTriple;
 import java.math.BigInteger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Data supplier which supplies the SPDZ protocol suite with preprocessed data.
@@ -45,6 +46,8 @@ import java.math.BigInteger;
  *
  */
 public class DataSupplierImpl implements DataSupplier {
+
+  private final static Logger logger = LoggerFactory.getLogger(DataSupplierImpl.class);
 
 	private StreamedStorage storage;
 	private String storageName;
@@ -82,8 +85,8 @@ public class DataSupplierImpl implements DataSupplier {
 			trip = this.storage.getNext(storageName+
 					SpdzStorageConstants.TRIPLE_STORAGE);
 		} catch (NoMoreElementsException e) {
-			Reporter.warn("Triple no. "+tripleCounter+" was not present in the storage "+ storageName);
-			return null;
+      logger.warn("Triple no. " + tripleCounter + " was not present in the storage " + storageName);
+      return null;
 		}		
 		tripleCounter ++;
 		return trip;
@@ -95,8 +98,9 @@ public class DataSupplierImpl implements DataSupplier {
 		try {
 			expPipe = this.storage.getNext(storageName+SpdzStorageConstants.EXP_PIPE_STORAGE);
 		} catch (NoMoreElementsException e) {
-			Reporter.warn("expPipe no. "+expPipeCounter+" was not present in the storage" + storageName);
-			return null;
+      logger
+          .warn("expPipe no. " + expPipeCounter + " was not present in the storage" + storageName);
+      return null;
 		}	
 		expPipeCounter ++;
 		return expPipe;
@@ -109,8 +113,11 @@ public class DataSupplierImpl implements DataSupplier {
 			mask = this.storage.getNext(storageName +
 					SpdzStorageConstants.INPUT_STORAGE + towardPlayerID);
 		} catch (NoMoreElementsException e) {
-			Reporter.warn("Mask no. "+inputMaskCounters[towardPlayerID-1]+" towards player "+towardPlayerID+" was not present in the storage " + (storageName+SpdzStorageConstants.INPUT_STORAGE + towardPlayerID));
-			return null;
+      logger.warn(
+          "Mask no. " + inputMaskCounters[towardPlayerID - 1] + " towards player " + towardPlayerID
+              + " was not present in the storage " + (storageName
+              + SpdzStorageConstants.INPUT_STORAGE + towardPlayerID));
+      return null;
 		}
 		inputMaskCounters[towardPlayerID-1]++;		
 		return mask;
@@ -123,8 +130,8 @@ public class DataSupplierImpl implements DataSupplier {
 			bit = this.storage.getNext(storageName + 
 					SpdzStorageConstants.BIT_STORAGE);
 		} catch (NoMoreElementsException e) {
-			Reporter.warn("Bit no. "+bitCounter+" was not present in the storage "+ storageName);
-			return null;
+      logger.warn("Bit no. " + bitCounter + " was not present in the storage " + storageName);
+      return null;
 		}
 		bitCounter++;
 		return bit;

@@ -37,15 +37,12 @@ import dk.alexandra.fresco.framework.network.NetworkingStrategy;
 import dk.alexandra.fresco.framework.sce.configuration.TestSCEConfiguration;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
-import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
-import dk.alexandra.fresco.framework.sce.resources.storage.Storage;
 import dk.alexandra.fresco.lib.bool.ComparisonBooleanTests;
 import dk.alexandra.fresco.lib.crypto.BristolCryptoTests;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
 import org.junit.Test;
 
 
@@ -59,7 +56,6 @@ public class TestDummyProtocolSuite {
   private void runTest(TestThreadFactory<ResourcePoolImpl, ProtocolBuilderBinary> f, EvaluationStrategy evalStrategy) throws Exception {
     // The dummy protocol suite has the nice property that it can be run by just one player.
     int noPlayers = 1;
-    Level logLevel = Level.INFO;
 
     // Since SCAPI currently does not work with ports > 9999 we use fixed ports
     // here instead of relying on ephemeral ports which are often > 9999.
@@ -69,15 +65,14 @@ public class TestDummyProtocolSuite {
     }
 
     Map<Integer, NetworkConfiguration> netConf = TestConfiguration
-        .getNetworkConfigurations(noPlayers, ports, logLevel);
+        .getNetworkConfigurations(noPlayers, ports);
     Map<Integer, TestThreadConfiguration> conf = new HashMap<>();
     for (int playerId : netConf.keySet()) {
       TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary> ttc = new TestThreadConfiguration<>();
       ttc.netConf = netConf.get(playerId);
       ProtocolEvaluator<ResourcePoolImpl> evaluator = EvaluationStrategy.fromEnum(evalStrategy);
-      Storage storage = new InMemoryStorage();
       ttc.sceConf = new TestSCEConfiguration(new DummyProtocolSuite(), NetworkingStrategy.KRYONET,
-          evaluator, ttc.netConf, storage, false);
+          evaluator, ttc.netConf, false);
       conf.put(playerId, ttc);
     }
     TestThreadRunner.run(f, conf);

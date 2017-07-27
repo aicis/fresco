@@ -25,20 +25,21 @@ package dk.alexandra.fresco.demo;
 
 import dk.alexandra.fresco.demo.cli.CmdLineUtil;
 import dk.alexandra.fresco.demo.helpers.ResourcePoolHelper;
+import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
-import dk.alexandra.fresco.framework.sce.configuration.SCEConfiguration;
+import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import java.io.IOException;
 
 public class InputSumExample {
 
-  public static void runApplication(SecureComputationEngine sce, SCEConfiguration sceConf,
-      ProtocolSuite<?, ?> protocolSuiteConfig) throws IOException {
+  public static void runApplication(SecureComputationEngine sce,
+      ResourcePool resourcePool) throws IOException {
     InputApplication inputApp;
 
-    int myId = sceConf.getMyId();
-    int[] inputs = new int[] {1, 2, 3, 7, 8, 12, 15, 17};
+    int myId = resourcePool.getMyId();
+    int[] inputs = new int[]{1, 2, 3, 7, 8, 12, 15, 17};
     if (myId == 1) {
       // I input
       inputApp = new InputApplication(inputs);
@@ -49,7 +50,7 @@ public class InputSumExample {
 
     SumAndOutputApplication app = new SumAndOutputApplication(inputApp);
 
-    sce.runApplication(app, ResourcePoolHelper.createResourcePool(sceConf, protocolSuiteConfig));
+    sce.runApplication(app, resourcePool);
 
     int sum = 0;
     for (int i : inputs) {
@@ -60,16 +61,17 @@ public class InputSumExample {
 
   public static void main(String[] args) throws IOException {
     CmdLineUtil util = new CmdLineUtil();
-    SCEConfiguration sceConf;
+    NetworkConfiguration networkConfiguration;
 
     util.parse(args);
-    sceConf = util.getSCEConfiguration();
+    networkConfiguration = util.getNetworkConfiguration();
 
     ProtocolSuite psConf = util.getProtocolSuite();
-    SecureComputationEngine sce =
-        new SecureComputationEngineImpl(psConf, sceConf.getEvaluator(), sceConf.getLogLevel());
+    SecureComputationEngine sce = new SecureComputationEngineImpl(psConf, util.getEvaluator());
 
-    runApplication(sce, sceConf, psConf);
+    ResourcePool resourcePool = ResourcePoolHelper.createResourcePool(
+        psConf, util.getNetworkStrategy(), networkConfiguration);
+    runApplication(sce, resourcePool);
   }
 
 }

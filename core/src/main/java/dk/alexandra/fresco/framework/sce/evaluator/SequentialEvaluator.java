@@ -32,7 +32,6 @@ import dk.alexandra.fresco.framework.NativeProtocol.EvaluationStatus;
 import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.ProtocolProducer;
-import dk.alexandra.fresco.framework.Reporter;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.SCENetworkImpl;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
@@ -42,6 +41,8 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Generic Evaluator for doing simple gate-by-gate (or protocol by protocol in
@@ -63,6 +64,7 @@ public class SequentialEvaluator<ResourcePoolT extends ResourcePool> implements
    * protocol producer.
    */
   private static final int MAX_EMPTY_BATCHES_IN_A_ROW = 10;
+  private static Logger logger = LoggerFactory.getLogger(SequentialEvaluator.class);
 
   private int maxBatchSize;
 
@@ -115,10 +117,10 @@ public class SequentialEvaluator<ResourcePoolT extends ResourcePool> implements
         protocolSuite.createRoundSynchronization();
     while (protocolProducer.hasNextProtocols()) {
       int numOfProtocolsInBatch = doOneRound(protocolProducer, resourcePool, roundSynchronization);
-      Reporter.finest("Done evaluating batch: " + batch++
+      logger.trace("Done evaluating batch: " + batch++
           + " with " + numOfProtocolsInBatch + " native protocols");
       if (numOfProtocolsInBatch == 0) {
-        Reporter.finest("Batch " + batch + " is empty");
+        logger.debug("Batch " + batch + " is empty");
       }
       totalProtocols += numOfProtocolsInBatch;
       totalBatches += 1;
@@ -135,7 +137,7 @@ public class SequentialEvaluator<ResourcePoolT extends ResourcePool> implements
     }
     roundSynchronization.finishedEval(resourcePool, createSceNetwork(
         resourcePool.getNoOfParties()));
-    Reporter.fine("Sequential evaluator done. Evaluated a total of " + totalProtocols
+    logger.debug("Sequential evaluator done. Evaluated a total of " + totalProtocols
         + " native protocols in " + totalBatches + " batches.");
   }
 

@@ -31,7 +31,6 @@ import static org.junit.Assert.assertEquals;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.util.Map;
-import java.util.logging.Level;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -43,7 +42,7 @@ public class TestTestConfiguration {
 	
 	@Before
 	public void setUp() {
-		confs = TestConfiguration.getNetworkConfigurations(n, Level.ALL);
+		confs = TestConfiguration.getNetworkConfigurations(n);
 	}
 
 	@Test

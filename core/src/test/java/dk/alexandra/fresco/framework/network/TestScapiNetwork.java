@@ -39,7 +39,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
 import org.junit.Test;
 
 public class TestScapiNetwork {
@@ -68,7 +67,8 @@ public class TestScapiNetwork {
 		for (int i=1; i<=n; i++) {
 			ports.add(9000 + i);
 		}
-		Map<Integer, NetworkConfiguration> netConf = TestConfiguration.getNetworkConfigurations(n, ports, Level.FINE);
+		Map<Integer, NetworkConfiguration> netConf = TestConfiguration
+				.getNetworkConfigurations(n, ports);
 		Map<Integer, TestThreadConfiguration> conf = new HashMap<Integer, TestThreadConfiguration>();
 		for (int i : netConf.keySet()) {
 			TestThreadConfiguration ttc = new TestThreadConfiguration();

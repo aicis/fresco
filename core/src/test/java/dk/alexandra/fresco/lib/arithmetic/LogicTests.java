@@ -23,7 +23,9 @@ import java.math.BigInteger;
 import java.util.Arrays;
 import org.junit.Assert;
 
-/**]
+/**
+ * ]
+ *
  * @author mortenvchristiansen
  */
 public class LogicTests {
@@ -36,7 +38,7 @@ public class LogicTests {
     @Override
     public void setUp() throws IOException {
       secureComputationEngine = SCEFactory
-          .getSCEFromConfiguration(conf.sceConf, conf.sceConf.getSuite());
+          .getSCEFromConfiguration(conf.sceConf.getSuite(), conf.sceConf.getEvaluator());
     }
 
   }

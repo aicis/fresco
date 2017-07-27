@@ -33,8 +33,6 @@ import dk.alexandra.fresco.framework.configuration.TestConfiguration;
 import dk.alexandra.fresco.framework.network.NetworkingStrategy;
 import dk.alexandra.fresco.framework.sce.configuration.TestSCEConfiguration;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
-import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
-import dk.alexandra.fresco.framework.sce.resources.storage.StorageStrategy;
 import dk.alexandra.fresco.lib.arithmetic.BasicArithmeticTests;
 import dk.alexandra.fresco.lib.arithmetic.MiMCTests;
 import dk.alexandra.fresco.lib.math.integer.division.DivisionTests;
@@ -47,7 +45,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.context.embedded.LocalServerPort;
@@ -62,9 +59,8 @@ public class ITSpdzFuelstationTest {
   @LocalServerPort
   private int port;
 
-  private void runTest(TestThreadFactory f, EvaluationStrategy evalStrategy,
-      StorageStrategy storageStrategy, int noOfParties) throws Exception {
-    Level logLevel = Level.INFO;
+  private void runTest(TestThreadFactory f, EvaluationStrategy evalStrategy, int noOfParties)
+      throws Exception {
 
     // Since SCAPI currently does not work with ports > 9999 we use fixed
     // ports
@@ -75,7 +71,7 @@ public class ITSpdzFuelstationTest {
     }
 
     Map<Integer, NetworkConfiguration> netConf =
-        TestConfiguration.getNetworkConfigurations(noOfParties, ports, logLevel);
+        TestConfiguration.getNetworkConfigurations(noOfParties, ports);
     Map<Integer, TestThreadConfiguration> conf = new HashMap<Integer, TestThreadConfiguration>();
     for (int playerId : netConf.keySet()) {
       TestThreadConfiguration ttc = new TestThreadConfiguration();
@@ -84,10 +80,9 @@ public class ITSpdzFuelstationTest {
       ProtocolSuite<?, ?> suite =
           new SpdzProtocolSuite(150, PreprocessingStrategy.FUELSTATION, "http://localhost:" + port);
 
-      boolean useSecureConnection = false;
       ProtocolEvaluator evaluator = EvaluationStrategy.fromEnum(evalStrategy);
       ttc.sceConf = new TestSCEConfiguration(suite, NetworkingStrategy.KRYONET, evaluator,
-          ttc.netConf, new InMemoryStorage(), useSecureConnection);
+          ttc.netConf, false);
       conf.put(playerId, ttc);
     }
     TestThreadRunner.run(f, conf);
@@ -96,25 +91,25 @@ public class ITSpdzFuelstationTest {
   @Test
   public void test_mimc_same_enc() throws Exception {
     runTest(new MiMCTests.TestMiMCEncSameEnc(), EvaluationStrategy.SEQUENTIAL_BATCHED,
-        StorageStrategy.IN_MEMORY, 2);
+        2);
   }
 
   @Test
   public void test_division() throws Exception {
     runTest(new DivisionTests.TestSecretSharedDivision(), EvaluationStrategy.SEQUENTIAL_BATCHED,
-        StorageStrategy.IN_MEMORY, 2);
+        2);
   }
 
   @Test
   public void test_dea() throws Exception {
     runTest(new DEASolverTests.TestDEASolver(2, 1, 5, 1, DEASolver.AnalysisType.OUTPUT_EFFICIENCY),
-        EvaluationStrategy.SEQUENTIAL_BATCHED, StorageStrategy.IN_MEMORY, 2);
+        EvaluationStrategy.SEQUENTIAL_BATCHED, 2);
   }
 
   @Test
   public void test_mult_single() throws Exception {
     runTest(new BasicArithmeticTests.TestSumAndMult(), EvaluationStrategy.SEQUENTIAL_BATCHED,
-        StorageStrategy.IN_MEMORY, 2);
+        2);
   }
 
 }

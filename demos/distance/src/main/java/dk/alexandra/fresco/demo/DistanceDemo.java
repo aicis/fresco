@@ -29,9 +29,10 @@ import dk.alexandra.fresco.demo.helpers.ResourcePoolHelper;
 import dk.alexandra.fresco.framework.BuilderFactory;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
+import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.sce.SCEFactory;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
-import dk.alexandra.fresco.framework.sce.configuration.SCEConfiguration;
+import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.helper.builder.NumericIOBuilder;
@@ -83,13 +84,14 @@ public class DistanceDemo extends DemoNumericApplication<BigInteger> {
     SInt result = npb.add(sqDX, sqDY);
     iob.addProtocolProducer(npb.getProtocol());
     // Output result
-    this.output = iob.output(result);;
+    this.output = iob.output(result);
+    ;
     return iob.getProtocol();
   }
 
   public static void main(String[] args) {
     CmdLineUtil cmdUtil = new CmdLineUtil();
-    SCEConfiguration sceConf = null;
+    NetworkConfiguration networkConfiguration = null;
     ProtocolSuite<?, ?> psConf = null;
     int x, y;
     x = y = 0;
@@ -99,10 +101,10 @@ public class DistanceDemo extends DemoNumericApplication<BigInteger> {
       cmdUtil.addOption(Option.builder("y").desc("The integer y coordinate of this party. "
           + "Note only party 1 and 2 should supply this input").hasArg().build());
       CommandLine cmd = cmdUtil.parse(args);
-      sceConf = cmdUtil.getSCEConfiguration();
+      networkConfiguration = cmdUtil.getNetworkConfiguration();
       psConf = cmdUtil.getProtocolSuite();
 
-      if (sceConf.getMyId() == 1 || sceConf.getMyId() == 2) {
+      if (networkConfiguration.getMyId() == 1 || networkConfiguration.getMyId() == 2) {
         if (!cmd.hasOption("x") || !cmd.hasOption("y")) {
           throw new ParseException("Party 1 and 2 must submit input");
         } else {
@@ -110,8 +112,9 @@ public class DistanceDemo extends DemoNumericApplication<BigInteger> {
           y = Integer.parseInt(cmd.getOptionValue("y"));
         }
       } else {
-        if (cmd.hasOption("x") || cmd.hasOption("y"))
+        if (cmd.hasOption("x") || cmd.hasOption("y")) {
           throw new ParseException("Only party 1 and 2 should submit input");
+        }
       }
 
     } catch (ParseException | IllegalArgumentException e) {
@@ -120,10 +123,13 @@ public class DistanceDemo extends DemoNumericApplication<BigInteger> {
       cmdUtil.displayHelp();
       System.exit(-1);
     }
-    DistanceDemo distDemo = new DistanceDemo(sceConf.getMyId(), x, y);
-    SecureComputationEngine sce = SCEFactory.getSCEFromConfiguration(sceConf, psConf);
+    DistanceDemo distDemo = new DistanceDemo(networkConfiguration.getMyId(), x, y);
+    SecureComputationEngine sce = SCEFactory
+        .getSCEFromConfiguration(psConf, cmdUtil.getEvaluator());
     try {
-      sce.runApplication(distDemo, ResourcePoolHelper.createResourcePool(sceConf, psConf));
+      ResourcePool resourcePool = ResourcePoolHelper.createResourcePool(psConf,
+          cmdUtil.getNetworkStrategy(), networkConfiguration);
+      sce.runApplication(distDemo, resourcePool);
     } catch (Exception e) {
       System.out.println("Error while doing MPC: " + e.getMessage());
       e.printStackTrace();

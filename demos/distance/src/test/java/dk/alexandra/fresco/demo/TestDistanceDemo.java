@@ -8,9 +8,9 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.TestConfiguration;
 import dk.alexandra.fresco.framework.network.NetworkingStrategy;
+import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.configuration.TestSCEConfiguration;
 import dk.alexandra.fresco.framework.sce.evaluator.SequentialEvaluator;
-import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.SpdzProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.configuration.PreprocessingStrategy;
@@ -18,7 +18,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -32,7 +31,7 @@ public class TestDistanceDemo {
       ports.add(9000 + i * 10);
     }
     Map<Integer, NetworkConfiguration> netConf =
-        TestConfiguration.getNetworkConfigurations(n, ports, Level.FINE);
+        TestConfiguration.getNetworkConfigurations(n, ports);
     Map<Integer, TestThreadConfiguration> conf = new HashMap<Integer, TestThreadConfiguration>();
     for (int i : netConf.keySet()) {
       TestThreadConfiguration ttc = new TestThreadConfiguration();
@@ -40,7 +39,7 @@ public class TestDistanceDemo {
       ProtocolSuite suite = new SpdzProtocolSuite(150, PreprocessingStrategy.DUMMY, null);
 
       ttc.sceConf = new TestSCEConfiguration(suite, NetworkingStrategy.KRYONET,
-          new SequentialEvaluator(), netConf.get(i), new InMemoryStorage(), false);
+          new SequentialEvaluator(), netConf.get(i), false);
       conf.put(i, ttc);
     }
     TestThreadRunner.run(test, conf);
@@ -66,13 +65,15 @@ public class TestDistanceDemo {
             System.out.println("Running with x: " + x + ", y: " + y);
             DistanceDemo distDemo = new DistanceDemo(conf.getMyId(), x, y);
             secureComputationEngine.runApplication(distDemo,
-                ResourcePoolHelper.createResourcePool(conf.sceConf, conf.sceConf.getSuite()));
+                ResourcePoolCreator.createResourcePool(conf.sceConf));
             double distance = distDemo.getOutput().out().doubleValue();
             distance = Math.sqrt(distance);
             Assert.assertEquals(11.1803, distance, 0.0001);
           }
         };
-      };
+      }
+
+      ;
     };
     runTest(f, 2);
     ResourcePoolHelper.shutdown();

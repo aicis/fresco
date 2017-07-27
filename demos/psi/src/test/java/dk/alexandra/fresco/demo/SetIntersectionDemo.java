@@ -33,10 +33,9 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.TestConfiguration;
 import dk.alexandra.fresco.framework.network.NetworkingStrategy;
+import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.configuration.TestSCEConfiguration;
 import dk.alexandra.fresco.framework.sce.evaluator.SequentialEvaluator;
-import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
-import dk.alexandra.fresco.framework.sce.resources.storage.Storage;
 import dk.alexandra.fresco.framework.util.ByteArithmetic;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.dummy.bool.DummyProtocolSuite;
@@ -48,7 +47,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
@@ -57,7 +55,6 @@ import org.junit.experimental.categories.Category;
 
 public class SetIntersectionDemo {
 
-  private Level logLevel = Level.FINE;
   private int noPlayers = 2;
 
   @Test
@@ -68,7 +65,7 @@ public class SetIntersectionDemo {
       ports.add(9000 + i * 10);
     }
     Map<Integer, NetworkConfiguration> netConf =
-        TestConfiguration.getNetworkConfigurations(noPlayers, ports, logLevel);
+        TestConfiguration.getNetworkConfigurations(noPlayers, ports);
     Map<Integer, TestThreadConfiguration> conf = new HashMap<Integer, TestThreadConfiguration>();
     for (int playerId : netConf.keySet()) {
       TestThreadConfiguration ttc = new TestThreadConfiguration();
@@ -79,10 +76,8 @@ public class SetIntersectionDemo {
 
       // The rest is generic configuration as well
       ProtocolEvaluator evaluator = new SequentialEvaluator();
-      Storage storage = new InMemoryStorage();
-      boolean useSecureConnection = true;
       ttc.sceConf = new TestSCEConfiguration(suite, NetworkingStrategy.KRYONET, evaluator,
-          ttc.netConf, storage, useSecureConnection);
+          ttc.netConf, true);
       conf.put(playerId, ttc);
     }
     String[] result = this.setIntersectionDemo(conf);
@@ -92,8 +87,6 @@ public class SetIntersectionDemo {
 
   /**
    * TinyTables requires a preprocessing phase as well as the actual computation phase.
-   * 
-   * @throws Exception
    */
   @Category(IntegrationTest.class)
   @Test
@@ -104,7 +97,7 @@ public class SetIntersectionDemo {
       ports.add(9000 + i);
     }
     Map<Integer, NetworkConfiguration> netConf =
-        TestConfiguration.getNetworkConfigurations(noPlayers, ports, logLevel);
+        TestConfiguration.getNetworkConfigurations(noPlayers, ports);
     Map<Integer, TestThreadConfiguration> conf = new HashMap<Integer, TestThreadConfiguration>();
     for (int playerId : netConf.keySet()) {
       TestThreadConfiguration ttc = new TestThreadConfiguration();
@@ -116,10 +109,8 @@ public class SetIntersectionDemo {
 
       // More generic configuration
       ProtocolEvaluator evaluator = new SequentialEvaluator();
-      Storage storage = new InMemoryStorage();
-      boolean useSecureConnection = true;
       ttc.sceConf = new TestSCEConfiguration(suite, NetworkingStrategy.KRYONET, evaluator,
-          ttc.netConf, storage, useSecureConnection);
+          ttc.netConf, true);
       conf.put(playerId, ttc);
     }
 
@@ -128,7 +119,7 @@ public class SetIntersectionDemo {
 
     // Preprocessing is complete, now we configure a new instance of the
     // computation and run it
-    netConf = TestConfiguration.getNetworkConfigurations(noPlayers, ports, logLevel);
+    netConf = TestConfiguration.getNetworkConfigurations(noPlayers, ports);
     conf = new HashMap<Integer, TestThreadConfiguration>();
     for (int playerId : netConf.keySet()) {
       TestThreadConfiguration ttc = new TestThreadConfiguration();
@@ -138,10 +129,8 @@ public class SetIntersectionDemo {
       ProtocolSuite suite = getTinyTablesProtocolSuite(ttc.netConf.getMyId());
 
       ProtocolEvaluator evaluator = new SequentialEvaluator();
-      Storage storage = new InMemoryStorage();
-      boolean useSecureConnection = true;
       ttc.sceConf = new TestSCEConfiguration(suite, NetworkingStrategy.KRYONET, evaluator,
-          ttc.netConf, storage, useSecureConnection);
+          ttc.netConf, true);
       conf.put(playerId, ttc);
     }
 
@@ -178,7 +167,6 @@ public class SetIntersectionDemo {
   }
 
 
-
   public String[] setIntersectionDemo(Map<Integer, TestThreadConfiguration> conf) throws Exception {
     String[] result = new String[8];
     TestThreadFactory f = new TestThreadFactory() {
@@ -191,16 +179,16 @@ public class SetIntersectionDemo {
             int[] inputList = null;
             if (conf.netConf.getMyId() == 2) {
               key = ByteArithmetic.toBoolean("00112233445566778899aabbccddeeff"); // 128-bit key
-              inputList = new int[] {2, 66, 112, 1123};
+              inputList = new int[]{2, 66, 112, 1123};
             } else if (conf.netConf.getMyId() == 1) {
               key = ByteArithmetic.toBoolean("000102030405060708090a0b0c0d0e0f"); // 128-bit key
-              inputList = new int[] {1, 3, 66, 1123};
+              inputList = new int[]{1, 3, 66, 1123};
             }
 
             PrivateSetDemo app = new PrivateSetDemo(conf.netConf.getMyId(), key, inputList);
 
             secureComputationEngine.runApplication(app,
-                ResourcePoolHelper.createResourcePool(conf.sceConf, conf.sceConf.getSuite()));
+                ResourcePoolCreator.createResourcePool(conf.sceConf));
 
             boolean[][] actualBoolean = new boolean[app.result.length][app.result[0].length];
 

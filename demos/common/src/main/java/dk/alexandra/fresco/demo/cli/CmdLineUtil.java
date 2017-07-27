@@ -28,16 +28,12 @@ package dk.alexandra.fresco.demo.cli;
 
 import dk.alexandra.fresco.framework.Party;
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
-import dk.alexandra.fresco.framework.Reporter;
 import dk.alexandra.fresco.framework.configuration.ConfigurationException;
+import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
+import dk.alexandra.fresco.framework.configuration.NetworkConfigurationImpl;
 import dk.alexandra.fresco.framework.network.NetworkingStrategy;
-import dk.alexandra.fresco.framework.sce.configuration.SCEConfiguration;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.evaluator.SequentialEvaluator;
-import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
-import dk.alexandra.fresco.framework.sce.resources.storage.Storage;
-import dk.alexandra.fresco.framework.sce.resources.storage.StorageStrategy;
-import dk.alexandra.fresco.framework.sce.resources.storage.StreamedStorage;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticProtocolSuite;
 import dk.alexandra.fresco.suite.dummy.bool.DummyProtocolSuite;
@@ -53,7 +49,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
-import java.util.logging.Level;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
@@ -61,6 +56,8 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Utility for reading all configuration from command line.
@@ -70,23 +67,34 @@ import org.apache.commons.cli.ParseException;
  */
 public class CmdLineUtil {
 
+  private final static Logger logger = LoggerFactory.getLogger(CmdLineUtil.class);
+
   private final Options options;
   private Options appOptions;
   private CommandLine cmd;
-  private SCEConfiguration<?> sceConf;
-  private ProtocolSuite<?,?> ps;
+  private NetworkConfiguration networkConfiguration;
+  private ProtocolSuite<?, ?> protocolSuite;
+  private ProtocolEvaluator evaluator;
 
   public CmdLineUtil() {
     this.appOptions = new Options();
     this.options = buildStandardOptions();
   }
 
-  public SCEConfiguration<?> getSCEConfiguration() {
-    return this.sceConf;
+  public NetworkConfiguration getNetworkConfiguration() {
+    return this.networkConfiguration;
   }
 
-  public ProtocolSuite<?,?> getProtocolSuite() {
-    return this.ps;
+  public NetworkingStrategy getNetworkStrategy() {
+    return NetworkingStrategy.KRYONET;
+  }
+
+  public ProtocolEvaluator getEvaluator() {
+    return evaluator;
+  }
+
+  public ProtocolSuite<?, ?> getProtocolSuite() {
+    return this.protocolSuite;
   }
 
   /**
@@ -128,29 +136,6 @@ public class CmdLineUtil {
         .hasArgs()
         .build());
 
-    options.addOption(Option.builder("l")
-        .desc(
-            "The log level. Can be either OFF, SEVERE, CONFIG, WARNING, INFO, FINE, FINER, FINEST. Default is 'WARNING'")
-        .longOpt("log-level")
-        .required(false)
-        .hasArg()
-        .build());
-
-    options.addOption(Option.builder("t")
-        .desc("The number of threads to use for the SCE. Defaults to " + getDefaultNoOfThreads())
-        .longOpt("no-threads")
-        .required(false)
-        .hasArg(true)
-        .build());
-
-    options.addOption(Option.builder("vt")
-        .desc("The number of threads to use in the VM (evaluator). Defaults to "
-            + getDefaultNoOfThreads())
-        .longOpt("no-vm-threads")
-        .required(false)
-        .hasArg(true)
-        .build());
-
     options.addOption(Option.builder("e")
         .desc("The strategy for evaluation. Can be one of: " + Arrays
             .toString(EvaluationStrategy.values()) + ". Defaults to "
@@ -185,17 +170,6 @@ public class CmdLineUtil {
     return Arrays.toString(strings);
   }
 
-
-  private static int getDefaultNoOfThreads() {
-    int n = Runtime.getRuntime().availableProcessors();
-    if (n == 1) {
-      return 1;
-    }
-    // Heuristic that gives best performance: One thread for each worker
-    // and one for the 'system'.
-    return n - 1;
-  }
-
   private int parseNonzeroInt(String optionId) throws ParseException {
     int res;
     String opStr = this.cmd.getOptionValue(optionId);
@@ -216,7 +190,6 @@ public class CmdLineUtil {
 
   private void validateStandardOptions() throws ParseException {
     int myId;
-    Level logLevel;
 
     Object suiteObj = this.cmd.getParsedOptionValue("s");
     if (suiteObj == null) {
@@ -264,110 +237,30 @@ public class CmdLineUtil {
           " but this id is not present in the list of parties " + parties.keySet());
     }
 
-    if (this.cmd.hasOption("l")) {
-      System.out.println(this.cmd.getOptionValue("l"));
-      logLevel = Level.parse(this.cmd.getOptionValue("l"));
-    } else {
-      logLevel = Level.WARNING;
-    }
-    Reporter.init(logLevel);
-
-    int noOfThreads = this.cmd.hasOption("t") ? parseNonzeroInt("t") : getDefaultNoOfThreads();
-    if (noOfThreads > Runtime.getRuntime().availableProcessors()) {
-      Reporter.warn("You are using " + noOfThreads + " but system has only " + Runtime.getRuntime()
-          .availableProcessors()
-          + " available processors. This is likely to result in less than optimal performance.");
-    }
-
-    int vmThreads = this.cmd.hasOption("vt") ? parseNonzeroInt("vt") : getDefaultNoOfThreads();
-    if (vmThreads > Runtime.getRuntime().availableProcessors()) {
-      Reporter.warn("You are using " + vmThreads + " but system has only " + Runtime.getRuntime()
-          .availableProcessors()
-          + " available processors. This is likely to result in less than optimal performance.");
-    }
-
-    final ProtocolEvaluator evaluator;
     if (this.cmd.hasOption("e")) {
       try {
-        evaluator = EvaluationStrategy.fromString(this.cmd.getOptionValue("e"));
+        this.evaluator = EvaluationStrategy.fromString(this.cmd.getOptionValue("e"));
       } catch (ConfigurationException e) {
         throw new ParseException("Invalid evaluation strategy: " + this.cmd.getOptionValue("e"));
       }
     } else {
-      evaluator = new SequentialEvaluator();
+      this.evaluator = new SequentialEvaluator();
     }
 
-    final Storage storage;
-    if (this.cmd.hasOption("store")) {
-      try {
-        storage = StorageStrategy.fromString(this.cmd.getOptionValue("store"));
-      } catch (ConfigurationException e) {
-        throw new ParseException("Invalid storage strategy: " + this.cmd.getOptionValue("store"));
-      }
-    } else {
-      storage = new InMemoryStorage();
-    }
-
-    final int maxBatchSize;
     if (this.cmd.hasOption("b")) {
       try {
-        maxBatchSize = Integer.parseInt(this.cmd.getOptionValue("b"));
+        evaluator.setMaxBatchSize(Integer.parseInt(this.cmd.getOptionValue("b")));
       } catch (Exception e) {
         throw new ParseException("");
       }
-    } else {
-      maxBatchSize = 4096;
     }
 
-    // TODO: Rather: Just log sceConf.toString()
-    Reporter.config("Player id          : " + myId);
-    Reporter.config("NativeProtocol suite     : " + suite);
-    Reporter.config("Players            : " + parties);
-    Reporter.config("Log level          : " + logLevel);
-    Reporter.config("No of threads      : " + noOfThreads);
-    Reporter.config("No of vm threads   : " + vmThreads);
-    Reporter.config("Evaluation strategy: " + evaluator);
-    Reporter.config("Storage strategy   : " + storage);
-    Reporter.config("Maximum batch size : " + maxBatchSize);
+    logger.info("Player id          : " + myId);
+    logger.info("NativeProtocol suite     : " + suite);
+    logger.info("Players            : " + parties);
+    logger.info("Evaluation strategy: " + evaluator);
 
-    this.sceConf = new SCEConfiguration() {
-
-      @Override
-      public int getMyId() {
-        return myId;
-      }
-
-      @Override
-      public Map<Integer, Party> getParties() {
-        return parties;
-      }
-
-      @Override
-      public Level getLogLevel() {
-        return logLevel;
-      }
-
-      @Override
-      public ProtocolEvaluator<?> getEvaluator() {
-        return evaluator;
-      }
-
-      @Override
-      public StreamedStorage getStreamedStorage() {
-        if (storage instanceof StreamedStorage) {
-          return (StreamedStorage) storage;
-        } else {
-          return null;
-        }
-      }
-
-      @Override
-      public NetworkingStrategy getNetworkStrategy() {
-        return NetworkingStrategy.KRYONET;
-      }
-
-    };
-
+    this.networkConfiguration = new NetworkConfigurationImpl(myId, parties);
   }
 
   /**
@@ -407,19 +300,20 @@ public class CmdLineUtil {
       switch (protocolSuiteName) {
         //TODO: When arithmetic dummy comes, add this here.
         case "dummybool":
-          this.ps = new DummyProtocolSuite();
+          this.protocolSuite = new DummyProtocolSuite();
           break;
         case "dummyarithmetic":
-          this.ps = dummyArithmeticFromCmdLine(this.sceConf, cmd);
+          this.protocolSuite = dummyArithmeticFromCmdLine(cmd);
           break;
         case "spdz":
-          this.ps = SpdzConfigurationFromCmdLine(sceConf, cmd);
+          this.protocolSuite = SpdzConfigurationFromCmdLine(cmd);
           break;
         case "tinytablesprepro":
-          this.ps = tinyTablesPreProFromCmdLine(this.sceConf, cmd);
+          this.protocolSuite = tinyTablesPreProFromCmdLine(cmd,
+              this.networkConfiguration.getMyId());
           break;
         case "tinytables":
-          this.ps = tinyTablesFromCmdLine(this.sceConf, cmd);
+          this.protocolSuite = tinyTablesFromCmdLine(cmd, this.networkConfiguration.getMyId());
           break;
         default:
           throw new ParseException(
@@ -433,16 +327,16 @@ public class CmdLineUtil {
     }
     return this.cmd;
   }
-  
-  public static ProtocolSuite<?,?> dummyArithmeticFromCmdLine(SCEConfiguration<?> sceConf, CommandLine cmd) {
+
+  private static ProtocolSuite<?, ?> dummyArithmeticFromCmdLine(CommandLine cmd) {
     Properties p = cmd.getOptionProperties("D");
-    BigInteger mod = new BigInteger(p.getProperty("modulus", "6703903964971298549787012499123814115273848577471136527425966013026501536706464354255445443244279389455058889493431223951165286470575994074291745908195329"));
+    BigInteger mod = new BigInteger(p.getProperty("modulus",
+        "6703903964971298549787012499123814115273848577471136527425966013026501536706464354255445443244279389455058889493431223951165286470575994074291745908195329"));
     int maxBitLength = Integer.parseInt(p.getProperty("maxbitlength", "150"));
-    return new DummyArithmeticProtocolSuite(mod, maxBitLength);    
+    return new DummyArithmeticProtocolSuite(mod, maxBitLength);
   }
-  
-  private static ProtocolSuite<?,?> SpdzConfigurationFromCmdLine(SCEConfiguration<?> sceConf,
-      CommandLine cmd) {
+
+  private static ProtocolSuite<?, ?> SpdzConfigurationFromCmdLine(CommandLine cmd) {
     Properties p = cmd.getOptionProperties("D");
     //TODO: Figure out a meaningful default for the below
     final int maxBitLength = Integer.parseInt(p.getProperty("spdz.maxBitLength", "64"));
@@ -453,26 +347,26 @@ public class CmdLineUtil {
     final String fuelStationBaseUrl = p.getProperty("spdz.fuelStationBaseUrl", null);
     String strat = p.getProperty("spdz.preprocessingStrategy");
     final PreprocessingStrategy strategy = PreprocessingStrategy.fromString(strat);
-    return new SpdzProtocolSuite(maxBitLength, strategy, fuelStationBaseUrl);    
+    return new SpdzProtocolSuite(maxBitLength, strategy, fuelStationBaseUrl);
   }
-  
-  public static ProtocolSuite<?,?> tinyTablesPreProFromCmdLine(SCEConfiguration<?> sceConf, CommandLine cmd)
+
+  private static ProtocolSuite<?, ?> tinyTablesPreProFromCmdLine(CommandLine cmd, int myId)
       throws ParseException, IllegalArgumentException {
 
     Properties p = cmd.getOptionProperties("D");
     String tinytablesFileOption = "tinytables.file";
     String tinyTablesFilePath = p.getProperty(tinytablesFileOption, "tinytables");
-    return new TinyTablesPreproProtocolSuite(sceConf.getMyId(), new File(tinyTablesFilePath));    
+    return new TinyTablesPreproProtocolSuite(myId, new File(tinyTablesFilePath));
   }
-  
-  public static ProtocolSuite<?,?> tinyTablesFromCmdLine(SCEConfiguration<?> sceConf,
-      CommandLine cmd) throws ParseException, IllegalArgumentException {
-  
-  Properties p = cmd.getOptionProperties("D");
-  String tinytablesFileOption = "tinytables.file";
-  String tinyTablesFilePath = p.getProperty(tinytablesFileOption, "tinytables");
-  return new TinyTablesProtocolSuite(sceConf.getMyId(), new File(tinyTablesFilePath));
-}
+
+  private static ProtocolSuite<?, ?> tinyTablesFromCmdLine(CommandLine cmd, int myId)
+      throws ParseException, IllegalArgumentException {
+
+    Properties p = cmd.getOptionProperties("D");
+    String tinytablesFileOption = "tinytables.file";
+    String tinyTablesFilePath = p.getProperty(tinytablesFileOption, "tinytables");
+    return new TinyTablesProtocolSuite(myId, new File(tinyTablesFilePath));
+  }
 
   public void displayHelp() {
     HelpFormatter formatter = new HelpFormatter();

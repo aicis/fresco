@@ -27,7 +27,6 @@
 package dk.alexandra.fresco.lib.crypto.mimc;
 
 import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.Reporter;
 import dk.alexandra.fresco.framework.builder.AdvancedNumericBuilder;
 import dk.alexandra.fresco.framework.builder.ComputationBuilder;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
@@ -35,6 +34,8 @@ import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNu
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import java.math.BigInteger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class MiMCDecryption implements ComputationBuilder<SInt> {
 
@@ -43,6 +44,7 @@ public class MiMCDecryption implements ComputationBuilder<SInt> {
   private final Computation<SInt> encryptionKey;
   private final Computation<SInt> cipherText;
   private final Integer requestedRounds;
+  private static Logger logger = LoggerFactory.getLogger(MiMCDecryption.class);
 
   /**
    * Implementation of the MiMC decryption protocol.
@@ -91,7 +93,7 @@ public class MiMCDecryption implements ComputationBuilder<SInt> {
         (state) -> state.round < requiredRounds,
         (state, seq) -> {
           if (state.round % 10 == 0) {
-            Reporter.info("Decryption " + state.round + " of " + requiredRounds);
+            logger.info("Decryption " + state.round + " of " + requiredRounds);
           }
           /*
            * We're in an intermediate round where we compute

@@ -31,9 +31,10 @@ import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.ProtocolProducer;
+import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
-import dk.alexandra.fresco.framework.sce.configuration.SCEConfiguration;
+import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.util.ByteArithmetic;
 import dk.alexandra.fresco.framework.value.OBool;
 import dk.alexandra.fresco.framework.value.SBool;
@@ -112,7 +113,7 @@ public class PrivateSetDemo extends DemoBinaryApplication<OBool[][]> {
    */
   public static void main(String[] args) {
     CmdLineUtil util = new CmdLineUtil();
-    SCEConfiguration sceConf = null;
+    NetworkConfiguration networkConfiguration = null;
     boolean[] key = null;
     int[] inputs = null;
     try {
@@ -130,10 +131,10 @@ public class PrivateSetDemo extends DemoBinaryApplication<OBool[][]> {
           .longOpt("input").hasArg().build());
 
       CommandLine cmd = util.parse(args);
-      sceConf = util.getSCEConfiguration();
+      networkConfiguration = util.getNetworkConfiguration();
 
       // Get and validate the AES specific input.
-      if (sceConf.getMyId() == 1 || sceConf.getMyId() == 2) {
+      if (networkConfiguration.getMyId() == 1 || networkConfiguration.getMyId() == 2) {
         if (!cmd.hasOption("in") && !cmd.hasOption("key")) {
           throw new ParseException("Player 1 and 2 must submit inputs and keys");
         } else {
@@ -163,13 +164,15 @@ public class PrivateSetDemo extends DemoBinaryApplication<OBool[][]> {
     }
 
     // Do the secure computation using config from property files.
-    PrivateSetDemo privateSetDemo = new PrivateSetDemo(sceConf.getMyId(), key, inputs);
+    PrivateSetDemo privateSetDemo = new PrivateSetDemo(networkConfiguration.getMyId(), key, inputs);
     ProtocolSuite<?, ?> psConf = util.getProtocolSuite();
     SecureComputationEngine sce =
-        new SecureComputationEngineImpl(psConf, sceConf.getEvaluator(), sceConf.getLogLevel());
+        new SecureComputationEngineImpl(psConf, util.getEvaluator());
 
     try {
-      sce.runApplication(privateSetDemo, ResourcePoolHelper.createResourcePool(sceConf, psConf));
+      ResourcePool resourcePool = ResourcePoolHelper.createResourcePool(psConf,
+          util.getNetworkStrategy(), networkConfiguration);
+      sce.runApplication(privateSetDemo, resourcePool);
     } catch (Exception e) {
       System.out.println("Error while doing MPC: " + e.getMessage());
       System.exit(-1);
@@ -210,8 +213,6 @@ public class PrivateSetDemo extends DemoBinaryApplication<OBool[][]> {
    * The final protocol is build from smaller protocols using the ParallelProtocolProducer and
    * SequentialProtocolProducer. The open and closed values (OBool and SBool) are used to 'glue' the
    * subprotocols together.
-   * 
-   * @param builderFactory
    */
   // May cause problems if more than 2 parties and if both insets are not of
   // Equal length
@@ -270,7 +271,7 @@ public class PrivateSetDemo extends DemoBinaryApplication<OBool[][]> {
     // Initialize various arrays
     OBool[][] inputsOpen = new OBool[2 * this.inSet.length][BLOCK_SIZE]; // Arrays of open inputs
     SBool[][] inputsClosed = new SBool[this.inSet.length * 2][BLOCK_SIZE]; // Arrays of closed
-                                                                           // inputs
+    // inputs
     SBool[][] outClosed = new SBool[this.inSet.length * 2][BLOCK_SIZE]; // Arrays of closed result
     this.result = new OBool[this.inSet.length * 2][]; // Arrays of resulting ciphertexts
     for (int i = 0; i < this.inSet.length * 2; i++) {
@@ -310,8 +311,8 @@ public class PrivateSetDemo extends DemoBinaryApplication<OBool[][]> {
 
     // Build the 2*list AES protocols and put the closing protocols into a single producer
     ProtocolProducer[] tmp = new ProtocolProducer[this.inSet.length * 2]; // Each protocolproducer
-                                                                          // closes an input bit
-                                                                          // string
+    // closes an input bit
+    // string
     ProtocolProducer[] aesProtocols = new ProtocolProducer[this.inSet.length * 2];
 
     for (int i = 0; i < this.inSet.length * 2; i++) {

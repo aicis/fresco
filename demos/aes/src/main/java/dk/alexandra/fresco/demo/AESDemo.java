@@ -35,7 +35,7 @@ import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
-import dk.alexandra.fresco.framework.sce.configuration.SCEConfiguration;
+import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.util.ByteArithmetic;
 import dk.alexandra.fresco.framework.value.OBool;
 import dk.alexandra.fresco.framework.value.SBool;
@@ -110,7 +110,6 @@ public class AESDemo extends DemoBinaryApplication<OBool[]> {
    */
   public static void main(String[] args) {
     CmdLineUtil util = new CmdLineUtil();
-    SCEConfiguration sceConf = null;
     boolean[] input = null;
     try {
 
@@ -124,10 +123,10 @@ public class AESDemo extends DemoBinaryApplication<OBool[]> {
           .build());
 
       CommandLine cmd = util.parse(args);
-      sceConf = util.getSCEConfiguration();
 
       // Get and validate the AES specific input.
-      if (sceConf.getMyId() == 1 || sceConf.getMyId() == 2) {
+      int myId = util.getNetworkConfiguration().getMyId();
+      if (myId == 1 || myId == 2) {
         if (!cmd.hasOption("in")) {
           throw new ParseException("Player 1 and 2 must submit input");
         } else {
@@ -151,14 +150,15 @@ public class AESDemo extends DemoBinaryApplication<OBool[]> {
     }
 
     // Do the secure computation using config from property files.
-    AESDemo aes = new AESDemo(sceConf.getMyId(), input);
+    AESDemo aes = new AESDemo(util.getNetworkConfiguration().getMyId(), input);
     ProtocolSuite<?, ?> ps = util
         .getProtocolSuite();
-    SecureComputationEngine sce = new SecureComputationEngineImpl(ps,
-        sceConf.getEvaluator(), sceConf.getLogLevel());
+    SecureComputationEngine sce = new SecureComputationEngineImpl(ps, util.getEvaluator());
 
     try {
-      sce.runApplication(aes, ResourcePoolHelper.createResourcePool(sceConf, ps));
+      ResourcePool resourcePool = ResourcePoolHelper
+          .createResourcePool(ps, util.getNetworkStrategy(), util.getNetworkConfiguration());
+      sce.runApplication(aes, resourcePool);
     } catch (Exception e) {
       System.out.println("Error while doing MPC: " + e.getMessage());
       System.exit(-1);
@@ -172,7 +172,7 @@ public class AESDemo extends DemoBinaryApplication<OBool[]> {
       res[i] = aes.result[i].getValue();
     }
     System.out.println("The resulting ciphertext is: " + ByteArithmetic.toHex(res));
-    
+
   }
 
 
@@ -188,7 +188,6 @@ public class AESDemo extends DemoBinaryApplication<OBool[]> {
    * ParallelProtocolProducer and SequentialProtocolProducer. The open and
    * closed values (OBool and SBool) are used to 'glue' the subprotocols
    * together.
-   * @param producer
    */
   @Override
   public ProtocolProducer prepareApplication(BuilderFactory producer) {
@@ -242,7 +241,7 @@ public class AESDemo extends DemoBinaryApplication<OBool[]> {
     // Create wires that glue together the AES to the following open of the result.
     this.result = boolFactory.getOBools(BLOCK_SIZE);
     this.output = () -> this.result;
-    
+
     // Construct protocol for opening up the result.
     NativeProtocol[] opens = new NativeProtocol[BLOCK_SIZE];
     for (int i = 0; i < BLOCK_SIZE; i++) {

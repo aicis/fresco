@@ -1,6 +1,5 @@
 package dk.alexandra.fresco.services;
 
-import dk.alexandra.fresco.framework.Reporter;
 import dk.alexandra.fresco.model.Type;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
@@ -15,7 +14,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
-import java.util.logging.Level;
 import javax.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -76,7 +74,6 @@ public class DataGeneratorImpl implements DataGenerator {
 
   @PostConstruct
   public void clearAndInit() throws IOException {
-    Reporter.init(Level.INFO);
     this.alphas = FakeTripGen.generateAlphaShares(noOfPlayers, mod);
     init();
   }

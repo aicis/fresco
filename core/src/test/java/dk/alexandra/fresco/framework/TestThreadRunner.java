@@ -26,11 +26,9 @@
  *******************************************************************************/
 package dk.alexandra.fresco.framework;
 
-import com.esotericsoftware.minlog.Log;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.TestConfiguration;
-import dk.alexandra.fresco.framework.network.KryoNetNetwork;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.SCEFactory;
@@ -44,9 +42,12 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
-import java.util.logging.Level;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TestThreadRunner {
+
+  private final static Logger logger = LoggerFactory.getLogger(TestThreadRunner.class);
 
   private static final long MAX_WAIT_FOR_THREAD = 6000000;
 
@@ -83,13 +84,12 @@ public class TestThreadRunner {
         if (conf.sceConf != null) {
           ProtocolSuite<ResourcePoolT, Builder> suite = conf.sceConf.getSuite();
           secureComputationEngine =
-              SCEFactory.getSCEFromConfiguration(conf.sceConf, suite);
+              SCEFactory.getSCEFromConfiguration(suite, conf.sceConf.getEvaluator());
         }
-        KryoNetNetwork.setLogLevel(Log.LEVEL_WARN);
         setUp();
         runTest();
       } catch (Throwable e) {
-        Reporter.severe("" + this + " threw exception: ", e);
+        logger.error("" + this + " threw exception: ", e);
         this.setupException = e;
         Thread.currentThread().interrupt();
       } finally {
@@ -102,11 +102,11 @@ public class TestThreadRunner {
         test();
       } catch (Exception e) {
         this.testException = e;
-        Reporter.severe("" + this + " threw exception during test:", e);
+        logger.error("" + this + " threw exception during test:", e);
         Thread.currentThread().interrupt();
       } catch (AssertionError e) {
         this.testException = e;
-        Reporter.severe("Test assertion failed in " + this + ": ", e);
+        logger.error("Test assertion failed in " + this + ": ", e);
         Thread.currentThread().interrupt();
       }
     }
@@ -115,12 +115,12 @@ public class TestThreadRunner {
       try {
         if (secureComputationEngine != null) {
           //Shut down SCE resources - does not include the resource pool.
-          secureComputationEngine.shutdownSCE();              
+          secureComputationEngine.shutdownSCE();
         }
         tearDown();
         finished = true;
       } catch (Exception e) {
-        Reporter.severe("" + this + " threw exception during tear down:", e);
+        logger.error("" + this + " threw exception during tear down:", e);
         this.teardownException = e;
         Thread.currentThread().interrupt();
       }
@@ -176,7 +176,7 @@ public class TestThreadRunner {
 
   private static void run(TestThreadFactory f, int noOfPlayers, int randSeed) {
     Map<Integer, NetworkConfiguration> netConfs = TestConfiguration
-        .getNetworkConfigurations(noOfPlayers, Level.FINE);
+        .getNetworkConfigurations(noOfPlayers);
 
     Map<Integer, TestThreadConfiguration> confs = new HashMap<Integer, TestThreadConfiguration>();
     for (int i : netConfs.keySet()) {
@@ -217,9 +217,9 @@ public class TestThreadRunner {
         t.join(MAX_WAIT_FOR_THREAD);
       } catch (InterruptedException e) {
         throw new TestFrameworkException("Test was interrupted");
-      } 
+      }
       if (!t.finished) {
-        Reporter.severe("" + t + " timed out");
+        logger.error("" + t + " timed out");
         throw new TestFrameworkException(t + " timed out");
       }
       if (t.setupException != null) {
@@ -235,14 +235,14 @@ public class TestThreadRunner {
     //Cleanup - shut down network in manually. All tests should use the NetworkCreator 
     //in order for this to work, or manage the network themselves.
     Map<Integer, ResourcePool> rps = ResourcePoolCreator.getCurrentResourcePools();
-    for(int id: rps.keySet()) {
+    for (int id : rps.keySet()) {
       Network network = rps.get(id).getNetwork();
       try {
         network.close();
       } catch (IOException e) {
         //Cannot do anything about this.
       }
-    }           
+    }
     rps.clear();
     //allow the sockets to become available again. 
     try {

@@ -32,50 +32,30 @@ import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.network.NetworkingStrategy;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
-import dk.alexandra.fresco.framework.sce.resources.storage.Storage;
-import dk.alexandra.fresco.framework.sce.resources.storage.StreamedStorage;
 import dk.alexandra.fresco.suite.ProtocolSuite;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.logging.Level;
 
-public class TestSCEConfiguration<ResourcePoolT extends ResourcePool, Builder extends ProtocolBuilder> implements
-    SCEConfiguration<ResourcePoolT> {
+public class TestSCEConfiguration<ResourcePoolT extends ResourcePool, Builder extends ProtocolBuilder> {
 
-  private NetworkingStrategy network;
-  private Storage storage;
-  private Map<Integer, Party> parties;
-  private int myId;
-  private ProtocolEvaluator evaluator;
+  private NetworkingStrategy networkingStrategy;
+  private ProtocolEvaluator<ResourcePoolT> evaluator;
   private final ProtocolSuite<ResourcePoolT, Builder> suite;
-  
-  public TestSCEConfiguration(ProtocolSuite suite, 
-      NetworkingStrategy network,
-      ProtocolEvaluator evaluator,
-      NetworkConfiguration conf, Storage storage,
+  private NetworkConfiguration networkConfiguration;
+
+  public TestSCEConfiguration(ProtocolSuite<ResourcePoolT, Builder> suite,
+      NetworkingStrategy networkingStrategy,
+      ProtocolEvaluator<ResourcePoolT> evaluator,
+      NetworkConfiguration conf,
       boolean useSecureConn) {
-    this(suite, network, evaluator, conf, storage, useSecureConn, 4096);
-  }
-  
-  public TestSCEConfiguration(ProtocolSuite suite, 
-      NetworkingStrategy network,
-      ProtocolEvaluator evaluator,
-      NetworkConfiguration conf, Storage storage, boolean useSecureConn, int maxBatchSize) {
     this.suite = suite;
-    this.network = network;
-    this.storage = storage;
+    this.networkingStrategy = networkingStrategy;
     this.evaluator = evaluator;
-    evaluator.setMaxBatchSize(maxBatchSize);
-    this.myId = conf.getMyId();
-    parties = new HashMap<>();
+    evaluator.setMaxBatchSize(4096);
+    networkConfiguration = conf;
     for (int i = 1; i <= conf.noOfParties(); i++) {
       if (useSecureConn) {
         Party p = conf.getParty(i);
         //Use the same hardcoded test 128 bit AES key for all connections
         p.setSecretSharedKey("w+1qn2ooNMCN7am9YmYQFQ==");
-        parties.put(i, p);
-      } else {
-        parties.put(i, conf.getParty(i));
       }
     }
   }
@@ -84,39 +64,16 @@ public class TestSCEConfiguration<ResourcePoolT extends ResourcePool, Builder ex
     return suite;
   }
 
-  
-  @Override
-  public int getMyId() {
-    return myId;
+  public NetworkConfiguration getNetworkConfiguration() {
+    return networkConfiguration;
   }
 
-  @Override
-  public Map<Integer, Party> getParties() {
-    return parties;
-  }
-
-  @Override
-  public Level getLogLevel() {
-    return Level.INFO;
-  }
-
-  @Override
-  public ProtocolEvaluator getEvaluator() {
+  public ProtocolEvaluator<ResourcePoolT> getEvaluator() {
     return this.evaluator;
   }
 
-  @Override
-  public StreamedStorage getStreamedStorage() {
-    if (this.storage instanceof StreamedStorage) {
-      return (StreamedStorage) this.storage;
-    } else {
-      return null;
-    }
-  }
-
-  @Override
   public NetworkingStrategy getNetworkStrategy() {
-    return this.network;
+    return this.networkingStrategy;
   }
 
 }
