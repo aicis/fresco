@@ -38,7 +38,7 @@ public class DummySBool implements SBool {
 	private Boolean value;
 	
 	public DummySBool(String id) {
-		this.value = null;
+    this.value = null;
 		this.id = id;
 	}
 	

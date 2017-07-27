@@ -26,7 +26,6 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.math.bool.add;
 
-import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.SBool;
@@ -52,7 +51,7 @@ public class FullAdderProtocolImpl implements FullAdderProtocol {
   public FullAdderProtocolImpl(SBool[] lefts, SBool[] rights, SBool inCarry, SBool[] outs,
       SBool outCarry, BasicLogicFactory basicFactory, OneBitFullAdderProtocolFactory FAFactory) {
     if (lefts.length != rights.length || lefts.length != outs.length) {
-      throw new MPCException("input and output arrays for Full Adder must be of same length.");
+      throw new IllegalArgumentException("input and output arrays for Full Adder must be of same length.");
     }
     this.lefts = lefts;
     this.rights = rights;
@@ -75,7 +74,7 @@ public class FullAdderProtocolImpl implements FullAdderProtocol {
             .getOneBitFullAdderProtocol(lefts[stopRound - 1], rights[stopRound - 1], inCarry,
                 outs[stopRound - 1], tmpCarry);
       }
-    } else if (round > 0 && round < stopRound - 1) {
+    } else if (round < stopRound - 1) {
       if (curPP == null) {
         //TODO: Using tmpCarry both as in and out might not be good for all implementations of a 1Bit FA protocol?
         //But at least it works for OneBitFullAdderprotocolImpl.
@@ -83,13 +82,13 @@ public class FullAdderProtocolImpl implements FullAdderProtocol {
             .getOneBitFullAdderProtocol(lefts[stopRound - round - 1], rights[stopRound - round - 1],
                 tmpCarry, outs[stopRound - round - 1], tmpCarry);
       }
-    } else if (round == stopRound - 1) {
+    } else {
       if (curPP == null) {
         curPP = FAFactory
             .getOneBitFullAdderProtocol(lefts[0], rights[0], tmpCarry, outs[0], outCarry);
       }
     }
-    if (curPP != null && curPP.hasNextProtocols()) {
+    if (curPP.hasNextProtocols()) {
       curPP.getNextProtocols(protocolCollection);
     } else {
       round++;

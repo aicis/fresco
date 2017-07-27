@@ -20,31 +20,31 @@ public class SIntListofTuples {
 	/**
 	 * id is first element in tuple
 	 */
-  	public final int rowWidth;
+  public final int rowWidth;
   	
-  	/**
-  	 * 
-  	 * @param row the data values (and id in first column)
-  	 * @param falseValue an Sint representing zero, to mark the row as non-duplicate.
-  	 * @return
-  	 */
-  	public SIntListofTuples add(SInt[] row, SInt falseValue){
-  	    if (row.length!=rowWidth)
-  	    	throw new RuntimeException("Row width wrong. Should be "+rowWidth);
-  	    theData.add(row);	
-  	    duplicate_p.add(falseValue);
-  		return this;
-  	}
+  /**
+   * 
+   * @param row the data values (and id in first column)
+   * @param falseValue an Sint representing zero, to mark the row as non-duplicate.
+   * @return
+   */
+  public SIntListofTuples add(SInt[] row, SInt falseValue){
+      if (row.length!=rowWidth)
+      	throw new IllegalArgumentException("Row width wrong. Should be "+rowWidth);
+      theData.add(row);	
+      duplicate_p.add(falseValue);
+  	return this;
+  }
   	
-  	public SIntListofTuples remove(int index){
-  	    theData.remove(index);	
-  	    duplicate_p.remove(index);
-  		return this;
-  	}
-  	
-  	public SInt[] get(int index){
-  		return theData.get(index);
-  	}
+  public SIntListofTuples remove(int index){
+      theData.remove(index);	
+      duplicate_p.remove(index);
+  	return this;
+  }
+  
+  public SInt[] get(int index){
+  	return theData.get(index);
+  }
   	
   	public SInt getId(int index){
   		return theData.get(index)[0];

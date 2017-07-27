@@ -11,7 +11,7 @@ import dk.alexandra.fresco.lib.arithmetic.LogicTests;
 import dk.alexandra.fresco.lib.arithmetic.MiMCTests;
 import dk.alexandra.fresco.lib.arithmetic.SearchingTests;
 import dk.alexandra.fresco.lib.arithmetic.SortingTests;
-import dk.alexandra.fresco.lib.collections.sort.CollectionsSortingTests;
+import dk.alexandra.fresco.lib.list.EliminateDuplicatesTests;
 import dk.alexandra.fresco.lib.math.integer.division.DivisionTests;
 import dk.alexandra.fresco.lib.math.integer.sqrt.SqrtTests;
 import dk.alexandra.fresco.lib.math.integer.stat.StatisticsTests;
@@ -259,5 +259,23 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
     runTest(new MiMCTests.TestMiMCEncryptsDeterministically(), EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET, 2);
   }
 
+  @Test
+  public void test_findDuplicatesOne() throws Exception {
+    runTest(new dk.alexandra.fresco.lib.list.EliminateDuplicatesTests.TestFindDuplicatesOne(),
+        EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET, 2);
+  }
+  
+  @Test
+  public void test_findDuplicatesTwo() throws Exception {
+    runTest(new EliminateDuplicatesTests.TestFindDuplicatesTwo(),
+        EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET, 2);
+  }
+
+  @Test
+  public void test_verticalJoin() throws Exception {
+    runTest(new EliminateDuplicatesTests.TestVerticalJoin(),
+        EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET, 2);
+  }
+  
   
 }

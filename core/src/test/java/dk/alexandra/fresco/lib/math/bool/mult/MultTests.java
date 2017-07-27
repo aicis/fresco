@@ -24,7 +24,7 @@
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
  *******************************************************************************/
-package dk.alexandra.fresco.lib.math.bool.log;
+package dk.alexandra.fresco.lib.math.bool.mult;
 
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.ProtocolFactory;
@@ -45,23 +45,22 @@ import dk.alexandra.fresco.lib.logic.AbstractBinaryFactory;
 import org.hamcrest.core.Is;
 import org.junit.Assert;
 
-public class LogTests {
+public class MultTests {
 
-  public static class TestLogNice extends TestThreadFactory {
+  public static class TestBinaryMult extends TestThreadFactory {
 
-    public TestLogNice() {
+    public TestBinaryMult() {
     }
-
-    boolean[] rawInput = ByteArithmetic.toBoolean("ff");
-    
+        
     @Override
     public TestThread next(TestThreadConfiguration conf) {
       return new TestThread() {
         @Override
         public void test() throws Exception {
           
-          boolean[] rawInput = ByteArithmetic.toBoolean("ff");
-          
+          boolean[] rawFirst = ByteArithmetic.toBoolean("11ff");
+          boolean[] rawSecond = ByteArithmetic.toBoolean("22");
+                
           TestBoolApplication app = new TestBoolApplication() {
 
             private static final long serialVersionUID = 4338818809103728010L;
@@ -71,16 +70,21 @@ public class LogTests {
                 ProtocolFactory provider) {
               AbstractBinaryFactory prov = (AbstractBinaryFactory) provider;
               BasicLogicBuilder builder = new BasicLogicBuilder(prov);
-              
+          
               SequentialProtocolProducer seq = new SequentialProtocolProducer();
-              SBool[] input = builder.knownSBool(rawInput);
-              SBool[] result = prov.getSBools(4); 
+              
+              SBool[] first = builder.knownSBool(rawFirst);
+              SBool[] second = builder.knownSBool(rawSecond);
+              SBool[] result = prov.getSBools(24); 
               
               seq.append(builder.getProtocol());
-              seq.append(prov.getLogProtocol(input, result));
+              seq.append(prov.getBinaryMultProtocol(first, second, result));
               OBool[] open = builder.output(result);
               seq.append(builder.getProtocol());
-              this.outputs = open;
+              this.outputs = new OBool[open.length];
+              for(int i = 0; i< open.length; i++) {
+                this.outputs[i] = open[i];
+              }
               return seq;
             }
           };
@@ -89,11 +93,9 @@ public class LogTests {
               NetworkCreator.createResourcePool(conf.sceConf));
 
           boolean[] raw = convert(app.getOutputs());
-          
-          Assert.assertThat(ByteArithmetic.toHex(raw), Is.is("08"));
+          Assert.assertThat(raw[raw.length-1], Is.is(false));    
+          Assert.assertThat(ByteArithmetic.toHex(raw), Is.is("0263de"));
         }
-
-        
       };
     }
     private boolean[] convert(OBool[] outputs) {
@@ -104,56 +106,5 @@ public class LogTests {
       return output;
     }
   }
-
   
-  public static class TestLogBadLength extends TestThreadFactory {
-
-    public TestLogBadLength() {
-    }
-
-    boolean[] rawInput = ByteArithmetic.toBoolean("ff");
-    
-    @Override
-    public TestThread next(TestThreadConfiguration conf) {
-      return new TestThread() {
-        @Override
-        public void test() throws Exception {
-          
-          boolean[] rawInput = ByteArithmetic.toBoolean("ff");
-          
-          TestBoolApplication app = new TestBoolApplication() {
-
-            private static final long serialVersionUID = 4338818809103728010L;
-
-            @Override
-            public ProtocolProducer prepareApplication(
-                ProtocolFactory provider) {
-              AbstractBinaryFactory prov = (AbstractBinaryFactory) provider;
-              BasicLogicBuilder builder = new BasicLogicBuilder(prov);
-              
-              SequentialProtocolProducer seq = new SequentialProtocolProducer();
-              SBool[] input = builder.knownSBool(rawInput);
-              SBool[] result = prov.getSBools(6); 
-              
-              seq.append(builder.getProtocol());
-              seq.append(prov.getLogProtocol(input, result));
-              OBool[] open = builder.output(result);
-              seq.append(builder.getProtocol());
-              this.outputs = open;
-              return seq;
-            }
-          };
-
-          try{
-            secureComputationEngine.runApplication(app,
-                NetworkCreator.createResourcePool(conf.sceConf));
-          }catch(MPCException e) {
-            Assert.assertThat(e.getMessage(), Is.is("Output array must be log size+1 that of the input array!"));
-          }
-        }
-      };
-    }
-   
-  }
-
 }

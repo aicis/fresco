@@ -26,7 +26,6 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.math.bool.mult;
 
-import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.SBool;
@@ -57,7 +56,7 @@ public class BinaryMultProtocolImpl implements BinaryMultProtocol {
   public BinaryMultProtocolImpl(SBool[] lefts, SBool[] rights, SBool[] outs,
       BasicLogicFactory basicFactory, AdderProtocolFactory adderFactory) {
     if (lefts.length + rights.length != outs.length) {
-      throw new MPCException(
+      throw new IllegalArgumentException(
           "input arrays must be same length, and output array must be twice that of the inputs.");
     }
     this.lefts = lefts;
@@ -120,7 +119,7 @@ public class BinaryMultProtocolImpl implements BinaryMultProtocol {
       }
       getNextFromPp(protocolCollection);
 
-    } else if (round > 0 && round < stopRound - 1) {
+    } else if (round < stopRound - 1) {
       if (curPP == null) {
         ProtocolProducer firstHA = adderFactory
             .getOneBitHalfAdderProtocol(andMatrix[0][round - 1], intermediateResults[0],
@@ -146,7 +145,7 @@ public class BinaryMultProtocolImpl implements BinaryMultProtocol {
         curPP = new SequentialProtocolProducer(firstHA, tmp);
       }
       getNextFromPp(protocolCollection);
-    } else if (round == stopRound - 1) {
+    } else {
       if (curPP == null) {
         ProtocolProducer firstHA = adderFactory
             .getOneBitHalfAdderProtocol(andMatrix[0][round - 1], intermediateResults[0],

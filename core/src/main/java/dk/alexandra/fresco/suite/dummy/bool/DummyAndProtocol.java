@@ -45,7 +45,7 @@ public class DummyAndProtocol extends DummyProtocol {
 
   @Override
   public String toString() {
-    return "DummyAndGate(" + inLeft + "," + inRight + "," + out + ")";
+    return "DummyAndProtocol(" + inLeft + "," + inRight + "," + out + ")";
   }
 
   @Override

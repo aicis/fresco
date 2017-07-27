@@ -38,7 +38,7 @@ public class OneBitHalfAdderProtocolImpl implements OneBitHalfAdderProtocol {
   private SBool left, right, outS;
   private SBool outCarry;
   private BasicLogicFactory factory;
-  private int round;
+  private boolean done;
   private ParallelProtocolProducer curPP;
 
   public OneBitHalfAdderProtocolImpl(SBool left, SBool right, SBool outS,
@@ -48,14 +48,13 @@ public class OneBitHalfAdderProtocolImpl implements OneBitHalfAdderProtocol {
     this.outS = outS;
     this.outCarry = outCarry;
     this.factory = factory;
-    this.round = 0;
+    this.done = false;
     this.curPP = null;
   }
 
   @Override
   public void getNextProtocols(ProtocolCollection protocolCollection) {
-    if (round == 0) {
-      if (curPP == null) {
+    if (curPP == null) {
         XorProtocol xor = factory.getXorProtocol(left, right, outS);
         ProtocolProducer and = factory.getAndProtocol(left, right, outCarry);
         curPP = new ParallelProtocolProducer(xor);
@@ -63,15 +62,14 @@ public class OneBitHalfAdderProtocolImpl implements OneBitHalfAdderProtocol {
       }
       if (curPP.hasNextProtocols()) {
         curPP.getNextProtocols(protocolCollection);
-      } else if (!curPP.hasNextProtocols()) {
+      } else {
         curPP = null;
-        round++;
+        done = true;
       }
-    }
   }
 
   @Override
   public boolean hasNextProtocols() {
-    return round < 1;
+    return !done;
   }
 }

@@ -44,7 +44,9 @@ import dk.alexandra.fresco.lib.compare.CompareTests;
 import dk.alexandra.fresco.lib.crypto.BristolCryptoTests;
 import dk.alexandra.fresco.lib.debug.DebugTests;
 import dk.alexandra.fresco.lib.field.bool.generic.FieldBoolTests;
+import dk.alexandra.fresco.lib.math.bool.add.AddTests;
 import dk.alexandra.fresco.lib.math.bool.log.LogTests;
+import dk.alexandra.fresco.lib.math.bool.mult.MultTests;
 import dk.alexandra.fresco.suite.dummy.bool.DummyConfiguration;
 
 import java.util.ArrayList;
@@ -189,16 +191,6 @@ public class TestDummyProtocolSuite {
     runTest(new DebugTests.TestOpenAndPrint(), EvaluationStrategy.SEQUENTIAL_BATCHED);
   }
 
-  @Test
-  public void test_Binary_Log_Nice() throws Exception {
-    runTest(new LogTests.TestLogNice(), EvaluationStrategy.SEQUENTIAL_BATCHED);
-  }
-
-  @Test
-  public void test_Binary_Log_Bad_length() throws Exception {
-    runTest(new LogTests.TestLogBadLength(), EvaluationStrategy.SEQUENTIAL_BATCHED);
-  }
-  
   //lib.field.bool.generic
   @Test
   public void test_XNor() throws Exception {
@@ -228,5 +220,40 @@ public class TestDummyProtocolSuite {
   public void test_NotFromXor() throws Exception {
     runTest(new FieldBoolTests.TestNotFromXorProtocol(), EvaluationStrategy.SEQUENTIAL_BATCHED);
   }
+  //lib.math.bool
+  @Test
+  public void test_One_Bit_Half_Adder() throws Exception {
+    runTest(new AddTests.TestOneBitHalfAdder(), EvaluationStrategy.SEQUENTIAL_BATCHED);
+  }
+
+  @Test
+  public void test_One_Bit_Full_Adder() throws Exception {
+    runTest(new AddTests.TestOneBitFullAdder(), EvaluationStrategy.SEQUENTIAL_BATCHED);
+  }
+  
+  @Test
+  public void test_Binary_Adder() throws Exception {
+    runTest(new AddTests.TestFullAdder(), EvaluationStrategy.SEQUENTIAL_BATCHED);
+  }  
+  
+  @Test
+  public void test_Binary_BitIncrementAdder() throws Exception {
+    runTest(new AddTests.TestBitIncrement(), EvaluationStrategy.SEQUENTIAL_BATCHED);
+  }  
+  
+  @Test
+  public void test_Binary_Log_Nice() throws Exception {
+    runTest(new LogTests.TestLogNice(), EvaluationStrategy.SEQUENTIAL_BATCHED);
+  }
+
+  @Test
+  public void test_Binary_Log_Bad_length() throws Exception {
+    runTest(new LogTests.TestLogBadLength(), EvaluationStrategy.SEQUENTIAL_BATCHED);
+  }
+
+  @Test
+  public void test_Binary_Mult() throws Exception {
+    runTest(new MultTests.TestBinaryMult(), EvaluationStrategy.SEQUENTIAL_BATCHED);
+  }  
   
 }

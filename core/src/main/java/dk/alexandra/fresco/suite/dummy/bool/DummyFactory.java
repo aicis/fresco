@@ -55,28 +55,10 @@ public class DummyFactory extends AbstractBinaryFactory implements BasicLogicFac
   }
 
   @Override
-  public SBool[] getSBools(int amount) {
-    SBool[] res = new DummySBool[amount];
-    for (int i = 0; i < amount; i++) {
-      res[i] = getSBool();
-    }
-    return res;
-  }
-
-  @Override
   public SBool getKnownConstantSBool(boolean b) {
     return new DummySBool("" + this.counter++, b);
   }
-
-  @Override
-  public SBool[] getKnownConstantSBools(boolean[] bools) {
-    DummySBool[] res = new DummySBool[bools.length];
-    for (int i = 0; i < bools.length; i++) {
-      res[i] = new DummySBool("" + this.counter++, bools[i]);
-    }
-    return res;
-  }
-
+  
   @Override
   public OBool getOBool() {
     return new DummyOBool("" + this.counter++);
@@ -88,11 +70,6 @@ public class DummyFactory extends AbstractBinaryFactory implements BasicLogicFac
   }
 
   @Override
-  public ProtocolProducer getNotProtocol(SBool in, SBool out) {
-    return SingleProtocolProducer.wrap(new DummyNotProtocol(in, out));
-  }
-
-  @Override
   public XorProtocol getXorProtocol(SBool inLeft, SBool inRight, SBool out) {
     return new DummyXorProtocol(inLeft, inRight, out);
   }
@@ -101,7 +78,6 @@ public class DummyFactory extends AbstractBinaryFactory implements BasicLogicFac
   public ProtocolProducer getAndProtocol(SBool inLeft, SBool inRight, SBool out) {
     return SingleProtocolProducer.wrap(new DummyAndProtocol(inLeft, inRight, out));
   }
-
 
   @Override
   public CloseBoolProtocol getCloseProtocol(int source, OBool open, SBool closed) {
@@ -116,12 +92,6 @@ public class DummyFactory extends AbstractBinaryFactory implements BasicLogicFac
   @Override
   public OpenBoolProtocol getOpenProtocol(int target, SBool closed, OBool open) {
     return new DummyOpenBoolProtocol(closed, open, target);
-  }
-
-  @Override
-  public ProtocolProducer getAndProtocol(SBool inLeft, OBool inRight, SBool out) {
-    SBool dummy = new DummySBool(((DummyOBool)inRight).getId(), inRight.getValue());
-    return SingleProtocolProducer.wrap(new DummyAndProtocol(inLeft, dummy, out));
   }
 
   @Override

@@ -284,11 +284,13 @@ public class CollectionsSortingTests {
                sorted2.add(new Pair<SBool[], SBool[]>(sr31, sr32));
                sorted2.add(new Pair<SBool[], SBool[]>(sr41, sr42));
                
-               OddEvenMergeProtocolRec mergeProtocol = 
-                   new OddEvenMergeProtocolRec(left, right, sorted, prov);
-              
-               OddEvenMergeProtocolRec mergeProtocolReversed = 
-                   new OddEvenMergeProtocolRec(right, left, sorted2, prov);
+               
+               
+               OddEvenMergeProtocol mergeProtocol = 
+                   prov.getOddEvenMergeProtocol(left, right, sorted);
+               
+               OddEvenMergeProtocol mergeProtocolReversed = 
+                   prov.getOddEvenMergeProtocol(left, right, sorted2); 
               
                sseq.append(mergeProtocol);
                sseq.append(mergeProtocolReversed);
@@ -396,8 +398,10 @@ public class CollectionsSortingTests {
 
                sseq.append(builder.getProtocol());
                
-               OddEvenMergeProtocolRec mergeProtocol = 
-                   new OddEvenMergeProtocolRec(rightList, leftList, sorted, prov);
+               OddEvenMergeProtocol mergeProtocol = 
+                   prov.getOddEvenMergeProtocol(rightList, leftList, sorted);
+               
+ 
                
                sseq.append(mergeProtocol);
                for(int i = 0; i< left.length; i++) {

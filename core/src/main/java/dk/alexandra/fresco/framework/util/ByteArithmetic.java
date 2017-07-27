@@ -169,19 +169,28 @@ public class ByteArithmetic {
 	 */
 	public static String toHex(boolean[] bits) {
 		StringBuilder hex = new StringBuilder();
-		// TODO: Assert bits.length % 4 == 0
+		boolean[] niceBits = null;
+		if(bits.length %4 == 0) {
+		  niceBits = bits;
+		} else {
+		  niceBits = new boolean[4*((bits.length/4)+1)];
+		  System.arraycopy(bits, 0, niceBits, 3, bits.length);
+		}
+		
 		StringBuilder binb = new StringBuilder();
-		for (int i=0; i<bits.length; i++) {
-			binb.append(bits[i] ? "1" : "0");
+		for (int i=0; i<niceBits.length; i++) {
+			binb.append(niceBits[i] ? "1" : "0");
 		}
 		String bin = binb.toString();
-		
 		for (int i=0; i<bin.length() / 4; i++) {
 			String digit = bin.substring(i*4, i*4 + 4);
 			Integer dec = Integer.parseInt(digit, 2);
 			String hexStr = Integer.toHexString(dec);
-			//System.out.println("Digit -> " + digit + " --> " + dec + " --> " + hexStr);
+			// System.out.println("Digit -> " + digit + " --> " + dec + " --> " + hexStr);
 			hex.append(hexStr);
+		}
+		if(hex.length() %2 != 0) {
+		  hex.insert(0, "0");
 		}
 		return hex.toString();
 	}

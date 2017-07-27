@@ -1,4 +1,4 @@
-package dk.alexandra.fresco.lib.database;
+package dk.alexandra.fresco.lib.list;
 
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.ProtocolProducer;
@@ -25,7 +25,7 @@ import java.io.IOException;
 import java.math.BigInteger;
 import org.junit.Assert;
 
-class EliminateDuplicatesTests {
+public class EliminateDuplicatesTests {
 
   private abstract static class ThreadWithFixture extends TestThread {
 

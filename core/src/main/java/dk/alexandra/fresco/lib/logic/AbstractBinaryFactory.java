@@ -44,7 +44,6 @@ import dk.alexandra.fresco.lib.compare.bool.BinaryGreaterThanProtocolImpl;
 import dk.alexandra.fresco.lib.compare.bool.eq.AltBinaryEqualityProtocol;
 import dk.alexandra.fresco.lib.compare.bool.eq.BinaryEqualityProtocol;
 import dk.alexandra.fresco.lib.compare.bool.eq.BinaryEqualityProtocolFactory;
-import dk.alexandra.fresco.lib.field.bool.AndProtocol;
 import dk.alexandra.fresco.lib.field.bool.BasicLogicFactory;
 import dk.alexandra.fresco.lib.field.bool.NandProtocol;
 import dk.alexandra.fresco.lib.field.bool.OrProtocol;

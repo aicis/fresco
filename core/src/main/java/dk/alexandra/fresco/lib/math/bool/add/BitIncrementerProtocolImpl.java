@@ -32,11 +32,10 @@ import dk.alexandra.fresco.framework.value.SBool;
 import dk.alexandra.fresco.lib.field.bool.BasicLogicFactory;
 
 /**
- * This class implements a Full Adder protocol for Binary protocols.
- * It takes the naive approach of linking 1-Bit-Full Adders together to implement
+ * Increment a binary vector with a secret boolean. The class uses 
+ * the naive approach of linking 1-Bit-Full Adders together to implement
  * a generic length adder.
  *
- * @author Michael Stausholm
  */
 public class BitIncrementerProtocolImpl implements BitIncrementerProtocol {
 
@@ -51,9 +50,10 @@ public class BitIncrementerProtocolImpl implements BitIncrementerProtocol {
 
   public BitIncrementerProtocolImpl(SBool[] base, SBool increment, SBool[] outs,
       BasicLogicFactory basicFactory, OneBitHalfAdderProtocolFactory FAFactory) {
-    /*if(base.length != (outs.length-1)){
-      throw new MPCException("output must be 1 larger than input.");
-		}*/
+    if (base.length > outs.length) {
+      throw new IllegalArgumentException("output array for Full Adder must be of same length or greater.");
+    }
+    
     this.base = base;
 
     this.increment = increment;
@@ -64,7 +64,7 @@ public class BitIncrementerProtocolImpl implements BitIncrementerProtocol {
     this.curPP = null;
 
     this.basicFactory = basicFactory;
-    tmpCarry = basicFactory.getSBool();
+    tmpCarry = basicFactory.getKnownConstantSBool(false);
   }
 
   @Override
@@ -72,26 +72,25 @@ public class BitIncrementerProtocolImpl implements BitIncrementerProtocol {
     if (round == 0) {
       if (curPP == null) {
         curPP = FAFactory
-            .getOneBitHalfAdderProtocol(base[stopRound - 1], increment, outs[stopRound - 1],
+            .getOneBitHalfAdderProtocol(base[stopRound - 1], increment, outs[outs.length - 1],
                 tmpCarry);
       }
-    } else if (round > 0 && round < stopRound - 1) {
-      //System.out.println("Got to round "+round);
+    } else if (round < stopRound - 1) {
       if (curPP == null) {
         //TODO: Using tmpCarry both as in and out might not be good for all implementations of a 1Bit FA protocol?
         //But at least it works for OneBitFullAdderprotocolImpl.
         curPP = FAFactory
             .getOneBitHalfAdderProtocol(base[stopRound - round - 1], tmpCarry,
-                outs[stopRound - round - 1], tmpCarry);
+                outs[outs.length - round - 1], tmpCarry);
       }
-    } else if (round == stopRound - 1) {
-      //System.out.println("Got to final round");
+    } else {
       if (curPP == null) {
+        
         SBool last = basicFactory.getKnownConstantSBool(false);
         if (outs.length > base.length) {
           last = outs[outs.length - base.length - 1];
         }
-
+        
         curPP = FAFactory
             .getOneBitHalfAdderProtocol(base[0], tmpCarry, outs[outs.length - base.length], last);
       }
