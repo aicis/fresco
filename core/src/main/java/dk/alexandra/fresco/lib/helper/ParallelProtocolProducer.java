@@ -87,9 +87,6 @@ public class ParallelProtocolProducer implements ProtocolProducer,
   @Override
   public void getNextProtocols(ProtocolCollection protocolCollection) {
     prematureEnded = false;
-    if (cs.size() == 0) {
-      return;
-    }
     ListIterator<ProtocolProducer> iterator = cs.listIterator();
     while (iterator.hasNext()) {
       ProtocolProducer subProducer = iterator.next();
