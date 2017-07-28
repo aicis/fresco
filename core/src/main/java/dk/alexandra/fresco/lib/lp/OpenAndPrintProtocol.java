@@ -54,8 +54,8 @@ public class OpenAndPrintProtocol implements ProtocolProducer {
     this(s, comps.stream().map(Computation::out).toArray(SInt[]::new), bnFactory);
   }
 
-  private enum State { OUTPUT, WRITE, DONE }
-  
+  private enum State {OUTPUT, WRITE, DONE}
+
   private State state = State.OUTPUT;
   private String label;
 
@@ -65,7 +65,8 @@ public class OpenAndPrintProtocol implements ProtocolProducer {
 
   /**
    * Prints a single number.
-   * @param label label identify the print out 
+   *
+   * @param label label identify the print out
    * @param number the number to print
    * @param factory a basic numeric factory
    */
@@ -78,7 +79,8 @@ public class OpenAndPrintProtocol implements ProtocolProducer {
 
   /**
    * Prints a vector.
-   * @param label label identify the print out 
+   *
+   * @param label label identify the print out
    * @param vector the vector to print
    * @param factory a basic numeric factory
    */
@@ -91,7 +93,8 @@ public class OpenAndPrintProtocol implements ProtocolProducer {
 
   /**
    * Prints a matrix number.
-   * @param label label identify the print out 
+   *
+   * @param label label identify the print out
    * @param matrix the matrix to print
    * @param factory a basic numeric factory
    */
@@ -160,7 +163,8 @@ public class OpenAndPrintProtocol implements ProtocolProducer {
     }
   }
 
-  ProtocolProducer makeOpenProtocol(SInt[][] closed, List<List<Computation<BigInteger>>> open,
+  private ProtocolProducer makeOpenProtocol(SInt[][] closed,
+      List<List<Computation<BigInteger>>> open,
       IOIntProtocolFactory factory) {
     ProtocolProducer[] openings = new ProtocolProducer[closed.length];
     for (int i = 0; i < closed.length; i++) {
@@ -172,15 +176,15 @@ public class OpenAndPrintProtocol implements ProtocolProducer {
   }
 
 
-  ProtocolProducer makeOpenProtocol(SInt[] closed, List<Computation<BigInteger>> result,
+  private ProtocolProducer makeOpenProtocol(SInt[] closed, List<Computation<BigInteger>> result,
       IOIntProtocolFactory factory) {
     ParallelProtocolProducer parallelProtocolProducer = new ParallelProtocolProducer();
-    for (int i = 0; i < closed.length; i++) {
-      Computation<BigInteger> openProtocol = factory.getOpenProtocol(closed[i]);
+    for (SInt aClosed : closed) {
+      NativeProtocol<BigInteger, ?> openProtocol = factory.getOpenProtocol(aClosed);
       result.add(openProtocol);
       // This cast is safe - and should be removed when converting this to the new builder based
       // protocol construction pattern.
-      parallelProtocolProducer.append((NativeProtocol) openProtocol);
+      parallelProtocolProducer.append(openProtocol);
     }
     return parallelProtocolProducer;
   }
