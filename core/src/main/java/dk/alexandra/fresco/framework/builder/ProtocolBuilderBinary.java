@@ -56,7 +56,7 @@ public abstract class ProtocolBuilderBinary implements ProtocolBuilder {
    */
   public <T extends NativeProtocol> T append(T nativeProtocol) {
     ProtocolEntity protocolEntity = createAndAppend();
-    protocolEntity.protocolProducer = SingleProtocolProducer.wrap(nativeProtocol);
+    protocolEntity.protocolProducer = new SingleProtocolProducer(nativeProtocol);
     return nativeProtocol;
   }
 
