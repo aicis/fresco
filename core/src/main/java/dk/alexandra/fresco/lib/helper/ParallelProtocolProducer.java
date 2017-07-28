@@ -33,13 +33,14 @@ import java.util.LinkedList;
 import java.util.ListIterator;
 
 /**
- * If a Parallel protocol has n sub-protocols and is asked to deliver m protocols, it
- * requests m/n protocols from each of the sub-protocols.
+ * If a Parallel protocol has n sub-protocols and is asked to deliver m protocols, it requests m/n
+ * protocols from each of the sub-protocols.
  */
 public class ParallelProtocolProducer implements ProtocolProducer,
     ProtocolProducerCollection {
 
   private LinkedList<ProtocolProducer> cs;
+  private boolean prematureEnded;
 
   public ParallelProtocolProducer() {
     cs = new LinkedList<>();
@@ -72,49 +73,33 @@ public class ParallelProtocolProducer implements ProtocolProducer,
   }
 
   public void append(NativeProtocol computation) {
-    cs.offer(SingleProtocolProducer.wrap(computation));
+    cs.offer(new SingleProtocolProducer(computation));
   }
 
   @Override
   public boolean hasNextProtocols() {
-    prune();
-    return !cs.isEmpty();
-  }
-
-  /**
-   * Removes any empty protocols.
-   */
-  private void prune() {
-    while (!cs.isEmpty()) {
-      if (cs.getFirst().hasNextProtocols()) {
-        return;
-      } else {
-        cs.remove();
-      }
+    if (prematureEnded) {
+      return true;
     }
+    return cs.stream().anyMatch(ProtocolProducer::hasNextProtocols);
   }
 
   @Override
   public void getNextProtocols(ProtocolCollection protocolCollection) {
-    // TODO: This is a simple, but very rough implementation.
-    // It requests an equal amount from each subprotocol and only asks once.
-    // A better implementation should try to fill up the protocol array by
-    // requesting further protocols from large protocols if the smaller protocols
-    // run dry.
-    // E.g. this implementation is inferior in that it may return less protocols
-    // than it could.
+    prematureEnded = false;
     if (cs.size() == 0) {
       return;
     }
-    ListIterator<ProtocolProducer> x = cs.listIterator();
-    while (x.hasNext()) {
-      ProtocolProducer c = x.next();
-      if (!c.hasNextProtocols()) {
-        x.remove();
+    ListIterator<ProtocolProducer> iterator = cs.listIterator();
+    while (iterator.hasNext()) {
+      ProtocolProducer subProducer = iterator.next();
+      if (!subProducer.hasNextProtocols()) {
+        iterator.remove();
       } else {
-        c.getNextProtocols(protocolCollection);
+        subProducer.getNextProtocols(protocolCollection);
       }
       if (!protocolCollection.hasFreeCapacity()) {
+        prematureEnded = true;
         return; // We've filled the array.
       }
     }
