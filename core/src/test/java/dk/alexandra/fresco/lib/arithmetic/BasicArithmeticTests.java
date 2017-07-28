@@ -255,16 +255,16 @@ public class BasicArithmeticTests {
 
               // This cast is safe - and should b e removed when converting this to the new builder based
               // protocol construction pattern.
-              sumProtocol.append((NativeProtocol) fac.getAddProtocol(inputs[0], inputs[1], sum));
+              sumProtocol.append(fac.getAddProtocol(inputs[0], inputs[1], sum));
               if (inputs.length > 2) {
                 for (int i = 2; i < inputs.length; i++) {
                   // Add sum and next secret shared input and
                   // store in sum.
-                  sumProtocol.append((NativeProtocol) fac.getAddProtocol(sum, inputs[i], sum));
+                  sumProtocol.append(fac.getAddProtocol(sum, inputs[i], sum));
                 }
               }
 
-              sumProtocol.append((NativeProtocol) fac.getMultProtocol(sum, sum, sum));
+              sumProtocol.append(fac.getMultProtocol(sum, sum, sum));
 
               this.outputs.add(ioBuilder.output(sum));
 
