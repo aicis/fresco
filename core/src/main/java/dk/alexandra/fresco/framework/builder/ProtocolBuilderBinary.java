@@ -1,6 +1,5 @@
 package dk.alexandra.fresco.framework.builder;
 
-import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.lib.helper.LazyProtocolProducerDecorator;
@@ -82,7 +81,6 @@ public abstract class ProtocolBuilderBinary implements ProtocolBuilder {
 
   private static class ProtocolEntity {
 
-    Computation<?> computation;
     ProtocolProducer protocolProducer;
     LazyProtocolProducerDecorator child;
   }
