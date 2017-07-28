@@ -3,27 +3,25 @@
  *
  * This file is part of the FRESCO project.
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
  *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *
- * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
- * and Bouncy Castle. Please see these projects for any further licensing issues.
+ * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL, and Bouncy Castle.
+ * Please see these projects for any further licensing issues.
  */
+
 package dk.alexandra.fresco.lib.math.integer.sqrt;
 
 import dk.alexandra.fresco.framework.BuilderFactory;
@@ -37,7 +35,6 @@ import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
-import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -53,14 +50,10 @@ public class SqrtTests {
 
       return new TestThread() {
 
-        private final BigInteger[] x = new BigInteger[]{
-            BigInteger.valueOf(1234),
-            BigInteger.valueOf(12345),
-            BigInteger.valueOf(123456),
-            BigInteger.valueOf(1234567),
-            BigInteger.valueOf(12345678),
-            BigInteger.valueOf(123456789)
-        };
+        private final int maxBitLength = 32;
+        private final BigInteger[] x = new BigInteger[] {BigInteger.valueOf(1234),
+            BigInteger.valueOf(12345), BigInteger.valueOf(123456), BigInteger.valueOf(1234567),
+            BigInteger.valueOf(12345678), BigInteger.valueOf(123456789)};
         private final int n = x.length;
 
         List<Computation<BigInteger>> results = new ArrayList<>(n);
@@ -73,14 +66,14 @@ public class SqrtTests {
             public ProtocolProducer prepareApplication(BuilderFactory factoryProducer) {
               return ProtocolBuilderNumeric
                   .createApplicationRoot((BuilderFactoryNumeric) factoryProducer, (builder) -> {
-                    NumericBuilder sIntFactory = builder.numeric();
+                    NumericBuilder numBuilder = builder.numeric();
 
                     results = new ArrayList<>(n);
 
                     for (BigInteger input : x) {
-                      Computation<SInt> actualInput = sIntFactory.known(input);
-                      Computation<SInt> result = builder.advancedNumeric()
-                          .sqrt(actualInput, input.bitLength());
+                      Computation<SInt> actualInput = numBuilder.known(input);
+                      Computation<SInt> result =
+                          builder.advancedNumeric().sqrt(actualInput, maxBitLength);
                       Computation<BigInteger> openResult = builder.numeric().open(result);
                       results.add(openResult);
                     }
@@ -88,8 +81,8 @@ public class SqrtTests {
             }
           };
 
-          secureComputationEngine
-              .runApplication(app, ResourcePoolCreator.createResourcePool(conf.sceConf));
+          secureComputationEngine.runApplication(app,
+              ResourcePoolCreator.createResourcePool(conf.sceConf));
 
           Assert.assertEquals(n, results.size());
 
@@ -107,8 +100,7 @@ public class SqrtTests {
 
             Assert.assertFalse(shouldBeCorrect && !isCorrect);
 
-            System.out.println(
-                "sqrt(" + x[i] + ") = " + actual + ", expected " + expected + ".");
+            System.out.println("sqrt(" + x[i] + ") = " + actual + ", expected " + expected + ".");
             Assert.assertTrue(isCorrect);
           }
         }
