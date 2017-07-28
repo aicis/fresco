@@ -37,8 +37,8 @@ import dk.alexandra.fresco.lib.helper.SingleProtocolProducer;
 import java.math.BigInteger;
 
 /**
- * Tiny application for a two party case which computes the sum of the inputs,
- * and outputs the result.
+ * Tiny application for a two party case which computes the sum of the inputs, and outputs the
+ * result.
  *
  * @author kasperdamgard
  */
@@ -76,11 +76,13 @@ public class SumAndOutputApplication extends DemoNumericApplication<BigInteger> 
     }
 
     // create output wire
-    output = fac.getOpenProtocol(sum);
+    NativeProtocol<BigInteger, ?> openProtocol = fac.getOpenProtocol(sum);
 
     // Connect all protocols into a single protocol
     ProtocolProducer gp = new SequentialProtocolProducer(inputProtocol,
-        sumProtocol, SingleProtocolProducer.wrap(output));
+        sumProtocol, new SingleProtocolProducer<>(openProtocol));
+
+    output = openProtocol;
     return gp;
   }
 

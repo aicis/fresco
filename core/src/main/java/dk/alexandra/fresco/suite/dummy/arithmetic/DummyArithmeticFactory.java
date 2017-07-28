@@ -25,6 +25,7 @@
 package dk.alexandra.fresco.suite.dummy.arithmetic;
 
 import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.network.SCENetwork;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
@@ -77,54 +78,45 @@ public class DummyArithmeticFactory implements BasicNumericFactory {
   }
 
   @Override
-  public Computation<? extends SInt> getAddProtocol(SInt a, SInt b, SInt out) {
+  public NativeProtocol<SInt, ?> getAddProtocol(SInt a, SInt b, SInt out) {
     return new DummyArithmeticAddProtocol(a, b, out);
   }
 
   @Override
-  public Computation<? extends SInt> getAddProtocol(SInt input, BigInteger openInput, SInt out) {
+  public NativeProtocol<SInt, ?> getAddProtocol(SInt input, BigInteger openInput, SInt out) {
     return new DummyArithmeticAddProtocol(input, () -> new DummyArithmeticSInt(openInput), out);
   }
 
   @Override
-  public Computation<? extends SInt> getSubtractProtocol(SInt a, SInt b, SInt out) {
+  public NativeProtocol<SInt, ?> getSubtractProtocol(SInt a, SInt b, SInt out) {
     return new DummyArithmeticSubtractProtocol(a, b, out);
   }
 
 
   @Override
-  public Computation<? extends SInt> getMultProtocol(SInt a, SInt b, SInt out) {
+  public NativeProtocol<SInt, ?> getMultProtocol(SInt a, SInt b, SInt out) {
     return new DummyArithmeticMultProtocol(a, b, out);
   }
 
   @Override
-  public Computation<? extends SInt> getCloseProtocol(int source, BigInteger open, SInt closed) {
+  public NativeProtocol<SInt, ?> getCloseProtocol(int source, BigInteger open, SInt closed) {
     return new DummyArithmeticCloseProtocol(source, () -> open, closed);
   }
 
 
   @Override
-  public Computation<BigInteger> getOpenProtocol(SInt closed) {
+  public NativeProtocol<BigInteger, ?> getOpenProtocol(SInt closed) {
     return new DummyArithmeticOpenToAllProtocol(closed);
   }
 
   @Override
-  public Computation<BigInteger> getOpenProtocol(int target, SInt closed) {
+  public NativeProtocol<BigInteger, ?> getOpenProtocol(int target, SInt closed) {
     return new DummyArithmeticOpenProtocol(closed, target);
   }
 
   @Override
   public int getMaxBitLength() {
     return maxBitLength;
-  }
-
-  @Override
-  public SInt getSqrtOfMaxValue() {
-    BigInteger two = BigInteger.valueOf(2);
-    BigInteger max = mod.subtract(BigInteger.ONE).divide(two);
-    int bitlength = max.bitLength();
-    BigInteger approxMaxSqrt = two.pow(bitlength / 2);
-    return getSInt(approxMaxSqrt);
   }
 
   @Override

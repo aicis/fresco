@@ -72,30 +72,6 @@ public class SpdzFactory implements BasicNumericFactory {
     return new SpdzKnownSIntProtocol(value, sValue);
   }
 
-  /**
-   * Careful - This creates a publicly known integer which is secret shared.
-   * This is (approximately) the square root of the maximum representable
-   * value. We set "max" to this value as we may want to multiply the "max"
-   * value with an other number, and still not get overflow.
-   */
-  @Override
-  public SInt getSqrtOfMaxValue() {
-    SpdzElement elm;
-    BigInteger two = BigInteger.valueOf(2);
-    BigInteger max = getModulus().subtract(BigInteger.ONE).divide(two);
-    int bitlength = max.bitLength();
-    BigInteger approxMaxSqrt = two.pow(bitlength / 2);
-
-    if (pID == 1) {
-      elm = new SpdzElement(approxMaxSqrt,
-          approxMaxSqrt.multiply(this.storage.getSSK()), getModulus());
-    } else {
-      elm = new SpdzElement(BigInteger.ZERO,
-          approxMaxSqrt.multiply(this.storage.getSSK()), getModulus());
-    }
-    return new SpdzSInt(elm);
-  }
-
   public SpdzSInt getRandomBitFromStorage() {
     return this.storage.getSupplier().getNextBit();
   }
@@ -105,24 +81,24 @@ public class SpdzFactory implements BasicNumericFactory {
   }
 
   @Override
-  public NativeProtocol<? extends SInt, ?> getAddProtocol(SInt a, SInt b, SInt out) {
+  public NativeProtocol<SInt, ?> getAddProtocol(SInt a, SInt b, SInt out) {
     return new SpdzAddProtocolOld(a, b, out);
   }
 
 
   @Override
-  public NativeProtocol<? extends SInt, ?> getAddProtocol(SInt a, BigInteger b, SInt out) {
+  public NativeProtocol<SInt, ?> getAddProtocol(SInt a, BigInteger b, SInt out) {
     return new SpdzAddProtocolOld(a, b, out, this);
   }
 
   @Override
-  public NativeProtocol<? extends SInt, ?> getSubtractProtocol(SInt a, SInt b, SInt out) {
+  public NativeProtocol<SInt, ?> getSubtractProtocol(SInt a, SInt b, SInt out) {
     return new SpdzSubtractProtocolOld(a, b, out);
   }
 
 
   @Override
-  public Computation<? extends SInt> getMultProtocol(SInt a, SInt b, SInt out) {
+  public NativeProtocol<SInt, ?> getMultProtocol(SInt a, SInt b, SInt out) {
     return new SpdzMultProtocolOld(a, b, out);
   }
 
@@ -164,17 +140,17 @@ public class SpdzFactory implements BasicNumericFactory {
 
 
   @Override
-  public Computation<? extends SInt> getCloseProtocol(int source, BigInteger open, SInt closed) {
+  public NativeProtocol<SInt, ?> getCloseProtocol(int source, BigInteger open, SInt closed) {
     return new SpdzInputProtocol(open, closed, source);
   }
 
   @Override
-  public Computation<BigInteger> getOpenProtocol(int target, SInt closed) {
+  public NativeProtocol<BigInteger, ?> getOpenProtocol(int target, SInt closed) {
     return new SpdzOutputProtocol(closed, target);
   }
 
   @Override
-  public Computation<BigInteger> getOpenProtocol(SInt closed) {
+  public NativeProtocol<BigInteger, ?> getOpenProtocol(SInt closed) {
     return new SpdzOutputToAllProtocolOld(closed);
   }
 

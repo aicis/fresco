@@ -27,6 +27,7 @@
 package dk.alexandra.fresco.lib.helper.builder;
 
 import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.framework.value.SIntFactory;
@@ -38,8 +39,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * A builder handling input/output related protocols for protocol suites
- * supporting arithmetic.
+ * A builder handling input/output related protocols for protocol suites supporting arithmetic.
  *
  * @author psn
  */
@@ -61,8 +61,8 @@ public class NumericIOBuilder extends AbstractProtocolBuilder {
   }
 
   /**
-   * A convenient constructor when one factory implements all the needed
-   * interfaces (which will usually be the case)
+   * A convenient constructor when one factory implements all the needed interfaces (which will
+   * usually be the case)
    *
    * @param factory a factory providing SInt/BigInteger and input/output ciruicts.
    */
@@ -121,23 +121,6 @@ public class NumericIOBuilder extends AbstractProtocolBuilder {
   }
 
   /**
-   * Appends a protocol to input a matrix of int's
-   *
-   * @param m A matrix of integers
-   * @param targetID The party to input
-   * @return SInt's that will be loaded with the corresponding inputs by the appended protocol.
-   */
-  public SInt[][] inputMatrix(int[][] m, int targetID) {
-    BigInteger[][] tmp = new BigInteger[m.length][m[0].length];
-    for (int i = 0; i < tmp.length; i++) {
-      for (int j = 0; j < tmp[0].length; j++) {
-        tmp[i][j] = BigInteger.valueOf(m[i][j]);
-      }
-    }
-    return inputMatrix(tmp, targetID);
-  }
-
-  /**
    * A class to efficiently handle large amounts of inputs.
    *
    * @author psn
@@ -149,13 +132,6 @@ public class NumericIOBuilder extends AbstractProtocolBuilder {
     int length;
     int targetID;
     int i = 0;
-
-    InputArray(SInt[] sis, int targetID) {
-      this.length = sis.length;
-      this.is = null;
-      this.sis = sis;
-      this.targetID = targetID;
-    }
 
     InputArray(BigInteger[] is, SInt[] sis, int targetID) {
       if (is.length != sis.length) {
@@ -169,7 +145,7 @@ public class NumericIOBuilder extends AbstractProtocolBuilder {
 
     @Override
     protected ProtocolProducer getNextProtocolProducer() {
-      Computation input = null;
+      NativeProtocol<SInt, ?> input = null;
       if (i < length) {
         BigInteger oi = null;
         if (is != null) {
@@ -178,7 +154,7 @@ public class NumericIOBuilder extends AbstractProtocolBuilder {
         input = iof.getCloseProtocol(targetID, oi, sis[i]);
         i++;
       }
-      return SingleProtocolProducer.wrap(input);
+      return new SingleProtocolProducer<>(input);
     }
   }
 
@@ -209,8 +185,7 @@ public class NumericIOBuilder extends AbstractProtocolBuilder {
   }
 
   /**
-   * Appends a protocol to input a single value from an other party. I.e., the
-   * value is not given.
+   * Appends a protocol to input a single value from an other party. I.e., the value is not given.
    *
    * @param targetID the id of the party inputting.
    * @return SInt to be loaded with the input.
@@ -222,25 +197,7 @@ public class NumericIOBuilder extends AbstractProtocolBuilder {
   }
 
   /**
-   * Appends a protocol to open a matrix of SInts. Output should be given to
-   * all parties.
-   *
-   * @param sis SInts to open
-   * @return the OInts to be loaded with the opened SInts
-   */
-  public List<List<Computation<BigInteger>>> outputMatrix(SInt[][] sis) {
-    List<List<Computation<BigInteger>>> ois = new ArrayList<>(sis.length);
-    beginParScope();
-    for (SInt[] si : sis) {
-      ois.add(outputArray(si));
-    }
-    endCurScope();
-    return ois;
-  }
-
-  /**
-   * Appends a protocol to open an array of SInts. Output should be given to
-   * all parties.
+   * Appends a protocol to open an array of SInts. Output should be given to all parties.
    *
    * @param sis SInts to open
    * @return the OInts to be loaded with the opened SInts
@@ -269,38 +226,36 @@ public class NumericIOBuilder extends AbstractProtocolBuilder {
 
     @Override
     protected ProtocolProducer getNextProtocolProducer() {
-      Computation<BigInteger> output = null;
+      NativeProtocol<BigInteger, ?> output = null;
       if (i < sis.length) {
         output = iof.getOpenProtocol(sis[i]);
         ois.add(output);
         i++;
       }
-      return SingleProtocolProducer.wrap(output);
+      return new SingleProtocolProducer<>(output);
     }
   }
 
   /**
-   * Appends a protocol to open a single SInt. Output should be given to all
-   * parties.
+   * Appends a protocol to open a single SInt. Output should be given to all parties.
    *
    * @param si SInt to open
    * @return the BigInteger to be loaded with the opened SInt
    */
   public Computation<BigInteger> output(SInt si) {
-    Computation<BigInteger> openProtocol = iof.getOpenProtocol(si);
+    NativeProtocol<BigInteger, ?> openProtocol = iof.getOpenProtocol(si);
     append(openProtocol);
     return openProtocol;
   }
 
   /**
-   * Appends a protocol to open a single SInt. Output is given only to the
-   * target ID.
+   * Appends a protocol to open a single SInt. Output is given only to the target ID.
    *
    * @param target the party to receive the output.
    * @param si the SInt to open.
    */
   public Computation<BigInteger> outputToParty(int target, SInt si) {
-    Computation<BigInteger> openProtocol = iof.getOpenProtocol(target, si);
+    NativeProtocol<BigInteger, ?> openProtocol = iof.getOpenProtocol(target, si);
     append(openProtocol);
     return openProtocol;
   }

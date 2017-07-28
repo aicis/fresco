@@ -47,7 +47,7 @@ public class OpenAndPrintProtocol implements ProtocolProducer {
 
   private List<Computation<BigInteger>> openVector = null;
   private List<List<Computation<BigInteger>>> openMatrix = null;
-  private Computation<BigInteger> openNumber;
+  private NativeProtocol<BigInteger, ?> openNumber;
 
   public OpenAndPrintProtocol(String s, List<Computation<SInt>> comps,
       BasicNumericFactory bnFactory) {
@@ -108,7 +108,7 @@ public class OpenAndPrintProtocol implements ProtocolProducer {
       if (state == State.OUTPUT) {
         if (number != null) {
           openNumber = factory.getOpenProtocol(number);
-          pp = SingleProtocolProducer.wrap(openNumber);
+          pp = new SingleProtocolProducer<>(openNumber);
         } else if (vector != null) {
           openVector = new ArrayList<>();
           pp = makeOpenProtocol(vector, openVector, factory);

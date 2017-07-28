@@ -34,7 +34,6 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
-import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.value.OBool;
 import dk.alexandra.fresco.framework.value.SBool;
 import dk.alexandra.fresco.lib.helper.SingleProtocolProducer;
@@ -179,11 +178,11 @@ public class BasicBooleanTests {
               SBool inp2 = prov.getSBool();
 
               builder.addProtocolProducer(
-                  SingleProtocolProducer.wrap(
-                      prov.getCloseProtocol(1, prov.getKnownConstantOBool(true), inp1)));
+                  new SingleProtocolProducer<>(prov
+                      .getCloseProtocol(1, prov.getKnownConstantOBool(true), inp1)));
               builder.addProtocolProducer(
-                  SingleProtocolProducer.wrap(
-                      prov.getCloseProtocol(2, prov.getKnownConstantOBool(true), inp2)));
+                  new SingleProtocolProducer<>(prov
+                      .getCloseProtocol(2, prov.getKnownConstantOBool(true), inp2)));
 
               SBool and = builder.and(inp1, inp2);
 
@@ -253,8 +252,7 @@ public class BasicBooleanTests {
   }
 
   /**
-   * Tests both input, xor, not, and and output.
-   * Computes all variants of: NOT((i1 XOR i2) AND i1)
+   * Tests both input, xor, not, and and output. Computes all variants of: NOT((i1 XOR i2) AND i1)
    */
   public static class TestBasicProtocols extends TestThreadFactory {
 
