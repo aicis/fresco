@@ -63,8 +63,8 @@ public class SequentialProtocolProducer implements ProtocolProducer, ProtocolPro
     this.protocolProducers.add(protocolProducer);
   }
 
-  public void append(NativeProtocol computation) {
-    this.protocolProducers.add(new SingleProtocolProducer(computation));
+  public void append(NativeProtocol<?, ?> computation) {
+    this.protocolProducers.add(new SingleProtocolProducer<>(computation));
   }
 
   @Override

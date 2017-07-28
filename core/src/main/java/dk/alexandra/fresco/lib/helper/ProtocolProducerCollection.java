@@ -55,6 +55,6 @@ public interface ProtocolProducerCollection {
    * construction pattern.
    */
   @Deprecated
-  void append(NativeProtocol computation);
+  void append(NativeProtocol<?, ?> computation);
 
 }

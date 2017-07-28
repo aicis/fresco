@@ -29,6 +29,7 @@ package dk.alexandra.fresco.lib.helper;
 import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.ProtocolProducer;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.ListIterator;
 
@@ -39,17 +40,16 @@ import java.util.ListIterator;
 public class ParallelProtocolProducer implements ProtocolProducer,
     ProtocolProducerCollection {
 
-  private LinkedList<ProtocolProducer> cs;
-  private boolean prematureEnded;
+  private LinkedList<ProtocolProducer> subProducers;
 
   public ParallelProtocolProducer() {
-    cs = new LinkedList<>();
+    subProducers = new LinkedList<>();
   }
 
-  public ParallelProtocolProducer(ProtocolProducer... cs) {
+  public ParallelProtocolProducer(ProtocolProducer... subProducers) {
     this();
-    for (ProtocolProducer c : cs) {
-      append(c);
+    for (ProtocolProducer producer : subProducers) {
+      append(producer);
     }
   }
 
@@ -69,35 +69,35 @@ public class ParallelProtocolProducer implements ProtocolProducer,
   }
 
   public void append(ProtocolProducer protocolProducer) {
-    cs.offer(protocolProducer);
+    subProducers.offer(protocolProducer);
   }
 
-  public void append(NativeProtocol computation) {
-    cs.offer(new SingleProtocolProducer(computation));
+  public void append(NativeProtocol<?, ?> computation) {
+    subProducers.offer(new SingleProtocolProducer<>(computation));
   }
 
   @Override
   public boolean hasNextProtocols() {
-    if (prematureEnded) {
-      return true;
+    for (Iterator<ProtocolProducer> iterator = subProducers.iterator(); iterator.hasNext(); ) {
+      ProtocolProducer producer = iterator.next();
+      if (producer.hasNextProtocols()) {
+        return true;
+      } else {
+        iterator.remove();
+      }
     }
-    return cs.stream().anyMatch(ProtocolProducer::hasNextProtocols);
+    return false;
   }
 
   @Override
   public void getNextProtocols(ProtocolCollection protocolCollection) {
-    prematureEnded = false;
-    ListIterator<ProtocolProducer> iterator = cs.listIterator();
-    while (iterator.hasNext()) {
-      ProtocolProducer subProducer = iterator.next();
-      if (!subProducer.hasNextProtocols()) {
-        iterator.remove();
+    ListIterator<ProtocolProducer> iterator = subProducers.listIterator();
+    while (iterator.hasNext() && protocolCollection.hasFreeCapacity()) {
+      ProtocolProducer producer = iterator.next();
+      if (producer.hasNextProtocols()) {
+        producer.getNextProtocols(protocolCollection);
       } else {
-        subProducer.getNextProtocols(protocolCollection);
-      }
-      if (!protocolCollection.hasFreeCapacity()) {
-        prematureEnded = true;
-        return; // We've filled the array.
+        iterator.remove();
       }
     }
   }
