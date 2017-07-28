@@ -5,7 +5,7 @@ import dk.alexandra.fresco.framework.BuilderFactory;
 public class ProtocolBuilderHelper {
 
   public static BuilderFactory getFactoryNumeric(ProtocolBuilderNumeric protocolBuilder) {
-    return protocolBuilder.factory;
+    return protocolBuilder.getFactory();
   }
 
   public static BuilderFactory getFactoryBinary(ProtocolBuilderBinary protocolBuilder) {

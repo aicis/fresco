@@ -23,7 +23,7 @@ public abstract class ProtocolBuilderNumeric implements ProtocolBuilder {
 
   private BasicNumericFactory basicNumericFactory;
   private List<ProtocolBuilderNumeric.ProtocolEntity> protocols;
-  public BuilderFactoryNumeric factory;
+  private BuilderFactoryNumeric factory;
   private NumericBuilder numericBuilder;
   private ComparisonBuilder comparison;
   private AdvancedNumericBuilder advancedNumeric;
@@ -190,6 +190,12 @@ public abstract class ProtocolBuilderNumeric implements ProtocolBuilder {
     return factory.getBigIntegerHelper();
   }
 
+  // Pending rewrite of the last remaining applications
+  @Deprecated
+  public BuilderFactoryNumeric getFactory() {
+    return factory;
+  }
+
   private static class ProtocolEntity {
 
     final ProtocolProducer protocolProducer;
@@ -222,7 +228,7 @@ public abstract class ProtocolBuilderNumeric implements ProtocolBuilder {
               (ignored, inner) -> function.build(inner));
       createAndAppend(
           new LazyProtocolProducerDecorator(
-              () -> builder.createProducer(null, factory)
+              () -> builder.createProducer(null, getFactory())
           ));
       return builder;
     }
@@ -231,7 +237,7 @@ public abstract class ProtocolBuilderNumeric implements ProtocolBuilder {
       BuildStep<ParallelNumericBuilder, R, Void> builder =
           new BuildStepParallel<>((ignored, inner) -> f.build(inner));
       createAndAppend(new LazyProtocolProducerDecorator(
-          () -> builder.createProducer(null, factory)
+          () -> builder.createProducer(null, getFactory())
       ));
       return builder;
     }
