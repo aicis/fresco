@@ -44,12 +44,17 @@ import dk.alexandra.fresco.lib.field.integer.RandomFieldElementProtocol;
 import dk.alexandra.fresco.lib.field.integer.SubtractProtocol;
 import dk.alexandra.fresco.lib.helper.SimpleProtocolProducer;
 import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
+import dk.alexandra.fresco.lib.math.integer.binary.RepeatedRightShiftProtocol;
+import dk.alexandra.fresco.lib.math.integer.binary.RightShiftFactory;
+import dk.alexandra.fresco.lib.math.integer.binary.RightShiftProtocol;
 import dk.alexandra.fresco.lib.math.integer.exp.ExpFromOIntFactory;
 import dk.alexandra.fresco.lib.math.integer.exp.PreprocessedExpPipeFactory;
 import dk.alexandra.fresco.lib.math.integer.inv.LocalInversionFactory;
 import dk.alexandra.fresco.lib.math.integer.inv.LocalInversionProtocol;
 
-public class DummyArithmeticFactory implements BasicNumericFactory, LocalInversionFactory, ExpFromOIntFactory, PreprocessedExpPipeFactory{
+public class DummyArithmeticFactory implements BasicNumericFactory,
+  LocalInversionFactory, ExpFromOIntFactory, PreprocessedExpPipeFactory,
+  RightShiftFactory{
 
   private BigInteger mod;
   private int maxBitLength;
@@ -74,6 +79,15 @@ public class DummyArithmeticFactory implements BasicNumericFactory, LocalInversi
     return new DummyArithmeticSInt(i);
   }
 
+  @Override
+  public SInt[] getSIntArray(int amount) {
+    SInt[] res = new SInt[amount];
+    for (int i = 0; i < amount; i++) {
+      res[i] = this.getSInt();
+    }
+    return res;
+  }
+  
   @Override
   public KnownSIntProtocol getSInt(int i, SInt si) {
     return getSInt(BigInteger.valueOf(i), si);
@@ -284,6 +298,31 @@ public class DummyArithmeticFactory implements BasicNumericFactory, LocalInversi
       expPipe[i] = new DummyArithmeticSInt(Ms[i]);
     }
     return expPipe;
+  }
+
+  @Override
+  public RightShiftProtocol getRightShiftProtocol(SInt input, SInt result) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public RightShiftProtocol getRightShiftProtocol(SInt input, SInt result, SInt remainder) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public RepeatedRightShiftProtocol getRepeatedRightShiftProtocol(SInt input, int shifts, SInt result) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public RepeatedRightShiftProtocol getRepeatedRightShiftProtocol(SInt input, int shifts, SInt result,
+      SInt[] remainders) {
+    // TODO Auto-generated method stub
+    return null;
   }
 
 }

@@ -27,14 +27,28 @@
 package dk.alexandra.fresco.lib.math.integer.exp;
 
 import dk.alexandra.fresco.framework.value.SInt;
+import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
+import dk.alexandra.fresco.lib.helper.CopyProtocolFactory;
+import dk.alexandra.fresco.lib.math.integer.inv.InversionProtocolFactory;
 
 public class ExponentiationPipeFactoryImpl implements ExponentiationPipeFactory{
 
+  private final BasicNumericFactory basicNumericFactory;
+  private final InversionProtocolFactory inversionFactory;
+  private final CopyProtocolFactory<SInt> copyFactory;
+
+  public ExponentiationPipeFactoryImpl(BasicNumericFactory basicNumericFactory, 
+      InversionProtocolFactory inversionFactory, CopyProtocolFactory<SInt> copyFactory) {
+      this.basicNumericFactory = basicNumericFactory;
+      this.inversionFactory = inversionFactory;
+      this.copyFactory = copyFactory;
+  }
+  
+  
 	@Override
 	public ExponentiationPipeProtocol getExponentiationProtocol(SInt R,
 			SInt[] outputs) {
-		// TODO Auto-generated method stub
-		return null;
+	  return new ExponentiationPipeProtocolImpl(R, outputs, inversionFactory, basicNumericFactory, copyFactory);
 	}
 
 }

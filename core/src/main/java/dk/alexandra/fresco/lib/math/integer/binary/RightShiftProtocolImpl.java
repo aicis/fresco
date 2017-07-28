@@ -72,7 +72,6 @@ public class RightShiftProtocolImpl implements RightShiftProtocol {
       BasicNumericFactory basicNumericFactory,
       RandomAdditiveMaskFactory randomAdditiveMaskFactory,
       LocalInversionFactory localInversionFactory) {
-
     this.input = input;
     this.result = result;
     this.remainder = null;
@@ -109,113 +108,105 @@ public class RightShiftProtocolImpl implements RightShiftProtocol {
   public void getNextProtocols(ProtocolCollection protocolCollection) {
     if (pp == null) {
 
-      switch (round) {
+      if (round == 0) {
+        builder.reset();
+        builder.beginSeqScope();
 
-        case 0:
-          builder.reset();
+        // Load random r including binary expansion
+        SInt r = basicNumericFactory.getSInt();
+        SInt[] rExpansion = new SInt[bitLength];
+        for (int i = 0; i < rExpansion.length; i++) {
+          rExpansion[i] = basicNumericFactory.getSInt();
+        }
+        builder.addProtocolProducer(randomAdditiveMaskFactory
+            .getRandomAdditiveMaskProtocol(securityParameter, rExpansion, r));
+
+        // rBottom is the least significant bit of r
+        rBottom = rExpansion[0];
+
+        /*
+         * Calculate rTop = (r - rBottom) * 2^{-1}. Note that r -
+         * rBottom must be even so the division in the field are
+         * actually a division in the integers.
+         */
+        builder.beginParScope();
+
+        builder.beginSeqScope();
+        OInt inverseOfTwo = basicNumericFactory.getOInt();
+        builder.addProtocolProducer(
+            SingleProtocolProducer.wrap(
+                localInversionFactory.getLocalInversionProtocol(
+                    basicNumericFactory.getOInt(BigInteger.valueOf(2)), inverseOfTwo)));
+        rTop = builder.mult(inverseOfTwo, builder.sub(r, rBottom));
+        builder.endCurScope();
+
+        // mOpen = open(x + r)
+        builder.beginSeqScope();
+        mOpen = basicNumericFactory.getOInt();
+        SInt mClosed = builder.add(input, r);
+        builder.addProtocolProducer(
+            SingleProtocolProducer.wrap(
+                basicNumericFactory.getOpenProtocol(mClosed, mOpen)));
+        builder.endCurScope();
+
+        builder.endCurScope();
+
+        builder.endCurScope();
+        pp = builder.getProtocol();
+      } else {
+        builder.reset();
+
+        builder.beginSeqScope();
+
+        /*
+         * 'carry' is either 0 or 1. It is 1 if and only if the
+         * addition m = x + r gave a carry from the first (least
+         * significant) bit to the second, ie. if the first bit of
+         * both x and r is 1. This happens if and only if the first
+         * bit of r is 1 and the first bit of m is 0 which in turn
+         * is equal to r_0 * (m + 1 (mod 2)).
+         */
+        OInt mBottomNegated = basicNumericFactory.getOInt(mOpen.getValue()
+            .add(BigInteger.ONE).mod(BigInteger.valueOf(2)));
+        SInt carry = builder.mult(mBottomNegated, rBottom);
+
+        // The carry is needed by both the calculation of the shift
+        // and the remainder, but the shift and the remainder can be
+        // calculated in parallel.
+        builder.beginParScope();
+
+        builder.beginSeqScope();
+        // Now we calculate the shift, x >> 1 = mTop - rTop - carry
+        OInt mTop = basicNumericFactory.getOInt(mOpen.getValue().shiftRight(1));
+        builder.copy(result, builder.sub(builder.sub(mTop, rTop), carry));
+
+        builder.endCurScope();
+
+        if (remainder != null) {
           builder.beginSeqScope();
+          /*
+           * We also need to calculate the remainder, aka. the bit
+           * we throw away in the shift: x (mod 2) = xor(r_0, m
+           * mod 2) = r_0 + (m mod 2) - 2 (r_0 * (m mod 2)).
+           */
+          OInt mBottom = basicNumericFactory.getOInt(mOpen.getValue().mod(
+              BigInteger.valueOf(2)));
+          OInt twoMBottom = basicNumericFactory.getOInt(mBottom.getValue().shiftLeft(
+              1));
 
-          // Load random r including binary expansion
-          SInt r = basicNumericFactory.getSInt();
-          SInt[] rExpansion = new SInt[bitLength];
-          for (int i = 0; i < rExpansion.length; i++) {
-            rExpansion[i] = basicNumericFactory.getSInt();
-          }
-          builder.addProtocolProducer(randomAdditiveMaskFactory
-              .getRandomAdditiveMaskProtocol(securityParameter, rExpansion, r));
-
-          // rBottom is the least significant bit of r
-          rBottom = rExpansion[0];
-
-					/*
-           * Calculate rTop = (r - rBottom) * 2^{-1}. Note that r -
-					 * rBottom must be even so the division in the field are
-					 * actually a division in the integers.
-					 */
           builder.beginParScope();
-
-          builder.beginSeqScope();
-          OInt inverseOfTwo = basicNumericFactory.getOInt();
-          builder.addProtocolProducer(
-              SingleProtocolProducer.wrap(
-                  localInversionFactory.getLocalInversionProtocol(
-                      basicNumericFactory.getOInt(BigInteger.valueOf(2)), inverseOfTwo)));
-          rTop = builder.mult(inverseOfTwo, builder.sub(r, rBottom));
+          SInt product = builder.mult(twoMBottom, rBottom);
+          SInt sum = builder.add(rBottom, mBottom);
           builder.endCurScope();
 
-          // mOpen = open(x + r)
-          builder.beginSeqScope();
-          mOpen = basicNumericFactory.getOInt();
-          SInt mClosed = builder.add(input, r);
-          builder.addProtocolProducer(
-              SingleProtocolProducer.wrap(
-                  basicNumericFactory.getOpenProtocol(mClosed, mOpen)));
-          builder.endCurScope();
+          builder.copy(remainder, builder.sub(sum, product));
 
           builder.endCurScope();
+        }
+        builder.endCurScope();
+        builder.endCurScope();
+        pp = builder.getProtocol();
 
-          builder.endCurScope();
-          pp = builder.getProtocol();
-          break;
-
-        case 1:
-          builder.reset();
-
-          builder.beginSeqScope();
-
-					/*
-           * 'carry' is either 0 or 1. It is 1 if and only if the
-					 * addition m = x + r gave a carry from the first (least
-					 * significant) bit to the second, ie. if the first bit of
-					 * both x and r is 1. This happens if and only if the first
-					 * bit of r is 1 and the first bit of m is 0 which in turn
-					 * is equal to r_0 * (m + 1 (mod 2)).
-					 */
-          OInt mBottomNegated = basicNumericFactory.getOInt(mOpen.getValue()
-              .add(BigInteger.ONE).mod(BigInteger.valueOf(2)));
-          SInt carry = builder.mult(mBottomNegated, rBottom);
-
-          // The carry is needed by both the calculation of the shift
-          // and the remainder, but the shift and the remainder can be
-          // calculated in parallel.
-          builder.beginParScope();
-
-          builder.beginSeqScope();
-          // Now we calculate the shift, x >> 1 = mTop - rTop - carry
-          OInt mTop = basicNumericFactory.getOInt(mOpen.getValue().shiftRight(1));
-          builder.copy(result, builder.sub(builder.sub(mTop, rTop), carry));
-
-          builder.endCurScope();
-
-          if (remainder != null) {
-            builder.beginSeqScope();
-            /*
-             * We also need to calculate the remainder, aka. the bit
-						 * we throw away in the shift: x (mod 2) = xor(r_0, m
-						 * mod 2) = r_0 + (m mod 2) - 2 (r_0 * (m mod 2)).
-						 */
-            OInt mBottom = basicNumericFactory.getOInt(mOpen.getValue().mod(
-                BigInteger.valueOf(2)));
-            OInt twoMBottom = basicNumericFactory.getOInt(mBottom.getValue().shiftLeft(
-                1));
-
-            builder.beginParScope();
-            SInt product = builder.mult(twoMBottom, rBottom);
-            SInt sum = builder.add(rBottom, mBottom);
-            builder.endCurScope();
-
-            builder.copy(remainder, builder.sub(sum, product));
-
-            builder.endCurScope();
-          }
-          builder.endCurScope();
-          builder.endCurScope();
-          pp = builder.getProtocol();
-
-          break;
-
-        default:
-          throw new MPCException("NativeProtocol only has two rounds.");
       }
     }
     if (pp.hasNextProtocols()) {
@@ -223,14 +214,6 @@ public class RightShiftProtocolImpl implements RightShiftProtocol {
     } else {
       round++;
       pp = null;
-    }
-  }
-
-  public Value[] getOutputValues() {
-    if (remainder != null) {
-      return new Value[]{result, remainder};
-    } else {
-      return new Value[]{result};
     }
   }
 

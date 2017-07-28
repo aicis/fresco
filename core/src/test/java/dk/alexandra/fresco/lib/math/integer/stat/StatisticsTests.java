@@ -201,4 +201,142 @@ public class StatisticsTests {
 			return value.intValue() >= center - tolerance && value.intValue() <= center + tolerance;
 		}
 	}
+	
+	 public static class TestStatisticsNoMean extends TestThreadFactory {
+
+	    @Override
+	    public TestThread next(TestThreadConfiguration conf) {
+	      
+	      return new TestThread() {
+	        private final int[] data1 = {543,520,532,497,450,432};
+	        private final int[] data2 = {432,620,232,337,250,433};
+	        private final int[] data3 = {80,90,123,432,145,606};
+	        
+	        @Override
+	        public void test() throws Exception {
+	          TestApplication app = new TestApplication() {
+
+	            private static final long serialVersionUID = 701623441111137585L;
+	            
+	            @Override
+	            public ProtocolProducer prepareApplication(
+	                ProtocolFactory factory) {
+
+	              BasicNumericFactory basicNumericFactory = (BasicNumericFactory) factory;
+	              NumericBitFactory preprocessedNumericBitFactory = (NumericBitFactory) factory;
+	              ExpFromOIntFactory expFromOIntFactory = (ExpFromOIntFactory)factory;
+	              PreprocessedExpPipeFactory preprocessedExpPipeFactory = (PreprocessedExpPipeFactory)factory;
+	              RandomAdditiveMaskFactory randomAdditiveMaskFactory = new RandomAdditiveMaskFactoryImpl(basicNumericFactory, preprocessedNumericBitFactory);
+	              LocalInversionFactory localInversionFactory = (LocalInversionFactory) factory;
+	              RightShiftFactory rightShiftFactory = new RightShiftFactoryImpl(basicNumericFactory, randomAdditiveMaskFactory, localInversionFactory);
+	              IntegerToBitsFactory integerToBitsFactory = new IntegerToBitsFactoryImpl(basicNumericFactory, rightShiftFactory);
+	              BitLengthFactory bitLengthFactory = new BitLengthFactoryImpl(basicNumericFactory, integerToBitsFactory);
+	              ExponentiationFactory exponentiationFactory = new ExponentiationFactoryImpl(basicNumericFactory, integerToBitsFactory);
+	              ComparisonProtocolFactory comparisonFactory = new ComparisonProtocolFactoryImpl(80, basicNumericFactory, localInversionFactory, preprocessedNumericBitFactory, expFromOIntFactory, preprocessedExpPipeFactory);
+	              DivisionFactory euclidianDivisionFactory = new DivisionFactoryImpl(basicNumericFactory, rightShiftFactory, bitLengthFactory, exponentiationFactory, comparisonFactory);
+	              StatisticsFactory statisticsFactory = new StatisticsFactoryImpl(basicNumericFactory, euclidianDivisionFactory);
+
+	              NumericIOBuilder ioBuilder = new NumericIOBuilder(basicNumericFactory);
+	              SequentialProtocolProducer sequentialProtocolProducer = new SequentialProtocolProducer();
+	              
+	              SInt mean1 = basicNumericFactory.getSInt();
+	              SInt mean2 = basicNumericFactory.getSInt();
+	              SInt mean3 = basicNumericFactory.getSInt();
+	              SInt variance = basicNumericFactory.getSInt();
+	              SInt covariance = basicNumericFactory.getSInt();
+	              
+	              SInt[][] covarianceMatrix = new SInt[3][3];
+	              for (int i = 0; i < 3; i++) {
+	                for (int j = 0; j < 3; j++) {
+	                  covarianceMatrix[i][j] = basicNumericFactory.getSInt();
+	                }
+	              }
+	              
+	              SInt[][] input = ioBuilder.inputMatrix(new int[][] {data1, data2, data3}, 1);
+	              sequentialProtocolProducer.append(ioBuilder.getProtocol());
+	              
+	              MeanProtocol arithmeticMeanProtocol = statisticsFactory.getMeanProtocol(input[0], mean1);
+	              sequentialProtocolProducer.append(arithmeticMeanProtocol);
+
+	              MeanProtocol arithmeticMeanProtocol2 = statisticsFactory.getMeanProtocol(input[1], mean2);
+	              sequentialProtocolProducer.append(arithmeticMeanProtocol2);
+
+	              MeanProtocol arithmeticMeanProtocol3 = statisticsFactory.getMeanProtocol(input[2], mean3);
+                sequentialProtocolProducer.append(arithmeticMeanProtocol3);
+	              
+	              VarianceProtocol varianceProtocol = statisticsFactory.getVarianceProtocol(input[0], variance);
+	              sequentialProtocolProducer.append(varianceProtocol);
+	              
+	              CovarianceProtocol covarianceProtocol = statisticsFactory.getCovarianceProtocol(input[0], input[1], mean1, mean2, covariance);
+	              sequentialProtocolProducer.append(covarianceProtocol);
+	              
+	              SInt[] mean = new SInt[]{mean1, mean2, mean3};
+	              
+	              CovarianceMatrixProtocol covarianceMatrixProtocol = statisticsFactory.getCovarianceMatrixProtocol(input, mean, covarianceMatrix);
+	              sequentialProtocolProducer.append(covarianceMatrixProtocol);
+	              
+	              OInt output1 = ioBuilder.output(mean1);
+	              OInt output2 = ioBuilder.output(mean2);
+	              OInt output2b = ioBuilder.output(mean3);
+	              OInt output3 = ioBuilder.output(variance);
+	              OInt output4 = ioBuilder.output(covariance);
+	              OInt[][] output5 = ioBuilder.outputMatrix(covarianceMatrix);
+	              
+	              sequentialProtocolProducer.append(ioBuilder.getProtocol());
+
+	              outputs = new OInt[] {output1, output2, output2b, output3, output4, output5[0][0], output5[1][0]};
+
+	              return sequentialProtocolProducer;
+	            }
+	          };
+	          secureComputationEngine
+	              .runApplication(app, NetworkCreator.createResourcePool(conf.sceConf));
+	          BigInteger mean1 = app.getOutputs()[0].getValue();
+	          BigInteger mean2 = app.getOutputs()[1].getValue();
+	          BigInteger variance = app.getOutputs()[3].getValue();
+	          BigInteger covariance = app.getOutputs()[4].getValue();
+	          
+	          double sum = 0.0;
+	          for (int entry : data1) {
+	            sum += entry;
+	          }
+	          double mean1Exact = sum / data1.length;
+	              
+	          sum = 0.0;
+	          for (int entry : data2) {
+	            sum += entry;
+	          }
+	          double mean2Exact = sum / data2.length;
+	          
+	          
+	          double ssd = 0.0;
+	          for (int entry : data1) {
+	            ssd += (entry - mean1Exact) * (entry - mean1Exact);
+	          }
+	          double varianceExact = ssd / (data1.length - 1);
+	          
+	          double covarianceExact = 0.0;
+	          for (int i = 0; i < data1.length; i++) {
+	            covarianceExact += (data1[i] - mean1Exact) * (data2[i] - mean2Exact);
+	          }
+	          covarianceExact /= (data1.length - 1);
+	          
+	          double tolerance = 1.0;
+	          Assert.assertTrue(isInInterval(mean1, mean1Exact, tolerance));
+	          Assert.assertTrue(isInInterval(mean2, mean2Exact, tolerance));
+	          Assert.assertTrue(isInInterval(variance, varianceExact, tolerance));
+	          Assert.assertTrue(isInInterval(covariance, covarianceExact, tolerance));
+	          Assert.assertTrue(isInInterval(app.getOutputs()[5].getValue(), varianceExact, tolerance));
+	          Assert
+	              .assertTrue(isInInterval(app.getOutputs()[6].getValue(), covarianceExact, tolerance));
+
+	        }
+	      };
+	    }
+	    
+	    private static boolean isInInterval(BigInteger value, double center, double tolerance) {
+	      return value.intValue() >= center - tolerance && value.intValue() <= center + tolerance;
+	    }
+	  }
+   
 }

@@ -55,6 +55,9 @@ public class MinimumFractionProtocolImpl implements MinimumFractionProtocol {
 
   public MinimumFractionProtocolImpl(SInt[] ns, SInt[] ds, SInt nm, SInt dm, SInt[] cs,
       BasicNumericFactory numericFactory, LPFactory lpFactory) {
+    if (ns.length == 1) {
+      throw new IllegalArgumentException("Input array should never be length 1.");
+    } else 
     if (ns.length == ds.length && ns.length == cs.length) {
       this.k = ns.length;
       this.ns = ns;
@@ -65,16 +68,14 @@ public class MinimumFractionProtocolImpl implements MinimumFractionProtocol {
       this.numericFactory = numericFactory;
       this.lpFactory = lpFactory;
     } else {
-      throw new MPCException("Sizes of input arrays does not match");
+      throw new IllegalArgumentException("Sizes of input and output arrays does not match");
     }
   }
 
   @Override
   public void getNextProtocols(ProtocolCollection protocolCollection) {
     if (currPP == null) {
-      if (this.k == 1) {
-        throw new MPCException("k should never be 1.");
-      } else if (this.k == 2) {
+      if (this.k == 2) {
         ProtocolProducer comparison = minFraction(ns[0], ds[0], ns[1], ds[1], cs[0], nm, dm);
         SInt one = numericFactory.getSInt(1);
         SubtractProtocol subtract = numericFactory.getSubtractProtocol(one, this.cs[0], this.cs[1]);

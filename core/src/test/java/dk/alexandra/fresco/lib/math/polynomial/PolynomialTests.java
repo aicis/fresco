@@ -42,6 +42,8 @@ import dk.alexandra.fresco.lib.math.polynomial.evaluator.PolynomialEvaluatorFact
 import dk.alexandra.fresco.lib.math.polynomial.evaluator.PolynomialEvaluatorFactoryImpl;
 import dk.alexandra.fresco.lib.math.polynomial.evaluator.PolynomialEvaluatorProtocol;
 import java.math.BigInteger;
+
+import org.hamcrest.core.Is;
 import org.junit.Assert;
 
 public class PolynomialTests {
@@ -105,4 +107,70 @@ public class PolynomialTests {
 			};
 		}
 	}
+	 public static class TestPolynomialEvaluatorNullCoeff extends TestThreadFactory {
+
+	    @Override
+	    public TestThread next(TestThreadConfiguration conf) {
+
+	      return new TestThread() {
+	        private final int[] coefficients = { 1, 0, 2 };
+	        private final int[] act_coefs = {1, 0, 2, 0};
+	        private final int x = 3;
+
+	        @Override
+	        public void test() throws Exception {
+	          TestApplication app = new TestApplication() {
+
+	            private static final long serialVersionUID = 701623441111137585L;
+
+	            @Override
+	            public ProtocolProducer prepareApplication(ProtocolFactory provider) {
+
+	              BasicNumericFactory basicNumericFactory = (BasicNumericFactory) provider;
+	              NumericIOBuilder ioBuilder = new NumericIOBuilder(basicNumericFactory);
+
+	              PolynomialFactory polynomialFactory = new PolynomialFactoryImpl();
+	              SInt[] tmp = ioBuilder.inputArray(coefficients, 1);
+	              SInt[] coefs = new SInt[tmp.length+1];
+	              coefs[0] = tmp[0];
+	              coefs[1] = tmp[1];
+	              coefs[2] = tmp[2];
+	              coefs[3] = null;
+	              Polynomial p = polynomialFactory.createPolynomial(coefs);
+	              
+	              SInt input = ioBuilder.input(x, 2);
+	              SequentialProtocolProducer sequentialProtocolProducer = new SequentialProtocolProducer();
+	              sequentialProtocolProducer.append(ioBuilder.getProtocol());
+
+	              SInt result = basicNumericFactory.getSInt();
+	              PolynomialEvaluatorFactory polynomialEvaluatorFactory = new PolynomialEvaluatorFactoryImpl(
+	                  basicNumericFactory);
+	              PolynomialEvaluatorProtocol polynomialEvaluatorProtocol = polynomialEvaluatorFactory
+	                  .createPolynomialEvaluator(input, p, result);
+	              sequentialProtocolProducer.append(polynomialEvaluatorProtocol);
+
+	              OInt output = ioBuilder.output(result);
+	              sequentialProtocolProducer.append(ioBuilder.getProtocol());
+
+	              ProtocolProducer gp = sequentialProtocolProducer;
+	              outputs = new OInt[] { output };
+	              return gp;
+	            }
+	          };
+	          secureComputationEngine
+	              .runApplication(app, NetworkCreator.createResourcePool(conf.sceConf));
+
+	          int f = 0;
+	          int power = 1;
+	          for (int i = 0; i < act_coefs.length; i++) {
+	            f += act_coefs[i] * power;
+	            power *= x;
+	          }
+	          BigInteger result = app.getOutputs()[0].getValue();
+	          Assert.assertThat(result.intValue(), Is.is(f));
+	        }
+	      };
+	    }
+	  }
+
 }

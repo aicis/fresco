@@ -55,6 +55,8 @@ import dk.alexandra.fresco.lib.math.integer.exp.ExponentiationFactoryImpl;
 import dk.alexandra.fresco.lib.math.integer.exp.PreprocessedExpPipeFactory;
 import dk.alexandra.fresco.lib.math.integer.inv.LocalInversionFactory;
 import java.math.BigInteger;
+
+import org.hamcrest.core.Is;
 import org.junit.Assert;
 
 
@@ -138,6 +140,76 @@ public class DivisionTests {
 			};
 		}
 	}
+
+	 /**
+   * Test Euclidian division
+   */
+  public static class TestEuclidianDivisionLargeDivisor extends TestThreadFactory {
+
+    @Override
+    public TestThread next(TestThreadConfiguration conf) {
+     //TODO Jonas need to take a look at this test and figure out if the divisor makes sense 
+      return new TestThread() {
+        private final BigInteger x = new BigInteger("123978634193227335452345761");
+        private final BigInteger d = new BigInteger("3451951982485649274893506249561907057636924288735568263712983006513250768353232177127722721622139694727529444746715611975582643235287997037145872954097664");
+
+        @Override
+        public void test() throws Exception {
+          TestApplication app = new TestApplication() {
+
+            private static final long serialVersionUID = 701623441111137585L;
+            
+            @Override
+            public ProtocolProducer prepareApplication(
+                ProtocolFactory factory) {
+              
+              BasicNumericFactory basicNumericFactory = (BasicNumericFactory) factory;
+              NumericBitFactory preprocessedNumericBitFactory = (NumericBitFactory) factory;
+              ExpFromOIntFactory expFromOIntFactory = (ExpFromOIntFactory)factory;
+              PreprocessedExpPipeFactory preprocessedExpPipeFactory = (PreprocessedExpPipeFactory)factory;
+              RandomAdditiveMaskFactory randomAdditiveMaskFactory = new RandomAdditiveMaskFactoryImpl(basicNumericFactory, preprocessedNumericBitFactory);
+              LocalInversionFactory localInversionFactory = (LocalInversionFactory) factory;
+              RightShiftFactory rightShiftFactory = new RightShiftFactoryImpl(basicNumericFactory, randomAdditiveMaskFactory, localInversionFactory);
+              IntegerToBitsFactory integerToBitsFactory = new IntegerToBitsFactoryImpl(basicNumericFactory, rightShiftFactory);
+              BitLengthFactory bitLengthFactory = new BitLengthFactoryImpl(basicNumericFactory, integerToBitsFactory);
+              ExponentiationFactory exponentiationFactory = new ExponentiationFactoryImpl(basicNumericFactory, integerToBitsFactory);
+              ComparisonProtocolFactory comparisonFactory = new ComparisonProtocolFactoryImpl(80, basicNumericFactory, localInversionFactory, preprocessedNumericBitFactory, expFromOIntFactory, preprocessedExpPipeFactory);
+              DivisionFactory divisionFactory = new DivisionFactoryImpl(basicNumericFactory, rightShiftFactory, bitLengthFactory, exponentiationFactory, comparisonFactory);
+              
+              SInt quotient = basicNumericFactory.getSInt();
+              SInt remainder = basicNumericFactory.getSInt();
+
+              NumericIOBuilder ioBuilder = new NumericIOBuilder(basicNumericFactory);
+              SequentialProtocolProducer sequentialProtocolProducer = new SequentialProtocolProducer();
+              
+              SInt input1 = ioBuilder.input(x, 1);
+              OInt input2 = basicNumericFactory.getOInt(d);
+              sequentialProtocolProducer.append(ioBuilder.getProtocol());
+              
+              DivisionProtocol euclidianDivisionProtocol = divisionFactory.getDivisionProtocol(input1, input2, quotient, remainder);
+              sequentialProtocolProducer.append(euclidianDivisionProtocol);
+              
+              OInt output1 = ioBuilder.output(quotient);
+              OInt output2 = ioBuilder.output(remainder);
+              
+              sequentialProtocolProducer.append(ioBuilder.getProtocol());
+
+              outputs = new OInt[] {output1, output2};
+
+              return sequentialProtocolProducer;
+            }
+          };
+          secureComputationEngine
+              .runApplication(app, NetworkCreator.createResourcePool(conf.sceConf));
+          BigInteger quotient = app.getOutputs()[0].getValue();
+          BigInteger remainder = app.getOutputs()[1].getValue();
+          Assert.assertEquals(quotient, x.divide(d));
+          Assert.assertEquals(remainder, x.mod(d));
+        }
+      };
+    }
+  }
+
 	
 	/**
 	 * Test division with secret shared divisor
@@ -222,4 +294,76 @@ public class DivisionTests {
 			};
 		}
 	}
+	
+	 /**
+   * Test division with secret shared divisor
+   */
+  public static class TestSecretSharedDivisionNullPrecision extends TestThreadFactory {
+
+    @Override
+    public TestThread next(TestThreadConfiguration conf) {
+      
+      return new TestThread() {
+        private final BigInteger[] x = new BigInteger[] {new BigInteger("1234567"), BigInteger.valueOf(1230121230), BigInteger.valueOf(313222110), BigInteger.valueOf(5111215), BigInteger.valueOf(6537) };
+        private final BigInteger d = BigInteger.valueOf(1110);
+        private final int n = x.length;
+        
+        @Override
+        public void test() throws Exception {
+          TestApplication app = new TestApplication() {
+
+            private static final long serialVersionUID = 701623441111137585L;
+            
+            @Override
+            public ProtocolProducer prepareApplication(
+                ProtocolFactory factory) {
+
+              BasicNumericFactory basicNumericFactory = (BasicNumericFactory) factory;
+              NumericBitFactory preprocessedNumericBitFactory = (NumericBitFactory) factory;
+              ExpFromOIntFactory expFromOIntFactory = (ExpFromOIntFactory)factory;
+              PreprocessedExpPipeFactory preprocessedExpPipeFactory = (PreprocessedExpPipeFactory)factory;
+              RandomAdditiveMaskFactory randomAdditiveMaskFactory = new RandomAdditiveMaskFactoryImpl(basicNumericFactory, preprocessedNumericBitFactory);
+              LocalInversionFactory localInversionFactory = (LocalInversionFactory) factory;
+              RightShiftFactory rightShiftFactory = new RightShiftFactoryImpl(basicNumericFactory, randomAdditiveMaskFactory, localInversionFactory);
+              IntegerToBitsFactory integerToBitsFactory = new IntegerToBitsFactoryImpl(basicNumericFactory, rightShiftFactory);
+              BitLengthFactory bitLengthFactory = new BitLengthFactoryImpl(basicNumericFactory, integerToBitsFactory);
+              ExponentiationFactory exponentiationFactory = new ExponentiationFactoryImpl(basicNumericFactory, integerToBitsFactory);
+              ComparisonProtocolFactory comparisonFactory = new ComparisonProtocolFactoryImpl(80, basicNumericFactory, localInversionFactory, preprocessedNumericBitFactory, expFromOIntFactory, preprocessedExpPipeFactory);
+              DivisionFactory divisionFactory = new DivisionFactoryImpl(basicNumericFactory, rightShiftFactory, bitLengthFactory, exponentiationFactory, comparisonFactory);
+              
+              SInt[] quotient = new SInt[n];
+              
+              NumericIOBuilder ioBuilder = new NumericIOBuilder(basicNumericFactory);
+              SequentialProtocolProducer sequentialProtocolProducer = new SequentialProtocolProducer();
+              
+              SInt[] inputs = ioBuilder.inputArray(x, 1);
+              SInt input2 = ioBuilder.input(d, 2);
+              sequentialProtocolProducer.append(ioBuilder.getProtocol());
+              
+              for (int i = 0; i < n; i++) {
+                quotient[i] = basicNumericFactory.getSInt();
+                DivisionProtocol divisionProtocol = divisionFactory
+                    .getDivisionProtocol(inputs[i], input2, quotient[i]);
+                sequentialProtocolProducer.append(divisionProtocol);
+              }
+              
+              this.outputs = ioBuilder.outputArray(quotient);
+              
+              sequentialProtocolProducer.append(ioBuilder.getProtocol());
+
+              return sequentialProtocolProducer;
+            }
+          };
+          secureComputationEngine
+              .runApplication(app, NetworkCreator.createResourcePool(conf.sceConf));
+          for (int i = 0; i < n; i++) {
+            BigInteger actual = app.getOutputs()[i].getValue();
+            
+            BigInteger expected = x[i].divide(d);
+           Assert.assertThat(actual, Is.is(expected));
+          }
+        }
+      };
+    }
+  }
 }

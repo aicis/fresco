@@ -46,6 +46,10 @@ public class CovarianceProtocolImpl extends SimpleProtocolProducer implements Co
 	public CovarianceProtocolImpl(SInt[] data1, SInt[] data2, SInt mean1, SInt mean2, SInt covariance,
 			BasicNumericFactory basicNumericFactory, MeanFactory meanFactory) {
 
+	  if (data1.length != data2.length) {
+	    throw new IllegalArgumentException("Must have same sample size.");
+	  }
+	  
 		this.data1 = data1;
 		this.data2 = data2;
 
@@ -66,10 +70,6 @@ public class CovarianceProtocolImpl extends SimpleProtocolProducer implements Co
 
 	@Override
 	protected ProtocolProducer initializeProtocolProducer() {
-
-		if (data1.length != data2.length) {
-			throw new IllegalArgumentException("Must have same sample size.");
-		}
 
 		SequentialProtocolProducer gp = new SequentialProtocolProducer();
 

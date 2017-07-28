@@ -54,6 +54,8 @@ import dk.alexandra.fresco.lib.helper.builder.NumericProtocolBuilder;
  */
 public class MinInfFracProtocol extends AbstractRoundBasedProtocol implements MinimumFractionProtocol {
 
+  private final int FIND_MIN = 0;
+  private final int UPDATE_CS = 1;
 	private SInt[] cs;
 	private ComparisonProtocolFactory cFac;
 	private BasicNumericFactory nFac;
@@ -61,12 +63,8 @@ public class MinInfFracProtocol extends AbstractRoundBasedProtocol implements Mi
 	private Frac[] fs;
 	private Frac fm;
 	private SInt one;
-	private State state;
+	private int state;
 	private SInt[] tmpCs;
-
-	private enum State {
-		FIND_MIN, UPDATE_CS
-	};
 
 	/**
 	 * Constructs a protocol finding the minimum of a list of fractions. For
@@ -109,9 +107,9 @@ public class MinInfFracProtocol extends AbstractRoundBasedProtocol implements Mi
 			this.cs = cs;
 			this.nFac = nFac;
 			this.cFac = cFac;
-			this.state = State.FIND_MIN;
+			this.state = FIND_MIN;
 		} else {
-			throw new MPCException("Sizes of input arrays does not match");
+			throw new IllegalArgumentException("Sizes of input arrays does not match");
 		}
 	}
 
@@ -121,7 +119,7 @@ public class MinInfFracProtocol extends AbstractRoundBasedProtocol implements Mi
 	@Override
 	public ProtocolProducer nextProtocolProducer() {
 		NumericProtocolBuilder npb = new NumericProtocolBuilder(nFac);
-		if (state == State.FIND_MIN) {
+		if (state == FIND_MIN) {
 			if (layer == 0) {
 				one = npb.known(1);
 				if (fs.length == 1) { // The trivial case
@@ -129,6 +127,7 @@ public class MinInfFracProtocol extends AbstractRoundBasedProtocol implements Mi
 					npb.copy(fm.d, fs[0].d);
 					npb.copy(fm.inf, fs[0].inf);
 					npb.copy(cs[0], one);
+					layer++;
 					return npb.getProtocol();
 				}
 			} else if (fs.length == 1) {
@@ -149,8 +148,8 @@ public class MinInfFracProtocol extends AbstractRoundBasedProtocol implements Mi
 				tmpFs[tmpFs.length - 1] = fs[fs.length - 1];
 			}
 			fs = tmpFs;
-			state = State.UPDATE_CS;
-		} else if (state == State.UPDATE_CS) {
+			state = UPDATE_CS;
+		} else {
 			int offset = 1 << (layer + 1);
 			if (layer == 0) {
 				npb.beginParScope();
@@ -192,7 +191,7 @@ public class MinInfFracProtocol extends AbstractRoundBasedProtocol implements Mi
 				npb.endCurScope();
 			}
 			layer++;
-			state = State.FIND_MIN;
+			state = FIND_MIN;
 		}
 		return npb.getProtocol();
 	}

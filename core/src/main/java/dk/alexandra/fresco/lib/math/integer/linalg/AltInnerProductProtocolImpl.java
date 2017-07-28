@@ -26,7 +26,6 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.math.integer.linalg;
 
-import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.SInt;
@@ -48,7 +47,7 @@ public class AltInnerProductProtocolImpl extends SimpleProtocolProducer implemen
 	public AltInnerProductProtocolImpl(SInt[] aVector, SInt[] bVector, SInt result, 
 			BasicNumericFactory bnFactory, CopyProtocolFactory<SInt> copyFactory){
 		if(aVector.length != bVector.length){
-			throw new MPCException("Lengths of input arrays do not match");
+			throw new IllegalArgumentException("Lengths of input arrays do not match");
 		}
 		this.aVector = aVector;
 		this.bVector = bVector;

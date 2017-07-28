@@ -26,7 +26,6 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.math.integer.min;
 
-import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.ProtocolProducer;
@@ -55,8 +54,11 @@ public class MinimumProtocolImpl implements MinimumProtocol {
 
   public MinimumProtocolImpl(SInt[] xs, SInt m, SInt[] cs,
       LPFactory lpFactory, BasicNumericFactory numericFactory) {
+    if (xs.length == 1) {
+      throw new IllegalArgumentException("Minimum protocol. k should never be 1.");
+    } else 
     if (xs.length != cs.length) {
-      throw new MPCException(
+      throw new IllegalArgumentException(
           "Min protocol: Output array should be same size as intput array");
     }
     this.k = xs.length;
@@ -70,10 +72,7 @@ public class MinimumProtocolImpl implements MinimumProtocol {
   @Override
   public void getNextProtocols(ProtocolCollection protocolCollection) {
     if (currPP == null) {
-      if (this.k == 1) {
-        throw new MPCException(
-            "Minimum protocol. k should never be 1.");
-      } else if (this.k == 2) {
+      if (this.k == 2) {
         SequentialProtocolProducer sequentialProtocolProducer =
             new SequentialProtocolProducer();
         sequentialProtocolProducer.append(
@@ -165,7 +164,7 @@ public class MinimumProtocolImpl implements MinimumProtocol {
             cs2_prime);
         gp = new ParallelProtocolProducer(min1, min2);
         round++;
-      } else if (round == 1) {
+      } else {
         SInt c = numericFactory.getSInt();
         ComparisonProtocol comp = lpFactory.getComparisonProtocol(m1,
             m2, c, false);
@@ -181,11 +180,6 @@ public class MinimumProtocolImpl implements MinimumProtocol {
         currPP = new SequentialProtocolProducer(
             comp, cond, SingleProtocolProducer.wrap(subtract), scale);
         round++;
-      } else {
-        cs1_prime = null;
-        cs2_prime = null;
-        m1 = null;
-        m2 = null;
       }
       return gp;
     }

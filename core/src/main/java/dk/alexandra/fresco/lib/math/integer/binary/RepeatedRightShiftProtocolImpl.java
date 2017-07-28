@@ -118,7 +118,7 @@ public class RepeatedRightShiftProtocolImpl implements RepeatedRightShiftProtoco
           rightShift = rightShiftFactory.getRightShiftProtocol(in, out);
         }
         protocolProducer = rightShift;
-      } else if (round == shifts - 1) {
+      } else {
         /*
          * Last round
 				 */
@@ -141,18 +141,6 @@ public class RepeatedRightShiftProtocolImpl implements RepeatedRightShiftProtoco
       round++;
       protocolProducer = null;
     }
-  }
-
-  public Value[] getOutputValues() {
-    Value[] outputValues;
-    if (remainders != null) {
-      outputValues = new Value[1 + remainders.length];
-      outputValues[0] = result;
-      System.arraycopy(remainders, 0, outputValues, 1, remainders.length);
-    } else {
-      outputValues = new Value[]{result};
-    }
-    return outputValues;
   }
 
   @Override

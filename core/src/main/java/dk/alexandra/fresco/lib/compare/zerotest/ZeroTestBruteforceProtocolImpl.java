@@ -26,7 +26,6 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.compare.zerotest;
 
-import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.ProtocolProducer;
@@ -99,7 +98,6 @@ public class ZeroTestBruteforceProtocolImpl implements ZeroTestBruteforceProtoco
       if(round == 0) {
           // load rand, addOne, mult and unmask
           R = expFactory.getExponentiationPipe();
-
           SInt increased = factory.getSInt();
           SInt masked_S = factory.getSInt();
 

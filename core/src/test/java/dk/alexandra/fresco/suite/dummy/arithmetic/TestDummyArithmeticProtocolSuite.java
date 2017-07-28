@@ -12,9 +12,15 @@ import dk.alexandra.fresco.lib.arithmetic.MiMCTests;
 import dk.alexandra.fresco.lib.arithmetic.SearchingTests;
 import dk.alexandra.fresco.lib.arithmetic.SortingTests;
 import dk.alexandra.fresco.lib.list.EliminateDuplicatesTests;
+import dk.alexandra.fresco.lib.math.integer.binary.BinaryOperationsTests;
 import dk.alexandra.fresco.lib.math.integer.division.DivisionTests;
+import dk.alexandra.fresco.lib.math.integer.exp.ExponentiationTests;
+import dk.alexandra.fresco.lib.math.integer.linalg.LinAlgTests;
+import dk.alexandra.fresco.lib.math.integer.log.LogTests;
+import dk.alexandra.fresco.lib.math.integer.min.MinTests;
 import dk.alexandra.fresco.lib.math.integer.sqrt.SqrtTests;
 import dk.alexandra.fresco.lib.math.integer.stat.StatisticsTests;
+import dk.alexandra.fresco.lib.math.polynomial.PolynomialTests;
 import dk.alexandra.fresco.lib.statistics.CreditRaterTest;
 import dk.alexandra.fresco.lib.statistics.DEASolver.AnalysisType;
 import dk.alexandra.fresco.lib.statistics.DEASolverTests;
@@ -132,34 +138,9 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
         EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET, 2);
   }
   
-  //Math tests
-  
-  @Test
-  public void test_euclidian_division() throws Exception {
-    runTest(new DivisionTests.TestEuclidianDivision(), EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET, 2);
-  }
-  
-  @Test
-  public void test_ss_division() throws Exception {
-    runTest(new DivisionTests.TestSecretSharedDivision(), EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET, 2);
-  }
-   
-  @Test
-  public void test_sqrt() throws Exception {
-    runTest(new SqrtTests.TestSquareRoot(), EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET, 2);
-  }
-  
   //Statistics
   
-  @Test
-  public void test_Exiting_Variable_2_parties() throws Exception {        
-      runTest(new StatisticsTests.TestStatistics(), EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET, 2);
-  }
 
-  @Test
-  public void test_Exiting_Variable_3_parties() throws Exception {
-      runTest(new StatisticsTests.TestStatistics(), EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET, 3);
-  }
   
   //Creditrater
   @Test
@@ -276,6 +257,159 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
     runTest(new EliminateDuplicatesTests.TestVerticalJoin(),
         EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET, 2);
   }
+
+  //lib.math.integer.binary
+  @Test
+  public void test_Right_Shift() throws Exception {
+    runTest(new BinaryOperationsTests.TestRightShift(),
+        EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET, 2);
+  }  
+
+  @Test
+  public void test_Repeated_Right_Shift() throws Exception {
+    runTest(new BinaryOperationsTests.TestRepeatedRightShift(),
+        EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET, 2);
+  }  
+
+  @Test
+  public void test_Most_Significant_bit() throws Exception {
+    runTest(new BinaryOperationsTests.TestMostSignificantBit(),
+        EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET, 2);
+  }
   
+  @Test
+  public void test_euclidian_division() throws Exception {
+    runTest(new DivisionTests.TestEuclidianDivision(), EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET, 2);
+  }
+
+  @Test
+  public void test_euclidian_division_large_divisor() throws Exception {
+    runTest(new DivisionTests.TestEuclidianDivisionLargeDivisor(), EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET, 2);
+  }
   
+  @Test
+  public void test_ss_division() throws Exception {
+    runTest(new DivisionTests.TestSecretSharedDivision(), EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET, 2);
+  }
+
+  @Test
+  public void test_ss_division_no_precision() throws Exception {
+    runTest(new DivisionTests.TestSecretSharedDivisionNullPrecision(), EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET, 2);
+  }
+  
+  @Test
+  public void test_Exponentiation() throws Exception {
+    runTest(new ExponentiationTests.TestExponentiation(),
+        EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET, 2);
+  }
+  
+  @Test
+  public void test_ExponentiationOpen() throws Exception {
+    runTest(new ExponentiationTests.TestExponentiationOInt(),
+        EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET, 2);
+  }
+
+  @Test
+  public void test_ExponentiationPipe() throws Exception {
+    runTest(new ExponentiationTests.TestExponentiationPipe(),
+        EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET, 2);
+  }
+
+  @Test
+  public void test_InnerProductClosed() throws Exception {
+    runTest(new LinAlgTests.TestInnerProductClosed(),
+        EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET, 2);
+  }
+
+  @Test
+  public void test_InnerProductClosedShort() throws Exception {
+    runTest(new LinAlgTests.TestInnerProductClosedShort(),
+        EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET, 2);
+  }
+  
+  @Test
+  public void test_InnerProductOpen() throws Exception {
+    runTest(new LinAlgTests.TestInnerProductOpen(),
+        EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET, 2);
+  }
+  
+  @Test
+  public void test_InnerProductOpenShort() throws Exception {
+    runTest(new LinAlgTests.TestInnerProductOpenShort(),
+        EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET, 2);
+  }
+
+  @Test
+  public void test_AltInnerProductClosed() throws Exception {
+    runTest(new LinAlgTests.TestAltInnerProductClosed(),
+        EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET, 2);
+  }
+
+  
+  @Test
+  public void test_Logarithm() throws Exception {
+    runTest(new LogTests.TestLogarithm(),
+        EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET, 2);
+  }
+
+  @Test
+  public void test_Minimum_Protocol_2_parties() throws Exception {
+    runTest(new MinTests.TestMinimumProtocol(),
+        EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET, 2);
+  }
+
+  @Test
+  public void test_Minimum_Fraction_2_parties() throws Exception {
+    runTest(new MinTests.TestMinimumFraction(),
+        EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET, 2);
+  }
+  
+  @Test
+  public void test_Min_Inf_Frac_2_parties() throws Exception {
+    runTest(new MinTests.TestMinInfFrac(),
+        EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET, 2);
+  }
+
+  @Test
+  public void test_Min_Inf_Frac_Trivial_2_parties() throws Exception {
+    runTest(new MinTests.TestMinInfFracTrivial(),
+        EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET, 2);
+  }
+  
+  @Test
+  public void test_sqrt() throws Exception {
+    runTest(new SqrtTests.TestSquareRoot(), EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET, 2);
+  }
+
+  @Test
+  public void test_Squareroot_No_Precision() throws Exception {
+    runTest(new SqrtTests.TestSquareRootNullPrecision(), EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET, 2);
+  }
+
+  @Test
+  public void test_Exiting_Variable_2_parties() throws Exception {        
+      runTest(new StatisticsTests.TestStatistics(), EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET, 2);
+  }
+
+  @Test
+  public void test_Exiting_Variable_3_parties() throws Exception {
+      runTest(new StatisticsTests.TestStatistics(), EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET, 3);
+  }
+  
+  @Test
+  public void test_Exiting_Variable_No_Mean_2_parties() throws Exception {        
+      runTest(new StatisticsTests.TestStatisticsNoMean(), EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET, 2);
+  }
+
+  @Test
+  public void test_Polynomial_Evaluator_2_parties() throws Exception {
+    runTest(new PolynomialTests.TestPolynomialEvaluator(),
+        EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET, 2);
+  }
+  
+  @Test
+  public void test_Polynomial_Evaluator_With_Null_Coeffs_2_parties() throws Exception {
+    runTest(new PolynomialTests.TestPolynomialEvaluatorNullCoeff(),
+        EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET, 2);
+  }
 }

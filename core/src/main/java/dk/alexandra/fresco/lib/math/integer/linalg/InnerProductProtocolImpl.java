@@ -52,7 +52,7 @@ public class InnerProductProtocolImpl extends AbstractRoundBasedProtocol
   InnerProductProtocolImpl(SInt[] aVector, SInt[] bVector, SInt result,
       BasicNumericFactory bnFactory, EntrywiseProductFactory entrywiseFactory) {
     if (aVector.length != bVector.length) {
-      throw new MPCException("Lengths of input arrays do not match");
+      throw new IllegalArgumentException("Lengths of input arrays do not match");
     }
     this.aVector = aVector;
     this.bVector = bVector;
@@ -65,7 +65,7 @@ public class InnerProductProtocolImpl extends AbstractRoundBasedProtocol
   InnerProductProtocolImpl(SInt[] aVector, OInt[] bVector, SInt result,
       BasicNumericFactory bnFactory, EntrywiseProductFactory entrywiseFactory) {
     if (aVector.length != bVector.length) {
-      throw new MPCException("Lengths of input arrays do not match");
+      throw new IllegalArgumentException("Lengths of input arrays do not match");
     }
     this.aVector = aVector;
     this.bVector = null;

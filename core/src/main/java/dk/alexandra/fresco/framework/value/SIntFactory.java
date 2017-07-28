@@ -37,6 +37,12 @@ public interface SIntFactory {
 	 */
   SInt getSInt();
 
+  /**
+   * Creates an array of empty containers.
+   * @param amount The amount of containters
+   * @return
+   */
+  SInt[] getSIntArray(int amount);
 
   @Deprecated
   SInt getSInt(int i);

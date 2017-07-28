@@ -61,7 +61,6 @@ public class ExponentiationProtocolImpl extends SimpleProtocolProducer implement
 
 	public ExponentiationProtocolImpl(OInt input, SInt exponent, int maxExponentBitLength, SInt output,
 			BasicNumericFactory basicNumericFactory, IntegerToBitsFactory integerToBitsFactory) {
-		
 		this.openInput = input;
 		this.exponent = exponent;
 		this.maxExponentBitLength = maxExponentBitLength;
@@ -100,7 +99,7 @@ public class ExponentiationProtocolImpl extends SimpleProtocolProducer implement
 				e = builder.mult(e, e);
 			}
 			
-		} else if (openInput != null) {
+		} else {
 			OInt e = basicNumericFactory.getOInt(openInput.getValue());
 			
 			for (int i = 0; i < maxExponentBitLength; i++) {
@@ -116,8 +115,6 @@ public class ExponentiationProtocolImpl extends SimpleProtocolProducer implement
 				result = builder.add(builder.mult(bits[i], builder.sub(builder.mult(e, result), result)), result);
 				e = basicNumericFactory.getOInt(e.getValue().multiply(e.getValue()));
 			}
-		} else {
-			throw new IllegalArgumentException("Either input or openInput must not be null");
 		}
 
 		builder.copy(output, result);

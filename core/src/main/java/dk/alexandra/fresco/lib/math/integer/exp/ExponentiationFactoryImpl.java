@@ -45,7 +45,7 @@ public class ExponentiationFactoryImpl implements ExponentiationFactory {
 	@Override
 	public ExponentiationProtocol getExponentiationCircuit(SInt x, SInt e, int maxExponentLength,
 			SInt output) {
-		return new ExponentiationProtocolImpl(x, e, maxExponentLength, output, basicNumericFactory,
+	  return new ExponentiationProtocolImpl(x, e, maxExponentLength, output, basicNumericFactory,
 				integerToBitsFactory);
 	}
 

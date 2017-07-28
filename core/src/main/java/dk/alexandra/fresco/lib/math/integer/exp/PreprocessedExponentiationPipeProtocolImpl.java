@@ -33,6 +33,7 @@ import dk.alexandra.fresco.lib.helper.CopyProtocolImpl;
 import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
 import dk.alexandra.fresco.lib.helper.SimpleProtocolProducer;
 
+//TODO PSN/Kasper: Never used, delete?
 public class PreprocessedExponentiationPipeProtocolImpl extends SimpleProtocolProducer implements
 		ExponentiationPipeProtocol {
 

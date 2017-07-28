@@ -63,6 +63,16 @@ public class CovarianceMatrixProtocolImpl extends SimpleProtocolProducer impleme
   public CovarianceMatrixProtocolImpl(SInt[][] data, SInt[] mean,
       SInt[][] result, BasicNumericFactory basicNumericFactory, MeanFactory meanFactory,
       VarianceFactory varianceFactory, CovarianceFactory covarianceFactory) {
+    
+    int numOfDataSets = data.length;
+    int sampleSize = data[0].length;
+    for (int i = 1; i < numOfDataSets; i++) {
+      if (data[i].length != sampleSize) {
+        throw new IllegalArgumentException(
+            "Not a data matrix - all columns must have same size.");
+      }
+    }
+    
     this.data = data;
     this.mean = mean;
 
@@ -90,13 +100,6 @@ public class CovarianceMatrixProtocolImpl extends SimpleProtocolProducer impleme
   protected ProtocolProducer initializeProtocolProducer() {
 
     int numOfDataSets = data.length;
-    int sampleSize = data[0].length;
-    for (int i = 1; i < numOfDataSets; i++) {
-      if (data[i].length != sampleSize) {
-        throw new IllegalArgumentException(
-            "Not a data matrix - all columns must have same size.");
-      }
-    }
 
     SequentialProtocolProducer gp = new SequentialProtocolProducer();
 
