@@ -160,10 +160,8 @@ public class BasicArithmeticTests {
 
               BigInteger publicVal = BigInteger.valueOf(4);
               SInt out = fac.getSInt();
-              Computation addProtocol = fac.getAddProtocol(input1, publicVal, out);
-              // This cast is safe - and should b e removed when converting this to the new builder based
-              // protocol construction pattern.
-              gp.append((NativeProtocol) addProtocol);
+              NativeProtocol addProtocol = fac.getAddProtocol(input1, publicVal, out);
+              gp.append(addProtocol);
 
               Computation<BigInteger> output = ioBuilder.output(out);
               ProtocolProducer io = ioBuilder.getProtocol();
@@ -253,8 +251,6 @@ public class BasicArithmeticTests {
               // will compute the sum
               SequentialProtocolProducer sumProtocol = new SequentialProtocolProducer();
 
-              // This cast is safe - and should b e removed when converting this to the new builder based
-              // protocol construction pattern.
               sumProtocol.append(fac.getAddProtocol(inputs[0], inputs[1], sum));
               if (inputs.length > 2) {
                 for (int i = 2; i < inputs.length; i++) {

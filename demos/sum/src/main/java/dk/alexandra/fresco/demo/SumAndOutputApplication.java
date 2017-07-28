@@ -65,13 +65,11 @@ public class SumAndOutputApplication extends DemoNumericApplication<BigInteger> 
     // create Sequence of protocols which eventually will compute the sum
     SequentialProtocolProducer sumProtocol = new SequentialProtocolProducer();
 
-    // This cast is safe - and should b e removed when converting this to the new builder based
-    // protocol construction pattern.
-    sumProtocol.append((NativeProtocol) fac.getAddProtocol(ssInputs[0], ssInputs[1], sum));
+    sumProtocol.append(fac.getAddProtocol(ssInputs[0], ssInputs[1], sum));
     if (ssInputs.length > 2) {
       for (int i = 2; i < ssInputs.length; i++) {
         // Add sum and next secret shared input and store in sum.
-        sumProtocol.append((NativeProtocol) fac.getAddProtocol(sum, ssInputs[i], sum));
+        sumProtocol.append(fac.getAddProtocol(sum, ssInputs[i], sum));
       }
     }
 

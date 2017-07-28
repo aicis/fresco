@@ -182,8 +182,6 @@ public class OpenAndPrintProtocol implements ProtocolProducer {
     for (SInt aClosed : closed) {
       NativeProtocol<BigInteger, ?> openProtocol = factory.getOpenProtocol(aClosed);
       result.add(openProtocol);
-      // This cast is safe - and should be removed when converting this to the new builder based
-      // protocol construction pattern.
       parallelProtocolProducer.append(openProtocol);
     }
     return parallelProtocolProducer;
