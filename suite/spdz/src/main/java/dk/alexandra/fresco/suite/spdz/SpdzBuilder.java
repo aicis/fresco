@@ -48,54 +48,47 @@ class SpdzBuilder implements BuilderFactoryNumeric {
       @Override
       public Computation<SInt> add(Computation<SInt> a, Computation<SInt> b) {
         SpdzAddProtocol spdzAddProtocol = new SpdzAddProtocol(a, b);
-        protocolBuilder.append(spdzAddProtocol);
-        return spdzAddProtocol;
+        return protocolBuilder.append(spdzAddProtocol);
       }
 
 
       @Override
       public Computation<SInt> add(BigInteger a, Computation<SInt> b) {
         SpdzAddProtocolKnownLeft spdzAddProtocolKnownLeft = new SpdzAddProtocolKnownLeft(a, b);
-        protocolBuilder.append(spdzAddProtocolKnownLeft);
-        return spdzAddProtocolKnownLeft;
+        return protocolBuilder.append(spdzAddProtocolKnownLeft);
       }
 
 
       @Override
       public Computation<SInt> sub(Computation<SInt> a, Computation<SInt> b) {
         SpdzSubtractProtocol spdzSubtractProtocol = new SpdzSubtractProtocol(a, b);
-        protocolBuilder.append(spdzSubtractProtocol);
-        return spdzSubtractProtocol;
+        return protocolBuilder.append(spdzSubtractProtocol);
       }
 
       @Override
       public Computation<SInt> sub(BigInteger a, Computation<SInt> b) {
         SpdzSubtractProtocolKnownLeft spdzSubtractProtocolKnownLeft =
             new SpdzSubtractProtocolKnownLeft(a, b);
-        protocolBuilder.append(spdzSubtractProtocolKnownLeft);
-        return spdzSubtractProtocolKnownLeft;
+        return protocolBuilder.append(spdzSubtractProtocolKnownLeft);
       }
 
       @Override
       public Computation<SInt> sub(Computation<SInt> a, BigInteger b) {
         SpdzSubtractProtocolKnownRight spdzSubtractProtocolKnownRight =
             new SpdzSubtractProtocolKnownRight(a, b);
-        protocolBuilder.append(spdzSubtractProtocolKnownRight);
-        return spdzSubtractProtocolKnownRight;
+        return protocolBuilder.append(spdzSubtractProtocolKnownRight);
       }
 
       @Override
       public Computation<SInt> mult(Computation<SInt> a, Computation<SInt> b) {
         SpdzMultProtocol spdzMultProtocol = new SpdzMultProtocol(a, b);
-        protocolBuilder.append(spdzMultProtocol);
-        return spdzMultProtocol;
+        return protocolBuilder.append(spdzMultProtocol);
       }
 
       @Override
       public Computation<SInt> mult(BigInteger a, Computation<SInt> b) {
         SpdzMultProtocolKnownLeft spdzMultProtocol4 = new SpdzMultProtocolKnownLeft(a, b);
-        protocolBuilder.append(spdzMultProtocol4);
-        return spdzMultProtocol4;
+        return protocolBuilder.append(spdzMultProtocol4);
 
       }
 
@@ -118,15 +111,13 @@ class SpdzBuilder implements BuilderFactoryNumeric {
       public Computation<SInt> input(BigInteger value, int inputParty) {
         SpdzSInt out = spdzFactory.getSInt();
         SpdzInputProtocol protocol = new SpdzInputProtocol(value, out, inputParty);
-        protocolBuilder.append(protocol);
-        return protocol::out;
+        return protocolBuilder.append(protocol);
       }
 
       @Override
       public Computation<BigInteger> open(Computation<SInt> secretShare) {
         SpdzOutputToAllProtocol openProtocol = new SpdzOutputToAllProtocol(secretShare);
-        protocolBuilder.append(openProtocol);
-        return openProtocol;
+        return protocolBuilder.append(openProtocol);
       }
 
       @Override

@@ -8,12 +8,13 @@ import dk.alexandra.fresco.framework.ProtocolProducer;
 /**
  * A protocol producer that only produces a single protocol.
  */
-public class SingleProtocolProducer implements ProtocolProducer {
+public class SingleProtocolProducer<T> implements ProtocolProducer, Computation<T> {
 
-  private NativeProtocol protocol;
+  private NativeProtocol<T, ?> protocol;
   private boolean evaluated = false;
+  private T result;
 
-  private SingleProtocolProducer(NativeProtocol protocol) {
+  public SingleProtocolProducer(NativeProtocol<T, ?> protocol) {
     this.protocol = protocol;
   }
 
@@ -39,6 +40,7 @@ public class SingleProtocolProducer implements ProtocolProducer {
    * @param protocol the protocol to wrap
    * @return the producer
    */
+  @Deprecated
   public static ProtocolProducer wrap(Computation<?> protocol) {
     if (protocol == null) {
       return null;
@@ -55,5 +57,15 @@ public class SingleProtocolProducer implements ProtocolProducer {
     return "SingleProtocolProducer{"
         + "protocol=" + protocol
         + '}';
+  }
+
+  @Override
+  public T out() {
+    if (result == null) {
+      result = protocol.out();
+      // Break chain of native protocols to ensure garbage collection
+      protocol = null;
+    }
+    return result;
   }
 }
