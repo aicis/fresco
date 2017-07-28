@@ -26,7 +26,7 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.helper;
 
-import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import java.util.LinkedList;
@@ -52,17 +52,17 @@ public class ParallelProtocolProducer implements ProtocolProducer,
     }
   }
 
-  public ParallelProtocolProducer(ProtocolProducer protocolProducer, Computation... protocols) {
+  public ParallelProtocolProducer(ProtocolProducer protocolProducer, NativeProtocol... protocols) {
     this();
     append(protocolProducer);
-    for (Computation protocol : protocols) {
+    for (NativeProtocol protocol : protocols) {
       append(protocol);
     }
   }
 
-  public ParallelProtocolProducer(Computation... protocols) {
+  public ParallelProtocolProducer(NativeProtocol... protocols) {
     this();
-    for (Computation protocol : protocols) {
+    for (NativeProtocol protocol : protocols) {
       append(protocol);
     }
   }
@@ -71,7 +71,7 @@ public class ParallelProtocolProducer implements ProtocolProducer,
     cs.offer(protocolProducer);
   }
 
-  public void append(Computation computation) {
+  public void append(NativeProtocol computation) {
     cs.offer(SingleProtocolProducer.wrap(computation));
   }
 

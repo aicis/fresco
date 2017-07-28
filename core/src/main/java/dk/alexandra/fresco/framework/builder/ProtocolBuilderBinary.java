@@ -72,9 +72,7 @@ public abstract class ProtocolBuilderBinary implements ProtocolBuilder {
 
   void addEntities(ProtocolProducerCollection producerCollection) {
     for (ProtocolEntity protocolEntity : protocols) {
-      if (protocolEntity.computation != null) {
-        producerCollection.append(protocolEntity.computation);
-      } else if (protocolEntity.protocolProducer != null) {
+      if (protocolEntity.protocolProducer != null) {
         producerCollection.append(protocolEntity.protocolProducer);
       } else {
         producerCollection.append(protocolEntity.child);

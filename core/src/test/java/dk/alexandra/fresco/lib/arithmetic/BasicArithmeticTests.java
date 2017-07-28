@@ -25,18 +25,18 @@ package dk.alexandra.fresco.lib.arithmetic;
 
 import dk.alexandra.fresco.framework.BuilderFactory;
 import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.TestApplication;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
-import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
-import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
+import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
@@ -161,7 +161,9 @@ public class BasicArithmeticTests {
               BigInteger publicVal = BigInteger.valueOf(4);
               SInt out = fac.getSInt();
               Computation addProtocol = fac.getAddProtocol(input1, publicVal, out);
-              gp.append(addProtocol);
+              // This cast is safe - and should b e removed when converting this to the new builder based
+              // protocol construction pattern.
+              gp.append((NativeProtocol) addProtocol);
 
               Computation<BigInteger> output = ioBuilder.output(out);
               ProtocolProducer io = ioBuilder.getProtocol();
@@ -189,7 +191,7 @@ public class BasicArithmeticTests {
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         @Override
         public void test() throws Exception {
-          final int[] openInputs = new int[] {200, 300, 1, 2};
+          final int[] openInputs = new int[]{200, 300, 1, 2};
           TestApplication app = new TestApplication() {
 
             @Override
@@ -230,7 +232,7 @@ public class BasicArithmeticTests {
         @Override
         public void test() throws Exception {
           final int[] openInputs =
-              new int[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
+              new int[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
           TestApplication app = new TestApplication() {
 
             @Override
@@ -251,16 +253,18 @@ public class BasicArithmeticTests {
               // will compute the sum
               SequentialProtocolProducer sumProtocol = new SequentialProtocolProducer();
 
-              sumProtocol.append(fac.getAddProtocol(inputs[0], inputs[1], sum));
+              // This cast is safe - and should b e removed when converting this to the new builder based
+              // protocol construction pattern.
+              sumProtocol.append((NativeProtocol) fac.getAddProtocol(inputs[0], inputs[1], sum));
               if (inputs.length > 2) {
                 for (int i = 2; i < inputs.length; i++) {
                   // Add sum and next secret shared input and
                   // store in sum.
-                  sumProtocol.append(fac.getAddProtocol(sum, inputs[i], sum));
+                  sumProtocol.append((NativeProtocol) fac.getAddProtocol(sum, inputs[i], sum));
                 }
               }
 
-              sumProtocol.append(fac.getMultProtocol(sum, sum, sum));
+              sumProtocol.append((NativeProtocol) fac.getMultProtocol(sum, sum, sum));
 
               this.outputs.add(ioBuilder.output(sum));
 

@@ -39,8 +39,8 @@ public abstract class ProtocolBuilderNumeric implements ProtocolBuilder {
   }
 
   /**
-   * Creates a root for this builder - should be applied when construcing
-   * protocol producers from an {@link Application}.
+   * Creates a root for this builder - should be applied when construcing protocol producers from an
+   * {@link Application}.
    *
    * @param factory the protocol factory to get native protocols and composite builders from
    * @param consumer the root of the protocol producer
@@ -88,9 +88,9 @@ public abstract class ProtocolBuilderNumeric implements ProtocolBuilder {
   }
 
   /**
-   * Creates another protocol builder based on the supplied consumer.
-   * This method re-creates the builder based on a sequential protocol producer inserted into this
-   * original protocol producer as a child.
+   * Creates another protocol builder based on the supplied consumer. This method re-creates the
+   * builder based on a sequential protocol producer inserted into this original protocol producer
+   * as a child.
    *
    * @param consumer lazy creation of the protocol producer
    */
@@ -152,9 +152,7 @@ public abstract class ProtocolBuilderNumeric implements ProtocolBuilder {
 
   void addEntities(ProtocolProducerCollection producerCollection) {
     for (ProtocolBuilderNumeric.ProtocolEntity protocolEntity : protocols) {
-      if (protocolEntity.computation != null) {
-        producerCollection.append(protocolEntity.computation);
-      } else if (protocolEntity.protocolProducer != null) {
+      if (protocolEntity.protocolProducer != null) {
         producerCollection.append(protocolEntity.protocolProducer);
       } else {
         producerCollection.append(protocolEntity.child);
@@ -199,8 +197,6 @@ public abstract class ProtocolBuilderNumeric implements ProtocolBuilder {
   }
 
   private static class ProtocolEntity {
-
-    Computation<?> computation;
     ProtocolProducer protocolProducer;
     LazyProtocolProducerDecorator child;
   }

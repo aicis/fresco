@@ -26,15 +26,15 @@
  *******************************************************************************/
 package dk.alexandra.fresco.demo;
 
-import java.math.BigInteger;
-
 import dk.alexandra.fresco.demo.helpers.DemoNumericApplication;
 import dk.alexandra.fresco.framework.BuilderFactory;
+import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.helper.SequentialProtocolProducer;
 import dk.alexandra.fresco.lib.helper.SingleProtocolProducer;
+import java.math.BigInteger;
 
 /**
  * Tiny application for a two party case which computes the sum of the inputs,
@@ -65,11 +65,13 @@ public class SumAndOutputApplication extends DemoNumericApplication<BigInteger> 
     // create Sequence of protocols which eventually will compute the sum
     SequentialProtocolProducer sumProtocol = new SequentialProtocolProducer();
 
-    sumProtocol.append(fac.getAddProtocol(ssInputs[0], ssInputs[1], sum));
+    // This cast is safe - and should b e removed when converting this to the new builder based
+    // protocol construction pattern.
+    sumProtocol.append((NativeProtocol) fac.getAddProtocol(ssInputs[0], ssInputs[1], sum));
     if (ssInputs.length > 2) {
       for (int i = 2; i < ssInputs.length; i++) {
         // Add sum and next secret shared input and store in sum.
-        sumProtocol.append(fac.getAddProtocol(sum, ssInputs[i], sum));
+        sumProtocol.append((NativeProtocol) fac.getAddProtocol(sum, ssInputs[i], sum));
       }
     }
 

@@ -25,6 +25,7 @@
 package dk.alexandra.fresco.lib.lp;
 
 import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.SInt;
@@ -177,7 +178,9 @@ public class OpenAndPrintProtocol implements ProtocolProducer {
     for (int i = 0; i < closed.length; i++) {
       Computation<BigInteger> openProtocol = factory.getOpenProtocol(closed[i]);
       result.add(openProtocol);
-      parallelProtocolProducer.append(openProtocol);
+      // This cast is safe - and should be removed when converting this to the new builder based
+      // protocol construction pattern.
+      parallelProtocolProducer.append((NativeProtocol) openProtocol);
     }
     return parallelProtocolProducer;
   }
