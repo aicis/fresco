@@ -39,8 +39,7 @@ import java.util.ListIterator;
  * breadth first search for more protocols. THis skews the evalueration of the protocols in favor of
  * the first, but delivers the best performance in terms of memory.
  */
-public class ParallelProtocolProducer implements ProtocolProducer,
-    ProtocolProducerCollection {
+public class ParallelProtocolProducer implements ProtocolProducer, ProtocolProducerCollection {
 
   private LinkedList<ProtocolProducer> subProducers;
 
