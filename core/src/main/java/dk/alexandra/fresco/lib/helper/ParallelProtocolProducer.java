@@ -34,8 +34,10 @@ import java.util.LinkedList;
 import java.util.ListIterator;
 
 /**
- * If a Parallel protocol has n sub-protocols and is asked to deliver m protocols, it requests m/n
- * protocols from each of the sub-protocols.
+ * A parallel producer contains a set of protocols producer that are asked to fill the collection
+ * eagerly. Given some of the producers are lazy initialized this performs best - and hence does a
+ * breadth first search for more protocols. THis skews the evalueration of the protocols in favor of
+ * the first, but delivers the best performance in terms of memory.
  */
 public class ParallelProtocolProducer implements ProtocolProducer,
     ProtocolProducerCollection {
