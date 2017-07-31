@@ -153,8 +153,11 @@ public class NumericIOBuilder extends AbstractProtocolBuilder {
         }
         input = iof.getCloseProtocol(targetID, oi, sis[i]);
         i++;
+        return new SingleProtocolProducer<>(input);
+      } else {
+        return null;
       }
-      return new SingleProtocolProducer<>(input);
+
     }
   }
 
