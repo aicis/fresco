@@ -68,7 +68,7 @@ public class ExitingVariableProtocol extends AbstractRoundBasedProtocol {
       this.bnf = bnFactory;
 
     } else {
-      throw new MPCException("Dimensions of inputs does not match");
+      throw new IllegalArgumentException("Dimensions of inputs does not match");
     }
   }
 
@@ -76,13 +76,25 @@ public class ExitingVariableProtocol extends AbstractRoundBasedProtocol {
       SInt[] enteringIndex, SInt[] exitingIndex, SInt[] updateColumn) {
     int updateHeight = updateMatrix.getHeight();
     int updateWidth = updateMatrix.getWidth();
+    if (updateHeight != updateWidth) {
+      return false;
+    }
+    
     int tableauHeight = tableau.getC().getHeight() + 1;
+    if (updateHeight != tableauHeight) {
+      return false;
+    }    
+    
     int tableauWidth = tableau.getC().getWidth() + 1;
-    return (updateHeight == updateWidth &&
-        updateHeight == tableauHeight &&
-        enteringIndex.length == tableauWidth - 1 &&
-        exitingIndex.length == tableauHeight - 1 &&
-        updateColumn.length == updateWidth);
+    if (enteringIndex.length != tableauWidth - 1) {
+      return false;
+    }
+
+    if (exitingIndex.length != tableauHeight - 1) {
+      return false;
+    }        
+    
+    return updateColumn.length == updateWidth;
   }
 
   @Override

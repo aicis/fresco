@@ -53,16 +53,16 @@ import java.math.BigInteger;
  */
 public class LPSolverProtocol implements ProtocolProducer {
 
+  private final int PHASE1 = 1;
+  private final int PHASE2 = 2;
+  private final int TERMINATED = 3;
+  
   private final LPTableau tableau;
   private final Matrix<SInt> updateMatrix;
   private final SInt zero;
   private int identityHashCode;
 
-  private enum STATE {
-    PHASE1, PHASE2, TERMINATED
-  }
-
-  private STATE state;
+  private int state;
   private LPFactory lpFactory;
   private BasicNumericFactory bnFactory;
   private ProtocolProducer pp;
@@ -90,7 +90,7 @@ public class LPSolverProtocol implements ProtocolProducer {
       this.lpFactory = lpFactory;
       this.bnFactory = bnFactory;
       this.zero = bnFactory.getSInt(0);
-      this.state = STATE.PHASE1;
+      this.state = PHASE1;
       this.iterations = 0;
       this.basis = basis;
       for (int i = 0; i < this.basis.length; i++) {
@@ -103,7 +103,7 @@ public class LPSolverProtocol implements ProtocolProducer {
         this.enumeratedVariables[i - 1] = this.bnFactory.getOInt(BigInteger.valueOf(i));
       }
     } else {
-      throw new MPCException("Dimensions of inputs does not match");
+      throw new IllegalArgumentException("Dimensions of inputs does not match");
     }
     identityHashCode = System.identityHashCode(this);
   }
@@ -111,25 +111,28 @@ public class LPSolverProtocol implements ProtocolProducer {
   private boolean checkDimensions(LPTableau tableau, Matrix<SInt> updateMatrix) {
     int updateHeight = updateMatrix.getHeight();
     int updateWidth = updateMatrix.getWidth();
+    if(updateHeight != updateWidth) {
+      return false;
+    }
     int tableauHeight = tableau.getC().getHeight() + 1;
-    return (updateHeight == updateWidth && updateHeight == tableauHeight);
+    return updateHeight == tableauHeight;
 
   }
 
   @Override
   public void getNextProtocols(ProtocolCollection protocolCollection) {
     if (pp == null) {
-      if (state == STATE.PHASE1) {
+      if (state == PHASE1) {
         iterations++;
         Reporter.info("LP Iterations=" + iterations + " solving " +
             identityHashCode);
         pp = phaseOneProtocol();
-      } else { // if (state == STATE.PHASE2)
+      } else { // if (state == PHASE2)
         boolean terminated = terminationOut.getValue().equals(BigInteger.ONE);
         if (!terminated) {
           pp = phaseTwoProtocol();
         } else {
-          state = STATE.TERMINATED;
+          state = TERMINATED;
           pp = null;
           return;
         }
@@ -138,20 +141,12 @@ public class LPSolverProtocol implements ProtocolProducer {
     if (pp.hasNextProtocols()) {
       pp.getNextProtocols(protocolCollection);
     } else {
-      switch (state) {
-        case PHASE1:
+      if(state == PHASE1) {
           pp = null;
-          state = STATE.PHASE2;
-          break;
-        case PHASE2:
+          state = PHASE2;
+      } else { // (state == PHASE2) 
           pp = null;
-          state = STATE.PHASE1;
-          break;
-        case TERMINATED:
-          pp = null;
-          break;
-        default:
-          break;
+          state = PHASE1;
       }
     }
   }
@@ -272,6 +267,11 @@ public class LPSolverProtocol implements ProtocolProducer {
     return phaseOne;
   }
 
+  @Override
+  public boolean hasNextProtocols() {
+    return (state != TERMINATED);
+  }
+  
   /**
    * Creates a ProtocolProducer to compute the first half of a simplex iteration.
    * <p>
@@ -283,7 +283,7 @@ public class LPSolverProtocol implements ProtocolProducer {
    *
    * @return a protocol producer for the first half of a simplex iteration
    */
-  @SuppressWarnings("unused")
+  /*
   private ProtocolProducer blandPhaseOneProtocol() {
     terminationOut = bnFactory.getOInt();
     // Phase 1 - Finding the entering variable and outputting
@@ -301,13 +301,9 @@ public class LPSolverProtocol implements ProtocolProducer {
     NativeProtocol output = bnFactory.getOpenProtocol(first, terminationOut);
     return new SequentialProtocolProducer(blandEnter, output);
   }
+   */
 
-
-  @Override
-  public boolean hasNextProtocols() {
-    return (state != STATE.TERMINATED);
-  }
-
+/*
   public static class Builder {
 
     LPTableau tableau;
@@ -370,5 +366,5 @@ public class LPSolverProtocol implements ProtocolProducer {
         throw new IllegalStateException("Not ready to build. Some values where not set.");
       }
     }
-  }
+  }*/
 }

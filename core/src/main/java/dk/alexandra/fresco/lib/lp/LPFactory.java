@@ -30,7 +30,6 @@ import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.compare.ComparisonProtocol;
 import dk.alexandra.fresco.lib.compare.ConditionalSelectProtocol;
 import dk.alexandra.fresco.lib.compare.eq.EqualityProtocol;
-import dk.alexandra.fresco.lib.debug.MarkerFactory;
 import dk.alexandra.fresco.lib.helper.CopyProtocolFactory;
 import dk.alexandra.fresco.lib.math.integer.inv.InversionProtocolFactory;
 import dk.alexandra.fresco.lib.math.integer.linalg.EntrywiseProductFactory;
@@ -40,7 +39,7 @@ import dk.alexandra.fresco.lib.math.integer.min.MinimumFractionProtocol;
 import dk.alexandra.fresco.lib.math.integer.min.MinimumProtocol;
 
 public interface LPFactory
-		extends InversionProtocolFactory, MarkerFactory, CopyProtocolFactory<SInt>, 
+		extends InversionProtocolFactory, CopyProtocolFactory<SInt>, 
 		EntrywiseProductFactory, InnerProductFactory {
 
 	/**

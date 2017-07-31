@@ -8,10 +8,10 @@ import dk.alexandra.fresco.framework.value.SBool;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.debug.BinaryOpenAndPrint;
 import dk.alexandra.fresco.lib.debug.MarkerProtocolImpl;
+import dk.alexandra.fresco.lib.debug.ArithmeticOpenAndPrint;
 import dk.alexandra.fresco.lib.field.bool.BasicLogicFactory;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.helper.CopyProtocolImpl;
-import dk.alexandra.fresco.lib.lp.OpenAndPrintProtocol;
 
 /**
  * Builder that provides utility functionality primarily for debugging purposes.
@@ -87,7 +87,7 @@ public class UtilityBuilder extends AbstractProtocolBuilder {
 	 */
 	public void openAndPrint(String message, SInt value) {
 		BasicNumericFactory bnf = (BasicNumericFactory) factory;
-		OpenAndPrintProtocol oapp = new OpenAndPrintProtocol(message, value, bnf);
+		ArithmeticOpenAndPrint oapp = new ArithmeticOpenAndPrint(message, value, bnf);
 		this.append(oapp);
 	}
 
@@ -162,7 +162,7 @@ public void openAndPrint(String message, SBool value, PrintStream output) {
 	 */
 	public void openAndPrint(String message, SInt[] value) {
 		BasicNumericFactory bnf = (BasicNumericFactory) factory;
-		OpenAndPrintProtocol oapp = new OpenAndPrintProtocol(message, value, bnf);
+		ArithmeticOpenAndPrint oapp = new ArithmeticOpenAndPrint(message, value, bnf);
 		this.append(oapp);
 	}
 
@@ -177,7 +177,7 @@ public void openAndPrint(String message, SBool value, PrintStream output) {
 	 */
 	public void openAndPrint(String message, SInt[][] value) {
 		BasicNumericFactory bnf = (BasicNumericFactory) factory;
-		OpenAndPrintProtocol oapp = new OpenAndPrintProtocol(message, value, bnf);
+		ArithmeticOpenAndPrint oapp = new ArithmeticOpenAndPrint(message, value, bnf);
 		this.append(oapp);
 	}
 }

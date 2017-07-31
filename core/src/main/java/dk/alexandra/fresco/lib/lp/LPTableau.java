@@ -47,7 +47,7 @@ public class LPTableau {
 			this.F = F;
 			this.z = z;
 		} else {
-			throw new RuntimeException("Dimenssions of tableau does not match");
+			throw new IllegalArgumentException("Dimenssions of tableau does not match");
 		}
 	}
 	
@@ -66,7 +66,7 @@ public class LPTableau {
 	public SInt getZ(){
 		return z;
 	}
-		
+	/*
 	public ProtocolProducer toString(BasicNumericFactory bnf) {		
 		OmniBuilder b = new OmniBuilder(bnf);
 		b.getUtilityBuilder().openAndPrint("C", C.toArray());
@@ -74,5 +74,5 @@ public class LPTableau {
 		b.getUtilityBuilder().openAndPrint("F", F);
 		b.getUtilityBuilder().openAndPrint("z", z);
 		return b.getProtocol();
-	}
+	}*/
 }

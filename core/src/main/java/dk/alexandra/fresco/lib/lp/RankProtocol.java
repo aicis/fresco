@@ -65,16 +65,19 @@ public class RankProtocol extends SimpleProtocolProducer {
     NumericProtocolBuilder build = new NumericProtocolBuilder(numericFactory);
     SInt[] compLeft = null;
     SInt[] compRight = null;
-    if (denominators == null && denominator == null) {
+    build.beginParScope();
+    if (denominators == null) {
       compLeft = numerators;
+    } else {
+      compLeft = build.scale(denominator, numerators);
+    }
+    if(denominator == null) {
       compRight = new SInt[compLeft.length];
       Arrays.fill(compRight, numerator);
     } else {
-      build.beginParScope();
-      compLeft = build.scale(denominator, numerators);
       compRight = build.scale(numerator, denominators);
-      build.endCurScope();
     }
+    build.endCurScope();
     SInt[] comparisonResults = build.getSIntArray(numerators.length);
     build.beginParScope();
     for (int i = 0; i < numerators.length; i++) {

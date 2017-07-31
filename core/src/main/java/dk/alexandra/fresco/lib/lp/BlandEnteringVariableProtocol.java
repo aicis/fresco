@@ -26,7 +26,6 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.lp;
 
-import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
@@ -54,7 +53,7 @@ public class BlandEnteringVariableProtocol extends SimpleProtocolProducer {
       this.lpFactory = lpFactory;
       this.bnFactory = bnFactory;
     } else {
-      throw new MPCException("Dimensions of inputs do not match");
+      throw new IllegalArgumentException("Dimensions of inputs do not match");
     }
   }
 
@@ -62,10 +61,16 @@ public class BlandEnteringVariableProtocol extends SimpleProtocolProducer {
       SInt[] enteringIndex) {
     int updateHeight = updateMatrix.getHeight();
     int updateWidth = updateMatrix.getWidth();
+    if (updateHeight != updateWidth) {
+      return false;
+    }
     int tableauHeight = tableau.getC().getHeight() + 1;
+    if (updateHeight != tableauHeight) {
+      return false;
+    }    
     int tableauWidth = tableau.getC().getWidth() + 1;
-    return (updateHeight == updateWidth && updateHeight == tableauHeight
-        && enteringIndex.length == tableauWidth - 1);
+    return enteringIndex.length == tableauWidth - 1;
+    
   }
 
   @Override

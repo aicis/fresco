@@ -1,5 +1,7 @@
 package dk.alexandra.fresco.suite.dummy.arithmetic;
 
+import java.math.BigInteger;
+
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -12,6 +14,7 @@ import dk.alexandra.fresco.lib.arithmetic.MiMCTests;
 import dk.alexandra.fresco.lib.arithmetic.SearchingTests;
 import dk.alexandra.fresco.lib.arithmetic.SortingTests;
 import dk.alexandra.fresco.lib.list.EliminateDuplicatesTests;
+import dk.alexandra.fresco.lib.lp.LPBuildingBlockTests;
 import dk.alexandra.fresco.lib.math.integer.binary.BinaryOperationsTests;
 import dk.alexandra.fresco.lib.math.integer.division.DivisionTests;
 import dk.alexandra.fresco.lib.math.integer.exp.ExponentiationTests;
@@ -240,6 +243,7 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
     runTest(new MiMCTests.TestMiMCEncryptsDeterministically(), EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET, 2);
   }
 
+  //lib.list
   @Test
   public void test_findDuplicatesOne() throws Exception {
     runTest(new dk.alexandra.fresco.lib.list.EliminateDuplicatesTests.TestFindDuplicatesOne(),
@@ -258,6 +262,55 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
         EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET, 2);
   }
 
+  //lib.lp
+  @Test
+  public void test_LPSolverDanzig() throws Exception {
+    runTest(new LPBuildingBlockTests.TestDanzigEnteringVariable(new BigInteger("100001")),
+        EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET, 2);
+  }
+  
+ // @Ignore //check with Peter if we still want this
+  @Test
+  public void test_LPSolverWithBlandEntering() throws Exception {
+    runTest(new LPBuildingBlockTests.TestBlandEnteringVariableSolver(new BigInteger("100001")),
+        EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET, 2);
+  }
+  
+  @Test
+  public void test_RankProtocol() throws Exception {
+    runTest(new LPBuildingBlockTests.TestRankProtocol(),
+        EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET, 2);
+  }
+
+  @Test
+  public void test_RankProtocolFractions() throws Exception {
+    runTest(new LPBuildingBlockTests.TestRankProtocolFractions(),
+        EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET, 2);
+  }
+  
+  @Test
+  public void test_Optimal_Value_Protocol() throws Exception {
+    runTest(new LPBuildingBlockTests.TestOptimalValueProtocol(),
+        EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET, 2);
+  }
+
+  @Test
+  public void test_Optimal_Numerator_Protocol() throws Exception {
+    runTest(new LPBuildingBlockTests.TestOptimalNumeratorProtocol(),
+        EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET, 2);
+  }
+
+  @Test
+  public void test_Entrywise_Product_Protocol() throws Exception {
+    runTest(new LPBuildingBlockTests.TestEntryWiseProductProtocol(),
+        EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET, 2);
+  }
+  
+  @Test
+  public void test_Entrywise_Product_Protocol_Open() throws Exception {
+    runTest(new LPBuildingBlockTests.TestEntryWiseProductProtocolOpen(),
+        EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET, 2);
+  }
   //lib.math.integer.binary
   @Test
   public void test_Right_Shift() throws Exception {

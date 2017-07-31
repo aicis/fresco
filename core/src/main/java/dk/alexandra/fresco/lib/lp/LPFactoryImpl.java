@@ -41,8 +41,6 @@ import dk.alexandra.fresco.lib.compare.eq.EqualityProtocolImpl;
 import dk.alexandra.fresco.lib.compare.gt.GreaterThanReducerProtocolImpl;
 import dk.alexandra.fresco.lib.compare.zerotest.ZeroTestProtocolFactory;
 import dk.alexandra.fresco.lib.compare.zerotest.ZeroTestProtocolFactoryImpl;
-import dk.alexandra.fresco.lib.debug.MarkerProtocol;
-import dk.alexandra.fresco.lib.debug.MarkerProtocolImpl;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.field.integer.RandomFieldElementFactory;
 import dk.alexandra.fresco.lib.helper.CopyProtocol;
@@ -102,11 +100,6 @@ public class LPFactoryImpl implements LPFactory {
 	@Override
 	public InversionProtocol getInversionProtocol(SInt x, SInt result) {
 		return new InversionProtocolImpl(x, result, bnf, localInvFactory, randFactory);
-	}
-
-	@Override
-	public MarkerProtocol getMarkerProtocol(String message) {
-		return new MarkerProtocolImpl(message, System.out);
 	}
 
 	@Override

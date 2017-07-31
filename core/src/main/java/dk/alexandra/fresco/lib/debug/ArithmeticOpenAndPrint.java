@@ -24,13 +24,12 @@
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
  *******************************************************************************/
-package dk.alexandra.fresco.lib.lp;
+package dk.alexandra.fresco.lib.debug;
 
 import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.debug.MarkerProtocolImpl;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.field.integer.OpenIntProtocol;
 import dk.alexandra.fresco.lib.field.integer.generic.IOIntProtocolFactory;
@@ -38,7 +37,7 @@ import dk.alexandra.fresco.lib.helper.AlgebraUtil;
 import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
 import dk.alexandra.fresco.lib.helper.SingleProtocolProducer;
 
-public class OpenAndPrintProtocol implements ProtocolProducer {
+public class ArithmeticOpenAndPrint implements ProtocolProducer {
 
   private SInt number = null;
   private SInt[] vector = null;
@@ -59,19 +58,19 @@ public class OpenAndPrintProtocol implements ProtocolProducer {
   private BasicNumericFactory factory;
 
 
-  public OpenAndPrintProtocol(String label, SInt number, BasicNumericFactory factory) {
+  public ArithmeticOpenAndPrint(String label, SInt number, BasicNumericFactory factory) {
     this.number = number;
     this.factory = factory;
     this.label = label;
   }
 
-  public OpenAndPrintProtocol(String label, SInt[] vector, BasicNumericFactory factory) {
+  public ArithmeticOpenAndPrint(String label, SInt[] vector, BasicNumericFactory factory) {
     this.vector = vector;
     this.factory = factory;
     this.label = label;
   }
 
-  public OpenAndPrintProtocol(String label, SInt[][] matrix, BasicNumericFactory factory) {
+  public ArithmeticOpenAndPrint(String label, SInt[][] matrix, BasicNumericFactory factory) {
     this.matrix = matrix;
     this.factory = factory;
     this.label = label;
