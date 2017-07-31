@@ -8,23 +8,24 @@ import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import java.io.IOException;
 import java.security.SecureRandom;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 public class ResourcePoolCreator {
 
-  private static Map<Integer, ResourcePool> rps = new HashMap<>();
+  private static ConcurrentMap<Integer, ResourcePool> rps = new ConcurrentHashMap<>();
 
-  private static Network getNetworkFromConfiguration(
-      NetworkingStrategy networkStrategy, NetworkConfiguration networkConfiguration) {
+  private static Network getNetworkFromConfiguration(NetworkingStrategy networkStrategy,
+      NetworkConfiguration networkConfiguration) {
     int channelAmount = 1;
     Network network;
     switch (networkStrategy) {
       case KRYONET:
         // TODO[PSN]
         // KryoNet currently works on mac, but Windows is still in the dark.
-        //network = new KryoNetNetwork();
+        // network = new KryoNetNetwork();
         network = new ScapiNetworkImpl();
         break;
       case SCAPI:
@@ -46,15 +47,14 @@ public class ResourcePoolCreator {
     Random rand = new Random(0);
     SecureRandom secRand = new SecureRandom();
 
-    Network network = getNetworkFromConfiguration(
-        sceConf.getNetworkStrategy(), sceConf.getNetworkConfiguration());
+    Network network = getNetworkFromConfiguration(sceConf.getNetworkStrategy(),
+        sceConf.getNetworkConfiguration());
     network.connect(10000);
 
     ProtocolSuite<ResourcePoolT, Builder> suite = sceConf.getSuite();
 
-    ResourcePoolT resourcePool = suite.createResourcePool(
-        myId, sceConf.getNetworkConfiguration().noOfParties(),
-        network, rand, secRand);
+    ResourcePoolT resourcePool = suite.createResourcePool(myId,
+        sceConf.getNetworkConfiguration().noOfParties(), network, rand, secRand);
 
     ResourcePoolCreator.rps.put(myId, resourcePool);
 
