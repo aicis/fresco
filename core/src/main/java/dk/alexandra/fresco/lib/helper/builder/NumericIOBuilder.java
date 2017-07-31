@@ -49,18 +49,6 @@ public class NumericIOBuilder extends AbstractProtocolBuilder {
   private SIntFactory sif;
 
   /**
-   * Constructs a new builder
-   *
-   * @param iop factory of input/output protocols
-   * @param sip factory of SInts
-   */
-  public NumericIOBuilder(IOIntProtocolFactory iop, SIntFactory sip) {
-    super();
-    this.iof = iop;
-    this.sif = sip;
-  }
-
-  /**
    * A convenient constructor when one factory implements all the needed interfaces (which will
    * usually be the case)
    *
