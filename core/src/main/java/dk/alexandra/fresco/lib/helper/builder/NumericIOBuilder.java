@@ -222,8 +222,10 @@ public class NumericIOBuilder extends AbstractProtocolBuilder {
         output = iof.getOpenProtocol(sis[i]);
         ois.add(output);
         i++;
+        return new SingleProtocolProducer<>(output);
+      } else {
+        return null;
       }
-      return new SingleProtocolProducer<>(output);
     }
   }
 
