@@ -7,8 +7,6 @@
 
   <modelVersion>4.0.0</modelVersion>
   <artifactId>fresco-protocol-suites-pom</artifactId>
-  <version>0.2-SNAPSHOT</version>
-
   <packaging>pom</packaging>
 
   <modules>

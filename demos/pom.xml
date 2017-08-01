@@ -6,55 +6,30 @@
   </parent>
   
   <modelVersion>4.0.0</modelVersion>
-  <groupId>dk.alexandra.fresco</groupId>
   <artifactId>demos</artifactId>
-  <version>0.2-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <dependencies>
     <dependency>
       <groupId>dk.alexandra.fresco</groupId>
-      <artifactId>core</artifactId>
-      <version>0.2-SNAPSHOT</version>
-    </dependency>
-
-    <dependency>
-      <groupId>dk.alexandra.fresco</groupId>
       <artifactId>spdz</artifactId>
-      <version>0.2-SNAPSHOT</version>
+      <version>${fresco-version}</version>
     </dependency>
 
     <dependency>
       <groupId>dk.alexandra.fresco</groupId>
       <artifactId>tinytables</artifactId>
-      <version>0.2-SNAPSHOT</version>
+      <version>${fresco-version}</version>
     </dependency>
 
     <!-- Test dependencies -->
     <dependency>
       <groupId>dk.alexandra.fresco</groupId>
       <artifactId>core</artifactId>
-      <version>0.2-SNAPSHOT</version>
+      <version>${fresco-version}</version>
       <type>test-jar</type>
       <scope>test</scope>
     </dependency>
-
-    <dependency>
-      <groupId>dk.alexandra.fresco</groupId>
-      <artifactId>spdz</artifactId>
-      <version>0.2-SNAPSHOT</version>
-      <type>test-jar</type>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>dk.alexandra.fresco</groupId>
-      <artifactId>tinytables</artifactId>
-      <version>0.2-SNAPSHOT</version>
-      <type>test-jar</type>
-      <scope>test</scope>
-    </dependency>
-
 
   </dependencies>
 
