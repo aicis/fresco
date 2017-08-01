@@ -26,8 +26,8 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.helper.builder;
 
-import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.MPCException;
+import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
 import dk.alexandra.fresco.lib.helper.ProtocolProducerCollection;
@@ -38,18 +38,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Internally AbstractProtocolBuilder keeps an ProtocolProducerCollection (These are
- * the basic structural ProtocolProducers such as Sequential- and
- * ParallelProtocolProducers), here called the "current ProtocolProducer". Each
- * instruction to the builder results in a corresponding ProtocolProducer being
- * appended to the current ProtocolProducer.
+ * Internally AbstractProtocolBuilder keeps an ProtocolProducerCollection (These are the basic
+ * structural ProtocolProducers such as Sequential- and ParallelProtocolProducers), here called the
+ * "current ProtocolProducer". Each instruction to the builder results in a corresponding
+ * ProtocolProducer being appended to the current ProtocolProducer.
  *
- * When a new scope is declared a corresponding ProtocolProducerCollection is
- * constructed and appended to the current ProtocolProducer. The current
- * ProtocolProducer is then pushed on a stack and the newly created
- * ProtocolProducerCollection is made the new current ProtocolProducer. When the current
- * scope is ended the ProtocolBuilder returns to the previous scope by popping
- * the top of stack making it the new current ProtocolProducer.
+ * When a new scope is declared a corresponding ProtocolProducerCollection is constructed and
+ * appended to the current ProtocolProducer. The current ProtocolProducer is then pushed on a stack
+ * and the newly created ProtocolProducerCollection is made the new current ProtocolProducer. When
+ * the current scope is ended the ProtocolBuilder returns to the previous scope by popping the top
+ * of stack making it the new current ProtocolProducer.
  *
  * @author psn
  */
@@ -131,8 +129,8 @@ public abstract class AbstractProtocolBuilder implements ProtocolBuilder {
    *
    * @param pp the ProtocolProducer to append
    */
-  protected void append(Computation pp) {
-    append(SingleProtocolProducer.wrap(pp));
+  protected void append(NativeProtocol<?, ?> pp) {
+    append(new SingleProtocolProducer<>(pp));
   }
 
   /**
@@ -147,8 +145,8 @@ public abstract class AbstractProtocolBuilder implements ProtocolBuilder {
   }
 
   /**
-   * Pushes the current ProtocolProducer on the stack and makes the given
-   * ProtocolProducerCollection the new current ProtocolProducer.
+   * Pushes the current ProtocolProducer on the stack and makes the given ProtocolProducerCollection
+   * the new current ProtocolProducer.
    *
    * @param nextProducer the ProtocolProducerCollection to be made the new current ProtocolProducer
    */

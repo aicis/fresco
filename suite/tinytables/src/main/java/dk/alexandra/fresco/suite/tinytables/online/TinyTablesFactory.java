@@ -115,8 +115,11 @@ public class TinyTablesFactory extends AbstractBinaryFactory implements BasicLog
 
   @Override
   public ProtocolProducer getAndProtocol(SBool inLeft, SBool inRight, SBool out) {
-    return SingleProtocolProducer.wrap(
-        new TinyTablesANDProtocol(getNextId(), (TinyTablesSBool) inLeft, (TinyTablesSBool) inRight,
+    return new SingleProtocolProducer<>(
+        new TinyTablesANDProtocol(
+            getNextId(),
+            (TinyTablesSBool) inLeft,
+            (TinyTablesSBool) inRight,
             (TinyTablesSBool) out));
   }
 
@@ -127,8 +130,9 @@ public class TinyTablesFactory extends AbstractBinaryFactory implements BasicLog
 
   @Override
   public ProtocolProducer getNotProtocol(SBool in, SBool out) {
-    return SingleProtocolProducer
-        .wrap(new TinyTablesNOTProtocol(getNextId(), (TinyTablesSBool) in, (TinyTablesSBool) out));
+    return new SingleProtocolProducer<>(
+        new TinyTablesNOTProtocol(getNextId(), (TinyTablesSBool) in,
+            (TinyTablesSBool) out));
   }
 
   @Override

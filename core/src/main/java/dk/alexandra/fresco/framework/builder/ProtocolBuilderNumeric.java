@@ -23,7 +23,7 @@ public abstract class ProtocolBuilderNumeric implements ProtocolBuilder {
 
   private BasicNumericFactory basicNumericFactory;
   private List<ProtocolBuilderNumeric.ProtocolEntity> protocols;
-  public BuilderFactoryNumeric factory;
+  private BuilderFactoryNumeric factory;
   private NumericBuilder numericBuilder;
   private ComparisonBuilder comparison;
   private AdvancedNumericBuilder advancedNumeric;
@@ -39,8 +39,8 @@ public abstract class ProtocolBuilderNumeric implements ProtocolBuilder {
   }
 
   /**
-   * Creates a root for this builder - should be applied when construcing
-   * protocol producers from an {@link Application}.
+   * Creates a root for this builder - should be applied when construcing protocol producers from an
+   * {@link Application}.
    *
    * @param factory the protocol factory to get native protocols and composite builders from
    * @param consumer the root of the protocol producer
@@ -88,29 +88,29 @@ public abstract class ProtocolBuilderNumeric implements ProtocolBuilder {
   }
 
   /**
-   * Creates another protocol builder based on the supplied consumer.
-   * This method re-creates the builder based on a sequential protocol producer inserted into this
-   * original protocol producer as a child.
+   * Creates another protocol builder based on the supplied consumer. This method re-creates the
+   * builder based on a sequential protocol producer inserted into this original protocol producer
+   * as a child.
    *
    * @param consumer lazy creation of the protocol producer
    */
-  public <T extends Consumer<SequentialNumericBuilder>> void createIteration(
-      T consumer) {
+  public <T extends Consumer<SequentialNumericBuilder>> void createIteration(T consumer) {
     addConsumer(consumer, () -> new SequentialNumericBuilder(factory));
   }
 
   <T extends ProtocolBuilderNumeric> void addConsumer(Consumer<T> consumer,
       Supplier<T> supplier) {
-    ProtocolBuilderNumeric.ProtocolEntity protocolEntity = createAndAppend();
-    protocolEntity.child = new LazyProtocolProducerDecorator(() -> {
-      T builder = supplier.get();
-      consumer.accept(builder);
-      return builder.build();
-    });
+    createAndAppend(
+        new LazyProtocolProducerDecorator(() -> {
+          T builder = supplier.get();
+          consumer.accept(builder);
+          return builder.build();
+        }));
   }
 
-  ProtocolBuilderNumeric.ProtocolEntity createAndAppend() {
-    ProtocolBuilderNumeric.ProtocolEntity protocolEntity = new ProtocolBuilderNumeric.ProtocolEntity();
+  ProtocolBuilderNumeric.ProtocolEntity createAndAppend(ProtocolProducer producer) {
+    ProtocolBuilderNumeric.ProtocolEntity protocolEntity =
+        new ProtocolBuilderNumeric.ProtocolEntity(producer);
     if (protocols == null) {
       throw new IllegalStateException("Cannot build this twice, it has all ready been constructed");
     }
@@ -129,8 +129,7 @@ public abstract class ProtocolBuilderNumeric implements ProtocolBuilder {
    */
   public <T> Computation<T> append(NativeProtocol<T, ?> nativeProtocol) {
     SingleProtocolProducer<T> producer = new SingleProtocolProducer<>(nativeProtocol);
-    ProtocolBuilderNumeric.ProtocolEntity protocolEntity = createAndAppend();
-    protocolEntity.protocolProducer = producer;
+    createAndAppend(producer);
     return producer;
   }
 
@@ -138,8 +137,7 @@ public abstract class ProtocolBuilderNumeric implements ProtocolBuilder {
   // use closures
   @Deprecated
   public <T extends ProtocolProducer> T append(T protocolProducer) {
-    ProtocolBuilderNumeric.ProtocolEntity protocolEntity = createAndAppend();
-    protocolEntity.protocolProducer = protocolProducer;
+    createAndAppend(protocolProducer);
     return protocolProducer;
   }
 
@@ -152,13 +150,7 @@ public abstract class ProtocolBuilderNumeric implements ProtocolBuilder {
 
   void addEntities(ProtocolProducerCollection producerCollection) {
     for (ProtocolBuilderNumeric.ProtocolEntity protocolEntity : protocols) {
-      if (protocolEntity.computation != null) {
-        producerCollection.append(protocolEntity.computation);
-      } else if (protocolEntity.protocolProducer != null) {
-        producerCollection.append(protocolEntity.protocolProducer);
-      } else {
-        producerCollection.append(protocolEntity.child);
-      }
+      producerCollection.append(protocolEntity.protocolProducer);
     }
     protocols = null;
   }
@@ -198,11 +190,19 @@ public abstract class ProtocolBuilderNumeric implements ProtocolBuilder {
     return factory.getBigIntegerHelper();
   }
 
+  // Pending rewrite of the last remaining applications
+  @Deprecated
+  public BuilderFactoryNumeric getFactory() {
+    return factory;
+  }
+
   private static class ProtocolEntity {
 
-    Computation<?> computation;
-    ProtocolProducer protocolProducer;
-    LazyProtocolProducerDecorator child;
+    final ProtocolProducer protocolProducer;
+
+    private ProtocolEntity(ProtocolProducer producer) {
+      protocolProducer = producer;
+    }
   }
 
   /**
@@ -226,20 +226,19 @@ public abstract class ProtocolBuilderNumeric implements ProtocolBuilder {
       BuildStep<SequentialNumericBuilder, R, Void> builder =
           new BuildStepSequential<>(
               (ignored, inner) -> function.build(inner));
-      ProtocolBuilderNumeric.ProtocolEntity protocolEntity = createAndAppend();
-      protocolEntity.child = new LazyProtocolProducerDecorator(
-          () -> builder.createProducer(null, factory)
-      );
+      createAndAppend(
+          new LazyProtocolProducerDecorator(
+              () -> builder.createProducer(null, getFactory())
+          ));
       return builder;
     }
 
     public <R> BuildStep<ParallelNumericBuilder, R, Void> par(ComputationBuilderParallel<R> f) {
       BuildStep<ParallelNumericBuilder, R, Void> builder =
           new BuildStepParallel<>((ignored, inner) -> f.build(inner));
-      ProtocolBuilderNumeric.ProtocolEntity protocolEntity = createAndAppend();
-      protocolEntity.child = new LazyProtocolProducerDecorator(
-          () -> builder.createProducer(null, factory)
-      );
+      createAndAppend(new LazyProtocolProducerDecorator(
+          () -> builder.createProducer(null, getFactory())
+      ));
       return builder;
     }
   }

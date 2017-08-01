@@ -44,9 +44,8 @@ import java.util.stream.Stream;
 /**
  * Parses textual circuit representation.
  *
- * The circuit is expected to be in "Bristol" format, see
- * https://www.cs.bris.ac.uk/Research/CryptographySecurity/MPC/ for a
- * specification of this.
+ * The circuit is expected to be in "Bristol" format, see https://www.cs.bris.ac.uk/Research/CryptographySecurity/MPC/
+ * for a specification of this.
  *
  * Reading is done in a streamed fashion.
  */
@@ -120,8 +119,7 @@ public class BristolCircuitParser {
   /**
    * Convert one line of text file to the corresponding basic boolean gate.
    *
-   * Returns null if any input of circuit is not currently present in wires
-   * map.
+   * Returns null if any input of circuit is not currently present in wires map.
    */
   private ProtocolProducer parseLine(String line) throws IOException {
     //System.out.println("Parsing line: \"" + line + "\"");
@@ -184,7 +182,7 @@ public class BristolCircuitParser {
           this.wires.put(out[0], outWireXor);
         }
 
-        return SingleProtocolProducer.wrap(
+        return new SingleProtocolProducer<>(
             this.boolFactory.getXorProtocol(leftInWireXor, rightInWireXor, outWireXor));
       case "AND":
         if (in.length != 2 || out.length != 1) {
@@ -246,8 +244,7 @@ public class BristolCircuitParser {
   }
 
   /**
-   * Fills res with next protocols, starting from pos. Returns next empty pos
-   * of array.
+   * Fills res with next protocols, starting from pos. Returns next empty pos of array.
    */
   public int getNext(ProtocolProducer[] res, int pos) {
 

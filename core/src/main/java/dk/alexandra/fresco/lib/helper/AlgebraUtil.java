@@ -27,8 +27,6 @@
 package dk.alexandra.fresco.lib.helper;
 
 
-import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -66,21 +64,6 @@ public class AlgebraUtil {
     List<T> output = new ArrayList<>(array.length);
     Collections.addAll(output, array);
     return output;
-  }
-
-  /**
-   * Fill an array with SInts, using the provided factory. Existing SInts
-   * will be overwritten.
-   *
-   * @param vector The output SInt array
-   * @param provider The factory for creating the SInts.
-   * @return The output SInt array
-   */
-  public static SInt[] sIntFill(SInt[] vector, BasicNumericFactory provider) {
-    for (int i = 0; i < vector.length; i++) {
-      vector[i] = provider.getSInt();
-    }
-    return vector;
   }
 
   /**

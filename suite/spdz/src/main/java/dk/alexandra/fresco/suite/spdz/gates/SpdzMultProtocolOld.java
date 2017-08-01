@@ -37,7 +37,7 @@ import dk.alexandra.fresco.suite.spdz.datatypes.SpdzTriple;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
 import java.math.BigInteger;
 
-public class SpdzMultProtocolOld extends SpdzNativeProtocol<SpdzSInt> {
+public class SpdzMultProtocolOld extends SpdzNativeProtocol<SInt> {
 
   private SpdzSInt in1, in2, out;
   private SpdzTriple triple;

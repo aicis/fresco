@@ -67,7 +67,7 @@ public class BinaryOpenAndPrint implements ProtocolProducer {
       if (state == STATE.OUTPUT) {
         if (number != null) {
           oNumber = factory.getOBool();
-          pp = SingleProtocolProducer.wrap(factory.getOpenProtocol(number, oNumber));
+          pp = new SingleProtocolProducer<>(factory.getOpenProtocol(number, oNumber));
         } else if (string != null) {
           oString = new OBool[string.length];
           SequentialProtocolProducer seq = new SequentialProtocolProducer();

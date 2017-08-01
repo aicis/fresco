@@ -26,7 +26,7 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.field.integer;
 
-import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.framework.value.SIntFactory;
@@ -46,12 +46,6 @@ public interface BasicNumericFactory extends SIntFactory,
   int getMaxBitLength();
 
   /**
-   * Returns the largest possible value containable in the field that we can
-   * still multiply with and get no overflow.
-   */
-  SInt getSqrtOfMaxValue();
-
-  /**
    * Returns the modulus used in the underlying arithmetic protocol suite.
    *
    * @return The modulus used.
@@ -59,15 +53,15 @@ public interface BasicNumericFactory extends SIntFactory,
   BigInteger getModulus();
 
   @Deprecated
-  Computation<? extends SInt> getAddProtocol(SInt a, SInt b, SInt out);
+  NativeProtocol<SInt, ?> getAddProtocol(SInt a, SInt b, SInt out);
 
   @Deprecated
-  Computation<? extends SInt> getAddProtocol(SInt input, BigInteger openInput, SInt out);
+  NativeProtocol<SInt, ?> getAddProtocol(SInt input, BigInteger openInput, SInt out);
 
   @Deprecated
-  Computation<? extends SInt> getSubtractProtocol(SInt a, SInt b, SInt out);
+  NativeProtocol<SInt, ?> getSubtractProtocol(SInt a, SInt b, SInt out);
 
   @Deprecated
-  Computation<? extends SInt> getMultProtocol(SInt a, SInt b, SInt out);
+  NativeProtocol<SInt, ?> getMultProtocol(SInt a, SInt b, SInt out);
 
 }

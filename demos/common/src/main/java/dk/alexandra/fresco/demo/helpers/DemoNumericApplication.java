@@ -11,6 +11,7 @@ public abstract class DemoNumericApplication<Output> implements
 
   protected Computation<Output> output;
 
+  @Deprecated
   public abstract ProtocolProducer prepareApplication(BuilderFactory factoryProducer);
 
   @Override

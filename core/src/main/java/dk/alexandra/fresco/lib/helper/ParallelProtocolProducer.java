@@ -26,96 +26,79 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.helper;
 
-import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.ProtocolProducer;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.ListIterator;
 
 /**
- * If a Parallel protocol has n sub-protocols and is asked to deliver m protocols, it
- * requests m/n protocols from each of the sub-protocols.
+ * A parallel producer contains a set of protocols producer that are asked to fill the collection
+ * eagerly. Given some of the producers are lazy initialized this performs best - and hence does a
+ * breadth first search for more protocols. THis skews the evalueration of the protocols in favor of
+ * the first, but delivers the best performance in terms of memory.
  */
-public class ParallelProtocolProducer implements ProtocolProducer,
-    ProtocolProducerCollection {
+public class ParallelProtocolProducer implements ProtocolProducer, ProtocolProducerCollection {
 
-  private LinkedList<ProtocolProducer> cs;
+  private LinkedList<ProtocolProducer> subProducers;
 
   public ParallelProtocolProducer() {
-    cs = new LinkedList<>();
+    subProducers = new LinkedList<>();
   }
 
-  public ParallelProtocolProducer(ProtocolProducer... cs) {
+  public ParallelProtocolProducer(ProtocolProducer... subProducers) {
     this();
-    for (ProtocolProducer c : cs) {
-      append(c);
+    for (ProtocolProducer producer : subProducers) {
+      append(producer);
     }
   }
 
-  public ParallelProtocolProducer(ProtocolProducer protocolProducer, Computation... protocols) {
+  public ParallelProtocolProducer(ProtocolProducer protocolProducer, NativeProtocol... protocols) {
     this();
     append(protocolProducer);
-    for (Computation protocol : protocols) {
+    for (NativeProtocol protocol : protocols) {
       append(protocol);
     }
   }
 
-  public ParallelProtocolProducer(Computation... protocols) {
+  public ParallelProtocolProducer(NativeProtocol... protocols) {
     this();
-    for (Computation protocol : protocols) {
+    for (NativeProtocol protocol : protocols) {
       append(protocol);
     }
   }
 
   public void append(ProtocolProducer protocolProducer) {
-    cs.offer(protocolProducer);
+    subProducers.offer(protocolProducer);
   }
 
-  public void append(Computation computation) {
-    cs.offer(SingleProtocolProducer.wrap(computation));
+  public void append(NativeProtocol<?, ?> computation) {
+    subProducers.offer(new SingleProtocolProducer<>(computation));
   }
 
   @Override
   public boolean hasNextProtocols() {
-    prune();
-    return !cs.isEmpty();
-  }
-
-  /**
-   * Removes any empty protocols.
-   */
-  private void prune() {
-    while (!cs.isEmpty()) {
-      if (cs.getFirst().hasNextProtocols()) {
-        return;
+    for (Iterator<ProtocolProducer> iterator = subProducers.iterator(); iterator.hasNext(); ) {
+      ProtocolProducer producer = iterator.next();
+      if (producer.hasNextProtocols()) {
+        return true;
       } else {
-        cs.remove();
+        iterator.remove();
       }
     }
+    return false;
   }
 
   @Override
   public void getNextProtocols(ProtocolCollection protocolCollection) {
-    // TODO: This is a simple, but very rough implementation.
-    // It requests an equal amount from each subprotocol and only asks once.
-    // A better implementation should try to fill up the protocol array by
-    // requesting further protocols from large protocols if the smaller protocols
-    // run dry.
-    // E.g. this implementation is inferior in that it may return less protocols
-    // than it could.
-    if (cs.size() == 0) {
-      return;
-    }
-    ListIterator<ProtocolProducer> x = cs.listIterator();
-    while (x.hasNext()) {
-      ProtocolProducer c = x.next();
-      if (!c.hasNextProtocols()) {
-        x.remove();
+    ListIterator<ProtocolProducer> iterator = subProducers.listIterator();
+    while (iterator.hasNext() && protocolCollection.hasFreeCapacity()) {
+      ProtocolProducer producer = iterator.next();
+      if (producer.hasNextProtocols()) {
+        producer.getNextProtocols(protocolCollection);
       } else {
-        c.getNextProtocols(protocolCollection);
-      }
-      if (!protocolCollection.hasFreeCapacity()) {
-        return; // We've filled the array.
+        iterator.remove();
       }
     }
   }
