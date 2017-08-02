@@ -10,7 +10,6 @@ import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.crypto.AES;
 import java.io.IOException;
-import java.net.InetSocketAddress;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -97,45 +96,11 @@ public class KryoNetNetwork implements Network {
   private class NaiveListener extends Listener {
 
     private Map<Integer, BlockingQueue<byte[]>> queue;
-    private Map<Integer, Integer> idToPort;
+    private Map<Integer, Integer> connectionIdToPartyId;
 
     public NaiveListener(Map<Integer, BlockingQueue<byte[]>> queue) {
       this.queue = queue;
-      this.idToPort = new HashMap<>();
-    }
-
-    private BlockingQueue<byte[]> getQueue(Connection conn) {
-      InetSocketAddress addr = conn.getRemoteAddressTCP();
-      String hostname = addr.getHostName();
-      int port = addr.getPort();
-      for (int i = 1; i <= conf.noOfParties(); i++) {
-        String pHost = conf.getParty(i).getHostname();
-        Integer pPort = this.idToPort.get(i);
-        if (pPort == null) {
-          continue;
-        }
-        if (pHost.equals(hostname) && pPort == port) {
-          return queue.get(i);
-        }
-      }
-      throw new RuntimeException("Uknown connection: " + hostname + ":" + port);
-    }
-
-    private int getPartyId(Connection conn) {
-      InetSocketAddress addr = conn.getRemoteAddressTCP();
-      String hostname = addr.getHostName();
-      int port = addr.getPort();
-      for (int i = 1; i <= conf.noOfParties(); i++) {
-        String pHost = conf.getParty(1).getHostname();
-        Integer pPort = this.idToPort.get(i);
-        if (pPort == null) {
-          continue;
-        }
-        if (pHost.equals(hostname) && pPort == port) {
-          return i;
-        }
-      }
-      throw new RuntimeException("Uknown connection: " + hostname + ":" + port);
+      this.connectionIdToPartyId = new HashMap<>();
     }
 
     @Override
@@ -145,14 +110,15 @@ public class KryoNetNetwork implements Network {
         byte[] data = (byte[]) object;
         if (encryption) {
           try {
-            data = ciphers.get(getPartyId(connection)).decrypt(data);
+            data = ciphers.get(this.connectionIdToPartyId.get(connection.getID())).decrypt(data);
           } catch (IOException e) {
             throw new RuntimeException("IOException occured while decrypting data stream", e);
           }
         }
-        getQueue(connection).offer(data);
+        this.queue.get(this.connectionIdToPartyId.get(connection.getID())).offer(data);
       } else if (object instanceof Integer) {
-        this.idToPort.put((Integer) object, connection.getRemoteAddressTCP().getPort());
+        // Initial handshake to determine who the remote party is.
+        this.connectionIdToPartyId.put(connection.getID(), (Integer) object);
       }
     }
   }
