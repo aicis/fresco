@@ -26,7 +26,7 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.field.integer.generic;
 
-import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
 
@@ -45,7 +45,7 @@ public interface IOIntProtocolFactory {
    * @return the protocol to do the transformation
    */
   @Deprecated
-  Computation<? extends SInt> getCloseProtocol(int source, BigInteger open, SInt closed);
+  NativeProtocol<SInt, ?> getCloseProtocol(int source, BigInteger open, SInt closed);
 
 
   /**
@@ -55,7 +55,7 @@ public interface IOIntProtocolFactory {
    * @return the protocol to do the transformation
    */
   @Deprecated
-  Computation<BigInteger> getOpenProtocol(SInt closed);
+  NativeProtocol<BigInteger, ?> getOpenProtocol(SInt closed);
 
 
   /**
@@ -65,6 +65,6 @@ public interface IOIntProtocolFactory {
    * @return the protocol to do the transformation
    */
   @Deprecated
-  Computation<BigInteger> getOpenProtocol(int target, SInt closed);
+  NativeProtocol<BigInteger, ?> getOpenProtocol(int target, SInt closed);
 
 }

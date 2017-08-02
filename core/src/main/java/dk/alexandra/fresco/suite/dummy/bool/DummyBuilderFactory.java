@@ -89,7 +89,7 @@ public class DummyBuilderFactory extends AbstractBinaryFactory implements BasicL
 
   @Override
   public ProtocolProducer getNotProtocol(SBool in, SBool out) {
-    return new SingleProtocolProducer(new DummyNotProtocol(in, out));
+    return new SingleProtocolProducer<>(new DummyNotProtocol(in, out));
   }
 
   @Override
@@ -99,7 +99,7 @@ public class DummyBuilderFactory extends AbstractBinaryFactory implements BasicL
 
   @Override
   public ProtocolProducer getAndProtocol(SBool inLeft, SBool inRight, SBool out) {
-    return new SingleProtocolProducer(new DummyAndProtocol(inLeft, inRight, out));
+    return new SingleProtocolProducer<>(new DummyAndProtocol(inLeft, inRight, out));
   }
 
 

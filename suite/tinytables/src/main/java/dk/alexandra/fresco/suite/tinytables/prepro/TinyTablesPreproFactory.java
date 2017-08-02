@@ -115,7 +115,7 @@ public class TinyTablesPreproFactory extends AbstractBinaryFactory implements Ba
 
   @Override
   public ProtocolProducer getAndProtocol(SBool inLeft, SBool inRight, SBool out) {
-    return SingleProtocolProducer.wrap(
+    return new SingleProtocolProducer<>(
         new TinyTablesPreproANDProtocol(getNextId(), (TinyTablesPreproSBool) inLeft,
             (TinyTablesPreproSBool) inRight, (TinyTablesPreproSBool) out));
   }
@@ -127,7 +127,7 @@ public class TinyTablesPreproFactory extends AbstractBinaryFactory implements Ba
 
   @Override
   public ProtocolProducer getNotProtocol(SBool in, SBool out) {
-    return SingleProtocolProducer.wrap(
+    return new SingleProtocolProducer<>(
         new TinyTablesPreproNOTProtocol(getNextId(), (TinyTablesPreproSBool) in,
             (TinyTablesPreproSBool) out));
   }

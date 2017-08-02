@@ -1,6 +1,5 @@
 package dk.alexandra.fresco.framework.builder;
 
-import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.lib.helper.LazyProtocolProducerDecorator;
@@ -31,16 +30,16 @@ public abstract class ProtocolBuilderBinary implements ProtocolBuilder {
 
   <T extends ProtocolBuilderBinary> void addConsumer(Consumer<T> consumer,
       Supplier<T> supplier) {
-    ProtocolEntity protocolEntity = createAndAppend();
-    protocolEntity.child = new LazyProtocolProducerDecorator(() -> {
-      T builder = supplier.get();
-      consumer.accept(builder);
-      return builder.build();
-    });
+    createAndAppend(
+        new LazyProtocolProducerDecorator(() -> {
+          T builder = supplier.get();
+          consumer.accept(builder);
+          return builder.build();
+        }));
   }
 
-  ProtocolEntity createAndAppend() {
-    ProtocolEntity protocolEntity = new ProtocolEntity();
+  ProtocolEntity createAndAppend(ProtocolProducer producer) {
+    ProtocolEntity protocolEntity = new ProtocolEntity(producer);
     protocols.add(protocolEntity);
     return protocolEntity;
   }
@@ -55,8 +54,7 @@ public abstract class ProtocolBuilderBinary implements ProtocolBuilder {
    * @return the original native protocol.
    */
   public <T extends NativeProtocol> T append(T nativeProtocol) {
-    ProtocolEntity protocolEntity = createAndAppend();
-    protocolEntity.protocolProducer = SingleProtocolProducer.wrap(nativeProtocol);
+    createAndAppend(new SingleProtocolProducer(nativeProtocol));
     return nativeProtocol;
   }
 
@@ -65,29 +63,25 @@ public abstract class ProtocolBuilderBinary implements ProtocolBuilder {
   @Override
   @Deprecated
   public <T extends ProtocolProducer> T append(T protocolProducer) {
-    ProtocolEntity protocolEntity = createAndAppend();
-    protocolEntity.protocolProducer = protocolProducer;
+    createAndAppend(protocolProducer);
     return protocolProducer;
   }
 
   void addEntities(ProtocolProducerCollection producerCollection) {
     for (ProtocolEntity protocolEntity : protocols) {
-      if (protocolEntity.computation != null) {
-        producerCollection.append(protocolEntity.computation);
-      } else if (protocolEntity.protocolProducer != null) {
-        producerCollection.append(protocolEntity.protocolProducer);
-      } else {
-        producerCollection.append(protocolEntity.child);
-      }
+      producerCollection.append(protocolEntity.protocolProducer);
     }
   }
 
   private static class ProtocolEntity {
 
-    Computation<?> computation;
-    ProtocolProducer protocolProducer;
-    LazyProtocolProducerDecorator child;
+    final ProtocolProducer protocolProducer;
+
+    private ProtocolEntity(ProtocolProducer producer) {
+      protocolProducer = producer;
+    }
   }
+
 
   /**
    * A specific instance of the protocol builder that produces a sequential producer.

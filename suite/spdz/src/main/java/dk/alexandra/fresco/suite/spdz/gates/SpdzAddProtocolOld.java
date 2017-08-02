@@ -33,7 +33,7 @@ import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.utils.SpdzFactory;
 import java.math.BigInteger;
 
-public class SpdzAddProtocolOld extends SpdzNativeProtocol<SpdzSInt> {
+public class SpdzAddProtocolOld extends SpdzNativeProtocol<SInt> {
 
   private SpdzSInt left, right, out;
   private BigInteger oInt;

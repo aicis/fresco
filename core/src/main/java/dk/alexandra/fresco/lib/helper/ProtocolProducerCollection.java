@@ -26,7 +26,7 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.helper;
 
-import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 
 /**
@@ -37,21 +37,24 @@ import dk.alexandra.fresco.framework.ProtocolProducer;
 public interface ProtocolProducerCollection {
 
   /**
-   * Appends a ProtocolProducer to this ProtocolProducer. The exact meaning of
-   * appending a ProtocolProducer is dependent is defined by this ProtocolProducer.
-   * However, as a minimum calling nextProtocols on this ProtocolProducer should
-   * eventually produce the Protocols of the appended ProtocolProducer.
+   * Appends a ProtocolProducer to this ProtocolProducer. The exact meaning of appending a
+   * ProtocolProducer is dependent is defined by this ProtocolProducer. However, as a minimum
+   * calling nextProtocols on this ProtocolProducer should eventually produce the Protocols of the
+   * appended ProtocolProducer.
    *
    * @param protocolProducer the protocol producer to append
    */
   void append(ProtocolProducer protocolProducer);
 
   /**
-   * Appends a NativeProtocol to this ProtocolProducer. This just
-   * adds a single protocol producer with the supplied protocal.
+   * Appends a NativeProtocol to this ProtocolProducer. This just adds a single protocol producer
+   * with the supplied protocal.
    *
    * @param computation the protocol  to append
+   * @deprecated this should be removed when converting to the new builder based protocol
+   * construction pattern.
    */
-  void append(Computation computation);
+  @Deprecated
+  void append(NativeProtocol<?, ?> computation);
 
 }

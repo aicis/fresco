@@ -34,24 +34,6 @@ public class SingleProtocolProducer<T> implements ProtocolProducer, Computation<
     return !evaluated;
   }
 
-  /**
-   * Creates a new NativeProtocol producer that only serves the protocol in this call
-   *
-   * @param protocol the protocol to wrap
-   * @return the producer
-   */
-  @Deprecated
-  public static ProtocolProducer wrap(Computation<?> protocol) {
-    if (protocol == null) {
-      return null;
-    }
-    if (protocol instanceof NativeProtocol) {
-      return new SingleProtocolProducer((NativeProtocol) protocol);
-    } else {
-      return (ProtocolProducer) protocol;
-    }
-  }
-
   @Override
   public String toString() {
     return "SingleProtocolProducer{"
