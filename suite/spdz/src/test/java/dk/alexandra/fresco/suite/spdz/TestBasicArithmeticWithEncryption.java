@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class TestBasicArithmeticWithEncryption {
@@ -29,30 +30,32 @@ public class TestBasicArithmeticWithEncryption {
       ports.add(9000 + i * 10);
     }
 
-    Map<Integer, NetworkConfiguration> netConf = TestConfiguration
-        .getNetworkConfigurations(noOfParties, ports);
+    Map<Integer, NetworkConfiguration> netConf =
+        TestConfiguration.getNetworkConfigurations(noOfParties, ports);
     Map<Integer, TestThreadConfiguration> conf = new HashMap<>();
     for (int playerId : netConf.keySet()) {
       TestThreadConfiguration ttc = new TestThreadConfiguration();
       ttc.netConf = netConf.get(playerId);
 
-      SpdzProtocolSuite spdzConf = new SpdzProtocolSuite(150,
-          PreprocessingStrategy.DUMMY, null);
+      SpdzProtocolSuite spdzConf = new SpdzProtocolSuite(150, PreprocessingStrategy.DUMMY, null);
 
-      ProtocolEvaluator evaluator = EvaluationStrategy
-          .fromEnum(EvaluationStrategy.SEQUENTIAL_BATCHED);
-      ttc.sceConf = new TestSCEConfiguration(spdzConf, NetworkingStrategy.KRYONET,
-          evaluator, ttc.netConf, true);
+      ProtocolEvaluator evaluator =
+          EvaluationStrategy.fromEnum(EvaluationStrategy.SEQUENTIAL_BATCHED);
+      ttc.sceConf = new TestSCEConfiguration(spdzConf, NetworkingStrategy.KRYONET, evaluator,
+          ttc.netConf, true);
       conf.put(playerId, ttc);
     }
     TestThreadRunner.run(f, conf);
   }
 
+  // TODO: We need a way to do testing without changing Java's security policies.
+  @Ignore
   @Test
   public void testManyMultsWithEnc2Parties() throws Exception {
     runTest(new BasicArithmeticTests.TestLotsMult(), 2);
   }
 
+  @Ignore
   @Test
   public void testManyMultsWithEnc3Parties() throws Exception {
     runTest(new BasicArithmeticTests.TestLotsMult(), 3);
