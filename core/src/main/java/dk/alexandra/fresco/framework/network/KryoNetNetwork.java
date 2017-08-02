@@ -114,7 +114,9 @@ public class KryoNetNetwork implements Network {
         if (pPort == null) {
           continue;
         }
-        if (pHost.equals(hostname) && pPort == port) {
+        // The special case of localhost == 127.0.0.1 enables windows users to play along.
+        if ((pHost.equals(hostname) || (pHost.equals("localhost") && hostname.equals("127.0.0.1")))
+            && pPort == port) {
           return queue.get(i);
         }
       }

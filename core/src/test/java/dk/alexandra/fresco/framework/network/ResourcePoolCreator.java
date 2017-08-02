@@ -23,10 +23,7 @@ public class ResourcePoolCreator {
     Network network;
     switch (networkStrategy) {
       case KRYONET:
-        // TODO[PSN]
-        // KryoNet currently works on mac, but Windows is still in the dark.
-        // network = new KryoNetNetwork();
-        network = new ScapiNetworkImpl();
+        network = new KryoNetNetwork();
         break;
       case SCAPI:
         network = new ScapiNetworkImpl();
