@@ -37,7 +37,6 @@ import dk.alexandra.fresco.lib.field.bool.OpenBoolProtocol;
 import dk.alexandra.fresco.lib.field.bool.XorProtocol;
 import dk.alexandra.fresco.lib.helper.SingleProtocolProducer;
 import dk.alexandra.fresco.lib.logic.AbstractBinaryFactory;
-import org.apache.commons.lang.NotImplementedException;
 
 public class DummyBuilderFactory extends AbstractBinaryFactory implements BasicLogicFactory {
 
@@ -121,12 +120,12 @@ public class DummyBuilderFactory extends AbstractBinaryFactory implements BasicL
 
   @Override
   public AndProtocol getAndProtocol(SBool inLeft, OBool inRight, SBool out) {
-    throw new NotImplementedException();
+    throw new UnsupportedOperationException("Not implement");
   }
 
   @Override
   public XorProtocol getXorProtocol(SBool inLeft, OBool inRight, SBool out) {
-    throw new NotImplementedException();
+    throw new UnsupportedOperationException("Not implement");
   }
 
   @Override

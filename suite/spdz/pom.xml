@@ -11,13 +11,8 @@
 
   <modelVersion>4.0.0</modelVersion>
   <artifactId>spdz</artifactId>
-  <version>0.2-SNAPSHOT</version>
   <packaging>jar</packaging>
   <name>fresco-spdz</name>
-  <properties>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-  </properties>
-
 
   <dependencies>
     <dependency>
@@ -25,12 +20,25 @@
       <artifactId>core</artifactId>
       <version>${fresco-version}</version>
     </dependency>
+    <dependency>
+      <groupId>org.apache.httpcomponents</groupId>
+      <artifactId>httpclient</artifactId>
+      <version>4.5.2</version>
+    </dependency>
+
     <!-- TODO Proper handling would imply these utilities to be present in a seperate module -->
     <dependency>
       <groupId>dk.alexandra.fresco</groupId>
       <artifactId>core</artifactId>
       <version>${fresco-version}</version>
       <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
+    <!-- Used for plaintext LP solving -->
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-math3</artifactId>
+      <version>3.5</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
