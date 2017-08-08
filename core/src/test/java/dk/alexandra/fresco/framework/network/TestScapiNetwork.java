@@ -28,21 +28,18 @@ package dk.alexandra.fresco.framework.network;
 
 import static org.junit.Assert.assertTrue;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.logging.Level;
-
-import org.junit.Test;
-
 import dk.alexandra.fresco.framework.TestThreadRunner;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.TestConfiguration;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import org.junit.Test;
 
 public class TestScapiNetwork {
 
@@ -70,7 +67,8 @@ public class TestScapiNetwork {
 		for (int i=1; i<=n; i++) {
 			ports.add(9000 + i);
 		}
-		Map<Integer, NetworkConfiguration> netConf = TestConfiguration.getNetworkConfigurations(n, ports, Level.FINE);
+		Map<Integer, NetworkConfiguration> netConf = TestConfiguration
+				.getNetworkConfigurations(n, ports);
 		Map<Integer, TestThreadConfiguration> conf = new HashMap<Integer, TestThreadConfiguration>();
 		for (int i : netConf.keySet()) {
 			TestThreadConfiguration ttc = new TestThreadConfiguration();

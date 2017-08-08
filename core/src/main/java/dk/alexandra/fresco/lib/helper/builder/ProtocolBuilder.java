@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -30,7 +30,7 @@ import dk.alexandra.fresco.framework.ProtocolProducer;
 
 /**
  * ProtocolBuilders provide a more natural interface than working with raw Protocols
- * when writing secure computation applications. The goal is to have a more "code-like" 
+ * when writing secure computation applications. The goal is to have a more "code-like"
  * way of specifying the NativeProtocol.
  *
  * To build a NativeProtocol the application programmer
@@ -40,29 +40,30 @@ import dk.alexandra.fresco.framework.ProtocolProducer;
  *
  * I.e. ProtocolBuilders hides away the raw NativeProtocol and (to some extend) its structure, and lets
  * the application programmer work solely with Values.
- * 
+ *
  * The ProtocolBuilder interface provides general methods for controlling the structure of
  * the NativeProtocol, i.e. to specify whether the computation can be done in parallel or must be
  * done sequentially. To switch between parallel and sequential NativeProtocol building one sets declares
  * a "scope" for a sequence of instructions.
- * 
+ *
  * TODO: Eventually ProtocolBuilders could maybe also be used to analyze and optimize the Protocols
- * that they have been building.  
- * 
+ * that they have been building.
+ *
  * @author psn
  *
  */
+@Deprecated
 public interface ProtocolBuilder {
 
 	/**
-	 * Starts a parallel scope. I.e. Specifies that the following instructions 
+	 * Starts a parallel scope. I.e. Specifies that the following instructions
 	 * given to this ProtocolBuilder can be done in parallel.
 	 * Note: One should be careful and remember to close scopes
 	 */
 	void beginParScope();
 
 	/**
-	 * Starts a sequential scope. I.e. Specifies that the following instructions 
+	 * Starts a sequential scope. I.e. Specifies that the following instructions
 	 * given to this ProtocolBuilder must not be done in sequence.
 	 * Note: One should be careful and remember to close scopes
 	 */
@@ -73,7 +74,7 @@ public interface ProtocolBuilder {
 	 * Note: One should be careful and remember to close scopes and not close to many scopes
 	 */
 	void endCurScope();
-	
+
 	/**
    * Adds a ProtocolProducer to the NativeProtocol being build. This to allow adding Protocols that cannot be created with
    * this ProtocolBuilder.

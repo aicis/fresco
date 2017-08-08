@@ -1,5 +1,5 @@
 package dk.alexandra.fresco.lib.math.integer.linalg;
-
+/*
 import java.math.BigInteger;
 
 import org.junit.Assert;
@@ -108,3 +108,4 @@ public class TestInnerProduct {
   }
   
 }
+*/

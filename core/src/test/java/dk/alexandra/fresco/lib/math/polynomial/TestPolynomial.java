@@ -1,45 +1,56 @@
 package dk.alexandra.fresco.lib.math.polynomial;
 
+import java.math.BigInteger;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.hamcrest.core.Is;
 import org.junit.Assert;
 import org.junit.Test;
 
+import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
+import dk.alexandra.fresco.framework.builder.NumericBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
+import dk.alexandra.fresco.framework.value.SInt;
+import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticBuilderFactory;
+import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticFactory;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticSInt;
 
 public class TestPolynomial {
-
-  private PolynomialFactory polyFactory = new PolynomialFactoryImpl();
-
   
   @Test
   public void testPolynomial() {
-  
-    Polynomial p = polyFactory.createPolynomial(4);
+    DummyArithmeticFactory dummyFact = new DummyArithmeticFactory(BigInteger.valueOf(1001), 8);
+    BuilderFactoryNumeric builderFactory =new DummyArithmeticBuilderFactory(dummyFact);
+    NumericBuilder numeric =builderFactory.createNumericBuilder(ProtocolBuilderNumeric.createApplicationRoot(builderFactory));  
+
+    int[] coefficients = new int[] {1,2,3,4};
+    
+    List<Computation<SInt>> secretCoefficients =
+        Arrays.stream(coefficients)
+            .mapToObj(BigInteger::valueOf)
+            .map(numeric::known)
+            .collect(Collectors.toList());
+    
+    Polynomial p = new PolynomialImpl(secretCoefficients);
     
     Assert.assertThat(p.getMaxDegree(), Is.is(4));
-    for(int i = 0; i< 4; i++) {
-      p.setCoefficient(i, new DummyArithmeticSInt(i));  
-    }
+   // for(int i = 0; i< 4; i++) {
+    //  p.setCoefficient(i, new DummyArithmeticSInt(i));  
+   // }
     
     for(int i = 0; i< 4; i++) {
-      Assert.assertThat(p.getCoefficient(i), Is.is(new DummyArithmeticSInt(i)));  
+      Assert.assertThat(p.getCoefficient(i), Is.is(secretCoefficients.get(i)));  
     }    
     
-    p.setMaxDegree(6);
-    for(int i = 0; i< 4; i++) {
-      Assert.assertThat(p.getCoefficient(i), Is.is(new DummyArithmeticSInt(i)));  
-    }
-    Assert.assertNull(p.getCoefficient(4));
-    Assert.assertNull(p.getCoefficient(5));
-    p.setMaxDegree(3);
-    for(int i = 0; i< 3; i++) {
-      Assert.assertThat(p.getCoefficient(i), Is.is(new DummyArithmeticSInt(i)));  
-    }
-    
     try {
-      p.getCoefficient(4);
+      p.getCoefficient(5);
       Assert.fail("Should throw exception.");
-    } catch (ArrayIndexOutOfBoundsException e){
+    } catch (IndexOutOfBoundsException e){
     }
   }
   

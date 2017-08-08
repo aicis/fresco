@@ -3,74 +3,98 @@
  *
  * This file is part of the FRESCO project.
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
  *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *
- * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
- * and Bouncy Castle. Please see these projects for any further licensing issues.
+ * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL, and Bouncy Castle.
+ * Please see these projects for any further licensing issues.
  *******************************************************************************/
 package dk.alexandra.fresco.lib.debug;
 
+import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.ProtocolProducer;
-import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
-import dk.alexandra.fresco.lib.field.integer.OpenIntProtocol;
 import dk.alexandra.fresco.lib.field.integer.generic.IOIntProtocolFactory;
-import dk.alexandra.fresco.lib.helper.AlgebraUtil;
 import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
 import dk.alexandra.fresco.lib.helper.SingleProtocolProducer;
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
+//TODO refactor into new architecture
 public class ArithmeticOpenAndPrint implements ProtocolProducer {
 
   private SInt number = null;
   private SInt[] vector = null;
   private SInt[][] matrix = null;
 
-  private OInt oNumber = null;
-  private OInt[] oVector = null;
-  private OInt[][] oMatrix = null;
+  private List<Computation<BigInteger>> openVector = null;
+  private List<List<Computation<BigInteger>>> openMatrix = null;
+  private Computation<BigInteger> openNumber;
 
-  private enum STATE {OUTPUT, WRITE, DONE}
+  public ArithmeticOpenAndPrint(String s, List<Computation<SInt>> comps,
+      BasicNumericFactory bnFactory) {
+    this(s, comps.stream().map(Computation::out).toArray(SInt[]::new), bnFactory);
+  }
 
-  ;
-  private STATE state = STATE.OUTPUT;
+  private enum State { OUTPUT, WRITE, DONE }
+  
+  private State state = State.OUTPUT;
   private String label;
 
   ProtocolProducer pp = null;
 
   private BasicNumericFactory factory;
-
-
+ 
+  /**
+   * Prints a single number.
+   * @param label label identify the print out 
+   * @param number the number to print
+   * @param factory a basic numeric factory
+   */
   public ArithmeticOpenAndPrint(String label, SInt number, BasicNumericFactory factory) {
+    Objects.requireNonNull(number);
     this.number = number;
     this.factory = factory;
     this.label = label;
   }
 
+  /**
+   * Prints a vector.
+   * @param label label identify the print out 
+   * @param vector the vector to print
+   * @param factory a basic numeric factory
+   */
   public ArithmeticOpenAndPrint(String label, SInt[] vector, BasicNumericFactory factory) {
+    Objects.requireNonNull(vector);
     this.vector = vector;
     this.factory = factory;
     this.label = label;
   }
 
+  /**
+   * Prints a matrix number.
+   * @param label label identify the print out 
+   * @param matrix the matrix to print
+   * @param factory a basic numeric factory
+   */
   public ArithmeticOpenAndPrint(String label, SInt[][] matrix, BasicNumericFactory factory) {
+    Objects.requireNonNull(matrix);
     this.matrix = matrix;
     this.factory = factory;
     this.label = label;
@@ -79,37 +103,41 @@ public class ArithmeticOpenAndPrint implements ProtocolProducer {
   @Override
   public void getNextProtocols(ProtocolCollection protocolCollection) {
     if (pp == null) {
-      if (state == STATE.OUTPUT) {
+      if (state == State.OUTPUT) {
         if (number != null) {
-          oNumber = factory.getOInt();
-          pp = SingleProtocolProducer.wrap(factory.getOpenProtocol(number, oNumber));
+          openNumber = factory.getOpenProtocol(number);
+          pp = SingleProtocolProducer.wrap(openNumber);
         } else if (vector != null) {
-          oVector = AlgebraUtil.oIntFill(new OInt[vector.length], factory);
-          pp = makeOpenProtocol(vector, oVector, factory);
+          openVector = new ArrayList<>();
+          pp = makeOpenProtocol(vector, openVector, factory);
         } else {
-          oMatrix = AlgebraUtil.oIntFill(new OInt[matrix.length][matrix[0].length], factory);
-          pp = makeOpenProtocol(matrix, oMatrix, factory);
+          openMatrix = new ArrayList<>();
+          pp = makeOpenProtocol(matrix, openMatrix, factory);
         }
-      } else if (state == STATE.WRITE) {
+      } else if (state == State.WRITE) {
         StringBuilder sb = new StringBuilder();
         sb.append(label);
-        if (oNumber != null) {
-          sb.append(oNumber.getValue().toString());
-        } else if (oVector != null) {
+        if (openNumber != null) {
+          sb.append(openNumber.out().toString());
+        } else if (openVector != null) {
           sb.append('\n');
-          for (OInt entry : oVector) {
-            sb.append(entry.getValue().toString() + ",\t");
+          for (Computation<BigInteger> entry : openVector) {
+            sb.append(entry.out().toString() + ", ");
           }
-        } else if (oMatrix != null) {
+        } else if (openMatrix != null) {
           sb.append('\n');
-          for (OInt[] row : oMatrix) {
-            for (OInt entry : row) {
-              sb.append(entry.getValue().toString() + "," + "\t");
+          for (List<Computation<BigInteger>> row : openMatrix) {
+            for (Computation<BigInteger> entry : row) {
+              sb.append(entry.out().toString() + ",  ");
             }
             sb.append('\n');
           }
         }
         pp = new MarkerProtocolImpl(sb.toString(), null);
+      } else if (state == State.DONE) {
+        // TODO: This should really never occur as a state of DONE should give false in
+        // hasNextProtocols, but it does, find out why.
+        return;
       }
     }
     if (pp.hasNextProtocols()) {
@@ -117,11 +145,11 @@ public class ArithmeticOpenAndPrint implements ProtocolProducer {
     } else if (!pp.hasNextProtocols()) {
       switch (state) {
         case OUTPUT:
-          state = STATE.WRITE;
+          state = State.WRITE;
           pp = null;
           break;
         case WRITE:
-          state = STATE.DONE;
+          state = State.DONE;
           pp = null;
           break;
         default:
@@ -130,35 +158,32 @@ public class ArithmeticOpenAndPrint implements ProtocolProducer {
     }
   }
 
-  ProtocolProducer makeOpenProtocol(SInt[][] closed, OInt[][] open, IOIntProtocolFactory factory) {
-    if (open.length != closed.length) {
-      throw new IllegalArgumentException("Amount of closed and open integers does not match. " +
-          "Open: " + open.length + " Closed: " + closed.length);
-    }
-    ProtocolProducer[] openings = new ProtocolProducer[open.length];
-    for (int i = 0; i < open.length; i++) {
-      openings[i] = makeOpenProtocol(closed[i], open[i], factory);
+  ProtocolProducer makeOpenProtocol(SInt[][] closed, List<List<Computation<BigInteger>>> open,
+      IOIntProtocolFactory factory) {
+    ProtocolProducer[] openings = new ProtocolProducer[closed.length];
+    for (int i = 0; i < closed.length; i++) {
+      ArrayList<Computation<BigInteger>> columnResult = new ArrayList<>();
+      open.add(columnResult);
+      openings[i] = makeOpenProtocol(closed[i], columnResult, factory);
     }
     return new ParallelProtocolProducer(openings);
   }
 
 
-  ProtocolProducer makeOpenProtocol(SInt[] closed, OInt[] open, IOIntProtocolFactory factory) {
-    if (open.length != closed.length) {
-      throw new IllegalArgumentException("Amount of closed and open integers does not match. " +
-          "Open: " + open.length + " Closed: " + closed.length);
+  ProtocolProducer makeOpenProtocol(SInt[] closed, List<Computation<BigInteger>> result,
+      IOIntProtocolFactory factory) {
+    ParallelProtocolProducer parallelProtocolProducer = new ParallelProtocolProducer();
+    for (int i = 0; i < closed.length; i++) {
+      Computation<BigInteger> openProtocol = factory.getOpenProtocol(closed[i]);
+      result.add(openProtocol);
+      parallelProtocolProducer.append(openProtocol);
     }
-    OpenIntProtocol[] openings = new OpenIntProtocol[open.length];
-    for (int i = 0; i < open.length; i++) {
-      openings[i] = factory.getOpenProtocol(closed[i], open[i]);
-    }
-    return new ParallelProtocolProducer(openings);
+    return parallelProtocolProducer;
   }
 
   @Override
   public boolean hasNextProtocols() {
-    // TODO Auto-generated method stub
-    return state != STATE.DONE;
+    return state != State.DONE;
   }
 
 }

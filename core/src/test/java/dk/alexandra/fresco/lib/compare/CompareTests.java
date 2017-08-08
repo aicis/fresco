@@ -26,6 +26,7 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.compare;
 
+import dk.alexandra.fresco.framework.BuilderFactory;
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.TestApplication;
@@ -33,18 +34,17 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.math.Util;
-import dk.alexandra.fresco.framework.network.NetworkCreator;
+import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.util.ByteArithmetic;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.OBool;
-import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SBool;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.helper.AlgebraUtil;
+import dk.alexandra.fresco.lib.helper.SequentialProtocolProducer;
 import dk.alexandra.fresco.lib.helper.builder.BasicLogicBuilder;
 import dk.alexandra.fresco.lib.helper.builder.NumericIOBuilder;
-import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
 import dk.alexandra.fresco.lib.logic.AbstractBinaryFactory;
 
 import java.math.BigInteger;
@@ -66,7 +66,7 @@ import org.junit.Assert;
  *
  */
 public class CompareTests {
-	
+	/* TODO 
 	 public static class TestCompareAndSwap extends TestThreadFactory {
 	    
 	    public TestCompareAndSwap() {
@@ -89,8 +89,9 @@ public class CompareTests {
 
 	            @Override
 	            public ProtocolProducer prepareApplication(
-	                ProtocolFactory provider) {
-	               AbstractBinaryFactory prov = (AbstractBinaryFactory) provider;
+	                BuilderFactory factoryProducer) {
+	              ProtocolFactory producer = factoryProducer.getProtocolFactory();
+	               AbstractBinaryFactory prov = (AbstractBinaryFactory) producer;
 	                BasicLogicBuilder builder = new BasicLogicBuilder(prov);
 	                SequentialProtocolProducer sseq = new SequentialProtocolProducer();
 	               
@@ -124,7 +125,7 @@ public class CompareTests {
 	            }
 	          };
 	          secureComputationEngine
-	              .runApplication(app, NetworkCreator.createResourcePool(conf.sceConf));
+	              .runApplication(app, ResourcePoolCreator.createResourcePool(conf.sceConf));
 
 	          Assert.assertArrayEquals(left, convertOBoolToBool(result[0]));
 	          Assert.assertArrayEquals(right, convertOBoolToBool(result[1]));
@@ -167,5 +168,5 @@ public class CompareTests {
       output[i] = input[i].getValue();
     }
     return output;
-  }
+  } */
 }

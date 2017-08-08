@@ -26,10 +26,9 @@
  *******************************************************************************/
 package dk.alexandra.fresco.framework.util;
 
+import dk.alexandra.fresco.framework.MPCException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-
-import dk.alexandra.fresco.framework.MPCException;
 
 /**
  * Java's SecureRandom is not 'deterministic' in the sense that calls to setSeed

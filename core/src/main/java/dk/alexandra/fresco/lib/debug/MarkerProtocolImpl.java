@@ -35,7 +35,7 @@ import dk.alexandra.fresco.lib.helper.SimpleProtocolProducer;
  * When evaluated, prints out the message from the constructor. 
  *
  */
-public class MarkerProtocolImpl extends SimpleProtocolProducer implements MarkerProtocol {
+public class MarkerProtocolImpl extends SimpleProtocolProducer implements ProtocolProducer {
 
 	private final String message;
 	private final PrintStream output;

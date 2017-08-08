@@ -4,70 +4,96 @@
  *
  * This file is part of the FRESCO project.
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
  *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *
- * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
- * and Bouncy Castle. Please see these projects for any further licensing issues.
+ * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL, and Bouncy Castle.
+ * Please see these projects for any further licensing issues.
  *******************************************************************************/
+
 package dk.alexandra.fresco.suite.dummy.arithmetic;
 
+import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.network.SCENetwork;
+import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
 
-import dk.alexandra.fresco.framework.network.SCENetwork;
-import dk.alexandra.fresco.framework.network.serializers.BigIntegerSerializer;
-import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
-import dk.alexandra.fresco.framework.value.OInt;
-import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.field.integer.CloseIntProtocol;
-
-public class DummyArithmeticCloseProtocol extends DummyArithmeticProtocol implements CloseIntProtocol{
+/**
+ * Implements closing a value in the Dummy Arithmetic suite where all operations are done in the
+ * clear. I.e., this really does nothing but send the open value to the other parties so they can
+ * compute on it.
+ *
+ */
+public class DummyArithmeticCloseProtocol extends DummyArithmeticNativeProtocol<SInt> {
 
   private int targetId;
-  private DummyArithmeticOInt open;
+  private Computation<BigInteger> open;
   private DummyArithmeticSInt closed;
-  
-  public DummyArithmeticCloseProtocol(int targetId, OInt open, SInt closed) {
+
+  /**
+   * Constructs a protocol to close an open value.
+   * 
+   * @param targetId id of the party supplying the open value.
+   * @param open a computation output the value to close.
+   */
+  public DummyArithmeticCloseProtocol(int targetId, Computation<BigInteger> open) {
     super();
     this.targetId = targetId;
-    this.open = (DummyArithmeticOInt) open;
+    this.open = open;
+    this.closed = null;
+  }
+
+  /**
+   * Constructs a protocol to close an open value.
+   * 
+   * <p>
+   * Lets the caller specify where to store the output. This is for backward compatibility.
+   * </p>
+   * 
+   * @param targetId id of the party supplying the open value.
+   * @param open a computation output the value to close.
+   * @param closed the {@link SInt} in which to store the output
+   */
+  public DummyArithmeticCloseProtocol(int targetId, Computation<BigInteger> open, SInt closed) {
+    super();
+    this.targetId = targetId;
+    this.open = open;
     this.closed = (DummyArithmeticSInt) closed;
   }
 
   @Override
-  public Object getOutputValues() {    
-    return closed;
-  }
-
-  @Override
-  public EvaluationStatus evaluate(int round, ResourcePool resourcePool, SCENetwork network) {
-    if(round == 0) {
-      if(targetId == resourcePool.getMyId()) {
-        network.sendToAll(BigIntegerSerializer.toBytes(open.getValue()));
+  public EvaluationStatus evaluate(int round, DummyArithmeticResourcePool rp, SCENetwork network) {
+    if (round == 0) {
+      if (targetId == rp.getMyId()) {
+        network.sendToAll(rp.getSerializer().toBytes((open.out())));
       }
       network.expectInputFromPlayer(targetId);
       return EvaluationStatus.HAS_MORE_ROUNDS;
-    } else {
-      BigInteger b = BigIntegerSerializer.toBigInteger(network.receive(targetId));
-      this.closed.setValue(b);
+    } else if (round == 1) {
+      BigInteger b = rp.getSerializer().toBigInteger(network.receive(targetId));
+      closed = (closed == null) ? new DummyArithmeticSInt() : closed;
+      closed.setValue(b);
       return EvaluationStatus.IS_DONE;
+    } else {
+      throw new IllegalStateException("No round " + round);
     }
-    
+  }
+
+  @Override
+  public SInt out() {
+    return closed;
   }
 
 }

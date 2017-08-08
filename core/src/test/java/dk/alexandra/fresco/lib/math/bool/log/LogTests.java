@@ -26,20 +26,18 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.math.bool.log;
 
-import dk.alexandra.fresco.framework.MPCException;
+import dk.alexandra.fresco.framework.BuilderFactory;
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.TestBoolApplication;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
-import dk.alexandra.fresco.framework.network.NetworkCreator;
+import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.util.ByteArithmetic;
 import dk.alexandra.fresco.framework.value.OBool;
 import dk.alexandra.fresco.framework.value.SBool;
-import dk.alexandra.fresco.lib.helper.SingleProtocolProducer;
 import dk.alexandra.fresco.lib.helper.builder.BasicLogicBuilder;
-import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
 import dk.alexandra.fresco.lib.logic.AbstractBinaryFactory;
 
 import org.hamcrest.core.Is;
@@ -63,30 +61,26 @@ public class LogTests {
           boolean[] rawInput = ByteArithmetic.toBoolean("ff");
           
           TestBoolApplication app = new TestBoolApplication() {
-
-            private static final long serialVersionUID = 4338818809103728010L;
-
             @Override
             public ProtocolProducer prepareApplication(
-                ProtocolFactory provider) {
-              AbstractBinaryFactory prov = (AbstractBinaryFactory) provider;
+                BuilderFactory factoryProducer) {
+              ProtocolFactory producer = factoryProducer.getProtocolFactory();
+
+              AbstractBinaryFactory prov = (AbstractBinaryFactory) producer;
               BasicLogicBuilder builder = new BasicLogicBuilder(prov);
               
-              SequentialProtocolProducer seq = new SequentialProtocolProducer();
-              SBool[] input = builder.knownSBool(rawInput);
-              SBool[] result = prov.getSBools(4); 
+              SBool[] in1 = builder.knownSBool(rawInput);
               
-              seq.append(builder.getProtocol());
-              seq.append(prov.getLogProtocol(input, result));
-              OBool[] open = builder.output(result);
-              seq.append(builder.getProtocol());
-              this.outputs = open;
-              return seq;
+              SBool[] result = prov.getSBools(4);
+              builder.addProtocolProducer(new LogProtocolImpl(in1, result, prov));
+              
+              this.outputs = builder.output(result);
+              return builder.getProtocol();
             }
           };
-
+          
           secureComputationEngine.runApplication(app,
-              NetworkCreator.createResourcePool(conf.sceConf));
+              ResourcePoolCreator.createResourcePool(conf.sceConf));
 
           boolean[] raw = convert(app.getOutputs());
           
@@ -121,34 +115,30 @@ public class LogTests {
           
           boolean[] rawInput = ByteArithmetic.toBoolean("ff");
           
+          
           TestBoolApplication app = new TestBoolApplication() {
-
-            private static final long serialVersionUID = 4338818809103728010L;
-
             @Override
             public ProtocolProducer prepareApplication(
-                ProtocolFactory provider) {
-              AbstractBinaryFactory prov = (AbstractBinaryFactory) provider;
+                BuilderFactory factoryProducer) {
+              ProtocolFactory producer = factoryProducer.getProtocolFactory();
+
+              AbstractBinaryFactory prov = (AbstractBinaryFactory) producer;
               BasicLogicBuilder builder = new BasicLogicBuilder(prov);
               
-              SequentialProtocolProducer seq = new SequentialProtocolProducer();
-              SBool[] input = builder.knownSBool(rawInput);
-              SBool[] result = prov.getSBools(6); 
+              SBool[] in1 = builder.knownSBool(rawInput);
               
-              seq.append(builder.getProtocol());
-              seq.append(prov.getLogProtocol(input, result));
-              OBool[] open = builder.output(result);
-              seq.append(builder.getProtocol());
-              this.outputs = open;
-              return seq;
+              SBool[] result = prov.getSBools(6);
+              builder.addProtocolProducer(new LogProtocolImpl(in1, result, prov));
+              
+              this.outputs = builder.output(result);
+              return builder.getProtocol();
             }
           };
 
           try{
             secureComputationEngine.runApplication(app,
-                NetworkCreator.createResourcePool(conf.sceConf));
-          }catch(MPCException e) {
-            Assert.assertThat(e.getMessage(), Is.is("Output array must be log size+1 that of the input array!"));
+                ResourcePoolCreator.createResourcePool(conf.sceConf));
+          }catch(RuntimeException e) {
           }
         }
       };

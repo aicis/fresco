@@ -10,7 +10,7 @@ import dk.alexandra.fresco.framework.MPCException;
 
 public class TestGenericValues {
 
-  
+  /* TODO
   
   @Test
   public void testGetAndSetOInt() {
@@ -35,7 +35,7 @@ public class TestGenericValues {
     value.setSerializableContent(BigInteger.TEN.toByteArray());
     Assert.assertThat(value.getSerializableContent(), Is.is(BigInteger.TEN.toByteArray()));
   }
-
+*/
   @Test
   public void testIsReadyOBool() {
     GenericOBool value = new GenericOBool();

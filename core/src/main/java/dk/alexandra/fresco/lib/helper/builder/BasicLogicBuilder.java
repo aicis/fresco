@@ -29,6 +29,7 @@ package dk.alexandra.fresco.lib.helper.builder;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.OBool;
 import dk.alexandra.fresco.framework.value.SBool;
+import dk.alexandra.fresco.lib.helper.CopyProtocol;
 import dk.alexandra.fresco.lib.logic.AbstractBinaryFactory;
 
 /**
@@ -60,7 +61,7 @@ public class BasicLogicBuilder extends AbstractProtocolBuilder {
   /**
    * Appends an output protocol for an array of SBools
    *
-   * @param sb the SBools to be output
+   * @param sbs the SBools to be output
    * @return the OBools holding the resulting output
    */
   public OBool[] output(SBool... sbs) {
@@ -434,7 +435,7 @@ public class BasicLogicBuilder extends AbstractProtocolBuilder {
    * @param dest the destination SBool
    */
   public void copy(SBool src, SBool dest) {
-    append(bf.getCopyProtocol(src, dest));
+    append(new CopyProtocol<>(src, dest));
     return;
   }
 

@@ -26,6 +26,7 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.collections.sort;
 
+import dk.alexandra.fresco.framework.BuilderFactory;
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.TestApplication;
@@ -33,18 +34,18 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.math.Util;
-import dk.alexandra.fresco.framework.network.NetworkCreator;
+import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
+import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.util.ByteArithmetic;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.OBool;
-import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SBool;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.helper.AlgebraUtil;
+import dk.alexandra.fresco.lib.helper.SequentialProtocolProducer;
 import dk.alexandra.fresco.lib.helper.builder.BasicLogicBuilder;
 import dk.alexandra.fresco.lib.helper.builder.NumericIOBuilder;
-import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
 import dk.alexandra.fresco.lib.logic.AbstractBinaryFactory;
 
 import java.math.BigInteger;
@@ -95,8 +96,9 @@ public class CollectionsSortingTests {
 
 	            @Override
 	            public ProtocolProducer prepareApplication(
-	                ProtocolFactory provider) {
-	               AbstractBinaryFactory prov = (AbstractBinaryFactory) provider;
+	                BuilderFactory factoryProducer) {
+	              ProtocolFactory producer = factoryProducer.getProtocolFactory();
+	               AbstractBinaryFactory prov = (AbstractBinaryFactory) producer;
 	                BasicLogicBuilder builder = new BasicLogicBuilder(prov);
 	                SequentialProtocolProducer sseq = new SequentialProtocolProducer();
 	                SBool[] l11 = builder.knownSBool(left11);
@@ -178,7 +180,7 @@ public class CollectionsSortingTests {
 	            }
 	          };
 	          secureComputationEngine
-	              .runApplication(app, NetworkCreator.createResourcePool(conf.sceConf));
+	              .runApplication(app, ResourcePoolCreator.createResourcePool(conf.sceConf));
 
 	          Assert.assertArrayEquals(left11, convertOBoolToBool(results[0]));
 	          Assert.assertArrayEquals(left12, convertOBoolToBool(results[1]));
@@ -232,8 +234,9 @@ public class CollectionsSortingTests {
 
              @Override
              public ProtocolProducer prepareApplication(
-                 ProtocolFactory provider) {
-                AbstractBinaryFactory prov = (AbstractBinaryFactory) provider;
+                 BuilderFactory factoryProducer) {
+               ProtocolFactory producer = factoryProducer.getProtocolFactory();
+                AbstractBinaryFactory prov = (AbstractBinaryFactory) producer;
                  BasicLogicBuilder builder = new BasicLogicBuilder(prov);
                  SequentialProtocolProducer sseq = new SequentialProtocolProducer();
                  SBool[] l11 = builder.knownSBool(left11);
@@ -317,7 +320,7 @@ public class CollectionsSortingTests {
              }
            };
            secureComputationEngine
-               .runApplication(app, NetworkCreator.createResourcePool(conf.sceConf));
+               .runApplication(app, ResourcePoolCreator.createResourcePool(conf.sceConf));
 
            Assert.assertArrayEquals(left11, convertOBoolToBool(results[0]));
            Assert.assertArrayEquals(left12, convertOBoolToBool(results[1]));
@@ -365,8 +368,9 @@ public class CollectionsSortingTests {
 
              @Override
              public ProtocolProducer prepareApplication(
-                 ProtocolFactory provider) {
-                AbstractBinaryFactory prov = (AbstractBinaryFactory) provider;
+                 BuilderFactory factoryProducer) {
+               ProtocolFactory producer = factoryProducer.getProtocolFactory();
+                AbstractBinaryFactory prov = (AbstractBinaryFactory) producer;
                  BasicLogicBuilder builder = new BasicLogicBuilder(prov);
                  SequentialProtocolProducer sseq = new SequentialProtocolProducer();
                  SBool[][][] leftSecret = new SBool[40][2][];
@@ -418,7 +422,7 @@ public class CollectionsSortingTests {
              }
            };
            secureComputationEngine
-               .runApplication(app, NetworkCreator.createResourcePool(conf.sceConf));
+               .runApplication(app, ResourcePoolCreator.createResourcePool(conf.sceConf));
            
            int prev = valueOfBools(convertOBoolToBool(results[0]));
            for(int i = 1; i < results.length; i++) {
@@ -458,8 +462,9 @@ public class CollectionsSortingTests {
 
              @Override
              public ProtocolProducer prepareApplication(
-                 ProtocolFactory provider) {
-                AbstractBinaryFactory prov = (AbstractBinaryFactory) provider;
+                 BuilderFactory factoryProducer) {
+               ProtocolFactory producer = factoryProducer.getProtocolFactory();
+                AbstractBinaryFactory prov = (AbstractBinaryFactory) producer;
                  BasicLogicBuilder builder = new BasicLogicBuilder(prov);
                  SequentialProtocolProducer sseq = new SequentialProtocolProducer();
                  SBool[] lk = builder.knownSBool(leftKey);
@@ -486,7 +491,7 @@ public class CollectionsSortingTests {
              }
            };
            secureComputationEngine
-               .runApplication(app, NetworkCreator.createResourcePool(conf.sceConf));
+               .runApplication(app, ResourcePoolCreator.createResourcePool(conf.sceConf));
 
            Assert.assertArrayEquals(rightKey, convertOBoolToBool(results[0]));
            Assert.assertArrayEquals(rightValue, convertOBoolToBool(results[1]));

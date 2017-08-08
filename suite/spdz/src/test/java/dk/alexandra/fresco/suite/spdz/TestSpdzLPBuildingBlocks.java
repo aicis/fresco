@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -26,12 +26,10 @@
  *******************************************************************************/
 package dk.alexandra.fresco.suite.spdz;
 
-import dk.alexandra.fresco.framework.configuration.PreprocessingStrategy;
 import dk.alexandra.fresco.framework.network.NetworkingStrategy;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.lib.lp.LPBuildingBlockTests;
-import dk.alexandra.fresco.suite.spdz.evaluation.strategy.SpdzProtocolSuite;
-import java.math.BigInteger;
+import dk.alexandra.fresco.suite.spdz.configuration.PreprocessingStrategy;
 import org.junit.Test;
 
 public class TestSpdzLPBuildingBlocks extends AbstractSpdzTest {
@@ -40,8 +38,7 @@ public class TestSpdzLPBuildingBlocks extends AbstractSpdzTest {
   public void test_Exiting_Variable_Sequential() throws Exception {
     runTest(new LPBuildingBlockTests.TestDummy(), EvaluationStrategy.SEQUENTIAL,
         NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
-    BigInteger mod = SpdzProtocolSuite.getInstance(1).getModulus();
-    runTest(new LPBuildingBlockTests.TestDanzigEnteringVariable(mod), EvaluationStrategy.SEQUENTIAL,
+    runTest(new LPBuildingBlockTests.TestDanzigEnteringVariable(), EvaluationStrategy.SEQUENTIAL,
         NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
   }
 
@@ -49,14 +46,13 @@ public class TestSpdzLPBuildingBlocks extends AbstractSpdzTest {
   public void test_Exiting_Variable_Sequential_Batched() throws Exception {
     runTest(new LPBuildingBlockTests.TestDummy(), EvaluationStrategy.SEQUENTIAL_BATCHED,
         NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
-    BigInteger mod = SpdzProtocolSuite.getInstance(1).getModulus();
-    runTest(new LPBuildingBlockTests.TestDanzigEnteringVariable(mod),
+    runTest(new LPBuildingBlockTests.TestDanzigEnteringVariable(),
         EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET,
         PreprocessingStrategy.DUMMY, 2);
   }
 
 /*
-	private abstract static class ThreadWithFixture extends TestThread {
+  private abstract static class ThreadWithFixture extends TestThread {
 
 		protected SCE sce;
 		protected Random rand;
@@ -125,7 +121,7 @@ public class TestSpdzLPBuildingBlocks extends AbstractSpdzTest {
 						ProtocolProducer input = new ParallelGateProducer(inp1, inp2, inp3);
 						SInt rank = provider.getSInt();
 						ProtocolProducer rankCircuit = provider.getRankCircuit(nums, dens, num, den, rank);
-						OInt out = provider.getOInt();
+						BigInteger out = provider.getOInt();
 						ProtocolProducer output = provider.getOpenIntCircuit(rank, out);
 						
 						double d = numerator.doubleValue() / denominator.doubleValue();
@@ -187,7 +183,7 @@ public class TestSpdzLPBuildingBlocks extends AbstractSpdzTest {
 							ProtocolProducer input = new ParallelGateProducer(inp1, inp2, inp3);
 							SInt rank = provider.getSInt();
 							ProtocolProducer rankCircuit = provider.getRankCircuit(nums, dens, num, den, rank);
-							OInt out = provider.getOInt();
+							BigInteger out = provider.getOInt();
 							ProtocolProducer output = provider.getOpenIntCircuit(rank, out);
 							
 							ProtocolProducer gp = new SequentialProtocolProducer(input, rankCircuit, output);
@@ -220,12 +216,12 @@ public class TestSpdzLPBuildingBlocks extends AbstractSpdzTest {
 							SInt a = provider.getSInt();
 							SInt b = provider.getSInt();
 							SInt result = provider.getSInt();
-							OInt output = provider.getOInt();
+							BigInteger output = provider.getOInt();
 	
 							SpdzInputGate inputGateA = (SpdzInputGate)provider.getInputCircuit(valueA, a, 1);
 							SpdzInputGate inputGateB = (SpdzInputGate)provider.getInputCircuit(valueB, b, 1);
 							ComparisonCircuit cs = provider.getComparisonCircuit(a, b, result, false);
-							OpenCircuit<SInt, OInt> outputGate =  provider.getOpenIntCircuit(result, output);
+							OpenCircuit<SInt, BigInteger> outputGate =  provider.getOpenIntCircuit(result, output);
 	
 							sce.runApplication(new SequentialProtocolProducer(inputGateA, inputGateB, cs, outputGate));
 	
@@ -239,12 +235,12 @@ public class TestSpdzLPBuildingBlocks extends AbstractSpdzTest {
 							SInt a = provider.getSInt();
 							SInt b = provider.getSInt();
 							SInt result = provider.getSInt();
-							OInt output = provider.getOInt();
+							BigInteger output = provider.getOInt();
 
 							SpdzInputGate inputGateA = (SpdzInputGate)provider.getInputCircuit(valueA, a, 1);
 							SpdzInputGate inputGateB = (SpdzInputGate)provider.getInputCircuit(valueB, b, 1);
 							ComparisonCircuit cs = provider.getComparisonCircuit(b, a, result, false); //compare b to a
-							OpenCircuit<SInt, OInt> outputGate =  provider.getOpenIntCircuit(result, output);
+							OpenCircuit<SInt, BigInteger> outputGate =  provider.getOpenIntCircuit(result, output);
 
 							sce.runApplication(new SequentialProtocolProducer(inputGateA, inputGateB, cs, outputGate));
 
@@ -258,12 +254,12 @@ public class TestSpdzLPBuildingBlocks extends AbstractSpdzTest {
 							SInt a = provider.getSInt();
 							SInt b = provider.getSInt();
 							SInt result = provider.getSInt();
-							OInt output = provider.getOInt();
+							BigInteger output = provider.getOInt();
 
 							SpdzInputGate inputGateA = (SpdzInputGate)provider.getInputCircuit(valueA, a, 1);
 							SpdzInputGate inputGateB = (SpdzInputGate)provider.getInputCircuit(valueB, b, 1);
 							ComparisonCircuit cs = provider.getComparisonCircuit(a, b, result, false); //compare a to b
-							OpenCircuit<SInt, OInt> outputGate =  provider.getOpenIntCircuit(result, output);
+							OpenCircuit<SInt, BigInteger> outputGate =  provider.getOpenIntCircuit(result, output);
 
 							sce.runApplication(new SequentialProtocolProducer(inputGateA, inputGateB, cs, outputGate));
 							System.out.println(valueA);
@@ -293,8 +289,8 @@ public class TestSpdzLPBuildingBlocks extends AbstractSpdzTest {
 						SpdzInputGate[] inputGates = new SpdzInputGate[noOfGates];
 						SInt[] as = new SInt[noOfGates];
 						SInt[] results = new SInt[noOfGates];
-						OInt[] outputs = new OInt[noOfGates];
-						OpenCircuit<SInt, OInt>[] outputGates = new SpdzOutputToAllGate[noOfGates];
+						BigInteger[] outputs = new BigInteger[noOfGates];
+						OpenCircuit<SInt, BigInteger>[] outputGates = new SpdzOutputToAllGate[noOfGates];
 						for(int i = 0; i < noOfGates; i++) {
 							inputValues[i] = BigInteger.valueOf(i+1);
 							as[i] = provider.getSInt();
@@ -333,8 +329,8 @@ public class TestSpdzLPBuildingBlocks extends AbstractSpdzTest {
 						BigInteger[] inputValues = new BigInteger[noOfGates];
 						SInt[] as = new SInt[noOfGates];
 						SInt[] results = new SInt[noOfGates];
-						OInt[] outputs = new OInt[noOfGates];
-						OpenCircuit<SInt, OInt>[] outputGates = new SpdzOutputToAllGate[noOfGates];
+						BigInteger[] outputs = new BigInteger[noOfGates];
+						OpenCircuit<SInt, BigInteger>[] outputGates = new SpdzOutputToAllGate[noOfGates];
 						for(int i = 0; i < noOfGates; i++){
 							inputValues[i] = BigInteger.valueOf(i+1);
 							as[i] = provider.getSInt(inputValues[i]);
@@ -374,8 +370,8 @@ public class TestSpdzLPBuildingBlocks extends AbstractSpdzTest {
 							final SInt[] as = new SInt[noOfGates];
 
 							SInt result = provider.getSInt();
-							OInt output = provider.getOInt();
-							OpenCircuit<SInt, OInt> outputGates = provider.getOpenIntCircuit(result, output); 
+							BigInteger output = provider.getOInt();
+							OpenCircuit<SInt, BigInteger> outputGates = provider.getOpenIntCircuit(result, output);
 							ProtocolProducer parallelInput = new AbstractRepeatCircuit() {
 								
 								int i = 0;							
@@ -418,11 +414,11 @@ public class TestSpdzLPBuildingBlocks extends AbstractSpdzTest {
 							as = sIntFill(as, provider);
 							bs = sIntFill(bs,provider);
 							SInt result = provider.getSInt();
-							OInt output = provider.getOInt();
+							BigInteger output = provider.getOInt();
 							
 							ProtocolProducer aIn = new ParallelGateProducer(makeInputGates(aInputValues, as, provider));
 							ProtocolProducer bIn = new ParallelGateProducer(makeInputGates(bInputValues, bs, provider));
-							OpenCircuit<SInt, OInt> outputGate = provider.getOpenIntCircuit(result, output); 
+							OpenCircuit<SInt, BigInteger> outputGate = provider.getOpenIntCircuit(result, output);
 							
 							
 							InnerProductCircuit ipc = provider.getInnerProductCircuit(as, bs, result);
@@ -462,8 +458,8 @@ public class TestSpdzLPBuildingBlocks extends AbstractSpdzTest {
 							SpdzInputGate[] inputGates = new SpdzInputGate[noOfGates];
 							SInt[] as = new SInt[noOfGates];
 							SInt result = provider.getSInt();
-							OInt output = provider.getOInt();
-							OpenCircuit<SInt, OInt> outputGates = provider.getOpenIntCircuit(result, output); 
+							BigInteger output = provider.getOInt();
+							OpenCircuit<SInt, BigInteger> outputGates = provider.getOpenIntCircuit(result, output);
 							for(int i = 0; i < noOfGates; i++){
 								inputValues[i] = BigInteger.valueOf(i+1);
 								as[i] = provider.getSInt();
@@ -498,11 +494,11 @@ public class TestSpdzLPBuildingBlocks extends AbstractSpdzTest {
 							as = sIntFill(as, provider);
 							bs = sIntFill(bs,provider);
 							SInt result = provider.getSInt();
-							OInt output = provider.getOInt();
+							BigInteger output = provider.getOInt();
 							
 							ProtocolProducer aIn = new ParallelGateProducer(makeInputGates(aInputValues, as, provider));
 							ProtocolProducer bIn = new ParallelGateProducer(makeInputGates(bInputValues, bs, provider));
-							OpenCircuit<SInt, OInt> outputGate = provider.getOpenIntCircuit(result, output); 
+							OpenCircuit<SInt, BigInteger> outputGate = provider.getOpenIntCircuit(result, output);
 							
 							
 							InnerProductCircuit ipc = new AltInnerProductCircuitImpl(as, bs, result, provider, provider);
@@ -542,10 +538,10 @@ public class TestSpdzLPBuildingBlocks extends AbstractSpdzTest {
 							BigInteger[] inputValues = new BigInteger[noOfGates];
 							SpdzInputGate[] inputGates = new SpdzInputGate[noOfGates];
 							SInt[] as = new SInt[noOfGates];
-							OInt[] bs = new OInt[noOfGates];
+							BigInteger[] bs = new BigInteger[noOfGates];
 							SInt result = provider.getSInt();
-							OInt output = provider.getOInt();
-							OpenCircuit<SInt, OInt> outputGates = provider.getOpenIntCircuit(result, output); 
+							BigInteger output = provider.getOInt();
+							OpenCircuit<SInt, BigInteger> outputGates = provider.getOpenIntCircuit(result, output);
 							for(int i = 0; i < noOfGates; i++){
 								inputValues[i] = BigInteger.valueOf(i+1);
 								as[i] = provider.getSInt();
@@ -580,11 +576,11 @@ public class TestSpdzLPBuildingBlocks extends AbstractSpdzTest {
 //							as = sIntFill(as, provider);
 //							bs = sIntFill(bs,provider);
 //							SInt result = provider.getSInt();
-//							OInt output = provider.getOInt();
+//							BigInteger output = provider.getOInt();
 //							
 //							GateProducer aIn = new ParallelGateProducer(makeInputGates(aInputValues, as, provider));
 //							GateProducer bIn = new ParallelGateProducer(makeInputGates(bInputValues, bs, provider));
-//							OpenCircuit<SInt, OInt> outputGate = provider.getOpenIntCircuit(result, output); 
+//							OpenCircuit<SInt, BigInteger> outputGate = provider.getOpenIntCircuit(result, output);
 //							
 //							
 //							InnerProductCircuit ipc = provider.getInnerProductCircuit(as, bs, result);
@@ -626,7 +622,7 @@ public class TestSpdzLPBuildingBlocks extends AbstractSpdzTest {
 							SInt[] ns = new SInt[noOfFractions];
 							SInt[] ds = new SInt[noOfFractions];
 							SInt[] cs = new SInt[noOfFractions];
-							OInt[] outputs = new OInt[noOfFractions+2];							
+							BigInteger[] outputs = new BigInteger[noOfFractions+2];
 														
 							ns = sIntFill(ns, provider);
 							ds = sIntFill(ds, provider);
@@ -675,7 +671,7 @@ public class TestSpdzLPBuildingBlocks extends AbstractSpdzTest {
 							SInt[] ns = new SInt[noOfFractions];
 							SInt[] ds = new SInt[noOfFractions];
 							SInt[] cs = new SInt[noOfFractions];
-							OInt[] outputs = new OInt[noOfFractions+2];
+							BigInteger[] outputs = new BigInteger[noOfFractions+2];
 																					
 							ns = sIntFill(ns, provider);
 							ds = sIntFill(ds, provider);
@@ -725,7 +721,7 @@ public class TestSpdzLPBuildingBlocks extends AbstractSpdzTest {
 							SInt[] ns = new SInt[noOfFractions];
 							SInt[] ds = new SInt[noOfFractions];
 							SInt[] cs = new SInt[noOfFractions];
-							OInt[] outputs = new OInt[noOfFractions+2];
+							BigInteger[] outputs = new BigInteger[noOfFractions+2];
 							
 							ns = sIntFill(ns, provider);
 							ds = sIntFill(ds, provider);
@@ -775,7 +771,7 @@ public class TestSpdzLPBuildingBlocks extends AbstractSpdzTest {
 							SInt[] ns = new SInt[noOfFractions];
 							SInt[] ds = new SInt[noOfFractions];
 							SInt[] cs = new SInt[noOfFractions];
-							OInt[] outputs = new OInt[noOfFractions+2];
+							BigInteger[] outputs = new BigInteger[noOfFractions+2];
 							
 							ns = sIntFill(ns, provider);
 							ds = sIntFill(ds, provider);
@@ -840,10 +836,10 @@ public class TestSpdzLPBuildingBlocks extends AbstractSpdzTest {
 							SpdzInputGate[] inputGates = new SpdzInputGate[noOfGates];
 							SInt[] as = new SInt[noOfGates];
 							SInt[] results = new SInt[noOfGates];
-							OInt[] outputs = new OInt[noOfGates];
-							OInt mOutput = provider.getOInt();
+							BigInteger[] outputs = new BigInteger[noOfGates];
+							BigInteger mOutput = provider.getOInt();
 							BigInteger minVal = BigInteger.valueOf(8);
-							OpenCircuit<SInt, OInt>[] outputGates = new SpdzOutputToAllGate[noOfGates+1];
+							OpenCircuit<SInt, BigInteger>[] outputGates = new SpdzOutputToAllGate[noOfGates+1];
 							for(int i = 0; i < noOfGates; i++){
 								inputValues[i] = BigInteger.valueOf(10);
 								if(i == 1){
@@ -872,10 +868,10 @@ public class TestSpdzLPBuildingBlocks extends AbstractSpdzTest {
 							SpdzInputGate[] inputGates = new SpdzInputGate[noOfGates];
 							SInt[] as = new SInt[noOfGates];
 							SInt[] results = new SInt[noOfGates];
-							OInt[] outputs = new OInt[noOfGates];
-							OInt mOutput = provider.getOInt();
+							BigInteger[] outputs = new BigInteger[noOfGates];
+							BigInteger mOutput = provider.getOInt();
 							BigInteger minVal = BigInteger.valueOf(-8);
-							OpenCircuit<SInt, OInt>[] outputGates = new SpdzOutputToAllGate[noOfGates+1];
+							OpenCircuit<SInt, BigInteger>[] outputGates = new SpdzOutputToAllGate[noOfGates+1];
 							for(int i = 0; i < noOfGates; i++){
 								inputValues[i] = BigInteger.valueOf(10);
 								if(i == 1){
@@ -904,10 +900,10 @@ public class TestSpdzLPBuildingBlocks extends AbstractSpdzTest {
 							SpdzInputGate[] inputGates = new SpdzInputGate[noOfGates];
 							SInt[] as = new SInt[noOfGates];
 							SInt[] results = new SInt[noOfGates];
-							OInt[] outputs = new OInt[noOfGates];
-							OInt mOutput = provider.getOInt();
+							BigInteger[] outputs = new BigInteger[noOfGates];
+							BigInteger mOutput = provider.getOInt();
 							BigInteger minVal = BigInteger.valueOf(8);
-							OpenCircuit<SInt, OInt>[] outputGates = new SpdzOutputToAllGate[noOfGates+1];
+							OpenCircuit<SInt, BigInteger>[] outputGates = new SpdzOutputToAllGate[noOfGates+1];
 							for(int i = 0; i < noOfGates; i++){
 								inputValues[i] = BigInteger.valueOf(10);
 								if(i == 2){
@@ -937,9 +933,9 @@ public class TestSpdzLPBuildingBlocks extends AbstractSpdzTest {
 							SpdzInputGate[] inputGates = new SpdzInputGate[noOfGates];
 							SInt[] as = new SInt[noOfGates];
 							SInt[] results = new SInt[noOfGates];
-							OInt[] outputs = new OInt[noOfGates];
-							OInt mOutput = provider.getOInt();
-							OpenCircuit<SInt, OInt>[] outputGates = new SpdzOutputToAllGate[noOfGates+1];
+							BigInteger[] outputs = new BigInteger[noOfGates];
+							BigInteger mOutput = provider.getOInt();
+							OpenCircuit<SInt, BigInteger>[] outputGates = new SpdzOutputToAllGate[noOfGates+1];
 							for(int i = 0; i < noOfGates; i++){
 								inputValues[i] = new BigInteger(32, rand);								
 								as[i] = provider.getSInt();
@@ -967,9 +963,9 @@ public class TestSpdzLPBuildingBlocks extends AbstractSpdzTest {
 							SpdzInputGate[] inputGates = new SpdzInputGate[noOfGates];
 							SInt[] as = new SInt[noOfGates];
 							SInt[] results = new SInt[noOfGates];
-							OInt[] outputs = new OInt[noOfGates];
-							OInt mOutput = provider.getOInt();
-							OpenCircuit<SInt, OInt>[] outputGates = new SpdzOutputToAllGate[noOfGates+1];
+							BigInteger[] outputs = new BigInteger[noOfGates];
+							BigInteger mOutput = provider.getOInt();
+							OpenCircuit<SInt, BigInteger>[] outputGates = new SpdzOutputToAllGate[noOfGates+1];
 							for(int i = 0; i < noOfGates; i++){
 								inputValues[i] = (new BigInteger(32, rand)).subtract(BigInteger.valueOf((long)Math.pow(2, 31)));								
 								as[i] = provider.getSInt();
@@ -1029,13 +1025,13 @@ public class TestSpdzLPBuildingBlocks extends AbstractSpdzTest {
 							SInt b = provider.getSInt();
 							SInt selector = provider.getSInt();
 							SInt result = provider.getSInt();
-							OInt output = provider.getOInt();
+							BigInteger output = provider.getOInt();
 
 							SpdzInputGate inputGateA = (SpdzInputGate)provider.getInputCircuit(valueA, a, 1);
 							SpdzInputGate inputGateB = (SpdzInputGate)provider.getInputCircuit(valueB, b, 1);
 							SpdzInputGate inputGateSelector = (SpdzInputGate)provider.getInputCircuit(valueSelector, selector, 1);
 							ConditionalSelectCircuit cs = provider.getConditionalSelectCircuit(selector, a, b, result);
-							OpenCircuit<SInt, OInt> outputGate =  provider.getOpenIntCircuit(result, output);
+							OpenCircuit<SInt, BigInteger> outputGate =  provider.getOpenIntCircuit(result, output);
 
 							ProtocolProducer inputGP = new ParallelGateProducer(inputGateA, inputGateB, inputGateSelector);
 							ProtocolProducer conditionalSelectGP = new ParallelGateProducer(cs);
@@ -1056,13 +1052,13 @@ public class TestSpdzLPBuildingBlocks extends AbstractSpdzTest {
 							SInt b = provider.getSInt();
 							SInt selector = provider.getSInt();
 							SInt result = provider.getSInt();
-							OInt output = provider.getOInt();
+							BigInteger output = provider.getOInt();
 
 							SpdzInputGate inputGateA = (SpdzInputGate)provider.getInputCircuit(valueA, a, 1);
 							SpdzInputGate inputGateB = (SpdzInputGate)provider.getInputCircuit(valueB, b, 1);
 							SpdzInputGate inputGateSelector = (SpdzInputGate)provider.getInputCircuit(valueSelector, selector, 1);
 							ConditionalSelectCircuit cs = provider.getConditionalSelectCircuit(selector, a, b, result);
-							OpenCircuit<SInt, OInt> outputGate =  provider.getOpenIntCircuit(result, output);
+							OpenCircuit<SInt, BigInteger> outputGate =  provider.getOpenIntCircuit(result, output);
 
 							ProtocolProducer inputGP = new ParallelGateProducer(inputGateA, inputGateB, inputGateSelector);
 							ProtocolProducer conditionalSelectGP = new ParallelGateProducer(cs);
@@ -1095,11 +1091,11 @@ public class TestSpdzLPBuildingBlocks extends AbstractSpdzTest {
 							
 							SInt x = provider.getSInt();
 							SInt result = provider.getSInt();
-							OInt output = provider.getOInt();
+							BigInteger output = provider.getOInt();
 
 							SpdzInputGate inputGate = (SpdzInputGate)provider.getInputCircuit(valueX, x, 1);
 							InversionCircuit ic = provider.getInversionCircuit(x, result);
-							OpenCircuit<SInt, OInt> outputGate =  provider.getOpenIntCircuit(result, output);
+							OpenCircuit<SInt, BigInteger> outputGate =  provider.getOpenIntCircuit(result, output);
 
 							sce.runApplication(new SequentialProtocolProducer(inputGate, ic, outputGate));
 							
@@ -1111,11 +1107,11 @@ public class TestSpdzLPBuildingBlocks extends AbstractSpdzTest {
 								System.out.println("Inverting: " + valueX);
 								SInt x = provider.getSInt();
 								SInt result = provider.getSInt();
-								OInt output = provider.getOInt();
+								BigInteger output = provider.getOInt();
 
 								SpdzInputGate inputGate = (SpdzInputGate)provider.getInputCircuit(valueX, x, 1);
 								InversionCircuit ic = provider.getInversionCircuit(x, result);
-								OpenCircuit<SInt, OInt> outputGate =  provider.getOpenIntCircuit(result, output);
+								OpenCircuit<SInt, BigInteger> outputGate =  provider.getOpenIntCircuit(result, output);
 
 								sce.runApplication(new SequentialProtocolProducer(inputGate, ic, outputGate));
 								
@@ -1147,7 +1143,7 @@ public class TestSpdzLPBuildingBlocks extends AbstractSpdzTest {
 							umValues = zeroFill(umValues);
 							BigInteger[][] cValues = new BigInteger[m][n+m];
 							cValues = zeroFill(cValues);
-							OInt[] outputs = new OInt[n+m];
+							BigInteger[] outputs = new BigInteger[n+m];
 							BigInteger[] bValues = new BigInteger[m];
 							bValues = zeroFill(bValues);
 							BigInteger[] fValues = new BigInteger[n+m];
@@ -1181,7 +1177,7 @@ public class TestSpdzLPBuildingBlocks extends AbstractSpdzTest {
 							umValues = randomFill(umValues, rand);
 							BigInteger[][] cValues = new BigInteger[m][n+m];
 							cValues = randomFill(cValues, rand);
-							OInt[] outputs = new OInt[n+m];
+							BigInteger[] outputs = new BigInteger[n+m];
 							BigInteger[] bValues = new BigInteger[m];
 							bValues = randomFill(bValues, rand);
 							BigInteger[] fValues = new BigInteger[n+m];
@@ -1233,7 +1229,7 @@ public class TestSpdzLPBuildingBlocks extends AbstractSpdzTest {
 							umValues = indentityMatrix(m + 1);
 							BigInteger[][] cValues = new BigInteger[m][n+m];
 							cValues = zeroFill(cValues);
-							OInt[] outputs = new OInt[n+m];
+							BigInteger[] outputs = new BigInteger[n+m];
 							BigInteger[] bValues = new BigInteger[m];
 							bValues = zeroFill(bValues);
 							BigInteger[] fValues = new BigInteger[n+m];
@@ -1267,7 +1263,7 @@ public class TestSpdzLPBuildingBlocks extends AbstractSpdzTest {
 							BigInteger[][] umValues = indentityMatrix(m+1);
 							BigInteger[][] cValues = new BigInteger[m][n+m];
 							cValues = Util.zeroFill(cValues);
-							OInt[] outputs = new OInt[n+m];
+							BigInteger[] outputs = new BigInteger[n+m];
 							BigInteger[] bValues = new BigInteger[m];
 							bValues = zeroFill(bValues);
 							BigInteger[] fValues = new BigInteger[n+m];
@@ -1308,7 +1304,7 @@ public class TestSpdzLPBuildingBlocks extends AbstractSpdzTest {
 
 	private ProtocolProducer setUpBlandEnteringVariableCircuit(BigInteger[][] umValues, 
 			BigInteger[][] cValues, BigInteger[] bValues, BigInteger[] fValues, 
-			OInt[] outputs, SpdzProvider provider) {
+			BigInteger[] outputs, SpdzProvider provider) {
 		int m = cValues.length;
 		int nPlusM = cValues[0].length;
 		SInt[][] c = new SInt[m][nPlusM];
@@ -1399,9 +1395,9 @@ public class TestSpdzLPBuildingBlocks extends AbstractSpdzTest {
 							BigInteger[] updateColumn = computeUpdateColumn(trueExit, updatedColumn);
 							BigInteger pivot = computePivot(updatedColumn, trueExit);
 							
-							OInt[] exitingIndexOut = new OInt[m];
-							OInt[] updateColumnOut = new OInt[m + 1];
-							OInt pivotOut = provider.getOInt();
+							BigInteger[] exitingIndexOut = new BigInteger[m];
+							BigInteger[] updateColumnOut = new BigInteger[m + 1];
+							BigInteger pivotOut = provider.getOInt();
 							
 							ProtocolProducer circuit = setUpExitingCircuit(umValues, cValues, bValues, fValues, 
 									enteringIndexValue, exitingIndexOut, updateColumnOut, pivotOut, provider);
@@ -1410,7 +1406,7 @@ public class TestSpdzLPBuildingBlocks extends AbstractSpdzTest {
 							
 							int exitIndex = 0;
 							int count = 0;
-							for (OInt e: exitingIndexOut) {
+							for (BigInteger e: exitingIndexOut) {
 								count += e.getValue().intValue();
 								if (count == 0) {
 									exitIndex++;
@@ -1450,9 +1446,9 @@ public class TestSpdzLPBuildingBlocks extends AbstractSpdzTest {
 							BigInteger[] updateColumn = computeUpdateColumn(trueExit, updatedColumn);
 							BigInteger pivot = computePivot(updatedColumn, trueExit);
 							
-							OInt[] exitingIndexOut = new OInt[m];
-							OInt[] updateColumnOut = new OInt[m + 1];
-							OInt pivotOut = provider.getOInt();
+							BigInteger[] exitingIndexOut = new BigInteger[m];
+							BigInteger[] updateColumnOut = new BigInteger[m + 1];
+							BigInteger pivotOut = provider.getOInt();
 							
 							ProtocolProducer circuit = setUpExitingCircuit(umValues, cValues, bValues, fValues, 
 									enteringIndexValue, exitingIndexOut, updateColumnOut, pivotOut, provider);
@@ -1461,7 +1457,7 @@ public class TestSpdzLPBuildingBlocks extends AbstractSpdzTest {
 							
 							int exitIndex = 0;
 							int count = 0;
-							for (OInt e: exitingIndexOut) {
+							for (BigInteger e: exitingIndexOut) {
 								count += e.getValue().intValue();
 								if (count == 0) {
 									exitIndex++;
@@ -1496,9 +1492,9 @@ public class TestSpdzLPBuildingBlocks extends AbstractSpdzTest {
 							BigInteger[] updateColumn = computeUpdateColumn(index, updatedColumn);
 							BigInteger pivot = computePivot(updatedColumn, index);
 							
-							OInt[] exitingIndexOut = new OInt[m];
-							OInt[] updateColumnOut = new OInt[m + 1];
-							OInt pivotOut = provider.getOInt();
+							BigInteger[] exitingIndexOut = new BigInteger[m];
+							BigInteger[] updateColumnOut = new BigInteger[m + 1];
+							BigInteger pivotOut = provider.getOInt();
 							
 							ProtocolProducer circuit = setUpExitingCircuit(umValues, cValues, bValues, fValues, 
 									enteringIndexValue, exitingIndexOut, updateColumnOut, pivotOut, provider);
@@ -1507,7 +1503,7 @@ public class TestSpdzLPBuildingBlocks extends AbstractSpdzTest {
 							System.out.println("Post Eval");
 							int exitIndex = 0;
 							int count = 0;
-							for (OInt e: exitingIndexOut) {
+							for (BigInteger e: exitingIndexOut) {
 								count += e.getValue().intValue();
 								if (count == 0) {
 									exitIndex++;
@@ -1537,9 +1533,9 @@ public class TestSpdzLPBuildingBlocks extends AbstractSpdzTest {
 			BigInteger[] bValues, 
 			BigInteger[] fValues, 
 			int enteringIndexValue, 
-			OInt[] exitingIndexOut, 
-			OInt[] updateColumnOut, 
-			OInt pivotOut, 
+			BigInteger[] exitingIndexOut,
+			BigInteger[] updateColumnOut,
+			BigInteger pivotOut,
 			SpdzProvider provider) {
 		// Input
 		SInt[][] updateMatrix = new SInt[umValues.length][umValues[0].length];
@@ -1580,7 +1576,7 @@ public class TestSpdzLPBuildingBlocks extends AbstractSpdzTest {
 		updateColumnOut = oIntFill(updateColumnOut, provider);
 		ProtocolProducer exitOutProducer = makeOpenCircuit(exitingIndex, exitingIndexOut, provider);
 		ProtocolProducer updateOutProducer = makeOpenCircuit(updateColumn, updateColumnOut, provider);
-		ProtocolProducer pivotOutProducer = makeOpenCircuit(new SInt[]{pivot}, new OInt[]{pivotOut}, provider);
+		ProtocolProducer pivotOutProducer = makeOpenCircuit(new SInt[]{pivot}, new BigInteger[]{pivotOut}, provider);
 		ProtocolProducer outputProducer = new ParallelGateProducer(exitOutProducer ,updateOutProducer, pivotOutProducer);
 		
 		MarkerCircuit startMark = provider.getMarkerCircuit("Starting");
@@ -1637,7 +1633,7 @@ public class TestSpdzLPBuildingBlocks extends AbstractSpdzTest {
 							
 							ProtocolProducer umc = provider.getUpdateMatrixCircuit(new Matrix<SInt>(oldUpdateMatrix), L, C, p, p_prime, new Matrix<SInt>(newUpdateMatrix));
 
-							OInt[][] newUpdateMatrixOut = new OInt[m][m];
+							BigInteger[][] newUpdateMatrixOut = new BigInteger[m][m];
 							newUpdateMatrixOut = oIntFill(newUpdateMatrixOut, provider);
 
 							ProtocolProducer output = new ParallelGateProducer(makeOpenCircuit(newUpdateMatrix, newUpdateMatrixOut, provider));
@@ -1704,7 +1700,7 @@ public class TestSpdzLPBuildingBlocks extends AbstractSpdzTest {
 
 							ProtocolProducer umc = provider.getUpdateMatrixCircuit(new Matrix<SInt>(oldUpdateMatrix), L, C, p, p_prime, new Matrix<SInt>(newUpdateMatrix));
 
-							OInt[][] newUpdateMatrixOut = new OInt[m][m];
+							BigInteger[][] newUpdateMatrixOut = new BigInteger[m][m];
 							newUpdateMatrixOut = oIntFill(newUpdateMatrixOut, provider);
 
 							ProtocolProducer output = new ParallelGateProducer(makeOpenCircuit(newUpdateMatrix, newUpdateMatrixOut, provider));
@@ -1772,7 +1768,7 @@ public class TestSpdzLPBuildingBlocks extends AbstractSpdzTest {
 
 							ProtocolProducer umc = provider.getUpdateMatrixCircuit(new Matrix<SInt>(oldUpdateMatrix), L, C, p, p_prime, new Matrix<SInt>(newUpdateMatrix));
 
-							OInt[][] newUpdateMatrixOut = new OInt[m][m];
+							BigInteger[][] newUpdateMatrixOut = new BigInteger[m][m];
 							newUpdateMatrixOut = oIntFill(newUpdateMatrixOut, provider);
 
 							ProtocolProducer output = new ParallelGateProducer(makeOpenCircuit(newUpdateMatrix, newUpdateMatrixOut, provider));
@@ -1838,8 +1834,8 @@ public class TestSpdzLPBuildingBlocks extends AbstractSpdzTest {
 							
 							ProtocolProducer optimal = provider.getOptimalValueCircuit(new Matrix<SInt>(updateMatrix), B, pivot, optimalValue);
 							
-							OInt optimalValueOut = provider.getOInt();
-							ProtocolProducer output = new ParallelGateProducer(makeOpenCircuit(new SInt[] {optimalValue}, new OInt[] {optimalValueOut}, provider));
+							BigInteger optimalValueOut = provider.getOInt();
+							ProtocolProducer output = new ParallelGateProducer(makeOpenCircuit(new SInt[] {optimalValue}, new BigInteger[] {optimalValueOut}, provider));
 							
 							ProtocolProducer gp = new SequentialProtocolProducer(input, optimal, output);
 							
@@ -1923,7 +1919,7 @@ public class TestSpdzLPBuildingBlocks extends AbstractSpdzTest {
 										enteringIndex, minimum);
 								SInt zero = provider.getSInt(0);
 								SInt positive = provider.getSInt();
-								OInt positiveOut = provider.getOInt();							
+								BigInteger positiveOut = provider.getOInt();
 								ProtocolProducer comp = provider.getComparisonCircuit(zero, minimum, positive, false);
 								ProtocolProducer output = provider.getOpenIntCircuit(positive, positiveOut);
 								ProtocolProducer phase1 = new SequentialProtocolProducer(input, enteringProducer, comp, output);
@@ -1937,12 +1933,12 @@ public class TestSpdzLPBuildingBlocks extends AbstractSpdzTest {
 							while (!termination) {
 								i++;
 								
-								OInt[] enteringOut = oIntFill(new OInt[enteringIndex.length], provider);
+								BigInteger[] enteringOut = oIntFill(new BigInteger[enteringIndex.length], provider);
 								ProtocolProducer entOutProducer = makeOpenCircuit(enteringIndex, enteringOut, provider);
 								sce.runApplication(entOutProducer);
 								int count = 0;
 								int entIndex = 0;
-								for (OInt out: enteringOut) {
+								for (BigInteger out: enteringOut) {
 									count += out.getValue().intValue();
 									if (count < 1) {
 										entIndex++;
@@ -1970,7 +1966,7 @@ public class TestSpdzLPBuildingBlocks extends AbstractSpdzTest {
 										enteringIndex, minimum);
 								SInt zero = provider.getSInt(0);
 								SInt positive  = provider.getSInt();
-								OInt positiveOut = provider.getOInt();
+								BigInteger positiveOut = provider.getOInt();
 								ProtocolProducer comp = provider.getComparisonCircuit(zero, minimum, positive, false);
 								ProtocolProducer output = provider.getOpenIntCircuit(positive, positiveOut);
 								long startTime = System.nanoTime();
@@ -1990,12 +1986,12 @@ public class TestSpdzLPBuildingBlocks extends AbstractSpdzTest {
 								timeTotal += timeExiting + timeUpdating + timeEntering + timeMisc;
 								
 								
-								OInt[] exitingOut = oIntFill(new OInt[exitingIndex.length], provider);
+								BigInteger[] exitingOut = oIntFill(new BigInteger[exitingIndex.length], provider);
 								ProtocolProducer extOutProducer = makeOpenCircuit(exitingIndex, exitingOut, provider);
 								sce.runApplication(extOutProducer);
 								count = 0;
 								int extIndex = 0;
-								for (OInt out: exitingOut) {
+								for (BigInteger out: exitingOut) {
 									count += out.getValue().intValue();
 									if (count < 1) {
 										extIndex++;
@@ -2013,8 +2009,8 @@ public class TestSpdzLPBuildingBlocks extends AbstractSpdzTest {
 							System.out.println("Total: " + timeTotal/1000000);
 
 							SInt optimal = provider.getSInt();
-							OInt optimalOut = provider.getOInt();
-							OInt pivotOut = provider.getOInt();
+							BigInteger optimalOut = provider.getOInt();
+							BigInteger pivotOut = provider.getOInt();
 							
 							ProtocolProducer optimalProducer = provider.getOptimalNumeratorCircuit(new Matrix<SInt>(updateMatrix), B, optimal);
 							ProtocolProducer numeratorOutProducer = provider.getOpenIntCircuit(optimal, optimalOut);
@@ -2146,7 +2142,7 @@ public class TestSpdzLPBuildingBlocks extends AbstractSpdzTest {
 		return result;
 	}
 	
-	private ProtocolProducer makeOpenCircuit(SInt[][] closed, OInt[][] open, SpdzProvider provider) {
+	private ProtocolProducer makeOpenCircuit(SInt[][] closed, BigInteger[][] open, SpdzProvider provider) {
 		ProtocolProducer[] openings = new ProtocolProducer[open.length];
 		for (int i = 0; i < open.length; i++) {
 			openings[i] = makeOpenCircuit(closed[i], open[i], provider); 
@@ -2154,8 +2150,8 @@ public class TestSpdzLPBuildingBlocks extends AbstractSpdzTest {
 		return new ParallelGateProducer(openings);
 	}
 	
-	private ProtocolProducer makeOpenCircuit(SInt[] closed, OInt[] open, SpdzProvider provider) {
-		OpenCircuit<SInt, OInt>[] openings = new OpenCircuit[closed.length]; 
+	private ProtocolProducer makeOpenCircuit(SInt[] closed, BigInteger[] open, SpdzProvider provider) {
+		OpenCircuit<SInt, BigInteger>[] openings = new OpenCircuit[closed.length];
 		for (int i = 0; i < open.length; i++) {
 			openings[i] = provider.getOpenIntCircuit(closed[i], open[i]);
 		}
@@ -2185,14 +2181,14 @@ public class TestSpdzLPBuildingBlocks extends AbstractSpdzTest {
 	}
 	
 	
-	private OInt[][] oIntFill(OInt[][] matrix, SpdzProvider provider) {
-		for(OInt[] vector: matrix) {
+	private BigInteger[][] oIntFill(BigInteger[][] matrix, SpdzProvider provider) {
+		for(BigInteger[] vector: matrix) {
 			vector = oIntFill(vector, provider);
 		}
 		return matrix;
 	}
 	
-	private OInt[] oIntFill(OInt[] vector, SpdzProvider provider) {
+	private BigInteger[] oIntFill(BigInteger[] vector, SpdzProvider provider) {
 		for(int i = 0; i < vector.length; i++) {
 			vector[i] = provider.getOInt();
 		}

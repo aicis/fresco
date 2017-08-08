@@ -26,20 +26,21 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.bool;
 
+import dk.alexandra.fresco.framework.BuilderFactory;
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.TestBoolApplication;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
-import dk.alexandra.fresco.framework.network.NetworkCreator;
+import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
+import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.value.OBool;
 import dk.alexandra.fresco.framework.value.SBool;
-import dk.alexandra.fresco.lib.compare.bool.BinaryGreaterThanNextProtocolsImpl;
 import dk.alexandra.fresco.lib.compare.bool.ParBinaryGreaterThanProtocolImpl;
 import dk.alexandra.fresco.lib.compare.bool.eq.BinaryEqualityProtocolImpl;
 import dk.alexandra.fresco.lib.helper.builder.BasicLogicBuilder;
-import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
+import dk.alexandra.fresco.lib.helper.SequentialProtocolProducer;
 import dk.alexandra.fresco.lib.logic.AbstractBinaryFactory;
 
 import org.apache.commons.math3.genetics.BinaryChromosome;
@@ -47,52 +48,53 @@ import org.junit.Assert;
 
 public class ComparisonBooleanTests {
 
-	/**
-	 * Tests if the number 01010 > 01110 - then it reverses that.
-	 * @author Kasper Damgaard
-	 *
-	 */
-	public static class TestGreaterThan extends TestThreadFactory {
-		@Override
-		public TestThread next(TestThreadConfiguration conf) {
-			return new TestThread() {
-				@Override
-				public void test() throws Exception {
-					boolean[] comp1 = new boolean[] {false, true, false, true, false};
-					boolean[] comp2 = new boolean[] {false, true, true, true, false};
-					
-					TestBoolApplication app = new TestBoolApplication() {
+  /**
+   * Tests if the number 01010 > 01110 - then it reverses that.
+   *
+   * @author Kasper Damgaard
+   */
+  public static class TestGreaterThan extends TestThreadFactory {
 
-						private static final long serialVersionUID = 4338818809103728010L;
+    @Override
+    public TestThread next(TestThreadConfiguration conf) {
+      return new TestThread() {
+        @Override
+        public void test() throws Exception {
+          boolean[] comp1 = new boolean[]{false, true, false, true, false};
+          boolean[] comp2 = new boolean[]{false, true, true, true, false};
 
-						@Override
-						public ProtocolProducer prepareApplication(
-								ProtocolFactory provider) {
-							AbstractBinaryFactory prov = (AbstractBinaryFactory) provider;
-							BasicLogicBuilder builder = new BasicLogicBuilder(prov);
-							
-							SBool[] in1 = builder.knownSBool(comp1);
-							SBool[] in2 = builder.knownSBool(comp2);
-							
-							SBool compRes1 = builder.greaterThan(in1, in2);
-							SBool compRes2 = builder.greaterThan(in2, in1);
+          TestBoolApplication app = new TestBoolApplication() {
+            @Override
+            public ProtocolProducer prepareApplication(
+                BuilderFactory factoryProducer) {
+              ProtocolFactory producer = factoryProducer.getProtocolFactory();
 
-							this.outputs = new OBool[]{builder.output(compRes1), builder.output(compRes2)};
-							return builder.getProtocol();
-						}
-					};
+              AbstractBinaryFactory prov = (AbstractBinaryFactory) producer;
+              BasicLogicBuilder builder = new BasicLogicBuilder(prov);
 
-					secureComputationEngine
-							.runApplication(app, NetworkCreator.createResourcePool(conf.sceConf));
+              SBool[] in1 = builder.knownSBool(comp1);
+              SBool[] in2 = builder.knownSBool(comp2);
 
-						Assert.assertEquals(false,
-								app.getOutputs()[0].getValue());
-						Assert.assertEquals(true,
-								app.getOutputs()[1].getValue());
-				}
-			};
-		}
-	}
+
+              SBool compRes1 = builder.greaterThan(in1, in2);
+              SBool compRes2 = builder.greaterThan(in2, in1);
+
+              this.outputs = new OBool[]{builder.output(compRes1), builder.output(compRes2)};
+              return builder.getProtocol();
+            }
+          };
+
+          secureComputationEngine
+              .runApplication(app, ResourcePoolCreator.createResourcePool(conf.sceConf));
+
+          Assert.assertEquals(false,
+              app.getOutputs()[0].getValue());
+          Assert.assertEquals(true,
+              app.getOutputs()[1].getValue());
+        }
+      };
+    }
+  }
 	
 	 public static class TestGreaterThanUnequalLength extends TestThreadFactory {
 	    @Override
@@ -109,7 +111,8 @@ public class ComparisonBooleanTests {
 
 	            @Override
 	            public ProtocolProducer prepareApplication(
-	                ProtocolFactory provider) {
+	                BuilderFactory factory) {
+	              ProtocolFactory provider = factory.getProtocolFactory();
 	              AbstractBinaryFactory prov = (AbstractBinaryFactory) provider;
 	              BasicLogicBuilder builder = new BasicLogicBuilder(prov);
 	              
@@ -125,66 +128,13 @@ public class ComparisonBooleanTests {
 	          };
 
 	          secureComputationEngine
-	              .runApplication(app, NetworkCreator.createResourcePool(conf.sceConf));
+	              .runApplication(app, ResourcePoolCreator.createResourcePool(conf.sceConf));
 
 	        }
 	      };
 	    }
 	  }
 
-   //TODO The tested class is not referenced in any builders and is perhaps never used?
-    public static class TestGreaterThanNextProtocols extends TestThreadFactory {
-      @Override
-      public TestThread next(TestThreadConfiguration conf) {
-        return new TestThread() {
-          @Override
-          public void test() throws Exception {
-            boolean[] comp1 = new boolean[] {false, true, false, true, false};
-            boolean[] comp2 = new boolean[] {false, true, true, true, false};
-            
-            TestBoolApplication app = new TestBoolApplication() {
-
-              private static final long serialVersionUID = 4338818809103728010L;
-
-              @Override
-              public ProtocolProducer prepareApplication(
-                  ProtocolFactory provider) {
-                AbstractBinaryFactory prov = (AbstractBinaryFactory) provider;
-                BasicLogicBuilder builder = new BasicLogicBuilder(prov);
-                
-                SBool[] in1 = builder.knownSBool(comp1);
-                SBool[] in2 = builder.knownSBool(comp2);
-                
-                SBool compRes1 = prov.getSBool();
-                SBool compRes2 = prov.getSBool();
-                
-                BinaryGreaterThanNextProtocolsImpl binaryGreaterThanProtocol = new
-                    BinaryGreaterThanNextProtocolsImpl(in1, in2, compRes1, prov);
-                
-                BinaryGreaterThanNextProtocolsImpl binaryGreaterThanProtocol2 = new
-                    BinaryGreaterThanNextProtocolsImpl(in2, in1, compRes2, prov);
-                SequentialProtocolProducer sseq = new SequentialProtocolProducer();
-                sseq.append(binaryGreaterThanProtocol);
-                sseq.append(binaryGreaterThanProtocol2);
-                
-                
-                this.outputs = new OBool[]{builder.output(compRes1), builder.output(compRes2)};
-                sseq.append(builder.getProtocol());
-                return sseq;
-              }
-            };
-
-            secureComputationEngine
-                .runApplication(app, NetworkCreator.createResourcePool(conf.sceConf));
-
-              Assert.assertEquals(false,
-                  app.getOutputs()[0].getValue());
-              Assert.assertEquals(true,
-                  app.getOutputs()[1].getValue());
-          }
-        };
-      }
-    }
 	 
 	 //TODO The tested class is commented as experimental and is not referenced in 
 	 // any builders
@@ -203,7 +153,8 @@ public class ComparisonBooleanTests {
 
 	            @Override
 	            public ProtocolProducer prepareApplication(
-	                ProtocolFactory provider) {
+	               BuilderFactory factory) {
+	              ProtocolFactory provider = factory.getProtocolFactory();
 	              AbstractBinaryFactory prov = (AbstractBinaryFactory) provider;
 	              BasicLogicBuilder builder = new BasicLogicBuilder(prov);
 	              
@@ -230,7 +181,7 @@ public class ComparisonBooleanTests {
 	          };
 
 	          secureComputationEngine
-	              .runApplication(app, NetworkCreator.createResourcePool(conf.sceConf));
+	              .runApplication(app, ResourcePoolCreator.createResourcePool(conf.sceConf));
 
 	            Assert.assertEquals(false,
 	                app.getOutputs()[0].getValue());
@@ -259,7 +210,8 @@ public class ComparisonBooleanTests {
 
 	            @Override
 	            public ProtocolProducer prepareApplication(
-	                ProtocolFactory provider) {
+	               BuilderFactory factory) {
+	              ProtocolFactory provider = factory.getProtocolFactory();
 	              AbstractBinaryFactory prov = (AbstractBinaryFactory) provider;
 	              BasicLogicBuilder builder = new BasicLogicBuilder(prov);
 	              
@@ -276,7 +228,7 @@ public class ComparisonBooleanTests {
 	          };
 
 	          secureComputationEngine
-	              .runApplication(app, NetworkCreator.createResourcePool(conf.sceConf));
+	              .runApplication(app, ResourcePoolCreator.createResourcePool(conf.sceConf));
 
 	            Assert.assertEquals(false,
 	                app.getOutputs()[0].getValue());
@@ -304,7 +256,8 @@ public class ComparisonBooleanTests {
 
               @Override
               public ProtocolProducer prepareApplication(
-                  ProtocolFactory provider) {
+                  BuilderFactory factory) {
+                ProtocolFactory provider = factory.getProtocolFactory();
                 AbstractBinaryFactory prov = (AbstractBinaryFactory) provider;
                 BasicLogicBuilder builder = new BasicLogicBuilder(prov);
                 
@@ -333,7 +286,7 @@ public class ComparisonBooleanTests {
             };
 
             secureComputationEngine
-                .runApplication(app, NetworkCreator.createResourcePool(conf.sceConf));
+                .runApplication(app, ResourcePoolCreator.createResourcePool(conf.sceConf));
 
               Assert.assertEquals(false,
                   app.getOutputs()[0].getValue());
@@ -343,5 +296,4 @@ public class ComparisonBooleanTests {
         };
       }
     }
-	  
 }

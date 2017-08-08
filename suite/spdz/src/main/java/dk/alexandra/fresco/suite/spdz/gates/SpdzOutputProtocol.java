@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -28,79 +28,67 @@ package dk.alexandra.fresco.suite.spdz.gates;
 
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.network.SCENetwork;
-import dk.alexandra.fresco.framework.network.serializers.BigIntegerWithFixedLengthSerializer;
-import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
-import dk.alexandra.fresco.framework.value.OInt;
+import dk.alexandra.fresco.framework.network.serializers.BigIntegerSerializer;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.framework.value.Value;
-import dk.alexandra.fresco.lib.field.integer.OpenIntProtocol;
+import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
-import dk.alexandra.fresco.suite.spdz.datatypes.SpdzOInt;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
-import dk.alexandra.fresco.suite.spdz.evaluation.strategy.SpdzProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
-import dk.alexandra.fresco.suite.spdz.utils.Util;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.util.List;
 
-public class SpdzOutputProtocol extends SpdzNativeProtocol implements OpenIntProtocol {
+public class SpdzOutputProtocol extends SpdzNativeProtocol<BigInteger> {
 
-	private SpdzSInt in;
-	private SpdzOInt out;
-	private int target_player;
-	private SpdzInputMask mask;
+  private SpdzSInt in;
+  private BigInteger out;
+  private int target_player;
+  private SpdzInputMask mask;
 
-	public SpdzOutputProtocol(SInt in, OInt out, int target_player) {
-		this.in = (SpdzSInt) in;
-		this.out = (SpdzOInt) out;
-		this.target_player = target_player;
-	}
+  public SpdzOutputProtocol(SInt in, int target_player) {
+    this.in = (SpdzSInt) in;
+    this.target_player = target_player;
+  }
 
-	public int getTarget() {
-		return target_player;
-	}
+  @Override
+  public BigInteger out() {
+    return out;
+  }
 
-	@Override
-	public Value[] getOutputValues() {
-		return new Value[] { out };
-	}
+  @Override
+  public EvaluationStatus evaluate(int round, SpdzResourcePool spdzResourcePool,
+      SCENetwork network) {
+    spdzResourcePool.setOutputProtocolInBatch(true);
 
-	@Override
-	public EvaluationStatus evaluate(int round, ResourcePool resourcePool, SCENetwork network) {		
-		SpdzProtocolSuite spdzpii = SpdzProtocolSuite.getInstance(resourcePool.getMyId());
-		spdzpii.outputProtocolUsedInBatch();
-		
-		int myId = resourcePool.getMyId();
-		SpdzStorage storage = spdzpii.getStore(network.getThreadId());
-
-		switch (round) {
-		case 0:
-			this.mask = storage.getSupplier().getNextInputMask(target_player);
-			SpdzElement inMinusMask = this.in.value.subtract(this.mask.getMask());
-			storage.addClosedValue(inMinusMask);
-			network.sendToAll(BigIntegerWithFixedLengthSerializer.toBytes(inMinusMask.getShare(), Util.getModulusSize()));
-			network.expectInputFromAll();
-			return EvaluationStatus.HAS_MORE_ROUNDS;
-		case 1:
-			List<ByteBuffer> shares = network.receiveFromAll();
-			BigInteger openedVal = BigInteger.valueOf(0);
-			for (ByteBuffer buffer : shares) {
-				openedVal = openedVal.add(BigIntegerWithFixedLengthSerializer.toBigInteger(buffer, Util.getModulusSize()));
-			}
-			openedVal = openedVal.mod(Util.getModulus());
-			storage.addOpenedValue(openedVal);
-			if (target_player == myId) {
-				openedVal = openedVal.add(this.mask.getRealValue()).mod(Util.getModulus());
-				BigInteger tmpOut = openedVal;
-				//tmpOut = Util.convertRepresentation(tmpOut);
-				out.setValue(tmpOut);
-			}
-			return EvaluationStatus.IS_DONE;
-		default:
-			throw new MPCException("No more rounds to evaluate.");
-		}
-	}
+    int myId = spdzResourcePool.getMyId();
+    SpdzStorage storage = spdzResourcePool.getStore();
+    BigIntegerSerializer serializer = spdzResourcePool.getSerializer();
+    switch (round) {
+      case 0:
+        this.mask = storage.getSupplier().getNextInputMask(target_player);
+        SpdzElement inMinusMask = this.in.value.subtract(this.mask.getMask());
+        storage.addClosedValue(inMinusMask);
+        network.sendToAll(serializer.toBytes(inMinusMask.getShare()));
+        network.expectInputFromAll();
+        return EvaluationStatus.HAS_MORE_ROUNDS;
+      case 1:
+        List<ByteBuffer> shares = network.receiveFromAll();
+        BigInteger openedVal = BigInteger.valueOf(0);
+        for (ByteBuffer buffer : shares) {
+          openedVal = openedVal.add(serializer.toBigInteger(buffer));
+        }
+        openedVal = openedVal.mod(spdzResourcePool.getModulus());
+        storage.addOpenedValue(openedVal);
+        if (target_player == myId) {
+          openedVal = openedVal.add(this.mask.getRealValue()).mod(spdzResourcePool.getModulus());
+          //          tmpOut = Util.convertRepresentation(tmpOut);
+          out = openedVal;
+        }
+        return EvaluationStatus.IS_DONE;
+      default:
+        throw new MPCException("No more rounds to evaluate.");
+    }
+  }
 
 }

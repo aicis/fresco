@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -23,10 +23,8 @@
  *
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
- *******************************************************************************/
+ */
 package dk.alexandra.fresco.framework.math;
-
-import java.math.BigInteger;
 
 public class Util {
 
@@ -43,38 +41,7 @@ public class Util {
 	}
 	
 	
-	public static int IthBit(byte b, int i) {		
-		return (b & m[i]) >> i; 
-	}
-	
 	public static boolean ithBit(int no, int i){
 		return ((no >> i)&0x01) == 1;
-	}
-	
-	public static byte[] intToBits(int no){
-		return intToBits(no, 32);
-	}
-	
-	public static byte[] intToBits(int no, int amountOfBitsUsed){
-		byte[] res = new byte[amountOfBitsUsed];		
-		for(int i = 0; i < amountOfBitsUsed; i++){
-			res[amountOfBitsUsed-i-1] = (byte) ((no >> i)&0x00000001);
-		}
-		return res;
-	}
-	
-	public static int bitsToInt(byte[] bits){		
-		int res = 0;
-		BigInteger tmp = new BigInteger("2");
-		for(int i = 0; i < bits.length; i++){
-			if(bits[bits.length-1-i] == (byte)1){
-				res+= tmp.pow(i).intValue();
-			}
-		}
-		return res;
-	}
-	
-	public static boolean isPowerOfTwo(int n) {
-		return (n & (n - 1)) == 0;
 	}
 }

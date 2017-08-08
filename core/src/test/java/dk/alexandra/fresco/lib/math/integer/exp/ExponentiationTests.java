@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -26,91 +26,64 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.math.integer.exp;
 
-import dk.alexandra.fresco.framework.ProtocolFactory;
+import dk.alexandra.fresco.framework.BuilderFactory;
+import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.TestApplication;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
-import dk.alexandra.fresco.framework.network.NetworkCreator;
-import dk.alexandra.fresco.framework.value.OInt;
+import dk.alexandra.fresco.framework.builder.NumericBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
+import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
+import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.compare.RandomAdditiveMaskFactory;
-import dk.alexandra.fresco.lib.compare.RandomAdditiveMaskFactoryImpl;
-import dk.alexandra.fresco.lib.conversion.IntegerToBitsFactory;
-import dk.alexandra.fresco.lib.conversion.IntegerToBitsFactoryImpl;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
-import dk.alexandra.fresco.lib.field.integer.RandomFieldElementFactory;
 import dk.alexandra.fresco.lib.helper.builder.NumericIOBuilder;
-import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
-import dk.alexandra.fresco.lib.lp.LPFactory;
-import dk.alexandra.fresco.lib.lp.LPFactoryImpl;
-import dk.alexandra.fresco.lib.math.integer.NumericBitFactory;
-import dk.alexandra.fresco.lib.math.integer.binary.RightShiftFactory;
-import dk.alexandra.fresco.lib.math.integer.binary.RightShiftFactoryImpl;
-import dk.alexandra.fresco.lib.math.integer.inv.InversionProtocolFactory;
-import dk.alexandra.fresco.lib.math.integer.inv.LocalInversionFactory;
+import dk.alexandra.fresco.lib.helper.SequentialProtocolProducer;
 import java.math.BigInteger;
+import java.util.List;
 import org.junit.Assert;
 
 public class ExponentiationTests {
 
-	/**
-	 * Test binary right shift of a shared secret.
-	 */
-	public static class TestExponentiation extends TestThreadFactory {
+  public static class TestExponentiation extends TestThreadFactory {
 
-		@Override
-		public TestThread next(TestThreadConfiguration conf) {
-			
-			return new TestThread() {
-				private final BigInteger input = BigInteger.valueOf(12332157);
-				private final int exp = 12;
+    @Override
+    public TestThread next(TestThreadConfiguration conf) {
 
-				@Override
-				public void test() throws Exception {
-					TestApplication app = new TestApplication() {
+      return new TestThread() {
+        private final BigInteger input = BigInteger.valueOf(12332157);
+        private final int exp = 12;
 
-						private static final long serialVersionUID = 701623441111137585L;
-						
-						@Override
-						public ProtocolProducer prepareApplication(
-								ProtocolFactory provider) {
-							
-							BasicNumericFactory basicNumericFactory = (BasicNumericFactory) provider;
-							NumericBitFactory preprocessedNumericBitFactory = (NumericBitFactory) provider;
-							RandomAdditiveMaskFactory randomAdditiveMaskFactory = new RandomAdditiveMaskFactoryImpl(basicNumericFactory, preprocessedNumericBitFactory);
-							LocalInversionFactory localInversionFactory = (LocalInversionFactory) provider;
-							RightShiftFactory rightShiftFactory = new RightShiftFactoryImpl(basicNumericFactory, randomAdditiveMaskFactory, localInversionFactory);
-							IntegerToBitsFactory integerToBitsFactory = new IntegerToBitsFactoryImpl(basicNumericFactory, rightShiftFactory);
-							ExponentiationFactory exponentiationFactory = new ExponentiationFactoryImpl(basicNumericFactory, integerToBitsFactory);
+        @Override
+        public void test() throws Exception {
+          TestApplication app = new TestApplication() {
 
-							SInt result = basicNumericFactory.getSInt();
+            @Override
+            public ProtocolProducer prepareApplication(BuilderFactory factoryProducer) {
+              return null;
+            }
 
-							NumericIOBuilder ioBuilder = new NumericIOBuilder(basicNumericFactory);
-							SequentialProtocolProducer sequentialProtocolProducer = new SequentialProtocolProducer();
-							
-							SInt input1 = ioBuilder.input(input, 1);
-							SInt input2 = ioBuilder.input(exp, 2);
-							sequentialProtocolProducer.append(ioBuilder.getProtocol());
+            @Override
+            public Computation<List<BigInteger>> prepareApplication(
+                ProtocolBuilderNumeric producer) {
+              NumericBuilder numeric = producer.numeric();
+              Computation<SInt> base = numeric.known(input);
+              Computation<SInt> exponent = numeric.known(BigInteger.valueOf(exp));
 
-							ExponentiationProtocol exponentiationProtocol = exponentiationFactory.getExponentiationCircuit(input1, input2, 5, result);
-							sequentialProtocolProducer.append(exponentiationProtocol);
-							
-							OInt output1 = ioBuilder.output(result);
-							
-							sequentialProtocolProducer.append(ioBuilder.getProtocol());
-							
-							ProtocolProducer gp = sequentialProtocolProducer;
-							
-							outputs = new OInt[] {output1};
-							
-							return gp;
-						}
-					};
+              Computation<SInt> result = producer.advancedNumeric().exp(
+                  base, exponent, 5
+              );
+
+              outputs.add(numeric.open(result));
+
+              return outputToBigInteger();
+            }
+          };
           secureComputationEngine
-              .runApplication(app, NetworkCreator.createResourcePool(conf.sceConf));
-          BigInteger result = app.getOutputs()[0].getValue();
+              .runApplication(app, ResourcePoolCreator.createResourcePool(conf.sceConf));
+          BigInteger result = app.getOutputs()[0];
 					
 					Assert.assertEquals(input.pow(exp), result);
 				}
@@ -118,11 +91,11 @@ public class ExponentiationTests {
 		}
 	}
 
-	 public static class TestExponentiationOInt extends TestThreadFactory {
+	 public static class TestExponentiationOpenExponent extends TestThreadFactory {
 
 	    @Override
 	    public TestThread next(TestThreadConfiguration conf) {
-	      
+
 	      return new TestThread() {
 	        private final BigInteger input = BigInteger.valueOf(12332157);
 	        private final int exp = 12;
@@ -131,46 +104,29 @@ public class ExponentiationTests {
 	        public void test() throws Exception {
 	          TestApplication app = new TestApplication() {
 
-	            private static final long serialVersionUID = 701623441111137585L;
-	            
 	            @Override
-	            public ProtocolProducer prepareApplication(
-	                ProtocolFactory provider) {
-	              
-	              BasicNumericFactory basicNumericFactory = (BasicNumericFactory) provider;
-	              NumericBitFactory preprocessedNumericBitFactory = (NumericBitFactory) provider;
-	              RandomAdditiveMaskFactory randomAdditiveMaskFactory = new RandomAdditiveMaskFactoryImpl(basicNumericFactory, preprocessedNumericBitFactory);
-	              LocalInversionFactory localInversionFactory = (LocalInversionFactory) provider;
-	              RightShiftFactory rightShiftFactory = new RightShiftFactoryImpl(basicNumericFactory, randomAdditiveMaskFactory, localInversionFactory);
-	              IntegerToBitsFactory integerToBitsFactory = new IntegerToBitsFactoryImpl(basicNumericFactory, rightShiftFactory);
-	              ExponentiationFactory exponentiationFactory = new ExponentiationFactoryImpl(basicNumericFactory, integerToBitsFactory);
+	            public ProtocolProducer prepareApplication(BuilderFactory factoryProducer) {
+	              return null;
+	            }
 
-	              SInt result = basicNumericFactory.getSInt();
+	            @Override
+	            public Computation<List<BigInteger>> prepareApplication(
+	                ProtocolBuilderNumeric producer) {
+	              NumericBuilder numeric = producer.numeric();
+	              Computation<SInt> base = numeric.known(input);
+	              BigInteger exponent = BigInteger.valueOf(exp);
 
-	              NumericIOBuilder ioBuilder = new NumericIOBuilder(basicNumericFactory);
-	              SequentialProtocolProducer sequentialProtocolProducer = new SequentialProtocolProducer();
-	              
-	              OInt input1 = basicNumericFactory.getOInt(input);
-	              SInt input2 = ioBuilder.input(exp, 2);
-	              sequentialProtocolProducer.append(ioBuilder.getProtocol());
+	              Computation<SInt> result = producer.advancedNumeric().exp(
+	                  base, exponent);
 
-	              ExponentiationProtocol exponentiationProtocol = exponentiationFactory.getExponentiationCircuit(input1, input2, 5, result);
-	              sequentialProtocolProducer.append(exponentiationProtocol);
-	              
-	              OInt output1 = ioBuilder.output(result);
-	              
-	              sequentialProtocolProducer.append(ioBuilder.getProtocol());
-	              
-	              ProtocolProducer gp = sequentialProtocolProducer;
-	              
-	              outputs = new OInt[] {output1};
-	              
-	              return gp;
+	              outputs.add(numeric.open(result));
+
+	              return outputToBigInteger();
 	            }
 	          };
 	          secureComputationEngine
-	              .runApplication(app, NetworkCreator.createResourcePool(conf.sceConf));
-	          BigInteger result = app.getOutputs()[0].getValue();
+	              .runApplication(app, ResourcePoolCreator.createResourcePool(conf.sceConf));
+	          BigInteger result = app.getOutputs()[0];
 	          
 	          Assert.assertEquals(input.pow(exp), result);
 	        }
@@ -178,8 +134,93 @@ public class ExponentiationTests {
 	    }
 	  }
 
-	 
-   public static class TestExponentiationPipe extends TestThreadFactory {
+	  public static class TestExponentiationOpenBase extends TestThreadFactory {
+
+	    @Override
+	    public TestThread next(TestThreadConfiguration conf) {
+
+	      return new TestThread() {
+	        private final BigInteger input = BigInteger.valueOf(12332157);
+	        private final int exp = 12;
+
+	        @Override
+	        public void test() throws Exception {
+	          TestApplication app = new TestApplication() {
+
+	            @Override
+	            public ProtocolProducer prepareApplication(BuilderFactory factoryProducer) {
+	              return null;
+	            }
+
+	            @Override
+	            public Computation<List<BigInteger>> prepareApplication(
+	                ProtocolBuilderNumeric producer) {
+	              NumericBuilder numeric = producer.numeric();
+	              BigInteger base = input;
+	              Computation<SInt> exponent = numeric.known(BigInteger.valueOf(exp));
+
+	              Computation<SInt> result = producer.advancedNumeric().exp(
+	                  base, exponent, 5
+	              );
+
+	              outputs.add(numeric.open(result));
+
+	              return outputToBigInteger();
+	            }
+	          };
+	          secureComputationEngine
+	              .runApplication(app, ResourcePoolCreator.createResourcePool(conf.sceConf));
+	          BigInteger result = app.getOutputs()[0];
+	          
+	          Assert.assertEquals(input.pow(exp), result);
+	        }
+	      };
+	    }
+	  }
+
+	  public static class TestExponentiationZeroExponent extends TestThreadFactory {
+
+      @Override
+      public TestThread next(TestThreadConfiguration conf) {
+
+        return new TestThread() {
+          private final BigInteger input = BigInteger.valueOf(12332157);
+
+          @Override
+          public void test() throws Exception {
+            TestApplication app = new TestApplication() {
+
+              @Override
+              public ProtocolProducer prepareApplication(BuilderFactory factoryProducer) {
+                return null;
+              }
+
+              @Override
+              public Computation<List<BigInteger>> prepareApplication(
+                  ProtocolBuilderNumeric producer) {
+                NumericBuilder numeric = producer.numeric();
+                Computation<SInt> base = numeric.known(input);
+                BigInteger exponent = BigInteger.ZERO;
+
+                Computation<SInt> result = producer.advancedNumeric().exp(
+                    base, exponent);
+
+                outputs.add(numeric.open(result));
+
+                return outputToBigInteger();
+              }
+            };
+            secureComputationEngine
+                .runApplication(app, ResourcePoolCreator.createResourcePool(conf.sceConf));
+            BigInteger result = app.getOutputs()[0];
+            
+            Assert.assertEquals(input.pow(0), result);
+          }
+        };
+      }
+    }
+	  
+/*   public static class TestExponentiationPipe extends TestThreadFactory {
 
      @Override
      public TestThread next(TestThreadConfiguration conf) {
@@ -253,4 +294,15 @@ public class ExponentiationTests {
        };
      }
    }
+=======
+              .runApplication(app, ResourcePoolCreator.createResourcePool(conf.sceConf));
+          BigInteger result = app.getOutputs()[0];
+
+          Assert.assertEquals(input.pow(exp), result);
+        }
+      };
+    }
+  }
+
+>>>>>>> develop*/
 }

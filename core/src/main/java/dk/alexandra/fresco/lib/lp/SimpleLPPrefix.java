@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -23,50 +23,43 @@
  *
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
- *******************************************************************************/
+ */
 package dk.alexandra.fresco.lib.lp;
 
-import dk.alexandra.fresco.framework.ProtocolProducer;
+import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.value.SInt;
+import java.util.List;
 
-public class SimpleLPPrefix implements LPPrefix {
-	
-	private final Matrix<SInt> updateMatrix;
-	private final LPTableau tableau;
-	private final SInt pivot;
-	private final SInt[] basis;
-	private ProtocolProducer prefix;
-	
-	public SimpleLPPrefix(Matrix<SInt> updateMatrix, LPTableau tableau, SInt pivot, SInt[] basis, ProtocolProducer prefix) {
-		this.updateMatrix = updateMatrix;
-		this.tableau = tableau;
-		this.pivot = pivot;
-		this.basis = basis;
-		this.prefix = prefix;
-	}
-	
-	@Override
-	public ProtocolProducer getPrefix() {
-		return prefix;
-	}
+public class SimpleLPPrefix {
 
-	@Override
-	public LPTableau getTableau() {
-		return tableau;
-	}
+  private final Matrix<Computation<SInt>> updateMatrix;
+  private final LPTableau tableau;
+  private final Computation<SInt> pivot;
+  private final List<Computation<SInt>> basis;
 
-	@Override
-	public Matrix<SInt> getUpdateMatrix() {
-		return updateMatrix;
-	}
+  public SimpleLPPrefix(Matrix<Computation<SInt>> updateMatrix, LPTableau tableau,
+      Computation<SInt> pivot,
+      List<Computation<SInt>> basis) {
+    this.updateMatrix = updateMatrix;
+    this.tableau = tableau;
+    this.pivot = pivot;
+    this.basis = basis;
+  }
 
-	@Override
-	public SInt getPivot() {
-		return pivot;
-	}
 
-	@Override
-	public SInt[] getBasis() {
-		return basis;
-	}
+  public LPTableau getTableau() {
+    return tableau;
+  }
+
+  public Matrix<Computation<SInt>> getUpdateMatrix() {
+    return updateMatrix;
+  }
+
+  public Computation<SInt> getPivot() {
+    return pivot;
+  }
+
+  public List<Computation<SInt>> getBasis() {
+    return basis;
+  }
 }

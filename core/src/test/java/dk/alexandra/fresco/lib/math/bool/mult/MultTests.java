@@ -26,6 +26,7 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.math.bool.mult;
 
+import dk.alexandra.fresco.framework.BuilderFactory;
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.ProtocolProducer;
@@ -33,13 +34,13 @@ import dk.alexandra.fresco.framework.TestBoolApplication;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
-import dk.alexandra.fresco.framework.network.NetworkCreator;
+import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.util.ByteArithmetic;
 import dk.alexandra.fresco.framework.value.OBool;
 import dk.alexandra.fresco.framework.value.SBool;
 import dk.alexandra.fresco.lib.helper.SingleProtocolProducer;
 import dk.alexandra.fresco.lib.helper.builder.BasicLogicBuilder;
-import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
+import dk.alexandra.fresco.lib.helper.SequentialProtocolProducer;
 import dk.alexandra.fresco.lib.logic.AbstractBinaryFactory;
 
 import org.hamcrest.core.Is;
@@ -67,8 +68,9 @@ public class MultTests {
 
             @Override
             public ProtocolProducer prepareApplication(
-                ProtocolFactory provider) {
-              AbstractBinaryFactory prov = (AbstractBinaryFactory) provider;
+                BuilderFactory factoryProducer) {
+              ProtocolFactory producer = factoryProducer.getProtocolFactory();
+              AbstractBinaryFactory prov = (AbstractBinaryFactory) producer;
               BasicLogicBuilder builder = new BasicLogicBuilder(prov);
           
               SequentialProtocolProducer seq = new SequentialProtocolProducer();
@@ -90,7 +92,7 @@ public class MultTests {
           };
 
           secureComputationEngine.runApplication(app,
-              NetworkCreator.createResourcePool(conf.sceConf));
+              ResourcePoolCreator.createResourcePool(conf.sceConf));
 
           boolean[] raw = convert(app.getOutputs());
           Assert.assertThat(raw[raw.length-1], Is.is(false));    

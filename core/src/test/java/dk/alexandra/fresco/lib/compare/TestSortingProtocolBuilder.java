@@ -1,5 +1,5 @@
 package dk.alexandra.fresco.lib.compare;
-
+/*
 import java.math.BigInteger;
 import java.util.List;
 import java.util.Map;
@@ -20,4 +20,4 @@ public class TestSortingProtocolBuilder {
     //Not sure what should be tested.
   }
   
-}
+}*/

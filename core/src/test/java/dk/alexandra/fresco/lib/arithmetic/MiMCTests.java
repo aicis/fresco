@@ -23,25 +23,29 @@
  *
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
- *******************************************************************************/
+ */
 package dk.alexandra.fresco.lib.arithmetic;
 
-import dk.alexandra.fresco.framework.ProtocolFactory;
+import dk.alexandra.fresco.framework.BuilderFactory;
+import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.TestApplication;
+import dk.alexandra.fresco.framework.TestApplicationBigInteger;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
-import dk.alexandra.fresco.framework.network.NetworkCreator;
-import dk.alexandra.fresco.framework.value.KnownSIntProtocol;
-import dk.alexandra.fresco.framework.value.OInt;
+import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
+import dk.alexandra.fresco.framework.builder.NumericBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
+import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
+import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
+import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
-import dk.alexandra.fresco.lib.helper.SingleProtocolProducer;
-import dk.alexandra.fresco.lib.helper.builder.NumericIOBuilder;
-import dk.alexandra.fresco.lib.helper.builder.OmniBuilder;
-import dk.alexandra.fresco.lib.helper.builder.SymmetricEncryptionBuilder;
+import dk.alexandra.fresco.lib.crypto.mimc.MiMCDecryption;
+import dk.alexandra.fresco.lib.crypto.mimc.MiMCEncryption;
 import java.math.BigInteger;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import org.junit.Assert;
 
 public class MiMCTests {
@@ -56,14 +60,15 @@ public class MiMCTests {
    * concrete implementations for this test will do its own set up and if the
    * modulus is not set correctly this test will fail (rather mysteriously).
    */
-  public static class TestMiMCEncryptsDeterministically extends TestThreadFactory {
+  public static class TestMiMCEncryptsDeterministically<ResourcePoolT extends ResourcePool> extends
+      TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     @Override
-    public TestThread next(TestThreadConfiguration conf) {
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next(
+        TestThreadConfiguration<ResourcePoolT, ProtocolBuilderNumeric> conf) {
 
       abstract class MyTestApplication extends TestApplication {
 
-        private static final long serialVersionUID = 1L;
         private BigInteger modulus;
 
         BigInteger getModulus() {
@@ -76,174 +81,170 @@ public class MiMCTests {
 
       }
 
-      return new TestThread() {
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+
+        private Computation<BigInteger> result;
+
         @Override
         public void test() throws Exception {
           MyTestApplication app = new MyTestApplication() {
 
-            private static final long serialVersionUID = 4338818809103728010L;
-
             @Override
             public ProtocolProducer prepareApplication(
-                ProtocolFactory factory) {
-              BasicNumericFactory bnf = (BasicNumericFactory) factory;
-              this.setModulus(bnf.getModulus());
-              OmniBuilder builder = new OmniBuilder(factory);
-              SymmetricEncryptionBuilder seb = builder.getSymmetricEncryptionBuilder();
-              NumericIOBuilder niob = builder.getNumericIOBuilder();
+                BuilderFactory factoryProducer) {
+              return ProtocolBuilderNumeric
+                  .createApplicationRoot((BuilderFactoryNumeric) factoryProducer, (builder) -> {
+                    setModulus(builder.getBasicNumericFactory().getModulus());
 
-              SInt mimcKey = niob.input(BigInteger.valueOf(527618), 2);
-              SInt plainText = niob.input(BigInteger.valueOf(10), 1);
-
-              SInt cipherText = seb.mimcEncrypt(plainText, mimcKey);
-              OInt cipherTextOpen = niob.output(cipherText);
-
-              this.outputs = new OInt[]{cipherTextOpen};
-              return builder.getProtocol();
+                    NumericBuilder intFactory = builder.numeric();
+                    Computation<SInt> encryptionKey = intFactory.known(BigInteger.valueOf(527618));
+                    Computation<SInt> plainText = intFactory.known(BigInteger.valueOf(10));
+                    Computation<SInt> cipherText = builder.createSequentialSub(
+                        new MiMCEncryption(plainText, encryptionKey)
+                    );
+                    result = builder.numeric().open(cipherText);
+                  }).build();
             }
           };
 
           secureComputationEngine
-              .runApplication(app, NetworkCreator.createResourcePool(conf.sceConf));
+              .runApplication(app, ResourcePoolCreator.createResourcePool(conf.sceConf));
 
           BigInteger expectedModulus = new BigInteger(
               "2582249878086908589655919172003011874329705792829223512830659356540647622016841194629645353280137831435903171972747493557");
           Assert.assertEquals(expectedModulus, app.getModulus());
           BigInteger expectedCipherText = new BigInteger(
               "10388336824440235723309131431891968131690383663436711590309818298349333623568340591094832870178074855376232596303647115");
-          Assert.assertEquals(expectedCipherText, app.getOutputs()[0].getValue());
-
-          secureComputationEngine.shutdownSCE();
+          Assert.assertEquals(expectedCipherText, result.out());
         }
       };
     }
   }
 
-  public static class TestMiMCEncSameEnc extends TestThreadFactory {
+  public static class TestMiMCEncSameEnc<ResourcePoolT extends ResourcePool> extends
+      TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     @Override
-    public TestThread next(TestThreadConfiguration conf) {
-      return new TestThread() {
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next(
+        TestThreadConfiguration<ResourcePoolT, ProtocolBuilderNumeric> conf) {
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+        private Computation<BigInteger> result2;
+        private Computation<BigInteger> result1;
+
         @Override
         public void test() throws Exception {
+
           TestApplication app = new TestApplication() {
-
-            private static final long serialVersionUID = 4338818809103728010L;
-
             @Override
-            public ProtocolProducer prepareApplication(
-                ProtocolFactory factory) {
-              OmniBuilder builder = new OmniBuilder(factory);
-              SInt k = builder.getNumericIOBuilder().input(BigInteger.valueOf(527618), 2);
-              SInt x = builder.getNumericIOBuilder().input(BigInteger.valueOf(10), 1);
-
-              SInt encX1 = builder.getSymmetricEncryptionBuilder().mimcEncrypt(x, k);
-              SInt encX2 = builder.getSymmetricEncryptionBuilder().mimcEncrypt(x, k);
-
-              OInt out1 = builder.getNumericIOBuilder().output(encX1);
-              OInt out2 = builder.getNumericIOBuilder().output(encX2);
-
-              this.outputs = new OInt[]{out1, out2};
-              return builder.getProtocol();
+            public ProtocolProducer prepareApplication(BuilderFactory factoryProducer) {
+              return ProtocolBuilderNumeric
+                  .createApplicationRoot((BuilderFactoryNumeric) factoryProducer, (builder) -> {
+                    NumericBuilder intFactory = builder.numeric();
+                    Computation<SInt> encryptionKey = intFactory.known(BigInteger.valueOf(527618));
+                    Computation<SInt> plainText = intFactory.known(BigInteger.valueOf(10));
+                    Computation<SInt> cipherText = builder.createSequentialSub(
+                        new MiMCEncryption(plainText, encryptionKey)
+                    );
+                    Computation<SInt> cipherText2 = builder.createSequentialSub(
+                        new MiMCEncryption(plainText, encryptionKey)
+                    );
+                    result1 = builder.numeric().open(cipherText);
+                    result2 = builder.numeric().open(cipherText2);
+                  }).build();
             }
           };
 
           secureComputationEngine
-              .runApplication(app, NetworkCreator.createResourcePool(conf.sceConf));
+              .runApplication(app, ResourcePoolCreator.createResourcePool(conf.sceConf));
 
-          Assert.assertEquals(app.getOutputs()[0].getValue(), app.getOutputs()[1].getValue());
-          secureComputationEngine.shutdownSCE();
+          Assert.assertEquals(result1.out(), result2.out());
         }
       };
     }
   }
 
-  public static class TestMiMCDifferentPlainTexts extends TestThreadFactory {
+  public static class TestMiMCDifferentPlainTexts<ResourcePoolT extends ResourcePool> extends
+      TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     @Override
-    public TestThread next(TestThreadConfiguration conf) {
-      return new TestThread() {
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next(
+        TestThreadConfiguration<ResourcePoolT, ProtocolBuilderNumeric> conf) {
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+        private Computation<BigInteger> resultB;
+        private Computation<BigInteger> resultA;
+
         @Override
         public void test() throws Exception {
+
           TestApplication app = new TestApplication() {
-
-            private static final long serialVersionUID = 4338818809103728010L;
-
             @Override
-            public ProtocolProducer prepareApplication(
-                ProtocolFactory factory) {
-              OmniBuilder builder = new OmniBuilder(factory);
-              SymmetricEncryptionBuilder seb = builder.getSymmetricEncryptionBuilder();
-              NumericIOBuilder niob = builder.getNumericIOBuilder();
-
-              SInt mimcKey = niob.input(BigInteger.valueOf(527618), 2);
-
-              SInt plainTextA = niob.input(BigInteger.valueOf(10), 1);
-              SInt plainTextB = niob.input(BigInteger.valueOf(11), 1);
-
-              SInt cipherTextA = seb.mimcEncrypt(plainTextA, mimcKey);
-              SInt cipherTextB = seb.mimcEncrypt(plainTextB, mimcKey);
-
-              OInt cipherTextAOpen = builder.getNumericIOBuilder().output(cipherTextA);
-              OInt cipherTextBOpen = builder.getNumericIOBuilder().output(cipherTextB);
-
-              this.outputs = new OInt[]{cipherTextAOpen, cipherTextBOpen};
-              return builder.getProtocol();
+            public ProtocolProducer prepareApplication(BuilderFactory factoryProducer) {
+              return ProtocolBuilderNumeric
+                  .createApplicationRoot((BuilderFactoryNumeric) factoryProducer, (builder) -> {
+                    NumericBuilder intFactory = builder.numeric();
+                    Computation<SInt> encryptionKey = intFactory.known(BigInteger.valueOf(527618));
+                    Computation<SInt> plainTextA = intFactory.known(BigInteger.valueOf(10));
+                    Computation<SInt> plainTextB = intFactory.known(BigInteger.valueOf(11));
+                    Computation<SInt> cipherTextA = builder.createSequentialSub(
+                        new MiMCEncryption(plainTextA, encryptionKey)
+                    );
+                    Computation<SInt> cipherTextB = builder.createSequentialSub(
+                        new MiMCEncryption(plainTextB, encryptionKey)
+                    );
+                    resultA = builder.numeric().open(cipherTextA);
+                    resultB = builder.numeric().open(cipherTextB);
+                  }).build();
             }
           };
 
           secureComputationEngine
-              .runApplication(app, NetworkCreator.createResourcePool(conf.sceConf));
+              .runApplication(app, ResourcePoolCreator.createResourcePool(conf.sceConf));
 
-          Assert.assertNotEquals(app.getOutputs()[0].getValue(), app.getOutputs()[1].getValue());
-          secureComputationEngine.shutdownSCE();
+          Assert.assertNotEquals(resultA.out(), resultB.out());
         }
       };
     }
   }
 
-  public static class TestMiMCEncDec extends TestThreadFactory {
+  public static class TestMiMCEncDec<ResourcePoolT extends ResourcePool> extends
+      TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     @Override
-    public TestThread next(TestThreadConfiguration conf) {
-      return new TestThread() {
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next(
+        TestThreadConfiguration<ResourcePoolT, ProtocolBuilderNumeric> conf) {
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+
         @Override
         public void test() throws Exception {
           BigInteger x_big = BigInteger.valueOf(10);
-          TestApplication app = new TestApplication() {
+          TestApplicationBigInteger app = new TestApplicationBigInteger() {
 
-            private static final long serialVersionUID = 4338818809103728010L;
 
             @Override
             public ProtocolProducer prepareApplication(
-                ProtocolFactory factory) {
-              BasicNumericFactory fac = (BasicNumericFactory) factory;
-              SymmetricEncryptionBuilder symBuilder = new SymmetricEncryptionBuilder(fac);
-              SInt k = fac.getSInt();
-              KnownSIntProtocol knownKProtocol = fac.getSInt(20, k);
-
-              SInt x = fac.getSInt();
-              KnownSIntProtocol knownXProtocol = fac.getSInt(x_big, x);
-              symBuilder.addProtocolProducer(SingleProtocolProducer.wrap(knownKProtocol));
-              symBuilder.addProtocolProducer(SingleProtocolProducer.wrap(knownXProtocol));
-              SInt encX = symBuilder.mimcEncrypt(x, k);
-              SInt decX = symBuilder.mimcDecrypt(encX, k);
-
-              OInt outEnc = fac.getOInt();
-              OInt out1 = fac.getOInt();
-              symBuilder.addProtocolProducer(
-                  SingleProtocolProducer.wrap(fac.getOpenProtocol(encX, outEnc)));
-              symBuilder.addProtocolProducer(
-                  SingleProtocolProducer.wrap(fac.getOpenProtocol(decX, out1)));
-
-              this.outputs = new OInt[]{outEnc, out1};
-              return symBuilder.getProtocol();
+                BuilderFactory factoryProducer) {
+              return ProtocolBuilderNumeric
+                  .createApplicationRoot((BuilderFactoryNumeric) factoryProducer, (builder) -> {
+                    NumericBuilder intFactory = builder.numeric();
+                    Computation<SInt> encryptionKey = intFactory.known(BigInteger.valueOf(10));
+                    Computation<SInt> plainText = intFactory.known(x_big);
+                    Computation<SInt> cipherText = builder.createSequentialSub(
+                        new MiMCEncryption(plainText, encryptionKey)
+                    );
+                    Computation<SInt> decrypted = builder.createSequentialSub(
+                        new MiMCDecryption(cipherText, encryptionKey)
+                    );
+                    output = builder.numeric().open(decrypted);
+                  }).build();
             }
           };
 
-          secureComputationEngine
-              .runApplication(app, NetworkCreator.createResourcePool(conf.sceConf));
-          Assert.assertEquals(x_big, app.getOutputs()[1].getValue());
+          ResourcePoolT resourcePool =
+              ResourcePoolCreator.createResourcePool(conf.sceConf);
+          Future<BigInteger> listFuture = secureComputationEngine
+              .startApplication(app, resourcePool);
+          BigInteger result = listFuture.get(20, TimeUnit.MINUTES);
+          Assert.assertEquals(x_big, result);
         }
       };
     }

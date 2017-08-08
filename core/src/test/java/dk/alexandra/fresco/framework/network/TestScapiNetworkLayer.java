@@ -28,19 +28,6 @@ package dk.alexandra.fresco.framework.network;
 
 import static org.junit.Assert.assertTrue;
 
-import java.net.InetAddress;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.logging.Level;
-
-import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
-
-import org.junit.Test;
-
 import dk.alexandra.fresco.framework.Party;
 import dk.alexandra.fresco.framework.TestThreadRunner;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
@@ -62,6 +49,15 @@ import edu.biu.scapi.midLayer.symmetricCrypto.mac.Mac;
 import edu.biu.scapi.midLayer.symmetricCrypto.mac.ScCbcMacPrepending;
 import edu.biu.scapi.primitives.prf.AES;
 import edu.biu.scapi.primitives.prf.bc.BcAES;
+import java.net.InetAddress;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
+import org.junit.Test;
 
 
 /**
@@ -78,8 +74,9 @@ public class TestScapiNetworkLayer {
 		for (int i=1; i<=n; i++) {
 			ports.add(9000 + i);
 		}
-		Map<Integer, NetworkConfiguration> netConf = TestConfiguration.getNetworkConfigurations(n, ports, Level.FINE);
-		Map<Integer, TestThreadConfiguration> conf = new HashMap<Integer, TestThreadConfiguration>();
+    Map<Integer, NetworkConfiguration> netConf = TestConfiguration
+        .getNetworkConfigurations(n, ports);
+    Map<Integer, TestThreadConfiguration> conf = new HashMap<Integer, TestThreadConfiguration>();
 		for (int i : netConf.keySet()) {
 			TestThreadConfiguration ttc = new TestThreadConfiguration();
 			ttc.netConf = netConf.get(i);

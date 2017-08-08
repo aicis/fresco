@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -79,9 +79,9 @@ public class TinyTablesXORProtocol extends TinyTablesProtocol implements XorProt
 	}
 
 	@Override
-	public Value[] getOutputValues() {
-		return new Value[] { out };
-	}
+  public Value[] out() {
+    return new Value[]{out};
+  }
 
 	@Override
 	public EvaluationStatus evaluate(int round, ResourcePool resourcePool, SCENetwork network) {

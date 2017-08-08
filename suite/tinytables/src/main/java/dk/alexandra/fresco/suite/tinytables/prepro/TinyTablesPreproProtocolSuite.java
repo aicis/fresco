@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -26,14 +26,17 @@
  *******************************************************************************/
 package dk.alexandra.fresco.suite.tinytables.prepro;
 
+import dk.alexandra.fresco.framework.BuilderFactory;
 import dk.alexandra.fresco.framework.MPCException;
-import dk.alexandra.fresco.framework.ProtocolFactory;
-import dk.alexandra.fresco.framework.Reporter;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderBinary;
+import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.SCENetwork;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
+import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
 import dk.alexandra.fresco.framework.util.BitVector;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.suite.ProtocolSuite;
+import dk.alexandra.fresco.suite.tinytables.LegacyBinaryBuilder;
 import dk.alexandra.fresco.suite.tinytables.datatypes.TinyTable;
 import dk.alexandra.fresco.suite.tinytables.datatypes.TinyTablesElement;
 import dk.alexandra.fresco.suite.tinytables.datatypes.TinyTablesElementVector;
@@ -55,12 +58,16 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.nio.ByteBuffer;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>
@@ -77,7 +84,7 @@ import java.util.Map;
  * calculate a so-called <i>TinyTable</i> which is used in the online phase (see
  * {@link TinyTablesProtocolSuite}). This is done using oblivious transfer. To
  * enhance performance, all oblivious transfers are done at the end of the
- * preprocessing (see {@link TinyTablesPreproProtocolSuite#finishedEval(ResourcePool, SCENetwork)}).
+ * preprocessing (see {@link #createRoundSynchronization()).
  * </p>
  *
  * <p>
@@ -93,10 +100,11 @@ import java.util.Map;
  *
  * @author Jonas Lindstrøm (jonas.lindstrom@alexandra.dk)
  */
-public class TinyTablesPreproProtocolSuite implements ProtocolSuite {
+public class TinyTablesPreproProtocolSuite implements ProtocolSuite<ResourcePoolImpl, ProtocolBuilderBinary> {
+
+  private final static Logger logger = LoggerFactory.getLogger(TinyTablesPreproProtocolSuite.class);
 
   private TinyTablesStorage storage;
-  private TinyTablesPreproConfiguration configuration;
   private File tinyTablesFile;
   private TinyTablesTripleProvider tinyTablesTripleProvider;
   private List<TinyTablesPreproANDProtocol> unprocessedAndGates;
@@ -108,16 +116,14 @@ public class TinyTablesPreproProtocolSuite implements ProtocolSuite {
     return instances.get(id);
   }
 
-  TinyTablesPreproProtocolSuite(int id, TinyTablesPreproConfiguration configuration) {
+  public TinyTablesPreproProtocolSuite(int id, File tinyTablesFile) {
     this.storage = TinyTablesStorageImpl.getInstance(id);
-    this.configuration = configuration;
+    this.tinyTablesFile = tinyTablesFile;
     instances.put(id, this);
   }
 
   @Override
-  public ProtocolFactory init(ResourcePool resourcePool) {
-    this.tinyTablesFile = this.configuration.getTinyTablesFile();
-
+  public BuilderFactory<ProtocolBuilderBinary> init(ResourcePoolImpl resourcePool) {
     OTFactory otFactory = new SemiHonestOTExtensionFactory(resourcePool.getNetwork(),
         resourcePool.getMyId(), 128, new BaseOTFactory(resourcePool.getNetwork(),
         resourcePool.getMyId(), resourcePool.getSecureRandom()),
@@ -131,7 +137,7 @@ public class TinyTablesPreproProtocolSuite implements ProtocolSuite {
         .synchronizedList(new ArrayList<TinyTablesPreproANDProtocol>());
 
     this.resourcePool = resourcePool;
-    return new TinyTablesPreproFactory();
+    return new LegacyBinaryBuilder(new TinyTablesPreproFactory());
   }
 
   public TinyTablesStorage getStorage() {
@@ -142,15 +148,11 @@ public class TinyTablesPreproProtocolSuite implements ProtocolSuite {
     this.unprocessedAndGates.add(gate);
   }
 
-  public TinyTablesTripleProvider getTinyTablesTripleProvider() {
-    return this.tinyTablesTripleProvider;
-  }
-
   @Override
-  public RoundSynchronization createRoundSynchronization() {
-    return new DummyRoundSynchronization() {
+  public RoundSynchronization<ResourcePoolImpl> createRoundSynchronization() {
+    return new DummyRoundSynchronization<ResourcePoolImpl>() {
       @Override
-      public void finishedBatch(int gatesEvaluated, ResourcePool resourcePool,
+      public void finishedBatch(int gatesEvaluated, ResourcePoolImpl resourcePool,
           SCENetwork sceNetwork) throws MPCException {
         /*
          * When 1000 AND gates needs to be processed, we do it.
@@ -159,6 +161,23 @@ public class TinyTablesPreproProtocolSuite implements ProtocolSuite {
           calculateTinyTablesForUnprocessedANDGates();
         }
       }
+
+      @Override
+      public void finishedEval(ResourcePoolImpl resourcePool, SCENetwork sceNetwork) {
+        calculateTinyTablesForUnprocessedANDGates();
+        tinyTablesTripleProvider.close();
+    /*
+     * Store the TinyTables to a file.
+		 */
+        try {
+          storeTinyTables(storage, tinyTablesFile);
+          logger.info("TinyTables stored to " + tinyTablesFile);
+        } catch (IOException e) {
+          logger.error("Failed to save TinyTables: " + e.getMessage());
+        }
+
+      }
+
     };
   }
 
@@ -228,22 +247,6 @@ public class TinyTablesPreproProtocolSuite implements ProtocolSuite {
     }
   }
 
-  @Override
-  public void finishedEval(ResourcePool resourcePool, SCENetwork sceNetwork) {
-    calculateTinyTablesForUnprocessedANDGates();
-    tinyTablesTripleProvider.close();
-    /*
-     * Store the TinyTables to a file.
-		 */
-    try {
-      storeTinyTables(storage, this.tinyTablesFile);
-      Reporter.info("TinyTables stored to " + this.tinyTablesFile);
-    } catch (IOException e) {
-      Reporter.severe("Failed to save TinyTables: " + e.getMessage());
-    }
-
-  }
-
   private void storeTinyTables(TinyTablesStorage tinyTablesStorage, File file) throws IOException {
     file.createNewFile();
     FileOutputStream fout = new FileOutputStream(file);
@@ -253,7 +256,9 @@ public class TinyTablesPreproProtocolSuite implements ProtocolSuite {
   }
 
   @Override
-  public void destroy() {
+  public ResourcePoolImpl createResourcePool(int myId, int size, Network network, Random rand,
+      SecureRandom secRand) {
+    return new ResourcePoolImpl(myId, size, network, rand, secRand);
   }
 
 }

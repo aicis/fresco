@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -41,8 +41,8 @@ public class DummyCloseBoolProtocol extends DummyProtocol implements CloseBoolPr
 	public DummySBool output;
 	
 	private int sender;
-	
-	public DummyCloseBoolProtocol(OBool in, SBool out, int sender) {
+
+	DummyCloseBoolProtocol(OBool in, SBool out, int sender) {
 		input = (DummyOBool)in;
 		output = (DummySBool)out;
 		this.sender = sender;
@@ -72,9 +72,9 @@ public class DummyCloseBoolProtocol extends DummyProtocol implements CloseBoolPr
 	}
 
 	@Override
-	public Value[] getOutputValues() {
-		return new Value[] {this.output};
-	}
+  public Value[] out() {
+    return new Value[]{this.output};
+  }
 
 	
 }

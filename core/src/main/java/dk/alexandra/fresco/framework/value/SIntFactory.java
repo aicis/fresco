@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -26,15 +26,15 @@
  *******************************************************************************/
 package dk.alexandra.fresco.framework.value;
 
+import dk.alexandra.fresco.framework.Computation;
 import java.math.BigInteger;
 
 
-public interface SIntFactory {	
-	
-	/**
-	 * Creates an empty container.
-	 * 
-	 */
+public interface SIntFactory {
+
+  /**
+   * Creates an empty container.
+   */
   SInt getSInt();
 
   /**
@@ -50,20 +50,12 @@ public interface SIntFactory {
   @Deprecated
   SInt getSInt(BigInteger i);
 
-	/**
-	 * A protocol to load a publicly known value into a SInt
-	 * TODO: This should not be how values are loaded
-	 * 
-	 */
-  KnownSIntProtocol getSInt(int i, SInt si);
-
   /**
-	 * Gets a protocol to load a publicly known value into a SInt. 
-	 * The idea here is to not do the computation involved in loading the SInt 
-	 * while we are building the protocol.
-	 * TODO: This should not be how values are loaded
-	 * 
-	 */
-  KnownSIntProtocol getSInt(BigInteger i, SInt si);
+   * Gets a protocol to load a publicly known value into a SInt.
+   * The idea here is to not do the computation involved in loading the SInt
+   * while we are building the protocol.
+   * TODO: This should not be how values are loaded
+   */
+  Computation<SInt> getSInt(BigInteger i, SInt si);
 
 }

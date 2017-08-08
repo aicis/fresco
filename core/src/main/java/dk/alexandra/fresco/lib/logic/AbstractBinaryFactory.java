@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -26,7 +26,10 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.logic;
 
+import dk.alexandra.fresco.framework.BuilderFactory;
+import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.ProtocolProducer;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.OBool;
 import dk.alexandra.fresco.framework.value.SBool;
@@ -34,9 +37,7 @@ import dk.alexandra.fresco.lib.collections.sort.KeyedCompareAndSwapProtocolGetNe
 import dk.alexandra.fresco.lib.collections.sort.OddEvenMergeProtocol;
 import dk.alexandra.fresco.lib.collections.sort.OddEvenMergeProtocolRec;
 import dk.alexandra.fresco.lib.collections.sort.OddEvenMergeSortFactory;
-import dk.alexandra.fresco.lib.compare.CompareAndSwapProtocol;
 import dk.alexandra.fresco.lib.compare.CompareAndSwapProtocolFactory;
-import dk.alexandra.fresco.lib.compare.CompareAndSwapProtocolImpl;
 import dk.alexandra.fresco.lib.compare.KeyedCompareAndSwapProtocol;
 import dk.alexandra.fresco.lib.compare.bool.BinaryGreaterThanProtocol;
 import dk.alexandra.fresco.lib.compare.bool.BinaryGreaterThanProtocolFactory;
@@ -54,9 +55,6 @@ import dk.alexandra.fresco.lib.field.bool.generic.NotFromXorProtocol;
 import dk.alexandra.fresco.lib.field.bool.generic.OrFromCopyConstProtocol;
 import dk.alexandra.fresco.lib.field.bool.generic.OrFromXorAndProtocol;
 import dk.alexandra.fresco.lib.field.bool.generic.XnorFromXorAndNotProtocolImpl;
-import dk.alexandra.fresco.lib.helper.CopyProtocol;
-import dk.alexandra.fresco.lib.helper.CopyProtocolFactory;
-import dk.alexandra.fresco.lib.helper.CopyProtocolImpl;
 import dk.alexandra.fresco.lib.math.bool.add.AdderProtocolFactory;
 import dk.alexandra.fresco.lib.math.bool.add.BitIncrementerProtocol;
 import dk.alexandra.fresco.lib.math.bool.add.BitIncrementerProtocolFactory;
@@ -76,18 +74,21 @@ import dk.alexandra.fresco.lib.math.bool.mult.BinaryMultProtocolImpl;
 import java.util.List;
 
 public abstract class AbstractBinaryFactory
-    implements BasicLogicFactory, AdderProtocolFactory, BinaryMultProtocolFactory,
+    implements BuilderFactory<ProtocolBuilderBinary>, BasicLogicFactory, AdderProtocolFactory,
+    BinaryMultProtocolFactory,
     LogProtocolFactory,
-    CopyProtocolFactory<SBool>, BinaryGreaterThanProtocolFactory, BinaryEqualityProtocolFactory,
-    CompareAndSwapProtocolFactory, OddEvenMergeSortFactory, BitIncrementerProtocolFactory {
-
-  /**
-   * Advanced protocols - compare and swap functionality
-   */
+    BinaryGreaterThanProtocolFactory, BinaryEqualityProtocolFactory,
+    CompareAndSwapProtocolFactory, OddEvenMergeSortFactory, BitIncrementerProtocolFactory,
+    ProtocolFactory {
 
   @Override
-  public CompareAndSwapProtocol getCompareAndSwapProtocol(SBool[] left, SBool[] right) {
-    return new CompareAndSwapProtocolImpl(left, right, this);
+  public ProtocolFactory getProtocolFactory() {
+    return this;
+  }
+
+  @Override
+  public ProtocolBuilderBinary createProtocolBuilder() {
+    return ProtocolBuilderBinary.createApplicationRoot(this);
   }
 
   @Override
@@ -108,11 +109,6 @@ public abstract class AbstractBinaryFactory
       res[i] = this.getSBool();
     }
     return res;
-  }
-
-  @Override
-  public CopyProtocol<SBool> getCopyProtocol(SBool in, SBool out) {
-    return new CopyProtocolImpl<>(in, out);
   }
 
   @Override
@@ -138,12 +134,12 @@ public abstract class AbstractBinaryFactory
   }
 
   public OrProtocol getOrProtocol(SBool inLeft, OBool inRight, SBool out) {
-    return new OrFromCopyConstProtocol(this, this, inLeft, inRight, out);
+    return new OrFromCopyConstProtocol(this, inLeft, inRight, out);
   }
 
-  @Override
+  @Override 
   public ProtocolProducer getAndProtocol(SBool inLeft, OBool inRight, SBool out) {
-    return new AndFromCopyConstProtocol(this, this, inLeft, inRight, out);
+    return new AndFromCopyConstProtocol(this, inLeft, inRight, out);
   }
 
   @Override

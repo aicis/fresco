@@ -27,13 +27,11 @@
 package dk.alexandra.fresco.suite.spdz.storage.rest;
 
 import dk.alexandra.fresco.framework.MPCException;
-import dk.alexandra.fresco.framework.Reporter;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzTriple;
 import dk.alexandra.fresco.suite.spdz.storage.DataSupplier;
-import dk.alexandra.fresco.suite.spdz.utils.Util;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -50,6 +48,8 @@ import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Uses the gas station to fetch the next piece of preprocessed data.
@@ -57,6 +57,8 @@ import org.apache.http.impl.client.HttpClients;
  *
  */
 public class DataRestSupplierImpl implements DataSupplier{
+
+  private final static Logger logger = LoggerFactory.getLogger(DataRestSupplierImpl.class);
 
 	//TODO: For now without security - but we need some kind of "login" or 
 	//token based security such that only the parties with access can obtain the different parties shares.
@@ -106,7 +108,6 @@ public class DataRestSupplierImpl implements DataSupplier{
 		
 		//get mod for the util static class
 		BigInteger mod = this.getModulus();
-		Util.setModulus(mod);
 
 		//Start retriver threads
 		for(Type t : Type.values()) {
@@ -172,8 +173,8 @@ public class DataRestSupplierImpl implements DataSupplier{
 			SpdzTriple t = this.triples.take();
 			if(print) {
 				long now = System.currentTimeMillis();
-				Reporter.warn("Triple queue got back online within "+(now-then)+"ms.");
-			}
+        logger.warn("Triple queue got back online within " + (now - then) + "ms.");
+      }
 			return t;
 		} catch (InterruptedException e) {
 			throw new MPCException("Supplier got interrupted before a new triple was made available", e);
@@ -188,15 +189,15 @@ public class DataRestSupplierImpl implements DataSupplier{
 			boolean print = false;
 			long then = 0;
 			if(this.exps.peek() == null) {
-				Reporter.warn("No more exp pipes in the queue");
-				print = true;
+        logger.warn("No more exp pipes in the queue");
+        print = true;
 				then = System.currentTimeMillis();
 			}
 			SpdzSInt[] exp = this.exps.take();
 			if(print) {
 				long now = System.currentTimeMillis();
-				Reporter.warn("Exp pipe queue got back online within "+(now-then)+"ms.");
-			}
+        logger.warn("Exp pipe queue got back online within " + (now - then) + "ms.");
+      }
 			
 			return exp;
 		} catch (InterruptedException e) {
@@ -228,7 +229,7 @@ public class DataRestSupplierImpl implements DataSupplier{
 		try {			
 			HttpGet httpget = new HttpGet(this.restEndPoint + endpoint);
 
-			Reporter.fine("Executing request " + httpget.getRequestLine());            
+      logger.debug("Executing request " + httpget.getRequestLine());
 
 			// Create a custom response handler
 			ResponseHandler<BigInteger> responseHandler = new ResponseHandler<BigInteger>() {
@@ -309,10 +310,10 @@ public class DataRestSupplierImpl implements DataSupplier{
 			CloseableHttpClient httpClient = HttpClients.createDefault();
 			try {			
 				HttpGet httpget = new HttpGet(this.restEndPoint + "/reset/"+myId);
-	
-				Reporter.fine("Executing request " + httpget.getRequestLine());            
-	
-				// Create a custom response handler
+
+        logger.debug("Executing request " + httpget.getRequestLine());
+
+        // Create a custom response handler
 				ResponseHandler<Boolean> responseHandler = new ResponseHandler<Boolean>() {
 	
 					@Override

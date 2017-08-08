@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -28,100 +28,52 @@ package dk.alexandra.fresco.framework.sce.configuration;
 
 import dk.alexandra.fresco.framework.Party;
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.network.NetworkingStrategy;
-import dk.alexandra.fresco.framework.sce.resources.storage.Storage;
-import dk.alexandra.fresco.framework.sce.resources.storage.StreamedStorage;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.logging.Level;
+import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
+import dk.alexandra.fresco.suite.ProtocolSuite;
 
-public class TestSCEConfiguration implements SCEConfiguration {
+public class TestSCEConfiguration<ResourcePoolT extends ResourcePool, Builder extends ProtocolBuilder> {
 
-  private final ProtocolSuiteConfiguration suite;
-  private NetworkingStrategy network;
-  private Storage storage;
-  private Map<Integer, Party> parties;
-  private int myId;
-  private int noOfThreads;
-  private int noOfVmThreads;
-  private ProtocolEvaluator evaluator;
-  private int maxBatchSize;
+  private NetworkingStrategy networkingStrategy;
+  private ProtocolEvaluator<ResourcePoolT> evaluator;
+  private final ProtocolSuite<ResourcePoolT, Builder> suite;
+  private NetworkConfiguration networkConfiguration;
 
-  public TestSCEConfiguration(ProtocolSuiteConfiguration suite, NetworkingStrategy network,
-      ProtocolEvaluator evaluator,
-      int noOfThreads, int noOfvmThreads, NetworkConfiguration conf, Storage storage,
+  public TestSCEConfiguration(ProtocolSuite<ResourcePoolT, Builder> suite,
+      NetworkingStrategy networkingStrategy,
+      ProtocolEvaluator<ResourcePoolT> evaluator,
+      NetworkConfiguration conf,
       boolean useSecureConn) {
-    this(suite, network, evaluator, noOfThreads, noOfvmThreads, conf, storage, useSecureConn, 4096);
-
-  }
-
-  public TestSCEConfiguration(ProtocolSuiteConfiguration suite, NetworkingStrategy network,
-      ProtocolEvaluator evaluator,
-      int noOfThreads, int noOfvmThreads, NetworkConfiguration conf, Storage storage,
-      boolean useSecureConn, int maxBatchSize) {
     this.suite = suite;
-    this.network = network;
-    this.storage = storage;
+    this.networkingStrategy = networkingStrategy;
     this.evaluator = evaluator;
-    this.noOfThreads = noOfThreads;
-    this.noOfVmThreads = noOfvmThreads;
-    this.myId = conf.getMyId();
-    parties = new HashMap<>();
+    evaluator.setMaxBatchSize(4096);
+    networkConfiguration = conf;
     for (int i = 1; i <= conf.noOfParties(); i++) {
       if (useSecureConn) {
         Party p = conf.getParty(i);
         //Use the same hardcoded test 128 bit AES key for all connections
         p.setSecretSharedKey("w+1qn2ooNMCN7am9YmYQFQ==");
-        parties.put(i, p);
-      } else {
-        parties.put(i, conf.getParty(i));
       }
     }
-    this.maxBatchSize = maxBatchSize;
   }
 
-  @Override
-  public int getMyId() {
-    return myId;
-  }
-
-  @Override
-  public Map<Integer, Party> getParties() {
-    return parties;
-  }
-
-  @Override
-  public Level getLogLevel() {
-    return Level.INFO;
-  }
-
-  @Override
-  public ProtocolEvaluator getEvaluator() {
-    return this.evaluator;
-  }
-
-  @Override
-  public int getMaxBatchSize() {
-    return this.maxBatchSize;
-  }
-
-  @Override
-  public StreamedStorage getStreamedStorage() {
-    if (this.storage instanceof StreamedStorage) {
-      return (StreamedStorage) this.storage;
-    } else {
-      return null;
-    }
-  }
-
-  public ProtocolSuiteConfiguration getSuite() {
+  public ProtocolSuite<ResourcePoolT, Builder> getSuite() {
     return suite;
   }
 
-  @Override
+  public NetworkConfiguration getNetworkConfiguration() {
+    return networkConfiguration;
+  }
+
+  public ProtocolEvaluator<ResourcePoolT> getEvaluator() {
+    return this.evaluator;
+  }
+
   public NetworkingStrategy getNetworkStrategy() {
-    return this.network;
+    return this.networkingStrategy;
   }
 
 }

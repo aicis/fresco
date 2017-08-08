@@ -26,35 +26,37 @@
  *******************************************************************************/
 package dk.alexandra.fresco.framework;
 
-import com.esotericsoftware.minlog.Log;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.TestConfiguration;
-import dk.alexandra.fresco.framework.network.KryoNetNetwork;
 import dk.alexandra.fresco.framework.network.Network;
-import dk.alexandra.fresco.framework.network.NetworkCreator;
+import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.SCEFactory;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
-import dk.alexandra.fresco.framework.sce.configuration.ProtocolSuiteConfiguration;
 import dk.alexandra.fresco.framework.sce.configuration.TestSCEConfiguration;
-import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
-
+import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
+import dk.alexandra.fresco.suite.ProtocolSuite;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
-import java.util.logging.Level;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TestThreadRunner {
 
+  private final static Logger logger = LoggerFactory.getLogger(TestThreadRunner.class);
+
   private static final long MAX_WAIT_FOR_THREAD = 6000000;
 
-  public abstract static class TestThread extends Thread {
+  public abstract static class TestThread<ResourcePoolT extends ResourcePool, Builder extends ProtocolBuilder> extends
+      Thread {
 
     private boolean finished = false;
 
-    protected TestThreadConfiguration conf;
+    protected TestThreadConfiguration<ResourcePoolT, Builder> conf;
 
     // Randomness to use in test.
     Random rand;
@@ -65,9 +67,9 @@ public class TestThreadRunner {
 
     Throwable teardownException;
 
-    protected SecureComputationEngine secureComputationEngine;
+    protected SecureComputationEngine<ResourcePoolT, Builder> secureComputationEngine;
 
-    void setConfiguration(TestThreadConfiguration conf) {
+    void setConfiguration(TestThreadConfiguration<ResourcePoolT, Builder> conf) {
       this.conf = conf;
     }
 
@@ -80,15 +82,14 @@ public class TestThreadRunner {
     public void run() {
       try {
         if (conf.sceConf != null) {
-          ProtocolSuiteConfiguration suite = conf.sceConf.getSuite();
+          ProtocolSuite<ResourcePoolT, Builder> suite = conf.sceConf.getSuite();
           secureComputationEngine =
-              SCEFactory.getSCEFromConfiguration(conf.sceConf, suite);
+              SCEFactory.getSCEFromConfiguration(suite, conf.sceConf.getEvaluator());
         }
-        KryoNetNetwork.setLogLevel(Log.LEVEL_WARN);
         setUp();
         runTest();
       } catch (Throwable e) {
-        Reporter.severe("" + this + " threw exception: ", e);
+        logger.error("" + this + " threw exception: ", e);
         this.setupException = e;
         Thread.currentThread().interrupt();
       } finally {
@@ -101,11 +102,11 @@ public class TestThreadRunner {
         test();
       } catch (Exception e) {
         this.testException = e;
-        Reporter.severe("" + this + " threw exception during test:", e);
+        logger.error("" + this + " threw exception during test:", e);
         Thread.currentThread().interrupt();
       } catch (AssertionError e) {
         this.testException = e;
-        Reporter.severe("Test assertion failed in " + this + ": ", e);
+        logger.error("Test assertion failed in " + this + ": ", e);
         Thread.currentThread().interrupt();
       }
     }
@@ -114,12 +115,12 @@ public class TestThreadRunner {
       try {
         if (secureComputationEngine != null) {
           //Shut down SCE resources - does not include the resource pool.
-          secureComputationEngine.shutdownSCE();              
+          secureComputationEngine.shutdownSCE();
         }
         tearDown();
         finished = true;
       } catch (Exception e) {
-        Reporter.severe("" + this + " threw exception during tear down:", e);
+        logger.error("" + this + " threw exception during tear down:", e);
         this.teardownException = e;
         Thread.currentThread().interrupt();
       }
@@ -135,7 +136,7 @@ public class TestThreadRunner {
 
     public abstract void test() throws Exception;
 
-    public void setRandom(long nextLong) {
+    void setRandom(long nextLong) {
       this.rand = new Random(nextLong);
 
     }
@@ -146,10 +147,11 @@ public class TestThreadRunner {
   /**
    * Container for all the configuration that one thread should have.
    */
-  public static class TestThreadConfiguration {
+  public static class TestThreadConfiguration<ResourcePoolT extends ResourcePool,
+      Builder extends ProtocolBuilder> {
 
     public NetworkConfiguration netConf;
-    public TestSCEConfiguration sceConf;
+    public TestSCEConfiguration<ResourcePoolT, Builder> sceConf;
 
     public int getMyId() {
       return this.netConf.getMyId();
@@ -162,9 +164,9 @@ public class TestThreadRunner {
   }
 
 
-  public abstract static class TestThreadFactory {
+  public abstract static class TestThreadFactory<ResourcePoolT extends ResourcePool, Builder extends ProtocolBuilder> {
 
-    public abstract TestThread next(TestThreadConfiguration conf);
+    public abstract TestThread next(TestThreadConfiguration<ResourcePoolT, Builder> conf);
   }
 
   public static void run(TestThreadFactory f, int noOfPlayers) {
@@ -174,7 +176,7 @@ public class TestThreadRunner {
 
   private static void run(TestThreadFactory f, int noOfPlayers, int randSeed) {
     Map<Integer, NetworkConfiguration> netConfs = TestConfiguration
-        .getNetworkConfigurations(noOfPlayers, Level.FINE);
+        .getNetworkConfigurations(noOfPlayers);
 
     Map<Integer, TestThreadConfiguration> confs = new HashMap<Integer, TestThreadConfiguration>();
     for (int i : netConfs.keySet()) {
@@ -199,7 +201,7 @@ public class TestThreadRunner {
 
     Random r = new Random(randSeed);
     for (int i = 0; i < n; i++) {
-      TestThreadConfiguration c = confs.get(i + 1);
+      TestThreadConfiguration<?, ?> c = confs.get(i + 1);
       TestThread t = f.next(c);
       t.setConfiguration(c);
       t.setRandom(r.nextLong());
@@ -215,9 +217,9 @@ public class TestThreadRunner {
         t.join(MAX_WAIT_FOR_THREAD);
       } catch (InterruptedException e) {
         throw new TestFrameworkException("Test was interrupted");
-      } 
+      }
       if (!t.finished) {
-        Reporter.severe("" + t + " timed out");
+        logger.error("" + t + " timed out");
         throw new TestFrameworkException(t + " timed out");
       }
       if (t.setupException != null) {
@@ -232,15 +234,15 @@ public class TestThreadRunner {
 
     //Cleanup - shut down network in manually. All tests should use the NetworkCreator 
     //in order for this to work, or manage the network themselves.
-    Map<Integer, ResourcePoolImpl> rps = NetworkCreator.getCurrentResourcePools();
-    for(int id: rps.keySet()) {
+    Map<Integer, ResourcePool> rps = ResourcePoolCreator.getCurrentResourcePools();
+    for (int id : rps.keySet()) {
       Network network = rps.get(id).getNetwork();
       try {
         network.close();
       } catch (IOException e) {
         //Cannot do anything about this.
       }
-    }           
+    }
     rps.clear();
     //allow the sockets to become available again. 
     try {

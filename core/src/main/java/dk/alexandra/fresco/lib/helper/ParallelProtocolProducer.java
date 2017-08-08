@@ -26,11 +26,10 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.helper;
 
-import dk.alexandra.fresco.framework.NativeProtocol;
+import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.ListIterator;
 
 /**
@@ -53,32 +52,27 @@ public class ParallelProtocolProducer implements ProtocolProducer,
     }
   }
 
-  public ParallelProtocolProducer(ProtocolProducer protocolProducer, NativeProtocol... protocols) {
+  public ParallelProtocolProducer(ProtocolProducer protocolProducer, Computation... protocols) {
     this();
     append(protocolProducer);
-    for (NativeProtocol protocol : protocols) {
+    for (Computation protocol : protocols) {
       append(protocol);
     }
   }
 
-  public ParallelProtocolProducer(NativeProtocol... protocols) {
+  public ParallelProtocolProducer(Computation... protocols) {
     this();
-    for (NativeProtocol protocol : protocols) {
+    for (Computation protocol : protocols) {
       append(protocol);
     }
-  }
-
-  public List<ProtocolProducer> getProducers() {
-    // this.merge();
-    return cs;
   }
 
   public void append(ProtocolProducer protocolProducer) {
     cs.offer(protocolProducer);
   }
 
-  public void append(NativeProtocol protocol) {
-    cs.offer(SingleProtocolProducer.wrap(protocol));
+  public void append(Computation computation) {
+    cs.offer(SingleProtocolProducer.wrap(computation));
   }
 
   @Override
@@ -115,9 +109,10 @@ public class ParallelProtocolProducer implements ProtocolProducer,
     ListIterator<ProtocolProducer> x = cs.listIterator();
     while (x.hasNext()) {
       ProtocolProducer c = x.next();
-      c.getNextProtocols(protocolCollection);
       if (!c.hasNextProtocols()) {
         x.remove();
+      } else {
+        c.getNextProtocols(protocolCollection);
       }
       if (!protocolCollection.hasFreeCapacity()) {
         return; // We've filled the array.

@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -26,11 +26,12 @@
  *******************************************************************************/
 package dk.alexandra.fresco.suite.tinytables.online;
 
-import dk.alexandra.fresco.framework.ProtocolFactory;
-import dk.alexandra.fresco.framework.Reporter;
-import dk.alexandra.fresco.framework.network.SCENetwork;
-import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
+import dk.alexandra.fresco.framework.BuilderFactory;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderBinary;
+import dk.alexandra.fresco.framework.network.Network;
+import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
 import dk.alexandra.fresco.suite.ProtocolSuite;
+import dk.alexandra.fresco.suite.tinytables.LegacyBinaryBuilder;
 import dk.alexandra.fresco.suite.tinytables.online.protocols.TinyTablesANDProtocol;
 import dk.alexandra.fresco.suite.tinytables.online.protocols.TinyTablesCloseProtocol;
 import dk.alexandra.fresco.suite.tinytables.online.protocols.TinyTablesNOTProtocol;
@@ -42,8 +43,12 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.security.SecureRandom;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>
@@ -67,38 +72,39 @@ import java.util.Map;
  *
  * @author Jonas Lindstrøm (jonas.lindstrom@alexandra.dk)
  */
-public class TinyTablesProtocolSuite implements ProtocolSuite {
+public class TinyTablesProtocolSuite implements
+    ProtocolSuite<ResourcePoolImpl, ProtocolBuilderBinary> {
 
-  private final TinyTablesConfiguration conf;
+  private final File tinyTablesFile;
   private TinyTablesStorage storage;
   private static volatile Map<Integer, TinyTablesProtocolSuite> instances = new HashMap<>();
+  private final static Logger logger = LoggerFactory.getLogger(TinyTablesProtocolSuite.class);
 
   public static TinyTablesProtocolSuite getInstance(int id) {
     return instances.get(id);
   }
 
-  public TinyTablesProtocolSuite(int id, TinyTablesConfiguration conf) {
-    this.conf = conf;
+  public TinyTablesProtocolSuite(int id, File tinyTablesFile) {
+    this.tinyTablesFile = tinyTablesFile;
     instances.put(id, this);
   }
 
   @Override
-  public ProtocolFactory init(ResourcePool resourcePool) {
+  public BuilderFactory<ProtocolBuilderBinary> init(ResourcePoolImpl resourcePool) {
     try {
-      File tinyTablesFile = this.conf.getTinyTablesFile();
       this.storage = loadTinyTables(tinyTablesFile);
-    } catch (ClassNotFoundException e) {
+    } catch (ClassNotFoundException ignored) {
     } catch (IOException e) {
-      Reporter.severe("Failed to load TinyTables: " + e.getMessage());
+      logger.error("Failed to load TinyTables: " + e.getMessage());
     }
-    return new TinyTablesFactory();
+    return new LegacyBinaryBuilder(new TinyTablesFactory());
   }
 
   private TinyTablesStorage loadTinyTables(File file) throws IOException,
       ClassNotFoundException {
     FileInputStream fin = new FileInputStream(file);
     ObjectInputStream is = new ObjectInputStream(fin);
-    Reporter.info("Loading TinyTabels from " + file);
+    logger.info("Loading TinyTabels from " + file);
     TinyTablesStorage storage = (TinyTablesStorage) is.readObject();
     is.close();
     return storage;
@@ -109,20 +115,14 @@ public class TinyTablesProtocolSuite implements ProtocolSuite {
   }
 
   @Override
-  public RoundSynchronization createRoundSynchronization() {
-    return new DummyRoundSynchronization();
+  public RoundSynchronization<ResourcePoolImpl> createRoundSynchronization() {
+    return new DummyRoundSynchronization<ResourcePoolImpl>();
   }
 
   @Override
-  public void finishedEval(ResourcePool resourcePool, SCENetwork sceNetwork) {
-    // TODO Auto-generated method stub
-
-  }
-
-  @Override
-  public void destroy() {
-    // TODO Auto-generated method stub
-
+  public ResourcePoolImpl createResourcePool(int myId, int size, Network network, Random rand,
+      SecureRandom secRand) {
+    return new ResourcePoolImpl(myId, size, network, rand, secRand);
   }
 
 }

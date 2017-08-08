@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -23,141 +23,158 @@
  *
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
- *******************************************************************************/
+ */
 package dk.alexandra.fresco.lib.statistics;
 
 import dk.alexandra.fresco.framework.Application;
+import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.MPCException;
-import dk.alexandra.fresco.framework.ProtocolFactory;
-import dk.alexandra.fresco.framework.ProtocolProducer;
+import dk.alexandra.fresco.framework.builder.ComparisonBuilder;
+import dk.alexandra.fresco.framework.builder.ComputationBuilder;
+import dk.alexandra.fresco.framework.builder.NumericBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.helper.builder.ComparisonProtocolBuilder;
-import dk.alexandra.fresco.lib.helper.builder.NumericProtocolBuilder;
-import dk.alexandra.fresco.lib.helper.builder.OmniBuilder;
-import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
+import dk.alexandra.fresco.lib.math.integer.SumSIntList;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
- * NativeProtocol for performing credit rating.
- * 
+ * Application for performing credit rating.
+ *
  * Given a dataset (a vector of values)
  * and a credit rating function (a set of intervals for each value)
  * will calculate the combined score.
- *
  */
-public class CreditRater implements Application{
+public class CreditRater implements
+    Application<SInt, SequentialNumericBuilder> {
 
-	private static final long serialVersionUID = 7679664125131997196L;
-	private List<SInt> values;
-	private List<List<SInt>> intervals;
-	private List<List<SInt>> intervalScores;  
+  private List<SInt> values;
+  private List<List<SInt>> intervals;
+  private List<List<SInt>> intervalScores;
 
-	private SInt score;
-	
-	/**
-	 * @throws MPCException
-	 */
-	public CreditRater(
-			List<SInt> values, List<List<SInt>> intervals, List<List<SInt>> intervalScores) throws MPCException {
-		this.values = values;
-		this.intervals = intervals;
-		this.intervalScores = intervalScores;
-		if(!consistencyCheck()){
-			throw new MPCException("Inconsistent data");
-		}
-	}
-	
-	/**
-	 * Verify that the input values are consistent, i.e.
-	 * the there is an interval for each value
-	 * @return If the input is consistent.
-	 */
-	private boolean consistencyCheck() {
-	  if (this.values.size() != this.intervals.size()) {
-	    return false;
-	  }
-	  if (this.intervals.size() != (this.intervalScores.size())) {
-	    return false;
-	  }
-		return true;
-	}
-
-	@Override
-	public ProtocolProducer prepareApplication(ProtocolFactory provider) {
-    OmniBuilder omniBuilder = new OmniBuilder(provider);
-
-
-    SInt[] individualScores = new SInt[this.values.size()]; 
-    
-    for (int i = 0; i< this.values.size(); i++) {
-      individualScores[i] = computeIntervalScore(this.values.get(i), 
-          this.intervals.get(i), 
-          this.intervalScores.get(i), 
-          omniBuilder);
+  /**
+   * @throws MPCException if the intervals, values and intervalScores does not have the same length
+   */
+  public CreditRater(
+      List<SInt> values, List<List<SInt>> intervals, List<List<SInt>> intervalScores)
+      throws MPCException {
+    this.values = values;
+    this.intervals = intervals;
+    this.intervalScores = intervalScores;
+    if (!consistencyCheck()) {
+      throw new MPCException("Inconsistent data");
     }
-    if(individualScores.length == 1) {
-      this.score = individualScores[0];
-    } else {
-      this.score = omniBuilder.getNumericProtocolBuilder().sum(individualScores);
-    }
-    SequentialProtocolProducer seq = new SequentialProtocolProducer();
-
-    seq.append(omniBuilder.getProtocol());
-    
-    return seq;
-	}
-	
-	/**
-	 * Given a value and scores for an interval, will lookup the score for
-	 * the value.   
-	 * @param value The value to lookup
-	 * @param interval The interval definition
-	 * @param scores The scores for each interval
-	 * @param builder The builder used to construct operators
-	 * @return The score for the lookup
-	 */
-	private SInt computeIntervalScore(SInt value, List<SInt> interval, List<SInt> scores, OmniBuilder builder) {
-	  List<SInt> intermediateScores = new ArrayList<SInt>(scores.size()); 
-
-	  ComparisonProtocolBuilder comparisonBuilder = builder.getComparisonProtocolBuilder();    
-    NumericProtocolBuilder numericBuilder = builder.getNumericProtocolBuilder();
-    
-    builder.beginSeqScope();
-	  builder.beginParScope();
-	  
-	  // Compare if "x <= the n interval definitions"
-	  List<SInt> comparisons = new ArrayList<SInt>();
-	  for(int i = 0; i< interval.size(); i++) {
-	    comparisons.add(comparisonBuilder.compare(value, interval.get(i)));
-	  }
-	  SInt one = numericBuilder.getSInt(1);
-    builder.endCurScope();
-    
-	  // Add "x > last interval definition" to comparisons
-	  comparisons.add(numericBuilder.sub(one, comparisons.get(comparisons.size()-1)));
-	  
-	  //Comparisons now contain if x <= each definition and if x>= last definition
-    builder.beginParScope();	   //need to verify if this is "legal"
-	  intermediateScores.add(numericBuilder.mult(comparisons.get(0), scores.get(0)));
-	  for(int i = 1; i < scores.size()-1; i++) {
-	    SInt hit = numericBuilder.sub(comparisons.get(i), comparisons.get(i-1));
-	    intermediateScores.add(numericBuilder.mult(hit, scores.get(i)));
-	  }
-	  intermediateScores.add(numericBuilder.mult(comparisons.get(scores.size()-1), scores.get(scores.size()-1))); 
-	  builder.endCurScope();	  
-	  
-	  SInt sum = builder.getNumericProtocolBuilder().sum((SInt[]) intermediateScores.toArray(new SInt[intermediateScores.size()]));
-    builder.endCurScope();
-    return sum;
   }
 
-	/**
-	 * 
-	 * @return
-	 */
-  public SInt getResult(){
-		return this.score;
-	}
-	
+  /**
+   * Verify that the input values are consistent, i.e.
+   * the there is an interval for each value
+   *
+   * @return If the input is consistent.
+   */
+  private boolean consistencyCheck() {
+    if (this.values.size() != this.intervals.size()) {
+      return false;
+    }
+    if (this.intervals.size() != (this.intervalScores.size())) {
+      return false;
+    } else {
+      return true;
+    }
+  }
+
+  @Override
+  @SuppressWarnings("unchecked")
+  public Computation<SInt> prepareApplication(
+      SequentialNumericBuilder sequential) {
+    return sequential.par(
+        parallel -> {
+          List<Computation<SInt>> scores = new ArrayList<>(values.size());
+          for (int i = 0; i < values.size(); i++) {
+            SInt value = values.get(i);
+            List<SInt> interval = intervals.get(i);
+            List<SInt> intervalScore = intervalScores.get(i);
+
+            scores.add(
+                parallel.createSequentialSub(
+                    new ComputeIntervalScore(interval, value, intervalScore)));
+          }
+          return () -> scores;
+        }
+    ).seq((list, seq) ->
+        new SumSIntList(list).build(seq)
+    );
+  }
+
+  private static class ComputeIntervalScore implements
+      ComputationBuilder<SInt> {
+
+    private final List<Computation<SInt>> interval;
+    private final Computation<SInt> value;
+    private final List<Computation<SInt>> scores;
+
+
+    /**
+     * Given a value and scores for an interval, will lookup the score for
+     * the value.
+     *
+     * @param value The value to lookup
+     * @param interval The interval definition
+     * @param scores The scores for each interval
+     */
+    ComputeIntervalScore(List<SInt> interval, SInt value, List<SInt> scores) {
+      this.interval = convertList(interval);
+      this.value = () -> value;
+      this.scores = convertList(scores);
+    }
+
+    private List<Computation<SInt>> convertList(List<SInt> interval) {
+      return interval.stream()
+          .map(intervalValue -> {
+            Computation<SInt> computation = () -> intervalValue;
+            return computation;
+          })
+          .collect(Collectors.toList());
+    }
+
+    @Override
+    public Computation<SInt> build(SequentialNumericBuilder rootBuilder) {
+      return rootBuilder.par((parallelBuilder) -> {
+        List<Computation<SInt>> result = new ArrayList<>();
+        ComparisonBuilder builder = parallelBuilder.comparison();
+
+        // Compare if "x <= the n interval definitions"
+        for (Computation<SInt> anInterval : interval) {
+          result.add(builder.compareLEQ(value, anInterval));
+        }
+        return () -> result;
+      }).seq((comparisons, builder) -> {
+        // Add "x > last interval definition" to comparisons
+
+        NumericBuilder numericBuilder = builder.numeric();
+        Computation<SInt> one = builder.numeric().known(BigInteger.valueOf(1));
+        Computation<SInt> lastComparison = comparisons.get(comparisons.size() - 1);
+        comparisons.add(numericBuilder.sub(one, lastComparison));
+        return () -> comparisons;
+      }).par((comparisons, parallelBuilder) -> {
+        //Comparisons now contain if x <= each definition and if x>= last definition
+
+        NumericBuilder numericBuilder = parallelBuilder.numeric();
+        List<Computation<SInt>> innerScores = new ArrayList<>();
+        innerScores.add(numericBuilder.mult(comparisons.get(0), scores.get(0)));
+        for (int i = 1; i < scores.size() - 1; i++) {
+          Computation<SInt> hit = numericBuilder
+              .sub(comparisons.get(i), comparisons.get(i - 1));
+          innerScores.add(numericBuilder.mult(hit, scores.get(i)));
+        }
+        Computation<SInt> a = comparisons.get(scores.size() - 1);
+        Computation<SInt> b = scores.get(scores.size() - 1);
+        innerScores.add(numericBuilder.mult(a, b));
+        return () -> innerScores;
+
+      }).seq((list, seq) -> new SumSIntList(list).build(seq));
+    }
+  }
 }

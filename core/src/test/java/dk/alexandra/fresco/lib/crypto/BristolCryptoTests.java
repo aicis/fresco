@@ -29,20 +29,22 @@ package dk.alexandra.fresco.lib.crypto;
 import static org.junit.Assert.assertTrue;
 
 import dk.alexandra.fresco.framework.Application;
+import dk.alexandra.fresco.framework.BuilderFactory;
 import dk.alexandra.fresco.framework.NativeProtocol;
-import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.ProtocolProducer;
+import dk.alexandra.fresco.framework.TestBoolApplication;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
-import dk.alexandra.fresco.framework.network.NetworkCreator;
+import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
+import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.value.OBool;
 import dk.alexandra.fresco.framework.value.SBool;
 import dk.alexandra.fresco.lib.field.bool.BasicLogicFactory;
 import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
+import dk.alexandra.fresco.lib.helper.SequentialProtocolProducer;
 import dk.alexandra.fresco.lib.helper.bristol.BristolCircuit;
 import dk.alexandra.fresco.lib.helper.builder.BasicLogicBuilder;
-import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
 import dk.alexandra.fresco.lib.logic.AbstractBinaryFactory;
 import java.util.Arrays;
 import org.junit.Assert;
@@ -117,13 +119,12 @@ public class BristolCryptoTests {
 
         @Override
         public void test() throws Exception {
-          Application aesApp = new Application() {
+          Application aesApp = new TestBoolApplication() {
 
-            private static final long serialVersionUID = 1923498347L;
 
             @Override
-            public ProtocolProducer prepareApplication(ProtocolFactory fac) {
-              AbstractBinaryFactory prov = (AbstractBinaryFactory) fac;
+            public ProtocolProducer prepareApplication(BuilderFactory fac) {
+              AbstractBinaryFactory prov = (AbstractBinaryFactory) fac.getProtocolFactory();
               BasicLogicBuilder builder = new BasicLogicBuilder(prov);
 
               boolean[] key_val = toBoolean(keyVec[0]);
@@ -146,7 +147,7 @@ public class BristolCryptoTests {
           };
 
           secureComputationEngine
-              .runApplication(aesApp, NetworkCreator.createResourcePool(conf.sceConf));
+              .runApplication(aesApp, ResourcePoolCreator.createResourcePool(conf.sceConf));
 
           if (!assertAsExpected) {
             return;
@@ -203,13 +204,12 @@ public class BristolCryptoTests {
 
         @Override
         public void test() throws Exception {
-          Application aesApp = new Application() {
+          TestBoolApplication aesApp = new TestBoolApplication() {
 
-            private static final long serialVersionUID = 984759485L;
 
             @Override
-            public ProtocolProducer prepareApplication(ProtocolFactory fac) {
-              BasicLogicFactory bool = (BasicLogicFactory) fac;
+            public ProtocolProducer prepareApplication(BuilderFactory fac) {
+              BasicLogicFactory bool = (BasicLogicFactory) fac.getProtocolFactory();
 
               boolean[] in_val = toBoolean(in1);
               in = bool.getKnownConstantSBools(in_val);
@@ -233,7 +233,7 @@ public class BristolCryptoTests {
           };
 
           secureComputationEngine
-              .runApplication(aesApp, NetworkCreator.createResourcePool(conf.sceConf));
+              .runApplication(aesApp, ResourcePoolCreator.createResourcePool(conf.sceConf));
           if (!assertAsExpected) {
             return;
           }
@@ -290,13 +290,12 @@ public class BristolCryptoTests {
 
         @Override
         public void test() throws Exception {
-          Application sha256App = new Application() {
+          Application sha256App = new TestBoolApplication() {
 
-            private static final long serialVersionUID = 984759485L;
 
             @Override
-            public ProtocolProducer prepareApplication(ProtocolFactory fac) {
-              BasicLogicFactory bool = (BasicLogicFactory) fac;
+            public ProtocolProducer prepareApplication(BuilderFactory fac) {
+              BasicLogicFactory bool = (BasicLogicFactory) fac.getProtocolFactory();
 
               boolean[] in_val = toBoolean(in1);
               in = bool.getKnownConstantSBools(in_val);
@@ -320,7 +319,7 @@ public class BristolCryptoTests {
           };
 
           secureComputationEngine.runApplication(sha256App,
-              NetworkCreator.createResourcePool(conf.sceConf));
+              ResourcePoolCreator.createResourcePool(conf.sceConf));
 
           if (!assertAsExpected) {
             return;
@@ -378,13 +377,12 @@ public class BristolCryptoTests {
 
         @Override
         public void test() throws Exception {
-          Application md5App = new Application() {
+          Application md5App = new TestBoolApplication() {
 
-            private static final long serialVersionUID = 984759485L;
 
             @Override
-            public ProtocolProducer prepareApplication(ProtocolFactory fac) {
-              BasicLogicFactory bool = (BasicLogicFactory) fac;
+            public ProtocolProducer prepareApplication(BuilderFactory fac) {
+              BasicLogicFactory bool = (BasicLogicFactory) fac.getProtocolFactory();
 
               boolean[] in_val = toBoolean(in1);
               in = bool.getKnownConstantSBools(in_val);
@@ -408,7 +406,7 @@ public class BristolCryptoTests {
           };
 
           secureComputationEngine
-              .runApplication(md5App, NetworkCreator.createResourcePool(conf.sceConf));
+              .runApplication(md5App, ResourcePoolCreator.createResourcePool(conf.sceConf));
 
           if (!assertAsExpected) {
             return;
@@ -455,13 +453,12 @@ public class BristolCryptoTests {
 
         @Override
         public void test() throws Exception {
-          Application multApp = new Application() {
+          Application multApp = new TestBoolApplication() {
 
-            private static final long serialVersionUID = 36363636L;
 
             @Override
-            public ProtocolProducer prepareApplication(ProtocolFactory fac) {
-              BasicLogicFactory bool = (BasicLogicFactory) fac;
+            public ProtocolProducer prepareApplication(BuilderFactory fac) {
+              BasicLogicFactory bool = (BasicLogicFactory) fac.getProtocolFactory();
 
               boolean[] in1_val = toBoolean(inv1);
               in1 = bool.getKnownConstantSBools(in1_val);
@@ -487,7 +484,7 @@ public class BristolCryptoTests {
           };
 
           secureComputationEngine.runApplication(multApp,
-              NetworkCreator.createResourcePool(conf.sceConf));
+              ResourcePoolCreator.createResourcePool(conf.sceConf));
 
           if (!assertAsExpected) {
             return;
@@ -536,13 +533,11 @@ public class BristolCryptoTests {
 
         @Override
         public void test() throws Exception {
-          Application md5App = new Application() {
-
-            private static final long serialVersionUID = 36625566;
+          Application md5App = new TestBoolApplication() {
 
             @Override
-            public ProtocolProducer prepareApplication(ProtocolFactory fac) {
-              BasicLogicFactory bool = (BasicLogicFactory) fac;
+            public ProtocolProducer prepareApplication(BuilderFactory fac) {
+              BasicLogicFactory bool = (BasicLogicFactory) fac.getProtocolFactory();
 
               boolean[] in1_val = toBoolean(plainV);
               plain = bool.getKnownConstantSBools(in1_val);
@@ -568,7 +563,7 @@ public class BristolCryptoTests {
           };
 
           secureComputationEngine
-              .runApplication(md5App, NetworkCreator.createResourcePool(conf.sceConf));
+              .runApplication(md5App, ResourcePoolCreator.createResourcePool(conf.sceConf));
 
           if (!assertAsExpected) {
             return;

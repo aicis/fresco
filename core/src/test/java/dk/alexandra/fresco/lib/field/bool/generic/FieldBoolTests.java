@@ -26,18 +26,20 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.field.bool.generic;
 
+import dk.alexandra.fresco.framework.BuilderFactory;
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.TestBoolApplication;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
-import dk.alexandra.fresco.framework.network.NetworkCreator;
+import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
+import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.OBool;
 import dk.alexandra.fresco.framework.value.SBool;
 import dk.alexandra.fresco.lib.helper.SingleProtocolProducer;
 import dk.alexandra.fresco.lib.helper.builder.BasicLogicBuilder;
-import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
+import dk.alexandra.fresco.lib.helper.SequentialProtocolProducer;
 import dk.alexandra.fresco.lib.logic.AbstractBinaryFactory;
 import org.junit.Assert;
 
@@ -59,8 +61,9 @@ public class FieldBoolTests {
 
             @Override
             public ProtocolProducer prepareApplication(
-                ProtocolFactory provider) {
-              AbstractBinaryFactory prov = (AbstractBinaryFactory) provider;
+                BuilderFactory factoryProducer) {
+              ProtocolFactory producer = factoryProducer.getProtocolFactory();
+              AbstractBinaryFactory prov = (AbstractBinaryFactory) producer;
               BasicLogicBuilder builder = new BasicLogicBuilder(prov);
               
               SequentialProtocolProducer seq = new SequentialProtocolProducer();
@@ -99,7 +102,7 @@ public class FieldBoolTests {
           };
 
           secureComputationEngine.runApplication(app,
-              NetworkCreator.createResourcePool(conf.sceConf));
+              ResourcePoolCreator.createResourcePool(conf.sceConf));
           Assert.assertEquals(true,
               app.getOutputs()[0].getValue());
           
@@ -133,8 +136,9 @@ public class FieldBoolTests {
 
             @Override
             public ProtocolProducer prepareApplication(
-                ProtocolFactory provider) {
-              AbstractBinaryFactory prov = (AbstractBinaryFactory) provider;
+                BuilderFactory factoryProducer) {
+              ProtocolFactory producer = factoryProducer.getProtocolFactory();
+              AbstractBinaryFactory prov = (AbstractBinaryFactory) producer;
               BasicLogicBuilder builder = new BasicLogicBuilder(prov);
               
               SBool inp100 = builder.knownSBool(false);
@@ -162,7 +166,7 @@ public class FieldBoolTests {
           };
 
           secureComputationEngine.runApplication(app,
-              NetworkCreator.createResourcePool(conf.sceConf));
+              ResourcePoolCreator.createResourcePool(conf.sceConf));
           Assert.assertEquals(false,
               app.getOutputs()[0].getValue());
           
@@ -197,8 +201,9 @@ public class FieldBoolTests {
 
             @Override
             public ProtocolProducer prepareApplication(
-                ProtocolFactory provider) {
-              AbstractBinaryFactory prov = (AbstractBinaryFactory) provider;
+                BuilderFactory factoryProducer) {
+              ProtocolFactory producer = factoryProducer.getProtocolFactory();
+              AbstractBinaryFactory prov = (AbstractBinaryFactory) producer;
               BasicLogicBuilder builder = new BasicLogicBuilder(prov);
               
               SequentialProtocolProducer seq = new SequentialProtocolProducer();
@@ -234,7 +239,7 @@ public class FieldBoolTests {
           };
 
           secureComputationEngine.runApplication(app,
-              NetworkCreator.createResourcePool(conf.sceConf));
+              ResourcePoolCreator.createResourcePool(conf.sceConf));
           Assert.assertEquals(true,
               app.getOutputs()[0].getValue());
           
@@ -268,8 +273,9 @@ public class FieldBoolTests {
 
             @Override
             public ProtocolProducer prepareApplication(
-                ProtocolFactory provider) {
-              AbstractBinaryFactory prov = (AbstractBinaryFactory) provider;
+                BuilderFactory factoryProducer) {
+              ProtocolFactory producer = factoryProducer.getProtocolFactory();
+              AbstractBinaryFactory prov = (AbstractBinaryFactory) producer;
               BasicLogicBuilder builder = new BasicLogicBuilder(prov);
               
               SBool inp100 = builder.knownSBool(false);
@@ -297,7 +303,7 @@ public class FieldBoolTests {
           };
 
           secureComputationEngine.runApplication(app,
-              NetworkCreator.createResourcePool(conf.sceConf));
+              ResourcePoolCreator.createResourcePool(conf.sceConf));
           Assert.assertEquals(false,
               app.getOutputs()[0].getValue());
           
@@ -331,8 +337,9 @@ public class FieldBoolTests {
 
             @Override
             public ProtocolProducer prepareApplication(
-                ProtocolFactory provider) {
-              AbstractBinaryFactory prov = (AbstractBinaryFactory) provider;
+                BuilderFactory factoryProducer) {
+              ProtocolFactory producer = factoryProducer.getProtocolFactory();
+              AbstractBinaryFactory prov = (AbstractBinaryFactory) producer;
               BasicLogicBuilder builder = new BasicLogicBuilder(prov);
               
               SequentialProtocolProducer seq = new SequentialProtocolProducer();
@@ -355,10 +362,10 @@ public class FieldBoolTests {
               SBool out4 = prov.getSBool();
 
               seq.append(builder.getProtocol());
-              seq.append(new AndFromCopyConstProtocol(prov, prov, inp100, inp200, out1));
-              seq.append(new AndFromCopyConstProtocol(prov, prov, inp110, inp210, out2));
-              seq.append(new AndFromCopyConstProtocol(prov, prov, inp101, inp201, out3));
-              seq.append(new AndFromCopyConstProtocol(prov, prov, inp111, inp211, out4));
+              seq.append(new AndFromCopyConstProtocol(prov, inp100, inp200, out1));
+              seq.append(new AndFromCopyConstProtocol(prov, inp110, inp210, out2));
+              seq.append(new AndFromCopyConstProtocol(prov, inp101, inp201, out3));
+              seq.append(new AndFromCopyConstProtocol(prov, inp111, inp211, out4));
               
               this.outputs = new OBool[]{builder.output(out1), builder.output(out2),
                   builder.output(out3), builder.output(out4)};
@@ -368,7 +375,7 @@ public class FieldBoolTests {
           };
 
           secureComputationEngine.runApplication(app,
-              NetworkCreator.createResourcePool(conf.sceConf));
+              ResourcePoolCreator.createResourcePool(conf.sceConf));
           Assert.assertEquals(false,
               app.getOutputs()[0].getValue());
           
@@ -405,8 +412,9 @@ public class FieldBoolTests {
 
             @Override
             public ProtocolProducer prepareApplication(
-                ProtocolFactory provider) {
-              AbstractBinaryFactory prov = (AbstractBinaryFactory) provider;
+                BuilderFactory factoryProducer) {
+              ProtocolFactory producer = factoryProducer.getProtocolFactory();
+              AbstractBinaryFactory prov = (AbstractBinaryFactory) producer;
               BasicLogicBuilder builder = new BasicLogicBuilder(prov);
               
               SequentialProtocolProducer seq = new SequentialProtocolProducer();
@@ -427,7 +435,7 @@ public class FieldBoolTests {
           };
 
           secureComputationEngine.runApplication(app,
-              NetworkCreator.createResourcePool(conf.sceConf));
+              ResourcePoolCreator.createResourcePool(conf.sceConf));
           Assert.assertEquals(false,
               app.getOutputs()[0].getValue());
           

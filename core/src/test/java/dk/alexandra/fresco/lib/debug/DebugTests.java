@@ -25,20 +25,19 @@
  * and Bouncy Castle. Please see these projects for any further licensing issues.
  *******************************************************************************/
 package dk.alexandra.fresco.lib.debug;
-
+/*
+import dk.alexandra.fresco.framework.BuilderFactory;
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.TestBoolApplication;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
-import dk.alexandra.fresco.framework.network.NetworkCreator;
 import dk.alexandra.fresco.framework.value.OBool;
 import dk.alexandra.fresco.framework.value.SBool;
+import dk.alexandra.fresco.lib.helper.SequentialProtocolProducer;
 import dk.alexandra.fresco.lib.helper.SingleProtocolProducer;
 import dk.alexandra.fresco.lib.helper.builder.BasicLogicBuilder;
-import dk.alexandra.fresco.lib.helper.builder.UtilityBuilder;
-import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
 import dk.alexandra.fresco.lib.logic.AbstractBinaryFactory;
 
 import java.io.ByteArrayOutputStream;
@@ -68,11 +67,12 @@ public class DebugTests {
 
             @Override
             public ProtocolProducer prepareApplication(
-                ProtocolFactory provider) {
-              AbstractBinaryFactory prov = (AbstractBinaryFactory) provider;
+                BuilderFactory factoryProducer) {
+              ProtocolFactory producer = factoryProducer.getProtocolFactory();
+              AbstractBinaryFactory prov = (AbstractBinaryFactory) producer;
               BasicLogicBuilder builder = new BasicLogicBuilder(prov);
               
-              UtilityBuilder util = new UtilityBuilder(provider);
+              UtilityBuilder util = new UtilityBuilder(producer);
               
               SBool inp1 = builder.knownSBool(true);
               SBool inp2 = builder.knownSBool(false);
@@ -103,5 +103,4 @@ public class DebugTests {
       };
     }
   }
-
-}
+} */

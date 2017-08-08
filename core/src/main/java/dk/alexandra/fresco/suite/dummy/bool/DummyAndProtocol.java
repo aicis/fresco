@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -26,6 +26,7 @@
  *******************************************************************************/
 package dk.alexandra.fresco.suite.dummy.bool;
 
+import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.network.SCENetwork;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SBool;
@@ -37,7 +38,7 @@ public class DummyAndProtocol extends DummyProtocol {
   private DummySBool inRight;
   private DummySBool out;
 
-  public DummyAndProtocol(SBool inLeft, SBool inRight, SBool out) {
+  DummyAndProtocol(SBool inLeft, SBool inRight, SBool out) {
     this.inLeft = (DummySBool) inLeft;
     this.inRight = (DummySBool) inRight;
     this.out = (DummySBool) out;
@@ -49,7 +50,7 @@ public class DummyAndProtocol extends DummyProtocol {
   }
 
   @Override
-  public SBool getOutputValues() {
+  public SBool out() {
     return out;
   }
 
@@ -59,4 +60,5 @@ public class DummyAndProtocol extends DummyProtocol {
     this.out.setValue(this.inLeft.getValue() & this.inRight.getValue());
     return EvaluationStatus.IS_DONE;
   }
+
 }

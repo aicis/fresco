@@ -26,34 +26,27 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.math.integer.linalg;
 
-import dk.alexandra.fresco.framework.ProtocolFactory;
+import dk.alexandra.fresco.framework.BuilderFactory;
+import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.TestApplication;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
-import dk.alexandra.fresco.framework.network.NetworkCreator;
-import dk.alexandra.fresco.framework.value.OInt;
+import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
+import dk.alexandra.fresco.framework.builder.NumericBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
+import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
+import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.compare.RandomAdditiveMaskFactory;
-import dk.alexandra.fresco.lib.compare.RandomAdditiveMaskFactoryImpl;
-import dk.alexandra.fresco.lib.conversion.IntegerToBitsFactory;
-import dk.alexandra.fresco.lib.conversion.IntegerToBitsFactoryImpl;
-import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
-import dk.alexandra.fresco.lib.field.integer.RandomFieldElementFactory;
-import dk.alexandra.fresco.lib.helper.CopyProtocolFactory;
-import dk.alexandra.fresco.lib.helper.builder.NumericIOBuilder;
-import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
-import dk.alexandra.fresco.lib.lp.LPFactory;
-import dk.alexandra.fresco.lib.lp.LPFactoryImpl;
-import dk.alexandra.fresco.lib.math.integer.NumericBitFactory;
-import dk.alexandra.fresco.lib.math.integer.binary.RightShiftFactory;
-import dk.alexandra.fresco.lib.math.integer.binary.RightShiftFactoryImpl;
-import dk.alexandra.fresco.lib.math.integer.exp.ExpFromOIntFactory;
-import dk.alexandra.fresco.lib.math.integer.exp.PreprocessedExpPipeFactory;
-import dk.alexandra.fresco.lib.math.integer.inv.InversionProtocolFactory;
-import dk.alexandra.fresco.lib.math.integer.inv.LocalInversionFactory;
 import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.junit.Assert;
 
 public class LinAlgTests {
@@ -61,313 +54,143 @@ public class LinAlgTests {
 
 	public static class TestInnerProductClosed extends TestThreadFactory {
 
-		@Override
-		public TestThread next(TestThreadConfiguration conf) {
-			
-			return new TestThread() {
-
-				@Override
-				public void test() throws Exception {
-					TestApplication app = new TestApplication() {
-
-						private static final long serialVersionUID = 701623441111137585L;
-						
-						private final BigInteger[] a = {new BigInteger("3"),
-						    new BigInteger("5"), new BigInteger("7"), new BigInteger("9")};
-						
-						private final BigInteger[] b = {new BigInteger("2"),
-                new BigInteger("2"), new BigInteger("2"), new BigInteger("2")};
+	  @Override
+    public TestThread next(TestThreadConfiguration conf) {
+      
+      return new TestThread() {
+        private final List<Integer> data1 = Arrays.asList(200, 144, 99, 211);
+        private final List<Integer> data2 = Arrays.asList(87, 14, 11, 21);
+        private Computation<BigInteger> result;
+        private final BigInteger expected = new BigInteger("24936");
+                
+        @Override
+        public void test() throws Exception {
+          TestApplication app = new TestApplication() {
             
+            @Override
+            public ProtocolProducer prepareApplication(BuilderFactory factoryProducer) {
+              return ProtocolBuilderNumeric
+                  .createApplicationRoot((BuilderFactoryNumeric) factoryProducer, (builder) -> {
+                    NumericBuilder sIntFactory = builder.numeric();
+
+                    List<Computation<SInt>> input1 = data1.stream()
+                        .map(BigInteger::valueOf)
+                        .map(sIntFactory::known)
+                        .collect(Collectors.toList());
+//                    LinkedList<Computation<SInt>> bleh = new LinkedList(input1);
+                    System.out.println(input1);
+                    List<Computation<SInt>> input2 = data2.stream()
+                        .map(BigInteger::valueOf)
+                        .map(sIntFactory::known)
+                        .collect(Collectors.toList());
+                    Computation<SInt> min = builder.createSequentialSub(
+                        new InnerProduct(new LinkedList(input1), input2));
+                    
+                    result = builder.numeric().open(min);
+                  }).build();
+            }
+          };
 						
-						@Override
-						public ProtocolProducer prepareApplication(
-								ProtocolFactory provider) {
-							
-							BasicNumericFactory basicNumericFactory = (BasicNumericFactory) provider;
-							InnerProductFactory innerProductFactory = new InnerProductFactoryImpl(basicNumericFactory);
-					
-							SInt result = basicNumericFactory.getSInt();
-
-							NumericIOBuilder ioBuilder = new NumericIOBuilder(basicNumericFactory);
-							SequentialProtocolProducer sequentialProtocolProducer = new SequentialProtocolProducer();
-							
-							SInt[] input1 = ioBuilder.inputArray(a, 1);
-							SInt[] input2 = ioBuilder.inputArray(b, 2);
-							sequentialProtocolProducer.append(ioBuilder.getProtocol());
-
-							ProtocolProducer p = innerProductFactory.getInnerProductProtocol(input1, input2, result);
-							sequentialProtocolProducer.append(p);
-							
-							OInt output1 = ioBuilder.output(result);
-							
-							sequentialProtocolProducer.append(ioBuilder.getProtocol());
-							
-							ProtocolProducer gp = sequentialProtocolProducer;
-							
-							outputs = new OInt[] {output1};
-							
-							return gp;
-						}
-					};
           secureComputationEngine
-              .runApplication(app, NetworkCreator.createResourcePool(conf.sceConf));
-          BigInteger result = app.getOutputs()[0].getValue();
+              .runApplication(app, ResourcePoolCreator.createResourcePool(conf.sceConf));
 					
-					Assert.assertEquals(new BigInteger("48"), result);
+					Assert.assertEquals(expected, result.out());
 				}
 			};
 		}
 	}
-
-	 public static class TestInnerProductClosedShort extends TestThreadFactory {
-
-	    @Override
-	    public TestThread next(TestThreadConfiguration conf) {
-	      
-	      return new TestThread() {
-
-	        @Override
-	        public void test() throws Exception {
-	          TestApplication app = new TestApplication() {
-
-	            private static final long serialVersionUID = 701623441111137585L;
-	            
-	            private final BigInteger[] a = {new BigInteger("3")};
-	            
-	            private final BigInteger[] b = {new BigInteger("2")};
-	            
-	            
-	            @Override
-	            public ProtocolProducer prepareApplication(
-	                ProtocolFactory provider) {
-	              
-	              BasicNumericFactory basicNumericFactory = (BasicNumericFactory) provider;
-	              InnerProductFactory innerProductFactory = new InnerProductFactoryImpl(basicNumericFactory);
-	          
-	              SInt result = basicNumericFactory.getSInt();
-
-	              NumericIOBuilder ioBuilder = new NumericIOBuilder(basicNumericFactory);
-	              SequentialProtocolProducer sequentialProtocolProducer = new SequentialProtocolProducer();
-	              
-	              SInt[] input1 = ioBuilder.inputArray(a, 1);
-	              SInt[] input2 = ioBuilder.inputArray(b, 2);
-	              sequentialProtocolProducer.append(ioBuilder.getProtocol());
-
-	              ProtocolProducer p = innerProductFactory.getInnerProductProtocol(input1, input2, result);
-	              sequentialProtocolProducer.append(p);
-	              
-	              OInt output1 = ioBuilder.output(result);
-	              
-	              sequentialProtocolProducer.append(ioBuilder.getProtocol());
-	              
-	              ProtocolProducer gp = sequentialProtocolProducer;
-	              
-	              outputs = new OInt[] {output1};
-	              
-	              return gp;
-	            }
-	          };
-	          secureComputationEngine
-	              .runApplication(app, NetworkCreator.createResourcePool(conf.sceConf));
-	          BigInteger result = app.getOutputs()[0].getValue();
-	          
-	          Assert.assertEquals(new BigInteger("6"), result);
-	        }
-	      };
-	    }
-	  }
-
-
+	
 	 public static class TestInnerProductOpen extends TestThreadFactory {
 
 	    @Override
 	    public TestThread next(TestThreadConfiguration conf) {
 	      
 	      return new TestThread() {
-
+	        private final List<Integer> data1 = Arrays.asList(200, 144, 99, 211);
+	        private final List<BigInteger> data2 = Arrays.asList(BigInteger.valueOf(87), BigInteger.valueOf(14), BigInteger.valueOf(11), BigInteger.valueOf(21));
+	        private Computation<BigInteger> result;
+	        private final BigInteger expected = new BigInteger("24936");
+	                
 	        @Override
 	        public void test() throws Exception {
 	          TestApplication app = new TestApplication() {
-
-	            private static final long serialVersionUID = 701623441111137585L;
-	            
-	            private final BigInteger[] a = {new BigInteger("3"),
-	                new BigInteger("5"), new BigInteger("7"), new BigInteger("9")};
-	            
-	            private final BigInteger[] b = {new BigInteger("2"),
-	                new BigInteger("2"), new BigInteger("2"), new BigInteger("2")};
-	            
 	            
 	            @Override
-	            public ProtocolProducer prepareApplication(
-	                ProtocolFactory provider) {
-	              
-	              BasicNumericFactory basicNumericFactory = (BasicNumericFactory) provider;
-	              InnerProductFactory innerProductFactory = new InnerProductFactoryImpl(basicNumericFactory);
-	          
-	              SInt result = basicNumericFactory.getSInt();
+	            public ProtocolProducer prepareApplication(BuilderFactory factoryProducer) {
+	              return ProtocolBuilderNumeric
+	                  .createApplicationRoot((BuilderFactoryNumeric) factoryProducer, (builder) -> {
+	                    NumericBuilder sIntFactory = builder.numeric();
 
-	              NumericIOBuilder ioBuilder = new NumericIOBuilder(basicNumericFactory);
-	              SequentialProtocolProducer sequentialProtocolProducer = new SequentialProtocolProducer();
-	              
-	              SInt[] input1 = ioBuilder.inputArray(a, 1);
-	              OInt[] input2 = new OInt[4];
-	              for(int i = 0; i< input2.length; i++) {
-	                input2[i] = basicNumericFactory.getOInt(b[i]);
-	              }
-	              
-	              sequentialProtocolProducer.append(ioBuilder.getProtocol());
-
-	              ProtocolProducer p = innerProductFactory.getInnerProductProtocol(input1, input2, result);
-	              sequentialProtocolProducer.append(p);
-	              
-	              OInt output1 = ioBuilder.output(result);
-	              
-	              sequentialProtocolProducer.append(ioBuilder.getProtocol());
-	              
-	              ProtocolProducer gp = sequentialProtocolProducer;
-	              
-	              outputs = new OInt[] {output1};
-	              
-	              return gp;
+	                    List<Computation<SInt>> input1 = data1.stream()
+	                        .map(BigInteger::valueOf)
+	                        .map(sIntFactory::known)
+	                        .collect(Collectors.toList());
+	                    Computation<SInt> min = builder.createSequentialSub(
+	                        new InnerProductOpen(data2, input1));
+	                    
+	                    result = builder.numeric().open(min);
+	                  }).build();
 	            }
 	          };
+	            
 	          secureComputationEngine
-	              .runApplication(app, NetworkCreator.createResourcePool(conf.sceConf));
-	          BigInteger result = app.getOutputs()[0].getValue();
+	              .runApplication(app, ResourcePoolCreator.createResourcePool(conf.sceConf));
 	          
-	          Assert.assertEquals(new BigInteger("48"), result);
+	          Assert.assertEquals(expected, result.out());
 	        }
 	      };
 	    }
-	  }
+	 }
 
-   public static class TestInnerProductOpenShort extends TestThreadFactory {
+	 public static class InnerProductNewApiTest extends
+	 TestThreadFactory<ResourcePool, ProtocolBuilderNumeric> {
 
-     @Override
-     public TestThread next(TestThreadConfiguration conf) {
-       
-       return new TestThread() {
+	   @Override
+	   public TestThread next(TestThreadConfiguration<ResourcePool, ProtocolBuilderNumeric> conf) {
+	     return new TestThread() {
+	       int[] a = new int[]{1, 3, 5, 7, 11};
+	       int[] b = new int[]{2, 4, 6, 8, 10};
+	       List<Computation<BigInteger>> output = new ArrayList<>();
 
-         @Override
-         public void test() throws Exception {
-           TestApplication app = new TestApplication() {
+	       @Override
+	       public void test() throws Exception {
+	         TestApplication test = new TestApplication() {
 
-             private static final long serialVersionUID = 701623441111137585L;
-             
-             private final BigInteger[] a = {new BigInteger("3")};
-             
-             private final BigInteger[] b = {new BigInteger("2")};
-             
-             
-             @Override
-             public ProtocolProducer prepareApplication(
-                 ProtocolFactory provider) {
-               
-               BasicNumericFactory basicNumericFactory = (BasicNumericFactory) provider;
-               InnerProductFactory innerProductFactory = new InnerProductFactoryImpl(basicNumericFactory);
-           
-               SInt result = basicNumericFactory.getSInt();
+	           @Override
+	           public ProtocolProducer prepareApplication(BuilderFactory producer) {
+	             BuilderFactoryNumeric factoryNumeric = (BuilderFactoryNumeric) producer;
+	             ProtocolBuilder pb = ProtocolBuilderNumeric
+	                 .createApplicationRoot(factoryNumeric, seq -> {
+	                   List<Computation<SInt>> sA = new ArrayList<>(a.length);
+	                   List<Computation<SInt>> sB = new ArrayList<>(b.length);
+	                   for (int i = 0; i < b.length; i++) {
+	                     sA.add(seq.numeric().known(BigInteger.valueOf(a[i])));
+	                     sB.add(seq.numeric().known(BigInteger.valueOf(b[i])));
+	                   }
+	                   //Sub scope needed since the InnerProductNewApi needs the actual SInt
+	                   Computation<SInt> innerProduct = seq.createSequentialSub(
+	                       innerSeq ->
+	                       innerSeq.append(
+	                           new InnerProductNewApi(
+	                               factoryNumeric,
+	                               sA.stream().map(Computation::out).toArray(SInt[]::new),
+	                               sB.stream().map(Computation::out).toArray(SInt[]::new))
+	                           )
+	                       );
+	                   seq.createIteration(seq2 -> {
+	                     NumericBuilder af2 = seq2.numeric();
+	                     output.add(af2.open(innerProduct));
+	                   });
+	                 });
+	             return pb.build();
+	           }
+	         };
+	         secureComputationEngine.runApplication(test, ResourcePoolCreator.createResourcePool(conf.sceConf));
+	         BigInteger b = output.get(0).out();
+	         Assert.assertEquals(210, b.intValue());
+	       }
 
-               NumericIOBuilder ioBuilder = new NumericIOBuilder(basicNumericFactory);
-               SequentialProtocolProducer sequentialProtocolProducer = new SequentialProtocolProducer();
-               
-               SInt[] input1 = ioBuilder.inputArray(a, 1);
-               OInt[] input2 = new OInt[]{basicNumericFactory.getOInt(b[0])};
-               
-               
-               sequentialProtocolProducer.append(ioBuilder.getProtocol());
-
-               ProtocolProducer p = innerProductFactory.getInnerProductProtocol(input1, input2, result);
-               sequentialProtocolProducer.append(p);
-               
-               OInt output1 = ioBuilder.output(result);
-               
-               sequentialProtocolProducer.append(ioBuilder.getProtocol());
-               
-               ProtocolProducer gp = sequentialProtocolProducer;
-               
-               outputs = new OInt[] {output1};
-               
-               return gp;
-             }
-           };
-           secureComputationEngine
-               .runApplication(app, NetworkCreator.createResourcePool(conf.sceConf));
-           BigInteger result = app.getOutputs()[0].getValue();
-           
-           Assert.assertEquals(new BigInteger("6"), result);
-         }
-       };
-     }
-   }
-
-   // TODO: The tested class is no referenced anywhere and therefore not used
-   public static class TestAltInnerProductClosed extends TestThreadFactory {
-
-     @Override
-     public TestThread next(TestThreadConfiguration conf) {
-       
-       return new TestThread() {
-
-         @Override
-         public void test() throws Exception {
-           TestApplication app = new TestApplication() {
-
-             private static final long serialVersionUID = 701623441111137585L;
-             
-             private final BigInteger[] a = {new BigInteger("3"),
-                 new BigInteger("5"), new BigInteger("7"), new BigInteger("9")};
-             
-             private final BigInteger[] b = {new BigInteger("2"),
-                 new BigInteger("2"), new BigInteger("2"), new BigInteger("2")};
-             
-             
-             @Override
-             public ProtocolProducer prepareApplication(
-                 ProtocolFactory provider) {
-               
-               BasicNumericFactory basicNumericFactory = (BasicNumericFactory) provider;
-               LocalInversionFactory localInvFactory = (LocalInversionFactory) provider;
-               NumericBitFactory numericBitFactory = (NumericBitFactory) provider;
-               ExpFromOIntFactory expFromOIntFactory = (ExpFromOIntFactory) provider;
-               PreprocessedExpPipeFactory expFactory = (PreprocessedExpPipeFactory) provider;
-               RandomFieldElementFactory randFactory = (RandomFieldElementFactory) provider;
-               LPFactory copyFactory = new LPFactoryImpl(80, basicNumericFactory, localInvFactory, numericBitFactory,
-                   expFromOIntFactory, expFactory, randFactory);
-               
-               SInt result = basicNumericFactory.getSInt();
-
-               NumericIOBuilder ioBuilder = new NumericIOBuilder(basicNumericFactory);
-               SequentialProtocolProducer sequentialProtocolProducer = new SequentialProtocolProducer();
-               
-               SInt[] input1 = ioBuilder.inputArray(a, 1);
-               SInt[] input2 = ioBuilder.inputArray(b, 2);
-               sequentialProtocolProducer.append(ioBuilder.getProtocol());
-               
-               ProtocolProducer p = new AltInnerProductProtocolImpl(input1, input2, result, basicNumericFactory, copyFactory); 
-               sequentialProtocolProducer.append(p);
-               
-               OInt output1 = ioBuilder.output(result);
-               
-               sequentialProtocolProducer.append(ioBuilder.getProtocol());
-               
-               ProtocolProducer gp = sequentialProtocolProducer;
-               
-               outputs = new OInt[] {output1};
-               
-               return gp;
-             }
-           };
-           secureComputationEngine
-               .runApplication(app, NetworkCreator.createResourcePool(conf.sceConf));
-           BigInteger result = app.getOutputs()[0].getValue();
-           
-           Assert.assertEquals(new BigInteger("48"), result);
-         }
-       };
-     }
-   }
-
-   
+	     };
+	   }
+	 }
 }

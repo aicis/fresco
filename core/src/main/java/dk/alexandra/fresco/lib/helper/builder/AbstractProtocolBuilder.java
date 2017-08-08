@@ -26,15 +26,16 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.helper.builder;
 
+import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.MPCException;
-import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.ProtocolProducer;
-import dk.alexandra.fresco.framework.Reporter;
 import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
 import dk.alexandra.fresco.lib.helper.ProtocolProducerCollection;
+import dk.alexandra.fresco.lib.helper.SequentialProtocolProducer;
 import dk.alexandra.fresco.lib.helper.SingleProtocolProducer;
-import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
 import java.util.Stack;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Internally AbstractProtocolBuilder keeps an ProtocolProducerCollection (These are
@@ -59,8 +60,8 @@ public abstract class AbstractProtocolBuilder implements ProtocolBuilder {
   private AbstractProtocolBuilder parent;
 
   private ProtocolProducerCollection curpp = new SequentialProtocolProducer();
-  private Stack<ProtocolProducerCollection> producerStack =
-      new Stack<>();
+  private Stack<ProtocolProducerCollection> producerStack = new Stack<>();
+  private static Logger logger = LoggerFactory.getLogger(AbstractProtocolBuilder.class);
 
   /*
    * (non-Javadoc)
@@ -130,7 +131,7 @@ public abstract class AbstractProtocolBuilder implements ProtocolBuilder {
    *
    * @param pp the ProtocolProducer to append
    */
-  protected void append(NativeProtocol pp) {
+  protected void append(Computation pp) {
     append(SingleProtocolProducer.wrap(pp));
   }
 
@@ -175,7 +176,7 @@ public abstract class AbstractProtocolBuilder implements ProtocolBuilder {
       reset();
       return res;
     }
-    Reporter.warn("Builder did not close all scopes.");
+    logger.warn("Builder did not close all scopes.");
     return (ProtocolProducer) producerStack.firstElement();
   }
 

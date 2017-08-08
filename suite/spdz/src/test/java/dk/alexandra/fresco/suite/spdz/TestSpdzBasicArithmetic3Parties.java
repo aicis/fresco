@@ -26,10 +26,10 @@
  *******************************************************************************/
 package dk.alexandra.fresco.suite.spdz;
 
-import dk.alexandra.fresco.framework.configuration.PreprocessingStrategy;
 import dk.alexandra.fresco.framework.network.NetworkingStrategy;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.lib.arithmetic.BasicArithmeticTests;
+import dk.alexandra.fresco.suite.spdz.configuration.PreprocessingStrategy;
 import org.junit.Test;
 
 /**
@@ -38,13 +38,7 @@ import org.junit.Test;
  * to handle a fixed number of parties.
  * 
  */
-public class TestSpdzBasicArithmetic3Parties extends AbstractSpdzTest{	
-
-	@Test
-	public void test_Copy_Sequential() throws Exception {
-		runTest(new BasicArithmeticTests.TestCopyProtocol(),
-				EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 3);
-	}
+public class TestSpdzBasicArithmetic3Parties extends AbstractSpdzTest {
 
 	@Test
 	public void test_Input_Sequential() throws Exception {
@@ -56,12 +50,6 @@ public class TestSpdzBasicArithmetic3Parties extends AbstractSpdzTest{
 	public void test_Input_SequentialBatched() throws Exception {
 		runTest(new BasicArithmeticTests.TestInput(),
 				EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 3);
-	}
-
-	@Test
-	public void test_Lots_Of_Inputs_Sequential() throws Exception {
-		runTest(new BasicArithmeticTests.TestLotsOfInputs(),
-				EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 3);
 	}
 
 	@Test

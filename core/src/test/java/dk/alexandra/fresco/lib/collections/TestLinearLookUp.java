@@ -1,5 +1,5 @@
 package dk.alexandra.fresco.lib.collections;
-
+/*
 import java.math.BigInteger;
 
 import org.hamcrest.core.Is;
@@ -9,11 +9,7 @@ import org.junit.Test;
 import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.collections.LookUpProtocolFactory;
-import dk.alexandra.fresco.lib.collections.LookupProtocolFactoryImpl;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
-import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
-import dk.alexandra.fresco.lib.lp.LPFactoryImpl;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticFactory;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticSInt;
 
@@ -35,4 +31,4 @@ public class TestLinearLookUp {
     Assert.fail("Should not be reachable.");
   }
   
-}
+}*/

@@ -7,7 +7,7 @@ import java.io.Serializable;
 /**
  * This class implements a storage optimised way of keeping TinyTablesElements.
  * Here each is represented only by it's share in a {@link BitVector}. So if
- * using {@link setShare}, {@link getShare} on the same index will not return
+ * using {@link #setShare}, {@link #get} on the same index will not return
  * the same TinyTablesElement but simply a TinyTablesElement with the same
  * share.
  * 
@@ -19,7 +19,7 @@ public class TinyTablesElementVector implements Serializable {
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 3071994286120998661L;
+
 	private BitVector values;
 	
 	public TinyTablesElementVector(boolean[] shares) {

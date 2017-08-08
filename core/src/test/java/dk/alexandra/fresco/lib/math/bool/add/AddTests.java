@@ -26,6 +26,7 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.math.bool.add;
 
+import dk.alexandra.fresco.framework.BuilderFactory;
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.ProtocolProducer;
@@ -33,13 +34,14 @@ import dk.alexandra.fresco.framework.TestBoolApplication;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
-import dk.alexandra.fresco.framework.network.NetworkCreator;
+import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
+import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.util.ByteArithmetic;
 import dk.alexandra.fresco.framework.value.OBool;
 import dk.alexandra.fresco.framework.value.SBool;
 import dk.alexandra.fresco.lib.helper.SingleProtocolProducer;
 import dk.alexandra.fresco.lib.helper.builder.BasicLogicBuilder;
-import dk.alexandra.fresco.lib.helper.sequential.SequentialProtocolProducer;
+import dk.alexandra.fresco.lib.helper.SequentialProtocolProducer;
 import dk.alexandra.fresco.lib.logic.AbstractBinaryFactory;
 
 import org.hamcrest.core.Is;
@@ -64,8 +66,9 @@ public class AddTests {
 
             @Override
             public ProtocolProducer prepareApplication(
-                ProtocolFactory provider) {
-              AbstractBinaryFactory prov = (AbstractBinaryFactory) provider;
+                BuilderFactory factoryProducer) {
+              ProtocolFactory producer = factoryProducer.getProtocolFactory();
+              AbstractBinaryFactory prov = (AbstractBinaryFactory) producer;
               BasicLogicBuilder builder = new BasicLogicBuilder(prov);
           
               SequentialProtocolProducer seq = new SequentialProtocolProducer();
@@ -105,7 +108,7 @@ public class AddTests {
           };
 
           secureComputationEngine.runApplication(app,
-              NetworkCreator.createResourcePool(conf.sceConf));
+              ResourcePoolCreator.createResourcePool(conf.sceConf));
 
           Assert.assertThat(app.getOutputs()[0].getValue(), Is.is(false));
           Assert.assertThat(app.getOutputs()[1].getValue(), Is.is(true));
@@ -138,8 +141,9 @@ public class AddTests {
 
             @Override
             public ProtocolProducer prepareApplication(
-                ProtocolFactory provider) {
-              AbstractBinaryFactory prov = (AbstractBinaryFactory) provider;
+                BuilderFactory factoryProducer) {
+              ProtocolFactory producer = factoryProducer.getProtocolFactory();
+              AbstractBinaryFactory prov = (AbstractBinaryFactory) producer;
               BasicLogicBuilder builder = new BasicLogicBuilder(prov);
           
               SequentialProtocolProducer seq = new SequentialProtocolProducer();
@@ -200,7 +204,7 @@ public class AddTests {
           };
 
           secureComputationEngine.runApplication(app,
-              NetworkCreator.createResourcePool(conf.sceConf));
+              ResourcePoolCreator.createResourcePool(conf.sceConf));
 
           Assert.assertThat(app.getOutputs()[0].getValue(), Is.is(false));
           Assert.assertThat(app.getOutputs()[1].getValue(), Is.is(true));
@@ -244,8 +248,9 @@ public class AddTests {
 
             @Override
             public ProtocolProducer prepareApplication(
-                ProtocolFactory provider) {
-              AbstractBinaryFactory prov = (AbstractBinaryFactory) provider;
+                BuilderFactory factoryProducer) {
+              ProtocolFactory producer = factoryProducer.getProtocolFactory();
+              AbstractBinaryFactory prov = (AbstractBinaryFactory) producer;
               BasicLogicBuilder builder = new BasicLogicBuilder(prov);
           
               SequentialProtocolProducer seq = new SequentialProtocolProducer();
@@ -271,7 +276,7 @@ public class AddTests {
           };
 
           secureComputationEngine.runApplication(app,
-              NetworkCreator.createResourcePool(conf.sceConf));
+              ResourcePoolCreator.createResourcePool(conf.sceConf));
 
           boolean[] raw = convert(app.getOutputs());
           
@@ -317,15 +322,13 @@ public class AddTests {
 
             @Override
             public ProtocolProducer prepareApplication(
-                ProtocolFactory provider) {
-              AbstractBinaryFactory prov = (AbstractBinaryFactory) provider;
+                BuilderFactory factoryProducer) {
+              ProtocolFactory producer = factoryProducer.getProtocolFactory();
+              AbstractBinaryFactory prov = (AbstractBinaryFactory) producer;
               BasicLogicBuilder builder = new BasicLogicBuilder(prov);
           
               SequentialProtocolProducer seq = new SequentialProtocolProducer();
               
-              for(int i = 0; i< rawBig.length; i++) {
-                System.out.println("rawBig: "+rawBig[i]);
-              }
               SBool[] small = builder.knownSBool(rawSmall);
               SBool[] big = builder.knownSBool(rawBig);
               SBool noIncrement = builder.knownSBool(false);
@@ -363,7 +366,7 @@ public class AddTests {
           };
 
           secureComputationEngine.runApplication(app,
-              NetworkCreator.createResourcePool(conf.sceConf));
+              ResourcePoolCreator.createResourcePool(conf.sceConf));
 
           boolean[] raw1 = convert(res1);
           boolean[] raw2 = convert(res2);

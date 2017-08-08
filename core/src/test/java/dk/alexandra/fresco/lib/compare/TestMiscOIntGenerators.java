@@ -1,5 +1,5 @@
 package dk.alexandra.fresco.lib.compare;
-
+/*
 import java.math.BigInteger;
 import java.util.List;
 import java.util.Map;
@@ -19,4 +19,4 @@ public class TestMiscOIntGenerators {
     Assert.assertThat(poly[0], Is.is(BigInteger.valueOf(14)));
   }
   
-}
+}*/
