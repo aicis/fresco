@@ -149,7 +149,6 @@ public class TestDummyProtocolSuite {
     runTest(new ComparisonBooleanTests.TestBinaryEqualBasicProtocol(), EvaluationStrategy.SEQUENTIAL);
   }
   //collections.sort
-  @Ignore //for now
   @Test
   public void test_Uneven_Odd_Even_Merge_2_parties() throws Exception {
     runTest(new CollectionsSortingTests.TestOddEvenMerge(), EvaluationStrategy.SEQUENTIAL);

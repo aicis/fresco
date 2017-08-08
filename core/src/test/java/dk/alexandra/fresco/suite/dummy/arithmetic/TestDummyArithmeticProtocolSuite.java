@@ -13,6 +13,7 @@ import dk.alexandra.fresco.lib.arithmetic.MiMCTests;
 import dk.alexandra.fresco.lib.arithmetic.SearchingTests;
 import dk.alexandra.fresco.lib.arithmetic.SortingTests;
 import dk.alexandra.fresco.lib.list.EliminateDuplicatesTests;
+import dk.alexandra.fresco.lib.lp.LPBuildingBlockTests;
 import dk.alexandra.fresco.lib.math.integer.binary.BinaryOperationsTests;
 import dk.alexandra.fresco.lib.math.integer.division.DivisionTests;
 import dk.alexandra.fresco.lib.math.integer.exp.ExponentiationTests;
@@ -35,11 +36,6 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
     runTest(new BasicArithmeticTests.TestInput(), EvaluationStrategy.SEQUENTIAL,
         NetworkingStrategy.KRYONET, 2);
   }
-
-//  @Test
-//  public void test_Random_OInt() throws Exception {
-//    runTest(new BasicArithmeticTests.TestRandomOint(), EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET, 2);
-//  }
   
   @Test
   public void test_OutputToTarget_Sequential() throws Exception {
@@ -90,13 +86,6 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
     runTest(new ComparisonTests.TestCompareEQ(), EvaluationStrategy.SEQUENTIAL,
         NetworkingStrategy.KRYONET, 2);
   }
-
-//  @Ignore //TODO the protocol does not seem to function
-//  @Test
-//  public void test_compareEQWithPreprocess_Sequential() throws Exception {
-//    runTest(new ComparisonTests.TestCompareEQWithPreProcessing(),
-//        EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET, 2);
-//  }
   
   @Test
   public void test_isSorted() throws Exception {
@@ -157,25 +146,25 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
     runTest(new CreditRaterTest.TestCreditRater(values, intervals, scores), EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET, 2);
   }
   
-  //DEASolver TODO Is the DEASolver working as it should?
+  //DEASolver
   @Test
   public void test_DEASolver_2_parties() throws Exception {
     runTest(new DEASolverTests.TestDEASolver(5, 2, 10, 1, AnalysisType.INPUT_EFFICIENCY), EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET, 2);
   }
 
-  @Ignore //for now
+  @Ignore //TODO needs a closer look
   @Test
   public void test_DEASolver_3_parties() throws Exception {
     runTest(new DEASolverTests.TestDEASolver(2, 2, 10, 1, AnalysisType.INPUT_EFFICIENCY), EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET, 3);
   }
   
-  @Ignore //for now
+  @Ignore //TODO needs a closer look
   @Test
   public void test_DEASolver_multiple_queries_2_parties() throws Exception {
     runTest(new DEASolverTests.TestDEASolver(5, 2, 10, 2, AnalysisType.INPUT_EFFICIENCY), EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET, 2);
   }
   
-  @Ignore //for now
+  @Ignore //TODO needs a closer look
   @Test
   public void test_DEASolver_single_input_2_parties() throws Exception {
     runTest(new DEASolverTests.TestDEASolver(1, 2, 10, 1, AnalysisType.INPUT_EFFICIENCY), EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET, 2);
@@ -201,11 +190,6 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
   public void test_Test_Is_Sorted() throws Exception {
     runTest(new SearchingTests.TestIsSorted(),EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET, 2);
   }
-
-//  @Test
-//  public void test_Test_Is_Sorted_Multi_Output() throws Exception {
-//    runTest(new SearchingTests.TestIsSortedMultiOutput(),EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET, 2);
-//  }
 
   @Ignore
   @Test //TODO @Kasper, Using the other modulus breaks the LP tests 
@@ -239,54 +223,20 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
   }
 
   //lib.lp
-  /*@Test
-  public void test_LPSolverDanzig() throws Exception {
-    runTest(new LPBuildingBlockTests.TestDanzigEnteringVariable(new BigInteger("100001")),
-        EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET, 2);
-  }
-  
  // @Ignore //check with Peter if we still want this
   @Test
-  public void test_LPSolverWithBlandEntering() throws Exception {
-    runTest(new LPBuildingBlockTests.TestBlandEnteringVariableSolver(new BigInteger("100001")),
+  public void test_LPSolverEntering() throws Exception {
+    runTest(new LPBuildingBlockTests.TestEnteringVariable(),
         EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET, 2);
   }
   
   @Test
-  public void test_RankProtocol() throws Exception {
-    runTest(new LPBuildingBlockTests.TestRankProtocol(),
-        EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET, 2);
-  }
-
-  @Test
-  public void test_RankProtocolFractions() throws Exception {
-    runTest(new LPBuildingBlockTests.TestRankProtocolFractions(),
+  public void test_LPSolverBlandEntering() throws Exception {
+    runTest(new LPBuildingBlockTests.TestBlandEnteringVariable(),
         EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET, 2);
   }
   
-  @Test
-  public void test_Optimal_Value_Protocol() throws Exception {
-    runTest(new LPBuildingBlockTests.TestOptimalValueProtocol(),
-        EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET, 2);
-  }
 
-  @Test
-  public void test_Optimal_Numerator_Protocol() throws Exception {
-    runTest(new LPBuildingBlockTests.TestOptimalNumeratorProtocol(),
-        EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET, 2);
-  }
-
-  @Test
-  public void test_Entrywise_Product_Protocol() throws Exception {
-    runTest(new LPBuildingBlockTests.TestEntryWiseProductProtocol(),
-        EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET, 2);
-  }
-  
-  @Test
-  public void test_Entrywise_Product_Protocol_Open() throws Exception {
-    runTest(new LPBuildingBlockTests.TestEntryWiseProductProtocolOpen(),
-        EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET, 2);
-  }*/
   //lib.math.integer.binary
   @Test
   public void test_Right_Shift() throws Exception {
