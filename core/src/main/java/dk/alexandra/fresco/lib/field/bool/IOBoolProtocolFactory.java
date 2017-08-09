@@ -26,8 +26,10 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.field.bool;
 
+import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.value.OBool;
 import dk.alexandra.fresco.framework.value.SBool;
+import dk.alexandra.fresco.framework.value.SInt;
 
 /**
  * Factory for protocols that convert between open and closed bools.
@@ -45,29 +47,27 @@ public interface IOBoolProtocolFactory {
 	 * @return the protocol to do the transformation
 	 * 
 	 */
-	CloseBoolProtocol getCloseProtocol(int source, OBool open, SBool closed);
+  Computation<? extends SBool> getCloseProtocol(int source, Boolean open, SBool closed);
 
 	
 	/**
 	 * Gets a new open protocol that opens up the integer to all.
 	 * 
 	 * @param closed a closed value
-	 * @param open a opened value
 	 * @return the protocol to do the transformation
 	 * 
 	 */
-	OpenBoolProtocol getOpenProtocol(SBool closed, OBool open);
+  Computation<Boolean> getOpenProtocol(SBool closed);
 	
 	
 	/**
 	 * Gets a new open protocol
 	 * 
 	 * @param closed a closed value
-	 * @param open a opened value
 	 * @param targetID the id of a specific player to output to.
 	 * @return the protocol to do the transformation
 	 * 
 	 */
-	OpenBoolProtocol getOpenProtocol(int target, SBool closed, OBool open);
+	Computation<Boolean> getOpenProtocol(int target, SBool closed);
 	
 }

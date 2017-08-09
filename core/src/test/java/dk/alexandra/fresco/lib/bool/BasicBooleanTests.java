@@ -27,19 +27,35 @@
 package dk.alexandra.fresco.lib.bool;
 
 import dk.alexandra.fresco.framework.BuilderFactory;
+import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.TestBoolApplication;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
+import dk.alexandra.fresco.framework.builder.BinaryBuilder;
+import dk.alexandra.fresco.framework.builder.BuilderFactoryBinary;
+import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderBinary;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderBinary.SequentialBinaryBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
 import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.value.OBool;
 import dk.alexandra.fresco.framework.value.SBool;
+import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.helper.SingleProtocolProducer;
 import dk.alexandra.fresco.lib.helper.builder.BasicLogicBuilder;
 import dk.alexandra.fresco.lib.logic.AbstractBinaryFactory;
+
+import java.math.BigInteger;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.hamcrest.core.Is;
 import org.junit.Assert;
 
 public class BasicBooleanTests {
@@ -59,33 +75,33 @@ public class BasicBooleanTests {
         public void test() throws Exception {
           TestBoolApplication app = new TestBoolApplication() {
 
+            List<Boolean> bools = Arrays.asList(new Boolean[]{true, false});
 
             @Override
             public ProtocolProducer prepareApplication(
                 BuilderFactory factoryProducer) {
-              ProtocolFactory producer = factoryProducer.getProtocolFactory();
-              AbstractBinaryFactory prov = (AbstractBinaryFactory) producer;
-              BasicLogicBuilder builder = new BasicLogicBuilder(prov);
-              SBool inp = builder.knownSBool(true);
-              OBool output = builder.output(inp);
-              this.outputs = new OBool[]{output};
-              return builder.getProtocol();
-            }
+              
+              return ProtocolBuilderBinary
+                  .createApplicationRoot((BuilderFactoryBinary)factoryProducer, (builder) -> {
+
+                    List<Computation<SBool>> closed =
+                        bools.stream().map(builder.binary()::known).collect(Collectors.toList());
+                    this.outputs = closed.stream().map(builder.binary()::open).collect(Collectors.toList());
+
+                  }).build();
+              }
           };
 
           secureComputationEngine.runApplication(app,
               ResourcePoolCreator.createResourcePool(conf.sceConf));
 
-          if (!assertAsExpected) {
-            return;
-          }
-          Assert.assertEquals(true,
-              app.getOutputs()[0].getValue());
+          Assert.assertThat(app.getOutputs()[0].booleanValue(), Is.is(true));
+          Assert.assertThat(app.getOutputs()[1].booleanValue(), Is.is(false));              
         }
       };
     }
   }
-
+/*
   public static class TestXOR extends TestThreadFactory {
 
     private boolean assertAsExpected;
@@ -252,10 +268,6 @@ public class BasicBooleanTests {
     }
   }
 
-  /**
-   * Tests both input, xor, not, and and output.
-   * Computes all variants of: NOT((i1 XOR i2) AND i1)
-   */
   public static class TestBasicProtocols extends TestThreadFactory {
 
     private boolean assertAsExpected;
@@ -333,5 +345,5 @@ public class BasicBooleanTests {
         }
       };
     }
-  }
+  }*/
 }

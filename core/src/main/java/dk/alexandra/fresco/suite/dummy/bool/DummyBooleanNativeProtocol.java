@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
+ * Copyright (c) 2015 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
  *
@@ -24,18 +24,12 @@
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
  *******************************************************************************/
-package dk.alexandra.fresco.lib.field.bool;
+package dk.alexandra.fresco.suite.dummy.bool;
 
-import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.ProtocolFactory;
-import dk.alexandra.fresco.framework.value.SBool;
+import dk.alexandra.fresco.framework.NativeProtocol;
+import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 
-public interface XorProtocolFactory extends ProtocolFactory {
+public abstract class DummyBooleanNativeProtocol<OutputT> implements NativeProtocol<OutputT, ResourcePool> {
 
-  @Deprecated
-  Computation<? extends SBool> getXorProtocol(SBool inLeft, SBool inRight, SBool out);
-
-  @Deprecated
-  Computation<? extends SBool> getXorProtocol(SBool inLeft, Boolean inRight, SBool out);
 
 }

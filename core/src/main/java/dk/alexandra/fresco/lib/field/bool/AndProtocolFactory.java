@@ -26,15 +26,14 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.field.bool;
 
+import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.ProtocolFactory;
-import dk.alexandra.fresco.framework.ProtocolProducer;
-import dk.alexandra.fresco.framework.value.OBool;
 import dk.alexandra.fresco.framework.value.SBool;
 
 public interface AndProtocolFactory extends ProtocolFactory {
 
-  ProtocolProducer getAndProtocol(SBool inLeft, SBool inRight, SBool out);
+  Computation<? extends SBool> getAndProtocol(SBool inLeft, SBool inRight, SBool out);
 
-  ProtocolProducer getAndProtocol(SBool inLeft, OBool inRight, SBool out);
+  Computation<? extends SBool> getAndProtocol(SBool inLeft, Boolean inRight, SBool out);
 
 }

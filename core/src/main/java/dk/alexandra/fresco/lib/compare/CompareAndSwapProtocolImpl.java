@@ -26,22 +26,23 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.compare;
 
+import java.util.List;
+
 import dk.alexandra.fresco.framework.ProtocolProducer;
+import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.builder.ComputationBuilder;
 import dk.alexandra.fresco.framework.value.SBool;
 import dk.alexandra.fresco.lib.helper.SimpleProtocolProducer;
 import dk.alexandra.fresco.lib.helper.builder.BasicLogicBuilder;
 import dk.alexandra.fresco.lib.logic.AbstractBinaryFactory;
 
-public class CompareAndSwapProtocolImpl extends SimpleProtocolProducer implements
-    CompareAndSwapProtocol {
+public class CompareAndSwap implements ComputationBuilder<List<SBool>> {
 
 	private SBool[] left;
 	private SBool[] right;
 	private AbstractBinaryFactory bp;
 
-	public CompareAndSwapProtocolImpl(SBool[] left, SBool[] right,
-			AbstractBinaryFactory bp) {
-		this.bp = bp;
+	public CompareAndSwap(Computation<List<SBool>> left, Computation<List<SBool>> right) {
 		this.left = left;
 		this.right = right;
 	}

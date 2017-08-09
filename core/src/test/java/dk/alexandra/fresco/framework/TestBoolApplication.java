@@ -26,29 +26,39 @@
  *******************************************************************************/
 package dk.alexandra.fresco.framework;
 
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderBinary.SequentialBinaryBuilder;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilderHelper;
-import dk.alexandra.fresco.framework.value.OBool;
 
 public abstract class TestBoolApplication implements
-    Application<OBool[], SequentialBinaryBuilder> {
+    Application<List<Boolean>, ProtocolBuilderBinary> {
 
+  public List<Computation<Boolean>> outputs = new ArrayList<>();
+  
   public abstract ProtocolProducer prepareApplication(BuilderFactory factoryProducer);
 
   @Override
-  public Computation<OBool[]> prepareApplication(SequentialBinaryBuilder producer) {
+  public Computation<List<Boolean>> prepareApplication(ProtocolBuilderBinary producer) {
     producer.append(prepareApplication(ProtocolBuilderHelper.getFactoryBinary(producer)));
-    return () -> this.outputs;
+    return outputToBoolean();
+  }
+
+  protected Computation<List<Boolean>> outputToBoolean() {
+    return () -> this.outputs
+        .stream()
+        .map(Computation::out)
+        .collect(Collectors.toList());
   }
 
 
-  /**
-   *
-   */
-  public OBool[] outputs;
-
-  public OBool[] getOutputs() {
-    return this.outputs;
+  public Boolean[] getOutputs() {
+    return this.outputs
+        .stream()
+        .map(Computation::out)
+        .collect(Collectors.toList())
+        .toArray(new Boolean[]{});
   }
-
 }

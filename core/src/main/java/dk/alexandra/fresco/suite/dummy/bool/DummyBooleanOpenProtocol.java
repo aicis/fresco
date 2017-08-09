@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -26,72 +26,58 @@
  *******************************************************************************/
 package dk.alexandra.fresco.suite.dummy.bool;
 
+import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.network.SCENetwork;
+import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SBool;
-import dk.alexandra.fresco.framework.value.Value;
 
-@Deprecated
-public class DummySBool implements Value, SBool {
+/**
+ * Implements openings for the Dummy Boolean protocol suite, where all operations are done in the
+ * clear.
+ */
+public class DummyBooleanOpenProtocol extends DummyBooleanNativeProtocol<Boolean>{
 
-	private static final long serialVersionUID = -4614951451129474002L;
+	private Boolean open;
+  private Computation<SBool> closed;
+
+	private int target;
 	
-	private final String id;
-	
-	private Boolean value;
-	
-	public DummySBool(String id) {
-    this.value = null;
-		this.id = id;
-	}
-	
-	public DummySBool(String id, boolean b) {
-		this.value = b;
-		this.id = id;
-	}
-
-	@Override
-	public byte[] getSerializableContent() {
-		byte s;
-		if (this.value) { 
-			s = 1;
-		} else {
-			s = 0;
-		}
-		return new byte[] {s};
-	}
-
-	@Override
-	public void setSerializableContent(byte[] val) {
-		this.value = val[0] == 1;
-	}
-
-	@Override
-	public boolean isReady() {
-		return this.value != null;
-	}
-
-	public boolean getValue() {
-		return this.value;
-	}
-
-	public void setValue(boolean val) {
-		this.value = val;
+  /**
+   * Constructs a native protocol to open a closed boolean to all players.
+   * 
+   * @param c a computation supplying the {@link SBool} to open
+   */
+	DummyBooleanOpenProtocol(Computation<SBool> in) {
+	  open = null;
+		closed = in;
+		target = -1; // open to all
 	}
 	
-
-	@Override
-	public String toString() {
-		if (this.value != null) {
-			return "DummySBool(" + this.id + "; " + this.value + ")";
-		} else {
-			return "DummySBool(" + this.id + "; null)";
-		}
-	}
-
-  @Override
-  public SBool out() {
-    // TODO Auto-generated method stub
-    return null;
+  /**
+   * Constructs a native protocol to open a closed boolean towards a spcecific player.
+   * 
+   * @param c a computation supplying the {@link SBool} to open
+   * @param target the id of party to open towards
+   */
+  public DummyBooleanOpenProtocol(Computation<SBool> c, int target) {
+    super();
+    this.target = target;
+    this.closed = c;
+    this.open = null;
   }
 	
+	@Override
+	public EvaluationStatus evaluate(int round, ResourcePool resourcePool,
+			SCENetwork network) {
+		boolean openToAll = target == -1;
+		if (resourcePool.getMyId() == target || openToAll) {
+		  this.open = ((DummyBooleanSBool) this.closed.out()).getValue();
+		}
+		return EvaluationStatus.IS_DONE;
+	}	
 	
+	@Override
+  public Boolean out() {
+    return this.open;
+  }
 }

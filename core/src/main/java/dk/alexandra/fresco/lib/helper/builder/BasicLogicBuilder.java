@@ -26,6 +26,10 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.helper.builder;
 
+import java.util.List;
+
+import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.builder.BinaryBuilder;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.OBool;
 import dk.alexandra.fresco.framework.value.SBool;
@@ -45,30 +49,40 @@ import dk.alexandra.fresco.lib.logic.AbstractBinaryFactory;
 public class BasicLogicBuilder extends AbstractProtocolBuilder {
 
   /**
-   * The factory used to build all protocols
+   * The builder used to build all protocols
    */
-  private AbstractBinaryFactory bf;
+  private BinaryBuilder builder;;
 
   /**
    * Construct a new builder for basic Boolean protocols.
    *
    * @param bp a factory of binary protocols.
    */
-  public BasicLogicBuilder(AbstractBinaryFactory bp) {
-    this.bf = bp;
+  public BasicLogicBuilder(BinaryBuilder bp) {
+    this.builder = bp;
   }
 
+  
+  /**
+   * Gets a single known SBool of a given value
+   * @param b the value
+   * @return the resulting Computation<SBool>
+   */
+  public Computation<SBool> known(boolean b) {
+    return builder.known(b);
+  }
+  
   /**
    * Appends an output protocol for an array of SBools
    *
    * @param sbs the SBools to be output
    * @return the OBools holding the resulting output
    */
-  public OBool[] output(SBool... sbs) {
-    OBool[] outs = new OBool[sbs.length];
+  public List<Boolean> output(Computation<SBool>... sbs) {
+    List<Boolean> outs = new ArrayList<Boolean>(sbs.length);
     beginParScope();
     for (int i = 0; i < sbs.length; i++) {
-      outs[i] = output(sbs[i]);
+      outs.add(e)output(sbs[i]);
     }
     endCurScope();
     return outs;

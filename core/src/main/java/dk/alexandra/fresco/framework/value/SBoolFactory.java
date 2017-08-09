@@ -26,13 +26,16 @@
  *******************************************************************************/
 package dk.alexandra.fresco.framework.value;
 
+import dk.alexandra.fresco.framework.Computation;
+
 public interface SBoolFactory {
 
 	/**
 	 * Creates an empty container.
 	 * 
 	 */
-	public SBool getSBool();
+  @Deprecated
+	SBool getSBool();
 
 	/**
 	 * Creates 'amount' of SBools.
@@ -40,7 +43,8 @@ public interface SBoolFactory {
 	 * @amount the amount of SBools you want back
 	 * @return
 	 */
-	public SBool[] getSBools(int amount);
+	@Deprecated
+	SBool[] getSBools(int amount);
 
 	/**
 	 * Creates a container with a preloaded value.
@@ -50,7 +54,8 @@ public interface SBoolFactory {
 	 * may become known to the other players.
 	 * 
 	 */
-	public SBool getKnownConstantSBool(boolean b);
+	@Deprecated
+	SBool getKnownConstantSBool(boolean b);
 
 	/**
 	 * Generates an array of SBools the size of the input array containing the
@@ -59,7 +64,10 @@ public interface SBoolFactory {
 	 * @param bools
 	 * @return
 	 */
-	public SBool[] getKnownConstantSBools(boolean[] bools);
+	@Deprecated
+	SBool[] getKnownConstantSBools(boolean[] bools);
 	
 	
+	//TODO not sure about this
+	Computation<SBool> getSBool(Boolean input, SBool output);
 }

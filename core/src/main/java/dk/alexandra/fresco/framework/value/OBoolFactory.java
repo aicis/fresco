@@ -26,7 +26,8 @@
  *******************************************************************************/
 package dk.alexandra.fresco.framework.value;
 
-
+//TODO DELETE ME WHEN NOT REFERENCED
+@Deprecated
 public interface OBoolFactory {	
 	
 	public OBool getOBool();

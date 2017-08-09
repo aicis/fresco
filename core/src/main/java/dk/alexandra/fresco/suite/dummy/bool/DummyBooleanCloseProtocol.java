@@ -26,56 +26,72 @@
  *******************************************************************************/
 package dk.alexandra.fresco.suite.dummy.bool;
 
+import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.network.SCENetwork;
 import dk.alexandra.fresco.framework.network.serializers.BooleanSerializer;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
-import dk.alexandra.fresco.framework.value.OBool;
 import dk.alexandra.fresco.framework.value.SBool;
-import dk.alexandra.fresco.framework.value.Value;
-import dk.alexandra.fresco.lib.field.bool.CloseBoolProtocol;
+import dk.alexandra.fresco.framework.value.SInt;
 
-@Deprecated
-public class DummyCloseBoolProtocol extends DummyProtocol implements CloseBoolProtocol {
+public class DummyBooleanCloseProtocol extends DummyBooleanNativeProtocol<SBool>{
 
-	public DummyOBool input;
-	public DummySBool output;
+	public Computation<Boolean> input;
+	public DummyBooleanSBool output;
 	
 	private int sender;
 
-	DummyCloseBoolProtocol(OBool in, SBool out, int sender) {
-		input = (DummyOBool)in;
-		output = (DummySBool)out;
+  /**
+   * Constructs a protocol to close an open value.
+   * 
+   * @param targetId id of the party supplying the open value.
+   * @param open a computation output the value to close.
+   */
+	public DummyBooleanCloseProtocol(int sender, Computation<Boolean> in) {
+		input = in;
+		output = null;
 		this.sender = sender;
 	}
+	
+	
+  /**
+   * Constructs a protocol to close an open value.
+   * 
+   * <p>
+   * Lets the caller specify where to store the output. This is for backward compatibility.
+   * </p>
+   * 
+   * @param targetId id of the party supplying the open value.
+   * @param open a computation output the value to close.
+   * @param closed the {@link SInt} in which to store the output
+   */
+	public DummyBooleanCloseProtocol(int sender, Computation<Boolean> in, SBool out) {
+	  input = in;
+	  output = (DummyBooleanSBool) out;
+	  this.sender = sender;
+  }
 	
 	@Override
 	public EvaluationStatus evaluate(int round, ResourcePool resourcePool, SCENetwork network) {
 		switch (round) {
 		case 0:
 			if (resourcePool.getMyId() == sender) {
-				network.sendToAll(BooleanSerializer.toBytes(input.getValue()));
+				network.sendToAll(BooleanSerializer.toBytes(input.out()));
 			}
 			network.expectInputFromPlayer(sender);
 			return EvaluationStatus.HAS_MORE_ROUNDS;
 		case 1:
 			boolean r = BooleanSerializer.fromBytes(network.receive(sender));
+			this.output = (output == null) ? new DummyBooleanSBool() : output;
 			this.output.setValue(r);
 			return EvaluationStatus.IS_DONE;
 		default:
 			throw new MPCException("Bad round: " + round);
 		}
 	}
-	
-	@Override
-	public String toString() {
-		return "DummyCloseBoolGate(" + input + "," + output + ")";
-	}
 
 	@Override
-  public Value[] out() {
-    return new Value[]{this.output};
+  public SBool out() {
+    return output;
   }
-
-	
 }

@@ -3,11 +3,11 @@ package dk.alexandra.fresco.framework.builder;
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.ProtocolProducer;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
 import dk.alexandra.fresco.lib.helper.LazyProtocolProducerDecorator;
 import dk.alexandra.fresco.lib.helper.ProtocolProducerCollection;
 import dk.alexandra.fresco.lib.helper.SequentialProtocolProducer;
 import dk.alexandra.fresco.lib.helper.SingleProtocolProducer;
-import dk.alexandra.fresco.lib.logic.AbstractBinaryFactory;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Consumer;
@@ -15,19 +15,30 @@ import java.util.function.Supplier;
 
 public abstract class ProtocolBuilderBinary implements ProtocolBuilder {
 
-  public AbstractBinaryFactory factory;
+  public BuilderFactoryBinary factory;
+  private BinaryBuilder binaryBuilder;
   private List<ProtocolEntity> protocols;
 
-  private ProtocolBuilderBinary(AbstractBinaryFactory factory) {
+  private ProtocolBuilderBinary(BuilderFactoryBinary factory) {
     this.factory = factory;
     this.protocols = new LinkedList<>();
   }
 
   public static SequentialBinaryBuilder createApplicationRoot(
-      AbstractBinaryFactory factory) {
+      BuilderFactoryBinary factory) {
     return new SequentialBinaryBuilder(factory);
   }
 
+  public static SequentialBinaryBuilder createApplicationRoot(
+      BuilderFactoryBinary factory,
+      Consumer<SequentialBinaryBuilder> consumer) {
+    SequentialBinaryBuilder builder = new SequentialBinaryBuilder(
+        factory);
+    builder
+        .addConsumer(consumer, () -> new SequentialBinaryBuilder(factory));
+    return builder;
+  }
+  
 
   <T extends ProtocolBuilderBinary> void addConsumer(Consumer<T> consumer,
       Supplier<T> supplier) {
@@ -90,19 +101,32 @@ public abstract class ProtocolBuilderBinary implements ProtocolBuilder {
   }
 
   /**
+   * Creates a binary builder for this instance - i.e. this intended producer.
+   *
+   * @return the binary builder.
+   */
+  public BinaryBuilder binary() {
+    if (binaryBuilder == null) {
+      binaryBuilder = factory.createBinaryBuilder(this);
+    }
+    return binaryBuilder;
+  }
+  
+  
+  /**
    * A specific instance of the protocol builder that produces a sequential producer.
    */
   public static class SequentialBinaryBuilder extends ProtocolBuilderBinary {
 
-    private SequentialBinaryBuilder(AbstractBinaryFactory factory) {
+    private SequentialBinaryBuilder(BuilderFactoryBinary factory) {
       super(factory);
     }
 
     @Override
     public ProtocolProducer build() {
-      SequentialProtocolProducer parallelProtocolProducer = new SequentialProtocolProducer();
-      addEntities(parallelProtocolProducer);
-      return parallelProtocolProducer;
+      SequentialProtocolProducer sequentialProtocolProducer = new SequentialProtocolProducer();
+      addEntities(sequentialProtocolProducer);
+      return sequentialProtocolProducer;
     }
 
   }

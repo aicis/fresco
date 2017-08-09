@@ -1,4 +1,4 @@
-/*
+/*******************************************************************************
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -26,25 +26,22 @@
  *******************************************************************************/
 package dk.alexandra.fresco.suite.dummy.bool;
 
-import dk.alexandra.fresco.framework.ProtocolFactory;
-import dk.alexandra.fresco.framework.ProtocolProducer;
-import dk.alexandra.fresco.framework.value.OBool;
+import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.value.SBool;
 import dk.alexandra.fresco.lib.field.bool.BasicLogicFactory;
-import dk.alexandra.fresco.lib.field.bool.CloseBoolProtocol;
-import dk.alexandra.fresco.lib.field.bool.OpenBoolProtocol;
 import dk.alexandra.fresco.lib.field.bool.XorProtocol;
-import dk.alexandra.fresco.lib.helper.SingleProtocolProducer;
-import dk.alexandra.fresco.lib.logic.AbstractBinaryFactory;
 
-public class DummyBuilderFactory extends AbstractBinaryFactory implements BasicLogicFactory {
+
+//Class is no longer maintained and should be deleted when were migrated to new architecture
+@Deprecated
+public class DummyBooleanFactory implements BasicLogicFactory {
 
   /**
    * For unique names to values. For debugging.
    */
   private int counter;
 
-  public DummyBuilderFactory() {
+  public DummyBooleanFactory() {
     this.counter = 0;
   }
 
@@ -54,29 +51,11 @@ public class DummyBuilderFactory extends AbstractBinaryFactory implements BasicL
   }
 
   @Override
-  public SBool[] getSBools(int amount) {
-    SBool[] res = new DummySBool[amount];
-    for (int i = 0; i < amount; i++) {
-      res[i] = getSBool();
-    }
-    return res;
-  }
-
-  @Override
   public SBool getKnownConstantSBool(boolean b) {
     return new DummySBool("" + this.counter++, b);
   }
-
-  @Override
-  public SBool[] getKnownConstantSBools(boolean[] bools) {
-    DummySBool[] res = new DummySBool[bools.length];
-    for (int i = 0; i < bools.length; i++) {
-      res[i] = new DummySBool("" + this.counter++, bools[i]);
-    }
-    return res;
-  }
-
-  @Override
+  
+/*  @Override
   public OBool getOBool() {
     return new DummyOBool("" + this.counter++);
   }
@@ -85,22 +64,16 @@ public class DummyBuilderFactory extends AbstractBinaryFactory implements BasicL
   public OBool getKnownConstantOBool(boolean b) {
     return new DummyOBool("" + this.counter++, b);
   }
-
-  @Override
-  public ProtocolProducer getNotProtocol(SBool in, SBool out) {
-    return SingleProtocolProducer.wrap(new DummyNotProtocol(in, out));
-  }
-
+*/
   @Override
   public XorProtocol getXorProtocol(SBool inLeft, SBool inRight, SBool out) {
     return new DummyXorProtocol(inLeft, inRight, out);
   }
 
-  @Override
+  /*@Override
   public ProtocolProducer getAndProtocol(SBool inLeft, SBool inRight, SBool out) {
     return SingleProtocolProducer.wrap(new DummyAndProtocol(inLeft, inRight, out));
   }
-
 
   @Override
   public CloseBoolProtocol getCloseProtocol(int source, OBool open, SBool closed) {
@@ -118,21 +91,69 @@ public class DummyBuilderFactory extends AbstractBinaryFactory implements BasicL
   }
 
   @Override
-  public ProtocolProducer getAndProtocol(SBool inLeft, OBool inRight, SBool out) {
-    SBool closedInRight = getKnownConstantSBool(inRight.getValue());
-    return SingleProtocolProducer.wrap(new DummyAndProtocol(inLeft, closedInRight, out));
-  }
-
-  @Override
   public XorProtocol getXorProtocol(SBool inLeft, OBool inRight, SBool out) {
-    SBool closedInRight = getKnownConstantSBool(inRight.getValue());
-    return new DummyXorProtocol(inLeft, closedInRight, out);
+    SBool dummy = new DummySBool(((DummyOBool)inRight).getId(), inRight.getValue());
+    return new DummyXorProtocol(inLeft, dummy, out);
+  }
+*/
+  @Override
+  public Computation<? extends SBool> getCloseProtocol(int source, Boolean open, SBool closed) {
+    // TODO Auto-generated method stub
+    return null;
   }
 
   @Override
-  public ProtocolFactory getProtocolFactory() {
-    return this;
+  public Computation<Boolean> getOpenProtocol(SBool closed) {
+    // TODO Auto-generated method stub
+    return null;
   }
 
+  @Override
+  public Computation<Boolean> getOpenProtocol(int target, SBool closed) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public Computation<SBool> getSBool(Boolean input, SBool output) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public Computation<? extends SBool> getAndProtocol(SBool inLeft, SBool inRight, SBool out) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public Computation<? extends SBool> getAndProtocol(SBool inLeft, Boolean inRight, SBool out) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public Computation<? extends SBool> getXorProtocol(SBool inLeft, Boolean inRight, SBool out) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public SBool[] getSBools(int amount) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public SBool[] getKnownConstantSBools(boolean[] bools) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public Computation<? extends SBool> getNotProtocol(SBool in, SBool out) {
+    // TODO Auto-generated method stub
+    return null;
+  }
 
 }

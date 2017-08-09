@@ -134,10 +134,10 @@ public class ByteArithmetic {
    * Convert hex string to boolean array. 1 --> true, 0 --> false
    * 
    */
-  public static boolean[] toBoolean(String hex) throws IllegalArgumentException {
+  public static Boolean[] toBoolean(String hex) throws IllegalArgumentException {
     if (hex.length() % 2 != 0)
       throw new IllegalArgumentException("Illegal hex string");
-    boolean[] res = new boolean[hex.length() * 4]; // 8
+    Boolean[] res = new Boolean[hex.length() * 4]; // 8
     // System.out.println("Lenght: " + hex.length());
     for (int i = 0; i < hex.length() / 2; i++) {
       String sub = hex.substring(2 * i, 2 * i + 2);
@@ -156,13 +156,13 @@ public class ByteArithmetic {
    * true --> 1, false --> 0
    * 
    */
-  public static String toHex(boolean[] bits) {
+  public static String toHex(Boolean[] bits) {
     StringBuilder hex = new StringBuilder();
-    boolean[] niceBits = null;
+    Boolean[] niceBits = null;
     if(bits.length %4 == 0) {
       niceBits = bits;
     } else {
-      niceBits = new boolean[4*((bits.length/4)+1)];
+      niceBits = new Boolean[4*((bits.length/4)+1)];
       System.arraycopy(bits, 0, niceBits, 3, bits.length);
     }
     
