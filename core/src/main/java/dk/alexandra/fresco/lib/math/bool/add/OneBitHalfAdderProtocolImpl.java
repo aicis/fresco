@@ -3,75 +3,48 @@
  *
  * This file is part of the FRESCO project.
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
  *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *
- * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
- * and Bouncy Castle. Please see these projects for any further licensing issues.
+ * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL, and Bouncy Castle.
+ * Please see these projects for any further licensing issues.
  *******************************************************************************/
 package dk.alexandra.fresco.lib.math.bool.add;
 
-import dk.alexandra.fresco.framework.ProtocolCollection;
-import dk.alexandra.fresco.framework.ProtocolProducer;
+import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.builder.binary.ComputationBuilderBinary;
+import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary.SequentialBinaryBuilder;
+import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SBool;
-import dk.alexandra.fresco.lib.field.bool.BasicLogicFactory;
-import dk.alexandra.fresco.lib.field.bool.XorProtocol;
-import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
 
-public class OneBitHalfAdderProtocolImpl implements OneBitHalfAdderProtocol {
+public class OneBitHalfAdderProtocolImpl implements ComputationBuilderBinary<Pair<SBool, SBool>> {
 
-  private SBool left, right, outS;
-  private SBool outCarry;
-  private BasicLogicFactory factory;
-  private int round;
-  private ParallelProtocolProducer curPP;
+  private Computation<SBool> left, right;
 
-  public OneBitHalfAdderProtocolImpl(SBool left, SBool right, SBool outS,
-      SBool outCarry, BasicLogicFactory factory) {
+  public OneBitHalfAdderProtocolImpl(Computation<SBool> left, Computation<SBool> right) {
     this.left = left;
     this.right = right;
-    this.outS = outS;
-    this.outCarry = outCarry;
-    this.factory = factory;
-    this.round = 0;
-    this.curPP = null;
   }
 
   @Override
-  public void getNextProtocols(ProtocolCollection protocolCollection) {
-    if (round == 0) {
-      if (curPP == null) {
-        XorProtocol xor = factory.getXorProtocol(left, right, outS);
-        ProtocolProducer and = factory.getAndProtocol(left, right, outCarry);
-        curPP = new ParallelProtocolProducer(xor);
-        curPP.append(and);
-      }
-      if (curPP.hasNextProtocols()) {
-        curPP.getNextProtocols(protocolCollection);
-      } else if (!curPP.hasNextProtocols()) {
-        curPP = null;
-        round++;
-      }
-    }
+  public Computation<Pair<SBool, SBool>> build(SequentialBinaryBuilder builder) {
+    return builder.par(par -> {
+      Computation<SBool> res = par.binary().xor(left, right);
+      Computation<SBool> carry = par.binary().and(left, right);
+      return () -> new Pair<SBool, SBool>(res.out(), carry.out());
+    });
   }
 
-  @Override
-  public boolean hasNextProtocols() {
-    return round < 1;
-  }
 }

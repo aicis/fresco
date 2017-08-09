@@ -3,26 +3,23 @@
  *
  * This file is part of the FRESCO project.
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
  *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *
- * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
- * and Bouncy Castle. Please see these projects for any further licensing issues.
+ * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL, and Bouncy Castle.
+ * Please see these projects for any further licensing issues.
  *******************************************************************************/
 package dk.alexandra.fresco.suite.dummy.bool;
 
@@ -30,13 +27,14 @@ import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.TestThreadRunner;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderBinary;
+import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.TestConfiguration;
 import dk.alexandra.fresco.framework.network.NetworkingStrategy;
 import dk.alexandra.fresco.framework.sce.configuration.TestSCEConfiguration;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
+import dk.alexandra.fresco.lib.bool.BasicBooleanTests;
 import dk.alexandra.fresco.lib.bool.ComparisonBooleanTests;
 import dk.alexandra.fresco.lib.crypto.BristolCryptoTests;
 import java.util.ArrayList;
@@ -53,7 +51,8 @@ import org.junit.Test;
  */
 public class TestDummyProtocolSuite {
 
-  private void runTest(TestThreadFactory<ResourcePoolImpl, ProtocolBuilderBinary> f, EvaluationStrategy evalStrategy) throws Exception {
+  private void runTest(TestThreadFactory<ResourcePoolImpl, ProtocolBuilderBinary> f,
+      EvaluationStrategy evalStrategy) throws Exception {
     // The dummy protocol suite has the nice property that it can be run by just one player.
     int noPlayers = 1;
 
@@ -64,11 +63,12 @@ public class TestDummyProtocolSuite {
       ports.add(9000 + i * 10);
     }
 
-    Map<Integer, NetworkConfiguration> netConf = TestConfiguration
-        .getNetworkConfigurations(noPlayers, ports);
+    Map<Integer, NetworkConfiguration> netConf =
+        TestConfiguration.getNetworkConfigurations(noPlayers, ports);
     Map<Integer, TestThreadConfiguration> conf = new HashMap<>();
     for (int playerId : netConf.keySet()) {
-      TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary> ttc = new TestThreadConfiguration<>();
+      TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary> ttc =
+          new TestThreadConfiguration<>();
       ttc.netConf = netConf.get(playerId);
       ProtocolEvaluator<ResourcePoolImpl> evaluator = EvaluationStrategy.fromEnum(evalStrategy);
       ttc.sceConf = new TestSCEConfiguration(new DummyProtocolSuite(), NetworkingStrategy.KRYONET,
@@ -106,6 +106,11 @@ public class TestDummyProtocolSuite {
   @Test
   public void test_SHA256_Sequential() throws Exception {
     runTest(new BristolCryptoTests.Sha256Test(true), EvaluationStrategy.SEQUENTIAL);
+  }
+
+  @Test
+  public void test_basic_logic() throws Exception {
+    runTest(new BasicBooleanTests.TestInput(true), EvaluationStrategy.SEQUENTIAL);
   }
 
   @Test

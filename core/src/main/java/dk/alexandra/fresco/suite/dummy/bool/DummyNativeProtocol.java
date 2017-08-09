@@ -27,8 +27,8 @@
 package dk.alexandra.fresco.suite.dummy.bool;
 
 import dk.alexandra.fresco.framework.NativeProtocol;
+import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
 
-public abstract class DummyProtocol implements NativeProtocol {
-
-
+public abstract class DummyNativeProtocol<OutputT>
+implements NativeProtocol<OutputT, ResourcePoolImpl> {
 }

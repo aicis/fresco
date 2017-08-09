@@ -1,6 +1,7 @@
 package dk.alexandra.fresco.framework.builder;
 
 import dk.alexandra.fresco.framework.BuilderFactory;
+import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 
 public class ProtocolBuilderHelper {
 

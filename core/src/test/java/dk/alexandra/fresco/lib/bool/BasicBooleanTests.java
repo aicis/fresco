@@ -3,37 +3,38 @@
  *
  * This file is part of the FRESCO project.
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
  *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *
- * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
- * and Bouncy Castle. Please see these projects for any further licensing issues.
+ * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL, and Bouncy Castle.
+ * Please see these projects for any further licensing issues.
  *******************************************************************************/
 package dk.alexandra.fresco.lib.bool;
 
+import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.BuilderFactory;
+import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.TestBoolApplication;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
+import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary.SequentialBinaryBuilder;
 import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
+import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.OBool;
 import dk.alexandra.fresco.framework.value.SBool;
 import dk.alexandra.fresco.lib.helper.SingleProtocolProducer;
@@ -43,7 +44,8 @@ import org.junit.Assert;
 
 public class BasicBooleanTests {
 
-  public static class TestInput extends TestThreadFactory {
+  public static class TestInput<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, SequentialBinaryBuilder> {
 
     private boolean assertAsExpected;
 
@@ -52,40 +54,40 @@ public class BasicBooleanTests {
     }
 
     @Override
-    public TestThread next(TestThreadConfiguration conf) {
-      return new TestThread() {
+    public TestThread<ResourcePoolT, SequentialBinaryBuilder> next(
+        TestThreadConfiguration<ResourcePoolT, SequentialBinaryBuilder> conf) {
+      return new TestThread<ResourcePoolT, SequentialBinaryBuilder>() {
         @Override
         public void test() throws Exception {
-          TestBoolApplication app = new TestBoolApplication() {
-
+          Application<Boolean, SequentialBinaryBuilder> app =
+              new Application<Boolean, SequentialBinaryBuilder>() {
 
             @Override
-            public ProtocolProducer prepareApplication(
-                BuilderFactory factoryProducer) {
-              ProtocolFactory producer = factoryProducer.getProtocolFactory();
-              AbstractBinaryFactory prov = (AbstractBinaryFactory) producer;
-              BasicLogicBuilder builder = new BasicLogicBuilder(prov);
-              SBool inp = builder.knownSBool(true);
-              OBool output = builder.output(inp);
-              this.outputs = new OBool[]{output};
-              return builder.getProtocol();
+            public Computation<Boolean> prepareApplication(SequentialBinaryBuilder producer) {
+              return producer.seq(seq -> {
+                Computation<SBool> in = seq.binary().input(true, 1);
+                Computation<Boolean> open = seq.binary().open(in);
+                return open;
+              }).seq((out, seq) -> {
+                return () -> out;
+              });
             }
           };
 
-          secureComputationEngine.runApplication(app,
+          boolean output = (boolean) secureComputationEngine.runApplication(app,
               ResourcePoolCreator.createResourcePool(conf.sceConf));
 
           if (!assertAsExpected) {
             return;
           }
-          Assert.assertEquals(true,
-              app.getOutputs()[0].getValue());
+          Assert.assertEquals(true, output);
         }
       };
     }
   }
 
-  public static class TestXOR extends TestThreadFactory {
+  public static class TestXOR<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, SequentialBinaryBuilder> {
 
     private boolean assertAsExpected;
 
@@ -94,16 +96,28 @@ public class BasicBooleanTests {
     }
 
     @Override
-    public TestThread next(TestThreadConfiguration conf) {
-      return new TestThread() {
+    public TestThread<ResourcePoolT, SequentialBinaryBuilder> next(TestThreadConfiguration<ResourcePoolT, SequentialBinaryBuilder> conf) {
+      return new TestThread<ResourcePoolT, SequentialBinaryBuilder>() {
         @Override
         public void test() throws Exception {
+          
+          Application<Boolean, SequentialBinaryBuilder> app =
+              new Application<Boolean, SequentialBinaryBuilder>() {
+
+                @Override
+                public Computation<Boolean> prepareApplication(SequentialBinaryBuilder producer) {
+                  producer.seq(seq -> {
+                    
+                  })
+                }
+            
+          }
+          
           TestBoolApplication app = new TestBoolApplication() {
 
 
             @Override
-            public ProtocolProducer prepareApplication(
-                BuilderFactory factoryProducer) {
+            public ProtocolProducer prepareApplication(BuilderFactory factoryProducer) {
               ProtocolFactory provider = factoryProducer.getProtocolFactory();
               AbstractBinaryFactory prov = (AbstractBinaryFactory) provider;
               BasicLogicBuilder builder = new BasicLogicBuilder(prov);
@@ -132,20 +146,16 @@ public class BasicBooleanTests {
             }
           };
 
-          secureComputationEngine
-              .runApplication(app, ResourcePoolCreator.createResourcePool(conf.sceConf));
+          secureComputationEngine.runApplication(app,
+              ResourcePoolCreator.createResourcePool(conf.sceConf));
 
           if (!assertAsExpected) {
             return;
           }
-          Assert.assertEquals(false,
-              app.getOutputs()[0].getValue());
-          Assert.assertEquals(true,
-              app.getOutputs()[1].getValue());
-          Assert.assertEquals(true,
-              app.getOutputs()[2].getValue());
-          Assert.assertEquals(false,
-              app.getOutputs()[3].getValue());
+          Assert.assertEquals(false, app.getOutputs()[0].getValue());
+          Assert.assertEquals(true, app.getOutputs()[1].getValue());
+          Assert.assertEquals(true, app.getOutputs()[2].getValue());
+          Assert.assertEquals(false, app.getOutputs()[3].getValue());
         }
       };
     }
@@ -160,7 +170,7 @@ public class BasicBooleanTests {
     }
 
     @Override
-    public TestThread next(TestThreadConfiguration conf) {
+    public TestThread<ResourcePoolT, SequentialBinaryBuilder> next(TestThreadConfiguration conf) {
       return new TestThread() {
         @Override
         public void test() throws Exception {
@@ -168,8 +178,7 @@ public class BasicBooleanTests {
 
 
             @Override
-            public ProtocolProducer prepareApplication(
-                BuilderFactory factoryProducer) {
+            public ProtocolProducer prepareApplication(BuilderFactory factoryProducer) {
               ProtocolFactory provider = factoryProducer.getProtocolFactory();
               AbstractBinaryFactory prov = (AbstractBinaryFactory) provider;
               BasicLogicBuilder builder = new BasicLogicBuilder(prov);
@@ -177,30 +186,27 @@ public class BasicBooleanTests {
               SBool inp1 = prov.getSBool();
               SBool inp2 = prov.getSBool();
 
-              builder.addProtocolProducer(
-                  new SingleProtocolProducer<>(prov
-                      .getCloseProtocol(1, prov.getKnownConstantOBool(true), inp1)));
-              builder.addProtocolProducer(
-                  new SingleProtocolProducer<>(prov
-                      .getCloseProtocol(2, prov.getKnownConstantOBool(true), inp2)));
+              builder.addProtocolProducer(new SingleProtocolProducer<>(
+                  prov.getCloseProtocol(1, prov.getKnownConstantOBool(true), inp1)));
+              builder.addProtocolProducer(new SingleProtocolProducer<>(
+                  prov.getCloseProtocol(2, prov.getKnownConstantOBool(true), inp2)));
 
               SBool and = builder.and(inp1, inp2);
 
               OBool output = builder.output(and);
 
-              this.outputs = new OBool[]{output};
+              this.outputs = new OBool[] {output};
               return builder.getProtocol();
             }
           };
 
-          secureComputationEngine
-              .runApplication(app, ResourcePoolCreator.createResourcePool(conf.sceConf));
+          secureComputationEngine.runApplication(app,
+              ResourcePoolCreator.createResourcePool(conf.sceConf));
 
           if (!assertAsExpected) {
             return;
           }
-          Assert.assertEquals(true,
-              app.getOutputs()[0].getValue());
+          Assert.assertEquals(true, app.getOutputs()[0].getValue());
         }
       };
     }
@@ -215,7 +221,7 @@ public class BasicBooleanTests {
     }
 
     @Override
-    public TestThread next(TestThreadConfiguration conf) {
+    public TestThread<ResourcePoolT, SequentialBinaryBuilder> next(TestThreadConfiguration conf) {
       return new TestThread() {
         @Override
         public void test() throws Exception {
@@ -223,8 +229,7 @@ public class BasicBooleanTests {
 
 
             @Override
-            public ProtocolProducer prepareApplication(
-                BuilderFactory factoryProducer) {
+            public ProtocolProducer prepareApplication(BuilderFactory factoryProducer) {
               ProtocolFactory provider = factoryProducer.getProtocolFactory();
               AbstractBinaryFactory prov = (AbstractBinaryFactory) provider;
               BasicLogicBuilder builder = new BasicLogicBuilder(prov);
@@ -233,19 +238,18 @@ public class BasicBooleanTests {
               SBool not = builder.not(inp1);
 
               OBool output = builder.output(not);
-              this.outputs = new OBool[]{output};
+              this.outputs = new OBool[] {output};
               return builder.getProtocol();
             }
           };
 
-          secureComputationEngine
-              .runApplication(app, ResourcePoolCreator.createResourcePool(conf.sceConf));
+          secureComputationEngine.runApplication(app,
+              ResourcePoolCreator.createResourcePool(conf.sceConf));
 
           if (!assertAsExpected) {
             return;
           }
-          Assert.assertEquals(false,
-              app.getOutputs()[0].getValue());
+          Assert.assertEquals(false, app.getOutputs()[0].getValue());
         }
       };
     }
@@ -263,7 +267,7 @@ public class BasicBooleanTests {
     }
 
     @Override
-    public TestThread next(TestThreadConfiguration conf) {
+    public TestThread<ResourcePoolT, SequentialBinaryBuilder> next(TestThreadConfiguration conf) {
       return new TestThread() {
         @Override
         public void test() throws Exception {
@@ -271,8 +275,7 @@ public class BasicBooleanTests {
 
 
             @Override
-            public ProtocolProducer prepareApplication(
-                BuilderFactory factoryProducer) {
+            public ProtocolProducer prepareApplication(BuilderFactory factoryProducer) {
               ProtocolFactory provider = factoryProducer.getProtocolFactory();
               AbstractBinaryFactory prov = (AbstractBinaryFactory) provider;
               BasicLogicBuilder builder = new BasicLogicBuilder(prov);
@@ -300,7 +303,7 @@ public class BasicBooleanTests {
               SBool and11 = builder.and(inp111, xor11);
               SBool not11 = builder.not(and11);
 
-              //maybe remove again - test for having not before and
+              // maybe remove again - test for having not before and
               SBool ainp111 = builder.knownSBool(true);
               SBool ainp211 = builder.knownSBool(true);
               SBool anot11 = builder.not(ainp211);
@@ -311,23 +314,18 @@ public class BasicBooleanTests {
             }
           };
 
-          secureComputationEngine
-              .runApplication(app, ResourcePoolCreator.createResourcePool(conf.sceConf));
+          secureComputationEngine.runApplication(app,
+              ResourcePoolCreator.createResourcePool(conf.sceConf));
 
           if (!assertAsExpected) {
             return;
           }
 
-          Assert.assertEquals(true,
-              app.getOutputs()[0].getValue());
-          Assert.assertEquals(false,
-              app.getOutputs()[1].getValue());
-          Assert.assertEquals(true,
-              app.getOutputs()[2].getValue());
-          Assert.assertEquals(true,
-              app.getOutputs()[3].getValue());
-          Assert.assertEquals(false,
-              app.getOutputs()[4].getValue());
+          Assert.assertEquals(true, app.getOutputs()[0].getValue());
+          Assert.assertEquals(false, app.getOutputs()[1].getValue());
+          Assert.assertEquals(true, app.getOutputs()[2].getValue());
+          Assert.assertEquals(true, app.getOutputs()[3].getValue());
+          Assert.assertEquals(false, app.getOutputs()[4].getValue());
         }
       };
     }
