@@ -10,7 +10,6 @@ import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.crypto.AES;
 import java.io.IOException;
-import java.net.InetSocketAddress;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -26,13 +25,14 @@ public class KryoNetNetwork implements Network {
 
   private List<Server> servers;
 
-  //Map per partyId to a list of clients where the length of the list is equal to channelAmount.
+  // Map per partyId to a list of clients where the length of the list is equal to channelAmount.
   private Map<Integer, List<Client>> clients;
+  private List<Thread> clientThreads;
   private NetworkConfiguration conf;
 
   private Map<Integer, AES> ciphers;
 
-  //List is as long as channelAmount and contains a map for each partyId to a queue
+  // List is as long as channelAmount and contains a map for each partyId to a queue
   private List<Map<Integer, BlockingQueue<byte[]>>> queues;
   private int channelAmount;
 
@@ -51,12 +51,13 @@ public class KryoNetNetwork implements Network {
     this.conf = conf;
     this.channelAmount = channelAmount;
     this.clients = new HashMap<>();
+    this.clientThreads = new ArrayList<>();
     this.servers = new ArrayList<>();
     this.queues = new ArrayList<>();
 
     this.ciphers = new HashMap<>();
 
-    //TODO: How to reason about the upper boundries of what can be send in a single round?
+    // TODO: How to reason about the upper boundries of what can be send in a single round?
     int writeBufferSize = 1048576;
     int objectBufferSize = writeBufferSize;
 
@@ -95,62 +96,29 @@ public class KryoNetNetwork implements Network {
   private class NaiveListener extends Listener {
 
     private Map<Integer, BlockingQueue<byte[]>> queue;
-    private Map<Integer, Integer> idToPort;
+    private Map<Integer, Integer> connectionIdToPartyId;
 
     public NaiveListener(Map<Integer, BlockingQueue<byte[]>> queue) {
       this.queue = queue;
-      this.idToPort = new HashMap<>();
-    }
-
-    private BlockingQueue<byte[]> getQueue(Connection conn) {
-      InetSocketAddress addr = conn.getRemoteAddressTCP();
-      String hostname = addr.getHostName();
-      int port = addr.getPort();
-      for (int i = 1; i <= conf.noOfParties(); i++) {
-        String pHost = conf.getParty(i).getHostname();
-        Integer pPort = this.idToPort.get(i);
-        if (pPort == null) {
-          continue;
-        }
-        if (pHost.equals(hostname) && pPort == port) {
-          return queue.get(i);
-        }
-      }
-      throw new RuntimeException("Uknown connection: " + hostname + ":" + port);
-    }
-
-    private int getPartyId(Connection conn) {
-      InetSocketAddress addr = conn.getRemoteAddressTCP();
-      String hostname = addr.getHostName();
-      int port = addr.getPort();
-      for (int i = 1; i <= conf.noOfParties(); i++) {
-        String pHost = conf.getParty(1).getHostname();
-        Integer pPort = this.idToPort.get(i);
-        if (pPort == null) {
-          continue;
-        }
-        if (pHost.equals(hostname) && pPort == port) {
-          return i;
-        }
-      }
-      throw new RuntimeException("Uknown connection: " + hostname + ":" + port);
+      this.connectionIdToPartyId = new HashMap<>();
     }
 
     @Override
     public void received(Connection connection, Object object) {
-      //Maybe a keep alive message will be offered to the queue. - so we should ignore it.
+      // Maybe a keep alive message will be offered to the queue. - so we should ignore it.
       if (object instanceof byte[]) {
         byte[] data = (byte[]) object;
         if (encryption) {
           try {
-            data = ciphers.get(getPartyId(connection)).decrypt(data);
+            data = ciphers.get(this.connectionIdToPartyId.get(connection.getID())).decrypt(data);
           } catch (IOException e) {
             throw new RuntimeException("IOException occured while decrypting data stream", e);
           }
         }
-        getQueue(connection).offer(data);
+        this.queue.get(this.connectionIdToPartyId.get(connection.getID())).offer(data);
       } else if (object instanceof Integer) {
-        this.idToPort.put((Integer) object, connection.getRemoteAddressTCP().getPort());
+        // Initial handshake to determine who the remote party is.
+        this.connectionIdToPartyId.put(connection.getID(), (Integer) object);
       }
     }
   }
@@ -160,14 +128,27 @@ public class KryoNetNetwork implements Network {
     final Semaphore semaphore = new Semaphore(-((conf.noOfParties() - 1) * channelAmount - 1));
     for (int j = 0; j < channelAmount; j++) {
       Server server = this.servers.get(j);
-      try {
-        int port = conf.getMe().getPort() + j;
-        logger.debug("P" + conf.getMyId() + ": Trying to bind to " + port);
-        server.bind(port);
-        server.start();
-      } catch (IOException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
+      boolean serverBound = false;
+      int port = conf.getMe().getPort() + j;
+      logger.debug("P" + conf.getMyId() + ": Trying to bind to " + port);
+      final int maxTries = 10;
+      int tries = 0;
+      while (!serverBound) {
+        try {
+          server.bind(port);
+          server.start();
+          serverBound = true;
+        } catch (IOException e) {
+          try {
+            if (tries > maxTries) {
+              throw e;
+            }
+            tries++;
+            Thread.sleep(500);
+          } catch (InterruptedException e1) {
+            throw e;
+          }
+        }
       }
 
       server.addListener(new NaiveListener(queues.get(j)));
@@ -192,24 +173,26 @@ public class KryoNetNetwork implements Network {
 
           String hostname = conf.getParty(i).getHostname();
           int port = conf.getParty(i).getPort() + j;
-          new Thread("Connect") {
+          Thread clientThread = new Thread("Connect") {
             public void run() {
               boolean success = false;
               while (!success) {
                 try {
-                  client.connect(5000, hostname, port);
+                  client.connect(2000, hostname, port);
                   // Server communication after connection can go here, or in Listener#connected().
                   success = true;
                 } catch (IOException ex) {
                   try {
-                    Thread.sleep(500);
+                    sleep(500);
                   } catch (InterruptedException e) {
                     throw new RuntimeException("Thread got interrupted while trying to reconnect.");
                   }
                 }
               }
             }
-          }.start();
+          };
+          clientThread.start();
+          clientThreads.add(clientThread);
         }
       }
     }
@@ -253,6 +236,10 @@ public class KryoNetNetwork implements Network {
 
     for (int j = 0; j < channelAmount; j++) {
       this.servers.get(j).stop();
+    }
+
+    for (Thread t : clientThreads) {
+      t.interrupt();
     }
 
     for (int i = 1; i <= conf.noOfParties(); i++) {

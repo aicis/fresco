@@ -53,9 +53,9 @@ import dk.alexandra.fresco.lib.helper.SingleProtocolProducer;
 import dk.alexandra.fresco.lib.helper.builder.BasicLogicBuilder;
 import dk.alexandra.fresco.lib.helper.builder.NumericIOBuilder;
 import dk.alexandra.fresco.lib.field.bool.BasicLogicFactory;
+import dk.alexandra.fresco.lib.field.bool.generic.AbstractBinaryFactory;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.helper.SequentialProtocolProducer;
-import dk.alexandra.fresco.lib.logic.AbstractBinaryFactory;
 import dk.alexandra.fresco.lib.math.integer.min.MinInfFrac;
 
 import java.math.BigInteger;

@@ -27,9 +27,7 @@
 package dk.alexandra.fresco.lib.field.bool;
 
 import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.value.OBool;
 import dk.alexandra.fresco.framework.value.SBool;
-import dk.alexandra.fresco.framework.value.SInt;
 
 /**
  * Factory for protocols that convert between open and closed bools.

@@ -28,9 +28,9 @@ package dk.alexandra.fresco.lib.compare.bool;
 
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.SBool;
+import dk.alexandra.fresco.lib.field.bool.generic.AbstractBinaryFactory;
 import dk.alexandra.fresco.lib.helper.AbstractRoundBasedProtocol;
 import dk.alexandra.fresco.lib.helper.builder.BasicLogicBuilder;
-import dk.alexandra.fresco.lib.logic.AbstractBinaryFactory;
 
 /**
  * Represents a comparison protocol between two bitstrings. Concretely, the

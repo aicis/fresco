@@ -24,56 +24,11 @@
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
  *******************************************************************************/
-package dk.alexandra.fresco.framework.value;
+package dk.alexandra.fresco.suite.dummy.bool;
 
-import dk.alexandra.fresco.framework.MPCException;
+import dk.alexandra.fresco.framework.NativeProtocol;
+import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
 
-public class GenericOBool implements OBool {
-
-	/**
-	 * 
-	 */
-
-  protected Boolean value = null;
-
-  public GenericOBool() {}
-	
-	public GenericOBool(boolean value) {
-		this.value = value;
-	}
-	
-	// TODO: is there any good reason to use Boolean instead of boolean here?
-	public void setValue(boolean value) {
-		this.value = value;
-	}
-	
-	@Override
-	public boolean getValue() {
-		return value.booleanValue();
-	}
-
-	@Override
-	public boolean isReady() {
-		return !(value==null);
-	}
-
-	@Override
-	public byte[] getSerializableContent() {
-		return value == true ? new byte[] {1} : new byte[] {0};
-	}
-
-	@Override
-	public void setSerializableContent(byte[] val) {
-		if(val.length != 1) {
-			throw new MPCException("Cannot set a boolean value from a byte array of length "+val.length);
-		}
-		if(val[0] == (byte)0) {
-			this.value = false;
-		} else if(val[0] == (byte)1){
-			this.value = true;
-		} else {
-			throw new MPCException("Cannot set a boolean value from a byte array containing "+val[0]);
-		}
-	}
-
+public abstract class DummyNativeProtocol<OutputT>
+implements NativeProtocol<OutputT, ResourcePoolImpl> {
 }

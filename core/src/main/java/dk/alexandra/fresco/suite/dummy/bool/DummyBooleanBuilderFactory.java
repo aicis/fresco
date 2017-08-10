@@ -28,9 +28,10 @@ package dk.alexandra.fresco.suite.dummy.bool;
 
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.ProtocolFactory;
-import dk.alexandra.fresco.framework.builder.BinaryBuilder;
-import dk.alexandra.fresco.framework.builder.BuilderFactoryBinary;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderBinary;
+import dk.alexandra.fresco.framework.builder.binary.BinaryBuilder;
+import dk.alexandra.fresco.framework.builder.binary.BasicBinaryFactory;
+import dk.alexandra.fresco.framework.builder.binary.BuilderFactoryBinary;
+import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.network.SCENetwork;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SBool;
@@ -39,30 +40,35 @@ import dk.alexandra.fresco.lib.field.bool.BasicLogicFactory;
 public class DummyBooleanBuilderFactory implements BuilderFactoryBinary {
 
   
-  private DummyBooleanFactory factory;
+//  private DummyBooleanFactory factory;
   
-  public DummyBooleanBuilderFactory(DummyBooleanFactory factory) {
+  public DummyBooleanBuilderFactory(/*DummyBooleanFactory factory*/) {
     super();
-    this.factory = factory;
+ //   this.factory = factory;
   }
 
+  @Deprecated
   @Override
   public ProtocolFactory getProtocolFactory() {
-    return factory;
+    return null;
+//    return factory;
   }
 
+  @Deprecated
   @Override
-  public BasicLogicFactory getBasicLogicFactory() {
-    return factory;
+  public BasicBinaryFactory createBasicBinaryFactory() {
+    // TODO Auto-generated method stub
+    return null;
   }
-
+  
+  
   @Override
   public BinaryBuilder createBinaryBuilder(ProtocolBuilderBinary builder) {
 
     return new BinaryBuilder() {
 
       @Override
-      public Computation<SBool> known(Boolean value) {
+      public Computation<SBool> known(boolean value) {
         DummyBooleanNativeProtocol<SBool> c = new DummyBooleanNativeProtocol<SBool>() {
 
           DummyBooleanSBool val;
@@ -85,7 +91,7 @@ public class DummyBooleanBuilderFactory implements BuilderFactoryBinary {
       }
 
       @Override
-      public Computation<SBool> input(Boolean value, int inputParty) {
+      public Computation<SBool> input(boolean value, int inputParty) {
         DummyBooleanCloseProtocol c = new DummyBooleanCloseProtocol(inputParty, () -> value);
         builder.append(c);
         return c;      }
@@ -134,7 +140,7 @@ public class DummyBooleanBuilderFactory implements BuilderFactoryBinary {
       }
 
       @Override
-      public Computation<SBool> and(Computation<SBool> a, Boolean b) {
+      public Computation<SBool> and(Computation<SBool> a, boolean b) {
         
         DummyBooleanAndProtocol c = new DummyBooleanAndProtocol(a, known(b));
         builder.append(c);
@@ -149,7 +155,7 @@ public class DummyBooleanBuilderFactory implements BuilderFactoryBinary {
       }
 
       @Override
-      public Computation<SBool> xor(Computation<SBool> a, Boolean b) {
+      public Computation<SBool> xor(Computation<SBool> a, boolean b) {
         DummyBooleanXorProtocol c = new DummyBooleanXorProtocol(a, known(b));
         builder.append(c);
         return c;      
@@ -164,4 +170,6 @@ public class DummyBooleanBuilderFactory implements BuilderFactoryBinary {
       
     };
   }
+
+
 }

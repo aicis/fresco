@@ -3,79 +3,75 @@
  *
  * This file is part of the FRESCO project.
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
  *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *
- * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
- * and Bouncy Castle. Please see these projects for any further licensing issues.
+ * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL, and Bouncy Castle.
+ * Please see these projects for any further licensing issues.
  *******************************************************************************/
 package dk.alexandra.fresco.suite.dummy.bool;
 
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.network.SCENetwork;
 import dk.alexandra.fresco.framework.network.serializers.BooleanSerializer;
-import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
-import dk.alexandra.fresco.framework.value.OBool;
+import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
 import dk.alexandra.fresco.framework.value.SBool;
-import dk.alexandra.fresco.framework.value.Value;
-import dk.alexandra.fresco.lib.field.bool.CloseBoolProtocol;
+
 
 @Deprecated
-public class DummyCloseBoolProtocol extends DummyProtocol implements CloseBoolProtocol {
+public class DummyCloseBoolProtocol extends DummyNativeProtocol<SBool> {
 
-	public DummyOBool input;
-	public DummySBool output;
-	
-	private int sender;
+  public final boolean input;
+  public DummySBool output;
 
-	DummyCloseBoolProtocol(OBool in, SBool out, int sender) {
-		input = (DummyOBool)in;
-		output = (DummySBool)out;
-		this.sender = sender;
-	}
-	
-	@Override
-	public EvaluationStatus evaluate(int round, ResourcePool resourcePool, SCENetwork network) {
-		switch (round) {
-		case 0:
-			if (resourcePool.getMyId() == sender) {
-				network.sendToAll(BooleanSerializer.toBytes(input.getValue()));
-			}
-			network.expectInputFromPlayer(sender);
-			return EvaluationStatus.HAS_MORE_ROUNDS;
-		case 1:
-			boolean r = BooleanSerializer.fromBytes(network.receive(sender));
-			this.output.setValue(r);
-			return EvaluationStatus.IS_DONE;
-		default:
-			throw new MPCException("Bad round: " + round);
-		}
-	}
-	
-	@Override
-	public String toString() {
-		return "DummyCloseBoolGate(" + input + "," + output + ")";
-	}
+  private final int sender;
 
-	@Override
-  public Value[] out() {
-    return new Value[]{this.output};
+  DummyCloseBoolProtocol(boolean in, int sender) {
+    this.input = in;
+    this.sender = sender;
   }
 
-	
+  @Override
+  public EvaluationStatus evaluate(int round, ResourcePoolImpl resourcePool, SCENetwork network) {
+    switch (round) {
+      case 0:
+        if (resourcePool.getMyId() == sender) {
+          network.sendToAll(BooleanSerializer.toBytes(input));
+        }
+        network.expectInputFromPlayer(sender);
+        return EvaluationStatus.HAS_MORE_ROUNDS;
+      case 1:
+        boolean r = BooleanSerializer.fromBytes(network.receive(sender));
+        System.out.println("P" + resourcePool.getMyId() + ": " + r);
+        this.output = new DummySBool();
+        this.output.setValue(r);
+        return EvaluationStatus.IS_DONE;
+      default:
+        throw new MPCException("Bad round: " + round);
+    }
+  }
+
+  @Override
+  public String toString() {
+    return "DummyCloseBoolGate(" + input + "," + output + ")";
+  }
+
+  @Override
+  public SBool out() {
+    return this.output;
+  }
+
+
 }

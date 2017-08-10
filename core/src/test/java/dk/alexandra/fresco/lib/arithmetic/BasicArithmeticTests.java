@@ -25,18 +25,18 @@ package dk.alexandra.fresco.lib.arithmetic;
 
 import dk.alexandra.fresco.framework.BuilderFactory;
 import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.TestApplication;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
-import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
-import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
+import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
@@ -160,7 +160,7 @@ public class BasicArithmeticTests {
 
               BigInteger publicVal = BigInteger.valueOf(4);
               SInt out = fac.getSInt();
-              Computation addProtocol = fac.getAddProtocol(input1, publicVal, out);
+              NativeProtocol addProtocol = fac.getAddProtocol(input1, publicVal, out);
               gp.append(addProtocol);
 
               Computation<BigInteger> output = ioBuilder.output(out);
@@ -189,7 +189,7 @@ public class BasicArithmeticTests {
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         @Override
         public void test() throws Exception {
-          final int[] openInputs = new int[] {200, 300, 1, 2};
+          final int[] openInputs = new int[]{200, 300, 1, 2};
           TestApplication app = new TestApplication() {
 
             @Override
@@ -230,7 +230,7 @@ public class BasicArithmeticTests {
         @Override
         public void test() throws Exception {
           final int[] openInputs =
-              new int[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
+              new int[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
           TestApplication app = new TestApplication() {
 
             @Override

@@ -3,26 +3,23 @@
  *
  * This file is part of the FRESCO project.
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
  *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *
- * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
- * and Bouncy Castle. Please see these projects for any further licensing issues.
+ * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL, and Bouncy Castle.
+ * Please see these projects for any further licensing issues.
  *******************************************************************************/
 package dk.alexandra.fresco.lib.helper.bristol;
 
@@ -45,8 +42,7 @@ import java.util.stream.Stream;
  * Parses textual circuit representation.
  *
  * The circuit is expected to be in "Bristol" format, see
- * https://www.cs.bris.ac.uk/Research/CryptographySecurity/MPC/ for a
- * specification of this.
+ * https://www.cs.bris.ac.uk/Research/CryptographySecurity/MPC/ for a specification of this.
  *
  * Reading is done in a streamed fashion.
  */
@@ -120,11 +116,10 @@ public class BristolCircuitParser {
   /**
    * Convert one line of text file to the corresponding basic boolean gate.
    *
-   * Returns null if any input of circuit is not currently present in wires
-   * map.
+   * Returns null if any input of circuit is not currently present in wires map.
    */
   private ProtocolProducer parseLine(String line) throws IOException {
-    //System.out.println("Parsing line: \"" + line + "\"");
+    // System.out.println("Parsing line: \"" + line + "\"");
     String[] tokens = line.split(" \\s*");
     int no_input = Integer.parseInt(tokens[0]);
     int no_output = Integer.parseInt(tokens[1]);
@@ -138,10 +133,10 @@ public class BristolCircuitParser {
     }
     String type = tokens[2 + no_input + no_output];
 
-    //System.out.println("TYPE: " + type);
-    //System.out.println("IN: " + Arrays.toString(in));
-    //System.out.println("OUT: " + Arrays.toString(out));
-    //System.out.println();
+    // System.out.println("TYPE: " + type);
+    // System.out.println("IN: " + Arrays.toString(in));
+    // System.out.println("OUT: " + Arrays.toString(out));
+    // System.out.println();
 
     // TODO: Currently, we use isReady() to determine when to stop batch.
     // This ONLY works if the invariant is that getNextProtocols() is only
@@ -170,11 +165,11 @@ public class BristolCircuitParser {
         }
 
         if (!leftInWireXor.isReady()) {
-          //System.out.println("XOR: LEFT in wire " + in[0] + " is not ready");
+          // System.out.println("XOR: LEFT in wire " + in[0] + " is not ready");
           return null;
         }
         if (!rightInWireXor.isReady()) {
-          //System.out.println("XOR: RIGHT in wire " + in[0] + " is not ready");
+          // System.out.println("XOR: RIGHT in wire " + in[0] + " is not ready");
           return null;
         }
 
@@ -184,7 +179,7 @@ public class BristolCircuitParser {
           this.wires.put(out[0], outWireXor);
         }
 
-        return SingleProtocolProducer.wrap(
+        return new SingleProtocolProducer<>(
             this.boolFactory.getXorProtocol(leftInWireXor, rightInWireXor, outWireXor));
       case "AND":
         if (in.length != 2 || out.length != 1) {
@@ -202,11 +197,11 @@ public class BristolCircuitParser {
         }
 
         if (!leftInWireAnd.isReady()) {
-          //System.out.println("and LEFT input " + in[0] + " was not ready");
+          // System.out.println("and LEFT input " + in[0] + " was not ready");
           return null;
         }
         if (!rightInWireAnd.isReady()) {
-          //System.out.println("and RIGHT input " + in[1] + " was not ready");
+          // System.out.println("and RIGHT input " + in[1] + " was not ready");
           return null;
         }
 
@@ -229,7 +224,7 @@ public class BristolCircuitParser {
         }
 
         if (!inWireNot.isReady()) {
-          //System.out.println("NOT input " + in[0] + " was not ready");
+          // System.out.println("NOT input " + in[0] + " was not ready");
           return null;
         }
 
@@ -246,18 +241,17 @@ public class BristolCircuitParser {
   }
 
   /**
-   * Fills res with next protocols, starting from pos. Returns next empty pos
-   * of array.
+   * Fills res with next protocols, starting from pos. Returns next empty pos of array.
    */
   public int getNext(ProtocolProducer[] res, int pos) {
 
     // Start with the dangling line from previous call, if its there.
     if (this.dangling != null && pos < res.length) {
-      //System.out.println("Processing dangling gate");
+      // System.out.println("Processing dangling gate");
       try {
         ProtocolProducer c = parseLine(this.dangling);
         if (c == null) {
-          //System.out.println("CircuitParser returned 0 (still dangling..) ");
+          // System.out.println("CircuitParser returned 0 (still dangling..) ");
           return pos; // Dangling still not ready.
         } else {
           res[pos] = c;
@@ -279,17 +273,17 @@ public class BristolCircuitParser {
         }
         ProtocolProducer c = parseLine(line);
         if (c == null) {
-          //System.out.println("We have reached a gate of next layer");
+          // System.out.println("We have reached a gate of next layer");
           // We have reached a gate of next layer.
           this.dangling = line;
-          //System.out.println("CircuitParser reached end of batch at " + pos + ", line: " + line);
+          // System.out.println("CircuitParser reached end of batch at " + pos + ", line: " + line);
           break;
         } else {
           res[pos] = c;
           pos++;
         }
       } catch (NoSuchElementException e) { // End of circuit reached.
-        //System.out.println("CircuitParser reached end of file ");
+        // System.out.println("CircuitParser reached end of file ");
         this.close();
         break;
       } catch (IOException e) {

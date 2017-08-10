@@ -37,8 +37,8 @@ import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.util.ByteArithmetic;
 import dk.alexandra.fresco.framework.value.OBool;
 import dk.alexandra.fresco.framework.value.SBool;
+import dk.alexandra.fresco.lib.field.bool.generic.AbstractBinaryFactory;
 import dk.alexandra.fresco.lib.helper.builder.BasicLogicBuilder;
-import dk.alexandra.fresco.lib.logic.AbstractBinaryFactory;
 
 import org.hamcrest.core.Is;
 import org.junit.Assert;

@@ -41,12 +41,12 @@ import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.OBool;
 import dk.alexandra.fresco.framework.value.SBool;
 import dk.alexandra.fresco.framework.value.SInt;
+import dk.alexandra.fresco.lib.field.bool.generic.AbstractBinaryFactory;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.helper.AlgebraUtil;
 import dk.alexandra.fresco.lib.helper.SequentialProtocolProducer;
 import dk.alexandra.fresco.lib.helper.builder.BasicLogicBuilder;
 import dk.alexandra.fresco.lib.helper.builder.NumericIOBuilder;
-import dk.alexandra.fresco.lib.logic.AbstractBinaryFactory;
 
 import java.math.BigInteger;
 import java.util.ArrayList;

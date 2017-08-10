@@ -2,7 +2,7 @@ package dk.alexandra.fresco.suite.tinytables;
 
 import dk.alexandra.fresco.framework.BuilderFactory;
 import dk.alexandra.fresco.framework.ProtocolFactory;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderBinary;
+import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.lib.logic.AbstractBinaryFactory;
 
 public class LegacyBinaryBuilder implements BuilderFactory<ProtocolBuilderBinary> {

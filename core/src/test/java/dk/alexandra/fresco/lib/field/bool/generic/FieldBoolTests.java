@@ -40,7 +40,7 @@ import dk.alexandra.fresco.framework.value.SBool;
 import dk.alexandra.fresco.lib.helper.SingleProtocolProducer;
 import dk.alexandra.fresco.lib.helper.builder.BasicLogicBuilder;
 import dk.alexandra.fresco.lib.helper.SequentialProtocolProducer;
-import dk.alexandra.fresco.lib.logic.AbstractBinaryFactory;
+
 import org.junit.Assert;
 
 public class FieldBoolTests {

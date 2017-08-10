@@ -29,10 +29,11 @@ package dk.alexandra.fresco.lib.collections.sort;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SBool;
+import dk.alexandra.fresco.lib.field.bool.generic.AbstractBinaryFactory;
 import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
 import dk.alexandra.fresco.lib.helper.SimpleProtocolProducer;
 import dk.alexandra.fresco.lib.helper.builder.BasicLogicBuilder;
-import dk.alexandra.fresco.lib.logic.AbstractBinaryFactory;
+
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;

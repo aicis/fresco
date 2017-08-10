@@ -41,11 +41,12 @@ import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.value.OBool;
 import dk.alexandra.fresco.framework.value.SBool;
 import dk.alexandra.fresco.lib.field.bool.BasicLogicFactory;
+import dk.alexandra.fresco.lib.field.bool.generic.AbstractBinaryFactory;
 import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
 import dk.alexandra.fresco.lib.helper.SequentialProtocolProducer;
 import dk.alexandra.fresco.lib.helper.bristol.BristolCircuit;
 import dk.alexandra.fresco.lib.helper.builder.BasicLogicBuilder;
-import dk.alexandra.fresco.lib.logic.AbstractBinaryFactory;
+
 import java.util.Arrays;
 import org.junit.Assert;
 import org.junit.Test;

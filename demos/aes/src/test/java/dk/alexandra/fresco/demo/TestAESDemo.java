@@ -65,7 +65,7 @@ public class TestAESDemo {
       ttc.netConf = netConf.get(playerId);
       ProtocolSuite<?, ?> suite = new DummyProtocolSuite();
       ProtocolEvaluator<?> evaluator = new SequentialEvaluator();
-      boolean useSecureConnection = true;
+      boolean useSecureConnection = false;
       ttc.sceConf = new TestSCEConfiguration(suite, NetworkingStrategy.KRYONET, evaluator,
           ttc.netConf, useSecureConnection);
       conf.put(playerId, ttc);

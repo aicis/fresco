@@ -30,10 +30,10 @@ import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.SBool;
 import dk.alexandra.fresco.lib.compare.KeyedCompareAndSwapProtocol;
+import dk.alexandra.fresco.lib.field.bool.generic.AbstractBinaryFactory;
 import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
 import dk.alexandra.fresco.lib.helper.SimpleProtocolProducer;
 import dk.alexandra.fresco.lib.helper.builder.BasicLogicBuilder;
-import dk.alexandra.fresco.lib.logic.AbstractBinaryFactory;
 
 public class KeyedCompareAndSwapProtocolGetNextProtocolImpl extends SimpleProtocolProducer
     implements KeyedCompareAndSwapProtocol {

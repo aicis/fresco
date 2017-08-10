@@ -29,11 +29,11 @@ package dk.alexandra.fresco.lib.compare.bool.eq;
 
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.SBool;
+import dk.alexandra.fresco.lib.field.bool.generic.AbstractBinaryFactory;
 import dk.alexandra.fresco.lib.helper.AbstractRoundBasedProtocol;
 import dk.alexandra.fresco.lib.helper.builder.BasicLogicBuilder;
 import dk.alexandra.fresco.lib.helper.builder.tree.TreeProtocol;
 import dk.alexandra.fresco.lib.helper.builder.tree.TreeProtocolNodeGenerator;
-import dk.alexandra.fresco.lib.logic.AbstractBinaryFactory;
 
 /**
  * An experimental implementation of the BinaryEqualityProtocol

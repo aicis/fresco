@@ -29,9 +29,9 @@ package dk.alexandra.fresco.lib.collections.sort;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.SBool;
 import dk.alexandra.fresco.lib.compare.KeyedCompareAndSwapProtocol;
+import dk.alexandra.fresco.lib.field.bool.generic.AbstractBinaryFactory;
 import dk.alexandra.fresco.lib.helper.SimpleProtocolProducer;
 import dk.alexandra.fresco.lib.helper.builder.BasicLogicBuilder;
-import dk.alexandra.fresco.lib.logic.AbstractBinaryFactory;
 
 public class KeyedCompareAndSwapProtocolImpl extends SimpleProtocolProducer
     implements KeyedCompareAndSwapProtocol {

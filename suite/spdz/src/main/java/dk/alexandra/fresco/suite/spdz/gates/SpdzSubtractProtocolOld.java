@@ -31,7 +31,7 @@ import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 
-public class SpdzSubtractProtocolOld extends SpdzNativeProtocol<SpdzSInt> {
+public class SpdzSubtractProtocolOld extends SpdzNativeProtocol<SInt> {
 
   private SpdzSInt left, right, out;
 

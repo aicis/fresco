@@ -60,7 +60,15 @@ public class BinaryOpenAndPrint implements ProtocolProducer {
   @Override
   public void getNextProtocols(ProtocolCollection protocolCollection) {
     if (pp == null) {
+<<<<<<< HEAD
       if (round == 0) {
+=======
+      if (state == STATE.OUTPUT) {
+        if (number != null) {
+          oNumber = factory.getOBool();
+          pp = new SingleProtocolProducer<>(factory.getOpenProtocol(number, oNumber));
+        } else if (string != null) {
+>>>>>>> origin/feature/binary-builder
           oString = new OBool[string.length];
           SequentialProtocolProducer seq = new SequentialProtocolProducer();
           for (int i = 0; i < string.length; i++) {
