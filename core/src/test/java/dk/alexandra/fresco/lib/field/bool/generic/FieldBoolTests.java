@@ -40,6 +40,7 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.binary.BuilderFactoryBinary;
+import dk.alexandra.fresco.framework.builder.binary.DefaultBinaryBuilderAdvanced;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
@@ -67,7 +68,7 @@ public class FieldBoolTests {
             public ProtocolProducer prepareApplication(BuilderFactory factoryProducer) {
               return ProtocolBuilderBinary.createApplicationRoot((BuilderFactoryBinary)factoryProducer, (builder) -> {
 
-                GenericBinaryBuilderAdvanced prov = new GenericBinaryBuilderAdvanced(builder);
+                DefaultBinaryBuilderAdvanced prov = new DefaultBinaryBuilderAdvanced(builder);
                 List<Computation<SBool>> results = new ArrayList<Computation<SBool>>();
                 Computation<SBool> inp100 = builder.binary().known(false);
                 Computation<SBool> inp200 = builder.binary().known(false);
@@ -129,7 +130,7 @@ public class FieldBoolTests {
             public ProtocolProducer prepareApplication(BuilderFactory factoryProducer) {
               return ProtocolBuilderBinary.createApplicationRoot((BuilderFactoryBinary)factoryProducer, (builder) -> {
 
-                GenericBinaryBuilderAdvanced prov = new GenericBinaryBuilderAdvanced(builder);
+                DefaultBinaryBuilderAdvanced prov = new DefaultBinaryBuilderAdvanced(builder);
                 List<Computation<SBool>> results = new ArrayList<Computation<SBool>>();
 
                 Computation<SBool> inp100 = builder.binary().known(false);
@@ -189,7 +190,7 @@ public class FieldBoolTests {
             public ProtocolProducer prepareApplication(BuilderFactory factoryProducer) {
               return ProtocolBuilderBinary.createApplicationRoot((BuilderFactoryBinary)factoryProducer, (builder) -> {
 
-                GenericBinaryBuilderAdvanced prov = new GenericBinaryBuilderAdvanced(builder);
+                DefaultBinaryBuilderAdvanced prov = new DefaultBinaryBuilderAdvanced(builder);
                 List<Computation<SBool>> results = new ArrayList<Computation<SBool>>();
                 Computation<SBool> inp100 = builder.binary().known(false);
                 Computation<SBool> inp200 = builder.binary().known(false);
@@ -251,7 +252,7 @@ public class FieldBoolTests {
             public ProtocolProducer prepareApplication(BuilderFactory factoryProducer) {
               return ProtocolBuilderBinary.createApplicationRoot((BuilderFactoryBinary)factoryProducer, (builder) -> {
 
-                GenericBinaryBuilderAdvanced prov = new GenericBinaryBuilderAdvanced(builder);
+                DefaultBinaryBuilderAdvanced prov = new DefaultBinaryBuilderAdvanced(builder);
                 List<Computation<SBool>> results = new ArrayList<Computation<SBool>>();
                 Computation<SBool> inp100 = builder.binary().known(false);
                 results.add(prov.or(inp100, false));
@@ -310,7 +311,7 @@ public class FieldBoolTests {
             public ProtocolProducer prepareApplication(BuilderFactory factoryProducer) {
               return ProtocolBuilderBinary.createApplicationRoot((BuilderFactoryBinary)factoryProducer, (builder) -> {
 
-                GenericBinaryBuilderAdvanced prov = new GenericBinaryBuilderAdvanced(builder);
+                DefaultBinaryBuilderAdvanced prov = new DefaultBinaryBuilderAdvanced(builder);
                 List<Computation<SBool>> results = new ArrayList<Computation<SBool>>();
                 Computation<SBool> inp100 = builder.binary().known(false);
                 Computation<SBool> inp200 = builder.binary().known(false);
@@ -372,7 +373,7 @@ public class FieldBoolTests {
             public ProtocolProducer prepareApplication(BuilderFactory factoryProducer) {
               return ProtocolBuilderBinary.createApplicationRoot((BuilderFactoryBinary)factoryProducer, (builder) -> {
 
-                GenericBinaryBuilderAdvanced prov = new GenericBinaryBuilderAdvanced(builder);
+                DefaultBinaryBuilderAdvanced prov = new DefaultBinaryBuilderAdvanced(builder);
                 List<Computation<SBool>> results = new ArrayList<Computation<SBool>>();
                 Computation<SBool> inp100 = builder.binary().known(false);
                 results.add(prov.nand(inp100, false));
@@ -431,7 +432,7 @@ public class FieldBoolTests {
             public ProtocolProducer prepareApplication(BuilderFactory factoryProducer) {
               return ProtocolBuilderBinary.createApplicationRoot((BuilderFactoryBinary)factoryProducer, (builder) -> {
 
-                GenericBinaryBuilderAdvanced prov = new GenericBinaryBuilderAdvanced(builder);
+                DefaultBinaryBuilderAdvanced prov = new DefaultBinaryBuilderAdvanced(builder);
                 List<Computation<SBool>> results = new ArrayList<Computation<SBool>>();
 
                 Computation<SBool> inp100 = builder.binary().known(false);
@@ -490,7 +491,7 @@ public class FieldBoolTests {
             public ProtocolProducer prepareApplication(BuilderFactory factoryProducer) {
               return ProtocolBuilderBinary.createApplicationRoot((BuilderFactoryBinary)factoryProducer, (builder) -> {
 
-                GenericBinaryBuilderAdvanced prov = new GenericBinaryBuilderAdvanced(builder);
+                DefaultBinaryBuilderAdvanced prov = new DefaultBinaryBuilderAdvanced(builder);
                 List<Computation<SBool>> results = new ArrayList<Computation<SBool>>();
 
                 Computation<SBool> inp100 = builder.binary().known(false);

@@ -24,6 +24,7 @@
 package dk.alexandra.fresco.framework.util;
 
 import java.util.BitSet;
+import java.util.List;
 
 public class ByteArithmetic {
 
@@ -156,14 +157,15 @@ public class ByteArithmetic {
    * true --> 1, false --> 0
    * 
    */
-  public static String toHex(Boolean[] bits) {
+  public static String toHex(boolean[] bits) {
     StringBuilder hex = new StringBuilder();
-    Boolean[] niceBits = null;
+    boolean[] niceBits = null;
     if(bits.length %4 == 0) {
       niceBits = bits;
     } else {
-      niceBits = new Boolean[4*((bits.length/4)+1)];
-      System.arraycopy(bits, 0, niceBits, 3, bits.length);
+      niceBits = new boolean[4*((bits.length/4)+1)];
+      int offset = 4- (bits.length%4);
+      System.arraycopy(bits, 0, niceBits, offset, bits.length);
     }
     
     StringBuilder binb = new StringBuilder();
@@ -171,6 +173,7 @@ public class ByteArithmetic {
       binb.append(niceBits[i] ? "1" : "0");
     }
     String bin = binb.toString();
+    System.out.println("binary: "+bin);
     for (int i=0; i<bin.length() / 4; i++) {
       String digit = bin.substring(i*4, i*4 + 4);
       Integer dec = Integer.parseInt(digit, 2);
@@ -184,4 +187,17 @@ public class ByteArithmetic {
     return hex.toString();
   }
 
+  public static String toHex(List<Boolean> bits) {
+    Boolean[] bitArray = bits.toArray(new Boolean[1]);
+    return toHex(convertArray(bitArray));
+  }
+  
+  public static boolean[] convertArray(Boolean[] in) {
+    boolean[] output = new boolean[in.length];
+    for(int i = 0; i< in.length; i++) {
+      output[i] = in[i].booleanValue();
+    }
+    return output;
+  }
+  
 }

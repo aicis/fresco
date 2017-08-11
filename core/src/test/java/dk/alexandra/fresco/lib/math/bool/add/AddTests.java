@@ -38,6 +38,7 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
 import dk.alexandra.fresco.framework.builder.binary.BuilderFactoryBinary;
+import dk.alexandra.fresco.framework.builder.binary.DefaultBinaryBuilderAdvanced;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary.SequentialBinaryBuilder;
 import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
@@ -47,7 +48,7 @@ import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SBool;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.helper.SingleProtocolProducer;
-import dk.alexandra.fresco.lib.field.bool.generic.GenericBinaryBuilderAdvanced;
+import dk.alexandra.fresco.lib.math.integer.division.DefaultAdvancedNumericBuilder;
 import dk.alexandra.fresco.lib.helper.SequentialProtocolProducer;
 
 import java.math.BigInteger;
@@ -86,7 +87,7 @@ public class AddTests {
                     SequentialBinaryBuilder builder = (SequentialBinaryBuilder)producer;
                     
                     return builder.seq( seq -> {
-                      GenericBinaryBuilderAdvanced prov = new GenericBinaryBuilderAdvanced(seq);
+                      DefaultBinaryBuilderAdvanced prov = new DefaultBinaryBuilderAdvanced(seq);
                       Computation<SBool> inp0 = seq.binary().known(false);
                       Computation<SBool> inp1 = seq.binary().known(true);
                       data.add(prov.oneBitHalfAdder(inp0, inp0));  
@@ -96,11 +97,15 @@ public class AddTests {
                         return () -> data;
                       }
                     ).seq( (dat, seq) -> {
+                      System.out.println("got: "+dat.get(0));
                       List<Computation<Boolean>> out = new ArrayList<Computation<Boolean>>();
                       for(Computation<Pair<SBool, SBool>> o : dat) {
+                        System.out.println("adding "+o.out().getFirst());
                        out.add(seq.binary().open(o.out().getFirst()));
                        out.add(seq.binary().open(o.out().getSecond()));
                       }
+                      System.out.println("so our out has : "+out.get(0));
+                      //out = list<DummyBooleanOpenProtocol>
                       return () -> out.stream().map(Computation::out).collect(Collectors.toList());
                       }
                     );
@@ -148,7 +153,7 @@ public class AddTests {
                     SequentialBinaryBuilder builder = (SequentialBinaryBuilder)producer;
                     
                     return builder.seq( seq -> {
-                      GenericBinaryBuilderAdvanced prov = new GenericBinaryBuilderAdvanced(seq);
+                      DefaultBinaryBuilderAdvanced prov = new DefaultBinaryBuilderAdvanced(seq);
                       Computation<SBool> inp0 = seq.binary().known(false);
                       Computation<SBool> inp1 = seq.binary().known(true);
                       data.add(prov.oneBitFullAdder(inp0, inp0, inp0));  
@@ -207,27 +212,32 @@ public class AddTests {
         TestThreadConfiguration<ResourcePoolT, ProtocolBuilderBinary> conf) {
       return new TestThread<ResourcePoolT, ProtocolBuilderBinary>() {
 
-        List<Boolean> rawFirst = Arrays.asList(ByteArithmetic.toBoolean("11"));
-        List<Boolean> rawSecond = Arrays.asList(ByteArithmetic.toBoolean("22"));
+        List<Boolean> rawFirst = Arrays.asList(ByteArithmetic.toBoolean("ff"));
+        List<Boolean> rawSecond = Arrays.asList(ByteArithmetic.toBoolean("01"));
 
         
         @Override
         public void test() throws Exception {
             Application<List<Boolean>, ProtocolBuilderBinary> app =
                 new Application<List<Boolean>, ProtocolBuilderBinary>() {
-
+                
+                  public List<Computation<Boolean>> outputs = new ArrayList<>();
                   @Override
                   public Computation<List<Boolean>> prepareApplication(
                       ProtocolBuilderBinary producer) {
                     
                     List<Computation<Pair<SBool, SBool>>> data = new ArrayList<Computation<Pair<SBool, SBool>>>();
                     
-                    //GenericBinaryBuilderAdvanced advancedBuilder = new GenericBinaryBuilderAdvanced(producer);
                     SequentialBinaryBuilder builder = (SequentialBinaryBuilder)producer;
                     
                     return builder.seq( seq -> {
-                      GenericBinaryBuilderAdvanced prov = new GenericBinaryBuilderAdvanced(seq);
-                      Computation<SBool> carry = seq.binary().known(true);
+                      DefaultBinaryBuilderAdvanced prov = new DefaultBinaryBuilderAdvanced(seq);
+                      Computation<SBool> carry = seq.binary().known(false);
+                      
+    //                  rawFirst = new ArrayList<Boolean>();
+    //                 rawSecond = new ArrayList<Boolean>();
+  //                    rawFirst.add(true);
+//                      rawSecond.add(true);
                       
                       List<Computation<SBool>> first = rawFirst.stream().map(seq.binary()::known)
                           .collect(Collectors.toList());
@@ -238,20 +248,58 @@ public class AddTests {
                       
                         return () -> adder.out();
                       }
+                    )/*.seq( (dat, seq) -> {
+                      //List<Computation<SBool>> closed = dat;
+                      System.out.println("ear: "+dat.get(0));
+                      return () -> dat.stream().map(seq.binary()::open).collect(Collectors.toList());
+                    }
+                    )*/.seq( (dat, seq) -> {
+                       List<Computation<Boolean>> out = new ArrayList<Computation<Boolean>>();
+                       for(Computation<SBool> o : dat) {
+                         out.add(seq.binary().open(o));
+                          }
+                          return () -> out.stream().map(Computation::out).collect(Collectors.toList());
+                          }
+                        );
+                      }
+              };
+/*
+                    
                     ).seq( (dat, seq) -> {
-                      List<Computation<Boolean>> out = new ArrayList<Computation<Boolean>>();
-                  //    System.out.println("dat: " +dat + "out ");
-                  //    for(Computation<SBool> o : dat.out()) {
-                  //     out.add(seq.binary().open(o.out()));
-                  //    }
+                      List<Computation<Boolean>> out = dat;
+                      System.out.println("got opens.. "+out.get(0));
                       return () -> out.stream().map(Computation::out).collect(Collectors.toList());
                       }
                     );
                   }
           };
           
+          
+*/          
+          
           List<Boolean> outputs = secureComputationEngine.runApplication(app,
               ResourcePoolCreator.createResourcePool(conf.sceConf));
+//          Assert.assertThat(outputs.get(outputs.size()), Is.is(false));    
+System.out.println("left : "+ByteArithmetic.toHex(rawFirst));
+System.out.println("right: "+ByteArithmetic.toHex(rawSecond));
+
+          /*  
+          for(Boolean b : rawFirst){
+            System.out.println("first: "+b);
+          }          
+
+          for(Boolean b : rawSecond){
+            System.out.println("second: "+b);
+          }          
+        */  
+          for(Boolean b : outputs){
+            System.out.println("output: "+b);
+          }
+          
+          System.out.println("outpu: "+ByteArithmetic.toHex(outputs));  
+          Assert.assertThat(ByteArithmetic.toHex(
+              outputs),
+              Is.is("0033"));
      //     Assert.assertThat(outputs.get(0), Is.is(false)); //000
         }
       };

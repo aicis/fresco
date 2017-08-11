@@ -38,7 +38,6 @@ import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SBool;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.crypto.mimc.MiMCConstants;
-import dk.alexandra.fresco.lib.field.bool.generic.GenericBinaryBuilderAdvanced;
 
 
 
@@ -51,6 +50,7 @@ public class FullAdderProtocolImpl implements ComputationBuilderBinary<List<Comp
 
   private List<Computation<SBool>> lefts, rights, outs;
   private Computation<SBool> inCarry;
+  private boolean stupid = false;
 
   public FullAdderProtocolImpl(List<Computation<SBool>> lefts, 
       List<Computation<SBool>> rights, 
@@ -67,76 +67,52 @@ public class FullAdderProtocolImpl implements ComputationBuilderBinary<List<Comp
   
   @Override
   public Computation<List<Computation<SBool>>> build(SequentialBinaryBuilder builder) {
-    
-    
+
+    List<Computation<SBool>> result = new ArrayList<Computation<SBool>>(); 
     
     return builder.seq(seq -> {
       int idx = this.lefts.size() -1;
-      
-      return new IterationState(idx, seq.advancedBinary().oneBitFullAdder(lefts.get(idx), rights.get(idx), inCarry));
+      IterationState is = new IterationState(idx, seq.advancedBinary().oneBitFullAdder(lefts.get(idx), rights.get(idx), inCarry));
+      System.out.println("first created adder with idx "+is.round);
+      return is;
     }).whileLoop(
-        (state) -> state.round >= 1,
+        (state) -> state.round >= 0,
         (state, seq) -> {
-          int idx = state.round;
-          idx--;
-
-          //Computation<Pair<SBool, SBool>> adder = 
-              //new OneBitFullAdderProtocolImpl(lefts.get(idx), rights.get(idx), state.value.out().getSecond());
-
-//          Computation<SInt> updatedValue = seq.advancedNumeric().exp(masked, three);
-          System.out.println("null:  "+state.value.out());
-          return new IterationState(idx, seq.advancedBinary().oneBitFullAdder(lefts.get(idx), rights.get(idx), state.value.out().getSecond()));
+          int idx = state.round -1;
+          
+          result.add(0, state.value.out().getFirst());
+          IterationState is = new IterationState(idx, seq.advancedBinary().oneBitFullAdder(lefts.get(idx), rights.get(idx), state.value.out().getSecond()));
+            System.out.println("loop created state with idx "+is.round);
+          return is;
         }
-    ).seq((state, seq) ->
-        /*
-         * We're in the last round so we just mask the current
-         * cipher text with the encryption key
-         */
-      () -> new ArrayList<Computation<SBool>>()
-    
+    ).seq((state, seq) -> {
+    //  System.out.println("final add fromv alue "+state.value);
+      result.add(0, state.value.out().getFirst());
+      result.add(0, state.value.out().getSecond());
+      return () -> result;
+      }
     );
   }
   
   private static final class IterationState implements Computation<IterationState> {
 
-    private final int round;
+    private int round;
     private final Computation<Pair<SBool, SBool>> value;
+    private boolean used = false;
 
     private IterationState(int round,
         Computation<Pair<SBool, SBool>> value) {
+  //    System.out.println("creating iterations with "+value);
       this.round = round;
       this.value = value;
     }
 
     @Override
     public IterationState out() {
+   //   System.out.println("is "+this.value+" got read");
       return this;
     }
   }
-  
-  
-  /*
-  @Override
-  public Computation<List<Computation<SBool>>> build(SequentialBinaryBuilder builder) {
-    return builder.seq(seq -> {
-      int idx = this.lefts.size() -1;
-      OneBitFullAdderProtocolImpl adder = new OneBitFullAdderProtocolImpl(lefts.get(idx), rights.get(idx), inCarry);
-      idx--;
-      List<Computation<SBool>> res = new ArrayList<Computation<SBool>>();
-      while(idx >= 0) {
-        Pair<SBool, SBool> prev = adder.build(seq).out();
-        System.out.println("failing . "+prev);
-        adder = new OneBitFullAdderProtocolImpl(lefts.get(idx), rights.get(idx), prev.getSecond());
-        res.add(0, prev.getFirst());
-        idx--;
-      }
-      Pair<SBool, SBool> prev = adder.build(seq).out();
-      res.add(0, prev.getFirst());
-      res.add(0, prev.getSecond());
-      System.out.println("got a build on full...  returning "+res);
-      return () -> res;
-    });
-  }*/
   
 /*
   @Override

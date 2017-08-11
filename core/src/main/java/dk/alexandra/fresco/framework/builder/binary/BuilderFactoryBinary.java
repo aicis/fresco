@@ -14,7 +14,7 @@ public interface BuilderFactoryBinary extends BuilderFactory<SequentialBinaryBui
   }
 
   default BinaryBuilderAdvanced createAdvancedBinary(ProtocolBuilderBinary builder) {
-    return new DefaultBinaryBuilderAdvanced(this, builder);
+    return new DefaultBinaryBuilderAdvanced(builder);
   }
 
   @Override
