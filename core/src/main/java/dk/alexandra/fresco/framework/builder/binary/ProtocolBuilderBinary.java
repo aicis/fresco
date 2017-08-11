@@ -28,6 +28,16 @@ public abstract class ProtocolBuilderBinary implements ProtocolBuilder {
     this.protocols = new LinkedList<>();
   }
 
+  public static SequentialBinaryBuilder createApplicationRoot(
+      BuilderFactoryBinary factory,
+      Consumer<SequentialBinaryBuilder> consumer) {
+    SequentialBinaryBuilder builder = new SequentialBinaryBuilder(
+        factory);
+    builder
+        .addConsumer(consumer, () -> new SequentialBinaryBuilder(factory));
+    return builder;
+  }
+  
   public static SequentialBinaryBuilder createApplicationRoot(BuilderFactoryBinary factory) {
     return new SequentialBinaryBuilder(factory);
   }

@@ -26,51 +26,32 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.field.bool.generic;
 
-import dk.alexandra.fresco.framework.ProtocolCollection;
-import dk.alexandra.fresco.framework.ProtocolProducer;
+import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.builder.binary.ComputationBuilderBinary;
+import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary.SequentialBinaryBuilder;
 import dk.alexandra.fresco.framework.value.SBool;
-import dk.alexandra.fresco.lib.field.bool.BasicLogicFactory;
-import dk.alexandra.fresco.lib.field.bool.XnorProtocol;
-import dk.alexandra.fresco.lib.helper.SingleProtocolProducer;
 
-public class XnorFromXorAndNotProtocolImpl implements XnorProtocol {
+/**
+ * An efficient way of OR'ing an SBool with an OBool if we can construct SBools
+ * of constants and if we can copy protocols.
+ */
+public class OrFromCopyConst implements ComputationBuilderBinary<SBool> {
 
-  private SBool left;
-  private SBool right;
-  private SBool out;
-  private BasicLogicFactory factory;
-  private ProtocolProducer curPP = null;
-  private boolean done = false;
-  private boolean xorDone = false;
-  private SBool tmpOut;
+  private Computation<SBool> inA;
+  private boolean inB;
 
-  public XnorFromXorAndNotProtocolImpl(SBool left, SBool right, SBool out,
-      BasicLogicFactory factory) {
-    this.left = left;
-    this.right = right;
-    this.out = out;
-    this.factory = factory;
+  public OrFromCopyConst(Computation<SBool> inA, boolean inB) {
+    this.inA = inA;
+    this.inB = inB;
   }
 
   @Override
-  public void getNextProtocols(ProtocolCollection protocolCollection) {
-    if (curPP == null) {
-      tmpOut = factory.getSBool();
-      curPP = new SingleProtocolProducer<>(factory.getXorProtocol(left, right, tmpOut));
-      curPP.getNextProtocols(protocolCollection);
+  public Computation<SBool> build(SequentialBinaryBuilder builder) {
+
+    if(inB) {
+      return builder.binary().known(true);
     } else {
-      if (!xorDone) {
-        curPP = factory.getNotProtocol(tmpOut, out);
-        xorDone = true;
-        curPP.getNextProtocols(protocolCollection);
-      } else {
-        done = true;
-      }
+      return builder.binary().copy(inA);
     }
-  }
-
-  @Override
-  public boolean hasNextProtocols() {
-    return !done;
   }
 }

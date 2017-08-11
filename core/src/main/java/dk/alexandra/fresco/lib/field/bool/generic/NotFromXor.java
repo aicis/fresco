@@ -26,45 +26,25 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.field.bool.generic;
 
-import dk.alexandra.fresco.framework.NativeProtocol;
-import dk.alexandra.fresco.framework.ProtocolCollection;
-import dk.alexandra.fresco.framework.ProtocolProducer;
-import dk.alexandra.fresco.framework.value.OBool;
+import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.builder.binary.ComputationBuilderBinary;
+import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary.SequentialBinaryBuilder;
 import dk.alexandra.fresco.framework.value.SBool;
-import dk.alexandra.fresco.framework.value.SBoolFactory;
-import dk.alexandra.fresco.lib.field.bool.AndProtocol;
-import dk.alexandra.fresco.lib.helper.CopyProtocol;
 
-public class AndFromCopyConstProtocol implements AndProtocol, ProtocolProducer {
+/**
+ * This protocol implements "NOT x" as "TRUE XOR x".
+ */
+public class NotFromXor implements ComputationBuilderBinary<SBool> {
 
-  private NativeProtocol copyCir;
-  private SBoolFactory sboolFactory;
-  private SBool inLeft;
-  private OBool inRight;
-  private SBool out;
-
-  public AndFromCopyConstProtocol(SBoolFactory sboolFactory,
-      SBool inLeft, OBool inRight, SBool out) {
-    this.sboolFactory = sboolFactory;
-    this.inLeft = inLeft;
-    this.inRight = inRight;
-    this.out = out;
-    this.copyCir = null;
+  private Computation<SBool> in;
+  
+  public NotFromXor(Computation<SBool> in) {
+    this.in = in;
   }
 
   @Override
-  public void getNextProtocols(ProtocolCollection protocolCollection) {
-    if (inRight.getValue()) {
-      copyCir = new CopyProtocol<>(inLeft, out);
-    } else {
-      copyCir = new CopyProtocol<>(sboolFactory.getKnownConstantSBool(false), out);
-    }
-    protocolCollection.addProtocol(copyCir);
-  }
+  public Computation<SBool> build(SequentialBinaryBuilder builder) {
 
-  @Override
-  public boolean hasNextProtocols() {
-    return copyCir == null;
+    return builder.binary().xor(in, true);
   }
-
 }

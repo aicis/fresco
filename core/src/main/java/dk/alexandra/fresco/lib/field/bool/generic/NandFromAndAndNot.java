@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -26,43 +26,33 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.field.bool.generic;
 
-import dk.alexandra.fresco.framework.ProtocolCollection;
-import dk.alexandra.fresco.framework.ProtocolProducer;
+import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.builder.binary.ComputationBuilderBinary;
+import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary.SequentialBinaryBuilder;
 import dk.alexandra.fresco.framework.value.SBool;
-import dk.alexandra.fresco.framework.value.SBoolFactory;
-import dk.alexandra.fresco.lib.field.bool.NotProtocol;
-import dk.alexandra.fresco.lib.field.bool.XorProtocol;
-import dk.alexandra.fresco.lib.field.bool.XorProtocolFactory;
 
 /**
- * This protocol implements "NOT x" as "TRUE XOR x".
+ * This protocol implements
+ *
+ * a NXOR b
+ *
+ * as
+ *
+ * NOT ( a XOR b )
  */
-public class NotFromXorProtocol implements NotProtocol, ProtocolProducer {
+public class NandFromAndAndNot implements ComputationBuilderBinary<SBool> {
 
-  private XorProtocolFactory xorcp;
-  private SBoolFactory sbool;
-  private SBool in;
-  private SBool out;
+  private Computation<SBool> inA;
+  private Computation<SBool> inB;
 
-  private XorProtocol xorc = null;
-
-  public NotFromXorProtocol(XorProtocolFactory xorcp, SBoolFactory sbool, SBool in, SBool out) {
-    this.xorcp = xorcp;
-    this.sbool = sbool;
-    this.in = in;
-    this.out = out;
-  }
-
-
-  @Override
-  public boolean hasNextProtocols() {
-    return xorc == null;
+  public NandFromAndAndNot(Computation<SBool> inA, Computation<SBool> inB) {
+    this.inA = inA;
+    this.inB = inB;
   }
 
   @Override
-  public void getNextProtocols(ProtocolCollection protocolCollection) {
-    SBool t = sbool.getKnownConstantSBool(true);
-    xorc = xorcp.getXorProtocol(t, in, out);
-    protocolCollection.addProtocol(xorc);
+  public Computation<SBool> build(SequentialBinaryBuilder builder) {
+    Computation<SBool> tmp = builder.binary().and(inA, inB);
+    return builder.binary().not(tmp);
   }
 }

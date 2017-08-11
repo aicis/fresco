@@ -45,4 +45,14 @@ public interface BinaryBuilder {
 
   Computation<SBool> not(Computation<SBool> in);
   
+  /**
+   * Appends a copy protocol to the current protocol copying the value of one
+   * computation to an other.
+   *
+   * @param src the source computation
+   * @return a computation holding the copy of the source
+   */
+  Computation<SBool> copy(Computation<SBool> src);
+  
+  
 }

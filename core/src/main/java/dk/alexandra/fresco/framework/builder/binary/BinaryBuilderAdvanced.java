@@ -65,16 +65,6 @@ public interface BinaryBuilderAdvanced {
   Computation<SBool> equals(Computation<List<SBool>> left, Computation<List<SBool>> right);
 
   /**
-   * Appends a copy protocol to the current protocol copying the value of one
-   * computation to an other.
-   *
-   * @param src the source computation
-   * @return a computation holding the copy of the source
-   */
-  Computation<SBool> copy(Computation<SBool> src);
-  
-  
-  /**
    * Appends a keyed compare and swap protocol. This protocol swaps two
    * key-value pairs to that the left pair becomes the pair with the largest
    * key.
@@ -107,7 +97,7 @@ public interface BinaryBuilderAdvanced {
    * @param carry The potential carry from a previous adder.
    * @return A computation which yields the result and the carry.
    */
-  Computation<SBool[]> oneBitFullAdder(Computation<SBool> left, Computation<SBool> right,
+  Computation<Pair<SBool, SBool>> oneBitFullAdder(Computation<SBool> left, Computation<SBool> right,
       Computation<SBool> carry);
 
   /**
@@ -121,7 +111,7 @@ public interface BinaryBuilderAdvanced {
    * @param inCarry The potential carry from a previous adder.
    * @return A computation which yields the results and the carry.
    */
-  Computation<SBool[]> fullAdder(Computation<SBool[]> lefts, Computation<SBool[]> rights,
+  Computation<List<Computation<SBool>>> fullAdder(List<Computation<SBool>> lefts, List<Computation<SBool>> rights,
       Computation<SBool> inCarry);
 
   /**

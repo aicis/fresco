@@ -164,14 +164,14 @@ public class BristolCircuitParser {
           throw new MPCException("xor: RIGHT input wire " + in[1] + " was null");
         }
 
-        if (!leftInWireXor.isReady()) {
+//        if (!leftInWireXor.isReady()) {
           // System.out.println("XOR: LEFT in wire " + in[0] + " is not ready");
-          return null;
-        }
-        if (!rightInWireXor.isReady()) {
+//          return null;
+//        }
+//        if (!rightInWireXor.isReady()) {
           // System.out.println("XOR: RIGHT in wire " + in[0] + " is not ready");
-          return null;
-        }
+//          return null;
+//        }
 
         if (outWireXor == null) {
           // A new intermediate wire.
@@ -179,8 +179,8 @@ public class BristolCircuitParser {
           this.wires.put(out[0], outWireXor);
         }
 
-        return new SingleProtocolProducer<>(
-            this.boolFactory.getXorProtocol(leftInWireXor, rightInWireXor, outWireXor));
+//        return new SingleProtocolProducer<>(
+//            this.boolFactory.getXorProtocol(leftInWireXor, rightInWireXor, outWireXor));
       case "AND":
         if (in.length != 2 || out.length != 1) {
           throw new IOException("Wrong circuit format for AND");
@@ -196,22 +196,22 @@ public class BristolCircuitParser {
           throw new MPCException("and RIGHT input " + in[1] + " was not set");
         }
 
-        if (!leftInWireAnd.isReady()) {
+//        if (!leftInWireAnd.isReady()) {
           // System.out.println("and LEFT input " + in[0] + " was not ready");
-          return null;
-        }
-        if (!rightInWireAnd.isReady()) {
+//          return null;
+//        }
+//        if (!rightInWireAnd.isReady()) {
           // System.out.println("and RIGHT input " + in[1] + " was not ready");
-          return null;
-        }
+//          return null;
+//        }
 
-        if (outWireAnd == null) {
+//        if (outWireAnd == null) {
           // A new intermediate wire.
-          outWireAnd = this.boolFactory.getSBool();
-          this.wires.put(out[0], outWireAnd);
-        }
+ //         outWireAnd = this.boolFactory.getSBool();
+//          this.wires.put(out[0], outWireAnd);
+//        }
 
-        return this.boolFactory.getAndProtocol(leftInWireAnd, rightInWireAnd, outWireAnd);
+//        return this.boolFactory.getAndProtocol(leftInWireAnd, rightInWireAnd, outWireAnd);
       case "INV":
         if (in.length != 1 || out.length != 1) {
           throw new IOException("Wrong circuit format for INV");
@@ -223,10 +223,10 @@ public class BristolCircuitParser {
           throw new MPCException("NOT input " + in[0] + " was not set");
         }
 
-        if (!inWireNot.isReady()) {
+  //      if (!inWireNot.isReady()) {
           // System.out.println("NOT input " + in[0] + " was not ready");
-          return null;
-        }
+  //        return null;
+  //      }
 
         if (outWireNot == null) {
           // A new intermediate wire.
@@ -234,7 +234,7 @@ public class BristolCircuitParser {
           this.wires.put(out[0], outWireNot);
         }
 
-        return boolFactory.getNotProtocol(inWireNot, outWireNot);
+ //       return boolFactory.getNotProtocol(inWireNot, outWireNot);
       default:
         throw new MPCException("Unknown gate type: " + type);
     }

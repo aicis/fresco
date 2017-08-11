@@ -31,11 +31,9 @@ import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.math.Util;
-import dk.alexandra.fresco.framework.value.OBool;
 import dk.alexandra.fresco.framework.value.SBool;
 import dk.alexandra.fresco.lib.field.bool.BasicLogicFactory;
 import dk.alexandra.fresco.lib.field.bool.XorProtocol;
-import dk.alexandra.fresco.lib.field.bool.generic.OrFromXorAndProtocol;
 import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
 import dk.alexandra.fresco.lib.helper.SequentialProtocolProducer;
 
@@ -101,9 +99,9 @@ public class LogProtocolImpl implements LogProtocol {
         ProtocolProducer[] prefixOrs = new ProtocolProducer[number.length - 1];
         prefixOrOuts[0] = number[0];
         for (int i = 1; i < number.length; i++) {
-          ProtocolProducer or = new OrFromXorAndProtocol(factory, factory, factory, number[i],
-              prefixOrOuts[i - 1], prefixOrOuts[i]);
-          prefixOrs[i - 1] = or;
+      //    ProtocolProducer or = new OrFromXorAndProtocol(factory, factory, factory, number[i],
+      //        prefixOrOuts[i - 1], prefixOrOuts[i]);
+      //    prefixOrs[i - 1] = or;
         }
         curPP = new SequentialProtocolProducer(prefixOrs);
       }
@@ -113,15 +111,15 @@ public class LogProtocolImpl implements LogProtocol {
         NativeProtocol[] xors = new NativeProtocol[number.length + 1];
         for (int i = xors.length - 2; i > -1; i--) {
           if (i == 0) {
-            OBool zero = factory.getKnownConstantOBool(
-                false); //get a 0 which we implicitly prepends to y (prefixOrOuts)
-            xors[i] = factory.getXorProtocol(prefixOrOuts[i], zero, log[i]);
+      //      OBool zero = factory.getKnownConstantOBool(
+       //         false); //get a 0 which we implicitly prepends to y (prefixOrOuts)
+       //     xors[i] = factory.getXorProtocol(prefixOrOuts[i], zero, log[i]);
           } else {
-            xors[i] = factory.getXorProtocol(prefixOrOuts[i - 1], prefixOrOuts[i], log[i]);
+       //     xors[i] = factory.getXorProtocol(prefixOrOuts[i - 1], prefixOrOuts[i], log[i]);
           }
         }
-        xors[xors.length - 1] = factory.getXorProtocol(prefixOrOuts[0], prefixOrOuts[0],
-            log[xors.length - 1]); //This is the same as saying that a 0 should
+ //       xors[xors.length - 1] = factory.getXorProtocol(prefixOrOuts[0], prefixOrOuts[0],
+ //           log[xors.length - 1]); //This is the same as saying that a 0 should
         //always be at the least significant bit position at z
         curPP = new ParallelProtocolProducer(xors);
       }
@@ -131,23 +129,23 @@ public class LogProtocolImpl implements LogProtocol {
         curPP = new ParallelProtocolProducer();
         for (int j = 0; j < result.length; j++) {
           xorHolders = new SBool[log.length];
-          XorProtocol preResult = factory.getXorProtocol(number[0], number[0],
-              result[j]); //"hack" in order to make result be 0 from starting point.
+ //         XorProtocol preResult = factory.getXorProtocol(number[0], number[0],
+ //             result[j]); //"hack" in order to make result be 0 from starting point.
 
           SequentialProtocolProducer ands = new SequentialProtocolProducer();
-          SequentialProtocolProducer xors = new SequentialProtocolProducer(preResult);
+   //       SequentialProtocolProducer xors = new SequentialProtocolProducer(preResult);
 
           for (int i = 0; i < log.length; i++) {
             xorHolders[i] = factory.getSBool();
             boolean ithBit = Util
                 .ithBit(log.length - 1 - i, result.length - 1 - j); //j'th bit of i
-            ands.append(factory
-                .getAndProtocol(log[i], factory.getKnownConstantOBool(ithBit), xorHolders[i]));
-            xors.append(factory.getXorProtocol(xorHolders[i], result[j], result[j]));
+  //          ands.append(factory
+   //             .getAndProtocol(log[i], factory.getKnownConstantOBool(ithBit), xorHolders[i]));
+   //         xors.append(factory.getXorProtocol(xorHolders[i], result[j], result[j]));
           }
 
           ((ParallelProtocolProducer) curPP).append(ands);
-          ((ParallelProtocolProducer) curPP).append(xors);
+     //     ((ParallelProtocolProducer) curPP).append(xors);
         }
       }
       getNextFromCur(protocolCollection);

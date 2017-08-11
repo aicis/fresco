@@ -29,9 +29,7 @@ package dk.alexandra.fresco.lib.collections.sort;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SBool;
-import dk.alexandra.fresco.lib.field.bool.generic.AbstractBinaryFactory;
 import dk.alexandra.fresco.lib.helper.SimpleProtocolProducer;
-import dk.alexandra.fresco.lib.helper.builder.BasicLogicBuilder;
 
 import java.util.List;
 
@@ -45,7 +43,6 @@ import java.util.List;
 public class OddEvenMergeProtocolImpl extends SimpleProtocolProducer implements
 OddEvenMergeProtocol {
 
-  private BasicLogicBuilder blb;
   private List<Pair<SBool[], SBool[]>> sorted;
   private List<Pair<SBool[], SBool[]>> left;
   private List<Pair<SBool[], SBool[]>> right;
@@ -56,9 +53,8 @@ OddEvenMergeProtocol {
 
   public OddEvenMergeProtocolImpl(List<Pair<SBool[], SBool[]>> left,
       List<Pair<SBool[], SBool[]>> right,
-      List<Pair<SBool[], SBool[]>> sorted, AbstractBinaryFactory factory) {
+      List<Pair<SBool[], SBool[]>> sorted, Object factory) {
     super();
-    this.blb = new BasicLogicBuilder(factory);
     this.sorted = sorted;
     this.left = left;
     this.right = right;
@@ -66,8 +62,8 @@ OddEvenMergeProtocol {
 
   @Override
   protected ProtocolProducer initializeProtocolProducer() {
-
-    blb.beginParScope();
+    return null;
+    /*blb.beginParScope();
     for (int i = 0; i < left.size(); i++) {
       Pair<SBool[], SBool[]> leftPair = left.get(i);
       Pair<SBool[], SBool[]> upperPair = sorted.get(i);
@@ -83,9 +79,9 @@ OddEvenMergeProtocol {
     blb.endCurScope();
     initializeIndices();
     newMerge(0, simulatedSize, 1);
-    return blb.getProtocol();
+    return blb.getProtocol();*/
   }
-
+/*
   private void merge(int first, int length, int step) {
     int doubleStep = step * 2;
     if (length > 2) {
@@ -158,7 +154,7 @@ OddEvenMergeProtocol {
         right.getFirst(), right.getSecond());
 
   }
-
+*/
   //TODO move to util class or delete?
   /*
 	public static int getTriplesUsedForLength(int totalSize, int indexSize, int seqSize) {

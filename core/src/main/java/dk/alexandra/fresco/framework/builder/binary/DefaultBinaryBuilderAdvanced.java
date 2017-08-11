@@ -5,6 +5,8 @@ import java.util.List;
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SBool;
+import dk.alexandra.fresco.lib.math.bool.add.FullAdderProtocolImpl;
+import dk.alexandra.fresco.lib.math.bool.add.OneBitFullAdderProtocolImpl;
 import dk.alexandra.fresco.lib.math.bool.add.OneBitHalfAdderProtocolImpl;
 
 public class DefaultBinaryBuilderAdvanced implements BinaryBuilderAdvanced {
@@ -26,17 +28,15 @@ public class DefaultBinaryBuilderAdvanced implements BinaryBuilderAdvanced {
   }
 
   @Override
-  public Computation<SBool[]> oneBitFullAdder(Computation<SBool> left, Computation<SBool> right,
+  public Computation<Pair<SBool, SBool>> oneBitFullAdder(Computation<SBool> left, Computation<SBool> right,
       Computation<SBool> carry) {
-    // TODO Auto-generated method stub
-    return null;
+    return builder.createSequentialSub(new OneBitFullAdderProtocolImpl(left, right, carry));
   }
 
   @Override
-  public Computation<SBool[]> fullAdder(Computation<SBool[]> lefts, Computation<SBool[]> rights,
+  public Computation<List<Computation<SBool>>> fullAdder(List<Computation<SBool>> lefts, List<Computation<SBool>> rights,
       Computation<SBool> inCarry) {
-    // TODO Auto-generated method stub
-    return null;
+    return builder.createSequentialSub(new FullAdderProtocolImpl(lefts, rights, inCarry));
   }
 
   @Override
@@ -105,11 +105,4 @@ public class DefaultBinaryBuilderAdvanced implements BinaryBuilderAdvanced {
     // TODO Auto-generated method stub
     return null;
   }
-
-  @Override
-  public Computation<SBool> copy(Computation<SBool> src) {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
 }

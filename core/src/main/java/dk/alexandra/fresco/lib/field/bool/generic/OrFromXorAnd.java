@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -24,39 +24,38 @@
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
  *******************************************************************************/
-package dk.alexandra.fresco.lib.math.bool.add;
+package dk.alexandra.fresco.lib.field.bool.generic;
 
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.builder.binary.ComputationBuilderBinary;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary.SequentialBinaryBuilder;
-import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SBool;
 
-public class OneBitFullAdderProtocolImpl implements ComputationBuilderBinary<Pair<SBool, SBool>> {
+/**
+ * This protocol implements
+ *
+ * a OR b
+ *
+ * as
+ *
+ * (a AND b) XOR a XOR b
+ */
+public class OrFromXorAnd implements ComputationBuilderBinary<SBool> {
 
-  private Computation<SBool> a, b, c;
-  private Computation<SBool> xor1, xor2, xor3, and1, and2 = null;
+  private Computation<SBool> inA;
+  private Computation<SBool> inB;
 
-  public OneBitFullAdderProtocolImpl(Computation<SBool> a, 
-      Computation<SBool> b, Computation<SBool> c) {
-    this.a = a;
-    this.b = b;
-    this.c = c;
+  public OrFromXorAnd(Computation<SBool> inA, Computation<SBool> inB) {
+    this.inA = inA;
+    this.inB = inB;
   }
 
   @Override
-  public Computation<Pair<SBool, SBool>> build(SequentialBinaryBuilder builder) {
-    return builder.par(par -> {
-      xor1 = par.binary().xor(a, b);
-      and1 = par.binary().and(a, b);
-      return () -> (par);
-    }).par((pair, par) -> {
-      xor2 = par.binary().xor(xor1, c); 
-      and2 = par.binary().and(xor1, c); 
-      return () -> (par);
-    }).par((pair, par) -> {
-      xor3 = par.binary().xor(and2, and1);
-      return () -> new Pair<SBool, SBool>(xor2.out(), xor3.out());
-    });
+  public Computation<SBool> build(SequentialBinaryBuilder builder) {
+
+    Computation<SBool> t0 = builder.binary().and(inA, inB);
+    Computation<SBool> t1 = builder.binary().xor(inA, inB);
+    
+    return builder.binary().xor(t0, t1);
   }
 }

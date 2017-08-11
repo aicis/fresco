@@ -26,49 +26,35 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.field.bool.generic;
 
-import dk.alexandra.fresco.framework.NativeProtocol;
-import dk.alexandra.fresco.framework.ProtocolCollection;
-import dk.alexandra.fresco.framework.value.OBool;
+import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.builder.binary.ComputationBuilderBinary;
+import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary.SequentialBinaryBuilder;
 import dk.alexandra.fresco.framework.value.SBool;
-import dk.alexandra.fresco.framework.value.SBoolFactory;
-import dk.alexandra.fresco.lib.field.bool.OrProtocol;
-import dk.alexandra.fresco.lib.helper.CopyProtocol;
+import dk.alexandra.fresco.lib.helper.SingleProtocolProducer;
 
 /**
- * An efficient way of OR'ing an SBool with an OBool if we can construct SBools
- * of constants and if we can copy protocols.
+ * This protocol implements
+ *
+ * a NXOR b
+ *
+ * as
+ *
+ * NOT ( a XOR b )
  */
-public class OrFromCopyConstProtocol implements OrProtocol {
+public class XnorFromXorAndNot implements ComputationBuilderBinary<SBool> {
 
-  private NativeProtocol copyCir;
-  private SBoolFactory sboolFactory;
-  private SBool inLeft;
-  private OBool inRight;
-  private SBool out;
+  private Computation<SBool> inA;
+  private Computation<SBool> inB;
 
-  public OrFromCopyConstProtocol(SBoolFactory sboolFactory,
-      SBool inLeft, OBool inRight, SBool out) {
-    this.sboolFactory = sboolFactory;
-    this.inLeft = inLeft;
-    this.inRight = inRight;
-    this.out = out;
-    this.copyCir = null;
+  public XnorFromXorAndNot(Computation<SBool> inA, Computation<SBool> inB) {
+    this.inA = inA;
+    this.inB = inB;
   }
 
   @Override
-  public void getNextProtocols(ProtocolCollection protocolCollection) {
-    if (inRight.getValue()) {
-      copyCir = new CopyProtocol<>(sboolFactory.getKnownConstantSBool(true), out);
-    } else {
-      copyCir = new CopyProtocol<>(inLeft, out);
-    }
-
-    protocolCollection.addProtocol(copyCir);
+  public Computation<SBool> build(SequentialBinaryBuilder builder) {
+    Computation<SBool> tmp = builder.binary().xor(inA, inB);
+    
+    return builder.binary().not(tmp);
   }
-
-  @Override
-  public boolean hasNextProtocols() {
-    return (copyCir == null);
-  }
-
 }

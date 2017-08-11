@@ -30,10 +30,9 @@ import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.SBool;
 import dk.alexandra.fresco.lib.compare.KeyedCompareAndSwapProtocol;
-import dk.alexandra.fresco.lib.field.bool.generic.AbstractBinaryFactory;
+
 import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
 import dk.alexandra.fresco.lib.helper.SimpleProtocolProducer;
-import dk.alexandra.fresco.lib.helper.builder.BasicLogicBuilder;
 
 public class KeyedCompareAndSwapProtocolGetNextProtocolImpl extends SimpleProtocolProducer
     implements KeyedCompareAndSwapProtocol {
@@ -42,7 +41,6 @@ public class KeyedCompareAndSwapProtocolGetNextProtocolImpl extends SimpleProtoc
   private SBool[] leftValue;
   private SBool[] rightKey;
   private SBool[] rightValue;
-  private AbstractBinaryFactory bf;
   private ProtocolProducer curPP = null;
   private boolean done = false;
   private int round;
@@ -63,18 +61,17 @@ public class KeyedCompareAndSwapProtocolGetNextProtocolImpl extends SimpleProtoc
    * @param bf a factory of binary protocols
    */
   public KeyedCompareAndSwapProtocolGetNextProtocolImpl(SBool[] leftKey, SBool[] leftValue,
-      SBool[] rightKey, SBool[] rightValue, AbstractBinaryFactory bf) {
+      SBool[] rightKey, SBool[] rightValue, Object bf) {
     this.leftKey = leftKey;
     this.leftValue = leftValue;
     this.rightKey = rightKey;
     this.rightValue = rightValue;
-    this.bf = bf;
     this.round = 0;
   }
 
   @Override
   public void getNextProtocols(ProtocolCollection protocolCollection) {
-    if (round == 0) {
+  /*  if (round == 0) {
       if (curPP == null) {
         curPP = new ParallelProtocolProducer();
 
@@ -120,7 +117,7 @@ public class KeyedCompareAndSwapProtocolGetNextProtocolImpl extends SimpleProtoc
         }
       }
       getNextFromCurPp(protocolCollection, true);
-    }
+    }*/
   }
 
   private void getNextFromCurPp(ProtocolCollection protocolCollection, boolean done) {

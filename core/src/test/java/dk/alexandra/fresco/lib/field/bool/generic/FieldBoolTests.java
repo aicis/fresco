@@ -26,424 +26,495 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.field.bool.generic;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.junit.Assert;
+
 import dk.alexandra.fresco.framework.BuilderFactory;
-import dk.alexandra.fresco.framework.ProtocolFactory;
+import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.TestBoolApplication;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
+import dk.alexandra.fresco.framework.builder.binary.BuilderFactoryBinary;
+import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
-import dk.alexandra.fresco.framework.value.OBool;
 import dk.alexandra.fresco.framework.value.SBool;
-import dk.alexandra.fresco.lib.helper.SingleProtocolProducer;
-import dk.alexandra.fresco.lib.helper.builder.BasicLogicBuilder;
-import dk.alexandra.fresco.lib.helper.SequentialProtocolProducer;
-
-import org.junit.Assert;
 
 public class FieldBoolTests {
 
-  public static class TestXNorFromXorAndNotProtocol extends TestThreadFactory {
+  public static class TestXNorFromXorAndNot<ResourcePoolT extends ResourcePool>
+  extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
 
-    public TestXNorFromXorAndNotProtocol() {
+    public TestXNorFromXorAndNot() {
     }
 
     @Override
-    public TestThread next(TestThreadConfiguration conf) {
-      return new TestThread() {
+    public TestThread<ResourcePoolT, ProtocolBuilderBinary> next(
+        TestThreadConfiguration<ResourcePoolT, ProtocolBuilderBinary> conf) {
+      return new TestThread<ResourcePoolT, ProtocolBuilderBinary>() {
+
         @Override
         public void test() throws Exception {
-          TestBoolApplication app = new TestBoolApplication() {
 
-            private static final long serialVersionUID = 4338818809103728010L;
+          TestBoolApplication app = new TestBoolApplication(){
 
             @Override
-            public ProtocolProducer prepareApplication(
-                BuilderFactory factoryProducer) {
-              ProtocolFactory producer = factoryProducer.getProtocolFactory();
-              AbstractBinaryFactory prov = (AbstractBinaryFactory) producer;
-              BasicLogicBuilder builder = new BasicLogicBuilder(prov);
-              
-              SequentialProtocolProducer seq = new SequentialProtocolProducer();
-              
-              SBool inp100 = builder.knownSBool(false);
-              SBool inp200 = builder.knownSBool(false);
-              SBool out1 = prov.getSBool();
-              
-              SBool inp110 = builder.knownSBool(true);
-              SBool inp210 = builder.knownSBool(false);
-              SBool out2 = prov.getSBool();
-              
+            public ProtocolProducer prepareApplication(BuilderFactory factoryProducer) {
+              return ProtocolBuilderBinary.createApplicationRoot((BuilderFactoryBinary)factoryProducer, (builder) -> {
 
-              SBool inp101 = builder.knownSBool(false);
-              SBool inp201 = builder.knownSBool(true);
-              SBool out3 = prov.getSBool();
-              
-              
-              SBool inp111 = builder.knownSBool(true);
-              SBool inp211 = builder.knownSBool(true);
-              SBool out4 = prov.getSBool();
-              
-              seq.append(builder.getProtocol());
-              
-              seq.append(prov.getXnorProtocol(inp100, inp200, out1));
-              seq.append(prov.getXnorProtocol(inp110, inp210, out2));
-              seq.append(prov.getXnorProtocol(inp101, inp201, out3));
-              seq.append(prov.getXnorProtocol(inp111, inp211, out4));
+                GenericBinaryBuilderAdvanced prov = new GenericBinaryBuilderAdvanced(builder);
+                List<Computation<SBool>> results = new ArrayList<Computation<SBool>>();
+                Computation<SBool> inp100 = builder.binary().known(false);
+                Computation<SBool> inp200 = builder.binary().known(false);
+                results.add(prov.xnor(inp100, inp200));
 
-              
-              this.outputs = new OBool[]{builder.output(out1), builder.output(out2),
-                  builder.output(out3), builder.output(out4)};
-              seq.append(builder.getProtocol());
-              return seq;
+                Computation<SBool> inp110 = builder.binary().known(true);
+                Computation<SBool> inp210 = builder.binary().known(false);
+                results.add(prov.xnor(inp110, inp210));
+
+                Computation<SBool> inp101 = builder.binary().known(false);
+                Computation<SBool> inp201 = builder.binary().known(true);
+                results.add(prov.xnor(inp101, inp201));
+
+                Computation<SBool> inp111 = builder.binary().known(true);
+                Computation<SBool> inp211 = builder.binary().known(true);
+                results.add(prov.xnor(inp111, inp211));
+
+                this.outputs = results.stream().map(builder.binary()::open).collect(Collectors.toList());
+              }).build();
             }
           };
 
           secureComputationEngine.runApplication(app,
               ResourcePoolCreator.createResourcePool(conf.sceConf));
-          Assert.assertEquals(true,
-              app.getOutputs()[0].getValue());
-          
-          Assert.assertEquals(false,
-              app.getOutputs()[1].getValue());
-
-          Assert.assertEquals(false,
-              app.getOutputs()[2].getValue());
 
           Assert.assertEquals(true,
-              app.getOutputs()[3].getValue());
+              app.getOutputs()[0].booleanValue());
 
+          Assert.assertEquals(false,
+              app.getOutputs()[1].booleanValue());
+
+          Assert.assertEquals(false,
+              app.getOutputs()[2].booleanValue());
+
+          Assert.assertEquals(true,
+              app.getOutputs()[3].booleanValue());
         }
       };
     }
   }
-  
-  public static class TestOrFromXorAndProtocol extends TestThreadFactory {
 
-    public TestOrFromXorAndProtocol() {
+  public static class TestXNorFromOpen<ResourcePoolT extends ResourcePool>
+  extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
+
+    public TestXNorFromOpen() {
     }
 
     @Override
-    public TestThread next(TestThreadConfiguration conf) {
-      return new TestThread() {
+    public TestThread<ResourcePoolT, ProtocolBuilderBinary> next(
+        TestThreadConfiguration<ResourcePoolT, ProtocolBuilderBinary> conf) {
+      return new TestThread<ResourcePoolT, ProtocolBuilderBinary>() {
+
         @Override
         public void test() throws Exception {
-          TestBoolApplication app = new TestBoolApplication() {
 
-            private static final long serialVersionUID = 4338818809103728010L;
+          TestBoolApplication app = new TestBoolApplication(){
 
             @Override
-            public ProtocolProducer prepareApplication(
-                BuilderFactory factoryProducer) {
-              ProtocolFactory producer = factoryProducer.getProtocolFactory();
-              AbstractBinaryFactory prov = (AbstractBinaryFactory) producer;
-              BasicLogicBuilder builder = new BasicLogicBuilder(prov);
-              
-              SBool inp100 = builder.knownSBool(false);
-              SBool inp200 = builder.knownSBool(false);
-              SBool out1 = builder.or(inp100, inp200);
-              
-              SBool inp110 = builder.knownSBool(true);
-              SBool inp210 = builder.knownSBool(false);
-              SBool out2 = builder.or(inp110, inp210);
-              
+            public ProtocolProducer prepareApplication(BuilderFactory factoryProducer) {
+              return ProtocolBuilderBinary.createApplicationRoot((BuilderFactoryBinary)factoryProducer, (builder) -> {
 
-              SBool inp101 = builder.knownSBool(false);
-              SBool inp201 = builder.knownSBool(true);
-              SBool out3 = builder.or(inp101, inp201);
-              
-              
-              SBool inp111 = builder.knownSBool(true);
-              SBool inp211 = builder.knownSBool(true);
-              SBool out4 = builder.or(inp111, inp211);
-                            
-              this.outputs = new OBool[]{builder.output(out1), builder.output(out2),
-                  builder.output(out3), builder.output(out4)};
-              return builder.getProtocol();
+                GenericBinaryBuilderAdvanced prov = new GenericBinaryBuilderAdvanced(builder);
+                List<Computation<SBool>> results = new ArrayList<Computation<SBool>>();
+
+                Computation<SBool> inp100 = builder.binary().known(false);
+                results.add(prov.xnor(inp100, false));
+
+                Computation<SBool> inp110 = builder.binary().known(true);
+                results.add(prov.xnor(inp110, false));
+
+                Computation<SBool> inp101 = builder.binary().known(false);
+                results.add(prov.xnor(inp101, true));
+
+                Computation<SBool> inp111 = builder.binary().known(true);
+                results.add(prov.xnor(inp111, true));
+
+                this.outputs = results.stream().map(builder.binary()::open).collect(Collectors.toList());
+              }).build();
             }
           };
 
           secureComputationEngine.runApplication(app,
               ResourcePoolCreator.createResourcePool(conf.sceConf));
+
+          Assert.assertEquals(true,
+              app.getOutputs()[0].booleanValue());
+
           Assert.assertEquals(false,
-              app.getOutputs()[0].getValue());
-          
-          Assert.assertEquals(true,
-              app.getOutputs()[1].getValue());
+              app.getOutputs()[1].booleanValue());
+
+          Assert.assertEquals(false,
+              app.getOutputs()[2].booleanValue());
 
           Assert.assertEquals(true,
-              app.getOutputs()[2].getValue());
-
-          Assert.assertEquals(true,
-              app.getOutputs()[3].getValue());
-
+              app.getOutputs()[3].booleanValue());
         }
       };
     }
   }
 
   
-  public static class TestNandFromAndAndNotProtocol extends TestThreadFactory {
+  public static class TestOrFromXorAnd<ResourcePoolT extends ResourcePool>
+  extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
 
-    public TestNandFromAndAndNotProtocol() {
+    public TestOrFromXorAnd() {
     }
 
     @Override
-    public TestThread next(TestThreadConfiguration conf) {
-      return new TestThread() {
+    public TestThread<ResourcePoolT, ProtocolBuilderBinary> next(
+        TestThreadConfiguration<ResourcePoolT, ProtocolBuilderBinary> conf) {
+      return new TestThread<ResourcePoolT, ProtocolBuilderBinary>() {
+
         @Override
         public void test() throws Exception {
-          TestBoolApplication app = new TestBoolApplication() {
 
-            private static final long serialVersionUID = 4338818809103728010L;
+          TestBoolApplication app = new TestBoolApplication(){
 
             @Override
-            public ProtocolProducer prepareApplication(
-                BuilderFactory factoryProducer) {
-              ProtocolFactory producer = factoryProducer.getProtocolFactory();
-              AbstractBinaryFactory prov = (AbstractBinaryFactory) producer;
-              BasicLogicBuilder builder = new BasicLogicBuilder(prov);
-              
-              SequentialProtocolProducer seq = new SequentialProtocolProducer();
-              
-              SBool inp100 = builder.knownSBool(false);
-              SBool inp200 = builder.knownSBool(false);
-              SBool out1 = prov.getSBool();
-              
-              SBool inp110 = builder.knownSBool(true);
-              SBool inp210 = builder.knownSBool(false);
-              SBool out2 = prov.getSBool();
+            public ProtocolProducer prepareApplication(BuilderFactory factoryProducer) {
+              return ProtocolBuilderBinary.createApplicationRoot((BuilderFactoryBinary)factoryProducer, (builder) -> {
 
-              SBool inp101 = builder.knownSBool(false);
-              SBool inp201 = builder.knownSBool(true);
-              SBool out3 = prov.getSBool();
-              
-              SBool inp111 = builder.knownSBool(true);
-              SBool inp211 = builder.knownSBool(true);
-              SBool out4 = prov.getSBool();
-              seq.append(builder.getProtocol());
+                GenericBinaryBuilderAdvanced prov = new GenericBinaryBuilderAdvanced(builder);
+                List<Computation<SBool>> results = new ArrayList<Computation<SBool>>();
+                Computation<SBool> inp100 = builder.binary().known(false);
+                Computation<SBool> inp200 = builder.binary().known(false);
+                results.add(prov.or(inp100, inp200));
 
+                Computation<SBool> inp110 = builder.binary().known(true);
+                Computation<SBool> inp210 = builder.binary().known(false);
+                results.add(prov.or(inp110, inp210));
 
-              seq.append(prov.getNandProtocol(inp100, inp200, out1));
-              seq.append(prov.getNandProtocol(inp110, inp210, out2));
-              seq.append(prov.getNandProtocol(inp101, inp201, out3));
-              seq.append(prov.getNandProtocol(inp111, inp211, out4));
+                Computation<SBool> inp101 = builder.binary().known(false);
+                Computation<SBool> inp201 = builder.binary().known(true);
+                results.add(prov.or(inp101, inp201));
 
-              this.outputs = new OBool[]{builder.output(out1), builder.output(out2),
-                  builder.output(out3), builder.output(out4)};
-              seq.append(builder.getProtocol());
-              return seq;
+                Computation<SBool> inp111 = builder.binary().known(true);
+                Computation<SBool> inp211 = builder.binary().known(true);
+                results.add(prov.or(inp111, inp211));
+
+                this.outputs = results.stream().map(builder.binary()::open).collect(Collectors.toList());
+              }).build();
             }
           };
 
           secureComputationEngine.runApplication(app,
               ResourcePoolCreator.createResourcePool(conf.sceConf));
-          Assert.assertEquals(true,
-              app.getOutputs()[0].getValue());
-          
-          Assert.assertEquals(true,
-              app.getOutputs()[1].getValue());
-
-          Assert.assertEquals(true,
-              app.getOutputs()[2].getValue());
 
           Assert.assertEquals(false,
-              app.getOutputs()[3].getValue());
-
-        }
-      };
-    }
-  }
-  
-  public static class TestOrFromCopyConstProtocol extends TestThreadFactory {
-
-    public TestOrFromCopyConstProtocol() {
-    }
-
-    @Override
-    public TestThread next(TestThreadConfiguration conf) {
-      return new TestThread() {
-        @Override
-        public void test() throws Exception {
-          TestBoolApplication app = new TestBoolApplication() {
-
-            private static final long serialVersionUID = 4338818809103728010L;
-
-            @Override
-            public ProtocolProducer prepareApplication(
-                BuilderFactory factoryProducer) {
-              ProtocolFactory producer = factoryProducer.getProtocolFactory();
-              AbstractBinaryFactory prov = (AbstractBinaryFactory) producer;
-              BasicLogicBuilder builder = new BasicLogicBuilder(prov);
-              
-              SBool inp100 = builder.knownSBool(false);
-              OBool inp200 = builder.getOBool(false);
-              SBool out1 = builder.or(inp100, inp200);
-              
-              SBool inp110 = builder.knownSBool(true);
-              OBool inp210 = builder.getOBool(false);
-              SBool out2 = builder.or(inp110, inp210);
-              
-
-              SBool inp101 = builder.knownSBool(false);
-              OBool inp201 = builder.getOBool(true);
-              SBool out3 = builder.or(inp101, inp201);
-              
-              
-              SBool inp111 = builder.knownSBool(true);
-              OBool inp211 = builder.getOBool(true);
-              SBool out4 = builder.or(inp111, inp211);
-                            
-              this.outputs = new OBool[]{builder.output(out1), builder.output(out2),
-                  builder.output(out3), builder.output(out4)};
-              return builder.getProtocol();
-            }
-          };
-
-          secureComputationEngine.runApplication(app,
-              ResourcePoolCreator.createResourcePool(conf.sceConf));
-          Assert.assertEquals(false,
-              app.getOutputs()[0].getValue());
-          
-          Assert.assertEquals(true,
-              app.getOutputs()[1].getValue());
+              app.getOutputs()[0].booleanValue());
 
           Assert.assertEquals(true,
-              app.getOutputs()[2].getValue());
+              app.getOutputs()[1].booleanValue());
 
           Assert.assertEquals(true,
-              app.getOutputs()[3].getValue());
+              app.getOutputs()[2].booleanValue());
 
+          Assert.assertEquals(true,
+              app.getOutputs()[3].booleanValue());
         }
       };
     }
   }
 
-  public static class TestAndFromCopyConstProtocol extends TestThreadFactory {
+  public static class TestOrFromCopyConst<ResourcePoolT extends ResourcePool>
+  extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
 
-    public TestAndFromCopyConstProtocol() {
+    public TestOrFromCopyConst() {
     }
 
     @Override
-    public TestThread next(TestThreadConfiguration conf) {
-      return new TestThread() {
+    public TestThread<ResourcePoolT, ProtocolBuilderBinary> next(
+        TestThreadConfiguration<ResourcePoolT, ProtocolBuilderBinary> conf) {
+      return new TestThread<ResourcePoolT, ProtocolBuilderBinary>() {
+
         @Override
         public void test() throws Exception {
-          TestBoolApplication app = new TestBoolApplication() {
 
-            private static final long serialVersionUID = 4338818809103728010L;
+          TestBoolApplication app = new TestBoolApplication(){
 
             @Override
-            public ProtocolProducer prepareApplication(
-                BuilderFactory factoryProducer) {
-              ProtocolFactory producer = factoryProducer.getProtocolFactory();
-              AbstractBinaryFactory prov = (AbstractBinaryFactory) producer;
-              BasicLogicBuilder builder = new BasicLogicBuilder(prov);
-              
-              SequentialProtocolProducer seq = new SequentialProtocolProducer();
-              SBool inp100 = builder.knownSBool(false);
-              OBool inp200 = builder.getOBool(false);
-              SBool out1 = prov.getSBool();
-              
-              SBool inp110 = builder.knownSBool(true);
-              OBool inp210 = builder.getOBool(false);
-              SBool out2 = prov.getSBool();
-              
+            public ProtocolProducer prepareApplication(BuilderFactory factoryProducer) {
+              return ProtocolBuilderBinary.createApplicationRoot((BuilderFactoryBinary)factoryProducer, (builder) -> {
 
-              SBool inp101 = builder.knownSBool(false);
-              OBool inp201 = builder.getOBool(true);
-              SBool out3 = prov.getSBool();
-              
-              
-              SBool inp111 = builder.knownSBool(true);
-              OBool inp211 = builder.getOBool(true);
-              SBool out4 = prov.getSBool();
+                GenericBinaryBuilderAdvanced prov = new GenericBinaryBuilderAdvanced(builder);
+                List<Computation<SBool>> results = new ArrayList<Computation<SBool>>();
+                Computation<SBool> inp100 = builder.binary().known(false);
+                results.add(prov.or(inp100, false));
 
-              seq.append(builder.getProtocol());
-              seq.append(new AndFromCopyConstProtocol(prov, inp100, inp200, out1));
-              seq.append(new AndFromCopyConstProtocol(prov, inp110, inp210, out2));
-              seq.append(new AndFromCopyConstProtocol(prov, inp101, inp201, out3));
-              seq.append(new AndFromCopyConstProtocol(prov, inp111, inp211, out4));
-              
-              this.outputs = new OBool[]{builder.output(out1), builder.output(out2),
-                  builder.output(out3), builder.output(out4)};
-              seq.append(builder.getProtocol());
-              return seq;
+                Computation<SBool> inp110 = builder.binary().known(true);
+                results.add(prov.or(inp110, false));
+
+                Computation<SBool> inp101 = builder.binary().known(false);
+                results.add(prov.or(inp101, true));
+
+                Computation<SBool> inp111 = builder.binary().known(true);
+                results.add(prov.or(inp111, true));
+
+                this.outputs = results.stream().map(builder.binary()::open).collect(Collectors.toList());
+              }).build();
             }
           };
 
           secureComputationEngine.runApplication(app,
               ResourcePoolCreator.createResourcePool(conf.sceConf));
-          Assert.assertEquals(false,
-              app.getOutputs()[0].getValue());
-          
-          Assert.assertEquals(false,
-              app.getOutputs()[1].getValue());
 
           Assert.assertEquals(false,
-              app.getOutputs()[2].getValue());
+              app.getOutputs()[0].booleanValue());
 
           Assert.assertEquals(true,
-              app.getOutputs()[3].getValue());
+              app.getOutputs()[1].booleanValue());
 
+          Assert.assertEquals(true,
+              app.getOutputs()[2].booleanValue());
+
+          Assert.assertEquals(true,
+              app.getOutputs()[3].booleanValue());
         }
       };
     }
   }
 
 
-  
-  
-  public static class TestNotFromXorProtocol extends TestThreadFactory {
+  public static class TestNandFromAndAndNot<ResourcePoolT extends ResourcePool>
+  extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
 
-    public TestNotFromXorProtocol() {
+    public TestNandFromAndAndNot() {
     }
 
     @Override
-    public TestThread next(TestThreadConfiguration conf) {
-      return new TestThread() {
+    public TestThread<ResourcePoolT, ProtocolBuilderBinary> next(
+        TestThreadConfiguration<ResourcePoolT, ProtocolBuilderBinary> conf) {
+      return new TestThread<ResourcePoolT, ProtocolBuilderBinary>() {
+
         @Override
         public void test() throws Exception {
-          TestBoolApplication app = new TestBoolApplication() {
 
-            private static final long serialVersionUID = 4338818809103728010L;
+          TestBoolApplication app = new TestBoolApplication(){
 
             @Override
-            public ProtocolProducer prepareApplication(
-                BuilderFactory factoryProducer) {
-              ProtocolFactory producer = factoryProducer.getProtocolFactory();
-              AbstractBinaryFactory prov = (AbstractBinaryFactory) producer;
-              BasicLogicBuilder builder = new BasicLogicBuilder(prov);
-              
-              SequentialProtocolProducer seq = new SequentialProtocolProducer();
-              SBool inp11 = builder.knownSBool(true);
-              SBool out1 = prov.getSBool();
-                           
-              SBool inp10 = builder.knownSBool(false);
-              SBool out2 = prov.getSBool();
-              
-              seq.append(builder.getProtocol());
-              seq.append(new NotFromXorProtocol(prov, prov, inp11, out1));
-              seq.append(new NotFromXorProtocol(prov, prov, inp10, out2));
-              
-              this.outputs = new OBool[]{builder.output(out1), builder.output(out2)};
-              seq.append(builder.getProtocol());
-              return seq;
+            public ProtocolProducer prepareApplication(BuilderFactory factoryProducer) {
+              return ProtocolBuilderBinary.createApplicationRoot((BuilderFactoryBinary)factoryProducer, (builder) -> {
+
+                GenericBinaryBuilderAdvanced prov = new GenericBinaryBuilderAdvanced(builder);
+                List<Computation<SBool>> results = new ArrayList<Computation<SBool>>();
+                Computation<SBool> inp100 = builder.binary().known(false);
+                Computation<SBool> inp200 = builder.binary().known(false);
+                results.add(prov.nand(inp100, inp200));
+
+                Computation<SBool> inp110 = builder.binary().known(true);
+                Computation<SBool> inp210 = builder.binary().known(false);
+                results.add(prov.nand(inp110, inp210));
+
+                Computation<SBool> inp101 = builder.binary().known(false);
+                Computation<SBool> inp201 = builder.binary().known(true);
+                results.add(prov.nand(inp101, inp201));
+
+                Computation<SBool> inp111 = builder.binary().known(true);
+                Computation<SBool> inp211 = builder.binary().known(true);
+                results.add(prov.nand(inp111, inp211));
+
+                this.outputs = results.stream().map(builder.binary()::open).collect(Collectors.toList());
+              }).build();
             }
           };
 
           secureComputationEngine.runApplication(app,
               ResourcePoolCreator.createResourcePool(conf.sceConf));
-          Assert.assertEquals(false,
-              app.getOutputs()[0].getValue());
-          
+
           Assert.assertEquals(true,
-              app.getOutputs()[1].getValue());
+              app.getOutputs()[0].booleanValue());
+
+          Assert.assertEquals(true,
+              app.getOutputs()[1].booleanValue());
+
+          Assert.assertEquals(true,
+              app.getOutputs()[2].booleanValue());
+
+          Assert.assertEquals(false,
+              app.getOutputs()[3].booleanValue());
         }
       };
     }
   }
+
+  public static class TestNandFromOpen<ResourcePoolT extends ResourcePool>
+  extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
+
+    public TestNandFromOpen() {
+    }
+
+    @Override
+    public TestThread<ResourcePoolT, ProtocolBuilderBinary> next(
+        TestThreadConfiguration<ResourcePoolT, ProtocolBuilderBinary> conf) {
+      return new TestThread<ResourcePoolT, ProtocolBuilderBinary>() {
+
+        @Override
+        public void test() throws Exception {
+
+          TestBoolApplication app = new TestBoolApplication(){
+
+            @Override
+            public ProtocolProducer prepareApplication(BuilderFactory factoryProducer) {
+              return ProtocolBuilderBinary.createApplicationRoot((BuilderFactoryBinary)factoryProducer, (builder) -> {
+
+                GenericBinaryBuilderAdvanced prov = new GenericBinaryBuilderAdvanced(builder);
+                List<Computation<SBool>> results = new ArrayList<Computation<SBool>>();
+                Computation<SBool> inp100 = builder.binary().known(false);
+                results.add(prov.nand(inp100, false));
+
+                Computation<SBool> inp110 = builder.binary().known(true);
+                results.add(prov.nand(inp110, false));
+
+                Computation<SBool> inp101 = builder.binary().known(false);
+                results.add(prov.nand(inp101, true));
+
+                Computation<SBool> inp111 = builder.binary().known(true);
+                results.add(prov.nand(inp111, true));
+
+                this.outputs = results.stream().map(builder.binary()::open).collect(Collectors.toList());
+              }).build();
+            }
+          };
+
+          secureComputationEngine.runApplication(app,
+              ResourcePoolCreator.createResourcePool(conf.sceConf));
+
+          Assert.assertEquals(true,
+              app.getOutputs()[0].booleanValue());
+
+          Assert.assertEquals(true,
+              app.getOutputs()[1].booleanValue());
+
+          Assert.assertEquals(true,
+              app.getOutputs()[2].booleanValue());
+
+          Assert.assertEquals(false,
+              app.getOutputs()[3].booleanValue());
+        }
+      };
+    }
+  }
+
   
+  public static class TestAndFromCopyConst<ResourcePoolT extends ResourcePool>
+  extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
+
+    public TestAndFromCopyConst() {
+    }
+
+    @Override
+    public TestThread<ResourcePoolT, ProtocolBuilderBinary> next(
+        TestThreadConfiguration<ResourcePoolT, ProtocolBuilderBinary> conf) {
+      return new TestThread<ResourcePoolT, ProtocolBuilderBinary>() {
+
+        @Override
+        public void test() throws Exception {
+
+          TestBoolApplication app = new TestBoolApplication(){
+
+            @Override
+            public ProtocolProducer prepareApplication(BuilderFactory factoryProducer) {
+              return ProtocolBuilderBinary.createApplicationRoot((BuilderFactoryBinary)factoryProducer, (builder) -> {
+
+                GenericBinaryBuilderAdvanced prov = new GenericBinaryBuilderAdvanced(builder);
+                List<Computation<SBool>> results = new ArrayList<Computation<SBool>>();
+
+                Computation<SBool> inp100 = builder.binary().known(false);
+                results.add(prov.and(inp100, false));
+
+                Computation<SBool> inp110 = builder.binary().known(true);
+                results.add(prov.and(inp110, false));
+
+                Computation<SBool> inp101 = builder.binary().known(false);
+                results.add(prov.and(inp101, true));
+
+                Computation<SBool> inp111 = builder.binary().known(true);
+                results.add(prov.and(inp111, true));
+
+                this.outputs = results.stream().map(builder.binary()::open).collect(Collectors.toList());
+              }).build();
+            }
+          };
+
+          secureComputationEngine.runApplication(app,
+              ResourcePoolCreator.createResourcePool(conf.sceConf));
+
+          Assert.assertEquals(false,
+              app.getOutputs()[0].booleanValue());
+
+          Assert.assertEquals(false,
+              app.getOutputs()[1].booleanValue());
+
+          Assert.assertEquals(false,
+              app.getOutputs()[2].booleanValue());
+
+          Assert.assertEquals(true,
+              app.getOutputs()[3].booleanValue());
+        }
+      };
+    }
+  }
+
+  public static class TestNotFromXor<ResourcePoolT extends ResourcePool>
+  extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
+
+    public TestNotFromXor() {
+    }
+
+    @Override
+    public TestThread<ResourcePoolT, ProtocolBuilderBinary> next(
+        TestThreadConfiguration<ResourcePoolT, ProtocolBuilderBinary> conf) {
+      return new TestThread<ResourcePoolT, ProtocolBuilderBinary>() {
+
+        @Override
+        public void test() throws Exception {
+
+          TestBoolApplication app = new TestBoolApplication(){
+
+            @Override
+            public ProtocolProducer prepareApplication(BuilderFactory factoryProducer) {
+              return ProtocolBuilderBinary.createApplicationRoot((BuilderFactoryBinary)factoryProducer, (builder) -> {
+
+                GenericBinaryBuilderAdvanced prov = new GenericBinaryBuilderAdvanced(builder);
+                List<Computation<SBool>> results = new ArrayList<Computation<SBool>>();
+
+                Computation<SBool> inp100 = builder.binary().known(false);
+                results.add(prov.not(inp100));
+
+                Computation<SBool> inp110 = builder.binary().known(true);
+                results.add(prov.not(inp110));
+
+                this.outputs = results.stream().map(builder.binary()::open).collect(Collectors.toList());
+              }).build();
+            }
+          };
+
+          secureComputationEngine.runApplication(app,
+              ResourcePoolCreator.createResourcePool(conf.sceConf));
+
+          Assert.assertEquals(true,
+              app.getOutputs()[0].booleanValue());
+
+          Assert.assertEquals(false,
+              app.getOutputs()[1].booleanValue());
+        }
+      };
+    }
+  }
+
 }

@@ -29,10 +29,8 @@ package dk.alexandra.fresco.lib.collections.sort;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SBool;
-import dk.alexandra.fresco.lib.field.bool.generic.AbstractBinaryFactory;
 import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
 import dk.alexandra.fresco.lib.helper.SimpleProtocolProducer;
-import dk.alexandra.fresco.lib.helper.builder.BasicLogicBuilder;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -58,7 +56,6 @@ import java.util.List;
 public class OddEvenMergeProtocolRec extends SimpleProtocolProducer implements
     OddEvenMergeProtocol {
 
-  private final AbstractBinaryFactory factory;
   private final List<Pair<SBool[], SBool[]>> sorted;
   private List<Pair<SBool[], SBool[]>> left;
   private List<Pair<SBool[], SBool[]>> right;
@@ -67,7 +64,7 @@ public class OddEvenMergeProtocolRec extends SimpleProtocolProducer implements
   private final int realSize;
   private final int simulatedSize;
   private int layers;
-  private List<Layer> layerList;
+  //private List<Layer> layerList;
 
   /**
    * Constructs the protocol merging two lists of key/value pairs. The lists
@@ -80,12 +77,11 @@ public class OddEvenMergeProtocolRec extends SimpleProtocolProducer implements
    */
   public OddEvenMergeProtocolRec(List<Pair<SBool[], SBool[]>> left,
       List<Pair<SBool[], SBool[]>> right,
-      List<Pair<SBool[], SBool[]>> sorted, AbstractBinaryFactory factory) {
+      List<Pair<SBool[], SBool[]>> sorted, Object factory) {
     super();
     this.sorted = sorted;
     this.left = left;
     this.right = right;
-    this.factory = factory;
     // Compute indices to simulate padding to even size input of two power
     // length
     int leftPad = 0;
@@ -115,7 +111,7 @@ public class OddEvenMergeProtocolRec extends SimpleProtocolProducer implements
 
   @Override
   protected ProtocolProducer initializeProtocolProducer() {
-    BasicLogicBuilder blb = new BasicLogicBuilder(factory);
+    /*BasicLogicBuilder blb = new BasicLogicBuilder(factory);
     blb.beginSeqScope();
     List<ProtocolLayer> clList = getProtocolProducersForThreads();
     for (ProtocolLayer cl : clList) {
@@ -126,7 +122,7 @@ public class OddEvenMergeProtocolRec extends SimpleProtocolProducer implements
       blb.endCurScope();
     }
     blb.endCurScope();
-    return blb.getProtocol();
+    return blb.getProtocol();*/ return null;
   }
 
   /**
@@ -156,15 +152,15 @@ public class OddEvenMergeProtocolRec extends SimpleProtocolProducer implements
       tmpLength >>>= 1;
       index++;
     }
-    layerList.get(index).addIndex(first);
+  //  layerList.get(index).addIndex(first);
   }
 
   private List<ProtocolLayer> getProtocolProducersForThreads() {
-    BasicLogicBuilder blb = new BasicLogicBuilder(factory);
+  //  BasicLogicBuilder blb = new BasicLogicBuilder(factory);
     List<ProtocolLayer> protocolLayers = new ArrayList<ProtocolLayer>(
         layers + 1);
     // Copy input to output array
-    blb.beginParScope();
+   /* blb.beginParScope();
     for (int i = 0; i < left.size(); i++) {
       Pair<SBool[], SBool[]> leftPair = left.get(i);
       Pair<SBool[], SBool[]> upperPair = sorted.get(i);
@@ -199,7 +195,7 @@ public class OddEvenMergeProtocolRec extends SimpleProtocolProducer implements
     recurse(0, simulatedSize, 1);
     for (Layer l : layerList) {
       protocolLayers.add(l.getProtocolLayer());
-    }
+    }*/
     return protocolLayers;
   }
 
@@ -246,9 +242,9 @@ public class OddEvenMergeProtocolRec extends SimpleProtocolProducer implements
       j = j - firstIndex;
       Pair<SBool[], SBool[]> left = sorted.get(i);
       Pair<SBool[], SBool[]> right = sorted.get(j);
-      return factory.getKeyedCompareAndSwapProtocol(left.getFirst(),
-          left.getSecond(), right.getFirst(), right.getSecond());
-      
+  //    return factory.getKeyedCompareAndSwapProtocol(left.getFirst(),
+   //       left.getSecond(), right.getFirst(), right.getSecond());
+     return null; 
     }
   }
 
@@ -259,7 +255,7 @@ public class OddEvenMergeProtocolRec extends SimpleProtocolProducer implements
    * split is set somewhat arbitrarily to 16.
    *
    * @author psn
-   */
+   *//*
   private class Layer {//extends SimpleProtocolProducer {
 
     int length;
@@ -276,7 +272,7 @@ public class OddEvenMergeProtocolRec extends SimpleProtocolProducer implements
 
     protected void addIndex(int i) {
       indices.add(i);
-    }
+    }*/
 /*
     @Override
     protected ProtocolProducer initializeProtocolProducer() {
@@ -288,7 +284,7 @@ public class OddEvenMergeProtocolRec extends SimpleProtocolProducer implements
       builder.endCurScope();
       return builder.getProtocol();
     }
-*/
+*/ /*
     public ProtocolLayer getProtocolLayer() {
       int threads = 16; // TODO: Find a smarter way to set this!!
       ProtocolLayer cl = new ProtocolLayer(threads);
@@ -325,5 +321,5 @@ public class OddEvenMergeProtocolRec extends SimpleProtocolProducer implements
       }
       return cl;
     }
-  }
+  }*/
 }

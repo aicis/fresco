@@ -70,7 +70,7 @@ public class DummyBooleanBuilderFactory implements BuilderFactoryBinary {
       @Override
       public Computation<SBool> known(boolean value) {
         DummyBooleanNativeProtocol<SBool> c = new DummyBooleanNativeProtocol<SBool>() {
-
+          
           DummyBooleanSBool val;
 
           @Override
@@ -166,6 +166,13 @@ public class DummyBooleanBuilderFactory implements BuilderFactoryBinary {
         DummyBooleanNotProtocol c = new DummyBooleanNotProtocol(a);
         builder.append(c);
         return c;      
+      }
+      
+      @Override
+      public Computation<SBool> copy(Computation<SBool> a) {
+        DummyBooleanCopyProtocol c = new DummyBooleanCopyProtocol(a);
+        builder.append(c);
+        return c;
       }
       
     };

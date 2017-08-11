@@ -29,50 +29,14 @@ import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary.Sequen
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SBool;
 
-public class OneBitHalfAdderProtocolImpl implements ComputationBuilderBinary<Pair<SBool, SBool>> {
+public class OneBitHalfAdderProtocolImpl implements 
+ComputationBuilderBinary<Pair<SBool, SBool>> {
 
-<<<<<<< HEAD
-  private SBool left, right, outS;
-  private SBool outCarry;
-  private BasicLogicFactory factory;
-  private boolean done;
-  private ParallelProtocolProducer curPP;
-=======
   private Computation<SBool> left, right;
->>>>>>> origin/feature/binary-builder
 
   public OneBitHalfAdderProtocolImpl(Computation<SBool> left, Computation<SBool> right) {
     this.left = left;
     this.right = right;
-<<<<<<< HEAD
-    this.outS = outS;
-    this.outCarry = outCarry;
-    this.factory = factory;
-    this.done = false;
-    this.curPP = null;
-  }
-
-  @Override
-  public void getNextProtocols(ProtocolCollection protocolCollection) {
-    if (curPP == null) {
-        XorProtocol xor = factory.getXorProtocol(left, right, outS);
-        ProtocolProducer and = factory.getAndProtocol(left, right, outCarry);
-        curPP = new ParallelProtocolProducer(xor);
-        curPP.append(and);
-      }
-      if (curPP.hasNextProtocols()) {
-        curPP.getNextProtocols(protocolCollection);
-      } else {
-        curPP = null;
-        done = true;
-      }
-  }
-
-  @Override
-  public boolean hasNextProtocols() {
-    return !done;
-  }
-=======
   }
 
   @Override
@@ -84,5 +48,4 @@ public class OneBitHalfAdderProtocolImpl implements ComputationBuilderBinary<Pai
     });
   }
 
->>>>>>> origin/feature/binary-builder
 }

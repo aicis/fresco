@@ -31,7 +31,6 @@ import static org.junit.Assert.assertEquals;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.SBool;
 import dk.alexandra.fresco.lib.field.bool.BasicLogicFactory;
-import dk.alexandra.fresco.suite.dummy.bool.DummyBuilderFactory;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -46,7 +45,8 @@ public class TestBristolCircuitParser {
     InputStream circuit = getClass().getClassLoader().getResourceAsStream(path);
     Stream<String> lines = new BufferedReader(new InputStreamReader(circuit)).lines();
 
-    BasicLogicFactory boolFac = new DummyBuilderFactory();
+//    BasicLogicFactory boolFac = new DummyBuilderFactory();
+    BasicLogicFactory boolFac = null;
 
     // Some plaintext input.
     boolean[] in1_vals = new boolean[128];
@@ -56,7 +56,7 @@ public class TestBristolCircuitParser {
       in2_vals[i] = true;
     }
 
-    SBool[] in1 = boolFac.getKnownConstantSBools(in1_vals);
+/*    SBool[] in1 = boolFac.getKnownConstantSBools(in1_vals);
     SBool[] in2 = boolFac.getKnownConstantSBools(in2_vals);
     SBool[] out = boolFac.getSBools(128);
     BristolCircuitParser cp = new BristolCircuitParser(lines, boolFac, in1, in2, out);
@@ -74,7 +74,7 @@ public class TestBristolCircuitParser {
     assertEquals(168, size[0]);
     assertEquals(0, size[1]);
     assertEquals(0, size[2]);
-
+*/
   }
 
 }

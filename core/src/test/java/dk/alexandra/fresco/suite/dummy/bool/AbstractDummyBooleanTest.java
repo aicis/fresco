@@ -58,7 +58,7 @@ public abstract class AbstractDummyBooleanTest {
       TestThreadRunner.TestThreadConfiguration ttc = new TestThreadRunner.TestThreadConfiguration();
       ttc.netConf = netConf.get(playerId);
 
-      DummyProtocolSuite ps = new DummyProtocolSuite();
+      DummyBooleanProtocolSuite ps = new DummyBooleanProtocolSuite();
 
       boolean useSecureConnection = false; // No tests of secure connection here.
 

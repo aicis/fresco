@@ -29,9 +29,7 @@ package dk.alexandra.fresco.lib.collections.sort;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.SBool;
 import dk.alexandra.fresco.lib.compare.KeyedCompareAndSwapProtocol;
-import dk.alexandra.fresco.lib.field.bool.generic.AbstractBinaryFactory;
 import dk.alexandra.fresco.lib.helper.SimpleProtocolProducer;
-import dk.alexandra.fresco.lib.helper.builder.BasicLogicBuilder;
 
 public class KeyedCompareAndSwapProtocolImpl extends SimpleProtocolProducer
     implements KeyedCompareAndSwapProtocol {
@@ -40,7 +38,6 @@ public class KeyedCompareAndSwapProtocolImpl extends SimpleProtocolProducer
 	private SBool[] leftValue;
 	private SBool[] rightKey;
 	private SBool[] rightValue;
-	private AbstractBinaryFactory bf;
 
 	/**
 	 * Constructs a protocol producer for the keyed compare and swap protocol. This
@@ -59,17 +56,16 @@ public class KeyedCompareAndSwapProtocolImpl extends SimpleProtocolProducer
 	 *            a factory of binary protocols
 	 */
 	public KeyedCompareAndSwapProtocolImpl(SBool[] leftKey, SBool[] leftValue,
-			SBool[] rightKey, SBool[] rightValue, AbstractBinaryFactory bf) {
+			SBool[] rightKey, SBool[] rightValue, Object bf) {
 		this.leftKey = leftKey;
 		this.leftValue = leftValue;
 		this.rightKey = rightKey;
 		this.rightValue = rightValue;
-		this.bf = bf;
 	}
 
 	@Override
 	protected ProtocolProducer initializeProtocolProducer() {
-		BasicLogicBuilder blb = new BasicLogicBuilder(bf);
+/*		BasicLogicBuilder blb = new BasicLogicBuilder(bf);
 		blb.beginSeqScope();
 		blb.beginParScope();
 		SBool compRes = blb.greaterThan(leftKey, rightKey);
@@ -88,6 +84,7 @@ public class KeyedCompareAndSwapProtocolImpl extends SimpleProtocolProducer
 		blb.endCurScope();
 
 		blb.endCurScope();
-		return blb.getProtocol();
+		return blb.getProtocol();*/
+	  return null;
 	}
 }

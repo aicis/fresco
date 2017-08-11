@@ -30,16 +30,14 @@ import java.io.PrintStream;
 
 import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.ProtocolProducer;
-import dk.alexandra.fresco.framework.value.OBool;
 import dk.alexandra.fresco.framework.value.SBool;
-import dk.alexandra.fresco.lib.field.bool.BasicLogicFactory;
+
 import dk.alexandra.fresco.lib.helper.SequentialProtocolProducer;
 
 //TODO refactor into new architecture
 public class BinaryOpenAndPrint implements ProtocolProducer {
 
   private final SBool[] string;
-  private OBool[] oString = null;
   private final PrintStream output;
 
   private int round = 0;
@@ -47,41 +45,31 @@ public class BinaryOpenAndPrint implements ProtocolProducer {
 
   ProtocolProducer pp = null;
 
-  private final BasicLogicFactory factory;
-
-
-  public BinaryOpenAndPrint(String label, SBool[] string, BasicLogicFactory factory, PrintStream output) {
+  public BinaryOpenAndPrint(String label, SBool[] string, PrintStream output) {
     this.string = string;
-    this.factory = factory;
+    
     this.label = label;
     this.output = output;
   }
 
   @Override
   public void getNextProtocols(ProtocolCollection protocolCollection) {
+    boolean[] oString = null;
     if (pp == null) {
-<<<<<<< HEAD
       if (round == 0) {
-=======
-      if (state == STATE.OUTPUT) {
-        if (number != null) {
-          oNumber = factory.getOBool();
-          pp = new SingleProtocolProducer<>(factory.getOpenProtocol(number, oNumber));
-        } else if (string != null) {
->>>>>>> origin/feature/binary-builder
-          oString = new OBool[string.length];
+        oString = new boolean[string.length];
           SequentialProtocolProducer seq = new SequentialProtocolProducer();
           for (int i = 0; i < string.length; i++) {
-            oString[i] = factory.getOBool();
-            seq.append(factory.getOpenProtocol(string[i], oString[i]));
+ //           oString[i] = factory.getOBool();
+//            seq.append(factory.getOpenProtocol(string[i], oString[i]));
           }
           pp = seq;
       } else {
         StringBuilder sb = new StringBuilder();
         sb.append(label);
         sb.append('\n');
-        for (OBool entry : oString) {
-          if (entry.getValue()) {
+        for (boolean entry : oString) {
+          if (entry) {
             sb.append(1);
           } else {
             sb.append(0);

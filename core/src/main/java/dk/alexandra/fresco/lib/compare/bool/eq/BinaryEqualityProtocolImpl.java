@@ -76,7 +76,7 @@ public class BinaryEqualityProtocolImpl implements BinaryEqualityProtocol {
       xnorOuts[0] = out;
     }
     if (curPP == null) {
-      if (!xnorDone) {
+  /*    if (!xnorDone) {
         ParallelProtocolProducer parXOR = new ParallelProtocolProducer();
         ParallelProtocolProducer parNOT = new ParallelProtocolProducer();
         for (int i = 0; i < length; i++) {
@@ -96,7 +96,7 @@ public class BinaryEqualityProtocolImpl implements BinaryEqualityProtocol {
           i += 2 * step;
         }
         curPP = parAND;
-      }
+      }*/
     }
     if (curPP.hasNextProtocols()) {
       curPP.getNextProtocols(protocolCollection);

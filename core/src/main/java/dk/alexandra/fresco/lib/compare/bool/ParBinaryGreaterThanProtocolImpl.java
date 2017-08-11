@@ -28,9 +28,7 @@ package dk.alexandra.fresco.lib.compare.bool;
 
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.SBool;
-import dk.alexandra.fresco.lib.field.bool.generic.AbstractBinaryFactory;
 import dk.alexandra.fresco.lib.helper.AbstractRoundBasedProtocol;
-import dk.alexandra.fresco.lib.helper.builder.BasicLogicBuilder;
 import dk.alexandra.fresco.lib.helper.builder.tree.TreeProtocol;
 import dk.alexandra.fresco.lib.helper.builder.tree.TreeProtocolNodeGenerator;
 
@@ -55,8 +53,6 @@ public class ParBinaryGreaterThanProtocolImpl extends AbstractRoundBasedProtocol
 	private int round = 0;
 	private int length;
 
-	private AbstractBinaryFactory factory;
-
 	/**
 	 * Construct a protocol to compare strings A and B. The bitstrings A and B
 	 * are assumed to be even length and to be ordered from most- to least
@@ -71,10 +67,10 @@ public class ParBinaryGreaterThanProtocolImpl extends AbstractRoundBasedProtocol
 	 * @param factory
 	 *            a protocol factory
 	 */
-	public ParBinaryGreaterThanProtocolImpl(SBool[] inA, SBool[] inB, SBool outC,
-			AbstractBinaryFactory factory) {
+	public ParBinaryGreaterThanProtocolImpl(SBool[] inA, SBool[] inB, SBool outC
+			){//AbstractBinaryFactory factory) {
 		//if (inA.length == inB.length) { //This check is performed in the BasicLogicBuilder
-			this.factory = factory;
+
 			this.outC = outC;
 			this.inA = inA;
 			this.inB = inB;
@@ -86,7 +82,7 @@ public class ParBinaryGreaterThanProtocolImpl extends AbstractRoundBasedProtocol
 
 	@Override
 	public ProtocolProducer nextProtocolProducer() {
-		BasicLogicBuilder blb = new BasicLogicBuilder(factory);
+		/*BasicLogicBuilder blb = new BasicLogicBuilder(factory);
 		if (round == 0) {
 			eq = blb.xor(inA, inB);
 			round++;
@@ -104,18 +100,18 @@ public class ParBinaryGreaterThanProtocolImpl extends AbstractRoundBasedProtocol
 		} else {
 			return null;
 		}
-		return blb.getProtocol();
+		return blb.getProtocol();*/ return null;
 	}
 
 	@Override
 	public ProtocolProducer getNode(int i, int j) {
-		BasicLogicBuilder builder = new BasicLogicBuilder(factory);
+		/*BasicLogicBuilder builder = new BasicLogicBuilder(factory);
 		builder.beginSeqScope();
 		builder.andInPlace(gt[j], gt[j], eq[i]);
 		builder.orInPlace(gt[i], gt[i], gt[j]);
 		builder.andInPlace(eq[i], eq[i], eq[j]);
 		builder.endCurScope();
-		return builder.getProtocol();
+		return builder.getProtocol(); */ return null;
 	}
 	
 	@Override

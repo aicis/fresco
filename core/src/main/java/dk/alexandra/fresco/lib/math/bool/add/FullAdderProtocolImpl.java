@@ -26,46 +26,119 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.math.bool.add;
 
-import dk.alexandra.fresco.framework.ProtocolCollection;
-import dk.alexandra.fresco.framework.ProtocolProducer;
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
+
+import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.builder.NumericBuilder;
+import dk.alexandra.fresco.framework.builder.binary.ComputationBuilderBinary;
+import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary.SequentialBinaryBuilder;
+import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SBool;
-import dk.alexandra.fresco.lib.field.bool.BasicLogicFactory;
+import dk.alexandra.fresco.framework.value.SInt;
+import dk.alexandra.fresco.lib.crypto.mimc.MiMCConstants;
+import dk.alexandra.fresco.lib.field.bool.generic.GenericBinaryBuilderAdvanced;
+
+
 
 /**
  * This class implements a Full Adder protocol for Binary protocols.
  * It takes the naive approach of linking 1-Bit-Full Adders together to implement
  * a generic length adder.
- *
- * @author Kasper Damgaard
  */
-public class FullAdderProtocolImpl implements FullAdderProtocol {
+public class FullAdderProtocolImpl implements ComputationBuilderBinary<List<Computation<SBool>>> {
 
-  private SBool[] lefts, rights, outs;
-  private SBool inCarry, outCarry;
-  private SBool tmpCarry;
-  private OneBitFullAdderProtocolFactory FAFactory;
-  private int round;
-  private int stopRound;
-  private ProtocolProducer curPP;
+  private List<Computation<SBool>> lefts, rights, outs;
+  private Computation<SBool> inCarry;
 
-  public FullAdderProtocolImpl(SBool[] lefts, SBool[] rights, SBool inCarry, SBool[] outs,
-      SBool outCarry, BasicLogicFactory basicFactory, OneBitFullAdderProtocolFactory FAFactory) {
-    if (lefts.length != rights.length || lefts.length != outs.length) {
-      throw new IllegalArgumentException("input and output arrays for Full Adder must be of same length.");
+  public FullAdderProtocolImpl(List<Computation<SBool>> lefts, 
+      List<Computation<SBool>> rights, 
+      Computation<SBool> inCarry) {
+    
+    if (lefts.size() != rights.size()) {
+      throw new IllegalArgumentException("input lists for Full Adder must be of same length.");
     }
     this.lefts = lefts;
     this.rights = rights;
     this.inCarry = inCarry;
-    this.outs = outs;
-    this.outCarry = outCarry;
-    this.FAFactory = FAFactory;
-    this.round = 0;
-    this.stopRound = lefts.length;
-    this.curPP = null;
-
-    tmpCarry = basicFactory.getSBool();
   }
+  
+  
+  @Override
+  public Computation<List<Computation<SBool>>> build(SequentialBinaryBuilder builder) {
+    
+    
+    
+    return builder.seq(seq -> {
+      int idx = this.lefts.size() -1;
+      
+      return new IterationState(idx, seq.advancedBinary().oneBitFullAdder(lefts.get(idx), rights.get(idx), inCarry));
+    }).whileLoop(
+        (state) -> state.round >= 1,
+        (state, seq) -> {
+          int idx = state.round;
+          idx--;
 
+          //Computation<Pair<SBool, SBool>> adder = 
+              //new OneBitFullAdderProtocolImpl(lefts.get(idx), rights.get(idx), state.value.out().getSecond());
+
+//          Computation<SInt> updatedValue = seq.advancedNumeric().exp(masked, three);
+          System.out.println("null:  "+state.value.out());
+          return new IterationState(idx, seq.advancedBinary().oneBitFullAdder(lefts.get(idx), rights.get(idx), state.value.out().getSecond()));
+        }
+    ).seq((state, seq) ->
+        /*
+         * We're in the last round so we just mask the current
+         * cipher text with the encryption key
+         */
+      () -> new ArrayList<Computation<SBool>>()
+    
+    );
+  }
+  
+  private static final class IterationState implements Computation<IterationState> {
+
+    private final int round;
+    private final Computation<Pair<SBool, SBool>> value;
+
+    private IterationState(int round,
+        Computation<Pair<SBool, SBool>> value) {
+      this.round = round;
+      this.value = value;
+    }
+
+    @Override
+    public IterationState out() {
+      return this;
+    }
+  }
+  
+  
+  /*
+  @Override
+  public Computation<List<Computation<SBool>>> build(SequentialBinaryBuilder builder) {
+    return builder.seq(seq -> {
+      int idx = this.lefts.size() -1;
+      OneBitFullAdderProtocolImpl adder = new OneBitFullAdderProtocolImpl(lefts.get(idx), rights.get(idx), inCarry);
+      idx--;
+      List<Computation<SBool>> res = new ArrayList<Computation<SBool>>();
+      while(idx >= 0) {
+        Pair<SBool, SBool> prev = adder.build(seq).out();
+        System.out.println("failing . "+prev);
+        adder = new OneBitFullAdderProtocolImpl(lefts.get(idx), rights.get(idx), prev.getSecond());
+        res.add(0, prev.getFirst());
+        idx--;
+      }
+      Pair<SBool, SBool> prev = adder.build(seq).out();
+      res.add(0, prev.getFirst());
+      res.add(0, prev.getSecond());
+      System.out.println("got a build on full...  returning "+res);
+      return () -> res;
+    });
+  }*/
+  
+/*
   @Override
   public void getNextProtocols(ProtocolCollection protocolCollection) {
     if (round == 0) {
@@ -100,5 +173,7 @@ public class FullAdderProtocolImpl implements FullAdderProtocol {
   public boolean hasNextProtocols() {
     return round < stopRound;
   }
+*/
+
 
 }

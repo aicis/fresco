@@ -53,6 +53,7 @@ import dk.alexandra.fresco.lib.math.bool.add.FullAdderProtocolImpl;
 import dk.alexandra.fresco.lib.math.bool.add.OneBitFullAdderProtocol;
 import dk.alexandra.fresco.lib.math.bool.add.OneBitFullAdderProtocolImpl;
 import dk.alexandra.fresco.lib.math.bool.add.OneBitHalfAdderProtocol;
+import dk.alexandra.fresco.lib.math.bool.add.OneBitHalfAdderProtocolImpl;
 import dk.alexandra.fresco.lib.math.bool.log.LogProtocol;
 import dk.alexandra.fresco.lib.math.bool.log.LogProtocolFactory;
 import dk.alexandra.fresco.lib.math.bool.log.LogProtocolImpl;
@@ -63,46 +64,60 @@ import java.util.List;
 
 public class GenericBinaryBuilderAdvanced implements BinaryBuilderAdvanced {
 
-  private BinaryBuilder basicBuilder;
+  private ProtocolBuilderBinary builder;
   
-  public GenericBinaryBuilderAdvanced(BinaryBuilder basic) {
+  public GenericBinaryBuilderAdvanced(ProtocolBuilderBinary builder) {
     super();
-    basicBuilder = basic;
-  }
-  
-
- 
-  @Override
-  public Computation<SBool> xnor(Computation<SBool> left, Computation<SBool> right) {
-    return new XnorFromXorAndNotProtocolImpl(left, right, out, this);
-  }
-
-  @Override
-  public Computation<SBool> xnor(Computation<SBool> left, boolean right) {
-    return new XnorFromXorAndNotProtocolImpl(left, right, out, this);
-  }
-  
-
-  @Override
-  public Computation<SBool> nand(Computation<SBool> left, Computation<SBool> right) {
-    return new NandFromAndAndNotProtocolImpl(left, right, out, this);
-  }
-
-  @Override
-  public Computation<SBool> nand(Computation<SBool> left, boolean right) {
-    return new NandFromAndAndNotProtocolImpl(left, right, out, this);
+    this.builder = builder;
   }
 
   @Override
   public Computation<SBool> or(Computation<SBool> left, Computation<SBool> right) {
-    return new OrFromXorAndProtocol(this, this, this, inLeft, inRight, out);
+    return builder.createSequentialSub(new OrFromXorAnd(left, right));
   }
 
   @Override
   public Computation<SBool> or(Computation<SBool> left, boolean right) {
-    return new OrFromCopyConstProtocol(this, inLeft, inRight, out);
+    return builder.createSequentialSub(new OrFromCopyConst(left, right));
+  }
+  
+  @Override
+  public Computation<SBool> xnor(Computation<SBool> left, Computation<SBool> right) {
+    return builder.createSequentialSub(new XnorFromXorAndNot(left, right));
   }
 
+  @Override
+  public Computation<SBool> xnor(Computation<SBool> left, boolean right) {
+    if(right) {
+      return builder.binary().copy(left);
+    } else {
+      return builder.binary().not(left);
+    }
+  }
+  
+  @Override
+  public Computation<SBool> nand(Computation<SBool> left, Computation<SBool> right) {
+    return builder.createSequentialSub(new NandFromAndAndNot(left, right));
+  }
+
+  @Override
+  public Computation<SBool> nand(Computation<SBool> left, boolean right) {
+    if(right) {
+      return builder.binary().not(left);
+    } else {
+      return builder.binary().known(true);
+    }
+  }
+
+  
+  public Computation<SBool> and(Computation<SBool> left, boolean right) {
+    return builder.createSequentialSub(new AndFromCopyConst(left, right));
+  }
+  
+  public Computation<SBool> not(Computation<SBool> in) {
+    return builder.createSequentialSub(new NotFromXor(in));
+  }
+  
   @Override
   public Computation<SBool> condSelect(Computation<SBool> condition, Computation<SBool> left,
       Computation<SBool> right) {
@@ -112,45 +127,40 @@ public class GenericBinaryBuilderAdvanced implements BinaryBuilderAdvanced {
 
   @Override
   public Computation<SBool> greaterThan(Computation<List<SBool>> left, Computation<List<SBool>> right) {
-    // TODO Auto-generated method stub
-    return new BinaryGreaterThanProtocolImpl(inLeft, inRight, out, this);
+
+    return null; //return new BinaryGreaterThanProtocolImpl(inLeft, inRight, out, this);
   }
 
   @Override
   public Computation<SBool> equals(Computation<List<SBool>> left, Computation<List<SBool>> right) {
-    return new AltBinaryEqualityProtocol(inLeft, inRight, out, this);
-  }
-
-  @Override
-  public Computation<SBool> copy(Computation<SBool> src) {
-    return new CopyProtocol<SBool, ResourcePool>(src, into);
+    return null; //return new AltBinaryEqualityProtocol(inLeft, inRight, out, this);
   }
 
   @Override
   public Computation<Pair<SBool, SBool>> oneBitHalfAdder(Computation<SBool> left, Computation<SBool> right) {
-    return new OneBitHalfAdderProtocolImpl(left, right, outS, outCarry, this);
+    return builder.createSequentialSub(new OneBitHalfAdderProtocolImpl(left, right));
   }
 
   @Override
-  public Computation<SBool[]> oneBitFullAdder(Computation<SBool> left, Computation<SBool> right,
+  public Computation<Pair<SBool, SBool>> oneBitFullAdder(Computation<SBool> left, Computation<SBool> right,
       Computation<SBool> carry) {
-    return new OneBitFullAdderProtocolImpl(left, right, carry, outS, outCarry, this);
+    return builder.createSequentialSub(new OneBitFullAdderProtocolImpl(left, right, carry));
   }
 
   @Override
-  public Computation<SBool[]> fullAdder(Computation<SBool[]> lefts, Computation<SBool[]> rights,
+  public Computation<List<Computation<SBool>>> fullAdder(List<Computation<SBool>> lefts, List<Computation<SBool>> rights,
       Computation<SBool> inCarry) {
-    return new FullAdderProtocolImpl(lefts, rights, inCarry, outs, outCarry, this, this);
+    return builder.createSequentialSub(new FullAdderProtocolImpl(lefts, rights, inCarry));
   }
 
   @Override
   public Computation<SBool[]> binaryMult(SBool[] lefts, SBool[] rights) {
-    return new BinaryMultProtocolImpl(lefts, rights, outs, this, this);
+    return null;////return new BinaryMultProtocolImpl(lefts, rights, outs, this, this);
   }
 
   @Override
   public Computation<SBool[]> logProtocol(SBool[] number) {
-    return new LogProtocolImpl(number, result, this);
+    return null;//return new LogProtocolImpl(number, result, this);
   }
 
   /**
@@ -165,27 +175,14 @@ public class GenericBinaryBuilderAdvanced implements BinaryBuilderAdvanced {
 
   public BitIncrementerProtocol getBitIncrementerProtocol(SBool[] base, SBool increment,
       SBool[] outs) {
-    return new BitIncrementerProtocolImpl(base, increment, outs, this, this);
+    return null;// return new BitIncrementerProtocolImpl(base, increment, outs, this, this);
   }
 
   public KeyedCompareAndSwapProtocol getKeyedCompareAndSwapProtocol(SBool[] leftKey,
       SBool[] leftValue, SBool[] rightKey, SBool[] rightValue) {
-    return new KeyedCompareAndSwapProtocolGetNextProtocolImpl(leftKey, leftValue, rightKey,
-        rightValue, this);
+    return null;//return new KeyedCompareAndSwapProtocolGetNextProtocolImpl(leftKey, leftValue, rightKey,
+        //rightValue, this);
   }
 
-  
-  /*
-   * The following protocols should be obtained from the basic builder
-  public ProtocolProducer getAndProtocol(SBool inLeft, boolean inRight, SBool out) {
-    return new AndFromCopyConstProtocol(this, inLeft, inRight, out);
-  }
 
-  
-  public ProtocolProducer getNotProtocol(SBool in, SBool out) {
-    return new NotFromXorProtocol(this, this, in, out);
-  }
-  
-  
-  */
 }

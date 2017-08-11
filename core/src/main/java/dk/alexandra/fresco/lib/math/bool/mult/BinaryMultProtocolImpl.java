@@ -102,17 +102,17 @@ public class BinaryMultProtocolImpl implements BinaryMultProtocol {
           for (int j = 0; j < rights.length; j++) {
             if (j == rights.length - 1) { //corresponding to having least significant bit steady.
               if (i == lefts.length - 1) {
-                ((ParallelProtocolProducer) curPP).append(
-                    basicFactory.getAndProtocol(lefts[i], rights[j], outs[outs.length - 1]));
+       //         ((ParallelProtocolProducer) curPP).append(
+        //            basicFactory.getAndProtocol(lefts[i], rights[j], outs[outs.length - 1]));
               } else {
-                ((ParallelProtocolProducer) curPP).append(basicFactory
-                    .getAndProtocol(lefts[i], rights[j],
-                        intermediateResults[intermediateResults.length - 2 - i]));
+         //       ((ParallelProtocolProducer) curPP).append(basicFactory
+          //          .getAndProtocol(lefts[i], rights[j],
+           //             intermediateResults[intermediateResults.length - 2 - i]));
               }
             } else {
-              ((ParallelProtocolProducer) curPP).append(basicFactory
-                  .getAndProtocol(lefts[i], rights[j],
-                      andMatrix[lefts.length - 1 - i][rights.length - 2 - j]));
+          //    ((ParallelProtocolProducer) curPP).append(basicFactory
+           //       .getAndProtocol(lefts[i], rights[j],
+            //          andMatrix[lefts.length - 1 - i][rights.length - 2 - j]));
             }
           }
         }

@@ -1,4 +1,4 @@
-/*
+/*******************************************************************************
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -24,49 +24,52 @@
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
  *******************************************************************************/
-package dk.alexandra.fresco.lib.field.bool.generic;
+package dk.alexandra.fresco.lib.compare;
 
-import dk.alexandra.fresco.framework.ProtocolCollection;
+import java.util.List;
+
+import dk.alexandra.fresco.framework.ProtocolProducer;
+import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.builder.ComputationBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
 import dk.alexandra.fresco.framework.value.SBool;
-import dk.alexandra.fresco.lib.field.bool.BasicLogicFactory;
-import dk.alexandra.fresco.lib.field.bool.NandProtocol;
-import dk.alexandra.fresco.lib.helper.SequentialProtocolProducer;
+import dk.alexandra.fresco.lib.helper.SimpleProtocolProducer;
 
-public class NandFromAndAndNotProtocolImpl implements NandProtocol {
 
-  private SBool left;
-  private SBool right;
-  private SBool out;
-  private BasicLogicFactory factory;
-  private SequentialProtocolProducer curPP = null;
-  private boolean done = false;
+public class CompareAndSwap implements ComputationBuilder<List<SBool>> {
 
-  public NandFromAndAndNotProtocolImpl(SBool left, SBool right, SBool out,
-      BasicLogicFactory factory) {
-    this.left = left;
-    this.right = right;
-    this.out = out;
-    this.factory = factory;
-  }
+	private Computation<List<SBool>> left;
+	private Computation<List<SBool>> right;
+	//private AbstractBinaryFactory bp;
 
-  @Override
-  public void getNextProtocols(ProtocolCollection protocolCollection) {
-    if (curPP == null) {
-      SBool tmpOut = factory.getSBool();
-      curPP = new SequentialProtocolProducer();
-      curPP.append(factory.getAndProtocol(left, right, tmpOut));
-      curPP.append(factory.getNotProtocol(tmpOut, out));
-    }
-    if (curPP.hasNextProtocols()) {
-      curPP.getNextProtocols(protocolCollection);
-    } else {
-      done = true;
-    }
-  }
+	public CompareAndSwap(Computation<List<SBool>> left, Computation<List<SBool>> right) {
+		this.left = left;
+		this.right = right;
+	}
+/*
+	@Override
+	protected ProtocolProducer initializeProtocolProducer() {
+		BasicLogicBuilder blb = new BasicLogicBuilder(bp);
+		blb.beginSeqScope();
+		SBool comparisonResult = blb.greaterThan(left, right);
+
+		blb.beginParScope();
+		SBool[] tmpLeft = blb.condSelect(comparisonResult, left, right);
+		SBool[] tmpRight = blb.condSelect(comparisonResult, right, left);
+		blb.endCurScope();
+
+		blb.beginParScope();
+		blb.copy(tmpLeft, left);
+		blb.copy(tmpRight, right);
+		blb.endCurScope();
+
+		blb.endCurScope();
+		return blb.getProtocol();
+	}*/
 
   @Override
-  public boolean hasNextProtocols() {
-    return !done;
+  public Computation<List<SBool>> build(SequentialNumericBuilder builder) {
+    // TODO Auto-generated method stub
+    return null;
   }
-
 }

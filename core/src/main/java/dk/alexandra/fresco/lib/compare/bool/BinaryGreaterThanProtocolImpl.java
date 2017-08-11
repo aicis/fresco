@@ -28,9 +28,7 @@ package dk.alexandra.fresco.lib.compare.bool;
 
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.SBool;
-import dk.alexandra.fresco.lib.field.bool.generic.AbstractBinaryFactory;
 import dk.alexandra.fresco.lib.helper.AbstractRoundBasedProtocol;
-import dk.alexandra.fresco.lib.helper.builder.BasicLogicBuilder;
 
 /**
  * Represents a comparison protocol between two bitstrings. Concretely, the
@@ -52,8 +50,6 @@ public class BinaryGreaterThanProtocolImpl extends AbstractRoundBasedProtocol
 	private SBool tmp;
 	private SBool xor;
 
-	private AbstractBinaryFactory factory;
-
 	private int round = 0;
 	private int length;
 
@@ -72,8 +68,8 @@ public class BinaryGreaterThanProtocolImpl extends AbstractRoundBasedProtocol
 	 *            a protocol provider
 	 */
 	public BinaryGreaterThanProtocolImpl(SBool[] inA, SBool[] inB, SBool outC,
-			AbstractBinaryFactory factory) {
-		this.factory = factory;
+			Object factory) {
+
 		this.outC = outC;
 		this.inA = inA;
 		this.inB = inB;
@@ -90,7 +86,7 @@ public class BinaryGreaterThanProtocolImpl extends AbstractRoundBasedProtocol
 	
 	@Override
 	public ProtocolProducer nextProtocolProducer() {
-		BasicLogicBuilder blb = new BasicLogicBuilder(factory);
+	/*	BasicLogicBuilder blb = new BasicLogicBuilder(factory);
 		if (round == 0) {
 			xor = blb.xor(inA[length - 1], inB[length - 1]);
 			tmp = factory.getSBool();
@@ -105,9 +101,9 @@ public class BinaryGreaterThanProtocolImpl extends AbstractRoundBasedProtocol
 			blb.andInPlace(tmp, xor, tmp);
 			blb.xorInPlace(outC, tmp, outC);
 			round++;
-		} else {
+		} else {*/
 			return null;
-		}
-		return blb.getProtocol();
+		//}
+		//return blb.getProtocol();
 	}
 }

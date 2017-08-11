@@ -23,31 +23,23 @@
  *******************************************************************************/
 package dk.alexandra.fresco.framework;
 
-<<<<<<< HEAD
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilderHelper;
+import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
+import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary.SequentialBinaryBuilder;
 
 public abstract class TestBoolApplication implements
-    Application<List<Boolean>, ProtocolBuilderBinary> {
-=======
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderHelper;
-import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary.SequentialBinaryBuilder;
-import dk.alexandra.fresco.framework.value.OBool;
-
-public abstract class TestBoolApplication implements Application<OBool[], SequentialBinaryBuilder> {
->>>>>>> origin/feature/binary-builder
+  Application<List<Boolean>, ProtocolBuilderBinary> {
 
   public List<Computation<Boolean>> outputs = new ArrayList<>();
   
   public abstract ProtocolProducer prepareApplication(BuilderFactory factoryProducer);
 
-  @Override
   public Computation<List<Boolean>> prepareApplication(ProtocolBuilderBinary producer) {
-    producer.append(prepareApplication(ProtocolBuilderHelper.getFactoryBinary(producer)));
+    SequentialBinaryBuilder producer1 = (SequentialBinaryBuilder)producer;
+    producer1.append(prepareApplication(ProtocolBuilderHelper.getFactoryBinary(producer)));
     return outputToBoolean();
   }
 
@@ -58,14 +50,9 @@ public abstract class TestBoolApplication implements Application<OBool[], Sequen
         .collect(Collectors.toList());
   }
 
-<<<<<<< HEAD
-=======
   /**
   *
   */
-  public OBool[] outputs;
->>>>>>> origin/feature/binary-builder
-
   public Boolean[] getOutputs() {
     return this.outputs
         .stream()
