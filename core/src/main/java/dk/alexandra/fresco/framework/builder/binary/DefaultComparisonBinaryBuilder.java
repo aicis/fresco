@@ -2,31 +2,29 @@ package dk.alexandra.fresco.framework.builder.binary;
 
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.value.SBool;
+import dk.alexandra.fresco.lib.compare.bool.BinaryGreaterThanProtocolImpl;
+import dk.alexandra.fresco.lib.compare.bool.eq.BinaryEqualityProtocolImpl;
+import java.util.List;
 
 public class DefaultComparisonBinaryBuilder implements ComparisonBuilderBinary {
 
-  private final BuilderFactoryBinary factoryBinary;
   private final ProtocolBuilderBinary builder;
 
-  public DefaultComparisonBinaryBuilder(BuilderFactoryBinary factoryBinary,
-      ProtocolBuilderBinary builder) {
+  public DefaultComparisonBinaryBuilder(ProtocolBuilderBinary builder) {
     super();
-    this.factoryBinary = factoryBinary;
     this.builder = builder;
   }
 
   @Override
-  public Computation<SBool> greaterThan(SBool[] inLeft, SBool[] inRight) {
-    return null;
-    // return this.builder.createSequentialSub(
-    // new BinaryGreaterThanProtocolImpl(inLeft, inRight, this.factoryBinary));
+  public Computation<SBool> greaterThan(List<Computation<SBool>> inLeft,
+      List<Computation<SBool>> inRight) {
+    return this.builder.createSequentialSub(new BinaryGreaterThanProtocolImpl(inLeft, inRight));
   }
 
   @Override
-  public Computation<SBool> equal(SBool[] inLeft, SBool[] inRight) {
-    return null;
-    // return this.builder
-    // .createSequentialSub(new AltBinaryEqualityProtocol(inLeft, inRight, this.factoryBinary));
+  public Computation<SBool> equal(List<Computation<SBool>> inLeft,
+      List<Computation<SBool>> inRight) {
+    return this.builder.createSequentialSub(new BinaryEqualityProtocolImpl(inLeft, inRight));
   }
 
 }

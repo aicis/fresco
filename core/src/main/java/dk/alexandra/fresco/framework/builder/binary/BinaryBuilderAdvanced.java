@@ -1,10 +1,9 @@
 package dk.alexandra.fresco.framework.builder.binary;
 
-import java.util.List;
-
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SBool;
+import java.util.List;
 
 public interface BinaryBuilderAdvanced {
 
@@ -16,67 +15,46 @@ public interface BinaryBuilderAdvanced {
    * @return an computation holding the output of the appended protocol.
    */
   Computation<SBool> or(Computation<SBool> left, Computation<SBool> right);
-  
+
   Computation<SBool> or(Computation<SBool> left, boolean right);
-  
-  
-  
+
+
+
   Computation<SBool> xnor(Computation<SBool> left, Computation<SBool> right);
-  
+
   Computation<SBool> xnor(Computation<SBool> left, boolean right);
-  
+
   Computation<SBool> nand(Computation<SBool> left, Computation<SBool> right);
-  
+
   Computation<SBool> nand(Computation<SBool> left, boolean right);
-  
-  
+
+
   /**
-   * Appends a conditional select protocol to the current protocol. The output
-   * of this protocol on inputs a and b and condition bit c is the bit r := c ?
-   * a : b.
+   * Appends a conditional select protocol to the current protocol. The output of this protocol on
+   * inputs a and b and condition bit c is the bit r := c ? a : b.
    *
    * @param condition the Computation holding the condition on which to select.
    * @param left the Computation holding the left argument.
    * @param right the Computation holding the right argument.
    * @return an computation holding the output of the appended protocol.
    */
-  Computation<SBool> condSelect(Computation<SBool> condition, Computation<SBool> left, Computation<SBool> right);
+  Computation<SBool> condSelect(Computation<SBool> condition, Computation<SBool> left,
+      Computation<SBool> right);
 
-  //TODO create condSelect for arrays
-  
-  /**
-   * Appends a greater-than protocol to the current protocol. The output of this
-   * protocol is the greater-than (<) relation between its two input strings.
-   *
-   * @param left the SBool list holding the left argument.
-   * @param right the SBool list holding the right argument.
-   * @return an SBool holding the output of the appended protocol.
-   */
-  Computation<SBool> greaterThan(Computation<List<SBool>> left, Computation<List<SBool>> right);
-  
-  /**
-   * Appends a equals protocol to the current protocol. The output of this
-   * protocol is the equals (==) relation between its two input strings.
-   *
-   * @param left the SBool list holding the left argument.
-   * @param right the SBool list holding the right argument.
-   * @return an SBool holding the output of the appended protocol.
-   */
-  Computation<SBool> equals(Computation<List<SBool>> left, Computation<List<SBool>> right);
+  // TODO create condSelect for arrays
 
   /**
-   * Appends a keyed compare and swap protocol. This protocol swaps two
-   * key-value pairs to that the left pair becomes the pair with the largest
-   * key.
+   * Appends a keyed compare and swap protocol. This protocol swaps two key-value pairs to that the
+   * left pair becomes the pair with the largest key.
    *
    * @param leftKey an SBool array representing the key of the left pair
    * @param leftValue an SBool array representing the value of the left pair
    * @param rightKey an SBool array representing the key of the right pair
    * @param rightValue an SBool array representing the value of the right pair
    */
- //keyedCompareAndSwap(SBool[] leftKey, SBool[] leftValue, SBool[] rightKey, SBool[] rightValue) {
+  // keyedCompareAndSwap(SBool[] leftKey, SBool[] leftValue, SBool[] rightKey, SBool[] rightValue) {
 
-  
+
   /**
    * Half adder which returns the result in the 0'th position and the carry in the 1'st position of
    * the array.
@@ -111,8 +89,8 @@ public interface BinaryBuilderAdvanced {
    * @param inCarry The potential carry from a previous adder.
    * @return A computation which yields the results and the carry.
    */
-  Computation<List<Computation<SBool>>> fullAdder(List<Computation<SBool>> lefts, List<Computation<SBool>> rights,
-      Computation<SBool> inCarry);
+  Computation<List<Computation<SBool>>> fullAdder(List<Computation<SBool>> lefts,
+      List<Computation<SBool>> rights, Computation<SBool> inCarry);
 
   /**
    * Multiplies the left and right numbers and leaves the result in the output. The inputs are not
@@ -123,7 +101,8 @@ public interface BinaryBuilderAdvanced {
    * @return An array of size lefts.size+rights.size containing the multiplication of the two
    *         numbers.
    */
-  Computation<SBool[]> binaryMult(SBool[] lefts, SBool[] rights);
+  List<Computation<SBool>> binaryMult(List<Computation<SBool>> lefts,
+      List<Computation<SBool>> rights);
 
   /**
    * Computes the logarithm base 2 of the input number. It is currently up to the application
@@ -133,7 +112,7 @@ public interface BinaryBuilderAdvanced {
    * @param number The number to compute log_2 on.
    * @return An array containing the log_2(number).
    */
-  Computation<SBool[]> logProtocol(SBool[] number);
+  List<Computation<SBool>> logProtocol(List<Computation<SBool>> number);
 
 
 }
