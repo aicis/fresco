@@ -109,13 +109,38 @@ public class TestDummyProtocolSuite {
   }
 
   @Test
-  public void test_basic_logic() throws Exception {
+  public void test_basic_logic_input() throws Exception {
     runTest(new BasicBooleanTests.TestInput(true), EvaluationStrategy.SEQUENTIAL);
+  }
+
+  @Test
+  public void test_basic_logic_xor() throws Exception {
+    runTest(new BasicBooleanTests.TestXOR(true), EvaluationStrategy.SEQUENTIAL);
+  }
+
+  @Test
+  public void test_basic_logic_and() throws Exception {
+    runTest(new BasicBooleanTests.TestAND(true), EvaluationStrategy.SEQUENTIAL);
+  }
+
+  @Test
+  public void test_basic_logic_not() throws Exception {
+    runTest(new BasicBooleanTests.TestNOT(true), EvaluationStrategy.SEQUENTIAL);
+  }
+
+  @Test
+  public void test_basic_logic() throws Exception {
+    runTest(new BasicBooleanTests.TestBasicProtocols(true), EvaluationStrategy.SEQUENTIAL);
   }
 
   @Test
   public void test_comparison() throws Exception {
     runTest(new ComparisonBooleanTests.TestGreaterThan(), EvaluationStrategy.SEQUENTIAL);
+  }
+
+  @Test
+  public void test_equality() throws Exception {
+    runTest(new ComparisonBooleanTests.TestEquality(), EvaluationStrategy.SEQUENTIAL);
   }
 
 }

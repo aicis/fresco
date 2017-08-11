@@ -30,6 +30,8 @@ import dk.alexandra.fresco.framework.builder.binary.BinaryBuilder;
 import dk.alexandra.fresco.framework.builder.binary.BuilderFactoryBinary;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.value.SBool;
+import java.util.ArrayList;
+import java.util.List;
 
 public class DummyBuilderFactory implements BuilderFactoryBinary {
 
@@ -92,8 +94,13 @@ public class DummyBuilderFactory implements BuilderFactoryBinary {
       }
 
       @Override
-      public Computation<SBool[]> known(boolean[] known) {
-        return () -> factory.getKnownConstantSBools(known);
+      public List<Computation<SBool>> known(boolean[] known) {
+        SBool[] sbools = factory.getKnownConstantSBools(known);
+        List<Computation<SBool>> res = new ArrayList<>();
+        for (SBool s : sbools) {
+          res.add(() -> s);
+        }
+        return res;
       }
 
       @Override

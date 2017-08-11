@@ -40,6 +40,7 @@ public class DummyNotProtocol extends DummyNativeProtocol<SBool> {
 
   @Override
   public EvaluationStatus evaluate(int round, ResourcePoolImpl resourcePool, SCENetwork network) {
+    this.output = new DummySBool();
     this.output.setValue(!((DummySBool) this.input.out()).getValue());
     return EvaluationStatus.IS_DONE;
   }

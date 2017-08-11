@@ -4,16 +4,14 @@ import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SBool;
 import dk.alexandra.fresco.lib.math.bool.add.OneBitHalfAdderProtocolImpl;
+import java.util.List;
 
 public class DefaultBinaryBuilderAdvanced implements BinaryBuilderAdvanced {
 
-  private final BuilderFactoryBinary factoryBinary;
   private final ProtocolBuilderBinary builder;
 
-  public DefaultBinaryBuilderAdvanced(BuilderFactoryBinary factoryBinary,
-      ProtocolBuilderBinary builder) {
+  public DefaultBinaryBuilderAdvanced(ProtocolBuilderBinary builder) {
     super();
-    this.factoryBinary = factoryBinary;
     this.builder = builder;
   }
 
@@ -24,27 +22,28 @@ public class DefaultBinaryBuilderAdvanced implements BinaryBuilderAdvanced {
   }
 
   @Override
-  public Computation<SBool[]> oneBitFullAdder(Computation<SBool> left, Computation<SBool> right,
-      Computation<SBool> carry) {
+  public Computation<Pair<SBool, SBool>> oneBitFullAdder(Computation<SBool> left,
+      Computation<SBool> right, Computation<SBool> carry) {
     // TODO Auto-generated method stub
     return null;
   }
 
   @Override
-  public Computation<SBool[]> fullAdder(Computation<SBool[]> lefts, Computation<SBool[]> rights,
+  public List<Computation<SBool>> fullAdder(Computation<SBool[]> lefts, Computation<SBool[]> rights,
       Computation<SBool> inCarry) {
     // TODO Auto-generated method stub
     return null;
   }
 
   @Override
-  public Computation<SBool[]> binaryMult(SBool[] lefts, SBool[] rights) {
+  public List<Computation<SBool>> binaryMult(List<Computation<SBool>> lefts,
+      List<Computation<SBool>> rights) {
     // TODO Auto-generated method stub
     return null;
   }
 
   @Override
-  public Computation<SBool[]> logProtocol(SBool[] number) {
+  public List<Computation<SBool>> logProtocol(List<Computation<SBool>> number) {
     // TODO Auto-generated method stub
     return null;
   }

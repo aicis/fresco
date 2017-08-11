@@ -52,7 +52,6 @@ public class DummyCloseBoolProtocol extends DummyNativeProtocol<SBool> {
         return EvaluationStatus.HAS_MORE_ROUNDS;
       case 1:
         boolean r = BooleanSerializer.fromBytes(network.receive(sender));
-        System.out.println("P" + resourcePool.getMyId() + ": " + r);
         this.output = new DummySBool();
         this.output.setValue(r);
         return EvaluationStatus.IS_DONE;

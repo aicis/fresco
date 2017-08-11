@@ -2,6 +2,7 @@ package dk.alexandra.fresco.framework.builder.binary;
 
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.value.SBool;
+import java.util.List;
 
 /**
  * Interface for the basic operations which any binary protocol suite needs to implement.
@@ -23,7 +24,7 @@ public interface BinaryBuilder {
 
   Computation<SBool> known(boolean known);
 
-  Computation<SBool[]> known(boolean[] known);
+  List<Computation<SBool>> known(boolean[] known);
 
   Computation<SBool> input(boolean in, int inputter);
 

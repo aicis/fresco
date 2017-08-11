@@ -3,6 +3,7 @@ package dk.alexandra.fresco.framework.builder.binary;
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SBool;
+import java.util.List;
 
 public interface BinaryBuilderAdvanced {
 
@@ -26,7 +27,7 @@ public interface BinaryBuilderAdvanced {
    * @param carry The potential carry from a previous adder.
    * @return A computation which yields the result and the carry.
    */
-  Computation<SBool[]> oneBitFullAdder(Computation<SBool> left, Computation<SBool> right,
+  Computation<Pair<SBool, SBool>> oneBitFullAdder(Computation<SBool> left, Computation<SBool> right,
       Computation<SBool> carry);
 
   /**
@@ -40,7 +41,7 @@ public interface BinaryBuilderAdvanced {
    * @param inCarry The potential carry from a previous adder.
    * @return A computation which yields the results and the carry.
    */
-  Computation<SBool[]> fullAdder(Computation<SBool[]> lefts, Computation<SBool[]> rights,
+  List<Computation<SBool>> fullAdder(Computation<SBool[]> lefts, Computation<SBool[]> rights,
       Computation<SBool> inCarry);
 
   /**
@@ -52,7 +53,8 @@ public interface BinaryBuilderAdvanced {
    * @return An array of size lefts.size+rights.size containing the multiplication of the two
    *         numbers.
    */
-  Computation<SBool[]> binaryMult(SBool[] lefts, SBool[] rights);
+  List<Computation<SBool>> binaryMult(List<Computation<SBool>> lefts,
+      List<Computation<SBool>> rights);
 
   /**
    * Computes the logarithm base 2 of the input number. It is currently up to the application
@@ -62,7 +64,7 @@ public interface BinaryBuilderAdvanced {
    * @param number The number to compute log_2 on.
    * @return An array containing the log_2(number).
    */
-  Computation<SBool[]> logProtocol(SBool[] number);
+  List<Computation<SBool>> logProtocol(List<Computation<SBool>> number);
 
 
 }

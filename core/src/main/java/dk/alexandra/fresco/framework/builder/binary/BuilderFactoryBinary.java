@@ -10,11 +10,11 @@ public interface BuilderFactoryBinary extends BuilderFactory<SequentialBinaryBui
   BasicBinaryFactory createBasicBinaryFactory();
 
   default ComparisonBuilderBinary createComparison(ProtocolBuilderBinary builder) {
-    return new DefaultComparisonBinaryBuilder(this, builder);
+    return new DefaultComparisonBinaryBuilder(builder);
   }
 
   default BinaryBuilderAdvanced createAdvancedBinary(ProtocolBuilderBinary builder) {
-    return new DefaultBinaryBuilderAdvanced(this, builder);
+    return new DefaultBinaryBuilderAdvanced(builder);
   }
 
   @Override
