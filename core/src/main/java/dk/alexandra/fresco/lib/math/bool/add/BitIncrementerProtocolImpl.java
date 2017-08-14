@@ -26,89 +26,75 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.math.bool.add;
 
-import dk.alexandra.fresco.framework.ProtocolCollection;
-import dk.alexandra.fresco.framework.ProtocolProducer;
+import java.util.ArrayList;
+import java.util.List;
+
+import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.builder.binary.ComputationBuilderBinary;
+import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary.SequentialBinaryBuilder;
+import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SBool;
-import dk.alexandra.fresco.lib.field.bool.BasicLogicFactory;
 
 /**
  * Increment a binary vector with a secret boolean. The class uses 
- * the naive approach of linking 1-Bit-Full Adders together to implement
+ * the naive approach of linking 1-Bit-Half Adders together to implement
  * a generic length adder.
  *
  */
-public class BitIncrementerProtocolImpl implements BitIncrementerProtocol {
+public class BitIncrementerProtocolImpl implements ComputationBuilderBinary<List<Computation<SBool>>> {
 
-  private SBool[] base, outs;
-  private SBool increment;
-  private SBool tmpCarry;
-  private OneBitHalfAdderProtocolFactory FAFactory;
-  private int round;
-  private int stopRound;
-  private ProtocolProducer curPP;
-  private BasicLogicFactory basicFactory;
+  private List<Computation<SBool>> base;
+  private Computation<SBool> increment;
 
-  public BitIncrementerProtocolImpl(SBool[] base, SBool increment, SBool[] outs,
-      BasicLogicFactory basicFactory, OneBitHalfAdderProtocolFactory FAFactory) {
-    if (base.length > outs.length) {
-      throw new IllegalArgumentException("output array for Full Adder must be of same length or greater.");
-    }
+  public BitIncrementerProtocolImpl(List<Computation<SBool>> base, 
+      Computation<SBool> increment) {
     
     this.base = base;
 
     this.increment = increment;
-    this.outs = outs;
-    this.FAFactory = FAFactory;
-    this.round = 0;
-    this.stopRound = base.length;
-    this.curPP = null;
-
-    this.basicFactory = basicFactory;
-    tmpCarry = basicFactory.getKnownConstantSBool(false);
   }
 
+  
   @Override
-  public void getNextProtocols(ProtocolCollection protocolCollection) {
-    if (round == 0) {
-      if (curPP == null) {
-        curPP = FAFactory
-            .getOneBitHalfAdderProtocol(base[stopRound - 1], increment, outs[outs.length - 1],
-                tmpCarry);
-      }
-    } else if (round < stopRound - 1) {
-      if (curPP == null) {
-        //TODO: Using tmpCarry both as in and out might not be good for all implementations of a 1Bit FA protocol?
-        //But at least it works for OneBitFullAdderprotocolImpl.
-        curPP = FAFactory
-            .getOneBitHalfAdderProtocol(base[stopRound - round - 1], tmpCarry,
-                outs[outs.length - round - 1], tmpCarry);
-      }
-    } else {
-      if (curPP == null) {
-        
-        SBool last = basicFactory.getKnownConstantSBool(false);
-        if (outs.length > base.length) {
-          last = outs[outs.length - base.length - 1];
+  public Computation<List<Computation<SBool>>> build(SequentialBinaryBuilder builder) {
+
+    List<Computation<SBool>> result = new ArrayList<Computation<SBool>>(); 
+    
+    return builder.seq(seq -> {
+      int idx = base.size() -1;
+      IterationState is = new IterationState(idx, seq.advancedBinary().oneBitHalfAdder(base.get(idx), increment));
+      return is;
+    }).whileLoop(
+        (state) -> state.round >= 1,
+        (state, seq) -> {
+          int idx = state.round -1;
+          
+          result.add(0, state.value.out().getFirst());
+          IterationState is = new IterationState(idx, seq.advancedBinary().oneBitHalfAdder(base.get(idx), state.value.out().getSecond()));
+          return is;
         }
-        
-        curPP = FAFactory
-            .getOneBitHalfAdderProtocol(base[0], tmpCarry, outs[outs.length - base.length], last);
+    ).seq((state, seq) -> {
+      result.add(0, state.value.out().getFirst());
+      result.add(0, state.value.out().getSecond());
+      return () -> result;
       }
-    }
-    getNextFromCurPp(protocolCollection);
+    );
   }
+  
+  private static final class IterationState implements Computation<IterationState> {
 
-  private void getNextFromCurPp(ProtocolCollection protocolCollection) {
-    if (curPP.hasNextProtocols()) {
-      curPP.getNextProtocols(protocolCollection);
-    } else {
-      round++;
-      curPP = null;
+    private int round;
+    private final Computation<Pair<SBool, SBool>> value;
+
+    private IterationState(int round,
+        Computation<Pair<SBool, SBool>> value) {
+      this.round = round;
+      this.value = value;
     }
-  }
 
-  @Override
-  public boolean hasNextProtocols() {
-    return round < stopRound;
+    @Override
+    public IterationState out() {
+      return this;
+    }
   }
 }

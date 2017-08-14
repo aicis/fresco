@@ -1,7 +1,5 @@
 package dk.alexandra.fresco.framework.builder.binary;
 
-import java.util.List;
-
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SBool;
@@ -14,10 +12,13 @@ import dk.alexandra.fresco.lib.field.bool.generic.NotFromXor;
 import dk.alexandra.fresco.lib.field.bool.generic.OrFromCopyConst;
 import dk.alexandra.fresco.lib.field.bool.generic.OrFromXorAnd;
 import dk.alexandra.fresco.lib.field.bool.generic.XnorFromXorAndNot;
-import dk.alexandra.fresco.lib.math.bool.add.BitIncrementerProtocol;
+import dk.alexandra.fresco.lib.math.bool.add.BitIncrementerProtocolImpl;
 import dk.alexandra.fresco.lib.math.bool.add.FullAdderProtocolImpl;
 import dk.alexandra.fresco.lib.math.bool.add.OneBitFullAdderProtocolImpl;
 import dk.alexandra.fresco.lib.math.bool.add.OneBitHalfAdderProtocolImpl;
+import dk.alexandra.fresco.lib.math.bool.mult.BinaryMultProtocolImpl;
+
+import java.util.List;
 
 public class DefaultBinaryBuilderAdvanced implements BinaryBuilderAdvanced {
 
@@ -65,7 +66,23 @@ public class DefaultBinaryBuilderAdvanced implements BinaryBuilderAdvanced {
       return builder.binary().known(true);
     }
   }
-
+  
+  @Override
+  public Computation<Pair<SBool, SBool>> oneBitFullAdder(Computation<SBool> left,
+      Computation<SBool> right, Computation<SBool> carry) {
+    return builder.createSequentialSub(new OneBitFullAdderProtocolImpl(left, right, carry));
+  }
+  
+  @Override
+  public Computation<List<Computation<SBool>>> fullAdder(List<Computation<SBool>> lefts,
+      List<Computation<SBool>> rights, Computation<SBool> inCarry) {
+    return builder.createSequentialSub(new FullAdderProtocolImpl(lefts, rights, inCarry));
+  }
+  
+  public Computation<List<Computation<SBool>>> bitIncrement(List<Computation<SBool>> base,
+      Computation<SBool> increment) {
+    return builder.createSequentialSub(new BitIncrementerProtocolImpl(base, increment));
+  }
   
   public Computation<SBool> and(Computation<SBool> left, boolean right) {
     return builder.createSequentialSub(new AndFromCopyConst(left, right));
@@ -83,40 +100,19 @@ public class DefaultBinaryBuilderAdvanced implements BinaryBuilderAdvanced {
   }
 
   @Override
-  public Computation<SBool> greaterThan(Computation<List<SBool>> left, Computation<List<SBool>> right) {
-
-    return null; //return new BinaryGreaterThanProtocolImpl(inLeft, inRight, out, this);
-  }
-
-  @Override
-  public Computation<SBool> equals(Computation<List<SBool>> left, Computation<List<SBool>> right) {
-    return null; //return new AltBinaryEqualityProtocol(inLeft, inRight, out, this);
-  }
-
-  @Override
   public Computation<Pair<SBool, SBool>> oneBitHalfAdder(Computation<SBool> left, Computation<SBool> right) {
     return builder.createSequentialSub(new OneBitHalfAdderProtocolImpl(left, right));
   }
 
+
+
   @Override
-  public Computation<Pair<SBool, SBool>> oneBitFullAdder(Computation<SBool> left, Computation<SBool> right,
-      Computation<SBool> carry) {
-    return builder.createSequentialSub(new OneBitFullAdderProtocolImpl(left, right, carry));
+  public Computation<List<Computation<SBool>>> binaryMult(List<Computation<SBool>> lefts, List<Computation<SBool>> rights) {
+    return builder.createSequentialSub(new BinaryMultProtocolImpl(lefts, rights));
   }
 
   @Override
-  public Computation<List<Computation<SBool>>> fullAdder(List<Computation<SBool>> lefts, List<Computation<SBool>> rights,
-      Computation<SBool> inCarry) {
-    return builder.createSequentialSub(new FullAdderProtocolImpl(lefts, rights, inCarry));
-  }
-
-  @Override
-  public Computation<SBool[]> binaryMult(SBool[] lefts, SBool[] rights) {
-    return null;////return new BinaryMultProtocolImpl(lefts, rights, outs, this, this);
-  }
-
-  @Override
-  public Computation<SBool[]> logProtocol(SBool[] number) {
+  public List<Computation<SBool>> logProtocol(List<Computation<SBool>> number) {
     return null;//return new LogProtocolImpl(number, result, this);
   }
 
@@ -130,14 +126,12 @@ public class DefaultBinaryBuilderAdvanced implements BinaryBuilderAdvanced {
     return new OddEvenMergeProtocolRec(left, right, sorted, this);
   }
 
-  public BitIncrementerProtocol getBitIncrementerProtocol(SBool[] base, SBool increment,
-      SBool[] outs) {
-    return null;// return new BitIncrementerProtocolImpl(base, increment, outs, this, this);
-  }
+
 
   public KeyedCompareAndSwapProtocol getKeyedCompareAndSwapProtocol(SBool[] leftKey,
       SBool[] leftValue, SBool[] rightKey, SBool[] rightValue) {
     return null;//return new KeyedCompareAndSwapProtocolGetNextProtocolImpl(leftKey, leftValue, rightKey,
         //rightValue, this);
   }
-  }
+
+}

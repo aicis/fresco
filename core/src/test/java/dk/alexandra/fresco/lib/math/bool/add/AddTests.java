@@ -215,6 +215,7 @@ public class AddTests {
         List<Boolean> rawFirst = Arrays.asList(ByteArithmetic.toBoolean("ff"));
         List<Boolean> rawSecond = Arrays.asList(ByteArithmetic.toBoolean("01"));
 
+        final String expected = "0101"; // First carry is set to true 
         
         @Override
         public void test() throws Exception {
@@ -232,12 +233,7 @@ public class AddTests {
                     
                     return builder.seq( seq -> {
                       DefaultBinaryBuilderAdvanced prov = new DefaultBinaryBuilderAdvanced(seq);
-                      Computation<SBool> carry = seq.binary().known(false);
-                      
-    //                  rawFirst = new ArrayList<Boolean>();
-    //                 rawSecond = new ArrayList<Boolean>();
-  //                    rawFirst.add(true);
-//                      rawSecond.add(true);
+                      Computation<SBool> carry = seq.binary().known(true);
                       
                       List<Computation<SBool>> first = rawFirst.stream().map(seq.binary()::known)
                           .collect(Collectors.toList());
@@ -248,12 +244,7 @@ public class AddTests {
                       
                         return () -> adder.out();
                       }
-                    )/*.seq( (dat, seq) -> {
-                      //List<Computation<SBool>> closed = dat;
-                      System.out.println("ear: "+dat.get(0));
-                      return () -> dat.stream().map(seq.binary()::open).collect(Collectors.toList());
-                    }
-                    )*/.seq( (dat, seq) -> {
+                    ).seq( (dat, seq) -> {
                        List<Computation<Boolean>> out = new ArrayList<Computation<Boolean>>();
                        for(Computation<SBool> o : dat) {
                          out.add(seq.binary().open(o));
@@ -263,201 +254,76 @@ public class AddTests {
                         );
                       }
               };
-/*
-                    
-                    ).seq( (dat, seq) -> {
-                      List<Computation<Boolean>> out = dat;
-                      System.out.println("got opens.. "+out.get(0));
-                      return () -> out.stream().map(Computation::out).collect(Collectors.toList());
-                      }
-                    );
-                  }
-          };
-          
-          
-*/          
           
           List<Boolean> outputs = secureComputationEngine.runApplication(app,
               ResourcePoolCreator.createResourcePool(conf.sceConf));
-//          Assert.assertThat(outputs.get(outputs.size()), Is.is(false));    
-System.out.println("left : "+ByteArithmetic.toHex(rawFirst));
-System.out.println("right: "+ByteArithmetic.toHex(rawSecond));
-
-          /*  
-          for(Boolean b : rawFirst){
-            System.out.println("first: "+b);
-          }          
-
-          for(Boolean b : rawSecond){
-            System.out.println("second: "+b);
-          }          
-        */  
-          for(Boolean b : outputs){
-            System.out.println("output: "+b);
-          }
-          
-          System.out.println("outpu: "+ByteArithmetic.toHex(outputs));  
+ 
           Assert.assertThat(ByteArithmetic.toHex(
               outputs),
-              Is.is("0033"));
-     //     Assert.assertThat(outputs.get(0), Is.is(false)); //000
+              Is.is(expected));
+          Assert.assertThat(outputs.size(), Is.is(rawFirst.size()+1));
         }
       };
     }
   }
-  /*
-  public static class TestFullAdder extends TestThreadFactory {
 
-    public TestFullAdder() {
-    }
-    
-    @Override
-    public TestThread next(TestThreadConfiguration conf) {
-      return new TestThread() {
-        @Override
-        public void test() throws Exception {
-          
-          boolean[] rawFirst = ByteArithmetic.toBoolean("11");
-          boolean[] rawSecond = ByteArithmetic.toBoolean("22");
-                
-          TestBoolApplication app = new TestBoolApplication() {
-
-            private static final long serialVersionUID = 4338818809103728010L;
-
-            @Override
-            public ProtocolProducer prepareApplication(
-                BuilderFactory factoryProducer) {
-              ProtocolFactory producer = factoryProducer.getProtocolFactory();
-              AbstractBinaryFactory prov = (AbstractBinaryFactory) producer;
-              BasicLogicBuilder builder = new BasicLogicBuilder(prov);
-          
-              SequentialProtocolProducer seq = new SequentialProtocolProducer();
-              
-              SBool[] first = builder.knownSBool(rawFirst);
-              SBool[] second = builder.knownSBool(rawSecond);
-              SBool carry = builder.knownSBool(false);
-              SBool[] result = prov.getSBools(8); 
-              SBool outCarry = prov.getSBool();
-              
-              seq.append(builder.getProtocol());
-              seq.append(prov.getFullAdderProtocol(first, second, carry, result, outCarry));
-              OBool[] open = builder.output(result);
-              OBool openedCarry = builder.output(outCarry);
-              seq.append(builder.getProtocol());
-              this.outputs = new OBool[open.length+1];
-              for(int i = 0; i< open.length; i++) {
-                this.outputs[i] = open[i];
-              }
-              this.outputs[open.length] = openedCarry;
-              return seq;
-            }
-          };
-
-          secureComputationEngine.runApplication(app,
-              ResourcePoolCreator.createResourcePool(conf.sceConf));
-
-          boolean[] raw = convert(app.getOutputs());
-          
-          boolean[] value = new boolean[raw.length-1];
-          System.arraycopy(raw, 0, value, 0, raw.length-1);
-          Assert.assertThat(raw[raw.length-1], Is.is(false));    
-          Assert.assertThat(ByteArithmetic.toHex(value), Is.is("33"));
-        }
-      };
-    }
-    private boolean[] convert(OBool[] outputs) {
-      boolean[] output = new boolean[outputs.length];
-      for(int i = 0; i< outputs.length; i++) {
-        output[i] = outputs[i].getValue();
-      }
-      return output;
-    }
-  }*/
-
-  public static class TestBitIncrement extends TestThreadFactory {
+  public static class TestBitIncrement<ResourcePoolT extends ResourcePool>
+  extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
 
     public TestBitIncrement() {
     }
-    
+
     @Override
-    public TestThread next(TestThreadConfiguration conf) {
-      return new TestThread() {
+    public TestThread<ResourcePoolT, ProtocolBuilderBinary> next(
+        TestThreadConfiguration<ResourcePoolT, ProtocolBuilderBinary> conf) {
+      return new TestThread<ResourcePoolT, ProtocolBuilderBinary>() {
+
+        List<Boolean> rawLarge = Arrays.asList(ByteArithmetic.toBoolean("ff"));
+
+        final String expected = "0100"; 
+        
         @Override
         public void test() throws Exception {
-    /*      
-          boolean[] rawSmall = ByteArithmetic.toBoolean("11");
-          boolean[] rawBig = ByteArithmetic.toBoolean("ff");
+            Application<List<Boolean>, ProtocolBuilderBinary> app =
+                new Application<List<Boolean>, ProtocolBuilderBinary>() {
+                
+                  @Override
+                  public Computation<List<Boolean>> prepareApplication(
+                      ProtocolBuilderBinary producer) {
+                    
+                    SequentialBinaryBuilder builder = (SequentialBinaryBuilder)producer;
+                    
+                    return builder.seq( seq -> {
+                      DefaultBinaryBuilderAdvanced prov = new DefaultBinaryBuilderAdvanced(seq);
+                      Computation<SBool> increment = seq.binary().known(true);
+                      
+                      List<Computation<SBool>> large = rawLarge.stream().map(seq.binary()::known)
+                          .collect(Collectors.toList());
+
+                      Computation<List<Computation<SBool>>> adder = prov.bitIncrement(large, increment); 
+                      
+                        return () -> adder.out();
+                      }
+                    ).seq( (dat, seq) -> {
+                       List<Computation<Boolean>> out = new ArrayList<Computation<Boolean>>();
+                       for(Computation<SBool> o : dat) {
+                         out.add(seq.binary().open(o));
+                          }
+                          return () -> out.stream().map(Computation::out).collect(Collectors.toList());
+                          }
+                        );
+                      }
+              };
           
-          
-          OBool[] res1 = new OBool[8];
-          OBool[] res2 = new OBool[8];
-          OBool[] res3 = new OBool[9];
-          OBool[] res4 = new OBool[9];
-          
-          TestBoolApplication app = new TestBoolApplication() {
-
-            private static final long serialVersionUID = 4338818809103728010L;
-
-            @Override
-            public ProtocolProducer prepareApplication(
-                BuilderFactory factoryProducer) {
-              ProtocolFactory producer = factoryProducer.getProtocolFactory();
-              AbstractBinaryFactory prov = (AbstractBinaryFactory) producer;
-              BasicLogicBuilder builder = new BasicLogicBuilder(prov);
-          
-              SequentialProtocolProducer seq = new SequentialProtocolProducer();
-              
-              SBool[] small = builder.knownSBool(rawSmall);
-              SBool[] big = builder.knownSBool(rawBig);
-              SBool noIncrement = builder.knownSBool(false);
-              SBool withIncrement = builder.knownSBool(true);
-              
-              SBool[] result = prov.getSBools(8); 
-              SBool[] result2 = prov.getSBools(8);
-              SBool[] result3 = prov.getSBools(9);
-              SBool[] result4 = prov.getSBools(9);
-              
-        
-              seq.append(builder.getProtocol());
-              seq.append(prov.getBitIncrementerProtocol(small, noIncrement, result));
-              seq.append(prov.getBitIncrementerProtocol(small, withIncrement, result2));
-
-              seq.append(prov.getBitIncrementerProtocol(big, noIncrement, result3));
-              seq.append(prov.getBitIncrementerProtocol(big, withIncrement, result4));
-
-              
-              OBool[] openFirst = builder.output(result);
-              OBool[] openSecond = builder.output(result2);
-              OBool[] openThird = builder.output(result3);
-              OBool[] openFourth = builder.output(result4);
-              seq.append(builder.getProtocol());
-              for(int i = 0; i< openFirst.length; i++) {
-                res1[i] = openFirst[i];
-                res2[i] = openSecond[i];
-                res3[i] = openThird[i];
-                res4[i] = openFourth[i];
-              }
-              res3[8] = openThird[8];
-              res4[8] = openFourth[8];
-              return seq;
-            }
-          };
-
-          secureComputationEngine.runApplication(app,
+          List<Boolean> outputs = secureComputationEngine.runApplication(app,
               ResourcePoolCreator.createResourcePool(conf.sceConf));
-
-          boolean[] raw1 = convert(res1);
-          boolean[] raw2 = convert(res2);
-          boolean[] raw3 = convert(res3);
-          boolean[] raw4 = convert(res4);
-          Assert.assertThat(ByteArithmetic.toHex(raw1), Is.is("11"));    
-          Assert.assertThat(ByteArithmetic.toHex(raw2), Is.is("12"));
-          Assert.assertThat(ByteArithmetic.toHex(raw3), Is.is("00ff"));
-          Assert.assertThat(ByteArithmetic.toHex(raw4), Is.is("0100"));*/
+ 
+          Assert.assertThat(ByteArithmetic.toHex(
+              outputs),
+              Is.is(expected));
+          Assert.assertThat(outputs.size(), Is.is(rawLarge.size()+1));
         }
       };
     }
   }
-  
-  
 }

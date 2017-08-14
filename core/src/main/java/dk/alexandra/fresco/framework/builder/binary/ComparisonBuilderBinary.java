@@ -2,6 +2,7 @@ package dk.alexandra.fresco.framework.builder.binary;
 
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.value.SBool;
+import java.util.List;
 
 public interface ComparisonBuilderBinary {
 
@@ -13,7 +14,8 @@ public interface ComparisonBuilderBinary {
    * @param inRight The right secret shared bitstring
    * @return inLeft > inRight
    */
-  public Computation<SBool> greaterThan(SBool[] inLeft, SBool[] inRight);
+  public Computation<SBool> greaterThan(List<Computation<SBool>> inLeft,
+      List<Computation<SBool>> inRight);
 
   /**
    * Performs an equality operation on the two inputted bitstrings.
@@ -22,5 +24,6 @@ public interface ComparisonBuilderBinary {
    * @param inRight The right secret shared bitstring
    * @return inLeft == inRight
    */
-  public Computation<SBool> equal(SBool[] inLeft, SBool[] inRight);
+  public Computation<SBool> equal(List<Computation<SBool>> inLeft,
+      List<Computation<SBool>> inRight);
 }

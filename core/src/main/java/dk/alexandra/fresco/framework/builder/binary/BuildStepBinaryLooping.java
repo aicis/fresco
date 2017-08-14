@@ -53,7 +53,6 @@ class BuildStepBinaryLooping<InputT>
       doneWithOwn = false;
       currentProducer = null;
       updateToNextProducer(input);
-      currentResult = () -> input;
     }
 
     @Override

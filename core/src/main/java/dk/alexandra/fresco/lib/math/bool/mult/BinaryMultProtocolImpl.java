@@ -26,13 +26,14 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.math.bool.mult;
 
-import dk.alexandra.fresco.framework.ProtocolCollection;
-import dk.alexandra.fresco.framework.ProtocolProducer;
+import java.util.ArrayList;
+import java.util.List;
+
+import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.builder.binary.ComputationBuilderBinary;
+import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary.SequentialBinaryBuilder;
+
 import dk.alexandra.fresco.framework.value.SBool;
-import dk.alexandra.fresco.lib.field.bool.BasicLogicFactory;
-import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
-import dk.alexandra.fresco.lib.helper.SequentialProtocolProducer;
-import dk.alexandra.fresco.lib.math.bool.add.AdderProtocolFactory;
 
 /**
  * This class implements a Binary Multiplication protocol by doing the school method.
@@ -41,58 +42,56 @@ import dk.alexandra.fresco.lib.math.bool.add.AdderProtocolFactory;
  *
  * @author Kasper Damgaard
  */
-public class BinaryMultProtocolImpl implements BinaryMultProtocol {
+public class BinaryMultProtocolImpl implements ComputationBuilderBinary<List<Computation<SBool>>> {
 
-  private SBool[] lefts, rights, outs;
-  private SBool[][] andMatrix;
-  private SBool[] intermediateResults;
-  private SBool[] carries;
-  private BasicLogicFactory basicFactory;
-  private AdderProtocolFactory adderFactory;
-  private int round;
-  private int stopRound;
-  private ProtocolProducer curPP;
+  private List<Computation<SBool>> lefts, rights;
 
-  public BinaryMultProtocolImpl(SBool[] lefts, SBool[] rights, SBool[] outs,
-      BasicLogicFactory basicFactory, AdderProtocolFactory adderFactory) {
-    if (lefts.length + rights.length != outs.length) {
-      throw new IllegalArgumentException(
-          "input arrays must be same length, and output array must be twice that of the inputs.");
-    }
+  public BinaryMultProtocolImpl(List<Computation<SBool>> lefts, 
+      List<Computation<SBool>> rights) {
     this.lefts = lefts;
     this.rights = rights;
-    this.outs = outs;
-    this.basicFactory = basicFactory;
-    this.adderFactory = adderFactory;
-    this.round = 0;
-    this.stopRound = rights.length;
-    this.curPP = null;
+   }
 
-    //For the rest of the file: j equals row or round
-    //i is index in that row
-
-    this.carries = new SBool[lefts.length];
-    for (int i = 0; i < carries.length; i++) {
-      carries[i] = basicFactory.getSBool();
-    }
-
-    intermediateResults = new SBool[lefts.length];
-    andMatrix = new SBool[lefts.length][rights.length - 1];
-
-    for (int i = 0; i < lefts.length; i++) {
-      intermediateResults[i] = basicFactory.getSBool();
-      for (int j = 0; j < rights.length - 1; j++) {
-        andMatrix[i][j] = basicFactory.getSBool();
+  @Override
+  public Computation<List<Computation<SBool>>> build(SequentialBinaryBuilder builder) {
+    return builder.seq(seq -> {
+      int idx = this.lefts.size() -1;
+      List<Computation<SBool>> res = new ArrayList<Computation<SBool>>();
+      for(int i = 0; i< rights.size(); i++) {
+        res.add(seq.binary().and(lefts.get(idx), rights.get(i)));
       }
-    }
+      IterationState is = new IterationState(idx, () -> res);// seq.advancedBinary().oneBitFullAdder(lefts.get(idx), rights.get(idx), inCarry));
+      return is;
+    }).whileLoop(
+        (state) -> state.round >= 1,
+        (state, seq) -> {
+          int idx = state.round -1;
+          
+          List<Computation<SBool>> res = new ArrayList<Computation<SBool>>();
+          for(int i = 0; i< rights.size(); i++) {
+            res.add(seq.binary().and(lefts.get(idx), rights.get(i)));
+          } 
+          for(int i = state.round; i < this.lefts.size(); i++){
+            res.add(seq.binary().known(false));
+          }
+          List<Computation<SBool>> tmp = state.value.out();
+          while(tmp.size()< res.size()) {
+            tmp.add(0, seq.binary().known(false));
+          }
+          IterationState is = new IterationState(idx, seq.advancedBinary().fullAdder(state.value.out(), res , seq.binary().known(false)));
+          return is;
+        }
+    ).seq((state, seq) -> state.value
+    );
   }
-
+  
+  
   /**
    * Round 1: Create a matrix that is the AND of every possible input combination. Round
    * 2-(stopRound-1): Create layers of adders that takes the last layers result as well as the
    * corresponding andMatrix layer and adds it. Round stopRound-1: Do the final layer. Same as the
    * other rounds, except the last carry is outputted.
-   */
+   */ /*
   @Override
   public void getNextProtocols(ProtocolCollection protocolCollection) {
     if (round == 0) {
@@ -102,17 +101,17 @@ public class BinaryMultProtocolImpl implements BinaryMultProtocol {
           for (int j = 0; j < rights.length; j++) {
             if (j == rights.length - 1) { //corresponding to having least significant bit steady.
               if (i == lefts.length - 1) {
-       //         ((ParallelProtocolProducer) curPP).append(
-        //            basicFactory.getAndProtocol(lefts[i], rights[j], outs[outs.length - 1]));
+                ((ParallelProtocolProducer) curPP).append(
+                    basicFactory.getAndProtocol(lefts[i], rights[j], outs[outs.length - 1]));
               } else {
-         //       ((ParallelProtocolProducer) curPP).append(basicFactory
-          //          .getAndProtocol(lefts[i], rights[j],
-           //             intermediateResults[intermediateResults.length - 2 - i]));
+                ((ParallelProtocolProducer) curPP).append(basicFactory
+                    .getAndProtocol(lefts[i], rights[j],
+                        intermediateResults[intermediateResults.length - 2 - i]));
               }
             } else {
-          //    ((ParallelProtocolProducer) curPP).append(basicFactory
-           //       .getAndProtocol(lefts[i], rights[j],
-            //          andMatrix[lefts.length - 1 - i][rights.length - 2 - j]));
+              ((ParallelProtocolProducer) curPP).append(basicFactory
+                  .getAndProtocol(lefts[i], rights[j],
+                      andMatrix[lefts.length - 1 - i][rights.length - 2 - j]));
             }
           }
         }
@@ -169,17 +168,23 @@ public class BinaryMultProtocolImpl implements BinaryMultProtocol {
     }
   }
 
-  private void getNextFromPp(ProtocolCollection protocolCollection) {
-    if (curPP.hasNextProtocols()) {
-      curPP.getNextProtocols(protocolCollection);
-    } else {
-      round++;
-      curPP = null;
+*/
+
+  private static final class IterationState implements Computation<IterationState> {
+
+    private int round;
+    private final Computation<List<Computation<SBool>>> value;
+
+    private IterationState(int round,
+        Computation<List<Computation<SBool>>> value) {
+      this.round = round;
+      this.value = value;
+    }
+
+    @Override
+    public IterationState out() {
+      return this;
     }
   }
-
-  @Override
-  public boolean hasNextProtocols() {
-    return round < stopRound;
-  }
+  
 }

@@ -26,18 +26,14 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.math.bool.add;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
 import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.builder.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.binary.ComputationBuilderBinary;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary.SequentialBinaryBuilder;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SBool;
-import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.crypto.mimc.MiMCConstants;
 
 
 
@@ -48,9 +44,8 @@ import dk.alexandra.fresco.lib.crypto.mimc.MiMCConstants;
  */
 public class FullAdderProtocolImpl implements ComputationBuilderBinary<List<Computation<SBool>>> {
 
-  private List<Computation<SBool>> lefts, rights, outs;
+  private List<Computation<SBool>> lefts, rights;
   private Computation<SBool> inCarry;
-  private boolean stupid = false;
 
   public FullAdderProtocolImpl(List<Computation<SBool>> lefts, 
       List<Computation<SBool>> rights, 
@@ -73,20 +68,17 @@ public class FullAdderProtocolImpl implements ComputationBuilderBinary<List<Comp
     return builder.seq(seq -> {
       int idx = this.lefts.size() -1;
       IterationState is = new IterationState(idx, seq.advancedBinary().oneBitFullAdder(lefts.get(idx), rights.get(idx), inCarry));
-      System.out.println("first created adder with idx "+is.round);
       return is;
     }).whileLoop(
-        (state) -> state.round >= 0,
+        (state) -> state.round >= 1,
         (state, seq) -> {
           int idx = state.round -1;
           
           result.add(0, state.value.out().getFirst());
           IterationState is = new IterationState(idx, seq.advancedBinary().oneBitFullAdder(lefts.get(idx), rights.get(idx), state.value.out().getSecond()));
-            System.out.println("loop created state with idx "+is.round);
           return is;
         }
     ).seq((state, seq) -> {
-    //  System.out.println("final add fromv alue "+state.value);
       result.add(0, state.value.out().getFirst());
       result.add(0, state.value.out().getSecond());
       return () -> result;
@@ -98,58 +90,16 @@ public class FullAdderProtocolImpl implements ComputationBuilderBinary<List<Comp
 
     private int round;
     private final Computation<Pair<SBool, SBool>> value;
-    private boolean used = false;
 
     private IterationState(int round,
         Computation<Pair<SBool, SBool>> value) {
-  //    System.out.println("creating iterations with "+value);
       this.round = round;
       this.value = value;
     }
 
     @Override
     public IterationState out() {
-   //   System.out.println("is "+this.value+" got read");
       return this;
     }
   }
-  
-/*
-  @Override
-  public void getNextProtocols(ProtocolCollection protocolCollection) {
-    if (round == 0) {
-      if (curPP == null) {
-        curPP = FAFactory
-            .getOneBitFullAdderProtocol(lefts[stopRound - 1], rights[stopRound - 1], inCarry,
-                outs[stopRound - 1], tmpCarry);
-      }
-    } else if (round < stopRound - 1) {
-      if (curPP == null) {
-        //TODO: Using tmpCarry both as in and out might not be good for all implementations of a 1Bit FA protocol?
-        //But at least it works for OneBitFullAdderprotocolImpl.
-        curPP = FAFactory
-            .getOneBitFullAdderProtocol(lefts[stopRound - round - 1], rights[stopRound - round - 1],
-                tmpCarry, outs[stopRound - round - 1], tmpCarry);
-      }
-    } else {
-      if (curPP == null) {
-        curPP = FAFactory
-            .getOneBitFullAdderProtocol(lefts[0], rights[0], tmpCarry, outs[0], outCarry);
-      }
-    }
-    if (curPP.hasNextProtocols()) {
-      curPP.getNextProtocols(protocolCollection);
-    } else {
-      round++;
-      curPP = null;
-    }
-  }
-
-  @Override
-  public boolean hasNextProtocols() {
-    return round < stopRound;
-  }
-*/
-
-
 }

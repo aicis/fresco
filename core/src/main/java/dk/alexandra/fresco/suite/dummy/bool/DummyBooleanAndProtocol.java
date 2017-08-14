@@ -72,11 +72,11 @@ public class DummyBooleanAndProtocol extends DummyBooleanNativeProtocol<SBool> {
   }
 
   @Override
-  public EvaluationStatus evaluate(int round, ResourcePool resourcePool,
-      SCENetwork network) {
-    
+  public EvaluationStatus evaluate(int round, ResourcePool resourcePool, SCENetwork network) {
+
     out = (out == null) ? new DummyBooleanSBool() : out;
-    this.out.setValue(((DummyBooleanSBool)left.out()).getValue() & ((DummyBooleanSBool)right.out()).getValue());
+    this.out.setValue(
+        ((DummyBooleanSBool) left.out()).getValue() & ((DummyBooleanSBool) right.out()).getValue());
     return EvaluationStatus.IS_DONE;
   }
 

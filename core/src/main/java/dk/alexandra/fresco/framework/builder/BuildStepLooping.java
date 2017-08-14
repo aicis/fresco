@@ -59,7 +59,7 @@ class BuildStepLooping<InputT> extends
       doneWithOwn = false;
       currentProducer = null;
       updateToNextProducer(input);
-      currentResult = () -> input;
+      //currentResult = () -> input; This seems to repeat the first iteration twice
     }
 
     @Override
