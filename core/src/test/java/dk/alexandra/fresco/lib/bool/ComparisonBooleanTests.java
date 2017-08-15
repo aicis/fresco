@@ -131,36 +131,42 @@ public class ComparisonBooleanTests {
     }
   }
 
-  public static class TestGreaterThanUnequalLength extends TestThreadFactory {
+  /**
+   * Tests if the number 01010 > 01110 - then it reverses that.
+   *
+   * @author Kasper Damgaard
+   */
+  public static class TestGreaterThanUnequalLength<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, SequentialBinaryBuilder> {
+
     @Override
-    public TestThread next(TestThreadConfiguration conf) {
-      return new TestThread() {
+    public TestThread<ResourcePoolT, SequentialBinaryBuilder> next(
+        TestThreadConfiguration<ResourcePoolT, SequentialBinaryBuilder> conf) {
+      return new TestThread<ResourcePoolT, SequentialBinaryBuilder>() {
         @Override
         public void test() throws Exception {
-          /*
-           * boolean[] comp1 = new boolean[] {false, true, false, true, false}; boolean[] comp2 =
-           * new boolean[] {false, true, true};
-           * 
-           * TestBoolApplication app = new TestBoolApplication() {
-           * 
-           * private static final long serialVersionUID = 4338818809103728010L;
-           * 
-           * @Override public ProtocolProducer prepareApplication( BuilderFactory factory) {
-           * ProtocolFactory provider = factory.getProtocolFactory(); AbstractBinaryFactory prov =
-           * (AbstractBinaryFactory) provider; BasicLogicBuilder builder = new
-           * BasicLogicBuilder(prov);
-           * 
-           * SBool[] in1 = builder.knownSBool(comp1); SBool[] in2 = builder.knownSBool(comp2);
-           * 
-           * SBool compRes1 = builder.greaterThan(in1, in2); SBool compRes2 =
-           * builder.greaterThan(in2, in1);
-           * 
-           * this.outputs = new OBool[]{builder.output(compRes1), builder.output(compRes2)}; return
-           * builder.getProtocol(); } };
-           * 
-           * secureComputationEngine .runApplication(app,
-           * ResourcePoolCreator.createResourcePool(conf.sceConf));
-           */
+          boolean[] comp1 = new boolean[] {false, true, false, true, false};
+          boolean[] comp2 = new boolean[] {false, true, true};
+
+          Application<List<Boolean>, SequentialBinaryBuilder> app =
+              new Application<List<Boolean>, SequentialBinaryBuilder>() {
+
+            @Override
+            public Computation<List<Boolean>> prepareApplication(SequentialBinaryBuilder producer) {
+              return producer.seq(seq -> {
+                List<Computation<SBool>> in1 = seq.binary().known(comp1);
+                List<Computation<SBool>> in2 = seq.binary().known(comp2);
+                Computation<SBool> res1 = seq.comparison().greaterThan(in1, in2);
+                Computation<Boolean> open1 = seq.binary().open(res1);
+                return () -> Arrays.asList(open1);
+              }).seq((opened, seq) -> {
+                return () -> opened.stream().map(Computation::out).collect(Collectors.toList());
+              });
+            }
+          };
+
+          List<Boolean> res = secureComputationEngine.runApplication(app,
+              ResourcePoolCreator.createResourcePool(conf.sceConf));
         }
       };
     }

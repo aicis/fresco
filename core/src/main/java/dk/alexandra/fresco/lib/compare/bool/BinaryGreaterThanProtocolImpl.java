@@ -56,7 +56,7 @@ public class BinaryGreaterThanProtocolImpl implements ComputationBuilderBinary<S
       this.inB = inB;
       this.length = inA.size();
     } else {
-      throw new RuntimeException("Comparison failed: bitsize differs");
+      throw new IllegalArgumentException("Comparison failed: bitsize differs");
     }
   }
 
