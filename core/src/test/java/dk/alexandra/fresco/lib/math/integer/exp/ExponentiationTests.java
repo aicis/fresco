@@ -36,7 +36,7 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
-import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
+import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
 import java.util.List;
@@ -47,12 +47,13 @@ public class ExponentiationTests {
   /**
    * Test binary right shift of a shared secret.
    */
-  public static class TestExponentiation extends TestThreadFactory {
+  public static class TestExponentiation<ResourcePoolT extends ResourcePool> extends
+      TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     @Override
-    public TestThread next(TestThreadConfiguration conf) {
+    public TestThread next(TestThreadConfiguration<ResourcePoolT, ProtocolBuilderNumeric> conf) {
 
-      return new TestThread() {
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         private final BigInteger input = BigInteger.valueOf(12332157);
         private final int exp = 12;
 
@@ -69,8 +70,8 @@ public class ExponentiationTests {
             public Computation<List<BigInteger>> prepareApplication(
                 ProtocolBuilderNumeric producer) {
               NumericBuilder numeric = producer.numeric();
-              Computation<SInt> base = numeric.known(input);
-              Computation<SInt> exponent = numeric.known(BigInteger.valueOf(exp));
+              Computation<SInt> base = numeric.input(input, 1);
+              Computation<SInt> exponent = numeric.input(BigInteger.valueOf(exp), 1);
 
               Computation<SInt> result = producer.advancedNumeric().exp(
                   base, exponent, 5

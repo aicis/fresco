@@ -35,6 +35,7 @@ import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
+import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -43,15 +44,16 @@ import org.junit.Assert;
 
 public class SqrtTests {
 
-  public static class TestSquareRoot extends TestThreadFactory {
+  public static class TestSquareRoot<ResourcePoolT extends ResourcePool> extends
+      TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     @Override
-    public TestThread next(TestThreadConfiguration conf) {
+    public TestThread next(TestThreadConfiguration<ResourcePoolT, ProtocolBuilderNumeric> conf) {
 
-      return new TestThread() {
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
 
         private final int maxBitLength = 32;
-        private final BigInteger[] x = new BigInteger[] {BigInteger.valueOf(1234),
+        private final BigInteger[] x = new BigInteger[]{BigInteger.valueOf(1234),
             BigInteger.valueOf(12345), BigInteger.valueOf(123456), BigInteger.valueOf(1234567),
             BigInteger.valueOf(12345678), BigInteger.valueOf(123456789)};
         private final int n = x.length;
@@ -71,7 +73,7 @@ public class SqrtTests {
                     results = new ArrayList<>(n);
 
                     for (BigInteger input : x) {
-                      Computation<SInt> actualInput = numBuilder.known(input);
+                      Computation<SInt> actualInput = numBuilder.input(input, 1);
                       Computation<SInt> result =
                           builder.advancedNumeric().sqrt(actualInput, maxBitLength);
                       Computation<BigInteger> openResult = builder.numeric().open(result);

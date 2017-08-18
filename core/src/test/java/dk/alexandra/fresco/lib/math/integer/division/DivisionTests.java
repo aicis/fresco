@@ -39,7 +39,7 @@ import dk.alexandra.fresco.framework.builder.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
 import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
-import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
+import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.helper.SequentialProtocolProducer;
@@ -55,21 +55,19 @@ import org.junit.Assert;
  *
  * Can be reused by a test case for any protocol suite that implements the basic
  * field protocol factory.
- *
- * TODO: Generic tests should not reside in the runtime package. Rather in
- * mpc.lib or something.
  */
 public class DivisionTests {
 
   /**
    * Test Euclidian division
    */
-  public static class TestEuclidianDivision extends TestThreadFactory {
+  public static class TestEuclidianDivision<ResourcePoolT extends ResourcePool> extends
+      TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     @Override
-    public TestThread next(TestThreadConfiguration conf) {
+    public TestThread next(TestThreadConfiguration<ResourcePoolT, ProtocolBuilderNumeric> conf) {
 
-      return new TestThread() {
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         private final BigInteger x = new BigInteger("123978634193227335452345761");
         private final BigInteger d = new BigInteger("6543212341214412");
 
@@ -125,12 +123,13 @@ public class DivisionTests {
   /**
    * Test division with secret shared divisor
    */
-  public static class TestSecretSharedDivision extends TestThreadFactory {
+  public static class TestSecretSharedDivision<ResourcePoolT extends ResourcePool> extends
+      TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     @Override
-    public TestThread next(TestThreadConfiguration conf) {
+    public TestThread next(TestThreadConfiguration<ResourcePoolT, ProtocolBuilderNumeric> conf) {
 
-      return new TestThread() {
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         private final BigInteger[] x = new BigInteger[]{new BigInteger("1234567"),
             BigInteger.valueOf(1230121230), BigInteger.valueOf(313222110),
             BigInteger.valueOf(5111215), BigInteger.valueOf(6537)};
@@ -148,10 +147,10 @@ public class DivisionTests {
                 BuilderFactory factoryProducer) {
               return ProtocolBuilderNumeric
                   .createApplicationRoot((BuilderFactoryNumeric) factoryProducer, (builder) -> {
-                    NumericBuilder input = builder.numeric();
-                    Computation<SInt> divisor = input.known(d);
+                    NumericBuilder numericBuilder = builder.numeric();
+                    Computation<SInt> divisor = numericBuilder.input(d, 1);
                     for (BigInteger value : x) {
-                      Computation<SInt> dividend = input.known(value);
+                      Computation<SInt> dividend = numericBuilder.input(value, 1);
                       Computation<SInt> division = builder.advancedNumeric()
                           .div(dividend, divisor);
                       results.add(builder.numeric().open(division));

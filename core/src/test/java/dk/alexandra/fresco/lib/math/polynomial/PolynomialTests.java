@@ -38,7 +38,7 @@ import dk.alexandra.fresco.framework.builder.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
 import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
-import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
+import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.math.polynomial.evaluator.PolynomialEvaluator;
 import java.math.BigInteger;
@@ -47,58 +47,56 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.junit.Assert;
 
-public class PolynomialTests {
+public class PolynomialTests<ResourcePoolT extends ResourcePool> extends
+    TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
-  public static class TestPolynomialEvaluator extends TestThreadFactory {
+  @Override
+  public TestThread next(TestThreadConfiguration<ResourcePoolT, ProtocolBuilderNumeric> conf) {
 
-    @Override
-    public TestThread next(TestThreadConfiguration conf) {
+    return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+      private final int[] coefficients = {1, 0, 1, 2};
+      private final int x = 3;
 
-      return new TestThread() {
-        private final int[] coefficients = {1, 0, 1, 2};
-        private final int x = 3;
-
-        @Override
-        public void test() throws Exception {
-          TestApplication app = new TestApplication() {
+      @Override
+      public void test() throws Exception {
+        TestApplication app = new TestApplication() {
 
 
-            @Override
-            public ProtocolProducer prepareApplication(BuilderFactory provider) {
-              SequentialNumericBuilder root = ProtocolBuilderNumeric
-                  .createApplicationRoot((BuilderFactoryNumeric) provider);
+          @Override
+          public ProtocolProducer prepareApplication(BuilderFactory provider) {
+            SequentialNumericBuilder root = ProtocolBuilderNumeric
+                .createApplicationRoot((BuilderFactoryNumeric) provider);
 
-              NumericBuilder numeric = root.numeric();
-              List<Computation<SInt>> secretCoefficients =
-                  Arrays.stream(coefficients)
-                      .mapToObj(BigInteger::valueOf)
-                      .map(numeric::known)
-                      .collect(Collectors.toList());
+            NumericBuilder numeric = root.numeric();
+            List<Computation<SInt>> secretCoefficients =
+                Arrays.stream(coefficients)
+                    .mapToObj(BigInteger::valueOf)
+                    .map((n) -> numeric.input(n, 1))
+                    .collect(Collectors.toList());
 
-              PolynomialImpl polynomial = new PolynomialImpl(secretCoefficients);
-              Computation<SInt> secretX = numeric.known(BigInteger.valueOf(x));
+            PolynomialImpl polynomial = new PolynomialImpl(secretCoefficients);
+            Computation<SInt> secretX = numeric.input(BigInteger.valueOf(x), 1);
 
-              Computation<SInt> result = root
-                  .createSequentialSub(new PolynomialEvaluator(secretX, polynomial));
+            Computation<SInt> result = root
+                .createSequentialSub(new PolynomialEvaluator(secretX, polynomial));
 
-              outputs.add(numeric.open(result));
+            outputs.add(numeric.open(result));
 
-              return root.build();
-            }
-          };
-          secureComputationEngine
-              .runApplication(app, ResourcePoolCreator.createResourcePool(conf.sceConf));
-
-          int f = 0;
-          int power = 1;
-          for (int i = 0; i < coefficients.length; i++) {
-            f += coefficients[i] * power;
-            power *= x;
+            return root.build();
           }
-          BigInteger result = app.getOutputs()[0];
-          Assert.assertTrue(result.intValue() == f);
+        };
+        secureComputationEngine
+            .runApplication(app, ResourcePoolCreator.createResourcePool(conf.sceConf));
+
+        int f = 0;
+        int power = 1;
+        for (int coefficient : coefficients) {
+          f += coefficient * power;
+          power *= x;
         }
-      };
-    }
+        BigInteger result = app.getOutputs()[0];
+        Assert.assertTrue(result.intValue() == f);
+      }
+    };
   }
 }
