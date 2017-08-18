@@ -23,6 +23,7 @@ public abstract class ProtocolBuilderBinary implements ProtocolBuilder {
   private ComparisonBuilderBinary comparisonBuilderBinary;
   private BristolCryptoBuilder bristolCryptoBuilder;
   private BinaryBuilder binaryBuilder;
+  private BinaryUtilityBuilder utilityBuilder;
 
   private ProtocolBuilderBinary(BuilderFactoryBinary factory) {
     this.factory = factory;
@@ -66,6 +67,13 @@ public abstract class ProtocolBuilderBinary implements ProtocolBuilder {
       this.bristolCryptoBuilder = this.factory.createBristolCryptoBuilder(this);
     }
     return this.bristolCryptoBuilder;
+  }
+
+  public BinaryUtilityBuilder utility() {
+    if (this.utilityBuilder == null) {
+      this.utilityBuilder = this.factory.createUtilityBuilder(this);
+    }
+    return this.utilityBuilder;
   }
 
   public BuilderFactoryBinary getFactory() {

@@ -10,10 +10,13 @@ import dk.alexandra.fresco.lib.math.integer.division.DefaultAdvancedNumericBuild
 /**
  * The core factory to implement when creating a numeric protocol. Every subbuilder from this
  * factory must be builders and append to the supplied builder. Implementors must provide builders
- * for <ul> <li>simple, numeric operations (+, -, *)</li> <li>Open operations for opening a small
- * subset of values used in the control flow (is a<b)<</li> <li>Factories for producing secret
- * shared values</li> </ul> Other builders have defaults, based on the raw methods, but can be
- * overridden.
+ * for
+ * <ul>
+ * <li>simple, numeric operations (+, -, *)</li>
+ * <li>Open operations for opening a small subset of values used in the control flow (is a<b)<</li>
+ * <li>Factories for producing secret shared values</li>
+ * </ul>
+ * Other builders have defaults, based on the raw methods, but can be overridden.
  */
 public interface BuilderFactoryNumeric extends BuilderFactory<SequentialNumericBuilder> {
 
@@ -36,5 +39,9 @@ public interface BuilderFactoryNumeric extends BuilderFactory<SequentialNumericB
   @Override
   default SequentialNumericBuilder createProtocolBuilder() {
     return ProtocolBuilderNumeric.createApplicationRoot(this);
+  }
+
+  default UtilityBuilder createUtilityBuilder(ProtocolBuilderNumeric builder) {
+    return new DefaultUtilityBuilder(builder);
   }
 }

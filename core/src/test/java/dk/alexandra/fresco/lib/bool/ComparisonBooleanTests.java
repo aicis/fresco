@@ -220,47 +220,6 @@ public class ComparisonBooleanTests {
     }
   }
 
-
-  public static class TestBinaryEqual extends TestThreadFactory {
-    @Override
-    public TestThread next(TestThreadConfiguration conf) {
-      return new TestThread() {
-        @Override
-        public void test() throws Exception {
-          /*
-           * boolean[] comp1 = new boolean[] {false, true, false, true, false}; boolean[] comp2 =
-           * new boolean[] {false, true, true, true, false}; boolean[] comp3 = new boolean[] {false,
-           * true, true, true, false};
-           * 
-           * 
-           * TestBoolApplication app = new TestBoolApplication() {
-           * 
-           * private static final long serialVersionUID = 4338818809103728010L;
-           * 
-           * @Override public ProtocolProducer prepareApplication( BuilderFactory factory) {
-           * ProtocolFactory provider = factory.getProtocolFactory(); AbstractBinaryFactory prov =
-           * (AbstractBinaryFactory) provider; BasicLogicBuilder builder = new
-           * BasicLogicBuilder(prov);
-           * 
-           * SBool[] in1 = builder.knownSBool(comp1); SBool[] in2 = builder.knownSBool(comp2);
-           * SBool[] in3 = builder.knownSBool(comp3);
-           * 
-           * SBool compRes1 = builder.equality(in1, in2); SBool compRes2 = builder.equality(in2,
-           * in3);
-           * 
-           * this.outputs = new OBool[]{builder.output(compRes1), builder.output(compRes2)}; return
-           * builder.getProtocol(); } };
-           * 
-           * secureComputationEngine .runApplication(app,
-           * ResourcePoolCreator.createResourcePool(conf.sceConf));
-           * 
-           * Assert.assertEquals(false, app.getOutputs()[0].getValue()); Assert.assertEquals(true,
-           * app.getOutputs()[1].getValue());
-           */ }
-      };
-    }
-  }
-
   public static class TestBinaryEqualBasicProtocol extends TestThreadFactory {
     @Override
     public TestThread next(TestThreadConfiguration conf) {

@@ -30,6 +30,7 @@ import dk.alexandra.fresco.lib.bool.BasicBooleanTests;
 import dk.alexandra.fresco.lib.bool.ComparisonBooleanTests;
 import dk.alexandra.fresco.lib.collections.sort.CollectionsSortingTests;
 import dk.alexandra.fresco.lib.crypto.BristolCryptoTests;
+import dk.alexandra.fresco.lib.debug.BinaryDebugTests;
 import dk.alexandra.fresco.lib.field.bool.generic.FieldBoolTests;
 import dk.alexandra.fresco.lib.math.bool.add.AddTests;
 import dk.alexandra.fresco.lib.math.bool.log.LogTests;
@@ -242,10 +243,10 @@ public class TestDummyProtocolSuite<ResourcePoolT extends ResourcePool>
     // runTest(new CompareTests.TestCompareAndSwap(), EvaluationStrategy.SEQUENTIAL);
   }
 
-  // TODO Utilbuilder is gone
   @Test
   public void test_Debug_Marker() throws Exception {
-    // runTest(new DebugTests.TestOpenAndPrint(), EvaluationStrategy.SEQUENTIAL_BATCHED);
+    runTest(new BinaryDebugTests.TestBinaryOpenAndPrint<ResourcePoolT>(),
+        EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET);
   }
 
 

@@ -29,15 +29,17 @@ import dk.alexandra.fresco.framework.TestThreadRunner;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
+import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary.SequentialBinaryBuilder;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.TestConfiguration;
 import dk.alexandra.fresco.framework.network.NetworkingStrategy;
 import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.configuration.TestSCEConfiguration;
 import dk.alexandra.fresco.framework.sce.evaluator.SequentialEvaluator;
+import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
 import dk.alexandra.fresco.framework.util.ByteArithmetic;
 import dk.alexandra.fresco.suite.ProtocolSuite;
-import dk.alexandra.fresco.suite.dummy.bool.DummyProtocolSuite;
+import dk.alexandra.fresco.suite.dummy.bool.DummyBooleanProtocolSuite;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -61,25 +63,28 @@ public class TestAESDemo {
         TestConfiguration.getNetworkConfigurations(noPlayers, ports);
     Map<Integer, TestThreadConfiguration> conf = new HashMap<Integer, TestThreadConfiguration>();
     for (int playerId : netConf.keySet()) {
-      TestThreadConfiguration<?, ?> ttc = new TestThreadConfiguration();
+      TestThreadConfiguration<ResourcePoolImpl, SequentialBinaryBuilder> ttc =
+          new TestThreadConfiguration<ResourcePoolImpl, SequentialBinaryBuilder>();
       ttc.netConf = netConf.get(playerId);
-      ProtocolSuite<?, ?> suite = new DummyProtocolSuite();
-      ProtocolEvaluator<?> evaluator = new SequentialEvaluator();
+      ProtocolSuite<ResourcePoolImpl, SequentialBinaryBuilder> suite =
+          new DummyBooleanProtocolSuite();
+      ProtocolEvaluator<ResourcePoolImpl> evaluator = new SequentialEvaluator<ResourcePoolImpl>();
       boolean useSecureConnection = false;
-      ttc.sceConf = new TestSCEConfiguration(suite, NetworkingStrategy.KRYONET, evaluator,
-          ttc.netConf, useSecureConnection);
+      ttc.sceConf = new TestSCEConfiguration<ResourcePoolImpl, SequentialBinaryBuilder>(suite,
+          NetworkingStrategy.KRYONET, evaluator, ttc.netConf, useSecureConnection);
       conf.put(playerId, ttc);
     }
 
-    TestThreadFactory f = new TestThreadFactory() {
+    TestThreadFactory f = new TestThreadFactory<ResourcePoolImpl, SequentialBinaryBuilder>() {
       @Override
-      public TestThread next(TestThreadConfiguration conf) {
-        return new TestThread() {
+      public TestThread<ResourcePoolImpl, SequentialBinaryBuilder> next(
+          TestThreadConfiguration<ResourcePoolImpl, SequentialBinaryBuilder> conf) {
+        return new TestThread<ResourcePoolImpl, SequentialBinaryBuilder>() {
 
           @Override
           public void test() throws Exception {
 
-            boolean[] input = null;
+            Boolean[] input = null;
             if (conf.netConf.getMyId() == 2) {
               // 128-bit AES plaintext block
               input = ByteArithmetic.toBoolean("00112233445566778899aabbccddeeff");
@@ -90,14 +95,15 @@ public class TestAESDemo {
 
             AESDemo app = new AESDemo(conf.netConf.getMyId(), input);
 
-            secureComputationEngine.runApplication(app,
+            List<Boolean> aesResult = secureComputationEngine.runApplication(app,
                 ResourcePoolCreator.createResourcePool(conf.sceConf));
 
             // Verify output state.
             String expected = "69c4e0d86a7b0430d8cdb78070b4c55a"; // expected cipher
-            boolean[] actualBoolean = new boolean[app.result.length];
-            for (int i = 0; i < app.result.length; i++) {
-              actualBoolean[i] = app.result[i].getValue();
+            boolean[] actualBoolean = new boolean[aesResult.size()];
+            int i = 0;
+            for (Boolean b : aesResult) {
+              actualBoolean[i++] = b;
             }
             String actual = ByteArithmetic.toHex(actualBoolean);
             Assert.assertEquals(expected, actual);
