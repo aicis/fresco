@@ -43,6 +43,7 @@ import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.collections.LinearLookUp;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.helper.SequentialProtocolProducer;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Random;
 import org.junit.Assert;
@@ -91,11 +92,15 @@ public class SearchingTests {
             TestApplication app1 = new TestApplication() {
               @Override
               public ProtocolProducer prepareApplication(BuilderFactory factoryProducer) {
-                LinearLookUp linearLookUp = new LinearLookUp(
-                    sKeys.get(counter), sKeys, sValues, NOTFOUND);
                 SequentialNumericBuilder applicationRoot = ProtocolBuilderNumeric
                     .createApplicationRoot((BuilderFactoryNumeric) factoryProducer);
-                applicationRoot.seq(linearLookUp)
+                applicationRoot
+                    .seq((seq) -> seq.numeric().known(BigInteger.valueOf(NOTFOUND)))
+                    .seq((notFound, seq) -> {
+                      LinearLookUp function =
+                          new LinearLookUp(sKeys.get(counter), sKeys, sValues, notFound);
+                      return seq.createSequentialSub(function);
+                    })
                     .seq((out, seq) -> {
                       this.outputs.add(seq.numeric().open(() -> out));
                       return () -> out;

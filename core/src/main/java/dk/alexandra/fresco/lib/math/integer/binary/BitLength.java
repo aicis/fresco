@@ -28,6 +28,7 @@ package dk.alexandra.fresco.lib.math.integer.binary;
 
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.builder.ComputationBuilder;
+import dk.alexandra.fresco.framework.builder.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
@@ -60,30 +61,28 @@ public class BitLength implements ComputationBuilder<SInt> {
       return seq.advancedNumeric()
           .rightShiftWithRemainder(input, maxBitLength);
     }).seq((rightShiftResult, seq) -> {
-      Computation<SInt> mostSignificantBitIndex = seq.numeric()
-          .known(BigInteger.valueOf(0));
+      Computation<SInt> mostSignificantBitIndex = null;
+      NumericBuilder numeric = seq.numeric();
       for (int n = 0; n < maxBitLength; n++) {
-        Computation<SInt> currentIndex = seq.numeric().known(BigInteger.valueOf(n));
       /*
        * If bits[n] == 1 we let mostSignificantIndex be current index.
 			 * Otherwise we leave it be.
 			 */
         SInt remainderResult = rightShiftResult.getRemainder().get(n);
-        mostSignificantBitIndex =
-            seq.numeric().add(
-                seq.numeric().mult(
-                    () -> remainderResult,
-                    seq.numeric().sub(currentIndex, mostSignificantBitIndex)
-                ),
-                mostSignificantBitIndex);
+        if (mostSignificantBitIndex == null) {
+          mostSignificantBitIndex = numeric.mult(BigInteger.valueOf(n), () -> remainderResult);
+        } else {
+          Computation<SInt> sub = numeric.sub(BigInteger.valueOf(n), mostSignificantBitIndex);
+          Computation<SInt> mult = numeric.mult(() -> remainderResult, sub);
+          mostSignificantBitIndex = numeric.add(mult, mostSignificantBitIndex);
+        }
       }
     /*
      * We are interested in the bit length of the input, so we add one to
 		 * the index of the most significant bit since the indices are counted
 		 * from 0.
 		 */
-      return seq.numeric()
-          .add(BigInteger.ONE, mostSignificantBitIndex);
+      return numeric.add(BigInteger.ONE, mostSignificantBitIndex);
     });
   }
 }

@@ -46,12 +46,11 @@ public class ExponentiationOpenExponent implements ComputationBuilder<SInt> {
   @Override
   public Computation<SInt> build(SequentialNumericBuilder builder) {
     if (exponent.equals(BigInteger.ZERO)) {
-      return builder.numeric().known(BigInteger.valueOf(1));
+      throw new RuntimeException("Now why would you exponentiate a SInt with 0?");
     }
     return builder.seq((seq) -> {
-      Computation<SInt> accOdd = seq.numeric().known(BigInteger.valueOf(1));
       Computation<SInt> accEven = base;
-      return new IterationState(exponent, accEven, accOdd);
+      return new IterationState(exponent, accEven, null);
     }).whileLoop(
         iterationState -> !iterationState.exponent.equals(BigInteger.ONE),
         (iterationState, seq) -> {
@@ -60,7 +59,11 @@ public class ExponentiationOpenExponent implements ComputationBuilder<SInt> {
           Computation<SInt> accOdd = iterationState.accOdd;
           NumericBuilder numeric = seq.numeric();
           if (exponent.getLowestSetBit() == 0) {
-            accOdd = numeric.mult(accOdd, accEven);
+            if (accOdd == null) {
+              accOdd = accEven;
+            } else {
+              accOdd = numeric.mult(accOdd, accEven);
+            }
             accEven = numeric.mult(accEven, accEven);
             exponent = exponent.subtract(BigInteger.ONE).shiftRight(1);
           } else {

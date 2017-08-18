@@ -7,7 +7,6 @@ import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.helper.SimpleProtocolProducer;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,9 +38,13 @@ public class InnerProductNewApi extends SimpleProtocolProducer implements Comput
           }
           return () -> temp;
         }).seq((addents, subSeq) -> {
-          Computation<SInt> c = subSeq.numeric().known(BigInteger.valueOf(0));
+          Computation<SInt> c = null;
           for (Computation<SInt> aTemp : addents) {
-            c = subSeq.numeric().add(c, aTemp);
+            if (c == null) {
+              c = aTemp;
+            } else {
+              c = subSeq.numeric().add(c, aTemp);
+            }
           }
           return c;
         })
