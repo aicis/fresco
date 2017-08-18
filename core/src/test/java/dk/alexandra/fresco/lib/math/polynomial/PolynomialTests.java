@@ -47,56 +47,59 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.junit.Assert;
 
-public class PolynomialTests<ResourcePoolT extends ResourcePool> extends
-    TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+public class PolynomialTests {
 
-  @Override
-  public TestThread next(TestThreadConfiguration<ResourcePoolT, ProtocolBuilderNumeric> conf) {
+  public static class TestPolynomialEvaluator<ResourcePoolT extends ResourcePool> extends
+      TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
-    return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
-      private final int[] coefficients = {1, 0, 1, 2};
-      private final int x = 3;
+    @Override
+    public TestThread next(TestThreadConfiguration<ResourcePoolT, ProtocolBuilderNumeric> conf) {
 
-      @Override
-      public void test() throws Exception {
-        TestApplication app = new TestApplication() {
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+        private final int[] coefficients = {1, 0, 1, 2};
+        private final int x = 3;
+
+        @Override
+        public void test() throws Exception {
+          TestApplication app = new TestApplication() {
 
 
-          @Override
-          public ProtocolProducer prepareApplication(BuilderFactory provider) {
-            SequentialNumericBuilder root = ProtocolBuilderNumeric
-                .createApplicationRoot((BuilderFactoryNumeric) provider);
+            @Override
+            public ProtocolProducer prepareApplication(BuilderFactory provider) {
+              SequentialNumericBuilder root = ProtocolBuilderNumeric
+                  .createApplicationRoot((BuilderFactoryNumeric) provider);
 
-            NumericBuilder numeric = root.numeric();
-            List<Computation<SInt>> secretCoefficients =
-                Arrays.stream(coefficients)
-                    .mapToObj(BigInteger::valueOf)
-                    .map((n) -> numeric.input(n, 1))
-                    .collect(Collectors.toList());
+              NumericBuilder numeric = root.numeric();
+              List<Computation<SInt>> secretCoefficients =
+                  Arrays.stream(coefficients)
+                      .mapToObj(BigInteger::valueOf)
+                      .map((n) -> numeric.input(n, 1))
+                      .collect(Collectors.toList());
 
-            PolynomialImpl polynomial = new PolynomialImpl(secretCoefficients);
-            Computation<SInt> secretX = numeric.input(BigInteger.valueOf(x), 1);
+              PolynomialImpl polynomial = new PolynomialImpl(secretCoefficients);
+              Computation<SInt> secretX = numeric.input(BigInteger.valueOf(x), 1);
 
-            Computation<SInt> result = root
-                .createSequentialSub(new PolynomialEvaluator(secretX, polynomial));
+              Computation<SInt> result = root
+                  .createSequentialSub(new PolynomialEvaluator(secretX, polynomial));
 
-            outputs.add(numeric.open(result));
+              outputs.add(numeric.open(result));
 
-            return root.build();
+              return root.build();
+            }
+          };
+          secureComputationEngine
+              .runApplication(app, ResourcePoolCreator.createResourcePool(conf.sceConf));
+
+          int f = 0;
+          int power = 1;
+          for (int coefficient : coefficients) {
+            f += coefficient * power;
+            power *= x;
           }
-        };
-        secureComputationEngine
-            .runApplication(app, ResourcePoolCreator.createResourcePool(conf.sceConf));
-
-        int f = 0;
-        int power = 1;
-        for (int coefficient : coefficients) {
-          f += coefficient * power;
-          power *= x;
+          BigInteger result = app.getOutputs()[0];
+          Assert.assertTrue(result.intValue() == f);
         }
-        BigInteger result = app.getOutputs()[0];
-        Assert.assertTrue(result.intValue() == f);
-      }
-    };
+      };
+    }
   }
 }
