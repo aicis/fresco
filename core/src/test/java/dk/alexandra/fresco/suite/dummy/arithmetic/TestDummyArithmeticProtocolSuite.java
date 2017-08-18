@@ -6,6 +6,8 @@ import dk.alexandra.fresco.lib.arithmetic.BasicArithmeticTests;
 import dk.alexandra.fresco.lib.arithmetic.ComparisonTests;
 import dk.alexandra.fresco.lib.arithmetic.LogicTests;
 import dk.alexandra.fresco.lib.arithmetic.SortingTests;
+import dk.alexandra.fresco.lib.collections.io.CloseListTests;
+import dk.alexandra.fresco.lib.collections.io.CloseMatrixTests;
 import dk.alexandra.fresco.lib.math.integer.division.DivisionTests;
 import dk.alexandra.fresco.lib.math.integer.sqrt.SqrtTests;
 import dk.alexandra.fresco.lib.math.integer.stat.StatisticsTests;
@@ -15,31 +17,31 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
 
   @Test
   public void test_Input_Sequential() throws Exception {
-    runTest(new BasicArithmeticTests.TestInput(), EvaluationStrategy.SEQUENTIAL,
+    runTest(new BasicArithmeticTests.TestInput<>(), EvaluationStrategy.SEQUENTIAL,
         NetworkingStrategy.KRYONET, 2);
   }
 
   @Test
   public void test_OutputToTarget_Sequential() throws Exception {
-    runTest(new BasicArithmeticTests.TestOutputToSingleParty(), EvaluationStrategy.SEQUENTIAL,
+    runTest(new BasicArithmeticTests.TestOutputToSingleParty<>(), EvaluationStrategy.SEQUENTIAL,
         NetworkingStrategy.KRYONET, 2);
   }
 
   @Test
   public void test_AddPublicValue_Sequential() throws Exception {
-    runTest(new BasicArithmeticTests.TestAddPublicValue(), EvaluationStrategy.SEQUENTIAL,
+    runTest(new BasicArithmeticTests.TestAddPublicValue<>(), EvaluationStrategy.SEQUENTIAL,
         NetworkingStrategy.KRYONET, 2);
   }
 
   @Test
   public void test_MultAndAdd_Sequential() throws Exception {
-    runTest(new BasicArithmeticTests.TestSimpleMultAndAdd(), EvaluationStrategy.SEQUENTIAL,
+    runTest(new BasicArithmeticTests.TestSimpleMultAndAdd<>(), EvaluationStrategy.SEQUENTIAL,
         NetworkingStrategy.KRYONET, 2);
   }
 
   @Test
   public void test_Sum_And_Output_Sequential() throws Exception {
-    runTest(new BasicArithmeticTests.TestSumAndMult(), EvaluationStrategy.SEQUENTIAL,
+    runTest(new BasicArithmeticTests.TestSumAndMult<>(), EvaluationStrategy.SEQUENTIAL,
         NetworkingStrategy.KRYONET, 2);
   }
 
@@ -47,13 +49,13 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
 
   @Test
   public void test_MinInfFrac_Sequential() throws Exception {
-    runTest(new BasicArithmeticTests.TestMinInfFrac(), EvaluationStrategy.SEQUENTIAL,
+    runTest(new BasicArithmeticTests.TestMinInfFrac<>(), EvaluationStrategy.SEQUENTIAL,
         NetworkingStrategy.KRYONET, 2);
   }
 
   @Test
   public void test_MinInfFrac_SequentialBatched() throws Exception {
-    runTest(new BasicArithmeticTests.TestMinInfFrac(), EvaluationStrategy.SEQUENTIAL_BATCHED,
+    runTest(new BasicArithmeticTests.TestMinInfFrac<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
         NetworkingStrategy.KRYONET, 2);
   }
 
@@ -70,32 +72,8 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
   }
 
   @Test
-  public void test_isSorted() throws Exception {
-    runTest(new SortingTests.TestIsSorted(), EvaluationStrategy.SEQUENTIAL,
-        NetworkingStrategy.KRYONET, 2);
-  }
-
-  @Test
-  public void test_compareAndSwap() throws Exception {
-    runTest(new SortingTests.TestCompareAndSwap(), EvaluationStrategy.SEQUENTIAL,
-        NetworkingStrategy.KRYONET, 2);
-  }
-
-  @Test
-  public void test_Sort() throws Exception {
-    runTest(new SortingTests.TestSort(), EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET,
-        2);
-  }
-
-  @Test
-  public void test_Big_Sort() throws Exception {
-    runTest(new SortingTests.TestBigSort(), EvaluationStrategy.SEQUENTIAL,
-        NetworkingStrategy.KRYONET, 2);
-  }
-
-  @Test
   public void test_logic() throws Exception {
-    runTest(new LogicTests.TestLogic(), EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET,
+    runTest(new LogicTests.TestLogic<>(), EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET,
         2);
   }
 
@@ -133,5 +111,53 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
         NetworkingStrategy.KRYONET, 3);
   }
 
+  // Collections
 
+  @Test
+  public void test_close_empty_list() throws Exception {
+    runTest(new CloseListTests.TestCloseEmptyList<>(), EvaluationStrategy.SEQUENTIAL,
+        NetworkingStrategy.SCAPI, 2);
+  }
+
+  @Test
+  public void test_close_list() throws Exception {
+    runTest(new CloseListTests.TestCloseEmptyList<>(), EvaluationStrategy.SEQUENTIAL,
+        NetworkingStrategy.SCAPI, 2);
+  }
+
+  @Test
+  public void test_close_empty_matrix() throws Exception {
+    runTest(new CloseMatrixTests.TestCloseEmptyMatrix<>(), EvaluationStrategy.SEQUENTIAL,
+        NetworkingStrategy.SCAPI, 2);
+  }
+
+  @Test
+  public void test_close_matrix() throws Exception {
+    runTest(new CloseMatrixTests.TestCloseAndOpenMatrix<>(), EvaluationStrategy.SEQUENTIAL,
+        NetworkingStrategy.SCAPI, 2);
+  }
+
+  @Test
+  public void test_isSorted() throws Exception {
+    runTest(new SortingTests.TestIsSorted<>(), EvaluationStrategy.SEQUENTIAL,
+        NetworkingStrategy.KRYONET, 2);
+  }
+
+  @Test
+  public void test_compareAndSwap() throws Exception {
+    runTest(new SortingTests.TestCompareAndSwap<>(), EvaluationStrategy.SEQUENTIAL,
+        NetworkingStrategy.KRYONET, 2);
+  }
+
+  @Test
+  public void test_Sort() throws Exception {
+    runTest(new SortingTests.TestSort<>(), EvaluationStrategy.SEQUENTIAL,
+        NetworkingStrategy.KRYONET, 2);
+  }
+
+  @Test
+  public void test_Big_Sort() throws Exception {
+    runTest(new SortingTests.TestBigSort<>(), EvaluationStrategy.SEQUENTIAL,
+        NetworkingStrategy.KRYONET, 2);
+  }
 }
