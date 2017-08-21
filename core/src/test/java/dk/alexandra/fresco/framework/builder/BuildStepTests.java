@@ -46,17 +46,18 @@ public class BuildStepTests extends AbstractDummyArithmeticTest {
         public void test() throws Exception {
           // define functionality to be tested
           Application<List<Integer>, SequentialNumericBuilder> testApplication = root -> {
-            List<Integer> rounds = new ArrayList<>();
             return root.seq(seq -> {
               // initiate loop
-              return new IterationState(0);
+              return new IterationState(0, new ArrayList<>());
             }).whileLoop(
                 // iterate
-                (state) -> state.round < numIterations, (state, seq) -> {
-                  rounds.add(state.round);
-                  return new IterationState(state.round + 1);
+                (state) -> state.round < numIterations, 
+                (state, seq) -> {
+                  List<Integer> roundsSoFar = state.rounds;
+                  roundsSoFar.add(state.round);
+                  return new IterationState(state.round + 1, roundsSoFar);
                 }).seq((state, seq) -> {
-                  return () -> rounds;
+                  return () -> state.rounds;
                 });
           };
           List<Integer> actual = secureComputationEngine.runApplication(testApplication,
@@ -70,9 +71,11 @@ public class BuildStepTests extends AbstractDummyArithmeticTest {
   private static final class IterationState implements Computation<IterationState> {
 
     private final int round;
+    private final List<Integer> rounds;
 
-    private IterationState(int round) {
+    private IterationState(int round, List<Integer> rounds) {
       this.round = round;
+      this.rounds = rounds;
     }
 
     @Override
