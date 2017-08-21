@@ -58,8 +58,8 @@ class BuildStepLooping<InputT> extends
       isDone = false;
       doneWithOwn = false;
       currentProducer = null;
-      updateToNextProducer(input);
       currentResult = () -> input;
+      updateToNextProducer(input);
     }
 
     @Override
