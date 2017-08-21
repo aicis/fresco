@@ -59,7 +59,6 @@ class BuildStepLooping<InputT> extends
       doneWithOwn = false;
       currentProducer = null;
       updateToNextProducer(input);
-      currentResult = () -> input;
     }
 
     @Override
@@ -83,6 +82,7 @@ class BuildStepLooping<InputT> extends
           currentProducer = builder.build();
         } else {
           doneWithOwn = true;
+          currentResult = () -> input;
           if (next != null) {
             currentProducer = next.createProducer(input, factory);
             next = null;
