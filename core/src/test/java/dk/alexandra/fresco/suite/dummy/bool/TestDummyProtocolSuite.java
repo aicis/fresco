@@ -254,10 +254,4 @@ public class TestDummyProtocolSuite extends AbstractDummyBooleanTest {
         NetworkingStrategy.KRYONET);
   }
 
-  @Test
-  public void test_Binary_Log_Bad_length() throws Exception {
-    runTest(new LogTests.TestLogBadLength(), EvaluationStrategy.SEQUENTIAL_BATCHED,
-        NetworkingStrategy.KRYONET);
-  }
-
 }

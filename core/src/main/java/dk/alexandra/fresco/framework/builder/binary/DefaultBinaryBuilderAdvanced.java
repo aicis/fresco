@@ -16,6 +16,7 @@ import dk.alexandra.fresco.lib.math.bool.add.BitIncrementerProtocolImpl;
 import dk.alexandra.fresco.lib.math.bool.add.FullAdderProtocolImpl;
 import dk.alexandra.fresco.lib.math.bool.add.OneBitFullAdderProtocolImpl;
 import dk.alexandra.fresco.lib.math.bool.add.OneBitHalfAdderProtocolImpl;
+import dk.alexandra.fresco.lib.math.bool.log.LogProtocolImpl;
 import dk.alexandra.fresco.lib.math.bool.mult.BinaryMultProtocolImpl;
 
 import java.util.List;
@@ -112,8 +113,8 @@ public class DefaultBinaryBuilderAdvanced implements BinaryBuilderAdvanced {
   }
 
   @Override
-  public List<Computation<SBool>> logProtocol(List<Computation<SBool>> number) {
-    return null;//return new LogProtocolImpl(number, result, this);
+  public Computation<List<Computation<SBool>>> logProtocol(List<Computation<SBool>> number) {
+    return builder.createSequentialSub(new LogProtocolImpl(number));
   }
 
   /**

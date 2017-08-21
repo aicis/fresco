@@ -89,19 +89,14 @@ public class MultTests {
             Application<List<Boolean>, ProtocolBuilderBinary> app =
                 new Application<List<Boolean>, ProtocolBuilderBinary>() {
                 
-                  public List<Computation<Boolean>> outputs = new ArrayList<>();
                   @Override
                   public Computation<List<Boolean>> prepareApplication(
                       ProtocolBuilderBinary producer) {
-                    
-                    List<Computation<Pair<SBool, SBool>>> data = new ArrayList<Computation<Pair<SBool, SBool>>>();
                     
                     SequentialBinaryBuilder builder = (SequentialBinaryBuilder)producer;
                     
                     return builder.seq( seq -> {
                       DefaultBinaryBuilderAdvanced prov = new DefaultBinaryBuilderAdvanced(seq);
-                      Computation<SBool> carry = seq.binary().known(true);
-                      
                       List<Computation<SBool>> first = rawFirst.stream().map(seq.binary()::known)
                           .collect(Collectors.toList());
                       List<Computation<SBool>> second = rawSecond.stream().map(seq.binary()::known)
@@ -135,67 +130,3 @@ public class MultTests {
     }
   }
 }
- /*    @Override
-    public TestThread<ResourcePoolT, ProtocolBuilderBinary> next(
-        TestThreadConfiguration<ResourcePoolT, ProtocolBuilderBinary> conf) {
-      return new TestThread<ResourcePoolT, ProtocolBuilderBinary>() {
-        @Override
-        public void test() throws Exception {
-  /*        List<Boolean> rawFirst = Arrays.asList(ByteArithmetic.toBoolean("11ff"));
-          List<Boolean> rawSecond = Arrays.asList(ByteArithmetic.toBoolean("22"));
-          
-          TestBoolApplication app = new TestBoolApplication() {
-//
-            @Override
-            public ProtocolProducer prepareApplication(BuilderFactory factoryProducer) {
-              ProtocolFactory producer = factoryProducer.getProtocolFactory();
-              AbstractBinaryFactory fac = (AbstractBinaryFactory) producer;
-              BasicLogicBuilder ioBuilder = new BasicLogicBuilder(fac);
-              
-              //SBool[] first = ioBuilder.knownSBool(rawFirst);              
-              //SBool[] second = ioBuilder.knownSBool(rawSecond);
-              
-
-              SequentialBinaryBuilder seq = ProtocolBuilderBinary
-                  .createApplicationRoot(fac);
-              
-              List<Computation<SBool>> first  = rawFirst.stream().map(ioBuilder::knownSBool).collect(Collectors.toList());
-
-              seq.seq(new MinInfFrac(ns, ds, infs)).seq((infOutput, seq2) -> {
-                NumericBuilder innerNumeric = seq2.numeric();
-                List<Computation<BigInteger>> collect =
-                    infOutput.cs.stream().map(innerNumeric::open).collect(Collectors.toList());
-                return () -> collect;
-              }).seq((outputList, ignored) -> {
-                outputs = outputList;
-                return () -> null;
-              });
-              return seq.build();
-            }
-          };
-*/
-              
-  /*            
-              Computation<Boolean> output = ioBuilder.output(fac.getBinaryMultProtocol(lefts, rights, outs)(first, second));
-
-              this.outputs.add(output);
-              return ioBuilder.getProtocol();
-            }
-          };
-*/
-          
-//          secureComputationEngine.runApplication(app, ResourcePoolCreator
-//              .createResourcePool(conf.sceConf));
-
-          //Assert.assertEquals(BigInteger.valueOf(10), app.getOutputs()[0]);
-//          Assert.assertThat(app.getOutputs()[app.getOutputs().length-1], Is.is(false));    
-//          Assert.assertThat(ByteArithmetic.toHex(app.getOutputs()), Is.is("0263de"));
-/*        }
-      };
-    }
-  }
-    
-  private Boolean[] convert(List<Boolean> outputs) {
-    return outputs.toArray(new Boolean[1]);
-  }
-}*/

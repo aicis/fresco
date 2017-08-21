@@ -112,7 +112,7 @@ public interface BinaryBuilderAdvanced {
    * @param number The number to compute log_2 on.
    * @return An array containing the log_2(number).
    */
-  List<Computation<SBool>> logProtocol(List<Computation<SBool>> number);
+  Computation<List<Computation<SBool>>> logProtocol(List<Computation<SBool>> number);
 
 
 }
