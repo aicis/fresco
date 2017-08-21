@@ -30,8 +30,9 @@ import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.ParallelNumericBuilder;
 import dk.alexandra.fresco.framework.value.SInt;
+import dk.alexandra.fresco.lib.collections.Matrix;
 import dk.alexandra.fresco.lib.lp.LPTableau;
-import dk.alexandra.fresco.lib.lp.Matrix;
+
 import java.io.IOException;
 import java.math.BigInteger;
 import java.util.ArrayList;
