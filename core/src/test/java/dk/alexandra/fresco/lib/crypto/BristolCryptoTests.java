@@ -3,48 +3,42 @@
  *
  * This file is part of the FRESCO project.
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
  *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *
- * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
- * and Bouncy Castle. Please see these projects for any further licensing issues.
+ * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL, and Bouncy Castle.
+ * Please see these projects for any further licensing issues.
  *******************************************************************************/
 package dk.alexandra.fresco.lib.crypto;
 
 import static org.junit.Assert.assertTrue;
 
 import dk.alexandra.fresco.framework.Application;
-import dk.alexandra.fresco.framework.BuilderFactory;
-import dk.alexandra.fresco.framework.NativeProtocol;
-import dk.alexandra.fresco.framework.ProtocolProducer;
-import dk.alexandra.fresco.framework.TestBoolApplication;
+import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
+import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
+import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary.SequentialBinaryBuilder;
 import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
-import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
+import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SBool;
-import dk.alexandra.fresco.lib.field.bool.BasicLogicFactory;
-import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
-import dk.alexandra.fresco.lib.helper.SequentialProtocolProducer;
-import dk.alexandra.fresco.lib.helper.bristol.BristolCircuit;
-
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -81,10 +75,9 @@ public class BristolCryptoTests {
   @Test
   public void testToBoolean() throws Exception {
     boolean[] res = toBoolean("2b7e151628aed2a6abf7158809cf4f3c");
-    assertTrue(
-        Arrays.equals(
-            new boolean[]{false, false, true, false, true, false, true, true, false, true, true,
-                true}, Arrays.copyOf(res, 12)));
+    assertTrue(Arrays.equals(
+        new boolean[] {false, false, true, false, true, false, true, true, false, true, true, true},
+        Arrays.copyOf(res, 12)));
   }
 
 
@@ -93,76 +86,64 @@ public class BristolCryptoTests {
    *
    * TODO: Include more FIPS test vectors.
    */
-  public static class AesTest extends TestThreadFactory {
-
-    private boolean assertAsExpected;
-
-    public AesTest(boolean assertAsExpected) {
-      this.assertAsExpected = assertAsExpected;
-    }
+  public static class AesTest<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, SequentialBinaryBuilder> {
 
     @Override
-    public TestThread next(TestThreadConfiguration conf) {
-      return new TestThread() {
+    public TestThread<ResourcePoolT, SequentialBinaryBuilder> next(
+        TestThreadConfiguration<ResourcePoolT, SequentialBinaryBuilder> conf) {
+      return new TestThread<ResourcePoolT, SequentialBinaryBuilder>() {
 
         // This is just some fixed test vectors for AES in ECB mode that was
         // found somewhere on the net, i.e., this is some known plaintexts and
         // corresponding cipher texts that can be used for testing.
-        final String[] keyVec = new String[]{"000102030405060708090a0b0c0d0e0f"};
+        final String[] keyVec = new String[] {"000102030405060708090a0b0c0d0e0f"};
         final String plainVec = "00112233445566778899aabbccddeeff";
-        final String[] cipherVec = new String[]{"69c4e0d86a7b0430d8cdb78070b4c55a"};
-
-        SBool[] plain, key, cipher;
-   //     OBool[] openedCipher;
+        final String[] cipherVec = new String[] {"69c4e0d86a7b0430d8cdb78070b4c55a"};
 
         @Override
         public void test() throws Exception {
-     /*     Application aesApp = new TestBoolApplication() {
-
+          Application<List<Boolean>, SequentialBinaryBuilder> multApp =
+              new Application<List<Boolean>, ProtocolBuilderBinary.SequentialBinaryBuilder>() {
 
             @Override
-            public ProtocolProducer prepareApplication(BuilderFactory fac) {
-              AbstractBinaryFactory prov = (AbstractBinaryFactory) fac.getProtocolFactory();
-              BasicLogicBuilder builder = new BasicLogicBuilder(prov);
+            public Computation<List<Boolean>> prepareApplication(
+                ProtocolBuilderBinary.SequentialBinaryBuilder producer) {
+              return producer.seq(seq -> {
+                List<Computation<SBool>> plainText = seq.binary().known(toBoolean(plainVec));
+                List<Computation<SBool>> key = seq.binary().known(toBoolean(keyVec[0]));
+                List<List<Computation<SBool>>> inputs = new ArrayList<>();
+                inputs.add(plainText);
+                inputs.add(key);
+                return () -> inputs;
+              }).seq((inputs, seq) -> {
+                Computation<List<SBool>> l = seq.bristol().AES(inputs.get(0), inputs.get(1));
+                return l;
+              }).seq((res, seq) -> {
+                List<Computation<Boolean>> outputs = new ArrayList<>();
+                for (SBool boo : res) {
+                  outputs.add(seq.binary().open(() -> boo));
+                }
+                return () -> outputs;
+              }).seq((output, seq) -> {
+                return () -> output.stream().map(Computation::out).collect(Collectors.toList());
+              });
 
-              boolean[] key_val = toBoolean(keyVec[0]);
-              boolean[] in_val = toBoolean(plainVec);
-
-              plain = builder.knownSBool(in_val);
-              key = builder.knownSBool(key_val);
-              cipher = prov.getSBools(128);
-
-              // Create AES circuit.
-              BristolCryptoFactory aesFac = new BristolCryptoFactory(prov);
-              BristolCircuit aes = aesFac.getAesProtocol(plain, key, cipher);
-              builder.addProtocolProducer(aes);
-
-              // Create circuits for opening result of AES.
-              openedCipher = builder.output(cipher);
-
-              return builder.getProtocol();
             }
+
           };
 
-          secureComputationEngine
-              .runApplication(aesApp, ResourcePoolCreator.createResourcePool(conf.sceConf));
-
-          if (!assertAsExpected) {
-            return;
-          }
+          List<Boolean> res = secureComputationEngine.runApplication(multApp,
+              ResourcePoolCreator.createResourcePool(conf.sceConf));
           boolean[] expected = toBoolean(cipherVec[0]);
-          boolean[] actual = new boolean[128];
-          for (int i = 0; i < 128; i++) {
-            actual[i] = openedCipher[i].getValue();
+          boolean[] actual = new boolean[res.size()];
+          for (int i = 0; i < res.size(); i++) {
+            actual[i] = res.get(i);
           }
-
-          //					System.out.println("KEY       : " + Arrays.toString(toBoolean(keyVec)));
-          //					System.out.println("IN        : " + Arrays.toString(toBoolean(inVec[0])));
-          //					System.out.println("EXPECTED  : " + Arrays.toString(expected));
-          //					System.out.println("ACTUAL OPN: " + Arrays.toString(actual));
-
+          System.out.println(Arrays.toString(expected));
+          System.out.println(Arrays.toString(actual));
           Assert.assertArrayEquals(expected, actual);
-    */    }
+        }
       };
     }
   }
@@ -173,80 +154,90 @@ public class BristolCryptoTests {
    *
    * TODO: Include all three test vectors.
    */
-  public static class Sha1Test extends TestThreadFactory {
-
-    private boolean assertAsExpected;
-
-    public Sha1Test(boolean assertAsExpected) {
-      this.assertAsExpected = assertAsExpected;
-    }
+  public static class Sha1Test<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, SequentialBinaryBuilder> {
 
     @Override
-    public TestThread next(TestThreadConfiguration conf) {
-      return new TestThread() {
-        SBool[] in, out;
-  //      OBool[] openedOut;
-
+    public TestThread<ResourcePoolT, SequentialBinaryBuilder> next(
+        TestThreadConfiguration<ResourcePoolT, SequentialBinaryBuilder> conf) {
+      return new TestThread<ResourcePoolT, SequentialBinaryBuilder>() {
         /*
-         * IMPORTANT: These are NOT test vectors for the complete SHA-1
-         * hash function, as the padding rules are ignored. Therefore,
-         * use of tools like md5sum will produce a different output if
-         * supplied with the same inputs.
+         * IMPORTANT: These are NOT test vectors for the complete SHA-1 hash function, as the
+         * padding rules are ignored. Therefore, use of tools like md5sum will produce a different
+         * output if supplied with the same inputs.
          */
-        String in1 = "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000";
-        String out1 = "92b404e556588ced6c1acd4ebf053f6809f73a93";
-        String in2 = "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f";
-        String out2 = "b9ac757bbc2979252e22727406872f94cbea56a1";
-        String in3 = "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff";
-        String out3 = "bafbc2c87c33322603f38e06c3e0f79c1f1b1475";
+        String[] ins = {
+            "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+            "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f",
+            "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"};
+        String[] outs = {"92b404e556588ced6c1acd4ebf053f6809f73a93",
+            "b9ac757bbc2979252e22727406872f94cbea56a1", "bafbc2c87c33322603f38e06c3e0f79c1f1b1475"};
 
         @Override
         public void test() throws Exception {
-    /*      TestBoolApplication aesApp = new TestBoolApplication() {
-
+          Application<List<Boolean>, SequentialBinaryBuilder> multApp =
+              new Application<List<Boolean>, ProtocolBuilderBinary.SequentialBinaryBuilder>() {
 
             @Override
-            public ProtocolProducer prepareApplication(BuilderFactory fac) {
-              BasicLogicFactory bool = (BasicLogicFactory) fac.getProtocolFactory();
+            public Computation<List<Boolean>> prepareApplication(
+                ProtocolBuilderBinary.SequentialBinaryBuilder producer) {
+              return producer.seq(seq -> {
+                List<Computation<SBool>> input1 = seq.binary().known(toBoolean(ins[0]));
+                // List<Computation<SBool>> input2 = seq.binary().known(toBoolean(ins[1]));
+                // List<Computation<SBool>> input3 = seq.binary().known(toBoolean(ins[2]));
+                List<List<Computation<SBool>>> inputs = new ArrayList<>();
+                inputs.add(input1);
+                // inputs.add(input2);
+                // inputs.add(input3);
+                return () -> inputs;
+              }).seq((inputs, seq) -> {
+                // List<Computation<List<SBool>>> list = new ArrayList<>();
+                // list.add(seq.bristol().getSHA1Circuit(inputs.get(0)));
+                // list.add(seq.bristol().getSHA1Circuit(inputs.get(1)));
+                // list.add(seq.bristol().getSHA1Circuit(inputs.get(2)));
 
-              boolean[] in_val = toBoolean(in1);
-              in = bool.getKnownConstantSBools(in_val);
-              out = bool.getSBools(160);
+                Computation<List<SBool>> list = seq.bristol().SHA1(inputs.get(0));
+                return list;
+              }).seq((res, seq) -> {
+                List<Computation<Boolean>> outputs = new ArrayList<>();
+                for (SBool boo : res) {
+                  outputs.add(seq.binary().open(boo));
+                }
+                // List<List<Computation<Boolean>>> outputs = new ArrayList<>();
+                // for (Computation<List<SBool>> elm : res) {
+                // List<Computation<Boolean>> outList = new ArrayList<>();
+                // for (SBool boo : elm.out()) {
+                // outList.add(seq.binary().open(() -> boo));
+                // }
+                // outputs.add(outList);
+                // }
+                return () -> outputs;
+              }).seq((output, seq) -> {
+                // List<List<Boolean>> result = new ArrayList<>();
+                // for (List<Computation<Boolean>> o : output) {
+                // result.add(o.stream().map(Computation::out).collect(Collectors.toList()));
+                // }
+                return () -> output.stream().map(Computation::out).collect(Collectors.toList());
+                // return () -> result;
+              });
 
-              // Create SHA1 circuit.
-              BristolCryptoFactory sha1Fac = new BristolCryptoFactory(bool);
-              BristolCircuit aes = sha1Fac.getSha1Circuit(in, out);
-
-              // Create circuits for opening result of AES.
-              NativeProtocol[] opens = new NativeProtocol[out.length];
-              openedOut = new OBool[out.length];
-              for (int i = 0; i < out.length; i++) {
-                openedOut[i] = bool.getOBool();
-                opens[i] = bool.getOpenProtocol(out[i], openedOut[i]);
-              }
-              ProtocolProducer open_all = new ParallelProtocolProducer(opens);
-
-              return new SequentialProtocolProducer(aes, open_all);
             }
+
           };
 
-          secureComputationEngine
-              .runApplication(aesApp, ResourcePoolCreator.createResourcePool(conf.sceConf));
-          if (!assertAsExpected) {
-            return;
+          List<Boolean> res = secureComputationEngine.runApplication(multApp,
+              ResourcePoolCreator.createResourcePool(conf.sceConf));
+          boolean[][] expected = new boolean[1][];
+          boolean[][] actuals = new boolean[1][res.size()];
+          for (int count = 0; count < 1; count++) {
+            expected[count] = toBoolean(outs[count]);
+            for (int i = 0; i < res.size(); i++) {
+              actuals[count][i] = res.get(i);
+            }
+            System.out.println("count reached " + count);
+            Assert.assertArrayEquals(expected[count], actuals[count]);
           }
-          boolean[] expected = toBoolean(out1);
-          boolean[] actual = new boolean[out.length];
-          for (int i = 0; i < out.length; i++) {
-            actual[i] = openedOut[i].getValue();
-          }
-
-          //					System.out.println("IN        : " + Arrays.toString(AesTests.toBoolean(in1)));
-          //					System.out.println("EXPECTED  : " + Arrays.toString(expected));
-          //					System.out.println("ACTUAL    : " + Arrays.toString(actual));
-
-          Assert.assertTrue(Arrays.equals(expected, actual));
-       */ }
+        }
       };
     }
   }
@@ -257,83 +248,70 @@ public class BristolCryptoTests {
    *
    * TODO: Include all three test vectors.
    */
-  public static class Sha256Test extends TestThreadFactory {
-
-    private boolean assertAsExpected;
-
-    public Sha256Test(boolean assertAsExpected) {
-      this.assertAsExpected = assertAsExpected;
-    }
+  public static class Sha256Test<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, SequentialBinaryBuilder> {
 
     @Override
-    public TestThread next(TestThreadConfiguration conf) {
-      return new TestThread() {
-        SBool[] in, out;
-        //OBool[] openedOut;
-
+    public TestThread<ResourcePoolT, SequentialBinaryBuilder> next(
+        TestThreadConfiguration<ResourcePoolT, SequentialBinaryBuilder> conf) {
+      return new TestThread<ResourcePoolT, SequentialBinaryBuilder>() {
         /*
-         * IMPORTANT: These are NOT test vectors for the complete SHA-256
-         * hash function, as the padding rules are ignored. Therefore,
-         * use of tools like md5sum will produce a different output if
-         * supplied with the same inputs.
+         * IMPORTANT: These are NOT test vectors for the complete SHA-256 hash function, as the
+         * padding rules are ignored. Therefore, use of tools like md5sum will produce a different
+         * output if supplied with the same inputs.
          */
-        String in1 = "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000";
+        String in1 =
+            "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000";
         String out1 = "da5698be17b9b46962335799779fbeca8ce5d491c0d26243bafef9ea1837a9d8";
-        String in2 = "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f";
+        String in2 =
+            "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f";
         String out2 = "fc99a2df88f42a7a7bb9d18033cdc6a20256755f9d5b9a5044a9cc315abe84a7";
-        String in3 = "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff";
+        String in3 =
+            "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff";
         String out3 = "ef0c748df4da50a8d6c43c013edc3ce76c9d9fa9a1458ade56eb86c0a64492d2";
-        String in4 = "243f6a8885a308d313198a2e03707344a4093822299f31d0082efa98ec4e6c89452821e638d01377be5466cf34e90c6cc0ac29b7c97c50dd3f84d5b5b5470917";
+        String in4 =
+            "243f6a8885a308d313198a2e03707344a4093822299f31d0082efa98ec4e6c89452821e638d01377be5466cf34e90c6cc0ac29b7c97c50dd3f84d5b5b5470917";
         String out4 = "cf0ae4eb67d38ffeb94068984b22abde4e92bc548d14585e48dca8882d7b09ce";
 
         @Override
         public void test() throws Exception {
-/*          Application sha256App = new TestBoolApplication() {
-
+          Application<List<Boolean>, SequentialBinaryBuilder> multApp =
+              new Application<List<Boolean>, ProtocolBuilderBinary.SequentialBinaryBuilder>() {
 
             @Override
-            public ProtocolProducer prepareApplication(BuilderFactory fac) {
-              BasicLogicFactory bool = (BasicLogicFactory) fac.getProtocolFactory();
+            public Computation<List<Boolean>> prepareApplication(
+                ProtocolBuilderBinary.SequentialBinaryBuilder producer) {
+              return producer.seq(seq -> {
+                List<Computation<SBool>> input1 = seq.binary().known(toBoolean(in1));
+                List<List<Computation<SBool>>> inputs = new ArrayList<>();
+                inputs.add(input1);
+                return () -> inputs;
+              }).seq((inputs, seq) -> {
+                Computation<List<SBool>> list = seq.bristol().SHA256(inputs.get(0));
+                return list;
+              }).seq((res, seq) -> {
+                List<Computation<Boolean>> outputs = new ArrayList<>();
+                for (SBool boo : res) {
+                  outputs.add(seq.binary().open(boo));
+                }
+                return () -> outputs;
+              }).seq((output, seq) -> {
+                return () -> output.stream().map(Computation::out).collect(Collectors.toList());
+              });
 
-              boolean[] in_val = toBoolean(in1);
-              in = bool.getKnownConstantSBools(in_val);
-              out = bool.getSBools(256);
-
-              // Create SHA1 circuit.
-              BristolCryptoFactory sha256Fac = new BristolCryptoFactory(bool);
-              BristolCircuit sha256 = sha256Fac.getSha256Circuit(in, out);
-
-              // Create circuits for opening result of SHA 256.
-              NativeProtocol[] opens = new NativeProtocol[out.length];
-              openedOut = new OBool[out.length];
-              for (int i = 0; i < out.length; i++) {
-                openedOut[i] = bool.getOBool();
-                opens[i] = bool.getOpenProtocol(out[i], openedOut[i]);
-              }
-              ProtocolProducer open_all = new ParallelProtocolProducer(opens);
-
-              return new SequentialProtocolProducer(sha256, open_all);
             }
+
           };
 
-          secureComputationEngine.runApplication(sha256App,
+          List<Boolean> res = secureComputationEngine.runApplication(multApp,
               ResourcePoolCreator.createResourcePool(conf.sceConf));
-
-          if (!assertAsExpected) {
-            return;
-          }
           boolean[] expected = toBoolean(out1);
-          boolean[] actual = new boolean[out.length];
-          for (int i = 0; i < out.length; i++) {
-            actual[i] = openedOut[i].getValue();
+          boolean[] actual = new boolean[res.size()];
+          for (int i = 0; i < res.size(); i++) {
+            actual[i] = res.get(i);
           }
-
-          //					System.out.println("IN        : " + Arrays.toString(AesTests.toBoolean(in1)));
-          //					System.out.println("EXPECTED  : " + Arrays.toString(expected));
-          //					System.out.println("ACTUAL    : " + Arrays.toString(actual));
-
-          Assert.assertTrue(Arrays.equals(expected, actual));
-    */    }
+          Assert.assertArrayEquals(expected, actual);
+        }
       };
     }
   }
@@ -344,83 +322,103 @@ public class BristolCryptoTests {
    *
    * TODO: Include all three test vectors.
    */
-  public static class MD5Test extends TestThreadFactory {
-
-    private boolean assertAsExpected;
-
-    public MD5Test(boolean assertAsExpected) {
-      this.assertAsExpected = assertAsExpected;
-    }
+  public static class MD5Test<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, SequentialBinaryBuilder> {
 
     @Override
-    public TestThread next(TestThreadConfiguration conf) {
-      return new TestThread() {
-        SBool[] in, out;
-//        OBool[] openedOut;
-
+    public TestThread<ResourcePoolT, SequentialBinaryBuilder> next(
+        TestThreadConfiguration<ResourcePoolT, SequentialBinaryBuilder> conf) {
+      return new TestThread<ResourcePoolT, SequentialBinaryBuilder>() {
         /*
-         * IMPORTANT: These are NOT test vectors for the complete SHA-1
-         * hash function, as the padding rules are ignored. Therefore,
-         * use of tools like md5sum will produce a different output if
-         * supplied with the same inputs.
+         * IMPORTANT: These are NOT test vectors for the complete SHA-1 hash function, as the
+         * padding rules are ignored. Therefore, use of tools like md5sum will produce a different
+         * output if supplied with the same inputs.
          */
-        String in1 = "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000";
+        String in1 =
+            "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000";
         String out1 = "ac1d1f03d08ea56eb767ab1f91773174";
-        String in2 = "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f";
+        String in2 =
+            "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f";
         String out2 = "cad94491c9e401d9385bfc721ef55f62";
-        String in3 = "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff";
+        String in3 =
+            "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff";
         String out3 = "b487195651913e494b55c6bddf405c01";
-        String in4 = "243f6a8885a308d313198a2e03707344a4093822299f31d0082efa98ec4e6c89452821e638d01377be5466cf34e90c6cc0ac29b7c97c50dd3f84d5b5b5470917";
+        String in4 =
+            "243f6a8885a308d313198a2e03707344a4093822299f31d0082efa98ec4e6c89452821e638d01377be5466cf34e90c6cc0ac29b7c97c50dd3f84d5b5b5470917";
         String out4 = "3715f568f422db75cc8d65e11764ff01";
 
         @Override
         public void test() throws Exception {
-/*          Application md5App = new TestBoolApplication() {
-
+          Application<List<Boolean>, SequentialBinaryBuilder> multApp =
+              new Application<List<Boolean>, ProtocolBuilderBinary.SequentialBinaryBuilder>() {
 
             @Override
-            public ProtocolProducer prepareApplication(BuilderFactory fac) {
-              BasicLogicFactory bool = (BasicLogicFactory) fac.getProtocolFactory();
+            public Computation<List<Boolean>> prepareApplication(
+                ProtocolBuilderBinary.SequentialBinaryBuilder producer) {
+              return producer.seq(seq -> {
+                List<Computation<SBool>> input1 = seq.binary().known(toBoolean(in1));
+                List<List<Computation<SBool>>> inputs = new ArrayList<>();
+                inputs.add(input1);
+                return () -> inputs;
+              }).seq((inputs, seq) -> {
+                Computation<List<SBool>> list = seq.bristol().MD5(inputs.get(0));
+                return list;
+              }).seq((res, seq) -> {
+                List<Computation<Boolean>> outputs = new ArrayList<>();
+                for (SBool boo : res) {
+                  outputs.add(seq.binary().open(boo));
+                }
+                return () -> outputs;
+              }).seq((output, seq) -> {
+                return () -> output.stream().map(Computation::out).collect(Collectors.toList());
+              });
 
-              boolean[] in_val = toBoolean(in1);
-              in = bool.getKnownConstantSBools(in_val);
-              out = bool.getSBools(128);
-
-              // Create MD5 circuit.
-              BristolCryptoFactory md5Fac = new BristolCryptoFactory(bool);
-              BristolCircuit md5 = md5Fac.getMD5Circuit(in, out);
-
-              // Create circuits for opening result of MD5.
-              NativeProtocol[] opens = new NativeProtocol[out.length];
-              openedOut = new OBool[out.length];
-              for (int i = 0; i < out.length; i++) {
-                openedOut[i] = bool.getOBool();
-                opens[i] = bool.getOpenProtocol(out[i], openedOut[i]);
-              }
-              ProtocolProducer open_all = new ParallelProtocolProducer(opens);
-
-              return new SequentialProtocolProducer(md5, open_all);
             }
+
           };
 
-          secureComputationEngine
-              .runApplication(md5App, ResourcePoolCreator.createResourcePool(conf.sceConf));
-
-          if (!assertAsExpected) {
-            return;
-          }
+          List<Boolean> res = secureComputationEngine.runApplication(multApp,
+              ResourcePoolCreator.createResourcePool(conf.sceConf));
           boolean[] expected = toBoolean(out1);
-          boolean[] actual = new boolean[out.length];
-          for (int i = 0; i < out.length; i++) {
-            actual[i] = openedOut[i].getValue();
+          boolean[] actual = new boolean[res.size()];
+          for (int i = 0; i < res.size(); i++) {
+            actual[i] = res.get(i);
           }
-
-          //					System.out.println("IN        : " + Arrays.toString(AesTests.toBoolean(in1)));
-          //					System.out.println("EXPECTED  : " + Arrays.toString(expected));
-          //					System.out.println("ACTUAL    : " + Arrays.toString(actual));
-
-          Assert.assertTrue(Arrays.equals(expected, actual));
-   */     }
+          Assert.assertArrayEquals(expected, actual);
+          /*
+           * Application md5App = new TestBoolApplication() {
+           * 
+           * 
+           * @Override public ProtocolProducer prepareApplication(BuilderFactory fac) {
+           * BasicLogicFactory bool = (BasicLogicFactory) fac.getProtocolFactory();
+           * 
+           * boolean[] in_val = toBoolean(in1); in = bool.getKnownConstantSBools(in_val); out =
+           * bool.getSBools(128);
+           * 
+           * // Create MD5 circuit. BristolCryptoFactory md5Fac = new BristolCryptoFactory(bool);
+           * BristolCircuit md5 = md5Fac.getMD5Circuit(in, out);
+           * 
+           * // Create circuits for opening result of MD5. NativeProtocol[] opens = new
+           * NativeProtocol[out.length]; openedOut = new OBool[out.length]; for (int i = 0; i <
+           * out.length; i++) { openedOut[i] = bool.getOBool(); opens[i] =
+           * bool.getOpenProtocol(out[i], openedOut[i]); } ProtocolProducer open_all = new
+           * ParallelProtocolProducer(opens);
+           * 
+           * return new SequentialProtocolProducer(md5, open_all); } };
+           * 
+           * secureComputationEngine .runApplication(md5App,
+           * ResourcePoolCreator.createResourcePool(conf.sceConf));
+           * 
+           * if (!assertAsExpected) { return; } boolean[] expected = toBoolean(out1); boolean[]
+           * actual = new boolean[out.length]; for (int i = 0; i < out.length; i++) { actual[i] =
+           * openedOut[i].getValue(); }
+           * 
+           * // System.out.println("IN        : " + Arrays.toString(AesTests.toBoolean(in1))); //
+           * System.out.println("EXPECTED  : " + Arrays.toString(expected)); // System.out.println(
+           * "ACTUAL    : " + Arrays.toString(actual));
+           * 
+           * Assert.assertTrue(Arrays.equals(expected, actual));
+           */ }
       };
     }
   }
@@ -431,75 +429,58 @@ public class BristolCryptoTests {
    *
    * TODO: Include more test vectors. Oddly enough, 1x1=2 :-)
    */
-  public static class Mult32x32Test extends TestThreadFactory {
-
-    private boolean assertAsExpected;
-
-    public Mult32x32Test(boolean assertAsExpected) {
-      this.assertAsExpected = assertAsExpected;
-    }
+  public static class Mult32x32Test<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, SequentialBinaryBuilder> {
 
     @Override
-    public TestThread next(TestThreadConfiguration conf) {
-      return new TestThread() {
-        SBool[] in1, in2, out;
-//        OBool[] openedOut;
-
-        String inv1 = "00000000";
-        String inv2 = "00000000";
-        String outv = "0000000000000000";
+    public TestThread<ResourcePoolT, SequentialBinaryBuilder> next(
+        TestThreadConfiguration<ResourcePoolT, SequentialBinaryBuilder> conf) {
+      return new TestThread<ResourcePoolT, SequentialBinaryBuilder>() {
+        String inv1 = "00000011";
+        String inv2 = "00000010";
+        String outv = "0000000000000110";
 
         @Override
         public void test() throws Exception {
-/*          Application multApp = new TestBoolApplication() {
-
+          Application<List<Boolean>, SequentialBinaryBuilder> multApp =
+              new Application<List<Boolean>, ProtocolBuilderBinary.SequentialBinaryBuilder>() {
 
             @Override
-            public ProtocolProducer prepareApplication(BuilderFactory fac) {
-              BasicLogicFactory bool = (BasicLogicFactory) fac.getProtocolFactory();
+            public Computation<List<Boolean>> prepareApplication(
+                ProtocolBuilderBinary.SequentialBinaryBuilder producer) {
+              return producer.seq(seq -> {
+                List<Computation<SBool>> in1 = seq.binary().known(toBoolean(inv1));
+                List<Computation<SBool>> in2 = seq.binary().known(toBoolean(inv2));
+                List<List<Computation<SBool>>> inputs = new ArrayList<>();
+                inputs.add(in1);
+                inputs.add(in2);
+                return () -> inputs;
+              }).seq((inputs, seq) -> {
+                Computation<List<SBool>> l = seq.bristol().mult32x32(inputs.get(0), inputs.get(1));
+                return l;
+              }).seq((res, seq) -> {
+                List<Computation<Boolean>> outputs = new ArrayList<>();
+                for (SBool boo : res) {
+                  outputs.add(seq.binary().open(() -> boo));
+                }
+                return () -> outputs;
+              }).seq((output, seq) -> {
+                return () -> output.stream().map(Computation::out).collect(Collectors.toList());
+              });
 
-              boolean[] in1_val = toBoolean(inv1);
-              in1 = bool.getKnownConstantSBools(in1_val);
-              boolean[] in2_val = toBoolean(inv2);
-              in2 = bool.getKnownConstantSBools(in2_val);
-              out = bool.getSBools(64);
-
-              // Create mult circuit.
-              BristolCryptoFactory multFac = new BristolCryptoFactory(bool);
-              BristolCircuit mult = multFac.getMult32x32Circuit(in1, in2, out);
-
-              // Create circuits for opening result of 32x32 bit mult.
-              NativeProtocol[] opens = new NativeProtocol[out.length];
-              openedOut = new OBool[out.length];
-              for (int i = 0; i < out.length; i++) {
-                openedOut[i] = bool.getOBool();
-                opens[i] = bool.getOpenProtocol(out[i], openedOut[i]);
-              }
-              ProtocolProducer open_all = new ParallelProtocolProducer(opens);
-
-              return new SequentialProtocolProducer(mult, open_all);
             }
+
           };
 
-          secureComputationEngine.runApplication(multApp,
+          List<Boolean> res = secureComputationEngine.runApplication(multApp,
               ResourcePoolCreator.createResourcePool(conf.sceConf));
-
-          if (!assertAsExpected) {
-            return;
-          }
           boolean[] expected = toBoolean(outv);
-          boolean[] actual = new boolean[out.length];
-          for (int i = 0; i < out.length; i++) {
-            actual[i] = openedOut[i].getValue();
+          boolean[] actual = new boolean[res.size()];
+          for (int i = 0; i < res.size(); i++) {
+            actual[i] = res.get(i);
           }
-
-          //					System.out.println("IN1        : " + Arrays.toString(toBoolean(inv1)));
-          //					System.out.println("IN2        : " + Arrays.toString(toBoolean(inv2)));
-          //					System.out.println("EXPECTED   : " + Arrays.toString(expected));
-          //					System.out.println("ACTUAL     : " + Arrays.toString(actual));
-
-          Assert.assertTrue(Arrays.equals(expected, actual));
- */       }
+          Assert.assertArrayEquals(expected, actual);
+        }
       };
     }
   }
@@ -511,19 +492,13 @@ public class BristolCryptoTests {
    * TODO: Include more test vectors, e.g., from here:
    * https://dl.dropboxusercontent.com/u/25980826/des.test
    */
-  public static class DesTest extends TestThreadFactory {
-
-    private boolean assertAsExpected;
-
-    public DesTest(boolean assertAsExpected) {
-      this.assertAsExpected = assertAsExpected;
-    }
+  public static class DesTest<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, SequentialBinaryBuilder> {
 
     @Override
-    public TestThread next(TestThreadConfiguration conf) {
-      return new TestThread() {
-        SBool[] plain, key, cipher;
-   //     OBool[] openedOut;
+    public TestThread<ResourcePoolT, SequentialBinaryBuilder> next(
+        TestThreadConfiguration<ResourcePoolT, SequentialBinaryBuilder> conf) {
+      return new TestThread<ResourcePoolT, SequentialBinaryBuilder>() {
 
         String keyV = "0101010101010101";
         String plainV = "8000000000000000";
@@ -531,57 +506,81 @@ public class BristolCryptoTests {
 
         @Override
         public void test() throws Exception {
-/*          Application md5App = new TestBoolApplication() {
+          Application<List<Boolean>, SequentialBinaryBuilder> multApp =
+              new Application<List<Boolean>, ProtocolBuilderBinary.SequentialBinaryBuilder>() {
 
             @Override
-            public ProtocolProducer prepareApplication(BuilderFactory fac) {
-              BasicLogicFactory bool = (BasicLogicFactory) fac.getProtocolFactory();
+            public Computation<List<Boolean>> prepareApplication(
+                ProtocolBuilderBinary.SequentialBinaryBuilder producer) {
+              return producer.seq(seq -> {
+                List<Computation<SBool>> plainText = seq.binary().known(toBoolean(plainV));
+                List<Computation<SBool>> keyMaterial = seq.binary().known(toBoolean(keyV));
+                List<List<Computation<SBool>>> inputs = new ArrayList<>();
+                inputs.add(plainText);
+                inputs.add(keyMaterial);
+                return () -> inputs;
+              }).seq((inputs, seq) -> {
+                Computation<List<SBool>> l = seq.bristol().DES(inputs.get(0), inputs.get(1));
+                return l;
+              }).seq((res, seq) -> {
+                List<Computation<Boolean>> outputs = new ArrayList<>();
+                for (SBool boo : res) {
+                  outputs.add(seq.binary().open(() -> boo));
+                }
+                return () -> outputs;
+              }).seq((output, seq) -> {
+                return () -> output.stream().map(Computation::out).collect(Collectors.toList());
+              });
 
-              boolean[] in1_val = toBoolean(plainV);
-              plain = bool.getKnownConstantSBools(in1_val);
-              boolean[] in2_val = toBoolean(keyV);
-              key = bool.getKnownConstantSBools(in2_val);
-              cipher = bool.getSBools(64);
-
-              // Create des circuit.
-              BristolCryptoFactory desFac = new BristolCryptoFactory(bool);
-              BristolCircuit des = desFac.getDesCircuit(plain, key, cipher);
-
-              // Create circuits for opening result of DES.
-              NativeProtocol[] opens = new NativeProtocol[cipher.length];
-              openedOut = new OBool[cipher.length];
-              for (int i = 0; i < cipher.length; i++) {
-                openedOut[i] = bool.getOBool();
-                opens[i] = bool.getOpenProtocol(cipher[i], openedOut[i]);
-              }
-              ProtocolProducer open_all = new ParallelProtocolProducer(opens);
-
-              return new SequentialProtocolProducer(des, open_all);
             }
+
           };
 
-          secureComputationEngine
-              .runApplication(md5App, ResourcePoolCreator.createResourcePool(conf.sceConf));
-
-          if (!assertAsExpected) {
-            return;
-          }
+          List<Boolean> res = secureComputationEngine.runApplication(multApp,
+              ResourcePoolCreator.createResourcePool(conf.sceConf));
           boolean[] expected = toBoolean(cipherV);
-          boolean[] actual = new boolean[cipher.length];
-          for (int i = 0; i < cipher.length; i++) {
-            actual[i] = openedOut[i].getValue();
+          boolean[] actual = new boolean[res.size()];
+          for (int i = 0; i < res.size(); i++) {
+            actual[i] = res.get(i);
           }
-
-          //					System.out.println("IN1        : " + Arrays.toString(toBoolean(inv1)));
-          //					System.out.println("IN2        : " + Arrays.toString(toBoolean(inv2)));
-          //					System.out.println("EXPECTED   : " + Arrays.toString(expected));
-          //					System.out.println("ACTUAL     : " + Arrays.toString(actual));
-
-          Assert.assertTrue(Arrays.equals(expected, actual));
-*/
+          Assert.assertArrayEquals(expected, actual);
+          /*
+           * Application md5App = new TestBoolApplication() {
+           * 
+           * @Override public ProtocolProducer prepareApplication(BuilderFactory fac) {
+           * BasicLogicFactory bool = (BasicLogicFactory) fac.getProtocolFactory();
+           * 
+           * boolean[] in1_val = toBoolean(plainV); plain = bool.getKnownConstantSBools(in1_val);
+           * boolean[] in2_val = toBoolean(keyV); key = bool.getKnownConstantSBools(in2_val); cipher
+           * = bool.getSBools(64);
+           * 
+           * // Create des circuit. BristolCryptoFactory desFac = new BristolCryptoFactory(bool);
+           * BristolCircuit des = desFac.getDesCircuit(plain, key, cipher);
+           * 
+           * // Create circuits for opening result of DES. NativeProtocol[] opens = new
+           * NativeProtocol[cipher.length]; openedOut = new OBool[cipher.length]; for (int i = 0; i
+           * < cipher.length; i++) { openedOut[i] = bool.getOBool(); opens[i] =
+           * bool.getOpenProtocol(cipher[i], openedOut[i]); } ProtocolProducer open_all = new
+           * ParallelProtocolProducer(opens);
+           * 
+           * return new SequentialProtocolProducer(des, open_all); } };
+           * 
+           * secureComputationEngine .runApplication(md5App,
+           * ResourcePoolCreator.createResourcePool(conf.sceConf));
+           * 
+           * if (!assertAsExpected) { return; } boolean[] expected = toBoolean(cipherV); boolean[]
+           * actual = new boolean[cipher.length]; for (int i = 0; i < cipher.length; i++) {
+           * actual[i] = openedOut[i].getValue(); }
+           * 
+           * // System.out.println("IN1        : " + Arrays.toString(toBoolean(inv1))); //
+           * System.out.println("IN2        : " + Arrays.toString(toBoolean(inv2))); //
+           * System.out.println("EXPECTED   : " + Arrays.toString(expected)); // System.out.println(
+           * "ACTUAL     : " + Arrays.toString(actual));
+           * 
+           * Assert.assertTrue(Arrays.equals(expected, actual));
+           */
         }
       };
     }
   }
-
 }

@@ -21,23 +21,22 @@ public abstract class ProtocolBuilderBinary implements ProtocolBuilder {
   private List<ProtocolEntity> protocols;
   private BinaryBuilderAdvanced binaryBuilderAdvanced;
   private ComparisonBuilderBinary comparisonBuilderBinary;
+  private BristolCryptoBuilder bristolCryptoBuilder;
   private BinaryBuilder binaryBuilder;
+  private BinaryUtilityBuilder utilityBuilder;
 
   private ProtocolBuilderBinary(BuilderFactoryBinary factory) {
     this.factory = factory;
     this.protocols = new LinkedList<>();
   }
 
-  public static SequentialBinaryBuilder createApplicationRoot(
-      BuilderFactoryBinary factory,
+  public static SequentialBinaryBuilder createApplicationRoot(BuilderFactoryBinary factory,
       Consumer<SequentialBinaryBuilder> consumer) {
-    SequentialBinaryBuilder builder = new SequentialBinaryBuilder(
-        factory);
-    builder
-        .addConsumer(consumer, () -> new SequentialBinaryBuilder(factory));
+    SequentialBinaryBuilder builder = new SequentialBinaryBuilder(factory);
+    builder.addConsumer(consumer, () -> new SequentialBinaryBuilder(factory));
     return builder;
   }
-  
+
   public static SequentialBinaryBuilder createApplicationRoot(BuilderFactoryBinary factory) {
     return new SequentialBinaryBuilder(factory);
   }
@@ -61,6 +60,20 @@ public abstract class ProtocolBuilderBinary implements ProtocolBuilder {
       this.comparisonBuilderBinary = this.factory.createComparison(this);
     }
     return this.comparisonBuilderBinary;
+  }
+
+  public BristolCryptoBuilder bristol() {
+    if (this.bristolCryptoBuilder == null) {
+      this.bristolCryptoBuilder = this.factory.createBristolCryptoBuilder(this);
+    }
+    return this.bristolCryptoBuilder;
+  }
+
+  public BinaryUtilityBuilder utility() {
+    if (this.utilityBuilder == null) {
+      this.utilityBuilder = this.factory.createUtilityBuilder(this);
+    }
+    return this.utilityBuilder;
   }
 
   public BuilderFactoryBinary getFactory() {

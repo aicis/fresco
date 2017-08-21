@@ -43,12 +43,6 @@ public class BasicBooleanTests {
   public static class TestInput<ResourcePoolT extends ResourcePool>
       extends TestThreadFactory<ResourcePoolT, SequentialBinaryBuilder> {
 
-    private boolean assertAsExpected;
-
-    public TestInput(boolean assertAsExpected) {
-      this.assertAsExpected = assertAsExpected;
-    }
-
     @Override
     public TestThread<ResourcePoolT, SequentialBinaryBuilder> next(
         TestThreadConfiguration<ResourcePoolT, SequentialBinaryBuilder> conf) {
@@ -73,9 +67,6 @@ public class BasicBooleanTests {
           boolean output = secureComputationEngine.runApplication(app,
               ResourcePoolCreator.createResourcePool(conf.sceConf));
 
-          if (!assertAsExpected) {
-            return;
-          }
           Assert.assertEquals(true, output);
         }
       };
@@ -84,12 +75,6 @@ public class BasicBooleanTests {
 
   public static class TestXOR<ResourcePoolT extends ResourcePool>
       extends TestThreadFactory<ResourcePoolT, SequentialBinaryBuilder> {
-
-    private boolean assertAsExpected;
-
-    public TestXOR(boolean assertAsExpected) {
-      this.assertAsExpected = assertAsExpected;
-    }
 
     @Override
     public TestThread<ResourcePoolT, SequentialBinaryBuilder> next(
@@ -121,9 +106,7 @@ public class BasicBooleanTests {
 
           List<Boolean> outs = secureComputationEngine.runApplication(app,
               ResourcePoolCreator.createResourcePool(conf.sceConf));
-          if (!assertAsExpected) {
-            return;
-          }
+
           Assert.assertEquals(false, outs.get(0));
           Assert.assertEquals(true, outs.get(1));
           Assert.assertEquals(true, outs.get(2));
@@ -135,12 +118,6 @@ public class BasicBooleanTests {
 
   public static class TestAND<ResourcePoolT extends ResourcePool>
       extends TestThreadFactory<ResourcePoolT, SequentialBinaryBuilder> {
-
-    private boolean assertAsExpected;
-
-    public TestAND(boolean assertAsExpected) {
-      this.assertAsExpected = assertAsExpected;
-    }
 
     @Override
     public TestThread<ResourcePoolT, SequentialBinaryBuilder> next(
@@ -172,9 +149,7 @@ public class BasicBooleanTests {
 
           List<Boolean> outs = secureComputationEngine.runApplication(app,
               ResourcePoolCreator.createResourcePool(conf.sceConf));
-          if (!assertAsExpected) {
-            return;
-          }
+
           Assert.assertEquals(false, outs.get(0));
           Assert.assertEquals(false, outs.get(1));
           Assert.assertEquals(false, outs.get(2));
@@ -186,12 +161,6 @@ public class BasicBooleanTests {
 
   public static class TestNOT<ResourcePoolT extends ResourcePool>
       extends TestThreadFactory<ResourcePoolT, SequentialBinaryBuilder> {
-
-    private boolean assertAsExpected;
-
-    public TestNOT(boolean assertAsExpected) {
-      this.assertAsExpected = assertAsExpected;
-    }
 
     @Override
     public TestThread<ResourcePoolT, SequentialBinaryBuilder> next(
@@ -220,9 +189,7 @@ public class BasicBooleanTests {
 
           List<Boolean> outs = secureComputationEngine.runApplication(app,
               ResourcePoolCreator.createResourcePool(conf.sceConf));
-          if (!assertAsExpected) {
-            return;
-          }
+
           Assert.assertEquals(true, outs.get(0));
           Assert.assertEquals(false, outs.get(1));
         }
@@ -232,12 +199,6 @@ public class BasicBooleanTests {
 
   public static class TestCOPY<ResourcePoolT extends ResourcePool>
       extends TestThreadFactory<ResourcePoolT, SequentialBinaryBuilder> {
-
-    private boolean assertAsExpected;
-
-    public TestCOPY(boolean assertAsExpected) {
-      this.assertAsExpected = assertAsExpected;
-    }
 
     @Override
     public TestThread<ResourcePoolT, SequentialBinaryBuilder> next(
@@ -266,9 +227,7 @@ public class BasicBooleanTests {
 
           List<Boolean> outs = secureComputationEngine.runApplication(app,
               ResourcePoolCreator.createResourcePool(conf.sceConf));
-          if (!assertAsExpected) {
-            return;
-          }
+
           Assert.assertEquals(false, outs.get(0));
           Assert.assertEquals(true, outs.get(1));
         }
@@ -281,12 +240,6 @@ public class BasicBooleanTests {
    */
   public static class TestBasicProtocols<ResourcePoolT extends ResourcePool>
       extends TestThreadFactory<ResourcePoolT, SequentialBinaryBuilder> {
-
-    private boolean assertAsExpected;
-
-    public TestBasicProtocols(boolean assertAsExpected) {
-      this.assertAsExpected = assertAsExpected;
-    }
 
     @Override
     public TestThread<ResourcePoolT, SequentialBinaryBuilder> next(
@@ -321,9 +274,7 @@ public class BasicBooleanTests {
 
           List<Boolean> outs = secureComputationEngine.runApplication(app,
               ResourcePoolCreator.createResourcePool(conf.sceConf));
-          if (!assertAsExpected) {
-            return;
-          }
+
           Assert.assertEquals(true, outs.get(0));
           Assert.assertEquals(true, outs.get(1));
           Assert.assertEquals(false, outs.get(2));

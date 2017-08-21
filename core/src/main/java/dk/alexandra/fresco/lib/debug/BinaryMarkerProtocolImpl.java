@@ -21,62 +21,37 @@
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL, and Bouncy Castle.
  * Please see these projects for any further licensing issues.
  *******************************************************************************/
-package dk.alexandra.fresco.lib.compare.bool;
+package dk.alexandra.fresco.lib.debug;
 
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.builder.binary.ComputationBuilderBinary;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary.SequentialBinaryBuilder;
-import dk.alexandra.fresco.framework.value.SBool;
-import java.util.List;
+import java.io.PrintStream;
 
 /**
- * Represents a comparison protocol between two bitstrings. Concretely, the protocol computes the
- * 'greater than' relation of strings A and B, i.e., it computes C := A > B.
- * 
- * @author psn
- * 
+ * When evaluated, prints out the message from the constructor.
+ *
  */
-public class BinaryGreaterThanProtocolImpl implements ComputationBuilderBinary<SBool> {
+public class BinaryMarkerProtocolImpl implements ComputationBuilderBinary<Void> {
 
-  private List<Computation<SBool>> inA, inB;
-  private int length;
+  private final String message;
+  private final PrintStream output;
 
-  /**
-   * Construct a protocol to compare strings A and B. The bitstrings A and B are assumed to be even
-   * length and to be ordered from most- to least significant bit.
-   * 
-   * @param inA input string A
-   * @param inB input string B
-   * @param outC a bit to hold the output C := A > B.
-   * @param factory a protocol provider
-   */
-  public BinaryGreaterThanProtocolImpl(List<Computation<SBool>> inA, List<Computation<SBool>> inB) {
-    if (inA.size() == inB.size()) {
-      this.inA = inA;
-      this.inB = inB;
-      this.length = inA.size();
+
+  public BinaryMarkerProtocolImpl(String message, PrintStream output) {
+    this.message = message;
+    if (output != null) {
+      this.output = output;
     } else {
-      throw new IllegalArgumentException("Comparison failed: bitsize differs");
+      this.output = System.out;
     }
   }
 
   @Override
-  public Computation<SBool> build(SequentialBinaryBuilder builder) {
+  public Computation<Void> build(SequentialBinaryBuilder builder) {
     return builder.seq(seq -> {
-      int round = 0;
-      Computation<SBool> xor = seq.binary().xor(inA.get(length - 1), inB.get(length - 1));
-      round++;
-      Computation<SBool> outC = seq.binary().and(inA.get(length - 1), xor);
-      round++;
-      for (; round <= length; round++) {
-        int i = length - round;
-        xor = seq.binary().xor(inA.get(i), inB.get(i));
-        Computation<SBool> tmp = seq.binary().xor(inA.get(i), outC);
-        tmp = seq.binary().and(tmp, xor);
-        outC = seq.binary().xor(outC, tmp);
-      }
-      return outC;
+      output.println(message);
+      return () -> null;
     });
   }
-
 }

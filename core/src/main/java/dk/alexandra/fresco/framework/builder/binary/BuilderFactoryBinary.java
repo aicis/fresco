@@ -17,6 +17,14 @@ public interface BuilderFactoryBinary extends BuilderFactory<SequentialBinaryBui
     return new DefaultBinaryBuilderAdvanced(builder);
   }
 
+  default BristolCryptoBuilder createBristolCryptoBuilder(ProtocolBuilderBinary builder) {
+    return new DefaultBristolCryptoBuilder(builder);
+  }
+
+  default BinaryUtilityBuilder createUtilityBuilder(ProtocolBuilderBinary builder) {
+    return new DefaultBinaryUtilityBuilder(builder);
+  }
+
   @Override
   default SequentialBinaryBuilder createProtocolBuilder() {
     return ProtocolBuilderBinary.createApplicationRoot(this);

@@ -30,15 +30,17 @@ import dk.alexandra.fresco.framework.TestThreadRunner;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
+import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary.SequentialBinaryBuilder;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.TestConfiguration;
 import dk.alexandra.fresco.framework.network.NetworkingStrategy;
 import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.configuration.TestSCEConfiguration;
 import dk.alexandra.fresco.framework.sce.evaluator.SequentialEvaluator;
+import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
 import dk.alexandra.fresco.framework.util.ByteArithmetic;
 import dk.alexandra.fresco.suite.ProtocolSuite;
-import dk.alexandra.fresco.suite.dummy.bool.DummyProtocolSuite;
+import dk.alexandra.fresco.suite.dummy.bool.DummyBooleanProtocolSuite;
 import dk.alexandra.fresco.suite.tinytables.online.TinyTablesProtocolSuite;
 import dk.alexandra.fresco.suite.tinytables.prepro.TinyTablesPreproProtocolSuite;
 import java.io.File;
@@ -72,12 +74,13 @@ public class SetIntersectionDemo {
       ttc.netConf = netConf.get(playerId);
 
       // Protocol specific configuration
-      ProtocolSuite<?, ?> suite = new DummyProtocolSuite();
+      ProtocolSuite<ResourcePoolImpl, SequentialBinaryBuilder> suite =
+          new DummyBooleanProtocolSuite();
 
       // The rest is generic configuration as well
       ProtocolEvaluator evaluator = new SequentialEvaluator();
-      ttc.sceConf = new TestSCEConfiguration(suite, NetworkingStrategy.KRYONET, evaluator,
-          ttc.netConf, true);
+      ttc.sceConf =
+          new TestSCEConfiguration(suite, NetworkingStrategy.KRYONET, evaluator, ttc.netConf, true);
       conf.put(playerId, ttc);
     }
     String[] result = this.setIntersectionDemo(conf);
@@ -100,7 +103,8 @@ public class SetIntersectionDemo {
         TestConfiguration.getNetworkConfigurations(noPlayers, ports);
     Map<Integer, TestThreadConfiguration> conf = new HashMap<Integer, TestThreadConfiguration>();
     for (int playerId : netConf.keySet()) {
-      TestThreadConfiguration ttc = new TestThreadConfiguration();
+      TestThreadConfiguration<ResourcePoolImpl, SequentialBinaryBuilder> ttc =
+          new TestThreadConfiguration<ResourcePoolImpl, SequentialBinaryBuilder>();
       ttc.netConf = netConf.get(playerId);
 
       // Protocol specific configuration + suite
@@ -109,8 +113,8 @@ public class SetIntersectionDemo {
 
       // More generic configuration
       ProtocolEvaluator evaluator = new SequentialEvaluator();
-      ttc.sceConf = new TestSCEConfiguration(suite, NetworkingStrategy.KRYONET, evaluator,
-          ttc.netConf, true);
+      ttc.sceConf =
+          new TestSCEConfiguration(suite, NetworkingStrategy.KRYONET, evaluator, ttc.netConf, true);
       conf.put(playerId, ttc);
     }
 
@@ -129,8 +133,8 @@ public class SetIntersectionDemo {
       ProtocolSuite suite = getTinyTablesProtocolSuite(ttc.netConf.getMyId());
 
       ProtocolEvaluator evaluator = new SequentialEvaluator();
-      ttc.sceConf = new TestSCEConfiguration(suite, NetworkingStrategy.KRYONET, evaluator,
-          ttc.netConf, true);
+      ttc.sceConf =
+          new TestSCEConfiguration(suite, NetworkingStrategy.KRYONET, evaluator, ttc.netConf, true);
       conf.put(playerId, ttc);
     }
 
@@ -169,32 +173,34 @@ public class SetIntersectionDemo {
 
   public String[] setIntersectionDemo(Map<Integer, TestThreadConfiguration> conf) throws Exception {
     String[] result = new String[8];
-    TestThreadFactory f = new TestThreadFactory() {
+    TestThreadFactory f = new TestThreadFactory<ResourcePoolImpl, SequentialBinaryBuilder>() {
       @Override
-      public TestThread next(TestThreadConfiguration conf) {
-        return new TestThread() {
+      public TestThread<ResourcePoolImpl, SequentialBinaryBuilder> next(
+          TestThreadConfiguration<ResourcePoolImpl, SequentialBinaryBuilder> conf) {
+        return new TestThread<ResourcePoolImpl, SequentialBinaryBuilder>() {
           @Override
           public void test() throws Exception {
-            boolean[] key = null;
+            Boolean[] key = null;
             int[] inputList = null;
             if (conf.netConf.getMyId() == 2) {
               key = ByteArithmetic.toBoolean("00112233445566778899aabbccddeeff"); // 128-bit key
-              inputList = new int[]{2, 66, 112, 1123};
+              inputList = new int[] {2, 66, 112, 1123};
             } else if (conf.netConf.getMyId() == 1) {
               key = ByteArithmetic.toBoolean("000102030405060708090a0b0c0d0e0f"); // 128-bit key
-              inputList = new int[]{1, 3, 66, 1123};
+              inputList = new int[] {1, 3, 66, 1123};
             }
 
             PrivateSetDemo app = new PrivateSetDemo(conf.netConf.getMyId(), key, inputList);
 
-            secureComputationEngine.runApplication(app,
+            List<List<Boolean>> psiResult = secureComputationEngine.runApplication(app,
                 ResourcePoolCreator.createResourcePool(conf.sceConf));
+            System.out
+                .println("Result Dimentions: " + psiResult.size() + ", " + psiResult.get(0).size());
+            boolean[][] actualBoolean = new boolean[psiResult.size()][psiResult.get(0).size()];
 
-            boolean[][] actualBoolean = new boolean[app.result.length][app.result[0].length];
-
-            for (int j = 0; j < app.result.length; j++) {
-              for (int i = 0; i < app.result[0].length; i++) {
-                actualBoolean[j][i] = app.result[j][i].getValue();
+            for (int j = 0; j < psiResult.size(); j++) {
+              for (int i = 0; i < psiResult.get(0).size(); i++) {
+                actualBoolean[j][i] = psiResult.get(j).get(i);
               }
               String actual = ByteArithmetic.toHex(actualBoolean[j]);
               result[j] = actual;

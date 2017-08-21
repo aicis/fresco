@@ -24,171 +24,144 @@
 package dk.alexandra.fresco.lib.debug;
 
 import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.NativeProtocol;
-import dk.alexandra.fresco.framework.ProtocolCollection;
-import dk.alexandra.fresco.framework.ProtocolProducer;
+import dk.alexandra.fresco.framework.builder.ComputationBuilder;
+import dk.alexandra.fresco.framework.builder.NumericBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
-import dk.alexandra.fresco.lib.field.integer.generic.IOIntProtocolFactory;
-import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
-import dk.alexandra.fresco.lib.helper.SingleProtocolProducer;
+import dk.alexandra.fresco.lib.lp.Matrix;
+import java.io.PrintStream;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
-import java.util.Objects;
 
-//TODO refactor into new architecture
-public class ArithmeticOpenAndPrint implements ProtocolProducer {
+public class ArithmeticOpenAndPrint implements ComputationBuilder<Void> {
 
-  private SInt number = null;
-  private SInt[] vector = null;
-  private SInt[][] matrix = null;
-
-  private List<Computation<BigInteger>> openVector = null;
-  private List<List<Computation<BigInteger>>> openMatrix = null;
-  private NativeProtocol<BigInteger, ?> openNumber;
-
-  public ArithmeticOpenAndPrint(String s, List<Computation<SInt>> comps,
-      BasicNumericFactory bnFactory) {
-    this(s, comps.stream().map(Computation::out).toArray(SInt[]::new), bnFactory);
-  }
-
-  private enum State {OUTPUT, WRITE, DONE}
-
-  private State state = State.OUTPUT;
+  private Computation<SInt> number = null;
+  private List<Computation<SInt>> vector = null;
+  private Matrix<Computation<SInt>> matrix = null;
   private String label;
+  private PrintStream stream;
 
-  ProtocolProducer pp = null;
-
-  private BasicNumericFactory factory;
- 
-  /**
-   * Prints a single number.
-   *
-   * @param label label identify the print out
-   * @param number the number to print
-   * @param factory a basic numeric factory
-   */
-  public ArithmeticOpenAndPrint(String label, SInt number, BasicNumericFactory factory) {
-    Objects.requireNonNull(number);
+  public ArithmeticOpenAndPrint(String label, Computation<SInt> number, PrintStream stream) {
+    this.label = label;
     this.number = number;
-    this.factory = factory;
-    this.label = label;
+    this.stream = stream;
   }
 
-  /**
-   * Prints a vector.
-   *
-   * @param label label identify the print out
-   * @param vector the vector to print
-   * @param factory a basic numeric factory
-   */
-  public ArithmeticOpenAndPrint(String label, SInt[] vector, BasicNumericFactory factory) {
-    Objects.requireNonNull(vector);
+  public ArithmeticOpenAndPrint(String label, List<Computation<SInt>> vector, PrintStream stream) {
+    this.label = label;
     this.vector = vector;
-    this.factory = factory;
-    this.label = label;
+    this.stream = stream;
   }
 
-  /**
-   * Prints a matrix number.
-   *
-   * @param label label identify the print out
-   * @param matrix the matrix to print
-   * @param factory a basic numeric factory
-   */
-  public ArithmeticOpenAndPrint(String label, SInt[][] matrix, BasicNumericFactory factory) {
-    Objects.requireNonNull(matrix);
+  public ArithmeticOpenAndPrint(String label, Matrix<Computation<SInt>> matrix,
+      PrintStream stream) {
+    this.label = label;
     this.matrix = matrix;
-    this.factory = factory;
-    this.label = label;
+    this.stream = stream;
   }
 
   @Override
-  public void getNextProtocols(ProtocolCollection protocolCollection) {
-    if (pp == null) {
-      if (state == State.OUTPUT) {
-        if (number != null) {
-          openNumber = factory.getOpenProtocol(number);
-          pp = new SingleProtocolProducer<>(openNumber);
-        } else if (vector != null) {
-          openVector = new ArrayList<>();
-          pp = makeOpenProtocol(vector, openVector, factory);
-        } else {
-          openMatrix = new ArrayList<>();
-          pp = makeOpenProtocol(matrix, openMatrix, factory);
+  public Computation<Void> build(SequentialNumericBuilder builder) {
+    return builder.seq(seq -> {
+      NumericBuilder num = seq.numeric();
+      List<Computation<BigInteger>> res = new ArrayList<>();
+      if (number != null) {
+        res.add(num.open(number));
+      } else if (vector != null) {
+        for (Computation<SInt> c : vector) {
+          res.add(num.open(c));
         }
-      } else if (state == State.WRITE) {
-        StringBuilder sb = new StringBuilder();
-        sb.append(label);
-        if (openNumber != null) {
-          sb.append(openNumber.out().toString());
-        } else if (openVector != null) {
-          sb.append('\n');
-          for (Computation<BigInteger> entry : openVector) {
-            sb.append(entry.out().toString() + ", ");
-          }
-        } else if (openMatrix != null) {
-          sb.append('\n');
-          for (List<Computation<BigInteger>> row : openMatrix) {
-            for (Computation<BigInteger> entry : row) {
-              sb.append(entry.out().toString() + ",  ");
-            }
-            sb.append('\n');
+      } else {
+        // matrix
+        for (int i = 0; i < matrix.getHeight(); i++) {
+          List<Computation<SInt>> l = matrix.getRow(i);
+          for (Computation<SInt> c : l) {
+            res.add(num.open(c));
           }
         }
-        pp = new MarkerProtocolImpl(sb.toString(), null);
-      } else if (state == State.DONE) {
-        // TODO: This should really never occur as a state of DONE should give false in
-        // hasNextProtocols, but it does, find out why.
-        return;
       }
-    }
-    if (pp.hasNextProtocols()) {
-      pp.getNextProtocols(protocolCollection);
-    } else if (!pp.hasNextProtocols()) {
-      switch (state) {
-        case OUTPUT:
-          state = State.WRITE;
-          pp = null;
-          break;
-        case WRITE:
-          state = State.DONE;
-          pp = null;
-          break;
-        default:
-          break;
+      return () -> res;
+    }).seq((res, seq) -> {
+      StringBuilder sb = new StringBuilder();
+      sb.append(label);
+      sb.append("\n");
+      if (number != null) {
+        sb.append(res.get(0).out());
+      } else if (vector != null) {
+        for (Computation<BigInteger> v : res) {
+          sb.append(v.out() + ", ");
+        }
+      } else {
+        Iterator<Computation<BigInteger>> it = res.iterator();
+        for (int i = 0; i < this.matrix.getHeight(); i++) {
+          for (int j = 0; j < this.matrix.getWidth(); j++) {
+            sb.append(it.next().out() + ", ");
+          }
+          sb.append("\n");
+        }
       }
-    }
+      seq.utility().marker(sb.toString(), stream);
+      return null;
+    });
   }
-
-  private ProtocolProducer makeOpenProtocol(SInt[][] closed,
-      List<List<Computation<BigInteger>>> open,
-      IOIntProtocolFactory factory) {
-    ProtocolProducer[] openings = new ProtocolProducer[closed.length];
-    for (int i = 0; i < closed.length; i++) {
-      ArrayList<Computation<BigInteger>> columnResult = new ArrayList<>();
-      open.add(columnResult);
-      openings[i] = makeOpenProtocol(closed[i], columnResult, factory);
-    }
-    return new ParallelProtocolProducer(openings);
-  }
-
-
-  private ProtocolProducer makeOpenProtocol(SInt[] closed, List<Computation<BigInteger>> result,
-      IOIntProtocolFactory factory) {
-    ParallelProtocolProducer parallelProtocolProducer = new ParallelProtocolProducer();
-    for (SInt aClosed : closed) {
-      NativeProtocol<BigInteger, ?> openProtocol = factory.getOpenProtocol(aClosed);
-      result.add(openProtocol);
-      parallelProtocolProducer.append(openProtocol);
-    }
-    return parallelProtocolProducer;
-  }
-
-  @Override
-  public boolean hasNextProtocols() {
-    return state != State.DONE;
-  }
-
+  //
+  // @Override
+  // public void getNextProtocols(ProtocolCollection protocolCollection) {
+  // if (pp == null) {
+  // if (state == State.OUTPUT) {
+  // if (number != null) {
+  // openNumber = factory.getOpenProtocol(number);
+  // pp = new SingleProtocolProducer<>(openNumber);
+  // } else if (vector != null) {
+  // openVector = new ArrayList<>();
+  // pp = makeOpenProtocol(vector, openVector, factory);
+  // } else {
+  // openMatrix = new ArrayList<>();
+  // pp = makeOpenProtocol(matrix, openMatrix, factory);
+  // }
+  // } else if (state == State.WRITE) {
+  // StringBuilder sb = new StringBuilder();
+  // sb.append(label);
+  // if (openNumber != null) {
+  // sb.append(openNumber.out().toString());
+  // } else if (openVector != null) {
+  // sb.append('\n');
+  // for (Computation<BigInteger> entry : openVector) {
+  // sb.append(entry.out().toString() + ", ");
+  // }
+  // } else if (openMatrix != null) {
+  // sb.append('\n');
+  // for (List<Computation<BigInteger>> row : openMatrix) {
+  // for (Computation<BigInteger> entry : row) {
+  // sb.append(entry.out().toString() + ", ");
+  // }
+  // sb.append('\n');
+  // }
+  // }
+  // pp = new MarkerProtocolImpl(sb.toString(), null);
+  // } else if (state == State.DONE) {
+  // // TODO: This should really never occur as a state of DONE should give false in
+  // // hasNextProtocols, but it does, find out why.
+  // return;
+  // }
+  // }
+  // if (pp.hasNextProtocols()) {
+  // pp.getNextProtocols(protocolCollection);
+  // } else if (!pp.hasNextProtocols()) {
+  // switch (state) {
+  // case OUTPUT:
+  // state = State.WRITE;
+  // pp = null;
+  // break;
+  // case WRITE:
+  // state = State.DONE;
+  // pp = null;
+  // break;
+  // default:
+  // break;
+  // }
+  // }
+  // }
 }

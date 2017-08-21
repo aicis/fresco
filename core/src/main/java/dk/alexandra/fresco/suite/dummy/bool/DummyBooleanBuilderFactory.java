@@ -38,25 +38,22 @@ import java.util.List;
 public class DummyBooleanBuilderFactory implements BuilderFactoryBinary {
 
 
-  // private DummyBooleanFactory factory;
+  private DummyBooleanFactory factory;
 
-  public DummyBooleanBuilderFactory(/* DummyBooleanFactory factory */) {
+  public DummyBooleanBuilderFactory(DummyBooleanFactory factory) {
     super();
-    // this.factory = factory;
+    this.factory = factory;
   }
 
   @Deprecated
   @Override
   public ProtocolFactory getProtocolFactory() {
-    return null;
-    // return factory;
+    throw new RuntimeException("Should not be used");
   }
 
-  @Deprecated
   @Override
   public BasicBinaryFactory createBasicBinaryFactory() {
-    // TODO Auto-generated method stub
-    return null;
+    return factory;
   }
 
 
@@ -130,6 +127,12 @@ public class DummyBooleanBuilderFactory implements BuilderFactoryBinary {
       }
 
       @Override
+      public void and(Computation<SBool> left, Computation<SBool> right, Computation<SBool> out) {
+        DummyBooleanAndProtocol c = new DummyBooleanAndProtocol(left, right, out.out());
+        builder.append(c);
+      }
+
+      @Override
       public Computation<SBool> and(Computation<SBool> a, boolean b) {
 
         DummyBooleanAndProtocol c = new DummyBooleanAndProtocol(a, known(b));
@@ -142,6 +145,12 @@ public class DummyBooleanBuilderFactory implements BuilderFactoryBinary {
         DummyBooleanXorProtocol c = new DummyBooleanXorProtocol(a, b);
         builder.append(c);
         return c;
+      }
+
+      @Override
+      public void xor(Computation<SBool> left, Computation<SBool> right, Computation<SBool> out) {
+        DummyBooleanXorProtocol c = new DummyBooleanXorProtocol(left, right, out.out());
+        builder.append(c);
       }
 
       @Override
@@ -159,12 +168,17 @@ public class DummyBooleanBuilderFactory implements BuilderFactoryBinary {
       }
 
       @Override
+      public void not(Computation<SBool> in, Computation<SBool> out) {
+        DummyBooleanNotProtocol c = new DummyBooleanNotProtocol(in, out.out());
+        builder.append(c);
+      }
+
+      @Override
       public Computation<SBool> copy(Computation<SBool> a) {
         DummyBooleanCopyProtocol c = new DummyBooleanCopyProtocol(a);
         builder.append(c);
         return c;
       }
-
     };
   }
 

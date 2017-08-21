@@ -3,26 +3,23 @@
  *
  * This file is part of the FRESCO project.
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
  *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *
- * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
- * and Bouncy Castle. Please see these projects for any further licensing issues.
+ * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL, and Bouncy Castle.
+ * Please see these projects for any further licensing issues.
  *******************************************************************************/
 package dk.alexandra.fresco.demo.cli;
 
@@ -36,7 +33,7 @@ import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.evaluator.SequentialEvaluator;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticProtocolSuite;
-import dk.alexandra.fresco.suite.dummy.bool.DummyProtocolSuite;
+import dk.alexandra.fresco.suite.dummy.bool.DummyBooleanProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.SpdzProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.configuration.PreprocessingStrategy;
 import dk.alexandra.fresco.suite.tinytables.online.TinyTablesProtocolSuite;
@@ -74,7 +71,7 @@ public class CmdLineUtil {
   private CommandLine cmd;
   private NetworkConfiguration networkConfiguration;
   private ProtocolSuite<?, ?> protocolSuite;
-  private ProtocolEvaluator evaluator;
+  private ProtocolEvaluator<?> evaluator;
 
   public CmdLineUtil() {
     this.appOptions = new Options();
@@ -93,7 +90,7 @@ public class CmdLineUtil {
     return evaluator;
   }
 
-  public ProtocolSuite<?, ?> getProtocolSuite() {
+  public ProtocolSuite getProtocolSuite() {
     return this.protocolSuite;
   }
 
@@ -107,21 +104,14 @@ public class CmdLineUtil {
   private static Options buildStandardOptions() {
     Options options = new Options();
 
-    options.addOption(Option.builder("i")
-        .desc("The id of this player. Must be a unique positive integer.")
-        .longOpt("id")
-        .required(true)
-        .hasArg()
-        .build());
+    options.addOption(
+        Option.builder("i").desc("The id of this player. Must be a unique positive integer.")
+            .longOpt("id").required(true).hasArg().build());
 
     options.addOption(Option.builder("s")
         .desc("The name of the protocol suite to use. Must be one of these: "
-            + getSupportedProtocolSuites() + ". "
-            + "The default value is: bgw")
-        .longOpt("suite")
-        .required(true)
-        .hasArg()
-        .build());
+            + getSupportedProtocolSuites() + ". " + "The default value is: bgw")
+        .longOpt("suite").required(true).hasArg().build());
 
     options.addOption(Option.builder("p")
         .desc(
@@ -129,38 +119,23 @@ public class CmdLineUtil {
                 + "Must be on the form [id]:[hostname]:[port] or [id]:[hostname]:[port]:[shared key]. "
                 + "id is a unique positive integer for the player, host and port is where to find the player, "
                 + " shared key is an optional string defining a secret key that is shared by you and the other player "
-                + " (the other player must submit the same key for you as you do for him). "
-        )
-        .longOpt("party")
-        .required(true)
-        .hasArgs()
-        .build());
+                + " (the other player must submit the same key for you as you do for him). ")
+        .longOpt("party").required(true).hasArgs().build());
 
     options.addOption(Option.builder("e")
-        .desc("The strategy for evaluation. Can be one of: " + Arrays
-            .toString(EvaluationStrategy.values()) + ". Defaults to "
+        .desc("The strategy for evaluation. Can be one of: "
+            + Arrays.toString(EvaluationStrategy.values()) + ". Defaults to "
             + EvaluationStrategy.SEQUENTIAL)
-        .longOpt("evaluator")
-        .required(false)
-        .hasArg(true)
-        .build());
+        .longOpt("evaluator").required(false).hasArg(true).build());
 
     options.addOption(Option.builder("b")
         .desc(
             "The maximum number of native protocols kept in memory at any point in time. Defaults to 4096")
-        .longOpt("max-batch")
-        .required(false)
-        .hasArg(true)
-        .build());
+        .longOpt("max-batch").required(false).hasArg(true).build());
 
-    options.addOption(Option.builder("D")
-        .argName("property=value")
+    options.addOption(Option.builder("D").argName("property=value")
         .desc("Used to set properties of protocol suite and other customizable components.")
-        .required(false)
-        .hasArg()
-        .numberOfArgs(2)
-        .valueSeparator()
-        .build());
+        .required(false).hasArg().numberOfArgs(2).valueSeparator().build());
 
     return options;
   }
@@ -233,8 +208,8 @@ public class CmdLineUtil {
       }
     }
     if (!parties.containsKey(myId)) {
-      throw new ParseException("This party is given the id " + myId +
-          " but this id is not present in the list of parties " + parties.keySet());
+      throw new ParseException("This party is given the id " + myId
+          + " but this id is not present in the list of parties " + parties.keySet());
     }
 
     if (this.cmd.hasOption("e")) {
@@ -274,12 +249,8 @@ public class CmdLineUtil {
     try {
       CommandLineParser parser = new DefaultParser();
       Options helpOpt = new Options();
-      helpOpt.addOption(Option.builder("h")
-          .desc("Displays this help message")
-          .longOpt("help")
-          .required(false)
-          .hasArg(false)
-          .build());
+      helpOpt.addOption(Option.builder("h").desc("Displays this help message").longOpt("help")
+          .required(false).hasArg(false).build());
 
       cmd = parser.parse(helpOpt, args, true);
       if (cmd.hasOption("h")) {
@@ -298,9 +269,8 @@ public class CmdLineUtil {
       validateStandardOptions();
       String protocolSuiteName = ((String) this.cmd.getParsedOptionValue("s")).toLowerCase();
       switch (protocolSuiteName) {
-        //TODO: When arithmetic dummy comes, add this here.
         case "dummybool":
-          this.protocolSuite = new DummyProtocolSuite();
+          this.protocolSuite = new DummyBooleanProtocolSuite();
           break;
         case "dummyarithmetic":
           this.protocolSuite = dummyArithmeticFromCmdLine(cmd);
@@ -309,15 +279,14 @@ public class CmdLineUtil {
           this.protocolSuite = SpdzConfigurationFromCmdLine(cmd);
           break;
         case "tinytablesprepro":
-          this.protocolSuite = tinyTablesPreProFromCmdLine(cmd,
-              this.networkConfiguration.getMyId());
+          this.protocolSuite =
+              tinyTablesPreProFromCmdLine(cmd, this.networkConfiguration.getMyId());
           break;
         case "tinytables":
           this.protocolSuite = tinyTablesFromCmdLine(cmd, this.networkConfiguration.getMyId());
           break;
         default:
-          throw new ParseException(
-              "Unknown protocol suite: " + protocolSuiteName);
+          throw new ParseException("Unknown protocol suite: " + protocolSuiteName);
       }
     } catch (ParseException e) {
       System.out.println("Error while parsing arguments: " + e.getLocalizedMessage());
@@ -338,7 +307,7 @@ public class CmdLineUtil {
 
   private static ProtocolSuite<?, ?> SpdzConfigurationFromCmdLine(CommandLine cmd) {
     Properties p = cmd.getOptionProperties("D");
-    //TODO: Figure out a meaningful default for the below
+    // TODO: Figure out a meaningful default for the below
     final int maxBitLength = Integer.parseInt(p.getProperty("spdz.maxBitLength", "64"));
     if (maxBitLength < 2) {
       throw new RuntimeException("spdz.maxBitLength must be > 1");

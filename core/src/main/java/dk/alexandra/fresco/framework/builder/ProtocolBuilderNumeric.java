@@ -27,6 +27,7 @@ public abstract class ProtocolBuilderNumeric implements ProtocolBuilder {
   private NumericBuilder numericBuilder;
   private ComparisonBuilder comparison;
   private AdvancedNumericBuilder advancedNumeric;
+  private UtilityBuilder utilityBuilder;
 
   private ProtocolBuilderNumeric(BuilderFactoryNumeric factory) {
     this.factory = factory;
@@ -46,13 +47,10 @@ public abstract class ProtocolBuilderNumeric implements ProtocolBuilder {
    * @param consumer the root of the protocol producer
    * @return a sequential protocol builder that can create the protocol producer
    */
-  public static SequentialNumericBuilder createApplicationRoot(
-      BuilderFactoryNumeric factory,
+  public static SequentialNumericBuilder createApplicationRoot(BuilderFactoryNumeric factory,
       Consumer<SequentialNumericBuilder> consumer) {
-    SequentialNumericBuilder builder = new SequentialNumericBuilder(
-        factory);
-    builder
-        .addConsumer(consumer, () -> new SequentialNumericBuilder(factory));
+    SequentialNumericBuilder builder = new SequentialNumericBuilder(factory);
+    builder.addConsumer(consumer, () -> new SequentialNumericBuilder(factory));
     return builder;
   }
 
@@ -98,14 +96,12 @@ public abstract class ProtocolBuilderNumeric implements ProtocolBuilder {
     addConsumer(consumer, () -> new SequentialNumericBuilder(factory));
   }
 
-  <T extends ProtocolBuilderNumeric> void addConsumer(Consumer<T> consumer,
-      Supplier<T> supplier) {
-    createAndAppend(
-        new LazyProtocolProducerDecorator(() -> {
-          T builder = supplier.get();
-          consumer.accept(builder);
-          return builder.build();
-        }));
+  <T extends ProtocolBuilderNumeric> void addConsumer(Consumer<T> consumer, Supplier<T> supplier) {
+    createAndAppend(new LazyProtocolProducerDecorator(() -> {
+      T builder = supplier.get();
+      consumer.accept(builder);
+      return builder.build();
+    }));
   }
 
   ProtocolBuilderNumeric.ProtocolEntity createAndAppend(ProtocolProducer producer) {
@@ -186,6 +182,13 @@ public abstract class ProtocolBuilderNumeric implements ProtocolBuilder {
     return advancedNumeric;
   }
 
+  public UtilityBuilder utility() {
+    if (utilityBuilder == null) {
+      utilityBuilder = factory.createUtilityBuilder(this);
+    }
+    return utilityBuilder;
+  }
+
   public MiscOIntGenerators getBigIntegerHelper() {
     return factory.getBigIntegerHelper();
   }
@@ -224,21 +227,17 @@ public abstract class ProtocolBuilderNumeric implements ProtocolBuilder {
 
     public <R> BuildStep<SequentialNumericBuilder, R, Void> seq(ComputationBuilder<R> function) {
       BuildStep<SequentialNumericBuilder, R, Void> builder =
-          new BuildStepSequential<>(
-              (ignored, inner) -> function.build(inner));
+          new BuildStepSequential<>((ignored, inner) -> function.build(inner));
       createAndAppend(
-          new LazyProtocolProducerDecorator(
-              () -> builder.createProducer(null, getFactory())
-          ));
+          new LazyProtocolProducerDecorator(() -> builder.createProducer(null, getFactory())));
       return builder;
     }
 
     public <R> BuildStep<ParallelNumericBuilder, R, Void> par(ComputationBuilderParallel<R> f) {
       BuildStep<ParallelNumericBuilder, R, Void> builder =
           new BuildStepParallel<>((ignored, inner) -> f.build(inner));
-      createAndAppend(new LazyProtocolProducerDecorator(
-          () -> builder.createProducer(null, getFactory())
-      ));
+      createAndAppend(
+          new LazyProtocolProducerDecorator(() -> builder.createProducer(null, getFactory())));
       return builder;
     }
   }
