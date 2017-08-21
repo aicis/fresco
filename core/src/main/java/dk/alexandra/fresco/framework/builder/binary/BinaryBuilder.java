@@ -2,6 +2,7 @@ package dk.alexandra.fresco.framework.builder.binary;
 
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.value.SBool;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -14,7 +15,13 @@ public interface BinaryBuilder {
 
   Computation<SBool> known(boolean known);
 
-  List<Computation<SBool>> known(boolean[] known);
+  default List<Computation<SBool>> known(boolean[] known) {
+    List<Computation<SBool>> res = new ArrayList<>();
+    for (int i = 0; i < known.length; i++) {
+      res.add(known(known[i]));
+    }
+    return res;
+  }
 
   Computation<SBool> input(boolean in, int inputter);
 
@@ -51,7 +58,8 @@ public interface BinaryBuilder {
    * 
    * @param left The left AND argument.
    * @param right The right AND argument.
-   * @param out The outgoing wire where the result is stored.
+   * @param out The outgoing wire where the result is stored. It is assumed that this computation's
+   *        out method returns an empty SBool of the correct protocol suite type.
    */
   void and(Computation<SBool> left, Computation<SBool> right, Computation<SBool> out);
 
@@ -72,7 +80,8 @@ public interface BinaryBuilder {
    * 
    * @param leftInWireXor Left XOR argument
    * @param rightInWireXor right XOR argument
-   * @param outWireXor output wire where the result is stored.
+   * @param outWireXor output wire where the result is stored. It is assumed that this computation's
+   *        out method returns an empty SBool of the correct protocol suite type.
    */
   void xor(Computation<SBool> leftInWireXor, Computation<SBool> rightInWireXor,
       Computation<SBool> outWireXor);
@@ -91,7 +100,8 @@ public interface BinaryBuilder {
    * Basic NOT operation, but lets the application programmer choose the outgoing wire.
    * 
    * @param in The input to be inverted
-   * @param out The outgoing wire where the result is stored.
+   * @param out The outgoing wire where the result is stored. It is assumed that this computation's
+   *        out method returns an empty SBool of the correct protocol suite type.
    */
   void not(Computation<SBool> in, Computation<SBool> out);
 

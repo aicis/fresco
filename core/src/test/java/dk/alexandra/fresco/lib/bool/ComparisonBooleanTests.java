@@ -47,6 +47,14 @@ public class ComparisonBooleanTests {
   public static class TestGreaterThan<ResourcePoolT extends ResourcePool>
       extends TestThreadFactory<ResourcePoolT, SequentialBinaryBuilder> {
 
+    private boolean doAsserts = false;
+
+    public TestGreaterThan() {}
+
+    public TestGreaterThan(boolean doAsserts) {
+      this.doAsserts = doAsserts;
+    }
+
     @Override
     public TestThread<ResourcePoolT, SequentialBinaryBuilder> next(
         TestThreadConfiguration<ResourcePoolT, SequentialBinaryBuilder> conf) {
@@ -78,8 +86,10 @@ public class ComparisonBooleanTests {
           List<Boolean> res = secureComputationEngine.runApplication(app,
               ResourcePoolCreator.createResourcePool(conf.sceConf));
 
-          Assert.assertEquals(false, res.get(0));
-          Assert.assertEquals(true, res.get(1));
+          if (doAsserts) {
+            Assert.assertEquals(false, res.get(0));
+            Assert.assertEquals(true, res.get(1));
+          }
         }
       };
     }
@@ -92,6 +102,14 @@ public class ComparisonBooleanTests {
    */
   public static class TestEquality<ResourcePoolT extends ResourcePool>
       extends TestThreadFactory<ResourcePoolT, SequentialBinaryBuilder> {
+
+    private boolean doAsserts = false;
+
+    public TestEquality() {}
+
+    public TestEquality(boolean doAsserts) {
+      this.doAsserts = doAsserts;
+    }
 
     @Override
     public TestThread<ResourcePoolT, SequentialBinaryBuilder> next(
@@ -124,8 +142,10 @@ public class ComparisonBooleanTests {
           List<Boolean> res = secureComputationEngine.runApplication(app,
               ResourcePoolCreator.createResourcePool(conf.sceConf));
 
-          Assert.assertEquals(false, res.get(0));
-          Assert.assertEquals(true, res.get(1));
+          if (doAsserts) {
+            Assert.assertEquals(false, res.get(0));
+            Assert.assertEquals(true, res.get(1));
+          }
         }
       };
     }

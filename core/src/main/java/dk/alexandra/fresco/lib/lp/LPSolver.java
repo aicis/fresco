@@ -56,7 +56,7 @@ public class LPSolver implements ComputationBuilder<LPOutput> {
     BLAND, DANZIG
   }
 
-  private static final boolean debugLog = true;
+  private static final boolean debugLog = false;
 
   private final PivotRule pivotRule;
   private final LPTableau tableau;
