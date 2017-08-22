@@ -94,13 +94,6 @@ public class TestDummyProtocolSuite<ResourcePoolT extends ResourcePool>
         EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET);
   }
 
-  @Test
-  public void test_NotFromXor() throws Exception {
-    runTest(new FieldBoolTests.TestNotFromXor<ResourcePoolT>(),
-        EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET);
-  }
-
-
   // lib.math.bool
   @Test
   public void test_One_Bit_Half_Adder() throws Exception {

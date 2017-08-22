@@ -29,7 +29,6 @@ package dk.alexandra.fresco.lib.math.bool.log;
 import dk.alexandra.fresco.framework.BuilderFactory;
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.ProtocolProducer;
-import dk.alexandra.fresco.framework.TestBoolApplication;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
