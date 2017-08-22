@@ -38,7 +38,7 @@ import dk.alexandra.fresco.framework.builder.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
 import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
-import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
+import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.math.polynomial.evaluator.PolynomialEvaluator;
 import java.math.BigInteger;
@@ -50,12 +50,13 @@ import org.junit.Assert;
 
 public class PolynomialTests {
 
-  public static class TestPolynomialEvaluator extends TestThreadFactory {
+  public static class TestPolynomialEvaluator<ResourcePoolT extends ResourcePool> extends
+      TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     @Override
-    public TestThread next(TestThreadConfiguration conf) {
+    public TestThread next(TestThreadConfiguration<ResourcePoolT, ProtocolBuilderNumeric> conf) {
 
-      return new TestThread() {
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         private final int[] coefficients = {1, 0, 1, 2};
         private final int x = 3;
 
@@ -71,11 +72,11 @@ public class PolynomialTests {
               List<Computation<SInt>> secretCoefficients =
                   Arrays.stream(coefficients)
                       .mapToObj(BigInteger::valueOf)
-                      .map(numeric::known)
+                      .map((n) -> numeric.input(n, 1))
                       .collect(Collectors.toList());
 
               PolynomialImpl polynomial = new PolynomialImpl(secretCoefficients);
-              Computation<SInt> secretX = numeric.known(BigInteger.valueOf(x));
+              Computation<SInt> secretX = numeric.input(BigInteger.valueOf(x), 1);
 
               Computation<SInt> result = root
                   .createSequentialSub(new PolynomialEvaluator(secretX, polynomial));
@@ -90,8 +91,8 @@ public class PolynomialTests {
 
           int f = 0;
           int power = 1;
-          for (int i = 0; i < coefficients.length; i++) {
-            f += coefficients[i] * power;
+          for (int coefficient : coefficients) {
+            f += coefficient * power;
             power *= x;
           }
           BigInteger result = app.getOutputs()[0];

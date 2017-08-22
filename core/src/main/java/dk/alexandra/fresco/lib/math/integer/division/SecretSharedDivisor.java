@@ -85,13 +85,13 @@ public class SecretSharedDivisor
     ).par((pair, seq) -> {
       // Determine sign of numerator and ensure positive
       Computation<SInt> numerator = pair.getFirst();
-      Computation<SInt> sign = sign(seq, numerator);
+      Computation<SInt> sign = seq.comparison().sign(numerator);
 
       return Pair.lazy(sign, seq.numeric().mult(sign, numerator));
     }, (pair, seq) -> {
       // Determine sign of denominator and ensure positive
       Computation<SInt> denominator = pair.getSecond();
-      Computation<SInt> sign = sign(seq, denominator);
+      Computation<SInt> sign = seq.comparison().sign(denominator);
 
       return Pair.lazy(sign, seq.numeric().mult(sign, denominator));
     }).seq((pair, seq) -> {
@@ -168,26 +168,6 @@ public class SecretSharedDivisor
       int maximumBitLength) {
     return builder.advancedNumeric()
         .bitLength(input, maximumBitLength);
-  }
-
-  private Computation<SInt> sign(SequentialNumericBuilder builder, Computation<SInt> input) {
-    Computation<SInt> result = gte(builder, input,
-        builder.numeric().known(BigInteger.valueOf(0)));
-    BigInteger two = BigInteger.valueOf(2);
-    BigInteger one = BigInteger.valueOf(1);
-    result = builder.numeric().mult(two, result);
-    result = builder.numeric().sub(result, one);
-    return result;
-  }
-
-  private Computation<SInt> gte(SequentialNumericBuilder builder, Computation<SInt> left,
-      Computation<SInt> right) {
-
-    // TODO: workaround for the fact that the GreaterThanProtocol actually calculated left <= right.
-    Computation<SInt> actualLeft = right;
-    Computation<SInt> actualRight = left;
-
-    return builder.comparison().compareLEQ(actualLeft, actualRight);
   }
 
   private Computation<SInt> exp2(SequentialNumericBuilder builder, Computation<SInt> exponent,

@@ -52,7 +52,7 @@ public class Exponentiation implements ComputationBuilder<SInt> {
         seq.advancedNumeric().toBits(exponent, maxExponentBitLength)
     ).seq((bits, seq) -> {
       Computation<SInt> e = input;
-      Computation<SInt> result = seq.numeric().known(BigInteger.valueOf(1));
+      Computation<SInt> result = null;
       NumericBuilder numeric = seq.numeric();
       for (SInt bit : bits) {
         /*
@@ -64,8 +64,13 @@ public class Exponentiation implements ComputationBuilder<SInt> {
 				 * result = {
 				 *            result * e   if bits[i] = 1
 				 */
-        result = numeric
-            .add(numeric.mult(() -> bit, numeric.sub(numeric.mult(result, e), result)), result);
+        if (result == null) {
+          Computation<SInt> sub = numeric.sub(e, BigInteger.ONE);
+          result = numeric.add(BigInteger.ONE, numeric.mult(() -> bit, sub));
+        } else {
+          Computation<SInt> sub = numeric.sub(numeric.mult(result, e), result);
+          result = numeric.add(result, numeric.mult(() -> bit, sub));
+        }
         e = numeric.mult(e, e);
       }
       return result;

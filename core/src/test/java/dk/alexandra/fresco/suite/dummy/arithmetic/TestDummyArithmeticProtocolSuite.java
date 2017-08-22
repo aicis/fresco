@@ -316,12 +316,6 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
   }
 
   @Test
-  public void test_InnerProductNewAPI() throws Exception {
-    runTest(new LinAlgTests.InnerProductNewApiTest(), EvaluationStrategy.SEQUENTIAL_BATCHED,
-        NetworkingStrategy.KRYONET, 2);
-  }
-
-  @Test
   public void test_InnerProductOpen() throws Exception {
     runTest(new LinAlgTests.TestInnerProductOpen(), EvaluationStrategy.SEQUENTIAL_BATCHED,
         NetworkingStrategy.KRYONET, 2);
