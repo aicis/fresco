@@ -154,9 +154,8 @@ public class CreditRater implements
         // Add "x > last interval definition" to comparisons
 
         NumericBuilder numericBuilder = builder.numeric();
-        Computation<SInt> one = builder.numeric().known(BigInteger.valueOf(1));
         Computation<SInt> lastComparison = comparisons.get(comparisons.size() - 1);
-        comparisons.add(numericBuilder.sub(one, lastComparison));
+        comparisons.add(numericBuilder.sub(BigInteger.ONE, lastComparison));
         return () -> comparisons;
       }).par((comparisons, parallelBuilder) -> {
         //Comparisons now contain if x <= each definition and if x>= last definition

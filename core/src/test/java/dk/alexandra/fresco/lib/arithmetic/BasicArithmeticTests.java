@@ -418,11 +418,11 @@ public class BasicArithmeticTests {
                   .createApplicationRoot((BuilderFactoryNumeric) factoryProducer);
               NumericBuilder numeric = seq.numeric();
               List<Computation<SInt>> ns =
-                  bns.stream().map(numeric::known).collect(Collectors.toList());
+                  bns.stream().map((n) -> numeric.input(n, 1)).collect(Collectors.toList());
               List<Computation<SInt>> ds =
-                  bds.stream().map(numeric::known).collect(Collectors.toList());
+                  bds.stream().map((n) -> numeric.input(n, 1)).collect(Collectors.toList());
               List<Computation<SInt>> infs =
-                  binfs.stream().map(numeric::known).collect(Collectors.toList());
+                  binfs.stream().map((n) -> numeric.input(n, 1)).collect(Collectors.toList());
 
               seq.seq(new MinInfFrac(ns, ds, infs)).seq((infOutput, seq2) -> {
                 NumericBuilder innerNumeric = seq2.numeric();
