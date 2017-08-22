@@ -26,33 +26,6 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.compare;
 
-import dk.alexandra.fresco.framework.BuilderFactory;
-import dk.alexandra.fresco.framework.ProtocolFactory;
-import dk.alexandra.fresco.framework.ProtocolProducer;
-import dk.alexandra.fresco.framework.TestApplication;
-import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
-import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
-import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
-import dk.alexandra.fresco.framework.math.Util;
-import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
-import dk.alexandra.fresco.framework.util.ByteArithmetic;
-import dk.alexandra.fresco.framework.util.Pair;
-import dk.alexandra.fresco.framework.value.SBool;
-import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
-import dk.alexandra.fresco.lib.helper.AlgebraUtil;
-import dk.alexandra.fresco.lib.helper.SequentialProtocolProducer;
-import dk.alexandra.fresco.lib.helper.builder.NumericIOBuilder;
-
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-
-import org.apache.commons.lang.ArrayUtils;
-import org.hamcrest.core.Is;
-import org.junit.Assert;
-
 /**
  * Test class for the DEASolver.
  * Will generate a random data sample and perform a Data Envelopment
