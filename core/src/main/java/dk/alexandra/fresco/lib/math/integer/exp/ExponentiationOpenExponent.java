@@ -41,13 +41,13 @@ public class ExponentiationOpenExponent implements ComputationBuilder<SInt> {
   public ExponentiationOpenExponent(Computation<SInt> x, BigInteger e) {
     this.base = x;
     this.exponent = e;
+    if (exponent.compareTo(BigInteger.ZERO) <= 0) {
+      throw new IllegalArgumentException("Now why would you exponentiate a SInt with 0?");
+    }
   }
 
   @Override
   public Computation<SInt> build(SequentialNumericBuilder builder) {
-    if (exponent.equals(BigInteger.ZERO)) {
-      throw new RuntimeException("Now why would you exponentiate a SInt with 0?");
-    }
     return builder.seq((seq) -> {
       Computation<SInt> accEven = base;
       return new IterationState(exponent, accEven, null);
