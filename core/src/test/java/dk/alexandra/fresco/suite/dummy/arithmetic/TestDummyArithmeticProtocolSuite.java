@@ -303,7 +303,7 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
         EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET, 2);
   }
 
-  @Test
+  @Test()
   public void test_ExponentiationZeroExponent() throws Exception {
     runTest(new ExponentiationTests.TestExponentiationZeroExponent(),
         EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET, 2);

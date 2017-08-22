@@ -203,11 +203,17 @@ public class ExponentiationTests {
               return outputToBigInteger();
             }
           };
-          secureComputationEngine.runApplication(app,
-              ResourcePoolCreator.createResourcePool(conf.sceConf));
-          BigInteger result = app.getOutputs()[0];
-
-          Assert.assertEquals(input.pow(0), result);
+          try {
+            secureComputationEngine.runApplication(app,
+                ResourcePoolCreator.createResourcePool(conf.sceConf));
+          } catch (RuntimeException e) {
+            // Cause is wrapped in an intermediate concurrent exception.
+            if (e.getCause().getCause() instanceof IllegalArgumentException) {
+              return;
+            }
+          }
+          Assert.fail(
+              "Should have thrown an Illegal argument exception since exponent is not allowed to be 0");
         }
       };
     }
