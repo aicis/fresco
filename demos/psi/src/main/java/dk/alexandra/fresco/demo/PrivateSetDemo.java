@@ -242,14 +242,15 @@ public class PrivateSetDemo implements Application<List<List<Boolean>>, Sequenti
           }
         }
       }
-
-      // TODO: This step should be done in parallel
+      PSIInputs inputs = new PSIInputs(set1, set2, commonKey);
+      return () -> inputs;
+    }).par((inputs, par) -> {
       List<Computation<List<SBool>>> aesResults = new ArrayList<>();
-      for (List<Computation<SBool>> set : set1) {
-        aesResults.add(seq.bristol().AES(set, commonKey));
+      for (List<Computation<SBool>> set : inputs.set1) {
+        aesResults.add(par.bristol().AES(set, inputs.commonKey));
       }
-      for (List<Computation<SBool>> set : set2) {
-        aesResults.add(seq.bristol().AES(set, commonKey));
+      for (List<Computation<SBool>> set : inputs.set2) {
+        aesResults.add(par.bristol().AES(set, inputs.commonKey));
       }
       return () -> aesResults;
     }).seq((aesResults, seq) -> {
@@ -270,6 +271,25 @@ public class PrivateSetDemo implements Application<List<List<Boolean>>, Sequenti
           .collect(Collectors.toList());
       return () -> outs;
     });
+  }
+
+  private static class PSIInputs implements Computation<PSIInputs> {
+
+    private List<List<Computation<SBool>>> set1, set2;
+    private List<Computation<SBool>> commonKey;
+
+    public PSIInputs(List<List<Computation<SBool>>> set1, List<List<Computation<SBool>>> set2,
+        List<Computation<SBool>> commonKey) {
+      super();
+      this.set1 = set1;
+      this.set2 = set2;
+      this.commonKey = commonKey;
+    }
+
+    @Override
+    public PSIInputs out() {
+      return this;
+    }
   }
 
 }
