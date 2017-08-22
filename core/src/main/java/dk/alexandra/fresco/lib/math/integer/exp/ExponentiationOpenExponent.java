@@ -43,7 +43,7 @@ public class ExponentiationOpenExponent implements ComputationBuilder<SInt> {
     this.exponent = e;
     if (exponent.compareTo(BigInteger.ZERO) <= 0) {
       throw new IllegalArgumentException(
-          "Now why would you exponentiate a SInt with somthing equal to or less than 0?");
+          "This computation does not support exponentiate a SInt with somthing equal to or less than 0?");
     }
   }
 
