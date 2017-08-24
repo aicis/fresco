@@ -40,14 +40,6 @@ public class TinyTablesPreproBuilderFactory implements BuilderFactoryBinary {
       }
 
       @Override
-      public void xor(Computation<SBool> leftInWireXor, Computation<SBool> rightInWireXor,
-          Computation<SBool> outWireXor) {
-        TinyTablesPreproXORProtocol p =
-            new TinyTablesPreproXORProtocol(leftInWireXor, rightInWireXor, outWireXor.out());
-        builder.append(p);
-      }
-
-      @Override
       public Computation<SBool> xor(Computation<SBool> left, Computation<SBool> right) {
         SBool out = factory.getSBool();
         TinyTablesPreproXORProtocol p = new TinyTablesPreproXORProtocol(left, right, out);
@@ -73,12 +65,6 @@ public class TinyTablesPreproBuilderFactory implements BuilderFactoryBinary {
         builder.append(p);
         // Always return false - preprocessing cannot compute output.
         return () -> false;
-      }
-
-      @Override
-      public void not(Computation<SBool> in, Computation<SBool> out) {
-        TinyTablesPreproNOTProtocol p = new TinyTablesPreproNOTProtocol(in, out.out());
-        builder.append(p);
       }
 
       @Override
@@ -126,13 +112,6 @@ public class TinyTablesPreproBuilderFactory implements BuilderFactoryBinary {
       @Override
       public Computation<SBool> and(Computation<SBool> left, boolean right) {
         throw new RuntimeException("Not implemented yet");
-      }
-
-      @Override
-      public void and(Computation<SBool> left, Computation<SBool> right, Computation<SBool> out) {
-        TinyTablesPreproANDProtocol p =
-            new TinyTablesPreproANDProtocol(getNextId(), left, right, out.out());
-        builder.append(p);
       }
 
       @Override
