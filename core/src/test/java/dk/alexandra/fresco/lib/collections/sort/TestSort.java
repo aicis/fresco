@@ -1,7 +1,5 @@
 package dk.alexandra.fresco.lib.collections.sort;
 
-import java.math.BigInteger;
-
 import org.hamcrest.core.Is;
 import org.junit.Assert;
 import org.junit.Test;
@@ -32,11 +30,5 @@ public class TestSort {
     });
     Assert.assertThat(protocolLayer.size(), Is.is(1));
   }
-  
-  @Test
-  public void testKeyedCompareAndSwap() {
-    KeyedCompareAndSwapProtocolGetNextProtocolImpl keyedSwap = new KeyedCompareAndSwapProtocolGetNextProtocolImpl(null, null, null, null,  null);
-    ProtocolProducer producer = keyedSwap.initializeProtocolProducer();
-    Assert.assertThat(producer, Is.is(keyedSwap));
-  }
+
 }

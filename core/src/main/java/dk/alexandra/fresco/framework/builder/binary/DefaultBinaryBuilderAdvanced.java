@@ -6,7 +6,6 @@ import dk.alexandra.fresco.framework.value.SBool;
 import dk.alexandra.fresco.lib.collections.sort.KeyedCompareAndSwapProtocol;
 import dk.alexandra.fresco.lib.collections.sort.OddEvenMergeProtocol;
 import dk.alexandra.fresco.lib.collections.sort.OddEvenMergeProtocolRec;
-import dk.alexandra.fresco.lib.compare.KeyedCompareAndSwapProtocol;
 import dk.alexandra.fresco.lib.field.bool.ConditionalSelect;
 import dk.alexandra.fresco.lib.field.bool.generic.AndFromCopyConst;
 import dk.alexandra.fresco.lib.field.bool.generic.NandFromAndAndNot;
