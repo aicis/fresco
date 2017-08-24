@@ -66,14 +66,15 @@ public class ByteArithmetic {
       }
     }
   }
-  
+
   public static byte not(byte value) {
-    if(value == 0) {
+    if (value == 0) {
       return 1;
     } else {
       return 0;
     }
   }
+
   static void packBits(byte[] unpacked, byte[] packed) {
     int packedLength = packed.length;
     for (int i = 0; i < packedLength; i++) {
@@ -153,35 +154,33 @@ public class ByteArithmetic {
   }
 
   /**
-   * Convert boolean array to hex string.
-   * true --> 1, false --> 0
+   * Convert boolean array to hex string. true --> 1, false --> 0
    * 
    */
   public static String toHex(boolean[] bits) {
     StringBuilder hex = new StringBuilder();
     boolean[] niceBits = null;
-    if(bits.length %4 == 0) {
+    if (bits.length % 4 == 0) {
       niceBits = bits;
     } else {
-      niceBits = new boolean[4*((bits.length/4)+1)];
-      int offset = 4- (bits.length%4);
+      niceBits = new boolean[4 * ((bits.length / 4) + 1)];
+      int offset = 4 - (bits.length % 4);
       System.arraycopy(bits, 0, niceBits, offset, bits.length);
     }
-    
+
     StringBuilder binb = new StringBuilder();
-    for (int i=0; i<niceBits.length; i++) {
+    for (int i = 0; i < niceBits.length; i++) {
       binb.append(niceBits[i] ? "1" : "0");
     }
     String bin = binb.toString();
-    System.out.println("binary: "+bin);
-    for (int i=0; i<bin.length() / 4; i++) {
-      String digit = bin.substring(i*4, i*4 + 4);
+    for (int i = 0; i < bin.length() / 4; i++) {
+      String digit = bin.substring(i * 4, i * 4 + 4);
       Integer dec = Integer.parseInt(digit, 2);
       String hexStr = Integer.toHexString(dec);
       // System.out.println("Digit -> " + digit + " --> " + dec + " --> " + hexStr);
       hex.append(hexStr);
     }
-    if(hex.length() %2 != 0) {
+    if (hex.length() % 2 != 0) {
       hex.insert(0, "0");
     }
     return hex.toString();
@@ -191,13 +190,13 @@ public class ByteArithmetic {
     Boolean[] bitArray = bits.toArray(new Boolean[1]);
     return toHex(convertArray(bitArray));
   }
-  
+
   public static boolean[] convertArray(Boolean[] in) {
     boolean[] output = new boolean[in.length];
-    for(int i = 0; i< in.length; i++) {
+    for (int i = 0; i < in.length; i++) {
       output[i] = in[i].booleanValue();
     }
     return output;
   }
-  
+
 }

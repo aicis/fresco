@@ -28,6 +28,15 @@ public interface BinaryBuilderAdvanced {
 
   Computation<SBool> nand(Computation<SBool> left, boolean right);
 
+  /**
+   * And from copy. Uses the copy protocol to do an AND operation between the two inputs.
+   * 
+   * @param left The left secret shared input.
+   * @param right The publicly known input.
+   * @return left AND right
+   */
+  Computation<SBool> and(Computation<SBool> left, boolean right);
+
 
   /**
    * Appends a conditional select protocol to the current protocol. The output of this protocol on

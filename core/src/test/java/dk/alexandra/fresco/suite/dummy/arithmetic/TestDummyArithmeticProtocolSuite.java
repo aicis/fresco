@@ -303,7 +303,7 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
         EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET, 2);
   }
 
-  @Test
+  @Test()
   public void test_ExponentiationZeroExponent() throws Exception {
     runTest(new ExponentiationTests.TestExponentiationZeroExponent(),
         EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET, 2);
@@ -312,12 +312,6 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
   @Test
   public void test_InnerProductClosed() throws Exception {
     runTest(new LinAlgTests.TestInnerProductClosed(), EvaluationStrategy.SEQUENTIAL_BATCHED,
-        NetworkingStrategy.KRYONET, 2);
-  }
-
-  @Test
-  public void test_InnerProductNewAPI() throws Exception {
-    runTest(new LinAlgTests.InnerProductNewApiTest(), EvaluationStrategy.SEQUENTIAL_BATCHED,
         NetworkingStrategy.KRYONET, 2);
   }
 

@@ -50,15 +50,15 @@ public class TestDummyProtocolSuite<ResourcePoolT extends ResourcePool>
   // Basic tests for boolean suites
   @Test
   public void test_basic_logic() throws Exception {
-    runTest(new BasicBooleanTests.TestInput<ResourcePoolT>(), EvaluationStrategy.SEQUENTIAL,
+    runTest(new BasicBooleanTests.TestInput<ResourcePoolT>(true), EvaluationStrategy.SEQUENTIAL,
         NetworkingStrategy.KRYONET);
-    runTest(new BasicBooleanTests.TestXOR<ResourcePoolT>(), EvaluationStrategy.SEQUENTIAL,
+    runTest(new BasicBooleanTests.TestXOR<ResourcePoolT>(true), EvaluationStrategy.SEQUENTIAL,
         NetworkingStrategy.KRYONET);
-    runTest(new BasicBooleanTests.TestAND<ResourcePoolT>(), EvaluationStrategy.SEQUENTIAL,
+    runTest(new BasicBooleanTests.TestAND<ResourcePoolT>(true), EvaluationStrategy.SEQUENTIAL,
         NetworkingStrategy.KRYONET);
-    runTest(new BasicBooleanTests.TestNOT<ResourcePoolT>(), EvaluationStrategy.SEQUENTIAL,
+    runTest(new BasicBooleanTests.TestNOT<ResourcePoolT>(true), EvaluationStrategy.SEQUENTIAL,
         NetworkingStrategy.KRYONET);
-    runTest(new BasicBooleanTests.TestCOPY<ResourcePoolT>(), EvaluationStrategy.SEQUENTIAL,
+    runTest(new BasicBooleanTests.TestCOPY<ResourcePoolT>(true), EvaluationStrategy.SEQUENTIAL,
         NetworkingStrategy.KRYONET);
   }
 
@@ -93,13 +93,6 @@ public class TestDummyProtocolSuite<ResourcePoolT extends ResourcePool>
     runTest(new FieldBoolTests.TestAndFromCopyConst<ResourcePoolT>(),
         EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET);
   }
-
-  @Test
-  public void test_NotFromXor() throws Exception {
-    runTest(new FieldBoolTests.TestNotFromXor<ResourcePoolT>(),
-        EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET);
-  }
-
 
   // lib.math.bool
   @Test
@@ -136,43 +129,43 @@ public class TestDummyProtocolSuite<ResourcePoolT extends ResourcePool>
   @Ignore
   @Test
   public void test_Mult32x32_Sequential() throws Exception {
-    runTest(new BristolCryptoTests.Mult32x32Test<ResourcePoolT>(), EvaluationStrategy.SEQUENTIAL,
-        NetworkingStrategy.KRYONET);
+    runTest(new BristolCryptoTests.Mult32x32Test<ResourcePoolT>(true),
+        EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET);
   }
 
   @Test
   public void test_AES_Sequential() throws Exception {
-    runTest(new BristolCryptoTests.AesTest<ResourcePoolT>(), EvaluationStrategy.SEQUENTIAL,
+    runTest(new BristolCryptoTests.AesTest<ResourcePoolT>(true), EvaluationStrategy.SEQUENTIAL,
         NetworkingStrategy.KRYONET);
   }
 
   @Test
   public void test_AES_SequentialBatched() throws Exception {
-    runTest(new BristolCryptoTests.AesTest<ResourcePoolT>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
-        NetworkingStrategy.KRYONET);
+    runTest(new BristolCryptoTests.AesTest<ResourcePoolT>(true),
+        EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET);
   }
 
   @Test
   public void test_DES_Sequential() throws Exception {
-    runTest(new BristolCryptoTests.DesTest<ResourcePoolT>(), EvaluationStrategy.SEQUENTIAL,
+    runTest(new BristolCryptoTests.DesTest<ResourcePoolT>(true), EvaluationStrategy.SEQUENTIAL,
         NetworkingStrategy.KRYONET);
   }
 
   @Test
   public void test_MD5_Sequential() throws Exception {
-    runTest(new BristolCryptoTests.MD5Test<ResourcePoolT>(), EvaluationStrategy.SEQUENTIAL,
+    runTest(new BristolCryptoTests.MD5Test<ResourcePoolT>(true), EvaluationStrategy.SEQUENTIAL,
         NetworkingStrategy.KRYONET);
   }
 
   @Test
   public void test_SHA1_Sequential() throws Exception {
-    runTest(new BristolCryptoTests.Sha1Test<ResourcePoolT>(), EvaluationStrategy.SEQUENTIAL,
+    runTest(new BristolCryptoTests.Sha1Test<ResourcePoolT>(true), EvaluationStrategy.SEQUENTIAL,
         NetworkingStrategy.KRYONET);
   }
 
   @Test
   public void test_SHA256_Sequential() throws Exception {
-    runTest(new BristolCryptoTests.Sha256Test<ResourcePoolT>(), EvaluationStrategy.SEQUENTIAL,
+    runTest(new BristolCryptoTests.Sha256Test<ResourcePoolT>(true), EvaluationStrategy.SEQUENTIAL,
         NetworkingStrategy.KRYONET);
   }
 
@@ -193,7 +186,7 @@ public class TestDummyProtocolSuite<ResourcePoolT extends ResourcePool>
 
   @Test
   public void test_basic_logic_all_in_one() throws Exception {
-    runTest(new BasicBooleanTests.TestBasicProtocols<ResourcePoolT>(),
+    runTest(new BasicBooleanTests.TestBasicProtocols<ResourcePoolT>(true),
         EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET);
   }
 

@@ -25,7 +25,6 @@ public interface BuilderFactoryBinary extends BuilderFactory<SequentialBinaryBui
     return new DefaultBinaryUtilityBuilder(builder);
   }
 
-  @Override
   default SequentialBinaryBuilder createProtocolBuilder() {
     return ProtocolBuilderBinary.createApplicationRoot(this);
   }

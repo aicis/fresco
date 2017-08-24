@@ -32,8 +32,6 @@ import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.network.SCENetwork;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SBool;
-import java.util.ArrayList;
-import java.util.List;
 
 public class DummyBooleanBuilderFactory implements BuilderFactoryBinary {
 
@@ -65,15 +63,6 @@ public class DummyBooleanBuilderFactory implements BuilderFactoryBinary {
       @Override
       public Computation<SBool> known(boolean value) {
         return () -> new DummyBooleanSBool(value);
-      }
-
-      @Override
-      public List<Computation<SBool>> known(boolean[] known) {
-        List<Computation<SBool>> res = new ArrayList<>();
-        for (int i = 0; i < known.length; i++) {
-          res.add(known(known[i]));
-        }
-        return res;
       }
 
       @Override

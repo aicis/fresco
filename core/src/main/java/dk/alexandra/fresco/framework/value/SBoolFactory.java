@@ -37,7 +37,13 @@ public interface SBoolFactory {
    * @amount the amount of SBools you want back
    * @return
    */
-  SBool[] getSBools(int amount);
+  default SBool[] getSBools(int amount) {
+    SBool[] res = new SBool[amount];
+    for (int i = 0; i < amount; i++) {
+      res[i] = this.getSBool();
+    }
+    return res;
+  }
 
   /**
    * Creates a container with a preloaded value.
@@ -55,5 +61,12 @@ public interface SBoolFactory {
    * @param bools
    * @return
    */
-  SBool[] getKnownConstantSBools(boolean[] bools);
+  default SBool[] getKnownConstantSBools(boolean[] bools) {
+    int amount = bools.length;
+    SBool[] res = new SBool[amount];
+    for (int i = 0; i < amount; i++) {
+      res[i] = this.getKnownConstantSBool(bools[i]);
+    }
+    return res;
+  }
 }

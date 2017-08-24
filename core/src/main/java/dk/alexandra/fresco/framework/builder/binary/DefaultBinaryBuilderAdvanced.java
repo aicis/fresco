@@ -40,7 +40,7 @@ public class DefaultBinaryBuilderAdvanced implements BinaryBuilderAdvanced {
   public Computation<SBool> or(Computation<SBool> left, boolean right) {
     return builder.createSequentialSub(new OrFromCopyConst(left, right));
   }
-  
+
   @Override
   public Computation<SBool> xnor(Computation<SBool> left, Computation<SBool> right) {
     return builder.createSequentialSub(new XnorFromXorAndNot(left, right));
@@ -48,13 +48,13 @@ public class DefaultBinaryBuilderAdvanced implements BinaryBuilderAdvanced {
 
   @Override
   public Computation<SBool> xnor(Computation<SBool> left, boolean right) {
-    if(right) {
+    if (right) {
       return builder.binary().copy(left);
     } else {
       return builder.binary().not(left);
     }
   }
-  
+
   @Override
   public Computation<SBool> nand(Computation<SBool> left, Computation<SBool> right) {
     return builder.createSequentialSub(new NandFromAndAndNot(left, right));
@@ -62,38 +62,39 @@ public class DefaultBinaryBuilderAdvanced implements BinaryBuilderAdvanced {
 
   @Override
   public Computation<SBool> nand(Computation<SBool> left, boolean right) {
-    if(right) {
+    if (right) {
       return builder.binary().not(left);
     } else {
       return builder.binary().known(true);
     }
   }
-  
+
   @Override
   public Computation<Pair<SBool, SBool>> oneBitFullAdder(Computation<SBool> left,
       Computation<SBool> right, Computation<SBool> carry) {
     return builder.createSequentialSub(new OneBitFullAdderProtocolImpl(left, right, carry));
   }
-  
+
   @Override
   public Computation<List<Computation<SBool>>> fullAdder(List<Computation<SBool>> lefts,
       List<Computation<SBool>> rights, Computation<SBool> inCarry) {
     return builder.createSequentialSub(new FullAdderProtocolImpl(lefts, rights, inCarry));
   }
-  
+
   public Computation<List<Computation<SBool>>> bitIncrement(List<Computation<SBool>> base,
       Computation<SBool> increment) {
     return builder.createSequentialSub(new BitIncrementerProtocolImpl(base, increment));
   }
-  
+
+  @Override
   public Computation<SBool> and(Computation<SBool> left, boolean right) {
     return builder.createSequentialSub(new AndFromCopyConst(left, right));
   }
-  
+
   public Computation<SBool> not(Computation<SBool> in) {
     return builder.createSequentialSub(new NotFromXor(in));
   }
-  
+
   @Override
   public Computation<SBool> condSelect(Computation<SBool> condition, Computation<SBool> left,
       Computation<SBool> right) {
@@ -101,14 +102,16 @@ public class DefaultBinaryBuilderAdvanced implements BinaryBuilderAdvanced {
   }
 
   @Override
-  public Computation<Pair<SBool, SBool>> oneBitHalfAdder(Computation<SBool> left, Computation<SBool> right) {
+  public Computation<Pair<SBool, SBool>> oneBitHalfAdder(Computation<SBool> left,
+      Computation<SBool> right) {
     return builder.createSequentialSub(new OneBitHalfAdderProtocolImpl(left, right));
   }
 
 
 
   @Override
-  public Computation<List<Computation<SBool>>> binaryMult(List<Computation<SBool>> lefts, List<Computation<SBool>> rights) {
+  public Computation<List<Computation<SBool>>> binaryMult(List<Computation<SBool>> lefts,
+      List<Computation<SBool>> rights) {
     return builder.createSequentialSub(new BinaryMultProtocol(lefts, rights));
   }
 
@@ -116,6 +119,7 @@ public class DefaultBinaryBuilderAdvanced implements BinaryBuilderAdvanced {
   public Computation<List<Computation<SBool>>> logProtocol(List<Computation<SBool>> number) {
     return builder.createSequentialSub(new LogProtocol(number));
   }
+
 
   /**
    * Advanced protocols - do not yet exist in interface
@@ -131,8 +135,9 @@ public class DefaultBinaryBuilderAdvanced implements BinaryBuilderAdvanced {
 
   public KeyedCompareAndSwapProtocol getKeyedCompareAndSwapProtocol(SBool[] leftKey,
       SBool[] leftValue, SBool[] rightKey, SBool[] rightValue) {
-    return null;//return new KeyedCompareAndSwapProtocolGetNextProtocolImpl(leftKey, leftValue, rightKey,
-        //rightValue, this);
+    return null;// return new KeyedCompareAndSwapProtocolGetNextProtocolImpl(leftKey, leftValue,
+                // rightKey,
+    // rightValue, this);
   }
 
 }
