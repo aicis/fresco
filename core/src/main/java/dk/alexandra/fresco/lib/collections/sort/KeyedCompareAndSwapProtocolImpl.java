@@ -26,23 +26,25 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.collections.sort;
 
-import dk.alexandra.fresco.framework.ProtocolProducer;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.builder.binary.ComputationBuilderBinary;
+import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary.SequentialBinaryBuilder;
+import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SBool;
-import dk.alexandra.fresco.lib.compare.KeyedCompareAndSwapProtocol;
-import dk.alexandra.fresco.lib.helper.SimpleProtocolProducer;
 
-public class KeyedCompareAndSwapProtocolImpl extends SimpleProtocolProducer
-    implements KeyedCompareAndSwapProtocol {
+public class KeyedCompareAndSwapProtocolImpl implements ComputationBuilderBinary<List<Pair<List<Computation<SBool>>, List<Computation<SBool>>>>> {
 
-	private SBool[] leftKey;
-	private SBool[] leftValue;
-	private SBool[] rightKey;
-	private SBool[] rightValue;
-
+  private List<Computation<SBool>> leftKey, leftValue, rightKey, rightValue;
+  private List<Computation<SBool>> xorKey, xorValue;
+  
 	/**
 	 * Constructs a protocol producer for the keyed compare and swap protocol. This
-	 * protocol will compare the keys of two key-value pairs and swap the pairs
-	 * so that the left pair has the largest key.
+	 * protocol will compare the keys of two key-value pairs and produce a list of pairs
+	 * so that the first pair has the largest key.
 	 * 
 	 * @param leftKey
 	 *            the key of the left pair
@@ -52,39 +54,54 @@ public class KeyedCompareAndSwapProtocolImpl extends SimpleProtocolProducer
 	 *            the key of the right pair
 	 * @param rightValue
 	 *            the value of the right pair
-	 * @param bf
-	 *            a factory of binary protocols
 	 */
-	public KeyedCompareAndSwapProtocolImpl(SBool[] leftKey, SBool[] leftValue,
-			SBool[] rightKey, SBool[] rightValue, Object bf) {
+	public KeyedCompareAndSwapProtocolImpl(List<Computation<SBool>> leftKey, List<Computation<SBool>> leftValue,
+	    List<Computation<SBool>> rightKey, List<Computation<SBool>> rightValue) {
 		this.leftKey = leftKey;
 		this.leftValue = leftValue;
 		this.rightKey = rightKey;
 		this.rightValue = rightValue;
 	}
 
-	@Override
-	protected ProtocolProducer initializeProtocolProducer() {
-/*		BasicLogicBuilder blb = new BasicLogicBuilder(bf);
-		blb.beginSeqScope();
-		blb.beginParScope();
-		SBool compRes = blb.greaterThan(leftKey, rightKey);
-		SBool[] tmpXORKey = blb.xor(leftKey, rightKey);
-		SBool[] tmpXORValue = blb.xor(leftValue, rightValue);
-		blb.endCurScope();
+  @Override
+  public Computation<List<Pair<List<Computation<SBool>>, List<Computation<SBool>>>>> build(
+      SequentialBinaryBuilder builder) {
+    return builder.par(seq -> {
+      
+      Computation<SBool> comparison = seq.comparison().greaterThan(leftKey, rightKey);
+      xorKey = leftKey.stream()
+          .map(e -> {return seq.binary().xor(e, rightKey.get(leftKey.indexOf(e)));})
+          .collect(Collectors.toList());
+      
+      xorValue = leftValue.stream()
+          .map(e -> {return seq.binary().xor(e, rightValue.get(leftValue.indexOf(e)));})
+          .collect(Collectors.toList());
+      return () -> comparison;
+    }).par((data, par) -> {
+      
+      List<Computation<SBool>> firstValue = leftValue.stream()
+          .map(e -> {return par.advancedBinary().condSelect(data, e, rightValue.get(leftValue.indexOf(e)));})
+          .collect(Collectors.toList());
 
-		blb.beginParScope();
-		blb.condSelectInPlace(leftKey, compRes, leftKey, rightKey);
-		blb.condSelectInPlace(leftValue, compRes, leftValue, rightValue);
-		blb.endCurScope();
+      List<Computation<SBool>> firstKey = leftKey.stream()
+          .map(e -> {return par.advancedBinary().condSelect(data, e, rightKey.get(leftKey.indexOf(e)));})
+          .collect(Collectors.toList());
 
-		blb.beginParScope();
-		blb.xorInPlace(rightKey, leftKey, tmpXORKey);
-		blb.xorInPlace(rightValue, leftValue, tmpXORValue);
-		blb.endCurScope();
+      return () -> new Pair<List<Computation<SBool>>, List<Computation<SBool>>>(firstKey, firstValue);
+    }).par((data, par) -> { 
+      List<Computation<SBool>> lastValue = xorValue.stream()
+          .map(e -> {return par.binary().xor(e, data.getSecond().get(xorValue.indexOf(e)));})
+          .collect(Collectors.toList());
 
-		blb.endCurScope();
-		return blb.getProtocol();*/
-	  return null;
-	}
+      List<Computation<SBool>> lastKey = xorKey.stream()
+          .map(e -> {return par.binary().xor(e, data.getFirst().get(xorKey.indexOf(e)));})
+          .collect(Collectors.toList());
+          
+      List<Pair<List<Computation<SBool>>, List<Computation<SBool>>>> result = new ArrayList<>();
+      result.add(data);
+      result.add(new Pair<List<Computation<SBool>>, List<Computation<SBool>>>(lastKey, lastValue));
+       
+      return () -> result;
+    });
+  }
 }

@@ -6,6 +6,7 @@ import dk.alexandra.fresco.framework.value.SBool;
 import dk.alexandra.fresco.lib.collections.sort.OddEvenMergeProtocol;
 import dk.alexandra.fresco.lib.collections.sort.OddEvenMergeProtocolRec;
 import dk.alexandra.fresco.lib.compare.KeyedCompareAndSwapProtocol;
+import dk.alexandra.fresco.lib.field.bool.ConditionalSelect;
 import dk.alexandra.fresco.lib.field.bool.generic.AndFromCopyConst;
 import dk.alexandra.fresco.lib.field.bool.generic.NandFromAndAndNot;
 import dk.alexandra.fresco.lib.field.bool.generic.NotFromXor;
@@ -16,8 +17,8 @@ import dk.alexandra.fresco.lib.math.bool.add.BitIncrementerProtocolImpl;
 import dk.alexandra.fresco.lib.math.bool.add.FullAdderProtocolImpl;
 import dk.alexandra.fresco.lib.math.bool.add.OneBitFullAdderProtocolImpl;
 import dk.alexandra.fresco.lib.math.bool.add.OneBitHalfAdderProtocolImpl;
-import dk.alexandra.fresco.lib.math.bool.log.LogProtocolImpl;
-import dk.alexandra.fresco.lib.math.bool.mult.BinaryMultProtocolImpl;
+import dk.alexandra.fresco.lib.math.bool.log.LogProtocol;
+import dk.alexandra.fresco.lib.math.bool.mult.BinaryMultProtocol;
 
 import java.util.List;
 
@@ -96,8 +97,7 @@ public class DefaultBinaryBuilderAdvanced implements BinaryBuilderAdvanced {
   @Override
   public Computation<SBool> condSelect(Computation<SBool> condition, Computation<SBool> left,
       Computation<SBool> right) {
-    // TODO Auto-generated method stub
-    return null;
+    return builder.createSequentialSub(new ConditionalSelect(condition, left, right));
   }
 
   @Override
@@ -109,12 +109,12 @@ public class DefaultBinaryBuilderAdvanced implements BinaryBuilderAdvanced {
 
   @Override
   public Computation<List<Computation<SBool>>> binaryMult(List<Computation<SBool>> lefts, List<Computation<SBool>> rights) {
-    return builder.createSequentialSub(new BinaryMultProtocolImpl(lefts, rights));
+    return builder.createSequentialSub(new BinaryMultProtocol(lefts, rights));
   }
 
   @Override
   public Computation<List<Computation<SBool>>> logProtocol(List<Computation<SBool>> number) {
-    return builder.createSequentialSub(new LogProtocolImpl(number));
+    return builder.createSequentialSub(new LogProtocol(number));
   }
 
   /**

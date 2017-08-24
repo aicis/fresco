@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -24,11 +24,32 @@
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
  *******************************************************************************/
-package dk.alexandra.fresco.lib.math.bool.mult;
+package dk.alexandra.fresco.lib.field.bool;
 
+import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.builder.binary.BinaryBuilder;
+import dk.alexandra.fresco.framework.builder.binary.ComputationBuilderBinary;
+import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary.SequentialBinaryBuilder;
 import dk.alexandra.fresco.framework.value.SBool;
 
-public interface BinaryMultProtocolFactory {
-	
-	public BinaryMultProtocol getBinaryMultProtocol(SBool[] lefts, SBool[] rights, SBool[] outs);
+
+public class ConditionalSelect implements ComputationBuilderBinary<SBool> {
+
+  private final Computation<SBool> a, b, selector;
+
+  public ConditionalSelect(Computation<SBool> selector, Computation<SBool> a, Computation<SBool> b) {
+    this.a = a;
+    this.b = b;
+    this.selector = selector;
+  }
+
+  @Override
+  public Computation<SBool> build(SequentialBinaryBuilder builder) {
+    BinaryBuilder binary = builder.binary();
+    
+    Computation<SBool> x = binary.xor(a, b);
+    Computation<SBool> y = binary.and(selector, x);
+    return binary.xor(y, b);
+  }
+
 }
