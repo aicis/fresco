@@ -34,7 +34,8 @@ import dk.alexandra.fresco.framework.builder.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.compare.ConditionalSelect;
+import dk.alexandra.fresco.lib.conditional.ConditionalSelect;
+
 import java.math.BigInteger;
 import java.util.List;
 

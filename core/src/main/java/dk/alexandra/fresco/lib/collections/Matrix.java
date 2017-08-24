@@ -79,6 +79,10 @@ public class Matrix<T> {
   public ArrayList<T> getRow(int i) {
     return matrix.get(i);
   }
+  
+  public void setRow(int i, ArrayList<T> row) {
+    matrix.set(i, row);
+  }
 
   /**
    * Gets the width of the matrix.

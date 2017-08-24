@@ -24,7 +24,7 @@
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
  *******************************************************************************/
-package dk.alexandra.fresco.lib.compare;
+package dk.alexandra.fresco.lib.conditional;
 
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.builder.ComputationBuilder;
@@ -36,10 +36,19 @@ public class ConditionalSelect implements ComputationBuilder<SInt> {
 
   private final Computation<SInt> a, b, selector;
 
+  /**
+   * Selects a or b based on selector. Selector must be 0 or 1.
+   * 
+   * If selector is 0 b is selected, otherwise a.
+   * 
+   * @param selector
+   * @param a
+   * @param b
+   */
   public ConditionalSelect(Computation<SInt> selector, Computation<SInt> a, Computation<SInt> b) {
+    this.selector = selector;
     this.a = a;
     this.b = b;
-    this.selector = selector;
   }
 
   @Override

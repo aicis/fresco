@@ -119,6 +119,7 @@ public class CloseMatrixTests {
           mat.add(rowTwo);
           Matrix<BigInteger> input = new Matrix<>(2, 3, mat);
 
+          // TODO: check if party is 1
           // define functionality to be tested
           Application<Matrix<BigInteger>, SequentialNumericBuilder> testApplication = root -> {
             return root.par(par -> {

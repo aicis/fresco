@@ -2,15 +2,25 @@ package dk.alexandra.fresco.suite.dummy.arithmetic;
 
 import dk.alexandra.fresco.framework.network.NetworkingStrategy;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
+import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.lib.arithmetic.BasicArithmeticTests;
 import dk.alexandra.fresco.lib.arithmetic.ComparisonTests;
 import dk.alexandra.fresco.lib.arithmetic.LogicTests;
 import dk.alexandra.fresco.lib.arithmetic.SortingTests;
+import dk.alexandra.fresco.lib.collections.Matrix;
 import dk.alexandra.fresco.lib.collections.io.CloseListTests;
 import dk.alexandra.fresco.lib.collections.io.CloseMatrixTests;
+import dk.alexandra.fresco.lib.collections.permute.PermuteRowsTests;
+import dk.alexandra.fresco.lib.conditional.ConditionalSelectTests;
+import dk.alexandra.fresco.lib.conditional.ConditionalSwapRowsTests;
+import dk.alexandra.fresco.lib.conditional.ConditionalSwapTests;
 import dk.alexandra.fresco.lib.math.integer.division.DivisionTests;
 import dk.alexandra.fresco.lib.math.integer.sqrt.SqrtTests;
 import dk.alexandra.fresco.lib.math.integer.stat.StatisticsTests;
+
+import java.math.BigInteger;
+import java.util.ArrayList;
+
 import org.junit.Test;
 
 public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTest {
@@ -111,6 +121,72 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
         NetworkingStrategy.KRYONET, 3);
   }
 
+  // Conditional
+
+  @Test
+  public void test_conditional_select_left() throws Exception {
+    runTest(new ConditionalSelectTests.TestSelect<>(BigInteger.valueOf(1), BigInteger.valueOf(11)),
+        EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.SCAPI, 1);
+  }
+
+  @Test
+  public void test_conditional_select_right() throws Exception {
+    runTest(new ConditionalSelectTests.TestSelect<>(BigInteger.valueOf(0), BigInteger.valueOf(42)),
+        EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.SCAPI, 1);
+  }
+
+  @Test
+  public void test_conditional_swap_yes() throws Exception {
+    Pair<BigInteger, BigInteger> expected =
+        new Pair<>(BigInteger.valueOf(42), BigInteger.valueOf(11));
+    runTest(new ConditionalSwapTests.TestSwap<>(BigInteger.valueOf(1), expected),
+        EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.SCAPI, 1);
+  }
+
+  @Test
+  public void test_conditional_swap_no() throws Exception {
+    Pair<BigInteger, BigInteger> expected =
+        new Pair<>(BigInteger.valueOf(11), BigInteger.valueOf(42));
+    runTest(new ConditionalSwapTests.TestSwap<>(BigInteger.valueOf(0), expected),
+        EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.SCAPI, 1);
+  }
+  
+  @Test
+  public void test_conditional_swap_rows_yes() throws Exception {
+    ArrayList<BigInteger> rowOne = new ArrayList<>();
+    rowOne.add(BigInteger.valueOf(1));
+    rowOne.add(BigInteger.valueOf(2));
+    rowOne.add(BigInteger.valueOf(3));
+    ArrayList<BigInteger> rowTwo = new ArrayList<>();
+    rowTwo.add(BigInteger.valueOf(4));
+    rowTwo.add(BigInteger.valueOf(5));
+    rowTwo.add(BigInteger.valueOf(6));
+    ArrayList<ArrayList<BigInteger>> mat = new ArrayList<>();
+    mat.add(rowTwo);
+    mat.add(rowOne);
+    Matrix<BigInteger> expected = new Matrix<>(2, 3, mat);
+    runTest(new ConditionalSwapRowsTests.TestSwap<>(BigInteger.valueOf(1), expected),
+        EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.SCAPI, 1);
+  }
+  
+  @Test
+  public void test_conditional_swap_rows_no() throws Exception {
+    ArrayList<BigInteger> rowOne = new ArrayList<>();
+    rowOne.add(BigInteger.valueOf(1));
+    rowOne.add(BigInteger.valueOf(2));
+    rowOne.add(BigInteger.valueOf(3));
+    ArrayList<BigInteger> rowTwo = new ArrayList<>();
+    rowTwo.add(BigInteger.valueOf(4));
+    rowTwo.add(BigInteger.valueOf(5));
+    rowTwo.add(BigInteger.valueOf(6));
+    ArrayList<ArrayList<BigInteger>> mat = new ArrayList<>();
+    mat.add(rowOne);
+    mat.add(rowTwo);
+    Matrix<BigInteger> expected = new Matrix<>(2, 3, mat);
+    runTest(new ConditionalSwapRowsTests.TestSwap<>(BigInteger.valueOf(0), expected),
+        EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.SCAPI, 1);
+  }
+
   // Collections
 
   @Test
@@ -134,6 +210,12 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
   @Test
   public void test_close_matrix() throws Exception {
     runTest(new CloseMatrixTests.TestCloseAndOpenMatrix<>(), EvaluationStrategy.SEQUENTIAL,
+        NetworkingStrategy.SCAPI, 2);
+  }
+
+  @Test
+  public void test_permute_rows() throws Exception {
+    runTest(new PermuteRowsTests.TestPermuteRows<>(), EvaluationStrategy.SEQUENTIAL,
         NetworkingStrategy.SCAPI, 2);
   }
 
