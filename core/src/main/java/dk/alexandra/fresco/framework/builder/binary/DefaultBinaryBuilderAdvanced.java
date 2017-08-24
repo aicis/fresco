@@ -3,6 +3,7 @@ package dk.alexandra.fresco.framework.builder.binary;
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SBool;
+import dk.alexandra.fresco.lib.collections.sort.KeyedCompareAndSwapProtocol;
 import dk.alexandra.fresco.lib.collections.sort.OddEvenMergeProtocol;
 import dk.alexandra.fresco.lib.collections.sort.OddEvenMergeProtocolRec;
 import dk.alexandra.fresco.lib.compare.KeyedCompareAndSwapProtocol;
@@ -131,13 +132,9 @@ public class DefaultBinaryBuilderAdvanced implements BinaryBuilderAdvanced {
     return new OddEvenMergeProtocolRec(left, right, sorted, this);
   }
 
-
-
-  public KeyedCompareAndSwapProtocol getKeyedCompareAndSwapProtocol(SBool[] leftKey,
-      SBool[] leftValue, SBool[] rightKey, SBool[] rightValue) {
-    return null;// return new KeyedCompareAndSwapProtocolGetNextProtocolImpl(leftKey, leftValue,
-                // rightKey,
-    // rightValue, this);
+  public Computation<List<Pair<List<Computation<SBool>>, List<Computation<SBool>>>>> getKeyedCompareAndSwapProtocol(List<Computation<SBool>> leftKey,
+      List<Computation<SBool>> leftValue, List<Computation<SBool>> rightKey, List<Computation<SBool>> rightValue) {
+    return builder.createSequentialSub(new KeyedCompareAndSwapProtocol(leftKey, leftValue, rightKey, rightValue));
   }
 
 }

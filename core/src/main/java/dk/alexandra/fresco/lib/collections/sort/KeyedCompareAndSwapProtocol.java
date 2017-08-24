@@ -36,7 +36,7 @@ import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary.Sequen
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SBool;
 
-public class KeyedCompareAndSwapProtocolImpl implements ComputationBuilderBinary<List<Pair<List<Computation<SBool>>, List<Computation<SBool>>>>> {
+public class KeyedCompareAndSwapProtocol implements ComputationBuilderBinary<List<Pair<List<Computation<SBool>>, List<Computation<SBool>>>>> {
 
   private List<Computation<SBool>> leftKey, leftValue, rightKey, rightValue;
   private List<Computation<SBool>> xorKey, xorValue;
@@ -55,7 +55,7 @@ public class KeyedCompareAndSwapProtocolImpl implements ComputationBuilderBinary
 	 * @param rightValue
 	 *            the value of the right pair
 	 */
-	public KeyedCompareAndSwapProtocolImpl(List<Computation<SBool>> leftKey, List<Computation<SBool>> leftValue,
+	public KeyedCompareAndSwapProtocol(List<Computation<SBool>> leftKey, List<Computation<SBool>> leftValue,
 	    List<Computation<SBool>> rightKey, List<Computation<SBool>> rightValue) {
 		this.leftKey = leftKey;
 		this.leftValue = leftValue;

@@ -85,7 +85,7 @@ public class CollectionsSortingTests {
                  List<Computation<SBool>> leftValue = rawLeftValue.stream().map(builder.binary()::known).collect(Collectors.toList());
                  List<Computation<SBool>> rightValue = rawRightValue.stream().map(builder.binary()::known).collect(Collectors.toList());
 
-                 return new KeyedCompareAndSwapProtocolImpl(leftKey, leftValue, rightKey, rightValue).build(seq);
+                 return new KeyedCompareAndSwapProtocol(leftKey, leftValue, rightKey, rightValue).build(seq);
                }).seq((data, seq) -> {
                  List<Pair<List<Computation<Boolean>>, List<Computation<Boolean>>>> open = new ArrayList<>();
                  
