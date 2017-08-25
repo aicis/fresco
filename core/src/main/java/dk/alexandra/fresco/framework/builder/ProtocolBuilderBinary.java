@@ -1,12 +1,15 @@
-package dk.alexandra.fresco.framework.builder.binary;
+package dk.alexandra.fresco.framework.builder;
 
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.ProtocolProducer;
-import dk.alexandra.fresco.framework.builder.ComputationBuilder;
-import dk.alexandra.fresco.framework.builder.DelayedComputation;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
-import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary.SequentialBinaryBuilder;
+import dk.alexandra.fresco.framework.builder.BuildStep.BuildStepSequential;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderBinary.SequentialBinaryBuilder;
+import dk.alexandra.fresco.framework.builder.binary.BinaryBuilder;
+import dk.alexandra.fresco.framework.builder.binary.BinaryBuilderAdvanced;
+import dk.alexandra.fresco.framework.builder.binary.BinaryUtilityBuilder;
+import dk.alexandra.fresco.framework.builder.binary.BristolCryptoBuilder;
+import dk.alexandra.fresco.framework.builder.binary.ComparisonBuilderBinary;
 import dk.alexandra.fresco.lib.helper.LazyProtocolProducerDecorator;
 import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
 import dk.alexandra.fresco.lib.helper.ProtocolProducerCollection;
@@ -37,10 +40,6 @@ public abstract class ProtocolBuilderBinary implements ProtocolBuilder<Sequentia
     SequentialBinaryBuilder builder = new SequentialBinaryBuilder(factory);
     builder.addConsumer(consumer, () -> new SequentialBinaryBuilder(factory));
     return builder;
-  }
-
-  public static SequentialBinaryBuilder createApplicationRoot(BuilderFactoryBinary factory) {
-    return new SequentialBinaryBuilder(factory);
   }
 
   public BinaryBuilder binary() {
@@ -102,7 +101,8 @@ public abstract class ProtocolBuilderBinary implements ProtocolBuilder<Sequentia
    *
    * @param function of the protocol producer - will be lazy evaluated
    */
-  public <R> Computation<R> createParallelSub(ComputationBuilderBinaryParallel<R> function) {
+  public <R> Computation<R> createParallelSub(
+      ComputationBuilderParallel<R, ParallelBinaryBuilder> function) {
     DelayedComputation<R> result = new DelayedComputation<>();
     addConsumer((builder) -> result.setComputation(function.build(builder)),
         () -> new ParallelBinaryBuilder(factory));
@@ -115,6 +115,7 @@ public abstract class ProtocolBuilderBinary implements ProtocolBuilder<Sequentia
    *
    * @param function creation of the protocol producer - will be lazy evaluated
    */
+  @Override
   public <R> Computation<R> createSequentialSub(
       ComputationBuilder<R, SequentialBinaryBuilder> function) {
     DelayedComputation<R> result = new DelayedComputation<>();
@@ -178,24 +179,24 @@ public abstract class ProtocolBuilderBinary implements ProtocolBuilder<Sequentia
       return parallelProtocolProducer;
     }
 
-    public <R> BuildStepBinary<SequentialBinaryBuilder, R, Void> seq(
-        ComputationBuilder<R, SequentialBinaryBuilder> function) {
-      BuildStepBinary<SequentialBinaryBuilder, R, Void> builder =
-          new BuildStepBinarySequential<>((ignored, inner) -> function.build(inner));
+    public <R>
+    BuildStep<SequentialBinaryBuilder, SequentialBinaryBuilder, ParallelBinaryBuilder, R, Void>
+    seq(ComputationBuilder<R, SequentialBinaryBuilder> function) {
+      BuildStep<SequentialBinaryBuilder, SequentialBinaryBuilder, ParallelBinaryBuilder, R, Void> builder =
+          new BuildStepSequential<>((ignored, inner) -> function.build(inner));
       createAndAppend(
           new LazyProtocolProducerDecorator(() -> builder.createProducer(null, getFactory())));
       return builder;
     }
 
-    public <R> BuildStepBinary<ParallelBinaryBuilder, R, Void> par(
-        ComputationBuilderBinaryParallel<R> f) {
-      BuildStepBinary<ParallelBinaryBuilder, R, Void> builder =
-          new BuildStepBinaryParallel<>((ignored, inner) -> f.build(inner));
+    public <R> BuildStep<ParallelBinaryBuilder, SequentialBinaryBuilder, ParallelBinaryBuilder, R, Void> par(
+        ComputationBuilderParallel<R, ParallelBinaryBuilder> f) {
+      BuildStep<ParallelBinaryBuilder, SequentialBinaryBuilder, ParallelBinaryBuilder, R, Void> builder =
+          new BuildStep.BuildStepParallel<>((ignored, inner) -> f.build(inner));
       createAndAppend(
           new LazyProtocolProducerDecorator(() -> builder.createProducer(null, getFactory())));
       return builder;
     }
-
   }
 
   /**

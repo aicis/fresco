@@ -22,7 +22,7 @@ public abstract class BuildStep<
   protected BuildStep<?, BuilderSequentialT, BuilderParallelT, ?, OutputT> next;
   protected Computation<OutputT> output;
 
-  BuildStep(
+  public BuildStep(
       BiFunction<InputT, BuilderT, Computation<OutputT>> function) {
     this.function = function;
   }

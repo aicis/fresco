@@ -23,21 +23,18 @@
  *******************************************************************************/
 package dk.alexandra.fresco.suite.tinytables.prepro;
 
-import dk.alexandra.fresco.framework.builder.binary.BasicBinaryFactory;
 import dk.alexandra.fresco.framework.value.SBool;
 import dk.alexandra.fresco.suite.tinytables.datatypes.TinyTablesElement;
 import dk.alexandra.fresco.suite.tinytables.prepro.datatypes.TinyTablesPreproSBool;
 
-public class TinyTablesPreproFactory implements BasicBinaryFactory {
+public class TinyTablesPreproFactory {
 
   public TinyTablesPreproFactory() {}
 
-  @Override
   public SBool getSBool() {
     return new TinyTablesPreproSBool();
   }
 
-  @Override
   public SBool getKnownConstantSBool(boolean b) {
     // Ignore the value and use trivial mask
     return new TinyTablesPreproSBool(new TinyTablesElement(false));

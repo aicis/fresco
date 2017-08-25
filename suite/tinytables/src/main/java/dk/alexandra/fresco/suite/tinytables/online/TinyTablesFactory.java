@@ -23,88 +23,18 @@
  *******************************************************************************/
 package dk.alexandra.fresco.suite.tinytables.online;
 
-import dk.alexandra.fresco.framework.builder.binary.BasicBinaryFactory;
 import dk.alexandra.fresco.framework.value.SBool;
 import dk.alexandra.fresco.suite.tinytables.datatypes.TinyTablesElement;
 import dk.alexandra.fresco.suite.tinytables.online.datatypes.TinyTablesSBool;
 
-public class TinyTablesFactory implements BasicBinaryFactory {
+public class TinyTablesFactory {
 
-  private int counter;
-
-  public TinyTablesFactory() {
-    this.counter = 0;
-  }
-
-  private int getNextId() {
-    return counter++;
-  }
-
-  @Override
   public SBool getSBool() {
     return new TinyTablesSBool();
   }
 
-  @Override
-  public SBool[] getSBools(int amount) {
-    SBool[] res = new SBool[amount];
-    for (int i = 0; i < amount; i++) {
-      res[i] = this.getSBool();
-    }
-    return res;
-  }
-
-  @Override
   public SBool getKnownConstantSBool(boolean b) {
     TinyTablesSBool bool = new TinyTablesSBool(new TinyTablesElement(b));
     return bool;
   }
-
-  @Override
-  public SBool[] getKnownConstantSBools(boolean[] bools) {
-    SBool[] sBools = new SBool[bools.length];
-    for (int i = 0; i < sBools.length; i++) {
-      sBools[i] = getKnownConstantSBool(bools[i]);
-    }
-    return sBools;
-  }
-  //
-  // @Override
-  // public OBool getOBool() {
-  // return new TinyTablesOBool();
-  // }
-  //
-  // @Override
-  // public OBool getKnownConstantOBool(boolean b) {
-  // return new TinyTablesOBool(b);
-  // }
-  //
-  // @Override
-  // public ProtocolProducer getAndProtocol(SBool inLeft, SBool inRight, SBool out) {
-  // return new SingleProtocolProducer<>(new TinyTablesANDProtocol(getNextId(),
-  // (TinyTablesSBool) inLeft, (TinyTablesSBool) inRight, (TinyTablesSBool) out));
-  // }
-  //
-  // @Override
-  // public AndProtocol getAndProtocol(SBool inLeft, OBool inRight, SBool out) {
-  // throw new RuntimeException("Not implemented yet");
-  // }
-  //
-  // @Override
-  // public ProtocolProducer getNotProtocol(SBool in, SBool out) {
-  // return new SingleProtocolProducer<>(
-  // new TinyTablesNOTProtocol(getNextId(), (TinyTablesSBool) in, (TinyTablesSBool) out));
-  // }
-  //
-  // @Override
-  // public XorProtocol getXorProtocol(SBool inLeft, SBool inRight, SBool out) {
-  // return new TinyTablesXORProtocol(getNextId(), (TinyTablesSBool) inLeft,
-  // (TinyTablesSBool) inRight, (TinyTablesSBool) out);
-  // }
-  //
-  // @Override
-  // public XorProtocol getXorProtocol(SBool inLeft, OBool inRight, SBool out) {
-  // throw new RuntimeException("Not implemented yet");
-  // }
-
 }

@@ -1,6 +1,7 @@
 package dk.alexandra.fresco.framework.builder.binary;
 
 import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SBool;
 import dk.alexandra.fresco.lib.collections.sort.OddEvenMergeProtocol;
@@ -17,7 +18,6 @@ import dk.alexandra.fresco.lib.math.bool.add.FullAdderProtocolImpl;
 import dk.alexandra.fresco.lib.math.bool.add.OneBitFullAdderProtocolImpl;
 import dk.alexandra.fresco.lib.math.bool.add.OneBitHalfAdderProtocolImpl;
 import dk.alexandra.fresco.lib.math.bool.mult.BinaryMultProtocolImpl;
-
 import java.util.List;
 
 public class DefaultBinaryBuilderAdvanced implements BinaryBuilderAdvanced {

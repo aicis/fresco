@@ -23,12 +23,12 @@
  *******************************************************************************/
 package dk.alexandra.fresco.framework;
 
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderBinary;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderBinary.SequentialBinaryBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderHelper;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderHelper;
-import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
-import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary.SequentialBinaryBuilder;
 
 public abstract class TestBoolApplication implements
   Application<List<Boolean>, ProtocolBuilderBinary> {

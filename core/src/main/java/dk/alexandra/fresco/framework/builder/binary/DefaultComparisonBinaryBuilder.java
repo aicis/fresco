@@ -1,6 +1,7 @@
 package dk.alexandra.fresco.framework.builder.binary;
 
 import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.value.SBool;
 import dk.alexandra.fresco.lib.compare.bool.BinaryGreaterThanProtocolImpl;
 import dk.alexandra.fresco.lib.compare.bool.eq.BinaryEqualityProtocolImpl;

@@ -25,7 +25,7 @@ package dk.alexandra.fresco.lib.helper.bristol;
 
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.MPCException;
-import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary.SequentialBinaryBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderBinary.SequentialBinaryBuilder;
 import dk.alexandra.fresco.framework.value.SBool;
 import java.io.BufferedReader;
 import java.io.IOException;
