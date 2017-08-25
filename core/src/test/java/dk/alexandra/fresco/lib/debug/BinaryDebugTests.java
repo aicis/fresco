@@ -56,27 +56,27 @@ public class BinaryDebugTests {
           Application<Void, SequentialBinaryBuilder> app =
               new Application<Void, ProtocolBuilderBinary.SequentialBinaryBuilder>() {
 
-            @Override
-            public Computation<Void> prepareApplication(
-                ProtocolBuilderBinary.SequentialBinaryBuilder producer) {
-              return producer.seq(seq -> {
-                List<Computation<SBool>> toPrint =
-                    seq.binary().known(new boolean[] {true, false, false, true});
-                return () -> toPrint;
-              }).seq((inputs, seq) -> {
-                seq.utility().openAndPrint("test", inputs, stream);
-                return null;
-              });
-            }
+                @Override
+                public Computation<Void> prepareApplication(
+                    ProtocolBuilderBinary.SequentialBinaryBuilder producer) {
+                  return producer.seq(seq -> {
+                    List<Computation<SBool>> toPrint =
+                        seq.binary().known(new boolean[]{true, false, false, true});
+                    return () -> toPrint;
+                  }).seq((inputs, seq) -> {
+                    seq.utility().openAndPrint("test", inputs, stream);
+                    return null;
+                  });
+                }
 
-          };
+              };
 
           secureComputationEngine.runApplication(app,
               ResourcePoolCreator.createResourcePool(conf.sceConf));
 
           String output = bytes.toString("UTF-8");
 
-          Assert.assertEquals("test\n1001\n", output);
+          Assert.assertEquals("test\n1001\n", output.replace("\r", ""));
         }
       };
     }
