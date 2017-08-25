@@ -30,43 +30,4 @@ public interface SBoolFactory {
    * 
    */
   SBool getSBool();
-
-  /**
-   * Creates 'amount' of SBools.
-   * 
-   * @amount the amount of SBools you want back
-   * @return
-   */
-  default SBool[] getSBools(int amount) {
-    SBool[] res = new SBool[amount];
-    for (int i = 0; i < amount; i++) {
-      res[i] = this.getSBool();
-    }
-    return res;
-  }
-
-  /**
-   * Creates a container with a preloaded value.
-   * 
-   * This may be implemented by simply selecting between two fixed and known SBools and hence should
-   * NOT be used to load secret values since the value may become known to the other players.
-   * 
-   */
-  SBool getKnownConstantSBool(boolean b);
-
-  /**
-   * Generates an array of SBools the size of the input array containing the representations given
-   * in the array bools.
-   * 
-   * @param bools
-   * @return
-   */
-  default SBool[] getKnownConstantSBools(boolean[] bools) {
-    int amount = bools.length;
-    SBool[] res = new SBool[amount];
-    for (int i = 0; i < amount; i++) {
-      res[i] = this.getKnownConstantSBool(bools[i]);
-    }
-    return res;
-  }
 }
