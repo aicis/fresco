@@ -28,27 +28,27 @@ package dk.alexandra.fresco.lib.collections.sort;
 
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.ProtocolProducer;
-import dk.alexandra.fresco.framework.builder.binary.ComputationBuilderBinary;
-import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary.SequentialBinaryBuilder;
+import dk.alexandra.fresco.framework.builder.ComputationBuilder;
+import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SBool;
-import dk.alexandra.fresco.lib.helper.SimpleProtocolProducer;
-
 import java.util.List;
 
 /**
  * An implementation of the OddEvenMergeProtocol. This does not support threading,
  * the OddEvenMergeProtocolRec class should be preferable to this.
- * 
+ *
  * @author psn
  *
  */
-public class OddEvenMergeProtocolImpl  implements ComputationBuilderBinary<List<Pair<List<Computation<SBool>>, List<Computation<SBool>>>>> {
+public class OddEvenMergeProtocolImpl implements
+    ComputationBuilder<List<Pair<List<Computation<SBool>>, List<Computation<SBool>>>>, ProtocolBuilderBinary> {
 
   private List<Pair<List<Computation<SBool>>, List<Computation<SBool>>>> left;
   private List<Pair<List<Computation<SBool>>, List<Computation<SBool>>>> right;
-  
-  public OddEvenMergeProtocolImpl(List<Pair<List<Computation<SBool>>, List<Computation<SBool>>>> left,
+
+  public OddEvenMergeProtocolImpl(
+      List<Pair<List<Computation<SBool>>, List<Computation<SBool>>>> left,
       List<Pair<List<Computation<SBool>>, List<Computation<SBool>>>> right) {
     super();
     this.left = left;
@@ -57,11 +57,11 @@ public class OddEvenMergeProtocolImpl  implements ComputationBuilderBinary<List<
 
   @Override
   public Computation<List<Pair<List<Computation<SBool>>, List<Computation<SBool>>>>> build(
-      SequentialBinaryBuilder builder) {
+      ProtocolBuilderBinary builder) {
     // TODO Auto-generated method stub
     return null;
   }
-  
+
   //@Override
   protected ProtocolProducer initializeProtocolProducer() {
     return null;
@@ -159,7 +159,7 @@ public class OddEvenMergeProtocolImpl  implements ComputationBuilderBinary<List<
 */
   //TODO move to util class or delete?
   /*
-	public static int getTriplesUsedForLength(int totalSize, int indexSize, int seqSize) {
+  public static int getTriplesUsedForLength(int totalSize, int indexSize, int seqSize) {
 		int k = (int) (Math.log(totalSize)/Math.log(2));	
 		if((int)Math.pow(2, k) < totalSize){
 			k++;
@@ -186,7 +186,6 @@ public class OddEvenMergeProtocolImpl  implements ComputationBuilderBinary<List<
 		//return li* ki2 * (indexSize+(indexSize+seqSize));
 	}
    */
-
 
 
 }

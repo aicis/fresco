@@ -191,7 +191,6 @@ public class SecretSharedDivisor
   }
 
   private Computation<SInt> exp2(ProtocolBuilderNumeric builder, Computation<SInt> exponent,
-  private Computation<SInt> exp2(SequentialNumericBuilder builder, Computation<SInt> exponent,
       int maxExponentLength) {
     return builder.advancedNumeric().exp(
         BigInteger.valueOf(2),

@@ -91,15 +91,20 @@ public class SearchingTests {
             TestApplication app1 = new TestApplication() {
               @Override
               public ProtocolProducer prepareApplication(BuilderFactory factoryProducer) {
-                LinearLookUp linearLookUp = new LinearLookUp(
-                    sKeys.get(counter), sKeys, sValues, NOTFOUND);
-                ProtocolBuilderNumeric applicationRoot = ((BuilderFactoryNumeric) factoryProducer)
-                    .createSequential();
-                applicationRoot.seq(linearLookUp)
-                    .seq((out, seq) -> {
-                      this.outputs.add(seq.numeric().open(() -> out));
-                      return () -> out;
-                    });
+                ProtocolBuilderNumeric applicationRoot = ProtocolBuilderNumeric
+                    .createApplicationRoot((BuilderFactoryNumeric) factoryProducer,
+                        (root) ->
+                            root.seq((seq) -> seq.numeric().known(BigInteger.valueOf(NOTFOUND)))
+                                .seq((notFound, seq) -> {
+                                  LinearLookUp function =
+                                      new LinearLookUp(sKeys.get(counter), sKeys, sValues,
+                                          notFound);
+                                  return seq.createSequentialSub(function);
+                                })
+                                .seq((out, seq) -> {
+                                  this.outputs.add(seq.numeric().open(() -> out));
+                                  return () -> out;
+                                }));
                 return applicationRoot.build();
               }
             };

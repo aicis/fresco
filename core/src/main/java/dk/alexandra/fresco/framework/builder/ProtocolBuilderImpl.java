@@ -132,9 +132,7 @@ public abstract class ProtocolBuilderImpl<BuilderT extends ProtocolBuilderImpl<B
     protocols = null;
   }
 
-  public <R>
-  BuildStep<BuilderT, R, Void>
-  seq(ComputationBuilder<R, BuilderT> function) {
+  public <R> BuildStep<BuilderT, R, Void> seq(ComputationBuilder<R, BuilderT> function) {
     BuildStep<BuilderT, R, Void> builder =
         new BuildStepSequential<>((ignored, inner) -> function.build(inner));
     createAndAppend(

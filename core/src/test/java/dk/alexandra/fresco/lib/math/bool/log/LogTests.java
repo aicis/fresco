@@ -27,26 +27,20 @@
 package dk.alexandra.fresco.lib.math.bool.log;
 
 import dk.alexandra.fresco.framework.Application;
-import dk.alexandra.fresco.framework.BuilderFactory;
 import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.ProtocolFactory;
-import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.binary.DefaultBinaryBuilderAdvanced;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
-import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary.SequentialBinaryBuilder;
 import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.util.ByteArithmetic;
 import dk.alexandra.fresco.framework.value.SBool;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
-
 import org.hamcrest.core.Is;
 import org.junit.Assert;
 
@@ -70,32 +64,27 @@ public class LogTests {
         @Override
         public void test() throws Exception {
             Application<List<Boolean>, ProtocolBuilderBinary> app =
-                new Application<List<Boolean>, ProtocolBuilderBinary>() {
-                
-                  @Override
-                  public Computation<List<Boolean>> prepareApplication(
-                      ProtocolBuilderBinary producer) {
-                    
-                    SequentialBinaryBuilder builder = (SequentialBinaryBuilder)producer;
-                    
-                    return builder.seq( seq -> {
-                      DefaultBinaryBuilderAdvanced prov = new DefaultBinaryBuilderAdvanced(seq);
-                      List<Computation<SBool>> first = rawFirst.stream().map(seq.binary()::known)
-                          .collect(Collectors.toList());
-                      Computation<List<Computation<SBool>>> log = prov.logProtocol(first); 
-                      
-                        return () -> log.out();
+                producer -> {
+
+                  ProtocolBuilderBinary builder = (ProtocolBuilderBinary) producer;
+
+                  return builder.seq(seq -> {
+                        DefaultBinaryBuilderAdvanced prov = new DefaultBinaryBuilderAdvanced(seq);
+                        List<Computation<SBool>> first = rawFirst.stream().map(seq.binary()::known)
+                            .collect(Collectors.toList());
+                        Computation<List<Computation<SBool>>> log = prov.logProtocol(first);
+
+                        return log::out;
                       }
-                    ).seq( (dat, seq) -> {
-                       List<Computation<Boolean>> out = new ArrayList<Computation<Boolean>>();
-                       for(Computation<SBool> o : dat) {
-                         out.add(seq.binary().open(o));
-                          }
-                          return () -> out.stream().map(Computation::out).collect(Collectors.toList());
-                          }
-                        );
+                  ).seq((dat, seq) -> {
+                        List<Computation<Boolean>> out = new ArrayList<Computation<Boolean>>();
+                        for (Computation<SBool> o : dat) {
+                          out.add(seq.binary().open(o));
+                        }
+                        return () -> out.stream().map(Computation::out).collect(Collectors.toList());
                       }
-              };
+                  );
+                };
           
           List<Boolean> outputs = secureComputationEngine.runApplication(app,
               ResourcePoolCreator.createResourcePool(conf.sceConf));

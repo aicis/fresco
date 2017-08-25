@@ -17,7 +17,8 @@ import dk.alexandra.fresco.lib.math.bool.add.BitIncrementerProtocolImpl;
 import dk.alexandra.fresco.lib.math.bool.add.FullAdderProtocolImpl;
 import dk.alexandra.fresco.lib.math.bool.add.OneBitFullAdderProtocolImpl;
 import dk.alexandra.fresco.lib.math.bool.add.OneBitHalfAdderProtocolImpl;
-import dk.alexandra.fresco.lib.math.bool.mult.BinaryMultProtocolImpl;
+import dk.alexandra.fresco.lib.math.bool.log.LogProtocol;
+import dk.alexandra.fresco.lib.math.bool.mult.BinaryMultProtocol;
 import java.util.List;
 
 public class DefaultBinaryBuilderAdvanced implements BinaryBuilderAdvanced {

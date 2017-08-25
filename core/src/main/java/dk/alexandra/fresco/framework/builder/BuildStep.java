@@ -98,6 +98,8 @@ public abstract class BuildStep<
     }
   }
 
+  protected abstract BuilderT createBuilder(BuilderFactory<BuilderT> factory);
+
   static class BuildStepSequential<
       BuilderT extends ProtocolBuilderImpl<BuilderT>, OutputT, InputT>
       extends BuildStep<BuilderT, OutputT, InputT> {
@@ -107,18 +109,11 @@ public abstract class BuildStep<
     }
 
     @Override
-    protected BuilderT createBuilder(
-        BuilderFactory<BuilderT> factory) {
+    protected BuilderT createBuilder(BuilderFactory<BuilderT> factory) {
       return factory.createSequential();
     }
   }
 
-  protected abstract BuilderT createBuilder(
-      BuilderFactory<BuilderT> factory);
-
-  /**
-   * Created by pff on 30-06-2017.
-   */
   static class BuildStepParallel<BuilderT extends ProtocolBuilderImpl<BuilderT>, OutputT, InputT>
       extends BuildStep<BuilderT, OutputT, InputT> {
 
@@ -127,8 +122,7 @@ public abstract class BuildStep<
     }
 
     @Override
-    protected BuilderT createBuilder(
-        BuilderFactory<BuilderT> factory) {
+    protected BuilderT createBuilder(BuilderFactory<BuilderT> factory) {
       return factory.createParallel();
     }
   }

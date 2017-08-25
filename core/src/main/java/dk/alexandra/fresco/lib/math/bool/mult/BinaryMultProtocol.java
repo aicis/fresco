@@ -26,14 +26,12 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.math.bool.mult;
 
+import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.builder.ComputationBuilder;
+import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
+import dk.alexandra.fresco.framework.value.SBool;
 import java.util.ArrayList;
 import java.util.List;
-
-import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.builder.binary.ComputationBuilderBinary;
-import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary.SequentialBinaryBuilder;
-
-import dk.alexandra.fresco.framework.value.SBool;
 
 /**
  * This class implements a Binary Multiplication protocol by doing the school method.
@@ -42,50 +40,53 @@ import dk.alexandra.fresco.framework.value.SBool;
  *
  * @author Kasper Damgaard
  */
-public class BinaryMultProtocol implements ComputationBuilderBinary<List<Computation<SBool>>> {
+public class BinaryMultProtocol implements
+    ComputationBuilder<List<Computation<SBool>>, ProtocolBuilderBinary> {
 
   private List<Computation<SBool>> lefts, rights;
 
-  public BinaryMultProtocol(List<Computation<SBool>> lefts, 
+  public BinaryMultProtocol(List<Computation<SBool>> lefts,
       List<Computation<SBool>> rights) {
     this.lefts = lefts;
     this.rights = rights;
-   }
+  }
 
   @Override
-  public Computation<List<Computation<SBool>>> build(SequentialBinaryBuilder builder) {
+  public Computation<List<Computation<SBool>>> build(ProtocolBuilderBinary builder) {
     return builder.seq(seq -> {
-      int idx = this.lefts.size() -1;
-      List<Computation<SBool>> res = new ArrayList<Computation<SBool>>();
-      for(int i = 0; i< rights.size(); i++) {
-        res.add(seq.binary().and(lefts.get(idx), rights.get(i)));
+      int idx = this.lefts.size() - 1;
+      List<Computation<SBool>> res = new ArrayList<>();
+      for (Computation<SBool> right : rights) {
+        res.add(seq.binary().and(lefts.get(idx), right));
       }
-      IterationState is = new IterationState(idx, () -> res);// seq.advancedBinary().oneBitFullAdder(lefts.get(idx), rights.get(idx), inCarry));
+      IterationState is = new IterationState(idx, () -> res);
+      // seq.advancedBinary().oneBitFullAdder(lefts.get(idx), rights.get(idx), inCarry));
       return is;
     }).whileLoop(
         (state) -> state.round >= 1,
         (state, seq) -> {
-          int idx = state.round -1;
-          
-          List<Computation<SBool>> res = new ArrayList<Computation<SBool>>();
-          for(int i = 0; i< rights.size(); i++) {
-            res.add(seq.binary().and(lefts.get(idx), rights.get(i)));
-          } 
-          for(int i = state.round; i < this.lefts.size(); i++){
+          int idx = state.round - 1;
+
+          List<Computation<SBool>> res = new ArrayList<>();
+          for (Computation<SBool> right : rights) {
+            res.add(seq.binary().and(lefts.get(idx), right));
+          }
+          for (int i = state.round; i < this.lefts.size(); i++) {
             res.add(seq.binary().known(false));
           }
           List<Computation<SBool>> tmp = state.value.out();
-          while(tmp.size()< res.size()) {
+          while (tmp.size() < res.size()) {
             tmp.add(0, seq.binary().known(false));
           }
-          IterationState is = new IterationState(idx, seq.advancedBinary().fullAdder(state.value.out(), res , seq.binary().known(false)));
+          IterationState is = new IterationState(idx,
+              seq.advancedBinary().fullAdder(state.value.out(), res, seq.binary().known(false)));
           return is;
         }
     ).seq((state, seq) -> state.value
     );
   }
-  
-  
+
+
   /**
    * Round 1: Create a matrix that is the AND of every possible input combination. Round
    * 2-(stopRound-1): Create layers of adders that takes the last layers result as well as the
@@ -186,5 +187,5 @@ public class BinaryMultProtocol implements ComputationBuilderBinary<List<Computa
       return this;
     }
   }
-  
+
 }

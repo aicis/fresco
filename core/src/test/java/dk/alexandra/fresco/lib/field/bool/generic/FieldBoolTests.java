@@ -30,7 +30,6 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.binary.BinaryBuilderAdvanced;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
-import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary.SequentialBinaryBuilder;
 import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SBool;
@@ -42,23 +41,19 @@ import org.junit.Assert;
 public class FieldBoolTests {
 
   public static class TestXNorFromXorAndNot<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory<ResourcePoolT, SequentialBinaryBuilder> {
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
 
     public TestXNorFromXorAndNot() {}
 
     @Override
-    public TestThread<ResourcePoolT, SequentialBinaryBuilder> next(
-        TestThreadConfiguration<ResourcePoolT, SequentialBinaryBuilder> conf) {
-      return new TestThread<ResourcePoolT, SequentialBinaryBuilder>() {
+    public TestThread<ResourcePoolT, ProtocolBuilderBinary> next(
+        TestThreadConfiguration<ResourcePoolT, ProtocolBuilderBinary> conf) {
+      return new TestThread<ResourcePoolT, ProtocolBuilderBinary>() {
 
         @Override
         public void test() throws Exception {
-          Application<List<Boolean>, SequentialBinaryBuilder> app =
-              new Application<List<Boolean>, ProtocolBuilderBinary.SequentialBinaryBuilder>() {
-
-            @Override
-            public Computation<List<Boolean>> prepareApplication(SequentialBinaryBuilder producer) {
-              return producer.seq(builder -> {
+          Application<List<Boolean>, ProtocolBuilderBinary> app =
+              producer -> producer.seq(builder -> {
                 BinaryBuilderAdvanced prov = builder.advancedBinary();
                 List<Computation<Boolean>> results = new ArrayList<>();
                 Computation<SBool> inp100 = builder.binary().known(false);
@@ -77,12 +72,8 @@ public class FieldBoolTests {
                 Computation<SBool> inp211 = builder.binary().known(true);
                 results.add(builder.binary().open(prov.xnor(inp111, inp211)));
                 return () -> results;
-              }).seq((results, seq) -> {
-                return () -> results.stream().map(Computation::out).collect(Collectors.toList());
-              });
-            }
-
-          };
+              }).seq((results, seq) -> () -> results.stream().map(Computation::out)
+                  .collect(Collectors.toList()));
 
           List<Boolean> res = secureComputationEngine.runApplication(app,
               ResourcePoolCreator.createResourcePool(conf.sceConf));
@@ -97,23 +88,19 @@ public class FieldBoolTests {
   }
 
   public static class TestXNorFromOpen<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory<ResourcePoolT, SequentialBinaryBuilder> {
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
 
     public TestXNorFromOpen() {}
 
     @Override
-    public TestThread<ResourcePoolT, SequentialBinaryBuilder> next(
-        TestThreadConfiguration<ResourcePoolT, SequentialBinaryBuilder> conf) {
-      return new TestThread<ResourcePoolT, SequentialBinaryBuilder>() {
+    public TestThread<ResourcePoolT, ProtocolBuilderBinary> next(
+        TestThreadConfiguration<ResourcePoolT, ProtocolBuilderBinary> conf) {
+      return new TestThread<ResourcePoolT, ProtocolBuilderBinary>() {
 
         @Override
         public void test() throws Exception {
-          Application<List<Boolean>, SequentialBinaryBuilder> app =
-              new Application<List<Boolean>, ProtocolBuilderBinary.SequentialBinaryBuilder>() {
-
-            @Override
-            public Computation<List<Boolean>> prepareApplication(SequentialBinaryBuilder producer) {
-              return producer.seq(builder -> {
+          Application<List<Boolean>, ProtocolBuilderBinary> app =
+              producer -> producer.seq(builder -> {
                 BinaryBuilderAdvanced prov = builder.advancedBinary();
                 List<Computation<Boolean>> results = new ArrayList<>();
 
@@ -130,11 +117,8 @@ public class FieldBoolTests {
                 results.add(builder.binary().open(prov.xnor(inp111, true)));
 
                 return () -> results;
-              }).seq((results, seq) -> {
-                return () -> results.stream().map(Computation::out).collect(Collectors.toList());
-              });
-            }
-          };
+              }).seq((results, seq) -> () -> results.stream().map(Computation::out)
+                  .collect(Collectors.toList()));
 
           List<Boolean> res = secureComputationEngine.runApplication(app,
               ResourcePoolCreator.createResourcePool(conf.sceConf));
@@ -150,23 +134,19 @@ public class FieldBoolTests {
 
 
   public static class TestOrFromXorAnd<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory<ResourcePoolT, SequentialBinaryBuilder> {
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
 
     public TestOrFromXorAnd() {}
 
     @Override
-    public TestThread<ResourcePoolT, SequentialBinaryBuilder> next(
-        TestThreadConfiguration<ResourcePoolT, SequentialBinaryBuilder> conf) {
-      return new TestThread<ResourcePoolT, SequentialBinaryBuilder>() {
+    public TestThread<ResourcePoolT, ProtocolBuilderBinary> next(
+        TestThreadConfiguration<ResourcePoolT, ProtocolBuilderBinary> conf) {
+      return new TestThread<ResourcePoolT, ProtocolBuilderBinary>() {
 
         @Override
         public void test() throws Exception {
-          Application<List<Boolean>, SequentialBinaryBuilder> app =
-              new Application<List<Boolean>, ProtocolBuilderBinary.SequentialBinaryBuilder>() {
-
-            @Override
-            public Computation<List<Boolean>> prepareApplication(SequentialBinaryBuilder producer) {
-              return producer.seq(builder -> {
+          Application<List<Boolean>, ProtocolBuilderBinary> app =
+              producer -> producer.seq(builder -> {
                 BinaryBuilderAdvanced prov = builder.advancedBinary();
                 List<Computation<Boolean>> results = new ArrayList<>();
                 Computation<SBool> inp100 = builder.binary().known(false);
@@ -185,11 +165,8 @@ public class FieldBoolTests {
                 Computation<SBool> inp211 = builder.binary().known(true);
                 results.add(builder.binary().open(prov.or(inp111, inp211)));
                 return () -> results;
-              }).seq((results, seq) -> {
-                return () -> results.stream().map(Computation::out).collect(Collectors.toList());
-              });
-            }
-          };
+              }).seq((results, seq) -> () -> results.stream().map(Computation::out)
+                  .collect(Collectors.toList()));
 
           List<Boolean> res = secureComputationEngine.runApplication(app,
               ResourcePoolCreator.createResourcePool(conf.sceConf));
@@ -204,24 +181,20 @@ public class FieldBoolTests {
   }
 
   public static class TestOrFromCopyConst<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory<ResourcePoolT, SequentialBinaryBuilder> {
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
 
     public TestOrFromCopyConst() {}
 
     @Override
-    public TestThread<ResourcePoolT, SequentialBinaryBuilder> next(
-        TestThreadConfiguration<ResourcePoolT, SequentialBinaryBuilder> conf) {
-      return new TestThread<ResourcePoolT, SequentialBinaryBuilder>() {
+    public TestThread<ResourcePoolT, ProtocolBuilderBinary> next(
+        TestThreadConfiguration<ResourcePoolT, ProtocolBuilderBinary> conf) {
+      return new TestThread<ResourcePoolT, ProtocolBuilderBinary>() {
 
         @Override
         public void test() throws Exception {
 
-          Application<List<Boolean>, SequentialBinaryBuilder> app =
-              new Application<List<Boolean>, ProtocolBuilderBinary.SequentialBinaryBuilder>() {
-
-            @Override
-            public Computation<List<Boolean>> prepareApplication(SequentialBinaryBuilder producer) {
-              return producer.seq(builder -> {
+          Application<List<Boolean>, ProtocolBuilderBinary> app =
+              producer -> producer.seq(builder -> {
                 BinaryBuilderAdvanced prov = builder.advancedBinary();
                 List<Computation<Boolean>> results = new ArrayList<>();
                 Computation<SBool> inp100 = builder.binary().known(false);
@@ -237,11 +210,8 @@ public class FieldBoolTests {
                 results.add(builder.binary().open(prov.or(inp111, true)));
 
                 return () -> results;
-              }).seq((results, seq) -> {
-                return () -> results.stream().map(Computation::out).collect(Collectors.toList());
-              });
-            }
-          };
+              }).seq((results, seq) -> () -> results.stream().map(Computation::out)
+                  .collect(Collectors.toList()));
 
           List<Boolean> res = secureComputationEngine.runApplication(app,
               ResourcePoolCreator.createResourcePool(conf.sceConf));
@@ -257,24 +227,20 @@ public class FieldBoolTests {
 
 
   public static class TestNandFromAndAndNot<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory<ResourcePoolT, SequentialBinaryBuilder> {
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
 
     public TestNandFromAndAndNot() {}
 
     @Override
-    public TestThread<ResourcePoolT, SequentialBinaryBuilder> next(
-        TestThreadConfiguration<ResourcePoolT, SequentialBinaryBuilder> conf) {
-      return new TestThread<ResourcePoolT, SequentialBinaryBuilder>() {
+    public TestThread<ResourcePoolT, ProtocolBuilderBinary> next(
+        TestThreadConfiguration<ResourcePoolT, ProtocolBuilderBinary> conf) {
+      return new TestThread<ResourcePoolT, ProtocolBuilderBinary>() {
 
         @Override
         public void test() throws Exception {
 
-          Application<List<Boolean>, SequentialBinaryBuilder> app =
-              new Application<List<Boolean>, ProtocolBuilderBinary.SequentialBinaryBuilder>() {
-
-            @Override
-            public Computation<List<Boolean>> prepareApplication(SequentialBinaryBuilder producer) {
-              return producer.seq(builder -> {
+          Application<List<Boolean>, ProtocolBuilderBinary> app =
+              producer -> producer.seq(builder -> {
                 BinaryBuilderAdvanced prov = builder.advancedBinary();
                 List<Computation<Boolean>> results = new ArrayList<>();
                 Computation<SBool> inp100 = builder.binary().known(false);
@@ -294,12 +260,8 @@ public class FieldBoolTests {
                 results.add(builder.binary().open(prov.nand(inp111, inp211)));
 
                 return () -> results;
-              }).seq((results, seq) -> {
-                return () -> results.stream().map(Computation::out).collect(Collectors.toList());
-              });
-            }
-
-          };
+              }).seq((results, seq) -> () -> results.stream().map(Computation::out)
+                  .collect(Collectors.toList()));
 
           List<Boolean> res = secureComputationEngine.runApplication(app,
               ResourcePoolCreator.createResourcePool(conf.sceConf));
@@ -314,24 +276,20 @@ public class FieldBoolTests {
   }
 
   public static class TestNandFromOpen<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory<ResourcePoolT, SequentialBinaryBuilder> {
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
 
     public TestNandFromOpen() {}
 
     @Override
-    public TestThread<ResourcePoolT, SequentialBinaryBuilder> next(
-        TestThreadConfiguration<ResourcePoolT, SequentialBinaryBuilder> conf) {
-      return new TestThread<ResourcePoolT, SequentialBinaryBuilder>() {
+    public TestThread<ResourcePoolT, ProtocolBuilderBinary> next(
+        TestThreadConfiguration<ResourcePoolT, ProtocolBuilderBinary> conf) {
+      return new TestThread<ResourcePoolT, ProtocolBuilderBinary>() {
 
         @Override
         public void test() throws Exception {
 
-          Application<List<Boolean>, SequentialBinaryBuilder> app =
-              new Application<List<Boolean>, ProtocolBuilderBinary.SequentialBinaryBuilder>() {
-
-            @Override
-            public Computation<List<Boolean>> prepareApplication(SequentialBinaryBuilder producer) {
-              return producer.seq(builder -> {
+          Application<List<Boolean>, ProtocolBuilderBinary> app =
+              producer -> producer.seq(builder -> {
                 BinaryBuilderAdvanced prov = builder.advancedBinary();
 
                 List<Computation<Boolean>> results = new ArrayList<>();
@@ -348,11 +306,8 @@ public class FieldBoolTests {
                 results.add(builder.binary().open(prov.nand(inp111, true)));
 
                 return () -> results;
-              }).seq((results, seq) -> {
-                return () -> results.stream().map(Computation::out).collect(Collectors.toList());
-              });
-            }
-          };
+              }).seq((results, seq) -> () -> results.stream().map(Computation::out)
+                  .collect(Collectors.toList()));
 
           List<Boolean> res = secureComputationEngine.runApplication(app,
               ResourcePoolCreator.createResourcePool(conf.sceConf));
@@ -368,24 +323,20 @@ public class FieldBoolTests {
 
 
   public static class TestAndFromCopyConst<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory<ResourcePoolT, SequentialBinaryBuilder> {
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
 
     public TestAndFromCopyConst() {}
 
     @Override
-    public TestThread<ResourcePoolT, SequentialBinaryBuilder> next(
-        TestThreadConfiguration<ResourcePoolT, SequentialBinaryBuilder> conf) {
-      return new TestThread<ResourcePoolT, SequentialBinaryBuilder>() {
+    public TestThread<ResourcePoolT, ProtocolBuilderBinary> next(
+        TestThreadConfiguration<ResourcePoolT, ProtocolBuilderBinary> conf) {
+      return new TestThread<ResourcePoolT, ProtocolBuilderBinary>() {
 
         @Override
         public void test() throws Exception {
 
-          Application<List<Boolean>, SequentialBinaryBuilder> app =
-              new Application<List<Boolean>, ProtocolBuilderBinary.SequentialBinaryBuilder>() {
-
-            @Override
-            public Computation<List<Boolean>> prepareApplication(SequentialBinaryBuilder producer) {
-              return producer.seq(builder -> {
+          Application<List<Boolean>, ProtocolBuilderBinary> app =
+              producer -> producer.seq(builder -> {
                 BinaryBuilderAdvanced prov = builder.advancedBinary();
                 List<Computation<Boolean>> results = new ArrayList<>();
 
@@ -402,12 +353,8 @@ public class FieldBoolTests {
                 results.add(builder.binary().open(prov.and(inp111, true)));
 
                 return () -> results;
-              }).seq((results, seq) -> {
-                return () -> results.stream().map(Computation::out).collect(Collectors.toList());
-              });
-            }
-
-          };
+              }).seq((results, seq) -> () -> results.stream().map(Computation::out)
+                  .collect(Collectors.toList()));
 
           List<Boolean> res = secureComputationEngine.runApplication(app,
               ResourcePoolCreator.createResourcePool(conf.sceConf));
