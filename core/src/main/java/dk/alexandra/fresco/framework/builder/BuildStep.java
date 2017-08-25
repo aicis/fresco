@@ -4,9 +4,6 @@ import dk.alexandra.fresco.framework.BuilderFactory;
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.util.Pair;
-import dk.alexandra.fresco.lib.helper.LazyProtocolProducerDecorator;
-import dk.alexandra.fresco.lib.helper.SequentialProtocolProducer;
-import java.util.function.BiFunction;
 import java.util.function.Predicate;
 
 public abstract class BuildStep<
@@ -15,20 +12,13 @@ public abstract class BuildStep<
     InputT>
     implements Computation<OutputT> {
 
-  protected final BiFunction<InputT, BuilderT, Computation<OutputT>> function;
-
-  protected BuildStep<BuilderT, ?, OutputT> next;
-  protected Computation<OutputT> output;
-
-  BuildStep(
-      BiFunction<InputT, BuilderT, Computation<OutputT>> function) {
-    this.function = function;
-  }
+  private BuildStep<BuilderT, ?, OutputT> next;
+  private Computation<OutputT> output;
 
   public <NextOutputT> BuildStep<BuilderT, NextOutputT, OutputT> seq(
       FrescoLambda<OutputT, BuilderT, NextOutputT> function) {
     BuildStep<BuilderT, NextOutputT, OutputT> localChild =
-        new BuildStepSequential<>(function);
+        new BuildStepSingle<>(function, false);
     this.next = localChild;
     return localChild;
   }
@@ -36,7 +26,7 @@ public abstract class BuildStep<
   public <NextOutputT> BuildStep<BuilderT, NextOutputT, OutputT> par(
       FrescoLambda<OutputT, BuilderT, NextOutputT> function) {
     BuildStep<BuilderT, NextOutputT, OutputT> localChild =
-        new BuildStepParallel<>(function);
+        new BuildStepSingle<>(function, true);
     this.next = localChild;
     return localChild;
   }
@@ -56,7 +46,7 @@ public abstract class BuildStep<
       FrescoLambda<OutputT, BuilderT, SecondOutputT> secondFunction) {
     BuildStep<BuilderT, Pair<FirstOutputT, SecondOutputT>, OutputT>
         localChild =
-        new BuildStepParallel<>(
+        new BuildStepSingle<>(
             (OutputT output1, BuilderT builder) -> {
               Computation<FirstOutputT> firstOutput =
                   builder.createSequentialSub(
@@ -65,7 +55,7 @@ public abstract class BuildStep<
                   builder.createSequentialSub(
                       seq -> secondFunction.apply(output1, seq));
               return () -> new Pair<>(firstOutput.out(), secondOutput.out());
-            }
+            }, true
         );
     this.next = localChild;
     return localChild;
@@ -78,52 +68,17 @@ public abstract class BuildStep<
     return null;
   }
 
-  protected ProtocolProducer createProducer(
+  ProtocolProducer createProducer(
       InputT input,
       BuilderFactory<BuilderT> factory) {
-
-    BuilderT builder = createBuilder(factory);
-    Computation<OutputT> output = function.apply(input, builder);
-    if (next != null) {
-      return
-          new SequentialProtocolProducer(
-              builder.build(),
-              new LazyProtocolProducerDecorator(() ->
-                  next.createProducer(output.out(), factory)
-              )
-          );
-    } else {
-      this.output = output;
-      return builder.build();
-    }
+    Pair<ProtocolProducer, Computation<OutputT>> nextStep = createNextStep(input, factory, next);
+    output = nextStep.getSecond();
+    return nextStep.getFirst();
   }
 
-  protected abstract BuilderT createBuilder(BuilderFactory<BuilderT> factory);
+  protected abstract Pair<ProtocolProducer, Computation<OutputT>> createNextStep(
+      InputT input,
+      BuilderFactory<BuilderT> factory,
+      BuildStep<BuilderT, ?, OutputT> next);
 
-  static class BuildStepSequential<
-      BuilderT extends ProtocolBuilderImpl<BuilderT>, OutputT, InputT>
-      extends BuildStep<BuilderT, OutputT, InputT> {
-
-    BuildStepSequential(FrescoLambda<InputT, BuilderT, OutputT> function) {
-      super(function);
-    }
-
-    @Override
-    protected BuilderT createBuilder(BuilderFactory<BuilderT> factory) {
-      return factory.createSequential();
-    }
-  }
-
-  static class BuildStepParallel<BuilderT extends ProtocolBuilderImpl<BuilderT>, OutputT, InputT>
-      extends BuildStep<BuilderT, OutputT, InputT> {
-
-    BuildStepParallel(FrescoLambda<InputT, BuilderT, OutputT> function) {
-      super(function);
-    }
-
-    @Override
-    protected BuilderT createBuilder(BuilderFactory<BuilderT> factory) {
-      return factory.createParallel();
-    }
-  }
 }

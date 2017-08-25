@@ -4,7 +4,6 @@ import dk.alexandra.fresco.framework.BuilderFactory;
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.ProtocolProducer;
-import dk.alexandra.fresco.framework.builder.BuildStep.BuildStepSequential;
 import dk.alexandra.fresco.lib.helper.LazyProtocolProducerDecorator;
 import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
 import dk.alexandra.fresco.lib.helper.ProtocolProducerCollection;
@@ -134,7 +133,7 @@ public abstract class ProtocolBuilderImpl<BuilderT extends ProtocolBuilderImpl<B
 
   public <R> BuildStep<BuilderT, R, Void> seq(ComputationBuilder<R, BuilderT> function) {
     BuildStep<BuilderT, R, Void> builder =
-        new BuildStepSequential<>((ignored, inner) -> function.build(inner));
+        new BuildStepSingle<>((ignored, inner) -> function.build(inner), false);
     createAndAppend(
         new LazyProtocolProducerDecorator(() -> builder.createProducer(null, factory)));
     return builder;
@@ -143,7 +142,7 @@ public abstract class ProtocolBuilderImpl<BuilderT extends ProtocolBuilderImpl<B
   public <R> BuildStep<BuilderT, R, Void> par(
       ComputationBuilder<R, BuilderT> f) {
     BuildStep<BuilderT, R, Void> builder =
-        new BuildStep.BuildStepParallel<>((ignored, inner) -> f.build(inner));
+        new BuildStepSingle<BuilderT, R, Void>((ignored, inner) -> f.build(inner), true);
     createAndAppend(
         new LazyProtocolProducerDecorator(() -> builder.createProducer(null, factory)));
     return builder;

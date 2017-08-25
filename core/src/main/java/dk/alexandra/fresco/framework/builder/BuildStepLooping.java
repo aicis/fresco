@@ -4,6 +4,7 @@ import dk.alexandra.fresco.framework.BuilderFactory;
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.ProtocolProducer;
+import dk.alexandra.fresco.framework.util.Pair;
 import java.util.function.Predicate;
 
 class BuildStepLooping<BuilderT extends ProtocolBuilderImpl<BuilderT>,
@@ -13,23 +14,18 @@ class BuildStepLooping<BuilderT extends ProtocolBuilderImpl<BuilderT>,
   private final FrescoLambda<InputT, BuilderT, InputT> function;
 
   BuildStepLooping(Predicate<InputT> predicate, FrescoLambda<InputT, BuilderT, InputT> function) {
-    super(function);
+    super();
     this.predicate = predicate;
     this.function = function;
   }
 
-  @Override
-  protected ProtocolProducer createProducer(InputT input,
-      BuilderFactory<BuilderT> factory) {
+  protected Pair<ProtocolProducer, Computation<InputT>> createNextStep(
+      InputT input,
+      BuilderFactory<BuilderT> factory,
+      BuildStep<BuilderT, ?, InputT> next) {
     LoopProtocolProducer<BuilderT, InputT> loopProtocolProducer =
         new LoopProtocolProducer<>(factory, input, predicate, function, next);
-    output = loopProtocolProducer;
-    return loopProtocolProducer;
-  }
-
-  @Override
-  protected BuilderT createBuilder(BuilderFactory<BuilderT> factory) {
-    throw new IllegalStateException("Should not be called");
+    return new Pair<>(loopProtocolProducer, loopProtocolProducer);
   }
 
   private static class LoopProtocolProducer<
