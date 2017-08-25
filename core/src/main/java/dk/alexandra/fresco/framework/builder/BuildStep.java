@@ -10,7 +10,7 @@ import java.util.function.BiFunction;
 import java.util.function.Predicate;
 
 public abstract class BuildStep<
-    BuilderT extends ProtocolBuilder<BuilderT>,
+    BuilderT extends ProtocolBuilderImpl<BuilderT>,
     OutputT,
     InputT>
     implements Computation<OutputT> {
@@ -99,7 +99,7 @@ public abstract class BuildStep<
   }
 
   static class BuildStepSequential<
-      BuilderT extends ProtocolBuilder<BuilderT>, OutputT, InputT>
+      BuilderT extends ProtocolBuilderImpl<BuilderT>, OutputT, InputT>
       extends BuildStep<BuilderT, OutputT, InputT> {
 
     BuildStepSequential(FrescoLambda<InputT, BuilderT, OutputT> function) {
@@ -119,7 +119,7 @@ public abstract class BuildStep<
   /**
    * Created by pff on 30-06-2017.
    */
-  static class BuildStepParallel<BuilderT extends ProtocolBuilder<BuilderT>, OutputT, InputT>
+  static class BuildStepParallel<BuilderT extends ProtocolBuilderImpl<BuilderT>, OutputT, InputT>
       extends BuildStep<BuilderT, OutputT, InputT> {
 
     BuildStepParallel(FrescoLambdaParallel<InputT, BuilderT, OutputT> function) {

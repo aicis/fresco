@@ -6,7 +6,7 @@ import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import java.util.function.Predicate;
 
-class BuildStepLooping<BuilderT extends ProtocolBuilder<BuilderT>,
+class BuildStepLooping<BuilderT extends ProtocolBuilderImpl<BuilderT>,
     InputT> extends BuildStep<BuilderT, InputT, InputT> {
 
   private final Predicate<InputT> predicate;
@@ -33,7 +33,7 @@ class BuildStepLooping<BuilderT extends ProtocolBuilder<BuilderT>,
   }
 
   private static class LoopProtocolProducer<
-      BuilderT extends ProtocolBuilder<BuilderT>,
+      BuilderT extends ProtocolBuilderImpl<BuilderT>,
       InputT
       > implements ProtocolProducer, Computation<InputT> {
 

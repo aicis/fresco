@@ -15,9 +15,8 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-public abstract class ProtocolBuilderImpl<
-    BuilderT extends ProtocolBuilderImpl<BuilderT>
-    > implements ProtocolBuilder<BuilderT> {
+public abstract class ProtocolBuilderImpl<BuilderT extends ProtocolBuilderImpl<BuilderT>>
+    implements ProtocolBuilder {
 
   private final boolean parallel;
   private List<ProtocolEntity> protocols;
@@ -38,7 +37,7 @@ public abstract class ProtocolBuilderImpl<
    * @param function of the protocol producer - will be lazy evaluated
    */
   public <R> Computation<R> createParallelSub(
-      ComputationBuilderParallel<R, BuilderT> function) {
+      ComputationBuilder<R, BuilderT> function) {
     DelayedComputation<R> result = new DelayedComputation<>();
     addConsumer((builder) -> result.setComputation(function.build(builder)),
         () -> factory.createParallel());
@@ -143,7 +142,7 @@ public abstract class ProtocolBuilderImpl<
   }
 
   public <R> BuildStep<BuilderT, R, Void> par(
-      ComputationBuilderParallel<R, BuilderT> f) {
+      ComputationBuilder<R, BuilderT> f) {
     BuildStep<BuilderT, R, Void> builder =
         new BuildStep.BuildStepParallel<>((ignored, inner) -> f.build(inner));
     createAndAppend(

@@ -2,7 +2,7 @@ package dk.alexandra.fresco.framework.builder;
 
 import dk.alexandra.fresco.framework.Computation;
 
-public interface ComputationBuilder<OutputT, SequentialBuilderT extends ProtocolBuilder<SequentialBuilderT>> {
+public interface ComputationBuilder<OutputT, SequentialBuilderT extends ProtocolBuilder> {
 
   /**
    * Applies this function to the given argument.

@@ -5,7 +5,7 @@ import java.util.function.BiFunction;
 
 public interface FrescoLambda<
     InputT,
-    SequentialBuilderT extends ProtocolBuilder<SequentialBuilderT>,
+    SequentialBuilderT extends ProtocolBuilder,
     OutputT
     > extends BiFunction<InputT, SequentialBuilderT, Computation<OutputT>> {
 
