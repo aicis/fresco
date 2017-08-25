@@ -3,9 +3,10 @@ package dk.alexandra.fresco.framework.builder.binary;
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SBool;
+import dk.alexandra.fresco.lib.collections.sort.KeyedCompareAndSwapProtocol;
 import dk.alexandra.fresco.lib.collections.sort.OddEvenMergeProtocol;
 import dk.alexandra.fresco.lib.collections.sort.OddEvenMergeProtocolRec;
-import dk.alexandra.fresco.lib.compare.KeyedCompareAndSwapProtocol;
+import dk.alexandra.fresco.lib.field.bool.ConditionalSelect;
 import dk.alexandra.fresco.lib.field.bool.generic.AndFromCopyConst;
 import dk.alexandra.fresco.lib.field.bool.generic.NandFromAndAndNot;
 import dk.alexandra.fresco.lib.field.bool.generic.NotFromXor;
@@ -37,7 +38,7 @@ public class DefaultBinaryBuilderAdvanced implements BinaryBuilderAdvanced {
   public Computation<SBool> or(Computation<SBool> left, boolean right) {
     return builder.createSequentialSub(new OrFromCopyConst(left, right));
   }
-  
+
   @Override
   public Computation<SBool> xnor(Computation<SBool> left, Computation<SBool> right) {
     return builder.createSequentialSub(new XnorFromXorAndNot(left, right));
@@ -45,13 +46,13 @@ public class DefaultBinaryBuilderAdvanced implements BinaryBuilderAdvanced {
 
   @Override
   public Computation<SBool> xnor(Computation<SBool> left, boolean right) {
-    if(right) {
+    if (right) {
       return builder.binary().copy(left);
     } else {
       return builder.binary().not(left);
     }
   }
-  
+
   @Override
   public Computation<SBool> nand(Computation<SBool> left, Computation<SBool> right) {
     return builder.createSequentialSub(new NandFromAndAndNot(left, right));
@@ -59,61 +60,64 @@ public class DefaultBinaryBuilderAdvanced implements BinaryBuilderAdvanced {
 
   @Override
   public Computation<SBool> nand(Computation<SBool> left, boolean right) {
-    if(right) {
+    if (right) {
       return builder.binary().not(left);
     } else {
       return builder.binary().known(true);
     }
   }
-  
+
   @Override
   public Computation<Pair<SBool, SBool>> oneBitFullAdder(Computation<SBool> left,
       Computation<SBool> right, Computation<SBool> carry) {
     return builder.createSequentialSub(new OneBitFullAdderProtocolImpl(left, right, carry));
   }
-  
+
   @Override
   public Computation<List<Computation<SBool>>> fullAdder(List<Computation<SBool>> lefts,
       List<Computation<SBool>> rights, Computation<SBool> inCarry) {
     return builder.createSequentialSub(new FullAdderProtocolImpl(lefts, rights, inCarry));
   }
-  
+
   public Computation<List<Computation<SBool>>> bitIncrement(List<Computation<SBool>> base,
       Computation<SBool> increment) {
     return builder.createSequentialSub(new BitIncrementerProtocolImpl(base, increment));
   }
-  
+
+  @Override
   public Computation<SBool> and(Computation<SBool> left, boolean right) {
     return builder.createSequentialSub(new AndFromCopyConst(left, right));
   }
-  
+
   public Computation<SBool> not(Computation<SBool> in) {
     return builder.createSequentialSub(new NotFromXor(in));
   }
-  
+
   @Override
   public Computation<SBool> condSelect(Computation<SBool> condition, Computation<SBool> left,
       Computation<SBool> right) {
-    // TODO Auto-generated method stub
-    return null;
+    return builder.createSequentialSub(new ConditionalSelect(condition, left, right));
   }
 
   @Override
-  public Computation<Pair<SBool, SBool>> oneBitHalfAdder(Computation<SBool> left, Computation<SBool> right) {
+  public Computation<Pair<SBool, SBool>> oneBitHalfAdder(Computation<SBool> left,
+      Computation<SBool> right) {
     return builder.createSequentialSub(new OneBitHalfAdderProtocolImpl(left, right));
   }
 
 
 
   @Override
-  public Computation<List<Computation<SBool>>> binaryMult(List<Computation<SBool>> lefts, List<Computation<SBool>> rights) {
-    return builder.createSequentialSub(new BinaryMultProtocolImpl(lefts, rights));
+  public Computation<List<Computation<SBool>>> binaryMult(List<Computation<SBool>> lefts,
+      List<Computation<SBool>> rights) {
+    return builder.createSequentialSub(new BinaryMultProtocol(lefts, rights));
   }
 
   @Override
-  public List<Computation<SBool>> logProtocol(List<Computation<SBool>> number) {
-    return null;//return new LogProtocolImpl(number, result, this);
+  public Computation<List<Computation<SBool>>> logProtocol(List<Computation<SBool>> number) {
+    return builder.createSequentialSub(new LogProtocol(number));
   }
+
 
   /**
    * Advanced protocols - do not yet exist in interface
@@ -125,12 +129,9 @@ public class DefaultBinaryBuilderAdvanced implements BinaryBuilderAdvanced {
     return new OddEvenMergeProtocolRec(left, right, sorted, this);
   }
 
-
-
-  public KeyedCompareAndSwapProtocol getKeyedCompareAndSwapProtocol(SBool[] leftKey,
-      SBool[] leftValue, SBool[] rightKey, SBool[] rightValue) {
-    return null;//return new KeyedCompareAndSwapProtocolGetNextProtocolImpl(leftKey, leftValue, rightKey,
-        //rightValue, this);
+  public Computation<List<Pair<List<Computation<SBool>>, List<Computation<SBool>>>>> getKeyedCompareAndSwapProtocol(List<Computation<SBool>> leftKey,
+      List<Computation<SBool>> leftValue, List<Computation<SBool>> rightKey, List<Computation<SBool>> rightValue) {
+    return builder.createSequentialSub(new KeyedCompareAndSwapProtocol(leftKey, leftValue, rightKey, rightValue));
   }
 
 }

@@ -85,13 +85,13 @@ public class SecretSharedDivisor
     ).par((pair, seq) -> {
       // Determine sign of numerator and ensure positive
       Computation<SInt> numerator = pair.getFirst();
-      Computation<SInt> sign = sign(seq, numerator);
+      Computation<SInt> sign = seq.comparison().sign(numerator);
 
       return Pair.lazy(sign, seq.numeric().mult(sign, numerator));
     }, (pair, seq) -> {
       // Determine sign of denominator and ensure positive
       Computation<SInt> denominator = pair.getSecond();
-      Computation<SInt> sign = sign(seq, denominator);
+      Computation<SInt> sign = seq.comparison().sign(denominator);
 
       return Pair.lazy(sign, seq.numeric().mult(sign, denominator));
     }).seq((pair, seq) -> {
@@ -191,6 +191,7 @@ public class SecretSharedDivisor
   }
 
   private Computation<SInt> exp2(ProtocolBuilderNumeric builder, Computation<SInt> exponent,
+  private Computation<SInt> exp2(SequentialNumericBuilder builder, Computation<SInt> exponent,
       int maxExponentLength) {
     return builder.advancedNumeric().exp(
         BigInteger.valueOf(2),

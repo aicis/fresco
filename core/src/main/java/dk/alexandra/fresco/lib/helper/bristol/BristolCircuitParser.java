@@ -160,12 +160,8 @@ public class BristolCircuitParser implements
         // System.out.println("XOR: RIGHT in wire " + in[0] + " is not ready");
         // return null;
         // }
-        if (outWireXor == null) {
-          outWireXor = builder.binary().xor(leftInWireXor, rightInWireXor);
-          this.wires.put(out[0], outWireXor);
-        } else {
-          builder.binary().xor(leftInWireXor, rightInWireXor, outWireXor);
-        }
+        outWireXor = builder.binary().xor(leftInWireXor, rightInWireXor);
+        this.wires.put(out[0], outWireXor);
         return;
       case "AND":
         if (in.length != 2 || out.length != 1) {
@@ -190,12 +186,8 @@ public class BristolCircuitParser implements
         // System.out.println("and RIGHT input " + in[1] + " was not ready");
         // return null;
         // }
-        if (outWireAnd == null) {
-          outWireAnd = builder.binary().and(leftInWireAnd, rightInWireAnd);
-          this.wires.put(out[0], outWireAnd);
-        } else {
-          builder.binary().and(leftInWireAnd, rightInWireAnd, outWireAnd);
-        }
+        outWireAnd = builder.binary().and(leftInWireAnd, rightInWireAnd);
+        this.wires.put(out[0], outWireAnd);
         return;
       case "INV":
         if (in.length != 1 || out.length != 1) {
@@ -208,12 +200,8 @@ public class BristolCircuitParser implements
           throw new MPCException("NOT input " + in[0] + " was not set");
         }
 
-        if (outWireNot == null) {
-          outWireNot = builder.binary().not(inWireNot);
-          this.wires.put(out[0], outWireNot);
-        } else {
-          builder.binary().not(inWireNot, outWireNot);
-        }
+        outWireNot = builder.binary().not(inWireNot);
+        this.wires.put(out[0], outWireNot);
 
         return;
       default:

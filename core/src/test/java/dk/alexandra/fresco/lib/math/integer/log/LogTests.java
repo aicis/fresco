@@ -45,43 +45,44 @@ import org.junit.Assert;
 
 /**
  * Generic test cases for basic finite field operations.
- * 
- * Can be reused by a test case for any protocol suite that implements the basic
- * field protocol factory.
  *
+ * Can be reused by a test case for any protocol suite that implements the basic field protocol
+ * factory.
  */
 public class LogTests {
 
-	public static class TestLogarithm extends TestThreadFactory {
+  public static class TestLogarithm<ResourcePoolT extends ResourcePool> extends
+      TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
-		@Override
-		public TestThread next(TestThreadConfiguration conf) {
-			
-			return new TestThread() {
-				private final BigInteger[] x = { BigInteger.valueOf(201235), BigInteger.valueOf(1234), BigInteger.valueOf(405068), BigInteger.valueOf(123456), BigInteger.valueOf(110) };
+    @Override
+    public TestThread next(TestThreadConfiguration<ResourcePoolT, ProtocolBuilderNumeric> conf) {
+
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+        private final BigInteger[] x = {BigInteger.valueOf(201235), BigInteger.valueOf(1234),
+            BigInteger.valueOf(405068), BigInteger.valueOf(123456), BigInteger.valueOf(110)};
         private final ArrayList<Computation<BigInteger>> results = new ArrayList<>(x.length);
 
-				@Override
-				public void test() throws Exception {
-					TestApplication app = new TestApplication() {
+        @Override
+        public void test() throws Exception {
+          TestApplication app = new TestApplication() {
 
-						@Override
-						public ProtocolProducer prepareApplication(BuilderFactory factoryProducer) {
+            @Override
+            public ProtocolProducer prepareApplication(BuilderFactory factoryProducer) {
               return ProtocolBuilderNumeric
                   .createApplicationRoot((BuilderFactoryNumeric) factoryProducer, (builder) -> {
                     NumericBuilder sIntFactory = builder.numeric();
 
-										for (BigInteger input : x) {
-											Computation<SInt> actualInput = sIntFactory.known(input);
-											Computation<SInt> result = builder.advancedNumeric()
-													.log(actualInput, input.bitLength());
+                    for (BigInteger input : x) {
+                      Computation<SInt> actualInput = sIntFactory.input(input, 1);
+                      Computation<SInt> result = builder.advancedNumeric()
+                          .log(actualInput, input.bitLength());
                       Computation<BigInteger> openResult = builder.numeric().open(result);
                       results.add(openResult);
                     }
-									}).build();
-						}
-					};
-					secureComputationEngine
+                  }).build();
+            }
+          };
+          secureComputationEngine
               .runApplication(app, ResourcePoolCreator.createResourcePool(conf.sceConf));
 
           for (int i = 0; i < x.length; i++) {
@@ -90,8 +91,8 @@ public class LogTests {
             int difference = Math.abs(actual - expected);
             Assert.assertTrue(difference <= 1); // Difference should be less than a bit
           }
-				}
-			};
-		}
-	}
+        }
+      };
+    }
+  }
 }

@@ -26,6 +26,7 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.compare;
 
+
 /**
  * Test class for the DEASolver.
  * Will generate a random data sample and perform a Data Envelopment

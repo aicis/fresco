@@ -53,16 +53,6 @@ public interface BinaryBuilder {
    */
   Computation<SBool> and(Computation<SBool> left, Computation<SBool> right);
 
-  /**
-   * Basic AND operation, but lets the application programmer choose the outgoing wire.
-   * 
-   * @param left The left AND argument.
-   * @param right The right AND argument.
-   * @param out The outgoing wire where the result is stored. It is assumed that this computation's
-   *        out method returns an empty SBool of the correct protocol suite type.
-   */
-  void and(Computation<SBool> left, Computation<SBool> right, Computation<SBool> out);
-
   Computation<SBool> and(Computation<SBool> left, boolean right);
 
   /**
@@ -74,18 +64,6 @@ public interface BinaryBuilder {
    */
   Computation<SBool> xor(Computation<SBool> left, Computation<SBool> right);
 
-  /**
-   * XOR basic operation, but lets the application programmer choose the outgoing wire instead of
-   * creating a new one.
-   * 
-   * @param leftInWireXor Left XOR argument
-   * @param rightInWireXor right XOR argument
-   * @param outWireXor output wire where the result is stored. It is assumed that this computation's
-   *        out method returns an empty SBool of the correct protocol suite type.
-   */
-  void xor(Computation<SBool> leftInWireXor, Computation<SBool> rightInWireXor,
-      Computation<SBool> outWireXor);
-
   Computation<SBool> xor(Computation<SBool> left, boolean right);
 
   /**
@@ -95,15 +73,6 @@ public interface BinaryBuilder {
    * @return An outgoing wire where the result is stored.
    */
   Computation<SBool> not(Computation<SBool> in);
-
-  /**
-   * Basic NOT operation, but lets the application programmer choose the outgoing wire.
-   * 
-   * @param in The input to be inverted
-   * @param out The outgoing wire where the result is stored. It is assumed that this computation's
-   *        out method returns an empty SBool of the correct protocol suite type.
-   */
-  void not(Computation<SBool> in, Computation<SBool> out);
 
   /**
    * Appends a copy protocol to the current protocol copying the value of one computation to an

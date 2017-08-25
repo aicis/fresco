@@ -26,7 +26,10 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.collections.sort;
 
+import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.ProtocolProducer;
+import dk.alexandra.fresco.framework.builder.binary.ComputationBuilderBinary;
+import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary.SequentialBinaryBuilder;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SBool;
 import dk.alexandra.fresco.lib.helper.SimpleProtocolProducer;
@@ -40,27 +43,26 @@ import java.util.List;
  * @author psn
  *
  */
-public class OddEvenMergeProtocolImpl extends SimpleProtocolProducer implements
-OddEvenMergeProtocol {
+public class OddEvenMergeProtocolImpl  implements ComputationBuilderBinary<List<Pair<List<Computation<SBool>>, List<Computation<SBool>>>>> {
 
-  private List<Pair<SBool[], SBool[]>> sorted;
-  private List<Pair<SBool[], SBool[]>> left;
-  private List<Pair<SBool[], SBool[]>> right;
-  private int firstIndex;
-  private int lastIndex;
-  private int realSize;
-  private int simulatedSize;
-
-  public OddEvenMergeProtocolImpl(List<Pair<SBool[], SBool[]>> left,
-      List<Pair<SBool[], SBool[]>> right,
-      List<Pair<SBool[], SBool[]>> sorted, Object factory) {
+  private List<Pair<List<Computation<SBool>>, List<Computation<SBool>>>> left;
+  private List<Pair<List<Computation<SBool>>, List<Computation<SBool>>>> right;
+  
+  public OddEvenMergeProtocolImpl(List<Pair<List<Computation<SBool>>, List<Computation<SBool>>>> left,
+      List<Pair<List<Computation<SBool>>, List<Computation<SBool>>>> right) {
     super();
-    this.sorted = sorted;
     this.left = left;
     this.right = right;
   }
 
   @Override
+  public Computation<List<Pair<List<Computation<SBool>>, List<Computation<SBool>>>>> build(
+      SequentialBinaryBuilder builder) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+  
+  //@Override
   protected ProtocolProducer initializeProtocolProducer() {
     return null;
     /*blb.beginParScope();
@@ -184,4 +186,7 @@ OddEvenMergeProtocol {
 		//return li* ki2 * (indexSize+(indexSize+seqSize));
 	}
    */
+
+
+
 }

@@ -26,121 +26,86 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.math.bool.log;
 
+import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.BuilderFactory;
+import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.ProtocolProducer;
-import dk.alexandra.fresco.framework.TestBoolApplication;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
+import dk.alexandra.fresco.framework.builder.binary.DefaultBinaryBuilderAdvanced;
+import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
+import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary.SequentialBinaryBuilder;
 import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
+import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.util.ByteArithmetic;
 import dk.alexandra.fresco.framework.value.SBool;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import org.hamcrest.core.Is;
 import org.junit.Assert;
 
 public class LogTests {
 
-  public static class TestLogNice extends TestThreadFactory {
+  public static class TestLogNice<ResourcePoolT extends ResourcePool>
+  extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
 
     public TestLogNice() {
     }
 
-    Boolean[] rawInput = ByteArithmetic.toBoolean("ff");
-    
     @Override
-    public TestThread next(TestThreadConfiguration conf) {
-      return new TestThread() {
-        @Override
-        public void test() throws Exception {
-    /*      
-          Boolean[] rawInput = ByteArithmetic.toBoolean("ff");
-          
-          TestBoolApplication app = new TestBoolApplication() {
-            @Override
-            public ProtocolProducer prepareApplication(
-                BuilderFactory factoryProducer) {
-              ProtocolFactory producer = factoryProducer.getProtocolFactory();
+    public TestThread<ResourcePoolT, ProtocolBuilderBinary> next(
+        TestThreadConfiguration<ResourcePoolT, ProtocolBuilderBinary> conf) {
+      return new TestThread<ResourcePoolT, ProtocolBuilderBinary>() {
 
-              AbstractBinaryFactory prov = (AbstractBinaryFactory) producer;
-              BasicLogicBuilder builder = new BasicLogicBuilder(prov);
-              
-              SBool[] in1 = builder.knownSBool(rawInput);
-              
-              SBool[] result = prov.getSBools(4);
-              builder.addProtocolProducer(new LogProtocolImpl(in1, result, prov));
-              
-              this.outputs = builder.output(result);
-              return builder.getProtocol();
-            }
-          };
-          
-          secureComputationEngine.runApplication(app,
-              ResourcePoolCreator.createResourcePool(conf.sceConf));
-
-          boolean[] raw = convert(app.getOutputs());
-          
-          Assert.assertThat(ByteArithmetic.toHex(raw), Is.is("08"));*/
-        }
-
+        List<Boolean> rawFirst = Arrays.asList(ByteArithmetic.toBoolean("ff"));
         
-      };
-    }
-    /*private boolean[] convert(OBool[] outputs) {
-      boolean[] output = new boolean[outputs.length];
-      for(int i = 0; i< outputs.length; i++) {
-        output[i] = outputs[i].getValue();
-      }
-      return output;
-    }*/
-  }
-
-  
-  public static class TestLogBadLength extends TestThreadFactory {
-
-    public TestLogBadLength() {
-    }
-
-    Boolean[] rawInput = ByteArithmetic.toBoolean("ff");
-    
-    @Override
-    public TestThread next(TestThreadConfiguration conf) {
-      return new TestThread() {
+        final String expected = "08";  
+        
         @Override
         public void test() throws Exception {
-       /*   
-          boolean[] rawInput = ByteArithmetic.toBoolean("ff");
+            Application<List<Boolean>, ProtocolBuilderBinary> app =
+                new Application<List<Boolean>, ProtocolBuilderBinary>() {
+                
+                  @Override
+                  public Computation<List<Boolean>> prepareApplication(
+                      ProtocolBuilderBinary producer) {
+                    
+                    SequentialBinaryBuilder builder = (SequentialBinaryBuilder)producer;
+                    
+                    return builder.seq( seq -> {
+                      DefaultBinaryBuilderAdvanced prov = new DefaultBinaryBuilderAdvanced(seq);
+                      List<Computation<SBool>> first = rawFirst.stream().map(seq.binary()::known)
+                          .collect(Collectors.toList());
+                      Computation<List<Computation<SBool>>> log = prov.logProtocol(first); 
+                      
+                        return () -> log.out();
+                      }
+                    ).seq( (dat, seq) -> {
+                       List<Computation<Boolean>> out = new ArrayList<Computation<Boolean>>();
+                       for(Computation<SBool> o : dat) {
+                         out.add(seq.binary().open(o));
+                          }
+                          return () -> out.stream().map(Computation::out).collect(Collectors.toList());
+                          }
+                        );
+                      }
+              };
           
+          List<Boolean> outputs = secureComputationEngine.runApplication(app,
+              ResourcePoolCreator.createResourcePool(conf.sceConf));
+ 
+          Assert.assertThat(ByteArithmetic.toHex(
+              outputs),
+              Is.is(expected));
           
-          TestBoolApplication app = new TestBoolApplication() {
-            @Override
-            public ProtocolProducer prepareApplication(
-                BuilderFactory factoryProducer) {
-              ProtocolFactory producer = factoryProducer.getProtocolFactory();
-
-              AbstractBinaryFactory prov = (AbstractBinaryFactory) producer;
-              BasicLogicBuilder builder = new BasicLogicBuilder(prov);
-              
-              SBool[] in1 = builder.knownSBool(rawInput);
-              
-              SBool[] result = prov.getSBools(6);
-              builder.addProtocolProducer(new LogProtocolImpl(in1, result, prov));
-              
-              this.outputs = builder.output(result);
-              return builder.getProtocol();
-            }
-          };
-
-          try{
-            secureComputationEngine.runApplication(app,
-                ResourcePoolCreator.createResourcePool(conf.sceConf));
-          }catch(RuntimeException e) {
-          }*/
         }
       };
     }
-   
   }
-
 }

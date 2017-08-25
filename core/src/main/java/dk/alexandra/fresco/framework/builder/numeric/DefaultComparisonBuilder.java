@@ -51,12 +51,13 @@ public class DefaultComparisonBuilder implements ComparisonBuilder {
 
   public Computation<SInt> sign(Computation<SInt> x) {
     NumericBuilder input = builder.numeric();
+    // TODO create a compareLeqOrEqZero on comparison builder
     Computation<SInt> compare =
         compareLEQ(input.known(BigInteger.valueOf(0)), x);
     BigInteger oInt = BigInteger.valueOf(2);
     NumericBuilder numericBuilder = builder.numeric();
     Computation<SInt> twice = numericBuilder.mult(oInt, compare);
-    return numericBuilder.sub(twice, input.known(BigInteger.valueOf(1)));
+    return numericBuilder.sub(twice, BigInteger.valueOf(1));
   }
 
   @Override
