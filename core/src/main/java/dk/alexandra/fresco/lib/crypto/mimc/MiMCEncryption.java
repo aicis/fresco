@@ -29,12 +29,12 @@ package dk.alexandra.fresco.lib.crypto.mimc;
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.builder.ComputationBuilder;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import java.math.BigInteger;
 
-public class MiMCEncryption implements ComputationBuilder<SInt, SequentialNumericBuilder> {
+public class MiMCEncryption implements ComputationBuilder<SInt, ProtocolBuilderNumeric> {
 
   // TODO: require that our modulus - 1 and 3 are co-prime
 
@@ -70,7 +70,7 @@ public class MiMCEncryption implements ComputationBuilder<SInt, SequentialNumeri
 
 
   @Override
-  public Computation<SInt> build(SequentialNumericBuilder builder) {
+  public Computation<SInt> build(ProtocolBuilderNumeric builder) {
     final int requiredRounds = getRequiredRounds(builder.getBasicNumericFactory(), requestedRounds);
     BigInteger three = BigInteger.valueOf(3);
     /*

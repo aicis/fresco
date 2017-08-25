@@ -3,7 +3,7 @@ package dk.alexandra.fresco.demo;
 import dk.alexandra.fresco.demo.EncryptAndRevealStep.RowWithCipher;
 import dk.alexandra.fresco.demo.helpers.ResourcePoolHelper;
 import dk.alexandra.fresco.framework.Party;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.NetworkConfigurationImpl;
 import dk.alexandra.fresco.framework.network.NetworkingStrategy;
@@ -63,7 +63,7 @@ public class AggregationDemo<ResourcePoolT extends ResourcePool> {
    * Example: ([k], [v]) -> ([k], [v], enc(k)) for columnIndex = 0
    */
   public List<RowWithCipher> encryptAndReveal(
-      SecureComputationEngine<ResourcePoolT, SequentialNumericBuilder> sce,
+      SecureComputationEngine<ResourcePoolT, ProtocolBuilderNumeric> sce,
       List<List<SInt>> inputRows, int columnIndex, ResourcePoolT rp) throws IOException {
     EncryptAndRevealStep ear = new EncryptAndRevealStep(inputRows, columnIndex);
     return sce.runApplication(ear, rp);
@@ -80,7 +80,7 @@ public class AggregationDemo<ResourcePoolT extends ResourcePool> {
    * aggColumn = 1
    */
   public List<List<SInt>> aggregate(
-      SecureComputationEngine<ResourcePoolT, SequentialNumericBuilder> sce, ResourcePoolT rp,
+      SecureComputationEngine<ResourcePoolT, ProtocolBuilderNumeric> sce, ResourcePoolT rp,
       List<List<SInt>> inputRows, int keyColumn, int aggColumn) throws IOException {
     // TODO: need to shuffle input rows and result
     List<RowWithCipher> rowsWithOpenenedCiphers =
@@ -94,7 +94,7 @@ public class AggregationDemo<ResourcePoolT extends ResourcePool> {
    * array containing the resulting shares.
    */
   public List<List<SInt>> secretShare(
-      SecureComputationEngine<ResourcePoolT, SequentialNumericBuilder> sce,
+      SecureComputationEngine<ResourcePoolT, ProtocolBuilderNumeric> sce,
       List<List<BigInteger>> inputRows, int pid, ResourcePoolT rp) throws IOException {
     InputStep inputStep = new InputStep(inputRows, pid);
     return sce.runApplication(inputStep, rp);
@@ -104,13 +104,13 @@ public class AggregationDemo<ResourcePoolT extends ResourcePool> {
    * @return Runs the output step which opens all secret shares.
    */
   public List<List<BigInteger>> open(
-      SecureComputationEngine<ResourcePoolT, SequentialNumericBuilder> sce,
+      SecureComputationEngine<ResourcePoolT, ProtocolBuilderNumeric> sce,
       List<List<SInt>> secretShares, ResourcePoolT rp) throws IOException {
     OutputStep outputStep = new OutputStep(secretShares);
     return sce.runApplication(outputStep, rp);
   }
 
-  public void runApplication(SecureComputationEngine<ResourcePoolT, SequentialNumericBuilder> sce,
+  public void runApplication(SecureComputationEngine<ResourcePoolT, ProtocolBuilderNumeric> sce,
       ResourcePoolT rp)
       throws IOException {
     int keyColumnIndex = 0;
@@ -143,10 +143,10 @@ public class AggregationDemo<ResourcePoolT extends ResourcePool> {
     SequentialEvaluator<SpdzResourcePool> sequentialEvaluator = new SequentialEvaluator<>();
     sequentialEvaluator.setMaxBatchSize(4096);
 
-    ProtocolSuite<SpdzResourcePool, SequentialNumericBuilder> suite =
+    ProtocolSuite<SpdzResourcePool, ProtocolBuilderNumeric> suite =
         new SpdzProtocolSuite(150, PreprocessingStrategy.DUMMY, null);
     // Instantiate environment
-    SecureComputationEngine<SpdzResourcePool, SequentialNumericBuilder> sce =
+    SecureComputationEngine<SpdzResourcePool, ProtocolBuilderNumeric> sce =
         new SecureComputationEngineImpl<>(suite, sequentialEvaluator);
 
     // Create application we are going run

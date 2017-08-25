@@ -30,14 +30,14 @@ import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.builder.AdvancedNumericBuilder;
 import dk.alexandra.fresco.framework.builder.ComputationBuilder;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import java.math.BigInteger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class MiMCDecryption implements ComputationBuilder<SInt, SequentialNumericBuilder> {
+public class MiMCDecryption implements ComputationBuilder<SInt, ProtocolBuilderNumeric> {
 
   // TODO: require that our modulus - 1 and 3 are co-prime
 
@@ -75,7 +75,7 @@ public class MiMCDecryption implements ComputationBuilder<SInt, SequentialNumeri
   int i = 0;
 
   @Override
-  public Computation<SInt> build(SequentialNumericBuilder builder) {
+  public Computation<SInt> build(ProtocolBuilderNumeric builder) {
     BasicNumericFactory basicNumericFactory = builder.getBasicNumericFactory();
     int requiredRounds = MiMCEncryption
         .getRequiredRounds(basicNumericFactory, requestedRounds);

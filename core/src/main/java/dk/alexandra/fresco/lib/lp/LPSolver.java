@@ -26,7 +26,7 @@ package dk.alexandra.fresco.lib.lp;
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.builder.ComputationBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.compare.ConditionalSelect;
 import dk.alexandra.fresco.lib.lp.LPSolver.LPOutput;
@@ -50,7 +50,7 @@ import org.slf4j.LoggerFactory;
  * be done more efficiently than general matrix multiplication.
  * </p>
  */
-public class LPSolver implements ComputationBuilder<LPOutput, SequentialNumericBuilder> {
+public class LPSolver implements ComputationBuilder<LPOutput, ProtocolBuilderNumeric> {
 
   public enum PivotRule {
     BLAND, DANZIG
@@ -103,7 +103,7 @@ public class LPSolver implements ComputationBuilder<LPOutput, SequentialNumericB
 
 
   @Override
-  public Computation<LPOutput> build(SequentialNumericBuilder builder) {
+  public Computation<LPOutput> build(ProtocolBuilderNumeric builder) {
     Computation<SInt> zero = builder.numeric().known(BigInteger.ZERO);
     return builder.seq(seq -> {
       this.iterations = 0;
@@ -150,7 +150,7 @@ public class LPSolver implements ComputationBuilder<LPOutput, SequentialNumericB
    * solution.
    * </p>
    */
-  private Computation<LPState> phaseTwoProtocol(SequentialNumericBuilder builder, LPState state) {
+  private Computation<LPState> phaseTwoProtocol(ProtocolBuilderNumeric builder, LPState state) {
     return builder.seq((seq) -> seq.createSequentialSub(
         new ExitingVariable(state.tableau, state.updateMatrix, state.enteringIndex, state.basis)))
         .par((exitingVariable, seq) -> {
@@ -191,7 +191,7 @@ public class LPSolver implements ComputationBuilder<LPOutput, SequentialNumericB
    *
    * @return a protocol producer for the first half of a simplex iteration
    */
-  private Computation<LPState> phaseOneProtocol(SequentialNumericBuilder builder, LPState state,
+  private Computation<LPState> phaseOneProtocol(ProtocolBuilderNumeric builder, LPState state,
       Computation<SInt> zero) {
     return builder
         .seq(
@@ -219,7 +219,7 @@ public class LPSolver implements ComputationBuilder<LPOutput, SequentialNumericB
    *
    * @return a protocol producer for the first half of a simplex iteration
    */
-  private Computation<LPState> blandPhaseOneProtocol(SequentialNumericBuilder builder,
+  private Computation<LPState> blandPhaseOneProtocol(ProtocolBuilderNumeric builder,
       LPState state) {
     return builder
         .seq(
@@ -241,7 +241,7 @@ public class LPSolver implements ComputationBuilder<LPOutput, SequentialNumericB
    * iteration count is incremented).
    *
    */
-  private void debugInfo(SequentialNumericBuilder builder, LPState state) {
+  private void debugInfo(ProtocolBuilderNumeric builder, LPState state) {
     if (iterations == 1) {
       printInitialState(builder, state);
     } else {
@@ -254,7 +254,7 @@ public class LPSolver implements ComputationBuilder<LPOutput, SequentialNumericB
    * for debugging, but should not be reveal in production environments.
    *
    */
-  private void printInitialState(SequentialNumericBuilder builder, LPState state) {
+  private void printInitialState(ProtocolBuilderNumeric builder, LPState state) {
     PrintStream stream = System.out;
     builder.utility().marker("Initial Tableau [" + iterations + "]: ", stream);
     builder.utility().openAndPrint("Basis [" + iterations + "]: ", state.basis, stream);
@@ -266,7 +266,7 @@ public class LPSolver implements ComputationBuilder<LPOutput, SequentialNumericB
    * Prints the current state of the LPSolver to System.out. NOTE: This information is useful for
    * debugging, but should not be revealed in production environments.
    */
-  private void printState(SequentialNumericBuilder builder, LPState state) {
+  private void printState(ProtocolBuilderNumeric builder, LPState state) {
     PrintStream stream = System.out;
     builder.utility().openAndPrint("Entering Variable [" + iterations + "]: ", state.enteringIndex,
         stream);

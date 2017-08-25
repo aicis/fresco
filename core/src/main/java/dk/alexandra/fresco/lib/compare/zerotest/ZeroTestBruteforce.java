@@ -4,7 +4,7 @@ import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.ComputationBuilder;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class ZeroTestBruteforce implements ComputationBuilder<SInt, SequentialNumericBuilder> {
+public class ZeroTestBruteforce implements ComputationBuilder<SInt, ProtocolBuilderNumeric> {
 
   private final BuilderFactoryNumeric factoryNumeric;
   private final int maxLength;
@@ -26,7 +26,7 @@ public class ZeroTestBruteforce implements ComputationBuilder<SInt, SequentialNu
   }
 
   @Override
-  public Computation<SInt> build(SequentialNumericBuilder builder) {
+  public Computation<SInt> build(ProtocolBuilderNumeric builder) {
     BigInteger one = BigInteger.ONE;
     return builder.seq((seq) ->
         seq.numeric().getExponentiationPipe()

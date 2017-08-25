@@ -3,7 +3,7 @@ package dk.alexandra.fresco.demo;
 import dk.alexandra.fresco.demo.EncryptAndRevealStep.RowWithCipher;
 import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-public class AggregateStep implements Application<List<List<SInt>>, SequentialNumericBuilder> {
+public class AggregateStep implements Application<List<List<SInt>>, ProtocolBuilderNumeric> {
 
 
   private List<Triple<SInt, SInt, BigInteger>> triples;
@@ -39,7 +39,7 @@ public class AggregateStep implements Application<List<List<SInt>>, SequentialNu
   }
 
   @Override
-  public Computation<List<List<SInt>>> prepareApplication(SequentialNumericBuilder builder) {
+  public Computation<List<List<SInt>>> prepareApplication(ProtocolBuilderNumeric builder) {
     Map<BigInteger, Computation<SInt>> groupedByCipher = new HashMap<>();
     Map<BigInteger, SInt> cipherToShare = new HashMap<>();
 
@@ -59,7 +59,7 @@ public class AggregateStep implements Application<List<List<SInt>>, SequentialNu
       groupedByCipher.put(cipher, subTotal);
     }
 
-    return builder.createSequentialSub(seq -> {
+    return builder.seq(seq -> {
       List<List<SInt>> result = new ArrayList<>(groupedByCipher.size());
       for (Entry<BigInteger, Computation<SInt>> keyAndValues : groupedByCipher.entrySet()) {
         ArrayList<SInt> row = new ArrayList<>(2);

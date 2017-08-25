@@ -24,7 +24,6 @@
 package dk.alexandra.fresco.framework;
 
 import dk.alexandra.fresco.framework.builder.ProtocolBuilderBinary;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderBinary.SequentialBinaryBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilderHelper;
 import java.util.ArrayList;
 import java.util.List;
@@ -38,7 +37,7 @@ public abstract class TestBoolApplication implements
   public abstract ProtocolProducer prepareApplication(BuilderFactory factoryProducer);
 
   public Computation<List<Boolean>> prepareApplication(ProtocolBuilderBinary producer) {
-    SequentialBinaryBuilder producer1 = (SequentialBinaryBuilder)producer;
+    ProtocolBuilderBinary producer1 = (ProtocolBuilderBinary) producer;
     producer1.append(prepareApplication(ProtocolBuilderHelper.getFactoryBinary(producer)));
     return outputToBoolean();
   }

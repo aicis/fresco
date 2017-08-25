@@ -30,7 +30,7 @@ import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.builder.ComputationBuilder;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.compare.ConditionalSelect;
 import dk.alexandra.fresco.lib.math.integer.min.MinInfFrac.MinInfOutput;
@@ -55,7 +55,7 @@ import java.util.stream.Collectors;
  * turns out to be prone to overflow problems, and picking the very larger
  * value, is also non-trivial.
  */
-public class MinInfFrac implements ComputationBuilder<MinInfOutput, SequentialNumericBuilder> {
+public class MinInfFrac implements ComputationBuilder<MinInfOutput, ProtocolBuilderNumeric> {
 
   private final ArrayList<Frac> fs;
 
@@ -89,7 +89,7 @@ public class MinInfFrac implements ComputationBuilder<MinInfOutput, SequentialNu
   }
 
   @Override
-  public Computation<MinInfOutput> build(SequentialNumericBuilder builder) {
+  public Computation<MinInfOutput> build(ProtocolBuilderNumeric builder) {
     Computation<SInt> one = builder.numeric().known(BigInteger.ONE);
     if (fs.size() == 1) { // The trivial case
       return () -> {

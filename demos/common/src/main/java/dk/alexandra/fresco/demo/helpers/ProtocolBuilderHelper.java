@@ -12,6 +12,6 @@ public class ProtocolBuilderHelper {
   }
   
   public static BuilderFactory getBinaryFactory(ProtocolBuilder protocolBuilder) {
-    return ((ProtocolBuilderBinary) protocolBuilder).factory;
+    return ((ProtocolBuilderBinary) protocolBuilder).getFactory();
   }
 }

@@ -6,12 +6,10 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.list.FindDuplicatesHelper;
-import dk.alexandra.fresco.lib.list.SIntListofTuples;
 import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.List;
@@ -21,7 +19,7 @@ import org.junit.Assert;
 public class EliminateDuplicatesTests {
 
   public static class TestFindDuplicatesOne<ResourcePoolT extends ResourcePool> extends
-      TestThreadFactory<ResourcePoolT, SequentialNumericBuilder> {
+      TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     private BigInteger zero = BigInteger.valueOf(0);
     private BigInteger one = BigInteger.valueOf(1);
@@ -40,12 +38,12 @@ public class EliminateDuplicatesTests {
         );
 
     @Override
-    public TestThread<ResourcePoolT, SequentialNumericBuilder> next(
-        TestThreadConfiguration<ResourcePoolT, SequentialNumericBuilder> conf) {
-      return new TestThread<ResourcePoolT, SequentialNumericBuilder>() {
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next(
+        TestThreadConfiguration<ResourcePoolT, ProtocolBuilderNumeric> conf) {
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         @Override
         public void test() throws Exception {
-          Application<List<BigInteger>, SequentialNumericBuilder> app =
+          Application<List<BigInteger>, ProtocolBuilderNumeric> app =
               builder -> {
                 NumericBuilder input = builder.numeric();
                 Computation<SInt> zero = input.known(BigInteger.ZERO);

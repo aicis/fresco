@@ -29,7 +29,7 @@ package dk.alexandra.fresco.lib.statistics;
 import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.MPCException;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.lp.LPSolver;
@@ -54,7 +54,7 @@ import java.util.stream.Collectors;
  * The result/score of the computation must be converted to a double using Gauss
  * reduction to be meaningful. See the DEASolverTests for an example.
  */
-public class DEASolver implements Application<List<DEAResult>, SequentialNumericBuilder> {
+public class DEASolver implements Application<List<DEAResult>, ProtocolBuilderNumeric> {
 
   private final List<List<SInt>> targetInputs, targetOutputs;
   private final List<List<SInt>> inputDataSet, outputDataSet;
@@ -154,7 +154,7 @@ public class DEASolver implements Application<List<DEAResult>, SequentialNumeric
   }
 
   @Override
-  public Computation<List<DEAResult>> prepareApplication(SequentialNumericBuilder builder) {
+  public Computation<List<DEAResult>> prepareApplication(ProtocolBuilderNumeric builder) {
     List<Computation<SimpleLPPrefix>> prefixes = getPrefixWithSecretSharedValues(
         builder);
     return builder.par((par) -> {
@@ -194,7 +194,7 @@ public class DEASolver implements Application<List<DEAResult>, SequentialNumeric
   }
 
   private List<Computation<SimpleLPPrefix>> getPrefixWithSecretSharedValues(
-      SequentialNumericBuilder builder) {
+      ProtocolBuilderNumeric builder) {
     int dataSetSize = this.inputDataSet.size();
 
     int noOfSolvers = this.targetInputs.size();

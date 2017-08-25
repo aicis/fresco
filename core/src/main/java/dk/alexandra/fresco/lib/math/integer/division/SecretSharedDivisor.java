@@ -30,7 +30,7 @@ import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.ComputationBuilder;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
@@ -48,7 +48,7 @@ import java.math.BigInteger;
  * regular integer division, this division will always truncate the result instead of rounding.
  */
 public class SecretSharedDivisor
-    implements ComputationBuilder<SInt, SequentialNumericBuilder> {
+    implements ComputationBuilder<SInt, ProtocolBuilderNumeric> {
 
   private Computation<SInt> numerator;
   private Computation<SInt> denominator;
@@ -65,7 +65,7 @@ public class SecretSharedDivisor
   }
 
   @Override
-  public Computation<SInt> build(SequentialNumericBuilder builder) {
+  public Computation<SInt> build(ProtocolBuilderNumeric builder) {
 
     BasicNumericFactory basicNumericFactory = builderFactory.getBasicNumericFactory();
 
@@ -164,13 +164,13 @@ public class SecretSharedDivisor
     return (int) Math.ceil(Math.log(number) / Math.log(2));
   }
 
-  private Computation<SInt> getBitLength(SequentialNumericBuilder builder, Computation<SInt> input,
+  private Computation<SInt> getBitLength(ProtocolBuilderNumeric builder, Computation<SInt> input,
       int maximumBitLength) {
     return builder.advancedNumeric()
         .bitLength(input, maximumBitLength);
   }
 
-  private Computation<SInt> sign(SequentialNumericBuilder builder, Computation<SInt> input) {
+  private Computation<SInt> sign(ProtocolBuilderNumeric builder, Computation<SInt> input) {
     Computation<SInt> result = gte(builder, input,
         builder.numeric().known(BigInteger.valueOf(0)));
     BigInteger two = BigInteger.valueOf(2);
@@ -180,7 +180,7 @@ public class SecretSharedDivisor
     return result;
   }
 
-  private Computation<SInt> gte(SequentialNumericBuilder builder, Computation<SInt> left,
+  private Computation<SInt> gte(ProtocolBuilderNumeric builder, Computation<SInt> left,
       Computation<SInt> right) {
 
     // TODO: workaround for the fact that the GreaterThanProtocol actually calculated left <= right.
@@ -190,7 +190,7 @@ public class SecretSharedDivisor
     return builder.comparison().compareLEQ(actualLeft, actualRight);
   }
 
-  private Computation<SInt> exp2(SequentialNumericBuilder builder, Computation<SInt> exponent,
+  private Computation<SInt> exp2(ProtocolBuilderNumeric builder, Computation<SInt> exponent,
       int maxExponentLength) {
     return builder.advancedNumeric().exp(
         BigInteger.valueOf(2),
@@ -199,7 +199,7 @@ public class SecretSharedDivisor
     );
   }
 
-  private Computation<SInt> shiftRight(SequentialNumericBuilder builder, Computation<SInt> input,
+  private Computation<SInt> shiftRight(ProtocolBuilderNumeric builder, Computation<SInt> input,
       int numberOfPositions) {
     return builder.advancedNumeric()
         .rightShift(input, numberOfPositions);

@@ -3,12 +3,12 @@ package dk.alexandra.fresco.lib.conversion;
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.builder.AdvancedNumericBuilder.RightShiftResult;
 import dk.alexandra.fresco.framework.builder.ComputationBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.util.List;
 
 public class IntegerToBitsByShift implements
-    ComputationBuilder<List<SInt>, SequentialNumericBuilder> {
+    ComputationBuilder<List<SInt>, ProtocolBuilderNumeric> {
 
   private final Computation<SInt> input;
   private final int maxInputLength;
@@ -19,7 +19,7 @@ public class IntegerToBitsByShift implements
   }
 
   @Override
-  public Computation<List<SInt>> build(SequentialNumericBuilder builder) {
+  public Computation<List<SInt>> build(ProtocolBuilderNumeric builder) {
     Computation<RightShiftResult> rightShiftResult = builder.advancedNumeric()
         .rightShiftWithRemainder(input, maxInputLength);
     return () -> rightShiftResult.out().getRemainder();

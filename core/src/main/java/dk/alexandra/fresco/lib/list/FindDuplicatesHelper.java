@@ -3,8 +3,7 @@ package dk.alexandra.fresco.lib.list;
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.builder.ComparisonBuilder;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.ParallelNumericBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 
 /**
@@ -15,7 +14,7 @@ public class FindDuplicatesHelper {
   public FindDuplicatesHelper() {
   }
 
-  private Computation<SInt> or(SequentialNumericBuilder builder, Computation<SInt> a,
+  private Computation<SInt> or(ProtocolBuilderNumeric builder, Computation<SInt> a,
       Computation<SInt> b) {
     NumericBuilder numeric = builder.numeric();
     Computation<SInt> product = numeric.mult(a, b);
@@ -28,7 +27,7 @@ public class FindDuplicatesHelper {
    * horisontal join is desired, make sure that both lists are ordered initially, annotate both
    * lists and update fields by going through tables in lockstep.
    */
-  public void findDuplicates(ParallelNumericBuilder builder, SIntListofTuples list1,
+  public void findDuplicates(ProtocolBuilderNumeric builder, SIntListofTuples list1,
       SIntListofTuples list2) {
     for (int i = 0; i < list1.size(); i++) {
       int finalI = i;

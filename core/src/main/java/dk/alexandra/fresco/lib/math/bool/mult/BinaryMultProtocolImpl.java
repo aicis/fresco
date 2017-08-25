@@ -27,7 +27,7 @@
 package dk.alexandra.fresco.lib.math.bool.mult;
 
 import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderBinary.SequentialBinaryBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.value.SBool;
 import java.util.ArrayList;
 import java.util.List;
@@ -40,7 +40,7 @@ import java.util.List;
  * @author Kasper Damgaard
  */
 public class BinaryMultProtocolImpl implements
-    dk.alexandra.fresco.framework.builder.ComputationBuilder<List<Computation<SBool>>, SequentialBinaryBuilder> {
+    dk.alexandra.fresco.framework.builder.ComputationBuilder<List<Computation<SBool>>, ProtocolBuilderBinary> {
 
   private List<Computation<SBool>> lefts, rights;
 
@@ -51,7 +51,7 @@ public class BinaryMultProtocolImpl implements
    }
 
   @Override
-  public Computation<List<Computation<SBool>>> build(SequentialBinaryBuilder builder) {
+  public Computation<List<Computation<SBool>>> build(ProtocolBuilderBinary builder) {
     return builder.seq(seq -> {
       int idx = this.lefts.size() -1;
       List<Computation<SBool>> res = new ArrayList<Computation<SBool>>();

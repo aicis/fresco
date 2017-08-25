@@ -28,7 +28,7 @@ package dk.alexandra.fresco.lib.collections;
 
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.builder.ComputationBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.compare.ConditionalSelect;
 import java.math.BigInteger;
@@ -44,7 +44,7 @@ import java.util.List;
  * Guaranteed return value is the last value where the corresponding key matches
  * </p>
  */
-public class LinearLookUp implements ComputationBuilder<SInt, SequentialNumericBuilder> {
+public class LinearLookUp implements ComputationBuilder<SInt, ProtocolBuilderNumeric> {
 
   private final Computation<SInt> lookUpKey;
   private final ArrayList<Computation<SInt>> keys;
@@ -70,7 +70,7 @@ public class LinearLookUp implements ComputationBuilder<SInt, SequentialNumericB
   }
 
   @Override
-  public Computation<SInt> build(SequentialNumericBuilder builder) {
+  public Computation<SInt> build(ProtocolBuilderNumeric builder) {
     return builder.par((par) -> {
       int n = keys.size();
       List<Computation<SInt>> index = new ArrayList<>(n);

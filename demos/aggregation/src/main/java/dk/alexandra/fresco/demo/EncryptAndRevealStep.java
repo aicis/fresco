@@ -3,7 +3,7 @@ package dk.alexandra.fresco.demo;
 import dk.alexandra.fresco.demo.EncryptAndRevealStep.RowWithCipher;
 import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.crypto.mimc.MiMCEncryption;
@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class EncryptAndRevealStep implements
-    Application<List<RowWithCipher>, SequentialNumericBuilder> {
+    Application<List<RowWithCipher>, ProtocolBuilderNumeric> {
 
   private final List<List<SInt>> inputRows;
   private final int toEncryptIndex;
@@ -25,7 +25,7 @@ public class EncryptAndRevealStep implements
   }
 
   @Override
-  public Computation<List<RowWithCipher>> prepareApplication(SequentialNumericBuilder builder) {
+  public Computation<List<RowWithCipher>> prepareApplication(ProtocolBuilderNumeric builder) {
     return builder.par(par ->
         builder.numeric().randomElement()
     ).par((mimcKey, par) -> {
@@ -36,7 +36,7 @@ public class EncryptAndRevealStep implements
             new Pair<>(row,
                 par.createSequentialSub((seq) -> {
                   SInt toEncrypt = row.get(toEncryptIndex);
-                  Computation<SInt> cipherText = seq.createSequentialSub(
+                  Computation<SInt> cipherText = seq.seq(
                       new MiMCEncryption(toEncrypt, mimcKey)
                   );
                   return seq.numeric().open(cipherText);

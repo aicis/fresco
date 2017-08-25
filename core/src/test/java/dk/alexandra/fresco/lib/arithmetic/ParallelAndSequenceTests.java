@@ -6,7 +6,7 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SInt;
@@ -29,12 +29,12 @@ public class ParallelAndSequenceTests {
   private static final Integer[] inputAsArray = {1, 2, 3, 4, 5, 6, 7, 8, 9};
 
   public static class TestSequentialEvaluation<ResourcePoolT extends ResourcePool> extends
-      TestThreadFactory<ResourcePoolT, SequentialNumericBuilder> {
+      TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     @Override
-    public TestThread<ResourcePoolT, SequentialNumericBuilder> next(
-        TestThreadConfiguration<ResourcePoolT, SequentialNumericBuilder> conf) {
-      return new TestThread<ResourcePoolT, SequentialNumericBuilder>() {
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next(
+        TestThreadConfiguration<ResourcePoolT, ProtocolBuilderNumeric> conf) {
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         @Override
         public void test() throws Exception {
           TestApplicationSum sumApp = new ParallelAndSequenceTests().new TestApplicationSum();
@@ -54,12 +54,12 @@ public class ParallelAndSequenceTests {
   }
 
   public static class TestParallelEvaluation<ResourcePoolT extends ResourcePool> extends
-      TestThreadFactory<ResourcePoolT, SequentialNumericBuilder> {
+      TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     @Override
-    public TestThread<ResourcePoolT, SequentialNumericBuilder> next(
-        TestThreadConfiguration<ResourcePoolT, SequentialNumericBuilder> conf) {
-      return new TestThread<ResourcePoolT, SequentialNumericBuilder>() {
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next(
+        TestThreadConfiguration<ResourcePoolT, ProtocolBuilderNumeric> conf) {
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         @Override
         public void test() throws Exception {
           TestApplicationSum sumApp = new ParallelAndSequenceTests().new TestApplicationSum();
@@ -79,11 +79,11 @@ public class ParallelAndSequenceTests {
     }
   }
 
-  private class TestApplicationSum implements Application<BigInteger, SequentialNumericBuilder> {
+  private class TestApplicationSum implements Application<BigInteger, ProtocolBuilderNumeric> {
 
     @Override
     public Computation<BigInteger> prepareApplication(
-        SequentialNumericBuilder producer) {
+        ProtocolBuilderNumeric producer) {
       List<Computation<SInt>> input =
           Arrays.stream(inputAsArray)
               .map((integer) -> convertToSInt(integer, producer))
@@ -94,11 +94,11 @@ public class ParallelAndSequenceTests {
 
   }
 
-  private class TestApplicationMult implements Application<BigInteger, SequentialNumericBuilder> {
+  private class TestApplicationMult implements Application<BigInteger, ProtocolBuilderNumeric> {
 
     @Override
     public Computation<BigInteger> prepareApplication(
-        SequentialNumericBuilder producer) {
+        ProtocolBuilderNumeric producer) {
       Computation<SInt> result = producer.seq(new ProductSIntList(
           Arrays.stream(inputAsArray)
               .map((integer) -> convertToSInt(integer, producer))
@@ -107,7 +107,7 @@ public class ParallelAndSequenceTests {
     }
   }
 
-  private Computation<SInt> convertToSInt(int integer, SequentialNumericBuilder producer) {
+  private Computation<SInt> convertToSInt(int integer, ProtocolBuilderNumeric producer) {
     NumericBuilder numeric = producer.numeric();
     BigInteger value = BigInteger.valueOf(integer);
     return numeric.input(value, 1);

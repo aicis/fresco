@@ -28,7 +28,7 @@ package dk.alexandra.fresco.suite.spdz;
 
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.ParallelNumericBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.lp.LPTableau;
 import dk.alexandra.fresco.lib.lp.Matrix;
@@ -45,7 +45,7 @@ public class PlainSpdzLPPrefix {
   private final Computation<SInt> pivot;
   private final ArrayList<Computation<SInt>> basis;
 
-  public PlainSpdzLPPrefix(PlainLPInputReader inputReader, ParallelNumericBuilder par)
+  public PlainSpdzLPPrefix(PlainLPInputReader inputReader, ProtocolBuilderNumeric par)
       throws IOException {
     if (!inputReader.isRead()) {
       inputReader.readInput();

@@ -37,18 +37,15 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
 import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
-import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.helper.SequentialProtocolProducer;
 import dk.alexandra.fresco.lib.helper.builder.NumericIOBuilder;
 import java.math.BigInteger;
-
-import org.hamcrest.core.Is;
 import java.util.ArrayList;
 import java.util.List;
+import org.hamcrest.core.Is;
 import org.junit.Assert;
 
 
@@ -92,7 +89,7 @@ public class DivisionTests {
               BigInteger input2 = d;
               sequentialProtocolProducer.append(ioBuilder.getProtocol());
 
-              SequentialNumericBuilder applicationRoot = ProtocolBuilderNumeric
+              ProtocolBuilderNumeric applicationRoot = ProtocolBuilderNumeric
                   .createApplicationRoot((BuilderFactoryNumeric) factoryProducer,
                       (seq) -> {
                         Computation<SInt> division = seq.createSequentialSub(
@@ -158,7 +155,7 @@ public class DivisionTests {
               BigInteger input2 = d;
               sequentialProtocolProducer.append(ioBuilder.getProtocol());
 
-              SequentialNumericBuilder applicationRoot = ProtocolBuilderNumeric
+              ProtocolBuilderNumeric applicationRoot = ProtocolBuilderNumeric
                   .createApplicationRoot((BuilderFactoryNumeric) factoryProducer,
                       (seq) -> {
                         Computation<SInt> division = seq.createSequentialSub(

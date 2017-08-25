@@ -6,7 +6,7 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SInt;
@@ -23,23 +23,23 @@ import org.junit.Assert;
 public class ArithmeticDebugTests {
 
   public static class TestArithmeticOpenAndPrint<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory<ResourcePoolT, SequentialNumericBuilder> {
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     @Override
-    public TestThread<ResourcePoolT, SequentialNumericBuilder> next(
-        TestThreadConfiguration<ResourcePoolT, SequentialNumericBuilder> conf) {
-      return new TestThread<ResourcePoolT, SequentialNumericBuilder>() {
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next(
+        TestThreadConfiguration<ResourcePoolT, ProtocolBuilderNumeric> conf) {
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
 
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
         PrintStream stream = new PrintStream(bytes);
 
         @Override
         public void test() throws Exception {
-          Application<Void, SequentialNumericBuilder> app =
-              new Application<Void, SequentialNumericBuilder>() {
+          Application<Void, ProtocolBuilderNumeric> app =
+              new Application<Void, ProtocolBuilderNumeric>() {
 
                 @Override
-                public Computation<Void> prepareApplication(SequentialNumericBuilder producer) {
+                public Computation<Void> prepareApplication(ProtocolBuilderNumeric producer) {
                   return producer.seq(seq -> {
                     NumericBuilder numeric = seq.numeric();
                     List<Computation<SInt>> toPrint =

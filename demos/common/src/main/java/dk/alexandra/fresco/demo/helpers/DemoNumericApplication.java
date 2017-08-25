@@ -4,10 +4,10 @@ import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.BuilderFactory;
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.ProtocolProducer;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
 
 public abstract class DemoNumericApplication<Output> implements
-    Application<Output, SequentialNumericBuilder> {
+    Application<Output, ProtocolBuilderNumeric> {
 
   protected Computation<Output> output;
 
@@ -15,7 +15,7 @@ public abstract class DemoNumericApplication<Output> implements
   public abstract ProtocolProducer prepareApplication(BuilderFactory factoryProducer);
 
   @Override
-  public Computation<Output> prepareApplication(SequentialNumericBuilder producer) {
+  public Computation<Output> prepareApplication(ProtocolBuilderNumeric producer) {
     producer.append(prepareApplication(ProtocolBuilderHelper.getNumericFactory(producer)));
     return this.output;
   }

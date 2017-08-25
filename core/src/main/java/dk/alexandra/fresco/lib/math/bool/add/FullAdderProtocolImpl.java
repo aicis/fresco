@@ -27,7 +27,7 @@
 package dk.alexandra.fresco.lib.math.bool.add;
 
 import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderBinary.SequentialBinaryBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SBool;
 import java.util.ArrayList;
@@ -41,7 +41,7 @@ import java.util.List;
  * a generic length adder.
  */
 public class FullAdderProtocolImpl implements
-    dk.alexandra.fresco.framework.builder.ComputationBuilder<List<Computation<SBool>>, SequentialBinaryBuilder> {
+    dk.alexandra.fresco.framework.builder.ComputationBuilder<List<Computation<SBool>>, ProtocolBuilderBinary> {
 
   private List<Computation<SBool>> lefts, rights;
   private Computation<SBool> inCarry;
@@ -60,7 +60,7 @@ public class FullAdderProtocolImpl implements
   
   
   @Override
-  public Computation<List<Computation<SBool>>> build(SequentialBinaryBuilder builder) {
+  public Computation<List<Computation<SBool>>> build(ProtocolBuilderBinary builder) {
 
     List<Computation<SBool>> result = new ArrayList<Computation<SBool>>(); 
     

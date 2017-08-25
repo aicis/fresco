@@ -28,7 +28,7 @@ package dk.alexandra.fresco.lib.math.integer.stat;
 
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.builder.ComputationBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.math.integer.SumSIntList;
 import java.math.BigInteger;
@@ -37,7 +37,7 @@ import java.util.List;
 /**
  * This protocol calculates the arithmetic mean of a data set.
  */
-public class Mean implements ComputationBuilder<SInt, SequentialNumericBuilder> {
+public class Mean implements ComputationBuilder<SInt, ProtocolBuilderNumeric> {
 
   private final List<Computation<SInt>> data;
   private final int degreesOfFreedom;
@@ -52,7 +52,7 @@ public class Mean implements ComputationBuilder<SInt, SequentialNumericBuilder> 
   }
 
   @Override
-  public Computation<SInt> build(SequentialNumericBuilder builder) {
+  public Computation<SInt> build(ProtocolBuilderNumeric builder) {
     return builder.seq((seq) ->
         () -> this.data
     ).seq((list, seq) ->

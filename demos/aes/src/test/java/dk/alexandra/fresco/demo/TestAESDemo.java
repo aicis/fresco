@@ -29,7 +29,7 @@ import dk.alexandra.fresco.framework.TestThreadRunner;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderBinary.SequentialBinaryBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.TestConfiguration;
 import dk.alexandra.fresco.framework.network.NetworkingStrategy;
@@ -63,23 +63,23 @@ public class TestAESDemo {
         TestConfiguration.getNetworkConfigurations(noPlayers, ports);
     Map<Integer, TestThreadConfiguration> conf = new HashMap<Integer, TestThreadConfiguration>();
     for (int playerId : netConf.keySet()) {
-      TestThreadConfiguration<ResourcePoolImpl, SequentialBinaryBuilder> ttc =
-          new TestThreadConfiguration<ResourcePoolImpl, SequentialBinaryBuilder>();
+      TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary> ttc =
+          new TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary>();
       ttc.netConf = netConf.get(playerId);
-      ProtocolSuite<ResourcePoolImpl, SequentialBinaryBuilder> suite =
+      ProtocolSuite<ResourcePoolImpl, ProtocolBuilderBinary> suite =
           new DummyBooleanProtocolSuite();
       ProtocolEvaluator<ResourcePoolImpl> evaluator = new SequentialEvaluator<ResourcePoolImpl>();
       boolean useSecureConnection = false;
-      ttc.sceConf = new TestSCEConfiguration<ResourcePoolImpl, SequentialBinaryBuilder>(suite,
+      ttc.sceConf = new TestSCEConfiguration<ResourcePoolImpl, ProtocolBuilderBinary>(suite,
           NetworkingStrategy.KRYONET, evaluator, ttc.netConf, useSecureConnection);
       conf.put(playerId, ttc);
     }
 
-    TestThreadFactory f = new TestThreadFactory<ResourcePoolImpl, SequentialBinaryBuilder>() {
+    TestThreadFactory f = new TestThreadFactory<ResourcePoolImpl, ProtocolBuilderBinary>() {
       @Override
-      public TestThread<ResourcePoolImpl, SequentialBinaryBuilder> next(
-          TestThreadConfiguration<ResourcePoolImpl, SequentialBinaryBuilder> conf) {
-        return new TestThread<ResourcePoolImpl, SequentialBinaryBuilder>() {
+      public TestThread<ResourcePoolImpl, ProtocolBuilderBinary> next(
+          TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary> conf) {
+        return new TestThread<ResourcePoolImpl, ProtocolBuilderBinary>() {
 
           @Override
           public void test() throws Exception {

@@ -24,8 +24,7 @@
 package dk.alexandra.fresco.suite.dummy.bool;
 
 import dk.alexandra.fresco.framework.BuilderFactory;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderBinary.ParallelBinaryBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderBinary.SequentialBinaryBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
 import dk.alexandra.fresco.suite.ProtocolSuite;
@@ -41,7 +40,7 @@ import java.util.Random;
  * Currently it only implements basic logic operations "natively".
  */
 public class DummyBooleanProtocolSuite
-    implements ProtocolSuite<ResourcePoolImpl, SequentialBinaryBuilder> {
+    implements ProtocolSuite<ResourcePoolImpl, ProtocolBuilderBinary> {
 
   @Override
   public RoundSynchronization<ResourcePoolImpl> createRoundSynchronization() {
@@ -56,9 +55,9 @@ public class DummyBooleanProtocolSuite
 
 
   @Override
-  public BuilderFactory<SequentialBinaryBuilder, ParallelBinaryBuilder> init(
+  public BuilderFactory<ProtocolBuilderBinary, ProtocolBuilderBinary> init(
       ResourcePoolImpl resourcePool) {
-    BuilderFactory<SequentialBinaryBuilder, ParallelBinaryBuilder> b =
+    BuilderFactory<ProtocolBuilderBinary, ProtocolBuilderBinary> b =
         new DummyBooleanBuilderFactory(new DummyBooleanFactory());
     return b;
   }

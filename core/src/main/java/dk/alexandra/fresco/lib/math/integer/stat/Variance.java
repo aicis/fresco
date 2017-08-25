@@ -29,7 +29,7 @@ package dk.alexandra.fresco.lib.math.integer.stat;
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.builder.ComputationBuilder;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.util.ArrayList;
 import java.util.List;
@@ -38,7 +38,7 @@ import java.util.List;
  * Computes the varians from a list of SInt values and the previously
  * computed {@link Mean mean}.
  */
-public class Variance implements ComputationBuilder<SInt, SequentialNumericBuilder> {
+public class Variance implements ComputationBuilder<SInt, ProtocolBuilderNumeric> {
 
   private final List<Computation<SInt>> data;
   private final Computation<SInt> mean;
@@ -49,7 +49,7 @@ public class Variance implements ComputationBuilder<SInt, SequentialNumericBuild
   }
 
   @Override
-  public Computation<SInt> build(SequentialNumericBuilder builder) {
+  public Computation<SInt> build(ProtocolBuilderNumeric builder) {
     return builder.par((par) -> {
       List<Computation<SInt>> terms = new ArrayList<>(data.size());
       for (Computation<SInt> value : data) {

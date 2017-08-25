@@ -29,13 +29,13 @@ package dk.alexandra.fresco.lib.math.integer.stat;
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.builder.ComputationBuilder;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-public class Covariance implements ComputationBuilder<SInt, SequentialNumericBuilder> {
+public class Covariance implements ComputationBuilder<SInt, ProtocolBuilderNumeric> {
 
   private final List<Computation<SInt>> data1;
   private final List<Computation<SInt>> data2;
@@ -61,7 +61,7 @@ public class Covariance implements ComputationBuilder<SInt, SequentialNumericBui
   }
 
   @Override
-  public Computation<SInt> build(SequentialNumericBuilder builder) {
+  public Computation<SInt> build(ProtocolBuilderNumeric builder) {
     return builder.seq((seq) -> () -> null
     ).par(
         (ignored, seq) -> {

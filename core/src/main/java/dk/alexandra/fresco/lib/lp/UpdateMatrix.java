@@ -29,7 +29,7 @@ package dk.alexandra.fresco.lib.lp;
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.builder.ComputationBuilder;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.compare.ConditionalSelect;
@@ -39,7 +39,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class UpdateMatrix implements
-    ComputationBuilder<Matrix<Computation<SInt>>, SequentialNumericBuilder> {
+    ComputationBuilder<Matrix<Computation<SInt>>, ProtocolBuilderNumeric> {
 
   private Matrix<Computation<SInt>> oldUpdateMatrix;
   private List<Computation<SInt>> L;
@@ -58,7 +58,7 @@ public class UpdateMatrix implements
 
 
   @Override
-  public Computation<Matrix<Computation<SInt>>> build(SequentialNumericBuilder builder) {
+  public Computation<Matrix<Computation<SInt>>> build(ProtocolBuilderNumeric builder) {
     int height = oldUpdateMatrix.getHeight();
     int width = oldUpdateMatrix.getWidth();
     Computation<SInt> one = builder.numeric().known(BigInteger.ONE);

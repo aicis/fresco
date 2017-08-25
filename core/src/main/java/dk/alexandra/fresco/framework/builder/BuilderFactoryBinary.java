@@ -1,8 +1,6 @@
 package dk.alexandra.fresco.framework.builder;
 
 import dk.alexandra.fresco.framework.BuilderFactory;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderBinary.ParallelBinaryBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderBinary.SequentialBinaryBuilder;
 import dk.alexandra.fresco.framework.builder.binary.BinaryBuilder;
 import dk.alexandra.fresco.framework.builder.binary.BinaryBuilderAdvanced;
 import dk.alexandra.fresco.framework.builder.binary.BinaryUtilityBuilder;
@@ -14,7 +12,7 @@ import dk.alexandra.fresco.framework.builder.binary.DefaultBristolCryptoBuilder;
 import dk.alexandra.fresco.framework.builder.binary.DefaultComparisonBinaryBuilder;
 
 public interface BuilderFactoryBinary extends
-    BuilderFactory<SequentialBinaryBuilder, ParallelBinaryBuilder> {
+    BuilderFactory<ProtocolBuilderBinary, ProtocolBuilderBinary> {
 
   BinaryBuilder createBinaryBuilder(ProtocolBuilderBinary builder);
 
@@ -34,12 +32,14 @@ public interface BuilderFactoryBinary extends
     return new DefaultBinaryUtilityBuilder(builder);
   }
 
-  default SequentialBinaryBuilder createSequential() {
-    return new SequentialBinaryBuilder(this);
+  default ProtocolBuilderBinary createSequential() {
+    BuilderFactoryBinary factory = this;
+    return new ProtocolBuilderBinary(factory, false);
   }
 
-  default ParallelBinaryBuilder createParallel() {
-    return new ParallelBinaryBuilder(this);
+  default ProtocolBuilderBinary createParallel() {
+    BuilderFactoryBinary factory = this;
+    return new ProtocolBuilderBinary(factory, true);
   }
 
 

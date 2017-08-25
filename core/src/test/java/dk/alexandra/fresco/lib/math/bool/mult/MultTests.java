@@ -32,7 +32,6 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilderBinary;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderBinary.SequentialBinaryBuilder;
 import dk.alexandra.fresco.framework.builder.binary.DefaultBinaryBuilderAdvanced;
 import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
@@ -75,8 +74,8 @@ public class MultTests {
                       ProtocolBuilderBinary producer) {
                     
                     List<Computation<Pair<SBool, SBool>>> data = new ArrayList<Computation<Pair<SBool, SBool>>>();
-                    
-                    SequentialBinaryBuilder builder = (SequentialBinaryBuilder)producer;
+
+                    ProtocolBuilderBinary builder = (ProtocolBuilderBinary) producer;
                     
                     return builder.seq( seq -> {
                       DefaultBinaryBuilderAdvanced prov = new DefaultBinaryBuilderAdvanced(seq);

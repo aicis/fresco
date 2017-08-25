@@ -5,14 +5,14 @@ import dk.alexandra.fresco.framework.builder.AdvancedNumericBuilder;
 import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.ComputationBuilder;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
 public class RandomAdditiveMask implements
-    ComputationBuilder<AdvancedNumericBuilder.RandomAdditiveMask, SequentialNumericBuilder> {
+    ComputationBuilder<AdvancedNumericBuilder.RandomAdditiveMask, ProtocolBuilderNumeric> {
 
   private final BuilderFactoryNumeric factoryNumeric;
   private final int securityParameter;
@@ -30,7 +30,7 @@ public class RandomAdditiveMask implements
 
   @Override
   public Computation<AdvancedNumericBuilder.RandomAdditiveMask> build(
-      SequentialNumericBuilder builder) {
+      ProtocolBuilderNumeric builder) {
     NumericBuilder numericBuilder = builder.numeric();
     List<Computation<SInt>> allBits = new ArrayList<>();
     for (int i = 0; i < noOfBits + securityParameter; i++) {

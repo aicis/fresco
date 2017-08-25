@@ -3,7 +3,7 @@ package dk.alexandra.fresco.demo;
 import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
 import java.util.List;
@@ -11,7 +11,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class InputStep implements
-    Application<List<List<SInt>>, SequentialNumericBuilder> {
+    Application<List<List<SInt>>, ProtocolBuilderNumeric> {
 
   private final List<List<BigInteger>> inputRows;
   private final int pid;
@@ -23,7 +23,7 @@ public class InputStep implements
   }
 
   @Override
-  public Computation<List<List<SInt>>> prepareApplication(SequentialNumericBuilder producer) {
+  public Computation<List<List<SInt>>> prepareApplication(ProtocolBuilderNumeric producer) {
     return producer.par(par -> {
       NumericBuilder numeric = par.numeric();
       Function<BigInteger, Computation<SInt>> known = value -> numeric.input(value, pid);

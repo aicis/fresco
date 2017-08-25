@@ -27,7 +27,7 @@
 package dk.alexandra.fresco.suite.spdz;
 
 import dk.alexandra.fresco.framework.BuilderFactory;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.configuration.ConfigurationException;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.resources.storage.FilebasedStreamedStorageImpl;
@@ -42,7 +42,7 @@ import java.security.SecureRandom;
 import java.util.Random;
 
 public class SpdzProtocolSuite implements
-    ProtocolSuite<SpdzResourcePool, SequentialNumericBuilder> {
+    ProtocolSuite<SpdzResourcePool, ProtocolBuilderNumeric> {
 
   private final int maxBitLength;
   private final PreprocessingStrategy preproStrat;
@@ -56,7 +56,7 @@ public class SpdzProtocolSuite implements
   }
 
   @Override
-  public BuilderFactory<SequentialNumericBuilder, ?> init(
+  public BuilderFactory<ProtocolBuilderNumeric, ?> init(
       SpdzResourcePool resourcePool) {
     return new SpdzBuilder(
         new SpdzFactory(resourcePool.getStore(), resourcePool.getMyId(), maxBitLength));

@@ -28,7 +28,7 @@ import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderBinary.SequentialBinaryBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.builder.binary.BinaryBuilder;
 import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
@@ -41,7 +41,7 @@ import org.junit.Assert;
 public class BasicBooleanTests {
 
   public static class TestInput<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory<ResourcePoolT, SequentialBinaryBuilder> {
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
 
     private boolean doAsserts;
 
@@ -50,16 +50,16 @@ public class BasicBooleanTests {
     }
 
     @Override
-    public TestThread<ResourcePoolT, SequentialBinaryBuilder> next(
-        TestThreadConfiguration<ResourcePoolT, SequentialBinaryBuilder> conf) {
-      return new TestThread<ResourcePoolT, SequentialBinaryBuilder>() {
+    public TestThread<ResourcePoolT, ProtocolBuilderBinary> next(
+        TestThreadConfiguration<ResourcePoolT, ProtocolBuilderBinary> conf) {
+      return new TestThread<ResourcePoolT, ProtocolBuilderBinary>() {
         @Override
         public void test() throws Exception {
-          Application<Boolean, SequentialBinaryBuilder> app =
-              new Application<Boolean, SequentialBinaryBuilder>() {
+          Application<Boolean, ProtocolBuilderBinary> app =
+              new Application<Boolean, ProtocolBuilderBinary>() {
 
             @Override
-            public Computation<Boolean> prepareApplication(SequentialBinaryBuilder producer) {
+            public Computation<Boolean> prepareApplication(ProtocolBuilderBinary producer) {
               return producer.seq(seq -> {
                 Computation<SBool> in = seq.binary().input(true, 1);
                 Computation<Boolean> open = seq.binary().open(in);
@@ -82,7 +82,7 @@ public class BasicBooleanTests {
   }
 
   public static class TestXOR<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory<ResourcePoolT, SequentialBinaryBuilder> {
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
 
     private boolean doAsserts;
 
@@ -91,17 +91,17 @@ public class BasicBooleanTests {
     }
 
     @Override
-    public TestThread<ResourcePoolT, SequentialBinaryBuilder> next(
-        TestThreadConfiguration<ResourcePoolT, SequentialBinaryBuilder> conf) {
-      return new TestThread<ResourcePoolT, SequentialBinaryBuilder>() {
+    public TestThread<ResourcePoolT, ProtocolBuilderBinary> next(
+        TestThreadConfiguration<ResourcePoolT, ProtocolBuilderBinary> conf) {
+      return new TestThread<ResourcePoolT, ProtocolBuilderBinary>() {
         @Override
         public void test() throws Exception {
 
-          Application<List<Boolean>, SequentialBinaryBuilder> app =
-              new Application<List<Boolean>, SequentialBinaryBuilder>() {
+          Application<List<Boolean>, ProtocolBuilderBinary> app =
+              new Application<List<Boolean>, ProtocolBuilderBinary>() {
 
             @Override
-            public Computation<List<Boolean>> prepareApplication(SequentialBinaryBuilder producer) {
+            public Computation<List<Boolean>> prepareApplication(ProtocolBuilderBinary producer) {
               return producer.seq(seq -> {
                 BinaryBuilder builder = seq.binary();
                 Computation<SBool> falseBool = builder.known(false);
@@ -133,7 +133,7 @@ public class BasicBooleanTests {
   }
 
   public static class TestAND<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory<ResourcePoolT, SequentialBinaryBuilder> {
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
 
     private boolean doAsserts;
 
@@ -142,17 +142,17 @@ public class BasicBooleanTests {
     }
 
     @Override
-    public TestThread<ResourcePoolT, SequentialBinaryBuilder> next(
-        TestThreadConfiguration<ResourcePoolT, SequentialBinaryBuilder> conf) {
-      return new TestThread<ResourcePoolT, SequentialBinaryBuilder>() {
+    public TestThread<ResourcePoolT, ProtocolBuilderBinary> next(
+        TestThreadConfiguration<ResourcePoolT, ProtocolBuilderBinary> conf) {
+      return new TestThread<ResourcePoolT, ProtocolBuilderBinary>() {
         @Override
         public void test() throws Exception {
 
-          Application<List<Boolean>, SequentialBinaryBuilder> app =
-              new Application<List<Boolean>, SequentialBinaryBuilder>() {
+          Application<List<Boolean>, ProtocolBuilderBinary> app =
+              new Application<List<Boolean>, ProtocolBuilderBinary>() {
 
             @Override
-            public Computation<List<Boolean>> prepareApplication(SequentialBinaryBuilder producer) {
+            public Computation<List<Boolean>> prepareApplication(ProtocolBuilderBinary producer) {
               return producer.seq(seq -> {
                 BinaryBuilder builder = seq.binary();
                 Computation<SBool> falseBool = builder.known(false);
@@ -184,7 +184,7 @@ public class BasicBooleanTests {
   }
 
   public static class TestNOT<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory<ResourcePoolT, SequentialBinaryBuilder> {
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
 
     private boolean doAsserts;
 
@@ -193,16 +193,16 @@ public class BasicBooleanTests {
     }
 
     @Override
-    public TestThread<ResourcePoolT, SequentialBinaryBuilder> next(
-        TestThreadConfiguration<ResourcePoolT, SequentialBinaryBuilder> conf) {
-      return new TestThread<ResourcePoolT, SequentialBinaryBuilder>() {
+    public TestThread<ResourcePoolT, ProtocolBuilderBinary> next(
+        TestThreadConfiguration<ResourcePoolT, ProtocolBuilderBinary> conf) {
+      return new TestThread<ResourcePoolT, ProtocolBuilderBinary>() {
         @Override
         public void test() throws Exception {
-          Application<List<Boolean>, SequentialBinaryBuilder> app =
-              new Application<List<Boolean>, SequentialBinaryBuilder>() {
+          Application<List<Boolean>, ProtocolBuilderBinary> app =
+              new Application<List<Boolean>, ProtocolBuilderBinary>() {
 
             @Override
-            public Computation<List<Boolean>> prepareApplication(SequentialBinaryBuilder producer) {
+            public Computation<List<Boolean>> prepareApplication(ProtocolBuilderBinary producer) {
               return producer.seq(seq -> {
                 BinaryBuilder builder = seq.binary();
                 Computation<SBool> falseBool = builder.known(false);
@@ -230,7 +230,7 @@ public class BasicBooleanTests {
   }
 
   public static class TestCOPY<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory<ResourcePoolT, SequentialBinaryBuilder> {
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
 
     private boolean doAsserts;
 
@@ -239,16 +239,16 @@ public class BasicBooleanTests {
     }
 
     @Override
-    public TestThread<ResourcePoolT, SequentialBinaryBuilder> next(
-        TestThreadConfiguration<ResourcePoolT, SequentialBinaryBuilder> conf) {
-      return new TestThread<ResourcePoolT, SequentialBinaryBuilder>() {
+    public TestThread<ResourcePoolT, ProtocolBuilderBinary> next(
+        TestThreadConfiguration<ResourcePoolT, ProtocolBuilderBinary> conf) {
+      return new TestThread<ResourcePoolT, ProtocolBuilderBinary>() {
         @Override
         public void test() throws Exception {
-          Application<List<Boolean>, SequentialBinaryBuilder> app =
-              new Application<List<Boolean>, SequentialBinaryBuilder>() {
+          Application<List<Boolean>, ProtocolBuilderBinary> app =
+              new Application<List<Boolean>, ProtocolBuilderBinary>() {
 
             @Override
-            public Computation<List<Boolean>> prepareApplication(SequentialBinaryBuilder producer) {
+            public Computation<List<Boolean>> prepareApplication(ProtocolBuilderBinary producer) {
               return producer.seq(seq -> {
                 BinaryBuilder builder = seq.binary();
                 Computation<SBool> falseBool = builder.known(false);
@@ -279,7 +279,7 @@ public class BasicBooleanTests {
    * Tests both input, xor, not, and and output. Computes all variants of: NOT((i1 XOR i2) AND i1)
    */
   public static class TestBasicProtocols<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory<ResourcePoolT, SequentialBinaryBuilder> {
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
 
     private boolean doAsserts;
 
@@ -288,16 +288,16 @@ public class BasicBooleanTests {
     }
 
     @Override
-    public TestThread<ResourcePoolT, SequentialBinaryBuilder> next(
-        TestThreadConfiguration<ResourcePoolT, SequentialBinaryBuilder> conf) {
-      return new TestThread<ResourcePoolT, SequentialBinaryBuilder>() {
+    public TestThread<ResourcePoolT, ProtocolBuilderBinary> next(
+        TestThreadConfiguration<ResourcePoolT, ProtocolBuilderBinary> conf) {
+      return new TestThread<ResourcePoolT, ProtocolBuilderBinary>() {
         @Override
         public void test() throws Exception {
-          Application<List<Boolean>, SequentialBinaryBuilder> app =
-              new Application<List<Boolean>, SequentialBinaryBuilder>() {
+          Application<List<Boolean>, ProtocolBuilderBinary> app =
+              new Application<List<Boolean>, ProtocolBuilderBinary>() {
 
             @Override
-            public Computation<List<Boolean>> prepareApplication(SequentialBinaryBuilder producer) {
+            public Computation<List<Boolean>> prepareApplication(ProtocolBuilderBinary producer) {
               return producer.seq(seq -> {
                 BinaryBuilder builder = seq.binary();
                 Computation<SBool> falseBool = builder.known(false);

@@ -24,7 +24,7 @@
 package dk.alexandra.fresco.lib.compare.bool;
 
 import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderBinary.SequentialBinaryBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.value.SBool;
 import java.util.List;
 
@@ -36,7 +36,7 @@ import java.util.List;
  * 
  */
 public class BinaryGreaterThanProtocolImpl implements
-    dk.alexandra.fresco.framework.builder.ComputationBuilder<SBool, SequentialBinaryBuilder> {
+    dk.alexandra.fresco.framework.builder.ComputationBuilder<SBool, ProtocolBuilderBinary> {
 
   private List<Computation<SBool>> inA, inB;
   private int length;
@@ -61,7 +61,7 @@ public class BinaryGreaterThanProtocolImpl implements
   }
 
   @Override
-  public Computation<SBool> build(SequentialBinaryBuilder builder) {
+  public Computation<SBool> build(ProtocolBuilderBinary builder) {
     return builder.seq(seq -> {
       int round = 0;
       Computation<SBool> xor = seq.binary().xor(inA.get(length - 1), inB.get(length - 1));

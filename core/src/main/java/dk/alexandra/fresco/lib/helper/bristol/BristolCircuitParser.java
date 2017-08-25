@@ -25,7 +25,7 @@ package dk.alexandra.fresco.lib.helper.bristol;
 
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.MPCException;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderBinary.SequentialBinaryBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.value.SBool;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -47,7 +47,7 @@ import java.util.stream.Stream;
  * Reading is done in a streamed fashion.
  */
 public class BristolCircuitParser implements
-    dk.alexandra.fresco.framework.builder.ComputationBuilder<List<SBool>, SequentialBinaryBuilder> {
+    dk.alexandra.fresco.framework.builder.ComputationBuilder<List<SBool>, ProtocolBuilderBinary> {
 
   private Stream<String> lines;
   private Iterator<String> linesIter;
@@ -115,7 +115,7 @@ public class BristolCircuitParser implements
    *
    * Returns null if any input of circuit is not currently present in wires map.
    */
-  private void parseLine(String line, SequentialBinaryBuilder builder) throws IOException {
+  private void parseLine(String line, ProtocolBuilderBinary builder) throws IOException {
     // System.out.println("Parsing line: \"" + line + "\"");
     String[] tokens = line.split(" \\s*");
     int no_input = Integer.parseInt(tokens[0]);
@@ -238,7 +238,7 @@ public class BristolCircuitParser implements
   /**
    * Fills res with next protocols, starting from pos. Returns next empty pos of array.
    */
-  public Computation<List<SBool>> build(SequentialBinaryBuilder builder) {
+  public Computation<List<SBool>> build(ProtocolBuilderBinary builder) {
 
     return builder.seq(seq -> {
       return new IterationState(this.linesIter);

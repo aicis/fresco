@@ -30,7 +30,7 @@ import dk.alexandra.fresco.framework.TestThreadRunner;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderBinary.SequentialBinaryBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.TestConfiguration;
 import dk.alexandra.fresco.framework.network.NetworkingStrategy;
@@ -74,7 +74,7 @@ public class SetIntersectionDemo {
       ttc.netConf = netConf.get(playerId);
 
       // Protocol specific configuration
-      ProtocolSuite<ResourcePoolImpl, SequentialBinaryBuilder> suite =
+      ProtocolSuite<ResourcePoolImpl, ProtocolBuilderBinary> suite =
           new DummyBooleanProtocolSuite();
 
       // The rest is generic configuration as well
@@ -103,8 +103,8 @@ public class SetIntersectionDemo {
         TestConfiguration.getNetworkConfigurations(noPlayers, ports);
     Map<Integer, TestThreadConfiguration> conf = new HashMap<Integer, TestThreadConfiguration>();
     for (int playerId : netConf.keySet()) {
-      TestThreadConfiguration<ResourcePoolImpl, SequentialBinaryBuilder> ttc =
-          new TestThreadConfiguration<ResourcePoolImpl, SequentialBinaryBuilder>();
+      TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary> ttc =
+          new TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary>();
       ttc.netConf = netConf.get(playerId);
 
       // Protocol specific configuration + suite
@@ -173,11 +173,11 @@ public class SetIntersectionDemo {
 
   public String[] setIntersectionDemo(Map<Integer, TestThreadConfiguration> conf) throws Exception {
     String[] result = new String[8];
-    TestThreadFactory f = new TestThreadFactory<ResourcePoolImpl, SequentialBinaryBuilder>() {
+    TestThreadFactory f = new TestThreadFactory<ResourcePoolImpl, ProtocolBuilderBinary>() {
       @Override
-      public TestThread<ResourcePoolImpl, SequentialBinaryBuilder> next(
-          TestThreadConfiguration<ResourcePoolImpl, SequentialBinaryBuilder> conf) {
-        return new TestThread<ResourcePoolImpl, SequentialBinaryBuilder>() {
+      public TestThread<ResourcePoolImpl, ProtocolBuilderBinary> next(
+          TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary> conf) {
+        return new TestThread<ResourcePoolImpl, ProtocolBuilderBinary>() {
           @Override
           public void test() throws Exception {
             Boolean[] key = null;

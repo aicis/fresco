@@ -27,7 +27,7 @@ package dk.alexandra.fresco.lib.math.integer.sqrt;
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.builder.AdvancedNumericBuilder;
 import dk.alexandra.fresco.framework.builder.ComputationBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
 
@@ -39,7 +39,7 @@ import java.math.BigInteger;
  *
  * @author Jonas Lindstrøm (jonas.lindstrom@alexandra.dk)
  */
-public class SquareRoot implements ComputationBuilder<SInt, SequentialNumericBuilder> {
+public class SquareRoot implements ComputationBuilder<SInt, ProtocolBuilderNumeric> {
 
   // Input
   private final Computation<SInt> input;
@@ -52,7 +52,7 @@ public class SquareRoot implements ComputationBuilder<SInt, SequentialNumericBui
 
 
   @Override
-  public Computation<SInt> build(SequentialNumericBuilder builder) {
+  public Computation<SInt> build(ProtocolBuilderNumeric builder) {
     /*
      * Convergence is quadratic (the number of correct digits rougly doubles on each iteration) so
      * assuming we have at least one digit correct after first iteration, we need at about

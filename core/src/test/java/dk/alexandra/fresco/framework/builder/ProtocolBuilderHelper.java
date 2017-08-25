@@ -9,6 +9,6 @@ public class ProtocolBuilderHelper {
   }
 
   public static BuilderFactory getFactoryBinary(ProtocolBuilderBinary protocolBuilder) {
-    return (BuilderFactory) protocolBuilder.factory;
+    return protocolBuilder.getFactory();
   }
 }

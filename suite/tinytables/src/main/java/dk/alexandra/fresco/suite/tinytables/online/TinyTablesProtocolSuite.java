@@ -24,7 +24,7 @@
 package dk.alexandra.fresco.suite.tinytables.online;
 
 import dk.alexandra.fresco.framework.BuilderFactory;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderBinary.SequentialBinaryBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
 import dk.alexandra.fresco.suite.ProtocolSuite;
@@ -67,7 +67,7 @@ import org.slf4j.LoggerFactory;
  * @author Jonas Lindstrøm (jonas.lindstrom@alexandra.dk)
  */
 public class TinyTablesProtocolSuite
-    implements ProtocolSuite<ResourcePoolImpl, SequentialBinaryBuilder> {
+    implements ProtocolSuite<ResourcePoolImpl, ProtocolBuilderBinary> {
 
   private final File tinyTablesFile;
   private TinyTablesStorage storage;
@@ -84,14 +84,14 @@ public class TinyTablesProtocolSuite
   }
 
   @Override
-  public BuilderFactory<SequentialBinaryBuilder, ?> init(ResourcePoolImpl resourcePool) {
+  public BuilderFactory<ProtocolBuilderBinary, ?> init(ResourcePoolImpl resourcePool) {
     try {
       this.storage = loadTinyTables(tinyTablesFile);
     } catch (ClassNotFoundException ignored) {
     } catch (IOException e) {
       logger.error("Failed to load TinyTables: " + e.getMessage());
     }
-    BuilderFactory<SequentialBinaryBuilder, ?> b =
+    BuilderFactory<ProtocolBuilderBinary, ?> b =
         new TinyTablesBuilderFactory(new TinyTablesFactory());
     return b;
   }

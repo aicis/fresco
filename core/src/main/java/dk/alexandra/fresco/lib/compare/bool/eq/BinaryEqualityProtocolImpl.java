@@ -24,7 +24,7 @@
 package dk.alexandra.fresco.lib.compare.bool.eq;
 
 import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderBinary.SequentialBinaryBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.builder.binary.BinaryBuilder;
 import dk.alexandra.fresco.framework.value.SBool;
 import java.util.ArrayList;
@@ -38,7 +38,7 @@ import java.util.List;
  * @author Kasper Damgaard
  */
 public class BinaryEqualityProtocolImpl implements
-    dk.alexandra.fresco.framework.builder.ComputationBuilder<SBool, SequentialBinaryBuilder> {
+    dk.alexandra.fresco.framework.builder.ComputationBuilder<SBool, ProtocolBuilderBinary> {
 
   private List<Computation<SBool>> inLeft;
   private List<Computation<SBool>> inRight;
@@ -55,7 +55,7 @@ public class BinaryEqualityProtocolImpl implements
   }
 
   @Override
-  public Computation<SBool> build(SequentialBinaryBuilder builder) {
+  public Computation<SBool> build(ProtocolBuilderBinary builder) {
     return builder.par(par -> {
       BinaryBuilder bb = par.binary();
       List<Computation<SBool>> xors = new ArrayList<>();

@@ -30,7 +30,7 @@ package dk.alexandra.fresco.lib.compare;
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.builder.ComparisonBuilder;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.math.integer.ProductSIntList;
 import java.math.BigInteger;
@@ -39,7 +39,7 @@ import java.util.List;
 
 public class SortingHelperUtility {
 
-  public Computation<SInt> isSorted(SequentialNumericBuilder builder,
+  public Computation<SInt> isSorted(ProtocolBuilderNumeric builder,
       List<Computation<SInt>> values) {
     return builder.par(par -> {
       ComparisonBuilder comparison = par.comparison();
@@ -72,7 +72,7 @@ public class SortingHelperUtility {
 
   final BigInteger minusOne = BigInteger.valueOf(-1L);
 
-  public void compareAndSwap(SequentialNumericBuilder builder, int a, int b,
+  public void compareAndSwap(ProtocolBuilderNumeric builder, int a, int b,
       List<Computation<SInt>> values) {
     //Non splitting version
 
@@ -95,7 +95,7 @@ public class SortingHelperUtility {
   }
 
 
-  public void sort(SequentialNumericBuilder builder, List<Computation<SInt>> values) {
+  public void sort(ProtocolBuilderNumeric builder, List<Computation<SInt>> values) {
     //sort using Batcher´s Merge Exchange
 
     int t = FloorLog2(values.size());

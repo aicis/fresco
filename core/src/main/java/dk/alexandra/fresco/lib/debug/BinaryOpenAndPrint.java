@@ -24,7 +24,7 @@
 package dk.alexandra.fresco.lib.debug;
 
 import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderBinary.SequentialBinaryBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.value.SBool;
 import java.io.PrintStream;
 import java.util.ArrayList;
@@ -32,7 +32,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class BinaryOpenAndPrint implements
-    dk.alexandra.fresco.framework.builder.ComputationBuilder<Void, SequentialBinaryBuilder> {
+    dk.alexandra.fresco.framework.builder.ComputationBuilder<Void, ProtocolBuilderBinary> {
 
   private final List<Computation<SBool>> string;
   private final PrintStream output;
@@ -46,7 +46,7 @@ public class BinaryOpenAndPrint implements
   }
 
   @Override
-  public Computation<Void> build(SequentialBinaryBuilder builder) {
+  public Computation<Void> build(ProtocolBuilderBinary builder) {
     return builder.seq(seq -> {
       List<SBool> unfolded =
           this.string.stream().map(Computation::out).collect(Collectors.toList());

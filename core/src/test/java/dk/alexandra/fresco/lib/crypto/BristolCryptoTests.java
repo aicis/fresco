@@ -31,7 +31,6 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilderBinary;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderBinary.SequentialBinaryBuilder;
 import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SBool;
@@ -87,7 +86,7 @@ public class BristolCryptoTests {
    * TODO: Include more FIPS test vectors.
    */
   public static class AesTest<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory<ResourcePoolT, SequentialBinaryBuilder> {
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
 
     private boolean doAsserts;
 
@@ -96,9 +95,9 @@ public class BristolCryptoTests {
     }
 
     @Override
-    public TestThread<ResourcePoolT, SequentialBinaryBuilder> next(
-        TestThreadConfiguration<ResourcePoolT, SequentialBinaryBuilder> conf) {
-      return new TestThread<ResourcePoolT, SequentialBinaryBuilder>() {
+    public TestThread<ResourcePoolT, ProtocolBuilderBinary> next(
+        TestThreadConfiguration<ResourcePoolT, ProtocolBuilderBinary> conf) {
+      return new TestThread<ResourcePoolT, ProtocolBuilderBinary>() {
 
         // This is just some fixed test vectors for AES in ECB mode that was
         // found somewhere on the net, i.e., this is some known plaintexts and
@@ -109,12 +108,12 @@ public class BristolCryptoTests {
 
         @Override
         public void test() throws Exception {
-          Application<List<Boolean>, SequentialBinaryBuilder> multApp =
-              new Application<List<Boolean>, ProtocolBuilderBinary.SequentialBinaryBuilder>() {
+          Application<List<Boolean>, ProtocolBuilderBinary> multApp =
+              new Application<List<Boolean>, ProtocolBuilderBinary>() {
 
             @Override
             public Computation<List<Boolean>> prepareApplication(
-                ProtocolBuilderBinary.SequentialBinaryBuilder producer) {
+                ProtocolBuilderBinary producer) {
               return producer.seq(seq -> {
                 List<Computation<SBool>> plainText = seq.binary().known(toBoolean(plainVec));
                 List<Computation<SBool>> key = seq.binary().known(toBoolean(keyVec[0]));
@@ -162,7 +161,7 @@ public class BristolCryptoTests {
    * TODO: Include all three test vectors.
    */
   public static class Sha1Test<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory<ResourcePoolT, SequentialBinaryBuilder> {
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
 
     private boolean doAsserts;
 
@@ -171,9 +170,9 @@ public class BristolCryptoTests {
     }
 
     @Override
-    public TestThread<ResourcePoolT, SequentialBinaryBuilder> next(
-        TestThreadConfiguration<ResourcePoolT, SequentialBinaryBuilder> conf) {
-      return new TestThread<ResourcePoolT, SequentialBinaryBuilder>() {
+    public TestThread<ResourcePoolT, ProtocolBuilderBinary> next(
+        TestThreadConfiguration<ResourcePoolT, ProtocolBuilderBinary> conf) {
+      return new TestThread<ResourcePoolT, ProtocolBuilderBinary>() {
         /*
          * IMPORTANT: These are NOT test vectors for the complete SHA-1 hash function, as the
          * padding rules are ignored. Therefore, use of tools like md5sum will produce a different
@@ -188,12 +187,12 @@ public class BristolCryptoTests {
 
         @Override
         public void test() throws Exception {
-          Application<List<Boolean>, SequentialBinaryBuilder> multApp =
-              new Application<List<Boolean>, ProtocolBuilderBinary.SequentialBinaryBuilder>() {
+          Application<List<Boolean>, ProtocolBuilderBinary> multApp =
+              new Application<List<Boolean>, ProtocolBuilderBinary>() {
 
             @Override
             public Computation<List<Boolean>> prepareApplication(
-                ProtocolBuilderBinary.SequentialBinaryBuilder producer) {
+                ProtocolBuilderBinary producer) {
               return producer.seq(seq -> {
                 List<Computation<SBool>> input1 = seq.binary().known(toBoolean(ins[0]));
                 // List<Computation<SBool>> input2 = seq.binary().known(toBoolean(ins[1]));
@@ -263,7 +262,7 @@ public class BristolCryptoTests {
    * TODO: Include all three test vectors.
    */
   public static class Sha256Test<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory<ResourcePoolT, SequentialBinaryBuilder> {
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
 
     private boolean doAsserts;
 
@@ -272,9 +271,9 @@ public class BristolCryptoTests {
     }
 
     @Override
-    public TestThread<ResourcePoolT, SequentialBinaryBuilder> next(
-        TestThreadConfiguration<ResourcePoolT, SequentialBinaryBuilder> conf) {
-      return new TestThread<ResourcePoolT, SequentialBinaryBuilder>() {
+    public TestThread<ResourcePoolT, ProtocolBuilderBinary> next(
+        TestThreadConfiguration<ResourcePoolT, ProtocolBuilderBinary> conf) {
+      return new TestThread<ResourcePoolT, ProtocolBuilderBinary>() {
         /*
          * IMPORTANT: These are NOT test vectors for the complete SHA-256 hash function, as the
          * padding rules are ignored. Therefore, use of tools like md5sum will produce a different
@@ -295,12 +294,12 @@ public class BristolCryptoTests {
 
         @Override
         public void test() throws Exception {
-          Application<List<Boolean>, SequentialBinaryBuilder> multApp =
-              new Application<List<Boolean>, ProtocolBuilderBinary.SequentialBinaryBuilder>() {
+          Application<List<Boolean>, ProtocolBuilderBinary> multApp =
+              new Application<List<Boolean>, ProtocolBuilderBinary>() {
 
             @Override
             public Computation<List<Boolean>> prepareApplication(
-                ProtocolBuilderBinary.SequentialBinaryBuilder producer) {
+                ProtocolBuilderBinary producer) {
               return producer.seq(seq -> {
                 List<Computation<SBool>> input1 = seq.binary().known(toBoolean(in1));
                 List<List<Computation<SBool>>> inputs = new ArrayList<>();
@@ -345,7 +344,7 @@ public class BristolCryptoTests {
    * TODO: Include all three test vectors.
    */
   public static class MD5Test<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory<ResourcePoolT, SequentialBinaryBuilder> {
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
 
     private boolean doAsserts;
 
@@ -354,9 +353,9 @@ public class BristolCryptoTests {
     }
 
     @Override
-    public TestThread<ResourcePoolT, SequentialBinaryBuilder> next(
-        TestThreadConfiguration<ResourcePoolT, SequentialBinaryBuilder> conf) {
-      return new TestThread<ResourcePoolT, SequentialBinaryBuilder>() {
+    public TestThread<ResourcePoolT, ProtocolBuilderBinary> next(
+        TestThreadConfiguration<ResourcePoolT, ProtocolBuilderBinary> conf) {
+      return new TestThread<ResourcePoolT, ProtocolBuilderBinary>() {
         /*
          * IMPORTANT: These are NOT test vectors for the complete SHA-1 hash function, as the
          * padding rules are ignored. Therefore, use of tools like md5sum will produce a different
@@ -377,12 +376,12 @@ public class BristolCryptoTests {
 
         @Override
         public void test() throws Exception {
-          Application<List<Boolean>, SequentialBinaryBuilder> multApp =
-              new Application<List<Boolean>, ProtocolBuilderBinary.SequentialBinaryBuilder>() {
+          Application<List<Boolean>, ProtocolBuilderBinary> multApp =
+              new Application<List<Boolean>, ProtocolBuilderBinary>() {
 
             @Override
             public Computation<List<Boolean>> prepareApplication(
-                ProtocolBuilderBinary.SequentialBinaryBuilder producer) {
+                ProtocolBuilderBinary producer) {
               return producer.seq(seq -> {
                 List<Computation<SBool>> input1 = seq.binary().known(toBoolean(in1));
                 List<List<Computation<SBool>>> inputs = new ArrayList<>();
@@ -428,7 +427,7 @@ public class BristolCryptoTests {
    * before it is correct.
    */
   public static class Mult32x32Test<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory<ResourcePoolT, SequentialBinaryBuilder> {
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
 
     private boolean doAsserts;
 
@@ -437,9 +436,9 @@ public class BristolCryptoTests {
     }
 
     @Override
-    public TestThread<ResourcePoolT, SequentialBinaryBuilder> next(
-        TestThreadConfiguration<ResourcePoolT, SequentialBinaryBuilder> conf) {
-      return new TestThread<ResourcePoolT, SequentialBinaryBuilder>() {
+    public TestThread<ResourcePoolT, ProtocolBuilderBinary> next(
+        TestThreadConfiguration<ResourcePoolT, ProtocolBuilderBinary> conf) {
+      return new TestThread<ResourcePoolT, ProtocolBuilderBinary>() {
         // 16*258 = 4128
         String inv1 = "00000010";
         String inv2 = "00000102";
@@ -447,12 +446,12 @@ public class BristolCryptoTests {
 
         @Override
         public void test() throws Exception {
-          Application<List<Boolean>, SequentialBinaryBuilder> multApp =
-              new Application<List<Boolean>, ProtocolBuilderBinary.SequentialBinaryBuilder>() {
+          Application<List<Boolean>, ProtocolBuilderBinary> multApp =
+              new Application<List<Boolean>, ProtocolBuilderBinary>() {
 
             @Override
             public Computation<List<Boolean>> prepareApplication(
-                ProtocolBuilderBinary.SequentialBinaryBuilder producer) {
+                ProtocolBuilderBinary producer) {
               return producer.seq(seq -> {
                 List<Computation<SBool>> in1 = seq.binary().known(toBoolean(inv1));
                 List<Computation<SBool>> in2 = seq.binary().known(toBoolean(inv2));
@@ -501,7 +500,7 @@ public class BristolCryptoTests {
    * https://dl.dropboxusercontent.com/u/25980826/des.test
    */
   public static class DesTest<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory<ResourcePoolT, SequentialBinaryBuilder> {
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
 
     private boolean doAsserts;
 
@@ -510,9 +509,9 @@ public class BristolCryptoTests {
     }
 
     @Override
-    public TestThread<ResourcePoolT, SequentialBinaryBuilder> next(
-        TestThreadConfiguration<ResourcePoolT, SequentialBinaryBuilder> conf) {
-      return new TestThread<ResourcePoolT, SequentialBinaryBuilder>() {
+    public TestThread<ResourcePoolT, ProtocolBuilderBinary> next(
+        TestThreadConfiguration<ResourcePoolT, ProtocolBuilderBinary> conf) {
+      return new TestThread<ResourcePoolT, ProtocolBuilderBinary>() {
 
         String keyV = "0101010101010101";
         String plainV = "8000000000000000";
@@ -520,12 +519,12 @@ public class BristolCryptoTests {
 
         @Override
         public void test() throws Exception {
-          Application<List<Boolean>, SequentialBinaryBuilder> multApp =
-              new Application<List<Boolean>, ProtocolBuilderBinary.SequentialBinaryBuilder>() {
+          Application<List<Boolean>, ProtocolBuilderBinary> multApp =
+              new Application<List<Boolean>, ProtocolBuilderBinary>() {
 
             @Override
             public Computation<List<Boolean>> prepareApplication(
-                ProtocolBuilderBinary.SequentialBinaryBuilder producer) {
+                ProtocolBuilderBinary producer) {
               return producer.seq(seq -> {
                 List<Computation<SBool>> plainText = seq.binary().known(toBoolean(plainV));
                 List<Computation<SBool>> keyMaterial = seq.binary().known(toBoolean(keyV));

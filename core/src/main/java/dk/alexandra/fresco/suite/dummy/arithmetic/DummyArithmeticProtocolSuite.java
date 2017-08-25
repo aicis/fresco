@@ -25,8 +25,7 @@
 package dk.alexandra.fresco.suite.dummy.arithmetic;
 
 import dk.alexandra.fresco.framework.BuilderFactory;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.ParallelNumericBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.SCENetwork;
 import dk.alexandra.fresco.suite.NumericProtocolSuite;
@@ -42,7 +41,7 @@ import java.util.Random;
  * {@link DummyArithmeticResourcePool} and provides a {@link SequentialNumericBuilder}.
  */
 public class DummyArithmeticProtocolSuite
-    implements NumericProtocolSuite<DummyArithmeticResourcePool, SequentialNumericBuilder> {
+    implements NumericProtocolSuite<DummyArithmeticResourcePool, ProtocolBuilderNumeric> {
 
   private BigInteger modulus;
   private int maxBitLength;
@@ -63,7 +62,7 @@ public class DummyArithmeticProtocolSuite
   }
 
   @Override
-  public BuilderFactory<SequentialNumericBuilder, ParallelNumericBuilder> init(
+  public BuilderFactory<ProtocolBuilderNumeric, ProtocolBuilderNumeric> init(
       DummyArithmeticResourcePool resourcePool) {
     return new DummyArithmeticBuilderFactory(
         new DummyArithmeticFactory(resourcePool.getModulus(), maxBitLength));

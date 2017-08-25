@@ -26,7 +26,7 @@ package dk.alexandra.fresco.lib.debug;
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.builder.ComputationBuilder;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.lp.Matrix;
 import java.io.PrintStream;
@@ -35,7 +35,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-public class ArithmeticOpenAndPrint implements ComputationBuilder<Void, SequentialNumericBuilder> {
+public class ArithmeticOpenAndPrint implements ComputationBuilder<Void, ProtocolBuilderNumeric> {
 
   private Computation<SInt> number = null;
   private List<Computation<SInt>> vector = null;
@@ -63,7 +63,7 @@ public class ArithmeticOpenAndPrint implements ComputationBuilder<Void, Sequenti
   }
 
   @Override
-  public Computation<Void> build(SequentialNumericBuilder builder) {
+  public Computation<Void> build(ProtocolBuilderNumeric builder) {
     return builder.seq(seq -> {
       NumericBuilder num = seq.numeric();
       List<Computation<BigInteger>> res = new ArrayList<>();

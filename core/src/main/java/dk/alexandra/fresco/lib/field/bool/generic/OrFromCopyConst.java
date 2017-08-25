@@ -27,7 +27,7 @@
 package dk.alexandra.fresco.lib.field.bool.generic;
 
 import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderBinary.SequentialBinaryBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.value.SBool;
 
 /**
@@ -35,7 +35,7 @@ import dk.alexandra.fresco.framework.value.SBool;
  * of constants and if we can copy protocols.
  */
 public class OrFromCopyConst implements
-    dk.alexandra.fresco.framework.builder.ComputationBuilder<SBool, SequentialBinaryBuilder> {
+    dk.alexandra.fresco.framework.builder.ComputationBuilder<SBool, ProtocolBuilderBinary> {
 
   private Computation<SBool> inA;
   private boolean inB;
@@ -46,7 +46,7 @@ public class OrFromCopyConst implements
   }
 
   @Override
-  public Computation<SBool> build(SequentialBinaryBuilder builder) {
+  public Computation<SBool> build(ProtocolBuilderBinary builder) {
 
     if(inB) {
       return builder.binary().known(true);
