@@ -12,7 +12,7 @@ import dk.alexandra.fresco.framework.builder.binary.DefaultBristolCryptoBuilder;
 import dk.alexandra.fresco.framework.builder.binary.DefaultComparisonBinaryBuilder;
 
 public interface BuilderFactoryBinary extends
-    BuilderFactory<ProtocolBuilderBinary, ProtocolBuilderBinary> {
+    BuilderFactory<ProtocolBuilderBinary> {
 
   BinaryBuilder createBinaryBuilder(ProtocolBuilderBinary builder);
 
@@ -33,8 +33,7 @@ public interface BuilderFactoryBinary extends
   }
 
   default ProtocolBuilderBinary createSequential() {
-    BuilderFactoryBinary factory = this;
-    return new ProtocolBuilderBinary(factory, false);
+    return new ProtocolBuilderBinary(this, false);
   }
 
   default ProtocolBuilderBinary createParallel() {

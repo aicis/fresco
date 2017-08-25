@@ -48,15 +48,16 @@ public class SpdzProtocolSuite implements
   private final PreprocessingStrategy preproStrat;
   private final String fuelStationUrl;
 
-  public SpdzProtocolSuite(int maxBitLength, PreprocessingStrategy preproStrat, String fuelStationUrl) {
+  public SpdzProtocolSuite(int maxBitLength, PreprocessingStrategy preproStrat,
+      String fuelStationUrl) {
     this.maxBitLength = maxBitLength;
     this.preproStrat = preproStrat;
     this.fuelStationUrl = fuelStationUrl;
-    
+
   }
 
   @Override
-  public BuilderFactory<ProtocolBuilderNumeric, ?> init(
+  public BuilderFactory<ProtocolBuilderNumeric> init(
       SpdzResourcePool resourcePool) {
     return new SpdzBuilder(
         new SpdzFactory(resourcePool.getStore(), resourcePool.getMyId(), maxBitLength));
@@ -75,8 +76,9 @@ public class SpdzProtocolSuite implements
       case DUMMY:
         store = new SpdzStorageDummyImpl(myId, size);
         break;
-      case STATIC:        
-        store = new SpdzStorageImpl(0, size, myId, new FilebasedStreamedStorageImpl(new InMemoryStorage()));
+      case STATIC:
+        store = new SpdzStorageImpl(0, size, myId,
+            new FilebasedStreamedStorageImpl(new InMemoryStorage()));
         break;
       case FUELSTATION:
         store = new SpdzStorageImpl(0, size, myId, fuelStationUrl);

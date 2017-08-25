@@ -44,7 +44,7 @@ public class DummyBooleanProtocolSuite
 
   @Override
   public RoundSynchronization<ResourcePoolImpl> createRoundSynchronization() {
-    return new DummyRoundSynchronization<ResourcePoolImpl>();
+    return new DummyRoundSynchronization<>();
   }
 
   @Override
@@ -55,9 +55,9 @@ public class DummyBooleanProtocolSuite
 
 
   @Override
-  public BuilderFactory<ProtocolBuilderBinary, ProtocolBuilderBinary> init(
+  public BuilderFactory<ProtocolBuilderBinary> init(
       ResourcePoolImpl resourcePool) {
-    BuilderFactory<ProtocolBuilderBinary, ProtocolBuilderBinary> b =
+    BuilderFactory<ProtocolBuilderBinary> b =
         new DummyBooleanBuilderFactory(new DummyBooleanFactory());
     return b;
   }

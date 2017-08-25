@@ -117,7 +117,7 @@ public class TinyTablesPreproProtocolSuite
   }
 
   @Override
-  public BuilderFactory<ProtocolBuilderBinary, ?> init(ResourcePoolImpl resourcePool) {
+  public BuilderFactory<ProtocolBuilderBinary> init(ResourcePoolImpl resourcePool) {
     OTFactory otFactory = new SemiHonestOTExtensionFactory(resourcePool.getNetwork(),
         resourcePool.getMyId(), 128, new BaseOTFactory(resourcePool.getNetwork(),
             resourcePool.getMyId(), resourcePool.getSecureRandom()),

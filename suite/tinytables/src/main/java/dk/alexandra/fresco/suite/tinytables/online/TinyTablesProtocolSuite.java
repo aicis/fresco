@@ -84,14 +84,14 @@ public class TinyTablesProtocolSuite
   }
 
   @Override
-  public BuilderFactory<ProtocolBuilderBinary, ?> init(ResourcePoolImpl resourcePool) {
+  public BuilderFactory<ProtocolBuilderBinary> init(ResourcePoolImpl resourcePool) {
     try {
       this.storage = loadTinyTables(tinyTablesFile);
     } catch (ClassNotFoundException ignored) {
     } catch (IOException e) {
       logger.error("Failed to load TinyTables: " + e.getMessage());
     }
-    BuilderFactory<ProtocolBuilderBinary, ?> b =
+    BuilderFactory<ProtocolBuilderBinary> b =
         new TinyTablesBuilderFactory(new TinyTablesFactory());
     return b;
   }
@@ -111,7 +111,7 @@ public class TinyTablesProtocolSuite
 
   @Override
   public RoundSynchronization<ResourcePoolImpl> createRoundSynchronization() {
-    return new DummyRoundSynchronization<ResourcePoolImpl>();
+    return new DummyRoundSynchronization<>();
   }
 
   @Override

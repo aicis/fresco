@@ -9,8 +9,7 @@ import java.util.function.Consumer;
  * Central class for building protocols that are based on numeric protocols.
  */
 public class ProtocolBuilderNumeric extends
-    ProtocolBuilderImpl<ProtocolBuilderNumeric, ProtocolBuilderNumeric
-        > {
+    ProtocolBuilderImpl<ProtocolBuilderNumeric> {
 
   private final BuilderFactoryNumeric factory;
   private BasicNumericFactory basicNumericFactory;

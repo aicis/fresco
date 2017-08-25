@@ -8,7 +8,7 @@ import dk.alexandra.fresco.framework.builder.binary.ComparisonBuilderBinary;
 import java.util.function.Consumer;
 
 public class ProtocolBuilderBinary extends
-    ProtocolBuilderImpl<ProtocolBuilderBinary, ProtocolBuilderBinary> {
+    ProtocolBuilderImpl<ProtocolBuilderBinary> {
 
   private BuilderFactoryBinary factory;
   private BinaryBuilderAdvanced binaryBuilderAdvanced;
@@ -17,7 +17,7 @@ public class ProtocolBuilderBinary extends
   private BinaryBuilder binaryBuilder;
   private BinaryUtilityBuilder utilityBuilder;
 
-  private ProtocolBuilderBinary(BuilderFactoryBinary factory, boolean parallel) {
+  ProtocolBuilderBinary(BuilderFactoryBinary factory, boolean parallel) {
     super(factory, parallel);
     this.factory = factory;
   }

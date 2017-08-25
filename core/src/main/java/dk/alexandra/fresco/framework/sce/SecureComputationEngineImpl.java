@@ -98,7 +98,7 @@ public class SecureComputationEngineImpl<ResourcePoolT extends ResourcePool, Bui
     logger.info("Running application: " + application
         + " using protocol suite: " + this.protocolSuite);
     try {
-      BuilderFactory<Builder, ?> protocolFactory = this.protocolSuite.init(resourcePool);
+      BuilderFactory<Builder> protocolFactory = this.protocolSuite.init(resourcePool);
       Builder builder = protocolFactory.createSequential();
       Computation<OutputT> output = application.prepareApplication(builder);
       long then = System.currentTimeMillis();

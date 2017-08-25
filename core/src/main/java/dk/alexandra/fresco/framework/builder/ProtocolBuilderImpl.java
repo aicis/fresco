@@ -16,21 +16,15 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public abstract class ProtocolBuilderImpl<
-    SequentialBuilderT extends ProtocolBuilderImpl<SequentialBuilderT, ParallelBuilderT>,
-    ParallelBuilderT extends ProtocolBuilderImpl<SequentialBuilderT, ParallelBuilderT>
-    > implements ProtocolBuilder<SequentialBuilderT> {
+    BuilderT extends ProtocolBuilderImpl<BuilderT>
+    > implements ProtocolBuilder<BuilderT> {
 
   private final boolean parallel;
   private List<ProtocolEntity> protocols;
-  private BuilderFactory<SequentialBuilderT, ParallelBuilderT> factory;
+  private BuilderFactory<BuilderT> factory;
 
-  public ProtocolBuilderImpl(
-      BuilderFactory<SequentialBuilderT, ParallelBuilderT> factory) {
-    this(factory, false);
-  }
-
-  public ProtocolBuilderImpl(
-      BuilderFactory<SequentialBuilderT, ParallelBuilderT> factory,
+  ProtocolBuilderImpl(
+      BuilderFactory<BuilderT> factory,
       boolean parallel) {
     this.parallel = parallel;
     this.protocols = new LinkedList<>();
@@ -44,7 +38,7 @@ public abstract class ProtocolBuilderImpl<
    * @param function of the protocol producer - will be lazy evaluated
    */
   public <R> Computation<R> createParallelSub(
-      ComputationBuilderParallel<R, ParallelBuilderT> function) {
+      ComputationBuilderParallel<R, BuilderT> function) {
     DelayedComputation<R> result = new DelayedComputation<>();
     addConsumer((builder) -> result.setComputation(function.build(builder)),
         () -> factory.createParallel());
@@ -58,7 +52,7 @@ public abstract class ProtocolBuilderImpl<
    * @param function creation of the protocol producer - will be lazy evaluated
    */
   public <R> Computation<R> createSequentialSub(
-      ComputationBuilder<R, SequentialBuilderT> function) {
+      ComputationBuilder<R, BuilderT> function) {
     DelayedComputation<R> result = new DelayedComputation<>();
     addConsumer((builder) -> result.setComputation(function.build(builder)),
         () -> factory.createSequential());
@@ -72,7 +66,7 @@ public abstract class ProtocolBuilderImpl<
    *
    * @param consumer lazy creation of the protocol producer
    */
-  public <T extends Consumer<SequentialBuilderT>> void createIteration(T consumer) {
+  public <T extends Consumer<BuilderT>> void createIteration(T consumer) {
     addConsumer(consumer, () -> factory.createSequential());
   }
 
@@ -84,13 +78,12 @@ public abstract class ProtocolBuilderImpl<
     }));
   }
 
-  ProtocolBuilderImpl.ProtocolEntity createAndAppend(ProtocolProducer producer) {
+  private void createAndAppend(ProtocolProducer producer) {
     ProtocolEntity protocolEntity = new ProtocolEntity(producer);
     if (protocols == null) {
       throw new IllegalStateException("Cannot build this twice, it has all ready been constructed");
     }
     protocols.add(protocolEntity);
-    return protocolEntity;
   }
 
   /**
@@ -132,7 +125,7 @@ public abstract class ProtocolBuilderImpl<
     }
   }
 
-  void addEntities(ProtocolProducerCollection producerCollection) {
+  private void addEntities(ProtocolProducerCollection producerCollection) {
     for (ProtocolEntity protocolEntity : protocols) {
       producerCollection.append(protocolEntity.protocolProducer);
     }
@@ -140,18 +133,18 @@ public abstract class ProtocolBuilderImpl<
   }
 
   public <R>
-  BuildStep<SequentialBuilderT, SequentialBuilderT, ParallelBuilderT, R, Void>
-  seq(ComputationBuilder<R, SequentialBuilderT> function) {
-    BuildStep<SequentialBuilderT, SequentialBuilderT, ParallelBuilderT, R, Void> builder =
+  BuildStep<BuilderT, R, Void>
+  seq(ComputationBuilder<R, BuilderT> function) {
+    BuildStep<BuilderT, R, Void> builder =
         new BuildStepSequential<>((ignored, inner) -> function.build(inner));
     createAndAppend(
         new LazyProtocolProducerDecorator(() -> builder.createProducer(null, factory)));
     return builder;
   }
 
-  public <R> BuildStep<ParallelBuilderT, SequentialBuilderT, ParallelBuilderT, R, Void> par(
-      ComputationBuilderParallel<R, ParallelBuilderT> f) {
-    BuildStep<ParallelBuilderT, SequentialBuilderT, ParallelBuilderT, R, Void> builder =
+  public <R> BuildStep<BuilderT, R, Void> par(
+      ComputationBuilderParallel<R, BuilderT> f) {
+    BuildStep<BuilderT, R, Void> builder =
         new BuildStep.BuildStepParallel<>((ignored, inner) -> f.build(inner));
     createAndAppend(
         new LazyProtocolProducerDecorator(() -> builder.createProducer(null, factory)));

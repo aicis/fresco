@@ -7,8 +7,7 @@ import dk.alexandra.fresco.framework.ProtocolProducer;
 import java.util.function.Predicate;
 
 class BuildStepLooping<BuilderT extends ProtocolBuilder<BuilderT>,
-    BuilderParallelT extends ProtocolBuilder<BuilderT>,
-    InputT> extends BuildStep<BuilderT, BuilderT, BuilderParallelT, InputT, InputT> {
+    InputT> extends BuildStep<BuilderT, InputT, InputT> {
 
   private final Predicate<InputT> predicate;
   private final FrescoLambda<InputT, BuilderT, InputT> function;
@@ -21,39 +20,38 @@ class BuildStepLooping<BuilderT extends ProtocolBuilder<BuilderT>,
 
   @Override
   protected ProtocolProducer createProducer(InputT input,
-      BuilderFactory<BuilderT, BuilderParallelT> factory) {
-    LoopProtocolProducer<BuilderT, BuilderParallelT, InputT> loopProtocolProducer =
+      BuilderFactory<BuilderT> factory) {
+    LoopProtocolProducer<BuilderT, InputT> loopProtocolProducer =
         new LoopProtocolProducer<>(factory, input, predicate, function, next);
     output = loopProtocolProducer;
     return loopProtocolProducer;
   }
 
   @Override
-  protected BuilderT createBuilder(BuilderFactory<BuilderT, BuilderParallelT> factory) {
+  protected BuilderT createBuilder(BuilderFactory<BuilderT> factory) {
     throw new IllegalStateException("Should not be called");
   }
 
   private static class LoopProtocolProducer<
       BuilderT extends ProtocolBuilder<BuilderT>,
-      BuilderParallelT extends ProtocolBuilder<BuilderT>,
       InputT
       > implements ProtocolProducer, Computation<InputT> {
 
-    private final BuilderFactory<BuilderT, BuilderParallelT> factory;
+    private final BuilderFactory<BuilderT> factory;
     private boolean isDone;
     private boolean doneWithOwn;
     private Computation<InputT> currentResult;
     private ProtocolProducer currentProducer;
     private Predicate<InputT> predicate;
     private FrescoLambda<InputT, BuilderT, InputT> function;
-    private BuildStep<?, BuilderT, BuilderParallelT, ?, InputT> next;
+    private BuildStep<BuilderT, ?, InputT> next;
 
     LoopProtocolProducer(
-        BuilderFactory<BuilderT, BuilderParallelT> factory,
+        BuilderFactory<BuilderT> factory,
         InputT input,
         Predicate<InputT> predicate,
         FrescoLambda<InputT, BuilderT, InputT> function,
-        BuildStep<?, BuilderT, BuilderParallelT, ?, InputT> next) {
+        BuildStep<BuilderT, ?, InputT> next) {
       this.factory = factory;
       this.predicate = predicate;
       this.function = function;

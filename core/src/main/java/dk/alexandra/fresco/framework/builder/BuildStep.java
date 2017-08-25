@@ -10,60 +10,54 @@ import java.util.function.BiFunction;
 import java.util.function.Predicate;
 
 public abstract class BuildStep<
-    BuilderT extends ProtocolBuilder<BuilderSequentialT>,
-    BuilderSequentialT extends ProtocolBuilder<BuilderSequentialT>,
-    BuilderParallelT extends ProtocolBuilder<BuilderSequentialT>,
+    BuilderT extends ProtocolBuilder<BuilderT>,
     OutputT,
     InputT>
     implements Computation<OutputT> {
 
   protected final BiFunction<InputT, BuilderT, Computation<OutputT>> function;
 
-  protected BuildStep<?, BuilderSequentialT, BuilderParallelT, ?, OutputT> next;
+  protected BuildStep<BuilderT, ?, OutputT> next;
   protected Computation<OutputT> output;
 
-  public BuildStep(
+  BuildStep(
       BiFunction<InputT, BuilderT, Computation<OutputT>> function) {
     this.function = function;
   }
 
-  public <NextOutputT> BuildStep<BuilderSequentialT, BuilderSequentialT, BuilderParallelT, NextOutputT, OutputT> seq(
-      FrescoLambda<OutputT, BuilderSequentialT, NextOutputT> function) {
-    BuildStep<BuilderSequentialT, BuilderSequentialT, BuilderParallelT, NextOutputT, OutputT> localChild =
+  public <NextOutputT> BuildStep<BuilderT, NextOutputT, OutputT> seq(
+      FrescoLambda<OutputT, BuilderT, NextOutputT> function) {
+    BuildStep<BuilderT, NextOutputT, OutputT> localChild =
         new BuildStepSequential<>(function);
     this.next = localChild;
     return localChild;
   }
 
-  public <NextOutputT> BuildStep<BuilderParallelT, BuilderSequentialT, BuilderParallelT, NextOutputT, OutputT> par(
-      FrescoLambdaParallel<OutputT, BuilderParallelT, NextOutputT> function) {
-    BuildStep<BuilderParallelT, BuilderSequentialT, BuilderParallelT, NextOutputT, OutputT> localChild =
+  public <NextOutputT> BuildStep<BuilderT, NextOutputT, OutputT> par(
+      FrescoLambdaParallel<OutputT, BuilderT, NextOutputT> function) {
+    BuildStep<BuilderT, NextOutputT, OutputT> localChild =
         new BuildStepParallel<>(function);
     this.next = localChild;
     return localChild;
   }
 
-  public BuildStep<BuilderSequentialT, BuilderSequentialT, BuilderParallelT, OutputT, OutputT> whileLoop(
+  public BuildStep<BuilderT, OutputT, OutputT> whileLoop(
       Predicate<OutputT> test,
-      FrescoLambda<OutputT, BuilderSequentialT, OutputT> function) {
-    BuildStepLooping<BuilderSequentialT, BuilderParallelT, OutputT> localChild = new BuildStepLooping<>(
+      FrescoLambda<OutputT, BuilderT, OutputT> function) {
+    BuildStepLooping<BuilderT, OutputT> localChild = new BuildStepLooping<>(
         test, function);
     this.next = localChild;
     return localChild;
   }
 
   public <FirstOutputT, SecondOutputT>
-  BuildStep<BuilderParallelT, BuilderSequentialT, BuilderParallelT, Pair<FirstOutputT, SecondOutputT>, OutputT> par(
-      FrescoLambda<OutputT, BuilderSequentialT, FirstOutputT> firstFunction,
-      FrescoLambda<OutputT, BuilderSequentialT, SecondOutputT> secondFunction) {
-    BuildStep<
-        BuilderParallelT,
-        BuilderSequentialT,
-        BuilderParallelT,
-        Pair<FirstOutputT, SecondOutputT>,
-        OutputT> localChild =
+  BuildStep<BuilderT, Pair<FirstOutputT, SecondOutputT>, OutputT> par(
+      FrescoLambda<OutputT, BuilderT, FirstOutputT> firstFunction,
+      FrescoLambda<OutputT, BuilderT, SecondOutputT> secondFunction) {
+    BuildStep<BuilderT, Pair<FirstOutputT, SecondOutputT>, OutputT>
+        localChild =
         new BuildStepParallel<>(
-            (OutputT output1, BuilderParallelT builder) -> {
+            (OutputT output1, BuilderT builder) -> {
               Computation<FirstOutputT> firstOutput =
                   builder.createSequentialSub(
                       seq -> firstFunction.apply(output1, seq));
@@ -86,7 +80,7 @@ public abstract class BuildStep<
 
   protected ProtocolProducer createProducer(
       InputT input,
-      BuilderFactory<BuilderSequentialT, BuilderParallelT> factory) {
+      BuilderFactory<BuilderT> factory) {
 
     BuilderT builder = createBuilder(factory);
     Computation<OutputT> output = function.apply(input, builder);
@@ -104,44 +98,37 @@ public abstract class BuildStep<
     }
   }
 
-  static class BuildStepSequential<BuilderSequentialT extends ProtocolBuilder<BuilderSequentialT>,
-      BuilderParallelT extends ProtocolBuilder<BuilderSequentialT>, OutputT, InputT>
-      extends
-      BuildStep<BuilderSequentialT,
-          BuilderSequentialT,
-          BuilderParallelT, OutputT, InputT> {
+  static class BuildStepSequential<
+      BuilderT extends ProtocolBuilder<BuilderT>, OutputT, InputT>
+      extends BuildStep<BuilderT, OutputT, InputT> {
 
-    BuildStepSequential(FrescoLambda<InputT, BuilderSequentialT, OutputT> function) {
+    BuildStepSequential(FrescoLambda<InputT, BuilderT, OutputT> function) {
       super(function);
     }
 
     @Override
-    protected BuilderSequentialT createBuilder(
-        BuilderFactory<BuilderSequentialT, BuilderParallelT> factory) {
+    protected BuilderT createBuilder(
+        BuilderFactory<BuilderT> factory) {
       return factory.createSequential();
     }
   }
 
   protected abstract BuilderT createBuilder(
-      BuilderFactory<BuilderSequentialT, BuilderParallelT> factory);
+      BuilderFactory<BuilderT> factory);
 
   /**
    * Created by pff on 30-06-2017.
    */
-  static class BuildStepParallel<BuilderSequentialT extends ProtocolBuilder<BuilderSequentialT>,
-      BuilderParallelT extends ProtocolBuilder<BuilderSequentialT>, OutputT, InputT>
-      extends
-      BuildStep<BuilderParallelT,
-          BuilderSequentialT,
-          BuilderParallelT, OutputT, InputT> {
+  static class BuildStepParallel<BuilderT extends ProtocolBuilder<BuilderT>, OutputT, InputT>
+      extends BuildStep<BuilderT, OutputT, InputT> {
 
-    BuildStepParallel(FrescoLambdaParallel<InputT, BuilderParallelT, OutputT> function) {
+    BuildStepParallel(FrescoLambdaParallel<InputT, BuilderT, OutputT> function) {
       super(function);
     }
 
     @Override
-    protected BuilderParallelT createBuilder(
-        BuilderFactory<BuilderSequentialT, BuilderParallelT> factory) {
+    protected BuilderT createBuilder(
+        BuilderFactory<BuilderT> factory) {
       return factory.createParallel();
     }
   }

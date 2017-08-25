@@ -36,14 +36,14 @@ import java.security.SecureRandom;
 import java.util.Random;
 
 public interface ProtocolSuite<ResourcePoolT extends ResourcePool, Builder extends ProtocolBuilder> {
-  
+
   /**
    * Initializes the protocol suite by supplying any needed
    * resources to the protocol suite. The protocol invocation implementation is then
    * in charge of supplying the needed resources to it's internal protocols
    * when needed.
    */
-  BuilderFactory<Builder, ?> init(ResourcePoolT resourcePool);
+  BuilderFactory<Builder> init(ResourcePoolT resourcePool);
 
   /**
    * Legacy method for creating resource pool from an oblivious context - normally users of the
@@ -54,7 +54,7 @@ public interface ProtocolSuite<ResourcePoolT extends ResourcePool, Builder exten
   ResourcePoolT createResourcePool(
       int myId, int size, Network network,
       Random rand, SecureRandom secRand);
-  
+
   /**
    * Get a RoundSynchronization used by evaluators to signal progress and
    * allow protocols to do additional work during evaluation.
@@ -89,7 +89,8 @@ public interface ProtocolSuite<ResourcePoolT extends ResourcePool, Builder exten
   /**
    * Dummy round synchronization that does nothing.
    */
-  class DummyRoundSynchronization<ResourcePoolT extends ResourcePool> implements RoundSynchronization<ResourcePoolT> {
+  class DummyRoundSynchronization<ResourcePoolT extends ResourcePool> implements
+      RoundSynchronization<ResourcePoolT> {
 
     @Override
     public void finishedBatch(

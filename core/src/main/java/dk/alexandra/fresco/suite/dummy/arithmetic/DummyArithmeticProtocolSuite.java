@@ -38,7 +38,7 @@ import java.util.Random;
 
 /**
  * The {@link ProtocolSuite} of the Dummy Arithmetic suite. Uses a
- * {@link DummyArithmeticResourcePool} and provides a {@link SequentialNumericBuilder}.
+ * {@link DummyArithmeticResourcePool} and provides a {@link ProtocolBuilderNumeric}.
  */
 public class DummyArithmeticProtocolSuite
     implements NumericProtocolSuite<DummyArithmeticResourcePool, ProtocolBuilderNumeric> {
@@ -62,7 +62,7 @@ public class DummyArithmeticProtocolSuite
   }
 
   @Override
-  public BuilderFactory<ProtocolBuilderNumeric, ProtocolBuilderNumeric> init(
+  public BuilderFactory<ProtocolBuilderNumeric> init(
       DummyArithmeticResourcePool resourcePool) {
     return new DummyArithmeticBuilderFactory(
         new DummyArithmeticFactory(resourcePool.getModulus(), maxBitLength));

@@ -17,8 +17,7 @@ import dk.alexandra.fresco.lib.math.integer.division.DefaultAdvancedNumericBuild
  * </ul>
  * Other builders have defaults, based on the raw methods, but can be overridden.
  */
-public interface BuilderFactoryNumeric extends
-    BuilderFactory<ProtocolBuilderNumeric, ProtocolBuilderNumeric> {
+public interface BuilderFactoryNumeric extends BuilderFactory<ProtocolBuilderNumeric> {
 
   int MAGIC_SECURE_NUMBER = 60;
 
