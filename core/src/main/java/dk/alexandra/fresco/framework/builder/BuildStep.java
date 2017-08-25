@@ -34,7 +34,7 @@ public abstract class BuildStep<
   }
 
   public <NextOutputT> BuildStep<BuilderT, NextOutputT, OutputT> par(
-      FrescoLambdaParallel<OutputT, BuilderT, NextOutputT> function) {
+      FrescoLambda<OutputT, BuilderT, NextOutputT> function) {
     BuildStep<BuilderT, NextOutputT, OutputT> localChild =
         new BuildStepParallel<>(function);
     this.next = localChild;
@@ -122,7 +122,7 @@ public abstract class BuildStep<
   static class BuildStepParallel<BuilderT extends ProtocolBuilderImpl<BuilderT>, OutputT, InputT>
       extends BuildStep<BuilderT, OutputT, InputT> {
 
-    BuildStepParallel(FrescoLambdaParallel<InputT, BuilderT, OutputT> function) {
+    BuildStepParallel(FrescoLambda<InputT, BuilderT, OutputT> function) {
       super(function);
     }
 
