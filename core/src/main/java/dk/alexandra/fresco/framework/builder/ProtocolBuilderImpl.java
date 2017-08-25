@@ -22,7 +22,7 @@ public abstract class ProtocolBuilderImpl<BuilderT extends ProtocolBuilderImpl<B
   private List<ProtocolEntity> protocols;
   private BuilderFactory<BuilderT> factory;
 
-  ProtocolBuilderImpl(
+  protected ProtocolBuilderImpl(
       BuilderFactory<BuilderT> factory,
       boolean parallel) {
     this.parallel = parallel;
@@ -69,7 +69,8 @@ public abstract class ProtocolBuilderImpl<BuilderT extends ProtocolBuilderImpl<B
     addConsumer(consumer, () -> factory.createSequential());
   }
 
-  <T extends ProtocolBuilderImpl> void addConsumer(Consumer<T> consumer, Supplier<T> supplier) {
+  protected <T extends ProtocolBuilderImpl> void addConsumer(Consumer<T> consumer,
+      Supplier<T> supplier) {
     createAndAppend(new LazyProtocolProducerDecorator(() -> {
       T builder = supplier.get();
       consumer.accept(builder);

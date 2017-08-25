@@ -4,7 +4,7 @@ import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.BuilderFactory;
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.ProtocolProducer;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderBinary;
+import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 
 public abstract class DemoBinaryApplication<Output> implements
     Application<Output, ProtocolBuilderBinary> {

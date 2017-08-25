@@ -1,10 +1,6 @@
-package dk.alexandra.fresco.lib.compare;
+package dk.alexandra.fresco.framework.builder.numeric;
 
 import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
-import dk.alexandra.fresco.framework.builder.ComparisonBuilder;
-import dk.alexandra.fresco.framework.builder.NumericBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.compare.eq.Equality;
 import dk.alexandra.fresco.lib.compare.gt.LessThanOrEquals;
@@ -16,7 +12,7 @@ public class DefaultComparisonBuilder implements ComparisonBuilder {
   private final BuilderFactoryNumeric factoryNumeric;
   private final ProtocolBuilderNumeric builder;
 
-  public DefaultComparisonBuilder(BuilderFactoryNumeric factoryNumeric,
+  protected DefaultComparisonBuilder(BuilderFactoryNumeric factoryNumeric,
       ProtocolBuilderNumeric builder) {
     this.factoryNumeric = factoryNumeric;
     this.builder = builder;

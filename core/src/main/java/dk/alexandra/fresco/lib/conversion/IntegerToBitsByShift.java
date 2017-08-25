@@ -1,9 +1,9 @@
 package dk.alexandra.fresco.lib.conversion;
 
 import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.builder.AdvancedNumericBuilder.RightShiftResult;
 import dk.alexandra.fresco.framework.builder.ComputationBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
+import dk.alexandra.fresco.framework.builder.numeric.AdvancedNumericBuilder.RightShiftResult;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.util.List;
 

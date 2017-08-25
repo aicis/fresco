@@ -28,7 +28,7 @@ package dk.alexandra.fresco.lib.compare;
 
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.builder.ComputationBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SBool;
 import java.util.List;
 
@@ -37,7 +37,6 @@ public class CompareAndSwap implements ComputationBuilder<List<SBool>, ProtocolB
 
 	private Computation<List<SBool>> left;
 	private Computation<List<SBool>> right;
-	//private AbstractBinaryFactory bp;
 
 	public CompareAndSwap(Computation<List<SBool>> left, Computation<List<SBool>> right) {
 		this.left = left;

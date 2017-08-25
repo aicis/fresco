@@ -28,7 +28,7 @@ package dk.alexandra.fresco.framework;
 
 
 import dk.alexandra.fresco.framework.builder.ProtocolBuilderHelper;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;

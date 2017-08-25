@@ -1,14 +1,14 @@
-package dk.alexandra.fresco.lib.math.integer.division;
+package dk.alexandra.fresco.framework.builder.numeric;
 
 import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.builder.AdvancedNumericBuilder;
-import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.conversion.IntegerToBitsByShift;
 import dk.alexandra.fresco.lib.math.integer.binary.BitLength;
 import dk.alexandra.fresco.lib.math.integer.binary.RepeatedRightShift;
 import dk.alexandra.fresco.lib.math.integer.binary.RightShift;
+import dk.alexandra.fresco.lib.math.integer.division.KnownDivisor;
+import dk.alexandra.fresco.lib.math.integer.division.KnownDivisorRemainder;
+import dk.alexandra.fresco.lib.math.integer.division.SecretSharedDivisor;
 import dk.alexandra.fresco.lib.math.integer.exp.Exponentiation;
 import dk.alexandra.fresco.lib.math.integer.exp.ExponentiationOpenBase;
 import dk.alexandra.fresco.lib.math.integer.exp.ExponentiationOpenExponent;
@@ -20,13 +20,12 @@ import dk.alexandra.fresco.lib.math.integer.sqrt.SquareRoot;
 import java.math.BigInteger;
 import java.util.List;
 
-public class DefaultAdvancedNumericBuilder implements
-    AdvancedNumericBuilder {
+public class DefaultAdvancedNumericBuilder implements AdvancedNumericBuilder {
 
   private final BuilderFactoryNumeric factoryNumeric;
   private final ProtocolBuilderNumeric builder;
 
-  public DefaultAdvancedNumericBuilder(BuilderFactoryNumeric factoryNumeric,
+  protected DefaultAdvancedNumericBuilder(BuilderFactoryNumeric factoryNumeric,
       ProtocolBuilderNumeric builder) {
     this.factoryNumeric = factoryNumeric;
     this.builder = builder;
@@ -99,7 +98,7 @@ public class DefaultAdvancedNumericBuilder implements
   public Computation<RandomAdditiveMask> additiveMask(int noOfBits) {
     return builder
         .createSequentialSub(
-            new dk.alexandra.fresco.lib.compare.RandomAdditiveMask(factoryNumeric,
+            new dk.alexandra.fresco.lib.compare.RandomAdditiveMask(
                 BuilderFactoryNumeric.MAGIC_SECURE_NUMBER, noOfBits));
   }
 

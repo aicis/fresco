@@ -4,7 +4,7 @@ import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.BuilderFactory;
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.ProtocolProducer;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 
 public abstract class DemoNumericApplication<Output> implements
     Application<Output, ProtocolBuilderNumeric> {

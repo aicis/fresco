@@ -1,10 +1,6 @@
-package dk.alexandra.fresco.framework.builder;
+package dk.alexandra.fresco.framework.builder.binary;
 
-import dk.alexandra.fresco.framework.builder.binary.BinaryBuilder;
-import dk.alexandra.fresco.framework.builder.binary.BinaryBuilderAdvanced;
-import dk.alexandra.fresco.framework.builder.binary.BinaryUtilityBuilder;
-import dk.alexandra.fresco.framework.builder.binary.BristolCryptoBuilder;
-import dk.alexandra.fresco.framework.builder.binary.ComparisonBuilderBinary;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderImpl;
 import java.util.function.Consumer;
 
 public class ProtocolBuilderBinary extends

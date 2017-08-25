@@ -27,11 +27,11 @@
 package dk.alexandra.fresco.lib.compare.gt;
 
 import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.builder.AdvancedNumericBuilder;
-import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.ComputationBuilder;
-import dk.alexandra.fresco.framework.builder.NumericBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
+import dk.alexandra.fresco.framework.builder.numeric.AdvancedNumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.BuilderFactoryNumeric;
+import dk.alexandra.fresco.framework.builder.numeric.NumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.compare.ConditionalSelect;

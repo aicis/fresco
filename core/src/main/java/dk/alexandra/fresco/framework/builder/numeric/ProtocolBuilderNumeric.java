@@ -1,6 +1,7 @@
-package dk.alexandra.fresco.framework.builder;
+package dk.alexandra.fresco.framework.builder.numeric;
 
 import dk.alexandra.fresco.framework.Application;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderImpl;
 import dk.alexandra.fresco.lib.compare.MiscOIntGenerators;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import java.util.function.Consumer;

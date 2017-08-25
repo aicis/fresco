@@ -2,8 +2,8 @@ package dk.alexandra.fresco.demo;
 
 import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.builder.NumericBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
+import dk.alexandra.fresco.framework.builder.numeric.NumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
 import java.util.List;

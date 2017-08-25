@@ -1,4 +1,4 @@
-package dk.alexandra.fresco.framework.builder;
+package dk.alexandra.fresco.framework.builder.numeric;
 
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.value.SInt;

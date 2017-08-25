@@ -1,8 +1,8 @@
 package dk.alexandra.fresco.lib.math.polynomial;
 
 import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
-import dk.alexandra.fresco.framework.builder.NumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.BuilderFactoryNumeric;
+import dk.alexandra.fresco.framework.builder.numeric.NumericBuilder;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticBuilderFactory;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticFactory;

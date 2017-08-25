@@ -1,10 +1,8 @@
-package dk.alexandra.fresco.framework.builder;
+package dk.alexandra.fresco.framework.builder.numeric;
 
 import dk.alexandra.fresco.framework.BuilderFactory;
-import dk.alexandra.fresco.lib.compare.DefaultComparisonBuilder;
 import dk.alexandra.fresco.lib.compare.MiscOIntGenerators;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
-import dk.alexandra.fresco.lib.math.integer.division.DefaultAdvancedNumericBuilder;
 
 /**
  * The core factory to implement when creating a numeric protocol. Every subbuilder from this

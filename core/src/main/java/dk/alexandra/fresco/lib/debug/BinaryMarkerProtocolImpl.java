@@ -24,7 +24,7 @@
 package dk.alexandra.fresco.lib.debug;
 
 import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderBinary;
+import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import java.io.PrintStream;
 
 /**

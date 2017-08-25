@@ -1,10 +1,10 @@
 package dk.alexandra.fresco.lib.math.integer.division;
 
 import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.builder.AdvancedNumericBuilder;
 import dk.alexandra.fresco.framework.builder.ComputationBuilder;
-import dk.alexandra.fresco.framework.builder.NumericBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
+import dk.alexandra.fresco.framework.builder.numeric.AdvancedNumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.NumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
 
@@ -23,7 +23,7 @@ public class KnownDivisorRemainder implements ComputationBuilder<SInt, ProtocolB
   private final Computation<SInt> dividend;
   private final BigInteger divisor;
 
-  KnownDivisorRemainder(
+  public KnownDivisorRemainder(
       Computation<SInt> dividend,
       BigInteger divisor) {
     this.dividend = dividend;

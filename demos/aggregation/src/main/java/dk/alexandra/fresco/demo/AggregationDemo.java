@@ -3,7 +3,7 @@ package dk.alexandra.fresco.demo;
 import dk.alexandra.fresco.demo.EncryptAndRevealStep.RowWithCipher;
 import dk.alexandra.fresco.demo.helpers.ResourcePoolHelper;
 import dk.alexandra.fresco.framework.Party;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.NetworkConfigurationImpl;
 import dk.alexandra.fresco.framework.network.NetworkingStrategy;

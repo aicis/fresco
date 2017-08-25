@@ -27,9 +27,9 @@
 package dk.alexandra.fresco.lib.compare.zerotest;
 
 import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.ComputationBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
+import dk.alexandra.fresco.framework.builder.numeric.BuilderFactoryNumeric;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 
 /**
@@ -56,6 +56,6 @@ public class ZeroTest implements ComputationBuilder<SInt, ProtocolBuilderNumeric
     Computation<SInt> reduced = builder.createSequentialSub(
         new ZeroTestReducer(bitLength, input));
     return builder.createSequentialSub(
-        new ZeroTestBruteforce(factoryNumeric, bitLength, reduced));
+        new ZeroTestBruteforce(bitLength, reduced));
   }
 }
