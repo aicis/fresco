@@ -42,7 +42,8 @@ import java.util.Objects;
  * Note that only lower triangle of matrix (i,j for i \geq j) will be computed.
  * The symmetric entry will be a copy of the one from the lower triangle, M[i][j] := M[j][i].
  */
-public class CovarianceMatrix implements ComputationBuilder<List<List<Computation<SInt>>>> {
+public class CovarianceMatrix implements
+    ComputationBuilder<List<List<Computation<SInt>>>, SequentialNumericBuilder> {
 
   private final List<List<Computation<SInt>>> data;
   private final List<Computation<SInt>> mean;

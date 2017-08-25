@@ -43,7 +43,7 @@ import java.math.BigInteger;
  *
  * @author Jonas Lindstrøm (jonas.lindstrom@alexandra.dk)
  */
-public class Logarithm implements ComputationBuilder<SInt> {
+public class Logarithm implements ComputationBuilder<SInt, SequentialNumericBuilder> {
 
   // Input
   private Computation<SInt> input;

@@ -26,14 +26,12 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.math.bool.add;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.builder.binary.ComputationBuilderBinary;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary.SequentialBinaryBuilder;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SBool;
+import java.util.ArrayList;
+import java.util.List;
 
 
 
@@ -42,7 +40,8 @@ import dk.alexandra.fresco.framework.value.SBool;
  * It takes the naive approach of linking 1-Bit-Full Adders together to implement
  * a generic length adder.
  */
-public class FullAdderProtocolImpl implements ComputationBuilderBinary<List<Computation<SBool>>> {
+public class FullAdderProtocolImpl implements
+    dk.alexandra.fresco.framework.builder.ComputationBuilder<List<Computation<SBool>>, SequentialBinaryBuilder> {
 
   private List<Computation<SBool>> lefts, rights;
   private Computation<SBool> inCarry;

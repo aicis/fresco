@@ -7,7 +7,8 @@ import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNu
 import dk.alexandra.fresco.framework.value.SInt;
 import java.util.List;
 
-public class IntegerToBitsByShift implements ComputationBuilder<List<SInt>> {
+public class IntegerToBitsByShift implements
+    ComputationBuilder<List<SInt>, SequentialNumericBuilder> {
 
   private final Computation<SInt> input;
   private final int maxInputLength;

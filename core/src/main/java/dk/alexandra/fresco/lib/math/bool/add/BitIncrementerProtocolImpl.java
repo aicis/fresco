@@ -26,14 +26,12 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.math.bool.add;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.builder.binary.ComputationBuilderBinary;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary.SequentialBinaryBuilder;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SBool;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Increment a binary vector with a secret boolean. The class uses 
@@ -41,7 +39,8 @@ import dk.alexandra.fresco.framework.value.SBool;
  * a generic length adder.
  *
  */
-public class BitIncrementerProtocolImpl implements ComputationBuilderBinary<List<Computation<SBool>>> {
+public class BitIncrementerProtocolImpl implements
+    dk.alexandra.fresco.framework.builder.ComputationBuilder<List<Computation<SBool>>, SequentialBinaryBuilder> {
 
   private List<Computation<SBool>> base;
   private Computation<SBool> increment;

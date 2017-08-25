@@ -27,14 +27,14 @@
 package dk.alexandra.fresco.lib.field.bool.generic;
 
 import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.builder.binary.ComputationBuilderBinary;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary.SequentialBinaryBuilder;
 import dk.alexandra.fresco.framework.value.SBool;
 
 /**
  * This protocol implements "NOT x" as "TRUE XOR x".
  */
-public class NotFromXor implements ComputationBuilderBinary<SBool> {
+public class NotFromXor implements
+    dk.alexandra.fresco.framework.builder.ComputationBuilder<SBool, SequentialBinaryBuilder> {
 
   private Computation<SBool> in;
   

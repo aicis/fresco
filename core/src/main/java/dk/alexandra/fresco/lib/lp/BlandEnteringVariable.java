@@ -37,7 +37,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class BlandEnteringVariable
-    implements ComputationBuilder<Pair<List<Computation<SInt>>, SInt>> {
+    implements ComputationBuilder<Pair<List<Computation<SInt>>, SInt>, SequentialNumericBuilder> {
 
   private final LPTableau tableau;
   private final Matrix<Computation<SInt>> updateMatrix;

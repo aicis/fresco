@@ -26,17 +26,14 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.compare;
 
-import java.util.List;
-
-import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.builder.ComputationBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
 import dk.alexandra.fresco.framework.value.SBool;
-import dk.alexandra.fresco.lib.helper.SimpleProtocolProducer;
+import java.util.List;
 
 
-public class CompareAndSwap implements ComputationBuilder<List<SBool>> {
+public class CompareAndSwap implements ComputationBuilder<List<SBool>, SequentialNumericBuilder> {
 
 	private Computation<List<SBool>> left;
 	private Computation<List<SBool>> right;

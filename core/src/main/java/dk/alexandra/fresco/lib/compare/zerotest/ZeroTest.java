@@ -37,7 +37,7 @@ import dk.alexandra.fresco.framework.value.SInt;
  *
  * @author ttoft
  */
-public class ZeroTest implements ComputationBuilder<SInt> {
+public class ZeroTest implements ComputationBuilder<SInt, SequentialNumericBuilder> {
 
   private final BuilderFactoryNumeric factoryNumeric;
   private final int bitLength;

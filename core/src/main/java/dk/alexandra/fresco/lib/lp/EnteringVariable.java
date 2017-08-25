@@ -38,7 +38,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class EnteringVariable
-    implements ComputationBuilder<Pair<List<Computation<SInt>>, SInt>> {
+    implements ComputationBuilder<Pair<List<Computation<SInt>>, SInt>, SequentialNumericBuilder> {
 
   private final LPTableau tableau;
   private final Matrix<Computation<SInt>> updateMatrix;

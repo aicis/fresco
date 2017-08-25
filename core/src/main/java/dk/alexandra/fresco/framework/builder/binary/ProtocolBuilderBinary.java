@@ -3,8 +3,10 @@ package dk.alexandra.fresco.framework.builder.binary;
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.ProtocolProducer;
+import dk.alexandra.fresco.framework.builder.ComputationBuilder;
 import dk.alexandra.fresco.framework.builder.DelayedComputation;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
+import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary.SequentialBinaryBuilder;
 import dk.alexandra.fresco.lib.helper.LazyProtocolProducerDecorator;
 import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
 import dk.alexandra.fresco.lib.helper.ProtocolProducerCollection;
@@ -15,7 +17,7 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-public abstract class ProtocolBuilderBinary implements ProtocolBuilder {
+public abstract class ProtocolBuilderBinary implements ProtocolBuilder<SequentialBinaryBuilder> {
 
   public BuilderFactoryBinary factory;
   private List<ProtocolEntity> protocols;
@@ -113,7 +115,8 @@ public abstract class ProtocolBuilderBinary implements ProtocolBuilder {
    *
    * @param function creation of the protocol producer - will be lazy evaluated
    */
-  public <R> Computation<R> createSequentialSub(ComputationBuilderBinary<R> function) {
+  public <R> Computation<R> createSequentialSub(
+      ComputationBuilder<R, SequentialBinaryBuilder> function) {
     DelayedComputation<R> result = new DelayedComputation<>();
     addConsumer((builder) -> result.setComputation(function.build(builder)),
         () -> new SequentialBinaryBuilder(factory));
@@ -176,7 +179,7 @@ public abstract class ProtocolBuilderBinary implements ProtocolBuilder {
     }
 
     public <R> BuildStepBinary<SequentialBinaryBuilder, R, Void> seq(
-        ComputationBuilderBinary<R> function) {
+        ComputationBuilder<R, SequentialBinaryBuilder> function) {
       BuildStepBinary<SequentialBinaryBuilder, R, Void> builder =
           new BuildStepBinarySequential<>((ignored, inner) -> function.build(inner));
       createAndAppend(

@@ -1,9 +1,11 @@
 package dk.alexandra.fresco.framework.builder.binary;
 
 import dk.alexandra.fresco.framework.BuilderFactory;
+import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary.ParallelBinaryBuilder;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary.SequentialBinaryBuilder;
 
-public interface BuilderFactoryBinary extends BuilderFactory<SequentialBinaryBuilder> {
+public interface BuilderFactoryBinary extends
+    BuilderFactory<SequentialBinaryBuilder, ParallelBinaryBuilder> {
 
   BinaryBuilder createBinaryBuilder(ProtocolBuilderBinary builder);
 
@@ -25,7 +27,13 @@ public interface BuilderFactoryBinary extends BuilderFactory<SequentialBinaryBui
     return new DefaultBinaryUtilityBuilder(builder);
   }
 
-  default SequentialBinaryBuilder createProtocolBuilder() {
+  default SequentialBinaryBuilder createSequential() {
     return ProtocolBuilderBinary.createApplicationRoot(this);
   }
+
+  default ParallelBinaryBuilder createParallel() {
+    return new ParallelBinaryBuilder(this);
+  }
+
+
 }

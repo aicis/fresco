@@ -35,7 +35,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-public class Covariance implements ComputationBuilder<SInt> {
+public class Covariance implements ComputationBuilder<SInt, SequentialNumericBuilder> {
 
   private final List<Computation<SInt>> data1;
   private final List<Computation<SInt>> data2;

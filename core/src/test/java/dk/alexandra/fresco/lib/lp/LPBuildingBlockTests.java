@@ -26,7 +26,6 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.lp;
 
-import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.BuilderFactory;
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.ProtocolProducer;
@@ -36,23 +35,15 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
 import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
-import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.debug.MarkerProtocolImpl;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.helper.builder.NumericIOBuilder;
-import dk.alexandra.fresco.lib.helper.builder.NumericProtocolBuilder;
-import dk.alexandra.fresco.lib.helper.SequentialProtocolProducer;
-import java.io.LineNumberInputStream;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-
-import org.hamcrest.core.Is;
 import java.util.stream.Collectors;
 import org.junit.Assert;
 
@@ -326,8 +317,8 @@ public class LPBuildingBlockTests {
 
             @Override
             public ProtocolProducer prepareApplication(BuilderFactory factoryProducer) {
-              SequentialNumericBuilder builder = ProtocolBuilderNumeric
-                  .createApplicationRoot((BuilderFactoryNumeric) factoryProducer);
+              SequentialNumericBuilder builder = ((BuilderFactoryNumeric) factoryProducer)
+                  .createSequential();
               mod = builder.getBasicNumericFactory().getModulus();
               setupRandom(10, 10, builder);
               return builder.build();
@@ -370,8 +361,8 @@ public class LPBuildingBlockTests {
 
               @Override
               public ProtocolProducer prepareApplication(BuilderFactory factoryProducer) {
-                SequentialNumericBuilder builder = ProtocolBuilderNumeric
-                    .createApplicationRoot((BuilderFactoryNumeric) factoryProducer);
+                SequentialNumericBuilder builder = ((BuilderFactoryNumeric) factoryProducer)
+                    .createSequential();
                 mod = builder.getBasicNumericFactory().getModulus();
                 setupRandom(10, 10, builder);
                 return builder.build();
@@ -417,8 +408,8 @@ public class LPBuildingBlockTests {
 
                 @Override
                 public ProtocolProducer prepareApplication(BuilderFactory factoryProducer) {
-                  SequentialNumericBuilder builder = ProtocolBuilderNumeric
-                      .createApplicationRoot((BuilderFactoryNumeric) factoryProducer);
+                  SequentialNumericBuilder builder = ((BuilderFactoryNumeric) factoryProducer)
+                      .createSequential();
                   mod = builder.getBasicNumericFactory().getModulus();
                   //setupRandom(10, 10, builder);
                   return builder.build();

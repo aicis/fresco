@@ -1,5 +1,6 @@
 package dk.alexandra.fresco.framework.builder;
 
+import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 
 /**
@@ -12,7 +13,9 @@ import dk.alexandra.fresco.framework.ProtocolProducer;
  * automatic creates native protocols and adds these to this protocol builder as
  * intentions to be resolved later</p>
  */
-public interface ProtocolBuilder {
+public interface ProtocolBuilder<SequentialBuilderT extends ProtocolBuilder<SequentialBuilderT>> {
+
+  <R> Computation<R> createSequentialSub(ComputationBuilder<R, SequentialBuilderT> function);
 
   // This will go away and should not be used - users should recode their applications to
   // use closures

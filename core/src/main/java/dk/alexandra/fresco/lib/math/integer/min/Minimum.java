@@ -39,7 +39,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class Minimum implements ComputationBuilder<Pair<List<Computation<SInt>>, SInt>> {
+public class Minimum implements
+    ComputationBuilder<Pair<List<Computation<SInt>>, SInt>, SequentialNumericBuilder> {
 
   private final List<Computation<SInt>> xs;
   private final int k;

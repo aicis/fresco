@@ -8,7 +8,7 @@ import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.math.integer.HammingDistance;
 import java.math.BigInteger;
 
-public class ZeroTestReducer implements ComputationBuilder<SInt> {
+public class ZeroTestReducer implements ComputationBuilder<SInt, SequentialNumericBuilder> {
 
   private final int bitLength;
   private final Computation<SInt> input;

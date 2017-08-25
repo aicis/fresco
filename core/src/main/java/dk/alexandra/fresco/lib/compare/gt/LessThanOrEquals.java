@@ -38,7 +38,7 @@ import dk.alexandra.fresco.lib.compare.ConditionalSelect;
 import java.math.BigInteger;
 import java.util.List;
 
-public class LessThanOrEquals implements ComputationBuilder<SInt> {
+public class LessThanOrEquals implements ComputationBuilder<SInt, SequentialNumericBuilder> {
 
   public LessThanOrEquals(int bitLength, int securityParameter,
       Computation<SInt> x, Computation<SInt> y,

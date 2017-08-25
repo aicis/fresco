@@ -43,7 +43,7 @@ public interface ProtocolSuite<ResourcePoolT extends ResourcePool, Builder exten
    * in charge of supplying the needed resources to it's internal protocols
    * when needed.
    */
-  BuilderFactory<Builder> init(ResourcePoolT resourcePool);
+  BuilderFactory<Builder, ?> init(ResourcePoolT resourcePool);
 
   /**
    * Legacy method for creating resource pool from an oblivious context - normally users of the

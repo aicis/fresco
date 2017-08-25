@@ -37,7 +37,7 @@ import java.math.BigInteger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class MiMCDecryption implements ComputationBuilder<SInt> {
+public class MiMCDecryption implements ComputationBuilder<SInt, SequentialNumericBuilder> {
 
   // TODO: require that our modulus - 1 and 3 are co-prime
 

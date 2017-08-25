@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class RandomAdditiveMask implements
-    ComputationBuilder<AdvancedNumericBuilder.RandomAdditiveMask> {
+    ComputationBuilder<AdvancedNumericBuilder.RandomAdditiveMask, SequentialNumericBuilder> {
 
   private final BuilderFactoryNumeric factoryNumeric;
   private final int securityParameter;

@@ -20,7 +20,7 @@ import java.math.BigInteger;
  *
  * @author Jonas Lindstrøm (jonas.lindstrom@alexandra.dk)
  */
-public class KnownDivisor implements ComputationBuilder<SInt> {
+public class KnownDivisor implements ComputationBuilder<SInt, SequentialNumericBuilder> {
 
   private final BuilderFactoryNumeric builderFactory;
   private final Computation<SInt> dividend;

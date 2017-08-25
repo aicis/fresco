@@ -55,7 +55,7 @@ import java.util.stream.Collectors;
  * turns out to be prone to overflow problems, and picking the very larger
  * value, is also non-trivial.
  */
-public class MinInfFrac implements ComputationBuilder<MinInfOutput> {
+public class MinInfFrac implements ComputationBuilder<MinInfOutput, SequentialNumericBuilder> {
 
   private final ArrayList<Frac> fs;
 

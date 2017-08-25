@@ -14,7 +14,7 @@ import dk.alexandra.fresco.framework.value.SInt;
  * be judged equal to zero, which is technically wrong.
  * </p>
  */
-public class FracEq implements ComputationBuilder<SInt> {
+public class FracEq implements ComputationBuilder<SInt, SequentialNumericBuilder> {
 
   private final Computation<SInt> n0, d0, n1, d1;
 

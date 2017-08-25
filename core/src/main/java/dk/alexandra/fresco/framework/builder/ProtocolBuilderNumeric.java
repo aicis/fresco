@@ -4,6 +4,8 @@ import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.ProtocolProducer;
+import dk.alexandra.fresco.framework.builder.BuildStep.BuildStepSequential;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
 import dk.alexandra.fresco.lib.compare.MiscOIntGenerators;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.helper.LazyProtocolProducerDecorator;
@@ -19,7 +21,7 @@ import java.util.function.Supplier;
 /**
  * Central class for building protocols that are based on numeric protocols.
  */
-public abstract class ProtocolBuilderNumeric implements ProtocolBuilder {
+public abstract class ProtocolBuilderNumeric implements ProtocolBuilder<SequentialNumericBuilder> {
 
   private BasicNumericFactory basicNumericFactory;
   private List<ProtocolBuilderNumeric.ProtocolEntity> protocols;
@@ -54,10 +56,6 @@ public abstract class ProtocolBuilderNumeric implements ProtocolBuilder {
     return builder;
   }
 
-  public static SequentialNumericBuilder createApplicationRoot(
-      BuilderFactoryNumeric builderFactoryNumeric) {
-    return new SequentialNumericBuilder(builderFactoryNumeric);
-  }
 
   /**
    * Re-creates this builder based on this basicNumericFactory but with a nested parallel protocol
@@ -78,7 +76,9 @@ public abstract class ProtocolBuilderNumeric implements ProtocolBuilder {
    *
    * @param function creation of the protocol producer - will be lazy evaluated
    */
-  public <R> Computation<R> createSequentialSub(ComputationBuilder<R> function) {
+  @Override
+  public <R> Computation<R> createSequentialSub(
+      ComputationBuilder<R, SequentialNumericBuilder> function) {
     DelayedComputation<R> result = new DelayedComputation<>();
     addConsumer((builder) -> result.setComputation(function.build(builder)),
         () -> new SequentialNumericBuilder(factory));
@@ -225,17 +225,20 @@ public abstract class ProtocolBuilderNumeric implements ProtocolBuilder {
     }
 
 
-    public <R> BuildStep<SequentialNumericBuilder, R, Void> seq(ComputationBuilder<R> function) {
-      BuildStep<SequentialNumericBuilder, R, Void> builder =
+    public <R>
+    BuildStep<SequentialNumericBuilder, SequentialNumericBuilder, ParallelNumericBuilder, R, Void>
+    seq(ComputationBuilder<R, SequentialNumericBuilder> function) {
+      BuildStep<SequentialNumericBuilder, SequentialNumericBuilder, ParallelNumericBuilder, R, Void> builder =
           new BuildStepSequential<>((ignored, inner) -> function.build(inner));
       createAndAppend(
           new LazyProtocolProducerDecorator(() -> builder.createProducer(null, getFactory())));
       return builder;
     }
 
-    public <R> BuildStep<ParallelNumericBuilder, R, Void> par(ComputationBuilderParallel<R> f) {
-      BuildStep<ParallelNumericBuilder, R, Void> builder =
-          new BuildStepParallel<>((ignored, inner) -> f.build(inner));
+    public <R> BuildStep<ParallelNumericBuilder, SequentialNumericBuilder, ParallelNumericBuilder, R, Void> par(
+        ComputationBuilderParallel<R> f) {
+      BuildStep<ParallelNumericBuilder, SequentialNumericBuilder, ParallelNumericBuilder, R, Void> builder =
+          new BuildStep.BuildStepParallel<>((ignored, inner) -> f.build(inner));
       createAndAppend(
           new LazyProtocolProducerDecorator(() -> builder.createProducer(null, getFactory())));
       return builder;

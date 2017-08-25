@@ -33,7 +33,8 @@ import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNu
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
 
-public class ExponentiationOpenExponent implements ComputationBuilder<SInt> {
+public class ExponentiationOpenExponent implements
+    ComputationBuilder<SInt, SequentialNumericBuilder> {
 
   private Computation<SInt> base;
   private BigInteger exponent;

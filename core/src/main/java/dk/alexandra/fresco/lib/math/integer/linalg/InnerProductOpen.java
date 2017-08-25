@@ -10,7 +10,7 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
-public class InnerProductOpen implements ComputationBuilder<SInt> {
+public class InnerProductOpen implements ComputationBuilder<SInt, SequentialNumericBuilder> {
 
   private final List<BigInteger> aVector;
   private final List<Computation<SInt>> bVector;

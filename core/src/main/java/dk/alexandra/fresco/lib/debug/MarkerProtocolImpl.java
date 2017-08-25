@@ -32,7 +32,7 @@ import java.io.PrintStream;
  * When evaluated, prints out the message from the constructor.
  *
  */
-public class MarkerProtocolImpl implements ComputationBuilder<Void> {
+public class MarkerProtocolImpl implements ComputationBuilder<Void, SequentialNumericBuilder> {
 
   private final String message;
   private final PrintStream output;

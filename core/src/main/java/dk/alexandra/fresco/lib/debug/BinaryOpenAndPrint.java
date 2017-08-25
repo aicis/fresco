@@ -24,7 +24,6 @@
 package dk.alexandra.fresco.lib.debug;
 
 import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.builder.binary.ComputationBuilderBinary;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary.SequentialBinaryBuilder;
 import dk.alexandra.fresco.framework.value.SBool;
 import java.io.PrintStream;
@@ -32,7 +31,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class BinaryOpenAndPrint implements ComputationBuilderBinary<Void> {
+public class BinaryOpenAndPrint implements
+    dk.alexandra.fresco.framework.builder.ComputationBuilder<Void, SequentialBinaryBuilder> {
 
   private final List<Computation<SBool>> string;
   private final PrintStream output;

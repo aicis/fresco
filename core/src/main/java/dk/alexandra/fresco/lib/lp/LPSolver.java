@@ -50,7 +50,7 @@ import org.slf4j.LoggerFactory;
  * be done more efficiently than general matrix multiplication.
  * </p>
  */
-public class LPSolver implements ComputationBuilder<LPOutput> {
+public class LPSolver implements ComputationBuilder<LPOutput, SequentialNumericBuilder> {
 
   public enum PivotRule {
     BLAND, DANZIG

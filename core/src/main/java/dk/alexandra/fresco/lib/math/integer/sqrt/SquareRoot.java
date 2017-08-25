@@ -39,7 +39,7 @@ import java.math.BigInteger;
  *
  * @author Jonas Lindstrøm (jonas.lindstrom@alexandra.dk)
  */
-public class SquareRoot implements ComputationBuilder<SInt> {
+public class SquareRoot implements ComputationBuilder<SInt, SequentialNumericBuilder> {
 
   // Input
   private final Computation<SInt> input;

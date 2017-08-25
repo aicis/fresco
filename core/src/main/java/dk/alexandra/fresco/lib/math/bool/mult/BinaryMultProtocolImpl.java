@@ -26,14 +26,11 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.math.bool.mult;
 
+import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary.SequentialBinaryBuilder;
+import dk.alexandra.fresco.framework.value.SBool;
 import java.util.ArrayList;
 import java.util.List;
-
-import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.builder.binary.ComputationBuilderBinary;
-import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary.SequentialBinaryBuilder;
-
-import dk.alexandra.fresco.framework.value.SBool;
 
 /**
  * This class implements a Binary Multiplication protocol by doing the school method.
@@ -42,7 +39,8 @@ import dk.alexandra.fresco.framework.value.SBool;
  *
  * @author Kasper Damgaard
  */
-public class BinaryMultProtocolImpl implements ComputationBuilderBinary<List<Computation<SBool>>> {
+public class BinaryMultProtocolImpl implements
+    dk.alexandra.fresco.framework.builder.ComputationBuilder<List<Computation<SBool>>, SequentialBinaryBuilder> {
 
   private List<Computation<SBool>> lefts, rights;
 

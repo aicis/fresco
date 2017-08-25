@@ -38,7 +38,7 @@ import java.util.List;
  * Computes the varians from a list of SInt values and the previously
  * computed {@link Mean mean}.
  */
-public class Variance implements ComputationBuilder<SInt> {
+public class Variance implements ComputationBuilder<SInt, SequentialNumericBuilder> {
 
   private final List<Computation<SInt>> data;
   private final Computation<SInt> mean;

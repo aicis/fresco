@@ -414,8 +414,8 @@ public class BasicArithmeticTests {
                   BigInteger.valueOf(0), BigInteger.valueOf(1), BigInteger.valueOf(0),
                   BigInteger.valueOf(0), BigInteger.valueOf(0), BigInteger.valueOf(0),
                   BigInteger.valueOf(1), BigInteger.valueOf(1));
-              SequentialNumericBuilder seq = ProtocolBuilderNumeric
-                  .createApplicationRoot((BuilderFactoryNumeric) factoryProducer);
+              SequentialNumericBuilder seq = ((BuilderFactoryNumeric) factoryProducer)
+                  .createSequential();
               NumericBuilder numeric = seq.numeric();
               List<Computation<SInt>> ns =
                   bns.stream().map(numeric::known).collect(Collectors.toList());

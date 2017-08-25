@@ -34,7 +34,7 @@ import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import java.math.BigInteger;
 
-public class MiMCEncryption implements ComputationBuilder<SInt> {
+public class MiMCEncryption implements ComputationBuilder<SInt, SequentialNumericBuilder> {
 
   // TODO: require that our modulus - 1 and 3 are co-prime
 

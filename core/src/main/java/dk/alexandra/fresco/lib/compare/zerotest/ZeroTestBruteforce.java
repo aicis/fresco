@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class ZeroTestBruteforce implements ComputationBuilder<SInt> {
+public class ZeroTestBruteforce implements ComputationBuilder<SInt, SequentialNumericBuilder> {
 
   private final BuilderFactoryNumeric factoryNumeric;
   private final int maxLength;

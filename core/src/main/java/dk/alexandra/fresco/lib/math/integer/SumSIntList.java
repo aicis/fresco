@@ -11,7 +11,7 @@ import java.util.List;
 /**
  * ComputationBuilder for summing a list of SInts
  */
-public class SumSIntList implements ComputationBuilder<SInt> {
+public class SumSIntList implements ComputationBuilder<SInt, SequentialNumericBuilder> {
 
   private final List<Computation<SInt>> input;
 

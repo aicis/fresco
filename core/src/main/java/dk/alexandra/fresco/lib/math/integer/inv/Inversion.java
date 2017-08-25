@@ -33,7 +33,7 @@ import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNu
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
 
-public class Inversion implements ComputationBuilder<SInt> {
+public class Inversion implements ComputationBuilder<SInt, SequentialNumericBuilder> {
 
   private final Computation<SInt> x;
 

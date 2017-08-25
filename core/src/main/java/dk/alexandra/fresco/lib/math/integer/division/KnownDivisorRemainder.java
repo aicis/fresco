@@ -18,7 +18,7 @@ import java.math.BigInteger;
  *
  * @author Jonas Lindstrøm (jonas.lindstrom@alexandra.dk)
  */
-public class KnownDivisorRemainder implements ComputationBuilder<SInt> {
+public class KnownDivisorRemainder implements ComputationBuilder<SInt, SequentialNumericBuilder> {
 
   private final Computation<SInt> dividend;
   private final BigInteger divisor;

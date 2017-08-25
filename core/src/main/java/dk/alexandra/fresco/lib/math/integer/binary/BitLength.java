@@ -32,7 +32,7 @@ import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNu
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
 
-public class BitLength implements ComputationBuilder<SInt> {
+public class BitLength implements ComputationBuilder<SInt, SequentialNumericBuilder> {
 
   private Computation<SInt> input;
   private int maxBitLength;

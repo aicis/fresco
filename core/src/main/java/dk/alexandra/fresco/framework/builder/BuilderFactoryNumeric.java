@@ -1,6 +1,7 @@
 package dk.alexandra.fresco.framework.builder;
 
 import dk.alexandra.fresco.framework.BuilderFactory;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.ParallelNumericBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
 import dk.alexandra.fresco.lib.compare.DefaultComparisonBuilder;
 import dk.alexandra.fresco.lib.compare.MiscOIntGenerators;
@@ -18,7 +19,8 @@ import dk.alexandra.fresco.lib.math.integer.division.DefaultAdvancedNumericBuild
  * </ul>
  * Other builders have defaults, based on the raw methods, but can be overridden.
  */
-public interface BuilderFactoryNumeric extends BuilderFactory<SequentialNumericBuilder> {
+public interface BuilderFactoryNumeric extends
+    BuilderFactory<SequentialNumericBuilder, ParallelNumericBuilder> {
 
   int MAGIC_SECURE_NUMBER = 60;
 
@@ -36,12 +38,17 @@ public interface BuilderFactoryNumeric extends BuilderFactory<SequentialNumericB
     return new DefaultAdvancedNumericBuilder(this, builder);
   }
 
-  @Override
-  default SequentialNumericBuilder createProtocolBuilder() {
-    return ProtocolBuilderNumeric.createApplicationRoot(this);
-  }
-
   default UtilityBuilder createUtilityBuilder(ProtocolBuilderNumeric builder) {
     return new DefaultUtilityBuilder(builder);
+  }
+
+  @Override
+  default SequentialNumericBuilder createSequential() {
+    return new SequentialNumericBuilder(this);
+  }
+
+  @Override
+  default ParallelNumericBuilder createParallel() {
+    return new ParallelNumericBuilder(this);
   }
 }

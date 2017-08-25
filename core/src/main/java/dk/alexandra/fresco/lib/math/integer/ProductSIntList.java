@@ -11,7 +11,7 @@ import java.util.List;
 /**
  * ComputationBuilder for multiplying a list of SInts
  */
-public class ProductSIntList implements ComputationBuilder<SInt> {
+public class ProductSIntList implements ComputationBuilder<SInt, SequentialNumericBuilder> {
 
   private final List<Computation<SInt>> input;
 

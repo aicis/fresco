@@ -44,7 +44,7 @@ import java.util.List;
  * Guaranteed return value is the last value where the corresponding key matches
  * </p>
  */
-public class LinearLookUp implements ComputationBuilder<SInt> {
+public class LinearLookUp implements ComputationBuilder<SInt, SequentialNumericBuilder> {
 
   private final Computation<SInt> lookUpKey;
   private final ArrayList<Computation<SInt>> keys;

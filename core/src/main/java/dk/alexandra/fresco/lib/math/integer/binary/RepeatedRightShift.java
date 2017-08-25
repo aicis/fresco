@@ -35,7 +35,8 @@ import dk.alexandra.fresco.framework.value.SInt;
 import java.util.ArrayList;
 import java.util.List;
 
-public class RepeatedRightShift implements ComputationBuilder<RightShiftResult> {
+public class RepeatedRightShift implements
+    ComputationBuilder<RightShiftResult, SequentialNumericBuilder> {
 
   private final int shifts;
   private final boolean calculateRemainders;

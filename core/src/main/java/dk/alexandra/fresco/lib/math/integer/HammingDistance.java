@@ -13,7 +13,7 @@ import java.util.List;
  *
  * @author ttoft
  */
-public class HammingDistance implements ComputationBuilder<SInt> {
+public class HammingDistance implements ComputationBuilder<SInt, SequentialNumericBuilder> {
 
   private final List<Computation<SInt>> aBits;
   private final BigInteger b;

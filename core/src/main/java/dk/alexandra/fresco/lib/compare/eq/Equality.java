@@ -36,7 +36,7 @@ import dk.alexandra.fresco.framework.value.SInt;
  *
  * @author ttoft
  */
-public class Equality implements ComputationBuilder<SInt> {
+public class Equality implements ComputationBuilder<SInt, SequentialNumericBuilder> {
 
   // params
   private final int bitLength;

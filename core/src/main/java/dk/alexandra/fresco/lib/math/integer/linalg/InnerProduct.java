@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.RandomAccess;
 
-public class InnerProduct implements ComputationBuilder<SInt> {
+public class InnerProduct implements ComputationBuilder<SInt, SequentialNumericBuilder> {
 
   private final List<Computation<SInt>> aVector;
   private final List<Computation<SInt>> bVector;

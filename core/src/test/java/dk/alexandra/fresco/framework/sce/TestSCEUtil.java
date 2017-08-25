@@ -26,51 +26,52 @@
  *******************************************************************************/
 package dk.alexandra.fresco.framework.sce;
 
+import dk.alexandra.fresco.framework.sce.util.Util;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-
 import org.hamcrest.core.Is;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
-import dk.alexandra.fresco.framework.sce.util.Util;
+public class TestSCEUtil {
 
-public class TestSCEUtil{
-
-  @Test(expected = InstantiationException.class) 
-  public void testConstructor() throws InstantiationException{
+  @Test(expected = InstantiationException.class)
+  public void testConstructor() throws InstantiationException {
     Util util = new Util();
   }
-  
+
   @Test
   public void testGetInputStreamUtilClass() throws IOException {
     InputStream is = Util.getInputStream("");
-    Assert.assertThat(is.available(), Is.is("Util.class".length()+1));
+    Assert.assertThat(is.available(), Is.is("Util.class".length() + 1));
   }
 
   @Test
   public void testGetInputStreamNonExistingResource() throws IOException {
-    try{
+    try {
       InputStream is = Util.getInputStream("resources/circuits/md5.txt");
-    }catch(FileNotFoundException e) {
-      Assert.assertThat(e.getMessage(), Is.is("Could not locate the resource resources/circuits/md5.txt"));  
+    } catch (FileNotFoundException e) {
+      Assert.assertThat(e.getMessage(),
+          Is.is("Could not locate the resource resources/circuits/md5.txt"));
     }
   }
-  
+
   @Test
-  public void testGetInputStreamExistingResource(){
-    try{
+  @Ignore
+  public void testGetInputStreamExistingResource() {
+    try {
       InputStream is = Util.getInputStream("src/test/resources/circuits/md5.txt");
       try {
         Assert.assertThat(is.available(), Is.is(1781599)); // Magicnumber relates to the file above
       } catch (IOException e) {
         Assert.fail();
       }
-    }catch(FileNotFoundException e) {
+    } catch (FileNotFoundException e) {
       Assert.fail();
     }
   }
-  
-  
+
+
 }

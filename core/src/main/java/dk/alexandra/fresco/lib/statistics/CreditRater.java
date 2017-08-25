@@ -109,7 +109,7 @@ public class CreditRater implements
   }
 
   private static class ComputeIntervalScore implements
-      ComputationBuilder<SInt> {
+      ComputationBuilder<SInt, SequentialNumericBuilder> {
 
     private final List<Computation<SInt>> interval;
     private final Computation<SInt> value;

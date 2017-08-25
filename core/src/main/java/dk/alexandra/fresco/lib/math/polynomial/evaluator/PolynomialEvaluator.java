@@ -32,7 +32,7 @@ import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNu
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.math.polynomial.Polynomial;
 
-public class PolynomialEvaluator implements ComputationBuilder<SInt> {
+public class PolynomialEvaluator implements ComputationBuilder<SInt, SequentialNumericBuilder> {
 
   private final Computation<SInt> x;
   private final Polynomial p;

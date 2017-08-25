@@ -24,6 +24,7 @@
 package dk.alexandra.fresco.suite.dummy.bool;
 
 import dk.alexandra.fresco.framework.BuilderFactory;
+import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary.ParallelBinaryBuilder;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary.SequentialBinaryBuilder;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
@@ -55,12 +56,12 @@ public class DummyBooleanProtocolSuite
 
 
   @Override
-  public BuilderFactory<SequentialBinaryBuilder> init(ResourcePoolImpl resourcePool) {
-    BuilderFactory<SequentialBinaryBuilder> b =
+  public BuilderFactory<SequentialBinaryBuilder, ParallelBinaryBuilder> init(
+      ResourcePoolImpl resourcePool) {
+    BuilderFactory<SequentialBinaryBuilder, ParallelBinaryBuilder> b =
         new DummyBooleanBuilderFactory(new DummyBooleanFactory());
     return b;
   }
-
 
 
 }

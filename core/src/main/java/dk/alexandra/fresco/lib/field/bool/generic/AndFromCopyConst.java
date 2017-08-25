@@ -27,7 +27,6 @@
 package dk.alexandra.fresco.lib.field.bool.generic;
 
 import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.builder.binary.ComputationBuilderBinary;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary.SequentialBinaryBuilder;
 import dk.alexandra.fresco.framework.value.SBool;
 
@@ -40,7 +39,8 @@ import dk.alexandra.fresco.framework.value.SBool;
  *
  * if (b) then a ELSE false 
  */
-public class AndFromCopyConst implements ComputationBuilderBinary<SBool> {
+public class AndFromCopyConst implements
+    dk.alexandra.fresco.framework.builder.ComputationBuilder<SBool, SequentialBinaryBuilder> {
 
   private Computation<SBool> inA;
   private boolean inB;

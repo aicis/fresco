@@ -48,7 +48,7 @@ import java.math.BigInteger;
  * regular integer division, this division will always truncate the result instead of rounding.
  */
 public class SecretSharedDivisor
-    implements ComputationBuilder<SInt> {
+    implements ComputationBuilder<SInt, SequentialNumericBuilder> {
 
   private Computation<SInt> numerator;
   private Computation<SInt> denominator;

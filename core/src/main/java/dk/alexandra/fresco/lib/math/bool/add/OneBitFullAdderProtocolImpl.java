@@ -27,12 +27,12 @@
 package dk.alexandra.fresco.lib.math.bool.add;
 
 import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.builder.binary.ComputationBuilderBinary;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary.SequentialBinaryBuilder;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SBool;
 
-public class OneBitFullAdderProtocolImpl implements ComputationBuilderBinary<Pair<SBool, SBool>> {
+public class OneBitFullAdderProtocolImpl implements
+    dk.alexandra.fresco.framework.builder.ComputationBuilder<Pair<SBool, SBool>, SequentialBinaryBuilder> {
 
   private Computation<SBool> a, b, c;
   private Computation<SBool> xor1, xor2, xor3, and1, and2 = null;

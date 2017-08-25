@@ -34,7 +34,7 @@ import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
 import java.util.Collections;
 
-public class RightShift implements ComputationBuilder<RightShiftResult> {
+public class RightShift implements ComputationBuilder<RightShiftResult, SequentialNumericBuilder> {
 
   private final boolean calculateRemainders;
   // Input

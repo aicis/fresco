@@ -56,7 +56,7 @@ public class SpdzProtocolSuite implements
   }
 
   @Override
-  public BuilderFactory<SequentialNumericBuilder> init(
+  public BuilderFactory<SequentialNumericBuilder, ?> init(
       SpdzResourcePool resourcePool) {
     return new SpdzBuilder(
         new SpdzFactory(resourcePool.getStore(), resourcePool.getMyId(), maxBitLength));

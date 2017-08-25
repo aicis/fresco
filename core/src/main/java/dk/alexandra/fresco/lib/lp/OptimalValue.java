@@ -37,7 +37,7 @@ import java.util.ArrayList;
  * NativeProtocol extracting the optimal value from a {@link LPTableau} and an update
  * matrix representing a terminated Simplex method.
  */
-public class OptimalValue implements ComputationBuilder<SInt> {
+public class OptimalValue implements ComputationBuilder<SInt, SequentialNumericBuilder> {
 
   private final Matrix<Computation<SInt>> updateMatrix;
   private final Computation<SInt> pivot;

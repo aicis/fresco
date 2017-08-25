@@ -84,14 +84,14 @@ public class TinyTablesProtocolSuite
   }
 
   @Override
-  public BuilderFactory<SequentialBinaryBuilder> init(ResourcePoolImpl resourcePool) {
+  public BuilderFactory<SequentialBinaryBuilder, ?> init(ResourcePoolImpl resourcePool) {
     try {
       this.storage = loadTinyTables(tinyTablesFile);
     } catch (ClassNotFoundException ignored) {
     } catch (IOException e) {
       logger.error("Failed to load TinyTables: " + e.getMessage());
     }
-    BuilderFactory<SequentialBinaryBuilder> b =
+    BuilderFactory<SequentialBinaryBuilder, ?> b =
         new TinyTablesBuilderFactory(new TinyTablesFactory());
     return b;
   }

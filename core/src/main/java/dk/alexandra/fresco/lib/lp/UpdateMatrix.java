@@ -38,7 +38,8 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
-public class UpdateMatrix implements ComputationBuilder<Matrix<Computation<SInt>>> {
+public class UpdateMatrix implements
+    ComputationBuilder<Matrix<Computation<SInt>>, SequentialNumericBuilder> {
 
   private Matrix<Computation<SInt>> oldUpdateMatrix;
   private List<Computation<SInt>> L;

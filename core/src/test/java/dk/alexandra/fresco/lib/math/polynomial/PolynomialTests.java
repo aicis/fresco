@@ -35,14 +35,11 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.NumericBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
 import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
-import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.math.polynomial.evaluator.PolynomialEvaluator;
 import java.math.BigInteger;
-import org.hamcrest.core.Is;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -64,8 +61,7 @@ public class PolynomialTests {
           TestApplication app = new TestApplication() {
             @Override
             public ProtocolProducer prepareApplication(BuilderFactory provider) {
-              SequentialNumericBuilder root = ProtocolBuilderNumeric
-                  .createApplicationRoot((BuilderFactoryNumeric) provider);
+              SequentialNumericBuilder root = ((BuilderFactoryNumeric) provider).createSequential();
 
               NumericBuilder numeric = root.numeric();
               List<Computation<SInt>> secretCoefficients =

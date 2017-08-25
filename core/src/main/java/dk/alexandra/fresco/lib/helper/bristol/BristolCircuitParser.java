@@ -25,7 +25,6 @@ package dk.alexandra.fresco.lib.helper.bristol;
 
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.MPCException;
-import dk.alexandra.fresco.framework.builder.binary.ComputationBuilderBinary;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary.SequentialBinaryBuilder;
 import dk.alexandra.fresco.framework.value.SBool;
 import java.io.BufferedReader;
@@ -47,7 +46,8 @@ import java.util.stream.Stream;
  *
  * Reading is done in a streamed fashion.
  */
-public class BristolCircuitParser implements ComputationBuilderBinary<List<SBool>> {
+public class BristolCircuitParser implements
+    dk.alexandra.fresco.framework.builder.ComputationBuilder<List<SBool>, SequentialBinaryBuilder> {
 
   private Stream<String> lines;
   private Iterator<String> linesIter;

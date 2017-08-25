@@ -1,9 +1,8 @@
 package dk.alexandra.fresco.framework.builder;
 
 import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
 
-public interface ComputationBuilder<OutputT> {
+public interface ComputationBuilder<OutputT, SequentialBuilderT extends ProtocolBuilder<SequentialBuilderT>> {
 
   /**
    * Applies this function to the given argument.
@@ -11,6 +10,6 @@ public interface ComputationBuilder<OutputT> {
    * @param builder the function argument
    * @return the function result
    */
-  Computation<OutputT> build(SequentialNumericBuilder builder);
+  Computation<OutputT> build(SequentialBuilderT builder);
 
 }

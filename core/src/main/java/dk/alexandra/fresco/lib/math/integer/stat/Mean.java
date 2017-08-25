@@ -37,7 +37,7 @@ import java.util.List;
 /**
  * This protocol calculates the arithmetic mean of a data set.
  */
-public class Mean implements ComputationBuilder<SInt> {
+public class Mean implements ComputationBuilder<SInt, SequentialNumericBuilder> {
 
   private final List<Computation<SInt>> data;
   private final int degreesOfFreedom;

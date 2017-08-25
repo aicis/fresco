@@ -32,7 +32,7 @@ import dk.alexandra.fresco.framework.builder.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
 import dk.alexandra.fresco.framework.value.SInt;
 
-public class ConditionalSelect implements ComputationBuilder<SInt> {
+public class ConditionalSelect implements ComputationBuilder<SInt, SequentialNumericBuilder> {
 
   private final Computation<SInt> a, b, selector;
 
