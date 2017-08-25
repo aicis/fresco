@@ -5,6 +5,7 @@ import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
+import dk.alexandra.fresco.framework.builder.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
 import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
@@ -16,6 +17,7 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.junit.Assert;
 
 public class ArithmeticDebugTests {
@@ -39,9 +41,12 @@ public class ArithmeticDebugTests {
                 @Override
                 public Computation<Void> prepareApplication(SequentialNumericBuilder producer) {
                   return producer.seq(seq -> {
+                    NumericBuilder numeric = seq.numeric();
                     List<Computation<SInt>> toPrint =
-                        seq.numeric().known(Arrays.asList(new BigInteger[]{BigInteger.ONE,
-                            BigInteger.TEN, BigInteger.ZERO, BigInteger.ONE}));
+                        Arrays.stream(
+                            new BigInteger[]{BigInteger.ONE, BigInteger.TEN, BigInteger.ZERO,
+                                BigInteger.ONE}
+                        ).map((n) -> numeric.input(n, 1)).collect(Collectors.toList());
                     return () -> toPrint;
                   }).seq((inputs, seq) -> {
                     seq.utility().openAndPrint("testNumber", inputs.get(0), stream);
