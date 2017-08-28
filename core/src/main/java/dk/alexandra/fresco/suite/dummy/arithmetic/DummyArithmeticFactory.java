@@ -24,9 +24,7 @@
 
 package dk.alexandra.fresco.suite.dummy.arithmetic;
 
-import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.NativeProtocol;
-import dk.alexandra.fresco.framework.network.SCENetwork;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import java.math.BigInteger;
@@ -69,23 +67,6 @@ public class DummyArithmeticFactory implements BasicNumericFactory{
       res[i] = this.getSInt();
     }
     return res;
-  }
-  
-  public Computation<SInt> getSInt(BigInteger i, SInt si) {
-    return new DummyArithmeticNativeProtocol<SInt>() {
-
-      @Override
-      public EvaluationStatus evaluate(int round, DummyArithmeticResourcePool resourcePool,
-          SCENetwork network) {
-        ((DummyArithmeticSInt) si).setValue(i);
-        return EvaluationStatus.IS_DONE;
-      }
-
-      @Override
-      public SInt out() {
-        return si;
-      }
-    };
   }
 
   @Override
