@@ -24,6 +24,7 @@
 package dk.alexandra.fresco.lib.field.bool.generic;
 
 import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.builder.ComputationBuilder;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.value.SBool;
 
@@ -31,20 +32,18 @@ import dk.alexandra.fresco.framework.value.SBool;
  * An efficient way of OR'ing an SBool with an OBool if we can construct SBools of constants and if
  * we can copy protocols.
  */
-public class OrFromCopyConst implements
-    dk.alexandra.fresco.framework.builder.ComputationBuilder<SBool, ProtocolBuilderBinary> {
+public class OrFromPublicValue implements ComputationBuilder<SBool, ProtocolBuilderBinary> {
 
   private Computation<SBool> inA;
   private boolean inB;
 
-  public OrFromCopyConst(Computation<SBool> inA, boolean inB) {
+  public OrFromPublicValue(Computation<SBool> inA, boolean inB) {
     this.inA = inA;
     this.inB = inB;
   }
 
   @Override
   public Computation<SBool> buildComputation(ProtocolBuilderBinary builder) {
-
     if (inB) {
       return builder.binary().known(true);
     } else {

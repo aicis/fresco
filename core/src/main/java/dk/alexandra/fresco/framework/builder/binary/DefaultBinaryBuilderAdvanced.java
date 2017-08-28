@@ -7,9 +7,9 @@ import dk.alexandra.fresco.lib.collections.sort.KeyedCompareAndSwapProtocol;
 import dk.alexandra.fresco.lib.collections.sort.OddEvenMergeProtocol;
 import dk.alexandra.fresco.lib.collections.sort.OddEvenMergeProtocolRec;
 import dk.alexandra.fresco.lib.field.bool.ConditionalSelect;
-import dk.alexandra.fresco.lib.field.bool.generic.AndFromCopyConst;
+import dk.alexandra.fresco.lib.field.bool.generic.AndFromPublicValue;
 import dk.alexandra.fresco.lib.field.bool.generic.NandFromAndAndNot;
-import dk.alexandra.fresco.lib.field.bool.generic.OrFromCopyConst;
+import dk.alexandra.fresco.lib.field.bool.generic.OrFromPublicValue;
 import dk.alexandra.fresco.lib.field.bool.generic.OrFromXorAnd;
 import dk.alexandra.fresco.lib.field.bool.generic.XnorFromXorAndNot;
 import dk.alexandra.fresco.lib.math.bool.add.BitIncrementerProtocolImpl;
@@ -36,7 +36,7 @@ public class DefaultBinaryBuilderAdvanced implements BinaryBuilderAdvanced {
 
   @Override
   public Computation<SBool> or(Computation<SBool> left, boolean right) {
-    return builder.seq(new OrFromCopyConst(left, right));
+    return builder.seq(new OrFromPublicValue(left, right));
   }
 
   @Override
@@ -87,7 +87,7 @@ public class DefaultBinaryBuilderAdvanced implements BinaryBuilderAdvanced {
 
   @Override
   public Computation<SBool> and(Computation<SBool> left, boolean right) {
-    return builder.seq(new AndFromCopyConst(left, right));
+    return builder.seq(new AndFromPublicValue(left, right));
   }
 
   @Override

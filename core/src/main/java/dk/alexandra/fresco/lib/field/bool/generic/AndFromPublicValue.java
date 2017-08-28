@@ -24,6 +24,7 @@
 package dk.alexandra.fresco.lib.field.bool.generic;
 
 import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.builder.ComputationBuilder;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.value.SBool;
 
@@ -36,20 +37,18 @@ import dk.alexandra.fresco.framework.value.SBool;
  *
  * if (b) then a ELSE false
  */
-public class AndFromCopyConst implements
-    dk.alexandra.fresco.framework.builder.ComputationBuilder<SBool, ProtocolBuilderBinary> {
+public class AndFromPublicValue implements ComputationBuilder<SBool, ProtocolBuilderBinary> {
 
   private Computation<SBool> inA;
   private boolean inB;
 
-  public AndFromCopyConst(Computation<SBool> inA, boolean inB) {
+  public AndFromPublicValue(Computation<SBool> inA, boolean inB) {
     this.inA = inA;
     this.inB = inB;
   }
 
   @Override
   public Computation<SBool> buildComputation(ProtocolBuilderBinary builder) {
-
     if (inB) {
       return inA;
     } else {
