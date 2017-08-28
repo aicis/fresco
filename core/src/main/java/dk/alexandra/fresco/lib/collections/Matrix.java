@@ -51,6 +51,18 @@ public class Matrix<T> {
       this.matrix.add(rowBuilder.apply(i));
     }
   }
+  
+  /**
+   * Clones matrix.
+   * 
+   * @param other
+   */
+  public Matrix(Matrix<T> other) {
+    // TODO: double-check
+    this.width = other.getWidth();
+    this.height = other.getHeight();
+    this.matrix = new ArrayList<>(other.getRows());
+  }
 
   /**
    * Creates a matrix directly from an ArrayList of ArrayLists.

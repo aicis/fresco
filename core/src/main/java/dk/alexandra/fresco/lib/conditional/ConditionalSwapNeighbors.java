@@ -23,47 +23,48 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.conditional;
 
-import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
 
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.builder.ComputationBuilderParallel;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.ParallelNumericBuilder;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
+import dk.alexandra.fresco.lib.collections.Matrix;
 
-public class ConditionalSwap
-    implements ComputationBuilderParallel<Pair<Computation<SInt>, Computation<SInt>>> {
+public class ConditionalSwapNeighbors
+    implements ComputationBuilderParallel<Matrix<Computation<SInt>>> {
 
-  final private Computation<SInt> a, b, swapper;
+  final private List<Computation<SInt>> swappers;
+  final private Matrix<Computation<SInt>> rows;
 
-  /**
-   * Swaps a and b based on swapper. Swapper must be 0 or 1.
-   * 
-   * If swapper is 1 the values are swapped (in place). Otherwise, original order.
-   * 
-   * @param swapper
-   * @param a
-   * @param b
-   */
-  public ConditionalSwap(Computation<SInt> swapper, Computation<SInt> a, Computation<SInt> b) {
-    this.swapper = swapper;
-    this.a = a;
-    this.b = b;
-  }
-
-  public ConditionalSwap(Computation<SInt> swapper,
-      Pair<Computation<SInt>, Computation<SInt>> pair) {
-    this.swapper = swapper;
-    this.a = pair.getFirst();
-    this.b = pair.getSecond();
+  public ConditionalSwapNeighbors(List<Computation<SInt>> swappers,
+      Matrix<Computation<SInt>> rows) {
+    super();
+    this.swappers = swappers;
+    this.rows = rows;
   }
 
   @Override
-  public Computation<Pair<Computation<SInt>, Computation<SInt>>> build(
-      ParallelNumericBuilder builder) {
-    Computation<SInt> updatedA = builder.createSequentialSub(
-        new ConditionalSelect(builder.numeric().sub(BigInteger.ONE, swapper), a, b));
-    Computation<SInt> updatedB = builder.createSequentialSub(new ConditionalSelect(swapper, a, b));
-    return () -> new Pair<>(updatedA, updatedB);
+  public Computation<Matrix<Computation<SInt>>> build(ParallelNumericBuilder par) {
+    List<Computation<Pair<ArrayList<Computation<SInt>>, ArrayList<Computation<SInt>>>>> pairs =
+        new ArrayList<>();
+    int swapperIdx = 0;
+    for (int i = 0; i < rows.getHeight() - 1; i += 2) {
+      Computation<Pair<ArrayList<Computation<SInt>>, ArrayList<Computation<SInt>>>> pair =
+          par.createSequentialSub(
+              new ConditionalSwapRows(swappers.get(swapperIdx), rows.getRow(i), rows.getRow(i + 1)));
+      swapperIdx++;
+      pairs.add(pair);
+    }
+    return () -> {
+      ArrayList<ArrayList<Computation<SInt>>> temp = new ArrayList<>();
+      for (Computation<Pair<ArrayList<Computation<SInt>>, ArrayList<Computation<SInt>>>> computation : pairs) {
+        temp.add(computation.out().getFirst());
+        temp.add(computation.out().getSecond());
+      }
+      return new Matrix<>(rows.getHeight(), rows.getWidth(), temp);
+    };
   }
 }

@@ -1,5 +1,6 @@
 package dk.alexandra.fresco.lib.collections;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -29,13 +30,31 @@ public class MatrixUtils {
    */
   public <T> Matrix<T> unwrapMatrix(Matrix<Computation<T>> mat) {
     ArrayList<ArrayList<T>> tmp = new ArrayList<>();
-    // unwrap Computations to get enclosed data
-    // hey, at least it's not two nested maps...
     for (ArrayList<Computation<T>> row : mat.getRows()) {
       tmp.add(row.stream().map(Computation::out).collect(Collectors.toCollection(ArrayList::new)));
     }
     int h = tmp.size();
     int w = h > 0 ? tmp.get(0).size() : 0;
     return new Matrix<>(h, w, tmp);
+  }
+
+  /**
+   * Create matrix of given dimensions filled with values from 0 to numRows * numCols.
+   * 
+   * @param numRows
+   * @param numCols
+   * @return
+   */
+  public Matrix<BigInteger> getInputMatrix(int numRows, int numCols) {
+    ArrayList<ArrayList<BigInteger>> mat = new ArrayList<>();
+    int counter = 0;
+    for (int r = 0; r < numRows; r++) {
+      ArrayList<BigInteger> row = new ArrayList<>();
+      for (int c = 0; c < numCols; c++) {
+        row.add(BigInteger.valueOf(counter++));
+      }
+      mat.add(row);
+    }
+    return new Matrix<>(numRows, numCols, mat);
   }
 }

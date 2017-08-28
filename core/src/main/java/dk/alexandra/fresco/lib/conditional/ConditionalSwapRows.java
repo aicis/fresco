@@ -27,49 +27,44 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 
 import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.builder.ComputationBuilderParallel;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.ParallelNumericBuilder;
+import dk.alexandra.fresco.framework.builder.ComputationBuilder;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
+import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.collections.Matrix;
 
-public class ConditionalSwapRows implements ComputationBuilderParallel<Matrix<Computation<SInt>>> {
+public class ConditionalSwapRows implements
+    ComputationBuilder<Pair<ArrayList<Computation<SInt>>, ArrayList<Computation<SInt>>>> {
 
   final private Computation<SInt> swapper;
-  final private Matrix<Computation<SInt>> mat;
-  final private int rowIdx, otherRowIdx;
   final private ArrayList<Computation<SInt>> row, otherRow;
 
   /**
    * Swaps rows in matrix based on swapper. Swapper must be 0 or 1.
    * 
-   * If swapper is 1 the rows are swapped (in place). Otherwise, original order.
+   * If swapper is 1 the rows are swapped. Otherwise, original order.
    * 
    * @param swapper
    * @param mat
    * @param rowIdx
    * @param otherRowIdx
    */
-  public ConditionalSwapRows(Computation<SInt> swapper, Matrix<Computation<SInt>> mat, int rowIdx,
-      int otherRowIdx) {
+  public ConditionalSwapRows(Computation<SInt> swapper, ArrayList<Computation<SInt>> row,
+      ArrayList<Computation<SInt>> otherRow) {
     this.swapper = swapper;
-    this.mat = mat;
-    this.rowIdx = rowIdx;
-    this.otherRowIdx = otherRowIdx;
-    this.row = mat.getRow(this.rowIdx);
-    this.otherRow = mat.getRow(this.otherRowIdx);
+    this.row = row;
+    this.otherRow = otherRow;
   }
 
   @Override
-  public Computation<Matrix<Computation<SInt>>> build(ParallelNumericBuilder builder) {
+  public Computation<Pair<ArrayList<Computation<SInt>>, ArrayList<Computation<SInt>>>> build(
+      SequentialNumericBuilder builder) {
+    Computation<SInt> flipped = builder.numeric().sub(BigInteger.ONE, swapper);
     Computation<ArrayList<Computation<SInt>>> updatedRow =
-        new ConditionalSelectRow(builder.numeric().sub(BigInteger.ONE, swapper), row, otherRow)
-            .build(builder);
+        builder.createParallelSub(new ConditionalSelectRow(flipped, row, otherRow));
     Computation<ArrayList<Computation<SInt>>> updatedOtherRow =
-        new ConditionalSelectRow(swapper, row, otherRow).build(builder);
+        builder.createParallelSub(new ConditionalSelectRow(swapper, row, otherRow));
     return () -> {
-      mat.setRow(rowIdx, updatedRow.out());
-      mat.setRow(otherRowIdx, updatedOtherRow.out());
-      return mat;
+      return new Pair<>(updatedRow.out(), updatedOtherRow.out());
     };
   }
 }
