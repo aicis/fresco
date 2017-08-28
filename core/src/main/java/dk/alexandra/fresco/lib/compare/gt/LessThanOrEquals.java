@@ -29,7 +29,6 @@ package dk.alexandra.fresco.lib.compare.gt;
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.builder.ComputationBuilder;
 import dk.alexandra.fresco.framework.builder.numeric.AdvancedNumericBuilder;
-import dk.alexandra.fresco.framework.builder.numeric.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.util.Pair;
@@ -41,13 +40,11 @@ import java.util.List;
 public class LessThanOrEquals implements ComputationBuilder<SInt, ProtocolBuilderNumeric> {
 
   public LessThanOrEquals(int bitLength, int securityParameter,
-      Computation<SInt> x, Computation<SInt> y,
-      BuilderFactoryNumeric factoryProducer) {
+      Computation<SInt> x, Computation<SInt> y) {
     this.bitLength = bitLength;
     this.securityParameter = securityParameter;
     this.x = x;
     this.y = y;
-    this.factoryProducer = factoryProducer;
   }
 
   // params etc
@@ -55,8 +52,6 @@ public class LessThanOrEquals implements ComputationBuilder<SInt, ProtocolBuilde
   private final int securityParameter;
   private final Computation<SInt> x;
   private final Computation<SInt> y;
-
-  private final BuilderFactoryNumeric factoryProducer;
 
 
   @Override
@@ -150,8 +145,7 @@ public class LessThanOrEquals implements ComputationBuilder<SInt, ProtocolBuilde
       // [eqResult]? BOT : TOP (for m and r) (store as mPrime,rPrime)
 
       //TODO rPrime and mPrime can be computed in parallel
-      Computation<SInt> rPrime = seq
-          .createSequentialSub(new ConditionalSelect(eqResult, rBottom, rTop));
+      Computation<SInt> rPrime = seq.seq(new ConditionalSelect(eqResult, rBottom, rTop));
 
       NumericBuilder numeric = seq.numeric();
       Computation<SInt> negEqResult = numeric.sub(one, eqResult);
@@ -172,14 +166,13 @@ public class LessThanOrEquals implements ComputationBuilder<SInt, ProtocolBuilde
       } else {
         // compare the half-length inputs
         int nextBitLength = (bitLength + 1) / 2;
-        subComparisonResult =
-            seq.createSequentialSub(
-                new LessThanOrEquals(
-                    nextBitLength,
-                    securityParameter,
-                    rPrime,
-                    mPrime,
-                    factoryProducer));
+        subComparisonResult = seq.seq(
+            new LessThanOrEquals(
+                nextBitLength,
+                securityParameter,
+                rPrime,
+                mPrime
+            ));
       }
       return () -> new Object[]{subComparisonResult, mBar, rBar, z};
     }).seq((Object[] input, ProtocolBuilderNumeric seq) -> {

@@ -30,7 +30,6 @@ import dk.alexandra.fresco.framework.TestApplication;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
 import dk.alexandra.fresco.framework.builder.numeric.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
@@ -73,8 +72,8 @@ public class LinAlgTests {
                 System.out.println(input1);
                 List<Computation<SInt>> input2 = data2.stream().map(BigInteger::valueOf)
                     .map(sIntFactory::known).collect(Collectors.toList());
-                Computation<SInt> min =
-                    builder.createSequentialSub(new InnerProduct(new LinkedList(input1), input2));
+                    Computation<SInt> min =
+                        builder.seq(new InnerProduct(new LinkedList(input1), input2));
 
                 result = builder.numeric().open(min);
               }).build();
@@ -114,8 +113,8 @@ public class LinAlgTests {
 
                 List<Computation<SInt>> input1 = data1.stream().map(BigInteger::valueOf)
                     .map(sIntFactory::known).collect(Collectors.toList());
-                Computation<SInt> min =
-                    builder.createSequentialSub(new InnerProductOpen(data2, input1));
+                    Computation<SInt> min =
+                        builder.seq(new InnerProductOpen(data2, input1));
 
                 result = builder.numeric().open(min);
               }).build();

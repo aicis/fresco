@@ -100,9 +100,9 @@ class LPSolverTests {
                       }
                       return () -> prefix;
                     });
-                    builder.createSequentialSub((seq) -> {
+                    builder.seq((seq) -> {
                       PlainSpdzLPPrefix prefix = prefixComp.out();
-                      Computation<LPOutput> lpOutput = seq.createSequentialSub(
+                      Computation<LPOutput> lpOutput = seq.seq(
                           new LPSolver(
                               pivotRule,
                               prefix.getTableau(),
@@ -110,7 +110,7 @@ class LPSolverTests {
                               prefix.getPivot(),
                               prefix.getBasis()));
 
-                      Computation<SInt> optimalValue = seq.createSequentialSub((inner) -> {
+                      Computation<SInt> optimalValue = seq.seq((inner) -> {
                             LPOutput out = lpOutput.out();
                         return new OptimalValue(out.updateMatrix, out.tableau, out.pivot)
                                 .build(inner);

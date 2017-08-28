@@ -118,7 +118,7 @@ public class BlandEnteringVariable
           }
           return () -> enteringIndex;
         })).seq((enteringIndex, seq) -> {
-      Computation<SInt> terminationSum = seq.createSequentialSub(new SumSIntList(enteringIndex));
+      Computation<SInt> terminationSum = seq.seq(new SumSIntList(enteringIndex));
       Computation<SInt> termination = seq.numeric().sub(one, terminationSum);
       return () -> new Pair<>(enteringIndex, termination.out());
     });

@@ -146,7 +146,7 @@ public class ExitingVariable implements
         // Find index of each entry with the minimal ratio found in previous round
         for (int i = 0; i < updatedB.size(); i++) {
           ties.add(
-              par.createSequentialSub(
+              par.seq(
                   new FracEq(minInfOutput.nm, minInfOutput.dm, updatedB.get(i), shortColumn.get(i)))
           );
         }
@@ -184,11 +184,11 @@ public class ExitingVariable implements
           List<Computation<SInt>> updatedTies = IntStream.range(0, ties.size())
               .boxed()
               .map(i -> {
-                    return par2.createSequentialSub(seq3 -> {
-                      NumericBuilder numeric = seq3.numeric();
-                      Computation<SInt> mult = numeric.add(multNegTies.get(i), multTies.get(i));
-                      return numeric.add(multNonApps.get(i), mult);
-                    });
+                return par2.seq(seq3 -> {
+                  NumericBuilder numeric = seq3.numeric();
+                  Computation<SInt> mult = numeric.add(multNegTies.get(i), multTies.get(i));
+                  return numeric.add(multNonApps.get(i), mult);
+                });
                   }
               ).collect(Collectors.toList());
           return () -> updatedTies;
@@ -208,12 +208,12 @@ public class ExitingVariable implements
       for (int i = 0; i < tableauHeight - 1; i++) {
         int finalI = i;
         updateColumn.add(
-            par.createSequentialSub((seq) -> {
+            par.seq((seq) -> {
               NumericBuilder numeric = seq.numeric();
               Computation<SInt> negativeEntering =
                   numeric.sub(zero, updatedEnteringColumn.get(finalI));
-              return seq.createSequentialSub(
-                  new ConditionalSelect(exitingIndex.get(finalI), one, negativeEntering));
+              return seq
+                  .seq(new ConditionalSelect(exitingIndex.get(finalI), one, negativeEntering));
             }));
       }
       updateColumn.add(par.numeric().sub(zero, updatedEnteringColumn.get(tableauHeight - 1)));

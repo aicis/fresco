@@ -90,7 +90,7 @@ public class CovarianceMatrix implements
           currentMean = means.next();
         }
         if(currentMean == null) {
-          currentMean = par.createSequentialSub(new Mean(datum));
+          currentMean = par.seq(new Mean(datum));
         }
         allMeans.add(currentMean);
       }
@@ -108,18 +108,15 @@ public class CovarianceMatrix implements
         while (innerIterator.nextIndex() < currentIndex) {
           int innerIndex = innerIterator.nextIndex();
           List<Computation<SInt>> dataRow2 = innerIterator.next();
-          row.add(par.createSequentialSub(
-              new Covariance(
-                  dataRow, dataRow2,
-                  means.get(currentIndex), means.get(innerIndex)
-              )
-          ));
+          row.add(par.seq(new Covariance(
+              dataRow, dataRow2,
+              means.get(currentIndex), means.get(innerIndex)
+          )));
         }
         // When i == j we are calculating the variance of data[i]
         // which saves us one subtraction per data entry compared to
         // calculating the covariance
-        row.add(par.createSequentialSub(
-            new Variance(dataRow, means.get(currentIndex))));
+        row.add(par.seq(new Variance(dataRow, means.get(currentIndex))));
       }
       return () -> result;
     });

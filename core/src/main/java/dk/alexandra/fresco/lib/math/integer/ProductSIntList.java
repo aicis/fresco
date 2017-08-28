@@ -30,7 +30,7 @@ public class ProductSIntList implements ComputationBuilder<SInt, ProtocolBuilder
         () -> input
     ).whileLoop(
         (inputs) -> inputs.size() > 1,
-        (inputs, seq) -> seq.createParallelSub(parallel -> {
+        (inputs, seq) -> seq.par(parallel -> {
           List<Computation<SInt>> out = new ArrayList<>();
           NumericBuilder numericBuilder = parallel.numeric();
           Computation<SInt> left = null;

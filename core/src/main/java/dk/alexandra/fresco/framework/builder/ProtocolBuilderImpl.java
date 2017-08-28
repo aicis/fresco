@@ -30,34 +30,6 @@ public abstract class ProtocolBuilderImpl<BuilderT extends ProtocolBuilderImpl<B
   }
 
   /**
-   * Re-creates this builder based on this basicNumericFactory but with a nested parallel protocol
-   * producer inserted into the original protocol producer.
-   *
-   * @param function of the protocol producer - will be lazy evaluated
-   */
-  public <R> Computation<R> createParallelSub(
-      ComputationBuilder<R, BuilderT> function) {
-    DelayedComputation<R> result = new DelayedComputation<>();
-    addConsumer((builder) -> result.setComputation(function.build(builder)),
-        () -> factory.createParallel());
-    return result;
-  }
-
-  /**
-   * Re-creates this builder based on this basicNumericFactory but with a nested sequential protocol
-   * producer inserted into the original protocol producer.
-   *
-   * @param function creation of the protocol producer - will be lazy evaluated
-   */
-  public <R> Computation<R> createSequentialSub(
-      ComputationBuilder<R, BuilderT> function) {
-    DelayedComputation<R> result = new DelayedComputation<>();
-    addConsumer((builder) -> result.setComputation(function.build(builder)),
-        () -> factory.createSequential());
-    return result;
-  }
-
-  /**
    * Creates another protocol builder based on the supplied consumer. This method re-creates the
    * builder based on a sequential protocol producer inserted into this original protocol producer
    * as a child.
@@ -131,6 +103,12 @@ public abstract class ProtocolBuilderImpl<BuilderT extends ProtocolBuilderImpl<B
     protocols = null;
   }
 
+  /**
+   * Creates a new Build step based on this builder but with a nested sequential protocol
+   * producer inserted into the original protocol producer.
+   *
+   * @param function creation of the protocol producer - will be lazy evaluated
+   */
   public <R> BuildStep<BuilderT, R, Void> seq(ComputationBuilder<R, BuilderT> function) {
     FrescoLambda<Void, BuilderT, R> innerBuilder = (ignored, inner) -> function.build(inner);
     BuildStep<BuilderT, R, Void> builder =
@@ -139,6 +117,12 @@ public abstract class ProtocolBuilderImpl<BuilderT extends ProtocolBuilderImpl<B
     return builder;
   }
 
+  /**
+   * Creates a new Build step based on this builder but with a nested parallel protocol
+   * producer inserted into the original protocol producer.
+   *
+   * @param f of the protocol producer - will be lazy evaluated
+   */
   public <R> BuildStep<BuilderT, R, Void> par(
       ComputationBuilder<R, BuilderT> f) {
     FrescoLambda<Void, BuilderT, R> innerBuilder = (ignored, inner) -> f.build(inner);

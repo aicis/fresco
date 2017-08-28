@@ -76,9 +76,7 @@ public class RepeatedRightShift implements
       Computation<SInt> input, int shifts) {
     if (shifts > 0) {
       Computation<SInt> iteration =
-          iterationBuilder.createSequentialSub(
-              (builder) -> builder.advancedNumeric().rightShift(input)
-          );
+          iterationBuilder.seq((builder) -> builder.advancedNumeric().rightShift(input));
       iterationBuilder.createIteration((builder) -> doIteration(builder, iteration, shifts - 1));
     } else {
       result.setComputation(() -> new RightShiftResult(input.out(), null));
@@ -89,9 +87,8 @@ public class RepeatedRightShift implements
       Computation<SInt> input, int shifts, List<SInt> remainders) {
     if (shifts > 0) {
       Computation<RightShiftResult> iteration =
-          iterationBuilder.createSequentialSub(
-              (builder) -> builder.advancedNumeric().rightShiftWithRemainder(input)
-          );
+          iterationBuilder
+              .seq((builder) -> builder.advancedNumeric().rightShiftWithRemainder(input));
       iterationBuilder.createIteration((builder) -> {
         RightShiftResult out = iteration.out();
         remainders.add(out.getRemainder().get(0));

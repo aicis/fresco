@@ -3,6 +3,7 @@ package dk.alexandra.fresco.demo;
 import dk.alexandra.fresco.demo.EncryptAndRevealStep.RowWithCipher;
 import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.builder.ComputationBuilder;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
@@ -32,15 +33,12 @@ public class EncryptAndRevealStep implements
       List<Pair<List<SInt>, Computation<BigInteger>>> ciphers = new ArrayList<>(inputRows.size());
       // Encrypt desired column and open resulting cipher text
       for (final List<SInt> row : inputRows) {
-        ciphers.add(
-            new Pair<>(row,
-                par.createSequentialSub((seq) -> {
-                  SInt toEncrypt = row.get(toEncryptIndex);
-                  Computation<SInt> cipherText = seq.seq(
-                      new MiMCEncryption(toEncrypt, mimcKey)
-                  );
-                  return seq.numeric().open(cipherText);
-                })));
+        ComputationBuilder<BigInteger, ProtocolBuilderNumeric> function = (seq) -> {
+          SInt toEncrypt = row.get(toEncryptIndex);
+          Computation<SInt> cipherText = seq.seq(new MiMCEncryption(toEncrypt, mimcKey));
+          return seq.numeric().open(cipherText);
+        };
+        ciphers.add(new Pair<>(row, par.seq(function)));
       }
       return () -> ciphers;
     }).seq((ciphers, seq) -> {

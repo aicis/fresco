@@ -151,34 +151,32 @@ public class LPSolver implements ComputationBuilder<LPOutput, ProtocolBuilderNum
    * </p>
    */
   private Computation<LPState> phaseTwoProtocol(ProtocolBuilderNumeric builder, LPState state) {
-    return builder.seq((seq) -> seq.createSequentialSub(
-        new ExitingVariable(state.tableau, state.updateMatrix, state.enteringIndex, state.basis)))
-        .par((exitingVariable, seq) -> {
-          state.pivot = exitingVariable.pivot;
-          ArrayList<Computation<SInt>> exitingIndex = exitingVariable.exitingIndex;
-          // Update Basis
-          Computation<SInt> ent =
-              seq.advancedNumeric().openDot(state.enumeratedVariables, state.enteringIndex);
-          return seq.createParallelSub((par) -> {
-            ArrayList<Computation<SInt>> nextBasis = new ArrayList<>(noConstraints);
-            for (int i = 0; i < noConstraints; i++) {
-              nextBasis.add(par.createSequentialSub(
-                  new ConditionalSelect(exitingIndex.get(i), ent, state.basis.get(i))));
-            }
-            return () -> nextBasis;
-          });
-        } , (exitingVariable, seq) -> {
-          return seq.createSequentialSub(
-              new UpdateMatrix(state.updateMatrix, exitingVariable.exitingIndex,
-                  exitingVariable.updateColumn, state.pivot, state.prevPivot));
-        }).seq((pair, seq) -> {
-          List<Computation<SInt>> basis = pair.getFirst();
-          state.updateMatrix = pair.getSecond();
-          state.basis = basis;
-          // // Copy the resulting new update matrix to overwrite the current
-          state.prevPivot = state.pivot;
-          return () -> state;
-        });
+    return builder.seq((seq) -> seq.seq(
+        new ExitingVariable(state.tableau, state.updateMatrix, state.enteringIndex, state.basis))
+    ).par((exitingVariable, seq) -> {
+      state.pivot = exitingVariable.pivot;
+      ArrayList<Computation<SInt>> exitingIndex = exitingVariable.exitingIndex;
+      // Update Basis
+      Computation<SInt> ent =
+          seq.advancedNumeric().openDot(state.enumeratedVariables, state.enteringIndex);
+      return seq.par((par) -> {
+        ArrayList<Computation<SInt>> nextBasis = new ArrayList<>(noConstraints);
+        for (int i = 0; i < noConstraints; i++) {
+          nextBasis.add(par.seq(
+              new ConditionalSelect(exitingIndex.get(i), ent, state.basis.get(i))));
+        }
+        return () -> nextBasis;
+      });
+    }, (exitingVariable, seq) -> seq.seq(
+        new UpdateMatrix(state.updateMatrix, exitingVariable.exitingIndex,
+            exitingVariable.updateColumn, state.pivot, state.prevPivot))).seq((pair, seq) -> {
+      List<Computation<SInt>> basis = pair.getFirst();
+      state.updateMatrix = pair.getSecond();
+      state.basis = basis;
+      // // Copy the resulting new update matrix to overwrite the current
+      state.prevPivot = state.pivot;
+      return () -> state;
+    });
   }
 
   /**

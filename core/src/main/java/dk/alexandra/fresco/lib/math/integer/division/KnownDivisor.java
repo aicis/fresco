@@ -2,7 +2,6 @@ package dk.alexandra.fresco.lib.math.integer.division;
 
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.builder.ComputationBuilder;
-import dk.alexandra.fresco.framework.builder.numeric.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
@@ -22,16 +21,13 @@ import java.math.BigInteger;
  */
 public class KnownDivisor implements ComputationBuilder<SInt, ProtocolBuilderNumeric> {
 
-  private final BuilderFactoryNumeric builderFactory;
   private final Computation<SInt> dividend;
   private final BigInteger divisor;
 
   public KnownDivisor(
-      BuilderFactoryNumeric builderFactory,
       Computation<SInt> dividend,
       BigInteger divisor) {
 
-    this.builderFactory = builderFactory;
     this.dividend = dividend;
     this.divisor = divisor;
   }
@@ -50,7 +46,7 @@ public class KnownDivisor implements ComputationBuilder<SInt, ProtocolBuilderNum
 
   @Override
   public Computation<SInt> build(ProtocolBuilderNumeric builder) {
-    BasicNumericFactory basicNumericFactory = this.builderFactory.getBasicNumericFactory();
+    BasicNumericFactory basicNumericFactory = builder.getBasicNumericFactory();
     BigInteger modulus = basicNumericFactory.getModulus();
     BigInteger modulusHalf = modulus.divide(BigInteger.valueOf(2));
     /*
@@ -80,7 +76,7 @@ public class KnownDivisor implements ComputationBuilder<SInt, ProtocolBuilderNum
 		 * maxBitLength + divisorBitLength to be representable.
 		 */
     int maxBitLength =
-        (builderFactory.getBasicNumericFactory().getMaxBitLength() - divisorAbs.bitLength()) / 3;
+        (builder.getBasicNumericFactory().getMaxBitLength() - divisorAbs.bitLength()) / 3;
     int shifts = maxBitLength + divisorAbs.bitLength();
 
 		/*

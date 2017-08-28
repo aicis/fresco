@@ -98,9 +98,8 @@ public class MiMCTests {
                     NumericBuilder intFactory = builder.numeric();
                     Computation<SInt> encryptionKey = intFactory.known(BigInteger.valueOf(527618));
                     Computation<SInt> plainText = intFactory.known(BigInteger.valueOf(10));
-                    Computation<SInt> cipherText = builder.createSequentialSub(
-                        new MiMCEncryption(plainText, encryptionKey)
-                    );
+                    Computation<SInt> cipherText = builder
+                        .seq(new MiMCEncryption(plainText, encryptionKey));
                     result = builder.numeric().open(cipherText);
                   }).build();
             }
@@ -141,12 +140,10 @@ public class MiMCTests {
                     NumericBuilder intFactory = builder.numeric();
                     Computation<SInt> encryptionKey = intFactory.known(BigInteger.valueOf(527618));
                     Computation<SInt> plainText = intFactory.known(BigInteger.valueOf(10));
-                    Computation<SInt> cipherText = builder.createSequentialSub(
-                        new MiMCEncryption(plainText, encryptionKey)
-                    );
-                    Computation<SInt> cipherText2 = builder.createSequentialSub(
-                        new MiMCEncryption(plainText, encryptionKey)
-                    );
+                    Computation<SInt> cipherText = builder
+                        .seq(new MiMCEncryption(plainText, encryptionKey));
+                    Computation<SInt> cipherText2 = builder
+                        .seq(new MiMCEncryption(plainText, encryptionKey));
                     result1 = builder.numeric().open(cipherText);
                     result2 = builder.numeric().open(cipherText2);
                   }).build();
@@ -184,12 +181,10 @@ public class MiMCTests {
                     Computation<SInt> encryptionKey = intFactory.known(BigInteger.valueOf(527618));
                     Computation<SInt> plainTextA = intFactory.known(BigInteger.valueOf(10));
                     Computation<SInt> plainTextB = intFactory.known(BigInteger.valueOf(11));
-                    Computation<SInt> cipherTextA = builder.createSequentialSub(
-                        new MiMCEncryption(plainTextA, encryptionKey)
-                    );
-                    Computation<SInt> cipherTextB = builder.createSequentialSub(
-                        new MiMCEncryption(plainTextB, encryptionKey)
-                    );
+                    Computation<SInt> cipherTextA = builder
+                        .seq(new MiMCEncryption(plainTextA, encryptionKey));
+                    Computation<SInt> cipherTextB = builder
+                        .seq(new MiMCEncryption(plainTextB, encryptionKey));
                     resultA = builder.numeric().open(cipherTextA);
                     resultB = builder.numeric().open(cipherTextB);
                   }).build();
@@ -227,12 +222,10 @@ public class MiMCTests {
                     NumericBuilder intFactory = builder.numeric();
                     Computation<SInt> encryptionKey = intFactory.known(BigInteger.valueOf(10));
                     Computation<SInt> plainText = intFactory.known(x_big);
-                    Computation<SInt> cipherText = builder.createSequentialSub(
-                        new MiMCEncryption(plainText, encryptionKey)
-                    );
-                    Computation<SInt> decrypted = builder.createSequentialSub(
-                        new MiMCDecryption(cipherText, encryptionKey)
-                    );
+                    Computation<SInt> cipherText = builder
+                        .seq(new MiMCEncryption(plainText, encryptionKey));
+                    Computation<SInt> decrypted = builder
+                        .seq(new MiMCDecryption(cipherText, encryptionKey));
                     output = builder.numeric().open(decrypted);
                   }).build();
             }

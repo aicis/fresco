@@ -70,7 +70,7 @@ public class LPBuildingBlockTests {
     }
 
     void inputTableau(ProtocolBuilderNumeric builder) {
-      builder.createParallelSub(par -> {
+      builder.par(par -> {
         NumericBuilder numeric = par.numeric();
         sTableau = new LPTableau(
             new Matrix<>(constraints.getHeight(), constraints.getWidth(),

@@ -83,7 +83,7 @@ public class BinaryOperationsTests {
                 Computation<BigInteger> openResult = NumericBuilder
                     .open(() -> shiftedRight.out().getResult());
                 Computation<List<Computation<BigInteger>>> openRemainders = builder
-                    .createSequentialSub((innerBuilder) -> {
+                    .seq((innerBuilder) -> {
                       NumericBuilder innerOpenBuilder = innerBuilder.numeric();
                       List<Computation<BigInteger>> opened = shiftedRight.out()
                           .getRemainder()

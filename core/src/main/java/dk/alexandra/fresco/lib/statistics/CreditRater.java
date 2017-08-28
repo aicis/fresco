@@ -98,8 +98,7 @@ public class CreditRater implements
             List<SInt> intervalScore = intervalScores.get(i);
 
             scores.add(
-                parallel.createSequentialSub(
-                    new ComputeIntervalScore(interval, value, intervalScore)));
+                parallel.seq(new ComputeIntervalScore(interval, value, intervalScore)));
           }
           return () -> scores;
         }

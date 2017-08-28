@@ -75,8 +75,7 @@ public class PolynomialTests {
               PolynomialImpl polynomial = new PolynomialImpl(secretCoefficients);
               Computation<SInt> secretX = numeric.input(BigInteger.valueOf(x), 1);
 
-              Computation<SInt> result = root
-                  .createSequentialSub(new PolynomialEvaluator(secretX, polynomial));
+              Computation<SInt> result = root.seq(new PolynomialEvaluator(secretX, polynomial));
 
               outputs.add(numeric.open(result));
 

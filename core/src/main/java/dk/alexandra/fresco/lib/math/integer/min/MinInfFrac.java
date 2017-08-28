@@ -119,11 +119,11 @@ public class MinInfFrac implements ComputationBuilder<MinInfOutput, ProtocolBuil
               for (int i = 0; i < sizeOfTmpC; i++) {
                 tmpFs.add(null);
               }
-              seq.createParallelSub((par) -> {
+              seq.par((par) -> {
                 for (int i = 0; i < sizeOfTmpC; i++) {
                   int finalI = i;
                   tmpFs.set(i,
-                      par.createSequentialSub((innerSeq) -> innerSeq.seq(seq1 ->
+                      par.seq((innerSeq) -> innerSeq.seq(seq1 ->
                               () -> null
                           ).par(
                           (ignored, seq11) -> seq11
@@ -140,16 +140,16 @@ public class MinInfFrac implements ComputationBuilder<MinInfOutput, ProtocolBuil
                             .sub(BigInteger.ONE, fs.get(finalI * 2).inf);
                             tmpC = numeric.mult(notInf0, tmpC);
                             tmpC = seq13
-                                .createSequentialSub(new ConditionalSelect(fs.get(finalI * 2 + 1).inf,
+                                .seq(new ConditionalSelect(fs.get(finalI * 2 + 1).inf,
                                     fs.get(finalI * 2 + 1).inf, tmpC));
                             Computation<SInt> c = tmpC;
                             tmpCs.set(finalI, c);
                             Computation<SInt> rn = seq13
-                                .createSequentialSub(
+                                .seq(
                                     new ConditionalSelect(c, fs.get(finalI * 2).n,
                                         fs.get(finalI * 2 + 1).n));
                             Computation<SInt> rd = seq13
-                                .createSequentialSub(
+                                .seq(
                                     new ConditionalSelect(c, fs.get(finalI * 2).d,
                                         fs.get(finalI * 2 + 1).d));
                             Computation<SInt> rinf = numeric.mult(
@@ -169,10 +169,10 @@ public class MinInfFrac implements ComputationBuilder<MinInfOutput, ProtocolBuil
               // Updated Cs
               int offset = 1 << (layer + 1);
               if (layer == 0) {
-                seq.createParallelSub((par) -> {
+                seq.par((par) -> {
                   for (int i = 0; i < sizeOfTmpC; i++) {
                     int finalI = i;
-                    par.createSequentialSub((innerSeq) -> {
+                    par.seq((innerSeq) -> {
                       Computation<SInt> c = tmpCs.get(finalI);
                       Computation<SInt> notC = innerSeq.numeric().sub(BigInteger.ONE, c);
 
@@ -187,16 +187,16 @@ public class MinInfFrac implements ComputationBuilder<MinInfOutput, ProtocolBuil
                   return () -> null;
                 });
               } else {
-                seq.createParallelSub((par) -> {
+                seq.par((par) -> {
                   for (int i = 0; i < sizeOfTmpC; i++) {
                     Computation<SInt> c = tmpCs.get(i);
                     for (int j = i * offset; j < i * offset + offset / 2; j++) {
                       cs.set(j, par.numeric().mult(c, cs.get(j)));
                     }
                     int finalI = i;
-                    par.createSequentialSub((innerSeq) -> {
+                    par.seq((innerSeq) -> {
                       Computation<SInt> notC = innerSeq.numeric().sub(BigInteger.ONE, c);
-                      innerSeq.createParallelSub((innerPar) -> {
+                      innerSeq.par((innerPar) -> {
                         int limit =
                             (finalI + 1) * offset > cs.size() ? cs.size() : (finalI + 1) * offset;
                         for (int j = finalI * offset + offset / 2; j < limit; j++) {

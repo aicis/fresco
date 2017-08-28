@@ -19,7 +19,7 @@ public class DefaultBristolCryptoBuilder implements BristolCryptoBuilder {
       List<Computation<SBool>> in2) {
     BristolCircuitParser parser =
         BristolCircuitParser.readCircuitDescription("circuits/mult_32x32.txt", in1, in2);
-    return builder.createSequentialSub(parser);
+    return builder.seq(parser);
   }
 
   @Override
@@ -27,7 +27,7 @@ public class DefaultBristolCryptoBuilder implements BristolCryptoBuilder {
       List<Computation<SBool>> plainText) {
     BristolCircuitParser parser = BristolCircuitParser
         .readCircuitDescription("circuits/AES-non-expanded.txt", keyMaterial, plainText);
-    return builder.createSequentialSub(parser);
+    return builder.seq(parser);
   }
 
   @Override
@@ -36,7 +36,7 @@ public class DefaultBristolCryptoBuilder implements BristolCryptoBuilder {
     List<Computation<SBool>> in2 = new ArrayList<>();
     BristolCircuitParser parser =
         BristolCircuitParser.readCircuitDescription("circuits/sha-1.txt", input, in2);
-    return builder.createSequentialSub(parser);
+    return builder.seq(parser);
   }
 
   @Override
@@ -44,7 +44,7 @@ public class DefaultBristolCryptoBuilder implements BristolCryptoBuilder {
       List<Computation<SBool>> keyMaterial) {
     BristolCircuitParser parser = BristolCircuitParser
         .readCircuitDescription("circuits/DES-non-expanded.txt", plainText, keyMaterial);
-    return builder.createSequentialSub(parser);
+    return builder.seq(parser);
   }
 
   @Override
@@ -53,7 +53,7 @@ public class DefaultBristolCryptoBuilder implements BristolCryptoBuilder {
     List<Computation<SBool>> in2 = new ArrayList<>();
     BristolCircuitParser parser =
         BristolCircuitParser.readCircuitDescription("circuits/sha-256.txt", input, in2);
-    return builder.createSequentialSub(parser);
+    return builder.seq(parser);
   }
 
   @Override
@@ -62,7 +62,7 @@ public class DefaultBristolCryptoBuilder implements BristolCryptoBuilder {
     List<Computation<SBool>> in2 = new ArrayList<>();
     BristolCircuitParser parser =
         BristolCircuitParser.readCircuitDescription("circuits/md5.txt", input, in2);
-    return builder.createSequentialSub(parser);
+    return builder.seq(parser);
   }
 
 }

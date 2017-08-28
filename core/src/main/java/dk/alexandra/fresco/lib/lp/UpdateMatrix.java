@@ -82,22 +82,19 @@ public class UpdateMatrix implements
             return newRow;
           }
       );
-      Computation<Pair<List<Computation<SInt>>, Computation<SInt>>> scaledCAndPP = par1
-          .createSequentialSub(seq_pp -> {
+      Computation<Pair<List<Computation<SInt>>, Computation<SInt>>> scaledCAndPP =
+          par1.seq(seq_pp -> {
             Computation<SInt> pp_inv = seq_pp.advancedNumeric().invert(p_prime);
             Computation<SInt> pp = seq_pp.numeric().mult(p, pp_inv);
             return seq_pp.par((par) -> {
               List<Computation<SInt>> scaledC = new ArrayList<>(C.size());
               for (int j = 0; j < C.size() - 1; j++) {
                 int finalJ = j;
-                scaledC.add(par.createSequentialSub((scaleSeq) -> {
-                      Computation<SInt> scaling;
-                      scaling = scaleSeq.createSequentialSub(
-                          new ConditionalSelect(L.get(finalJ), one, pp_inv)
-                      );
-                      return scaleSeq.numeric().mult(C.get(finalJ), scaling);
-                    })
-                );
+                scaledC.add(par.seq((scaleSeq) -> {
+                  Computation<SInt> scaling;
+                  scaling = scaleSeq.seq(new ConditionalSelect(L.get(finalJ), one, pp_inv));
+                  return scaleSeq.numeric().mult(C.get(finalJ), scaling);
+                }));
               }
               scaledC.add(
                   par.numeric().mult(C.get(C.size() - 1), pp_inv)
@@ -127,12 +124,7 @@ public class UpdateMatrix implements
             return newRow;
           });
       for (int i = 0; i < width; i++) {
-        lambdas_i.add(
-            gpAddAndSub
-                .createSequentialSub(new SumSIntList(
-                    lambdas_i_jOuts.getColumn(i)
-                ))
-        );
+        lambdas_i.add(gpAddAndSub.seq(new SumSIntList(lambdas_i_jOuts.getColumn(i))));
       }
       return () -> new Pair<>(
           new Pair<>(scaledC, pp), new Pair<>(subOuts, lambdas_i));

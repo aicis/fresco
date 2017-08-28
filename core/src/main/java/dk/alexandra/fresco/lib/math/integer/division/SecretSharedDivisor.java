@@ -28,7 +28,6 @@ package dk.alexandra.fresco.lib.math.integer.division;
 
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.builder.ComputationBuilder;
-import dk.alexandra.fresco.framework.builder.numeric.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.util.Pair;
@@ -53,21 +52,17 @@ public class SecretSharedDivisor
   private Computation<SInt> numerator;
   private Computation<SInt> denominator;
 
-  private BuilderFactoryNumeric builderFactory;
-
   public SecretSharedDivisor(
       Computation<SInt> numerator,
-      Computation<SInt> denominator,
-      BuilderFactoryNumeric builderFactory) {
+      Computation<SInt> denominator) {
     this.numerator = numerator;
     this.denominator = denominator;
-    this.builderFactory = builderFactory;
   }
 
   @Override
   public Computation<SInt> build(ProtocolBuilderNumeric builder) {
 
-    BasicNumericFactory basicNumericFactory = builderFactory.getBasicNumericFactory();
+    BasicNumericFactory basicNumericFactory = builder.getBasicNumericFactory();
 
     // Calculate maximum number of bits we can represent without overflows.
     // We lose half of the precision because we need to multiply two numbers without overflow.

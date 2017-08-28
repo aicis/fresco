@@ -170,7 +170,7 @@ public class DEASolver implements Application<List<DEAResult>, ProtocolBuilderNu
         List<Computation<SInt>> initialBasis = prefix.getBasis();
 
         result.add(
-            par.createSequentialSub((subSeq) ->
+            par.seq((subSeq) ->
                 subSeq.seq((solverSec) -> {
                   LPSolver lpSolver = new LPSolver(
                       pivotRule, tableau, update, pivot, initialBasis);

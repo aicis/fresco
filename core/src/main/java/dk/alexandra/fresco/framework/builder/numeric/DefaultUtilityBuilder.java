@@ -18,22 +18,22 @@ public class DefaultUtilityBuilder implements UtilityBuilder {
 
   @Override
   public void openAndPrint(String label, Computation<SInt> number, PrintStream stream) {
-    builder.createSequentialSub(new ArithmeticOpenAndPrint(label, number, stream));
+    builder.seq(new ArithmeticOpenAndPrint(label, number, stream));
   }
 
   @Override
   public void openAndPrint(String label, List<Computation<SInt>> vector, PrintStream stream) {
-    builder.createSequentialSub(new ArithmeticOpenAndPrint(label, vector, stream));
+    builder.seq(new ArithmeticOpenAndPrint(label, vector, stream));
   }
 
   @Override
   public void openAndPrint(String label, Matrix<Computation<SInt>> matrix, PrintStream stream) {
-    builder.createSequentialSub(new ArithmeticOpenAndPrint(label, matrix, stream));
+    builder.seq(new ArithmeticOpenAndPrint(label, matrix, stream));
   }
 
   @Override
   public void marker(String message, PrintStream stream) {
-    builder.createSequentialSub(new MarkerProtocolImpl(message, stream));
+    builder.seq(new MarkerProtocolImpl(message, stream));
   }
 
 }

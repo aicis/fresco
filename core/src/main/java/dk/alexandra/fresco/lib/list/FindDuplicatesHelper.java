@@ -31,7 +31,7 @@ public class FindDuplicatesHelper {
       SIntListofTuples list2) {
     for (int i = 0; i < list1.size(); i++) {
       int finalI = i;
-      builder.createSequentialSub(seq -> {
+      builder.seq(seq -> {
         ComparisonBuilder comparison = seq.comparison();
         for (int j = 0; j < list2.size(); j++) {
           Computation<SInt> equals = comparison.equals(list1.getId(finalI), list2.getId(j));

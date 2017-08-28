@@ -90,11 +90,11 @@ public class DivisionTests {
 
               ProtocolBuilderNumeric applicationRoot = ProtocolBuilderNumeric
                   .createApplicationRoot((BuilderFactoryNumeric) factoryProducer, (seq) -> {
-                Computation<SInt> division = seq.createSequentialSub(new KnownDivisor(
-                    (BuilderFactoryNumeric) factoryProducer, () -> input1, input2));
+                    Computation<SInt> division = seq.seq(new KnownDivisor(
+                        () -> input1, input2));
 
                 Computation<SInt> remainder =
-                    seq.createSequentialSub(new KnownDivisorRemainder(() -> input1, input2));
+                    seq.seq(new KnownDivisorRemainder(() -> input1, input2));
                 NumericBuilder NumericBuilder = seq.numeric();
                 Computation<BigInteger> output1 = NumericBuilder.open(division);
                 Computation<BigInteger> output2 = NumericBuilder.open(remainder);
@@ -154,11 +154,11 @@ public class DivisionTests {
 
               ProtocolBuilderNumeric applicationRoot = ProtocolBuilderNumeric
                   .createApplicationRoot((BuilderFactoryNumeric) factoryProducer, (seq) -> {
-                Computation<SInt> division = seq.createSequentialSub(new KnownDivisor(
-                    (BuilderFactoryNumeric) factoryProducer, () -> input1, input2));
+                    Computation<SInt> division = seq.seq(new KnownDivisor(
+                        () -> input1, input2));
 
                 Computation<SInt> remainder =
-                    seq.createSequentialSub(new KnownDivisorRemainder(() -> input1, input2));
+                    seq.seq(new KnownDivisorRemainder(() -> input1, input2));
                 NumericBuilder NumericBuilder = seq.numeric();
                 Computation<BigInteger> output1 = NumericBuilder.open(division);
                 Computation<BigInteger> output2 = NumericBuilder.open(remainder);

@@ -53,7 +53,7 @@ public class Variance implements ComputationBuilder<SInt, ProtocolBuilderNumeric
     return builder.par((par) -> {
       List<Computation<SInt>> terms = new ArrayList<>(data.size());
       for (Computation<SInt> value : data) {
-        Computation<SInt> term = par.createSequentialSub((seq) -> {
+        Computation<SInt> term = par.seq((seq) -> {
           NumericBuilder numeric = seq.numeric();
           Computation<SInt> tmp = numeric.sub(value, mean);
           return numeric.mult(tmp, tmp);
@@ -61,8 +61,7 @@ public class Variance implements ComputationBuilder<SInt, ProtocolBuilderNumeric
         terms.add(term);
       }
       return () -> terms;
-    }).seq((terms, seq) ->
-        seq.createSequentialSub(new Mean(terms, data.size() - 1))
+    }).seq((terms, seq) -> seq.seq(new Mean(terms, data.size() - 1))
     );
   }
 

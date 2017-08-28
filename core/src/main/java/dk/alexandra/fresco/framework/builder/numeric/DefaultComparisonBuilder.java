@@ -23,8 +23,8 @@ public class DefaultComparisonBuilder implements ComparisonBuilder {
     int bitLength = factoryNumeric.getBasicNumericFactory().getMaxBitLength() * 2;
     LessThanOrEquals leqProtocol = new LessThanOrEquals(
         bitLength, BuilderFactoryNumeric.MAGIC_SECURE_NUMBER,
-        x, y, factoryNumeric);
-    return builder.createSequentialSub(leqProtocol);
+        x, y);
+    return builder.seq(leqProtocol);
 
   }
 
@@ -36,17 +36,16 @@ public class DefaultComparisonBuilder implements ComparisonBuilder {
 
   @Override
   public Computation<SInt> equals(int bitLength, Computation<SInt> x, Computation<SInt> y) {
-    return builder.createSequentialSub(new Equality(bitLength, x, y));
+    return builder.seq(new Equality(bitLength, x, y));
   }
 
   @Override
   public Computation<SInt> compareLEQ(Computation<SInt> x, Computation<SInt> y) {
     int bitLength = factoryNumeric.getBasicNumericFactory().getMaxBitLength();
-    return builder.createSequentialSub(
+    return builder.seq(
         new LessThanOrEquals(
             bitLength, BuilderFactoryNumeric.MAGIC_SECURE_NUMBER,
-            x, y, factoryNumeric)
-    );
+            x, y));
   }
 
   public Computation<SInt> sign(Computation<SInt> x) {
@@ -62,9 +61,7 @@ public class DefaultComparisonBuilder implements ComparisonBuilder {
 
   @Override
   public Computation<SInt> compareZero(Computation<SInt> x, int bitLength) {
-    return builder.createSequentialSub(
-        new ZeroTest(factoryNumeric, bitLength,
-            x));
+    return builder.seq(new ZeroTest(bitLength, x));
   }
 
 }

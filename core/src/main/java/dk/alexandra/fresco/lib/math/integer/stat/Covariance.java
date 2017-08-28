@@ -66,14 +66,14 @@ public class Covariance implements ComputationBuilder<SInt, ProtocolBuilderNumer
     ).par(
         (ignored, seq) -> {
           if (mean1 == null) {
-            return seq.createSequentialSub(new Mean(data1));
+            return seq.seq(new Mean(data1));
           } else {
             return mean1;
           }
         },
         (ignored, seq) -> {
           if (mean2 == null) {
-            return seq.createSequentialSub(new Mean(data2));
+            return seq.seq(new Mean(data2));
           } else {
             return mean2;
           }
@@ -88,7 +88,7 @@ public class Covariance implements ComputationBuilder<SInt, ProtocolBuilderNumer
       while (iterator1.hasNext()) {
         Computation<SInt> value1 = iterator1.next();
         Computation<SInt> value2 = iterator2.next();
-        Computation<SInt> term = par.createSequentialSub((seq) -> {
+        Computation<SInt> term = par.seq((seq) -> {
           NumericBuilder numeric = seq.numeric();
           Computation<SInt> tmp1 = numeric.sub(value1, () -> mean1);
           Computation<SInt> tmp2 = numeric.sub(value2, () -> mean2);
@@ -97,8 +97,7 @@ public class Covariance implements ComputationBuilder<SInt, ProtocolBuilderNumer
         terms.add(term);
       }
       return () -> terms;
-    }).seq((terms, seq) ->
-        seq.createSequentialSub(new Mean(terms, data1.size() - 1))
+    }).seq((terms, seq) -> seq.seq(new Mean(terms, data1.size() - 1))
     );
   }
 

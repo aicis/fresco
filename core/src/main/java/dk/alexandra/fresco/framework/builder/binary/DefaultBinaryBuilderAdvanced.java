@@ -32,17 +32,17 @@ public class DefaultBinaryBuilderAdvanced implements BinaryBuilderAdvanced {
 
   @Override
   public Computation<SBool> or(Computation<SBool> left, Computation<SBool> right) {
-    return builder.createSequentialSub(new OrFromXorAnd(left, right));
+    return builder.seq(new OrFromXorAnd(left, right));
   }
 
   @Override
   public Computation<SBool> or(Computation<SBool> left, boolean right) {
-    return builder.createSequentialSub(new OrFromCopyConst(left, right));
+    return builder.seq(new OrFromCopyConst(left, right));
   }
 
   @Override
   public Computation<SBool> xnor(Computation<SBool> left, Computation<SBool> right) {
-    return builder.createSequentialSub(new XnorFromXorAndNot(left, right));
+    return builder.seq(new XnorFromXorAndNot(left, right));
   }
 
   @Override
@@ -56,7 +56,7 @@ public class DefaultBinaryBuilderAdvanced implements BinaryBuilderAdvanced {
 
   @Override
   public Computation<SBool> nand(Computation<SBool> left, Computation<SBool> right) {
-    return builder.createSequentialSub(new NandFromAndAndNot(left, right));
+    return builder.seq(new NandFromAndAndNot(left, right));
   }
 
   @Override
@@ -71,39 +71,39 @@ public class DefaultBinaryBuilderAdvanced implements BinaryBuilderAdvanced {
   @Override
   public Computation<Pair<SBool, SBool>> oneBitFullAdder(Computation<SBool> left,
       Computation<SBool> right, Computation<SBool> carry) {
-    return builder.createSequentialSub(new OneBitFullAdderProtocolImpl(left, right, carry));
+    return builder.seq(new OneBitFullAdderProtocolImpl(left, right, carry));
   }
 
   @Override
   public Computation<List<Computation<SBool>>> fullAdder(List<Computation<SBool>> lefts,
       List<Computation<SBool>> rights, Computation<SBool> inCarry) {
-    return builder.createSequentialSub(new FullAdderProtocolImpl(lefts, rights, inCarry));
+    return builder.seq(new FullAdderProtocolImpl(lefts, rights, inCarry));
   }
 
   public Computation<List<Computation<SBool>>> bitIncrement(List<Computation<SBool>> base,
       Computation<SBool> increment) {
-    return builder.createSequentialSub(new BitIncrementerProtocolImpl(base, increment));
+    return builder.seq(new BitIncrementerProtocolImpl(base, increment));
   }
 
   @Override
   public Computation<SBool> and(Computation<SBool> left, boolean right) {
-    return builder.createSequentialSub(new AndFromCopyConst(left, right));
+    return builder.seq(new AndFromCopyConst(left, right));
   }
 
   public Computation<SBool> not(Computation<SBool> in) {
-    return builder.createSequentialSub(new NotFromXor(in));
+    return builder.seq(new NotFromXor(in));
   }
 
   @Override
   public Computation<SBool> condSelect(Computation<SBool> condition, Computation<SBool> left,
       Computation<SBool> right) {
-    return builder.createSequentialSub(new ConditionalSelect(condition, left, right));
+    return builder.seq(new ConditionalSelect(condition, left, right));
   }
 
   @Override
   public Computation<Pair<SBool, SBool>> oneBitHalfAdder(Computation<SBool> left,
       Computation<SBool> right) {
-    return builder.createSequentialSub(new OneBitHalfAdderProtocolImpl(left, right));
+    return builder.seq(new OneBitHalfAdderProtocolImpl(left, right));
   }
 
 
@@ -111,12 +111,12 @@ public class DefaultBinaryBuilderAdvanced implements BinaryBuilderAdvanced {
   @Override
   public Computation<List<Computation<SBool>>> binaryMult(List<Computation<SBool>> lefts,
       List<Computation<SBool>> rights) {
-    return builder.createSequentialSub(new BinaryMultProtocol(lefts, rights));
+    return builder.seq(new BinaryMultProtocol(lefts, rights));
   }
 
   @Override
   public Computation<List<Computation<SBool>>> logProtocol(List<Computation<SBool>> number) {
-    return builder.createSequentialSub(new LogProtocol(number));
+    return builder.seq(new LogProtocol(number));
   }
 
 
@@ -132,7 +132,7 @@ public class DefaultBinaryBuilderAdvanced implements BinaryBuilderAdvanced {
 
   public Computation<List<Pair<List<Computation<SBool>>, List<Computation<SBool>>>>> getKeyedCompareAndSwapProtocol(List<Computation<SBool>> leftKey,
       List<Computation<SBool>> leftValue, List<Computation<SBool>> rightKey, List<Computation<SBool>> rightValue) {
-    return builder.createSequentialSub(new KeyedCompareAndSwapProtocol(leftKey, leftValue, rightKey, rightValue));
+    return builder.seq(new KeyedCompareAndSwapProtocol(leftKey, leftValue, rightKey, rightValue));
   }
 
 }

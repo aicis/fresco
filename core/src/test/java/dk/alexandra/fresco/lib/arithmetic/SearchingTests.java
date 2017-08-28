@@ -99,7 +99,7 @@ public class SearchingTests {
                                   LinearLookUp function =
                                       new LinearLookUp(sKeys.get(counter), sKeys, sValues,
                                           notFound);
-                                  return seq.createSequentialSub(function);
+                                  return seq.seq(function);
                                 })
                                 .seq((out, seq) -> {
                                   this.outputs.add(seq.numeric().open(() -> out));
