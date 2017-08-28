@@ -14,8 +14,7 @@ public interface ComparisonBuilderBinary {
    * @param inRight The right secret shared bitstring
    * @return inLeft > inRight
    */
-  public Computation<SBool> greaterThan(List<Computation<SBool>> inLeft,
-      List<Computation<SBool>> inRight);
+  Computation<SBool> greaterThan(List<Computation<SBool>> inLeft, List<Computation<SBool>> inRight);
 
   /**
    * Performs an equality operation on the two inputted bitstrings.
@@ -24,6 +23,5 @@ public interface ComparisonBuilderBinary {
    * @param inRight The right secret shared bitstring
    * @return inLeft == inRight
    */
-  public Computation<SBool> equal(List<Computation<SBool>> inLeft,
-      List<Computation<SBool>> inRight);
+  Computation<SBool> equal(List<Computation<SBool>> inLeft, List<Computation<SBool>> inRight);
 }

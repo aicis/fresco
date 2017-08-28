@@ -1,10 +1,9 @@
 package dk.alexandra.fresco.lib.math.integer.division;
 
 import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.ComputationBuilder;
-import dk.alexandra.fresco.framework.builder.NumericBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.NumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import java.math.BigInteger;
@@ -20,18 +19,15 @@ import java.math.BigInteger;
  *
  * @author Jonas Lindstrøm (jonas.lindstrom@alexandra.dk)
  */
-public class KnownDivisor implements ComputationBuilder<SInt> {
+public class KnownDivisor implements ComputationBuilder<SInt, ProtocolBuilderNumeric> {
 
-  private final BuilderFactoryNumeric builderFactory;
   private final Computation<SInt> dividend;
   private final BigInteger divisor;
 
-  KnownDivisor(
-      BuilderFactoryNumeric builderFactory,
+  public KnownDivisor(
       Computation<SInt> dividend,
       BigInteger divisor) {
 
-    this.builderFactory = builderFactory;
     this.dividend = dividend;
     this.divisor = divisor;
   }
@@ -49,8 +45,8 @@ public class KnownDivisor implements ComputationBuilder<SInt> {
   }
 
   @Override
-  public Computation<SInt> build(SequentialNumericBuilder builder) {
-    BasicNumericFactory basicNumericFactory = this.builderFactory.getBasicNumericFactory();
+  public Computation<SInt> buildComputation(ProtocolBuilderNumeric builder) {
+    BasicNumericFactory basicNumericFactory = builder.getBasicNumericFactory();
     BigInteger modulus = basicNumericFactory.getModulus();
     BigInteger modulusHalf = modulus.divide(BigInteger.valueOf(2));
     /*
@@ -80,7 +76,7 @@ public class KnownDivisor implements ComputationBuilder<SInt> {
 		 * maxBitLength + divisorBitLength to be representable.
 		 */
     int maxBitLength =
-        (builderFactory.getBasicNumericFactory().getMaxBitLength() - divisorAbs.bitLength()) / 3;
+        (builder.getBasicNumericFactory().getMaxBitLength() - divisorAbs.bitLength()) / 3;
     int shifts = maxBitLength + divisorAbs.bitLength();
 
 		/*

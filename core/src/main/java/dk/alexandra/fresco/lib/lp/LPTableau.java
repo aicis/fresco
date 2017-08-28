@@ -24,7 +24,7 @@
 package dk.alexandra.fresco.lib.lp;
 
 import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.util.ArrayList;
 
@@ -46,7 +46,7 @@ public class LPTableau {
       this.F = F;
       this.z = z;
     } else {
-      throw new IllegalArgumentException("Dimenssions of tableau does not match");
+      throw new IllegalArgumentException("Dimensions of tableau does not match");
     }
   }
 
@@ -66,7 +66,7 @@ public class LPTableau {
     return z;
   }
 
-  public void toString(SequentialNumericBuilder builder) {
+  public void toString(ProtocolBuilderNumeric builder) {
     builder.utility().openAndPrint("C: ", C, System.out);
     builder.utility().openAndPrint("B: ", B, System.out);
     builder.utility().openAndPrint("F: ", F, System.out);

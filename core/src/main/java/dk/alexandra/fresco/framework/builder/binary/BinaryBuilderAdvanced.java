@@ -50,20 +50,6 @@ public interface BinaryBuilderAdvanced {
   Computation<SBool> condSelect(Computation<SBool> condition, Computation<SBool> left,
       Computation<SBool> right);
 
-  // TODO create condSelect for arrays
-
-  /**
-   * Appends a keyed compare and swap protocol. This protocol swaps two key-value pairs to that the
-   * left pair becomes the pair with the largest key.
-   *
-   * @param leftKey an SBool array representing the key of the left pair
-   * @param leftValue an SBool array representing the value of the left pair
-   * @param rightKey an SBool array representing the key of the right pair
-   * @param rightValue an SBool array representing the value of the right pair
-   */
-  // keyedCompareAndSwap(SBool[] leftKey, SBool[] leftValue, SBool[] rightKey, SBool[] rightValue) {
-
-
   /**
    * Half adder which returns the result in the 0'th position and the carry in the 1'st position of
    * the array.
@@ -123,5 +109,29 @@ public interface BinaryBuilderAdvanced {
    */
   Computation<List<Computation<SBool>>> logProtocol(List<Computation<SBool>> number);
 
+  /**
+   * Increments the number represented by a list of bits with a single secret bit (thus adding
+   * either 0 or 1 to the number).
+   * 
+   * @param large The bit representation of a number
+   * @param increment The bit to increment with
+   * @return A list representing the new number after the incrementation.
+   */
+  Computation<List<Computation<SBool>>> bitIncrement(List<Computation<SBool>> large,
+      Computation<SBool> increment);
+
+  /**
+   * Compares the keys of two key-value pairs and produce a list of pairs so that the first pair has
+   * the largest key.
+   * 
+   * @param leftKey The left key.
+   * @param leftValue The left value.
+   * @param rightKey The right key.
+   * @param rightValue The right value.
+   * @return A list of pairs where the first pair has the largest key.
+   */
+  Computation<List<Pair<List<Computation<SBool>>, List<Computation<SBool>>>>> keyedCompareAndSwap(
+      List<Computation<SBool>> leftKey, List<Computation<SBool>> leftValue,
+      List<Computation<SBool>> rightKey, List<Computation<SBool>> rightValue);
 
 }

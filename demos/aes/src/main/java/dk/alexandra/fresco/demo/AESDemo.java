@@ -28,7 +28,7 @@ import dk.alexandra.fresco.demo.helpers.ResourcePoolHelper;
 import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.builder.binary.BinaryBuilder;
-import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary.SequentialBinaryBuilder;
+import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
@@ -73,7 +73,7 @@ import org.apache.commons.cli.ParseException;
  *
  * OBS: Using the dummy protocol suite is not secure!
  */
-public class AESDemo implements Application<List<Boolean>, SequentialBinaryBuilder> {
+public class AESDemo implements Application<List<Boolean>, ProtocolBuilderBinary> {
 
   /**
    * Applications can be uploaded to fresco dynamically and are therefore Serializable's. This means
@@ -139,10 +139,10 @@ public class AESDemo implements Application<List<Boolean>, SequentialBinaryBuild
 
     // Do the secure computation using config from property files.
     AESDemo aes = new AESDemo(util.getNetworkConfiguration().getMyId(), input);
-    ProtocolSuite<ResourcePoolImpl, SequentialBinaryBuilder> ps =
-        (ProtocolSuite<ResourcePoolImpl, SequentialBinaryBuilder>) util.getProtocolSuite();
-    SecureComputationEngine<ResourcePoolImpl, SequentialBinaryBuilder> sce =
-        new SecureComputationEngineImpl<ResourcePoolImpl, SequentialBinaryBuilder>(ps,
+    ProtocolSuite<ResourcePoolImpl, ProtocolBuilderBinary> ps =
+        (ProtocolSuite<ResourcePoolImpl, ProtocolBuilderBinary>) util.getProtocolSuite();
+    SecureComputationEngine<ResourcePoolImpl, ProtocolBuilderBinary> sce =
+        new SecureComputationEngineImpl<ResourcePoolImpl, ProtocolBuilderBinary>(ps,
             util.getEvaluator());
 
     List<Boolean> aesResult = null;
@@ -167,7 +167,7 @@ public class AESDemo implements Application<List<Boolean>, SequentialBinaryBuild
   }
 
   @Override
-  public Computation<List<Boolean>> prepareApplication(SequentialBinaryBuilder producer) {
+  public Computation<List<Boolean>> prepareApplication(ProtocolBuilderBinary producer) {
     return producer.seq(seq -> {
       BinaryBuilder bin = seq.binary();
       List<Computation<SBool>> keyInputs = new ArrayList<>();
@@ -186,13 +186,13 @@ public class AESDemo implements Application<List<Boolean>, SequentialBinaryBuild
       }
       Computation<List<SBool>> res = seq.bristol().AES(plainInputs, keyInputs);
       return res;
-    }).seq((aesRes, seq) -> {
+    }).seq((seq, aesRes) -> {
       List<Computation<Boolean>> outs = new ArrayList<>();
       for (SBool toOpen : aesRes) {
         outs.add(seq.binary().open(toOpen));
       }
       return () -> outs;
-    }).seq((opened, seq) -> {
+    }).seq((seq, opened) -> {
       return () -> opened.stream().map(Computation::out).collect(Collectors.toList());
     });
   }

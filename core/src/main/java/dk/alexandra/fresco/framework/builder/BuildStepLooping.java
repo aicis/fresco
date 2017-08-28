@@ -1,49 +1,54 @@
 package dk.alexandra.fresco.framework.builder;
 
+import dk.alexandra.fresco.framework.BuilderFactory;
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.ProtocolProducer;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
+import dk.alexandra.fresco.framework.util.Pair;
 import java.util.function.Predicate;
 
-class BuildStepLooping<InputT> extends BuildStep<SequentialNumericBuilder, InputT, InputT> {
+class BuildStepLooping<BuilderT extends ProtocolBuilderImpl<BuilderT>, InputT>
+    implements BuildStep.NextStepBuilder<BuilderT, InputT, InputT> {
+
 
   private final Predicate<InputT> predicate;
-  private final FrescoLambda<InputT, InputT> function;
+  private final FrescoLambda<InputT, BuilderT, InputT> function;
 
-  BuildStepLooping(Predicate<InputT> predicate, FrescoLambda<InputT, InputT> function) {
-    super(function);
+  BuildStepLooping(Predicate<InputT> predicate, FrescoLambda<InputT, BuilderT, InputT> function) {
+    super();
     this.predicate = predicate;
     this.function = function;
   }
 
-  @Override
-  protected ProtocolProducer createProducer(InputT input, BuilderFactoryNumeric factory) {
-    LoopProtocolProducer<InputT> loopProtocolProducer =
+  public Pair<ProtocolProducer, Computation<InputT>> createNextStep(
+      InputT input,
+      BuilderFactory<BuilderT> factory,
+      BuildStep<BuilderT, ?, InputT> next) {
+    LoopProtocolProducer<BuilderT, InputT> loopProtocolProducer =
         new LoopProtocolProducer<>(factory, input, predicate, function, next);
-    output = loopProtocolProducer;
-    return loopProtocolProducer;
+    return new Pair<>(loopProtocolProducer, loopProtocolProducer);
   }
 
-  @Override
-  protected SequentialNumericBuilder createBuilder(BuilderFactoryNumeric factory) {
-    throw new IllegalStateException("Should not be called");
-  }
+  private static class LoopProtocolProducer<
+      BuilderT extends ProtocolBuilderImpl<BuilderT>,
+      InputT
+      > implements ProtocolProducer, Computation<InputT> {
 
-  private static class LoopProtocolProducer<InputT>
-      implements ProtocolProducer, Computation<InputT> {
-
-    private final BuilderFactoryNumeric factory;
+    private final BuilderFactory<BuilderT> factory;
     private boolean isDone;
     private boolean doneWithOwn;
     private Computation<InputT> currentResult;
     private ProtocolProducer currentProducer;
     private Predicate<InputT> predicate;
-    private FrescoLambda<InputT, InputT> function;
-    private BuildStep<?, ?, InputT> next;
+    private FrescoLambda<InputT, BuilderT, InputT> function;
+    private BuildStep<BuilderT, ?, InputT> next;
 
-    LoopProtocolProducer(BuilderFactoryNumeric factory, InputT input, Predicate<InputT> predicate,
-        FrescoLambda<InputT, InputT> function, BuildStep<?, ?, InputT> next) {
+    LoopProtocolProducer(
+        BuilderFactory<BuilderT> factory,
+        InputT input,
+        Predicate<InputT> predicate,
+        FrescoLambda<InputT, BuilderT, InputT> function,
+        BuildStep<BuilderT, ?, InputT> next) {
       this.factory = factory;
       this.predicate = predicate;
       this.function = function;
@@ -71,8 +76,8 @@ class BuildStepLooping<InputT> extends BuildStep<SequentialNumericBuilder, Input
         isDone = true;
       } else {
         if (predicate.test(input)) {
-          SequentialNumericBuilder builder = new SequentialNumericBuilder(factory);
-          currentResult = function.apply(input, builder);
+          BuilderT builder = factory.createSequential();
+          currentResult = function.buildComputation(builder, input);
           currentProducer = builder.build();
         } else {
           doneWithOwn = true;

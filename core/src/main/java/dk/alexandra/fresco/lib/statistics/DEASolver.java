@@ -29,7 +29,7 @@ package dk.alexandra.fresco.lib.statistics;
 import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.MPCException;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.lp.LPSolver;
@@ -54,7 +54,7 @@ import java.util.stream.Collectors;
  * The result/score of the computation must be converted to a double using Gauss
  * reduction to be meaningful. See the DEASolverTests for an example.
  */
-public class DEASolver implements Application<List<DEAResult>, SequentialNumericBuilder> {
+public class DEASolver implements Application<List<DEAResult>, ProtocolBuilderNumeric> {
 
   private final List<List<SInt>> targetInputs, targetOutputs;
   private final List<List<SInt>> inputDataSet, outputDataSet;
@@ -154,7 +154,7 @@ public class DEASolver implements Application<List<DEAResult>, SequentialNumeric
   }
 
   @Override
-  public Computation<List<DEAResult>> prepareApplication(SequentialNumericBuilder builder) {
+  public Computation<List<DEAResult>> prepareApplication(ProtocolBuilderNumeric builder) {
     List<Computation<SimpleLPPrefix>> prefixes = getPrefixWithSecretSharedValues(
         builder);
     return builder.par((par) -> {
@@ -170,23 +170,23 @@ public class DEASolver implements Application<List<DEAResult>, SequentialNumeric
         List<Computation<SInt>> initialBasis = prefix.getBasis();
 
         result.add(
-            par.createSequentialSub((subSeq) ->
+            par.seq((subSeq) ->
                 subSeq.seq((solverSec) -> {
                   LPSolver lpSolver = new LPSolver(
                       pivotRule, tableau, update, pivot, initialBasis);
-                  return lpSolver.build(solverSec);
+                  return lpSolver.buildComputation(solverSec);
 
-                }).seq((lpOutput, optSec) ->
+                }).seq((optSec, lpOutput) ->
                     Pair.lazy(
                         lpOutput.basis,
                         new OptimalValue(lpOutput.updateMatrix, lpOutput.tableau, lpOutput.pivot)
-                            .build(optSec)
+                            .buildComputation(optSec)
                     )
                 ))
         );
       }
       return () -> result;
-    }).seq((result, seq) -> {
+    }).seq((seq, result) -> {
       List<DEAResult> convertedResult = result.stream().map(DEAResult::new)
           .collect(Collectors.toList());
       return () -> convertedResult;
@@ -194,7 +194,7 @@ public class DEASolver implements Application<List<DEAResult>, SequentialNumeric
   }
 
   private List<Computation<SimpleLPPrefix>> getPrefixWithSecretSharedValues(
-      SequentialNumericBuilder builder) {
+      ProtocolBuilderNumeric builder) {
     int dataSetSize = this.inputDataSet.size();
 
     int noOfSolvers = this.targetInputs.size();

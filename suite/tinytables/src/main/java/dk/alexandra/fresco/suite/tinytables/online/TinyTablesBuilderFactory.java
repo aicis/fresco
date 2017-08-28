@@ -2,7 +2,6 @@ package dk.alexandra.fresco.suite.tinytables.online;
 
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.ProtocolFactory;
-import dk.alexandra.fresco.framework.builder.binary.BasicBinaryFactory;
 import dk.alexandra.fresco.framework.builder.binary.BinaryBuilder;
 import dk.alexandra.fresco.framework.builder.binary.BuilderFactoryBinary;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
@@ -127,11 +126,6 @@ public class TinyTablesBuilderFactory implements BuilderFactoryBinary {
         return p;
       }
     };
-  }
-
-  @Override
-  public BasicBinaryFactory createBasicBinaryFactory() {
-    return this.factory;
   }
 
 }

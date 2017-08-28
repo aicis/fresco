@@ -35,8 +35,8 @@ import dk.alexandra.fresco.framework.TestApplication;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
-import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
+import dk.alexandra.fresco.framework.builder.numeric.BuilderFactoryNumeric;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SInt;
@@ -100,9 +100,9 @@ class LPSolverTests {
                       }
                       return () -> prefix;
                     });
-                    builder.createSequentialSub((seq) -> {
+                    builder.seq((seq) -> {
                       PlainSpdzLPPrefix prefix = prefixComp.out();
-                      Computation<LPOutput> lpOutput = seq.createSequentialSub(
+                      Computation<LPOutput> lpOutput = seq.seq(
                           new LPSolver(
                               pivotRule,
                               prefix.getTableau(),
@@ -110,10 +110,10 @@ class LPSolverTests {
                               prefix.getPivot(),
                               prefix.getBasis()));
 
-                      Computation<SInt> optimalValue = seq.createSequentialSub((inner) -> {
+                      Computation<SInt> optimalValue = seq.seq((inner) -> {
                             LPOutput out = lpOutput.out();
                         return new OptimalValue(out.updateMatrix, out.tableau, out.pivot)
-                                .build(inner);
+                            .buildComputation(inner);
                           }
                       );
                       Computation<BigInteger> open = seq.numeric().open(optimalValue);

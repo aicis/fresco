@@ -5,7 +5,7 @@ import dk.alexandra.fresco.framework.value.SBool;
 import java.io.PrintStream;
 import java.util.List;
 
-public interface BinaryUtilityBuilder {
+public interface BinaryDebugBuilder {
 
   /**
    * When evaluated, opens the given SBools and prints them to System.out.

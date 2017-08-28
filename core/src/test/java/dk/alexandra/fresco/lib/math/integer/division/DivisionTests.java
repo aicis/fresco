@@ -31,10 +31,9 @@ import dk.alexandra.fresco.framework.TestApplication;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
-import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
-import dk.alexandra.fresco.framework.builder.NumericBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.BuilderFactoryNumeric;
+import dk.alexandra.fresco.framework.builder.numeric.NumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SInt;
@@ -89,13 +88,13 @@ public class DivisionTests {
               BigInteger input2 = d;
               sequentialProtocolProducer.append(ioBuilder.getProtocol());
 
-              SequentialNumericBuilder applicationRoot = ProtocolBuilderNumeric
+              ProtocolBuilderNumeric applicationRoot = ProtocolBuilderNumeric
                   .createApplicationRoot((BuilderFactoryNumeric) factoryProducer, (seq) -> {
-                Computation<SInt> division = seq.createSequentialSub(new KnownDivisor(
-                    (BuilderFactoryNumeric) factoryProducer, () -> input1, input2));
+                    Computation<SInt> division = seq.seq(new KnownDivisor(
+                        () -> input1, input2));
 
                 Computation<SInt> remainder =
-                    seq.createSequentialSub(new KnownDivisorRemainder(() -> input1, input2));
+                    seq.seq(new KnownDivisorRemainder(() -> input1, input2));
                 NumericBuilder NumericBuilder = seq.numeric();
                 Computation<BigInteger> output1 = NumericBuilder.open(division);
                 Computation<BigInteger> output2 = NumericBuilder.open(remainder);
@@ -153,13 +152,13 @@ public class DivisionTests {
               BigInteger input2 = d;
               sequentialProtocolProducer.append(ioBuilder.getProtocol());
 
-              SequentialNumericBuilder applicationRoot = ProtocolBuilderNumeric
+              ProtocolBuilderNumeric applicationRoot = ProtocolBuilderNumeric
                   .createApplicationRoot((BuilderFactoryNumeric) factoryProducer, (seq) -> {
-                Computation<SInt> division = seq.createSequentialSub(new KnownDivisor(
-                    (BuilderFactoryNumeric) factoryProducer, () -> input1, input2));
+                    Computation<SInt> division = seq.seq(new KnownDivisor(
+                        () -> input1, input2));
 
                 Computation<SInt> remainder =
-                    seq.createSequentialSub(new KnownDivisorRemainder(() -> input1, input2));
+                    seq.seq(new KnownDivisorRemainder(() -> input1, input2));
                 NumericBuilder NumericBuilder = seq.numeric();
                 Computation<BigInteger> output1 = NumericBuilder.open(division);
                 Computation<BigInteger> output2 = NumericBuilder.open(remainder);

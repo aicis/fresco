@@ -23,7 +23,6 @@
  *******************************************************************************/
 package dk.alexandra.fresco.framework.value;
 
-import dk.alexandra.fresco.framework.Computation;
 import java.math.BigInteger;
 
 
@@ -34,31 +33,10 @@ public interface SIntFactory {
    */
   SInt getSInt();
 
-  /**
-   * Creates an array of empty containers.
-   * 
-   * @param amount The amount of containters
-   * @return
-   */
-  default SInt[] getSIntArray(int amount) {
-    SInt[] res = new SInt[amount];
-    for (int i = 0; i < amount; i++) {
-      res[i] = getSInt();
-    }
-    return res;
-  }
-
   @Deprecated
   SInt getSInt(int i);
 
   @Deprecated
   SInt getSInt(BigInteger i);
-
-  /**
-   * Gets a protocol to load a publicly known value into a SInt. The idea here is to not do the
-   * computation involved in loading the SInt while we are building the protocol. TODO: This should
-   * not be how values are loaded
-   */
-  Computation<SInt> getSInt(BigInteger i, SInt si);
 
 }

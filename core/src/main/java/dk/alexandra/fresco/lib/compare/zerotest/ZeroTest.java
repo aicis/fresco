@@ -27,9 +27,8 @@
 package dk.alexandra.fresco.lib.compare.zerotest;
 
 import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.ComputationBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 
 /**
@@ -37,25 +36,19 @@ import dk.alexandra.fresco.framework.value.SInt;
  *
  * @author ttoft
  */
-public class ZeroTest implements ComputationBuilder<SInt> {
+public class ZeroTest implements ComputationBuilder<SInt, ProtocolBuilderNumeric> {
 
-  private final BuilderFactoryNumeric factoryNumeric;
   private final int bitLength;
   private final Computation<SInt> input;
 
-  public ZeroTest(
-      BuilderFactoryNumeric factoryNumeric,
-      int bitLength, Computation<SInt> input) {
-    this.factoryNumeric = factoryNumeric;
+  public ZeroTest(int bitLength, Computation<SInt> input) {
     this.bitLength = bitLength;
     this.input = input;
   }
 
   @Override
-  public Computation<SInt> build(SequentialNumericBuilder builder) {
-    Computation<SInt> reduced = builder.createSequentialSub(
-        new ZeroTestReducer(bitLength, input));
-    return builder.createSequentialSub(
-        new ZeroTestBruteforce(factoryNumeric, bitLength, reduced));
+  public Computation<SInt> buildComputation(ProtocolBuilderNumeric builder) {
+    Computation<SInt> reduced = builder.seq(new ZeroTestReducer(bitLength, input));
+    return builder.seq(new ZeroTestBruteforce(bitLength, reduced));
   }
 }

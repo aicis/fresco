@@ -28,7 +28,7 @@ import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
-import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary.SequentialBinaryBuilder;
+import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SBool;
@@ -47,7 +47,7 @@ public class ComparisonBooleanTests {
    * @author Kasper Damgaard
    */
   public static class TestGreaterThan<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory<ResourcePoolT, SequentialBinaryBuilder> {
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
 
     private boolean doAsserts = false;
 
@@ -58,19 +58,19 @@ public class ComparisonBooleanTests {
     }
 
     @Override
-    public TestThread<ResourcePoolT, SequentialBinaryBuilder> next(
-        TestThreadConfiguration<ResourcePoolT, SequentialBinaryBuilder> conf) {
-      return new TestThread<ResourcePoolT, SequentialBinaryBuilder>() {
+    public TestThread<ResourcePoolT, ProtocolBuilderBinary> next(
+        TestThreadConfiguration<ResourcePoolT, ProtocolBuilderBinary> conf) {
+      return new TestThread<ResourcePoolT, ProtocolBuilderBinary>() {
         @Override
         public void test() throws Exception {
           boolean[] comp1 = new boolean[] {false, true, false, true, false};
           boolean[] comp2 = new boolean[] {false, true, true, true, false};
 
-          Application<List<Boolean>, SequentialBinaryBuilder> app =
-              new Application<List<Boolean>, SequentialBinaryBuilder>() {
+          Application<List<Boolean>, ProtocolBuilderBinary> app =
+              new Application<List<Boolean>, ProtocolBuilderBinary>() {
 
             @Override
-            public Computation<List<Boolean>> prepareApplication(SequentialBinaryBuilder producer) {
+            public Computation<List<Boolean>> prepareApplication(ProtocolBuilderBinary producer) {
               return producer.seq(seq -> {
                 List<Computation<SBool>> in1 = seq.binary().known(comp1);
                 List<Computation<SBool>> in2 = seq.binary().known(comp2);
@@ -79,7 +79,7 @@ public class ComparisonBooleanTests {
                 Computation<Boolean> open1 = seq.binary().open(res1);
                 Computation<Boolean> open2 = seq.binary().open(res2);
                 return () -> Arrays.asList(open1, open2);
-              }).seq((opened, seq) -> {
+              }).seq((seq, opened) -> {
                 return () -> opened.stream().map(Computation::out).collect(Collectors.toList());
               });
             }
@@ -103,7 +103,7 @@ public class ComparisonBooleanTests {
    * @author Kasper Damgaard
    */
   public static class TestEquality<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory<ResourcePoolT, SequentialBinaryBuilder> {
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
 
     private boolean doAsserts = false;
 
@@ -114,19 +114,19 @@ public class ComparisonBooleanTests {
     }
 
     @Override
-    public TestThread<ResourcePoolT, SequentialBinaryBuilder> next(
-        TestThreadConfiguration<ResourcePoolT, SequentialBinaryBuilder> conf) {
-      return new TestThread<ResourcePoolT, SequentialBinaryBuilder>() {
+    public TestThread<ResourcePoolT, ProtocolBuilderBinary> next(
+        TestThreadConfiguration<ResourcePoolT, ProtocolBuilderBinary> conf) {
+      return new TestThread<ResourcePoolT, ProtocolBuilderBinary>() {
         @Override
         public void test() throws Exception {
           boolean[] comp1 = new boolean[] {false, true, false, true, false};
           boolean[] comp2 = new boolean[] {false, true, true, true, false};
 
-          Application<List<Boolean>, SequentialBinaryBuilder> app =
-              new Application<List<Boolean>, SequentialBinaryBuilder>() {
+          Application<List<Boolean>, ProtocolBuilderBinary> app =
+              new Application<List<Boolean>, ProtocolBuilderBinary>() {
 
             @Override
-            public Computation<List<Boolean>> prepareApplication(SequentialBinaryBuilder producer) {
+            public Computation<List<Boolean>> prepareApplication(ProtocolBuilderBinary producer) {
               return producer.seq(seq -> {
                 List<Computation<SBool>> in1 = seq.binary().known(comp1);
                 List<Computation<SBool>> in2 = seq.binary().known(comp2);
@@ -135,7 +135,7 @@ public class ComparisonBooleanTests {
                 Computation<Boolean> open1 = seq.binary().open(res1);
                 Computation<Boolean> open2 = seq.binary().open(res2);
                 return () -> Arrays.asList(open1, open2);
-              }).seq((opened, seq) -> {
+              }).seq((seq, opened) -> {
                 return () -> opened.stream().map(Computation::out).collect(Collectors.toList());
               });
             }
@@ -206,29 +206,29 @@ public class ComparisonBooleanTests {
    * @author Kasper Damgaard
    */
   public static class TestGreaterThanUnequalLength<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory<ResourcePoolT, SequentialBinaryBuilder> {
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
 
     @Override
-    public TestThread<ResourcePoolT, SequentialBinaryBuilder> next(
-        TestThreadConfiguration<ResourcePoolT, SequentialBinaryBuilder> conf) {
-      return new TestThread<ResourcePoolT, SequentialBinaryBuilder>() {
+    public TestThread<ResourcePoolT, ProtocolBuilderBinary> next(
+        TestThreadConfiguration<ResourcePoolT, ProtocolBuilderBinary> conf) {
+      return new TestThread<ResourcePoolT, ProtocolBuilderBinary>() {
         @Override
         public void test() throws Exception {
           boolean[] comp1 = new boolean[] {false, true, false, true, false};
           boolean[] comp2 = new boolean[] {false, true, true};
 
-          Application<List<Boolean>, SequentialBinaryBuilder> app =
-              new Application<List<Boolean>, SequentialBinaryBuilder>() {
+          Application<List<Boolean>, ProtocolBuilderBinary> app =
+              new Application<List<Boolean>, ProtocolBuilderBinary>() {
 
             @Override
-            public Computation<List<Boolean>> prepareApplication(SequentialBinaryBuilder producer) {
+            public Computation<List<Boolean>> prepareApplication(ProtocolBuilderBinary producer) {
               return producer.seq(seq -> {
                 List<Computation<SBool>> in1 = seq.binary().known(comp1);
                 List<Computation<SBool>> in2 = seq.binary().known(comp2);
                 Computation<SBool> res1 = seq.comparison().greaterThan(in1, in2);
                 Computation<Boolean> open1 = seq.binary().open(res1);
                 return () -> Arrays.asList(open1);
-              }).seq((opened, seq) -> {
+              }).seq((seq, opened) -> {
                 return () -> opened.stream().map(Computation::out).collect(Collectors.toList());
               });
             }

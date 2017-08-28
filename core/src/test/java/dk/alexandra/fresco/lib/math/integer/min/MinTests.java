@@ -33,9 +33,9 @@ import dk.alexandra.fresco.framework.TestApplication;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
-import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
-import dk.alexandra.fresco.framework.builder.NumericBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
+import dk.alexandra.fresco.framework.builder.numeric.BuilderFactoryNumeric;
+import dk.alexandra.fresco.framework.builder.numeric.NumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
@@ -44,7 +44,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
-
 import org.hamcrest.core.Is;
 import org.junit.Assert;
 
@@ -85,20 +84,19 @@ public class MinTests {
                         .map(BigInteger::valueOf)
                         .map(sIntFactory::known)
                         .collect(Collectors.toList());
-                    
-                    Computation<Pair<List<Computation<SInt>>, SInt>> min = builder.createSequentialSub(
-                        new Minimum(inputs));
-                    
-                    
-                    builder.createParallelSub((par) -> {
-                      NumericBuilder open = par.numeric();
-                      resultMin = open.open(min.out().getSecond());
+
+										Computation<Pair<List<Computation<SInt>>, SInt>> min = builder.seq(
+												new Minimum(inputs));
+
+										builder.par((par) -> {
+											NumericBuilder open = par.numeric();
+											resultMin = open.open(min.out().getSecond());
                       List<Computation<SInt>> outputArray = min.out().getFirst();
                       List<Computation<BigInteger>> openOutputArray = new ArrayList<>(
                           outputArray.size());
                       for (Computation<SInt> computation : outputArray) {
                         openOutputArray.add(open.open(computation));
-                        
+
                       }
                       resultArray = openOutputArray;
                       return null;
@@ -154,14 +152,13 @@ public class MinTests {
                            .map(BigInteger::valueOf)
                            .map(sIntFactory::known)
                            .collect(Collectors.toList());
-	                    
-	                    Computation<MinInfFrac.MinInfOutput> min = builder.createSequentialSub(
-	                        new MinInfFrac(inputN, inputD, inputInfs));
-	                    
-	                    
-	                    builder.createParallelSub((par) -> {
-	                      NumericBuilder open = par.numeric();
-	                      resultMinN = open.open(min.out().nm);
+
+											Computation<MinInfFrac.MinInfOutput> min = builder.seq(
+													new MinInfFrac(inputN, inputD, inputInfs));
+
+											builder.par((par) -> {
+												NumericBuilder open = par.numeric();
+												resultMinN = open.open(min.out().nm);
 	                      resultMinD = open.open(min.out().dm);
 	                      resultMinInfs = open.open(min.out().infm);
 	                      List<Computation<SInt>> outputArray = min.out().cs;
@@ -169,7 +166,7 @@ public class MinTests {
 	                          outputArray.size());
 	                      for (Computation<SInt> computation : outputArray) {
 	                        openOutputArray.add(open.open(computation));
-	                        
+
 	                      }
 	                      resultArray = openOutputArray;
 	                      return null;
@@ -226,14 +223,13 @@ public class MinTests {
                           .map(BigInteger::valueOf)
                           .map(sIntFactory::known)
                           .collect(Collectors.toList());
-                     
-                     Computation<MinInfFrac.MinInfOutput> min = builder.createSequentialSub(
-                         new MinInfFrac(inputN, inputD, inputInfs));
-                     
-                     
-                     builder.createParallelSub((par) -> {
-                       NumericBuilder open = par.numeric();
-                       resultMinN = open.open(min.out().nm);
+
+										 Computation<MinInfFrac.MinInfOutput> min = builder.seq(
+												 new MinInfFrac(inputN, inputD, inputInfs));
+
+										 builder.par((par) -> {
+											 NumericBuilder open = par.numeric();
+											 resultMinN = open.open(min.out().nm);
                        resultMinD = open.open(min.out().dm);
                        resultMinInfs = open.open(min.out().infm);
                        List<Computation<SInt>> outputArray = min.out().cs;
@@ -241,9 +237,9 @@ public class MinTests {
                            outputArray.size());
                        for (Computation<SInt> computation : outputArray) {
                          openOutputArray.add(open.open(computation));
-                         
-                       }
-                       resultArray = openOutputArray;
+
+											 }
+											 resultArray = openOutputArray;
                        return null;
                      });
                    }).build();

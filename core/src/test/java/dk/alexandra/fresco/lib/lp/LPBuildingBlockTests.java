@@ -26,7 +26,6 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.lp;
 
-import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.BuilderFactory;
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.ProtocolProducer;
@@ -34,25 +33,17 @@ import dk.alexandra.fresco.framework.TestApplication;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
-import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
-import dk.alexandra.fresco.framework.builder.NumericBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.BuilderFactoryNumeric;
+import dk.alexandra.fresco.framework.builder.numeric.NumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
-import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.debug.MarkerProtocolImpl;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.helper.builder.NumericIOBuilder;
-import dk.alexandra.fresco.lib.helper.builder.NumericProtocolBuilder;
-import dk.alexandra.fresco.lib.helper.SequentialProtocolProducer;
-import java.io.LineNumberInputStream;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-
-import org.hamcrest.core.Is;
 import java.util.stream.Collectors;
 import org.junit.Assert;
 
@@ -78,8 +69,8 @@ public class LPBuildingBlockTests {
       this.f = randomList(n + m);
     }
 
-    void inputTableau(SequentialNumericBuilder builder) {
-      builder.createParallelSub(par -> {
+    void inputTableau(ProtocolBuilderNumeric builder) {
+      builder.par(par -> {
         NumericBuilder numeric = par.numeric();
         sTableau = new LPTableau(
             new Matrix<>(constraints.getHeight(), constraints.getWidth(),
@@ -123,15 +114,15 @@ public class LPBuildingBlockTests {
       return expectedIndex;
     }
 
-    void setupRandom(int n, int m, SequentialNumericBuilder builder) {
+    void setupRandom(int n, int m, ProtocolBuilderNumeric builder) {
       randomTableau(n, m);
       inputTableau(builder);
 
       expectedIndex = enteringDanzigVariableIndex(constraints, updateMatrix, b, f);
 
       builder.seq((seq) ->
-          new EnteringVariable(sTableau, sUpdateMatrix).build(seq)
-      ).seq((enteringOutput, seq) -> {
+          new EnteringVariable(sTableau, sUpdateMatrix).buildComputation(seq)
+      ).seq((seq, enteringOutput) -> {
         List<Computation<SInt>> enteringIndex = enteringOutput.getFirst();
         NumericBuilder numeric = seq.numeric();
         List<Computation<BigInteger>> opened = enteringIndex.stream().map(numeric::open)
@@ -190,15 +181,15 @@ public class LPBuildingBlockTests {
       return expectedIndex;
     }
 
-    void setupRandom(int n, int m, SequentialNumericBuilder builder) {
+    void setupRandom(int n, int m, ProtocolBuilderNumeric builder) {
       randomTableau(n, m);
       inputTableau(builder);
 
       expectedIndex = enteringDanzigVariableIndex(constraints, updateMatrix, b, f);
 
       builder.seq((seq) ->
-          new BlandEnteringVariable(sTableau, sUpdateMatrix).build(seq)
-      ).seq((enteringOutput, seq) -> {
+          new BlandEnteringVariable(sTableau, sUpdateMatrix).buildComputation(seq)
+      ).seq((seq, enteringOutput) -> {
         List<Computation<SInt>> enteringIndex = enteringOutput.getFirst();
         NumericBuilder numeric = seq.numeric();
         List<Computation<BigInteger>> opened = enteringIndex.stream().map(numeric::open)
@@ -326,8 +317,8 @@ public class LPBuildingBlockTests {
 
             @Override
             public ProtocolProducer prepareApplication(BuilderFactory factoryProducer) {
-              SequentialNumericBuilder builder = ProtocolBuilderNumeric
-                  .createApplicationRoot((BuilderFactoryNumeric) factoryProducer);
+              ProtocolBuilderNumeric builder = ((BuilderFactoryNumeric) factoryProducer)
+                  .createSequential();
               mod = builder.getBasicNumericFactory().getModulus();
               setupRandom(10, 10, builder);
               return builder.build();
@@ -370,8 +361,8 @@ public class LPBuildingBlockTests {
 
               @Override
               public ProtocolProducer prepareApplication(BuilderFactory factoryProducer) {
-                SequentialNumericBuilder builder = ProtocolBuilderNumeric
-                    .createApplicationRoot((BuilderFactoryNumeric) factoryProducer);
+                ProtocolBuilderNumeric builder = ((BuilderFactoryNumeric) factoryProducer)
+                    .createSequential();
                 mod = builder.getBasicNumericFactory().getModulus();
                 setupRandom(10, 10, builder);
                 return builder.build();
@@ -417,8 +408,8 @@ public class LPBuildingBlockTests {
 
                 @Override
                 public ProtocolProducer prepareApplication(BuilderFactory factoryProducer) {
-                  SequentialNumericBuilder builder = ProtocolBuilderNumeric
-                      .createApplicationRoot((BuilderFactoryNumeric) factoryProducer);
+                  ProtocolBuilderNumeric builder = ((BuilderFactoryNumeric) factoryProducer)
+                      .createSequential();
                   mod = builder.getBasicNumericFactory().getModulus();
                   //setupRandom(10, 10, builder);
                   return builder.build();

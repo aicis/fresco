@@ -26,14 +26,13 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.math.bool.log;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.builder.binary.ComputationBuilderBinary;
-import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary.SequentialBinaryBuilder;
+import dk.alexandra.fresco.framework.builder.ComputationBuilder;
+import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.math.Util;
 import dk.alexandra.fresco.framework.value.SBool;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This class implements logarithm base 2 for binary protocols. 
@@ -58,7 +57,8 @@ import dk.alexandra.fresco.framework.value.SBool;
  *
  * @author Kasper Damgaard
  */
-public class LogProtocol implements ComputationBuilderBinary<List<Computation<SBool>>> {
+public class LogProtocol implements
+    ComputationBuilder<List<Computation<SBool>>, ProtocolBuilderBinary> {
 
   private List<Computation<SBool>> number;
 
@@ -74,16 +74,16 @@ public class LogProtocol implements ComputationBuilderBinary<List<Computation<SB
   
   
   @Override
-  public Computation<List<Computation<SBool>>> build(SequentialBinaryBuilder builder) {
+  public Computation<List<Computation<SBool>>> buildComputation(ProtocolBuilderBinary builder) {
     return builder.seq(seq -> {
-      List<Computation<SBool>> ors = new ArrayList<Computation<SBool>>();
+      List<Computation<SBool>> ors = new ArrayList<>();
       ors.add(number.get(0));
       for(int i = 1; i< number.size(); i++) {
         ors.add(seq.advancedBinary().or(number.get(i), ors.get(i-1)));
       }
       return () -> ors;
-    }).seq((ors, seq) -> {
-      List<Computation<SBool>> xors = new ArrayList<Computation<SBool>>();
+    }).seq((seq, ors) -> {
+      List<Computation<SBool>> xors = new ArrayList<>();
       xors.add(seq.binary().xor(ors.get(0), seq.binary().known(false)));
 
       for (int i = 1; i < number.size(); i++) {
@@ -91,8 +91,8 @@ public class LogProtocol implements ComputationBuilderBinary<List<Computation<SB
       }
       xors.add(seq.binary().known(false));
       return () -> xors;
-    }).seq((xors, seq) -> {
-      List<Computation<SBool>> res = new ArrayList<Computation<SBool>>();
+    }).seq((seq, xors) -> {
+      List<Computation<SBool>> res = new ArrayList<>();
       for (int j = 0; j < Util.log2(number.size()) + 1; j++) {
         res.add(seq.binary().known(false));
       }

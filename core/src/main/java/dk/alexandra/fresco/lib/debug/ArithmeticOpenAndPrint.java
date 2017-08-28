@@ -25,8 +25,8 @@ package dk.alexandra.fresco.lib.debug;
 
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.builder.ComputationBuilder;
-import dk.alexandra.fresco.framework.builder.NumericBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.NumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.lp.Matrix;
 import java.io.PrintStream;
@@ -35,7 +35,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-public class ArithmeticOpenAndPrint implements ComputationBuilder<Void> {
+public class ArithmeticOpenAndPrint implements ComputationBuilder<Void, ProtocolBuilderNumeric> {
 
   private Computation<SInt> number = null;
   private List<Computation<SInt>> vector = null;
@@ -63,7 +63,7 @@ public class ArithmeticOpenAndPrint implements ComputationBuilder<Void> {
   }
 
   @Override
-  public Computation<Void> build(SequentialNumericBuilder builder) {
+  public Computation<Void> buildComputation(ProtocolBuilderNumeric builder) {
     return builder.seq(seq -> {
       NumericBuilder num = seq.numeric();
       List<Computation<BigInteger>> res = new ArrayList<>();
@@ -83,7 +83,7 @@ public class ArithmeticOpenAndPrint implements ComputationBuilder<Void> {
         }
       }
       return () -> res;
-    }).seq((res, seq) -> {
+    }).seq((seq, res) -> {
       StringBuilder sb = new StringBuilder();
       sb.append(label);
       sb.append("\n");
@@ -106,62 +106,4 @@ public class ArithmeticOpenAndPrint implements ComputationBuilder<Void> {
       return null;
     });
   }
-  //
-  // @Override
-  // public void getNextProtocols(ProtocolCollection protocolCollection) {
-  // if (pp == null) {
-  // if (state == State.OUTPUT) {
-  // if (number != null) {
-  // openNumber = factory.getOpenProtocol(number);
-  // pp = new SingleProtocolProducer<>(openNumber);
-  // } else if (vector != null) {
-  // openVector = new ArrayList<>();
-  // pp = makeOpenProtocol(vector, openVector, factory);
-  // } else {
-  // openMatrix = new ArrayList<>();
-  // pp = makeOpenProtocol(matrix, openMatrix, factory);
-  // }
-  // } else if (state == State.WRITE) {
-  // StringBuilder sb = new StringBuilder();
-  // sb.append(label);
-  // if (openNumber != null) {
-  // sb.append(openNumber.out().toString());
-  // } else if (openVector != null) {
-  // sb.append('\n');
-  // for (Computation<BigInteger> entry : openVector) {
-  // sb.append(entry.out().toString() + ", ");
-  // }
-  // } else if (openMatrix != null) {
-  // sb.append('\n');
-  // for (List<Computation<BigInteger>> row : openMatrix) {
-  // for (Computation<BigInteger> entry : row) {
-  // sb.append(entry.out().toString() + ", ");
-  // }
-  // sb.append('\n');
-  // }
-  // }
-  // pp = new MarkerProtocolImpl(sb.toString(), null);
-  // } else if (state == State.DONE) {
-  // // TODO: This should really never occur as a state of DONE should give false in
-  // // hasNextProtocols, but it does, find out why.
-  // return;
-  // }
-  // }
-  // if (pp.hasNextProtocols()) {
-  // pp.getNextProtocols(protocolCollection);
-  // } else if (!pp.hasNextProtocols()) {
-  // switch (state) {
-  // case OUTPUT:
-  // state = State.WRITE;
-  // pp = null;
-  // break;
-  // case WRITE:
-  // state = State.DONE;
-  // pp = null;
-  // break;
-  // default:
-  // break;
-  // }
-  // }
-  // }
 }

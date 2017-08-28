@@ -26,7 +26,6 @@
  *******************************************************************************/
 package dk.alexandra.fresco.suite.spdz.utils;
 
-import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
@@ -34,7 +33,6 @@ import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzAddProtocolOld;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzInputProtocol;
-import dk.alexandra.fresco.suite.spdz.gates.SpdzKnownSIntProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzMultProtocolOld;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzOutputProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzOutputToAllProtocolOld;
@@ -62,14 +60,6 @@ public class SpdzFactory implements BasicNumericFactory {
   @Override
   public SpdzSInt getSInt() {
     return new SpdzSInt();
-  }
-
-  /**
-   * Careful - This creates a publicly known integer which is secret shared.
-   */
-  @Override
-  public Computation<SInt> getSInt(BigInteger value, SInt sValue) {
-    return new SpdzKnownSIntProtocol(value, sValue);
   }
 
   public SpdzSInt getRandomBitFromStorage() {

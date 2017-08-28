@@ -24,9 +24,9 @@
 package dk.alexandra.fresco.lib.compare.bool.eq;
 
 import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.builder.ComputationBuilder;
 import dk.alexandra.fresco.framework.builder.binary.BinaryBuilder;
-import dk.alexandra.fresco.framework.builder.binary.ComputationBuilderBinary;
-import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary.SequentialBinaryBuilder;
+import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.value.SBool;
 import java.util.ArrayList;
 import java.util.List;
@@ -37,7 +37,7 @@ import java.util.List;
  * The XNORs are done in parallel and the ANDs are done sequentially.
  * 
  */
-public class BinaryEqualityProtocol implements ComputationBuilderBinary<SBool> {
+public class BinaryEqualityProtocol implements ComputationBuilder<SBool, ProtocolBuilderBinary> {
 
   private List<Computation<SBool>> inLeft;
   private List<Computation<SBool>> inRight;
@@ -54,7 +54,7 @@ public class BinaryEqualityProtocol implements ComputationBuilderBinary<SBool> {
   }
 
   @Override
-  public Computation<SBool> build(SequentialBinaryBuilder builder) {
+  public Computation<SBool> buildComputation(ProtocolBuilderBinary builder) {
     return builder.par(par -> {
       BinaryBuilder bb = par.binary();
       List<Computation<SBool>> xors = new ArrayList<>();
@@ -62,13 +62,13 @@ public class BinaryEqualityProtocol implements ComputationBuilderBinary<SBool> {
         xors.add(bb.xor(inLeft.get(i), inRight.get(i)));
       }
       return () -> xors;
-    }).par((xors, par) -> {
+    }).par((par, xors) -> {
       List<Computation<SBool>> xnors = new ArrayList<>();
       for (int i = 0; i < length; i++) {
         xnors.add(par.binary().not(xors.get(i)));
       }
       return () -> xnors;
-    }).seq((xnors, seq) -> {
+    }).seq((seq, xnors) -> {
       Computation<SBool> xnorsAnd;
       xnorsAnd = seq.binary().and(xnors.get(0), xnors.get(1));
       int i = 2;
@@ -79,4 +79,5 @@ public class BinaryEqualityProtocol implements ComputationBuilderBinary<SBool> {
       return xnorsAnd;
     });
   }
+
 }

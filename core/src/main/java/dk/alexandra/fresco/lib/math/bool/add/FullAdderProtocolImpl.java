@@ -26,14 +26,12 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.math.bool.add;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.builder.binary.ComputationBuilderBinary;
-import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary.SequentialBinaryBuilder;
+import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SBool;
+import java.util.ArrayList;
+import java.util.List;
 
 
 
@@ -42,7 +40,8 @@ import dk.alexandra.fresco.framework.value.SBool;
  * It takes the naive approach of linking 1-Bit-Full Adders together to implement
  * a generic length adder.
  */
-public class FullAdderProtocolImpl implements ComputationBuilderBinary<List<Computation<SBool>>> {
+public class FullAdderProtocolImpl implements
+    dk.alexandra.fresco.framework.builder.ComputationBuilder<List<Computation<SBool>>, ProtocolBuilderBinary> {
 
   private List<Computation<SBool>> lefts, rights;
   private Computation<SBool> inCarry;
@@ -61,7 +60,7 @@ public class FullAdderProtocolImpl implements ComputationBuilderBinary<List<Comp
   
   
   @Override
-  public Computation<List<Computation<SBool>>> build(SequentialBinaryBuilder builder) {
+  public Computation<List<Computation<SBool>>> buildComputation(ProtocolBuilderBinary builder) {
 
     List<Computation<SBool>> result = new ArrayList<Computation<SBool>>(); 
     
@@ -71,14 +70,14 @@ public class FullAdderProtocolImpl implements ComputationBuilderBinary<List<Comp
       return is;
     }).whileLoop(
         (state) -> state.round >= 1,
-        (state, seq) -> {
+        (seq, state) -> {
           int idx = state.round -1;
           
           result.add(0, state.value.out().getFirst());
           IterationState is = new IterationState(idx, seq.advancedBinary().oneBitFullAdder(lefts.get(idx), rights.get(idx), state.value.out().getSecond()));
           return is;
         }
-    ).seq((state, seq) -> {
+    ).seq((seq, state) -> {
       result.add(0, state.value.out().getFirst());
       result.add(0, state.value.out().getSecond());
       return () -> result;

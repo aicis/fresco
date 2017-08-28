@@ -28,7 +28,7 @@ package dk.alexandra.fresco.lib.compare.eq;
 
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.builder.ComputationBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 
 /**
@@ -36,7 +36,7 @@ import dk.alexandra.fresco.framework.value.SInt;
  *
  * @author ttoft
  */
-public class Equality implements ComputationBuilder<SInt> {
+public class Equality implements ComputationBuilder<SInt, ProtocolBuilderNumeric> {
 
   // params
   private final int bitLength;
@@ -53,7 +53,7 @@ public class Equality implements ComputationBuilder<SInt> {
   }
 
   @Override
-  public Computation<SInt> build(SequentialNumericBuilder builder) {
+  public Computation<SInt> buildComputation(ProtocolBuilderNumeric builder) {
     Computation<SInt> diff = builder.numeric().sub(x, y);
     return builder.comparison().compareZero(diff, bitLength);
   }

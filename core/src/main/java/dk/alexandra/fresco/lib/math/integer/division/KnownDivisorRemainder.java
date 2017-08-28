@@ -1,10 +1,10 @@
 package dk.alexandra.fresco.lib.math.integer.division;
 
 import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.builder.AdvancedNumericBuilder;
 import dk.alexandra.fresco.framework.builder.ComputationBuilder;
-import dk.alexandra.fresco.framework.builder.NumericBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.AdvancedNumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.NumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
 
@@ -18,12 +18,12 @@ import java.math.BigInteger;
  *
  * @author Jonas Lindstrøm (jonas.lindstrom@alexandra.dk)
  */
-public class KnownDivisorRemainder implements ComputationBuilder<SInt> {
+public class KnownDivisorRemainder implements ComputationBuilder<SInt, ProtocolBuilderNumeric> {
 
   private final Computation<SInt> dividend;
   private final BigInteger divisor;
 
-  KnownDivisorRemainder(
+  public KnownDivisorRemainder(
       Computation<SInt> dividend,
       BigInteger divisor) {
     this.dividend = dividend;
@@ -31,7 +31,7 @@ public class KnownDivisorRemainder implements ComputationBuilder<SInt> {
   }
 
   @Override
-  public Computation<SInt> build(SequentialNumericBuilder builder) {
+  public Computation<SInt> buildComputation(ProtocolBuilderNumeric builder) {
     AdvancedNumericBuilder advancedNumericBuilder = builder.advancedNumeric();
     Computation<SInt> divisionResult = advancedNumericBuilder.div(dividend, divisor);
 

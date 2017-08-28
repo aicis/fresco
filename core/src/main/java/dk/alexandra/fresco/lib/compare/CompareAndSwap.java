@@ -26,21 +26,17 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.compare;
 
-import java.util.List;
-
-import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.builder.ComputationBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SBool;
-import dk.alexandra.fresco.lib.helper.SimpleProtocolProducer;
+import java.util.List;
 
 
-public class CompareAndSwap implements ComputationBuilder<List<SBool>> {
+public class CompareAndSwap implements ComputationBuilder<List<SBool>, ProtocolBuilderNumeric> {
 
 	private Computation<List<SBool>> left;
 	private Computation<List<SBool>> right;
-	//private AbstractBinaryFactory bp;
 
 	public CompareAndSwap(Computation<List<SBool>> left, Computation<List<SBool>> right) {
 		this.left = left;
@@ -68,8 +64,8 @@ public class CompareAndSwap implements ComputationBuilder<List<SBool>> {
 	}*/
 
   @Override
-  public Computation<List<SBool>> build(SequentialNumericBuilder builder) {
-    // TODO Auto-generated method stub
+	public Computation<List<SBool>> buildComputation(ProtocolBuilderNumeric builder) {
+		// TODO Auto-generated method stub
     return null;
   }
 }

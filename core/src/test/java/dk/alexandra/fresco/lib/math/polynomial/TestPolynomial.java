@@ -1,24 +1,18 @@
 package dk.alexandra.fresco.lib.math.polynomial;
 
+import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.builder.numeric.BuilderFactoryNumeric;
+import dk.alexandra.fresco.framework.builder.numeric.NumericBuilder;
+import dk.alexandra.fresco.framework.value.SInt;
+import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticBuilderFactory;
+import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticFactory;
 import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
-
 import org.hamcrest.core.Is;
 import org.junit.Assert;
 import org.junit.Test;
-
-import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
-import dk.alexandra.fresco.framework.builder.NumericBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
-import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticBuilderFactory;
-import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticFactory;
-import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticSInt;
 
 public class TestPolynomial {
   
@@ -26,7 +20,7 @@ public class TestPolynomial {
   public void testPolynomial() {
     DummyArithmeticFactory dummyFact = new DummyArithmeticFactory(BigInteger.valueOf(1001), 8);
     BuilderFactoryNumeric builderFactory =new DummyArithmeticBuilderFactory(dummyFact);
-    NumericBuilder numeric =builderFactory.createNumericBuilder(ProtocolBuilderNumeric.createApplicationRoot(builderFactory));  
+    NumericBuilder numeric = builderFactory.createNumericBuilder(builderFactory.createSequential());
 
     int[] coefficients = new int[] {1,2,3,4};
     

@@ -2,8 +2,8 @@ package dk.alexandra.fresco.lib.compare.eq;
 
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.builder.ComputationBuilder;
-import dk.alexandra.fresco.framework.builder.NumericBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.NumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
 
@@ -14,7 +14,7 @@ import dk.alexandra.fresco.framework.value.SInt;
  * be judged equal to zero, which is technically wrong.
  * </p>
  */
-public class FracEq implements ComputationBuilder<SInt> {
+public class FracEq implements ComputationBuilder<SInt, ProtocolBuilderNumeric> {
 
   private final Computation<SInt> n0, d0, n1, d1;
 
@@ -34,14 +34,14 @@ public class FracEq implements ComputationBuilder<SInt> {
   }
 
   @Override
-  public Computation<SInt> build(SequentialNumericBuilder builder) {
+  public Computation<SInt> buildComputation(ProtocolBuilderNumeric builder) {
     return builder.par(par -> {
       NumericBuilder numeric = par.numeric();
       return Pair.lazy(
           numeric.mult(d0, n1),
           numeric.mult(d1, n0)
       );
-    }).seq((pair, seq) ->
+    }).seq((seq, pair) ->
         seq.comparison().equals(pair.getFirst(), pair.getSecond())
     );
   }

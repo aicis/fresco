@@ -1,13 +1,10 @@
 package dk.alexandra.fresco.framework.builder.binary;
 
 import dk.alexandra.fresco.framework.BuilderFactory;
-import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary.SequentialBinaryBuilder;
 
-public interface BuilderFactoryBinary extends BuilderFactory<SequentialBinaryBuilder> {
+public interface BuilderFactoryBinary extends BuilderFactory<ProtocolBuilderBinary> {
 
   BinaryBuilder createBinaryBuilder(ProtocolBuilderBinary builder);
-
-  BasicBinaryFactory createBasicBinaryFactory();
 
   default ComparisonBuilderBinary createComparison(ProtocolBuilderBinary builder) {
     return new DefaultComparisonBinaryBuilder(builder);
@@ -21,11 +18,24 @@ public interface BuilderFactoryBinary extends BuilderFactory<SequentialBinaryBui
     return new DefaultBristolCryptoBuilder(builder);
   }
 
-  default BinaryUtilityBuilder createUtilityBuilder(ProtocolBuilderBinary builder) {
-    return new DefaultBinaryUtilityBuilder(builder);
+  /**
+   * Returns a builder which can be helpful while developing a new protocol. Be very careful though,
+   * to include this in any production code since the debugging opens values to all parties.
+   * 
+   * @param builder
+   * @return By default a standard debugger which opens values and prints them.
+   */
+  default BinaryDebugBuilder createDebugBuilder(ProtocolBuilderBinary builder) {
+    return new DefaultBinaryDebugBuilder(builder);
   }
 
-  default SequentialBinaryBuilder createProtocolBuilder() {
-    return ProtocolBuilderBinary.createApplicationRoot(this);
+  default ProtocolBuilderBinary createSequential() {
+    return new ProtocolBuilderBinary(this, false);
   }
+
+  default ProtocolBuilderBinary createParallel() {
+    return new ProtocolBuilderBinary(this, true);
+  }
+
+
 }

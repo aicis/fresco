@@ -33,9 +33,8 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilderHelper;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
-import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
@@ -59,7 +58,7 @@ public class CreditRaterTest {
 
 
   public static class TestCreditRater<ResourcePoolT extends ResourcePool> extends
-      TestThreadFactory<ResourcePoolT, SequentialNumericBuilder> {
+      TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     final int[] values;
     final int[][] intervals;
@@ -72,9 +71,9 @@ public class CreditRaterTest {
     }
 
     @Override
-    public TestThread<ResourcePoolT, SequentialNumericBuilder> next(
-        TestThreadConfiguration<ResourcePoolT, SequentialNumericBuilder> conf) {
-      return new TestThread<ResourcePoolT, SequentialNumericBuilder>() {
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next(
+        TestThreadConfiguration<ResourcePoolT, ProtocolBuilderNumeric> conf) {
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         SInt[] secretValues;
 
         @Override
@@ -86,7 +85,7 @@ public class CreditRaterTest {
           SInt[][] secretIntervals = new SInt[intervals.length][];
           SInt[][] secretScores = new SInt[scores.length][];
 
-          Application<List<BigInteger>, SequentialNumericBuilder> input =
+          Application<List<BigInteger>, ProtocolBuilderNumeric> input =
               producer -> {
                 BuilderFactory factoryNumeric = ProtocolBuilderHelper.getFactoryNumeric(producer);
 
@@ -114,7 +113,7 @@ public class CreditRaterTest {
               AlgebraUtil.arrayToList(secretScores));
           SInt creditRatingOutput = secureComputationEngine.runApplication(rater, resourcePool);
 
-          Application<BigInteger, SequentialNumericBuilder> outputApp =
+          Application<BigInteger, ProtocolBuilderNumeric> outputApp =
               seq -> seq.numeric()
                   .open(() -> creditRatingOutput);
           BigInteger resultCreditOut = secureComputationEngine

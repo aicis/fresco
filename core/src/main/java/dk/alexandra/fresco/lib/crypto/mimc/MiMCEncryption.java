@@ -28,13 +28,13 @@ package dk.alexandra.fresco.lib.crypto.mimc;
 
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.builder.ComputationBuilder;
-import dk.alexandra.fresco.framework.builder.NumericBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.NumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import java.math.BigInteger;
 
-public class MiMCEncryption implements ComputationBuilder<SInt> {
+public class MiMCEncryption implements ComputationBuilder<SInt, ProtocolBuilderNumeric> {
 
   // TODO: require that our modulus - 1 and 3 are co-prime
 
@@ -70,7 +70,7 @@ public class MiMCEncryption implements ComputationBuilder<SInt> {
 
 
   @Override
-  public Computation<SInt> build(SequentialNumericBuilder builder) {
+  public Computation<SInt> buildComputation(ProtocolBuilderNumeric builder) {
     final int requiredRounds = getRequiredRounds(builder.getBasicNumericFactory(), requestedRounds);
     BigInteger three = BigInteger.valueOf(3);
     /*
@@ -82,7 +82,7 @@ public class MiMCEncryption implements ComputationBuilder<SInt> {
       return new IterationState(1, seq.advancedNumeric().exp(add, three));
     }).whileLoop(
         (state) -> state.round < requiredRounds,
-        (state, seq) -> {
+        (seq, state) -> {
           /*
            * We're in an intermediate round where we compute
            * c_{i} = (c_{i - 1} + K + r_{i})^{3}
@@ -102,7 +102,7 @@ public class MiMCEncryption implements ComputationBuilder<SInt> {
           Computation<SInt> updatedValue = seq.advancedNumeric().exp(masked, three);
           return new IterationState(state.round + 1, updatedValue);
         }
-    ).seq((state, seq) ->
+    ).seq((seq, state) ->
         /*
          * We're in the last round so we just mask the current
          * cipher text with the encryption key

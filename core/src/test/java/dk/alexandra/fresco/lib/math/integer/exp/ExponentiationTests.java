@@ -30,8 +30,8 @@ import dk.alexandra.fresco.framework.TestApplication;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
-import dk.alexandra.fresco.framework.builder.NumericBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
+import dk.alexandra.fresco.framework.builder.numeric.NumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SInt;
@@ -219,68 +219,4 @@ public class ExponentiationTests {
     }
   }
 
-  /*
-   * public static class TestExponentiationPipe extends TestThreadFactory {
-   * 
-   * @Override public TestThread next(TestThreadConfiguration conf) {
-   * 
-   * return new TestThread() { private final BigInteger input = BigInteger.valueOf(12332157);
-   * private final int exp = 12;
-   * 
-   * @Override public void test() throws Exception { TestApplication app = new TestApplication() {
-   * 
-   * private static final long serialVersionUID = 701623441111137585L;
-   * 
-   * @Override public ProtocolProducer prepareApplication( ProtocolFactory provider) {
-   * 
-   * BasicNumericFactory basicNumericFactory = (BasicNumericFactory) provider; NumericBitFactory
-   * numericBitFactory = (NumericBitFactory) provider; RandomAdditiveMaskFactory
-   * randomAdditiveMaskFactory = new RandomAdditiveMaskFactoryImpl(basicNumericFactory,
-   * numericBitFactory); LocalInversionFactory localInversionFactory = (LocalInversionFactory)
-   * provider; RightShiftFactory rightShiftFactory = new RightShiftFactoryImpl(basicNumericFactory,
-   * randomAdditiveMaskFactory, localInversionFactory);
-   * 
-   * ExpFromOIntFactory expFromOIntFactory = (ExpFromOIntFactory) provider;
-   * PreprocessedExpPipeFactory expFactory = (PreprocessedExpPipeFactory) provider;
-   * RandomFieldElementFactory randFactory = (RandomFieldElementFactory) provider; LPFactory
-   * lpFactory = new LPFactoryImpl(80, basicNumericFactory, localInversionFactory,
-   * numericBitFactory, expFromOIntFactory, expFactory, randFactory);
-   * 
-   * ExponentiationPipeFactory exponentiationFactory = new
-   * ExponentiationPipeFactoryImpl(basicNumericFactory, lpFactory, lpFactory);
-   * 
-   * 
-   * NumericIOBuilder ioBuilder = new NumericIOBuilder(basicNumericFactory);
-   * SequentialProtocolProducer sequentialProtocolProducer = new SequentialProtocolProducer();
-   * 
-   * SInt[] result = new SInt[10]; for(int i = 0; i< result.length; i++) { result[i] =
-   * basicNumericFactory.getSInt(); }
-   * 
-   * SInt x = ioBuilder.input(input, 2); sequentialProtocolProducer.append(ioBuilder.getProtocol());
-   * 
-   * 
-   * ExponentiationPipeProtocol exponentiationPipeProtocol =
-   * exponentiationFactory.getExponentiationProtocol(x, result);
-   * sequentialProtocolProducer.append(exponentiationPipeProtocol);
-   * 
-   * OInt[] output1 = ioBuilder.outputArray(result);
-   * 
-   * sequentialProtocolProducer.append(ioBuilder.getProtocol());
-   * 
-   * ProtocolProducer gp = sequentialProtocolProducer;
-   * 
-   * outputs = output1;
-   * 
-   * return gp; } }; secureComputationEngine .runApplication(app,
-   * NetworkCreator.createResourcePool(conf.sceConf));
-   * 
-   * for(int i = 1; i< app.getOutputs().length; i++) { BigInteger tmp =
-   * app.getOutputs()[i].getValue(); Assert.assertEquals(input.pow(i), tmp); } } }; } } =======
-   * .runApplication(app, ResourcePoolCreator.createResourcePool(conf.sceConf)); BigInteger result =
-   * app.getOutputs()[0];
-   * 
-   * Assert.assertEquals(input.pow(exp), result); } }; } }
-   * 
-   * >>>>>>> develop
-   */
 }

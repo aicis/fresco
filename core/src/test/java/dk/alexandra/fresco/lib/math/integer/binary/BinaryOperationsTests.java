@@ -34,14 +34,12 @@ import dk.alexandra.fresco.framework.TestApplication;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
-import dk.alexandra.fresco.framework.builder.AdvancedNumericBuilder;
-import dk.alexandra.fresco.framework.builder.AdvancedNumericBuilder.RightShiftResult;
-import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
-import dk.alexandra.fresco.framework.builder.NumericBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.AdvancedNumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.AdvancedNumericBuilder.RightShiftResult;
+import dk.alexandra.fresco.framework.builder.numeric.BuilderFactoryNumeric;
+import dk.alexandra.fresco.framework.builder.numeric.NumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
-import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
@@ -75,8 +73,8 @@ public class BinaryOperationsTests {
 
         @Override
         public void test() throws Exception {
-          Application<Pair<BigInteger, List<BigInteger>>, SequentialNumericBuilder> app =
-              (SequentialNumericBuilder builder) -> {
+          Application<Pair<BigInteger, List<BigInteger>>, ProtocolBuilderNumeric> app =
+              (ProtocolBuilderNumeric builder) -> {
                 AdvancedNumericBuilder rightShift = builder.advancedNumeric();
                 Computation<SInt> encryptedInput = builder.numeric().known(input);
                 Computation<RightShiftResult> shiftedRight = rightShift
@@ -85,7 +83,7 @@ public class BinaryOperationsTests {
                 Computation<BigInteger> openResult = NumericBuilder
                     .open(() -> shiftedRight.out().getResult());
                 Computation<List<Computation<BigInteger>>> openRemainders = builder
-                    .createSequentialSub((innerBuilder) -> {
+                    .seq((innerBuilder) -> {
                       NumericBuilder innerOpenBuilder = innerBuilder.numeric();
                       List<Computation<BigInteger>> opened = shiftedRight.out()
                           .getRemainder()

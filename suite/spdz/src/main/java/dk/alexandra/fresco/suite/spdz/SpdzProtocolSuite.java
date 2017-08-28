@@ -27,7 +27,7 @@
 package dk.alexandra.fresco.suite.spdz;
 
 import dk.alexandra.fresco.framework.BuilderFactory;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.configuration.ConfigurationException;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.resources.storage.FilebasedStreamedStorageImpl;
@@ -42,21 +42,22 @@ import java.security.SecureRandom;
 import java.util.Random;
 
 public class SpdzProtocolSuite implements
-    ProtocolSuite<SpdzResourcePool, SequentialNumericBuilder> {
+    ProtocolSuite<SpdzResourcePool, ProtocolBuilderNumeric> {
 
   private final int maxBitLength;
   private final PreprocessingStrategy preproStrat;
   private final String fuelStationUrl;
 
-  public SpdzProtocolSuite(int maxBitLength, PreprocessingStrategy preproStrat, String fuelStationUrl) {
+  public SpdzProtocolSuite(int maxBitLength, PreprocessingStrategy preproStrat,
+      String fuelStationUrl) {
     this.maxBitLength = maxBitLength;
     this.preproStrat = preproStrat;
     this.fuelStationUrl = fuelStationUrl;
-    
+
   }
 
   @Override
-  public BuilderFactory<SequentialNumericBuilder> init(
+  public BuilderFactory<ProtocolBuilderNumeric> init(
       SpdzResourcePool resourcePool) {
     return new SpdzBuilder(
         new SpdzFactory(resourcePool.getStore(), resourcePool.getMyId(), maxBitLength));
@@ -75,8 +76,9 @@ public class SpdzProtocolSuite implements
       case DUMMY:
         store = new SpdzStorageDummyImpl(myId, size);
         break;
-      case STATIC:        
-        store = new SpdzStorageImpl(0, size, myId, new FilebasedStreamedStorageImpl(new InMemoryStorage()));
+      case STATIC:
+        store = new SpdzStorageImpl(0, size, myId,
+            new FilebasedStreamedStorageImpl(new InMemoryStorage()));
         break;
       case FUELSTATION:
         store = new SpdzStorageImpl(0, size, myId, fuelStationUrl);

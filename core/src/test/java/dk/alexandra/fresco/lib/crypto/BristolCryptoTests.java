@@ -31,7 +31,6 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
-import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary.SequentialBinaryBuilder;
 import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SBool;
@@ -76,7 +75,7 @@ public class BristolCryptoTests {
   public void testToBoolean() throws Exception {
     boolean[] res = toBoolean("2b7e151628aed2a6abf7158809cf4f3c");
     assertTrue(Arrays.equals(
-        new boolean[] {false, false, true, false, true, false, true, true, false, true, true, true},
+        new boolean[]{false, false, true, false, true, false, true, true, false, true, true, true},
         Arrays.copyOf(res, 12)));
   }
 
@@ -87,7 +86,7 @@ public class BristolCryptoTests {
    * TODO: Include more FIPS test vectors.
    */
   public static class AesTest<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory<ResourcePoolT, SequentialBinaryBuilder> {
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
 
     private boolean doAsserts;
 
@@ -96,48 +95,38 @@ public class BristolCryptoTests {
     }
 
     @Override
-    public TestThread<ResourcePoolT, SequentialBinaryBuilder> next(
-        TestThreadConfiguration<ResourcePoolT, SequentialBinaryBuilder> conf) {
-      return new TestThread<ResourcePoolT, SequentialBinaryBuilder>() {
+    public TestThread<ResourcePoolT, ProtocolBuilderBinary> next(
+        TestThreadConfiguration<ResourcePoolT, ProtocolBuilderBinary> conf) {
+      return new TestThread<ResourcePoolT, ProtocolBuilderBinary>() {
 
         // This is just some fixed test vectors for AES in ECB mode that was
         // found somewhere on the net, i.e., this is some known plaintexts and
         // corresponding cipher texts that can be used for testing.
-        final String[] keyVec = new String[] {"000102030405060708090a0b0c0d0e0f"};
+        final String[] keyVec = new String[]{"000102030405060708090a0b0c0d0e0f"};
         final String plainVec = "00112233445566778899aabbccddeeff";
-        final String[] cipherVec = new String[] {"69c4e0d86a7b0430d8cdb78070b4c55a"};
+        final String[] cipherVec = new String[]{"69c4e0d86a7b0430d8cdb78070b4c55a"};
 
         @Override
         public void test() throws Exception {
-          Application<List<Boolean>, SequentialBinaryBuilder> multApp =
-              new Application<List<Boolean>, ProtocolBuilderBinary.SequentialBinaryBuilder>() {
-
-            @Override
-            public Computation<List<Boolean>> prepareApplication(
-                ProtocolBuilderBinary.SequentialBinaryBuilder producer) {
-              return producer.seq(seq -> {
+          Application<List<Boolean>, ProtocolBuilderBinary> multApp =
+              producer -> producer.seq(seq -> {
                 List<Computation<SBool>> plainText = seq.binary().known(toBoolean(plainVec));
                 List<Computation<SBool>> key = seq.binary().known(toBoolean(keyVec[0]));
                 List<List<Computation<SBool>>> inputs = new ArrayList<>();
                 inputs.add(plainText);
                 inputs.add(key);
                 return () -> inputs;
-              }).seq((inputs, seq) -> {
+              }).seq((seq, inputs) -> {
                 Computation<List<SBool>> l = seq.bristol().AES(inputs.get(0), inputs.get(1));
                 return l;
-              }).seq((res, seq) -> {
+              }).seq((seq, res) -> {
                 List<Computation<Boolean>> outputs = new ArrayList<>();
                 for (SBool boo : res) {
                   outputs.add(seq.binary().open(() -> boo));
                 }
                 return () -> outputs;
-              }).seq((output, seq) -> {
-                return () -> output.stream().map(Computation::out).collect(Collectors.toList());
-              });
-
-            }
-
-          };
+              }).seq((seq, output) -> () -> output.stream().map(Computation::out)
+                  .collect(Collectors.toList()));
 
           List<Boolean> res = secureComputationEngine.runApplication(multApp,
               ResourcePoolCreator.createResourcePool(conf.sceConf));
@@ -162,7 +151,7 @@ public class BristolCryptoTests {
    * TODO: Include all three test vectors.
    */
   public static class Sha1Test<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory<ResourcePoolT, SequentialBinaryBuilder> {
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
 
     private boolean doAsserts;
 
@@ -171,9 +160,9 @@ public class BristolCryptoTests {
     }
 
     @Override
-    public TestThread<ResourcePoolT, SequentialBinaryBuilder> next(
-        TestThreadConfiguration<ResourcePoolT, SequentialBinaryBuilder> conf) {
-      return new TestThread<ResourcePoolT, SequentialBinaryBuilder>() {
+    public TestThread<ResourcePoolT, ProtocolBuilderBinary> next(
+        TestThreadConfiguration<ResourcePoolT, ProtocolBuilderBinary> conf) {
+      return new TestThread<ResourcePoolT, ProtocolBuilderBinary>() {
         /*
          * IMPORTANT: These are NOT test vectors for the complete SHA-1 hash function, as the
          * padding rules are ignored. Therefore, use of tools like md5sum will produce a different
@@ -188,13 +177,8 @@ public class BristolCryptoTests {
 
         @Override
         public void test() throws Exception {
-          Application<List<Boolean>, SequentialBinaryBuilder> multApp =
-              new Application<List<Boolean>, ProtocolBuilderBinary.SequentialBinaryBuilder>() {
-
-            @Override
-            public Computation<List<Boolean>> prepareApplication(
-                ProtocolBuilderBinary.SequentialBinaryBuilder producer) {
-              return producer.seq(seq -> {
+          Application<List<Boolean>, ProtocolBuilderBinary> multApp =
+              producer -> producer.seq(seq -> {
                 List<Computation<SBool>> input1 = seq.binary().known(toBoolean(ins[0]));
                 // List<Computation<SBool>> input2 = seq.binary().known(toBoolean(ins[1]));
                 // List<Computation<SBool>> input3 = seq.binary().known(toBoolean(ins[2]));
@@ -203,7 +187,7 @@ public class BristolCryptoTests {
                 // inputs.add(input2);
                 // inputs.add(input3);
                 return () -> inputs;
-              }).seq((inputs, seq) -> {
+              }).seq((seq, inputs) -> {
                 // List<Computation<List<SBool>>> list = new ArrayList<>();
                 // list.add(seq.bristol().getSHA1Circuit(inputs.get(0)));
                 // list.add(seq.bristol().getSHA1Circuit(inputs.get(1)));
@@ -211,7 +195,7 @@ public class BristolCryptoTests {
 
                 Computation<List<SBool>> list = seq.bristol().SHA1(inputs.get(0));
                 return list;
-              }).seq((res, seq) -> {
+              }).seq((seq, res) -> {
                 List<Computation<Boolean>> outputs = new ArrayList<>();
                 for (SBool boo : res) {
                   outputs.add(seq.binary().open(boo));
@@ -225,7 +209,7 @@ public class BristolCryptoTests {
                 // outputs.add(outList);
                 // }
                 return () -> outputs;
-              }).seq((output, seq) -> {
+              }).seq((seq, output) -> {
                 // List<List<Boolean>> result = new ArrayList<>();
                 // for (List<Computation<Boolean>> o : output) {
                 // result.add(o.stream().map(Computation::out).collect(Collectors.toList()));
@@ -233,10 +217,6 @@ public class BristolCryptoTests {
                 return () -> output.stream().map(Computation::out).collect(Collectors.toList());
                 // return () -> result;
               });
-
-            }
-
-          };
 
           List<Boolean> res = secureComputationEngine.runApplication(multApp,
               ResourcePoolCreator.createResourcePool(conf.sceConf));
@@ -263,7 +243,7 @@ public class BristolCryptoTests {
    * TODO: Include all three test vectors.
    */
   public static class Sha256Test<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory<ResourcePoolT, SequentialBinaryBuilder> {
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
 
     private boolean doAsserts;
 
@@ -272,9 +252,9 @@ public class BristolCryptoTests {
     }
 
     @Override
-    public TestThread<ResourcePoolT, SequentialBinaryBuilder> next(
-        TestThreadConfiguration<ResourcePoolT, SequentialBinaryBuilder> conf) {
-      return new TestThread<ResourcePoolT, SequentialBinaryBuilder>() {
+    public TestThread<ResourcePoolT, ProtocolBuilderBinary> next(
+        TestThreadConfiguration<ResourcePoolT, ProtocolBuilderBinary> conf) {
+      return new TestThread<ResourcePoolT, ProtocolBuilderBinary>() {
         /*
          * IMPORTANT: These are NOT test vectors for the complete SHA-256 hash function, as the
          * padding rules are ignored. Therefore, use of tools like md5sum will produce a different
@@ -295,33 +275,23 @@ public class BristolCryptoTests {
 
         @Override
         public void test() throws Exception {
-          Application<List<Boolean>, SequentialBinaryBuilder> multApp =
-              new Application<List<Boolean>, ProtocolBuilderBinary.SequentialBinaryBuilder>() {
-
-            @Override
-            public Computation<List<Boolean>> prepareApplication(
-                ProtocolBuilderBinary.SequentialBinaryBuilder producer) {
-              return producer.seq(seq -> {
+          Application<List<Boolean>, ProtocolBuilderBinary> multApp =
+              producer -> producer.seq(seq -> {
                 List<Computation<SBool>> input1 = seq.binary().known(toBoolean(in1));
                 List<List<Computation<SBool>>> inputs = new ArrayList<>();
                 inputs.add(input1);
                 return () -> inputs;
-              }).seq((inputs, seq) -> {
+              }).seq((seq, inputs) -> {
                 Computation<List<SBool>> list = seq.bristol().SHA256(inputs.get(0));
                 return list;
-              }).seq((res, seq) -> {
+              }).seq((seq, res) -> {
                 List<Computation<Boolean>> outputs = new ArrayList<>();
                 for (SBool boo : res) {
                   outputs.add(seq.binary().open(boo));
                 }
                 return () -> outputs;
-              }).seq((output, seq) -> {
-                return () -> output.stream().map(Computation::out).collect(Collectors.toList());
-              });
-
-            }
-
-          };
+              }).seq((seq, output) -> () -> output.stream().map(Computation::out)
+                  .collect(Collectors.toList()));
 
           List<Boolean> res = secureComputationEngine.runApplication(multApp,
               ResourcePoolCreator.createResourcePool(conf.sceConf));
@@ -345,7 +315,7 @@ public class BristolCryptoTests {
    * TODO: Include all three test vectors.
    */
   public static class MD5Test<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory<ResourcePoolT, SequentialBinaryBuilder> {
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
 
     private boolean doAsserts;
 
@@ -354,9 +324,9 @@ public class BristolCryptoTests {
     }
 
     @Override
-    public TestThread<ResourcePoolT, SequentialBinaryBuilder> next(
-        TestThreadConfiguration<ResourcePoolT, SequentialBinaryBuilder> conf) {
-      return new TestThread<ResourcePoolT, SequentialBinaryBuilder>() {
+    public TestThread<ResourcePoolT, ProtocolBuilderBinary> next(
+        TestThreadConfiguration<ResourcePoolT, ProtocolBuilderBinary> conf) {
+      return new TestThread<ResourcePoolT, ProtocolBuilderBinary>() {
         /*
          * IMPORTANT: These are NOT test vectors for the complete SHA-1 hash function, as the
          * padding rules are ignored. Therefore, use of tools like md5sum will produce a different
@@ -377,33 +347,24 @@ public class BristolCryptoTests {
 
         @Override
         public void test() throws Exception {
-          Application<List<Boolean>, SequentialBinaryBuilder> multApp =
-              new Application<List<Boolean>, ProtocolBuilderBinary.SequentialBinaryBuilder>() {
-
-            @Override
-            public Computation<List<Boolean>> prepareApplication(
-                ProtocolBuilderBinary.SequentialBinaryBuilder producer) {
-              return producer.seq(seq -> {
+          Application<List<Boolean>, ProtocolBuilderBinary> multApp =
+              producer -> producer.seq(seq -> {
                 List<Computation<SBool>> input1 = seq.binary().known(toBoolean(in1));
                 List<List<Computation<SBool>>> inputs = new ArrayList<>();
                 inputs.add(input1);
                 return () -> inputs;
-              }).seq((inputs, seq) -> {
+              }).seq((seq, inputs) -> {
                 Computation<List<SBool>> list = seq.bristol().MD5(inputs.get(0));
                 return list;
-              }).seq((res, seq) -> {
+              }).seq((seq, res) -> {
                 List<Computation<Boolean>> outputs = new ArrayList<>();
                 for (SBool boo : res) {
                   outputs.add(seq.binary().open(boo));
                 }
                 return () -> outputs;
-              }).seq((output, seq) -> {
-                return () -> output.stream().map(Computation::out).collect(Collectors.toList());
-              });
-
-            }
-
-          };
+              }).seq(
+                  (seq, output) ->
+                      () -> output.stream().map(Computation::out).collect(Collectors.toList()));
 
           List<Boolean> res = secureComputationEngine.runApplication(multApp,
               ResourcePoolCreator.createResourcePool(conf.sceConf));
@@ -428,7 +389,7 @@ public class BristolCryptoTests {
    * before it is correct.
    */
   public static class Mult32x32Test<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory<ResourcePoolT, SequentialBinaryBuilder> {
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
 
     private boolean doAsserts;
 
@@ -437,9 +398,9 @@ public class BristolCryptoTests {
     }
 
     @Override
-    public TestThread<ResourcePoolT, SequentialBinaryBuilder> next(
-        TestThreadConfiguration<ResourcePoolT, SequentialBinaryBuilder> conf) {
-      return new TestThread<ResourcePoolT, SequentialBinaryBuilder>() {
+    public TestThread<ResourcePoolT, ProtocolBuilderBinary> next(
+        TestThreadConfiguration<ResourcePoolT, ProtocolBuilderBinary> conf) {
+      return new TestThread<ResourcePoolT, ProtocolBuilderBinary>() {
         // 16*258 = 4128
         String inv1 = "00000010";
         String inv2 = "00000102";
@@ -447,35 +408,25 @@ public class BristolCryptoTests {
 
         @Override
         public void test() throws Exception {
-          Application<List<Boolean>, SequentialBinaryBuilder> multApp =
-              new Application<List<Boolean>, ProtocolBuilderBinary.SequentialBinaryBuilder>() {
-
-            @Override
-            public Computation<List<Boolean>> prepareApplication(
-                ProtocolBuilderBinary.SequentialBinaryBuilder producer) {
-              return producer.seq(seq -> {
+          Application<List<Boolean>, ProtocolBuilderBinary> multApp =
+              producer -> producer.seq(seq -> {
                 List<Computation<SBool>> in1 = seq.binary().known(toBoolean(inv1));
                 List<Computation<SBool>> in2 = seq.binary().known(toBoolean(inv2));
                 List<List<Computation<SBool>>> inputs = new ArrayList<>();
                 inputs.add(in1);
                 inputs.add(in2);
                 return () -> inputs;
-              }).seq((inputs, seq) -> {
+              }).seq((seq, inputs) -> {
                 Computation<List<SBool>> l = seq.bristol().mult32x32(inputs.get(0), inputs.get(1));
                 return l;
-              }).seq((res, seq) -> {
+              }).seq((seq, res) -> {
                 List<Computation<Boolean>> outputs = new ArrayList<>();
                 for (SBool boo : res) {
                   outputs.add(seq.binary().open(() -> boo));
                 }
                 return () -> outputs;
-              }).seq((output, seq) -> {
-                return () -> output.stream().map(Computation::out).collect(Collectors.toList());
-              });
-
-            }
-
-          };
+              }).seq((seq, output) -> () -> output.stream().map(Computation::out)
+                  .collect(Collectors.toList()));
 
           List<Boolean> res = secureComputationEngine.runApplication(multApp,
               ResourcePoolCreator.createResourcePool(conf.sceConf));
@@ -501,7 +452,7 @@ public class BristolCryptoTests {
    * https://dl.dropboxusercontent.com/u/25980826/des.test
    */
   public static class DesTest<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory<ResourcePoolT, SequentialBinaryBuilder> {
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
 
     private boolean doAsserts;
 
@@ -510,9 +461,9 @@ public class BristolCryptoTests {
     }
 
     @Override
-    public TestThread<ResourcePoolT, SequentialBinaryBuilder> next(
-        TestThreadConfiguration<ResourcePoolT, SequentialBinaryBuilder> conf) {
-      return new TestThread<ResourcePoolT, SequentialBinaryBuilder>() {
+    public TestThread<ResourcePoolT, ProtocolBuilderBinary> next(
+        TestThreadConfiguration<ResourcePoolT, ProtocolBuilderBinary> conf) {
+      return new TestThread<ResourcePoolT, ProtocolBuilderBinary>() {
 
         String keyV = "0101010101010101";
         String plainV = "8000000000000000";
@@ -520,35 +471,25 @@ public class BristolCryptoTests {
 
         @Override
         public void test() throws Exception {
-          Application<List<Boolean>, SequentialBinaryBuilder> multApp =
-              new Application<List<Boolean>, ProtocolBuilderBinary.SequentialBinaryBuilder>() {
-
-            @Override
-            public Computation<List<Boolean>> prepareApplication(
-                ProtocolBuilderBinary.SequentialBinaryBuilder producer) {
-              return producer.seq(seq -> {
+          Application<List<Boolean>, ProtocolBuilderBinary> multApp =
+              producer -> producer.seq(seq -> {
                 List<Computation<SBool>> plainText = seq.binary().known(toBoolean(plainV));
                 List<Computation<SBool>> keyMaterial = seq.binary().known(toBoolean(keyV));
                 List<List<Computation<SBool>>> inputs = new ArrayList<>();
                 inputs.add(plainText);
                 inputs.add(keyMaterial);
                 return () -> inputs;
-              }).seq((inputs, seq) -> {
+              }).seq((seq, inputs) -> {
                 Computation<List<SBool>> l = seq.bristol().DES(inputs.get(0), inputs.get(1));
                 return l;
-              }).seq((res, seq) -> {
+              }).seq((seq, res) -> {
                 List<Computation<Boolean>> outputs = new ArrayList<>();
                 for (SBool boo : res) {
                   outputs.add(seq.binary().open(() -> boo));
                 }
                 return () -> outputs;
-              }).seq((output, seq) -> {
-                return () -> output.stream().map(Computation::out).collect(Collectors.toList());
-              });
-
-            }
-
-          };
+              }).seq((seq, output) -> () -> output.stream().map(Computation::out)
+                  .collect(Collectors.toList()));
 
           List<Boolean> res = secureComputationEngine.runApplication(multApp,
               ResourcePoolCreator.createResourcePool(conf.sceConf));

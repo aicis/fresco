@@ -29,10 +29,10 @@ package dk.alexandra.fresco.lib.statistics;
 import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.MPCException;
-import dk.alexandra.fresco.framework.builder.ComparisonBuilder;
 import dk.alexandra.fresco.framework.builder.ComputationBuilder;
-import dk.alexandra.fresco.framework.builder.NumericBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.ComparisonBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.NumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.math.integer.SumSIntList;
 import java.math.BigInteger;
@@ -48,7 +48,7 @@ import java.util.stream.Collectors;
  * will calculate the combined score.
  */
 public class CreditRater implements
-    Application<SInt, SequentialNumericBuilder> {
+    Application<SInt, ProtocolBuilderNumeric> {
 
   private List<SInt> values;
   private List<List<SInt>> intervals;
@@ -88,7 +88,7 @@ public class CreditRater implements
   @Override
   @SuppressWarnings("unchecked")
   public Computation<SInt> prepareApplication(
-      SequentialNumericBuilder sequential) {
+      ProtocolBuilderNumeric sequential) {
     return sequential.par(
         parallel -> {
           List<Computation<SInt>> scores = new ArrayList<>(values.size());
@@ -98,18 +98,17 @@ public class CreditRater implements
             List<SInt> intervalScore = intervalScores.get(i);
 
             scores.add(
-                parallel.createSequentialSub(
-                    new ComputeIntervalScore(interval, value, intervalScore)));
+                parallel.seq(new ComputeIntervalScore(interval, value, intervalScore)));
           }
           return () -> scores;
         }
-    ).seq((list, seq) ->
-        new SumSIntList(list).build(seq)
+    ).seq((seq, list) ->
+        new SumSIntList(list).buildComputation(seq)
     );
   }
 
   private static class ComputeIntervalScore implements
-      ComputationBuilder<SInt> {
+      ComputationBuilder<SInt, ProtocolBuilderNumeric> {
 
     private final List<Computation<SInt>> interval;
     private final Computation<SInt> value;
@@ -140,7 +139,7 @@ public class CreditRater implements
     }
 
     @Override
-    public Computation<SInt> build(SequentialNumericBuilder rootBuilder) {
+    public Computation<SInt> buildComputation(ProtocolBuilderNumeric rootBuilder) {
       return rootBuilder.par((parallelBuilder) -> {
         List<Computation<SInt>> result = new ArrayList<>();
         ComparisonBuilder builder = parallelBuilder.comparison();
@@ -150,14 +149,14 @@ public class CreditRater implements
           result.add(builder.compareLEQ(value, anInterval));
         }
         return () -> result;
-      }).seq((comparisons, builder) -> {
+      }).seq((builder, comparisons) -> {
         // Add "x > last interval definition" to comparisons
 
         NumericBuilder numericBuilder = builder.numeric();
         Computation<SInt> lastComparison = comparisons.get(comparisons.size() - 1);
         comparisons.add(numericBuilder.sub(BigInteger.ONE, lastComparison));
         return () -> comparisons;
-      }).par((comparisons, parallelBuilder) -> {
+      }).par((parallelBuilder, comparisons) -> {
         //Comparisons now contain if x <= each definition and if x>= last definition
 
         NumericBuilder numericBuilder = parallelBuilder.numeric();
@@ -173,7 +172,7 @@ public class CreditRater implements
         innerScores.add(numericBuilder.mult(a, b));
         return () -> innerScores;
 
-      }).seq((list, seq) -> new SumSIntList(list).build(seq));
+      }).seq((seq, list) -> new SumSIntList(list).buildComputation(seq));
     }
   }
 }

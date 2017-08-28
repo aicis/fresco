@@ -28,7 +28,7 @@ package dk.alexandra.fresco.lib.collections;
 
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.builder.ComputationBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.compare.ConditionalSelect;
 import java.util.ArrayList;
@@ -43,7 +43,7 @@ import java.util.List;
  * Guaranteed return value is the last value where the corresponding key matches
  * </p>
  */
-public class LinearLookUp implements ComputationBuilder<SInt> {
+public class LinearLookUp implements ComputationBuilder<SInt, ProtocolBuilderNumeric> {
 
   private final Computation<SInt> lookUpKey;
   private final ArrayList<Computation<SInt>> keys;
@@ -69,7 +69,7 @@ public class LinearLookUp implements ComputationBuilder<SInt> {
   }
 
   @Override
-  public Computation<SInt> build(SequentialNumericBuilder builder) {
+  public Computation<SInt> buildComputation(ProtocolBuilderNumeric builder) {
     return builder.par((par) -> {
       int n = keys.size();
       List<Computation<SInt>> index = new ArrayList<>(n);
@@ -77,7 +77,7 @@ public class LinearLookUp implements ComputationBuilder<SInt> {
         index.add(par.comparison().equals(lookUpKey, key));
       }
       return () -> index;
-    }).seq((index, seq) -> {
+    }).seq((seq, index) -> {
       Computation<SInt> outputValue = notFoundValue;
       for (int i = 0, valuesLength = values.size(); i < valuesLength; i++) {
         Computation<SInt> value = values.get(i);

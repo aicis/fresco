@@ -27,15 +27,16 @@
 package dk.alexandra.fresco.lib.math.integer.binary;
 
 import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.builder.AdvancedNumericBuilder.RightShiftResult;
 import dk.alexandra.fresco.framework.builder.ComputationBuilder;
 import dk.alexandra.fresco.framework.builder.DelayedComputation;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.AdvancedNumericBuilder.RightShiftResult;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.util.ArrayList;
 import java.util.List;
 
-public class RepeatedRightShift implements ComputationBuilder<RightShiftResult> {
+public class RepeatedRightShift implements
+    ComputationBuilder<RightShiftResult, ProtocolBuilderNumeric> {
 
   private final int shifts;
   private final boolean calculateRemainders;
@@ -62,7 +63,7 @@ public class RepeatedRightShift implements ComputationBuilder<RightShiftResult> 
   }
 
   @Override
-  public Computation<RightShiftResult> build(SequentialNumericBuilder sequential) {
+  public Computation<RightShiftResult> buildComputation(ProtocolBuilderNumeric sequential) {
     if (calculateRemainders) {
       doIterationWithRemainder(sequential, input, shifts, new ArrayList<>(shifts));
     } else {
@@ -71,26 +72,23 @@ public class RepeatedRightShift implements ComputationBuilder<RightShiftResult> 
     return result;
   }
 
-  private void doIteration(SequentialNumericBuilder iterationBuilder,
+  private void doIteration(ProtocolBuilderNumeric iterationBuilder,
       Computation<SInt> input, int shifts) {
     if (shifts > 0) {
       Computation<SInt> iteration =
-          iterationBuilder.createSequentialSub(
-              (builder) -> builder.advancedNumeric().rightShift(input)
-          );
+          iterationBuilder.seq((builder) -> builder.advancedNumeric().rightShift(input));
       iterationBuilder.createIteration((builder) -> doIteration(builder, iteration, shifts - 1));
     } else {
       result.setComputation(() -> new RightShiftResult(input.out(), null));
     }
   }
 
-  private void doIterationWithRemainder(SequentialNumericBuilder iterationBuilder,
+  private void doIterationWithRemainder(ProtocolBuilderNumeric iterationBuilder,
       Computation<SInt> input, int shifts, List<SInt> remainders) {
     if (shifts > 0) {
       Computation<RightShiftResult> iteration =
-          iterationBuilder.createSequentialSub(
-              (builder) -> builder.advancedNumeric().rightShiftWithRemainder(input)
-          );
+          iterationBuilder
+              .seq((builder) -> builder.advancedNumeric().rightShiftWithRemainder(input));
       iterationBuilder.createIteration((builder) -> {
         RightShiftResult out = iteration.out();
         remainders.add(out.getRemainder().get(0));

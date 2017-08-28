@@ -24,8 +24,8 @@
 package dk.alexandra.fresco.lib.statistics;
 
 import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.builder.NumericBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.NumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.lp.LPTableau;
 import dk.alexandra.fresco.lib.lp.Matrix;
@@ -51,7 +51,7 @@ public class DEAInputEfficiencyPrefixBuilder {
   public static Computation<SimpleLPPrefix> build(
       List<SInt[]> basisInputs, List<SInt[]> basisOutputs,
       List<SInt> targetInputs, List<SInt> targetOutputs,
-      SequentialNumericBuilder builder
+      ProtocolBuilderNumeric builder
   ) {
     NumericBuilder numeric = builder.numeric();
     int inputs = targetInputs.size();
@@ -142,7 +142,7 @@ public class DEAInputEfficiencyPrefixBuilder {
         f.set(k, par.numeric().sub(zero, sBigM));
       }
 
-      zInner = par.createSequentialSub(seq -> {
+      zInner = par.seq(seq -> {
         Computation<SInt> zResult = sBigM;
         for (int l = inputs; l < inputs + outputs; l++) {
           Computation<SInt> scaled = seq.numeric().mult(oBigM, b.get(l));
@@ -156,10 +156,10 @@ public class DEAInputEfficiencyPrefixBuilder {
     // Add to the lambda variables -bigM*value for each of the output values
     // In other words subtract bigM times each of the tableau rows associated
     // with an output constraint.
-    return builder.createParallelSub(par -> {
+    return builder.par(par -> {
       for (int l = inputs; l < inputs + outputs; l++) {
         int finalL = l;
-        par.createSequentialSub(seq -> {
+        par.seq(seq -> {
           for (int k = 1; k < dbSize + 1; k++) {
             Computation<SInt> scaled = seq.numeric().mult(sBigM, c.get(finalL).get(k));
             f.set(k, seq.numeric().add(scaled, f.get(k)));

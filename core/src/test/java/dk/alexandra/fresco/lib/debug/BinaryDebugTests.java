@@ -29,7 +29,6 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
-import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary.SequentialBinaryBuilder;
 import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SBool;
@@ -41,42 +40,42 @@ import org.junit.Assert;
 public class BinaryDebugTests {
 
   public static class TestBinaryOpenAndPrint<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory<ResourcePoolT, SequentialBinaryBuilder> {
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
 
     @Override
-    public TestThread<ResourcePoolT, SequentialBinaryBuilder> next(
-        TestThreadConfiguration<ResourcePoolT, SequentialBinaryBuilder> conf) {
-      return new TestThread<ResourcePoolT, SequentialBinaryBuilder>() {
+    public TestThread<ResourcePoolT, ProtocolBuilderBinary> next(
+        TestThreadConfiguration<ResourcePoolT, ProtocolBuilderBinary> conf) {
+      return new TestThread<ResourcePoolT, ProtocolBuilderBinary>() {
 
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
         PrintStream stream = new PrintStream(bytes);
 
         @Override
         public void test() throws Exception {
-          Application<Void, SequentialBinaryBuilder> app =
-              new Application<Void, ProtocolBuilderBinary.SequentialBinaryBuilder>() {
+          Application<Void, ProtocolBuilderBinary> app =
+              new Application<Void, ProtocolBuilderBinary>() {
 
-            @Override
-            public Computation<Void> prepareApplication(
-                ProtocolBuilderBinary.SequentialBinaryBuilder producer) {
-              return producer.seq(seq -> {
-                List<Computation<SBool>> toPrint =
-                    seq.binary().known(new boolean[] {true, false, false, true});
-                return () -> toPrint;
-              }).seq((inputs, seq) -> {
-                seq.utility().openAndPrint("test", inputs, stream);
-                return null;
-              });
-            }
+                @Override
+                public Computation<Void> prepareApplication(
+                    ProtocolBuilderBinary producer) {
+                  return producer.seq(seq -> {
+                    List<Computation<SBool>> toPrint =
+                        seq.binary().known(new boolean[]{true, false, false, true});
+                    return () -> toPrint;
+                  }).seq((seq, inputs) -> {
+                    seq.utility().openAndPrint("test", inputs, stream);
+                    return null;
+                  });
+                }
 
-          };
+              };
 
           secureComputationEngine.runApplication(app,
               ResourcePoolCreator.createResourcePool(conf.sceConf));
 
           String output = bytes.toString("UTF-8");
 
-          Assert.assertEquals("test\n1001\n", output);
+          Assert.assertEquals("test\n1001\n", output.replace("\r", ""));
         }
       };
     }

@@ -28,9 +28,8 @@ import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
-import dk.alexandra.fresco.framework.builder.binary.DefaultBinaryBuilderAdvanced;
+import dk.alexandra.fresco.framework.builder.binary.BinaryBuilderAdvanced;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
-import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary.SequentialBinaryBuilder;
 import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.util.ByteArithmetic;
@@ -66,10 +65,10 @@ public class AddTests {
               List<Computation<Pair<SBool, SBool>>> data =
                   new ArrayList<Computation<Pair<SBool, SBool>>>();
 
-              SequentialBinaryBuilder builder = (SequentialBinaryBuilder) producer;
+              ProtocolBuilderBinary builder = (ProtocolBuilderBinary) producer;
 
               return builder.seq(seq -> {
-                DefaultBinaryBuilderAdvanced prov = new DefaultBinaryBuilderAdvanced(seq);
+                BinaryBuilderAdvanced prov = seq.advancedBinary();
                 Computation<SBool> inp0 = seq.binary().known(false);
                 Computation<SBool> inp1 = seq.binary().known(true);
                 data.add(prov.oneBitHalfAdder(inp0, inp0));
@@ -77,7 +76,7 @@ public class AddTests {
                 data.add(prov.oneBitHalfAdder(inp1, inp0));
                 data.add(prov.oneBitHalfAdder(inp1, inp1));
                 return () -> data;
-              }).seq((dat, seq) -> {
+              }).seq((seq, dat) -> {
                 System.out.println("got: " + dat.get(0));
                 List<Computation<Boolean>> out = new ArrayList<Computation<Boolean>>();
                 for (Computation<Pair<SBool, SBool>> o : dat) {
@@ -129,10 +128,10 @@ public class AddTests {
               List<Computation<Pair<SBool, SBool>>> data =
                   new ArrayList<Computation<Pair<SBool, SBool>>>();
 
-              SequentialBinaryBuilder builder = (SequentialBinaryBuilder) producer;
+              ProtocolBuilderBinary builder = (ProtocolBuilderBinary) producer;
 
               return builder.seq(seq -> {
-                DefaultBinaryBuilderAdvanced prov = new DefaultBinaryBuilderAdvanced(seq);
+                BinaryBuilderAdvanced prov = seq.advancedBinary();
                 Computation<SBool> inp0 = seq.binary().known(false);
                 Computation<SBool> inp1 = seq.binary().known(true);
                 data.add(prov.oneBitFullAdder(inp0, inp0, inp0));
@@ -144,7 +143,7 @@ public class AddTests {
                 data.add(prov.oneBitFullAdder(inp1, inp1, inp0));
                 data.add(prov.oneBitFullAdder(inp1, inp1, inp1));
                 return () -> data;
-              }).seq((dat, seq) -> {
+              }).seq((seq, dat) -> {
                 List<Computation<Boolean>> out = new ArrayList<Computation<Boolean>>();
                 for (Computation<Pair<SBool, SBool>> o : dat) {
                   out.add(seq.binary().open(o.out().getFirst()));
@@ -206,10 +205,10 @@ public class AddTests {
 
             @Override
             public Computation<List<Boolean>> prepareApplication(ProtocolBuilderBinary producer) {
-              SequentialBinaryBuilder builder = (SequentialBinaryBuilder) producer;
+              ProtocolBuilderBinary builder = (ProtocolBuilderBinary) producer;
 
               return builder.seq(seq -> {
-                DefaultBinaryBuilderAdvanced prov = new DefaultBinaryBuilderAdvanced(seq);
+                BinaryBuilderAdvanced prov = seq.advancedBinary();
                 Computation<SBool> carry = seq.binary().known(true);
 
                 List<Computation<SBool>> first =
@@ -220,7 +219,7 @@ public class AddTests {
                 Computation<List<Computation<SBool>>> adder = prov.fullAdder(first, second, carry);
 
                 return () -> adder.out();
-              }).seq((dat, seq) -> {
+              }).seq((seq, dat) -> {
                 List<Computation<Boolean>> out = new ArrayList<Computation<Boolean>>();
                 for (Computation<SBool> o : dat) {
                   out.add(seq.binary().open(o));
@@ -263,10 +262,10 @@ public class AddTests {
             @Override
             public Computation<List<Boolean>> prepareApplication(ProtocolBuilderBinary producer) {
 
-              SequentialBinaryBuilder builder = (SequentialBinaryBuilder) producer;
+              ProtocolBuilderBinary builder = (ProtocolBuilderBinary) producer;
 
               return builder.seq(seq -> {
-                DefaultBinaryBuilderAdvanced prov = new DefaultBinaryBuilderAdvanced(seq);
+                BinaryBuilderAdvanced prov = seq.advancedBinary();
                 Computation<SBool> increment = seq.binary().known(true);
 
                 List<Computation<SBool>> large =
@@ -275,7 +274,7 @@ public class AddTests {
                 Computation<List<Computation<SBool>>> adder = prov.bitIncrement(large, increment);
 
                 return () -> adder.out();
-              }).seq((dat, seq) -> {
+              }).seq((seq, dat) -> {
                 List<Computation<Boolean>> out = new ArrayList<Computation<Boolean>>();
                 for (Computation<SBool> o : dat) {
                   out.add(seq.binary().open(o));

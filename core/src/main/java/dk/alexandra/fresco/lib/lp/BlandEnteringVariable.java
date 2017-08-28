@@ -25,10 +25,10 @@ package dk.alexandra.fresco.lib.lp;
 
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.MPCException;
-import dk.alexandra.fresco.framework.builder.AdvancedNumericBuilder;
-import dk.alexandra.fresco.framework.builder.ComparisonBuilder;
 import dk.alexandra.fresco.framework.builder.ComputationBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.AdvancedNumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.ComparisonBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.math.integer.SumSIntList;
@@ -37,7 +37,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class BlandEnteringVariable
-    implements ComputationBuilder<Pair<List<Computation<SInt>>, SInt>> {
+    implements ComputationBuilder<Pair<List<Computation<SInt>>, SInt>, ProtocolBuilderNumeric> {
 
   private final LPTableau tableau;
   private final Matrix<Computation<SInt>> updateMatrix;
@@ -62,7 +62,8 @@ public class BlandEnteringVariable
   }
 
   @Override
-  public Computation<Pair<List<Computation<SInt>>, SInt>> build(SequentialNumericBuilder builder) {
+  public Computation<Pair<List<Computation<SInt>>, SInt>> buildComputation(
+      ProtocolBuilderNumeric builder) {
     Computation<SInt> negativeOne = builder.numeric().known(BigInteger.valueOf(-1));
     Computation<SInt> one = builder.numeric().known(BigInteger.ONE);
     return builder.par(par -> {
@@ -83,14 +84,14 @@ public class BlandEnteringVariable
         );
       }
       return () -> updatedF;
-    }).seq((updatedF, seq) ->
+    }).seq((seq, updatedF) ->
         seq.par(par -> {
           ArrayList<Computation<SInt>> signs = new ArrayList<>(updatedF.size());
           for (Computation<SInt> f : updatedF) {
             signs.add(par.comparison().compareLEQ(f, negativeOne));
           }
           return () -> signs;
-        }).seq((signs, seq2) -> {
+        }).seq((seq2, signs) -> {
           //Prefix sum
           ArrayList<Computation<SInt>> updatedSigns = new ArrayList<>();
           updatedSigns.add(signs.get(0));
@@ -101,7 +102,7 @@ public class BlandEnteringVariable
             updatedSigns.add(previous);
           }
           return () -> updatedSigns;
-        }).par((signs, par) -> {
+        }).par((par, signs) -> {
           //Pairwise sums
           ArrayList<Computation<SInt>> pairwiseSums = new ArrayList<>();
           pairwiseSums.add(signs.get(0));
@@ -109,7 +110,7 @@ public class BlandEnteringVariable
             pairwiseSums.add(par.numeric().add(signs.get(i - 1), signs.get(i)));
           }
           return () -> pairwiseSums;
-        }).par((pairwiseSums, par) -> {
+        }).par((par, pairwiseSums) -> {
           ArrayList<Computation<SInt>> enteringIndex = new ArrayList<>();
           int bitlength = (int) Math.log(pairwiseSums.size()) * 2 + 1;
           ComparisonBuilder comparison = par.comparison();
@@ -117,8 +118,8 @@ public class BlandEnteringVariable
             enteringIndex.add(comparison.equals(bitlength, pairwiseSums.get(i), one));
           }
           return () -> enteringIndex;
-        })).seq((enteringIndex, seq) -> {
-      Computation<SInt> terminationSum = seq.createSequentialSub(new SumSIntList(enteringIndex));
+        })).seq((seq, enteringIndex) -> {
+      Computation<SInt> terminationSum = seq.seq(new SumSIntList(enteringIndex));
       Computation<SInt> termination = seq.numeric().sub(one, terminationSum);
       return () -> new Pair<>(enteringIndex, termination.out());
     });

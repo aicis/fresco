@@ -29,7 +29,6 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
-import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary.SequentialBinaryBuilder;
 import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.util.ByteArithmetic;
@@ -40,7 +39,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
-
 import org.junit.Assert;
 
 /**
@@ -51,87 +49,89 @@ import org.junit.Assert;
  *
  */
 public class CollectionsSortingTests {
-   
-   public static class TestKeyedCompareAndSwap <ResourcePoolT extends ResourcePool>
-   extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
-     
-     public TestKeyedCompareAndSwap() {
-     }
-     @Override
-     public TestThread<ResourcePoolT, ProtocolBuilderBinary> next(
-         TestThreadConfiguration<ResourcePoolT, ProtocolBuilderBinary> conf) {
-       return new TestThread<ResourcePoolT, ProtocolBuilderBinary>() {
 
-         @Override
-         public void test() throws Exception {
+  public static class TestKeyedCompareAndSwap<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
 
-           List<Boolean> rawLeftKey = Arrays.asList(ByteArithmetic.toBoolean("49"));         
-           List<Boolean> rawLeftValue = Arrays.asList(ByteArithmetic.toBoolean("00"));
-           List<Boolean> rawRightKey = Arrays.asList(ByteArithmetic.toBoolean("ff"));
-           List<Boolean> rawRightValue = Arrays.asList(ByteArithmetic.toBoolean("ee"));
-           
-           Application<List<Pair<List<Boolean>, List<Boolean>>>, ProtocolBuilderBinary> app =
-               new Application<List<Pair<List<Boolean>, List<Boolean>>>, ProtocolBuilderBinary>() {
+    public TestKeyedCompareAndSwap() {}
 
+    @Override
+    public TestThread<ResourcePoolT, ProtocolBuilderBinary> next(
+        TestThreadConfiguration<ResourcePoolT, ProtocolBuilderBinary> conf) {
+      return new TestThread<ResourcePoolT, ProtocolBuilderBinary>() {
 
-             @Override
-             public Computation<List<Pair<List<Boolean>, List<Boolean>>>> prepareApplication(ProtocolBuilderBinary builder) {
-               
-               SequentialBinaryBuilder seqBuilder = (SequentialBinaryBuilder)builder;
-               
-               return seqBuilder.seq( seq -> {
-                 List<Computation<SBool>> leftKey = rawLeftKey.stream().map(builder.binary()::known).collect(Collectors.toList());
-                 List<Computation<SBool>> rightKey = rawRightKey.stream().map(builder.binary()::known).collect(Collectors.toList());
-                 List<Computation<SBool>> leftValue = rawLeftValue.stream().map(builder.binary()::known).collect(Collectors.toList());
-                 List<Computation<SBool>> rightValue = rawRightValue.stream().map(builder.binary()::known).collect(Collectors.toList());
+        @Override
+        public void test() throws Exception {
 
-                 return new KeyedCompareAndSwapProtocol(leftKey, leftValue, rightKey, rightValue).build(seq);
-               }).seq((data, seq) -> {
-                 List<Pair<List<Computation<Boolean>>, List<Computation<Boolean>>>> open = new ArrayList<>();
-                 
-                 for(Pair<List<Computation<SBool>>, List<Computation<SBool>>> o : data) {
-                   
-                   List<Computation<Boolean>> first = o.getFirst().stream().map(seq.binary()::open).collect(Collectors.toList());
-                   List<Computation<Boolean>> second = o.getSecond().stream().map(seq.binary()::open).collect(Collectors.toList());
-                       
-                   Pair<List<Computation<Boolean>>, List<Computation<Boolean>>> pair = new Pair<>(first, second);
-                   open.add(pair);
-                 }
-                 return () -> open;
-                }).seq((data, seq) -> {
-                  List<Pair<List<Boolean>, List<Boolean>>> out = new ArrayList<>();
-                  for(Pair<List<Computation<Boolean>>, List<Computation<Boolean>>> o : data) {
-                    List<Boolean> first = o.getFirst().stream().map(Computation::out).collect(Collectors.toList());
-                    List<Boolean> second = o.getSecond().stream().map(Computation::out).collect(Collectors.toList());
-                        
-                    Pair<List<Boolean>, List<Boolean>> pair = new Pair<>(first, second);
-                    out.add(pair);
-                    
-                  }
-                  
-                  return () -> out;
-                });
-             }
-           };
+          List<Boolean> rawLeftKey = Arrays.asList(ByteArithmetic.toBoolean("49"));
+          List<Boolean> rawLeftValue = Arrays.asList(ByteArithmetic.toBoolean("00"));
+          List<Boolean> rawRightKey = Arrays.asList(ByteArithmetic.toBoolean("ff"));
+          List<Boolean> rawRightValue = Arrays.asList(ByteArithmetic.toBoolean("ee"));
 
-           List<Pair<List<Boolean>,List<Boolean>>> result = secureComputationEngine.runApplication(app,
-               ResourcePoolCreator.createResourcePool(conf.sceConf));
+          Application<List<Pair<List<Boolean>, List<Boolean>>>, ProtocolBuilderBinary> app =
+              builder -> {
 
-           Assert.assertEquals("ff",
-               ByteArithmetic.toHex(result.get(0).getFirst()));
+            ProtocolBuilderBinary seqBuilder = (ProtocolBuilderBinary) builder;
 
-           Assert.assertEquals("ee",
-               ByteArithmetic.toHex(result.get(0).getSecond()));
+            return seqBuilder.seq(seq -> {
+              List<Computation<SBool>> leftKey =
+                  rawLeftKey.stream().map(builder.binary()::known).collect(Collectors.toList());
+              List<Computation<SBool>> rightKey =
+                  rawRightKey.stream().map(builder.binary()::known).collect(Collectors.toList());
+              List<Computation<SBool>> leftValue =
+                  rawLeftValue.stream().map(builder.binary()::known).collect(Collectors.toList());
+              List<Computation<SBool>> rightValue =
+                  rawRightValue.stream().map(builder.binary()::known).collect(Collectors.toList());
 
-           Assert.assertEquals("49",
-               ByteArithmetic.toHex(result.get(1).getFirst()));
+              return seq.advancedBinary().keyedCompareAndSwap(leftKey, leftValue, rightKey,
+                  rightValue);
+            }).seq((seq, data) -> {
+              List<Pair<List<Computation<Boolean>>, List<Computation<Boolean>>>> open =
+                  new ArrayList<>();
 
-           Assert.assertEquals("00",
-               ByteArithmetic.toHex(result.get(1).getSecond()));
-         }
-       };
-     }
-   }
+              for (Pair<List<Computation<SBool>>, List<Computation<SBool>>> o : data) {
+
+                List<Computation<Boolean>> first =
+                    o.getFirst().stream().map(seq.binary()::open).collect(Collectors.toList());
+                List<Computation<Boolean>> second =
+                    o.getSecond().stream().map(seq.binary()::open).collect(Collectors.toList());
+
+                Pair<List<Computation<Boolean>>, List<Computation<Boolean>>> pair =
+                    new Pair<>(first, second);
+                open.add(pair);
+              }
+              return () -> open;
+            }).seq((seq, data) -> {
+              List<Pair<List<Boolean>, List<Boolean>>> out = new ArrayList<>();
+              for (Pair<List<Computation<Boolean>>, List<Computation<Boolean>>> o : data) {
+                List<Boolean> first =
+                    o.getFirst().stream().map(Computation::out).collect(Collectors.toList());
+                List<Boolean> second =
+                    o.getSecond().stream().map(Computation::out).collect(Collectors.toList());
+
+                Pair<List<Boolean>, List<Boolean>> pair = new Pair<>(first, second);
+                out.add(pair);
+
+              }
+
+              return () -> out;
+            });
+          };
+
+          List<Pair<List<Boolean>, List<Boolean>>> result = secureComputationEngine
+              .runApplication(app, ResourcePoolCreator.createResourcePool(conf.sceConf));
+
+          Assert.assertEquals("ff", ByteArithmetic.toHex(result.get(0).getFirst()));
+
+          Assert.assertEquals("ee", ByteArithmetic.toHex(result.get(0).getSecond()));
+
+          Assert.assertEquals("49", ByteArithmetic.toHex(result.get(1).getFirst()));
+
+          Assert.assertEquals("00", ByteArithmetic.toHex(result.get(1).getSecond()));
+        }
+      };
+    }
+  }
 
   public static class TestOddEvenMerge extends TestThreadFactory {
 

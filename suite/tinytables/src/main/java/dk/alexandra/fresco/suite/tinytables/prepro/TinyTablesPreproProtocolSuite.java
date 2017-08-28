@@ -25,7 +25,7 @@ package dk.alexandra.fresco.suite.tinytables.prepro;
 
 import dk.alexandra.fresco.framework.BuilderFactory;
 import dk.alexandra.fresco.framework.MPCException;
-import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary.SequentialBinaryBuilder;
+import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.SCENetwork;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
@@ -94,7 +94,7 @@ import org.slf4j.LoggerFactory;
  * @author Jonas Lindstrøm (jonas.lindstrom@alexandra.dk)
  */
 public class TinyTablesPreproProtocolSuite
-    implements ProtocolSuite<ResourcePoolImpl, SequentialBinaryBuilder> {
+    implements ProtocolSuite<ResourcePoolImpl, ProtocolBuilderBinary> {
 
   private final static Logger logger = LoggerFactory.getLogger(TinyTablesPreproProtocolSuite.class);
 
@@ -117,7 +117,7 @@ public class TinyTablesPreproProtocolSuite
   }
 
   @Override
-  public BuilderFactory<SequentialBinaryBuilder> init(ResourcePoolImpl resourcePool) {
+  public BuilderFactory<ProtocolBuilderBinary> init(ResourcePoolImpl resourcePool) {
     OTFactory otFactory = new SemiHonestOTExtensionFactory(resourcePool.getNetwork(),
         resourcePool.getMyId(), 128, new BaseOTFactory(resourcePool.getNetwork(),
             resourcePool.getMyId(), resourcePool.getSecureRandom()),

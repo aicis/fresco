@@ -25,9 +25,9 @@
 package dk.alexandra.fresco.lib.math.integer.sqrt;
 
 import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.builder.AdvancedNumericBuilder;
 import dk.alexandra.fresco.framework.builder.ComputationBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.AdvancedNumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
 
@@ -39,7 +39,7 @@ import java.math.BigInteger;
  *
  * @author Jonas Lindstrøm (jonas.lindstrom@alexandra.dk)
  */
-public class SquareRoot implements ComputationBuilder<SInt> {
+public class SquareRoot implements ComputationBuilder<SInt, ProtocolBuilderNumeric> {
 
   // Input
   private final Computation<SInt> input;
@@ -52,7 +52,7 @@ public class SquareRoot implements ComputationBuilder<SInt> {
 
 
   @Override
-  public Computation<SInt> build(SequentialNumericBuilder builder) {
+  public Computation<SInt> buildComputation(ProtocolBuilderNumeric builder) {
     /*
      * Convergence is quadratic (the number of correct digits rougly doubles on each iteration) so
      * assuming we have at least one digit correct after first iteration, we need at about
@@ -73,7 +73,7 @@ public class SquareRoot implements ComputationBuilder<SInt> {
        * We iterate y[n+1] = (y[n] + x / y[n]) / 2.
        */
     }).whileLoop((iterationState) -> iterationState.iteration < iterations,
-        (iterationState, seq) -> {
+        (seq, iterationState) -> {
           Computation<SInt> value = iterationState.value;
           AdvancedNumericBuilder advancedNumeric = seq.advancedNumeric();
 
@@ -81,7 +81,7 @@ public class SquareRoot implements ComputationBuilder<SInt> {
           Computation<SInt> sum = seq.numeric().add(value, quotient);
           Computation<SInt> updatedValue = seq.advancedNumeric().rightShift(sum);
           return new IterationState(iterationState.iteration + 1, updatedValue);
-        }).seq((iterationState, seq) -> iterationState.value);
+        }).seq((seq, iterationState) -> iterationState.value);
   }
 
   /**

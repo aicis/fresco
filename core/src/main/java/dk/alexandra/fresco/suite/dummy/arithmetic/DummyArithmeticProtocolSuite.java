@@ -24,24 +24,24 @@
 
 package dk.alexandra.fresco.suite.dummy.arithmetic;
 
-import java.io.IOException;
-import java.math.BigInteger;
-import java.security.SecureRandom;
-import java.util.Random;
 import dk.alexandra.fresco.framework.BuilderFactory;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.SCENetwork;
 import dk.alexandra.fresco.suite.NumericProtocolSuite;
 import dk.alexandra.fresco.suite.ProtocolSuite;
+import java.io.IOException;
+import java.math.BigInteger;
+import java.security.SecureRandom;
+import java.util.Random;
 
 
 /**
  * The {@link ProtocolSuite} of the Dummy Arithmetic suite. Uses a
- * {@link DummyArithmeticResourcePool} and provides a {@link SequentialNumericBuilder}.
+ * {@link DummyArithmeticResourcePool} and provides a {@link ProtocolBuilderNumeric}.
  */
 public class DummyArithmeticProtocolSuite
-    implements NumericProtocolSuite<DummyArithmeticResourcePool, SequentialNumericBuilder> {
+    implements NumericProtocolSuite<DummyArithmeticResourcePool, ProtocolBuilderNumeric> {
 
   private BigInteger modulus;
   private int maxBitLength;
@@ -62,8 +62,10 @@ public class DummyArithmeticProtocolSuite
   }
 
   @Override
-  public BuilderFactory<SequentialNumericBuilder> init(DummyArithmeticResourcePool resourcePool) {
-    return new DummyArithmeticBuilderFactory(new DummyArithmeticFactory(resourcePool.getModulus(), maxBitLength));
+  public BuilderFactory<ProtocolBuilderNumeric> init(
+      DummyArithmeticResourcePool resourcePool) {
+    return new DummyArithmeticBuilderFactory(
+        new DummyArithmeticFactory(resourcePool.getModulus(), maxBitLength));
   }
 
   @Override
@@ -72,11 +74,13 @@ public class DummyArithmeticProtocolSuite
 
       @Override
       public void finishedBatch(int gatesEvaluated, DummyArithmeticResourcePool resourcePool,
-          SCENetwork sceNetwork) throws IOException {}
+          SCENetwork sceNetwork) throws IOException {
+      }
 
       @Override
       public void finishedEval(DummyArithmeticResourcePool resourcePool, SCENetwork sceNetwork)
-          throws IOException {}
+          throws IOException {
+      }
     };
   }
 

@@ -50,28 +50,11 @@ public class DummyBooleanNotProtocol extends DummyBooleanNativeProtocol<SBool> {
     this.out = null;
   }
 
-  /**
-   * Constructs a protocol to NOT the result of a computation.
-   * 
-   * <p>
-   * Lets the caller specify where to store the output. This is for backward compatibility.
-   * </p>
-   * 
-   * @param operand the left operand
-   * @param out the {@link SBool} in which to store the output
-   */
-  public DummyBooleanNotProtocol(Computation<SBool> operand, SBool out) {
-    super();
-    this.operand = operand;
-    this.out = (DummyBooleanSBool) out;
-  }
-
   @Override
-  public EvaluationStatus evaluate(int round, ResourcePool resourcePool,
-      SCENetwork network) {
-    
-    out = (out == null) ? new DummyBooleanSBool() : out;
-    this.out.setValue(!((DummyBooleanSBool)operand.out()).getValue());
+  public EvaluationStatus evaluate(int round, ResourcePool resourcePool, SCENetwork network) {
+
+    out = new DummyBooleanSBool();
+    this.out.setValue(!((DummyBooleanSBool) operand.out()).getValue());
     return EvaluationStatus.IS_DONE;
   }
 

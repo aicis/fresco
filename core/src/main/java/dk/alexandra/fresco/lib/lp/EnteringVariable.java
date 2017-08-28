@@ -28,9 +28,9 @@ package dk.alexandra.fresco.lib.lp;
 
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.MPCException;
-import dk.alexandra.fresco.framework.builder.AdvancedNumericBuilder;
 import dk.alexandra.fresco.framework.builder.ComputationBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.AdvancedNumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.math.integer.min.Minimum;
@@ -38,7 +38,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class EnteringVariable
-    implements ComputationBuilder<Pair<List<Computation<SInt>>, SInt>> {
+    implements ComputationBuilder<Pair<List<Computation<SInt>>, SInt>, ProtocolBuilderNumeric> {
 
   private final LPTableau tableau;
   private final Matrix<Computation<SInt>> updateMatrix;
@@ -66,7 +66,8 @@ public class EnteringVariable
 
 
   @Override
-  public Computation<Pair<List<Computation<SInt>>, SInt>> build(SequentialNumericBuilder builder) {
+  public Computation<Pair<List<Computation<SInt>>, SInt>> buildComputation(
+      ProtocolBuilderNumeric builder) {
     return builder.par(par -> {
       int updateVectorDimension = updateMatrix.getHeight();
       int numOfFs = tableau.getF().size();
@@ -85,8 +86,8 @@ public class EnteringVariable
         );
       }
       return () -> updatedF;
-    }).seq((updatedF, seq) ->
-        new Minimum(updatedF).build(seq)
+    }).seq((seq, updatedF) ->
+        new Minimum(updatedF).buildComputation(seq)
     );
   }
 }

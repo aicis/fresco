@@ -27,27 +27,24 @@
 package dk.alexandra.fresco.lib.compare.gt;
 
 import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.builder.AdvancedNumericBuilder;
-import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.ComputationBuilder;
-import dk.alexandra.fresco.framework.builder.NumericBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.AdvancedNumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.NumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.compare.ConditionalSelect;
 import java.math.BigInteger;
 import java.util.List;
 
-public class LessThanOrEquals implements ComputationBuilder<SInt> {
+public class LessThanOrEquals implements ComputationBuilder<SInt, ProtocolBuilderNumeric> {
 
   public LessThanOrEquals(int bitLength, int securityParameter,
-      Computation<SInt> x, Computation<SInt> y,
-      BuilderFactoryNumeric factoryProducer) {
+      Computation<SInt> x, Computation<SInt> y) {
     this.bitLength = bitLength;
     this.securityParameter = securityParameter;
     this.x = x;
     this.y = y;
-    this.factoryProducer = factoryProducer;
   }
 
   // params etc
@@ -56,11 +53,9 @@ public class LessThanOrEquals implements ComputationBuilder<SInt> {
   private final Computation<SInt> x;
   private final Computation<SInt> y;
 
-  private final BuilderFactoryNumeric factoryProducer;
-
 
   @Override
-  public Computation<SInt> build(SequentialNumericBuilder builder) {
+  public Computation<SInt> buildComputation(ProtocolBuilderNumeric builder) {
     final BigInteger modulus = builder.getBasicNumericFactory().getModulus();
 
     final int bitLengthBottom = bitLength / 2;
@@ -74,7 +69,7 @@ public class LessThanOrEquals implements ComputationBuilder<SInt> {
 
     return builder.seq((seq) -> seq.advancedNumeric().additiveMask(bitLength)
     ).par(
-        (mask, seq) -> {
+        (seq, mask) -> {
           List<Computation<SInt>> bits = mask.bits;
           List<Computation<SInt>> rBottomBits = bits.subList(0, bitLengthBottom);
           List<BigInteger> twoPowsBottom =
@@ -85,7 +80,7 @@ public class LessThanOrEquals implements ComputationBuilder<SInt> {
                   seq.advancedNumeric().openDot(twoPowsBottom, rBottomBits)
               );
         },
-        (mask, seq) -> {
+        (seq, mask) -> {
           List<Computation<SInt>> rTopBits = mask.bits
               .subList(bitLengthBottom, bitLengthBottom + bitLengthTop);
           List<BigInteger> twoPowsTop =
@@ -94,7 +89,7 @@ public class LessThanOrEquals implements ComputationBuilder<SInt> {
 
           return innerProduct.openDot(twoPowsTop, rTopBits);
         }
-    ).seq((pair, seq) -> {
+    ).seq((seq, pair) -> {
       Computation<SInt> rTop = pair::getSecond;
       Computation<SInt> rBottom = pair.getFirst().getSecond();
       SInt r = pair.getFirst().getFirst();
@@ -117,7 +112,7 @@ public class LessThanOrEquals implements ComputationBuilder<SInt> {
       Computation<BigInteger> mO = seq.numeric().open(mS);
 
       return () -> new Object[]{mO, rBottom, rTop, rBar, z};
-    }).seq((Object[] input, SequentialNumericBuilder seq) -> {
+    }).seq((ProtocolBuilderNumeric seq, Object[] input) -> {
       BigInteger mO = ((Computation<BigInteger>) input[0]).out();
       Computation<SInt> rBottom = (Computation<SInt>) input[1];
       Computation<SInt> rTop = (Computation<SInt>) input[2];
@@ -138,7 +133,7 @@ public class LessThanOrEquals implements ComputationBuilder<SInt> {
       Computation<SInt> eqResult =
           seq.comparison().compareZero(dif, bitLengthTop);
       return () -> new Object[]{eqResult, rBottom, rTop, mBot, mTop, mBar, rBar, z};
-    }).seq((Object[] input, SequentialNumericBuilder seq) -> {
+    }).seq((ProtocolBuilderNumeric seq, Object[] input) -> {
       Computation<SInt> eqResult = (Computation<SInt>) input[0];
       Computation<SInt> rBottom = (Computation<SInt>) input[1];
       Computation<SInt> rTop = (Computation<SInt>) input[2];
@@ -150,8 +145,7 @@ public class LessThanOrEquals implements ComputationBuilder<SInt> {
       // [eqResult]? BOT : TOP (for m and r) (store as mPrime,rPrime)
 
       //TODO rPrime and mPrime can be computed in parallel
-      Computation<SInt> rPrime = seq
-          .createSequentialSub(new ConditionalSelect(eqResult, rBottom, rTop));
+      Computation<SInt> rPrime = seq.seq(new ConditionalSelect(eqResult, rBottom, rTop));
 
       NumericBuilder numeric = seq.numeric();
       Computation<SInt> negEqResult = numeric.sub(one, eqResult);
@@ -172,17 +166,16 @@ public class LessThanOrEquals implements ComputationBuilder<SInt> {
       } else {
         // compare the half-length inputs
         int nextBitLength = (bitLength + 1) / 2;
-        subComparisonResult =
-            seq.createSequentialSub(
-                new LessThanOrEquals(
-                    nextBitLength,
-                    securityParameter,
-                    rPrime,
-                    mPrime,
-                    factoryProducer));
+        subComparisonResult = seq.seq(
+            new LessThanOrEquals(
+                nextBitLength,
+                securityParameter,
+                rPrime,
+                mPrime
+            ));
       }
       return () -> new Object[]{subComparisonResult, mBar, rBar, z};
-    }).seq((Object[] input, SequentialNumericBuilder seq) -> {
+    }).seq((ProtocolBuilderNumeric seq, Object[] input) -> {
       Computation<SInt> subComparisonResult = (Computation<SInt>) input[0];
       BigInteger mBar = (BigInteger) input[1];
       Computation<SInt> rBar = (Computation<SInt>) input[2];

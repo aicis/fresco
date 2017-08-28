@@ -27,17 +27,17 @@
 package dk.alexandra.fresco.lib.crypto.mimc;
 
 import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.builder.AdvancedNumericBuilder;
 import dk.alexandra.fresco.framework.builder.ComputationBuilder;
-import dk.alexandra.fresco.framework.builder.NumericBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.AdvancedNumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.NumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import java.math.BigInteger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class MiMCDecryption implements ComputationBuilder<SInt> {
+public class MiMCDecryption implements ComputationBuilder<SInt, ProtocolBuilderNumeric> {
 
   // TODO: require that our modulus - 1 and 3 are co-prime
 
@@ -75,7 +75,7 @@ public class MiMCDecryption implements ComputationBuilder<SInt> {
   int i = 0;
 
   @Override
-  public Computation<SInt> build(SequentialNumericBuilder builder) {
+  public Computation<SInt> buildComputation(ProtocolBuilderNumeric builder) {
     BasicNumericFactory basicNumericFactory = builder.getBasicNumericFactory();
     int requiredRounds = MiMCEncryption
         .getRequiredRounds(basicNumericFactory, requestedRounds);
@@ -91,7 +91,7 @@ public class MiMCDecryption implements ComputationBuilder<SInt> {
       return new IterationState(1, sub);
     }).whileLoop(
         (state) -> state.round < requiredRounds,
-        (state, seq) -> {
+        (seq, state) -> {
           if (state.round % 10 == 0) {
             logger.info("Decryption " + state.round + " of " + requiredRounds);
           }
@@ -124,7 +124,7 @@ public class MiMCDecryption implements ComputationBuilder<SInt> {
               .sub(numeric.sub(inverted, encryptionKey), roundConstant);
           return new IterationState(state.round + 1, updatedValue);
         }
-    ).seq((state, seq) -> {
+    ).seq((seq, state) -> {
       /*
        * We're in the last round so we just need to compute
 			 * c^{-3} - K

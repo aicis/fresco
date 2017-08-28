@@ -27,12 +27,12 @@
 package dk.alexandra.fresco.lib.math.bool.add;
 
 import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.builder.binary.ComputationBuilderBinary;
-import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary.SequentialBinaryBuilder;
+import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SBool;
 
-public class OneBitFullAdderProtocolImpl implements ComputationBuilderBinary<Pair<SBool, SBool>> {
+public class OneBitFullAdderProtocolImpl implements
+    dk.alexandra.fresco.framework.builder.ComputationBuilder<Pair<SBool, SBool>, ProtocolBuilderBinary> {
 
   private Computation<SBool> a, b, c;
   private Computation<SBool> xor1, xor2, xor3, and1, and2 = null;
@@ -45,16 +45,16 @@ public class OneBitFullAdderProtocolImpl implements ComputationBuilderBinary<Pai
   }
 
   @Override
-  public Computation<Pair<SBool, SBool>> build(SequentialBinaryBuilder builder) {
+  public Computation<Pair<SBool, SBool>> buildComputation(ProtocolBuilderBinary builder) {
     return builder.par(par -> {
       xor1 = par.binary().xor(a, b);
       and1 = par.binary().and(a, b);
       return () -> (par);
-    }).par((pair, par) -> {
+    }).par((par, pair) -> {
       xor2 = par.binary().xor(xor1, c); 
       and2 = par.binary().and(xor1, c); 
       return () -> (par);
-    }).par((pair, par) -> {
+    }).par((par, pair) -> {
       xor3 = par.binary().xor(and2, and1);
       return () -> new Pair<SBool, SBool>(xor2.out(), xor3.out());
     });

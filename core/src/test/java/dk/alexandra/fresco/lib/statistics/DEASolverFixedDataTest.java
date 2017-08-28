@@ -30,12 +30,11 @@ import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
-import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilderHelper;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.BuilderFactoryNumeric;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
-import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
@@ -69,7 +68,7 @@ public class DEASolverFixedDataTest {
 
 
   public static class TestDEASolverScores<ResourcePoolT extends ResourcePool> extends
-      TestThreadFactory<ResourcePoolT, SequentialNumericBuilder> {
+      TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     private AnalysisType type;
     // MAde null to find where this test is activated from
@@ -79,8 +78,8 @@ public class DEASolverFixedDataTest {
     }
 
     @Override
-    public TestThread next(TestThreadConfiguration<ResourcePoolT, SequentialNumericBuilder> conf) {
-      return new TestThread<ResourcePoolT, SequentialNumericBuilder>() {
+    public TestThread next(TestThreadConfiguration<ResourcePoolT, ProtocolBuilderNumeric> conf) {
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         @Override
         public void test() throws Exception {
 
@@ -131,12 +130,12 @@ public class DEASolverFixedDataTest {
     }
 
     public void run(
-        SecureComputationEngine<ResourcePoolT, SequentialNumericBuilder> secureComputationEngine,
+        SecureComputationEngine<ResourcePoolT, ProtocolBuilderNumeric> secureComputationEngine,
         ResourcePoolT resourcePool) {
-      Application<Void, SequentialNumericBuilder> app = new Application<Void, SequentialNumericBuilder>() {
+      Application<Void, ProtocolBuilderNumeric> app = new Application<Void, ProtocolBuilderNumeric>() {
 
         @Override
-        public Computation<Void> prepareApplication(SequentialNumericBuilder producer) {
+        public Computation<Void> prepareApplication(ProtocolBuilderNumeric producer) {
           producer
               .append(prepareApplication(ProtocolBuilderHelper.getFactoryNumeric(producer)));
           return () -> null;
@@ -175,10 +174,10 @@ public class DEASolverFixedDataTest {
 
       List<DEAResult> deaResults = secureComputationEngine.runApplication(solver, resourcePool);
 
-      Application<Void, SequentialNumericBuilder> app2 = new Application<Void, SequentialNumericBuilder>() {
+      Application<Void, ProtocolBuilderNumeric> app2 = new Application<Void, ProtocolBuilderNumeric>() {
 
         @Override
-        public Computation<Void> prepareApplication(SequentialNumericBuilder producer) {
+        public Computation<Void> prepareApplication(ProtocolBuilderNumeric producer) {
           producer
               .append(prepareApplication(ProtocolBuilderHelper.getFactoryNumeric(producer)));
           return () -> null;

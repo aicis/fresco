@@ -28,7 +28,7 @@ import dk.alexandra.fresco.demo.helpers.ResourcePoolHelper;
 import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.builder.binary.BinaryBuilder;
-import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary.SequentialBinaryBuilder;
+import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
@@ -84,7 +84,7 @@ import org.apache.commons.cli.ParseException;
  *
  * OBS: Using the dummy protocol suite is not secure!
  */
-public class PrivateSetDemo implements Application<List<List<Boolean>>, SequentialBinaryBuilder> {
+public class PrivateSetDemo implements Application<List<List<Boolean>>, ProtocolBuilderBinary> {
 
   private Boolean[] inKey;
   private int[] inSet;
@@ -159,9 +159,9 @@ public class PrivateSetDemo implements Application<List<List<Boolean>>, Sequenti
 
     // Do the secure computation using config from property files.
     PrivateSetDemo privateSetDemo = new PrivateSetDemo(networkConfiguration.getMyId(), key, inputs);
-    ProtocolSuite<ResourcePoolImpl, SequentialBinaryBuilder> psConf = util.getProtocolSuite();
-    SecureComputationEngine<ResourcePoolImpl, SequentialBinaryBuilder> sce =
-        new SecureComputationEngineImpl<ResourcePoolImpl, SequentialBinaryBuilder>(psConf,
+    ProtocolSuite<ResourcePoolImpl, ProtocolBuilderBinary> psConf = util.getProtocolSuite();
+    SecureComputationEngine<ResourcePoolImpl, ProtocolBuilderBinary> sce =
+        new SecureComputationEngineImpl<ResourcePoolImpl, ProtocolBuilderBinary>(psConf,
             util.getEvaluator());
 
     List<List<Boolean>> psiResult = null;
@@ -200,7 +200,7 @@ public class PrivateSetDemo implements Application<List<List<Boolean>>, Sequenti
 
 
   @Override
-  public Computation<List<List<Boolean>>> prepareApplication(SequentialBinaryBuilder producer) {
+  public Computation<List<List<Boolean>>> prepareApplication(ProtocolBuilderBinary producer) {
     return producer.seq(seq -> {
       BinaryBuilder bin = seq.binary();
 
@@ -244,7 +244,7 @@ public class PrivateSetDemo implements Application<List<List<Boolean>>, Sequenti
       }
       PSIInputs inputs = new PSIInputs(set1, set2, commonKey);
       return () -> inputs;
-    }).par((inputs, par) -> {
+    }).par((par, inputs) -> {
       List<Computation<List<SBool>>> aesResults = new ArrayList<>();
       for (List<Computation<SBool>> set : inputs.set1) {
         aesResults.add(par.bristol().AES(set, inputs.commonKey));
@@ -253,7 +253,7 @@ public class PrivateSetDemo implements Application<List<List<Boolean>>, Sequenti
         aesResults.add(par.bristol().AES(set, inputs.commonKey));
       }
       return () -> aesResults;
-    }).seq((aesResults, seq) -> {
+    }).seq((seq, aesResults) -> {
       List<List<SBool>> res =
           aesResults.stream().map(Computation::out).collect(Collectors.toList());
       List<List<Computation<Boolean>>> output = new ArrayList<>();
@@ -265,7 +265,7 @@ public class PrivateSetDemo implements Application<List<List<Boolean>>, Sequenti
         }
       }
       return () -> output;
-    }).seq((output, seq) -> {
+    }).seq((seq, output) -> {
       List<List<Boolean>> outs = output.stream()
           .map(row -> row.stream().map(Computation::out).collect(Collectors.toList()))
           .collect(Collectors.toList());

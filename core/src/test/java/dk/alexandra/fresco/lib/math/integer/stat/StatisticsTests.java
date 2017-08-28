@@ -33,9 +33,9 @@ import dk.alexandra.fresco.framework.TestApplication;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
-import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
-import dk.alexandra.fresco.framework.builder.NumericBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
+import dk.alexandra.fresco.framework.builder.numeric.BuilderFactoryNumeric;
+import dk.alexandra.fresco.framework.builder.numeric.NumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
@@ -101,20 +101,20 @@ public class StatisticsTests {
                         .map(BigInteger::valueOf)
                         .map(NumericBuilder::known)
                         .collect(Collectors.toList());
-                    
+
                     Computation<SInt> mean1 = builder
-                        .createSequentialSub(new Mean(input1));
+                        .seq(new Mean(input1));
                     Computation<SInt> mean2 = builder
-                        .createSequentialSub(new Mean(input2));
+                        .seq(new Mean(input2));
                     Computation<SInt> variance = builder
-                        .createSequentialSub(new Variance(input1, mean1));
+                        .seq(new Variance(input1, mean1));
                     Computation<SInt> covariance = builder
-                        .createSequentialSub(new Covariance(input1, input2, mean1, mean2));
+                        .seq(new Covariance(input1, input2, mean1, mean2));
                     Computation<List<List<Computation<SInt>>>> covarianceMatrix = builder
-                        .createSequentialSub(
+                        .seq(
                             new CovarianceMatrix(Arrays.asList(input1, input2, input3), means));
 
-                    builder.createParallelSub((par) -> {
+                    builder.par((par) -> {
                       NumericBuilder open = par.numeric();
                       outputMean1 = open.open(mean1);
                       outputMean2 = open.open(mean2);
@@ -229,15 +229,11 @@ public class StatisticsTests {
                         .map(NumericBuilder::known)
                         .collect(Collectors.toList());
 
-                    
-                    Computation<SInt> covariance = builder
-                        .createSequentialSub(new Covariance(input1, input2));
+                    Computation<SInt> covariance = builder.seq(new Covariance(input1, input2));
                     Computation<List<List<Computation<SInt>>>> covarianceMatrix = builder
-                        .createSequentialSub(
-                            new CovarianceMatrix(Arrays.asList(input1, input2, input3)));
+                        .seq(new CovarianceMatrix(Arrays.asList(input1, input2, input3)));
 
-
-                    builder.createParallelSub((par) -> {
+                    builder.par((par) -> {
                       NumericBuilder open = par.numeric();
                       outputCovariance = open.open(covariance);
                       List<List<Computation<SInt>>> covarianceMatrixOut = covarianceMatrix.out();

@@ -28,12 +28,12 @@ package dk.alexandra.fresco.lib.math.integer.exp;
 
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.builder.ComputationBuilder;
-import dk.alexandra.fresco.framework.builder.NumericBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.NumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
 
-public class Exponentiation implements ComputationBuilder<SInt> {
+public class Exponentiation implements ComputationBuilder<SInt, ProtocolBuilderNumeric> {
 
   private final Computation<SInt> input;
   private final Computation<SInt> exponent;
@@ -47,10 +47,10 @@ public class Exponentiation implements ComputationBuilder<SInt> {
   }
 
   @Override
-  public Computation<SInt> build(SequentialNumericBuilder builder) {
+  public Computation<SInt> buildComputation(ProtocolBuilderNumeric builder) {
     return builder.seq((seq) ->
         seq.advancedNumeric().toBits(exponent, maxExponentBitLength)
-    ).seq((bits, seq) -> {
+    ).seq((seq, bits) -> {
       Computation<SInt> e = input;
       Computation<SInt> result = null;
       NumericBuilder numeric = seq.numeric();

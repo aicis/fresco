@@ -53,29 +53,11 @@ public class DummyBooleanXorProtocol extends DummyBooleanNativeProtocol<SBool> {
     this.out = null;
   }
 
-  /**
-   * Constructs a protocol to XOR the result of two computations.
-   * 
-   * <p>
-   * Lets the caller specify where to store the output. This is for backward compatibility.
-   * </p>
-   * 
-   * @param left the left operand
-   * @param right the right operand
-   * @param out the {@link SBool} in which to store the output
-   */
-  public DummyBooleanXorProtocol(Computation<SBool> left, Computation<SBool> right, SBool out) {
-    super();
-    this.left = left;
-    this.right = right;
-    this.out = (DummyBooleanSBool) out;
-  }
-
   @Override
-  public EvaluationStatus evaluate(int round, ResourcePool resourcePool,
-      SCENetwork network) {
-    out = (out == null) ? new DummyBooleanSBool() : out;
-    this.out.setValue(((DummyBooleanSBool)left.out()).getValue() ^ ((DummyBooleanSBool)right.out()).getValue());
+  public EvaluationStatus evaluate(int round, ResourcePool resourcePool, SCENetwork network) {
+    out = new DummyBooleanSBool();
+    this.out.setValue(
+        ((DummyBooleanSBool) left.out()).getValue() ^ ((DummyBooleanSBool) right.out()).getValue());
     return EvaluationStatus.IS_DONE;
   }
 

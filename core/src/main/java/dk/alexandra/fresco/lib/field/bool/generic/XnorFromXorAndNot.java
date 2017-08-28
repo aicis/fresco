@@ -27,10 +27,8 @@
 package dk.alexandra.fresco.lib.field.bool.generic;
 
 import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.builder.binary.ComputationBuilderBinary;
-import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary.SequentialBinaryBuilder;
+import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.value.SBool;
-import dk.alexandra.fresco.lib.helper.SingleProtocolProducer;
 
 /**
  * This protocol implements
@@ -41,7 +39,8 @@ import dk.alexandra.fresco.lib.helper.SingleProtocolProducer;
  *
  * NOT ( a XOR b )
  */
-public class XnorFromXorAndNot implements ComputationBuilderBinary<SBool> {
+public class XnorFromXorAndNot implements
+    dk.alexandra.fresco.framework.builder.ComputationBuilder<SBool, ProtocolBuilderBinary> {
 
   private Computation<SBool> inA;
   private Computation<SBool> inB;
@@ -52,7 +51,7 @@ public class XnorFromXorAndNot implements ComputationBuilderBinary<SBool> {
   }
 
   @Override
-  public Computation<SBool> build(SequentialBinaryBuilder builder) {
+  public Computation<SBool> buildComputation(ProtocolBuilderBinary builder) {
     Computation<SBool> tmp = builder.binary().xor(inA, inB);
     
     return builder.binary().not(tmp);

@@ -26,17 +26,17 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.collections.sort;
 
+import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.builder.ComputationBuilder;
+import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
+import dk.alexandra.fresco.framework.util.Pair;
+import dk.alexandra.fresco.framework.value.SBool;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.builder.binary.ComputationBuilderBinary;
-import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary.SequentialBinaryBuilder;
-import dk.alexandra.fresco.framework.util.Pair;
-import dk.alexandra.fresco.framework.value.SBool;
-
-public class KeyedCompareAndSwapProtocol implements ComputationBuilderBinary<List<Pair<List<Computation<SBool>>, List<Computation<SBool>>>>> {
+public class KeyedCompareAndSwapProtocol implements
+    ComputationBuilder<List<Pair<List<Computation<SBool>>, List<Computation<SBool>>>>, ProtocolBuilderBinary> {
 
   private List<Computation<SBool>> leftKey, leftValue, rightKey, rightValue;
   private List<Computation<SBool>> xorKey, xorValue;
@@ -64,42 +64,42 @@ public class KeyedCompareAndSwapProtocol implements ComputationBuilderBinary<Lis
 	}
 
   @Override
-  public Computation<List<Pair<List<Computation<SBool>>, List<Computation<SBool>>>>> build(
-      SequentialBinaryBuilder builder) {
+  public Computation<List<Pair<List<Computation<SBool>>, List<Computation<SBool>>>>> buildComputation(
+      ProtocolBuilderBinary builder) {
     return builder.par(seq -> {
       
       Computation<SBool> comparison = seq.comparison().greaterThan(leftKey, rightKey);
       xorKey = leftKey.stream()
-          .map(e -> {return seq.binary().xor(e, rightKey.get(leftKey.indexOf(e)));})
+          .map(e -> seq.binary().xor(e, rightKey.get(leftKey.indexOf(e))))
           .collect(Collectors.toList());
       
       xorValue = leftValue.stream()
-          .map(e -> {return seq.binary().xor(e, rightValue.get(leftValue.indexOf(e)));})
+          .map(e -> seq.binary().xor(e, rightValue.get(leftValue.indexOf(e))))
           .collect(Collectors.toList());
       return () -> comparison;
-    }).par((data, par) -> {
+    }).par((par, data) -> {
       
       List<Computation<SBool>> firstValue = leftValue.stream()
-          .map(e -> {return par.advancedBinary().condSelect(data, e, rightValue.get(leftValue.indexOf(e)));})
+          .map(e -> par.advancedBinary().condSelect(data, e, rightValue.get(leftValue.indexOf(e))))
           .collect(Collectors.toList());
 
       List<Computation<SBool>> firstKey = leftKey.stream()
-          .map(e -> {return par.advancedBinary().condSelect(data, e, rightKey.get(leftKey.indexOf(e)));})
+          .map(e -> par.advancedBinary().condSelect(data, e, rightKey.get(leftKey.indexOf(e))))
           .collect(Collectors.toList());
 
-      return () -> new Pair<List<Computation<SBool>>, List<Computation<SBool>>>(firstKey, firstValue);
-    }).par((data, par) -> { 
+      return () -> new Pair<>(firstKey, firstValue);
+    }).par((par, data) -> {
       List<Computation<SBool>> lastValue = xorValue.stream()
-          .map(e -> {return par.binary().xor(e, data.getSecond().get(xorValue.indexOf(e)));})
+          .map(e -> par.binary().xor(e, data.getSecond().get(xorValue.indexOf(e))))
           .collect(Collectors.toList());
 
       List<Computation<SBool>> lastKey = xorKey.stream()
-          .map(e -> {return par.binary().xor(e, data.getFirst().get(xorKey.indexOf(e)));})
+          .map(e -> par.binary().xor(e, data.getFirst().get(xorKey.indexOf(e))))
           .collect(Collectors.toList());
           
       List<Pair<List<Computation<SBool>>, List<Computation<SBool>>>> result = new ArrayList<>();
       result.add(data);
-      result.add(new Pair<List<Computation<SBool>>, List<Computation<SBool>>>(lastKey, lastValue));
+      result.add(new Pair<>(lastKey, lastValue));
        
       return () -> result;
     });

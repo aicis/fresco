@@ -28,9 +28,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.builder.ComputationBuilder;
 import dk.alexandra.fresco.framework.builder.binary.BinaryBuilder;
-import dk.alexandra.fresco.framework.builder.binary.ComputationBuilderBinary;
-import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary.SequentialBinaryBuilder;
+import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.value.SBool;
 
 /**
@@ -39,7 +39,7 @@ import dk.alexandra.fresco.framework.value.SBool;
  * The XNORs are done in parallel and the ANDs are done by a log-depth tree structured protocol.
  *
  */
-public class AltBinaryEqualityProtocol implements ComputationBuilderBinary<SBool> {
+public class AltBinaryEqualityProtocol implements ComputationBuilder<SBool, ProtocolBuilderBinary> {
 	
 
   private List<Computation<SBool>> inLeft;
@@ -57,7 +57,7 @@ public class AltBinaryEqualityProtocol implements ComputationBuilderBinary<SBool
 	}
 	
   @Override
-  public Computation<SBool> build(SequentialBinaryBuilder builder) {
+  public Computation<SBool> buildComputation(ProtocolBuilderBinary builder) {
     return builder.par(par -> {
       BinaryBuilder bb = par.binary();
       List<Computation<SBool>> xors = new ArrayList<>();
@@ -65,7 +65,7 @@ public class AltBinaryEqualityProtocol implements ComputationBuilderBinary<SBool
         xors.add(bb.xor(inLeft.get(i), inRight.get(i)));
       }
       return () -> xors;
-    }).par((xors, par) -> {
+    }).par((par, xors) -> {
       List<Computation<SBool>> xnors = new ArrayList<>();
       for (int i = 0; i < length; i++) {
         xnors.add(par.binary().not(xors.get(i)));
@@ -74,11 +74,11 @@ public class AltBinaryEqualityProtocol implements ComputationBuilderBinary<SBool
       return is;
     }).whileLoop(
         (state) -> state.round > 1,
-        (state, seq) -> {
+        (seq, state) -> {
           List<Computation<SBool>> input = state.value.out();
           int size = input.size() % 2 + input.size()/2;
   
-          IterationState is = new IterationState(size, seq.createParallelSub(par -> {
+          IterationState is = new IterationState(size, seq.par(par -> {
             List<Computation<SBool>> ands = new ArrayList<>();
             int idx = 0;
             while(idx < input.size()-1){
@@ -92,7 +92,7 @@ public class AltBinaryEqualityProtocol implements ComputationBuilderBinary<SBool
           }));
           return is;
         }
-    ).seq((state, seq) -> {
+    ).seq((seq, state) -> {
         return state.value.out().get(0);
     }
     );
@@ -114,4 +114,5 @@ public class AltBinaryEqualityProtocol implements ComputationBuilderBinary<SBool
         return this;
       }
     }
+
 }

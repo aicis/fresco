@@ -1,11 +1,8 @@
-package dk.alexandra.fresco.framework.builder;
+package dk.alexandra.fresco.framework.builder.numeric;
 
 import dk.alexandra.fresco.framework.BuilderFactory;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
-import dk.alexandra.fresco.lib.compare.DefaultComparisonBuilder;
 import dk.alexandra.fresco.lib.compare.MiscOIntGenerators;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
-import dk.alexandra.fresco.lib.math.integer.division.DefaultAdvancedNumericBuilder;
 
 /**
  * The core factory to implement when creating a numeric protocol. Every subbuilder from this
@@ -18,7 +15,7 @@ import dk.alexandra.fresco.lib.math.integer.division.DefaultAdvancedNumericBuild
  * </ul>
  * Other builders have defaults, based on the raw methods, but can be overridden.
  */
-public interface BuilderFactoryNumeric extends BuilderFactory<SequentialNumericBuilder> {
+public interface BuilderFactoryNumeric extends BuilderFactory<ProtocolBuilderNumeric> {
 
   int MAGIC_SECURE_NUMBER = 60;
 
@@ -36,12 +33,24 @@ public interface BuilderFactoryNumeric extends BuilderFactory<SequentialNumericB
     return new DefaultAdvancedNumericBuilder(this, builder);
   }
 
-  @Override
-  default SequentialNumericBuilder createProtocolBuilder() {
-    return ProtocolBuilderNumeric.createApplicationRoot(this);
+  /**
+   * Returns a builder which can be helpful while developing a new protocol. Be very careful though,
+   * to include this in any production code since the debugging opens values to all parties.
+   * 
+   * @param builder
+   * @return By default a standard debugger which opens values and prints them.
+   */
+  default DebugBuilder createDebugBuilder(ProtocolBuilderNumeric builder) {
+    return new DefaultDebugBuilder(builder);
   }
 
-  default UtilityBuilder createUtilityBuilder(ProtocolBuilderNumeric builder) {
-    return new DefaultUtilityBuilder(builder);
+  @Override
+  default ProtocolBuilderNumeric createSequential() {
+    return new ProtocolBuilderNumeric(this, false);
+  }
+
+  @Override
+  default ProtocolBuilderNumeric createParallel() {
+    return new ProtocolBuilderNumeric(this, true);
   }
 }

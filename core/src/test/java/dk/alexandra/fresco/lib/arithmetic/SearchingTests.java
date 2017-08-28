@@ -34,16 +34,13 @@ import dk.alexandra.fresco.framework.TestApplication;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
-import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
-import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
-import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.BuilderFactoryNumeric;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
+import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.collections.LinearLookUp;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
-import dk.alexandra.fresco.lib.helper.builder.NumericIOBuilder;
 import dk.alexandra.fresco.lib.helper.SequentialProtocolProducer;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -94,19 +91,20 @@ public class SearchingTests {
             TestApplication app1 = new TestApplication() {
               @Override
               public ProtocolProducer prepareApplication(BuilderFactory factoryProducer) {
-                SequentialNumericBuilder applicationRoot = ProtocolBuilderNumeric
-                    .createApplicationRoot((BuilderFactoryNumeric) factoryProducer);
-                applicationRoot
-                    .seq((seq) -> seq.numeric().known(BigInteger.valueOf(NOTFOUND)))
-                    .seq((notFound, seq) -> {
-                      LinearLookUp function =
-                          new LinearLookUp(sKeys.get(counter), sKeys, sValues, notFound);
-                      return seq.createSequentialSub(function);
-                    })
-                    .seq((out, seq) -> {
-                      this.outputs.add(seq.numeric().open(() -> out));
-                      return () -> out;
-                    });
+                ProtocolBuilderNumeric applicationRoot = ProtocolBuilderNumeric
+                    .createApplicationRoot((BuilderFactoryNumeric) factoryProducer,
+                        (root) ->
+                            root.seq((seq) -> seq.numeric().known(BigInteger.valueOf(NOTFOUND)))
+                                .seq((seq, notFound) -> {
+                                  LinearLookUp function =
+                                      new LinearLookUp(sKeys.get(counter), sKeys, sValues,
+                                          notFound);
+                                  return seq.seq(function);
+                                })
+                                .seq((seq, out) -> {
+                                  this.outputs.add(seq.numeric().open(() -> out));
+                                  return () -> out;
+                                }));
                 return applicationRoot.build();
               }
             };

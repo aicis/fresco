@@ -24,17 +24,17 @@
 package dk.alexandra.fresco.lib.math.integer.binary;
 
 import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.builder.AdvancedNumericBuilder;
-import dk.alexandra.fresco.framework.builder.AdvancedNumericBuilder.RightShiftResult;
 import dk.alexandra.fresco.framework.builder.ComputationBuilder;
-import dk.alexandra.fresco.framework.builder.NumericBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.AdvancedNumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.AdvancedNumericBuilder.RightShiftResult;
+import dk.alexandra.fresco.framework.builder.numeric.NumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
 import java.util.Collections;
 
-public class RightShift implements ComputationBuilder<RightShiftResult> {
+public class RightShift implements ComputationBuilder<RightShiftResult, ProtocolBuilderNumeric> {
 
   private final boolean calculateRemainders;
   // Input
@@ -55,23 +55,23 @@ public class RightShift implements ComputationBuilder<RightShiftResult> {
   }
 
   @Override
-  public Computation<RightShiftResult> build(SequentialNumericBuilder sequential) {
+  public Computation<RightShiftResult> buildComputation(ProtocolBuilderNumeric sequential) {
     return sequential.seq((builder) -> {
       AdvancedNumericBuilder additiveMaskBuilder = builder.advancedNumeric();
       return additiveMaskBuilder.additiveMask(bitLength);
-    }).par((randomAdditiveMask, parSubSequential) -> {
+    }).par((parSubSequential, randomAdditiveMask) -> {
       BigInteger two = BigInteger.valueOf(2);
       NumericBuilder numericBuilder = parSubSequential.numeric();
       BigInteger inverseOfTwo =
           two.modInverse(parSubSequential.getBasicNumericFactory().getModulus());
       Computation<SInt> rBottom = randomAdditiveMask.bits.get(0);
-      Computation<SInt> sub = numericBuilder.sub(() -> randomAdditiveMask.r, rBottom);
+      Computation<SInt> sub = numericBuilder.sub(randomAdditiveMask.r, rBottom);
       Computation<SInt> rTop = numericBuilder.mult(inverseOfTwo, sub);
       return () -> new Pair<>(rBottom, rTop);
-    } , (randomAdditiveMask, parSubSequential) -> {
+    }, (parSubSequential, randomAdditiveMask) -> {
       Computation<SInt> result = parSubSequential.numeric().add(input, () -> randomAdditiveMask.r);
       return parSubSequential.numeric().open(result);
-    }).seq((preprocessOutput, round1) -> {
+    }).seq((round1, preprocessOutput) -> {
       BigInteger mOpen = preprocessOutput.getSecond();
       Computation<SInt> rBottom = preprocessOutput.getFirst().getFirst();
       Computation<SInt> rTop = preprocessOutput.getFirst().getSecond();
@@ -84,13 +84,13 @@ public class RightShift implements ComputationBuilder<RightShiftResult> {
       BigInteger mBottomNegated = mOpen.add(BigInteger.ONE).mod(BigInteger.valueOf(2));
       Computation<SInt> carry = round1.numeric().mult(mBottomNegated, rBottom);
       return () -> new Pair<>(new Pair<>(rBottom, rTop), new Pair<>(carry, mOpen));
-    }).par((inputs, parSubSequential) -> {
+    }).par((parSubSequential, inputs) -> {
       BigInteger openShiftOnce = inputs.getSecond().getSecond().shiftRight(1);
       // Now we calculate the shift, x >> 1 = mTop - rTop - carry
       Computation<SInt> sub =
           parSubSequential.numeric().sub(openShiftOnce, inputs.getFirst().getSecond());
       return parSubSequential.numeric().sub(sub, inputs.getSecond().getFirst());
-    } , (inputs, parSubSequential) -> {
+    }, (parSubSequential, inputs) -> {
       if (!calculateRemainders) {
         return () -> null;
       } else {
@@ -108,12 +108,12 @@ public class RightShift implements ComputationBuilder<RightShiftResult> {
           Computation<SInt> product = productAndSumNumeric.mult(twoMBottom, rBottom);
           Computation<SInt> sum = productAndSumNumeric.add(mBottom, rBottom);
           return () -> new Pair<>(product, sum);
-        }).seq((productAndSum, finalBuilder) -> {
+        }).seq((finalBuilder, productAndSum) -> {
           Computation<SInt> result =
               finalBuilder.numeric().sub(productAndSum.getSecond(), productAndSum.getFirst());
           return () -> Collections.singletonList(result.out());
         });
       }
-    }).seq((output, builder) -> () -> new RightShiftResult(output.getFirst(), output.getSecond()));
+    }).seq((builder, output) -> () -> new RightShiftResult(output.getFirst(), output.getSecond()));
   }
 }

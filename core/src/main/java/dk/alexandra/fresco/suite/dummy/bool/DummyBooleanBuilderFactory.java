@@ -25,7 +25,6 @@ package dk.alexandra.fresco.suite.dummy.bool;
 
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.ProtocolFactory;
-import dk.alexandra.fresco.framework.builder.binary.BasicBinaryFactory;
 import dk.alexandra.fresco.framework.builder.binary.BinaryBuilder;
 import dk.alexandra.fresco.framework.builder.binary.BuilderFactoryBinary;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
@@ -47,11 +46,6 @@ public class DummyBooleanBuilderFactory implements BuilderFactoryBinary {
   @Override
   public ProtocolFactory getProtocolFactory() {
     throw new RuntimeException("Should not be used");
-  }
-
-  @Override
-  public BasicBinaryFactory createBasicBinaryFactory() {
-    return factory;
   }
 
 
@@ -116,14 +110,6 @@ public class DummyBooleanBuilderFactory implements BuilderFactoryBinary {
       }
 
       @Override
-      public Computation<SBool> and(Computation<SBool> a, boolean b) {
-
-        DummyBooleanAndProtocol c = new DummyBooleanAndProtocol(a, known(b));
-        builder.append(c);
-        return c;
-      }
-
-      @Override
       public Computation<SBool> xor(Computation<SBool> a, Computation<SBool> b) {
         DummyBooleanXorProtocol c = new DummyBooleanXorProtocol(a, b);
         builder.append(c);
@@ -131,22 +117,8 @@ public class DummyBooleanBuilderFactory implements BuilderFactoryBinary {
       }
 
       @Override
-      public Computation<SBool> xor(Computation<SBool> a, boolean b) {
-        DummyBooleanXorProtocol c = new DummyBooleanXorProtocol(a, known(b));
-        builder.append(c);
-        return c;
-      }
-
-      @Override
       public Computation<SBool> not(Computation<SBool> a) {
         DummyBooleanNotProtocol c = new DummyBooleanNotProtocol(a);
-        builder.append(c);
-        return c;
-      }
-
-      @Override
-      public Computation<SBool> copy(Computation<SBool> a) {
-        DummyBooleanCopyProtocol c = new DummyBooleanCopyProtocol(a);
         builder.append(c);
         return c;
       }

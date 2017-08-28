@@ -3,26 +3,23 @@
  *
  * This file is part of the FRESCO project.
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
  *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *
- * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
- * and Bouncy Castle. Please see these projects for any further licensing issues.
+ * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL, and Bouncy Castle.
+ * Please see these projects for any further licensing issues.
  *******************************************************************************/
 package dk.alexandra.fresco.lib.collections.sort;
 
@@ -31,30 +28,26 @@ import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SBool;
 import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
 import dk.alexandra.fresco.lib.helper.SimpleProtocolProducer;
-
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 /**
- * An implementation of the OddEvenMergeProtocol. This implementation supports
- * threading. It first recursively generates a list for each layer of the
- * sorting network of all indicies that must be compared and swapped in that
- * layer.
+ * An implementation of the OddEvenMergeProtocol. This implementation supports threading. It first
+ * recursively generates a list for each layer of the sorting network of all indicies that must be
+ * compared and swapped in that layer.
  *
- * This implementation solves the problem of the lengths of inputs not being
- * equal and/or a two power by padding the inputs with imaginary dummy elements
- * that are either infinitely big or infinitely small. When a compare-and-swap
- * operation with one such dummy element should be done, we just skip the
- * operation as the result is already known.
+ * This implementation solves the problem of the lengths of inputs not being equal and/or a two
+ * power by padding the inputs with imaginary dummy elements that are either infinitely big or
+ * infinitely small. When a compare-and-swap operation with one such dummy element should be done,
+ * we just skip the operation as the result is already known.
  *
- * No SBools are constructed for the imaginary padding elements, so they should
- * not take up additional memory.
+ * No SBools are constructed for the imaginary padding elements, so they should not take up
+ * additional memory.
  *
  * @author psn
  */
-public class OddEvenMergeProtocolRec extends SimpleProtocolProducer implements
-    OddEvenMergeProtocol {
+public class OddEvenMergeProtocolRec extends SimpleProtocolProducer
+    implements OddEvenMergeProtocol {
 
   private final List<Pair<SBool[], SBool[]>> sorted;
   private List<Pair<SBool[], SBool[]>> left;
@@ -64,11 +57,11 @@ public class OddEvenMergeProtocolRec extends SimpleProtocolProducer implements
   private final int realSize;
   private final int simulatedSize;
   private int layers;
-  //private List<Layer> layerList;
+  // private List<Layer> layerList;
 
   /**
-   * Constructs the protocol merging two lists of key/value pairs. The lists
-   * are assumed to be sorted on the key.
+   * Constructs the protocol merging two lists of key/value pairs. The lists are assumed to be
+   * sorted on the key.
    *
    * @param left a list of key/value pairs.
    * @param right a list of key/value pairs.
@@ -76,8 +69,7 @@ public class OddEvenMergeProtocolRec extends SimpleProtocolProducer implements
    * @param factory an AbstractBinaryFactory
    */
   public OddEvenMergeProtocolRec(List<Pair<SBool[], SBool[]>> left,
-      List<Pair<SBool[], SBool[]>> right,
-      List<Pair<SBool[], SBool[]>> sorted, Object factory) {
+      List<Pair<SBool[], SBool[]>> right, List<Pair<SBool[], SBool[]>> sorted) {
     super();
     this.sorted = sorted;
     this.left = left;
@@ -111,28 +103,20 @@ public class OddEvenMergeProtocolRec extends SimpleProtocolProducer implements
 
   @Override
   protected ProtocolProducer initializeProtocolProducer() {
-    /*BasicLogicBuilder blb = new BasicLogicBuilder(factory);
-    blb.beginSeqScope();
-    List<ProtocolLayer> clList = getProtocolProducersForThreads();
-    for (ProtocolLayer cl : clList) {
-      blb.beginParScope();
-      for (ProtocolProducer pp : cl) {
-        blb.addProtocolProducer(pp);
-      }
-      blb.endCurScope();
-    }
-    blb.endCurScope();
-    return blb.getProtocol();*/ return null;
+    /*
+     * BasicLogicBuilder blb = new BasicLogicBuilder(factory); blb.beginSeqScope();
+     * List<ProtocolLayer> clList = getProtocolProducersForThreads(); for (ProtocolLayer cl :
+     * clList) { blb.beginParScope(); for (ProtocolProducer pp : cl) { blb.addProtocolProducer(pp);
+     * } blb.endCurScope(); } blb.endCurScope(); return blb.getProtocol();
+     */ return null;
   }
 
   /**
-   * A recursive call to compute the layers involved in sorting a given
-   * sublist. The sublist defined by its first index in the underlying array,
-   * the length of the list and the distance (step) between each element in
-   * the sublist in the underlying array.
+   * A recursive call to compute the layers involved in sorting a given sublist. The sublist defined
+   * by its first index in the underlying array, the length of the list and the distance (step)
+   * between each element in the sublist in the underlying array.
    *
-   * This will construct a list of sublists that should be handled in each
-   * layer.
+   * This will construct a list of sublists that should be handled in each layer.
    *
    * @param first the first index of the sublist.
    * @param length the length of the sublist
@@ -152,56 +136,36 @@ public class OddEvenMergeProtocolRec extends SimpleProtocolProducer implements
       tmpLength >>>= 1;
       index++;
     }
-  //  layerList.get(index).addIndex(first);
+    // layerList.get(index).addIndex(first);
   }
 
   private List<ProtocolLayer> getProtocolProducersForThreads() {
-  //  BasicLogicBuilder blb = new BasicLogicBuilder(factory);
-    List<ProtocolLayer> protocolLayers = new ArrayList<ProtocolLayer>(
-        layers + 1);
+    // BasicLogicBuilder blb = new BasicLogicBuilder(factory);
+    List<ProtocolLayer> protocolLayers = new ArrayList<ProtocolLayer>(layers + 1);
     // Copy input to output array
-   /* blb.beginParScope();
-    for (int i = 0; i < left.size(); i++) {
-      Pair<SBool[], SBool[]> leftPair = left.get(i);
-      Pair<SBool[], SBool[]> upperPair = sorted.get(i);
-      blb.copy(leftPair.getFirst(), upperPair.getFirst());
-      blb.copy(leftPair.getSecond(), upperPair.getSecond());
-    }
-    for (int i = 0; i < right.size(); i++) {
-      Pair<SBool[], SBool[]> rightPair = right.get(i);
-      Pair<SBool[], SBool[]> lowerPair = sorted.get(i + left.size());
-      blb.copy(rightPair.getFirst(), lowerPair.getFirst());
-      blb.copy(rightPair.getSecond(), lowerPair.getSecond());
-    }
-    blb.endCurScope();
-    ProtocolLayer firstLayer = new ProtocolLayer(1);
-    firstLayer.add(blb.getProtocol());
-    protocolLayers.add(firstLayer);
-    // Compute indices
-    int length = 2;
-    int step = simulatedSize >>> 1;
-    this.layerList = new ArrayList<Layer>(layers);
-    layerList.add(new Layer(length, step));
-    while (length < simulatedSize) {
-      length = length << 1;
-      step = step >>> 1;
-      layerList.add(new Layer(length, step));
-    }
-    // No need to hold these anymore
-    left = null;
-    right = null;
-
-    // Recurse to generate layers
-    recurse(0, simulatedSize, 1);
-    for (Layer l : layerList) {
-      protocolLayers.add(l.getProtocolLayer());
-    }*/
+    /*
+     * blb.beginParScope(); for (int i = 0; i < left.size(); i++) { Pair<SBool[], SBool[]> leftPair
+     * = left.get(i); Pair<SBool[], SBool[]> upperPair = sorted.get(i);
+     * blb.copy(leftPair.getFirst(), upperPair.getFirst()); blb.copy(leftPair.getSecond(),
+     * upperPair.getSecond()); } for (int i = 0; i < right.size(); i++) { Pair<SBool[], SBool[]>
+     * rightPair = right.get(i); Pair<SBool[], SBool[]> lowerPair = sorted.get(i + left.size());
+     * blb.copy(rightPair.getFirst(), lowerPair.getFirst()); blb.copy(rightPair.getSecond(),
+     * lowerPair.getSecond()); } blb.endCurScope(); ProtocolLayer firstLayer = new ProtocolLayer(1);
+     * firstLayer.add(blb.getProtocol()); protocolLayers.add(firstLayer); // Compute indices int
+     * length = 2; int step = simulatedSize >>> 1; this.layerList = new ArrayList<Layer>(layers);
+     * layerList.add(new Layer(length, step)); while (length < simulatedSize) { length = length <<
+     * 1; step = step >>> 1; layerList.add(new Layer(length, step)); } // No need to hold these
+     * anymore left = null; right = null;
+     * 
+     * // Recurse to generate layers recurse(0, simulatedSize, 1); for (Layer l : layerList) {
+     * protocolLayers.add(l.getProtocolLayer()); }
+     */
     return protocolLayers;
   }
 
   /**
-   * A protocol compares and swaps a list of elements. All compare and swap
-   * operations are done in parallel.
+   * A protocol compares and swaps a list of elements. All compare and swap operations are done in
+   * parallel.
    *
    * @author psn
    */
@@ -218,8 +182,7 @@ public class OddEvenMergeProtocolRec extends SimpleProtocolProducer implements
     protected ProtocolProducer initializeProtocolProducer() {
       ParallelProtocolProducer par = new ParallelProtocolProducer();
       for (Pair<Integer, Integer> swap : swapList) {
-        ProtocolProducer pp = compareAndSwapAtIndices(swap.getFirst(),
-            swap.getSecond());
+        ProtocolProducer pp = compareAndSwapAtIndices(swap.getFirst(), swap.getSecond());
         if (pp != null) {
           par.append(pp);
         }
@@ -229,97 +192,57 @@ public class OddEvenMergeProtocolRec extends SimpleProtocolProducer implements
 
     private ProtocolProducer compareAndSwapAtIndices(int i, int j) {
       boolean outOfBounds = false;
-      if(i < firstIndex || i >= lastIndex) {
+      if (i < firstIndex || i >= lastIndex) {
         outOfBounds = true;
       }
-      if(j < firstIndex || j > lastIndex){
+      if (j < firstIndex || j > lastIndex) {
         outOfBounds = true;
       }
-      if(outOfBounds) {
+      if (outOfBounds) {
         return null;
       }
       i = i - firstIndex;
       j = j - firstIndex;
       Pair<SBool[], SBool[]> left = sorted.get(i);
       Pair<SBool[], SBool[]> right = sorted.get(j);
-  //    return factory.getKeyedCompareAndSwapProtocol(left.getFirst(),
-   //       left.getSecond(), right.getFirst(), right.getSecond());
-     return null; 
+      // return factory.getKeyedCompareAndSwapProtocol(left.getFirst(),
+      // left.getSecond(), right.getFirst(), right.getSecond());
+      return null;
     }
   }
 
   /**
-   * A protocol representing all the swap operations that must be done in a
-   * single layer. Supports threading by generating a protocol layer where the
-   * work in split up in a number of independent protocols. At present the
-   * split is set somewhat arbitrarily to 16.
+   * A protocol representing all the swap operations that must be done in a single layer. Supports
+   * threading by generating a protocol layer where the work in split up in a number of independent
+   * protocols. At present the split is set somewhat arbitrarily to 16.
    *
    * @author psn
    *//*
-  private class Layer {//extends SimpleProtocolProducer {
-
-    int length;
-    int step;
-    List<Integer> indices;
-    BasicLogicBuilder builder;
-
-    protected Layer(int length, int step) {
-      this.length = length;
-      this.step = step;
-      this.indices = new LinkedList<Integer>();
-      this.builder = new BasicLogicBuilder(factory);
-    }
-
-    protected void addIndex(int i) {
-      indices.add(i);
-    }*/
-/*
-    @Override
-    protected ProtocolProducer initializeProtocolProducer() {
-      builder.beginParScope();
-      ProtocolLayer cl = getProtocolLayer();
-      for (ProtocolProducer pp : cl) {
-        builder.addProtocolProducer(pp);
-      }
-      builder.endCurScope();
-      return builder.getProtocol();
-    }
-*/ /*
-    public ProtocolLayer getProtocolLayer() {
-      int threads = 16; // TODO: Find a smarter way to set this!!
-      ProtocolLayer cl = new ProtocolLayer(threads);
-      int numSwaps = (indices.size() * (length - 2)) / 2;
-      if (length == 2) {
-        numSwaps = indices.size();
-      }
-      int swapsPerThread = (numSwaps / threads) + 1;
-      List<Pair<Integer, Integer>> swapList = new ArrayList<Pair<Integer, Integer>>(
-          swapsPerThread);
-      for (int first : indices) {
-        if (length == 2) {
-          swapList.add(new Pair<Integer, Integer>(first, first + step));
-          if (swapList.size() == swapsPerThread) {
-            cl.add(new SwapList(swapList));
-            swapList = new ArrayList<Pair<Integer, Integer>>(
-                swapsPerThread);
-          }
-        } else {
-          for (int i = 1; i < length - 2; i += 2) {
-            int low = first + i * step;
-            int high = low + step;
-            swapList.add(new Pair<Integer, Integer>(low, high));
-            if (swapList.size() == swapsPerThread) {
-              cl.add(new SwapList(swapList));
-              swapList = new ArrayList<Pair<Integer, Integer>>(
-                  swapsPerThread);
-            }
-          }
-        }
-      }
-      if (swapList.size() != 0) {
-        cl.add(new SwapList(swapList));
-      }
-      return cl;
-    }
-  }*/
+     * private class Layer {//extends SimpleProtocolProducer {
+     * 
+     * int length; int step; List<Integer> indices; BasicLogicBuilder builder;
+     * 
+     * protected Layer(int length, int step) { this.length = length; this.step = step; this.indices
+     * = new LinkedList<Integer>(); this.builder = new BasicLogicBuilder(factory); }
+     * 
+     * protected void addIndex(int i) { indices.add(i); }
+     */
+  /*
+   * @Override protected ProtocolProducer initializeProtocolProducer() { builder.beginParScope();
+   * ProtocolLayer cl = getProtocolLayer(); for (ProtocolProducer pp : cl) {
+   * builder.addProtocolProducer(pp); } builder.endCurScope(); return builder.getProtocol(); }
+   */ /*
+      * public ProtocolLayer getProtocolLayer() { int threads = 16; // TODO: Find a smarter way to
+      * set this!! ProtocolLayer cl = new ProtocolLayer(threads); int numSwaps = (indices.size() *
+      * (length - 2)) / 2; if (length == 2) { numSwaps = indices.size(); } int swapsPerThread =
+      * (numSwaps / threads) + 1; List<Pair<Integer, Integer>> swapList = new
+      * ArrayList<Pair<Integer, Integer>>( swapsPerThread); for (int first : indices) { if (length
+      * == 2) { swapList.add(new Pair<Integer, Integer>(first, first + step)); if (swapList.size()
+      * == swapsPerThread) { cl.add(new SwapList(swapList)); swapList = new ArrayList<Pair<Integer,
+      * Integer>>( swapsPerThread); } } else { for (int i = 1; i < length - 2; i += 2) { int low =
+      * first + i * step; int high = low + step; swapList.add(new Pair<Integer, Integer>(low,
+      * high)); if (swapList.size() == swapsPerThread) { cl.add(new SwapList(swapList)); swapList =
+      * new ArrayList<Pair<Integer, Integer>>( swapsPerThread); } } } } if (swapList.size() != 0) {
+      * cl.add(new SwapList(swapList)); } return cl; } }
+      */
 }

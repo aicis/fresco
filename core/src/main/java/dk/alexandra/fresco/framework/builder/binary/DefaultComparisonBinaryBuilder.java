@@ -10,21 +10,20 @@ public class DefaultComparisonBinaryBuilder implements ComparisonBuilderBinary {
 
   private final ProtocolBuilderBinary builder;
 
-  public DefaultComparisonBinaryBuilder(ProtocolBuilderBinary builder) {
-    super();
+  protected DefaultComparisonBinaryBuilder(ProtocolBuilderBinary builder) {
     this.builder = builder;
   }
 
   @Override
   public Computation<SBool> greaterThan(List<Computation<SBool>> inLeft,
       List<Computation<SBool>> inRight) {
-    return this.builder.createSequentialSub(new BinaryGreaterThanProtocolImpl(inLeft, inRight));
+    return this.builder.seq(new BinaryGreaterThanProtocolImpl(inLeft, inRight));
   }
 
   @Override
   public Computation<SBool> equal(List<Computation<SBool>> inLeft,
       List<Computation<SBool>> inRight) {
-    return this.builder.createSequentialSub(new BinaryEqualityProtocol(inLeft, inRight));
+    return this.builder.seq(new BinaryEqualityProtocol(inLeft, inRight));
   }
 
 }

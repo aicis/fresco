@@ -33,16 +33,14 @@ import dk.alexandra.fresco.framework.TestApplication;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
-import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
-import dk.alexandra.fresco.framework.builder.NumericBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.BuilderFactoryNumeric;
+import dk.alexandra.fresco.framework.builder.numeric.NumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.math.polynomial.evaluator.PolynomialEvaluator;
 import java.math.BigInteger;
-import org.hamcrest.core.Is;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -65,8 +63,7 @@ public class PolynomialTests {
           TestApplication app = new TestApplication() {
             @Override
             public ProtocolProducer prepareApplication(BuilderFactory provider) {
-              SequentialNumericBuilder root = ProtocolBuilderNumeric
-                  .createApplicationRoot((BuilderFactoryNumeric) provider);
+              ProtocolBuilderNumeric root = ((BuilderFactoryNumeric) provider).createSequential();
 
               NumericBuilder numeric = root.numeric();
               List<Computation<SInt>> secretCoefficients =
@@ -78,8 +75,7 @@ public class PolynomialTests {
               PolynomialImpl polynomial = new PolynomialImpl(secretCoefficients);
               Computation<SInt> secretX = numeric.input(BigInteger.valueOf(x), 1);
 
-              Computation<SInt> result = root
-                  .createSequentialSub(new PolynomialEvaluator(secretX, polynomial));
+              Computation<SInt> result = root.seq(new PolynomialEvaluator(secretX, polynomial));
 
               outputs.add(numeric.open(result));
 

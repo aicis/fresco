@@ -28,7 +28,7 @@ import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.TestThreadRunner;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
-import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary.SequentialBinaryBuilder;
+import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.TestConfiguration;
 import dk.alexandra.fresco.framework.network.NetworkingStrategy;
@@ -76,13 +76,13 @@ public class TestTinyTables {
     Map<Integer, TestThreadConfiguration> conf = new HashMap<>();
 
     for (int playerId : netConf.keySet()) {
-      TestThreadConfiguration<ResourcePoolImpl, SequentialBinaryBuilder> ttc =
-          new TestThreadConfiguration<ResourcePoolImpl, SequentialBinaryBuilder>();
+      TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary> ttc =
+          new TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary>();
       ttc.netConf = netConf.get(playerId);
 
       ProtocolEvaluator<ResourcePoolImpl> evaluator;
 
-      ProtocolSuite<ResourcePoolImpl, SequentialBinaryBuilder> suite;
+      ProtocolSuite<ResourcePoolImpl, ProtocolBuilderBinary> suite;
       File tinyTablesFile = new File(getFilenameForTest(playerId, name));
       if (preprocessing) {
         suite = new TinyTablesPreproProtocolSuite(playerId, tinyTablesFile);
@@ -92,7 +92,7 @@ public class TestTinyTables {
 
       evaluator = EvaluationStrategy.fromEnum(evalStrategy);
 
-      ttc.sceConf = new TestSCEConfiguration<ResourcePoolImpl, SequentialBinaryBuilder>(suite,
+      ttc.sceConf = new TestSCEConfiguration<ResourcePoolImpl, ProtocolBuilderBinary>(suite,
           NetworkingStrategy.KRYONET, evaluator, ttc.netConf, false);
       conf.put(playerId, ttc);
     }

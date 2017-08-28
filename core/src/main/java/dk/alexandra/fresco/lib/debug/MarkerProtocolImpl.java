@@ -25,14 +25,14 @@ package dk.alexandra.fresco.lib.debug;
 
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.builder.ComputationBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import java.io.PrintStream;
 
 /**
  * When evaluated, prints out the message from the constructor.
  *
  */
-public class MarkerProtocolImpl implements ComputationBuilder<Void> {
+public class MarkerProtocolImpl implements ComputationBuilder<Void, ProtocolBuilderNumeric> {
 
   private final String message;
   private final PrintStream output;
@@ -48,7 +48,7 @@ public class MarkerProtocolImpl implements ComputationBuilder<Void> {
   }
 
   @Override
-  public Computation<Void> build(SequentialNumericBuilder builder) {
+  public Computation<Void> buildComputation(ProtocolBuilderNumeric builder) {
     return builder.seq(seq -> {
       output.println(message);
       return () -> null;
