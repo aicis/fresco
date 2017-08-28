@@ -10,8 +10,7 @@ public class DefaultComparisonBinaryBuilder implements ComparisonBuilderBinary {
 
   private final ProtocolBuilderBinary builder;
 
-  public DefaultComparisonBinaryBuilder(ProtocolBuilderBinary builder) {
-    super();
+  protected DefaultComparisonBinaryBuilder(ProtocolBuilderBinary builder) {
     this.builder = builder;
   }
 

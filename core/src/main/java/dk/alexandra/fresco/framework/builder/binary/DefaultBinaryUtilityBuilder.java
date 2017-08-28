@@ -11,7 +11,7 @@ public class DefaultBinaryUtilityBuilder implements BinaryUtilityBuilder {
 
   private ProtocolBuilderBinary builder;
 
-  public DefaultBinaryUtilityBuilder(ProtocolBuilderBinary builder) {
+  protected DefaultBinaryUtilityBuilder(ProtocolBuilderBinary builder) {
     this.builder = builder;
   }
 

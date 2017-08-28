@@ -28,8 +28,7 @@ public interface BuilderFactoryBinary extends
   }
 
   default ProtocolBuilderBinary createParallel() {
-    BuilderFactoryBinary factory = this;
-    return new ProtocolBuilderBinary(factory, true);
+    return new ProtocolBuilderBinary(this, true);
   }
 
 

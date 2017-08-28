@@ -25,7 +25,7 @@ public class DefaultBinaryBuilderAdvanced implements BinaryBuilderAdvanced {
 
   private final ProtocolBuilderBinary builder;
 
-  public DefaultBinaryBuilderAdvanced(ProtocolBuilderBinary builder) {
+  protected DefaultBinaryBuilderAdvanced(ProtocolBuilderBinary builder) {
     super();
     this.builder = builder;
   }

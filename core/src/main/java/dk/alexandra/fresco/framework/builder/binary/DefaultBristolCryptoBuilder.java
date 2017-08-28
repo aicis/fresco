@@ -10,7 +10,7 @@ public class DefaultBristolCryptoBuilder implements BristolCryptoBuilder {
 
   private ProtocolBuilderBinary builder;
 
-  public DefaultBristolCryptoBuilder(ProtocolBuilderBinary builder) {
+  protected DefaultBristolCryptoBuilder(ProtocolBuilderBinary builder) {
     this.builder = builder;
   }
 
