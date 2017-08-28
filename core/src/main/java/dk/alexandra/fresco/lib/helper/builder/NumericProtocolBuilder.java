@@ -39,15 +39,6 @@ public class NumericProtocolBuilder extends AbstractProtocolBuilder {
   }
 
   /**
-   * Get a new SInt.
-   *
-   * @return a SInt.
-   */
-  public SInt getSInt() {
-    return bnf.getSInt();
-  }
-
-  /**
    * Adds to SInts
    *
    * @param left the lefthand input
