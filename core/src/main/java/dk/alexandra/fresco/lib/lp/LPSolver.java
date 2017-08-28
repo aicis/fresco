@@ -115,7 +115,9 @@ public class LPSolver implements ComputationBuilder<LPOutput, ProtocolBuilderNum
       LPState initialState = new LPState(BigInteger.ZERO, tableau, updateMatrix, null, pivot,
           enumeratedVariables, initialBasis, pivot);
       return () -> initialState;
-    }).whileLoop(state -> !state.terminated(), (seq, state) -> {
+    }).whileLoop(
+        state -> !state.terminated(), 
+        (seq, state) -> {
       iterations++;
       if (debugLog) {
         debugInfo(seq, state);
@@ -191,8 +193,7 @@ public class LPSolver implements ComputationBuilder<LPOutput, ProtocolBuilderNum
    */
   private Computation<LPState> phaseOneProtocol(ProtocolBuilderNumeric builder, LPState state,
       Computation<SInt> zero) {
-    return builder
-        .seq(
+    return builder.seq(
             // Compute potential entering variable index and corresponding value of
             // entry in F
             new EnteringVariable(state.tableau, state.updateMatrix))

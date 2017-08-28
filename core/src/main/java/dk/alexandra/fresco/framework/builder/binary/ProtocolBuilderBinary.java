@@ -11,7 +11,7 @@ public class ProtocolBuilderBinary extends
   private ComparisonBuilderBinary comparisonBuilderBinary;
   private BristolCryptoBuilder bristolCryptoBuilder;
   private BinaryBuilder binaryBuilder;
-  private BinaryUtilityBuilder utilityBuilder;
+  private BinaryDebugBuilder utilityBuilder;
 
   ProtocolBuilderBinary(BuilderFactoryBinary factory, boolean parallel) {
     super(factory, parallel);
@@ -56,9 +56,9 @@ public class ProtocolBuilderBinary extends
     return this.bristolCryptoBuilder;
   }
 
-  public BinaryUtilityBuilder utility() {
+  public BinaryDebugBuilder utility() {
     if (this.utilityBuilder == null) {
-      this.utilityBuilder = this.factory.createUtilityBuilder(this);
+      this.utilityBuilder = this.factory.createDebugBuilder(this);
     }
     return this.utilityBuilder;
   }

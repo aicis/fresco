@@ -55,14 +55,13 @@ public class BasicBooleanTests {
       return new TestThread<ResourcePoolT, ProtocolBuilderBinary>() {
         @Override
         public void test() throws Exception {
-          Application<Boolean, ProtocolBuilderBinary> app =
-              producer -> producer.seq(seq -> {
-                Computation<SBool> in = seq.binary().input(true, 1);
-                Computation<Boolean> open = seq.binary().open(in);
-                return open;
-              }).seq((seq, out) -> {
-                return () -> out;
-              });
+          Application<Boolean, ProtocolBuilderBinary> app = producer -> producer.seq(seq -> {
+            Computation<SBool> in = seq.binary().input(true, 1);
+            Computation<Boolean> open = seq.binary().open(in);
+            return open;
+          }).seq((seq, out) -> {
+            return () -> out;
+          });
 
           boolean output = secureComputationEngine.runApplication(app,
               ResourcePoolCreator.createResourcePool(conf.sceConf));
@@ -91,20 +90,19 @@ public class BasicBooleanTests {
         @Override
         public void test() throws Exception {
 
-          Application<List<Boolean>, ProtocolBuilderBinary> app =
-              producer -> producer.seq(seq -> {
-                BinaryBuilder builder = seq.binary();
-                Computation<SBool> falseBool = builder.known(false);
-                Computation<SBool> trueBool = builder.known(true);
-                List<Computation<Boolean>> xors = new ArrayList<>();
-                xors.add(builder.open(builder.xor(falseBool, falseBool)));
-                xors.add(builder.open(builder.xor(trueBool, falseBool)));
-                xors.add(builder.open(builder.xor(falseBool, trueBool)));
-                xors.add(builder.open(builder.xor(trueBool, trueBool)));
-                return () -> xors;
-              }).seq((seq, list) -> {
-                return () -> list.stream().map(Computation::out).collect(Collectors.toList());
-              });
+          Application<List<Boolean>, ProtocolBuilderBinary> app = producer -> producer.seq(seq -> {
+            BinaryBuilder builder = seq.binary();
+            Computation<SBool> falseBool = builder.known(false);
+            Computation<SBool> trueBool = builder.known(true);
+            List<Computation<Boolean>> xors = new ArrayList<>();
+            xors.add(builder.open(builder.xor(falseBool, falseBool)));
+            xors.add(builder.open(builder.xor(trueBool, falseBool)));
+            xors.add(builder.open(builder.xor(falseBool, trueBool)));
+            xors.add(builder.open(builder.xor(trueBool, trueBool)));
+            return () -> xors;
+          }).seq((seq, list) -> {
+            return () -> list.stream().map(Computation::out).collect(Collectors.toList());
+          });
 
           List<Boolean> outs = secureComputationEngine.runApplication(app,
               ResourcePoolCreator.createResourcePool(conf.sceConf));
@@ -136,20 +134,19 @@ public class BasicBooleanTests {
         @Override
         public void test() throws Exception {
 
-          Application<List<Boolean>, ProtocolBuilderBinary> app =
-              producer -> producer.seq(seq -> {
-                BinaryBuilder builder = seq.binary();
-                Computation<SBool> falseBool = builder.known(false);
-                Computation<SBool> trueBool = builder.known(true);
-                List<Computation<Boolean>> list = new ArrayList<>();
-                list.add(builder.open(builder.and(falseBool, falseBool)));
-                list.add(builder.open(builder.and(trueBool, falseBool)));
-                list.add(builder.open(builder.and(falseBool, trueBool)));
-                list.add(builder.open(builder.and(trueBool, trueBool)));
-                return () -> list;
-              }).seq((seq, list) -> {
-                return () -> list.stream().map(Computation::out).collect(Collectors.toList());
-              });
+          Application<List<Boolean>, ProtocolBuilderBinary> app = producer -> producer.seq(seq -> {
+            BinaryBuilder builder = seq.binary();
+            Computation<SBool> falseBool = builder.known(false);
+            Computation<SBool> trueBool = builder.known(true);
+            List<Computation<Boolean>> list = new ArrayList<>();
+            list.add(builder.open(builder.and(falseBool, falseBool)));
+            list.add(builder.open(builder.and(trueBool, falseBool)));
+            list.add(builder.open(builder.and(falseBool, trueBool)));
+            list.add(builder.open(builder.and(trueBool, trueBool)));
+            return () -> list;
+          }).seq((seq, list) -> {
+            return () -> list.stream().map(Computation::out).collect(Collectors.toList());
+          });
 
           List<Boolean> outs = secureComputationEngine.runApplication(app,
               ResourcePoolCreator.createResourcePool(conf.sceConf));
@@ -180,18 +177,17 @@ public class BasicBooleanTests {
       return new TestThread<ResourcePoolT, ProtocolBuilderBinary>() {
         @Override
         public void test() throws Exception {
-          Application<List<Boolean>, ProtocolBuilderBinary> app =
-              producer -> producer.seq(seq -> {
-                BinaryBuilder builder = seq.binary();
-                Computation<SBool> falseBool = builder.known(false);
-                Computation<SBool> trueBool = builder.known(true);
-                List<Computation<Boolean>> list = new ArrayList<>();
-                list.add(builder.open(builder.not(falseBool)));
-                list.add(builder.open(builder.not(trueBool)));
-                return () -> list;
-              }).seq((seq, list) -> {
-                return () -> list.stream().map(Computation::out).collect(Collectors.toList());
-              });
+          Application<List<Boolean>, ProtocolBuilderBinary> app = producer -> producer.seq(seq -> {
+            BinaryBuilder builder = seq.binary();
+            Computation<SBool> falseBool = builder.known(false);
+            Computation<SBool> trueBool = builder.known(true);
+            List<Computation<Boolean>> list = new ArrayList<>();
+            list.add(builder.open(builder.not(falseBool)));
+            list.add(builder.open(builder.not(trueBool)));
+            return () -> list;
+          }).seq((seq, list) -> {
+            return () -> list.stream().map(Computation::out).collect(Collectors.toList());
+          });
 
           List<Boolean> outs = secureComputationEngine.runApplication(app,
               ResourcePoolCreator.createResourcePool(conf.sceConf));
@@ -199,46 +195,6 @@ public class BasicBooleanTests {
           if (doAsserts) {
             Assert.assertEquals(true, outs.get(0));
             Assert.assertEquals(false, outs.get(1));
-          }
-        }
-      };
-    }
-  }
-
-  public static class TestCOPY<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
-
-    private boolean doAsserts;
-
-    public TestCOPY(boolean doAsserts) {
-      this.doAsserts = doAsserts;
-    }
-
-    @Override
-    public TestThread<ResourcePoolT, ProtocolBuilderBinary> next(
-        TestThreadConfiguration<ResourcePoolT, ProtocolBuilderBinary> conf) {
-      return new TestThread<ResourcePoolT, ProtocolBuilderBinary>() {
-        @Override
-        public void test() throws Exception {
-          Application<List<Boolean>, ProtocolBuilderBinary> app =
-              producer -> producer.seq(seq -> {
-                BinaryBuilder builder = seq.binary();
-                Computation<SBool> falseBool = builder.known(false);
-                Computation<SBool> trueBool = builder.known(true);
-                List<Computation<Boolean>> list = new ArrayList<>();
-                list.add(builder.open(builder.copy(falseBool)));
-                list.add(builder.open(builder.copy(trueBool)));
-                return () -> list;
-              }).seq((seq, list) -> {
-                return () -> list.stream().map(Computation::out).collect(Collectors.toList());
-              });
-
-          List<Boolean> outs = secureComputationEngine.runApplication(app,
-              ResourcePoolCreator.createResourcePool(conf.sceConf));
-
-          if (doAsserts) {
-            Assert.assertEquals(false, outs.get(0));
-            Assert.assertEquals(true, outs.get(1));
           }
         }
       };
@@ -263,24 +219,23 @@ public class BasicBooleanTests {
       return new TestThread<ResourcePoolT, ProtocolBuilderBinary>() {
         @Override
         public void test() throws Exception {
-          Application<List<Boolean>, ProtocolBuilderBinary> app =
-              producer -> producer.seq(seq -> {
-                BinaryBuilder builder = seq.binary();
-                Computation<SBool> falseBool = builder.known(false);
-                Computation<SBool> trueBool = builder.known(true);
-                List<Computation<Boolean>> list = new ArrayList<>();
-                list.add(builder
-                    .open(builder.not(builder.and(builder.xor(falseBool, falseBool), falseBool))));
-                list.add(builder
-                    .open(builder.not(builder.and(builder.xor(falseBool, trueBool), falseBool))));
-                list.add(builder
-                    .open(builder.not(builder.and(builder.xor(trueBool, falseBool), trueBool))));
-                list.add(builder
-                    .open(builder.not(builder.and(builder.xor(trueBool, trueBool), trueBool))));
-                return () -> list;
-              }).seq((seq, list) -> {
-                return () -> list.stream().map(Computation::out).collect(Collectors.toList());
-              });
+          Application<List<Boolean>, ProtocolBuilderBinary> app = producer -> producer.seq(seq -> {
+            BinaryBuilder builder = seq.binary();
+            Computation<SBool> falseBool = builder.known(false);
+            Computation<SBool> trueBool = builder.known(true);
+            List<Computation<Boolean>> list = new ArrayList<>();
+            list.add(builder
+                .open(builder.not(builder.and(builder.xor(falseBool, falseBool), falseBool))));
+            list.add(builder
+                .open(builder.not(builder.and(builder.xor(falseBool, trueBool), falseBool))));
+            list.add(
+                builder.open(builder.not(builder.and(builder.xor(trueBool, falseBool), trueBool))));
+            list.add(
+                builder.open(builder.not(builder.and(builder.xor(trueBool, trueBool), trueBool))));
+            return () -> list;
+          }).seq((seq, list) -> {
+            return () -> list.stream().map(Computation::out).collect(Collectors.toList());
+          });
 
           List<Boolean> outs = secureComputationEngine.runApplication(app,
               ResourcePoolCreator.createResourcePool(conf.sceConf));

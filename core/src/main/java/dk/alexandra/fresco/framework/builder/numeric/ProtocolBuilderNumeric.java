@@ -17,7 +17,7 @@ public class ProtocolBuilderNumeric extends
   private NumericBuilder numericBuilder;
   private ComparisonBuilder comparison;
   private AdvancedNumericBuilder advancedNumeric;
-  private UtilityBuilder utilityBuilder;
+  private DebugBuilder utilityBuilder;
 
   ProtocolBuilderNumeric(BuilderFactoryNumeric factory, boolean parallel) {
     super(factory, parallel);
@@ -78,9 +78,9 @@ public class ProtocolBuilderNumeric extends
     return advancedNumeric;
   }
 
-  public UtilityBuilder utility() {
+  public DebugBuilder utility() {
     if (utilityBuilder == null) {
-      utilityBuilder = factory.createUtilityBuilder(this);
+      utilityBuilder = factory.createDebugBuilder(this);
     }
     return utilityBuilder;
   }

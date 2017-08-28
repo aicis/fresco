@@ -6,7 +6,7 @@ import dk.alexandra.fresco.lib.lp.Matrix;
 import java.io.PrintStream;
 import java.util.List;
 
-public interface UtilityBuilder {
+public interface DebugBuilder {
 
   /**
    * When evaluated, opens the given SInt and prints it to the given stream.

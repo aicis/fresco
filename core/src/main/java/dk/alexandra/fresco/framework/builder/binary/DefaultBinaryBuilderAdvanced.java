@@ -9,7 +9,6 @@ import dk.alexandra.fresco.lib.collections.sort.OddEvenMergeProtocolRec;
 import dk.alexandra.fresco.lib.field.bool.ConditionalSelect;
 import dk.alexandra.fresco.lib.field.bool.generic.AndFromCopyConst;
 import dk.alexandra.fresco.lib.field.bool.generic.NandFromAndAndNot;
-import dk.alexandra.fresco.lib.field.bool.generic.NotFromXor;
 import dk.alexandra.fresco.lib.field.bool.generic.OrFromCopyConst;
 import dk.alexandra.fresco.lib.field.bool.generic.OrFromXorAnd;
 import dk.alexandra.fresco.lib.field.bool.generic.XnorFromXorAndNot;
@@ -48,7 +47,7 @@ public class DefaultBinaryBuilderAdvanced implements BinaryBuilderAdvanced {
   @Override
   public Computation<SBool> xnor(Computation<SBool> left, boolean right) {
     if (right) {
-      return builder.binary().copy(left);
+      return left;
     } else {
       return builder.binary().not(left);
     }
@@ -80,6 +79,7 @@ public class DefaultBinaryBuilderAdvanced implements BinaryBuilderAdvanced {
     return builder.seq(new FullAdderProtocolImpl(lefts, rights, inCarry));
   }
 
+  @Override
   public Computation<List<Computation<SBool>>> bitIncrement(List<Computation<SBool>> base,
       Computation<SBool> increment) {
     return builder.seq(new BitIncrementerProtocolImpl(base, increment));
@@ -88,10 +88,6 @@ public class DefaultBinaryBuilderAdvanced implements BinaryBuilderAdvanced {
   @Override
   public Computation<SBool> and(Computation<SBool> left, boolean right) {
     return builder.seq(new AndFromCopyConst(left, right));
-  }
-
-  public Computation<SBool> not(Computation<SBool> in) {
-    return builder.seq(new NotFromXor(in));
   }
 
   @Override
@@ -124,14 +120,15 @@ public class DefaultBinaryBuilderAdvanced implements BinaryBuilderAdvanced {
    * Advanced protocols - do not yet exist in interface
    */
 
-
   public OddEvenMergeProtocol getOddEvenMergeProtocol(List<Pair<SBool[], SBool[]>> left,
       List<Pair<SBool[], SBool[]>> right, List<Pair<SBool[], SBool[]>> sorted) {
-    return new OddEvenMergeProtocolRec(left, right, sorted, this);
+    return new OddEvenMergeProtocolRec(left, right, sorted);
   }
 
-  public Computation<List<Pair<List<Computation<SBool>>, List<Computation<SBool>>>>> getKeyedCompareAndSwapProtocol(List<Computation<SBool>> leftKey,
-      List<Computation<SBool>> leftValue, List<Computation<SBool>> rightKey, List<Computation<SBool>> rightValue) {
+  @Override
+  public Computation<List<Pair<List<Computation<SBool>>, List<Computation<SBool>>>>> keyedCompareAndSwap(
+      List<Computation<SBool>> leftKey, List<Computation<SBool>> leftValue,
+      List<Computation<SBool>> rightKey, List<Computation<SBool>> rightValue) {
     return builder.seq(new KeyedCompareAndSwapProtocol(leftKey, leftValue, rightKey, rightValue));
   }
 

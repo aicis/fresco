@@ -110,14 +110,6 @@ public class DummyBooleanBuilderFactory implements BuilderFactoryBinary {
       }
 
       @Override
-      public Computation<SBool> and(Computation<SBool> a, boolean b) {
-
-        DummyBooleanAndProtocol c = new DummyBooleanAndProtocol(a, known(b));
-        builder.append(c);
-        return c;
-      }
-
-      @Override
       public Computation<SBool> xor(Computation<SBool> a, Computation<SBool> b) {
         DummyBooleanXorProtocol c = new DummyBooleanXorProtocol(a, b);
         builder.append(c);
@@ -125,22 +117,8 @@ public class DummyBooleanBuilderFactory implements BuilderFactoryBinary {
       }
 
       @Override
-      public Computation<SBool> xor(Computation<SBool> a, boolean b) {
-        DummyBooleanXorProtocol c = new DummyBooleanXorProtocol(a, known(b));
-        builder.append(c);
-        return c;
-      }
-
-      @Override
       public Computation<SBool> not(Computation<SBool> a) {
         DummyBooleanNotProtocol c = new DummyBooleanNotProtocol(a);
-        builder.append(c);
-        return c;
-      }
-
-      @Override
-      public Computation<SBool> copy(Computation<SBool> a) {
-        DummyBooleanCopyProtocol c = new DummyBooleanCopyProtocol(a);
         builder.append(c);
         return c;
       }

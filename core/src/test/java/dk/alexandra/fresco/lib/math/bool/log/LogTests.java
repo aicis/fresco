@@ -3,26 +3,23 @@
  *
  * This file is part of the FRESCO project.
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
  *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *
- * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
- * and Bouncy Castle. Please see these projects for any further licensing issues.
+ * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL, and Bouncy Castle.
+ * Please see these projects for any further licensing issues.
  *******************************************************************************/
 package dk.alexandra.fresco.lib.math.bool.log;
 
@@ -31,7 +28,7 @@ import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
-import dk.alexandra.fresco.framework.builder.binary.DefaultBinaryBuilderAdvanced;
+import dk.alexandra.fresco.framework.builder.binary.BinaryBuilderAdvanced;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
@@ -47,10 +44,9 @@ import org.junit.Assert;
 public class LogTests {
 
   public static class TestLogNice<ResourcePoolT extends ResourcePool>
-  extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
 
-    public TestLogNice() {
-    }
+    public TestLogNice() {}
 
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderBinary> next(
@@ -58,41 +54,36 @@ public class LogTests {
       return new TestThread<ResourcePoolT, ProtocolBuilderBinary>() {
 
         List<Boolean> rawFirst = Arrays.asList(ByteArithmetic.toBoolean("ff"));
-        
-        final String expected = "08";  
-        
+
+        final String expected = "08";
+
         @Override
         public void test() throws Exception {
-            Application<List<Boolean>, ProtocolBuilderBinary> app =
-                producer -> {
+          Application<List<Boolean>, ProtocolBuilderBinary> app = producer -> {
 
-                  ProtocolBuilderBinary builder = (ProtocolBuilderBinary) producer;
+            ProtocolBuilderBinary builder = (ProtocolBuilderBinary) producer;
 
-                  return builder.seq(seq -> {
-                        DefaultBinaryBuilderAdvanced prov = new DefaultBinaryBuilderAdvanced(seq);
-                        List<Computation<SBool>> first = rawFirst.stream().map(seq.binary()::known)
-                            .collect(Collectors.toList());
-                        Computation<List<Computation<SBool>>> log = prov.logProtocol(first);
+            return builder.seq(seq -> {
+              BinaryBuilderAdvanced prov = seq.advancedBinary();
+              List<Computation<SBool>> first =
+                  rawFirst.stream().map(seq.binary()::known).collect(Collectors.toList());
+              Computation<List<Computation<SBool>>> log = prov.logProtocol(first);
 
-                        return log::out;
-                      }
-                  ).seq((seq, dat) -> {
-                        List<Computation<Boolean>> out = new ArrayList<Computation<Boolean>>();
-                        for (Computation<SBool> o : dat) {
-                          out.add(seq.binary().open(o));
-                        }
-                        return () -> out.stream().map(Computation::out).collect(Collectors.toList());
-                      }
-                  );
-                };
-          
+              return log::out;
+            }).seq((seq, dat) -> {
+              List<Computation<Boolean>> out = new ArrayList<Computation<Boolean>>();
+              for (Computation<SBool> o : dat) {
+                out.add(seq.binary().open(o));
+              }
+              return () -> out.stream().map(Computation::out).collect(Collectors.toList());
+            });
+          };
+
           List<Boolean> outputs = secureComputationEngine.runApplication(app,
               ResourcePoolCreator.createResourcePool(conf.sceConf));
- 
-          Assert.assertThat(ByteArithmetic.toHex(
-              outputs),
-              Is.is(expected));
-          
+
+          Assert.assertThat(ByteArithmetic.toHex(outputs), Is.is(expected));
+
         }
       };
     }

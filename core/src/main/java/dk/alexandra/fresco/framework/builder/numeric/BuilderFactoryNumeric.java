@@ -33,8 +33,15 @@ public interface BuilderFactoryNumeric extends BuilderFactory<ProtocolBuilderNum
     return new DefaultAdvancedNumericBuilder(this, builder);
   }
 
-  default UtilityBuilder createUtilityBuilder(ProtocolBuilderNumeric builder) {
-    return new DefaultUtilityBuilder(builder);
+  /**
+   * Returns a builder which can be helpful while developing a new protocol. Be very careful though,
+   * to include this in any production code since the debugging opens values to all parties.
+   * 
+   * @param builder
+   * @return By default a standard debugger which opens values and prints them.
+   */
+  default DebugBuilder createDebugBuilder(ProtocolBuilderNumeric builder) {
+    return new DefaultDebugBuilder(builder);
   }
 
   @Override

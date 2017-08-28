@@ -7,11 +7,11 @@ import dk.alexandra.fresco.lib.debug.BinaryOpenAndPrint;
 import java.io.PrintStream;
 import java.util.List;
 
-public class DefaultBinaryUtilityBuilder implements BinaryUtilityBuilder {
+public class DefaultBinaryDebugBuilder implements BinaryDebugBuilder {
 
   private ProtocolBuilderBinary builder;
 
-  protected DefaultBinaryUtilityBuilder(ProtocolBuilderBinary builder) {
+  protected DefaultBinaryDebugBuilder(ProtocolBuilderBinary builder) {
     this.builder = builder;
   }
 

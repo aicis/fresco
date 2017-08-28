@@ -46,7 +46,7 @@ public class LPTableau {
       this.F = F;
       this.z = z;
     } else {
-      throw new IllegalArgumentException("Dimenssions of tableau does not match");
+      throw new IllegalArgumentException("Dimensions of tableau does not match");
     }
   }
 

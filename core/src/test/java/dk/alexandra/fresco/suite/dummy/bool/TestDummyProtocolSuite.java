@@ -58,8 +58,6 @@ public class TestDummyProtocolSuite<ResourcePoolT extends ResourcePool>
         NetworkingStrategy.KRYONET);
     runTest(new BasicBooleanTests.TestNOT<ResourcePoolT>(true), EvaluationStrategy.SEQUENTIAL,
         NetworkingStrategy.KRYONET);
-    runTest(new BasicBooleanTests.TestCOPY<ResourcePoolT>(true), EvaluationStrategy.SEQUENTIAL,
-        NetworkingStrategy.KRYONET);
   }
 
   // lib.field.bool.generic
@@ -174,8 +172,8 @@ public class TestDummyProtocolSuite<ResourcePoolT extends ResourcePool>
   @Ignore
   @Test(expected = RuntimeException.class)
   public void test_comparisonBadLength() throws Exception {
-    //runTest(new ComparisonBooleanTests.TestGreaterThanUnequalLength<ResourcePoolT>(),
-     //   EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET);
+    // runTest(new ComparisonBooleanTests.TestGreaterThanUnequalLength<ResourcePoolT>(),
+    // EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET);
   }
 
   @Test
@@ -226,7 +224,7 @@ public class TestDummyProtocolSuite<ResourcePoolT extends ResourcePool>
 
   @Test
   public void test_Keyed_Compare_And_Swap_2_parties() throws Exception {
-    runTest(new CollectionsSortingTests.TestKeyedCompareAndSwap(), EvaluationStrategy.SEQUENTIAL,
+    runTest(new CollectionsSortingTests.TestKeyedCompareAndSwap<>(), EvaluationStrategy.SEQUENTIAL,
         NetworkingStrategy.KRYONET);
   }
 
@@ -245,7 +243,7 @@ public class TestDummyProtocolSuite<ResourcePoolT extends ResourcePool>
 
   @Test
   public void test_Binary_Log_Nice() throws Exception {
-    runTest(new LogTests.TestLogNice(), EvaluationStrategy.SEQUENTIAL_BATCHED,
+    runTest(new LogTests.TestLogNice<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
         NetworkingStrategy.KRYONET);
   }
 

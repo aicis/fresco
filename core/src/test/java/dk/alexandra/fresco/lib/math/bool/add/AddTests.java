@@ -28,7 +28,7 @@ import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
-import dk.alexandra.fresco.framework.builder.binary.DefaultBinaryBuilderAdvanced;
+import dk.alexandra.fresco.framework.builder.binary.BinaryBuilderAdvanced;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
@@ -68,7 +68,7 @@ public class AddTests {
               ProtocolBuilderBinary builder = (ProtocolBuilderBinary) producer;
 
               return builder.seq(seq -> {
-                DefaultBinaryBuilderAdvanced prov = new DefaultBinaryBuilderAdvanced(seq);
+                BinaryBuilderAdvanced prov = seq.advancedBinary();
                 Computation<SBool> inp0 = seq.binary().known(false);
                 Computation<SBool> inp1 = seq.binary().known(true);
                 data.add(prov.oneBitHalfAdder(inp0, inp0));
@@ -131,7 +131,7 @@ public class AddTests {
               ProtocolBuilderBinary builder = (ProtocolBuilderBinary) producer;
 
               return builder.seq(seq -> {
-                DefaultBinaryBuilderAdvanced prov = new DefaultBinaryBuilderAdvanced(seq);
+                BinaryBuilderAdvanced prov = seq.advancedBinary();
                 Computation<SBool> inp0 = seq.binary().known(false);
                 Computation<SBool> inp1 = seq.binary().known(true);
                 data.add(prov.oneBitFullAdder(inp0, inp0, inp0));
@@ -208,7 +208,7 @@ public class AddTests {
               ProtocolBuilderBinary builder = (ProtocolBuilderBinary) producer;
 
               return builder.seq(seq -> {
-                DefaultBinaryBuilderAdvanced prov = new DefaultBinaryBuilderAdvanced(seq);
+                BinaryBuilderAdvanced prov = seq.advancedBinary();
                 Computation<SBool> carry = seq.binary().known(true);
 
                 List<Computation<SBool>> first =
@@ -265,7 +265,7 @@ public class AddTests {
               ProtocolBuilderBinary builder = (ProtocolBuilderBinary) producer;
 
               return builder.seq(seq -> {
-                DefaultBinaryBuilderAdvanced prov = new DefaultBinaryBuilderAdvanced(seq);
+                BinaryBuilderAdvanced prov = seq.advancedBinary();
                 Computation<SBool> increment = seq.binary().known(true);
 
                 List<Computation<SBool>> large =

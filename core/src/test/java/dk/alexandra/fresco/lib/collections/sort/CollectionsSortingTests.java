@@ -53,8 +53,7 @@ public class CollectionsSortingTests {
   public static class TestKeyedCompareAndSwap<ResourcePoolT extends ResourcePool>
       extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
 
-    public TestKeyedCompareAndSwap() {
-    }
+    public TestKeyedCompareAndSwap() {}
 
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderBinary> next(
@@ -72,67 +71,63 @@ public class CollectionsSortingTests {
           Application<List<Pair<List<Boolean>, List<Boolean>>>, ProtocolBuilderBinary> app =
               builder -> {
 
-                ProtocolBuilderBinary seqBuilder = (ProtocolBuilderBinary) builder;
+            ProtocolBuilderBinary seqBuilder = (ProtocolBuilderBinary) builder;
 
-                return seqBuilder.seq(seq -> {
-                  List<Computation<SBool>> leftKey = rawLeftKey.stream()
-                      .map(builder.binary()::known).collect(Collectors.toList());
-                  List<Computation<SBool>> rightKey = rawRightKey.stream()
-                      .map(builder.binary()::known).collect(Collectors.toList());
-                  List<Computation<SBool>> leftValue = rawLeftValue.stream()
-                      .map(builder.binary()::known).collect(Collectors.toList());
-                  List<Computation<SBool>> rightValue = rawRightValue.stream()
-                      .map(builder.binary()::known).collect(Collectors.toList());
+            return seqBuilder.seq(seq -> {
+              List<Computation<SBool>> leftKey =
+                  rawLeftKey.stream().map(builder.binary()::known).collect(Collectors.toList());
+              List<Computation<SBool>> rightKey =
+                  rawRightKey.stream().map(builder.binary()::known).collect(Collectors.toList());
+              List<Computation<SBool>> leftValue =
+                  rawLeftValue.stream().map(builder.binary()::known).collect(Collectors.toList());
+              List<Computation<SBool>> rightValue =
+                  rawRightValue.stream().map(builder.binary()::known).collect(Collectors.toList());
 
-                  return new KeyedCompareAndSwapProtocol(leftKey, leftValue, rightKey, rightValue)
-                      .buildComputation(seq);
-                }).seq((seq, data) -> {
-                  List<Pair<List<Computation<Boolean>>, List<Computation<Boolean>>>> open = new ArrayList<>();
+              return seq.advancedBinary().keyedCompareAndSwap(leftKey, leftValue, rightKey,
+                  rightValue);
+            }).seq((seq, data) -> {
+              List<Pair<List<Computation<Boolean>>, List<Computation<Boolean>>>> open =
+                  new ArrayList<>();
 
-                  for (Pair<List<Computation<SBool>>, List<Computation<SBool>>> o : data) {
+              for (Pair<List<Computation<SBool>>, List<Computation<SBool>>> o : data) {
 
-                    List<Computation<Boolean>> first = o.getFirst().stream()
-                        .map(seq.binary()::open).collect(Collectors.toList());
-                    List<Computation<Boolean>> second = o.getSecond().stream()
-                        .map(seq.binary()::open).collect(Collectors.toList());
+                List<Computation<Boolean>> first =
+                    o.getFirst().stream().map(seq.binary()::open).collect(Collectors.toList());
+                List<Computation<Boolean>> second =
+                    o.getSecond().stream().map(seq.binary()::open).collect(Collectors.toList());
 
-                    Pair<List<Computation<Boolean>>, List<Computation<Boolean>>> pair = new Pair<>(
-                        first, second);
-                    open.add(pair);
-                  }
-                  return () -> open;
-                }).seq((seq, data) -> {
-                  List<Pair<List<Boolean>, List<Boolean>>> out = new ArrayList<>();
-                  for (Pair<List<Computation<Boolean>>, List<Computation<Boolean>>> o : data) {
-                    List<Boolean> first = o.getFirst().stream().map(Computation::out)
-                        .collect(Collectors.toList());
-                    List<Boolean> second = o.getSecond().stream().map(Computation::out)
-                        .collect(Collectors.toList());
+                Pair<List<Computation<Boolean>>, List<Computation<Boolean>>> pair =
+                    new Pair<>(first, second);
+                open.add(pair);
+              }
+              return () -> open;
+            }).seq((seq, data) -> {
+              List<Pair<List<Boolean>, List<Boolean>>> out = new ArrayList<>();
+              for (Pair<List<Computation<Boolean>>, List<Computation<Boolean>>> o : data) {
+                List<Boolean> first =
+                    o.getFirst().stream().map(Computation::out).collect(Collectors.toList());
+                List<Boolean> second =
+                    o.getSecond().stream().map(Computation::out).collect(Collectors.toList());
 
-                    Pair<List<Boolean>, List<Boolean>> pair = new Pair<>(first, second);
-                    out.add(pair);
+                Pair<List<Boolean>, List<Boolean>> pair = new Pair<>(first, second);
+                out.add(pair);
 
-                  }
+              }
 
-                  return () -> out;
-                });
-              };
+              return () -> out;
+            });
+          };
 
           List<Pair<List<Boolean>, List<Boolean>>> result = secureComputationEngine
-              .runApplication(app,
-                  ResourcePoolCreator.createResourcePool(conf.sceConf));
+              .runApplication(app, ResourcePoolCreator.createResourcePool(conf.sceConf));
 
-          Assert.assertEquals("ff",
-              ByteArithmetic.toHex(result.get(0).getFirst()));
+          Assert.assertEquals("ff", ByteArithmetic.toHex(result.get(0).getFirst()));
 
-          Assert.assertEquals("ee",
-              ByteArithmetic.toHex(result.get(0).getSecond()));
+          Assert.assertEquals("ee", ByteArithmetic.toHex(result.get(0).getSecond()));
 
-          Assert.assertEquals("49",
-              ByteArithmetic.toHex(result.get(1).getFirst()));
+          Assert.assertEquals("49", ByteArithmetic.toHex(result.get(1).getFirst()));
 
-          Assert.assertEquals("00",
-              ByteArithmetic.toHex(result.get(1).getSecond()));
+          Assert.assertEquals("00", ByteArithmetic.toHex(result.get(1).getSecond()));
         }
       };
     }
@@ -140,8 +135,7 @@ public class CollectionsSortingTests {
 
   public static class TestOddEvenMerge extends TestThreadFactory {
 
-    public TestOddEvenMerge() {
-    }
+    public TestOddEvenMerge() {}
 
     @Override
     public TestThread next(TestThreadConfiguration conf) {
@@ -253,8 +247,7 @@ public class CollectionsSortingTests {
 
   public static class TestOddEvenMergeRec extends TestThreadFactory {
 
-    public TestOddEvenMergeRec() {
-    }
+    public TestOddEvenMergeRec() {}
 
     @Override
     public TestThread next(TestThreadConfiguration conf) {
@@ -366,8 +359,7 @@ public class CollectionsSortingTests {
 
   public static class TestOddEvenMergeRecLarge extends TestThreadFactory {
 
-    public TestOddEvenMergeRecLarge() {
-    }
+    public TestOddEvenMergeRecLarge() {}
 
     @Override
     public TestThread next(TestThreadConfiguration conf) {

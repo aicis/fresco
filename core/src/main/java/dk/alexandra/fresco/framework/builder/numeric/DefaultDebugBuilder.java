@@ -8,11 +8,11 @@ import dk.alexandra.fresco.lib.lp.Matrix;
 import java.io.PrintStream;
 import java.util.List;
 
-public class DefaultUtilityBuilder implements UtilityBuilder {
+public class DefaultDebugBuilder implements DebugBuilder {
 
   private ProtocolBuilderNumeric builder;
 
-  public DefaultUtilityBuilder(ProtocolBuilderNumeric builder) {
+  public DefaultDebugBuilder(ProtocolBuilderNumeric builder) {
     this.builder = builder;
   }
 
