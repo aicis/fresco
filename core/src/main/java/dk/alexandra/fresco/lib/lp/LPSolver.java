@@ -219,18 +219,17 @@ public class LPSolver implements ComputationBuilder<LPOutput, ProtocolBuilderNum
    */
   private Computation<LPState> blandPhaseOneProtocol(ProtocolBuilderNumeric builder,
       LPState state) {
-    return builder
-        .seq(
-            // Compute potential entering variable index and corresponding value of
-            // entry in F
-            new BlandEnteringVariable(state.tableau, state.updateMatrix))
-        .seq((enteringAndMinimum, seq) -> {
-          List<Computation<SInt>> entering = enteringAndMinimum.getFirst();
-          SInt termination = enteringAndMinimum.getSecond();
-          state.terminationOut = seq.numeric().open(() -> termination);
-          state.enteringIndex = entering;
-          return () -> state;
-        });
+    return builder.seq(
+        // Compute potential entering variable index and corresponding value of
+        // entry in F
+        new BlandEnteringVariable(state.tableau, state.updateMatrix)
+    ).seq((enteringAndMinimum, seq) -> {
+      List<Computation<SInt>> entering = enteringAndMinimum.getFirst();
+      SInt termination = enteringAndMinimum.getSecond();
+      state.terminationOut = seq.numeric().open(() -> termination);
+      state.enteringIndex = entering;
+      return () -> state;
+    });
   }
 
   /**
