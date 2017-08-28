@@ -165,26 +165,6 @@ public class SecretSharedDivisor
         .bitLength(input, maximumBitLength);
   }
 
-  private Computation<SInt> sign(ProtocolBuilderNumeric builder, Computation<SInt> input) {
-    Computation<SInt> result = gte(builder, input,
-        builder.numeric().known(BigInteger.valueOf(0)));
-    BigInteger two = BigInteger.valueOf(2);
-    BigInteger one = BigInteger.valueOf(1);
-    result = builder.numeric().mult(two, result);
-    result = builder.numeric().sub(result, one);
-    return result;
-  }
-
-  private Computation<SInt> gte(ProtocolBuilderNumeric builder, Computation<SInt> left,
-      Computation<SInt> right) {
-
-    // TODO: workaround for the fact that the GreaterThanProtocol actually calculated left <= right.
-    Computation<SInt> actualLeft = right;
-    Computation<SInt> actualRight = left;
-
-    return builder.comparison().compareLEQ(actualLeft, actualRight);
-  }
-
   private Computation<SInt> exp2(ProtocolBuilderNumeric builder, Computation<SInt> exponent,
       int maxExponentLength) {
     return builder.advancedNumeric().exp(
