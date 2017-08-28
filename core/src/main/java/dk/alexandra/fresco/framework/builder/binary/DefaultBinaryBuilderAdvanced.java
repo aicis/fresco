@@ -24,8 +24,7 @@ public class DefaultBinaryBuilderAdvanced implements BinaryBuilderAdvanced {
 
   private final ProtocolBuilderBinary builder;
 
-  // TODO This should be protected, pending exposing the not & bitIncrement in the interface
-  public DefaultBinaryBuilderAdvanced(ProtocolBuilderBinary builder) {
+  protected DefaultBinaryBuilderAdvanced(ProtocolBuilderBinary builder) {
     super();
     this.builder = builder;
   }
