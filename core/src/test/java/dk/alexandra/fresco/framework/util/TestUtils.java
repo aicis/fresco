@@ -8,15 +8,19 @@ public class TestUtils {
 
   @Test
   public void testBasic() {
+    long beforeTime = System.nanoTime();
     Timing timing = new Timing();
     timing.start();
+    long whenStartedTime = System.nanoTime();
     try{
       Thread.sleep(200);
     } catch(Exception ignored) {
     }
+    long beforeStoppedTime = System.nanoTime();
     long stopped = timing.stop();
-    Assert.assertTrue(timing.getTimeInNanos() > 200*1000000);
-    Assert.assertTrue(timing.getTimeInNanos() < 210*1000000); // at most 5% off
+    long afterTime = System.nanoTime();
+    Assert.assertTrue(timing.getTimeInNanos() <= afterTime-beforeTime);
+    Assert.assertTrue(timing.getTimeInNanos() >= beforeStoppedTime-whenStartedTime);
     Assert.assertThat(stopped, Is.is(timing.getTimeInNanos()));
   }
 
@@ -30,8 +34,6 @@ public class TestUtils {
     Assert.assertThat(ByteArithmetic.toHex(new boolean[]{true, true, true, true}), Is.is("0f"));
     Assert.assertThat(ByteArithmetic.toHex(new boolean[]{false, true, true, true, true, true, true, true, true,}), Is.is("00ff"));
     Assert.assertThat(ByteArithmetic.toHex(new boolean[]{true, true, true, true, true, true, true, true, true,}), Is.is("01ff"));
-    
-    
   }
   
 /*
@@ -41,6 +43,6 @@ public class TestUtils {
     String format = Timing.formatNanosAsMilliSeconds(200);
     Assert.assertThat(format, Is.is("2.0E-4 ms"));
   }
- */ 
+ */
 }
 
