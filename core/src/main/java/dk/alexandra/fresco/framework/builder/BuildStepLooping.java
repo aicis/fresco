@@ -7,8 +7,9 @@ import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.util.Pair;
 import java.util.function.Predicate;
 
-class BuildStepLooping<BuilderT extends ProtocolBuilderImpl<BuilderT>,
-    InputT> extends BuildStep<BuilderT, InputT, InputT> {
+class BuildStepLooping<BuilderT extends ProtocolBuilderImpl<BuilderT>, InputT>
+    implements BuildStep.NextStepBuilder<BuilderT, InputT, InputT> {
+
 
   private final Predicate<InputT> predicate;
   private final FrescoLambda<InputT, BuilderT, InputT> function;
@@ -19,7 +20,7 @@ class BuildStepLooping<BuilderT extends ProtocolBuilderImpl<BuilderT>,
     this.function = function;
   }
 
-  protected Pair<ProtocolProducer, Computation<InputT>> createNextStep(
+  public Pair<ProtocolProducer, Computation<InputT>> createNextStep(
       InputT input,
       BuilderFactory<BuilderT> factory,
       BuildStep<BuilderT, ?, InputT> next) {

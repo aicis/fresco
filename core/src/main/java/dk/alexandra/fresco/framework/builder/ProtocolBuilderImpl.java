@@ -132,19 +132,19 @@ public abstract class ProtocolBuilderImpl<BuilderT extends ProtocolBuilderImpl<B
   }
 
   public <R> BuildStep<BuilderT, R, Void> seq(ComputationBuilder<R, BuilderT> function) {
+    FrescoLambda<Void, BuilderT, R> innerBuilder = (ignored, inner) -> function.build(inner);
     BuildStep<BuilderT, R, Void> builder =
-        new BuildStepSingle<>((ignored, inner) -> function.build(inner), false);
-    createAndAppend(
-        new LazyProtocolProducerDecorator(() -> builder.createProducer(null, factory)));
+        new BuildStep<>(new BuildStepSingle<>(innerBuilder, false));
+    createAndAppend(new LazyProtocolProducerDecorator(() -> builder.createProducer(null, factory)));
     return builder;
   }
 
   public <R> BuildStep<BuilderT, R, Void> par(
       ComputationBuilder<R, BuilderT> f) {
+    FrescoLambda<Void, BuilderT, R> innerBuilder = (ignored, inner) -> f.build(inner);
     BuildStep<BuilderT, R, Void> builder =
-        new BuildStepSingle<BuilderT, R, Void>((ignored, inner) -> f.build(inner), true);
-    createAndAppend(
-        new LazyProtocolProducerDecorator(() -> builder.createProducer(null, factory)));
+        new BuildStep<>(new BuildStepSingle<>(innerBuilder, true));
+    createAndAppend(new LazyProtocolProducerDecorator(() -> builder.createProducer(null, factory)));
     return builder;
   }
 

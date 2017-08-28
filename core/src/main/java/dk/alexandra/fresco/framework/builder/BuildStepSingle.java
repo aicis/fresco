@@ -8,8 +8,8 @@ import dk.alexandra.fresco.lib.helper.LazyProtocolProducerDecorator;
 import dk.alexandra.fresco.lib.helper.SequentialProtocolProducer;
 import java.util.function.BiFunction;
 
-class BuildStepSingle<BuilderT extends ProtocolBuilderImpl<BuilderT>, OutputT, InputT> extends
-    BuildStep<BuilderT, OutputT, InputT> {
+class BuildStepSingle<BuilderT extends ProtocolBuilderImpl<BuilderT>, OutputT, InputT>
+    implements BuildStep.NextStepBuilder<BuilderT, OutputT, InputT> {
 
   private boolean parallel;
   private BiFunction<InputT, BuilderT, Computation<OutputT>> function;
@@ -20,7 +20,7 @@ class BuildStepSingle<BuilderT extends ProtocolBuilderImpl<BuilderT>, OutputT, I
     this.parallel = parallel;
   }
 
-  protected Pair<ProtocolProducer, Computation<OutputT>> createNextStep(
+  public Pair<ProtocolProducer, Computation<OutputT>> createNextStep(
       InputT input,
       BuilderFactory<BuilderT> factory,
       BuildStep<BuilderT, ?, OutputT> next) {
@@ -28,14 +28,11 @@ class BuildStepSingle<BuilderT extends ProtocolBuilderImpl<BuilderT>, OutputT, I
     BuilderT builder = createBuilder(factory);
     Computation<OutputT> output = function.apply(input, builder);
     if (next != null) {
-      return new Pair<>(
-          new SequentialProtocolProducer(
-              builder.build(),
-              new LazyProtocolProducerDecorator(() ->
-                  next.createProducer(output.out(), factory)
-              )
-          ), null
+      SequentialProtocolProducer protocolProducer = new SequentialProtocolProducer(
+          builder.build(),
+          new LazyProtocolProducerDecorator(() -> next.createProducer(output.out(), factory))
       );
+      return new Pair<>(protocolProducer, null);
     } else {
       return new Pair<>(builder.build(), output);
     }
