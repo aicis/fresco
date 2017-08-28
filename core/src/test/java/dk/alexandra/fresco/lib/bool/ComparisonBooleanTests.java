@@ -77,7 +77,7 @@ public class ComparisonBooleanTests {
                 Computation<Boolean> open1 = seq.binary().open(res1);
                 Computation<Boolean> open2 = seq.binary().open(res2);
                 return () -> Arrays.asList(open1, open2);
-              }).seq((opened, seq) -> {
+              }).seq((seq, opened) -> {
                 return () -> opened.stream().map(Computation::out).collect(Collectors.toList());
               });
             }
@@ -133,7 +133,7 @@ public class ComparisonBooleanTests {
                 Computation<Boolean> open1 = seq.binary().open(res1);
                 Computation<Boolean> open2 = seq.binary().open(res2);
                 return () -> Arrays.asList(open1, open2);
-              }).seq((opened, seq) -> {
+              }).seq((seq, opened) -> {
                 return () -> opened.stream().map(Computation::out).collect(Collectors.toList());
               });
             }
@@ -179,7 +179,7 @@ public class ComparisonBooleanTests {
                 Computation<SBool> res1 = seq.comparison().greaterThan(in1, in2);
                 Computation<Boolean> open1 = seq.binary().open(res1);
                 return () -> Arrays.asList(open1);
-              }).seq((opened, seq) -> {
+              }).seq((seq, opened) -> {
                 return () -> opened.stream().map(Computation::out).collect(Collectors.toList());
               });
             }

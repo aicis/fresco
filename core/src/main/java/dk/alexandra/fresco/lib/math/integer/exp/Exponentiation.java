@@ -47,10 +47,10 @@ public class Exponentiation implements ComputationBuilder<SInt, ProtocolBuilderN
   }
 
   @Override
-  public Computation<SInt> build(ProtocolBuilderNumeric builder) {
+  public Computation<SInt> buildComputation(ProtocolBuilderNumeric builder) {
     return builder.seq((seq) ->
         seq.advancedNumeric().toBits(exponent, maxExponentBitLength)
-    ).seq((bits, seq) -> {
+    ).seq((seq, bits) -> {
       Computation<SInt> e = input;
       Computation<SInt> result = null;
       NumericBuilder numeric = seq.numeric();

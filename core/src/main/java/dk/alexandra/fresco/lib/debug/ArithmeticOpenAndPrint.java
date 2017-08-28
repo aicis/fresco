@@ -63,7 +63,7 @@ public class ArithmeticOpenAndPrint implements ComputationBuilder<Void, Protocol
   }
 
   @Override
-  public Computation<Void> build(ProtocolBuilderNumeric builder) {
+  public Computation<Void> buildComputation(ProtocolBuilderNumeric builder) {
     return builder.seq(seq -> {
       NumericBuilder num = seq.numeric();
       List<Computation<BigInteger>> res = new ArrayList<>();
@@ -83,7 +83,7 @@ public class ArithmeticOpenAndPrint implements ComputationBuilder<Void, Protocol
         }
       }
       return () -> res;
-    }).seq((res, seq) -> {
+    }).seq((seq, res) -> {
       StringBuilder sb = new StringBuilder();
       sb.append(label);
       sb.append("\n");

@@ -52,7 +52,7 @@ public class BinaryMultProtocol implements
   }
 
   @Override
-  public Computation<List<Computation<SBool>>> build(ProtocolBuilderBinary builder) {
+  public Computation<List<Computation<SBool>>> buildComputation(ProtocolBuilderBinary builder) {
     return builder.seq(seq -> {
       int idx = this.lefts.size() - 1;
       List<Computation<SBool>> res = new ArrayList<>();
@@ -64,7 +64,7 @@ public class BinaryMultProtocol implements
       return is;
     }).whileLoop(
         (state) -> state.round >= 1,
-        (state, seq) -> {
+        (seq, state) -> {
           int idx = state.round - 1;
 
           List<Computation<SBool>> res = new ArrayList<>();
@@ -82,7 +82,7 @@ public class BinaryMultProtocol implements
               seq.advancedBinary().fullAdder(state.value.out(), res, seq.binary().known(false)));
           return is;
         }
-    ).seq((state, seq) -> state.value
+    ).seq((seq, state) -> state.value
     );
   }
 

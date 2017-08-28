@@ -85,8 +85,8 @@ public class CollectionsSortingTests {
                       .map(builder.binary()::known).collect(Collectors.toList());
 
                   return new KeyedCompareAndSwapProtocol(leftKey, leftValue, rightKey, rightValue)
-                      .build(seq);
-                }).seq((data, seq) -> {
+                      .buildComputation(seq);
+                }).seq((seq, data) -> {
                   List<Pair<List<Computation<Boolean>>, List<Computation<Boolean>>>> open = new ArrayList<>();
 
                   for (Pair<List<Computation<SBool>>, List<Computation<SBool>>> o : data) {
@@ -101,7 +101,7 @@ public class CollectionsSortingTests {
                     open.add(pair);
                   }
                   return () -> open;
-                }).seq((data, seq) -> {
+                }).seq((seq, data) -> {
                   List<Pair<List<Boolean>, List<Boolean>>> out = new ArrayList<>();
                   for (Pair<List<Computation<Boolean>>, List<Computation<Boolean>>> o : data) {
                     List<Boolean> first = o.getFirst().stream().map(Computation::out)

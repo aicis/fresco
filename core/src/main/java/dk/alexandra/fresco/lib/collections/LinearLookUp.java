@@ -69,7 +69,7 @@ public class LinearLookUp implements ComputationBuilder<SInt, ProtocolBuilderNum
   }
 
   @Override
-  public Computation<SInt> build(ProtocolBuilderNumeric builder) {
+  public Computation<SInt> buildComputation(ProtocolBuilderNumeric builder) {
     return builder.par((par) -> {
       int n = keys.size();
       List<Computation<SInt>> index = new ArrayList<>(n);
@@ -77,7 +77,7 @@ public class LinearLookUp implements ComputationBuilder<SInt, ProtocolBuilderNum
         index.add(par.comparison().equals(lookUpKey, key));
       }
       return () -> index;
-    }).seq((index, seq) -> {
+    }).seq((seq, index) -> {
       Computation<SInt> outputValue = notFoundValue;
       for (int i = 0, valuesLength = values.size(); i < valuesLength; i++) {
         Computation<SInt> value = values.get(i);

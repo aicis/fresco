@@ -56,8 +56,8 @@ public class SortingHelperUtility {
         previous = value;
       }
       return () -> comparisons;
-    }).seq((comparison, seq) ->
-        new ProductSIntList(comparison).build(seq)
+    }).seq((seq, comparison) ->
+        new ProductSIntList(comparison).buildComputation(seq)
     );
   }
 
@@ -105,12 +105,12 @@ public class SortingHelperUtility {
         .seq(seq -> () -> p0)
         .whileLoop(
             p -> p > 0,
-            (p, seq) -> {
+            (seq, p) -> {
               seq.seq(innerSeq -> {
                 return () -> new Iteration(p0, 0, p);
               }).whileLoop(
                   state -> state.r == 0 || state.q != p,
-                  (state, whileSeq) -> {
+                  (whileSeq, state) -> {
                     final int d = state.r == 0 ? state.d : state.q - p;
                     final int q = state.r == 0 ? state.q : state.q / 2;
 

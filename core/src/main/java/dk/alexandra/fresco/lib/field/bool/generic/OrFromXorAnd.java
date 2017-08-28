@@ -51,7 +51,7 @@ public class OrFromXorAnd implements
   }
 
   @Override
-  public Computation<SBool> build(ProtocolBuilderBinary builder) {
+  public Computation<SBool> buildComputation(ProtocolBuilderBinary builder) {
 
     Computation<SBool> t0 = builder.binary().and(inA, inB);
     Computation<SBool> t1 = builder.binary().xor(inA, inB);

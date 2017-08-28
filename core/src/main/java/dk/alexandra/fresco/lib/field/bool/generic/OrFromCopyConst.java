@@ -46,7 +46,7 @@ public class OrFromCopyConst implements
   }
 
   @Override
-  public Computation<SBool> build(ProtocolBuilderBinary builder) {
+  public Computation<SBool> buildComputation(ProtocolBuilderBinary builder) {
 
     if(inB) {
       return builder.binary().known(true);

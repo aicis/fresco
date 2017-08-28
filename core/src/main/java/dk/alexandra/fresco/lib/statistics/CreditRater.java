@@ -102,8 +102,8 @@ public class CreditRater implements
           }
           return () -> scores;
         }
-    ).seq((list, seq) ->
-        new SumSIntList(list).build(seq)
+    ).seq((seq, list) ->
+        new SumSIntList(list).buildComputation(seq)
     );
   }
 
@@ -139,7 +139,7 @@ public class CreditRater implements
     }
 
     @Override
-    public Computation<SInt> build(ProtocolBuilderNumeric rootBuilder) {
+    public Computation<SInt> buildComputation(ProtocolBuilderNumeric rootBuilder) {
       return rootBuilder.par((parallelBuilder) -> {
         List<Computation<SInt>> result = new ArrayList<>();
         ComparisonBuilder builder = parallelBuilder.comparison();
@@ -149,14 +149,14 @@ public class CreditRater implements
           result.add(builder.compareLEQ(value, anInterval));
         }
         return () -> result;
-      }).seq((comparisons, builder) -> {
+      }).seq((builder, comparisons) -> {
         // Add "x > last interval definition" to comparisons
 
         NumericBuilder numericBuilder = builder.numeric();
         Computation<SInt> lastComparison = comparisons.get(comparisons.size() - 1);
         comparisons.add(numericBuilder.sub(BigInteger.ONE, lastComparison));
         return () -> comparisons;
-      }).par((comparisons, parallelBuilder) -> {
+      }).par((parallelBuilder, comparisons) -> {
         //Comparisons now contain if x <= each definition and if x>= last definition
 
         NumericBuilder numericBuilder = parallelBuilder.numeric();
@@ -172,7 +172,7 @@ public class CreditRater implements
         innerScores.add(numericBuilder.mult(a, b));
         return () -> innerScores;
 
-      }).seq((list, seq) -> new SumSIntList(list).build(seq));
+      }).seq((seq, list) -> new SumSIntList(list).buildComputation(seq));
     }
   }
 }

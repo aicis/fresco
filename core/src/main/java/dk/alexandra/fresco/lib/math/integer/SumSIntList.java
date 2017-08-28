@@ -25,12 +25,12 @@ public class SumSIntList implements ComputationBuilder<SInt, ProtocolBuilderNume
   }
 
   @Override
-  public Computation<SInt> build(ProtocolBuilderNumeric iterationBuilder) {
+  public Computation<SInt> buildComputation(ProtocolBuilderNumeric iterationBuilder) {
     return iterationBuilder.seq(seq ->
         () -> input
     ).whileLoop(
         (inputs) -> inputs.size() > 1,
-        (inputs, seq) -> seq.par(parallel -> {
+        (seq, inputs) -> seq.par(parallel -> {
           List<Computation<SInt>> out = new ArrayList<>();
           NumericBuilder numericBuilder = parallel.numeric();
           Computation<SInt> left = null;
@@ -47,7 +47,7 @@ public class SumSIntList implements ComputationBuilder<SInt, ProtocolBuilderNume
           }
           return () -> out;
         })
-    ).seq((currentInput, builder) -> {
+    ).seq((builder, currentInput) -> {
       return currentInput.get(0);
     });
   }

@@ -19,14 +19,14 @@ public class ZeroTestReducer implements ComputationBuilder<SInt, ProtocolBuilder
   }
 
   @Override
-  public Computation<SInt> build(ProtocolBuilderNumeric builder) {
+  public Computation<SInt> buildComputation(ProtocolBuilderNumeric builder) {
     return builder.seq((seq) -> seq.advancedNumeric().additiveMask(bitLength)
-    ).seq((mask, seq) -> {
+    ).seq((seq, mask) -> {
       Computation<SInt> mS = seq.numeric().add(input, () -> mask.r);
       Computation<BigInteger> mO = seq.numeric().open(mS);
       return () -> new Pair<>(mask.bits, mO.out());
-    }).seq((pair, seq) ->
-        new HammingDistance(pair.getFirst(), pair.getSecond()).build(seq)
+    }).seq((seq, pair) ->
+        new HammingDistance(pair.getFirst(), pair.getSecond()).buildComputation(seq)
     );
   }
 }

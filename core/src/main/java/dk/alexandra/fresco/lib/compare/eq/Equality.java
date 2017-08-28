@@ -53,7 +53,7 @@ public class Equality implements ComputationBuilder<SInt, ProtocolBuilderNumeric
   }
 
   @Override
-  public Computation<SInt> build(ProtocolBuilderNumeric builder) {
+  public Computation<SInt> buildComputation(ProtocolBuilderNumeric builder) {
     Computation<SInt> diff = builder.numeric().sub(x, y);
     return builder.comparison().compareZero(diff, bitLength);
   }

@@ -22,7 +22,7 @@ public class InnerProductOpen implements ComputationBuilder<SInt, ProtocolBuilde
   }
 
   @Override
-  public Computation<SInt> build(ProtocolBuilderNumeric builder) {
+  public Computation<SInt> buildComputation(ProtocolBuilderNumeric builder) {
     return builder
         .par(parallel -> {
           List<Computation<SInt>> result = new ArrayList<>(aVector.size());
@@ -34,8 +34,8 @@ public class InnerProductOpen implements ComputationBuilder<SInt, ProtocolBuilde
           }
           return () -> result;
         })
-        .seq((list, seq) ->
-            new SumSIntList(list).build(seq)
+        .seq((seq, list) ->
+            new SumSIntList(list).buildComputation(seq)
         );
   }
 }

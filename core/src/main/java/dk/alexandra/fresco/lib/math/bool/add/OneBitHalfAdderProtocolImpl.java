@@ -39,7 +39,7 @@ public class OneBitHalfAdderProtocolImpl implements
   }
 
   @Override
-  public Computation<Pair<SBool, SBool>> build(ProtocolBuilderBinary builder) {
+  public Computation<Pair<SBool, SBool>> buildComputation(ProtocolBuilderBinary builder) {
     return builder.par(par -> {
       Computation<SBool> res = par.binary().xor(left, right);
       Computation<SBool> carry = par.binary().and(left, right);

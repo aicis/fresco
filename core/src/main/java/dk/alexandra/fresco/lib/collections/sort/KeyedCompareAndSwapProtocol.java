@@ -64,7 +64,7 @@ public class KeyedCompareAndSwapProtocol implements
 	}
 
   @Override
-  public Computation<List<Pair<List<Computation<SBool>>, List<Computation<SBool>>>>> build(
+  public Computation<List<Pair<List<Computation<SBool>>, List<Computation<SBool>>>>> buildComputation(
       ProtocolBuilderBinary builder) {
     return builder.par(seq -> {
       
@@ -77,7 +77,7 @@ public class KeyedCompareAndSwapProtocol implements
           .map(e -> seq.binary().xor(e, rightValue.get(leftValue.indexOf(e))))
           .collect(Collectors.toList());
       return () -> comparison;
-    }).par((data, par) -> {
+    }).par((par, data) -> {
       
       List<Computation<SBool>> firstValue = leftValue.stream()
           .map(e -> par.advancedBinary().condSelect(data, e, rightValue.get(leftValue.indexOf(e))))
@@ -88,7 +88,7 @@ public class KeyedCompareAndSwapProtocol implements
           .collect(Collectors.toList());
 
       return () -> new Pair<>(firstKey, firstValue);
-    }).par((data, par) -> { 
+    }).par((par, data) -> {
       List<Computation<SBool>> lastValue = xorValue.stream()
           .map(e -> par.binary().xor(e, data.getSecond().get(xorValue.indexOf(e))))
           .collect(Collectors.toList());

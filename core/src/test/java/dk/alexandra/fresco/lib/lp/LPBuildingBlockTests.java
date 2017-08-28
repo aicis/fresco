@@ -121,8 +121,8 @@ public class LPBuildingBlockTests {
       expectedIndex = enteringDanzigVariableIndex(constraints, updateMatrix, b, f);
 
       builder.seq((seq) ->
-          new EnteringVariable(sTableau, sUpdateMatrix).build(seq)
-      ).seq((enteringOutput, seq) -> {
+          new EnteringVariable(sTableau, sUpdateMatrix).buildComputation(seq)
+      ).seq((seq, enteringOutput) -> {
         List<Computation<SInt>> enteringIndex = enteringOutput.getFirst();
         NumericBuilder numeric = seq.numeric();
         List<Computation<BigInteger>> opened = enteringIndex.stream().map(numeric::open)
@@ -188,8 +188,8 @@ public class LPBuildingBlockTests {
       expectedIndex = enteringDanzigVariableIndex(constraints, updateMatrix, b, f);
 
       builder.seq((seq) ->
-          new BlandEnteringVariable(sTableau, sUpdateMatrix).build(seq)
-      ).seq((enteringOutput, seq) -> {
+          new BlandEnteringVariable(sTableau, sUpdateMatrix).buildComputation(seq)
+      ).seq((seq, enteringOutput) -> {
         List<Computation<SInt>> enteringIndex = enteringOutput.getFirst();
         NumericBuilder numeric = seq.numeric();
         List<Computation<BigInteger>> opened = enteringIndex.stream().map(numeric::open)

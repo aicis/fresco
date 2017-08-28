@@ -44,7 +44,7 @@ public class PolynomialEvaluator implements ComputationBuilder<SInt, ProtocolBui
 
 
   @Override
-  public Computation<SInt> build(ProtocolBuilderNumeric builder) {
+  public Computation<SInt> buildComputation(ProtocolBuilderNumeric builder) {
     int degree = p.getMaxDegree();
 
 		/*

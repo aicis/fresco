@@ -55,11 +55,11 @@ public class RightShift implements ComputationBuilder<RightShiftResult, Protocol
   }
 
   @Override
-  public Computation<RightShiftResult> build(ProtocolBuilderNumeric sequential) {
+  public Computation<RightShiftResult> buildComputation(ProtocolBuilderNumeric sequential) {
     return sequential.seq((builder) -> {
       AdvancedNumericBuilder additiveMaskBuilder = builder.advancedNumeric();
       return additiveMaskBuilder.additiveMask(bitLength);
-    }).par((randomAdditiveMask, parSubSequential) -> {
+    }).par((parSubSequential, randomAdditiveMask) -> {
       BigInteger two = BigInteger.valueOf(2);
       NumericBuilder numericBuilder = parSubSequential.numeric();
       BigInteger inverseOfTwo =
@@ -68,10 +68,10 @@ public class RightShift implements ComputationBuilder<RightShiftResult, Protocol
       Computation<SInt> sub = numericBuilder.sub(randomAdditiveMask.r, rBottom);
       Computation<SInt> rTop = numericBuilder.mult(inverseOfTwo, sub);
       return () -> new Pair<>(rBottom, rTop);
-    } , (randomAdditiveMask, parSubSequential) -> {
+    }, (parSubSequential, randomAdditiveMask) -> {
       Computation<SInt> result = parSubSequential.numeric().add(input, () -> randomAdditiveMask.r);
       return parSubSequential.numeric().open(result);
-    }).seq((preprocessOutput, round1) -> {
+    }).seq((round1, preprocessOutput) -> {
       BigInteger mOpen = preprocessOutput.getSecond();
       Computation<SInt> rBottom = preprocessOutput.getFirst().getFirst();
       Computation<SInt> rTop = preprocessOutput.getFirst().getSecond();
@@ -84,13 +84,13 @@ public class RightShift implements ComputationBuilder<RightShiftResult, Protocol
       BigInteger mBottomNegated = mOpen.add(BigInteger.ONE).mod(BigInteger.valueOf(2));
       Computation<SInt> carry = round1.numeric().mult(mBottomNegated, rBottom);
       return () -> new Pair<>(new Pair<>(rBottom, rTop), new Pair<>(carry, mOpen));
-    }).par((inputs, parSubSequential) -> {
+    }).par((parSubSequential, inputs) -> {
       BigInteger openShiftOnce = inputs.getSecond().getSecond().shiftRight(1);
       // Now we calculate the shift, x >> 1 = mTop - rTop - carry
       Computation<SInt> sub =
           parSubSequential.numeric().sub(openShiftOnce, inputs.getFirst().getSecond());
       return parSubSequential.numeric().sub(sub, inputs.getSecond().getFirst());
-    } , (inputs, parSubSequential) -> {
+    }, (parSubSequential, inputs) -> {
       if (!calculateRemainders) {
         return () -> null;
       } else {
@@ -108,12 +108,12 @@ public class RightShift implements ComputationBuilder<RightShiftResult, Protocol
           Computation<SInt> product = productAndSumNumeric.mult(twoMBottom, rBottom);
           Computation<SInt> sum = productAndSumNumeric.add(mBottom, rBottom);
           return () -> new Pair<>(product, sum);
-        }).seq((productAndSum, finalBuilder) -> {
+        }).seq((finalBuilder, productAndSum) -> {
           Computation<SInt> result =
               finalBuilder.numeric().sub(productAndSum.getSecond(), productAndSum.getFirst());
           return () -> Collections.singletonList(result.out());
         });
       }
-    }).seq((output, builder) -> () -> new RightShiftResult(output.getFirst(), output.getSecond()));
+    }).seq((builder, output) -> () -> new RightShiftResult(output.getFirst(), output.getSecond()));
   }
 }

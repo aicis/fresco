@@ -25,12 +25,12 @@ public class ProductSIntList implements ComputationBuilder<SInt, ProtocolBuilder
   }
 
   @Override
-  public Computation<SInt> build(ProtocolBuilderNumeric iterationBuilder) {
+  public Computation<SInt> buildComputation(ProtocolBuilderNumeric iterationBuilder) {
     return iterationBuilder.seq(seq ->
         () -> input
     ).whileLoop(
         (inputs) -> inputs.size() > 1,
-        (inputs, seq) -> seq.par(parallel -> {
+        (seq, inputs) -> seq.par(parallel -> {
           List<Computation<SInt>> out = new ArrayList<>();
           NumericBuilder numericBuilder = parallel.numeric();
           Computation<SInt> left = null;
@@ -47,6 +47,6 @@ public class ProductSIntList implements ComputationBuilder<SInt, ProtocolBuilder
           }
           return () -> out;
         })
-    ).seq((currentInput, builder) -> currentInput.get(0));
+    ).seq((builder, currentInput) -> currentInput.get(0));
   }
 }

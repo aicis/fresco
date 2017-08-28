@@ -55,7 +55,8 @@ public class Minimum implements
 
 
   @Override
-  public Computation<Pair<List<Computation<SInt>>, SInt>> build(ProtocolBuilderNumeric builder) {
+  public Computation<Pair<List<Computation<SInt>>, SInt>> buildComputation(
+      ProtocolBuilderNumeric builder) {
     BigInteger one = BigInteger.ONE;
     if (this.k == 2) {
       ComparisonBuilder comparison = builder.comparison();
@@ -98,9 +99,9 @@ public class Minimum implements
         List<Computation<SInt>> x2 = xs.subList(k1, k);
         return Pair.lazy(x1, x2);
       }).par(
-          (pair, seq) -> seq.seq(new Minimum(pair.getFirst())),
-          (pair, seq) -> seq.seq(new Minimum(pair.getSecond()))
-      ).seq((pair, seq) -> {
+          (seq, pair) -> seq.seq(new Minimum(pair.getFirst())),
+          (seq, pair) -> seq.seq(new Minimum(pair.getSecond()))
+      ).seq((seq, pair) -> {
         ComparisonBuilder comparison = seq.comparison();
         NumericBuilder numeric = seq.numeric();
         Pair<List<Computation<SInt>>, SInt> minimum1 = pair.getFirst();

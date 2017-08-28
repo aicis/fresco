@@ -128,7 +128,7 @@ public class SortingTests {
                     new SortingHelperUtility().compareAndSwap(seq, 0, 1, initialList);
                     return () -> initialList;
                   }
-              ).seq((list, seq) -> {
+              ).seq((seq, list) -> {
                     Computation<BigInteger> firstOpen = seq.numeric().open(list.get(0));
                     Computation<BigInteger> secondOpen = seq.numeric().open(list.get(1));
 
@@ -184,7 +184,7 @@ public class SortingTests {
                 return builder.seq(seq -> {
                   new SortingHelperUtility().sort(seq, unsorted);
                   return () -> unsorted;
-                }).par((list, par) -> {
+                }).par((par, list) -> {
                   NumericBuilder numeric = par.numeric();
                   List<Computation<BigInteger>> openList = list.stream().map(numeric::open)
                       .collect(Collectors.toList());

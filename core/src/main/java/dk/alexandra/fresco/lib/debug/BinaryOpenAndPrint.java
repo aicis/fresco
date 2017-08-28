@@ -46,7 +46,7 @@ public class BinaryOpenAndPrint implements
   }
 
   @Override
-  public Computation<Void> build(ProtocolBuilderBinary builder) {
+  public Computation<Void> buildComputation(ProtocolBuilderBinary builder) {
     return builder.seq(seq -> {
       List<SBool> unfolded =
           this.string.stream().map(Computation::out).collect(Collectors.toList());
@@ -55,7 +55,7 @@ public class BinaryOpenAndPrint implements
         bools.add(seq.binary().open(b));
       }
       return () -> bools;
-    }).seq((res, seq) -> {
+    }).seq((seq, res) -> {
       StringBuilder sb = new StringBuilder();
       sb.append(label);
       sb.append('\n');

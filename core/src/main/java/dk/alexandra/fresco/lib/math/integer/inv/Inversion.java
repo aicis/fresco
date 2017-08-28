@@ -42,7 +42,7 @@ public class Inversion implements ComputationBuilder<SInt, ProtocolBuilderNumeri
   }
 
   @Override
-  public Computation<SInt> build(ProtocolBuilderNumeric builder) {
+  public Computation<SInt> buildComputation(ProtocolBuilderNumeric builder) {
     NumericBuilder numeric = builder.numeric();
     Computation<SInt> random = numeric.randomElement();
     Computation<SInt> sProduct = numeric.mult(x, random);

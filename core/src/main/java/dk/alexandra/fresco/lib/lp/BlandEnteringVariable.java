@@ -62,7 +62,8 @@ public class BlandEnteringVariable
   }
 
   @Override
-  public Computation<Pair<List<Computation<SInt>>, SInt>> build(ProtocolBuilderNumeric builder) {
+  public Computation<Pair<List<Computation<SInt>>, SInt>> buildComputation(
+      ProtocolBuilderNumeric builder) {
     Computation<SInt> negativeOne = builder.numeric().known(BigInteger.valueOf(-1));
     Computation<SInt> one = builder.numeric().known(BigInteger.ONE);
     return builder.par(par -> {
@@ -83,14 +84,14 @@ public class BlandEnteringVariable
         );
       }
       return () -> updatedF;
-    }).seq((updatedF, seq) ->
+    }).seq((seq, updatedF) ->
         seq.par(par -> {
           ArrayList<Computation<SInt>> signs = new ArrayList<>(updatedF.size());
           for (Computation<SInt> f : updatedF) {
             signs.add(par.comparison().compareLEQ(f, negativeOne));
           }
           return () -> signs;
-        }).seq((signs, seq2) -> {
+        }).seq((seq2, signs) -> {
           //Prefix sum
           ArrayList<Computation<SInt>> updatedSigns = new ArrayList<>();
           updatedSigns.add(signs.get(0));
@@ -101,7 +102,7 @@ public class BlandEnteringVariable
             updatedSigns.add(previous);
           }
           return () -> updatedSigns;
-        }).par((signs, par) -> {
+        }).par((par, signs) -> {
           //Pairwise sums
           ArrayList<Computation<SInt>> pairwiseSums = new ArrayList<>();
           pairwiseSums.add(signs.get(0));
@@ -109,7 +110,7 @@ public class BlandEnteringVariable
             pairwiseSums.add(par.numeric().add(signs.get(i - 1), signs.get(i)));
           }
           return () -> pairwiseSums;
-        }).par((pairwiseSums, par) -> {
+        }).par((par, pairwiseSums) -> {
           ArrayList<Computation<SInt>> enteringIndex = new ArrayList<>();
           int bitlength = (int) Math.log(pairwiseSums.size()) * 2 + 1;
           ComparisonBuilder comparison = par.comparison();
@@ -117,7 +118,7 @@ public class BlandEnteringVariable
             enteringIndex.add(comparison.equals(bitlength, pairwiseSums.get(i), one));
           }
           return () -> enteringIndex;
-        })).seq((enteringIndex, seq) -> {
+        })).seq((seq, enteringIndex) -> {
       Computation<SInt> terminationSum = seq.seq(new SumSIntList(enteringIndex));
       Computation<SInt> termination = seq.numeric().sub(one, terminationSum);
       return () -> new Pair<>(enteringIndex, termination.out());

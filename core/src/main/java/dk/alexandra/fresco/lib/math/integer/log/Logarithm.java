@@ -57,7 +57,7 @@ public class Logarithm implements ComputationBuilder<SInt, ProtocolBuilderNumeri
 
 
   @Override
-  public Computation<SInt> build(ProtocolBuilderNumeric builder) {
+  public Computation<SInt> buildComputation(ProtocolBuilderNumeric builder) {
     /*
      * ln(2) = 45426 >> 16;
 		 */

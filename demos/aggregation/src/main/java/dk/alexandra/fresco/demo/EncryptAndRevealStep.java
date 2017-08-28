@@ -29,7 +29,7 @@ public class EncryptAndRevealStep implements
   public Computation<List<RowWithCipher>> prepareApplication(ProtocolBuilderNumeric builder) {
     return builder.par(par ->
         builder.numeric().randomElement()
-    ).par((mimcKey, par) -> {
+    ).par((par, mimcKey) -> {
       List<Pair<List<SInt>, Computation<BigInteger>>> ciphers = new ArrayList<>(inputRows.size());
       // Encrypt desired column and open resulting cipher text
       for (final List<SInt> row : inputRows) {
@@ -41,7 +41,7 @@ public class EncryptAndRevealStep implements
         ciphers.add(new Pair<>(row, par.seq(function)));
       }
       return () -> ciphers;
-    }).seq((ciphers, seq) -> {
+    }).seq((seq, ciphers) -> {
       List<RowWithCipher> resultList = ciphers.stream()
           .map(cipherPair -> new RowWithCipher(cipherPair)).collect(Collectors.toList());
       return () -> resultList;

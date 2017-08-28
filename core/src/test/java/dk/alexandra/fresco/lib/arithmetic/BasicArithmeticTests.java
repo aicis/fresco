@@ -423,12 +423,12 @@ public class BasicArithmeticTests {
               List<Computation<SInt>> infs =
                   binfs.stream().map((n) -> numeric.input(n, 1)).collect(Collectors.toList());
 
-              seq.seq(new MinInfFrac(ns, ds, infs)).seq((infOutput, seq2) -> {
+              seq.seq(new MinInfFrac(ns, ds, infs)).seq((seq2, infOutput) -> {
                 NumericBuilder innerNumeric = seq2.numeric();
                 List<Computation<BigInteger>> collect =
                     infOutput.cs.stream().map(innerNumeric::open).collect(Collectors.toList());
                 return () -> collect;
-              }).seq((outputList, ignored) -> {
+              }).seq((ignored, outputList) -> {
                 outputs = outputList;
                 return () -> null;
               });

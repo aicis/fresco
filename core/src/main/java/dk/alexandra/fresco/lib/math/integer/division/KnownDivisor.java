@@ -45,7 +45,7 @@ public class KnownDivisor implements ComputationBuilder<SInt, ProtocolBuilderNum
   }
 
   @Override
-  public Computation<SInt> build(ProtocolBuilderNumeric builder) {
+  public Computation<SInt> buildComputation(ProtocolBuilderNumeric builder) {
     BasicNumericFactory basicNumericFactory = builder.getBasicNumericFactory();
     BigInteger modulus = basicNumericFactory.getModulus();
     BigInteger modulusHalf = modulus.divide(BigInteger.valueOf(2));

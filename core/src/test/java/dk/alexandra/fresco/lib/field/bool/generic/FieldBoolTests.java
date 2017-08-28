@@ -72,7 +72,7 @@ public class FieldBoolTests {
                 Computation<SBool> inp211 = builder.binary().known(true);
                 results.add(builder.binary().open(prov.xnor(inp111, inp211)));
                 return () -> results;
-              }).seq((results, seq) -> () -> results.stream().map(Computation::out)
+              }).seq((seq, results) -> () -> results.stream().map(Computation::out)
                   .collect(Collectors.toList()));
 
           List<Boolean> res = secureComputationEngine.runApplication(app,
@@ -117,7 +117,7 @@ public class FieldBoolTests {
                 results.add(builder.binary().open(prov.xnor(inp111, true)));
 
                 return () -> results;
-              }).seq((results, seq) -> () -> results.stream().map(Computation::out)
+              }).seq((seq, results) -> () -> results.stream().map(Computation::out)
                   .collect(Collectors.toList()));
 
           List<Boolean> res = secureComputationEngine.runApplication(app,
@@ -165,7 +165,7 @@ public class FieldBoolTests {
                 Computation<SBool> inp211 = builder.binary().known(true);
                 results.add(builder.binary().open(prov.or(inp111, inp211)));
                 return () -> results;
-              }).seq((results, seq) -> () -> results.stream().map(Computation::out)
+              }).seq((seq, results) -> () -> results.stream().map(Computation::out)
                   .collect(Collectors.toList()));
 
           List<Boolean> res = secureComputationEngine.runApplication(app,
@@ -210,7 +210,7 @@ public class FieldBoolTests {
                 results.add(builder.binary().open(prov.or(inp111, true)));
 
                 return () -> results;
-              }).seq((results, seq) -> () -> results.stream().map(Computation::out)
+              }).seq((seq, results) -> () -> results.stream().map(Computation::out)
                   .collect(Collectors.toList()));
 
           List<Boolean> res = secureComputationEngine.runApplication(app,
@@ -260,7 +260,7 @@ public class FieldBoolTests {
                 results.add(builder.binary().open(prov.nand(inp111, inp211)));
 
                 return () -> results;
-              }).seq((results, seq) -> () -> results.stream().map(Computation::out)
+              }).seq((seq, results) -> () -> results.stream().map(Computation::out)
                   .collect(Collectors.toList()));
 
           List<Boolean> res = secureComputationEngine.runApplication(app,
@@ -306,7 +306,7 @@ public class FieldBoolTests {
                 results.add(builder.binary().open(prov.nand(inp111, true)));
 
                 return () -> results;
-              }).seq((results, seq) -> () -> results.stream().map(Computation::out)
+              }).seq((seq, results) -> () -> results.stream().map(Computation::out)
                   .collect(Collectors.toList()));
 
           List<Boolean> res = secureComputationEngine.runApplication(app,
@@ -353,7 +353,7 @@ public class FieldBoolTests {
                 results.add(builder.binary().open(prov.and(inp111, true)));
 
                 return () -> results;
-              }).seq((results, seq) -> () -> results.stream().map(Computation::out)
+              }).seq((seq, results) -> () -> results.stream().map(Computation::out)
                   .collect(Collectors.toList()));
 
           List<Boolean> res = secureComputationEngine.runApplication(app,

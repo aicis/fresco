@@ -47,7 +47,7 @@ public class ConditionalSelect implements ComputationBuilder<SBool, ProtocolBuil
   }
 
   @Override
-  public Computation<SBool> build(ProtocolBuilderBinary builder) {
+  public Computation<SBool> buildComputation(ProtocolBuilderBinary builder) {
     BinaryBuilder binary = builder.binary();
 
     Computation<SBool> x = binary.xor(a, b);

@@ -34,14 +34,14 @@ public class FracEq implements ComputationBuilder<SInt, ProtocolBuilderNumeric> 
   }
 
   @Override
-  public Computation<SInt> build(ProtocolBuilderNumeric builder) {
+  public Computation<SInt> buildComputation(ProtocolBuilderNumeric builder) {
     return builder.par(par -> {
       NumericBuilder numeric = par.numeric();
       return Pair.lazy(
           numeric.mult(d0, n1),
           numeric.mult(d1, n0)
       );
-    }).seq((pair, seq) ->
+    }).seq((seq, pair) ->
         seq.comparison().equals(pair.getFirst(), pair.getSecond())
     );
   }

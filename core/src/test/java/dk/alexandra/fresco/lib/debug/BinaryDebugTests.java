@@ -62,7 +62,7 @@ public class BinaryDebugTests {
                     List<Computation<SBool>> toPrint =
                         seq.binary().known(new boolean[]{true, false, false, true});
                     return () -> toPrint;
-                  }).seq((inputs, seq) -> {
+                  }).seq((seq, inputs) -> {
                     seq.utility().openAndPrint("test", inputs, stream);
                     return null;
                   });

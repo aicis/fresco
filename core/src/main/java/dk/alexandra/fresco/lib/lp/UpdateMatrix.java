@@ -58,7 +58,7 @@ public class UpdateMatrix implements
 
 
   @Override
-  public Computation<Matrix<Computation<SInt>>> build(ProtocolBuilderNumeric builder) {
+  public Computation<Matrix<Computation<SInt>>> buildComputation(ProtocolBuilderNumeric builder) {
     int height = oldUpdateMatrix.getHeight();
     int width = oldUpdateMatrix.getWidth();
     Computation<SInt> one = builder.numeric().known(BigInteger.ONE);
@@ -103,7 +103,7 @@ public class UpdateMatrix implements
             });
           });
       return () -> new Pair<>(lampdas, scaledCAndPP.out());
-    }).par((input, gpAddAndSub) -> {
+    }).par((gpAddAndSub, input) -> {
       Matrix<Computation<SInt>> lambdas_i_jOuts = input.getFirst();
       List<Computation<SInt>> scaledC = input.getSecond().getFirst();
       Computation<SInt> pp = input.getSecond().getSecond();
@@ -129,7 +129,7 @@ public class UpdateMatrix implements
       return () -> new Pair<>(
           new Pair<>(scaledC, pp), new Pair<>(subOuts, lambdas_i));
     })).par(
-        (input, gpMults) -> {
+        (gpMults, input) -> {
           List<Computation<SInt>> scaledC = input.getFirst().getFirst();
           Computation<SInt> pp = input.getFirst().getSecond();
           Matrix<Computation<SInt>> subOuts = input.getSecond().getFirst();
@@ -158,7 +158,7 @@ public class UpdateMatrix implements
 
           return Pair.lazy(mults_cAndLambda_iOuts, mults_sub_and_ppOuts);
         }
-    ).par((pair, adds) -> {
+    ).par((adds, pair) -> {
       Matrix<Computation<SInt>> mults_cAndLambda_iOuts = pair.getFirst();
       Matrix<Computation<SInt>> mults_sub_and_ppOuts = pair.getSecond();
       NumericBuilder numeric = adds.numeric();

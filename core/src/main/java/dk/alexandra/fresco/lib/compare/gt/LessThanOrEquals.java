@@ -55,7 +55,7 @@ public class LessThanOrEquals implements ComputationBuilder<SInt, ProtocolBuilde
 
 
   @Override
-  public Computation<SInt> build(ProtocolBuilderNumeric builder) {
+  public Computation<SInt> buildComputation(ProtocolBuilderNumeric builder) {
     final BigInteger modulus = builder.getBasicNumericFactory().getModulus();
 
     final int bitLengthBottom = bitLength / 2;
@@ -69,7 +69,7 @@ public class LessThanOrEquals implements ComputationBuilder<SInt, ProtocolBuilde
 
     return builder.seq((seq) -> seq.advancedNumeric().additiveMask(bitLength)
     ).par(
-        (mask, seq) -> {
+        (seq, mask) -> {
           List<Computation<SInt>> bits = mask.bits;
           List<Computation<SInt>> rBottomBits = bits.subList(0, bitLengthBottom);
           List<BigInteger> twoPowsBottom =
@@ -80,7 +80,7 @@ public class LessThanOrEquals implements ComputationBuilder<SInt, ProtocolBuilde
                   seq.advancedNumeric().openDot(twoPowsBottom, rBottomBits)
               );
         },
-        (mask, seq) -> {
+        (seq, mask) -> {
           List<Computation<SInt>> rTopBits = mask.bits
               .subList(bitLengthBottom, bitLengthBottom + bitLengthTop);
           List<BigInteger> twoPowsTop =
@@ -89,7 +89,7 @@ public class LessThanOrEquals implements ComputationBuilder<SInt, ProtocolBuilde
 
           return innerProduct.openDot(twoPowsTop, rTopBits);
         }
-    ).seq((pair, seq) -> {
+    ).seq((seq, pair) -> {
       Computation<SInt> rTop = pair::getSecond;
       Computation<SInt> rBottom = pair.getFirst().getSecond();
       SInt r = pair.getFirst().getFirst();
@@ -112,7 +112,7 @@ public class LessThanOrEquals implements ComputationBuilder<SInt, ProtocolBuilde
       Computation<BigInteger> mO = seq.numeric().open(mS);
 
       return () -> new Object[]{mO, rBottom, rTop, rBar, z};
-    }).seq((Object[] input, ProtocolBuilderNumeric seq) -> {
+    }).seq((ProtocolBuilderNumeric seq, Object[] input) -> {
       BigInteger mO = ((Computation<BigInteger>) input[0]).out();
       Computation<SInt> rBottom = (Computation<SInt>) input[1];
       Computation<SInt> rTop = (Computation<SInt>) input[2];
@@ -133,7 +133,7 @@ public class LessThanOrEquals implements ComputationBuilder<SInt, ProtocolBuilde
       Computation<SInt> eqResult =
           seq.comparison().compareZero(dif, bitLengthTop);
       return () -> new Object[]{eqResult, rBottom, rTop, mBot, mTop, mBar, rBar, z};
-    }).seq((Object[] input, ProtocolBuilderNumeric seq) -> {
+    }).seq((ProtocolBuilderNumeric seq, Object[] input) -> {
       Computation<SInt> eqResult = (Computation<SInt>) input[0];
       Computation<SInt> rBottom = (Computation<SInt>) input[1];
       Computation<SInt> rTop = (Computation<SInt>) input[2];
@@ -175,7 +175,7 @@ public class LessThanOrEquals implements ComputationBuilder<SInt, ProtocolBuilde
             ));
       }
       return () -> new Object[]{subComparisonResult, mBar, rBar, z};
-    }).seq((Object[] input, ProtocolBuilderNumeric seq) -> {
+    }).seq((ProtocolBuilderNumeric seq, Object[] input) -> {
       Computation<SInt> subComparisonResult = (Computation<SInt>) input[0];
       BigInteger mBar = (BigInteger) input[1];
       Computation<SInt> rBar = (Computation<SInt>) input[2];

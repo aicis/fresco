@@ -81,7 +81,7 @@ public class EliminateDuplicatesTests {
                       new FindDuplicatesHelper().findDuplicates(par, list1, list2);
                       return () -> list1;
                     }
-                ).par((list, par) -> {
+                ).par((par, list) -> {
                   NumericBuilder numeric = par.numeric();
                   List<Computation<BigInteger>> openDuplicates = Arrays.asList(
                       numeric.open(list.getDuplicate(0)),

@@ -49,12 +49,12 @@ public class BuildStepTests extends AbstractDummyArithmeticTest {
               return new IterationState(0, new ArrayList<>());
             }).whileLoop(
                 // iterate
-                (state) -> state.round < numIterations, 
-                (state, seq) -> {
+                (state) -> state.round < numIterations,
+                (seq, state) -> {
                   List<Integer> roundsSoFar = state.rounds;
                   roundsSoFar.add(state.round);
                   return new IterationState(state.round + 1, roundsSoFar);
-                }).seq((state, seq) -> {
+                }).seq((seq, state) -> {
                   return () -> state.rounds;
                 });
           };

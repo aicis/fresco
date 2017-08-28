@@ -47,8 +47,6 @@ public class BinaryGreaterThanProtocolImpl implements
    * 
    * @param inA input string A
    * @param inB input string B
-   * @param outC a bit to hold the output C := A > B.
-   * @param factory a protocol provider
    */
   public BinaryGreaterThanProtocolImpl(List<Computation<SBool>> inA, List<Computation<SBool>> inB) {
     if (inA.size() == inB.size()) {
@@ -61,7 +59,7 @@ public class BinaryGreaterThanProtocolImpl implements
   }
 
   @Override
-  public Computation<SBool> build(ProtocolBuilderBinary builder) {
+  public Computation<SBool> buildComputation(ProtocolBuilderBinary builder) {
     return builder.seq(seq -> {
       int round = 0;
       Computation<SBool> xor = seq.binary().xor(inA.get(length - 1), inB.get(length - 1));

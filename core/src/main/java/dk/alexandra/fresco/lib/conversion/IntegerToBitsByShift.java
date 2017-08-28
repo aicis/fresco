@@ -19,7 +19,7 @@ public class IntegerToBitsByShift implements
   }
 
   @Override
-  public Computation<List<SInt>> build(ProtocolBuilderNumeric builder) {
+  public Computation<List<SInt>> buildComputation(ProtocolBuilderNumeric builder) {
     Computation<RightShiftResult> rightShiftResult = builder.advancedNumeric()
         .rightShiftWithRemainder(input, maxInputLength);
     return () -> rightShiftResult.out().getRemainder();

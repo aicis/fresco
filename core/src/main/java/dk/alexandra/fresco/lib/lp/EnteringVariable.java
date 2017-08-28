@@ -66,7 +66,8 @@ public class EnteringVariable
 
 
   @Override
-  public Computation<Pair<List<Computation<SInt>>, SInt>> build(ProtocolBuilderNumeric builder) {
+  public Computation<Pair<List<Computation<SInt>>, SInt>> buildComputation(
+      ProtocolBuilderNumeric builder) {
     return builder.par(par -> {
       int updateVectorDimension = updateMatrix.getHeight();
       int numOfFs = tableau.getF().size();
@@ -85,8 +86,8 @@ public class EnteringVariable
         );
       }
       return () -> updatedF;
-    }).seq((updatedF, seq) ->
-        new Minimum(updatedF).build(seq)
+    }).seq((seq, updatedF) ->
+        new Minimum(updatedF).buildComputation(seq)
     );
   }
 }

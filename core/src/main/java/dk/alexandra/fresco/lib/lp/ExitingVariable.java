@@ -83,7 +83,7 @@ public class ExitingVariable implements
 
 
   @Override
-  public Computation<ExitingVariableOutput> build(ProtocolBuilderNumeric builder) {
+  public Computation<ExitingVariableOutput> buildComputation(ProtocolBuilderNumeric builder) {
     int tableauHeight = tableau.getC().getHeight() + 1;
     Computation<SInt> zero = builder.numeric().known(BigInteger.ZERO);
     Computation<SInt> one = builder.numeric().known(BigInteger.ONE);
@@ -102,7 +102,7 @@ public class ExitingVariable implements
           advanced.dot(enteringIndex, tableauRow)
       );
       return () -> enteringColumn;
-    }).par((enteringColumn, par) -> {
+    }).par((par, enteringColumn) -> {
       // Apply update matrix to entering column
       ArrayList<Computation<SInt>> updatedEnteringColumn = new ArrayList<>(tableauHeight);
       AdvancedNumericBuilder advanced = par.advancedNumeric();
@@ -122,7 +122,7 @@ public class ExitingVariable implements
         );
       }
       return Pair.lazy(updatedEnteringColumn, updatedB);
-    }).par((pair, par) -> {
+    }).par((par, pair) -> {
       ArrayList<Computation<SInt>> updatedEnteringColumn = pair.getFirst();
       ArrayList<Computation<SInt>> updatedB = pair.getSecond();
       ArrayList<Computation<SInt>> nonApps = new ArrayList<>(updatedB.size());
@@ -134,14 +134,14 @@ public class ExitingVariable implements
         );
       }
       return Pair.lazy(updatedEnteringColumn, new Pair<>(updatedB, nonApps));
-    }).seq((pair, seq) -> {
+    }).seq((seq, pair) -> {
       ArrayList<Computation<SInt>> updatedEnteringColumn = pair.getFirst();
       ArrayList<Computation<SInt>> updatedB = pair.getSecond().getFirst();
       ArrayList<Computation<SInt>> nonApps = pair.getSecond().getSecond();
       List<Computation<SInt>> shortColumn = updatedEnteringColumn.subList(0, updatedB.size());
       return seq.seq(
           new MinInfFrac(updatedB, shortColumn, nonApps)
-      ).par((minInfOutput, par) -> {
+      ).par((par, minInfOutput) -> {
         List<Computation<SInt>> ties = new ArrayList<>(updatedB.size());
         // Find index of each entry with the minimal ratio found in previous round
         for (int i = 0; i < updatedB.size(); i++) {
@@ -151,7 +151,7 @@ public class ExitingVariable implements
           );
         }
         return () -> ties;
-      }).seq((ties, seq2) -> {
+      }).seq((seq2, ties) -> {
         // Construct vector of basis variable indices that are both applicable and
         // which associated row is tie for minimal B to entering column ratio
         // all other entries are set to a value larger than any variable index
@@ -163,7 +163,7 @@ public class ExitingVariable implements
               .map(tie -> numeric.sub(one, tie))
               .collect(Collectors.toList());
           return () -> negTies;
-        }).par((negTies, par2) -> {
+        }).par((par2, negTies) -> {
           NumericBuilder numeric = par2.numeric();
           List<Computation<SInt>> multNonApps = nonApps.stream()
               .map(nonApp -> numeric.mult(upperBound, nonApp))
@@ -176,7 +176,7 @@ public class ExitingVariable implements
               .map(i -> numeric.mult(basis.get(i), ties.get(i)))
               .collect(Collectors.toList());
           return () -> new Pair<>(multNonApps, new Pair<>(multNegTies, multTies));
-        }).par((pairs, par2) -> {
+        }).par((par2, pairs) -> {
           List<Computation<SInt>> multNonApps = pairs.getFirst();
           List<Computation<SInt>> multNegTies = pairs.getSecond().getFirst();
           List<Computation<SInt>> multTies = pairs.getSecond().getSecond();
@@ -192,14 +192,14 @@ public class ExitingVariable implements
                   }
               ).collect(Collectors.toList());
           return () -> updatedTies;
-        }).seq((finalTies, seq3) -> {
+        }).seq((seq3, finalTies) -> {
           // Break ties for exiting index by taking the minimal variable index
           Computation<Pair<List<Computation<SInt>>, SInt>> minOut = new Minimum(finalTies)
-              .build(seq3);
+              .buildComputation(seq3);
           return () -> new Pair<>(minOut.out().getFirst(), updatedEnteringColumn);
         });
       });
-    }).par((pair, par) -> {
+    }).par((par, pair) -> {
       List<Computation<SInt>> exitingIndex = pair.getFirst();
       ArrayList<Computation<SInt>> updatedEnteringColumn = pair.getSecond();
       // Compute column for the new update matrix
@@ -219,20 +219,20 @@ public class ExitingVariable implements
       updateColumn.add(par.numeric().sub(zero, updatedEnteringColumn.get(tableauHeight - 1)));
       return Pair.lazy(exitingIndex, new Pair<>(updatedEnteringColumn, updateColumn));
     }).par(
-        (pair, seq) -> {
+        (seq, pair) -> {
           List<Computation<SInt>> updatedEnteringColumn = pair.getSecond().getFirst();
           Computation<SInt> sum = new SumSIntList(
-              updatedEnteringColumn.subList(0, tableauHeight - 1)).build(seq);
+              updatedEnteringColumn.subList(0, tableauHeight - 1)).buildComputation(seq);
           //Propagate exiting variable forward
           return Pair.lazy(pair.getFirst(), sum);
         },
-        (pair, seq) -> {
+        (seq, pair) -> {
           ArrayList<Computation<SInt>> updateColumn = pair.getSecond().getSecond();
           Computation<SInt> sum = new SumSIntList(updateColumn.subList(0, tableauHeight - 1))
-              .build(seq);
+              .buildComputation(seq);
           return Pair.lazy(updateColumn, sum);
         }
-    ).seq((pair, seq) -> {
+    ).seq((seq, pair) -> {
       // Determine pivot
       Computation<SInt> sumEnteringColumn = pair.getFirst().getSecond();
       Computation<SInt> sumUpdateColumn = pair.getSecond().getSecond();

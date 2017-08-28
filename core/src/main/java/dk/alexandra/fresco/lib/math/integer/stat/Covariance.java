@@ -61,24 +61,24 @@ public class Covariance implements ComputationBuilder<SInt, ProtocolBuilderNumer
   }
 
   @Override
-  public Computation<SInt> build(ProtocolBuilderNumeric builder) {
+  public Computation<SInt> buildComputation(ProtocolBuilderNumeric builder) {
     return builder.seq((seq) -> () -> null
     ).par(
-        (ignored, seq) -> {
+        (seq, ignored) -> {
           if (mean1 == null) {
             return seq.seq(new Mean(data1));
           } else {
             return mean1;
           }
         },
-        (ignored, seq) -> {
+        (seq, ignored) -> {
           if (mean2 == null) {
             return seq.seq(new Mean(data2));
           } else {
             return mean2;
           }
         }
-    ).par((means, par) -> {
+    ).par((par, means) -> {
       SInt mean1 = means.getFirst();
       SInt mean2 = means.getSecond();
       //Implemented using two iterators instead of indexed loop to avoid enforcing RandomAccess lists
@@ -97,7 +97,7 @@ public class Covariance implements ComputationBuilder<SInt, ProtocolBuilderNumer
         terms.add(term);
       }
       return () -> terms;
-    }).seq((terms, seq) -> seq.seq(new Mean(terms, data1.size() - 1))
+    }).seq((seq, terms) -> seq.seq(new Mean(terms, data1.size() - 1))
     );
   }
 

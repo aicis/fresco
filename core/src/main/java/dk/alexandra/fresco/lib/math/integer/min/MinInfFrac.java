@@ -87,7 +87,7 @@ public class MinInfFrac implements ComputationBuilder<MinInfOutput, ProtocolBuil
   }
 
   @Override
-  public Computation<MinInfOutput> build(ProtocolBuilderNumeric builder) {
+  public Computation<MinInfOutput> buildComputation(ProtocolBuilderNumeric builder) {
     Computation<SInt> one = builder.numeric().known(BigInteger.ONE);
     if (fs.size() == 1) { // The trivial case
       return () -> {
@@ -104,7 +104,7 @@ public class MinInfFrac implements ComputationBuilder<MinInfOutput, ProtocolBuil
     return builder.seq(seq -> () -> new IterationState(fs, 0))
         .whileLoop(
             state -> (state.fs.size() > 1),
-            (state, seq) -> {
+            (seq, state) -> {
               //TODO Clean up method
               int layer = state.layer;
               final List<Frac> fs = state.fs;
@@ -126,11 +126,11 @@ public class MinInfFrac implements ComputationBuilder<MinInfOutput, ProtocolBuil
                       par.seq((innerSeq) -> innerSeq.seq(seq1 ->
                               () -> null
                           ).par(
-                          (ignored, seq11) -> seq11
+                          (seq11, ignored) -> seq11
                               .numeric().mult(fs.get(finalI * 2).n, fs.get(finalI * 2 + 1).d),
-                          (ignored, seq12) -> seq12
+                          (seq12, ignored) -> seq12
                               .numeric().mult(fs.get(finalI * 2 + 1).n, fs.get(finalI * 2).d)
-                          ).seq((pair, seq13) -> {
+                          ).seq((seq13, pair) -> {
                             SInt p1 = pair.getFirst();
                             SInt p2 = pair.getSecond();
                             NumericBuilder numeric = seq13.numeric();
@@ -214,7 +214,7 @@ public class MinInfFrac implements ComputationBuilder<MinInfOutput, ProtocolBuil
               return () -> new IterationState(
                   tmpFs.stream().map(Computation::out).collect(Collectors.toList()),
                   layer + 1);
-            }).seq((iterationState, sequentialProtocolBuilder) -> {
+            }).seq((sequentialProtocolBuilder, iterationState) -> {
           Frac frac = iterationState.fs.get(0);
           return () -> new MinInfOutput(frac.n, frac.d, frac.inf, cs);
         });

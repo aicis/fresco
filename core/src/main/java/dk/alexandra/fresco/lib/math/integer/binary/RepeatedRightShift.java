@@ -63,7 +63,7 @@ public class RepeatedRightShift implements
   }
 
   @Override
-  public Computation<RightShiftResult> build(ProtocolBuilderNumeric sequential) {
+  public Computation<RightShiftResult> buildComputation(ProtocolBuilderNumeric sequential) {
     if (calculateRemainders) {
       doIterationWithRemainder(sequential, input, shifts, new ArrayList<>(shifts));
     } else {

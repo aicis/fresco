@@ -6,13 +6,12 @@ import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.lib.helper.LazyProtocolProducerDecorator;
 import dk.alexandra.fresco.lib.helper.SequentialProtocolProducer;
-import java.util.function.BiFunction;
 
 class BuildStepSingle<BuilderT extends ProtocolBuilderImpl<BuilderT>, OutputT, InputT>
     implements BuildStep.NextStepBuilder<BuilderT, OutputT, InputT> {
 
   private boolean parallel;
-  private BiFunction<InputT, BuilderT, Computation<OutputT>> function;
+  private FrescoLambda<InputT, BuilderT, OutputT> function;
 
   BuildStepSingle(FrescoLambda<InputT, BuilderT, OutputT> function, boolean parallel) {
     super();
@@ -26,7 +25,7 @@ class BuildStepSingle<BuilderT extends ProtocolBuilderImpl<BuilderT>, OutputT, I
       BuildStep<BuilderT, ?, OutputT> next) {
 
     BuilderT builder = createBuilder(factory);
-    Computation<OutputT> output = function.apply(input, builder);
+    Computation<OutputT> output = function.buildComputation(builder, input);
     if (next != null) {
       SequentialProtocolProducer protocolProducer = new SequentialProtocolProducer(
           builder.build(),

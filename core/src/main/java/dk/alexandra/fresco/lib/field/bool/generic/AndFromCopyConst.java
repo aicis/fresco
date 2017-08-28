@@ -51,7 +51,7 @@ public class AndFromCopyConst implements
   }
 
   @Override
-  public Computation<SBool> build(ProtocolBuilderBinary builder) {
+  public Computation<SBool> buildComputation(ProtocolBuilderBinary builder) {
 
     if(inB) {
       return builder.binary().copy(inA);

@@ -103,7 +103,7 @@ public class LPSolver implements ComputationBuilder<LPOutput, ProtocolBuilderNum
 
 
   @Override
-  public Computation<LPOutput> build(ProtocolBuilderNumeric builder) {
+  public Computation<LPOutput> buildComputation(ProtocolBuilderNumeric builder) {
     Computation<SInt> zero = builder.numeric().known(BigInteger.ZERO);
     return builder.seq(seq -> {
       this.iterations = 0;
@@ -115,7 +115,7 @@ public class LPSolver implements ComputationBuilder<LPOutput, ProtocolBuilderNum
       LPState initialState = new LPState(BigInteger.ZERO, tableau, updateMatrix, null, pivot,
           enumeratedVariables, initialBasis, pivot);
       return () -> initialState;
-    }).whileLoop(state -> !state.terminated(), (state, seq) -> {
+    }).whileLoop(state -> !state.terminated(), (seq, state) -> {
       iterations++;
       if (debugLog) {
         debugInfo(seq, state);
@@ -127,13 +127,13 @@ public class LPSolver implements ComputationBuilder<LPOutput, ProtocolBuilderNum
         } else {
           return phaseOneProtocol(inner, state, zero);
         }
-      }).seq((phaseOneOutput, inner) -> {
+      }).seq((inner, phaseOneOutput) -> {
         if (!phaseOneOutput.terminated()) {
           phaseTwoProtocol(inner, phaseOneOutput);
         }
         return phaseOneOutput;
       });
-    }).seq((whileState, seq) -> () -> new LPOutput(whileState.tableau, whileState.updateMatrix,
+    }).seq((seq, whileState) -> () -> new LPOutput(whileState.tableau, whileState.updateMatrix,
         whileState.basis, whileState.pivot));
   }
 
@@ -153,7 +153,7 @@ public class LPSolver implements ComputationBuilder<LPOutput, ProtocolBuilderNum
   private Computation<LPState> phaseTwoProtocol(ProtocolBuilderNumeric builder, LPState state) {
     return builder.seq((seq) -> seq.seq(
         new ExitingVariable(state.tableau, state.updateMatrix, state.enteringIndex, state.basis))
-    ).par((exitingVariable, seq) -> {
+    ).par((seq, exitingVariable) -> {
       state.pivot = exitingVariable.pivot;
       ArrayList<Computation<SInt>> exitingIndex = exitingVariable.exitingIndex;
       // Update Basis
@@ -167,9 +167,9 @@ public class LPSolver implements ComputationBuilder<LPOutput, ProtocolBuilderNum
         }
         return () -> nextBasis;
       });
-    }, (exitingVariable, seq) -> seq.seq(
+    }, (seq, exitingVariable) -> seq.seq(
         new UpdateMatrix(state.updateMatrix, exitingVariable.exitingIndex,
-            exitingVariable.updateColumn, state.pivot, state.prevPivot))).seq((pair, seq) -> {
+            exitingVariable.updateColumn, state.pivot, state.prevPivot))).seq((seq, pair) -> {
       List<Computation<SInt>> basis = pair.getFirst();
       state.updateMatrix = pair.getSecond();
       state.basis = basis;
@@ -196,7 +196,7 @@ public class LPSolver implements ComputationBuilder<LPOutput, ProtocolBuilderNum
             // Compute potential entering variable index and corresponding value of
             // entry in F
             new EnteringVariable(state.tableau, state.updateMatrix))
-        .seq((enteringAndMinimum, seq) -> {
+        .seq((seq, enteringAndMinimum) -> {
           List<Computation<SInt>> entering = enteringAndMinimum.getFirst();
           SInt minimum = enteringAndMinimum.getSecond();
           // Check if the entry in F is non-negative
@@ -223,7 +223,7 @@ public class LPSolver implements ComputationBuilder<LPOutput, ProtocolBuilderNum
         // Compute potential entering variable index and corresponding value of
         // entry in F
         new BlandEnteringVariable(state.tableau, state.updateMatrix)
-    ).seq((enteringAndMinimum, seq) -> {
+    ).seq((seq, enteringAndMinimum) -> {
       List<Computation<SInt>> entering = enteringAndMinimum.getFirst();
       SInt termination = enteringAndMinimum.getSecond();
       state.terminationOut = seq.numeric().open(() -> termination);

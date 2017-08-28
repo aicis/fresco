@@ -113,7 +113,7 @@ class LPSolverTests {
                       Computation<SInt> optimalValue = seq.seq((inner) -> {
                             LPOutput out = lpOutput.out();
                         return new OptimalValue(out.updateMatrix, out.tableau, out.pivot)
-                                .build(inner);
+                            .buildComputation(inner);
                           }
                       );
                       Computation<BigInteger> open = seq.numeric().open(optimalValue);

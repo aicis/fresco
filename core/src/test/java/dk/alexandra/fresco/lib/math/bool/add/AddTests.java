@@ -76,7 +76,7 @@ public class AddTests {
                 data.add(prov.oneBitHalfAdder(inp1, inp0));
                 data.add(prov.oneBitHalfAdder(inp1, inp1));
                 return () -> data;
-              }).seq((dat, seq) -> {
+              }).seq((seq, dat) -> {
                 System.out.println("got: " + dat.get(0));
                 List<Computation<Boolean>> out = new ArrayList<Computation<Boolean>>();
                 for (Computation<Pair<SBool, SBool>> o : dat) {
@@ -143,7 +143,7 @@ public class AddTests {
                 data.add(prov.oneBitFullAdder(inp1, inp1, inp0));
                 data.add(prov.oneBitFullAdder(inp1, inp1, inp1));
                 return () -> data;
-              }).seq((dat, seq) -> {
+              }).seq((seq, dat) -> {
                 List<Computation<Boolean>> out = new ArrayList<Computation<Boolean>>();
                 for (Computation<Pair<SBool, SBool>> o : dat) {
                   out.add(seq.binary().open(o.out().getFirst()));
@@ -219,7 +219,7 @@ public class AddTests {
                 Computation<List<Computation<SBool>>> adder = prov.fullAdder(first, second, carry);
 
                 return () -> adder.out();
-              }).seq((dat, seq) -> {
+              }).seq((seq, dat) -> {
                 List<Computation<Boolean>> out = new ArrayList<Computation<Boolean>>();
                 for (Computation<SBool> o : dat) {
                   out.add(seq.binary().open(o));
@@ -274,7 +274,7 @@ public class AddTests {
                 Computation<List<Computation<SBool>>> adder = prov.bitIncrement(large, increment);
 
                 return () -> adder.out();
-              }).seq((dat, seq) -> {
+              }).seq((seq, dat) -> {
                 List<Computation<Boolean>> out = new ArrayList<Computation<Boolean>>();
                 for (Computation<SBool> o : dat) {
                   out.add(seq.binary().open(o));

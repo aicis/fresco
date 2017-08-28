@@ -45,16 +45,16 @@ public class OneBitFullAdderProtocolImpl implements
   }
 
   @Override
-  public Computation<Pair<SBool, SBool>> build(ProtocolBuilderBinary builder) {
+  public Computation<Pair<SBool, SBool>> buildComputation(ProtocolBuilderBinary builder) {
     return builder.par(par -> {
       xor1 = par.binary().xor(a, b);
       and1 = par.binary().and(a, b);
       return () -> (par);
-    }).par((pair, par) -> {
+    }).par((par, pair) -> {
       xor2 = par.binary().xor(xor1, c); 
       and2 = par.binary().and(xor1, c); 
       return () -> (par);
-    }).par((pair, par) -> {
+    }).par((par, pair) -> {
       xor3 = par.binary().xor(and2, and1);
       return () -> new Pair<SBool, SBool>(xor2.out(), xor3.out());
     });

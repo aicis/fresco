@@ -64,7 +64,7 @@ public class CompareAndSwap implements ComputationBuilder<List<SBool>, ProtocolB
 	}*/
 
   @Override
-	public Computation<List<SBool>> build(ProtocolBuilderNumeric builder) {
+	public Computation<List<SBool>> buildComputation(ProtocolBuilderNumeric builder) {
 		// TODO Auto-generated method stub
     return null;
   }

@@ -55,7 +55,7 @@ public class BinaryEqualityProtocolImpl implements
   }
 
   @Override
-  public Computation<SBool> build(ProtocolBuilderBinary builder) {
+  public Computation<SBool> buildComputation(ProtocolBuilderBinary builder) {
     return builder.par(par -> {
       BinaryBuilder bb = par.binary();
       List<Computation<SBool>> xors = new ArrayList<>();
@@ -63,13 +63,13 @@ public class BinaryEqualityProtocolImpl implements
         xors.add(bb.xor(inLeft.get(i), inRight.get(i)));
       }
       return () -> xors;
-    }).par((xors, par) -> {
+    }).par((par, xors) -> {
       List<Computation<SBool>> xnors = new ArrayList<>();
       for (int i = 0; i < length; i++) {
         xnors.add(par.binary().not(xors.get(i)));
       }
       return () -> xnors;
-    }).seq((xnors, seq) -> {
+    }).seq((seq, xnors) -> {
       // xnors are now a bitstring where a 0 represents that something differed between the inputs
       // Can now do an AND row to determine if the entire bitstring is 1's (inputs are equal) or
       // not.

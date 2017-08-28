@@ -52,7 +52,7 @@ public class SquareRoot implements ComputationBuilder<SInt, ProtocolBuilderNumer
 
 
   @Override
-  public Computation<SInt> build(ProtocolBuilderNumeric builder) {
+  public Computation<SInt> buildComputation(ProtocolBuilderNumeric builder) {
     /*
      * Convergence is quadratic (the number of correct digits rougly doubles on each iteration) so
      * assuming we have at least one digit correct after first iteration, we need at about
@@ -73,7 +73,7 @@ public class SquareRoot implements ComputationBuilder<SInt, ProtocolBuilderNumer
        * We iterate y[n+1] = (y[n] + x / y[n]) / 2.
        */
     }).whileLoop((iterationState) -> iterationState.iteration < iterations,
-        (iterationState, seq) -> {
+        (seq, iterationState) -> {
           Computation<SInt> value = iterationState.value;
           AdvancedNumericBuilder advancedNumeric = seq.advancedNumeric();
 
@@ -81,7 +81,7 @@ public class SquareRoot implements ComputationBuilder<SInt, ProtocolBuilderNumer
           Computation<SInt> sum = seq.numeric().add(value, quotient);
           Computation<SInt> updatedValue = seq.advancedNumeric().rightShift(sum);
           return new IterationState(iterationState.iteration + 1, updatedValue);
-        }).seq((iterationState, seq) -> iterationState.value);
+        }).seq((seq, iterationState) -> iterationState.value);
   }
 
   /**

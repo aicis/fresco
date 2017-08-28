@@ -23,24 +23,24 @@ public class ZeroTestBruteforce implements ComputationBuilder<SInt, ProtocolBuil
   }
 
   @Override
-  public Computation<SInt> build(ProtocolBuilderNumeric builder) {
+  public Computation<SInt> buildComputation(ProtocolBuilderNumeric builder) {
     BigInteger one = BigInteger.ONE;
     return builder.seq((seq) ->
         seq.numeric().getExponentiationPipe()
-    ).seq((expPipe, seq) -> {
+    ).seq((seq, expPipe) -> {
       //Add one, mult and unmask
       NumericBuilder numeric = seq.numeric();
       Computation<SInt> increased = numeric.add(one, input);
       Computation<SInt> maskedS = numeric.mult(increased, () -> expPipe[0]);
       Computation<BigInteger> open = seq.numeric().open(maskedS);
       return () -> new Pair<>(expPipe, open.out());
-    }).seq((pair, seq) -> {
+    }).seq((seq, pair) -> {
       // compute powers and evaluate polynomial
       SInt[] R = pair.getFirst();
       BigInteger maskedO = pair.getSecond();
       BigInteger[] maskedPowers = seq.getBigIntegerHelper().getExpFromOInt(maskedO, maxLength);
       return () -> new Pair<>(R, maskedPowers);
-    }).par((pair, par) -> {
+    }).par((par, pair) -> {
       SInt[] R = pair.getFirst();
       BigInteger[] maskedPowers = pair.getSecond();
       List<Computation<SInt>> powers = new ArrayList<>(maxLength);
@@ -50,7 +50,7 @@ public class ZeroTestBruteforce implements ComputationBuilder<SInt, ProtocolBuil
         powers.add(numeric.mult(maskedPowers[i], () -> rpartPair));
       }
       return () -> powers;
-    }).seq((powers, seq) -> {
+    }).seq((seq, powers) -> {
       BigInteger[] polynomialCoefficients = seq.getBigIntegerHelper()
           .getPoly(maxLength);
       BigInteger[] mostSignificantPolynomialCoefficients = new BigInteger[maxLength];

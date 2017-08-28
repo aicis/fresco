@@ -60,7 +60,7 @@ public class SecretSharedDivisor
   }
 
   @Override
-  public Computation<SInt> build(ProtocolBuilderNumeric builder) {
+  public Computation<SInt> buildComputation(ProtocolBuilderNumeric builder) {
 
     BasicNumericFactory basicNumericFactory = builder.getBasicNumericFactory();
 
@@ -77,19 +77,19 @@ public class SecretSharedDivisor
     BigInteger two = BigInteger.valueOf(2).shiftLeft(maximumBitLength);
 
     return builder.seq(seq -> Pair.lazy(numerator, denominator)
-    ).par((pair, seq) -> {
+    ).par((seq, pair) -> {
       // Determine sign of numerator and ensure positive
       Computation<SInt> numerator = pair.getFirst();
       Computation<SInt> sign = seq.comparison().sign(numerator);
 
       return Pair.lazy(sign, seq.numeric().mult(sign, numerator));
-    }, (pair, seq) -> {
+    }, (seq, pair) -> {
       // Determine sign of denominator and ensure positive
       Computation<SInt> denominator = pair.getSecond();
       Computation<SInt> sign = seq.comparison().sign(denominator);
 
       return Pair.lazy(sign, seq.numeric().mult(sign, denominator));
-    }).seq((pair, seq) -> {
+    }).seq((seq, pair) -> {
       Computation<SInt> denominator = pair.getSecond().getSecond();
       // Determine the actual number of bits in the denominator.
       Computation<SInt> denominatorBitLength = getBitLength(seq, denominator, maximumBitLength);
@@ -101,19 +101,19 @@ public class SecretSharedDivisor
       // Left shift numerator and denominator for greater precision.
       // We're allowed to do this because shifting numerator and denominator by the same amount
       // doesn't change the outcome of the division.
-    }).par((pair, seq) -> {
+    }).par((seq, pair) -> {
           Computation<SInt> numeratorSign = pair.getSecond().getFirst().getFirst();
           Computation<SInt> numerator = pair.getSecond().getFirst().getSecond();
           Computation<SInt> shiftNumerator = seq.numeric().mult(pair.getFirst(), numerator);
           return Pair.lazy(numeratorSign, shiftNumerator);
         },
-        (pair, seq) -> {
+        (seq, pair) -> {
           Computation<SInt> denomintator = pair.getSecond().getSecond().getSecond();
           Computation<SInt> denomintatorSign = pair.getSecond().getSecond().getFirst();
           Computation<SInt> shiftedDenominator = seq.numeric().mult(pair.getFirst(), denomintator);
           return Pair.lazy(denomintatorSign, shiftedDenominator);
         }
-    ).seq((pair, seq) -> {
+    ).seq((seq, pair) -> {
       Computation<Pair<SInt, SInt>> iterationPair = Pair
           .lazy(pair.getFirst().getSecond().out(), pair.getSecond().getSecond().out());
       // Goldschmidt iteration
@@ -125,12 +125,12 @@ public class SecretSharedDivisor
           Computation<SInt> d = iteration::getSecond;
           Computation<SInt> f = innerSeq.numeric().sub(two, d);
           return Pair.lazy(f, iteration);
-        }).par((innerPair, innerSeq) -> {
+        }).par((innerSeq, innerPair) -> {
           NumericBuilder innerNumeric = innerSeq.numeric();
           Computation<SInt> n = () -> innerPair.getSecond().getFirst();
           Computation<SInt> f = innerPair.getFirst();
           return shiftRight(innerSeq, innerNumeric.mult(f, n), maximumBitLength);
-        }, (innerPair, innerSeq) -> {
+        }, (innerSeq, innerPair) -> {
           NumericBuilder innerNumeric = innerSeq.numeric();
           Computation<SInt> d = () -> innerPair.getSecond().getSecond();
           Computation<SInt> f = innerPair.getFirst();
@@ -141,7 +141,7 @@ public class SecretSharedDivisor
       return () -> new Pair<>(
           iterationResult.out().getFirst(),
           new Pair<>(pair.getFirst().getFirst(), pair.getSecond().getFirst()));
-    }).seq((pair, seq) -> {
+    }).seq((seq, pair) -> {
       Computation<SInt> n = pair::getFirst;
       Pair<Computation<SInt>, Computation<SInt>> signs = pair.getSecond();
       NumericBuilder numeric = seq.numeric();

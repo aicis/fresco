@@ -48,7 +48,7 @@ public class BinaryMarkerProtocolImpl implements
   }
 
   @Override
-  public Computation<Void> build(ProtocolBuilderBinary builder) {
+  public Computation<Void> buildComputation(ProtocolBuilderBinary builder) {
     return builder.seq(seq -> {
       output.println(message);
       return () -> null;

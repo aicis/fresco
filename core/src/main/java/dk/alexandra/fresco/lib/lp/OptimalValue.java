@@ -61,7 +61,7 @@ public class OptimalValue implements ComputationBuilder<SInt, ProtocolBuilderNum
 
 
   @Override
-  public Computation<SInt> build(ProtocolBuilderNumeric builder) {
+  public Computation<SInt> buildComputation(ProtocolBuilderNumeric builder) {
     ArrayList<Computation<SInt>> row = updateMatrix.getRow(updateMatrix.getHeight() - 1);
     ArrayList<Computation<SInt>> column = new ArrayList<>(row.size());
     column.addAll(tableau.getB());

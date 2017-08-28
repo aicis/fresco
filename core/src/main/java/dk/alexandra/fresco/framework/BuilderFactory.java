@@ -11,9 +11,9 @@ public interface BuilderFactory<BuilderT extends ProtocolBuilder> {
   /**
    * Legacy method for getting the multiple inheritance factroy that is used as an outset when
    * building protocols
-   *
-   * @return the factroy.
+   * @deprecated The new interface presents this method via the builders. Users of this method should migrate
    */
+  @Deprecated
   ProtocolFactory getProtocolFactory();
 
   /**

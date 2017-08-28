@@ -52,12 +52,12 @@ public class Mean implements ComputationBuilder<SInt, ProtocolBuilderNumeric> {
   }
 
   @Override
-  public Computation<SInt> build(ProtocolBuilderNumeric builder) {
+  public Computation<SInt> buildComputation(ProtocolBuilderNumeric builder) {
     return builder.seq((seq) ->
         () -> this.data
-    ).seq((list, seq) ->
-        new SumSIntList(list).build(seq)
-    ).seq((sum, seq) -> {
+    ).seq((seq, list) ->
+        new SumSIntList(list).buildComputation(seq)
+    ).seq((seq, sum) -> {
       BigInteger n = BigInteger.valueOf(this.degreesOfFreedom);
       return seq.advancedNumeric().div(() -> sum, n);
     });

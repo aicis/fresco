@@ -55,7 +55,7 @@ public class BitIncrementerProtocolImpl implements
 
   
   @Override
-  public Computation<List<Computation<SBool>>> build(ProtocolBuilderBinary builder) {
+  public Computation<List<Computation<SBool>>> buildComputation(ProtocolBuilderBinary builder) {
 
     List<Computation<SBool>> result = new ArrayList<Computation<SBool>>(); 
     
@@ -65,14 +65,14 @@ public class BitIncrementerProtocolImpl implements
       return is;
     }).whileLoop(
         (state) -> state.round >= 1,
-        (state, seq) -> {
+        (seq, state) -> {
           int idx = state.round -1;
           
           result.add(0, state.value.out().getFirst());
           IterationState is = new IterationState(idx, seq.advancedBinary().oneBitHalfAdder(base.get(idx), state.value.out().getSecond()));
           return is;
         }
-    ).seq((state, seq) -> {
+    ).seq((seq, state) -> {
       result.add(0, state.value.out().getFirst());
       result.add(0, state.value.out().getSecond());
       return () -> result;

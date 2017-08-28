@@ -63,13 +63,13 @@ public final class BuildStep<
     BuildStep<BuilderT, Pair<FirstOutputT, SecondOutputT>, OutputT>
         localChild = new BuildStep<>(
         new BuildStepSingle<>(
-            (OutputT output1, BuilderT builder) -> {
+            (BuilderT builder, OutputT output1) -> {
               Computation<FirstOutputT> firstOutput =
                   builder.seq(
-                      seq -> firstFunction.apply(output1, seq));
+                      seq -> firstFunction.buildComputation(seq, output1));
               Computation<SecondOutputT> secondOutput =
                   builder.seq(
-                      seq -> secondFunction.apply(output1, seq));
+                      seq -> secondFunction.buildComputation(seq, output1));
               return () -> new Pair<>(firstOutput.out(), secondOutput.out());
             }, true)
     );

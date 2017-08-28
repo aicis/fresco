@@ -95,13 +95,13 @@ public class SearchingTests {
                     .createApplicationRoot((BuilderFactoryNumeric) factoryProducer,
                         (root) ->
                             root.seq((seq) -> seq.numeric().known(BigInteger.valueOf(NOTFOUND)))
-                                .seq((notFound, seq) -> {
+                                .seq((seq, notFound) -> {
                                   LinearLookUp function =
                                       new LinearLookUp(sKeys.get(counter), sKeys, sValues,
                                           notFound);
                                   return seq.seq(function);
                                 })
-                                .seq((out, seq) -> {
+                                .seq((seq, out) -> {
                                   this.outputs.add(seq.numeric().open(() -> out));
                                   return () -> out;
                                 }));

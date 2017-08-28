@@ -43,7 +43,7 @@ public class ConditionalSelect implements ComputationBuilder<SInt, ProtocolBuild
   }
 
   @Override
-  public Computation<SInt> build(ProtocolBuilderNumeric builder) {
+  public Computation<SInt> buildComputation(ProtocolBuilderNumeric builder) {
     NumericBuilder numeric = builder.numeric();
     Computation<SInt> sub = numeric.sub(a, b);
     Computation<SInt> mult = numeric.mult(selector, sub);

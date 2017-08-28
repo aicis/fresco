@@ -76,7 +76,7 @@ public class LogTests {
 
                         return log::out;
                       }
-                  ).seq((dat, seq) -> {
+                  ).seq((seq, dat) -> {
                         List<Computation<Boolean>> out = new ArrayList<Computation<Boolean>>();
                         for (Computation<SBool> o : dat) {
                           out.add(seq.binary().open(o));

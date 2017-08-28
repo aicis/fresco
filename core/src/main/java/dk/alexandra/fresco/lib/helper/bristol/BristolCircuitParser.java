@@ -226,11 +226,11 @@ public class BristolCircuitParser implements
   /**
    * Fills res with next protocols, starting from pos. Returns next empty pos of array.
    */
-  public Computation<List<SBool>> build(ProtocolBuilderBinary builder) {
+  public Computation<List<SBool>> buildComputation(ProtocolBuilderBinary builder) {
 
     return builder.seq(seq -> {
       return new IterationState(this.linesIter);
-    }).whileLoop((state) -> state.it.hasNext(), (state, seq) -> {
+    }).whileLoop((state) -> state.it.hasNext(), (seq, state) -> {
       String line = state.it.next();
       if (line.equals("")) {
         // empty line
@@ -242,7 +242,7 @@ public class BristolCircuitParser implements
         throw new MPCException("Could not parse the line '" + line + "'", e);
       }
       return state;
-    }).seq((state, seq) -> {
+    }).seq((seq, state) -> {
       List<SBool> output = new ArrayList<>();
       for (int i = 0; i < this.no_output; i++) {
         output.add(this.wires.get(this.no_wires - this.no_output + i).out());

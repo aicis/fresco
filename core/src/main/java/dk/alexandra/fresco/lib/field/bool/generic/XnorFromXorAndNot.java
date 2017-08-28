@@ -51,7 +51,7 @@ public class XnorFromXorAndNot implements
   }
 
   @Override
-  public Computation<SBool> build(ProtocolBuilderBinary builder) {
+  public Computation<SBool> buildComputation(ProtocolBuilderBinary builder) {
     Computation<SBool> tmp = builder.binary().xor(inA, inB);
     
     return builder.binary().not(tmp);

@@ -31,7 +31,7 @@ public class KnownDivisorRemainder implements ComputationBuilder<SInt, ProtocolB
   }
 
   @Override
-  public Computation<SInt> build(ProtocolBuilderNumeric builder) {
+  public Computation<SInt> buildComputation(ProtocolBuilderNumeric builder) {
     AdvancedNumericBuilder advancedNumericBuilder = builder.advancedNumeric();
     Computation<SInt> divisionResult = advancedNumericBuilder.div(dividend, divisor);
 

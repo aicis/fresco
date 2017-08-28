@@ -70,7 +70,7 @@ public class MiMCEncryption implements ComputationBuilder<SInt, ProtocolBuilderN
 
 
   @Override
-  public Computation<SInt> build(ProtocolBuilderNumeric builder) {
+  public Computation<SInt> buildComputation(ProtocolBuilderNumeric builder) {
     final int requiredRounds = getRequiredRounds(builder.getBasicNumericFactory(), requestedRounds);
     BigInteger three = BigInteger.valueOf(3);
     /*
@@ -82,7 +82,7 @@ public class MiMCEncryption implements ComputationBuilder<SInt, ProtocolBuilderN
       return new IterationState(1, seq.advancedNumeric().exp(add, three));
     }).whileLoop(
         (state) -> state.round < requiredRounds,
-        (state, seq) -> {
+        (seq, state) -> {
           /*
            * We're in an intermediate round where we compute
            * c_{i} = (c_{i - 1} + K + r_{i})^{3}
@@ -102,7 +102,7 @@ public class MiMCEncryption implements ComputationBuilder<SInt, ProtocolBuilderN
           Computation<SInt> updatedValue = seq.advancedNumeric().exp(masked, three);
           return new IterationState(state.round + 1, updatedValue);
         }
-    ).seq((state, seq) ->
+    ).seq((seq, state) ->
         /*
          * We're in the last round so we just mask the current
          * cipher text with the encryption key

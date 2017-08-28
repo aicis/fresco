@@ -75,7 +75,7 @@ public class MiMCDecryption implements ComputationBuilder<SInt, ProtocolBuilderN
   int i = 0;
 
   @Override
-  public Computation<SInt> build(ProtocolBuilderNumeric builder) {
+  public Computation<SInt> buildComputation(ProtocolBuilderNumeric builder) {
     BasicNumericFactory basicNumericFactory = builder.getBasicNumericFactory();
     int requiredRounds = MiMCEncryption
         .getRequiredRounds(basicNumericFactory, requestedRounds);
@@ -91,7 +91,7 @@ public class MiMCDecryption implements ComputationBuilder<SInt, ProtocolBuilderN
       return new IterationState(1, sub);
     }).whileLoop(
         (state) -> state.round < requiredRounds,
-        (state, seq) -> {
+        (seq, state) -> {
           if (state.round % 10 == 0) {
             logger.info("Decryption " + state.round + " of " + requiredRounds);
           }
@@ -124,7 +124,7 @@ public class MiMCDecryption implements ComputationBuilder<SInt, ProtocolBuilderN
               .sub(numeric.sub(inverted, encryptionKey), roundConstant);
           return new IterationState(state.round + 1, updatedValue);
         }
-    ).seq((state, seq) -> {
+    ).seq((seq, state) -> {
       /*
        * We're in the last round so we just need to compute
 			 * c^{-3} - K

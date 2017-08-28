@@ -76,7 +76,8 @@ public class CovarianceMatrix implements
   }
 
   @Override
-  public Computation<List<List<Computation<SInt>>>> build(ProtocolBuilderNumeric builder) {
+  public Computation<List<List<Computation<SInt>>>> buildComputation(
+      ProtocolBuilderNumeric builder) {
     return builder.par((par) -> {
       /*
        * If (some of) the sample means has not been provided, we calculate
@@ -95,7 +96,7 @@ public class CovarianceMatrix implements
         allMeans.add(currentMean);
       }
       return () -> allMeans;
-    }).par((means, par) -> {
+    }).par((par, means) -> {
       //Iterate using ListIterator instead of indexed loop to avoid RandomAccess in lists
       List<List<Computation<SInt>>> result = new ArrayList<>(data.size());
       ListIterator<List<Computation<SInt>>> dataIterator = data.listIterator();

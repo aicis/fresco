@@ -244,7 +244,7 @@ public class PrivateSetDemo implements Application<List<List<Boolean>>, Protocol
       }
       PSIInputs inputs = new PSIInputs(set1, set2, commonKey);
       return () -> inputs;
-    }).par((inputs, par) -> {
+    }).par((par, inputs) -> {
       List<Computation<List<SBool>>> aesResults = new ArrayList<>();
       for (List<Computation<SBool>> set : inputs.set1) {
         aesResults.add(par.bristol().AES(set, inputs.commonKey));
@@ -253,7 +253,7 @@ public class PrivateSetDemo implements Application<List<List<Boolean>>, Protocol
         aesResults.add(par.bristol().AES(set, inputs.commonKey));
       }
       return () -> aesResults;
-    }).seq((aesResults, seq) -> {
+    }).seq((seq, aesResults) -> {
       List<List<SBool>> res =
           aesResults.stream().map(Computation::out).collect(Collectors.toList());
       List<List<Computation<Boolean>>> output = new ArrayList<>();
@@ -265,7 +265,7 @@ public class PrivateSetDemo implements Application<List<List<Boolean>>, Protocol
         }
       }
       return () -> output;
-    }).seq((output, seq) -> {
+    }).seq((seq, output) -> {
       List<List<Boolean>> outs = output.stream()
           .map(row -> row.stream().map(Computation::out).collect(Collectors.toList()))
           .collect(Collectors.toList());

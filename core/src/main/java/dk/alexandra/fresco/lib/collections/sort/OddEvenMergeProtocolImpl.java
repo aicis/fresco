@@ -56,7 +56,7 @@ public class OddEvenMergeProtocolImpl implements
   }
 
   @Override
-  public Computation<List<Pair<List<Computation<SBool>>, List<Computation<SBool>>>>> build(
+  public Computation<List<Pair<List<Computation<SBool>>, List<Computation<SBool>>>>> buildComputation(
       ProtocolBuilderBinary builder) {
     // TODO Auto-generated method stub
     return null;

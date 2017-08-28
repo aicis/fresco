@@ -27,7 +27,7 @@ public class OutputStep implements
       List<List<Computation<BigInteger>>> computations =
           mapMatrixLists(numeric::open, secretSharedRows);
       return () -> computations;
-    }).seq((computations, seq) ->
+    }).seq((seq, computations) ->
         () -> mapMatrixLists(Computation::out, computations)
     );
   }

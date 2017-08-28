@@ -174,19 +174,19 @@ public class DEASolver implements Application<List<DEAResult>, ProtocolBuilderNu
                 subSeq.seq((solverSec) -> {
                   LPSolver lpSolver = new LPSolver(
                       pivotRule, tableau, update, pivot, initialBasis);
-                  return lpSolver.build(solverSec);
+                  return lpSolver.buildComputation(solverSec);
 
-                }).seq((lpOutput, optSec) ->
+                }).seq((optSec, lpOutput) ->
                     Pair.lazy(
                         lpOutput.basis,
                         new OptimalValue(lpOutput.updateMatrix, lpOutput.tableau, lpOutput.pivot)
-                            .build(optSec)
+                            .buildComputation(optSec)
                     )
                 ))
         );
       }
       return () -> result;
-    }).seq((result, seq) -> {
+    }).seq((seq, result) -> {
       List<DEAResult> convertedResult = result.stream().map(DEAResult::new)
           .collect(Collectors.toList());
       return () -> convertedResult;

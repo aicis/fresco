@@ -48,7 +48,7 @@ public class ArithmeticDebugTests {
                                 BigInteger.ONE}
                         ).map((n) -> numeric.input(n, 1)).collect(Collectors.toList());
                     return () -> toPrint;
-                  }).seq((inputs, seq) -> {
+                  }).seq((seq, inputs) -> {
                     seq.utility().openAndPrint("testNumber", inputs.get(0), stream);
                     seq.utility().openAndPrint("testVector", inputs, stream);
                     ArrayList<Computation<SInt>> r1 = new ArrayList<>();

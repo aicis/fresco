@@ -29,7 +29,7 @@ public class InputStep implements
       Function<BigInteger, Computation<SInt>> known = value -> numeric.input(value, pid);
       List<List<Computation<SInt>>> collect = mapMatrixLists(known, inputRows);
       return () -> collect;
-    }).seq((computations, seq) ->
+    }).seq((seq, computations) ->
         () -> mapMatrixLists(Computation::out, computations)
     );
   }

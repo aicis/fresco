@@ -29,8 +29,8 @@ package dk.alexandra.fresco.lib.math.integer.binary;
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.builder.ComputationBuilder;
 import dk.alexandra.fresco.framework.builder.numeric.NumericBuilder;
-import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
+import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
 
 public class BitLength implements ComputationBuilder<SInt, ProtocolBuilderNumeric> {
@@ -53,14 +53,14 @@ public class BitLength implements ComputationBuilder<SInt, ProtocolBuilderNumeri
   }
 
   @Override
-  public Computation<SInt> build(ProtocolBuilderNumeric builder) {
+  public Computation<SInt> buildComputation(ProtocolBuilderNumeric builder) {
     return builder.seq((seq) -> {
     /*
      * Find the bit representation of the input.
 		 */
       return seq.advancedNumeric()
           .rightShiftWithRemainder(input, maxBitLength);
-    }).seq((rightShiftResult, seq) -> {
+    }).seq((seq, rightShiftResult) -> {
       Computation<SInt> mostSignificantBitIndex = null;
       NumericBuilder numeric = seq.numeric();
       for (int n = 0; n < maxBitLength; n++) {

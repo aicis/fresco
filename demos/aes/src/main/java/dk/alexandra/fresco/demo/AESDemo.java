@@ -186,13 +186,13 @@ public class AESDemo implements Application<List<Boolean>, ProtocolBuilderBinary
       }
       Computation<List<SBool>> res = seq.bristol().AES(plainInputs, keyInputs);
       return res;
-    }).seq((aesRes, seq) -> {
+    }).seq((seq, aesRes) -> {
       List<Computation<Boolean>> outs = new ArrayList<>();
       for (SBool toOpen : aesRes) {
         outs.add(seq.binary().open(toOpen));
       }
       return () -> outs;
-    }).seq((opened, seq) -> {
+    }).seq((seq, opened) -> {
       return () -> opened.stream().map(Computation::out).collect(Collectors.toList());
     });
   }

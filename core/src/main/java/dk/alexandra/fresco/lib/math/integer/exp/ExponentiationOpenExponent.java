@@ -49,13 +49,13 @@ public class ExponentiationOpenExponent implements
   }
 
   @Override
-  public Computation<SInt> build(ProtocolBuilderNumeric builder) {
+  public Computation<SInt> buildComputation(ProtocolBuilderNumeric builder) {
     return builder.seq((seq) -> {
       Computation<SInt> accEven = base;
       return new IterationState(exponent, accEven, null);
     }).whileLoop(
         iterationState -> !iterationState.exponent.equals(BigInteger.ONE),
-        (iterationState, seq) -> {
+        (seq, iterationState) -> {
           BigInteger exponent = iterationState.exponent;
           Computation<SInt> accEven = iterationState.accEven;
           Computation<SInt> accOdd = iterationState.accOdd;
@@ -74,7 +74,7 @@ public class ExponentiationOpenExponent implements
           }
           return new IterationState(exponent, accEven, accOdd);
         }
-    ).seq((iterationState, seq) ->
+    ).seq((seq, iterationState) ->
         seq.numeric().mult(iterationState.accEven, iterationState.accOdd)
     );
   }

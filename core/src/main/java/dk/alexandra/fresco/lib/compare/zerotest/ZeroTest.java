@@ -47,7 +47,7 @@ public class ZeroTest implements ComputationBuilder<SInt, ProtocolBuilderNumeric
   }
 
   @Override
-  public Computation<SInt> build(ProtocolBuilderNumeric builder) {
+  public Computation<SInt> buildComputation(ProtocolBuilderNumeric builder) {
     Computation<SInt> reduced = builder.seq(new ZeroTestReducer(bitLength, input));
     return builder.seq(new ZeroTestBruteforce(bitLength, reduced));
   }

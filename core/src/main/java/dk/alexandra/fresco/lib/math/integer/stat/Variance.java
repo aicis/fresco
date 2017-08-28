@@ -49,7 +49,7 @@ public class Variance implements ComputationBuilder<SInt, ProtocolBuilderNumeric
   }
 
   @Override
-  public Computation<SInt> build(ProtocolBuilderNumeric builder) {
+  public Computation<SInt> buildComputation(ProtocolBuilderNumeric builder) {
     return builder.par((par) -> {
       List<Computation<SInt>> terms = new ArrayList<>(data.size());
       for (Computation<SInt> value : data) {
@@ -61,7 +61,7 @@ public class Variance implements ComputationBuilder<SInt, ProtocolBuilderNumeric
         terms.add(term);
       }
       return () -> terms;
-    }).seq((terms, seq) -> seq.seq(new Mean(terms, data.size() - 1))
+    }).seq((seq, terms) -> seq.seq(new Mean(terms, data.size() - 1))
     );
   }
 

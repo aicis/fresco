@@ -62,37 +62,31 @@ public class MultTests {
         public void test() throws Exception {
 
             Application<List<Boolean>, ProtocolBuilderBinary> app =
-                new Application<List<Boolean>, ProtocolBuilderBinary>() {
+                producer -> {
 
-                  @Override
-                  public Computation<List<Boolean>> prepareApplication(
-                      ProtocolBuilderBinary producer) {
-                    
+                  ProtocolBuilderBinary builder = (ProtocolBuilderBinary) producer;
 
+                  return builder.seq(seq -> {
+                        DefaultBinaryBuilderAdvanced prov = new DefaultBinaryBuilderAdvanced(seq);
+                        List<Computation<SBool>> first = rawFirst.stream().map(seq.binary()::known)
+                            .collect(Collectors.toList());
+                        List<Computation<SBool>> second = rawSecond.stream().map(seq.binary()::known)
+                            .collect(Collectors.toList());
 
-                    ProtocolBuilderBinary builder = (ProtocolBuilderBinary)producer;
-                    
-                    return builder.seq( seq -> {
-                      DefaultBinaryBuilderAdvanced prov = new DefaultBinaryBuilderAdvanced(seq);
-                      List<Computation<SBool>> first = rawFirst.stream().map(seq.binary()::known)
-                          .collect(Collectors.toList());
-                      List<Computation<SBool>> second = rawSecond.stream().map(seq.binary()::known)
-                          .collect(Collectors.toList());
-                      
-                      Computation<List<Computation<SBool>>> multiplication = prov.binaryMult(first, second);
-                      
-                      return () -> multiplication.out();
+                        Computation<List<Computation<SBool>>> multiplication = prov
+                            .binaryMult(first, second);
+
+                        return () -> multiplication.out();
                       }
-                    ).seq( (dat, seq) -> {
-                       List<Computation<Boolean>> out = new ArrayList<Computation<Boolean>>();
-                       for(Computation<SBool> o : dat) {
-                         out.add(seq.binary().open(o));
-                          }
-                          return () -> out.stream().map(Computation::out).collect(Collectors.toList());
-                          }
-                        );
+                  ).seq((seq, dat) -> {
+                        List<Computation<Boolean>> out = new ArrayList<Computation<Boolean>>();
+                        for (Computation<SBool> o : dat) {
+                          out.add(seq.binary().open(o));
+                        }
+                        return () -> out.stream().map(Computation::out).collect(Collectors.toList());
                       }
-              };
+                  );
+                };
           List<Boolean> outputs = secureComputationEngine.runApplication(app,
               ResourcePoolCreator.createResourcePool(conf.sceConf));
  

@@ -74,7 +74,7 @@ public class LogProtocol implements
   
   
   @Override
-  public Computation<List<Computation<SBool>>> build(ProtocolBuilderBinary builder) {
+  public Computation<List<Computation<SBool>>> buildComputation(ProtocolBuilderBinary builder) {
     return builder.seq(seq -> {
       List<Computation<SBool>> ors = new ArrayList<>();
       ors.add(number.get(0));
@@ -82,7 +82,7 @@ public class LogProtocol implements
         ors.add(seq.advancedBinary().or(number.get(i), ors.get(i-1)));
       }
       return () -> ors;
-    }).seq((ors, seq) -> {
+    }).seq((seq, ors) -> {
       List<Computation<SBool>> xors = new ArrayList<>();
       xors.add(seq.binary().xor(ors.get(0), seq.binary().known(false)));
 
@@ -91,7 +91,7 @@ public class LogProtocol implements
       }
       xors.add(seq.binary().known(false));
       return () -> xors;
-    }).seq((xors, seq) -> {
+    }).seq((seq, xors) -> {
       List<Computation<SBool>> res = new ArrayList<>();
       for (int j = 0; j < Util.log2(number.size()) + 1; j++) {
         res.add(seq.binary().known(false));

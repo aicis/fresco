@@ -77,7 +77,7 @@ class BuildStepLooping<BuilderT extends ProtocolBuilderImpl<BuilderT>, InputT>
       } else {
         if (predicate.test(input)) {
           BuilderT builder = factory.createSequential();
-          currentResult = function.apply(input, builder);
+          currentResult = function.buildComputation(builder, input);
           currentProducer = builder.build();
         } else {
           doneWithOwn = true;

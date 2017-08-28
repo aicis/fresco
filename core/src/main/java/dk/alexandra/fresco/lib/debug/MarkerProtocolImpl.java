@@ -48,7 +48,7 @@ public class MarkerProtocolImpl implements ComputationBuilder<Void, ProtocolBuil
   }
 
   @Override
-  public Computation<Void> build(ProtocolBuilderNumeric builder) {
+  public Computation<Void> buildComputation(ProtocolBuilderNumeric builder) {
     return builder.seq(seq -> {
       output.println(message);
       return () -> null;

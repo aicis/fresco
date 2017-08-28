@@ -43,7 +43,7 @@ public class NotFromXor implements
   }
 
   @Override
-  public Computation<SBool> build(ProtocolBuilderBinary builder) {
+  public Computation<SBool> buildComputation(ProtocolBuilderBinary builder) {
 
     return builder.binary().xor(in, true);
   }

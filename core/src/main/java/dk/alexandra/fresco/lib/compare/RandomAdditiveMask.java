@@ -25,7 +25,7 @@ public class RandomAdditiveMask implements
   }
 
   @Override
-  public Computation<AdvancedNumericBuilder.RandomAdditiveMask> build(
+  public Computation<AdvancedNumericBuilder.RandomAdditiveMask> buildComputation(
       ProtocolBuilderNumeric builder) {
     NumericBuilder numericBuilder = builder.numeric();
     List<Computation<SInt>> allBits = new ArrayList<>();
