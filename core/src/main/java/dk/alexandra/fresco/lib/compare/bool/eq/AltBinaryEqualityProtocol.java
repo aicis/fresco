@@ -24,67 +24,94 @@
 package dk.alexandra.fresco.lib.compare.bool.eq;
 
 
-import dk.alexandra.fresco.framework.ProtocolProducer;
+import java.util.ArrayList;
+import java.util.List;
+
+import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.builder.binary.BinaryBuilder;
+import dk.alexandra.fresco.framework.builder.binary.ComputationBuilderBinary;
+import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary.SequentialBinaryBuilder;
 import dk.alexandra.fresco.framework.value.SBool;
-import dk.alexandra.fresco.lib.helper.AbstractRoundBasedProtocol;
-import dk.alexandra.fresco.lib.helper.builder.tree.TreeProtocol;
-import dk.alexandra.fresco.lib.helper.builder.tree.TreeProtocolNodeGenerator;
 
 /**
- * An experimental implementation of the BinaryEqualityProtocol
- * 
- * @author psn
+ * Does a simple compare like this: out = (a1 XNOR b1) AND (a2 XNOR b2) AND (a3 XNOR b3) AND ...
+ *
+ * The XNORs are done in parallel and the ANDs are done by a log-depth tree structured protocol.
  *
  */
-public class AltBinaryEqualityProtocol extends AbstractRoundBasedProtocol
-		implements BinaryEqualityProtocol, TreeProtocolNodeGenerator {
+public class AltBinaryEqualityProtocol implements ComputationBuilderBinary<SBool> {
 	
-	private SBool[] inLeft;
-	private SBool[] inRight;
-	private SBool out;
+
+  private List<Computation<SBool>> inLeft;
+  private List<Computation<SBool>> inRight;
 	private final int length;
-	private SBool[] xnorOuts;
-	
-	private int round = 0;
 
-	public AltBinaryEqualityProtocol(SBool[] inLeft, SBool[] inRight,
-			SBool out){//, AbstractBinaryFactory factory) {
-		
-		this.inLeft = inLeft;
-		this.inRight = inRight;
-		this.out = out;
-		this.length = inLeft.length;
+	public AltBinaryEqualityProtocol(List<Computation<SBool>> inLeft,
+      List<Computation<SBool>> inRight) {
+    this.inLeft = inLeft;
+    this.inRight = inRight;
+    if (inLeft.size() != inRight.size()) {
+      throw new IllegalArgumentException("Binary strings must be of equal length");
+    }
+    this.length = inLeft.size();
 	}
 	
-	@Override
-	public ProtocolProducer nextProtocolProducer() {
-		/*BasicLogicBuilder blb = new BasicLogicBuilder(factory);
-		if (round == 0) {
-			xnorOuts = blb.xor(inLeft, inRight);
-			round++;
-		} else if (round == 1) {
-			blb.notInPlace(xnorOuts, xnorOuts);
-			blb.copy(xnorOuts[0], out);
-			round++;
-		} else if (round == 2) {
-			xnorOuts[0] = out;
-			blb.addProtocolProducer(new TreeProtocol(this));
-			round++;
-		} else {*/
-			return null;
-//		}
-	//	return blb.getProtocol();
-	}
+  @Override
+  public Computation<SBool> build(SequentialBinaryBuilder builder) {
+    return builder.par(par -> {
+      BinaryBuilder bb = par.binary();
+      List<Computation<SBool>> xors = new ArrayList<>();
+      for (int i = 0; i < length; i++) {
+        xors.add(bb.xor(inLeft.get(i), inRight.get(i)));
+      }
+      return () -> xors;
+    }).par((xors, par) -> {
+      List<Computation<SBool>> xnors = new ArrayList<>();
+      for (int i = 0; i < length; i++) {
+        xnors.add(par.binary().not(xors.get(i)));
+      }
+      IterationState is = new IterationState(xnors.size(), () -> xnors);
+      return is;
+    }).whileLoop(
+        (state) -> state.round > 1,
+        (state, seq) -> {
+          List<Computation<SBool>> input = state.value.out();
+          int size = input.size() % 2 + input.size()/2;
+  
+          IterationState is = new IterationState(size, seq.createParallelSub(par -> {
+            List<Computation<SBool>> ands = new ArrayList<>();
+            int idx = 0;
+            while(idx < input.size()-1){
+              ands.add(par.binary().and(input.get(idx), input.get(idx+1)));
+              idx +=2;
+            }
+            if(idx < input.size()){
+              ands.add(input.get(idx));
+            }
+            return () -> ands;
+          }));
+          return is;
+        }
+    ).seq((state, seq) -> {
+        return state.value.out().get(0);
+    }
+    );
+  }
+    
+    private static final class IterationState implements Computation<IterationState> {
 
-	@Override
-	public ProtocolProducer getNode(int i, int j) {
-	//	ProtocolProducer pp = factory.getAndProtocol(xnorOuts[i], xnorOuts[j], xnorOuts[i]);
-	//	return pp;
-	  return null;
-	}
-	
-	@Override
-	public int getLength() {
-		return length;
-	}
+      private int round;
+      private final Computation<List<Computation<SBool>>> value;
+
+      private IterationState(int round,
+          Computation<List<Computation<SBool>>> value) {
+        this.round = round;
+        this.value = value;
+      }
+
+      @Override
+      public IterationState out() {
+        return this;
+      }
+    }
 }

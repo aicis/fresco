@@ -202,6 +202,12 @@ public class TestDummyProtocolSuite<ResourcePoolT extends ResourcePool>
         NetworkingStrategy.KRYONET);
   }
 
+  @Test
+  public void test_equality_alternate_protocol() throws Exception {
+    runTest(new ComparisonBooleanTests.TestEqualityAlternativeProtocol<ResourcePoolT>(), EvaluationStrategy.SEQUENTIAL,
+        NetworkingStrategy.KRYONET);
+  }
+  
   // collections.sort
   @Test
   public void test_Uneven_Odd_Even_Merge_2_parties() throws Exception {
