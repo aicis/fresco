@@ -84,7 +84,6 @@ public class SpdzOutputProtocol extends SpdzNativeProtocol<BigInteger> {
         storage.addOpenedValue(openedVal);
         if (target_player == myId) {
           openedVal = openedVal.add(this.mask.getRealValue()).mod(spdzResourcePool.getModulus());
-          //          tmpOut = Util.convertRepresentation(tmpOut);
           this.out = openedVal;
         }
         return EvaluationStatus.IS_DONE;

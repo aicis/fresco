@@ -26,6 +26,7 @@
  */
 package dk.alexandra.fresco.lib.arithmetic;
 
+import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.BuilderFactory;
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.ProtocolProducer;
@@ -62,21 +63,7 @@ public class MiMCTests {
       TestThreadFactory {
 
     @Override
-    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
-
-      abstract class MyTestApplication extends TestApplication {
-
-        private BigInteger modulus;
-
-        BigInteger getModulus() {
-          return modulus;
-        }
-
-        void setModulus(BigInteger modulus) {
-          this.modulus = modulus;
-        }
-
-      }
+    public TestThread next() {
 
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
 
@@ -84,34 +71,26 @@ public class MiMCTests {
 
         @Override
         public void test() throws Exception {
-          MyTestApplication app = new MyTestApplication() {
-
-            @Override
-            public ProtocolProducer prepareApplication(
-                BuilderFactory factoryProducer) {
-              return ProtocolBuilderNumeric
-                  .createApplicationRoot((BuilderFactoryNumeric) factoryProducer, (builder) -> {
-                    setModulus(builder.getBasicNumeric().getModulus());
-
-                    NumericBuilder intFactory = builder.numeric();
-                    Computation<SInt> encryptionKey = intFactory.known(BigInteger.valueOf(527618));
-                    Computation<SInt> plainText = intFactory.known(BigInteger.valueOf(10));
-                    Computation<SInt> cipherText = builder
-                        .seq(new MiMCEncryption(plainText, encryptionKey));
-                    result = builder.numeric().open(cipherText);
-                  }).build();
-            }
+          final BigInteger[] modulus = new BigInteger[1];
+          Application<BigInteger, ProtocolBuilderNumeric> app = builder -> {
+            NumericBuilder intFactory = builder.numeric();
+            modulus[0] = builder.getBasicNumeric().getModulus();
+            Computation<SInt> encryptionKey = intFactory.known(BigInteger.valueOf(527618));
+            Computation<SInt> plainText = intFactory.known(BigInteger.valueOf(10));
+            Computation<SInt> cipherText = builder
+                .seq(new MiMCEncryption(plainText, encryptionKey));
+            return builder.numeric().open(cipherText);
           };
 
-          secureComputationEngine
+          BigInteger result = secureComputationEngine
               .runApplication(app, ResourcePoolCreator.createResourcePool(conf.sceConf));
 
           BigInteger expectedModulus = new BigInteger(
               "2582249878086908589655919172003011874329705792829223512830659356540647622016841194629645353280137831435903171972747493557");
-          Assert.assertEquals(expectedModulus, app.getModulus());
+          Assert.assertEquals(expectedModulus, modulus[0]);
           BigInteger expectedCipherText = new BigInteger(
               "10388336824440235723309131431891968131690383663436711590309818298349333623568340591094832870178074855376232596303647115");
-          Assert.assertEquals(expectedCipherText, result.out());
+          Assert.assertEquals(expectedCipherText, result);
         }
       };
     }
