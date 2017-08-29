@@ -68,7 +68,7 @@ public class LessThanOrEquals implements ComputationBuilder<SInt, ProtocolBuilde
     final BigInteger one = BigInteger.ONE;
 
     return builder.seq((seq) -> seq.advancedNumeric().additiveMask(bitLength)
-    ).par(
+    ).pairInPar(
         (seq, mask) -> {
           List<Computation<SInt>> bits = mask.bits;
           List<Computation<SInt>> rBottomBits = bits.subList(0, bitLengthBottom);

@@ -5,7 +5,6 @@ import dk.alexandra.fresco.framework.network.NetworkingStrategy;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.lib.arithmetic.BasicArithmeticTests;
 import dk.alexandra.fresco.lib.arithmetic.ComparisonTests;
-import dk.alexandra.fresco.lib.arithmetic.LogicTests;
 import dk.alexandra.fresco.lib.arithmetic.MiMCTests;
 import dk.alexandra.fresco.lib.arithmetic.SearchingTests;
 import dk.alexandra.fresco.lib.arithmetic.SortingTests;
@@ -114,12 +113,6 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
   public void test_Big_Sort() throws Exception {
     runTest(new SortingTests.TestBigSort(), EvaluationStrategy.SEQUENTIAL,
         NetworkingStrategy.KRYONET, 2);
-  }
-
-  @Test
-  public void test_logic() throws Exception {
-    runTest(new LogicTests.TestLogic(), EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET,
-        2);
   }
 
   // Statistics

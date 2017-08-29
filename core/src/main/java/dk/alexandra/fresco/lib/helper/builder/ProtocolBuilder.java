@@ -76,13 +76,6 @@ public interface ProtocolBuilder {
 	void endCurScope();
 
 	/**
-   * Adds a ProtocolProducer to the NativeProtocol being build. This to allow adding Protocols that cannot be created with
-   * this ProtocolBuilder.
-   * @param pp a ProtocolProducer
-	 */
-	void addProtocolProducer(ProtocolProducer pp);
-
-	/**
    * Gets the ProtocolProducer corresponding the entire NativeProtocol build by this ProtocolBuilder.
    * @return a ProtocolProducer corresponding to the NativeProtocol build.
    */

@@ -98,7 +98,7 @@ public class Minimum implements
         List<Computation<SInt>> x1 = xs.subList(0, k1);
         List<Computation<SInt>> x2 = xs.subList(k1, k);
         return Pair.lazy(x1, x2);
-      }).par(
+      }).pairInPar(
           (seq, pair) -> seq.seq(new Minimum(pair.getFirst())),
           (seq, pair) -> seq.seq(new Minimum(pair.getSecond()))
       ).seq((seq, pair) -> {

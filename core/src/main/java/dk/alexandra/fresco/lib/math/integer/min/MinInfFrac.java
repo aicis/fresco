@@ -125,7 +125,7 @@ public class MinInfFrac implements ComputationBuilder<MinInfOutput, ProtocolBuil
                   tmpFs.set(i,
                       par.seq((innerSeq) -> innerSeq.seq(seq1 ->
                               () -> null
-                          ).par(
+                          ).pairInPar(
                           (seq11, ignored) -> seq11
                               .numeric().mult(fs.get(finalI * 2).n, fs.get(finalI * 2 + 1).d),
                           (seq12, ignored) -> seq12

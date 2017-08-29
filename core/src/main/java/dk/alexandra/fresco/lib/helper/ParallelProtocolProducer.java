@@ -47,28 +47,6 @@ public class ParallelProtocolProducer implements ProtocolProducer, ProtocolProdu
     subProducers = new LinkedList<>();
   }
 
-  public ParallelProtocolProducer(ProtocolProducer... subProducers) {
-    this();
-    for (ProtocolProducer producer : subProducers) {
-      append(producer);
-    }
-  }
-
-  public ParallelProtocolProducer(ProtocolProducer protocolProducer, NativeProtocol... protocols) {
-    this();
-    append(protocolProducer);
-    for (NativeProtocol protocol : protocols) {
-      append(protocol);
-    }
-  }
-
-  public ParallelProtocolProducer(NativeProtocol... protocols) {
-    this();
-    for (NativeProtocol protocol : protocols) {
-      append(protocol);
-    }
-  }
-
   public void append(ProtocolProducer protocolProducer) {
     subProducers.offer(protocolProducer);
   }

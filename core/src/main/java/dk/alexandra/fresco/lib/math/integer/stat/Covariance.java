@@ -63,7 +63,7 @@ public class Covariance implements ComputationBuilder<SInt, ProtocolBuilderNumer
   @Override
   public Computation<SInt> buildComputation(ProtocolBuilderNumeric builder) {
     return builder.seq((seq) -> () -> null
-    ).par(
+    ).pairInPar(
         (seq, ignored) -> {
           if (mean1 == null) {
             return seq.seq(new Mean(data1));
