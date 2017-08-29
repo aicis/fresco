@@ -56,13 +56,4 @@ public abstract class TestApplication implements
         .map(Computation::out)
         .collect(Collectors.toList());
   }
-
-
-  public BigInteger[] getOutputs() {
-    return this.outputs
-        .stream()
-        .map(Computation::out)
-        .collect(Collectors.toList())
-        .toArray(new BigInteger[]{});
-  }
 }
