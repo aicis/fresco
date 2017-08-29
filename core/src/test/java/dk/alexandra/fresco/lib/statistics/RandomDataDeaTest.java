@@ -98,9 +98,9 @@ public class RandomDataDeaTest {
 
   @Test
   public void testInputMismatchWithBasis() {
-    inputValues.get(0).add(new DummyArithmeticSInt());
-    inputBasis.get(0).add(new DummyArithmeticSInt());
-    inputBasis.get(0).add(new DummyArithmeticSInt());
+    inputValues.get(0).add(new DummyArithmeticSInt(null));
+    inputBasis.get(0).add(new DummyArithmeticSInt(null));
+    inputBasis.get(0).add(new DummyArithmeticSInt(null));
     
     try{
       new DEASolver(DEASolver.AnalysisType.INPUT_EFFICIENCY, inputValues, outputValues, inputBasis, outputBasis);
@@ -112,9 +112,9 @@ public class RandomDataDeaTest {
 
   @Test
   public void testOutputMismatchWithBasis() {
-    outputValues.get(0).add(new DummyArithmeticSInt());
-    outputBasis.get(0).add(new DummyArithmeticSInt());
-    outputBasis.get(0).add(new DummyArithmeticSInt());
+    outputValues.get(0).add(new DummyArithmeticSInt(null));
+    outputBasis.get(0).add(new DummyArithmeticSInt(null));
+    outputBasis.get(0).add(new DummyArithmeticSInt(null));
     
     try{
       new DEASolver(DEASolver.AnalysisType.INPUT_EFFICIENCY, inputValues, outputValues, inputBasis, outputBasis);
@@ -127,14 +127,14 @@ public class RandomDataDeaTest {
   @Test
   public void testInconsistentInputBasis() {
     outputBasis.add(new ArrayList<>());
-    inputValues.get(0).add(new DummyArithmeticSInt());
-    inputValues.get(0).add(new DummyArithmeticSInt());
+    inputValues.get(0).add(new DummyArithmeticSInt(null));
+    inputValues.get(0).add(new DummyArithmeticSInt(null));
     inputBasis.add(new ArrayList<>());
-    inputBasis.get(0).add(new DummyArithmeticSInt());
-    inputBasis.get(0).add(new DummyArithmeticSInt());
-    inputBasis.get(1).add(new DummyArithmeticSInt());
-    inputBasis.get(1).add(new DummyArithmeticSInt());
-    inputBasis.get(1).add(new DummyArithmeticSInt());
+    inputBasis.get(0).add(new DummyArithmeticSInt(null));
+    inputBasis.get(0).add(new DummyArithmeticSInt(null));
+    inputBasis.get(1).add(new DummyArithmeticSInt(null));
+    inputBasis.get(1).add(new DummyArithmeticSInt(null));
+    inputBasis.get(1).add(new DummyArithmeticSInt(null));
     
     try{
       new DEASolver(DEASolver.AnalysisType.INPUT_EFFICIENCY, inputValues, outputValues, inputBasis, outputBasis);
@@ -168,11 +168,11 @@ public class RandomDataDeaTest {
 
   @Test
   public void testIncosistentOutputValues() {
-    outputBasis.get(0).add(new DummyArithmeticSInt());
-    outputBasis.get(0).add(new DummyArithmeticSInt());
-    outputValues.get(0).add(new DummyArithmeticSInt());
-    outputValues.get(0).add(new DummyArithmeticSInt());
-    outputValues.get(0).add(new DummyArithmeticSInt());
+    outputBasis.get(0).add(new DummyArithmeticSInt(null));
+    outputBasis.get(0).add(new DummyArithmeticSInt(null));
+    outputValues.get(0).add(new DummyArithmeticSInt(null));
+    outputValues.get(0).add(new DummyArithmeticSInt(null));
+    outputValues.get(0).add(new DummyArithmeticSInt(null));
     
     try{
       new DEASolver(DEASolver.AnalysisType.INPUT_EFFICIENCY, inputValues, outputValues, inputBasis, outputBasis);
@@ -192,8 +192,8 @@ public class RandomDataDeaTest {
   //  outputBasis.add(new ArrayList<SInt>()); //changed
     inputValues.add(new ArrayList<>());
     outputValues.add(new ArrayList<>());
-    outputValues.get(0).add(new DummyArithmeticSInt());
-    inputValues.get(0).add(new DummyArithmeticSInt());
+    outputValues.get(0).add(new DummyArithmeticSInt(null));
+    inputValues.get(0).add(new DummyArithmeticSInt(null));
     try{
       new DEASolver(DEASolver.AnalysisType.INPUT_EFFICIENCY, inputValues, outputValues, inputBasis, outputBasis);
       Assert.fail("Empty data should not be accepted");
@@ -212,8 +212,8 @@ public class RandomDataDeaTest {
     outputBasis.add(new ArrayList<>());
     inputValues.add(new ArrayList<>()); //Changed
     outputValues.add(new ArrayList<>()); //changed
-    outputBasis.get(0).add(new DummyArithmeticSInt());
-    inputBasis.get(0).add(new DummyArithmeticSInt());
+    outputBasis.get(0).add(new DummyArithmeticSInt(null));
+    inputBasis.get(0).add(new DummyArithmeticSInt(null));
     try{
       new DEASolver(DEASolver.AnalysisType.INPUT_EFFICIENCY, inputValues, outputValues, inputBasis, outputBasis);
       Assert.fail("Empty data should not be accepted");

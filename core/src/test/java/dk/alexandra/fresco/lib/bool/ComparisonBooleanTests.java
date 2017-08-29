@@ -165,11 +165,7 @@ public class ComparisonBooleanTests {
           Boolean[] comp2 = new Boolean[] {false, true, true};
 
           Application<List<Boolean>, ProtocolBuilderBinary> app =
-              new Application<List<Boolean>, ProtocolBuilderBinary>() {
-
-            @Override
-            public Computation<List<Boolean>> prepareApplication(ProtocolBuilderBinary producer) {
-              return producer.seq(seq -> {
+              producer -> producer.seq(seq -> {
                 List<Computation<SBool>> in1 = BooleanHelper.known(comp1, seq.binary());
                 List<Computation<SBool>> in2 = BooleanHelper.known(comp2, seq.binary());
                 Computation<SBool> res1 = seq.comparison().greaterThan(in1, in2);
@@ -178,8 +174,6 @@ public class ComparisonBooleanTests {
               }).seq((seq, opened) -> {
                 return () -> opened.stream().map(Computation::out).collect(Collectors.toList());
               });
-            }
-          };
 
           secureComputationEngine.runApplication(app,
               ResourcePoolCreator.createResourcePool(conf.sceConf));

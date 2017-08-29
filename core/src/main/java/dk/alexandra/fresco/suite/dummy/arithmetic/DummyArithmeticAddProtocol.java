@@ -42,33 +42,13 @@ public class DummyArithmeticAddProtocol extends DummyArithmeticNativeProtocol<SI
 
   /**
    * Constructs a protocol to sum the result of two computations.
-   * 
+   *
    * @param left the left operand
    * @param right the right operand
    */
   public DummyArithmeticAddProtocol(Computation<SInt> left, Computation<SInt> right) {
-    super();
     this.left = left;
     this.right = right;
-    this.out = null;
-  }
-
-  /**
-   * Constructs a protocol to sum the result of two computations.
-   * 
-   * <p>
-   * Lets the caller specify where to store the output. This is for backward compatibility.
-   * </p>
-   * 
-   * @param left the left operand
-   * @param right the right operand
-   * @param out the {@link SInt} in which to store the output
-   */
-  public DummyArithmeticAddProtocol(Computation<SInt> left, Computation<SInt> right, SInt out) {
-    super();
-    this.left = left;
-    this.right = right;
-    this.out = (DummyArithmeticSInt) out;
   }
 
   @Override
@@ -78,8 +58,7 @@ public class DummyArithmeticAddProtocol extends DummyArithmeticNativeProtocol<SI
     BigInteger l = ((DummyArithmeticSInt) left.out()).getValue();
     BigInteger r = ((DummyArithmeticSInt) right.out()).getValue();
     BigInteger sum = r.add(l).mod(mod);
-    out = (out == null) ? new DummyArithmeticSInt() : out;
-    out.setValue(sum);
+    out = new DummyArithmeticSInt(sum);
     return EvaluationStatus.IS_DONE;
   }
 

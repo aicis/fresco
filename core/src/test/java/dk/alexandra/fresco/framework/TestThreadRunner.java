@@ -38,7 +38,6 @@ import dk.alexandra.fresco.suite.ProtocolSuite;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Random;
 import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,9 +54,6 @@ public class TestThreadRunner {
     private boolean finished = false;
 
     protected TestThreadConfiguration<ResourcePoolT, Builder> conf;
-
-    // Randomness to use in test.
-    Random rand;
 
     Throwable setupException;
 
@@ -134,11 +130,6 @@ public class TestThreadRunner {
 
     public abstract void test() throws Exception;
 
-    void setRandom(long nextLong) {
-      this.rand = new Random(nextLong);
-
-    }
-
   }
 
 
@@ -174,12 +165,10 @@ public class TestThreadRunner {
     final Set<TestThread> threads = new HashSet<TestThread>();
     final int n = confs.size();
 
-    Random r = new Random(randSeed);
     for (int i = 0; i < n; i++) {
       TestThreadConfiguration<?, ?> c = confs.get(i + 1);
       TestThread t = f.next();
       t.setConfiguration(c);
-      t.setRandom(r.nextLong());
       threads.add(t);
     }
 

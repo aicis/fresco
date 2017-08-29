@@ -31,16 +31,6 @@ public class SIntListofTuples {
     return this;
   }
 
-  public SIntListofTuples remove(int index) {
-    theData.remove(index);
-    duplicate_p.remove(index);
-    return this;
-  }
-
-  public List<Computation<SInt>> get(int index) {
-    return theData.get(index);
-  }
-
   public Computation<SInt> getId(int index) {
     return theData.get(index).get(0);
   }
