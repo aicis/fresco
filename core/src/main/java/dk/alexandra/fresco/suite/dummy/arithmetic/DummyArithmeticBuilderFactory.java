@@ -17,10 +17,10 @@ import java.math.BigInteger;
 public class DummyArithmeticBuilderFactory implements BuilderFactoryNumeric {
 
   private static final int EXP_PIPE_LENGTH = 201;
-  private DummyArithmeticFactory factory;
+  private BasicNumericFactory factory;
   private MiscOIntGenerators mog;
 
-  public DummyArithmeticBuilderFactory(DummyArithmeticFactory factory) {
+  public DummyArithmeticBuilderFactory(BasicNumericFactory factory) {
     super();
     this.factory = factory;
   }
