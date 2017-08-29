@@ -77,7 +77,7 @@ public class SearchingTests {
           Pair<ArrayList<Computation<SInt>>, ArrayList<Computation<SInt>>> inputs =
               secureComputationEngine.runApplication(app, resourcePool);
           ArrayList<Computation<SInt>> sKeys = inputs.getFirst();
-          ArrayList<Computation<SInt>> sValues = inputs.getFirst();
+          ArrayList<Computation<SInt>> sValues = inputs.getSecond();
           for (int i = 0; i < PAIRS; i++) {
             final int counter = i;
 
