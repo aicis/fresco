@@ -39,6 +39,12 @@ public class ConditionalSwapNeighbors
   final private List<Computation<SInt>> swappers;
   final private Matrix<Computation<SInt>> rows;
 
+  /**
+   * Swaps rows in matrix according to swappers bits.
+   * 
+   * @param swappers
+   * @param rows
+   */
   public ConditionalSwapNeighbors(List<Computation<SInt>> swappers,
       Matrix<Computation<SInt>> rows) {
     super();

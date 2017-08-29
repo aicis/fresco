@@ -202,7 +202,13 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
 
   @Test
   public void test_permute_rows() throws Exception {
-    runTest(new PermuteRowsTests.TestPermuteRows<>(), EvaluationStrategy.SEQUENTIAL,
+    runTest(PermuteRowsTests.permuteRows(), EvaluationStrategy.SEQUENTIAL,
+        NetworkingStrategy.SCAPI, 2);
+  }
+  
+  @Test
+  public void test_permute_empty_rows() throws Exception {
+    runTest(PermuteRowsTests.permuteEmptyRows(), EvaluationStrategy.SEQUENTIAL,
         NetworkingStrategy.SCAPI, 2);
   }
 
