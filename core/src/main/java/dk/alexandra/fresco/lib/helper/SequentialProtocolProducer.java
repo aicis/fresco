@@ -26,7 +26,6 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.helper;
 
-import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import java.util.Arrays;
@@ -41,22 +40,12 @@ public class SequentialProtocolProducer implements ProtocolProducer, ProtocolPro
     this.protocolProducers.addAll(Arrays.asList(protocolProducers));
   }
 
-  public SequentialProtocolProducer(NativeProtocol... protocols) {
-    for (NativeProtocol protocol : protocols) {
-      append(protocol);
-    }
-  }
-
   public SequentialProtocolProducer() {
 
   }
 
   public void append(ProtocolProducer protocolProducer) {
     this.protocolProducers.add(protocolProducer);
-  }
-
-  public void append(NativeProtocol<?, ?> computation) {
-    this.protocolProducers.add(new SingleProtocolProducer<>(computation));
   }
 
   @Override
