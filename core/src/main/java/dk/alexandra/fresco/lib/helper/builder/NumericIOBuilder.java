@@ -135,44 +135,6 @@ public class NumericIOBuilder extends AbstractProtocolBuilder {
   }
 
   /**
-   * Appends a protocol to input a single BigInteger
-   *
-   * @param i the BigInteger value
-   * @param targetID the party to input
-   * @return the SInt to be loaded with the input
-   */
-  public SInt input(BigInteger i, int targetID) {
-    SInt si = sif.getSInt();
-    append(iof.getCloseProtocol(targetID, i, si));
-    return si;
-  }
-
-  /**
-   * Appends a protocol to input a single BigInteger
-   *
-   * @param i the integer value
-   * @param targetID the party to input
-   * @return the SInt to be loaded with the input
-   */
-  public SInt input(int i, int targetID) {
-    SInt si = sif.getSInt();
-    append(iof.getCloseProtocol(targetID, BigInteger.valueOf(i), si));
-    return si;
-  }
-
-  /**
-   * Appends a protocol to input a single value from an other party. I.e., the value is not given.
-   *
-   * @param targetID the id of the party inputting.
-   * @return SInt to be loaded with the input.
-   */
-  public SInt input(int targetID) {
-    SInt si = sif.getSInt();
-    append(iof.getCloseProtocol(targetID, null, si));
-    return si;
-  }
-
-  /**
    * Appends a protocol to open an array of SInts. Output should be given to all parties.
    *
    * @param sis SInts to open
