@@ -32,7 +32,7 @@ import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SBool;
-import dk.alexandra.fresco.lib.compare.bool.eq.AltBinaryEqualityProtocol;
+import dk.alexandra.fresco.lib.compare.bool.eq.AltBinaryEquality;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -176,10 +176,10 @@ public class ComparisonBooleanTests {
                 List<Computation<SBool>> in1 = seq.binary().known(comp1);
                 List<Computation<SBool>> in2 = seq.binary().known(comp2);
                 Computation<SBool> res1 =
-                    new AltBinaryEqualityProtocol(in1, in2).buildComputation(seq);
+                    new AltBinaryEquality(in1, in2).buildComputation(seq);
 
                 Computation<SBool> res2 =
-                    new AltBinaryEqualityProtocol(in1, in1).buildComputation(seq);
+                    new AltBinaryEquality(in1, in1).buildComputation(seq);
                 Computation<Boolean> open1 = seq.binary().open(res1);
                 Computation<Boolean> open2 = seq.binary().open(res2);
                 return () -> Arrays.asList(open1, open2);
