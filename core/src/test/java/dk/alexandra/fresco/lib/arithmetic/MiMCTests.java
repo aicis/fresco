@@ -27,17 +27,14 @@
 package dk.alexandra.fresco.lib.arithmetic;
 
 import dk.alexandra.fresco.framework.Application;
-import dk.alexandra.fresco.framework.BuilderFactory;
 import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.ProtocolProducer;
-import dk.alexandra.fresco.framework.TestApplication;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
-import dk.alexandra.fresco.framework.builder.numeric.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
+import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.crypto.mimc.MiMCDecryption;
 import dk.alexandra.fresco.lib.crypto.mimc.MiMCEncryption;
@@ -65,8 +62,6 @@ public class MiMCTests {
     public TestThread next() {
 
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
-
-        private Computation<BigInteger> result;
 
         @Override
         public void test() throws Exception {
@@ -101,34 +96,28 @@ public class MiMCTests {
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
-        private Computation<BigInteger> result2;
-        private Computation<BigInteger> result1;
 
         @Override
         public void test() throws Exception {
 
-          TestApplication app = new TestApplication() {
-            @Override
-            public ProtocolProducer prepareApplication(BuilderFactory factoryProducer) {
-              return ProtocolBuilderNumeric
-                  .createApplicationRoot((BuilderFactoryNumeric) factoryProducer, (builder) -> {
-                    NumericBuilder intFactory = builder.numeric();
-                    Computation<SInt> encryptionKey = intFactory.known(BigInteger.valueOf(527618));
-                    Computation<SInt> plainText = intFactory.known(BigInteger.valueOf(10));
-                    Computation<SInt> cipherText = builder
-                        .seq(new MiMCEncryption(plainText, encryptionKey));
-                    Computation<SInt> cipherText2 = builder
-                        .seq(new MiMCEncryption(plainText, encryptionKey));
-                    result1 = builder.numeric().open(cipherText);
-                    result2 = builder.numeric().open(cipherText2);
-                  }).build();
-            }
-          };
+          Application<Pair<BigInteger, BigInteger>, ProtocolBuilderNumeric> app =
+              builder -> {
+                NumericBuilder intFactory = builder.numeric();
+                Computation<SInt> encryptionKey = intFactory.known(BigInteger.valueOf(527618));
+                Computation<SInt> plainText = intFactory.known(BigInteger.valueOf(10));
+                Computation<SInt> cipherText = builder
+                    .seq(new MiMCEncryption(plainText, encryptionKey));
+                Computation<SInt> cipherText2 = builder
+                    .seq(new MiMCEncryption(plainText, encryptionKey));
+                Computation<BigInteger> result1 = builder.numeric().open(cipherText);
+                Computation<BigInteger> result2 = builder.numeric().open(cipherText2);
+                return () -> new Pair<>(result1.out(), result2.out());
+              };
 
-          secureComputationEngine
+          Pair<BigInteger, BigInteger> result = secureComputationEngine
               .runApplication(app, ResourcePoolCreator.createResourcePool(conf.sceConf));
 
-          Assert.assertEquals(result1.out(), result2.out());
+          Assert.assertEquals(result.getFirst(), result.getSecond());
         }
       };
     }
@@ -140,35 +129,29 @@ public class MiMCTests {
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
-        private Computation<BigInteger> resultB;
-        private Computation<BigInteger> resultA;
 
         @Override
         public void test() throws Exception {
 
-          TestApplication app = new TestApplication() {
-            @Override
-            public ProtocolProducer prepareApplication(BuilderFactory factoryProducer) {
-              return ProtocolBuilderNumeric
-                  .createApplicationRoot((BuilderFactoryNumeric) factoryProducer, (builder) -> {
-                    NumericBuilder intFactory = builder.numeric();
-                    Computation<SInt> encryptionKey = intFactory.known(BigInteger.valueOf(527618));
-                    Computation<SInt> plainTextA = intFactory.known(BigInteger.valueOf(10));
-                    Computation<SInt> plainTextB = intFactory.known(BigInteger.valueOf(11));
-                    Computation<SInt> cipherTextA = builder
-                        .seq(new MiMCEncryption(plainTextA, encryptionKey));
-                    Computation<SInt> cipherTextB = builder
-                        .seq(new MiMCEncryption(plainTextB, encryptionKey));
-                    resultA = builder.numeric().open(cipherTextA);
-                    resultB = builder.numeric().open(cipherTextB);
-                  }).build();
-            }
-          };
+          Application<Pair<BigInteger, BigInteger>, ProtocolBuilderNumeric> app =
+              builder -> {
+                NumericBuilder intFactory = builder.numeric();
+                Computation<SInt> encryptionKey = intFactory.known(BigInteger.valueOf(527618));
+                Computation<SInt> plainTextA = intFactory.known(BigInteger.valueOf(10));
+                Computation<SInt> plainTextB = intFactory.known(BigInteger.valueOf(11));
+                Computation<SInt> cipherTextA = builder
+                    .seq(new MiMCEncryption(plainTextA, encryptionKey));
+                Computation<SInt> cipherTextB = builder
+                    .seq(new MiMCEncryption(plainTextB, encryptionKey));
+                Computation<BigInteger> resultA = builder.numeric().open(cipherTextA);
+                Computation<BigInteger> resultB = builder.numeric().open(cipherTextB);
+                return () -> new Pair<>(resultA.out(), resultB.out());
+              };
 
-          secureComputationEngine
+          Pair<BigInteger, BigInteger> result = secureComputationEngine
               .runApplication(app, ResourcePoolCreator.createResourcePool(conf.sceConf));
 
-          Assert.assertNotEquals(resultA.out(), resultB.out());
+          Assert.assertNotEquals(result.getFirst(), result.getSecond());
         }
       };
     }
