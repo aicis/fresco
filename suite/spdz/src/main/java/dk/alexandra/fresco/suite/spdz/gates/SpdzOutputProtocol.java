@@ -68,8 +68,8 @@ public class SpdzOutputProtocol extends SpdzNativeProtocol<BigInteger> {
     switch (round) {
       case 0:
         this.mask = storage.getSupplier().getNextInputMask(target_player);
-        SpdzSInt out = (SpdzSInt) this.in.out();
-        SpdzElement inMinusMask = out.value.subtract(this.mask.getMask());
+        SpdzSInt closedValue = (SpdzSInt) this.in.out();
+        SpdzElement inMinusMask = closedValue.value.subtract(this.mask.getMask());
         storage.addClosedValue(inMinusMask);
         network.sendToAll(serializer.toBytes(inMinusMask.getShare()));
         network.expectInputFromAll();
