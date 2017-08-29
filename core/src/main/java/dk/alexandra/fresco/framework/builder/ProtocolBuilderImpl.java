@@ -71,14 +71,6 @@ public abstract class ProtocolBuilderImpl<BuilderT extends ProtocolBuilderImpl<B
     return producer;
   }
 
-  // This will go away and should not be used - users should recode their applications to
-  // use closures
-  @Deprecated
-  public <T extends ProtocolProducer> T append(T protocolProducer) {
-    createAndAppend(protocolProducer);
-    return protocolProducer;
-  }
-
   /**
    * Building the actual protocol producer. Implementors decide which producer to create.
    *
