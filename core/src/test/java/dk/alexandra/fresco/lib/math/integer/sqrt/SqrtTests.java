@@ -24,13 +24,10 @@
 
 package dk.alexandra.fresco.lib.math.integer.sqrt;
 
-import dk.alexandra.fresco.framework.BuilderFactory;
+import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.ProtocolProducer;
-import dk.alexandra.fresco.framework.TestApplication;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
-import dk.alexandra.fresco.framework.builder.numeric.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
@@ -39,6 +36,7 @@ import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.junit.Assert;
 
 public class SqrtTests {
@@ -57,52 +55,44 @@ public class SqrtTests {
             BigInteger.valueOf(12345678), BigInteger.valueOf(123456789)};
         private final int n = x.length;
 
-        List<Computation<BigInteger>> results = new ArrayList<>(n);
-
 
         @Override
         public void test() throws Exception {
-          TestApplication app = new TestApplication() {
+          Application<List<BigInteger>, ProtocolBuilderNumeric> app =
+              builder -> {
+                NumericBuilder numBuilder = builder.numeric();
 
-            @Override
-            public ProtocolProducer prepareApplication(BuilderFactory factoryProducer) {
-              return ProtocolBuilderNumeric
-                  .createApplicationRoot((BuilderFactoryNumeric) factoryProducer, (builder) -> {
-                    NumericBuilder numBuilder = builder.numeric();
+                List<Computation<BigInteger>> results = new ArrayList<>(n);
 
-                    results = new ArrayList<>(n);
+                for (BigInteger input : x) {
+                  Computation<SInt> actualInput = numBuilder.input(input, 1);
+                  Computation<SInt> result =
+                      builder.advancedNumeric().sqrt(actualInput, maxBitLength);
+                  Computation<BigInteger> openResult = builder.numeric().open(result);
+                  results.add(openResult);
+                }
+                return () -> results.stream().map(Computation::out).collect(Collectors.toList());
+              };
 
-                    for (BigInteger input : x) {
-                      Computation<SInt> actualInput = numBuilder.input(input, 1);
-                      Computation<SInt> result =
-                          builder.advancedNumeric().sqrt(actualInput, maxBitLength);
-                      Computation<BigInteger> openResult = builder.numeric().open(result);
-                      results.add(openResult);
-                    }
-                  }).build();
-            }
-          };
-
-          secureComputationEngine.runApplication(app,
+          List<BigInteger> results = secureComputationEngine.runApplication(app,
               ResourcePoolCreator.createResourcePool(conf.sceConf));
 
           Assert.assertEquals(n, results.size());
 
           for (int i = 0; i < results.size(); i++) {
-            Computation<BigInteger> result = results.get(i);
-            BigInteger actual = result.out();
+            BigInteger result = results.get(i);
             BigInteger expected = BigInteger.valueOf((long) Math.sqrt(x[i].intValue()));
 
-            BigInteger difference = expected.subtract(actual).abs();
+            BigInteger difference = expected.subtract(result).abs();
 
             int precision = expected.bitLength() - difference.bitLength();
 
             boolean shouldBeCorrect = precision >= expected.bitLength();
-            boolean isCorrect = expected.equals(actual);
+            boolean isCorrect = expected.equals(result);
 
             Assert.assertFalse(shouldBeCorrect && !isCorrect);
 
-            System.out.println("sqrt(" + x[i] + ") = " + actual + ", expected " + expected + ".");
+            System.out.println("sqrt(" + x[i] + ") = " + result + ", expected " + expected + ".");
             Assert.assertTrue(isCorrect);
           }
         }
