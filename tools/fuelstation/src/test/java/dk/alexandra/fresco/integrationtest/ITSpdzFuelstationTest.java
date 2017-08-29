@@ -37,7 +37,7 @@ import dk.alexandra.fresco.lib.arithmetic.BasicArithmeticTests;
 import dk.alexandra.fresco.lib.arithmetic.MiMCTests;
 import dk.alexandra.fresco.lib.math.integer.division.DivisionTests;
 import dk.alexandra.fresco.lib.statistics.DEASolver;
-import dk.alexandra.fresco.lib.statistics.DEASolverTests;
+import dk.alexandra.fresco.lib.statistics.DEASolverTests.RandomDataDeaTest;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.SpdzProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.configuration.PreprocessingStrategy;
@@ -102,7 +102,7 @@ public class ITSpdzFuelstationTest {
 
   @Test
   public void test_dea() throws Exception {
-    runTest(new DEASolverTests.TestDEASolver(2, 1, 5, 1, DEASolver.AnalysisType.OUTPUT_EFFICIENCY),
+    runTest(new RandomDataDeaTest(2, 1, 5, 1, DEASolver.AnalysisType.OUTPUT_EFFICIENCY),
         EvaluationStrategy.SEQUENTIAL_BATCHED, 2);
   }
 

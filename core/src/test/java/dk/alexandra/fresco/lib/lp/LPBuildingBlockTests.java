@@ -38,8 +38,6 @@ import dk.alexandra.fresco.framework.builder.numeric.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
-import dk.alexandra.fresco.lib.helper.builder.NumericIOBuilder;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
@@ -244,11 +242,6 @@ public class LPBuildingBlockTests {
   private static abstract class ExitingVariableTester extends LPTester {
 
     int exitingIdx;
-
-    ProtocolProducer setupRandom(int n, int m, BasicNumericFactory bnf) {
-      NumericIOBuilder iob = new NumericIOBuilder(bnf);
-      return iob.getProtocol();
-    }
 
     private int exitingIndex(int enteringIndex) {
       //TODO Fix this test case
