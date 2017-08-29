@@ -28,7 +28,6 @@ package dk.alexandra.fresco.framework;
 
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
-import dk.alexandra.fresco.framework.configuration.TestConfiguration;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.SCEFactory;
@@ -37,7 +36,6 @@ import dk.alexandra.fresco.framework.sce.configuration.TestSCEConfiguration;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Random;
@@ -162,24 +160,6 @@ public class TestThreadRunner {
   public abstract static class TestThreadFactory {
 
     public abstract TestThread next();
-  }
-
-  public static void run(TestThreadFactory f, int noOfPlayers) {
-    int randSeed = 42;
-    run(f, noOfPlayers, randSeed);
-  }
-
-  private static void run(TestThreadFactory f, int noOfPlayers, int randSeed) {
-    Map<Integer, NetworkConfiguration> netConfs = TestConfiguration
-        .getNetworkConfigurations(noOfPlayers);
-
-    Map<Integer, TestThreadConfiguration> confs = new HashMap<Integer, TestThreadConfiguration>();
-    for (int i : netConfs.keySet()) {
-      TestThreadConfiguration ttc = new TestThreadConfiguration();
-      ttc.netConf = netConfs.get(i);
-      confs.put(i, ttc);
-    }
-    run(f, confs, randSeed);
   }
 
   public static void run(TestThreadFactory f, Map<Integer, TestThreadConfiguration> confs) {
