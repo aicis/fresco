@@ -47,14 +47,6 @@ public class SequentialProtocolProducer implements ProtocolProducer, ProtocolPro
     }
   }
 
-  public SequentialProtocolProducer(ProtocolProducer firstProtocolProducer,
-      NativeProtocol... protocols) {
-    append(firstProtocolProducer);
-    for (NativeProtocol protocol : protocols) {
-      append(protocol);
-    }
-  }
-
   public SequentialProtocolProducer() {
 
   }

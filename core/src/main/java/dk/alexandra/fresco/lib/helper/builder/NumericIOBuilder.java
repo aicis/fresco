@@ -188,8 +188,4 @@ public class NumericIOBuilder extends AbstractProtocolBuilder {
     return openProtocol;
   }
 
-  @Override
-  public void addProtocolProducer(ProtocolProducer gp) {
-    append(gp);
-  }
 }
