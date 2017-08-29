@@ -30,8 +30,9 @@ import dk.alexandra.fresco.framework.sce.resources.storage.FilebasedStreamedStor
 import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
 import dk.alexandra.fresco.lib.statistics.DEASolver;
 import dk.alexandra.fresco.lib.statistics.DEASolver.AnalysisType;
-import dk.alexandra.fresco.lib.statistics.DEASolverFixedDataTest;
-import dk.alexandra.fresco.lib.statistics.DEASolverTests;
+import dk.alexandra.fresco.lib.statistics.DEASolverTests.RandomDataDeaTest;
+import dk.alexandra.fresco.lib.statistics.DEASolverTests.TestDeaFixed1;
+import dk.alexandra.fresco.lib.statistics.DEASolverTests.TestDeaFixed2;
 import dk.alexandra.fresco.suite.spdz.configuration.PreprocessingStrategy;
 import dk.alexandra.fresco.suite.spdz.storage.InitializeStorage;
 import org.junit.Ignore;
@@ -45,15 +46,29 @@ import org.junit.Test;
 public class TestSpdzDEASolver2Parties extends AbstractSpdzTest {
 
   @Test
-  public void test_DEASolver_2_Sequential_batched_dummy_minimize() throws Exception {
-    runTest(new DEASolverFixedDataTest.TestDEASolverScores(DEASolver.AnalysisType.INPUT_EFFICIENCY),
+  public void test_DEASolver_2_Sequential_batched_dummy_minimize_1() throws Exception {
+    runTest(new TestDeaFixed2(DEASolver.AnalysisType.INPUT_EFFICIENCY),
         EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET,
         PreprocessingStrategy.DUMMY, 2);
   }
 
   @Test
-  public void test_DEASolver_2_Sequential_batched_dummy_maximize_fixed_data() throws Exception {
-    runTest(new DEASolverFixedDataTest.TestDEASolverScores(AnalysisType.OUTPUT_EFFICIENCY),
+  public void test_DEASolver_2_Sequential_batched_dummy_minimize_2() throws Exception {
+    runTest(new TestDeaFixed1(DEASolver.AnalysisType.INPUT_EFFICIENCY),
+        EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET,
+        PreprocessingStrategy.DUMMY, 2);
+  }
+
+  @Test
+  public void test_DEASolver_2_Sequential_batched_dummy_maximize_fixed_data_1() throws Exception {
+    runTest(new TestDeaFixed1(AnalysisType.OUTPUT_EFFICIENCY),
+        EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET,
+        PreprocessingStrategy.DUMMY, 2);
+  }
+
+  @Test
+  public void test_DEASolver_2_Sequential_batched_dummy_maximize_fixed_data_2() throws Exception {
+    runTest(new TestDeaFixed2(AnalysisType.OUTPUT_EFFICIENCY),
         EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET,
         PreprocessingStrategy.DUMMY, 2);
   }
@@ -61,14 +76,14 @@ public class TestSpdzDEASolver2Parties extends AbstractSpdzTest {
 
   @Test
   public void test_DEASolver_2_Sequential_batched_dummy_maximize() throws Exception {
-    runTest(new DEASolverTests.TestDEASolver(5, 1, 30, 3, DEASolver.AnalysisType.OUTPUT_EFFICIENCY),
+    runTest(new RandomDataDeaTest(5, 1, 30, 3, DEASolver.AnalysisType.OUTPUT_EFFICIENCY),
         EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET,
         PreprocessingStrategy.DUMMY, 2);
   }
 
   @Test
   public void test_DEASolver_2_Sequential_dummy() throws Exception {
-    runTest(new DEASolverTests.TestDEASolver(2, 1, 5, 1, DEASolver.AnalysisType.OUTPUT_EFFICIENCY),
+    runTest(new RandomDataDeaTest(2, 1, 5, 1, DEASolver.AnalysisType.OUTPUT_EFFICIENCY),
         EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
   }
 
@@ -86,7 +101,7 @@ public class TestSpdzDEASolver2Parties extends AbstractSpdzTest {
       InitializeStorage.initStreamedStorage(new FilebasedStreamedStorageImpl(new InMemoryStorage()),
           2, noOfThreads, 20000, 500, 800000, 3000);
       runTest(
-          new DEASolverTests.TestDEASolver(4, 1, 10, 2, DEASolver.AnalysisType.OUTPUT_EFFICIENCY),
+          new RandomDataDeaTest(4, 1, 10, 2, DEASolver.AnalysisType.OUTPUT_EFFICIENCY),
           EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET,
           PreprocessingStrategy.STATIC, 2);
     } finally {
@@ -104,7 +119,7 @@ public class TestSpdzDEASolver2Parties extends AbstractSpdzTest {
       InitializeStorage.initStreamedStorage(new FilebasedStreamedStorageImpl(new InMemoryStorage()),
           2, noOfThreads, 20000, 500, 800000, 3000);
       runTest(
-          new DEASolverTests.TestDEASolver(4, 1, 10, 2, DEASolver.AnalysisType.OUTPUT_EFFICIENCY),
+          new RandomDataDeaTest(4, 1, 10, 2, DEASolver.AnalysisType.OUTPUT_EFFICIENCY),
           EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET,
           PreprocessingStrategy.STATIC, 2);
     } finally {

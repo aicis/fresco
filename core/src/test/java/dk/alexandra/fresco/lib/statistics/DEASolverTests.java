@@ -27,189 +27,257 @@
 package dk.alexandra.fresco.lib.statistics;
 
 import dk.alexandra.fresco.framework.Application;
-import dk.alexandra.fresco.framework.BuilderFactory;
 import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.ProtocolFactory;
-import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderHelper;
+import dk.alexandra.fresco.framework.builder.numeric.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
+import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
-import dk.alexandra.fresco.lib.helper.AlgebraUtil;
-import dk.alexandra.fresco.lib.helper.SequentialProtocolProducer;
-import dk.alexandra.fresco.lib.helper.builder.NumericIOBuilder;
 import dk.alexandra.fresco.lib.statistics.DEASolver.AnalysisType;
 import dk.alexandra.fresco.lib.statistics.DEASolver.DEAResult;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.stream.Collectors;
 import org.junit.Assert;
 
 /**
- * Test class for the DEASolver.
- * Will generate a random data sample and perform a Data Envelopment
- * Analysis on it. The TestDEADSolver takes the size of the problem
- * as inputs (i.e. the number of input and output variables, the number
- * of rows in the basis and the number of queries to perform.
+ * Test class for the DEASolver. Will generate a random data sample and perform a Data Envelopment
+ * Analysis on it. The TestDEADSolver takes the size of the problem as inputs (i.e. the number of
+ * input and output variables, the number of rows in the basis and the number of queries to perform.
  * The MPC result is compared with the result of a plaintext DEA solver.
  */
 public class DEASolverTests {
 
-  public static class TestDEASolver<ResourcePoolT extends ResourcePool> extends
-      TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+  public static class RandomDataDeaTest<ResourcePoolT extends ResourcePool> extends
+      TestDeaSolver<ResourcePoolT> {
 
-    private int inputVariables;
-    private int outputVariables;
-    private int datasetRows;
-    private int targetQueries;
-    private AnalysisType type;
-    private BasicNumericFactory bnFactory;
+    private static final int BIT_LENGTH = 9;
 
-    public TestDEASolver(int inputVariables, int outputVariables, int rows, int queries,
+    public RandomDataDeaTest(
+        int inputVariables, int outputVariables, int rows, int queries,
         AnalysisType type) {
-      this.inputVariables = inputVariables;
-      this.outputVariables = outputVariables;
-      this.datasetRows = rows;
-      this.targetQueries = queries;
+      super(
+          randomMatrix(queries, inputVariables),
+          randomMatrix(queries, outputVariables),
+          randomMatrix(rows, inputVariables),
+          randomMatrix(rows, outputVariables),
+          type
+      );
+    }
+
+    private static List<List<BigInteger>> randomMatrix(int width, int height) {
+      Random rand = new Random(width + height);
+      List<List<BigInteger>> result = new ArrayList<>();
+      for (int i = 0; i < width; i++) {
+        ArrayList<BigInteger> row = new ArrayList<>();
+        for (int j = 0; j < height; j++) {
+          row.add(new BigInteger(BIT_LENGTH, rand));
+        }
+        result.add(row);
+      }
+      return result;
+    }
+  }
+
+  public static class TestDeaFixed1<ResourcePoolT extends ResourcePool> extends
+      TestDeaSolver<ResourcePoolT> {
+
+    private static List<List<BigInteger>> inputs;
+    private static List<List<BigInteger>> outputs;
+
+    static {
+      int[][] dataSet1 = new int[][]{
+          new int[]{29, 13451, 14409, 16477}, // Score 1
+          new int[]{2, 581, 531, 1037}, // Score 1
+          new int[]{26, 13352, 1753, 13528}, // Score 1
+          new int[]{15, 4828, 949, 5126}, // Score 0.9857962644001192
+          new int[]{20, 6930, 6376, 9680}  //
+      };
+      inputs = buildInputs(dataSet1);
+      outputs = buildOutputs(dataSet1);
+    }
+
+    public TestDeaFixed1(AnalysisType type) {
+      super(outputs, inputs, outputs, inputs, type);
+    }
+  }
+
+  public static class TestDeaFixed2<ResourcePoolT extends ResourcePool> extends
+      TestDeaSolver<ResourcePoolT> {
+
+    private static List<List<BigInteger>> inputs;
+    private static List<List<BigInteger>> outputs;
+
+    static {
+      int[][] dataset = new int[][]{
+          new int[]{10, 20, 30, 1000},
+          new int[]{5, 10, 15, 1000},
+          new int[]{200, 300, 400, 100}
+      };
+      inputs = buildInputs(dataset);
+      outputs = buildOutputs(dataset);
+    }
+
+
+    public TestDeaFixed2(AnalysisType type) {
+      super(outputs, inputs, outputs, inputs, type);
+    }
+  }
+
+  private static List<List<BigInteger>> buildInputs(int[][] dataset) {
+    List<List<BigInteger>> inputs = new ArrayList<>();
+    for (int i = 0; i < dataset.length; i++) {
+      inputs.add(new ArrayList<>());
+      for (int j = 0; j < dataset[0].length - 1; j++) {
+        inputs.get(i).add(BigInteger.valueOf(dataset[i][j]));
+      }
+    }
+    return inputs;
+  }
+
+  private static List<List<BigInteger>> buildOutputs(int[][] dataset) {
+    List<List<BigInteger>> outputs = new ArrayList<>();
+    for (int i = 0; i < dataset.length; i++) {
+      outputs.add(new ArrayList<>());
+      outputs.get(i).add(BigInteger.valueOf(dataset[i][dataset[i].length - 1]));
+    }
+    return outputs;
+  }
+
+  public static class TestDeaSolver<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+
+    private final List<List<BigInteger>> rawTargetOutputs;
+    private final List<List<BigInteger>> rawTargetInputs;
+    private final List<List<BigInteger>> rawBasisOutputs;
+    private final List<List<BigInteger>> rawBasisInputs;
+    private final AnalysisType type;
+
+    public TestDeaSolver(
+        List<List<BigInteger>> rawTargetOutputs,
+        List<List<BigInteger>> rawTargetInputs,
+        List<List<BigInteger>> rawBasisOutputs,
+        List<List<BigInteger>> rawBasisInputs,
+        AnalysisType type) {
+      this.rawTargetOutputs = rawTargetOutputs;
+      this.rawTargetInputs = rawTargetInputs;
+      this.rawBasisOutputs = rawBasisOutputs;
+      this.rawBasisInputs = rawBasisInputs;
       this.type = type;
     }
 
-    @Override
-    public TestThread next(TestThreadConfiguration<ResourcePoolT, ProtocolBuilderNumeric> conf) {
-      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
 
-        private BigInteger[][] rawTargetOutputs;
-        private BigInteger[][] rawTargetInputs;
-        private BigInteger[][] rawBasisOutputs;
-        private BigInteger[][] rawBasisInputs;
-        private List<List<SInt>> setOutput;
-        private List<List<SInt>> setInput;
-        private List<List<SInt>> outputValues;
-        private List<List<SInt>> inputValues;
+    @Override
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next(
+        TestThreadConfiguration<ResourcePoolT, ProtocolBuilderNumeric> conf) {
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+        private BigInteger modulus;
 
         @Override
         public void test() throws Exception {
-          long startTime = System.nanoTime();
-
-          List<Computation<BigInteger>> outs = new ArrayList<>(targetQueries);
-          List<List<Computation<BigInteger>>> basis = new ArrayList<>(targetQueries);
-          double[] plainResult = new double[targetQueries];
-          Application<Void, ProtocolBuilderNumeric> app = new Application<Void, ProtocolBuilderNumeric>() {
-
-            @Override
-            public Computation<Void> prepareApplication(ProtocolBuilderNumeric producer) {
-              producer
-                  .append(prepareApplication(ProtocolBuilderHelper.getFactoryNumeric(producer)));
-              return () -> null;
-            }
-
-            public ProtocolProducer prepareApplication(
-                BuilderFactory factoryProducer) {
-              ProtocolFactory provider = factoryProducer.getProtocolFactory();
-              bnFactory = (BasicNumericFactory) provider;
-              NumericIOBuilder ioBuilder = new NumericIOBuilder(bnFactory);
-              Random rand = new Random(2);
-
-              SequentialProtocolProducer sseq = new SequentialProtocolProducer();
-
-              rawBasisInputs = new BigInteger[datasetRows][inputVariables];
-              AlgebraUtil.randomFill(rawBasisInputs, 9, rand);
-              rawBasisOutputs = new BigInteger[datasetRows][outputVariables];
-              AlgebraUtil.randomFill(rawBasisOutputs, 9, rand);
-
-              SInt[][] basisInputs = ioBuilder.inputMatrix(rawBasisInputs, 1);
-              SInt[][] basisOutputs = ioBuilder.inputMatrix(rawBasisOutputs, 1);
-
-              rawTargetInputs = new BigInteger[targetQueries][inputVariables];
-              AlgebraUtil.randomFill(rawTargetInputs, 9, rand);
-              rawTargetOutputs = new BigInteger[targetQueries][outputVariables];
-              AlgebraUtil.randomFill(rawTargetOutputs, 9, rand);
-
-              SInt[][] targetInputs = ioBuilder.inputMatrix(rawTargetInputs, 2);
-              SInt[][] targetOutputs = ioBuilder.inputMatrix(rawTargetOutputs, 2);
-
-              sseq.append(ioBuilder.getProtocol());
-
-              inputValues = AlgebraUtil.arrayToList(targetInputs);
-              outputValues = AlgebraUtil.arrayToList(targetOutputs);
-              setInput = AlgebraUtil.arrayToList(basisInputs);
-              setOutput = AlgebraUtil.arrayToList(basisOutputs);
-              return sseq;
-            }
-          };
           ResourcePoolT resourcePool = ResourcePoolCreator.createResourcePool(conf.sceConf);
-          secureComputationEngine.runApplication(app, resourcePool);
 
-          DEASolver solver = new DEASolver(type, inputValues,
-              outputValues,
-              setInput,
-              setOutput);
+          Application<DEASolver, ProtocolBuilderNumeric> app =
+              producer -> {
+                modulus = producer.getBasicNumericFactory().getModulus();
+                NumericBuilder numeric = producer.numeric();
+                List<List<BigInteger>> rawTargetOutputs = TestDeaSolver.this.rawTargetOutputs;
+                List<List<Computation<SInt>>> targetOutputs =
+                    knownMatrix(numeric, rawTargetOutputs);
+                List<List<Computation<SInt>>> targetInputs =
+                    knownMatrix(numeric, rawTargetInputs);
+                List<List<Computation<SInt>>> basisOutputs =
+                    knownMatrix(numeric, rawBasisOutputs);
+                List<List<Computation<SInt>>> basisInputs =
+                    knownMatrix(numeric, rawBasisInputs);
+                return () -> new DEASolver(type, targetInputs, targetOutputs, basisInputs,
+                    basisOutputs);
+              };
+          DEASolver solver = secureComputationEngine
+              .runApplication(app, resourcePool);
 
-          List<DEAResult> deaResults = secureComputationEngine.runApplication(solver, resourcePool);
+          List<DEAResult> deaResults = secureComputationEngine
+              .runApplication(solver, resourcePool);
 
-          Application<Void, ProtocolBuilderNumeric> app2 = new Application<Void, ProtocolBuilderNumeric>() {
+          Application<List<Pair<BigInteger, List<BigInteger>>>, ProtocolBuilderNumeric> app2 =
+              producer -> {
+                NumericBuilder numeric = producer.numeric();
+                ArrayList<Pair<Computation<BigInteger>, List<Computation<BigInteger>>>> result = new ArrayList<>();
+                for (DEAResult deaResult : deaResults) {
+                  result.add(
+                      new Pair<>(
+                          numeric.open(deaResult.optimal),
+                          deaResult.basis.stream().map(numeric::open).collect(Collectors.toList())
+                      )
+                  );
+                }
+                return () ->
+                    result
+                        .stream()
+                        .map(pair -> new Pair<>(
+                            pair.getFirst().out(),
+                            pair.getSecond().stream().map(Computation::out)
+                                .collect(Collectors.toList())
+                        )).collect(Collectors.toList());
+              };
+          List<Pair<BigInteger, List<BigInteger>>> openResults = secureComputationEngine
+              .runApplication(app2, resourcePool);
 
-            @Override
-            public Computation<Void> prepareApplication(ProtocolBuilderNumeric producer) {
-              producer
-                  .append(prepareApplication(ProtocolBuilderHelper.getFactoryNumeric(producer)));
-              return () -> null;
-            }
+          // Solve the problem using a plaintext solver
+          PlaintextDEASolver plainSolver = new PlaintextDEASolver();
+          plainSolver.addBasis(
+              asArray(rawBasisInputs),
+              asArray(rawBasisOutputs));
 
-            public ProtocolProducer prepareApplication(
-                BuilderFactory factoryProducer) {
-              ProtocolFactory provider = factoryProducer.getProtocolFactory();
-              bnFactory = (BasicNumericFactory) provider;
-              NumericIOBuilder ioBuilder = new NumericIOBuilder(bnFactory);
-              SequentialProtocolProducer sseq = new SequentialProtocolProducer();
+          double[] plain = plainSolver.solve(
+              asArray(rawTargetInputs),
+              asArray(rawTargetOutputs),
+              type);
 
-              for (DEAResult deaResult : deaResults) {
-                outs.add(ioBuilder.output(deaResult.optimal));
-                basis.add(ioBuilder.outputArray(deaResult.basis.toArray(new SInt[0])));
-              }
+          //rawBasisInputs = new BigInteger[datasetRows][inputVariables];
 
-              sseq.append(ioBuilder.getProtocol());
-              // Solve the problem using a plaintext solver
-              PlaintextDEASolver plainSolver = new PlaintextDEASolver();
-              plainSolver.addBasis(rawBasisInputs, rawBasisOutputs);
-
-              double[] plain = plainSolver.solve(rawTargetInputs, rawTargetOutputs, type);
-              System.arraycopy(plain, 0, plainResult, 0, plain.length);
-
-              return sseq;
-            }
-          };
-          secureComputationEngine.runApplication(app2, resourcePool);
-
-          long endTime = System.nanoTime();
-          System.out.println("============ Seq Time: "
-              + ((endTime - startTime) / 1000000));
           // Perform postprocessing and compare MPC result with plaintext result
-          int lambdas = datasetRows;
+          int lambdas = rawBasisInputs.size();
 
-          int constraints = inputVariables + outputVariables + 1;
+          int constraints = rawBasisInputs.get(0).size() + rawBasisOutputs.get(0).size() + 1;
           int slackvariables = constraints;
           int variables = lambdas + slackvariables + 1 + 2; //+2 is new
 
-          for (int i = 0; i < targetQueries; i++) {          
-            Assert.assertEquals(plainResult[i],
-                postProcess(outs.get(i).out(), type, bnFactory.getModulus()), 0.0000001);
-            for (int j = 0; j < basis.get(i).size(); j++) {
-              int value = basis.get(i).get(j).out().intValue();
+          for (int i = 0; i < rawTargetInputs.size(); i++) {
+            Assert.assertEquals(plain[i],
+                postProcess(openResults.get(i).getFirst(), type, modulus), 0.0000001);
+            List<BigInteger> basis = openResults.get(i).getSecond();
+            for (int j = 0; j < basis.size(); j++) {
+              int value = basis.get(i).intValue();
               Assert.assertTrue(
                   "Basis value " + value + ", was larger than " + (
                       variables - 1), value < variables);
-            }          
+            }
           }
+
         }
       };
     }
+
+    private BigInteger[][] asArray(List<List<BigInteger>> lists) {
+      return lists
+          .stream()
+          .map(list -> list.toArray(new BigInteger[list.size()]))
+          .toArray(BigInteger[][]::new);
+    }
+  }
+
+  static List<List<Computation<SInt>>> knownMatrix(NumericBuilder numeric,
+      List<List<BigInteger>> rawTargetOutputs) {
+    return rawTargetOutputs.stream()
+        .map(list -> list.stream().map(numeric::known).collect(Collectors.toList()))
+        .collect(Collectors.toList());
   }
 
   /**
@@ -226,18 +294,13 @@ public class DEASolverTests {
   }
 
   /**
-   * Converts a number of the form <i>t = r*s<sup>-1</sup> mod N</i> to the
-   * rational number <i>r/s</i> represented as a reduced fraction.
-   * <p>
-   * This is useful outputting non-integer rational numbers from MPC, when
-   * outputting a non-reduced fraction may leak too much information. The
-   * technique used is adapted from the paper "CryptoComputing With Rationals"
-   * of Fouque et al. Financial Cryptography 2002. This methods restricts us
-   * to integers <i>t = r*s<sup>-1</sup> mod N</i> so that <i>2r*s < N</i>.
-   * See
-   * <a href="https://www.di.ens.fr/~stern/data/St100.pdf">https://www.di.ens.
-   * fr/~stern/data/St100.pdf</a>
-   * </p>
+   * Converts a number of the form <i>t = r*s<sup>-1</sup> mod N</i> to the rational number
+   * <i>r/s</i> represented as a reduced fraction. <p> This is useful outputting non-integer
+   * rational numbers from MPC, when outputting a non-reduced fraction may leak too much
+   * information. The technique used is adapted from the paper "CryptoComputing With Rationals" of
+   * Fouque et al. Financial Cryptography 2002. This methods restricts us to integers <i>t =
+   * r*s<sup>-1</sup> mod N</i> so that <i>2r*s < N</i>. See <a href="https://www.di.ens.fr/~stern/data/St100.pdf">https://www.di.ens.
+   * fr/~stern/data/St100.pdf</a> </p>
    *
    * @param product The integer <i>t = r*s<sup>-1</sup>mod N</i>. Note that we must have that
    * <i>2r*s < N</i>.
