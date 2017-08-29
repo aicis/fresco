@@ -75,10 +75,7 @@ public class InputApplication extends DemoNumericApplication<List<SInt>> {
           result.add(numeric.input(null, 1));
         }
       }
-      return () -> result;
-    }).par((par, closedInputs) -> {
-      List<SInt> collect = closedInputs.stream().map(Computation::out).collect(Collectors.toList());
-      return () -> collect;
+      return () -> result.stream().map(Computation::out).collect(Collectors.toList());
     });
   }
 }
