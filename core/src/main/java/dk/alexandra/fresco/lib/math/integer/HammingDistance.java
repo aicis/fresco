@@ -47,8 +47,7 @@ public class HammingDistance implements ComputationBuilder<SInt, ProtocolBuilder
           }
         }
         return () -> xor;
-      }).seq((seq, list) ->
-          new SumSIntList(list).buildComputation(seq)
+      }).seq((seq, list) -> seq.advancedNumeric().sum(list)
       );
     }
   }

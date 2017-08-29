@@ -34,7 +34,6 @@ import dk.alexandra.fresco.framework.builder.numeric.ComparisonBuilder;
 import dk.alexandra.fresco.framework.builder.numeric.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.math.integer.SumSIntList;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
@@ -100,9 +99,7 @@ public class CreditRater implements
           }
           return () -> scores;
         }
-    ).seq((seq, list) ->
-        new SumSIntList(list).buildComputation(seq)
-    );
+    ).seq((seq, list) -> seq.advancedNumeric().sum(list));
   }
 
   private static class ComputeIntervalScore implements
@@ -161,7 +158,7 @@ public class CreditRater implements
         innerScores.add(numericBuilder.mult(a, b));
         return () -> innerScores;
 
-      }).seq((seq, list) -> new SumSIntList(list).buildComputation(seq));
+      }).seq((seq, list) -> seq.advancedNumeric().sum(list));
     }
   }
 }

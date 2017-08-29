@@ -29,7 +29,6 @@ package dk.alexandra.fresco.lib.statistics;
 import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
-import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.numeric.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
@@ -53,7 +52,7 @@ public class CreditRaterTest {
 
 
   public static class TestCreditRater<ResourcePoolT extends ResourcePool> extends
-      TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+      TestThreadFactory {
 
     final int[] values;
     final int[][] intervals;
@@ -66,8 +65,7 @@ public class CreditRaterTest {
     }
 
     @Override
-    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next(
-        TestThreadConfiguration<ResourcePoolT, ProtocolBuilderNumeric> conf) {
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         @Override
         public void test() throws Exception {

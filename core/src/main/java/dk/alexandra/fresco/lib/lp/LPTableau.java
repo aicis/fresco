@@ -67,9 +67,9 @@ public class LPTableau {
   }
 
   public void toString(ProtocolBuilderNumeric builder) {
-    builder.utility().openAndPrint("C: ", C, System.out);
-    builder.utility().openAndPrint("B: ", B, System.out);
-    builder.utility().openAndPrint("F: ", F, System.out);
-    builder.utility().openAndPrint("z: ", z, System.out);
+    builder.debug().openAndPrint("C: ", C, System.out);
+    builder.debug().openAndPrint("B: ", B, System.out);
+    builder.debug().openAndPrint("F: ", F, System.out);
+    builder.debug().openAndPrint("z: ", z, System.out);
   }
 }

@@ -129,7 +129,7 @@ public class TestScapiNetworkLayer {
 		final byte[] data = new byte[] { -61, -19, 106, -9 -67, 98, 102, 16, 21 };
 		final TestThreadFactory test = new TestThreadFactory() {
 			@Override
-			public TestThread next(TestThreadConfiguration conf) {
+			public TestThread next() {
 				return new TestThread() {
 					@Override
 					public void test() throws Exception {
@@ -157,7 +157,7 @@ public class TestScapiNetworkLayer {
 		final byte[] data = new byte[] { -61, -19, 106, -9 -67, 98, 102, 16, 21 };
 		final TestThreadFactory test = new TestThreadFactory() {
 			@Override
-			public TestThread next(TestThreadConfiguration conf) {
+			public TestThread next() {
 				return new TestThread() {
 					@Override
 					public void test() throws Exception {
@@ -187,7 +187,7 @@ public class TestScapiNetworkLayer {
 		final byte[] data = new byte[] { -61, -19, 106, -9 -67, 98, 102, 16, 21 };
 		final TestThreadFactory test = new TestThreadFactory() {
 			@Override
-			public TestThread next(TestThreadConfiguration conf) {
+			public TestThread next() {
 				return new TestThread() {
 					@Override
 					public void test() throws Exception {

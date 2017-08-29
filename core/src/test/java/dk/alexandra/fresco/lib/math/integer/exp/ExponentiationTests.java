@@ -23,12 +23,9 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.math.integer.exp;
 
-import dk.alexandra.fresco.framework.BuilderFactory;
+import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.ProtocolProducer;
-import dk.alexandra.fresco.framework.TestApplication;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
-import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.numeric.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
@@ -36,7 +33,6 @@ import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
-import java.util.List;
 import org.junit.Assert;
 
 public class ExponentiationTests {
@@ -45,11 +41,10 @@ public class ExponentiationTests {
    * Test binary right shift of a shared secret.
    */
   public static class TestExponentiation<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+      extends TestThreadFactory {
 
     @Override
-    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next(
-        TestThreadConfiguration<ResourcePoolT, ProtocolBuilderNumeric> conf) {
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
 
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         private final BigInteger input = BigInteger.valueOf(12332157);
@@ -57,30 +52,17 @@ public class ExponentiationTests {
 
         @Override
         public void test() throws Exception {
-          TestApplication app = new TestApplication() {
+          Application<BigInteger, ProtocolBuilderNumeric> app = producer -> {
+            NumericBuilder numeric = producer.numeric();
+            Computation<SInt> base = numeric.input(input, 1);
+            Computation<SInt> exponent = numeric.input(BigInteger.valueOf(exp), 1);
 
-            @Override
-            public ProtocolProducer prepareApplication(BuilderFactory factoryProducer) {
-              return null;
-            }
+            Computation<SInt> result = producer.advancedNumeric().exp(base, exponent, 5);
 
-            @Override
-            public Computation<List<BigInteger>> prepareApplication(
-                ProtocolBuilderNumeric producer) {
-              NumericBuilder numeric = producer.numeric();
-              Computation<SInt> base = numeric.input(input, 1);
-              Computation<SInt> exponent = numeric.input(BigInteger.valueOf(exp), 1);
-
-              Computation<SInt> result = producer.advancedNumeric().exp(base, exponent, 5);
-
-              outputs.add(numeric.open(result));
-
-              return outputToBigInteger();
-            }
+            return numeric.open(result);
           };
-          secureComputationEngine.runApplication(app,
+          BigInteger result = secureComputationEngine.runApplication(app,
               ResourcePoolCreator.createResourcePool(conf.sceConf));
-          BigInteger result = app.getOutputs()[0];
 
           Assert.assertEquals(input.pow(exp), result);
         }
@@ -88,41 +70,29 @@ public class ExponentiationTests {
     }
   }
 
-  public static class TestExponentiationOpenExponent extends TestThreadFactory {
+  public static class TestExponentiationOpenExponent<ResourcePoolT extends ResourcePool> extends
+      TestThreadFactory {
 
     @Override
-    public TestThread next(TestThreadConfiguration conf) {
+    public TestThread next() {
 
-      return new TestThread() {
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         private final BigInteger input = BigInteger.valueOf(12332157);
         private final int exp = 12;
 
         @Override
         public void test() throws Exception {
-          TestApplication app = new TestApplication() {
+          Application<BigInteger, ProtocolBuilderNumeric> app = producer -> {
+            NumericBuilder numeric = producer.numeric();
+            Computation<SInt> base = numeric.known(input);
+            BigInteger exponent = BigInteger.valueOf(exp);
 
-            @Override
-            public ProtocolProducer prepareApplication(BuilderFactory factoryProducer) {
-              return null;
-            }
+            Computation<SInt> result = producer.advancedNumeric().exp(base, exponent);
 
-            @Override
-            public Computation<List<BigInteger>> prepareApplication(
-                ProtocolBuilderNumeric producer) {
-              NumericBuilder numeric = producer.numeric();
-              Computation<SInt> base = numeric.known(input);
-              BigInteger exponent = BigInteger.valueOf(exp);
-
-              Computation<SInt> result = producer.advancedNumeric().exp(base, exponent);
-
-              outputs.add(numeric.open(result));
-
-              return outputToBigInteger();
-            }
+            return numeric.open(result);
           };
-          secureComputationEngine.runApplication(app,
+          BigInteger result = secureComputationEngine.runApplication(app,
               ResourcePoolCreator.createResourcePool(conf.sceConf));
-          BigInteger result = app.getOutputs()[0];
 
           Assert.assertEquals(input.pow(exp), result);
         }
@@ -130,41 +100,28 @@ public class ExponentiationTests {
     }
   }
 
-  public static class TestExponentiationOpenBase extends TestThreadFactory {
+  public static class TestExponentiationOpenBase<ResourcePoolT extends ResourcePool> extends
+      TestThreadFactory {
 
     @Override
-    public TestThread next(TestThreadConfiguration conf) {
+    public TestThread next() {
 
-      return new TestThread() {
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         private final BigInteger input = BigInteger.valueOf(12332157);
         private final int exp = 12;
 
         @Override
         public void test() throws Exception {
-          TestApplication app = new TestApplication() {
+          Application<BigInteger, ProtocolBuilderNumeric> app = producer -> {
+            NumericBuilder numeric = producer.numeric();
+            Computation<SInt> exponent = numeric.known(BigInteger.valueOf(exp));
 
-            @Override
-            public ProtocolProducer prepareApplication(BuilderFactory factoryProducer) {
-              return null;
-            }
+            Computation<SInt> result = producer.advancedNumeric().exp(input, exponent, 5);
 
-            @Override
-            public Computation<List<BigInteger>> prepareApplication(
-                ProtocolBuilderNumeric producer) {
-              NumericBuilder numeric = producer.numeric();
-              BigInteger base = input;
-              Computation<SInt> exponent = numeric.known(BigInteger.valueOf(exp));
-
-              Computation<SInt> result = producer.advancedNumeric().exp(base, exponent, 5);
-
-              outputs.add(numeric.open(result));
-
-              return outputToBigInteger();
-            }
+            return numeric.open(result);
           };
-          secureComputationEngine.runApplication(app,
+          BigInteger result = secureComputationEngine.runApplication(app,
               ResourcePoolCreator.createResourcePool(conf.sceConf));
-          BigInteger result = app.getOutputs()[0];
 
           Assert.assertEquals(input.pow(exp), result);
         }
@@ -172,43 +129,33 @@ public class ExponentiationTests {
     }
   }
 
-  public static class TestExponentiationZeroExponent extends TestThreadFactory {
+  public static class TestExponentiationZeroExponent<ResourcePoolT extends ResourcePool> extends
+      TestThreadFactory {
 
     @Override
-    public TestThread next(TestThreadConfiguration conf) {
+    public TestThread next() {
 
-      return new TestThread() {
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         private final BigInteger input = BigInteger.valueOf(12332157);
 
         @Override
         public void test() throws Exception {
-          TestApplication app = new TestApplication() {
+          Application<BigInteger, ProtocolBuilderNumeric> app = producer -> {
 
-            @Override
-            public ProtocolProducer prepareApplication(BuilderFactory factoryProducer) {
-              return null;
-            }
+            NumericBuilder numeric = producer.numeric();
+            Computation<SInt> base = numeric.known(input);
+            BigInteger exponent = BigInteger.ZERO;
 
-            @Override
-            public Computation<List<BigInteger>> prepareApplication(
-                ProtocolBuilderNumeric producer) {
-              NumericBuilder numeric = producer.numeric();
-              Computation<SInt> base = numeric.known(input);
-              BigInteger exponent = BigInteger.ZERO;
+            Computation<SInt> result = producer.advancedNumeric().exp(base, exponent);
 
-              Computation<SInt> result = producer.advancedNumeric().exp(base, exponent);
-
-              outputs.add(numeric.open(result));
-
-              return outputToBigInteger();
-            }
+            return numeric.open(result);
           };
           try {
             secureComputationEngine.runApplication(app,
                 ResourcePoolCreator.createResourcePool(conf.sceConf));
           } catch (RuntimeException e) {
             // Cause is wrapped in an intermediate concurrent exception.
-            if (e.getCause().getCause() instanceof IllegalArgumentException) {
+            if (e.getCause() instanceof IllegalArgumentException) {
               return;
             }
           }

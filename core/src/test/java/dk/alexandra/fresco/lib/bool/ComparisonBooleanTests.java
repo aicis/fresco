@@ -26,7 +26,6 @@ package dk.alexandra.fresco.lib.bool;
 import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
-import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
@@ -45,7 +44,7 @@ public class ComparisonBooleanTests {
    * @author Kasper Damgaard
    */
   public static class TestGreaterThan<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
+      extends TestThreadFactory {
 
     private boolean doAsserts = false;
 
@@ -56,8 +55,7 @@ public class ComparisonBooleanTests {
     }
 
     @Override
-    public TestThread<ResourcePoolT, ProtocolBuilderBinary> next(
-        TestThreadConfiguration<ResourcePoolT, ProtocolBuilderBinary> conf) {
+    public TestThread<ResourcePoolT, ProtocolBuilderBinary> next() {
       return new TestThread<ResourcePoolT, ProtocolBuilderBinary>() {
         @Override
         public void test() throws Exception {
@@ -101,7 +99,7 @@ public class ComparisonBooleanTests {
    * @author Kasper Damgaard
    */
   public static class TestEquality<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
+      extends TestThreadFactory {
 
     private boolean doAsserts = false;
 
@@ -112,8 +110,7 @@ public class ComparisonBooleanTests {
     }
 
     @Override
-    public TestThread<ResourcePoolT, ProtocolBuilderBinary> next(
-        TestThreadConfiguration<ResourcePoolT, ProtocolBuilderBinary> conf) {
+    public TestThread<ResourcePoolT, ProtocolBuilderBinary> next() {
       return new TestThread<ResourcePoolT, ProtocolBuilderBinary>() {
         @Override
         public void test() throws Exception {
@@ -157,11 +154,10 @@ public class ComparisonBooleanTests {
    * @author Kasper Damgaard
    */
   public static class TestGreaterThanUnequalLength<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
+      extends TestThreadFactory {
 
     @Override
-    public TestThread<ResourcePoolT, ProtocolBuilderBinary> next(
-        TestThreadConfiguration<ResourcePoolT, ProtocolBuilderBinary> conf) {
+    public TestThread<ResourcePoolT, ProtocolBuilderBinary> next() {
       return new TestThread<ResourcePoolT, ProtocolBuilderBinary>() {
         @Override
         public void test() throws Exception {
@@ -169,11 +165,7 @@ public class ComparisonBooleanTests {
           Boolean[] comp2 = new Boolean[] {false, true, true};
 
           Application<List<Boolean>, ProtocolBuilderBinary> app =
-              new Application<List<Boolean>, ProtocolBuilderBinary>() {
-
-            @Override
-            public Computation<List<Boolean>> prepareApplication(ProtocolBuilderBinary producer) {
-              return producer.seq(seq -> {
+              producer -> producer.seq(seq -> {
                 List<Computation<SBool>> in1 = BooleanHelper.known(comp1, seq.binary());
                 List<Computation<SBool>> in2 = BooleanHelper.known(comp2, seq.binary());
                 Computation<SBool> res1 = seq.comparison().greaterThan(in1, in2);
@@ -182,8 +174,6 @@ public class ComparisonBooleanTests {
               }).seq((seq, opened) -> {
                 return () -> opened.stream().map(Computation::out).collect(Collectors.toList());
               });
-            }
-          };
 
           secureComputationEngine.runApplication(app,
               ResourcePoolCreator.createResourcePool(conf.sceConf));

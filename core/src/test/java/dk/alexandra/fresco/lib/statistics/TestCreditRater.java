@@ -44,8 +44,8 @@ public class TestCreditRater {
     List<Computation<SInt>> values = new ArrayList<>();
     List<List<Computation<SInt>>> intervals = new ArrayList<>();
     List<List<Computation<SInt>>> scores = new ArrayList<>();
-    
-    values.add(new DummyArithmeticSInt());
+
+    values.add(new DummyArithmeticSInt(null));
     intervals.add(new ArrayList<>());
     scores.add(new ArrayList<>());
 
@@ -63,8 +63,8 @@ public class TestCreditRater {
     } catch (MPCException e) {
       Assert.assertThat(e.getMessage(), Is.is("Inconsistent data"));
     }
-    
-    values.add(new DummyArithmeticSInt());
+
+    values.add(new DummyArithmeticSInt(null));
     try{
       new CreditRater(values, intervals, scores);
       Assert.fail("Inconsistent data should not be accepted");

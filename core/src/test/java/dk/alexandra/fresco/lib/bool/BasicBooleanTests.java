@@ -26,7 +26,6 @@ package dk.alexandra.fresco.lib.bool;
 import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
-import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.binary.BinaryBuilder;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
@@ -41,7 +40,7 @@ import org.junit.Assert;
 public class BasicBooleanTests {
 
   public static class TestInput<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
+      extends TestThreadFactory {
 
     private boolean doAsserts;
 
@@ -50,8 +49,7 @@ public class BasicBooleanTests {
     }
 
     @Override
-    public TestThread<ResourcePoolT, ProtocolBuilderBinary> next(
-        TestThreadConfiguration<ResourcePoolT, ProtocolBuilderBinary> conf) {
+    public TestThread<ResourcePoolT, ProtocolBuilderBinary> next() {
       return new TestThread<ResourcePoolT, ProtocolBuilderBinary>() {
         @Override
         public void test() throws Exception {
@@ -75,7 +73,7 @@ public class BasicBooleanTests {
   }
 
   public static class TestXOR<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
+      extends TestThreadFactory {
 
     private boolean doAsserts;
 
@@ -84,8 +82,7 @@ public class BasicBooleanTests {
     }
 
     @Override
-    public TestThread<ResourcePoolT, ProtocolBuilderBinary> next(
-        TestThreadConfiguration<ResourcePoolT, ProtocolBuilderBinary> conf) {
+    public TestThread<ResourcePoolT, ProtocolBuilderBinary> next() {
       return new TestThread<ResourcePoolT, ProtocolBuilderBinary>() {
         @Override
         public void test() throws Exception {
@@ -119,7 +116,7 @@ public class BasicBooleanTests {
   }
 
   public static class TestAND<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
+      extends TestThreadFactory {
 
     private boolean doAsserts;
 
@@ -128,8 +125,7 @@ public class BasicBooleanTests {
     }
 
     @Override
-    public TestThread<ResourcePoolT, ProtocolBuilderBinary> next(
-        TestThreadConfiguration<ResourcePoolT, ProtocolBuilderBinary> conf) {
+    public TestThread<ResourcePoolT, ProtocolBuilderBinary> next() {
       return new TestThread<ResourcePoolT, ProtocolBuilderBinary>() {
         @Override
         public void test() throws Exception {
@@ -163,7 +159,7 @@ public class BasicBooleanTests {
   }
 
   public static class TestNOT<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
+      extends TestThreadFactory {
 
     private boolean doAsserts;
 
@@ -172,8 +168,7 @@ public class BasicBooleanTests {
     }
 
     @Override
-    public TestThread<ResourcePoolT, ProtocolBuilderBinary> next(
-        TestThreadConfiguration<ResourcePoolT, ProtocolBuilderBinary> conf) {
+    public TestThread<ResourcePoolT, ProtocolBuilderBinary> next() {
       return new TestThread<ResourcePoolT, ProtocolBuilderBinary>() {
         @Override
         public void test() throws Exception {
@@ -205,7 +200,7 @@ public class BasicBooleanTests {
    * Tests both input, xor, not, and and output. Computes all variants of: NOT((i1 XOR i2) AND i1)
    */
   public static class TestBasicProtocols<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
+      extends TestThreadFactory {
 
     private boolean doAsserts;
 
@@ -214,8 +209,7 @@ public class BasicBooleanTests {
     }
 
     @Override
-    public TestThread<ResourcePoolT, ProtocolBuilderBinary> next(
-        TestThreadConfiguration<ResourcePoolT, ProtocolBuilderBinary> conf) {
+    public TestThread<ResourcePoolT, ProtocolBuilderBinary> next() {
       return new TestThread<ResourcePoolT, ProtocolBuilderBinary>() {
         @Override
         public void test() throws Exception {

@@ -3,7 +3,6 @@ package dk.alexandra.fresco.framework.builder;
 import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
-import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.network.NetworkingStrategy;
@@ -26,7 +25,7 @@ public class BuildStepTests extends AbstractDummyArithmeticTest {
    * @param <ResourcePoolT>
    */
   private class TestWhileLoop<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+      extends TestThreadFactory {
 
     protected final int numIterations;
     protected final List<Integer> expected;
@@ -37,8 +36,7 @@ public class BuildStepTests extends AbstractDummyArithmeticTest {
     }
 
     @Override
-    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next(
-        TestThreadConfiguration<ResourcePoolT, ProtocolBuilderNumeric> conf) {
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         @Override
         public void test() throws Exception {

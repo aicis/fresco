@@ -26,7 +26,6 @@ package dk.alexandra.fresco.lib.collections.sort;
 import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
-import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
@@ -51,13 +50,12 @@ import org.junit.Assert;
 public class CollectionsSortingTests {
 
   public static class TestKeyedCompareAndSwap<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
+      extends TestThreadFactory {
 
     public TestKeyedCompareAndSwap() {}
 
     @Override
-    public TestThread<ResourcePoolT, ProtocolBuilderBinary> next(
-        TestThreadConfiguration<ResourcePoolT, ProtocolBuilderBinary> conf) {
+    public TestThread<ResourcePoolT, ProtocolBuilderBinary> next() {
       return new TestThread<ResourcePoolT, ProtocolBuilderBinary>() {
 
         @Override
@@ -138,7 +136,7 @@ public class CollectionsSortingTests {
     public TestOddEvenMerge() {}
 
     @Override
-    public TestThread next(TestThreadConfiguration conf) {
+    public TestThread next() {
       return new TestThread() {
         @Override
         public void test() throws Exception {
@@ -250,7 +248,7 @@ public class CollectionsSortingTests {
     public TestOddEvenMergeRec() {}
 
     @Override
-    public TestThread next(TestThreadConfiguration conf) {
+    public TestThread next() {
       return new TestThread() {
         @Override
         public void test() throws Exception {
@@ -362,7 +360,7 @@ public class CollectionsSortingTests {
     public TestOddEvenMergeRecLarge() {}
 
     @Override
-    public TestThread next(TestThreadConfiguration conf) {
+    public TestThread next() {
       return new TestThread() {
         @Override
         public void test() throws Exception {

@@ -26,7 +26,6 @@ package dk.alexandra.fresco.lib.math.bool.log;
 import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
-import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.binary.BinaryBuilderAdvanced;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
@@ -44,13 +43,12 @@ import org.junit.Assert;
 public class LogTests {
 
   public static class TestLogNice<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
+      extends TestThreadFactory {
 
     public TestLogNice() {}
 
     @Override
-    public TestThread<ResourcePoolT, ProtocolBuilderBinary> next(
-        TestThreadConfiguration<ResourcePoolT, ProtocolBuilderBinary> conf) {
+    public TestThread<ResourcePoolT, ProtocolBuilderBinary> next() {
       return new TestThread<ResourcePoolT, ProtocolBuilderBinary>() {
 
         List<Boolean> rawFirst = Arrays.asList(ByteArithmetic.toBoolean("ff"));

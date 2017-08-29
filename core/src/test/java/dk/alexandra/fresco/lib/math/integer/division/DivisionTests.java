@@ -26,7 +26,6 @@ package dk.alexandra.fresco.lib.math.integer.division;
 import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
-import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.numeric.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
@@ -68,10 +67,10 @@ public class DivisionTests {
    * Test Euclidian division
    */
   public static class TestEuclidianDivision<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+      extends TestThreadFactory {
 
     @Override
-    public TestThread next(TestThreadConfiguration<ResourcePoolT, ProtocolBuilderNumeric> conf) {
+    public TestThread next() {
 
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         private final BigInteger x = new BigInteger("123978634193227335452345761");
@@ -100,11 +99,11 @@ public class DivisionTests {
    * Test Euclidian division
    */
   public static class TestEuclidianDivisionLargeDivisor<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+      extends TestThreadFactory {
 
 
     @Override
-    public TestThread next(TestThreadConfiguration<ResourcePoolT, ProtocolBuilderNumeric> conf) {
+    public TestThread next() {
 
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         private final BigInteger x = new BigInteger("123978634193227335452345761");
@@ -133,10 +132,10 @@ public class DivisionTests {
    * Test division with secret shared divisor
    */
   public static class TestSecretSharedDivision<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+      extends TestThreadFactory {
 
     @Override
-    public TestThread next(TestThreadConfiguration<ResourcePoolT, ProtocolBuilderNumeric> conf) {
+    public TestThread next() {
 
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         private final BigInteger[] x = new BigInteger[]{new BigInteger("1234567"),

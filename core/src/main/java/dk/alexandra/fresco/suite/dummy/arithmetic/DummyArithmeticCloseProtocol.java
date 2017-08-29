@@ -44,33 +44,13 @@ public class DummyArithmeticCloseProtocol extends DummyArithmeticNativeProtocol<
 
   /**
    * Constructs a protocol to close an open value.
-   * 
+   *
    * @param targetId id of the party supplying the open value.
    * @param open a computation output the value to close.
    */
   public DummyArithmeticCloseProtocol(int targetId, Computation<BigInteger> open) {
-    super();
     this.targetId = targetId;
     this.open = open;
-    this.closed = null;
-  }
-
-  /**
-   * Constructs a protocol to close an open value.
-   * 
-   * <p>
-   * Lets the caller specify where to store the output. This is for backward compatibility.
-   * </p>
-   * 
-   * @param targetId id of the party supplying the open value.
-   * @param open a computation output the value to close.
-   * @param closed the {@link SInt} in which to store the output
-   */
-  public DummyArithmeticCloseProtocol(int targetId, Computation<BigInteger> open, SInt closed) {
-    super();
-    this.targetId = targetId;
-    this.open = open;
-    this.closed = (DummyArithmeticSInt) closed;
   }
 
   @Override
@@ -83,8 +63,7 @@ public class DummyArithmeticCloseProtocol extends DummyArithmeticNativeProtocol<
       return EvaluationStatus.HAS_MORE_ROUNDS;
     } else if (round == 1) {
       BigInteger b = rp.getSerializer().toBigInteger(network.receive(targetId));
-      closed = (closed == null) ? new DummyArithmeticSInt() : closed;
-      closed.setValue(b);
+      closed = new DummyArithmeticSInt(b);
       return EvaluationStatus.IS_DONE;
     } else {
       throw new IllegalStateException("No round " + round);

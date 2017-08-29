@@ -28,7 +28,6 @@ import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.TestApplication;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
-import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.numeric.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.NumericBuilder;
@@ -48,7 +47,7 @@ public class LinAlgTests {
   public static class TestInnerProductClosed extends TestThreadFactory {
 
     @Override
-    public TestThread next(TestThreadConfiguration conf) {
+    public TestThread next() {
 
       return new TestThread() {
         private final List<Integer> data1 = Arrays.asList(200, 144, 99, 211);
@@ -92,7 +91,7 @@ public class LinAlgTests {
   public static class TestInnerProductOpen extends TestThreadFactory {
 
     @Override
-    public TestThread next(TestThreadConfiguration conf) {
+    public TestThread next() {
 
       return new TestThread() {
         private final List<Integer> data1 = Arrays.asList(200, 144, 99, 211);

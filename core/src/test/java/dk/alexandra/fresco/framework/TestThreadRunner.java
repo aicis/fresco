@@ -28,7 +28,6 @@ package dk.alexandra.fresco.framework;
 
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
-import dk.alexandra.fresco.framework.configuration.TestConfiguration;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.SCEFactory;
@@ -37,10 +36,8 @@ import dk.alexandra.fresco.framework.sce.configuration.TestSCEConfiguration;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Random;
 import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,9 +54,6 @@ public class TestThreadRunner {
     private boolean finished = false;
 
     protected TestThreadConfiguration<ResourcePoolT, Builder> conf;
-
-    // Randomness to use in test.
-    Random rand;
 
     Throwable setupException;
 
@@ -136,11 +130,6 @@ public class TestThreadRunner {
 
     public abstract void test() throws Exception;
 
-    void setRandom(long nextLong) {
-      this.rand = new Random(nextLong);
-
-    }
-
   }
 
 
@@ -156,35 +145,12 @@ public class TestThreadRunner {
     public int getMyId() {
       return this.netConf.getMyId();
     }
-
-    public int getNoOfParties() {
-      return this.netConf.noOfParties();
-    }
-
   }
 
 
-  public abstract static class TestThreadFactory<ResourcePoolT extends ResourcePool, Builder extends ProtocolBuilder> {
+  public abstract static class TestThreadFactory {
 
-    public abstract TestThread next(TestThreadConfiguration<ResourcePoolT, Builder> conf);
-  }
-
-  public static void run(TestThreadFactory f, int noOfPlayers) {
-    int randSeed = 42;
-    run(f, noOfPlayers, randSeed);
-  }
-
-  private static void run(TestThreadFactory f, int noOfPlayers, int randSeed) {
-    Map<Integer, NetworkConfiguration> netConfs = TestConfiguration
-        .getNetworkConfigurations(noOfPlayers);
-
-    Map<Integer, TestThreadConfiguration> confs = new HashMap<Integer, TestThreadConfiguration>();
-    for (int i : netConfs.keySet()) {
-      TestThreadConfiguration ttc = new TestThreadConfiguration();
-      ttc.netConf = netConfs.get(i);
-      confs.put(i, ttc);
-    }
-    run(f, confs, randSeed);
+    public abstract TestThread next();
   }
 
   public static void run(TestThreadFactory f, Map<Integer, TestThreadConfiguration> confs) {
@@ -199,12 +165,10 @@ public class TestThreadRunner {
     final Set<TestThread> threads = new HashSet<TestThread>();
     final int n = confs.size();
 
-    Random r = new Random(randSeed);
     for (int i = 0; i < n; i++) {
       TestThreadConfiguration<?, ?> c = confs.get(i + 1);
-      TestThread t = f.next(c);
+      TestThread t = f.next();
       t.setConfiguration(c);
-      t.setRandom(r.nextLong());
       threads.add(t);
     }
 

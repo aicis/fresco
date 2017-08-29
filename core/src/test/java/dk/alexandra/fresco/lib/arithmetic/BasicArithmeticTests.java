@@ -26,7 +26,6 @@ package dk.alexandra.fresco.lib.arithmetic;
 import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
-import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.numeric.AdvancedNumericBuilder;
 import dk.alexandra.fresco.framework.builder.numeric.NumericBuilder;
@@ -57,11 +56,10 @@ import org.junit.Assert;
 public class BasicArithmeticTests {
 
   public static class TestInput<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+      extends TestThreadFactory {
 
     @Override
-    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next(
-        TestThreadConfiguration<ResourcePoolT, ProtocolBuilderNumeric> conf) {
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
       BigInteger value = BigInteger.valueOf(10);
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         @Override
@@ -83,11 +81,10 @@ public class BasicArithmeticTests {
   }
 
   public static class TestOutputToSingleParty<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+      extends TestThreadFactory {
 
     @Override
-    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next(
-        TestThreadConfiguration<ResourcePoolT, ProtocolBuilderNumeric> conf) {
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
       BigInteger value = BigInteger.valueOf(10);
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         @Override
@@ -113,11 +110,10 @@ public class BasicArithmeticTests {
   }
 
   public static class TestAddPublicValue<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+      extends TestThreadFactory {
 
     @Override
-    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next(
-        TestThreadConfiguration<ResourcePoolT, ProtocolBuilderNumeric> conf) {
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
       BigInteger value = BigInteger.valueOf(10);
       BigInteger add = BigInteger.valueOf(4);
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
@@ -141,11 +137,10 @@ public class BasicArithmeticTests {
   }
 
   public static class TestKnownSInt<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+      extends TestThreadFactory {
 
     @Override
-    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next(
-        TestThreadConfiguration<ResourcePoolT, ProtocolBuilderNumeric> conf) {
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
       List<BigInteger> openInputs = Stream.of(200, 300, 1, 2)
           .map(BigInteger::valueOf)
           .collect(Collectors.toList());
@@ -178,11 +173,10 @@ public class BasicArithmeticTests {
 
 
   public static class TestSumAndMult<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+      extends TestThreadFactory {
 
     @Override
-    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next(
-        TestThreadConfiguration<ResourcePoolT, ProtocolBuilderNumeric> conf) {
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
       List<BigInteger> openInputs =
           Stream.of(1, 2, 3, 4, 5, 6, 7, 8, 9, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1)
               .map(BigInteger::valueOf)
@@ -219,11 +213,10 @@ public class BasicArithmeticTests {
   }
 
   public static class TestSimpleMultAndAdd<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+      extends TestThreadFactory {
 
     @Override
-    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next(
-        TestThreadConfiguration<ResourcePoolT, ProtocolBuilderNumeric> conf) {
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
       BigInteger first = BigInteger.valueOf(10);
       BigInteger second = BigInteger.valueOf(5);
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
@@ -255,11 +248,10 @@ public class BasicArithmeticTests {
    * stress-test the protocol suite.
    */
   public static class TestLotsMult<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+      extends TestThreadFactory {
 
     @Override
-    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next(
-        TestThreadConfiguration<ResourcePoolT, ProtocolBuilderNumeric> conf) {
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
       BigInteger first = BigInteger.valueOf(10);
       BigInteger second = BigInteger.valueOf(5);
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
@@ -303,11 +295,10 @@ public class BasicArithmeticTests {
   }
 
   public static class TestMinInfFrac<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+      extends TestThreadFactory {
 
     @Override
-    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next(
-        TestThreadConfiguration<ResourcePoolT, ProtocolBuilderNumeric> conf) {
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
 
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         public void test() throws Exception {
@@ -363,11 +354,10 @@ public class BasicArithmeticTests {
    * This should ensure batches with both types of protocols.
    */
   public static class TestAlternatingMultAdd<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+      extends TestThreadFactory {
 
     @Override
-    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next(
-        TestThreadConfiguration<ResourcePoolT, ProtocolBuilderNumeric> conf) {
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
       BigInteger first = BigInteger.valueOf(10);
       BigInteger second = BigInteger.valueOf(5);
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {

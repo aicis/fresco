@@ -33,7 +33,6 @@ import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.compare.ConditionalSelect;
-import dk.alexandra.fresco.lib.math.integer.SumSIntList;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
@@ -124,7 +123,7 @@ public class UpdateMatrix implements
             return newRow;
           });
       for (int i = 0; i < width; i++) {
-        lambdas_i.add(gpAddAndSub.seq(new SumSIntList(lambdas_i_jOuts.getColumn(i))));
+        lambdas_i.add(gpAddAndSub.advancedNumeric().sum(lambdas_i_jOuts.getColumn(i)));
       }
       return () -> new Pair<>(
           new Pair<>(scaledC, pp), new Pair<>(subOuts, lambdas_i));

@@ -16,6 +16,14 @@ public interface AdvancedNumericBuilder {
   Computation<SInt> sum(List<Computation<SInt>> elements);
 
   /**
+   * Calculates the product of all elements in the list.
+   *
+   * @param elements the elements to sum
+   * @return the product of the elements
+   */
+  Computation<SInt> product(List<Computation<SInt>> elements);
+
+  /**
    * This protocol calculates an approximation of
    * <code>floor(dividend / divisor)</code>, which will be either correct or
    * slightly smaller than the correct result.

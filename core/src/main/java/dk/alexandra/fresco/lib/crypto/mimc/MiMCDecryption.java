@@ -72,8 +72,6 @@ public class MiMCDecryption implements ComputationBuilder<SInt, ProtocolBuilderN
     this(cipherText, encryptionKey, null);
   }
 
-  int i = 0;
-
   @Override
   public Computation<SInt> buildComputation(ProtocolBuilderNumeric builder) {
     BasicNumeric basicNumeric = builder.getBasicNumeric();

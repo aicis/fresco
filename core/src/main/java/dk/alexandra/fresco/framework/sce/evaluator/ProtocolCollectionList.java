@@ -26,15 +26,6 @@ public class ProtocolCollectionList implements ProtocolCollection {
     return protocols.size() < capacity;
   }
 
-  /**
-   * Gets the protocols collected
-   *
-   * @return the protocols previously added
-   */
-  public List<NativeProtocol> getProtocols() {
-    return protocols;
-  }
-
   @Override
   public Iterator<NativeProtocol> iterator() {
     return protocols.iterator();

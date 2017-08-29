@@ -77,7 +77,7 @@ public class SecureComputationEngineImpl<ResourcePoolT extends ResourcePool, Bui
     } catch (InterruptedException | TimeoutException e) {
       throw new RuntimeException("Internal error in waiting", e);
     } catch (ExecutionException e) {
-      throw new RuntimeException("Execution exception when running the application", e);
+      throw new RuntimeException("Execution exception when running the application", e.getCause());
     }
   }
 

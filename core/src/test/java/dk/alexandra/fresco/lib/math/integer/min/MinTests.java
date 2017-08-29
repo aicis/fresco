@@ -31,7 +31,6 @@ import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.TestApplication;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
-import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.numeric.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.NumericBuilder;
@@ -63,7 +62,7 @@ public class MinTests {
 	public static class TestMinimumProtocol extends TestThreadFactory {
 
 		@Override
-		public TestThread next(TestThreadConfiguration conf) {
+		public TestThread next() {
 			
 			return new TestThread() {
 				private final List<Integer> data1 = Arrays.asList(200, 144, 99, 211, 930,543,520,532,497,450,432);
@@ -117,9 +116,9 @@ public class MinTests {
 	 public static class TestMinInfFraction extends TestThreadFactory {
 
 	    @Override
-	    public TestThread next(TestThreadConfiguration conf) {
-	      
-	      return new TestThread() {
+			public TestThread next() {
+
+				return new TestThread() {
 	        private final List<Integer> data1 = Arrays.asList(20, 14, 9, 21, 93, 54, 52, 53, 49, 45, 43);
 	        private final List<Integer> data2 = Arrays.asList(140, 120, 90, 191, 123, 4, 122, 153, 149, 145, 143);
 	        private final List<Integer> data3 = Arrays.asList(0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0);
@@ -188,9 +187,9 @@ public class MinTests {
    public static class TestMinInfFractionTrivial extends TestThreadFactory {
 
      @Override
-     public TestThread next(TestThreadConfiguration conf) {
-       
-       return new TestThread() {
+		 public TestThread next() {
+
+			 return new TestThread() {
          private final List<Integer> data1 = Arrays.asList(20);
          private final List<Integer> data2 = Arrays.asList(140);
          private final List<Integer> data3 = Arrays.asList(0);

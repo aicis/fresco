@@ -38,14 +38,7 @@ import java.math.BigInteger;
  */
 public class DummyArithmeticSInt implements SInt {
 
-  private BigInteger value;
-
-  /**
-   * Constructs an SInt with value <code>null</code>.
-   */
-  public DummyArithmeticSInt() {
-    this.value = null;
-  }
+  private final BigInteger value;
 
   /**
    * Constructs an SInt with a given value.
@@ -72,15 +65,6 @@ public class DummyArithmeticSInt implements SInt {
    */
   public BigInteger getValue() {
     return value;
-  }
-
-  /**
-   * Sets the value of this SInt.
-   * 
-   * @param value the value to set.
-   */
-  public void setValue(BigInteger value) {
-    this.value = value;
   }
 
   @Override

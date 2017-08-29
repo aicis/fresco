@@ -28,7 +28,6 @@ import static org.junit.Assert.assertTrue;
 import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
-import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
@@ -87,7 +86,7 @@ public class BristolCryptoTests {
    * TODO: Include more FIPS test vectors.
    */
   public static class AesTest<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
+      extends TestThreadFactory {
 
     private boolean doAsserts;
 
@@ -96,8 +95,7 @@ public class BristolCryptoTests {
     }
 
     @Override
-    public TestThread<ResourcePoolT, ProtocolBuilderBinary> next(
-        TestThreadConfiguration<ResourcePoolT, ProtocolBuilderBinary> conf) {
+    public TestThread next() {
       return new TestThread<ResourcePoolT, ProtocolBuilderBinary>() {
 
         // This is just some fixed test vectors for AES in ECB mode that was
@@ -153,7 +151,7 @@ public class BristolCryptoTests {
    * TODO: Include all three test vectors.
    */
   public static class Sha1Test<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
+      extends TestThreadFactory {
 
     private boolean doAsserts;
 
@@ -162,8 +160,7 @@ public class BristolCryptoTests {
     }
 
     @Override
-    public TestThread<ResourcePoolT, ProtocolBuilderBinary> next(
-        TestThreadConfiguration<ResourcePoolT, ProtocolBuilderBinary> conf) {
+    public TestThread<ResourcePoolT, ProtocolBuilderBinary> next() {
       return new TestThread<ResourcePoolT, ProtocolBuilderBinary>() {
         /*
          * IMPORTANT: These are NOT test vectors for the complete SHA-1 hash function, as the
@@ -245,7 +242,7 @@ public class BristolCryptoTests {
    * TODO: Include all three test vectors.
    */
   public static class Sha256Test<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
+      extends TestThreadFactory {
 
     private boolean doAsserts;
 
@@ -254,8 +251,7 @@ public class BristolCryptoTests {
     }
 
     @Override
-    public TestThread<ResourcePoolT, ProtocolBuilderBinary> next(
-        TestThreadConfiguration<ResourcePoolT, ProtocolBuilderBinary> conf) {
+    public TestThread<ResourcePoolT, ProtocolBuilderBinary> next() {
       return new TestThread<ResourcePoolT, ProtocolBuilderBinary>() {
         /*
          * IMPORTANT: These are NOT test vectors for the complete SHA-256 hash function, as the
@@ -317,7 +313,7 @@ public class BristolCryptoTests {
    * TODO: Include all three test vectors.
    */
   public static class MD5Test<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
+      extends TestThreadFactory {
 
     private boolean doAsserts;
 
@@ -326,8 +322,7 @@ public class BristolCryptoTests {
     }
 
     @Override
-    public TestThread<ResourcePoolT, ProtocolBuilderBinary> next(
-        TestThreadConfiguration<ResourcePoolT, ProtocolBuilderBinary> conf) {
+    public TestThread<ResourcePoolT, ProtocolBuilderBinary> next() {
       return new TestThread<ResourcePoolT, ProtocolBuilderBinary>() {
         /*
          * IMPORTANT: These are NOT test vectors for the complete SHA-1 hash function, as the
@@ -390,7 +385,7 @@ public class BristolCryptoTests {
    * before it is correct.
    */
   public static class Mult32x32Test<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
+      extends TestThreadFactory {
 
     private boolean doAsserts;
 
@@ -399,8 +394,7 @@ public class BristolCryptoTests {
     }
 
     @Override
-    public TestThread<ResourcePoolT, ProtocolBuilderBinary> next(
-        TestThreadConfiguration<ResourcePoolT, ProtocolBuilderBinary> conf) {
+    public TestThread<ResourcePoolT, ProtocolBuilderBinary> next() {
       return new TestThread<ResourcePoolT, ProtocolBuilderBinary>() {
         // 16*258 = 4128
         String inv1 = "00000010";
@@ -453,7 +447,7 @@ public class BristolCryptoTests {
    * https://dl.dropboxusercontent.com/u/25980826/des.test
    */
   public static class DesTest<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
+      extends TestThreadFactory {
 
     private boolean doAsserts;
 
@@ -462,8 +456,7 @@ public class BristolCryptoTests {
     }
 
     @Override
-    public TestThread<ResourcePoolT, ProtocolBuilderBinary> next(
-        TestThreadConfiguration<ResourcePoolT, ProtocolBuilderBinary> conf) {
+    public TestThread<ResourcePoolT, ProtocolBuilderBinary> next() {
       return new TestThread<ResourcePoolT, ProtocolBuilderBinary>() {
 
         String keyV = "0101010101010101";

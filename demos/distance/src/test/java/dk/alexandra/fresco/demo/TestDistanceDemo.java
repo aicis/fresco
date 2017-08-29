@@ -50,9 +50,9 @@ public class TestDistanceDemo {
 
   @Test
   public void testDistance() throws Exception {
-    final TestThreadFactory<SpdzResourcePool, ProtocolBuilderNumeric> f = new TestThreadFactory<SpdzResourcePool, ProtocolBuilderNumeric>() {
+    final TestThreadFactory f = new TestThreadFactory() {
       @Override
-      public TestThread next(TestThreadConfiguration conf) {
+      public TestThread next() {
         return new TestThread<SpdzResourcePool, ProtocolBuilderNumeric>() {
           @Override
           public void test() throws Exception {

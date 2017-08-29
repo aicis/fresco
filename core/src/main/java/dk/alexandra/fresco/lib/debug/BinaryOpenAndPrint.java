@@ -66,7 +66,7 @@ public class BinaryOpenAndPrint implements
           sb.append(0);
         }
       }
-      seq.utility().marker(sb.toString(), output);
+      seq.debug().marker(sb.toString(), output);
       return () -> null;
     });
   }

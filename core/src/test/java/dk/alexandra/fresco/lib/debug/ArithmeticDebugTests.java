@@ -3,7 +3,6 @@ package dk.alexandra.fresco.lib.debug;
 import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
-import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.numeric.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
@@ -23,11 +22,10 @@ import org.junit.Assert;
 public class ArithmeticDebugTests {
 
   public static class TestArithmeticOpenAndPrint<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+      extends TestThreadFactory {
 
     @Override
-    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next(
-        TestThreadConfiguration<ResourcePoolT, ProtocolBuilderNumeric> conf) {
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
 
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
@@ -49,8 +47,8 @@ public class ArithmeticDebugTests {
                         ).map((n) -> numeric.input(n, 1)).collect(Collectors.toList());
                     return () -> toPrint;
                   }).seq((seq, inputs) -> {
-                    seq.utility().openAndPrint("testNumber", inputs.get(0), stream);
-                    seq.utility().openAndPrint("testVector", inputs, stream);
+                    seq.debug().openAndPrint("testNumber", inputs.get(0), stream);
+                    seq.debug().openAndPrint("testVector", inputs, stream);
                     ArrayList<Computation<SInt>> r1 = new ArrayList<>();
                     r1.add(inputs.get(0));
                     r1.add(inputs.get(1));
@@ -61,7 +59,7 @@ public class ArithmeticDebugTests {
                     m.add(r1);
                     m.add(r2);
                     Matrix<Computation<SInt>> matrix = new Matrix<>(2, 2, m);
-                    seq.utility().openAndPrint("testMatrix", matrix, stream);
+                    seq.debug().openAndPrint("testMatrix", matrix, stream);
                     return null;
                   });
                 }

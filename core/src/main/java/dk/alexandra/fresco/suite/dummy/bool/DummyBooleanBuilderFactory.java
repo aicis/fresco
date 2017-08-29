@@ -33,15 +33,6 @@ import dk.alexandra.fresco.framework.value.SBool;
 
 public class DummyBooleanBuilderFactory implements BuilderFactoryBinary {
 
-
-  private DummyBooleanFactory factory;
-
-  public DummyBooleanBuilderFactory(DummyBooleanFactory factory) {
-    super();
-    this.factory = factory;
-  }
-
-
   @Override
   public BinaryBuilder createBinaryBuilder(ProtocolBuilderBinary builder) {
 

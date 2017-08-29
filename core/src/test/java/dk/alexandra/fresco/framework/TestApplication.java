@@ -45,7 +45,7 @@ public abstract class TestApplication implements
   public abstract ProtocolProducer prepareApplication(BuilderFactory factoryProducer);
 
   @Override
-  public Computation<List<BigInteger>> prepareApplication(ProtocolBuilderNumeric producer) {
+  public final Computation<List<BigInteger>> prepareApplication(ProtocolBuilderNumeric producer) {
     producer.append(prepareApplication(ProtocolBuilderHelper.getFactoryNumeric(producer)));
     return outputToBigInteger();
   }
@@ -55,14 +55,5 @@ public abstract class TestApplication implements
         .stream()
         .map(Computation::out)
         .collect(Collectors.toList());
-  }
-
-
-  public BigInteger[] getOutputs() {
-    return this.outputs
-        .stream()
-        .map(Computation::out)
-        .collect(Collectors.toList())
-        .toArray(new BigInteger[]{});
   }
 }

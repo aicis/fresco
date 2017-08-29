@@ -3,15 +3,12 @@ package dk.alexandra.fresco.lib.arithmetic;
 import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
-import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.numeric.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.math.integer.ProductSIntList;
-import dk.alexandra.fresco.lib.math.integer.SumSIntList;
 import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.List;
@@ -29,11 +26,10 @@ public class ParallelAndSequenceTests {
   private static final Integer[] inputAsArray = {1, 2, 3, 4, 5, 6, 7, 8, 9};
 
   public static class TestSequentialEvaluation<ResourcePoolT extends ResourcePool> extends
-      TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+      TestThreadFactory {
 
     @Override
-    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next(
-        TestThreadConfiguration<ResourcePoolT, ProtocolBuilderNumeric> conf) {
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         @Override
         public void test() throws Exception {
@@ -54,11 +50,10 @@ public class ParallelAndSequenceTests {
   }
 
   public static class TestParallelEvaluation<ResourcePoolT extends ResourcePool> extends
-      TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+      TestThreadFactory {
 
     @Override
-    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next(
-        TestThreadConfiguration<ResourcePoolT, ProtocolBuilderNumeric> conf) {
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         @Override
         public void test() throws Exception {
@@ -88,7 +83,7 @@ public class ParallelAndSequenceTests {
           Arrays.stream(inputAsArray)
               .map((integer) -> convertToSInt(integer, producer))
               .collect(Collectors.toList());
-      Computation<SInt> result = producer.seq(new SumSIntList(input));
+      Computation<SInt> result = producer.advancedNumeric().sum(input);
       return producer.numeric().open(result);
     }
 
@@ -99,10 +94,10 @@ public class ParallelAndSequenceTests {
     @Override
     public Computation<BigInteger> prepareApplication(
         ProtocolBuilderNumeric producer) {
-      Computation<SInt> result = producer.seq(new ProductSIntList(
+      Computation<SInt> result = producer.advancedNumeric().product(
           Arrays.stream(inputAsArray)
               .map((integer) -> convertToSInt(integer, producer))
-              .collect(Collectors.toList())));
+              .collect(Collectors.toList()));
       return producer.numeric().open(result);
     }
   }
