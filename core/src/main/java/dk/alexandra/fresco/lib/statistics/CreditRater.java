@@ -38,27 +38,26 @@ import dk.alexandra.fresco.lib.math.integer.SumSIntList;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Application for performing credit rating.
  *
- * Given a dataset (a vector of values)
- * and a credit rating function (a set of intervals for each value)
- * will calculate the combined score.
+ * Given a dataset (a vector of values) and a credit rating function (a set of intervals for each
+ * value) will calculate the combined score.
  */
 public class CreditRater implements
     Application<SInt, ProtocolBuilderNumeric> {
 
-  private List<SInt> values;
-  private List<List<SInt>> intervals;
-  private List<List<SInt>> intervalScores;
+  private List<Computation<SInt>> values;
+  private List<List<Computation<SInt>>> intervals;
+  private List<List<Computation<SInt>>> intervalScores;
 
   /**
    * @throws MPCException if the intervals, values and intervalScores does not have the same length
    */
   public CreditRater(
-      List<SInt> values, List<List<SInt>> intervals, List<List<SInt>> intervalScores)
+      List<Computation<SInt>> values, List<List<Computation<SInt>>> intervals,
+      List<List<Computation<SInt>>> intervalScores)
       throws MPCException {
     this.values = values;
     this.intervals = intervals;
@@ -69,8 +68,7 @@ public class CreditRater implements
   }
 
   /**
-   * Verify that the input values are consistent, i.e.
-   * the there is an interval for each value
+   * Verify that the input values are consistent, i.e. the there is an interval for each value
    *
    * @return If the input is consistent.
    */
@@ -93,9 +91,9 @@ public class CreditRater implements
         parallel -> {
           List<Computation<SInt>> scores = new ArrayList<>(values.size());
           for (int i = 0; i < values.size(); i++) {
-            SInt value = values.get(i);
-            List<SInt> interval = intervals.get(i);
-            List<SInt> intervalScore = intervalScores.get(i);
+            Computation<SInt> value = values.get(i);
+            List<Computation<SInt>> interval = intervals.get(i);
+            List<Computation<SInt>> intervalScore = intervalScores.get(i);
 
             scores.add(
                 parallel.seq(new ComputeIntervalScore(interval, value, intervalScore)));
@@ -116,26 +114,17 @@ public class CreditRater implements
 
 
     /**
-     * Given a value and scores for an interval, will lookup the score for
-     * the value.
+     * Given a value and scores for an interval, will lookup the score for the value.
      *
      * @param value The value to lookup
      * @param interval The interval definition
      * @param scores The scores for each interval
      */
-    ComputeIntervalScore(List<SInt> interval, SInt value, List<SInt> scores) {
-      this.interval = convertList(interval);
-      this.value = () -> value;
-      this.scores = convertList(scores);
-    }
-
-    private List<Computation<SInt>> convertList(List<SInt> interval) {
-      return interval.stream()
-          .map(intervalValue -> {
-            Computation<SInt> computation = () -> intervalValue;
-            return computation;
-          })
-          .collect(Collectors.toList());
+    ComputeIntervalScore(List<Computation<SInt>> interval, Computation<SInt> value,
+        List<Computation<SInt>> scores) {
+      this.interval = interval;
+      this.value = value;
+      this.scores = scores;
     }
 
     @Override

@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -23,30 +23,31 @@
  *
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
- *******************************************************************************/
 
+ */
 package dk.alexandra.fresco.lib.statistics;
 
+import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.value.SInt;
+import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticSInt;
 import java.util.ArrayList;
 import java.util.List;
 import org.hamcrest.core.Is;
 import org.junit.Assert;
 import org.junit.Test;
-import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticSInt;
 
 public class TestCreditRater {
 
   @Test
   public void testConsistency() {
-    List<SInt> values = new ArrayList<SInt>();
-    List<List<SInt>> intervals = new ArrayList<List<SInt>>();
-    List<List<SInt>> scores = new ArrayList<List<SInt>>();
+    List<Computation<SInt>> values = new ArrayList<>();
+    List<List<Computation<SInt>>> intervals = new ArrayList<>();
+    List<List<Computation<SInt>>> scores = new ArrayList<>();
     
     values.add(new DummyArithmeticSInt());
-    intervals.add(new ArrayList<SInt>());
-    scores.add(new ArrayList<SInt>());
+    intervals.add(new ArrayList<>());
+    scores.add(new ArrayList<>());
 
     try {
       new CreditRater(values, intervals, scores);
@@ -54,7 +55,7 @@ public class TestCreditRater {
       Assert.fail("Consistent data should be accepted");
     }
 
-    intervals.add(new ArrayList<SInt>());
+    intervals.add(new ArrayList<>());
 
     try {
       new CreditRater(values, intervals, scores);
