@@ -88,7 +88,7 @@ class SpdzBuilder implements BuilderFactoryNumeric {
 
       @Override
       public Computation<SInt> randomBit() {
-        return () -> spdzFactory.getRandomBitFromStorage();
+        return protocolBuilder.append(new SpdzRandomBitProtocol());
       }
 
       @Override
@@ -121,8 +121,7 @@ class SpdzBuilder implements BuilderFactoryNumeric {
 
       @Override
       public Computation<SInt[]> getExponentiationPipe() {
-        //TODO Should be a protocol
-        return () -> spdzFactory.getExponentiationPipe();
+        return protocolBuilder.append(new SpdzExponentiationPipeProtocol());
       }
     };
   }
