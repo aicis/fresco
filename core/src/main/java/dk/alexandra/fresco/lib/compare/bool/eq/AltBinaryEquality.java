@@ -1,4 +1,4 @@
-/*
+/*******************************************************************************
  * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -23,7 +23,9 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.compare.bool.eq;
 
+
 import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.builder.ComputationBuilder;
 import dk.alexandra.fresco.framework.builder.binary.BinaryBuilderAdvanced;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.value.SBool;
@@ -35,16 +37,15 @@ import java.util.List;
  *
  * The XNORs are done in parallel and the ANDs are done by a log-depth tree structured protocol.
  *
- * @author Kasper Damgaard
  */
-public class BinaryEqualityProtocolImpl implements
-    dk.alexandra.fresco.framework.builder.ComputationBuilder<SBool, ProtocolBuilderBinary> {
+public class AltBinaryEquality implements ComputationBuilder<SBool, ProtocolBuilderBinary> {
+
 
   private List<Computation<SBool>> inLeft;
   private List<Computation<SBool>> inRight;
   private final int length;
 
-  public BinaryEqualityProtocolImpl(List<Computation<SBool>> inLeft,
+  public AltBinaryEquality(List<Computation<SBool>> inLeft,
       List<Computation<SBool>> inRight) {
     this.inLeft = inLeft;
     this.inRight = inRight;
@@ -62,20 +63,45 @@ public class BinaryEqualityProtocolImpl implements
       for (int i = 0; i < length; i++) {
         xnors.add(bb.xnor(inLeft.get(i), inRight.get(i)));
       }
-      return () -> xnors;
-    }).seq((seq, xnors) -> {
-      // xnors are now a bitstring where a 0 represents that something differed between the inputs
-      // Can now do an AND row to determine if the entire bitstring is 1's (inputs are equal) or
-      // not.
-      // TODO: One can obtain better results using a tree structure and doing those in parallel.
-      Computation<SBool> xnorsAnd;
-      xnorsAnd = seq.binary().and(xnors.get(0), xnors.get(1));
-      int i = 2;
-      while (i < length) {
-        xnorsAnd = seq.binary().and(xnorsAnd, xnors.get(i));
-        i++;
-      }
-      return xnorsAnd;
+
+      IterationState is = new IterationState(xnors.size(), () -> xnors);
+      return is;
+    }).whileLoop((state) -> state.round > 1, (seq, state) -> {
+      List<Computation<SBool>> input = state.value.out();
+      int size = input.size() % 2 + input.size() / 2;
+
+      IterationState is = new IterationState(size, seq.par(par -> {
+        List<Computation<SBool>> ands = new ArrayList<>();
+        int idx = 0;
+        while (idx < input.size() - 1) {
+          ands.add(par.binary().and(input.get(idx), input.get(idx + 1)));
+          idx += 2;
+        }
+        if (idx < input.size()) {
+          ands.add(input.get(idx));
+        }
+        return () -> ands;
+      }));
+      return is;
+    }).seq((seq, state) -> {
+      return state.value.out().get(0);
     });
   }
+
+  private static final class IterationState implements Computation<IterationState> {
+
+    private int round;
+    private final Computation<List<Computation<SBool>>> value;
+
+    private IterationState(int round, Computation<List<Computation<SBool>>> value) {
+      this.round = round;
+      this.value = value;
+    }
+
+    @Override
+    public IterationState out() {
+      return this;
+    }
+  }
+
 }

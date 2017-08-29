@@ -35,7 +35,7 @@ import java.util.List;
  * @author psn
  * 
  */
-public class BinaryGreaterThanProtocolImpl implements
+public class BinaryGreaterThan implements
     dk.alexandra.fresco.framework.builder.ComputationBuilder<SBool, ProtocolBuilderBinary> {
 
   private List<Computation<SBool>> inA, inB;
@@ -48,7 +48,7 @@ public class BinaryGreaterThanProtocolImpl implements
    * @param inA input string A
    * @param inB input string B
    */
-  public BinaryGreaterThanProtocolImpl(List<Computation<SBool>> inA, List<Computation<SBool>> inB) {
+  public BinaryGreaterThan(List<Computation<SBool>> inA, List<Computation<SBool>> inB) {
     if (inA.size() == inB.size()) {
       this.inA = inA;
       this.inB = inB;

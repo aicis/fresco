@@ -5,15 +5,11 @@ import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.builder.binary.BinaryBuilder;
 import dk.alexandra.fresco.framework.builder.binary.BuilderFactoryBinary;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
-import dk.alexandra.fresco.framework.network.SCENetwork;
-import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
 import dk.alexandra.fresco.framework.value.SBool;
-import dk.alexandra.fresco.suite.tinytables.online.datatypes.TinyTablesSBool;
 import dk.alexandra.fresco.suite.tinytables.online.protocols.TinyTablesANDProtocol;
 import dk.alexandra.fresco.suite.tinytables.online.protocols.TinyTablesCloseProtocol;
 import dk.alexandra.fresco.suite.tinytables.online.protocols.TinyTablesNOTProtocol;
 import dk.alexandra.fresco.suite.tinytables.online.protocols.TinyTablesOpenToAllProtocol;
-import dk.alexandra.fresco.suite.tinytables.online.protocols.TinyTablesProtocol;
 import dk.alexandra.fresco.suite.tinytables.online.protocols.TinyTablesXORProtocol;
 
 public class TinyTablesBuilderFactory implements BuilderFactoryBinary {
@@ -39,11 +35,6 @@ public class TinyTablesBuilderFactory implements BuilderFactoryBinary {
   @Override
   public BinaryBuilder createBinaryBuilder(ProtocolBuilderBinary builder) {
     return new BinaryBuilder() {
-
-      @Override
-      public Computation<SBool> xor(Computation<SBool> left, boolean right) {
-        throw new RuntimeException("Not implemented Yet");
-      }
 
       @Override
       public Computation<SBool> xor(Computation<SBool> left, Computation<SBool> right) {
@@ -89,33 +80,6 @@ public class TinyTablesBuilderFactory implements BuilderFactoryBinary {
         TinyTablesCloseProtocol p = new TinyTablesCloseProtocol(getNextId(), inputter, in);
         builder.append(p);
         return p;
-      }
-
-      @Override
-      public Computation<SBool> copy(Computation<SBool> src) {
-        TinyTablesSBool out = (TinyTablesSBool) factory.getSBool();
-        TinyTablesProtocol<SBool> p = new TinyTablesProtocol<SBool>() {
-
-          @Override
-          public dk.alexandra.fresco.framework.NativeProtocol.EvaluationStatus evaluate(int round,
-              ResourcePoolImpl resourcePool, SCENetwork network) {
-            out.setValue(((TinyTablesSBool) src.out()).getValue());
-            return EvaluationStatus.IS_DONE;
-          }
-
-          @Override
-          public SBool out() {
-            return out;
-          }
-        };
-
-        builder.append(p);
-        return p;
-      }
-
-      @Override
-      public Computation<SBool> and(Computation<SBool> left, boolean right) {
-        throw new RuntimeException("Not implemented yet");
       }
 
       @Override

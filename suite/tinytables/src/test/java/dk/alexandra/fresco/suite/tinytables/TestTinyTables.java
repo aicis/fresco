@@ -196,14 +196,6 @@ public class TestTinyTables {
   }
 
   @Test
-  public void testCOPY() throws Exception {
-    runTest(new BasicBooleanTests.TestCOPY<ResourcePoolImpl>(false), EvaluationStrategy.SEQUENTIAL,
-        true, "testCOPY");
-    runTest(new BasicBooleanTests.TestCOPY<ResourcePoolImpl>(true), EvaluationStrategy.SEQUENTIAL,
-        false, "testCOPY");
-  }
-
-  @Test
   public void testBasicProtocols() throws Exception {
     runTest(new BasicBooleanTests.TestBasicProtocols<ResourcePoolImpl>(false),
         EvaluationStrategy.SEQUENTIAL, true, "testBasicProtocols");
