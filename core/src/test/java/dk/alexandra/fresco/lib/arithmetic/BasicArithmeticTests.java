@@ -24,15 +24,11 @@
 package dk.alexandra.fresco.lib.arithmetic;
 
 import dk.alexandra.fresco.framework.Application;
-import dk.alexandra.fresco.framework.BuilderFactory;
 import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.ProtocolProducer;
-import dk.alexandra.fresco.framework.TestApplication;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.numeric.AdvancedNumericBuilder;
-import dk.alexandra.fresco.framework.builder.numeric.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
@@ -315,63 +311,47 @@ public class BasicArithmeticTests {
 
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         public void test() throws Exception {
-          TestApplication app = new TestApplication() {
+          Application<List<BigInteger>, ProtocolBuilderNumeric> app =
+              producer -> {
+                List<BigInteger> bns = Arrays.asList(BigInteger.valueOf(10), BigInteger.valueOf(2),
+                    BigInteger.valueOf(30), BigInteger.valueOf(1), BigInteger.valueOf(50),
+                    BigInteger.valueOf(10), BigInteger.valueOf(20), BigInteger.valueOf(30),
+                    BigInteger.valueOf(5), BigInteger.valueOf(1));
+                List<BigInteger> bds = Arrays.asList(BigInteger.valueOf(10), BigInteger.valueOf(10),
+                    BigInteger.valueOf(10), BigInteger.valueOf(10), BigInteger.valueOf(10),
+                    BigInteger.valueOf(10), BigInteger.valueOf(20), BigInteger.valueOf(30),
+                    BigInteger.valueOf(500), BigInteger.valueOf(50));
+                List<BigInteger> binfs = Arrays.asList(BigInteger.valueOf(0), BigInteger.valueOf(0),
+                    BigInteger.valueOf(0), BigInteger.valueOf(1), BigInteger.valueOf(0),
+                    BigInteger.valueOf(0), BigInteger.valueOf(0), BigInteger.valueOf(0),
+                    BigInteger.valueOf(1), BigInteger.valueOf(1));
+                NumericBuilder numeric = producer.numeric();
+                List<Computation<SInt>> ns =
+                    bns.stream().map((n) -> numeric.input(n, 1)).collect(Collectors.toList());
+                List<Computation<SInt>> ds =
+                    bds.stream().map((n) -> numeric.input(n, 1)).collect(Collectors.toList());
+                List<Computation<SInt>> infs =
+                    binfs.stream().map((n) -> numeric.input(n, 1)).collect(Collectors.toList());
 
-
-            @Override
-            public ProtocolProducer prepareApplication(BuilderFactory factoryProducer) {
-              List<BigInteger> bns = Arrays.asList(BigInteger.valueOf(10), BigInteger.valueOf(2),
-                  BigInteger.valueOf(30), BigInteger.valueOf(1), BigInteger.valueOf(50),
-                  BigInteger.valueOf(10), BigInteger.valueOf(20), BigInteger.valueOf(30),
-                  BigInteger.valueOf(5), BigInteger.valueOf(1));
-              List<BigInteger> bds = Arrays.asList(BigInteger.valueOf(10), BigInteger.valueOf(10),
-                  BigInteger.valueOf(10), BigInteger.valueOf(10), BigInteger.valueOf(10),
-                  BigInteger.valueOf(10), BigInteger.valueOf(20), BigInteger.valueOf(30),
-                  BigInteger.valueOf(500), BigInteger.valueOf(50));
-              List<BigInteger> binfs = Arrays.asList(BigInteger.valueOf(0), BigInteger.valueOf(0),
-                  BigInteger.valueOf(0), BigInteger.valueOf(1), BigInteger.valueOf(0),
-                  BigInteger.valueOf(0), BigInteger.valueOf(0), BigInteger.valueOf(0),
-                  BigInteger.valueOf(1), BigInteger.valueOf(1));
-              ProtocolBuilderNumeric seq = ((BuilderFactoryNumeric) factoryProducer)
-                  .createSequential();
-              NumericBuilder numeric = seq.numeric();
-              List<Computation<SInt>> ns =
-                  bns.stream().map((n) -> numeric.input(n, 1)).collect(Collectors.toList());
-              List<Computation<SInt>> ds =
-                  bds.stream().map((n) -> numeric.input(n, 1)).collect(Collectors.toList());
-              List<Computation<SInt>> infs =
-                  binfs.stream().map((n) -> numeric.input(n, 1)).collect(Collectors.toList());
-
-              seq.seq(new MinInfFrac(ns, ds, infs)).seq((seq2, infOutput) -> {
-                NumericBuilder innerNumeric = seq2.numeric();
-                List<Computation<BigInteger>> collect =
-                    infOutput.cs.stream().map(innerNumeric::open).collect(Collectors.toList());
-                return () -> collect;
-              }).seq((ignored, outputList) -> {
-                outputs = outputList;
-                return () -> null;
-              });
-              return seq.build();
-            }
+                return producer.seq(new MinInfFrac(ns, ds, infs)).seq((seq2, infOutput) -> {
+                  NumericBuilder innerNumeric = seq2.numeric();
+                  List<Computation<BigInteger>> collect =
+                      infOutput.cs.stream().map(innerNumeric::open).collect(Collectors.toList());
+                  return () -> collect.stream().map(Computation::out).collect(Collectors.toList());
+                });
           };
-          secureComputationEngine.runApplication(app, ResourcePoolCreator
+          List<BigInteger> outputs = secureComputationEngine.runApplication(app, ResourcePoolCreator
               .createResourcePool(conf.sceConf));
-          BigInteger[] outputs = app.getOutputs();
           int sum = 0;
-          for (int i = 0; i < outputs.length; i++) {
-            sum += outputs[i].intValue();
+          for (int i = 0; i < outputs.size(); i++) {
+            sum += outputs.get(i).intValue();
             if (i == 1) {
-              Assert.assertEquals(BigInteger.ONE, outputs[i]);
+              Assert.assertEquals(BigInteger.ONE, outputs.get(i));
             } else {
-              Assert.assertEquals(BigInteger.ZERO, outputs[i]);
+              Assert.assertEquals(BigInteger.ZERO, outputs.get(i));
             }
           }
           Assert.assertEquals(1, sum);
-          // System.out.println(outputs[0].getValue() + " / " + outputs[1].getValue() + " " +
-          // outputs[2].getValue());
-          // Assert.assertEquals(BigInteger.valueOf(1), outputs[0].getValue());
-          // Assert.assertEquals(BigInteger.valueOf(10), outputs[1].getValue());
-          // Assert.assertEquals(BigInteger.valueOf(0), outputs[2].getValue());
 
         }
       };
