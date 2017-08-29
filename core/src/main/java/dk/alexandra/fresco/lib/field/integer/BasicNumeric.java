@@ -24,36 +24,25 @@
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
  *******************************************************************************/
-package dk.alexandra.fresco.suite.spdz.utils;
+package dk.alexandra.fresco.lib.field.integer;
 
-import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import java.math.BigInteger;
 
-public class SpdzFactory implements BasicNumericFactory {
-
-  private final int maxBitLength;
-  private final BigInteger modulus;
+/**
+ * Holds the most crucial properties about the finite field we are working within.
+ */
+public interface BasicNumeric {
 
   /**
-   * @param maxBitLength The maximum length in bits that the numbers in the application will have.
-   * If you have greater knowledge of your application, you can create several factorys, each with a
-   * different maxBitLength to increase performance.
-   * @param modulus the modules used in the application
+   * Returns the maximum number of bits a number in the field can contain.
    */
-  public SpdzFactory(int maxBitLength, BigInteger modulus) {
-    this.maxBitLength = maxBitLength;
-    this.modulus = modulus;
-  }
+  int getMaxBitLength();
 
-  @Override
-  public int getMaxBitLength() {
-    return this.maxBitLength;
-  }
-
-
-  @Override
-  public BigInteger getModulus() {
-    return modulus;
-  }
+  /**
+   * Returns the modulus used in the underlying arithmetic protocol suite.
+   *
+   * @return The modulus used.
+   */
+  BigInteger getModulus();
 
 }

@@ -63,7 +63,7 @@ public class RightShift implements ComputationBuilder<RightShiftResult, Protocol
       BigInteger two = BigInteger.valueOf(2);
       NumericBuilder numericBuilder = parSubSequential.numeric();
       BigInteger inverseOfTwo =
-          two.modInverse(parSubSequential.getBasicNumericFactory().getModulus());
+          two.modInverse(parSubSequential.getBasicNumeric().getModulus());
       Computation<SInt> rBottom = randomAdditiveMask.bits.get(0);
       Computation<SInt> sub = numericBuilder.sub(randomAdditiveMask.r, rBottom);
       Computation<SInt> rTop = numericBuilder.mult(inverseOfTwo, sub);

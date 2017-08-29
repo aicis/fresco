@@ -24,18 +24,18 @@
 
 package dk.alexandra.fresco.suite.dummy.arithmetic;
 
-import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
+import dk.alexandra.fresco.lib.field.integer.BasicNumeric;
 import java.math.BigInteger;
 
 /**
- * Implementation of {@link BasicNumericFactory} for the Dummy Arithmetic suite.
+ * Implementation of {@link BasicNumeric} for the Dummy Arithmetic suite.
  */
-public class DummyArithmeticFactory implements BasicNumericFactory {
+public class DummyArithmetic implements BasicNumeric {
 
   private BigInteger mod;
   private int maxBitLength;
 
-  public DummyArithmeticFactory(BigInteger mod, int maxBitLength) {
+  public DummyArithmetic(BigInteger mod, int maxBitLength) {
     this.mod = mod;
     this.maxBitLength = maxBitLength;
   }

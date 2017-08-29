@@ -6,7 +6,7 @@ import dk.alexandra.fresco.framework.builder.numeric.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.compare.MiscOIntGenerators;
-import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
+import dk.alexandra.fresco.lib.field.integer.BasicNumeric;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzAddProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzAddProtocolKnownLeft;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzInputProtocol;
@@ -19,20 +19,20 @@ import dk.alexandra.fresco.suite.spdz.gates.SpdzRandomProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzSubtractProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzSubtractProtocolKnownLeft;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzSubtractProtocolKnownRight;
-import dk.alexandra.fresco.suite.spdz.utils.SpdzFactory;
+import dk.alexandra.fresco.suite.spdz.utils.SpdzNumeric;
 import java.math.BigInteger;
 
 class SpdzBuilder implements BuilderFactoryNumeric {
 
-  private SpdzFactory spdzFactory;
+  private SpdzNumeric spdzFactory;
   private MiscOIntGenerators miscOIntGenerators;
 
-  SpdzBuilder(SpdzFactory spdzFactory) {
+  SpdzBuilder(SpdzNumeric spdzFactory) {
     this.spdzFactory = spdzFactory;
   }
 
   @Override
-  public BasicNumericFactory getBasicNumericFactory() {
+  public BasicNumeric getBasicNumericFactory() {
     return spdzFactory;
   }
 

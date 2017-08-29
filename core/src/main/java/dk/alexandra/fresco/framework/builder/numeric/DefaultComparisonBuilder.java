@@ -30,7 +30,7 @@ public class DefaultComparisonBuilder implements ComparisonBuilder {
 
   @Override
   public Computation<SInt> equals(Computation<SInt> x, Computation<SInt> y) {
-    int maxBitLength = builder.getBasicNumericFactory().getMaxBitLength();
+    int maxBitLength = builder.getBasicNumeric().getMaxBitLength();
     return equals(maxBitLength, x, y);
   }
 

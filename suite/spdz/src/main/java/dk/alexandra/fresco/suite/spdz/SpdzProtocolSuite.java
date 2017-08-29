@@ -37,7 +37,7 @@ import dk.alexandra.fresco.suite.spdz.configuration.PreprocessingStrategy;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageDummyImpl;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageImpl;
-import dk.alexandra.fresco.suite.spdz.utils.SpdzFactory;
+import dk.alexandra.fresco.suite.spdz.utils.SpdzNumeric;
 import java.security.SecureRandom;
 import java.util.Random;
 
@@ -59,7 +59,7 @@ public class SpdzProtocolSuite implements
   @Override
   public BuilderFactory<ProtocolBuilderNumeric> init(
       SpdzResourcePool resourcePool) {
-    return new SpdzBuilder(new SpdzFactory(maxBitLength, resourcePool.getModulus()));
+    return new SpdzBuilder(new SpdzNumeric(maxBitLength, resourcePool.getModulus()));
   }
 
   @Override

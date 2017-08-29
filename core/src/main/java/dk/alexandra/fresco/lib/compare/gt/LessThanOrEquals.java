@@ -56,7 +56,7 @@ public class LessThanOrEquals implements ComputationBuilder<SInt, ProtocolBuilde
 
   @Override
   public Computation<SInt> buildComputation(ProtocolBuilderNumeric builder) {
-    final BigInteger modulus = builder.getBasicNumericFactory().getModulus();
+    final BigInteger modulus = builder.getBasicNumeric().getModulus();
 
     final int bitLengthBottom = bitLength / 2;
     final int bitLengthTop = bitLength - bitLengthBottom;

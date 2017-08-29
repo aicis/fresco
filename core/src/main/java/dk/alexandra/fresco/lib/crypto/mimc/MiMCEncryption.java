@@ -31,7 +31,7 @@ import dk.alexandra.fresco.framework.builder.ComputationBuilder;
 import dk.alexandra.fresco.framework.builder.numeric.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
+import dk.alexandra.fresco.lib.field.integer.BasicNumeric;
 import java.math.BigInteger;
 
 public class MiMCEncryption implements ComputationBuilder<SInt, ProtocolBuilderNumeric> {
@@ -71,7 +71,7 @@ public class MiMCEncryption implements ComputationBuilder<SInt, ProtocolBuilderN
 
   @Override
   public Computation<SInt> buildComputation(ProtocolBuilderNumeric builder) {
-    final int requiredRounds = getRequiredRounds(builder.getBasicNumericFactory(), requestedRounds);
+    final int requiredRounds = getRequiredRounds(builder.getBasicNumeric(), requestedRounds);
     BigInteger three = BigInteger.valueOf(3);
     /*
      * In the first round we compute c = (p + K)^{3}
@@ -93,7 +93,7 @@ public class MiMCEncryption implements ComputationBuilder<SInt, ProtocolBuilderN
            * in the previous round
            */
           BigInteger roundConstantInteger = MiMCConstants
-              .getConstant(state.round, seq.getBasicNumericFactory().getModulus());
+              .getConstant(state.round, seq.getBasicNumeric().getModulus());
           NumericBuilder numeric = seq.numeric();
           Computation<SInt> masked = numeric.add(
               roundConstantInteger,
@@ -111,10 +111,10 @@ public class MiMCEncryption implements ComputationBuilder<SInt, ProtocolBuilderN
     );
   }
 
-  static int getRequiredRounds(BasicNumericFactory basicNumericFactory, Integer requestedRounds) {
+  static int getRequiredRounds(BasicNumeric basicNumeric, Integer requestedRounds) {
     final int requiredRounds;
     if (requestedRounds == null) {
-      BigInteger modulus = basicNumericFactory.getModulus();
+      BigInteger modulus = basicNumeric.getModulus();
       requiredRounds = (int) Math.ceil(Math.log(modulus.doubleValue()) / Math.log(3));
     } else {
       requiredRounds = requestedRounds;

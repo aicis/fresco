@@ -28,7 +28,7 @@ import dk.alexandra.fresco.framework.BuilderFactory;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.SCENetwork;
-import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
+import dk.alexandra.fresco.lib.field.integer.BasicNumeric;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import java.io.IOException;
 import java.math.BigInteger;
@@ -43,10 +43,10 @@ import java.util.Random;
 public class DummyArithmeticProtocolSuite
     implements ProtocolSuite<DummyArithmeticResourcePool, ProtocolBuilderNumeric> {
 
-  private final BasicNumericFactory basicFactory;
+  private final BasicNumeric basicFactory;
 
   public DummyArithmeticProtocolSuite(BigInteger modulus, int maxBitLength) {
-    basicFactory = new DummyArithmeticFactory(modulus, maxBitLength);
+    basicFactory = new DummyArithmetic(modulus, maxBitLength);
   }
 
   @Override

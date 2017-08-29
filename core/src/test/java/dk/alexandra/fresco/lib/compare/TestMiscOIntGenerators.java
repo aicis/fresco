@@ -8,7 +8,7 @@ import org.hamcrest.core.Is;
 import org.junit.Assert;
 import org.junit.Test;
 
-import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticFactory;
+import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmetic;
 
 public class TestMiscOIntGenerators {
 
