@@ -23,24 +23,23 @@
  *
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
- *******************************************************************************/
+ */
 package dk.alexandra.fresco.lib.math.integer.min;
 
-import dk.alexandra.fresco.framework.BuilderFactory;
+import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.ProtocolProducer;
-import dk.alexandra.fresco.framework.TestApplication;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
-import dk.alexandra.fresco.framework.builder.numeric.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
+import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.hamcrest.core.Is;
@@ -49,209 +48,204 @@ import org.junit.Assert;
 
 /**
  * Generic test cases for basic finite field operations.
- * 
- * Can be reused by a test case for any protocol suite that implements the basic
- * field protocol factory.
  *
- * TODO: Generic tests should not reside in the runtime package. Rather in
- * mpc.lib or something.
+ * Can be reused by a test case for any protocol suite that implements the basic field protocol
+ * factory.
  *
+ * TODO: Generic tests should not reside in the runtime package. Rather in mpc.lib or something.
  */
 public class MinTests {
 
-	public static class TestMinimumProtocol extends TestThreadFactory {
+  public static class TestMinimumProtocol<ResourcePoolT extends ResourcePool> extends
+      TestThreadFactory {
 
-		@Override
-		public TestThread next() {
-			
-			return new TestThread() {
-				private final List<Integer> data1 = Arrays.asList(200, 144, 99, 211, 930,543,520,532,497,450,432);
-        private List<Computation<BigInteger>> resultArray;
-        private Computation<BigInteger> resultMin;
-								
-				@Override
-				public void test() throws Exception {
-					TestApplication app = new TestApplication() {
-						
-            @Override
-            public ProtocolProducer prepareApplication(BuilderFactory factoryProducer) {
-              return ProtocolBuilderNumeric
-                  .createApplicationRoot((BuilderFactoryNumeric) factoryProducer, (builder) -> {
-                    NumericBuilder sIntFactory = builder.numeric();
-                    
-                    List<Computation<SInt>> inputs = data1.stream()
-                        .map(BigInteger::valueOf)
-                        .map(sIntFactory::known)
-                        .collect(Collectors.toList());
+    @Override
+    public TestThread next() {
 
-										Computation<Pair<List<Computation<SInt>>, SInt>> min = builder.seq(
-												new Minimum(inputs));
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+        private final List<Integer> data1 = Arrays
+            .asList(200, 144, 99, 211, 930, 543, 520, 532, 497, 450, 432);
 
-										builder.par((par) -> {
-											NumericBuilder open = par.numeric();
-											resultMin = open.open(min.out().getSecond());
-                      List<Computation<SInt>> outputArray = min.out().getFirst();
-                      List<Computation<BigInteger>> openOutputArray = new ArrayList<>(
-                          outputArray.size());
-                      for (Computation<SInt> computation : outputArray) {
-                        openOutputArray.add(open.open(computation));
+        @Override
+        public void test() throws Exception {
+          Application<Pair<BigInteger, List<BigInteger>>, ProtocolBuilderNumeric> app =
+              builder -> {
+                NumericBuilder sIntFactory = builder.numeric();
 
-                      }
-                      resultArray = openOutputArray;
-                      return null;
-                    });
-                  }).build();
-            }
-					};
-					secureComputationEngine
-							.runApplication(app, ResourcePoolCreator.createResourcePool(conf.sceConf));
-					Assert.assertThat(resultArray.get(2).out(), Is.is(BigInteger.ONE));
-					Assert.assertThat(resultMin.out(), Is.is(new BigInteger("99")));
-				}
-			};
-		}
-	}
-	
+                List<Computation<SInt>> inputs = data1.stream()
+                    .map(BigInteger::valueOf)
+                    .map(sIntFactory::known)
+                    .collect(Collectors.toList());
 
-	 public static class TestMinInfFraction extends TestThreadFactory {
+                Computation<Pair<List<Computation<SInt>>, SInt>> min = builder.seq(
+                    new Minimum(inputs));
 
-	    @Override
-			public TestThread next() {
+                return builder.par((par) -> {
+                  NumericBuilder open = par.numeric();
+                  Computation<BigInteger> resultMin = open.open(min.out().getSecond());
+                  List<Computation<SInt>> outputArray = min.out().getFirst();
+                  List<Computation<BigInteger>> openOutputArray = new ArrayList<>(
+                      outputArray.size());
+                  for (Computation<SInt> computation : outputArray) {
+                    openOutputArray.add(open.open(computation));
 
-				return new TestThread() {
-	        private final List<Integer> data1 = Arrays.asList(20, 14, 9, 21, 93, 54, 52, 53, 49, 45, 43);
-	        private final List<Integer> data2 = Arrays.asList(140, 120, 90, 191, 123, 4, 122, 153, 149, 145, 143);
-	        private final List<Integer> data3 = Arrays.asList(0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0);
-	        private List<Computation<BigInteger>> resultArray;
-	        private Computation<BigInteger> resultMinD;
-	        private Computation<BigInteger> resultMinN;
-	        private Computation<BigInteger> resultMinInfs;
-	                
-	        @Override
-	        public void test() throws Exception {
-	          TestApplication app = new TestApplication() {
-	            
-	            @Override
-	            public ProtocolProducer prepareApplication(BuilderFactory factoryProducer) {
-	              return ProtocolBuilderNumeric
-	                  .createApplicationRoot((BuilderFactoryNumeric) factoryProducer, (builder) -> {
-	                    NumericBuilder sIntFactory = builder.numeric();
-	                    
-	                    List<Computation<SInt>> inputN = data1.stream()
-	                        .map(BigInteger::valueOf)
-	                        .map(sIntFactory::known)
-	                        .collect(Collectors.toList());
+                  }
+                  return () -> new Pair<>(
+                      resultMin.out(),
+                      openOutputArray.stream().map(Computation::out).collect(Collectors.toList()));
+                });
+              };
+          Pair<BigInteger, List<BigInteger>> result = secureComputationEngine
+              .runApplication(app, ResourcePoolCreator.createResourcePool(conf.sceConf));
+          Assert.assertThat(result.getSecond().get(2), Is.is(BigInteger.ONE));
+          Assert.assertThat(result.getFirst(), Is.is(new BigInteger("99")));
+        }
+      };
+    }
+  }
 
-	                     List<Computation<SInt>> inputD = data2.stream()
-	                          .map(BigInteger::valueOf)
-	                          .map(sIntFactory::known)
-	                          .collect(Collectors.toList());
-	                     
-                       List<Computation<SInt>> inputInfs = data3.stream()
-                           .map(BigInteger::valueOf)
-                           .map(sIntFactory::known)
-                           .collect(Collectors.toList());
 
-											Computation<MinInfFrac.MinInfOutput> min = builder.seq(
-													new MinInfFrac(inputN, inputD, inputInfs));
+  public static class TestMinInfFraction<ResourcePoolT extends ResourcePool> extends
+      TestThreadFactory {
 
-											builder.par((par) -> {
-												NumericBuilder open = par.numeric();
-												resultMinN = open.open(min.out().nm);
-	                      resultMinD = open.open(min.out().dm);
-	                      resultMinInfs = open.open(min.out().infm);
-	                      List<Computation<SInt>> outputArray = min.out().cs;
-	                      List<Computation<BigInteger>> openOutputArray = new ArrayList<>(
-	                          outputArray.size());
-	                      for (Computation<SInt> computation : outputArray) {
-	                        openOutputArray.add(open.open(computation));
+    @Override
+    public TestThread next() {
 
-	                      }
-	                      resultArray = openOutputArray;
-	                      return null;
-	                    });
-	                  }).build();
-	            }
-	          };
-	          secureComputationEngine
-	              .runApplication(app, ResourcePoolCreator.createResourcePool(conf.sceConf));
-	          Assert.assertThat(resultArray.get(2).out(), Is.is(BigInteger.ONE));
-	          Assert.assertThat(resultMinD.out(), Is.is(new BigInteger("90")));
-	          Assert.assertThat(resultMinN.out(), Is.is(new BigInteger("9")));
-	          Assert.assertThat(resultMinInfs.out(), Is.is(new BigInteger("0")));
-	        }
-	      };
-	    }
-	  }
-	 
-   public static class TestMinInfFractionTrivial extends TestThreadFactory {
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+        private final List<Integer> data1 = Arrays
+            .asList(20, 14, 9, 21, 93, 54, 52, 53, 49, 45, 43);
+        private final List<Integer> data2 = Arrays
+            .asList(140, 120, 90, 191, 123, 4, 122, 153, 149, 145, 143);
+        private final List<Integer> data3 = Arrays.asList(0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0);
 
-     @Override
-		 public TestThread next() {
+        @Override
+        public void test() throws Exception {
+          Application<MinInfResult, ProtocolBuilderNumeric> app =
+              builder -> {
+                NumericBuilder sIntFactory = builder.numeric();
 
-			 return new TestThread() {
-         private final List<Integer> data1 = Arrays.asList(20);
-         private final List<Integer> data2 = Arrays.asList(140);
-         private final List<Integer> data3 = Arrays.asList(0);
-         private List<Computation<BigInteger>> resultArray;
-         private Computation<BigInteger> resultMinD;
-         private Computation<BigInteger> resultMinN;
-         private Computation<BigInteger> resultMinInfs;
-                 
-         @Override
-         public void test() throws Exception {
-           TestApplication app = new TestApplication() {
-             
-             @Override
-             public ProtocolProducer prepareApplication(BuilderFactory factoryProducer) {
-               return ProtocolBuilderNumeric
-                   .createApplicationRoot((BuilderFactoryNumeric) factoryProducer, (builder) -> {
-                     NumericBuilder sIntFactory = builder.numeric();
-                     
-                     List<Computation<SInt>> inputN = data1.stream()
-                         .map(BigInteger::valueOf)
-                         .map(sIntFactory::known)
-                         .collect(Collectors.toList());
+                List<Computation<SInt>> inputN = data1.stream()
+                    .map(BigInteger::valueOf)
+                    .map(sIntFactory::known)
+                    .collect(Collectors.toList());
 
-                      List<Computation<SInt>> inputD = data2.stream()
-                           .map(BigInteger::valueOf)
-                           .map(sIntFactory::known)
-                           .collect(Collectors.toList());
-                      
-                      List<Computation<SInt>> inputInfs = data3.stream()
-                          .map(BigInteger::valueOf)
-                          .map(sIntFactory::known)
-                          .collect(Collectors.toList());
+                List<Computation<SInt>> inputD = data2.stream()
+                    .map(BigInteger::valueOf)
+                    .map(sIntFactory::known)
+                    .collect(Collectors.toList());
 
-										 Computation<MinInfFrac.MinInfOutput> min = builder.seq(
-												 new MinInfFrac(inputN, inputD, inputInfs));
+                List<Computation<SInt>> inputInfs = data3.stream()
+                    .map(BigInteger::valueOf)
+                    .map(sIntFactory::known)
+                    .collect(Collectors.toList());
 
-										 builder.par((par) -> {
-											 NumericBuilder open = par.numeric();
-											 resultMinN = open.open(min.out().nm);
-                       resultMinD = open.open(min.out().dm);
-                       resultMinInfs = open.open(min.out().infm);
-                       List<Computation<SInt>> outputArray = min.out().cs;
-                       List<Computation<BigInteger>> openOutputArray = new ArrayList<>(
-                           outputArray.size());
-                       for (Computation<SInt> computation : outputArray) {
-                         openOutputArray.add(open.open(computation));
+                Computation<MinInfFrac.MinInfOutput> min = builder.seq(
+                    new MinInfFrac(inputN, inputD, inputInfs));
 
-											 }
-											 resultArray = openOutputArray;
-                       return null;
-                     });
-                   }).build();
-               }
-           };
-           secureComputationEngine
-               .runApplication(app, ResourcePoolCreator.createResourcePool(conf.sceConf));
-           Assert.assertThat(resultArray.get(0).out(), Is.is(BigInteger.ONE));
-           Assert.assertThat(resultMinD.out(), Is.is(new BigInteger("140")));
-           Assert.assertThat(resultMinN.out(), Is.is(new BigInteger("20")));
-           Assert.assertThat(resultMinInfs.out(), Is.is(new BigInteger("0")));
-         }
-       };
-     }
-   }
+                return builder.par((par) -> {
+                  NumericBuilder open = par.numeric();
+                  Computation<BigInteger> resultMinN = open.open(min.out().nm);
+                  Computation<BigInteger> resultMinD = open.open(min.out().dm);
+                  Computation<BigInteger> resultMinInfs = open.open(min.out().infm);
+                  List<Computation<SInt>> outputArray = min.out().cs;
+                  List<Computation<BigInteger>> openOutputArray = new ArrayList<>(
+                      outputArray.size());
+                  for (Computation<SInt> computation : outputArray) {
+                    openOutputArray.add(open.open(computation));
+                  }
+                  return () -> new MinInfResult(
+                      resultMinN.out(), resultMinD.out(), resultMinInfs.out(),
+                      openOutputArray.stream().map(Computation::out).collect(Collectors.toList()));
+                });
+              };
+          MinInfResult minInfResult = secureComputationEngine
+              .runApplication(app, ResourcePoolCreator.createResourcePool(conf.sceConf));
+          Assert.assertThat(minInfResult.resultList.get(2), Is.is(BigInteger.ONE));
+          Assert.assertThat(minInfResult.minD, Is.is(new BigInteger("90")));
+          Assert.assertThat(minInfResult.minN, Is.is(new BigInteger("9")));
+          Assert.assertThat(minInfResult.minInfs, Is.is(new BigInteger("0")));
+        }
+      };
+    }
+  }
+
+  private static class MinInfResult {
+
+    private final BigInteger minN;
+    private final BigInteger minD;
+    private final BigInteger minInfs;
+    private final List<BigInteger> resultList;
+
+    private MinInfResult(BigInteger minN, BigInteger minD, BigInteger minInfs,
+        List<BigInteger> resultList) {
+      this.minN = minN;
+      this.minD = minD;
+      this.minInfs = minInfs;
+      this.resultList = resultList;
+    }
+  }
+
+  public static class TestMinInfFractionTrivial<ResourcePoolT extends ResourcePool> extends
+      TestThreadFactory {
+
+    @Override
+    public TestThread next() {
+
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+        private final List<Integer> data1 = Collections.singletonList(20);
+        private final List<Integer> data2 = Collections.singletonList(140);
+        private final List<Integer> data3 = Collections.singletonList(0);
+
+        @Override
+        public void test() throws Exception {
+          Application<MinInfResult, ProtocolBuilderNumeric> app =
+              builder -> {
+                NumericBuilder sIntFactory = builder.numeric();
+
+                List<Computation<SInt>> inputN = data1.stream()
+                    .map(BigInteger::valueOf)
+                    .map(sIntFactory::known)
+                    .collect(Collectors.toList());
+
+                List<Computation<SInt>> inputD = data2.stream()
+                    .map(BigInteger::valueOf)
+                    .map(sIntFactory::known)
+                    .collect(Collectors.toList());
+
+                List<Computation<SInt>> inputInfs = data3.stream()
+                    .map(BigInteger::valueOf)
+                    .map(sIntFactory::known)
+                    .collect(Collectors.toList());
+
+                Computation<MinInfFrac.MinInfOutput> min = builder.seq(
+                    new MinInfFrac(inputN, inputD, inputInfs));
+
+                return builder.par((par) -> {
+                  NumericBuilder open = par.numeric();
+                  Computation<BigInteger> resultMinN = open.open(min.out().nm);
+                  Computation<BigInteger> resultMinD = open.open(min.out().dm);
+                  Computation<BigInteger> resultMinInfs = open.open(min.out().infm);
+                  List<Computation<SInt>> outputArray = min.out().cs;
+                  List<Computation<BigInteger>> openOutputArray = new ArrayList<>(
+                      outputArray.size());
+                  for (Computation<SInt> computation : outputArray) {
+                    openOutputArray.add(open.open(computation));
+
+                  }
+
+                  return () -> new MinInfResult(
+                      resultMinN.out(), resultMinD.out(), resultMinInfs.out(),
+                      openOutputArray.stream().map(Computation::out).collect(Collectors.toList()));
+                });
+              };
+          MinInfResult minInfResult = secureComputationEngine
+              .runApplication(app, ResourcePoolCreator.createResourcePool(conf.sceConf));
+          Assert.assertThat(minInfResult.resultList.get(0), Is.is(BigInteger.ONE));
+          Assert.assertThat(minInfResult.minD, Is.is(new BigInteger("140")));
+          Assert.assertThat(minInfResult.minN, Is.is(new BigInteger("20")));
+          Assert.assertThat(minInfResult.minInfs, Is.is(new BigInteger("0")));
+        }
+      };
+    }
+  }
 }

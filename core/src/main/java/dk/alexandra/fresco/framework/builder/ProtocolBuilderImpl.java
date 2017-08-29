@@ -71,14 +71,6 @@ public abstract class ProtocolBuilderImpl<BuilderT extends ProtocolBuilderImpl<B
     return producer;
   }
 
-  // This will go away and should not be used - users should recode their applications to
-  // use closures
-  @Deprecated
-  public <T extends ProtocolProducer> T append(T protocolProducer) {
-    createAndAppend(protocolProducer);
-    return protocolProducer;
-  }
-
   /**
    * Building the actual protocol producer. Implementors decide which producer to create.
    *
@@ -130,12 +122,6 @@ public abstract class ProtocolBuilderImpl<BuilderT extends ProtocolBuilderImpl<B
         new BuildStep<>(new BuildStepSingle<>(innerBuilder, true));
     createAndAppend(new LazyProtocolProducerDecorator(() -> builder.createProducer(null, factory)));
     return builder;
-  }
-
-  // Pending rewrite of the last remaining applications
-  @Deprecated
-  public BuilderFactory getFactory() {
-    return factory;
   }
 
   private static class ProtocolEntity {
