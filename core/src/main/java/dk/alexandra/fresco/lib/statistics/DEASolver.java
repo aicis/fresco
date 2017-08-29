@@ -56,8 +56,8 @@ import java.util.stream.Collectors;
  */
 public class DEASolver implements Application<List<DEAResult>, ProtocolBuilderNumeric> {
 
-  private final List<List<SInt>> targetInputs, targetOutputs;
-  private final List<List<SInt>> inputDataSet, outputDataSet;
+  private final List<List<Computation<SInt>>> targetInputs, targetOutputs;
+  private final List<List<Computation<SInt>>> inputDataSet, outputDataSet;
 
   private final AnalysisType type;
   private final PivotRule pivotRule;
@@ -76,10 +76,10 @@ public class DEASolver implements Application<List<DEAResult>, ProtocolBuilderNu
    * @param setInput Matrix containing the basis input
    * @param setOutput Matrix containing the basis output
    */
-  public DEASolver(AnalysisType type, List<List<SInt>> inputValues,
-      List<List<SInt>> outputValues,
-      List<List<SInt>> setInput,
-      List<List<SInt>> setOutput) throws MPCException {
+  public DEASolver(AnalysisType type, List<List<Computation<SInt>>> inputValues,
+      List<List<Computation<SInt>>> outputValues,
+      List<List<Computation<SInt>>> setInput,
+      List<List<Computation<SInt>>> setOutput) throws MPCException {
     this(PivotRule.DANZIG, type, inputValues, outputValues, setInput, setOutput);
   }
 
@@ -100,10 +100,10 @@ public class DEASolver implements Application<List<DEAResult>, ProtocolBuilderNu
   public DEASolver(
       PivotRule pivotRule,
       AnalysisType type,
-      List<List<SInt>> inputValues,
-      List<List<SInt>> outputValues,
-      List<List<SInt>> setInput,
-      List<List<SInt>> setOutput) throws MPCException {
+      List<List<Computation<SInt>>> inputValues,
+      List<List<Computation<SInt>>> outputValues,
+      List<List<Computation<SInt>>> setInput,
+      List<List<Computation<SInt>>> setOutput) throws MPCException {
     this.pivotRule = pivotRule;
     this.type = type;
     this.targetInputs = inputValues;
@@ -130,22 +130,22 @@ public class DEASolver implements Application<List<DEAResult>, ProtocolBuilderNu
     if (targetInputs.size() != targetOutputs.size()) {
       return false;
     }
-    for (List<SInt> x : targetInputs) {
+    for (List<Computation<SInt>> x : targetInputs) {
       if (x.size() != inputVariables) {
         return false;
       }
     }
-    for (List<SInt> x : inputDataSet) {
+    for (List<Computation<SInt>> x : inputDataSet) {
       if (x.size() != inputVariables) {
         return false;
       }
     }
-    for (List<SInt> x : targetOutputs) {
+    for (List<Computation<SInt>> x : targetOutputs) {
       if (x.size() != outputVariables) {
         return false;
       }
     }
-    for (List<SInt> x : outputDataSet) {
+    for (List<Computation<SInt>> x : outputDataSet) {
       if (x.size() != outputVariables) {
         return false;
       }
@@ -202,22 +202,22 @@ public class DEASolver implements Application<List<DEAResult>, ProtocolBuilderNu
 
     int lpInputs = this.inputDataSet.get(0).size();
     int lpOutputs = this.outputDataSet.get(0).size();
-    List<List<SInt>> basisInputs = new ArrayList<>(lpInputs);
+    List<List<Computation<SInt>>> basisInputs = new ArrayList<>(lpInputs);
     for (int i = 0; i < lpInputs; i++) {
       basisInputs.add(new ArrayList<>(dataSetSize));
     }
-    List<List<SInt>> basisOutputs = new ArrayList<>(lpOutputs);
+    List<List<Computation<SInt>>> basisOutputs = new ArrayList<>(lpOutputs);
     for (int i = 0; i < lpOutputs; i++) {
       basisOutputs.add(new ArrayList<>(dataSetSize));
     }
 
     for (int i = 0; i < dataSetSize; i++) {
       for (int j = 0; j < inputDataSet.get(i).size(); j++) {
-        List<SInt> current = inputDataSet.get(i);
+        List<Computation<SInt>> current = inputDataSet.get(i);
         basisInputs.get(j).add(current.get(j));
       }
       for (int j = 0; j < outputDataSet.get(i).size(); j++) {
-        List<SInt> current = outputDataSet.get(i);
+        List<Computation<SInt>> current = outputDataSet.get(i);
         basisOutputs.get(j).add(current.get(j));
       }
     }
@@ -243,7 +243,7 @@ public class DEASolver implements Application<List<DEAResult>, ProtocolBuilderNu
 
   public static class DEAResult {
 
-    public final List<SInt> basis;
+    public final List<Computation<SInt>> basis;
     public final SInt optimal;
 
     private DEAResult(Computation<Pair<List<Computation<SInt>>, Computation<SInt>>> output) {

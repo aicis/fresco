@@ -61,8 +61,8 @@ public class DEAPrefixBuilderMaximize {
   }
 
   public static Computation<SimpleLPPrefix> build(
-      List<List<SInt>> basisInputs, List<List<SInt>> basisOutputs,
-      List<SInt> targetInputs, List<SInt> targetOutputs,
+      List<List<Computation<SInt>>> basisInputs, List<List<Computation<SInt>>> basisOutputs,
+      List<Computation<SInt>> targetInputs, List<Computation<SInt>> targetOutputs,
       ProtocolBuilderNumeric builder
   ) {
     Computation<SInt> zero = builder.numeric().known(BigInteger.ZERO);
@@ -71,8 +71,8 @@ public class DEAPrefixBuilderMaximize {
      * First copy the target values to the basis. This ensures that the
 		 * target values are in the basis thus the score must at least be 1.
 		 */
-    List<List<SInt>> newBasisInputs = addTargetToList(basisInputs, targetInputs);
-    List<List<SInt>> newBasisOutputs = addTargetToList(basisOutputs, targetOutputs);
+    List<List<Computation<SInt>>> newBasisInputs = addTargetToList(basisInputs, targetInputs);
+    List<List<Computation<SInt>>> newBasisOutputs = addTargetToList(basisOutputs, targetOutputs);
 
 		/*
      * NeProtocol the basis output
@@ -86,7 +86,7 @@ public class DEAPrefixBuilderMaximize {
           NumericBuilder numeric = par.numeric();
           List<List<Computation<SInt>>> negatedBasisResult = newBasisOutputs.stream().map(
               outputs -> outputs.stream()
-                  .map(output -> numeric.mult(negativeOne, () -> output))
+                  .map(output -> numeric.mult(negativeOne, output))
                   .collect(Collectors.toList())
           ).collect(Collectors.toList());
           return () -> negatedBasisResult;
@@ -145,14 +145,15 @@ public class DEAPrefixBuilderMaximize {
     return identity;
   }
 
-  static List<List<SInt>> addTargetToList(List<List<SInt>> basisOutputs, List<SInt> targetOutputs) {
-    ListIterator<List<SInt>> basisIt = basisOutputs.listIterator();
-    ListIterator<SInt> targetIt = targetOutputs.listIterator();
-    List<List<SInt>> newBasis = new LinkedList<>();
+  static List<List<Computation<SInt>>> addTargetToList(List<List<Computation<SInt>>> basisOutputs,
+      List<Computation<SInt>> targetOutputs) {
+    ListIterator<List<Computation<SInt>>> basisIt = basisOutputs.listIterator();
+    ListIterator<Computation<SInt>> targetIt = targetOutputs.listIterator();
+    List<List<Computation<SInt>>> newBasis = new LinkedList<>();
     while (basisIt.hasNext()) {
-      List<SInt> basisOutput = basisIt.next();
-      SInt targetOutput = targetIt.next();
-      List<SInt> newInputs = new ArrayList<>(basisOutput.size() + 1);
+      List<Computation<SInt>> basisOutput = basisIt.next();
+      Computation<SInt> targetOutput = targetIt.next();
+      List<Computation<SInt>> newInputs = new ArrayList<>(basisOutput.size() + 1);
       newInputs.addAll(basisOutput);
       newInputs.add(targetOutput);
       newBasis.add(newInputs);
@@ -185,16 +186,17 @@ public class DEAPrefixBuilderMaximize {
   }
 
 
-  private static List<Computation<SInt>> convertList(List<SInt> interval) {
+  private static List<Computation<SInt>> convertList(List<Computation<SInt>> interval) {
     return interval.stream()
         .map(intervalValue -> {
-          Computation<SInt> computation = () -> intervalValue;
+          Computation<SInt> computation = intervalValue;
           return computation;
         })
         .collect(Collectors.toList());
   }
 
-  private static ArrayList<Computation<SInt>> bVector(int size, List<SInt> targetInputs,
+  private static ArrayList<Computation<SInt>> bVector(int size,
+      List<Computation<SInt>> targetInputs,
       Computation<SInt> zero,
       Computation<SInt> one) {
     ArrayList<Computation<SInt>> B = new ArrayList<>(size);
@@ -208,7 +210,7 @@ public class DEAPrefixBuilderMaximize {
     return B;
   }
 
-  private static ArrayList<Computation<SInt>> inputRow(List<SInt> vflInputs,
+  private static ArrayList<Computation<SInt>> inputRow(List<Computation<SInt>> vflInputs,
       ArrayList<Computation<SInt>> slackVariables,
       Computation<SInt> zero) {
     ArrayList<Computation<SInt>> row = new ArrayList<>(
@@ -220,11 +222,11 @@ public class DEAPrefixBuilderMaximize {
   }
 
   private static ArrayList<Computation<SInt>> outputRow(List<Computation<SInt>> vflOutputs,
-      SInt bankOutput,
+      Computation<SInt> bankOutput,
       ArrayList<Computation<SInt>> slackVariables) {
     ArrayList<Computation<SInt>> row = new ArrayList<>(
         vflOutputs.size() + slackVariables.size() + 1);
-    row.add(() -> bankOutput);
+    row.add(bankOutput);
     row.addAll(vflOutputs);
     row.addAll(slackVariables);
     return row;

@@ -23,7 +23,7 @@ import dk.alexandra.fresco.lib.math.integer.stat.StatisticsTests;
 import dk.alexandra.fresco.lib.math.polynomial.PolynomialTests;
 import dk.alexandra.fresco.lib.statistics.CreditRaterTest;
 import dk.alexandra.fresco.lib.statistics.DEASolver.AnalysisType;
-import dk.alexandra.fresco.lib.statistics.DEASolverTests;
+import dk.alexandra.fresco.lib.statistics.DEASolverTests.RandomDataDeaTest;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -157,46 +157,46 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
   // DEASolver
   @Test
   public void test_DEASolver_2_parties() throws Exception {
-    runTest(new DEASolverTests.TestDEASolver(5, 2, 10, 1, AnalysisType.INPUT_EFFICIENCY),
+    runTest(new RandomDataDeaTest(5, 2, 10, 1, AnalysisType.INPUT_EFFICIENCY),
         EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET, 2);
   }
 
   @Ignore // TODO needs a closer look
   @Test
   public void test_DEASolver_3_parties() throws Exception {
-    runTest(new DEASolverTests.TestDEASolver(2, 2, 10, 1, AnalysisType.INPUT_EFFICIENCY),
+    runTest(new RandomDataDeaTest(2, 2, 10, 1, AnalysisType.INPUT_EFFICIENCY),
         EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET, 3);
   }
 
   @Ignore // TODO needs a closer look
   @Test
   public void test_DEASolver_multiple_queries_2_parties() throws Exception {
-    runTest(new DEASolverTests.TestDEASolver(5, 2, 10, 2, AnalysisType.INPUT_EFFICIENCY),
+    runTest(new RandomDataDeaTest(5, 2, 10, 2, AnalysisType.INPUT_EFFICIENCY),
         EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET, 2);
   }
 
   @Ignore // TODO needs a closer look
   @Test
   public void test_DEASolver_single_input_2_parties() throws Exception {
-    runTest(new DEASolverTests.TestDEASolver(1, 2, 10, 1, AnalysisType.INPUT_EFFICIENCY),
+    runTest(new RandomDataDeaTest(1, 2, 10, 1, AnalysisType.INPUT_EFFICIENCY),
         EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET, 2);
   }
 
   @Test
   public void test_DEASolver_single_input_and_output_2_parties() throws Exception {
-    runTest(new DEASolverTests.TestDEASolver(1, 1, 10, 1, AnalysisType.INPUT_EFFICIENCY),
+    runTest(new RandomDataDeaTest(1, 1, 10, 1, AnalysisType.INPUT_EFFICIENCY),
         EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET, 2);
   }
 
   @Test
   public void test_DEASolver_output_efficiency_2_parties() throws Exception {
-    runTest(new DEASolverTests.TestDEASolver(5, 1, 10, 1, AnalysisType.OUTPUT_EFFICIENCY),
+    runTest(new RandomDataDeaTest(5, 1, 10, 1, AnalysisType.OUTPUT_EFFICIENCY),
         EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET, 2);
   }
 
   @Test
   public void test_DEASolver_multiple_queries__output_2_parties() throws Exception {
-    runTest(new DEASolverTests.TestDEASolver(5, 2, 10, 2, AnalysisType.OUTPUT_EFFICIENCY),
+    runTest(new RandomDataDeaTest(5, 2, 10, 2, AnalysisType.OUTPUT_EFFICIENCY),
         EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET, 2);
   }
 

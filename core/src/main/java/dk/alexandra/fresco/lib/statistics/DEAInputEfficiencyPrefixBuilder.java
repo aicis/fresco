@@ -49,8 +49,8 @@ import java.util.List;
 public class DEAInputEfficiencyPrefixBuilder {
 
   public static Computation<SimpleLPPrefix> build(
-      List<List<SInt>> basisInputs, List<List<SInt>> basisOutputs,
-      List<SInt> targetInputs, List<SInt> targetOutputs,
+      List<List<Computation<SInt>>> basisInputs, List<List<Computation<SInt>>> basisOutputs,
+      List<Computation<SInt>> targetInputs, List<Computation<SInt>> targetOutputs,
       ProtocolBuilderNumeric builder
   ) {
     NumericBuilder numeric = builder.numeric();
@@ -78,19 +78,19 @@ public class DEAInputEfficiencyPrefixBuilder {
       Computation<SInt> zInner;
       // Set up constraints related to the inputs
       int i = 0;
-      Iterator<List<SInt>> basisIt = basisInputs.iterator();
-      Iterator<SInt> targetIt = targetInputs.iterator();
+      Iterator<List<Computation<SInt>>> basisIt = basisInputs.iterator();
+      Iterator<Computation<SInt>> targetIt = targetInputs.iterator();
       for (; i < inputs; i++) {
         ArrayList<Computation<SInt>> row = new ArrayList<>(variables);
         c.add(row);
-        SInt tValue = targetIt.next();
-        List<SInt> bValues = basisIt.next();
-        row.add(par.numeric().sub(zero, () -> tValue));
+        Computation<SInt> tValue = targetIt.next();
+        List<Computation<SInt>> bValues = basisIt.next();
+        row.add(par.numeric().sub(zero, tValue));
         b.add(zero);
         int j = 1;
         for (; j < dbSize + 1; j++) {
-          SInt bValue = bValues.get(j - 1);
-          row.add(() -> bValue);
+          Computation<SInt> bValue = bValues.get(j - 1);
+          row.add(bValue);
         }
         for (; j < variables; j++) {
           row.add((j - (dbSize + 1) == i) ? one : zero);
@@ -102,14 +102,14 @@ public class DEAInputEfficiencyPrefixBuilder {
       for (; i < inputs + outputs; i++) {
         ArrayList<Computation<SInt>> row = new ArrayList<>(variables);
         c.add(row);
-        SInt tValue = targetIt.next();
-        List<SInt> bValues = basisIt.next();
+        Computation<SInt> tValue = targetIt.next();
+        List<Computation<SInt>> bValues = basisIt.next();
         row.add(zero);
-        b.add(() -> tValue);
+        b.add(tValue);
         int j = 1;
         for (; j < dbSize + 1; j++) {
-          SInt bValue = bValues.get(j - 1);
-          row.add(() -> bValue);
+          Computation<SInt> bValue = bValues.get(j - 1);
+          row.add(bValue);
         }
         for (; j < dbSize + 1 + constraints; j++) {
           row.add((j - (dbSize + 1) == i) ? one : zero);

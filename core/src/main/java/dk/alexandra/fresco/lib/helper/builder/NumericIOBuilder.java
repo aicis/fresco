@@ -32,11 +32,7 @@ import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.framework.value.SIntFactory;
 import dk.alexandra.fresco.lib.field.integer.generic.IOIntProtocolFactory;
-import dk.alexandra.fresco.lib.helper.AbstractRepeatProtocol;
-import dk.alexandra.fresco.lib.helper.SingleProtocolProducer;
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * A builder handling input/output related protocols for protocol suites supporting arithmetic.
@@ -58,80 +54,6 @@ public class NumericIOBuilder extends AbstractProtocolBuilder {
     super();
     this.iof = factory;
     this.sif = factory;
-  }
-
-  /**
-   * Appends a protocol to input a matrix of BigIntegers.
-   *
-   * @param is the BigInteger values
-   * @param targetID the party to input
-   * @return SInt's that will be loaded with the corresponding inputs, by the appended protocol.
-   */
-  public SInt[][] inputMatrix(BigInteger[][] is, int targetID) {
-    SInt[][] sis = new SInt[is.length][is[0].length];
-    beginParScope();
-    for (int i = 0; i < is.length; i++) {
-      sis[i] = inputArray(is[i], targetID);
-    }
-    endCurScope();
-    return sis;
-  }
-
-  /**
-   * Appends a protocol to input a array of BigIntegers.
-   *
-   * @param is the BigInteger values
-   * @param targetID the party to input
-   * @return SInt's that will be loaded with the corresponding inputs, by the appended protocol.
-   */
-  public SInt[] inputArray(BigInteger[] is, int targetID) {
-    SInt[] sis = new SInt[is.length];
-    for (int i = 0; i < sis.length; i++) {
-      sis[i] = sif.getSInt();
-    }
-    append(new InputArray(is, sis, targetID));
-    return sis;
-  }
-
-  /**
-   * A class to efficiently handle large amounts of inputs.
-   *
-   * @author psn
-   */
-  private class InputArray extends AbstractRepeatProtocol {
-
-    BigInteger[] is;
-    SInt[] sis;
-    int length;
-    int targetID;
-    int i = 0;
-
-    InputArray(BigInteger[] is, SInt[] sis, int targetID) {
-      if (is.length != sis.length) {
-        throw new IllegalArgumentException("Array dimensions do not match.");
-      }
-      this.is = is;
-      this.length = sis.length;
-      this.sis = sis;
-      this.targetID = targetID;
-    }
-
-    @Override
-    protected ProtocolProducer getNextProtocolProducer() {
-      NativeProtocol<SInt, ?> input = null;
-      if (i < length) {
-        BigInteger oi = null;
-        if (is != null) {
-          oi = is[i];
-        }
-        input = iof.getCloseProtocol(targetID, oi, sis[i]);
-        i++;
-        return new SingleProtocolProducer<>(input);
-      } else {
-        return null;
-      }
-
-    }
   }
 
   /**
@@ -170,48 +92,6 @@ public class NumericIOBuilder extends AbstractProtocolBuilder {
     SInt si = sif.getSInt();
     append(iof.getCloseProtocol(targetID, null, si));
     return si;
-  }
-
-  /**
-   * Appends a protocol to open an array of SInts. Output should be given to all parties.
-   *
-   * @param sis SInts to open
-   * @return the OInts to be loaded with the opened SInts
-   */
-  public List<Computation<BigInteger>> outputArray(SInt sis[]) {
-    OutputArray pp = new OutputArray(sis);
-    append(pp);
-    return pp.ois;
-  }
-
-  /**
-   * A class to efficiently handle large amounts of outputs.
-   *
-   * @author psn
-   */
-  private class OutputArray extends AbstractRepeatProtocol {
-
-    List<Computation<BigInteger>> ois;
-    SInt[] sis;
-    int i = 0;
-
-    OutputArray(SInt[] sis) {
-      this.sis = sis;
-      ois = new ArrayList<>(sis.length);
-    }
-
-    @Override
-    protected ProtocolProducer getNextProtocolProducer() {
-      NativeProtocol<BigInteger, ?> output = null;
-      if (i < sis.length) {
-        output = iof.getOpenProtocol(sis[i]);
-        ois.add(output);
-        i++;
-        return new SingleProtocolProducer<>(output);
-      } else {
-        return null;
-      }
-    }
   }
 
   /**
