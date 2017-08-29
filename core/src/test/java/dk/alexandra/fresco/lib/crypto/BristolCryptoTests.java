@@ -34,6 +34,7 @@ import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SBool;
+import dk.alexandra.fresco.lib.bool.BooleanHelper;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -53,11 +54,11 @@ public class BristolCryptoTests {
    *
    * // 1 --> true, 0 --> false
    */
-  private static boolean[] toBoolean(String hex) throws IllegalArgumentException {
+  private static Boolean[] toBoolean(String hex) throws IllegalArgumentException {
     if (hex.length() % 2 != 0) {
       throw new IllegalArgumentException("Illegal hex string");
     }
-    boolean[] res = new boolean[hex.length() * 4];
+    Boolean[] res = new Boolean[hex.length() * 4];
     for (int i = 0; i < hex.length() / 2; i++) {
       String sub = hex.substring(2 * i, 2 * i + 2);
       int value = Integer.parseInt(sub, 16);
@@ -73,9 +74,9 @@ public class BristolCryptoTests {
 
   @Test
   public void testToBoolean() throws Exception {
-    boolean[] res = toBoolean("2b7e151628aed2a6abf7158809cf4f3c");
+    Boolean[] res = toBoolean("2b7e151628aed2a6abf7158809cf4f3c");
     assertTrue(Arrays.equals(
-        new boolean[]{false, false, true, false, true, false, true, true, false, true, true, true},
+        new Boolean[] {false, false, true, false, true, false, true, true, false, true, true, true},
         Arrays.copyOf(res, 12)));
   }
 
@@ -102,36 +103,37 @@ public class BristolCryptoTests {
         // This is just some fixed test vectors for AES in ECB mode that was
         // found somewhere on the net, i.e., this is some known plaintexts and
         // corresponding cipher texts that can be used for testing.
-        final String[] keyVec = new String[]{"000102030405060708090a0b0c0d0e0f"};
+        final String[] keyVec = new String[] {"000102030405060708090a0b0c0d0e0f"};
         final String plainVec = "00112233445566778899aabbccddeeff";
-        final String[] cipherVec = new String[]{"69c4e0d86a7b0430d8cdb78070b4c55a"};
+        final String[] cipherVec = new String[] {"69c4e0d86a7b0430d8cdb78070b4c55a"};
 
         @Override
         public void test() throws Exception {
           Application<List<Boolean>, ProtocolBuilderBinary> multApp =
               producer -> producer.seq(seq -> {
-                List<Computation<SBool>> plainText = seq.binary().known(toBoolean(plainVec));
-                List<Computation<SBool>> key = seq.binary().known(toBoolean(keyVec[0]));
-                List<List<Computation<SBool>>> inputs = new ArrayList<>();
-                inputs.add(plainText);
-                inputs.add(key);
-                return () -> inputs;
-              }).seq((seq, inputs) -> {
-                Computation<List<SBool>> l = seq.bristol().AES(inputs.get(0), inputs.get(1));
-                return l;
-              }).seq((seq, res) -> {
-                List<Computation<Boolean>> outputs = new ArrayList<>();
-                for (SBool boo : res) {
-                  outputs.add(seq.binary().open(() -> boo));
-                }
-                return () -> outputs;
-              }).seq((seq, output) -> () -> output.stream().map(Computation::out)
-                  .collect(Collectors.toList()));
+            List<Computation<SBool>> plainText =
+                BooleanHelper.known(toBoolean(plainVec), seq.binary());
+            List<Computation<SBool>> key = BooleanHelper.known(toBoolean(keyVec[0]), seq.binary());
+            List<List<Computation<SBool>>> inputs = new ArrayList<>();
+            inputs.add(plainText);
+            inputs.add(key);
+            return () -> inputs;
+          }).seq((seq, inputs) -> {
+            Computation<List<SBool>> l = seq.bristol().AES(inputs.get(0), inputs.get(1));
+            return l;
+          }).seq((seq, res) -> {
+            List<Computation<Boolean>> outputs = new ArrayList<>();
+            for (SBool boo : res) {
+              outputs.add(seq.binary().open(() -> boo));
+            }
+            return () -> outputs;
+          }).seq((seq,
+              output) -> () -> output.stream().map(Computation::out).collect(Collectors.toList()));
 
           List<Boolean> res = secureComputationEngine.runApplication(multApp,
               ResourcePoolCreator.createResourcePool(conf.sceConf));
-          boolean[] expected = toBoolean(cipherVec[0]);
-          boolean[] actual = new boolean[res.size()];
+          Boolean[] expected = toBoolean(cipherVec[0]);
+          Boolean[] actual = new Boolean[res.size()];
           for (int i = 0; i < res.size(); i++) {
             actual[i] = res.get(i);
           }
@@ -179,49 +181,49 @@ public class BristolCryptoTests {
         public void test() throws Exception {
           Application<List<Boolean>, ProtocolBuilderBinary> multApp =
               producer -> producer.seq(seq -> {
-                List<Computation<SBool>> input1 = seq.binary().known(toBoolean(ins[0]));
-                // List<Computation<SBool>> input2 = seq.binary().known(toBoolean(ins[1]));
-                // List<Computation<SBool>> input3 = seq.binary().known(toBoolean(ins[2]));
-                List<List<Computation<SBool>>> inputs = new ArrayList<>();
-                inputs.add(input1);
-                // inputs.add(input2);
-                // inputs.add(input3);
-                return () -> inputs;
-              }).seq((seq, inputs) -> {
-                // List<Computation<List<SBool>>> list = new ArrayList<>();
-                // list.add(seq.bristol().getSHA1Circuit(inputs.get(0)));
-                // list.add(seq.bristol().getSHA1Circuit(inputs.get(1)));
-                // list.add(seq.bristol().getSHA1Circuit(inputs.get(2)));
+            List<Computation<SBool>> input1 = BooleanHelper.known(toBoolean(ins[0]), seq.binary());
+            // List<Computation<SBool>> input2 = seq.binary().known(toBoolean(ins[1]));
+            // List<Computation<SBool>> input3 = seq.binary().known(toBoolean(ins[2]));
+            List<List<Computation<SBool>>> inputs = new ArrayList<>();
+            inputs.add(input1);
+            // inputs.add(input2);
+            // inputs.add(input3);
+            return () -> inputs;
+          }).seq((seq, inputs) -> {
+            // List<Computation<List<SBool>>> list = new ArrayList<>();
+            // list.add(seq.bristol().getSHA1Circuit(inputs.get(0)));
+            // list.add(seq.bristol().getSHA1Circuit(inputs.get(1)));
+            // list.add(seq.bristol().getSHA1Circuit(inputs.get(2)));
 
-                Computation<List<SBool>> list = seq.bristol().SHA1(inputs.get(0));
-                return list;
-              }).seq((seq, res) -> {
-                List<Computation<Boolean>> outputs = new ArrayList<>();
-                for (SBool boo : res) {
-                  outputs.add(seq.binary().open(boo));
-                }
-                // List<List<Computation<Boolean>>> outputs = new ArrayList<>();
-                // for (Computation<List<SBool>> elm : res) {
-                // List<Computation<Boolean>> outList = new ArrayList<>();
-                // for (SBool boo : elm.out()) {
-                // outList.add(seq.binary().open(() -> boo));
-                // }
-                // outputs.add(outList);
-                // }
-                return () -> outputs;
-              }).seq((seq, output) -> {
-                // List<List<Boolean>> result = new ArrayList<>();
-                // for (List<Computation<Boolean>> o : output) {
-                // result.add(o.stream().map(Computation::out).collect(Collectors.toList()));
-                // }
-                return () -> output.stream().map(Computation::out).collect(Collectors.toList());
-                // return () -> result;
-              });
+            Computation<List<SBool>> list = seq.bristol().SHA1(inputs.get(0));
+            return list;
+          }).seq((seq, res) -> {
+            List<Computation<Boolean>> outputs = new ArrayList<>();
+            for (SBool boo : res) {
+              outputs.add(seq.binary().open(boo));
+            }
+            // List<List<Computation<Boolean>>> outputs = new ArrayList<>();
+            // for (Computation<List<SBool>> elm : res) {
+            // List<Computation<Boolean>> outList = new ArrayList<>();
+            // for (SBool boo : elm.out()) {
+            // outList.add(seq.binary().open(() -> boo));
+            // }
+            // outputs.add(outList);
+            // }
+            return () -> outputs;
+          }).seq((seq, output) -> {
+            // List<List<Boolean>> result = new ArrayList<>();
+            // for (List<Computation<Boolean>> o : output) {
+            // result.add(o.stream().map(Computation::out).collect(Collectors.toList()));
+            // }
+            return () -> output.stream().map(Computation::out).collect(Collectors.toList());
+            // return () -> result;
+          });
 
           List<Boolean> res = secureComputationEngine.runApplication(multApp,
               ResourcePoolCreator.createResourcePool(conf.sceConf));
-          boolean[][] expected = new boolean[1][];
-          boolean[][] actuals = new boolean[1][res.size()];
+          Boolean[][] expected = new Boolean[1][];
+          Boolean[][] actuals = new Boolean[1][res.size()];
           for (int count = 0; count < 1; count++) {
             expected[count] = toBoolean(outs[count]);
             for (int i = 0; i < res.size(); i++) {
@@ -277,26 +279,26 @@ public class BristolCryptoTests {
         public void test() throws Exception {
           Application<List<Boolean>, ProtocolBuilderBinary> multApp =
               producer -> producer.seq(seq -> {
-                List<Computation<SBool>> input1 = seq.binary().known(toBoolean(in1));
-                List<List<Computation<SBool>>> inputs = new ArrayList<>();
-                inputs.add(input1);
-                return () -> inputs;
-              }).seq((seq, inputs) -> {
-                Computation<List<SBool>> list = seq.bristol().SHA256(inputs.get(0));
-                return list;
-              }).seq((seq, res) -> {
-                List<Computation<Boolean>> outputs = new ArrayList<>();
-                for (SBool boo : res) {
-                  outputs.add(seq.binary().open(boo));
-                }
-                return () -> outputs;
-              }).seq((seq, output) -> () -> output.stream().map(Computation::out)
-                  .collect(Collectors.toList()));
+            List<Computation<SBool>> input1 = BooleanHelper.known(toBoolean(in1), seq.binary());
+            List<List<Computation<SBool>>> inputs = new ArrayList<>();
+            inputs.add(input1);
+            return () -> inputs;
+          }).seq((seq, inputs) -> {
+            Computation<List<SBool>> list = seq.bristol().SHA256(inputs.get(0));
+            return list;
+          }).seq((seq, res) -> {
+            List<Computation<Boolean>> outputs = new ArrayList<>();
+            for (SBool boo : res) {
+              outputs.add(seq.binary().open(boo));
+            }
+            return () -> outputs;
+          }).seq((seq,
+              output) -> () -> output.stream().map(Computation::out).collect(Collectors.toList()));
 
           List<Boolean> res = secureComputationEngine.runApplication(multApp,
               ResourcePoolCreator.createResourcePool(conf.sceConf));
-          boolean[] expected = toBoolean(out1);
-          boolean[] actual = new boolean[res.size()];
+          Boolean[] expected = toBoolean(out1);
+          Boolean[] actual = new Boolean[res.size()];
           for (int i = 0; i < res.size(); i++) {
             actual[i] = res.get(i);
           }
@@ -349,27 +351,26 @@ public class BristolCryptoTests {
         public void test() throws Exception {
           Application<List<Boolean>, ProtocolBuilderBinary> multApp =
               producer -> producer.seq(seq -> {
-                List<Computation<SBool>> input1 = seq.binary().known(toBoolean(in1));
-                List<List<Computation<SBool>>> inputs = new ArrayList<>();
-                inputs.add(input1);
-                return () -> inputs;
-              }).seq((seq, inputs) -> {
-                Computation<List<SBool>> list = seq.bristol().MD5(inputs.get(0));
-                return list;
-              }).seq((seq, res) -> {
-                List<Computation<Boolean>> outputs = new ArrayList<>();
-                for (SBool boo : res) {
-                  outputs.add(seq.binary().open(boo));
-                }
-                return () -> outputs;
-              }).seq(
-                  (seq, output) ->
-                      () -> output.stream().map(Computation::out).collect(Collectors.toList()));
+            List<Computation<SBool>> input1 = BooleanHelper.known(toBoolean(in1), seq.binary());
+            List<List<Computation<SBool>>> inputs = new ArrayList<>();
+            inputs.add(input1);
+            return () -> inputs;
+          }).seq((seq, inputs) -> {
+            Computation<List<SBool>> list = seq.bristol().MD5(inputs.get(0));
+            return list;
+          }).seq((seq, res) -> {
+            List<Computation<Boolean>> outputs = new ArrayList<>();
+            for (SBool boo : res) {
+              outputs.add(seq.binary().open(boo));
+            }
+            return () -> outputs;
+          }).seq((seq,
+              output) -> () -> output.stream().map(Computation::out).collect(Collectors.toList()));
 
           List<Boolean> res = secureComputationEngine.runApplication(multApp,
               ResourcePoolCreator.createResourcePool(conf.sceConf));
-          boolean[] expected = toBoolean(out1);
-          boolean[] actual = new boolean[res.size()];
+          Boolean[] expected = toBoolean(out1);
+          Boolean[] actual = new Boolean[res.size()];
           for (int i = 0; i < res.size(); i++) {
             actual[i] = res.get(i);
           }
@@ -410,28 +411,28 @@ public class BristolCryptoTests {
         public void test() throws Exception {
           Application<List<Boolean>, ProtocolBuilderBinary> multApp =
               producer -> producer.seq(seq -> {
-                List<Computation<SBool>> in1 = seq.binary().known(toBoolean(inv1));
-                List<Computation<SBool>> in2 = seq.binary().known(toBoolean(inv2));
-                List<List<Computation<SBool>>> inputs = new ArrayList<>();
-                inputs.add(in1);
-                inputs.add(in2);
-                return () -> inputs;
-              }).seq((seq, inputs) -> {
-                Computation<List<SBool>> l = seq.bristol().mult32x32(inputs.get(0), inputs.get(1));
-                return l;
-              }).seq((seq, res) -> {
-                List<Computation<Boolean>> outputs = new ArrayList<>();
-                for (SBool boo : res) {
-                  outputs.add(seq.binary().open(() -> boo));
-                }
-                return () -> outputs;
-              }).seq((seq, output) -> () -> output.stream().map(Computation::out)
-                  .collect(Collectors.toList()));
+            List<Computation<SBool>> in1 = BooleanHelper.known(toBoolean(inv1), seq.binary());
+            List<Computation<SBool>> in2 = BooleanHelper.known(toBoolean(inv2), seq.binary());
+            List<List<Computation<SBool>>> inputs = new ArrayList<>();
+            inputs.add(in1);
+            inputs.add(in2);
+            return () -> inputs;
+          }).seq((seq, inputs) -> {
+            Computation<List<SBool>> l = seq.bristol().mult32x32(inputs.get(0), inputs.get(1));
+            return l;
+          }).seq((seq, res) -> {
+            List<Computation<Boolean>> outputs = new ArrayList<>();
+            for (SBool boo : res) {
+              outputs.add(seq.binary().open(() -> boo));
+            }
+            return () -> outputs;
+          }).seq((seq,
+              output) -> () -> output.stream().map(Computation::out).collect(Collectors.toList()));
 
           List<Boolean> res = secureComputationEngine.runApplication(multApp,
               ResourcePoolCreator.createResourcePool(conf.sceConf));
-          boolean[] expected = toBoolean(outv);
-          boolean[] actual = new boolean[res.size()];
+          Boolean[] expected = toBoolean(outv);
+          Boolean[] actual = new Boolean[res.size()];
           actual[0] = false;
           for (int i = 0; i < res.size() - 1; i++) {
             actual[i + 1] = res.get(i);
@@ -473,28 +474,30 @@ public class BristolCryptoTests {
         public void test() throws Exception {
           Application<List<Boolean>, ProtocolBuilderBinary> multApp =
               producer -> producer.seq(seq -> {
-                List<Computation<SBool>> plainText = seq.binary().known(toBoolean(plainV));
-                List<Computation<SBool>> keyMaterial = seq.binary().known(toBoolean(keyV));
-                List<List<Computation<SBool>>> inputs = new ArrayList<>();
-                inputs.add(plainText);
-                inputs.add(keyMaterial);
-                return () -> inputs;
-              }).seq((seq, inputs) -> {
-                Computation<List<SBool>> l = seq.bristol().DES(inputs.get(0), inputs.get(1));
-                return l;
-              }).seq((seq, res) -> {
-                List<Computation<Boolean>> outputs = new ArrayList<>();
-                for (SBool boo : res) {
-                  outputs.add(seq.binary().open(() -> boo));
-                }
-                return () -> outputs;
-              }).seq((seq, output) -> () -> output.stream().map(Computation::out)
-                  .collect(Collectors.toList()));
+            List<Computation<SBool>> plainText =
+                BooleanHelper.known(toBoolean(plainV), seq.binary());
+            List<Computation<SBool>> keyMaterial =
+                BooleanHelper.known(toBoolean(keyV), seq.binary());
+            List<List<Computation<SBool>>> inputs = new ArrayList<>();
+            inputs.add(plainText);
+            inputs.add(keyMaterial);
+            return () -> inputs;
+          }).seq((seq, inputs) -> {
+            Computation<List<SBool>> l = seq.bristol().DES(inputs.get(0), inputs.get(1));
+            return l;
+          }).seq((seq, res) -> {
+            List<Computation<Boolean>> outputs = new ArrayList<>();
+            for (SBool boo : res) {
+              outputs.add(seq.binary().open(() -> boo));
+            }
+            return () -> outputs;
+          }).seq((seq,
+              output) -> () -> output.stream().map(Computation::out).collect(Collectors.toList()));
 
           List<Boolean> res = secureComputationEngine.runApplication(multApp,
               ResourcePoolCreator.createResourcePool(conf.sceConf));
-          boolean[] expected = toBoolean(cipherV);
-          boolean[] actual = new boolean[res.size()];
+          Boolean[] expected = toBoolean(cipherV);
+          Boolean[] actual = new Boolean[res.size()];
           for (int i = 0; i < res.size(); i++) {
             actual[i] = res.get(i);
           }

@@ -32,6 +32,7 @@ import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SBool;
+import dk.alexandra.fresco.lib.bool.BooleanHelper;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.util.List;
@@ -55,20 +56,19 @@ public class BinaryDebugTests {
           Application<Void, ProtocolBuilderBinary> app =
               new Application<Void, ProtocolBuilderBinary>() {
 
-                @Override
-                public Computation<Void> prepareApplication(
-                    ProtocolBuilderBinary producer) {
-                  return producer.seq(seq -> {
-                    List<Computation<SBool>> toPrint =
-                        seq.binary().known(new boolean[]{true, false, false, true});
-                    return () -> toPrint;
-                  }).seq((seq, inputs) -> {
-                    seq.utility().openAndPrint("test", inputs, stream);
-                    return null;
-                  });
-                }
+            @Override
+            public Computation<Void> prepareApplication(ProtocolBuilderBinary producer) {
+              return producer.seq(seq -> {
+                List<Computation<SBool>> toPrint =
+                    BooleanHelper.known(new Boolean[] {true, false, false, true}, seq.binary());
+                return () -> toPrint;
+              }).seq((seq, inputs) -> {
+                seq.utility().openAndPrint("test", inputs, stream);
+                return null;
+              });
+            }
 
-              };
+          };
 
           secureComputationEngine.runApplication(app,
               ResourcePoolCreator.createResourcePool(conf.sceConf));
