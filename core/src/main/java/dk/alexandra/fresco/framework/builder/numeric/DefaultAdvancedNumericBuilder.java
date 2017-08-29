@@ -3,6 +3,7 @@ package dk.alexandra.fresco.framework.builder.numeric;
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.conversion.IntegerToBitsByShift;
+import dk.alexandra.fresco.lib.math.integer.SumSIntList;
 import dk.alexandra.fresco.lib.math.integer.binary.BitLength;
 import dk.alexandra.fresco.lib.math.integer.binary.RepeatedRightShift;
 import dk.alexandra.fresco.lib.math.integer.binary.RightShift;
@@ -31,6 +32,10 @@ public class DefaultAdvancedNumericBuilder implements AdvancedNumericBuilder {
     this.builder = builder;
   }
 
+  @Override
+  public Computation<SInt> sum(List<Computation<SInt>> inputs) {
+    return builder.seq(new SumSIntList(inputs));
+  }
 
   @Override
   public Computation<SInt> div(Computation<SInt> dividend, BigInteger divisor) {

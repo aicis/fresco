@@ -15,6 +15,7 @@ import dk.alexandra.fresco.suite.spdz.gates.SpdzInputProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzKnownSIntProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzMultProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzMultProtocolKnownLeft;
+import dk.alexandra.fresco.suite.spdz.gates.SpdzOutputProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzOutputToAllProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzRandomProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzSubtractProtocol;
@@ -117,6 +118,12 @@ class SpdzBuilder implements BuilderFactoryNumeric {
       @Override
       public Computation<BigInteger> open(Computation<SInt> secretShare) {
         SpdzOutputToAllProtocol openProtocol = new SpdzOutputToAllProtocol(secretShare);
+        return protocolBuilder.append(openProtocol);
+      }
+
+      @Override
+      public Computation<BigInteger> open(Computation<SInt> secretShare, int outputParty) {
+        SpdzOutputProtocol openProtocol = new SpdzOutputProtocol(secretShare, outputParty);
         return protocolBuilder.append(openProtocol);
       }
 

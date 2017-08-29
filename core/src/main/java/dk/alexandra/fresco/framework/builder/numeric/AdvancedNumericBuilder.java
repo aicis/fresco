@@ -7,6 +7,13 @@ import java.util.List;
 
 public interface AdvancedNumericBuilder {
 
+  /**
+   * Calculates the sum of all elements in the list.
+   *
+   * @param elements the elements to sum
+   * @return the sum of the elements
+   */
+  Computation<SInt> sum(List<Computation<SInt>> elements);
 
   /**
    * This protocol calculates an approximation of
