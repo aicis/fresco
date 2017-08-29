@@ -3,7 +3,7 @@ package dk.alexandra.fresco.framework.builder.binary;
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.value.SBool;
 import dk.alexandra.fresco.lib.compare.bool.BinaryGreaterThan;
-import dk.alexandra.fresco.lib.compare.bool.eq.BinaryEqualityProtocol;
+import dk.alexandra.fresco.lib.compare.bool.eq.BinaryEquality;
 import java.util.List;
 
 public class DefaultComparisonBinaryBuilder implements ComparisonBuilderBinary {
@@ -23,7 +23,7 @@ public class DefaultComparisonBinaryBuilder implements ComparisonBuilderBinary {
   @Override
   public Computation<SBool> equal(List<Computation<SBool>> inLeft,
       List<Computation<SBool>> inRight) {
-    return this.builder.seq(new BinaryEqualityProtocol(inLeft, inRight));
+    return this.builder.seq(new BinaryEquality(inLeft, inRight));
   }
 
 }
