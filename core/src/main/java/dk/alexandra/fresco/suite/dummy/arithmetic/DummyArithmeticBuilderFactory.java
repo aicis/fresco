@@ -120,6 +120,13 @@ public class DummyArithmeticBuilderFactory implements BuilderFactoryNumeric {
       }
 
       @Override
+      public Computation<BigInteger> open(Computation<SInt> secretShare, int outputParty) {
+        DummyArithmeticOpenProtocol c = new DummyArithmeticOpenProtocol(secretShare, outputParty);
+        builder.append(c);
+        return c;
+      }
+
+      @Override
       public Computation<SInt> mult(BigInteger a, Computation<SInt> b) {
         DummyArithmeticMultProtocol c =
             new DummyArithmeticMultProtocol(() -> new DummyArithmeticSInt(a), b);

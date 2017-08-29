@@ -49,6 +49,12 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
   }
 
   @Test
+  public void test_KnownSInt_Sequential() throws Exception {
+    runTest(new BasicArithmeticTests.TestKnownSInt(), EvaluationStrategy.SEQUENTIAL,
+        NetworkingStrategy.KRYONET, 2);
+  }
+
+  @Test
   public void test_MultAndAdd_Sequential() throws Exception {
     runTest(new BasicArithmeticTests.TestSimpleMultAndAdd(), EvaluationStrategy.SEQUENTIAL,
         NetworkingStrategy.KRYONET, 2);

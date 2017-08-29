@@ -35,6 +35,8 @@ public interface NumericBuilder {
 
   Computation<BigInteger> open(Computation<SInt> secretShare);
 
+  Computation<BigInteger> open(Computation<SInt> secretShare, int outputParty);
+
   Computation<SInt[]> getExponentiationPipe();
 
 }
