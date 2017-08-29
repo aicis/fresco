@@ -42,20 +42,6 @@ public class ByteArithmetic {
 
 
   /**
-   * @return x XOR y in res It is OK if x=res , but NOT OK if y=res.
-   */
-  public static void xor(byte[] x, byte[] y, byte[] res) {
-    for (int i = 0; i < x.length; i++) {
-      res[i] = x[i];
-      res[i] ^= y[i];
-    }
-  }
-
-  public static byte mult(byte x, byte y) {
-    return (byte) (x * y);
-  }
-
-  /**
    * It is NOT OK if y=res.
    */
   public static void mult(byte x, byte[] y, byte[] res) {
@@ -75,45 +61,6 @@ public class ByteArithmetic {
     }
   }
 
-  static void packBits(byte[] unpacked, byte[] packed) {
-    int packedLength = packed.length;
-    for (int i = 0; i < packedLength; i++) {
-      int nextByte = 0;
-      for (int j = 0; j < 8; j++) {
-        final byte nextBit = unpacked[8 * i + j];
-        nextByte = (nextByte << 1 ^ nextBit);
-      }
-      packed[i] = (byte) nextByte;
-    }
-  }
-
-  public static void unpackBits(byte[] packed, byte[] unpacked) {
-    int packedLength = packed.length;
-    for (int i = 0; i < packedLength; i++) {
-      int nextByte = packed[i];
-      for (int j = 8 - 1; j >= 0; j--) {
-        if ((nextByte % 2) == 0)
-          unpacked[8 * i + j] = 0;
-        else
-          unpacked[8 * i + j] = 1;
-        nextByte = nextByte >> 1;
-      }
-    }
-  }
-
-  public static byte ithBit(byte b, int pos) {
-    return (byte) ((b & M[pos]) >> pos);
-  }
-
-  public static final byte[] intToByteArray(int value) {
-    return new byte[] {(byte) (value >>> 24), (byte) (value >>> 16), (byte) (value >>> 8),
-        (byte) value};
-  }
-
-  public static final int byteArrayToInt(byte[] b) {
-    return (b[0] << 24) + ((b[1] & 0xFF) << 16) + ((b[2] & 0xFF) << 8) + (b[3] & 0xFF);
-  }
-
   public static BitSet intToBitSet(int i) {
     BitSet bs = new BitSet(Integer.SIZE);
     for (int k = 0; k < Integer.SIZE; k++) {
@@ -124,13 +71,6 @@ public class ByteArithmetic {
     return bs;
   }
 
-  public static int bitSetToInt(BitSet bs) {
-    int i = 0;
-    for (int pos = -1; (pos = bs.nextSetBit(pos + 1)) != -1;) {
-      i |= (1 << pos);
-    }
-    return i;
-  }
 
   /**
    * Convert hex string to boolean array. 1 --> true, 0 --> false
