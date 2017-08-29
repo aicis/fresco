@@ -31,7 +31,6 @@ import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.lib.arithmetic.BasicArithmeticTests;
 import dk.alexandra.fresco.lib.math.integer.division.DivisionTests.TestEuclidianDivision;
 import dk.alexandra.fresco.lib.math.integer.division.DivisionTests.TestSecretSharedDivision;
-import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductNewApiTest;
 import dk.alexandra.fresco.lib.math.integer.log.LogTests.TestLogarithm;
 import dk.alexandra.fresco.lib.math.integer.sqrt.SqrtTests.TestSquareRoot;
 import dk.alexandra.fresco.suite.spdz.configuration.PreprocessingStrategy;
@@ -44,13 +43,6 @@ import org.junit.Test;
  * to handle a fixed number of parties.
  */
 public class TestSpdzBasicArithmetic2Parties extends AbstractSpdzTest {
-
-  @Test
-  public void test_IP_Sequential_Batched() throws Exception {
-    runTest(new InnerProductNewApiTest.InnerProductTest(), EvaluationStrategy.SEQUENTIAL,
-        NetworkingStrategy.KRYONET,
-        PreprocessingStrategy.DUMMY, 2);
-  }
 
   // Fix error before activating
   //TODO PFF Consider deleting or changing test data to avoid the failure?

@@ -41,13 +41,11 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Implements a version of the <code>MinimumFractionProtocol</code> that allows
- * to indicate that certain fractions should be regarded as having infinite
- * value. I.e., to indicate that those fractions should never be chosen as the
- * minimum. We do this by taking for each fraction a infinity indicator bit
- * which can than be used to adjust any comparison result for the indicated
- * fractions. This solves a problem in the Simplex solver where we need to find
- * the minimum fraction larger than 0, in a list of fractions.
+ * Allows to indicate that certain fractions should be regarded as having infinite value. I.e., to
+ * indicate that those fractions should never be chosen as the minimum. We do this by taking for
+ * each fraction a infinity indicator bit which can than be used to adjust any comparison result for
+ * the indicated fractions. This solves a problem in the Simplex solver where we need to find the
+ * minimum fraction larger than 0, in a list of fractions.
  *
  * This improves on a previous solution that simply tried to set all fractions
  * smaller than or equal to 0 to a very large value (essentially assuming this
@@ -136,8 +134,10 @@ public class MinInfFrac implements ComputationBuilder<MinInfOutput> {
                             SInt p1 = pair.getFirst();
                             SInt p2 = pair.getSecond();
                             NumericBuilder numeric = seq13.numeric();
-                        Computation<SInt> tmpC = seq13.comparison().compareLEQLong(() -> p1, () -> p2);
-                            Computation<SInt> notInf0 = numeric.sub(one, fs.get(finalI * 2).inf);
+                        Computation<SInt> tmpC = seq13.comparison()
+                            .compareLEQLong(() -> p1, () -> p2);
+                        Computation<SInt> notInf0 = numeric
+                            .sub(BigInteger.ONE, fs.get(finalI * 2).inf);
                             tmpC = numeric.mult(notInf0, tmpC);
                             tmpC = seq13
                                 .createSequentialSub(new ConditionalSelect(fs.get(finalI * 2 + 1).inf,
@@ -174,7 +174,7 @@ public class MinInfFrac implements ComputationBuilder<MinInfOutput> {
                     int finalI = i;
                     par.createSequentialSub((innerSeq) -> {
                       Computation<SInt> c = tmpCs.get(finalI);
-                      Computation<SInt> notC = innerSeq.numeric().sub(one, c);
+                      Computation<SInt> notC = innerSeq.numeric().sub(BigInteger.ONE, c);
 
                       cs.set(finalI * 2, c);
                       cs.set(finalI * 2 + 1, notC);
@@ -193,10 +193,9 @@ public class MinInfFrac implements ComputationBuilder<MinInfOutput> {
                     for (int j = i * offset; j < i * offset + offset / 2; j++) {
                       cs.set(j, par.numeric().mult(c, cs.get(j)));
                     }
-                    int finalI1 = i;
+                    int finalI = i;
                     par.createSequentialSub((innerSeq) -> {
-                      Computation<SInt> notC = innerSeq.numeric().sub(one, c);
-                      int finalI = finalI1;
+                      Computation<SInt> notC = innerSeq.numeric().sub(BigInteger.ONE, c);
                       innerSeq.createParallelSub((innerPar) -> {
                         int limit =
                             (finalI + 1) * offset > cs.size() ? cs.size() : (finalI + 1) * offset;

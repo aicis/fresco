@@ -26,15 +26,14 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.collections;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.builder.ComputationBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.conditional.ConditionalSelect;
-
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Implements a lookup protocol using a linear number of equality protocols. A
@@ -50,7 +49,7 @@ public class LinearLookUp implements ComputationBuilder<SInt> {
   private final Computation<SInt> lookUpKey;
   private final ArrayList<Computation<SInt>> keys;
   private final ArrayList<Computation<SInt>> values;
-  private final int notFoundValue;
+  private final Computation<SInt> notFoundValue;
 
   /**
    * Makes a new LinearLookUp
@@ -63,7 +62,7 @@ public class LinearLookUp implements ComputationBuilder<SInt> {
   public LinearLookUp(Computation<SInt> lookUpKey,
       ArrayList<Computation<SInt>> keys,
       ArrayList<Computation<SInt>> values,
-      int notFoundValue) {
+      Computation<SInt> notFoundValue) {
     this.notFoundValue = notFoundValue;
     this.lookUpKey = lookUpKey;
     this.keys = keys;
@@ -80,7 +79,7 @@ public class LinearLookUp implements ComputationBuilder<SInt> {
       }
       return () -> index;
     }).seq((index, seq) -> {
-      Computation<SInt> outputValue = seq.numeric().known(BigInteger.valueOf(notFoundValue));
+      Computation<SInt> outputValue = notFoundValue;
       for (int i = 0, valuesLength = values.size(); i < valuesLength; i++) {
         Computation<SInt> value = values.get(i);
         outputValue = seq.seq(new ConditionalSelect(index.get(i), value, outputValue));

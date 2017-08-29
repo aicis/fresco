@@ -53,7 +53,7 @@ public class ExponentiationOpenBase implements ComputationBuilder<SInt> {
     ).seq((bits, seq) -> {
       BigInteger e = base;
       NumericBuilder numeric = seq.numeric();
-      Computation<SInt> result = numeric.known(BigInteger.valueOf(1));
+      Computation<SInt> result = null;
       for (SInt bit : bits) {
         /*
          * result += bits[i] * (result * r - r) + r
@@ -64,8 +64,13 @@ public class ExponentiationOpenBase implements ComputationBuilder<SInt> {
 				 * result = {
 				 *            result * e   if bits[i] = 1
 				 */
-        result = numeric
-            .add(numeric.mult(() -> bit, numeric.sub(numeric.mult(e, result), result)), result);
+        if (result == null) {
+          BigInteger sub = e.subtract(BigInteger.ONE);
+          result = numeric.add(BigInteger.ONE, numeric.mult(sub, () -> bit));
+        } else {
+          Computation<SInt> sub = numeric.sub(numeric.mult(e, result), result);
+          result = numeric.add(result, numeric.mult(sub, () -> bit));
+        }
         e = e.multiply(e);
       }
       return result;

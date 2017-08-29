@@ -43,20 +43,18 @@ public class AggregateStep implements Application<List<List<SInt>>, SequentialNu
     Map<BigInteger, Computation<SInt>> groupedByCipher = new HashMap<>();
     Map<BigInteger, SInt> cipherToShare = new HashMap<>();
 
-    Computation<SInt> zero = builder.numeric().known(BigInteger.ZERO);
-
     for (Triple<SInt, SInt, BigInteger> triple : this.triples) {
       BigInteger cipher = triple.cipher;
       SInt key = triple.key;
       SInt value = triple.value;
 
       if (!groupedByCipher.containsKey(cipher)) {
-        groupedByCipher.put(cipher, zero);
+        groupedByCipher.put(cipher, value);
         cipherToShare.put(cipher, key);
+      } else {
+        Computation<SInt> subTotal = builder.numeric().add(groupedByCipher.get(cipher), value);
+        groupedByCipher.put(cipher, subTotal);
       }
-
-      Computation<SInt> subTotal = builder.numeric().add(groupedByCipher.get(cipher), value);
-      groupedByCipher.put(cipher, subTotal);
     }
 
     return builder.createSequentialSub(seq -> {
