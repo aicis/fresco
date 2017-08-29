@@ -38,14 +38,14 @@ import java.util.List;
  * The XNORs are done in parallel and the ANDs are done by a log-depth tree structured protocol.
  *
  */
-public class AltBinaryEquality implements ComputationBuilder<SBool, ProtocolBuilderBinary> {
+public class BinaryEquality implements ComputationBuilder<SBool, ProtocolBuilderBinary> {
 
 
   private List<Computation<SBool>> inLeft;
   private List<Computation<SBool>> inRight;
   private final int length;
 
-  public AltBinaryEquality(List<Computation<SBool>> inLeft,
+  public BinaryEquality(List<Computation<SBool>> inLeft,
       List<Computation<SBool>> inRight) {
     this.inLeft = inLeft;
     this.inRight = inRight;
