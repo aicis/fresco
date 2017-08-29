@@ -28,44 +28,46 @@ package dk.alexandra.fresco.lib.compare;
 
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.builder.ComputationBuilder;
-import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
+import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.value.SBool;
+
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 
-public class CompareAndSwap implements ComputationBuilder<List<SBool>, ProtocolBuilderNumeric> {
+/**
+ *  Given two values, produce a sorted list of the values 
+ *
+ */
+public class CompareAndSwap implements ComputationBuilder<List<List<Computation<SBool>>>, ProtocolBuilderBinary> {
 
-	private Computation<List<SBool>> left;
-	private Computation<List<SBool>> right;
+  private List<Computation<SBool>> left;
+  private List<Computation<SBool>> right;
 
-	public CompareAndSwap(Computation<List<SBool>> left, Computation<List<SBool>> right) {
-		this.left = left;
-		this.right = right;
-	}
-/*
-	@Override
-	protected ProtocolProducer initializeProtocolProducer() {
-		BasicLogicBuilder blb = new BasicLogicBuilder(bp);
-		blb.beginSeqScope();
-		SBool comparisonResult = blb.greaterThan(left, right);
-
-		blb.beginParScope();
-		SBool[] tmpLeft = blb.condSelect(comparisonResult, left, right);
-		SBool[] tmpRight = blb.condSelect(comparisonResult, right, left);
-		blb.endCurScope();
-
-		blb.beginParScope();
-		blb.copy(tmpLeft, left);
-		blb.copy(tmpRight, right);
-		blb.endCurScope();
-
-		blb.endCurScope();
-		return blb.getProtocol();
-	}*/
+  public CompareAndSwap(List<Computation<SBool>> left, List<Computation<SBool>> right) {
+    this.left = left;
+    this.right = right;
+  }
 
   @Override
-	public Computation<List<SBool>> buildComputation(ProtocolBuilderNumeric builder) {
-		// TODO Auto-generated method stub
-    return null;
+  public Computation<List<List<Computation<SBool>>>> buildComputation(ProtocolBuilderBinary builder) {
+    return builder.seq(seq -> {
+      return seq.comparison().greaterThan(right, left);
+    }).par((par, data) -> {
+     
+      List<Computation<SBool>> first = left.stream()
+          .map(e -> {return par.advancedBinary().condSelect(data, e, right.get(left.indexOf(e)));})
+          .collect(Collectors.toList());
+
+      List<Computation<SBool>> second = right.stream()
+          .map(e -> {return par.advancedBinary().condSelect(data, e, left.get(right.indexOf(e)));})
+          .collect(Collectors.toList());
+
+      List<List<Computation<SBool>>> result = new ArrayList<List<Computation<SBool>>>();
+      result.add(first);
+      result.add(second);
+      return () -> result; 
+    });
   }
 }

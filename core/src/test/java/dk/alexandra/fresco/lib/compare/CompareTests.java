@@ -26,6 +26,23 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.compare;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.junit.Assert;
+
+import dk.alexandra.fresco.framework.Application;
+import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
+import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
+import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
+import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
+import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
+import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
+import dk.alexandra.fresco.framework.util.ByteArithmetic;
+import dk.alexandra.fresco.framework.value.SBool;
 
 /**
  * Test class for the DEASolver.
@@ -37,107 +54,60 @@ package dk.alexandra.fresco.lib.compare;
  *
  */
 public class CompareTests {
-	/* TODO 
-	 public static class TestCompareAndSwap extends TestThreadFactory {
-	    
-	    public TestCompareAndSwap() {
-	    }
+  
+  public static class CompareAndSwapTest<ResourcePoolT extends ResourcePool>
+  extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
 
-	    @Override
-	    public TestThread next(TestThreadConfiguration conf) {
-	      return new TestThread() {
-	        @Override
-	        public void test() throws Exception {
-	          
-	          boolean[] left = ByteArithmetic.toBoolean("ee");
-	          boolean[] right = ByteArithmetic.toBoolean("00");
-	          
-	          OBool[][] result = new OBool[4][16];
-	          
-	          TestApplication app = new TestApplication() {
+    public CompareAndSwapTest() {}
 
-	            private static final long serialVersionUID = 4338818809103728010L;
+    @Override
+    public TestThread<ResourcePoolT, ProtocolBuilderBinary> next(
+        TestThreadConfiguration<ResourcePoolT, ProtocolBuilderBinary> conf) {
+      return new TestThread<ResourcePoolT, ProtocolBuilderBinary>() {
+        @Override
+        public void test() throws Exception {
+          List<Boolean> rawLeft = Arrays.asList(ByteArithmetic.toBoolean("ee"));
+          List<Boolean> rawRight = Arrays.asList(ByteArithmetic.toBoolean("00"));
 
-	            @Override
-	            public ProtocolProducer prepareApplication(
-	                BuilderFactory factoryProducer) {
-	              ProtocolFactory producer = factoryProducer.getProtocolFactory();
-	               AbstractBinaryFactory prov = (AbstractBinaryFactory) producer;
-	                BasicLogicBuilder builder = new BasicLogicBuilder(prov);
-	                SequentialProtocolProducer sseq = new SequentialProtocolProducer();
-	               
-	                
-	                SBool[] sLeft = builder.knownSBool(left);
-                  SBool[] sRight = builder.knownSBool(right);
-                  
-                  SBool[] sLeft2 = builder.knownSBool(left);
-                  SBool[] sRight2 = builder.knownSBool(right);
-                  
-                  
-	                //TODO not found in builder
-	                CompareAndSwapProtocol swap = prov.getCompareAndSwapProtocol(sLeft, sRight);
-	                
-	              //TODO not found in builder
-                  CompareAndSwapProtocol swapReverseOrder = prov.getCompareAndSwapProtocol(sRight2, sLeft2);
-                  
-	                
-	                sseq.append(builder.getProtocol());
-	         
-	                sseq.append(swap);
-	                sseq.append(swapReverseOrder);
-	                
-	                result[0] = builder.output(sLeft);
-	                result[1] = builder.output(sRight);
-	                result[2] = builder.output(sLeft2);
-                  result[3] = builder.output(sRight2);
-	                sseq.append(builder.getProtocol());
-	              
-	              return sseq;
-	            }
-	          };
-	          secureComputationEngine
-	              .runApplication(app, ResourcePoolCreator.createResourcePool(conf.sceConf));
 
-	          Assert.assertArrayEquals(left, convertOBoolToBool(result[0]));
-	          Assert.assertArrayEquals(right, convertOBoolToBool(result[1]));
-	          Assert.assertArrayEquals(left, convertOBoolToBool(result[3]));
-            Assert.assertArrayEquals(right, convertOBoolToBool(result[2]));  
-	        }
-	      };
-	    }
-	  }
+          Application<List<List<Boolean>>, ProtocolBuilderBinary> app =
+              new Application<List<List<Boolean>>, ProtocolBuilderBinary>() {
 
-	 
-   private static int valueOfBools(boolean[] boolInput) {
-     boolean[] bool = boolInput;
-     ArrayUtils.reverse(bool);
-     int res = 0;
-     int count = 2;
-     if(bool[0]) {
-       res = 1;
-     }
-     for(int i= 1;i < bool.length; i++) {
-       if(bool[i]) {
-         res += count;
-       }
-       count = count*2;
-     }
-   return res;
-   }
-   
-   private static boolean[] randomBoolArray(int size, Random rand) {
-     boolean[] output = new boolean[size];
-     for(int i = 0; i< size; i++) {
-       output[i] = rand.nextBoolean();
-     }
-     return output;
-   }
-   
-  private static boolean[] convertOBoolToBool(OBool[] input) {
-    boolean[] output = new boolean[input.length];
-    for(int i = 0; i< input.length; i++) {
-      output[i] = input[i].getValue();
+            @Override
+            public Computation<List<List<Boolean>>> prepareApplication(ProtocolBuilderBinary producer) {
+              return producer.seq(seq -> {
+                List<Computation<SBool>> left =
+                    rawLeft.stream().map(seq.binary()::known).collect(Collectors.toList());
+                List<Computation<SBool>> right =
+                    rawRight.stream().map(seq.binary()::known).collect(Collectors.toList());
+
+                Computation<List<List<Computation<SBool>>>> compared = new CompareAndSwap(left, right).buildComputation(seq);
+                return compared;
+              }).seq((seq, opened) -> {
+                List<List<Computation<Boolean>>> result = new ArrayList<List<Computation<Boolean>>>();
+                for(List<Computation<SBool>> entry: opened){
+                  result.add(entry.stream().map(Computation::out).map(seq.binary()::open).collect(Collectors.toList()));
+                }
+                
+                return () -> result;
+              }).seq((seq, opened) -> {
+                List<List<Boolean>> result = new ArrayList<List<Boolean>>();
+                for(List<Computation<Boolean>> entry: opened){
+                  result.add(entry.stream().map(Computation::out).collect(Collectors.toList()));
+                }
+                
+                return () -> result;
+              });
+            }
+          };
+
+          List<List<Boolean>> res = secureComputationEngine.runApplication(app,
+              ResourcePoolCreator.createResourcePool(conf.sceConf));
+
+          Assert.assertEquals("00", ByteArithmetic.toHex(res.get(0)));
+          Assert.assertEquals("ee", ByteArithmetic.toHex(res.get(1)));
+        }
+      };
     }
-    return output;
-  } */
+  }
 }

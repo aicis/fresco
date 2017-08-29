@@ -29,6 +29,7 @@ import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.lib.bool.BasicBooleanTests;
 import dk.alexandra.fresco.lib.bool.ComparisonBooleanTests;
 import dk.alexandra.fresco.lib.collections.sort.CollectionsSortingTests;
+import dk.alexandra.fresco.lib.compare.CompareTests;
 import dk.alexandra.fresco.lib.crypto.BristolCryptoTests;
 import dk.alexandra.fresco.lib.debug.BinaryDebugTests;
 import dk.alexandra.fresco.lib.field.bool.generic.FieldBoolTests;
@@ -237,7 +238,8 @@ public class TestDummyProtocolSuite<ResourcePoolT extends ResourcePool>
   // TODO
   @Test
   public void test_Compare_And_Swap() throws Exception {
-    // runTest(new CompareTests.TestCompareAndSwap(), EvaluationStrategy.SEQUENTIAL);
+    runTest(new CompareTests.CompareAndSwapTest<>(), EvaluationStrategy.SEQUENTIAL,
+        NetworkingStrategy.KRYONET);
   }
 
   @Test
