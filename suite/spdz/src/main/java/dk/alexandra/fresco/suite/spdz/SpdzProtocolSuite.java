@@ -59,8 +59,7 @@ public class SpdzProtocolSuite implements
   @Override
   public BuilderFactory<ProtocolBuilderNumeric> init(
       SpdzResourcePool resourcePool) {
-    return new SpdzBuilder(
-        new SpdzFactory(resourcePool.getStore(), resourcePool.getMyId(), maxBitLength));
+    return new SpdzBuilder(new SpdzFactory(maxBitLength, resourcePool.getModulus()));
   }
 
   @Override

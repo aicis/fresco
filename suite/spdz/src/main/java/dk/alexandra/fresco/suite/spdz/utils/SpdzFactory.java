@@ -26,35 +26,23 @@
  *******************************************************************************/
 package dk.alexandra.fresco.suite.spdz.utils;
 
-import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
-import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
-import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
 import java.math.BigInteger;
 
 public class SpdzFactory implements BasicNumericFactory {
 
-  private int maxBitLength;
-  private SpdzStorage storage;
-  private int pID;
+  private final int maxBitLength;
+  private final BigInteger modulus;
 
   /**
    * @param maxBitLength The maximum length in bits that the numbers in the application will have.
    * If you have greater knowledge of your application, you can create several factorys, each with a
    * different maxBitLength to increase performance.
+   * @param modulus the modules used in the application
    */
-  public SpdzFactory(SpdzStorage storage, int pID, int maxBitLength) {
+  public SpdzFactory(int maxBitLength, BigInteger modulus) {
     this.maxBitLength = maxBitLength;
-    this.storage = storage;
-    this.pID = pID;
-  }
-
-  public SpdzSInt getRandomBitFromStorage() {
-    return this.storage.getSupplier().getNextBit();
-  }
-
-  public SInt[] getExponentiationPipe() {
-    return this.storage.getSupplier().getNextExpPipe();
+    this.modulus = modulus;
   }
 
   @Override
@@ -65,7 +53,7 @@ public class SpdzFactory implements BasicNumericFactory {
 
   @Override
   public BigInteger getModulus() {
-    return this.storage.getSupplier().getModulus();
+    return modulus;
   }
 
 }
