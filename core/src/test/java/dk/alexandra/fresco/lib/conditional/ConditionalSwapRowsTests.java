@@ -23,6 +23,14 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.conditional;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
+
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
@@ -34,17 +42,9 @@ import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.collections.Matrix;
-import dk.alexandra.fresco.lib.collections.MatrixUtils;
+import dk.alexandra.fresco.lib.collections.MatrixTestUtils;
 import dk.alexandra.fresco.lib.collections.io.CloseMatrix;
 import dk.alexandra.fresco.lib.collections.io.OpenList;
-
-import static org.junit.Assert.assertThat;
-import static org.hamcrest.CoreMatchers.is;
-
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Test class for the ConditionalSwapRowsTests protocol.
@@ -115,14 +115,14 @@ public class ConditionalSwapRowsTests {
   }
 
   public static <ResourcePoolT extends ResourcePool> TestSwapGeneric<ResourcePoolT> testSwapYes() {
-    Matrix<BigInteger> input = new MatrixUtils().getInputMatrix(2, 3);
+    Matrix<BigInteger> input = new MatrixTestUtils().getInputMatrix(2, 3);
     Pair<ArrayList<BigInteger>, ArrayList<BigInteger>> expected =
         new Pair<>(input.getRow(1), input.getRow(0));
     return new TestSwapGeneric<>(BigInteger.valueOf(1), expected, input);
   }
 
   public static <ResourcePoolT extends ResourcePool> TestSwapGeneric<ResourcePoolT> testSwapNo() {
-    Matrix<BigInteger> input = new MatrixUtils().getInputMatrix(2, 3);
+    Matrix<BigInteger> input = new MatrixTestUtils().getInputMatrix(2, 3);
     Pair<ArrayList<BigInteger>, ArrayList<BigInteger>> expected =
         new Pair<>(input.getRow(0), input.getRow(1));
     return new TestSwapGeneric<>(BigInteger.valueOf(0), expected, input);

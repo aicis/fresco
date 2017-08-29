@@ -136,9 +136,9 @@ public class PermuteRows implements ComputationBuilder<Matrix<Computation<SInt>>
       cbits = bits;
       // initiate loop
       return new IterationState(0, () -> values);
-    }).whileLoop((state) -> state.round < numRounds - 1, (state, par) -> {
+    }).whileLoop((state) -> state.round < numRounds - 1, (state, seq) -> {
       // apply swapper gates for this round
-      Computation<Matrix<Computation<SInt>>> swapped = par.createParallelSub(
+      Computation<Matrix<Computation<SInt>>> swapped = seq.createParallelSub(
           new ConditionalSwapNeighbors(cbits.getColumn(state.round), state.intermediate.out()));
       // re-arrange values for next round (based solely on waksman network topology)
       // this is NOT input-dependent!

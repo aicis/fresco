@@ -38,6 +38,7 @@ import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNu
 import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.lib.collections.Matrix;
+import dk.alexandra.fresco.lib.collections.MatrixTestUtils;
 import dk.alexandra.fresco.lib.collections.MatrixUtils;
 import dk.alexandra.fresco.lib.collections.io.CloseMatrix;
 import dk.alexandra.fresco.lib.collections.io.OpenMatrix;
@@ -100,7 +101,7 @@ public class PermuteRowsTests {
 
   public static <ResourcePoolT extends ResourcePool> TestPermuteRowsGeneric<ResourcePoolT> permuteRows() {
     // define input matrix
-    Matrix<BigInteger> input = new MatrixUtils().getInputMatrix(8, 3);
+    Matrix<BigInteger> input = new MatrixTestUtils().getInputMatrix(8, 3);
     // define permutation
     int[] idxPerm = new int[8];
     idxPerm[0] = 0;
@@ -123,11 +124,11 @@ public class PermuteRowsTests {
 
   public static <ResourcePoolT extends ResourcePool> TestPermuteRowsGeneric<ResourcePoolT> permuteEmptyRows() {
     // define empty input matrix
-    Matrix<BigInteger> input = new MatrixUtils().getInputMatrix(0, 0);
+    Matrix<BigInteger> input = new MatrixTestUtils().getInputMatrix(0, 0);
     // define empty permutation
     int[] idxPerm = new int[0];
     // define expected result
-    Matrix<BigInteger> expected = new MatrixUtils().getInputMatrix(0, 0);
+    Matrix<BigInteger> expected = new MatrixTestUtils().getInputMatrix(0, 0);
     return new TestPermuteRowsGeneric<>(input, expected, idxPerm);
   }
 

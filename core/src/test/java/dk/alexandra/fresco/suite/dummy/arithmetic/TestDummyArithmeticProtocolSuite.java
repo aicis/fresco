@@ -14,6 +14,7 @@ import dk.alexandra.fresco.lib.arithmetic.SortingTests;
 import dk.alexandra.fresco.lib.collections.io.CloseListTests;
 import dk.alexandra.fresco.lib.collections.io.CloseMatrixTests;
 import dk.alexandra.fresco.lib.collections.permute.PermuteRowsTests;
+import dk.alexandra.fresco.lib.collections.shuffle.ShuffleRowsTests;
 import dk.alexandra.fresco.lib.conditional.ConditionalSelectTests;
 import dk.alexandra.fresco.lib.conditional.ConditionalSwapNeighborsTests;
 import dk.alexandra.fresco.lib.conditional.ConditionalSwapRowsTests;
@@ -209,6 +210,18 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
   @Test
   public void test_permute_empty_rows() throws Exception {
     runTest(PermuteRowsTests.permuteEmptyRows(), EvaluationStrategy.SEQUENTIAL,
+        NetworkingStrategy.SCAPI, 2);
+  }
+  
+  @Test
+  public void test_shuffle_rows_two_parties() throws Exception {
+    runTest(ShuffleRowsTests.shuffleRowsTwoParties(), EvaluationStrategy.SEQUENTIAL,
+        NetworkingStrategy.SCAPI, 2);
+  }
+  
+  @Test
+  public void test_shuffle_rows_empty() throws Exception {
+    runTest(ShuffleRowsTests.shuffleRowsEmpty(), EvaluationStrategy.SEQUENTIAL,
         NetworkingStrategy.SCAPI, 2);
   }
 

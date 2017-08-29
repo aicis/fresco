@@ -21,14 +21,13 @@
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL, and Bouncy Castle.
  * Please see these projects for any further licensing issues.
  *******************************************************************************/
-package dk.alexandra.fresco.lib.conditional;
+package dk.alexandra.fresco.lib.collections.shuffle;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Random;
 
 import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.Computation;
@@ -38,37 +37,30 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
 import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
-import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.collections.Matrix;
 import dk.alexandra.fresco.lib.collections.MatrixTestUtils;
 import dk.alexandra.fresco.lib.collections.MatrixUtils;
-import dk.alexandra.fresco.lib.collections.io.CloseList;
 import dk.alexandra.fresco.lib.collections.io.CloseMatrix;
 import dk.alexandra.fresco.lib.collections.io.OpenMatrix;
 
-/**
- * Test class for the ConditionalSwapRowsTests protocol.
- */
-public class ConditionalSwapNeighborsTests {
+public class ShuffleRowsTests {
 
   /**
-   * Performs a ConditionalSwapRows computation on matrix.
+   * Performs a ShuffleRows computation on a matrix of SInts.
    * 
    * @author nv
    *
    * @param <ResourcePoolT>
    */
-  public static class TestSwapGeneric<ResourcePoolT extends ResourcePool>
+  public static class TestShuffleRowsGeneric<ResourcePoolT extends ResourcePool>
       extends TestThreadFactory<ResourcePoolT, SequentialNumericBuilder> {
 
-    final List<BigInteger> openSwappers;
-    final Matrix<BigInteger> expected;
     final Matrix<BigInteger> input;
+    final Matrix<BigInteger> expected;
 
-    public TestSwapGeneric(List<BigInteger> openSwappers, Matrix<BigInteger> expected, Matrix<BigInteger> input) {
-      this.openSwappers = openSwappers;
-      this.expected = expected;
+    TestShuffleRowsGeneric(Matrix<BigInteger> input, Matrix<BigInteger> expected) {
       this.input = input;
+      this.expected = expected;
     }
 
     @Override
@@ -80,15 +72,18 @@ public class ConditionalSwapNeighborsTests {
         public void test() throws Exception {
           // define functionality to be tested
           Application<Matrix<BigInteger>, SequentialNumericBuilder> testApplication = root -> {
+            final int pid = conf.getMyId();
+            // sort of hacky
+            final int pids[] = new int[conf.getNoOfParties()];
+            for (int i = 0; i < pids.length; i++) {
+              pids[i] = i + 1;
+            }
             return root.par(par -> {
               // close inputs
-              Computation<List<Computation<SInt>>> swappers =
-                  par.createParallelSub(new CloseList(openSwappers, 1));
-              Computation<Matrix<Computation<SInt>>> closed =
-                  par.createParallelSub(new CloseMatrix(input, 1));
-              return par.createParallelSub((par2) -> {
-                return new ConditionalSwapNeighbors(swappers.out(), closed.out()).build(par2);
-              });
+              return new CloseMatrix(input, 1).build(par);
+            }).seq((closed, seq) -> {
+              // shuffle
+              return new ShuffleRows(closed, new Random(42), pid, pids).build(seq);
             }).par((swapped, par) -> {
               // open result
               Computation<Matrix<Computation<BigInteger>>> opened =
@@ -96,39 +91,37 @@ public class ConditionalSwapNeighborsTests {
               return () -> new MatrixUtils().unwrapMatrix(opened.out());
             });
           };
-          Matrix<BigInteger> output = secureComputationEngine.runApplication(testApplication,
+          Matrix<BigInteger> actual = secureComputationEngine.runApplication(testApplication,
               ResourcePoolCreator.createResourcePool(conf.sceConf));
-          assertThat(output.getRows(), is(expected.getRows()));
+          assertThat(actual.getRows(), is(expected.getRows()));
         }
       };
     }
   }
-  
-  public static <ResourcePoolT extends ResourcePool> TestSwapGeneric<ResourcePoolT> testSwapYes() {
-    Matrix<BigInteger> input = new MatrixTestUtils().getInputMatrix(8, 3);
-    Matrix<BigInteger> expected = new Matrix<>(input);
-    List<BigInteger> swappers = new ArrayList<>();
-    int numSwappers = 4;
-    for (int s = 0; s < numSwappers; s++) {
-      BigInteger swapper = BigInteger.valueOf(s % 2);
-      if (swapper.equals(BigInteger.ONE)) {
-        ArrayList<BigInteger> leftRow = expected.getRow(s * 2);
-        ArrayList<BigInteger> rightRow = expected.getRow(s * 2 + 1);
-        expected.setRow(s * 2, rightRow);
-        expected.setRow(s * 2 + 1, leftRow);
-      }
-      swappers.add(swapper);
-    }
-    return new TestSwapGeneric<>(swappers, input, expected);
-  }
 
-  public static <ResourcePoolT extends ResourcePool> TestSwapGeneric<ResourcePoolT> testSwapNo() {
-    Matrix<BigInteger> input = new MatrixTestUtils().getInputMatrix(8, 3);
-    List<BigInteger> swappers = new ArrayList<>();
-    int numSwappers = 4;
-    for (int s = 0; s < numSwappers; s++) {
-      swappers.add(BigInteger.valueOf(0));
-    }
-    return new TestSwapGeneric<>(swappers, input, input);
+  // result depends on number of parties
+  public static <ResourcePoolT extends ResourcePool> TestShuffleRowsGeneric<ResourcePoolT> shuffleRowsTwoParties() {
+    // define input matrix
+    MatrixTestUtils utils = new MatrixTestUtils();
+    Matrix<BigInteger> input = utils.getInputMatrix(8, 3);
+    // wow much BigInteger
+    BigInteger[][] rawRows = {{BigInteger.valueOf(6), BigInteger.valueOf(7), BigInteger.valueOf(8)},
+        {BigInteger.valueOf(18), BigInteger.valueOf(19), BigInteger.valueOf(20)},
+        {BigInteger.valueOf(9), BigInteger.valueOf(10), BigInteger.valueOf(11)},
+        {BigInteger.valueOf(3), BigInteger.valueOf(4), BigInteger.valueOf(5)},
+        {BigInteger.valueOf(12), BigInteger.valueOf(13), BigInteger.valueOf(14)},
+        {BigInteger.valueOf(0), BigInteger.valueOf(1), BigInteger.valueOf(2)},
+        {BigInteger.valueOf(21), BigInteger.valueOf(22), BigInteger.valueOf(23)},
+        {BigInteger.valueOf(15), BigInteger.valueOf(16), BigInteger.valueOf(17)}};
+    Matrix<BigInteger> expected = utils.getInputMatrix(rawRows);
+    return new TestShuffleRowsGeneric<>(input, expected);
+  }
+  
+  public static <ResourcePoolT extends ResourcePool> TestShuffleRowsGeneric<ResourcePoolT> shuffleRowsEmpty() {
+    // define input matrix
+    MatrixTestUtils utils = new MatrixTestUtils();
+    Matrix<BigInteger> input = utils.getInputMatrix(0, 0);
+    Matrix<BigInteger> expected = utils.getInputMatrix(0, 0);
+    return new TestShuffleRowsGeneric<>(input, expected);
   }
 }

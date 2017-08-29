@@ -1,9 +1,9 @@
 package dk.alexandra.fresco.lib.collections;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+
 import dk.alexandra.fresco.framework.Computation;
 
 public class MatrixUtils {
@@ -36,25 +36,5 @@ public class MatrixUtils {
     int h = tmp.size();
     int w = h > 0 ? tmp.get(0).size() : 0;
     return new Matrix<>(h, w, tmp);
-  }
-
-  /**
-   * Create matrix of given dimensions filled with values from 0 to numRows * numCols.
-   * 
-   * @param numRows
-   * @param numCols
-   * @return
-   */
-  public Matrix<BigInteger> getInputMatrix(int numRows, int numCols) {
-    ArrayList<ArrayList<BigInteger>> mat = new ArrayList<>();
-    int counter = 0;
-    for (int r = 0; r < numRows; r++) {
-      ArrayList<BigInteger> row = new ArrayList<>();
-      for (int c = 0; c < numCols; c++) {
-        row.add(BigInteger.valueOf(counter++));
-      }
-      mat.add(row);
-    }
-    return new Matrix<>(numRows, numCols, mat);
   }
 }
