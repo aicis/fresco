@@ -218,7 +218,7 @@ public class ExitingVariable implements
       }
       updateColumn.add(par.numeric().sub(zero, updatedEnteringColumn.get(tableauHeight - 1)));
       return Pair.lazy(exitingIndex, new Pair<>(updatedEnteringColumn, updateColumn));
-    }).par(
+    }).pairInPar(
         (seq, pair) -> {
           List<Computation<SInt>> updatedEnteringColumn = pair.getSecond().getFirst();
           Computation<SInt> sum = new SumSIntList(

@@ -59,7 +59,7 @@ public class RightShift implements ComputationBuilder<RightShiftResult, Protocol
     return sequential.seq((builder) -> {
       AdvancedNumericBuilder additiveMaskBuilder = builder.advancedNumeric();
       return additiveMaskBuilder.additiveMask(bitLength);
-    }).par((parSubSequential, randomAdditiveMask) -> {
+    }).pairInPar((parSubSequential, randomAdditiveMask) -> {
       BigInteger two = BigInteger.valueOf(2);
       NumericBuilder numericBuilder = parSubSequential.numeric();
       BigInteger inverseOfTwo =
@@ -84,7 +84,7 @@ public class RightShift implements ComputationBuilder<RightShiftResult, Protocol
       BigInteger mBottomNegated = mOpen.add(BigInteger.ONE).mod(BigInteger.valueOf(2));
       Computation<SInt> carry = round1.numeric().mult(mBottomNegated, rBottom);
       return () -> new Pair<>(new Pair<>(rBottom, rTop), new Pair<>(carry, mOpen));
-    }).par((parSubSequential, inputs) -> {
+    }).pairInPar((parSubSequential, inputs) -> {
       BigInteger openShiftOnce = inputs.getSecond().getSecond().shiftRight(1);
       // Now we calculate the shift, x >> 1 = mTop - rTop - carry
       Computation<SInt> sub =

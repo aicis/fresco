@@ -155,7 +155,7 @@ public class LPSolver implements ComputationBuilder<LPOutput, ProtocolBuilderNum
   private Computation<LPState> phaseTwoProtocol(ProtocolBuilderNumeric builder, LPState state) {
     return builder.seq((seq) -> seq.seq(
         new ExitingVariable(state.tableau, state.updateMatrix, state.enteringIndex, state.basis))
-    ).par(
+    ).pairInPar(
         (seq, exitingVariable) -> {
           state.pivot = exitingVariable.pivot;
           ArrayList<Computation<SInt>> exitingIndex = exitingVariable.exitingIndex;

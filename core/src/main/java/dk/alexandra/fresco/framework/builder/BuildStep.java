@@ -57,7 +57,7 @@ public final class BuildStep<
   }
 
   public <FirstOutputT, SecondOutputT>
-  BuildStep<BuilderT, Pair<FirstOutputT, SecondOutputT>, OutputT> par(
+  BuildStep<BuilderT, Pair<FirstOutputT, SecondOutputT>, OutputT> pairInPar(
       FrescoLambda<OutputT, BuilderT, FirstOutputT> firstFunction,
       FrescoLambda<OutputT, BuilderT, SecondOutputT> secondFunction) {
     BuildStep<BuilderT, Pair<FirstOutputT, SecondOutputT>, OutputT>
