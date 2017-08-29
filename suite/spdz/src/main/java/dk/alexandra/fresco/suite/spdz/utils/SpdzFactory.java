@@ -26,17 +26,9 @@
  *******************************************************************************/
 package dk.alexandra.fresco.suite.spdz.utils;
 
-import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
-import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
-import dk.alexandra.fresco.suite.spdz.gates.SpdzAddProtocolOld;
-import dk.alexandra.fresco.suite.spdz.gates.SpdzInputProtocol;
-import dk.alexandra.fresco.suite.spdz.gates.SpdzMultProtocolOld;
-import dk.alexandra.fresco.suite.spdz.gates.SpdzOutputProtocol;
-import dk.alexandra.fresco.suite.spdz.gates.SpdzOutputToAllProtocolOld;
-import dk.alexandra.fresco.suite.spdz.gates.SpdzSubtractProtocolOld;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
 import java.math.BigInteger;
 
@@ -57,11 +49,6 @@ public class SpdzFactory implements BasicNumericFactory {
     this.pID = pID;
   }
 
-  @Override
-  public SpdzSInt getSInt() {
-    return new SpdzSInt();
-  }
-
   public SpdzSInt getRandomBitFromStorage() {
     return this.storage.getSupplier().getNextBit();
   }
@@ -71,78 +58,10 @@ public class SpdzFactory implements BasicNumericFactory {
   }
 
   @Override
-  public NativeProtocol<SInt, ?> getAddProtocol(SInt a, SInt b, SInt out) {
-    return new SpdzAddProtocolOld(a, b, out);
-  }
-
-
-  @Override
-  public NativeProtocol<SInt, ?> getAddProtocol(SInt a, BigInteger b, SInt out) {
-    return new SpdzAddProtocolOld(a, b, out, this);
-  }
-
-  @Override
-  public NativeProtocol<SInt, ?> getSubtractProtocol(SInt a, SInt b, SInt out) {
-    return new SpdzSubtractProtocolOld(a, b, out);
-  }
-
-
-  @Override
-  public NativeProtocol<SInt, ?> getMultProtocol(SInt a, SInt b, SInt out) {
-    return new SpdzMultProtocolOld(a, b, out);
-  }
-
-  @Override
   public int getMaxBitLength() {
     return this.maxBitLength;
   }
 
-  @Override
-  @Deprecated
-  public SInt getSInt(int i) {
-
-    BigInteger b = BigInteger.valueOf(i).mod(getModulus());
-    SpdzElement elm;
-    if (pID == 1) {
-      elm = new SpdzElement(b, b.multiply(this.storage.getSSK()).mod(getModulus()),
-          getModulus());
-    } else {
-      elm = new SpdzElement(BigInteger.ZERO, b.multiply(this.storage
-          .getSSK()).mod(getModulus()), getModulus());
-    }
-    return new SpdzSInt(elm);
-  }
-
-  @Override
-  @Deprecated
-  public SpdzSInt getSInt(BigInteger b) {
-    b = b.mod(getModulus());
-    SpdzElement elm;
-    if (pID == 1) {
-      elm = new SpdzElement(b, b.multiply(this.storage.getSSK()).mod(getModulus()),
-          getModulus());
-    } else {
-      elm = new SpdzElement(BigInteger.ZERO, b.multiply(this.storage
-          .getSSK()).mod(getModulus()), getModulus());
-    }
-    return new SpdzSInt(elm);
-  }
-
-
-  @Override
-  public NativeProtocol<SInt, ?> getCloseProtocol(int source, BigInteger open, SInt closed) {
-    return new SpdzInputProtocol(open, closed, source);
-  }
-
-  @Override
-  public NativeProtocol<BigInteger, ?> getOpenProtocol(int target, SInt closed) {
-    return new SpdzOutputProtocol(closed, target);
-  }
-
-  @Override
-  public NativeProtocol<BigInteger, ?> getOpenProtocol(SInt closed) {
-    return new SpdzOutputToAllProtocolOld(closed);
-  }
 
   @Override
   public BigInteger getModulus() {

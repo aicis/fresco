@@ -5,15 +5,17 @@ import dk.alexandra.fresco.framework.TestThreadRunner;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.TestConfiguration;
 import dk.alexandra.fresco.framework.network.NetworkingStrategy;
 import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.configuration.TestSCEConfiguration;
 import dk.alexandra.fresco.framework.sce.evaluator.SequentialEvaluator;
-import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.SpdzProtocolSuite;
+import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
 import dk.alexandra.fresco.suite.spdz.configuration.PreprocessingStrategy;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -34,12 +36,12 @@ public class TestDistanceDemo {
         TestConfiguration.getNetworkConfigurations(n, ports);
     Map<Integer, TestThreadConfiguration> conf = new HashMap<Integer, TestThreadConfiguration>();
     for (int i : netConf.keySet()) {
-      TestThreadConfiguration ttc = new TestThreadConfiguration();
+      TestThreadConfiguration<SpdzResourcePool, ProtocolBuilderNumeric> ttc = new TestThreadConfiguration<>();
       ttc.netConf = netConf.get(i);
-      ProtocolSuite suite = new SpdzProtocolSuite(150, PreprocessingStrategy.DUMMY, null);
+      SpdzProtocolSuite suite = new SpdzProtocolSuite(150, PreprocessingStrategy.DUMMY, null);
 
-      ttc.sceConf = new TestSCEConfiguration(suite, NetworkingStrategy.KRYONET,
-          new SequentialEvaluator(), netConf.get(i), false);
+      ttc.sceConf = new TestSCEConfiguration<>(suite, NetworkingStrategy.KRYONET,
+          new SequentialEvaluator<>(), netConf.get(i), false);
       conf.put(i, ttc);
     }
     TestThreadRunner.run(test, conf);
@@ -48,10 +50,10 @@ public class TestDistanceDemo {
 
   @Test
   public void testDistance() throws Exception {
-    final TestThreadFactory f = new TestThreadFactory() {
+    final TestThreadFactory<SpdzResourcePool, ProtocolBuilderNumeric> f = new TestThreadFactory<SpdzResourcePool, ProtocolBuilderNumeric>() {
       @Override
       public TestThread next(TestThreadConfiguration conf) {
-        return new TestThread() {
+        return new TestThread<SpdzResourcePool, ProtocolBuilderNumeric>() {
           @Override
           public void test() throws Exception {
             int x, y;
@@ -64,9 +66,9 @@ public class TestDistanceDemo {
             }
             System.out.println("Running with x: " + x + ", y: " + y);
             DistanceDemo distDemo = new DistanceDemo(conf.getMyId(), x, y);
-            secureComputationEngine.runApplication(distDemo,
+            BigInteger bigInteger = secureComputationEngine.runApplication(distDemo,
                 ResourcePoolCreator.createResourcePool(conf.sceConf));
-            double distance = distDemo.getOutput().out().doubleValue();
+            double distance = bigInteger.doubleValue();
             distance = Math.sqrt(distance);
             Assert.assertEquals(11.1803, distance, 0.0001);
           }

@@ -42,21 +42,9 @@ public class SpdzKnownSIntProtocol extends SpdzNativeProtocol<SInt> {
    * Creates a gate loading a given value into a given SInt
    *
    * @param value the value
-   * @param sValue the SInt
    */
-  public SpdzKnownSIntProtocol(BigInteger value, SInt sValue) {
+  public SpdzKnownSIntProtocol(BigInteger value) {
     this.value = value;
-    this.sValue = (SpdzSInt) sValue;
-  }
-
-  /**
-   * Creates a gate loading a given value into a given SInt
-   *
-   * @param value the value
-   * @param sValue the SInt
-   */
-  public SpdzKnownSIntProtocol(int value, SInt sValue) {
-    this(BigInteger.valueOf(value), sValue);
   }
 
   @Override
@@ -69,7 +57,7 @@ public class SpdzKnownSIntProtocol extends SpdzNativeProtocol<SInt> {
       int round,
       SpdzResourcePool spdzResourcePool,
       SCENetwork network) {
-    sValue.value = createKnownSpdzElement(spdzResourcePool, value);
+    sValue = new SpdzSInt(createKnownSpdzElement(spdzResourcePool, value));
     return EvaluationStatus.IS_DONE;
   }
 

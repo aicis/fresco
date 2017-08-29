@@ -77,7 +77,7 @@ public class SecretSharedDivisor
     BigInteger two = BigInteger.valueOf(2).shiftLeft(maximumBitLength);
 
     return builder.seq(seq -> Pair.lazy(numerator, denominator)
-    ).par((seq, pair) -> {
+    ).pairInPar((seq, pair) -> {
       // Determine sign of numerator and ensure positive
       Computation<SInt> numerator = pair.getFirst();
       Computation<SInt> sign = seq.comparison().sign(numerator);
@@ -101,7 +101,7 @@ public class SecretSharedDivisor
       // Left shift numerator and denominator for greater precision.
       // We're allowed to do this because shifting numerator and denominator by the same amount
       // doesn't change the outcome of the division.
-    }).par((seq, pair) -> {
+    }).pairInPar((seq, pair) -> {
           Computation<SInt> numeratorSign = pair.getSecond().getFirst().getFirst();
           Computation<SInt> numerator = pair.getSecond().getFirst().getSecond();
           Computation<SInt> shiftNumerator = seq.numeric().mult(pair.getFirst(), numerator);
@@ -125,7 +125,7 @@ public class SecretSharedDivisor
           Computation<SInt> d = iteration::getSecond;
           Computation<SInt> f = innerSeq.numeric().sub(two, d);
           return Pair.lazy(f, iteration);
-        }).par((innerSeq, innerPair) -> {
+        }).pairInPar((innerSeq, innerPair) -> {
           NumericBuilder innerNumeric = innerSeq.numeric();
           Computation<SInt> n = () -> innerPair.getSecond().getFirst();
           Computation<SInt> f = innerPair.getFirst();

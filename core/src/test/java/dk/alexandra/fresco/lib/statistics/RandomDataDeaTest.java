@@ -26,8 +26,11 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.statistics;
 
+import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.value.SInt;
+import dk.alexandra.fresco.lib.statistics.DEASolver.AnalysisType;
+import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticSInt;
 import java.util.ArrayList;
 import java.util.List;
 import org.hamcrest.core.Is;
@@ -35,15 +38,12 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import dk.alexandra.fresco.lib.statistics.DEASolver.AnalysisType;
-import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticSInt;
+public class RandomDataDeaTest {
 
-public class TestDEASolver {
-
-  private List<List<SInt>> inputValues = new ArrayList<>();
-  private List<List<SInt>> outputValues = new ArrayList<>();
-  private List<List<SInt>> inputBasis = new ArrayList<>();
-  private List<List<SInt>> outputBasis = new ArrayList<>();
+  private List<List<Computation<SInt>>> inputValues = new ArrayList<>();
+  private List<List<Computation<SInt>>> outputValues = new ArrayList<>();
+  private List<List<Computation<SInt>>> inputBasis = new ArrayList<>();
+  private List<List<Computation<SInt>>> outputBasis = new ArrayList<>();
 
   @Before
   public void setup() {
@@ -126,10 +126,10 @@ public class TestDEASolver {
 
   @Test
   public void testInconsistentInputBasis() {
-    outputBasis.add(new ArrayList<SInt>());
+    outputBasis.add(new ArrayList<>());
     inputValues.get(0).add(new DummyArithmeticSInt());
     inputValues.get(0).add(new DummyArithmeticSInt());
-    inputBasis.add(new ArrayList<SInt>());
+    inputBasis.add(new ArrayList<>());
     inputBasis.get(0).add(new DummyArithmeticSInt());
     inputBasis.get(0).add(new DummyArithmeticSInt());
     inputBasis.get(1).add(new DummyArithmeticSInt());
@@ -184,14 +184,14 @@ public class TestDEASolver {
   
   @Test
   public void testEmptyDataset() {
-    inputValues = new ArrayList<List<SInt>>(); 
-    outputValues = new ArrayList<List<SInt>>();
-    inputBasis = new ArrayList<List<SInt>>(); 
-    outputBasis = new ArrayList<List<SInt>>();
+    inputValues = new ArrayList<>();
+    outputValues = new ArrayList<>();
+    inputBasis = new ArrayList<>();
+    outputBasis = new ArrayList<>();
   //  inputBasis.add(new ArrayList<SInt>()); //Changed
   //  outputBasis.add(new ArrayList<SInt>()); //changed
-    inputValues.add(new ArrayList<SInt>());
-    outputValues.add(new ArrayList<SInt>());
+    inputValues.add(new ArrayList<>());
+    outputValues.add(new ArrayList<>());
     outputValues.get(0).add(new DummyArithmeticSInt());
     inputValues.get(0).add(new DummyArithmeticSInt());
     try{
@@ -204,14 +204,14 @@ public class TestDEASolver {
 
   @Test
   public void testEmptyQuery() {
-    inputValues = new ArrayList<List<SInt>>(); 
-    outputValues = new ArrayList<List<SInt>>();
-    inputBasis = new ArrayList<List<SInt>>(); 
-    outputBasis = new ArrayList<List<SInt>>();
-    inputBasis.add(new ArrayList<SInt>());
-    outputBasis.add(new ArrayList<SInt>());
-    inputValues.add(new ArrayList<SInt>()); //Changed
-    outputValues.add(new ArrayList<SInt>()); //changed
+    inputValues = new ArrayList<>();
+    outputValues = new ArrayList<>();
+    inputBasis = new ArrayList<>();
+    outputBasis = new ArrayList<>();
+    inputBasis.add(new ArrayList<>());
+    outputBasis.add(new ArrayList<>());
+    inputValues.add(new ArrayList<>()); //Changed
+    outputValues.add(new ArrayList<>()); //changed
     outputBasis.get(0).add(new DummyArithmeticSInt());
     inputBasis.get(0).add(new DummyArithmeticSInt());
     try{

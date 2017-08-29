@@ -26,7 +26,6 @@ package dk.alexandra.fresco.suite.spdz;
 import dk.alexandra.fresco.framework.network.NetworkingStrategy;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.lib.arithmetic.ComparisonTests;
-import dk.alexandra.fresco.lib.arithmetic.LogicTests;
 import dk.alexandra.fresco.lib.arithmetic.SortingTests;
 import dk.alexandra.fresco.lib.list.EliminateDuplicatesTests.TestFindDuplicatesOne;
 import dk.alexandra.fresco.suite.spdz.configuration.PreprocessingStrategy;
@@ -68,12 +67,6 @@ public class TestSpdzComparison extends AbstractSpdzTest {
   public void test_Big_Sort() throws Exception {
     runTest(new SortingTests.TestBigSort(), EvaluationStrategy.SEQUENTIAL,
         NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
-  }
-
-  @Test
-  public void test_logic() throws Exception {
-    runTest(new LogicTests.TestLogic(), EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET,
-        PreprocessingStrategy.DUMMY, 2);
   }
 
   @Test

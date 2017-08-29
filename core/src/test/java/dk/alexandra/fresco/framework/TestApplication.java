@@ -46,8 +46,7 @@ public abstract class TestApplication implements
 
   @Override
   public Computation<List<BigInteger>> prepareApplication(ProtocolBuilderNumeric producer) {
-    ProtocolBuilderNumeric producer1 = (ProtocolBuilderNumeric) producer;
-    producer1.append(prepareApplication(ProtocolBuilderHelper.getFactoryNumeric(producer)));
+    producer.append(prepareApplication(ProtocolBuilderHelper.getFactoryNumeric(producer)));
     return outputToBigInteger();
   }
 
