@@ -27,18 +27,15 @@
 package dk.alexandra.fresco.lib.math.integer.binary;
 
 import dk.alexandra.fresco.framework.Application;
-import dk.alexandra.fresco.framework.BuilderFactory;
 import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.ProtocolProducer;
-import dk.alexandra.fresco.framework.TestApplication;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.numeric.AdvancedNumericBuilder;
 import dk.alexandra.fresco.framework.builder.numeric.AdvancedNumericBuilder.RightShiftResult;
-import dk.alexandra.fresco.framework.builder.numeric.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
+import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
@@ -61,12 +58,12 @@ public class BinaryOperationsTests {
   /**
    * Test binary right shift of a shared secret.
    */
-  public static class TestRightShift extends TestThreadFactory {
+  public static class TestRightShift<ResourcePoolT extends ResourcePool> extends TestThreadFactory {
 
     @Override
     public TestThread next() {
 
-      return new TestThread() {
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         private final BigInteger input = BigInteger.valueOf(12332157);
         private final int shifts = 3;
 
@@ -98,7 +95,7 @@ public class BinaryOperationsTests {
                         .collect(Collectors.toList()));
               };
           Pair<BigInteger, List<BigInteger>> output =
-              (Pair<BigInteger, List<BigInteger>>) secureComputationEngine.runApplication(
+              secureComputationEngine.runApplication(
                   app,
                   ResourcePoolCreator.createResourcePool(conf.sceConf));
           BigInteger result = output.getFirst();
@@ -119,36 +116,27 @@ public class BinaryOperationsTests {
   /**
    * Test binary right shift of a shared secret.
    */
-  public static class TestBitLength extends TestThreadFactory {
+  public static class TestBitLength<ResourcePoolT extends ResourcePool> extends TestThreadFactory {
 
     @Override
     public TestThread next() {
 
-      return new TestThread() {
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         private final BigInteger input = BigInteger.valueOf(5);
-        private Computation<BigInteger> openResult;
 
         @Override
         public void test() throws Exception {
-          TestApplication app = new TestApplication() {
-
-            @Override
-            public ProtocolProducer prepareApplication(
-                BuilderFactory producer) {
-              return ProtocolBuilderNumeric
-                  .createApplicationRoot((BuilderFactoryNumeric) producer, (builder) -> {
-                    Computation<SInt> sharedInput = builder.numeric().known(input);
-                    AdvancedNumericBuilder bitLengthBuilder = builder
-                        .advancedNumeric();
-                    Computation<SInt> bitLength = bitLengthBuilder
-                        .bitLength(sharedInput, input.bitLength() * 2);
-                    openResult = builder.numeric().open(bitLength);
-                  }).build();
-            }
+          Application<BigInteger, ProtocolBuilderNumeric> app =
+              builder -> {
+                Computation<SInt> sharedInput = builder.numeric().known(input);
+                AdvancedNumericBuilder bitLengthBuilder = builder
+                    .advancedNumeric();
+                Computation<SInt> bitLength = bitLengthBuilder
+                    .bitLength(sharedInput, input.bitLength() * 2);
+                return builder.numeric().open(bitLength);
           };
-          secureComputationEngine
+          BigInteger result = secureComputationEngine
               .runApplication(app, ResourcePoolCreator.createResourcePool(conf.sceConf));
-          BigInteger result = openResult.out();
 
           Assert.assertEquals(BigInteger.valueOf(input.bitLength()), result);
         }
