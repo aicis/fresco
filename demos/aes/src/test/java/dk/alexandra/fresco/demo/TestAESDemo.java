@@ -75,10 +75,9 @@ public class TestAESDemo {
       conf.put(playerId, ttc);
     }
 
-    TestThreadFactory f = new TestThreadFactory<ResourcePoolImpl, ProtocolBuilderBinary>() {
+    TestThreadFactory f = new TestThreadFactory() {
       @Override
-      public TestThread<ResourcePoolImpl, ProtocolBuilderBinary> next(
-          TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary> conf) {
+      public TestThread<ResourcePoolImpl, ProtocolBuilderBinary> next() {
         return new TestThread<ResourcePoolImpl, ProtocolBuilderBinary>() {
 
           @Override

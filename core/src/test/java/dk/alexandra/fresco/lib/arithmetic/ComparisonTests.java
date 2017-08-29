@@ -29,7 +29,6 @@ package dk.alexandra.fresco.lib.arithmetic;
 import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
-import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.numeric.ComparisonBuilder;
 import dk.alexandra.fresco.framework.builder.numeric.NumericBuilder;
@@ -49,10 +48,10 @@ public class ComparisonTests {
    * @author Kasper Damgaard
    */
   public static class TestCompareLT<ResourcePoolT extends ResourcePool> extends
-      TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+      TestThreadFactory {
 
     @Override
-    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next(TestThreadConfiguration conf) {
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
 
         @Override
@@ -94,10 +93,10 @@ public class ComparisonTests {
    * @author Kasper Damgaard
    */
   public static class TestCompareEQ<ResourcePoolT extends ResourcePool> extends
-      TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+      TestThreadFactory {
 
     @Override
-    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next(TestThreadConfiguration conf) {
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
 
         @Override

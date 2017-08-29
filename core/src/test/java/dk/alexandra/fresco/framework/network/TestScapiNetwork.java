@@ -82,7 +82,7 @@ public class TestScapiNetwork {
 
 	final TestThreadFactory test = new TestThreadFactory() {
 		@Override
-		public TestThread next(TestThreadConfiguration conf) {
+		public TestThread next() {
 			return new ThreadWithFixture() {
 				@Override
 				public void test() throws Exception {
@@ -116,7 +116,7 @@ public class TestScapiNetwork {
 		final byte[] data = new byte[] { 0x42, 0xf, 0x00, 0x23, 0x15 };
 		final TestThreadFactory test = new TestThreadFactory() {
 			@Override
-			public TestThread next(TestThreadConfiguration conf) {
+			public TestThread next() {
 				return new ThreadWithFixture() {
 					@Override
 					public void test() throws Exception {
@@ -149,7 +149,7 @@ public class TestScapiNetwork {
 		final byte[] data2 = new byte[] { 0x34, 0x2, 0x00, 0x1, 0x22 };
 		final TestThreadFactory test = new TestThreadFactory() {
 			@Override
-			public TestThread next(TestThreadConfiguration conf) {
+			public TestThread next() {
 				return new MyThreadWithFixture() {
 					@Override
 					public void test() throws Exception {

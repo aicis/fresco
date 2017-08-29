@@ -173,10 +173,9 @@ public class SetIntersectionDemo {
 
   public String[] setIntersectionDemo(Map<Integer, TestThreadConfiguration> conf) throws Exception {
     String[] result = new String[8];
-    TestThreadFactory f = new TestThreadFactory<ResourcePoolImpl, ProtocolBuilderBinary>() {
+    TestThreadFactory f = new TestThreadFactory() {
       @Override
-      public TestThread<ResourcePoolImpl, ProtocolBuilderBinary> next(
-          TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary> conf) {
+      public TestThread<ResourcePoolImpl, ProtocolBuilderBinary> next() {
         return new TestThread<ResourcePoolImpl, ProtocolBuilderBinary>() {
           @Override
           public void test() throws Exception {

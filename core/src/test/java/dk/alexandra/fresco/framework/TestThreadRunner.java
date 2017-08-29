@@ -156,17 +156,12 @@ public class TestThreadRunner {
     public int getMyId() {
       return this.netConf.getMyId();
     }
-
-    public int getNoOfParties() {
-      return this.netConf.noOfParties();
-    }
-
   }
 
 
-  public abstract static class TestThreadFactory<ResourcePoolT extends ResourcePool, Builder extends ProtocolBuilder> {
+  public abstract static class TestThreadFactory {
 
-    public abstract TestThread next(TestThreadConfiguration<ResourcePoolT, Builder> conf);
+    public abstract TestThread next();
   }
 
   public static void run(TestThreadFactory f, int noOfPlayers) {
@@ -202,7 +197,7 @@ public class TestThreadRunner {
     Random r = new Random(randSeed);
     for (int i = 0; i < n; i++) {
       TestThreadConfiguration<?, ?> c = confs.get(i + 1);
-      TestThread t = f.next(c);
+      TestThread t = f.next();
       t.setConfiguration(c);
       t.setRandom(r.nextLong());
       threads.add(t);

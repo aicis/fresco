@@ -80,10 +80,9 @@ public class TestInputSumExample {
 
   @Test
   public <ResourcePoolT extends ResourcePool> void testInput() throws Exception {
-    final TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> f = new TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric>() {
+    final TestThreadFactory f = new TestThreadFactory() {
       @Override
-      public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next(
-          TestThreadConfiguration<ResourcePoolT, ProtocolBuilderNumeric> conf) {
+      public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
         return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
           @Override
           public void test() throws Exception {
@@ -100,10 +99,9 @@ public class TestInputSumExample {
 
   @Test
   public <ResourcePoolT extends ResourcePool> void testInput_dummy() throws Exception {
-    final TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> f = new TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric>() {
+    final TestThreadFactory f = new TestThreadFactory() {
       @Override
-      public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next(
-          TestThreadConfiguration<ResourcePoolT, ProtocolBuilderNumeric> conf) {
+      public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
         return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
           @Override
           public void test() throws Exception {

@@ -28,7 +28,6 @@ import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.TestApplication;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
-import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.numeric.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
@@ -45,11 +44,10 @@ public class ExponentiationTests {
    * Test binary right shift of a shared secret.
    */
   public static class TestExponentiation<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+      extends TestThreadFactory {
 
     @Override
-    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next(
-        TestThreadConfiguration<ResourcePoolT, ProtocolBuilderNumeric> conf) {
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
 
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         private final BigInteger input = BigInteger.valueOf(12332157);
@@ -91,7 +89,7 @@ public class ExponentiationTests {
   public static class TestExponentiationOpenExponent extends TestThreadFactory {
 
     @Override
-    public TestThread next(TestThreadConfiguration conf) {
+    public TestThread next() {
 
       return new TestThread() {
         private final BigInteger input = BigInteger.valueOf(12332157);
@@ -133,7 +131,7 @@ public class ExponentiationTests {
   public static class TestExponentiationOpenBase extends TestThreadFactory {
 
     @Override
-    public TestThread next(TestThreadConfiguration conf) {
+    public TestThread next() {
 
       return new TestThread() {
         private final BigInteger input = BigInteger.valueOf(12332157);
@@ -175,7 +173,7 @@ public class ExponentiationTests {
   public static class TestExponentiationZeroExponent extends TestThreadFactory {
 
     @Override
-    public TestThread next(TestThreadConfiguration conf) {
+    public TestThread next() {
 
       return new TestThread() {
         private final BigInteger input = BigInteger.valueOf(12332157);

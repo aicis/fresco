@@ -32,7 +32,6 @@ import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.TestApplicationBigInteger;
 import dk.alexandra.fresco.framework.TestThreadRunner;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
-import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.numeric.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
@@ -55,7 +54,7 @@ public class AdvancedNumericTests {
     }
 
     @Override
-    public TestThread next(TestThreadConfiguration conf) {
+    public TestThread next() {
       return new TestThread() {
         @Override
         public void test() throws Exception {
@@ -104,7 +103,7 @@ public class AdvancedNumericTests {
   public static class TestDivisionWithPrecision extends TestThreadRunner.TestThreadFactory {
 
     @Override
-    public TestThread next(TestThreadConfiguration conf) {
+    public TestThread next() {
       // TODO Rewrite this test to fit new framework
       return null;
     }
@@ -157,7 +156,7 @@ public class AdvancedNumericTests {
     }
 
     @Override
-    public TestThreadRunner.TestThread next(TestThreadRunner.TestThreadConfiguration conf) {
+    public TestThreadRunner.TestThread next() {
       return new TestThread() {
         @Override
         public void test() throws Exception {
@@ -197,7 +196,7 @@ public class AdvancedNumericTests {
     static int denominator = 4;
 
     @Override
-    public TestThreadRunner.TestThread next(TestThreadRunner.TestThreadConfiguration conf) {
+    public TestThreadRunner.TestThread next() {
       return new TestThread() {
         @Override
         public void test() throws Exception {

@@ -32,7 +32,6 @@ import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.TestApplication;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
-import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.numeric.AdvancedNumericBuilder;
 import dk.alexandra.fresco.framework.builder.numeric.AdvancedNumericBuilder.RightShiftResult;
@@ -65,7 +64,7 @@ public class BinaryOperationsTests {
   public static class TestRightShift extends TestThreadFactory {
 
     @Override
-    public TestThread next(TestThreadConfiguration conf) {
+    public TestThread next() {
 
       return new TestThread() {
         private final BigInteger input = BigInteger.valueOf(12332157);
@@ -123,7 +122,7 @@ public class BinaryOperationsTests {
   public static class TestBitLength extends TestThreadFactory {
 
     @Override
-    public TestThread next(TestThreadConfiguration conf) {
+    public TestThread next() {
 
       return new TestThread() {
         private final BigInteger input = BigInteger.valueOf(5);
