@@ -26,14 +26,13 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.field.integer;
 
-import dk.alexandra.fresco.framework.ProtocolFactory;
 import java.math.BigInteger;
 
 /**
  * A factory that produces protocols that operate on elements in a finite field.
  * Use builder based protocols instead of the deprecated methods in this factory.
  */
-public interface BasicNumericFactory extends ProtocolFactory {
+public interface BasicNumericFactory {
 
   /**
    * Returns the maximum number of bits a number in the field can contain.
