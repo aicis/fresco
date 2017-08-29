@@ -94,21 +94,6 @@ public class NumericIOBuilder extends AbstractProtocolBuilder {
   }
 
   /**
-   * Appends a protocol to input a array of BigIntegers.
-   *
-   * @param is the BigInteger values
-   * @param targetID the party to input
-   * @return SInt's that will be loaded with the corresponding inputs, by the appended protocol.
-   */
-  public SInt[] inputArray(int[] is, int targetID) {
-    BigInteger[] tmp = new BigInteger[is.length];
-    for (int i = 0; i < tmp.length; i++) {
-      tmp[i] = BigInteger.valueOf(is[i]);
-    }
-    return inputArray(tmp, targetID);
-  }
-
-  /**
    * A class to efficiently handle large amounts of inputs.
    *
    * @author psn
@@ -237,18 +222,6 @@ public class NumericIOBuilder extends AbstractProtocolBuilder {
    */
   public Computation<BigInteger> output(SInt si) {
     NativeProtocol<BigInteger, ?> openProtocol = iof.getOpenProtocol(si);
-    append(openProtocol);
-    return openProtocol;
-  }
-
-  /**
-   * Appends a protocol to open a single SInt. Output is given only to the target ID.
-   *
-   * @param target the party to receive the output.
-   * @param si the SInt to open.
-   */
-  public Computation<BigInteger> outputToParty(int target, SInt si) {
-    NativeProtocol<BigInteger, ?> openProtocol = iof.getOpenProtocol(target, si);
     append(openProtocol);
     return openProtocol;
   }
