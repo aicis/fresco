@@ -58,7 +58,7 @@ public class DummyBooleanProtocolSuite
   public BuilderFactory<ProtocolBuilderBinary> init(
       ResourcePoolImpl resourcePool) {
     BuilderFactory<ProtocolBuilderBinary> b =
-        new DummyBooleanBuilderFactory(new DummyBooleanFactory());
+        new DummyBooleanBuilderFactory();
     return b;
   }
 
