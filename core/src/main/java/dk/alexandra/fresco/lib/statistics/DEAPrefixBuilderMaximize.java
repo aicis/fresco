@@ -36,7 +36,6 @@ import dk.alexandra.fresco.lib.lp.Matrix;
 import dk.alexandra.fresco.lib.lp.SimpleLPPrefix;
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
@@ -62,7 +61,7 @@ public class DEAPrefixBuilderMaximize {
   }
 
   public static Computation<SimpleLPPrefix> build(
-      List<SInt[]> basisInputs, List<SInt[]> basisOutputs,
+      List<List<SInt>> basisInputs, List<List<SInt>> basisOutputs,
       List<SInt> targetInputs, List<SInt> targetOutputs,
       ProtocolBuilderNumeric builder
   ) {
@@ -146,15 +145,15 @@ public class DEAPrefixBuilderMaximize {
     return identity;
   }
 
-  static List<List<SInt>> addTargetToList(List<SInt[]> basisOutputs, List<SInt> targetOutputs) {
-    ListIterator<SInt[]> basisIt = basisOutputs.listIterator();
+  static List<List<SInt>> addTargetToList(List<List<SInt>> basisOutputs, List<SInt> targetOutputs) {
+    ListIterator<List<SInt>> basisIt = basisOutputs.listIterator();
     ListIterator<SInt> targetIt = targetOutputs.listIterator();
     List<List<SInt>> newBasis = new LinkedList<>();
     while (basisIt.hasNext()) {
-      SInt[] basisOutput = basisIt.next();
+      List<SInt> basisOutput = basisIt.next();
       SInt targetOutput = targetIt.next();
-      List<SInt> newInputs = new ArrayList<>(basisOutput.length + 1);
-      newInputs.addAll(Arrays.asList(basisOutput));
+      List<SInt> newInputs = new ArrayList<>(basisOutput.size() + 1);
+      newInputs.addAll(basisOutput);
       newInputs.add(targetOutput);
       newBasis.add(newInputs);
     }

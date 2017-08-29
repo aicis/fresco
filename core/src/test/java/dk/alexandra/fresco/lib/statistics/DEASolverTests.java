@@ -212,6 +212,37 @@ public class DEASolverTests {
     }
   }
 
+//  public static class TestDeaSolver<ResourcePoolT extends ResourcePool>
+//      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+//    private List<List<BigInteger>> rawTargetOutputs;
+//    private List<List<BigInteger>> rawTargetInputs;
+//    private List<List<BigInteger>> rawBasisOutputs;
+//    private List<List<BigInteger>> rawBasisInputs;
+//
+//
+//    @Override
+//    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next(
+//        TestThreadConfiguration<ResourcePoolT, ProtocolBuilderNumeric> conf) {
+//      BigInteger value = BigInteger.valueOf(10);
+//      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+//        @Override
+//        public void test() throws Exception {
+//          Application<BigInteger, ProtocolBuilderNumeric> app =
+//              producer -> {
+//                NumericBuilder numeric = producer.numeric();
+//
+//                Computation<SInt> input = numeric.input(value, 1);
+//                return numeric.open(input);
+//              };
+//          BigInteger output = secureComputationEngine.runApplication(app, ResourcePoolCreator
+//              .createResourcePool(conf.sceConf));
+//
+//          Assert.assertEquals(value, output);
+//        }
+//      };
+//    }
+//  }
+
   /**
    * Reduces a field-element to a double using Gauss reduction.
    */

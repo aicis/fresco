@@ -40,7 +40,7 @@ import dk.alexandra.fresco.lib.lp.OptimalValue;
 import dk.alexandra.fresco.lib.lp.SimpleLPPrefix;
 import dk.alexandra.fresco.lib.statistics.DEASolver.DEAResult;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -202,29 +202,35 @@ public class DEASolver implements Application<List<DEAResult>, ProtocolBuilderNu
 
     int lpInputs = this.inputDataSet.get(0).size();
     int lpOutputs = this.outputDataSet.get(0).size();
-    SInt[][] basisInputs = new SInt[lpInputs][dataSetSize];
-    SInt[][] basisOutputs = new SInt[lpOutputs][dataSetSize];
+    List<List<SInt>> basisInputs = new ArrayList<>(lpInputs);
+    for (int i = 0; i < lpInputs; i++) {
+      basisInputs.add(new ArrayList<>(dataSetSize));
+    }
+    List<List<SInt>> basisOutputs = new ArrayList<>(lpOutputs);
+    for (int i = 0; i < lpOutputs; i++) {
+      basisOutputs.add(new ArrayList<>(dataSetSize));
+    }
 
     for (int i = 0; i < dataSetSize; i++) {
       for (int j = 0; j < inputDataSet.get(i).size(); j++) {
         List<SInt> current = inputDataSet.get(i);
-        basisInputs[j][i] = current.get(j);
+        basisInputs.get(j).add(current.get(j));
       }
       for (int j = 0; j < outputDataSet.get(i).size(); j++) {
         List<SInt> current = outputDataSet.get(i);
-        basisOutputs[j][i] = current.get(j);
+        basisOutputs.get(j).add(current.get(j));
       }
     }
     for (int i = 0; i < noOfSolvers; i++) {
       if (type == AnalysisType.INPUT_EFFICIENCY) {
         prefixes.add(DEAInputEfficiencyPrefixBuilder.build(
-            Arrays.asList(basisInputs), Arrays.asList(basisOutputs),
+            Collections.unmodifiableList(basisInputs), Collections.unmodifiableList(basisOutputs),
             targetInputs.get(i), targetOutputs.get(i),
             builder
         ));
       } else {
         prefixes.add(DEAPrefixBuilderMaximize.build(
-            Arrays.asList(basisInputs), Arrays.asList(basisOutputs),
+            Collections.unmodifiableList(basisInputs), Collections.unmodifiableList(basisOutputs),
             targetInputs.get(i), targetOutputs.get(i),
             builder
         ));

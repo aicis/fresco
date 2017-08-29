@@ -49,14 +49,14 @@ import java.util.List;
 public class DEAInputEfficiencyPrefixBuilder {
 
   public static Computation<SimpleLPPrefix> build(
-      List<SInt[]> basisInputs, List<SInt[]> basisOutputs,
+      List<List<SInt>> basisInputs, List<List<SInt>> basisOutputs,
       List<SInt> targetInputs, List<SInt> targetOutputs,
       ProtocolBuilderNumeric builder
   ) {
     NumericBuilder numeric = builder.numeric();
     int inputs = targetInputs.size();
     int outputs = targetOutputs.size();
-    int dbSize = basisInputs.get(0).length;
+    int dbSize = basisInputs.get(0).size();
     int constraints = inputs + outputs + 1;
     // One "theta" variable, i.e., the variable to optimize 
     // One variable "lambda" variable for each basis entry
@@ -78,18 +78,18 @@ public class DEAInputEfficiencyPrefixBuilder {
       Computation<SInt> zInner;
       // Set up constraints related to the inputs
       int i = 0;
-      Iterator<SInt[]> basisIt = basisInputs.iterator();
+      Iterator<List<SInt>> basisIt = basisInputs.iterator();
       Iterator<SInt> targetIt = targetInputs.iterator();
       for (; i < inputs; i++) {
         ArrayList<Computation<SInt>> row = new ArrayList<>(variables);
         c.add(row);
         SInt tValue = targetIt.next();
-        SInt[] bValues = basisIt.next();
+        List<SInt> bValues = basisIt.next();
         row.add(par.numeric().sub(zero, () -> tValue));
         b.add(zero);
         int j = 1;
         for (; j < dbSize + 1; j++) {
-          SInt bValue = bValues[j - 1];
+          SInt bValue = bValues.get(j - 1);
           row.add(() -> bValue);
         }
         for (; j < variables; j++) {
@@ -103,12 +103,12 @@ public class DEAInputEfficiencyPrefixBuilder {
         ArrayList<Computation<SInt>> row = new ArrayList<>(variables);
         c.add(row);
         SInt tValue = targetIt.next();
-        SInt[] bValues = basisIt.next();
+        List<SInt> bValues = basisIt.next();
         row.add(zero);
         b.add(() -> tValue);
         int j = 1;
         for (; j < dbSize + 1; j++) {
-          SInt bValue = bValues[j - 1];
+          SInt bValue = bValues.get(j - 1);
           row.add(() -> bValue);
         }
         for (; j < dbSize + 1 + constraints; j++) {
