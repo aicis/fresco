@@ -30,7 +30,6 @@ import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
-import dk.alexandra.fresco.framework.builder.numeric.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
@@ -58,9 +57,7 @@ public class PolynomialTests {
         @Override
         public void test() throws Exception {
           Application<BigInteger, ProtocolBuilderNumeric> app = provider -> {
-            ProtocolBuilderNumeric root = ((BuilderFactoryNumeric) provider).createSequential();
-
-            NumericBuilder numeric = root.numeric();
+            NumericBuilder numeric = provider.numeric();
             List<Computation<SInt>> secretCoefficients =
                 Arrays.stream(coefficients)
                     .mapToObj(BigInteger::valueOf)
@@ -70,7 +67,7 @@ public class PolynomialTests {
             PolynomialImpl polynomial = new PolynomialImpl(secretCoefficients);
             Computation<SInt> secretX = numeric.input(BigInteger.valueOf(x), 1);
 
-            Computation<SInt> result = root.seq(new PolynomialEvaluator(secretX, polynomial));
+            Computation<SInt> result = provider.seq(new PolynomialEvaluator(secretX, polynomial));
 
             return numeric.open(result);
           };
