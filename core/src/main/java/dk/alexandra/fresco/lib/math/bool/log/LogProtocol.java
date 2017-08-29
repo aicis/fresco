@@ -29,7 +29,6 @@ package dk.alexandra.fresco.lib.math.bool.log;
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.builder.ComputationBuilder;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
-import dk.alexandra.fresco.framework.math.Util;
 import dk.alexandra.fresco.framework.value.SBool;
 import java.util.ArrayList;
 import java.util.List;
@@ -43,11 +42,11 @@ import java.util.List;
  * - Prefix OR:
  * Starting from most significant bit of the input X, OR with 
  * the next bit. This causes a bit vector of the form Y=[0,0,...,1,1,...,1]. 
- * 
+ *
  * - XOR sum: The resulting bit Zi in the bit vector Z is given
  * as: Y(i+1) XOR Yi This gives a result of the form: Z=[0,...,0,1,0,...,0].
  * This is the result of the function 2^{floor(log(X))+1}. 
- * 
+ *
  * - Finally, we get hold of only floor(log(X))+1 by having the
  * result Ai become: forall j: XOR (Zj AND i'th bit of j) 
  * This means fx if Z = [0,1,0], then A0 becomes = (Z0 AND 0'th bit of 0) XOR (Z1 AND 0'th bit of 1) XOR (Z2 AND 0'th bit of 2) = 0 XOR 1
@@ -71,15 +70,15 @@ public class LogProtocol implements
   public LogProtocol(List<Computation<SBool>> number) {
     this.number = number;
   }
-  
-  
+
+
   @Override
   public Computation<List<Computation<SBool>>> buildComputation(ProtocolBuilderBinary builder) {
     return builder.seq(seq -> {
       List<Computation<SBool>> ors = new ArrayList<>();
       ors.add(number.get(0));
-      for(int i = 1; i< number.size(); i++) {
-        ors.add(seq.advancedBinary().or(number.get(i), ors.get(i-1)));
+      for (int i = 1; i < number.size(); i++) {
+        ors.add(seq.advancedBinary().or(number.get(i), ors.get(i - 1)));
       }
       return () -> ors;
     }).seq((seq, ors) -> {
@@ -87,18 +86,18 @@ public class LogProtocol implements
       xors.add(seq.binary().xor(ors.get(0), seq.binary().known(false)));
 
       for (int i = 1; i < number.size(); i++) {
-        xors.add(seq.binary().xor(ors.get(i-1), ors.get(i)));
+        xors.add(seq.binary().xor(ors.get(i - 1), ors.get(i)));
       }
       xors.add(seq.binary().known(false));
       return () -> xors;
     }).seq((seq, xors) -> {
       List<Computation<SBool>> res = new ArrayList<>();
-      for (int j = 0; j < Util.log2(number.size()) + 1; j++) {
+      for (int j = 0; j < log2(number.size()) + 1; j++) {
         res.add(seq.binary().known(false));
       }
-      for (int j = 0; j < Util.log2(number.size()) + 1; j++) {
+      for (int j = 0; j < log2(number.size()) + 1; j++) {
         for (int i = 0; i < xors.size(); i++) {
-          boolean ithBit = Util.ithBit(xors.size() - 1 - i, res.size() - 1 - j); //j'th bit of i
+          boolean ithBit = ithBit(xors.size() - 1 - i, res.size() - 1 - j); //j'th bit of i
           Computation<SBool> tmp = seq.binary().and(xors.get(i), seq.binary().known(ithBit));
           res.add(j, seq.binary().xor(tmp, res.remove(j)));
         }
@@ -106,4 +105,20 @@ public class LogProtocol implements
       return () -> res;
     });
   }
+
+  /**
+   * Computes the floor(log_2(x))
+   */
+  private int log2(int n) {
+    if (n <= 0) {
+      throw new IllegalArgumentException();
+    }
+    return 31 - Integer.numberOfLeadingZeros(n);
+  }
+
+
+  private boolean ithBit(int no, int i) {
+    return ((no >> i) & 0x01) == 1;
+  }
+
 }
