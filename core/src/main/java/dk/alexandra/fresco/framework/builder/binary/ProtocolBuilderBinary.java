@@ -56,7 +56,7 @@ public class ProtocolBuilderBinary extends
     return this.bristolCryptoBuilder;
   }
 
-  public BinaryDebugBuilder utility() {
+  public BinaryDebugBuilder debug() {
     if (this.utilityBuilder == null) {
       this.utilityBuilder = this.factory.createDebugBuilder(this);
     }

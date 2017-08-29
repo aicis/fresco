@@ -257,10 +257,10 @@ public class LPSolver implements ComputationBuilder<LPOutput, ProtocolBuilderNum
    */
   private void printInitialState(ProtocolBuilderNumeric builder, LPState state) {
     PrintStream stream = System.out;
-    builder.utility().marker("Initial Tableau [" + iterations + "]: ", stream);
-    builder.utility().openAndPrint("Basis [" + iterations + "]: ", state.basis, stream);
-    builder.utility().openAndPrint("Update Matrix [" + iterations + "]: ", updateMatrix, stream);
-    builder.utility().openAndPrint("Pivot [" + iterations + "]: ", state.prevPivot, stream);
+    builder.debug().marker("Initial Tableau [" + iterations + "]: ", stream);
+    builder.debug().openAndPrint("Basis [" + iterations + "]: ", state.basis, stream);
+    builder.debug().openAndPrint("Update Matrix [" + iterations + "]: ", updateMatrix, stream);
+    builder.debug().openAndPrint("Pivot [" + iterations + "]: ", state.prevPivot, stream);
   }
 
   /**
@@ -269,11 +269,11 @@ public class LPSolver implements ComputationBuilder<LPOutput, ProtocolBuilderNum
    */
   private void printState(ProtocolBuilderNumeric builder, LPState state) {
     PrintStream stream = System.out;
-    builder.utility().openAndPrint("Entering Variable [" + iterations + "]: ", state.enteringIndex,
+    builder.debug().openAndPrint("Entering Variable [" + iterations + "]: ", state.enteringIndex,
         stream);
-    builder.utility().openAndPrint("Basis [" + iterations + "]: ", state.basis, stream);
-    builder.utility().openAndPrint("Update Matrix [" + iterations + "]: ", updateMatrix, stream);
-    builder.utility().openAndPrint("Pivot [" + iterations + "]: ", state.prevPivot, stream);
+    builder.debug().openAndPrint("Basis [" + iterations + "]: ", state.basis, stream);
+    builder.debug().openAndPrint("Update Matrix [" + iterations + "]: ", updateMatrix, stream);
+    builder.debug().openAndPrint("Pivot [" + iterations + "]: ", state.prevPivot, stream);
   }
 
   public static class LPOutput {

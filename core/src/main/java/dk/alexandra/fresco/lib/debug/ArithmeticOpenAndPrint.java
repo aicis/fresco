@@ -102,7 +102,7 @@ public class ArithmeticOpenAndPrint implements ComputationBuilder<Void, Protocol
           sb.append("\n");
         }
       }
-      seq.utility().marker(sb.toString(), stream);
+      seq.debug().marker(sb.toString(), stream);
       return null;
     });
   }

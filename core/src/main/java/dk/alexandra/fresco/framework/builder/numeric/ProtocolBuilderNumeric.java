@@ -78,7 +78,7 @@ public class ProtocolBuilderNumeric extends
     return advancedNumeric;
   }
 
-  public DebugBuilder utility() {
+  public DebugBuilder debug() {
     if (utilityBuilder == null) {
       utilityBuilder = factory.createDebugBuilder(this);
     }

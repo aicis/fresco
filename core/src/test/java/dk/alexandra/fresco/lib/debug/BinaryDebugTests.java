@@ -63,7 +63,7 @@ public class BinaryDebugTests {
                     BooleanHelper.known(new Boolean[] {true, false, false, true}, seq.binary());
                 return () -> toPrint;
               }).seq((seq, inputs) -> {
-                seq.utility().openAndPrint("test", inputs, stream);
+                seq.debug().openAndPrint("test", inputs, stream);
                 return null;
               });
             }
