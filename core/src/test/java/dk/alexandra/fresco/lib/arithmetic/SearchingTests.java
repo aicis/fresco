@@ -26,22 +26,18 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.arithmetic;
 
-import dk.alexandra.fresco.framework.BuilderFactory;
+import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.ProtocolFactory;
-import dk.alexandra.fresco.framework.ProtocolProducer;
-import dk.alexandra.fresco.framework.TestApplication;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
-import dk.alexandra.fresco.framework.builder.numeric.BuilderFactoryNumeric;
+import dk.alexandra.fresco.framework.builder.numeric.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
+import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.collections.LinearLookUp;
-import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
-import dk.alexandra.fresco.lib.helper.SequentialProtocolProducer;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Random;
@@ -62,60 +58,48 @@ public class SearchingTests {
           final int PAIRS = 10;
           final int MAXVALUE = 20000;
           final int NOTFOUND = -1;
-          int[] keys = new int[PAIRS];
           int[] values = new int[PAIRS];
-          ArrayList<Computation<SInt>> sKeys = new ArrayList<>(PAIRS);
-          ArrayList<Computation<SInt>> sValues = new ArrayList<>(PAIRS);
-          TestApplication app = new TestApplication() {
-            @Override
-            public ProtocolProducer prepareApplication(
-                BuilderFactory factoryProducer) {
-              ProtocolFactory producer = factoryProducer.getProtocolFactory();
-              BasicNumericFactory bnf = (BasicNumericFactory) producer;
-              SequentialProtocolProducer seq = new SequentialProtocolProducer();
-              Random rand = new Random(0);
-              for (int i = 0; i < PAIRS; i++) {
-                keys[i] = i;
-                values[i] = rand.nextInt(MAXVALUE);
-                SInt sInt = bnf.getSInt(i);
-                sKeys.add(() -> sInt);
-                SInt valueSInt = bnf.getSInt(values[i]);
-                sValues.add(() -> valueSInt);
-              }
-              return seq;
+          Application<Pair<ArrayList<Computation<SInt>>, ArrayList<Computation<SInt>>>, ProtocolBuilderNumeric> app = producer -> {
+            ArrayList<Computation<SInt>> sKeys = new ArrayList<>(PAIRS);
+            ArrayList<Computation<SInt>> sValues = new ArrayList<>(PAIRS);
+
+            NumericBuilder numeric = producer.numeric();
+            Random rand = new Random(0);
+            for (int i = 0; i < PAIRS; i++) {
+              values[i] = rand.nextInt(MAXVALUE);
+              Computation<SInt> sInt = numeric.known(BigInteger.valueOf(i));
+              sKeys.add(sInt);
+              Computation<SInt> valueSInt = numeric.known(BigInteger.valueOf(values[i]));
+              sValues.add(valueSInt);
             }
+            return () -> new Pair<>(sKeys, sValues);
           };
-          secureComputationEngine.runApplication(app, resourcePool);
+          Pair<ArrayList<Computation<SInt>>, ArrayList<Computation<SInt>>> inputs = secureComputationEngine
+              .runApplication(app, resourcePool);
+          ArrayList<Computation<SInt>> sKeys = inputs.getFirst();
+          ArrayList<Computation<SInt>> sValues = inputs.getFirst();
           for (int i = 0; i < PAIRS; i++) {
             final int counter = i;
-            TestApplication app1 = new TestApplication() {
-              @Override
-              public ProtocolProducer prepareApplication(BuilderFactory factoryProducer) {
-                ProtocolBuilderNumeric applicationRoot = ProtocolBuilderNumeric
-                    .createApplicationRoot((BuilderFactoryNumeric) factoryProducer,
-                        (root) ->
-                            root.seq((seq) -> seq.numeric().known(BigInteger.valueOf(NOTFOUND)))
-                                .seq((seq, notFound) -> {
-                                  LinearLookUp function =
-                                      new LinearLookUp(sKeys.get(counter), sKeys, sValues,
-                                          notFound);
-                                  return seq.seq(function);
-                                })
-                                .seq((seq, out) -> {
-                                  this.outputs.add(seq.numeric().open(() -> out));
-                                  return () -> out;
-                                }));
-                return applicationRoot.build();
-              }
-            };
 
-            secureComputationEngine.runApplication(app1, resourcePool);
+            Application<BigInteger, ProtocolBuilderNumeric> app1 =
+                producer -> producer
+                    .seq((seq) -> seq.numeric().known(BigInteger.valueOf(NOTFOUND)))
+                    .seq((seq, notFound) -> {
+                      LinearLookUp function =
+                          new LinearLookUp(sKeys.get(counter), sKeys, sValues,
+                              notFound);
+                      return seq.seq(function);
+                    })
+                    .seq((seq, out) -> seq.numeric().open(out));
+            BigInteger bigInteger = secureComputationEngine.runApplication(app1, resourcePool);
 
             Assert.assertEquals("Checking value index " + i,
-                values[i], app1.outputs.get(0).out().intValue());
+                values[i], bigInteger.intValue());
           }
         }
-      };
+      }
+
+          ;
     }
   }
 }
