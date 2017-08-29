@@ -77,15 +77,11 @@ public class AddTests {
                 data.add(prov.oneBitHalfAdder(inp1, inp1));
                 return () -> data;
               }).seq((seq, dat) -> {
-                System.out.println("got: " + dat.get(0));
                 List<Computation<Boolean>> out = new ArrayList<Computation<Boolean>>();
                 for (Computation<Pair<SBool, SBool>> o : dat) {
-                  System.out.println("adding " + o.out().getFirst());
                   out.add(seq.binary().open(o.out().getFirst()));
                   out.add(seq.binary().open(o.out().getSecond()));
                 }
-                System.out.println("so our out has : " + out.get(0));
-                // out = list<DummyBooleanOpenProtocol>
                 return () -> out.stream().map(Computation::out).collect(Collectors.toList());
               });
             }
