@@ -31,7 +31,6 @@ import dk.alexandra.fresco.framework.builder.numeric.ComparisonBuilder;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.math.integer.SumSIntList;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
@@ -119,7 +118,7 @@ public class BlandEnteringVariable
           }
           return () -> enteringIndex;
         })).seq((seq, enteringIndex) -> {
-      Computation<SInt> terminationSum = seq.seq(new SumSIntList(enteringIndex));
+      Computation<SInt> terminationSum = seq.advancedNumeric().sum(enteringIndex);
       Computation<SInt> termination = seq.numeric().sub(one, terminationSum);
       return () -> new Pair<>(enteringIndex, termination.out());
     });

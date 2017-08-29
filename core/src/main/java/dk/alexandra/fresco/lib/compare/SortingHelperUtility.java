@@ -32,7 +32,6 @@ import dk.alexandra.fresco.framework.builder.numeric.ComparisonBuilder;
 import dk.alexandra.fresco.framework.builder.numeric.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.math.integer.ProductSIntList;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
@@ -56,9 +55,7 @@ public class SortingHelperUtility {
         previous = value;
       }
       return () -> comparisons;
-    }).seq((seq, comparison) ->
-        new ProductSIntList(comparison).buildComputation(seq)
-    );
+    }).seq((seq, comparison) -> seq.advancedNumeric().product(values));
   }
 
 

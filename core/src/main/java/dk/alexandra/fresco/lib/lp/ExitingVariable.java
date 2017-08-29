@@ -38,7 +38,6 @@ import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.compare.ConditionalSelect;
 import dk.alexandra.fresco.lib.compare.eq.FracEq;
 import dk.alexandra.fresco.lib.lp.ExitingVariable.ExitingVariableOutput;
-import dk.alexandra.fresco.lib.math.integer.SumSIntList;
 import dk.alexandra.fresco.lib.math.integer.min.MinInfFrac;
 import dk.alexandra.fresco.lib.math.integer.min.Minimum;
 import java.math.BigInteger;
@@ -221,15 +220,15 @@ public class ExitingVariable implements
     }).pairInPar(
         (seq, pair) -> {
           List<Computation<SInt>> updatedEnteringColumn = pair.getSecond().getFirst();
-          Computation<SInt> sum = new SumSIntList(
-              updatedEnteringColumn.subList(0, tableauHeight - 1)).buildComputation(seq);
+          Computation<SInt> sum = seq.advancedNumeric().sum(
+              updatedEnteringColumn.subList(0, tableauHeight - 1));
           //Propagate exiting variable forward
           return Pair.lazy(pair.getFirst(), sum);
         },
         (seq, pair) -> {
           ArrayList<Computation<SInt>> updateColumn = pair.getSecond().getSecond();
-          Computation<SInt> sum = new SumSIntList(updateColumn.subList(0, tableauHeight - 1))
-              .buildComputation(seq);
+          Computation<SInt> sum = seq.advancedNumeric()
+              .sum(updateColumn.subList(0, tableauHeight - 1));
           return Pair.lazy(updateColumn, sum);
         }
     ).seq((seq, pair) -> {

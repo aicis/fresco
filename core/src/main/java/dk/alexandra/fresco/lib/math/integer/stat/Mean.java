@@ -30,7 +30,6 @@ import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.builder.ComputationBuilder;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.math.integer.SumSIntList;
 import java.math.BigInteger;
 import java.util.List;
 
@@ -55,8 +54,7 @@ public class Mean implements ComputationBuilder<SInt, ProtocolBuilderNumeric> {
   public Computation<SInt> buildComputation(ProtocolBuilderNumeric builder) {
     return builder.seq((seq) ->
         () -> this.data
-    ).seq((seq, list) ->
-        new SumSIntList(list).buildComputation(seq)
+    ).seq((seq, list) -> seq.advancedNumeric().sum(list)
     ).seq((seq, sum) -> {
       BigInteger n = BigInteger.valueOf(this.degreesOfFreedom);
       return seq.advancedNumeric().div(() -> sum, n);
