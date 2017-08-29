@@ -55,7 +55,7 @@ public class SortingHelperUtility {
         previous = value;
       }
       return () -> comparisons;
-    }).seq((seq, comparison) -> seq.advancedNumeric().product(values));
+    }).seq((seq, comparison) -> seq.advancedNumeric().product(comparison));
   }
 
 
