@@ -26,16 +26,14 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.lp;
 
-import dk.alexandra.fresco.framework.BuilderFactory;
+import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.ProtocolProducer;
-import dk.alexandra.fresco.framework.TestApplication;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
-import dk.alexandra.fresco.framework.builder.numeric.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
+import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -45,10 +43,10 @@ import java.util.stream.Collectors;
 import org.junit.Assert;
 
 
-
 public class LPBuildingBlockTests {
 
-  private static abstract class LPTester extends TestApplication {
+  private static abstract class LPTester<OutputT>
+      implements Application<OutputT, ProtocolBuilderNumeric> {
 
     Random rand = new Random(42);
     BigInteger mod;
@@ -103,7 +101,7 @@ public class LPBuildingBlockTests {
     }
   }
 
-  private static abstract class EnteringVariableTester extends LPTester {
+  private static abstract class EnteringVariableTester extends LPTester<List<BigInteger>> {
 
     private int expectedIndex;
 
@@ -111,27 +109,26 @@ public class LPBuildingBlockTests {
       return expectedIndex;
     }
 
-    void setupRandom(int n, int m, ProtocolBuilderNumeric builder) {
+    Computation<List<BigInteger>> setupRandom(int n, int m, ProtocolBuilderNumeric builder) {
       randomTableau(n, m);
       inputTableau(builder);
 
       expectedIndex = enteringDanzigVariableIndex(constraints, updateMatrix, b, f);
 
-      builder.seq((seq) ->
+      return builder.seq((seq) ->
           new EnteringVariable(sTableau, sUpdateMatrix).buildComputation(seq)
       ).seq((seq, enteringOutput) -> {
         List<Computation<SInt>> enteringIndex = enteringOutput.getFirst();
         NumericBuilder numeric = seq.numeric();
         List<Computation<BigInteger>> opened = enteringIndex.stream().map(numeric::open)
             .collect(Collectors.toList());
-        this.outputs = opened;
-        return () -> null;
+        return () -> opened.stream().map(Computation::out).collect(Collectors.toList());
       });
     }
 
     /**
-     * Computes the index of the entering variable given the plaintext LP
-     * tableu using Danzigs rule.
+     * Computes the index of the entering variable given the plaintext LP tableu using Danzigs
+     * rule.
      *
      * @param C the constraint matrix
      * @param updateMatrix the update matrix
@@ -170,7 +167,7 @@ public class LPBuildingBlockTests {
 
   }
 
-  private static abstract class BlandEnteringVariableTester extends LPTester {
+  private static abstract class BlandEnteringVariableTester extends LPTester<List<BigInteger>> {
 
     private int expectedIndex;
 
@@ -178,27 +175,26 @@ public class LPBuildingBlockTests {
       return expectedIndex;
     }
 
-    void setupRandom(int n, int m, ProtocolBuilderNumeric builder) {
+    Computation<List<BigInteger>> setupRandom(int n, int m, ProtocolBuilderNumeric builder) {
       randomTableau(n, m);
       inputTableau(builder);
 
       expectedIndex = enteringDanzigVariableIndex(constraints, updateMatrix, b, f);
 
-      builder.seq((seq) ->
+      return builder.seq((seq) ->
           new BlandEnteringVariable(sTableau, sUpdateMatrix).buildComputation(seq)
       ).seq((seq, enteringOutput) -> {
         List<Computation<SInt>> enteringIndex = enteringOutput.getFirst();
         NumericBuilder numeric = seq.numeric();
         List<Computation<BigInteger>> opened = enteringIndex.stream().map(numeric::open)
             .collect(Collectors.toList());
-        this.outputs = opened;
-        return () -> null;
+        return () -> opened.stream().map(Computation::out).collect(Collectors.toList());
       });
     }
 
     /**
-     * Computes the index of the entering variable given the plaintext LP
-     * tableu using Danzigs rule.
+     * Computes the index of the entering variable given the plaintext LP tableu using Danzigs
+     * rule.
      *
      * @param C the constraint matrix
      * @param updateMatrix the update matrix
@@ -237,8 +233,8 @@ public class LPBuildingBlockTests {
 
   }
 
-  
-  private static abstract class ExitingVariableTester extends LPTester {
+
+  private static abstract class ExitingVariableTester extends LPTester<List<BigInteger>> {
 
     int exitingIdx;
 
@@ -293,14 +289,16 @@ public class LPBuildingBlockTests {
     }
   }
 
-  
-  public static class TestEnteringVariable extends TestThreadFactory {
+
+  public static class TestEnteringVariable<ResourcePoolT extends ResourcePool> extends
+      TestThreadFactory {
+
     public TestEnteringVariable() {
     }
 
     @Override
     public TestThread next() {
-      return new TestThread() {
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
 
         @Override
         public void test() throws Exception {
@@ -308,26 +306,23 @@ public class LPBuildingBlockTests {
 
 
             @Override
-            public ProtocolProducer prepareApplication(BuilderFactory factoryProducer) {
-              ProtocolBuilderNumeric builder = ((BuilderFactoryNumeric) factoryProducer)
-                  .createSequential();
+            public Computation<List<BigInteger>> prepareApplication(
+                ProtocolBuilderNumeric builder) {
               mod = builder.getBasicNumeric().getModulus();
-              setupRandom(10, 10, builder);
-              return builder.build();
+              return setupRandom(10, 10, builder);
             }
           };
-          secureComputationEngine
-          .runApplication(app, ResourcePoolCreator.createResourcePool(conf.sceConf));
+          List<BigInteger> outputs = secureComputationEngine
+              .runApplication(app, ResourcePoolCreator.createResourcePool(conf.sceConf));
           int actualIndex = 0;
           int sum = 0;
           BigInteger zero = BigInteger.ZERO;
           BigInteger one = BigInteger.ONE;
-          List<Computation<BigInteger>> outputs = app.outputs;
-          for (Computation<BigInteger> b : outputs) {
-            if (b.out().compareTo(zero) == 0) {
+          for (BigInteger b : outputs) {
+            if (b.compareTo(zero) == 0) {
               actualIndex = (sum < 1) ? actualIndex + 1 : actualIndex;
             } else {
-              Assert.assertEquals(one, b.out());
+              Assert.assertEquals(one, b);
               sum++;
             }
           }
@@ -337,96 +332,94 @@ public class LPBuildingBlockTests {
       };
     }
   }
-    public static class TestBlandEnteringVariable extends TestThreadFactory {
-      
-      public TestBlandEnteringVariable() {
+
+  public static class TestBlandEnteringVariable<ResourcePoolT extends ResourcePool> extends
+      TestThreadFactory {
+
+    public TestBlandEnteringVariable() {
+    }
+
+    @Override
+    public TestThread next() {
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+
+        @Override
+        public void test() throws Exception {
+          BlandEnteringVariableTester app = new BlandEnteringVariableTester() {
+
+
+            @Override
+            public Computation<List<BigInteger>> prepareApplication(
+                ProtocolBuilderNumeric builder) {
+              mod = builder.getBasicNumeric().getModulus();
+              return setupRandom(10, 10, builder);
+            }
+          };
+          List<BigInteger> outputs = secureComputationEngine
+              .runApplication(app, ResourcePoolCreator.createResourcePool(conf.sceConf));
+          int actualIndex = 0;
+          int sum = 0;
+          BigInteger zero = BigInteger.ZERO;
+          BigInteger one = BigInteger.ONE;
+          for (BigInteger b : outputs) {
+            if (b.compareTo(zero) == 0) {
+              actualIndex = (sum < 1) ? actualIndex + 1 : actualIndex;
+            } else {
+              Assert.assertEquals(one, b);
+              sum++;
+            }
+          }
+          //Assert.assertEquals(1, sum);
+          //Assert.assertEquals(app.getExpextedIndex(), actualIndex);
+          Assert.assertEquals(0, sum);
+          Assert.assertEquals(20, actualIndex);
+        }
+      };
+    }
+
+
+    public static class TestExitingVariable<ResourcePoolT extends ResourcePool> extends
+        TestThreadFactory {
+
+      public TestExitingVariable() {
       }
 
       @Override
       public TestThread next() {
-        return new TestThread() {
+        return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
 
           @Override
           public void test() throws Exception {
-            BlandEnteringVariableTester app = new BlandEnteringVariableTester() {
+            ExitingVariableTester app = new ExitingVariableTester() {
 
 
               @Override
-              public ProtocolProducer prepareApplication(BuilderFactory factoryProducer) {
-                ProtocolBuilderNumeric builder = ((BuilderFactoryNumeric) factoryProducer)
-                    .createSequential();
+              public Computation<List<BigInteger>> prepareApplication(
+                  ProtocolBuilderNumeric builder) {
                 mod = builder.getBasicNumeric().getModulus();
-                setupRandom(10, 10, builder);
-                return builder.build();
+                //setupRandom(10, 10, builder);
+                return () -> null;
               }
             };
-            secureComputationEngine
-            .runApplication(app, ResourcePoolCreator.createResourcePool(conf.sceConf));
+            List<BigInteger> outputs = secureComputationEngine
+                .runApplication(app, ResourcePoolCreator.createResourcePool(conf.sceConf));
             int actualIndex = 0;
             int sum = 0;
             BigInteger zero = BigInteger.ZERO;
             BigInteger one = BigInteger.ONE;
-            List<Computation<BigInteger>> outputs = app.outputs;
-            for (Computation<BigInteger> b : outputs) {
-              if (b.out().compareTo(zero) == 0) {
+            for (BigInteger b : outputs) {
+              if (b.compareTo(zero) == 0) {
                 actualIndex = (sum < 1) ? actualIndex + 1 : actualIndex;
               } else {
-                Assert.assertEquals(one, b.out());
+                Assert.assertEquals(one, b);
                 sum++;
               }
             }
-            //Assert.assertEquals(1, sum);
-            //Assert.assertEquals(app.getExpextedIndex(), actualIndex);
-            Assert.assertEquals(0, sum);
-            Assert.assertEquals(20, actualIndex);
+            //      Assert.assertEquals(1, sum);
+            //     Assert.assertEquals(app.getExpextedIndex(), actualIndex);
           }
         };
       }
-
-
-      public static class TestExitingVariable extends TestThreadFactory {
-        
-        public TestExitingVariable() {
-        }
-
-        @Override
-        public TestThread next() {
-          return new TestThread() {
-
-            @Override
-            public void test() throws Exception {
-              ExitingVariableTester app = new ExitingVariableTester() {
-
-
-                @Override
-                public ProtocolProducer prepareApplication(BuilderFactory factoryProducer) {
-                  ProtocolBuilderNumeric builder = ((BuilderFactoryNumeric) factoryProducer)
-                      .createSequential();
-                  mod = builder.getBasicNumeric().getModulus();
-                  //setupRandom(10, 10, builder);
-                  return builder.build();
-                }
-              };
-              secureComputationEngine
-              .runApplication(app, ResourcePoolCreator.createResourcePool(conf.sceConf));
-              int actualIndex = 0;
-              int sum = 0;
-              BigInteger zero = BigInteger.ZERO;
-              BigInteger one = BigInteger.ONE;
-              List<Computation<BigInteger>> outputs = app.outputs;
-              for (Computation<BigInteger> b : outputs) {
-                if (b.out().compareTo(zero) == 0) {
-                  actualIndex = (sum < 1) ? actualIndex + 1 : actualIndex;
-                } else {
-                  Assert.assertEquals(one, b.out());
-                  sum++;
-                }
-              }
-        //      Assert.assertEquals(1, sum);
-         //     Assert.assertEquals(app.getExpextedIndex(), actualIndex);
-            }
-          };
-        }
     }
   }
 }
