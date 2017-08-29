@@ -27,12 +27,14 @@ import dk.alexandra.fresco.framework.TestThreadRunner;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.TestConfiguration;
 import dk.alexandra.fresco.framework.network.NetworkingStrategy;
 import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.configuration.TestSCEConfiguration;
 import dk.alexandra.fresco.framework.sce.evaluator.SequentialEvaluator;
+import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.SpdzProtocolSuite;
@@ -46,7 +48,8 @@ import org.junit.Test;
 
 public class TestInputSumExample {
 
-  private static void runTest(TestThreadFactory test, boolean dummy, int n) {
+  private static void runTest(TestThreadFactory test,
+      boolean dummy, int n) {
     // Since SCAPI currently does not work with ports > 9999 we use fixed ports
     // here instead of relying on ephemeral ports which are often > 9999.
     List<Integer> ports = new ArrayList<Integer>(n);
@@ -57,9 +60,9 @@ public class TestInputSumExample {
         TestConfiguration.getNetworkConfigurations(n, ports);
     Map<Integer, TestThreadConfiguration> conf = new HashMap<Integer, TestThreadConfiguration>();
     for (int i : netConf.keySet()) {
-      TestThreadConfiguration ttc = new TestThreadConfiguration();
+      TestThreadConfiguration<?, ProtocolBuilderNumeric> ttc = new TestThreadConfiguration<>();
       ttc.netConf = netConf.get(i);
-      ProtocolSuite suite;
+      ProtocolSuite<?, ProtocolBuilderNumeric> suite;
       if (dummy) {
         BigInteger mod = new BigInteger(
             "6703903964971298549787012499123814115273848577471136527425966013026501536706464354255445443244279389455058889493431223951165286470575994074291745908195329");
@@ -76,11 +79,12 @@ public class TestInputSumExample {
   }
 
   @Test
-  public void testInput() throws Exception {
-    final TestThreadFactory f = new TestThreadFactory() {
+  public <ResourcePoolT extends ResourcePool> void testInput() throws Exception {
+    final TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> f = new TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric>() {
       @Override
-      public TestThread next(TestThreadConfiguration conf) {
-        return new TestThread() {
+      public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next(
+          TestThreadConfiguration<ResourcePoolT, ProtocolBuilderNumeric> conf) {
+        return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
           @Override
           public void test() throws Exception {
             InputSumExample.runApplication(secureComputationEngine,
@@ -95,11 +99,12 @@ public class TestInputSumExample {
   }
 
   @Test
-  public void testInput_dummy() throws Exception {
-    final TestThreadFactory f = new TestThreadFactory() {
+  public <ResourcePoolT extends ResourcePool> void testInput_dummy() throws Exception {
+    final TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> f = new TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric>() {
       @Override
-      public TestThread next(TestThreadConfiguration conf) {
-        return new TestThread() {
+      public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next(
+          TestThreadConfiguration<ResourcePoolT, ProtocolBuilderNumeric> conf) {
+        return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
           @Override
           public void test() throws Exception {
             InputSumExample.runApplication(secureComputationEngine,

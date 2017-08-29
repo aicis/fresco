@@ -25,17 +25,20 @@ package dk.alexandra.fresco.demo;
 
 import dk.alexandra.fresco.demo.cli.CmdLineUtil;
 import dk.alexandra.fresco.demo.helpers.ResourcePoolHelper;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import java.io.IOException;
+import java.math.BigInteger;
 
 public class InputSumExample {
 
-  public static void runApplication(SecureComputationEngine sce,
-      ResourcePool resourcePool) throws IOException {
+  public static <ResourcePoolT extends ResourcePool> void runApplication(
+      SecureComputationEngine<ResourcePoolT, ProtocolBuilderNumeric> sce,
+      ResourcePoolT resourcePool) throws IOException {
     InputApplication inputApp;
 
     int myId = resourcePool.getMyId();
@@ -50,26 +53,29 @@ public class InputSumExample {
 
     SumAndOutputApplication app = new SumAndOutputApplication(inputApp);
 
-    sce.runApplication(app, resourcePool);
+    BigInteger result = sce.runApplication(app, resourcePool);
 
     int sum = 0;
     for (int i : inputs) {
       sum += i;
     }
-    System.out.println("Expected result: " + sum + ", Result was: " + app.getResult());
+    System.out.println("Expected result: " + sum + ", Result was: " + result);
   }
 
-  public static void main(String[] args) throws IOException {
+  public static <ResourcePoolT extends ResourcePool> void main(String[] args) throws IOException {
     CmdLineUtil util = new CmdLineUtil();
     NetworkConfiguration networkConfiguration;
 
     util.parse(args);
     networkConfiguration = util.getNetworkConfiguration();
 
-    ProtocolSuite psConf = util.getProtocolSuite();
-    SecureComputationEngine sce = new SecureComputationEngineImpl(psConf, util.getEvaluator());
+    ProtocolSuite<ResourcePoolT, ProtocolBuilderNumeric> psConf =
+        (ProtocolSuite<ResourcePoolT, ProtocolBuilderNumeric>) util.getProtocolSuite();
 
-    ResourcePool resourcePool = ResourcePoolHelper.createResourcePool(
+    SecureComputationEngine<ResourcePoolT, ProtocolBuilderNumeric> sce =
+        new SecureComputationEngineImpl<>(psConf, util.getEvaluator());
+
+    ResourcePoolT resourcePool = ResourcePoolHelper.createResourcePool(
         psConf, util.getNetworkStrategy(), networkConfiguration);
     runApplication(sce, resourcePool);
   }
