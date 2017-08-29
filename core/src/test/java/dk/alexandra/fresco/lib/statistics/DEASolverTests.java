@@ -62,17 +62,22 @@ public class DEASolverTests {
     public RandomDataDeaTest(
         int inputVariables, int outputVariables, int rows, int queries,
         AnalysisType type) {
+      this(inputVariables, outputVariables, rows, queries, type, new Random(2));
+    }
+
+    private RandomDataDeaTest(
+        int inputVariables, int outputVariables, int rows, int queries,
+        AnalysisType type, Random rand) {
       super(
-          randomMatrix(queries, inputVariables),
-          randomMatrix(queries, outputVariables),
-          randomMatrix(rows, inputVariables),
-          randomMatrix(rows, outputVariables),
+          randomMatrix(rows, inputVariables, rand),
+          randomMatrix(rows, outputVariables, rand),
+          randomMatrix(queries, inputVariables, rand),
+          randomMatrix(queries, outputVariables, rand),
           type
       );
     }
 
-    private static List<List<BigInteger>> randomMatrix(int width, int height) {
-      Random rand = new Random(width + height);
+    private static List<List<BigInteger>> randomMatrix(int width, int height, Random rand) {
       List<List<BigInteger>> result = new ArrayList<>();
       for (int i = 0; i < width; i++) {
         ArrayList<BigInteger> row = new ArrayList<>();
@@ -104,7 +109,7 @@ public class DEASolverTests {
     }
 
     public TestDeaFixed1(AnalysisType type) {
-      super(outputs, inputs, outputs, inputs, type);
+      super(inputs, outputs, inputs, outputs, type);
     }
   }
 
@@ -126,7 +131,7 @@ public class DEASolverTests {
 
 
     public TestDeaFixed2(AnalysisType type) {
-      super(outputs, inputs, outputs, inputs, type);
+      super(inputs, outputs, inputs, outputs, type);
     }
   }
 
@@ -160,10 +165,8 @@ public class DEASolverTests {
     private final AnalysisType type;
 
     public TestDeaSolver(
-        List<List<BigInteger>> rawTargetOutputs,
-        List<List<BigInteger>> rawTargetInputs,
-        List<List<BigInteger>> rawBasisOutputs,
-        List<List<BigInteger>> rawBasisInputs,
+        List<List<BigInteger>> rawBasisInputs, List<List<BigInteger>> rawBasisOutputs,
+        List<List<BigInteger>> rawTargetInputs, List<List<BigInteger>> rawTargetOutputs,
         AnalysisType type) {
       this.rawTargetOutputs = rawTargetOutputs;
       this.rawTargetInputs = rawTargetInputs;
@@ -273,7 +276,7 @@ public class DEASolverTests {
     }
   }
 
-  static List<List<Computation<SInt>>> knownMatrix(NumericBuilder numeric,
+  private static List<List<Computation<SInt>>> knownMatrix(NumericBuilder numeric,
       List<List<BigInteger>> rawTargetOutputs) {
     return rawTargetOutputs.stream()
         .map(list -> list.stream().map(numeric::known).collect(Collectors.toList()))
