@@ -124,12 +124,6 @@ public abstract class ProtocolBuilderImpl<BuilderT extends ProtocolBuilderImpl<B
     return builder;
   }
 
-  // Pending rewrite of the last remaining applications
-  @Deprecated
-  public BuilderFactory getFactory() {
-    return factory;
-  }
-
   private static class ProtocolEntity {
 
     final ProtocolProducer protocolProducer;
