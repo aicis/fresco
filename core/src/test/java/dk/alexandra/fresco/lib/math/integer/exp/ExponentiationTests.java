@@ -206,7 +206,7 @@ public class ExponentiationTests {
                 ResourcePoolCreator.createResourcePool(conf.sceConf));
           } catch (RuntimeException e) {
             // Cause is wrapped in an intermediate concurrent exception.
-            if (e.getCause().getCause() instanceof IllegalArgumentException) {
+            if (e.getCause() instanceof IllegalArgumentException) {
               return;
             }
           }
