@@ -1,7 +1,6 @@
 package dk.alexandra.fresco.suite.tinytables.prepro;
 
 import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.builder.binary.BinaryBuilder;
 import dk.alexandra.fresco.framework.builder.binary.BuilderFactoryBinary;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
@@ -86,13 +85,6 @@ public class TinyTablesPreproBuilderFactory implements BuilderFactoryBinary {
         return p;
       }
     };
-  }
-
-  @Deprecated
-  @Override
-  public ProtocolFactory getProtocolFactory() {
-    // TODO Auto-generated method stub
-    return null;
   }
 
 }

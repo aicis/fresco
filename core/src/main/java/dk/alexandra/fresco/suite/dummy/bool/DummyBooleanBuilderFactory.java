@@ -24,7 +24,6 @@
 package dk.alexandra.fresco.suite.dummy.bool;
 
 import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.builder.binary.BinaryBuilder;
 import dk.alexandra.fresco.framework.builder.binary.BuilderFactoryBinary;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
@@ -40,12 +39,6 @@ public class DummyBooleanBuilderFactory implements BuilderFactoryBinary {
   public DummyBooleanBuilderFactory(DummyBooleanFactory factory) {
     super();
     this.factory = factory;
-  }
-
-  @Deprecated
-  @Override
-  public ProtocolFactory getProtocolFactory() {
-    throw new RuntimeException("Should not be used");
   }
 
 

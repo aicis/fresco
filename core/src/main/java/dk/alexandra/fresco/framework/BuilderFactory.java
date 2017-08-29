@@ -9,14 +9,6 @@ import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
 public interface BuilderFactory<BuilderT extends ProtocolBuilder> {
 
   /**
-   * Legacy method for getting the multiple inheritance factroy that is used as an outset when
-   * building protocols
-   * @deprecated The new interface presents this method via the builders. Users of this method should migrate
-   */
-  @Deprecated
-  ProtocolFactory getProtocolFactory();
-
-  /**
    * Creates a version of the Builder that matches the types of this factory. This builder will
    * execute the appended protocols in sequence.
    *

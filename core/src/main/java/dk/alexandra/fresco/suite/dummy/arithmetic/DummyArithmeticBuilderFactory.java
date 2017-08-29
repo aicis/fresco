@@ -1,7 +1,6 @@
 package dk.alexandra.fresco.suite.dummy.arithmetic;
 
 import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.builder.numeric.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
@@ -24,11 +23,6 @@ public class DummyArithmeticBuilderFactory implements BuilderFactoryNumeric {
   public DummyArithmeticBuilderFactory(DummyArithmeticFactory factory) {
     super();
     this.factory = factory;
-  }
-
-  @Override
-  public ProtocolFactory getProtocolFactory() {
-    return factory;
   }
 
   @Override

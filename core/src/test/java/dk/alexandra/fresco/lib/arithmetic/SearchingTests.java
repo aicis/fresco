@@ -74,32 +74,25 @@ public class SearchingTests {
             }
             return () -> new Pair<>(sKeys, sValues);
           };
-          Pair<ArrayList<Computation<SInt>>, ArrayList<Computation<SInt>>> inputs = secureComputationEngine
-              .runApplication(app, resourcePool);
+          Pair<ArrayList<Computation<SInt>>, ArrayList<Computation<SInt>>> inputs =
+              secureComputationEngine.runApplication(app, resourcePool);
           ArrayList<Computation<SInt>> sKeys = inputs.getFirst();
           ArrayList<Computation<SInt>> sValues = inputs.getFirst();
           for (int i = 0; i < PAIRS; i++) {
             final int counter = i;
 
-            Application<BigInteger, ProtocolBuilderNumeric> app1 =
-                producer -> producer
-                    .seq((seq) -> seq.numeric().known(BigInteger.valueOf(NOTFOUND)))
-                    .seq((seq, notFound) -> {
-                      LinearLookUp function =
-                          new LinearLookUp(sKeys.get(counter), sKeys, sValues,
-                              notFound);
-                      return seq.seq(function);
-                    })
-                    .seq((seq, out) -> seq.numeric().open(out));
+            Application<BigInteger, ProtocolBuilderNumeric> app1 = producer -> producer
+                .seq((seq) -> seq.numeric().known(BigInteger.valueOf(NOTFOUND)))
+                .seq((seq, notFound) -> seq
+                    .seq(new LinearLookUp(sKeys.get(counter), sKeys, sValues, notFound)))
+                .seq((seq, out) -> seq.numeric().open(out));
             BigInteger bigInteger = secureComputationEngine.runApplication(app1, resourcePool);
 
             Assert.assertEquals("Checking value index " + i,
                 values[i], bigInteger.intValue());
           }
         }
-      }
-
-          ;
+      };
     }
   }
 }

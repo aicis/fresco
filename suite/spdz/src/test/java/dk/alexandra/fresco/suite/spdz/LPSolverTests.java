@@ -29,7 +29,6 @@ package dk.alexandra.fresco.suite.spdz;
 import dk.alexandra.fresco.framework.BuilderFactory;
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.MPCException;
-import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.TestApplication;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
@@ -40,7 +39,6 @@ import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.lp.LPSolver;
 import dk.alexandra.fresco.lib.lp.LPSolver.LPOutput;
 import dk.alexandra.fresco.lib.lp.LPSolver.PivotRule;
@@ -72,8 +70,6 @@ class LPSolverTests {
             @Override
             public ProtocolProducer prepareApplication(
                 BuilderFactory factoryProducer) {
-              ProtocolFactory producer = factoryProducer.getProtocolFactory();
-              BasicNumericFactory bnFactory = (BasicNumericFactory) producer;
               File pattern = new File("src/test/resources/lp/pattern7.csv");
               File program = new File("src/test/resources/lp/program7.csv");
               PlainLPInputReader inputreader;

@@ -1,7 +1,6 @@
 package dk.alexandra.fresco.suite.spdz;
 
 import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.ProtocolFactory;
 import dk.alexandra.fresco.framework.builder.numeric.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
@@ -30,11 +29,6 @@ class SpdzBuilder implements BuilderFactoryNumeric {
 
   SpdzBuilder(SpdzFactory spdzFactory) {
     this.spdzFactory = spdzFactory;
-  }
-
-  @Override
-  public ProtocolFactory getProtocolFactory() {
-    return spdzFactory;
   }
 
   @Override
