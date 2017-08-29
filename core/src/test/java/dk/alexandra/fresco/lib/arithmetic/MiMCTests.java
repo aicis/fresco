@@ -31,7 +31,6 @@ import dk.alexandra.fresco.framework.BuilderFactory;
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.TestApplication;
-import dk.alexandra.fresco.framework.TestApplicationBigInteger;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.numeric.BuilderFactoryNumeric;
@@ -185,25 +184,17 @@ public class MiMCTests {
         @Override
         public void test() throws Exception {
           BigInteger x_big = BigInteger.valueOf(10);
-          TestApplicationBigInteger app = new TestApplicationBigInteger() {
-
-
-            @Override
-            public ProtocolProducer prepareApplication(
-                BuilderFactory factoryProducer) {
-              return ProtocolBuilderNumeric
-                  .createApplicationRoot((BuilderFactoryNumeric) factoryProducer, (builder) -> {
-                    NumericBuilder intFactory = builder.numeric();
-                    Computation<SInt> encryptionKey = intFactory.known(BigInteger.valueOf(10));
-                    Computation<SInt> plainText = intFactory.known(x_big);
-                    Computation<SInt> cipherText = builder
-                        .seq(new MiMCEncryption(plainText, encryptionKey));
-                    Computation<SInt> decrypted = builder
-                        .seq(new MiMCDecryption(cipherText, encryptionKey));
-                    output = builder.numeric().open(decrypted);
-                  }).build();
-            }
-          };
+          Application<BigInteger, ProtocolBuilderNumeric> app =
+              builder -> {
+                NumericBuilder intFactory = builder.numeric();
+                Computation<SInt> encryptionKey = intFactory.known(BigInteger.valueOf(10));
+                Computation<SInt> plainText = intFactory.known(x_big);
+                Computation<SInt> cipherText = builder
+                    .seq(new MiMCEncryption(plainText, encryptionKey));
+                Computation<SInt> decrypted = builder
+                    .seq(new MiMCDecryption(cipherText, encryptionKey));
+                return builder.numeric().open(decrypted);
+              };
 
           ResourcePoolT resourcePool =
               ResourcePoolCreator.createResourcePool(conf.sceConf);

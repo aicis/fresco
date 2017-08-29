@@ -26,23 +26,21 @@
  */
 package dk.alexandra.fresco.lib.arithmetic;
 
-import dk.alexandra.fresco.framework.BuilderFactory;
+import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.ProtocolProducer;
-import dk.alexandra.fresco.framework.TestApplicationBigInteger;
 import dk.alexandra.fresco.framework.TestThreadRunner;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
-import dk.alexandra.fresco.framework.builder.numeric.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
+import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
 import org.junit.Assert;
 
 public class AdvancedNumericTests {
 
-  public static class TestDivision extends TestThreadFactory {
+  public static class TestDivision<ResourcePoolT extends ResourcePool> extends TestThreadFactory {
 
     private int numerator;
     private int denominator;
@@ -55,31 +53,24 @@ public class AdvancedNumericTests {
 
     @Override
     public TestThread next() {
-      return new TestThread() {
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         @Override
         public void test() throws Exception {
-          TestApplicationBigInteger app = new TestApplicationBigInteger() {
+          Application<BigInteger, ProtocolBuilderNumeric> app =
+              builder -> {
+                modulus = builder.getBasicNumeric().getModulus();
 
-            @Override
-            public ProtocolProducer prepareApplication(BuilderFactory factoryProducer) {
-              return ProtocolBuilderNumeric
-                  .createApplicationRoot((BuilderFactoryNumeric) factoryProducer, (builder) -> {
-                    modulus = ((BuilderFactoryNumeric) factoryProducer)
-                        .getBasicNumericFactory().getModulus();
+                Computation<SInt> p = builder.numeric()
+                    .known(BigInteger.valueOf(numerator));
+                Computation<SInt> q = builder.numeric()
+                    .known(BigInteger.valueOf(denominator));
 
-                    Computation<SInt> p = builder.numeric()
-                        .known(BigInteger.valueOf(numerator));
-                    Computation<SInt> q = builder.numeric()
-                        .known(BigInteger.valueOf(denominator));
+                Computation<SInt> result = builder.advancedNumeric().div(p, q);
 
-                    Computation<SInt> result = builder.advancedNumeric().div(p, q);
+                return builder.numeric().open(result);
+              };
 
-                    output = builder.numeric().open(result);
-                  }).build();
-            }
-          };
-
-          BigInteger result = (BigInteger) secureComputationEngine
+          BigInteger result = secureComputationEngine
               .runApplication(app, ResourcePoolCreator.createResourcePool(conf.sceConf));
 
           Assert.assertEquals(BigInteger.valueOf(numerator / denominator),
@@ -100,7 +91,8 @@ public class AdvancedNumericTests {
     return actual;
   }
 
-  public static class TestDivisionWithKnownDenominator extends TestThreadRunner.TestThreadFactory {
+  public static class TestDivisionWithKnownDenominator<ResourcePoolT extends ResourcePool> extends
+      TestThreadRunner.TestThreadFactory {
 
     private int numerator;
     private int denominator;
@@ -113,30 +105,23 @@ public class AdvancedNumericTests {
 
     @Override
     public TestThreadRunner.TestThread next() {
-      return new TestThread() {
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         @Override
         public void test() throws Exception {
-          TestApplicationBigInteger app = new TestApplicationBigInteger() {
+          Application<BigInteger, ProtocolBuilderNumeric> app =
+              builder -> {
+                modulus = builder.getBasicNumeric().getModulus();
 
-            @Override
-            public ProtocolProducer prepareApplication(BuilderFactory factoryProducer) {
-              return ProtocolBuilderNumeric
-                  .createApplicationRoot((BuilderFactoryNumeric) factoryProducer, (builder) -> {
-                    modulus = ((BuilderFactoryNumeric) factoryProducer)
-                        .getBasicNumericFactory().getModulus();
+                Computation<SInt> p = builder.numeric()
+                    .known(BigInteger.valueOf(numerator));
+                BigInteger q = BigInteger.valueOf(denominator);
 
-                    Computation<SInt> p = builder.numeric()
-                        .known(BigInteger.valueOf(numerator));
-                    BigInteger q = BigInteger.valueOf(denominator);
+                Computation<SInt> result = builder.advancedNumeric().div(p, q);
 
-                    Computation<SInt> result = builder.advancedNumeric().div(p, q);
+                return builder.numeric().open(result);
+              };
 
-                    output = builder.numeric().open(result);
-                  }).build();
-            }
-          };
-
-          BigInteger result = (BigInteger) secureComputationEngine
+          BigInteger result = secureComputationEngine
               .runApplication(app, ResourcePoolCreator.createResourcePool(conf.sceConf));
 
           Assert.assertEquals(BigInteger.valueOf(numerator / denominator),
@@ -146,34 +131,30 @@ public class AdvancedNumericTests {
     }
   }
 
-  public static class TestModulus extends TestThreadRunner.TestThreadFactory {
+  public static class TestModulus<ResourcePoolT extends ResourcePool> extends
+      TestThreadRunner.TestThreadFactory {
 
     static int numerator = 9;
     static int denominator = 4;
 
     @Override
     public TestThreadRunner.TestThread next() {
-      return new TestThread() {
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         @Override
         public void test() throws Exception {
-          TestApplicationBigInteger app = new TestApplicationBigInteger() {
-            @Override
-            public ProtocolProducer prepareApplication(BuilderFactory factoryProducer) {
-              return ProtocolBuilderNumeric
-                  .createApplicationRoot((BuilderFactoryNumeric) factoryProducer, (builder) -> {
-                    Computation<SInt> p = builder.numeric()
-                        .known(BigInteger.valueOf(numerator));
-                    BigInteger q = BigInteger.valueOf(denominator);
+          Application<BigInteger, ProtocolBuilderNumeric> app =
+              builder -> {
+                Computation<SInt> p = builder.numeric()
+                    .known(BigInteger.valueOf(numerator));
+                BigInteger q = BigInteger.valueOf(denominator);
 
-                    Computation<SInt> result = builder.advancedNumeric()
-                        .mod(p, q);
+                Computation<SInt> result = builder.advancedNumeric()
+                    .mod(p, q);
 
-                    output = builder.numeric().open(result);
-                  }).build();
-            }
-          };
+                return builder.numeric().open(result);
+              };
 
-          BigInteger result = (BigInteger) secureComputationEngine
+          BigInteger result = secureComputationEngine
               .runApplication(app, ResourcePoolCreator.createResourcePool(conf.sceConf));
 
           Assert.assertEquals(BigInteger.valueOf(numerator % denominator),
