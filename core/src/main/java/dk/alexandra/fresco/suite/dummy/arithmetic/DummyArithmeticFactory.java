@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2017 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
@@ -24,8 +24,6 @@
 
 package dk.alexandra.fresco.suite.dummy.arithmetic;
 
-import dk.alexandra.fresco.framework.NativeProtocol;
-import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import java.math.BigInteger;
 
@@ -42,57 +40,6 @@ public class DummyArithmeticFactory implements BasicNumericFactory {
     this.maxBitLength = maxBitLength;
   }
 
-  @Override
-  public SInt getSInt() {
-    return new DummyArithmeticSInt();
-  }
-
-  @Override
-  public SInt getSInt(int i) {
-    return new DummyArithmeticSInt(i);
-  }
-
-  @Override
-  public SInt getSInt(BigInteger i) {
-    return new DummyArithmeticSInt(i);
-  }
-
-  @Override
-  public NativeProtocol<SInt, ?> getAddProtocol(SInt a, SInt b, SInt out) {
-    return new DummyArithmeticAddProtocol(a, b, out);
-  }
-
-  @Override
-  public NativeProtocol<SInt, ?> getAddProtocol(SInt input, BigInteger openInput, SInt out) {
-    return new DummyArithmeticAddProtocol(input, () -> new DummyArithmeticSInt(openInput), out);
-  }
-
-  @Override
-  public NativeProtocol<SInt, ?> getSubtractProtocol(SInt a, SInt b, SInt out) {
-    return new DummyArithmeticSubtractProtocol(a, b, out);
-  }
-
-
-  @Override
-  public NativeProtocol<SInt, ?> getMultProtocol(SInt a, SInt b, SInt out) {
-    return new DummyArithmeticMultProtocol(a, b, out);
-  }
-
-  @Override
-  public NativeProtocol<SInt, ?> getCloseProtocol(int source, BigInteger open, SInt closed) {
-    return new DummyArithmeticCloseProtocol(source, () -> open, closed);
-  }
-
-
-  @Override
-  public NativeProtocol<BigInteger, ?> getOpenProtocol(SInt closed) {
-    return new DummyArithmeticOpenToAllProtocol(closed);
-  }
-
-  @Override
-  public NativeProtocol<BigInteger, ?> getOpenProtocol(int target, SInt closed) {
-    return new DummyArithmeticOpenProtocol(closed, target);
-  }
 
   @Override
   public int getMaxBitLength() {

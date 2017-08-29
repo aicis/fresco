@@ -26,19 +26,14 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.field.integer;
 
-import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.ProtocolFactory;
-import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.framework.value.SIntFactory;
-import dk.alexandra.fresco.lib.field.integer.generic.IOIntProtocolFactory;
 import java.math.BigInteger;
 
 /**
  * A factory that produces protocols that operate on elements in a finite field.
  * Use builder based protocols instead of the deprecated methods in this factory.
  */
-public interface BasicNumericFactory extends SIntFactory,
-    ProtocolFactory, IOIntProtocolFactory {
+public interface BasicNumericFactory extends ProtocolFactory {
 
   /**
    * Returns the maximum number of bits a number in the field can contain.
@@ -51,17 +46,5 @@ public interface BasicNumericFactory extends SIntFactory,
    * @return The modulus used.
    */
   BigInteger getModulus();
-
-  @Deprecated
-  NativeProtocol<SInt, ?> getAddProtocol(SInt a, SInt b, SInt out);
-
-  @Deprecated
-  NativeProtocol<SInt, ?> getAddProtocol(SInt input, BigInteger openInput, SInt out);
-
-  @Deprecated
-  NativeProtocol<SInt, ?> getSubtractProtocol(SInt a, SInt b, SInt out);
-
-  @Deprecated
-  NativeProtocol<SInt, ?> getMultProtocol(SInt a, SInt b, SInt out);
 
 }
