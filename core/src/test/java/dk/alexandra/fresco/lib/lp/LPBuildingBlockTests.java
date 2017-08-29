@@ -312,7 +312,7 @@ public class LPBuildingBlockTests {
             public ProtocolProducer prepareApplication(BuilderFactory factoryProducer) {
               ProtocolBuilderNumeric builder = ((BuilderFactoryNumeric) factoryProducer)
                   .createSequential();
-              mod = builder.getBasicNumericFactory().getModulus();
+              mod = builder.getBasicNumeric().getModulus();
               setupRandom(10, 10, builder);
               return builder.build();
             }
@@ -356,7 +356,7 @@ public class LPBuildingBlockTests {
               public ProtocolProducer prepareApplication(BuilderFactory factoryProducer) {
                 ProtocolBuilderNumeric builder = ((BuilderFactoryNumeric) factoryProducer)
                     .createSequential();
-                mod = builder.getBasicNumericFactory().getModulus();
+                mod = builder.getBasicNumeric().getModulus();
                 setupRandom(10, 10, builder);
                 return builder.build();
               }
@@ -403,7 +403,7 @@ public class LPBuildingBlockTests {
                 public ProtocolProducer prepareApplication(BuilderFactory factoryProducer) {
                   ProtocolBuilderNumeric builder = ((BuilderFactoryNumeric) factoryProducer)
                       .createSequential();
-                  mod = builder.getBasicNumericFactory().getModulus();
+                  mod = builder.getBasicNumeric().getModulus();
                   //setupRandom(10, 10, builder);
                   return builder.build();
                 }

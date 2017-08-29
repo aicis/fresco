@@ -3,7 +3,7 @@ package dk.alexandra.fresco.framework.builder.numeric;
 import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilderImpl;
 import dk.alexandra.fresco.lib.compare.MiscOIntGenerators;
-import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
+import dk.alexandra.fresco.lib.field.integer.BasicNumeric;
 import java.util.function.Consumer;
 
 /**
@@ -13,7 +13,7 @@ public class ProtocolBuilderNumeric extends
     ProtocolBuilderImpl<ProtocolBuilderNumeric> {
 
   private final BuilderFactoryNumeric factory;
-  private BasicNumericFactory basicNumericFactory;
+  private BasicNumeric basicNumeric;
   private NumericBuilder numericBuilder;
   private ComparisonBuilder comparison;
   private AdvancedNumericBuilder advancedNumeric;
@@ -22,11 +22,11 @@ public class ProtocolBuilderNumeric extends
   ProtocolBuilderNumeric(BuilderFactoryNumeric factory, boolean parallel) {
     super(factory, parallel);
     this.factory = factory;
-    this.basicNumericFactory = factory.getBasicNumericFactory();
+    this.basicNumeric = factory.getBasicNumericFactory();
   }
 
-  public BasicNumericFactory getBasicNumericFactory() {
-    return basicNumericFactory;
+  public BasicNumeric getBasicNumeric() {
+    return basicNumeric;
   }
 
   /**

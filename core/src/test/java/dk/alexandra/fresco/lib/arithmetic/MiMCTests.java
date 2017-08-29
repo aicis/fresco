@@ -93,7 +93,7 @@ public class MiMCTests {
                 BuilderFactory factoryProducer) {
               return ProtocolBuilderNumeric
                   .createApplicationRoot((BuilderFactoryNumeric) factoryProducer, (builder) -> {
-                    setModulus(builder.getBasicNumericFactory().getModulus());
+                    setModulus(builder.getBasicNumeric().getModulus());
 
                     NumericBuilder intFactory = builder.numeric();
                     Computation<SInt> encryptionKey = intFactory.known(BigInteger.valueOf(527618));

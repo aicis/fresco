@@ -32,7 +32,7 @@ import dk.alexandra.fresco.framework.builder.numeric.AdvancedNumericBuilder;
 import dk.alexandra.fresco.framework.builder.numeric.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
+import dk.alexandra.fresco.lib.field.integer.BasicNumeric;
 import java.math.BigInteger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -76,10 +76,10 @@ public class MiMCDecryption implements ComputationBuilder<SInt, ProtocolBuilderN
 
   @Override
   public Computation<SInt> buildComputation(ProtocolBuilderNumeric builder) {
-    BasicNumericFactory basicNumericFactory = builder.getBasicNumericFactory();
+    BasicNumeric basicNumeric = builder.getBasicNumeric();
     int requiredRounds = MiMCEncryption
-        .getRequiredRounds(basicNumericFactory, requestedRounds);
-    final BigInteger threeInverse = calculateThreeInverse(basicNumericFactory);
+        .getRequiredRounds(basicNumeric, requestedRounds);
+    final BigInteger threeInverse = calculateThreeInverse(basicNumeric);
 
     return builder.seq(seq -> {
 
@@ -116,7 +116,7 @@ public class MiMCDecryption implements ComputationBuilder<SInt, ProtocolBuilderN
 
           // Get round constant
           BigInteger roundConstant =
-              MiMCConstants.getConstant(reverseRoundCount, basicNumericFactory.getModulus());
+              MiMCConstants.getConstant(reverseRoundCount, basicNumeric.getModulus());
 
           // subtract key and round constant
           NumericBuilder numeric = seq.numeric();
@@ -136,8 +136,8 @@ public class MiMCDecryption implements ComputationBuilder<SInt, ProtocolBuilderN
     });
   }
 
-  private BigInteger calculateThreeInverse(BasicNumericFactory basicNumericFactory) {
-    BigInteger modulus = basicNumericFactory.getModulus();
+  private BigInteger calculateThreeInverse(BasicNumeric basicNumeric) {
+    BigInteger modulus = basicNumeric.getModulus();
     BigInteger expP = modulus.subtract(BigInteger.ONE);
     return BigInteger.valueOf(3).modInverse(expP);
   }

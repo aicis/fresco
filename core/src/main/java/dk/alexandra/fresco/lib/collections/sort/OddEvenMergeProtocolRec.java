@@ -28,7 +28,6 @@ import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SBool;
 import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
 import dk.alexandra.fresco.lib.helper.SimpleProtocolProducer;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -139,9 +138,9 @@ public class OddEvenMergeProtocolRec extends SimpleProtocolProducer
     // layerList.get(index).addIndex(first);
   }
 
-  private List<ProtocolLayer> getProtocolProducersForThreads() {
+//  private List<ProtocolLayer> getProtocolProducersForThreads() {
     // BasicLogicBuilder blb = new BasicLogicBuilder(factory);
-    List<ProtocolLayer> protocolLayers = new ArrayList<ProtocolLayer>(layers + 1);
+//    List<ProtocolLayer> protocolLayers = new ArrayList<ProtocolLayer>(layers + 1);
     // Copy input to output array
     /*
      * blb.beginParScope(); for (int i = 0; i < left.size(); i++) { Pair<SBool[], SBool[]> leftPair
@@ -160,8 +159,8 @@ public class OddEvenMergeProtocolRec extends SimpleProtocolProducer
      * // Recurse to generate layers recurse(0, simulatedSize, 1); for (Layer l : layerList) {
      * protocolLayers.add(l.getProtocolLayer()); }
      */
-    return protocolLayers;
-  }
+//    return protocolLayers;
+//  }
 
   /**
    * A protocol compares and swaps a list of elements. All compare and swap operations are done in

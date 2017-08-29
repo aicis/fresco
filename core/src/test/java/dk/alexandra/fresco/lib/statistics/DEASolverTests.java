@@ -188,7 +188,7 @@ public class DEASolverTests {
 
           Application<DEASolver, ProtocolBuilderNumeric> app =
               producer -> {
-                modulus = producer.getBasicNumericFactory().getModulus();
+                modulus = producer.getBasicNumeric().getModulus();
                 NumericBuilder numeric = producer.numeric();
                 List<List<BigInteger>> rawTargetOutputs = TestDeaSolver.this.rawTargetOutputs;
                 List<List<Computation<SInt>>> targetOutputs =

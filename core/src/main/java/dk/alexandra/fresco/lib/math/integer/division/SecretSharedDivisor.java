@@ -32,7 +32,7 @@ import dk.alexandra.fresco.framework.builder.numeric.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
+import dk.alexandra.fresco.lib.field.integer.BasicNumeric;
 import java.math.BigInteger;
 
 /**
@@ -43,7 +43,7 @@ import java.math.BigInteger;
  * >Goldschmidt Division</a> (aka. the 'IBM Method'). </p>
  *
  * Its results approximate regular integer division with n bits, where n is equal to {@link
- * dk.alexandra.fresco.lib.field.integer.BasicNumericFactory#getMaxBitLength()} / 4. Just like
+ * BasicNumeric#getMaxBitLength()} / 4. Just like
  * regular integer division, this division will always truncate the result instead of rounding.
  */
 public class SecretSharedDivisor
@@ -62,13 +62,13 @@ public class SecretSharedDivisor
   @Override
   public Computation<SInt> buildComputation(ProtocolBuilderNumeric builder) {
 
-    BasicNumericFactory basicNumericFactory = builder.getBasicNumericFactory();
+    BasicNumeric basicNumeric = builder.getBasicNumeric();
 
     // Calculate maximum number of bits we can represent without overflows.
     // We lose half of the precision because we need to multiply two numbers without overflow.
     // And we lose half again because we need to be able to shift the numerator left,
     // depending on the bit length of the denominator
-    int maximumBitLength = basicNumericFactory.getMaxBitLength() / 4;
+    int maximumBitLength = basicNumeric.getMaxBitLength() / 4;
 
     // Calculate amount of iterations that are needed to get a precise answer in all decimal bits
     int amountOfIterations = log2(maximumBitLength);

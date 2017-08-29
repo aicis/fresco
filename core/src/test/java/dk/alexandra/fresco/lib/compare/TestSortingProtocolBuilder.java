@@ -6,13 +6,13 @@ import java.util.Map;
 
 import org.junit.Test;
 
-import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticFactory;
+import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmetic;
 
 public class TestSortingProtocolBuilder {
 
   @Test
   public void testCreateSortSequence() {
-    DummyArithmeticFactory fact = new DummyArithmeticFactory(BigInteger.ONE, 80);
+    DummyArithmetic fact = new DummyArithmetic(BigInteger.ONE, 80);
     
     SortingProtocolBuilder builder = new SortingProtocolBuilder(null, fact);
     List<Map<Integer, Integer>> sortSequence = builder.createsortSequence(50);

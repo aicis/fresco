@@ -1,5 +1,5 @@
-/*******************************************************************************
- * Copyright (c) 2015 FRESCO (http://github.com/aicis/fresco).
+/*
+ * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
  *
@@ -24,29 +24,42 @@
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
  *******************************************************************************/
-package dk.alexandra.fresco.framework.sce.resources.threads;
+package dk.alexandra.fresco.lib.field.integer;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.concurrent.Callable;
-import java.util.concurrent.Future;
+import java.math.BigInteger;
 
-public interface VMThreadPool {
+/**
+ * Holds the most crucial properties about the finite field we are working within.
+ */
+public class BasicNumeric {
 
-	/**
-	 * @return the size of the VM thread pool.
-	 */
-	public abstract int getVMThreadCount();
+  private final int maxBitLength;
+  private final BigInteger modulus;
 
-	/**
-	 * Submits a task to the vm thread pool.
-	 * @param task
-	 * @return
-	 */
-	public abstract <T> Future<T> submitVMTask(Callable<T> task);
 
-	public abstract <T> List<Future<T>> submitVMTasks(Collection<? extends Callable<T>> tasks) throws InterruptedException;
-	
-	public abstract void shutdownVMPool();
+  /**
+   * @param maxBitLength The maximum length in bits that the numbers in the application will have.
+   * @param modulus the modules used in the application
+   */
+  public BasicNumeric(int maxBitLength, BigInteger modulus) {
+    this.maxBitLength = maxBitLength;
+    this.modulus = modulus;
+  }
 
+  /**
+   * Returns the maximum number of bits a number in the field can contain.
+   */
+  public int getMaxBitLength() {
+    return this.maxBitLength;
+  }
+
+
+  /**
+   * Returns the modulus used in the underlying arithmetic protocol suite.
+   *
+   * @return The modulus used.
+   */
+  public BigInteger getModulus() {
+    return modulus;
+  }
 }
