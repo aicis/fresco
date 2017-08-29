@@ -60,7 +60,6 @@ public class BinaryMultProtocol implements
         res.add(seq.binary().and(lefts.get(idx), right));
       }
       IterationState is = new IterationState(idx, () -> res);
-      // seq.advancedBinary().oneBitFullAdder(lefts.get(idx), rights.get(idx), inCarry));
       return is;
     }).whileLoop(
         (state) -> state.round >= 1,
@@ -85,91 +84,6 @@ public class BinaryMultProtocol implements
     ).seq((seq, state) -> state.value
     );
   }
-
-
-  /**
-   * Round 1: Create a matrix that is the AND of every possible input combination. Round
-   * 2-(stopRound-1): Create layers of adders that takes the last layers result as well as the
-   * corresponding andMatrix layer and adds it. Round stopRound-1: Do the final layer. Same as the
-   * other rounds, except the last carry is outputted.
-   */ /*
-  @Override
-  public void getNextProtocols(ProtocolCollection protocolCollection) {
-    if (round == 0) {
-      if (curPP == null) {
-        curPP = new ParallelProtocolProducer();
-        for (int i = 0; i < lefts.length; i++) {
-          for (int j = 0; j < rights.length; j++) {
-            if (j == rights.length - 1) { //corresponding to having least significant bit steady.
-              if (i == lefts.length - 1) {
-                ((ParallelProtocolProducer) curPP).append(
-                    basicFactory.getAndProtocol(lefts[i], rights[j], outs[outs.length - 1]));
-              } else {
-                ((ParallelProtocolProducer) curPP).append(basicFactory
-                    .getAndProtocol(lefts[i], rights[j],
-                        intermediateResults[intermediateResults.length - 2 - i]));
-              }
-            } else {
-              ((ParallelProtocolProducer) curPP).append(basicFactory
-                  .getAndProtocol(lefts[i], rights[j],
-                      andMatrix[lefts.length - 1 - i][rights.length - 2 - j]));
-            }
-          }
-        }
-      }
-      getNextFromPp(protocolCollection);
-
-    } else if (round < stopRound - 1) {
-      if (curPP == null) {
-        ProtocolProducer firstHA = adderFactory
-            .getOneBitHalfAdderProtocol(andMatrix[0][round - 1], intermediateResults[0],
-                outs[outs.length - 1 - round], carries[0]);
-        ProtocolProducer[] FAs = new ProtocolProducer[lefts.length - 1];
-        for (int i = 1; i < lefts.length; i++) {
-          if (round == 1 && i == lefts.length - 1) {
-            //special case where we need a half adder, not a full adder since we do not have a carry from first layer.
-            FAs[i - 1] = adderFactory
-                .getOneBitHalfAdderProtocol(andMatrix[i][round - 1], carries[i - 1],
-                    intermediateResults[i - 1], intermediateResults[i]);
-          } else if (i == lefts.length - 1) {
-            FAs[i - 1] = adderFactory
-                .getOneBitFullAdderProtocol(andMatrix[i][round - 1], intermediateResults[i],
-                    carries[i - 1], intermediateResults[i - 1], intermediateResults[i]);
-          } else {
-            FAs[i - 1] = adderFactory
-                .getOneBitFullAdderProtocol(andMatrix[i][round - 1], intermediateResults[i],
-                    carries[i - 1], intermediateResults[i - 1], carries[i]);
-          }
-        }
-        SequentialProtocolProducer tmp = new SequentialProtocolProducer(FAs);
-        curPP = new SequentialProtocolProducer(firstHA, tmp);
-      }
-      getNextFromPp(protocolCollection);
-    } else {
-      if (curPP == null) {
-        ProtocolProducer firstHA = adderFactory
-            .getOneBitHalfAdderProtocol(andMatrix[0][round - 1], intermediateResults[0],
-                outs[outs.length - 1 - round], carries[0]);
-        ProtocolProducer[] FAs = new ProtocolProducer[lefts.length - 1];
-        for (int i = 1; i < lefts.length; i++) {
-          if (i == lefts.length - 1) {
-            FAs[i - 1] = adderFactory
-                .getOneBitFullAdderProtocol(andMatrix[i][round - 1], intermediateResults[i],
-                    carries[i - 1], outs[1], outs[0]);
-          } else {
-            FAs[i - 1] = adderFactory
-                .getOneBitFullAdderProtocol(andMatrix[i][round - 1], intermediateResults[i],
-                    carries[i - 1], outs[outs.length - 1 - round - i], carries[i]);
-          }
-        }
-        SequentialProtocolProducer tmp = new SequentialProtocolProducer(FAs);
-        curPP = new SequentialProtocolProducer(firstHA, tmp);
-      }
-      getNextFromPp(protocolCollection);
-    }
-  }
-
-*/
 
   private static final class IterationState implements Computation<IterationState> {
 
