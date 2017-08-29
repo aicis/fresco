@@ -24,14 +24,13 @@
 package dk.alexandra.fresco.lib.compare.bool.eq;
 
 
-import java.util.ArrayList;
-import java.util.List;
-
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.builder.ComputationBuilder;
-import dk.alexandra.fresco.framework.builder.binary.BinaryBuilder;
+import dk.alexandra.fresco.framework.builder.binary.BinaryBuilderAdvanced;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.value.SBool;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Does a simple compare like this: out = (a1 XNOR b1) AND (a2 XNOR b2) AND (a3 XNOR b3) AND ...
@@ -40,13 +39,13 @@ import dk.alexandra.fresco.framework.value.SBool;
  *
  */
 public class AltBinaryEqualityProtocol implements ComputationBuilder<SBool, ProtocolBuilderBinary> {
-	
+
 
   private List<Computation<SBool>> inLeft;
   private List<Computation<SBool>> inRight;
-	private final int length;
+  private final int length;
 
-	public AltBinaryEqualityProtocol(List<Computation<SBool>> inLeft,
+  public AltBinaryEqualityProtocol(List<Computation<SBool>> inLeft,
       List<Computation<SBool>> inRight) {
     this.inLeft = inLeft;
     this.inRight = inRight;
@@ -54,65 +53,55 @@ public class AltBinaryEqualityProtocol implements ComputationBuilder<SBool, Prot
       throw new IllegalArgumentException("Binary strings must be of equal length");
     }
     this.length = inLeft.size();
-	}
-	
+  }
+
   @Override
   public Computation<SBool> buildComputation(ProtocolBuilderBinary builder) {
     return builder.par(par -> {
-      BinaryBuilder bb = par.binary();
-      List<Computation<SBool>> xors = new ArrayList<>();
-      for (int i = 0; i < length; i++) {
-        xors.add(bb.xor(inLeft.get(i), inRight.get(i)));
-      }
-      return () -> xors;
-    }).par((par, xors) -> {
+      BinaryBuilderAdvanced bb = par.advancedBinary();
       List<Computation<SBool>> xnors = new ArrayList<>();
       for (int i = 0; i < length; i++) {
-        xnors.add(par.binary().not(xors.get(i)));
+        xnors.add(bb.xnor(inLeft.get(i), inRight.get(i)));
       }
+
       IterationState is = new IterationState(xnors.size(), () -> xnors);
       return is;
-    }).whileLoop(
-        (state) -> state.round > 1,
-        (seq, state) -> {
-          List<Computation<SBool>> input = state.value.out();
-          int size = input.size() % 2 + input.size()/2;
-  
-          IterationState is = new IterationState(size, seq.par(par -> {
-            List<Computation<SBool>> ands = new ArrayList<>();
-            int idx = 0;
-            while(idx < input.size()-1){
-              ands.add(par.binary().and(input.get(idx), input.get(idx+1)));
-              idx +=2;
-            }
-            if(idx < input.size()){
-              ands.add(input.get(idx));
-            }
-            return () -> ands;
-          }));
-          return is;
+    }).whileLoop((state) -> state.round > 1, (seq, state) -> {
+      List<Computation<SBool>> input = state.value.out();
+      int size = input.size() % 2 + input.size() / 2;
+
+      IterationState is = new IterationState(size, seq.par(par -> {
+        List<Computation<SBool>> ands = new ArrayList<>();
+        int idx = 0;
+        while (idx < input.size() - 1) {
+          ands.add(par.binary().and(input.get(idx), input.get(idx + 1)));
+          idx += 2;
         }
-    ).seq((seq, state) -> {
-        return state.value.out().get(0);
-    }
-    );
+        if (idx < input.size()) {
+          ands.add(input.get(idx));
+        }
+        return () -> ands;
+      }));
+      return is;
+    }).seq((seq, state) -> {
+      return state.value.out().get(0);
+    });
   }
-    
-    private static final class IterationState implements Computation<IterationState> {
 
-      private int round;
-      private final Computation<List<Computation<SBool>>> value;
+  private static final class IterationState implements Computation<IterationState> {
 
-      private IterationState(int round,
-          Computation<List<Computation<SBool>>> value) {
-        this.round = round;
-        this.value = value;
-      }
+    private int round;
+    private final Computation<List<Computation<SBool>>> value;
 
-      @Override
-      public IterationState out() {
-        return this;
-      }
+    private IterationState(int round, Computation<List<Computation<SBool>>> value) {
+      this.round = round;
+      this.value = value;
     }
+
+    @Override
+    public IterationState out() {
+      return this;
+    }
+  }
 
 }
