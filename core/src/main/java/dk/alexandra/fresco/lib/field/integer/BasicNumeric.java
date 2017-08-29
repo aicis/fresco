@@ -31,18 +31,35 @@ import java.math.BigInteger;
 /**
  * Holds the most crucial properties about the finite field we are working within.
  */
-public interface BasicNumeric {
+public class BasicNumeric {
+
+  private final int maxBitLength;
+  private final BigInteger modulus;
+
+
+  /**
+   * @param maxBitLength The maximum length in bits that the numbers in the application will have.
+   * @param modulus the modules used in the application
+   */
+  public BasicNumeric(int maxBitLength, BigInteger modulus) {
+    this.maxBitLength = maxBitLength;
+    this.modulus = modulus;
+  }
 
   /**
    * Returns the maximum number of bits a number in the field can contain.
    */
-  int getMaxBitLength();
+  public int getMaxBitLength() {
+    return this.maxBitLength;
+  }
+
 
   /**
    * Returns the modulus used in the underlying arithmetic protocol suite.
    *
    * @return The modulus used.
    */
-  BigInteger getModulus();
-
+  public BigInteger getModulus() {
+    return modulus;
+  }
 }

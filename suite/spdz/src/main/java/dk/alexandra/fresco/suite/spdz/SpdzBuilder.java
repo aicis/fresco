@@ -19,15 +19,14 @@ import dk.alexandra.fresco.suite.spdz.gates.SpdzRandomProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzSubtractProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzSubtractProtocolKnownLeft;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzSubtractProtocolKnownRight;
-import dk.alexandra.fresco.suite.spdz.utils.SpdzNumeric;
 import java.math.BigInteger;
 
 class SpdzBuilder implements BuilderFactoryNumeric {
 
-  private SpdzNumeric spdzFactory;
+  private BasicNumeric spdzFactory;
   private MiscOIntGenerators miscOIntGenerators;
 
-  SpdzBuilder(SpdzNumeric spdzFactory) {
+  SpdzBuilder(BasicNumeric spdzFactory) {
     this.spdzFactory = spdzFactory;
   }
 

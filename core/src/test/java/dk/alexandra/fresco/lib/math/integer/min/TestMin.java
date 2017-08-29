@@ -3,18 +3,13 @@ package dk.alexandra.fresco.lib.math.integer.min;
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.field.integer.BasicNumeric;
-import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmetic;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticSInt;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.Test;
 
 public class TestMin {
 
-  BasicNumeric factory = new DummyArithmetic(new BigInteger("23"), 8);
-  
   @Test(expected = IllegalArgumentException.class)
   public void testMinimumProtocolTooShort(){
     List<Computation<SInt>> inputs = new ArrayList<>();

@@ -43,16 +43,16 @@ import java.util.Random;
 public class DummyArithmeticProtocolSuite
     implements ProtocolSuite<DummyArithmeticResourcePool, ProtocolBuilderNumeric> {
 
-  private final BasicNumeric basicFactory;
+  private final BasicNumeric basicNumeric;
 
   public DummyArithmeticProtocolSuite(BigInteger modulus, int maxBitLength) {
-    basicFactory = new DummyArithmetic(modulus, maxBitLength);
+    basicNumeric = new BasicNumeric(maxBitLength, modulus);
   }
 
   @Override
   public BuilderFactory<ProtocolBuilderNumeric> init(
       DummyArithmeticResourcePool resourcePool) {
-    return new DummyArithmeticBuilderFactory(basicFactory);
+    return new DummyArithmeticBuilderFactory(basicNumeric);
   }
 
   @Override
@@ -75,7 +75,7 @@ public class DummyArithmeticProtocolSuite
   public DummyArithmeticResourcePool createResourcePool(int myId, int size, Network network,
       Random rand, SecureRandom secRand) {
     return new DummyArithmeticResourcePoolImpl(
-        myId, size, network, rand, secRand, basicFactory.getModulus());
+        myId, size, network, rand, secRand, basicNumeric.getModulus());
   }
 
 }
