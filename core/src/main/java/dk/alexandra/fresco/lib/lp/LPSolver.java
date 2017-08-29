@@ -116,26 +116,26 @@ public class LPSolver implements ComputationBuilder<LPOutput, ProtocolBuilderNum
           enumeratedVariables, initialBasis, pivot);
       return () -> initialState;
     }).whileLoop(
-        state -> !state.terminated(), 
+        state -> !state.terminated(),
         (seq, state) -> {
-      iterations++;
-      if (debugLog) {
-        debugInfo(seq, state);
-      }
-      return seq.seq((inner) -> {
-        logger.info("LP Iterations=" + iterations + " solving " + identityHashCode);
-        if (pivotRule == PivotRule.BLAND) {
-          return blandPhaseOneProtocol(inner, state);
-        } else {
-          return phaseOneProtocol(inner, state, zero);
-        }
-      }).seq((inner, phaseOneOutput) -> {
-        if (!phaseOneOutput.terminated()) {
-          phaseTwoProtocol(inner, phaseOneOutput);
-        }
-        return phaseOneOutput;
-      });
-    }).seq((seq, whileState) -> () -> new LPOutput(whileState.tableau, whileState.updateMatrix,
+          iterations++;
+          if (debugLog) {
+            debugInfo(seq, state);
+          }
+          return seq.seq((inner) -> {
+            logger.info("LP Iterations=" + iterations + " solving " + identityHashCode);
+            if (pivotRule == PivotRule.BLAND) {
+              return blandPhaseOneProtocol(inner, state);
+            } else {
+              return phaseOneProtocol(inner, state, zero);
+            }
+          }).seq((inner, phaseOneOutput) -> {
+            if (!phaseOneOutput.terminated()) {
+              phaseTwoProtocol(inner, phaseOneOutput);
+            }
+            return phaseOneOutput;
+          });
+        }).seq((seq, whileState) -> () -> new LPOutput(whileState.tableau, whileState.updateMatrix,
         whileState.basis, whileState.pivot));
   }
 
@@ -155,23 +155,26 @@ public class LPSolver implements ComputationBuilder<LPOutput, ProtocolBuilderNum
   private Computation<LPState> phaseTwoProtocol(ProtocolBuilderNumeric builder, LPState state) {
     return builder.seq((seq) -> seq.seq(
         new ExitingVariable(state.tableau, state.updateMatrix, state.enteringIndex, state.basis))
-    ).par((seq, exitingVariable) -> {
-      state.pivot = exitingVariable.pivot;
-      ArrayList<Computation<SInt>> exitingIndex = exitingVariable.exitingIndex;
-      // Update Basis
-      Computation<SInt> ent =
-          seq.advancedNumeric().openDot(state.enumeratedVariables, state.enteringIndex);
-      return seq.par((par) -> {
-        ArrayList<Computation<SInt>> nextBasis = new ArrayList<>(noConstraints);
-        for (int i = 0; i < noConstraints; i++) {
-          nextBasis.add(par.seq(
-              new ConditionalSelect(exitingIndex.get(i), ent, state.basis.get(i))));
-        }
-        return () -> nextBasis;
-      });
-    }, (seq, exitingVariable) -> seq.seq(
-        new UpdateMatrix(state.updateMatrix, exitingVariable.exitingIndex,
-            exitingVariable.updateColumn, state.pivot, state.prevPivot))).seq((seq, pair) -> {
+    ).par(
+        (seq, exitingVariable) -> {
+          state.pivot = exitingVariable.pivot;
+          ArrayList<Computation<SInt>> exitingIndex = exitingVariable.exitingIndex;
+          // Update Basis
+          Computation<SInt> ent =
+              seq.advancedNumeric().openDot(state.enumeratedVariables, state.enteringIndex);
+          return seq.par((par) -> {
+            ArrayList<Computation<SInt>> nextBasis = new ArrayList<>(noConstraints);
+            for (int i = 0; i < noConstraints; i++) {
+              nextBasis.add(par.seq(
+                  new ConditionalSelect(exitingIndex.get(i), ent, state.basis.get(i))));
+            }
+            return () -> nextBasis;
+          });
+        },
+        (seq, exitingVariable) -> seq.seq(
+            new UpdateMatrix(state.updateMatrix, exitingVariable.exitingIndex,
+                exitingVariable.updateColumn, state.pivot, state.prevPivot))
+    ).seq((seq, pair) -> {
       List<Computation<SInt>> basis = pair.getFirst();
       state.updateMatrix = pair.getSecond();
       state.basis = basis;
@@ -194,18 +197,18 @@ public class LPSolver implements ComputationBuilder<LPOutput, ProtocolBuilderNum
   private Computation<LPState> phaseOneProtocol(ProtocolBuilderNumeric builder, LPState state,
       Computation<SInt> zero) {
     return builder.seq(
-            // Compute potential entering variable index and corresponding value of
-            // entry in F
-            new EnteringVariable(state.tableau, state.updateMatrix))
-        .seq((seq, enteringAndMinimum) -> {
-          List<Computation<SInt>> entering = enteringAndMinimum.getFirst();
-          SInt minimum = enteringAndMinimum.getSecond();
-          // Check if the entry in F is non-negative
-          Computation<SInt> positive = seq.comparison().compareLEQLong(zero, () -> minimum);
-          state.terminationOut = seq.numeric().open(positive);
-          state.enteringIndex = entering;
-          return () -> state;
-        });
+        // Compute potential entering variable index and corresponding value of
+        // entry in F
+        new EnteringVariable(state.tableau, state.updateMatrix)
+    ).seq((seq, enteringAndMinimum) -> {
+      List<Computation<SInt>> entering = enteringAndMinimum.getFirst();
+      SInt minimum = enteringAndMinimum.getSecond();
+      // Check if the entry in F is non-negative
+      Computation<SInt> positive = seq.comparison().compareLEQLong(zero, () -> minimum);
+      state.terminationOut = seq.numeric().open(positive);
+      state.enteringIndex = entering;
+      return () -> state;
+    });
   }
 
   /**
