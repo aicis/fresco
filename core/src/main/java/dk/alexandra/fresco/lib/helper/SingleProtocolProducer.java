@@ -20,13 +20,8 @@ public class SingleProtocolProducer<T> implements ProtocolProducer, Computation<
 
   @Override
   public void getNextProtocols(ProtocolCollection protocolCollection) {
-    if (!protocolCollection.hasFreeCapacity()) {
-      return;
-    }
-    if (!evaluated) {
-      evaluated = true;
-      protocolCollection.addProtocol(protocol);
-    }
+    evaluated = true;
+    protocolCollection.addProtocol(protocol);
   }
 
   @Override
