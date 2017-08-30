@@ -6,6 +6,7 @@ import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.lib.arithmetic.BasicArithmeticTests;
 import dk.alexandra.fresco.lib.arithmetic.ComparisonTests;
 import dk.alexandra.fresco.lib.arithmetic.MiMCTests;
+import dk.alexandra.fresco.lib.arithmetic.ParallelAndSequenceTests;
 import dk.alexandra.fresco.lib.arithmetic.SearchingTests;
 import dk.alexandra.fresco.lib.arithmetic.SortingTests;
 import dk.alexandra.fresco.lib.debug.ArithmeticDebugTests;
@@ -60,8 +61,20 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
   }
 
   @Test
-  public void test_Sum_And_Output_Sequential() throws Exception {
+  public void testSumAndOutputSequential() throws Exception {
     runTest(new BasicArithmeticTests.TestSumAndMult(), EvaluationStrategy.SEQUENTIAL,
+        NetworkingStrategy.KRYONET, 2);
+  }
+
+  @Test
+  public void test_Sequential_evaluation() throws Exception {
+    runTest(new ParallelAndSequenceTests.TestSequentialEvaluation(), EvaluationStrategy.SEQUENTIAL,
+        NetworkingStrategy.KRYONET, 2);
+  }
+
+  @Test
+  public void test_parallel_evaluation() throws Exception {
+    runTest(new ParallelAndSequenceTests.TestParallelEvaluation(), EvaluationStrategy.SEQUENTIAL,
         NetworkingStrategy.KRYONET, 2);
   }
 
@@ -116,7 +129,6 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
   }
 
   // Statistics
-
 
 
   // Creditrater
