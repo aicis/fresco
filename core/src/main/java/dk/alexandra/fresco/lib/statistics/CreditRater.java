@@ -83,7 +83,6 @@ public class CreditRater implements
   }
 
   @Override
-  @SuppressWarnings("unchecked")
   public Computation<SInt> prepareApplication(
       ProtocolBuilderNumeric sequential) {
     return sequential.par(
