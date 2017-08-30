@@ -1,10 +1,8 @@
 package dk.alexandra.fresco.framework.builder.numeric;
 
-import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilderImpl;
 import dk.alexandra.fresco.lib.compare.MiscOIntGenerators;
-import dk.alexandra.fresco.lib.field.integer.BasicNumeric;
-import java.util.function.Consumer;
+import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
 
 /**
  * Central class for building protocols that are based on numeric protocols.
@@ -13,7 +11,7 @@ public class ProtocolBuilderNumeric extends
     ProtocolBuilderImpl<ProtocolBuilderNumeric> {
 
   private final BuilderFactoryNumeric factory;
-  private BasicNumeric basicNumeric;
+  private BasicNumericContext basicNumericContext;
   private NumericBuilder numericBuilder;
   private ComparisonBuilder comparison;
   private AdvancedNumericBuilder advancedNumeric;
@@ -22,30 +20,12 @@ public class ProtocolBuilderNumeric extends
   ProtocolBuilderNumeric(BuilderFactoryNumeric factory, boolean parallel) {
     super(factory, parallel);
     this.factory = factory;
-    this.basicNumeric = factory.getBasicNumericFactory();
+    this.basicNumericContext = factory.getBasicNumericFactory();
   }
 
-  public BasicNumeric getBasicNumeric() {
-    return basicNumeric;
+  public BasicNumericContext getBasicNumericContext() {
+    return basicNumericContext;
   }
-
-  /**
-   * Creates a root for this builder - should be applied when construcing protocol producers from an
-   * {@link Application}.
-   *
-   * @param factory the protocol factory to get native protocols and composite builders from
-   * @param consumer the root of the protocol producer
-   * @return a sequential protocol builder that can create the protocol producer
-   * @deprecated - protocol suite can do this themselves
-   */
-  @Deprecated
-  public static ProtocolBuilderNumeric createApplicationRoot(BuilderFactoryNumeric factory,
-      Consumer<ProtocolBuilderNumeric> consumer) {
-    ProtocolBuilderNumeric builder = new ProtocolBuilderNumeric(factory, false);
-    builder.addConsumer(consumer, () -> new ProtocolBuilderNumeric(factory, false));
-    return builder;
-  }
-
 
   /**
    * Creates a numeric builder for this instance - i.e. this intended producer.

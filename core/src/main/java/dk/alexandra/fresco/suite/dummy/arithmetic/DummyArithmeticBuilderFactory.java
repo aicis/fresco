@@ -7,7 +7,7 @@ import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.network.SCENetwork;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.compare.MiscOIntGenerators;
-import dk.alexandra.fresco.lib.field.integer.BasicNumeric;
+import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
 import java.math.BigInteger;
 
 /**
@@ -17,16 +17,16 @@ import java.math.BigInteger;
 public class DummyArithmeticBuilderFactory implements BuilderFactoryNumeric {
 
   private static final int EXP_PIPE_LENGTH = 201;
-  private BasicNumeric factory;
+  private BasicNumericContext factory;
   private MiscOIntGenerators mog;
 
-  public DummyArithmeticBuilderFactory(BasicNumeric factory) {
+  public DummyArithmeticBuilderFactory(BasicNumericContext factory) {
     super();
     this.factory = factory;
   }
 
   @Override
-  public BasicNumeric getBasicNumericFactory() {
+  public BasicNumericContext getBasicNumericFactory() {
     return factory;
   }
 

@@ -7,7 +7,7 @@ import org.junit.Test;
 
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.field.integer.BasicNumeric;
+import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
 import dk.alexandra.fresco.lib.field.integer.RandomFieldElementFactory;
 import dk.alexandra.fresco.lib.lp.LPFactory;
 import dk.alexandra.fresco.lib.lp.LPFactoryImpl;
@@ -22,7 +22,7 @@ public class TestInnerProduct {
 
   @Test (expected = IllegalArgumentException.class)
   public void testBadLengthOpen() {
-        BasicNumeric basicNumericFactory = new DummyArithmetic(new BigInteger("3"), 8);
+        BasicNumericContext basicNumericFactory = new DummyArithmetic(new BigInteger("3"), 8);
     InnerProductFactory innerProductFactory = new InnerProductFactoryImpl(basicNumericFactory);
     
     SInt[] input1 = new SInt[3];
@@ -33,7 +33,7 @@ public class TestInnerProduct {
   
   @Test (expected = IllegalArgumentException.class)
   public void testBadLengthClosed() {
-    BasicNumeric basicNumericFactory = new DummyArithmetic(new BigInteger("3"), 8);
+    BasicNumericContext basicNumericFactory = new DummyArithmetic(new BigInteger("3"), 8);
     InnerProductFactory innerProductFactory = new InnerProductFactoryImpl(basicNumericFactory);
     
     SInt[] input1 = new SInt[3];
@@ -44,7 +44,7 @@ public class TestInnerProduct {
 
   @Test (expected = IllegalArgumentException.class)
   public void testAltBadLengthClosed() {
-    BasicNumeric provider = new DummyArithmetic(new BigInteger("3"), 8);
+    BasicNumericContext provider = new DummyArithmetic(new BigInteger("3"), 8);
     LocalInversionFactory localInvFactory = (LocalInversionFactory) provider;
     NumericBitFactory numericBitFactory = (NumericBitFactory) provider;
     ExpFromOIntFactory expFromOIntFactory = (ExpFromOIntFactory) provider;
@@ -61,7 +61,7 @@ public class TestInnerProduct {
 
   @Test (expected = IllegalArgumentException.class)
   public void testBadLengthEntrywiseClosed1() {
-    BasicNumeric basicNumericFactory = new DummyArithmetic(new BigInteger("3"), 8);
+    BasicNumericContext basicNumericFactory = new DummyArithmetic(new BigInteger("3"), 8);
     
     SInt[] input1 = new SInt[3];
     SInt[] input2 = new SInt[4];
@@ -73,7 +73,7 @@ public class TestInnerProduct {
 
   @Test (expected = IllegalArgumentException.class)
   public void testBadLengthEntrywiseClosed2() {
-    BasicNumeric basicNumericFactory = new DummyArithmetic(new BigInteger("3"), 8);
+    BasicNumericContext basicNumericFactory = new DummyArithmetic(new BigInteger("3"), 8);
     
     SInt[] input1 = new SInt[3];
     SInt[] input2 = new SInt[3];
@@ -85,7 +85,7 @@ public class TestInnerProduct {
 
   @Test (expected = IllegalArgumentException.class)
   public void testBadLengthEntrywiseOpen1() {
-    BasicNumeric basicNumericFactory = new DummyArithmetic(new BigInteger("3"), 8);
+    BasicNumericContext basicNumericFactory = new DummyArithmetic(new BigInteger("3"), 8);
     
     SInt[] input1 = new SInt[3];
     OInt[] input2 = new OInt[4];
@@ -97,7 +97,7 @@ public class TestInnerProduct {
 
   @Test (expected = IllegalArgumentException.class)
   public void testBadLengthEntrywiseOpen2() {
-    BasicNumeric basicNumericFactory = new DummyArithmetic(new BigInteger("3"), 8);
+    BasicNumericContext basicNumericFactory = new DummyArithmetic(new BigInteger("3"), 8);
     
     SInt[] input1 = new SInt[3];
     OInt[] input2 = new OInt[3];

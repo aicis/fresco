@@ -32,7 +32,7 @@ import dk.alexandra.fresco.framework.configuration.ConfigurationException;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.resources.storage.FilebasedStreamedStorageImpl;
 import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
-import dk.alexandra.fresco.lib.field.integer.BasicNumeric;
+import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.configuration.PreprocessingStrategy;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
@@ -57,9 +57,12 @@ public class SpdzProtocolSuite implements
   }
 
   @Override
-  public BuilderFactory<ProtocolBuilderNumeric> init(
-      SpdzResourcePool resourcePool) {
-    return new SpdzBuilder(new BasicNumeric(maxBitLength, resourcePool.getModulus()));
+  public BuilderFactory<ProtocolBuilderNumeric> init(SpdzResourcePool resourcePool) {
+    BasicNumericContext spdzFactory =
+        new BasicNumericContext(maxBitLength, resourcePool.getModulus(),
+            resourcePool);
+    return new SpdzBuilder(
+        spdzFactory);
   }
 
   @Override

@@ -4,11 +4,14 @@ import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.builder.numeric.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.NumericBuilder;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.field.integer.BasicNumeric;
+import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticBuilderFactory;
+import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticResourcePoolImpl;
 import java.math.BigInteger;
+import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
 import java.util.stream.Collectors;
 import org.hamcrest.core.Is;
 import org.junit.Assert;
@@ -18,7 +21,9 @@ public class TestPolynomial {
 
   @Test(expected = IndexOutOfBoundsException.class)
   public void testPolynomial() {
-    BasicNumeric dummyFact = new BasicNumeric(8, BigInteger.valueOf(1001));
+    BasicNumericContext dummyFact = new BasicNumericContext(8, BigInteger.valueOf(1001),
+        new DummyArithmeticResourcePoolImpl(1, 1, null, new Random(), new SecureRandom(),
+            BigInteger.ONE));
     BuilderFactoryNumeric builderFactory = new DummyArithmeticBuilderFactory(dummyFact);
     NumericBuilder numeric = builderFactory.createNumericBuilder(builderFactory.createSequential());
 

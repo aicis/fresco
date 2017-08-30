@@ -308,7 +308,7 @@ public class LPBuildingBlockTests {
             @Override
             public Computation<List<BigInteger>> prepareApplication(
                 ProtocolBuilderNumeric builder) {
-              mod = builder.getBasicNumeric().getModulus();
+              mod = builder.getBasicNumericContext().getModulus();
               return setupRandom(10, 10, builder);
             }
           };
@@ -351,7 +351,7 @@ public class LPBuildingBlockTests {
             @Override
             public Computation<List<BigInteger>> prepareApplication(
                 ProtocolBuilderNumeric builder) {
-              mod = builder.getBasicNumeric().getModulus();
+              mod = builder.getBasicNumericContext().getModulus();
               return setupRandom(10, 10, builder);
             }
           };
@@ -396,7 +396,7 @@ public class LPBuildingBlockTests {
               @Override
               public Computation<List<BigInteger>> prepareApplication(
                   ProtocolBuilderNumeric builder) {
-                mod = builder.getBasicNumeric().getModulus();
+                mod = builder.getBasicNumericContext().getModulus();
                 //setupRandom(10, 10, builder);
                 return () -> null;
               }

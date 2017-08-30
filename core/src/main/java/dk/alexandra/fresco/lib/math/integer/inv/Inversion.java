@@ -49,7 +49,7 @@ public class Inversion implements ComputationBuilder<SInt, ProtocolBuilderNumeri
     Computation<BigInteger> open = numeric.open(sProduct);
     return builder.seq((seq) -> {
       BigInteger value = open.out();
-      BigInteger inverse = value.modInverse(seq.getBasicNumeric().getModulus());
+      BigInteger inverse = value.modInverse(seq.getBasicNumericContext().getModulus());
       return seq.numeric().mult(inverse, random);
     });
   }

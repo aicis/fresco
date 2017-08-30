@@ -58,7 +58,7 @@ public class AdvancedNumericTests {
         public void test() throws Exception {
           Application<BigInteger, ProtocolBuilderNumeric> app =
               builder -> {
-                modulus = builder.getBasicNumeric().getModulus();
+                modulus = builder.getBasicNumericContext().getModulus();
 
                 Computation<SInt> p = builder.numeric()
                     .known(BigInteger.valueOf(numerator));
@@ -110,7 +110,7 @@ public class AdvancedNumericTests {
         public void test() throws Exception {
           Application<BigInteger, ProtocolBuilderNumeric> app =
               builder -> {
-                modulus = builder.getBasicNumeric().getModulus();
+                modulus = builder.getBasicNumericContext().getModulus();
 
                 Computation<SInt> p = builder.numeric()
                     .known(BigInteger.valueOf(numerator));

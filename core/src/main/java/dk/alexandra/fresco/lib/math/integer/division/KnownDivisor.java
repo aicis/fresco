@@ -5,7 +5,7 @@ import dk.alexandra.fresco.framework.builder.ComputationBuilder;
 import dk.alexandra.fresco.framework.builder.numeric.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.field.integer.BasicNumeric;
+import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
 import java.math.BigInteger;
 
 
@@ -46,8 +46,8 @@ public class KnownDivisor implements ComputationBuilder<SInt, ProtocolBuilderNum
 
   @Override
   public Computation<SInt> buildComputation(ProtocolBuilderNumeric builder) {
-    BasicNumeric basicNumeric = builder.getBasicNumeric();
-    BigInteger modulus = basicNumeric.getModulus();
+    BasicNumericContext basicNumericContext = builder.getBasicNumericContext();
+    BigInteger modulus = basicNumericContext.getModulus();
     BigInteger modulusHalf = modulus.divide(BigInteger.valueOf(2));
     /*
      * We use the fact that if 2^{N+l} \leq m * d \leq 2^{N+l} + 2^l, then
@@ -76,7 +76,7 @@ public class KnownDivisor implements ComputationBuilder<SInt, ProtocolBuilderNum
 		 * maxBitLength + divisorBitLength to be representable.
 		 */
     int maxBitLength =
-        (builder.getBasicNumeric().getMaxBitLength() - divisorAbs.bitLength()) / 3;
+        (builder.getBasicNumericContext().getMaxBitLength() - divisorAbs.bitLength()) / 3;
     int shifts = maxBitLength + divisorAbs.bitLength();
 
 		/*

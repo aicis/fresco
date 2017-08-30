@@ -28,7 +28,7 @@ import dk.alexandra.fresco.framework.BuilderFactory;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.SCENetwork;
-import dk.alexandra.fresco.lib.field.integer.BasicNumeric;
+import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import java.io.IOException;
 import java.math.BigInteger;
@@ -43,16 +43,20 @@ import java.util.Random;
 public class DummyArithmeticProtocolSuite
     implements ProtocolSuite<DummyArithmeticResourcePool, ProtocolBuilderNumeric> {
 
-  private final BasicNumeric basicNumeric;
+  private BasicNumericContext basicNumericContext;
+  private final BigInteger modulus;
+  private final int maxBitLength;
 
   public DummyArithmeticProtocolSuite(BigInteger modulus, int maxBitLength) {
-    basicNumeric = new BasicNumeric(maxBitLength, modulus);
+    this.modulus = modulus;
+    this.maxBitLength = maxBitLength;
   }
 
   @Override
   public BuilderFactory<ProtocolBuilderNumeric> init(
       DummyArithmeticResourcePool resourcePool) {
-    return new DummyArithmeticBuilderFactory(basicNumeric);
+    basicNumericContext = new BasicNumericContext(maxBitLength, modulus, resourcePool);
+    return new DummyArithmeticBuilderFactory(basicNumericContext);
   }
 
   @Override
@@ -75,7 +79,7 @@ public class DummyArithmeticProtocolSuite
   public DummyArithmeticResourcePool createResourcePool(int myId, int size, Network network,
       Random rand, SecureRandom secRand) {
     return new DummyArithmeticResourcePoolImpl(
-        myId, size, network, rand, secRand, basicNumeric.getModulus());
+        myId, size, network, rand, secRand, basicNumericContext.getModulus());
   }
 
 }

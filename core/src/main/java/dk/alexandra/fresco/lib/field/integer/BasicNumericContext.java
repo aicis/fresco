@@ -26,24 +26,32 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.field.integer;
 
+import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import java.math.BigInteger;
 
 /**
  * Holds the most crucial properties about the finite field we are working within.
  */
-public class BasicNumeric {
+public class BasicNumericContext {
 
   private final int maxBitLength;
   private final BigInteger modulus;
+  private final int myId;
+  private final int noOfParties;
 
 
   /**
-   * @param maxBitLength The maximum length in bits that the numbers in the application will have.
+   * @param maxBitLength The maximum length in bits that the numbers in the application will
+   *     have.
    * @param modulus the modules used in the application
+   * @param partyConfiguration the party setup for this context
    */
-  public BasicNumeric(int maxBitLength, BigInteger modulus) {
+  public BasicNumericContext(int maxBitLength, BigInteger modulus,
+      ResourcePool partyConfiguration) {
     this.maxBitLength = maxBitLength;
     this.modulus = modulus;
+    this.myId = partyConfiguration.getMyId();
+    this.noOfParties = partyConfiguration.getNoOfParties();
   }
 
   /**
@@ -61,5 +69,20 @@ public class BasicNumeric {
    */
   public BigInteger getModulus() {
     return modulus;
+  }
+
+
+  /**
+   * Returns the id of the party
+   */
+  public int getMyId() {
+    return myId;
+  }
+
+  /**
+   * Returns the number of players.
+   */
+  public int getNoOfParties() {
+    return noOfParties;
   }
 }

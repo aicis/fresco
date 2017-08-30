@@ -2,7 +2,7 @@ package dk.alexandra.fresco.framework.builder.numeric;
 
 import dk.alexandra.fresco.framework.BuilderFactory;
 import dk.alexandra.fresco.lib.compare.MiscOIntGenerators;
-import dk.alexandra.fresco.lib.field.integer.BasicNumeric;
+import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
 
 /**
  * The core factory to implement when creating a numeric protocol. Every subbuilder from this
@@ -19,7 +19,7 @@ public interface BuilderFactoryNumeric extends BuilderFactory<ProtocolBuilderNum
 
   int MAGIC_SECURE_NUMBER = 60;
 
-  BasicNumeric getBasicNumericFactory();
+  BasicNumericContext getBasicNumericFactory();
 
   NumericBuilder createNumericBuilder(ProtocolBuilderNumeric builder);
 

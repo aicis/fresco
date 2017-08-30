@@ -68,7 +68,7 @@ public class MiMCTests {
           final BigInteger[] modulus = new BigInteger[1];
           Application<BigInteger, ProtocolBuilderNumeric> app = builder -> {
             NumericBuilder intFactory = builder.numeric();
-            modulus[0] = builder.getBasicNumeric().getModulus();
+            modulus[0] = builder.getBasicNumericContext().getModulus();
             Computation<SInt> encryptionKey = intFactory.known(BigInteger.valueOf(527618));
             Computation<SInt> plainText = intFactory.known(BigInteger.valueOf(10));
             Computation<SInt> cipherText = builder

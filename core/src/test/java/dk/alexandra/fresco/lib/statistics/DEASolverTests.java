@@ -186,7 +186,7 @@ public class DEASolverTests {
 
           Application<DEASolver, ProtocolBuilderNumeric> app =
               producer -> {
-                modulus = producer.getBasicNumeric().getModulus();
+                modulus = producer.getBasicNumericContext().getModulus();
                 NumericBuilder numeric = producer.numeric();
                 List<List<BigInteger>> rawTargetOutputs = TestDeaSolver.this.rawTargetOutputs;
                 List<List<Computation<SInt>>> targetOutputs =
@@ -246,8 +246,7 @@ public class DEASolverTests {
           // Perform postprocessing and compare MPC result with plaintext result
           int lambdas = rawBasisInputs.size();
 
-          int constraints = rawBasisInputs.get(0).size() + rawBasisOutputs.get(0).size() + 1;
-          int slackvariables = constraints;
+          int slackvariables = rawBasisInputs.get(0).size() + rawBasisOutputs.get(0).size() + 1;
           int variables = lambdas + slackvariables + 1 + 2; //+2 is new
 
           for (int i = 0; i < rawTargetInputs.size(); i++) {
