@@ -51,17 +51,17 @@ public class Matrix<T> {
       this.matrix.add(rowBuilder.apply(i));
     }
   }
-  
+
   /**
    * Clones matrix.
    * 
    * @param other
    */
   public Matrix(Matrix<T> other) {
-    // TODO: double-check
     this.width = other.getWidth();
     this.height = other.getHeight();
-    this.matrix = new ArrayList<>(other.getRows());
+    this.matrix = other.getRows().stream().map(row -> new ArrayList<>(row))
+        .collect(Collectors.toCollection(ArrayList::new));
   }
 
   /**
@@ -78,7 +78,7 @@ public class Matrix<T> {
   }
 
   /**
-   * Gets all rows of the matrix. 
+   * Gets all rows of the matrix.
    * 
    * Convenience method for iterating over the rows of the matrix.
    * 
@@ -91,7 +91,7 @@ public class Matrix<T> {
   public ArrayList<T> getRow(int i) {
     return matrix.get(i);
   }
-  
+
   public void setRow(int i, ArrayList<T> row) {
     matrix.set(i, row);
   }

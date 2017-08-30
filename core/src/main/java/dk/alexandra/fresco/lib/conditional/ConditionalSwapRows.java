@@ -29,11 +29,10 @@ import java.util.ArrayList;
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.builder.ComputationBuilder;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
-import dk.alexandra.fresco.framework.util.Pair;
+import dk.alexandra.fresco.framework.util.RowPairC;
 import dk.alexandra.fresco.framework.value.SInt;
 
-public class ConditionalSwapRows implements
-    ComputationBuilder<Pair<ArrayList<Computation<SInt>>, ArrayList<Computation<SInt>>>> {
+public class ConditionalSwapRows implements ComputationBuilder<RowPairC<SInt, SInt>> {
 
   final private Computation<SInt> swapper;
   final private ArrayList<Computation<SInt>> row, otherRow;
@@ -56,15 +55,14 @@ public class ConditionalSwapRows implements
   }
 
   @Override
-  public Computation<Pair<ArrayList<Computation<SInt>>, ArrayList<Computation<SInt>>>> build(
-      SequentialNumericBuilder builder) {
+  public Computation<RowPairC<SInt, SInt>> build(SequentialNumericBuilder builder) {
     Computation<SInt> flipped = builder.numeric().sub(BigInteger.ONE, swapper);
     Computation<ArrayList<Computation<SInt>>> updatedRow =
         builder.createParallelSub(new ConditionalSelectRow(flipped, row, otherRow));
     Computation<ArrayList<Computation<SInt>>> updatedOtherRow =
         builder.createParallelSub(new ConditionalSelectRow(swapper, row, otherRow));
     return () -> {
-      return new Pair<>(updatedRow.out(), updatedOtherRow.out());
+      return new RowPairC<>(updatedRow.out(), updatedOtherRow.out());
     };
   }
 }

@@ -21,13 +21,12 @@
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL, and Bouncy Castle.
  * Please see these projects for any further licensing issues.
  *******************************************************************************/
-package dk.alexandra.fresco.lib.collections.shuffle;
+package dk.alexandra.fresco.lib.relational;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
 import java.math.BigInteger;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Random;
 
@@ -45,22 +44,22 @@ import dk.alexandra.fresco.lib.collections.MatrixUtils;
 import dk.alexandra.fresco.lib.collections.io.CloseMatrix;
 import dk.alexandra.fresco.lib.collections.io.OpenMatrix;
 
-public class ShuffleRowsTests {
+public class MiMCAggregationTests {
 
   /**
-   * Performs a ShuffleRows computation on a matrix of SInts.
+   * Performs a MiMCAggregation computation on a matrix of SInts.
    * 
    * @author nv
    *
    * @param <ResourcePoolT>
    */
-  public static class TestShuffleRowsGeneric<ResourcePoolT extends ResourcePool>
+  public static class TestMiMCAggregationGeneric<ResourcePoolT extends ResourcePool>
       extends TestThreadFactory<ResourcePoolT, SequentialNumericBuilder> {
 
     final Matrix<BigInteger> input;
     final Matrix<BigInteger> expected;
 
-    TestShuffleRowsGeneric(Matrix<BigInteger> input, Matrix<BigInteger> expected) {
+    TestMiMCAggregationGeneric(Matrix<BigInteger> input, Matrix<BigInteger> expected) {
       this.input = input;
       this.expected = expected;
     }
@@ -85,7 +84,7 @@ public class ShuffleRowsTests {
               return new CloseMatrix(input, 1).build(par);
             }).seq((closed, seq) -> {
               // shuffle
-              return new ShuffleRows(closed, new Random(42 + pid), pid, pids).build(seq);
+              return new MiMCAggregation(closed, new Random(42), 0, 1, pid, pids).build(seq);
             }).par((swapped, par) -> {
               // open result
               Computation<Matrix<Computation<BigInteger>>> opened =
@@ -95,47 +94,38 @@ public class ShuffleRowsTests {
           };
           Matrix<BigInteger> actual = secureComputationEngine.runApplication(testApplication,
               ResourcePoolCreator.createResourcePool(conf.sceConf));
+          // sort by key to undo shuffling
+          // (keys are guaranteed to be unique)
+          Collections.sort(actual.getRows(), (r1, r2) -> r1.get(0).compareTo(r2.get(0)));
           assertThat(actual.getRows(), is(expected.getRows()));
         }
       };
     }
   }
 
-  private static Matrix<BigInteger> clearTextShuffle(int[] pids, int seed, Matrix<BigInteger> input) {
-    Random[] rands = new Random[pids.length];
-    for (int i = 0; i < pids.length; i++) {
-      rands[i] = new Random(seed + pids[i]);
-    }
-    ArrayList<ArrayList<BigInteger>> rows = input.getRows();
-    for (int pid: pids) {
-      Collections.shuffle(rows, rands[pid - 1]);
-    }
-    return new Matrix<>(input.getHeight(), input.getWidth(), rows);
-  }
-
-  // result depends on number of parties
-  public static <ResourcePoolT extends ResourcePool> TestShuffleRowsGeneric<ResourcePoolT> shuffleRowsTwoParties() {
+  public static <ResourcePoolT extends ResourcePool> TestMiMCAggregationGeneric<ResourcePoolT> aggregate() {
     // define input matrix
     MatrixTestUtils utils = new MatrixTestUtils();
-    Matrix<BigInteger> input = utils.getInputMatrix(8, 3);
-    Matrix<BigInteger> expected = clearTextShuffle(new int[]{1, 2}, 42, utils.getInputMatrix(8, 3));
-    return new TestShuffleRowsGeneric<>(input, expected);
+    BigInteger[][] rawRows = {{BigInteger.valueOf(1), BigInteger.valueOf(7), BigInteger.valueOf(8)},
+        {BigInteger.valueOf(1), BigInteger.valueOf(19), BigInteger.valueOf(20)},
+        {BigInteger.valueOf(1), BigInteger.valueOf(10), BigInteger.valueOf(11)},
+        {BigInteger.valueOf(1), BigInteger.valueOf(4), BigInteger.valueOf(5)},
+        {BigInteger.valueOf(2), BigInteger.valueOf(13), BigInteger.valueOf(14)},
+        {BigInteger.valueOf(2), BigInteger.valueOf(1), BigInteger.valueOf(2)},
+        {BigInteger.valueOf(2), BigInteger.valueOf(22), BigInteger.valueOf(23)},
+        {BigInteger.valueOf(2), BigInteger.valueOf(16), BigInteger.valueOf(17)}};
+    Matrix<BigInteger> input = utils.getInputMatrix(rawRows);
+    BigInteger[][] expectedRows = {{BigInteger.valueOf(1), BigInteger.valueOf(40)},
+        {BigInteger.valueOf(2), BigInteger.valueOf(52)}};
+    Matrix<BigInteger> expected = utils.getInputMatrix(expectedRows);
+    return new TestMiMCAggregationGeneric<>(input, expected);
   }
 
-  // result depends on number of parties
-  public static <ResourcePoolT extends ResourcePool> TestShuffleRowsGeneric<ResourcePoolT> shuffleRowsThreeParties() {
-    // define input matrix
-    MatrixTestUtils utils = new MatrixTestUtils();
-    Matrix<BigInteger> input = utils.getInputMatrix(8, 3);
-    Matrix<BigInteger> expected = clearTextShuffle(new int[]{1, 2, 3}, 42, utils.getInputMatrix(8, 3));
-    return new TestShuffleRowsGeneric<>(input, expected);
-  }
-
-  public static <ResourcePoolT extends ResourcePool> TestShuffleRowsGeneric<ResourcePoolT> shuffleRowsEmpty() {
+  public static <ResourcePoolT extends ResourcePool> TestMiMCAggregationGeneric<ResourcePoolT> aggregateEmpty() {
     // define input matrix
     MatrixTestUtils utils = new MatrixTestUtils();
     Matrix<BigInteger> input = utils.getInputMatrix(0, 0);
     Matrix<BigInteger> expected = utils.getInputMatrix(0, 0);
-    return new TestShuffleRowsGeneric<>(input, expected);
+    return new TestMiMCAggregationGeneric<>(input, expected);
   }
 }

@@ -7,10 +7,6 @@ import dk.alexandra.fresco.lib.collections.Matrix;
 
 public class WaksmanUtils {
 
-  private boolean isPow2(int n) {
-    return n > 0 && ((n & (n - 1)) == 0);
-  }
-
   // pre-condition: n is power of 2
   private int log2(int n) {
     return (int) (Math.log(n) / Math.log(2));
@@ -186,10 +182,15 @@ public class WaksmanUtils {
     }
   }
 
-  public Matrix<BigInteger> setControlBits(int[] perm) {
+  public boolean isPow2(int n) {
+    return n >= 0 && ((n & (n - 1)) == 0);
+  }
+
+  public Matrix<BigInteger> setControlBits(int[] perm) throws UnsupportedOperationException {
     int n = perm.length;
-    // TODO: should be an exception
-    assert (isPow2(n));
+    if (!isPow2(n)) {
+      throw new UnsupportedOperationException("Size must be power of 2");
+    }
 
     int numRows = getNumRowsRequired(n);
     int numCols = getNumColsRequired(n);

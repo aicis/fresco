@@ -16,14 +16,14 @@ import dk.alexandra.fresco.lib.collections.permute.PermuteRows;
 public class ShuffleRows implements ComputationBuilder<Matrix<Computation<SInt>>> {
 
   final private Matrix<Computation<SInt>> values;
-  final private Random rnd;
+  final private Random rand;
   final private int pid;
   final private int[] pids;
 
   public ShuffleRows(Matrix<Computation<SInt>> values, Random rnd, int pid, int[] pids) {
     super();
     this.values = values;
-    this.rnd = rnd;
+    this.rand = rnd;
     this.pid = pid;
     this.pids = pids;
   }
@@ -37,7 +37,7 @@ public class ShuffleRows implements ComputationBuilder<Matrix<Computation<SInt>>
     for (int i = 0; i < n; i++) {
       indeces.add(i);
     }
-    Collections.shuffle(indeces, rnd);
+    Collections.shuffle(indeces, rand);
     int[] idxPerm = new int[indeces.size()];
     for (int i = 0; i < indeces.size(); i++) {
       idxPerm[indeces.get(i)] = i;
@@ -59,12 +59,13 @@ public class ShuffleRows implements ComputationBuilder<Matrix<Computation<SInt>>
     }).whileLoop((state) -> state.round < pids.length, (state, seq) -> {
       int thisRoundPid = pids[state.round];
       if (pid == thisRoundPid) {
-        Computation<Matrix<Computation<SInt>>> permuted = seq.createSequentialSub(
-            new PermuteRows(values, getIdxPerm(values.getHeight()), thisRoundPid));
+        Computation<Matrix<Computation<SInt>>> permuted =
+            seq.createSequentialSub(new PermuteRows(state.intermediate.out(),
+                getIdxPerm(values.getHeight()), thisRoundPid));
         return new IterationState(state.round + 1, permuted);
       } else {
         Computation<Matrix<Computation<SInt>>> permuted =
-            seq.createSequentialSub(new PermuteRows(values, thisRoundPid));
+            seq.createSequentialSub(new PermuteRows(state.intermediate.out(), thisRoundPid));
         return new IterationState(state.round + 1, permuted);
       }
     }).seq((state, seq) -> {

@@ -132,4 +132,14 @@ public class PermuteRowsTests {
     return new TestPermuteRowsGeneric<>(input, expected, idxPerm);
   }
 
+  public static <ResourcePoolT extends ResourcePool> TestPermuteRowsGeneric<ResourcePoolT> permuteRowsNonPowerOfTwo() {
+    // define invalid input matrix
+    Matrix<BigInteger> input = new MatrixTestUtils().getInputMatrix(3, 2);
+    // define permutation
+    int[] idxPerm = {0, 1, 2};
+    // define expected result
+    Matrix<BigInteger> expected = new MatrixTestUtils().getInputMatrix(3, 2);
+    return new TestPermuteRowsGeneric<>(input, expected, idxPerm);
+  }
+
 }

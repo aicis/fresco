@@ -29,7 +29,7 @@ import java.util.List;
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.builder.ComputationBuilderParallel;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.ParallelNumericBuilder;
-import dk.alexandra.fresco.framework.util.Pair;
+import dk.alexandra.fresco.framework.util.RowPairC;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.collections.Matrix;
 
@@ -54,19 +54,17 @@ public class ConditionalSwapNeighbors
 
   @Override
   public Computation<Matrix<Computation<SInt>>> build(ParallelNumericBuilder par) {
-    List<Computation<Pair<ArrayList<Computation<SInt>>, ArrayList<Computation<SInt>>>>> pairs =
-        new ArrayList<>();
+    List<Computation<RowPairC<SInt, SInt>>> pairs = new ArrayList<>();
     int swapperIdx = 0;
     for (int i = 0; i < rows.getHeight() - 1; i += 2) {
-      Computation<Pair<ArrayList<Computation<SInt>>, ArrayList<Computation<SInt>>>> pair =
-          par.createSequentialSub(
-              new ConditionalSwapRows(swappers.get(swapperIdx), rows.getRow(i), rows.getRow(i + 1)));
+      Computation<RowPairC<SInt, SInt>> pair = par.createSequentialSub(
+          new ConditionalSwapRows(swappers.get(swapperIdx), rows.getRow(i), rows.getRow(i + 1)));
       swapperIdx++;
       pairs.add(pair);
     }
     return () -> {
       ArrayList<ArrayList<Computation<SInt>>> temp = new ArrayList<>();
-      for (Computation<Pair<ArrayList<Computation<SInt>>, ArrayList<Computation<SInt>>>> computation : pairs) {
+      for (Computation<RowPairC<SInt, SInt>> computation : pairs) {
         temp.add(computation.out().getFirst());
         temp.add(computation.out().getSecond());
       }

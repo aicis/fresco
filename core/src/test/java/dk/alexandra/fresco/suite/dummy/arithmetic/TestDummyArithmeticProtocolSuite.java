@@ -22,6 +22,7 @@ import dk.alexandra.fresco.lib.conditional.ConditionalSwapTests;
 import dk.alexandra.fresco.lib.math.integer.division.DivisionTests;
 import dk.alexandra.fresco.lib.math.integer.sqrt.SqrtTests;
 import dk.alexandra.fresco.lib.math.integer.stat.StatisticsTests;
+import dk.alexandra.fresco.lib.relational.MiMCAggregationTests;
 
 public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTest {
 
@@ -91,19 +92,19 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
 
   @Test
   public void test_euclidian_division() throws Exception {
-    runTest(new DivisionTests.TestEuclidianDivision(), EvaluationStrategy.SEQUENTIAL_BATCHED,
+    runTest(new DivisionTests.TestEuclidianDivision<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
         NetworkingStrategy.KRYONET, 2);
   }
 
   @Test
   public void test_ss_division() throws Exception {
-    runTest(new DivisionTests.TestSecretSharedDivision(), EvaluationStrategy.SEQUENTIAL_BATCHED,
+    runTest(new DivisionTests.TestSecretSharedDivision<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
         NetworkingStrategy.KRYONET, 2);
   }
 
   @Test
   public void test_sqrt() throws Exception {
-    runTest(new SqrtTests.TestSquareRoot(), EvaluationStrategy.SEQUENTIAL_BATCHED,
+    runTest(new SqrtTests.TestSquareRoot<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
         NetworkingStrategy.KRYONET, 2);
   }
 
@@ -153,26 +154,26 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
 
   @Test
   public void test_conditional_swap_rows_yes() throws Exception {
-    runTest(ConditionalSwapRowsTests.testSwapYes(),
-        EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.SCAPI, 1);
+    runTest(ConditionalSwapRowsTests.testSwapYes(), EvaluationStrategy.SEQUENTIAL,
+        NetworkingStrategy.SCAPI, 1);
   }
 
   @Test
   public void test_conditional_swap_rows_no() throws Exception {
-    runTest(ConditionalSwapRowsTests.testSwapNo(),
-        EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.SCAPI, 1);
+    runTest(ConditionalSwapRowsTests.testSwapNo(), EvaluationStrategy.SEQUENTIAL,
+        NetworkingStrategy.SCAPI, 1);
   }
 
   @Test
   public void test_conditional_swap_neighbors_yes() throws Exception {
-    runTest(ConditionalSwapNeighborsTests.testSwapYes(),
-        EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.SCAPI, 1);
+    runTest(ConditionalSwapNeighborsTests.testSwapYes(), EvaluationStrategy.SEQUENTIAL,
+        NetworkingStrategy.SCAPI, 1);
   }
 
   @Test
   public void test_conditional_swap_neighbors_no() throws Exception {
-    runTest(ConditionalSwapNeighborsTests.testSwapNo(),
-        EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.SCAPI, 1);
+    runTest(ConditionalSwapNeighborsTests.testSwapNo(), EvaluationStrategy.SEQUENTIAL,
+        NetworkingStrategy.SCAPI, 1);
   }
 
   // Collections
@@ -203,22 +204,41 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
 
   @Test
   public void test_permute_rows() throws Exception {
-    runTest(PermuteRowsTests.permuteRows(), EvaluationStrategy.SEQUENTIAL,
-        NetworkingStrategy.SCAPI, 2);
+    runTest(PermuteRowsTests.permuteRows(), EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.SCAPI,
+        2);
   }
-  
+
   @Test
   public void test_permute_empty_rows() throws Exception {
     runTest(PermuteRowsTests.permuteEmptyRows(), EvaluationStrategy.SEQUENTIAL,
         NetworkingStrategy.SCAPI, 2);
   }
-  
+
+  // TODO: hack hack hack
+  @Test(expected = UnsupportedOperationException.class)
+  public void test_permute_rows_non_power_of_two() throws Throwable {
+    try {      
+      runTest(PermuteRowsTests.permuteRowsNonPowerOfTwo(), EvaluationStrategy.SEQUENTIAL,
+          NetworkingStrategy.SCAPI, 1);
+      
+    } catch (Exception e) {
+      Throwable root = e.getCause().getCause();
+      throw root;
+    }
+  }
+
   @Test
   public void test_shuffle_rows_two_parties() throws Exception {
     runTest(ShuffleRowsTests.shuffleRowsTwoParties(), EvaluationStrategy.SEQUENTIAL,
         NetworkingStrategy.SCAPI, 2);
   }
-  
+
+  @Test
+  public void test_shuffle_rows_three_parties() throws Exception {
+    runTest(ShuffleRowsTests.shuffleRowsThreeParties(), EvaluationStrategy.SEQUENTIAL,
+        NetworkingStrategy.SCAPI, 3);
+  }
+
   @Test
   public void test_shuffle_rows_empty() throws Exception {
     runTest(ShuffleRowsTests.shuffleRowsEmpty(), EvaluationStrategy.SEQUENTIAL,
@@ -247,5 +267,25 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
   public void test_Big_Sort() throws Exception {
     runTest(new SortingTests.TestBigSort<>(), EvaluationStrategy.SEQUENTIAL,
         NetworkingStrategy.KRYONET, 2);
+  }
+
+  // Relational
+
+  @Test
+  public void test_MiMC_aggregate_two() throws Exception {
+    runTest(MiMCAggregationTests.aggregate(), EvaluationStrategy.SEQUENTIAL,
+        NetworkingStrategy.SCAPI, 2);
+  }
+  
+  @Test
+  public void test_MiMC_aggregate_three() throws Exception {
+    runTest(MiMCAggregationTests.aggregate(), EvaluationStrategy.SEQUENTIAL,
+        NetworkingStrategy.SCAPI, 3);
+  }
+
+  @Test
+  public void test_MiMC_aggregate_empty() throws Exception {
+    runTest(MiMCAggregationTests.aggregateEmpty(), EvaluationStrategy.SEQUENTIAL,
+        NetworkingStrategy.SCAPI, 2);
   }
 }

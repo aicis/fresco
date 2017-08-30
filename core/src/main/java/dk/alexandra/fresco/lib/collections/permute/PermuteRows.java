@@ -10,7 +10,6 @@ import dk.alexandra.fresco.lib.collections.Matrix;
 import dk.alexandra.fresco.lib.collections.io.CloseMatrix;
 import dk.alexandra.fresco.lib.conditional.ConditionalSwapNeighbors;
 
-// TODO: for malicious security add check that control bits are in fact bits
 public class PermuteRows implements ComputationBuilder<Matrix<Computation<SInt>>> {
 
   final private Matrix<Computation<SInt>> values;
@@ -42,13 +41,16 @@ public class PermuteRows implements ComputationBuilder<Matrix<Computation<SInt>>
   }
 
   private PermuteRows(Matrix<Computation<SInt>> values, int[] idxPerm, int permProviderPid,
-      boolean isPermProvider) {
+      boolean isPermProvider) throws UnsupportedOperationException {
     super();
+    this.wutils = new WaksmanUtils();
+    if (!wutils.isPow2(values.getHeight())) {
+      throw new UnsupportedOperationException("input size must be power of 2");
+    }
     this.values = values;
     this.idxPerm = idxPerm;
     this.isPermProvider = isPermProvider;
     this.permProviderPid = permProviderPid;
-    this.wutils = new WaksmanUtils();
   }
 
   /**
@@ -124,6 +126,7 @@ public class PermuteRows implements ComputationBuilder<Matrix<Computation<SInt>>
     // non-empty input, i.e., main protocol
     return builder.seq(seq -> {
       // determine control bits of permutation and input
+      // TODO: for active security add check that control bits are in fact bits
       if (isPermProvider) {
         return seq
             .createParallelSub(new CloseMatrix(wutils.setControlBits(idxPerm), permProviderPid));
