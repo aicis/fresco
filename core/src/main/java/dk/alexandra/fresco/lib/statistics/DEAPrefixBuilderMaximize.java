@@ -53,13 +53,6 @@ public class DEAPrefixBuilderMaximize {
   // \theta = "the factor a farmer can do better than he currently does" and thus is not necessarily upper bounded.
   private static final int BENCHMARKING_BIG_M = 1000;
 
-  /**
-   * Constructs an empty builder
-   */
-  DEAPrefixBuilderMaximize() {
-    super();
-  }
-
   public static Computation<SimpleLPPrefix> build(
       List<List<Computation<SInt>>> basisInputs, List<List<Computation<SInt>>> basisOutputs,
       List<Computation<SInt>> targetInputs, List<Computation<SInt>> targetOutputs,
@@ -145,7 +138,8 @@ public class DEAPrefixBuilderMaximize {
     return identity;
   }
 
-  static List<List<Computation<SInt>>> addTargetToList(List<List<Computation<SInt>>> basisOutputs,
+  private static List<List<Computation<SInt>>> addTargetToList(
+      List<List<Computation<SInt>>> basisOutputs,
       List<Computation<SInt>> targetOutputs) {
     ListIterator<List<Computation<SInt>>> basisIt = basisOutputs.listIterator();
     ListIterator<Computation<SInt>> targetIt = targetOutputs.listIterator();
@@ -186,21 +180,12 @@ public class DEAPrefixBuilderMaximize {
   }
 
 
-  private static List<Computation<SInt>> convertList(List<Computation<SInt>> interval) {
-    return interval.stream()
-        .map(intervalValue -> {
-          Computation<SInt> computation = intervalValue;
-          return computation;
-        })
-        .collect(Collectors.toList());
-  }
-
   private static ArrayList<Computation<SInt>> bVector(int size,
       List<Computation<SInt>> targetInputs,
       Computation<SInt> zero,
       Computation<SInt> one) {
     ArrayList<Computation<SInt>> B = new ArrayList<>(size);
-    B.addAll(convertList(targetInputs));
+    B.addAll(targetInputs);
     // For each bank output constraint B is zero
     while (B.size() < size - 1) {
       B.add(zero);
@@ -216,7 +201,7 @@ public class DEAPrefixBuilderMaximize {
     ArrayList<Computation<SInt>> row = new ArrayList<>(
         vflInputs.size() + slackVariables.size() + 1);
     row.add(zero);
-    row.addAll(convertList(vflInputs));
+    row.addAll(vflInputs);
     row.addAll(slackVariables);
     return row;
   }

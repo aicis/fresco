@@ -33,7 +33,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.StringReader;
 import java.math.BigInteger;
 import java.util.LinkedList;
 
@@ -65,12 +64,6 @@ public class PlainLPInputReader implements LPInputReader {
     readInputPattern = false;
     noVariables = -1;
     noConstraints = -1;
-  }
-
-  public static LPInputReader getStringInputReader(String values, String pattern, int myId) {
-    BufferedReader valuesReader = new BufferedReader(new StringReader(values));
-    BufferedReader patternReader = new BufferedReader(new StringReader(pattern));
-    return new PlainLPInputReader(valuesReader, patternReader, myId);
   }
 
   public static PlainLPInputReader getFileInputReader(File values, File pattern, int myId)
