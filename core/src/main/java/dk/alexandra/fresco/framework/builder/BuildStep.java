@@ -6,10 +6,16 @@ import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.util.Pair;
 import java.util.function.Predicate;
 
+/**
+ * A single step in the chained list of lambda that creates protocols to evaluate. The root step is
+ * defined in the ProbtocolBuilderImpl.
+ *
+ * @param <InputT> the type of input for this binary step (the previous step's output).
+ * @param <BuilderT> the type iof builder, currently either numeric or binary
+ * @param <OutputT> the output of the build step
+ */
 public final class BuildStep<
-    BuilderT extends ProtocolBuilderImpl<BuilderT>,
-    OutputT,
-    InputT>
+    InputT, BuilderT extends ProtocolBuilderImpl<BuilderT>, OutputT>
     implements Computation<OutputT> {
 
   interface NextStepBuilder<
@@ -20,47 +26,47 @@ public final class BuildStep<
     Pair<ProtocolProducer, Computation<OutputT>> createNextStep(
         InputT input,
         BuilderFactory<BuilderT> factory,
-        BuildStep<BuilderT, ?, OutputT> next);
+        BuildStep<OutputT, BuilderT, ?> next);
   }
 
   private NextStepBuilder<BuilderT, OutputT, InputT> stepBuilder;
-  private BuildStep<BuilderT, ?, OutputT> next;
+  private BuildStep<OutputT, BuilderT, ?> next;
   private Computation<OutputT> output;
 
   BuildStep(NextStepBuilder<BuilderT, OutputT, InputT> stepBuilder) {
     this.stepBuilder = stepBuilder;
   }
 
-  public <NextOutputT> BuildStep<BuilderT, NextOutputT, OutputT> seq(
+  public <NextOutputT> BuildStep<OutputT, BuilderT, NextOutputT> seq(
       FrescoLambda<OutputT, BuilderT, NextOutputT> function) {
-    BuildStep<BuilderT, NextOutputT, OutputT> localChild =
+    BuildStep<OutputT, BuilderT, NextOutputT> localChild =
         new BuildStep<>(new BuildStepSingle<>(function, false));
     this.next = localChild;
     return localChild;
   }
 
-  public <NextOutputT> BuildStep<BuilderT, NextOutputT, OutputT> par(
-      FrescoLambda<OutputT, BuilderT, NextOutputT> function) {
-    BuildStep<BuilderT, NextOutputT, OutputT> localChild =
+  public <NextOutputT> BuildStep<OutputT, BuilderT, NextOutputT> par(
+      FrescoLambdaParallel<OutputT, BuilderT, NextOutputT> function) {
+    BuildStep<OutputT, BuilderT, NextOutputT> localChild =
         new BuildStep<>(new BuildStepSingle<>(function, true));
     this.next = localChild;
     return localChild;
   }
 
-  public BuildStep<BuilderT, OutputT, OutputT> whileLoop(
+  public BuildStep<OutputT, BuilderT, OutputT> whileLoop(
       Predicate<OutputT> test,
       FrescoLambda<OutputT, BuilderT, OutputT> function) {
-    BuildStep<BuilderT, OutputT, OutputT> localChild =
+    BuildStep<OutputT, BuilderT, OutputT> localChild =
         new BuildStep<>(new BuildStepLooping<>(test, function));
     this.next = localChild;
     return localChild;
   }
 
   public <FirstOutputT, SecondOutputT>
-  BuildStep<BuilderT, Pair<FirstOutputT, SecondOutputT>, OutputT> pairInPar(
+  BuildStep<OutputT, BuilderT, Pair<FirstOutputT, SecondOutputT>> pairInPar(
       FrescoLambda<OutputT, BuilderT, FirstOutputT> firstFunction,
       FrescoLambda<OutputT, BuilderT, SecondOutputT> secondFunction) {
-    BuildStep<BuilderT, Pair<FirstOutputT, SecondOutputT>, OutputT>
+    BuildStep<OutputT, BuilderT, Pair<FirstOutputT, SecondOutputT>>
         localChild = new BuildStep<>(
         new BuildStepSingle<>(
             (BuilderT builder, OutputT output1) -> {

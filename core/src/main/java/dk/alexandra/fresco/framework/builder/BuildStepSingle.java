@@ -22,7 +22,7 @@ class BuildStepSingle<BuilderT extends ProtocolBuilderImpl<BuilderT>, OutputT, I
   public Pair<ProtocolProducer, Computation<OutputT>> createNextStep(
       InputT input,
       BuilderFactory<BuilderT> factory,
-      BuildStep<BuilderT, ?, OutputT> next) {
+      BuildStep<OutputT, BuilderT, ?> next) {
 
     BuilderT builder = createBuilder(factory);
     Computation<OutputT> output = function.buildComputation(builder, input);

@@ -101,10 +101,10 @@ public abstract class ProtocolBuilderImpl<BuilderT extends ProtocolBuilderImpl<B
    *
    * @param function creation of the protocol producer - will be lazy evaluated
    */
-  public <R> BuildStep<BuilderT, R, Void> seq(ComputationBuilder<R, BuilderT> function) {
+  public <R> BuildStep<Void, BuilderT, R> seq(ComputationBuilder<R, BuilderT> function) {
     FrescoLambda<Void, BuilderT, R> innerBuilder =
         (inner, ignored) -> function.buildComputation(inner);
-    BuildStep<BuilderT, R, Void> builder =
+    BuildStep<Void, BuilderT, R> builder =
         new BuildStep<>(new BuildStepSingle<>(innerBuilder, false));
     createAndAppend(new LazyProtocolProducerDecorator(() -> builder.createProducer(null, factory)));
     return builder;
@@ -116,9 +116,9 @@ public abstract class ProtocolBuilderImpl<BuilderT extends ProtocolBuilderImpl<B
    *
    * @param f of the protocol producer - will be lazy evaluated
    */
-  public <R> BuildStep<BuilderT, R, Void> par(ComputationBuilder<R, BuilderT> f) {
+  public <R> BuildStep<Void, BuilderT, R> par(ComputationBuilderParallel<R, BuilderT> f) {
     FrescoLambda<Void, BuilderT, R> innerBuilder = (inner, ignored) -> f.buildComputation(inner);
-    BuildStep<BuilderT, R, Void> builder =
+    BuildStep<Void, BuilderT, R> builder =
         new BuildStep<>(new BuildStepSingle<>(innerBuilder, true));
     createAndAppend(new LazyProtocolProducerDecorator(() -> builder.createProducer(null, factory)));
     return builder;

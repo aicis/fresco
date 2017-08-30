@@ -62,7 +62,7 @@ public class InputApplication extends DemoNumericApplication<List<SInt>> {
     return createBuildStep(producer);
   }
 
-  public BuildStep<ProtocolBuilderNumeric, List<SInt>, ?> createBuildStep(
+  public BuildStep<?, ProtocolBuilderNumeric, List<SInt>> createBuildStep(
       ProtocolBuilderNumeric producer) {
     return producer.par(par -> {
       NumericBuilder numeric = par.numeric();

@@ -23,7 +23,7 @@ class BuildStepLooping<BuilderT extends ProtocolBuilderImpl<BuilderT>, InputT>
   public Pair<ProtocolProducer, Computation<InputT>> createNextStep(
       InputT input,
       BuilderFactory<BuilderT> factory,
-      BuildStep<BuilderT, ?, InputT> next) {
+      BuildStep<InputT, BuilderT, ?> next) {
     LoopProtocolProducer<BuilderT, InputT> loopProtocolProducer =
         new LoopProtocolProducer<>(factory, input, predicate, function, next);
     return new Pair<>(loopProtocolProducer, loopProtocolProducer);
@@ -41,14 +41,14 @@ class BuildStepLooping<BuilderT extends ProtocolBuilderImpl<BuilderT>, InputT>
     private ProtocolProducer currentProducer;
     private Predicate<InputT> predicate;
     private FrescoLambda<InputT, BuilderT, InputT> function;
-    private BuildStep<BuilderT, ?, InputT> next;
+    private BuildStep<InputT, BuilderT, ?> next;
 
     LoopProtocolProducer(
         BuilderFactory<BuilderT> factory,
         InputT input,
         Predicate<InputT> predicate,
         FrescoLambda<InputT, BuilderT, InputT> function,
-        BuildStep<BuilderT, ?, InputT> next) {
+        BuildStep<InputT, BuilderT, ?> next) {
       this.factory = factory;
       this.predicate = predicate;
       this.function = function;

@@ -36,8 +36,8 @@ public interface BuilderFactoryNumeric extends BuilderFactory<ProtocolBuilderNum
   /**
    * Returns a builder which can be helpful while developing a new protocol. Be very careful though,
    * to include this in any production code since the debugging opens values to all parties.
-   * 
-   * @param builder
+   *
+   * @param builder the current builder that will have the protocols inserted
    * @return By default a standard debugger which opens values and prints them.
    */
   default DebugBuilder createDebugBuilder(ProtocolBuilderNumeric builder) {
