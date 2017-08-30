@@ -103,9 +103,8 @@ public class SortingHelperUtility {
         .whileLoop(
             p -> p > 0,
             (seq, p) -> {
-              seq.seq(innerSeq -> {
-                return () -> new Iteration(p0, 0, p);
-              }).whileLoop(
+              seq.seq(innerSeq -> () -> new Iteration(p0, 0, p)
+              ).whileLoop(
                   state -> state.r == 0 || state.q != p,
                   (whileSeq, state) -> {
                     final int d = state.r == 0 ? state.d : state.q - p;
