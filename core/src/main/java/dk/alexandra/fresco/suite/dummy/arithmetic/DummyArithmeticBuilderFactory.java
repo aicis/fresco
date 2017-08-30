@@ -39,23 +39,20 @@ public class DummyArithmeticBuilderFactory implements BuilderFactoryNumeric {
       public Computation<SInt> sub(Computation<SInt> a, BigInteger b) {
         DummyArithmeticNativeProtocol<SInt> c =
             new DummyArithmeticSubtractProtocol(a, () -> new DummyArithmeticSInt(b));
-        builder.append(c);
-        return c;
+        return builder.append(c);
       }
 
       @Override
       public Computation<SInt> sub(BigInteger a, Computation<SInt> b) {
         DummyArithmeticSubtractProtocol c =
             new DummyArithmeticSubtractProtocol(() -> new DummyArithmeticSInt(a), b);
-        builder.append(c);
-        return c;
+        return builder.append(c);
       }
 
       @Override
       public Computation<SInt> sub(Computation<SInt> a, Computation<SInt> b) {
         DummyArithmeticSubtractProtocol c = new DummyArithmeticSubtractProtocol(a, b);
-        builder.append(c);
-        return c;
+        return builder.append(c);
       }
 
       @Override
@@ -80,8 +77,7 @@ public class DummyArithmeticBuilderFactory implements BuilderFactoryNumeric {
             return elm;
           }
         };
-        builder.append(c);
-        return c;
+        return builder.append(c);
       }
 
       @Override
@@ -102,37 +98,32 @@ public class DummyArithmeticBuilderFactory implements BuilderFactoryNumeric {
             return bit;
           }
         };
-        builder.append(c);
-        return c;
+        return builder.append(c);
       }
 
       @Override
       public Computation<BigInteger> open(Computation<SInt> secretShare) {
         DummyArithmeticOpenToAllProtocol c = new DummyArithmeticOpenToAllProtocol(secretShare);
-        builder.append(c);
-        return c;
+        return builder.append(c);
       }
 
       @Override
       public Computation<BigInteger> open(Computation<SInt> secretShare, int outputParty) {
         DummyArithmeticOpenProtocol c = new DummyArithmeticOpenProtocol(secretShare, outputParty);
-        builder.append(c);
-        return c;
+        return builder.append(c);
       }
 
       @Override
       public Computation<SInt> mult(BigInteger a, Computation<SInt> b) {
         DummyArithmeticMultProtocol c =
             new DummyArithmeticMultProtocol(() -> new DummyArithmeticSInt(a), b);
-        builder.append(c);
-        return c;
+        return builder.append(c);
       }
 
       @Override
       public Computation<SInt> mult(Computation<SInt> a, Computation<SInt> b) {
         DummyArithmeticMultProtocol c = new DummyArithmeticMultProtocol(a, b);
-        builder.append(c);
-        return c;
+        return builder.append(c);
       }
 
       @Override
@@ -154,15 +145,13 @@ public class DummyArithmeticBuilderFactory implements BuilderFactoryNumeric {
           }
 
         };
-        builder.append(c);
-        return c;
+        return builder.append(c);
       }
 
       @Override
       public Computation<SInt> input(BigInteger value, int inputParty) {
         DummyArithmeticCloseProtocol c = new DummyArithmeticCloseProtocol(inputParty, () -> value);
-        builder.append(c);
-        return c;
+        return builder.append(c);
       }
 
       @Override
@@ -187,23 +176,20 @@ public class DummyArithmeticBuilderFactory implements BuilderFactoryNumeric {
             return pipe;
           }
         };
-        builder.append(c);
-        return c;
+        return builder.append(c);
       }
 
       @Override
       public Computation<SInt> add(BigInteger a, Computation<SInt> b) {
         DummyArithmeticAddProtocol c =
             new DummyArithmeticAddProtocol(() -> new DummyArithmeticSInt(a), b);
-        builder.append(c);
-        return c;
+        return builder.append(c);
       }
 
       @Override
       public Computation<SInt> add(Computation<SInt> a, Computation<SInt> b) {
         DummyArithmeticAddProtocol c = new DummyArithmeticAddProtocol(a, b);
-        builder.append(c);
-        return c;
+        return builder.append(c);
       }
     };
   }
