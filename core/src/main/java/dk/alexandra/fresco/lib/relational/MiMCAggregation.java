@@ -31,8 +31,8 @@ public class MiMCAggregation implements ComputationBuilder<Matrix<Computation<SI
     this(values, new SecureRandom(), groupColIdx, aggColIdx, pid, pids);
   }
 
-  public MiMCAggregation(Matrix<Computation<SInt>> values, Random rnd, int groupColIdx,
-      int aggColIdx, int pid, int[] pids) {
+  MiMCAggregation(Matrix<Computation<SInt>> values, Random rnd, int groupColIdx, int aggColIdx,
+      int pid, int[] pids) {
     super();
     this.values = values;
     this.rand = rnd;

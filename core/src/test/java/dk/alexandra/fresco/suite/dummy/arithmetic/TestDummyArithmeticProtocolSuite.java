@@ -1,15 +1,21 @@
 package dk.alexandra.fresco.suite.dummy.arithmetic;
 
+import java.util.ArrayList;
+
 import org.junit.Test;
 
+import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.network.NetworkingStrategy;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
+import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.arithmetic.BasicArithmeticTests;
 import dk.alexandra.fresco.lib.arithmetic.ComparisonTests;
 import dk.alexandra.fresco.lib.arithmetic.LogicTests;
 import dk.alexandra.fresco.lib.arithmetic.SortingTests;
+import dk.alexandra.fresco.lib.collections.Matrix;
 import dk.alexandra.fresco.lib.collections.io.CloseListTests;
 import dk.alexandra.fresco.lib.collections.io.CloseMatrixTests;
+import dk.alexandra.fresco.lib.collections.permute.PermuteRows;
 import dk.alexandra.fresco.lib.collections.permute.PermuteRowsTests;
 import dk.alexandra.fresco.lib.collections.shuffle.ShuffleRowsTests;
 import dk.alexandra.fresco.lib.conditional.ConditionalSelectTests;
@@ -207,17 +213,13 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
         NetworkingStrategy.SCAPI, 2);
   }
 
-  // TODO: hack hack hack
   @Test(expected = UnsupportedOperationException.class)
   public void test_permute_rows_non_power_of_two() throws Throwable {
-    try {      
-      runTest(PermuteRowsTests.permuteRowsNonPowerOfTwo(), EvaluationStrategy.SEQUENTIAL,
-          NetworkingStrategy.SCAPI, 1);
-      
-    } catch (Exception e) {
-      Throwable root = e.getCause().getCause();
-      throw root;
-    }
+    ArrayList<ArrayList<Computation<SInt>>> fakeRows = new ArrayList<>();
+    // we don't need to populate matrix since the exception is thrown
+    // based on the height of the matrix
+    Matrix<Computation<SInt>> fakeMatrix = new Matrix<>(3, 2, fakeRows);
+    new PermuteRows(fakeMatrix, 1);
   }
 
   @Test
