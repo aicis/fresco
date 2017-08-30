@@ -87,7 +87,7 @@ public class SortingHelperUtility {
     builder.par(par -> {
       values.set(a, par.numeric().add(c, valueB));
       values.set(b, par.numeric().add(d, valueA));
-      return () -> null;
+      return null;
     });
   }
 
