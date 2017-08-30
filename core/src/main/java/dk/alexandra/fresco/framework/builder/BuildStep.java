@@ -37,6 +37,12 @@ public final class BuildStep<
     this.stepBuilder = stepBuilder;
   }
 
+  /**
+   * Creates a new Build step based on this builder but with a subsequent producer inserted after
+   * the original protocol producer.
+   *
+   * @param function creation of the protocol producer - will be lazy evaluated
+   */
   public <NextOutputT> BuildStep<OutputT, BuilderT, NextOutputT> seq(
       FrescoLambda<OutputT, BuilderT, NextOutputT> function) {
     BuildStep<OutputT, BuilderT, NextOutputT> localChild =
@@ -45,6 +51,13 @@ public final class BuildStep<
     return localChild;
   }
 
+
+  /**
+   * Creates a new Build step based on this builder but with a subsequent parallel producer inserted
+   * after the original protocol producer.
+   *
+   * @param function of the protocol producer - will be lazy evaluated
+   */
   public <NextOutputT> BuildStep<OutputT, BuilderT, NextOutputT> par(
       FrescoLambdaParallel<OutputT, BuilderT, NextOutputT> function) {
     BuildStep<OutputT, BuilderT, NextOutputT> localChild =
@@ -53,6 +66,14 @@ public final class BuildStep<
     return localChild;
   }
 
+  /**
+   * Creates a looping Build step based on this builder but with a subsequent producer inserted
+   * after the original protocol producer. This simulates the while functionality in java.
+   *
+   * @param test the predicate - as long as it evaluates to true, the function will be evaluated
+   * @param function creation of the protocol producer for a single loop step - will be
+   *     evaluated for each iteration
+   */
   public BuildStep<OutputT, BuilderT, OutputT> whileLoop(
       Predicate<OutputT> test,
       FrescoLambda<OutputT, BuilderT, OutputT> function) {
@@ -62,6 +83,15 @@ public final class BuildStep<
     return localChild;
   }
 
+
+  /**
+   * Creates a new Build step based on this builder but with a subsequent producer inserted after
+   * the original protocol producer. The two producer will be evalueted in parallel, however each
+   * of the two functions will be evaluated in sequence.
+   *
+   * @param firstFunction of the first protocol producer - will be lazy evaluated
+   * @param secondFunction of the second protocol producer - will be lazy evaluated
+   */
   public <FirstOutputT, SecondOutputT>
   BuildStep<OutputT, BuilderT, Pair<FirstOutputT, SecondOutputT>> pairInPar(
       FrescoLambda<OutputT, BuilderT, FirstOutputT> firstFunction,
