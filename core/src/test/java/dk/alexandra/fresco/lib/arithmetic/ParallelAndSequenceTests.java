@@ -25,7 +25,8 @@ public class ParallelAndSequenceTests {
 
   private static final Integer[] inputAsArray = {1, 2, 3, 4, 5, 6, 7, 8, 9};
 
-  public static class TestSequentialEvaluation<ResourcePoolT extends ResourcePool> extends
+  // TODO Split these tests into two
+  public static class TestSumAndProduct<ResourcePoolT extends ResourcePool> extends
       TestThreadFactory {
 
     @Override
@@ -40,35 +41,8 @@ public class ParallelAndSequenceTests {
           BigInteger sum = secureComputationEngine.runApplication(sumApp, resourcePool);
           BigInteger mult = secureComputationEngine.runApplication(multApp, resourcePool);
 
-          Assert
-              .assertEquals(BigInteger.valueOf(1 + 2 + 3 + 4 + 5 + 6 + 7 + 8 + 9), sum);
-          Assert
-              .assertEquals(BigInteger.valueOf(1 * 2 * 3 * 4 * 5 * 6 * 7 * 8 * 9), mult);
-        }
-      };
-    }
-  }
-
-  public static class TestParallelEvaluation<ResourcePoolT extends ResourcePool> extends
-      TestThreadFactory {
-
-    @Override
-    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
-      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
-        @Override
-        public void test() throws Exception {
-          TestApplicationSum sumApp = new ParallelAndSequenceTests().new TestApplicationSum();
-          TestApplicationMult multApp = new ParallelAndSequenceTests().new TestApplicationMult();
-
-          ResourcePoolT rp = ResourcePoolCreator.createResourcePool(conf.sceConf);
-          BigInteger sum = secureComputationEngine
-              .runApplication(sumApp, rp);
-          BigInteger mult = secureComputationEngine.runApplication(multApp, rp);
-
-          Assert
-              .assertEquals(BigInteger.valueOf(1 + 2 + 3 + 4 + 5 + 6 + 7 + 8 + 9), sum);
-          Assert
-              .assertEquals(BigInteger.valueOf(1 * 2 * 3 * 4 * 5 * 6 * 7 * 8 * 9), mult);
+          Assert.assertEquals(BigInteger.valueOf(1 + 2 + 3 + 4 + 5 + 6 + 7 + 8 + 9), sum);
+          Assert.assertEquals(BigInteger.valueOf(1 * 2 * 3 * 4 * 5 * 6 * 7 * 8 * 9), mult);
         }
       };
     }

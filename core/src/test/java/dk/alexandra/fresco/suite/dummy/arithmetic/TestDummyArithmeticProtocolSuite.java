@@ -6,7 +6,7 @@ import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.lib.arithmetic.BasicArithmeticTests;
 import dk.alexandra.fresco.lib.arithmetic.ComparisonTests;
 import dk.alexandra.fresco.lib.arithmetic.MiMCTests;
-import dk.alexandra.fresco.lib.arithmetic.ParallelAndSequenceTests;
+import dk.alexandra.fresco.lib.arithmetic.ParallelAndSequenceTests.TestSumAndProduct;
 import dk.alexandra.fresco.lib.arithmetic.SearchingTests;
 import dk.alexandra.fresco.lib.arithmetic.SortingTests;
 import dk.alexandra.fresco.lib.debug.ArithmeticDebugTests;
@@ -67,14 +67,8 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
   }
 
   @Test
-  public void test_Sequential_evaluation() throws Exception {
-    runTest(new ParallelAndSequenceTests.TestSequentialEvaluation(), EvaluationStrategy.SEQUENTIAL,
-        NetworkingStrategy.KRYONET, 2);
-  }
-
-  @Test
-  public void test_parallel_evaluation() throws Exception {
-    runTest(new ParallelAndSequenceTests.TestParallelEvaluation(), EvaluationStrategy.SEQUENTIAL,
+  public void testSumAndProduct() throws Exception {
+    runTest(new TestSumAndProduct(), EvaluationStrategy.SEQUENTIAL,
         NetworkingStrategy.KRYONET, 2);
   }
 
