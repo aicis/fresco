@@ -1,12 +1,9 @@
 package dk.alexandra.fresco.suite.dummy.arithmetic;
 
-import java.math.BigInteger;
-
 import org.junit.Test;
 
 import dk.alexandra.fresco.framework.network.NetworkingStrategy;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
-import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.lib.arithmetic.BasicArithmeticTests;
 import dk.alexandra.fresco.lib.arithmetic.ComparisonTests;
 import dk.alexandra.fresco.lib.arithmetic.LogicTests;
@@ -126,29 +123,25 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
 
   @Test
   public void test_conditional_select_left() throws Exception {
-    runTest(new ConditionalSelectTests.TestSelect<>(BigInteger.valueOf(1), BigInteger.valueOf(11)),
+    runTest(ConditionalSelectTests.testSelectLeft(),
         EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.SCAPI, 1);
   }
 
   @Test
   public void test_conditional_select_right() throws Exception {
-    runTest(new ConditionalSelectTests.TestSelect<>(BigInteger.valueOf(0), BigInteger.valueOf(42)),
+    runTest(ConditionalSelectTests.testSelectRight(),
         EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.SCAPI, 1);
   }
 
   @Test
   public void test_conditional_swap_yes() throws Exception {
-    Pair<BigInteger, BigInteger> expected =
-        new Pair<>(BigInteger.valueOf(42), BigInteger.valueOf(11));
-    runTest(new ConditionalSwapTests.TestSwap<>(BigInteger.valueOf(1), expected),
+    runTest(ConditionalSwapTests.testSwapYes(),
         EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.SCAPI, 1);
   }
 
   @Test
   public void test_conditional_swap_no() throws Exception {
-    Pair<BigInteger, BigInteger> expected =
-        new Pair<>(BigInteger.valueOf(11), BigInteger.valueOf(42));
-    runTest(new ConditionalSwapTests.TestSwap<>(BigInteger.valueOf(0), expected),
+    runTest(ConditionalSwapTests.testSwapNo(),
         EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.SCAPI, 1);
   }
 

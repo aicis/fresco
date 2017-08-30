@@ -23,6 +23,10 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.conditional;
 
+import java.math.BigInteger;
+
+import org.junit.Assert;
+
 import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
@@ -34,24 +38,8 @@ import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.collections.io.CloseList;
-import dk.alexandra.fresco.lib.collections.io.OpenList;
 import dk.alexandra.fresco.lib.collections.io.OpenPair;
 
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.hamcrest.CoreMatchers.is;
-
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import org.junit.Assert;
-
-/**
- * Test class for the CloseList protocol.
- */
 public class ConditionalSwapTests {
 
   /**
@@ -66,10 +54,15 @@ public class ConditionalSwapTests {
 
     final BigInteger swapperOpen;
     final Pair<BigInteger, BigInteger> expected;
+    final BigInteger leftOpen;
+    final BigInteger rightOpen;
 
-    public TestSwap(BigInteger selectorOpen, Pair<BigInteger, BigInteger> expected) {
+    public TestSwap(BigInteger selectorOpen, BigInteger leftOpen, BigInteger rightOpen,
+        Pair<BigInteger, BigInteger> expected) {
       this.swapperOpen = selectorOpen;
       this.expected = expected;
+      this.leftOpen = leftOpen;
+      this.rightOpen = rightOpen;
     }
 
     @Override
@@ -79,10 +72,6 @@ public class ConditionalSwapTests {
 
         @Override
         public void test() throws Exception {
-          // define input and output
-          BigInteger leftOpen = BigInteger.valueOf(11);
-          BigInteger rightOpen = BigInteger.valueOf(42);
-
           // define functionality to be tested
           Application<Pair<Computation<BigInteger>, Computation<BigInteger>>, SequentialNumericBuilder> testApplication =
               root -> {
@@ -105,5 +94,23 @@ public class ConditionalSwapTests {
         }
       };
     }
+  }
+
+  public static <ResourcePoolT extends ResourcePool> TestSwap<ResourcePoolT> testSwapYes() {
+    BigInteger swapper = BigInteger.valueOf(1);
+    BigInteger leftOpen = BigInteger.valueOf(11);
+    BigInteger rightOpen = BigInteger.valueOf(42);
+    Pair<BigInteger, BigInteger> expected =
+        new Pair<>(BigInteger.valueOf(42), BigInteger.valueOf(11));
+    return new TestSwap<>(swapper, leftOpen, rightOpen, expected);
+  }
+
+  public static <ResourcePoolT extends ResourcePool> TestSwap<ResourcePoolT> testSwapNo() {
+    BigInteger swapper = BigInteger.valueOf(0);
+    BigInteger leftOpen = BigInteger.valueOf(11);
+    BigInteger rightOpen = BigInteger.valueOf(42);
+    Pair<BigInteger, BigInteger> expected =
+        new Pair<>(BigInteger.valueOf(11), BigInteger.valueOf(42));
+    return new TestSwap<>(swapper, leftOpen, rightOpen, expected);
   }
 }

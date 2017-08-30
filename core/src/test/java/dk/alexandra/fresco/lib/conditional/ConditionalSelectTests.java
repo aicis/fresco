@@ -23,6 +23,10 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.conditional;
 
+import java.math.BigInteger;
+
+import org.junit.Assert;
+
 import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
@@ -33,23 +37,7 @@ import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNu
 import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.collections.io.CloseList;
-import dk.alexandra.fresco.lib.collections.io.OpenList;
 
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.hamcrest.CoreMatchers.is;
-
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import org.junit.Assert;
-
-/**
- * Test class for the CloseList protocol.
- */
 public class ConditionalSelectTests {
 
   /**
@@ -66,12 +54,17 @@ public class ConditionalSelectTests {
 
     final BigInteger selectorOpen;
     final BigInteger expected;
-    
-    public TestSelect(BigInteger selectorOpen, BigInteger expected) {
+    final BigInteger leftOpen;
+    final BigInteger rightOpen;
+
+    public TestSelect(BigInteger selectorOpen, BigInteger leftOpen, BigInteger rightOpen,
+        BigInteger expected) {
       this.selectorOpen = selectorOpen;
       this.expected = expected;
+      this.leftOpen = leftOpen;
+      this.rightOpen = rightOpen;
     }
-    
+
     @Override
     public TestThread<ResourcePoolT, SequentialNumericBuilder> next(
         TestThreadConfiguration<ResourcePoolT, SequentialNumericBuilder> conf) {
@@ -79,10 +72,6 @@ public class ConditionalSelectTests {
 
         @Override
         public void test() throws Exception {
-          // define input and output
-          BigInteger leftOpen = BigInteger.valueOf(11);
-          BigInteger rightOpen = BigInteger.valueOf(42);
-
           // define functionality to be tested
           Application<BigInteger, SequentialNumericBuilder> testApplication = root -> {
             NumericBuilder nb = root.numeric();
@@ -101,5 +90,19 @@ public class ConditionalSelectTests {
         }
       };
     }
+  }
+
+  public static <ResourcePoolT extends ResourcePool> TestSelect<ResourcePoolT> testSelectLeft() {
+    BigInteger selector = BigInteger.valueOf(1);
+    BigInteger leftOpen = BigInteger.valueOf(11);
+    BigInteger rightOpen = BigInteger.valueOf(42);
+    return new TestSelect<>(selector, leftOpen, rightOpen, leftOpen);
+  }
+
+  public static <ResourcePoolT extends ResourcePool> TestSelect<ResourcePoolT> testSelectRight() {
+    BigInteger selector = BigInteger.valueOf(0);
+    BigInteger leftOpen = BigInteger.valueOf(11);
+    BigInteger rightOpen = BigInteger.valueOf(42);
+    return new TestSelect<>(selector, leftOpen, rightOpen, rightOpen);
   }
 }
