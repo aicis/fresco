@@ -79,7 +79,7 @@ public class DummyArithmeticProtocolSuite
   public DummyArithmeticResourcePool createResourcePool(int myId, int size, Network network,
       Random rand, SecureRandom secRand) {
     return new DummyArithmeticResourcePoolImpl(
-        myId, size, network, rand, secRand, basicNumericContext.getModulus());
+        myId, size, network, rand, secRand, modulus);
   }
 
 }
