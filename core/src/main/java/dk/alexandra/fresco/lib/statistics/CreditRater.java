@@ -26,7 +26,6 @@
  */
 package dk.alexandra.fresco.lib.statistics;
 
-import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.builder.ComputationBuilder;
@@ -45,7 +44,7 @@ import java.util.List;
  * value) will calculate the combined score.
  */
 public class CreditRater implements
-    Application<SInt, ProtocolBuilderNumeric> {
+    ComputationBuilder<SInt, ProtocolBuilderNumeric> {
 
   private List<Computation<SInt>> values;
   private List<List<Computation<SInt>>> intervals;
@@ -83,8 +82,7 @@ public class CreditRater implements
   }
 
   @Override
-  public Computation<SInt> prepareApplication(
-      ProtocolBuilderNumeric sequential) {
+  public Computation<SInt> buildComputation(ProtocolBuilderNumeric sequential) {
     return sequential.par(
         parallel -> {
           List<Computation<SInt>> scores = new ArrayList<>(values.size());
@@ -107,7 +105,6 @@ public class CreditRater implements
     private final List<Computation<SInt>> interval;
     private final Computation<SInt> value;
     private final List<Computation<SInt>> scores;
-
 
     /**
      * Given a value and scores for an interval, will lookup the score for the value.

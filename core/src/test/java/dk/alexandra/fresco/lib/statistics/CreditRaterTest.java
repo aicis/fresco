@@ -93,7 +93,8 @@ public class CreditRaterTest {
               creditRaterInput.values,
               creditRaterInput.intervals,
               creditRaterInput.intervalScores);
-          SInt creditRatingOutput = secureComputationEngine.runApplication(rater, resourcePool);
+          SInt creditRatingOutput = secureComputationEngine
+              .runApplication((builder) -> builder.seq(rater), resourcePool);
 
           Application<BigInteger, ProtocolBuilderNumeric> outputApp =
               seq -> seq.numeric().open(creditRatingOutput);
