@@ -131,7 +131,7 @@ public class TinyTablesPreproProtocolSuite
         Collections.synchronizedList(new ArrayList<TinyTablesPreproANDProtocol>());
 
     this.resourcePool = resourcePool;
-    return new TinyTablesPreproBuilderFactory(new TinyTablesPreproFactory());
+    return new TinyTablesPreproBuilderFactory();
   }
 
   public TinyTablesStorage getStorage() {

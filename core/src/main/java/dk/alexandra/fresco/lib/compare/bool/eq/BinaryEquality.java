@@ -66,26 +66,28 @@ public class BinaryEquality implements ComputationBuilder<SBool, ProtocolBuilder
 
       IterationState is = new IterationState(xnors.size(), () -> xnors);
       return is;
-    }).whileLoop((state) -> state.round > 1, (seq, state) -> {
-      List<Computation<SBool>> input = state.value.out();
-      int size = input.size() % 2 + input.size() / 2;
+    }).whileLoop(
+        (state) -> state.round > 1, 
+        (seq, state) -> {
+          List<Computation<SBool>> input = state.value.out();
+          int size = input.size() % 2 + input.size() / 2;
 
-      IterationState is = new IterationState(size, seq.par(par -> {
-        List<Computation<SBool>> ands = new ArrayList<>();
-        int idx = 0;
-        while (idx < input.size() - 1) {
-          ands.add(par.binary().and(input.get(idx), input.get(idx + 1)));
-          idx += 2;
-        }
-        if (idx < input.size()) {
-          ands.add(input.get(idx));
-        }
-        return () -> ands;
-      }));
-      return is;
-    }).seq((seq, state) -> {
-      return state.value.out().get(0);
-    });
+          IterationState is = new IterationState(size, seq.par(par -> {
+            List<Computation<SBool>> ands = new ArrayList<>();
+            int idx = 0;
+            while (idx < input.size() - 1) {
+              ands.add(par.binary().and(input.get(idx), input.get(idx + 1)));
+              idx += 2;
+            }
+            if (idx < input.size()) {
+              ands.add(input.get(idx));
+            }
+            return () -> ands;
+          }));
+          return is;
+        }).seq((seq, state) -> {
+          return state.value.out().get(0);
+        });
   }
 
   private static final class IterationState implements Computation<IterationState> {

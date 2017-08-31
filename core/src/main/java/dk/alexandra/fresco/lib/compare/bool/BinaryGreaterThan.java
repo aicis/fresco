@@ -36,7 +36,7 @@ import java.util.List;
  * 
  */
 public class BinaryGreaterThan implements
-    dk.alexandra.fresco.framework.builder.ComputationBuilder<SBool, ProtocolBuilderBinary> {
+dk.alexandra.fresco.framework.builder.ComputationBuilder<SBool, ProtocolBuilderBinary> {
 
   private List<Computation<SBool>> inA, inB;
   private int length;
@@ -66,15 +66,35 @@ public class BinaryGreaterThan implements
       round++;
       Computation<SBool> outC = seq.binary().and(inA.get(length - 1), xor);
       round++;
-      for (; round <= length; round++) {
-        int i = length - round;
-        xor = seq.binary().xor(inA.get(i), inB.get(i));
-        Computation<SBool> tmp = seq.binary().xor(inA.get(i), outC);
-        tmp = seq.binary().and(tmp, xor);
-        outC = seq.binary().xor(outC, tmp);
-      }
-      return outC;
-    });
+      return new IterationState(round, outC);
+    }).whileLoop(
+        (state) -> state.round <= length, 
+        (seq, state) -> {
+          int i = length - state.round;
+          Computation<SBool> xor = seq.binary().xor(inA.get(i), inB.get(i));
+          Computation<SBool> tmp = seq.binary().xor(inA.get(i), state.value);
+          tmp = seq.binary().and(tmp, xor);
+          Computation<SBool> outC = seq.binary().xor(state.value, tmp);
+          return new IterationState(state.round + 1, outC);
+        }).seq((state, seq) -> {
+          return seq.value;
+        });
+  }
+
+  private static final class IterationState implements Computation<IterationState> {
+
+    private int round;
+    private final Computation<SBool> value;
+
+    private IterationState(int round, Computation<SBool> value) {
+      this.round = round;
+      this.value = value;
+    }
+
+    @Override
+    public IterationState out() {
+      return this;
+    }
   }
 
 }

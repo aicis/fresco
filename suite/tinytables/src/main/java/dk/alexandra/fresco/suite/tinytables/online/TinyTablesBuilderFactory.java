@@ -5,6 +5,8 @@ import dk.alexandra.fresco.framework.builder.binary.BinaryBuilder;
 import dk.alexandra.fresco.framework.builder.binary.BuilderFactoryBinary;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.value.SBool;
+import dk.alexandra.fresco.suite.tinytables.datatypes.TinyTablesElement;
+import dk.alexandra.fresco.suite.tinytables.online.datatypes.TinyTablesSBool;
 import dk.alexandra.fresco.suite.tinytables.online.protocols.TinyTablesANDProtocol;
 import dk.alexandra.fresco.suite.tinytables.online.protocols.TinyTablesCloseProtocol;
 import dk.alexandra.fresco.suite.tinytables.online.protocols.TinyTablesNOTProtocol;
@@ -13,12 +15,9 @@ import dk.alexandra.fresco.suite.tinytables.online.protocols.TinyTablesXORProtoc
 
 public class TinyTablesBuilderFactory implements BuilderFactoryBinary {
 
-  private TinyTablesFactory factory;
   private int counter = 0;
 
-  public TinyTablesBuilderFactory(TinyTablesFactory factory) {
-    this.factory = factory;
-  }
+  public TinyTablesBuilderFactory() {}
 
   private int getNextId() {
     return counter++;
@@ -30,7 +29,7 @@ public class TinyTablesBuilderFactory implements BuilderFactoryBinary {
 
       @Override
       public Computation<SBool> xor(Computation<SBool> left, Computation<SBool> right) {
-        SBool out = factory.getSBool();
+        SBool out = new TinyTablesSBool();
         TinyTablesXORProtocol p = new TinyTablesXORProtocol(left, right, out);
         builder.append(p);
         return p;
@@ -56,7 +55,7 @@ public class TinyTablesBuilderFactory implements BuilderFactoryBinary {
 
       @Override
       public Computation<SBool> not(Computation<SBool> in) {
-        SBool out = factory.getSBool();
+        SBool out = new TinyTablesSBool();
         TinyTablesNOTProtocol p = new TinyTablesNOTProtocol(in, out);
         builder.append(p);
         return p;
@@ -64,7 +63,7 @@ public class TinyTablesBuilderFactory implements BuilderFactoryBinary {
 
       @Override
       public Computation<SBool> known(boolean known) {
-        return () -> factory.getKnownConstantSBool(known);
+        return () -> new TinyTablesSBool(new TinyTablesElement(known));
       }
 
       @Override
@@ -76,7 +75,7 @@ public class TinyTablesBuilderFactory implements BuilderFactoryBinary {
 
       @Override
       public Computation<SBool> and(Computation<SBool> left, Computation<SBool> right) {
-        SBool out = factory.getSBool();
+        SBool out = new TinyTablesSBool();
         TinyTablesANDProtocol p = new TinyTablesANDProtocol(getNextId(), left, right, out);
         builder.append(p);
         return p;

@@ -91,8 +91,7 @@ public class TinyTablesProtocolSuite
     } catch (IOException e) {
       logger.error("Failed to load TinyTables: " + e.getMessage());
     }
-    BuilderFactory<ProtocolBuilderBinary> b =
-        new TinyTablesBuilderFactory(new TinyTablesFactory());
+    BuilderFactory<ProtocolBuilderBinary> b = new TinyTablesBuilderFactory();
     return b;
   }
 
