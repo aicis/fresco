@@ -15,7 +15,7 @@ import dk.alexandra.fresco.lib.field.bool.generic.XnorFromXorAndNot;
 import dk.alexandra.fresco.lib.math.bool.add.BitIncrementer;
 import dk.alexandra.fresco.lib.math.bool.add.FullAdder;
 import dk.alexandra.fresco.lib.math.bool.add.OneBitFullAdder;
-import dk.alexandra.fresco.lib.math.bool.add.OneBitHalfAdderProtocolImpl;
+import dk.alexandra.fresco.lib.math.bool.add.OneBitHalfAdder;
 import dk.alexandra.fresco.lib.math.bool.log.LogProtocol;
 import dk.alexandra.fresco.lib.math.bool.mult.BinaryMultProtocol;
 import java.util.List;
@@ -99,7 +99,7 @@ public class DefaultBinaryBuilderAdvanced implements BinaryBuilderAdvanced {
   @Override
   public Computation<Pair<SBool, SBool>> oneBitHalfAdder(Computation<SBool> left,
       Computation<SBool> right) {
-    return builder.seq(new OneBitHalfAdderProtocolImpl(left, right));
+    return builder.seq(new OneBitHalfAdder(left, right));
   }
 
 
