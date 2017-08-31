@@ -182,6 +182,7 @@ public class TestThreadRunner {
       } catch (InterruptedException e) {
         throw new TestFrameworkException("Test was interrupted");
       }
+      closeNetworks();
       if (!t.finished) {
         logger.error("" + t + " timed out");
         throw new TestFrameworkException(t + " timed out");
@@ -195,7 +196,9 @@ public class TestThreadRunner {
         throw new TestFrameworkException(t + " threw exception in teardown (see stderr)");
       }
     }
+  }
 
+  private static void closeNetworks() {
     //Cleanup - shut down network in manually. All tests should use the NetworkCreator 
     //in order for this to work, or manage the network themselves.
     Map<Integer, ResourcePool> rps = ResourcePoolCreator.getCurrentResourcePools();
@@ -216,5 +219,4 @@ public class TestThreadRunner {
       e.printStackTrace();
     }
   }
-
 }
