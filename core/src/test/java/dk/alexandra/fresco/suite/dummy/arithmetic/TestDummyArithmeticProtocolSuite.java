@@ -24,6 +24,9 @@ import dk.alexandra.fresco.lib.math.polynomial.PolynomialTests;
 import dk.alexandra.fresco.lib.statistics.CreditRaterTest;
 import dk.alexandra.fresco.lib.statistics.DEASolver.AnalysisType;
 import dk.alexandra.fresco.lib.statistics.DEASolverTests.RandomDataDeaTest;
+
+import java.math.BigInteger;
+
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -206,38 +209,46 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
         NetworkingStrategy.KRYONET, 2);
   }
 
-  @Ignore
-  @Test // TODO @Kasper, Using the other modulus breaks the LP tests
+  @Test
   public void test_MiMC_DifferentPlainTexts() throws Exception {
     runTest(new MiMCTests.TestMiMCDifferentPlainTexts(), EvaluationStrategy.SEQUENTIAL,
         NetworkingStrategy.KRYONET, 2);
   }
 
-  @Ignore
-  @Test // TODO @Kasper, Using the other modulus breaks the LP tests
+  @Test
   public void test_MiMC_EncSameEnc() throws Exception {
     runTest(new MiMCTests.TestMiMCEncSameEnc(), EvaluationStrategy.SEQUENTIAL,
         NetworkingStrategy.KRYONET, 2);
   }
 
-  @Ignore
-  @Test // TODO @Kasper, Using the other modulus breaks the LP tests
+  @Test
   public void test_MiMC_EncDec() throws Exception {
-    runTest(new MiMCTests.TestMiMCEncDec(), EvaluationStrategy.SEQUENTIAL,
-        NetworkingStrategy.KRYONET, 2);
+    BigInteger mod = new BigInteger(
+        "2582249878086908589655919172003011874329705792829223512830659356540647622016841194629645353280137831435903171972747493557");
+    runTest(new MiMCTests.TestMiMCEncDec<>(), EvaluationStrategy.SEQUENTIAL,
+        NetworkingStrategy.KRYONET, 2, mod);
   }
 
-  @Ignore
-  @Test // TODO @Kasper, Using the other modulus breaks the LP tests
+  @Test
+  public void test_MiMC_EncDecFixedRounds() throws Exception {
+    BigInteger mod = new BigInteger(
+        "2582249878086908589655919172003011874329705792829223512830659356540647622016841194629645353280137831435903171972747493557");
+    runTest(new MiMCTests.TestMiMCEncDecFixedRounds<>(), EvaluationStrategy.SEQUENTIAL,
+        NetworkingStrategy.KRYONET, 2, mod);
+  }
+  
+  @Test
   public void test_MiMC_Deterministically() throws Exception {
-    runTest(new MiMCTests.TestMiMCEncryptsDeterministically(), EvaluationStrategy.SEQUENTIAL,
-        NetworkingStrategy.KRYONET, 2);
+    BigInteger mod = new BigInteger(
+        "2582249878086908589655919172003011874329705792829223512830659356540647622016841194629645353280137831435903171972747493557");
+    runTest(new MiMCTests.TestMiMCEncryptsDeterministically<>(), EvaluationStrategy.SEQUENTIAL,
+        NetworkingStrategy.KRYONET, 2, mod);
   }
 
   // lib.list
   @Test
   public void test_findDuplicatesOne() throws Exception {
-    runTest(new EliminateDuplicatesTests.TestFindDuplicatesOne(), EvaluationStrategy.SEQUENTIAL,
+    runTest(new EliminateDuplicatesTests.TestFindDuplicatesOne<>(), EvaluationStrategy.SEQUENTIAL,
         NetworkingStrategy.KRYONET, 2);
   }
 
