@@ -12,9 +12,9 @@ import dk.alexandra.fresco.lib.field.bool.generic.NandFromAndAndNot;
 import dk.alexandra.fresco.lib.field.bool.generic.OrFromPublicValue;
 import dk.alexandra.fresco.lib.field.bool.generic.OrFromXorAnd;
 import dk.alexandra.fresco.lib.field.bool.generic.XnorFromXorAndNot;
-import dk.alexandra.fresco.lib.math.bool.add.BitIncrementerProtocolImpl;
-import dk.alexandra.fresco.lib.math.bool.add.FullAdderProtocolImpl;
-import dk.alexandra.fresco.lib.math.bool.add.OneBitFullAdderProtocolImpl;
+import dk.alexandra.fresco.lib.math.bool.add.BitIncrementer;
+import dk.alexandra.fresco.lib.math.bool.add.FullAdder;
+import dk.alexandra.fresco.lib.math.bool.add.OneBitFullAdder;
 import dk.alexandra.fresco.lib.math.bool.add.OneBitHalfAdderProtocolImpl;
 import dk.alexandra.fresco.lib.math.bool.log.LogProtocol;
 import dk.alexandra.fresco.lib.math.bool.mult.BinaryMultProtocol;
@@ -70,19 +70,19 @@ public class DefaultBinaryBuilderAdvanced implements BinaryBuilderAdvanced {
   @Override
   public Computation<Pair<SBool, SBool>> oneBitFullAdder(Computation<SBool> left,
       Computation<SBool> right, Computation<SBool> carry) {
-    return builder.seq(new OneBitFullAdderProtocolImpl(left, right, carry));
+    return builder.seq(new OneBitFullAdder(left, right, carry));
   }
 
   @Override
   public Computation<List<Computation<SBool>>> fullAdder(List<Computation<SBool>> lefts,
       List<Computation<SBool>> rights, Computation<SBool> inCarry) {
-    return builder.seq(new FullAdderProtocolImpl(lefts, rights, inCarry));
+    return builder.seq(new FullAdder(lefts, rights, inCarry));
   }
 
   @Override
   public Computation<List<Computation<SBool>>> bitIncrement(List<Computation<SBool>> base,
       Computation<SBool> increment) {
-    return builder.seq(new BitIncrementerProtocolImpl(base, increment));
+    return builder.seq(new BitIncrementer(base, increment));
   }
 
   @Override

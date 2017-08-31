@@ -36,13 +36,13 @@ import java.util.List;
  * 1-Bit-Half Adders together to implement a generic length adder.
  *
  */
-public class BitIncrementerProtocolImpl
+public class BitIncrementer
     implements ComputationBuilder<List<Computation<SBool>>, ProtocolBuilderBinary> {
 
   private List<Computation<SBool>> base;
   private Computation<SBool> increment;
 
-  public BitIncrementerProtocolImpl(List<Computation<SBool>> base, Computation<SBool> increment) {
+  public BitIncrementer(List<Computation<SBool>> base, Computation<SBool> increment) {
     this.base = base;
     this.increment = increment;
   }
