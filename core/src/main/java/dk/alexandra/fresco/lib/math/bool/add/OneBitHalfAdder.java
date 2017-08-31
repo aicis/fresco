@@ -24,16 +24,17 @@
 package dk.alexandra.fresco.lib.math.bool.add;
 
 import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.builder.ComputationBuilder;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SBool;
 
-public class OneBitHalfAdderProtocolImpl implements
-    dk.alexandra.fresco.framework.builder.ComputationBuilder<Pair<SBool, SBool>, ProtocolBuilderBinary> {
+public class OneBitHalfAdder
+    implements ComputationBuilder<Pair<SBool, SBool>, ProtocolBuilderBinary> {
 
   private Computation<SBool> left, right;
 
-  public OneBitHalfAdderProtocolImpl(Computation<SBool> left, Computation<SBool> right) {
+  public OneBitHalfAdder(Computation<SBool> left, Computation<SBool> right) {
     this.left = left;
     this.right = right;
   }
