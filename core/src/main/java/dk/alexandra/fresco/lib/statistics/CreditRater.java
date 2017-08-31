@@ -71,14 +71,8 @@ public class CreditRater implements
    * @return If the input is consistent.
    */
   private boolean consistencyCheck() {
-    if (this.values.size() != this.intervals.size()) {
-      return false;
-    }
-    if (this.intervals.size() != (this.intervalScores.size())) {
-      return false;
-    } else {
-      return true;
-    }
+    return this.values.size() == this.intervals.size()
+        && this.intervals.size() == (this.intervalScores.size());
   }
 
   @Override
