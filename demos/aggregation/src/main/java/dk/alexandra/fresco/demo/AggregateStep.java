@@ -29,7 +29,7 @@ public class AggregateStep implements Application<List<List<SInt>>, ProtocolBuil
 
   private void convertToTriples(List<RowWithCipher> inputRows) {
     for (RowWithCipher row : inputRows) {
-      Triple<SInt, SInt, BigInteger> triple = new Triple<SInt, SInt, BigInteger>(
+      Triple<SInt, SInt, BigInteger> triple = new Triple<>(
           row.row.get(this.keyColumn),
           row.row.get(this.aggColumn),
           row.cipher
@@ -39,7 +39,7 @@ public class AggregateStep implements Application<List<List<SInt>>, ProtocolBuil
   }
 
   @Override
-  public Computation<List<List<SInt>>> prepareApplication(ProtocolBuilderNumeric builder) {
+  public Computation<List<List<SInt>>> buildComputation(ProtocolBuilderNumeric builder) {
     Map<BigInteger, Computation<SInt>> groupedByCipher = new HashMap<>();
     Map<BigInteger, SInt> cipherToShare = new HashMap<>();
 

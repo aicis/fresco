@@ -154,7 +154,7 @@ public class DEASolver implements Application<List<DEAResult>, ProtocolBuilderNu
   }
 
   @Override
-  public Computation<List<DEAResult>> prepareApplication(ProtocolBuilderNumeric builder) {
+  public Computation<List<DEAResult>> buildComputation(ProtocolBuilderNumeric builder) {
     List<Computation<SimpleLPPrefix>> prefixes = getPrefixWithSecretSharedValues(
         builder);
     return builder.par((par) -> {

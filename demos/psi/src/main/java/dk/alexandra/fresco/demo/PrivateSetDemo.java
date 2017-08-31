@@ -200,7 +200,7 @@ public class PrivateSetDemo implements Application<List<List<Boolean>>, Protocol
 
 
   @Override
-  public Computation<List<List<Boolean>>> prepareApplication(ProtocolBuilderBinary producer) {
+  public Computation<List<List<Boolean>>> buildComputation(ProtocolBuilderBinary producer) {
     return producer.seq(seq -> {
       BinaryBuilder bin = seq.binary();
 

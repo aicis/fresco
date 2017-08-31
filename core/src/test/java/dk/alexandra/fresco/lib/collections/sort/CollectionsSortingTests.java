@@ -67,54 +67,50 @@ public class CollectionsSortingTests {
           List<Boolean> rawRightValue = Arrays.asList(ByteArithmetic.toBoolean("ee"));
 
           Application<List<Pair<List<Boolean>, List<Boolean>>>, ProtocolBuilderBinary> app =
-              builder -> {
+              builder -> builder.seq(seq -> {
+                List<Computation<SBool>> leftKey =
+                    rawLeftKey.stream().map(builder.binary()::known).collect(Collectors.toList());
+                List<Computation<SBool>> rightKey =
+                    rawRightKey.stream().map(builder.binary()::known).collect(Collectors.toList());
+                List<Computation<SBool>> leftValue =
+                    rawLeftValue.stream().map(builder.binary()::known).collect(Collectors.toList());
+                List<Computation<SBool>> rightValue =
+                    rawRightValue.stream().map(builder.binary()::known)
+                        .collect(Collectors.toList());
 
-            ProtocolBuilderBinary seqBuilder = (ProtocolBuilderBinary) builder;
+                return seq.advancedBinary().keyedCompareAndSwap(leftKey, leftValue, rightKey,
+                    rightValue);
+              }).seq((seq, data) -> {
+                List<Pair<List<Computation<Boolean>>, List<Computation<Boolean>>>> open =
+                    new ArrayList<>();
 
-            return seqBuilder.seq(seq -> {
-              List<Computation<SBool>> leftKey =
-                  rawLeftKey.stream().map(builder.binary()::known).collect(Collectors.toList());
-              List<Computation<SBool>> rightKey =
-                  rawRightKey.stream().map(builder.binary()::known).collect(Collectors.toList());
-              List<Computation<SBool>> leftValue =
-                  rawLeftValue.stream().map(builder.binary()::known).collect(Collectors.toList());
-              List<Computation<SBool>> rightValue =
-                  rawRightValue.stream().map(builder.binary()::known).collect(Collectors.toList());
+                for (Pair<List<Computation<SBool>>, List<Computation<SBool>>> o : data) {
 
-              return seq.advancedBinary().keyedCompareAndSwap(leftKey, leftValue, rightKey,
-                  rightValue);
-            }).seq((seq, data) -> {
-              List<Pair<List<Computation<Boolean>>, List<Computation<Boolean>>>> open =
-                  new ArrayList<>();
+                  List<Computation<Boolean>> first =
+                      o.getFirst().stream().map(seq.binary()::open).collect(Collectors.toList());
+                  List<Computation<Boolean>> second =
+                      o.getSecond().stream().map(seq.binary()::open).collect(Collectors.toList());
 
-              for (Pair<List<Computation<SBool>>, List<Computation<SBool>>> o : data) {
+                  Pair<List<Computation<Boolean>>, List<Computation<Boolean>>> pair =
+                      new Pair<>(first, second);
+                  open.add(pair);
+                }
+                return () -> open;
+              }).seq((seq, data) -> {
+                List<Pair<List<Boolean>, List<Boolean>>> out = new ArrayList<>();
+                for (Pair<List<Computation<Boolean>>, List<Computation<Boolean>>> o : data) {
+                  List<Boolean> first =
+                      o.getFirst().stream().map(Computation::out).collect(Collectors.toList());
+                  List<Boolean> second =
+                      o.getSecond().stream().map(Computation::out).collect(Collectors.toList());
 
-                List<Computation<Boolean>> first =
-                    o.getFirst().stream().map(seq.binary()::open).collect(Collectors.toList());
-                List<Computation<Boolean>> second =
-                    o.getSecond().stream().map(seq.binary()::open).collect(Collectors.toList());
+                  Pair<List<Boolean>, List<Boolean>> pair = new Pair<>(first, second);
+                  out.add(pair);
 
-                Pair<List<Computation<Boolean>>, List<Computation<Boolean>>> pair =
-                    new Pair<>(first, second);
-                open.add(pair);
-              }
-              return () -> open;
-            }).seq((seq, data) -> {
-              List<Pair<List<Boolean>, List<Boolean>>> out = new ArrayList<>();
-              for (Pair<List<Computation<Boolean>>, List<Computation<Boolean>>> o : data) {
-                List<Boolean> first =
-                    o.getFirst().stream().map(Computation::out).collect(Collectors.toList());
-                List<Boolean> second =
-                    o.getSecond().stream().map(Computation::out).collect(Collectors.toList());
+                }
 
-                Pair<List<Boolean>, List<Boolean>> pair = new Pair<>(first, second);
-                out.add(pair);
-
-              }
-
-              return () -> out;
-            });
-          };
+                return () -> out;
+              });
 
           List<Pair<List<Boolean>, List<Boolean>>> result = secureComputationEngine
               .runApplication(app, ResourcePoolCreator.createResourcePool(conf.sceConf));
@@ -154,7 +150,7 @@ public class CollectionsSortingTests {
            * 
            * private static final long serialVersionUID = 4338818809103728010L;
            * 
-           * @Override public ProtocolProducer prepareApplication( BuilderFactory factoryProducer) {
+           * @Override public ProtocolProducer buildComputation( BuilderFactory factoryProducer) {
            * ProtocolFactory producer = factoryProducer.getProtocolFactory(); AbstractBinaryFactory
            * prov = (AbstractBinaryFactory) producer; BasicLogicBuilder builder = new
            * BasicLogicBuilder(prov); SequentialProtocolProducer sseq = new
@@ -266,7 +262,7 @@ public class CollectionsSortingTests {
            * 
            * private static final long serialVersionUID = 4338818809103728010L;
            * 
-           * @Override public ProtocolProducer prepareApplication( BuilderFactory factoryProducer) {
+           * @Override public ProtocolProducer buildComputation( BuilderFactory factoryProducer) {
            * ProtocolFactory producer = factoryProducer.getProtocolFactory(); AbstractBinaryFactory
            * prov = (AbstractBinaryFactory) producer; BasicLogicBuilder builder = new
            * BasicLogicBuilder(prov); SequentialProtocolProducer sseq = new
@@ -374,7 +370,7 @@ public class CollectionsSortingTests {
            * 
            * private static final long serialVersionUID = 4338818809103728010L;
            * 
-           * @Override public ProtocolProducer prepareApplication( BuilderFactory factoryProducer) {
+           * @Override public ProtocolProducer buildComputation( BuilderFactory factoryProducer) {
            * ProtocolFactory producer = factoryProducer.getProtocolFactory(); AbstractBinaryFactory
            * prov = (AbstractBinaryFactory) producer; BasicLogicBuilder builder = new
            * BasicLogicBuilder(prov); SequentialProtocolProducer sseq = new

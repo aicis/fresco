@@ -85,7 +85,7 @@ code:
         }
 
         @Override
-        public ProtocolProducer prepareApplication(ProtocolFactory factory) {
+        public ProtocolProducer buildComputation(ProtocolFactory factory) {
 
             BasicLogicFactory blf = (BasicLogicFactory) factory;
 
@@ -227,7 +227,7 @@ requires us to implement the method
 
 .. sourcecode:: java
 
-   public ProtocolProducer prepareApplication(ProtocolFactory factory)
+   public ProtocolProducer buildComputation(ProtocolFactory factory)
 
 This is the method that defines how our FRESCO application is
 built. In our example we start with simple protocols for closing the

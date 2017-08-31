@@ -95,7 +95,7 @@ public class SecureComputationEngineImpl<ResourcePoolT extends ResourcePool, Bui
     try {
       BuilderFactory<Builder> protocolFactory = this.protocolSuite.init(resourcePool);
       Builder builder = protocolFactory.createSequential();
-      Computation<OutputT> output = application.prepareApplication(builder);
+      Computation<OutputT> output = application.buildComputation(builder);
       long then = System.currentTimeMillis();
       this.evaluator.eval(builder.build(), resourcePool);
       long now = System.currentTimeMillis();

@@ -23,7 +23,7 @@ public class InputStep implements
   }
 
   @Override
-  public Computation<List<List<SInt>>> prepareApplication(ProtocolBuilderNumeric producer) {
+  public Computation<List<List<SInt>>> buildComputation(ProtocolBuilderNumeric producer) {
     return producer.par(par -> {
       NumericBuilder numeric = par.numeric();
       Function<BigInteger, Computation<SInt>> known = value -> numeric.input(value, pid);

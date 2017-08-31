@@ -48,7 +48,7 @@ public class SumAndOutputApplication extends DemoNumericApplication<BigInteger> 
   }
 
   @Override
-  public Computation<BigInteger> prepareApplication(ProtocolBuilderNumeric producer) {
+  public Computation<BigInteger> buildComputation(ProtocolBuilderNumeric producer) {
     return inputApp.createBuildStep(producer).seq((seq, inputs) -> {
       Computation<SInt> sum = null;
       for (SInt input : inputs) {

@@ -52,11 +52,7 @@ public class BinaryDebugTests {
         @Override
         public void test() throws Exception {
           Application<Void, ProtocolBuilderBinary> app =
-              new Application<Void, ProtocolBuilderBinary>() {
-
-            @Override
-            public Computation<Void> prepareApplication(ProtocolBuilderBinary producer) {
-              return producer.seq(seq -> {
+              producer -> producer.seq(seq -> {
                 List<Computation<SBool>> toPrint =
                     BooleanHelper.known(new Boolean[] {true, false, false, true}, seq.binary());
                 return () -> toPrint;
@@ -64,9 +60,6 @@ public class BinaryDebugTests {
                 seq.debug().openAndPrint("test", inputs, stream);
                 return null;
               });
-            }
-
-          };
 
           secureComputationEngine.runApplication(app,
               ResourcePoolCreator.createResourcePool(conf.sceConf));

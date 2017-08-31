@@ -66,7 +66,7 @@ public class SortingTests {
             private BigInteger five = BigInteger.valueOf(5);
 
             @Override
-            public Computation<Pair<BigInteger, BigInteger>> prepareApplication(
+            public Computation<Pair<BigInteger, BigInteger>> buildComputation(
                 ProtocolBuilderNumeric builder) {
               Computation<SInt> zero = builder.numeric().known(this.zero);
               Computation<SInt> one = builder.numeric().known(this.one);
@@ -114,7 +114,7 @@ public class SortingTests {
             private BigInteger two = BigInteger.valueOf(2);
 
             @Override
-            public Computation<Pair<BigInteger, BigInteger>> prepareApplication(
+            public Computation<Pair<BigInteger, BigInteger>> buildComputation(
                 ProtocolBuilderNumeric builder) {
               Computation<SInt> one = builder.numeric().known(this.one);
               Computation<SInt> two = builder.numeric().known(this.two);

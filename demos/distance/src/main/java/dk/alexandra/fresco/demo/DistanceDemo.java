@@ -55,7 +55,7 @@ public class DistanceDemo extends DemoNumericApplication<BigInteger> {
   }
 
   @Override
-  public Computation<BigInteger> prepareApplication(ProtocolBuilderNumeric producer) {
+  public Computation<BigInteger> buildComputation(ProtocolBuilderNumeric producer) {
     return producer.par(par -> {
       // Input points
       NumericBuilder numericIo = par.numeric();
