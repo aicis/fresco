@@ -3,7 +3,7 @@ package dk.alexandra.fresco.framework.builder.binary;
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SBool;
-import dk.alexandra.fresco.lib.collections.sort.KeyedCompareAndSwapProtocol;
+import dk.alexandra.fresco.lib.collections.sort.KeyedCompareAndSwap;
 import dk.alexandra.fresco.lib.collections.sort.OddEvenMergeProtocol;
 import dk.alexandra.fresco.lib.collections.sort.OddEvenMergeProtocolRec;
 import dk.alexandra.fresco.lib.field.bool.ConditionalSelect;
@@ -127,9 +127,9 @@ public class DefaultBinaryBuilderAdvanced implements BinaryBuilderAdvanced {
 
   @Override
   public Computation<List<Pair<List<Computation<SBool>>, List<Computation<SBool>>>>> keyedCompareAndSwap(
-      List<Computation<SBool>> leftKey, List<Computation<SBool>> leftValue,
-      List<Computation<SBool>> rightKey, List<Computation<SBool>> rightValue) {
-    return builder.seq(new KeyedCompareAndSwapProtocol(leftKey, leftValue, rightKey, rightValue));
+      Pair<List<Computation<SBool>>, List<Computation<SBool>>> leftKeyAndValue,
+      Pair<List<Computation<SBool>>, List<Computation<SBool>>> rightKeyAndValue) {
+    return builder.seq(new KeyedCompareAndSwap(leftKeyAndValue, rightKeyAndValue));
   }
 
 }

@@ -124,14 +124,12 @@ public interface BinaryBuilderAdvanced {
    * Compares the keys of two key-value pairs and produce a list of pairs so that the first pair has
    * the largest key.
    * 
-   * @param leftKey The left key.
-   * @param leftValue The left value.
-   * @param rightKey The right key.
-   * @param rightValue The right value.
+   * @param leftKeyAndValue A pair of first the key and then the value.
+   * @param rightKeyAndValue A pair of first the key and then the value.
    * @return A list of pairs where the first pair has the largest key.
    */
   Computation<List<Pair<List<Computation<SBool>>, List<Computation<SBool>>>>> keyedCompareAndSwap(
-      List<Computation<SBool>> leftKey, List<Computation<SBool>> leftValue,
-      List<Computation<SBool>> rightKey, List<Computation<SBool>> rightValue);
+      Pair<List<Computation<SBool>>, List<Computation<SBool>>> leftKeyAndValue,
+      Pair<List<Computation<SBool>>, List<Computation<SBool>>> rightKeyAndValue);
 
 }

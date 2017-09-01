@@ -36,7 +36,6 @@ import dk.alexandra.fresco.lib.field.bool.generic.FieldBoolTests;
 import dk.alexandra.fresco.lib.math.bool.add.AddTests;
 import dk.alexandra.fresco.lib.math.bool.log.LogTests;
 import dk.alexandra.fresco.lib.math.bool.mult.MultTests;
-import org.junit.Ignore;
 import org.junit.Test;
 
 
@@ -169,18 +168,18 @@ public class TestDummyProtocolSuite<ResourcePoolT extends ResourcePool>
 
   // TODO Perhaps this test should be moved to a dedicated BasicLogicBuilder
   // test class, as the exception is thrown there
-  /*@Ignore
-  @Test(expected = RuntimeException.class)
-  public void test_comparisonBadLength() throws Exception {
-    // runTest(new ComparisonBooleanTests.TestGreaterThanUnequalLength<ResourcePoolT>(),
-    // EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET);
-  }
-
-  @Test
-  public void test_comparisonPar() throws Exception {
-    // runTest(new ComparisonBooleanTests.TestGreaterThanPar(), EvaluationStrategy.SEQUENTIAL,
-    // NetworkingStrategy.KRYONET);
-  }*/
+  /*
+   * @Ignore
+   * 
+   * @Test(expected = RuntimeException.class) public void test_comparisonBadLength() throws
+   * Exception { // runTest(new
+   * ComparisonBooleanTests.TestGreaterThanUnequalLength<ResourcePoolT>(), //
+   * EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET); }
+   * 
+   * @Test public void test_comparisonPar() throws Exception { // runTest(new
+   * ComparisonBooleanTests.TestGreaterThanPar(), EvaluationStrategy.SEQUENTIAL, //
+   * NetworkingStrategy.KRYONET); }
+   */
 
   @Test
   public void test_basic_logic_all_in_one() throws Exception {
@@ -200,27 +199,25 @@ public class TestDummyProtocolSuite<ResourcePoolT extends ResourcePool>
         NetworkingStrategy.KRYONET);
   }
 
-/*  // collections.sort
+  // collections.sort
   @Test
   public void test_Uneven_Odd_Even_Merge_2_parties() throws Exception {
-    runTest(new CollectionsSortingTests.TestOddEvenMerge(), EvaluationStrategy.SEQUENTIAL,
+    runTest(new CollectionsSortingTests.TestOddEvenMerge<>(), EvaluationStrategy.SEQUENTIAL,
         NetworkingStrategy.KRYONET);
   }
-
-  @Ignore // for now
-  @Test
-  public void test_Uneven_Odd_Even_Merge_Rec_2_parties() throws Exception {
-    runTest(new CollectionsSortingTests.TestOddEvenMergeRec(), EvaluationStrategy.SEQUENTIAL,
-        NetworkingStrategy.KRYONET);
-  }
-
-  @Ignore // for now
-  @Test
-  public void test_Uneven_Odd_Even_Merge_Rec_Large_2_parties() throws Exception {
-    runTest(new CollectionsSortingTests.TestOddEvenMergeRecLarge(), EvaluationStrategy.SEQUENTIAL,
-        NetworkingStrategy.KRYONET);
-  }
-*/
+  /*
+   * @Ignore // for now
+   * 
+   * @Test public void test_Uneven_Odd_Even_Merge_Rec_2_parties() throws Exception { runTest(new
+   * CollectionsSortingTests.TestOddEvenMergeRec(), EvaluationStrategy.SEQUENTIAL,
+   * NetworkingStrategy.KRYONET); }
+   * 
+   * @Ignore // for now
+   * 
+   * @Test public void test_Uneven_Odd_Even_Merge_Rec_Large_2_parties() throws Exception {
+   * runTest(new CollectionsSortingTests.TestOddEvenMergeRecLarge(), EvaluationStrategy.SEQUENTIAL,
+   * NetworkingStrategy.KRYONET); }
+   */
 
   @Test
   public void test_Keyed_Compare_And_Swap_2_parties() throws Exception {

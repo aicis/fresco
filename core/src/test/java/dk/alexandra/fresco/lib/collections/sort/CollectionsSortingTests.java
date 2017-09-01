@@ -27,6 +27,7 @@ import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
+import dk.alexandra.fresco.framework.builder.binary.BinaryBuilder;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
@@ -81,8 +82,8 @@ public class CollectionsSortingTests {
               List<Computation<SBool>> rightValue =
                   rawRightValue.stream().map(builder.binary()::known).collect(Collectors.toList());
 
-              return seq.advancedBinary().keyedCompareAndSwap(leftKey, leftValue, rightKey,
-                  rightValue);
+              return seq.advancedBinary().keyedCompareAndSwap(new Pair<>(leftKey, leftValue),
+                  new Pair<>(rightKey, rightValue));
             }).seq((seq, data) -> {
               List<Pair<List<Computation<Boolean>>, List<Computation<Boolean>>>> open =
                   new ArrayList<>();
@@ -131,295 +132,128 @@ public class CollectionsSortingTests {
     }
   }
 
-  public static class TestOddEvenMerge extends TestThreadFactory {
+  public static class TestOddEvenMerge<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory {
 
     public TestOddEvenMerge() {}
 
     @Override
-    public TestThread next() {
-      return new TestThread() {
+    public TestThread<ResourcePoolT, ProtocolBuilderBinary> next() {
+      return new TestThread<ResourcePoolT, ProtocolBuilderBinary>() {
         @Override
         public void test() throws Exception {
-          /*
-           * boolean[] left11 = ByteArithmetic.toBoolean("ff"); boolean[] left12 =
-           * ByteArithmetic.toBoolean("ee"); boolean[] left21 = ByteArithmetic.toBoolean("bb");
-           * boolean[] left22 = ByteArithmetic.toBoolean("ba"); boolean[] left31 =
-           * ByteArithmetic.toBoolean("ab"); boolean[] left32 = ByteArithmetic.toBoolean("aa");
-           * boolean[] right11 = ByteArithmetic.toBoolean("49"); boolean[] right12 =
-           * ByteArithmetic.toBoolean("00");
-           * 
-           * OBool[][] results = new OBool[16][];
-           * 
-           * TestApplication app = new TestApplication() {
-           * 
-           * private static final long serialVersionUID = 4338818809103728010L;
-           * 
-           * @Override public ProtocolProducer prepareApplication( BuilderFactory factoryProducer) {
-           * ProtocolFactory producer = factoryProducer.getProtocolFactory(); AbstractBinaryFactory
-           * prov = (AbstractBinaryFactory) producer; BasicLogicBuilder builder = new
-           * BasicLogicBuilder(prov); SequentialProtocolProducer sseq = new
-           * SequentialProtocolProducer(); SBool[] l11 = builder.knownSBool(left11); SBool[] l12 =
-           * builder.knownSBool(left12); SBool[] l21 = builder.knownSBool(left21); SBool[] l22 =
-           * builder.knownSBool(left22); SBool[] l31 = builder.knownSBool(left31); SBool[] l32 =
-           * builder.knownSBool(left32);
-           * 
-           * SBool[] r11 = builder.knownSBool(right11); SBool[] r12 = builder.knownSBool(right12);
-           * 
-           * SBool[] s11 = prov.getSBools(8); SBool[] s12 = prov.getSBools(8); SBool[] s21 =
-           * prov.getSBools(8); SBool[] s22 = prov.getSBools(8); SBool[] s31 = prov.getSBools(8);
-           * SBool[] s32 = prov.getSBools(8); SBool[] s41 = prov.getSBools(8); SBool[] s42 =
-           * prov.getSBools(8);
-           * 
-           * SBool[] sr11 = prov.getSBools(8); SBool[] sr12 = prov.getSBools(8); SBool[] sr21 =
-           * prov.getSBools(8); SBool[] sr22 = prov.getSBools(8); SBool[] sr31 = prov.getSBools(8);
-           * SBool[] sr32 = prov.getSBools(8); SBool[] sr41 = prov.getSBools(8); SBool[] sr42 =
-           * prov.getSBools(8);
-           * 
-           * sseq.append(builder.getProtocol());
-           * 
-           * List<Pair<SBool[], SBool[]>> left = new ArrayList<Pair<SBool[], SBool[]>>();
-           * List<Pair<SBool[], SBool[]>> right = new ArrayList<Pair<SBool[], SBool[]>>();
-           * List<Pair<SBool[], SBool[]>> sorted = new ArrayList<Pair<SBool[], SBool[]>>();
-           * List<Pair<SBool[], SBool[]>> sorted2 = new ArrayList<Pair<SBool[], SBool[]>>();
-           * 
-           * left.add(new Pair<SBool[], SBool[]>(l11, l12)); left.add(new Pair<SBool[],
-           * SBool[]>(l21, l22)); left.add(new Pair<SBool[], SBool[]>(l31, l32)); right.add(new
-           * Pair<SBool[], SBool[]>(r11, r12)); sorted.add(new Pair<SBool[], SBool[]>(s11, s12));
-           * sorted.add(new Pair<SBool[], SBool[]>(s21, s22)); sorted.add(new Pair<SBool[],
-           * SBool[]>(s31, s32)); sorted.add(new Pair<SBool[], SBool[]>(s41, s42)); sorted2.add(new
-           * Pair<SBool[], SBool[]>(sr11, sr12)); sorted2.add(new Pair<SBool[], SBool[]>(sr21,
-           * sr22)); sorted2.add(new Pair<SBool[], SBool[]>(sr31, sr32)); sorted2.add(new
-           * Pair<SBool[], SBool[]>(sr41, sr42));
-           * 
-           * OddEvenMergeProtocolImpl mergeProtocol = new OddEvenMergeProtocolImpl(left, right,
-           * sorted, prov);
-           * 
-           * OddEvenMergeProtocolImpl mergeProtocolReversed = new OddEvenMergeProtocolImpl(right,
-           * left, sorted2, prov);
-           * 
-           * sseq.append(mergeProtocol); sseq.append(mergeProtocolReversed);
-           * 
-           * results[0] = builder.output(sorted.get(0).getFirst()); results[1] =
-           * builder.output(sorted.get(0).getSecond()); results[2] =
-           * builder.output(sorted.get(1).getFirst()); results[3] =
-           * builder.output(sorted.get(1).getSecond()); results[4] =
-           * builder.output(sorted.get(2).getFirst()); results[5] =
-           * builder.output(sorted.get(2).getSecond()); results[6] =
-           * builder.output(sorted.get(3).getFirst()); results[7] =
-           * builder.output(sorted.get(3).getSecond()); results[0+8] =
-           * builder.output(sorted2.get(0).getFirst()); results[1+8] =
-           * builder.output(sorted2.get(0).getSecond()); results[2+8] =
-           * builder.output(sorted2.get(1).getFirst()); results[3+8] =
-           * builder.output(sorted2.get(1).getSecond()); results[4+8] =
-           * builder.output(sorted2.get(2).getFirst()); results[5+8] =
-           * builder.output(sorted2.get(2).getSecond()); results[6+8] =
-           * builder.output(sorted2.get(3).getFirst()); results[7+8] =
-           * builder.output(sorted2.get(3).getSecond()); sseq.append(builder.getProtocol());
-           * 
-           * return sseq; } }; secureComputationEngine .runApplication(app,
-           * ResourcePoolCreator.createResourcePool(conf.sceConf));
-           * 
-           * Assert.assertArrayEquals(left11, convertOBoolToBool(results[0]));
-           * Assert.assertArrayEquals(left12, convertOBoolToBool(results[1]));
-           * Assert.assertArrayEquals(left21, convertOBoolToBool(results[2]));
-           * Assert.assertArrayEquals(left22, convertOBoolToBool(results[3]));
-           * Assert.assertArrayEquals(left31, convertOBoolToBool(results[4]));
-           * Assert.assertArrayEquals(left32, convertOBoolToBool(results[5]));
-           * Assert.assertArrayEquals(right11, convertOBoolToBool(results[6]));
-           * Assert.assertArrayEquals(right12, convertOBoolToBool(results[7]));
-           * 
-           * Assert.assertArrayEquals(left11, convertOBoolToBool(results[0+8]));
-           * Assert.assertArrayEquals(left12, convertOBoolToBool(results[1+8]));
-           * Assert.assertArrayEquals(left21, convertOBoolToBool(results[2+8]));
-           * Assert.assertArrayEquals(left22, convertOBoolToBool(results[3+8]));
-           * Assert.assertArrayEquals(left31, convertOBoolToBool(results[4+8]));
-           * Assert.assertArrayEquals(left32, convertOBoolToBool(results[5+8]));
-           * Assert.assertArrayEquals(right11, convertOBoolToBool(results[6+8]));
-           * Assert.assertArrayEquals(right12, convertOBoolToBool(results[7+8]));
-           */
-        }
-      };
-    }
-  }
 
+          Boolean[] left11 = ByteArithmetic.toBoolean("00");
+          Boolean[] left12 = ByteArithmetic.toBoolean("ee");
+          Boolean[] left21 = ByteArithmetic.toBoolean("01");
+          Boolean[] left22 = ByteArithmetic.toBoolean("ba");
+          Boolean[] left31 = ByteArithmetic.toBoolean("02");
+          Boolean[] left32 = ByteArithmetic.toBoolean("aa");
+          Boolean[] left41 = ByteArithmetic.toBoolean("03");
+          Boolean[] left42 = ByteArithmetic.toBoolean("00");
 
-  public static class TestOddEvenMergeRec extends TestThreadFactory {
+          Application<List<Pair<List<Boolean>, List<Boolean>>>, ProtocolBuilderBinary> app =
+              new Application<List<Pair<List<Boolean>, List<Boolean>>>, ProtocolBuilderBinary>() {
 
-    public TestOddEvenMergeRec() {}
+            @Override
+            public Computation<List<Pair<List<Boolean>, List<Boolean>>>> prepareApplication(
+                ProtocolBuilderBinary producer) {
+              return producer.seq(seq -> {
+                BinaryBuilder builder = seq.binary();
+                List<Computation<SBool>> l11 =
+                    Arrays.asList(left11).stream().map(builder::known).collect(Collectors.toList());
+                List<Computation<SBool>> l12 =
+                    Arrays.asList(left11).stream().map(builder::known).collect(Collectors.toList());
+                List<Computation<SBool>> l21 =
+                    Arrays.asList(left21).stream().map(builder::known).collect(Collectors.toList());
+                List<Computation<SBool>> l22 =
+                    Arrays.asList(left22).stream().map(builder::known).collect(Collectors.toList());
+                List<Computation<SBool>> l31 =
+                    Arrays.asList(left31).stream().map(builder::known).collect(Collectors.toList());
+                List<Computation<SBool>> l32 =
+                    Arrays.asList(left32).stream().map(builder::known).collect(Collectors.toList());
 
-    @Override
-    public TestThread next() {
-      return new TestThread() {
-        @Override
-        public void test() throws Exception {
-          /*
-           * boolean[] left11 = ByteArithmetic.toBoolean("ff"); boolean[] left12 =
-           * ByteArithmetic.toBoolean("ee"); boolean[] left21 = ByteArithmetic.toBoolean("bb");
-           * boolean[] left22 = ByteArithmetic.toBoolean("ba"); boolean[] left31 =
-           * ByteArithmetic.toBoolean("ab"); boolean[] left32 = ByteArithmetic.toBoolean("aa");
-           * boolean[] right11 = ByteArithmetic.toBoolean("49"); boolean[] right12 =
-           * ByteArithmetic.toBoolean("00");
-           * 
-           * OBool[][] results = new OBool[16][];
-           * 
-           * TestApplication app = new TestApplication() {
-           * 
-           * private static final long serialVersionUID = 4338818809103728010L;
-           * 
-           * @Override public ProtocolProducer prepareApplication( BuilderFactory factoryProducer) {
-           * ProtocolFactory producer = factoryProducer.getProtocolFactory(); AbstractBinaryFactory
-           * prov = (AbstractBinaryFactory) producer; BasicLogicBuilder builder = new
-           * BasicLogicBuilder(prov); SequentialProtocolProducer sseq = new
-           * SequentialProtocolProducer(); SBool[] l11 = builder.knownSBool(left11); SBool[] l12 =
-           * builder.knownSBool(left12); SBool[] l21 = builder.knownSBool(left21); SBool[] l22 =
-           * builder.knownSBool(left22); SBool[] l31 = builder.knownSBool(left31); SBool[] l32 =
-           * builder.knownSBool(left32);
-           * 
-           * SBool[] r11 = builder.knownSBool(right11); SBool[] r12 = builder.knownSBool(right12);
-           * 
-           * SBool[] s11 = prov.getSBools(8); SBool[] s12 = prov.getSBools(8); SBool[] s21 =
-           * prov.getSBools(8); SBool[] s22 = prov.getSBools(8); SBool[] s31 = prov.getSBools(8);
-           * SBool[] s32 = prov.getSBools(8); SBool[] s41 = prov.getSBools(8); SBool[] s42 =
-           * prov.getSBools(8);
-           * 
-           * SBool[] sr11 = prov.getSBools(8); SBool[] sr12 = prov.getSBools(8); SBool[] sr21 =
-           * prov.getSBools(8); SBool[] sr22 = prov.getSBools(8); SBool[] sr31 = prov.getSBools(8);
-           * SBool[] sr32 = prov.getSBools(8); SBool[] sr41 = prov.getSBools(8); SBool[] sr42 =
-           * prov.getSBools(8);
-           * 
-           * sseq.append(builder.getProtocol());
-           * 
-           * List<Pair<SBool[], SBool[]>> left = new ArrayList<Pair<SBool[], SBool[]>>();
-           * List<Pair<SBool[], SBool[]>> right = new ArrayList<Pair<SBool[], SBool[]>>();
-           * List<Pair<SBool[], SBool[]>> sorted = new ArrayList<Pair<SBool[], SBool[]>>();
-           * List<Pair<SBool[], SBool[]>> sorted2 = new ArrayList<Pair<SBool[], SBool[]>>();
-           * 
-           * left.add(new Pair<SBool[], SBool[]>(l11, l12)); left.add(new Pair<SBool[],
-           * SBool[]>(l21, l22)); left.add(new Pair<SBool[], SBool[]>(l31, l32)); right.add(new
-           * Pair<SBool[], SBool[]>(r11, r12)); sorted.add(new Pair<SBool[], SBool[]>(s11, s12));
-           * sorted.add(new Pair<SBool[], SBool[]>(s21, s22)); sorted.add(new Pair<SBool[],
-           * SBool[]>(s31, s32)); sorted.add(new Pair<SBool[], SBool[]>(s41, s42)); sorted2.add(new
-           * Pair<SBool[], SBool[]>(sr11, sr12)); sorted2.add(new Pair<SBool[], SBool[]>(sr21,
-           * sr22)); sorted2.add(new Pair<SBool[], SBool[]>(sr31, sr32)); sorted2.add(new
-           * Pair<SBool[], SBool[]>(sr41, sr42));
-           * 
-           * 
-           * 
-           * OddEvenMergeProtocol mergeProtocol = prov.getOddEvenMergeProtocol(left, right, sorted);
-           * 
-           * OddEvenMergeProtocol mergeProtocolReversed = prov.getOddEvenMergeProtocol(left, right,
-           * sorted2);
-           * 
-           * sseq.append(mergeProtocol); sseq.append(mergeProtocolReversed);
-           * 
-           * results[0] = builder.output(sorted.get(0).getFirst()); results[1] =
-           * builder.output(sorted.get(0).getSecond()); results[2] =
-           * builder.output(sorted.get(1).getFirst()); results[3] =
-           * builder.output(sorted.get(1).getSecond()); results[4] =
-           * builder.output(sorted.get(2).getFirst()); results[5] =
-           * builder.output(sorted.get(2).getSecond()); results[6] =
-           * builder.output(sorted.get(3).getFirst()); results[7] =
-           * builder.output(sorted.get(3).getSecond()); results[0+8] =
-           * builder.output(sorted2.get(0).getFirst()); results[1+8] =
-           * builder.output(sorted2.get(0).getSecond()); results[2+8] =
-           * builder.output(sorted2.get(1).getFirst()); results[3+8] =
-           * builder.output(sorted2.get(1).getSecond()); results[4+8] =
-           * builder.output(sorted2.get(2).getFirst()); results[5+8] =
-           * builder.output(sorted2.get(2).getSecond()); results[6+8] =
-           * builder.output(sorted2.get(3).getFirst()); results[7+8] =
-           * builder.output(sorted2.get(3).getSecond()); sseq.append(builder.getProtocol());
-           * 
-           * return sseq; } }; secureComputationEngine .runApplication(app,
-           * ResourcePoolCreator.createResourcePool(conf.sceConf));
-           * 
-           * Assert.assertArrayEquals(left11, convertOBoolToBool(results[0]));
-           * Assert.assertArrayEquals(left12, convertOBoolToBool(results[1]));
-           * Assert.assertArrayEquals(left21, convertOBoolToBool(results[2]));
-           * Assert.assertArrayEquals(left22, convertOBoolToBool(results[3]));
-           * Assert.assertArrayEquals(left31, convertOBoolToBool(results[4]));
-           * Assert.assertArrayEquals(left32, convertOBoolToBool(results[5]));
-           * Assert.assertArrayEquals(right11, convertOBoolToBool(results[6]));
-           * Assert.assertArrayEquals(right12, convertOBoolToBool(results[7]));
-           * 
-           * Assert.assertArrayEquals(left11, convertOBoolToBool(results[0+8]));
-           * Assert.assertArrayEquals(left12, convertOBoolToBool(results[1+8]));
-           * Assert.assertArrayEquals(left21, convertOBoolToBool(results[2+8]));
-           * Assert.assertArrayEquals(left22, convertOBoolToBool(results[3+8]));
-           * Assert.assertArrayEquals(left31, convertOBoolToBool(results[4+8]));
-           * Assert.assertArrayEquals(left32, convertOBoolToBool(results[5+8]));
-           * Assert.assertArrayEquals(right11, convertOBoolToBool(results[6+8]));
-           * Assert.assertArrayEquals(right12, convertOBoolToBool(results[7+8]));
-           */
-        }
-      };
-    }
-  }
+                List<Computation<SBool>> l41 =
+                    Arrays.asList(left41).stream().map(builder::known).collect(Collectors.toList());
+                List<Computation<SBool>> l42 =
+                    Arrays.asList(left42).stream().map(builder::known).collect(Collectors.toList());
 
-  public static class TestOddEvenMergeRecLarge extends TestThreadFactory {
+                List<Pair<List<Computation<SBool>>, List<Computation<SBool>>>> unSorted =
+                    new ArrayList<>();
 
-    public TestOddEvenMergeRecLarge() {}
+                unSorted
+                    .add(new Pair<List<Computation<SBool>>, List<Computation<SBool>>>(l11, l12));
+                unSorted
+                    .add(new Pair<List<Computation<SBool>>, List<Computation<SBool>>>(l21, l22));
+                unSorted
+                    .add(new Pair<List<Computation<SBool>>, List<Computation<SBool>>>(l31, l32));
+                unSorted
+                    .add(new Pair<List<Computation<SBool>>, List<Computation<SBool>>>(l41, l42));
 
-    @Override
-    public TestThread next() {
-      return new TestThread() {
-        @Override
-        public void test() throws Exception {
-          /*
-           * boolean[][][] left = new boolean[40][2][]; boolean[][][] right = new boolean[60][2][];
-           * 
-           * 
-           * OBool[][] results = new OBool[200][];
-           * 
-           * TestApplication app = new TestApplication() {
-           * 
-           * private static final long serialVersionUID = 4338818809103728010L;
-           * 
-           * @Override public ProtocolProducer prepareApplication( BuilderFactory factoryProducer) {
-           * ProtocolFactory producer = factoryProducer.getProtocolFactory(); AbstractBinaryFactory
-           * prov = (AbstractBinaryFactory) producer; BasicLogicBuilder builder = new
-           * BasicLogicBuilder(prov); SequentialProtocolProducer sseq = new
-           * SequentialProtocolProducer(); SBool[][][] leftSecret = new SBool[40][2][]; SBool[][][]
-           * rightSecret = new SBool[60][2][];
-           * 
-           * 
-           * List<Pair<SBool[], SBool[]>> leftList = new ArrayList<Pair<SBool[], SBool[]>>();
-           * List<Pair<SBool[], SBool[]>> rightList = new ArrayList<Pair<SBool[], SBool[]>>();
-           * List<Pair<SBool[], SBool[]>> sorted = new ArrayList<Pair<SBool[], SBool[]>>();
-           * 
-           * Random random = new Random(2); for(int i = 0; i< left.length; i++) { left[i][0] =
-           * randomBoolArray(8, random); left[i][1] = randomBoolArray(8, random); leftSecret[i][0] =
-           * builder.knownSBool(left[i][0]); leftSecret[i][1] = builder.knownSBool(left[i][1]);
-           * leftList.add(new Pair(leftSecret[i][0], leftSecret[i][1])); sorted.add(new
-           * Pair(prov.getSBools(8), prov.getSBools(8))); } for(int i = 0; i< right.length; i++) {
-           * right[i][0] = randomBoolArray(8, random); right[i][1] = randomBoolArray(8, random);
-           * rightSecret[i][0] = builder.knownSBool(right[i][0]); rightSecret[i][1] =
-           * builder.knownSBool(right[i][1]); rightList.add(new Pair(rightSecret[i][0],
-           * rightSecret[i][1])); sorted.add(new Pair(prov.getSBools(8), prov.getSBools(8))); }
-           * 
-           * 
-           * sseq.append(builder.getProtocol());
-           * 
-           * OddEvenMergeProtocol mergeProtocol = prov.getOddEvenMergeProtocol(rightList, leftList,
-           * sorted);
-           * 
-           * 
-           * 
-           * sseq.append(mergeProtocol); for(int i = 0; i< left.length; i++) { results[i*2] =
-           * builder.output(sorted.get(i).getFirst()); results[(i*2)+1] =
-           * builder.output(sorted.get(i).getSecond()); } for(int i = 0; i< right.length; i++) {
-           * results[(i*2)+(left.length*2)] = builder.output(sorted.get(i+left.length).getFirst());
-           * results[(i*2)+1+(left.length*2)] =
-           * builder.output(sorted.get(i+left.length).getSecond()); }
-           * sseq.append(builder.getProtocol());
-           * 
-           * return sseq; } }; secureComputationEngine .runApplication(app,
-           * ResourcePoolCreator.createResourcePool(conf.sceConf));
-           * 
-           * int prev = valueOfBools(convertOBoolToBool(results[0])); for(int i = 1; i <
-           * results.length; i++) { int current = valueOfBools(convertOBoolToBool(results[i])); //
-           * TODO Find out what OddEvenMergeRec is supposed to return and verify it is correct!
-           * //Assert.assertTrue(current >= prev); prev = current; }
-           */
+                Computation<List<Pair<List<Computation<SBool>>, List<Computation<SBool>>>>> sorted =
+                    new OddEvenMergeProtocolImpl(unSorted).buildComputation(seq);
+                return sorted;
+              }).seq((seq, sorted) -> {
+                BinaryBuilder builder = seq.binary();
+                List<Pair<List<Computation<Boolean>>, List<Computation<Boolean>>>> opened =
+                    new ArrayList<>();
+                for (Pair<List<Computation<SBool>>, List<Computation<SBool>>> p : sorted) {
+                  List<Computation<Boolean>> oKeys = new ArrayList<>();
+                  for (Computation<SBool> key : p.getFirst()) {
+                    oKeys.add(builder.open(key));
+                  }
+                  List<Computation<Boolean>> oValues = new ArrayList<>();
+                  for (Computation<SBool> value : p.getSecond()) {
+                    oValues.add(builder.open(value));
+                  }
+                  opened.add(new Pair<>(oKeys, oValues));
+                }
+                return () -> opened;
+              }).seq((seq, opened) -> {
+                return () -> opened.stream().map((p) -> {
+                  List<Boolean> key =
+                      p.getFirst().stream().map(Computation::out).collect(Collectors.toList());
+                  List<Boolean> value =
+                      p.getSecond().stream().map(Computation::out).collect(Collectors.toList());
+                  return new Pair<List<Boolean>, List<Boolean>>(key, value);
+                }).collect(Collectors.toList());
+              });
+            }
+          };
+
+          List<Pair<List<Boolean>, List<Boolean>>> results = secureComputationEngine
+              .runApplication(app, ResourcePoolCreator.createResourcePool(conf.sceConf));
+
+          for (Pair<List<Boolean>, List<Boolean>> p : results) {
+            System.out.println("key: " + p.getFirst() + ", value: " + p.getSecond());
+          }
+
+          Assert.assertEquals(Arrays.asList(left11), results.get(0).getFirst());
+          Assert.assertEquals(Arrays.asList(left12), results.get(0).getSecond());
+          Assert.assertEquals(Arrays.asList(left21), results.get(1).getFirst());
+          Assert.assertEquals(Arrays.asList(left22), results.get(1).getSecond());
+          Assert.assertEquals(Arrays.asList(left31), results.get(2).getFirst());
+          Assert.assertEquals(Arrays.asList(left32), results.get(2).getSecond());
+          Assert.assertEquals(Arrays.asList(left41), results.get(3).getFirst());
+          Assert.assertEquals(Arrays.asList(left42), results.get(3).getSecond());
+
+          // Assert.assertArrayEquals(left12, results.get(1).getFirst().toArray(new Boolean[0]));
+          // Assert.assertArrayEquals(left21, results.get(2).getFirst().toArray(new Boolean[0]));
+          // Assert.assertArrayEquals(left22, results.get(3).getFirst().toArray(new Boolean[0]));
+          // Assert.assertArrayEquals(left31, results.get(4).getFirst().toArray(new Boolean[0]));
+          // Assert.assertArrayEquals(left32, results.get(5).getFirst().toArray(new Boolean[0]));
+          // Assert.assertArrayEquals(left41, results.get(6).getFirst().toArray(new Boolean[0]));
+          // Assert.assertArrayEquals(left42, results.get(7).getFirst().toArray(new Boolean[0]));
+          //
+          // Assert.assertArrayEquals(left11, results.get(index)convertOBoolToBool(results[0 + 8]));
+          // Assert.assertArrayEquals(left12, convertOBoolToBool(results[1 + 8]));
+          // Assert.assertArrayEquals(left21, convertOBoolToBool(results[2 + 8]));
+          // Assert.assertArrayEquals(left22, convertOBoolToBool(results[3 + 8]));
+          // Assert.assertArrayEquals(left31, convertOBoolToBool(results[4 + 8]));
+          // Assert.assertArrayEquals(left32, convertOBoolToBool(results[5 + 8]));
+          // Assert.assertArrayEquals(right11, convertOBoolToBool(results[6 + 8]));
+          // Assert.assertArrayEquals(right12, convertOBoolToBool(results[7 + 8]));
+
         }
       };
     }
