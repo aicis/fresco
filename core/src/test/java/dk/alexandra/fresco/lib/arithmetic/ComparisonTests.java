@@ -62,7 +62,7 @@ public class ComparisonTests {
                 private BigInteger five = BigInteger.valueOf(5);
 
                 @Override
-                public Computation<Pair<BigInteger, BigInteger>> prepareApplication(
+                public Computation<Pair<BigInteger, BigInteger>> buildComputation(
                     ProtocolBuilderNumeric builder) {
                   NumericBuilder input = builder.numeric();
                   Computation<SInt> x = input.known(three);
@@ -108,7 +108,7 @@ public class ComparisonTests {
                 private BigInteger five = BigInteger.valueOf(5);
 
                 @Override
-                public Computation<Pair<BigInteger, BigInteger>> prepareApplication(
+                public Computation<Pair<BigInteger, BigInteger>> buildComputation(
                     ProtocolBuilderNumeric builder) {
                   NumericBuilder input = builder.numeric();
                   Computation<SInt> x = input.known(three);

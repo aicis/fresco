@@ -34,37 +34,30 @@ public class ArithmeticDebugTests {
         @Override
         public void test() throws Exception {
           Application<Void, ProtocolBuilderNumeric> app =
-              new Application<Void, ProtocolBuilderNumeric>() {
-
-                @Override
-                public Computation<Void> prepareApplication(ProtocolBuilderNumeric producer) {
-                  return producer.seq(seq -> {
-                    NumericBuilder numeric = seq.numeric();
-                    List<Computation<SInt>> toPrint =
-                        Arrays.stream(
-                            new BigInteger[]{BigInteger.ONE, BigInteger.TEN, BigInteger.ZERO,
-                                BigInteger.ONE}
-                        ).map((n) -> numeric.input(n, 1)).collect(Collectors.toList());
-                    return () -> toPrint;
-                  }).seq((seq, inputs) -> {
-                    seq.debug().openAndPrint("testNumber", inputs.get(0), stream);
-                    seq.debug().openAndPrint("testVector", inputs, stream);
-                    ArrayList<Computation<SInt>> r1 = new ArrayList<>();
-                    r1.add(inputs.get(0));
-                    r1.add(inputs.get(1));
-                    ArrayList<Computation<SInt>> r2 = new ArrayList<>();
-                    r2.add(inputs.get(2));
-                    r2.add(inputs.get(3));
-                    ArrayList<ArrayList<Computation<SInt>>> m = new ArrayList<>();
-                    m.add(r1);
-                    m.add(r2);
-                    Matrix<Computation<SInt>> matrix = new Matrix<>(2, 2, m);
-                    seq.debug().openAndPrint("testMatrix", matrix, stream);
-                    return null;
-                  });
-                }
-
-              };
+              producer -> producer.seq(seq -> {
+                NumericBuilder numeric = seq.numeric();
+                List<Computation<SInt>> toPrint =
+                    Arrays.stream(
+                        new BigInteger[]{BigInteger.ONE, BigInteger.TEN, BigInteger.ZERO,
+                            BigInteger.ONE}
+                    ).map((n) -> numeric.input(n, 1)).collect(Collectors.toList());
+                return () -> toPrint;
+              }).seq((seq, inputs) -> {
+                seq.debug().openAndPrint("testNumber", inputs.get(0), stream);
+                seq.debug().openAndPrint("testVector", inputs, stream);
+                ArrayList<Computation<SInt>> r1 = new ArrayList<>();
+                r1.add(inputs.get(0));
+                r1.add(inputs.get(1));
+                ArrayList<Computation<SInt>> r2 = new ArrayList<>();
+                r2.add(inputs.get(2));
+                r2.add(inputs.get(3));
+                ArrayList<ArrayList<Computation<SInt>>> m = new ArrayList<>();
+                m.add(r1);
+                m.add(r2);
+                Matrix<Computation<SInt>> matrix = new Matrix<>(2, 2, m);
+                seq.debug().openAndPrint("testMatrix", matrix, stream);
+                return null;
+              });
 
           secureComputationEngine.runApplication(app,
               ResourcePoolCreator.createResourcePool(conf.sceConf));

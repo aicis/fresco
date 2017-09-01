@@ -31,10 +31,8 @@ import dk.alexandra.fresco.framework.value.SBool;
 import java.util.List;
 
 /**
- * An implementation of the OddEvenMergeProtocol. This does not support threading, the
- * OddEvenMergeProtocolRec class should be preferable to this.
- *
- * @author psn
+ * An implementation of the OddEvenMergeProtocol. We use batchers algorithm. For now, this
+ * implementation only supports lists where the size is a power of 2. (i.e. 4, 8, 16 etc.)
  *
  */
 public class OddEvenMergeProtocolImpl implements
@@ -52,9 +50,19 @@ public class OddEvenMergeProtocolImpl implements
   public Computation<List<Pair<List<Computation<SBool>>, List<Computation<SBool>>>>> buildComputation(
       ProtocolBuilderBinary builder) {
     return builder.seq(seq -> {
-      merge(0, numbers.size(), 1, seq);
+      sort(0, numbers.size() - 1, seq);
       return () -> numbers;
     });
+  }
+
+  private void sort(int i, int j, ProtocolBuilderBinary builder) {
+    if (j - i > 1) {
+      sort(i, j / 2, builder);
+      sort(j / 2 + 1, j, builder);
+      merge(i, (j - i + 1), 1, builder);
+    } else {
+      compareAndSwapAtIndices(i, j, builder);
+    }
   }
 
   private void compareAndSwapAtIndices(int i, int j, ProtocolBuilderBinary builder) {
@@ -85,111 +93,4 @@ public class OddEvenMergeProtocolImpl implements
       compareAndSwapAtIndices(first, first + step, builder);
     }
   }
-
-  private static final class IterationState implements Computation<IterationState> {
-
-    private int round;
-    private final Computation<List<Computation<SBool>>> value;
-
-    private IterationState(int round, Computation<List<Computation<SBool>>> value) {
-      this.round = round;
-      this.value = value;
-    }
-
-    @Override
-    public IterationState out() {
-      return this;
-    }
-  }
-
-  // @Override
-  // protected ProtocolProducer initializeProtocolProducer() {
-  //
-  // blb.beginParScope();
-  // for (int i = 0; i < left.size(); i++) {
-  // Pair<SBool[], SBool[]> leftPair = left.get(i);
-  // Pair<SBool[], SBool[]> upperPair = sorted.get(i);
-  // blb.copy(leftPair.getFirst(), upperPair.getFirst());
-  // blb.copy(leftPair.getSecond(), upperPair.getSecond());
-  // }
-  // for (int i = 0; i < right.size(); i++) {
-  // Pair<SBool[], SBool[]> rightPair = right.get(i);
-  // Pair<SBool[], SBool[]> lowerPair = sorted.get(i + left.size());
-  // blb.copy(rightPair.getFirst(), lowerPair.getFirst());
-  // blb.copy(rightPair.getSecond(), lowerPair.getSecond());
-  // }
-  // blb.endCurScope();
-  // initializeIndices();
-  // newMerge(0, simulatedSize, 1);
-  // return blb.getProtocol();
-  // }
-  //
-  // private void merge(int first, int length, int step) {
-  // int doubleStep = step * 2;
-  // if (length > 2) {
-  // blb.beginSeqScope();
-  // blb.beginParScope();
-  // int newLength = length / 2;
-  // merge(first, newLength, doubleStep);
-  // newMerge(first + step, length - newLength, doubleStep);
-  // //merge(first + step, length - newLength, doubleStep);
-  // blb.endCurScope();
-  // blb.beginParScope();
-  // for (int i = 1; i < length - 2; i += 2) {
-  // int low = first + i * step;
-  // int high = low + step;
-  // compareAndSwapAtIndices(low, high);
-  // }
-  // blb.endCurScope();
-  // blb.endCurScope();
-  // } else if (length == 2) {
-  // compareAndSwapAtIndices(first, first + step);
-  // }
-  // }
-  //
-  // private void newMerge(int first, int length, int step) {
-  // blb.beginSeqScope();
-  // merge(first, length, step);
-  // blb.endCurScope();
-  // }
-  //
-  // private void initializeIndices() {
-  // int leftPad = 0;
-  // int rightPad = 0;
-  // int leftSize = left.size();
-  // int rightSize = right.size();
-  // int difference = leftSize - rightSize;
-  // if (difference > 0) {
-  // rightPad += difference;
-  // } else {
-  // leftPad -= difference;
-  // }
-  // realSize = left.size() + right.size();
-  // simulatedSize = 1;
-  // while (simulatedSize < (realSize + leftPad + rightPad)) {
-  // simulatedSize = simulatedSize << 1;
-  // }
-  // int halfSize = simulatedSize >>> 1;
-  // leftPad += halfSize - (leftPad + leftSize);
-  // rightPad += halfSize - (rightPad + rightSize);
-  // firstIndex = leftPad;
-  // lastIndex = simulatedSize - rightPad - 1;
-  // }
-  //
-  // private void compareAndSwapAtIndices(int i, int j) {
-  // boolean inBounds = (i >= firstIndex && i < lastIndex);
-  // inBounds = inBounds && (j >= firstIndex && j <= lastIndex);
-  // if (!inBounds) {
-  // return;
-  // } else {
-  // i = i - firstIndex;
-  // j = j - firstIndex;
-  // Pair<SBool[], SBool[]> left = sorted.get(i);
-  // Pair<SBool[], SBool[]> right = sorted.get(j);
-  // blb.keyedCompareAndSwap(left.getFirst(), left.getSecond(),
-  // right.getFirst(), right.getSecond());
-  // }
-  // }
-
-
 }

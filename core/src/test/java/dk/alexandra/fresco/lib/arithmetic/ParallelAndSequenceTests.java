@@ -51,7 +51,7 @@ public class ParallelAndSequenceTests {
   private class TestApplicationSum implements Application<BigInteger, ProtocolBuilderNumeric> {
 
     @Override
-    public Computation<BigInteger> prepareApplication(
+    public Computation<BigInteger> buildComputation(
         ProtocolBuilderNumeric producer) {
       List<Computation<SInt>> input =
           Arrays.stream(inputAsArray)
@@ -66,7 +66,7 @@ public class ParallelAndSequenceTests {
   private class TestApplicationMult implements Application<BigInteger, ProtocolBuilderNumeric> {
 
     @Override
-    public Computation<BigInteger> prepareApplication(
+    public Computation<BigInteger> buildComputation(
         ProtocolBuilderNumeric producer) {
       Computation<SInt> result = producer.advancedNumeric().product(
           Arrays.stream(inputAsArray)

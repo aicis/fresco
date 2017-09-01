@@ -20,7 +20,7 @@ public class OutputStep implements
   }
 
   @Override
-  public Computation<List<List<BigInteger>>> prepareApplication(
+  public Computation<List<List<BigInteger>>> buildComputation(
       ProtocolBuilderNumeric producer) {
     return producer.par(par -> {
       NumericBuilder numeric = par.numeric();

@@ -189,4 +189,39 @@ public class MiMCTests {
       };
     }
   }
+  
+  public static class TestMiMCEncDecFixedRounds<ResourcePoolT extends ResourcePool> extends
+  TestThreadFactory {
+
+@Override
+public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+  return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+
+    @Override
+    public void test() throws Exception {
+      BigInteger x_big = BigInteger.valueOf(10);
+      Application<BigInteger, ProtocolBuilderNumeric> app =
+          builder -> {
+            NumericBuilder intFactory = builder.numeric();
+            builder.getBasicNumericContext();
+            Computation<SInt> encryptionKey = intFactory.known(BigInteger.valueOf(527619));
+            Computation<SInt> plainText = intFactory.known(x_big);
+            Computation<SInt> cipherText = builder
+                .seq(new MiMCEncryption(plainText, encryptionKey, 17));
+            Computation<SInt> decrypted = builder
+                .seq(new MiMCDecryption(cipherText, encryptionKey, 17));
+            return builder.numeric().open(decrypted);
+          };
+
+      ResourcePoolT resourcePool =
+          ResourcePoolCreator.createResourcePool(conf.sceConf);
+      Future<BigInteger> listFuture = secureComputationEngine
+          .startApplication(app, resourcePool);
+      BigInteger result = listFuture.get(20, TimeUnit.MINUTES);
+      Assert.assertEquals(x_big, result);
+    }
+  };
+}
+}
+
 }

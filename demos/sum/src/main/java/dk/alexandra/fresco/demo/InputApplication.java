@@ -58,7 +58,7 @@ public class InputApplication extends DemoNumericApplication<List<SInt>> {
   }
 
   @Override
-  public Computation<List<SInt>> prepareApplication(ProtocolBuilderNumeric producer) {
+  public Computation<List<SInt>> buildComputation(ProtocolBuilderNumeric producer) {
     return createBuildStep(producer);
   }
 

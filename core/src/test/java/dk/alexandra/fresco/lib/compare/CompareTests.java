@@ -55,12 +55,7 @@ public class CompareTests {
 
 
           Application<List<List<Boolean>>, ProtocolBuilderBinary> app =
-              new Application<List<List<Boolean>>, ProtocolBuilderBinary>() {
-
-            @Override
-            public Computation<List<List<Boolean>>> prepareApplication(
-                ProtocolBuilderBinary producer) {
-              return producer.seq(seq -> {
+              producer -> producer.seq(seq -> {
                 List<Computation<SBool>> left =
                     rawLeft.stream().map(seq.binary()::known).collect(Collectors.toList());
                 List<Computation<SBool>> right =
@@ -71,7 +66,7 @@ public class CompareTests {
                 return compared;
               }).seq((seq, opened) -> {
                 List<List<Computation<Boolean>>> result =
-                    new ArrayList<List<Computation<Boolean>>>();
+                    new ArrayList<>();
                 for (List<Computation<SBool>> entry : opened) {
                   result.add(entry.stream().map(Computation::out).map(seq.binary()::open)
                       .collect(Collectors.toList()));
@@ -79,15 +74,13 @@ public class CompareTests {
 
                 return () -> result;
               }).seq((seq, opened) -> {
-                List<List<Boolean>> result = new ArrayList<List<Boolean>>();
+                List<List<Boolean>> result = new ArrayList<>();
                 for (List<Computation<Boolean>> entry : opened) {
                   result.add(entry.stream().map(Computation::out).collect(Collectors.toList()));
                 }
 
                 return () -> result;
               });
-            }
-          };
 
           List<List<Boolean>> res = secureComputationEngine.runApplication(app,
               ResourcePoolCreator.createResourcePool(conf.sceConf));

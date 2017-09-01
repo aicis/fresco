@@ -167,7 +167,7 @@ public class AESDemo implements Application<List<Boolean>, ProtocolBuilderBinary
   }
 
   @Override
-  public Computation<List<Boolean>> prepareApplication(ProtocolBuilderBinary producer) {
+  public Computation<List<Boolean>> buildComputation(ProtocolBuilderBinary producer) {
     return producer.seq(seq -> {
       BinaryBuilder bin = seq.binary();
       List<Computation<SBool>> keyInputs = new ArrayList<>();

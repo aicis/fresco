@@ -26,7 +26,7 @@ public class EncryptAndRevealStep implements
   }
 
   @Override
-  public Computation<List<RowWithCipher>> prepareApplication(ProtocolBuilderNumeric builder) {
+  public Computation<List<RowWithCipher>> buildComputation(ProtocolBuilderNumeric builder) {
     return builder.par(par ->
         builder.numeric().randomElement()
     ).par((par, mimcKey) -> {
@@ -43,7 +43,7 @@ public class EncryptAndRevealStep implements
       return () -> ciphers;
     }).seq((seq, ciphers) -> {
       List<RowWithCipher> resultList = ciphers.stream()
-          .map(cipherPair -> new RowWithCipher(cipherPair)).collect(Collectors.toList());
+          .map(RowWithCipher::new).collect(Collectors.toList());
       return () -> resultList;
     });
   }

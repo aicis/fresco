@@ -205,19 +205,6 @@ public class TestDummyProtocolSuite<ResourcePoolT extends ResourcePool>
     runTest(new CollectionsSortingTests.TestOddEvenMerge<>(), EvaluationStrategy.SEQUENTIAL,
         NetworkingStrategy.KRYONET);
   }
-  /*
-   * @Ignore // for now
-   * 
-   * @Test public void test_Uneven_Odd_Even_Merge_Rec_2_parties() throws Exception { runTest(new
-   * CollectionsSortingTests.TestOddEvenMergeRec(), EvaluationStrategy.SEQUENTIAL,
-   * NetworkingStrategy.KRYONET); }
-   * 
-   * @Ignore // for now
-   * 
-   * @Test public void test_Uneven_Odd_Even_Merge_Rec_Large_2_parties() throws Exception {
-   * runTest(new CollectionsSortingTests.TestOddEvenMergeRecLarge(), EvaluationStrategy.SEQUENTIAL,
-   * NetworkingStrategy.KRYONET); }
-   */
 
   @Test
   public void test_Keyed_Compare_And_Swap_2_parties() throws Exception {

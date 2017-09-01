@@ -37,7 +37,6 @@ import dk.alexandra.fresco.framework.value.SBool;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Random;
 import java.util.stream.Collectors;
 import org.junit.Assert;
 
@@ -143,27 +142,27 @@ public class CollectionsSortingTests {
         @Override
         public void test() throws Exception {
 
-          Boolean[] left11 = ByteArithmetic.toBoolean("00");
-          Boolean[] left12 = ByteArithmetic.toBoolean("ee");
-          Boolean[] left21 = ByteArithmetic.toBoolean("01");
-          Boolean[] left22 = ByteArithmetic.toBoolean("ba");
-          Boolean[] left31 = ByteArithmetic.toBoolean("02");
-          Boolean[] left32 = ByteArithmetic.toBoolean("aa");
-          Boolean[] left41 = ByteArithmetic.toBoolean("03");
-          Boolean[] left42 = ByteArithmetic.toBoolean("00");
+          Boolean[] left11 = ByteArithmetic.toBoolean("01");
+          Boolean[] left12 = ByteArithmetic.toBoolean("08");
+          Boolean[] left21 = ByteArithmetic.toBoolean("03");
+          Boolean[] left22 = ByteArithmetic.toBoolean("07");
+          Boolean[] left31 = ByteArithmetic.toBoolean("00");
+          Boolean[] left32 = ByteArithmetic.toBoolean("06");
+          Boolean[] left41 = ByteArithmetic.toBoolean("02");
+          Boolean[] left42 = ByteArithmetic.toBoolean("05");
 
           Application<List<Pair<List<Boolean>, List<Boolean>>>, ProtocolBuilderBinary> app =
               new Application<List<Pair<List<Boolean>, List<Boolean>>>, ProtocolBuilderBinary>() {
 
             @Override
-            public Computation<List<Pair<List<Boolean>, List<Boolean>>>> prepareApplication(
+            public Computation<List<Pair<List<Boolean>, List<Boolean>>>> buildComputation(
                 ProtocolBuilderBinary producer) {
               return producer.seq(seq -> {
                 BinaryBuilder builder = seq.binary();
                 List<Computation<SBool>> l11 =
                     Arrays.asList(left11).stream().map(builder::known).collect(Collectors.toList());
                 List<Computation<SBool>> l12 =
-                    Arrays.asList(left11).stream().map(builder::known).collect(Collectors.toList());
+                    Arrays.asList(left12).stream().map(builder::known).collect(Collectors.toList());
                 List<Computation<SBool>> l21 =
                     Arrays.asList(left21).stream().map(builder::known).collect(Collectors.toList());
                 List<Computation<SBool>> l22 =
@@ -219,78 +218,22 @@ public class CollectionsSortingTests {
                 }).collect(Collectors.toList());
               });
             }
+
           };
 
           List<Pair<List<Boolean>, List<Boolean>>> results = secureComputationEngine
               .runApplication(app, ResourcePoolCreator.createResourcePool(conf.sceConf));
 
-          for (Pair<List<Boolean>, List<Boolean>> p : results) {
-            System.out.println("key: " + p.getFirst() + ", value: " + p.getSecond());
-          }
-
-          Assert.assertEquals(Arrays.asList(left11), results.get(0).getFirst());
-          Assert.assertEquals(Arrays.asList(left12), results.get(0).getSecond());
-          Assert.assertEquals(Arrays.asList(left21), results.get(1).getFirst());
-          Assert.assertEquals(Arrays.asList(left22), results.get(1).getSecond());
-          Assert.assertEquals(Arrays.asList(left31), results.get(2).getFirst());
-          Assert.assertEquals(Arrays.asList(left32), results.get(2).getSecond());
-          Assert.assertEquals(Arrays.asList(left41), results.get(3).getFirst());
-          Assert.assertEquals(Arrays.asList(left42), results.get(3).getSecond());
-
-          // Assert.assertArrayEquals(left12, results.get(1).getFirst().toArray(new Boolean[0]));
-          // Assert.assertArrayEquals(left21, results.get(2).getFirst().toArray(new Boolean[0]));
-          // Assert.assertArrayEquals(left22, results.get(3).getFirst().toArray(new Boolean[0]));
-          // Assert.assertArrayEquals(left31, results.get(4).getFirst().toArray(new Boolean[0]));
-          // Assert.assertArrayEquals(left32, results.get(5).getFirst().toArray(new Boolean[0]));
-          // Assert.assertArrayEquals(left41, results.get(6).getFirst().toArray(new Boolean[0]));
-          // Assert.assertArrayEquals(left42, results.get(7).getFirst().toArray(new Boolean[0]));
-          //
-          // Assert.assertArrayEquals(left11, results.get(index)convertOBoolToBool(results[0 + 8]));
-          // Assert.assertArrayEquals(left12, convertOBoolToBool(results[1 + 8]));
-          // Assert.assertArrayEquals(left21, convertOBoolToBool(results[2 + 8]));
-          // Assert.assertArrayEquals(left22, convertOBoolToBool(results[3 + 8]));
-          // Assert.assertArrayEquals(left31, convertOBoolToBool(results[4 + 8]));
-          // Assert.assertArrayEquals(left32, convertOBoolToBool(results[5 + 8]));
-          // Assert.assertArrayEquals(right11, convertOBoolToBool(results[6 + 8]));
-          // Assert.assertArrayEquals(right12, convertOBoolToBool(results[7 + 8]));
-
+          Assert.assertEquals(Arrays.asList(left21), results.get(0).getFirst());
+          Assert.assertEquals(Arrays.asList(left22), results.get(0).getSecond());
+          Assert.assertEquals(Arrays.asList(left41), results.get(1).getFirst());
+          Assert.assertEquals(Arrays.asList(left42), results.get(1).getSecond());
+          Assert.assertEquals(Arrays.asList(left11), results.get(2).getFirst());
+          Assert.assertEquals(Arrays.asList(left12), results.get(2).getSecond());
+          Assert.assertEquals(Arrays.asList(left31), results.get(3).getFirst());
+          Assert.assertEquals(Arrays.asList(left32), results.get(3).getSecond());
         }
       };
     }
   }
-
-  private static int valueOfBools(boolean[] boolInput) {
-    boolean[] bool = boolInput;
-    reverse(bool);
-    int res = 0;
-    int count = 2;
-    if (bool[0]) {
-      res = 1;
-    }
-    for (int i = 1; i < bool.length; i++) {
-      if (bool[i]) {
-        res += count;
-      }
-      count = count * 2;
-    }
-    return res;
-  }
-
-  private static void reverse(boolean[] data) {
-    for (int left = 0, right = data.length - 1; left < right; left++, right--) {
-      // swap the values at the left and right indices
-      boolean temp = data[left];
-      data[left] = data[right];
-      data[right] = temp;
-    }
-  }
-
-  private static boolean[] randomBoolArray(int size, Random rand) {
-    boolean[] output = new boolean[size];
-    for (int i = 0; i < size; i++) {
-      output[i] = rand.nextBoolean();
-    }
-    return output;
-  }
-
 }

@@ -46,7 +46,8 @@ public class AddTests {
   public static class TestOnebitHalfAdder<ResourcePoolT extends ResourcePool>
       extends TestThreadFactory {
 
-    public TestOnebitHalfAdder() {}
+    public TestOnebitHalfAdder() {
+    }
 
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderBinary> next() {
@@ -55,36 +56,29 @@ public class AddTests {
         @Override
         public void test() throws Exception {
           Application<List<Boolean>, ProtocolBuilderBinary> app =
-              new Application<List<Boolean>, ProtocolBuilderBinary>() {
+              producer -> {
 
-            @Override
-            public Computation<List<Boolean>> prepareApplication(ProtocolBuilderBinary producer) {
+                List<Computation<Pair<SBool, SBool>>> data =
+                    new ArrayList<>();
 
-              List<Computation<Pair<SBool, SBool>>> data =
-                  new ArrayList<Computation<Pair<SBool, SBool>>>();
-
-              ProtocolBuilderBinary builder = (ProtocolBuilderBinary) producer;
-
-              return builder.seq(seq -> {
-                BinaryBuilderAdvanced prov = seq.advancedBinary();
-                Computation<SBool> inp0 = seq.binary().known(false);
-                Computation<SBool> inp1 = seq.binary().known(true);
-                data.add(prov.oneBitHalfAdder(inp0, inp0));
-                data.add(prov.oneBitHalfAdder(inp0, inp1));
-                data.add(prov.oneBitHalfAdder(inp1, inp0));
-                data.add(prov.oneBitHalfAdder(inp1, inp1));
-                return () -> data;
-              }).seq((seq, dat) -> {
-                List<Computation<Boolean>> out = new ArrayList<Computation<Boolean>>();
-                for (Computation<Pair<SBool, SBool>> o : dat) {
-                  out.add(seq.binary().open(o.out().getFirst()));
-                  out.add(seq.binary().open(o.out().getSecond()));
-                }
-                return () -> out.stream().map(Computation::out).collect(Collectors.toList());
-              });
-            }
-          };
-
+                return producer.seq(seq -> {
+                  BinaryBuilderAdvanced prov = seq.advancedBinary();
+                  Computation<SBool> inp0 = seq.binary().known(false);
+                  Computation<SBool> inp1 = seq.binary().known(true);
+                  data.add(prov.oneBitHalfAdder(inp0, inp0));
+                  data.add(prov.oneBitHalfAdder(inp0, inp1));
+                  data.add(prov.oneBitHalfAdder(inp1, inp0));
+                  data.add(prov.oneBitHalfAdder(inp1, inp1));
+                  return () -> data;
+                }).seq((seq, dat) -> {
+                  List<Computation<Boolean>> out = new ArrayList<>();
+                  for (Computation<Pair<SBool, SBool>> o : dat) {
+                    out.add(seq.binary().open(o.out().getFirst()));
+                    out.add(seq.binary().open(o.out().getSecond()));
+                  }
+                  return () -> out.stream().map(Computation::out).collect(Collectors.toList());
+                });
+              };
 
           List<Boolean> outputs = secureComputationEngine.runApplication(app,
               ResourcePoolCreator.createResourcePool(conf.sceConf));
@@ -104,7 +98,8 @@ public class AddTests {
   public static class TestOnebitFullAdder<ResourcePoolT extends ResourcePool>
       extends TestThreadFactory {
 
-    public TestOnebitFullAdder() {}
+    public TestOnebitFullAdder() {
+    }
 
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderBinary> next() {
@@ -113,39 +108,33 @@ public class AddTests {
         @Override
         public void test() throws Exception {
           Application<List<Boolean>, ProtocolBuilderBinary> app =
-              new Application<List<Boolean>, ProtocolBuilderBinary>() {
+              producer -> {
 
-            @Override
-            public Computation<List<Boolean>> prepareApplication(ProtocolBuilderBinary producer) {
+                List<Computation<Pair<SBool, SBool>>> data =
+                    new ArrayList<>();
 
-              List<Computation<Pair<SBool, SBool>>> data =
-                  new ArrayList<Computation<Pair<SBool, SBool>>>();
-
-              ProtocolBuilderBinary builder = (ProtocolBuilderBinary) producer;
-
-              return builder.seq(seq -> {
-                BinaryBuilderAdvanced prov = seq.advancedBinary();
-                Computation<SBool> inp0 = seq.binary().known(false);
-                Computation<SBool> inp1 = seq.binary().known(true);
-                data.add(prov.oneBitFullAdder(inp0, inp0, inp0));
-                data.add(prov.oneBitFullAdder(inp0, inp0, inp1));
-                data.add(prov.oneBitFullAdder(inp0, inp1, inp0));
-                data.add(prov.oneBitFullAdder(inp0, inp1, inp1));
-                data.add(prov.oneBitFullAdder(inp1, inp0, inp0));
-                data.add(prov.oneBitFullAdder(inp1, inp0, inp1));
-                data.add(prov.oneBitFullAdder(inp1, inp1, inp0));
-                data.add(prov.oneBitFullAdder(inp1, inp1, inp1));
-                return () -> data;
-              }).seq((seq, dat) -> {
-                List<Computation<Boolean>> out = new ArrayList<Computation<Boolean>>();
-                for (Computation<Pair<SBool, SBool>> o : dat) {
-                  out.add(seq.binary().open(o.out().getFirst()));
-                  out.add(seq.binary().open(o.out().getSecond()));
-                }
-                return () -> out.stream().map(Computation::out).collect(Collectors.toList());
-              });
-            }
-          };
+                return producer.seq(seq -> {
+                  BinaryBuilderAdvanced prov = seq.advancedBinary();
+                  Computation<SBool> inp0 = seq.binary().known(false);
+                  Computation<SBool> inp1 = seq.binary().known(true);
+                  data.add(prov.oneBitFullAdder(inp0, inp0, inp0));
+                  data.add(prov.oneBitFullAdder(inp0, inp0, inp1));
+                  data.add(prov.oneBitFullAdder(inp0, inp1, inp0));
+                  data.add(prov.oneBitFullAdder(inp0, inp1, inp1));
+                  data.add(prov.oneBitFullAdder(inp1, inp0, inp0));
+                  data.add(prov.oneBitFullAdder(inp1, inp0, inp1));
+                  data.add(prov.oneBitFullAdder(inp1, inp1, inp0));
+                  data.add(prov.oneBitFullAdder(inp1, inp1, inp1));
+                  return () -> data;
+                }).seq((seq, dat) -> {
+                  List<Computation<Boolean>> out = new ArrayList<>();
+                  for (Computation<Pair<SBool, SBool>> o : dat) {
+                    out.add(seq.binary().open(o.out().getFirst()));
+                    out.add(seq.binary().open(o.out().getSecond()));
+                  }
+                  return () -> out.stream().map(Computation::out).collect(Collectors.toList());
+                });
+              };
 
           List<Boolean> outputs = secureComputationEngine.runApplication(app,
               ResourcePoolCreator.createResourcePool(conf.sceConf));
@@ -175,7 +164,8 @@ public class AddTests {
 
     private boolean doAsserts = false;
 
-    public TestFullAdder() {}
+    public TestFullAdder() {
+    }
 
     public TestFullAdder(boolean doAsserts) {
       this.doAsserts = doAsserts;
@@ -193,13 +183,7 @@ public class AddTests {
         @Override
         public void test() throws Exception {
           Application<List<Boolean>, ProtocolBuilderBinary> app =
-              new Application<List<Boolean>, ProtocolBuilderBinary>() {
-
-            @Override
-            public Computation<List<Boolean>> prepareApplication(ProtocolBuilderBinary producer) {
-              ProtocolBuilderBinary builder = (ProtocolBuilderBinary) producer;
-
-              return builder.seq(seq -> {
+              producer -> producer.seq(seq -> {
                 BinaryBuilderAdvanced prov = seq.advancedBinary();
                 Computation<SBool> carry = seq.binary().known(true);
 
@@ -210,16 +194,14 @@ public class AddTests {
 
                 Computation<List<Computation<SBool>>> adder = prov.fullAdder(first, second, carry);
 
-                return () -> adder.out();
+                return adder;
               }).seq((seq, dat) -> {
-                List<Computation<Boolean>> out = new ArrayList<Computation<Boolean>>();
+                List<Computation<Boolean>> out = new ArrayList<>();
                 for (Computation<SBool> o : dat) {
                   out.add(seq.binary().open(o));
                 }
                 return () -> out.stream().map(Computation::out).collect(Collectors.toList());
               });
-            }
-          };
 
           List<Boolean> outputs = secureComputationEngine.runApplication(app,
               ResourcePoolCreator.createResourcePool(conf.sceConf));
@@ -235,7 +217,8 @@ public class AddTests {
   public static class TestBitIncrement<ResourcePoolT extends ResourcePool>
       extends TestThreadFactory {
 
-    public TestBitIncrement() {}
+    public TestBitIncrement() {
+    }
 
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderBinary> next() {
@@ -248,14 +231,7 @@ public class AddTests {
         @Override
         public void test() throws Exception {
           Application<List<Boolean>, ProtocolBuilderBinary> app =
-              new Application<List<Boolean>, ProtocolBuilderBinary>() {
-
-            @Override
-            public Computation<List<Boolean>> prepareApplication(ProtocolBuilderBinary producer) {
-
-              ProtocolBuilderBinary builder = (ProtocolBuilderBinary) producer;
-
-              return builder.seq(seq -> {
+              producer -> producer.seq(seq -> {
                 BinaryBuilderAdvanced prov = seq.advancedBinary();
                 Computation<SBool> increment = seq.binary().known(true);
 
@@ -264,16 +240,14 @@ public class AddTests {
 
                 Computation<List<Computation<SBool>>> adder = prov.bitIncrement(large, increment);
 
-                return () -> adder.out();
+                return adder;
               }).seq((seq, dat) -> {
-                List<Computation<Boolean>> out = new ArrayList<Computation<Boolean>>();
+                List<Computation<Boolean>> out = new ArrayList<>();
                 for (Computation<SBool> o : dat) {
                   out.add(seq.binary().open(o));
                 }
                 return () -> out.stream().map(Computation::out).collect(Collectors.toList());
               });
-            }
-          };
 
           List<Boolean> outputs = secureComputationEngine.runApplication(app,
               ResourcePoolCreator.createResourcePool(conf.sceConf));

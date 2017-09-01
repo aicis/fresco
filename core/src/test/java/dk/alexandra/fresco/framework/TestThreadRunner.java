@@ -3,26 +3,23 @@
  *
  * This file is part of the FRESCO project.
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
  *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *
- * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
- * and Bouncy Castle. Please see these projects for any further licensing issues.
+ * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL, and Bouncy Castle.
+ * Please see these projects for any further licensing issues.
  *******************************************************************************/
 package dk.alexandra.fresco.framework;
 
@@ -48,8 +45,8 @@ public class TestThreadRunner {
 
   private static final long MAX_WAIT_FOR_THREAD = 6000000;
 
-  public abstract static class TestThread<ResourcePoolT extends ResourcePool, Builder extends ProtocolBuilder> extends
-      Thread {
+  public abstract static class TestThread<ResourcePoolT extends ResourcePool, Builder extends ProtocolBuilder>
+      extends Thread {
 
     private boolean finished = false;
 
@@ -108,7 +105,7 @@ public class TestThreadRunner {
     private void runTearDown() {
       try {
         if (secureComputationEngine != null) {
-          //Shut down SCE resources - does not include the resource pool.
+          // Shut down SCE resources - does not include the resource pool.
           secureComputationEngine.shutdownSCE();
         }
         tearDown();
@@ -136,8 +133,7 @@ public class TestThreadRunner {
   /**
    * Container for all the configuration that one thread should have.
    */
-  public static class TestThreadConfiguration<ResourcePoolT extends ResourcePool,
-      Builder extends ProtocolBuilder> {
+  public static class TestThreadConfiguration<ResourcePoolT extends ResourcePool, Builder extends ProtocolBuilder> {
 
     public NetworkConfiguration netConf;
     public TestSCEConfiguration<ResourcePoolT, Builder> sceConf;
@@ -176,39 +172,48 @@ public class TestThreadRunner {
       t.start();
     }
 
-    for (TestThread t : threads) {
-      try {
-        t.join(MAX_WAIT_FOR_THREAD);
-      } catch (InterruptedException e) {
-        throw new TestFrameworkException("Test was interrupted");
+    try {
+      for (TestThread t : threads) {
+        try {
+          t.join(MAX_WAIT_FOR_THREAD);
+        } catch (InterruptedException e) {
+          throw new TestFrameworkException("Test was interrupted");
+        }
+        if (!t.finished) {
+          logger.error("" + t + " timed out");
+          throw new TestFrameworkException(t + " timed out");
+        }
+        if (t.setupException != null) {
+          throw new TestFrameworkException(t + " threw exception in setup (see stderr)");
+        } else if (t.testException != null) {
+          throw new TestFrameworkException(t + " threw exception in test (see stderr)",
+              t.testException);
+        } else if (t.teardownException != null) {
+          throw new TestFrameworkException(t + " threw exception in teardown (see stderr)");
+        }
       }
-      if (!t.finished) {
-        logger.error("" + t + " timed out");
-        throw new TestFrameworkException(t + " timed out");
-      }
-      if (t.setupException != null) {
-        throw new TestFrameworkException(t + " threw exception in setup (see stderr)");
-      } else if (t.testException != null) {
-        throw new TestFrameworkException(t + " threw exception in test (see stderr)",
-            t.testException);
-      } else if (t.teardownException != null) {
-        throw new TestFrameworkException(t + " threw exception in teardown (see stderr)");
-      }
+    } catch (Exception e) {
+      // propagate up
+      throw e;
+    } finally {
+      closeNetworks();
     }
+  }
 
-    //Cleanup - shut down network in manually. All tests should use the NetworkCreator 
-    //in order for this to work, or manage the network themselves.
+  private static void closeNetworks() {
+    // Cleanup - shut down network in manually. All tests should use the NetworkCreator
+    // in order for this to work, or manage the network themselves.
     Map<Integer, ResourcePool> rps = ResourcePoolCreator.getCurrentResourcePools();
     for (int id : rps.keySet()) {
       Network network = rps.get(id).getNetwork();
       try {
         network.close();
       } catch (IOException e) {
-        //Cannot do anything about this.
+        // Cannot do anything about this.
       }
     }
     rps.clear();
-    //allow the sockets to become available again. 
+    // allow the sockets to become available again.
     try {
       Thread.sleep(10);
     } catch (InterruptedException e) {
@@ -216,5 +221,4 @@ public class TestThreadRunner {
       e.printStackTrace();
     }
   }
-
 }
