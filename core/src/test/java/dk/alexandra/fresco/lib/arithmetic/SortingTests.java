@@ -32,7 +32,6 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.numeric.NumericBuilder;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
-import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
@@ -51,47 +50,40 @@ public class SortingTests {
   public static class TestIsSorted<ResourcePoolT extends ResourcePool> extends
       TestThreadFactory {
 
+    private BigInteger zero = BigInteger.valueOf(0);
+    private BigInteger one = BigInteger.valueOf(1);
+    private BigInteger two = BigInteger.valueOf(2);
+    private BigInteger three = BigInteger.valueOf(3);
+    private BigInteger four = BigInteger.valueOf(4);
+    private BigInteger five = BigInteger.valueOf(5);
+
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         @Override
         public void test() throws Exception {
-          Application<Pair<BigInteger, BigInteger>, ProtocolBuilderNumeric> app = new Application<Pair<BigInteger, BigInteger>, ProtocolBuilderNumeric>() {
+          Application<Pair<BigInteger, BigInteger>, ProtocolBuilderNumeric> app = builder -> {
+            Computation<SInt> zero = builder.numeric().known(TestIsSorted.this.zero);
+            Computation<SInt> one = builder.numeric().known(TestIsSorted.this.one);
+            Computation<SInt> two = builder.numeric().known(TestIsSorted.this.two);
+            Computation<SInt> three = builder.numeric().known(TestIsSorted.this.three);
+            Computation<SInt> four = builder.numeric().known(TestIsSorted.this.four);
+            Computation<SInt> five = builder.numeric().known(TestIsSorted.this.five);
 
-            private BigInteger zero = BigInteger.valueOf(0);
-            private BigInteger one = BigInteger.valueOf(1);
-            private BigInteger two = BigInteger.valueOf(2);
-            private BigInteger three = BigInteger.valueOf(3);
-            private BigInteger four = BigInteger.valueOf(4);
-            private BigInteger five = BigInteger.valueOf(5);
+            List<Computation<SInt>> unsorted = Arrays.asList(one, two, three, five, zero);
+            List<Computation<SInt>> sorted = Arrays.asList(three, four, four);
 
-            @Override
-            public Computation<Pair<BigInteger, BigInteger>> buildComputation(
-                ProtocolBuilderNumeric builder) {
-              Computation<SInt> zero = builder.numeric().known(this.zero);
-              Computation<SInt> one = builder.numeric().known(this.one);
-              Computation<SInt> two = builder.numeric().known(this.two);
-              Computation<SInt> three = builder.numeric().known(this.three);
-              Computation<SInt> four = builder.numeric().known(this.four);
-              Computation<SInt> five = builder.numeric().known(this.five);
+            Computation<SInt> firstResult = new SortingHelperUtility()
+                .isSorted(builder, unsorted);
+            Computation<SInt> secondResult = new SortingHelperUtility().isSorted(builder, sorted);
 
-              List<Computation<SInt>> unsorted = Arrays.asList(one, two, three, five, zero);
-              List<Computation<SInt>> sorted = Arrays.asList(three, four, four);
+            Computation<BigInteger> firstOpen = builder.numeric().open(firstResult);
+            Computation<BigInteger> secondOpen = builder.numeric().open(secondResult);
 
-              Computation<SInt> firstResult = new SortingHelperUtility()
-                  .isSorted(builder, unsorted);
-              Computation<SInt> secondResult = new SortingHelperUtility().isSorted(builder, sorted);
-
-              Computation<BigInteger> firstOpen = builder.numeric().open(firstResult);
-              Computation<BigInteger> secondOpen = builder.numeric().open(secondResult);
-
-              return () -> new Pair<>(firstOpen.out(), secondOpen.out());
-            }
+            return () -> new Pair<>(firstOpen.out(), secondOpen.out());
           };
 
-          Pair<BigInteger, BigInteger> outputs = secureComputationEngine
-              .runApplication(app, ResourcePoolCreator.createResourcePool(conf.sceConf));
-          secureComputationEngine.shutdownSCE();
+          Pair<BigInteger, BigInteger> outputs = runApplication(app);
           Assert.assertEquals(BigInteger.ZERO, outputs.getFirst());
           Assert.assertEquals(BigInteger.ONE, outputs.getSecond());
         }
@@ -107,37 +99,20 @@ public class SortingTests {
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         @Override
         public void test() throws Exception {
-          Application<Pair<BigInteger, BigInteger>, ProtocolBuilderNumeric> app = new Application<Pair<BigInteger, BigInteger>, ProtocolBuilderNumeric>() {
-
-
-            private BigInteger one = BigInteger.valueOf(1);
-            private BigInteger two = BigInteger.valueOf(2);
-
-            @Override
-            public Computation<Pair<BigInteger, BigInteger>> buildComputation(
-                ProtocolBuilderNumeric builder) {
-              Computation<SInt> one = builder.numeric().known(this.one);
-              Computation<SInt> two = builder.numeric().known(this.two);
-
-              List<Computation<SInt>> initialList = Arrays.asList(two, one);
-
-              return builder.seq(seq -> {
-                    new SortingHelperUtility().compareAndSwap(seq, 0, 1, initialList);
-                    return () -> initialList;
-                  }
-              ).seq((seq, list) -> {
-                    Computation<BigInteger> firstOpen = seq.numeric().open(list.get(0));
-                    Computation<BigInteger> secondOpen = seq.numeric().open(list.get(1));
-
-                    return () -> new Pair<>(firstOpen.out(), secondOpen.out());
-                  }
-              );
-            }
+          Application<Pair<BigInteger, BigInteger>, ProtocolBuilderNumeric> app = seq -> {
+            Computation<SInt> one = seq.numeric().known(BigInteger.valueOf(1));
+            Computation<SInt> two = seq.numeric().known(BigInteger.valueOf(2));
+            List<Computation<SInt>> initialList = Arrays.asList(two, one);
+            new SortingHelperUtility().compareAndSwap(seq, 0, 1, initialList);
+            return seq.seq((openSeq) -> {
+                  Computation<BigInteger> firstOpen = openSeq.numeric().open(initialList.get(0));
+                  Computation<BigInteger> secondOpen = openSeq.numeric().open(initialList.get(1));
+                  return () -> new Pair<>(firstOpen.out(), secondOpen.out());
+                }
+            );
           };
 
-          Pair<BigInteger, BigInteger> outputs = secureComputationEngine
-              .runApplication(app, ResourcePoolCreator.createResourcePool(conf.sceConf));
-          secureComputationEngine.shutdownSCE();
+          Pair<BigInteger, BigInteger> outputs = runApplication(app);
           Assert.assertEquals(BigInteger.ONE, outputs.getFirst());
           Assert.assertEquals(BigInteger.valueOf(2), outputs.getSecond());
         }
@@ -188,11 +163,10 @@ public class SortingTests {
                 });
               };
 
-          List<BigInteger> outputs = secureComputationEngine
-              .runApplication(app, ResourcePoolCreator.createResourcePool(conf.sceConf));
-          secureComputationEngine.shutdownSCE();
+          List<BigInteger> outputs = runApplication(app);
           Assert.assertEquals(sorted, outputs);
         }
+
       };
     }
   }

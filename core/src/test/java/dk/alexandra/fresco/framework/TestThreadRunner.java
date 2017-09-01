@@ -64,6 +64,12 @@ public class TestThreadRunner {
       this.conf = conf;
     }
 
+    protected <OutputT> OutputT runApplication(Application<OutputT, Builder> app)
+        throws IOException {
+      ResourcePoolT resourcePool = ResourcePoolCreator.createResourcePool(conf.sceConf);
+      return secureComputationEngine.runApplication(app, resourcePool);
+    }
+
     @Override
     public String toString() {
       return "TestThread(" + this.conf.netConf.getMyId() + ")";
@@ -158,7 +164,7 @@ public class TestThreadRunner {
       int randSeed) throws TestFrameworkException {
     // TODO: Rather use thread container from util.concurrent?
 
-    final Set<TestThread> threads = new HashSet<TestThread>();
+    final Set<TestThread> threads = new HashSet<>();
     final int n = confs.size();
 
     for (int i = 0; i < n; i++) {
