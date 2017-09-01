@@ -3,32 +3,30 @@
  *
  * This file is part of the FRESCO project.
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
  *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *
- * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
- * and Bouncy Castle. Please see these projects for any further licensing issues.
+ * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL, and Bouncy Castle.
+ * Please see these projects for any further licensing issues.
  *******************************************************************************/
-package dk.alexandra.fresco.framework.network;
+package dk.alexandra.fresco.network;
 
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.Party;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
+import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.Base64;
 import edu.biu.scapi.comm.AuthenticatedChannel;
 import edu.biu.scapi.comm.Channel;
@@ -80,12 +78,11 @@ public class ScapiNetworkImpl implements Network {
   private Map<Integer, PartyData> idToPartyData;
   private int channelAmount;
 
-  //Queue for self-sending
+  // Queue for self-sending
   private Map<Integer, BlockingQueue<Serializable>> queues;
   private static Logger logger = LoggerFactory.getLogger(ScapiNetworkImpl.class);
 
-  public ScapiNetworkImpl() {
-  }
+  public ScapiNetworkImpl() {}
 
   /**
    * @param conf - The configuration with info about whom to connect to.
@@ -97,9 +94,9 @@ public class ScapiNetworkImpl implements Network {
     this.conf = conf;
   }
 
-  //TODO: Include player to integer map to indicate
-  //how many channels are wanted to each player.
-  //Implement this also for send to self queues.
+  // TODO: Include player to integer map to indicate
+  // how many channels are wanted to each player.
+  // Implement this also for send to self queues.
   public void connect(int timeoutMillis) throws IOException {
     // Convert FRESCO configuration to SCAPI configuration.
     List<PartyData> parties = new LinkedList<>();
@@ -125,16 +122,15 @@ public class ScapiNetworkImpl implements Network {
     // Create the communication setup class.
     MultipartyCommunicationSetup commSetup = new SocketMultipartyCommunicationSetup(parties);
     // Request one channel between me and each other party.
-    HashMap<PartyData, Object> connectionsPerParty = new HashMap<>(
-        others.size());
-    //queue to self
+    HashMap<PartyData, Object> connectionsPerParty = new HashMap<>(others.size());
+    // queue to self
     this.queues = new HashMap<>();
     for (PartyData other : others) {
       connectionsPerParty.put(other, this.channelAmount);
     }
 
     for (int i = 0; i < this.channelAmount; i++) {
-      //TODO: figure out correct number for capacity.
+      // TODO: figure out correct number for capacity.
       this.queues.put(i, new ArrayBlockingQueue<>(10000));
     }
 
@@ -161,9 +157,8 @@ public class ScapiNetworkImpl implements Network {
           } catch (InvalidKeyException e) {
             throw new MPCException("Invalid AES key (shared secret key): " + sharedSecretKey, e);
           } catch (SecurityLevelException e) {
-            throw new MPCException(
-                "SCAPI security level exception when creating channel " + cStr + " towards "
-                    + partyId, e);
+            throw new MPCException("SCAPI security level exception when creating channel " + cStr
+                + " towards " + partyId, e);
           }
 
           channels.put(cStr, secureChannel);
@@ -177,8 +172,7 @@ public class ScapiNetworkImpl implements Network {
   // version may allow only auth.
   @SuppressWarnings("unused")
   private AuthenticatedChannel getAuthenticatedChannel(PlainChannel channel,
-      String base64EncodedSSKey)
-      throws SecurityLevelException, InvalidKeyException {
+      String base64EncodedSSKey) throws SecurityLevelException, InvalidKeyException {
     Mac mac = new ScCbcMacPrepending(new BcAES());
     byte[] aesFixedKey = Base64.decodeFromString(base64EncodedSSKey);
     SecretKey key = new SecretKeySpec(aesFixedKey, "AES");
@@ -222,8 +216,8 @@ public class ScapiNetworkImpl implements Network {
    * TODO: When writing to TCP socket, does message always (1) get send eventually, or (2) does it
    * risk getting buffered indefinitely (until explicitly calling flush/close)?
    *
-   * TODO: There is also potential deadlock with TCP if both parties send large buffers to
-   * each other simultaneously.
+   * TODO: There is also potential deadlock with TCP if both parties send large buffers to each
+   * other simultaneously.
    *
    * @param receiverId Non-negative id of player to receive data.
    */
@@ -249,7 +243,7 @@ public class ScapiNetworkImpl implements Network {
 
   public Map<Integer, Serializable> receive(int channel, Set<Integer> expectedInputForNextRound)
       throws IOException {
-    //TODO: Maybe use threading for each player
+    // TODO: Maybe use threading for each player
     Map<Integer, Serializable> res = new HashMap<>();
     for (int i : expectedInputForNextRound) {
       byte[] r = this.receive(channel, i);
@@ -263,8 +257,7 @@ public class ScapiNetworkImpl implements Network {
   }
 
   @Override
-  public void send(int channel, int partyId, byte[] data)
-      throws IOException {
+  public void send(int channel, int partyId, byte[] data) throws IOException {
     if (partyId == this.conf.getMyId()) {
       this.queues.get(channel).add(data);
       return;
@@ -292,9 +285,8 @@ public class ScapiNetworkImpl implements Network {
       Map<String, Channel> channels = connections.get(receiver);
       Channel c = channels.get("" + channel);
       if (c == null) {
-        throw new MPCException(
-            "Trying to send via channel " + channel + ", but this network was initiated with only "
-                + this.channelAmount + " channels.");
+        throw new MPCException("Trying to send via channel " + channel
+            + ", but this network was initiated with only " + this.channelAmount + " channels.");
       }
       byte[] res = null;
       try {
