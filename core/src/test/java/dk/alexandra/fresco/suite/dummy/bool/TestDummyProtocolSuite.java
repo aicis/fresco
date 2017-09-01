@@ -166,21 +166,6 @@ public class TestDummyProtocolSuite<ResourcePoolT extends ResourcePool>
         NetworkingStrategy.KRYONET);
   }
 
-  // TODO Perhaps this test should be moved to a dedicated BasicLogicBuilder
-  // test class, as the exception is thrown there
-  /*
-   * @Ignore
-   * 
-   * @Test(expected = RuntimeException.class) public void test_comparisonBadLength() throws
-   * Exception { // runTest(new
-   * ComparisonBooleanTests.TestGreaterThanUnequalLength<ResourcePoolT>(), //
-   * EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET); }
-   * 
-   * @Test public void test_comparisonPar() throws Exception { // runTest(new
-   * ComparisonBooleanTests.TestGreaterThanPar(), EvaluationStrategy.SEQUENTIAL, //
-   * NetworkingStrategy.KRYONET); }
-   */
-
   @Test
   public void test_basic_logic_all_in_one() throws Exception {
     runTest(new BasicBooleanTests.TestBasicProtocols<ResourcePoolT>(true),
