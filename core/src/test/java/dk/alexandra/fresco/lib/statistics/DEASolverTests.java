@@ -248,16 +248,17 @@ public class DEASolverTests {
 
           int slackvariables = rawBasisInputs.get(0).size() + rawBasisOutputs.get(0).size() + 1;
           int variables = lambdas + slackvariables + 1 + 2; //+2 is new
-
+          
           for (int i = 0; i < rawTargetInputs.size(); i++) {
             Assert.assertEquals(plain[i],
                 postProcess(openResults.get(i).getFirst(), type, modulus), 0.0000001);
             List<BigInteger> basis = openResults.get(i).getSecond();
             for (int j = 0; j < basis.size(); j++) {
-              int value = basis.get(i).intValue();
+
+              int value = basis.get(j).intValue();
               Assert.assertTrue(
                   "Basis value " + value + ", was larger than " + (
-                      variables - 1), value < variables);
+                      variables - 1), value <= variables);
             }
           }
 
