@@ -35,12 +35,12 @@ import java.util.List;
  * implementation only supports lists where the size is a power of 2. (i.e. 4, 8, 16 etc.)
  *
  */
-public class OddEvenMergeProtocolImpl implements
+public class OddEvenMerge implements
     ComputationBuilder<List<Pair<List<Computation<SBool>>, List<Computation<SBool>>>>, ProtocolBuilderBinary> {
 
   private List<Pair<List<Computation<SBool>>, List<Computation<SBool>>>> numbers;
 
-  public OddEvenMergeProtocolImpl(
+  public OddEvenMerge(
       List<Pair<List<Computation<SBool>>, List<Computation<SBool>>>> unsortedNumbers) {
     super();
     this.numbers = unsortedNumbers;

@@ -181,16 +181,16 @@ public class CollectionsSortingTests {
                     new ArrayList<>();
 
                 unSorted
-                    .add(new Pair<List<Computation<SBool>>, List<Computation<SBool>>>(l11, l12));
+                    .add(new Pair<>(l11, l12));
                 unSorted
-                    .add(new Pair<List<Computation<SBool>>, List<Computation<SBool>>>(l21, l22));
+                    .add(new Pair<>(l21, l22));
                 unSorted
-                    .add(new Pair<List<Computation<SBool>>, List<Computation<SBool>>>(l31, l32));
+                    .add(new Pair<>(l31, l32));
                 unSorted
-                    .add(new Pair<List<Computation<SBool>>, List<Computation<SBool>>>(l41, l42));
+                    .add(new Pair<>(l41, l42));
 
                 Computation<List<Pair<List<Computation<SBool>>, List<Computation<SBool>>>>> sorted =
-                    new OddEvenMergeProtocolImpl(unSorted).buildComputation(seq);
+                    new OddEvenMerge(unSorted).buildComputation(seq);
                 return sorted;
               }).seq((seq, sorted) -> {
                 BinaryBuilder builder = seq.binary();
@@ -214,7 +214,7 @@ public class CollectionsSortingTests {
                       p.getFirst().stream().map(Computation::out).collect(Collectors.toList());
                   List<Boolean> value =
                       p.getSecond().stream().map(Computation::out).collect(Collectors.toList());
-                  return new Pair<List<Boolean>, List<Boolean>>(key, value);
+                  return new Pair<>(key, value);
                 }).collect(Collectors.toList());
               });
             }

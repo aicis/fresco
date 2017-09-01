@@ -4,8 +4,6 @@ import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SBool;
 import dk.alexandra.fresco.lib.collections.sort.KeyedCompareAndSwap;
-import dk.alexandra.fresco.lib.collections.sort.OddEvenMergeProtocol;
-import dk.alexandra.fresco.lib.collections.sort.OddEvenMergeProtocolRec;
 import dk.alexandra.fresco.lib.field.bool.ConditionalSelect;
 import dk.alexandra.fresco.lib.field.bool.generic.AndFromPublicValue;
 import dk.alexandra.fresco.lib.field.bool.generic.NandFromAndAndNot;
@@ -113,16 +111,6 @@ public class DefaultBinaryBuilderAdvanced implements BinaryBuilderAdvanced {
   @Override
   public Computation<List<Computation<SBool>>> logProtocol(List<Computation<SBool>> number) {
     return builder.seq(new LogProtocol(number));
-  }
-
-
-  /**
-   * Advanced protocols - do not yet exist in interface
-   */
-
-  public OddEvenMergeProtocol getOddEvenMergeProtocol(List<Pair<SBool[], SBool[]>> left,
-      List<Pair<SBool[], SBool[]>> right, List<Pair<SBool[], SBool[]>> sorted) {
-    return new OddEvenMergeProtocolRec(left, right, sorted);
   }
 
   @Override
