@@ -63,17 +63,16 @@ public class ComparisonBooleanTests {
           Boolean[] comp1 = new Boolean[] {false, true, false, true, false};
           Boolean[] comp2 = new Boolean[] {false, true, true, true, false};
 
-          Application<List<Boolean>, ProtocolBuilderBinary> app =
-              producer -> producer.seq(seq -> {
-                List<Computation<SBool>> in1 = BooleanHelper.known(comp1, seq.binary());
-                List<Computation<SBool>> in2 = BooleanHelper.known(comp2, seq.binary());
-                Computation<SBool> res1 = seq.comparison().greaterThan(in1, in2);
-                Computation<SBool> res2 = seq.comparison().greaterThan(in2, in1);
-                Computation<Boolean> open1 = seq.binary().open(res1);
-                Computation<Boolean> open2 = seq.binary().open(res2);
-                return () -> Arrays.asList(open1, open2);
-              }).seq((seq, opened) -> () -> opened.stream().map(Computation::out)
-                  .collect(Collectors.toList()));
+          Application<List<Boolean>, ProtocolBuilderBinary> app = producer -> producer.seq(seq -> {
+            List<Computation<SBool>> in1 = BooleanHelper.known(comp1, seq.binary());
+            List<Computation<SBool>> in2 = BooleanHelper.known(comp2, seq.binary());
+            Computation<SBool> res1 = seq.comparison().greaterThan(in1, in2);
+            Computation<SBool> res2 = seq.comparison().greaterThan(in2, in1);
+            Computation<Boolean> open1 = seq.binary().open(res1);
+            Computation<Boolean> open2 = seq.binary().open(res2);
+            return () -> Arrays.asList(open1, open2);
+          }).seq((seq,
+              opened) -> () -> opened.stream().map(Computation::out).collect(Collectors.toList()));
 
           List<Boolean> res = secureComputationEngine.runApplication(app,
               ResourcePoolCreator.createResourcePool(conf.sceConf));
@@ -92,8 +91,7 @@ public class ComparisonBooleanTests {
    *
    * @author Kasper Damgaard
    */
-  public static class TestEquality<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory {
+  public static class TestEquality<ResourcePoolT extends ResourcePool> extends TestThreadFactory {
 
     private boolean doAsserts = false;
 
@@ -111,17 +109,16 @@ public class ComparisonBooleanTests {
           Boolean[] comp1 = new Boolean[] {false, true, false, true, false};
           Boolean[] comp2 = new Boolean[] {false, true, true, true, false};
 
-          Application<List<Boolean>, ProtocolBuilderBinary> app =
-              producer -> producer.seq(seq -> {
-                List<Computation<SBool>> in1 = BooleanHelper.known(comp1, seq.binary());
-                List<Computation<SBool>> in2 = BooleanHelper.known(comp2, seq.binary());
-                Computation<SBool> res1 = seq.comparison().equal(in1, in2);
-                Computation<SBool> res2 = seq.comparison().equal(in1, in1);
-                Computation<Boolean> open1 = seq.binary().open(res1);
-                Computation<Boolean> open2 = seq.binary().open(res2);
-                return () -> Arrays.asList(open1, open2);
-              }).seq((seq, opened) -> () -> opened.stream().map(Computation::out)
-                  .collect(Collectors.toList()));
+          Application<List<Boolean>, ProtocolBuilderBinary> app = producer -> producer.seq(seq -> {
+            List<Computation<SBool>> in1 = BooleanHelper.known(comp1, seq.binary());
+            List<Computation<SBool>> in2 = BooleanHelper.known(comp2, seq.binary());
+            Computation<SBool> res1 = seq.comparison().equal(in1, in2);
+            Computation<SBool> res2 = seq.comparison().equal(in1, in1);
+            Computation<Boolean> open1 = seq.binary().open(res1);
+            Computation<Boolean> open2 = seq.binary().open(res2);
+            return () -> Arrays.asList(open1, open2);
+          }).seq((seq,
+              opened) -> () -> opened.stream().map(Computation::out).collect(Collectors.toList()));
 
           List<Boolean> res = secureComputationEngine.runApplication(app,
               ResourcePoolCreator.createResourcePool(conf.sceConf));
@@ -151,18 +148,25 @@ public class ComparisonBooleanTests {
           Boolean[] comp1 = new Boolean[] {false, true, false, true, false};
           Boolean[] comp2 = new Boolean[] {false, true, true};
 
-          Application<List<Boolean>, ProtocolBuilderBinary> app =
-              producer -> producer.seq(seq -> {
-                List<Computation<SBool>> in1 = BooleanHelper.known(comp1, seq.binary());
-                List<Computation<SBool>> in2 = BooleanHelper.known(comp2, seq.binary());
-                Computation<SBool> res1 = seq.comparison().greaterThan(in1, in2);
-                Computation<Boolean> open1 = seq.binary().open(res1);
-                return () -> Collections.singletonList(open1);
-              }).seq((seq, opened) -> () -> opened.stream().map(Computation::out)
-                  .collect(Collectors.toList()));
+          Application<List<Boolean>, ProtocolBuilderBinary> app = producer -> producer.seq(seq -> {
+            List<Computation<SBool>> in1 = BooleanHelper.known(comp1, seq.binary());
+            List<Computation<SBool>> in2 = BooleanHelper.known(comp2, seq.binary());
+            Computation<SBool> res1 = seq.comparison().greaterThan(in1, in2);
+            Computation<Boolean> open1 = seq.binary().open(res1);
+            return () -> Collections.singletonList(open1);
+          }).seq((seq,
+              opened) -> () -> opened.stream().map(Computation::out).collect(Collectors.toList()));
 
-          secureComputationEngine.runApplication(app,
-              ResourcePoolCreator.createResourcePool(conf.sceConf));
+          try {
+            secureComputationEngine.runApplication(app,
+                ResourcePoolCreator.createResourcePool(conf.sceConf));
+          } catch (Exception e) {
+            if (e.getCause() instanceof IllegalArgumentException) {
+
+            } else {
+              throw e;
+            }
+          }
         }
       };
     }

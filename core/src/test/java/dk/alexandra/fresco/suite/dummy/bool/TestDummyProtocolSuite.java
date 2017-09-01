@@ -194,6 +194,12 @@ public class TestDummyProtocolSuite<ResourcePoolT extends ResourcePool>
   }
 
   @Test
+  public void test_comparison_unequal_length() throws Exception {
+    runTest(new ComparisonBooleanTests.TestGreaterThanUnequalLength<ResourcePoolT>(),
+        EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET);
+  }
+
+  @Test
   public void test_equality() throws Exception {
     runTest(new ComparisonBooleanTests.TestEquality<ResourcePoolT>(), EvaluationStrategy.SEQUENTIAL,
         NetworkingStrategy.KRYONET);
