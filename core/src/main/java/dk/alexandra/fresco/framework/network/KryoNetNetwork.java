@@ -6,6 +6,7 @@ import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.EndPoint;
 import com.esotericsoftware.kryonet.Listener;
 import com.esotericsoftware.kryonet.Server;
+import com.esotericsoftware.minlog.Log;
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.crypto.AES;
@@ -40,7 +41,7 @@ public class KryoNetNetwork implements Network {
   private Logger logger = LoggerFactory.getLogger(KryoNetNetwork.class);
 
   public KryoNetNetwork() {
-
+    Log.set(Log.LEVEL_ERROR);
   }
 
   @Override
