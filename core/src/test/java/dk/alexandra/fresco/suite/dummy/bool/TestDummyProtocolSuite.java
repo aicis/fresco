@@ -36,7 +36,6 @@ import dk.alexandra.fresco.lib.field.bool.generic.FieldBoolTests;
 import dk.alexandra.fresco.lib.math.bool.add.AddTests;
 import dk.alexandra.fresco.lib.math.bool.log.LogTests;
 import dk.alexandra.fresco.lib.math.bool.mult.MultTests;
-import org.junit.Ignore;
 import org.junit.Test;
 
 
@@ -166,21 +165,6 @@ public class TestDummyProtocolSuite<ResourcePoolT extends ResourcePool>
     runTest(new BristolCryptoTests.Sha256Test<ResourcePoolT>(true), EvaluationStrategy.SEQUENTIAL,
         NetworkingStrategy.KRYONET);
   }
-
-  // TODO Perhaps this test should be moved to a dedicated BasicLogicBuilder
-  // test class, as the exception is thrown there
-  /*@Ignore
-  @Test(expected = RuntimeException.class)
-  public void test_comparisonBadLength() throws Exception {
-    // runTest(new ComparisonBooleanTests.TestGreaterThanUnequalLength<ResourcePoolT>(),
-    // EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET);
-  }
-
-  @Test
-  public void test_comparisonPar() throws Exception {
-    // runTest(new ComparisonBooleanTests.TestGreaterThanPar(), EvaluationStrategy.SEQUENTIAL,
-    // NetworkingStrategy.KRYONET);
-  }*/
 
   @Test
   public void test_basic_logic_all_in_one() throws Exception {

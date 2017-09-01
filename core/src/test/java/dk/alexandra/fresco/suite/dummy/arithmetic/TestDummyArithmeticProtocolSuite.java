@@ -27,7 +27,6 @@ import dk.alexandra.fresco.lib.statistics.DEASolverTests.RandomDataDeaTest;
 
 import java.math.BigInteger;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 
@@ -74,8 +73,6 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
     runTest(new TestSumAndProduct(), EvaluationStrategy.SEQUENTIAL,
         NetworkingStrategy.KRYONET, 2);
   }
-
-  // Comparisons
 
   @Test
   public void test_MinInfFrac_Sequential() throws Exception {
@@ -163,21 +160,18 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
         EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET, 2);
   }
 
-  @Ignore // TODO needs a closer look
   @Test
   public void test_DEASolver_3_parties() throws Exception {
     runTest(new RandomDataDeaTest(2, 2, 10, 1, AnalysisType.INPUT_EFFICIENCY),
         EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET, 3);
   }
 
-  @Ignore // TODO needs a closer look
   @Test
   public void test_DEASolver_multiple_queries_2_parties() throws Exception {
     runTest(new RandomDataDeaTest(5, 2, 10, 2, AnalysisType.INPUT_EFFICIENCY),
         EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET, 2);
   }
 
-  @Ignore // TODO needs a closer look
   @Test
   public void test_DEASolver_single_input_2_parties() throws Exception {
     runTest(new RandomDataDeaTest(1, 2, 10, 1, AnalysisType.INPUT_EFFICIENCY),
@@ -253,7 +247,6 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
   }
 
   // lib.lp
-  // @Ignore //check with Peter if we still want this
   @Test
   public void test_LPSolverEntering() throws Exception {
     runTest(new LPBuildingBlockTests.TestEnteringVariable(), EvaluationStrategy.SEQUENTIAL,
