@@ -3,9 +3,9 @@ package dk.alexandra.fresco.demo.helpers;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
 import dk.alexandra.fresco.framework.configuration.ConfigurationException;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
+import dk.alexandra.fresco.framework.network.KryoNetNetwork;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.NetworkingStrategy;
-import dk.alexandra.fresco.framework.network.ScapiNetworkImpl;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import java.io.IOException;
@@ -18,19 +18,13 @@ public class ResourcePoolHelper {
 
   private static Map<Integer, ResourcePool> networks = new HashMap<>();
 
-  private static Network getNetworkFromConfiguration(
-      NetworkingStrategy networkStrategy, NetworkConfiguration networkConfiguration) {
+  private static Network getNetworkFromConfiguration(NetworkingStrategy networkStrategy,
+      NetworkConfiguration networkConfiguration) {
     int channelAmount = 1;
     Network network;
     switch (networkStrategy) {
       case KRYONET:
-        // TODO[PSN]
-        // KryoNet currently works on mac, but Windows is still in the dark.
-        // network = new KryoNetNetwork();
-        network = new ScapiNetworkImpl();
-        break;
-      case SCAPI:
-        network = new ScapiNetworkImpl();
+        network = new KryoNetNetwork();
         break;
       default:
         throw new ConfigurationException("Unknown networking strategy " + networkStrategy);
@@ -41,10 +35,8 @@ public class ResourcePoolHelper {
   }
 
   public static <ResourcePoolT extends ResourcePool, Builder extends ProtocolBuilder> ResourcePoolT createResourcePool(
-      ProtocolSuite<ResourcePoolT, Builder> suite,
-      NetworkingStrategy networkStrategy,
-      NetworkConfiguration networkConfiguration)
-      throws IOException {
+      ProtocolSuite<ResourcePoolT, Builder> suite, NetworkingStrategy networkStrategy,
+      NetworkConfiguration networkConfiguration) throws IOException {
     int myId = networkConfiguration.getMyId();
 
     // Secure random by default.
