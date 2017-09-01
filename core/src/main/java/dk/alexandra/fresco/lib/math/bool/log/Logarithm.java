@@ -56,7 +56,7 @@ import java.util.List;
  *
  * @author Kasper Damgaard
  */
-public class LogProtocol implements
+public class Logarithm implements
     ComputationBuilder<List<Computation<SBool>>, ProtocolBuilderBinary> {
 
   private List<Computation<SBool>> number;
@@ -67,7 +67,7 @@ public class LogProtocol implements
    *
    * @param number The number which we want to calculate log base 2 on.
    */
-  public LogProtocol(List<Computation<SBool>> number) {
+  public Logarithm(List<Computation<SBool>> number) {
     this.number = number;
   }
 

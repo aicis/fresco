@@ -40,12 +40,12 @@ import java.util.List;
  *
  * @author Kasper Damgaard
  */
-public class BinaryMultProtocol implements
+public class BinaryMultiplication implements
     ComputationBuilder<List<Computation<SBool>>, ProtocolBuilderBinary> {
 
   private List<Computation<SBool>> lefts, rights;
 
-  public BinaryMultProtocol(List<Computation<SBool>> lefts,
+  public BinaryMultiplication(List<Computation<SBool>> lefts,
       List<Computation<SBool>> rights) {
     this.lefts = lefts;
     this.rights = rights;
