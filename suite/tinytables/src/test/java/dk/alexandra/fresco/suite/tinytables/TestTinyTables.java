@@ -3,26 +3,23 @@
  *
  * This file is part of the FRESCO project.
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
  *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *
- * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
- * and Bouncy Castle. Please see these projects for any further licensing issues.
+ * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL, and Bouncy Castle.
+ * Please see these projects for any further licensing issues.
  *******************************************************************************/
 package dk.alexandra.fresco.suite.tinytables;
 
@@ -31,7 +28,7 @@ import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.TestThreadRunner;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderBinary;
+import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.TestConfiguration;
 import dk.alexandra.fresco.framework.network.NetworkingStrategy;
@@ -39,8 +36,9 @@ import dk.alexandra.fresco.framework.sce.configuration.TestSCEConfiguration;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
 import dk.alexandra.fresco.lib.bool.BasicBooleanTests;
+import dk.alexandra.fresco.lib.bool.ComparisonBooleanTests;
 import dk.alexandra.fresco.lib.crypto.BristolCryptoTests;
-import dk.alexandra.fresco.lib.math.mult.BristolMultTests;
+import dk.alexandra.fresco.lib.math.bool.add.AddTests;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.tinytables.online.TinyTablesProtocolSuite;
 import dk.alexandra.fresco.suite.tinytables.prepro.TinyTablesPreproProtocolSuite;
@@ -62,8 +60,8 @@ import org.junit.experimental.categories.Category;
 
 public class TestTinyTables {
 
-  private void runTest(TestThreadFactory f, EvaluationStrategy evalStrategy,
-      boolean preprocessing, String name) throws Exception {
+  private void runTest(TestThreadFactory f, EvaluationStrategy evalStrategy, boolean preprocessing,
+      String name) throws Exception {
     int noPlayers = 2;
     // Since SCAPI currently does not work with ports > 9999 we use fixed
     // ports
@@ -73,12 +71,13 @@ public class TestTinyTables {
       ports.add(9000 + i);
     }
 
-    Map<Integer, NetworkConfiguration> netConf = TestConfiguration.getNetworkConfigurations(
-        noPlayers, ports);
+    Map<Integer, NetworkConfiguration> netConf =
+        TestConfiguration.getNetworkConfigurations(noPlayers, ports);
     Map<Integer, TestThreadConfiguration> conf = new HashMap<>();
 
     for (int playerId : netConf.keySet()) {
-      TestThreadConfiguration ttc = new TestThreadConfiguration();
+      TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary> ttc =
+          new TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary>();
       ttc.netConf = netConf.get(playerId);
 
       ProtocolEvaluator<ResourcePoolImpl> evaluator;
@@ -93,17 +92,17 @@ public class TestTinyTables {
 
       evaluator = EvaluationStrategy.fromEnum(evalStrategy);
 
-      ttc.sceConf = new TestSCEConfiguration<>(suite, NetworkingStrategy.KRYONET, evaluator,
-          ttc.netConf, false);
+      ttc.sceConf = new TestSCEConfiguration<ResourcePoolImpl, ProtocolBuilderBinary>(suite,
+          NetworkingStrategy.KRYONET, evaluator, ttc.netConf, false);
       conf.put(playerId, ttc);
     }
     TestThreadRunner.run(f, conf);
 
   }
 
-	/*
+  /*
    * Helper methods
-	 */
+   */
 
   private String getFilenameForTest(int playerId, String name) {
     return "tinytables/TinyTables_" + name + "_" + playerId;
@@ -142,9 +141,9 @@ public class TestTinyTables {
 
   /*
    * Basic tests
-	 */
+   */
 
-  //ensure that the tinytables folder is new for each test and is deleted upon exiting each test.
+  // ensure that the tinytables folder is new for each test and is deleted upon exiting each test.
   @Before
   public void checkFolderExists() throws IOException {
     File f = new File("tinytables");
@@ -166,80 +165,114 @@ public class TestTinyTables {
 
   @Test
   public void testInput() throws Exception {
-    runTest(new BasicBooleanTests.TestInput(false), EvaluationStrategy.SEQUENTIAL, true,
-        "testInput");
-    runTest(new BasicBooleanTests.TestInput(true), EvaluationStrategy.SEQUENTIAL, false,
-        "testInput");
+    runTest(new BasicBooleanTests.TestInput<ResourcePoolImpl>(false), EvaluationStrategy.SEQUENTIAL,
+        true, "testInput");
+    runTest(new BasicBooleanTests.TestInput<ResourcePoolImpl>(true), EvaluationStrategy.SEQUENTIAL,
+        false, "testInput");
   }
 
   @Test
   public void testXOR() throws Exception {
-    runTest(new BasicBooleanTests.TestXOR(false), EvaluationStrategy.SEQUENTIAL, true, "testXOR");
-    runTest(new BasicBooleanTests.TestXOR(true), EvaluationStrategy.SEQUENTIAL, false, "testXOR");
+    runTest(new BasicBooleanTests.TestXOR<ResourcePoolImpl>(false), EvaluationStrategy.SEQUENTIAL,
+        true, "testXOR");
+    runTest(new BasicBooleanTests.TestXOR<ResourcePoolImpl>(true), EvaluationStrategy.SEQUENTIAL,
+        false, "testXOR");
   }
 
   @Test
   public void testAND() throws Exception {
-    runTest(new BasicBooleanTests.TestAND(false), EvaluationStrategy.SEQUENTIAL, true, "testAND");
-    runTest(new BasicBooleanTests.TestAND(true), EvaluationStrategy.SEQUENTIAL, false, "testAND");
+    runTest(new BasicBooleanTests.TestAND<ResourcePoolImpl>(false), EvaluationStrategy.SEQUENTIAL,
+        true, "testAND");
+    runTest(new BasicBooleanTests.TestAND<ResourcePoolImpl>(true), EvaluationStrategy.SEQUENTIAL,
+        false, "testAND");
   }
 
   @Test
   public void testNOT() throws Exception {
-    runTest(new BasicBooleanTests.TestNOT(false), EvaluationStrategy.SEQUENTIAL, true, "testNOT");
-    runTest(new BasicBooleanTests.TestNOT(true), EvaluationStrategy.SEQUENTIAL, false, "testNOT");
+    runTest(new BasicBooleanTests.TestNOT<ResourcePoolImpl>(false), EvaluationStrategy.SEQUENTIAL,
+        true, "testNOT");
+    runTest(new BasicBooleanTests.TestNOT<ResourcePoolImpl>(true), EvaluationStrategy.SEQUENTIAL,
+        false, "testNOT");
   }
 
   @Test
   public void testBasicProtocols() throws Exception {
-    runTest(new BasicBooleanTests.TestBasicProtocols(false), EvaluationStrategy.SEQUENTIAL, true,
-        "testBasicProtocols");
-    runTest(new BasicBooleanTests.TestBasicProtocols(true), EvaluationStrategy.SEQUENTIAL, false,
-        "testBasicProtocols");
+    runTest(new BasicBooleanTests.TestBasicProtocols<ResourcePoolImpl>(false),
+        EvaluationStrategy.SEQUENTIAL, true, "testBasicProtocols");
+    runTest(new BasicBooleanTests.TestBasicProtocols<ResourcePoolImpl>(true),
+        EvaluationStrategy.SEQUENTIAL, false, "testBasicProtocols");
   }
 
-  /*
-   * Advanced tests
-   */
+  /* Bristol tests */
+
   @Category(IntegrationTest.class)
   @Test
   public void testMult() throws Exception {
-    runTest(new BristolMultTests.Mult32x32Test(false), EvaluationStrategy.SEQUENTIAL, true,
-        "testMult");
-    runTest(new BristolMultTests.Mult32x32Test(true), EvaluationStrategy.SEQUENTIAL, false,
-        "testMult");
+    runTest(new BristolCryptoTests.Mult32x32Test<ResourcePoolImpl>(false),
+        EvaluationStrategy.SEQUENTIAL, true, "testMult32x32");
+    runTest(new BristolCryptoTests.Mult32x32Test<ResourcePoolImpl>(true),
+        EvaluationStrategy.SEQUENTIAL, false, "testMult32x32");
   }
 
   @Category(IntegrationTest.class)
   @Test
   public void testAES() throws Exception {
-    runTest(new BristolCryptoTests.AesTest(false), EvaluationStrategy.SEQUENTIAL, true, "testAES");
-    runTest(new BristolCryptoTests.AesTest(true), EvaluationStrategy.SEQUENTIAL, false, "testAES");
+    runTest(new BristolCryptoTests.AesTest<ResourcePoolImpl>(false), EvaluationStrategy.SEQUENTIAL,
+        true, "testAES");
+    runTest(new BristolCryptoTests.AesTest<ResourcePoolImpl>(true), EvaluationStrategy.SEQUENTIAL,
+        false, "testAES");
   }
 
   @Category(IntegrationTest.class)
   @Test
   public void test_DES() throws Exception {
-    runTest(new BristolCryptoTests.DesTest(false), EvaluationStrategy.SEQUENTIAL, true, "testDES");
-    runTest(new BristolCryptoTests.DesTest(true), EvaluationStrategy.SEQUENTIAL, false, "testDES");
+    runTest(new BristolCryptoTests.DesTest<ResourcePoolImpl>(false), EvaluationStrategy.SEQUENTIAL,
+        true, "testDES");
+    runTest(new BristolCryptoTests.DesTest<ResourcePoolImpl>(true), EvaluationStrategy.SEQUENTIAL,
+        false, "testDES");
   }
 
   @Category(IntegrationTest.class)
   @Test
   public void test_SHA1() throws Exception {
-    runTest(new BristolCryptoTests.Sha1Test(false), EvaluationStrategy.SEQUENTIAL, true,
-        "testSHA1");
-    runTest(new BristolCryptoTests.Sha1Test(true), EvaluationStrategy.SEQUENTIAL, false,
-        "testSHA1");
+    runTest(new BristolCryptoTests.Sha1Test<ResourcePoolImpl>(false), EvaluationStrategy.SEQUENTIAL,
+        true, "testSHA1");
+    runTest(new BristolCryptoTests.Sha1Test<ResourcePoolImpl>(true), EvaluationStrategy.SEQUENTIAL,
+        false, "testSHA1");
   }
 
   @Category(IntegrationTest.class)
   @Test
   public void test_SHA256() throws Exception {
-    runTest(new BristolCryptoTests.Sha256Test(false), EvaluationStrategy.SEQUENTIAL, true,
-        "testSHA256");
-    runTest(new BristolCryptoTests.Sha256Test(true), EvaluationStrategy.SEQUENTIAL, false,
-        "testSHA256");
+    runTest(new BristolCryptoTests.Sha256Test<ResourcePoolImpl>(false),
+        EvaluationStrategy.SEQUENTIAL, true, "testSHA256");
+    runTest(new BristolCryptoTests.Sha256Test<ResourcePoolImpl>(true),
+        EvaluationStrategy.SEQUENTIAL, false, "testSHA256");
   }
 
+  /* Advanced functionality */
+
+  @Test
+  public void test_Binary_Adder() throws Exception {
+    runTest(new AddTests.TestFullAdder<ResourcePoolImpl>(false),
+        EvaluationStrategy.SEQUENTIAL_BATCHED, true, "testAdder");
+    runTest(new AddTests.TestFullAdder<ResourcePoolImpl>(true),
+        EvaluationStrategy.SEQUENTIAL_BATCHED, false, "testAdder");
+  }
+
+  @Test
+  public void test_comparison() throws Exception {
+    runTest(new ComparisonBooleanTests.TestGreaterThan<ResourcePoolImpl>(false),
+        EvaluationStrategy.SEQUENTIAL, true, "testGT");
+    runTest(new ComparisonBooleanTests.TestGreaterThan<ResourcePoolImpl>(true),
+        EvaluationStrategy.SEQUENTIAL, false, "testGT");
+  }
+
+  @Test
+  public void test_equality() throws Exception {
+    runTest(new ComparisonBooleanTests.TestEquality<ResourcePoolImpl>(false),
+        EvaluationStrategy.SEQUENTIAL, true, "testEQ");
+    runTest(new ComparisonBooleanTests.TestEquality<ResourcePoolImpl>(true),
+        EvaluationStrategy.SEQUENTIAL, false, "testEQ");
+  }
 }

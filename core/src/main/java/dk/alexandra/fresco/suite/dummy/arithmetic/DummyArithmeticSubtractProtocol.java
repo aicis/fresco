@@ -37,35 +37,14 @@ public class DummyArithmeticSubtractProtocol extends DummyArithmeticNativeProtoc
 
   /**
    * Constructs a native subtraction protocol for the Dummy Arithmetic suite.
-   * 
-   * <p>
-   * Lets the caller specify where to store the output. This is for backward compatibility.
-   * </p>
-   * 
+   *
    * @param left the left operand
    * @param right the right operand
-   * @param out the {@link SInt} in which to store the output
-   */
-  public DummyArithmeticSubtractProtocol(Computation<SInt> left, Computation<SInt> right,
-      SInt out) {
-    super();
-    this.left = left;
-    this.right = right;
-    this.out = (DummyArithmeticSInt) out;
-  }
-
-  /**
-   * Constructs a native subtraction protocol for the Dummy Arithmetic suite.
-   * 
-   * @param left the left operand
-   * @param right the right operand
-   * 
+   *
    */
   public DummyArithmeticSubtractProtocol(Computation<SInt> left, Computation<SInt> right) {
-    super();
     this.left = left;
     this.right = right;
-    this.out = null;
   }
 
   @Override
@@ -73,8 +52,7 @@ public class DummyArithmeticSubtractProtocol extends DummyArithmeticNativeProtoc
     BigInteger l = ((DummyArithmeticSInt) left.out()).getValue();
     BigInteger r = ((DummyArithmeticSInt) right.out()).getValue();
     BigInteger sub = l.subtract(r).mod(rp.getModulus());
-    out = (out == null) ? new DummyArithmeticSInt() : out;
-    out.setValue(sub);
+    out = new DummyArithmeticSInt(sub);
     return EvaluationStatus.IS_DONE;
   }
 

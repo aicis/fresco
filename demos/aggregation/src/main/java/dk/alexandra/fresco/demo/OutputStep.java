@@ -2,8 +2,8 @@ package dk.alexandra.fresco.demo;
 
 import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.builder.NumericBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.NumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
 import java.util.List;
@@ -11,7 +11,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class OutputStep implements
-    Application<List<List<BigInteger>>, SequentialNumericBuilder> {
+    Application<List<List<BigInteger>>, ProtocolBuilderNumeric> {
 
   private List<List<SInt>> secretSharedRows;
 
@@ -20,14 +20,14 @@ public class OutputStep implements
   }
 
   @Override
-  public Computation<List<List<BigInteger>>> prepareApplication(
-      SequentialNumericBuilder producer) {
+  public Computation<List<List<BigInteger>>> buildComputation(
+      ProtocolBuilderNumeric producer) {
     return producer.par(par -> {
       NumericBuilder numeric = par.numeric();
       List<List<Computation<BigInteger>>> computations =
           mapMatrixLists(numeric::open, secretSharedRows);
       return () -> computations;
-    }).seq((computations, seq) ->
+    }).seq((seq, computations) ->
         () -> mapMatrixLists(Computation::out, computations)
     );
   }

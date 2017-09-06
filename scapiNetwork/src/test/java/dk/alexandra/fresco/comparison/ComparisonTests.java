@@ -23,19 +23,16 @@
  *******************************************************************************/
 package dk.alexandra.fresco.comparison;
 
-import dk.alexandra.fresco.framework.BuilderFactory;
+import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.ProtocolProducer;
-import dk.alexandra.fresco.framework.TestApplication;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
-import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
-import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
-import dk.alexandra.fresco.framework.builder.ComparisonBuilder;
-import dk.alexandra.fresco.framework.builder.NumericBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
+import dk.alexandra.fresco.framework.builder.numeric.ComparisonBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.NumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
+import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
+import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.network.ResourcePoolCreator;
 import java.math.BigInteger;
 import org.junit.Assert;
 
@@ -46,42 +43,32 @@ public class ComparisonTests {
    *
    * @author Kasper Damgaard
    */
-  public static class TestCompareLT extends TestThreadFactory {
+  public static class TestCompareLT<ResourcePoolT extends ResourcePool> extends TestThreadFactory {
 
     @Override
-    public TestThread next(TestThreadConfiguration conf) {
-      return new TestThread() {
-
-        private Computation<BigInteger> res1;
-        private Computation<BigInteger> res2;
+    public TestThread next() {
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
 
         @Override
         public void test() throws Exception {
-          TestApplication app = new TestApplication() {
-
-            private BigInteger three = BigInteger.valueOf(3);
-            private BigInteger five = BigInteger.valueOf(5);
-
-            @Override
-            public ProtocolProducer prepareApplication(BuilderFactory factoryProducer) {
-              return ProtocolBuilderNumeric
-                  .createApplicationRoot((BuilderFactoryNumeric) factoryProducer, (builder) -> {
-                NumericBuilder input = builder.numeric();
-                Computation<SInt> x = input.known(three);
-                Computation<SInt> y = input.known(five);
+          Application<Pair<BigInteger, BigInteger>, ProtocolBuilderNumeric> app =
+              builder -> {
+                BigInteger three = BigInteger.valueOf(3);
+                BigInteger five = BigInteger.valueOf(5);
+                NumericBuilder numeric = builder.numeric();
+                Computation<SInt> x = numeric.input(three, 1);
+                Computation<SInt> y = numeric.input(five, 2);
                 ComparisonBuilder comparison = builder.comparison();
                 Computation<SInt> compResult1 = comparison.compareLEQ(x, y);
                 Computation<SInt> compResult2 = comparison.compareLEQ(y, x);
-                NumericBuilder open = builder.numeric();
-                res1 = open.open(compResult1);
-                res2 = open.open(compResult2);
-              }).build();
-            }
-          };
-          secureComputationEngine.runApplication(app,
-              ResourcePoolCreator.createResourcePool(conf.sceConf));
-          Assert.assertEquals(BigInteger.ONE, res1.out());
-          Assert.assertEquals(BigInteger.ZERO, res2.out());
+
+                Computation<BigInteger> res1 = numeric.open(compResult1);
+                Computation<BigInteger> res2 = numeric.open(compResult2);
+                return () -> new Pair<>(res1.out(), res2.out());
+              };
+          Pair<BigInteger, BigInteger> pair = runApplication(app);
+          Assert.assertEquals(BigInteger.ONE, pair.getFirst());
+          Assert.assertEquals(BigInteger.ZERO, pair.getSecond());
         }
       };
     }
@@ -92,42 +79,35 @@ public class ComparisonTests {
    *
    * @author Kasper Damgaard
    */
-  public static class TestCompareEQ extends TestThreadFactory {
+  public static class TestCompareEQ<ResourcePoolT extends ResourcePool> extends TestThreadFactory {
 
     @Override
-    public TestThread next(TestThreadConfiguration conf) {
-      return new TestThread() {
-
-        private Computation<BigInteger> res1;
-        private Computation<BigInteger> res2;
+    public TestThread next() {
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
 
         @Override
         public void test() throws Exception {
-          TestApplication app = new TestApplication() {
-
-            private BigInteger three = BigInteger.valueOf(3);
-            private BigInteger five = BigInteger.valueOf(5);
-
-            @Override
-            public ProtocolProducer prepareApplication(BuilderFactory factoryProducer) {
-              return ProtocolBuilderNumeric
-                  .createApplicationRoot((BuilderFactoryNumeric) factoryProducer, (builder) -> {
+          Application<Pair<BigInteger, BigInteger>, ProtocolBuilderNumeric> app =
+              builder -> {
                 NumericBuilder input = builder.numeric();
-                Computation<SInt> x = input.known(three);
-                Computation<SInt> y = input.known(five);
+
+                BigInteger three = BigInteger.valueOf(3);
+                BigInteger five = BigInteger.valueOf(5);
+                Computation<SInt> x = input.input(three, 2);
+                Computation<SInt> y = input.input(five, 1);
                 ComparisonBuilder comparison = builder.comparison();
                 Computation<SInt> compResult1 = comparison.equals(x, x);
                 Computation<SInt> compResult2 = comparison.equals(x, y);
+
                 NumericBuilder open = builder.numeric();
-                res1 = open.open(compResult1);
-                res2 = open.open(compResult2);
-              }).build();
-            }
-          };
-          secureComputationEngine.runApplication(app,
-              ResourcePoolCreator.createResourcePool(conf.sceConf));
-          Assert.assertEquals(BigInteger.ONE, res1.out());
-          Assert.assertEquals(BigInteger.ZERO, res2.out());
+                Computation<BigInteger> res1 = open.open(compResult1);
+                Computation<BigInteger> res2 = open.open(compResult2);
+                return () -> new Pair<>(res1.out(), res2.out());
+              };
+
+          Pair<BigInteger, BigInteger> pair = runApplication(app);
+          Assert.assertEquals(BigInteger.ONE, pair.getFirst());
+          Assert.assertEquals(BigInteger.ZERO, pair.getSecond());
         }
       };
     }

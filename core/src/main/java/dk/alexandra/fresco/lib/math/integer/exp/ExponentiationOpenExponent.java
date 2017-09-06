@@ -28,12 +28,13 @@ package dk.alexandra.fresco.lib.math.integer.exp;
 
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.builder.ComputationBuilder;
-import dk.alexandra.fresco.framework.builder.NumericBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.NumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
 
-public class ExponentiationOpenExponent implements ComputationBuilder<SInt> {
+public class ExponentiationOpenExponent implements
+    ComputationBuilder<SInt, ProtocolBuilderNumeric> {
 
   private Computation<SInt> base;
   private BigInteger exponent;
@@ -48,13 +49,13 @@ public class ExponentiationOpenExponent implements ComputationBuilder<SInt> {
   }
 
   @Override
-  public Computation<SInt> build(SequentialNumericBuilder builder) {
+  public Computation<SInt> buildComputation(ProtocolBuilderNumeric builder) {
     return builder.seq((seq) -> {
       Computation<SInt> accEven = base;
       return new IterationState(exponent, accEven, null);
     }).whileLoop(
         iterationState -> !iterationState.exponent.equals(BigInteger.ONE),
-        (iterationState, seq) -> {
+        (seq, iterationState) -> {
           BigInteger exponent = iterationState.exponent;
           Computation<SInt> accEven = iterationState.accEven;
           Computation<SInt> accOdd = iterationState.accOdd;
@@ -73,7 +74,7 @@ public class ExponentiationOpenExponent implements ComputationBuilder<SInt> {
           }
           return new IterationState(exponent, accEven, accOdd);
         }
-    ).seq((iterationState, seq) ->
+    ).seq((seq, iterationState) ->
         seq.numeric().mult(iterationState.accEven, iterationState.accOdd)
     );
   }

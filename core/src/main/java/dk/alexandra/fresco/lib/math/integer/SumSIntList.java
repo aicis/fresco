@@ -2,8 +2,8 @@ package dk.alexandra.fresco.lib.math.integer;
 
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.builder.ComputationBuilder;
-import dk.alexandra.fresco.framework.builder.NumericBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.NumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.util.ArrayList;
 import java.util.List;
@@ -11,7 +11,7 @@ import java.util.List;
 /**
  * ComputationBuilder for summing a list of SInts
  */
-public class SumSIntList implements ComputationBuilder<SInt> {
+public class SumSIntList implements ComputationBuilder<SInt, ProtocolBuilderNumeric> {
 
   private final List<Computation<SInt>> input;
 
@@ -25,12 +25,12 @@ public class SumSIntList implements ComputationBuilder<SInt> {
   }
 
   @Override
-  public Computation<SInt> build(SequentialNumericBuilder iterationBuilder) {
+  public Computation<SInt> buildComputation(ProtocolBuilderNumeric iterationBuilder) {
     return iterationBuilder.seq(seq ->
         () -> input
     ).whileLoop(
         (inputs) -> inputs.size() > 1,
-        (inputs, seq) -> seq.createParallelSub(parallel -> {
+        (seq, inputs) -> seq.par(parallel -> {
           List<Computation<SInt>> out = new ArrayList<>();
           NumericBuilder numericBuilder = parallel.numeric();
           Computation<SInt> left = null;
@@ -47,7 +47,7 @@ public class SumSIntList implements ComputationBuilder<SInt> {
           }
           return () -> out;
         })
-    ).seq((currentInput, builder) -> {
+    ).seq((builder, currentInput) -> {
       return currentInput.get(0);
     });
   }

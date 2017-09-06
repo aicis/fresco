@@ -28,14 +28,14 @@ package dk.alexandra.fresco.lib.math.integer.stat;
 
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.builder.ComputationBuilder;
-import dk.alexandra.fresco.framework.builder.NumericBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.NumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-public class Covariance implements ComputationBuilder<SInt> {
+public class Covariance implements ComputationBuilder<SInt, ProtocolBuilderNumeric> {
 
   private final List<Computation<SInt>> data1;
   private final List<Computation<SInt>> data2;
@@ -61,24 +61,24 @@ public class Covariance implements ComputationBuilder<SInt> {
   }
 
   @Override
-  public Computation<SInt> build(SequentialNumericBuilder builder) {
+  public Computation<SInt> buildComputation(ProtocolBuilderNumeric builder) {
     return builder.seq((seq) -> () -> null
-    ).par(
-        (ignored, seq) -> {
+    ).pairInPar(
+        (seq, ignored) -> {
           if (mean1 == null) {
-            return seq.createSequentialSub(new Mean(data1));
+            return seq.seq(new Mean(data1));
           } else {
             return mean1;
           }
         },
-        (ignored, seq) -> {
+        (seq, ignored) -> {
           if (mean2 == null) {
-            return seq.createSequentialSub(new Mean(data1));
+            return seq.seq(new Mean(data2));
           } else {
             return mean2;
           }
         }
-    ).par((means, par) -> {
+    ).par((par, means) -> {
       SInt mean1 = means.getFirst();
       SInt mean2 = means.getSecond();
       //Implemented using two iterators instead of indexed loop to avoid enforcing RandomAccess lists
@@ -88,7 +88,7 @@ public class Covariance implements ComputationBuilder<SInt> {
       while (iterator1.hasNext()) {
         Computation<SInt> value1 = iterator1.next();
         Computation<SInt> value2 = iterator2.next();
-        Computation<SInt> term = par.createSequentialSub((seq) -> {
+        Computation<SInt> term = par.seq((seq) -> {
           NumericBuilder numeric = seq.numeric();
           Computation<SInt> tmp1 = numeric.sub(value1, () -> mean1);
           Computation<SInt> tmp2 = numeric.sub(value2, () -> mean2);
@@ -97,8 +97,7 @@ public class Covariance implements ComputationBuilder<SInt> {
         terms.add(term);
       }
       return () -> terms;
-    }).seq((terms, seq) ->
-        seq.createSequentialSub(new Mean(terms, data1.size() - 1))
+    }).seq((seq, terms) -> seq.seq(new Mean(terms, data1.size() - 1))
     );
   }
 

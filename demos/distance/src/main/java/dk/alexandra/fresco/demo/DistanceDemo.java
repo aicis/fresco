@@ -26,17 +26,15 @@ package dk.alexandra.fresco.demo;
 import dk.alexandra.fresco.demo.cli.CmdLineUtil;
 import dk.alexandra.fresco.demo.helpers.DemoNumericApplication;
 import dk.alexandra.fresco.demo.helpers.ResourcePoolHelper;
-import dk.alexandra.fresco.framework.BuilderFactory;
-import dk.alexandra.fresco.framework.ProtocolProducer;
-import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
+import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.builder.numeric.NumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.sce.SCEFactory;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
+import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
-import dk.alexandra.fresco.lib.helper.builder.NumericIOBuilder;
-import dk.alexandra.fresco.lib.helper.builder.NumericProtocolBuilder;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import java.math.BigInteger;
 import org.apache.commons.cli.CommandLine;
@@ -49,7 +47,6 @@ import org.apache.commons.cli.ParseException;
 public class DistanceDemo extends DemoNumericApplication<BigInteger> {
 
   private int myId, myX, myY;
-  private SInt x1, y1, x2, y2;
 
   public DistanceDemo(int id, int x, int y) {
     this.myId = id;
@@ -58,38 +55,36 @@ public class DistanceDemo extends DemoNumericApplication<BigInteger> {
   }
 
   @Override
-  public ProtocolProducer prepareApplication(BuilderFactory factory) {
-    BuilderFactoryNumeric numericBuilder = (BuilderFactoryNumeric) factory;
-    BasicNumericFactory bnFac = (BasicNumericFactory) numericBuilder.getProtocolFactory();
-    NumericProtocolBuilder npb = new NumericProtocolBuilder(bnFac);
-    NumericIOBuilder iob = new NumericIOBuilder(bnFac);
-    // Input points
-    iob.beginParScope();
-    x1 = (myId == 1) ? iob.input(myX, 1) : iob.input(1);
-    y1 = (myId == 1) ? iob.input(myY, 1) : iob.input(1);
-    x2 = (myId == 2) ? iob.input(myX, 2) : iob.input(2);
-    y2 = (myId == 2) ? iob.input(myY, 2) : iob.input(2);
-    iob.endCurScope();
-    // Compute distance squared (note, square root computation can be done publicly)
-    npb.beginParScope();
-    npb.beginSeqScope();
-    SInt dX = npb.sub(x1, x2);
-    SInt sqDX = npb.mult(dX, dX);
-    npb.endCurScope();
-    npb.beginSeqScope();
-    SInt dY = npb.sub(y1, y2);
-    SInt sqDY = npb.mult(dY, dY);
-    npb.endCurScope();
-    npb.endCurScope();
-    SInt result = npb.add(sqDX, sqDY);
-    iob.addProtocolProducer(npb.getProtocol());
-    // Output result
-    this.output = iob.output(result);
-    ;
-    return iob.getProtocol();
+  public Computation<BigInteger> buildComputation(ProtocolBuilderNumeric producer) {
+    return producer.par(par -> {
+      // Input points
+      NumericBuilder numericIo = par.numeric();
+      Computation<SInt> x1, y1, x2, y2;
+      x1 = (myId == 1) ? numericIo.input(BigInteger.valueOf(myX), 1) : numericIo.input(null, 1);
+      y1 = (myId == 1) ? numericIo.input(BigInteger.valueOf(myY), 1) : numericIo.input(null, 1);
+      x2 = (myId == 2) ? numericIo.input(BigInteger.valueOf(myX), 2) : numericIo.input(null, 2);
+      y2 = (myId == 2) ? numericIo.input(BigInteger.valueOf(myY), 2) : numericIo.input(null, 2);
+      Pair<Computation<SInt>, Computation<SInt>> input1 = new Pair<>(x1, y1);
+      Pair<Computation<SInt>, Computation<SInt>> input2 = new Pair<>(x2, y2);
+      Pair<
+          Pair<Computation<SInt>, Computation<SInt>>,
+          Pair<Computation<SInt>, Computation<SInt>>> inputs = new Pair<>(input1, input2);
+      return () -> inputs;
+    }).pairInPar((seq, input) -> {
+      NumericBuilder numeric = seq.numeric();
+      Computation<SInt> dX =
+          numeric.sub(input.getFirst().getFirst(), input.getSecond().getFirst());
+      return numeric.mult(dX, dX);
+    }, (seq, input) -> {
+      NumericBuilder numeric = seq.numeric();
+      Computation<SInt> dY =
+          numeric.sub(input.getFirst().getSecond(), input.getSecond().getSecond());
+      return numeric.mult(dY, dY);
+    }).seq((seq, distances) -> seq.numeric().add(distances.getFirst(), distances.getSecond())
+    ).seq((seq, product) -> seq.numeric().open(product));
   }
 
-  public static void main(String[] args) {
+  public static <ResourcePoolT extends ResourcePool> void main(String[] args) {
     CmdLineUtil cmdUtil = new CmdLineUtil();
     NetworkConfiguration networkConfiguration = null;
     ProtocolSuite<?, ?> psConf = null;
@@ -124,12 +119,15 @@ public class DistanceDemo extends DemoNumericApplication<BigInteger> {
       System.exit(-1);
     }
     DistanceDemo distDemo = new DistanceDemo(networkConfiguration.getMyId(), x, y);
-    SecureComputationEngine sce = SCEFactory
+    SecureComputationEngine<ResourcePoolT, ProtocolBuilderNumeric> sce = SCEFactory
         .getSCEFromConfiguration(psConf, cmdUtil.getEvaluator());
     try {
-      ResourcePool resourcePool = ResourcePoolHelper.createResourcePool(psConf,
-          cmdUtil.getNetworkStrategy(), networkConfiguration);
-      sce.runApplication(distDemo, resourcePool);
+      ResourcePoolT resourcePool = (ResourcePoolT)
+          ResourcePoolHelper
+              .createResourcePool(psConf, cmdUtil.getNetworkStrategy(), networkConfiguration);
+      BigInteger bigInteger = sce.runApplication(distDemo, resourcePool);
+      double dist = Math.sqrt(bigInteger.doubleValue());
+      System.out.println("Distance between party 1 and 2 is: " + dist);
     } catch (Exception e) {
       System.out.println("Error while doing MPC: " + e.getMessage());
       e.printStackTrace();
@@ -137,9 +135,5 @@ public class DistanceDemo extends DemoNumericApplication<BigInteger> {
     } finally {
       sce.shutdownSCE();
     }
-    double dist = distDemo.output.out().doubleValue();
-    dist = Math.sqrt(dist);
-    System.out.println("Distance between party 1 and 2 is: " + dist);
   }
-
 }

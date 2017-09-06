@@ -1,44 +1,37 @@
 package dk.alexandra.fresco.suite.spdz;
 
 import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.ProtocolFactory;
-import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
-import dk.alexandra.fresco.framework.builder.NumericBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
+import dk.alexandra.fresco.framework.builder.numeric.BuilderFactoryNumeric;
+import dk.alexandra.fresco.framework.builder.numeric.NumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.compare.MiscOIntGenerators;
-import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
-import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
+import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzAddProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzAddProtocolKnownLeft;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzInputProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzKnownSIntProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzMultProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzMultProtocolKnownLeft;
+import dk.alexandra.fresco.suite.spdz.gates.SpdzOutputProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzOutputToAllProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzRandomProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzSubtractProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzSubtractProtocolKnownLeft;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzSubtractProtocolKnownRight;
-import dk.alexandra.fresco.suite.spdz.utils.SpdzFactory;
 import java.math.BigInteger;
 
 class SpdzBuilder implements BuilderFactoryNumeric {
 
-  private SpdzFactory spdzFactory;
+  private BasicNumericContext spdzFactory;
   private MiscOIntGenerators miscOIntGenerators;
 
-  SpdzBuilder(SpdzFactory spdzFactory) {
+  SpdzBuilder(BasicNumericContext spdzFactory) {
     this.spdzFactory = spdzFactory;
   }
 
   @Override
-  public ProtocolFactory getProtocolFactory() {
-    return spdzFactory;
-  }
-
-  @Override
-  public BasicNumericFactory getBasicNumericFactory() {
+  public BasicNumericContext getBasicNumericFactory() {
     return spdzFactory;
   }
 
@@ -94,7 +87,7 @@ class SpdzBuilder implements BuilderFactoryNumeric {
 
       @Override
       public Computation<SInt> randomBit() {
-        return () -> spdzFactory.getRandomBitFromStorage();
+        return protocolBuilder.append(new SpdzRandomBitProtocol());
       }
 
       @Override
@@ -104,13 +97,12 @@ class SpdzBuilder implements BuilderFactoryNumeric {
 
       @Override
       public Computation<SInt> known(BigInteger value) {
-        return protocolBuilder.append(new SpdzKnownSIntProtocol(value, spdzFactory.getSInt()));
+        return protocolBuilder.append(new SpdzKnownSIntProtocol(value));
       }
 
       @Override
       public Computation<SInt> input(BigInteger value, int inputParty) {
-        SpdzSInt out = spdzFactory.getSInt();
-        SpdzInputProtocol protocol = new SpdzInputProtocol(value, out, inputParty);
+        SpdzInputProtocol protocol = new SpdzInputProtocol(value, inputParty);
         return protocolBuilder.append(protocol);
       }
 
@@ -121,9 +113,14 @@ class SpdzBuilder implements BuilderFactoryNumeric {
       }
 
       @Override
+      public Computation<BigInteger> open(Computation<SInt> secretShare, int outputParty) {
+        SpdzOutputProtocol openProtocol = new SpdzOutputProtocol(secretShare, outputParty);
+        return protocolBuilder.append(openProtocol);
+      }
+
+      @Override
       public Computation<SInt[]> getExponentiationPipe() {
-        //TODO Should be a protocol
-        return () -> spdzFactory.getExponentiationPipe();
+        return protocolBuilder.append(new SpdzExponentiationPipeProtocol());
       }
     };
   }

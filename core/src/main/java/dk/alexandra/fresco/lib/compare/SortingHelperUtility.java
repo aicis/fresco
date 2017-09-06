@@ -28,18 +28,17 @@ package dk.alexandra.fresco.lib.compare;
 
 
 import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.builder.ComparisonBuilder;
-import dk.alexandra.fresco.framework.builder.NumericBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.ComparisonBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.NumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.math.integer.ProductSIntList;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
 public class SortingHelperUtility {
 
-  public Computation<SInt> isSorted(SequentialNumericBuilder builder,
+  public Computation<SInt> isSorted(ProtocolBuilderNumeric builder,
       List<Computation<SInt>> values) {
     return builder.par(par -> {
       ComparisonBuilder comparison = par.comparison();
@@ -56,9 +55,7 @@ public class SortingHelperUtility {
         previous = value;
       }
       return () -> comparisons;
-    }).seq((comparison, seq) ->
-        new ProductSIntList(comparison).build(seq)
-    );
+    }).seq((seq, comparison) -> seq.advancedNumeric().product(comparison));
   }
 
 
@@ -72,7 +69,7 @@ public class SortingHelperUtility {
 
   final BigInteger minusOne = BigInteger.valueOf(-1L);
 
-  public void compareAndSwap(SequentialNumericBuilder builder, int a, int b,
+  public void compareAndSwap(ProtocolBuilderNumeric builder, int a, int b,
       List<Computation<SInt>> values) {
     //Non splitting version
 
@@ -90,12 +87,12 @@ public class SortingHelperUtility {
     builder.par(par -> {
       values.set(a, par.numeric().add(c, valueB));
       values.set(b, par.numeric().add(d, valueA));
-      return () -> null;
+      return null;
     });
   }
 
 
-  public void sort(SequentialNumericBuilder builder, List<Computation<SInt>> values) {
+  public void sort(ProtocolBuilderNumeric builder, List<Computation<SInt>> values) {
     //sort using Batcher´s Merge Exchange
 
     int t = FloorLog2(values.size());
@@ -105,12 +102,11 @@ public class SortingHelperUtility {
         .seq(seq -> () -> p0)
         .whileLoop(
             p -> p > 0,
-            (p, seq) -> {
-              seq.seq(innerSeq -> {
-                return () -> new Iteration(p0, 0, p);
-              }).whileLoop(
+            (seq, p) -> {
+              seq.seq(innerSeq -> () -> new Iteration(p0, 0, p)
+              ).whileLoop(
                   state -> state.r == 0 || state.q != p,
-                  (state, whileSeq) -> {
+                  (whileSeq, state) -> {
                     final int d = state.r == 0 ? state.d : state.q - p;
                     final int q = state.r == 0 ? state.q : state.q / 2;
 

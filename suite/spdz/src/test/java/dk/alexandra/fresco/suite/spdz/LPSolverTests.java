@@ -26,21 +26,15 @@
  *******************************************************************************/
 package dk.alexandra.fresco.suite.spdz;
 
-import dk.alexandra.fresco.framework.BuilderFactory;
+import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.MPCException;
-import dk.alexandra.fresco.framework.ProtocolFactory;
-import dk.alexandra.fresco.framework.ProtocolProducer;
-import dk.alexandra.fresco.framework.TestApplication;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
-import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
-import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
 import dk.alexandra.fresco.lib.lp.LPSolver;
 import dk.alexandra.fresco.lib.lp.LPSolver.LPOutput;
 import dk.alexandra.fresco.lib.lp.LPSolver.PivotRule;
@@ -54,7 +48,7 @@ import org.junit.Assert;
 class LPSolverTests {
 
   public static class TestLPSolver<ResourcePoolT extends ResourcePool> extends
-      TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+      TestThreadFactory {
 
     private final PivotRule pivotRule;
 
@@ -63,74 +57,61 @@ class LPSolverTests {
     }
 
     @Override
-    public TestThread next(TestThreadConfiguration<ResourcePoolT, ProtocolBuilderNumeric> conf) {
+    public TestThread next() {
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         @Override
         public void test() throws Exception {
-          TestApplication app = new TestApplication() {
-
-            @Override
-            public ProtocolProducer prepareApplication(
-                BuilderFactory factoryProducer) {
-              ProtocolFactory producer = factoryProducer.getProtocolFactory();
-              BasicNumericFactory bnFactory = (BasicNumericFactory) producer;
-              File pattern = new File("src/test/resources/lp/pattern7.csv");
-              File program = new File("src/test/resources/lp/program7.csv");
-              PlainLPInputReader inputreader;
-              try {
-                inputreader = PlainLPInputReader
-                    .getFileInputReader(program, pattern,
-                        conf.getMyId());
-              } catch (FileNotFoundException e) {
-                e.printStackTrace();
-                throw new MPCException(
-                    "Could not read needed files: "
-                        + e.getMessage(), e);
-              }
-              return ProtocolBuilderNumeric
-                  .createApplicationRoot((BuilderFactoryNumeric) factoryProducer, (builder) -> {
-                    Computation<PlainSpdzLPPrefix> prefixComp = builder.par(par -> {
-                      PlainSpdzLPPrefix prefix;
-                      try {
-                        prefix = new PlainSpdzLPPrefix(inputreader, par);
-                      } catch (IOException e) {
-                        e.printStackTrace();
-                        throw new MPCException("IOException: "
-                            + e.getMessage(), e);
-                      }
-                      return () -> prefix;
-                    });
-                    builder.createSequentialSub((seq) -> {
-                      PlainSpdzLPPrefix prefix = prefixComp.out();
-                      Computation<LPOutput> lpOutput = seq.createSequentialSub(
-                          new LPSolver(
-                              pivotRule,
-                              prefix.getTableau(),
-                              prefix.getUpdateMatrix(),
-                              prefix.getPivot(),
-                              prefix.getBasis()));
-
-                      Computation<SInt> optimalValue = seq.createSequentialSub((inner) -> {
-                            LPOutput out = lpOutput.out();
-                        return new OptimalValue(out.updateMatrix, out.tableau, out.pivot)
-                                .build(inner);
-                          }
-                      );
-                      Computation<BigInteger> open = seq.numeric().open(optimalValue);
-                      this.outputs.add(open);
-                      return () -> null;
-                    });
-                  }).build();
+          Application<BigInteger, ProtocolBuilderNumeric> app = builder -> {
+            File pattern = new File("src/test/resources/lp/pattern7.csv");
+            File program = new File("src/test/resources/lp/program7.csv");
+            PlainLPInputReader inputreader;
+            try {
+              inputreader = PlainLPInputReader
+                  .getFileInputReader(program, pattern,
+                      conf.getMyId());
+            } catch (FileNotFoundException e) {
+              e.printStackTrace();
+              throw new MPCException(
+                  "Could not read needed files: "
+                      + e.getMessage(), e);
             }
+            return builder.par(par -> {
+              PlainSpdzLPPrefix prefix;
+              try {
+                prefix = new PlainSpdzLPPrefix(inputreader, par);
+              } catch (IOException e) {
+                e.printStackTrace();
+                throw new MPCException("IOException: "
+                    + e.getMessage(), e);
+              }
+              return () -> prefix;
+            }).seq((seq, prefix) -> {
+              Computation<LPOutput> lpOutput = seq.seq(
+                  new LPSolver(
+                      pivotRule,
+                      prefix.getTableau(),
+                      prefix.getUpdateMatrix(),
+                      prefix.getPivot(),
+                      prefix.getBasis()));
+
+              Computation<SInt> optimalValue = seq.seq((inner) -> {
+                    LPOutput out = lpOutput.out();
+                    return new OptimalValue(out.updateMatrix, out.tableau, out.pivot)
+                        .buildComputation(inner);
+                  }
+              );
+              Computation<BigInteger> open = seq.numeric().open(optimalValue);
+              return open;
+            });
           };
           long startTime = System.nanoTime();
           ResourcePoolT resourcePool = ResourcePoolCreator.createResourcePool(
               conf.sceConf);
-          secureComputationEngine.runApplication(app, resourcePool);
+          BigInteger result = secureComputationEngine.runApplication(app, resourcePool);
           long endTime = System.nanoTime();
           System.out.println("============ Seq Time: "
               + ((endTime - startTime) / 1000000));
-          Assert.assertTrue(BigInteger.valueOf(161).equals(app.getOutputs()[0]));
+          Assert.assertTrue(BigInteger.valueOf(161).equals(result));
         }
       };
     }

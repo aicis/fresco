@@ -27,10 +27,10 @@
 package dk.alexandra.fresco.lib.math.integer.min;
 
 import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.builder.ComparisonBuilder;
 import dk.alexandra.fresco.framework.builder.ComputationBuilder;
-import dk.alexandra.fresco.framework.builder.NumericBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.ComparisonBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.NumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.compare.ConditionalSelect;
@@ -39,7 +39,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class Minimum implements ComputationBuilder<Pair<List<Computation<SInt>>, SInt>> {
+public class Minimum implements
+    ComputationBuilder<Pair<List<Computation<SInt>>, SInt>, ProtocolBuilderNumeric> {
 
   private final List<Computation<SInt>> xs;
   private final int k;
@@ -54,7 +55,8 @@ public class Minimum implements ComputationBuilder<Pair<List<Computation<SInt>>,
 
 
   @Override
-  public Computation<Pair<List<Computation<SInt>>, SInt>> build(SequentialNumericBuilder builder) {
+  public Computation<Pair<List<Computation<SInt>>, SInt>> buildComputation(
+      ProtocolBuilderNumeric builder) {
     BigInteger one = BigInteger.ONE;
     if (this.k == 2) {
       ComparisonBuilder comparison = builder.comparison();
@@ -63,7 +65,7 @@ public class Minimum implements ComputationBuilder<Pair<List<Computation<SInt>>,
       Computation<SInt> secondValue = this.xs.get(1);
       Computation<SInt> firstCompare = comparison.compareLEQ(firstValue, secondValue);
       Computation<SInt> minimum = builder
-          .createSequentialSub(new ConditionalSelect(firstCompare, firstValue, secondValue));
+          .seq(new ConditionalSelect(firstCompare, firstValue, secondValue));
       Computation<SInt> secondCompare = numeric
           .sub(one, firstCompare);
       return () -> new Pair<>(
@@ -77,13 +79,11 @@ public class Minimum implements ComputationBuilder<Pair<List<Computation<SInt>>,
       Computation<SInt> thirdValue = this.xs.get(2);
       Computation<SInt> c1_prime = comparison.compareLEQ(firstValue, secondValue);
 
-      Computation<SInt> m1 = builder
-          .createSequentialSub(new ConditionalSelect(c1_prime, firstValue, secondValue));
+      Computation<SInt> m1 = builder.seq(new ConditionalSelect(c1_prime, firstValue, secondValue));
 
       Computation<SInt> c2_prime = comparison.compareLEQ(m1, thirdValue);
 
-      Computation<SInt> m2 = builder
-          .createSequentialSub(new ConditionalSelect(c2_prime, m1, thirdValue));
+      Computation<SInt> m2 = builder.seq(new ConditionalSelect(c2_prime, m1, thirdValue));
 
       Computation<SInt> firstComparison = numeric.mult(c1_prime, c2_prime);
       Computation<SInt> secondComparison = numeric.sub(c2_prime, firstComparison);
@@ -98,14 +98,10 @@ public class Minimum implements ComputationBuilder<Pair<List<Computation<SInt>>,
         List<Computation<SInt>> x1 = xs.subList(0, k1);
         List<Computation<SInt>> x2 = xs.subList(k1, k);
         return Pair.lazy(x1, x2);
-      }).par(
-          (pair, seq) ->
-              seq.createSequentialSub(
-                  new Minimum(pair.getFirst())),
-          (pair, seq) ->
-              seq.createSequentialSub(
-                  new Minimum(pair.getSecond()))
-      ).seq((pair, seq) -> {
+      }).pairInPar(
+          (seq, pair) -> seq.seq(new Minimum(pair.getFirst())),
+          (seq, pair) -> seq.seq(new Minimum(pair.getSecond()))
+      ).seq((seq, pair) -> {
         ComparisonBuilder comparison = seq.comparison();
         NumericBuilder numeric = seq.numeric();
         Pair<List<Computation<SInt>>, SInt> minimum1 = pair.getFirst();
@@ -115,8 +111,7 @@ public class Minimum implements ComputationBuilder<Pair<List<Computation<SInt>>,
 
         Computation<SInt> compare = comparison.compareLEQ(() -> m1, () -> m2);
         Computation<SInt> oneMinusCompare = numeric.sub(one, compare);
-        Computation<SInt> m = seq
-            .createSequentialSub(new ConditionalSelect(compare, () -> m1, () -> m2));
+        Computation<SInt> m = seq.seq(new ConditionalSelect(compare, () -> m1, () -> m2));
         Computation<List<Computation<SInt>>> enteringIndexes = seq.par((par) -> {
           NumericBuilder parNumeric = par.numeric();
           List<Computation<SInt>> cs = new ArrayList<>(k);

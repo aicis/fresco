@@ -28,17 +28,17 @@ package dk.alexandra.fresco.lib.lp;
 
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.builder.ComputationBuilder;
-import dk.alexandra.fresco.framework.builder.NumericBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.NumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.compare.ConditionalSelect;
-import dk.alexandra.fresco.lib.math.integer.SumSIntList;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
-public class UpdateMatrix implements ComputationBuilder<Matrix<Computation<SInt>>> {
+public class UpdateMatrix implements
+    ComputationBuilder<Matrix<Computation<SInt>>, ProtocolBuilderNumeric> {
 
   private Matrix<Computation<SInt>> oldUpdateMatrix;
   private List<Computation<SInt>> L;
@@ -57,7 +57,7 @@ public class UpdateMatrix implements ComputationBuilder<Matrix<Computation<SInt>
 
 
   @Override
-  public Computation<Matrix<Computation<SInt>>> build(SequentialNumericBuilder builder) {
+  public Computation<Matrix<Computation<SInt>>> buildComputation(ProtocolBuilderNumeric builder) {
     int height = oldUpdateMatrix.getHeight();
     int width = oldUpdateMatrix.getWidth();
     Computation<SInt> one = builder.numeric().known(BigInteger.ONE);
@@ -81,22 +81,19 @@ public class UpdateMatrix implements ComputationBuilder<Matrix<Computation<SInt>
             return newRow;
           }
       );
-      Computation<Pair<List<Computation<SInt>>, Computation<SInt>>> scaledCAndPP = par1
-          .createSequentialSub(seq_pp -> {
+      Computation<Pair<List<Computation<SInt>>, Computation<SInt>>> scaledCAndPP =
+          par1.seq(seq_pp -> {
             Computation<SInt> pp_inv = seq_pp.advancedNumeric().invert(p_prime);
             Computation<SInt> pp = seq_pp.numeric().mult(p, pp_inv);
             return seq_pp.par((par) -> {
               List<Computation<SInt>> scaledC = new ArrayList<>(C.size());
               for (int j = 0; j < C.size() - 1; j++) {
                 int finalJ = j;
-                scaledC.add(par.createSequentialSub((scaleSeq) -> {
-                      Computation<SInt> scaling;
-                      scaling = scaleSeq.createSequentialSub(
-                          new ConditionalSelect(L.get(finalJ), one, pp_inv)
-                      );
-                      return scaleSeq.numeric().mult(C.get(finalJ), scaling);
-                    })
-                );
+                scaledC.add(par.seq((scaleSeq) -> {
+                  Computation<SInt> scaling;
+                  scaling = scaleSeq.seq(new ConditionalSelect(L.get(finalJ), one, pp_inv));
+                  return scaleSeq.numeric().mult(C.get(finalJ), scaling);
+                }));
               }
               scaledC.add(
                   par.numeric().mult(C.get(C.size() - 1), pp_inv)
@@ -105,7 +102,7 @@ public class UpdateMatrix implements ComputationBuilder<Matrix<Computation<SInt>
             });
           });
       return () -> new Pair<>(lampdas, scaledCAndPP.out());
-    }).par((input, gpAddAndSub) -> {
+    }).par((gpAddAndSub, input) -> {
       Matrix<Computation<SInt>> lambdas_i_jOuts = input.getFirst();
       List<Computation<SInt>> scaledC = input.getSecond().getFirst();
       Computation<SInt> pp = input.getSecond().getSecond();
@@ -126,17 +123,12 @@ public class UpdateMatrix implements ComputationBuilder<Matrix<Computation<SInt>
             return newRow;
           });
       for (int i = 0; i < width; i++) {
-        lambdas_i.add(
-            gpAddAndSub
-                .createSequentialSub(new SumSIntList(
-                    lambdas_i_jOuts.getColumn(i)
-                ))
-        );
+        lambdas_i.add(gpAddAndSub.advancedNumeric().sum(lambdas_i_jOuts.getColumn(i)));
       }
       return () -> new Pair<>(
           new Pair<>(scaledC, pp), new Pair<>(subOuts, lambdas_i));
     })).par(
-        (input, gpMults) -> {
+        (gpMults, input) -> {
           List<Computation<SInt>> scaledC = input.getFirst().getFirst();
           Computation<SInt> pp = input.getFirst().getSecond();
           Matrix<Computation<SInt>> subOuts = input.getSecond().getFirst();
@@ -165,7 +157,7 @@ public class UpdateMatrix implements ComputationBuilder<Matrix<Computation<SInt>
 
           return Pair.lazy(mults_cAndLambda_iOuts, mults_sub_and_ppOuts);
         }
-    ).par((pair, adds) -> {
+    ).par((adds, pair) -> {
       Matrix<Computation<SInt>> mults_cAndLambda_iOuts = pair.getFirst();
       Matrix<Computation<SInt>> mults_sub_and_ppOuts = pair.getSecond();
       NumericBuilder numeric = adds.numeric();

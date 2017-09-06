@@ -3,24 +3,24 @@ package dk.alexandra.fresco.framework;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
 
 /**
- * The core factory to implement when creating a protocol.
- * Currently exists in two variants - the numeric and the binary
+ * The core factory to implement when creating a protocol. Currently exists in two variants - the
+ * numeric and the binary
  */
-public interface BuilderFactory<Builder extends ProtocolBuilder> {
+public interface BuilderFactory<BuilderT extends ProtocolBuilder> {
 
   /**
-   * Legacy method for getting the multiple inheritance factroy that is used as an outset when
-   * building protocols
-   *
-   * @return the factroy.
-   */
-  ProtocolFactory getProtocolFactory();
-
-  /**
-   * Creates a version of the Builder that matches the types of this factory.
+   * Creates a version of the Builder that matches the types of this factory. This builder will
+   * execute the appended protocols in sequence.
    *
    * @return the builder to be used by the SecureComputationEngine
    */
-  Builder createProtocolBuilder();
+  BuilderT createSequential();
 
+  /**
+   * Creates a version of the Builder that matches the types of this factory. This builder will
+   * execute the appended protocols in parallel (larger batches).
+   *
+   * @return the builder to be used by the SecureComputationEngine
+   */
+  BuilderT createParallel();
 }

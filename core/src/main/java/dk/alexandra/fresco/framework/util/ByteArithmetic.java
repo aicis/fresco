@@ -24,6 +24,7 @@
 package dk.alexandra.fresco.framework.util;
 
 import java.util.BitSet;
+import java.util.List;
 
 public class ByteArithmetic {
 
@@ -39,20 +40,6 @@ public class ByteArithmetic {
     return (byte) (x ^ y);
   }
 
-
-  /**
-   * @return x XOR y in res It is OK if x=res , but NOT OK if y=res.
-   */
-  public static void xor(byte[] x, byte[] y, byte[] res) {
-    for (int i = 0; i < x.length; i++) {
-      res[i] = x[i];
-      res[i] ^= y[i];
-    }
-  }
-
-  public static byte mult(byte x, byte y) {
-    return (byte) (x * y);
-  }
 
   /**
    * It is NOT OK if y=res.
@@ -74,45 +61,6 @@ public class ByteArithmetic {
     }
   }
 
-  public static void packBits(byte[] unpacked, byte[] packed) {
-    int packedLength = packed.length;
-    for (int i = 0; i < packedLength; i++) {
-      int nextByte = 0;
-      for (int j = 0; j < 8; j++) {
-        final byte nextBit = unpacked[8 * i + j];
-        nextByte = (nextByte << 1 ^ nextBit);
-      }
-      packed[i] = (byte) nextByte;
-    }
-  }
-
-  public static void unpackBits(byte[] packed, byte[] unpacked) {
-    int packedLength = packed.length;
-    for (int i = 0; i < packedLength; i++) {
-      int nextByte = packed[i];
-      for (int j = 8 - 1; j >= 0; j--) {
-        if ((nextByte % 2) == 0)
-          unpacked[8 * i + j] = 0;
-        else
-          unpacked[8 * i + j] = 1;
-        nextByte = nextByte >> 1;
-      }
-    }
-  }
-
-  public static byte ithBit(byte b, int pos) {
-    return (byte) ((b & M[pos]) >> pos);
-  }
-
-  public static final byte[] intToByteArray(int value) {
-    return new byte[] {(byte) (value >>> 24), (byte) (value >>> 16), (byte) (value >>> 8),
-        (byte) value};
-  }
-
-  public static final int byteArrayToInt(byte[] b) {
-    return (b[0] << 24) + ((b[1] & 0xFF) << 16) + ((b[2] & 0xFF) << 8) + (b[3] & 0xFF);
-  }
-
   public static BitSet intToBitSet(int i) {
     BitSet bs = new BitSet(Integer.SIZE);
     for (int k = 0; k < Integer.SIZE; k++) {
@@ -123,22 +71,15 @@ public class ByteArithmetic {
     return bs;
   }
 
-  public static int bitSetToInt(BitSet bs) {
-    int i = 0;
-    for (int pos = -1; (pos = bs.nextSetBit(pos + 1)) != -1;) {
-      i |= (1 << pos);
-    }
-    return i;
-  }
 
   /**
    * Convert hex string to boolean array. 1 --> true, 0 --> false
    * 
    */
-  public static boolean[] toBoolean(String hex) throws IllegalArgumentException {
+  public static Boolean[] toBoolean(String hex) throws IllegalArgumentException {
     if (hex.length() % 2 != 0)
       throw new IllegalArgumentException("Illegal hex string");
-    boolean[] res = new boolean[hex.length() * 4]; // 8
+    Boolean[] res = new Boolean[hex.length() * 4]; // 8
     // System.out.println("Lenght: " + hex.length());
     for (int i = 0; i < hex.length() / 2; i++) {
       String sub = hex.substring(2 * i, 2 * i + 2);
@@ -158,13 +99,20 @@ public class ByteArithmetic {
    */
   public static String toHex(boolean[] bits) {
     StringBuilder hex = new StringBuilder();
-    // TODO: Assert bits.length % 4 == 0
+    boolean[] niceBits = null;
+    if (bits.length % 4 == 0) {
+      niceBits = bits;
+    } else {
+      niceBits = new boolean[4 * ((bits.length / 4) + 1)];
+      int offset = 4 - (bits.length % 4);
+      System.arraycopy(bits, 0, niceBits, offset, bits.length);
+    }
+
     StringBuilder binb = new StringBuilder();
-    for (int i = 0; i < bits.length; i++) {
-      binb.append(bits[i] ? "1" : "0");
+    for (int i = 0; i < niceBits.length; i++) {
+      binb.append(niceBits[i] ? "1" : "0");
     }
     String bin = binb.toString();
-
     for (int i = 0; i < bin.length() / 4; i++) {
       String digit = bin.substring(i * 4, i * 4 + 4);
       Integer dec = Integer.parseInt(digit, 2);
@@ -172,9 +120,23 @@ public class ByteArithmetic {
       // System.out.println("Digit -> " + digit + " --> " + dec + " --> " + hexStr);
       hex.append(hexStr);
     }
+    if (hex.length() % 2 != 0) {
+      hex.insert(0, "0");
+    }
     return hex.toString();
   }
 
+  public static String toHex(List<Boolean> bits) {
+    Boolean[] bitArray = bits.toArray(new Boolean[1]);
+    return toHex(convertArray(bitArray));
+  }
 
+  public static boolean[] convertArray(Boolean[] in) {
+    boolean[] output = new boolean[in.length];
+    for (int i = 0; i < in.length; i++) {
+      output[i] = in[i].booleanValue();
+    }
+    return output;
+  }
 
 }

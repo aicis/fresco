@@ -24,8 +24,8 @@
 package dk.alexandra.fresco.lib.statistics;
 
 import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.builder.NumericBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.NumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.lp.LPTableau;
 import dk.alexandra.fresco.lib.lp.Matrix;
@@ -49,14 +49,14 @@ import java.util.List;
 public class DEAInputEfficiencyPrefixBuilder {
 
   public static Computation<SimpleLPPrefix> build(
-      List<SInt[]> basisInputs, List<SInt[]> basisOutputs,
-      List<SInt> targetInputs, List<SInt> targetOutputs,
-      SequentialNumericBuilder builder
+      List<List<Computation<SInt>>> basisInputs, List<List<Computation<SInt>>> basisOutputs,
+      List<Computation<SInt>> targetInputs, List<Computation<SInt>> targetOutputs,
+      ProtocolBuilderNumeric builder
   ) {
     NumericBuilder numeric = builder.numeric();
     int inputs = targetInputs.size();
     int outputs = targetOutputs.size();
-    int dbSize = basisInputs.get(0).length;
+    int dbSize = basisInputs.get(0).size();
     int constraints = inputs + outputs + 1;
     // One "theta" variable, i.e., the variable to optimize 
     // One variable "lambda" variable for each basis entry
@@ -78,19 +78,19 @@ public class DEAInputEfficiencyPrefixBuilder {
       Computation<SInt> zInner;
       // Set up constraints related to the inputs
       int i = 0;
-      Iterator<SInt[]> basisIt = basisInputs.iterator();
-      Iterator<SInt> targetIt = targetInputs.iterator();
+      Iterator<List<Computation<SInt>>> basisIt = basisInputs.iterator();
+      Iterator<Computation<SInt>> targetIt = targetInputs.iterator();
       for (; i < inputs; i++) {
         ArrayList<Computation<SInt>> row = new ArrayList<>(variables);
         c.add(row);
-        SInt tValue = targetIt.next();
-        SInt[] bValues = basisIt.next();
-        row.add(par.numeric().sub(zero, () -> tValue));
+        Computation<SInt> tValue = targetIt.next();
+        List<Computation<SInt>> bValues = basisIt.next();
+        row.add(par.numeric().sub(zero, tValue));
         b.add(zero);
         int j = 1;
         for (; j < dbSize + 1; j++) {
-          SInt bValue = bValues[j - 1];
-          row.add(() -> bValue);
+          Computation<SInt> bValue = bValues.get(j - 1);
+          row.add(bValue);
         }
         for (; j < variables; j++) {
           row.add((j - (dbSize + 1) == i) ? one : zero);
@@ -102,14 +102,14 @@ public class DEAInputEfficiencyPrefixBuilder {
       for (; i < inputs + outputs; i++) {
         ArrayList<Computation<SInt>> row = new ArrayList<>(variables);
         c.add(row);
-        SInt tValue = targetIt.next();
-        SInt[] bValues = basisIt.next();
+        Computation<SInt> tValue = targetIt.next();
+        List<Computation<SInt>> bValues = basisIt.next();
         row.add(zero);
-        b.add(() -> tValue);
+        b.add(tValue);
         int j = 1;
         for (; j < dbSize + 1; j++) {
-          SInt bValue = bValues[j - 1];
-          row.add(() -> bValue);
+          Computation<SInt> bValue = bValues.get(j - 1);
+          row.add(bValue);
         }
         for (; j < dbSize + 1 + constraints; j++) {
           row.add((j - (dbSize + 1) == i) ? one : zero);
@@ -142,7 +142,7 @@ public class DEAInputEfficiencyPrefixBuilder {
         f.set(k, par.numeric().sub(zero, sBigM));
       }
 
-      zInner = par.createSequentialSub(seq -> {
+      zInner = par.seq(seq -> {
         Computation<SInt> zResult = sBigM;
         for (int l = inputs; l < inputs + outputs; l++) {
           Computation<SInt> scaled = seq.numeric().mult(oBigM, b.get(l));
@@ -156,10 +156,10 @@ public class DEAInputEfficiencyPrefixBuilder {
     // Add to the lambda variables -bigM*value for each of the output values
     // In other words subtract bigM times each of the tableau rows associated
     // with an output constraint.
-    return builder.createParallelSub(par -> {
+    return builder.par(par -> {
       for (int l = inputs; l < inputs + outputs; l++) {
         int finalL = l;
-        par.createSequentialSub(seq -> {
+        par.seq(seq -> {
           for (int k = 1; k < dbSize + 1; k++) {
             Computation<SInt> scaled = seq.numeric().mult(sBigM, c.get(finalL).get(k));
             f.set(k, seq.numeric().add(scaled, f.get(k)));

@@ -44,32 +44,12 @@ public class DummyArithmeticMultProtocol extends DummyArithmeticNativeProtocol<S
   /**
    * Constructs a protocol to multiply the result of two computations.
    * 
-   * <p>
-   * Lets the caller specify where to store the output. This is for backward compatibility.
-   * </p>
-   * 
-   * @param left the left operand
-   * @param right the right operand
-   * @param out the {@link SInt} in which to store the output
-   */
-  public DummyArithmeticMultProtocol(Computation<SInt> left, Computation<SInt> right, SInt out) {
-    super();
-    this.left = left;
-    this.right = right;
-    this.out = (DummyArithmeticSInt) out;
-  }
-
-  /**
-   * Constructs a protocol to multiply the result of two computations.
-   * 
    * @param left the left operand
    * @param right the right operand
    */
   public DummyArithmeticMultProtocol(Computation<SInt> left, Computation<SInt> right) {
-    super();
     this.left = left;
     this.right = right;
-    this.out = null;
   }
 
   @Override
@@ -77,8 +57,7 @@ public class DummyArithmeticMultProtocol extends DummyArithmeticNativeProtocol<S
     BigInteger l = ((DummyArithmeticSInt) left.out()).getValue();
     BigInteger r = ((DummyArithmeticSInt) right.out()).getValue();
     BigInteger prod = r.multiply(l).mod(rp.getModulus());
-    out = (out == null) ? new DummyArithmeticSInt() : out;
-    out.setValue(prod);
+    out = new DummyArithmeticSInt(prod);
     return EvaluationStatus.IS_DONE;
   }
 

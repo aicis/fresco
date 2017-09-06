@@ -26,21 +26,19 @@
  */
 package dk.alexandra.fresco.lib.math.integer.log;
 
-import dk.alexandra.fresco.framework.BuilderFactory;
+import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.ProtocolProducer;
-import dk.alexandra.fresco.framework.TestApplication;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
-import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
-import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
-import dk.alexandra.fresco.framework.builder.NumericBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
+import dk.alexandra.fresco.framework.builder.numeric.NumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.junit.Assert;
 
 
@@ -53,41 +51,36 @@ import org.junit.Assert;
 public class LogTests {
 
   public static class TestLogarithm<ResourcePoolT extends ResourcePool> extends
-      TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+      TestThreadFactory {
 
     @Override
-    public TestThread next(TestThreadConfiguration<ResourcePoolT, ProtocolBuilderNumeric> conf) {
+    public TestThread next() {
 
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         private final BigInteger[] x = {BigInteger.valueOf(201235), BigInteger.valueOf(1234),
             BigInteger.valueOf(405068), BigInteger.valueOf(123456), BigInteger.valueOf(110)};
-        private final ArrayList<Computation<BigInteger>> results = new ArrayList<>(x.length);
 
         @Override
         public void test() throws Exception {
-          TestApplication app = new TestApplication() {
+          Application<List<BigInteger>, ProtocolBuilderNumeric> app =
+              builder -> {
+                NumericBuilder sIntFactory = builder.numeric();
 
-            @Override
-            public ProtocolProducer prepareApplication(BuilderFactory factoryProducer) {
-              return ProtocolBuilderNumeric
-                  .createApplicationRoot((BuilderFactoryNumeric) factoryProducer, (builder) -> {
-                    NumericBuilder sIntFactory = builder.numeric();
-
-                    for (BigInteger input : x) {
-                      Computation<SInt> actualInput = sIntFactory.input(input, 1);
-                      Computation<SInt> result = builder.advancedNumeric()
-                          .log(actualInput, input.bitLength());
-                      Computation<BigInteger> openResult = builder.numeric().open(result);
-                      results.add(openResult);
-                    }
-                  }).build();
-            }
-          };
-          secureComputationEngine
+                ArrayList<Computation<BigInteger>> results = new ArrayList<>();
+                for (BigInteger input : x) {
+                  Computation<SInt> actualInput = sIntFactory.input(input, 1);
+                  Computation<SInt> result = builder.advancedNumeric()
+                      .log(actualInput, input.bitLength());
+                  Computation<BigInteger> openResult = builder.numeric().open(result);
+                  results.add(openResult);
+                }
+                return () -> results.stream().map(Computation::out).collect(Collectors.toList());
+              };
+          List<BigInteger> results = secureComputationEngine
               .runApplication(app, ResourcePoolCreator.createResourcePool(conf.sceConf));
 
           for (int i = 0; i < x.length; i++) {
-            int actual = results.get(i).out().intValue();
+            int actual = results.get(i).intValue();
             int expected = (int) Math.log(x[i].doubleValue());
             int difference = Math.abs(actual - expected);
             Assert.assertTrue(difference <= 1); // Difference should be less than a bit

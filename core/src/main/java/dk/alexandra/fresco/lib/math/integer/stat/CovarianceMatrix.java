@@ -28,7 +28,7 @@ package dk.alexandra.fresco.lib.math.integer.stat;
 
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.builder.ComputationBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -42,7 +42,8 @@ import java.util.Objects;
  * Note that only lower triangle of matrix (i,j for i \geq j) will be computed.
  * The symmetric entry will be a copy of the one from the lower triangle, M[i][j] := M[j][i].
  */
-public class CovarianceMatrix implements ComputationBuilder<List<List<Computation<SInt>>>> {
+public class CovarianceMatrix implements
+    ComputationBuilder<List<List<Computation<SInt>>>, ProtocolBuilderNumeric> {
 
   private final List<List<Computation<SInt>>> data;
   private final List<Computation<SInt>> mean;
@@ -75,7 +76,8 @@ public class CovarianceMatrix implements ComputationBuilder<List<List<Computatio
   }
 
   @Override
-  public Computation<List<List<Computation<SInt>>>> build(SequentialNumericBuilder builder) {
+  public Computation<List<List<Computation<SInt>>>> buildComputation(
+      ProtocolBuilderNumeric builder) {
     return builder.par((par) -> {
       /*
        * If (some of) the sample means has not been provided, we calculate
@@ -84,14 +86,17 @@ public class CovarianceMatrix implements ComputationBuilder<List<List<Computatio
       List<Computation<SInt>> allMeans = new ArrayList<>(data.size());
       Iterator<Computation<SInt>> means = mean.iterator();
       for (List<Computation<SInt>> datum : data) {
-        Computation<SInt> currentMean;
-        if (!means.hasNext() || (currentMean = means.next()) == null) {
-          currentMean = par.createSequentialSub(new Mean(datum));
+        Computation<SInt> currentMean = null;
+        if(means.hasNext()) {
+          currentMean = means.next();
+        }
+        if(currentMean == null) {
+          currentMean = par.seq(new Mean(datum));
         }
         allMeans.add(currentMean);
       }
       return () -> allMeans;
-    }).par((means, par) -> {
+    }).par((par, means) -> {
       //Iterate using ListIterator instead of indexed loop to avoid RandomAccess in lists
       List<List<Computation<SInt>>> result = new ArrayList<>(data.size());
       ListIterator<List<Computation<SInt>>> dataIterator = data.listIterator();
@@ -104,18 +109,15 @@ public class CovarianceMatrix implements ComputationBuilder<List<List<Computatio
         while (innerIterator.nextIndex() < currentIndex) {
           int innerIndex = innerIterator.nextIndex();
           List<Computation<SInt>> dataRow2 = innerIterator.next();
-          row.add(par.createSequentialSub(
-              new Covariance(
-                  dataRow, dataRow2,
-                  means.get(currentIndex), means.get(innerIndex)
-              )
-          ));
+          row.add(par.seq(new Covariance(
+              dataRow, dataRow2,
+              means.get(currentIndex), means.get(innerIndex)
+          )));
         }
         // When i == j we are calculating the variance of data[i]
         // which saves us one subtraction per data entry compared to
         // calculating the covariance
-        row.add(par.createSequentialSub(
-            new Variance(dataRow, means.get(currentIndex))));
+        row.add(par.seq(new Variance(dataRow, means.get(currentIndex))));
       }
       return () -> result;
     });

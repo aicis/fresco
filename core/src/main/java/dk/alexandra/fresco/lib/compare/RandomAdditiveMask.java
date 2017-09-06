@@ -1,36 +1,32 @@
 package dk.alexandra.fresco.lib.compare;
 
 import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.builder.AdvancedNumericBuilder;
-import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.ComputationBuilder;
-import dk.alexandra.fresco.framework.builder.NumericBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.AdvancedNumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.NumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
 public class RandomAdditiveMask implements
-    ComputationBuilder<AdvancedNumericBuilder.RandomAdditiveMask> {
+    ComputationBuilder<AdvancedNumericBuilder.RandomAdditiveMask, ProtocolBuilderNumeric> {
 
-  private final BuilderFactoryNumeric factoryNumeric;
   private final int securityParameter;
   private final int noOfBits;
 
   private List<Computation<SInt>> bits;
   private Computation<SInt> value;
 
-  public RandomAdditiveMask(BuilderFactoryNumeric factoryNumeric,
-      int securityParameter, int noOfBits) {
-    this.factoryNumeric = factoryNumeric;
+  public RandomAdditiveMask(int securityParameter, int noOfBits) {
     this.securityParameter = securityParameter;
     this.noOfBits = noOfBits;
   }
 
   @Override
-  public Computation<AdvancedNumericBuilder.RandomAdditiveMask> build(
-      SequentialNumericBuilder builder) {
+  public Computation<AdvancedNumericBuilder.RandomAdditiveMask> buildComputation(
+      ProtocolBuilderNumeric builder) {
     NumericBuilder numericBuilder = builder.numeric();
     List<Computation<SInt>> allBits = new ArrayList<>();
     for (int i = 0; i < noOfBits + securityParameter; i++) {

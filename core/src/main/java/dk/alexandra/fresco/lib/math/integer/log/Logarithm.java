@@ -28,7 +28,7 @@ package dk.alexandra.fresco.lib.math.integer.log;
 
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.builder.ComputationBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
 
@@ -43,7 +43,7 @@ import java.math.BigInteger;
  *
  * @author Jonas Lindstrøm (jonas.lindstrom@alexandra.dk)
  */
-public class Logarithm implements ComputationBuilder<SInt> {
+public class Logarithm implements ComputationBuilder<SInt, ProtocolBuilderNumeric> {
 
   // Input
   private Computation<SInt> input;
@@ -57,7 +57,7 @@ public class Logarithm implements ComputationBuilder<SInt> {
 
 
   @Override
-  public Computation<SInt> build(SequentialNumericBuilder builder) {
+  public Computation<SInt> buildComputation(ProtocolBuilderNumeric builder) {
     /*
      * ln(2) = 45426 >> 16;
 		 */

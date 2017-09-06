@@ -28,12 +28,12 @@ package dk.alexandra.fresco.lib.math.integer.inv;
 
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.builder.ComputationBuilder;
-import dk.alexandra.fresco.framework.builder.NumericBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.NumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
 
-public class Inversion implements ComputationBuilder<SInt> {
+public class Inversion implements ComputationBuilder<SInt, ProtocolBuilderNumeric> {
 
   private final Computation<SInt> x;
 
@@ -42,16 +42,15 @@ public class Inversion implements ComputationBuilder<SInt> {
   }
 
   @Override
-  public Computation<SInt> build(SequentialNumericBuilder builder) {
+  public Computation<SInt> buildComputation(ProtocolBuilderNumeric builder) {
     NumericBuilder numeric = builder.numeric();
     Computation<SInt> random = numeric.randomElement();
     Computation<SInt> sProduct = numeric.mult(x, random);
     Computation<BigInteger> open = numeric.open(sProduct);
-    return builder.createSequentialSub((seq) -> {
+    return builder.seq((seq) -> {
       BigInteger value = open.out();
-      BigInteger inverse = value.modInverse(seq.getBasicNumericFactory().getModulus());
+      BigInteger inverse = value.modInverse(seq.getBasicNumericContext().getModulus());
       return seq.numeric().mult(inverse, random);
     });
   }
-
 }

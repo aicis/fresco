@@ -28,11 +28,11 @@ package dk.alexandra.fresco.lib.math.polynomial.evaluator;
 
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.builder.ComputationBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.math.polynomial.Polynomial;
 
-public class PolynomialEvaluator implements ComputationBuilder<SInt> {
+public class PolynomialEvaluator implements ComputationBuilder<SInt, ProtocolBuilderNumeric> {
 
   private final Computation<SInt> x;
   private final Polynomial p;
@@ -44,7 +44,7 @@ public class PolynomialEvaluator implements ComputationBuilder<SInt> {
 
 
   @Override
-  public Computation<SInt> build(SequentialNumericBuilder builder) {
+  public Computation<SInt> buildComputation(ProtocolBuilderNumeric builder) {
     int degree = p.getMaxDegree();
 
 		/*

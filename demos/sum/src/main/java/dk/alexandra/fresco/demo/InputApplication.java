@@ -27,11 +27,15 @@
 package dk.alexandra.fresco.demo;
 
 import dk.alexandra.fresco.demo.helpers.DemoNumericApplication;
-import dk.alexandra.fresco.framework.BuilderFactory;
-import dk.alexandra.fresco.framework.ProtocolProducer;
+import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.builder.BuildStep;
+import dk.alexandra.fresco.framework.builder.numeric.NumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
-import dk.alexandra.fresco.lib.helper.builder.NumericIOBuilder;
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Demo application. Takes a number of inputs and converts them to secret shared
@@ -39,7 +43,7 @@ import dk.alexandra.fresco.lib.helper.builder.NumericIOBuilder;
  *
  * @author Kasper Damgaard
  */
-public class InputApplication extends DemoNumericApplication<SInt[]> {
+public class InputApplication extends DemoNumericApplication<List<SInt>> {
 
   private int[] inputs;
   private int length;
@@ -54,27 +58,24 @@ public class InputApplication extends DemoNumericApplication<SInt[]> {
   }
 
   @Override
-  public ProtocolProducer prepareApplication(BuilderFactory producer) {
-    BasicNumericFactory fac = (BasicNumericFactory) producer.getProtocolFactory();
-    SInt[] ssInputs = new SInt[this.length];
-
-    NumericIOBuilder ioBuilder = new NumericIOBuilder(fac);
-    ioBuilder.beginParScope();
-    for (int i = 0; i < this.length; i++) {
-      //create wires
-      ssInputs[i] = fac.getSInt();
-      if (this.inputs != null) {
-        ssInputs[i] = ioBuilder.input(this.inputs[i], 1);
-      } else {
-        ssInputs[i] = ioBuilder.input(1);
-      }
-    }
-    ioBuilder.endCurScope();
-    output = () -> ssInputs;
-    return ioBuilder.getProtocol();
+  public Computation<List<SInt>> buildComputation(ProtocolBuilderNumeric producer) {
+    return createBuildStep(producer);
   }
 
-  public SInt[] getSecretSharedInput() {
-    return this.output.out();
+  public BuildStep<?, ProtocolBuilderNumeric, List<SInt>> createBuildStep(
+      ProtocolBuilderNumeric producer) {
+    return producer.par(par -> {
+      NumericBuilder numeric = par.numeric();
+      List<Computation<SInt>> result = new ArrayList<>(length);
+      for (int i = 0; i < this.length; i++) {
+        //create wires
+        if (this.inputs != null) {
+          result.add(numeric.input(BigInteger.valueOf(this.inputs[i]), 1));
+        } else {
+          result.add(numeric.input(null, 1));
+        }
+      }
+      return () -> result.stream().map(Computation::out).collect(Collectors.toList());
+    });
   }
 }

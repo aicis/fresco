@@ -27,9 +27,9 @@
 package dk.alexandra.fresco.lib.lp;
 
 import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.builder.AdvancedNumericBuilder;
 import dk.alexandra.fresco.framework.builder.ComputationBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.AdvancedNumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.util.ArrayList;
 
@@ -37,7 +37,7 @@ import java.util.ArrayList;
  * NativeProtocol extracting the optimal value from a {@link LPTableau} and an update
  * matrix representing a terminated Simplex method.
  */
-public class OptimalValue implements ComputationBuilder<SInt> {
+public class OptimalValue implements ComputationBuilder<SInt, ProtocolBuilderNumeric> {
 
   private final Matrix<Computation<SInt>> updateMatrix;
   private final Computation<SInt> pivot;
@@ -61,7 +61,7 @@ public class OptimalValue implements ComputationBuilder<SInt> {
 
 
   @Override
-  public Computation<SInt> build(SequentialNumericBuilder builder) {
+  public Computation<SInt> buildComputation(ProtocolBuilderNumeric builder) {
     ArrayList<Computation<SInt>> row = updateMatrix.getRow(updateMatrix.getHeight() - 1);
     ArrayList<Computation<SInt>> column = new ArrayList<>(row.size());
     column.addAll(tableau.getB());

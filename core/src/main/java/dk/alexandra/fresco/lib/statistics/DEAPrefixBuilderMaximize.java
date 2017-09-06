@@ -28,15 +28,14 @@ package dk.alexandra.fresco.lib.statistics;
 
 
 import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.builder.NumericBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.NumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.lp.LPTableau;
 import dk.alexandra.fresco.lib.lp.Matrix;
 import dk.alexandra.fresco.lib.lp.SimpleLPPrefix;
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
@@ -54,17 +53,10 @@ public class DEAPrefixBuilderMaximize {
   // \theta = "the factor a farmer can do better than he currently does" and thus is not necessarily upper bounded.
   private static final int BENCHMARKING_BIG_M = 1000;
 
-  /**
-   * Constructs an empty builder
-   */
-  DEAPrefixBuilderMaximize() {
-    super();
-  }
-
   public static Computation<SimpleLPPrefix> build(
-      List<SInt[]> basisInputs, List<SInt[]> basisOutputs,
-      List<SInt> targetInputs, List<SInt> targetOutputs,
-      SequentialNumericBuilder builder
+      List<List<Computation<SInt>>> basisInputs, List<List<Computation<SInt>>> basisOutputs,
+      List<Computation<SInt>> targetInputs, List<Computation<SInt>> targetOutputs,
+      ProtocolBuilderNumeric builder
   ) {
     Computation<SInt> zero = builder.numeric().known(BigInteger.ZERO);
     Computation<SInt> one = builder.numeric().known(BigInteger.ONE);
@@ -72,8 +64,8 @@ public class DEAPrefixBuilderMaximize {
      * First copy the target values to the basis. This ensures that the
 		 * target values are in the basis thus the score must at least be 1.
 		 */
-    List<List<SInt>> newBasisInputs = addTargetToList(basisInputs, targetInputs);
-    List<List<SInt>> newBasisOutputs = addTargetToList(basisOutputs, targetOutputs);
+    List<List<Computation<SInt>>> newBasisInputs = addTargetToList(basisInputs, targetInputs);
+    List<List<Computation<SInt>>> newBasisOutputs = addTargetToList(basisOutputs, targetOutputs);
 
 		/*
      * NeProtocol the basis output
@@ -87,7 +79,7 @@ public class DEAPrefixBuilderMaximize {
           NumericBuilder numeric = par.numeric();
           List<List<Computation<SInt>>> negatedBasisResult = newBasisOutputs.stream().map(
               outputs -> outputs.stream()
-                  .map(output -> numeric.mult(negativeOne, () -> output))
+                  .map(output -> numeric.mult(negativeOne, output))
                   .collect(Collectors.toList())
           ).collect(Collectors.toList());
           return () -> negatedBasisResult;
@@ -146,15 +138,17 @@ public class DEAPrefixBuilderMaximize {
     return identity;
   }
 
-  static List<List<SInt>> addTargetToList(List<SInt[]> basisOutputs, List<SInt> targetOutputs) {
-    ListIterator<SInt[]> basisIt = basisOutputs.listIterator();
-    ListIterator<SInt> targetIt = targetOutputs.listIterator();
-    List<List<SInt>> newBasis = new LinkedList<>();
+  private static List<List<Computation<SInt>>> addTargetToList(
+      List<List<Computation<SInt>>> basisOutputs,
+      List<Computation<SInt>> targetOutputs) {
+    ListIterator<List<Computation<SInt>>> basisIt = basisOutputs.listIterator();
+    ListIterator<Computation<SInt>> targetIt = targetOutputs.listIterator();
+    List<List<Computation<SInt>>> newBasis = new LinkedList<>();
     while (basisIt.hasNext()) {
-      SInt[] basisOutput = basisIt.next();
-      SInt targetOutput = targetIt.next();
-      List<SInt> newInputs = new ArrayList<>(basisOutput.length + 1);
-      newInputs.addAll(Arrays.asList(basisOutput));
+      List<Computation<SInt>> basisOutput = basisIt.next();
+      Computation<SInt> targetOutput = targetIt.next();
+      List<Computation<SInt>> newInputs = new ArrayList<>(basisOutput.size() + 1);
+      newInputs.addAll(basisOutput);
       newInputs.add(targetOutput);
       newBasis.add(newInputs);
     }
@@ -162,7 +156,7 @@ public class DEAPrefixBuilderMaximize {
   }
 
   private static ArrayList<Computation<SInt>> fVector(int size, int lambdas,
-      SequentialNumericBuilder builder,
+      ProtocolBuilderNumeric builder,
       Computation<SInt> zero) {
     NumericBuilder numeric = builder.numeric();
     Computation<SInt> minusOne = numeric.known(BigInteger.valueOf(-1));
@@ -186,20 +180,12 @@ public class DEAPrefixBuilderMaximize {
   }
 
 
-  private static List<Computation<SInt>> convertList(List<SInt> interval) {
-    return interval.stream()
-        .map(intervalValue -> {
-          Computation<SInt> computation = () -> intervalValue;
-          return computation;
-        })
-        .collect(Collectors.toList());
-  }
-
-  private static ArrayList<Computation<SInt>> bVector(int size, List<SInt> targetInputs,
+  private static ArrayList<Computation<SInt>> bVector(int size,
+      List<Computation<SInt>> targetInputs,
       Computation<SInt> zero,
       Computation<SInt> one) {
     ArrayList<Computation<SInt>> B = new ArrayList<>(size);
-    B.addAll(convertList(targetInputs));
+    B.addAll(targetInputs);
     // For each bank output constraint B is zero
     while (B.size() < size - 1) {
       B.add(zero);
@@ -209,23 +195,23 @@ public class DEAPrefixBuilderMaximize {
     return B;
   }
 
-  private static ArrayList<Computation<SInt>> inputRow(List<SInt> vflInputs,
+  private static ArrayList<Computation<SInt>> inputRow(List<Computation<SInt>> vflInputs,
       ArrayList<Computation<SInt>> slackVariables,
       Computation<SInt> zero) {
     ArrayList<Computation<SInt>> row = new ArrayList<>(
         vflInputs.size() + slackVariables.size() + 1);
     row.add(zero);
-    row.addAll(convertList(vflInputs));
+    row.addAll(vflInputs);
     row.addAll(slackVariables);
     return row;
   }
 
   private static ArrayList<Computation<SInt>> outputRow(List<Computation<SInt>> vflOutputs,
-      SInt bankOutput,
+      Computation<SInt> bankOutput,
       ArrayList<Computation<SInt>> slackVariables) {
     ArrayList<Computation<SInt>> row = new ArrayList<>(
         vflOutputs.size() + slackVariables.size() + 1);
-    row.add(() -> bankOutput);
+    row.add(bankOutput);
     row.addAll(vflOutputs);
     row.addAll(slackVariables);
     return row;

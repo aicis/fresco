@@ -28,13 +28,13 @@ package dk.alexandra.fresco.lib.crypto.mimc;
 
 import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.builder.ComputationBuilder;
-import dk.alexandra.fresco.framework.builder.NumericBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.NumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
+import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
 import java.math.BigInteger;
 
-public class MiMCEncryption implements ComputationBuilder<SInt> {
+public class MiMCEncryption implements ComputationBuilder<SInt, ProtocolBuilderNumeric> {
 
   // TODO: require that our modulus - 1 and 3 are co-prime
 
@@ -70,8 +70,8 @@ public class MiMCEncryption implements ComputationBuilder<SInt> {
 
 
   @Override
-  public Computation<SInt> build(SequentialNumericBuilder builder) {
-    final int requiredRounds = getRequiredRounds(builder.getBasicNumericFactory(), requestedRounds);
+  public Computation<SInt> buildComputation(ProtocolBuilderNumeric builder) {
+    final int requiredRounds = getRequiredRounds(builder.getBasicNumericContext(), requestedRounds);
     BigInteger three = BigInteger.valueOf(3);
     /*
      * In the first round we compute c = (p + K)^{3}
@@ -82,7 +82,7 @@ public class MiMCEncryption implements ComputationBuilder<SInt> {
       return new IterationState(1, seq.advancedNumeric().exp(add, three));
     }).whileLoop(
         (state) -> state.round < requiredRounds,
-        (state, seq) -> {
+        (seq, state) -> {
           /*
            * We're in an intermediate round where we compute
            * c_{i} = (c_{i - 1} + K + r_{i})^{3}
@@ -93,7 +93,7 @@ public class MiMCEncryption implements ComputationBuilder<SInt> {
            * in the previous round
            */
           BigInteger roundConstantInteger = MiMCConstants
-              .getConstant(state.round, seq.getBasicNumericFactory().getModulus());
+              .getConstant(state.round, seq.getBasicNumericContext().getModulus());
           NumericBuilder numeric = seq.numeric();
           Computation<SInt> masked = numeric.add(
               roundConstantInteger,
@@ -102,7 +102,7 @@ public class MiMCEncryption implements ComputationBuilder<SInt> {
           Computation<SInt> updatedValue = seq.advancedNumeric().exp(masked, three);
           return new IterationState(state.round + 1, updatedValue);
         }
-    ).seq((state, seq) ->
+    ).seq((seq, state) ->
         /*
          * We're in the last round so we just mask the current
          * cipher text with the encryption key
@@ -111,10 +111,10 @@ public class MiMCEncryption implements ComputationBuilder<SInt> {
     );
   }
 
-  static int getRequiredRounds(BasicNumericFactory basicNumericFactory, Integer requestedRounds) {
+  static int getRequiredRounds(BasicNumericContext basicNumericContext, Integer requestedRounds) {
     final int requiredRounds;
     if (requestedRounds == null) {
-      BigInteger modulus = basicNumericFactory.getModulus();
+      BigInteger modulus = basicNumericContext.getModulus();
       requiredRounds = (int) Math.ceil(Math.log(modulus.doubleValue()) / Math.log(3));
     } else {
       requiredRounds = requestedRounds;

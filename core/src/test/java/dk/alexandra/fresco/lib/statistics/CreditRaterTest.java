@@ -27,39 +27,32 @@
 package dk.alexandra.fresco.lib.statistics;
 
 import dk.alexandra.fresco.framework.Application;
-import dk.alexandra.fresco.framework.BuilderFactory;
-import dk.alexandra.fresco.framework.ProtocolFactory;
+import dk.alexandra.fresco.framework.Computation;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
-import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderHelper;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.NumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
-import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
-import dk.alexandra.fresco.lib.helper.AlgebraUtil;
-import dk.alexandra.fresco.lib.helper.SequentialProtocolProducer;
-import dk.alexandra.fresco.lib.helper.builder.NumericIOBuilder;
 import java.math.BigInteger;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.hamcrest.core.Is;
 import org.junit.Assert;
 
 /**
- * Test class for the DEASolver.
- * Will generate a random data sample and perform a Data Envelopment
- * Analysis on it. The TestDEADSolver takes the size of the problem
- * as inputs (i.e. the number of input and output variables, the number
- * of rows in the basis and the number of queries to perform.
+ * Test class for the DEASolver. Will generate a random data sample and perform a Data Envelopment
+ * Analysis on it. The TestDEADSolver takes the size of the problem as inputs (i.e. the number of
+ * input and output variables, the number of rows in the basis and the number of queries to perform.
  * The MPC result is compared with the result of a plaintext DEA solver.
  */
 public class CreditRaterTest {
 
 
   public static class TestCreditRater<ResourcePoolT extends ResourcePool> extends
-      TestThreadFactory<ResourcePoolT, SequentialNumericBuilder> {
+      TestThreadFactory {
 
     final int[] values;
     final int[][] intervals;
@@ -72,57 +65,70 @@ public class CreditRaterTest {
     }
 
     @Override
-    public TestThread<ResourcePoolT, SequentialNumericBuilder> next(
-        TestThreadConfiguration<ResourcePoolT, SequentialNumericBuilder> conf) {
-      return new TestThread<ResourcePoolT, SequentialNumericBuilder>() {
-        SInt[] secretValues;
-
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         @Override
         public void test() throws Exception {
           ResourcePoolT resourcePool = ResourcePoolCreator.createResourcePool(conf.sceConf);
 
-          BigInteger result = null;
-
-          SInt[][] secretIntervals = new SInt[intervals.length][];
-          SInt[][] secretScores = new SInt[scores.length][];
-
-          Application<List<BigInteger>, SequentialNumericBuilder> input =
+          Application<CreditRaterInput, ProtocolBuilderNumeric> input =
               producer -> {
-                BuilderFactory factoryNumeric = ProtocolBuilderHelper.getFactoryNumeric(producer);
+                NumericBuilder numeric = producer.numeric();
+                int[] values = TestCreditRater.this.values;
+                List<Computation<SInt>> closedValues = knownArray(numeric, values);
 
-                ProtocolFactory provider = factoryNumeric.getProtocolFactory();
-                BasicNumericFactory bnFactory = (BasicNumericFactory) provider;
-                NumericIOBuilder ioBuilder = new NumericIOBuilder(bnFactory);
+                List<List<Computation<SInt>>> closedIntervals = Arrays.stream(intervals)
+                    .map(array -> knownArray(numeric, array))
+                    .collect(Collectors.toList());
 
-                SequentialProtocolProducer sseq = new SequentialProtocolProducer();
-
-                secretValues = ioBuilder.inputArray(values, 1);
-                for (int i = 0; i < intervals.length; i++) {
-                  secretIntervals[i] = ioBuilder.inputArray(intervals[i], 1);
-                }
-                for (int i = 0; i < scores.length; i++) {
-                  secretScores[i] = ioBuilder.inputArray(scores[i], 1);
-                }
-                sseq.append(ioBuilder.getProtocol());
-                producer.append(sseq);
-                return () -> null;
+                List<List<Computation<SInt>>> closedScores = Arrays.stream(scores)
+                    .map(array -> knownArray(numeric, array))
+                    .collect(Collectors.toList());
+                return () -> new CreditRaterInput(closedValues, closedIntervals, closedScores);
               };
-          secureComputationEngine.runApplication(input, resourcePool);
+          CreditRaterInput creditRaterInput = secureComputationEngine
+              .runApplication(input, resourcePool);
 
-          CreditRater rater = new CreditRater(AlgebraUtil.arrayToList(secretValues),
-              AlgebraUtil.arrayToList(secretIntervals),
-              AlgebraUtil.arrayToList(secretScores));
-          SInt creditRatingOutput = secureComputationEngine.runApplication(rater, resourcePool);
+          CreditRater rater = new CreditRater(
+              creditRaterInput.values,
+              creditRaterInput.intervals,
+              creditRaterInput.intervalScores);
+          SInt creditRatingOutput = secureComputationEngine
+              .runApplication((builder) -> builder.seq(rater), resourcePool);
 
-          Application<BigInteger, SequentialNumericBuilder> outputApp =
-              seq -> seq.numeric()
-                  .open(() -> creditRatingOutput);
+          Application<BigInteger, ProtocolBuilderNumeric> outputApp =
+              seq -> seq.numeric().open(creditRatingOutput);
+
           BigInteger resultCreditOut = secureComputationEngine
               .runApplication(outputApp, resourcePool);
+
           Assert.assertThat(resultCreditOut, Is.is(
               BigInteger.valueOf(PlaintextCreditRater.calculateScore(values, intervals, scores))));
         }
       };
+    }
+  }
+
+  private static List<Computation<SInt>> knownArray(NumericBuilder numeric, int[] values) {
+    return Arrays.stream(values)
+        .mapToObj(BigInteger::valueOf)
+        .map(numeric::known)
+        .collect(Collectors.toList());
+  }
+
+  private static class CreditRaterInput {
+
+    private final List<Computation<SInt>> values;
+    private final List<List<Computation<SInt>>> intervals;
+    private final List<List<Computation<SInt>>> intervalScores;
+
+    private CreditRaterInput(
+        List<Computation<SInt>> values,
+        List<List<Computation<SInt>>> intervals,
+        List<List<Computation<SInt>>> intervalScores) {
+      this.values = values;
+      this.intervals = intervals;
+      this.intervalScores = intervalScores;
     }
   }
 

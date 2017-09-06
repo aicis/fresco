@@ -3,7 +3,8 @@ package dk.alexandra.fresco.demo;
 import dk.alexandra.fresco.demo.EncryptAndRevealStep.RowWithCipher;
 import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
+import dk.alexandra.fresco.framework.builder.ComputationBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.crypto.mimc.MiMCEncryption;
@@ -13,7 +14,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class EncryptAndRevealStep implements
-    Application<List<RowWithCipher>, SequentialNumericBuilder> {
+    Application<List<RowWithCipher>, ProtocolBuilderNumeric> {
 
   private final List<List<SInt>> inputRows;
   private final int toEncryptIndex;
@@ -25,27 +26,24 @@ public class EncryptAndRevealStep implements
   }
 
   @Override
-  public Computation<List<RowWithCipher>> prepareApplication(SequentialNumericBuilder builder) {
+  public Computation<List<RowWithCipher>> buildComputation(ProtocolBuilderNumeric builder) {
     return builder.par(par ->
         builder.numeric().randomElement()
-    ).par((mimcKey, par) -> {
+    ).par((par, mimcKey) -> {
       List<Pair<List<SInt>, Computation<BigInteger>>> ciphers = new ArrayList<>(inputRows.size());
       // Encrypt desired column and open resulting cipher text
       for (final List<SInt> row : inputRows) {
-        ciphers.add(
-            new Pair<>(row,
-                par.createSequentialSub((seq) -> {
-                  SInt toEncrypt = row.get(toEncryptIndex);
-                  Computation<SInt> cipherText = seq.createSequentialSub(
-                      new MiMCEncryption(toEncrypt, mimcKey)
-                  );
-                  return seq.numeric().open(cipherText);
-                })));
+        ComputationBuilder<BigInteger, ProtocolBuilderNumeric> function = (seq) -> {
+          SInt toEncrypt = row.get(toEncryptIndex);
+          Computation<SInt> cipherText = seq.seq(new MiMCEncryption(toEncrypt, mimcKey));
+          return seq.numeric().open(cipherText);
+        };
+        ciphers.add(new Pair<>(row, par.seq(function)));
       }
       return () -> ciphers;
-    }).seq((ciphers, seq) -> {
+    }).seq((seq, ciphers) -> {
       List<RowWithCipher> resultList = ciphers.stream()
-          .map(cipherPair -> new RowWithCipher(cipherPair)).collect(Collectors.toList());
+          .map(RowWithCipher::new).collect(Collectors.toList());
       return () -> resultList;
     });
   }

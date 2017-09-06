@@ -29,7 +29,6 @@ package dk.alexandra.fresco.lib.lp;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Function;
 import java.util.function.IntFunction;
 import java.util.stream.Collectors;
 
@@ -101,23 +100,5 @@ public class Matrix<T> {
         + '}';
   }
 
-  /**
-   * Returns the matrix as a two-dimensional array.
-   * @param mapper a mapper from type T to R
-   * @param arrayCreator an array creating function 
-   * @param doubleCreator a two-dimensional array creating function
-   * @return the two-dimensional array
-   */
-  public <R> R[][] toArray(Function<T, R> mapper, IntFunction<R[]> arrayCreator,
-      IntFunction<R[][]> doubleCreator) {
-    List<R[]> rows = matrix.stream().map(row -> row.stream().map(mapper).toArray(arrayCreator)
-    ).collect(Collectors.toList());
-    R[][] array = doubleCreator.apply(rows.size());
-    int i = 0;
-    for (R[] row: rows) {
-      array[i++] = row;
-    }
-    return array;
-  }
 }
  

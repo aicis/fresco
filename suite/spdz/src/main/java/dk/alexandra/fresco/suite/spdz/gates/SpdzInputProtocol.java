@@ -46,9 +46,8 @@ public class SpdzInputProtocol extends SpdzNativeProtocol<SInt> {
   private int inputter;
   private byte[] digest;
 
-  public SpdzInputProtocol(BigInteger input, SInt out, int inputter) {
+  public SpdzInputProtocol(BigInteger input, int inputter) {
     this.input = input;
-    this.out = (SpdzSInt) out;
     this.inputter = inputter;
   }
 
@@ -86,8 +85,7 @@ public class SpdzInputProtocol extends SpdzNativeProtocol<SInt> {
                 value_masked,
                 storage.getSSK().multiply(value_masked).mod(modulus),
                 modulus);
-        this.out.value = this.inputMask.getMask().add(value_masked_elm,
-            myId);
+        this.out = new SpdzSInt(this.inputMask.getMask().add(value_masked_elm, myId));
         return EvaluationStatus.IS_DONE;
     }
     throw new MPCException("Cannot evaluate rounds larger than 2");
