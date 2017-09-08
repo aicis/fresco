@@ -111,7 +111,7 @@ public abstract class ProtocolBuilderImpl<BuilderT extends ProtocolBuilderImpl<B
    *
    * @param f of the protocol producer - will be lazy evaluated
    */
-  public <R> BuildStep<Void, BuilderT, R> par(ComputationBuilderParallel<R, BuilderT> f) {
+  public <R> BuildStep<Void, BuilderT, R> par(ComputationParallel<R, BuilderT> f) {
     FrescoLambda<Void, BuilderT, R> innerBuilder = (inner, ignored) -> f.buildComputation(inner);
     BuildStep<Void, BuilderT, R> builder =
         new BuildStep<>(new BuildStepSingle<>(innerBuilder, true));

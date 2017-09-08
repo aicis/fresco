@@ -7,7 +7,7 @@ package dk.alexandra.fresco.framework.builder;
  * @param <BuilderT> the type of builder of the composition
  * @param <OutputT> the type of output of the function
  */
-public interface ComputationBuilderParallel<OutputT, BuilderT extends ProtocolBuilder>
+public interface ComputationParallel<OutputT, BuilderT extends ProtocolBuilder>
     extends Computation<OutputT, BuilderT> {
 
 }

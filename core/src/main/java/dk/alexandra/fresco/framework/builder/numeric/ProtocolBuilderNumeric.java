@@ -12,7 +12,7 @@ public class ProtocolBuilderNumeric extends
 
   private final BuilderFactoryNumeric factory;
   private BasicNumericContext basicNumericContext;
-  private Numeric numericBuilder;
+  private Numeric numeric;
   private Comparison comparison;
   private AdvancedNumeric advancedNumeric;
   private Debug debug;
@@ -33,10 +33,10 @@ public class ProtocolBuilderNumeric extends
    * @return the numeric builder.
    */
   public Numeric numeric() {
-    if (numericBuilder == null) {
-      numericBuilder = factory.createNumeric(this);
+    if (numeric == null) {
+      numeric = factory.createNumeric(this);
     }
-    return numericBuilder;
+    return numeric;
   }
 
   /**
