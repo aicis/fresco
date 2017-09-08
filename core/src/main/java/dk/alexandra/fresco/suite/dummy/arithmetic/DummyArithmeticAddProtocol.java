@@ -24,7 +24,7 @@
 
 package dk.alexandra.fresco.suite.dummy.arithmetic;
 
-import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.network.SCENetwork;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
@@ -36,8 +36,8 @@ import java.math.BigInteger;
  */
 public class DummyArithmeticAddProtocol extends DummyArithmeticNativeProtocol<SInt> {
 
-  private Computation<SInt> left;
-  private Computation<SInt> right;
+  private DRes<SInt> left;
+  private DRes<SInt> right;
   private DummyArithmeticSInt out;
 
   /**
@@ -46,7 +46,7 @@ public class DummyArithmeticAddProtocol extends DummyArithmeticNativeProtocol<SI
    * @param left the left operand
    * @param right the right operand
    */
-  public DummyArithmeticAddProtocol(Computation<SInt> left, Computation<SInt> right) {
+  public DummyArithmeticAddProtocol(DRes<SInt> left, DRes<SInt> right) {
     this.left = left;
     this.right = right;
   }

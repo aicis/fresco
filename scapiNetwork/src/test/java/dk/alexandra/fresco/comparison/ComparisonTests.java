@@ -24,11 +24,11 @@
 package dk.alexandra.fresco.comparison;
 
 import dk.alexandra.fresco.framework.Application;
-import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
-import dk.alexandra.fresco.framework.builder.numeric.ComparisonBuilder;
-import dk.alexandra.fresco.framework.builder.numeric.NumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.Comparison;
+import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.util.Pair;
@@ -55,15 +55,15 @@ public class ComparisonTests {
               builder -> {
                 BigInteger three = BigInteger.valueOf(3);
                 BigInteger five = BigInteger.valueOf(5);
-                NumericBuilder numeric = builder.numeric();
-                Computation<SInt> x = numeric.input(three, 1);
-                Computation<SInt> y = numeric.input(five, 2);
-                ComparisonBuilder comparison = builder.comparison();
-                Computation<SInt> compResult1 = comparison.compareLEQ(x, y);
-                Computation<SInt> compResult2 = comparison.compareLEQ(y, x);
+                Numeric numeric = builder.numeric();
+                DRes<SInt> x = numeric.input(three, 1);
+                DRes<SInt> y = numeric.input(five, 2);
+                Comparison comparison = builder.comparison();
+                DRes<SInt> compResult1 = comparison.compareLEQ(x, y);
+                DRes<SInt> compResult2 = comparison.compareLEQ(y, x);
 
-                Computation<BigInteger> res1 = numeric.open(compResult1);
-                Computation<BigInteger> res2 = numeric.open(compResult2);
+                DRes<BigInteger> res1 = numeric.open(compResult1);
+                DRes<BigInteger> res2 = numeric.open(compResult2);
                 return () -> new Pair<>(res1.out(), res2.out());
               };
           Pair<BigInteger, BigInteger> pair = runApplication(app);
@@ -89,19 +89,19 @@ public class ComparisonTests {
         public void test() throws Exception {
           Application<Pair<BigInteger, BigInteger>, ProtocolBuilderNumeric> app =
               builder -> {
-                NumericBuilder input = builder.numeric();
+                Numeric input = builder.numeric();
 
                 BigInteger three = BigInteger.valueOf(3);
                 BigInteger five = BigInteger.valueOf(5);
-                Computation<SInt> x = input.input(three, 2);
-                Computation<SInt> y = input.input(five, 1);
-                ComparisonBuilder comparison = builder.comparison();
-                Computation<SInt> compResult1 = comparison.equals(x, x);
-                Computation<SInt> compResult2 = comparison.equals(x, y);
+                DRes<SInt> x = input.input(three, 2);
+                DRes<SInt> y = input.input(five, 1);
+                Comparison comparison = builder.comparison();
+                DRes<SInt> compResult1 = comparison.equals(x, x);
+                DRes<SInt> compResult2 = comparison.equals(x, y);
 
-                NumericBuilder open = builder.numeric();
-                Computation<BigInteger> res1 = open.open(compResult1);
-                Computation<BigInteger> res2 = open.open(compResult2);
+                Numeric open = builder.numeric();
+                DRes<BigInteger> res1 = open.open(compResult1);
+                DRes<BigInteger> res2 = open.open(compResult2);
                 return () -> new Pair<>(res1.out(), res2.out());
               };
 

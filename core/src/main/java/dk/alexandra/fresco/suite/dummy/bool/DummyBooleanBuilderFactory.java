@@ -23,8 +23,8 @@
  *******************************************************************************/
 package dk.alexandra.fresco.suite.dummy.bool;
 
-import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.builder.binary.BinaryBuilder;
+import dk.alexandra.fresco.framework.DRes;
+import dk.alexandra.fresco.framework.builder.binary.Binary;
 import dk.alexandra.fresco.framework.builder.binary.BuilderFactoryBinary;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.network.SCENetwork;
@@ -34,24 +34,24 @@ import dk.alexandra.fresco.framework.value.SBool;
 public class DummyBooleanBuilderFactory implements BuilderFactoryBinary {
 
   @Override
-  public BinaryBuilder createBinaryBuilder(ProtocolBuilderBinary builder) {
+  public Binary createBinary(ProtocolBuilderBinary builder) {
 
-    return new BinaryBuilder() {
+    return new Binary() {
 
       @Override
-      public Computation<SBool> known(boolean value) {
+      public DRes<SBool> known(boolean value) {
         return () -> new DummyBooleanSBool(value);
       }
 
       @Override
-      public Computation<SBool> input(boolean value, int inputParty) {
+      public DRes<SBool> input(boolean value, int inputParty) {
         DummyBooleanCloseProtocol c = new DummyBooleanCloseProtocol(inputParty, () -> value);
         builder.append(c);
         return c;
       }
 
       @Override
-      public Computation<SBool> randomBit() {
+      public DRes<SBool> randomBit() {
         DummyBooleanNativeProtocol<SBool> c = new DummyBooleanNativeProtocol<SBool>() {
 
           DummyBooleanSBool bit;
@@ -73,35 +73,35 @@ public class DummyBooleanBuilderFactory implements BuilderFactoryBinary {
       }
 
       @Override
-      public Computation<Boolean> open(Computation<SBool> secretShare) {
+      public DRes<Boolean> open(DRes<SBool> secretShare) {
         DummyBooleanOpenProtocol c = new DummyBooleanOpenProtocol(secretShare);
         builder.append(c);
         return c;
       }
 
       @Override
-      public Computation<Boolean> open(Computation<SBool> secretShare, int outputParty) {
+      public DRes<Boolean> open(DRes<SBool> secretShare, int outputParty) {
         DummyBooleanOpenProtocol c = new DummyBooleanOpenProtocol(secretShare, outputParty);
         builder.append(c);
         return c;
       }
 
       @Override
-      public Computation<SBool> and(Computation<SBool> a, Computation<SBool> b) {
+      public DRes<SBool> and(DRes<SBool> a, DRes<SBool> b) {
         DummyBooleanAndProtocol c = new DummyBooleanAndProtocol(a, b);
         builder.append(c);
         return c;
       }
 
       @Override
-      public Computation<SBool> xor(Computation<SBool> a, Computation<SBool> b) {
+      public DRes<SBool> xor(DRes<SBool> a, DRes<SBool> b) {
         DummyBooleanXorProtocol c = new DummyBooleanXorProtocol(a, b);
         builder.append(c);
         return c;
       }
 
       @Override
-      public Computation<SBool> not(Computation<SBool> a) {
+      public DRes<SBool> not(DRes<SBool> a) {
         DummyBooleanNotProtocol c = new DummyBooleanNotProtocol(a);
         builder.append(c);
         return c;

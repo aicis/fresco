@@ -26,8 +26,8 @@ package dk.alexandra.fresco.demo;
 import dk.alexandra.fresco.demo.cli.CmdLineUtil;
 import dk.alexandra.fresco.demo.helpers.DemoNumericApplication;
 import dk.alexandra.fresco.demo.helpers.ResourcePoolHelper;
-import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.builder.numeric.NumericBuilder;
+import dk.alexandra.fresco.framework.DRes;
+import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.sce.SCEFactory;
@@ -55,29 +55,29 @@ public class DistanceDemo extends DemoNumericApplication<BigInteger> {
   }
 
   @Override
-  public Computation<BigInteger> buildComputation(ProtocolBuilderNumeric producer) {
+  public DRes<BigInteger> buildComputation(ProtocolBuilderNumeric producer) {
     return producer.par(par -> {
       // Input points
-      NumericBuilder numericIo = par.numeric();
-      Computation<SInt> x1, y1, x2, y2;
+      Numeric numericIo = par.numeric();
+      DRes<SInt> x1, y1, x2, y2;
       x1 = (myId == 1) ? numericIo.input(BigInteger.valueOf(myX), 1) : numericIo.input(null, 1);
       y1 = (myId == 1) ? numericIo.input(BigInteger.valueOf(myY), 1) : numericIo.input(null, 1);
       x2 = (myId == 2) ? numericIo.input(BigInteger.valueOf(myX), 2) : numericIo.input(null, 2);
       y2 = (myId == 2) ? numericIo.input(BigInteger.valueOf(myY), 2) : numericIo.input(null, 2);
-      Pair<Computation<SInt>, Computation<SInt>> input1 = new Pair<>(x1, y1);
-      Pair<Computation<SInt>, Computation<SInt>> input2 = new Pair<>(x2, y2);
+      Pair<DRes<SInt>, DRes<SInt>> input1 = new Pair<>(x1, y1);
+      Pair<DRes<SInt>, DRes<SInt>> input2 = new Pair<>(x2, y2);
       Pair<
-          Pair<Computation<SInt>, Computation<SInt>>,
-          Pair<Computation<SInt>, Computation<SInt>>> inputs = new Pair<>(input1, input2);
+          Pair<DRes<SInt>, DRes<SInt>>,
+          Pair<DRes<SInt>, DRes<SInt>>> inputs = new Pair<>(input1, input2);
       return () -> inputs;
     }).pairInPar((seq, input) -> {
-      NumericBuilder numeric = seq.numeric();
-      Computation<SInt> dX =
+      Numeric numeric = seq.numeric();
+      DRes<SInt> dX =
           numeric.sub(input.getFirst().getFirst(), input.getSecond().getFirst());
       return numeric.mult(dX, dX);
     }, (seq, input) -> {
-      NumericBuilder numeric = seq.numeric();
-      Computation<SInt> dY =
+      Numeric numeric = seq.numeric();
+      DRes<SInt> dY =
           numeric.sub(input.getFirst().getSecond(), input.getSecond().getSecond());
       return numeric.mult(dY, dY);
     }).seq((seq, distances) -> seq.numeric().add(distances.getFirst(), distances.getSecond())

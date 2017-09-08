@@ -23,7 +23,7 @@
  *******************************************************************************/
 package dk.alexandra.fresco.suite.tinytables.online.protocols;
 
-import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.network.SCENetwork;
 import dk.alexandra.fresco.framework.network.serializers.BooleanSerializer;
@@ -53,10 +53,10 @@ import java.util.List;
 public class TinyTablesOpenToAllProtocol extends TinyTablesProtocol<Boolean> {
 
   private int id;
-  private Computation<SBool> toOpen;
+  private DRes<SBool> toOpen;
   private Boolean opened;
 
-  public TinyTablesOpenToAllProtocol(int id, Computation<SBool> toOpen) {
+  public TinyTablesOpenToAllProtocol(int id, DRes<SBool> toOpen) {
     super();
     this.id = id;
     this.toOpen = toOpen;

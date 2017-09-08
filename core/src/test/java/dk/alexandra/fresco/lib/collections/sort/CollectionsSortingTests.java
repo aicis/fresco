@@ -24,10 +24,10 @@
 package dk.alexandra.fresco.lib.collections.sort;
 
 import dk.alexandra.fresco.framework.Application;
-import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
-import dk.alexandra.fresco.framework.builder.binary.BinaryBuilder;
+import dk.alexandra.fresco.framework.builder.binary.Binary;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
@@ -72,40 +72,40 @@ public class CollectionsSortingTests {
             ProtocolBuilderBinary seqBuilder = (ProtocolBuilderBinary) builder;
 
             return seqBuilder.seq(seq -> {
-              List<Computation<SBool>> leftKey =
+              List<DRes<SBool>> leftKey =
                   rawLeftKey.stream().map(builder.binary()::known).collect(Collectors.toList());
-              List<Computation<SBool>> rightKey =
+              List<DRes<SBool>> rightKey =
                   rawRightKey.stream().map(builder.binary()::known).collect(Collectors.toList());
-              List<Computation<SBool>> leftValue =
+              List<DRes<SBool>> leftValue =
                   rawLeftValue.stream().map(builder.binary()::known).collect(Collectors.toList());
-              List<Computation<SBool>> rightValue =
+              List<DRes<SBool>> rightValue =
                   rawRightValue.stream().map(builder.binary()::known).collect(Collectors.toList());
 
               return seq.advancedBinary().keyedCompareAndSwap(new Pair<>(leftKey, leftValue),
                   new Pair<>(rightKey, rightValue));
             }).seq((seq, data) -> {
-              List<Pair<List<Computation<Boolean>>, List<Computation<Boolean>>>> open =
+              List<Pair<List<DRes<Boolean>>, List<DRes<Boolean>>>> open =
                   new ArrayList<>();
 
-              for (Pair<List<Computation<SBool>>, List<Computation<SBool>>> o : data) {
+              for (Pair<List<DRes<SBool>>, List<DRes<SBool>>> o : data) {
 
-                List<Computation<Boolean>> first =
+                List<DRes<Boolean>> first =
                     o.getFirst().stream().map(seq.binary()::open).collect(Collectors.toList());
-                List<Computation<Boolean>> second =
+                List<DRes<Boolean>> second =
                     o.getSecond().stream().map(seq.binary()::open).collect(Collectors.toList());
 
-                Pair<List<Computation<Boolean>>, List<Computation<Boolean>>> pair =
+                Pair<List<DRes<Boolean>>, List<DRes<Boolean>>> pair =
                     new Pair<>(first, second);
                 open.add(pair);
               }
               return () -> open;
             }).seq((seq, data) -> {
               List<Pair<List<Boolean>, List<Boolean>>> out = new ArrayList<>();
-              for (Pair<List<Computation<Boolean>>, List<Computation<Boolean>>> o : data) {
+              for (Pair<List<DRes<Boolean>>, List<DRes<Boolean>>> o : data) {
                 List<Boolean> first =
-                    o.getFirst().stream().map(Computation::out).collect(Collectors.toList());
+                    o.getFirst().stream().map(DRes::out).collect(Collectors.toList());
                 List<Boolean> second =
-                    o.getSecond().stream().map(Computation::out).collect(Collectors.toList());
+                    o.getSecond().stream().map(DRes::out).collect(Collectors.toList());
 
                 Pair<List<Boolean>, List<Boolean>> pair = new Pair<>(first, second);
                 out.add(pair);
@@ -155,29 +155,29 @@ public class CollectionsSortingTests {
               new Application<List<Pair<List<Boolean>, List<Boolean>>>, ProtocolBuilderBinary>() {
 
             @Override
-            public Computation<List<Pair<List<Boolean>, List<Boolean>>>> buildComputation(
+            public DRes<List<Pair<List<Boolean>, List<Boolean>>>> buildComputation(
                 ProtocolBuilderBinary producer) {
               return producer.seq(seq -> {
-                BinaryBuilder builder = seq.binary();
-                List<Computation<SBool>> l11 =
+                Binary builder = seq.binary();
+                List<DRes<SBool>> l11 =
                     Arrays.asList(left11).stream().map(builder::known).collect(Collectors.toList());
-                List<Computation<SBool>> l12 =
+                List<DRes<SBool>> l12 =
                     Arrays.asList(left12).stream().map(builder::known).collect(Collectors.toList());
-                List<Computation<SBool>> l21 =
+                List<DRes<SBool>> l21 =
                     Arrays.asList(left21).stream().map(builder::known).collect(Collectors.toList());
-                List<Computation<SBool>> l22 =
+                List<DRes<SBool>> l22 =
                     Arrays.asList(left22).stream().map(builder::known).collect(Collectors.toList());
-                List<Computation<SBool>> l31 =
+                List<DRes<SBool>> l31 =
                     Arrays.asList(left31).stream().map(builder::known).collect(Collectors.toList());
-                List<Computation<SBool>> l32 =
+                List<DRes<SBool>> l32 =
                     Arrays.asList(left32).stream().map(builder::known).collect(Collectors.toList());
 
-                List<Computation<SBool>> l41 =
+                List<DRes<SBool>> l41 =
                     Arrays.asList(left41).stream().map(builder::known).collect(Collectors.toList());
-                List<Computation<SBool>> l42 =
+                List<DRes<SBool>> l42 =
                     Arrays.asList(left42).stream().map(builder::known).collect(Collectors.toList());
 
-                List<Pair<List<Computation<SBool>>, List<Computation<SBool>>>> unSorted =
+                List<Pair<List<DRes<SBool>>, List<DRes<SBool>>>> unSorted =
                     new ArrayList<>();
 
                 unSorted
@@ -189,20 +189,20 @@ public class CollectionsSortingTests {
                 unSorted
                     .add(new Pair<>(l41, l42));
 
-                Computation<List<Pair<List<Computation<SBool>>, List<Computation<SBool>>>>> sorted =
+                DRes<List<Pair<List<DRes<SBool>>, List<DRes<SBool>>>>> sorted =
                     new OddEvenMerge(unSorted).buildComputation(seq);
                 return sorted;
               }).seq((seq, sorted) -> {
-                BinaryBuilder builder = seq.binary();
-                List<Pair<List<Computation<Boolean>>, List<Computation<Boolean>>>> opened =
+                Binary builder = seq.binary();
+                List<Pair<List<DRes<Boolean>>, List<DRes<Boolean>>>> opened =
                     new ArrayList<>();
-                for (Pair<List<Computation<SBool>>, List<Computation<SBool>>> p : sorted) {
-                  List<Computation<Boolean>> oKeys = new ArrayList<>();
-                  for (Computation<SBool> key : p.getFirst()) {
+                for (Pair<List<DRes<SBool>>, List<DRes<SBool>>> p : sorted) {
+                  List<DRes<Boolean>> oKeys = new ArrayList<>();
+                  for (DRes<SBool> key : p.getFirst()) {
                     oKeys.add(builder.open(key));
                   }
-                  List<Computation<Boolean>> oValues = new ArrayList<>();
-                  for (Computation<SBool> value : p.getSecond()) {
+                  List<DRes<Boolean>> oValues = new ArrayList<>();
+                  for (DRes<SBool> value : p.getSecond()) {
                     oValues.add(builder.open(value));
                   }
                   opened.add(new Pair<>(oKeys, oValues));
@@ -211,9 +211,9 @@ public class CollectionsSortingTests {
               }).seq((seq, opened) -> {
                 return () -> opened.stream().map((p) -> {
                   List<Boolean> key =
-                      p.getFirst().stream().map(Computation::out).collect(Collectors.toList());
+                      p.getFirst().stream().map(DRes::out).collect(Collectors.toList());
                   List<Boolean> value =
-                      p.getSecond().stream().map(Computation::out).collect(Collectors.toList());
+                      p.getSecond().stream().map(DRes::out).collect(Collectors.toList());
                   return new Pair<>(key, value);
                 }).collect(Collectors.toList());
               });

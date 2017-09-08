@@ -1,8 +1,8 @@
 package dk.alexandra.fresco.lib.math.polynomial;
 
-import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.numeric.BuilderFactoryNumeric;
-import dk.alexandra.fresco.framework.builder.numeric.NumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticBuilderFactory;
@@ -25,11 +25,11 @@ public class TestPolynomial {
         new DummyArithmeticResourcePoolImpl(1, 1, null, new Random(), new SecureRandom(),
             BigInteger.ONE));
     BuilderFactoryNumeric builderFactory = new DummyArithmeticBuilderFactory(dummyFact);
-    NumericBuilder numeric = builderFactory.createNumericBuilder(builderFactory.createSequential());
+    Numeric numeric = builderFactory.createNumeric(builderFactory.createSequential());
 
     int[] coefficients = new int[]{1, 2, 3, 4};
 
-    List<Computation<SInt>> secretCoefficients =
+    List<DRes<SInt>> secretCoefficients =
         Arrays.stream(coefficients)
             .mapToObj(BigInteger::valueOf)
             .map(numeric::known)

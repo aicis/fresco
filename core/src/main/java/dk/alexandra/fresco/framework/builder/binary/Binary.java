@@ -1,6 +1,7 @@
 package dk.alexandra.fresco.framework.builder.binary;
 
-import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.DRes;
+import dk.alexandra.fresco.framework.builder.ComputationDirectory;
 import dk.alexandra.fresco.framework.value.SBool;
 
 /**
@@ -9,13 +10,13 @@ import dk.alexandra.fresco.framework.value.SBool;
  * @author Kasper Damgaard
  *
  */
-public interface BinaryBuilder {
+public interface Binary extends ComputationDirectory {
 
-  Computation<SBool> known(boolean known);
+  DRes<SBool> known(boolean known);
 
-  Computation<SBool> input(boolean in, int inputter);
+  DRes<SBool> input(boolean in, int inputter);
 
-  Computation<SBool> randomBit();
+  DRes<SBool> randomBit();
 
   /**
    * Opens (aka. reveals) the given SBool to all parties.
@@ -23,7 +24,7 @@ public interface BinaryBuilder {
    * @param toOpen The SInt to open.
    * @return The value that the SInt represented.
    */
-  Computation<Boolean> open(Computation<SBool> toOpen);
+  DRes<Boolean> open(DRes<SBool> toOpen);
 
   /**
    * Opens (aka. reveals) the given SBool to only the party with the given Id.
@@ -32,7 +33,7 @@ public interface BinaryBuilder {
    * @param towardsPartyId The Id of the party who should receive the output.
    * @return The value that the SInt represented.
    */
-  Computation<Boolean> open(Computation<SBool> toOpen, int towardsPartyId);
+  DRes<Boolean> open(DRes<SBool> toOpen, int towardsPartyId);
 
   /**
    * Basic AND operation
@@ -41,7 +42,7 @@ public interface BinaryBuilder {
    * @param right The right AND argument
    * @return An outgoing wire where the result is stored.
    */
-  Computation<SBool> and(Computation<SBool> left, Computation<SBool> right);
+  DRes<SBool> and(DRes<SBool> left, DRes<SBool> right);
 
   /**
    * XOR basic operation. Returns the wire resulting from this operation.
@@ -50,7 +51,7 @@ public interface BinaryBuilder {
    * @param right right XOR argument
    * @return A wire where the result is stored.
    */
-  Computation<SBool> xor(Computation<SBool> left, Computation<SBool> right);
+  DRes<SBool> xor(DRes<SBool> left, DRes<SBool> right);
 
   /**
    * Basic NOT operation
@@ -58,5 +59,5 @@ public interface BinaryBuilder {
    * @param in The input to be inverted.
    * @return An outgoing wire where the result is stored.
    */
-  Computation<SBool> not(Computation<SBool> in);
+  DRes<SBool> not(DRes<SBool> in);
 }

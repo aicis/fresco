@@ -26,8 +26,8 @@
  */
 package dk.alexandra.fresco.framework.value;
 
-import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.DRes;
 
-public interface SInt extends Computation<SInt> {
+public interface SInt extends DRes<SInt> {
 
 }

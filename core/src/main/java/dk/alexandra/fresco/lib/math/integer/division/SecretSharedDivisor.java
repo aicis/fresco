@@ -26,9 +26,9 @@
  */
 package dk.alexandra.fresco.lib.math.integer.division;
 
-import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.builder.ComputationBuilder;
-import dk.alexandra.fresco.framework.builder.numeric.NumericBuilder;
+import dk.alexandra.fresco.framework.DRes;
+import dk.alexandra.fresco.framework.builder.Computation;
+import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
@@ -47,20 +47,20 @@ import java.math.BigInteger;
  * regular integer division, this division will always truncate the result instead of rounding.
  */
 public class SecretSharedDivisor
-    implements ComputationBuilder<SInt, ProtocolBuilderNumeric> {
+    implements Computation<SInt, ProtocolBuilderNumeric> {
 
-  private Computation<SInt> numerator;
-  private Computation<SInt> denominator;
+  private DRes<SInt> numerator;
+  private DRes<SInt> denominator;
 
   public SecretSharedDivisor(
-      Computation<SInt> numerator,
-      Computation<SInt> denominator) {
+      DRes<SInt> numerator,
+      DRes<SInt> denominator) {
     this.numerator = numerator;
     this.denominator = denominator;
   }
 
   @Override
-  public Computation<SInt> buildComputation(ProtocolBuilderNumeric builder) {
+  public DRes<SInt> buildComputation(ProtocolBuilderNumeric builder) {
 
     BasicNumericContext basicNumericContext = builder.getBasicNumericContext();
 
@@ -79,72 +79,72 @@ public class SecretSharedDivisor
     return builder.seq(seq -> Pair.lazy(numerator, denominator)
     ).pairInPar((seq, pair) -> {
       // Determine sign of numerator and ensure positive
-      Computation<SInt> numerator = pair.getFirst();
-      Computation<SInt> sign = seq.comparison().sign(numerator);
+      DRes<SInt> numerator = pair.getFirst();
+      DRes<SInt> sign = seq.comparison().sign(numerator);
 
       return Pair.lazy(sign, seq.numeric().mult(sign, numerator));
     }, (seq, pair) -> {
       // Determine sign of denominator and ensure positive
-      Computation<SInt> denominator = pair.getSecond();
-      Computation<SInt> sign = seq.comparison().sign(denominator);
+      DRes<SInt> denominator = pair.getSecond();
+      DRes<SInt> sign = seq.comparison().sign(denominator);
 
       return Pair.lazy(sign, seq.numeric().mult(sign, denominator));
     }).seq((seq, pair) -> {
-      Computation<SInt> denominator = pair.getSecond().getSecond();
+      DRes<SInt> denominator = pair.getSecond().getSecond();
       // Determine the actual number of bits in the denominator.
-      Computation<SInt> denominatorBitLength = getBitLength(seq, denominator, maximumBitLength);
+      DRes<SInt> denominatorBitLength = getBitLength(seq, denominator, maximumBitLength);
       // Determine the maximum number of bits we can shift the denominator left in order to gain more precision.
       BigInteger maxBitLength = BigInteger.valueOf(maximumBitLength);
-      Computation<SInt> leftShift = seq.numeric().sub(maxBitLength, denominatorBitLength);
-      Computation<SInt> leftShiftFactor = exp2(seq, leftShift, log2(maximumBitLength));
+      DRes<SInt> leftShift = seq.numeric().sub(maxBitLength, denominatorBitLength);
+      DRes<SInt> leftShiftFactor = exp2(seq, leftShift, log2(maximumBitLength));
       return Pair.lazy(leftShiftFactor, pair);
       // Left shift numerator and denominator for greater precision.
       // We're allowed to do this because shifting numerator and denominator by the same amount
       // doesn't change the outcome of the division.
     }).pairInPar((seq, pair) -> {
-          Computation<SInt> numeratorSign = pair.getSecond().getFirst().getFirst();
-          Computation<SInt> numerator = pair.getSecond().getFirst().getSecond();
-          Computation<SInt> shiftNumerator = seq.numeric().mult(pair.getFirst(), numerator);
+          DRes<SInt> numeratorSign = pair.getSecond().getFirst().getFirst();
+          DRes<SInt> numerator = pair.getSecond().getFirst().getSecond();
+          DRes<SInt> shiftNumerator = seq.numeric().mult(pair.getFirst(), numerator);
           return Pair.lazy(numeratorSign, shiftNumerator);
         },
         (seq, pair) -> {
-          Computation<SInt> denomintator = pair.getSecond().getSecond().getSecond();
-          Computation<SInt> denomintatorSign = pair.getSecond().getSecond().getFirst();
-          Computation<SInt> shiftedDenominator = seq.numeric().mult(pair.getFirst(), denomintator);
+          DRes<SInt> denomintator = pair.getSecond().getSecond().getSecond();
+          DRes<SInt> denomintatorSign = pair.getSecond().getSecond().getFirst();
+          DRes<SInt> shiftedDenominator = seq.numeric().mult(pair.getFirst(), denomintator);
           return Pair.lazy(denomintatorSign, shiftedDenominator);
         }
     ).seq((seq, pair) -> {
-      Computation<Pair<SInt, SInt>> iterationPair = Pair
+      DRes<Pair<SInt, SInt>> iterationPair = Pair
           .lazy(pair.getFirst().getSecond().out(), pair.getSecond().getSecond().out());
       // Goldschmidt iteration
       for (int i = 0; i < amountOfIterations; i++) {
-        Computation<Pair<SInt, SInt>> finalPair = iterationPair;
+        DRes<Pair<SInt, SInt>> finalPair = iterationPair;
         iterationPair = seq.seq((innerSeq) -> {
           Pair<SInt, SInt> iteration = finalPair.out();
-          Computation<SInt> n = iteration::getFirst;
-          Computation<SInt> d = iteration::getSecond;
-          Computation<SInt> f = innerSeq.numeric().sub(two, d);
+          DRes<SInt> n = iteration::getFirst;
+          DRes<SInt> d = iteration::getSecond;
+          DRes<SInt> f = innerSeq.numeric().sub(two, d);
           return Pair.lazy(f, iteration);
         }).pairInPar((innerSeq, innerPair) -> {
-          NumericBuilder innerNumeric = innerSeq.numeric();
-          Computation<SInt> n = () -> innerPair.getSecond().getFirst();
-          Computation<SInt> f = innerPair.getFirst();
+          Numeric innerNumeric = innerSeq.numeric();
+          DRes<SInt> n = () -> innerPair.getSecond().getFirst();
+          DRes<SInt> f = innerPair.getFirst();
           return shiftRight(innerSeq, innerNumeric.mult(f, n), maximumBitLength);
         }, (innerSeq, innerPair) -> {
-          NumericBuilder innerNumeric = innerSeq.numeric();
-          Computation<SInt> d = () -> innerPair.getSecond().getSecond();
-          Computation<SInt> f = innerPair.getFirst();
+          Numeric innerNumeric = innerSeq.numeric();
+          DRes<SInt> d = () -> innerPair.getSecond().getSecond();
+          DRes<SInt> f = innerPair.getFirst();
           return shiftRight(innerSeq, innerNumeric.mult(f, d), maximumBitLength);
         });
       }
-      Computation<Pair<SInt, SInt>> iterationResult = iterationPair;
+      DRes<Pair<SInt, SInt>> iterationResult = iterationPair;
       return () -> new Pair<>(
           iterationResult.out().getFirst(),
           new Pair<>(pair.getFirst().getFirst(), pair.getSecond().getFirst()));
     }).seq((seq, pair) -> {
-      Computation<SInt> n = pair::getFirst;
-      Pair<Computation<SInt>, Computation<SInt>> signs = pair.getSecond();
-      NumericBuilder numeric = seq.numeric();
+      DRes<SInt> n = pair::getFirst;
+      Pair<DRes<SInt>, DRes<SInt>> signs = pair.getSecond();
+      Numeric numeric = seq.numeric();
       // Right shift to remove decimals, rounding last decimal up.
       n = numeric.add(BigInteger.ONE, n);
       n = shiftRight(seq, n, maximumBitLength);
@@ -159,13 +159,13 @@ public class SecretSharedDivisor
     return (int) Math.ceil(Math.log(number) / Math.log(2));
   }
 
-  private Computation<SInt> getBitLength(ProtocolBuilderNumeric builder, Computation<SInt> input,
+  private DRes<SInt> getBitLength(ProtocolBuilderNumeric builder, DRes<SInt> input,
       int maximumBitLength) {
     return builder.advancedNumeric()
         .bitLength(input, maximumBitLength);
   }
 
-  private Computation<SInt> exp2(ProtocolBuilderNumeric builder, Computation<SInt> exponent,
+  private DRes<SInt> exp2(ProtocolBuilderNumeric builder, DRes<SInt> exponent,
       int maxExponentLength) {
     return builder.advancedNumeric().exp(
         BigInteger.valueOf(2),
@@ -174,7 +174,7 @@ public class SecretSharedDivisor
     );
   }
 
-  private Computation<SInt> shiftRight(ProtocolBuilderNumeric builder, Computation<SInt> input,
+  private DRes<SInt> shiftRight(ProtocolBuilderNumeric builder, DRes<SInt> input,
       int numberOfPositions) {
     return builder.advancedNumeric()
         .rightShift(input, numberOfPositions);

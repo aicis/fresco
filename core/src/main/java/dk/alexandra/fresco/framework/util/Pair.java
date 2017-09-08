@@ -26,7 +26,7 @@
  */
 package dk.alexandra.fresco.framework.util;
 
-import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.DRes;
 
 public class Pair<S, T> {
 
@@ -38,7 +38,7 @@ public class Pair<S, T> {
     this.second = second;
   }
 
-  public static <S, T> Computation<Pair<S, T>> lazy(S first, T second) {
+  public static <S, T> DRes<Pair<S, T>> lazy(S first, T second) {
     return () -> new Pair<>(first, second);
   }
 

@@ -23,7 +23,7 @@
  *******************************************************************************/
 package dk.alexandra.fresco.suite.tinytables.online.protocols;
 
-import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.network.SCENetwork;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
@@ -49,14 +49,14 @@ import dk.alexandra.fresco.suite.tinytables.prepro.protocols.TinyTablesPreproNOT
  */
 public class TinyTablesNOTProtocol extends TinyTablesProtocol<SBool> {
 
-  private Computation<SBool> in;
+  private DRes<SBool> in;
   private TinyTablesSBool out;
 
-  public TinyTablesNOTProtocol(Computation<SBool> in) {
+  public TinyTablesNOTProtocol(DRes<SBool> in) {
     this.in = in;
   }
 
-  public TinyTablesNOTProtocol(Computation<SBool> in, SBool out) {
+  public TinyTablesNOTProtocol(DRes<SBool> in, SBool out) {
     this.in = in;
     this.out = (TinyTablesSBool) out;
   }

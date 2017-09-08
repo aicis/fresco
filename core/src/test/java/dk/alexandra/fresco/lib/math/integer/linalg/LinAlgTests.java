@@ -24,10 +24,10 @@
 package dk.alexandra.fresco.lib.math.integer.linalg;
 
 import dk.alexandra.fresco.framework.Application;
-import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
-import dk.alexandra.fresco.framework.builder.numeric.NumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
@@ -56,15 +56,15 @@ public class LinAlgTests {
         public void test() throws Exception {
           Application<BigInteger, ProtocolBuilderNumeric> app =
               builder -> {
-                NumericBuilder sIntFactory = builder.numeric();
+                Numeric sIntFactory = builder.numeric();
 
-                List<Computation<SInt>> input1 = data1.stream().map(BigInteger::valueOf)
+                List<DRes<SInt>> input1 = data1.stream().map(BigInteger::valueOf)
                     .map(sIntFactory::known).collect(Collectors.toList());
                 // LinkedList<Computation<SInt>> bleh = new LinkedList(input1);
                 System.out.println(input1);
-                List<Computation<SInt>> input2 = data2.stream().map(BigInteger::valueOf)
+                List<DRes<SInt>> input2 = data2.stream().map(BigInteger::valueOf)
                     .map(sIntFactory::known).collect(Collectors.toList());
-                Computation<SInt> min =
+                DRes<SInt> min =
                     builder.seq(new InnerProduct(input1, input2));
 
                 return builder.numeric().open(min);
@@ -95,11 +95,11 @@ public class LinAlgTests {
         public void test() throws Exception {
           Application<BigInteger, ProtocolBuilderNumeric> app =
               builder -> {
-                NumericBuilder sIntFactory = builder.numeric();
+                Numeric sIntFactory = builder.numeric();
 
-                List<Computation<SInt>> input1 = data1.stream().map(BigInteger::valueOf)
+                List<DRes<SInt>> input1 = data1.stream().map(BigInteger::valueOf)
                     .map(sIntFactory::known).collect(Collectors.toList());
-                Computation<SInt> min =
+                DRes<SInt> min =
                     builder.seq(new InnerProductOpen(data2, input1));
 
                 return builder.numeric().open(min);

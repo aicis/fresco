@@ -1,10 +1,10 @@
 package dk.alexandra.fresco.lib.list;
 
 import dk.alexandra.fresco.framework.Application;
-import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
-import dk.alexandra.fresco.framework.builder.numeric.NumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
@@ -43,8 +43,8 @@ public class EliminateDuplicatesTests {
         public void test() throws Exception {
           Application<List<BigInteger>, ProtocolBuilderNumeric> app =
               builder -> {
-                NumericBuilder input = builder.numeric();
-                Computation<SInt> zero = input.known(BigInteger.ZERO);
+                Numeric input = builder.numeric();
+                DRes<SInt> zero = input.known(BigInteger.ZERO);
 
                 SIntListofTuples list1 = new SIntListofTuples(2);
                 SIntListofTuples list2 = new SIntListofTuples(2);
@@ -80,13 +80,13 @@ public class EliminateDuplicatesTests {
                       return () -> list1;
                     }
                 ).par((par, list) -> {
-                  NumericBuilder numeric = par.numeric();
-                  List<Computation<BigInteger>> openDuplicates = Arrays.asList(
+                  Numeric numeric = par.numeric();
+                  List<DRes<BigInteger>> openDuplicates = Arrays.asList(
                       numeric.open(list.getDuplicate(0)),
                       numeric.open(list.getDuplicate(1)),
                       numeric.open(list.getDuplicate(2))
                   );
-                  return () -> openDuplicates.stream().map(Computation::out)
+                  return () -> openDuplicates.stream().map(DRes::out)
                       .collect(Collectors.toList());
                 });
               };

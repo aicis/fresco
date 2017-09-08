@@ -27,10 +27,10 @@
 package dk.alexandra.fresco.lib.math.integer.stat;
 
 import dk.alexandra.fresco.framework.Application;
-import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
-import dk.alexandra.fresco.framework.builder.numeric.NumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
@@ -64,61 +64,61 @@ public class StatisticsTests {
         private final List<Integer> data3 = Arrays.asList(80, 90, 123, 432, 145, 606);
         private final List<Integer> dataMean = Arrays.asList(496, 384);
 
-        private Computation<BigInteger> outputMean1;
-        private Computation<BigInteger> outputMean2;
-        private Computation<BigInteger> outputVariance;
-        private Computation<BigInteger> outputCovariance;
-        private List<List<Computation<BigInteger>>> outputCovarianceMatix;
+        private DRes<BigInteger> outputMean1;
+        private DRes<BigInteger> outputMean2;
+        private DRes<BigInteger> outputVariance;
+        private DRes<BigInteger> outputCovariance;
+        private List<List<DRes<BigInteger>>> outputCovarianceMatix;
 
         @Override
         public void test() throws Exception {
           Application<Void, ProtocolBuilderNumeric> app =
               builder -> {
-                NumericBuilder NumericBuilder = builder.numeric();
-                List<Computation<SInt>> input1 = data1.stream()
+                Numeric NumericBuilder = builder.numeric();
+                List<DRes<SInt>> input1 = data1.stream()
                     .map(BigInteger::valueOf)
                     .map(NumericBuilder::known)
                     .collect(Collectors.toList());
-                List<Computation<SInt>> input2 = data2.stream()
+                List<DRes<SInt>> input2 = data2.stream()
                     .map(BigInteger::valueOf)
                     .map(NumericBuilder::known)
                     .collect(Collectors.toList());
-                List<Computation<SInt>> input3 = data3.stream()
-                    .map(BigInteger::valueOf)
-                    .map(NumericBuilder::known)
-                    .collect(Collectors.toList());
-
-                List<Computation<SInt>> means = dataMean.stream()
+                List<DRes<SInt>> input3 = data3.stream()
                     .map(BigInteger::valueOf)
                     .map(NumericBuilder::known)
                     .collect(Collectors.toList());
 
-                Computation<SInt> mean1 = builder
+                List<DRes<SInt>> means = dataMean.stream()
+                    .map(BigInteger::valueOf)
+                    .map(NumericBuilder::known)
+                    .collect(Collectors.toList());
+
+                DRes<SInt> mean1 = builder
                     .seq(new Mean(input1));
-                Computation<SInt> mean2 = builder
+                DRes<SInt> mean2 = builder
                     .seq(new Mean(input2));
-                Computation<SInt> variance = builder
+                DRes<SInt> variance = builder
                     .seq(new Variance(input1, mean1));
-                Computation<SInt> covariance = builder
+                DRes<SInt> covariance = builder
                     .seq(new Covariance(input1, input2, mean1, mean2));
-                Computation<List<List<Computation<SInt>>>> covarianceMatrix = builder
+                DRes<List<List<DRes<SInt>>>> covarianceMatrix = builder
                     .seq(
                         new CovarianceMatrix(Arrays.asList(input1, input2, input3), means));
 
                 return builder.par((par) -> {
-                  NumericBuilder open = par.numeric();
+                  Numeric open = par.numeric();
                   outputMean1 = open.open(mean1);
                   outputMean2 = open.open(mean2);
                   outputVariance = open.open(variance);
                   outputCovariance = open.open(covariance);
-                  List<List<Computation<SInt>>> covarianceMatrixOut = covarianceMatrix.out();
-                  List<List<Computation<BigInteger>>> openCovarianceMatrix = new ArrayList<>(
+                  List<List<DRes<SInt>>> covarianceMatrixOut = covarianceMatrix.out();
+                  List<List<DRes<BigInteger>>> openCovarianceMatrix = new ArrayList<>(
                       covarianceMatrixOut.size());
-                  for (List<Computation<SInt>> computations : covarianceMatrixOut) {
-                    List<Computation<BigInteger>> computationList = new ArrayList<>(
+                  for (List<DRes<SInt>> computations : covarianceMatrixOut) {
+                    List<DRes<BigInteger>> computationList = new ArrayList<>(
                         computations.size());
                     openCovarianceMatrix.add(computationList);
-                    for (Computation<SInt> computation : computations) {
+                    for (DRes<SInt> computation : computations) {
                       computationList.add(open.open(computation));
                     }
                   }
@@ -191,43 +191,43 @@ public class StatisticsTests {
         private final List<Integer> data2 = Arrays.asList(432, 620, 232, 337, 250, 433);
         private final List<Integer> data3 = Arrays.asList(80, 90, 123, 432, 145, 606);
 
-        private Computation<BigInteger> outputCovariance;
-        private List<List<Computation<BigInteger>>> outputCovarianceMatix;
+        private DRes<BigInteger> outputCovariance;
+        private List<List<DRes<BigInteger>>> outputCovarianceMatix;
 
 
         @Override
         public void test() throws Exception {
           Application<Void, ProtocolBuilderNumeric> app =
               builder -> {
-                NumericBuilder NumericBuilder = builder.numeric();
-                List<Computation<SInt>> input1 = data1.stream()
+                Numeric NumericBuilder = builder.numeric();
+                List<DRes<SInt>> input1 = data1.stream()
                     .map(BigInteger::valueOf)
                     .map(NumericBuilder::known)
                     .collect(Collectors.toList());
-                List<Computation<SInt>> input2 = data2.stream()
+                List<DRes<SInt>> input2 = data2.stream()
                     .map(BigInteger::valueOf)
                     .map(NumericBuilder::known)
                     .collect(Collectors.toList());
-                List<Computation<SInt>> input3 = data3.stream()
+                List<DRes<SInt>> input3 = data3.stream()
                     .map(BigInteger::valueOf)
                     .map(NumericBuilder::known)
                     .collect(Collectors.toList());
 
-                Computation<SInt> covariance = builder.seq(new Covariance(input1, input2));
-                Computation<List<List<Computation<SInt>>>> covarianceMatrix = builder
+                DRes<SInt> covariance = builder.seq(new Covariance(input1, input2));
+                DRes<List<List<DRes<SInt>>>> covarianceMatrix = builder
                     .seq(new CovarianceMatrix(Arrays.asList(input1, input2, input3)));
 
                 return builder.par((par) -> {
-                  NumericBuilder open = par.numeric();
+                  Numeric open = par.numeric();
                   outputCovariance = open.open(covariance);
-                  List<List<Computation<SInt>>> covarianceMatrixOut = covarianceMatrix.out();
-                  List<List<Computation<BigInteger>>> openCovarianceMatrix = new ArrayList<>(
+                  List<List<DRes<SInt>>> covarianceMatrixOut = covarianceMatrix.out();
+                  List<List<DRes<BigInteger>>> openCovarianceMatrix = new ArrayList<>(
                       covarianceMatrixOut.size());
-                  for (List<Computation<SInt>> computations : covarianceMatrixOut) {
-                    List<Computation<BigInteger>> computationList = new ArrayList<>(
+                  for (List<DRes<SInt>> computations : covarianceMatrixOut) {
+                    List<DRes<BigInteger>> computationList = new ArrayList<>(
                         computations.size());
                     openCovarianceMatrix.add(computationList);
-                    for (Computation<SInt> computation : computations) {
+                    for (DRes<SInt> computation : computations) {
                       computationList.add(open.open(computation));
                     }
                   }

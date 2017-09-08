@@ -23,7 +23,7 @@
  *******************************************************************************/
 package dk.alexandra.fresco.suite.tinytables.online.protocols;
 
-import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.network.SCENetwork;
 import dk.alexandra.fresco.framework.network.serializers.BooleanSerializer;
@@ -59,16 +59,16 @@ import java.util.List;
 public class TinyTablesANDProtocol extends TinyTablesProtocol<SBool> {
 
   private int id;
-  private Computation<SBool> inLeft, inRight;
+  private DRes<SBool> inLeft, inRight;
   private TinyTablesSBool out;
 
-  public TinyTablesANDProtocol(int id, Computation<SBool> inLeft, Computation<SBool> inRight) {
+  public TinyTablesANDProtocol(int id, DRes<SBool> inLeft, DRes<SBool> inRight) {
     this.id = id;
     this.inLeft = inLeft;
     this.inRight = inRight;
   }
 
-  public TinyTablesANDProtocol(int id, Computation<SBool> inLeft, Computation<SBool> inRight,
+  public TinyTablesANDProtocol(int id, DRes<SBool> inLeft, DRes<SBool> inRight,
       SBool out) {
     this.id = id;
     this.inLeft = inLeft;

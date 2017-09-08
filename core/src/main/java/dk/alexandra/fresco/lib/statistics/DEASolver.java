@@ -27,7 +27,7 @@
 package dk.alexandra.fresco.lib.statistics;
 
 import dk.alexandra.fresco.framework.Application;
-import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.util.Pair;
@@ -56,8 +56,8 @@ import java.util.stream.Collectors;
  */
 public class DEASolver implements Application<List<DEAResult>, ProtocolBuilderNumeric> {
 
-  private final List<List<Computation<SInt>>> targetInputs, targetOutputs;
-  private final List<List<Computation<SInt>>> inputDataSet, outputDataSet;
+  private final List<List<DRes<SInt>>> targetInputs, targetOutputs;
+  private final List<List<DRes<SInt>>> inputDataSet, outputDataSet;
 
   private final AnalysisType type;
   private final PivotRule pivotRule;
@@ -76,10 +76,10 @@ public class DEASolver implements Application<List<DEAResult>, ProtocolBuilderNu
    * @param setInput Matrix containing the basis input
    * @param setOutput Matrix containing the basis output
    */
-  public DEASolver(AnalysisType type, List<List<Computation<SInt>>> inputValues,
-      List<List<Computation<SInt>>> outputValues,
-      List<List<Computation<SInt>>> setInput,
-      List<List<Computation<SInt>>> setOutput) throws MPCException {
+  public DEASolver(AnalysisType type, List<List<DRes<SInt>>> inputValues,
+      List<List<DRes<SInt>>> outputValues,
+      List<List<DRes<SInt>>> setInput,
+      List<List<DRes<SInt>>> setOutput) throws MPCException {
     this(PivotRule.DANZIG, type, inputValues, outputValues, setInput, setOutput);
   }
 
@@ -100,10 +100,10 @@ public class DEASolver implements Application<List<DEAResult>, ProtocolBuilderNu
   public DEASolver(
       PivotRule pivotRule,
       AnalysisType type,
-      List<List<Computation<SInt>>> inputValues,
-      List<List<Computation<SInt>>> outputValues,
-      List<List<Computation<SInt>>> setInput,
-      List<List<Computation<SInt>>> setOutput) throws MPCException {
+      List<List<DRes<SInt>>> inputValues,
+      List<List<DRes<SInt>>> outputValues,
+      List<List<DRes<SInt>>> setInput,
+      List<List<DRes<SInt>>> setOutput) throws MPCException {
     this.pivotRule = pivotRule;
     this.type = type;
     this.targetInputs = inputValues;
@@ -130,22 +130,22 @@ public class DEASolver implements Application<List<DEAResult>, ProtocolBuilderNu
     if (targetInputs.size() != targetOutputs.size()) {
       return false;
     }
-    for (List<Computation<SInt>> x : targetInputs) {
+    for (List<DRes<SInt>> x : targetInputs) {
       if (x.size() != inputVariables) {
         return false;
       }
     }
-    for (List<Computation<SInt>> x : inputDataSet) {
+    for (List<DRes<SInt>> x : inputDataSet) {
       if (x.size() != inputVariables) {
         return false;
       }
     }
-    for (List<Computation<SInt>> x : targetOutputs) {
+    for (List<DRes<SInt>> x : targetOutputs) {
       if (x.size() != outputVariables) {
         return false;
       }
     }
-    for (List<Computation<SInt>> x : outputDataSet) {
+    for (List<DRes<SInt>> x : outputDataSet) {
       if (x.size() != outputVariables) {
         return false;
       }
@@ -154,20 +154,20 @@ public class DEASolver implements Application<List<DEAResult>, ProtocolBuilderNu
   }
 
   @Override
-  public Computation<List<DEAResult>> buildComputation(ProtocolBuilderNumeric builder) {
-    List<Computation<SimpleLPPrefix>> prefixes = getPrefixWithSecretSharedValues(
+  public DRes<List<DEAResult>> buildComputation(ProtocolBuilderNumeric builder) {
+    List<DRes<SimpleLPPrefix>> prefixes = getPrefixWithSecretSharedValues(
         builder);
     return builder.par((par) -> {
 
-      List<Computation<Pair<List<Computation<SInt>>, Computation<SInt>>>> result =
+      List<DRes<Pair<List<DRes<SInt>>, DRes<SInt>>>> result =
           new ArrayList<>(targetInputs.size());
       for (int i = 0; i < targetInputs.size(); i++) {
 
         SimpleLPPrefix prefix = prefixes.get(i).out();
-        Computation<SInt> pivot = prefix.getPivot();
+        DRes<SInt> pivot = prefix.getPivot();
         LPTableau tableau = prefix.getTableau();
-        Matrix<Computation<SInt>> update = prefix.getUpdateMatrix();
-        List<Computation<SInt>> initialBasis = prefix.getBasis();
+        Matrix<DRes<SInt>> update = prefix.getUpdateMatrix();
+        List<DRes<SInt>> initialBasis = prefix.getBasis();
 
         result.add(
             par.seq((subSeq) ->
@@ -193,31 +193,31 @@ public class DEASolver implements Application<List<DEAResult>, ProtocolBuilderNu
     });
   }
 
-  private List<Computation<SimpleLPPrefix>> getPrefixWithSecretSharedValues(
+  private List<DRes<SimpleLPPrefix>> getPrefixWithSecretSharedValues(
       ProtocolBuilderNumeric builder) {
     int dataSetSize = this.inputDataSet.size();
 
     int noOfSolvers = this.targetInputs.size();
-    List<Computation<SimpleLPPrefix>> prefixes = new ArrayList<>(noOfSolvers);
+    List<DRes<SimpleLPPrefix>> prefixes = new ArrayList<>(noOfSolvers);
 
     int lpInputs = this.inputDataSet.get(0).size();
     int lpOutputs = this.outputDataSet.get(0).size();
-    List<List<Computation<SInt>>> basisInputs = new ArrayList<>(lpInputs);
+    List<List<DRes<SInt>>> basisInputs = new ArrayList<>(lpInputs);
     for (int i = 0; i < lpInputs; i++) {
       basisInputs.add(new ArrayList<>(dataSetSize));
     }
-    List<List<Computation<SInt>>> basisOutputs = new ArrayList<>(lpOutputs);
+    List<List<DRes<SInt>>> basisOutputs = new ArrayList<>(lpOutputs);
     for (int i = 0; i < lpOutputs; i++) {
       basisOutputs.add(new ArrayList<>(dataSetSize));
     }
 
     for (int i = 0; i < dataSetSize; i++) {
       for (int j = 0; j < inputDataSet.get(i).size(); j++) {
-        List<Computation<SInt>> current = inputDataSet.get(i);
+        List<DRes<SInt>> current = inputDataSet.get(i);
         basisInputs.get(j).add(current.get(j));
       }
       for (int j = 0; j < outputDataSet.get(i).size(); j++) {
-        List<Computation<SInt>> current = outputDataSet.get(i);
+        List<DRes<SInt>> current = outputDataSet.get(i);
         basisOutputs.get(j).add(current.get(j));
       }
     }
@@ -243,12 +243,12 @@ public class DEASolver implements Application<List<DEAResult>, ProtocolBuilderNu
 
   public static class DEAResult {
 
-    public final List<Computation<SInt>> basis;
+    public final List<DRes<SInt>> basis;
     public final SInt optimal;
 
-    private DEAResult(Computation<Pair<List<Computation<SInt>>, Computation<SInt>>> output) {
-      Pair<List<Computation<SInt>>, Computation<SInt>> out = output.out();
-      this.basis = out.getFirst().stream().map(Computation::out).collect(Collectors.toList());
+    private DEAResult(DRes<Pair<List<DRes<SInt>>, DRes<SInt>>> output) {
+      Pair<List<DRes<SInt>>, DRes<SInt>> out = output.out();
+      this.basis = out.getFirst().stream().map(DRes::out).collect(Collectors.toList());
       this.optimal = out.getSecond().out();
     }
   }

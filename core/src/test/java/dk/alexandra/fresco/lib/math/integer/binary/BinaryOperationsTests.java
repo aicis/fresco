@@ -27,12 +27,12 @@
 package dk.alexandra.fresco.lib.math.integer.binary;
 
 import dk.alexandra.fresco.framework.Application;
-import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
-import dk.alexandra.fresco.framework.builder.numeric.AdvancedNumericBuilder;
-import dk.alexandra.fresco.framework.builder.numeric.AdvancedNumericBuilder.RightShiftResult;
-import dk.alexandra.fresco.framework.builder.numeric.NumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.AdvancedNumeric;
+import dk.alexandra.fresco.framework.builder.numeric.AdvancedNumeric.RightShiftResult;
+import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
@@ -71,17 +71,17 @@ public class BinaryOperationsTests {
         public void test() throws Exception {
           Application<Pair<BigInteger, List<BigInteger>>, ProtocolBuilderNumeric> app =
               (ProtocolBuilderNumeric builder) -> {
-                AdvancedNumericBuilder rightShift = builder.advancedNumeric();
-                Computation<SInt> encryptedInput = builder.numeric().known(input);
-                Computation<RightShiftResult> shiftedRight = rightShift
+                AdvancedNumeric rightShift = builder.advancedNumeric();
+                DRes<SInt> encryptedInput = builder.numeric().known(input);
+                DRes<RightShiftResult> shiftedRight = rightShift
                     .rightShiftWithRemainder(encryptedInput, shifts);
-                NumericBuilder NumericBuilder = builder.numeric();
-                Computation<BigInteger> openResult = NumericBuilder
+                Numeric NumericBuilder = builder.numeric();
+                DRes<BigInteger> openResult = NumericBuilder
                     .open(() -> shiftedRight.out().getResult());
-                Computation<List<Computation<BigInteger>>> openRemainders = builder
+                DRes<List<DRes<BigInteger>>> openRemainders = builder
                     .seq((innerBuilder) -> {
-                      NumericBuilder innerOpenBuilder = innerBuilder.numeric();
-                      List<Computation<BigInteger>> opened = shiftedRight.out()
+                      Numeric innerOpenBuilder = innerBuilder.numeric();
+                      List<DRes<BigInteger>> opened = shiftedRight.out()
                           .getRemainder()
                           .stream()
                           .map(innerOpenBuilder::open)
@@ -91,7 +91,7 @@ public class BinaryOperationsTests {
                 return () -> new Pair<>(
                     openResult.out(),
                     openRemainders.out().stream()
-                        .map(Computation::out)
+                        .map(DRes::out)
                         .collect(Collectors.toList()));
               };
           Pair<BigInteger, List<BigInteger>> output =
@@ -128,10 +128,10 @@ public class BinaryOperationsTests {
         public void test() throws Exception {
           Application<BigInteger, ProtocolBuilderNumeric> app =
               builder -> {
-                Computation<SInt> sharedInput = builder.numeric().known(input);
-                AdvancedNumericBuilder bitLengthBuilder = builder
+                DRes<SInt> sharedInput = builder.numeric().known(input);
+                AdvancedNumeric bitLengthBuilder = builder
                     .advancedNumeric();
-                Computation<SInt> bitLength = bitLengthBuilder
+                DRes<SInt> bitLength = bitLengthBuilder
                     .bitLength(sharedInput, input.bitLength() * 2);
                 return builder.numeric().open(bitLength);
           };

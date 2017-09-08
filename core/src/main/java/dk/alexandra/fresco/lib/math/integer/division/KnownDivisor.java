@@ -1,8 +1,8 @@
 package dk.alexandra.fresco.lib.math.integer.division;
 
-import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.builder.ComputationBuilder;
-import dk.alexandra.fresco.framework.builder.numeric.NumericBuilder;
+import dk.alexandra.fresco.framework.DRes;
+import dk.alexandra.fresco.framework.builder.Computation;
+import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
@@ -19,13 +19,13 @@ import java.math.BigInteger;
  *
  * @author Jonas Lindstrøm (jonas.lindstrom@alexandra.dk)
  */
-public class KnownDivisor implements ComputationBuilder<SInt, ProtocolBuilderNumeric> {
+public class KnownDivisor implements Computation<SInt, ProtocolBuilderNumeric> {
 
-  private final Computation<SInt> dividend;
+  private final DRes<SInt> dividend;
   private final BigInteger divisor;
 
   public KnownDivisor(
-      Computation<SInt> dividend,
+      DRes<SInt> dividend,
       BigInteger divisor) {
 
     this.dividend = dividend;
@@ -45,7 +45,7 @@ public class KnownDivisor implements ComputationBuilder<SInt, ProtocolBuilderNum
   }
 
   @Override
-  public Computation<SInt> buildComputation(ProtocolBuilderNumeric builder) {
+  public DRes<SInt> buildComputation(ProtocolBuilderNumeric builder) {
     BasicNumericContext basicNumericContext = builder.getBasicNumericContext();
     BigInteger modulus = basicNumericContext.getModulus();
     BigInteger modulusHalf = modulus.divide(BigInteger.valueOf(2));
@@ -59,7 +59,7 @@ public class KnownDivisor implements ComputationBuilder<SInt, ProtocolBuilderNum
 		 * considerations can be omitted, giving a significant speed-up.
 		 */
 
-    NumericBuilder numeric = builder.numeric();
+    Numeric numeric = builder.numeric();
     /*
      * Numbers larger than half the field size is considered to be negative.
 		 * 
@@ -82,27 +82,27 @@ public class KnownDivisor implements ComputationBuilder<SInt, ProtocolBuilderNum
 		/*
      * Compute the sign of the dividend
 		 */
-    Computation<SInt> dividendSign = builder.comparison().sign(dividend);
-    Computation<SInt> dividendAbs = numeric.mult(dividend, dividendSign);
+    DRes<SInt> dividendSign = builder.comparison().sign(dividend);
+    DRes<SInt> dividendAbs = numeric.mult(dividend, dividendSign);
 
 		/*
      * We need m * d \geq 2^{N+l}, so we add one to the result of the
 		 * division to ensure that this is indeed the case.
 		 */
     BigInteger m = BigInteger.ONE.shiftLeft(shifts).divide(divisorAbs).add(BigInteger.ONE);
-    Computation<SInt> quotientAbs = numeric.mult(m, dividendAbs);
+    DRes<SInt> quotientAbs = numeric.mult(m, dividendAbs);
 
 		/*
      * Now quotientAbs is the result shifted SHIFTS bits to the left, so we
 		 * shift it back to get the result in absolute value, q.
 		 */
-    Computation<SInt> q = builder.advancedNumeric().rightShift(quotientAbs, shifts);
+    DRes<SInt> q = builder.advancedNumeric().rightShift(quotientAbs, shifts);
 
 		/*
      * Adjust the sign of the result.
 		 */
     BigInteger oInt = BigInteger.valueOf(divisorSign);
-    Computation<SInt> sign = numeric.mult(oInt, dividendSign);
+    DRes<SInt> sign = numeric.mult(oInt, dividendSign);
     return numeric.mult(q, sign);
   }
 }

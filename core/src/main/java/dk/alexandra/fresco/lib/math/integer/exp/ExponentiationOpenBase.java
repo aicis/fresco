@@ -26,20 +26,20 @@
  */
 package dk.alexandra.fresco.lib.math.integer.exp;
 
-import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.builder.ComputationBuilder;
-import dk.alexandra.fresco.framework.builder.numeric.NumericBuilder;
+import dk.alexandra.fresco.framework.DRes;
+import dk.alexandra.fresco.framework.builder.Computation;
+import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
 
-public class ExponentiationOpenBase implements ComputationBuilder<SInt, ProtocolBuilderNumeric> {
+public class ExponentiationOpenBase implements Computation<SInt, ProtocolBuilderNumeric> {
 
   private final BigInteger base;
-  private final Computation<SInt> exponent;
+  private final DRes<SInt> exponent;
   private final int maxExponentBitLength;
 
-  public ExponentiationOpenBase(BigInteger base, Computation<SInt> exponent,
+  public ExponentiationOpenBase(BigInteger base, DRes<SInt> exponent,
       int maxExponentBitLength) {
     this.base = base;
     this.exponent = exponent;
@@ -47,13 +47,13 @@ public class ExponentiationOpenBase implements ComputationBuilder<SInt, Protocol
   }
 
   @Override
-  public Computation<SInt> buildComputation(ProtocolBuilderNumeric builder) {
+  public DRes<SInt> buildComputation(ProtocolBuilderNumeric builder) {
     return builder.seq((seq) ->
         seq.advancedNumeric().toBits(exponent, maxExponentBitLength)
     ).seq((seq, bits) -> {
       BigInteger e = base;
-      NumericBuilder numeric = seq.numeric();
-      Computation<SInt> result = null;
+      Numeric numeric = seq.numeric();
+      DRes<SInt> result = null;
       for (SInt bit : bits) {
         /*
          * result += bits[i] * (result * r - r) + r
@@ -68,7 +68,7 @@ public class ExponentiationOpenBase implements ComputationBuilder<SInt, Protocol
           BigInteger sub = e.subtract(BigInteger.ONE);
           result = numeric.add(BigInteger.ONE, numeric.mult(sub, () -> bit));
         } else {
-          Computation<SInt> sub = numeric.sub(numeric.mult(e, result), result);
+          DRes<SInt> sub = numeric.sub(numeric.mult(e, result), result);
           result = numeric.add(result, numeric.mult(sub, () -> bit));
         }
         e = e.multiply(e);

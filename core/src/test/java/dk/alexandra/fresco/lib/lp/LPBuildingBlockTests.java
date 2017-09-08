@@ -27,10 +27,10 @@
 package dk.alexandra.fresco.lib.lp;
 
 import dk.alexandra.fresco.framework.Application;
-import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
-import dk.alexandra.fresco.framework.builder.numeric.NumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
@@ -55,7 +55,7 @@ public class LPBuildingBlockTests {
     ArrayList<BigInteger> b;
     protected ArrayList<BigInteger> f;
     LPTableau sTableau;
-    Matrix<Computation<SInt>> sUpdateMatrix;
+    Matrix<DRes<SInt>> sUpdateMatrix;
 
     void randomTableau(int n, int m) {
       updateMatrix = randomMatrix(m + 1, m + 1);
@@ -66,7 +66,7 @@ public class LPBuildingBlockTests {
 
     void inputTableau(ProtocolBuilderNumeric builder) {
       builder.par(par -> {
-        NumericBuilder numeric = par.numeric();
+        Numeric numeric = par.numeric();
         sTableau = new LPTableau(
             new Matrix<>(constraints.getHeight(), constraints.getWidth(),
                 (i) -> toArrayList(numeric, constraints.getRow(i))),
@@ -81,7 +81,7 @@ public class LPBuildingBlockTests {
       });
     }
 
-    private ArrayList<Computation<SInt>> toArrayList(NumericBuilder numeric,
+    private ArrayList<DRes<SInt>> toArrayList(Numeric numeric,
         ArrayList<BigInteger> row) {
       return new ArrayList<>(row.stream().map(numeric::known)
           .collect(Collectors.toList()));
@@ -109,7 +109,7 @@ public class LPBuildingBlockTests {
       return expectedIndex;
     }
 
-    Computation<List<BigInteger>> setupRandom(int n, int m, ProtocolBuilderNumeric builder) {
+    DRes<List<BigInteger>> setupRandom(int n, int m, ProtocolBuilderNumeric builder) {
       randomTableau(n, m);
       inputTableau(builder);
 
@@ -118,11 +118,11 @@ public class LPBuildingBlockTests {
       return builder.seq((seq) ->
           new EnteringVariable(sTableau, sUpdateMatrix).buildComputation(seq)
       ).seq((seq, enteringOutput) -> {
-        List<Computation<SInt>> enteringIndex = enteringOutput.getFirst();
-        NumericBuilder numeric = seq.numeric();
-        List<Computation<BigInteger>> opened = enteringIndex.stream().map(numeric::open)
+        List<DRes<SInt>> enteringIndex = enteringOutput.getFirst();
+        Numeric numeric = seq.numeric();
+        List<DRes<BigInteger>> opened = enteringIndex.stream().map(numeric::open)
             .collect(Collectors.toList());
-        return () -> opened.stream().map(Computation::out).collect(Collectors.toList());
+        return () -> opened.stream().map(DRes::out).collect(Collectors.toList());
       });
     }
 
@@ -175,7 +175,7 @@ public class LPBuildingBlockTests {
       return expectedIndex;
     }
 
-    Computation<List<BigInteger>> setupRandom(int n, int m, ProtocolBuilderNumeric builder) {
+    DRes<List<BigInteger>> setupRandom(int n, int m, ProtocolBuilderNumeric builder) {
       randomTableau(n, m);
       inputTableau(builder);
 
@@ -184,11 +184,11 @@ public class LPBuildingBlockTests {
       return builder.seq((seq) ->
           new BlandEnteringVariable(sTableau, sUpdateMatrix).buildComputation(seq)
       ).seq((seq, enteringOutput) -> {
-        List<Computation<SInt>> enteringIndex = enteringOutput.getFirst();
-        NumericBuilder numeric = seq.numeric();
-        List<Computation<BigInteger>> opened = enteringIndex.stream().map(numeric::open)
+        List<DRes<SInt>> enteringIndex = enteringOutput.getFirst();
+        Numeric numeric = seq.numeric();
+        List<DRes<BigInteger>> opened = enteringIndex.stream().map(numeric::open)
             .collect(Collectors.toList());
-        return () -> opened.stream().map(Computation::out).collect(Collectors.toList());
+        return () -> opened.stream().map(DRes::out).collect(Collectors.toList());
       });
     }
 
@@ -306,7 +306,7 @@ public class LPBuildingBlockTests {
 
 
             @Override
-            public Computation<List<BigInteger>> buildComputation(
+            public DRes<List<BigInteger>> buildComputation(
                 ProtocolBuilderNumeric builder) {
               mod = builder.getBasicNumericContext().getModulus();
               return setupRandom(10, 10, builder);
@@ -349,7 +349,7 @@ public class LPBuildingBlockTests {
 
 
             @Override
-            public Computation<List<BigInteger>> buildComputation(
+            public DRes<List<BigInteger>> buildComputation(
                 ProtocolBuilderNumeric builder) {
               mod = builder.getBasicNumericContext().getModulus();
               return setupRandom(10, 10, builder);
@@ -394,7 +394,7 @@ public class LPBuildingBlockTests {
 
 
               @Override
-              public Computation<List<BigInteger>> buildComputation(
+              public DRes<List<BigInteger>> buildComputation(
                   ProtocolBuilderNumeric builder) {
                 mod = builder.getBasicNumericContext().getModulus();
                 //setupRandom(10, 10, builder);

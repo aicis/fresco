@@ -23,7 +23,7 @@
  *******************************************************************************/
 package dk.alexandra.fresco.suite.tinytables.prepro.protocols;
 
-import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.network.SCENetwork;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
 import dk.alexandra.fresco.framework.value.SBool;
@@ -46,10 +46,10 @@ import dk.alexandra.fresco.suite.tinytables.prepro.datatypes.TinyTablesPreproSBo
  */
 public class TinyTablesPreproNOTProtocol extends TinyTablesPreproProtocol<SBool> {
 
-  private Computation<SBool> in;
+  private DRes<SBool> in;
   private TinyTablesPreproSBool out;
 
-  public TinyTablesPreproNOTProtocol(Computation<SBool> in, SBool out) {
+  public TinyTablesPreproNOTProtocol(DRes<SBool> in, SBool out) {
     this.in = in;
     this.out = (TinyTablesPreproSBool) out;
   }

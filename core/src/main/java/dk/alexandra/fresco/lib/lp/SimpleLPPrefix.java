@@ -26,20 +26,20 @@
  */
 package dk.alexandra.fresco.lib.lp;
 
-import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.util.List;
 
 public class SimpleLPPrefix {
 
-  private final Matrix<Computation<SInt>> updateMatrix;
+  private final Matrix<DRes<SInt>> updateMatrix;
   private final LPTableau tableau;
-  private final Computation<SInt> pivot;
-  private final List<Computation<SInt>> basis;
+  private final DRes<SInt> pivot;
+  private final List<DRes<SInt>> basis;
 
-  public SimpleLPPrefix(Matrix<Computation<SInt>> updateMatrix, LPTableau tableau,
-      Computation<SInt> pivot,
-      List<Computation<SInt>> basis) {
+  public SimpleLPPrefix(Matrix<DRes<SInt>> updateMatrix, LPTableau tableau,
+      DRes<SInt> pivot,
+      List<DRes<SInt>> basis) {
     this.updateMatrix = updateMatrix;
     this.tableau = tableau;
     this.pivot = pivot;
@@ -51,15 +51,15 @@ public class SimpleLPPrefix {
     return tableau;
   }
 
-  public Matrix<Computation<SInt>> getUpdateMatrix() {
+  public Matrix<DRes<SInt>> getUpdateMatrix() {
     return updateMatrix;
   }
 
-  public Computation<SInt> getPivot() {
+  public DRes<SInt> getPivot() {
     return pivot;
   }
 
-  public List<Computation<SInt>> getBasis() {
+  public List<DRes<SInt>> getBasis() {
     return basis;
   }
 }

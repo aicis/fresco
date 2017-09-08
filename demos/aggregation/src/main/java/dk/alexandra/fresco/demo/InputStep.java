@@ -1,8 +1,8 @@
 package dk.alexandra.fresco.demo;
 
 import dk.alexandra.fresco.framework.Application;
-import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.builder.numeric.NumericBuilder;
+import dk.alexandra.fresco.framework.DRes;
+import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
@@ -23,14 +23,14 @@ public class InputStep implements
   }
 
   @Override
-  public Computation<List<List<SInt>>> buildComputation(ProtocolBuilderNumeric producer) {
+  public DRes<List<List<SInt>>> buildComputation(ProtocolBuilderNumeric producer) {
     return producer.par(par -> {
-      NumericBuilder numeric = par.numeric();
-      Function<BigInteger, Computation<SInt>> known = value -> numeric.input(value, pid);
-      List<List<Computation<SInt>>> collect = mapMatrixLists(known, inputRows);
+      Numeric numeric = par.numeric();
+      Function<BigInteger, DRes<SInt>> known = value -> numeric.input(value, pid);
+      List<List<DRes<SInt>>> collect = mapMatrixLists(known, inputRows);
       return () -> collect;
     }).seq((seq, computations) ->
-        () -> mapMatrixLists(Computation::out, computations)
+        () -> mapMatrixLists(DRes::out, computations)
     );
   }
 

@@ -27,10 +27,10 @@
 package dk.alexandra.fresco.lib.statistics;
 
 import dk.alexandra.fresco.framework.Application;
-import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
-import dk.alexandra.fresco.framework.builder.numeric.NumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
@@ -73,15 +73,15 @@ public class CreditRaterTest {
 
           Application<CreditRaterInput, ProtocolBuilderNumeric> input =
               producer -> {
-                NumericBuilder numeric = producer.numeric();
+                Numeric numeric = producer.numeric();
                 int[] values = TestCreditRater.this.values;
-                List<Computation<SInt>> closedValues = knownArray(numeric, values);
+                List<DRes<SInt>> closedValues = knownArray(numeric, values);
 
-                List<List<Computation<SInt>>> closedIntervals = Arrays.stream(intervals)
+                List<List<DRes<SInt>>> closedIntervals = Arrays.stream(intervals)
                     .map(array -> knownArray(numeric, array))
                     .collect(Collectors.toList());
 
-                List<List<Computation<SInt>>> closedScores = Arrays.stream(scores)
+                List<List<DRes<SInt>>> closedScores = Arrays.stream(scores)
                     .map(array -> knownArray(numeric, array))
                     .collect(Collectors.toList());
                 return () -> new CreditRaterInput(closedValues, closedIntervals, closedScores);
@@ -109,7 +109,7 @@ public class CreditRaterTest {
     }
   }
 
-  private static List<Computation<SInt>> knownArray(NumericBuilder numeric, int[] values) {
+  private static List<DRes<SInt>> knownArray(Numeric numeric, int[] values) {
     return Arrays.stream(values)
         .mapToObj(BigInteger::valueOf)
         .map(numeric::known)
@@ -118,14 +118,14 @@ public class CreditRaterTest {
 
   private static class CreditRaterInput {
 
-    private final List<Computation<SInt>> values;
-    private final List<List<Computation<SInt>>> intervals;
-    private final List<List<Computation<SInt>>> intervalScores;
+    private final List<DRes<SInt>> values;
+    private final List<List<DRes<SInt>>> intervals;
+    private final List<List<DRes<SInt>>> intervalScores;
 
     private CreditRaterInput(
-        List<Computation<SInt>> values,
-        List<List<Computation<SInt>>> intervals,
-        List<List<Computation<SInt>>> intervalScores) {
+        List<DRes<SInt>> values,
+        List<List<DRes<SInt>>> intervals,
+        List<List<DRes<SInt>>> intervalScores) {
       this.values = values;
       this.intervals = intervals;
       this.intervalScores = intervalScores;

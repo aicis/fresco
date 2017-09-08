@@ -24,10 +24,10 @@
 package dk.alexandra.fresco.lib.math.bool.mult;
 
 import dk.alexandra.fresco.framework.Application;
-import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
-import dk.alexandra.fresco.framework.builder.binary.BinaryBuilderAdvanced;
+import dk.alexandra.fresco.framework.builder.binary.AdvancedBinary;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
@@ -64,21 +64,21 @@ public class MultTests {
             ProtocolBuilderBinary builder = (ProtocolBuilderBinary) producer;
 
             return builder.seq(seq -> {
-              BinaryBuilderAdvanced prov = seq.advancedBinary();
-              List<Computation<SBool>> first =
+              AdvancedBinary prov = seq.advancedBinary();
+              List<DRes<SBool>> first =
                   rawFirst.stream().map(seq.binary()::known).collect(Collectors.toList());
-              List<Computation<SBool>> second =
+              List<DRes<SBool>> second =
                   rawSecond.stream().map(seq.binary()::known).collect(Collectors.toList());
 
-              Computation<List<Computation<SBool>>> multiplication = prov.binaryMult(first, second);
+              DRes<List<DRes<SBool>>> multiplication = prov.binaryMult(first, second);
 
               return () -> multiplication.out();
             }).seq((seq, dat) -> {
-              List<Computation<Boolean>> out = new ArrayList<Computation<Boolean>>();
-              for (Computation<SBool> o : dat) {
+              List<DRes<Boolean>> out = new ArrayList<DRes<Boolean>>();
+              for (DRes<SBool> o : dat) {
                 out.add(seq.binary().open(o));
               }
-              return () -> out.stream().map(Computation::out).collect(Collectors.toList());
+              return () -> out.stream().map(DRes::out).collect(Collectors.toList());
             });
           };
           List<Boolean> outputs = secureComputationEngine.runApplication(app,

@@ -27,10 +27,10 @@
 package dk.alexandra.fresco.lib.math.integer.min;
 
 import dk.alexandra.fresco.framework.Application;
-import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
-import dk.alexandra.fresco.framework.builder.numeric.NumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
@@ -70,29 +70,29 @@ public class MinTests {
         public void test() throws Exception {
           Application<Pair<BigInteger, List<BigInteger>>, ProtocolBuilderNumeric> app =
               builder -> {
-                NumericBuilder sIntFactory = builder.numeric();
+                Numeric sIntFactory = builder.numeric();
 
-                List<Computation<SInt>> inputs = data1.stream()
+                List<DRes<SInt>> inputs = data1.stream()
                     .map(BigInteger::valueOf)
                     .map(sIntFactory::known)
                     .collect(Collectors.toList());
 
-                Computation<Pair<List<Computation<SInt>>, SInt>> min = builder.seq(
+                DRes<Pair<List<DRes<SInt>>, SInt>> min = builder.seq(
                     new Minimum(inputs));
 
                 return builder.par((par) -> {
-                  NumericBuilder open = par.numeric();
-                  Computation<BigInteger> resultMin = open.open(min.out().getSecond());
-                  List<Computation<SInt>> outputArray = min.out().getFirst();
-                  List<Computation<BigInteger>> openOutputArray = new ArrayList<>(
+                  Numeric open = par.numeric();
+                  DRes<BigInteger> resultMin = open.open(min.out().getSecond());
+                  List<DRes<SInt>> outputArray = min.out().getFirst();
+                  List<DRes<BigInteger>> openOutputArray = new ArrayList<>(
                       outputArray.size());
-                  for (Computation<SInt> computation : outputArray) {
+                  for (DRes<SInt> computation : outputArray) {
                     openOutputArray.add(open.open(computation));
 
                   }
                   return () -> new Pair<>(
                       resultMin.out(),
-                      openOutputArray.stream().map(Computation::out).collect(Collectors.toList()));
+                      openOutputArray.stream().map(DRes::out).collect(Collectors.toList()));
                 });
               };
           Pair<BigInteger, List<BigInteger>> result = secureComputationEngine
@@ -122,40 +122,40 @@ public class MinTests {
         public void test() throws Exception {
           Application<MinInfResult, ProtocolBuilderNumeric> app =
               builder -> {
-                NumericBuilder sIntFactory = builder.numeric();
+                Numeric sIntFactory = builder.numeric();
 
-                List<Computation<SInt>> inputN = data1.stream()
+                List<DRes<SInt>> inputN = data1.stream()
                     .map(BigInteger::valueOf)
                     .map(sIntFactory::known)
                     .collect(Collectors.toList());
 
-                List<Computation<SInt>> inputD = data2.stream()
+                List<DRes<SInt>> inputD = data2.stream()
                     .map(BigInteger::valueOf)
                     .map(sIntFactory::known)
                     .collect(Collectors.toList());
 
-                List<Computation<SInt>> inputInfs = data3.stream()
+                List<DRes<SInt>> inputInfs = data3.stream()
                     .map(BigInteger::valueOf)
                     .map(sIntFactory::known)
                     .collect(Collectors.toList());
 
-                Computation<MinInfFrac.MinInfOutput> min = builder.seq(
+                DRes<MinInfFrac.MinInfOutput> min = builder.seq(
                     new MinInfFrac(inputN, inputD, inputInfs));
 
                 return builder.par((par) -> {
-                  NumericBuilder open = par.numeric();
-                  Computation<BigInteger> resultMinN = open.open(min.out().nm);
-                  Computation<BigInteger> resultMinD = open.open(min.out().dm);
-                  Computation<BigInteger> resultMinInfs = open.open(min.out().infm);
-                  List<Computation<SInt>> outputArray = min.out().cs;
-                  List<Computation<BigInteger>> openOutputArray = new ArrayList<>(
+                  Numeric open = par.numeric();
+                  DRes<BigInteger> resultMinN = open.open(min.out().nm);
+                  DRes<BigInteger> resultMinD = open.open(min.out().dm);
+                  DRes<BigInteger> resultMinInfs = open.open(min.out().infm);
+                  List<DRes<SInt>> outputArray = min.out().cs;
+                  List<DRes<BigInteger>> openOutputArray = new ArrayList<>(
                       outputArray.size());
-                  for (Computation<SInt> computation : outputArray) {
+                  for (DRes<SInt> computation : outputArray) {
                     openOutputArray.add(open.open(computation));
                   }
                   return () -> new MinInfResult(
                       resultMinN.out(), resultMinD.out(), resultMinInfs.out(),
-                      openOutputArray.stream().map(Computation::out).collect(Collectors.toList()));
+                      openOutputArray.stream().map(DRes::out).collect(Collectors.toList()));
                 });
               };
           MinInfResult minInfResult = secureComputationEngine
@@ -200,42 +200,42 @@ public class MinTests {
         public void test() throws Exception {
           Application<MinInfResult, ProtocolBuilderNumeric> app =
               builder -> {
-                NumericBuilder sIntFactory = builder.numeric();
+                Numeric sIntFactory = builder.numeric();
 
-                List<Computation<SInt>> inputN = data1.stream()
+                List<DRes<SInt>> inputN = data1.stream()
                     .map(BigInteger::valueOf)
                     .map(sIntFactory::known)
                     .collect(Collectors.toList());
 
-                List<Computation<SInt>> inputD = data2.stream()
+                List<DRes<SInt>> inputD = data2.stream()
                     .map(BigInteger::valueOf)
                     .map(sIntFactory::known)
                     .collect(Collectors.toList());
 
-                List<Computation<SInt>> inputInfs = data3.stream()
+                List<DRes<SInt>> inputInfs = data3.stream()
                     .map(BigInteger::valueOf)
                     .map(sIntFactory::known)
                     .collect(Collectors.toList());
 
-                Computation<MinInfFrac.MinInfOutput> min = builder.seq(
+                DRes<MinInfFrac.MinInfOutput> min = builder.seq(
                     new MinInfFrac(inputN, inputD, inputInfs));
 
                 return builder.par((par) -> {
-                  NumericBuilder open = par.numeric();
-                  Computation<BigInteger> resultMinN = open.open(min.out().nm);
-                  Computation<BigInteger> resultMinD = open.open(min.out().dm);
-                  Computation<BigInteger> resultMinInfs = open.open(min.out().infm);
-                  List<Computation<SInt>> outputArray = min.out().cs;
-                  List<Computation<BigInteger>> openOutputArray = new ArrayList<>(
+                  Numeric open = par.numeric();
+                  DRes<BigInteger> resultMinN = open.open(min.out().nm);
+                  DRes<BigInteger> resultMinD = open.open(min.out().dm);
+                  DRes<BigInteger> resultMinInfs = open.open(min.out().infm);
+                  List<DRes<SInt>> outputArray = min.out().cs;
+                  List<DRes<BigInteger>> openOutputArray = new ArrayList<>(
                       outputArray.size());
-                  for (Computation<SInt> computation : outputArray) {
+                  for (DRes<SInt> computation : outputArray) {
                     openOutputArray.add(open.open(computation));
 
                   }
 
                   return () -> new MinInfResult(
                       resultMinN.out(), resultMinD.out(), resultMinInfs.out(),
-                      openOutputArray.stream().map(Computation::out).collect(Collectors.toList()));
+                      openOutputArray.stream().map(DRes::out).collect(Collectors.toList()));
                 });
               };
           MinInfResult minInfResult = secureComputationEngine

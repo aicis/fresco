@@ -1,10 +1,10 @@
 package dk.alexandra.fresco.lib.debug;
 
 import dk.alexandra.fresco.framework.Application;
-import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
-import dk.alexandra.fresco.framework.builder.numeric.NumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
@@ -35,8 +35,8 @@ public class ArithmeticDebugTests {
         public void test() throws Exception {
           Application<Void, ProtocolBuilderNumeric> app =
               producer -> producer.seq(seq -> {
-                NumericBuilder numeric = seq.numeric();
-                List<Computation<SInt>> toPrint =
+                Numeric numeric = seq.numeric();
+                List<DRes<SInt>> toPrint =
                     Arrays.stream(
                         new BigInteger[]{BigInteger.ONE, BigInteger.TEN, BigInteger.ZERO,
                             BigInteger.ONE}
@@ -45,16 +45,16 @@ public class ArithmeticDebugTests {
               }).seq((seq, inputs) -> {
                 seq.debug().openAndPrint("testNumber", inputs.get(0), stream);
                 seq.debug().openAndPrint("testVector", inputs, stream);
-                ArrayList<Computation<SInt>> r1 = new ArrayList<>();
+                ArrayList<DRes<SInt>> r1 = new ArrayList<>();
                 r1.add(inputs.get(0));
                 r1.add(inputs.get(1));
-                ArrayList<Computation<SInt>> r2 = new ArrayList<>();
+                ArrayList<DRes<SInt>> r2 = new ArrayList<>();
                 r2.add(inputs.get(2));
                 r2.add(inputs.get(3));
-                ArrayList<ArrayList<Computation<SInt>>> m = new ArrayList<>();
+                ArrayList<ArrayList<DRes<SInt>>> m = new ArrayList<>();
                 m.add(r1);
                 m.add(r2);
-                Matrix<Computation<SInt>> matrix = new Matrix<>(2, 2, m);
+                Matrix<DRes<SInt>> matrix = new Matrix<>(2, 2, m);
                 seq.debug().openAndPrint("testMatrix", matrix, stream);
                 return null;
               });

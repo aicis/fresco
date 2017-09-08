@@ -26,7 +26,7 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.statistics;
 
-import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.statistics.DEASolver.AnalysisType;
@@ -40,10 +40,10 @@ import org.junit.Test;
 
 public class RandomDataDeaTest {
 
-  private List<List<Computation<SInt>>> inputValues = new ArrayList<>();
-  private List<List<Computation<SInt>>> outputValues = new ArrayList<>();
-  private List<List<Computation<SInt>>> inputBasis = new ArrayList<>();
-  private List<List<Computation<SInt>>> outputBasis = new ArrayList<>();
+  private List<List<DRes<SInt>>> inputValues = new ArrayList<>();
+  private List<List<DRes<SInt>>> outputValues = new ArrayList<>();
+  private List<List<DRes<SInt>>> inputBasis = new ArrayList<>();
+  private List<List<DRes<SInt>>> outputBasis = new ArrayList<>();
 
   @Before
   public void setup() {

@@ -1,42 +1,43 @@
 package dk.alexandra.fresco.framework.builder.numeric;
 
-import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.DRes;
+import dk.alexandra.fresco.framework.builder.ComputationDirectory;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
 
-public interface NumericBuilder {
+public interface Numeric extends ComputationDirectory {
 
-  Computation<SInt> add(Computation<SInt> a, Computation<SInt> b);
+  DRes<SInt> add(DRes<SInt> a, DRes<SInt> b);
 
-  Computation<SInt> add(BigInteger a, Computation<SInt> b);
+  DRes<SInt> add(BigInteger a, DRes<SInt> b);
 
-  Computation<SInt> sub(Computation<SInt> a, Computation<SInt> b);
+  DRes<SInt> sub(DRes<SInt> a, DRes<SInt> b);
 
-  Computation<SInt> sub(BigInteger a, Computation<SInt> b);
+  DRes<SInt> sub(BigInteger a, DRes<SInt> b);
 
-  Computation<SInt> sub(Computation<SInt> a, BigInteger b);
+  DRes<SInt> sub(DRes<SInt> a, BigInteger b);
 
-  Computation<SInt> mult(Computation<SInt> a, Computation<SInt> b);
+  DRes<SInt> mult(DRes<SInt> a, DRes<SInt> b);
 
-  Computation<SInt> mult(BigInteger a, Computation<SInt> b);
+  DRes<SInt> mult(BigInteger a, DRes<SInt> b);
 
 
   /**
    * Returns a protocol which creates a secret shared random bit. (This should be computed
    * beforehand)
    */
-  Computation<SInt> randomBit();
+  DRes<SInt> randomBit();
 
-  Computation<SInt> randomElement();
+  DRes<SInt> randomElement();
 
-  Computation<SInt> known(BigInteger value);
+  DRes<SInt> known(BigInteger value);
 
-  Computation<SInt> input(BigInteger value, int inputParty);
+  DRes<SInt> input(BigInteger value, int inputParty);
 
-  Computation<BigInteger> open(Computation<SInt> secretShare);
+  DRes<BigInteger> open(DRes<SInt> secretShare);
 
-  Computation<BigInteger> open(Computation<SInt> secretShare, int outputParty);
+  DRes<BigInteger> open(DRes<SInt> secretShare, int outputParty);
 
-  Computation<SInt[]> getExponentiationPipe();
+  DRes<SInt[]> getExponentiationPipe();
 
 }

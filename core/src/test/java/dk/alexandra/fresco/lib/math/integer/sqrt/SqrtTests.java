@@ -25,10 +25,10 @@
 package dk.alexandra.fresco.lib.math.integer.sqrt;
 
 import dk.alexandra.fresco.framework.Application;
-import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
-import dk.alexandra.fresco.framework.builder.numeric.NumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
@@ -60,18 +60,18 @@ public class SqrtTests {
         public void test() throws Exception {
           Application<List<BigInteger>, ProtocolBuilderNumeric> app =
               builder -> {
-                NumericBuilder numBuilder = builder.numeric();
+                Numeric numBuilder = builder.numeric();
 
-                List<Computation<BigInteger>> results = new ArrayList<>(n);
+                List<DRes<BigInteger>> results = new ArrayList<>(n);
 
                 for (BigInteger input : x) {
-                  Computation<SInt> actualInput = numBuilder.input(input, 1);
-                  Computation<SInt> result =
+                  DRes<SInt> actualInput = numBuilder.input(input, 1);
+                  DRes<SInt> result =
                       builder.advancedNumeric().sqrt(actualInput, maxBitLength);
-                  Computation<BigInteger> openResult = builder.numeric().open(result);
+                  DRes<BigInteger> openResult = builder.numeric().open(result);
                   results.add(openResult);
                 }
-                return () -> results.stream().map(Computation::out).collect(Collectors.toList());
+                return () -> results.stream().map(DRes::out).collect(Collectors.toList());
               };
 
           List<BigInteger> results = secureComputationEngine.runApplication(app,

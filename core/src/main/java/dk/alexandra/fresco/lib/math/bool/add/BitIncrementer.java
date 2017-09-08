@@ -23,8 +23,8 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.math.bool.add;
 
-import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.builder.ComputationBuilder;
+import dk.alexandra.fresco.framework.DRes;
+import dk.alexandra.fresco.framework.builder.Computation;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SBool;
@@ -37,21 +37,21 @@ import java.util.List;
  *
  */
 public class BitIncrementer
-    implements ComputationBuilder<List<Computation<SBool>>, ProtocolBuilderBinary> {
+    implements Computation<List<DRes<SBool>>, ProtocolBuilderBinary> {
 
-  private List<Computation<SBool>> base;
-  private Computation<SBool> increment;
+  private List<DRes<SBool>> base;
+  private DRes<SBool> increment;
 
-  public BitIncrementer(List<Computation<SBool>> base, Computation<SBool> increment) {
+  public BitIncrementer(List<DRes<SBool>> base, DRes<SBool> increment) {
     this.base = base;
     this.increment = increment;
   }
 
 
   @Override
-  public Computation<List<Computation<SBool>>> buildComputation(ProtocolBuilderBinary builder) {
+  public DRes<List<DRes<SBool>>> buildComputation(ProtocolBuilderBinary builder) {
 
-    List<Computation<SBool>> result = new ArrayList<Computation<SBool>>();
+    List<DRes<SBool>> result = new ArrayList<DRes<SBool>>();
 
     return builder.seq(seq -> {
       int idx = base.size() - 1;
@@ -72,12 +72,12 @@ public class BitIncrementer
     });
   }
 
-  private static final class IterationState implements Computation<IterationState> {
+  private static final class IterationState implements DRes<IterationState> {
 
     private int round;
-    private final Computation<Pair<SBool, SBool>> value;
+    private final DRes<Pair<SBool, SBool>> value;
 
-    private IterationState(int round, Computation<Pair<SBool, SBool>> value) {
+    private IterationState(int round, DRes<Pair<SBool, SBool>> value) {
       this.round = round;
       this.value = value;
     }

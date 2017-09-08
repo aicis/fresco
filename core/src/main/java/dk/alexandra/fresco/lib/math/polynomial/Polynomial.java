@@ -26,7 +26,7 @@
  */
 package dk.alexandra.fresco.lib.math.polynomial;
 
-import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.value.SInt;
 
 public interface Polynomial {
@@ -45,7 +45,7 @@ public interface Polynomial {
 	 * @param n
 	 * @return
 	 */
-	public Computation<SInt> getCoefficient(int n);
+	public DRes<SInt> getCoefficient(int n);
 
 
 }

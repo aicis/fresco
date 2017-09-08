@@ -1,6 +1,6 @@
 package dk.alexandra.fresco.suite.dummy.arithmetic;
 
-import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.network.SCENetwork;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
@@ -12,7 +12,7 @@ import java.math.BigInteger;
 public class DummyArithmeticOpenProtocol extends DummyArithmeticNativeProtocol<BigInteger> {
 
   private BigInteger open;
-  private Computation<SInt> closed;
+  private DRes<SInt> closed;
   private int target;
 
   /**
@@ -21,7 +21,7 @@ public class DummyArithmeticOpenProtocol extends DummyArithmeticNativeProtocol<B
    * @param c a computation supplying the {@link SInt} to open
    * @param target the id of party to open towards
    */
-  public DummyArithmeticOpenProtocol(Computation<SInt> c, int target) {
+  public DummyArithmeticOpenProtocol(DRes<SInt> c, int target) {
     super();
     this.target = target;
     this.closed = c;

@@ -1,7 +1,7 @@
 package dk.alexandra.fresco.framework.builder;
 
 import dk.alexandra.fresco.framework.BuilderFactory;
-import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.lib.helper.LazyProtocolProducerDecorator;
@@ -19,13 +19,13 @@ class BuildStepSingle<BuilderT extends ProtocolBuilderImpl<BuilderT>, OutputT, I
     this.parallel = parallel;
   }
 
-  public Pair<ProtocolProducer, Computation<OutputT>> createNextStep(
+  public Pair<ProtocolProducer, DRes<OutputT>> createNextStep(
       InputT input,
       BuilderFactory<BuilderT> factory,
       BuildStep<OutputT, BuilderT, ?> next) {
 
     BuilderT builder = createBuilder(factory);
-    Computation<OutputT> output = function.buildComputation(builder, input);
+    DRes<OutputT> output = function.buildComputation(builder, input);
     if (next != null) {
       SequentialProtocolProducer protocolProducer = new SequentialProtocolProducer(
           builder.build(),

@@ -1,7 +1,7 @@
 package dk.alexandra.fresco.suite.tinytables.online;
 
-import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.builder.binary.BinaryBuilder;
+import dk.alexandra.fresco.framework.DRes;
+import dk.alexandra.fresco.framework.builder.binary.Binary;
 import dk.alexandra.fresco.framework.builder.binary.BuilderFactoryBinary;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.value.SBool;
@@ -24,11 +24,11 @@ public class TinyTablesBuilderFactory implements BuilderFactoryBinary {
   }
 
   @Override
-  public BinaryBuilder createBinaryBuilder(ProtocolBuilderBinary builder) {
-    return new BinaryBuilder() {
+  public Binary createBinary(ProtocolBuilderBinary builder) {
+    return new Binary() {
 
       @Override
-      public Computation<SBool> xor(Computation<SBool> left, Computation<SBool> right) {
+      public DRes<SBool> xor(DRes<SBool> left, DRes<SBool> right) {
         SBool out = new TinyTablesSBool();
         TinyTablesXORProtocol p = new TinyTablesXORProtocol(left, right, out);
         builder.append(p);
@@ -36,25 +36,25 @@ public class TinyTablesBuilderFactory implements BuilderFactoryBinary {
       }
 
       @Override
-      public Computation<SBool> randomBit() {
+      public DRes<SBool> randomBit() {
         // TODO Auto-generated method stub
         return null;
       }
 
       @Override
-      public Computation<Boolean> open(Computation<SBool> toOpen, int towardsPartyId) {
+      public DRes<Boolean> open(DRes<SBool> toOpen, int towardsPartyId) {
         throw new RuntimeException("Not implemented yet");
       }
 
       @Override
-      public Computation<Boolean> open(Computation<SBool> toOpen) {
+      public DRes<Boolean> open(DRes<SBool> toOpen) {
         TinyTablesOpenToAllProtocol p = new TinyTablesOpenToAllProtocol(getNextId(), toOpen);
         builder.append(p);
         return p;
       }
 
       @Override
-      public Computation<SBool> not(Computation<SBool> in) {
+      public DRes<SBool> not(DRes<SBool> in) {
         SBool out = new TinyTablesSBool();
         TinyTablesNOTProtocol p = new TinyTablesNOTProtocol(in, out);
         builder.append(p);
@@ -62,19 +62,19 @@ public class TinyTablesBuilderFactory implements BuilderFactoryBinary {
       }
 
       @Override
-      public Computation<SBool> known(boolean known) {
+      public DRes<SBool> known(boolean known) {
         return () -> new TinyTablesSBool(new TinyTablesElement(known));
       }
 
       @Override
-      public Computation<SBool> input(boolean in, int inputter) {
+      public DRes<SBool> input(boolean in, int inputter) {
         TinyTablesCloseProtocol p = new TinyTablesCloseProtocol(getNextId(), inputter, in);
         builder.append(p);
         return p;
       }
 
       @Override
-      public Computation<SBool> and(Computation<SBool> left, Computation<SBool> right) {
+      public DRes<SBool> and(DRes<SBool> left, DRes<SBool> right) {
         SBool out = new TinyTablesSBool();
         TinyTablesANDProtocol p = new TinyTablesANDProtocol(getNextId(), left, right, out);
         builder.append(p);

@@ -12,15 +12,15 @@ public class ProtocolBuilderNumeric extends
 
   private final BuilderFactoryNumeric factory;
   private BasicNumericContext basicNumericContext;
-  private NumericBuilder numericBuilder;
-  private ComparisonBuilder comparison;
-  private AdvancedNumericBuilder advancedNumeric;
-  private DebugBuilder utilityBuilder;
+  private Numeric numericBuilder;
+  private Comparison comparison;
+  private AdvancedNumeric advancedNumeric;
+  private Debug debug;
 
   ProtocolBuilderNumeric(BuilderFactoryNumeric factory, boolean parallel) {
     super(factory, parallel);
     this.factory = factory;
-    this.basicNumericContext = factory.getBasicNumericFactory();
+    this.basicNumericContext = factory.getBasicNumericContext();
   }
 
   public BasicNumericContext getBasicNumericContext() {
@@ -32,9 +32,9 @@ public class ProtocolBuilderNumeric extends
    *
    * @return the numeric builder.
    */
-  public NumericBuilder numeric() {
+  public Numeric numeric() {
     if (numericBuilder == null) {
-      numericBuilder = factory.createNumericBuilder(this);
+      numericBuilder = factory.createNumeric(this);
     }
     return numericBuilder;
   }
@@ -44,25 +44,25 @@ public class ProtocolBuilderNumeric extends
    *
    * @return the comparison builder.
    */
-  public ComparisonBuilder comparison() {
+  public Comparison comparison() {
     if (comparison == null) {
       comparison = factory.createComparison(this);
     }
     return comparison;
   }
 
-  public AdvancedNumericBuilder advancedNumeric() {
+  public AdvancedNumeric advancedNumeric() {
     if (advancedNumeric == null) {
       advancedNumeric = factory.createAdvancedNumeric(this);
     }
     return advancedNumeric;
   }
 
-  public DebugBuilder debug() {
-    if (utilityBuilder == null) {
-      utilityBuilder = factory.createDebugBuilder(this);
+  public Debug debug() {
+    if (debug == null) {
+      debug = factory.createDebug(this);
     }
-    return utilityBuilder;
+    return debug;
   }
 
   public MiscOIntGenerators getBigIntegerHelper() {

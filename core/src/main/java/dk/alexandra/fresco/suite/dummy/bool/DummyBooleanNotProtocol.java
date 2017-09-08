@@ -24,7 +24,7 @@
 
 package dk.alexandra.fresco.suite.dummy.bool;
 
-import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.network.SCENetwork;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SBool;
@@ -36,7 +36,7 @@ import dk.alexandra.fresco.framework.value.SBool;
  */
 public class DummyBooleanNotProtocol extends DummyBooleanNativeProtocol<SBool> {
 
-  private Computation<SBool> operand;
+  private DRes<SBool> operand;
   private DummyBooleanSBool out;
 
   /**
@@ -44,7 +44,7 @@ public class DummyBooleanNotProtocol extends DummyBooleanNativeProtocol<SBool> {
    * 
    * @param operand the operand
    */
-  public DummyBooleanNotProtocol(Computation<SBool> operand) {
+  public DummyBooleanNotProtocol(DRes<SBool> operand) {
     super();
     this.operand = operand;
     this.out = null;

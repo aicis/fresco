@@ -1,7 +1,7 @@
 package dk.alexandra.fresco.framework.builder;
 
 import dk.alexandra.fresco.framework.BuilderFactory;
-import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.lib.helper.LazyProtocolProducerDecorator;
@@ -65,7 +65,7 @@ public abstract class ProtocolBuilderImpl<BuilderT extends ProtocolBuilderImpl<B
    * @param <T> the result type of the native protocol
    * @return a computation that resolves to the result of the native protocol once evaluated
    */
-  public <T> Computation<T> append(NativeProtocol<T, ?> nativeProtocol) {
+  public <T> DRes<T> append(NativeProtocol<T, ?> nativeProtocol) {
     SingleProtocolProducer<T> producer = new SingleProtocolProducer<>(nativeProtocol);
     createAndAppend(producer);
     return producer;
@@ -101,7 +101,7 @@ public abstract class ProtocolBuilderImpl<BuilderT extends ProtocolBuilderImpl<B
    *
    * @param function creation of the protocol producer - will be lazy evaluated
    */
-  public <R> BuildStep<Void, BuilderT, R> seq(ComputationBuilder<R, BuilderT> function) {
+  public <R> BuildStep<Void, BuilderT, R> seq(Computation<R, BuilderT> function) {
     FrescoLambda<Void, BuilderT, R> innerBuilder =
         (inner, ignored) -> function.buildComputation(inner);
     BuildStep<Void, BuilderT, R> builder =

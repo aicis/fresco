@@ -23,7 +23,7 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.debug;
 
-import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.value.SBool;
 import java.io.PrintStream;
@@ -32,13 +32,13 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class BinaryOpenAndPrint implements
-    dk.alexandra.fresco.framework.builder.ComputationBuilder<Void, ProtocolBuilderBinary> {
+    dk.alexandra.fresco.framework.builder.Computation<Void, ProtocolBuilderBinary> {
 
-  private final List<Computation<SBool>> string;
+  private final List<DRes<SBool>> string;
   private final PrintStream output;
   private final String label;
 
-  public BinaryOpenAndPrint(String label, List<Computation<SBool>> string, PrintStream output) {
+  public BinaryOpenAndPrint(String label, List<DRes<SBool>> string, PrintStream output) {
     this.string = string;
 
     this.label = label;
@@ -46,11 +46,11 @@ public class BinaryOpenAndPrint implements
   }
 
   @Override
-  public Computation<Void> buildComputation(ProtocolBuilderBinary builder) {
+  public DRes<Void> buildComputation(ProtocolBuilderBinary builder) {
     return builder.seq(seq -> {
       List<SBool> unfolded =
-          this.string.stream().map(Computation::out).collect(Collectors.toList());
-      List<Computation<Boolean>> bools = new ArrayList<>();
+          this.string.stream().map(DRes::out).collect(Collectors.toList());
+      List<DRes<Boolean>> bools = new ArrayList<>();
       for (SBool b : unfolded) {
         bools.add(seq.binary().open(b));
       }
@@ -59,7 +59,7 @@ public class BinaryOpenAndPrint implements
       StringBuilder sb = new StringBuilder();
       sb.append(label);
       sb.append('\n');
-      for (Computation<Boolean> entry : res) {
+      for (DRes<Boolean> entry : res) {
         if (entry.out()) {
           sb.append(1);
         } else {

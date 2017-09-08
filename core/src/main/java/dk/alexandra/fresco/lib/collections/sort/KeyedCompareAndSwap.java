@@ -23,8 +23,8 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.collections.sort;
 
-import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.builder.ComputationBuilder;
+import dk.alexandra.fresco.framework.DRes;
+import dk.alexandra.fresco.framework.builder.Computation;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SBool;
@@ -33,10 +33,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class KeyedCompareAndSwap implements
-    ComputationBuilder<List<Pair<List<Computation<SBool>>, List<Computation<SBool>>>>, ProtocolBuilderBinary> {
+    Computation<List<Pair<List<DRes<SBool>>, List<DRes<SBool>>>>, ProtocolBuilderBinary> {
 
-  private List<Computation<SBool>> leftKey, leftValue, rightKey, rightValue;
-  private List<Computation<SBool>> xorKey, xorValue;
+  private List<DRes<SBool>> leftKey, leftValue, rightKey, rightValue;
+  private List<DRes<SBool>> xorKey, xorValue;
 
   /**
    * Constructs a protocol producer for the keyed compare and swap protocol. This protocol will
@@ -49,8 +49,8 @@ public class KeyedCompareAndSwap implements
    * @param rightValue the value of the right pair
    */
   public KeyedCompareAndSwap(
-      Pair<List<Computation<SBool>>, List<Computation<SBool>>> leftKeyAndValue,
-      Pair<List<Computation<SBool>>, List<Computation<SBool>>> rightKeyAndValue) {
+      Pair<List<DRes<SBool>>, List<DRes<SBool>>> leftKeyAndValue,
+      Pair<List<DRes<SBool>>, List<DRes<SBool>>> rightKeyAndValue) {
     this.leftKey = leftKeyAndValue.getFirst();
     this.leftValue = leftKeyAndValue.getSecond();
     this.rightKey = rightKeyAndValue.getFirst();
@@ -58,11 +58,11 @@ public class KeyedCompareAndSwap implements
   }
 
   @Override
-  public Computation<List<Pair<List<Computation<SBool>>, List<Computation<SBool>>>>> buildComputation(
+  public DRes<List<Pair<List<DRes<SBool>>, List<DRes<SBool>>>>> buildComputation(
       ProtocolBuilderBinary builder) {
     return builder.par(seq -> {
 
-      Computation<SBool> comparison = seq.comparison().greaterThan(leftKey, rightKey);
+      DRes<SBool> comparison = seq.comparison().greaterThan(leftKey, rightKey);
       xorKey = leftKey.stream().map(e -> seq.binary().xor(e, rightKey.get(leftKey.indexOf(e))))
           .collect(Collectors.toList());
 
@@ -72,25 +72,25 @@ public class KeyedCompareAndSwap implements
       return () -> comparison;
     }).par((par, data) -> {
 
-      List<Computation<SBool>> firstValue = leftValue.stream()
+      List<DRes<SBool>> firstValue = leftValue.stream()
           .map(e -> par.advancedBinary().condSelect(data, e, rightValue.get(leftValue.indexOf(e))))
           .collect(Collectors.toList());
 
-      List<Computation<SBool>> firstKey = leftKey.stream()
+      List<DRes<SBool>> firstKey = leftKey.stream()
           .map(e -> par.advancedBinary().condSelect(data, e, rightKey.get(leftKey.indexOf(e))))
           .collect(Collectors.toList());
 
       return () -> new Pair<>(firstKey, firstValue);
     }).par((par, data) -> {
-      List<Computation<SBool>> lastValue =
+      List<DRes<SBool>> lastValue =
           xorValue.stream().map(e -> par.binary().xor(e, data.getSecond().get(xorValue.indexOf(e))))
               .collect(Collectors.toList());
 
-      List<Computation<SBool>> lastKey =
+      List<DRes<SBool>> lastKey =
           xorKey.stream().map(e -> par.binary().xor(e, data.getFirst().get(xorKey.indexOf(e))))
               .collect(Collectors.toList());
 
-      List<Pair<List<Computation<SBool>>, List<Computation<SBool>>>> result = new ArrayList<>();
+      List<Pair<List<DRes<SBool>>, List<DRes<SBool>>>> result = new ArrayList<>();
       result.add(data);
       result.add(new Pair<>(lastKey, lastValue));
 

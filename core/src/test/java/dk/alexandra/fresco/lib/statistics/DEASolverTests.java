@@ -27,10 +27,10 @@
 package dk.alexandra.fresco.lib.statistics;
 
 import dk.alexandra.fresco.framework.Application;
-import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
-import dk.alexandra.fresco.framework.builder.numeric.NumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
@@ -187,15 +187,15 @@ public class DEASolverTests {
           Application<DEASolver, ProtocolBuilderNumeric> app =
               producer -> {
                 modulus = producer.getBasicNumericContext().getModulus();
-                NumericBuilder numeric = producer.numeric();
+                Numeric numeric = producer.numeric();
                 List<List<BigInteger>> rawTargetOutputs = TestDeaSolver.this.rawTargetOutputs;
-                List<List<Computation<SInt>>> targetOutputs =
+                List<List<DRes<SInt>>> targetOutputs =
                     knownMatrix(numeric, rawTargetOutputs);
-                List<List<Computation<SInt>>> targetInputs =
+                List<List<DRes<SInt>>> targetInputs =
                     knownMatrix(numeric, rawTargetInputs);
-                List<List<Computation<SInt>>> basisOutputs =
+                List<List<DRes<SInt>>> basisOutputs =
                     knownMatrix(numeric, rawBasisOutputs);
-                List<List<Computation<SInt>>> basisInputs =
+                List<List<DRes<SInt>>> basisInputs =
                     knownMatrix(numeric, rawBasisInputs);
                 return () -> new DEASolver(type, targetInputs, targetOutputs, basisInputs,
                     basisOutputs);
@@ -208,8 +208,8 @@ public class DEASolverTests {
 
           Application<List<Pair<BigInteger, List<BigInteger>>>, ProtocolBuilderNumeric> app2 =
               producer -> {
-                NumericBuilder numeric = producer.numeric();
-                ArrayList<Pair<Computation<BigInteger>, List<Computation<BigInteger>>>> result = new ArrayList<>();
+                Numeric numeric = producer.numeric();
+                ArrayList<Pair<DRes<BigInteger>, List<DRes<BigInteger>>>> result = new ArrayList<>();
                 for (DEAResult deaResult : deaResults) {
                   result.add(
                       new Pair<>(
@@ -223,7 +223,7 @@ public class DEASolverTests {
                         .stream()
                         .map(pair -> new Pair<>(
                             pair.getFirst().out(),
-                            pair.getSecond().stream().map(Computation::out)
+                            pair.getSecond().stream().map(DRes::out)
                                 .collect(Collectors.toList())
                         )).collect(Collectors.toList());
               };
@@ -274,7 +274,7 @@ public class DEASolverTests {
     }
   }
 
-  private static List<List<Computation<SInt>>> knownMatrix(NumericBuilder numeric,
+  private static List<List<DRes<SInt>>> knownMatrix(Numeric numeric,
       List<List<BigInteger>> rawTargetOutputs) {
     return rawTargetOutputs.stream()
         .map(list -> list.stream().map(numeric::known).collect(Collectors.toList()))

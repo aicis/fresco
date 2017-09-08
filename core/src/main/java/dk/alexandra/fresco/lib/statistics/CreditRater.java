@@ -26,11 +26,11 @@
  */
 package dk.alexandra.fresco.lib.statistics;
 
-import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.MPCException;
-import dk.alexandra.fresco.framework.builder.ComputationBuilder;
-import dk.alexandra.fresco.framework.builder.numeric.ComparisonBuilder;
-import dk.alexandra.fresco.framework.builder.numeric.NumericBuilder;
+import dk.alexandra.fresco.framework.builder.Computation;
+import dk.alexandra.fresco.framework.builder.numeric.Comparison;
+import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
@@ -44,18 +44,18 @@ import java.util.List;
  * value) will calculate the combined score.
  */
 public class CreditRater implements
-    ComputationBuilder<SInt, ProtocolBuilderNumeric> {
+    Computation<SInt, ProtocolBuilderNumeric> {
 
-  private List<Computation<SInt>> values;
-  private List<List<Computation<SInt>>> intervals;
-  private List<List<Computation<SInt>>> intervalScores;
+  private List<DRes<SInt>> values;
+  private List<List<DRes<SInt>>> intervals;
+  private List<List<DRes<SInt>>> intervalScores;
 
   /**
    * @throws MPCException if the intervals, values and intervalScores does not have the same length
    */
   public CreditRater(
-      List<Computation<SInt>> values, List<List<Computation<SInt>>> intervals,
-      List<List<Computation<SInt>>> intervalScores)
+      List<DRes<SInt>> values, List<List<DRes<SInt>>> intervals,
+      List<List<DRes<SInt>>> intervalScores)
       throws MPCException {
     this.values = values;
     this.intervals = intervals;
@@ -76,14 +76,14 @@ public class CreditRater implements
   }
 
   @Override
-  public Computation<SInt> buildComputation(ProtocolBuilderNumeric sequential) {
+  public DRes<SInt> buildComputation(ProtocolBuilderNumeric sequential) {
     return sequential.par(
         parallel -> {
-          List<Computation<SInt>> scores = new ArrayList<>(values.size());
+          List<DRes<SInt>> scores = new ArrayList<>(values.size());
           for (int i = 0; i < values.size(); i++) {
-            Computation<SInt> value = values.get(i);
-            List<Computation<SInt>> interval = intervals.get(i);
-            List<Computation<SInt>> intervalScore = intervalScores.get(i);
+            DRes<SInt> value = values.get(i);
+            List<DRes<SInt>> interval = intervals.get(i);
+            List<DRes<SInt>> intervalScore = intervalScores.get(i);
 
             scores.add(
                 parallel.seq(new ComputeIntervalScore(interval, value, intervalScore)));
@@ -94,11 +94,11 @@ public class CreditRater implements
   }
 
   private static class ComputeIntervalScore implements
-      ComputationBuilder<SInt, ProtocolBuilderNumeric> {
+      Computation<SInt, ProtocolBuilderNumeric> {
 
-    private final List<Computation<SInt>> interval;
-    private final Computation<SInt> value;
-    private final List<Computation<SInt>> scores;
+    private final List<DRes<SInt>> interval;
+    private final DRes<SInt> value;
+    private final List<DRes<SInt>> scores;
 
     /**
      * Given a value and scores for an interval, will lookup the score for the value.
@@ -107,44 +107,44 @@ public class CreditRater implements
      * @param interval The interval definition
      * @param scores The scores for each interval
      */
-    ComputeIntervalScore(List<Computation<SInt>> interval, Computation<SInt> value,
-        List<Computation<SInt>> scores) {
+    ComputeIntervalScore(List<DRes<SInt>> interval, DRes<SInt> value,
+        List<DRes<SInt>> scores) {
       this.interval = interval;
       this.value = value;
       this.scores = scores;
     }
 
     @Override
-    public Computation<SInt> buildComputation(ProtocolBuilderNumeric rootBuilder) {
+    public DRes<SInt> buildComputation(ProtocolBuilderNumeric rootBuilder) {
       return rootBuilder.par((parallelBuilder) -> {
-        List<Computation<SInt>> result = new ArrayList<>();
-        ComparisonBuilder builder = parallelBuilder.comparison();
+        List<DRes<SInt>> result = new ArrayList<>();
+        Comparison builder = parallelBuilder.comparison();
 
         // Compare if "x <= the n interval definitions"
-        for (Computation<SInt> anInterval : interval) {
+        for (DRes<SInt> anInterval : interval) {
           result.add(builder.compareLEQ(value, anInterval));
         }
         return () -> result;
       }).seq((builder, comparisons) -> {
         // Add "x > last interval definition" to comparisons
 
-        NumericBuilder numericBuilder = builder.numeric();
-        Computation<SInt> lastComparison = comparisons.get(comparisons.size() - 1);
+        Numeric numericBuilder = builder.numeric();
+        DRes<SInt> lastComparison = comparisons.get(comparisons.size() - 1);
         comparisons.add(numericBuilder.sub(BigInteger.ONE, lastComparison));
         return () -> comparisons;
       }).par((parallelBuilder, comparisons) -> {
         //Comparisons now contain if x <= each definition and if x>= last definition
 
-        NumericBuilder numericBuilder = parallelBuilder.numeric();
-        List<Computation<SInt>> innerScores = new ArrayList<>();
+        Numeric numericBuilder = parallelBuilder.numeric();
+        List<DRes<SInt>> innerScores = new ArrayList<>();
         innerScores.add(numericBuilder.mult(comparisons.get(0), scores.get(0)));
         for (int i = 1; i < scores.size() - 1; i++) {
-          Computation<SInt> hit = numericBuilder
+          DRes<SInt> hit = numericBuilder
               .sub(comparisons.get(i), comparisons.get(i - 1));
           innerScores.add(numericBuilder.mult(hit, scores.get(i)));
         }
-        Computation<SInt> a = comparisons.get(scores.size() - 1);
-        Computation<SInt> b = scores.get(scores.size() - 1);
+        DRes<SInt> a = comparisons.get(scores.size() - 1);
+        DRes<SInt> b = scores.get(scores.size() - 1);
         innerScores.add(numericBuilder.mult(a, b));
         return () -> innerScores;
 

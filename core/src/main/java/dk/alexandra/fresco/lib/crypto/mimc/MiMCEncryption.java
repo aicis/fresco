@@ -26,20 +26,20 @@
  */
 package dk.alexandra.fresco.lib.crypto.mimc;
 
-import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.builder.ComputationBuilder;
-import dk.alexandra.fresco.framework.builder.numeric.NumericBuilder;
+import dk.alexandra.fresco.framework.DRes;
+import dk.alexandra.fresco.framework.builder.Computation;
+import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
 import java.math.BigInteger;
 
-public class MiMCEncryption implements ComputationBuilder<SInt, ProtocolBuilderNumeric> {
+public class MiMCEncryption implements Computation<SInt, ProtocolBuilderNumeric> {
 
   // TODO: require that our modulus - 1 and 3 are co-prime
 
-  private final Computation<SInt> encryptionKey;
-  private final Computation<SInt> plainText;
+  private final DRes<SInt> encryptionKey;
+  private final DRes<SInt> plainText;
   private final Integer requestedRounds;
 
   /**
@@ -50,7 +50,7 @@ public class MiMCEncryption implements ComputationBuilder<SInt, ProtocolBuilderN
    * @param requiredRounds The number of rounds to use.
    */
   public MiMCEncryption(
-      Computation<SInt> plainText, Computation<SInt> encryptionKey, Integer requiredRounds) {
+      DRes<SInt> plainText, DRes<SInt> encryptionKey, Integer requiredRounds) {
     this.encryptionKey = encryptionKey;
     this.plainText = plainText;
     this.requestedRounds = requiredRounds;
@@ -64,13 +64,13 @@ public class MiMCEncryption implements ComputationBuilder<SInt, ProtocolBuilderN
    * @param encryptionKey The symmetric (secret-shared) key we will use to encrypt.
    */
   public MiMCEncryption(
-      Computation<SInt> plainText, Computation<SInt> encryptionKey) {
+      DRes<SInt> plainText, DRes<SInt> encryptionKey) {
     this(plainText, encryptionKey, null);
   }
 
 
   @Override
-  public Computation<SInt> buildComputation(ProtocolBuilderNumeric builder) {
+  public DRes<SInt> buildComputation(ProtocolBuilderNumeric builder) {
     final int requiredRounds = getRequiredRounds(builder.getBasicNumericContext(), requestedRounds);
     BigInteger three = BigInteger.valueOf(3);
     /*
@@ -78,7 +78,7 @@ public class MiMCEncryption implements ComputationBuilder<SInt, ProtocolBuilderN
 		 * where p is the plain text.
 		 */
     return builder.seq(seq -> {
-      Computation<SInt> add = seq.numeric().add(plainText, encryptionKey);
+      DRes<SInt> add = seq.numeric().add(plainText, encryptionKey);
       return new IterationState(1, seq.advancedNumeric().exp(add, three));
     }).whileLoop(
         (state) -> state.round < requiredRounds,
@@ -94,12 +94,12 @@ public class MiMCEncryption implements ComputationBuilder<SInt, ProtocolBuilderN
            */
           BigInteger roundConstantInteger = MiMCConstants
               .getConstant(state.round, seq.getBasicNumericContext().getModulus());
-          NumericBuilder numeric = seq.numeric();
-          Computation<SInt> masked = numeric.add(
+          Numeric numeric = seq.numeric();
+          DRes<SInt> masked = numeric.add(
               roundConstantInteger,
               numeric.add(state.value, encryptionKey)
           );
-          Computation<SInt> updatedValue = seq.advancedNumeric().exp(masked, three);
+          DRes<SInt> updatedValue = seq.advancedNumeric().exp(masked, three);
           return new IterationState(state.round + 1, updatedValue);
         }
     ).seq((seq, state) ->
@@ -123,13 +123,13 @@ public class MiMCEncryption implements ComputationBuilder<SInt, ProtocolBuilderN
   }
 
 
-  private static final class IterationState implements Computation<IterationState> {
+  private static final class IterationState implements DRes<IterationState> {
 
     private final int round;
-    private final Computation<SInt> value;
+    private final DRes<SInt> value;
 
     private IterationState(int round,
-        Computation<SInt> value) {
+        DRes<SInt> value) {
       this.round = round;
       this.value = value;
     }

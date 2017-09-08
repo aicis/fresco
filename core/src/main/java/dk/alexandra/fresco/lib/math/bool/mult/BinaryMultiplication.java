@@ -26,8 +26,8 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.math.bool.mult;
 
-import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.builder.ComputationBuilder;
+import dk.alexandra.fresco.framework.DRes;
+import dk.alexandra.fresco.framework.builder.Computation;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.value.SBool;
 import java.util.ArrayList;
@@ -41,22 +41,22 @@ import java.util.List;
  * @author Kasper Damgaard
  */
 public class BinaryMultiplication implements
-    ComputationBuilder<List<Computation<SBool>>, ProtocolBuilderBinary> {
+    Computation<List<DRes<SBool>>, ProtocolBuilderBinary> {
 
-  private List<Computation<SBool>> lefts, rights;
+  private List<DRes<SBool>> lefts, rights;
 
-  public BinaryMultiplication(List<Computation<SBool>> lefts,
-      List<Computation<SBool>> rights) {
+  public BinaryMultiplication(List<DRes<SBool>> lefts,
+      List<DRes<SBool>> rights) {
     this.lefts = lefts;
     this.rights = rights;
   }
 
   @Override
-  public Computation<List<Computation<SBool>>> buildComputation(ProtocolBuilderBinary builder) {
+  public DRes<List<DRes<SBool>>> buildComputation(ProtocolBuilderBinary builder) {
     return builder.seq(seq -> {
       int idx = this.lefts.size() - 1;
-      List<Computation<SBool>> res = new ArrayList<>();
-      for (Computation<SBool> right : rights) {
+      List<DRes<SBool>> res = new ArrayList<>();
+      for (DRes<SBool> right : rights) {
         res.add(seq.binary().and(lefts.get(idx), right));
       }
       IterationState is = new IterationState(idx, () -> res);
@@ -66,14 +66,14 @@ public class BinaryMultiplication implements
         (seq, state) -> {
           int idx = state.round - 1;
 
-          List<Computation<SBool>> res = new ArrayList<>();
-          for (Computation<SBool> right : rights) {
+          List<DRes<SBool>> res = new ArrayList<>();
+          for (DRes<SBool> right : rights) {
             res.add(seq.binary().and(lefts.get(idx), right));
           }
           for (int i = state.round; i < this.lefts.size(); i++) {
             res.add(seq.binary().known(false));
           }
-          List<Computation<SBool>> tmp = state.value.out();
+          List<DRes<SBool>> tmp = state.value.out();
           while (tmp.size() < res.size()) {
             tmp.add(0, seq.binary().known(false));
           }
@@ -85,13 +85,13 @@ public class BinaryMultiplication implements
     );
   }
 
-  private static final class IterationState implements Computation<IterationState> {
+  private static final class IterationState implements DRes<IterationState> {
 
     private int round;
-    private final Computation<List<Computation<SBool>>> value;
+    private final DRes<List<DRes<SBool>>> value;
 
     private IterationState(int round,
-        Computation<List<Computation<SBool>>> value) {
+        DRes<List<DRes<SBool>>> value) {
       this.round = round;
       this.value = value;
     }

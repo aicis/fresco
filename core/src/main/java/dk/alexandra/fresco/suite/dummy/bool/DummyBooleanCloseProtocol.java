@@ -23,7 +23,7 @@
  *******************************************************************************/
 package dk.alexandra.fresco.suite.dummy.bool;
 
-import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.network.SCENetwork;
 import dk.alexandra.fresco.framework.network.serializers.BooleanSerializer;
@@ -32,7 +32,7 @@ import dk.alexandra.fresco.framework.value.SBool;
 
 public class DummyBooleanCloseProtocol extends DummyBooleanNativeProtocol<SBool> {
 
-  public Computation<Boolean> input;
+  public DRes<Boolean> input;
   public DummyBooleanSBool output;
 
   private int sender;
@@ -43,7 +43,7 @@ public class DummyBooleanCloseProtocol extends DummyBooleanNativeProtocol<SBool>
    * @param targetId id of the party supplying the open value.
    * @param open a computation output the value to close.
    */
-  public DummyBooleanCloseProtocol(int sender, Computation<Boolean> in) {
+  public DummyBooleanCloseProtocol(int sender, DRes<Boolean> in) {
     input = in;
     output = null;
     this.sender = sender;

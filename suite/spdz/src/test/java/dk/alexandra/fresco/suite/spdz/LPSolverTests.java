@@ -27,7 +27,7 @@
 package dk.alexandra.fresco.suite.spdz;
 
 import dk.alexandra.fresco.framework.Application;
-import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
@@ -86,7 +86,7 @@ class LPSolverTests {
               }
               return () -> prefix;
             }).seq((seq, prefix) -> {
-              Computation<LPOutput> lpOutput = seq.seq(
+              DRes<LPOutput> lpOutput = seq.seq(
                   new LPSolver(
                       pivotRule,
                       prefix.getTableau(),
@@ -94,13 +94,13 @@ class LPSolverTests {
                       prefix.getPivot(),
                       prefix.getBasis()));
 
-              Computation<SInt> optimalValue = seq.seq((inner) -> {
+              DRes<SInt> optimalValue = seq.seq((inner) -> {
                     LPOutput out = lpOutput.out();
                     return new OptimalValue(out.updateMatrix, out.tableau, out.pivot)
                         .buildComputation(inner);
                   }
               );
-              Computation<BigInteger> open = seq.numeric().open(optimalValue);
+              DRes<BigInteger> open = seq.numeric().open(optimalValue);
               return open;
             });
           };

@@ -23,7 +23,7 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.helper.bristol;
 
-import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.value.SBool;
@@ -47,7 +47,7 @@ import java.util.stream.Stream;
  * Reading is done in a streamed fashion.
  */
 public class BristolCircuitParser implements
-    dk.alexandra.fresco.framework.builder.ComputationBuilder<List<SBool>, ProtocolBuilderBinary> {
+    dk.alexandra.fresco.framework.builder.Computation<List<SBool>, ProtocolBuilderBinary> {
 
   private Stream<String> lines;
   private Iterator<String> linesIter;
@@ -55,10 +55,10 @@ public class BristolCircuitParser implements
   // TODO: It is not memory efficient to keep all wires in a map like this.
   // Given that this circuit is fixed, it should, somehow, be possible to
   // garbage collect intermediate results early, if they are not used further.
-  private Map<Integer, Computation<SBool>> wires;
+  private Map<Integer, DRes<SBool>> wires;
 
-  private List<Computation<SBool>> in1;
-  private List<Computation<SBool>> in2;
+  private List<DRes<SBool>> in1;
+  private List<DRes<SBool>> in2;
 
   // Some meta data.
   private int no_gates;
@@ -69,8 +69,8 @@ public class BristolCircuitParser implements
 
   String dangling = null;
 
-  public BristolCircuitParser(Stream<String> lines, List<Computation<SBool>> in1,
-      List<Computation<SBool>> in2) {
+  public BristolCircuitParser(Stream<String> lines, List<DRes<SBool>> in1,
+      List<DRes<SBool>> in2) {
     this.in1 = in1;
     this.in2 = in2;
 
@@ -88,7 +88,7 @@ public class BristolCircuitParser implements
     this.no_output = Integer.parseInt(meta[2]);
     linesIter.next(); // 3rd line is always empty line.
 
-    this.wires = new HashMap<Integer, Computation<SBool>>(no_wires);
+    this.wires = new HashMap<Integer, DRes<SBool>>(no_wires);
     initWires();
   }
 
@@ -139,9 +139,9 @@ public class BristolCircuitParser implements
         if (in.length != 2 || out.length != 1) {
           throw new IOException("Wrong circuit format for XOR");
         }
-        Computation<SBool> leftInWireXor = wires.get(in[0]);
-        Computation<SBool> rightInWireXor = wires.get(in[1]);
-        Computation<SBool> outWireXor = wires.get(out[0]);
+        DRes<SBool> leftInWireXor = wires.get(in[0]);
+        DRes<SBool> rightInWireXor = wires.get(in[1]);
+        DRes<SBool> outWireXor = wires.get(out[0]);
 
         // If some input wire is not ready we have reached a gate that depends on
         // output that is not yet ready, aka first gate of next batch.
@@ -167,9 +167,9 @@ public class BristolCircuitParser implements
         if (in.length != 2 || out.length != 1) {
           throw new IOException("Wrong circuit format for AND");
         }
-        Computation<SBool> leftInWireAnd = wires.get(in[0]);
-        Computation<SBool> rightInWireAnd = wires.get(in[1]);
-        Computation<SBool> outWireAnd = wires.get(out[0]);
+        DRes<SBool> leftInWireAnd = wires.get(in[0]);
+        DRes<SBool> rightInWireAnd = wires.get(in[1]);
+        DRes<SBool> outWireAnd = wires.get(out[0]);
 
         if (leftInWireAnd == null) {
           throw new MPCException("and LEFT input " + in[0] + " was not set");
@@ -193,8 +193,8 @@ public class BristolCircuitParser implements
         if (in.length != 1 || out.length != 1) {
           throw new IOException("Wrong circuit format for INV");
         }
-        Computation<SBool> inWireNot = wires.get(in[0]);
-        Computation<SBool> outWireNot = wires.get(out[0]);
+        DRes<SBool> inWireNot = wires.get(in[0]);
+        DRes<SBool> outWireNot = wires.get(out[0]);
 
         if (inWireNot == null) {
           throw new MPCException("NOT input " + in[0] + " was not set");
@@ -209,7 +209,7 @@ public class BristolCircuitParser implements
     }
   }
 
-  private static final class IterationState implements Computation<IterationState> {
+  private static final class IterationState implements DRes<IterationState> {
 
     private final Iterator<String> it;
 
@@ -226,7 +226,7 @@ public class BristolCircuitParser implements
   /**
    * Fills res with next protocols, starting from pos. Returns next empty pos of array.
    */
-  public Computation<List<SBool>> buildComputation(ProtocolBuilderBinary builder) {
+  public DRes<List<SBool>> buildComputation(ProtocolBuilderBinary builder) {
 
     return builder.seq(seq -> {
       return new IterationState(this.linesIter);
@@ -263,7 +263,7 @@ public class BristolCircuitParser implements
   }
 
   public static BristolCircuitParser readCircuitDescription(String path,
-      List<Computation<SBool>> in1, List<Computation<SBool>> in2) {
+      List<DRes<SBool>> in1, List<DRes<SBool>> in2) {
     ClassLoader classLoader = BristolCircuitParser.class.getClassLoader();
     InputStream is = classLoader.getResourceAsStream(path);
     if (is == null) {

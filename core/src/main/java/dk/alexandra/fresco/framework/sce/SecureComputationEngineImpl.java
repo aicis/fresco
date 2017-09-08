@@ -25,7 +25,7 @@ package dk.alexandra.fresco.framework.sce;
 
 import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.BuilderFactory;
-import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
@@ -88,14 +88,14 @@ public class SecureComputationEngineImpl<ResourcePoolT extends ResourcePool, Bui
     return executorService.submit(callable);
   }
 
-  private <OutputT> Computation<OutputT> evalApplication(Application<OutputT, Builder> application,
+  private <OutputT> DRes<OutputT> evalApplication(Application<OutputT, Builder> application,
       ResourcePoolT resourcePool) throws Exception {
     logger.info(
         "Running application: " + application + " using protocol suite: " + this.protocolSuite);
     try {
       BuilderFactory<Builder> protocolFactory = this.protocolSuite.init(resourcePool);
       Builder builder = protocolFactory.createSequential();
-      Computation<OutputT> output = application.buildComputation(builder);
+      DRes<OutputT> output = application.buildComputation(builder);
       long then = System.currentTimeMillis();
       this.evaluator.eval(builder.build(), resourcePool);
       long now = System.currentTimeMillis();

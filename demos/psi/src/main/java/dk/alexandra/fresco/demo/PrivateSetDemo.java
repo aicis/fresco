@@ -26,8 +26,8 @@ package dk.alexandra.fresco.demo;
 import dk.alexandra.fresco.demo.cli.CmdLineUtil;
 import dk.alexandra.fresco.demo.helpers.ResourcePoolHelper;
 import dk.alexandra.fresco.framework.Application;
-import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.builder.binary.BinaryBuilder;
+import dk.alexandra.fresco.framework.DRes;
+import dk.alexandra.fresco.framework.builder.binary.Binary;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
@@ -200,12 +200,12 @@ public class PrivateSetDemo implements Application<List<List<Boolean>>, Protocol
 
 
   @Override
-  public Computation<List<List<Boolean>>> buildComputation(ProtocolBuilderBinary producer) {
+  public DRes<List<List<Boolean>>> buildComputation(ProtocolBuilderBinary producer) {
     return producer.seq(seq -> {
-      BinaryBuilder bin = seq.binary();
+      Binary bin = seq.binary();
 
-      List<Computation<SBool>> key1Inputs = new ArrayList<>();
-      List<Computation<SBool>> key2Inputs = new ArrayList<>();
+      List<DRes<SBool>> key1Inputs = new ArrayList<>();
+      List<DRes<SBool>> key2Inputs = new ArrayList<>();
       if (this.id == 1) {
         for (boolean b : inKey) {
           key1Inputs.add(bin.input(b, 1));
@@ -219,13 +219,13 @@ public class PrivateSetDemo implements Application<List<List<Boolean>>, Protocol
         }
       }
 
-      List<Computation<SBool>> commonKey = new ArrayList<>();
+      List<DRes<SBool>> commonKey = new ArrayList<>();
       for (int i = 0; i < key1Inputs.size(); i++) {
         commonKey.add(bin.xor(key1Inputs.get(i), key2Inputs.get(i)));
       }
 
-      List<List<Computation<SBool>>> set1 = new ArrayList<>();
-      List<List<Computation<SBool>>> set2 = new ArrayList<>();
+      List<List<DRes<SBool>>> set1 = new ArrayList<>();
+      List<List<DRes<SBool>>> set2 = new ArrayList<>();
       // Handle input lists
       int offset = this.inSet.length;
       for (int i = 0; i < offset; i++) {
@@ -245,20 +245,20 @@ public class PrivateSetDemo implements Application<List<List<Boolean>>, Protocol
       PSIInputs inputs = new PSIInputs(set1, set2, commonKey);
       return () -> inputs;
     }).par((par, inputs) -> {
-      List<Computation<List<SBool>>> aesResults = new ArrayList<>();
-      for (List<Computation<SBool>> set : inputs.set1) {
+      List<DRes<List<SBool>>> aesResults = new ArrayList<>();
+      for (List<DRes<SBool>> set : inputs.set1) {
         aesResults.add(par.bristol().AES(set, inputs.commonKey));
       }
-      for (List<Computation<SBool>> set : inputs.set2) {
+      for (List<DRes<SBool>> set : inputs.set2) {
         aesResults.add(par.bristol().AES(set, inputs.commonKey));
       }
       return () -> aesResults;
     }).seq((seq, aesResults) -> {
       List<List<SBool>> res =
-          aesResults.stream().map(Computation::out).collect(Collectors.toList());
-      List<List<Computation<Boolean>>> output = new ArrayList<>();
+          aesResults.stream().map(DRes::out).collect(Collectors.toList());
+      List<List<DRes<Boolean>>> output = new ArrayList<>();
       for (List<SBool> bs : res) {
-        List<Computation<Boolean>> innerOut = new ArrayList<>();
+        List<DRes<Boolean>> innerOut = new ArrayList<>();
         output.add(innerOut);
         for (SBool b : bs) {
           innerOut.add(seq.binary().open(b));
@@ -267,19 +267,19 @@ public class PrivateSetDemo implements Application<List<List<Boolean>>, Protocol
       return () -> output;
     }).seq((seq, output) -> {
       List<List<Boolean>> outs = output.stream()
-          .map(row -> row.stream().map(Computation::out).collect(Collectors.toList()))
+          .map(row -> row.stream().map(DRes::out).collect(Collectors.toList()))
           .collect(Collectors.toList());
       return () -> outs;
     });
   }
 
-  private static class PSIInputs implements Computation<PSIInputs> {
+  private static class PSIInputs implements DRes<PSIInputs> {
 
-    private List<List<Computation<SBool>>> set1, set2;
-    private List<Computation<SBool>> commonKey;
+    private List<List<DRes<SBool>>> set1, set2;
+    private List<DRes<SBool>> commonKey;
 
-    public PSIInputs(List<List<Computation<SBool>>> set1, List<List<Computation<SBool>>> set2,
-        List<Computation<SBool>> commonKey) {
+    public PSIInputs(List<List<DRes<SBool>>> set1, List<List<DRes<SBool>>> set2,
+        List<DRes<SBool>> commonKey) {
       super();
       this.set1 = set1;
       this.set2 = set2;

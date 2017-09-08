@@ -1,6 +1,6 @@
 package dk.alexandra.fresco.lib.list;
 
-import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.util.ArrayList;
 import java.util.List;
@@ -10,8 +10,8 @@ import java.util.List;
  */ 
 public class SIntListofTuples {
 
-  private List<List<Computation<SInt>>> theData = new ArrayList<>();
-  private List<Computation<SInt>> duplicate_p = new ArrayList<>();
+  private List<List<DRes<SInt>>> theData = new ArrayList<>();
+  private List<DRes<SInt>> duplicate_p = new ArrayList<>();
 
   /**
    * id is first element in tuple
@@ -22,7 +22,7 @@ public class SIntListofTuples {
    * @param row the data values (and id in first column)
    * @param falseValue an Sint representing zero, to mark the row as non-duplicate.
    */ 
-  public SIntListofTuples add(List<Computation<SInt>> row, Computation<SInt> falseValue) {
+  public SIntListofTuples add(List<DRes<SInt>> row, DRes<SInt> falseValue) {
     if (row.size() != rowWidth) {
       throw new RuntimeException("Row width wrong. Should be " + rowWidth);
     }
@@ -31,7 +31,7 @@ public class SIntListofTuples {
     return this;
   }
 
-  public Computation<SInt> getId(int index) {
+  public DRes<SInt> getId(int index) {
     return theData.get(index).get(0);
   }
 
@@ -39,11 +39,11 @@ public class SIntListofTuples {
     this.rowWidth = rowWidth;
   }
 
-  public void setDuplicate(int index, Computation<SInt> value) {
+  public void setDuplicate(int index, DRes<SInt> value) {
     duplicate_p.set(index, value);
   }
 
-  public Computation<SInt> getDuplicate(int index) {
+  public DRes<SInt> getDuplicate(int index) {
     return duplicate_p.get(index);
   }
 

@@ -1,11 +1,12 @@
 package dk.alexandra.fresco.framework.builder.numeric;
 
-import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.DRes;
+import dk.alexandra.fresco.framework.builder.ComputationDirectory;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
 import java.util.List;
 
-public interface AdvancedNumericBuilder {
+public interface AdvancedNumeric extends ComputationDirectory {
 
   /**
    * Calculates the sum of all elements in the list.
@@ -13,7 +14,7 @@ public interface AdvancedNumericBuilder {
    * @param elements the elements to sum
    * @return the sum of the elements
    */
-  Computation<SInt> sum(List<Computation<SInt>> elements);
+  DRes<SInt> sum(List<DRes<SInt>> elements);
 
   /**
    * Calculates the product of all elements in the list.
@@ -21,7 +22,7 @@ public interface AdvancedNumericBuilder {
    * @param elements the elements to sum
    * @return the product of the elements
    */
-  Computation<SInt> product(List<Computation<SInt>> elements);
+  DRes<SInt> product(List<DRes<SInt>> elements);
 
   /**
    * This protocol calculates an approximation of
@@ -32,7 +33,7 @@ public interface AdvancedNumericBuilder {
    * @param divisor The divisor.
    * @return An approximation of <i>dividend / divisor</i>.
    */
-  Computation<SInt> div(Computation<SInt> dividend, BigInteger divisor);
+  DRes<SInt> div(DRes<SInt> dividend, BigInteger divisor);
 
   /**
    * This protocol calculates an approximation of
@@ -43,7 +44,7 @@ public interface AdvancedNumericBuilder {
    * @param divisor The divisor.
    * @return quotient and remainder.
    */
-  Computation<SInt> mod(Computation<SInt> dividend, BigInteger divisor);
+  DRes<SInt> mod(DRes<SInt> dividend, BigInteger divisor);
 
   /**
    * This protocol calculates an approximation of
@@ -54,7 +55,7 @@ public interface AdvancedNumericBuilder {
    * @param divisor The divisor.
    * @return An approximation of <i>dividend / divisor</i>.
    */
-  Computation<SInt> div(Computation<SInt> dividend, Computation<SInt> divisor);
+  DRes<SInt> div(DRes<SInt> dividend, DRes<SInt> divisor);
 
   /**
    * Convert an integer to an list of bits, with index 0 being the least
@@ -63,21 +64,21 @@ public interface AdvancedNumericBuilder {
    * @param in SInt
    * @return the list of bits
    */
-  Computation<List<SInt>> toBits(Computation<SInt> in, int maxInputLength);
+  DRes<List<SInt>> toBits(DRes<SInt> in, int maxInputLength);
 
 
-  Computation<SInt> exp(Computation<SInt> x, Computation<SInt> e, int maxExponentLength);
+  DRes<SInt> exp(DRes<SInt> x, DRes<SInt> e, int maxExponentLength);
 
-  Computation<SInt> exp(BigInteger x, Computation<SInt> e, int maxExponentLength);
+  DRes<SInt> exp(BigInteger x, DRes<SInt> e, int maxExponentLength);
 
-  Computation<SInt> exp(Computation<SInt> x, BigInteger e);
+  DRes<SInt> exp(DRes<SInt> x, BigInteger e);
 
   /**
    * @param input The input.
    * @param maxInputLength An upper bound for <i>log<sub>2</sub>(input)</i>.
    * @return An approximation of the square root of the input.
    */
-  Computation<SInt> sqrt(Computation<SInt> input, int maxInputLength);
+  DRes<SInt> sqrt(DRes<SInt> input, int maxInputLength);
 
   /**
    * Calculating the natural logarithm of a given input.
@@ -86,33 +87,33 @@ public interface AdvancedNumericBuilder {
    * @param maxInputLength An upper bound for the bit length of the input.
    * @return The natural logarithm of the input.
    */
-  Computation<SInt> log(Computation<SInt> input, int maxInputLength);
+  DRes<SInt> log(DRes<SInt> input, int maxInputLength);
 
-  Computation<SInt> dot(List<Computation<SInt>> aVector, List<Computation<SInt>> bVector);
+  DRes<SInt> dot(List<DRes<SInt>> aVector, List<DRes<SInt>> bVector);
 
-  Computation<SInt> openDot(List<BigInteger> aVector, List<Computation<SInt>> bVector);
+  DRes<SInt> openDot(List<BigInteger> aVector, List<DRes<SInt>> bVector);
 
-  Computation<RandomAdditiveMask> additiveMask(int noOfBits);
+  DRes<RandomAdditiveMask> additiveMask(int noOfBits);
 
   /**
    * @param input input
    * @return result input >> 1
    */
-  Computation<SInt> rightShift(Computation<SInt> input);
+  DRes<SInt> rightShift(DRes<SInt> input);
 
   /**
    * @param input input
    * @return result: input >> 1<br> remainder: The <code>shifts</code> least significant bits of the
    * input with the least significant having index 0.
    */
-  Computation<RightShiftResult> rightShiftWithRemainder(Computation<SInt> input);
+  DRes<RightShiftResult> rightShiftWithRemainder(DRes<SInt> input);
 
   /**
    * @param input input
    * @param shifts Number of shifts
    * @return result input >> shifts
    */
-  Computation<SInt> rightShift(Computation<SInt> input, int shifts);
+  DRes<SInt> rightShift(DRes<SInt> input, int shifts);
 
   /**
    * @param input input
@@ -120,12 +121,12 @@ public interface AdvancedNumericBuilder {
    * @return result: input >> shifts<br> remainder: The <code>shifts</code> least significant bits
    * of the input with the least significant having index 0.
    */
-  Computation<RightShiftResult> rightShiftWithRemainder(Computation<SInt> input,
+  DRes<RightShiftResult> rightShiftWithRemainder(DRes<SInt> input,
       int shifts);
 
-  Computation<SInt> bitLength(Computation<SInt> input, int maxBitLength);
+  DRes<SInt> bitLength(DRes<SInt> input, int maxBitLength);
 
-  Computation<SInt> invert(Computation<SInt> x);
+  DRes<SInt> invert(DRes<SInt> x);
 
   /**
    * result input >> 1
@@ -153,10 +154,10 @@ public interface AdvancedNumericBuilder {
 
   class RandomAdditiveMask {
 
-    public final List<Computation<SInt>> bits;
+    public final List<DRes<SInt>> bits;
     public final SInt r;
 
-    public RandomAdditiveMask(List<Computation<SInt>> bits, SInt r) {
+    public RandomAdditiveMask(List<DRes<SInt>> bits, SInt r) {
       this.bits = bits;
       this.r = r;
     }

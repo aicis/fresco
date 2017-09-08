@@ -1,10 +1,10 @@
 package dk.alexandra.fresco.lib.arithmetic;
 
 import dk.alexandra.fresco.framework.Application;
-import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
-import dk.alexandra.fresco.framework.builder.numeric.NumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
@@ -51,13 +51,13 @@ public class ParallelAndSequenceTests {
   private class TestApplicationSum implements Application<BigInteger, ProtocolBuilderNumeric> {
 
     @Override
-    public Computation<BigInteger> buildComputation(
+    public DRes<BigInteger> buildComputation(
         ProtocolBuilderNumeric producer) {
-      List<Computation<SInt>> input =
+      List<DRes<SInt>> input =
           Arrays.stream(inputAsArray)
               .map((integer) -> convertToSInt(integer, producer))
               .collect(Collectors.toList());
-      Computation<SInt> result = producer.advancedNumeric().sum(input);
+      DRes<SInt> result = producer.advancedNumeric().sum(input);
       return producer.numeric().open(result);
     }
 
@@ -66,9 +66,9 @@ public class ParallelAndSequenceTests {
   private class TestApplicationMult implements Application<BigInteger, ProtocolBuilderNumeric> {
 
     @Override
-    public Computation<BigInteger> buildComputation(
+    public DRes<BigInteger> buildComputation(
         ProtocolBuilderNumeric producer) {
-      Computation<SInt> result = producer.advancedNumeric().product(
+      DRes<SInt> result = producer.advancedNumeric().product(
           Arrays.stream(inputAsArray)
               .map((integer) -> convertToSInt(integer, producer))
               .collect(Collectors.toList()));
@@ -76,8 +76,8 @@ public class ParallelAndSequenceTests {
     }
   }
 
-  private Computation<SInt> convertToSInt(int integer, ProtocolBuilderNumeric producer) {
-    NumericBuilder numeric = producer.numeric();
+  private DRes<SInt> convertToSInt(int integer, ProtocolBuilderNumeric producer) {
+    Numeric numeric = producer.numeric();
     BigInteger value = BigInteger.valueOf(integer);
     return numeric.input(value, 1);
   }

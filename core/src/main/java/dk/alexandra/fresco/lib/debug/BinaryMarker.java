@@ -23,8 +23,8 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.debug;
 
-import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.builder.ComputationBuilder;
+import dk.alexandra.fresco.framework.DRes;
+import dk.alexandra.fresco.framework.builder.Computation;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import java.io.PrintStream;
 
@@ -32,7 +32,7 @@ import java.io.PrintStream;
  * When evaluated, prints out the message from the constructor.
  *
  */
-public class BinaryMarker implements ComputationBuilder<Void, ProtocolBuilderBinary> {
+public class BinaryMarker implements Computation<Void, ProtocolBuilderBinary> {
 
   private final String message;
   private final PrintStream output;
@@ -48,7 +48,7 @@ public class BinaryMarker implements ComputationBuilder<Void, ProtocolBuilderBin
   }
 
   @Override
-  public Computation<Void> buildComputation(ProtocolBuilderBinary builder) {
+  public DRes<Void> buildComputation(ProtocolBuilderBinary builder) {
     return builder.seq(seq -> {
       output.println(message);
       return () -> null;

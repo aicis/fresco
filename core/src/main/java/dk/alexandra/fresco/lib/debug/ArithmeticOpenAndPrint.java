@@ -23,9 +23,9 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.debug;
 
-import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.builder.ComputationBuilder;
-import dk.alexandra.fresco.framework.builder.numeric.NumericBuilder;
+import dk.alexandra.fresco.framework.DRes;
+import dk.alexandra.fresco.framework.builder.Computation;
+import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.lp.Matrix;
@@ -35,27 +35,27 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-public class ArithmeticOpenAndPrint implements ComputationBuilder<Void, ProtocolBuilderNumeric> {
+public class ArithmeticOpenAndPrint implements Computation<Void, ProtocolBuilderNumeric> {
 
-  private Computation<SInt> number = null;
-  private List<Computation<SInt>> vector = null;
-  private Matrix<Computation<SInt>> matrix = null;
+  private DRes<SInt> number = null;
+  private List<DRes<SInt>> vector = null;
+  private Matrix<DRes<SInt>> matrix = null;
   private String label;
   private PrintStream stream;
 
-  public ArithmeticOpenAndPrint(String label, Computation<SInt> number, PrintStream stream) {
+  public ArithmeticOpenAndPrint(String label, DRes<SInt> number, PrintStream stream) {
     this.label = label;
     this.number = number;
     this.stream = stream;
   }
 
-  public ArithmeticOpenAndPrint(String label, List<Computation<SInt>> vector, PrintStream stream) {
+  public ArithmeticOpenAndPrint(String label, List<DRes<SInt>> vector, PrintStream stream) {
     this.label = label;
     this.vector = vector;
     this.stream = stream;
   }
 
-  public ArithmeticOpenAndPrint(String label, Matrix<Computation<SInt>> matrix,
+  public ArithmeticOpenAndPrint(String label, Matrix<DRes<SInt>> matrix,
       PrintStream stream) {
     this.label = label;
     this.matrix = matrix;
@@ -63,21 +63,21 @@ public class ArithmeticOpenAndPrint implements ComputationBuilder<Void, Protocol
   }
 
   @Override
-  public Computation<Void> buildComputation(ProtocolBuilderNumeric builder) {
+  public DRes<Void> buildComputation(ProtocolBuilderNumeric builder) {
     return builder.seq(seq -> {
-      NumericBuilder num = seq.numeric();
-      List<Computation<BigInteger>> res = new ArrayList<>();
+      Numeric num = seq.numeric();
+      List<DRes<BigInteger>> res = new ArrayList<>();
       if (number != null) {
         res.add(num.open(number));
       } else if (vector != null) {
-        for (Computation<SInt> c : vector) {
+        for (DRes<SInt> c : vector) {
           res.add(num.open(c));
         }
       } else {
         // matrix
         for (int i = 0; i < matrix.getHeight(); i++) {
-          List<Computation<SInt>> l = matrix.getRow(i);
-          for (Computation<SInt> c : l) {
+          List<DRes<SInt>> l = matrix.getRow(i);
+          for (DRes<SInt> c : l) {
             res.add(num.open(c));
           }
         }
@@ -90,11 +90,11 @@ public class ArithmeticOpenAndPrint implements ComputationBuilder<Void, Protocol
       if (number != null) {
         sb.append(res.get(0).out());
       } else if (vector != null) {
-        for (Computation<BigInteger> v : res) {
+        for (DRes<BigInteger> v : res) {
           sb.append(v.out() + ", ");
         }
       } else {
-        Iterator<Computation<BigInteger>> it = res.iterator();
+        Iterator<DRes<BigInteger>> it = res.iterator();
         for (int i = 0; i < this.matrix.getHeight(); i++) {
           for (int j = 0; j < this.matrix.getWidth(); j++) {
             sb.append(it.next().out() + ", ");

@@ -26,10 +26,10 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.compare.gt;
 
-import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.builder.ComputationBuilder;
-import dk.alexandra.fresco.framework.builder.numeric.AdvancedNumericBuilder;
-import dk.alexandra.fresco.framework.builder.numeric.NumericBuilder;
+import dk.alexandra.fresco.framework.DRes;
+import dk.alexandra.fresco.framework.builder.Computation;
+import dk.alexandra.fresco.framework.builder.numeric.AdvancedNumeric;
+import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
@@ -37,10 +37,10 @@ import dk.alexandra.fresco.lib.compare.ConditionalSelect;
 import java.math.BigInteger;
 import java.util.List;
 
-public class LessThanOrEquals implements ComputationBuilder<SInt, ProtocolBuilderNumeric> {
+public class LessThanOrEquals implements Computation<SInt, ProtocolBuilderNumeric> {
 
   public LessThanOrEquals(int bitLength, int securityParameter,
-      Computation<SInt> x, Computation<SInt> y) {
+      DRes<SInt> x, DRes<SInt> y) {
     this.bitLength = bitLength;
     this.securityParameter = securityParameter;
     this.x = x;
@@ -50,12 +50,12 @@ public class LessThanOrEquals implements ComputationBuilder<SInt, ProtocolBuilde
   // params etc
   private final int bitLength;
   private final int securityParameter;
-  private final Computation<SInt> x;
-  private final Computation<SInt> y;
+  private final DRes<SInt> x;
+  private final DRes<SInt> y;
 
 
   @Override
-  public Computation<SInt> buildComputation(ProtocolBuilderNumeric builder) {
+  public DRes<SInt> buildComputation(ProtocolBuilderNumeric builder) {
     final BigInteger modulus = builder.getBasicNumericContext().getModulus();
 
     final int bitLengthBottom = bitLength / 2;
@@ -70,8 +70,8 @@ public class LessThanOrEquals implements ComputationBuilder<SInt, ProtocolBuilde
     return builder.seq((seq) -> seq.advancedNumeric().additiveMask(bitLength)
     ).pairInPar(
         (seq, mask) -> {
-          List<Computation<SInt>> bits = mask.bits;
-          List<Computation<SInt>> rBottomBits = bits.subList(0, bitLengthBottom);
+          List<DRes<SInt>> bits = mask.bits;
+          List<DRes<SInt>> rBottomBits = bits.subList(0, bitLengthBottom);
           List<BigInteger> twoPowsBottom =
               seq.getBigIntegerHelper().getTwoPowersList(bitLengthBottom);
           return
@@ -81,43 +81,43 @@ public class LessThanOrEquals implements ComputationBuilder<SInt, ProtocolBuilde
               );
         },
         (seq, mask) -> {
-          List<Computation<SInt>> rTopBits = mask.bits
+          List<DRes<SInt>> rTopBits = mask.bits
               .subList(bitLengthBottom, bitLengthBottom + bitLengthTop);
           List<BigInteger> twoPowsTop =
               seq.getBigIntegerHelper().getTwoPowersList(bitLengthTop);
-          AdvancedNumericBuilder innerProduct = seq.advancedNumeric();
+          AdvancedNumeric innerProduct = seq.advancedNumeric();
 
           return innerProduct.openDot(twoPowsTop, rTopBits);
         }
     ).seq((seq, pair) -> {
-      Computation<SInt> rTop = pair::getSecond;
-      Computation<SInt> rBottom = pair.getFirst().getSecond();
+      DRes<SInt> rTop = pair::getSecond;
+      DRes<SInt> rBottom = pair.getFirst().getSecond();
       SInt r = pair.getFirst().getFirst();
 
       // construct r-values (rBar, rBottom, rTop)
-      Computation<SInt> rBar;
+      DRes<SInt> rBar;
 
-      NumericBuilder numeric = seq.numeric();
+      Numeric numeric = seq.numeric();
 
-      Computation<SInt> tmp1 = numeric.mult(twoToBitLengthBottom, rTop);
+      DRes<SInt> tmp1 = numeric.mult(twoToBitLengthBottom, rTop);
       rBar = numeric.add(tmp1, rBottom);
 
       // Actual work: mask and reveal 2^bitLength+x-y
       // z = 2^bitLength + x -y
-      Computation<SInt> diff = numeric.sub(y, x);
-      Computation<SInt> z = numeric.add(twoToBitLength, diff);
+      DRes<SInt> diff = numeric.sub(y, x);
+      DRes<SInt> z = numeric.add(twoToBitLength, diff);
 
       // mO = open(z + r)
-      Computation<SInt> mS = numeric.add(z, () -> r);
-      Computation<BigInteger> mO = seq.numeric().open(mS);
+      DRes<SInt> mS = numeric.add(z, () -> r);
+      DRes<BigInteger> mO = seq.numeric().open(mS);
 
       return () -> new Object[]{mO, rBottom, rTop, rBar, z};
     }).seq((ProtocolBuilderNumeric seq, Object[] input) -> {
-      BigInteger mO = ((Computation<BigInteger>) input[0]).out();
-      Computation<SInt> rBottom = (Computation<SInt>) input[1];
-      Computation<SInt> rTop = (Computation<SInt>) input[2];
-      Computation<SInt> rBar = (Computation<SInt>) input[3];
-      Computation<SInt> z = (Computation<SInt>) input[4];
+      BigInteger mO = ((DRes<BigInteger>) input[0]).out();
+      DRes<SInt> rBottom = (DRes<SInt>) input[1];
+      DRes<SInt> rTop = (DRes<SInt>) input[2];
+      DRes<SInt> rBar = (DRes<SInt>) input[3];
+      DRes<SInt> z = (DRes<SInt>) input[4];
 
       // extract mTop and mBot
       BigInteger mMod = mO.mod(BigInteger.ONE.shiftLeft(bitLength));
@@ -125,43 +125,43 @@ public class LessThanOrEquals implements ComputationBuilder<SInt, ProtocolBuilde
       BigInteger mBot = mMod.mod(BigInteger.ONE.shiftLeft(bitLengthBottom));
       BigInteger mTop = mMod.shiftRight(bitLengthBottom);
 
-      NumericBuilder numeric = seq.numeric();
+      Numeric numeric = seq.numeric();
       // dif = mTop - rTop
-      Computation<SInt> dif = numeric.sub(mTop, rTop);
+      DRes<SInt> dif = numeric.sub(mTop, rTop);
 
       // eqResult <- execute eq.test
-      Computation<SInt> eqResult =
+      DRes<SInt> eqResult =
           seq.comparison().compareZero(dif, bitLengthTop);
       return () -> new Object[]{eqResult, rBottom, rTop, mBot, mTop, mBar, rBar, z};
     }).seq((ProtocolBuilderNumeric seq, Object[] input) -> {
-      Computation<SInt> eqResult = (Computation<SInt>) input[0];
-      Computation<SInt> rBottom = (Computation<SInt>) input[1];
-      Computation<SInt> rTop = (Computation<SInt>) input[2];
+      DRes<SInt> eqResult = (DRes<SInt>) input[0];
+      DRes<SInt> rBottom = (DRes<SInt>) input[1];
+      DRes<SInt> rTop = (DRes<SInt>) input[2];
       BigInteger mBot = (BigInteger) input[3];
       BigInteger mTop = (BigInteger) input[4];
       BigInteger mBar = (BigInteger) input[5];
-      Computation<SInt> rBar = (Computation<SInt>) input[6];
-      Computation<SInt> z = (Computation<SInt>) input[7];
+      DRes<SInt> rBar = (DRes<SInt>) input[6];
+      DRes<SInt> z = (DRes<SInt>) input[7];
       // [eqResult]? BOT : TOP (for m and r) (store as mPrime,rPrime)
 
       //TODO rPrime and mPrime can be computed in parallel
-      Computation<SInt> rPrime = seq.seq(new ConditionalSelect(eqResult, rBottom, rTop));
+      DRes<SInt> rPrime = seq.seq(new ConditionalSelect(eqResult, rBottom, rTop));
 
-      NumericBuilder numeric = seq.numeric();
-      Computation<SInt> negEqResult = numeric.sub(one, eqResult);
+      Numeric numeric = seq.numeric();
+      DRes<SInt> negEqResult = numeric.sub(one, eqResult);
 
-      Computation<SInt> prod1 = numeric.mult(mBot, eqResult);
-      Computation<SInt> prod2 = numeric.mult(mTop, negEqResult);
+      DRes<SInt> prod1 = numeric.mult(mBot, eqResult);
+      DRes<SInt> prod2 = numeric.mult(mTop, negEqResult);
 
-      Computation<SInt> mPrime = numeric.add(prod1, prod2);
+      DRes<SInt> mPrime = numeric.add(prod1, prod2);
 
-      Computation<SInt> subComparisonResult;
+      DRes<SInt> subComparisonResult;
       if (bitLength == 2) {
         // sub comparison is of length 1: mPrime >= rPrime:
         // NOT (rPrime AND NOT mPrime)
-        Computation<SInt> mPrimeNegated = numeric.sub(one, mPrime);
+        DRes<SInt> mPrimeNegated = numeric.sub(one, mPrime);
 
-        Computation<SInt> rPrimeStrictlyGTmPrime = numeric.mult(mPrimeNegated, rPrime);
+        DRes<SInt> rPrimeStrictlyGTmPrime = numeric.mult(mPrimeNegated, rPrime);
         subComparisonResult = numeric.sub(one, rPrimeStrictlyGTmPrime);
       } else {
         // compare the half-length inputs
@@ -176,21 +176,21 @@ public class LessThanOrEquals implements ComputationBuilder<SInt, ProtocolBuilde
       }
       return () -> new Object[]{subComparisonResult, mBar, rBar, z};
     }).seq((ProtocolBuilderNumeric seq, Object[] input) -> {
-      Computation<SInt> subComparisonResult = (Computation<SInt>) input[0];
+      DRes<SInt> subComparisonResult = (DRes<SInt>) input[0];
       BigInteger mBar = (BigInteger) input[1];
-      Computation<SInt> rBar = (Computation<SInt>) input[2];
-      Computation<SInt> z = (Computation<SInt>) input[3];
+      DRes<SInt> rBar = (DRes<SInt>) input[2];
+      DRes<SInt> z = (DRes<SInt>) input[3];
 
-      NumericBuilder numeric = seq.numeric();
+      Numeric numeric = seq.numeric();
 
       // u = 1 - subComparisonResult
-      Computation<SInt> u = numeric.sub(one, subComparisonResult);
+      DRes<SInt> u = numeric.sub(one, subComparisonResult);
 
       // res = z - ((m mod 2^bitLength) - (r mod 2^bitlength) + u*2^bitLength)
-      Computation<SInt> reducedWithError = numeric.sub(mBar, rBar);
-      Computation<SInt> additiveError = numeric.mult(twoToBitLength, u);
-      Computation<SInt> reducedNoError = numeric.add(additiveError, reducedWithError);
-      Computation<SInt> resUnshifted = numeric.sub(z, reducedNoError);
+      DRes<SInt> reducedWithError = numeric.sub(mBar, rBar);
+      DRes<SInt> additiveError = numeric.mult(twoToBitLength, u);
+      DRes<SInt> reducedNoError = numeric.add(additiveError, reducedWithError);
+      DRes<SInt> resUnshifted = numeric.sub(z, reducedNoError);
 
       // res >> 2^bitLength
       return numeric.mult(twoToNegBitLength, resUnshifted);

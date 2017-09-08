@@ -1,8 +1,8 @@
 package dk.alexandra.fresco.lib.list;
 
-import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.builder.numeric.ComparisonBuilder;
-import dk.alexandra.fresco.framework.builder.numeric.NumericBuilder;
+import dk.alexandra.fresco.framework.DRes;
+import dk.alexandra.fresco.framework.builder.numeric.Comparison;
+import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 
@@ -14,11 +14,11 @@ public class FindDuplicatesHelper {
   public FindDuplicatesHelper() {
   }
 
-  private Computation<SInt> or(ProtocolBuilderNumeric builder, Computation<SInt> a,
-      Computation<SInt> b) {
-    NumericBuilder numeric = builder.numeric();
-    Computation<SInt> product = numeric.mult(a, b);
-    Computation<SInt> add = numeric.add(a, b);
+  private DRes<SInt> or(ProtocolBuilderNumeric builder, DRes<SInt> a,
+      DRes<SInt> b) {
+    Numeric numeric = builder.numeric();
+    DRes<SInt> product = numeric.mult(a, b);
+    DRes<SInt> add = numeric.add(a, b);
     return numeric.sub(add, product);
   }
 
@@ -32,9 +32,9 @@ public class FindDuplicatesHelper {
     for (int i = 0; i < list1.size(); i++) {
       int finalI = i;
       builder.seq(seq -> {
-        ComparisonBuilder comparison = seq.comparison();
+        Comparison comparison = seq.comparison();
         for (int j = 0; j < list2.size(); j++) {
-          Computation<SInt> equals = comparison.equals(list1.getId(finalI), list2.getId(j));
+          DRes<SInt> equals = comparison.equals(list1.getId(finalI), list2.getId(j));
           list1.setDuplicate(finalI,
               or(seq, list1.getDuplicate(finalI), equals));
         }

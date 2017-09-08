@@ -1,7 +1,7 @@
 package dk.alexandra.fresco.framework.builder;
 
 import dk.alexandra.fresco.framework.Application;
-import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
@@ -64,7 +64,7 @@ public class BuildStepTests extends AbstractDummyArithmeticTest {
     }
   }
 
-  private static final class IterationState implements Computation<IterationState> {
+  private static final class IterationState implements DRes<IterationState> {
 
     private final int round;
     private final List<Integer> rounds;

@@ -26,25 +26,25 @@
  */
 package dk.alexandra.fresco.lib.math.integer.stat;
 
-import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.builder.ComputationBuilder;
-import dk.alexandra.fresco.framework.builder.numeric.NumericBuilder;
+import dk.alexandra.fresco.framework.DRes;
+import dk.alexandra.fresco.framework.builder.Computation;
+import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-public class Covariance implements ComputationBuilder<SInt, ProtocolBuilderNumeric> {
+public class Covariance implements Computation<SInt, ProtocolBuilderNumeric> {
 
-  private final List<Computation<SInt>> data1;
-  private final List<Computation<SInt>> data2;
-  private final Computation<SInt> mean1;
-  private final Computation<SInt> mean2;
+  private final List<DRes<SInt>> data1;
+  private final List<DRes<SInt>> data2;
+  private final DRes<SInt> mean1;
+  private final DRes<SInt> mean2;
 
 
-  public Covariance(List<Computation<SInt>> data1, List<Computation<SInt>> data2,
-      Computation<SInt> mean1, Computation<SInt> mean2) {
+  public Covariance(List<DRes<SInt>> data1, List<DRes<SInt>> data2,
+      DRes<SInt> mean1, DRes<SInt> mean2) {
     this.data1 = data1;
     this.data2 = data2;
 
@@ -56,12 +56,12 @@ public class Covariance implements ComputationBuilder<SInt, ProtocolBuilderNumer
     this.mean2 = mean2;
   }
 
-  public Covariance(List<Computation<SInt>> data1, List<Computation<SInt>> data2) {
+  public Covariance(List<DRes<SInt>> data1, List<DRes<SInt>> data2) {
     this(data1, data2, null, null);
   }
 
   @Override
-  public Computation<SInt> buildComputation(ProtocolBuilderNumeric builder) {
+  public DRes<SInt> buildComputation(ProtocolBuilderNumeric builder) {
     return builder.seq((seq) -> () -> null
     ).pairInPar(
         (seq, ignored) -> {
@@ -82,16 +82,16 @@ public class Covariance implements ComputationBuilder<SInt, ProtocolBuilderNumer
       SInt mean1 = means.getFirst();
       SInt mean2 = means.getSecond();
       //Implemented using two iterators instead of indexed loop to avoid enforcing RandomAccess lists
-      Iterator<Computation<SInt>> iterator1 = data1.iterator();
-      Iterator<Computation<SInt>> iterator2 = data2.iterator();
-      List<Computation<SInt>> terms = new ArrayList<>(data1.size());
+      Iterator<DRes<SInt>> iterator1 = data1.iterator();
+      Iterator<DRes<SInt>> iterator2 = data2.iterator();
+      List<DRes<SInt>> terms = new ArrayList<>(data1.size());
       while (iterator1.hasNext()) {
-        Computation<SInt> value1 = iterator1.next();
-        Computation<SInt> value2 = iterator2.next();
-        Computation<SInt> term = par.seq((seq) -> {
-          NumericBuilder numeric = seq.numeric();
-          Computation<SInt> tmp1 = numeric.sub(value1, () -> mean1);
-          Computation<SInt> tmp2 = numeric.sub(value2, () -> mean2);
+        DRes<SInt> value1 = iterator1.next();
+        DRes<SInt> value2 = iterator2.next();
+        DRes<SInt> term = par.seq((seq) -> {
+          Numeric numeric = seq.numeric();
+          DRes<SInt> tmp1 = numeric.sub(value1, () -> mean1);
+          DRes<SInt> tmp2 = numeric.sub(value2, () -> mean2);
           return numeric.mult(tmp1, tmp2);
         });
         terms.add(term);

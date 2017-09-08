@@ -4,18 +4,18 @@ import dk.alexandra.fresco.framework.BuilderFactory;
 
 public interface BuilderFactoryBinary extends BuilderFactory<ProtocolBuilderBinary> {
 
-  BinaryBuilder createBinaryBuilder(ProtocolBuilderBinary builder);
+  Binary createBinary(ProtocolBuilderBinary builder);
 
-  default ComparisonBuilderBinary createComparison(ProtocolBuilderBinary builder) {
-    return new DefaultComparisonBinaryBuilder(builder);
+  default Comparison createComparison(ProtocolBuilderBinary builder) {
+    return new DefaultComparison(builder);
   }
 
-  default BinaryBuilderAdvanced createAdvancedBinary(ProtocolBuilderBinary builder) {
-    return new DefaultBinaryBuilderAdvanced(builder);
+  default AdvancedBinary createAdvancedBinary(ProtocolBuilderBinary builder) {
+    return new DefaultAdvancedBinary(builder);
   }
 
-  default BristolCryptoBuilder createBristolCryptoBuilder(ProtocolBuilderBinary builder) {
-    return new DefaultBristolCryptoBuilder(builder);
+  default BristolCrypto createBristolCrypto(ProtocolBuilderBinary builder) {
+    return new DefaultBristolCrypto(builder);
   }
 
   /**
@@ -25,8 +25,8 @@ public interface BuilderFactoryBinary extends BuilderFactory<ProtocolBuilderBina
    * @param builder
    * @return By default a standard debugger which opens values and prints them.
    */
-  default BinaryDebugBuilder createDebugBuilder(ProtocolBuilderBinary builder) {
-    return new DefaultBinaryDebugBuilder(builder);
+  default Debug createDebug(ProtocolBuilderBinary builder) {
+    return new DefaultDebug(builder);
   }
 
   default ProtocolBuilderBinary createSequential() {

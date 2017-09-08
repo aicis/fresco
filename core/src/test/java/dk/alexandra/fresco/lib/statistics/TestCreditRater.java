@@ -27,7 +27,7 @@
  */
 package dk.alexandra.fresco.lib.statistics;
 
-import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticSInt;
@@ -41,9 +41,9 @@ public class TestCreditRater {
 
   @Test
   public void testConsistency() {
-    List<Computation<SInt>> values = new ArrayList<>();
-    List<List<Computation<SInt>>> intervals = new ArrayList<>();
-    List<List<Computation<SInt>>> scores = new ArrayList<>();
+    List<DRes<SInt>> values = new ArrayList<>();
+    List<List<DRes<SInt>>> intervals = new ArrayList<>();
+    List<List<DRes<SInt>>> scores = new ArrayList<>();
 
     values.add(new DummyArithmeticSInt(null));
     intervals.add(new ArrayList<>());

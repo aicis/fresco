@@ -24,7 +24,7 @@
 package dk.alexandra.fresco.lib.compare;
 
 import dk.alexandra.fresco.framework.Application;
-import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
@@ -56,27 +56,27 @@ public class CompareTests {
 
           Application<List<List<Boolean>>, ProtocolBuilderBinary> app =
               producer -> producer.seq(seq -> {
-                List<Computation<SBool>> left =
+                List<DRes<SBool>> left =
                     rawLeft.stream().map(seq.binary()::known).collect(Collectors.toList());
-                List<Computation<SBool>> right =
+                List<DRes<SBool>> right =
                     rawRight.stream().map(seq.binary()::known).collect(Collectors.toList());
 
-                Computation<List<List<Computation<SBool>>>> compared =
+                DRes<List<List<DRes<SBool>>>> compared =
                     new CompareAndSwap(left, right).buildComputation(seq);
                 return compared;
               }).seq((seq, opened) -> {
-                List<List<Computation<Boolean>>> result =
+                List<List<DRes<Boolean>>> result =
                     new ArrayList<>();
-                for (List<Computation<SBool>> entry : opened) {
-                  result.add(entry.stream().map(Computation::out).map(seq.binary()::open)
+                for (List<DRes<SBool>> entry : opened) {
+                  result.add(entry.stream().map(DRes::out).map(seq.binary()::open)
                       .collect(Collectors.toList()));
                 }
 
                 return () -> result;
               }).seq((seq, opened) -> {
                 List<List<Boolean>> result = new ArrayList<>();
-                for (List<Computation<Boolean>> entry : opened) {
-                  result.add(entry.stream().map(Computation::out).collect(Collectors.toList()));
+                for (List<DRes<Boolean>> entry : opened) {
+                  result.add(entry.stream().map(DRes::out).collect(Collectors.toList()));
                 }
 
                 return () -> result;

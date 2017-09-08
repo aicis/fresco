@@ -1,11 +1,12 @@
 package dk.alexandra.fresco.framework.builder.binary;
 
-import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.DRes;
+import dk.alexandra.fresco.framework.builder.ComputationDirectory;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SBool;
 import java.util.List;
 
-public interface BinaryBuilderAdvanced {
+public interface AdvancedBinary extends ComputationDirectory {
 
   /**
    * Appends a OR protocol to the current protocol.
@@ -14,19 +15,19 @@ public interface BinaryBuilderAdvanced {
    * @param right the Computation holding the right argument.
    * @return an computation holding the output of the appended protocol.
    */
-  Computation<SBool> or(Computation<SBool> left, Computation<SBool> right);
+  DRes<SBool> or(DRes<SBool> left, DRes<SBool> right);
 
-  Computation<SBool> or(Computation<SBool> left, boolean right);
+  DRes<SBool> or(DRes<SBool> left, boolean right);
 
 
 
-  Computation<SBool> xnor(Computation<SBool> left, Computation<SBool> right);
+  DRes<SBool> xnor(DRes<SBool> left, DRes<SBool> right);
 
-  Computation<SBool> xnor(Computation<SBool> left, boolean right);
+  DRes<SBool> xnor(DRes<SBool> left, boolean right);
 
-  Computation<SBool> nand(Computation<SBool> left, Computation<SBool> right);
+  DRes<SBool> nand(DRes<SBool> left, DRes<SBool> right);
 
-  Computation<SBool> nand(Computation<SBool> left, boolean right);
+  DRes<SBool> nand(DRes<SBool> left, boolean right);
 
   /**
    * And from copy. Uses the copy protocol to do an AND operation between the two inputs.
@@ -35,7 +36,7 @@ public interface BinaryBuilderAdvanced {
    * @param right The publicly known input.
    * @return left AND right
    */
-  Computation<SBool> and(Computation<SBool> left, boolean right);
+  DRes<SBool> and(DRes<SBool> left, boolean right);
 
 
   /**
@@ -47,8 +48,8 @@ public interface BinaryBuilderAdvanced {
    * @param right the Computation holding the right argument.
    * @return an computation holding the output of the appended protocol.
    */
-  Computation<SBool> condSelect(Computation<SBool> condition, Computation<SBool> left,
-      Computation<SBool> right);
+  DRes<SBool> condSelect(DRes<SBool> condition, DRes<SBool> left,
+      DRes<SBool> right);
 
   /**
    * Half adder which returns the result in the 0'th position and the carry in the 1'st position of
@@ -58,11 +59,11 @@ public interface BinaryBuilderAdvanced {
    * @param right The second input.
    * @return A computation which yields the result and the carry.
    */
-  Computation<Pair<SBool, SBool>> oneBitHalfAdder(Computation<SBool> left,
-      Computation<SBool> right);
+  DRes<Pair<SBool, SBool>> oneBitHalfAdder(DRes<SBool> left,
+      DRes<SBool> right);
 
   /**
-   * Same as {@link #oneBitHalfAdder(Computation, Computation)}, but with an option to also add a
+   * Same as {@link #oneBitHalfAdder(DRes, DRes)}, but with an option to also add a
    * potential carry to the addition.
    * 
    * @param left The first input.
@@ -70,8 +71,8 @@ public interface BinaryBuilderAdvanced {
    * @param carry The potential carry from a previous adder.
    * @return A computation which yields the result and the carry.
    */
-  Computation<Pair<SBool, SBool>> oneBitFullAdder(Computation<SBool> left, Computation<SBool> right,
-      Computation<SBool> carry);
+  DRes<Pair<SBool, SBool>> oneBitFullAdder(DRes<SBool> left, DRes<SBool> right,
+      DRes<SBool> carry);
 
   /**
    * Full adder which works with any number of inputs to the addition. The lefts and rights must
@@ -84,8 +85,8 @@ public interface BinaryBuilderAdvanced {
    * @param inCarry The potential carry from a previous adder.
    * @return A computation which yields the results and the carry.
    */
-  Computation<List<Computation<SBool>>> fullAdder(List<Computation<SBool>> lefts,
-      List<Computation<SBool>> rights, Computation<SBool> inCarry);
+  DRes<List<DRes<SBool>>> fullAdder(List<DRes<SBool>> lefts,
+      List<DRes<SBool>> rights, DRes<SBool> inCarry);
 
   /**
    * Multiplies the left and right numbers and leaves the result in the output. The inputs are not
@@ -96,8 +97,8 @@ public interface BinaryBuilderAdvanced {
    * @return An array of size lefts.size+rights.size containing the multiplication of the two
    *         numbers.
    */
-  Computation<List<Computation<SBool>>> binaryMult(List<Computation<SBool>> lefts,
-      List<Computation<SBool>> rights);
+  DRes<List<DRes<SBool>>> binaryMult(List<DRes<SBool>> lefts,
+      List<DRes<SBool>> rights);
 
   /**
    * Computes the logarithm base 2 of the input number. It is currently up to the application
@@ -107,7 +108,7 @@ public interface BinaryBuilderAdvanced {
    * @param number The number to compute log_2 on.
    * @return An array containing the log_2(number).
    */
-  Computation<List<Computation<SBool>>> logProtocol(List<Computation<SBool>> number);
+  DRes<List<DRes<SBool>>> logProtocol(List<DRes<SBool>> number);
 
   /**
    * Increments the number represented by a list of bits with a single secret bit (thus adding
@@ -117,8 +118,8 @@ public interface BinaryBuilderAdvanced {
    * @param increment The bit to increment with
    * @return A list representing the new number after the incrementation.
    */
-  Computation<List<Computation<SBool>>> bitIncrement(List<Computation<SBool>> large,
-      Computation<SBool> increment);
+  DRes<List<DRes<SBool>>> bitIncrement(List<DRes<SBool>> large,
+      DRes<SBool> increment);
 
   /**
    * Compares the keys of two key-value pairs and produce a list of pairs so that the first pair has
@@ -128,8 +129,8 @@ public interface BinaryBuilderAdvanced {
    * @param rightKeyAndValue A pair of first the key and then the value.
    * @return A list of pairs where the first pair has the largest key.
    */
-  Computation<List<Pair<List<Computation<SBool>>, List<Computation<SBool>>>>> keyedCompareAndSwap(
-      Pair<List<Computation<SBool>>, List<Computation<SBool>>> leftKeyAndValue,
-      Pair<List<Computation<SBool>>, List<Computation<SBool>>> rightKeyAndValue);
+  DRes<List<Pair<List<DRes<SBool>>, List<DRes<SBool>>>>> keyedCompareAndSwap(
+      Pair<List<DRes<SBool>>, List<DRes<SBool>>> leftKeyAndValue,
+      Pair<List<DRes<SBool>>, List<DRes<SBool>>> rightKeyAndValue);
 
 }

@@ -27,7 +27,7 @@
 package dk.alexandra.fresco.demo;
 
 import dk.alexandra.fresco.demo.helpers.DemoNumericApplication;
-import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
@@ -48,9 +48,9 @@ public class SumAndOutputApplication extends DemoNumericApplication<BigInteger> 
   }
 
   @Override
-  public Computation<BigInteger> buildComputation(ProtocolBuilderNumeric producer) {
+  public DRes<BigInteger> buildComputation(ProtocolBuilderNumeric producer) {
     return inputApp.createBuildStep(producer).seq((seq, inputs) -> {
-      Computation<SInt> sum = null;
+      DRes<SInt> sum = null;
       for (SInt input : inputs) {
         if (sum == null) {
           sum = input;

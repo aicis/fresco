@@ -23,9 +23,9 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.lp;
 
-import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.MPCException;
-import dk.alexandra.fresco.framework.builder.ComputationBuilder;
+import dk.alexandra.fresco.framework.builder.Computation;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.compare.ConditionalSelect;
@@ -50,7 +50,7 @@ import org.slf4j.LoggerFactory;
  * be done more efficiently than general matrix multiplication.
  * </p>
  */
-public class LPSolver implements ComputationBuilder<LPOutput, ProtocolBuilderNumeric> {
+public class LPSolver implements Computation<LPOutput, ProtocolBuilderNumeric> {
 
   public enum PivotRule {
     BLAND, DANZIG
@@ -60,9 +60,9 @@ public class LPSolver implements ComputationBuilder<LPOutput, ProtocolBuilderNum
 
   private final PivotRule pivotRule;
   private final LPTableau tableau;
-  private final Matrix<Computation<SInt>> updateMatrix;
-  private final Computation<SInt> pivot;
-  private final List<Computation<SInt>> initialBasis;
+  private final Matrix<DRes<SInt>> updateMatrix;
+  private final DRes<SInt> pivot;
+  private final List<DRes<SInt>> initialBasis;
   private int identityHashCode;
 
 
@@ -72,8 +72,8 @@ public class LPSolver implements ComputationBuilder<LPOutput, ProtocolBuilderNum
 
   private static Logger logger = LoggerFactory.getLogger(LPSolver.class);
 
-  public LPSolver(PivotRule pivotRule, LPTableau tableau, Matrix<Computation<SInt>> updateMatrix,
-      Computation<SInt> pivot, List<Computation<SInt>> initialBasis) {
+  public LPSolver(PivotRule pivotRule, LPTableau tableau, Matrix<DRes<SInt>> updateMatrix,
+      DRes<SInt> pivot, List<DRes<SInt>> initialBasis) {
     this.pivotRule = pivotRule;
     this.tableau = tableau;
     this.updateMatrix = updateMatrix;
@@ -88,12 +88,12 @@ public class LPSolver implements ComputationBuilder<LPOutput, ProtocolBuilderNum
     }
   }
 
-  public LPSolver(LPTableau tableau, Matrix<Computation<SInt>> updateMatrix,
-      Computation<SInt> pivot, List<Computation<SInt>> initialBasis) {
+  public LPSolver(LPTableau tableau, Matrix<DRes<SInt>> updateMatrix,
+      DRes<SInt> pivot, List<DRes<SInt>> initialBasis) {
     this(PivotRule.DANZIG, tableau, updateMatrix, pivot, initialBasis);
   }
 
-  private boolean checkDimensions(LPTableau tableau, Matrix<Computation<SInt>> updateMatrix) {
+  private boolean checkDimensions(LPTableau tableau, Matrix<DRes<SInt>> updateMatrix) {
     int updateHeight = updateMatrix.getHeight();
     int updateWidth = updateMatrix.getWidth();
     int tableauHeight = tableau.getC().getHeight() + 1;
@@ -103,8 +103,8 @@ public class LPSolver implements ComputationBuilder<LPOutput, ProtocolBuilderNum
 
 
   @Override
-  public Computation<LPOutput> buildComputation(ProtocolBuilderNumeric builder) {
-    Computation<SInt> zero = builder.numeric().known(BigInteger.ZERO);
+  public DRes<LPOutput> buildComputation(ProtocolBuilderNumeric builder) {
+    DRes<SInt> zero = builder.numeric().known(BigInteger.ZERO);
     return builder.seq(seq -> {
       this.iterations = 0;
       List<BigInteger> enumeratedVariables = new ArrayList<>(noVariables);
@@ -152,18 +152,18 @@ public class LPSolver implements ComputationBuilder<LPOutput, ProtocolBuilderNum
    * solution.
    * </p>
    */
-  private Computation<LPState> phaseTwoProtocol(ProtocolBuilderNumeric builder, LPState state) {
+  private DRes<LPState> phaseTwoProtocol(ProtocolBuilderNumeric builder, LPState state) {
     return builder.seq((seq) -> seq.seq(
         new ExitingVariable(state.tableau, state.updateMatrix, state.enteringIndex, state.basis))
     ).pairInPar(
         (seq, exitingVariable) -> {
           state.pivot = exitingVariable.pivot;
-          ArrayList<Computation<SInt>> exitingIndex = exitingVariable.exitingIndex;
+          ArrayList<DRes<SInt>> exitingIndex = exitingVariable.exitingIndex;
           // Update Basis
-          Computation<SInt> ent =
+          DRes<SInt> ent =
               seq.advancedNumeric().openDot(state.enumeratedVariables, state.enteringIndex);
           return seq.par((par) -> {
-            ArrayList<Computation<SInt>> nextBasis = new ArrayList<>(noConstraints);
+            ArrayList<DRes<SInt>> nextBasis = new ArrayList<>(noConstraints);
             for (int i = 0; i < noConstraints; i++) {
               nextBasis.add(par.seq(
                   new ConditionalSelect(exitingIndex.get(i), ent, state.basis.get(i))));
@@ -175,7 +175,7 @@ public class LPSolver implements ComputationBuilder<LPOutput, ProtocolBuilderNum
             new UpdateMatrix(state.updateMatrix, exitingVariable.exitingIndex,
                 exitingVariable.updateColumn, state.pivot, state.prevPivot))
     ).seq((seq, pair) -> {
-      List<Computation<SInt>> basis = pair.getFirst();
+      List<DRes<SInt>> basis = pair.getFirst();
       state.updateMatrix = pair.getSecond();
       state.basis = basis;
       // // Copy the resulting new update matrix to overwrite the current
@@ -194,17 +194,17 @@ public class LPSolver implements ComputationBuilder<LPOutput, ProtocolBuilderNum
    *
    * @return a protocol producer for the first half of a simplex iteration
    */
-  private Computation<LPState> phaseOneProtocol(ProtocolBuilderNumeric builder, LPState state,
-      Computation<SInt> zero) {
+  private DRes<LPState> phaseOneProtocol(ProtocolBuilderNumeric builder, LPState state,
+      DRes<SInt> zero) {
     return builder.seq(
         // Compute potential entering variable index and corresponding value of
         // entry in F
         new EnteringVariable(state.tableau, state.updateMatrix)
     ).seq((seq, enteringAndMinimum) -> {
-      List<Computation<SInt>> entering = enteringAndMinimum.getFirst();
+      List<DRes<SInt>> entering = enteringAndMinimum.getFirst();
       SInt minimum = enteringAndMinimum.getSecond();
       // Check if the entry in F is non-negative
-      Computation<SInt> positive = seq.comparison().compareLEQLong(zero, () -> minimum);
+      DRes<SInt> positive = seq.comparison().compareLEQLong(zero, () -> minimum);
       state.terminationOut = seq.numeric().open(positive);
       state.enteringIndex = entering;
       return () -> state;
@@ -221,14 +221,14 @@ public class LPSolver implements ComputationBuilder<LPOutput, ProtocolBuilderNum
    *
    * @return a protocol producer for the first half of a simplex iteration
    */
-  private Computation<LPState> blandPhaseOneProtocol(ProtocolBuilderNumeric builder,
+  private DRes<LPState> blandPhaseOneProtocol(ProtocolBuilderNumeric builder,
       LPState state) {
     return builder.seq(
         // Compute potential entering variable index and corresponding value of
         // entry in F
         new BlandEnteringVariable(state.tableau, state.updateMatrix)
     ).seq((seq, enteringAndMinimum) -> {
-      List<Computation<SInt>> entering = enteringAndMinimum.getFirst();
+      List<DRes<SInt>> entering = enteringAndMinimum.getFirst();
       SInt termination = enteringAndMinimum.getSecond();
       state.terminationOut = seq.numeric().open(() -> termination);
       state.enteringIndex = entering;
@@ -279,12 +279,12 @@ public class LPSolver implements ComputationBuilder<LPOutput, ProtocolBuilderNum
   public static class LPOutput {
 
     public final LPTableau tableau;
-    public final Matrix<Computation<SInt>> updateMatrix;
-    public final List<Computation<SInt>> basis;
-    public final Computation<SInt> pivot;
+    public final Matrix<DRes<SInt>> updateMatrix;
+    public final List<DRes<SInt>> basis;
+    public final DRes<SInt> pivot;
 
-    public LPOutput(LPTableau tableau, Matrix<Computation<SInt>> updateMatrix,
-        List<Computation<SInt>> basis, Computation<SInt> pivot) {
+    public LPOutput(LPTableau tableau, Matrix<DRes<SInt>> updateMatrix,
+        List<DRes<SInt>> basis, DRes<SInt> pivot) {
       this.tableau = tableau;
       this.updateMatrix = updateMatrix;
       this.basis = basis;
@@ -292,21 +292,21 @@ public class LPSolver implements ComputationBuilder<LPOutput, ProtocolBuilderNum
     }
   }
 
-  private class LPState implements Computation<LPState> {
+  private class LPState implements DRes<LPState> {
 
-    public Computation<BigInteger> terminationOut;
+    public DRes<BigInteger> terminationOut;
     private LPTableau tableau;
-    private Matrix<Computation<SInt>> updateMatrix;
-    public List<Computation<SInt>> enteringIndex;
-    public Computation<SInt> pivot;
+    private Matrix<DRes<SInt>> updateMatrix;
+    public List<DRes<SInt>> enteringIndex;
+    public DRes<SInt> pivot;
     public List<BigInteger> enumeratedVariables;
-    public List<Computation<SInt>> basis;
-    public Computation<SInt> prevPivot;
+    public List<DRes<SInt>> basis;
+    public DRes<SInt> prevPivot;
 
     public LPState(BigInteger terminationOut, LPTableau tableau,
-        Matrix<Computation<SInt>> updateMatrix, List<Computation<SInt>> enteringIndex,
-        Computation<SInt> pivot, List<BigInteger> enumeratedVariables,
-        List<Computation<SInt>> basis, Computation<SInt> prevPivot) {
+        Matrix<DRes<SInt>> updateMatrix, List<DRes<SInt>> enteringIndex,
+        DRes<SInt> pivot, List<BigInteger> enumeratedVariables,
+        List<DRes<SInt>> basis, DRes<SInt> prevPivot) {
       this.terminationOut = () -> terminationOut;
       this.tableau = tableau;
       this.updateMatrix = updateMatrix;

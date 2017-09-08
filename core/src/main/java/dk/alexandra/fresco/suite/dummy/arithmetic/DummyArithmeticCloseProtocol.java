@@ -25,7 +25,7 @@
 
 package dk.alexandra.fresco.suite.dummy.arithmetic;
 
-import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.network.SCENetwork;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
@@ -39,7 +39,7 @@ import java.math.BigInteger;
 public class DummyArithmeticCloseProtocol extends DummyArithmeticNativeProtocol<SInt> {
 
   private int targetId;
-  private Computation<BigInteger> open;
+  private DRes<BigInteger> open;
   private DummyArithmeticSInt closed;
 
   /**
@@ -48,7 +48,7 @@ public class DummyArithmeticCloseProtocol extends DummyArithmeticNativeProtocol<
    * @param targetId id of the party supplying the open value.
    * @param open a computation output the value to close.
    */
-  public DummyArithmeticCloseProtocol(int targetId, Computation<BigInteger> open) {
+  public DummyArithmeticCloseProtocol(int targetId, DRes<BigInteger> open) {
     this.targetId = targetId;
     this.open = open;
   }

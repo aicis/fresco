@@ -1,18 +1,19 @@
 package dk.alexandra.fresco.framework.builder.numeric;
 
-import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.DRes;
+import dk.alexandra.fresco.framework.builder.ComputationDirectory;
 import dk.alexandra.fresco.framework.value.SInt;
 
-public interface ComparisonBuilder {
+public interface Comparison extends ComputationDirectory {
 
-  Computation<SInt> equals(int bitLength, Computation<SInt> x, Computation<SInt> y);
+  DRes<SInt> equals(int bitLength, DRes<SInt> x, DRes<SInt> y);
 
   /**
    * @param x1 input
    * @param x2 input
    * @return output - [1] (true) or [0] (false) (result of x1 <= x2)
    */
-  Computation<SInt> compareLEQ(Computation<SInt> x1, Computation<SInt> x2);
+  DRes<SInt> compareLEQ(DRes<SInt> x1, DRes<SInt> x2);
 
   /**
    * Compares if x1 <= x2, but with twice the possible bit-length.
@@ -24,7 +25,7 @@ public interface ComparisonBuilder {
    * @param x2 input
    * @return output - [1] (true) or [0] (false) (result of x1 <= x2)
    */
-  Computation<SInt> compareLEQLong(Computation<SInt> x1, Computation<SInt> x2);
+  DRes<SInt> compareLEQLong(DRes<SInt> x1, DRes<SInt> x2);
 
   /**
    * Compares if x == y.
@@ -33,9 +34,9 @@ public interface ComparisonBuilder {
    * @param y input
    * @return output - [1] (true) or [0] (false) (result of x == y)
    */
-  Computation<SInt> equals(Computation<SInt> x, Computation<SInt> y);
+  DRes<SInt> equals(DRes<SInt> x, DRes<SInt> y);
 
-  Computation<SInt> sign(Computation<SInt> x);
+  DRes<SInt> sign(DRes<SInt> x);
 
   /**
    * Test for equality with zero for a bitLength-bit number (positive or negative)
@@ -44,5 +45,5 @@ public interface ComparisonBuilder {
    * @param bitLength bitlength
    * @return output - [1] (true) or [0] (false) (result of x == 0)
    */
-  Computation<SInt> compareZero(Computation<SInt> x, int bitLength);
+  DRes<SInt> compareZero(DRes<SInt> x, int bitLength);
 }

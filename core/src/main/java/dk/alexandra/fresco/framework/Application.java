@@ -26,11 +26,11 @@
  *******************************************************************************/
 package dk.alexandra.fresco.framework;
 
-import dk.alexandra.fresco.framework.builder.ComputationBuilder;
+import dk.alexandra.fresco.framework.builder.Computation;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
 
 public interface Application<OutputT, Builder extends ProtocolBuilder>
-    extends ComputationBuilder<OutputT, Builder> {
+    extends Computation<OutputT, Builder> {
 
   /**
    * Closes the application and allows the output to be produced and allocated resources to be

@@ -26,7 +26,7 @@
  *******************************************************************************/
 package dk.alexandra.fresco.suite.spdz.gates;
 
-import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.network.SCENetwork;
 import dk.alexandra.fresco.framework.network.serializers.BigIntegerSerializer;
@@ -40,14 +40,14 @@ import java.math.BigInteger;
 
 public class SpdzMultProtocol extends SpdzNativeProtocol<SInt> {
 
-  private Computation<SInt> left;
-  private Computation<SInt> right;
+  private DRes<SInt> left;
+  private DRes<SInt> right;
   private SpdzSInt out;
   private SpdzTriple triple;
   private SpdzElement epsilon, delta; // my share of the differences [x]-[a]
   // and [y]-[b].
 
-  public SpdzMultProtocol(Computation<SInt> left, Computation<SInt> right) {
+  public SpdzMultProtocol(DRes<SInt> left, DRes<SInt> right) {
     this.left = left;
     this.right = right;
   }

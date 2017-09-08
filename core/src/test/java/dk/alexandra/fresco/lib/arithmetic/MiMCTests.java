@@ -27,10 +27,10 @@
 package dk.alexandra.fresco.lib.arithmetic;
 
 import dk.alexandra.fresco.framework.Application;
-import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
-import dk.alexandra.fresco.framework.builder.numeric.NumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
@@ -67,11 +67,11 @@ public class MiMCTests {
         public void test() throws Exception {
           final BigInteger[] modulus = new BigInteger[1];
           Application<BigInteger, ProtocolBuilderNumeric> app = builder -> {
-            NumericBuilder intFactory = builder.numeric();
+            Numeric intFactory = builder.numeric();
             modulus[0] = builder.getBasicNumericContext().getModulus();
-            Computation<SInt> encryptionKey = intFactory.known(BigInteger.valueOf(527618));
-            Computation<SInt> plainText = intFactory.known(BigInteger.valueOf(10));
-            Computation<SInt> cipherText = builder
+            DRes<SInt> encryptionKey = intFactory.known(BigInteger.valueOf(527618));
+            DRes<SInt> plainText = intFactory.known(BigInteger.valueOf(10));
+            DRes<SInt> cipherText = builder
                 .seq(new MiMCEncryption(plainText, encryptionKey));
             return builder.numeric().open(cipherText);
           };
@@ -102,15 +102,15 @@ public class MiMCTests {
 
           Application<Pair<BigInteger, BigInteger>, ProtocolBuilderNumeric> app =
               builder -> {
-                NumericBuilder intFactory = builder.numeric();
-                Computation<SInt> encryptionKey = intFactory.known(BigInteger.valueOf(527618));
-                Computation<SInt> plainText = intFactory.known(BigInteger.valueOf(10));
-                Computation<SInt> cipherText = builder
+                Numeric intFactory = builder.numeric();
+                DRes<SInt> encryptionKey = intFactory.known(BigInteger.valueOf(527618));
+                DRes<SInt> plainText = intFactory.known(BigInteger.valueOf(10));
+                DRes<SInt> cipherText = builder
                     .seq(new MiMCEncryption(plainText, encryptionKey));
-                Computation<SInt> cipherText2 = builder
+                DRes<SInt> cipherText2 = builder
                     .seq(new MiMCEncryption(plainText, encryptionKey));
-                Computation<BigInteger> result1 = builder.numeric().open(cipherText);
-                Computation<BigInteger> result2 = builder.numeric().open(cipherText2);
+                DRes<BigInteger> result1 = builder.numeric().open(cipherText);
+                DRes<BigInteger> result2 = builder.numeric().open(cipherText2);
                 return () -> new Pair<>(result1.out(), result2.out());
               };
 
@@ -135,16 +135,16 @@ public class MiMCTests {
 
           Application<Pair<BigInteger, BigInteger>, ProtocolBuilderNumeric> app =
               builder -> {
-                NumericBuilder intFactory = builder.numeric();
-                Computation<SInt> encryptionKey = intFactory.known(BigInteger.valueOf(527618));
-                Computation<SInt> plainTextA = intFactory.known(BigInteger.valueOf(10));
-                Computation<SInt> plainTextB = intFactory.known(BigInteger.valueOf(11));
-                Computation<SInt> cipherTextA = builder
+                Numeric intFactory = builder.numeric();
+                DRes<SInt> encryptionKey = intFactory.known(BigInteger.valueOf(527618));
+                DRes<SInt> plainTextA = intFactory.known(BigInteger.valueOf(10));
+                DRes<SInt> plainTextB = intFactory.known(BigInteger.valueOf(11));
+                DRes<SInt> cipherTextA = builder
                     .seq(new MiMCEncryption(plainTextA, encryptionKey));
-                Computation<SInt> cipherTextB = builder
+                DRes<SInt> cipherTextB = builder
                     .seq(new MiMCEncryption(plainTextB, encryptionKey));
-                Computation<BigInteger> resultA = builder.numeric().open(cipherTextA);
-                Computation<BigInteger> resultB = builder.numeric().open(cipherTextB);
+                DRes<BigInteger> resultA = builder.numeric().open(cipherTextA);
+                DRes<BigInteger> resultB = builder.numeric().open(cipherTextB);
                 return () -> new Pair<>(resultA.out(), resultB.out());
               };
 
@@ -169,12 +169,12 @@ public class MiMCTests {
           BigInteger x_big = BigInteger.valueOf(10);
           Application<BigInteger, ProtocolBuilderNumeric> app =
               builder -> {
-                NumericBuilder intFactory = builder.numeric();
-                Computation<SInt> encryptionKey = intFactory.known(BigInteger.valueOf(10));
-                Computation<SInt> plainText = intFactory.known(x_big);
-                Computation<SInt> cipherText = builder
+                Numeric intFactory = builder.numeric();
+                DRes<SInt> encryptionKey = intFactory.known(BigInteger.valueOf(10));
+                DRes<SInt> plainText = intFactory.known(x_big);
+                DRes<SInt> cipherText = builder
                     .seq(new MiMCEncryption(plainText, encryptionKey));
-                Computation<SInt> decrypted = builder
+                DRes<SInt> decrypted = builder
                     .seq(new MiMCDecryption(cipherText, encryptionKey));
                 return builder.numeric().open(decrypted);
               };
@@ -202,13 +202,13 @@ public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
       BigInteger x_big = BigInteger.valueOf(10);
       Application<BigInteger, ProtocolBuilderNumeric> app =
           builder -> {
-            NumericBuilder intFactory = builder.numeric();
+            Numeric intFactory = builder.numeric();
             builder.getBasicNumericContext();
-            Computation<SInt> encryptionKey = intFactory.known(BigInteger.valueOf(527619));
-            Computation<SInt> plainText = intFactory.known(x_big);
-            Computation<SInt> cipherText = builder
+            DRes<SInt> encryptionKey = intFactory.known(BigInteger.valueOf(527619));
+            DRes<SInt> plainText = intFactory.known(x_big);
+            DRes<SInt> cipherText = builder
                 .seq(new MiMCEncryption(plainText, encryptionKey, 17));
-            Computation<SInt> decrypted = builder
+            DRes<SInt> decrypted = builder
                 .seq(new MiMCDecryption(cipherText, encryptionKey, 17));
             return builder.numeric().open(decrypted);
           };

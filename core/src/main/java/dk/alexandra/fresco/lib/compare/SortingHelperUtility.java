@@ -27,9 +27,9 @@
 package dk.alexandra.fresco.lib.compare;
 
 
-import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.builder.numeric.ComparisonBuilder;
-import dk.alexandra.fresco.framework.builder.numeric.NumericBuilder;
+import dk.alexandra.fresco.framework.DRes;
+import dk.alexandra.fresco.framework.builder.numeric.Comparison;
+import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
@@ -38,15 +38,15 @@ import java.util.List;
 
 public class SortingHelperUtility {
 
-  public Computation<SInt> isSorted(ProtocolBuilderNumeric builder,
-      List<Computation<SInt>> values) {
+  public DRes<SInt> isSorted(ProtocolBuilderNumeric builder,
+      List<DRes<SInt>> values) {
     return builder.par(par -> {
-      ComparisonBuilder comparison = par.comparison();
-      ArrayList<Computation<SInt>> comparisons = new ArrayList<>();
+      Comparison comparison = par.comparison();
+      ArrayList<DRes<SInt>> comparisons = new ArrayList<>();
       boolean first = true;
 
-      Computation<SInt> previous = null;
-      for (Computation<SInt> value : values) {
+      DRes<SInt> previous = null;
+      for (DRes<SInt> value : values) {
         if (!first) {
           comparisons.add(comparison.compareLEQ(previous, value));
         } else {
@@ -70,17 +70,17 @@ public class SortingHelperUtility {
   final BigInteger minusOne = BigInteger.valueOf(-1L);
 
   public void compareAndSwap(ProtocolBuilderNumeric builder, int a, int b,
-      List<Computation<SInt>> values) {
+      List<DRes<SInt>> values) {
     //Non splitting version
 
-    NumericBuilder numeric = builder.numeric();
+    Numeric numeric = builder.numeric();
 
-    Computation<SInt> valueA = values.get(a);
-    Computation<SInt> valueB = values.get(b);
-    Computation<SInt> comparison = builder.comparison().compareLEQ(valueA, valueB);
-    Computation<SInt> sub = numeric.sub(valueA, valueB);
-    Computation<SInt> c = numeric.mult(comparison, sub);
-    Computation<SInt> d = numeric.mult(minusOne, c);
+    DRes<SInt> valueA = values.get(a);
+    DRes<SInt> valueB = values.get(b);
+    DRes<SInt> comparison = builder.comparison().compareLEQ(valueA, valueB);
+    DRes<SInt> sub = numeric.sub(valueA, valueB);
+    DRes<SInt> c = numeric.mult(comparison, sub);
+    DRes<SInt> d = numeric.mult(minusOne, c);
 
     //a = comparison*a+(1-comparison)*b ==> comparison*(a-b)+b
     //b = comparison*b+(1-comparison)*a ==>  -comparison*(a-b)+a
@@ -92,7 +92,7 @@ public class SortingHelperUtility {
   }
 
 
-  public void sort(ProtocolBuilderNumeric builder, List<Computation<SInt>> values) {
+  public void sort(ProtocolBuilderNumeric builder, List<DRes<SInt>> values) {
     //sort using Batcher´s Merge Exchange
 
     int t = FloorLog2(values.size());

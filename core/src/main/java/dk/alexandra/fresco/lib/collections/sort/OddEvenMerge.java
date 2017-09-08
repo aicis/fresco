@@ -23,8 +23,8 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.collections.sort;
 
-import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.builder.ComputationBuilder;
+import dk.alexandra.fresco.framework.DRes;
+import dk.alexandra.fresco.framework.builder.Computation;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SBool;
@@ -36,18 +36,18 @@ import java.util.List;
  *
  */
 public class OddEvenMerge implements
-    ComputationBuilder<List<Pair<List<Computation<SBool>>, List<Computation<SBool>>>>, ProtocolBuilderBinary> {
+    Computation<List<Pair<List<DRes<SBool>>, List<DRes<SBool>>>>, ProtocolBuilderBinary> {
 
-  private List<Pair<List<Computation<SBool>>, List<Computation<SBool>>>> numbers;
+  private List<Pair<List<DRes<SBool>>, List<DRes<SBool>>>> numbers;
 
   public OddEvenMerge(
-      List<Pair<List<Computation<SBool>>, List<Computation<SBool>>>> unsortedNumbers) {
+      List<Pair<List<DRes<SBool>>, List<DRes<SBool>>>> unsortedNumbers) {
     super();
     this.numbers = unsortedNumbers;
   }
 
   @Override
-  public Computation<List<Pair<List<Computation<SBool>>, List<Computation<SBool>>>>> buildComputation(
+  public DRes<List<Pair<List<DRes<SBool>>, List<DRes<SBool>>>>> buildComputation(
       ProtocolBuilderBinary builder) {
     return builder.seq(seq -> {
       sort(0, numbers.size() - 1, seq);

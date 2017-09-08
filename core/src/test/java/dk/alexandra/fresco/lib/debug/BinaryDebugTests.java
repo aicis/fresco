@@ -24,7 +24,7 @@
 package dk.alexandra.fresco.lib.debug;
 
 import dk.alexandra.fresco.framework.Application;
-import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
@@ -53,7 +53,7 @@ public class BinaryDebugTests {
         public void test() throws Exception {
           Application<Void, ProtocolBuilderBinary> app =
               producer -> producer.seq(seq -> {
-                List<Computation<SBool>> toPrint =
+                List<DRes<SBool>> toPrint =
                     BooleanHelper.known(new Boolean[] {true, false, false, true}, seq.binary());
                 return () -> toPrint;
               }).seq((seq, inputs) -> {

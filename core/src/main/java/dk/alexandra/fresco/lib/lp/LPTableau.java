@@ -23,7 +23,7 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.lp;
 
-import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.util.ArrayList;
@@ -31,15 +31,15 @@ import java.util.ArrayList;
 public class LPTableau {
 
   // The constraint matrix
-  private final Matrix<Computation<SInt>> C;
+  private final Matrix<DRes<SInt>> C;
   // The rightmost column and bottom row of the tableau, except for the last entry of both
-  private final ArrayList<Computation<SInt>> B;
-  private final ArrayList<Computation<SInt>> F;
+  private final ArrayList<DRes<SInt>> B;
+  private final ArrayList<DRes<SInt>> F;
   // The the bottom right hand corner entry of the tableau
-  private final Computation<SInt> z;
+  private final DRes<SInt> z;
 
-  public LPTableau(Matrix<Computation<SInt>> C, ArrayList<Computation<SInt>> B,
-      ArrayList<Computation<SInt>> F, Computation<SInt> z) {
+  public LPTableau(Matrix<DRes<SInt>> C, ArrayList<DRes<SInt>> B,
+      ArrayList<DRes<SInt>> F, DRes<SInt> z) {
     if (C.getWidth() == F.size() && C.getHeight() == B.size()) {
       this.C = C;
       this.B = B;
@@ -50,19 +50,19 @@ public class LPTableau {
     }
   }
 
-  public Matrix<Computation<SInt>> getC() {
+  public Matrix<DRes<SInt>> getC() {
     return C;
   }
 
-  public ArrayList<Computation<SInt>> getB() {
+  public ArrayList<DRes<SInt>> getB() {
     return B;
   }
 
-  public ArrayList<Computation<SInt>> getF() {
+  public ArrayList<DRes<SInt>> getF() {
     return F;
   }
 
-  public Computation<SInt> getZ() {
+  public DRes<SInt> getZ() {
     return z;
   }
 

@@ -24,15 +24,15 @@
 
 package dk.alexandra.fresco.suite.dummy.arithmetic;
 
-import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.network.SCENetwork;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
 
 public class DummyArithmeticSubtractProtocol extends DummyArithmeticNativeProtocol<SInt> {
 
-  private Computation<SInt> left;
-  private Computation<SInt> right;
+  private DRes<SInt> left;
+  private DRes<SInt> right;
   private DummyArithmeticSInt out;
 
   /**
@@ -42,7 +42,7 @@ public class DummyArithmeticSubtractProtocol extends DummyArithmeticNativeProtoc
    * @param right the right operand
    *
    */
-  public DummyArithmeticSubtractProtocol(Computation<SInt> left, Computation<SInt> right) {
+  public DummyArithmeticSubtractProtocol(DRes<SInt> left, DRes<SInt> right) {
     this.left = left;
     this.right = right;
   }

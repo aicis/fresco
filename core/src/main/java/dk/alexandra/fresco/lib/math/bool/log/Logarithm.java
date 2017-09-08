@@ -26,8 +26,8 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.math.bool.log;
 
-import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.builder.ComputationBuilder;
+import dk.alexandra.fresco.framework.DRes;
+import dk.alexandra.fresco.framework.builder.Computation;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.value.SBool;
 import java.util.ArrayList;
@@ -57,9 +57,9 @@ import java.util.List;
  * @author Kasper Damgaard
  */
 public class Logarithm implements
-    ComputationBuilder<List<Computation<SBool>>, ProtocolBuilderBinary> {
+    Computation<List<DRes<SBool>>, ProtocolBuilderBinary> {
 
-  private List<Computation<SBool>> number;
+  private List<DRes<SBool>> number;
 
   /**
    * Note that on an input of 0, this implementation yields 0, which is incorrect.
@@ -67,22 +67,22 @@ public class Logarithm implements
    *
    * @param number The number which we want to calculate log base 2 on.
    */
-  public Logarithm(List<Computation<SBool>> number) {
+  public Logarithm(List<DRes<SBool>> number) {
     this.number = number;
   }
 
 
   @Override
-  public Computation<List<Computation<SBool>>> buildComputation(ProtocolBuilderBinary builder) {
+  public DRes<List<DRes<SBool>>> buildComputation(ProtocolBuilderBinary builder) {
     return builder.seq(seq -> {
-      List<Computation<SBool>> ors = new ArrayList<>();
+      List<DRes<SBool>> ors = new ArrayList<>();
       ors.add(number.get(0));
       for (int i = 1; i < number.size(); i++) {
         ors.add(seq.advancedBinary().or(number.get(i), ors.get(i - 1)));
       }
       return () -> ors;
     }).seq((seq, ors) -> {
-      List<Computation<SBool>> xors = new ArrayList<>();
+      List<DRes<SBool>> xors = new ArrayList<>();
       xors.add(seq.binary().xor(ors.get(0), seq.binary().known(false)));
 
       for (int i = 1; i < number.size(); i++) {
@@ -91,14 +91,14 @@ public class Logarithm implements
       xors.add(seq.binary().known(false));
       return () -> xors;
     }).seq((seq, xors) -> {
-      List<Computation<SBool>> res = new ArrayList<>();
+      List<DRes<SBool>> res = new ArrayList<>();
       for (int j = 0; j < log2(number.size()) + 1; j++) {
         res.add(seq.binary().known(false));
       }
       for (int j = 0; j < log2(number.size()) + 1; j++) {
         for (int i = 0; i < xors.size(); i++) {
           boolean ithBit = ithBit(xors.size() - 1 - i, res.size() - 1 - j); //j'th bit of i
-          Computation<SBool> tmp = seq.binary().and(xors.get(i), seq.binary().known(ithBit));
+          DRes<SBool> tmp = seq.binary().and(xors.get(i), seq.binary().known(ithBit));
           res.add(j, seq.binary().xor(tmp, res.remove(j)));
         }
       }

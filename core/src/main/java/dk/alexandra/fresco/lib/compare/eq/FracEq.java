@@ -1,8 +1,8 @@
 package dk.alexandra.fresco.lib.compare.eq;
 
-import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.builder.ComputationBuilder;
-import dk.alexandra.fresco.framework.builder.numeric.NumericBuilder;
+import dk.alexandra.fresco.framework.DRes;
+import dk.alexandra.fresco.framework.builder.Computation;
+import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
@@ -14,9 +14,9 @@ import dk.alexandra.fresco.framework.value.SInt;
  * be judged equal to zero, which is technically wrong.
  * </p>
  */
-public class FracEq implements ComputationBuilder<SInt, ProtocolBuilderNumeric> {
+public class FracEq implements Computation<SInt, ProtocolBuilderNumeric> {
 
-  private final Computation<SInt> n0, d0, n1, d1;
+  private final DRes<SInt> n0, d0, n1, d1;
 
   /**
    * @param n0 numerator of first fraction
@@ -24,8 +24,8 @@ public class FracEq implements ComputationBuilder<SInt, ProtocolBuilderNumeric> 
    * @param n1 numerator of first fraction
    * @param d1 denominator of first fraction
    */
-  public FracEq(Computation<SInt> n0, Computation<SInt> d0, Computation<SInt> n1,
-      Computation<SInt> d1) {
+  public FracEq(DRes<SInt> n0, DRes<SInt> d0, DRes<SInt> n1,
+      DRes<SInt> d1) {
     super();
     this.n0 = n0;
     this.d0 = d0;
@@ -34,9 +34,9 @@ public class FracEq implements ComputationBuilder<SInt, ProtocolBuilderNumeric> 
   }
 
   @Override
-  public Computation<SInt> buildComputation(ProtocolBuilderNumeric builder) {
+  public DRes<SInt> buildComputation(ProtocolBuilderNumeric builder) {
     return builder.par(par -> {
-      NumericBuilder numeric = par.numeric();
+      Numeric numeric = par.numeric();
       return Pair.lazy(
           numeric.mult(d0, n1),
           numeric.mult(d1, n0)

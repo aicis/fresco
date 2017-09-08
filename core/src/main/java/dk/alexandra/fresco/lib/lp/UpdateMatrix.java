@@ -26,9 +26,9 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.lp;
 
-import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.builder.ComputationBuilder;
-import dk.alexandra.fresco.framework.builder.numeric.NumericBuilder;
+import dk.alexandra.fresco.framework.DRes;
+import dk.alexandra.fresco.framework.builder.Computation;
+import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
@@ -38,16 +38,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class UpdateMatrix implements
-    ComputationBuilder<Matrix<Computation<SInt>>, ProtocolBuilderNumeric> {
+    Computation<Matrix<DRes<SInt>>, ProtocolBuilderNumeric> {
 
-  private Matrix<Computation<SInt>> oldUpdateMatrix;
-  private List<Computation<SInt>> L;
-  private List<Computation<SInt>> C;
-  private Computation<SInt> p, p_prime;
+  private Matrix<DRes<SInt>> oldUpdateMatrix;
+  private List<DRes<SInt>> L;
+  private List<DRes<SInt>> C;
+  private DRes<SInt> p, p_prime;
 
-  UpdateMatrix(Matrix<Computation<SInt>> oldUpdateMatrix, List<Computation<SInt>> L,
-      List<Computation<SInt>> C, Computation<SInt> p,
-      Computation<SInt> p_prime) {
+  UpdateMatrix(Matrix<DRes<SInt>> oldUpdateMatrix, List<DRes<SInt>> L,
+      List<DRes<SInt>> C, DRes<SInt> p,
+      DRes<SInt> p_prime) {
     this.oldUpdateMatrix = oldUpdateMatrix;
     this.L = L;
     this.C = C;
@@ -57,18 +57,18 @@ public class UpdateMatrix implements
 
 
   @Override
-  public Computation<Matrix<Computation<SInt>>> buildComputation(ProtocolBuilderNumeric builder) {
+  public DRes<Matrix<DRes<SInt>>> buildComputation(ProtocolBuilderNumeric builder) {
     int height = oldUpdateMatrix.getHeight();
     int width = oldUpdateMatrix.getWidth();
-    Computation<SInt> one = builder.numeric().known(BigInteger.ONE);
+    DRes<SInt> one = builder.numeric().known(BigInteger.ONE);
 
     return builder.seq((seq2) -> seq2.par(par1 -> {
-      NumericBuilder numeric = par1.numeric();
-      Matrix<Computation<SInt>> lampdas = new Matrix<>(
+      Numeric numeric = par1.numeric();
+      Matrix<DRes<SInt>> lampdas = new Matrix<>(
           height, width,
           (j) -> {
-            ArrayList<Computation<SInt>> newRow = new ArrayList<>(width);
-            List<Computation<SInt>> oldRow = oldUpdateMatrix.getRow(j);
+            ArrayList<DRes<SInt>> newRow = new ArrayList<>(width);
+            List<DRes<SInt>> oldRow = oldUpdateMatrix.getRow(j);
             for (int i = 0; i < width; i++) {
               if (j < width - 1) {
                 newRow.add(
@@ -81,16 +81,16 @@ public class UpdateMatrix implements
             return newRow;
           }
       );
-      Computation<Pair<List<Computation<SInt>>, Computation<SInt>>> scaledCAndPP =
+      DRes<Pair<List<DRes<SInt>>, DRes<SInt>>> scaledCAndPP =
           par1.seq(seq_pp -> {
-            Computation<SInt> pp_inv = seq_pp.advancedNumeric().invert(p_prime);
-            Computation<SInt> pp = seq_pp.numeric().mult(p, pp_inv);
+            DRes<SInt> pp_inv = seq_pp.advancedNumeric().invert(p_prime);
+            DRes<SInt> pp = seq_pp.numeric().mult(p, pp_inv);
             return seq_pp.par((par) -> {
-              List<Computation<SInt>> scaledC = new ArrayList<>(C.size());
+              List<DRes<SInt>> scaledC = new ArrayList<>(C.size());
               for (int j = 0; j < C.size() - 1; j++) {
                 int finalJ = j;
                 scaledC.add(par.seq((scaleSeq) -> {
-                  Computation<SInt> scaling;
+                  DRes<SInt> scaling;
                   scaling = scaleSeq.seq(new ConditionalSelect(L.get(finalJ), one, pp_inv));
                   return scaleSeq.numeric().mult(C.get(finalJ), scaling);
                 }));
@@ -103,17 +103,17 @@ public class UpdateMatrix implements
           });
       return () -> new Pair<>(lampdas, scaledCAndPP.out());
     }).par((gpAddAndSub, input) -> {
-      Matrix<Computation<SInt>> lambdas_i_jOuts = input.getFirst();
-      List<Computation<SInt>> scaledC = input.getSecond().getFirst();
-      Computation<SInt> pp = input.getSecond().getSecond();
-      NumericBuilder numeric = gpAddAndSub.numeric();
+      Matrix<DRes<SInt>> lambdas_i_jOuts = input.getFirst();
+      List<DRes<SInt>> scaledC = input.getSecond().getFirst();
+      DRes<SInt> pp = input.getSecond().getSecond();
+      Numeric numeric = gpAddAndSub.numeric();
 
-      List<Computation<SInt>> lambdas_i = new ArrayList<>(height);
-      Matrix<Computation<SInt>> subOuts = new Matrix<>(height, width,
+      List<DRes<SInt>> lambdas_i = new ArrayList<>(height);
+      Matrix<DRes<SInt>> subOuts = new Matrix<>(height, width,
           (j) -> {
-            ArrayList<Computation<SInt>> newRow = new ArrayList<>(width);
-            List<Computation<SInt>> oldRow = oldUpdateMatrix.getRow(j);
-            List<Computation<SInt>> lambdaRow = lambdas_i_jOuts.getRow(j);
+            ArrayList<DRes<SInt>> newRow = new ArrayList<>(width);
+            List<DRes<SInt>> oldRow = oldUpdateMatrix.getRow(j);
+            List<DRes<SInt>> lambdaRow = lambdas_i_jOuts.getRow(j);
             for (int i = 0; i < width; i++) {
               newRow.add(numeric.sub(
                   oldRow.get(i),
@@ -129,15 +129,15 @@ public class UpdateMatrix implements
           new Pair<>(scaledC, pp), new Pair<>(subOuts, lambdas_i));
     })).par(
         (gpMults, input) -> {
-          List<Computation<SInt>> scaledC = input.getFirst().getFirst();
-          Computation<SInt> pp = input.getFirst().getSecond();
-          Matrix<Computation<SInt>> subOuts = input.getSecond().getFirst();
-          List<Computation<SInt>> lambdas_i = input.getSecond().getSecond();
-          NumericBuilder numeric = gpMults.numeric();
-          Matrix<Computation<SInt>> mults_cAndLambda_iOuts =
+          List<DRes<SInt>> scaledC = input.getFirst().getFirst();
+          DRes<SInt> pp = input.getFirst().getSecond();
+          Matrix<DRes<SInt>> subOuts = input.getSecond().getFirst();
+          List<DRes<SInt>> lambdas_i = input.getSecond().getSecond();
+          Numeric numeric = gpMults.numeric();
+          Matrix<DRes<SInt>> mults_cAndLambda_iOuts =
               new Matrix<>(height, width,
                   (j) -> {
-                    ArrayList<Computation<SInt>> mults_cAndLambda_iOuts_row = new ArrayList<>(
+                    ArrayList<DRes<SInt>> mults_cAndLambda_iOuts_row = new ArrayList<>(
                         width);
                     for (int i = 0; i < width; i++) {
                       mults_cAndLambda_iOuts_row
@@ -145,10 +145,10 @@ public class UpdateMatrix implements
                     }
                     return mults_cAndLambda_iOuts_row;
                   });
-          Matrix<Computation<SInt>> mults_sub_and_ppOuts = new Matrix<>(height, width,
+          Matrix<DRes<SInt>> mults_sub_and_ppOuts = new Matrix<>(height, width,
               (j) -> {
-                ArrayList<Computation<SInt>> mults_sub_and_ppOuts_row = new ArrayList<>(width);
-                ArrayList<Computation<SInt>> subRow = subOuts.getRow(j);
+                ArrayList<DRes<SInt>> mults_sub_and_ppOuts_row = new ArrayList<>(width);
+                ArrayList<DRes<SInt>> subRow = subOuts.getRow(j);
                 for (int i = 0; i < width; i++) {
                   mults_sub_and_ppOuts_row.add(numeric.mult(subRow.get(i), pp));
                 }
@@ -158,14 +158,14 @@ public class UpdateMatrix implements
           return Pair.lazy(mults_cAndLambda_iOuts, mults_sub_and_ppOuts);
         }
     ).par((adds, pair) -> {
-      Matrix<Computation<SInt>> mults_cAndLambda_iOuts = pair.getFirst();
-      Matrix<Computation<SInt>> mults_sub_and_ppOuts = pair.getSecond();
-      NumericBuilder numeric = adds.numeric();
-      Matrix<Computation<SInt>> resultMatrix = new Matrix<>(height, width,
+      Matrix<DRes<SInt>> mults_cAndLambda_iOuts = pair.getFirst();
+      Matrix<DRes<SInt>> mults_sub_and_ppOuts = pair.getSecond();
+      Numeric numeric = adds.numeric();
+      Matrix<DRes<SInt>> resultMatrix = new Matrix<>(height, width,
           (j) -> {
-            ArrayList<Computation<SInt>> row = new ArrayList<>(width);
-            ArrayList<Computation<SInt>> mults_cAndLambdaRow = mults_cAndLambda_iOuts.getRow(j);
-            ArrayList<Computation<SInt>> mult_sub_and_pp_row = mults_sub_and_ppOuts.getRow(j);
+            ArrayList<DRes<SInt>> row = new ArrayList<>(width);
+            ArrayList<DRes<SInt>> mults_cAndLambdaRow = mults_cAndLambda_iOuts.getRow(j);
+            ArrayList<DRes<SInt>> mult_sub_and_pp_row = mults_sub_and_ppOuts.getRow(j);
             for (int i = 0; i < width; i++) {
               row.add(
                   numeric.add(

@@ -23,7 +23,7 @@
  *******************************************************************************/
 package dk.alexandra.fresco.suite.tinytables.online.protocols;
 
-import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.network.SCENetwork;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
@@ -61,16 +61,16 @@ import dk.alexandra.fresco.suite.tinytables.prepro.protocols.TinyTablesPreproXOR
  */
 public class TinyTablesXORProtocol extends TinyTablesProtocol<SBool> {
 
-  private Computation<SBool> inLeft, inRight;
+  private DRes<SBool> inLeft, inRight;
   private TinyTablesSBool out;
 
-  public TinyTablesXORProtocol(Computation<SBool> inLeft, Computation<SBool> inRight) {
+  public TinyTablesXORProtocol(DRes<SBool> inLeft, DRes<SBool> inRight) {
     super();
     this.inLeft = inLeft;
     this.inRight = inRight;
   }
 
-  public TinyTablesXORProtocol(Computation<SBool> inLeft, Computation<SBool> inRight, SBool out) {
+  public TinyTablesXORProtocol(DRes<SBool> inLeft, DRes<SBool> inRight, SBool out) {
     super();
     this.inLeft = inLeft;
     this.inRight = inRight;

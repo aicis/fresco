@@ -26,8 +26,8 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.math.bool.add;
 
-import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.builder.ComputationBuilder;
+import dk.alexandra.fresco.framework.DRes;
+import dk.alexandra.fresco.framework.builder.Computation;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SBool;
@@ -41,14 +41,14 @@ import java.util.List;
  * a generic length adder.
  */
 public class FullAdder 
-    implements ComputationBuilder<List<Computation<SBool>>, ProtocolBuilderBinary> {
+    implements Computation<List<DRes<SBool>>, ProtocolBuilderBinary> {
 
-  private List<Computation<SBool>> lefts, rights;
-  private Computation<SBool> inCarry;
+  private List<DRes<SBool>> lefts, rights;
+  private DRes<SBool> inCarry;
 
-  public FullAdder(List<Computation<SBool>> lefts, 
-      List<Computation<SBool>> rights, 
-      Computation<SBool> inCarry) {
+  public FullAdder(List<DRes<SBool>> lefts, 
+      List<DRes<SBool>> rights, 
+      DRes<SBool> inCarry) {
     
     if (lefts.size() != rights.size()) {
       throw new IllegalArgumentException("input lists for Full Adder must be of same length.");
@@ -60,9 +60,9 @@ public class FullAdder
   
   
   @Override
-  public Computation<List<Computation<SBool>>> buildComputation(ProtocolBuilderBinary builder) {
+  public DRes<List<DRes<SBool>>> buildComputation(ProtocolBuilderBinary builder) {
 
-    List<Computation<SBool>> result = new ArrayList<Computation<SBool>>(); 
+    List<DRes<SBool>> result = new ArrayList<DRes<SBool>>(); 
     
     return builder.seq(seq -> {
       int idx = this.lefts.size() -1;
@@ -85,13 +85,13 @@ public class FullAdder
     );
   }
   
-  private static final class IterationState implements Computation<IterationState> {
+  private static final class IterationState implements DRes<IterationState> {
 
     private int round;
-    private final Computation<Pair<SBool, SBool>> value;
+    private final DRes<Pair<SBool, SBool>> value;
 
     private IterationState(int round,
-        Computation<Pair<SBool, SBool>> value) {
+        DRes<Pair<SBool, SBool>> value) {
       this.round = round;
       this.value = value;
     }

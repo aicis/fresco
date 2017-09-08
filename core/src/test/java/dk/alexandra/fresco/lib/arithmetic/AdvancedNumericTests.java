@@ -27,7 +27,7 @@
 package dk.alexandra.fresco.lib.arithmetic;
 
 import dk.alexandra.fresco.framework.Application;
-import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.TestThreadRunner;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
@@ -60,12 +60,12 @@ public class AdvancedNumericTests {
               builder -> {
                 modulus = builder.getBasicNumericContext().getModulus();
 
-                Computation<SInt> p = builder.numeric()
+                DRes<SInt> p = builder.numeric()
                     .known(BigInteger.valueOf(numerator));
-                Computation<SInt> q = builder.numeric()
+                DRes<SInt> q = builder.numeric()
                     .known(BigInteger.valueOf(denominator));
 
-                Computation<SInt> result = builder.advancedNumeric().div(p, q);
+                DRes<SInt> result = builder.advancedNumeric().div(p, q);
 
                 return builder.numeric().open(result);
               };
@@ -112,11 +112,11 @@ public class AdvancedNumericTests {
               builder -> {
                 modulus = builder.getBasicNumericContext().getModulus();
 
-                Computation<SInt> p = builder.numeric()
+                DRes<SInt> p = builder.numeric()
                     .known(BigInteger.valueOf(numerator));
                 BigInteger q = BigInteger.valueOf(denominator);
 
-                Computation<SInt> result = builder.advancedNumeric().div(p, q);
+                DRes<SInt> result = builder.advancedNumeric().div(p, q);
 
                 return builder.numeric().open(result);
               };
@@ -144,11 +144,11 @@ public class AdvancedNumericTests {
         public void test() throws Exception {
           Application<BigInteger, ProtocolBuilderNumeric> app =
               builder -> {
-                Computation<SInt> p = builder.numeric()
+                DRes<SInt> p = builder.numeric()
                     .known(BigInteger.valueOf(numerator));
                 BigInteger q = BigInteger.valueOf(denominator);
 
-                Computation<SInt> result = builder.advancedNumeric()
+                DRes<SInt> result = builder.advancedNumeric()
                     .mod(p, q);
 
                 return builder.numeric().open(result);

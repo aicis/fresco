@@ -24,11 +24,11 @@
 package dk.alexandra.fresco.lib.arithmetic;
 
 import dk.alexandra.fresco.framework.Application;
-import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
-import dk.alexandra.fresco.framework.builder.numeric.AdvancedNumericBuilder;
-import dk.alexandra.fresco.framework.builder.numeric.NumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.AdvancedNumeric;
+import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
@@ -66,9 +66,9 @@ public class BasicArithmeticTests {
         public void test() throws Exception {
           Application<BigInteger, ProtocolBuilderNumeric> app =
               producer -> {
-                NumericBuilder numeric = producer.numeric();
+                Numeric numeric = producer.numeric();
 
-                Computation<SInt> input = numeric.input(value, 1);
+                DRes<SInt> input = numeric.input(value, 1);
                 return numeric.open(input);
               };
           BigInteger output = secureComputationEngine.runApplication(app, ResourcePoolCreator
@@ -91,9 +91,9 @@ public class BasicArithmeticTests {
         public void test() throws Exception {
           Application<BigInteger, ProtocolBuilderNumeric> app =
               producer -> {
-                NumericBuilder numeric = producer.numeric();
+                Numeric numeric = producer.numeric();
 
-                Computation<SInt> input = numeric.input(value, 1);
+                DRes<SInt> input = numeric.input(value, 1);
                 return numeric.open(input, 2);
               };
           BigInteger output = secureComputationEngine.runApplication(app, ResourcePoolCreator
@@ -121,10 +121,10 @@ public class BasicArithmeticTests {
         public void test() throws Exception {
           Application<BigInteger, ProtocolBuilderNumeric> app =
               producer -> {
-                NumericBuilder numeric = producer.numeric();
+                Numeric numeric = producer.numeric();
 
-                Computation<SInt> input = numeric.input(value, 1);
-                Computation<SInt> result = numeric.add(add, input);
+                DRes<SInt> input = numeric.input(value, 1);
+                DRes<SInt> result = numeric.add(add, input);
                 return numeric.open(result);
               };
           BigInteger output = secureComputationEngine.runApplication(app, ResourcePoolCreator
@@ -150,17 +150,17 @@ public class BasicArithmeticTests {
           Application<List<BigInteger>, ProtocolBuilderNumeric> app =
               producer ->
                   producer.par(par -> {
-                    NumericBuilder numeric = par.numeric();
-                    List<Computation<SInt>> result = openInputs.stream()
+                    Numeric numeric = par.numeric();
+                    List<DRes<SInt>> result = openInputs.stream()
                         .map(numeric::known)
                         .collect(Collectors.toList());
                     return () -> result;
                   }).par((par, closed) -> {
-                    NumericBuilder numeric = par.numeric();
-                    List<Computation<BigInteger>> result = closed.stream()
+                    Numeric numeric = par.numeric();
+                    List<DRes<BigInteger>> result = closed.stream()
                         .map(numeric::open)
                         .collect(Collectors.toList());
-                    return () -> result.stream().map(Computation::out).collect(Collectors.toList());
+                    return () -> result.stream().map(DRes::out).collect(Collectors.toList());
                   });
           List<BigInteger> output = secureComputationEngine.runApplication(app, ResourcePoolCreator
               .createResourcePool(conf.sceConf));
@@ -187,15 +187,15 @@ public class BasicArithmeticTests {
           Application<BigInteger, ProtocolBuilderNumeric> app =
               producer ->
                   producer.par(par -> {
-                    NumericBuilder numeric = par.numeric();
-                    List<Computation<SInt>> result = openInputs.stream()
+                    Numeric numeric = par.numeric();
+                    List<DRes<SInt>> result = openInputs.stream()
                         .map(numeric::known)
                         .collect(Collectors.toList());
                     return () -> result;
                   }).seq((seq, closed) -> {
-                    AdvancedNumericBuilder advancedNumeric = seq.advancedNumeric();
-                    Computation<SInt> sum = advancedNumeric.sum(closed);
-                    Computation<SInt> mult = seq.numeric().mult(sum, sum);
+                    AdvancedNumeric advancedNumeric = seq.advancedNumeric();
+                    DRes<SInt> sum = advancedNumeric.sum(closed);
+                    DRes<SInt> mult = seq.numeric().mult(sum, sum);
                     return seq.numeric().open(mult);
                   });
           BigInteger output = secureComputationEngine.runApplication(app, ResourcePoolCreator
@@ -224,13 +224,13 @@ public class BasicArithmeticTests {
         public void test() throws Exception {
           Application<BigInteger, ProtocolBuilderNumeric> app =
               producer -> {
-                NumericBuilder numeric = producer.numeric();
+                Numeric numeric = producer.numeric();
 
-                Computation<SInt> firstClosed = numeric.known(first);
-                Computation<SInt> secondClosed = numeric.known(second);
+                DRes<SInt> firstClosed = numeric.known(first);
+                DRes<SInt> secondClosed = numeric.known(second);
 
-                Computation<SInt> add = numeric.add(firstClosed, secondClosed);
-                Computation<SInt> mult = numeric.mult(firstClosed, add);
+                DRes<SInt> add = numeric.add(firstClosed, secondClosed);
+                DRes<SInt> mult = numeric.mult(firstClosed, add);
 
                 return numeric.open(mult);
               };
@@ -262,24 +262,24 @@ public class BasicArithmeticTests {
           Application<List<BigInteger>, ProtocolBuilderNumeric> app =
               producer ->
                   producer.par(par -> {
-                    NumericBuilder numeric = par.numeric();
-                    Computation<SInt> firstClosed = numeric.known(first);
-                    Computation<SInt> secondClosed = numeric.known(second);
+                    Numeric numeric = par.numeric();
+                    DRes<SInt> firstClosed = numeric.known(first);
+                    DRes<SInt> secondClosed = numeric.known(second);
                     return Pair.lazy(firstClosed, secondClosed);
                   }).par((par, pair) -> {
-                    Computation<SInt> firstClosed = pair.getFirst();
-                    Computation<SInt> secondClosed = pair.getSecond();
-                    NumericBuilder numeric = par.numeric();
-                    ArrayList<Computation<SInt>> computations = new ArrayList<>();
+                    DRes<SInt> firstClosed = pair.getFirst();
+                    DRes<SInt> secondClosed = pair.getSecond();
+                    Numeric numeric = par.numeric();
+                    ArrayList<DRes<SInt>> computations = new ArrayList<>();
                     for (int i = 0; i < REPS; i++) {
                       computations.add(numeric.mult(firstClosed, secondClosed));
                     }
                     return () -> computations;
                   }).seq((seq, computations) -> {
-                    NumericBuilder numeric = seq.numeric();
-                    List<Computation<BigInteger>> opened = computations.stream().map(numeric::open)
+                    Numeric numeric = seq.numeric();
+                    List<DRes<BigInteger>> opened = computations.stream().map(numeric::open)
                         .collect(Collectors.toList());
-                    return () -> opened.stream().map(Computation::out).collect(Collectors.toList());
+                    return () -> opened.stream().map(DRes::out).collect(Collectors.toList());
                   });
           List<BigInteger> output = secureComputationEngine.runApplication(app, ResourcePoolCreator
               .createResourcePool(conf.sceConf));
@@ -316,19 +316,19 @@ public class BasicArithmeticTests {
                     BigInteger.valueOf(0), BigInteger.valueOf(1), BigInteger.valueOf(0),
                     BigInteger.valueOf(0), BigInteger.valueOf(0), BigInteger.valueOf(0),
                     BigInteger.valueOf(1), BigInteger.valueOf(1));
-                NumericBuilder numeric = producer.numeric();
-                List<Computation<SInt>> ns =
+                Numeric numeric = producer.numeric();
+                List<DRes<SInt>> ns =
                     bns.stream().map((n) -> numeric.input(n, 1)).collect(Collectors.toList());
-                List<Computation<SInt>> ds =
+                List<DRes<SInt>> ds =
                     bds.stream().map((n) -> numeric.input(n, 1)).collect(Collectors.toList());
-                List<Computation<SInt>> infs =
+                List<DRes<SInt>> infs =
                     binfs.stream().map((n) -> numeric.input(n, 1)).collect(Collectors.toList());
 
                 return producer.seq(new MinInfFrac(ns, ds, infs)).seq((seq2, infOutput) -> {
-                  NumericBuilder innerNumeric = seq2.numeric();
-                  List<Computation<BigInteger>> collect =
+                  Numeric innerNumeric = seq2.numeric();
+                  List<DRes<BigInteger>> collect =
                       infOutput.cs.stream().map(innerNumeric::open).collect(Collectors.toList());
-                  return () -> collect.stream().map(Computation::out).collect(Collectors.toList());
+                  return () -> collect.stream().map(DRes::out).collect(Collectors.toList());
                 });
           };
           List<BigInteger> outputs = secureComputationEngine.runApplication(app, ResourcePoolCreator
@@ -368,15 +368,15 @@ public class BasicArithmeticTests {
           Application<List<BigInteger>, ProtocolBuilderNumeric> app =
               producer ->
                   producer.par(par -> {
-                    NumericBuilder numeric = par.numeric();
-                    Computation<SInt> firstClosed = numeric.known(first);
-                    Computation<SInt> secondClosed = numeric.known(second);
+                    Numeric numeric = par.numeric();
+                    DRes<SInt> firstClosed = numeric.known(first);
+                    DRes<SInt> secondClosed = numeric.known(second);
                     return Pair.lazy(firstClosed, secondClosed);
                   }).par((par, pair) -> {
-                    Computation<SInt> firstClosed = pair.getFirst();
-                    Computation<SInt> secondClosed = pair.getSecond();
-                    NumericBuilder numeric1 = par.numeric();
-                    ArrayList<Computation<SInt>> computations = new ArrayList<>();
+                    DRes<SInt> firstClosed = pair.getFirst();
+                    DRes<SInt> secondClosed = pair.getSecond();
+                    Numeric numeric1 = par.numeric();
+                    ArrayList<DRes<SInt>> computations = new ArrayList<>();
                     for (int i = 0; i < numberOfComputations; i++) {
                       if (i % 2 == 0) {
                         computations.add(numeric1.mult(firstClosed, secondClosed));
@@ -387,10 +387,10 @@ public class BasicArithmeticTests {
                     }
                     return () -> computations;
                   }).seq((seq, computations) -> {
-                    NumericBuilder numeric1 = seq.numeric();
-                    List<Computation<BigInteger>> opened = computations.stream().map(numeric1::open)
+                    Numeric numeric1 = seq.numeric();
+                    List<DRes<BigInteger>> opened = computations.stream().map(numeric1::open)
                         .collect(Collectors.toList());
-                    return () -> opened.stream().map(Computation::out).collect(Collectors.toList());
+                    return () -> opened.stream().map(DRes::out).collect(Collectors.toList());
                   });
           List<BigInteger> output = secureComputationEngine.runApplication(app, ResourcePoolCreator
               .createResourcePool(conf.sceConf));

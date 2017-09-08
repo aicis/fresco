@@ -26,8 +26,8 @@
  *******************************************************************************/
 package dk.alexandra.fresco.framework.value;
 
-import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.DRes;
 
-public interface SBool extends Computation<SBool> {
+public interface SBool extends DRes<SBool> {
 
 }

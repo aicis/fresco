@@ -30,7 +30,7 @@ import dk.alexandra.fresco.framework.network.SCENetwork;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 
 public interface NativeProtocol<OutputT, ResourcePoolT extends ResourcePool> extends
-    Computation<OutputT> {
+    DRes<OutputT> {
 
   enum EvaluationStatus {
     IS_DONE, HAS_MORE_ROUNDS

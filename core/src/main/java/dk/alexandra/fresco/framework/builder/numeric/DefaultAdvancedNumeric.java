@@ -1,6 +1,6 @@
 package dk.alexandra.fresco.framework.builder.numeric;
 
-import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.conversion.IntegerToBitsByShift;
 import dk.alexandra.fresco.lib.math.integer.ProductSIntList;
@@ -22,118 +22,118 @@ import dk.alexandra.fresco.lib.math.integer.sqrt.SquareRoot;
 import java.math.BigInteger;
 import java.util.List;
 
-public class DefaultAdvancedNumericBuilder implements AdvancedNumericBuilder {
+public class DefaultAdvancedNumeric implements AdvancedNumeric {
 
   private final BuilderFactoryNumeric factoryNumeric;
   private final ProtocolBuilderNumeric builder;
 
-  protected DefaultAdvancedNumericBuilder(BuilderFactoryNumeric factoryNumeric,
+  protected DefaultAdvancedNumeric(BuilderFactoryNumeric factoryNumeric,
       ProtocolBuilderNumeric builder) {
     this.factoryNumeric = factoryNumeric;
     this.builder = builder;
   }
 
   @Override
-  public Computation<SInt> sum(List<Computation<SInt>> inputs) {
+  public DRes<SInt> sum(List<DRes<SInt>> inputs) {
     return builder.seq(new SumSIntList(inputs));
   }
 
   @Override
-  public Computation<SInt> product(List<Computation<SInt>> elements) {
+  public DRes<SInt> product(List<DRes<SInt>> elements) {
     return builder.seq(new ProductSIntList(elements));
   }
 
   @Override
-  public Computation<SInt> div(Computation<SInt> dividend, BigInteger divisor) {
+  public DRes<SInt> div(DRes<SInt> dividend, BigInteger divisor) {
     return builder.seq(new KnownDivisor(dividend, divisor));
   }
 
   @Override
-  public Computation<SInt> mod(Computation<SInt> dividend, BigInteger divisor) {
+  public DRes<SInt> mod(DRes<SInt> dividend, BigInteger divisor) {
     return builder.seq(new KnownDivisorRemainder(dividend, divisor));
   }
 
   @Override
-  public Computation<SInt> div(Computation<SInt> dividend, Computation<SInt> divisor) {
+  public DRes<SInt> div(DRes<SInt> dividend, DRes<SInt> divisor) {
     return builder.seq(new SecretSharedDivisor(dividend, divisor));
   }
 
   @Override
-  public Computation<List<SInt>> toBits(Computation<SInt> in, int maxInputLength) {
+  public DRes<List<SInt>> toBits(DRes<SInt> in, int maxInputLength) {
     return builder.seq(new IntegerToBitsByShift(in, maxInputLength));
   }
 
   @Override
-  public Computation<SInt> exp(Computation<SInt> x, Computation<SInt> e, int maxExponentLength) {
+  public DRes<SInt> exp(DRes<SInt> x, DRes<SInt> e, int maxExponentLength) {
     return builder.seq(new Exponentiation(x, e, maxExponentLength));
   }
 
   @Override
-  public Computation<SInt> exp(BigInteger x, Computation<SInt> e, int maxExponentLength) {
+  public DRes<SInt> exp(BigInteger x, DRes<SInt> e, int maxExponentLength) {
     return builder.seq(new ExponentiationOpenBase(x, e, maxExponentLength));
   }
 
   @Override
-  public Computation<SInt> exp(Computation<SInt> x, BigInteger e) {
+  public DRes<SInt> exp(DRes<SInt> x, BigInteger e) {
     return builder.seq(new ExponentiationOpenExponent(x, e));
   }
 
   @Override
-  public Computation<SInt> sqrt(Computation<SInt> input, int maxInputLength) {
+  public DRes<SInt> sqrt(DRes<SInt> input, int maxInputLength) {
     return builder.seq(new SquareRoot(input, maxInputLength));
   }
 
   @Override
-  public Computation<SInt> log(Computation<SInt> input, int maxInputLength) {
+  public DRes<SInt> log(DRes<SInt> input, int maxInputLength) {
     return builder.seq(new Logarithm(input, maxInputLength));
   }
 
 
   @Override
-  public Computation<SInt> dot(List<Computation<SInt>> aVector,
-      List<Computation<SInt>> bVector) {
+  public DRes<SInt> dot(List<DRes<SInt>> aVector,
+      List<DRes<SInt>> bVector) {
     return builder.seq(new InnerProduct(aVector, bVector));
   }
 
   @Override
-  public Computation<SInt> openDot(List<BigInteger> aVector, List<Computation<SInt>> bVector) {
+  public DRes<SInt> openDot(List<BigInteger> aVector, List<DRes<SInt>> bVector) {
     return builder.seq(new InnerProductOpen(aVector, bVector));
   }
 
   @Override
-  public Computation<RandomAdditiveMask> additiveMask(int noOfBits) {
+  public DRes<RandomAdditiveMask> additiveMask(int noOfBits) {
     return builder.seq(new dk.alexandra.fresco.lib.compare.RandomAdditiveMask(
         BuilderFactoryNumeric.MAGIC_SECURE_NUMBER, noOfBits));
   }
 
   @Override
-  public Computation<SInt> rightShift(Computation<SInt> input) {
-    Computation<RightShiftResult> rightShiftResult = builder.seq(
+  public DRes<SInt> rightShift(DRes<SInt> input) {
+    DRes<RightShiftResult> rightShiftResult = builder.seq(
         new RightShift(
-            factoryNumeric.getBasicNumericFactory().getMaxBitLength(),
+            factoryNumeric.getBasicNumericContext().getMaxBitLength(),
             input, false));
     return () -> rightShiftResult.out().getResult();
   }
 
   @Override
-  public Computation<RightShiftResult> rightShiftWithRemainder(Computation<SInt> input) {
+  public DRes<RightShiftResult> rightShiftWithRemainder(DRes<SInt> input) {
     return builder.seq(
         new RightShift(
-            factoryNumeric.getBasicNumericFactory().getMaxBitLength(),
+            factoryNumeric.getBasicNumericContext().getMaxBitLength(),
             input, true));
   }
 
   @Override
-  public Computation<SInt> rightShift(Computation<SInt> input, int shifts) {
-    Computation<RightShiftResult> rightShiftResult = builder.seq(
+  public DRes<SInt> rightShift(DRes<SInt> input, int shifts) {
+    DRes<RightShiftResult> rightShiftResult = builder.seq(
         new RepeatedRightShift(
             input, shifts, false));
     return () -> rightShiftResult.out().getResult();
   }
 
   @Override
-  public Computation<RightShiftResult> rightShiftWithRemainder(
-      Computation<SInt> input,
+  public DRes<RightShiftResult> rightShiftWithRemainder(
+      DRes<SInt> input,
       int shifts) {
     return builder.seq(
         new RepeatedRightShift(
@@ -141,13 +141,13 @@ public class DefaultAdvancedNumericBuilder implements AdvancedNumericBuilder {
   }
 
   @Override
-  public Computation<SInt> bitLength(Computation<SInt> input, int maxBitLength) {
+  public DRes<SInt> bitLength(DRes<SInt> input, int maxBitLength) {
     return builder.seq(new BitLength(input, maxBitLength));
 
   }
 
   @Override
-  public Computation<SInt> invert(Computation<SInt> x) {
+  public DRes<SInt> invert(DRes<SInt> x) {
     return builder.seq(new Inversion(x));
   }
 }

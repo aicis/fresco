@@ -27,10 +27,10 @@
 package dk.alexandra.fresco.lib.arithmetic;
 
 import dk.alexandra.fresco.framework.Application;
-import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
-import dk.alexandra.fresco.framework.builder.numeric.NumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.util.Pair;
@@ -63,22 +63,22 @@ public class SortingTests {
         @Override
         public void test() throws Exception {
           Application<Pair<BigInteger, BigInteger>, ProtocolBuilderNumeric> app = builder -> {
-            Computation<SInt> zero = builder.numeric().known(TestIsSorted.this.zero);
-            Computation<SInt> one = builder.numeric().known(TestIsSorted.this.one);
-            Computation<SInt> two = builder.numeric().known(TestIsSorted.this.two);
-            Computation<SInt> three = builder.numeric().known(TestIsSorted.this.three);
-            Computation<SInt> four = builder.numeric().known(TestIsSorted.this.four);
-            Computation<SInt> five = builder.numeric().known(TestIsSorted.this.five);
+            DRes<SInt> zero = builder.numeric().known(TestIsSorted.this.zero);
+            DRes<SInt> one = builder.numeric().known(TestIsSorted.this.one);
+            DRes<SInt> two = builder.numeric().known(TestIsSorted.this.two);
+            DRes<SInt> three = builder.numeric().known(TestIsSorted.this.three);
+            DRes<SInt> four = builder.numeric().known(TestIsSorted.this.four);
+            DRes<SInt> five = builder.numeric().known(TestIsSorted.this.five);
 
-            List<Computation<SInt>> unsorted = Arrays.asList(one, two, three, five, zero);
-            List<Computation<SInt>> sorted = Arrays.asList(three, four, four);
+            List<DRes<SInt>> unsorted = Arrays.asList(one, two, three, five, zero);
+            List<DRes<SInt>> sorted = Arrays.asList(three, four, four);
 
-            Computation<SInt> firstResult = new SortingHelperUtility()
+            DRes<SInt> firstResult = new SortingHelperUtility()
                 .isSorted(builder, unsorted);
-            Computation<SInt> secondResult = new SortingHelperUtility().isSorted(builder, sorted);
+            DRes<SInt> secondResult = new SortingHelperUtility().isSorted(builder, sorted);
 
-            Computation<BigInteger> firstOpen = builder.numeric().open(firstResult);
-            Computation<BigInteger> secondOpen = builder.numeric().open(secondResult);
+            DRes<BigInteger> firstOpen = builder.numeric().open(firstResult);
+            DRes<BigInteger> secondOpen = builder.numeric().open(secondResult);
 
             return () -> new Pair<>(firstOpen.out(), secondOpen.out());
           };
@@ -100,13 +100,13 @@ public class SortingTests {
         @Override
         public void test() throws Exception {
           Application<Pair<BigInteger, BigInteger>, ProtocolBuilderNumeric> app = seq -> {
-            Computation<SInt> one = seq.numeric().known(BigInteger.valueOf(1));
-            Computation<SInt> two = seq.numeric().known(BigInteger.valueOf(2));
-            List<Computation<SInt>> initialList = Arrays.asList(two, one);
+            DRes<SInt> one = seq.numeric().known(BigInteger.valueOf(1));
+            DRes<SInt> two = seq.numeric().known(BigInteger.valueOf(2));
+            List<DRes<SInt>> initialList = Arrays.asList(two, one);
             new SortingHelperUtility().compareAndSwap(seq, 0, 1, initialList);
             return seq.seq((openSeq) -> {
-                  Computation<BigInteger> firstOpen = openSeq.numeric().open(initialList.get(0));
-                  Computation<BigInteger> secondOpen = openSeq.numeric().open(initialList.get(1));
+                  DRes<BigInteger> firstOpen = openSeq.numeric().open(initialList.get(0));
+                  DRes<BigInteger> secondOpen = openSeq.numeric().open(initialList.get(1));
                   return () -> new Pair<>(firstOpen.out(), secondOpen.out());
                 }
             );
@@ -148,18 +148,18 @@ public class SortingTests {
         public void test() throws Exception {
           Application<List<BigInteger>, ProtocolBuilderNumeric> app =
               builder -> {
-                NumericBuilder input = builder.numeric();
-                List<Computation<SInt>> unsorted = values.stream().map(input::known)
+                Numeric input = builder.numeric();
+                List<DRes<SInt>> unsorted = values.stream().map(input::known)
                     .collect(Collectors.toList());
 
                 return builder.seq(seq -> {
                   new SortingHelperUtility().sort(seq, unsorted);
                   return () -> unsorted;
                 }).par((par, list) -> {
-                  NumericBuilder numeric = par.numeric();
-                  List<Computation<BigInteger>> openList = list.stream().map(numeric::open)
+                  Numeric numeric = par.numeric();
+                  List<DRes<BigInteger>> openList = list.stream().map(numeric::open)
                       .collect(Collectors.toList());
-                  return () -> openList.stream().map(Computation::out).collect(Collectors.toList());
+                  return () -> openList.stream().map(DRes::out).collect(Collectors.toList());
                 });
               };
 

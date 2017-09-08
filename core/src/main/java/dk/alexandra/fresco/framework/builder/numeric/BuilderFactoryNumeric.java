@@ -19,18 +19,18 @@ public interface BuilderFactoryNumeric extends BuilderFactory<ProtocolBuilderNum
 
   int MAGIC_SECURE_NUMBER = 60;
 
-  BasicNumericContext getBasicNumericFactory();
+  BasicNumericContext getBasicNumericContext();
 
-  NumericBuilder createNumericBuilder(ProtocolBuilderNumeric builder);
+  Numeric createNumeric(ProtocolBuilderNumeric builder);
 
   MiscOIntGenerators getBigIntegerHelper();
 
-  default ComparisonBuilder createComparison(ProtocolBuilderNumeric builder) {
-    return new DefaultComparisonBuilder(this, builder);
+  default Comparison createComparison(ProtocolBuilderNumeric builder) {
+    return new DefaultComparison(this, builder);
   }
 
-  default AdvancedNumericBuilder createAdvancedNumeric(ProtocolBuilderNumeric builder) {
-    return new DefaultAdvancedNumericBuilder(this, builder);
+  default AdvancedNumeric createAdvancedNumeric(ProtocolBuilderNumeric builder) {
+    return new DefaultAdvancedNumeric(this, builder);
   }
 
   /**
@@ -40,8 +40,8 @@ public interface BuilderFactoryNumeric extends BuilderFactory<ProtocolBuilderNum
    * @param builder the current builder that will have the protocols inserted
    * @return By default a standard debugger which opens values and prints them.
    */
-  default DebugBuilder createDebugBuilder(ProtocolBuilderNumeric builder) {
-    return new DefaultDebugBuilder(builder);
+  default Debug createDebug(ProtocolBuilderNumeric builder) {
+    return new DefaultDebug(builder);
   }
 
   @Override

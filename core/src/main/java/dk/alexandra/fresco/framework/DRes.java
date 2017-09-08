@@ -7,7 +7,7 @@ package dk.alexandra.fresco.framework;
  *
  * @param <OutputT> the type of resulting parameter
  */
-public interface Computation<OutputT> {
+public interface DRes<OutputT> {
 
   /**
    * Gets the result of this computation.

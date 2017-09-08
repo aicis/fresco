@@ -26,9 +26,9 @@
  */
 package dk.alexandra.fresco.lib.lp;
 
-import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.builder.ComputationBuilder;
-import dk.alexandra.fresco.framework.builder.numeric.AdvancedNumericBuilder;
+import dk.alexandra.fresco.framework.DRes;
+import dk.alexandra.fresco.framework.builder.Computation;
+import dk.alexandra.fresco.framework.builder.numeric.AdvancedNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.util.ArrayList;
@@ -37,10 +37,10 @@ import java.util.ArrayList;
  * NativeProtocol extracting the optimal value from a {@link LPTableau} and an update
  * matrix representing a terminated Simplex method.
  */
-public class OptimalValue implements ComputationBuilder<SInt, ProtocolBuilderNumeric> {
+public class OptimalValue implements Computation<SInt, ProtocolBuilderNumeric> {
 
-  private final Matrix<Computation<SInt>> updateMatrix;
-  private final Computation<SInt> pivot;
+  private final Matrix<DRes<SInt>> updateMatrix;
+  private final DRes<SInt> pivot;
   private final LPTableau tableau;
 
   /**
@@ -51,9 +51,9 @@ public class OptimalValue implements ComputationBuilder<SInt, ProtocolBuilderNum
    * @param pivot the final pivot
    */
   public OptimalValue(
-      Matrix<Computation<SInt>> updateMatrix,
+      Matrix<DRes<SInt>> updateMatrix,
       LPTableau tableau,
-      Computation<SInt> pivot) {
+      DRes<SInt> pivot) {
     this.updateMatrix = updateMatrix;
     this.tableau = tableau;
     this.pivot = pivot;
@@ -61,14 +61,14 @@ public class OptimalValue implements ComputationBuilder<SInt, ProtocolBuilderNum
 
 
   @Override
-  public Computation<SInt> buildComputation(ProtocolBuilderNumeric builder) {
-    ArrayList<Computation<SInt>> row = updateMatrix.getRow(updateMatrix.getHeight() - 1);
-    ArrayList<Computation<SInt>> column = new ArrayList<>(row.size());
+  public DRes<SInt> buildComputation(ProtocolBuilderNumeric builder) {
+    ArrayList<DRes<SInt>> row = updateMatrix.getRow(updateMatrix.getHeight() - 1);
+    ArrayList<DRes<SInt>> column = new ArrayList<>(row.size());
     column.addAll(tableau.getB());
     column.add(tableau.getZ());
-    AdvancedNumericBuilder advanced = builder.advancedNumeric();
-    Computation<SInt> numerator = advanced.dot(row, column);
-    Computation<SInt> invDenominator = advanced.invert(pivot);
+    AdvancedNumeric advanced = builder.advancedNumeric();
+    DRes<SInt> numerator = advanced.dot(row, column);
+    DRes<SInt> invDenominator = advanced.invert(pivot);
     return builder.numeric().mult(numerator, invDenominator);
   }
 }

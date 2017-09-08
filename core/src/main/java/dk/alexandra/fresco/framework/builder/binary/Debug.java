@@ -1,11 +1,12 @@
 package dk.alexandra.fresco.framework.builder.binary;
 
-import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.DRes;
+import dk.alexandra.fresco.framework.builder.ComputationDirectory;
 import dk.alexandra.fresco.framework.value.SBool;
 import java.io.PrintStream;
 import java.util.List;
 
-public interface BinaryDebugBuilder {
+public interface Debug extends ComputationDirectory {
 
   /**
    * When evaluated, opens the given SBools and prints them to System.out.
@@ -13,7 +14,7 @@ public interface BinaryDebugBuilder {
    * @param label Message/headline which appears before the SBools.
    * @param toPrint The SBools to print.
    */
-  public void openAndPrint(String label, List<Computation<SBool>> toPrint);
+  public void openAndPrint(String label, List<DRes<SBool>> toPrint);
 
   /**
    * When evaluated, opens the given SBools and prints them to the given stream.
@@ -22,7 +23,7 @@ public interface BinaryDebugBuilder {
    * @param toPrint The SBools to print.
    * @param stream The stream to print to
    */
-  public void openAndPrint(String label, List<Computation<SBool>> toPrint, PrintStream stream);
+  public void openAndPrint(String label, List<DRes<SBool>> toPrint, PrintStream stream);
 
   /**
    * Print the given message to System.out when evaluated.

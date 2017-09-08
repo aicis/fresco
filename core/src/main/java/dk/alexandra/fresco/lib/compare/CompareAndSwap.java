@@ -26,8 +26,8 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.compare;
 
-import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.builder.ComputationBuilder;
+import dk.alexandra.fresco.framework.DRes;
+import dk.alexandra.fresco.framework.builder.Computation;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.value.SBool;
 
@@ -40,31 +40,31 @@ import java.util.stream.Collectors;
  *  Given two values, produce a sorted list of the values 
  *
  */
-public class CompareAndSwap implements ComputationBuilder<List<List<Computation<SBool>>>, ProtocolBuilderBinary> {
+public class CompareAndSwap implements Computation<List<List<DRes<SBool>>>, ProtocolBuilderBinary> {
 
-  private List<Computation<SBool>> left;
-  private List<Computation<SBool>> right;
+  private List<DRes<SBool>> left;
+  private List<DRes<SBool>> right;
 
-  public CompareAndSwap(List<Computation<SBool>> left, List<Computation<SBool>> right) {
+  public CompareAndSwap(List<DRes<SBool>> left, List<DRes<SBool>> right) {
     this.left = left;
     this.right = right;
   }
 
   @Override
-  public Computation<List<List<Computation<SBool>>>> buildComputation(ProtocolBuilderBinary builder) {
+  public DRes<List<List<DRes<SBool>>>> buildComputation(ProtocolBuilderBinary builder) {
     return builder.seq(seq -> {
       return seq.comparison().greaterThan(right, left);
     }).par((par, data) -> {
      
-      List<Computation<SBool>> first = left.stream()
+      List<DRes<SBool>> first = left.stream()
           .map(e -> {return par.advancedBinary().condSelect(data, e, right.get(left.indexOf(e)));})
           .collect(Collectors.toList());
 
-      List<Computation<SBool>> second = right.stream()
+      List<DRes<SBool>> second = right.stream()
           .map(e -> {return par.advancedBinary().condSelect(data, e, left.get(right.indexOf(e)));})
           .collect(Collectors.toList());
 
-      List<List<Computation<SBool>>> result = new ArrayList<List<Computation<SBool>>>();
+      List<List<DRes<SBool>>> result = new ArrayList<List<DRes<SBool>>>();
       result.add(first);
       result.add(second);
       return () -> result; 

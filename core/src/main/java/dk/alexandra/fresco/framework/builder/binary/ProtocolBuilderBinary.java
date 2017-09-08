@@ -7,11 +7,11 @@ public class ProtocolBuilderBinary extends
     ProtocolBuilderImpl<ProtocolBuilderBinary> {
 
   private BuilderFactoryBinary factory;
-  private BinaryBuilderAdvanced binaryBuilderAdvanced;
-  private ComparisonBuilderBinary comparisonBuilderBinary;
-  private BristolCryptoBuilder bristolCryptoBuilder;
-  private BinaryBuilder binaryBuilder;
-  private BinaryDebugBuilder utilityBuilder;
+  private Binary binaryBuilder;
+  private AdvancedBinary advancedBinary;
+  private Comparison comparison;
+  private BristolCrypto bristolCrypto;
+  private Debug debug;
 
   ProtocolBuilderBinary(BuilderFactoryBinary factory, boolean parallel) {
     super(factory, parallel);
@@ -28,38 +28,38 @@ public class ProtocolBuilderBinary extends
     return builder;
   }
 
-  public BinaryBuilder binary() {
+  public Binary binary() {
     if (this.binaryBuilder == null) {
-      this.binaryBuilder = this.factory.createBinaryBuilder(this);
+      this.binaryBuilder = this.factory.createBinary(this);
     }
     return this.binaryBuilder;
   }
 
-  public BinaryBuilderAdvanced advancedBinary() {
-    if (this.binaryBuilderAdvanced == null) {
-      this.binaryBuilderAdvanced = this.factory.createAdvancedBinary(this);
+  public AdvancedBinary advancedBinary() {
+    if (this.advancedBinary == null) {
+      this.advancedBinary = this.factory.createAdvancedBinary(this);
     }
-    return this.binaryBuilderAdvanced;
+    return this.advancedBinary;
   }
 
-  public ComparisonBuilderBinary comparison() {
-    if (this.comparisonBuilderBinary == null) {
-      this.comparisonBuilderBinary = this.factory.createComparison(this);
+  public Comparison comparison() {
+    if (this.comparison == null) {
+      this.comparison = this.factory.createComparison(this);
     }
-    return this.comparisonBuilderBinary;
+    return this.comparison;
   }
 
-  public BristolCryptoBuilder bristol() {
-    if (this.bristolCryptoBuilder == null) {
-      this.bristolCryptoBuilder = this.factory.createBristolCryptoBuilder(this);
+  public BristolCrypto bristol() {
+    if (this.bristolCrypto == null) {
+      this.bristolCrypto = this.factory.createBristolCrypto(this);
     }
-    return this.bristolCryptoBuilder;
+    return this.bristolCrypto;
   }
 
-  public BinaryDebugBuilder debug() {
-    if (this.utilityBuilder == null) {
-      this.utilityBuilder = this.factory.createDebugBuilder(this);
+  public Debug debug() {
+    if (this.debug == null) {
+      this.debug = this.factory.createDebug(this);
     }
-    return this.utilityBuilder;
+    return this.debug;
   }
 }

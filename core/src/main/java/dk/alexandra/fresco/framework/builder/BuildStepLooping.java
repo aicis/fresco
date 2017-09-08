@@ -1,7 +1,7 @@
 package dk.alexandra.fresco.framework.builder;
 
 import dk.alexandra.fresco.framework.BuilderFactory;
-import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.util.Pair;
@@ -20,7 +20,7 @@ class BuildStepLooping<BuilderT extends ProtocolBuilderImpl<BuilderT>, InputT>
     this.function = function;
   }
 
-  public Pair<ProtocolProducer, Computation<InputT>> createNextStep(
+  public Pair<ProtocolProducer, DRes<InputT>> createNextStep(
       InputT input,
       BuilderFactory<BuilderT> factory,
       BuildStep<InputT, BuilderT, ?> next) {
@@ -32,12 +32,12 @@ class BuildStepLooping<BuilderT extends ProtocolBuilderImpl<BuilderT>, InputT>
   private static class LoopProtocolProducer<
       BuilderT extends ProtocolBuilderImpl<BuilderT>,
       InputT
-      > implements ProtocolProducer, Computation<InputT> {
+      > implements ProtocolProducer, DRes<InputT> {
 
     private final BuilderFactory<BuilderT> factory;
     private boolean isDone;
     private boolean doneWithOwn;
-    private Computation<InputT> currentResult;
+    private DRes<InputT> currentResult;
     private ProtocolProducer currentProducer;
     private Predicate<InputT> predicate;
     private FrescoLambda<InputT, BuilderT, InputT> function;

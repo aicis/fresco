@@ -26,7 +26,7 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.field.bool.generic;
 
-import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.value.SBool;
 
@@ -40,19 +40,19 @@ import dk.alexandra.fresco.framework.value.SBool;
  * NOT ( a XOR b )
  */
 public class XnorFromXorAndNot implements
-    dk.alexandra.fresco.framework.builder.ComputationBuilder<SBool, ProtocolBuilderBinary> {
+    dk.alexandra.fresco.framework.builder.Computation<SBool, ProtocolBuilderBinary> {
 
-  private Computation<SBool> inA;
-  private Computation<SBool> inB;
+  private DRes<SBool> inA;
+  private DRes<SBool> inB;
 
-  public XnorFromXorAndNot(Computation<SBool> inA, Computation<SBool> inB) {
+  public XnorFromXorAndNot(DRes<SBool> inA, DRes<SBool> inB) {
     this.inA = inA;
     this.inB = inB;
   }
 
   @Override
-  public Computation<SBool> buildComputation(ProtocolBuilderBinary builder) {
-    Computation<SBool> tmp = builder.binary().xor(inA, inB);
+  public DRes<SBool> buildComputation(ProtocolBuilderBinary builder) {
+    DRes<SBool> tmp = builder.binary().xor(inA, inB);
     
     return builder.binary().not(tmp);
   }

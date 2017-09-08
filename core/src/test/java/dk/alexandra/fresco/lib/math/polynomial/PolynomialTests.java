@@ -27,10 +27,10 @@
 package dk.alexandra.fresco.lib.math.polynomial;
 
 import dk.alexandra.fresco.framework.Application;
-import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
-import dk.alexandra.fresco.framework.builder.numeric.NumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
@@ -57,17 +57,17 @@ public class PolynomialTests {
         @Override
         public void test() throws Exception {
           Application<BigInteger, ProtocolBuilderNumeric> app = provider -> {
-            NumericBuilder numeric = provider.numeric();
-            List<Computation<SInt>> secretCoefficients =
+            Numeric numeric = provider.numeric();
+            List<DRes<SInt>> secretCoefficients =
                 Arrays.stream(coefficients)
                     .mapToObj(BigInteger::valueOf)
                     .map((n) -> numeric.input(n, 1))
                     .collect(Collectors.toList());
 
             PolynomialImpl polynomial = new PolynomialImpl(secretCoefficients);
-            Computation<SInt> secretX = numeric.input(BigInteger.valueOf(x), 1);
+            DRes<SInt> secretX = numeric.input(BigInteger.valueOf(x), 1);
 
-            Computation<SInt> result = provider.seq(new PolynomialEvaluator(secretX, polynomial));
+            DRes<SInt> result = provider.seq(new PolynomialEvaluator(secretX, polynomial));
 
             return numeric.open(result);
           };

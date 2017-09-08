@@ -24,10 +24,10 @@
 package dk.alexandra.fresco.lib.bool;
 
 import dk.alexandra.fresco.framework.Application;
-import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
-import dk.alexandra.fresco.framework.builder.binary.BinaryBuilder;
+import dk.alexandra.fresco.framework.builder.binary.Binary;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
@@ -54,8 +54,8 @@ public class BasicBooleanTests {
         @Override
         public void test() throws Exception {
           Application<Boolean, ProtocolBuilderBinary> app = producer -> producer.seq(seq -> {
-            Computation<SBool> in = seq.binary().input(true, 1);
-            Computation<Boolean> open = seq.binary().open(in);
+            DRes<SBool> in = seq.binary().input(true, 1);
+            DRes<Boolean> open = seq.binary().open(in);
             return open;
           }).seq((seq, out) -> {
             return () -> out;
@@ -88,17 +88,17 @@ public class BasicBooleanTests {
         public void test() throws Exception {
 
           Application<List<Boolean>, ProtocolBuilderBinary> app = producer -> producer.seq(seq -> {
-            BinaryBuilder builder = seq.binary();
-            Computation<SBool> falseBool = builder.known(false);
-            Computation<SBool> trueBool = builder.known(true);
-            List<Computation<Boolean>> xors = new ArrayList<>();
+            Binary builder = seq.binary();
+            DRes<SBool> falseBool = builder.known(false);
+            DRes<SBool> trueBool = builder.known(true);
+            List<DRes<Boolean>> xors = new ArrayList<>();
             xors.add(builder.open(builder.xor(falseBool, falseBool)));
             xors.add(builder.open(builder.xor(trueBool, falseBool)));
             xors.add(builder.open(builder.xor(falseBool, trueBool)));
             xors.add(builder.open(builder.xor(trueBool, trueBool)));
             return () -> xors;
           }).seq((seq, list) -> {
-            return () -> list.stream().map(Computation::out).collect(Collectors.toList());
+            return () -> list.stream().map(DRes::out).collect(Collectors.toList());
           });
 
           List<Boolean> outs = secureComputationEngine.runApplication(app,
@@ -131,17 +131,17 @@ public class BasicBooleanTests {
         public void test() throws Exception {
 
           Application<List<Boolean>, ProtocolBuilderBinary> app = producer -> producer.seq(seq -> {
-            BinaryBuilder builder = seq.binary();
-            Computation<SBool> falseBool = builder.known(false);
-            Computation<SBool> trueBool = builder.known(true);
-            List<Computation<Boolean>> list = new ArrayList<>();
+            Binary builder = seq.binary();
+            DRes<SBool> falseBool = builder.known(false);
+            DRes<SBool> trueBool = builder.known(true);
+            List<DRes<Boolean>> list = new ArrayList<>();
             list.add(builder.open(builder.and(falseBool, falseBool)));
             list.add(builder.open(builder.and(trueBool, falseBool)));
             list.add(builder.open(builder.and(falseBool, trueBool)));
             list.add(builder.open(builder.and(trueBool, trueBool)));
             return () -> list;
           }).seq((seq, list) -> {
-            return () -> list.stream().map(Computation::out).collect(Collectors.toList());
+            return () -> list.stream().map(DRes::out).collect(Collectors.toList());
           });
 
           List<Boolean> outs = secureComputationEngine.runApplication(app,
@@ -173,15 +173,15 @@ public class BasicBooleanTests {
         @Override
         public void test() throws Exception {
           Application<List<Boolean>, ProtocolBuilderBinary> app = producer -> producer.seq(seq -> {
-            BinaryBuilder builder = seq.binary();
-            Computation<SBool> falseBool = builder.known(false);
-            Computation<SBool> trueBool = builder.known(true);
-            List<Computation<Boolean>> list = new ArrayList<>();
+            Binary builder = seq.binary();
+            DRes<SBool> falseBool = builder.known(false);
+            DRes<SBool> trueBool = builder.known(true);
+            List<DRes<Boolean>> list = new ArrayList<>();
             list.add(builder.open(builder.not(falseBool)));
             list.add(builder.open(builder.not(trueBool)));
             return () -> list;
           }).seq((seq, list) -> {
-            return () -> list.stream().map(Computation::out).collect(Collectors.toList());
+            return () -> list.stream().map(DRes::out).collect(Collectors.toList());
           });
 
           List<Boolean> outs = secureComputationEngine.runApplication(app,
@@ -214,10 +214,10 @@ public class BasicBooleanTests {
         @Override
         public void test() throws Exception {
           Application<List<Boolean>, ProtocolBuilderBinary> app = producer -> producer.seq(seq -> {
-            BinaryBuilder builder = seq.binary();
-            Computation<SBool> falseBool = builder.known(false);
-            Computation<SBool> trueBool = builder.known(true);
-            List<Computation<Boolean>> list = new ArrayList<>();
+            Binary builder = seq.binary();
+            DRes<SBool> falseBool = builder.known(false);
+            DRes<SBool> trueBool = builder.known(true);
+            List<DRes<Boolean>> list = new ArrayList<>();
             list.add(builder
                 .open(builder.not(builder.and(builder.xor(falseBool, falseBool), falseBool))));
             list.add(builder
@@ -228,7 +228,7 @@ public class BasicBooleanTests {
                 builder.open(builder.not(builder.and(builder.xor(trueBool, trueBool), trueBool))));
             return () -> list;
           }).seq((seq, list) -> {
-            return () -> list.stream().map(Computation::out).collect(Collectors.toList());
+            return () -> list.stream().map(DRes::out).collect(Collectors.toList());
           });
 
           List<Boolean> outs = secureComputationEngine.runApplication(app,

@@ -8,6 +8,6 @@ package dk.alexandra.fresco.framework.builder;
  * @param <OutputT> the type of output of the function
  */
 public interface ComputationBuilderParallel<OutputT, BuilderT extends ProtocolBuilder>
-    extends ComputationBuilder<OutputT, BuilderT> {
+    extends Computation<OutputT, BuilderT> {
 
 }

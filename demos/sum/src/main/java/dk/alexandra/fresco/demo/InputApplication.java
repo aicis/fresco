@@ -27,9 +27,9 @@
 package dk.alexandra.fresco.demo;
 
 import dk.alexandra.fresco.demo.helpers.DemoNumericApplication;
-import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.BuildStep;
-import dk.alexandra.fresco.framework.builder.numeric.NumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
@@ -58,15 +58,15 @@ public class InputApplication extends DemoNumericApplication<List<SInt>> {
   }
 
   @Override
-  public Computation<List<SInt>> buildComputation(ProtocolBuilderNumeric producer) {
+  public DRes<List<SInt>> buildComputation(ProtocolBuilderNumeric producer) {
     return createBuildStep(producer);
   }
 
   public BuildStep<?, ProtocolBuilderNumeric, List<SInt>> createBuildStep(
       ProtocolBuilderNumeric producer) {
     return producer.par(par -> {
-      NumericBuilder numeric = par.numeric();
-      List<Computation<SInt>> result = new ArrayList<>(length);
+      Numeric numeric = par.numeric();
+      List<DRes<SInt>> result = new ArrayList<>(length);
       for (int i = 0; i < this.length; i++) {
         //create wires
         if (this.inputs != null) {
@@ -75,7 +75,7 @@ public class InputApplication extends DemoNumericApplication<List<SInt>> {
           result.add(numeric.input(null, 1));
         }
       }
-      return () -> result.stream().map(Computation::out).collect(Collectors.toList());
+      return () -> result.stream().map(DRes::out).collect(Collectors.toList());
     });
   }
 }

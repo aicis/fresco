@@ -24,10 +24,10 @@
 package dk.alexandra.fresco.lib.math.integer.exp;
 
 import dk.alexandra.fresco.framework.Application;
-import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
-import dk.alexandra.fresco.framework.builder.numeric.NumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
@@ -53,11 +53,11 @@ public class ExponentiationTests {
         @Override
         public void test() throws Exception {
           Application<BigInteger, ProtocolBuilderNumeric> app = producer -> {
-            NumericBuilder numeric = producer.numeric();
-            Computation<SInt> base = numeric.input(input, 1);
-            Computation<SInt> exponent = numeric.input(BigInteger.valueOf(exp), 1);
+            Numeric numeric = producer.numeric();
+            DRes<SInt> base = numeric.input(input, 1);
+            DRes<SInt> exponent = numeric.input(BigInteger.valueOf(exp), 1);
 
-            Computation<SInt> result = producer.advancedNumeric().exp(base, exponent, 5);
+            DRes<SInt> result = producer.advancedNumeric().exp(base, exponent, 5);
 
             return numeric.open(result);
           };
@@ -83,11 +83,11 @@ public class ExponentiationTests {
         @Override
         public void test() throws Exception {
           Application<BigInteger, ProtocolBuilderNumeric> app = producer -> {
-            NumericBuilder numeric = producer.numeric();
-            Computation<SInt> base = numeric.known(input);
+            Numeric numeric = producer.numeric();
+            DRes<SInt> base = numeric.known(input);
             BigInteger exponent = BigInteger.valueOf(exp);
 
-            Computation<SInt> result = producer.advancedNumeric().exp(base, exponent);
+            DRes<SInt> result = producer.advancedNumeric().exp(base, exponent);
 
             return numeric.open(result);
           };
@@ -113,10 +113,10 @@ public class ExponentiationTests {
         @Override
         public void test() throws Exception {
           Application<BigInteger, ProtocolBuilderNumeric> app = producer -> {
-            NumericBuilder numeric = producer.numeric();
-            Computation<SInt> exponent = numeric.known(BigInteger.valueOf(exp));
+            Numeric numeric = producer.numeric();
+            DRes<SInt> exponent = numeric.known(BigInteger.valueOf(exp));
 
-            Computation<SInt> result = producer.advancedNumeric().exp(input, exponent, 5);
+            DRes<SInt> result = producer.advancedNumeric().exp(input, exponent, 5);
 
             return numeric.open(result);
           };
@@ -142,11 +142,11 @@ public class ExponentiationTests {
         public void test() throws Exception {
           Application<BigInteger, ProtocolBuilderNumeric> app = producer -> {
 
-            NumericBuilder numeric = producer.numeric();
-            Computation<SInt> base = numeric.known(input);
+            Numeric numeric = producer.numeric();
+            DRes<SInt> base = numeric.known(input);
             BigInteger exponent = BigInteger.ZERO;
 
-            Computation<SInt> result = producer.advancedNumeric().exp(base, exponent);
+            DRes<SInt> result = producer.advancedNumeric().exp(base, exponent);
 
             return numeric.open(result);
           };

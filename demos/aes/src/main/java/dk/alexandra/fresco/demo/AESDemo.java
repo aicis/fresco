@@ -26,8 +26,8 @@ package dk.alexandra.fresco.demo;
 import dk.alexandra.fresco.demo.cli.CmdLineUtil;
 import dk.alexandra.fresco.demo.helpers.ResourcePoolHelper;
 import dk.alexandra.fresco.framework.Application;
-import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.builder.binary.BinaryBuilder;
+import dk.alexandra.fresco.framework.DRes;
+import dk.alexandra.fresco.framework.builder.binary.Binary;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
@@ -167,11 +167,11 @@ public class AESDemo implements Application<List<Boolean>, ProtocolBuilderBinary
   }
 
   @Override
-  public Computation<List<Boolean>> buildComputation(ProtocolBuilderBinary producer) {
+  public DRes<List<Boolean>> buildComputation(ProtocolBuilderBinary producer) {
     return producer.seq(seq -> {
-      BinaryBuilder bin = seq.binary();
-      List<Computation<SBool>> keyInputs = new ArrayList<>();
-      List<Computation<SBool>> plainInputs = new ArrayList<>();
+      Binary bin = seq.binary();
+      List<DRes<SBool>> keyInputs = new ArrayList<>();
+      List<DRes<SBool>> plainInputs = new ArrayList<>();
       if (this.id == 1) {
         for (boolean b : in) {
           keyInputs.add(bin.input(b, 1));
@@ -184,16 +184,16 @@ public class AESDemo implements Application<List<Boolean>, ProtocolBuilderBinary
           plainInputs.add(bin.input(b, 2));
         }
       }
-      Computation<List<SBool>> res = seq.bristol().AES(plainInputs, keyInputs);
+      DRes<List<SBool>> res = seq.bristol().AES(plainInputs, keyInputs);
       return res;
     }).seq((seq, aesRes) -> {
-      List<Computation<Boolean>> outs = new ArrayList<>();
+      List<DRes<Boolean>> outs = new ArrayList<>();
       for (SBool toOpen : aesRes) {
         outs.add(seq.binary().open(toOpen));
       }
       return () -> outs;
     }).seq((seq, opened) -> {
-      return () -> opened.stream().map(Computation::out).collect(Collectors.toList());
+      return () -> opened.stream().map(DRes::out).collect(Collectors.toList());
     });
   }
 

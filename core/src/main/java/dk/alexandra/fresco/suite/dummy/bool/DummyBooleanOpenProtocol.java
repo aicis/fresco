@@ -26,7 +26,7 @@
  *******************************************************************************/
 package dk.alexandra.fresco.suite.dummy.bool;
 
-import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.network.SCENetwork;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SBool;
@@ -38,7 +38,7 @@ import dk.alexandra.fresco.framework.value.SBool;
 public class DummyBooleanOpenProtocol extends DummyBooleanNativeProtocol<Boolean>{
 
 	private Boolean open;
-  private Computation<SBool> closed;
+  private DRes<SBool> closed;
 
 	private int target;
 	
@@ -47,7 +47,7 @@ public class DummyBooleanOpenProtocol extends DummyBooleanNativeProtocol<Boolean
    * 
    * @param c a computation supplying the {@link SBool} to open
    */
-	DummyBooleanOpenProtocol(Computation<SBool> in) {
+	DummyBooleanOpenProtocol(DRes<SBool> in) {
 	  open = null;
 		closed = in;
 		target = -1; // open to all
@@ -59,7 +59,7 @@ public class DummyBooleanOpenProtocol extends DummyBooleanNativeProtocol<Boolean
    * @param c a computation supplying the {@link SBool} to open
    * @param target the id of party to open towards
    */
-  public DummyBooleanOpenProtocol(Computation<SBool> c, int target) {
+  public DummyBooleanOpenProtocol(DRes<SBool> c, int target) {
     super();
     this.target = target;
     this.closed = c;

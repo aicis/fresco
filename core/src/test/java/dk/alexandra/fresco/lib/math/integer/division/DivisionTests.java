@@ -24,10 +24,10 @@
 package dk.alexandra.fresco.lib.math.integer.division;
 
 import dk.alexandra.fresco.framework.Application;
-import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
-import dk.alexandra.fresco.framework.builder.numeric.NumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
@@ -53,12 +53,12 @@ public class DivisionTests {
   public static Application<Pair<BigInteger, BigInteger>, ProtocolBuilderNumeric>
   createDivideApplication(BigInteger x, BigInteger d) {
     return (producer) -> {
-      NumericBuilder numeric = producer.numeric();
-      Computation<SInt> input1 = numeric.input(x, 1);
-      Computation<SInt> division = producer.seq(new KnownDivisor(input1, d));
-      Computation<SInt> remainder = producer.seq(new KnownDivisorRemainder(input1, d));
-      Computation<BigInteger> output1 = numeric.open(division);
-      Computation<BigInteger> output2 = numeric.open(remainder);
+      Numeric numeric = producer.numeric();
+      DRes<SInt> input1 = numeric.input(x, 1);
+      DRes<SInt> division = producer.seq(new KnownDivisor(input1, d));
+      DRes<SInt> remainder = producer.seq(new KnownDivisorRemainder(input1, d));
+      DRes<BigInteger> output1 = numeric.open(division);
+      DRes<BigInteger> output2 = numeric.open(remainder);
       return () -> new Pair<>(output1.out(), output2.out());
     };
   }
@@ -148,15 +148,15 @@ public class DivisionTests {
         @Override
         public void test() throws Exception {
           Application<List<BigInteger>, ProtocolBuilderNumeric> app = (builder) -> {
-            List<Computation<BigInteger>> results = new ArrayList<>(n);
-            NumericBuilder numericBuilder = builder.numeric();
-            Computation<SInt> divisor = numericBuilder.input(d, 1);
+            List<DRes<BigInteger>> results = new ArrayList<>(n);
+            Numeric numericBuilder = builder.numeric();
+            DRes<SInt> divisor = numericBuilder.input(d, 1);
             for (BigInteger value : x) {
-              Computation<SInt> dividend = numericBuilder.input(value, 1);
-              Computation<SInt> division = builder.advancedNumeric().div(dividend, divisor);
+              DRes<SInt> dividend = numericBuilder.input(value, 1);
+              DRes<SInt> division = builder.advancedNumeric().div(dividend, divisor);
               results.add(builder.numeric().open(division));
             }
-            return () -> results.stream().map(Computation::out).collect(Collectors.toList());
+            return () -> results.stream().map(DRes::out).collect(Collectors.toList());
           };
           List<BigInteger> results = secureComputationEngine.runApplication(app,
               ResourcePoolCreator.createResourcePool(conf.sceConf));

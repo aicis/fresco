@@ -2,8 +2,8 @@ package dk.alexandra.fresco.demo;
 
 import dk.alexandra.fresco.demo.EncryptAndRevealStep.RowWithCipher;
 import dk.alexandra.fresco.framework.Application;
-import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.builder.ComputationBuilder;
+import dk.alexandra.fresco.framework.DRes;
+import dk.alexandra.fresco.framework.builder.Computation;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
@@ -26,16 +26,16 @@ public class EncryptAndRevealStep implements
   }
 
   @Override
-  public Computation<List<RowWithCipher>> buildComputation(ProtocolBuilderNumeric builder) {
+  public DRes<List<RowWithCipher>> buildComputation(ProtocolBuilderNumeric builder) {
     return builder.par(par ->
         builder.numeric().randomElement()
     ).par((par, mimcKey) -> {
-      List<Pair<List<SInt>, Computation<BigInteger>>> ciphers = new ArrayList<>(inputRows.size());
+      List<Pair<List<SInt>, DRes<BigInteger>>> ciphers = new ArrayList<>(inputRows.size());
       // Encrypt desired column and open resulting cipher text
       for (final List<SInt> row : inputRows) {
-        ComputationBuilder<BigInteger, ProtocolBuilderNumeric> function = (seq) -> {
+        Computation<BigInteger, ProtocolBuilderNumeric> function = (seq) -> {
           SInt toEncrypt = row.get(toEncryptIndex);
-          Computation<SInt> cipherText = seq.seq(new MiMCEncryption(toEncrypt, mimcKey));
+          DRes<SInt> cipherText = seq.seq(new MiMCEncryption(toEncrypt, mimcKey));
           return seq.numeric().open(cipherText);
         };
         ciphers.add(new Pair<>(row, par.seq(function)));
@@ -54,7 +54,7 @@ public class EncryptAndRevealStep implements
     public final BigInteger cipher;
 
 
-    private RowWithCipher(Pair<List<SInt>, Computation<BigInteger>> cipherPair) {
+    private RowWithCipher(Pair<List<SInt>, DRes<BigInteger>> cipherPair) {
       this.row = cipherPair.getFirst();
       this.cipher = cipherPair.getSecond().out();
     }

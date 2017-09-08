@@ -26,7 +26,7 @@ package dk.alexandra.fresco.lib.crypto;
 import static org.junit.Assert.assertTrue;
 
 import dk.alexandra.fresco.framework.Application;
-import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
@@ -109,24 +109,24 @@ public class BristolCryptoTests {
         public void test() throws Exception {
           Application<List<Boolean>, ProtocolBuilderBinary> multApp =
               producer -> producer.seq(seq -> {
-            List<Computation<SBool>> plainText =
+            List<DRes<SBool>> plainText =
                 BooleanHelper.known(toBoolean(plainVec), seq.binary());
-            List<Computation<SBool>> key = BooleanHelper.known(toBoolean(keyVec[0]), seq.binary());
-            List<List<Computation<SBool>>> inputs = new ArrayList<>();
+            List<DRes<SBool>> key = BooleanHelper.known(toBoolean(keyVec[0]), seq.binary());
+            List<List<DRes<SBool>>> inputs = new ArrayList<>();
             inputs.add(plainText);
             inputs.add(key);
             return () -> inputs;
           }).seq((seq, inputs) -> {
-            Computation<List<SBool>> l = seq.bristol().AES(inputs.get(0), inputs.get(1));
+            DRes<List<SBool>> l = seq.bristol().AES(inputs.get(0), inputs.get(1));
             return l;
           }).seq((seq, res) -> {
-            List<Computation<Boolean>> outputs = new ArrayList<>();
+            List<DRes<Boolean>> outputs = new ArrayList<>();
             for (SBool boo : res) {
               outputs.add(seq.binary().open(() -> boo));
             }
             return () -> outputs;
           }).seq((seq,
-              output) -> () -> output.stream().map(Computation::out).collect(Collectors.toList()));
+              output) -> () -> output.stream().map(DRes::out).collect(Collectors.toList()));
 
           List<Boolean> res = secureComputationEngine.runApplication(multApp,
               ResourcePoolCreator.createResourcePool(conf.sceConf));
@@ -178,10 +178,10 @@ public class BristolCryptoTests {
         public void test() throws Exception {
           Application<List<Boolean>, ProtocolBuilderBinary> multApp =
               producer -> producer.seq(seq -> {
-            List<Computation<SBool>> input1 = BooleanHelper.known(toBoolean(ins[0]), seq.binary());
+            List<DRes<SBool>> input1 = BooleanHelper.known(toBoolean(ins[0]), seq.binary());
             // List<Computation<SBool>> input2 = seq.binary().known(toBoolean(ins[1]));
             // List<Computation<SBool>> input3 = seq.binary().known(toBoolean(ins[2]));
-            List<List<Computation<SBool>>> inputs = new ArrayList<>();
+            List<List<DRes<SBool>>> inputs = new ArrayList<>();
             inputs.add(input1);
             // inputs.add(input2);
             // inputs.add(input3);
@@ -192,10 +192,10 @@ public class BristolCryptoTests {
             // list.add(seq.bristol().getSHA1Circuit(inputs.get(1)));
             // list.add(seq.bristol().getSHA1Circuit(inputs.get(2)));
 
-            Computation<List<SBool>> list = seq.bristol().SHA1(inputs.get(0));
+            DRes<List<SBool>> list = seq.bristol().SHA1(inputs.get(0));
             return list;
           }).seq((seq, res) -> {
-            List<Computation<Boolean>> outputs = new ArrayList<>();
+            List<DRes<Boolean>> outputs = new ArrayList<>();
             for (SBool boo : res) {
               outputs.add(seq.binary().open(boo));
             }
@@ -213,7 +213,7 @@ public class BristolCryptoTests {
             // for (List<Computation<Boolean>> o : output) {
             // result.add(o.stream().map(Computation::out).collect(Collectors.toList()));
             // }
-            return () -> output.stream().map(Computation::out).collect(Collectors.toList());
+            return () -> output.stream().map(DRes::out).collect(Collectors.toList());
             // return () -> result;
           });
 
@@ -275,21 +275,21 @@ public class BristolCryptoTests {
         public void test() throws Exception {
           Application<List<Boolean>, ProtocolBuilderBinary> multApp =
               producer -> producer.seq(seq -> {
-            List<Computation<SBool>> input1 = BooleanHelper.known(toBoolean(in1), seq.binary());
-            List<List<Computation<SBool>>> inputs = new ArrayList<>();
+            List<DRes<SBool>> input1 = BooleanHelper.known(toBoolean(in1), seq.binary());
+            List<List<DRes<SBool>>> inputs = new ArrayList<>();
             inputs.add(input1);
             return () -> inputs;
           }).seq((seq, inputs) -> {
-            Computation<List<SBool>> list = seq.bristol().SHA256(inputs.get(0));
+            DRes<List<SBool>> list = seq.bristol().SHA256(inputs.get(0));
             return list;
           }).seq((seq, res) -> {
-            List<Computation<Boolean>> outputs = new ArrayList<>();
+            List<DRes<Boolean>> outputs = new ArrayList<>();
             for (SBool boo : res) {
               outputs.add(seq.binary().open(boo));
             }
             return () -> outputs;
           }).seq((seq,
-              output) -> () -> output.stream().map(Computation::out).collect(Collectors.toList()));
+              output) -> () -> output.stream().map(DRes::out).collect(Collectors.toList()));
 
           List<Boolean> res = secureComputationEngine.runApplication(multApp,
               ResourcePoolCreator.createResourcePool(conf.sceConf));
@@ -346,21 +346,21 @@ public class BristolCryptoTests {
         public void test() throws Exception {
           Application<List<Boolean>, ProtocolBuilderBinary> multApp =
               producer -> producer.seq(seq -> {
-            List<Computation<SBool>> input1 = BooleanHelper.known(toBoolean(in1), seq.binary());
-            List<List<Computation<SBool>>> inputs = new ArrayList<>();
+            List<DRes<SBool>> input1 = BooleanHelper.known(toBoolean(in1), seq.binary());
+            List<List<DRes<SBool>>> inputs = new ArrayList<>();
             inputs.add(input1);
             return () -> inputs;
           }).seq((seq, inputs) -> {
-            Computation<List<SBool>> list = seq.bristol().MD5(inputs.get(0));
+            DRes<List<SBool>> list = seq.bristol().MD5(inputs.get(0));
             return list;
           }).seq((seq, res) -> {
-            List<Computation<Boolean>> outputs = new ArrayList<>();
+            List<DRes<Boolean>> outputs = new ArrayList<>();
             for (SBool boo : res) {
               outputs.add(seq.binary().open(boo));
             }
             return () -> outputs;
           }).seq((seq,
-              output) -> () -> output.stream().map(Computation::out).collect(Collectors.toList()));
+              output) -> () -> output.stream().map(DRes::out).collect(Collectors.toList()));
 
           List<Boolean> res = secureComputationEngine.runApplication(multApp,
               ResourcePoolCreator.createResourcePool(conf.sceConf));
@@ -405,23 +405,23 @@ public class BristolCryptoTests {
         public void test() throws Exception {
           Application<List<Boolean>, ProtocolBuilderBinary> multApp =
               producer -> producer.seq(seq -> {
-            List<Computation<SBool>> in1 = BooleanHelper.known(toBoolean(inv1), seq.binary());
-            List<Computation<SBool>> in2 = BooleanHelper.known(toBoolean(inv2), seq.binary());
-            List<List<Computation<SBool>>> inputs = new ArrayList<>();
+            List<DRes<SBool>> in1 = BooleanHelper.known(toBoolean(inv1), seq.binary());
+            List<DRes<SBool>> in2 = BooleanHelper.known(toBoolean(inv2), seq.binary());
+            List<List<DRes<SBool>>> inputs = new ArrayList<>();
             inputs.add(in1);
             inputs.add(in2);
             return () -> inputs;
           }).seq((seq, inputs) -> {
-            Computation<List<SBool>> l = seq.bristol().mult32x32(inputs.get(0), inputs.get(1));
+            DRes<List<SBool>> l = seq.bristol().mult32x32(inputs.get(0), inputs.get(1));
             return l;
           }).seq((seq, res) -> {
-            List<Computation<Boolean>> outputs = new ArrayList<>();
+            List<DRes<Boolean>> outputs = new ArrayList<>();
             for (SBool boo : res) {
               outputs.add(seq.binary().open(() -> boo));
             }
             return () -> outputs;
           }).seq((seq,
-              output) -> () -> output.stream().map(Computation::out).collect(Collectors.toList()));
+              output) -> () -> output.stream().map(DRes::out).collect(Collectors.toList()));
 
           List<Boolean> res = secureComputationEngine.runApplication(multApp,
               ResourcePoolCreator.createResourcePool(conf.sceConf));
@@ -467,25 +467,25 @@ public class BristolCryptoTests {
         public void test() throws Exception {
           Application<List<Boolean>, ProtocolBuilderBinary> multApp =
               producer -> producer.seq(seq -> {
-            List<Computation<SBool>> plainText =
+            List<DRes<SBool>> plainText =
                 BooleanHelper.known(toBoolean(plainV), seq.binary());
-            List<Computation<SBool>> keyMaterial =
+            List<DRes<SBool>> keyMaterial =
                 BooleanHelper.known(toBoolean(keyV), seq.binary());
-            List<List<Computation<SBool>>> inputs = new ArrayList<>();
+            List<List<DRes<SBool>>> inputs = new ArrayList<>();
             inputs.add(plainText);
             inputs.add(keyMaterial);
             return () -> inputs;
           }).seq((seq, inputs) -> {
-            Computation<List<SBool>> l = seq.bristol().DES(inputs.get(0), inputs.get(1));
+            DRes<List<SBool>> l = seq.bristol().DES(inputs.get(0), inputs.get(1));
             return l;
           }).seq((seq, res) -> {
-            List<Computation<Boolean>> outputs = new ArrayList<>();
+            List<DRes<Boolean>> outputs = new ArrayList<>();
             for (SBool boo : res) {
               outputs.add(seq.binary().open(() -> boo));
             }
             return () -> outputs;
           }).seq((seq,
-              output) -> () -> output.stream().map(Computation::out).collect(Collectors.toList()));
+              output) -> () -> output.stream().map(DRes::out).collect(Collectors.toList()));
 
           List<Boolean> res = secureComputationEngine.runApplication(multApp,
               ResourcePoolCreator.createResourcePool(conf.sceConf));

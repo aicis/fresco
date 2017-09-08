@@ -26,32 +26,32 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.field.bool;
 
-import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.builder.ComputationBuilder;
-import dk.alexandra.fresco.framework.builder.binary.BinaryBuilder;
+import dk.alexandra.fresco.framework.DRes;
+import dk.alexandra.fresco.framework.builder.Computation;
+import dk.alexandra.fresco.framework.builder.binary.Binary;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.value.SBool;
 
 
-public class ConditionalSelect implements ComputationBuilder<SBool, ProtocolBuilderBinary> {
+public class ConditionalSelect implements Computation<SBool, ProtocolBuilderBinary> {
 
-  private final Computation<SBool> a, b, selector;
+  private final DRes<SBool> a, b, selector;
 
   public ConditionalSelect(
-      Computation<SBool> selector,
-      Computation<SBool> a,
-      Computation<SBool> b) {
+      DRes<SBool> selector,
+      DRes<SBool> a,
+      DRes<SBool> b) {
     this.a = a;
     this.b = b;
     this.selector = selector;
   }
 
   @Override
-  public Computation<SBool> buildComputation(ProtocolBuilderBinary builder) {
-    BinaryBuilder binary = builder.binary();
+  public DRes<SBool> buildComputation(ProtocolBuilderBinary builder) {
+    Binary binary = builder.binary();
 
-    Computation<SBool> x = binary.xor(a, b);
-    Computation<SBool> y = binary.and(selector, x);
+    DRes<SBool> x = binary.xor(a, b);
+    DRes<SBool> y = binary.and(selector, x);
     return binary.xor(y, b);
   }
 

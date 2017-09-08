@@ -27,10 +27,10 @@
 package dk.alexandra.fresco.lib.arithmetic;
 
 import dk.alexandra.fresco.framework.Application;
-import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
-import dk.alexandra.fresco.framework.builder.numeric.NumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
@@ -57,25 +57,25 @@ public class SearchingTests {
           final int MAXVALUE = 20000;
           final int NOTFOUND = -1;
           int[] values = new int[PAIRS];
-          Application<Pair<ArrayList<Computation<SInt>>, ArrayList<Computation<SInt>>>, ProtocolBuilderNumeric> app = producer -> {
-            ArrayList<Computation<SInt>> sKeys = new ArrayList<>(PAIRS);
-            ArrayList<Computation<SInt>> sValues = new ArrayList<>(PAIRS);
+          Application<Pair<ArrayList<DRes<SInt>>, ArrayList<DRes<SInt>>>, ProtocolBuilderNumeric> app = producer -> {
+            ArrayList<DRes<SInt>> sKeys = new ArrayList<>(PAIRS);
+            ArrayList<DRes<SInt>> sValues = new ArrayList<>(PAIRS);
 
-            NumericBuilder numeric = producer.numeric();
+            Numeric numeric = producer.numeric();
             Random rand = new Random(0);
             for (int i = 0; i < PAIRS; i++) {
               values[i] = rand.nextInt(MAXVALUE);
-              Computation<SInt> sInt = numeric.known(BigInteger.valueOf(i));
+              DRes<SInt> sInt = numeric.known(BigInteger.valueOf(i));
               sKeys.add(sInt);
-              Computation<SInt> valueSInt = numeric.known(BigInteger.valueOf(values[i]));
+              DRes<SInt> valueSInt = numeric.known(BigInteger.valueOf(values[i]));
               sValues.add(valueSInt);
             }
             return () -> new Pair<>(sKeys, sValues);
           };
-          Pair<ArrayList<Computation<SInt>>, ArrayList<Computation<SInt>>> inputs =
+          Pair<ArrayList<DRes<SInt>>, ArrayList<DRes<SInt>>> inputs =
               secureComputationEngine.runApplication(app, resourcePool);
-          ArrayList<Computation<SInt>> sKeys = inputs.getFirst();
-          ArrayList<Computation<SInt>> sValues = inputs.getSecond();
+          ArrayList<DRes<SInt>> sKeys = inputs.getFirst();
+          ArrayList<DRes<SInt>> sValues = inputs.getSecond();
           for (int i = 0; i < PAIRS; i++) {
             final int counter = i;
 

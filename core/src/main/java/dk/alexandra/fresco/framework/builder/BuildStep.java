@@ -1,7 +1,7 @@
 package dk.alexandra.fresco.framework.builder;
 
 import dk.alexandra.fresco.framework.BuilderFactory;
-import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.util.Pair;
 import java.util.function.Predicate;
@@ -16,14 +16,14 @@ import java.util.function.Predicate;
  */
 public final class BuildStep<
     InputT, BuilderT extends ProtocolBuilderImpl<BuilderT>, OutputT>
-    implements Computation<OutputT> {
+    implements DRes<OutputT> {
 
   interface NextStepBuilder<
       BuilderT extends ProtocolBuilderImpl<BuilderT>,
       OutputT,
       InputT> {
 
-    Pair<ProtocolProducer, Computation<OutputT>> createNextStep(
+    Pair<ProtocolProducer, DRes<OutputT>> createNextStep(
         InputT input,
         BuilderFactory<BuilderT> factory,
         BuildStep<OutputT, BuilderT, ?> next);
@@ -31,7 +31,7 @@ public final class BuildStep<
 
   private NextStepBuilder<BuilderT, OutputT, InputT> stepBuilder;
   private BuildStep<OutputT, BuilderT, ?> next;
-  private Computation<OutputT> output;
+  private DRes<OutputT> output;
 
   BuildStep(NextStepBuilder<BuilderT, OutputT, InputT> stepBuilder) {
     this.stepBuilder = stepBuilder;
@@ -100,10 +100,10 @@ public final class BuildStep<
         localChild = new BuildStep<>(
         new BuildStepSingle<>(
             (BuilderT builder, OutputT output1) -> {
-              Computation<FirstOutputT> firstOutput =
+              DRes<FirstOutputT> firstOutput =
                   builder.seq(
                       seq -> firstFunction.buildComputation(seq, output1));
-              Computation<SecondOutputT> secondOutput =
+              DRes<SecondOutputT> secondOutput =
                   builder.seq(
                       seq -> secondFunction.buildComputation(seq, output1));
               return () -> new Pair<>(firstOutput.out(), secondOutput.out());
@@ -123,7 +123,7 @@ public final class BuildStep<
   ProtocolProducer createProducer(
       InputT input,
       BuilderFactory<BuilderT> factory) {
-    Pair<ProtocolProducer, Computation<OutputT>> nextStep =
+    Pair<ProtocolProducer, DRes<OutputT>> nextStep =
         stepBuilder.createNextStep(input, factory, next);
     stepBuilder = null;
     output = nextStep.getSecond();

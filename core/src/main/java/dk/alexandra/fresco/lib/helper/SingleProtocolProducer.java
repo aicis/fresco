@@ -1,6 +1,6 @@
 package dk.alexandra.fresco.lib.helper;
 
-import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.ProtocolProducer;
@@ -8,7 +8,7 @@ import dk.alexandra.fresco.framework.ProtocolProducer;
 /**
  * A protocol producer that only produces a single protocol.
  */
-public class SingleProtocolProducer<T> implements ProtocolProducer, Computation<T> {
+public class SingleProtocolProducer<T> implements ProtocolProducer, DRes<T> {
 
   private NativeProtocol<T, ?> protocol;
   private boolean evaluated = false;

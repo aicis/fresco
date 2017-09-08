@@ -26,27 +26,27 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.compare;
 
-import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.builder.ComputationBuilder;
-import dk.alexandra.fresco.framework.builder.numeric.NumericBuilder;
+import dk.alexandra.fresco.framework.DRes;
+import dk.alexandra.fresco.framework.builder.Computation;
+import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 
-public class ConditionalSelect implements ComputationBuilder<SInt, ProtocolBuilderNumeric> {
+public class ConditionalSelect implements Computation<SInt, ProtocolBuilderNumeric> {
 
-  private final Computation<SInt> a, b, selector;
+  private final DRes<SInt> a, b, selector;
 
-  public ConditionalSelect(Computation<SInt> selector, Computation<SInt> a, Computation<SInt> b) {
+  public ConditionalSelect(DRes<SInt> selector, DRes<SInt> a, DRes<SInt> b) {
     this.a = a;
     this.b = b;
     this.selector = selector;
   }
 
   @Override
-  public Computation<SInt> buildComputation(ProtocolBuilderNumeric builder) {
-    NumericBuilder numeric = builder.numeric();
-    Computation<SInt> sub = numeric.sub(a, b);
-    Computation<SInt> mult = numeric.mult(selector, sub);
+  public DRes<SInt> buildComputation(ProtocolBuilderNumeric builder) {
+    Numeric numeric = builder.numeric();
+    DRes<SInt> sub = numeric.sub(a, b);
+    DRes<SInt> mult = numeric.mult(selector, sub);
     return numeric.add(mult, b);
   }
 }

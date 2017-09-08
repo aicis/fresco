@@ -8,7 +8,7 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 
-import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticSInt;
 
@@ -18,10 +18,10 @@ public class TestStatistics {
   
   @Test (expected = IllegalArgumentException.class)
   public void testCovarianceBadLength() {
-    List<Computation<SInt>> input1 = new ArrayList<Computation<SInt>>();
+    List<DRes<SInt>> input1 = new ArrayList<DRes<SInt>>();
     input1.add(new DummyArithmeticSInt(2));
     input1.add(new DummyArithmeticSInt(2));
-    List<Computation<SInt>> input2 = new ArrayList<Computation<SInt>>();
+    List<DRes<SInt>> input2 = new ArrayList<DRes<SInt>>();
     input2.add(new DummyArithmeticSInt(2));
     input2.add(new DummyArithmeticSInt(2));
     input2.add(new DummyArithmeticSInt(2));
@@ -32,10 +32,10 @@ public class TestStatistics {
 
   @Test (expected = IllegalArgumentException.class)
   public void testCovarianceMatrixBadLength() {
-    List<Computation<SInt>> input1 = new ArrayList<Computation<SInt>>();
+    List<DRes<SInt>> input1 = new ArrayList<DRes<SInt>>();
     input1.add(new DummyArithmeticSInt(2));
     input1.add(new DummyArithmeticSInt(2));
-    List<Computation<SInt>> input2 = new ArrayList<Computation<SInt>>();
+    List<DRes<SInt>> input2 = new ArrayList<DRes<SInt>>();
     input2.add(new DummyArithmeticSInt(2));
     input2.add(new DummyArithmeticSInt(2));
     input2.add(new DummyArithmeticSInt(2));

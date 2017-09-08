@@ -26,7 +26,7 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.field.bool.generic;
 
-import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.value.SBool;
 
@@ -40,21 +40,21 @@ import dk.alexandra.fresco.framework.value.SBool;
  * (a AND b) XOR a XOR b
  */
 public class OrFromXorAnd implements
-    dk.alexandra.fresco.framework.builder.ComputationBuilder<SBool, ProtocolBuilderBinary> {
+    dk.alexandra.fresco.framework.builder.Computation<SBool, ProtocolBuilderBinary> {
 
-  private Computation<SBool> inA;
-  private Computation<SBool> inB;
+  private DRes<SBool> inA;
+  private DRes<SBool> inB;
 
-  public OrFromXorAnd(Computation<SBool> inA, Computation<SBool> inB) {
+  public OrFromXorAnd(DRes<SBool> inA, DRes<SBool> inB) {
     this.inA = inA;
     this.inB = inB;
   }
 
   @Override
-  public Computation<SBool> buildComputation(ProtocolBuilderBinary builder) {
+  public DRes<SBool> buildComputation(ProtocolBuilderBinary builder) {
 
-    Computation<SBool> t0 = builder.binary().and(inA, inB);
-    Computation<SBool> t1 = builder.binary().xor(inA, inB);
+    DRes<SBool> t0 = builder.binary().and(inA, inB);
+    DRes<SBool> t1 = builder.binary().xor(inA, inB);
     
     return builder.binary().xor(t0, t1);
   }

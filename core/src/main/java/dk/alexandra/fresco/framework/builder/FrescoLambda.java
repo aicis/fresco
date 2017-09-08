@@ -1,6 +1,6 @@
 package dk.alexandra.fresco.framework.builder;
 
-import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.DRes;
 
 /**
  * Any computation in fresco being composite by nature - and hence requires a specific
@@ -22,6 +22,6 @@ public interface FrescoLambda<
    * @param input the input to this computation
    * @return the computation as the result
    */
-  Computation<OutputT> buildComputation(BuilderT builder, InputT input);
+  DRes<OutputT> buildComputation(BuilderT builder, InputT input);
 
 }
