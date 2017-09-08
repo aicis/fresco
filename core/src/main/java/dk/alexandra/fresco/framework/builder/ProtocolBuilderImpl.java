@@ -18,7 +18,7 @@ public abstract class ProtocolBuilderImpl<BuilderT extends ProtocolBuilderImpl<B
     implements ProtocolBuilder {
 
   private final boolean parallel;
-  private List<ProtocolEntity> protocols;
+  private List<ProtocolProducer> protocols;
   private BuilderFactory<BuilderT> factory;
 
   protected ProtocolBuilderImpl(
@@ -37,24 +37,19 @@ public abstract class ProtocolBuilderImpl<BuilderT extends ProtocolBuilderImpl<B
    * @param consumer lazy creation of the protocol producer
    */
   public <T extends Consumer<BuilderT>> void createIteration(T consumer) {
-    addConsumer(consumer, () -> factory.createSequential());
-  }
-
-  protected <T extends ProtocolBuilderImpl> void addConsumer(Consumer<T> consumer,
-      Supplier<T> supplier) {
+    Supplier<BuilderT> supplier = () -> factory.createSequential();
     createAndAppend(new LazyProtocolProducerDecorator(() -> {
-      T builder = supplier.get();
+      BuilderT builder = supplier.get();
       consumer.accept(builder);
       return builder.build();
     }));
   }
 
   private void createAndAppend(ProtocolProducer producer) {
-    ProtocolEntity protocolEntity = new ProtocolEntity(producer);
     if (protocols == null) {
       throw new IllegalStateException("Cannot build this twice, it has all ready been constructed");
     }
-    protocols.add(protocolEntity);
+    protocols.add(producer);
   }
 
   /**
@@ -89,8 +84,8 @@ public abstract class ProtocolBuilderImpl<BuilderT extends ProtocolBuilderImpl<B
   }
 
   private void addEntities(ProtocolProducerCollection producerCollection) {
-    for (ProtocolEntity protocolEntity : protocols) {
-      producerCollection.append(protocolEntity.protocolProducer);
+    for (ProtocolProducer protocolProducer : protocols) {
+      producerCollection.append(protocolProducer);
     }
     protocols = null;
   }
@@ -122,14 +117,5 @@ public abstract class ProtocolBuilderImpl<BuilderT extends ProtocolBuilderImpl<B
         new BuildStep<>(new BuildStepSingle<>(innerBuilder, true));
     createAndAppend(new LazyProtocolProducerDecorator(() -> builder.createProducer(null, factory)));
     return builder;
-  }
-
-  private static class ProtocolEntity {
-
-    final ProtocolProducer protocolProducer;
-
-    private ProtocolEntity(ProtocolProducer producer) {
-      protocolProducer = producer;
-    }
   }
 }

@@ -1,7 +1,6 @@
 package dk.alexandra.fresco.framework.builder.binary;
 
 import dk.alexandra.fresco.framework.builder.ProtocolBuilderImpl;
-import java.util.function.Consumer;
 
 public class ProtocolBuilderBinary extends
     ProtocolBuilderImpl<ProtocolBuilderBinary> {
@@ -16,16 +15,6 @@ public class ProtocolBuilderBinary extends
   ProtocolBuilderBinary(BuilderFactoryBinary factory, boolean parallel) {
     super(factory, parallel);
     this.factory = factory;
-  }
-
-  /** @deprecated - protocol suite can do this themselves
-   */
-  @Deprecated
-  public static ProtocolBuilderBinary createApplicationRoot(BuilderFactoryBinary factory,
-      Consumer<ProtocolBuilderBinary> consumer) {
-    ProtocolBuilderBinary builder = new ProtocolBuilderBinary(factory, false);
-    builder.addConsumer(consumer, () -> new ProtocolBuilderBinary(factory, false));
-    return builder;
   }
 
   public Binary binary() {

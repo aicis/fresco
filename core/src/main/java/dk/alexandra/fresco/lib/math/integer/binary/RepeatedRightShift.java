@@ -28,7 +28,6 @@ package dk.alexandra.fresco.lib.math.integer.binary;
 
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.Computation;
-import dk.alexandra.fresco.framework.builder.DelayedComputation;
 import dk.alexandra.fresco.framework.builder.numeric.AdvancedNumeric.RightShiftResult;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
@@ -42,13 +41,14 @@ public class RepeatedRightShift implements
   private final boolean calculateRemainders;
   // Input
   private final DRes<SInt> input;
-  private final DelayedComputation<RightShiftResult> result = new DelayedComputation<>();
+  private DRes<RightShiftResult> result;
 
 
   /**
    * @param input The input.
-   * @param calculateRemainders true to also calculate remainder. If false remainders in result will
-   * be null.
+   * @param calculateRemainders true to also calculate remainder. If false remainders in result
+   *     will
+   *     be null.
    */
   public RepeatedRightShift(
       DRes<SInt> input,
@@ -79,7 +79,7 @@ public class RepeatedRightShift implements
           iterationBuilder.seq((builder) -> builder.advancedNumeric().rightShift(input));
       iterationBuilder.createIteration((builder) -> doIteration(builder, iteration, shifts - 1));
     } else {
-      result.setComputation(() -> new RightShiftResult(input.out(), null));
+      result = () -> new RightShiftResult(input.out(), null);
     }
   }
 
@@ -95,8 +95,7 @@ public class RepeatedRightShift implements
         doIterationWithRemainder(builder, out::getResult, shifts - 1, remainders);
       });
     } else {
-      result.setComputation(() -> new RightShiftResult(input.out(), remainders));
+      result = () -> new RightShiftResult(input.out(), remainders);
     }
   }
-
 }
