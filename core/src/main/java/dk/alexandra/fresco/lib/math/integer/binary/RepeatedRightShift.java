@@ -41,7 +41,7 @@ public class RepeatedRightShift implements
   private final boolean calculateRemainders;
   // Input
   private final DRes<SInt> input;
-  private DRes<RightShiftResult> result;
+  private final DelayedComputation<RightShiftResult> result = new DelayedComputation<>();
 
 
   /**
@@ -79,7 +79,7 @@ public class RepeatedRightShift implements
           iterationBuilder.seq((builder) -> builder.advancedNumeric().rightShift(input));
       iterationBuilder.createIteration((builder) -> doIteration(builder, iteration, shifts - 1));
     } else {
-      result = () -> new RightShiftResult(input.out(), null);
+      result.setComputation(() -> new RightShiftResult(input.out(), null));
     }
   }
 
@@ -95,7 +95,24 @@ public class RepeatedRightShift implements
         doIterationWithRemainder(builder, out::getResult, shifts - 1, remainders);
       });
     } else {
-      result = () -> new RightShiftResult(input.out(), remainders);
+      result.setComputation(() -> new RightShiftResult(input.out(), remainders));
+    }
+  }
+
+  private static class DelayedComputation<R> implements DRes<R> {
+
+    private DRes<R> closure;
+
+    public void setComputation(DRes<R> computation) {
+      if (this.closure != null) {
+        throw new IllegalStateException("Only allowed once");
+      }
+      this.closure = computation;
+    }
+
+    @Override
+    public R out() {
+      return closure.out();
     }
   }
 }
