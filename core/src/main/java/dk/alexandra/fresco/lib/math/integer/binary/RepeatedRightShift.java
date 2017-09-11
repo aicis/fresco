@@ -28,7 +28,6 @@ package dk.alexandra.fresco.lib.math.integer.binary;
 
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.Computation;
-import dk.alexandra.fresco.framework.builder.DelayedComputation;
 import dk.alexandra.fresco.framework.builder.numeric.AdvancedNumeric.RightShiftResult;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
@@ -47,8 +46,9 @@ public class RepeatedRightShift implements
 
   /**
    * @param input The input.
-   * @param calculateRemainders true to also calculate remainder. If false remainders in result will
-   * be null.
+   * @param calculateRemainders true to also calculate remainder. If false remainders in result
+   *     will
+   *     be null.
    */
   public RepeatedRightShift(
       DRes<SInt> input,
@@ -99,4 +99,20 @@ public class RepeatedRightShift implements
     }
   }
 
+  private static class DelayedComputation<R> implements DRes<R> {
+
+    private DRes<R> closure;
+
+    public void setComputation(DRes<R> computation) {
+      if (this.closure != null) {
+        throw new IllegalStateException("Only allowed once");
+      }
+      this.closure = computation;
+    }
+
+    @Override
+    public R out() {
+      return closure.out();
+    }
+  }
 }

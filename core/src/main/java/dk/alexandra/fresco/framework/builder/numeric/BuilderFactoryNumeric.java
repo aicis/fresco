@@ -1,19 +1,21 @@
 package dk.alexandra.fresco.framework.builder.numeric;
 
 import dk.alexandra.fresco.framework.BuilderFactory;
+import dk.alexandra.fresco.framework.builder.ComputationDirectory;
 import dk.alexandra.fresco.lib.compare.MiscOIntGenerators;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
 
 /**
- * The core factory to implement when creating a numeric protocol. Every subbuilder from this
- * factory must be builders and append to the supplied builder. Implementors must provide builders
- * for
+ * The core factory to implement when creating a numeric protocol. Every
+ * {@link ComputationDirectory} fount in this factory will
+ * append the produced protocols to the supplied builder. Implementors must provide
+ * a {@link Numeric} - being directory for
  * <ul>
  * <li>simple, numeric operations (+, -, *)</li>
  * <li>Open operations for opening a small subset of values used in the control flow (is a<b)<</li>
  * <li>Factories for producing secret shared values</li>
  * </ul>
- * Other builders have defaults, based on the raw methods, but can be overridden.
+ * The other directories have defaults, based on the raw methods, but can be overridden.
  */
 public interface BuilderFactoryNumeric extends BuilderFactory<ProtocolBuilderNumeric> {
 
