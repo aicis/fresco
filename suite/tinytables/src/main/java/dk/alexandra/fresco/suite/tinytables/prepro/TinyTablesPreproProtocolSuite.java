@@ -3,32 +3,29 @@
  *
  * This file is part of the FRESCO project.
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
  *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *
- * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
- * and Bouncy Castle. Please see these projects for any further licensing issues.
+ * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL, and Bouncy Castle.
+ * Please see these projects for any further licensing issues.
  *******************************************************************************/
 package dk.alexandra.fresco.suite.tinytables.prepro;
 
 import dk.alexandra.fresco.framework.BuilderFactory;
 import dk.alexandra.fresco.framework.MPCException;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderBinary;
+import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.SCENetwork;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
@@ -36,7 +33,6 @@ import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
 import dk.alexandra.fresco.framework.util.BitVector;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.suite.ProtocolSuite;
-import dk.alexandra.fresco.suite.tinytables.LegacyBinaryBuilder;
 import dk.alexandra.fresco.suite.tinytables.datatypes.TinyTable;
 import dk.alexandra.fresco.suite.tinytables.datatypes.TinyTablesElement;
 import dk.alexandra.fresco.suite.tinytables.datatypes.TinyTablesElementVector;
@@ -71,36 +67,34 @@ import org.slf4j.LoggerFactory;
 
 /**
  * <p>
- * This protocol suite is intended for the preprocessing phase of the TinyTables
- * protocol as created by Ivan Damgård, Jesper Buus Nielsen and Michael Nielsen
- * from the Department of Computer Science at Aarhus University.
+ * This protocol suite is intended for the preprocessing phase of the TinyTables protocol as created
+ * by Ivan Damgård, Jesper Buus Nielsen and Michael Nielsen from the Department of Computer Science
+ * at Aarhus University.
  * </p>
  *
  * <p>
- * The TinyTables protocol has to phases - a <i>preprocessing</i> and an
- * <i>online</i> phase. In the preprocessing phase, each of the two players
- * picks his additive share of a mask for each input wire of a protocol.
- * Furthermore, for each AND protocol each of the two players must also
+ * The TinyTables protocol has to phases - a <i>preprocessing</i> and an <i>online</i> phase. In the
+ * preprocessing phase, each of the two players picks his additive share of a mask for each input
+ * wire of a protocol. Furthermore, for each AND protocol each of the two players must also
  * calculate a so-called <i>TinyTable</i> which is used in the online phase (see
- * {@link TinyTablesProtocolSuite}). This is done using oblivious transfer. To
- * enhance performance, all oblivious transfers are done at the end of the
- * preprocessing (see {@link #createRoundSynchronization()).
+ * {@link TinyTablesProtocolSuite}). This is done using oblivious transfer. To enhance performance,
+ * all oblivious transfers are done at the end of the preprocessing (see
+ * {@link #createRoundSynchronization()).
  * </p>
  *
  * <p>
- * The masking values and TinyTables are stored in a {@link TinyTablesStorage}
- * which can be stored for later use in the online phase. In order to avoid
- * leaks, you should not reuse the values from a preprocessing in multiple
- * evaluations of a protocol, but should instead preprocess once per evaluation.
- * Note that all the values calculated during the preprocessing phase is saved
- * with a protocols ID as key, which is simply incremented on each created
- * protocol, it is important that the protocols are created in exactly the same
- * order in the preprocessing and online phases.
+ * The masking values and TinyTables are stored in a {@link TinyTablesStorage} which can be stored
+ * for later use in the online phase. In order to avoid leaks, you should not reuse the values from
+ * a preprocessing in multiple evaluations of a protocol, but should instead preprocess once per
+ * evaluation. Note that all the values calculated during the preprocessing phase is saved with a
+ * protocols ID as key, which is simply incremented on each created protocol, it is important that
+ * the protocols are created in exactly the same order in the preprocessing and online phases.
  * </p>
  *
  * @author Jonas Lindstrøm (jonas.lindstrom@alexandra.dk)
  */
-public class TinyTablesPreproProtocolSuite implements ProtocolSuite<ResourcePoolImpl, ProtocolBuilderBinary> {
+public class TinyTablesPreproProtocolSuite
+    implements ProtocolSuite<ResourcePoolImpl, ProtocolBuilderBinary> {
 
   private final static Logger logger = LoggerFactory.getLogger(TinyTablesPreproProtocolSuite.class);
 
@@ -126,18 +120,18 @@ public class TinyTablesPreproProtocolSuite implements ProtocolSuite<ResourcePool
   public BuilderFactory<ProtocolBuilderBinary> init(ResourcePoolImpl resourcePool) {
     OTFactory otFactory = new SemiHonestOTExtensionFactory(resourcePool.getNetwork(),
         resourcePool.getMyId(), 128, new BaseOTFactory(resourcePool.getNetwork(),
-        resourcePool.getMyId(), resourcePool.getSecureRandom()),
+            resourcePool.getMyId(), resourcePool.getSecureRandom()),
         resourcePool.getSecureRandom());
 
-    this.tinyTablesTripleProvider = new BatchTinyTablesTripleProvider(
-        new TinyTablesTripleGenerator(resourcePool.getMyId(),
+    this.tinyTablesTripleProvider =
+        new BatchTinyTablesTripleProvider(new TinyTablesTripleGenerator(resourcePool.getMyId(),
             resourcePool.getSecureRandom(), otFactory), 1500);
 
-    this.unprocessedAndGates = Collections
-        .synchronizedList(new ArrayList<TinyTablesPreproANDProtocol>());
+    this.unprocessedAndGates =
+        Collections.synchronizedList(new ArrayList<TinyTablesPreproANDProtocol>());
 
     this.resourcePool = resourcePool;
-    return new LegacyBinaryBuilder(new TinyTablesPreproFactory());
+    return new TinyTablesPreproBuilderFactory();
   }
 
   public TinyTablesStorage getStorage() {
@@ -156,7 +150,7 @@ public class TinyTablesPreproProtocolSuite implements ProtocolSuite<ResourcePool
           SCENetwork sceNetwork) throws MPCException {
         /*
          * When 1000 AND gates needs to be processed, we do it.
-				 */
+         */
         if (TinyTablesPreproProtocolSuite.this.unprocessedAndGates.size() > 1000) {
           calculateTinyTablesForUnprocessedANDGates();
         }
@@ -166,9 +160,9 @@ public class TinyTablesPreproProtocolSuite implements ProtocolSuite<ResourcePool
       public void finishedEval(ResourcePoolImpl resourcePool, SCENetwork sceNetwork) {
         calculateTinyTablesForUnprocessedANDGates();
         tinyTablesTripleProvider.close();
-    /*
-     * Store the TinyTables to a file.
-		 */
+        /*
+         * Store the TinyTables to a file.
+         */
         try {
           storeTinyTables(storage, tinyTablesFile);
           logger.info("TinyTables stored to " + tinyTablesFile);
@@ -185,10 +179,9 @@ public class TinyTablesPreproProtocolSuite implements ProtocolSuite<ResourcePool
     try {
       int unprocessedGates = this.unprocessedAndGates.size();
 
-			/*
-       * Sort the unprocessed gates to make sure that the players
-			 * process them in the same order.
-			 */
+      /*
+       * Sort the unprocessed gates to make sure that the players process them in the same order.
+       */
       this.unprocessedAndGates.sort(Comparator.comparingInt(TinyTablesPreproProtocol::getId));
 
       // Two bits per gate
@@ -199,30 +192,28 @@ public class TinyTablesPreproProtocolSuite implements ProtocolSuite<ResourcePool
         TinyTablesTriple triple = this.tinyTablesTripleProvider.getNextTriple();
         usedTriples.add(triple);
 
-				/*
-         * Calculate temp values e, d for multiplication. These should
-				 * be opened before calling finalize.
-				 */
-        Pair<TinyTablesElement, TinyTablesElement> msg = gate.getInRight().getValue()
-            .multiply(gate.getInLeft().getValue(), triple);
+        /*
+         * Calculate temp values e, d for multiplication. These should be opened before calling
+         * finalize.
+         */
+        Pair<TinyTablesElement, TinyTablesElement> msg =
+            gate.getInRight().getValue().multiply(gate.getInLeft().getValue(), triple);
 
         shares.setShare(2 * i, msg.getFirst().getShare());
         shares.setShare(2 * i + 1, msg.getSecond().getShare());
       }
 
       byte[] size = ByteBuffer.allocate(2).putShort((short) shares.getSize()).array();
-      //send
-      this.resourcePool.getNetwork().send(0,
-          Util.otherPlayerId(resourcePool.getMyId()), size);
-      this.resourcePool.getNetwork().send(0,
-          Util.otherPlayerId(resourcePool.getMyId()), shares.payload());
+      // send
+      this.resourcePool.getNetwork().send(0, Util.otherPlayerId(resourcePool.getMyId()), size);
+      this.resourcePool.getNetwork().send(0, Util.otherPlayerId(resourcePool.getMyId()),
+          shares.payload());
 
-      //receive
-      size = this.resourcePool.getNetwork().receive(0,
-          Util.otherPlayerId(resourcePool.getMyId()));
+      // receive
+      size = this.resourcePool.getNetwork().receive(0, Util.otherPlayerId(resourcePool.getMyId()));
       short length = ByteBuffer.wrap(size).getShort();
-      byte[] data = this.resourcePool.getNetwork().receive(0,
-          Util.otherPlayerId(resourcePool.getMyId()));
+      byte[] data =
+          this.resourcePool.getNetwork().receive(0, Util.otherPlayerId(resourcePool.getMyId()));
       TinyTablesElementVector otherShares = new TinyTablesElementVector(data, length);
 
       BitVector open = TinyTablesElementVector.open(shares, otherShares);

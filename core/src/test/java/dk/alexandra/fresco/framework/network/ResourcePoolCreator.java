@@ -25,9 +25,6 @@ public class ResourcePoolCreator {
       case KRYONET:
         network = new KryoNetNetwork();
         break;
-      case SCAPI:
-        network = new ScapiNetworkImpl();
-        break;
       default:
         throw new ConfigurationException("Unknown networking strategy " + networkStrategy);
     }

@@ -27,24 +27,22 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
 import java.math.BigInteger;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import dk.alexandra.fresco.framework.Application;
-import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
-import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.Collections;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.util.Pair;
+import dk.alexandra.fresco.framework.util.RowPairD;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.collections.Matrix;
 import dk.alexandra.fresco.lib.collections.MatrixTestUtils;
-import dk.alexandra.fresco.lib.collections.io.CloseMatrix;
-import dk.alexandra.fresco.lib.collections.io.OpenList;
 
 /**
  * Test class for the ConditionalSwapRowsTests protocol.
@@ -59,55 +57,48 @@ public class ConditionalSwapRowsTests {
    * @param <ResourcePoolT>
    */
   private static class TestSwapGeneric<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory<ResourcePoolT, SequentialNumericBuilder> {
+      extends TestThreadFactory {
 
     final BigInteger swapperOpen;
-    final Pair<ArrayList<BigInteger>, ArrayList<BigInteger>> expected;
-    final Matrix<BigInteger> input;
+    final Pair<List<BigInteger>, List<BigInteger>> input;
+    final Pair<List<BigInteger>, List<BigInteger>> expected;
 
     private TestSwapGeneric(BigInteger selectorOpen,
-        Pair<ArrayList<BigInteger>, ArrayList<BigInteger>> expected, Matrix<BigInteger> input) {
+        Pair<List<BigInteger>, List<BigInteger>> expected,
+        Pair<List<BigInteger>, List<BigInteger>> input) {
       this.swapperOpen = selectorOpen;
       this.expected = expected;
       this.input = input;
     }
 
     @Override
-    public TestThread<ResourcePoolT, SequentialNumericBuilder> next(
-        TestThreadConfiguration<ResourcePoolT, SequentialNumericBuilder> conf) {
-      return new TestThread<ResourcePoolT, SequentialNumericBuilder>() {
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
 
         @Override
         public void test() throws Exception {
           // define functionality to be tested
-          Application<Pair<ArrayList<BigInteger>, ArrayList<BigInteger>>, SequentialNumericBuilder> testApplication =
+          Application<Pair<List<BigInteger>, List<BigInteger>>, ProtocolBuilderNumeric> testApplication =
               root -> {
-                return root.par(par -> {
-                  // close inputs
-                  return new CloseMatrix(input, 1).build(par);
-                }).seq((closed, seq) -> {
-                  Computation<SInt> swapper = seq.numeric().input(swapperOpen, 1);
-                  return seq.createSequentialSub(
-                      new ConditionalSwapRows(swapper, closed.getRow(0), closed.getRow(1)));
-                }).par((closed, par) -> {
-                  ArrayList<Computation<SInt>> closedRow = closed.getFirst();
-                  ArrayList<Computation<SInt>> closedOtherRow = closed.getSecond();
-                  Computation<List<Computation<BigInteger>>> openedRow =
-                      par.createParallelSub(new OpenList(closedRow));
-                  Computation<List<Computation<BigInteger>>> openedOtherRow =
-                      par.createParallelSub(new OpenList(closedOtherRow));
-                  return () -> {
-                    ArrayList<BigInteger> unwrappedRow = openedRow.out().stream()
-                        .map(row -> row.out()).collect(Collectors.toCollection(ArrayList::new));;
-                    ArrayList<BigInteger> unwrappedOtherRow = openedOtherRow.out().stream()
-                        .map(row -> row.out()).collect(Collectors.toCollection(ArrayList::new));
-                    return new Pair<>(unwrappedRow, unwrappedOtherRow);
-                  };
-                });
+                Collections collections = root.collections();
+                DRes<List<DRes<SInt>>> closedLeft = collections.closeList(input.getFirst(), 1);
+                DRes<List<DRes<SInt>>> closedRight = collections.closeList(input.getSecond(), 1);
+                DRes<SInt> swapper = root.numeric().input(swapperOpen, 1);
+                DRes<RowPairD<SInt, SInt>> swapped =
+                    collections.condSwap(swapper, closedLeft, closedRight);
+                DRes<RowPairD<BigInteger, BigInteger>> openSwapped =
+                    collections.openRowPair(swapped);
+                return () -> {
+                  RowPairD<BigInteger, BigInteger> openSwappedOut = openSwapped.out();
+                  List<BigInteger> leftRes = openSwappedOut.getFirst().out().stream().map(DRes::out)
+                      .collect(Collectors.toList());
+                  List<BigInteger> rightRes = openSwappedOut.getSecond().out().stream()
+                      .map(DRes::out).collect(Collectors.toList());
+                  return new Pair<>(leftRes, rightRes);
+                };
               };
-          Pair<ArrayList<BigInteger>, ArrayList<BigInteger>> output =
-              secureComputationEngine.runApplication(testApplication,
-                  ResourcePoolCreator.createResourcePool(conf.sceConf));
+          Pair<List<BigInteger>, List<BigInteger>> output = secureComputationEngine.runApplication(
+              testApplication, ResourcePoolCreator.createResourcePool(conf.sceConf));
           assertThat(output, is(expected));
         }
       };
@@ -115,16 +106,16 @@ public class ConditionalSwapRowsTests {
   }
 
   public static <ResourcePoolT extends ResourcePool> TestSwapGeneric<ResourcePoolT> testSwapYes() {
-    Matrix<BigInteger> input = new MatrixTestUtils().getInputMatrix(2, 3);
-    Pair<ArrayList<BigInteger>, ArrayList<BigInteger>> expected =
-        new Pair<>(input.getRow(1), input.getRow(0));
+    Matrix<BigInteger> mat = new MatrixTestUtils().getInputMatrix(2, 3);
+    Pair<List<BigInteger>, List<BigInteger>> input = new Pair<>(mat.getRow(0), mat.getRow(1));
+    Pair<List<BigInteger>, List<BigInteger>> expected = new Pair<>(mat.getRow(1), mat.getRow(0));
     return new TestSwapGeneric<>(BigInteger.valueOf(1), expected, input);
   }
 
   public static <ResourcePoolT extends ResourcePool> TestSwapGeneric<ResourcePoolT> testSwapNo() {
-    Matrix<BigInteger> input = new MatrixTestUtils().getInputMatrix(2, 3);
-    Pair<ArrayList<BigInteger>, ArrayList<BigInteger>> expected =
-        new Pair<>(input.getRow(0), input.getRow(1));
+    Matrix<BigInteger> mat = new MatrixTestUtils().getInputMatrix(2, 3);
+    Pair<List<BigInteger>, List<BigInteger>> input = new Pair<>(mat.getRow(0), mat.getRow(1));
+    Pair<List<BigInteger>, List<BigInteger>> expected = new Pair<>(mat.getRow(0), mat.getRow(1));
     return new TestSwapGeneric<>(BigInteger.valueOf(0), expected, input);
   }
 }

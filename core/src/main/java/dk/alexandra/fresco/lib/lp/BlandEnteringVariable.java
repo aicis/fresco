@@ -23,28 +23,28 @@
  */
 package dk.alexandra.fresco.lib.lp;
 
-import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.MPCException;
-import dk.alexandra.fresco.framework.builder.AdvancedNumericBuilder;
-import dk.alexandra.fresco.framework.builder.ComparisonBuilder;
-import dk.alexandra.fresco.framework.builder.ComputationBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
-import dk.alexandra.fresco.framework.util.Pair;
-import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.collections.Matrix;
-import dk.alexandra.fresco.lib.math.integer.SumSIntList;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
+import dk.alexandra.fresco.framework.DRes;
+import dk.alexandra.fresco.framework.MPCException;
+import dk.alexandra.fresco.framework.builder.Computation;
+import dk.alexandra.fresco.framework.builder.numeric.AdvancedNumeric;
+import dk.alexandra.fresco.framework.builder.numeric.Comparison;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
+import dk.alexandra.fresco.framework.util.Pair;
+import dk.alexandra.fresco.framework.value.SInt;
+import dk.alexandra.fresco.lib.collections.Matrix;
+
 public class BlandEnteringVariable
-    implements ComputationBuilder<Pair<List<Computation<SInt>>, SInt>> {
+    implements Computation<Pair<List<DRes<SInt>>, SInt>, ProtocolBuilderNumeric> {
 
   private final LPTableau tableau;
-  private final Matrix<Computation<SInt>> updateMatrix;
+  private final Matrix<DRes<SInt>> updateMatrix;
 
   public BlandEnteringVariable(LPTableau tableau,
-      Matrix<Computation<SInt>> updateMatrix) {
+      Matrix<DRes<SInt>> updateMatrix) {
     if (checkDimensions(tableau, updateMatrix)) {
       this.updateMatrix = updateMatrix;
       this.tableau = tableau;
@@ -53,7 +53,7 @@ public class BlandEnteringVariable
     }
   }
 
-  private boolean checkDimensions(LPTableau tableau, Matrix<Computation<SInt>> updateMatrix) {
+  private boolean checkDimensions(LPTableau tableau, Matrix<DRes<SInt>> updateMatrix) {
     int updateHeight = updateMatrix.getHeight();
     int updateWidth = updateMatrix.getWidth();
     int tableauHeight = tableau.getC().getHeight() + 1;
@@ -63,20 +63,21 @@ public class BlandEnteringVariable
   }
 
   @Override
-  public Computation<Pair<List<Computation<SInt>>, SInt>> build(SequentialNumericBuilder builder) {
-    Computation<SInt> negativeOne = builder.numeric().known(BigInteger.valueOf(-1));
-    Computation<SInt> one = builder.numeric().known(BigInteger.ONE);
+  public DRes<Pair<List<DRes<SInt>>, SInt>> buildComputation(
+      ProtocolBuilderNumeric builder) {
+    DRes<SInt> negativeOne = builder.numeric().known(BigInteger.valueOf(-1));
+    DRes<SInt> one = builder.numeric().known(BigInteger.ONE);
     return builder.par(par -> {
       int updateVectorDimension = updateMatrix.getHeight();
       int numOfFs = tableau.getF().size();
-      List<Computation<SInt>> updatedF = new ArrayList<>(numOfFs);
-      ArrayList<Computation<SInt>> updateVector = updateMatrix.getRow(updateVectorDimension - 1);
+      List<DRes<SInt>> updatedF = new ArrayList<>(numOfFs);
+      ArrayList<DRes<SInt>> updateVector = updateMatrix.getRow(updateVectorDimension - 1);
       for (int i = 0; i < numOfFs; i++) {
-        List<Computation<SInt>> constraintColumn = new ArrayList<>(updateVectorDimension);
+        List<DRes<SInt>> constraintColumn = new ArrayList<>(updateVectorDimension);
         constraintColumn.addAll(tableau.getC().getColumn(i));
         constraintColumn.add(tableau.getF().get(i));
 
-        AdvancedNumericBuilder advancedNumericBuilder = par.advancedNumeric();
+        AdvancedNumeric advancedNumericBuilder = par.advancedNumeric();
         updatedF.add(
             advancedNumericBuilder.dot(
                 constraintColumn,
@@ -84,43 +85,43 @@ public class BlandEnteringVariable
         );
       }
       return () -> updatedF;
-    }).seq((updatedF, seq) ->
+    }).seq((seq, updatedF) ->
         seq.par(par -> {
-          ArrayList<Computation<SInt>> signs = new ArrayList<>(updatedF.size());
-          for (Computation<SInt> f : updatedF) {
+          ArrayList<DRes<SInt>> signs = new ArrayList<>(updatedF.size());
+          for (DRes<SInt> f : updatedF) {
             signs.add(par.comparison().compareLEQ(f, negativeOne));
           }
           return () -> signs;
-        }).seq((signs, seq2) -> {
+        }).seq((seq2, signs) -> {
           //Prefix sum
-          ArrayList<Computation<SInt>> updatedSigns = new ArrayList<>();
+          ArrayList<DRes<SInt>> updatedSigns = new ArrayList<>();
           updatedSigns.add(signs.get(0));
-          Computation<SInt> previous = signs.get(0);
+          DRes<SInt> previous = signs.get(0);
           for (int i = 1; i < signs.size(); i++) {
-            Computation<SInt> current = signs.get(i);
+            DRes<SInt> current = signs.get(i);
             previous = seq2.numeric().add(previous, current);
             updatedSigns.add(previous);
           }
           return () -> updatedSigns;
-        }).par((signs, par) -> {
+        }).par((par, signs) -> {
           //Pairwise sums
-          ArrayList<Computation<SInt>> pairwiseSums = new ArrayList<>();
+          ArrayList<DRes<SInt>> pairwiseSums = new ArrayList<>();
           pairwiseSums.add(signs.get(0));
           for (int i = 1; i < signs.size(); i++) {
             pairwiseSums.add(par.numeric().add(signs.get(i - 1), signs.get(i)));
           }
           return () -> pairwiseSums;
-        }).par((pairwiseSums, par) -> {
-          ArrayList<Computation<SInt>> enteringIndex = new ArrayList<>();
+        }).par((par, pairwiseSums) -> {
+          ArrayList<DRes<SInt>> enteringIndex = new ArrayList<>();
           int bitlength = (int) Math.log(pairwiseSums.size()) * 2 + 1;
-          ComparisonBuilder comparison = par.comparison();
+          Comparison comparison = par.comparison();
           for (int i = 0; i < updatedF.size(); i++) {
             enteringIndex.add(comparison.equals(bitlength, pairwiseSums.get(i), one));
           }
           return () -> enteringIndex;
-        })).seq((enteringIndex, seq) -> {
-      Computation<SInt> terminationSum = seq.createSequentialSub(new SumSIntList(enteringIndex));
-      Computation<SInt> termination = seq.numeric().sub(one, terminationSum);
+        })).seq((seq, enteringIndex) -> {
+      DRes<SInt> terminationSum = seq.advancedNumeric().sum(enteringIndex);
+      DRes<SInt> termination = seq.numeric().sub(one, terminationSum);
       return () -> new Pair<>(enteringIndex, termination.out());
     });
   }

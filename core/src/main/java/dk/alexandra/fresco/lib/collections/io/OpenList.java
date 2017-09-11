@@ -28,35 +28,36 @@ import java.math.BigInteger;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.builder.ComputationBuilderParallel;
-import dk.alexandra.fresco.framework.builder.NumericBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.ParallelNumericBuilder;
+import dk.alexandra.fresco.framework.DRes;
+import dk.alexandra.fresco.framework.builder.ComputationParallel;
+import dk.alexandra.fresco.framework.builder.numeric.Numeric;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 
 /**
- * Implements a open operation on a list of Computation<SInt>.
+ * Implements a open operation on a list of DRes<SInt>.
  */
-public class OpenList implements ComputationBuilderParallel<List<Computation<BigInteger>>> {
+public class OpenList
+    implements ComputationParallel<List<DRes<BigInteger>>, ProtocolBuilderNumeric> {
 
-  private final List<Computation<SInt>> closedList;
+  private final DRes<List<DRes<SInt>>> closedList;
 
   /**
    * Makes a new CloseList
    *
    * @param closedList the list to open.
    */
-  public OpenList(List<Computation<SInt>> closedList) {
+  public OpenList(DRes<List<DRes<SInt>>> closedList) {
     super();
     this.closedList = closedList;
   }
 
   @Override
-  public Computation<List<Computation<BigInteger>>> build(ParallelNumericBuilder par) {
-    NumericBuilder nb = par.numeric();
+  public DRes<List<DRes<BigInteger>>> buildComputation(ProtocolBuilderNumeric builder) {
+    Numeric nb = builder.numeric();
     // for each input value, call input
-    List<Computation<BigInteger>> openList =
-        closedList.stream().map(closed -> nb.open(closed)).collect(Collectors.toList());
+    List<DRes<BigInteger>> openList =
+        closedList.out().stream().map(closed -> nb.open(closed)).collect(Collectors.toList());
     return () -> openList;
   }
 

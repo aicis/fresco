@@ -2,51 +2,26 @@ package dk.alexandra.fresco.lib.collections.permute;
 
 import java.util.ArrayList;
 
-import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.builder.ComputationBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
+import dk.alexandra.fresco.framework.DRes;
+import dk.alexandra.fresco.framework.builder.Computation;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.collections.Matrix;
-import dk.alexandra.fresco.lib.collections.io.CloseMatrix;
-import dk.alexandra.fresco.lib.conditional.ConditionalSwapNeighbors;
 
-public class PermuteRows implements ComputationBuilder<Matrix<Computation<SInt>>> {
+public class PermuteRows implements Computation<Matrix<DRes<SInt>>, ProtocolBuilderNumeric> {
 
-  final private Matrix<Computation<SInt>> values;
+  final private DRes<Matrix<DRes<SInt>>> values;
   final private int[] idxPerm;
   final private int permProviderPid;
   final private boolean isPermProvider;
   final private WaksmanUtils wutils;
   // not final as this will be set during protocol execution
-  private Matrix<Computation<SInt>> cbits;
+  private Matrix<DRes<SInt>> cbits;
 
-  /**
-   * To be called if party is not providing permutation.
-   * 
-   * @param values
-   * @param permProviderPid
-   */
-  public PermuteRows(Matrix<Computation<SInt>> values, int permProviderPid) {
-    this(values, new int[] {}, permProviderPid, false);
-  }
-
-  /**
-   * To be called if party is providing permutation.
-   * 
-   * @param values
-   * @param permProviderPid
-   */
-  public PermuteRows(Matrix<Computation<SInt>> values, int[] idxPerm, int permProviderPid) {
-    this(values, idxPerm, permProviderPid, true);
-  }
-
-  private PermuteRows(Matrix<Computation<SInt>> values, int[] idxPerm, int permProviderPid,
-      boolean isPermProvider) throws UnsupportedOperationException {
+  public PermuteRows(DRes<Matrix<DRes<SInt>>> values, int[] idxPerm, int permProviderPid,
+      boolean isPermProvider) {
     super();
     this.wutils = new WaksmanUtils();
-    if (!wutils.isPow2(values.getHeight())) {
-      throw new UnsupportedOperationException("input size must be power of 2");
-    }
     this.values = values;
     this.idxPerm = idxPerm;
     this.isPermProvider = isPermProvider;
@@ -64,10 +39,10 @@ public class PermuteRows implements ComputationBuilder<Matrix<Computation<SInt>>
    * @param colIdx
    * @return
    */
-  private Matrix<Computation<SInt>> reroute(Matrix<Computation<SInt>> roundInputs, int numRows,
-      int numCols, int numSwapperRows, int numSwapperCols, int colIdx) {
+  private Matrix<DRes<SInt>> reroute(Matrix<DRes<SInt>> roundInputs, int numRows, int numCols,
+      int numSwapperRows, int numSwapperCols, int colIdx) {
     // this will store the re-arranged result
-    ArrayList<ArrayList<Computation<SInt>>> rearranged = new ArrayList<>(numRows);
+    ArrayList<ArrayList<DRes<SInt>>> rearranged = new ArrayList<>(numRows);
     // pre-initialize array list since we will be setting elements at indeces
     // as opposed to adding
     for (int x = 0; x < numRows; x++) {
@@ -108,58 +83,62 @@ public class PermuteRows implements ComputationBuilder<Matrix<Computation<SInt>>
   }
 
   @Override
-  public Computation<Matrix<Computation<SInt>>> build(SequentialNumericBuilder builder) {
+  public DRes<Matrix<DRes<SInt>>> buildComputation(ProtocolBuilderNumeric builder)
+      throws UnsupportedOperationException {
+    // sort of hacky: need to unwrap but will later used wrapped
+    Matrix<DRes<SInt>> valuesOut = values.out();
     // determine dimensions of waksman network
-    final int numSwapperRows = wutils.getNumRowsRequired(values.getHeight());
-    final int numSwapperCols = wutils.getNumColsRequired(values.getHeight());
+    final int numSwapperRows = wutils.getNumRowsRequired(valuesOut.getHeight());
+    final int numSwapperCols = wutils.getNumColsRequired(valuesOut.getHeight());
     // dimensions of row matrix
-    final int numRows = values.getHeight();
-    final int numCols = values.getWidth();
+    final int numRows = valuesOut.getHeight();
+    final int numCols = valuesOut.getWidth();
     // number of rounds will be number of swapper columns
     final int numRounds = numSwapperCols;
 
     if (numRounds == 0) {
       // in case of empty input, just return
-      return () -> this.values;
+      return values;
+    }
+
+    // throw if size is not power of 2
+    if (!wutils.isPow2(numRows)) {
+      throw new UnsupportedOperationException("input size must be power of 2");
     }
 
     // non-empty input, i.e., main protocol
     return builder.seq(seq -> {
-      // determine control bits of permutation and input
-      // TODO: for active security add check that control bits are in fact bits
       if (isPermProvider) {
-        return seq
-            .createParallelSub(new CloseMatrix(wutils.setControlBits(idxPerm), permProviderPid));
+        return seq.collections().closeMatrix(wutils.setControlBits(idxPerm), permProviderPid);
       } else {
-        return seq
-            .createParallelSub(new CloseMatrix(numSwapperRows, numSwapperCols, permProviderPid));
+        return seq.collections().closeMatrix(numSwapperRows, numSwapperCols, permProviderPid);
       }
-    }).seq((bits, seq) -> {
+    }).seq((seq, _cbits) -> {
       // set control bits
-      cbits = bits;
+      cbits = _cbits;
       // initiate loop
-      return new IterationState(0, () -> values);
-    }).whileLoop((state) -> state.round < numRounds - 1, (state, seq) -> {
+      return new IterationState(0, values);
+    }).whileLoop((state) -> state.round < numRounds - 1, (seq, state) -> {
       // apply swapper gates for this round
-      Computation<Matrix<Computation<SInt>>> swapped = seq.createParallelSub(
-          new ConditionalSwapNeighbors(cbits.getColumn(state.round), state.intermediate.out()));
+      DRes<Matrix<DRes<SInt>>> swapped = seq.collections()
+          .condSwapNeighbors(() -> cbits.getColumn(state.round), state.intermediate);
       // re-arrange values for next round (based solely on waksman network topology)
       // this is NOT input-dependent!
       return new IterationState(state.round + 1, () -> reroute(swapped.out(), numRows, numCols,
           numSwapperRows, numSwapperCols, state.round));
-    }).seq((state, seq) -> {
+    }).seq((seq, state) -> {
       // Apply last column of swapper gates
-      return seq.createParallelSub(
-          new ConditionalSwapNeighbors(cbits.getColumn(state.round), state.intermediate.out()));
+      return seq.collections().condSwapNeighbors(() -> cbits.getColumn(state.round),
+          state.intermediate);
     });
   }
 
-  private static final class IterationState implements Computation<IterationState> {
+  private static final class IterationState implements DRes<IterationState> {
 
     private final int round;
-    private final Computation<Matrix<Computation<SInt>>> intermediate;
+    private final DRes<Matrix<DRes<SInt>>> intermediate;
 
-    private IterationState(int round, Computation<Matrix<Computation<SInt>>> intermediate) {
+    private IterationState(int round, DRes<Matrix<DRes<SInt>>> intermediate) {
       this.round = round;
       this.intermediate = intermediate;
     }
@@ -169,4 +148,5 @@ public class PermuteRows implements ComputationBuilder<Matrix<Computation<SInt>>
       return this;
     }
   }
+
 }

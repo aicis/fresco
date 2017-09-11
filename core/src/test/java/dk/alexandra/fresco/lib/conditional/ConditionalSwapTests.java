@@ -28,17 +28,17 @@ import java.math.BigInteger;
 import org.junit.Assert;
 
 import dk.alexandra.fresco.framework.Application;
-import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
-import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
-import dk.alexandra.fresco.framework.builder.NumericBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.AdvancedNumeric;
+import dk.alexandra.fresco.framework.builder.numeric.Collections;
+import dk.alexandra.fresco.framework.builder.numeric.Numeric;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.collections.io.OpenPair;
 
 public class ConditionalSwapTests {
 
@@ -49,8 +49,7 @@ public class ConditionalSwapTests {
    *
    * @param <ResourcePoolT>
    */
-  public static class TestSwap<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory<ResourcePoolT, SequentialNumericBuilder> {
+  public static class TestSwap<ResourcePoolT extends ResourcePool> extends TestThreadFactory {
 
     final BigInteger swapperOpen;
     final Pair<BigInteger, BigInteger> expected;
@@ -66,28 +65,26 @@ public class ConditionalSwapTests {
     }
 
     @Override
-    public TestThread<ResourcePoolT, SequentialNumericBuilder> next(
-        TestThreadConfiguration<ResourcePoolT, SequentialNumericBuilder> conf) {
-      return new TestThread<ResourcePoolT, SequentialNumericBuilder>() {
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
 
         @Override
         public void test() throws Exception {
           // define functionality to be tested
-          Application<Pair<Computation<BigInteger>, Computation<BigInteger>>, SequentialNumericBuilder> testApplication =
+          Application<Pair<DRes<BigInteger>, DRes<BigInteger>>, ProtocolBuilderNumeric> testApplication =
               root -> {
-                NumericBuilder nb = root.numeric();
-                Computation<SInt> left = nb.input(leftOpen, 1);
-                Computation<SInt> right = nb.input(rightOpen, 1);
-                Computation<SInt> selector = nb.input(swapperOpen, 1);
-                return root.par((par) -> {
-                  return new ConditionalSwap(selector, left, right).build(par);
-                }).par((res, par) -> {
-                  return new OpenPair(res).build(par);
-                });
+                Numeric nb = root.numeric();
+                AdvancedNumeric advancedNumeric = root.advancedNumeric();
+                Collections collections = root.collections();
+                DRes<SInt> left = nb.input(leftOpen, 1);
+                DRes<SInt> right = nb.input(rightOpen, 1);
+                DRes<SInt> selector = nb.input(swapperOpen, 1);
+                DRes<Pair<DRes<SInt>, DRes<SInt>>> swapped =
+                    advancedNumeric.condSwap(selector, left, right);
+                return collections.openPair(swapped);
               };
-          Pair<Computation<BigInteger>, Computation<BigInteger>> output =
-              secureComputationEngine.runApplication(testApplication,
-                  ResourcePoolCreator.createResourcePool(conf.sceConf));
+          Pair<DRes<BigInteger>, DRes<BigInteger>> output = secureComputationEngine.runApplication(
+              testApplication, ResourcePoolCreator.createResourcePool(conf.sceConf));
           Pair<BigInteger, BigInteger> actual =
               new Pair<>(output.getFirst().out(), output.getSecond().out());
           Assert.assertEquals(expected, actual);

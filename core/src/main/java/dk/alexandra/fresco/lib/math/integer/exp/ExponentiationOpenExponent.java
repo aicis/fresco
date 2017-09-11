@@ -26,19 +26,20 @@
  */
 package dk.alexandra.fresco.lib.math.integer.exp;
 
-import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.builder.ComputationBuilder;
-import dk.alexandra.fresco.framework.builder.NumericBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
+import dk.alexandra.fresco.framework.DRes;
+import dk.alexandra.fresco.framework.builder.Computation;
+import dk.alexandra.fresco.framework.builder.numeric.Numeric;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
 
-public class ExponentiationOpenExponent implements ComputationBuilder<SInt> {
+public class ExponentiationOpenExponent implements
+    Computation<SInt, ProtocolBuilderNumeric> {
 
-  private Computation<SInt> base;
+  private DRes<SInt> base;
   private BigInteger exponent;
 
-  public ExponentiationOpenExponent(Computation<SInt> x, BigInteger e) {
+  public ExponentiationOpenExponent(DRes<SInt> x, BigInteger e) {
     this.base = x;
     this.exponent = e;
     if (exponent.compareTo(BigInteger.ZERO) <= 0) {
@@ -48,17 +49,17 @@ public class ExponentiationOpenExponent implements ComputationBuilder<SInt> {
   }
 
   @Override
-  public Computation<SInt> build(SequentialNumericBuilder builder) {
+  public DRes<SInt> buildComputation(ProtocolBuilderNumeric builder) {
     return builder.seq((seq) -> {
-      Computation<SInt> accEven = base;
+      DRes<SInt> accEven = base;
       return new IterationState(exponent, accEven, null);
     }).whileLoop(
         iterationState -> !iterationState.exponent.equals(BigInteger.ONE),
-        (iterationState, seq) -> {
+        (seq, iterationState) -> {
           BigInteger exponent = iterationState.exponent;
-          Computation<SInt> accEven = iterationState.accEven;
-          Computation<SInt> accOdd = iterationState.accOdd;
-          NumericBuilder numeric = seq.numeric();
+          DRes<SInt> accEven = iterationState.accEven;
+          DRes<SInt> accOdd = iterationState.accOdd;
+          Numeric numeric = seq.numeric();
           if (exponent.getLowestSetBit() == 0) {
             if (accOdd == null) {
               accOdd = accEven;
@@ -73,20 +74,20 @@ public class ExponentiationOpenExponent implements ComputationBuilder<SInt> {
           }
           return new IterationState(exponent, accEven, accOdd);
         }
-    ).seq((iterationState, seq) ->
+    ).seq((seq, iterationState) ->
         seq.numeric().mult(iterationState.accEven, iterationState.accOdd)
     );
   }
 
-  private static class IterationState implements Computation<IterationState> {
+  private static class IterationState implements DRes<IterationState> {
 
     final BigInteger exponent;
-    final Computation<SInt> accEven;
-    final Computation<SInt> accOdd;
+    final DRes<SInt> accEven;
+    final DRes<SInt> accOdd;
 
     private IterationState(BigInteger exponent,
-        Computation<SInt> accEven,
-        Computation<SInt> accOdd) {
+        DRes<SInt> accEven,
+        DRes<SInt> accOdd) {
       this.exponent = exponent;
       this.accEven = accEven;
       this.accOdd = accOdd;

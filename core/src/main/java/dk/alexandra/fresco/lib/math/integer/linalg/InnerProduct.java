@@ -1,28 +1,27 @@
 package dk.alexandra.fresco.lib.math.integer.linalg;
 
-import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.builder.ComputationBuilder;
-import dk.alexandra.fresco.framework.builder.NumericBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
+import dk.alexandra.fresco.framework.DRes;
+import dk.alexandra.fresco.framework.builder.Computation;
+import dk.alexandra.fresco.framework.builder.numeric.Numeric;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.math.integer.SumSIntList;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.RandomAccess;
 
-public class InnerProduct implements ComputationBuilder<SInt> {
+public class InnerProduct implements Computation<SInt, ProtocolBuilderNumeric> {
 
-  private final List<Computation<SInt>> aVector;
-  private final List<Computation<SInt>> bVector;
+  private final List<DRes<SInt>> aVector;
+  private final List<DRes<SInt>> bVector;
 
   public InnerProduct(
-      List<Computation<SInt>> aVector,
-      List<Computation<SInt>> bVector) {
+      List<DRes<SInt>> aVector,
+      List<DRes<SInt>> bVector) {
     this.aVector = getRandomAccessList(aVector);
     this.bVector = getRandomAccessList(bVector);
   }
 
-  private List<Computation<SInt>> getRandomAccessList(List<Computation<SInt>> aVector) {
+  private List<DRes<SInt>> getRandomAccessList(List<DRes<SInt>> aVector) {
     if (aVector instanceof RandomAccess) {
       return aVector;
     } else {
@@ -31,20 +30,19 @@ public class InnerProduct implements ComputationBuilder<SInt> {
   }
 
   @Override
-  public Computation<SInt> build(SequentialNumericBuilder builder) {
+  public DRes<SInt> buildComputation(ProtocolBuilderNumeric builder) {
     return builder
         .par(parallel -> {
-          List<Computation<SInt>> products = new ArrayList<>(aVector.size());
-          NumericBuilder numericBuilder = parallel.numeric();
+          List<DRes<SInt>> products = new ArrayList<>(aVector.size());
+          Numeric numericBuilder = parallel.numeric();
           for (int i = 0; i < aVector.size(); i++) {
-            Computation<SInt> nextA = aVector.get(i);
-            Computation<SInt> nextB = bVector.get(i);
+            DRes<SInt> nextA = aVector.get(i);
+            DRes<SInt> nextB = bVector.get(i);
             products.add(numericBuilder.mult(nextA, nextB));
           }
           return () -> products;
         })
-        .seq((list, seq) ->
-            new SumSIntList(list).build(seq)
+        .seq((seq, list) -> seq.advancedNumeric().sum(list)
         );
   }
 }

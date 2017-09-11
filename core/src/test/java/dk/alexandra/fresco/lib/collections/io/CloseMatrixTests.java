@@ -23,26 +23,24 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.collections.io;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+
+import java.math.BigInteger;
+import java.util.ArrayList;
+
 import dk.alexandra.fresco.framework.Application;
-import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
-import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.Collections;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.collections.Matrix;
 import dk.alexandra.fresco.lib.collections.MatrixUtils;
-import dk.alexandra.fresco.lib.collections.io.CloseMatrix;
-import dk.alexandra.fresco.lib.collections.io.OpenMatrix;
-
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.hamcrest.CoreMatchers.is;
-
-import java.math.BigInteger;
-import java.util.ArrayList;
 
 /**
  * Test class for the CloseList protocol.
@@ -57,26 +55,23 @@ public class CloseMatrixTests {
    * @param <ResourcePoolT>
    */
   public static class TestCloseEmptyMatrix<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory<ResourcePoolT, SequentialNumericBuilder> {
+      extends TestThreadFactory {
 
     @Override
-    public TestThread<ResourcePoolT, SequentialNumericBuilder> next(
-        TestThreadConfiguration<ResourcePoolT, SequentialNumericBuilder> conf) {
-      return new TestThread<ResourcePoolT, SequentialNumericBuilder>() {
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
 
         @Override
         public void test() throws Exception {
           // input
           Matrix<BigInteger> input = new Matrix<>(0, 0, new ArrayList<>());
-
           // functionality to be tested
-          Application<Matrix<SInt>, SequentialNumericBuilder> testApplication = root -> {
-            return root.par(par -> {
-              // close inputs
-              Computation<Matrix<Computation<SInt>>> mat = new CloseMatrix(input, 1).build(par);
-              // unwrap and return result
-              return () -> new MatrixUtils().unwrapMatrix(mat.out());
-            });
+          Application<Matrix<SInt>, ProtocolBuilderNumeric> testApplication = root -> {
+            // close inputs
+            Collections collections = root.collections();
+            DRes<Matrix<DRes<SInt>>> mat = collections.closeMatrix(input, 1);
+            // unwrap and return result
+            return () -> new MatrixUtils().unwrapMatrix(mat);
           };
           Matrix<SInt> output = secureComputationEngine.runApplication(testApplication,
               ResourcePoolCreator.createResourcePool(conf.sceConf));
@@ -96,12 +91,11 @@ public class CloseMatrixTests {
    * @param <ResourcePoolT>
    */
   public static class TestCloseAndOpenMatrix<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory<ResourcePoolT, SequentialNumericBuilder> {
+      extends TestThreadFactory {
 
     @Override
-    public TestThread<ResourcePoolT, SequentialNumericBuilder> next(
-        TestThreadConfiguration<ResourcePoolT, SequentialNumericBuilder> conf) {
-      return new TestThread<ResourcePoolT, SequentialNumericBuilder>() {
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
 
         @Override
         public void test() throws Exception {
@@ -119,34 +113,17 @@ public class CloseMatrixTests {
           mat.add(rowTwo);
           Matrix<BigInteger> input = new Matrix<>(2, 3, mat);
 
-          // TODO: check if party is 1
           // define functionality to be tested
-          Application<Matrix<BigInteger>, SequentialNumericBuilder> testApplication = root -> {
-            return root.par(par -> {
-              // close inputs
-              return new CloseMatrix(input, 1).build(par);
-            }).par((closed, par) -> {
-              // re-open them
-              Computation<Matrix<Computation<BigInteger>>> opened =
-                  new OpenMatrix(closed).build(par);
-              return () -> new MatrixUtils().unwrapMatrix(opened.out());
-            });
+          Application<Matrix<BigInteger>, ProtocolBuilderNumeric> testApplication = root -> {
+            Collections collections = root.collections();
+            DRes<Matrix<DRes<SInt>>> closed = collections.closeMatrix(input, 1);
+            DRes<Matrix<DRes<BigInteger>>> opened = collections.openMatrix(closed);
+            return () -> new MatrixUtils().unwrapMatrix(opened);
           };
+
           Matrix<BigInteger> output = secureComputationEngine.runApplication(testApplication,
               ResourcePoolCreator.createResourcePool(conf.sceConf));
-          ArrayList<BigInteger> rowOneExp = new ArrayList<>();
-          rowOneExp.add(BigInteger.valueOf(1));
-          rowOneExp.add(BigInteger.valueOf(2));
-          rowOneExp.add(BigInteger.valueOf(3));
-          ArrayList<BigInteger> rowTwoExp = new ArrayList<>();
-          rowTwoExp.add(BigInteger.valueOf(4));
-          rowTwoExp.add(BigInteger.valueOf(5));
-          rowTwoExp.add(BigInteger.valueOf(6));
-          ArrayList<ArrayList<BigInteger>> exp = new ArrayList<>();
-          exp.add(rowOneExp);
-          exp.add(rowTwoExp);
-          Matrix<BigInteger> expected = new Matrix<>(2, 3, mat);
-          assertThat(output.getRows(), is(expected.getRows()));
+          assertThat(output.getRows(), is(input.getRows()));
         }
       };
     }

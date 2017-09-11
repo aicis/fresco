@@ -29,16 +29,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.builder.ComputationBuilderParallel;
-import dk.alexandra.fresco.framework.builder.NumericBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.ParallelNumericBuilder;
+import dk.alexandra.fresco.framework.DRes;
+import dk.alexandra.fresco.framework.builder.ComputationParallel;
+import dk.alexandra.fresco.framework.builder.numeric.Numeric;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 
 /**
  * Implements a close operation on a list of BigIntegers.
  */
-public class CloseList implements ComputationBuilderParallel<List<Computation<SInt>>> {
+public class CloseList implements ComputationParallel<List<DRes<SInt>>, ProtocolBuilderNumeric> {
 
   private final List<BigInteger> openInputs;
   private final int numberOfInputs;
@@ -75,13 +75,13 @@ public class CloseList implements ComputationBuilderParallel<List<Computation<SI
     this.isInputProvider = false;
   }
 
-  private List<Computation<SInt>> buildAsProvider(NumericBuilder nb) {
+  private List<DRes<SInt>> buildAsProvider(Numeric nb) {
     return openInputs.stream().map(openInput -> nb.input(openInput, inputParty))
         .collect(Collectors.toList());
   }
-  
-  private List<Computation<SInt>> buildAsReceiver(NumericBuilder nb) {
-    List<Computation<SInt>> closed = new ArrayList<>();
+
+  private List<DRes<SInt>> buildAsReceiver(Numeric nb) {
+    List<DRes<SInt>> closed = new ArrayList<>();
     for (int i = 0; i < numberOfInputs; i++) {
       closed.add(nb.input(null, inputParty));
     }
@@ -89,11 +89,10 @@ public class CloseList implements ComputationBuilderParallel<List<Computation<SI
   }
 
   @Override
-  public Computation<List<Computation<SInt>>> build(ParallelNumericBuilder par) {
-    NumericBuilder nb = par.numeric();
+  public DRes<List<DRes<SInt>>> buildComputation(ProtocolBuilderNumeric builder) {
+    Numeric nb = builder.numeric();
     // for each input value, call input
-    List<Computation<SInt>> closedInputs =
-        isInputProvider ? buildAsProvider(nb) : buildAsReceiver(nb);
+    List<DRes<SInt>> closedInputs = isInputProvider ? buildAsProvider(nb) : buildAsReceiver(nb);
     return () -> closedInputs;
   }
 }

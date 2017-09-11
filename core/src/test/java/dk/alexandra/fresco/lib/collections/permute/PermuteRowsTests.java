@@ -30,18 +30,17 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 
 import dk.alexandra.fresco.framework.Application;
-import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
-import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.Collections;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
+import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.collections.Matrix;
 import dk.alexandra.fresco.lib.collections.MatrixTestUtils;
 import dk.alexandra.fresco.lib.collections.MatrixUtils;
-import dk.alexandra.fresco.lib.collections.io.CloseMatrix;
-import dk.alexandra.fresco.lib.collections.io.OpenMatrix;
 
 public class PermuteRowsTests {
 
@@ -53,7 +52,7 @@ public class PermuteRowsTests {
    * @param <ResourcePoolT>
    */
   public static class TestPermuteRowsGeneric<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory<ResourcePoolT, SequentialNumericBuilder> {
+      extends TestThreadFactory {
 
     final Matrix<BigInteger> input;
     final Matrix<BigInteger> expected;
@@ -66,30 +65,23 @@ public class PermuteRowsTests {
     }
 
     @Override
-    public TestThread<ResourcePoolT, SequentialNumericBuilder> next(
-        TestThreadConfiguration<ResourcePoolT, SequentialNumericBuilder> conf) {
-      return new TestThread<ResourcePoolT, SequentialNumericBuilder>() {
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
 
         @Override
         public void test() throws Exception {
           // define functionality to be tested
-          Application<Matrix<BigInteger>, SequentialNumericBuilder> testApplication = root -> {
-            return root.par(par -> {
-              // close inputs
-              return new CloseMatrix(input, 1).build(par);
-            }).seq((closed, seq) -> {
-              // apply permutation
-              if (conf.getMyId() == 1) {
-                return new PermuteRows(closed, idxPerm, 1).build(seq);
-              } else {
-                return new PermuteRows(closed, 1).build(seq);
-              }
-            }).par((swapped, par) -> {
-              // open result
-              Computation<Matrix<Computation<BigInteger>>> opened =
-                  new OpenMatrix(swapped).build(par);
-              return () -> new MatrixUtils().unwrapMatrix(opened.out());
-            });
+          Application<Matrix<BigInteger>, ProtocolBuilderNumeric> testApplication = root -> {
+            Collections collections = root.collections();
+            DRes<Matrix<DRes<SInt>>> closed = collections.closeMatrix(input, 1);
+            DRes<Matrix<DRes<SInt>>> permuted = null;
+            if (root.getBasicNumericContext().getMyId() == 1) {
+              permuted = collections.permute(closed, idxPerm);
+            } else {
+              permuted = collections.permute(closed, 1);
+            }
+            DRes<Matrix<DRes<BigInteger>>> opened = collections.openMatrix(permuted);
+            return () -> new MatrixUtils().unwrapMatrix(opened);
           };
           Matrix<BigInteger> actual = secureComputationEngine.runApplication(testApplication,
               ResourcePoolCreator.createResourcePool(conf.sceConf));
@@ -141,5 +133,4 @@ public class PermuteRowsTests {
     Matrix<BigInteger> expected = new MatrixTestUtils().getInputMatrix(3, 2);
     return new TestPermuteRowsGeneric<>(input, expected, idxPerm);
   }
-
 }

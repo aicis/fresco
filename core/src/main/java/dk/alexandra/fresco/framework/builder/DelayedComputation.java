@@ -1,12 +1,12 @@
 package dk.alexandra.fresco.framework.builder;
 
-import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.DRes;
 
-public class DelayedComputation<R> implements Computation<R> {
+public class DelayedComputation<R> implements DRes<R> {
 
-  private Computation<R> closure;
+  private DRes<R> closure;
 
-  public void setComputation(Computation<R> computation) {
+  public void setComputation(DRes<R> computation) {
     if (this.closure != null) {
       throw new IllegalStateException("Only allowed once");
     }

@@ -38,48 +38,48 @@ public class TestSpdzConditional extends AbstractSpdzTest {
   @Test
   public void test_conditional_select_left() throws Exception {
     runTest(ConditionalSelectTests.testSelectLeft(), EvaluationStrategy.SEQUENTIAL,
-        NetworkingStrategy.SCAPI, PreprocessingStrategy.DUMMY, 2);
+        NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
   }
 
   @Test
   public void test_conditional_select_right() throws Exception {
     runTest(ConditionalSelectTests.testSelectRight(), EvaluationStrategy.SEQUENTIAL,
-        NetworkingStrategy.SCAPI, PreprocessingStrategy.DUMMY, 2);
+        NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
   }
 
   @Test
   public void test_conditional_swap_yes() throws Exception {
     runTest(ConditionalSwapTests.testSwapYes(), EvaluationStrategy.SEQUENTIAL,
-        NetworkingStrategy.SCAPI, PreprocessingStrategy.DUMMY, 2);
+        NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
   }
 
   @Test
   public void test_conditional_swap_no() throws Exception {
     runTest(ConditionalSwapTests.testSwapNo(), EvaluationStrategy.SEQUENTIAL,
-        NetworkingStrategy.SCAPI, PreprocessingStrategy.DUMMY, 2);
+        NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
   }
 
   @Test
   public void test_conditional_swap_rows_yes() throws Exception {
     runTest(ConditionalSwapRowsTests.testSwapYes(), EvaluationStrategy.SEQUENTIAL,
-        NetworkingStrategy.SCAPI, PreprocessingStrategy.DUMMY, 2);
+        NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
   }
 
   @Test
   public void test_conditional_swap_rows_no() throws Exception {
     runTest(ConditionalSwapRowsTests.testSwapNo(), EvaluationStrategy.SEQUENTIAL,
-        NetworkingStrategy.SCAPI, PreprocessingStrategy.DUMMY, 2);
+        NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
   }
 
   @Test
   public void test_conditional_swap_neighbors_yes() throws Exception {
     runTest(ConditionalSwapNeighborsTests.testSwapYes(), EvaluationStrategy.SEQUENTIAL,
-        NetworkingStrategy.SCAPI, PreprocessingStrategy.DUMMY, 2);
+        NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
   }
 
   @Test
   public void test_conditional_swap_neighbors_no() throws Exception {
     runTest(ConditionalSwapNeighborsTests.testSwapNo(), EvaluationStrategy.SEQUENTIAL,
-        NetworkingStrategy.SCAPI, PreprocessingStrategy.DUMMY, 2);
+        NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
   }
 }

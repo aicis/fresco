@@ -26,39 +26,36 @@
  */
 package dk.alexandra.fresco.lib.statistics;
 
-import dk.alexandra.fresco.framework.Application;
-import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.MPCException;
-import dk.alexandra.fresco.framework.builder.ComparisonBuilder;
-import dk.alexandra.fresco.framework.builder.ComputationBuilder;
-import dk.alexandra.fresco.framework.builder.NumericBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
+import dk.alexandra.fresco.framework.builder.Computation;
+import dk.alexandra.fresco.framework.builder.numeric.Comparison;
+import dk.alexandra.fresco.framework.builder.numeric.Numeric;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.math.integer.SumSIntList;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Application for performing credit rating.
  *
- * Given a dataset (a vector of values)
- * and a credit rating function (a set of intervals for each value)
- * will calculate the combined score.
+ * Given a dataset (a vector of values) and a credit rating function (a set of intervals for each
+ * value) will calculate the combined score.
  */
 public class CreditRater implements
-    Application<SInt, SequentialNumericBuilder> {
+    Computation<SInt, ProtocolBuilderNumeric> {
 
-  private List<SInt> values;
-  private List<List<SInt>> intervals;
-  private List<List<SInt>> intervalScores;
+  private List<DRes<SInt>> values;
+  private List<List<DRes<SInt>>> intervals;
+  private List<List<DRes<SInt>>> intervalScores;
 
   /**
    * @throws MPCException if the intervals, values and intervalScores does not have the same length
    */
   public CreditRater(
-      List<SInt> values, List<List<SInt>> intervals, List<List<SInt>> intervalScores)
+      List<DRes<SInt>> values, List<List<DRes<SInt>>> intervals,
+      List<List<DRes<SInt>>> intervalScores)
       throws MPCException {
     this.values = values;
     this.intervals = intervals;
@@ -69,111 +66,89 @@ public class CreditRater implements
   }
 
   /**
-   * Verify that the input values are consistent, i.e.
-   * the there is an interval for each value
+   * Verify that the input values are consistent, i.e. the there is an interval for each value
    *
    * @return If the input is consistent.
    */
   private boolean consistencyCheck() {
-    if (this.values.size() != this.intervals.size()) {
-      return false;
-    }
-    if (this.intervals.size() != (this.intervalScores.size())) {
-      return false;
-    } else {
-      return true;
-    }
+    return this.values.size() == this.intervals.size()
+        && this.intervals.size() == (this.intervalScores.size());
   }
 
   @Override
-  @SuppressWarnings("unchecked")
-  public Computation<SInt> prepareApplication(
-      SequentialNumericBuilder sequential) {
+  public DRes<SInt> buildComputation(ProtocolBuilderNumeric sequential) {
     return sequential.par(
         parallel -> {
-          List<Computation<SInt>> scores = new ArrayList<>(values.size());
+          List<DRes<SInt>> scores = new ArrayList<>(values.size());
           for (int i = 0; i < values.size(); i++) {
-            SInt value = values.get(i);
-            List<SInt> interval = intervals.get(i);
-            List<SInt> intervalScore = intervalScores.get(i);
+            DRes<SInt> value = values.get(i);
+            List<DRes<SInt>> interval = intervals.get(i);
+            List<DRes<SInt>> intervalScore = intervalScores.get(i);
 
             scores.add(
-                parallel.createSequentialSub(
-                    new ComputeIntervalScore(interval, value, intervalScore)));
+                parallel.seq(new ComputeIntervalScore(interval, value, intervalScore)));
           }
           return () -> scores;
         }
-    ).seq((list, seq) ->
-        new SumSIntList(list).build(seq)
-    );
+    ).seq((seq, list) -> seq.advancedNumeric().sum(list));
   }
 
   private static class ComputeIntervalScore implements
-      ComputationBuilder<SInt> {
+      Computation<SInt, ProtocolBuilderNumeric> {
 
-    private final List<Computation<SInt>> interval;
-    private final Computation<SInt> value;
-    private final List<Computation<SInt>> scores;
-
+    private final List<DRes<SInt>> interval;
+    private final DRes<SInt> value;
+    private final List<DRes<SInt>> scores;
 
     /**
-     * Given a value and scores for an interval, will lookup the score for
-     * the value.
+     * Given a value and scores for an interval, will lookup the score for the value.
      *
      * @param value The value to lookup
      * @param interval The interval definition
      * @param scores The scores for each interval
      */
-    ComputeIntervalScore(List<SInt> interval, SInt value, List<SInt> scores) {
-      this.interval = convertList(interval);
-      this.value = () -> value;
-      this.scores = convertList(scores);
-    }
-
-    private List<Computation<SInt>> convertList(List<SInt> interval) {
-      return interval.stream()
-          .map(intervalValue -> {
-            Computation<SInt> computation = () -> intervalValue;
-            return computation;
-          })
-          .collect(Collectors.toList());
+    ComputeIntervalScore(List<DRes<SInt>> interval, DRes<SInt> value,
+        List<DRes<SInt>> scores) {
+      this.interval = interval;
+      this.value = value;
+      this.scores = scores;
     }
 
     @Override
-    public Computation<SInt> build(SequentialNumericBuilder rootBuilder) {
+    public DRes<SInt> buildComputation(ProtocolBuilderNumeric rootBuilder) {
       return rootBuilder.par((parallelBuilder) -> {
-        List<Computation<SInt>> result = new ArrayList<>();
-        ComparisonBuilder builder = parallelBuilder.comparison();
+        List<DRes<SInt>> result = new ArrayList<>();
+        Comparison builder = parallelBuilder.comparison();
 
         // Compare if "x <= the n interval definitions"
-        for (Computation<SInt> anInterval : interval) {
+        for (DRes<SInt> anInterval : interval) {
           result.add(builder.compareLEQ(value, anInterval));
         }
         return () -> result;
-      }).seq((comparisons, builder) -> {
+      }).seq((builder, comparisons) -> {
         // Add "x > last interval definition" to comparisons
 
-        NumericBuilder numericBuilder = builder.numeric();
-        Computation<SInt> lastComparison = comparisons.get(comparisons.size() - 1);
+        Numeric numericBuilder = builder.numeric();
+        DRes<SInt> lastComparison = comparisons.get(comparisons.size() - 1);
         comparisons.add(numericBuilder.sub(BigInteger.ONE, lastComparison));
         return () -> comparisons;
-      }).par((comparisons, parallelBuilder) -> {
+      }).par((parallelBuilder, comparisons) -> {
         //Comparisons now contain if x <= each definition and if x>= last definition
 
-        NumericBuilder numericBuilder = parallelBuilder.numeric();
-        List<Computation<SInt>> innerScores = new ArrayList<>();
+        Numeric numericBuilder = parallelBuilder.numeric();
+        List<DRes<SInt>> innerScores = new ArrayList<>();
         innerScores.add(numericBuilder.mult(comparisons.get(0), scores.get(0)));
         for (int i = 1; i < scores.size() - 1; i++) {
-          Computation<SInt> hit = numericBuilder
+          DRes<SInt> hit = numericBuilder
               .sub(comparisons.get(i), comparisons.get(i - 1));
           innerScores.add(numericBuilder.mult(hit, scores.get(i)));
         }
-        Computation<SInt> a = comparisons.get(scores.size() - 1);
-        Computation<SInt> b = scores.get(scores.size() - 1);
+        DRes<SInt> a = comparisons.get(scores.size() - 1);
+        DRes<SInt> b = scores.get(scores.size() - 1);
         innerScores.add(numericBuilder.mult(a, b));
         return () -> innerScores;
 
-      }).seq((list, seq) -> new SumSIntList(list).build(seq));
+      }).seq((seq, list) -> seq.advancedNumeric().sum(list));
     }
   }
 }

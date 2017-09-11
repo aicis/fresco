@@ -26,9 +26,9 @@
  */
 package dk.alexandra.fresco.lib.math.integer.log;
 
-import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.builder.ComputationBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
+import dk.alexandra.fresco.framework.DRes;
+import dk.alexandra.fresco.framework.builder.Computation;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
 
@@ -43,21 +43,21 @@ import java.math.BigInteger;
  *
  * @author Jonas Lindstrøm (jonas.lindstrom@alexandra.dk)
  */
-public class Logarithm implements ComputationBuilder<SInt> {
+public class Logarithm implements Computation<SInt, ProtocolBuilderNumeric> {
 
   // Input
-  private Computation<SInt> input;
+  private DRes<SInt> input;
   private int maxInputLength;
 
 
-  public Logarithm(Computation<SInt> input, int maxInputLength) {
+  public Logarithm(DRes<SInt> input, int maxInputLength) {
     this.input = input;
     this.maxInputLength = maxInputLength;
   }
 
 
   @Override
-  public Computation<SInt> build(SequentialNumericBuilder builder) {
+  public DRes<SInt> buildComputation(ProtocolBuilderNumeric builder) {
     /*
      * ln(2) = 45426 >> 16;
 		 */
@@ -68,15 +68,15 @@ public class Logarithm implements ComputationBuilder<SInt> {
      * Find the bit length of the input. Note that bit length - 1 is the
 		 * floor of the the logartihm with base 2 of the input.
 		 */
-    Computation<SInt> bitLength =
+    DRes<SInt> bitLength =
         builder.advancedNumeric().bitLength(input, maxInputLength);
-    Computation<SInt> log2 =
+    DRes<SInt> log2 =
         builder.numeric().sub(bitLength, BigInteger.ONE);
 
 		/*
      * ln(x) = log_2(x) * ln(2), and we use 45426 >> 16 as an approximation of ln(2).
 		 */
-    Computation<SInt> scaledLog = builder.numeric().mult(ln2, log2);
+    DRes<SInt> scaledLog = builder.numeric().mult(ln2, log2);
     return builder.advancedNumeric()
         .rightShift(scaledLog, shifts);
   }

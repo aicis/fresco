@@ -24,41 +24,35 @@
 package dk.alexandra.fresco.lib.conditional;
 
 import java.util.ArrayList;
+import java.util.List;
 
-import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.builder.ComputationBuilderParallel;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.ParallelNumericBuilder;
+import dk.alexandra.fresco.framework.DRes;
+import dk.alexandra.fresco.framework.builder.ComputationParallel;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 
 public class ConditionalSelectRow
-    implements ComputationBuilderParallel<ArrayList<Computation<SInt>>> {
+    implements ComputationParallel<List<DRes<SInt>>, ProtocolBuilderNumeric> {
 
-  private final Computation<SInt> selector;
-  private final ArrayList<Computation<SInt>> a, b;
+  private final DRes<SInt> condition;
+  private final DRes<List<DRes<SInt>>> left, right;
 
-  /**
-   * Selects a or b based on selector. Selector must be 0 or 1.
-   * 
-   * If selector is 0 b is selected, otherwise a.
-   * 
-   * @param selector
-   * @param a
-   * @param b
-   */
-  public ConditionalSelectRow(Computation<SInt> selector, ArrayList<Computation<SInt>> a,
-      ArrayList<Computation<SInt>> b) {
+  public ConditionalSelectRow(DRes<SInt> selector, DRes<List<DRes<SInt>>> left,
+      DRes<List<DRes<SInt>>> right) {
     // TODO: throw if different sizes
-    this.selector = selector;
-    this.a = a;
-    this.b = b;
+    this.condition = selector;
+    this.left = left;
+    this.right = right;
   }
 
   @Override
-  public Computation<ArrayList<Computation<SInt>>> build(ParallelNumericBuilder builder) {
-    ArrayList<Computation<SInt>> selected = new ArrayList<>();
-    for (int i = 0; i < this.a.size(); i++) {
+  public DRes<List<DRes<SInt>>> buildComputation(ProtocolBuilderNumeric builder) {
+    List<DRes<SInt>> selected = new ArrayList<>();
+    List<DRes<SInt>> leftOut = left.out();
+    List<DRes<SInt>> rightOut = right.out();
+    for (int i = 0; i < leftOut.size(); i++) {
       selected
-          .add(builder.createSequentialSub(new ConditionalSelect(selector, a.get(i), b.get(i))));
+          .add(builder.advancedNumeric().condSelect(condition, leftOut.get(i), rightOut.get(i)));
     }
     return () -> selected;
   }

@@ -26,17 +26,12 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.math.polynomial;
 
-import dk.alexandra.fresco.framework.BuilderFactory;
-import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.ProtocolProducer;
-import dk.alexandra.fresco.framework.TestApplication;
+import dk.alexandra.fresco.framework.Application;
+import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
-import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
-import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
-import dk.alexandra.fresco.framework.builder.NumericBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.Numeric;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SInt;
@@ -50,10 +45,10 @@ import org.junit.Assert;
 public class PolynomialTests {
 
   public static class TestPolynomialEvaluator<ResourcePoolT extends ResourcePool> extends
-      TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+      TestThreadFactory {
 
     @Override
-    public TestThread next(TestThreadConfiguration<ResourcePoolT, ProtocolBuilderNumeric> conf) {
+    public TestThread next() {
 
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         private final int[] coefficients = {1, 0, 1, 2};
@@ -61,33 +56,22 @@ public class PolynomialTests {
 
         @Override
         public void test() throws Exception {
-          TestApplication app = new TestApplication() {
+          Application<BigInteger, ProtocolBuilderNumeric> app = provider -> {
+            Numeric numeric = provider.numeric();
+            List<DRes<SInt>> secretCoefficients =
+                Arrays.stream(coefficients)
+                    .mapToObj(BigInteger::valueOf)
+                    .map((n) -> numeric.input(n, 1))
+                    .collect(Collectors.toList());
 
+            PolynomialImpl polynomial = new PolynomialImpl(secretCoefficients);
+            DRes<SInt> secretX = numeric.input(BigInteger.valueOf(x), 1);
 
-            @Override
-            public ProtocolProducer prepareApplication(BuilderFactory provider) {
-              SequentialNumericBuilder root = ProtocolBuilderNumeric
-                  .createApplicationRoot((BuilderFactoryNumeric) provider);
+            DRes<SInt> result = provider.seq(new PolynomialEvaluator(secretX, polynomial));
 
-              NumericBuilder numeric = root.numeric();
-              List<Computation<SInt>> secretCoefficients =
-                  Arrays.stream(coefficients)
-                      .mapToObj(BigInteger::valueOf)
-                      .map((n) -> numeric.input(n, 1))
-                      .collect(Collectors.toList());
-
-              PolynomialImpl polynomial = new PolynomialImpl(secretCoefficients);
-              Computation<SInt> secretX = numeric.input(BigInteger.valueOf(x), 1);
-
-              Computation<SInt> result = root
-                  .createSequentialSub(new PolynomialEvaluator(secretX, polynomial));
-
-              outputs.add(numeric.open(result));
-
-              return root.build();
-            }
+            return numeric.open(result);
           };
-          secureComputationEngine
+          BigInteger result = secureComputationEngine
               .runApplication(app, ResourcePoolCreator.createResourcePool(conf.sceConf));
 
           int f = 0;
@@ -96,7 +80,6 @@ public class PolynomialTests {
             f += coefficient * power;
             power *= x;
           }
-          BigInteger result = app.getOutputs()[0];
           Assert.assertTrue(result.intValue() == f);
         }
       };

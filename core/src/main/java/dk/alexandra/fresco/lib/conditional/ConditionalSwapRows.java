@@ -23,46 +23,31 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.conditional;
 
-import java.math.BigInteger;
-import java.util.ArrayList;
+import java.util.List;
 
-import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.builder.ComputationBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
-import dk.alexandra.fresco.framework.util.RowPairC;
+import dk.alexandra.fresco.framework.DRes;
+import dk.alexandra.fresco.framework.builder.ComputationParallel;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
+import dk.alexandra.fresco.framework.util.RowPairD;
 import dk.alexandra.fresco.framework.value.SInt;
 
-public class ConditionalSwapRows implements ComputationBuilder<RowPairC<SInt, SInt>> {
+public class ConditionalSwapRows
+    implements ComputationParallel<RowPairD<SInt, SInt>, ProtocolBuilderNumeric> {
 
-  final private Computation<SInt> swapper;
-  final private ArrayList<Computation<SInt>> row, otherRow;
+  final private DRes<SInt> condition;
+  final private DRes<List<DRes<SInt>>> left, right;
 
-  /**
-   * Swaps rows in matrix based on swapper. Swapper must be 0 or 1.
-   * 
-   * If swapper is 1 the rows are swapped. Otherwise, original order.
-   * 
-   * @param swapper
-   * @param mat
-   * @param rowIdx
-   * @param otherRowIdx
-   */
-  public ConditionalSwapRows(Computation<SInt> swapper, ArrayList<Computation<SInt>> row,
-      ArrayList<Computation<SInt>> otherRow) {
-    this.swapper = swapper;
-    this.row = row;
-    this.otherRow = otherRow;
+  public ConditionalSwapRows(DRes<SInt> condition, DRes<List<DRes<SInt>>> left,
+      DRes<List<DRes<SInt>>> right) {
+    this.condition = condition;
+    this.left = left;
+    this.right = right;
   }
 
   @Override
-  public Computation<RowPairC<SInt, SInt>> build(SequentialNumericBuilder builder) {
-    Computation<SInt> flipped = builder.numeric().sub(BigInteger.ONE, swapper);
-    Computation<ArrayList<Computation<SInt>>> updatedRow =
-        builder.createParallelSub(new ConditionalSelectRow(flipped, row, otherRow));
-    Computation<ArrayList<Computation<SInt>>> updatedOtherRow =
-        builder.createParallelSub(new ConditionalSelectRow(swapper, row, otherRow));
-    return () -> {
-      return new RowPairC<>(updatedRow.out(), updatedOtherRow.out());
-    };
+  public DRes<RowPairD<SInt, SInt>> buildComputation(ProtocolBuilderNumeric builder) {
+    DRes<List<DRes<SInt>>> updatedLeft = builder.collections().condSelect(condition, right, left);
+    DRes<List<DRes<SInt>>> updatedRight = builder.collections().condSelect(condition, left, right);
+    return () -> new RowPairD<>(updatedLeft, updatedRight);
   }
 }

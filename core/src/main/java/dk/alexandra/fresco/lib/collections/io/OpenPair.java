@@ -26,37 +26,38 @@ package dk.alexandra.fresco.lib.collections.io;
 
 import java.math.BigInteger;
 
-import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.builder.ComputationBuilderParallel;
-import dk.alexandra.fresco.framework.builder.NumericBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.ParallelNumericBuilder;
+import dk.alexandra.fresco.framework.DRes;
+import dk.alexandra.fresco.framework.builder.ComputationParallel;
+import dk.alexandra.fresco.framework.builder.numeric.Numeric;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
 
 /**
  * Implements a open operation on a pair of Computation<SInt>.
  */
-public class OpenPair
-    implements ComputationBuilderParallel<Pair<Computation<BigInteger>, Computation<BigInteger>>> {
+public class OpenPair implements
+    ComputationParallel<Pair<DRes<BigInteger>, DRes<BigInteger>>, ProtocolBuilderNumeric> {
 
-  private final Pair<Computation<SInt>, Computation<SInt>> closedPair;
+  private final DRes<Pair<DRes<SInt>, DRes<SInt>>> closedPair;
 
   /**
-   * Makes a new ClosePair
+   * Makes a new OpenPair
    *
    * @param closedPair the pair to open.
    */
-  public OpenPair(Pair<Computation<SInt>, Computation<SInt>> closedPair) {
+  public OpenPair(DRes<Pair<DRes<SInt>, DRes<SInt>>> closedPair) {
     super();
     this.closedPair = closedPair;
   }
 
   @Override
-  public Computation<Pair<Computation<BigInteger>, Computation<BigInteger>>> build(
-      ParallelNumericBuilder par) {
-    NumericBuilder nb = par.numeric();
-    Pair<Computation<BigInteger>, Computation<BigInteger>> openPair =
-        new Pair<>(nb.open(closedPair.getFirst()), nb.open(closedPair.getSecond()));
+  public DRes<Pair<DRes<BigInteger>, DRes<BigInteger>>> buildComputation(
+      ProtocolBuilderNumeric par) {
+    Pair<DRes<SInt>, DRes<SInt>> closedPairOut = closedPair.out();
+    Numeric nb = par.numeric();
+    Pair<DRes<BigInteger>, DRes<BigInteger>> openPair =
+        new Pair<>(nb.open(closedPairOut.getFirst()), nb.open(closedPairOut.getSecond()));
     return () -> openPair;
   }
 

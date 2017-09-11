@@ -44,6 +44,13 @@ public abstract class AbstractDummyArithmeticTest {
 
   protected void runTest(TestThreadRunner.TestThreadFactory f, EvaluationStrategy evalStrategy,
       NetworkingStrategy network, int noOfParties) throws Exception {
+    BigInteger mod = new BigInteger(
+        "6703903964971298549787012499123814115273848577471136527425966013026501536706464354255445443244279389455058889493431223951165286470575994074291745908195329");
+    runTest(f, evalStrategy, network, noOfParties, mod);
+  }
+  
+  protected void runTest(TestThreadRunner.TestThreadFactory f, EvaluationStrategy evalStrategy,
+      NetworkingStrategy network, int noOfParties, BigInteger mod) throws Exception {
 
     List<Integer> ports = new ArrayList<Integer>(noOfParties);
     for (int i = 1; i <= noOfParties; i++) {
@@ -57,9 +64,6 @@ public abstract class AbstractDummyArithmeticTest {
     for (int playerId : netConf.keySet()) {
       TestThreadRunner.TestThreadConfiguration ttc = new TestThreadRunner.TestThreadConfiguration();
       ttc.netConf = netConf.get(playerId);
-
-      BigInteger mod = new BigInteger(
-          "6703903964971298549787012499123814115273848577471136527425966013026501536706464354255445443244279389455058889493431223951165286470575994074291745908195329");
 
       DummyArithmeticProtocolSuite ps = new DummyArithmeticProtocolSuite(mod, 200);
 

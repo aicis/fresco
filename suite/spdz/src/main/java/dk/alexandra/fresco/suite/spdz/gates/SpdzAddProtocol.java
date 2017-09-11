@@ -26,7 +26,7 @@
  *******************************************************************************/
 package dk.alexandra.fresco.suite.spdz.gates;
 
-import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.network.SCENetwork;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
@@ -34,10 +34,10 @@ import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 
 public class SpdzAddProtocol extends SpdzNativeProtocol<SInt> {
 
-  private Computation<SInt> left, right;
+  private DRes<SInt> left, right;
   private SpdzSInt out;
 
-  public SpdzAddProtocol(Computation<SInt> left, Computation<SInt> right) {
+  public SpdzAddProtocol(DRes<SInt> left, DRes<SInt> right) {
     this.left = left;
     this.right = right;
   }

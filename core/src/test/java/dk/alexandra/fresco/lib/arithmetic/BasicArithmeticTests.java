@@ -23,31 +23,25 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.arithmetic;
 
-import dk.alexandra.fresco.framework.BuilderFactory;
-import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.NativeProtocol;
-import dk.alexandra.fresco.framework.ProtocolFactory;
-import dk.alexandra.fresco.framework.ProtocolProducer;
-import dk.alexandra.fresco.framework.TestApplication;
+import dk.alexandra.fresco.framework.Application;
+import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
-import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
-import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
-import dk.alexandra.fresco.framework.builder.NumericBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.AdvancedNumeric;
+import dk.alexandra.fresco.framework.builder.numeric.Numeric;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
+import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
-import dk.alexandra.fresco.lib.helper.SequentialProtocolProducer;
-import dk.alexandra.fresco.lib.helper.builder.NumericIOBuilder;
-import dk.alexandra.fresco.lib.helper.builder.NumericProtocolBuilder;
 import dk.alexandra.fresco.lib.math.integer.min.MinInfFrac;
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import org.hamcrest.core.Is;
 import org.junit.Assert;
 
 
@@ -62,73 +56,53 @@ import org.junit.Assert;
 public class BasicArithmeticTests {
 
   public static class TestInput<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+      extends TestThreadFactory {
 
     @Override
-    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next(
-        TestThreadConfiguration<ResourcePoolT, ProtocolBuilderNumeric> conf) {
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+      BigInteger value = BigInteger.valueOf(10);
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         @Override
         public void test() throws Exception {
-          TestApplication app = new TestApplication() {
+          Application<BigInteger, ProtocolBuilderNumeric> app =
+              producer -> {
+                Numeric numeric = producer.numeric();
 
-
-            @Override
-            public ProtocolProducer prepareApplication(BuilderFactory factoryProducer) {
-              ProtocolFactory producer = factoryProducer.getProtocolFactory();
-              BasicNumericFactory fac = (BasicNumericFactory) producer;
-              NumericIOBuilder ioBuilder = new NumericIOBuilder(fac);
-              SInt input1 = ioBuilder.input(BigInteger.valueOf(10), 1);
-
-              Computation<BigInteger> output = ioBuilder.output(input1);
-
-              this.outputs.add(output);
-              return ioBuilder.getProtocol();
-            }
-          };
-
-          secureComputationEngine.runApplication(app, ResourcePoolCreator
+                DRes<SInt> input = numeric.input(value, 1);
+                return numeric.open(input);
+              };
+          BigInteger output = secureComputationEngine.runApplication(app, ResourcePoolCreator
               .createResourcePool(conf.sceConf));
 
-          Assert.assertEquals(BigInteger.valueOf(10), app.getOutputs()[0]);
+          Assert.assertEquals(value, output);
         }
       };
     }
   }
 
   public static class TestOutputToSingleParty<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+      extends TestThreadFactory {
 
     @Override
-    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next(
-        TestThreadConfiguration<ResourcePoolT, ProtocolBuilderNumeric> conf) {
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+      BigInteger value = BigInteger.valueOf(10);
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         @Override
         public void test() throws Exception {
-          TestApplication app = new TestApplication() {
+          Application<BigInteger, ProtocolBuilderNumeric> app =
+              producer -> {
+                Numeric numeric = producer.numeric();
 
-
-            @Override
-            public ProtocolProducer prepareApplication(BuilderFactory factoryProducer) {
-              ProtocolFactory producer = factoryProducer.getProtocolFactory();
-
-              BasicNumericFactory fac = (BasicNumericFactory) producer;
-              NumericIOBuilder ioBuilder = new NumericIOBuilder(fac);
-              SInt input1 = ioBuilder.input(BigInteger.valueOf(10), 1);
-
-              Computation<BigInteger> output = ioBuilder.outputToParty(1, input1);
-
-              this.outputs.add(output);
-              return ioBuilder.getProtocol();
-            }
-          };
-
-          secureComputationEngine.runApplication(app, ResourcePoolCreator
+                DRes<SInt> input = numeric.input(value, 1);
+                return numeric.open(input, 2);
+              };
+          BigInteger output = secureComputationEngine.runApplication(app, ResourcePoolCreator
               .createResourcePool(conf.sceConf));
-          if (conf.netConf.getMyId() == 1) {
-            Assert.assertEquals(BigInteger.valueOf(10), app.getOutputs()[0]);
+
+          if (conf.netConf.getMyId() == 2) {
+            Assert.assertEquals(BigInteger.valueOf(10), output);
           } else {
-            Assert.assertNull(app.getOutputs()[0]);
+            Assert.assertNull(output);
           }
         }
       };
@@ -136,84 +110,62 @@ public class BasicArithmeticTests {
   }
 
   public static class TestAddPublicValue<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+      extends TestThreadFactory {
 
     @Override
-    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next(
-        TestThreadConfiguration<ResourcePoolT, ProtocolBuilderNumeric> conf) {
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+      BigInteger value = BigInteger.valueOf(10);
+      BigInteger add = BigInteger.valueOf(4);
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         @Override
         public void test() throws Exception {
-          TestApplication app = new TestApplication() {
+          Application<BigInteger, ProtocolBuilderNumeric> app =
+              producer -> {
+                Numeric numeric = producer.numeric();
 
-
-            @Override
-            public ProtocolProducer prepareApplication(BuilderFactory factoryProducer) {
-              ProtocolFactory producer = factoryProducer.getProtocolFactory();
-              BasicNumericFactory fac = (BasicNumericFactory) producer;
-              SequentialProtocolProducer gp = new SequentialProtocolProducer();
-              NumericIOBuilder ioBuilder = new NumericIOBuilder(fac);
-              SInt input1 = ioBuilder.input(BigInteger.valueOf(10), 1);
-
-              gp.append(ioBuilder.getProtocol());
-              ioBuilder.reset();
-
-              BigInteger publicVal = BigInteger.valueOf(4);
-              SInt out = fac.getSInt();
-              NativeProtocol addProtocol = fac.getAddProtocol(input1, publicVal, out);
-              gp.append(addProtocol);
-
-              Computation<BigInteger> output = ioBuilder.output(out);
-              ProtocolProducer io = ioBuilder.getProtocol();
-              gp.append(io);
-
-              this.outputs.add(output);
-              return gp;
-            }
-          };
-
-          secureComputationEngine.runApplication(app, ResourcePoolCreator
+                DRes<SInt> input = numeric.input(value, 1);
+                DRes<SInt> result = numeric.add(add, input);
+                return numeric.open(result);
+              };
+          BigInteger output = secureComputationEngine.runApplication(app, ResourcePoolCreator
               .createResourcePool(conf.sceConf));
-          Assert.assertEquals(BigInteger.valueOf(14), app.getOutputs()[0]);
+
+          Assert.assertEquals(value.add(add), output);
         }
       };
     }
   }
 
   public static class TestKnownSInt<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+      extends TestThreadFactory {
 
     @Override
-    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next(
-        TestThreadConfiguration<ResourcePoolT, ProtocolBuilderNumeric> conf) {
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+      List<BigInteger> openInputs = Stream.of(200, 300, 1, 2)
+          .map(BigInteger::valueOf)
+          .collect(Collectors.toList());
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         @Override
         public void test() throws Exception {
-          final int[] openInputs = new int[]{200, 300, 1, 2};
-          TestApplication app = new TestApplication() {
-
-            @Override
-            public ProtocolProducer prepareApplication(BuilderFactory factoryProducer) {
-              ProtocolFactory producer = factoryProducer.getProtocolFactory();
-              BasicNumericFactory fac = (BasicNumericFactory) producer;
-              NumericIOBuilder ioBuilder = new NumericIOBuilder(fac);
-              SInt knownInput1 = fac.getSInt(BigInteger.valueOf(200));
-              SInt knownInput2 = fac.getSInt(BigInteger.valueOf(300));
-              SInt knownInput3 = fac.getSInt(BigInteger.valueOf(1));
-              SInt knownInput4 = fac.getSInt(BigInteger.valueOf(2));
-              Computation<BigInteger> knownOutput1 = ioBuilder.output(knownInput1);
-              Computation<BigInteger> knownOutput2 = ioBuilder.output(knownInput2);
-              Computation<BigInteger> knownOutput3 = ioBuilder.output(knownInput3);
-              Computation<BigInteger> knownOutput4 = ioBuilder.output(knownInput4);
-              this.outputs
-                  .addAll(Arrays.asList(knownOutput1, knownOutput2, knownOutput3, knownOutput4));
-              return ioBuilder.getProtocol();
-            }
-          };
-          secureComputationEngine.runApplication(app, ResourcePoolCreator
+          Application<List<BigInteger>, ProtocolBuilderNumeric> app =
+              producer ->
+                  producer.par(par -> {
+                    Numeric numeric = par.numeric();
+                    List<DRes<SInt>> result = openInputs.stream()
+                        .map(numeric::known)
+                        .collect(Collectors.toList());
+                    return () -> result;
+                  }).par((par, closed) -> {
+                    Numeric numeric = par.numeric();
+                    List<DRes<BigInteger>> result = closed.stream()
+                        .map(numeric::open)
+                        .collect(Collectors.toList());
+                    return () -> result.stream().map(DRes::out).collect(Collectors.toList());
+                  });
+          List<BigInteger> output = secureComputationEngine.runApplication(app, ResourcePoolCreator
               .createResourcePool(conf.sceConf));
 
-          checkOutputs(openInputs, app.getOutputs());
+          Assert.assertEquals(openInputs, output);
         }
       };
     }
@@ -221,120 +173,71 @@ public class BasicArithmeticTests {
 
 
   public static class TestSumAndMult<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+      extends TestThreadFactory {
 
     @Override
-    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next(
-        TestThreadConfiguration<ResourcePoolT, ProtocolBuilderNumeric> conf) {
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+      List<BigInteger> openInputs =
+          Stream.of(1, 2, 3, 4, 5, 6, 7, 8, 9, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1)
+              .map(BigInteger::valueOf)
+              .collect(Collectors.toList());
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         @Override
         public void test() throws Exception {
-          final int[] openInputs =
-              new int[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
-          TestApplication app = new TestApplication() {
-
-            @Override
-            public ProtocolProducer prepareApplication(BuilderFactory factoryProducer) {
-              ProtocolFactory producer = factoryProducer.getProtocolFactory();
-              BasicNumericFactory fac = (BasicNumericFactory) producer;
-              NumericIOBuilder ioBuilder = new NumericIOBuilder(fac);
-
-              SInt[] inputs = createInputs(ioBuilder, openInputs);
-
-              ProtocolProducer inp = ioBuilder.getProtocol();
-              ioBuilder.reset();
-
-              // create wire
-              SInt sum = fac.getSInt();
-
-              // create Sequence of protocols which eventually
-              // will compute the sum
-              SequentialProtocolProducer sumProtocol = new SequentialProtocolProducer();
-
-              sumProtocol.append(fac.getAddProtocol(inputs[0], inputs[1], sum));
-              if (inputs.length > 2) {
-                for (int i = 2; i < inputs.length; i++) {
-                  // Add sum and next secret shared input and
-                  // store in sum.
-                  sumProtocol.append(fac.getAddProtocol(sum, inputs[i], sum));
-                }
-              }
-
-              sumProtocol.append(fac.getMultProtocol(sum, sum, sum));
-
-              this.outputs.add(ioBuilder.output(sum));
-
-              ProtocolProducer io = ioBuilder.getProtocol();
-
-              return new SequentialProtocolProducer(inp, sumProtocol, io);
-            }
-          };
-          secureComputationEngine.runApplication(app, ResourcePoolCreator
+          Application<BigInteger, ProtocolBuilderNumeric> app =
+              producer ->
+                  producer.par(par -> {
+                    Numeric numeric = par.numeric();
+                    List<DRes<SInt>> result = openInputs.stream()
+                        .map(numeric::known)
+                        .collect(Collectors.toList());
+                    return () -> result;
+                  }).seq((seq, closed) -> {
+                    AdvancedNumeric advancedNumeric = seq.advancedNumeric();
+                    DRes<SInt> sum = advancedNumeric.sum(closed);
+                    DRes<SInt> mult = seq.numeric().mult(sum, sum);
+                    return seq.numeric().open(mult);
+                  });
+          BigInteger output = secureComputationEngine.runApplication(app, ResourcePoolCreator
               .createResourcePool(conf.sceConf));
+
           int sum = 0;
-          for (int i : openInputs) {
-            sum += i;
+          for (BigInteger openInput : openInputs) {
+            sum += openInput.intValue();
           }
           sum = sum * sum;
-          Assert.assertEquals(BigInteger.valueOf(sum), app.getOutputs()[0]);
+          Assert.assertEquals(sum, output.intValue());
         }
       };
     }
   }
 
-  private static void checkOutputs(int[] openInputs, BigInteger[] outputs) {
-    for (int i = 0; i < openInputs.length; i++) {
-      Assert.assertEquals(BigInteger.valueOf(openInputs[i]), outputs[i]);
-    }
-  }
-
-  private static SInt[] createInputs(NumericIOBuilder ioBuilder, int[] input) {
-    BigInteger[] bs = new BigInteger[input.length];
-    int inx = 0;
-    for (int i : input) {
-      bs[inx] = BigInteger.valueOf(i);
-      inx++;
-    }
-    return ioBuilder.inputArray(bs, 1);
-  }
-
   public static class TestSimpleMultAndAdd<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+      extends TestThreadFactory {
 
     @Override
-    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next(
-        TestThreadConfiguration<ResourcePoolT, ProtocolBuilderNumeric> conf) {
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+      BigInteger first = BigInteger.valueOf(10);
+      BigInteger second = BigInteger.valueOf(5);
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         @Override
         public void test() throws Exception {
-          TestApplication app = new TestApplication() {
+          Application<BigInteger, ProtocolBuilderNumeric> app =
+              producer -> {
+                Numeric numeric = producer.numeric();
 
+                DRes<SInt> firstClosed = numeric.known(first);
+                DRes<SInt> secondClosed = numeric.known(second);
 
-            @Override
-            public ProtocolProducer prepareApplication(BuilderFactory factoryProducer) {
-              ProtocolFactory producer = factoryProducer.getProtocolFactory();
-              BasicNumericFactory fac = (BasicNumericFactory) producer;
-              NumericIOBuilder ioBuilder = new NumericIOBuilder(fac);
-              SInt input1 = ioBuilder.input(BigInteger.valueOf(10), 1);
-              SInt input2 = ioBuilder.input(BigInteger.valueOf(5), 1);
+                DRes<SInt> add = numeric.add(firstClosed, secondClosed);
+                DRes<SInt> mult = numeric.mult(firstClosed, add);
 
-              ProtocolProducer inputs = ioBuilder.getProtocol();
-              ioBuilder.reset();
-              NumericProtocolBuilder builder = new NumericProtocolBuilder(fac);
-              SInt addAndMult = builder.mult(input1, builder.add(input1, input2));
-              ProtocolProducer circ = builder.getProtocol();
-
-              Computation<BigInteger> output = ioBuilder.output(addAndMult);
-              this.outputs.add(output);
-              ProtocolProducer outputs = ioBuilder.getProtocol();
-
-              return new SequentialProtocolProducer(inputs, circ, outputs);
-            }
-          };
-          secureComputationEngine.runApplication(app, ResourcePoolCreator
+                return numeric.open(mult);
+              };
+          BigInteger output = secureComputationEngine.runApplication(app, ResourcePoolCreator
               .createResourcePool(conf.sceConf));
 
-          Assert.assertEquals(BigInteger.valueOf(10 * (10 + 5)), app.getOutputs()[0]);
+          Assert.assertEquals(first.add(second).multiply(first), output);
         }
       };
     }
@@ -345,43 +248,46 @@ public class BasicArithmeticTests {
    * stress-test the protocol suite.
    */
   public static class TestLotsMult<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+      extends TestThreadFactory {
 
     @Override
-    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next(
-        TestThreadConfiguration<ResourcePoolT, ProtocolBuilderNumeric> conf) {
-
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+      BigInteger first = BigInteger.valueOf(10);
+      BigInteger second = BigInteger.valueOf(5);
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+        private static final int REPS = 20000;
+
         @Override
         public void test() throws Exception {
-          TestApplication app = new TestApplication() {
-            private static final int REPS = 20000;
-
-
-            @Override
-            public ProtocolProducer prepareApplication(BuilderFactory factoryProducer) {
-              ProtocolFactory producer = factoryProducer.getProtocolFactory();
-              BasicNumericFactory fac = (BasicNumericFactory) producer;
-              NumericIOBuilder ioBuilder = new NumericIOBuilder(fac);
-              NumericProtocolBuilder builder = new NumericProtocolBuilder(fac);
-              SInt input1 = fac.getSInt(10);
-              SInt input2 = fac.getSInt(5);
-              SInt[] results = new SInt[REPS];
-              builder.beginParScope();
-              for (int i = 0; i < REPS; i++) {
-                results[i] = builder.mult(input1, input2);
-              }
-              builder.endCurScope();
-              ioBuilder.addProtocolProducer(builder.getProtocol());
-              outputs = ioBuilder.outputArray(results);
-              return ioBuilder.getProtocol();
-            }
-          };
-          secureComputationEngine.runApplication(app, ResourcePoolCreator
+          Application<List<BigInteger>, ProtocolBuilderNumeric> app =
+              producer ->
+                  producer.par(par -> {
+                    Numeric numeric = par.numeric();
+                    DRes<SInt> firstClosed = numeric.known(first);
+                    DRes<SInt> secondClosed = numeric.known(second);
+                    return Pair.lazy(firstClosed, secondClosed);
+                  }).par((par, pair) -> {
+                    DRes<SInt> firstClosed = pair.getFirst();
+                    DRes<SInt> secondClosed = pair.getSecond();
+                    Numeric numeric = par.numeric();
+                    ArrayList<DRes<SInt>> computations = new ArrayList<>();
+                    for (int i = 0; i < REPS; i++) {
+                      computations.add(numeric.mult(firstClosed, secondClosed));
+                    }
+                    return () -> computations;
+                  }).seq((seq, computations) -> {
+                    Numeric numeric = seq.numeric();
+                    List<DRes<BigInteger>> opened = computations.stream().map(numeric::open)
+                        .collect(Collectors.toList());
+                    return () -> opened.stream().map(DRes::out).collect(Collectors.toList());
+                  });
+          List<BigInteger> output = secureComputationEngine.runApplication(app, ResourcePoolCreator
               .createResourcePool(conf.sceConf));
-          BigInteger[] outputs = app.getOutputs();
-          for (BigInteger o : outputs) {
-            Assert.assertEquals(o, BigInteger.valueOf(50));
+
+          BigInteger multiply = first.multiply(second);
+          Assert.assertThat(output.size(), Is.is(REPS));
+          for (BigInteger result : output) {
+            Assert.assertEquals(multiply, result);
           }
         }
       };
@@ -389,71 +295,54 @@ public class BasicArithmeticTests {
   }
 
   public static class TestMinInfFrac<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+      extends TestThreadFactory {
 
     @Override
-    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next(
-        TestThreadConfiguration<ResourcePoolT, ProtocolBuilderNumeric> conf) {
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
 
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         public void test() throws Exception {
-          TestApplication app = new TestApplication() {
+          Application<List<BigInteger>, ProtocolBuilderNumeric> app =
+              producer -> {
+                List<BigInteger> bns = Arrays.asList(BigInteger.valueOf(10), BigInteger.valueOf(2),
+                    BigInteger.valueOf(30), BigInteger.valueOf(1), BigInteger.valueOf(50),
+                    BigInteger.valueOf(10), BigInteger.valueOf(20), BigInteger.valueOf(30),
+                    BigInteger.valueOf(5), BigInteger.valueOf(1));
+                List<BigInteger> bds = Arrays.asList(BigInteger.valueOf(10), BigInteger.valueOf(10),
+                    BigInteger.valueOf(10), BigInteger.valueOf(10), BigInteger.valueOf(10),
+                    BigInteger.valueOf(10), BigInteger.valueOf(20), BigInteger.valueOf(30),
+                    BigInteger.valueOf(500), BigInteger.valueOf(50));
+                List<BigInteger> binfs = Arrays.asList(BigInteger.valueOf(0), BigInteger.valueOf(0),
+                    BigInteger.valueOf(0), BigInteger.valueOf(1), BigInteger.valueOf(0),
+                    BigInteger.valueOf(0), BigInteger.valueOf(0), BigInteger.valueOf(0),
+                    BigInteger.valueOf(1), BigInteger.valueOf(1));
+                Numeric numeric = producer.numeric();
+                List<DRes<SInt>> ns =
+                    bns.stream().map((n) -> numeric.input(n, 1)).collect(Collectors.toList());
+                List<DRes<SInt>> ds =
+                    bds.stream().map((n) -> numeric.input(n, 1)).collect(Collectors.toList());
+                List<DRes<SInt>> infs =
+                    binfs.stream().map((n) -> numeric.input(n, 1)).collect(Collectors.toList());
 
-
-            @Override
-            public ProtocolProducer prepareApplication(BuilderFactory factoryProducer) {
-              List<BigInteger> bns = Arrays.asList(BigInteger.valueOf(10), BigInteger.valueOf(2),
-                  BigInteger.valueOf(30), BigInteger.valueOf(1), BigInteger.valueOf(50),
-                  BigInteger.valueOf(10), BigInteger.valueOf(20), BigInteger.valueOf(30),
-                  BigInteger.valueOf(5), BigInteger.valueOf(1));
-              List<BigInteger> bds = Arrays.asList(BigInteger.valueOf(10), BigInteger.valueOf(10),
-                  BigInteger.valueOf(10), BigInteger.valueOf(10), BigInteger.valueOf(10),
-                  BigInteger.valueOf(10), BigInteger.valueOf(20), BigInteger.valueOf(30),
-                  BigInteger.valueOf(500), BigInteger.valueOf(50));
-              List<BigInteger> binfs = Arrays.asList(BigInteger.valueOf(0), BigInteger.valueOf(0),
-                  BigInteger.valueOf(0), BigInteger.valueOf(1), BigInteger.valueOf(0),
-                  BigInteger.valueOf(0), BigInteger.valueOf(0), BigInteger.valueOf(0),
-                  BigInteger.valueOf(1), BigInteger.valueOf(1));
-              SequentialNumericBuilder seq = ProtocolBuilderNumeric
-                  .createApplicationRoot((BuilderFactoryNumeric) factoryProducer);
-              NumericBuilder numeric = seq.numeric();
-              List<Computation<SInt>> ns =
-                  bns.stream().map((n) -> numeric.input(n, 1)).collect(Collectors.toList());
-              List<Computation<SInt>> ds =
-                  bds.stream().map((n) -> numeric.input(n, 1)).collect(Collectors.toList());
-              List<Computation<SInt>> infs =
-                  binfs.stream().map((n) -> numeric.input(n, 1)).collect(Collectors.toList());
-
-              seq.seq(new MinInfFrac(ns, ds, infs)).seq((infOutput, seq2) -> {
-                NumericBuilder innerNumeric = seq2.numeric();
-                List<Computation<BigInteger>> collect =
-                    infOutput.cs.stream().map(innerNumeric::open).collect(Collectors.toList());
-                return () -> collect;
-              }).seq((outputList, ignored) -> {
-                outputs = outputList;
-                return () -> null;
-              });
-              return seq.build();
-            }
+                return producer.seq(new MinInfFrac(ns, ds, infs)).seq((seq2, infOutput) -> {
+                  Numeric innerNumeric = seq2.numeric();
+                  List<DRes<BigInteger>> collect =
+                      infOutput.cs.stream().map(innerNumeric::open).collect(Collectors.toList());
+                  return () -> collect.stream().map(DRes::out).collect(Collectors.toList());
+                });
           };
-          secureComputationEngine.runApplication(app, ResourcePoolCreator
+          List<BigInteger> outputs = secureComputationEngine.runApplication(app, ResourcePoolCreator
               .createResourcePool(conf.sceConf));
-          BigInteger[] outputs = app.getOutputs();
           int sum = 0;
-          for (int i = 0; i < outputs.length; i++) {
-            sum += outputs[i].intValue();
+          for (int i = 0; i < outputs.size(); i++) {
+            sum += outputs.get(i).intValue();
             if (i == 1) {
-              Assert.assertEquals(BigInteger.ONE, outputs[i]);
+              Assert.assertEquals(BigInteger.ONE, outputs.get(i));
             } else {
-              Assert.assertEquals(BigInteger.ZERO, outputs[i]);
+              Assert.assertEquals(BigInteger.ZERO, outputs.get(i));
             }
           }
           Assert.assertEquals(1, sum);
-          // System.out.println(outputs[0].getValue() + " / " + outputs[1].getValue() + " " +
-          // outputs[2].getValue());
-          // Assert.assertEquals(BigInteger.valueOf(1), outputs[0].getValue());
-          // Assert.assertEquals(BigInteger.valueOf(10), outputs[1].getValue());
-          // Assert.assertEquals(BigInteger.valueOf(0), outputs[2].getValue());
 
         }
       };
@@ -465,46 +354,59 @@ public class BasicArithmeticTests {
    * This should ensure batches with both types of protocols.
    */
   public static class TestAlternatingMultAdd<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+      extends TestThreadFactory {
 
     @Override
-    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next(
-        TestThreadConfiguration<ResourcePoolT, ProtocolBuilderNumeric> conf) {
-
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+      BigInteger first = BigInteger.valueOf(10);
+      BigInteger second = BigInteger.valueOf(5);
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+
         @Override
         public void test() throws Exception {
-          TestApplication app = new TestApplication() {
+          final int numberOfComputations = 1000;
+          Application<List<BigInteger>, ProtocolBuilderNumeric> app =
+              producer ->
+                  producer.par(par -> {
+                    Numeric numeric = par.numeric();
+                    DRes<SInt> firstClosed = numeric.known(first);
+                    DRes<SInt> secondClosed = numeric.known(second);
+                    return Pair.lazy(firstClosed, secondClosed);
+                  }).par((par, pair) -> {
+                    DRes<SInt> firstClosed = pair.getFirst();
+                    DRes<SInt> secondClosed = pair.getSecond();
+                    Numeric numeric1 = par.numeric();
+                    ArrayList<DRes<SInt>> computations = new ArrayList<>();
+                    for (int i = 0; i < numberOfComputations; i++) {
+                      if (i % 2 == 0) {
+                        computations.add(numeric1.mult(firstClosed, secondClosed));
+                      } else {
+                        computations.add(numeric1.add(firstClosed, secondClosed));
+                      }
 
-
-            @Override
-            public ProtocolProducer prepareApplication(BuilderFactory factoryProducer) {
-              ProtocolFactory producer = factoryProducer.getProtocolFactory();
-              BasicNumericFactory fac = (BasicNumericFactory) producer;
-              NumericIOBuilder ioBuilder = new NumericIOBuilder(fac);
-              NumericProtocolBuilder builder = new NumericProtocolBuilder(fac);
-              ioBuilder.beginSeqScope();
-              ioBuilder.beginParScope();
-              SInt input1 = ioBuilder.input(BigInteger.valueOf(10), 1);
-              SInt input2 = ioBuilder.input(BigInteger.valueOf(5), 1);
-              ioBuilder.endCurScope();
-              builder.beginParScope();
-              for (int i = 0; i < 1000; i++) {
-                if (i % 2 == 0) {
-                  builder.mult(input1, input2);
-                } else {
-                  builder.add(input1, input2);
-                }
-              }
-              builder.endCurScope();
-
-              ioBuilder.addProtocolProducer(builder.getProtocol());
-              ioBuilder.endCurScope();
-              return ioBuilder.getProtocol();
-            }
-          };
-          secureComputationEngine.runApplication(app, ResourcePoolCreator
+                    }
+                    return () -> computations;
+                  }).seq((seq, computations) -> {
+                    Numeric numeric1 = seq.numeric();
+                    List<DRes<BigInteger>> opened = computations.stream().map(numeric1::open)
+                        .collect(Collectors.toList());
+                    return () -> opened.stream().map(DRes::out).collect(Collectors.toList());
+                  });
+          List<BigInteger> output = secureComputationEngine.runApplication(app, ResourcePoolCreator
               .createResourcePool(conf.sceConf));
+
+          BigInteger multiply = first.multiply(second);
+          BigInteger add = first.add(second);
+          Assert.assertThat(output.size(), Is.is(numberOfComputations));
+          for (int i = 0; i < output.size(); i++) {
+            BigInteger result = output.get(i);
+            if (i % 2 == 0) {
+              Assert.assertEquals(multiply, result);
+            } else {
+              Assert.assertEquals(add, result);
+            }
+
+          }
         }
       };
     }

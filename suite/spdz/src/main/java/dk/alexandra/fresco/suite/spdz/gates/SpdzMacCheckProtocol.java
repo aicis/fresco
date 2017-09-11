@@ -4,6 +4,7 @@ import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.lib.helper.SequentialProtocolProducer;
+import dk.alexandra.fresco.lib.helper.SingleProtocolProducer;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzCommitment;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
@@ -49,7 +50,9 @@ public class SpdzMacCheckProtocol implements ProtocolProducer {
         SpdzCommitProtocol comm = new SpdzCommitProtocol(commitment, comms);
         SpdzOpenCommitProtocol open = new SpdzOpenCommitProtocol(commitment, comms, commitments);
 
-        pp = new SequentialProtocolProducer(comm, open);
+        pp = new SequentialProtocolProducer(
+            new SingleProtocolProducer<>(comm),
+            new SingleProtocolProducer<>(open));
       } else if (round == 1) {
         BigInteger alpha = storage.getSSK();
         this.as = storage.getOpenedValues();
@@ -96,7 +99,9 @@ public class SpdzMacCheckProtocol implements ProtocolProducer {
         commitments = new HashMap<>();
         SpdzOpenCommitProtocol open = new SpdzOpenCommitProtocol(commitment, comms, commitments);
 
-        pp = new SequentialProtocolProducer(comm, open);
+        pp = new SequentialProtocolProducer(
+            new SingleProtocolProducer<>(comm),
+            new SingleProtocolProducer<>(open));
       } else if (round == 2) {
         BigInteger deltaSum = BigInteger.ZERO;
         for (BigInteger d : commitments.values()) {

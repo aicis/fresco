@@ -14,11 +14,6 @@ import dk.alexandra.fresco.framework.ProtocolProducer;
  */
 public interface ProtocolBuilder {
 
-  // This will go away and should not be used - users should recode their applications to
-  // use closures
-  @Deprecated
-  <T extends ProtocolProducer> T append(T protocolProducer);
-
   /**
    * Building the actual protocol producer. Implementors decide which producer to create.
    *

@@ -26,19 +26,11 @@
  *******************************************************************************/
 package dk.alexandra.fresco.framework;
 
+import dk.alexandra.fresco.framework.builder.Computation;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
 
-public interface Application<OutputT, Builder extends ProtocolBuilder> {
-
-  /**
-   * Take a factory which is assumed to implement all needed interfaces for
-   * the application to run. If this is not the case, a runtime exception
-   * should be cast. It returns the resulting protocolProducer.
-   *
-   * @param producer the factory
-   * @return the resulting protocol producer
-   */
-  Computation<OutputT> prepareApplication(Builder producer);
+public interface Application<OutputT, Builder extends ProtocolBuilder>
+    extends Computation<OutputT, Builder> {
 
   /**
    * Closes the application and allows the output to be produced and allocated resources to be

@@ -26,18 +26,19 @@ package dk.alexandra.fresco.lib.conditional;
 import java.util.ArrayList;
 import java.util.List;
 
-import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.builder.ComputationBuilderParallel;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.ParallelNumericBuilder;
-import dk.alexandra.fresco.framework.util.RowPairC;
+import dk.alexandra.fresco.framework.DRes;
+import dk.alexandra.fresco.framework.builder.ComputationParallel;
+import dk.alexandra.fresco.framework.builder.numeric.Collections;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
+import dk.alexandra.fresco.framework.util.RowPairD;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.collections.Matrix;
 
 public class ConditionalSwapNeighbors
-    implements ComputationBuilderParallel<Matrix<Computation<SInt>>> {
+    implements ComputationParallel<Matrix<DRes<SInt>>, ProtocolBuilderNumeric> {
 
-  final private List<Computation<SInt>> swappers;
-  final private Matrix<Computation<SInt>> rows;
+  final private DRes<List<DRes<SInt>>> conditions;
+  final private DRes<Matrix<DRes<SInt>>> rows;
 
   /**
    * Swaps rows in matrix according to swappers bits.
@@ -45,30 +46,36 @@ public class ConditionalSwapNeighbors
    * @param swappers
    * @param rows
    */
-  public ConditionalSwapNeighbors(List<Computation<SInt>> swappers,
-      Matrix<Computation<SInt>> rows) {
+  public ConditionalSwapNeighbors(DRes<List<DRes<SInt>>> swappers, DRes<Matrix<DRes<SInt>>> rows) {
     super();
-    this.swappers = swappers;
+    this.conditions = swappers;
     this.rows = rows;
   }
 
   @Override
-  public Computation<Matrix<Computation<SInt>>> build(ParallelNumericBuilder par) {
-    List<Computation<RowPairC<SInt, SInt>>> pairs = new ArrayList<>();
+  public DRes<Matrix<DRes<SInt>>> buildComputation(ProtocolBuilderNumeric builder) {
+    Collections collections = builder.collections();
+    List<DRes<SInt>> swappersOut = conditions.out();
+    Matrix<DRes<SInt>> rowsOut = rows.out();
+
+    List<DRes<RowPairD<SInt, SInt>>> pairs = new ArrayList<>();
     int swapperIdx = 0;
-    for (int i = 0; i < rows.getHeight() - 1; i += 2) {
-      Computation<RowPairC<SInt, SInt>> pair = par.createSequentialSub(
-          new ConditionalSwapRows(swappers.get(swapperIdx), rows.getRow(i), rows.getRow(i + 1)));
+    for (int i = 0; i < rowsOut.getHeight() - 1; i += 2) {
+      List<DRes<SInt>> tempLeft = rowsOut.getRow(i);
+      List<DRes<SInt>> tempRight = rowsOut.getRow(i + 1);
+      DRes<RowPairD<SInt, SInt>> pair =
+          collections.condSwap(swappersOut.get(swapperIdx), () -> tempLeft, () -> tempRight);
       swapperIdx++;
       pairs.add(pair);
     }
+
     return () -> {
-      ArrayList<ArrayList<Computation<SInt>>> temp = new ArrayList<>();
-      for (Computation<RowPairC<SInt, SInt>> computation : pairs) {
-        temp.add(computation.out().getFirst());
-        temp.add(computation.out().getSecond());
+      ArrayList<ArrayList<DRes<SInt>>> temp = new ArrayList<>();
+      for (DRes<RowPairD<SInt, SInt>> DRes : pairs) {
+        temp.add(new ArrayList<>(DRes.out().getFirst().out()));
+        temp.add(new ArrayList<>(DRes.out().getSecond().out()));
       }
-      return new Matrix<>(rows.getHeight(), rows.getWidth(), temp);
+      return new Matrix<>(rowsOut.getHeight(), rowsOut.getWidth(), temp);
     };
   }
 }

@@ -6,30 +6,25 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
-import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.builder.ComputationBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
+import dk.alexandra.fresco.framework.DRes;
+import dk.alexandra.fresco.framework.builder.Computation;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.collections.Matrix;
-import dk.alexandra.fresco.lib.collections.permute.PermuteRows;
 
-public class ShuffleRows implements ComputationBuilder<Matrix<Computation<SInt>>> {
+public class ShuffleRows implements Computation<Matrix<DRes<SInt>>, ProtocolBuilderNumeric> {
 
-  final private Matrix<Computation<SInt>> values;
+  final private DRes<Matrix<DRes<SInt>>> values;
   final private Random rand;
-  final private int pid;
-  final private int[] pids;
 
-  public ShuffleRows(Matrix<Computation<SInt>> values, Random rnd, int pid, int[] pids) {
+  public ShuffleRows(DRes<Matrix<DRes<SInt>>> values, Random rand) {
     super();
     this.values = values;
-    this.rand = rnd;
-    this.pid = pid;
-    this.pids = pids;
+    this.rand = rand;
   }
 
-  public ShuffleRows(Matrix<Computation<SInt>> values, int pid, int[] pids) {
-    this(values, new SecureRandom(), pid, pids);
+  public ShuffleRows(DRes<Matrix<DRes<SInt>>> values) {
+    this(values, new SecureRandom());
   }
 
   private int[] getIdxPerm(int n) {
@@ -46,39 +41,42 @@ public class ShuffleRows implements ComputationBuilder<Matrix<Computation<SInt>>
   }
 
   @Override
-  public Computation<Matrix<Computation<SInt>>> build(SequentialNumericBuilder builder) {
+  public DRes<Matrix<DRes<SInt>>> buildComputation(ProtocolBuilderNumeric builder) {
     /*
      * There is a round for each party in pids. Each party chooses a random permutation (of indexes)
      * and applies it to values using PermuteRows.
      */
-    if (values.getHeight() == 0) {
-      return () -> values;
+
+    Matrix<DRes<SInt>> valuesOut = values.out();
+    final int height = valuesOut.getHeight();
+    if (height < 2) {
+      return values;
     }
+    final int pid = builder.getBasicNumericContext().getMyId();
+    final int numPids = builder.getBasicNumericContext().getNoOfParties();
+
     return builder.seq((seq) -> {
-      return new IterationState(0, () -> values);
-    }).whileLoop((state) -> state.round < pids.length, (state, seq) -> {
-      int thisRoundPid = pids[state.round];
+      return new IterationState(0, values);
+    }).whileLoop((state) -> state.round < numPids, (seq, state) -> {
+      int thisRoundPid = state.round + 1; // parties start from 1
+      DRes<Matrix<DRes<SInt>>> permuted = null;
       if (pid == thisRoundPid) {
-        Computation<Matrix<Computation<SInt>>> permuted =
-            seq.createSequentialSub(new PermuteRows(state.intermediate.out(),
-                getIdxPerm(values.getHeight()), thisRoundPid));
-        return new IterationState(state.round + 1, permuted);
+        permuted = seq.collections().permute(state.intermediate, getIdxPerm(height));
       } else {
-        Computation<Matrix<Computation<SInt>>> permuted =
-            seq.createSequentialSub(new PermuteRows(state.intermediate.out(), thisRoundPid));
-        return new IterationState(state.round + 1, permuted);
+        permuted = seq.collections().permute(state.intermediate, thisRoundPid);
       }
-    }).seq((state, seq) -> {
+      return new IterationState(state.round + 1, permuted);
+    }).seq((seq, state) -> {
       return state.intermediate;
     });
   }
 
-  private static final class IterationState implements Computation<IterationState> {
+  private static final class IterationState implements DRes<IterationState> {
 
     private final int round;
-    private final Computation<Matrix<Computation<SInt>>> intermediate;
+    private final DRes<Matrix<DRes<SInt>>> intermediate;
 
-    private IterationState(int round, Computation<Matrix<Computation<SInt>>> intermediate) {
+    private IterationState(int round, DRes<Matrix<DRes<SInt>>> intermediate) {
       this.round = round;
       this.intermediate = intermediate;
     }

@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.DRes;
 
 public class MatrixUtils {
 
@@ -14,8 +14,8 @@ public class MatrixUtils {
    * @param closedRows
    * @return
    */
-  public <T> Matrix<Computation<T>> unwrapRows(List<Computation<List<Computation<T>>>> closedRows) {
-    ArrayList<ArrayList<Computation<T>>> unwrapped = closedRows.stream()
+  public <T> Matrix<DRes<T>> unwrapRows(List<DRes<List<DRes<T>>>> closedRows) {
+    ArrayList<ArrayList<DRes<T>>> unwrapped = closedRows.stream()
         .map(row -> new ArrayList<>(row.out())).collect(Collectors.toCollection(ArrayList::new));
     int h = unwrapped.size();
     int w = h > 0 ? unwrapped.get(0).size() : 0;
@@ -23,15 +23,15 @@ public class MatrixUtils {
   }
 
   /**
-   * Unwrap a Matrix<Computation<T>> into a Matrix<T>.
+   * Unwrap a Matrix<DRes<T>> into a Matrix<T>.
    * 
    * @param mat the matrix to unwrap
    * @return
    */
-  public <T> Matrix<T> unwrapMatrix(Matrix<Computation<T>> mat) {
+  public <T> Matrix<T> unwrapMatrix(DRes<Matrix<DRes<T>>> mat) {
     ArrayList<ArrayList<T>> tmp = new ArrayList<>();
-    for (ArrayList<Computation<T>> row : mat.getRows()) {
-      tmp.add(row.stream().map(Computation::out).collect(Collectors.toCollection(ArrayList::new)));
+    for (ArrayList<DRes<T>> row : mat.out().getRows()) {
+      tmp.add(row.stream().map(DRes::out).collect(Collectors.toCollection(ArrayList::new)));
     }
     int h = tmp.size();
     int w = h > 0 ? tmp.get(0).size() : 0;

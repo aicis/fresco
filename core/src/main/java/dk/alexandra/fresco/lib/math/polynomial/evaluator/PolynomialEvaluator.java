@@ -26,32 +26,32 @@
  */
 package dk.alexandra.fresco.lib.math.polynomial.evaluator;
 
-import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.builder.ComputationBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
+import dk.alexandra.fresco.framework.DRes;
+import dk.alexandra.fresco.framework.builder.Computation;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.math.polynomial.Polynomial;
 
-public class PolynomialEvaluator implements ComputationBuilder<SInt> {
+public class PolynomialEvaluator implements Computation<SInt, ProtocolBuilderNumeric> {
 
-  private final Computation<SInt> x;
+  private final DRes<SInt> x;
   private final Polynomial p;
 
-  public PolynomialEvaluator(Computation<SInt> x, Polynomial p) {
+  public PolynomialEvaluator(DRes<SInt> x, Polynomial p) {
     this.x = x;
     this.p = p;
   }
 
 
   @Override
-  public Computation<SInt> build(SequentialNumericBuilder builder) {
+  public DRes<SInt> buildComputation(ProtocolBuilderNumeric builder) {
     int degree = p.getMaxDegree();
 
 		/*
      * We use Horner's method, p(x) = (( ... ((p_{n-1} x + p_{n-2})x +
 		 * p_{n-3}) ... )x + a_1)x + a_0
 		 */
-    Computation<SInt> tmp = p.getCoefficient(degree - 1);
+    DRes<SInt> tmp = p.getCoefficient(degree - 1);
 
     for (int i = degree - 2; i >= 0; i--) {
       tmp = builder.numeric().mult(tmp, x);

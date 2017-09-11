@@ -23,26 +23,24 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.collections.io;
 
-import dk.alexandra.fresco.framework.Application;
-import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
-import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
-import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
-import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
-import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
-import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.collections.io.CloseList;
-import dk.alexandra.fresco.lib.collections.io.OpenList;
-
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
-import static org.hamcrest.CoreMatchers.is;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import dk.alexandra.fresco.framework.Application;
+import dk.alexandra.fresco.framework.DRes;
+import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
+import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
+import dk.alexandra.fresco.framework.builder.numeric.Collections;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
+import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
+import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
+import dk.alexandra.fresco.framework.value.SInt;
 
 /**
  * Test class for the CloseList protocol.
@@ -57,27 +55,20 @@ public class CloseListTests {
    * @param <ResourcePoolT>
    */
   public static class TestCloseEmptyList<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory<ResourcePoolT, SequentialNumericBuilder> {
+      extends TestThreadFactory {
 
     @Override
-    public TestThread<ResourcePoolT, SequentialNumericBuilder> next(
-        TestThreadConfiguration<ResourcePoolT, SequentialNumericBuilder> conf) {
-      return new TestThread<ResourcePoolT, SequentialNumericBuilder>() {
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
 
         @Override
         public void test() throws Exception {
           // define input and output
           List<BigInteger> input = new ArrayList<>();
-
           // define functionality to be tested
-          Application<List<SInt>, SequentialNumericBuilder> testApplication = root -> {
-            return root.par(par -> {
-              // close inputs
-              return new CloseList(input, 1).build(par);
-            }).seq((closed, seq) -> {
-              // unwrap Computations to get SInts and set output
-              return () -> closed.stream().map(Computation::out).collect(Collectors.toList());
-            });
+          Application<List<SInt>, ProtocolBuilderNumeric> testApplication = root -> {
+            DRes<List<DRes<SInt>>> closed = root.collections().closeList(input, 1);
+            return () -> closed.out().stream().map(DRes::out).collect(Collectors.toList());
           };
           List<SInt> output = secureComputationEngine.runApplication(testApplication,
               ResourcePoolCreator.createResourcePool(conf.sceConf));
@@ -96,12 +87,11 @@ public class CloseListTests {
    * @param <ResourcePoolT>
    */
   public static class TestCloseAndOpenList<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory<ResourcePoolT, SequentialNumericBuilder> {
+      extends TestThreadFactory {
 
     @Override
-    public TestThread<ResourcePoolT, SequentialNumericBuilder> next(
-        TestThreadConfiguration<ResourcePoolT, SequentialNumericBuilder> conf) {
-      return new TestThread<ResourcePoolT, SequentialNumericBuilder>() {
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
 
         @Override
         public void test() throws Exception {
@@ -112,22 +102,18 @@ public class CloseListTests {
           input.add(BigInteger.valueOf(3));
 
           // define functionality to be tested
-          Application<List<BigInteger>, SequentialNumericBuilder> testApplication = root -> {
-            return root.par(par -> {
-              // close inputs
-              if (conf.getMyId() == 1) {
-                // party 1 provides input
-                return new CloseList(input, 1).build(par);
-              }
-              else {
-                // other parties receive it
-                return new CloseList(3, 1).build(par);
-              }
-            }).par((closed, par) -> {
-              // open them again
-              Computation<List<Computation<BigInteger>>> opened = new OpenList(closed).build(par);
-              return () -> opened.out().stream().map(Computation::out).collect(Collectors.toList());
-            });
+          Application<List<BigInteger>, ProtocolBuilderNumeric> testApplication = root -> {
+            Collections collections = root.collections();
+            DRes<List<DRes<SInt>>> closed = null;
+            if (root.getBasicNumericContext().getMyId() == 1) {
+              // party 1 provides input
+              closed = collections.closeList(input, 1);
+            } else {
+              // other parties receive it
+              closed = collections.closeList(3, 1);
+            }
+            DRes<List<DRes<BigInteger>>> opened = collections.openList(closed);
+            return () -> opened.out().stream().map(DRes::out).collect(Collectors.toList());
           };
           // run test application
           List<BigInteger> output = secureComputationEngine.runApplication(testApplication,

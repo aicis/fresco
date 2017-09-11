@@ -24,7 +24,7 @@
 
 package dk.alexandra.fresco.suite.dummy.arithmetic;
 
-import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.network.SCENetwork;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
@@ -36,39 +36,19 @@ import java.math.BigInteger;
  */
 public class DummyArithmeticAddProtocol extends DummyArithmeticNativeProtocol<SInt> {
 
-  private Computation<SInt> left;
-  private Computation<SInt> right;
+  private DRes<SInt> left;
+  private DRes<SInt> right;
   private DummyArithmeticSInt out;
 
   /**
    * Constructs a protocol to sum the result of two computations.
-   * 
+   *
    * @param left the left operand
    * @param right the right operand
    */
-  public DummyArithmeticAddProtocol(Computation<SInt> left, Computation<SInt> right) {
-    super();
+  public DummyArithmeticAddProtocol(DRes<SInt> left, DRes<SInt> right) {
     this.left = left;
     this.right = right;
-    this.out = null;
-  }
-
-  /**
-   * Constructs a protocol to sum the result of two computations.
-   * 
-   * <p>
-   * Lets the caller specify where to store the output. This is for backward compatibility.
-   * </p>
-   * 
-   * @param left the left operand
-   * @param right the right operand
-   * @param out the {@link SInt} in which to store the output
-   */
-  public DummyArithmeticAddProtocol(Computation<SInt> left, Computation<SInt> right, SInt out) {
-    super();
-    this.left = left;
-    this.right = right;
-    this.out = (DummyArithmeticSInt) out;
   }
 
   @Override
@@ -78,8 +58,7 @@ public class DummyArithmeticAddProtocol extends DummyArithmeticNativeProtocol<SI
     BigInteger l = ((DummyArithmeticSInt) left.out()).getValue();
     BigInteger r = ((DummyArithmeticSInt) right.out()).getValue();
     BigInteger sum = r.add(l).mod(mod);
-    out = (out == null) ? new DummyArithmeticSInt() : out;
-    out.setValue(sum);
+    out = new DummyArithmeticSInt(sum);
     return EvaluationStatus.IS_DONE;
   }
 

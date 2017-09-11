@@ -1,8 +1,8 @@
 package dk.alexandra.fresco.lib.math.integer;
 
-import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.builder.ComputationBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
+import dk.alexandra.fresco.framework.DRes;
+import dk.alexandra.fresco.framework.builder.Computation;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -13,19 +13,19 @@ import java.util.List;
  *
  * @author ttoft
  */
-public class HammingDistance implements ComputationBuilder<SInt> {
+public class HammingDistance implements Computation<SInt, ProtocolBuilderNumeric> {
 
-  private final List<Computation<SInt>> aBits;
+  private final List<DRes<SInt>> aBits;
   private final BigInteger b;
 
   public HammingDistance(
-      List<Computation<SInt>> aBits, BigInteger b) {
+      List<DRes<SInt>> aBits, BigInteger b) {
     this.aBits = aBits;
     this.b = b;
   }
 
   @Override
-  public Computation<SInt> build(SequentialNumericBuilder builder) {
+  public DRes<SInt> buildComputation(ProtocolBuilderNumeric builder) {
     BigInteger one = BigInteger.ONE;
     int length = aBits.size();
     BigInteger m = b;
@@ -37,7 +37,7 @@ public class HammingDistance implements ComputationBuilder<SInt> {
       }
     } else {
       return builder.par((par) -> {
-        List<Computation<SInt>> xor = new ArrayList<>();
+        List<DRes<SInt>> xor = new ArrayList<>();
         // for each bit i of m negate r_i if m_i is set
         for (int i = 0; i < length; i++) {
           if (m.testBit(i)) {
@@ -47,8 +47,7 @@ public class HammingDistance implements ComputationBuilder<SInt> {
           }
         }
         return () -> xor;
-      }).seq((list, seq) ->
-          new SumSIntList(list).build(seq)
+      }).seq((seq, list) -> seq.advancedNumeric().sum(list)
       );
     }
   }

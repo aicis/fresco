@@ -31,18 +31,16 @@ import java.util.Collections;
 import java.util.Random;
 
 import dk.alexandra.fresco.framework.Application;
-import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
-import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
+import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.collections.Matrix;
 import dk.alexandra.fresco.lib.collections.MatrixTestUtils;
 import dk.alexandra.fresco.lib.collections.MatrixUtils;
-import dk.alexandra.fresco.lib.collections.io.CloseMatrix;
-import dk.alexandra.fresco.lib.collections.io.OpenMatrix;
 
 public class MiMCAggregationTests {
 
@@ -54,7 +52,7 @@ public class MiMCAggregationTests {
    * @param <ResourcePoolT>
    */
   public static class TestMiMCAggregationGeneric<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory<ResourcePoolT, SequentialNumericBuilder> {
+      extends TestThreadFactory {
 
     final Matrix<BigInteger> input;
     final Matrix<BigInteger> expected;
@@ -65,32 +63,17 @@ public class MiMCAggregationTests {
     }
 
     @Override
-    public TestThread<ResourcePoolT, SequentialNumericBuilder> next(
-        TestThreadConfiguration<ResourcePoolT, SequentialNumericBuilder> conf) {
-      return new TestThread<ResourcePoolT, SequentialNumericBuilder>() {
-
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         @Override
         public void test() throws Exception {
           // define functionality to be tested
-          Application<Matrix<BigInteger>, SequentialNumericBuilder> testApplication = root -> {
-            final int pid = conf.getMyId();
-            // sort of hacky
-            final int pids[] = new int[conf.getNoOfParties()];
-            for (int i = 0; i < pids.length; i++) {
-              pids[i] = i + 1;
-            }
-            return root.par(par -> {
-              // close inputs
-              return new CloseMatrix(input, 1).build(par);
-            }).seq((closed, seq) -> {
-              // shuffle
-              return new MiMCAggregation(closed, new Random(42), 0, 1, pid, pids).build(seq);
-            }).par((swapped, par) -> {
-              // open result
-              Computation<Matrix<Computation<BigInteger>>> opened =
-                  new OpenMatrix(swapped).build(par);
-              return () -> new MatrixUtils().unwrapMatrix(opened.out());
-            });
+          Application<Matrix<BigInteger>, ProtocolBuilderNumeric> testApplication = root -> {
+            DRes<Matrix<DRes<SInt>>> closed = root.collections().closeMatrix(input, 1);
+            DRes<Matrix<DRes<SInt>>> aggregated =
+                root.collections().leakyAggregateSum(closed, 0, 1, new Random(42));
+            DRes<Matrix<DRes<BigInteger>>> opened = root.collections().openMatrix(aggregated);
+            return () -> new MatrixUtils().unwrapMatrix(opened);
           };
           Matrix<BigInteger> actual = secureComputationEngine.runApplication(testApplication,
               ResourcePoolCreator.createResourcePool(conf.sceConf));

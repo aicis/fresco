@@ -28,9 +28,10 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
-import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.builder.ComputationBuilderParallel;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.ParallelNumericBuilder;
+import dk.alexandra.fresco.framework.DRes;
+import dk.alexandra.fresco.framework.builder.ComputationParallel;
+import dk.alexandra.fresco.framework.builder.numeric.Collections;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.collections.Matrix;
 import dk.alexandra.fresco.lib.collections.MatrixUtils;
@@ -38,7 +39,8 @@ import dk.alexandra.fresco.lib.collections.MatrixUtils;
 /**
  * Implements a close operation on a matrix of BigIntegers.
  */
-public class CloseMatrix implements ComputationBuilderParallel<Matrix<Computation<SInt>>> {
+public class CloseMatrix
+    implements ComputationParallel<Matrix<DRes<SInt>>, ProtocolBuilderNumeric> {
 
   private final Matrix<BigInteger> openMatrix;
   private final int inputParty;
@@ -65,7 +67,7 @@ public class CloseMatrix implements ComputationBuilderParallel<Matrix<Computatio
   /**
    * Makes a new CloseMatrix.
    * 
-   * Party providing input should call this.
+   * Party not providing input should call this.
    *
    * @param openMatrix the matrix to close.
    */
@@ -78,30 +80,29 @@ public class CloseMatrix implements ComputationBuilderParallel<Matrix<Computatio
     this.isInputProvider = false;
   }
 
-  private List<Computation<List<Computation<SInt>>>> buildAsProvider(ParallelNumericBuilder par) {
-    List<Computation<List<Computation<SInt>>>> closedRows = new ArrayList<>();
+  private List<DRes<List<DRes<SInt>>>> buildAsProvider(Collections collections) {
+    List<DRes<List<DRes<SInt>>>> closedRows = new ArrayList<>();
     for (List<BigInteger> row : openMatrix.getRows()) {
-      Computation<List<Computation<SInt>>> closedRow =
-          par.createParallelSub(new CloseList(row, inputParty));
+      DRes<List<DRes<SInt>>> closedRow = collections.closeList(row, inputParty);
       closedRows.add(closedRow);
     }
     return closedRows;
   }
 
-  private List<Computation<List<Computation<SInt>>>> buildAsReceiver(ParallelNumericBuilder par) {
-    List<Computation<List<Computation<SInt>>>> closedRows = new ArrayList<>();
+  private List<DRes<List<DRes<SInt>>>> buildAsReceiver(Collections collections) {
+    List<DRes<List<DRes<SInt>>>> closedRows = new ArrayList<>();
     for (int r = 0; r < h; r++) {
-      Computation<List<Computation<SInt>>> closedRow =
-          par.createParallelSub(new CloseList(w, inputParty));
+      DRes<List<DRes<SInt>>> closedRow = collections.closeList(w, inputParty);
       closedRows.add(closedRow);
     }
     return closedRows;
   }
 
   @Override
-  public Computation<Matrix<Computation<SInt>>> build(ParallelNumericBuilder par) {
-    List<Computation<List<Computation<SInt>>>> closed =
-        isInputProvider ? buildAsProvider(par) : buildAsReceiver(par);
+  public DRes<Matrix<DRes<SInt>>> buildComputation(ProtocolBuilderNumeric builder) {
+    Collections collections = builder.collections();
+    List<DRes<List<DRes<SInt>>>> closed =
+        isInputProvider ? buildAsProvider(collections) : buildAsReceiver(collections);
     return () -> new MatrixUtils().unwrapRows(closed);
   }
 }

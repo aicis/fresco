@@ -23,9 +23,9 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.statistics;
 
-import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.builder.NumericBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
+import dk.alexandra.fresco.framework.DRes;
+import dk.alexandra.fresco.framework.builder.numeric.Numeric;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.collections.Matrix;
 import dk.alexandra.fresco.lib.lp.LPTableau;
@@ -48,15 +48,15 @@ import java.util.List;
  */
 public class DEAInputEfficiencyPrefixBuilder {
 
-  public static Computation<SimpleLPPrefix> build(
-      List<SInt[]> basisInputs, List<SInt[]> basisOutputs,
-      List<SInt> targetInputs, List<SInt> targetOutputs,
-      SequentialNumericBuilder builder
+  public static DRes<SimpleLPPrefix> build(
+      List<List<DRes<SInt>>> basisInputs, List<List<DRes<SInt>>> basisOutputs,
+      List<DRes<SInt>> targetInputs, List<DRes<SInt>> targetOutputs,
+      ProtocolBuilderNumeric builder
   ) {
-    NumericBuilder numeric = builder.numeric();
+    Numeric numeric = builder.numeric();
     int inputs = targetInputs.size();
     int outputs = targetOutputs.size();
-    int dbSize = basisInputs.get(0).length;
+    int dbSize = basisInputs.get(0).size();
     int constraints = inputs + outputs + 1;
     // One "theta" variable, i.e., the variable to optimize 
     // One variable "lambda" variable for each basis entry
@@ -65,32 +65,32 @@ public class DEAInputEfficiencyPrefixBuilder {
     int variables = 1 + dbSize + constraints + outputs;
     // 2 should be safe as the optimal value is no larger than 1
     int bigM = 2;
-    Computation<SInt> one = numeric.known(BigInteger.valueOf(1));
-    Computation<SInt> negOne = numeric.known(BigInteger.valueOf(-1));
-    Computation<SInt> zero = numeric.known(BigInteger.valueOf(0));
+    DRes<SInt> one = numeric.known(BigInteger.valueOf(1));
+    DRes<SInt> negOne = numeric.known(BigInteger.valueOf(-1));
+    DRes<SInt> zero = numeric.known(BigInteger.valueOf(0));
     BigInteger oBigM = BigInteger.valueOf(-bigM);
-    Computation<SInt> sBigM = numeric.known(BigInteger.valueOf(-bigM));
-    ArrayList<Computation<SInt>> b = new ArrayList<>(constraints);
-    ArrayList<Computation<SInt>> f = new ArrayList<>(variables);
-    ArrayList<ArrayList<Computation<SInt>>> c = new ArrayList<>(constraints);
+    DRes<SInt> sBigM = numeric.known(BigInteger.valueOf(-bigM));
+    ArrayList<DRes<SInt>> b = new ArrayList<>(constraints);
+    ArrayList<DRes<SInt>> f = new ArrayList<>(variables);
+    ArrayList<ArrayList<DRes<SInt>>> c = new ArrayList<>(constraints);
 
-    Computation<SInt> z = builder.par(par -> {
-      Computation<SInt> zInner;
+    DRes<SInt> z = builder.par(par -> {
+      DRes<SInt> zInner;
       // Set up constraints related to the inputs
       int i = 0;
-      Iterator<SInt[]> basisIt = basisInputs.iterator();
-      Iterator<SInt> targetIt = targetInputs.iterator();
+      Iterator<List<DRes<SInt>>> basisIt = basisInputs.iterator();
+      Iterator<DRes<SInt>> targetIt = targetInputs.iterator();
       for (; i < inputs; i++) {
-        ArrayList<Computation<SInt>> row = new ArrayList<>(variables);
+        ArrayList<DRes<SInt>> row = new ArrayList<>(variables);
         c.add(row);
-        SInt tValue = targetIt.next();
-        SInt[] bValues = basisIt.next();
-        row.add(par.numeric().sub(zero, () -> tValue));
+        DRes<SInt> tValue = targetIt.next();
+        List<DRes<SInt>> bValues = basisIt.next();
+        row.add(par.numeric().sub(zero, tValue));
         b.add(zero);
         int j = 1;
         for (; j < dbSize + 1; j++) {
-          SInt bValue = bValues[j - 1];
-          row.add(() -> bValue);
+          DRes<SInt> bValue = bValues.get(j - 1);
+          row.add(bValue);
         }
         for (; j < variables; j++) {
           row.add((j - (dbSize + 1) == i) ? one : zero);
@@ -100,16 +100,16 @@ public class DEAInputEfficiencyPrefixBuilder {
       basisIt = basisOutputs.iterator();
       targetIt = targetOutputs.iterator();
       for (; i < inputs + outputs; i++) {
-        ArrayList<Computation<SInt>> row = new ArrayList<>(variables);
+        ArrayList<DRes<SInt>> row = new ArrayList<>(variables);
         c.add(row);
-        SInt tValue = targetIt.next();
-        SInt[] bValues = basisIt.next();
+        DRes<SInt> tValue = targetIt.next();
+        List<DRes<SInt>> bValues = basisIt.next();
         row.add(zero);
-        b.add(() -> tValue);
+        b.add(tValue);
         int j = 1;
         for (; j < dbSize + 1; j++) {
-          SInt bValue = bValues[j - 1];
-          row.add(() -> bValue);
+          DRes<SInt> bValue = bValues.get(j - 1);
+          row.add(bValue);
         }
         for (; j < dbSize + 1 + constraints; j++) {
           row.add((j - (dbSize + 1) == i) ? one : zero);
@@ -119,7 +119,7 @@ public class DEAInputEfficiencyPrefixBuilder {
         }
       }
       // Set up constraints related to the lambda values
-      ArrayList<Computation<SInt>> lambdaRow = new ArrayList<>(variables);
+      ArrayList<DRes<SInt>> lambdaRow = new ArrayList<>(variables);
       c.add(lambdaRow);
       lambdaRow.add(zero);
       b.add(one);
@@ -142,10 +142,10 @@ public class DEAInputEfficiencyPrefixBuilder {
         f.set(k, par.numeric().sub(zero, sBigM));
       }
 
-      zInner = par.createSequentialSub(seq -> {
-        Computation<SInt> zResult = sBigM;
+      zInner = par.seq(seq -> {
+        DRes<SInt> zResult = sBigM;
         for (int l = inputs; l < inputs + outputs; l++) {
-          Computation<SInt> scaled = seq.numeric().mult(oBigM, b.get(l));
+          DRes<SInt> scaled = seq.numeric().mult(oBigM, b.get(l));
           zResult = seq.numeric().add(scaled, zResult);
         }
         return zResult;
@@ -156,34 +156,34 @@ public class DEAInputEfficiencyPrefixBuilder {
     // Add to the lambda variables -bigM*value for each of the output values
     // In other words subtract bigM times each of the tableau rows associated
     // with an output constraint.
-    return builder.createParallelSub(par -> {
+    return builder.par(par -> {
       for (int l = inputs; l < inputs + outputs; l++) {
         int finalL = l;
-        par.createSequentialSub(seq -> {
+        par.seq(seq -> {
           for (int k = 1; k < dbSize + 1; k++) {
-            Computation<SInt> scaled = seq.numeric().mult(sBigM, c.get(finalL).get(k));
+            DRes<SInt> scaled = seq.numeric().mult(sBigM, c.get(finalL).get(k));
             f.set(k, seq.numeric().add(scaled, f.get(k)));
           }
           return () -> null;
         });
       }
-      ArrayList<Computation<SInt>> basis = new ArrayList<>(constraints);
+      ArrayList<DRes<SInt>> basis = new ArrayList<>(constraints);
       for (int i = 0; i < constraints; i++) {
         basis.add(par.numeric().known(BigInteger.valueOf(1 + dbSize + i + 1)));
       }
       LPTableau tab = new LPTableau(new Matrix<>(constraints, variables, c), b, f, z);
-      Matrix<Computation<SInt>> updateMatrix = new Matrix<>(
+      Matrix<DRes<SInt>> updateMatrix = new Matrix<>(
           constraints + 1, constraints + 1, getIdentity(constraints + 1, one, zero));
       return () -> new SimpleLPPrefix(updateMatrix, tab, one, basis);
     });
   }
 
-  private static ArrayList<ArrayList<Computation<SInt>>> getIdentity(int dimension,
-      Computation<SInt> one,
-      Computation<SInt> zero) {
-    ArrayList<ArrayList<Computation<SInt>>> identity = new ArrayList<>(dimension);
+  private static ArrayList<ArrayList<DRes<SInt>>> getIdentity(int dimension,
+      DRes<SInt> one,
+      DRes<SInt> zero) {
+    ArrayList<ArrayList<DRes<SInt>>> identity = new ArrayList<>(dimension);
     for (int i = 0; i < dimension; i++) {
-      ArrayList<Computation<SInt>> row = new ArrayList<>();
+      ArrayList<DRes<SInt>> row = new ArrayList<>();
       for (int j = 0; j < dimension; j++) {
         if (i == j) {
           row.add(one);

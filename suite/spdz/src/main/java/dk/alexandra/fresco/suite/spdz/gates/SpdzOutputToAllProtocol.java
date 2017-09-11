@@ -26,7 +26,7 @@
  *******************************************************************************/
 package dk.alexandra.fresco.suite.spdz.gates;
 
-import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.network.SCENetwork;
 import dk.alexandra.fresco.framework.network.serializers.BigIntegerSerializer;
@@ -40,10 +40,10 @@ import java.util.List;
 
 public class SpdzOutputToAllProtocol extends SpdzNativeProtocol<BigInteger> {
 
-  private Computation<SInt> in;
+  private DRes<SInt> in;
   private BigInteger out;
 
-  public SpdzOutputToAllProtocol(Computation<SInt> in) {
+  public SpdzOutputToAllProtocol(DRes<SInt> in) {
     this.in = in;
   }
 

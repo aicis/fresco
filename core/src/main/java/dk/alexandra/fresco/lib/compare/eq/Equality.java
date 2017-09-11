@@ -26,9 +26,9 @@
  */
 package dk.alexandra.fresco.lib.compare.eq;
 
-import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.builder.ComputationBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
+import dk.alexandra.fresco.framework.DRes;
+import dk.alexandra.fresco.framework.builder.Computation;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 
 /**
@@ -36,16 +36,16 @@ import dk.alexandra.fresco.framework.value.SInt;
  *
  * @author ttoft
  */
-public class Equality implements ComputationBuilder<SInt> {
+public class Equality implements Computation<SInt, ProtocolBuilderNumeric> {
 
   // params
   private final int bitLength;
-  private final Computation<SInt> x;
-  private final Computation<SInt> y;
+  private final DRes<SInt> x;
+  private final DRes<SInt> y;
 
 
   public Equality(
-      int bitLength, Computation<SInt> x, Computation<SInt> y) {
+      int bitLength, DRes<SInt> x, DRes<SInt> y) {
     super();
     this.bitLength = bitLength;
     this.x = x;
@@ -53,8 +53,8 @@ public class Equality implements ComputationBuilder<SInt> {
   }
 
   @Override
-  public Computation<SInt> build(SequentialNumericBuilder builder) {
-    Computation<SInt> diff = builder.numeric().sub(x, y);
+  public DRes<SInt> buildComputation(ProtocolBuilderNumeric builder) {
+    DRes<SInt> diff = builder.numeric().sub(x, y);
     return builder.comparison().compareZero(diff, bitLength);
   }
 }

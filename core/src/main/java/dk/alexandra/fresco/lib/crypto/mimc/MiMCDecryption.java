@@ -26,23 +26,23 @@
  */
 package dk.alexandra.fresco.lib.crypto.mimc;
 
-import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.builder.AdvancedNumericBuilder;
-import dk.alexandra.fresco.framework.builder.ComputationBuilder;
-import dk.alexandra.fresco.framework.builder.NumericBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
+import dk.alexandra.fresco.framework.DRes;
+import dk.alexandra.fresco.framework.builder.Computation;
+import dk.alexandra.fresco.framework.builder.numeric.AdvancedNumeric;
+import dk.alexandra.fresco.framework.builder.numeric.Numeric;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
+import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
 import java.math.BigInteger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class MiMCDecryption implements ComputationBuilder<SInt> {
+public class MiMCDecryption implements Computation<SInt, ProtocolBuilderNumeric> {
 
   // TODO: require that our modulus - 1 and 3 are co-prime
 
-  private final Computation<SInt> encryptionKey;
-  private final Computation<SInt> cipherText;
+  private final DRes<SInt> encryptionKey;
+  private final DRes<SInt> cipherText;
   private final Integer requestedRounds;
   private static Logger logger = LoggerFactory.getLogger(MiMCDecryption.class);
 
@@ -54,7 +54,7 @@ public class MiMCDecryption implements ComputationBuilder<SInt> {
    * @param requiredRounds The number of rounds to use.
    */
   public MiMCDecryption(
-      Computation<SInt> cipherText, Computation<SInt> encryptionKey, Integer requiredRounds) {
+      DRes<SInt> cipherText, DRes<SInt> encryptionKey, Integer requiredRounds) {
     this.cipherText = cipherText;
     this.encryptionKey = encryptionKey;
     this.requestedRounds = requiredRounds;
@@ -68,18 +68,16 @@ public class MiMCDecryption implements ComputationBuilder<SInt> {
    * @param encryptionKey The symmetric (secret-shared) key we will use to decrypt.
    */
   public MiMCDecryption(
-      Computation<SInt> cipherText, Computation<SInt> encryptionKey) {
+      DRes<SInt> cipherText, DRes<SInt> encryptionKey) {
     this(cipherText, encryptionKey, null);
   }
 
-  int i = 0;
-
   @Override
-  public Computation<SInt> build(SequentialNumericBuilder builder) {
-    BasicNumericFactory basicNumericFactory = builder.getBasicNumericFactory();
+  public DRes<SInt> buildComputation(ProtocolBuilderNumeric builder) {
+    BasicNumericContext basicNumericContext = builder.getBasicNumericContext();
     int requiredRounds = MiMCEncryption
-        .getRequiredRounds(basicNumericFactory, requestedRounds);
-    final BigInteger threeInverse = calculateThreeInverse(basicNumericFactory);
+        .getRequiredRounds(basicNumericContext, requestedRounds);
+    final BigInteger threeInverse = calculateThreeInverse(basicNumericContext);
 
     return builder.seq(seq -> {
 
@@ -87,11 +85,11 @@ public class MiMCDecryption implements ComputationBuilder<SInt> {
        * We're in the first round so we need to initialize
 			 * by subtracting the key from the input cipher text
 			 */
-      Computation<SInt> sub = seq.numeric().sub(cipherText, encryptionKey);
+      DRes<SInt> sub = seq.numeric().sub(cipherText, encryptionKey);
       return new IterationState(1, sub);
     }).whileLoop(
         (state) -> state.round < requiredRounds,
-        (state, seq) -> {
+        (seq, state) -> {
           if (state.round % 10 == 0) {
             logger.info("Decryption " + state.round + " of " + requiredRounds);
           }
@@ -104,7 +102,7 @@ public class MiMCDecryption implements ComputationBuilder<SInt> {
            * c_{i - 1} is the cipher text we have computed
            * in the previous round
            */
-          Computation<SInt> inverted = seq.advancedNumeric()
+          DRes<SInt> inverted = seq.advancedNumeric()
               .exp(state.value, threeInverse);
 
           /*
@@ -116,39 +114,39 @@ public class MiMCDecryption implements ComputationBuilder<SInt> {
 
           // Get round constant
           BigInteger roundConstant =
-              MiMCConstants.getConstant(reverseRoundCount, basicNumericFactory.getModulus());
+              MiMCConstants.getConstant(reverseRoundCount, basicNumericContext.getModulus());
 
           // subtract key and round constant
-          NumericBuilder numeric = seq.numeric();
-          Computation<SInt> updatedValue = numeric
+          Numeric numeric = seq.numeric();
+          DRes<SInt> updatedValue = numeric
               .sub(numeric.sub(inverted, encryptionKey), roundConstant);
           return new IterationState(state.round + 1, updatedValue);
         }
-    ).seq((state, seq) -> {
+    ).seq((seq, state) -> {
       /*
        * We're in the last round so we just need to compute
 			 * c^{-3} - K
 			 */
-      AdvancedNumericBuilder advancedNumericBuilder = seq.advancedNumeric();
-      Computation<SInt> inverted = advancedNumericBuilder.exp(state.value, threeInverse);
+      AdvancedNumeric advancedNumericBuilder = seq.advancedNumeric();
+      DRes<SInt> inverted = advancedNumericBuilder.exp(state.value, threeInverse);
 
       return seq.numeric().sub(inverted, encryptionKey);
     });
   }
 
-  private BigInteger calculateThreeInverse(BasicNumericFactory basicNumericFactory) {
-    BigInteger modulus = basicNumericFactory.getModulus();
+  private BigInteger calculateThreeInverse(BasicNumericContext basicNumericContext) {
+    BigInteger modulus = basicNumericContext.getModulus();
     BigInteger expP = modulus.subtract(BigInteger.ONE);
     return BigInteger.valueOf(3).modInverse(expP);
   }
 
-  private static final class IterationState implements Computation<IterationState> {
+  private static final class IterationState implements DRes<IterationState> {
 
     private final int round;
-    private final Computation<SInt> value;
+    private final DRes<SInt> value;
 
     private IterationState(int round,
-        Computation<SInt> value) {
+        DRes<SInt> value) {
       this.round = round;
       this.value = value;
     }

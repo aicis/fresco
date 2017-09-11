@@ -1,69 +1,114 @@
 package dk.alexandra.fresco.framework.builder;
 
-import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.BuilderFactory;
+import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.ProtocolProducer;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.ParallelNumericBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
 import dk.alexandra.fresco.framework.util.Pair;
-import dk.alexandra.fresco.lib.helper.LazyProtocolProducerDecorator;
-import dk.alexandra.fresco.lib.helper.SequentialProtocolProducer;
-import java.util.function.BiFunction;
 import java.util.function.Predicate;
 
-public abstract class BuildStep<BuilderT extends ProtocolBuilder, OutputT, InputT>
-    implements Computation<OutputT> {
+/**
+ * A single step in the chained list of lambda that creates protocols to evaluate. The root step is
+ * defined in the ProbtocolBuilderImpl.
+ *
+ * @param <InputT> the type of input for this binary step (the previous step's output).
+ * @param <BuilderT> the type iof builder, currently either numeric or binary
+ * @param <OutputT> the output of the build step
+ */
+public final class BuildStep<
+    InputT, BuilderT extends ProtocolBuilderImpl<BuilderT>, OutputT>
+    implements DRes<OutputT> {
 
-  protected final BiFunction<InputT, BuilderT, Computation<OutputT>> function;
+  interface NextStepBuilder<
+      BuilderT extends ProtocolBuilderImpl<BuilderT>,
+      OutputT,
+      InputT> {
 
-  protected BuildStep<?, ?, OutputT> next;
-  protected Computation<OutputT> output;
-
-  BuildStep(
-      BiFunction<InputT, BuilderT, Computation<OutputT>> function) {
-    this.function = function;
+    Pair<ProtocolProducer, DRes<OutputT>> createNextStep(
+        InputT input,
+        BuilderFactory<BuilderT> factory,
+        BuildStep<OutputT, BuilderT, ?> next);
   }
 
-  public <NextOutputT> BuildStep<SequentialNumericBuilder, NextOutputT, OutputT> seq(
-      FrescoLambda<OutputT, NextOutputT> function) {
-    BuildStep<SequentialNumericBuilder, NextOutputT, OutputT> localChild =
-        new BuildStepSequential<>(function);
+  private NextStepBuilder<BuilderT, OutputT, InputT> stepBuilder;
+  private BuildStep<OutputT, BuilderT, ?> next;
+  private DRes<OutputT> output;
+
+  BuildStep(NextStepBuilder<BuilderT, OutputT, InputT> stepBuilder) {
+    this.stepBuilder = stepBuilder;
+  }
+
+  /**
+   * Creates a new Build step based on this builder but with a subsequent producer inserted after
+   * the original protocol producer.
+   *
+   * @param function creation of the protocol producer - will be lazy evaluated
+   */
+  public <NextOutputT> BuildStep<OutputT, BuilderT, NextOutputT> seq(
+      FrescoLambda<OutputT, BuilderT, NextOutputT> function) {
+    BuildStep<OutputT, BuilderT, NextOutputT> localChild =
+        new BuildStep<>(new BuildStepSingle<>(function, false));
     this.next = localChild;
     return localChild;
   }
 
-  public <NextOutputT> BuildStep<ParallelNumericBuilder, NextOutputT, OutputT> par(
-      FrescoLambdaParallel<OutputT, NextOutputT> function) {
-    BuildStep<ParallelNumericBuilder, NextOutputT, OutputT> localChild =
-        new BuildStepParallel<>(function);
+
+  /**
+   * Creates a new Build step based on this builder but with a subsequent parallel producer inserted
+   * after the original protocol producer.
+   *
+   * @param function of the protocol producer - will be lazy evaluated
+   */
+  public <NextOutputT> BuildStep<OutputT, BuilderT, NextOutputT> par(
+      FrescoLambdaParallel<OutputT, BuilderT, NextOutputT> function) {
+    BuildStep<OutputT, BuilderT, NextOutputT> localChild =
+        new BuildStep<>(new BuildStepSingle<>(function, true));
     this.next = localChild;
     return localChild;
   }
 
-  public BuildStep<SequentialNumericBuilder, OutputT, OutputT> whileLoop(
+  /**
+   * Creates a looping Build step based on this builder but with a subsequent producer inserted
+   * after the original protocol producer. This simulates the while functionality in java.
+   *
+   * @param test the predicate - as long as it evaluates to true, the function will be evaluated
+   * @param function creation of the protocol producer for a single loop step - will be
+   *     evaluated for each iteration
+   */
+  public BuildStep<OutputT, BuilderT, OutputT> whileLoop(
       Predicate<OutputT> test,
-      FrescoLambda<OutputT, OutputT> function) {
-    BuildStepLooping<OutputT> localChild = new BuildStepLooping<>(
-        test, function);
+      FrescoLambda<OutputT, BuilderT, OutputT> function) {
+    BuildStep<OutputT, BuilderT, OutputT> localChild =
+        new BuildStep<>(new BuildStepLooping<>(test, function));
     this.next = localChild;
     return localChild;
   }
 
+
+  /**
+   * Creates a new Build step based on this builder but with a subsequent producer inserted after
+   * the original protocol producer. The two producer will be evalueted in parallel, however each
+   * of the two functions will be evaluated in sequence.
+   *
+   * @param firstFunction of the first protocol producer - will be lazy evaluated
+   * @param secondFunction of the second protocol producer - will be lazy evaluated
+   */
   public <FirstOutputT, SecondOutputT>
-  BuildStep<ParallelNumericBuilder, Pair<FirstOutputT, SecondOutputT>, OutputT> par(
-      FrescoLambda<OutputT, FirstOutputT> firstFunction,
-      FrescoLambda<OutputT, SecondOutputT> secondFunction) {
-    BuildStep<ParallelNumericBuilder, Pair<FirstOutputT, SecondOutputT>, OutputT> localChild =
-        new BuildStepParallel<>(
-            (OutputT output1, ParallelNumericBuilder builder) -> {
-              Computation<FirstOutputT> firstOutput =
-                  builder.createSequentialSub(
-                      seq -> firstFunction.apply(output1, seq));
-              Computation<SecondOutputT> secondOutput =
-                  builder.createSequentialSub(
-                      seq -> secondFunction.apply(output1, seq));
+  BuildStep<OutputT, BuilderT, Pair<FirstOutputT, SecondOutputT>> pairInPar(
+      FrescoLambda<OutputT, BuilderT, FirstOutputT> firstFunction,
+      FrescoLambda<OutputT, BuilderT, SecondOutputT> secondFunction) {
+    BuildStep<OutputT, BuilderT, Pair<FirstOutputT, SecondOutputT>>
+        localChild = new BuildStep<>(
+        new BuildStepSingle<>(
+            (BuilderT builder, OutputT output1) -> {
+              DRes<FirstOutputT> firstOutput =
+                  builder.seq(
+                      seq -> firstFunction.buildComputation(seq, output1));
+              DRes<SecondOutputT> secondOutput =
+                  builder.seq(
+                      seq -> secondFunction.buildComputation(seq, output1));
               return () -> new Pair<>(firstOutput.out(), secondOutput.out());
-            }
-        );
+            }, true)
+    );
     this.next = localChild;
     return localChild;
   }
@@ -75,25 +120,13 @@ public abstract class BuildStep<BuilderT extends ProtocolBuilder, OutputT, Input
     return null;
   }
 
-  protected ProtocolProducer createProducer(
+  ProtocolProducer createProducer(
       InputT input,
-      BuilderFactoryNumeric factory) {
-
-    BuilderT builder = createBuilder(factory);
-    Computation<OutputT> output = function.apply(input, builder);
-    if (next != null) {
-      return
-          new SequentialProtocolProducer(
-              builder.build(),
-              new LazyProtocolProducerDecorator(() ->
-                  next.createProducer(output.out(), factory)
-              )
-          );
-    } else {
-      this.output = output;
-      return builder.build();
-    }
+      BuilderFactory<BuilderT> factory) {
+    Pair<ProtocolProducer, DRes<OutputT>> nextStep =
+        stepBuilder.createNextStep(input, factory, next);
+    stepBuilder = null;
+    output = nextStep.getSecond();
+    return nextStep.getFirst();
   }
-
-  protected abstract BuilderT createBuilder(BuilderFactoryNumeric factory);
 }

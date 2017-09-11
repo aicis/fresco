@@ -28,12 +28,12 @@ import java.math.BigInteger;
 import org.junit.Assert;
 
 import dk.alexandra.fresco.framework.Application;
-import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
-import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
-import dk.alexandra.fresco.framework.builder.NumericBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.AdvancedNumeric;
+import dk.alexandra.fresco.framework.builder.numeric.Numeric;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SInt;
@@ -49,8 +49,7 @@ public class ConditionalSelectTests {
    *
    * @param <ResourcePoolT>
    */
-  public static class TestSelect<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory<ResourcePoolT, SequentialNumericBuilder> {
+  public static class TestSelect<ResourcePoolT extends ResourcePool> extends TestThreadFactory {
 
     final BigInteger selectorOpen;
     final BigInteger expected;
@@ -66,23 +65,20 @@ public class ConditionalSelectTests {
     }
 
     @Override
-    public TestThread<ResourcePoolT, SequentialNumericBuilder> next(
-        TestThreadConfiguration<ResourcePoolT, SequentialNumericBuilder> conf) {
-      return new TestThread<ResourcePoolT, SequentialNumericBuilder>() {
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
 
         @Override
         public void test() throws Exception {
           // define functionality to be tested
-          Application<BigInteger, SequentialNumericBuilder> testApplication = root -> {
-            NumericBuilder nb = root.numeric();
-            Computation<SInt> left = nb.input(leftOpen, 1);
-            Computation<SInt> right = nb.input(rightOpen, 1);
-            Computation<SInt> selector = nb.input(selectorOpen, 1);
-            return root.seq((seq) -> {
-              return new ConditionalSelect(selector, left, right).build(seq);
-            }).seq((res, seq) -> {
-              return seq.numeric().open(res);
-            });
+          Application<BigInteger, ProtocolBuilderNumeric> testApplication = root -> {
+            Numeric numeric = root.numeric();
+            AdvancedNumeric advancedNumeric = root.advancedNumeric(); 
+            DRes<SInt> left = numeric.input(leftOpen, 1);
+            DRes<SInt> right = numeric.input(rightOpen, 1);
+            DRes<SInt> selector = numeric.input(selectorOpen, 1);
+            DRes<SInt> selected = advancedNumeric.condSelect(selector, left, right);
+            return numeric.open(selected);
           };
           BigInteger output = secureComputationEngine.runApplication(testApplication,
               ResourcePoolCreator.createResourcePool(conf.sceConf));

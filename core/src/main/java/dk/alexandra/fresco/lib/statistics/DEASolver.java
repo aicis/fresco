@@ -27,9 +27,9 @@
 package dk.alexandra.fresco.lib.statistics;
 
 import dk.alexandra.fresco.framework.Application;
-import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.MPCException;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.collections.Matrix;
@@ -40,7 +40,7 @@ import dk.alexandra.fresco.lib.lp.OptimalValue;
 import dk.alexandra.fresco.lib.lp.SimpleLPPrefix;
 import dk.alexandra.fresco.lib.statistics.DEASolver.DEAResult;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -54,11 +54,10 @@ import java.util.stream.Collectors;
  * The result/score of the computation must be converted to a double using Gauss
  * reduction to be meaningful. See the DEASolverTests for an example.
  */
-public class DEASolver implements Application<List<DEAResult>, SequentialNumericBuilder> {
+public class DEASolver implements Application<List<DEAResult>, ProtocolBuilderNumeric> {
 
-
-  private final List<List<SInt>> targetInputs, targetOutputs;
-  private final List<List<SInt>> inputDataSet, outputDataSet;
+  private final List<List<DRes<SInt>>> targetInputs, targetOutputs;
+  private final List<List<DRes<SInt>>> inputDataSet, outputDataSet;
 
   private final AnalysisType type;
   private final PivotRule pivotRule;
@@ -77,10 +76,10 @@ public class DEASolver implements Application<List<DEAResult>, SequentialNumeric
    * @param setInput Matrix containing the basis input
    * @param setOutput Matrix containing the basis output
    */
-  public DEASolver(AnalysisType type, List<List<SInt>> inputValues,
-      List<List<SInt>> outputValues,
-      List<List<SInt>> setInput,
-      List<List<SInt>> setOutput) throws MPCException {
+  public DEASolver(AnalysisType type, List<List<DRes<SInt>>> inputValues,
+      List<List<DRes<SInt>>> outputValues,
+      List<List<DRes<SInt>>> setInput,
+      List<List<DRes<SInt>>> setOutput) throws MPCException {
     this(PivotRule.DANZIG, type, inputValues, outputValues, setInput, setOutput);
   }
 
@@ -101,10 +100,10 @@ public class DEASolver implements Application<List<DEAResult>, SequentialNumeric
   public DEASolver(
       PivotRule pivotRule,
       AnalysisType type,
-      List<List<SInt>> inputValues,
-      List<List<SInt>> outputValues,
-      List<List<SInt>> setInput,
-      List<List<SInt>> setOutput) throws MPCException {
+      List<List<DRes<SInt>>> inputValues,
+      List<List<DRes<SInt>>> outputValues,
+      List<List<DRes<SInt>>> setInput,
+      List<List<DRes<SInt>>> setOutput) throws MPCException {
     this.pivotRule = pivotRule;
     this.type = type;
     this.targetInputs = inputValues;
@@ -131,22 +130,22 @@ public class DEASolver implements Application<List<DEAResult>, SequentialNumeric
     if (targetInputs.size() != targetOutputs.size()) {
       return false;
     }
-    for (List<SInt> x : targetInputs) {
+    for (List<DRes<SInt>> x : targetInputs) {
       if (x.size() != inputVariables) {
         return false;
       }
     }
-    for (List<SInt> x : inputDataSet) {
+    for (List<DRes<SInt>> x : inputDataSet) {
       if (x.size() != inputVariables) {
         return false;
       }
     }
-    for (List<SInt> x : targetOutputs) {
+    for (List<DRes<SInt>> x : targetOutputs) {
       if (x.size() != outputVariables) {
         return false;
       }
     }
-    for (List<SInt> x : outputDataSet) {
+    for (List<DRes<SInt>> x : outputDataSet) {
       if (x.size() != outputVariables) {
         return false;
       }
@@ -155,77 +154,83 @@ public class DEASolver implements Application<List<DEAResult>, SequentialNumeric
   }
 
   @Override
-  public Computation<List<DEAResult>> prepareApplication(SequentialNumericBuilder builder) {
-    List<Computation<SimpleLPPrefix>> prefixes = getPrefixWithSecretSharedValues(
+  public DRes<List<DEAResult>> buildComputation(ProtocolBuilderNumeric builder) {
+    List<DRes<SimpleLPPrefix>> prefixes = getPrefixWithSecretSharedValues(
         builder);
     return builder.par((par) -> {
 
-      List<Computation<Pair<List<Computation<SInt>>, Computation<SInt>>>> result =
+      List<DRes<Pair<List<DRes<SInt>>, DRes<SInt>>>> result =
           new ArrayList<>(targetInputs.size());
       for (int i = 0; i < targetInputs.size(); i++) {
 
         SimpleLPPrefix prefix = prefixes.get(i).out();
-        Computation<SInt> pivot = prefix.getPivot();
+        DRes<SInt> pivot = prefix.getPivot();
         LPTableau tableau = prefix.getTableau();
-        Matrix<Computation<SInt>> update = prefix.getUpdateMatrix();
-        List<Computation<SInt>> initialBasis = prefix.getBasis();
+        Matrix<DRes<SInt>> update = prefix.getUpdateMatrix();
+        List<DRes<SInt>> initialBasis = prefix.getBasis();
 
         result.add(
-            par.createSequentialSub((subSeq) ->
+            par.seq((subSeq) ->
                 subSeq.seq((solverSec) -> {
                   LPSolver lpSolver = new LPSolver(
                       pivotRule, tableau, update, pivot, initialBasis);
-                  return lpSolver.build(solverSec);
+                  return lpSolver.buildComputation(solverSec);
 
-                }).seq((lpOutput, optSec) ->
+                }).seq((optSec, lpOutput) ->
                     Pair.lazy(
                         lpOutput.basis,
                         new OptimalValue(lpOutput.updateMatrix, lpOutput.tableau, lpOutput.pivot)
-                            .build(optSec)
+                            .buildComputation(optSec)
                     )
                 ))
         );
       }
       return () -> result;
-    }).seq((result, seq) -> {
+    }).seq((seq, result) -> {
       List<DEAResult> convertedResult = result.stream().map(DEAResult::new)
           .collect(Collectors.toList());
       return () -> convertedResult;
     });
   }
 
-  private List<Computation<SimpleLPPrefix>> getPrefixWithSecretSharedValues(
-      SequentialNumericBuilder builder) {
+  private List<DRes<SimpleLPPrefix>> getPrefixWithSecretSharedValues(
+      ProtocolBuilderNumeric builder) {
     int dataSetSize = this.inputDataSet.size();
 
     int noOfSolvers = this.targetInputs.size();
-    List<Computation<SimpleLPPrefix>> prefixes = new ArrayList<>(noOfSolvers);
+    List<DRes<SimpleLPPrefix>> prefixes = new ArrayList<>(noOfSolvers);
 
     int lpInputs = this.inputDataSet.get(0).size();
     int lpOutputs = this.outputDataSet.get(0).size();
-    SInt[][] basisInputs = new SInt[lpInputs][dataSetSize];
-    SInt[][] basisOutputs = new SInt[lpOutputs][dataSetSize];
+    List<List<DRes<SInt>>> basisInputs = new ArrayList<>(lpInputs);
+    for (int i = 0; i < lpInputs; i++) {
+      basisInputs.add(new ArrayList<>(dataSetSize));
+    }
+    List<List<DRes<SInt>>> basisOutputs = new ArrayList<>(lpOutputs);
+    for (int i = 0; i < lpOutputs; i++) {
+      basisOutputs.add(new ArrayList<>(dataSetSize));
+    }
 
     for (int i = 0; i < dataSetSize; i++) {
       for (int j = 0; j < inputDataSet.get(i).size(); j++) {
-        List<SInt> current = inputDataSet.get(i);
-        basisInputs[j][i] = current.get(j);
+        List<DRes<SInt>> current = inputDataSet.get(i);
+        basisInputs.get(j).add(current.get(j));
       }
       for (int j = 0; j < outputDataSet.get(i).size(); j++) {
-        List<SInt> current = outputDataSet.get(i);
-        basisOutputs[j][i] = current.get(j);
+        List<DRes<SInt>> current = outputDataSet.get(i);
+        basisOutputs.get(j).add(current.get(j));
       }
     }
     for (int i = 0; i < noOfSolvers; i++) {
       if (type == AnalysisType.INPUT_EFFICIENCY) {
         prefixes.add(DEAInputEfficiencyPrefixBuilder.build(
-            Arrays.asList(basisInputs), Arrays.asList(basisOutputs),
+            Collections.unmodifiableList(basisInputs), Collections.unmodifiableList(basisOutputs),
             targetInputs.get(i), targetOutputs.get(i),
             builder
         ));
       } else {
         prefixes.add(DEAPrefixBuilderMaximize.build(
-            Arrays.asList(basisInputs), Arrays.asList(basisOutputs),
+            Collections.unmodifiableList(basisInputs), Collections.unmodifiableList(basisOutputs),
             targetInputs.get(i), targetOutputs.get(i),
             builder
         ));
@@ -238,12 +243,12 @@ public class DEASolver implements Application<List<DEAResult>, SequentialNumeric
 
   public static class DEAResult {
 
-    public final List<SInt> basis;
+    public final List<DRes<SInt>> basis;
     public final SInt optimal;
 
-    private DEAResult(Computation<Pair<List<Computation<SInt>>, Computation<SInt>>> output) {
-      Pair<List<Computation<SInt>>, Computation<SInt>> out = output.out();
-      this.basis = out.getFirst().stream().map(Computation::out).collect(Collectors.toList());
+    private DEAResult(DRes<Pair<List<DRes<SInt>>, DRes<SInt>>> output) {
+      Pair<List<DRes<SInt>>, DRes<SInt>> out = output.out();
+      this.basis = out.getFirst().stream().map(DRes::out).collect(Collectors.toList());
       this.optimal = out.getSecond().out();
     }
   }

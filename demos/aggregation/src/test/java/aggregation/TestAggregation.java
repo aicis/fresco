@@ -52,7 +52,7 @@ public class TestAggregation {
   public void testAggregation() throws Exception {
     final TestThreadFactory f = new TestThreadFactory() {
       @Override
-      public TestThread next(TestThreadConfiguration conf) {
+      public TestThread next() {
         return new TestThread() {
           @Override
           public void test() throws Exception {

@@ -26,6 +26,7 @@
  *******************************************************************************/
 package dk.alexandra.fresco.suite.spdz.gates;
 
+import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.network.SCENetwork;
 import dk.alexandra.fresco.framework.network.serializers.BigIntegerSerializer;
@@ -41,13 +42,13 @@ import java.util.List;
 
 public class SpdzOutputProtocol extends SpdzNativeProtocol<BigInteger> {
 
-  private SpdzSInt in;
+  private DRes<SInt> in;
   private BigInteger out;
   private int target_player;
   private SpdzInputMask mask;
 
-  public SpdzOutputProtocol(SInt in, int target_player) {
-    this.in = (SpdzSInt) in;
+  public SpdzOutputProtocol(DRes<SInt> in, int target_player) {
+    this.in = in;
     this.target_player = target_player;
   }
 
@@ -67,7 +68,8 @@ public class SpdzOutputProtocol extends SpdzNativeProtocol<BigInteger> {
     switch (round) {
       case 0:
         this.mask = storage.getSupplier().getNextInputMask(target_player);
-        SpdzElement inMinusMask = this.in.value.subtract(this.mask.getMask());
+        SpdzSInt closedValue = (SpdzSInt) this.in.out();
+        SpdzElement inMinusMask = closedValue.value.subtract(this.mask.getMask());
         storage.addClosedValue(inMinusMask);
         network.sendToAll(serializer.toBytes(inMinusMask.getShare()));
         network.expectInputFromAll();
@@ -82,8 +84,7 @@ public class SpdzOutputProtocol extends SpdzNativeProtocol<BigInteger> {
         storage.addOpenedValue(openedVal);
         if (target_player == myId) {
           openedVal = openedVal.add(this.mask.getRealValue()).mod(spdzResourcePool.getModulus());
-          //          tmpOut = Util.convertRepresentation(tmpOut);
-          out = openedVal;
+          this.out = openedVal;
         }
         return EvaluationStatus.IS_DONE;
       default:

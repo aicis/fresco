@@ -27,21 +27,15 @@
 package dk.alexandra.fresco.lib.math.integer.binary;
 
 import dk.alexandra.fresco.framework.Application;
-import dk.alexandra.fresco.framework.BuilderFactory;
-import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.ProtocolProducer;
-import dk.alexandra.fresco.framework.TestApplication;
+import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
-import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
-import dk.alexandra.fresco.framework.builder.AdvancedNumericBuilder;
-import dk.alexandra.fresco.framework.builder.AdvancedNumericBuilder.RightShiftResult;
-import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
-import dk.alexandra.fresco.framework.builder.NumericBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.AdvancedNumeric;
+import dk.alexandra.fresco.framework.builder.numeric.AdvancedNumeric.RightShiftResult;
+import dk.alexandra.fresco.framework.builder.numeric.Numeric;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
-import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
+import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
@@ -64,30 +58,30 @@ public class BinaryOperationsTests {
   /**
    * Test binary right shift of a shared secret.
    */
-  public static class TestRightShift extends TestThreadFactory {
+  public static class TestRightShift<ResourcePoolT extends ResourcePool> extends TestThreadFactory {
 
     @Override
-    public TestThread next(TestThreadConfiguration conf) {
+    public TestThread next() {
 
-      return new TestThread() {
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         private final BigInteger input = BigInteger.valueOf(12332157);
         private final int shifts = 3;
 
         @Override
         public void test() throws Exception {
-          Application<Pair<BigInteger, List<BigInteger>>, SequentialNumericBuilder> app =
-              (SequentialNumericBuilder builder) -> {
-                AdvancedNumericBuilder rightShift = builder.advancedNumeric();
-                Computation<SInt> encryptedInput = builder.numeric().known(input);
-                Computation<RightShiftResult> shiftedRight = rightShift
+          Application<Pair<BigInteger, List<BigInteger>>, ProtocolBuilderNumeric> app =
+              (ProtocolBuilderNumeric builder) -> {
+                AdvancedNumeric rightShift = builder.advancedNumeric();
+                DRes<SInt> encryptedInput = builder.numeric().known(input);
+                DRes<RightShiftResult> shiftedRight = rightShift
                     .rightShiftWithRemainder(encryptedInput, shifts);
-                NumericBuilder NumericBuilder = builder.numeric();
-                Computation<BigInteger> openResult = NumericBuilder
+                Numeric NumericBuilder = builder.numeric();
+                DRes<BigInteger> openResult = NumericBuilder
                     .open(() -> shiftedRight.out().getResult());
-                Computation<List<Computation<BigInteger>>> openRemainders = builder
-                    .createSequentialSub((innerBuilder) -> {
-                      NumericBuilder innerOpenBuilder = innerBuilder.numeric();
-                      List<Computation<BigInteger>> opened = shiftedRight.out()
+                DRes<List<DRes<BigInteger>>> openRemainders = builder
+                    .seq((innerBuilder) -> {
+                      Numeric innerOpenBuilder = innerBuilder.numeric();
+                      List<DRes<BigInteger>> opened = shiftedRight.out()
                           .getRemainder()
                           .stream()
                           .map(innerOpenBuilder::open)
@@ -97,11 +91,11 @@ public class BinaryOperationsTests {
                 return () -> new Pair<>(
                     openResult.out(),
                     openRemainders.out().stream()
-                        .map(Computation::out)
+                        .map(DRes::out)
                         .collect(Collectors.toList()));
               };
           Pair<BigInteger, List<BigInteger>> output =
-              (Pair<BigInteger, List<BigInteger>>) secureComputationEngine.runApplication(
+              secureComputationEngine.runApplication(
                   app,
                   ResourcePoolCreator.createResourcePool(conf.sceConf));
           BigInteger result = output.getFirst();
@@ -122,38 +116,27 @@ public class BinaryOperationsTests {
   /**
    * Test binary right shift of a shared secret.
    */
-  public static class TestBitLength extends TestThreadFactory {
+  public static class TestBitLength<ResourcePoolT extends ResourcePool> extends TestThreadFactory {
 
     @Override
-    public TestThread next(TestThreadConfiguration conf) {
+    public TestThread next() {
 
-      return new TestThread() {
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         private final BigInteger input = BigInteger.valueOf(5);
-        private Computation<BigInteger> openResult;
 
         @Override
         public void test() throws Exception {
-          TestApplication app = new TestApplication() {
-
-            @Override
-            public ProtocolProducer prepareApplication(
-                BuilderFactory producer) {
-              return ProtocolBuilderNumeric
-                  .createApplicationRoot((BuilderFactoryNumeric) producer, (builder) -> {
-                    Computation<SInt> sharedInput = builder.numeric().known(input);
-                    AdvancedNumericBuilder bitLengthBuilder = builder
-                        .advancedNumeric();
-                    Computation<SInt> bitLength = bitLengthBuilder
-                        .bitLength(sharedInput, input.bitLength() * 2);
-                    openResult = builder.numeric().open(bitLength);
-                  }).build();
-            }
+          Application<BigInteger, ProtocolBuilderNumeric> app =
+              builder -> {
+                DRes<SInt> sharedInput = builder.numeric().known(input);
+                AdvancedNumeric bitLengthBuilder = builder
+                    .advancedNumeric();
+                DRes<SInt> bitLength = bitLengthBuilder
+                    .bitLength(sharedInput, input.bitLength() * 2);
+                return builder.numeric().open(bitLength);
           };
-          secureComputationEngine
+          BigInteger result = secureComputationEngine
               .runApplication(app, ResourcePoolCreator.createResourcePool(conf.sceConf));
-          BigInteger result = openResult.out();
-
-          System.out.println(result);
 
           Assert.assertEquals(BigInteger.valueOf(input.bitLength()), result);
         }

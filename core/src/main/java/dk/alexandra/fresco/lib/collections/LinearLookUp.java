@@ -29,9 +29,9 @@ package dk.alexandra.fresco.lib.collections;
 import java.util.ArrayList;
 import java.util.List;
 
-import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.builder.ComputationBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
+import dk.alexandra.fresco.framework.DRes;
+import dk.alexandra.fresco.framework.builder.Computation;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.conditional.ConditionalSelect;
 
@@ -44,12 +44,12 @@ import dk.alexandra.fresco.lib.conditional.ConditionalSelect;
  * Guaranteed return value is the last value where the corresponding key matches
  * </p>
  */
-public class LinearLookUp implements ComputationBuilder<SInt> {
+public class LinearLookUp implements Computation<SInt, ProtocolBuilderNumeric> {
 
-  private final Computation<SInt> lookUpKey;
-  private final ArrayList<Computation<SInt>> keys;
-  private final ArrayList<Computation<SInt>> values;
-  private final Computation<SInt> notFoundValue;
+  private final DRes<SInt> lookUpKey;
+  private final ArrayList<DRes<SInt>> keys;
+  private final ArrayList<DRes<SInt>> values;
+  private final DRes<SInt> notFoundValue;
 
   /**
    * Makes a new LinearLookUp
@@ -59,10 +59,10 @@ public class LinearLookUp implements ComputationBuilder<SInt> {
    * @param values the values corresponding to each key.
    * @param notFoundValue The value to return if not present.
    */
-  public LinearLookUp(Computation<SInt> lookUpKey,
-      ArrayList<Computation<SInt>> keys,
-      ArrayList<Computation<SInt>> values,
-      Computation<SInt> notFoundValue) {
+  public LinearLookUp(DRes<SInt> lookUpKey,
+      ArrayList<DRes<SInt>> keys,
+      ArrayList<DRes<SInt>> values,
+      DRes<SInt> notFoundValue) {
     this.notFoundValue = notFoundValue;
     this.lookUpKey = lookUpKey;
     this.keys = keys;
@@ -70,18 +70,18 @@ public class LinearLookUp implements ComputationBuilder<SInt> {
   }
 
   @Override
-  public Computation<SInt> build(SequentialNumericBuilder builder) {
+  public DRes<SInt> buildComputation(ProtocolBuilderNumeric builder) {
     return builder.par((par) -> {
       int n = keys.size();
-      List<Computation<SInt>> index = new ArrayList<>(n);
-      for (Computation<SInt> key : keys) {
+      List<DRes<SInt>> index = new ArrayList<>(n);
+      for (DRes<SInt> key : keys) {
         index.add(par.comparison().equals(lookUpKey, key));
       }
       return () -> index;
-    }).seq((index, seq) -> {
-      Computation<SInt> outputValue = notFoundValue;
+    }).seq((seq, index) -> {
+      DRes<SInt> outputValue = notFoundValue;
       for (int i = 0, valuesLength = values.size(); i < valuesLength; i++) {
-        Computation<SInt> value = values.get(i);
+        DRes<SInt> value = values.get(i);
         outputValue = seq.seq(new ConditionalSelect(index.get(i), value, outputValue));
       }
       return outputValue;

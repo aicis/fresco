@@ -26,20 +26,20 @@
  */
 package dk.alexandra.fresco.lib.math.integer.exp;
 
-import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.builder.ComputationBuilder;
-import dk.alexandra.fresco.framework.builder.NumericBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
+import dk.alexandra.fresco.framework.DRes;
+import dk.alexandra.fresco.framework.builder.Computation;
+import dk.alexandra.fresco.framework.builder.numeric.Numeric;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
 
-public class Exponentiation implements ComputationBuilder<SInt> {
+public class Exponentiation implements Computation<SInt, ProtocolBuilderNumeric> {
 
-  private final Computation<SInt> input;
-  private final Computation<SInt> exponent;
+  private final DRes<SInt> input;
+  private final DRes<SInt> exponent;
   private final int maxExponentBitLength;
 
-  public Exponentiation(Computation<SInt> input, Computation<SInt> exponent,
+  public Exponentiation(DRes<SInt> input, DRes<SInt> exponent,
       int maxExponentBitLength) {
     this.input = input;
     this.exponent = exponent;
@@ -47,13 +47,13 @@ public class Exponentiation implements ComputationBuilder<SInt> {
   }
 
   @Override
-  public Computation<SInt> build(SequentialNumericBuilder builder) {
+  public DRes<SInt> buildComputation(ProtocolBuilderNumeric builder) {
     return builder.seq((seq) ->
         seq.advancedNumeric().toBits(exponent, maxExponentBitLength)
-    ).seq((bits, seq) -> {
-      Computation<SInt> e = input;
-      Computation<SInt> result = null;
-      NumericBuilder numeric = seq.numeric();
+    ).seq((seq, bits) -> {
+      DRes<SInt> e = input;
+      DRes<SInt> result = null;
+      Numeric numeric = seq.numeric();
       for (SInt bit : bits) {
         /*
          * result += bits[i] * (result * r - r) + r
@@ -65,10 +65,10 @@ public class Exponentiation implements ComputationBuilder<SInt> {
 				 *            result * e   if bits[i] = 1
 				 */
         if (result == null) {
-          Computation<SInt> sub = numeric.sub(e, BigInteger.ONE);
+          DRes<SInt> sub = numeric.sub(e, BigInteger.ONE);
           result = numeric.add(BigInteger.ONE, numeric.mult(() -> bit, sub));
         } else {
-          Computation<SInt> sub = numeric.sub(numeric.mult(result, e), result);
+          DRes<SInt> sub = numeric.sub(numeric.mult(result, e), result);
           result = numeric.add(result, numeric.mult(() -> bit, sub));
         }
         e = numeric.mult(e, e);

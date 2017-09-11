@@ -27,27 +27,26 @@
 package dk.alexandra.fresco.lib.compare;
 
 
-import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.builder.ComparisonBuilder;
-import dk.alexandra.fresco.framework.builder.NumericBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
+import dk.alexandra.fresco.framework.DRes;
+import dk.alexandra.fresco.framework.builder.numeric.Comparison;
+import dk.alexandra.fresco.framework.builder.numeric.Numeric;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.math.integer.ProductSIntList;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
 public class SortingHelperUtility {
 
-  public Computation<SInt> isSorted(SequentialNumericBuilder builder,
-      List<Computation<SInt>> values) {
+  public DRes<SInt> isSorted(ProtocolBuilderNumeric builder,
+      List<DRes<SInt>> values) {
     return builder.par(par -> {
-      ComparisonBuilder comparison = par.comparison();
-      ArrayList<Computation<SInt>> comparisons = new ArrayList<>();
+      Comparison comparison = par.comparison();
+      ArrayList<DRes<SInt>> comparisons = new ArrayList<>();
       boolean first = true;
 
-      Computation<SInt> previous = null;
-      for (Computation<SInt> value : values) {
+      DRes<SInt> previous = null;
+      for (DRes<SInt> value : values) {
         if (!first) {
           comparisons.add(comparison.compareLEQ(previous, value));
         } else {
@@ -56,9 +55,7 @@ public class SortingHelperUtility {
         previous = value;
       }
       return () -> comparisons;
-    }).seq((comparison, seq) ->
-        new ProductSIntList(comparison).build(seq)
-    );
+    }).seq((seq, comparison) -> seq.advancedNumeric().product(comparison));
   }
 
 
@@ -72,30 +69,30 @@ public class SortingHelperUtility {
 
   final BigInteger minusOne = BigInteger.valueOf(-1L);
 
-  public void compareAndSwap(SequentialNumericBuilder builder, int a, int b,
-      List<Computation<SInt>> values) {
+  public void compareAndSwap(ProtocolBuilderNumeric builder, int a, int b,
+      List<DRes<SInt>> values) {
     //Non splitting version
 
-    NumericBuilder numeric = builder.numeric();
+    Numeric numeric = builder.numeric();
 
-    Computation<SInt> valueA = values.get(a);
-    Computation<SInt> valueB = values.get(b);
-    Computation<SInt> comparison = builder.comparison().compareLEQ(valueA, valueB);
-    Computation<SInt> sub = numeric.sub(valueA, valueB);
-    Computation<SInt> c = numeric.mult(comparison, sub);
-    Computation<SInt> d = numeric.mult(minusOne, c);
+    DRes<SInt> valueA = values.get(a);
+    DRes<SInt> valueB = values.get(b);
+    DRes<SInt> comparison = builder.comparison().compareLEQ(valueA, valueB);
+    DRes<SInt> sub = numeric.sub(valueA, valueB);
+    DRes<SInt> c = numeric.mult(comparison, sub);
+    DRes<SInt> d = numeric.mult(minusOne, c);
 
     //a = comparison*a+(1-comparison)*b ==> comparison*(a-b)+b
     //b = comparison*b+(1-comparison)*a ==>  -comparison*(a-b)+a
     builder.par(par -> {
       values.set(a, par.numeric().add(c, valueB));
       values.set(b, par.numeric().add(d, valueA));
-      return () -> null;
+      return null;
     });
   }
 
 
-  public void sort(SequentialNumericBuilder builder, List<Computation<SInt>> values) {
+  public void sort(ProtocolBuilderNumeric builder, List<DRes<SInt>> values) {
     //sort using Batcher´s Merge Exchange
 
     int t = FloorLog2(values.size());
@@ -105,12 +102,11 @@ public class SortingHelperUtility {
         .seq(seq -> () -> p0)
         .whileLoop(
             p -> p > 0,
-            (p, seq) -> {
-              seq.seq(innerSeq -> {
-                return () -> new Iteration(p0, 0, p);
-              }).whileLoop(
+            (seq, p) -> {
+              seq.seq(innerSeq -> () -> new Iteration(p0, 0, p)
+              ).whileLoop(
                   state -> state.r == 0 || state.q != p,
-                  (state, whileSeq) -> {
+                  (whileSeq, state) -> {
                     final int d = state.r == 0 ? state.d : state.q - p;
                     final int q = state.r == 0 ? state.q : state.q / 2;
 

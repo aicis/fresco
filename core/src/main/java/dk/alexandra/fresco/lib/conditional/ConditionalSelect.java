@@ -26,36 +26,36 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.conditional;
 
-import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.builder.ComputationBuilder;
-import dk.alexandra.fresco.framework.builder.NumericBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
+import dk.alexandra.fresco.framework.DRes;
+import dk.alexandra.fresco.framework.builder.Computation;
+import dk.alexandra.fresco.framework.builder.numeric.Numeric;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 
-public class ConditionalSelect implements ComputationBuilder<SInt> {
+public class ConditionalSelect implements Computation<SInt, ProtocolBuilderNumeric> {
 
-  private final Computation<SInt> a, b, selector;
+  private final DRes<SInt> left, right, condition;
 
   /**
-   * Selects a or b based on selector. Selector must be 0 or 1.
+   * Selects left or right based on condition. condition must be 0 or 1.
    * 
-   * If selector is 0 b is selected, otherwise a.
+   * If condition is 0 right is selected, otherwise left.
    * 
    * @param selector
-   * @param a
-   * @param b
+   * @param left
+   * @param right
    */
-  public ConditionalSelect(Computation<SInt> selector, Computation<SInt> a, Computation<SInt> b) {
-    this.selector = selector;
-    this.a = a;
-    this.b = b;
+  public ConditionalSelect(DRes<SInt> selector, DRes<SInt> left, DRes<SInt> right) {
+    this.condition = selector;
+    this.left = left;
+    this.right = right;
   }
 
   @Override
-  public Computation<SInt> build(SequentialNumericBuilder builder) {
-    NumericBuilder numeric = builder.numeric();
-    Computation<SInt> sub = numeric.sub(a, b);
-    Computation<SInt> mult = numeric.mult(selector, sub);
-    return numeric.add(mult, b);
+  public DRes<SInt> buildComputation(ProtocolBuilderNumeric builder) {
+    Numeric numeric = builder.numeric();
+    DRes<SInt> sub = numeric.sub(left, right);
+    DRes<SInt> mult = numeric.mult(condition, sub);
+    return numeric.add(mult, right);
   }
 }

@@ -103,22 +103,6 @@ public class SpdzElement implements Serializable{
     return new SpdzElement(rShare, rMac, this.mod);
   }
 
-  /**
-	 * Public value subtracted
-	 * @param e
-   * @param pID
-   * @return
-	 */
-	public SpdzElement subtract(SpdzElement e, int pID) {
-		BigInteger rShare = this.share;
-		if(pID == 1){
-			rShare = this.share.subtract(e.getShare()).mod(mod);
-		}
-		BigInteger eMac = e.getMac();
-    BigInteger rMac = this.mac.subtract(eMac).mod(mod);
-    return new SpdzElement(rShare, rMac, this.mod);
-  }
-
   public SpdzElement multiply(BigInteger c) {
     BigInteger rShare = this.share.multiply(c).mod(mod);
     BigInteger rMac = this.mac.multiply(c).mod(mod);

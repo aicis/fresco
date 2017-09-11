@@ -1,12 +1,11 @@
 package dk.alexandra.fresco.lib.math.integer.division;
 
-import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.builder.BuilderFactoryNumeric;
-import dk.alexandra.fresco.framework.builder.ComputationBuilder;
-import dk.alexandra.fresco.framework.builder.NumericBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
+import dk.alexandra.fresco.framework.DRes;
+import dk.alexandra.fresco.framework.builder.Computation;
+import dk.alexandra.fresco.framework.builder.numeric.Numeric;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
+import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
 import java.math.BigInteger;
 
 
@@ -20,18 +19,15 @@ import java.math.BigInteger;
  *
  * @author Jonas Lindstrøm (jonas.lindstrom@alexandra.dk)
  */
-public class KnownDivisor implements ComputationBuilder<SInt> {
+public class KnownDivisor implements Computation<SInt, ProtocolBuilderNumeric> {
 
-  private final BuilderFactoryNumeric builderFactory;
-  private final Computation<SInt> dividend;
+  private final DRes<SInt> dividend;
   private final BigInteger divisor;
 
-  KnownDivisor(
-      BuilderFactoryNumeric builderFactory,
-      Computation<SInt> dividend,
+  public KnownDivisor(
+      DRes<SInt> dividend,
       BigInteger divisor) {
 
-    this.builderFactory = builderFactory;
     this.dividend = dividend;
     this.divisor = divisor;
   }
@@ -49,9 +45,9 @@ public class KnownDivisor implements ComputationBuilder<SInt> {
   }
 
   @Override
-  public Computation<SInt> build(SequentialNumericBuilder builder) {
-    BasicNumericFactory basicNumericFactory = this.builderFactory.getBasicNumericFactory();
-    BigInteger modulus = basicNumericFactory.getModulus();
+  public DRes<SInt> buildComputation(ProtocolBuilderNumeric builder) {
+    BasicNumericContext basicNumericContext = builder.getBasicNumericContext();
+    BigInteger modulus = basicNumericContext.getModulus();
     BigInteger modulusHalf = modulus.divide(BigInteger.valueOf(2));
     /*
      * We use the fact that if 2^{N+l} \leq m * d \leq 2^{N+l} + 2^l, then
@@ -63,7 +59,7 @@ public class KnownDivisor implements ComputationBuilder<SInt> {
 		 * considerations can be omitted, giving a significant speed-up.
 		 */
 
-    NumericBuilder numeric = builder.numeric();
+    Numeric numeric = builder.numeric();
     /*
      * Numbers larger than half the field size is considered to be negative.
 		 * 
@@ -80,33 +76,33 @@ public class KnownDivisor implements ComputationBuilder<SInt> {
 		 * maxBitLength + divisorBitLength to be representable.
 		 */
     int maxBitLength =
-        (builderFactory.getBasicNumericFactory().getMaxBitLength() - divisorAbs.bitLength()) / 3;
+        (builder.getBasicNumericContext().getMaxBitLength() - divisorAbs.bitLength()) / 3;
     int shifts = maxBitLength + divisorAbs.bitLength();
 
 		/*
      * Compute the sign of the dividend
 		 */
-    Computation<SInt> dividendSign = builder.comparison().sign(dividend);
-    Computation<SInt> dividendAbs = numeric.mult(dividend, dividendSign);
+    DRes<SInt> dividendSign = builder.comparison().sign(dividend);
+    DRes<SInt> dividendAbs = numeric.mult(dividend, dividendSign);
 
 		/*
      * We need m * d \geq 2^{N+l}, so we add one to the result of the
 		 * division to ensure that this is indeed the case.
 		 */
     BigInteger m = BigInteger.ONE.shiftLeft(shifts).divide(divisorAbs).add(BigInteger.ONE);
-    Computation<SInt> quotientAbs = numeric.mult(m, dividendAbs);
+    DRes<SInt> quotientAbs = numeric.mult(m, dividendAbs);
 
 		/*
      * Now quotientAbs is the result shifted SHIFTS bits to the left, so we
 		 * shift it back to get the result in absolute value, q.
 		 */
-    Computation<SInt> q = builder.advancedNumeric().rightShift(quotientAbs, shifts);
+    DRes<SInt> q = builder.advancedNumeric().rightShift(quotientAbs, shifts);
 
 		/*
      * Adjust the sign of the result.
 		 */
     BigInteger oInt = BigInteger.valueOf(divisorSign);
-    Computation<SInt> sign = numeric.mult(oInt, dividendSign);
+    DRes<SInt> sign = numeric.mult(oInt, dividendSign);
     return numeric.mult(q, sign);
   }
 }

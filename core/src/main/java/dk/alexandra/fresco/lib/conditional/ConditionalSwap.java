@@ -23,47 +23,34 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.conditional;
 
-import java.math.BigInteger;
-
-import dk.alexandra.fresco.framework.Computation;
-import dk.alexandra.fresco.framework.builder.ComputationBuilderParallel;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.ParallelNumericBuilder;
+import dk.alexandra.fresco.framework.DRes;
+import dk.alexandra.fresco.framework.builder.ComputationParallel;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
 
 public class ConditionalSwap
-    implements ComputationBuilderParallel<Pair<Computation<SInt>, Computation<SInt>>> {
+    implements ComputationParallel<Pair<DRes<SInt>, DRes<SInt>>, ProtocolBuilderNumeric> {
 
-  final private Computation<SInt> a, b, swapper;
+  final private DRes<SInt> left, right, swapper;
 
-  /**
-   * Swaps a and b based on swapper. Swapper must be 0 or 1.
-   * 
-   * If swapper is 1 the values are swapped (in place). Otherwise, original order.
-   * 
-   * @param swapper
-   * @param a
-   * @param b
-   */
-  public ConditionalSwap(Computation<SInt> swapper, Computation<SInt> a, Computation<SInt> b) {
+  public ConditionalSwap(DRes<SInt> swapper, DRes<SInt> left, DRes<SInt> right) {
     this.swapper = swapper;
-    this.a = a;
-    this.b = b;
+    this.left = left;
+    this.right = right;
   }
 
-  public ConditionalSwap(Computation<SInt> swapper,
-      Pair<Computation<SInt>, Computation<SInt>> pair) {
+  public ConditionalSwap(DRes<SInt> swapper,
+      Pair<DRes<SInt>, DRes<SInt>> pair) {
     this.swapper = swapper;
-    this.a = pair.getFirst();
-    this.b = pair.getSecond();
+    this.left = pair.getFirst();
+    this.right = pair.getSecond();
   }
-
+  
   @Override
-  public Computation<Pair<Computation<SInt>, Computation<SInt>>> build(
-      ParallelNumericBuilder builder) {
-    Computation<SInt> updatedA = builder.createSequentialSub(
-        new ConditionalSelect(builder.numeric().sub(BigInteger.ONE, swapper), a, b));
-    Computation<SInt> updatedB = builder.createSequentialSub(new ConditionalSelect(swapper, a, b));
+  public DRes<Pair<DRes<SInt>, DRes<SInt>>> buildComputation(ProtocolBuilderNumeric builder) {
+    DRes<SInt> updatedA = builder.advancedNumeric().condSelect(swapper, right, left);
+    DRes<SInt> updatedB = builder.advancedNumeric().condSelect(swapper, left, right);
     return () -> new Pair<>(updatedA, updatedB);
   }
 }

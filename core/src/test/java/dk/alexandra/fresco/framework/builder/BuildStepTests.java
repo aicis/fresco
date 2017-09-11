@@ -1,23 +1,20 @@
 package dk.alexandra.fresco.framework.builder;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import org.junit.Assert;
-import org.junit.Test;
-
 import dk.alexandra.fresco.framework.Application;
-import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
-import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.network.NetworkingStrategy;
 import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.suite.dummy.arithmetic.AbstractDummyArithmeticTest;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import org.junit.Assert;
+import org.junit.Test;
 
 public class BuildStepTests extends AbstractDummyArithmeticTest {
 
@@ -28,7 +25,7 @@ public class BuildStepTests extends AbstractDummyArithmeticTest {
    * @param <ResourcePoolT>
    */
   private class TestWhileLoop<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory<ResourcePoolT, SequentialNumericBuilder> {
+      extends TestThreadFactory {
 
     protected final int numIterations;
     protected final List<Integer> expected;
@@ -39,24 +36,23 @@ public class BuildStepTests extends AbstractDummyArithmeticTest {
     }
 
     @Override
-    public TestThread<ResourcePoolT, SequentialNumericBuilder> next(
-        TestThreadConfiguration<ResourcePoolT, SequentialNumericBuilder> conf) {
-      return new TestThread<ResourcePoolT, SequentialNumericBuilder>() {
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         @Override
         public void test() throws Exception {
           // define functionality to be tested
-          Application<List<Integer>, SequentialNumericBuilder> testApplication = root -> {
+          Application<List<Integer>, ProtocolBuilderNumeric> testApplication = root -> {
             return root.seq(seq -> {
               // initiate loop
               return new IterationState(0, new ArrayList<>());
             }).whileLoop(
                 // iterate
-                (state) -> state.round < numIterations, 
-                (state, seq) -> {
+                (state) -> state.round < numIterations,
+                (seq, state) -> {
                   List<Integer> roundsSoFar = state.rounds;
                   roundsSoFar.add(state.round);
                   return new IterationState(state.round + 1, roundsSoFar);
-                }).seq((state, seq) -> {
+                }).seq((seq, state) -> {
                   return () -> state.rounds;
                 });
           };
@@ -68,7 +64,7 @@ public class BuildStepTests extends AbstractDummyArithmeticTest {
     }
   }
 
-  private static final class IterationState implements Computation<IterationState> {
+  private static final class IterationState implements DRes<IterationState> {
 
     private final int round;
     private final List<Integer> rounds;

@@ -26,11 +26,11 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.math.integer.min;
 
-import dk.alexandra.fresco.framework.Computation;
+import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.MPCException;
-import dk.alexandra.fresco.framework.builder.ComputationBuilder;
-import dk.alexandra.fresco.framework.builder.NumericBuilder;
-import dk.alexandra.fresco.framework.builder.ProtocolBuilderNumeric.SequentialNumericBuilder;
+import dk.alexandra.fresco.framework.builder.Computation;
+import dk.alexandra.fresco.framework.builder.numeric.Numeric;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.conditional.ConditionalSelect;
 import dk.alexandra.fresco.lib.math.integer.min.MinInfFrac.MinInfOutput;
@@ -53,7 +53,7 @@ import java.util.stream.Collectors;
  * turns out to be prone to overflow problems, and picking the very larger
  * value, is also non-trivial.
  */
-public class MinInfFrac implements ComputationBuilder<MinInfOutput> {
+public class MinInfFrac implements Computation<MinInfOutput, ProtocolBuilderNumeric> {
 
   private final ArrayList<Frac> fs;
 
@@ -70,14 +70,14 @@ public class MinInfFrac implements ComputationBuilder<MinInfOutput> {
    * infinity)
    */
   public MinInfFrac(
-      List<Computation<SInt>> ns,
-      List<Computation<SInt>> ds,
-      List<Computation<SInt>> infs) {
+      List<DRes<SInt>> ns,
+      List<DRes<SInt>> ds,
+      List<DRes<SInt>> infs) {
     if (ns.size() == ds.size() && ns.size() == infs.size()) {
       this.fs = new ArrayList<>();
-      Iterator<Computation<SInt>> nsIterator = ns.iterator();
-      Iterator<Computation<SInt>> dsIterator = ds.iterator();
-      Iterator<Computation<SInt>> infsIterator = infs.iterator();
+      Iterator<DRes<SInt>> nsIterator = ns.iterator();
+      Iterator<DRes<SInt>> dsIterator = ds.iterator();
+      Iterator<DRes<SInt>> infsIterator = infs.iterator();
       while (nsIterator.hasNext()) {
         fs.add(new Frac(nsIterator.next(), dsIterator.next(), infsIterator.next()));
       }
@@ -87,72 +87,72 @@ public class MinInfFrac implements ComputationBuilder<MinInfOutput> {
   }
 
   @Override
-  public Computation<MinInfOutput> build(SequentialNumericBuilder builder) {
-    Computation<SInt> one = builder.numeric().known(BigInteger.ONE);
+  public DRes<MinInfOutput> buildComputation(ProtocolBuilderNumeric builder) {
+    DRes<SInt> one = builder.numeric().known(BigInteger.ONE);
     if (fs.size() == 1) { // The trivial case
       return () -> {
-        ArrayList<Computation<SInt>> result = new ArrayList<>();
+        ArrayList<DRes<SInt>> result = new ArrayList<>();
         result.add(one);
         Frac frac = fs.get(0);
         return new MinInfOutput(frac.n, frac.d, frac.inf, result);
       };
     }
-    ArrayList<Computation<SInt>> cs = new ArrayList<>(fs.size());
+    ArrayList<DRes<SInt>> cs = new ArrayList<>(fs.size());
     for (Frac f : fs) {
       cs.add(null);
     }
     return builder.seq(seq -> () -> new IterationState(fs, 0))
         .whileLoop(
             state -> (state.fs.size() > 1),
-            (state, seq) -> {
+            (seq, state) -> {
               //TODO Clean up method
               int layer = state.layer;
               final List<Frac> fs = state.fs;
               //Find min
               int sizeOfTmpC = fs.size() / 2;
               int nextLength = sizeOfTmpC + (fs.size() % 2);
-              List<Computation<Frac>> tmpFs = new ArrayList<>(nextLength);
-              List<Computation<SInt>> tmpCs = new ArrayList<>(sizeOfTmpC);
+              List<DRes<Frac>> tmpFs = new ArrayList<>(nextLength);
+              List<DRes<SInt>> tmpCs = new ArrayList<>(sizeOfTmpC);
               for (int i = 0; i < sizeOfTmpC; i++) {
                 tmpCs.add(null);
               }
               for (int i = 0; i < sizeOfTmpC; i++) {
                 tmpFs.add(null);
               }
-              seq.createParallelSub((par) -> {
+              seq.par((par) -> {
                 for (int i = 0; i < sizeOfTmpC; i++) {
                   int finalI = i;
                   tmpFs.set(i,
-                      par.createSequentialSub((innerSeq) -> innerSeq.seq(seq1 ->
+                      par.seq((innerSeq) -> innerSeq.seq(seq1 ->
                               () -> null
-                          ).par(
-                          (ignored, seq11) -> seq11
+                          ).pairInPar(
+                          (seq11, ignored) -> seq11
                               .numeric().mult(fs.get(finalI * 2).n, fs.get(finalI * 2 + 1).d),
-                          (ignored, seq12) -> seq12
+                          (seq12, ignored) -> seq12
                               .numeric().mult(fs.get(finalI * 2 + 1).n, fs.get(finalI * 2).d)
-                          ).seq((pair, seq13) -> {
+                          ).seq((seq13, pair) -> {
                             SInt p1 = pair.getFirst();
                             SInt p2 = pair.getSecond();
-                            NumericBuilder numeric = seq13.numeric();
-                        Computation<SInt> tmpC = seq13.comparison()
+                            Numeric numeric = seq13.numeric();
+                        DRes<SInt> tmpC = seq13.comparison()
                             .compareLEQLong(() -> p1, () -> p2);
-                        Computation<SInt> notInf0 = numeric
+                        DRes<SInt> notInf0 = numeric
                             .sub(BigInteger.ONE, fs.get(finalI * 2).inf);
                             tmpC = numeric.mult(notInf0, tmpC);
                             tmpC = seq13
-                                .createSequentialSub(new ConditionalSelect(fs.get(finalI * 2 + 1).inf,
+                                .seq(new ConditionalSelect(fs.get(finalI * 2 + 1).inf,
                                     fs.get(finalI * 2 + 1).inf, tmpC));
-                            Computation<SInt> c = tmpC;
+                            DRes<SInt> c = tmpC;
                             tmpCs.set(finalI, c);
-                            Computation<SInt> rn = seq13
-                                .createSequentialSub(
+                            DRes<SInt> rn = seq13
+                                .seq(
                                     new ConditionalSelect(c, fs.get(finalI * 2).n,
                                         fs.get(finalI * 2 + 1).n));
-                            Computation<SInt> rd = seq13
-                                .createSequentialSub(
+                            DRes<SInt> rd = seq13
+                                .seq(
                                     new ConditionalSelect(c, fs.get(finalI * 2).d,
                                         fs.get(finalI * 2 + 1).d));
-                            Computation<SInt> rinf = numeric.mult(
+                            DRes<SInt> rinf = numeric.mult(
                                 fs.get(finalI * 2).inf, fs.get(finalI * 2 + 1).inf);
                             return () -> new Frac(rn, rd, rinf);
                           })
@@ -169,12 +169,12 @@ public class MinInfFrac implements ComputationBuilder<MinInfOutput> {
               // Updated Cs
               int offset = 1 << (layer + 1);
               if (layer == 0) {
-                seq.createParallelSub((par) -> {
+                seq.par((par) -> {
                   for (int i = 0; i < sizeOfTmpC; i++) {
                     int finalI = i;
-                    par.createSequentialSub((innerSeq) -> {
-                      Computation<SInt> c = tmpCs.get(finalI);
-                      Computation<SInt> notC = innerSeq.numeric().sub(BigInteger.ONE, c);
+                    par.seq((innerSeq) -> {
+                      DRes<SInt> c = tmpCs.get(finalI);
+                      DRes<SInt> notC = innerSeq.numeric().sub(BigInteger.ONE, c);
 
                       cs.set(finalI * 2, c);
                       cs.set(finalI * 2 + 1, notC);
@@ -187,16 +187,16 @@ public class MinInfFrac implements ComputationBuilder<MinInfOutput> {
                   return () -> null;
                 });
               } else {
-                seq.createParallelSub((par) -> {
+                seq.par((par) -> {
                   for (int i = 0; i < sizeOfTmpC; i++) {
-                    Computation<SInt> c = tmpCs.get(i);
+                    DRes<SInt> c = tmpCs.get(i);
                     for (int j = i * offset; j < i * offset + offset / 2; j++) {
                       cs.set(j, par.numeric().mult(c, cs.get(j)));
                     }
                     int finalI = i;
-                    par.createSequentialSub((innerSeq) -> {
-                      Computation<SInt> notC = innerSeq.numeric().sub(BigInteger.ONE, c);
-                      innerSeq.createParallelSub((innerPar) -> {
+                    par.seq((innerSeq) -> {
+                      DRes<SInt> notC = innerSeq.numeric().sub(BigInteger.ONE, c);
+                      innerSeq.par((innerPar) -> {
                         int limit =
                             (finalI + 1) * offset > cs.size() ? cs.size() : (finalI + 1) * offset;
                         for (int j = finalI * offset + offset / 2; j < limit; j++) {
@@ -212,9 +212,9 @@ public class MinInfFrac implements ComputationBuilder<MinInfOutput> {
               }
 
               return () -> new IterationState(
-                  tmpFs.stream().map(Computation::out).collect(Collectors.toList()),
+                  tmpFs.stream().map(DRes::out).collect(Collectors.toList()),
                   layer + 1);
-            }).seq((iterationState, sequentialProtocolBuilder) -> {
+            }).seq((sequentialProtocolBuilder, iterationState) -> {
           Frac frac = iterationState.fs.get(0);
           return () -> new MinInfOutput(frac.n, frac.d, frac.inf, cs);
         });
@@ -225,11 +225,11 @@ public class MinInfFrac implements ComputationBuilder<MinInfOutput> {
    * Helper class to represent a fraction consisting of a numerator denominator
    * and an infinity indicator.
    */
-  private class Frac implements Computation<Frac> {
+  private class Frac implements DRes<Frac> {
 
-    Computation<SInt> n, d, inf;
+    DRes<SInt> n, d, inf;
 
-    Frac(Computation<SInt> n, Computation<SInt> d, Computation<SInt> inf) {
+    Frac(DRes<SInt> n, DRes<SInt> d, DRes<SInt> inf) {
       super();
       this.n = n;
       this.d = d;
@@ -244,14 +244,14 @@ public class MinInfFrac implements ComputationBuilder<MinInfOutput> {
 
   public static class MinInfOutput {
 
-    public final Computation<SInt> nm, dm, infm;
-    public final ArrayList<Computation<SInt>> cs;
+    public final DRes<SInt> nm, dm, infm;
+    public final ArrayList<DRes<SInt>> cs;
 
     public MinInfOutput(
-        Computation<SInt> nm,
-        Computation<SInt> dm,
-        Computation<SInt> infm,
-        ArrayList<Computation<SInt>> cs) {
+        DRes<SInt> nm,
+        DRes<SInt> dm,
+        DRes<SInt> infm,
+        ArrayList<DRes<SInt>> cs) {
       this.nm = nm;
       this.dm = dm;
       this.infm = infm;
@@ -259,7 +259,7 @@ public class MinInfFrac implements ComputationBuilder<MinInfOutput> {
     }
   }
 
-  private static class IterationState implements Computation<IterationState> {
+  private static class IterationState implements DRes<IterationState> {
 
     private final List<Frac> fs;
     private final int layer;

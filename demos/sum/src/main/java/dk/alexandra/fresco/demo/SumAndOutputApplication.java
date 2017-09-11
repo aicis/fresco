@@ -27,13 +27,9 @@
 package dk.alexandra.fresco.demo;
 
 import dk.alexandra.fresco.demo.helpers.DemoNumericApplication;
-import dk.alexandra.fresco.framework.BuilderFactory;
-import dk.alexandra.fresco.framework.NativeProtocol;
-import dk.alexandra.fresco.framework.ProtocolProducer;
+import dk.alexandra.fresco.framework.DRes;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.field.integer.BasicNumericFactory;
-import dk.alexandra.fresco.lib.helper.SequentialProtocolProducer;
-import dk.alexandra.fresco.lib.helper.SingleProtocolProducer;
 import java.math.BigInteger;
 
 /**
@@ -52,39 +48,17 @@ public class SumAndOutputApplication extends DemoNumericApplication<BigInteger> 
   }
 
   @Override
-  public ProtocolProducer prepareApplication(BuilderFactory producer) {
-    ProtocolProducer inputProtocol = inputApp.prepareApplication(producer);
-
-    SInt[] ssInputs = inputApp.getSecretSharedInput();
-
-    BasicNumericFactory fac = (BasicNumericFactory) producer.getProtocolFactory();
-
-    // create wire
-    SInt sum = fac.getSInt();
-
-    // create Sequence of protocols which eventually will compute the sum
-    SequentialProtocolProducer sumProtocol = new SequentialProtocolProducer();
-
-    sumProtocol.append(fac.getAddProtocol(ssInputs[0], ssInputs[1], sum));
-    if (ssInputs.length > 2) {
-      for (int i = 2; i < ssInputs.length; i++) {
-        // Add sum and next secret shared input and store in sum.
-        sumProtocol.append(fac.getAddProtocol(sum, ssInputs[i], sum));
+  public DRes<BigInteger> buildComputation(ProtocolBuilderNumeric producer) {
+    return inputApp.createBuildStep(producer).seq((seq, inputs) -> {
+      DRes<SInt> sum = null;
+      for (SInt input : inputs) {
+        if (sum == null) {
+          sum = input;
+        } else {
+          seq.numeric().add(sum, input);
+        }
       }
-    }
-
-    // create output wire
-    NativeProtocol<BigInteger, ?> openProtocol = fac.getOpenProtocol(sum);
-
-    // Connect all protocols into a single protocol
-    ProtocolProducer gp = new SequentialProtocolProducer(inputProtocol,
-        sumProtocol, new SingleProtocolProducer<>(openProtocol));
-
-    output = openProtocol;
-    return gp;
-  }
-
-  public BigInteger getResult() {
-    return this.output.out();
+      return seq.numeric().open(sum);
+    });
   }
 }
