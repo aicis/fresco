@@ -35,19 +35,19 @@ public class TestSpdzRelational extends AbstractSpdzTest {
   @Test
   public void test_MiMC_aggregate_two() throws Exception {
     runTest(MiMCAggregationTests.aggregate(), EvaluationStrategy.SEQUENTIAL,
-        NetworkingStrategy.SCAPI, PreprocessingStrategy.DUMMY, 2);
+        NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
   }
 
   @Test
   public void test_MiMC_aggregate_three() throws Exception {
     runTest(MiMCAggregationTests.aggregate(), EvaluationStrategy.SEQUENTIAL,
-        NetworkingStrategy.SCAPI, PreprocessingStrategy.DUMMY, 3);
+        NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 3);
   }
 
   @Test
   public void test_MiMC_aggregate_empty() throws Exception {
     runTest(MiMCAggregationTests.aggregateEmpty(), EvaluationStrategy.SEQUENTIAL,
-        NetworkingStrategy.SCAPI, PreprocessingStrategy.DUMMY, 2);
+        NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
   }
   
 }
