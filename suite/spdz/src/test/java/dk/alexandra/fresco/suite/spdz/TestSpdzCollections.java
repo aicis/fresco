@@ -37,8 +37,8 @@ import dk.alexandra.fresco.lib.collections.io.CloseListTests;
 import dk.alexandra.fresco.lib.collections.io.CloseMatrixTests;
 import dk.alexandra.fresco.lib.collections.permute.PermuteRows;
 import dk.alexandra.fresco.lib.collections.permute.PermuteRowsTests;
+import dk.alexandra.fresco.lib.collections.relational.MiMCAggregationTests;
 import dk.alexandra.fresco.lib.collections.shuffle.ShuffleRowsTests;
-import dk.alexandra.fresco.lib.relational.MiMCAggregationTests;
 import dk.alexandra.fresco.suite.spdz.configuration.PreprocessingStrategy;
 
 public class TestSpdzCollections extends AbstractSpdzTest {

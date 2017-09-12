@@ -27,7 +27,7 @@ import org.junit.Test;
 
 import dk.alexandra.fresco.framework.network.NetworkingStrategy;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
-import dk.alexandra.fresco.lib.relational.MiMCAggregationTests;
+import dk.alexandra.fresco.lib.collections.relational.MiMCAggregationTests;
 import dk.alexandra.fresco.suite.spdz.configuration.PreprocessingStrategy;
 
 public class TestSpdzRelational extends AbstractSpdzTest {

@@ -21,7 +21,7 @@
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL, and Bouncy Castle.
  * Please see these projects for any further licensing issues.
  *******************************************************************************/
-package dk.alexandra.fresco.lib.relational;
+package dk.alexandra.fresco.lib.collections.relational;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
@@ -87,7 +87,6 @@ public class MiMCAggregationTests {
   }
 
   public static <ResourcePoolT extends ResourcePool> TestMiMCAggregationGeneric<ResourcePoolT> aggregate() {
-    // define input matrix
     MatrixTestUtils utils = new MatrixTestUtils();
     BigInteger[][] rawRows = {{BigInteger.valueOf(1), BigInteger.valueOf(7), BigInteger.valueOf(8)},
         {BigInteger.valueOf(1), BigInteger.valueOf(19), BigInteger.valueOf(20)},
@@ -104,8 +103,30 @@ public class MiMCAggregationTests {
     return new TestMiMCAggregationGeneric<>(input, expected);
   }
 
+  public static <ResourcePoolT extends ResourcePool> TestMiMCAggregationGeneric<ResourcePoolT> aggregateUniqueKeys() {
+    MatrixTestUtils utils = new MatrixTestUtils();
+    BigInteger[][] rawRows = {{BigInteger.valueOf(1), BigInteger.valueOf(7), BigInteger.valueOf(8)},
+        {BigInteger.valueOf(2), BigInteger.valueOf(19), BigInteger.valueOf(20)},
+        {BigInteger.valueOf(3), BigInteger.valueOf(10), BigInteger.valueOf(11)},
+        {BigInteger.valueOf(4), BigInteger.valueOf(4), BigInteger.valueOf(5)},
+        {BigInteger.valueOf(5), BigInteger.valueOf(13), BigInteger.valueOf(14)},
+        {BigInteger.valueOf(6), BigInteger.valueOf(1), BigInteger.valueOf(2)},
+        {BigInteger.valueOf(7), BigInteger.valueOf(22), BigInteger.valueOf(23)},
+        {BigInteger.valueOf(8), BigInteger.valueOf(16), BigInteger.valueOf(17)}};
+    Matrix<BigInteger> input = utils.getInputMatrix(rawRows);
+    BigInteger[][] expectedRows = {{BigInteger.valueOf(1), BigInteger.valueOf(7)},
+        {BigInteger.valueOf(2), BigInteger.valueOf(19)},
+        {BigInteger.valueOf(3), BigInteger.valueOf(10)},
+        {BigInteger.valueOf(4), BigInteger.valueOf(4)},
+        {BigInteger.valueOf(5), BigInteger.valueOf(13)},
+        {BigInteger.valueOf(6), BigInteger.valueOf(1)},
+        {BigInteger.valueOf(7), BigInteger.valueOf(22)},
+        {BigInteger.valueOf(8), BigInteger.valueOf(16)}};
+    Matrix<BigInteger> expected = utils.getInputMatrix(expectedRows);
+    return new TestMiMCAggregationGeneric<>(input, expected);
+  }
+
   public static <ResourcePoolT extends ResourcePool> TestMiMCAggregationGeneric<ResourcePoolT> aggregateEmpty() {
-    // define input matrix
     MatrixTestUtils utils = new MatrixTestUtils();
     Matrix<BigInteger> input = utils.getInputMatrix(0, 0);
     Matrix<BigInteger> expected = utils.getInputMatrix(0, 0);

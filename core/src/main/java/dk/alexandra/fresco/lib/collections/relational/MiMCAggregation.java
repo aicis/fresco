@@ -1,4 +1,4 @@
-package dk.alexandra.fresco.lib.relational;
+package dk.alexandra.fresco.lib.collections.relational;
 
 import java.math.BigInteger;
 import java.security.SecureRandom;

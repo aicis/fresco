@@ -16,11 +16,11 @@ import dk.alexandra.fresco.lib.collections.io.OpenMatrix;
 import dk.alexandra.fresco.lib.collections.io.OpenPair;
 import dk.alexandra.fresco.lib.collections.io.OpenRowPair;
 import dk.alexandra.fresco.lib.collections.permute.PermuteRows;
+import dk.alexandra.fresco.lib.collections.relational.MiMCAggregation;
 import dk.alexandra.fresco.lib.collections.shuffle.ShuffleRows;
 import dk.alexandra.fresco.lib.conditional.ConditionalSelectRow;
 import dk.alexandra.fresco.lib.conditional.ConditionalSwapNeighbors;
 import dk.alexandra.fresco.lib.conditional.ConditionalSwapRows;
-import dk.alexandra.fresco.lib.relational.MiMCAggregation;
 
 public class DefaultCollections implements Collections {
 

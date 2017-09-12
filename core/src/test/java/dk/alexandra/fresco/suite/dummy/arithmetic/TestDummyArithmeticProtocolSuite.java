@@ -14,6 +14,7 @@ import dk.alexandra.fresco.lib.collections.io.CloseListTests;
 import dk.alexandra.fresco.lib.collections.io.CloseMatrixTests;
 import dk.alexandra.fresco.lib.collections.permute.PermuteRows;
 import dk.alexandra.fresco.lib.collections.permute.PermuteRowsTests;
+import dk.alexandra.fresco.lib.collections.relational.MiMCAggregationTests;
 import dk.alexandra.fresco.lib.collections.shuffle.ShuffleRowsTests;
 import dk.alexandra.fresco.lib.conditional.ConditionalSelectTests;
 import dk.alexandra.fresco.lib.conditional.ConditionalSwapNeighborsTests;
@@ -33,7 +34,6 @@ import dk.alexandra.fresco.lib.math.integer.min.MinTests;
 import dk.alexandra.fresco.lib.math.integer.sqrt.SqrtTests;
 import dk.alexandra.fresco.lib.math.integer.stat.StatisticsTests;
 import dk.alexandra.fresco.lib.math.polynomial.PolynomialTests;
-import dk.alexandra.fresco.lib.relational.MiMCAggregationTests;
 import dk.alexandra.fresco.lib.statistics.CreditRaterTest;
 import dk.alexandra.fresco.lib.statistics.DEASolver.AnalysisType;
 import dk.alexandra.fresco.lib.statistics.DEASolverTests.RandomDataDeaTest;
@@ -332,6 +332,12 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
   @Test
   public void test_MiMC_aggregate_two() throws Exception {
     runTest(MiMCAggregationTests.aggregate(), EvaluationStrategy.SEQUENTIAL,
+        NetworkingStrategy.KRYONET, 2);
+  }
+  
+  @Test
+  public void test_MiMC_aggregate_unique_keys_two() throws Exception {
+    runTest(MiMCAggregationTests.aggregateUniqueKeys(), EvaluationStrategy.SEQUENTIAL,
         NetworkingStrategy.KRYONET, 2);
   }
 
