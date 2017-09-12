@@ -28,7 +28,6 @@ import static org.junit.Assert.assertThat;
 
 import java.math.BigInteger;
 import java.util.Collections;
-import java.util.Random;
 
 import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.DRes;
@@ -47,8 +46,6 @@ public class MiMCAggregationTests {
   /**
    * Performs a MiMCAggregation computation on a matrix of SInts.
    * 
-   * @author nv
-   *
    * @param <ResourcePoolT>
    */
   public static class TestMiMCAggregationGeneric<ResourcePoolT extends ResourcePool>
@@ -71,7 +68,7 @@ public class MiMCAggregationTests {
           Application<Matrix<BigInteger>, ProtocolBuilderNumeric> testApplication = root -> {
             DRes<Matrix<DRes<SInt>>> closed = root.collections().closeMatrix(input, 1);
             DRes<Matrix<DRes<SInt>>> aggregated =
-                root.collections().leakyAggregateSum(closed, 0, 1, new Random(42));
+                root.collections().leakyAggregateSum(closed, 0, 1);
             DRes<Matrix<DRes<BigInteger>>> opened = root.collections().openMatrix(aggregated);
             return () -> new MatrixUtils().unwrapMatrix(opened);
           };

@@ -2,7 +2,6 @@ package dk.alexandra.fresco.framework.builder.numeric;
 
 import java.math.BigInteger;
 import java.util.List;
-import java.util.Random;
 
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.ComputationDirectory;
@@ -34,7 +33,7 @@ public interface Collections extends ComputationDirectory {
 
   /**
    * Closes list of input values.
-   * 
+   * <br>
    * To be called by party providing input.
    * 
    * @param openList
@@ -45,7 +44,7 @@ public interface Collections extends ComputationDirectory {
 
   /**
    * Closes list of input values.
-   * 
+   * <br>
    * To be called by parties not providing input.
    * 
    * @param numberOfInputs
@@ -56,7 +55,7 @@ public interface Collections extends ComputationDirectory {
 
   /**
    * Opens list of secret values.
-   * 
+   * <br>
    * @param closedList
    * @return
    */
@@ -64,7 +63,7 @@ public interface Collections extends ComputationDirectory {
 
   /**
    * Closes matrix of input values.
-   * 
+   * <br>
    * To be called by party providing input.
    * 
    * @param openMatrix
@@ -75,7 +74,7 @@ public interface Collections extends ComputationDirectory {
 
   /**
    * Closes matrix of input values.
-   * 
+   * <br>
    * To be called by parties not providing input.
    * 
    * @param h height of matrix
@@ -87,7 +86,7 @@ public interface Collections extends ComputationDirectory {
 
   /**
    * Opens matrix of secret values.
-   * 
+   * <br>
    * @param closedMatrix
    * @return
    */
@@ -132,7 +131,7 @@ public interface Collections extends ComputationDirectory {
 
   /**
    * Permutes the rows of <code>values</code> according to <code>idxPerm</code>.
-   * 
+   * <br>
    * To be called by party choosing the permutation.
    * 
    * @param values
@@ -143,7 +142,7 @@ public interface Collections extends ComputationDirectory {
 
   /**
    * Permutes the rows of <code>values</code> according to <code>idxPerm</code>.
-   * 
+   * <br>
    * To be called by parties not choosing the permutation.
    * 
    * @param values
@@ -165,7 +164,7 @@ public interface Collections extends ComputationDirectory {
   /**
    * Performs a SQL-like group-by sum operation. Groups rows by column <code>groupColIdx</code> and
    * sums values in resulting groups in column <code>aggColIdx</code>.
-   * 
+   * <br>
    * NOTE: this particular implementation leaks equality of values in column
    * <code>groupColIdx</code> and the size of the result.
    * 
@@ -176,40 +175,5 @@ public interface Collections extends ComputationDirectory {
    */
   public DRes<Matrix<DRes<SInt>>> leakyAggregateSum(DRes<Matrix<DRes<SInt>>> values,
       int groupColIdx, int aggColIdx);
-
-  // Interfaces for testing only
-
-  /**
-   * Performs a SQL-like group-by sum operation. Groups rows by column <code>groupColIdx</code> and
-   * sums values in resulting groups in column <code>aggColIdx</code>.
-   * 
-   * Accepts any source of randomness.
-   * 
-   * NOTE: testing interface, not to be used in production.
-   * 
-   * NOTE: this particular implementation leaks equality of values in column
-   * <code>groupColIdx</code> and the size of the result.
-   * 
-   * @param values
-   * @param groupColIdx
-   * @param aggColIdx
-   * @param rand source of randomness
-   * @return
-   */
-  DRes<Matrix<DRes<SInt>>> leakyAggregateSum(DRes<Matrix<DRes<SInt>>> values, int groupColIdx,
-      int aggColIdx, Random rand);
-
-  /**
-   * Randomly permutes (shuffles) rows of <code>values</code>.
-   * 
-   * Accepts any source of randomness.
-   * 
-   * NOTE: testing interface, not to be used in production.
-   * 
-   * @param values
-   * @param rand source of randomness
-   * @return
-   */
-  DRes<Matrix<DRes<SInt>>> shuffle(DRes<Matrix<DRes<SInt>>> values, Random rand);
 
 }

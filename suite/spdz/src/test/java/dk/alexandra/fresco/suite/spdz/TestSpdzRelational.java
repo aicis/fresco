@@ -37,6 +37,12 @@ public class TestSpdzRelational extends AbstractSpdzTest {
     runTest(MiMCAggregationTests.aggregate(), EvaluationStrategy.SEQUENTIAL,
         NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
   }
+  
+  @Test
+  public void test_MiMC_aggregate_unique_keys_two() throws Exception {
+    runTest(MiMCAggregationTests.aggregateUniqueKeys(), EvaluationStrategy.SEQUENTIAL,
+        NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
+  }
 
   @Test
   public void test_MiMC_aggregate_three() throws Exception {

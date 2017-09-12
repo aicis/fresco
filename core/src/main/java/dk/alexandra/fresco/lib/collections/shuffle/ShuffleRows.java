@@ -17,7 +17,7 @@ public class ShuffleRows implements Computation<Matrix<DRes<SInt>>, ProtocolBuil
   final private DRes<Matrix<DRes<SInt>>> values;
   final private Random rand;
 
-  public ShuffleRows(DRes<Matrix<DRes<SInt>>> values, Random rand) {
+  ShuffleRows(DRes<Matrix<DRes<SInt>>> values, Random rand) {
     super();
     this.values = values;
     this.rand = rand;

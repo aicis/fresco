@@ -2,7 +2,6 @@ package dk.alexandra.fresco.framework.builder.numeric;
 
 import java.math.BigInteger;
 import java.util.List;
-import java.util.Random;
 
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.util.Pair;
@@ -102,11 +101,6 @@ public class DefaultCollections implements Collections {
   }
 
   @Override
-  public DRes<Matrix<DRes<SInt>>> shuffle(DRes<Matrix<DRes<SInt>>> values, Random rand) {
-    return builder.seq(new ShuffleRows(values, rand));
-  }
-
-  @Override
   public DRes<Matrix<DRes<SInt>>> shuffle(DRes<Matrix<DRes<SInt>>> values) {
     return builder.seq(new ShuffleRows(values));
   }
@@ -115,12 +109,6 @@ public class DefaultCollections implements Collections {
   public DRes<Matrix<DRes<SInt>>> leakyAggregateSum(DRes<Matrix<DRes<SInt>>> values,
       int groupColIdx, int aggColIdx) {
     return builder.seq(new MiMCAggregation(values, groupColIdx, aggColIdx));
-  }
-
-  @Override
-  public DRes<Matrix<DRes<SInt>>> leakyAggregateSum(DRes<Matrix<DRes<SInt>>> values,
-      int groupColIdx, int aggColIdx, Random rand) {
-    return builder.seq(new MiMCAggregation(values, groupColIdx, aggColIdx, rand));
   }
 
 }

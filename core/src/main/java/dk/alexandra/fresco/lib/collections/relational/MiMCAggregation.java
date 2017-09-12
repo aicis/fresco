@@ -1,13 +1,11 @@
 package dk.alexandra.fresco.lib.collections.relational;
 
 import java.math.BigInteger;
-import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Random;
 
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.Computation;
@@ -21,18 +19,12 @@ public class MiMCAggregation implements Computation<Matrix<DRes<SInt>>, Protocol
   final private DRes<Matrix<DRes<SInt>>> values;
   final private int groupColIdx;
   final private int aggColIdx;
-  final private Random rand;
 
   public MiMCAggregation(DRes<Matrix<DRes<SInt>>> values, int groupColIdx, int aggColIdx) {
-    this(values, groupColIdx, aggColIdx, new SecureRandom());
-  }
-
-  public MiMCAggregation(DRes<Matrix<DRes<SInt>>> values, int groupColIdx, int aggColIdx, Random rand) {
     super();
     this.values = values;
     this.groupColIdx = groupColIdx;
     this.aggColIdx = aggColIdx;
-    this.rand = rand;
   }
 
   private Matrix<DRes<SInt>> toMatrix(Map<BigInteger, DRes<SInt>> groupedByCipher,
@@ -50,7 +42,7 @@ public class MiMCAggregation implements Computation<Matrix<DRes<SInt>>, Protocol
   @Override
   public DRes<Matrix<DRes<SInt>>> buildComputation(ProtocolBuilderNumeric builder) {
     // shuffle input
-    DRes<Matrix<DRes<SInt>>> shuffled = builder.collections().shuffle(values, rand);
+    DRes<Matrix<DRes<SInt>>> shuffled = builder.collections().shuffle(values);
     // generate encryption key
     DRes<SInt> mimcKey = builder.numeric().randomElement();
     return builder.par(par -> {

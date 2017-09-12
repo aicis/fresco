@@ -71,8 +71,9 @@ public class ShuffleRowsTests {
         public void test() throws Exception {
           Application<Matrix<BigInteger>, ProtocolBuilderNumeric> testApplication = root -> {
             DRes<Matrix<DRes<SInt>>> closed = root.collections().closeMatrix(input, 1);
-            DRes<Matrix<DRes<SInt>>> shuffled = root.collections().shuffle(closed,
-                new Random(42 + root.getBasicNumericContext().getMyId()));
+            // use package-private constructor to fix randomness
+            DRes<Matrix<DRes<SInt>>> shuffled = root.seq(
+                new ShuffleRows(closed, new Random(42 + root.getBasicNumericContext().getMyId())));
             DRes<Matrix<DRes<BigInteger>>> opened = root.collections().openMatrix(shuffled);
             return () -> new MatrixUtils().unwrapMatrix(opened);
           };
