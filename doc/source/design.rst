@@ -35,14 +35,14 @@ that protocols can be requrested from the producer in small, manageble
 *batches*.
 
 A protocol suite acts as a *consumer* of protocols. It knows how to
-evaluate a small set of protocols. The :ref:`BGW <BGW>` suite, for
+evaluate a small set of protocols. The :ref:`SPDZ <SPDZ>` protocol suite, for
 example, knows how to evaluate gates that performs addition and
 multiplication over a finite field: We say that finite field
-multiplication and addition are *natively* supported by the BGW
+multiplication and addition are *natively* supported by the SPDZ
 suite. Any protocol producer that produces only these two kinds of
-gates is said to be *compatible* with the BGW suite.
+gates is said to be *compatible* with the SPDZ suite.
 
-FRESCO offers a *standard library* of tools that can convert a
+FRESCO offers a :ref:`standard library <STD_LIB>` of tools that can convert a
 protocol producer producing some kinds of protocols, e.g., comparison
 protocols and sorting protocols, into a producer of more basic
 protocols, such as multiplication and addition protocols. This allows
@@ -50,13 +50,6 @@ you to easily write high-level producers that produce complex
 protocols and then use the standard library to turn this into a
 producer of simpler, native gates that can be evaluated by one or more
 protocol suites.
-
-.. note :: The standard library is work in progress. It currently only
-  contains a few primitives such as generic integer comparison and
-  some cryptographic operations such as AES and SHA-256. We don't
-  think that we've found the best way to structure the library
-  yet. So, expect significant changes to the standard library in
-  future versions of FRESCO.
 
 The producer/consumer pattern offers great flexibility. It allows us
 to use different producer strategies. In FRESCO producers can
@@ -85,10 +78,9 @@ decouples applications from suites, but to also obtain decoupling with
 respect to the *types* we use the abstract factory
 pattern. Concretely, this means that FRESCO promotes a style where
 your application is *based on* some set of abstracts protocol
-factories. Instead of writing your application using, e.g., a BGW
+factories. Instead of writing your application using, e.g., a SPDZ
 protocol factory, you should write it such that it relies on an
-abstract factory for secure finite field operations or, say, a factory
-for set intersection protocols.
+abstract factory for secure arithmetic protocols. 
 
 Suppose that your application produces set intersection
 protocols. When you want to run your application, you can either use a
@@ -97,6 +89,15 @@ of FRESCO is that you can also run your application using a suite that
 supports only multiplication and addition over a finite field, by
 applying a generic set intersection protocol from the standard library
 that is itself only based on a basic arithmetic factory.
+
+We have in FRESCO taken this concept a bit further. We also introduced the
+concept of *builders*. A builder resembles the ``BigInteger`` class in style and
+use. Their methods work on either binary or arithmetic types and produces the
+result of a given function as the return type. This makes it possible to write
+really concise expressions which are easy to read. Examples can be found in any
+test within the framework or here in the documentation in the
+:ref:`Quickstart<Quickstart>` section. Such a builder is given to the
+application developer when implementing the FRESCO ``Application`` interface.
 
 
 Related Open Source Projects
@@ -117,8 +118,7 @@ are more or less related to FRESCO:
   intended for easy prototyping of many cryptographic protocols,
   including protocols for secure computing. Compared to SCAPI the FRESCO
   has more focus on reusing applications across different protocol
-  suites. FRESCO currently uses the networking layer of SCAPI, but we
-  encourage the use of SCAPI when building FRESCO protocol suites.
+  suites.
 
 If you think something is missing in the above list, send an email to
 fresco@alexandra.dk or send us a pull request with an update as

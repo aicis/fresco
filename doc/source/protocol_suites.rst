@@ -11,16 +11,14 @@ given suite in a real-world application.
 
 The following table gives a rough comparison of the protocol suites.
 
-========= =======  =========== =====================  ========
-Suite	  Parties   Security   Model of Computation   Reactive
-========= =======  =========== =====================  ========
-DUMMY	  1+	   none	       Boolean 		      yes
-BGW	  3+	   semi-honest Arithmetic 	      yes
-SPDZ	  2+	   malicious   Arithmetic 	      yes
-========= =======  =========== =====================  ========
-
-..
-  LR15	  2	   malicious   Boolean		      no
+================== =======  =========== =====================  ========
+Suite	           Parties  Security    Model of Computation   Reactive
+================== =======  =========== =====================  ========
+DUMMY_BOOL         1+	    none	Boolean  	       yes
+DUMMY_ARITHMETIC   1+	    none	Arithmetic 	       yes
+TinyTables         2	    semi-honest Boolean 	       yes
+SPDZ	           2+	    malicious   Arithmetic 	       yes
+================== =======  =========== =====================  ========
 
 Whether to choose a suite that supports arithmetic or Boolean circuits
 depends on your particular application. As a rule of thumb, if your
@@ -79,10 +77,10 @@ opened.
    [Gol04]_, [LH10]_, and [CDN15]_.
 
 
-.. _DUMMY:
+.. _DUMMY_BOOL:
 
-The Dummy Protocol Suite
-------------------------
+The Dummy Boolean Protocol Suite
+--------------------------------
 
 The dummy suite provides *no security* at all. It is only intended for
 testing and debugging. Contrary to other protocols it has the feature
@@ -99,36 +97,67 @@ an idea of how much *additional* overhead you introduce in the other
 suite, i.e., how much the extra security costs compared to the basic
 overhead.
 
+.. _DUMMY_ARITHMETIC:
 
-.. _BGW:
+The Dummy Arithmetic Protocol Suite
+-----------------------------------
 
-The BGW Protocol Suite
-----------------------
+Similar to the boolean version, this suite provides no security at all. It
+operates within a field of variable size to better simulate how other real
+arithmetic protocol suites would function. This catches e.g. overflow issues. As
+with the boolean version, this protocol suite is intended for testing and
+debugging purposes only. It can also be run by just a single party. The idea of
+using this protocol suite as a basis is just as valid as for the boolean
+version. 
 
-Ben-Or, Goldwasser, and Wigderson were some of the first to come up
-with a general secure computation protocol [BGW88]_. The protocol
-suite we call BGW is a variant of this that provides security against
-a semi-honest adversary.
+.. _TinyTables:
 
-The BGW suite is based on :math:`n`-out-of-:math:`t` Shamir sharings
-over a finite field [Sha79]_. The method for doing secure
-multiplications is due to a improvement proposed by Rabin shortly
-after [BGW88]_.
+The TinyTables protocol suite
+------------------------------
 
-The BGW suite offers :term:`information theoretic security` against a
-semi-honest adversary. BGW works for any finite field with :math:`n+1`
-elements or more, where :math:`n` is the number of parties. In
-particular, it is not suited for Boolean circuits. BGW has a
-configurable *threshold* parameter :math:`t` and can tolerate that up
-to :math:`t` of the players are corrupt. BGW is secure in the
-:term:`honest majority` setting which means that it must hold that
-:math:`t < n/2`. This, in turn, means that BGW must run with three or
-more players.
+The TinyTables protocol suite is based on [TINY]_. It uses a relatively simple
+technique for first preprocessing the circuit before the input is known. This
+creates what is called a tinyTable for each AND gate, hence the name. Online
+evaluation is then reduced to a lookup into such a table for each AND gate with
+minimal communication overhead. As with other boolean protocol suites,
+TinyTables utilizes free XOR meaning just local computation must be done to
+evaluate each XOR gate. The cost of this preprocessing model is that the
+application must be known in advance, and that the parties must be able to
+communicate during the preprocessing phase.
 
-The BGW suite requires a number of rounds equal to the depth of the
-circuit that is evaluated, and it is thus less suited for deep
-circuits and settings with high network latency than constant round
-protocols.
+The protocol suite supports only the two party paradigm, and is malicously
+secure in theory, but so far we implemented only the semi-honest version. 
+
+..
+  //.. _BGW:
+  
+  The BGW Protocol Suite
+  ----------------------
+  
+  Ben-Or, Goldwasser, and Wigderson were some of the first to come up
+  with a general secure computation protocol [BGW88]_. The protocol
+  suite we call BGW is a variant of this that provides security against
+  a semi-honest adversary.
+  
+  The BGW suite is based on :math:`n`-out-of-:math:`t` Shamir sharings
+  over a finite field [Sha79]_. The method for doing secure
+  multiplications is due to a improvement proposed by Rabin shortly
+  after [BGW88]_.
+  
+  The BGW suite offers :term:`information theoretic security` against a
+  semi-honest adversary. BGW works for any finite field with :math:`n+1`
+  elements or more, where :math:`n` is the number of parties. In
+  particular, it is not suited for Boolean circuits. BGW has a
+  configurable *threshold* parameter :math:`t` and can tolerate that up
+  to :math:`t` of the players are corrupt. BGW is secure in the
+  :term:`honest majority` setting which means that it must hold that
+  :math:`t < n/2`. This, in turn, means that BGW must run with three or
+  more players.
+  
+  The BGW suite requires a number of rounds equal to the depth of the
+  circuit that is evaluated, and it is thus less suited for deep
+  circuits and settings with high network latency than constant round
+  protocols.
 
 
 .. _SPDZ:
