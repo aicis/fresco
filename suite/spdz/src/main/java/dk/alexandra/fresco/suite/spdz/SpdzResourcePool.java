@@ -2,9 +2,11 @@ package dk.alexandra.fresco.suite.spdz;
 
 import dk.alexandra.fresco.framework.network.serializers.BigIntegerSerializer;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
+import dk.alexandra.fresco.suite.spdz.datatypes.SpdzOutputProtocol;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
 import java.math.BigInteger;
 import java.security.MessageDigest;
+import java.util.List;
 
 /**
  * The resource pool for Spdz. Represents the resources used for on invocation of the
@@ -45,12 +47,14 @@ public interface SpdzResourcePool extends ResourcePool {
   /**
    * Call to set the current state of the resource pool.
    *
-   * @param outputProtocolInBatch true to indicate current batch has an output protocol.
+   * @param p The output protocol to evaluate once the batch is done.
    */
-  void setOutputProtocolInBatch(boolean outputProtocolInBatch);
+  void addOutputProtocolToBatch(SpdzOutputProtocol<?> p);
+
+  List<SpdzOutputProtocol<?>> getOutputProtocolsInBatch();
 
   /**
-   * Is true if there was an output protocol.
+   * Is true if there was an output protocol in the batch.
    *
    * @return true if output
    */

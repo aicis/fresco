@@ -32,6 +32,8 @@ import dk.alexandra.fresco.framework.network.SCENetwork;
 import dk.alexandra.fresco.framework.network.serializers.BigIntegerSerializer;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
+import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
+import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzOutputProtocol;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
@@ -39,19 +41,28 @@ import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.util.List;
 
-public class SpdzOutputToAllProtocol extends SpdzOutputProtocol<BigInteger> {
+public class SpdzOutputSingleProtocol extends SpdzOutputProtocol<BigInteger> {
 
   private DRes<SInt> in;
   private BigInteger out;
+  private int target_player;
+  private SpdzInputMask mask;
 
-  public SpdzOutputToAllProtocol(DRes<SInt> in) {
+  public SpdzOutputSingleProtocol(DRes<SInt> in, int target_player) {
     this.in = in;
+    this.target_player = target_player;
+  }
+
+  @Override
+  public BigInteger out() {
+    return out;
   }
 
   @Override
   public EvaluationStatus evaluate(int round, SpdzResourcePool spdzResourcePool,
       SCENetwork network) {
 
+    int myId = spdzResourcePool.getMyId();
     SpdzStorage storage = spdzResourcePool.getStore();
     BigIntegerSerializer serializer = spdzResourcePool.getSerializer();
     switch (round) {
@@ -59,8 +70,11 @@ public class SpdzOutputToAllProtocol extends SpdzOutputProtocol<BigInteger> {
         spdzResourcePool.addOutputProtocolToBatch(this);
         return EvaluationStatus.IS_DONE;
       case 1:
-        SpdzSInt out = (SpdzSInt) in.out();
-        network.sendToAll(serializer.toBytes(out.value.getShare()));
+        this.mask = storage.getSupplier().getNextInputMask(target_player);
+        SpdzSInt closedValue = (SpdzSInt) this.in.out();
+        SpdzElement inMinusMask = closedValue.value.subtract(this.mask.getMask());
+        storage.addClosedValue(inMinusMask);
+        network.sendToAll(serializer.toBytes(inMinusMask.getShare()));
         network.expectInputFromAll();
         return EvaluationStatus.HAS_MORE_ROUNDS;
       case 2:
@@ -71,18 +85,14 @@ public class SpdzOutputToAllProtocol extends SpdzOutputProtocol<BigInteger> {
         }
         openedVal = openedVal.mod(spdzResourcePool.getModulus());
         storage.addOpenedValue(openedVal);
-        storage.addClosedValue(((SpdzSInt) in.out()).value);
-        BigInteger tmpOut = openedVal;
-        tmpOut = spdzResourcePool.convertRepresentation(tmpOut);
-        this.out = tmpOut;
+        if (target_player == myId) {
+          openedVal = openedVal.add(this.mask.getRealValue()).mod(spdzResourcePool.getModulus());
+          this.out = openedVal;
+        }
         return EvaluationStatus.IS_DONE;
       default:
         throw new MPCException("No more rounds to evaluate.");
     }
   }
 
-  @Override
-  public BigInteger out() {
-    return out;
-  }
 }
