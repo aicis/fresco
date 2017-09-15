@@ -97,7 +97,10 @@ result of a given function as the return type. This makes it possible to write
 really concise expressions which are easy to read. Examples can be found in any
 test within the framework or here in the documentation in the
 :ref:`Quickstart<Quickstart>` section. Such a builder is given to the
-application developer when implementing the FRESCO ``Application`` interface.
+application developer when implementing the FRESCO ``Application``
+interface. The builder currently comes in two variants: binary and
+arithmetic. However, you can extend these with your own functionality or even
+create your own builder if need be.
 
 
 Related Open Source Projects

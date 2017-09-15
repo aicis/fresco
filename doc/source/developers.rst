@@ -83,7 +83,11 @@ of the git repository.
 
 When writing a new piece of code, try to ensure 100% code coverage using unit
 tests. We use jacoco for this purpose, and a report will be generated after
-running the maven test target. 
+running the maven test target.
+
+Avoid creating warnings in the code. If e.g. for some *good reason* generics
+cannot be correctly parameterized, use ``@SuppressWarnings("rawtypes")`` to get
+rid of the warning.
 
 
 Building the Documentation
@@ -140,7 +144,7 @@ in the FRESCO API by making them *package private*.
 We have two classes of tests:
 
 * Unit tests. These should be fast and not rely on any external dependencies
-  such as a server already running. Unit tests should be run regularly by
+  such as a server already running. Unit tests should be run continously by
   developers. Also, it should ideally be possible to check out the code and just
   run ``mvn test`` with only meeting the requirements seen in the
   :ref:`install<install>` section.

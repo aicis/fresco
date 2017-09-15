@@ -32,7 +32,7 @@ The initial version, released 2015-11-30.
 0.2
 ---
 
-This is a planned future release where most of it is already present within the
+This is the next release in the pipeline. Most of it is already present within the
 development branch. We plan to include:
 
 * The :ref:`TinyTables<tinytables>` protocol suite as well as a :ref:`Dummy
@@ -45,4 +45,10 @@ development branch. We plan to include:
 * Rework of the entire framework to ease the writing and understanding of
   applications.
 
-* Great improvements to the test coverage
+* Great improvements to the test coverage.
+
+Future work/releases
+--------------------
+
+We will work towards a stable release 1.0. The framework will continuously be
+improved on, but no major changes are present in the current pipeline.

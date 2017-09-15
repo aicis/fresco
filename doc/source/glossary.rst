@@ -21,7 +21,7 @@ This section contains a description of some of the core concepts in FRESCO.
    composite protocol
 
       A *native* protocol is a protocol that is supported directly by a given
-      protocol suite. The BGW suite contains native protocols for addition and
+      protocol suite. The SPDZ suite contains native protocols for addition and
       multiplication, for example. A *composite* protocol is a protocol that is
       built from simpler protocols. For example, in the SPDZ suite you can
       easily obtain a composite protocol for comparison, or sorting.
