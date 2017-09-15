@@ -31,7 +31,7 @@ import java.math.BigInteger;
 
 public class SpdzElement implements Serializable{
 
-
+  private static final long serialVersionUID = 8828769687281856043L;
   private final BigInteger share;
   private final BigInteger mac;
   private final BigInteger mod;

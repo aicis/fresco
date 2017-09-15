@@ -18,6 +18,7 @@ public class SingleProtocolProducer<T> implements ProtocolProducer, DRes<T> {
     this.protocol = protocol;
   }
 
+  @SuppressWarnings({"rawtypes", "unchecked"})
   @Override
   public void getNextProtocols(ProtocolCollection protocolCollection) {
     evaluated = true;

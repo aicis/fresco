@@ -150,26 +150,30 @@ public class TestThreadRunner {
   }
 
 
-  public abstract static class TestThreadFactory {
+  public abstract static class TestThreadFactory<ResourcePoolT extends ResourcePool, Builder extends ProtocolBuilder> {
 
-    public abstract TestThread next();
+    public abstract TestThread<ResourcePoolT, Builder> next();
   }
 
-  public static void run(TestThreadFactory f, Map<Integer, TestThreadConfiguration> confs) {
+  public static <ResourcePoolT extends ResourcePool, Builder extends ProtocolBuilder> void run(
+      TestThreadFactory<ResourcePoolT, Builder> f,
+      Map<Integer, TestThreadConfiguration<ResourcePoolT, Builder>> confs) {
     int randSeed = 3457878;
     run(f, confs, randSeed);
   }
 
-  private static void run(TestThreadFactory f, Map<Integer, TestThreadConfiguration> confs,
+  private static <ResourcePoolT extends ResourcePool, Builder extends ProtocolBuilder> void run(
+      TestThreadFactory<ResourcePoolT, Builder> f,
+      Map<Integer, TestThreadConfiguration<ResourcePoolT, Builder>> confs,
       int randSeed) throws TestFrameworkException {
     // TODO: Rather use thread container from util.concurrent?
 
-    final Set<TestThread> threads = new HashSet<>();
+    final Set<TestThread<ResourcePoolT, Builder>> threads = new HashSet<>();
     final int n = confs.size();
 
     for (int i = 0; i < n; i++) {
-      TestThreadConfiguration<?, ?> c = confs.get(i + 1);
-      TestThread t = f.next();
+      TestThreadConfiguration<ResourcePoolT, Builder> c = confs.get(i + 1);
+      TestThread<ResourcePoolT, Builder> t = f.next();
       t.setConfiguration(c);
       threads.add(t);
     }
@@ -179,7 +183,7 @@ public class TestThreadRunner {
     }
 
     try {
-      for (TestThread t : threads) {
+      for (TestThread<ResourcePoolT, Builder> t : threads) {
         try {
           t.join(MAX_WAIT_FOR_THREAD);
         } catch (InterruptedException e) {

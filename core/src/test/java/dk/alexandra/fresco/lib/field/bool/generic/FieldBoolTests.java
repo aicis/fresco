@@ -40,7 +40,7 @@ import org.junit.Assert;
 public class FieldBoolTests {
 
   public static class TestXNorFromXorAndNot<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory {
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
 
     public TestXNorFromXorAndNot() {}
 
@@ -86,7 +86,7 @@ public class FieldBoolTests {
   }
 
   public static class TestXNorFromOpen<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory {
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
 
     public TestXNorFromOpen() {}
 
@@ -131,7 +131,7 @@ public class FieldBoolTests {
 
 
   public static class TestOrFromXorAnd<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory {
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
 
     public TestOrFromXorAnd() {}
 
@@ -177,7 +177,7 @@ public class FieldBoolTests {
   }
 
   public static class TestOrFromCopyConst<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory {
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
 
     public TestOrFromCopyConst() {}
 
@@ -222,7 +222,7 @@ public class FieldBoolTests {
 
 
   public static class TestNandFromAndAndNot<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory {
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
 
     public TestNandFromAndAndNot() {}
 
@@ -270,7 +270,7 @@ public class FieldBoolTests {
   }
 
   public static class TestNandFromOpen<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory {
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
 
     public TestNandFromOpen() {}
 
@@ -316,7 +316,7 @@ public class FieldBoolTests {
 
 
   public static class TestAndFromCopyConst<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory {
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
 
     public TestAndFromCopyConst() {}
 

@@ -36,25 +36,29 @@ public class TestSpdzMiMC extends AbstractSpdzTest {
 
 	@Test
 	public void test_mimc_same_enc() throws Exception {
-		runTest(new MiMCTests.TestMiMCEncSameEnc(), EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET,
+    runTest(new MiMCTests.TestMiMCEncSameEnc<>(), EvaluationStrategy.SEQUENTIAL,
+        NetworkingStrategy.KRYONET,
 				PreprocessingStrategy.DUMMY, 2);
 	}
 	
 	@Test
 	public void test_mimc_diff_enc() throws Exception {
-		runTest(new MiMCTests.TestMiMCDifferentPlainTexts(), EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET,
+    runTest(new MiMCTests.TestMiMCDifferentPlainTexts<>(), EvaluationStrategy.SEQUENTIAL,
+        NetworkingStrategy.KRYONET,
 				PreprocessingStrategy.DUMMY, 2);
 	}
 	
 	@Test
 	public void test_mimc_det_enc() throws Exception {
-		runTest(new MiMCTests.TestMiMCEncryptsDeterministically(), EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET,
+    runTest(new MiMCTests.TestMiMCEncryptsDeterministically<>(), EvaluationStrategy.SEQUENTIAL,
+        NetworkingStrategy.KRYONET,
 				PreprocessingStrategy.DUMMY, 2);
 	}
 
 	@Test
 	public void test_mimc_enc_dec() throws Exception {
-		runTest(new MiMCTests.TestMiMCEncDec(), EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET,
+    runTest(new MiMCTests.TestMiMCEncDec<>(), EvaluationStrategy.SEQUENTIAL,
+        NetworkingStrategy.KRYONET,
 				PreprocessingStrategy.DUMMY, 2);
 	}
 }

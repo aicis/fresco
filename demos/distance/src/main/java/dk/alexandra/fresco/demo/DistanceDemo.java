@@ -66,28 +66,25 @@ public class DistanceDemo extends DemoNumericApplication<BigInteger> {
       y2 = (myId == 2) ? numericIo.input(BigInteger.valueOf(myY), 2) : numericIo.input(null, 2);
       Pair<DRes<SInt>, DRes<SInt>> input1 = new Pair<>(x1, y1);
       Pair<DRes<SInt>, DRes<SInt>> input2 = new Pair<>(x2, y2);
-      Pair<
-          Pair<DRes<SInt>, DRes<SInt>>,
-          Pair<DRes<SInt>, DRes<SInt>>> inputs = new Pair<>(input1, input2);
+      Pair<Pair<DRes<SInt>, DRes<SInt>>, Pair<DRes<SInt>, DRes<SInt>>> inputs =
+          new Pair<>(input1, input2);
       return () -> inputs;
     }).pairInPar((seq, input) -> {
       Numeric numeric = seq.numeric();
-      DRes<SInt> dX =
-          numeric.sub(input.getFirst().getFirst(), input.getSecond().getFirst());
+      DRes<SInt> dX = numeric.sub(input.getFirst().getFirst(), input.getSecond().getFirst());
       return numeric.mult(dX, dX);
-    }, (seq, input) -> {
+    } , (seq, input) -> {
       Numeric numeric = seq.numeric();
-      DRes<SInt> dY =
-          numeric.sub(input.getFirst().getSecond(), input.getSecond().getSecond());
+      DRes<SInt> dY = numeric.sub(input.getFirst().getSecond(), input.getSecond().getSecond());
       return numeric.mult(dY, dY);
-    }).seq((seq, distances) -> seq.numeric().add(distances.getFirst(), distances.getSecond())
-    ).seq((seq, product) -> seq.numeric().open(product));
+    }).seq((seq, distances) -> seq.numeric().add(distances.getFirst(), distances.getSecond()))
+        .seq((seq, product) -> seq.numeric().open(product));
   }
 
   public static <ResourcePoolT extends ResourcePool> void main(String[] args) {
-    CmdLineUtil cmdUtil = new CmdLineUtil();
+    CmdLineUtil<ResourcePoolT, ProtocolBuilderNumeric> cmdUtil = new CmdLineUtil<>();
     NetworkConfiguration networkConfiguration = null;
-    ProtocolSuite<?, ?> psConf = null;
+    ProtocolSuite<ResourcePoolT, ProtocolBuilderNumeric> psConf = null;
     int x, y;
     x = y = 0;
     try {
@@ -119,13 +116,13 @@ public class DistanceDemo extends DemoNumericApplication<BigInteger> {
       System.exit(-1);
     }
     DistanceDemo distDemo = new DistanceDemo(networkConfiguration.getMyId(), x, y);
-    SecureComputationEngine<ResourcePoolT, ProtocolBuilderNumeric> sce = SCEFactory
-        .getSCEFromConfiguration(psConf, cmdUtil.getEvaluator());
+    SecureComputationEngine<ResourcePoolT, ProtocolBuilderNumeric> sce =
+        SCEFactory.getSCEFromConfiguration(psConf, cmdUtil.getEvaluator());
     try {
-      ResourcePoolT resourcePool = (ResourcePoolT)
-          ResourcePoolHelper
-              .createResourcePool(psConf, cmdUtil.getNetworkStrategy(), networkConfiguration);
+      ResourcePoolT resourcePool = (ResourcePoolT) ResourcePoolHelper.createResourcePool(psConf,
+          cmdUtil.getNetworkStrategy(), networkConfiguration);
       BigInteger bigInteger = sce.runApplication(distDemo, resourcePool);
+      resourcePool.getNetwork().close();
       double dist = Math.sqrt(bigInteger.doubleValue());
       System.out.println("Distance between party 1 and 2 is: " + dist);
     } catch (Exception e) {

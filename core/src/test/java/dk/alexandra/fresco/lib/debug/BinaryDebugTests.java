@@ -40,7 +40,7 @@ import org.junit.Assert;
 public class BinaryDebugTests {
 
   public static class TestBinaryOpenAndPrint<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory {
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
 
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderBinary> next() {

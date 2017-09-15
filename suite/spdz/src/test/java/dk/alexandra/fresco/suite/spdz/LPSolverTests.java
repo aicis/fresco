@@ -48,7 +48,7 @@ import org.junit.Assert;
 class LPSolverTests {
 
   public static class TestLPSolver<ResourcePoolT extends ResourcePool> extends
-      TestThreadFactory {
+ TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     private final PivotRule pivotRule;
 
@@ -57,7 +57,7 @@ class LPSolverTests {
     }
 
     @Override
-    public TestThread next() {
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         @Override
         public void test() throws Exception {

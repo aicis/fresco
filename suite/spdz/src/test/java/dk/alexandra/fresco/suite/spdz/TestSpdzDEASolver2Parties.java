@@ -47,28 +47,28 @@ public class TestSpdzDEASolver2Parties extends AbstractSpdzTest {
 
   @Test
   public void test_DEASolver_2_Sequential_batched_dummy_minimize_1() throws Exception {
-    runTest(new TestDeaFixed2(DEASolver.AnalysisType.INPUT_EFFICIENCY),
+    runTest(new TestDeaFixed2<>(DEASolver.AnalysisType.INPUT_EFFICIENCY),
         EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET,
         PreprocessingStrategy.DUMMY, 2);
   }
 
   @Test
   public void test_DEASolver_2_Sequential_batched_dummy_minimize_2() throws Exception {
-    runTest(new TestDeaFixed1(DEASolver.AnalysisType.INPUT_EFFICIENCY),
+    runTest(new TestDeaFixed1<>(DEASolver.AnalysisType.INPUT_EFFICIENCY),
         EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET,
         PreprocessingStrategy.DUMMY, 2);
   }
 
   @Test
   public void test_DEASolver_2_Sequential_batched_dummy_maximize_fixed_data_1() throws Exception {
-    runTest(new TestDeaFixed1(AnalysisType.OUTPUT_EFFICIENCY),
+    runTest(new TestDeaFixed1<>(AnalysisType.OUTPUT_EFFICIENCY),
         EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET,
         PreprocessingStrategy.DUMMY, 2);
   }
 
   @Test
   public void test_DEASolver_2_Sequential_batched_dummy_maximize_fixed_data_2() throws Exception {
-    runTest(new TestDeaFixed2(AnalysisType.OUTPUT_EFFICIENCY),
+    runTest(new TestDeaFixed2<>(AnalysisType.OUTPUT_EFFICIENCY),
         EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET,
         PreprocessingStrategy.DUMMY, 2);
   }
@@ -76,14 +76,14 @@ public class TestSpdzDEASolver2Parties extends AbstractSpdzTest {
 
   @Test
   public void test_DEASolver_2_Sequential_batched_dummy_maximize() throws Exception {
-    runTest(new RandomDataDeaTest(5, 1, 30, 3, DEASolver.AnalysisType.OUTPUT_EFFICIENCY),
-        EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET,
+    runTest(new RandomDataDeaTest<>(5, 1, 30, 3, DEASolver.AnalysisType.OUTPUT_EFFICIENCY),
+          EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET,
         PreprocessingStrategy.DUMMY, 2);
   }
 
   @Test
   public void test_DEASolver_2_Sequential_dummy() throws Exception {
-    runTest(new RandomDataDeaTest(2, 1, 5, 1, DEASolver.AnalysisType.OUTPUT_EFFICIENCY),
+    runTest(new RandomDataDeaTest<>(2, 1, 5, 1, DEASolver.AnalysisType.OUTPUT_EFFICIENCY),
         EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
   }
 
@@ -96,34 +96,32 @@ public class TestSpdzDEASolver2Parties extends AbstractSpdzTest {
   @Test
   public void test_DEASolver_2_Sequential_batched_streamed() throws Exception {
     int noOfThreads = 1;
-    InitializeStorage.cleanup();
+      InitializeStorage.cleanup();
     try {
       InitializeStorage.initStreamedStorage(new FilebasedStreamedStorageImpl(new InMemoryStorage()),
           2, noOfThreads, 20000, 500, 800000, 3000);
-      runTest(
-          new RandomDataDeaTest(4, 1, 10, 2, DEASolver.AnalysisType.OUTPUT_EFFICIENCY),
+      runTest(new RandomDataDeaTest<>(4, 1, 10, 2, DEASolver.AnalysisType.OUTPUT_EFFICIENCY),
           EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET,
           PreprocessingStrategy.STATIC, 2);
     } finally {
       InitializeStorage.cleanup();
     }
-  }
+    }
 
 
   @Test
   @Ignore
   public void test_DEASolver_2_SequentialBatched_streamed() throws Exception {
     int noOfThreads = 2;
-    InitializeStorage.cleanup();
+      InitializeStorage.cleanup();
     try {
       InitializeStorage.initStreamedStorage(new FilebasedStreamedStorageImpl(new InMemoryStorage()),
           2, noOfThreads, 20000, 500, 800000, 3000);
-      runTest(
-          new RandomDataDeaTest(4, 1, 10, 2, DEASolver.AnalysisType.OUTPUT_EFFICIENCY),
+      runTest(new RandomDataDeaTest<>(4, 1, 10, 2, DEASolver.AnalysisType.OUTPUT_EFFICIENCY),
           EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET,
           PreprocessingStrategy.STATIC, 2);
     } finally {
       InitializeStorage.cleanup();
     }
+    }
   }
-}

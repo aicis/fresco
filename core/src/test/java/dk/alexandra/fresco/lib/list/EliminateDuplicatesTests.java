@@ -17,8 +17,8 @@ import org.junit.Assert;
 
 public class EliminateDuplicatesTests {
 
-  public static class TestFindDuplicatesOne<ResourcePoolT extends ResourcePool> extends
-      TestThreadFactory {
+  public static class TestFindDuplicatesOne<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     private BigInteger zero = BigInteger.valueOf(0);
     private BigInteger one = BigInteger.valueOf(1);

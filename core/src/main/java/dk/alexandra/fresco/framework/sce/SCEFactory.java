@@ -44,9 +44,9 @@ public class SCEFactory {
       ResourcePoolT extends ResourcePool,
       Builder extends ProtocolBuilder
       >
-  SecureComputationEngine<ResourcePoolT, Builder> getSCEFromConfiguration(
+      SecureComputationEngine<ResourcePoolT, Builder> getSCEFromConfiguration(
       ProtocolSuite<ResourcePoolT, Builder> protocolSuite,
-      ProtocolEvaluator<ResourcePoolT> evaluator) {
+      ProtocolEvaluator<ResourcePoolT, Builder> evaluator) {
     return new SecureComputationEngineImpl<>(protocolSuite, evaluator);
   }
 }

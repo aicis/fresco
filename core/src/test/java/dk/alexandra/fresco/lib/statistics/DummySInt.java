@@ -2,7 +2,6 @@ package dk.alexandra.fresco.lib.statistics;
 
 import dk.alexandra.fresco.framework.value.SInt;
 
-@SuppressWarnings("serial")
 class DummySInt implements SInt {
 
   public DummySInt() {

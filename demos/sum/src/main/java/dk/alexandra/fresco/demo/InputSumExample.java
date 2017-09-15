@@ -42,7 +42,7 @@ public class InputSumExample {
     InputApplication inputApp;
 
     int myId = resourcePool.getMyId();
-    int[] inputs = new int[]{1, 2, 3, 7, 8, 12, 15, 17};
+    int[] inputs = new int[] {1, 2, 3, 7, 8, 12, 15, 17};
     if (myId == 1) {
       // I input
       inputApp = new InputApplication(inputs);
@@ -63,7 +63,7 @@ public class InputSumExample {
   }
 
   public static <ResourcePoolT extends ResourcePool> void main(String[] args) throws IOException {
-    CmdLineUtil util = new CmdLineUtil();
+    CmdLineUtil<ResourcePoolT, ProtocolBuilderNumeric> util = new CmdLineUtil<>();
     NetworkConfiguration networkConfiguration;
 
     util.parse(args);
@@ -73,11 +73,13 @@ public class InputSumExample {
         (ProtocolSuite<ResourcePoolT, ProtocolBuilderNumeric>) util.getProtocolSuite();
 
     SecureComputationEngine<ResourcePoolT, ProtocolBuilderNumeric> sce =
-        new SecureComputationEngineImpl<>(psConf, util.getEvaluator());
+        new SecureComputationEngineImpl<ResourcePoolT, ProtocolBuilderNumeric>(psConf,
+            util.getEvaluator());
 
-    ResourcePoolT resourcePool = ResourcePoolHelper.createResourcePool(
-        psConf, util.getNetworkStrategy(), networkConfiguration);
+    ResourcePoolT resourcePool = ResourcePoolHelper.createResourcePool(psConf,
+        util.getNetworkStrategy(), networkConfiguration);
     runApplication(sce, resourcePool);
+    resourcePool.getNetwork().close();
   }
 
 }

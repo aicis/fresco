@@ -68,9 +68,11 @@ public class SetIntersectionDemo {
     }
     Map<Integer, NetworkConfiguration> netConf =
         TestConfiguration.getNetworkConfigurations(noPlayers, ports);
-    Map<Integer, TestThreadConfiguration> conf = new HashMap<Integer, TestThreadConfiguration>();
+    Map<Integer, TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary>> conf =
+        new HashMap<>();
     for (int playerId : netConf.keySet()) {
-      TestThreadConfiguration ttc = new TestThreadConfiguration();
+      TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary> ttc =
+          new TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary>();
       ttc.netConf = netConf.get(playerId);
 
       // Protocol specific configuration
@@ -78,9 +80,10 @@ public class SetIntersectionDemo {
           new DummyBooleanProtocolSuite();
 
       // The rest is generic configuration as well
-      ProtocolEvaluator evaluator = new SequentialEvaluator();
-      ttc.sceConf =
-          new TestSCEConfiguration(suite, NetworkingStrategy.KRYONET, evaluator, ttc.netConf, true);
+      ProtocolEvaluator<ResourcePoolImpl, ProtocolBuilderBinary> evaluator =
+          new SequentialEvaluator<ResourcePoolImpl, ProtocolBuilderBinary>();
+      ttc.sceConf = new TestSCEConfiguration<ResourcePoolImpl, ProtocolBuilderBinary>(suite,
+          NetworkingStrategy.KRYONET, evaluator, ttc.netConf, true);
       conf.put(playerId, ttc);
     }
     String[] result = this.setIntersectionDemo(conf);
@@ -91,6 +94,7 @@ public class SetIntersectionDemo {
   /**
    * TinyTables requires a preprocessing phase as well as the actual computation phase.
    */
+  @SuppressWarnings("unchecked")
   @Category(IntegrationTest.class)
   @Test
   public void tinyTablesTest() throws Exception {
@@ -101,20 +105,23 @@ public class SetIntersectionDemo {
     }
     Map<Integer, NetworkConfiguration> netConf =
         TestConfiguration.getNetworkConfigurations(noPlayers, ports);
-    Map<Integer, TestThreadConfiguration> conf = new HashMap<Integer, TestThreadConfiguration>();
+    Map<Integer, TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary>> conf =
+        new HashMap<>();
     for (int playerId : netConf.keySet()) {
       TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary> ttc =
           new TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary>();
       ttc.netConf = netConf.get(playerId);
 
       // Protocol specific configuration + suite
-      ProtocolSuite suite =
-          getTinyTablesPreproProtocolSuite(9000 + ttc.netConf.getMyId(), playerId);
+      ProtocolSuite<ResourcePoolImpl, ProtocolBuilderBinary> suite =
+          (ProtocolSuite<ResourcePoolImpl, ProtocolBuilderBinary>) getTinyTablesPreproProtocolSuite(
+              9000 + ttc.netConf.getMyId(), playerId);
 
       // More generic configuration
-      ProtocolEvaluator evaluator = new SequentialEvaluator();
-      ttc.sceConf =
-          new TestSCEConfiguration(suite, NetworkingStrategy.KRYONET, evaluator, ttc.netConf, true);
+      ProtocolEvaluator<ResourcePoolImpl, ProtocolBuilderBinary> evaluator =
+          new SequentialEvaluator<ResourcePoolImpl, ProtocolBuilderBinary>();
+      ttc.sceConf = new TestSCEConfiguration<ResourcePoolImpl, ProtocolBuilderBinary>(suite,
+          NetworkingStrategy.KRYONET, evaluator, ttc.netConf, true);
       conf.put(playerId, ttc);
     }
 
@@ -124,17 +131,21 @@ public class SetIntersectionDemo {
     // Preprocessing is complete, now we configure a new instance of the
     // computation and run it
     netConf = TestConfiguration.getNetworkConfigurations(noPlayers, ports);
-    conf = new HashMap<Integer, TestThreadConfiguration>();
+    conf = new HashMap<>();
     for (int playerId : netConf.keySet()) {
-      TestThreadConfiguration ttc = new TestThreadConfiguration();
+      TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary> ttc =
+          new TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary>();
       ttc.netConf = netConf.get(playerId);
 
       // These 2 lines are protocol specific, the rest is generic configuration
-      ProtocolSuite suite = getTinyTablesProtocolSuite(ttc.netConf.getMyId());
+      ProtocolSuite<ResourcePoolImpl, ProtocolBuilderBinary> suite =
+          (ProtocolSuite<ResourcePoolImpl, ProtocolBuilderBinary>) getTinyTablesProtocolSuite(
+              ttc.netConf.getMyId());
 
-      ProtocolEvaluator evaluator = new SequentialEvaluator();
-      ttc.sceConf =
-          new TestSCEConfiguration(suite, NetworkingStrategy.KRYONET, evaluator, ttc.netConf, true);
+      ProtocolEvaluator<ResourcePoolImpl, ProtocolBuilderBinary> evaluator =
+          new SequentialEvaluator<ResourcePoolImpl, ProtocolBuilderBinary>();
+      ttc.sceConf = new TestSCEConfiguration<ResourcePoolImpl, ProtocolBuilderBinary>(suite,
+          NetworkingStrategy.KRYONET, evaluator, ttc.netConf, true);
       conf.put(playerId, ttc);
     }
 
@@ -171,43 +182,46 @@ public class SetIntersectionDemo {
   }
 
 
-  public String[] setIntersectionDemo(Map<Integer, TestThreadConfiguration> conf) throws Exception {
+  public String[] setIntersectionDemo(
+      Map<Integer, TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary>> conf)
+          throws Exception {
     String[] result = new String[8];
-    TestThreadFactory f = new TestThreadFactory() {
-      @Override
-      public TestThread<ResourcePoolImpl, ProtocolBuilderBinary> next() {
-        return new TestThread<ResourcePoolImpl, ProtocolBuilderBinary>() {
+    TestThreadFactory<ResourcePoolImpl, ProtocolBuilderBinary> f =
+        new TestThreadFactory<ResourcePoolImpl, ProtocolBuilderBinary>() {
           @Override
-          public void test() throws Exception {
-            Boolean[] key = null;
-            int[] inputList = null;
-            if (conf.netConf.getMyId() == 2) {
-              key = ByteArithmetic.toBoolean("00112233445566778899aabbccddeeff"); // 128-bit key
-              inputList = new int[] {2, 66, 112, 1123};
-            } else if (conf.netConf.getMyId() == 1) {
-              key = ByteArithmetic.toBoolean("000102030405060708090a0b0c0d0e0f"); // 128-bit key
-              inputList = new int[] {1, 3, 66, 1123};
-            }
+          public TestThread<ResourcePoolImpl, ProtocolBuilderBinary> next() {
+            return new TestThread<ResourcePoolImpl, ProtocolBuilderBinary>() {
+              @Override
+              public void test() throws Exception {
+                Boolean[] key = null;
+                int[] inputList = null;
+                if (conf.netConf.getMyId() == 2) {
+                  key = ByteArithmetic.toBoolean("00112233445566778899aabbccddeeff"); // 128-bit key
+                  inputList = new int[] {2, 66, 112, 1123};
+                } else if (conf.netConf.getMyId() == 1) {
+                  key = ByteArithmetic.toBoolean("000102030405060708090a0b0c0d0e0f"); // 128-bit key
+                  inputList = new int[] {1, 3, 66, 1123};
+                }
 
-            PrivateSetDemo app = new PrivateSetDemo(conf.netConf.getMyId(), key, inputList);
+                PrivateSetDemo app = new PrivateSetDemo(conf.netConf.getMyId(), key, inputList);
 
-            List<List<Boolean>> psiResult = secureComputationEngine.runApplication(app,
-                ResourcePoolCreator.createResourcePool(conf.sceConf));
-            System.out
-                .println("Result Dimentions: " + psiResult.size() + ", " + psiResult.get(0).size());
-            boolean[][] actualBoolean = new boolean[psiResult.size()][psiResult.get(0).size()];
+                List<List<Boolean>> psiResult = secureComputationEngine.runApplication(app,
+                    ResourcePoolCreator.createResourcePool(conf.sceConf));
+                System.out.println(
+                    "Result Dimentions: " + psiResult.size() + ", " + psiResult.get(0).size());
+                boolean[][] actualBoolean = new boolean[psiResult.size()][psiResult.get(0).size()];
 
-            for (int j = 0; j < psiResult.size(); j++) {
-              for (int i = 0; i < psiResult.get(0).size(); i++) {
-                actualBoolean[j][i] = psiResult.get(j).get(i);
+                for (int j = 0; j < psiResult.size(); j++) {
+                  for (int i = 0; i < psiResult.get(0).size(); i++) {
+                    actualBoolean[j][i] = psiResult.get(j).get(i);
+                  }
+                  String actual = ByteArithmetic.toHex(actualBoolean[j]);
+                  result[j] = actual;
+                }
               }
-              String actual = ByteArithmetic.toHex(actualBoolean[j]);
-              result[j] = actual;
-            }
+            };
           }
         };
-      }
-    };
     TestThreadRunner.run(f, conf);
     ResourcePoolHelper.shutdown();
     return result;

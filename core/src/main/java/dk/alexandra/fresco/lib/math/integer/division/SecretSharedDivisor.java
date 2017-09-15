@@ -121,7 +121,6 @@ public class SecretSharedDivisor
         DRes<Pair<SInt, SInt>> finalPair = iterationPair;
         iterationPair = seq.seq((innerSeq) -> {
           Pair<SInt, SInt> iteration = finalPair.out();
-          DRes<SInt> n = iteration::getFirst;
           DRes<SInt> d = iteration::getSecond;
           DRes<SInt> f = innerSeq.numeric().sub(two, d);
           return Pair.lazy(f, iteration);

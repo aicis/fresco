@@ -22,7 +22,7 @@ import org.junit.Assert;
 public class ArithmeticDebugTests {
 
   public static class TestArithmeticOpenAndPrint<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory {
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {

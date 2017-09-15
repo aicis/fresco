@@ -36,7 +36,8 @@ public class TestSpdzLPSolver3Parties extends AbstractSpdzTest {
 
 	@Test
 	public void test_LPSolver_3_Sequential() throws Exception {
-		runTest(new LPSolverTests.TestLPSolver(PivotRule.DANZIG), EvaluationStrategy.SEQUENTIAL_BATCHED,
+    runTest(new LPSolverTests.TestLPSolver<>(PivotRule.DANZIG),
+        EvaluationStrategy.SEQUENTIAL_BATCHED,
 				NetworkingStrategy.KRYONET,
 				PreprocessingStrategy.DUMMY, 3);
 	}

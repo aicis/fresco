@@ -99,7 +99,7 @@ public class AESDemo implements Application<List<Boolean>, ProtocolBuilderBinary
    * TestAESDemo and runs the TestAESDemo on the SCE.
    */
   public static void main(String[] args) {
-    CmdLineUtil util = new CmdLineUtil();
+    CmdLineUtil<ResourcePoolImpl, ProtocolBuilderBinary> util = new CmdLineUtil<>();
     Boolean[] input = null;
     try {
 

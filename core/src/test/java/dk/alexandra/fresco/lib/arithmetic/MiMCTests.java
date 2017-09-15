@@ -55,11 +55,11 @@ public class MiMCTests {
    * concrete implementations for this test will do its own set up and if the
    * modulus is not set correctly this test will fail (rather mysteriously).
    */
-  public static class TestMiMCEncryptsDeterministically<ResourcePoolT extends ResourcePool> extends
-      TestThreadFactory {
+  public static class TestMiMCEncryptsDeterministically<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     @Override
-    public TestThread next() {
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
 
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
 
@@ -90,8 +90,8 @@ public class MiMCTests {
     }
   }
 
-  public static class TestMiMCEncSameEnc<ResourcePoolT extends ResourcePool> extends
-      TestThreadFactory {
+  public static class TestMiMCEncSameEnc<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
@@ -114,8 +114,8 @@ public class MiMCTests {
                 return () -> new Pair<>(result1.out(), result2.out());
               };
 
-          Pair<BigInteger, BigInteger> result = secureComputationEngine
-              .runApplication(app, ResourcePoolCreator.createResourcePool(conf.sceConf));
+          Pair<BigInteger, BigInteger> result = secureComputationEngine.runApplication(app,
+              ResourcePoolCreator.createResourcePool(conf.sceConf));
 
           Assert.assertEquals(result.getFirst(), result.getSecond());
         }
@@ -123,8 +123,8 @@ public class MiMCTests {
     }
   }
 
-  public static class TestMiMCDifferentPlainTexts<ResourcePoolT extends ResourcePool> extends
-      TestThreadFactory {
+  public static class TestMiMCDifferentPlainTexts<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
@@ -148,8 +148,8 @@ public class MiMCTests {
                 return () -> new Pair<>(resultA.out(), resultB.out());
               };
 
-          Pair<BigInteger, BigInteger> result = secureComputationEngine
-              .runApplication(app, ResourcePoolCreator.createResourcePool(conf.sceConf));
+          Pair<BigInteger, BigInteger> result = secureComputationEngine.runApplication(app,
+              ResourcePoolCreator.createResourcePool(conf.sceConf));
 
           Assert.assertNotEquals(result.getFirst(), result.getSecond());
         }
@@ -157,8 +157,8 @@ public class MiMCTests {
     }
   }
 
-  public static class TestMiMCEncDec<ResourcePoolT extends ResourcePool> extends
-      TestThreadFactory {
+  public static class TestMiMCEncDec<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
@@ -179,49 +179,44 @@ public class MiMCTests {
                 return builder.numeric().open(decrypted);
               };
 
-          ResourcePoolT resourcePool =
-              ResourcePoolCreator.createResourcePool(conf.sceConf);
-          Future<BigInteger> listFuture = secureComputationEngine
-              .startApplication(app, resourcePool);
+          ResourcePoolT resourcePool = ResourcePoolCreator.createResourcePool(conf.sceConf);
+          Future<BigInteger> listFuture =
+              secureComputationEngine.startApplication(app, resourcePool);
           BigInteger result = listFuture.get(20, TimeUnit.MINUTES);
           Assert.assertEquals(x_big, result);
         }
       };
     }
   }
-  
-  public static class TestMiMCEncDecFixedRounds<ResourcePoolT extends ResourcePool> extends
-  TestThreadFactory {
 
-@Override
-public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
-  return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+  public static class TestMiMCEncDecFixedRounds<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     @Override
-    public void test() throws Exception {
-      BigInteger x_big = BigInteger.valueOf(10);
-      Application<BigInteger, ProtocolBuilderNumeric> app =
-          builder -> {
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+
+        @Override
+        public void test() throws Exception {
+          BigInteger x_big = BigInteger.valueOf(10);
+          Application<BigInteger, ProtocolBuilderNumeric> app = builder -> {
             Numeric intFactory = builder.numeric();
             builder.getBasicNumericContext();
             DRes<SInt> encryptionKey = intFactory.known(BigInteger.valueOf(527619));
             DRes<SInt> plainText = intFactory.known(x_big);
-            DRes<SInt> cipherText = builder
-                .seq(new MiMCEncryption(plainText, encryptionKey, 17));
-            DRes<SInt> decrypted = builder
-                .seq(new MiMCDecryption(cipherText, encryptionKey, 17));
+            DRes<SInt> cipherText = builder.seq(new MiMCEncryption(plainText, encryptionKey, 17));
+            DRes<SInt> decrypted = builder.seq(new MiMCDecryption(cipherText, encryptionKey, 17));
             return builder.numeric().open(decrypted);
           };
 
-      ResourcePoolT resourcePool =
-          ResourcePoolCreator.createResourcePool(conf.sceConf);
-      Future<BigInteger> listFuture = secureComputationEngine
-          .startApplication(app, resourcePool);
-      BigInteger result = listFuture.get(20, TimeUnit.MINUTES);
-      Assert.assertEquals(x_big, result);
+          ResourcePoolT resourcePool = ResourcePoolCreator.createResourcePool(conf.sceConf);
+          Future<BigInteger> listFuture =
+              secureComputationEngine.startApplication(app, resourcePool);
+          BigInteger result = listFuture.get(20, TimeUnit.MINUTES);
+          Assert.assertEquals(x_big, result);
+        }
+      };
     }
-  };
-}
-}
+  }
 
 }

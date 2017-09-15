@@ -53,10 +53,11 @@ import org.junit.Assert;
  */
 public class StatisticsTests {
 
-  public static class TestStatistics<ResourcePoolT extends ResourcePool> extends TestThreadFactory {
+  public static class TestStatistics<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     @Override
-    public TestThread next() {
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
       //TODO Should be split into different tests for mean, variance, covariance, covariancematrix
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         private final List<Integer> data1 = Arrays.asList(543, 520, 532, 497, 450, 432);
@@ -180,11 +181,11 @@ public class StatisticsTests {
   }
 
 
-  public static class TestStatisticsNoMean<ResourcePoolT extends ResourcePool> extends
-      TestThreadFactory {
+  public static class TestStatisticsNoMean<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     @Override
-    public TestThread next() {
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
 
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         private final List<Integer> data1 = Arrays.asList(543, 520, 532, 497, 450, 432);

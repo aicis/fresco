@@ -55,7 +55,7 @@ public class BlandEnteringVariable
     int updateHeight = updateMatrix.getHeight();
     int updateWidth = updateMatrix.getWidth();
     int tableauHeight = tableau.getC().getHeight() + 1;
-    int tableauWidth = tableau.getC().getWidth() + 1;
+    // int tableauWidth = tableau.getC().getWidth() + 1;
     return (updateHeight == updateWidth && updateHeight == tableauHeight);
         /*&& enteringIndex.length == tableauWidth - 1*/
   }

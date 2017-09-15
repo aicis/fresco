@@ -25,8 +25,7 @@ import java.util.Map;
 
 public class AggregationDemo<ResourcePoolT extends ResourcePool> {
 
-  public AggregationDemo() {
-  }
+  public AggregationDemo() {}
 
   /**
    * @return Generates mock input data.
@@ -55,12 +54,12 @@ public class AggregationDemo<ResourcePoolT extends ResourcePool> {
 
   /**
    * @return Uses deterministic encryption (in this case MiMC) for encrypt, under MPC, the values in
-   * the specified column, and opens the resulting cipher texts. The resulting OInts are appended to
-   * the end of each row.
+   *         the specified column, and opens the resulting cipher texts. The resulting OInts are
+   *         appended to the end of each row.
    *
-   * NOTE: This leaks the equality of the encrypted input values.
+   *         NOTE: This leaks the equality of the encrypted input values.
    *
-   * Example: ([k], [v]) -> ([k], [v], enc(k)) for columnIndex = 0
+   *         Example: ([k], [v]) -> ([k], [v], enc(k)) for columnIndex = 0
    */
   public List<RowWithCipher> encryptAndReveal(
       SecureComputationEngine<ResourcePoolT, ProtocolBuilderNumeric> sce,
@@ -71,27 +70,26 @@ public class AggregationDemo<ResourcePoolT extends ResourcePool> {
 
   /**
    * @return Takes in a secret-shared collection of rows (2d-array) and returns the secret-shared
-   * result of a sum aggregation of the values in the agg column grouped by the values in the key
-   * column.
+   *         result of a sum aggregation of the values in the agg column grouped by the values in
+   *         the key column.
    *
-   * This method invokes encryptAndReveal and the aggregate step.
+   *         This method invokes encryptAndReveal and the aggregate step.
    *
-   * Example: ([1], [2]), ([1], [3]), ([2], [4]) -> ([1], [5]), ([2], [4]) for keyColumn = 0 and
-   * aggColumn = 1
+   *         Example: ([1], [2]), ([1], [3]), ([2], [4]) -> ([1], [5]), ([2], [4]) for keyColumn = 0
+   *         and aggColumn = 1
    */
   public List<List<SInt>> aggregate(
       SecureComputationEngine<ResourcePoolT, ProtocolBuilderNumeric> sce, ResourcePoolT rp,
       List<List<SInt>> inputRows, int keyColumn, int aggColumn) throws IOException {
     // TODO: need to shuffle input rows and result
-    List<RowWithCipher> rowsWithOpenenedCiphers =
-        encryptAndReveal(sce, inputRows, keyColumn, rp);
+    List<RowWithCipher> rowsWithOpenenedCiphers = encryptAndReveal(sce, inputRows, keyColumn, rp);
     AggregateStep aggStep = new AggregateStep(rowsWithOpenenedCiphers, keyColumn, aggColumn);
     return sce.runApplication(aggStep, rp);
   }
 
   /**
    * @return Runs the input step which secret shares all int values in inputRows. Returns and SInt
-   * array containing the resulting shares.
+   *         array containing the resulting shares.
    */
   public List<List<SInt>> secretShare(
       SecureComputationEngine<ResourcePoolT, ProtocolBuilderNumeric> sce,
@@ -111,8 +109,7 @@ public class AggregationDemo<ResourcePoolT extends ResourcePool> {
   }
 
   public void runApplication(SecureComputationEngine<ResourcePoolT, ProtocolBuilderNumeric> sce,
-      ResourcePoolT rp)
-      throws IOException {
+      ResourcePoolT rp) throws IOException {
     int keyColumnIndex = 0;
     int aggColumnIndex = 1;
 
@@ -140,7 +137,8 @@ public class AggregationDemo<ResourcePoolT extends ResourcePool> {
     // My player ID
     int myPID = Integer.parseInt(args[0]);
 
-    SequentialEvaluator<SpdzResourcePool> sequentialEvaluator = new SequentialEvaluator<>();
+    SequentialEvaluator<SpdzResourcePool, ProtocolBuilderNumeric> sequentialEvaluator =
+        new SequentialEvaluator<>();
     sequentialEvaluator.setMaxBatchSize(4096);
 
     ProtocolSuite<SpdzResourcePool, ProtocolBuilderNumeric> suite =
@@ -152,8 +150,7 @@ public class AggregationDemo<ResourcePoolT extends ResourcePool> {
     // Create application we are going run
     AggregationDemo<SpdzResourcePool> app = new AggregationDemo<>();
 
-    SpdzResourcePool rp = ResourcePoolHelper.createResourcePool(suite,
-        NetworkingStrategy.KRYONET,
+    SpdzResourcePool rp = ResourcePoolHelper.createResourcePool(suite, NetworkingStrategy.KRYONET,
         getNetworkConfiguration(myPID));
     app.runApplication(sce, rp);
   }

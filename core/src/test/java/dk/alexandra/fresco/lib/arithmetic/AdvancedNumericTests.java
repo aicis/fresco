@@ -28,7 +28,6 @@ package dk.alexandra.fresco.lib.arithmetic;
 
 import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.DRes;
-import dk.alexandra.fresco.framework.TestThreadRunner;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
@@ -40,7 +39,8 @@ import org.junit.Assert;
 
 public class AdvancedNumericTests {
 
-  public static class TestDivision<ResourcePoolT extends ResourcePool> extends TestThreadFactory {
+  public static class TestDivision<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     private int numerator;
     private int denominator;
@@ -52,7 +52,7 @@ public class AdvancedNumericTests {
     }
 
     @Override
-    public TestThread next() {
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         @Override
         public void test() throws Exception {
@@ -91,8 +91,8 @@ public class AdvancedNumericTests {
     return actual;
   }
 
-  public static class TestDivisionWithKnownDenominator<ResourcePoolT extends ResourcePool> extends
-      TestThreadRunner.TestThreadFactory {
+  public static class TestDivisionWithKnownDenominator<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     private int numerator;
     private int denominator;
@@ -104,7 +104,7 @@ public class AdvancedNumericTests {
     }
 
     @Override
-    public TestThreadRunner.TestThread next() {
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         @Override
         public void test() throws Exception {
@@ -131,14 +131,14 @@ public class AdvancedNumericTests {
     }
   }
 
-  public static class TestModulus<ResourcePoolT extends ResourcePool> extends
-      TestThreadRunner.TestThreadFactory {
+  public static class TestModulus<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     static int numerator = 9;
     static int denominator = 4;
 
     @Override
-    public TestThreadRunner.TestThread next() {
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         @Override
         public void test() throws Exception {

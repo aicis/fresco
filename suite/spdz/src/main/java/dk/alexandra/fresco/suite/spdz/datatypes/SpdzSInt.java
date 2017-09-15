@@ -31,7 +31,7 @@ import java.io.Serializable;
 
 public class SpdzSInt implements SInt, Serializable {
 
-
+  private static final long serialVersionUID = -9048612329603301195L;
   public SpdzElement value;
 
   public SpdzSInt() {
