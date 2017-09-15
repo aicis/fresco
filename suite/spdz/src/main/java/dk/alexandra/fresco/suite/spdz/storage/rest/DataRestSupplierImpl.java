@@ -104,10 +104,7 @@ public class DataRestSupplierImpl implements DataSupplier{
 		this.inputs = new HashMap<>();
 		for(int i = 1; i <= noOfParties; i++) {
 			this.inputs.put(i, new ArrayBlockingQueue<>(inputAmount));
-		}
-		
-		//get mod for the util static class
-		BigInteger mod = this.getModulus();
+    }
 
 		//Start retriver threads
 		for(Type t : Type.values()) {

@@ -45,8 +45,7 @@ public abstract class AbstractDummyBooleanTest {
 
   protected void runTest(
       TestThreadRunner.TestThreadFactory<ResourcePoolImpl, ProtocolBuilderBinary> f,
-      EvaluationStrategy evalStrategy,
-      NetworkingStrategy network) throws Exception {
+      EvaluationStrategy evalStrategy, NetworkingStrategy network) throws Exception {
     // The dummy protocol suite has the nice property that it can be run by just one player.
     int noOfParties = 1;
     List<Integer> ports = new ArrayList<Integer>(noOfParties);
@@ -67,10 +66,10 @@ public abstract class AbstractDummyBooleanTest {
 
       boolean useSecureConnection = false; // No tests of secure connection here.
 
-      ProtocolEvaluator<ResourcePoolImpl> evaluator = EvaluationStrategy.fromEnum(evalStrategy);
+      ProtocolEvaluator<ResourcePoolImpl, ProtocolBuilderBinary> evaluator =
+          EvaluationStrategy.fromEnum(evalStrategy);
       ttc.sceConf = new TestSCEConfiguration<ResourcePoolImpl, ProtocolBuilderBinary>(ps, network,
-          evaluator, ttc.netConf,
-          useSecureConnection);
+          evaluator, ttc.netConf, useSecureConnection);
       conf.put(playerId, ttc);
     }
     TestThreadRunner.run(f, conf);

@@ -33,9 +33,9 @@ public class TestSpdzLPBuildingBlocks extends AbstractSpdzTest {
 
   @Test
   public void test_entering_variable_sequential() throws Exception {
-    runTest(new LPBuildingBlockTests.TestEnteringVariable(), EvaluationStrategy.SEQUENTIAL,
+    runTest(new LPBuildingBlockTests.TestEnteringVariable<>(), EvaluationStrategy.SEQUENTIAL,
         NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
-    runTest(new LPBuildingBlockTests.TestBlandEnteringVariable(), EvaluationStrategy.SEQUENTIAL,
+    runTest(new LPBuildingBlockTests.TestBlandEnteringVariable<>(), EvaluationStrategy.SEQUENTIAL,
         NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
   }
 

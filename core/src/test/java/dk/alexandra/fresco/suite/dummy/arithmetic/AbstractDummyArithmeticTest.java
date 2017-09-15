@@ -45,17 +45,17 @@ public abstract class AbstractDummyArithmeticTest {
 
   protected void runTest(
       TestThreadRunner.TestThreadFactory<DummyArithmeticResourcePool, ProtocolBuilderNumeric> f,
-      EvaluationStrategy evalStrategy,
-      NetworkingStrategy network, int noOfParties) throws Exception {
+      EvaluationStrategy evalStrategy, NetworkingStrategy network, int noOfParties)
+          throws Exception {
     BigInteger mod = new BigInteger(
         "6703903964971298549787012499123814115273848577471136527425966013026501536706464354255445443244279389455058889493431223951165286470575994074291745908195329");
     runTest(f, evalStrategy, network, noOfParties, mod);
   }
-  
+
   protected void runTest(
       TestThreadRunner.TestThreadFactory<DummyArithmeticResourcePool, ProtocolBuilderNumeric> f,
-      EvaluationStrategy evalStrategy,
-      NetworkingStrategy network, int noOfParties, BigInteger mod) throws Exception {
+      EvaluationStrategy evalStrategy, NetworkingStrategy network, int noOfParties, BigInteger mod)
+          throws Exception {
 
     List<Integer> ports = new ArrayList<Integer>(noOfParties);
     for (int i = 1; i <= noOfParties; i++) {
@@ -77,11 +77,10 @@ public abstract class AbstractDummyArithmeticTest {
       // connection
       // here.
 
-      ProtocolEvaluator<DummyArithmeticResourcePool> evaluator =
+      ProtocolEvaluator<DummyArithmeticResourcePool, ProtocolBuilderNumeric> evaluator =
           EvaluationStrategy.fromEnum(evalStrategy);
       ttc.sceConf = new TestSCEConfiguration<DummyArithmeticResourcePool, ProtocolBuilderNumeric>(
-          ps, network, evaluator, ttc.netConf,
-          useSecureConnection);
+          ps, network, evaluator, ttc.netConf, useSecureConnection);
       conf.put(playerId, ttc);
     }
     TestThreadRunner.run(f, conf);

@@ -61,56 +61,59 @@ public class TestAESDemo {
     }
     Map<Integer, NetworkConfiguration> netConf =
         TestConfiguration.getNetworkConfigurations(noPlayers, ports);
-    Map<Integer, TestThreadConfiguration> conf = new HashMap<Integer, TestThreadConfiguration>();
+    Map<Integer, TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary>> conf =
+        new HashMap<>();
     for (int playerId : netConf.keySet()) {
       TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary> ttc =
           new TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary>();
       ttc.netConf = netConf.get(playerId);
       ProtocolSuite<ResourcePoolImpl, ProtocolBuilderBinary> suite =
           new DummyBooleanProtocolSuite();
-      ProtocolEvaluator<ResourcePoolImpl> evaluator = new SequentialEvaluator<ResourcePoolImpl>();
+      ProtocolEvaluator<ResourcePoolImpl, ProtocolBuilderBinary> evaluator =
+          new SequentialEvaluator<ResourcePoolImpl, ProtocolBuilderBinary>();
       boolean useSecureConnection = false;
       ttc.sceConf = new TestSCEConfiguration<ResourcePoolImpl, ProtocolBuilderBinary>(suite,
           NetworkingStrategy.KRYONET, evaluator, ttc.netConf, useSecureConnection);
       conf.put(playerId, ttc);
     }
 
-    TestThreadFactory f = new TestThreadFactory() {
-      @Override
-      public TestThread<ResourcePoolImpl, ProtocolBuilderBinary> next() {
-        return new TestThread<ResourcePoolImpl, ProtocolBuilderBinary>() {
-
+    TestThreadFactory<ResourcePoolImpl, ProtocolBuilderBinary> f =
+        new TestThreadFactory<ResourcePoolImpl, ProtocolBuilderBinary>() {
           @Override
-          public void test() throws Exception {
+          public TestThread<ResourcePoolImpl, ProtocolBuilderBinary> next() {
+            return new TestThread<ResourcePoolImpl, ProtocolBuilderBinary>() {
 
-            Boolean[] input = null;
-            if (conf.netConf.getMyId() == 2) {
-              // 128-bit AES plaintext block
-              input = ByteArithmetic.toBoolean("00112233445566778899aabbccddeeff");
-            } else if (conf.netConf.getMyId() == 1) {
-              // 128-bit key
-              input = ByteArithmetic.toBoolean("000102030405060708090a0b0c0d0e0f");
-            }
+              @Override
+              public void test() throws Exception {
 
-            AESDemo app = new AESDemo(conf.netConf.getMyId(), input);
+                Boolean[] input = null;
+                if (conf.netConf.getMyId() == 2) {
+                  // 128-bit AES plaintext block
+                  input = ByteArithmetic.toBoolean("00112233445566778899aabbccddeeff");
+                } else if (conf.netConf.getMyId() == 1) {
+                  // 128-bit key
+                  input = ByteArithmetic.toBoolean("000102030405060708090a0b0c0d0e0f");
+                }
 
-            List<Boolean> aesResult = secureComputationEngine.runApplication(app,
-                ResourcePoolCreator.createResourcePool(conf.sceConf));
+                AESDemo app = new AESDemo(conf.netConf.getMyId(), input);
 
-            // Verify output state.
-            String expected = "69c4e0d86a7b0430d8cdb78070b4c55a"; // expected cipher
-            boolean[] actualBoolean = new boolean[aesResult.size()];
-            int i = 0;
-            for (Boolean b : aesResult) {
-              actualBoolean[i++] = b;
-            }
-            String actual = ByteArithmetic.toHex(actualBoolean);
-            Assert.assertEquals(expected, actual);
+                List<Boolean> aesResult = secureComputationEngine.runApplication(app,
+                    ResourcePoolCreator.createResourcePool(conf.sceConf));
 
+                // Verify output state.
+                String expected = "69c4e0d86a7b0430d8cdb78070b4c55a"; // expected cipher
+                boolean[] actualBoolean = new boolean[aesResult.size()];
+                int i = 0;
+                for (Boolean b : aesResult) {
+                  actualBoolean[i++] = b;
+                }
+                String actual = ByteArithmetic.toHex(actualBoolean);
+                Assert.assertEquals(expected, actual);
+
+              }
+            };
           }
         };
-      }
-    };
 
     TestThreadRunner.run(f, conf);
     ResourcePoolHelper.shutdown();

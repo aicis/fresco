@@ -41,7 +41,8 @@ public class SpdzMacCheckProtocol implements ProtocolProducer {
   }
 
   @Override
-  public void getNextProtocols(ProtocolCollection protocolCollection) {
+  public void getNextProtocols(
+      @SuppressWarnings("rawtypes") ProtocolCollection protocolCollection) {
     if (pp == null) {
       if (round == 0) {
         BigInteger s = new BigInteger(modulus.bitLength(), rand).mod(modulus);

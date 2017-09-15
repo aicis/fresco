@@ -664,7 +664,8 @@ public class FakeTripGen {
 			if (!f.exists()) {
 				f.createNewFile();
 			}
-			FileOutputStream fos = new FileOutputStream(f);
+            @SuppressWarnings("resource")
+            FileOutputStream fos = new FileOutputStream(f);
 			FileChannel fc = fos.getChannel();
 			channels.add(fc);
 		}
@@ -709,7 +710,8 @@ public class FakeTripGen {
 		List<FileChannel> channels = new LinkedList<FileChannel>();
 		for (int i = 0; i < numberOfParties; i++) {
 			File f = new File(bitsFilename + i);
-			FileOutputStream fos = new FileOutputStream(f);
+            @SuppressWarnings("resource")
+            FileOutputStream fos = new FileOutputStream(f);
 			FileChannel fc = fos.getChannel();
 			channels.add(fc);
 		}
@@ -735,6 +737,7 @@ public class FakeTripGen {
 			List<FileChannel> channels = new LinkedList<FileChannel>();
 			for (int i = 0; i < numberOfParties; i++) {
 				File f = new File(inputsFilename + i + '-' + j);
+                @SuppressWarnings("resource")
 				FileOutputStream fos = new FileOutputStream(f);
 				FileChannel fc = fos.getChannel();
 				channels.add(fc);

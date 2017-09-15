@@ -5,6 +5,7 @@ import dk.alexandra.fresco.framework.TestThreadRunner;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.TestConfiguration;
 import dk.alexandra.fresco.framework.network.NetworkingStrategy;
@@ -24,7 +25,8 @@ import org.junit.Test;
 
 public class TestAggregation {
 
-  private static void runTest(TestThreadFactory test, int n) {
+  private static void runTest(TestThreadFactory<SpdzResourcePool, ProtocolBuilderNumeric> test,
+      int n) {
     // Since SCAPI currently does not work with ports > 9999 we use fixed ports
     // here instead of relying on ephemeral ports which are often > 9999.
     List<Integer> ports = new ArrayList<Integer>(n);
@@ -33,13 +35,18 @@ public class TestAggregation {
     }
     Map<Integer, NetworkConfiguration> netConf =
         TestConfiguration.getNetworkConfigurations(n, ports);
-    Map<Integer, TestThreadConfiguration> conf = new HashMap<Integer, TestThreadConfiguration>();
+    Map<Integer, TestThreadConfiguration<SpdzResourcePool, ProtocolBuilderNumeric>> conf =
+        new HashMap<>();
     for (int i : netConf.keySet()) {
-      TestThreadConfiguration ttc = new TestThreadConfiguration();
+      TestThreadConfiguration<SpdzResourcePool, ProtocolBuilderNumeric> ttc =
+          new TestThreadConfiguration<>();
       ttc.netConf = netConf.get(i);
-      ProtocolSuite suite = new SpdzProtocolSuite(150, PreprocessingStrategy.DUMMY, null);
-      ttc.sceConf = new TestSCEConfiguration(suite, NetworkingStrategy.KRYONET,
-          new SequentialEvaluator(), netConf.get(i), false);
+      ProtocolSuite<SpdzResourcePool, ProtocolBuilderNumeric> suite =
+          new SpdzProtocolSuite(150, PreprocessingStrategy.DUMMY, null);
+      ttc.sceConf = new TestSCEConfiguration<SpdzResourcePool, ProtocolBuilderNumeric>(suite,
+          NetworkingStrategy.KRYONET,
+          new SequentialEvaluator<SpdzResourcePool, ProtocolBuilderNumeric>(), netConf.get(i),
+          false);
       conf.put(i, ttc);
     }
     TestThreadRunner.run(test, conf);
@@ -50,24 +57,24 @@ public class TestAggregation {
   @Ignore
   @Test
   public void testAggregation() throws Exception {
-    final TestThreadFactory f = new TestThreadFactory() {
-      @Override
-      public TestThread next() {
-        return new TestThread() {
+    final TestThreadFactory<SpdzResourcePool, ProtocolBuilderNumeric> f =
+        new TestThreadFactory<SpdzResourcePool, ProtocolBuilderNumeric>() {
           @Override
-          public void test() throws Exception {
-            // Create application we are going run
-            AggregationDemo<SpdzResourcePool> app = new AggregationDemo<>();
+          public TestThread<SpdzResourcePool, ProtocolBuilderNumeric> next() {
+            return new TestThread<SpdzResourcePool, ProtocolBuilderNumeric>() {
+              @Override
+              public void test() throws Exception {
+                // Create application we are going run
+                AggregationDemo<SpdzResourcePool> app = new AggregationDemo<>();
 
-            app.runApplication(secureComputationEngine,
-                (SpdzResourcePool) ResourcePoolCreator.createResourcePool(conf.sceConf)
-            );
+                app.runApplication(secureComputationEngine,
+                    (SpdzResourcePool) ResourcePoolCreator.createResourcePool(conf.sceConf));
+              }
+            };
           }
-        };
-      }
 
       ;
-    };
+        };
     runTest(f, 2);
   }
 }

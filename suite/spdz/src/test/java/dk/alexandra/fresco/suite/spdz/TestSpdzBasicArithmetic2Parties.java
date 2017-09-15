@@ -45,68 +45,70 @@ public class TestSpdzBasicArithmetic2Parties extends AbstractSpdzTest {
   @Ignore
   @Test
   public void test_Division_Sequential_Batched() throws Exception {
-    runTest(new TestEuclidianDivision(), EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET,
+    runTest(new TestEuclidianDivision<>(), EvaluationStrategy.SEQUENTIAL,
+        NetworkingStrategy.KRYONET,
         PreprocessingStrategy.DUMMY, 2);
   }
 
   @Test
   public void test_Secret_Shared_Division_Sequential_Batched() throws Exception {
-    runTest(new TestSecretSharedDivision(), EvaluationStrategy.SEQUENTIAL_BATCHED,
+    runTest(new TestSecretSharedDivision<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
         NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
   }
 
   @Test
   public void test_Log_Sequential_Batched() throws Exception {
-    runTest(new TestLogarithm(), EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET,
+    runTest(new TestLogarithm<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
+        NetworkingStrategy.KRYONET,
         PreprocessingStrategy.DUMMY, 2);
   }
 
   @Test
   public void test_Sqrt_Sequential_Batched() throws Exception {
-    runTest(new TestSquareRoot(), EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET,
+    runTest(new TestSquareRoot<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
+        NetworkingStrategy.KRYONET,
         PreprocessingStrategy.DUMMY, 2);
   }
 
-
   @Test
   public void test_Input_Sequential() throws Exception {
-    runTest(new BasicArithmeticTests.TestInput(), EvaluationStrategy.SEQUENTIAL,
+    runTest(new BasicArithmeticTests.TestInput<>(), EvaluationStrategy.SEQUENTIAL,
         NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
   }
 
   @Test
   public void test_OutputToTarget_Sequential() throws Exception {
-    runTest(new BasicArithmeticTests.TestOutputToSingleParty(), EvaluationStrategy.SEQUENTIAL,
+    runTest(new BasicArithmeticTests.TestOutputToSingleParty<>(), EvaluationStrategy.SEQUENTIAL,
         NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
   }
 
   @Test
   public void test_AddPublicValue_Sequential() throws Exception {
-    runTest(new BasicArithmeticTests.TestAddPublicValue(), EvaluationStrategy.SEQUENTIAL,
+    runTest(new BasicArithmeticTests.TestAddPublicValue<>(), EvaluationStrategy.SEQUENTIAL,
         NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
   }
 
   @Test
   public void test_MultAndAdd_Sequential() throws Exception {
-    runTest(new BasicArithmeticTests.TestSimpleMultAndAdd(), EvaluationStrategy.SEQUENTIAL,
+    runTest(new BasicArithmeticTests.TestSimpleMultAndAdd<>(), EvaluationStrategy.SEQUENTIAL,
         NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
   }
 
   @Test
   public void test_Sum_And_Output_Sequential() throws Exception {
-    runTest(new BasicArithmeticTests.TestSumAndMult(), EvaluationStrategy.SEQUENTIAL,
+    runTest(new BasicArithmeticTests.TestSumAndMult<>(), EvaluationStrategy.SEQUENTIAL,
         NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
   }
 
   @Test
   public void test_MinInfFrac_Sequential() throws Exception {
-    runTest(new BasicArithmeticTests.TestMinInfFrac(), EvaluationStrategy.SEQUENTIAL,
+    runTest(new BasicArithmeticTests.TestMinInfFrac<>(), EvaluationStrategy.SEQUENTIAL,
         NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
   }
 
   @Test
   public void test_MinInfFrac_SequentialBatched() throws Exception {
-    runTest(new BasicArithmeticTests.TestMinInfFrac(), EvaluationStrategy.SEQUENTIAL_BATCHED,
+    runTest(new BasicArithmeticTests.TestMinInfFrac<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
         NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
   }
 }
