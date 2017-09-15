@@ -1,8 +1,5 @@
 package dk.alexandra.fresco.framework.builder.numeric;
 
-import java.math.BigInteger;
-import java.util.List;
-
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.util.RowPairD;
@@ -18,8 +15,10 @@ import dk.alexandra.fresco.lib.collections.permute.PermuteRows;
 import dk.alexandra.fresco.lib.collections.relational.MiMCAggregation;
 import dk.alexandra.fresco.lib.collections.shuffle.ShuffleRows;
 import dk.alexandra.fresco.lib.conditional.ConditionalSelectRow;
-import dk.alexandra.fresco.lib.conditional.ConditionalSwapNeighbors;
-import dk.alexandra.fresco.lib.conditional.ConditionalSwapRows;
+import dk.alexandra.fresco.lib.conditional.SwapNeighborsIf;
+import dk.alexandra.fresco.lib.conditional.SwapRowsIf;
+import java.math.BigInteger;
+import java.util.List;
 
 public class DefaultCollections implements Collections {
 
@@ -78,15 +77,15 @@ public class DefaultCollections implements Collections {
   }
 
   @Override
-  public DRes<RowPairD<SInt, SInt>> condSwap(DRes<SInt> condition, DRes<List<DRes<SInt>>> left,
+  public DRes<RowPairD<SInt, SInt>> swapIf(DRes<SInt> condition, DRes<List<DRes<SInt>>> left,
       DRes<List<DRes<SInt>>> right) {
-    return builder.par(new ConditionalSwapRows(condition, left, right));
+    return builder.par(new SwapRowsIf(condition, left, right));
   }
 
   @Override
-  public DRes<Matrix<DRes<SInt>>> condSwapNeighbors(DRes<List<DRes<SInt>>> conditions,
+  public DRes<Matrix<DRes<SInt>>> swapNeighborsIf(DRes<List<DRes<SInt>>> conditions,
       DRes<Matrix<DRes<SInt>>> rows) {
-    return builder.par(new ConditionalSwapNeighbors(conditions, rows));
+    return builder.par(new SwapNeighborsIf(conditions, rows));
   }
 
   @Override

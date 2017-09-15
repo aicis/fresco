@@ -21,21 +21,22 @@
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL, and Bouncy Castle.
  * Please see these projects for any further licensing issues.
  *******************************************************************************/
-package dk.alexandra.fresco.lib.conditional;
 
-import java.util.ArrayList;
-import java.util.List;
+package dk.alexandra.fresco.lib.conditional;
 
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.ComputationParallel;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ConditionalSelectRow
     implements ComputationParallel<List<DRes<SInt>>, ProtocolBuilderNumeric> {
 
   private final DRes<SInt> condition;
-  private final DRes<List<DRes<SInt>>> left, right;
+  private final DRes<List<DRes<SInt>>> left;
+  private final DRes<List<DRes<SInt>>> right;
 
   public ConditionalSelectRow(DRes<SInt> selector, DRes<List<DRes<SInt>>> left,
       DRes<List<DRes<SInt>>> right) {

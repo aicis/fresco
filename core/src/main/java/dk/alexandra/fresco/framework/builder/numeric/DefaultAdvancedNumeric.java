@@ -4,7 +4,7 @@ import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.conditional.ConditionalSelect;
-import dk.alexandra.fresco.lib.conditional.ConditionalSwap;
+import dk.alexandra.fresco.lib.conditional.SwapIf;
 import dk.alexandra.fresco.lib.conversion.IntegerToBitsByShift;
 import dk.alexandra.fresco.lib.math.integer.ProductSIntList;
 import dk.alexandra.fresco.lib.math.integer.SumSIntList;
@@ -160,8 +160,8 @@ public class DefaultAdvancedNumeric implements AdvancedNumeric {
   }
 
   @Override
-  public DRes<Pair<DRes<SInt>, DRes<SInt>>> condSwap(DRes<SInt> condition, DRes<SInt> left,
+  public DRes<Pair<DRes<SInt>, DRes<SInt>>> swapIf(DRes<SInt> condition, DRes<SInt> left,
       DRes<SInt> right) {
-    return builder.par(new ConditionalSwap(condition, left, right));
+    return builder.par(new SwapIf(condition, left, right));
   }
 }

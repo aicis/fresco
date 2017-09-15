@@ -21,14 +21,11 @@
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL, and Bouncy Castle.
  * Please see these projects for any further licensing issues.
  *******************************************************************************/
+
 package dk.alexandra.fresco.lib.conditional;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
-
-import java.math.BigInteger;
-import java.util.List;
-import java.util.stream.Collectors;
 
 import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.DRes;
@@ -43,19 +40,12 @@ import dk.alexandra.fresco.framework.util.RowPairD;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.collections.Matrix;
 import dk.alexandra.fresco.lib.collections.MatrixTestUtils;
+import java.math.BigInteger;
+import java.util.List;
+import java.util.stream.Collectors;
 
-/**
- * Test class for the ConditionalSwapRowsTests protocol.
- */
 public class ConditionalSwapRowsTests {
 
-  /**
-   * Performs a ConditionalSwapRows computation on matrix.
-   * 
-   * @author nv
-   *
-   * @param <ResourcePoolT>
-   */
   private static class TestSwapGeneric<ResourcePoolT extends ResourcePool>
       extends TestThreadFactory {
 
@@ -85,7 +75,7 @@ public class ConditionalSwapRowsTests {
                 DRes<List<DRes<SInt>>> closedRight = collections.closeList(input.getSecond(), 1);
                 DRes<SInt> swapper = root.numeric().input(swapperOpen, 1);
                 DRes<RowPairD<SInt, SInt>> swapped =
-                    collections.condSwap(swapper, closedLeft, closedRight);
+                    collections.swapIf(swapper, closedLeft, closedRight);
                 DRes<RowPairD<BigInteger, BigInteger>> openSwapped =
                     collections.openRowPair(swapped);
                 return () -> {

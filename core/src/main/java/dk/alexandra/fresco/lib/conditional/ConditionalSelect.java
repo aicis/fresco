@@ -24,6 +24,7 @@
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
  *******************************************************************************/
+
 package dk.alexandra.fresco.lib.conditional;
 
 import dk.alexandra.fresco.framework.DRes;
@@ -34,17 +35,10 @@ import dk.alexandra.fresco.framework.value.SInt;
 
 public class ConditionalSelect implements Computation<SInt, ProtocolBuilderNumeric> {
 
-  private final DRes<SInt> left, right, condition;
+  private final DRes<SInt> left;
+  private final DRes<SInt> right;
+  private final DRes<SInt> condition;
 
-  /**
-   * Selects left or right based on condition. condition must be 0 or 1.
-   * 
-   * If condition is 0 right is selected, otherwise left.
-   * 
-   * @param selector
-   * @param left
-   * @param right
-   */
   public ConditionalSelect(DRes<SInt> selector, DRes<SInt> left, DRes<SInt> right) {
     this.condition = selector;
     this.left = left;

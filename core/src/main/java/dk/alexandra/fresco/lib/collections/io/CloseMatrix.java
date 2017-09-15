@@ -24,10 +24,6 @@
 
 package dk.alexandra.fresco.lib.collections.io;
 
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.List;
-
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.ComputationParallel;
 import dk.alexandra.fresco.framework.builder.numeric.Collections;
@@ -35,47 +31,33 @@ import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.collections.Matrix;
 import dk.alexandra.fresco.lib.collections.MatrixUtils;
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
 
-/**
- * Implements a close operation on a matrix of BigIntegers.
- */
 public class CloseMatrix
     implements ComputationParallel<Matrix<DRes<SInt>>, ProtocolBuilderNumeric> {
 
   private final Matrix<BigInteger> openMatrix;
   private final int inputParty;
-  private final int h;
-  private final int w;
+  private final int height;
+  private final int width;
   private final boolean isInputProvider;
 
-  /**
-   * Makes a new CloseMatrix.
-   * 
-   * Party providing input should call this.
-   *
-   * @param openMatrix the matrix to close.
-   */
   public CloseMatrix(Matrix<BigInteger> openMatrix, int inputParty) {
     super();
     this.openMatrix = openMatrix;
-    this.h = openMatrix.getHeight();
-    this.w = openMatrix.getWidth();
+    this.height = openMatrix.getHeight();
+    this.width = openMatrix.getWidth();
     this.inputParty = inputParty;
     this.isInputProvider = true;
   }
 
-  /**
-   * Makes a new CloseMatrix.
-   * 
-   * Party not providing input should call this.
-   *
-   * @param openMatrix the matrix to close.
-   */
   public CloseMatrix(int h, int w, int inputParty) {
     super();
     this.openMatrix = null;
-    this.h = h;
-    this.w = w;
+    this.height = h;
+    this.width = w;
     this.inputParty = inputParty;
     this.isInputProvider = false;
   }
@@ -91,8 +73,8 @@ public class CloseMatrix
 
   private List<DRes<List<DRes<SInt>>>> buildAsReceiver(Collections collections) {
     List<DRes<List<DRes<SInt>>>> closedRows = new ArrayList<>();
-    for (int r = 0; r < h; r++) {
-      DRes<List<DRes<SInt>>> closedRow = collections.closeList(w, inputParty);
+    for (int r = 0; r < height; r++) {
+      DRes<List<DRes<SInt>>> closedRow = collections.closeList(width, inputParty);
       closedRows.add(closedRow);
     }
     return closedRows;

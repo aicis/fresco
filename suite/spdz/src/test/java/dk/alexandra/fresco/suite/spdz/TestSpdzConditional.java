@@ -30,7 +30,7 @@ import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.lib.conditional.ConditionalSelectTests;
 import dk.alexandra.fresco.lib.conditional.ConditionalSwapNeighborsTests;
 import dk.alexandra.fresco.lib.conditional.ConditionalSwapRowsTests;
-import dk.alexandra.fresco.lib.conditional.ConditionalSwapTests;
+import dk.alexandra.fresco.lib.conditional.SwapIfTests;
 import dk.alexandra.fresco.suite.spdz.configuration.PreprocessingStrategy;
 
 public class TestSpdzConditional extends AbstractSpdzTest {
@@ -48,37 +48,37 @@ public class TestSpdzConditional extends AbstractSpdzTest {
   }
 
   @Test
-  public void test_conditional_swap_yes() throws Exception {
-    runTest(ConditionalSwapTests.testSwapYes(), EvaluationStrategy.SEQUENTIAL,
-        NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
+  public void test_swap_yes() throws Exception {
+    runTest(SwapIfTests.testSwapYes(), EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET,
+        PreprocessingStrategy.DUMMY, 2);
   }
 
   @Test
-  public void test_conditional_swap_no() throws Exception {
-    runTest(ConditionalSwapTests.testSwapNo(), EvaluationStrategy.SEQUENTIAL,
-        NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
+  public void test_swap_no() throws Exception {
+    runTest(SwapIfTests.testSwapNo(), EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET,
+        PreprocessingStrategy.DUMMY, 2);
   }
 
   @Test
-  public void test_conditional_swap_rows_yes() throws Exception {
+  public void test_swap_rows_yes() throws Exception {
     runTest(ConditionalSwapRowsTests.testSwapYes(), EvaluationStrategy.SEQUENTIAL,
         NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
   }
 
   @Test
-  public void test_conditional_swap_rows_no() throws Exception {
+  public void test_swap_rows_no() throws Exception {
     runTest(ConditionalSwapRowsTests.testSwapNo(), EvaluationStrategy.SEQUENTIAL,
         NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
   }
 
   @Test
-  public void test_conditional_swap_neighbors_yes() throws Exception {
+  public void test_swap_neighbors_yes() throws Exception {
     runTest(ConditionalSwapNeighborsTests.testSwapYes(), EvaluationStrategy.SEQUENTIAL,
         NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
   }
 
   @Test
-  public void test_conditional_swap_neighbors_no() throws Exception {
+  public void test_swap_neighbors_no() throws Exception {
     runTest(ConditionalSwapNeighborsTests.testSwapNo(), EvaluationStrategy.SEQUENTIAL,
         NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
   }

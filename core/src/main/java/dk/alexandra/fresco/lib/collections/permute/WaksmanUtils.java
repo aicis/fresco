@@ -1,23 +1,14 @@
 package dk.alexandra.fresco.lib.collections.permute;
 
+import dk.alexandra.fresco.lib.collections.Matrix;
 import java.math.BigInteger;
 import java.util.ArrayList;
-
-import dk.alexandra.fresco.lib.collections.Matrix;
 
 public class WaksmanUtils {
 
   // pre-condition: n is power of 2
   private int log2(int n) {
     return (int) (Math.log(n) / Math.log(2));
-  }
-
-  public int[] invert(int[] p) {
-    int[] inv = new int[p.length];
-    for (int i = 0; i < p.length; i++) {
-      inv[p[i]] = i;
-    }
-    return inv;
   }
 
   private int nextUnsetSwapperIdx(int[] swappers) {
@@ -49,6 +40,46 @@ public class WaksmanUtils {
     return isTopEl(elIdx) ? elIdx + 1 : elIdx - 1;
   }
 
+  private boolean hasNextUnsetSwapper(int[] rowO) {
+    return (nextUnsetSwapperIdx(rowO) != -1);
+  }
+
+  private int routeFromOutputToInput(int rowOElIdx, int[] invPerm, int[] topPerm, int[] rowI) {
+    return route(rowOElIdx, invPerm, topPerm, rowI, true);
+  }
+
+  private int routeFromInputToOutput(int rowIElIdx, int[] perm, int[] bottomPerm, int[] rowO) {
+    return route(rowIElIdx, perm, bottomPerm, rowO, false);
+  }
+
+  private int route(int fromElIdx, int[] perm, int[] subPerm, int[] swappers,
+      boolean outputToInput) {
+    // swapper associated with this element
+    int fromSwpIdx = swapperIdxOf(fromElIdx);
+
+    // the element we are routing to
+    int toElIdx = perm[fromElIdx];
+
+    // swapper of element we are routing to
+    int toSwpIdx = swapperIdxOf(toElIdx);
+
+    // set the swappers
+    if (outputToInput) {
+      // going from output to input means that we route through top permutation
+      swappers[toSwpIdx] = isTopEl(toElIdx) ? 0 : 1;
+      // update sub-permutation
+      subPerm[toSwpIdx] = fromSwpIdx;
+    } else {
+      // going from input to output means that we route through bottom permutation
+      swappers[toSwpIdx] = isTopEl(toElIdx) ? 1 : 0;
+      // update sub-permutation
+      subPerm[fromSwpIdx] = toSwpIdx;
+    }
+
+    // get neighbor element of target element
+    return neighElIdxOf(toElIdx);
+  }
+
   private void setControlBits(int[] perm, int[][] controlBits, int rowIdx, int colIdx) {
     int n = perm.length;
 
@@ -59,11 +90,11 @@ public class WaksmanUtils {
       return;
     }
 
-    int[] I = new int[n / 2];
-    int[] O = new int[n / 2];
-    for (int j = 0; j < O.length; j++) {
-      I[j] = -1;
-      O[j] = -1;
+    int[] rowI = new int[n / 2];
+    int[] rowO = new int[n / 2];
+    for (int j = 0; j < rowO.length; j++) {
+      rowI[j] = -1;
+      rowO[j] = -1;
     }
 
     int[] topPerm = new int[n / 2];
@@ -71,99 +102,36 @@ public class WaksmanUtils {
 
     int[] permInv = invert(perm);
 
-    while (true) {
-
+    // loop until we have set all swappers at this level of the network
+    while (hasNextUnsetSwapper(rowO)) {
       // find next O swapper that doesn't have control bit set
-      int unsetOSwapperIdx = nextUnsetSwapperIdx(O);
-      // if there is no such swapper, we have set all I and O swappers
-      // at this level of the network and can stop
-      if (unsetOSwapperIdx == -1) {
-        break;
-      }
+      int rowOSwIdx = nextUnsetSwapperIdx(rowO);
+      // route through bottom
+      rowO[rowOSwIdx] = 0;
 
-      int OSwIdx = unsetOSwapperIdx;
-      O[OSwIdx] = 0;
+      int firstOElIdx = topElIndexOf(rowOSwIdx);
+      int rowOElIdx = firstOElIdx;
 
-      int firstOElIdx = topElIndexOf(OSwIdx);
-      int OElIdx = firstOElIdx;
+      // route from output to input and back again
+      int rowIElIdx = routeFromOutputToInput(rowOElIdx, permInv, topPerm, rowI);
+      rowOElIdx = routeFromInputToOutput(rowIElIdx, perm, bottomPerm, rowO);
 
-      while (true) {
-
-        /*
-         * we will "route" from the current output element to the input element that maps to it in
-         * the given permutation via the top permutation.
-         */
-
-        // look up which input element maps to this output element in
-        // the permutation
-        int IElIdx = permInv[OElIdx];
-
-        // get the swapper of the input element
-        int ISwIdx = swapperIdxOf(IElIdx);
-
-        // set top sub-permutation for the selected I and O swappers
-        topPerm[ISwIdx] = OSwIdx;
-
-        /*
-         * we are routing through the top permutation and by convention all top elements must go to
-         * the top permutation and all bottom elements must go to bottom permutation. if our input
-         * element is the bottom element we must therefore set the input swapper to "swap"
-         */
-        if (isTopEl(IElIdx)) {
-          I[ISwIdx] = 0;
-        } else {
-          I[ISwIdx] = 1;
-        }
-
-        /*
-         * now that we have set an I swapper, we can take the other input element associated with
-         * this swapper, find which output element it maps to in our permutation and set its
-         * corresponding O swapper by "routing" to it through the bottom permutation
-         */
-        IElIdx = neighElIdxOf(IElIdx);
-
-        OElIdx = perm[IElIdx];
-
-        // look up swapper of output element
-        OSwIdx = swapperIdxOf(OElIdx);
-
-        // we are routing through the bottom permutation so if output
-        // element
-        // is top we need to set swapper to "swap"
-        if (isTopEl(OElIdx)) {
-          O[OSwIdx] = 1;
-        } else {
-          O[OSwIdx] = 0;
-        }
-
-        // update bottom permutation
-        bottomPerm[ISwIdx] = OSwIdx;
-
-        // get neighbor element of output element
-        OElIdx = neighElIdxOf(OElIdx);
-
-        /*
-         * note that we are guaranteed to terminate since we are picking the next element to visit
-         * based on a permutation so the only element we are ever going to revisit is the one we
-         * started with at which point we stop
-         */
-        if (OElIdx == firstOElIdx) {
-          break;
-        }
+      // loop until we're back at the start
+      while (!(rowOElIdx == firstOElIdx)) {
+        rowIElIdx = routeFromOutputToInput(rowOElIdx, permInv, topPerm, rowI);
+        rowOElIdx = routeFromInputToOutput(rowIElIdx, perm, bottomPerm, rowO);
       }
     }
 
-    /*
-     * we have set all input and output swappers at this level of the network so we update our
-     * swapper matrix and continue on setting the swappers for our two sub permutations
-     */
+    // we have set all input and output swappers at this level of the network so we update our
+    // swapper matrix and continue setting the swappers for our two sub permutations
     int numCols = controlBits[0].length;
-    for (int j = 0; j < I.length; j++) {
-      controlBits[rowIdx + j][colIdx] = I[j];
-      controlBits[rowIdx + j][numCols - 1 - colIdx] = O[j];
+    for (int j = 0; j < rowI.length; j++) {
+      controlBits[rowIdx + j][colIdx] = rowI[j];
+      controlBits[rowIdx + j][numCols - 1 - colIdx] = rowO[j];
     }
     setControlBits(topPerm, controlBits, rowIdx, colIdx + 1);
-    setControlBits(bottomPerm, controlBits, rowIdx + I.length / 2, colIdx + 1);
+    setControlBits(bottomPerm, controlBits, rowIdx + rowI.length / 2, colIdx + 1);
   }
 
   public int getNumRowsRequired(int n) {
@@ -184,6 +152,14 @@ public class WaksmanUtils {
 
   public boolean isPow2(int n) {
     return n >= 0 && ((n & (n - 1)) == 0);
+  }
+
+  public int[] invert(int[] p) {
+    int[] inv = new int[p.length];
+    for (int i = 0; i < p.length; i++) {
+      inv[p[i]] = i;
+    }
+    return inv;
   }
 
   public Matrix<BigInteger> setControlBits(int[] perm) throws UnsupportedOperationException {

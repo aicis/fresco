@@ -1,20 +1,19 @@
 package dk.alexandra.fresco.lib.collections.permute;
 
-import java.util.ArrayList;
-
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.Computation;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.collections.Matrix;
+import java.util.ArrayList;
 
 public class PermuteRows implements Computation<Matrix<DRes<SInt>>, ProtocolBuilderNumeric> {
 
-  final private DRes<Matrix<DRes<SInt>>> values;
-  final private int[] idxPerm;
-  final private int permProviderPid;
-  final private boolean isPermProvider;
-  final private WaksmanUtils wutils;
+  private final DRes<Matrix<DRes<SInt>>> values;
+  private final int[] idxPerm;
+  private final int permProviderPid;
+  private final boolean isPermProvider;
+  private final WaksmanUtils wutils;
   // not final as this will be set during protocol execution
   private Matrix<DRes<SInt>> cbits;
 
@@ -28,17 +27,6 @@ public class PermuteRows implements Computation<Matrix<DRes<SInt>>, ProtocolBuil
     this.permProviderPid = permProviderPid;
   }
 
-  /**
-   * Re-arranges the rows for the next round of swapper gates.
-   * 
-   * @param roundInputs
-   * @param numRows
-   * @param numCols
-   * @param numSwapperRows
-   * @param numSwapperCols
-   * @param colIdx
-   * @return
-   */
   private Matrix<DRes<SInt>> reroute(Matrix<DRes<SInt>> roundInputs, int numRows, int numCols,
       int numSwapperRows, int numSwapperCols, int colIdx) {
     // this will store the re-arranged result
@@ -113,22 +101,22 @@ public class PermuteRows implements Computation<Matrix<DRes<SInt>>, ProtocolBuil
       } else {
         return seq.collections().closeMatrix(numSwapperRows, numSwapperCols, permProviderPid);
       }
-    }).seq((seq, _cbits) -> {
+    }).seq((seq, bits) -> {
       // set control bits
-      cbits = _cbits;
+      cbits = bits;
       // initiate loop
       return new IterationState(0, values);
     }).whileLoop((state) -> state.round < numRounds - 1, (seq, state) -> {
       // apply swapper gates for this round
-      DRes<Matrix<DRes<SInt>>> swapped = seq.collections()
-          .condSwapNeighbors(() -> cbits.getColumn(state.round), state.intermediate);
+      DRes<Matrix<DRes<SInt>>> swapped =
+          seq.collections().swapNeighborsIf(() -> cbits.getColumn(state.round), state.intermediate);
       // re-arrange values for next round (based solely on waksman network topology)
       // this is NOT input-dependent!
       return new IterationState(state.round + 1, () -> reroute(swapped.out(), numRows, numCols,
           numSwapperRows, numSwapperCols, state.round));
     }).seq((seq, state) -> {
       // Apply last column of swapper gates
-      return seq.collections().condSwapNeighbors(() -> cbits.getColumn(state.round),
+      return seq.collections().swapNeighborsIf(() -> cbits.getColumn(state.round),
           state.intermediate);
     });
   }

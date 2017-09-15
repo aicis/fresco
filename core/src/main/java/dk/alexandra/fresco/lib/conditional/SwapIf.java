@@ -21,31 +21,38 @@
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL, and Bouncy Castle.
  * Please see these projects for any further licensing issues.
  *******************************************************************************/
-package dk.alexandra.fresco.lib.field.bool;
+
+package dk.alexandra.fresco.lib.conditional;
 
 import dk.alexandra.fresco.framework.DRes;
-import dk.alexandra.fresco.framework.builder.Computation;
-import dk.alexandra.fresco.framework.builder.binary.Binary;
-import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
-import dk.alexandra.fresco.framework.value.SBool;
+import dk.alexandra.fresco.framework.builder.ComputationParallel;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
+import dk.alexandra.fresco.framework.util.Pair;
+import dk.alexandra.fresco.framework.value.SInt;
 
-public class ConditionalSelect implements Computation<SBool, ProtocolBuilderBinary> {
+public class SwapIf
+    implements ComputationParallel<Pair<DRes<SInt>, DRes<SInt>>, ProtocolBuilderNumeric> {
 
-  private final DRes<SBool> a, b, selector;
+  private final DRes<SInt> left;
+  private final DRes<SInt> right;
+  private final DRes<SInt> swapper;
 
-  public ConditionalSelect(DRes<SBool> selector, DRes<SBool> a, DRes<SBool> b) {
-    this.a = a;
-    this.b = b;
-    this.selector = selector;
+  public SwapIf(DRes<SInt> swapper, DRes<SInt> left, DRes<SInt> right) {
+    this.swapper = swapper;
+    this.left = left;
+    this.right = right;
+  }
+
+  public SwapIf(DRes<SInt> swapper, Pair<DRes<SInt>, DRes<SInt>> pair) {
+    this.swapper = swapper;
+    this.left = pair.getFirst();
+    this.right = pair.getSecond();
   }
 
   @Override
-  public DRes<SBool> buildComputation(ProtocolBuilderBinary builder) {
-    Binary binary = builder.binary();
-
-    DRes<SBool> x = binary.xor(a, b);
-    DRes<SBool> y = binary.and(selector, x);
-    return binary.xor(y, b);
+  public DRes<Pair<DRes<SInt>, DRes<SInt>>> buildComputation(ProtocolBuilderNumeric builder) {
+    DRes<SInt> updatedA = builder.advancedNumeric().condSelect(swapper, right, left);
+    DRes<SInt> updatedB = builder.advancedNumeric().condSelect(swapper, left, right);
+    return () -> new Pair<>(updatedA, updatedB);
   }
-
 }

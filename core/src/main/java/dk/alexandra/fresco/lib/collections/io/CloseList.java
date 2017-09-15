@@ -24,20 +24,16 @@
 
 package dk.alexandra.fresco.lib.collections.io;
 
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
-
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.ComputationParallel;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
-/**
- * Implements a close operation on a list of BigIntegers.
- */
 public class CloseList implements ComputationParallel<List<DRes<SInt>>, ProtocolBuilderNumeric> {
 
   private final List<BigInteger> openInputs;
@@ -45,13 +41,6 @@ public class CloseList implements ComputationParallel<List<DRes<SInt>>, Protocol
   private final int inputParty;
   private final boolean isInputProvider;
 
-  /**
-   * Makes a new CloseList.
-   * 
-   * This should be called by the party providing input.
-   *
-   * @param openInputs the inputs to close.
-   */
   public CloseList(List<BigInteger> openInputs, int inputParty) {
     super();
     this.openInputs = openInputs;
@@ -60,13 +49,6 @@ public class CloseList implements ComputationParallel<List<DRes<SInt>>, Protocol
     this.isInputProvider = true;
   }
 
-  /**
-   * Makes a new CloseList.
-   * 
-   * This should be called by parties not providing input.
-   *
-   * @param openInputs the inputs to close.
-   */
   public CloseList(int numberOfInputs, int inputParty) {
     super();
     this.openInputs = new ArrayList<>();

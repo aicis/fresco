@@ -1,6 +1,5 @@
 package dk.alexandra.fresco.suite.dummy.arithmetic;
 
-
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.network.NetworkingStrategy;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
@@ -9,6 +8,8 @@ import dk.alexandra.fresco.lib.arithmetic.BasicArithmeticTests;
 import dk.alexandra.fresco.lib.arithmetic.ComparisonTests;
 import dk.alexandra.fresco.lib.arithmetic.MiMCTests;
 import dk.alexandra.fresco.lib.arithmetic.ParallelAndSequenceTests.TestSumAndProduct;
+import dk.alexandra.fresco.lib.arithmetic.SearchingTests;
+import dk.alexandra.fresco.lib.arithmetic.SortingTests;
 import dk.alexandra.fresco.lib.collections.Matrix;
 import dk.alexandra.fresco.lib.collections.io.CloseListTests;
 import dk.alexandra.fresco.lib.collections.io.CloseMatrixTests;
@@ -19,9 +20,7 @@ import dk.alexandra.fresco.lib.collections.shuffle.ShuffleRowsTests;
 import dk.alexandra.fresco.lib.conditional.ConditionalSelectTests;
 import dk.alexandra.fresco.lib.conditional.ConditionalSwapNeighborsTests;
 import dk.alexandra.fresco.lib.conditional.ConditionalSwapRowsTests;
-import dk.alexandra.fresco.lib.conditional.ConditionalSwapTests;
-import dk.alexandra.fresco.lib.arithmetic.SearchingTests;
-import dk.alexandra.fresco.lib.arithmetic.SortingTests;
+import dk.alexandra.fresco.lib.conditional.SwapIfTests;
 import dk.alexandra.fresco.lib.debug.ArithmeticDebugTests;
 import dk.alexandra.fresco.lib.list.EliminateDuplicatesTests;
 import dk.alexandra.fresco.lib.lp.LPBuildingBlockTests;
@@ -37,10 +36,8 @@ import dk.alexandra.fresco.lib.math.polynomial.PolynomialTests;
 import dk.alexandra.fresco.lib.statistics.CreditRaterTest;
 import dk.alexandra.fresco.lib.statistics.DEASolver.AnalysisType;
 import dk.alexandra.fresco.lib.statistics.DEASolverTests.RandomDataDeaTest;
-
 import java.math.BigInteger;
 import java.util.ArrayList;
-
 import org.junit.Test;
 
 
@@ -225,37 +222,36 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
   }
 
   @Test
-  public void test_conditional_swap_yes() throws Exception {
-    runTest(ConditionalSwapTests.testSwapYes(), EvaluationStrategy.SEQUENTIAL,
-        NetworkingStrategy.KRYONET, 1);
+  public void test_swap_yes() throws Exception {
+    runTest(SwapIfTests.testSwapYes(), EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET,
+        1);
   }
 
   @Test
-  public void test_conditional_swap_no() throws Exception {
-    runTest(ConditionalSwapTests.testSwapNo(), EvaluationStrategy.SEQUENTIAL,
-        NetworkingStrategy.KRYONET, 1);
+  public void test_swap_no() throws Exception {
+    runTest(SwapIfTests.testSwapNo(), EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET, 1);
   }
 
   @Test
-  public void test_conditional_swap_rows_yes() throws Exception {
+  public void test_swap_rows_yes() throws Exception {
     runTest(ConditionalSwapRowsTests.testSwapYes(), EvaluationStrategy.SEQUENTIAL,
         NetworkingStrategy.KRYONET, 1);
   }
 
   @Test
-  public void test_conditional_swap_rows_no() throws Exception {
+  public void test_swap_rows_no() throws Exception {
     runTest(ConditionalSwapRowsTests.testSwapNo(), EvaluationStrategy.SEQUENTIAL,
         NetworkingStrategy.KRYONET, 1);
   }
 
   @Test
-  public void test_conditional_swap_neighbors_yes() throws Exception {
+  public void test_swap_neighbors_yes() throws Exception {
     runTest(ConditionalSwapNeighborsTests.testSwapYes(), EvaluationStrategy.SEQUENTIAL,
         NetworkingStrategy.KRYONET, 1);
   }
 
   @Test
-  public void test_conditional_swap_neighbors_no() throws Exception {
+  public void test_swap_neighbors_no() throws Exception {
     runTest(ConditionalSwapNeighborsTests.testSwapNo(), EvaluationStrategy.SEQUENTIAL,
         NetworkingStrategy.KRYONET, 1);
   }
@@ -334,7 +330,7 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
     runTest(MiMCAggregationTests.aggregate(), EvaluationStrategy.SEQUENTIAL,
         NetworkingStrategy.KRYONET, 2);
   }
-  
+
   @Test
   public void test_MiMC_aggregate_unique_keys_two() throws Exception {
     runTest(MiMCAggregationTests.aggregateUniqueKeys(), EvaluationStrategy.SEQUENTIAL,

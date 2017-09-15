@@ -24,29 +24,20 @@
 
 package dk.alexandra.fresco.lib.collections.io;
 
-import java.math.BigInteger;
-import java.util.List;
-import java.util.stream.Collectors;
-
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.ComputationParallel;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
+import java.math.BigInteger;
+import java.util.List;
+import java.util.stream.Collectors;
 
-/**
- * Implements a open operation on a list of DRes<SInt>.
- */
 public class OpenList
     implements ComputationParallel<List<DRes<BigInteger>>, ProtocolBuilderNumeric> {
 
   private final DRes<List<DRes<SInt>>> closedList;
 
-  /**
-   * Makes a new CloseList
-   *
-   * @param closedList the list to open.
-   */
   public OpenList(DRes<List<DRes<SInt>>> closedList) {
     super();
     this.closedList = closedList;

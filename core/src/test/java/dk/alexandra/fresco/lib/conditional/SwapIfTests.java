@@ -21,11 +21,8 @@
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL, and Bouncy Castle.
  * Please see these projects for any further licensing issues.
  *******************************************************************************/
+
 package dk.alexandra.fresco.lib.conditional;
-
-import java.math.BigInteger;
-
-import org.junit.Assert;
 
 import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.DRes;
@@ -39,16 +36,11 @@ import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
+import java.math.BigInteger;
+import org.junit.Assert;
 
-public class ConditionalSwapTests {
+public class SwapIfTests {
 
-  /**
-   * Performs a ConditionalSwapRows computation on matrix.
-   * 
-   * @author nv
-   *
-   * @param <ResourcePoolT>
-   */
   public static class TestSwap<ResourcePoolT extends ResourcePool> extends TestThreadFactory {
 
     final BigInteger swapperOpen;
@@ -80,7 +72,7 @@ public class ConditionalSwapTests {
                 DRes<SInt> right = nb.input(rightOpen, 1);
                 DRes<SInt> selector = nb.input(swapperOpen, 1);
                 DRes<Pair<DRes<SInt>, DRes<SInt>>> swapped =
-                    advancedNumeric.condSwap(selector, left, right);
+                    advancedNumeric.swapIf(selector, left, right);
                 return collections.openPair(swapped);
               };
           Pair<DRes<BigInteger>, DRes<BigInteger>> output = secureComputationEngine.runApplication(
