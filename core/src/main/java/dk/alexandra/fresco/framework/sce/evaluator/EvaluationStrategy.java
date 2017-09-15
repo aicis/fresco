@@ -28,28 +28,31 @@ package dk.alexandra.fresco.framework.sce.evaluator;
 
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.configuration.ConfigurationException;
+import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 
 public enum EvaluationStrategy {
   SEQUENTIAL, SEQUENTIAL_BATCHED;
 
-  public static ProtocolEvaluator fromString(String evalStr) throws ConfigurationException {
+  public static <ResourcePoolT extends ResourcePool> ProtocolEvaluator<ResourcePoolT> fromString(
+      String evalStr) throws ConfigurationException {
     EvaluationStrategy evalStrategy = EvaluationStrategy.valueOf(evalStr.toUpperCase());
     switch (evalStrategy) {
       case SEQUENTIAL:
-        return new SequentialEvaluator();
+        return new SequentialEvaluator<ResourcePoolT>();
       case SEQUENTIAL_BATCHED:
-        return new BatchedSequentialEvaluator();
+        return new BatchedSequentialEvaluator<ResourcePoolT>();
       default:
         throw new ConfigurationException("Unrecognized evaluation strategy:" + evalStr);
     }
   }
 
-  public static ProtocolEvaluator fromEnum(EvaluationStrategy strat) throws ConfigurationException {
+  public static <ResourcePoolT extends ResourcePool> ProtocolEvaluator<ResourcePoolT> fromEnum(
+      EvaluationStrategy strat) throws ConfigurationException {
     switch (strat) {
       case SEQUENTIAL:
-        return new SequentialEvaluator();
+        return new SequentialEvaluator<ResourcePoolT>();
       case SEQUENTIAL_BATCHED:
-        return new BatchedSequentialEvaluator();
+        return new BatchedSequentialEvaluator<ResourcePoolT>();
       default:
         throw new ConfigurationException("Unrecognized evaluation strategy:" + strat);
     }

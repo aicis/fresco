@@ -25,7 +25,7 @@ public class BuildStepTests extends AbstractDummyArithmeticTest {
    * @param <ResourcePoolT>
    */
   private class TestWhileLoop<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory {
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     protected final int numIterations;
     protected final List<Integer> expected;

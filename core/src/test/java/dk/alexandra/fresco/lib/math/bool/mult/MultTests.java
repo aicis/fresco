@@ -43,7 +43,7 @@ import org.junit.Assert;
 public class MultTests {
 
   public static class TestBinaryMult<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory {
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
 
     public TestBinaryMult() {}
 

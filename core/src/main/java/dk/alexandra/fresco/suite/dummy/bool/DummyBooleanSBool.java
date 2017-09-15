@@ -25,8 +25,6 @@
 package dk.alexandra.fresco.suite.dummy.bool;
 
 import dk.alexandra.fresco.framework.value.SBool;
-import dk.alexandra.fresco.framework.value.SInt;
-import java.math.BigInteger;
 
 /**
  * Implements {@link SBool} for the Dummy Boolean suite.

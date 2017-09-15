@@ -47,8 +47,8 @@ public class ComparisonTests {
    *
    * @author Kasper Damgaard
    */
-  public static class TestCompareLT<ResourcePoolT extends ResourcePool> extends
-      TestThreadFactory {
+  public static class TestCompareLT<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
@@ -92,8 +92,8 @@ public class ComparisonTests {
    *
    * @author Kasper Damgaard
    */
-  public static class TestCompareEQ<ResourcePoolT extends ResourcePool> extends
-      TestThreadFactory {
+  public static class TestCompareEQ<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {

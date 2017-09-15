@@ -23,7 +23,6 @@
  *******************************************************************************/
 package dk.alexandra.fresco.framework;
 
-
 /**
  * Invariants:
  *
@@ -51,7 +50,7 @@ public interface ProtocolProducer {
    *
    * @param protocolCollection destination for protocols.
    */
-  void getNextProtocols(ProtocolCollection protocolCollection);
+  void getNextProtocols(@SuppressWarnings("rawtypes") ProtocolCollection protocolCollection);
 
   /**
    * Returns true if there is at least one protocols left in the protocol that has not already been

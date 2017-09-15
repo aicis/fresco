@@ -43,7 +43,7 @@ import org.junit.Assert;
 public class LogTests {
 
   public static class TestLogNice<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory {
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
 
     public TestLogNice() {}
 

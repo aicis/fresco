@@ -19,7 +19,8 @@ public class LazyProtocolProducerDecorator implements ProtocolProducer {
   }
 
   @Override
-  public void getNextProtocols(ProtocolCollection protocolCollection) {
+  public void getNextProtocols(
+      @SuppressWarnings("rawtypes") ProtocolCollection protocolCollection) {
     getInnerProtocolProducer().getNextProtocols(protocolCollection);
   }
 

@@ -56,7 +56,7 @@ import org.junit.Assert;
 public class BasicArithmeticTests {
 
   public static class TestInput<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory {
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
@@ -81,7 +81,7 @@ public class BasicArithmeticTests {
   }
 
   public static class TestOutputToSingleParty<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory {
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
@@ -93,7 +93,7 @@ public class BasicArithmeticTests {
               producer -> {
                 Numeric numeric = producer.numeric();
 
-                DRes<SInt> input = numeric.input(value, 1);
+                DRes<SInt> input = numeric.known(value);
                 return numeric.open(input, 2);
               };
           BigInteger output = secureComputationEngine.runApplication(app, ResourcePoolCreator
@@ -110,7 +110,7 @@ public class BasicArithmeticTests {
   }
 
   public static class TestAddPublicValue<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory {
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
@@ -137,7 +137,7 @@ public class BasicArithmeticTests {
   }
 
   public static class TestKnownSInt<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory {
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
@@ -173,7 +173,7 @@ public class BasicArithmeticTests {
 
 
   public static class TestSumAndMult<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory {
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
@@ -213,7 +213,7 @@ public class BasicArithmeticTests {
   }
 
   public static class TestSimpleMultAndAdd<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory {
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
@@ -248,7 +248,7 @@ public class BasicArithmeticTests {
    * stress-test the protocol suite.
    */
   public static class TestLotsMult<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory {
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
@@ -295,7 +295,7 @@ public class BasicArithmeticTests {
   }
 
   public static class TestMinInfFrac<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory {
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
@@ -354,7 +354,7 @@ public class BasicArithmeticTests {
    * This should ensure batches with both types of protocols.
    */
   public static class TestAlternatingMultAdd<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory {
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {

@@ -56,11 +56,11 @@ import org.junit.Assert;
  */
 public class MinTests {
 
-  public static class TestMinimumProtocol<ResourcePoolT extends ResourcePool> extends
-      TestThreadFactory {
+  public static class TestMinimumProtocol<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     @Override
-    public TestThread next() {
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
 
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         private final List<Integer> data1 = Arrays
@@ -105,11 +105,11 @@ public class MinTests {
   }
 
 
-  public static class TestMinInfFraction<ResourcePoolT extends ResourcePool> extends
-      TestThreadFactory {
+  public static class TestMinInfFraction<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     @Override
-    public TestThread next() {
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
 
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         private final List<Integer> data1 = Arrays
@@ -185,11 +185,11 @@ public class MinTests {
     }
   }
 
-  public static class TestMinInfFractionTrivial<ResourcePoolT extends ResourcePool> extends
-      TestThreadFactory {
+  public static class TestMinInfFractionTrivial<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     @Override
-    public TestThread next() {
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
 
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         private final List<Integer> data1 = Collections.singletonList(20);

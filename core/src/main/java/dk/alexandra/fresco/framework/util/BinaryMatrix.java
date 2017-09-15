@@ -1,6 +1,5 @@
 package dk.alexandra.fresco.framework.util;
 
-import java.io.Serializable;
 import java.nio.ByteBuffer;
 import java.util.BitSet;
 import java.util.List;
@@ -16,7 +15,7 @@ import java.util.Random;
  * @author Jonas Lindstrøm (jonas.lindstrom@alexandra.dk)
  *
  */
-public class BinaryMatrix implements Serializable {
+public class BinaryMatrix {
 
 	/**
 	 * 

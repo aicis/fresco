@@ -155,7 +155,7 @@ public class DEASolverTests {
   }
 
   public static class TestDeaSolver<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory {
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     private final List<List<BigInteger>> rawTargetOutputs;
     private final List<List<BigInteger>> rawTargetInputs;

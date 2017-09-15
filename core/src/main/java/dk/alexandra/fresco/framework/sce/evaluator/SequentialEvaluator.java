@@ -51,7 +51,8 @@ import org.slf4j.LoggerFactory;
  *
  * @author Kasper Damgaard
  */
-public class SequentialEvaluator<ResourcePoolT extends ResourcePool> implements
+public class SequentialEvaluator<ResourcePoolT extends ResourcePool>
+    implements
     ProtocolEvaluator<ResourcePoolT> {
 
   private static final int DEFAULT_CHANNEL = 0;
@@ -95,7 +96,8 @@ public class SequentialEvaluator<ResourcePoolT extends ResourcePool> implements
       ProtocolProducer protocolProducer,
       ResourcePoolT resourcePool,
       RoundSynchronization<ResourcePoolT> roundSynchronization) throws IOException {
-    ProtocolCollectionList protocols = new ProtocolCollectionList(maxBatchSize);
+    ProtocolCollectionList<?, ResourcePoolT> protocols =
+        new ProtocolCollectionList<>(maxBatchSize);
     protocolProducer.getNextProtocols(protocols);
     int size = protocols.size();
 
@@ -146,7 +148,8 @@ public class SequentialEvaluator<ResourcePoolT extends ResourcePool> implements
    * -- ie to process more than one batch at a time, simply return before the
    * first one is finished
    */
-  private void processBatch(ProtocolCollection protocols, ResourcePoolT resourcePool)
+  private void processBatch(ProtocolCollection<?, ResourcePoolT> protocols,
+      ResourcePoolT resourcePool)
       throws IOException {
     Network network = resourcePool.getNetwork();
     SCENetworkImpl sceNetwork = createSceNetwork(resourcePool.getNoOfParties());

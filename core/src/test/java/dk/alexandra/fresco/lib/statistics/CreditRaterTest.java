@@ -51,8 +51,8 @@ import org.junit.Assert;
 public class CreditRaterTest {
 
 
-  public static class TestCreditRater<ResourcePoolT extends ResourcePool> extends
-      TestThreadFactory {
+  public static class TestCreditRater<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     final int[] values;
     final int[][] intervals;
